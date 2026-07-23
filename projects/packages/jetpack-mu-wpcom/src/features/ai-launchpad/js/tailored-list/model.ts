@@ -60,6 +60,7 @@ export type CtaKind =
 	| 'about_page'
 	| 'gallery_page'
 	| 'contact_page'
+	| 'events_page'
 	| 'launch'
 	| 'deeplink';
 
@@ -70,6 +71,7 @@ const CREATE_CONTENT_KINDS: CtaKind[] = [
 	'about_page',
 	'gallery_page',
 	'contact_page',
+	'events_page',
 ];
 // Launch tasks with no catalog deeplink: they open the wordpress.com launch flow.
 const LAUNCH_TASK_IDS = [
@@ -100,6 +102,9 @@ export function ctaKind( taskId: string ): CtaKind {
 	}
 	if ( 'add_contact_page' === taskId ) {
 		return 'contact_page';
+	}
+	if ( 'add_events_page' === taskId ) {
+		return 'events_page';
 	}
 	if ( LAUNCH_TASK_IDS.includes( taskId ) ) {
 		return 'launch';
@@ -174,6 +179,9 @@ export interface CtaHandlers {
 	createContactPage: (
 		intro: string | undefined
 	) => Promise< { page_id: number; edit_url: string } >;
+	createEventsPage: (
+		intro: string | undefined
+	) => Promise< { page_id: number; edit_url: string } >;
 }
 
 /**
@@ -232,6 +240,9 @@ export async function resolveCtaUrl(
 		// output persisted before page_intros existed, or a run where the model omitted the key —
 		// the page is still created, without the intro paragraph.
 		url = ( await handlers.createContactPage( output.page_intros?.add_contact_page ) ).edit_url;
+	} else if ( kind === 'events_page' && output ) {
+		// Its own key, for the same reasons: the events page never reads the contact page's line.
+		url = ( await handlers.createEventsPage( output.page_intros?.add_events_page ) ).edit_url;
 	} else if ( kind === 'launch' ) {
 		url = siteUrl ? launchSiteUrl( siteUrl ) : null;
 	} else {

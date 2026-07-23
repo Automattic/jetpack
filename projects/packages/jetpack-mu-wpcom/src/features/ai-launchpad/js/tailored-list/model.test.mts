@@ -96,6 +96,7 @@ describe( 'ctaKind', () => {
 		[ 'add_about_page', 'about_page' ],
 		[ 'add_gallery_page', 'gallery_page' ],
 		[ 'add_contact_page', 'contact_page' ],
+		[ 'add_events_page', 'events_page' ],
 		// Pathless launch tasks open the launch flow.
 		[ 'site_launched', 'launch' ],
 		[ 'blog_launched', 'launch' ],
@@ -213,6 +214,13 @@ describe( 'isTaskActionable', () => {
 		assert.equal( isTaskActionable( contact, null ), false );
 		assert.equal( isTaskActionable( contact, fixture ), true );
 	} );
+
+	it( 'treats the events page as a create-content task, actionable once the output exists', () => {
+		const events = task( { id: 'add_events_page', calypso_path: null } );
+
+		assert.equal( isTaskActionable( events, null ), false );
+		assert.equal( isTaskActionable( events, fixture ), true );
+	} );
 } );
 
 describe( 'isCompleteOnClickTask', () => {
@@ -259,6 +267,7 @@ describe( 'resolveCtaUrl', () => {
 				createAboutPage: async () => ( { page_id: 2, edit_url: '/wp-admin/post.php?post=2' } ),
 				createGalleryPage: async () => ( { page_id: 3, edit_url: '/wp-admin/post.php?post=3' } ),
 				createContactPage: async () => ( { page_id: 4, edit_url: '/wp-admin/post.php?post=4' } ),
+				createEventsPage: async () => ( { page_id: 5, edit_url: '/wp-admin/post.php?post=5' } ),
 			},
 		};
 	}
@@ -309,6 +318,16 @@ describe( 'resolveCtaUrl', () => {
 			'reopens the existing contact draft instead of creating a second page',
 			{ id: 'add_contact_page', in_progress: true, calypso_path: '/wp-admin/post.php?post=8' },
 			'/wp-admin/post.php?post=8',
+		],
+		[
+			'writes the events page and returns its editor URL',
+			{ id: 'add_events_page' },
+			'/wp-admin/post.php?post=5',
+		],
+		[
+			'reopens the existing events draft instead of creating a second page',
+			{ id: 'add_events_page', in_progress: true, calypso_path: '/wp-admin/post.php?post=7' },
+			'/wp-admin/post.php?post=7',
 		],
 		[
 			'reopens the existing About draft instead of creating a new page',
@@ -397,6 +416,52 @@ describe( 'resolveCtaUrl', () => {
 
 		assert.deepEqual( received, [ 'Ask about a commission or a wholesale order.', undefined ] );
 		assert.equal( legacyUrl, '/wp-admin/post.php?post=4' );
+	} );
+
+	it( 'hands each page task its own intro when the output carries both', async () => {
+		// The keyed lookup earns its shape only if a task reads its own key: an output where the model
+		// chose both page tasks must not put the contact line on the events page, or vice versa.
+		const received: Record< string, unknown[] > = { contact: [], events: [] };
+		const { handlers } = stubHandlers();
+		handlers.createContactPage = async ( intro?: string ) => {
+			received.contact.push( intro );
+			return { page_id: 4, edit_url: '/wp-admin/post.php?post=4' };
+		};
+		handlers.createEventsPage = async ( intro?: string ) => {
+			received.events.push( intro );
+			return { page_id: 5, edit_url: '/wp-admin/post.php?post=5' };
+		};
+		const tailored: TailoredOutput = {
+			...fixture,
+			page_intros: {
+				add_contact_page: 'Ask about a commission.',
+				add_events_page: 'Throw a pot with us on a Saturday morning.',
+			},
+		};
+
+		await resolveCtaUrl(
+			task( { id: 'add_contact_page', calypso_path: null } ),
+			tailored,
+			handlers
+		);
+		await resolveCtaUrl(
+			task( { id: 'add_events_page', calypso_path: null } ),
+			tailored,
+			handlers
+		);
+		const legacyUrl = await resolveCtaUrl(
+			task( { id: 'add_events_page', calypso_path: null } ),
+			fixture,
+			handlers
+		);
+
+		// The trailing undefined is the third call: an output with no page_intros at all, standing for
+		// one persisted before the field existed and for a run where the model omitted it.
+		assert.deepEqual( received, {
+			contact: [ 'Ask about a commission.' ],
+			events: [ 'Throw a pot with us on a Saturday morning.', undefined ],
+		} );
+		assert.equal( legacyUrl, '/wp-admin/post.php?post=5' );
 	} );
 } );
 

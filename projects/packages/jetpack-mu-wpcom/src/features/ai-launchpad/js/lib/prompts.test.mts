@@ -92,6 +92,29 @@ describe( 'TASK_ANNOTATIONS', () => {
 		assert.equal( contact.goals, undefined );
 	} );
 
+	it( 'makes the events page distinguishable from the other page tasks', () => {
+		// Fourth page task on the menu, so the annotation has to separate it from the other three or the
+		// model is picking between four things it cannot tell apart. The separator is a date people turn
+		// up for: About says who is behind the site, contact opens a channel back, add_new_page defers.
+		const byId = Object.fromEntries( TASK_ANNOTATIONS.map( entry => [ entry.id, entry ] ) );
+		const events = byId.add_events_page;
+
+		assert.ok( events, 'add_events_page must be on the menu' );
+		assert.match( events.pickWhen, /date|when/i );
+		// The blanks are the point, and the model has to know it is choosing a scaffold: the page it
+		// creates is worth a slot only for a site that has real dates to put in it.
+		assert.match( events.what, /blank|empty/i );
+		assert.ok(
+			events.avoidWhen?.includes( 'add_contact_page' ),
+			'the events entry must say when a private arrangement makes contact the better pick'
+		);
+		// The generic page task has to defer to it, or the model can spend the slot on an empty page.
+		assert.match( byId.add_new_page.avoidWhen ?? '', /more specific page task/i );
+		// No goal affinity: running something on a date is a property of the niche, not of the wizard
+		// goal — a yoga studio, a gallery, a band and a supper club pick four different goals.
+		assert.equal( events.goals, undefined );
+	} );
+
 	it( 'offers the gallery task and gives it no goal affinity', () => {
 		const gallery = TASK_ANNOTATIONS.find( entry => entry.id === 'add_gallery_page' );
 
@@ -229,6 +252,12 @@ describe( 'buildTailorPrompt', () => {
 		[
 			'forbids the model inventing contact details the site never gave it',
 			[ /never invent one/i, /phone/i ],
+		],
+		// The events page keeps its own key, and the same prohibition for the same reason: only the
+		// user knows when their events are, and the page leaves those blanks blank on purpose.
+		[
+			'asks for an events-page intro that states no date, venue or price',
+			[ '"add_events_page"', /do not (put|name) a date/i, /venue|address/i ],
 		],
 	];
 	for ( const [ name, needles ] of REQUIRED ) {

@@ -14,6 +14,8 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-la
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-contact-page-listener.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-events-page-listener.php';
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-task-registry.php';
 require_once __DIR__ . '/fixtures/trait-registers-test-task.php';
 require_once __DIR__ . '/fixtures/trait-uses-block-theme.php';
@@ -97,6 +99,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 		return array(
 			'the gallery page'     => array( 'add_gallery_page' ),
 			'the contact page'     => array( 'add_contact_page' ),
+			'the events page'      => array( 'add_events_page' ),
 			'the site icon'        => array( 'add_site_icon' ),
 			'the style variations' => array( 'pick_fonts_colors' ),
 			'Sensei LMS'           => array( 'install_sensei_lms' ),
@@ -226,18 +229,61 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The contact page gets the same in-progress treatment as the gallery, off its own marker: a saved but
-	 * unpublished contact draft reopens rather than creating a second page.
+	 * The hand-authored page tasks get the same in-progress treatment as the gallery, each off its own marker: a
+	 * saved but unpublished draft reopens rather than creating a second page.
+	 *
+	 * @param string $task_id        The registry task id.
+	 * @param string $meta_key       The listener marker meta its draft lookup queries.
+	 * @param int    $draft_id       The draft post id the stubbed lookup resolves to.
+	 * @param string $continue_title The card title once the draft exists.
+	 * @dataProvider provide_marker_page_tasks
 	 */
-	public function test_the_contact_page_reports_its_own_in_progress_draft() {
-		$draft_id = 7171;
-		$this->seed_marker_draft( $draft_id, AI_Launchpad_Contact_Page_Listener::META_KEY );
+	#[DataProvider( 'provide_marker_page_tasks' )]
+	public function test_a_page_task_reports_its_own_in_progress_draft( $task_id, $meta_key, $draft_id, $continue_title ) {
+		$this->seed_marker_draft( $draft_id, $meta_key );
 
-		$card = AI_Launchpad_Task_Registry::build( 'add_contact_page', 'Take enquiries.' );
+		$card = AI_Launchpad_Task_Registry::build( $task_id, 'Whatever the AI wrote.' );
 
 		$this->assertTrue( $card['in_progress'] );
-		$this->assertSame( 'Continue working on your contact page', $card['title'] );
+		$this->assertSame( $continue_title, $card['title'] );
 		$this->assertSame( admin_url( 'post.php?post=' . $draft_id . '&action=edit' ), $card['calypso_path'] );
+	}
+
+	/**
+	 * The registry's hand-authored page tasks: a marker meta of their own, and a client-built CTA.
+	 *
+	 * @return array
+	 */
+	public static function provide_marker_page_tasks() {
+		return array(
+			'the contact page' => array(
+				'add_contact_page',
+				AI_Launchpad_Contact_Page_Listener::META_KEY,
+				7171,
+				'Continue working on your contact page',
+			),
+			'the events page'  => array(
+				'add_events_page',
+				AI_Launchpad_Events_Page_Listener::META_KEY,
+				8181,
+				'Continue working on your events page',
+			),
+		);
+	}
+
+	/**
+	 * The same cases, id only, for the tests that need nothing else. Derived rather than repeated so a page
+	 * task can never be listed for one of these checks and forgotten by the other.
+	 *
+	 * @return array
+	 */
+	public static function provide_page_task_ids() {
+		return array_map(
+			static function ( $case ) {
+				return array( $case[0] );
+			},
+			self::provide_marker_page_tasks()
+		);
 	}
 
 	/**
@@ -253,29 +299,38 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 			'the premise: this harness can produce an in-progress card at all'
 		);
 		$this->assertFalse( AI_Launchpad_Task_Registry::build( 'add_contact_page', '' )['in_progress'] );
+		$this->assertFalse( AI_Launchpad_Task_Registry::build( 'add_events_page', '' )['in_progress'] );
 	}
 
 	/**
-	 * The contact task completes from the shared status option, which is what its listener writes when the
-	 * marked page is first published.
+	 * A page task completes from the shared status option, which is what its listener writes when the marked
+	 * page is first published.
+	 *
+	 * @param string $task_id The registry task id.
+	 * @dataProvider provide_page_task_ids
 	 */
-	public function test_contact_page_completion_reads_the_status_option() {
-		$this->assertFalse( AI_Launchpad_Task_Registry::is_complete( 'add_contact_page' ) );
+	#[DataProvider( 'provide_page_task_ids' )]
+	public function test_page_task_completion_reads_the_status_option( $task_id ) {
+		$this->assertFalse( AI_Launchpad_Task_Registry::is_complete( $task_id ) );
 
-		update_option( 'launchpad_checklist_tasks_statuses', array( 'add_contact_page' => true ) );
+		update_option( 'launchpad_checklist_tasks_statuses', array( $task_id => true ) );
 
-		$this->assertTrue( AI_Launchpad_Task_Registry::is_complete( 'add_contact_page' ) );
-		$this->assertTrue( AI_Launchpad_Task_Registry::build( 'add_contact_page', '' )['completed'] );
+		$this->assertTrue( AI_Launchpad_Task_Registry::is_complete( $task_id ) );
+		$this->assertTrue( AI_Launchpad_Task_Registry::build( $task_id, '' )['completed'] );
 	}
 
 	/**
-	 * The contact task asks nothing of the site — the form block ships with Jetpack, which every site this
-	 * feature runs on has — so it declares no visibility and is offered everywhere, including on the classic
-	 * theme this harness runs.
+	 * Neither page task asks anything of the site — the contact form ships with Jetpack, and the events page is
+	 * core blocks — so neither declares a visibility gate, and both are offered everywhere, including on the
+	 * classic theme this harness runs.
+	 *
+	 * @param string $task_id The registry task id.
+	 * @dataProvider provide_page_task_ids
 	 */
-	public function test_the_contact_task_is_visible_everywhere() {
+	#[DataProvider( 'provide_page_task_ids' )]
+	public function test_the_page_tasks_are_visible_everywhere( $task_id ) {
 		$this->assertFalse( wp_is_block_theme(), 'the premise: this is the theme that hides pick_fonts_colors' );
-		$this->assertTrue( AI_Launchpad_Task_Registry::is_visible( 'add_contact_page' ) );
+		$this->assertTrue( AI_Launchpad_Task_Registry::is_visible( $task_id ) );
 	}
 
 	/**
@@ -313,6 +368,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 			'the Styles variations screen'  => array( 'pick_fonts_colors', 'site-editor.php?p=/styles&section=/variations' ),
 			'the gallery, built on click'   => array( 'add_gallery_page', null ),
 			'the contact page, on click'    => array( 'add_contact_page', null ),
+			'the events page, on click'     => array( 'add_events_page', null ),
 			"Sensei LMS's installer"        => array( 'install_sensei_lms', 'plugin-install.php?tab=plugin-information&plugin=sensei-lms' ),
 		);
 	}
@@ -446,6 +502,11 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 				'add_contact_page',
 				'Add a contact page',
 				'Give visitors a simple way to reach you, with a contact form ready to go.',
+			),
+			'the events page'      => array(
+				'add_events_page',
+				'Add an events page',
+				'Give people one place to find out what is coming up and when.',
 			),
 			'Sensei LMS'           => array(
 				'install_sensei_lms',

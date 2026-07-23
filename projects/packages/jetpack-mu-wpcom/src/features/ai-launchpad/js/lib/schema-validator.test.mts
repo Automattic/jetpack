@@ -114,6 +114,13 @@ describe( 'validateAgainstSchema', () => {
 		// writes one only for a page task it actually chose, so an empty object is a valid "chose
 		// none" and the baseline's omission of the field is the pre-change persisted output.
 		[ 'a contact-page intro', out => ( out.page_intros = { add_contact_page: 'Say hello.' } ) ],
+		[ 'an events-page intro', out => ( out.page_intros = { add_events_page: 'Come along.' } ) ],
+		// Both at once: the keys are independent, so a run that picked two page tasks writes two.
+		[
+			'an intro for every page task at once',
+			out =>
+				( out.page_intros = { add_contact_page: 'Say hello.', add_events_page: 'Come along.' } ),
+		],
 		[ 'an empty page_intros object', out => ( out.page_intros = {} ) ],
 	];
 	for ( const [ label, mutate ] of ACCEPTED ) {
@@ -138,6 +145,10 @@ describe( 'validateAgainstSchema', () => {
 			out => ( out.page_intros = { add_contact_page: 'x'.repeat( 201 ) } ),
 		],
 		[ 'an empty page intro', out => ( out.page_intros = { add_contact_page: '' } ) ],
+		[
+			'an events-page intro past the subtitle-length ceiling',
+			out => ( out.page_intros = { add_events_page: 'x'.repeat( 201 ) } ),
+		],
 	];
 	for ( const [ label, mutate ] of REJECTED ) {
 		it( `rejects ${ label }`, () => assert.ok( errorsAfter( mutate ).length > 0 ) );

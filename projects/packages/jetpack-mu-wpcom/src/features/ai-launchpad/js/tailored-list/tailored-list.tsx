@@ -4,6 +4,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { createAboutPage } from '../lib/about-page.ts';
 import { createContactPage } from '../lib/contact-page.ts';
+import { createEventsPage } from '../lib/events-page.ts';
 import { createFirstPostDraft } from '../lib/first-post.ts';
 import { createGalleryPage } from '../lib/pattern-page.ts';
 import {
@@ -253,6 +254,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 					createAboutPage,
 					createGalleryPage,
 					createContactPage,
+					createEventsPage,
 				},
 				siteUrl
 			);

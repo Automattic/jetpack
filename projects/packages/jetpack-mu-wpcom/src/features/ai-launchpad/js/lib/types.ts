@@ -66,7 +66,7 @@ export interface AboutPageDraft {
  * The union is the contract's `page_intros` property list; adding a page task means adding its id
  * here and in both copies of the schema.
  */
-export type PageIntroTaskId = 'add_contact_page';
+export type PageIntroTaskId = 'add_contact_page' | 'add_events_page';
 
 /**
  * Opening lines for the page tasks, keyed by the task id they belong to.

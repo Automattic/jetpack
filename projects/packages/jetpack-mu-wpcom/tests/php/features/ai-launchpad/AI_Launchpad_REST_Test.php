@@ -21,6 +21,8 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-la
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-contact-page-listener.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-events-page-listener.php';
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-first-post-listener.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-task-registry.php';
@@ -381,6 +383,15 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 				'Add a contact page',
 				'Continue working on your contact page',
 			),
+			'events page, built from the registry'  => array(
+				'add_events_page',
+				array( 'add_events_page', 'site_launched' ),
+				'build',
+				AI_Launchpad_Events_Page_Listener::META_KEY,
+				8181,
+				'Add an events page',
+				'Continue working on your events page',
+			),
 		);
 	}
 
@@ -599,21 +610,24 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The contact page reaches the offered menu on any goal, including sell.
+	 * The registry's page tasks reach the offered menu on any goal, including sell.
 	 *
-	 * Unlike the gallery, it carries no goal exclusion: a store needs a way to answer "do you ship to…?" as much
-	 * as a studio needs one for commissions. Checked on two unrelated goals, since a goal-keyed exclusion would
-	 * still pass a single-goal assertion.
+	 * Unlike the gallery, neither carries a goal exclusion: a store needs a way to answer "do you ship to…?" as
+	 * much as a studio needs one for commissions, and a shop that runs a monthly market has dates to list just
+	 * as a yoga studio does. Checked on two unrelated goals, since a goal-keyed exclusion would still pass a
+	 * single-goal assertion.
 	 *
 	 * @param string $goal The goal slug.
 	 * @dataProvider provide_unrelated_goals
 	 */
 	#[DataProvider( 'provide_unrelated_goals' )]
-	public function test_available_tasks_offer_the_contact_page_task( $goal ) {
+	public function test_available_tasks_offer_the_registry_page_tasks( $goal ) {
 		$data = $this->available_tasks( $goal );
 
-		$this->assertContains( 'add_contact_page', $data['available_task_ids'], 'not offered on ' . $goal );
-		$this->assertContains( 'add_contact_page', $data['renderable_task_ids'], 'not renderable on ' . $goal );
+		foreach ( array( 'add_contact_page', 'add_events_page' ) as $task_id ) {
+			$this->assertContains( $task_id, $data['available_task_ids'], $task_id . ' is not offered on ' . $goal );
+			$this->assertContains( $task_id, $data['renderable_task_ids'], $task_id . ' is not renderable on ' . $goal );
+		}
 	}
 
 	/**
@@ -2174,10 +2188,17 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	 * whole payload against the shared contract, whose objects are closed. A field missing from the contract
 	 * would therefore 422 the entire tailoring run rather than be quietly dropped, so this pins that the
 	 * server-side copy of the schema knows about the field the prompt now asks for.
+	 *
+	 * Every key gets a case: a page task whose id the server-side schema does not list would 422 every run that
+	 * selected it, which is the whole tailoring lost over one optional sentence.
+	 *
+	 * @param array $page_intros The page_intros object to send.
+	 * @dataProvider provide_page_intros
 	 */
-	public function test_put_tailored_persists_the_optional_page_intros() {
+	#[DataProvider( 'provide_page_intros' )]
+	public function test_put_tailored_persists_the_optional_page_intros( $page_intros ) {
 		$payload                = self::valid_payload();
-		$payload['page_intros'] = array( 'add_contact_page' => 'Ask about a commission or a wholesale order.' );
+		$payload['page_intros'] = $page_intros;
 
 		$result = $this->call_api( 'PUT', '/tailored', $payload );
 
@@ -2185,6 +2206,25 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame(
 			$payload['page_intros'],
 			get_option( 'wpcom_ai_launchpad_ai_output' )['payload']['page_intros']
+		);
+	}
+
+	/**
+	 * Data provider for test_put_tailored_persists_the_optional_page_intros.
+	 *
+	 * @return array
+	 */
+	public static function provide_page_intros() {
+		return array(
+			'a contact-page intro' => array( array( 'add_contact_page' => 'Ask about a commission or a wholesale order.' ) ),
+			'an events-page intro' => array( array( 'add_events_page' => 'Come and throw a pot with us.' ) ),
+			'both at once'         => array(
+				array(
+					'add_contact_page' => 'Ask about a commission.',
+					'add_events_page'  => 'Come and throw a pot with us.',
+				),
+			),
+			'neither, chosen'      => array( array() ),
 		);
 	}
 

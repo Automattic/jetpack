@@ -88,6 +88,21 @@ export const TASK_ANNOTATIONS: readonly TaskAnnotation[] = [
 			'nobody is expected to write in: a site that only wants readers is served by add_about_page, which says who is behind it.',
 	},
 	{
+		id: 'add_events_page',
+		// Deliberately no `goals`, for the same reason as the contact page: running something on a date is
+		// a property of the niche, not of the wizard goal — a yoga studio, a gallery, a band and a supper
+		// club pick four different goals and all of them have dates to list.
+		//
+		// Fourth page task on the menu, so it has to be separable from the other three: About says who is
+		// behind the site, contact opens a channel back, add_new_page defers to whichever fits, and this
+		// one is for a site whose activity happens at a time people have to turn up for.
+		what: 'Creates a draft Events page: a heading, an AI-written line, and three blank entries the user fills in with their own events.',
+		pickWhen:
+			'what the site offers happens on a date people show up for — gigs, classes, workshops, retreats, markets, screenings, meetups, exhibitions, open studios, supper clubs.',
+		avoidWhen:
+			'nothing here happens at a set time and place: one-off work arranged privately between two people is add_contact_page, not a listing.',
+	},
+	{
 		id: 'update_about_page',
 		what: 'Reopens an existing About page to revise it.',
 		pickWhen: 'the site already has an About page that still holds placeholder copy.',
@@ -513,6 +528,7 @@ Write starter content for the site's About page, grounded in the user's own desc
 ============ STEP 5 - page_intros (only when it applies) ============
 Some tasks create a page whose content is already written except for the one line it opens with. Write that line here, keyed by the task id it belongs to. Include a key ONLY for a task you actually chose in STEP 2, omit "page_intros" entirely when you chose none of them, and never add a key that is not listed below.
 - "add_contact_page": one sentence, max 200 characters, inviting the visitor to get in touch, grounded in what someone would really contact THIS site about - a commission, a booking, a quote, a wholesale order, a question about the work. The page already carries a working contact form, so do not put an email address, a phone number, opening hours, or a street address in this sentence, and never invent one.
+- "add_events_page": one sentence, max 200 characters, saying what kind of thing THIS site runs and why someone would come - a class, a gig, a market stall, a screening, an open studio. The page leaves each event blank for the user to fill in, and only they know their own schedule, so do not put a date, a day, a time, a venue, an address, or a price in this sentence, and never invent one.
 
 ============ name resolution ============
 Treat the "Site name:" value above as THE ONLY brand/name to use anywhere - in the title, subtitle, paragraphs, and inferred.brand_name. It overrides any name mentioned inside the user description. If the description names a different brand, ignore it and use the "Site name:" value.
@@ -528,7 +544,7 @@ Return only a JSON object matching this schema. Do not include prose, code fence
   "tasks": [ { "id": "...", "subtitle": "..." }, ... 6 total ],
   "first_post_draft": { "title": "...", "subtitle": "...", "paragraphs": [ "...", "..." ] },
   "about_page_draft": { "title": "...", "paragraphs": [ "...", "..." ] },
-  "page_intros": { "add_contact_page": "..." }
+  "page_intros": { "add_contact_page": "...", "add_events_page": "..." }
 }
 
 Leave "page_intros" out altogether unless STEP 5 applies.`;

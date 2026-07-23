@@ -96,6 +96,35 @@ class AI_Launchpad_Task_Registry {
 					return AI_Launchpad_Contact_Page_Listener::get_draft_id();
 				},
 			),
+
+			/*
+			 * A scaffold, not a finished page: a heading, one AI-written line, and three blank event entries.
+			 * There is no core or Jetpack events block to fill it with, and the pattern library's events
+			 * patterns are fabricated tour listings whose every date falls in 2024-2025, so using one would
+			 * publish a page of expired events on day one. Nobody but the user knows when their events are, so
+			 * the page offers a visible blank instead of a plausible invention.
+			 *
+			 * No `is_visible`: the entries are core blocks, which every site has. No `calypso_path` either —
+			 * the CTA creates the page client-side, as the contact page's does.
+			 */
+			'add_events_page'    => array(
+				'title'             => static function () {
+					return __( 'Add an events page', 'jetpack-mu-wpcom' );
+				},
+				'in_progress_title' => static function () {
+					return __( 'Continue working on your events page', 'jetpack-mu-wpcom' );
+				},
+				'default_subtitle'  => static function () {
+					return __( 'Give people one place to find out what is coming up and when.', 'jetpack-mu-wpcom' );
+				},
+				'is_complete'       => static function () {
+					$statuses = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
+					return ! empty( $statuses['add_events_page'] );
+				},
+				'draft_id'          => static function () {
+					return AI_Launchpad_Events_Page_Listener::get_draft_id();
+				},
+			),
 			'add_site_icon'      => array(
 				'title'            => static function () {
 					return __( 'Add your logo or site icon', 'jetpack-mu-wpcom' );
