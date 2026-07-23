@@ -6,9 +6,8 @@
 		padding: 8px;
 		border: 1px solid #dcdcde;
 		border-radius: 2px;
-		// Transparency-grid surface so white, dark, and transparent logos
-		// all stay visible: the medium-gray tiles reveal white logos while
-		// the light base keeps dark logos legible.
+		// Transparency grid so white, dark, and transparent logos all stay
+		// visible against WP Admin's light canvas.
 		background-color: #f6f7f7;
 		background-image:
 			linear-gradient(45deg, #c3c4c7 25%, transparent 25%),
@@ -20,10 +19,8 @@
 
 		.wpcom-site-logo-preview-image {
 			display: block;
-			// Override the width/height attributes emitted by
-			// wp_get_attachment_image() so the two max constraints scale the
-			// image proportionally instead of clamping each axis independently
-			// (which would distort non-square logos).
+			// Override wp_get_attachment_image()'s width/height attributes so the
+			// max constraints scale the image instead of distorting it.
 			inline-size: auto;
 			block-size: auto;
 			max-inline-size: 160px;
@@ -40,10 +37,8 @@
 	}
 
 	.wpcom-site-logo {
-		// Logo-present state: the preview and the button share one line, with the
-		// description on its own line below (the empty state keeps its original
-		// stacked layout). Wrap so the button drops below the preview on narrow
-		// screens rather than overflowing.
+		// Preview and button share one line, wrapping on narrow screens rather
+		// than overflowing.
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;

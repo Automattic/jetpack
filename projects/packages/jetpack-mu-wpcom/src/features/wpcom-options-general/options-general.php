@@ -24,22 +24,18 @@ function wpcom_normalize_site_logo_id( $value ) {
 }
 
 /**
- * Build the URL for editing the current site logo, and whether the block-theme
- * copy applies.
+ * Resolve the URL for editing the current site logo.
  *
- * Block themes edit the logo in the Site Editor's Identity screen; classic themes
- * edit it in the Customizer, whose control ID depends on which logo integration
- * the theme supports — mirroring the logo-tool feature. The URL is empty when no
- * reliable destination exists (the Identity route is unavailable on older editors,
- * or a classic theme without logo support retains a leftover `site_logo` option),
- * so callers can omit the link.
+ * Block themes use the Site Editor's Identity screen; classic themes use the
+ * Customizer control matching their logo support (mirroring the logo-tool feature).
+ * The URL is empty when no reliable destination exists, so callers can omit the link.
  *
  * @return array{url:string, is_block:bool} The edit URL and block-theme flag.
  */
 function wpcom_site_logo_edit_link() {
 	if ( wp_is_block_theme() ) {
-		// The Identity screen shipped in Gutenberg 22.8 / WordPress 7.1. Without it
-		// there is no reliable in-editor logo control to link to, so omit the link.
+		// The Identity screen shipped in Gutenberg 22.8 / WordPress 7.1; omit the
+		// link when it is unavailable.
 		$has_identity = defined( 'GUTENBERG_VERSION' )
 			? version_compare( GUTENBERG_VERSION, '22.8', '>=' )
 			: version_compare( get_bloginfo( 'version' ), '7.1', '>=' );
@@ -83,8 +79,7 @@ function wpcom_fiverr_cta_button() {
  * The fiverr cta's DOM.
  */
 function wpcom_fiverr_cta() {
-	// The Site Logo can be set from the Site Editor's Identity section. Core keeps the
-	// `site_logo` option and the `custom_logo` theme mod in sync, so read either one.
+	// Core keeps the site_logo option and custom_logo theme mod in sync; read either.
 	$logo_id = wpcom_normalize_site_logo_id( get_option( 'site_logo' ) );
 	if ( ! $logo_id ) {
 		$logo_id = wpcom_normalize_site_logo_id( get_theme_mod( 'custom_logo' ) );
@@ -92,8 +87,8 @@ function wpcom_fiverr_cta() {
 
 	$logo_img = '';
 	if ( $logo_id ) {
-		// A logo's own alt text is often empty, so fall back to the site title so the
-		// populated state is still announced to assistive technology.
+		// Fall back to the site title when the logo has no alt text, so the preview
+		// is still announced to assistive technology.
 		$logo_alt = trim( wp_strip_all_tags( (string) get_post_meta( $logo_id, '_wp_attachment_image_alt', true ) ) );
 		if ( '' === $logo_alt ) {
 			$site_name = get_bloginfo( 'name' );
@@ -102,8 +97,8 @@ function wpcom_fiverr_cta() {
 				? sprintf( __( 'Current site logo for %s', 'jetpack-mu-wpcom' ), $site_name )
 				: __( 'Current site logo', 'jetpack-mu-wpcom' );
 		}
-		// Request a proportionally-scaled size rather than a square (which can select the
-		// hard-cropped thumbnail and show only the logo's center); CSS caps its dimensions.
+		// Request a proportional size, not a square, so wide logos aren't shown as a
+		// center-cropped thumbnail; CSS caps the dimensions.
 		$logo_img = wp_get_attachment_image(
 			$logo_id,
 			'medium',
