@@ -3,7 +3,7 @@ import { Button, Tooltip } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
-import { STORE_NAME, VALID_SECTIONS } from '../constants';
+import { useAllSectionsEmpty } from '../hooks/use-drafts';
 import useGenerateAll from '../hooks/use-generate-all';
 import { AI_STORE_NAME } from '../store';
 
@@ -12,12 +12,7 @@ export default function SuggestAllButton() {
 
 	const bannerDismissed = useSelect( select => select( AI_STORE_NAME ).isBannerDismissed(), [] );
 
-	const allGuidelines = useSelect( select => {
-		const store = select( STORE_NAME );
-		return Object.fromEntries( VALID_SECTIONS.map( slug => [ slug, store.getGuideline( slug ) ] ) );
-	}, [] );
-
-	const allEmpty = VALID_SECTIONS.every( slug => ! allGuidelines[ slug ] );
+	const allEmpty = useAllSectionsEmpty();
 
 	const generateLabel = __( 'Generate guidelines', 'jetpack' );
 	const improveLabel = __( 'Improve guidelines', 'jetpack' );

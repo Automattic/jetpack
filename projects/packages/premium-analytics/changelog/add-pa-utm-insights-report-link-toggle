@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Post detail: hide the UTM Insights "See report" link to match the design mocks; detail-page widgets carry no report actions.
