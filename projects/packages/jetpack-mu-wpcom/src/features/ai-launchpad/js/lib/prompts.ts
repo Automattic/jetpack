@@ -44,9 +44,10 @@ export interface TaskAnnotation {
  * dropped twin remaps onto the kept one on read (see wpcom_ai_launchpad_remap_task_id). Dropped:
  * first_post_published_newsletter, link_in_bio_launched, subscribers_added, drive_traffic.
  *
- * Most ids come from the shared launchpad catalog; `add_gallery_page` is defined by the AI
- * Launchpad's own registry (AI_Launchpad_Task_Registry). A PHP test guards every id against
- * both sources.
+ * Most ids come from the shared launchpad catalog; the rest are defined by the AI Launchpad's
+ * own registry (AI_Launchpad_Task_Registry). A PHP test guards every id against both sources,
+ * and another guards that every registry id reaches this menu — a registry task nothing offers
+ * to the model can still build, render and complete, so the failure is silent.
  */
 export const TASK_ANNOTATIONS: readonly TaskAnnotation[] = [
 	{
