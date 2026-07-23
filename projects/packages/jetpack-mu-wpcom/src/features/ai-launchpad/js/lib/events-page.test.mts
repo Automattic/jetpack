@@ -27,7 +27,12 @@ function stubFetcher() {
  * @return The text the published page would show.
  */
 function renderedText( content: string ): string {
-	return content.replace( /<!--[\s\S]*?-->/g, '' ).replace( /<[^>]*>/g, '' );
+	// Split on the markup and keep what falls between, rather than deleting the markup out of the
+	// string. Same text either way, but a strip-shaped `replace` reads as a half-built HTML sanitizer
+	// to any reader, CodeQL included, and this is not sanitizing anything — it is picking the text
+	// nodes out of markup the test itself just built. Joining on a space also stops two text nodes
+	// either side of a tag from fusing into a token neither of them contains.
+	return content.split( /<!--[\s\S]*?-->|<[^>]*>/ ).join( ' ' );
 }
 
 /**
@@ -51,7 +56,9 @@ function blocks( content: string ): Array< { name: string; attrs: string; text: 
 	return [ ...content.matchAll( pattern ) ].map( match => ( {
 		name: match[ 1 ],
 		attrs: match[ 2 ] ?? '',
-		text: match[ 3 ].replace( /<[^>]*>/g, '' ),
+		// Joined empty, not on a space: this text is only ever tested for emptiness, and a block
+		// holding nothing must not come back holding a separator.
+		text: match[ 3 ].split( /<[^>]*>/ ).join( '' ),
 	} ) );
 }
 
