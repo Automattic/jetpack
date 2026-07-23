@@ -432,7 +432,9 @@ class Jetpack_AI_Sidebar {
 	 * that have the Big Sky plugin present and enabled. Big Sky defaults on for
 	 * Simple sites and off on WoA/Atomic. The jetpack_ai_sidebar_enabled filter
 	 * is a host-level override of that default, respected by init() and every
-	 * sidebar surface that gates on this method.
+	 * sidebar surface that gates on this method. Independently of the filter,
+	 * the sidebar requires at least one of its features (writing assistant or
+	 * SEO enhancer) to be enabled.
 	 *
 	 * @return bool
 	 */
@@ -451,11 +453,34 @@ class Jetpack_AI_Sidebar {
 		 * Defaults to true only on WordPress.com platform sites with Big Sky
 		 * present and enabled. Acts as a host-level override that can force the
 		 * sidebar on (e.g. for local development) or off, and is respected by
-		 * init() and every sidebar surface.
+		 * init() and every sidebar surface. The override cannot force the
+		 * sidebar on while the writing-assistant and SEO enhancer features are
+		 * both off — a featureless sidebar never loads.
 		 *
 		 * @param bool $enabled Whether the Jetpack AI sidebar is enabled.
 		 */
-		return (bool) apply_filters( 'jetpack_ai_sidebar_enabled', $enabled );
+		$enabled = (bool) apply_filters( 'jetpack_ai_sidebar_enabled', $enabled );
+
+		// Re-asserted after the filter so a later filter cannot surface a
+		// sidebar whose features are all off.
+		return $enabled && self::has_enabled_sidebar_features();
+	}
+
+	/**
+	 * Whether any feature the sidebar surfaces is effectively enabled.
+	 *
+	 * The sidebar only hosts writing-assistant and SEO suggestions; when both
+	 * are off it has nothing to offer and must not load. The SEO half folds in
+	 * the ai_seo_enhancer_enabled kill-switch filter, the same way every other
+	 * SEO enhancer consumer resolves the effective value; the writing half gets
+	 * its filter inside is_feature_enabled() (owned feature).
+	 *
+	 * @return bool
+	 */
+	private static function has_enabled_sidebar_features(): bool {
+		return \Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' )
+			|| ( (bool) apply_filters( 'ai_seo_enhancer_enabled', true )
+				&& \Jetpack_AI_Settings::is_feature_enabled( 'seo_enhancer' ) );
 	}
 
 	/**
