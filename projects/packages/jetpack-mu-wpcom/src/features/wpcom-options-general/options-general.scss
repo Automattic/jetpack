@@ -1,17 +1,17 @@
 .options-general-php {
 
 	.wpcom-site-logo-preview {
-		// Block-level but shrink-wrapped, so the Fiverr button stays below the preview
-		// (matching the empty state) instead of sitting beside it.
+		// Block-level but shrink-wrapped, so the Fiverr button stays below
+		// the preview (matching the empty state) rather than beside it.
 		display: block;
 		inline-size: fit-content;
 		margin-block-end: 0.4em;
 		padding: 8px;
 		border: 1px solid #dcdcde;
 		border-radius: 2px;
-		// Transparency-grid surface so white, dark, and transparent logos all stay
-		// visible: the medium-gray tiles reveal white logos while the light base keeps
-		// dark logos legible.
+		// Transparency-grid surface so white, dark, and transparent logos
+		// all stay visible: the medium-gray tiles reveal white logos while
+		// the light base keeps dark logos legible.
 		background-color: #f6f7f7;
 		background-image:
 			linear-gradient(45deg, #c3c4c7 25%, transparent 25%),
@@ -23,9 +23,10 @@
 
 		.wpcom-site-logo-preview-image {
 			display: block;
-			// Override the width/height attributes emitted by wp_get_attachment_image() so
-			// the two max constraints scale the image proportionally instead of clamping
-			// each axis independently (which would distort non-square logos).
+			// Override the width/height attributes emitted by
+			// wp_get_attachment_image() so the two max constraints scale the
+			// image proportionally instead of clamping each axis independently
+			// (which would distort non-square logos).
 			inline-size: auto;
 			block-size: auto;
 			max-inline-size: 200px;
