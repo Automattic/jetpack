@@ -164,8 +164,13 @@ describe( 'drafts', () => {
 			unsubscribe();
 		} );
 
-		it( 'notifies when a draft changes without an input event, on the next DOM mutation', async () => {
+		it( 'notifies on a silent draft change that lands with form-state attribute churn', async () => {
 			renderSections();
+			// Stand-in for the Save/Clear button whose disabled state flips as
+			// part of a form reset — `disabled` is one of the attributes the
+			// observer still watches after narrowing its attribute filter.
+			const saveButton = document.createElement( 'button' );
+			document.body.appendChild( saveButton );
 			startDraftTracking();
 			await flushObserver();
 
@@ -173,12 +178,51 @@ describe( 'drafts', () => {
 			const unsubscribe = subscribeToDrafts( listener );
 
 			// Gutenberg resetting a form (e.g. Clear guidelines) writes the value
-			// through React with no input event, alongside other DOM churn.
+			// through React with no input event, alongside button-state churn.
 			getSectionTextarea( 'copy' ).value = 'changed silently';
-			document.body.setAttribute( 'data-churn', '1' );
+			saveButton.setAttribute( 'disabled', '' );
 			await flushObserver();
 
 			expect( listener ).toHaveBeenCalled();
+			unsubscribe();
+		} );
+
+		it( 'notifies on a silent draft change that lands with only childList churn', async () => {
+			renderSections();
+			startDraftTracking();
+			await flushObserver();
+
+			const listener = jest.fn();
+			const unsubscribe = subscribeToDrafts( listener );
+
+			// The reset's snackbar/dialog nodes appear and disappear (childList),
+			// which the observer watches unconditionally — caught with no
+			// attribute change at all.
+			getSectionTextarea( 'copy' ).value = 'changed silently';
+			document.body.appendChild( document.createElement( 'div' ) );
+			await flushObserver();
+
+			expect( listener ).toHaveBeenCalled();
+			unsubscribe();
+		} );
+
+		it( 'ignores cosmetic attribute churn that is not a form-state signal', async () => {
+			renderSections();
+			startDraftTracking();
+			await flushObserver();
+
+			const listener = jest.fn();
+			const unsubscribe = subscribeToDrafts( listener );
+
+			// A silent value change paired only with a filtered-out attribute
+			// (here `style`) is intentionally not caught: the narrowed observer
+			// skips cosmetic churn, so nothing re-reads the value until real
+			// form-state churn or an input event arrives.
+			getSectionTextarea( 'copy' ).value = 'changed silently';
+			document.body.setAttribute( 'style', 'color: red' );
+			await flushObserver();
+
+			expect( listener ).not.toHaveBeenCalled();
 			unsubscribe();
 		} );
 
@@ -190,7 +234,6 @@ describe( 'drafts', () => {
 			const listener = jest.fn();
 			const unsubscribe = subscribeToDrafts( listener );
 
-			document.body.setAttribute( 'data-churn', '2' );
 			const div = document.createElement( 'div' );
 			document.body.appendChild( div );
 			div.remove();

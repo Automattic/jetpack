@@ -114,8 +114,10 @@ let tracking = false;
  * Start observing draft edits. Typing and our own setTextareaValue() both
  * dispatch bubbling `input` events (captured so a stopPropagation in the
  * page can't hide them). Value changes Gutenberg makes without input events
- * are caught by re-checking the watched values whenever the DOM mutates.
- * Either way, subscribers are notified only when a watched value changed.
+ * are caught by re-checking the watched values on the DOM churn that
+ * accompanies them — added/removed nodes, or a change to one of the
+ * form-state attributes the observer filters for. Either way, subscribers
+ * are notified only when a watched value changed.
  */
 export function startDraftTracking() {
 	if ( tracking ) {
@@ -125,7 +127,19 @@ export function startDraftTracking() {
 
 	document.addEventListener( 'input', checkAndNotify, true );
 
+	// Watch node add/remove across the whole tree — the dialog-close and
+	// snackbar churn that accompanies a form reset — but limit attribute
+	// watching to the form-state attributes a reset actually toggles (button
+	// disabled state, modal/loading class markers). This drops the steady
+	// stream of cosmetic attribute mutations a Gutenberg editor produces
+	// (style, aria-live, inline data-* bookkeeping) so checkAndNotify's read
+	// pass runs far less often, while keeping every signal that flags a silent
+	// draft reset.
 	const observer = new MutationObserver( checkAndNotify );
-	observer.observe( document.body, { childList: true, subtree: true, attributes: true } );
+	observer.observe( document.body, {
+		childList: true,
+		subtree: true,
+		attributeFilter: [ 'class', 'disabled', 'aria-disabled', 'hidden' ],
+	} );
 	lastWatched = watchedValues();
 }
