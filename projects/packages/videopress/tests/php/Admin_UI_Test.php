@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 
 /**
@@ -22,7 +24,7 @@ class Admin_UI_Test extends BaseTestCase {
 		parent::tearDown();
 		remove_all_filters( Admin_UI::MODERNIZATION_FILTER );
 		remove_all_filters( 'jetpack_my_jetpack_should_initialize' );
-		remove_action( 'admin_menu', array( Admin_UI::class, 'enable_inactive_menu' ), 1 );
+		remove_action( 'admin_menu', array( Admin_UI::class, 'enable_menu' ), 1 );
 		$this->set_admin_menu_items( array() );
 	}
 
@@ -87,12 +89,52 @@ class Admin_UI_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that init_inactive_menu() hooks the inactive menu registration on admin_menu.
+	 * Test that init_inactive_menu() hooks the shared dynamic menu registration on admin_menu.
 	 */
 	public function test_init_inactive_menu_hooks_admin_menu() {
 		Admin_UI::init_inactive_menu();
 
-		$this->assertSame( 1, has_action( 'admin_menu', array( Admin_UI::class, 'enable_inactive_menu' ) ) );
+		$this->assertSame( 1, has_action( 'admin_menu', array( Admin_UI::class, 'enable_menu' ) ) );
+	}
+
+	/**
+	 * Test that enable_menu() resolves the menu target at call time: with the
+	 * module inactive it queues the My Jetpack activation link, not the dashboard.
+	 */
+	public function test_enable_menu_registers_activation_link_when_module_inactive() {
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_true' );
+
+		$this->assertFalse( Status::is_active() );
+		Admin_UI::enable_menu();
+
+		$items = $this->get_admin_menu_items();
+		$this->assertCount( 1, $items );
+		$this->assertSame( Admin_UI::MY_JETPACK_ADD_VIDEOPRESS_URI, $items[0]['menu_slug'] );
+	}
+
+	/**
+	 * Test that enable_menu() registers the VideoPress library dashboard
+	 * (admin.php?page=jetpack-videopress) when the module is active.
+	 *
+	 * Runs in a separate process: forcing Status::is_active() true requires
+	 * loading the standalone-plugin class stub, which must not leak into the
+	 * rest of the suite.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_enable_menu_registers_dashboard_when_module_active() {
+		require_once __DIR__ . '/mocks/class-jetpack-videopress-plugin.php';
+
+		$this->assertTrue( Status::is_active() );
+		Admin_UI::enable_menu();
+
+		$items = $this->get_admin_menu_items();
+		$this->assertCount( 1, $items );
+		$this->assertSame( Admin_UI::ADMIN_PAGE_SLUG, $items[0]['menu_slug'] );
+		$this->assertNotNull( $items[0]['function'] );
 	}
 
 	/**

@@ -18,6 +18,7 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\VideoPress\Status as VideoPress_Status;
 
 /**
  * Initialized the VideoPress package
@@ -119,11 +120,34 @@ class Admin_UI {
 	}
 
 	/**
-	 * Enable the menu, separately to init due to translations needing to run early for the page suffix.
+	 * Register the "Jetpack > VideoPress" menu item, choosing its target dynamically.
+	 *
+	 * Hooked on admin_menu from both init() and init_inactive_menu(), so the item
+	 * reflects the module state when the menu renders rather than when the package
+	 * initialized: when VideoPress is active it opens the VideoPress library
+	 * (admin.php?page=jetpack-videopress); when it is not, it links to the
+	 * My Jetpack interstitial where VideoPress can be activated.
+	 *
+	 * Registered separately to init due to translations needing to run early for
+	 * the page suffix.
 	 *
 	 * @return void
 	 */
 	public static function enable_menu() {
+		if ( VideoPress_Status::is_active() ) {
+			self::enable_dashboard_menu();
+			return;
+		}
+
+		self::enable_inactive_menu();
+	}
+
+	/**
+	 * Register the VideoPress library dashboard page and its menu item.
+	 *
+	 * @return void
+	 */
+	private static function enable_dashboard_menu() {
 		$callback = self::get_dashboard_render_callback();
 
 		$page_suffix = Admin_Menu::add_menu(
@@ -139,11 +163,13 @@ class Admin_UI {
 	}
 
 	/**
-	 * Initializes the "Jetpack > VideoPress" menu item shown when VideoPress is not active.
+	 * Initializes the "Jetpack > VideoPress" menu item when VideoPress is not active.
 	 *
 	 * This method is called by the Initializer class instead of init() when the
-	 * VideoPress module is not active. Instead of the dashboard, the menu item is a
-	 * plain link to the My Jetpack interstitial where VideoPress can be activated.
+	 * VideoPress module is not active. It hooks the same enable_menu() callback as
+	 * init(), which picks the item's target from the module state at admin_menu
+	 * time — so if the state changed since package initialization, the rendered
+	 * link is still correct.
 	 *
 	 * @return void
 	 */
@@ -154,7 +180,7 @@ class Admin_UI {
 			return;
 		}
 
-		add_action( 'admin_menu', array( __CLASS__, 'enable_inactive_menu' ), 1 );
+		add_action( 'admin_menu', array( __CLASS__, 'enable_menu' ), 1 );
 	}
 
 	/**
