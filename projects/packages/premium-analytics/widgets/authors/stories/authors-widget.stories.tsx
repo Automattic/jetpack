@@ -6,6 +6,7 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { withStoryRouter } from '../../stories/with-story-router';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
 	registerReportMocks,
@@ -76,13 +77,13 @@ type Story = StoryObj< AuthorsStoryControls >;
 export const Default: Story = {
 	render: renderAuthors,
 	args: { withComparison: false },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 export const WithComparison: Story = {
 	render: renderAuthors,
 	args: { withComparison: true },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 /**
@@ -93,7 +94,7 @@ export const Loading: Story = {
 	render: () => renderAuthorsOnPreset( 'last-90-days' ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/top-authors', 'loading' );
 		return () => setReportMockState( 'stats/top-authors', null );
@@ -107,7 +108,7 @@ export const Loading: Story = {
 export const Error: Story = {
 	render: () => renderAuthorsOnPreset( 'last-7-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/top-authors', 'error' );
 		return () => setReportMockState( 'stats/top-authors', null );
@@ -121,7 +122,7 @@ export const Error: Story = {
 export const Empty: Story = {
 	render: () => renderAuthorsOnPreset( 'last-365-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/top-authors', 'empty' );
 		return () => setReportMockState( 'stats/top-authors', null );
