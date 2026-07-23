@@ -78,6 +78,35 @@ describe( 'ManageConnectionDialog', () => {
 		expect( testProps.onClose ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	it( 'calls onClose when Escape is pressed', async () => {
+		const user = userEvent.setup();
+		render( <ManageConnectionDialog { ...testProps } /> );
+		await user.keyboard( '{Escape}' );
+		expect( testProps.onClose ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'ignores Escape while an unlink request is in flight', async () => {
+		const user = userEvent.setup();
+		// Never resolves, so the dialog stays in its "disconnecting" state.
+		mockUnlinkUser.mockImplementationOnce( () => new Promise( () => {} ) );
+		const nonOwner = {
+			currentUser: {
+				id: 2,
+				username: 'editor',
+				isConnected: true,
+				isMaster: false,
+				permissions: { manage_options: false },
+			},
+		};
+		render( <ManageConnectionDialog { ...testProps } connectedUser={ nonOwner } /> );
+
+		await user.click( screen.getByRole( 'link', { name: /Disconnect my user account/ } ) );
+		await user.keyboard( '{Escape}' );
+
+		expect( testProps.onClose ).not.toHaveBeenCalled();
+		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
+	} );
+
 	describe( 'action visibility', () => {
 		it( 'shows all three actions for an admin connection owner (not WoA)', () => {
 			render( <ManageConnectionDialog { ...testProps } /> );

@@ -206,6 +206,8 @@ const ManageConnectionDialog = ( {
 			isOpen={ isOpen }
 			onClose={ onClose }
 			hasOwnTitle
+			// Escape is allowed, except while an unlink request is in flight.
+			dismissOnEscape={ ! isControlsDisabled }
 			className="jp-connection__manage-dialog"
 		>
 			<div className="jp-connection__manage-dialog__content">
