@@ -10,7 +10,7 @@ import { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
  */
-import { MyJetpackRoutes } from '../../constants';
+import { MyJetpackRoutes, PRODUCTS_NEEDING_RELOAD_AFTER_TOGGLE } from '../../constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
 import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
@@ -18,6 +18,7 @@ import { useGoBack } from '../../hooks/use-go-back';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../go-back-link';
+import { setPendingSuccessNotice } from '../my-jetpack-tab-panel/products/pending-notice';
 import ProductDetailCard from '../product-detail-card';
 import ProductDetailTable from '../product-detail-table';
 import styles from './style.module.scss';
@@ -167,6 +168,23 @@ export default function ProductInterstitial( {
 							// for free products, we still initiate the site connection
 							handleRegisterSite().then( postRegisterRedirectUri => {
 								if ( ! postRegisterRedirectUri ) {
+									// Products like VideoPress change server-rendered wp-admin UI
+									// (the sidebar menu item's link) on activation, so falling back
+									// with a full page load — rather than a client-side navigation —
+									// re-renders that UI with the new state. The success notice is
+									// persisted so it survives the reload.
+									if ( PRODUCTS_NEEDING_RELOAD_AFTER_TOGGLE.includes( slug ) ) {
+										setPendingSuccessNotice(
+											sprintf(
+												/* translators: %s is the product name, i.e.- "Jetpack VideoPress". */
+												__( '%s activated successfully!', 'jetpack-my-jetpack' ),
+												productName
+											)
+										);
+										window.location.href = getMyJetpackUrl();
+										return;
+									}
+
 									// Fall back to the My Jetpack overview page.
 									return navigateToMyJetpackOverviewPage();
 								}
@@ -190,6 +208,7 @@ export default function ProductInterstitial( {
 			activate,
 			handleRegisterSite,
 			navigateToMyJetpackOverviewPage,
+			productName,
 		]
 	);
 

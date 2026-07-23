@@ -14,13 +14,13 @@ import {
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { getScriptData, getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { Spinner } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { MyJetpackRoutes } from '../../constants';
+import { MyJetpackRoutes, PRODUCTS_NEEDING_RELOAD_AFTER_TOGGLE } from '../../constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
 import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
@@ -29,6 +29,7 @@ import { useInterstitialsState } from '../../hooks/use-interstitials-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../go-back-link';
+import { setPendingSuccessNotice } from '../my-jetpack-tab-panel/products/pending-notice';
 import { getProductConfigs } from './config';
 import ProductInterstitial from './product-interstitial';
 import styles from './style.module.scss';
@@ -217,6 +218,20 @@ export default function PricingInterstitial( { slug } ) {
 									if ( postRegisterRedirectUri ) {
 										// Redirect to the product's admin page
 										window.location.href = postRegisterRedirectUri;
+									} else if ( PRODUCTS_NEEDING_RELOAD_AFTER_TOGGLE.includes( slug ) ) {
+										// Products like VideoPress change server-rendered wp-admin UI
+										// (the sidebar menu item's link) on activation, so fall back
+										// with a full page load — rather than a client-side navigation —
+										// to re-render that UI with the new state. The success notice
+										// is persisted so it survives the reload.
+										setPendingSuccessNotice(
+											sprintf(
+												/* translators: %s is the product name, i.e.- "Jetpack VideoPress". */
+												__( '%s activated successfully!', 'jetpack-my-jetpack' ),
+												product?.title
+											)
+										);
+										window.location.href = myJetpackCheckoutUri;
 									} else {
 										// Fall back to the My Jetpack overview page.
 										return navigateToMyJetpackOverviewPage();
