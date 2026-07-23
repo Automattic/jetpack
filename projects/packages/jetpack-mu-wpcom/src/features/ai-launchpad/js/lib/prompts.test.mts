@@ -12,22 +12,9 @@ const CONTRACTS = resolve( __dirname, '../../contracts' );
 const fixtures = JSON.parse( readFileSync( resolve( CONTRACTS, 'eval-fixtures.json' ), 'utf8' ) )
 	.fixtures as Array< { name: string; input: WizardInput } >;
 
-const INPUT: WizardInput = {
-	goal: 'write',
-	site_name: 'Alpine Notes',
-	description: 'Personal blog about long-distance hiking in the Alps.',
-	locale: 'en',
-};
+const INPUT: WizardInput = fixtures[ 0 ].input;
 
 describe( 'TASK_ANNOTATIONS', () => {
-	it( 'annotates every id offered by TASK_MENU', () => {
-		assert.deepEqual(
-			TASK_MENU,
-			TASK_ANNOTATIONS.map( entry => entry.id ),
-			'TASK_MENU must be derived from TASK_ANNOTATIONS'
-		);
-	} );
-
 	it( 'has no duplicate ids', () => {
 		assert.equal( new Set( TASK_MENU ).size, TASK_MENU.length );
 	} );
@@ -73,16 +60,9 @@ describe( 'buildTailorPrompt', () => {
 		assert.match( prompt, /- id: first_post_published\n {2}what: .+\n {2}pick when: .+/ );
 	} );
 
-	it( 'offers only the available ids', () => {
-		const prompt = buildTailorPrompt( INPUT, [ 'first_post_published', 'site_launched' ] );
-
-		assert.ok( prompt.includes( '- id: first_post_published' ) );
-		assert.ok( ! prompt.includes( '- id: woo_products' ) );
-	} );
-
 	it( 'restricts the offered menu to the available tasks when given', () => {
 		const available = [ 'first_post_published', 'site_theme_selected', 'site_launched' ];
-		const prompt = buildTailorPrompt( fixtures[ 0 ].input, available );
+		const prompt = buildTailorPrompt( INPUT, available );
 		// A menu section lists only the available ids...
 		for ( const id of available ) {
 			assert.ok( prompt.includes( '- id: ' + id ), `available ID "${ id }" missing from menu` );
@@ -124,13 +104,6 @@ describe( 'buildTailorPrompt', () => {
 		assert.ok( ! prompt.includes( 'order the commerce tasks store-first' ) );
 	} );
 
-	it( 'keeps the structural rules the server validates', () => {
-		const prompt = buildTailorPrompt( INPUT, [] );
-
-		assert.ok( prompt.includes( 'Return exactly 6 tasks.' ) );
-		assert.ok( prompt.includes( 'MUST be a launch task' ) );
-	} );
-
 	it( 'lists only server-enforced rules under the HARD RULES header', () => {
 		// The header promises the model that violations are rejected, so an unenforced rule here claims
 		// an authority the code does not back. Pinned to the exact strings, not just the count: swapping
@@ -164,31 +137,30 @@ describe( 'buildTailorPrompt', () => {
 		assert.equal( chooseTailoringMenu( actionable, renderable ), renderable );
 	} );
 
-	it( 'instructs the model to return only JSON', () => {
-		const prompt = buildTailorPrompt( fixtures[ 0 ].input );
-		assert.ok( /return only a json object/i.test( prompt ) );
-	} );
-
-	it( 'asks for a diagnostic inferred_goal that must not influence the output', () => {
-		const prompt = buildTailorPrompt( fixtures[ 0 ].input );
-		assert.ok( prompt.includes( '"inferred_goal"' ), 'inferred_goal missing from prompt' );
-		// The field is analytics-only; the prompt must tell the model to keep it
-		// out of its task selection.
-		assert.ok(
-			/must NOT influence/.test( prompt ),
-			'no-influence instruction missing from prompt'
-		);
-	} );
-
-	it( 'asks for a theme_category chosen from the showcase subject slugs', () => {
-		const prompt = buildTailorPrompt( fixtures[ 0 ].input );
-		assert.ok( prompt.includes( '"theme_category"' ), 'theme_category missing from prompt' );
-		// The full slug menu must be in the prompt, and the instruction must steer the
-		// model toward the specific subject over the generic goal bucket.
-		assert.ok(
-			prompt.includes( 'travel-lifestyle' ) && prompt.includes( 'community-non-profit' ),
-			'category slugs missing from prompt'
-		);
-		assert.ok( /specific subject/i.test( prompt ), 'subject-over-bucket guidance missing' );
-	} );
+	// Instructions the rest of the pipeline depends on; each needle is the load-bearing part.
+	const REQUIRED: Array< [ string, Array< string | RegExp > ] > = [
+		[ 'instructs the model to return only JSON', [ /return only a json object/i ] ],
+		// inferred_goal is analytics-only, so the prompt must also tell the model to keep it out
+		// of its task selection.
+		[
+			'asks for a diagnostic inferred_goal that must not influence the output',
+			[ '"inferred_goal"', /must NOT influence/ ],
+		],
+		// The full slug menu must be in the prompt, and the instruction must steer the model
+		// toward the specific subject over the generic goal bucket.
+		[
+			'asks for a theme_category chosen from the showcase subject slugs',
+			[ '"theme_category"', 'travel-lifestyle', 'community-non-profit', /specific subject/i ],
+		],
+	];
+	for ( const [ name, needles ] of REQUIRED ) {
+		it( name, () => {
+			const prompt = buildTailorPrompt( INPUT );
+			for ( const needle of needles ) {
+				const found =
+					typeof needle === 'string' ? prompt.includes( needle ) : needle.test( prompt );
+				assert.ok( found, `missing from prompt: ${ needle }` );
+			}
+		} );
+	}
 } );

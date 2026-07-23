@@ -6,6 +6,7 @@
  */
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/launchpad/launchpad.php';
@@ -41,9 +42,19 @@ class AI_Launchpad_Gallery_Page_Listener_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Publishing a page carrying the gallery marker completes add_gallery_page.
+	 * Publishing a page completes add_gallery_page only when the page carries the marker meta and
+	 * the site is eligible — an unmarked page is somebody else's page, and an ineligible site must
+	 * never write launchpad status at all.
+	 *
+	 * @dataProvider provide_publish_cases
+	 *
+	 * @param bool $marked   Whether the page carries the marker meta.
+	 * @param bool $eligible Whether the site is eligible for the AI Launchpad.
+	 * @param bool $expected Whether the task should complete.
 	 */
-	public function test_publishing_marked_page_completes_task() {
+	#[DataProvider( 'provide_publish_cases' )]
+	public function test_publishing_page_completes_task_only_when_marked_and_eligible( $marked, $eligible, $expected ) {
+		\Brain\Monkey\Functions\when( 'wpcom_ai_launchpad_is_eligible' )->justReturn( $eligible );
 		AI_Launchpad_Gallery_Page_Listener::register();
 		do_action( 'init' );
 
@@ -54,7 +65,9 @@ class AI_Launchpad_Gallery_Page_Listener_Test extends \WorDBless\BaseTestCase {
 				'post_title'  => 'My gallery',
 			)
 		);
-		update_post_meta( $page_id, AI_Launchpad_Gallery_Page_Listener::META_KEY, true );
+		if ( $marked ) {
+			update_post_meta( $page_id, AI_Launchpad_Gallery_Page_Listener::META_KEY, true );
+		}
 
 		wp_update_post(
 			array(
@@ -64,59 +77,20 @@ class AI_Launchpad_Gallery_Page_Listener_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$statuses = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
-		$this->assertTrue( ! empty( $statuses['add_gallery_page'] ) );
+		$this->assertSame( $expected, ! empty( $statuses['add_gallery_page'] ) );
 	}
 
 	/**
-	 * Publishing an unmarked page does not complete the task.
+	 * Data provider for test_publishing_page_completes_task_only_when_marked_and_eligible.
+	 *
+	 * @return array
 	 */
-	public function test_publishing_unmarked_page_does_not_complete_task() {
-		AI_Launchpad_Gallery_Page_Listener::register();
-		do_action( 'init' );
-
-		$page_id = wp_insert_post(
-			array(
-				'post_type'   => 'page',
-				'post_status' => 'draft',
-				'post_title'  => 'Plain page',
-			)
+	public static function provide_publish_cases() {
+		return array(
+			'marked page on an eligible site'   => array( true, true, true ),
+			'unmarked page on an eligible site' => array( false, true, false ),
+			'marked page on an ineligible site' => array( true, false, false ),
 		);
-		wp_update_post(
-			array(
-				'ID'          => $page_id,
-				'post_status' => 'publish',
-			)
-		);
-
-		$statuses = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
-		$this->assertArrayNotHasKey( 'add_gallery_page', $statuses );
-	}
-
-	/**
-	 * An ineligible site never completes the task, even for a marked page.
-	 */
-	public function test_ineligible_site_does_not_complete_task() {
-		\Brain\Monkey\Functions\when( 'wpcom_ai_launchpad_is_eligible' )->justReturn( false );
-		AI_Launchpad_Gallery_Page_Listener::register();
-		do_action( 'init' );
-
-		$page_id = wp_insert_post(
-			array(
-				'post_type'   => 'page',
-				'post_status' => 'draft',
-				'post_title'  => 'Gallery',
-			)
-		);
-		update_post_meta( $page_id, AI_Launchpad_Gallery_Page_Listener::META_KEY, true );
-		wp_update_post(
-			array(
-				'ID'          => $page_id,
-				'post_status' => 'publish',
-			)
-		);
-
-		$statuses = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
-		$this->assertArrayNotHasKey( 'add_gallery_page', $statuses );
 	}
 
 	/**

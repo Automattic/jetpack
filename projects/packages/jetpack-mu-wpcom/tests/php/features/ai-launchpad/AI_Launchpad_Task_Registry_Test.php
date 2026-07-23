@@ -58,18 +58,21 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The registry knows the gallery task.
+	 * The registry knows the gallery task, and does not claim catalog tasks.
 	 */
-	public function test_registry_defines_the_gallery_task() {
+	public function test_registry_owns_the_gallery_task_only() {
 		$this->assertTrue( AI_Launchpad_Task_Registry::has( 'add_gallery_page' ) );
 		$this->assertContains( 'add_gallery_page', AI_Launchpad_Task_Registry::task_ids() );
+		$this->assertFalse( AI_Launchpad_Task_Registry::has( 'first_post_published' ) );
 	}
 
 	/**
-	 * The registry does not claim catalog tasks.
+	 * An id the registry does not own is not complete and does not build, rather than fataling on a
+	 * missing definition.
 	 */
-	public function test_registry_does_not_claim_catalog_tasks() {
-		$this->assertFalse( AI_Launchpad_Task_Registry::has( 'first_post_published' ) );
+	public function test_unknown_ids_resolve_to_nothing() {
+		$this->assertFalse( AI_Launchpad_Task_Registry::is_complete( 'first_post_published' ) );
+		$this->assertNull( AI_Launchpad_Task_Registry::build( 'not_a_task', 'x' ) );
 	}
 
 	/**
@@ -84,14 +87,8 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * An id the registry does not own is not complete, rather than fataling on a missing definition.
-	 */
-	public function test_is_complete_is_false_for_an_unknown_id() {
-		$this->assertFalse( AI_Launchpad_Task_Registry::is_complete( 'first_post_published' ) );
-	}
-
-	/**
-	 * A registry task builds into the same card shape build_tasks() emits for catalog tasks.
+	 * A registry task builds into the same card shape build_tasks() emits for catalog tasks, and an
+	 * empty subtitle falls back to the registry default rather than rendering a blank card.
 	 */
 	public function test_build_returns_a_complete_card() {
 		$card = AI_Launchpad_Task_Registry::build( 'add_gallery_page', 'Show off your ceramics.' );
@@ -103,26 +100,9 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( $card['in_progress'] );
 		$this->assertFalse( $card['disabled'] );
 		$this->assertNull( $card['calypso_path'] );
-	}
 
-	/**
-	 * An empty subtitle falls back to the registry default rather than rendering a blank card.
-	 */
-	public function test_build_falls_back_to_the_default_subtitle() {
-		$card = AI_Launchpad_Task_Registry::build( 'add_gallery_page', '' );
-
-		$this->assertSame( 'Show your work in a beautiful photo gallery.', $card['subtitle'] );
-	}
-
-	/**
-	 * Completion is read from the shared launchpad status option, written by the gallery listener.
-	 */
-	public function test_build_reports_completion_from_the_status_option() {
-		update_option( 'launchpad_checklist_tasks_statuses', array( 'add_gallery_page' => true ) );
-
-		$card = AI_Launchpad_Task_Registry::build( 'add_gallery_page', 'Show your work.' );
-
-		$this->assertTrue( $card['completed'] );
+		$default = AI_Launchpad_Task_Registry::build( 'add_gallery_page', '' );
+		$this->assertSame( 'Show your work in a beautiful photo gallery.', $default['subtitle'] );
 	}
 
 	/**
@@ -140,7 +120,8 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A completed task is never also in progress, even while a marker draft is still lying around.
+	 * A completed task reports completion from the shared launchpad status option, and is never
+	 * also in progress even while a marker draft is still lying around.
 	 *
 	 * Completing the gallery does not delete the draft that preceded it (nor any later one), so without the
 	 * completion guard the card would claim "Continue working on your gallery" next to a done checkmark and
@@ -156,12 +137,5 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( $card['in_progress'] );
 		$this->assertSame( 'Create your first gallery', $card['title'] );
 		$this->assertNull( $card['calypso_path'] );
-	}
-
-	/**
-	 * An unknown id builds to null rather than a broken card.
-	 */
-	public function test_build_returns_null_for_an_unknown_id() {
-		$this->assertNull( AI_Launchpad_Task_Registry::build( 'not_a_task', 'x' ) );
 	}
 }

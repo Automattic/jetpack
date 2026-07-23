@@ -36,7 +36,8 @@ class AI_Launchpad_Task_Menu_Test extends \WorDBless\BaseTestCase {
 	 * Every ID in the prompt's task table must be defined by the catalog or the AI Launchpad registry.
 	 */
 	public function test_task_menu_is_subset_of_catalog_or_registry() {
-		$menu_ids = $this->parse_task_menu_ids();
+		preg_match_all( "/\bid: '([a-z0-9_]+)'/", $this->task_annotations_block(), $ids );
+		$menu_ids = $ids[1];
 		$this->assertNotEmpty( $menu_ids, 'Could not parse TASK_ANNOTATIONS from prompts.ts.' );
 
 		$known   = array_merge(
@@ -59,9 +60,18 @@ class AI_Launchpad_Task_Menu_Test extends \WorDBless\BaseTestCase {
 	 * annotation with no matching entry means a task the annotation itself calls goal-specific can be
 	 * picked and persisted on any goal — the inappropriate-task problem in miniature. Derived from the
 	 * table rather than listed here, so a newly annotated task cannot quietly skip the map.
+	 *
+	 * Entries are split on the `id:` line, so each chunk holds one task's remaining fields; a chunk whose
+	 * `goals` array has a single element is what this looks for. Multi-goal annotations are deliberately
+	 * ignored: they are affinity hints for the model, not claims that the task belongs to one goal.
 	 */
 	public function test_single_goal_annotations_are_restricted_to_that_goal() {
-		$annotated = $this->parse_single_goal_annotations();
+		$annotated = array();
+		foreach ( array_slice( preg_split( "/\bid: '/", $this->task_annotations_block() ), 1 ) as $entry ) {
+			if ( preg_match( "/^([a-z0-9_]+)',.*?\bgoals: \[ '([a-z]+)' \],/s", $entry, $found ) ) {
+				$annotated[ $found[1] ] = $found[2];
+			}
+		}
 		$this->assertNotEmpty( $annotated, 'Could not parse the annotated goals from prompts.ts.' );
 
 		foreach ( $annotated as $task_id => $goal ) {
@@ -74,54 +84,21 @@ class AI_Launchpad_Task_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Extracts the task IDs from the TASK_ANNOTATIONS table in prompts.ts.
+	 * The body of the TASK_ANNOTATIONS table in prompts.ts, or '' when it cannot be read.
 	 *
 	 * The table body is terminated on the closing `];` at column zero, so the inline `goals: [ ... ]`
 	 * arrays inside entries do not end the match early.
 	 *
-	 * @return string[]
+	 * @return string
 	 */
-	private function parse_task_menu_ids() {
-		$path = __DIR__ . '/../../../../src/features/ai-launchpad/js/lib/prompts.ts';
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local package file.
-		$source = file_get_contents( $path );
-		if ( false === $source ) {
-			return array();
-		}
-
-		if ( ! preg_match( '/TASK_ANNOTATIONS[^=]*=\s*\[(.*?)^\];/ms', $source, $block ) ) {
-			return array();
-		}
-
-		preg_match_all( "/\bid: '([a-z0-9_]+)'/", $block[1], $ids );
-
-		return $ids[1];
-	}
-
-	/**
-	 * Extracts the ids annotated with exactly one goal, keyed to that goal.
-	 *
-	 * Entries are split on the `id:` line, so each chunk holds one task's remaining fields; a chunk whose
-	 * `goals` array has a single element is what this looks for. Multi-goal annotations are deliberately
-	 * ignored: they are affinity hints for the model, not claims that the task belongs to one goal.
-	 *
-	 * @return array<string, string> Task id => the single goal it is annotated with.
-	 */
-	private function parse_single_goal_annotations() {
+	private function task_annotations_block() {
 		$path = __DIR__ . '/../../../../src/features/ai-launchpad/js/lib/prompts.ts';
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local package file.
 		$source = file_get_contents( $path );
 		if ( false === $source || ! preg_match( '/TASK_ANNOTATIONS[^=]*=\s*\[(.*?)^\];/ms', $source, $block ) ) {
-			return array();
+			return '';
 		}
 
-		$annotated = array();
-		foreach ( array_slice( preg_split( "/\bid: '/", $block[1] ), 1 ) as $entry ) {
-			if ( preg_match( "/^([a-z0-9_]+)',.*?\bgoals: \[ '([a-z]+)' \],/s", $entry, $found ) ) {
-				$annotated[ $found[1] ] = $found[2];
-			}
-		}
-
-		return $annotated;
+		return $block[1];
 	}
 }

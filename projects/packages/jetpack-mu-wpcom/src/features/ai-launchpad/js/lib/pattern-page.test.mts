@@ -13,6 +13,25 @@ const inferred: TailoredInferred = {
 // The words nicheWords() derives from the inferred fixture above.
 const words = [ 'coffee', 'roastery', 'artisan', 'enthusiasts' ];
 
+const GALLERY_HTML = '<!-- wp:gallery --><figure></figure><!-- /wp:gallery -->';
+
+/**
+ * Build a pattern filed under the gallery category, which is what selectGalleryPage pools on.
+ *
+ * @param title - The pattern title, which is also what niche scoring reads.
+ * @param html  - The pattern markup.
+ * @return The pattern.
+ */
+function gallery( title: string, html: string = GALLERY_HTML ): PtkPattern {
+	return { title, html, categories: { c1: { slug: 'gallery', title: 'Gallery' } } };
+}
+
+const aboutPattern: PtkPattern = {
+	title: 'About Hero',
+	html: '<p>about</p>',
+	categories: { c2: { slug: 'about', title: 'About' } },
+};
+
 describe( 'pickPattern', () => {
 	it( 'matches on category term titles, not slug keys', () => {
 		// The niche-relevant term lives in the value's `title`; the slug key is opaque.
@@ -57,56 +76,15 @@ describe( 'pickPattern', () => {
 } );
 
 describe( 'selectGalleryPage', () => {
-	const galleryPattern: PtkPattern = {
-		title: 'Gallery Page 1',
-		html: '<!-- wp:gallery --><figure></figure><!-- /wp:gallery -->',
-		categories: { c1: { slug: 'gallery', title: 'Gallery' } },
-	};
-	const aboutPattern: PtkPattern = {
-		title: 'About Hero',
-		html: '<p>about</p>',
-		categories: { c2: { slug: 'about', title: 'About' } },
-	};
+	const galleryPattern = gallery( 'Gallery Page 1' );
 
-	it( 'filters to the gallery category and uses the fixed title', () => {
+	it( 'filters to the gallery category, fixes the title, and logs the arbitrary pick', () => {
+		// The gallery pattern is in the pool but mentions no niche word, so the pick is arbitrary;
+		// the About pattern is filtered out before scoring, leaving a pool of one.
 		const result = selectGalleryPage( [ aboutPattern, galleryPattern ], inferred );
 		assert.equal( result.content, galleryPattern.html );
 		// The title is fixed, not the matched pattern's name.
 		assert.equal( result.title, 'Gallery' );
-	} );
-
-	it( 'falls back to a bare gallery block when no gallery pattern exists', () => {
-		const result = selectGalleryPage( [ aboutPattern ], inferred );
-		assert.match( result.content, /wp:gallery/ );
-		assert.equal( result.title, 'Gallery' );
-		assert.equal( result.log.fallback, 'empty' );
-	} );
-
-	it( 'strips an in-pattern heading that repeats the title', () => {
-		const withHeading: PtkPattern = {
-			title: 'Gallery Page 2',
-			html: '<!-- wp:heading --><h2 class="wp-block-heading">Gallery</h2><!-- /wp:heading -->\n<!-- wp:image --><figure></figure><!-- /wp:image -->',
-			categories: { c1: { slug: 'gallery', title: 'Gallery' } },
-		};
-		const result = selectGalleryPage( [ withHeading ], inferred );
-		assert.equal( result.title, 'Gallery' );
-		assert.ok( ! /wp:heading/.test( result.content ), 'redundant heading removed' );
-		assert.ok( /wp:image/.test( result.content ), 'other blocks kept' );
-	} );
-
-	it( 'keeps a heading whose text differs from the title', () => {
-		const withHeading: PtkPattern = {
-			title: 'Gallery Page 3',
-			html: '<!-- wp:heading --><h2 class="wp-block-heading">Featured work</h2><!-- /wp:heading -->',
-			categories: { c1: { slug: 'gallery', title: 'Gallery' } },
-		};
-		const result = selectGalleryPage( [ withHeading ], inferred );
-		assert.ok( /Featured work/.test( result.content ), 'non-matching heading kept' );
-	} );
-
-	it( 'reports a first_usable fallback when nothing matches the niche words', () => {
-		// The gallery pattern is in the pool but mentions no niche word, so the pick is arbitrary.
-		const result = selectGalleryPage( [ aboutPattern, galleryPattern ], inferred );
 		assert.deepEqual( result.log, {
 			pool_size: 1,
 			match_words: words,
@@ -116,13 +94,32 @@ describe( 'selectGalleryPage', () => {
 		} );
 	} );
 
+	it( 'falls back to a bare gallery block when no gallery pattern exists', () => {
+		const result = selectGalleryPage( [ aboutPattern ], inferred );
+		assert.match( result.content, /wp:gallery/ );
+		assert.equal( result.title, 'Gallery' );
+		assert.equal( result.log.fallback, 'empty' );
+	} );
+
+	it( 'strips an in-pattern heading that repeats the title, and keeps one that differs', () => {
+		const heading = ( text: string ) =>
+			`<!-- wp:heading --><h2 class="wp-block-heading">${ text }</h2><!-- /wp:heading -->`;
+		const image = '<!-- wp:image --><figure></figure><!-- /wp:image -->';
+		const repeats = gallery( 'Gallery Page 2', `${ heading( 'Gallery' ) }\n${ image }` );
+		const differs = gallery( 'Gallery Page 3', heading( 'Featured work' ) );
+
+		const stripped = selectGalleryPage( [ repeats ], inferred );
+		assert.equal( stripped.title, 'Gallery' );
+		assert.ok( ! /wp:heading/.test( stripped.content ), 'redundant heading removed' );
+		assert.ok( /wp:image/.test( stripped.content ), 'other blocks kept' );
+
+		const kept = selectGalleryPage( [ differs ], inferred ).content;
+		assert.ok( /Featured work/.test( kept ), 'non-matching heading kept' );
+	} );
+
 	it( 'reports a genuine match with its score and the filtered pool size', () => {
-		const coffeeGallery: PtkPattern = {
-			title: 'Coffee gallery',
-			html: '<!-- wp:gallery --><figure></figure><!-- /wp:gallery -->',
-			categories: { c1: { slug: 'gallery', title: 'Gallery' } },
-		};
-		const result = selectGalleryPage( [ aboutPattern, galleryPattern, coffeeGallery ], inferred );
+		const patterns = [ aboutPattern, galleryPattern, gallery( 'Coffee gallery' ) ];
+		const result = selectGalleryPage( patterns, inferred );
 		// The about pattern is filtered out of the gallery pool before scoring.
 		assert.equal( result.log.pool_size, 2 );
 		assert.equal( result.log.picked_title, 'Coffee gallery' );
@@ -138,26 +135,17 @@ describe( 'selectGalleryPage', () => {
 	} );
 
 	it( 'drops connective words and duplicates from the match words', () => {
-		const result = selectGalleryPage( [], {
+		const { log } = selectGalleryPage( [], {
 			goal: 'portfolio',
 			niche: 'wildlife photography from the Alps',
 			audience: 'photography enthusiasts',
 		} );
 		// "from"/"the" are stop words; "photography" appears in two fields but counts once.
-		assert.deepEqual( result.log.match_words, [
-			'wildlife',
-			'photography',
-			'alps',
-			'enthusiasts',
-		] );
+		assert.deepEqual( log.match_words, [ 'wildlife', 'photography', 'alps', 'enthusiasts' ] );
 	} );
 
 	it( 'scores whole tokens only, so a niche word cannot match inside another word', () => {
-		const smart: PtkPattern = {
-			title: 'Smart marketing',
-			html: '<p>x</p>',
-			categories: { c1: { slug: 'gallery', title: 'Gallery' } },
-		};
+		const smart = gallery( 'Smart marketing', '<p>x</p>' );
 		const result = selectGalleryPage( [ smart ], { goal: 'portfolio', niche: 'art prints' } );
 		// "art" must not match "Smart": the pick falls back rather than reporting a match.
 		assert.equal( result.log.picked_score, 0 );

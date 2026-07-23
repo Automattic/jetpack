@@ -5,6 +5,8 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 /**
  * Commerce and newsletter tasks must be unreachable for goals they do not belong to, whether the
  * model is asked not to pick them or picks them anyway. Prose in the prompt is not enforcement.
@@ -12,83 +14,68 @@
 class AI_Launchpad_Goal_Exclusions_Test extends \WorDBless\BaseTestCase {
 
 	/**
-	 * Set up: register the default launchpad checklists so the catalog resolves.
-	 */
-	public function set_up() {
-		parent::set_up();
-		wpcom_register_default_launchpad_checklists();
-	}
-
-	/**
-	 * Commerce tasks are restricted to the sell goal.
-	 */
-	public function test_commerce_tasks_are_excluded_for_non_sell_goals() {
-		$excluded = AI_Launchpad_REST::excluded_task_ids_for_goal( 'write' );
-
-		$this->assertContains( 'woo_products', $excluded );
-		$this->assertContains( 'woo_customize_store', $excluded );
-		$this->assertContains( 'set_up_payments', $excluded );
-		$this->assertContains( 'stripe_connected', $excluded );
-		$this->assertContains( 'woo_woocommerce_payments', $excluded );
-	}
-
-	/**
-	 * Commerce tasks stay available on the sell goal.
-	 */
-	public function test_commerce_tasks_are_allowed_for_sell() {
-		$excluded = AI_Launchpad_REST::excluded_task_ids_for_goal( 'sell' );
-
-		$this->assertNotContains( 'woo_products', $excluded );
-		$this->assertNotContains( 'set_up_payments', $excluded );
-	}
-
-	/**
-	 * Subscriber-acquisition tasks are restricted to the newsletter goal.
-	 */
-	public function test_subscriber_tasks_are_excluded_for_non_newsletter_goals() {
-		$excluded = AI_Launchpad_REST::excluded_task_ids_for_goal( 'build' );
-
-		$this->assertContains( 'add_10_email_subscribers', $excluded );
-		$this->assertContains( 'newsletter_plan_created', $excluded );
-		$this->assertContains( 'import_subscribers', $excluded );
-	}
-
-	/**
-	 * Subscriber tasks stay available on the newsletter goal.
-	 */
-	public function test_subscriber_tasks_are_allowed_for_newsletter() {
-		$excluded = AI_Launchpad_REST::excluded_task_ids_for_goal( 'newsletter' );
-
-		$this->assertNotContains( 'add_10_email_subscribers', $excluded );
-	}
-
-	/**
-	 * The course-setup task is restricted to the educate goal.
+	 * Each goal excludes the tasks that belong to other goals, and keeps its own.
 	 *
-	 * Its catalog gate (WoA + Sensei LMS active) already hides it almost everywhere, so the entry costs
-	 * nothing — but it is the one id annotated with a single goal, and without it the map's stated
-	 * invariant ("every id annotated with a single goal belongs here") has a lone unexplained exception.
+	 * The `sensei_setup` entry looks redundant with its catalog gate (WoA + Sensei LMS active), which already
+	 * hides it almost everywhere — but it is the one id annotated with a single goal, and without it the map's
+	 * stated invariant ("every id annotated with a single goal belongs here") has a lone unexplained exception,
+	 * which AI_Launchpad_Task_Menu_Test asserts against.
+	 *
+	 * `add_gallery_page` runs the other way (excluded for one goal rather than restricted to one), preserving
+	 * the store/gallery mutual exclusion: a store site must not end up with both sequences.
+	 *
+	 * @dataProvider provide_goal_exclusions
+	 *
+	 * @param string   $goal     The goal slug, or '' for an unknown/absent goal.
+	 * @param string[] $excluded Task IDs that must be excluded for this goal.
+	 * @param string[] $allowed  Task IDs that must stay available for this goal.
 	 */
-	public function test_course_setup_is_restricted_to_educate() {
-		$this->assertContains( 'sensei_setup', AI_Launchpad_REST::excluded_task_ids_for_goal( 'write' ) );
-		$this->assertNotContains( 'sensei_setup', AI_Launchpad_REST::excluded_task_ids_for_goal( 'educate' ) );
+	#[DataProvider( 'provide_goal_exclusions' )]
+	public function test_excluded_task_ids_for_goal( $goal, array $excluded, array $allowed ) {
+		$actual = AI_Launchpad_REST::excluded_task_ids_for_goal( $goal );
+
+		foreach ( $excluded as $task_id ) {
+			$this->assertContains( $task_id, $actual, "$task_id must be excluded for the '$goal' goal." );
+		}
+		foreach ( $allowed as $task_id ) {
+			$this->assertNotContains( $task_id, $actual, "$task_id must stay available for the '$goal' goal." );
+		}
 	}
 
 	/**
-	 * The gallery task is excluded from sell, preserving the store/gallery mutual exclusion.
+	 * Data provider for test_excluded_task_ids_for_goal.
+	 *
+	 * @return array
 	 */
-	public function test_gallery_is_excluded_for_sell() {
-		$this->assertContains( 'add_gallery_page', AI_Launchpad_REST::excluded_task_ids_for_goal( 'sell' ) );
-		$this->assertNotContains( 'add_gallery_page', AI_Launchpad_REST::excluded_task_ids_for_goal( 'portfolio' ) );
-	}
-
-	/**
-	 * An unknown or empty goal excludes every restricted task rather than allowing everything.
-	 */
-	public function test_unknown_goal_excludes_all_restricted_tasks() {
-		$excluded = AI_Launchpad_REST::excluded_task_ids_for_goal( '' );
-
-		$this->assertContains( 'woo_products', $excluded );
-		$this->assertContains( 'add_10_email_subscribers', $excluded );
+	public static function provide_goal_exclusions() {
+		return array(
+			'commerce and course tasks need their own goals' => array(
+				'write',
+				array( 'woo_products', 'woo_customize_store', 'woo_woocommerce_payments', 'set_up_payments', 'stripe_connected', 'sensei_setup' ),
+				array(),
+			),
+			'sell keeps commerce and loses the gallery' => array(
+				'sell',
+				array( 'add_gallery_page' ),
+				array( 'woo_products', 'set_up_payments' ),
+			),
+			'subscriber tasks need the newsletter goal' => array(
+				'build',
+				array( 'add_10_email_subscribers', 'newsletter_plan_created', 'import_subscribers' ),
+				array(),
+			),
+			'newsletter keeps the subscriber tasks'     => array(
+				'newsletter',
+				array(),
+				array( 'add_10_email_subscribers' ),
+			),
+			'educate keeps the course task'             => array( 'educate', array(), array( 'sensei_setup' ) ),
+			'portfolio keeps the gallery'               => array( 'portfolio', array(), array( 'add_gallery_page' ) ),
+			'an unknown goal excludes every restricted task' => array(
+				'',
+				array( 'woo_products', 'add_10_email_subscribers' ),
+				array(),
+			),
+		);
 	}
 }
