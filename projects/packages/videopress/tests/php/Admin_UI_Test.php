@@ -68,7 +68,7 @@ class Admin_UI_Test extends BaseTestCase {
 	 * re-evaluates the connection options.
 	 */
 	private function reset_connection_status_cache() {
-		( new \ReflectionProperty( Connection_Manager::class, 'is_connected' ) )->setValue( null, null );
+		$this->accessible_property( Connection_Manager::class, 'is_connected' )->setValue( null, null );
 	}
 
 	/**
@@ -77,7 +77,7 @@ class Admin_UI_Test extends BaseTestCase {
 	 * @return array
 	 */
 	private function get_admin_menu_items() {
-		return $this->admin_menu_items_property()->getValue();
+		return $this->accessible_property( Admin_Menu::class, 'menu_items' )->getValue();
 	}
 
 	/**
@@ -86,18 +86,20 @@ class Admin_UI_Test extends BaseTestCase {
 	 * @param array $items The items to set.
 	 */
 	private function set_admin_menu_items( $items ) {
-		$this->admin_menu_items_property()->setValue( null, $items );
+		$this->accessible_property( Admin_Menu::class, 'menu_items' )->setValue( null, $items );
 	}
 
 	/**
-	 * Get an accessible reflection of Admin_Menu::$menu_items.
+	 * Get an accessible reflection of a non-public property.
 	 *
+	 * @param string $class_name    The class owning the property.
+	 * @param string $property_name The property name.
 	 * @return \ReflectionProperty
 	 */
-	private function admin_menu_items_property() {
-		$property = new \ReflectionProperty( Admin_Menu::class, 'menu_items' );
+	private function accessible_property( $class_name, $property_name ) {
+		$property = new \ReflectionProperty( $class_name, $property_name );
 		if ( \PHP_VERSION_ID < 80100 ) {
-			// Required to access private members before PHP 8.1; deprecated no-op since PHP 8.5.
+			// Required to access non-public members before PHP 8.1; deprecated no-op since PHP 8.5.
 			$property->setAccessible( true );
 		}
 		return $property;
