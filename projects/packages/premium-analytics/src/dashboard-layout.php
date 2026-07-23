@@ -263,7 +263,7 @@ function get_dashboard_default_section_layouts() {
 				1,
 				2,
 				array(
-					'num' => 10,
+					'max' => 10,
 				)
 			),
 			get_dashboard_default_widget_instance(
@@ -491,7 +491,7 @@ function get_dashboard_default_section_layouts() {
 				2,
 				2,
 				array(
-					'num' => 6,
+					'max' => 6,
 				)
 			),
 			get_dashboard_default_widget_instance(
