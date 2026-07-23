@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Register WP personal-data exporter and eraser for the consent log; rename the consent-log customer_id column to user_id.

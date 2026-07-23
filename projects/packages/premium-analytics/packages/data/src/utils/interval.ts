@@ -9,8 +9,13 @@ import { localTZDate } from './date';
 import type { IntervalType } from './search';
 
 export function getDaysBetweenInclusive( from: string, to: string ): number {
-	const fromDate = new Date( `${ from }T00:00:00Z` );
-	const toDate = new Date( `${ to }T00:00:00Z` );
+	// Anchor both dates in UTC before diffing: `differenceInCalendarDays` reads
+	// its arguments' local calendar getters, and a plain UTC-tagged `Date`'s
+	// getters reflect the machine's local timezone, not UTC. Left unanchored,
+	// a negative-offset machine can read a UTC midnight instant as the
+	// previous local calendar day, shifting the day count.
+	const fromDate = localTZDate( `${ from }T00:00:00Z`, '+00:00' );
+	const toDate = localTZDate( `${ to }T00:00:00Z`, '+00:00' );
 	const days = differenceInCalendarDays( toDate, fromDate );
 
 	if ( Number.isNaN( days ) || days < 0 ) {
@@ -59,6 +64,7 @@ function getAllowedIntervalsForPeriod(
 	switch ( period ) {
 		case 'today':
 		case 'yesterday':
+		case 'last-24-hours':
 			return [ 'hour', 'day' ];
 		case 'last-7-days':
 			return [ 'day' ];

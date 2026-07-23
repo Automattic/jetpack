@@ -30,7 +30,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.2.0';
+	const PACKAGE_VERSION = '0.6.0';
 
 	/**
 	 * URL-facing menu slug (`admin.php?page=jetpack-seo`).
@@ -115,6 +115,23 @@ class Initializer {
 	const VISIBILITY_OPTION = 'jetpack_seo_surface_visible';
 
 	/**
+	 * Transient holding the Overview's content-coverage counts.
+	 *
+	 * Versioned, so a future change to the payload's shape can't read a stale array
+	 * written by an older version of this code.
+	 *
+	 * @var string
+	 */
+	const COVERAGE_COUNTS_TRANSIENT = 'jetpack_seo_content_coverage_counts_v1';
+
+	/**
+	 * How long the content-coverage counts survive without being invalidated.
+	 *
+	 * @var int
+	 */
+	const COVERAGE_COUNTS_TTL = HOUR_IN_SECONDS;
+
+	/**
 	 * Whether the package has been initialized.
 	 *
 	 * @var bool
@@ -162,6 +179,19 @@ class Initializer {
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_menu_item' ), 10 );
 
+		// Read-only REST routes the dashboard hydrates its initial state from. Preloaded
+		// into the page (see inject_script_data) so a normal load resolves them with no
+		// request, and fetched by the app when that preload is missing or stale — so the
+		// dashboard recovers its data instead of dead-ending. Registered whenever the
+		// surface is visible (independent of the seo-tools module, like the Overview).
+		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_reads' ) );
+
+		// Keep the Overview's cached content-coverage counts honest. Hooked here rather than
+		// alongside the admin surface above because posts are written from everywhere — the
+		// block editor (REST), the classic editor, wp-cli, cron, other plugins — and the
+		// cache has to be dropped wherever that happens, not just where it's read.
+		self::register_coverage_invalidation();
+
 		// The settings surface only comes online once SEO tools are active — there's
 		// nothing to configure while the module is off, so we don't register its REST
 		// endpoints until then. Expose the core `blog_public` option to the REST settings
@@ -169,10 +199,12 @@ class Initializer {
 		// `/wp/v2/settings` (the Jetpack settings endpoint only accepts Jetpack options).
 		// Writes are still capability-gated by the core settings controller.
 		if ( self::is_seo_tools_module_active() ) {
-			// Front-end JSON-LD schema (Article / FAQ). Self-hooks `wp_head`, so it only
-			// emits on front-end requests.
+			// Front-end JSON-LD schema output and author profile schema fields.
 			Schema_Builder::init();
+			Author_Schema_Node::init();
 			add_action( 'rest_api_init', array( __CLASS__, 'register_rest_settings' ) );
+			// Package-owned route for the site-level Schema settings (see the controller).
+			add_action( 'rest_api_init', array( Schema_Settings_Controller::class, 'register_routes' ) );
 		}
 
 		/**
@@ -271,8 +303,10 @@ class Initializer {
 	 * Because wp-build pages load as ES modules, `wp_localize_script` can't
 	 * attach data to them; the shared `jetpack_admin_js_script_data` filter
 	 * (printed by the Script_Data package onto the `jetpack-script-data` handle
-	 * the bundle already depends on) is the supported channel. Mirrors Podcast
-	 * and Newsletter.
+	 * the bundle already depends on) is the supported channel. The per-tab state
+	 * is provided as an apiFetch *preload* (mirrors Podcast) so the app resolves
+	 * it with no request on a normal load yet can re-fetch when the preload is
+	 * missing or stale, rather than dead-ending on a one-shot read.
 	 *
 	 * @param array $data Script data being injected onto the page.
 	 * @return array
@@ -282,10 +316,21 @@ class Initializer {
 			$data = array();
 		}
 
-		$data[ self::SCRIPT_DATA_KEY ]['overview']      = self::get_overview_data();
-		$data[ self::SCRIPT_DATA_KEY ]['settings']      = self::get_settings_data();
+		// Preload the dashboard's REST reads into the page so the app resolves them from
+		// cache on first paint with no network request — while still being able to
+		// re-fetch if that preload is ever missing or stale. This replaces injecting the
+		// raw payloads, which the app read synchronously once and couldn't recover from
+		// when momentarily absent (the load-error dead-end). See register_rest_reads() and
+		// the client readers `_inc/data/get-preloaded.ts` + `_inc/data/use-ensure-tab-data.ts`.
+		$data[ self::SCRIPT_DATA_KEY ]['preload'] = array_reduce(
+			self::rest_read_paths(),
+			'rest_preload_api_request',
+			array()
+		);
+
+		// Small synchronous reads used outside the per-tab data stores, and not part of
+		// the load-error path.
 		$data[ self::SCRIPT_DATA_KEY ]['google_verify'] = self::get_google_verify_data();
-		$data[ self::SCRIPT_DATA_KEY ]['ai']            = self::get_ai_data();
 		$data[ self::SCRIPT_DATA_KEY ]['site']          = self::get_site_data();
 
 		return $data;
@@ -530,75 +575,247 @@ class Initializer {
 	}
 
 	/**
+	 * Post types the content-coverage counts span.
+	 *
+	 * @return string[]
+	 */
+	private static function coverage_post_types() {
+		return array( 'post', 'page' );
+	}
+
+	/**
+	 * The SEO post-meta keys the content-coverage counts read.
+	 *
+	 * @return string[]
+	 */
+	private static function coverage_meta_keys() {
+		return array(
+			self::META_SCHEMA_TYPE,
+			self::META_TITLE,
+			self::META_DESCRIPTION,
+			self::META_NOINDEX,
+		);
+	}
+
+	/**
 	 * Factual content-coverage counts for the Overview card: how many published
 	 * posts/pages have each SEO field set. State, not a score — the card shows
 	 * proportions + raw counts and lets the admin decide what matters.
 	 *
+	 * Served from {@see self::COVERAGE_COUNTS_TRANSIENT} when it's warm. The counts are read on
+	 * every load of the SEO page — and by every tab of it, since the dashboard preloads
+	 * all of its REST reads at once — so without a cache a plain reload pays for the
+	 * query again having changed nothing.
+	 *
 	 * @return array{total:int,with_schema:int,with_title:int,with_description:int,with_search_visible:int}
 	 */
 	private static function get_content_coverage() {
-		$post_types = array( 'post', 'page' );
+		$cached = get_transient( self::COVERAGE_COUNTS_TRANSIENT );
 
-		$total = 0;
-		foreach ( $post_types as $post_type ) {
-			$counts = wp_count_posts( $post_type );
-			$total += isset( $counts->publish ) ? (int) $counts->publish : 0;
+		if ( self::is_content_coverage( $cached ) ) {
+			return $cached;
 		}
 
-		// Search-engine visibility is the inverse of the per-post noindex meta: a
-		// post is visible unless it's explicitly set to noindex (stored as '1'), so
-		// most posts (no meta row) count as visible.
-		$noindexed = self::count_published_with_meta( $post_types, self::META_NOINDEX, '1' );
+		$coverage = self::compute_content_coverage();
+
+		set_transient( self::COVERAGE_COUNTS_TRANSIENT, $coverage, self::COVERAGE_COUNTS_TTL );
+
+		return $coverage;
+	}
+
+	/**
+	 * Whether a value read back from the cache is a coverage payload this code can use.
+	 *
+	 * @param mixed $value Value read from the transient.
+	 * @return bool
+	 */
+	private static function is_content_coverage( $value ) {
+		if ( ! is_array( $value ) ) {
+			return false;
+		}
+
+		foreach ( array( 'total', 'with_schema', 'with_title', 'with_description', 'with_search_visible' ) as $key ) {
+			if ( ! isset( $value[ $key ] ) || ! is_int( $value[ $key ] ) ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Count the coverage metrics straight from the database.
+	 *
+	 * @return array{total:int,with_schema:int,with_title:int,with_description:int,with_search_visible:int}
+	 */
+	private static function compute_content_coverage() {
+		global $wpdb;
+
+		$post_types = self::coverage_post_types();
+		$meta_keys  = self::coverage_meta_keys();
+
+		$meta_key_placeholders  = implode( ', ', array_fill( 0, count( $meta_keys ), '%s' ) );
+		$post_type_placeholders = implode( ', ', array_fill( 0, count( $post_types ), '%s' ) );
+
+		/*
+		 * Driven from `wp_postmeta`, not `wp_posts`: most sites have far more published
+		 * posts than SEO fields set, so the join starts from the small side, where the
+		 * `meta_key` index serves `meta_key IN (…)` directly.
+		 *
+		 * The aggregate has no GROUP BY, so it still returns its single row — counts at
+		 * zero, `total` intact — on a site with no SEO meta at all.
+		 *
+		 * COUNT( DISTINCT p.ID ) because a post can carry more than one row for the same
+		 * meta key. `<> ''` counts a field as set; noindex alone is an exact `= '1'`.
+		 */
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+		$sql = $wpdb->prepare(
+			"SELECT
+				(
+					SELECT COUNT(*)
+					FROM {$wpdb->posts}
+					WHERE post_status = 'publish' AND post_type IN ( {$post_type_placeholders} )
+				) AS total,
+				COUNT( DISTINCT CASE WHEN pm.meta_key = %s AND pm.meta_value <> '' THEN p.ID END ) AS with_schema,
+				COUNT( DISTINCT CASE WHEN pm.meta_key = %s AND pm.meta_value <> '' THEN p.ID END ) AS with_title,
+				COUNT( DISTINCT CASE WHEN pm.meta_key = %s AND pm.meta_value <> '' THEN p.ID END ) AS with_description,
+				COUNT( DISTINCT CASE WHEN pm.meta_key = %s AND pm.meta_value = '1' THEN p.ID END ) AS noindexed
+			FROM {$wpdb->postmeta} pm
+			INNER JOIN {$wpdb->posts} p
+				ON p.ID = pm.post_id
+				AND p.post_status = 'publish'
+				AND p.post_type IN ( {$post_type_placeholders} )
+			WHERE pm.meta_key IN ( {$meta_key_placeholders} )",
+			array_merge(
+				$post_types,
+				// The CASE arms above, in the order they appear.
+				array( self::META_SCHEMA_TYPE, self::META_TITLE, self::META_DESCRIPTION, self::META_NOINDEX ),
+				$post_types,
+				$meta_keys
+			)
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Aggregate count with no core API equivalent; $sql is the prepared statement built directly above. The result is cached in self::COVERAGE_COUNTS_TRANSIENT by the get_content_coverage() wrapper, which is the only caller — the sniff just can't see across the two methods.
+		$row = $wpdb->get_row( $sql, ARRAY_A );
+
+		// Defaults, so a query that returns nothing at all reads as an empty site rather
+		// than fataling on a missing key.
+		$counts = array_map(
+			'intval',
+			array_merge(
+				array(
+					'total'            => 0,
+					'with_schema'      => 0,
+					'with_title'       => 0,
+					'with_description' => 0,
+					'noindexed'        => 0,
+				),
+				is_array( $row ) ? $row : array()
+			)
+		);
 
 		return array(
-			'total'               => $total,
-			'with_schema'         => self::count_published_with_meta( $post_types, self::META_SCHEMA_TYPE ),
-			'with_title'          => self::count_published_with_meta( $post_types, self::META_TITLE ),
-			'with_description'    => self::count_published_with_meta( $post_types, self::META_DESCRIPTION ),
-			'with_search_visible' => max( 0, $total - $noindexed ),
+			'total'               => $counts['total'],
+			'with_schema'         => $counts['with_schema'],
+			'with_title'          => $counts['with_title'],
+			'with_description'    => $counts['with_description'],
+			// Search-engine visibility is the inverse of the per-post noindex meta: a
+			// post is visible unless it's explicitly set to noindex (stored as '1'), so
+			// most posts (no meta row) count as visible.
+			'with_search_visible' => max( 0, $counts['total'] - $counts['noindexed'] ),
 		);
 	}
 
 	/**
-	 * Count published posts/pages whose meta is set. With no `$value`, counts a
-	 * non-empty string meta; with a `$value`, counts an exact match.
+	 * Hook the writes that can move the content-coverage counts.
 	 *
-	 * @param string[]    $post_types Post types to count across.
-	 * @param string      $meta_key   Meta key to test.
-	 * @param string|null $value      Exact value to match, or null for "non-empty".
-	 * @return int
+	 * @return void
 	 */
-	private static function count_published_with_meta( $post_types, $meta_key, $value = null ) {
-		$clause = null === $value
-			? array(
-				'key'     => $meta_key,
-				'value'   => '',
-				'compare' => '!=',
-			)
-			: array(
-				'key'   => $meta_key,
-				'value' => $value,
-			);
+	public static function register_coverage_invalidation() {
+		// Covers publish, unpublish, trash, untrash and scheduled posts going live — every
+		// route by which a post enters or leaves the published set.
+		add_action( 'transition_post_status', array( __CLASS__, 'invalidate_content_coverage_on_status_change' ), 10, 3 );
+		add_action( 'deleted_post', array( __CLASS__, 'invalidate_content_coverage_on_delete' ), 10, 2 );
 
-		$query = new \WP_Query(
-			array(
-				'post_type'              => $post_types,
-				'post_status'            => 'publish',
-				'posts_per_page'         => 1,
-				'fields'                 => 'ids',
-				'update_post_meta_cache' => false,
-				'update_post_term_cache' => false,
-				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Overview snapshot; one count query per metric on the SEO page only.
-				'meta_query'             => array( $clause ),
-			)
-		);
+		foreach ( array( 'added_post_meta', 'updated_post_meta', 'deleted_post_meta' ) as $hook ) {
+			add_action( $hook, array( __CLASS__, 'invalidate_content_coverage_on_meta_change' ), 10, 3 );
+		}
+	}
 
-		return (int) $query->found_posts;
+	/**
+	 * Drop the cached counts when a post enters or leaves the published set.
+	 *
+	 * Known limitation: this hook only ever sees the post's new type, so converting a
+	 * published post to an uncounted post type (or the reverse) isn't caught here and
+	 * leaves `total` stale until the next tracked write or the transient's TTL expiry.
+	 * A direct `set_post_type()` bypasses every hook anyway, so the TTL backstop is what
+	 * ultimately bounds that staleness.
+	 *
+	 * @param string        $new_status Status the post is moving to.
+	 * @param string        $old_status Status the post is moving from.
+	 * @param \WP_Post|null $post       The post being transitioned.
+	 * @return void
+	 */
+	public static function invalidate_content_coverage_on_status_change( $new_status, $old_status, $post ) {
+		if ( ! $post instanceof \WP_Post || ! in_array( $post->post_type, self::coverage_post_types(), true ) ) {
+			return;
+		}
+
+		// Draft to draft, pending to draft, and the like never touch the counts.
+		if ( 'publish' !== $new_status && 'publish' !== $old_status ) {
+			return;
+		}
+
+		self::invalidate_content_coverage();
+	}
+
+	/**
+	 * Drop the cached counts when a post is deleted outright.
+	 *
+	 * Trashing already goes through `transition_post_status`; this catches a hard delete,
+	 * which for an already-trashed post transitions nothing.
+	 *
+	 * @param int           $post_id Deleted post ID.
+	 * @param \WP_Post|null $post    The post that was deleted.
+	 * @return void
+	 */
+	public static function invalidate_content_coverage_on_delete( $post_id, $post = null ) {
+		if ( ! $post instanceof \WP_Post || ! in_array( $post->post_type, self::coverage_post_types(), true ) ) {
+			return;
+		}
+
+		self::invalidate_content_coverage();
+	}
+
+	/**
+	 * Drop the cached counts when one of the SEO fields they count is written.
+	 *
+	 * @param int|int[] $meta_id   Meta row ID, or IDs on delete. Unused.
+	 * @param int       $object_id Post the meta belongs to. Unused.
+	 * @param string    $meta_key  Meta key written.
+	 * @return void
+	 */
+	public static function invalidate_content_coverage_on_meta_change( $meta_id, $object_id, $meta_key ) {
+		if ( ! in_array( $meta_key, self::coverage_meta_keys(), true ) ) {
+			return;
+		}
+
+		self::invalidate_content_coverage();
+	}
+
+	/**
+	 * Drop the cached counts.
+	 *
+	 * @return void
+	 */
+	private static function invalidate_content_coverage() {
+		delete_transient( self::COVERAGE_COUNTS_TRANSIENT );
 	}
 
 	/**
 	 * Site identity used to render the homepage search/social previews on the
-	 * Settings tab: title, URL, and representative images. The front-page
+	 * Settings tab: title, tagline, URL, and representative images. The front-page
 	 * description that completes the preview is read from the Settings form
 	 * (it's editable there), not bootstrapped here.
 	 *
@@ -611,10 +828,11 @@ class Initializer {
 		$logo_url = $logo_id ? (string) wp_get_attachment_image_url( $logo_id, 'full' ) : '';
 
 		return array(
-			'title' => (string) get_bloginfo( 'name' ),
-			'url'   => (string) home_url(),
-			'icon'  => $icon_url,
-			'image' => $logo_url ? $logo_url : $icon_url,
+			'title'   => (string) get_bloginfo( 'name' ),
+			'tagline' => (string) get_bloginfo( 'description' ),
+			'url'     => (string) home_url(),
+			'icon'    => $icon_url,
+			'image'   => $logo_url ? $logo_url : $icon_url,
 		);
 	}
 
@@ -690,13 +908,77 @@ class Initializer {
 	}
 
 	/**
+	 * Map of read-only dashboard routes: tab slug => data-builder callable. The
+	 * single source of truth for both the registered routes and the paths
+	 * preloaded onto the page, so the two can't drift.
+	 *
+	 * @return array<string, callable>
+	 */
+	private static function rest_reads() {
+		return array(
+			'overview' => array( __CLASS__, 'get_overview_data' ),
+			'settings' => array( __CLASS__, 'get_settings_data' ),
+			'ai'       => array( __CLASS__, 'get_ai_data' ),
+		);
+	}
+
+	/**
+	 * REST paths the dashboard reads its initial state from, preloaded into the
+	 * page (see {@see self::inject_script_data()}) and fetched by the app.
+	 *
+	 * @return string[]
+	 */
+	private static function rest_read_paths() {
+		return array_map(
+			static function ( $slug ) {
+				return '/jetpack/v4/seo/' . $slug;
+			},
+			array_keys( self::rest_reads() )
+		);
+	}
+
+	/**
+	 * Register the read-only REST routes the dashboard hydrates from — one per
+	 * data-backed tab, each returning the same builder payload previously injected
+	 * synchronously onto the page. Read-only and gated to the page's own
+	 * `manage_options`; writes still go through their existing endpoints.
+	 *
+	 * @return void
+	 */
+	public static function register_rest_reads() {
+		foreach ( self::rest_reads() as $slug => $builder ) {
+			register_rest_route(
+				'jetpack/v4',
+				'/seo/' . $slug,
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => static function () use ( $builder ) {
+						return rest_ensure_response( call_user_func( $builder ) );
+					},
+					'permission_callback' => array( __CLASS__, 'reads_permission_check' ),
+				)
+			);
+		}
+	}
+
+	/**
+	 * Capability gate for the dashboard's read routes — the same `manage_options`
+	 * the SEO admin page itself requires.
+	 *
+	 * @return bool
+	 */
+	public static function reads_permission_check() {
+		return current_user_can( 'manage_options' );
+	}
+
+	/**
 	 * Build the editable Settings state the Settings tab hydrates from.
 	 *
-	 * Read-only bootstrap only. Writes go through the existing
+	 * Read-only bootstrap only. Most writes go through the existing
 	 * `/jetpack/v4/settings` REST endpoint, which already validates and
-	 * sanitizes each of these fields — this package registers no settings
-	 * endpoint of its own. The reads here mirror the options/helpers that
-	 * endpoint round-trips so the form hydrates without a request.
+	 * sanitizes those flat fields. Nested Schema writes use the package's
+	 * schema-settings route; bootstrapping them here keeps the Settings UI
+	 * hydrated without a second request.
 	 *
 	 * @return array
 	 */
@@ -736,6 +1018,7 @@ class Initializer {
 				'yandex'    => isset( $codes['yandex'] ) ? (string) $codes['yandex'] : '',
 				'facebook'  => isset( $codes['facebook'] ) ? (string) $codes['facebook'] : '',
 			),
+			'schema'                 => Schema_Settings::get_editable(),
 		);
 	}
 

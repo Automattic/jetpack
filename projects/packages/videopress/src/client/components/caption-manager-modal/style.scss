@@ -1,0 +1,625 @@
+.videopress-caption-manager.components-modal__frame {
+	display: flex;
+	flex-direction: column;
+	width: min(1320px, calc(100vw - 40px));
+	height: min(860px, calc(100vh - 40px));
+	max-width: none;
+	max-height: none;
+}
+
+.videopress-caption-manager {
+
+	.components-modal__content {
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 auto;
+		padding: 0;
+		min-block-size: 0;
+		overflow: hidden;
+	}
+
+	// WordPress wraps the modal body in this element; it must flex so the
+	// workspace and editor fill the full modal height instead of collapsing.
+	.components-modal__children-container {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 auto;
+		min-block-size: 0;
+	}
+
+	.components-modal__header {
+		padding: 12px 18px;
+	}
+
+	.components-notice {
+		flex-shrink: 0;
+		margin: 0;
+	}
+}
+
+.videopress-caption-manager__action-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 10px 18px;
+	border-bottom: 1px solid #dcdcde;
+	background: #fff;
+}
+
+.videopress-caption-manager__action-bar-start {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	min-width: 0;
+}
+
+.videopress-caption-manager__action-bar-title {
+	margin: 0;
+	font-size: 14px;
+	line-height: 1.4;
+}
+
+.videopress-caption-manager__status {
+	min-width: 0;
+	color: #646970;
+	font-size: 12px;
+	line-height: 1.4;
+}
+
+.videopress-caption-manager__action-buttons {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 8px;
+}
+
+.videopress-caption-manager__workspace {
+	display: flex;
+	min-block-size: 0;
+	flex: 1;
+	background: #fff;
+	overflow: hidden;
+}
+
+.videopress-caption-manager__tracks {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	min-width: 0;
+	flex: 1;
+	padding: 18px;
+	background: #f6f7f7;
+	overflow: hidden;
+}
+
+.videopress-caption-manager__track-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	min-block-size: 0;
+	overflow-y: auto;
+}
+
+.videopress-caption-manager__track,
+.videopress-caption-manager__empty {
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	background: #fff;
+}
+
+.videopress-caption-manager__track {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 8px;
+	align-items: center;
+	padding: 10px 12px;
+}
+
+.videopress-caption-manager__track-meta {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+	min-width: 0;
+
+	strong,
+	span {
+		overflow-wrap: anywhere;
+	}
+
+	span {
+		color: #646970;
+		font-size: 12px;
+	}
+}
+
+.videopress-caption-manager__track-actions {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+}
+
+.videopress-caption-manager__empty {
+	display: grid;
+	place-items: center;
+	flex: 1;
+	min-block-size: 0;
+	padding: 28px 16px;
+	color: #646970;
+	text-align: center;
+}
+
+.videopress-caption-manager__editor {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	min-height: 0;
+	flex: 1;
+	overflow: hidden;
+}
+
+.videopress-caption-manager__editor-body {
+	display: grid;
+	grid-template-columns: minmax(420px, 1fr) minmax(360px, 0.72fr);
+	min-height: 0;
+	flex: 1;
+	overflow: hidden;
+}
+
+.videopress-caption-manager__upload-panel {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	flex: 1;
+	min-width: 0;
+	min-block-size: 0;
+	padding: 18px;
+	overflow-y: auto;
+}
+
+.videopress-caption-manager__form-note {
+	margin: 0;
+	color: #646970;
+}
+
+.videopress-caption-manager__file-picker {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 20px;
+	border: 1px dashed #8c8f94;
+	border-radius: 4px;
+	background: #f6f7f7;
+
+	p {
+		margin: 0;
+		color: #646970;
+	}
+}
+
+.videopress-caption-manager__form-grid,
+.videopress-caption-manager__manual-meta {
+	display: grid;
+	grid-template-columns: minmax(0, 320px);
+	gap: 12px;
+}
+
+.videopress-caption-manager__form-actions {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 8px;
+}
+
+.videopress-caption-manager__manual-main {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	min-width: 0;
+	min-height: 0;
+	padding: 18px;
+	overflow: hidden;
+}
+
+.videopress-caption-manager__manual-meta {
+	flex-shrink: 0;
+}
+
+.videopress-caption-manager__text-import {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	flex: 1;
+	min-block-size: 0;
+}
+
+// Let the paste textarea grow to fill the workspace step.
+.videopress-caption-manager__text-import .components-base-control,
+.videopress-caption-manager__text-import .components-base-control__field {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+}
+
+.videopress-caption-manager__text-import textarea {
+	flex: 1;
+	resize: none;
+}
+
+.videopress-caption-manager__text-import-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	flex-shrink: 0;
+}
+
+.videopress-caption-manager__cue-editor {
+	flex: 1;
+	min-block-size: 0;
+	overflow-y: auto;
+}
+
+.videopress-caption-manager__cue-empty {
+	display: flex;
+	justify-content: center;
+	gap: 8px;
+	padding: 24px 16px;
+}
+
+.videopress-caption-manager__cue-add {
+	display: flex;
+	justify-content: center;
+	padding-block-end: 16px;
+}
+
+.videopress-caption-manager__cue-editor .block-editor-block-list__layout {
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+	padding-bottom: 32px;
+}
+
+.videopress-caption-manager__cue-editor .block-editor-block-list__block {
+	margin: 0;
+}
+
+.videopress-caption-manager__cue-editor .block-editor-block-list__insertion-point,
+.videopress-caption-manager__cue-editor .block-list-appender {
+	display: none;
+}
+
+.videopress-caption-cue {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding: 12px;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	background: #fff;
+}
+
+.videopress-caption-cue__toolbar {
+	// Rendered after the body in the DOM so Tab reaches the text/time fields
+	// first; ordered back to the top visually.
+	order: -1;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+}
+
+.videopress-caption-cue__handle {
+	color: #1e1e1e;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.videopress-caption-cue__actions {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+}
+
+.videopress-caption-cue__body {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(180px, 220px);
+	gap: 12px;
+}
+
+// Let the subtitle textarea grow to fill its column so its bottom edge lines up
+// with the end-time input next to it.
+.videopress-caption-cue__text {
+	display: flex;
+	flex-direction: column;
+}
+
+.videopress-caption-cue__text .components-base-control,
+.videopress-caption-cue__text .components-base-control__field {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+}
+
+.videopress-caption-cue__text .components-base-control__field {
+	margin-bottom: 0;
+}
+
+.videopress-caption-cue__text textarea {
+	flex: 1;
+	resize: none;
+}
+
+.videopress-caption-cue__times {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.videopress-caption-cue__insert.components-button.has-icon {
+	position: absolute;
+	inset-block-end: -20px;
+	// Physical left: with translateX(-50%), centering is direction-neutral.
+	left: 50%;
+	z-index: 1;
+	min-width: 0;
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	color: #fff;
+	background: var(--wp-admin-theme-color, #3858e9);
+	border-radius: 50%;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+	transform: translateX(-50%) scale(0.8);
+	opacity: 0;
+	transition:
+		opacity 0.1s ease,
+		transform 0.1s ease;
+	pointer-events: none;
+}
+
+.videopress-caption-cue:hover .videopress-caption-cue__insert.components-button.has-icon,
+.videopress-caption-cue:focus-within .videopress-caption-cue__insert.components-button.has-icon {
+	opacity: 1;
+	transform: translateX(-50%) scale(1);
+	pointer-events: auto;
+}
+
+.videopress-caption-cue__insert.components-button.has-icon:hover {
+	color: #fff;
+	background: var(--wp-admin-theme-color-darker-10, #2145e6);
+}
+
+.videopress-caption-cue__insert.components-button.has-icon svg {
+	fill: currentColor;
+}
+
+// Visually hidden but exposed to assistive technology (keyboard shortcut hint).
+.videopress-caption-manager__visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	border: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+.videopress-caption-manager__preview {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	min-width: 0;
+	min-height: 0;
+	padding: 18px;
+	border-inline-start: 1px solid #dcdcde;
+	background: #f6f7f7;
+	overflow-y: auto;
+}
+
+.videopress-caption-manager__video {
+	position: relative;
+
+	// Size to the video's own aspect ratio (the inline --preview-ar from the
+	// video dimensions overrides this fallback), bounded so portrait videos are
+	// height-capped and landscape videos are width-capped — neither overflows
+	// or gets pillarboxed. The custom property also keeps the division out of
+	// Sass's reach, which would otherwise deprecation-warn on `/`.
+	--preview-ar: 16 / 9;
+	aspect-ratio: var(--preview-ar);
+	inline-size: min(100%, calc(60vh * ( var(--preview-ar) )));
+	max-block-size: 60vh;
+	margin-inline: auto;
+	background: #1d2327;
+	border-radius: 4px;
+	overflow: hidden;
+
+	video,
+	iframe {
+		display: block;
+		inline-size: 100%;
+		block-size: 100%;
+		border: 0;
+		object-fit: contain;
+	}
+}
+
+.videopress-caption-manager__video-placeholder {
+	display: grid;
+	place-items: center;
+	inline-size: 100%;
+	block-size: 100%;
+	color: #f6f7f7;
+}
+
+.videopress-caption-manager__caption-overlay {
+	position: absolute;
+	inset-inline: 12%;
+	inset-block-end: 48px;
+	padding: 4px 8px;
+	color: #fff;
+	background: rgba(0, 0, 0, 0.78);
+	border-radius: 2px;
+	text-align: center;
+	font-size: 14px;
+	line-height: 1.35;
+}
+
+@media ( max-width: 960px ) {
+
+	.videopress-caption-manager.components-modal__frame {
+		width: 100vw;
+		// The frame is top-anchored ~40px down (below the wp-admin bar), so cap its
+		// height to the remaining space or its bottom falls past the viewport.
+		height: calc(100vh - 40px);
+	}
+
+	.videopress-caption-manager__action-bar,
+	.videopress-caption-manager__manual-meta,
+	.videopress-caption-manager__form-grid,
+	.videopress-caption-cue__body {
+		grid-template-columns: 1fr;
+	}
+
+	// Larger touch targets for the cue toolbar's icon-only controls on mobile.
+	// Match WordPress's `.is-small.has-icon` specificity to win the cascade.
+	.videopress-caption-cue__actions .components-button.is-small.has-icon {
+		min-width: 40px;
+		width: 40px;
+		height: 40px;
+	}
+
+	// The editor is a fixed-height two-column grid on desktop; on mobile the
+	// preview is dropped, so let it flow as a single content-sized column that
+	// the workspace scrolls, rather than a height-constrained grid that clips.
+	.videopress-caption-manager__editor,
+	.videopress-caption-manager__editor-body {
+		overflow: visible;
+	}
+
+	.videopress-caption-manager__editor-body {
+		display: flex;
+		flex-direction: column;
+	}
+
+	// Size the editor panels to their content on mobile so the workspace scrolls
+	// the whole column — with the panels' own padding as bottom breathing room —
+	// instead of flex-constraining them and letting the last control spill past
+	// the fold where it can't be scrolled fully into view.
+	.videopress-caption-manager__manual-main,
+	.videopress-caption-manager__cue-editor {
+		flex: none;
+	}
+
+	.videopress-caption-manager__text-import-actions {
+		justify-content: flex-start;
+		flex-wrap: wrap;
+	}
+
+	.videopress-caption-manager__action-bar {
+		align-items: flex-start;
+	}
+
+	// The modal title already names the current view, so the in-body heading and
+	// status line are redundant on mobile — hide them to reclaim vertical space.
+	.videopress-caption-manager__action-bar-start {
+		display: none;
+	}
+
+	// The icon-only actions stay grouped on the row's trailing edge, beside the
+	// title, rather than spreading across their own line.
+	.videopress-caption-manager__track-actions {
+		gap: 4px;
+	}
+
+	.videopress-caption-manager__workspace {
+		overflow-y: auto;
+	}
+
+	.videopress-caption-manager__tracks {
+		overflow: visible;
+	}
+
+	// Let the whole workspace be the single scroll container on mobile rather
+	// than nesting a short scroll area inside it, which reads as "won't scroll".
+	.videopress-caption-manager__track-list,
+	.videopress-caption-manager__upload-panel,
+	.videopress-caption-manager__manual-main,
+	.videopress-caption-manager__cue-editor,
+	.videopress-caption-manager__preview {
+		overflow: visible;
+	}
+
+	.videopress-caption-manager__preview {
+		border-inline-start: 0;
+		border-block-start: 1px solid #dcdcde;
+	}
+
+	// The dashboard's footer sits at the bottom of the viewport and shows
+	// through beneath the full-height modal on narrow screens; hide it while a
+	// modal is open (WordPress sets `modal-open` on the body for the duration).
+	body.modal-open .jetpack-footer {
+		display: none;
+	}
+}
+
+/* The Escape-intercepting wrapper must not affect the modal's layout. */
+.videopress-caption-manager__body {
+	display: contents;
+}
+
+/*
+ * The discard confirmation renders as an in-modal overlay rather than a
+ * nested Modal, which WordPress would dismiss or hide this modal for.
+ */
+
+/* Transparent, but still catches clicks so the content behind stays inert. */
+.videopress-caption-manager__confirm-scrim {
+	position: absolute;
+	inset: 0;
+	z-index: 10;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.videopress-caption-manager__confirm-dialog {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+	padding: 24px;
+	max-inline-size: 22rem;
+
+	p {
+		margin: 0 0 16px;
+	}
+}
+
+.videopress-caption-manager__confirm-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+}
+
+/*
+ * Transient outcome and error snackbars float over the bottom of the modal.
+ * The list spans the modal so it can't push layout, but only the bubbles
+ * themselves capture clicks, leaving the content behind interactive.
+ */
+.videopress-caption-manager__snackbars {
+	position: absolute;
+	inset-block-end: 16px;
+	inset-inline: 16px;
+	z-index: 11;
+	pointer-events: none;
+
+	.components-snackbar {
+		pointer-events: auto;
+	}
+}

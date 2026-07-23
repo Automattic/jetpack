@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Premium Analytics: type the Stats post payload (StatsPostMeta) and add single-resource post_id support to report params.

@@ -78,6 +78,30 @@ describe( 'LeaderboardChart', () => {
 		expect( screen.getByText( '-8%' ) ).toBeInTheDocument();
 	} );
 
+	it( 'shows a placeholder when a row has no previous value', () => {
+		render(
+			<LeaderboardChart
+				data={ [
+					...mockData,
+					{
+						id: 'new',
+						label: 'New Source',
+						currentValue: 100,
+						currentShare: 1,
+					},
+				] }
+				withComparison={ true }
+			/>
+		);
+
+		expect( screen.getByText( '+25%' ) ).toBeInTheDocument();
+		expect( screen.getByText( '-8%' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'New Source' ) ).toBeInTheDocument();
+		expect( screen.getByText( '-' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByText( 'No comparison data' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '+100%' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'shows custom label when provided', () => {
 		render(
 			<LeaderboardChart
@@ -348,12 +372,6 @@ describe( 'LeaderboardChart', () => {
 	} );
 
 	describe( 'Responsive wrapper', () => {
-		it( 'fills parent container (height:100%) by default', () => {
-			render( <LeaderboardChart data={ mockData } /> );
-			const wrapper = screen.getByTestId( 'responsive-wrapper' );
-			expect( wrapper ).toHaveStyle( { height: '100%' } );
-		} );
-
 		it( 'applies explicit width and height to chart container', () => {
 			const { useParentSize } = jest.requireMock( '@visx/responsive' );
 			useParentSize.mockReturnValue( {
@@ -401,6 +419,28 @@ describe( 'LeaderboardChart', () => {
 			render( <LeaderboardChart data={ [ { ...mockData[ 0 ], onClick: jest.fn() } ] } /> );
 			// mockData[0] label is 'Direct', currentValue 12500 → '12.5K'
 			expect( screen.getByRole( 'button' ) ).toHaveAccessibleName( /Direct.*12\.5K/ );
+		} );
+
+		it( 'does not include the missing comparison dash in interactive row names', () => {
+			render(
+				<LeaderboardChart
+					data={ [
+						{
+							id: 'new',
+							label: 'New Source',
+							currentValue: 100,
+							currentShare: 1,
+							onClick: jest.fn(),
+						},
+					] }
+					withComparison={ true }
+				/>
+			);
+
+			expect( screen.getByRole( 'button' ) ).toHaveAccessibleName(
+				/New Source.*100.*No comparison data/
+			);
+			expect( screen.getByRole( 'button' ) ).not.toHaveAccessibleName( /-/ );
 		} );
 
 		it( 'derives the accessible name from an image label via its alt text', () => {

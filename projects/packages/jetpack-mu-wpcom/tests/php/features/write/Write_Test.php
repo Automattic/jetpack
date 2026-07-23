@@ -82,6 +82,50 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that a known source token resolves to its mapped back destination.
+	 */
+	public function test_resolve_back_url_maps_known_source() {
+		$this->assertSame(
+			'https://wordpress.com/reader',
+			wpcom_write_resolve_back_url( 'reader' )
+		);
+	}
+
+	/**
+	 * Test that an unknown or empty source falls back to the dashboard (default behavior).
+	 */
+	public function test_resolve_back_url_falls_back_to_dashboard() {
+		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( '' ) );
+		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( 'something_unknown' ) );
+		// Inferred analytics sources should not change the back destination.
+		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( 'dashboard' ) );
+		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( 'direct' ) );
+	}
+
+	/**
+	 * Test that the back button href reflects the resolved destination, defaulting to the dashboard.
+	 */
+	public function test_template_back_button_defaults_to_dashboard() {
+		ob_start();
+		wpcom_write_template();
+		$html = ob_get_clean();
+
+		$this->assertStringContainsString( 'class="bw-back"', $html );
+		$this->assertStringContainsString( 'href="' . esc_url( admin_url() ) . '"', $html );
+	}
+
+	/**
+	 * Test that a resolved back URL is rendered into the back button href.
+	 */
+	public function test_template_back_button_uses_resolved_url() {
+		ob_start();
+		wpcom_write_template( '', '', 0, array(), 'new', array(), false, '', array(), '', 'https://wordpress.com/reader' );
+		$html = ob_get_clean();
+
+		$this->assertStringContainsString( 'href="' . esc_url( 'https://wordpress.com/reader' ) . '"', $html );
+	}
+
+	/**
 	 * Test that the wpcom-write script module is registered after init.
 	 */
 	public function test_script_module_is_registered() {
@@ -577,30 +621,6 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$output = $this->render_template();
 
 		$this->assertStringContainsString( 'bw-recovery-banner" hidden', $output );
-	}
-
-	/**
-	 * Test that the template contains the beta disclaimer banner markup.
-	 */
-	public function test_template_contains_disclaimer_banner() {
-		wp_set_current_user( $this->admin_id );
-
-		$output = $this->render_template();
-
-		$this->assertStringContainsString( 'class="bw-disclaimer-banner"', $output );
-		$this->assertStringContainsString( 'actions.dismissDisclaimer', $output );
-		$this->assertStringContainsString( 'Data loss is possible', $output );
-	}
-
-	/**
-	 * Test that the disclaimer banner is hidden by default (shown via JS after localStorage check).
-	 */
-	public function test_disclaimer_banner_hidden_by_default() {
-		wp_set_current_user( $this->admin_id );
-
-		$output = $this->render_template();
-
-		$this->assertStringContainsString( 'bw-disclaimer-banner" hidden', $output );
 	}
 
 	/**

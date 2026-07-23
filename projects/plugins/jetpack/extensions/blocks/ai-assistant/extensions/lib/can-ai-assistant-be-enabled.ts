@@ -10,9 +10,11 @@ import { select } from '@wordpress/data';
 import { getFeatureAvailability } from '../../lib/utils/get-feature-availability';
 
 export const AI_ASSISTANT_SUPPORT_NAME = 'ai-assistant-support';
+export const AI_SIDEBAR_TOOLBAR_BUTTON = 'ai-sidebar-toolbar-button';
 
 // Check if the AI Assistant support is enabled.
 export const isAiAssistantSupportEnabled = getFeatureAvailability( AI_ASSISTANT_SUPPORT_NAME );
+export const isAiSidebarToolbarButtonEnabled = getFeatureAvailability( AI_SIDEBAR_TOOLBAR_BUTTON );
 
 /**
  * Check if it is possible to enable the AI Assistant block and its features.

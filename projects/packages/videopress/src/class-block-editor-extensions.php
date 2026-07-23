@@ -161,6 +161,7 @@ class Block_Editor_Extensions {
 			'isStandaloneActive'          => Status::is_standalone_plugin_active(),
 			'imagesURLBase'               => plugin_dir_url( __DIR__ ) . 'build/images/',
 			'playerBridgeUrl'             => plugins_url( '../build/lib/player-bridge.js', __FILE__ ),
+			'webpackPublicPath'           => plugins_url( '../build/', __FILE__ ),
 		);
 
 		// Expose initial state of site connection

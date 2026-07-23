@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Port the Bookings revenue by customer type dashboard widget from next-woocommerce-analytics, composed from the widgets-toolkit and data packages.

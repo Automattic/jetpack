@@ -71,9 +71,7 @@ The filters sidebar's `border-left` hairline (`.jetpack-search-layout__filters-c
 
 ## Theme tokens & `var()` chains
 
-The search-blocks bundle uses its own postcss config (`postcss.blocks.config.js`) with `postcss-custom-properties` set to `preserve: true`. Every `var(--foo, fallback)` ships as two declarations: a literal substitution (the deepest fallback) followed by the full `var()` call. The browser cascade picks the var when defined and falls through to the literal otherwise — runtime theme tokens work, and there's always a static safety net.
-
-The other Search bundles (`inline-search`, `customberg`, `instant-search`) keep the shared `postcss.config.js` with `preserve: false`. `instant-search` in particular reads calypso-color-schemes vars that aren't shipped to the runtime; preserving them as `var()` would paint invalid. Don't change those bundles' config without auditing every var() usage there.
+Search bundles use autoprefixer-only PostCSS config. `var()` chains are left intact for runtime resolution, so block/theme tokens still resolve from the cascade in the browser.
 
 Surface colors in search-blocks SCSS follow one shape:
 
@@ -87,7 +85,7 @@ The chain reaches each layer in order:
 1. `--jp-search-page-*` — sampled from `body`'s computed `color` / `backgroundColor` at `wp_body_open` (see `Search_Blocks::print_theme_token_sampler()`). Theme-accurate regardless of palette slug convention, so themes that emit positional slugs like wp.com Global Styles' `--wp--preset--color--theme-1`/`--theme-2` still drive Search surfaces to the right value.
 2. WP 6.1+ `--base`/`--contrast` pair.
 3. Legacy `--background`/`--foreground` pair (TT1, Kaze, many WPCOM themes).
-4. Static literal — postcss-custom-properties emits this as a separate declaration alongside the `var()` call, so the surface always has a paintable value even when no var resolves.
+4. Final literal fallback in the SCSS chain (for example `#fff` / `inherit`) paints when no variable in the chain resolves.
 
 Two guards in the sampler against degenerate cases:
 
@@ -149,6 +147,7 @@ A saved post that contains a WC-only block on a site that later deactivates WooC
 - **Seeded vs client-only state.** Anything the SSR markup binds (`searchQuery`, `activeFilters`, `filterConfigs`, plan flags) must come through `seed_interactivity_state()` so the server-rendered HTML and the hydrated store agree on the first paint. Pure UI state (open/closed flags, hover index) lives client-side only.
 - **`getContext()` is only live inside the originating handler.** Reading it from a deferred callback (`setTimeout`, microtask, generator yield resume) returns `null` — context tracking ends with the synchronous handler that started the dispatch. Capture the proxy synchronously in the entry handler and pass it into the deferred call (see `scheduleSearch` / `scheduleSuggestions` in `search-input/`).
 - **`hasOwn` + null prototype for filter-key gates.** `gateActiveFilters()` uses `Object.hasOwn` and `Object.create( null )` so `__proto__` / `constructor` / `toString` URL keys can't smuggle through prototype-chain hits.
+- **Don't give a seeded key a literal default in `store()`'s state object.** The framework's server→client state merge is additive-only (`deepMerge(..., override:false)` — server values only fill in keys the client hasn't already declared), but the block bundle's own `store(NAMESPACE, { state: {...} })` call merges with `override:true` and runs *after* the server seed is applied. A literal default for a seeded key (e.g. `resultsPerPage: 10`) silently clobbers the per-page seeded value back to the default on every load. Read the fallback at the call site instead (`state.resultsPerPage ?? 10`), matching the `staticPostTypes` pattern — no default in `state {}`, only a `?? null`/`?? fallback` where it's consumed.
 
 ## Editor ↔ render parity
 
@@ -158,6 +157,21 @@ Block edit components mirror the server `render.php` so the canvas preview match
 - **`previewSelected` fallback.** When a saved `defaultSort` no longer appears in `availableSortOptions` (author just unchecked it), fall back to the first visible option for the preview. The render callback already does this; the edit component has to do it too.
 - **Snap empty selections to the full set.** Persisting `availableSortOptions: []` would make the renderer fall back to "all options" while every inspector checkbox stays unchecked — invisible mismatch. The setter writes the canonical full set back instead.
 - **Per-instance IDs.** Edit components that emit `<label htmlFor=…>` use `useId()` — the editor canvas may render the same block twice, and a shared static id breaks the label→control association on the second instance.
+
+## Editor preview gotchas
+
+Rendering a read-only preview of *another* block's current children (not your own `InnerBlocks`) inside an edit component — `filters-popover` does this to mirror `filters`/`filters-product` — has two traps:
+
+- **`<BlockPreview>` silently renders at zero height when nested inside the Site Editor's own iframed canvas.** It renders its content into its own internal iframe and sizes itself via a `ResizeObserver` on that iframe's content; the observer never reports a nonzero height when the whole thing is nested one level inside the canvas iframe the Site Editor already uses, so the preview loads real content but stays invisible. Confirmed by inspecting the live DOM in a browser (real content, `0` measured height) — not a timing/mount-order issue, waiting longer doesn't fix it.
+- **The non-iframed alternative, `useBlockPreview()`, is only published under the experimental name `__experimentalUseBlockPreview`** in `@wordpress/block-editor` as of the versions this package installs — there's no stable `useBlockPreview` export despite the un-prefixed name existing in Gutenberg's own source. Importing the plain name resolves to `undefined` and throws at call time. Depending on the `__experimental` name ties a shipped block to an unstable API that WordPress core can rename or remove without notice.
+
+Given both, prefer locking the block's own (already-synced) `InnerBlocks` read-only with `<Disabled>` (a long-stable public component) over live-mirroring another block's content. It loses "reflects edits before you save," but every reload/save picks up the source's current state regardless — self-healing, no unstable dependency.
+
+## InnerBlocks appender boundary trap
+
+The default `InnerBlocks` appender's click/hover target isn't visually bounded — a click just outside a container's InnerBlocks region silently inserts the new block as a *sibling* instead of a *child*, with no visual cue anything went wrong. `filters`/`filters-product` hit this: an author adding a new filter could end up with it outside the Filters composition entirely (SEARCH-317).
+
+Mitigation, in both blocks' `edit.jsx`: `renderAppender={InnerBlocks.ButtonBlockAppender}` bounds the insertion target (established pattern — see `extensions/blocks/recipe/*/edit.jsx`, `packages/forms/src/blocks/form-step/edit.jsx`); an editor-only outline + label (added only in `edit.jsx`, matched by a `style.scss` rule `render.php` never emits — same zero-build-cost trick as the read-only-preview gotcha above) makes the boundary visible before a click. Not `templateLock` — that restricts *what* can be inserted, not *where* a click resolves, so it doesn't touch the actual bug.
 
 ## Comments
 

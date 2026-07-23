@@ -50,6 +50,12 @@ export function showModal( url ) {
 		iframe.setAttribute( 'frameborder', '0' );
 		iframe.setAttribute( 'allowtransparency', 'true' );
 		iframe.setAttribute( 'allowfullscreen', 'true' );
+		// Delegate the Payment Request API (Apple Pay / Google Pay / Link) to the
+		// cross-origin checkout iframe. Use `payment *` rather than bare `payment`
+		// because the wallet call originates from Stripe's nested js.stripe.com frame
+		// inside our subscribe.wordpress.com frame, so the feature must be delegated
+		// to all nested origins, not just 'src'.
+		iframe.setAttribute( 'allow', 'payment *' );
 
 		iframe.addEventListener( 'load', function () {
 			// prevent double scroll bars. We use the entire viewport for the modal so we need to hide overflow on the body element.

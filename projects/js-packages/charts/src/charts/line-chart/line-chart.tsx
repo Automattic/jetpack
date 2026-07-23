@@ -29,7 +29,7 @@ import {
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
 } from '../../providers';
-import { attachSubComponents } from '../../utils';
+import { attachSubComponents, resolveCssVariable } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartLayout } from '../private/chart-layout';
 import { DefaultGlyph } from '../private/default-glyph';
@@ -190,6 +190,10 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		const legendPosition = legend.position ?? 'bottom';
 
 		const providerTheme = useGlobalChartsTheme();
+		// Gradient stops apply this as an SVG attribute, where CSS var() cannot
+		// resolve, so resolve the WPDS token to a concrete value first.
+		const resolvedBackgroundColor =
+			resolveCssVariable( providerTheme.backgroundColor ) ?? providerTheme.backgroundColor;
 		const theme = useXYChartTheme( data );
 		const chartId = useChartId( providedChartId );
 		const chartRef = useRef< HTMLDivElement >( null );
@@ -485,7 +489,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 																		from={ color }
 																		fromOpacity={ 0.4 }
 																		toOpacity={ 0.1 }
-																		to={ providerTheme.backgroundColor }
+																		to={ resolvedBackgroundColor }
 																		{ ...seriesData.options?.gradient }
 																		data-testid="line-gradient"
 																	>

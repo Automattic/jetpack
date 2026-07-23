@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-AI Sidebar: load the Agents Manager through the jetpack-agents-manager Composer package instead of a self-contained CDN loader.

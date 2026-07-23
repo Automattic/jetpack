@@ -1,0 +1,10 @@
+{
+	"name": "jpa/revenue-by-customer-type",
+	"title": "Revenue by customer type",
+	"description": "Shows the breakdown of order revenue from new and returning customers over the selected time period.",
+	"help": {
+		"content": "Revenue breakdown from new customers vs returning customers over the selected time period."
+	},
+	"category": "store",
+	"presentation": "framed"
+}

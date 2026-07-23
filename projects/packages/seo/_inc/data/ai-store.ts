@@ -1,5 +1,5 @@
-import { getScriptData } from '@automattic/jetpack-script-data';
 import { createReduxStore, register } from '@wordpress/data';
+import { AI_PATH, getPreloaded } from './get-preloaded';
 import type { AiState } from './ai-types';
 
 /**
@@ -16,12 +16,6 @@ const STORE_NAME = 'jetpack-seo/ai';
 
 type Enhancer = AiState[ 'enhancer' ];
 
-type SeoScriptData = {
-	seo?: {
-		ai?: AiState;
-	};
-};
-
 interface State {
 	enhancer: Enhancer | null;
 }
@@ -32,7 +26,7 @@ interface SetEnhancerAction {
 }
 
 const DEFAULT_STATE: State = {
-	enhancer: ( getScriptData() as SeoScriptData | undefined )?.seo?.ai?.enhancer ?? null,
+	enhancer: getPreloaded< AiState >( AI_PATH )?.enhancer ?? null,
 };
 
 const actions = {

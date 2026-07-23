@@ -1601,7 +1601,48 @@ class Feedback {
 		if ( $version === 'v2' ) {
 			return $this->parse_content_v2( $post_content );
 		}
+
+		// Some feedback posts store JSON content without a version marker
+		// (empty post_mime_type). Parse those as the current (v3) format instead
+		// of falling through to the legacy plain-text parser.
+		if ( self::is_json( $post_content ) ) {
+			$decoded_content = json_decode( $post_content, true );
+			if ( $decoded_content === null ) {
+				// Content may be slash-escaped as stored by WordPress; retry,
+				// mirroring the fallback used by the v2/v3 parsers.
+				$decoded_content = json_decode( stripslashes( trim( $post_content ) ), true );
+			}
+			if ( isset( $decoded_content['fields'] ) && is_array( $decoded_content['fields'] ) ) {
+				return $this->parse_content_v3( $post_content );
+			}
+		}
+
 		return $this->parse_legacy_content( $post_content );
+	}
+
+	/**
+	 * Check whether a string looks like and decodes as valid JSON.
+	 *
+	 * Accepts slash-escaped JSON (as WordPress may store it), mirroring the
+	 * stripslashes fallback used by the v2/v3 parsers.
+	 *
+	 * @param string $string The string to test.
+	 * @return bool True if the string is a JSON object or array.
+	 */
+	private static function is_json( $string ) {
+		if ( ! is_string( $string ) || $string === '' ) {
+			return false;
+		}
+		$string = trim( $string );
+		if ( ! str_starts_with( $string, '{' ) && ! str_starts_with( $string, '[' ) ) {
+			return false;
+		}
+		$decoded = json_decode( $string );
+		if ( $decoded !== null && json_last_error() === JSON_ERROR_NONE ) {
+			return true;
+		}
+		$decoded = json_decode( stripslashes( $string ) );
+		return $decoded !== null && json_last_error() === JSON_ERROR_NONE;
 	}
 
 	/**

@@ -1,3 +1,4 @@
+import { __, _x } from '@wordpress/i18n';
 import { safeParseFloat } from '../../utils/parsing';
 import { coerceStatsArray, coerceStatsRecord, createStatsListDataPoint } from './utils';
 import type { StatsNormalizedItemBase, StatsNormalizedReport, StatsRecord } from './types';
@@ -8,15 +9,62 @@ export interface StatsEmailBreakdownItem extends StatsNormalizedItemBase< null >
 	countryCode?: string;
 	countryFull?: unknown;
 	link?: string;
+	/**
+	 * Marks the aggregated catch-all row, which always sorts last. Consumers must
+	 * key off this rather than the label, which is localized.
+	 */
+	isOther?: boolean;
 	[ key: string ]: unknown;
 }
 
-const emailLinkLabels: Record< string, string > = {
-	'post-url': 'Post URL',
-	'like-post': 'Like',
-	'comment-post': 'Comment',
-	'remove-subscription': 'Unsubscribe',
-};
+const EMAIL_LINK_TYPES = [
+	'post-url',
+	'like-post',
+	'comment-post',
+	'remove-subscription',
+] as const;
+
+type EmailLinkType = ( typeof EMAIL_LINK_TYPES )[ number ];
+
+/**
+ * The literal WPCOM returns for its aggregated bucket in the `clients` and
+ * `devices` breakdowns. Matching it here, at the API boundary, is what lets the
+ * row carry a localized label while sorting stays keyed on `isOther`.
+ */
+const API_OTHER_BUCKET = 'Other';
+
+function isEmailLinkType( value: unknown ): value is EmailLinkType {
+	return typeof value === 'string' && EMAIL_LINK_TYPES.includes( value as EmailLinkType );
+}
+
+/**
+ * Display label for a known internal email link type. Resolved per call, not from
+ * a module-level map, so the strings translate against the locale data loaded at
+ * render time rather than whatever was loaded when this module was imported.
+ *
+ * @param linkType - The internal link type reported by the API.
+ * @return The localized display label.
+ */
+function emailLinkLabel( linkType: EmailLinkType ): string {
+	switch ( linkType ) {
+		case 'post-url':
+			return _x( 'Post URL', 'Email link type', 'jetpack-premium-analytics' );
+		case 'like-post':
+			return _x( 'Like', 'Email link type', 'jetpack-premium-analytics' );
+		case 'comment-post':
+			return _x( 'Comment', 'Email link type', 'jetpack-premium-analytics' );
+		case 'remove-subscription':
+			return _x( 'Unsubscribe', 'Email link type', 'jetpack-premium-analytics' );
+	}
+}
+
+function otherLabel(): string {
+	return __( 'Other', 'jetpack-premium-analytics' );
+}
+
+function otherEmailLinkLabel(): string {
+	return _x( 'Other', 'Email link type', 'jetpack-premium-analytics' );
+}
 
 function isEmailBreakdownSummaryValue( value: unknown ): boolean {
 	return (
@@ -33,18 +81,37 @@ function normalizeEmailBreakdownScalarSummary( response: StatsRecord ) {
 	);
 }
 
+/**
+ * Comparator ordering breakdown items by value, descending, with the aggregated
+ * catch-all row pinned last. Exported for consumers that merge rows from several
+ * breakdown reports and need to restore this order — e.g. the email breakdown
+ * widget's links view.
+ *
+ * Pinning keys on `isOther`, never on the label: the label is localized, so a
+ * string comparison would silently stop matching in every non-English locale.
+ *
+ * @param a - The first item.
+ * @param b - The second item.
+ * @return A standard comparator result.
+ */
+export function compareEmailBreakdownItems(
+	a: Pick< StatsEmailBreakdownItem, 'value' | 'isOther' >,
+	b: Pick< StatsEmailBreakdownItem, 'value' | 'isOther' >
+): number {
+	// Coerce: rows from breakdowns that have no catch-all bucket omit the flag
+	// entirely, so `undefined` and `false` must compare equal.
+	const aIsOther = Boolean( a.isOther );
+	const bIsOther = Boolean( b.isOther );
+
+	if ( aIsOther !== bIsOther ) {
+		return aIsOther ? 1 : -1;
+	}
+
+	return b.value - a.value;
+}
+
 function sortEmailBreakdownItems( items: StatsEmailBreakdownItem[] ): StatsEmailBreakdownItem[] {
-	return [ ...items ].sort( ( a, b ) => {
-		if ( a.label === 'Other' ) {
-			return 1;
-		}
-
-		if ( b.label === 'Other' ) {
-			return -1;
-		}
-
-		return b.value - a.value;
-	} );
+	return [ ...items ].sort( compareEmailBreakdownItems );
 }
 
 function parseFieldlessEmailCountryRows( response: StatsRecord ): StatsEmailBreakdownItem[] {
@@ -58,7 +125,7 @@ function parseFieldlessEmailCountryRows( response: StatsRecord ): StatsEmailBrea
 			const countryFull = country.country_full;
 
 			return {
-				label: countryFull ?? 'Unknown',
+				label: countryFull ?? __( 'Unknown', 'jetpack-premium-analytics' ),
 				value: safeParseFloat( row[ 1 ] ),
 				countryCode: countryFull ? countryCode : undefined,
 				countryFull,
@@ -76,11 +143,16 @@ function parseFieldlessEmailListRows(
 	const rows = coerceStatsArray< unknown[] >( coerceStatsRecord( response[ key ] ).data );
 
 	return sortEmailBreakdownItems(
-		rows.map( row => ( {
-			label: row[ 0 ],
-			value: safeParseFloat( row[ 1 ] ),
-			children: null,
-		} ) )
+		rows.map( row => {
+			const isOther = row[ 0 ] === API_OTHER_BUCKET;
+
+			return {
+				label: isOther ? otherLabel() : row[ 0 ],
+				value: safeParseFloat( row[ 1 ] ),
+				...( isOther && { isOther: true } ),
+				children: null,
+			};
+		} )
 	);
 }
 
@@ -89,25 +161,34 @@ function parseFieldlessEmailLinkRows( response: StatsRecord ): StatsEmailBreakdo
 	const userContentLinks = coerceStatsArray< unknown[] >(
 		coerceStatsRecord( response[ 'user-content-links' ] ).data
 	);
-	const items: StatsEmailBreakdownItem[] = internalLinks
-		.filter( row => typeof row[ 0 ] === 'string' && emailLinkLabels[ row[ 0 ] ] )
-		.map( row => ( {
-			label: emailLinkLabels[ String( row[ 0 ] ) ],
-			value: safeParseFloat( row[ 1 ] ),
-			children: null,
-		} ) );
-	const otherInternalLinks = internalLinks.reduce( ( total, row ) => {
-		const linkType = String( row[ 0 ] ?? '' );
+	// flatMap rather than filter+map: the type guard narrows `linkType` for the
+	// `emailLinkLabel` call, which a separate filter step would not.
+	const items: StatsEmailBreakdownItem[] = internalLinks.flatMap( row => {
+		const linkType = row[ 0 ];
 
-		return emailLinkLabels[ linkType ] || linkType === 'user_link'
+		return isEmailLinkType( linkType )
+			? [
+					{
+						label: emailLinkLabel( linkType ),
+						value: safeParseFloat( row[ 1 ] ),
+						children: null,
+					},
+			  ]
+			: [];
+	} );
+	const otherInternalLinks = internalLinks.reduce( ( total, row ) => {
+		const linkType = row[ 0 ];
+
+		return isEmailLinkType( linkType ) || linkType === 'user_link'
 			? total
 			: total + safeParseFloat( row[ 1 ] );
 	}, 0 );
 
 	if ( otherInternalLinks ) {
 		items.push( {
-			label: 'Other',
+			label: otherEmailLinkLabel(),
 			value: otherInternalLinks,
+			isOther: true,
 			children: null,
 		} );
 	}
@@ -182,15 +263,23 @@ function parseStatsEmailBreakdownRows( response: unknown ): {
 			}
 		} );
 
-		const country = coerceStatsRecord( countryInfo[ String( parsed[ labelKey ] ) ] );
+		const rawLabel = parsed[ labelKey ];
+		const country = coerceStatsRecord( countryInfo[ String( rawLabel ) ] );
 		// Matrix link payloads keep their API labels; fieldless all-time link payloads map known
 		// link types to display labels to match the legacy email stats parser.
-		const label =
-			matrixKey === 'countries' ? country.country_full ?? parsed[ labelKey ] : parsed[ labelKey ];
+		const isOther = matrixKey !== 'countries' && rawLabel === API_OTHER_BUCKET;
+		let label = rawLabel;
+
+		if ( isOther ) {
+			label = otherLabel();
+		} else if ( matrixKey === 'countries' ) {
+			label = country.country_full ?? rawLabel;
+		}
 
 		return {
 			...parsed,
 			label,
+			...( isOther && { isOther: true } ),
 			value: safeParseFloat( parsed[ metricKey ] ),
 			countryCode: matrixKey === 'countries' ? String( parsed[ labelKey ] ) : undefined,
 			countryFull: country.country_full,
@@ -198,7 +287,7 @@ function parseStatsEmailBreakdownRows( response: unknown ): {
 		};
 	} );
 
-	return { items, metricKey };
+	return { items: sortEmailBreakdownItems( items ), metricKey };
 }
 
 export function sanitizeStatsEmailBreakdownResponse(

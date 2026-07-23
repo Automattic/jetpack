@@ -42,3 +42,13 @@ body.jetpack_page_jetpack-forms-admin {
 	padding-left: 24px;
 	padding-right: 24px;
 }
+
+// The "not collecting" badge is wrapped in a Tooltip trigger, which renders a
+// native <button>; strip its default chrome so only the Badge shows.
+.jetpack-forms__not-collecting-badge {
+	display: inline-flex;
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: help;
+}

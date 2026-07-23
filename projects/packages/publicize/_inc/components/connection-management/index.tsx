@@ -1,18 +1,16 @@
 import { Disabled } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useIsModernized } from '../../hooks/use-is-modernized';
-import useSocialMediaConnections from '../../hooks/use-social-media-connections';
+import { useIsDashboard } from '../../hooks/use-is-dashboard';
 import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
 import { store } from '../../social-store';
 import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
 import { useService } from '../services/use-service';
 import { ConnectionInfo } from './connection-info';
-import { ModernConnectionInfo } from './connection-info-modern';
-import modernStyles from './style-modern.module.scss';
+import { DashboardConnectionInfo } from './connection-info-dashboard';
+import dashboardStyles from './style-dashboard.module.scss';
 import styles from './style.module.scss';
 
 const ConnectionManagement = ( {
@@ -21,13 +19,12 @@ const ConnectionManagement = ( {
 	hideConnectButton = false,
 	hideHeading = false,
 } ) => {
-	const isModernized = useIsModernized();
-	const ConnectionInfoVariant = isModernized ? ModernConnectionInfo : ConnectionInfo;
-	// The modernized chassis owns its list chrome (edge-to-edge dividers, no
-	// outline, rows supply their own padding). The legacy admin page / block
-	// editor keep the trunk `style.module.scss` classes byte-for-byte.
-	const listStyles = isModernized ? modernStyles : styles;
-	const { refresh } = useSocialMediaConnections();
+	const isDashboard = useIsDashboard();
+	const ConnectionInfoVariant = isDashboard ? DashboardConnectionInfo : ConnectionInfo;
+	// The Social dashboard owns its list chrome (edge-to-edge dividers, no
+	// outline, rows supply their own padding). The block editor keeps the trunk
+	// `style.module.scss` classes byte-for-byte.
+	const listStyles = isDashboard ? dashboardStyles : styles;
 
 	const {
 		connections: rawConnections,
@@ -51,10 +48,6 @@ const ConnectionManagement = ( {
 		}
 		return a.service_name.localeCompare( b.service_name );
 	} );
-
-	useEffect( () => {
-		refresh();
-	}, [ refresh ] );
 
 	const getService = useService();
 

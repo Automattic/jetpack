@@ -61,6 +61,7 @@ module.exports = {
 In a babel.config.js, you might do something like this.
 ```js
 module.exports = {
+	targets: require( '@automattic/jetpack-webpack-config/targets' ),
 	presets: [
 		[ '@automattic/jetpack-webpack-config/babel/preset', { /* options */ } ],
 	],
@@ -70,6 +71,10 @@ module.exports = {
 ## Available "pieces"
 
 `@automattic/jetpack-webpack-config` returns an object with two members, `webpackConfig` and `babelConfig`. You may also access these by requiring `@automattic/jetpack-webpack-config/webpack` and `@automattic/jetpack-webpack-config/babel` directly.
+
+The babel configuration may be accessed as a preset via `@automattic/jetpack-webpack-config/babel/preset`.
+
+Standard browserslist targets may be accessed via `@automattic/jetpack-webpack-config/targets`. In the absence of other configuration, this defaults to `@wordpress/browserslist-config` rather than browserslist's own defaults.
 
 ### Webpack
 
@@ -111,7 +116,8 @@ Note if you're setting `output.library.name`, you may want to also set `output.u
 * `minimizer` is configured with `TerserPlugin` and `CssMinimizerPlugin` configured as described below.
 * `emitOnErrors` is set true to facilitate debugging.
 * `concatenateModules` is set to false as that setting [may mangle WordPress's i18n function names](https://github.com/Automattic/jetpack/issues/21204).
-* `moduleIds` is set to false in production mode, as `PnpmDeterministicModuleIdsPlugin` is intended to be used instead. The Webpack default 'name' is set in development mode.
+* `chunkIds` is set to false in production mode, as `PnpmDeterministicChunkIdsPlugin` is intended to be used instead. The Webpack default 'named' is set in development mode.
+* `moduleIds` is set to false in production mode, as `PnpmDeterministicModuleIdsPlugin` is intended to be used instead. The Webpack default 'named' is set in development mode.
 * `mangleExports` is set to false in production mode, as `I18nSafeMangleExportsPlugin` is intended to be used instead.
 
 #### `TerserPlugin( options )`
@@ -200,9 +206,7 @@ plugins: {
 }
 ```
 
-Note that I18nCheckPlugin, PnpmDeterministicModuleIdsPlugin, and I18nSafeMangleExportsPlugin are only included by default in production mode. They can be turned on in development mode by passing an options object.
-
-Note that ForkTSCheckerPlugin must be explicitly enabled by passing an options object.
+Note that I18nCheckPlugin, PnpmDeterministicChunkIdsPlugin,, PnpmDeterministicModuleIdsPlugin, and I18nSafeMangleExportsPlugin are only included by default in production mode. They can be turned on in development mode by passing an options object.
 
 ##### `DefinePlugin( defines )`
 
@@ -229,18 +233,6 @@ One additional option is recognized:
 ##### `DuplicatePackageCheckerPlugin( options )`
 
 This provides an instance of [@cerner/duplicate-package-checker-webpack-plugin](https://www.npmjs.com/package/@cerner/duplicate-package-checker-webpack-plugin). The `options` are passed to the plugin.
-
-##### `ForkTSCheckerPlugin( options )`
-
-This provides an instance of [fork-ts-checker-webpack-plugin](https://www.npmjs.com/package/fork-ts-checker-webpack-plugin) configured for use alongside `@babel/preset-typescript`. The `options` are passed to the plugin.
-
-The default configuration sets the following:
-
-- `typescript.mode` to "write-dts".
-- `typescript.diagnosticOptions.semantic` to true.
-- `typescript.diagnosticOptions.syntactic` to true.
-
-Note that the optional peer dependency on `typescript` must be satisfied for this plugin to work.
 
 ##### `I18nCheckPlugin( options )`
 
@@ -272,6 +264,10 @@ Options are:
 ##### `MomentLocaleIgnorePlugin()`
 
 This provides an instance of Webpack's `IgnorePlugin` configured to ignore moment.js locale modules.
+
+##### `PnpmDeterministicChunkIdsPlugin( options )`
+
+This provides an slightly modified instance of Webpack's built-in DeterministicChunkIdsPlugin that does a better job of handling the paths produced by pnpm. The `options` are passed to the plugin.
 
 ##### `PnpmDeterministicModuleIdsPlugin( options )`
 
@@ -363,17 +359,14 @@ The options passed to the preset allow you to exclude (by passing false) or amen
 
 The options and corresponding components are:
 
-- `targets`: Set targets for various plugins. Default is your browserslist config if available, otherwise [@wordpress/browserslist-config](https://www.npmjs.com/package/@wordpress/browserslist-config).
 - `autoWpPolyfill`: Set false to disable use of [babel-plugin-polyfill-corejs3](https://www.npmjs.com/package/babel-plugin-polyfill-corejs3) to produce magic `/* wp:polyfill */` comments that [@wordpress/dependency-extraction-webpack-plugin](https://www.npmjs.com/package/@wordpress/dependency-extraction-webpack-plugin) will use to add a dep on `wp-polyfill`.
 
   Options include:
   - `exclude`: Core-js polyfills to ignore. Defaults to exclude 'es.array.push' and 'web.immediate'.
-  - `targets`: Override top-level `targets`.
 - `presetEnv`: Corresponds to [@babel/preset-env](https://www.npmjs.com/package/@babel/preset-env).
 
   Note the following options that are different from `@babel/preset-env`'s defaults:
   - `exclude`: Set to `[ 'transform-typeof-symbol' ]`, as that [apparently makes all code slower](https://github.com/facebook/create-react-app/pull/5278).
-  - `targets`: Set based on top-level `targets`.
 - `presetReact`: Corresponds to [@babel/preset-react](https://www.npmjs.com/package/@babel/preset-react). Defaults to `{ runtime: 'automatic' }` if undefined.
 - `presetTypescript`: Corresponds to [@babel/preset-typescript](https://www.npmjs.com/package/@babel/preset-typescript).
 - `pluginReplaceTextdomain`: Corresponds to [@automattic/babel-plugin-replace-textdomain](https://www.npmjs.com/package/@automattic/babel-plugin-replace-textdomain).

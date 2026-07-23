@@ -26,6 +26,5 @@ export const pocketcasts: PodcastApp = {
 	Logo: PocketCastsLogo,
 	submitUrl: 'https://pocketcasts.com/submit',
 	learnMoreUrl: 'https://support.pocketcasts.com/knowledge-base/submitting-podcasts/',
-	showHosts: [ 'pca.st', 'pocketcasts.com' ],
 	Modal: PocketCastsSubmitModal,
 };

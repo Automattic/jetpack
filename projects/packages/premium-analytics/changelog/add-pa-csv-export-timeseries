@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add CSV export for the over-time analytics reports: gross sales, net sales, average order value, average items per order, refunds, conversion rate, visitors, taxes over time, coupon use, and orders fulfilled.

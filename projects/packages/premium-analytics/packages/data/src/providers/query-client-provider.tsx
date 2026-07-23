@@ -2,62 +2,15 @@
  * External dependencies
  */
 import { QueryClient, QueryClientProvider, QueryCache } from '@tanstack/react-query';
-import { ReactNode, lazy, Suspense } from 'react';
+import { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
+import { getApiErrorStatus, shouldRetryApiError } from '../utils';
 import { globalErrorManager } from './global-error-manager';
 
 const DEFAULT_STALE_TIME = 5 * 60 * 1000;
 const DEFAULT_GC_TIME = 10 * 60 * 1000;
-
-// Upstream gates devtools behind an admin-toolkit experiment flag; that system
-// isn't available here, so we show them in dev builds only. Gate the `lazy()`
-// creation on NODE_ENV (not just the render) so the dynamic import sits in a
-// dead branch that production builds tree-shake out — no orphaned chunk.
-const ReactQueryDevtools =
-	process.env.NODE_ENV !== 'production'
-		? lazy( () =>
-				import( '@tanstack/react-query-devtools' ).then( d => ( {
-					default: d.ReactQueryDevtools,
-				} ) )
-		  )
-		: null;
-
-/**
- * Extract HTTP status code from various error formats.
- * WordPress REST API errors may have different shapes.
- */
-function getErrorStatus( error: unknown ): number | null {
-	if ( ! error || typeof error !== 'object' ) {
-		return null;
-	}
-
-	const err = error as Record< string, unknown >;
-
-	// Standard fetch Response error
-	if ( typeof err.status === 'number' ) {
-		return err.status;
-	}
-
-	// WordPress REST API error format
-	if ( err.data && typeof err.data === 'object' ) {
-		const data = err.data as Record< string, unknown >;
-		if ( typeof data.status === 'number' ) {
-			return data.status;
-		}
-	}
-
-	// Nested response object
-	if ( err.response && typeof err.response === 'object' ) {
-		const response = err.response as Record< string, unknown >;
-		if ( typeof response.status === 'number' ) {
-			return response.status;
-		}
-	}
-
-	return null;
-}
 
 /**
  * QueryCache with global error detection for auth and server errors.
@@ -84,7 +37,7 @@ const queryCache = new QueryCache( {
 			return;
 		}
 
-		const status = getErrorStatus( error );
+		const status = getApiErrorStatus( error );
 
 		if ( status === 401 ) {
 			// Auth errors take precedence over server errors, but not network errors.
@@ -128,19 +81,17 @@ export const queryClient = new QueryClient( {
 			 * Noop fetcher to prevent react-query errors for empty queries in console.
 			 */
 			queryFn: () => Promise.resolve( undefined ),
+
+			/**
+			 * 401/403 responses are deterministic for the current user/session.
+			 * Retrying them keeps initial widgets in a loading state and delays the
+			 * specific auth/plan-gated error UI.
+			 */
+			retry: shouldRetryApiError,
 		},
 	},
 } );
 
 export const AnalyticsQueryClientProvider = ( { children }: { children: ReactNode } ) => {
-	return (
-		<QueryClientProvider client={ queryClient }>
-			<>{ children }</>
-			{ ReactQueryDevtools && (
-				<Suspense fallback={ null }>
-					<ReactQueryDevtools initialIsOpen={ false } />
-				</Suspense>
-			) }
-		</QueryClientProvider>
-	);
+	return <QueryClientProvider client={ queryClient }>{ children }</QueryClientProvider>;
 };

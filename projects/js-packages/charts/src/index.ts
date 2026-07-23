@@ -4,6 +4,11 @@ export { BarChart, BarChartUnresponsive } from './charts/bar-chart';
 export { BarListChart, BarListChartUnresponsive } from './charts/bar-list-chart';
 export { ConversionFunnelChart } from './charts/conversion-funnel-chart';
 export { GeoChart, GeoChartUnresponsive } from './charts/geo-chart';
+export {
+	HeatmapChart,
+	HeatmapChartUnresponsive,
+	buildCalendarHeatmapData,
+} from './charts/heatmap-chart';
 export { LeaderboardChart, LeaderboardChartUnresponsive } from './charts/leaderboard-chart';
 export { LineChart, LineChartUnresponsive } from './charts/line-chart';
 export { PieChart, PieChartUnresponsive } from './charts/pie-chart';
@@ -67,7 +72,7 @@ export type {
 	PieSemiCircleChartProps,
 	PieSemiCircleChartRenderTooltipParams,
 } from './charts/pie-semi-circle-chart';
-export type { GeoChartProps, GeoRegion, GeoResolution } from './charts/geo-chart';
+export type { GeoChartProps, GeoRegion, GeoResolution, GeoChartError } from './charts/geo-chart';
 export type { LegendValueDisplay, BaseLegendItem } from './components/legend';
 export type { TrendIndicatorProps, TrendDirection } from './components/trend-indicator';
 export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
@@ -96,6 +101,13 @@ export type {
 	MainMetricRenderProps,
 	TooltipRenderProps,
 } from './charts/conversion-funnel-chart';
+export type {
+	HeatmapChartProps,
+	HeatmapColumn,
+	HeatmapCell,
+	HeatmapTooltipData,
+	CalendarHeatmapResult,
+} from './charts/heatmap-chart';
 export type { LeaderboardChartProps } from './charts/leaderboard-chart';
 export type {
 	LineChartProps,

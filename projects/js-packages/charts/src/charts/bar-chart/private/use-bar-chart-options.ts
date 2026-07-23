@@ -123,8 +123,11 @@ export function useBarChartOptions(
 					} );
 				} );
 				if ( allValues.length > 0 ) {
+					// Keep zero in the domain so bar length stays proportional to value — a
+					// non-zero baseline would exaggerate differences between periods. Math.max
+					// keeps zero on the far side too, so charts with negative values still span 0.
 					valueScaleDomainOverride = {
-						domain: [ Math.min( ...allValues ), Math.max( ...allValues ) ],
+						domain: [ Math.min( 0, ...allValues ), Math.max( 0, ...allValues ) ],
 					};
 				}
 			}

@@ -1,14 +1,20 @@
 <?php
 /**
- * Widget Types: hydrates the registry from the build manifest.
+ * Widget Types: registry hydration plus the availability filter hooks.
  *
- * The wp-build-generated `build/widgets.php` exposes the discovered widgets via
- * `jpa_get_registered_widget_modules()`. This file copies that manifest into
- * the in-memory Widget_Type_Registry at `init`, giving the rest of the plugin a
- * single, queryable source of widget types instead of re-parsing the manifest.
+ * Copies the wp-build manifest (`jpa_get_registered_widget_modules()`) into the
+ * in-memory Widget_Type_Registry, so the plugin queries the registry instead
+ * of re-parsing the manifest. On the way in, user-facing metadata strings are
+ * translated (per the widget-i18n.json schema) and the `help` note sanitized.
  *
- * This logic lives behind an experimental flag in Gutenberg; Premium Analytics
- * ships its own PA-namespaced copy so it does not depend on that flag.
+ * This is the problem-agnostic "core" layer (a PA-namespaced copy of the
+ * experimental Gutenberg API): it exposes the hooks a consumer uses to scope
+ * widget types, but never decides availability itself.
+ *
+ *   - REGISTRABLE_WIDGET_TYPES_FILTER (registry-time): drop candidates before
+ *     they register, gone everywhere. For hard availability.
+ *   - WIDGET_TYPES_FILTER (runtime): scope the registered set on read. For
+ *     request-dependent or soft state (e.g. shown locked).
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -19,13 +25,111 @@ require_once __DIR__ . '/class-widget-type.php';
 require_once __DIR__ . '/class-widget-type-registry.php';
 
 /**
+ * Registry-time filter over the manifest candidates, before they are registered.
+ */
+const REGISTRABLE_WIDGET_TYPES_FILTER = 'jetpack_premium_analytics_registrable_widget_types';
+
+/**
+ * Runtime filter over the registered widget types map, read for the client.
+ */
+const WIDGET_TYPES_FILTER = 'jetpack_premium_analytics_widget_types';
+
+/**
+ * Returns the i18n schema describing which widget metadata fields are
+ * translatable and the gettext context to use for each.
+ *
+ * Read once from widget-i18n.json and memoized for the rest of the request.
+ * Decoded as objects, not associative arrays: that is how
+ * `translate_settings_using_i18n_schema()` tells keyed maps apart from lists.
+ *
+ * @return object Map of translatable field name to gettext context.
+ */
+function get_widget_metadata_i18n_schema() {
+	static $i18n_schema = null;
+
+	if ( null === $i18n_schema ) {
+		$schema      = wp_json_file_decode( __DIR__ . '/widget-i18n.json' );
+		$i18n_schema = is_object( $schema ) ? $schema : new \stdClass();
+	}
+
+	return $i18n_schema;
+}
+
+/**
+ * Translates a widget's user-facing metadata strings.
+ *
+ * Runs `title`, `description`, `help`, and `keywords` through the widget
+ * i18n schema, leaving every other key untouched. Unlike the upstream copy,
+ * a widget with no `textdomain` falls back to the package text domain
+ * instead of skipping translation: every bundled widget shares it.
+ *
+ * @param array $widget Widget data from the build manifest.
+ * @return array Widget data with its translatable strings localized.
+ */
+function translate_widget_metadata( $widget ) {
+	$textdomain  = ! empty( $widget['textdomain'] ) ? $widget['textdomain'] : 'jetpack-premium-analytics';
+	$i18n_schema = get_widget_metadata_i18n_schema();
+
+	foreach ( array( 'title', 'description', 'help', 'keywords' ) as $field ) {
+		if ( isset( $widget[ $field ] ) && isset( $i18n_schema->$field ) ) {
+			$widget[ $field ] = translate_settings_using_i18n_schema( $i18n_schema->$field, $widget[ $field ], $textdomain );
+		}
+	}
+
+	return $widget;
+}
+
+/**
+ * Constrains a widget help note to its allowed shape: `content` keeps
+ * only `em`/`strong` markup, and links are dropped unless they carry a
+ * `label` and an `href` that survives `esc_url_raw()`.
+ *
+ * @param array|null $help Help note from the build manifest.
+ * @return array|null Sanitized help note, or null when there is no content.
+ */
+function sanitize_widget_help( $help ) {
+	if ( ! is_array( $help ) || empty( $help['content'] ) || ! is_string( $help['content'] ) ) {
+		return null;
+	}
+
+	$sanitized = array(
+		'content' => wp_kses(
+			$help['content'],
+			array(
+				'em'     => array(),
+				'strong' => array(),
+			)
+		),
+	);
+
+	if ( ! empty( $help['links'] ) && is_array( $help['links'] ) ) {
+		$links = array();
+		foreach ( $help['links'] as $link ) {
+			if ( is_array( $link ) && ! empty( $link['label'] ) && ! empty( $link['href'] ) ) {
+				$href = esc_url_raw( $link['href'] );
+
+				if ( $href ) {
+					$links[] = array(
+						'label' => $link['label'],
+						'href'  => $href,
+					);
+				}
+			}
+		}
+
+		if ( $links ) {
+			$sanitized['links'] = $links;
+		}
+	}
+
+	return $sanitized;
+}
+
+/**
  * Hydrates the widget type registry from the build manifest.
  *
- * Iterates the widgets discovered by the build pipeline (via
- * `jpa_get_registered_widget_modules()`) and registers each one in the
- * registry. The manifest is the single source of widget authorship in this
- * codebase; this loop is a deterministic copy of it into the in-memory
- * registry, with no filters in between.
+ * Each manifest widget is copied into the registry, gated by
+ * REGISTRABLE_WIDGET_TYPES_FILTER so a consumer can drop a candidate first.
  *
  * @return void
  */
@@ -36,13 +140,28 @@ function register_widget_types() {
 
 	$registry = Widget_Type_Registry::get_instance();
 
-	// @phan-suppress-next-line PhanUndeclaredFunction -- Generated by wp-build into build/widgets.php, outside Phan's analysis scope. The function_exists() guard above protects the call at runtime.
+	// Generated by wp-build into build/widgets.php, outside Phan's analysis scope.
+	// The function_exists() guard above protects the call at runtime.
 	$jetpack_widget_modules = jpa_get_registered_widget_modules();
+
+	/**
+	 * Filters the widget type candidates before they are registered.
+	 *
+	 * A dropped candidate is never registered, so it is gone from the REST list,
+	 * the import map, and any registry reader. Use for hard availability; for
+	 * soft state that must stay visible (e.g. shown locked), filter on read via
+	 * WIDGET_TYPES_FILTER.
+	 *
+	 * @param array $jetpack_widget_modules Manifest candidates, each with a `name`.
+	 */
+	$jetpack_widget_modules = apply_filters( REGISTRABLE_WIDGET_TYPES_FILTER, $jetpack_widget_modules );
 
 	foreach ( $jetpack_widget_modules as $widget ) {
 		if ( empty( $widget['name'] ) || $registry->is_registered( $widget['name'] ) ) {
 			continue;
 		}
+
+		$widget = translate_widget_metadata( $widget );
 
 		$registry->register(
 			$widget['name'],
@@ -50,25 +169,59 @@ function register_widget_types() {
 				'render_module' => $widget['render_module'] ?? null,
 				'widget_module' => $widget['widget_module'] ?? null,
 				'presentation'  => $widget['presentation'] ?? null,
+				'category'      => $widget['category'] ?? null,
+				'title'         => $widget['title'] ?? null,
+				'description'   => $widget['description'] ?? null,
+				'help'          => sanitize_widget_help( $widget['help'] ?? null ),
+				'keywords'      => $widget['keywords'] ?? null,
 			)
 		);
 	}
 }
 
-if ( did_action( 'init' ) ) {
-	register_widget_types();
-} else {
-	add_action( 'init', __NAMESPACE__ . '\\register_widget_types' );
+/**
+ * Hydrates the registry now if init has run, otherwise on init.
+ *
+ * Call after the availability filters are hooked, so the registry-time
+ * filter applies during hydration.
+ *
+ * @return void
+ */
+function bootstrap_widget_types() {
+	if ( did_action( 'init' ) ) {
+		register_widget_types();
+	} else {
+		add_action( 'init', __NAMESPACE__ . '\\register_widget_types' );
+	}
 }
 
 /**
- * Returns all widget types registered in the registry.
+ * Returns the raw registry. For the client-facing set use
+ * get_available_widget_types().
  *
- * Convenience accessor around `Widget_Type_Registry::get_all_registered()` for
- * callers that prefer a function-based API.
- *
- * @return Widget_Type[] Associative array of `$name => $widget_type` pairs.
+ * @return Widget_Type[] Map of `$name => $widget_type`.
  */
 function get_registered_widget_types() {
 	return Widget_Type_Registry::get_instance()->get_all_registered();
+}
+
+/**
+ * Returns the registered widget types scoped through WIDGET_TYPES_FILTER.
+ *
+ * Use this, not get_registered_widget_types(), wherever widget types reach the
+ * client, so the REST list and import map share one policy.
+ *
+ * @return Widget_Type[] Map of `$name => Widget_Type`.
+ */
+function get_available_widget_types() {
+	/**
+	 * Filters the widget types available to the dashboard this request.
+	 *
+	 * Removing an entry drops it from the REST list and the import map. The type
+	 * stays registered, so use this (not the registry-time filter) when a
+	 * consumer must still see it, e.g. to show it locked.
+	 *
+	 * @param Widget_Type[] $widget_types Map of `$name => Widget_Type`.
+	 */
+	return apply_filters( WIDGET_TYPES_FILTER, get_registered_widget_types() );
 }

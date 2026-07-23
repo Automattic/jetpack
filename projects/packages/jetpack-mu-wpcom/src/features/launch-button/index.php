@@ -156,6 +156,11 @@ function wpcom_enqueue_launch_button_assets() {
 		true
 	);
 
+	// Load the translations to avoid wp.i18n overwriting server-side translations
+	// with English strings, and in general make it possible to use translations
+	// in JS.
+	wp_set_script_translations( 'adminbar-launch-button', 'jetpack-mu-wpcom' );
+
 	$bundles      = function_exists( 'wpcom_get_site_purchases' ) ? wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'bundle' ) ) : array();
 	$current_plan = array_pop( $bundles );
 

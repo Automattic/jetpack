@@ -2,10 +2,11 @@
 
 /* eslint-disable react/jsx-no-bind */
 
-import { Button, TextControl } from '@wordpress/components';
+import { TextControl } from '@wordpress/components';
 import { useCallback, useMemo, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Badge, Card, CollapsibleCard, Stack } from '@wordpress/ui';
+import { Badge, Button, Card, CollapsibleCard, Stack } from '@wordpress/ui';
+import getSite from '../../data/get-site';
 import {
 	PAGE_TYPES,
 	PAGE_TYPE_SUGGESTIONS,
@@ -34,6 +35,7 @@ interface RowProps {
 	onChange: ( next: TitleFormatToken[] ) => void;
 	onSave: () => void;
 	canSave: boolean;
+	previewOverrides: Partial< Record< string, string > >;
 	disabled?: boolean;
 }
 
@@ -59,12 +61,16 @@ const TitleStructureRow: FC< RowProps > = ( {
 	onChange,
 	onSave,
 	canSave,
+	previewOverrides,
 	disabled,
 } ) => {
 	const inputRef = useRef< HTMLInputElement | null >( null );
 	const value = useMemo( () => tokensToString( tokens ), [ tokens ] );
 	const allowed = PAGE_TYPE_TOKENS[ pageTypeId ];
-	const preview = useMemo( () => buildPreview( tokens ), [ tokens ] );
+	const preview = useMemo(
+		() => buildPreview( tokens, previewOverrides ),
+		[ tokens, previewOverrides ]
+	);
 
 	const setFromString = useCallback(
 		( next: string ) => onChange( stringToTokens( next, allowed ) ),
@@ -107,8 +113,9 @@ const TitleStructureRow: FC< RowProps > = ( {
 					{ PAGE_TYPE_SUGGESTIONS[ pageTypeId ].map( tokenId => (
 						<Button
 							key={ tokenId }
-							variant="secondary"
-							size="small"
+							variant="outline"
+							tone="neutral"
+							size="compact"
 							disabled={ disabled }
 							onClick={ () => insertToken( tokenId ) }
 						>
@@ -124,7 +131,7 @@ const TitleStructureRow: FC< RowProps > = ( {
 					</div>
 				) }
 				<div className="jetpack-seo-settings__save">
-					<Button variant="primary" onClick={ onSave } disabled={ disabled || ! canSave }>
+					<Button onClick={ onSave } disabled={ disabled || ! canSave }>
 						{ saveLabel }
 					</Button>
 				</div>
@@ -161,6 +168,17 @@ const TitleStructureField: FC< Props > = ( {
 } ) => {
 	const customizedCount = PAGE_TYPES.filter( pt => ( formats[ pt.id ]?.length ?? 0 ) > 0 ).length;
 
+	// Fill the site-wide placeholders in each row's preview with the site's real
+	// name and tagline (bootstrapped in `seo.site`). Coalesce to '' when the site
+	// data is absent so the empty value falls through to the sample text in
+	// `buildPreview`. Per-page tokens like [Post title] keep their representative
+	// samples since they vary per page.
+	const site = getSite();
+	const previewOverrides = useMemo(
+		() => ( { site_name: site?.title ?? '', tagline: site?.tagline ?? '' } ),
+		[ site?.title, site?.tagline ]
+	);
+
 	return (
 		<CollapsibleCard.Root defaultOpen={ false }>
 			<CollapsibleCard.Header>
@@ -189,6 +207,7 @@ const TitleStructureField: FC< Props > = ( {
 							onChange={ next => onChange( pt.id, next ) }
 							onSave={ () => onSaveFormat( pt.id ) }
 							canSave={ isFormatDirty( pt.id ) }
+							previewOverrides={ previewOverrides }
 							disabled={ disabled }
 						/>
 					) ) }

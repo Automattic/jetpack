@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Set `stableTypeOrdering` flag in `tsconfig.json` to try to make builds more stable.
+
+

@@ -1,9 +1,9 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { Button, TextControl } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { TextControl } from '@wordpress/components';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Badge, Link, Stack } from '@wordpress/ui';
+import { Badge, Button, Link, Stack } from '@wordpress/ui';
 import { useGoogleVerify } from '../../data/use-google-verify';
 import type { FC } from 'react';
 
@@ -40,6 +40,15 @@ const GoogleVerificationField: FC< Props > = ( { value, onChange, onCommit, disa
 	const { state, isConnected, isOwner, searchConsoleUrl, isVerifying, autoVerify } =
 		useGoogleVerify( { onCodeSaved: onChange } );
 	const [ manualOpen, setManualOpen ] = useState( false );
+	const manualVisible = manualOpen || !! value;
+
+	// Latch the manual field open once a code exists, so clearing the input
+	// mid-edit doesn't unmount it from under the cursor.
+	useEffect( () => {
+		if ( value ) {
+			setManualOpen( true );
+		}
+	}, [ value ] );
 
 	const manualField = (
 		<TextControl
@@ -75,7 +84,7 @@ const GoogleVerificationField: FC< Props > = ( { value, onChange, onCommit, disa
 	}
 
 	return (
-		<Stack direction="column" gap="sm" className="jetpack-seo-settings__google-verification">
+		<Stack direction="column" gap="md" className="jetpack-seo-settings__google-verification">
 			<Stack direction="row" justify="space-between" align="center" gap="sm">
 				<strong>{ __( 'Google', 'jetpack-seo' ) }</strong>
 				{ state === 'verified' && (
@@ -95,25 +104,27 @@ const GoogleVerificationField: FC< Props > = ( { value, onChange, onCommit, disa
 			{ state !== 'verified' && (
 				<Stack direction="row" gap="sm" align="center">
 					<Button
-						variant="primary"
 						onClick={ autoVerify }
-						isBusy={ isVerifying }
+						loading={ isVerifying }
 						disabled={ disabled || isVerifying || state === 'loading' }
 					>
 						{ __( 'Verify with Google', 'jetpack-seo' ) }
 					</Button>
-					<Button
-						variant="tertiary"
-						onClick={ () => setManualOpen( current => ! current ) }
-						disabled={ disabled }
-					>
-						{ __( 'Enter a code manually', 'jetpack-seo' ) }
-					</Button>
+					{ ! manualVisible && (
+						<Button
+							variant="minimal"
+							tone="neutral"
+							onClick={ () => setManualOpen( true ) }
+							disabled={ disabled }
+						>
+							{ __( 'Enter a code manually', 'jetpack-seo' ) }
+						</Button>
+					) }
 				</Stack>
 			) }
 
 			{ /* Reveal the manual field on request, or whenever a code is already set. */ }
-			{ state !== 'verified' && ( manualOpen || !! value ) && manualField }
+			{ state !== 'verified' && manualVisible && manualField }
 		</Stack>
 	);
 };

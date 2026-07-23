@@ -2,6 +2,48 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [2.1.0] - 2026-07-22
+### Removed
+- Connection UI: Unify error handling across Basic and Required Plan screens, modernize components, and remove the unused `ConnectUser` component. [#50663]
+
+## [2.0.2] - 2026-07-20
+### Changed
+- UI: Convert component files to TSX and update components. [#50370] [#50543]
+- UI: Convert remaining component files to TS / TSX. [#50620]
+- Update package dependencies. [#50510] [#50529]
+
+## [2.0.1] - 2026-07-13
+### Fixed
+- Disconnect UI: Fix owner disconnect dialog heading labeling and improve disconnect survey reliability. [#50284]
+
+## [2.0.0] - 2026-07-09
+### Added
+- Add a connection health-check thunk that surfaces broken-connection errors through the shared connection-error notice. [#50169]
+- Add an optional context prop to the connection error notice so consumers can name the affected feature above the shared cause and action. [#50169]
+
+### Changed
+- Update package dependencies. [#49272]
+
+### Removed
+- Remove the deprecated InPlaceConnection component and its export. [#50321]
+
+## [1.5.0] - 2026-07-06
+### Changed
+- Make `useConnectionErrorNotice` own CTA and action resolution and return resolved actions, so consumers no longer re-derive copy and handlers from `error_data`. [#50081]
+- Update package dependencies. [#50097] [#50183] [#50212]
+
+## [1.4.66] - 2026-06-26
+### Changed
+- Internal updates.
+
+## [1.4.65] - 2026-06-25
+### Fixed
+- Connect screen: Accept React synthetic events on the connect button click handler to satisfy the `@wordpress/ui` 0.15 Button `onClick` type. [#49795]
+
+## [1.4.64] - 2026-06-24
+### Changed
+- Internal updates.
+
 ## [1.4.63] - 2026-06-23
 ### Changed
 - Update dependencies.
@@ -1393,6 +1435,14 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[2.1.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.0.2...v2.1.0
+[2.0.2]: https://github.com/Automattic/jetpack-connection-js/compare/v2.0.1...v2.0.2
+[2.0.1]: https://github.com/Automattic/jetpack-connection-js/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/Automattic/jetpack-connection-js/compare/v1.5.0...v2.0.0
+[1.5.0]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.66...v1.5.0
+[1.4.66]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.65...v1.4.66
+[1.4.65]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.64...v1.4.65
+[1.4.64]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.63...v1.4.64
 [1.4.63]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.62...v1.4.63
 [1.4.62]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.61...v1.4.62
 [1.4.61]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.60...v1.4.61

@@ -132,17 +132,25 @@ export const fromDisplay = ( display: string, allowedTokenIds?: string[] ): Titl
 };
 
 /**
- * Render an ordered token list into a human-readable preview string, swapping
- * placeholders for representative sample text and passing literal fragments
- * through unchanged.
+ * Render an ordered token list into a human-readable preview string. A placeholder
+ * is swapped for its real value from `overrides` when one is supplied and non-empty
+ * (e.g. the site's actual name/tagline), otherwise for representative sample text;
+ * literal fragments pass through unchanged.
  *
- * @param tokens - The ordered token list.
+ * @param tokens    - The ordered token list.
+ * @param overrides - Real values keyed by token id; an absent or empty value falls
+ *                  back to the token's sample text.
  * @return The preview string.
  */
-export const buildPreview = ( tokens: TitleFormatToken[] ): string =>
+export const buildPreview = (
+	tokens: TitleFormatToken[],
+	overrides: Partial< Record< string, string > > = {}
+): string =>
 	tokens
 		.map( token =>
-			token.type === 'string' ? token.value : TOKEN_PREVIEW_SAMPLES[ token.value ] ?? token.value
+			token.type === 'string'
+				? token.value
+				: overrides[ token.value ] || TOKEN_PREVIEW_SAMPLES[ token.value ] || token.value
 		)
 		.join( '' );
 

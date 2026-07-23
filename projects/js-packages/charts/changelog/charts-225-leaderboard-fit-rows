@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Charts: add a `fitRows` prop to LeaderboardChart so a chart in a fixed-height container shows only the rows that fit instead of scrolling.

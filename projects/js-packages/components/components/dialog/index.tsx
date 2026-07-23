@@ -1,7 +1,7 @@
+import { useViewportMatch } from '@wordpress/compose';
 import clsx from 'clsx';
 import Col from '../layout/col/index.tsx';
 import Container from '../layout/container/index.tsx';
-import useBreakpointMatch from '../layout/use-breakpoint-match/index.ts';
 import styles from './style.module.scss';
 import type { ReactNode, FC } from 'react';
 
@@ -29,7 +29,8 @@ const Dialog: FC< DialogProps > = ( {
 	isTwoSections = false,
 	...containerProps
 } ) => {
-	const [ isSmall, isLowerThanLarge ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
+	const isSmall = useViewportMatch( 'small', '<' );
+	const isLowerThanLarge = useViewportMatch( 'large', '<' );
 
 	/*
 	 * By convention, secondary section is not shown when:

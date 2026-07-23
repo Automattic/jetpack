@@ -25,6 +25,7 @@ return make_phan_config(
 			__DIR__ . '/../../../plugins/jetpack/class.jetpack.php',                       // class Jetpack
 			__DIR__ . '/../../../plugins/jetpack/_inc/lib/class-jetpack-ai-helper.php',    // class Jetpack_AI_Helper
 			__DIR__ . '/../../../plugins/jetpack/3rd-party/class.jetpack-amp-support.php', // class Jetpack_AMP_Support
+			__DIR__ . '/../../../plugins/jetpack/class.jetpack-gutenberg.php',             // class Jetpack_Gutenberg
 		),
 	)
 );

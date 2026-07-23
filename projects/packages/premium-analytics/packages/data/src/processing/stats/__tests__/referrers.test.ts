@@ -93,4 +93,153 @@ describe( 'Stats referrers normalizer', () => {
 			],
 		} );
 	} );
+
+	it( 'strips parent names from nested referrer labels', () => {
+		const result = sanitizeStatsReferrersResponse(
+			{
+				date: '2026-06-22',
+				period: 'day',
+				summary: {
+					groups: [
+						{
+							name: 'Search Engines',
+							total: 2,
+							results: [
+								{
+									name: 'Google Search',
+									views: 2,
+									children: [
+										{ name: 'Google Search', views: 1, url: 'https://www.google.com/' },
+										{
+											name: 'Google Search google.com/search',
+											views: 1,
+											url: 'https://www.google.com/search',
+										},
+									],
+								},
+							],
+						},
+					],
+				},
+			},
+			{
+				period: 'day',
+				start_date: '2026-06-16',
+				end_date: '2026-06-22',
+				summarize: true,
+			}
+		);
+
+		expect( result.data[ 0 ].items[ 0 ].children ).toEqual( [
+			expect.objectContaining( { label: '/' } ),
+			expect.objectContaining( { label: ' google.com/search' } ),
+		] );
+	} );
+
+	it( 'only adds spam actions to legacy-eligible referrer rows', () => {
+		const result = sanitizeStatsReferrersResponse(
+			{
+				date: '2026-06-22',
+				period: 'day',
+				summary: {
+					groups: [
+						{ name: 'example.com', group: 'example.com', total: 3 },
+						{ name: 'Search Engines', group: 'Search Engines', total: 2 },
+					],
+				},
+			},
+			{
+				period: 'day',
+				start_date: '2026-06-16',
+				end_date: '2026-06-22',
+				summarize: true,
+			}
+		);
+
+		expect( result.data[ 0 ].items ).toEqual( [
+			expect.objectContaining( {
+				label: 'example.com',
+				actions: [ { type: 'spam', data: { domain: 'example.com' } } ],
+				actionMenu: 1,
+			} ),
+			expect.objectContaining( {
+				label: 'Search Engines',
+				actions: [],
+				actionMenu: 0,
+			} ),
+		] );
+	} );
+
+	it( 'adds spam actions when referrer URLs include the group name', () => {
+		const result = sanitizeStatsReferrersResponse(
+			{
+				date: '2026-06-22',
+				period: 'day',
+				summary: {
+					groups: [
+						{
+							name: 'example.com',
+							group: 'Example Domain',
+							total: 3,
+							url: 'https://example.com/source',
+							results: [
+								{
+									name: 'Example landing page',
+									views: 3,
+									url: 'https://example.com/source',
+								},
+							],
+						},
+					],
+				},
+			},
+			{
+				period: 'day',
+				start_date: '2026-06-16',
+				end_date: '2026-06-22',
+				summarize: true,
+			}
+		);
+
+		expect( result.data[ 0 ].items ).toEqual( [
+			expect.objectContaining( {
+				label: 'Example landing page',
+				actions: [ { type: 'spam', data: { domain: 'example.com' } } ],
+				actionMenu: 1,
+			} ),
+		] );
+	} );
+
+	it( 'does not add spam actions when referrer URLs exclude the group name', () => {
+		const result = sanitizeStatsReferrersResponse(
+			{
+				date: '2026-06-22',
+				period: 'day',
+				summary: {
+					groups: [
+						{
+							name: 'example.com',
+							group: 'Example Domain',
+							total: 3,
+							url: 'https://partner.test/source',
+						},
+					],
+				},
+			},
+			{
+				period: 'day',
+				start_date: '2026-06-16',
+				end_date: '2026-06-22',
+				summarize: true,
+			}
+		);
+
+		expect( result.data[ 0 ].items ).toEqual( [
+			expect.objectContaining( {
+				label: 'example.com',
+				actions: [],
+				actionMenu: 0,
+			} ),
+		] );
+	} );
 } );

@@ -20,6 +20,23 @@ const viewSetup = path.join( __dirname, '../extensions', 'view' );
 const blockEditorDirectories = [ 'plugins', 'blocks' ];
 
 /**
+ * Resolves a block script path to either a `.js` or `.jsx` file.
+ * Exactly one variant may exist.
+ *
+ * @param {...string} parts - Path segments of the script, without extension.
+ * @throws {Error} If both `.js` and `.jsx` variants exist for the same script.
+ * @return {?string} The resolved path, or null if neither variant exists.
+ */
+function resolveScript( ...parts ) {
+	const base = path.join( ...parts );
+	const found = [ '.js', '.jsx' ].map( ext => base + ext ).filter( fs.existsSync );
+	if ( found.length > 1 ) {
+		throw new Error( `Ambiguous script: both ${ found.join( ' and ' ) } exist. Pick one.` );
+	}
+	return found[ 0 ] || null;
+}
+
+/**
  * Filters block editor scripts
  *
  * @param {string} type         - script type
@@ -30,9 +47,9 @@ const blockEditorDirectories = [ 'plugins', 'blocks' ];
 function presetProductionExtensions( type, inputDir, presetBlocks ) {
 	return presetBlocks
 		.flatMap( block =>
-			blockEditorDirectories.map( dir => path.join( inputDir, dir, block, `${ type }.js` ) )
+			blockEditorDirectories.map( dir => resolveScript( inputDir, dir, block, type ) )
 		)
-		.filter( fs.existsSync );
+		.filter( Boolean );
 }
 
 const presetPath = path.join( __dirname, '../extensions', 'index.json' );
@@ -49,17 +66,17 @@ const presetBetaBlocks = [ ...presetExperimentalBlocks, ...( presetIndex.beta ||
 
 // Helps split up each block into its own folder view script
 const viewBlocksScripts = presetBetaBlocks.reduce( ( viewBlocks, block ) => {
-	const viewScriptPath = path.join( __dirname, '../extensions/blocks', block, 'view.js' );
-	if ( fs.existsSync( viewScriptPath ) ) {
-		viewBlocks[ block + '/view' ] = [ viewSetup, ...[ viewScriptPath ] ];
+	const viewScriptPath = resolveScript( __dirname, '../extensions/blocks', block, 'view' );
+	if ( viewScriptPath ) {
+		viewBlocks[ block + '/view' ] = [ viewSetup, viewScriptPath ];
 	}
 	return viewBlocks;
 }, {} );
 
 // Helps split up each block into its own folder admin script
 const adminBlocksScripts = presetBetaBlocks.reduce( ( adminBlocks, block ) => {
-	const adminScriptPath = path.join( __dirname, '../extensions/blocks', block, 'admin.js' );
-	if ( fs.existsSync( adminScriptPath ) ) {
+	const adminScriptPath = resolveScript( __dirname, '../extensions/blocks', block, 'admin' );
+	if ( adminScriptPath ) {
 		adminBlocks[ block + '/admin' ] = adminScriptPath;
 	}
 	return adminBlocks;
@@ -279,7 +296,7 @@ module.exports = [
 					if ( ! resource.contextInfo.issuer.includes( 'extensions/shared/i18n-to-php' ) ) {
 						resource.request = path.join(
 							path.dirname( __dirname ),
-							'./extensions/shared/i18n-to-php.js'
+							'./extensions/shared/i18n-to-php.jsx'
 						);
 					}
 				}

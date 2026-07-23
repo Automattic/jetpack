@@ -103,9 +103,16 @@ class WPCOM_Content_Research {
 	}
 
 	/**
-	 * Enqueue the Content Research sidebar script on editor screens.
+	 * Enqueue the Content Research sidebar script on post editor screens.
 	 */
 	public function enqueue_scripts() {
+		// Load in the post editor only — the `enqueue_block_editor_assets` action
+		// also fires in the site editor, widgets editor, and customizer.
+		$current_screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( ! $current_screen || 'post' !== $current_screen->base ) {
+			return;
+		}
+
 		if ( ! self::is_enabled() ) {
 			return;
 		}

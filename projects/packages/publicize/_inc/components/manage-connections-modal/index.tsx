@@ -1,21 +1,17 @@
-import {
-	getRedirectUrl,
-	Text,
-	ThemeProvider,
-	useBreakpointMatch,
-} from '@automattic/jetpack-components';
+import { getRedirectUrl, Text, ThemeProvider } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useIsModernized } from '../../hooks/use-is-modernized';
+import { useIsDashboard } from '../../hooks/use-is-dashboard';
 import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
 import { store } from '../../social-store';
 import { ServicesList } from '../services/services-list';
 import { ConfirmationForm } from './confirmation-form';
-import { ModernManageConnectionsModal } from './index-modern';
+import { DashboardManageConnectionsModal } from './index-dashboard';
 import styles from './style.module.scss';
 
 export const ManageConnectionsModal = () => {
@@ -29,7 +25,7 @@ export const ManageConnectionsModal = () => {
 
 	const { setKeyringResult, closeConnectionsModal, setReconnectingAccount } = useDispatch( store );
 
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const isSmall = useViewportMatch( 'small', '<' );
 
 	const closeModal = useCallback( () => {
 		setKeyringResult( null );
@@ -102,12 +98,12 @@ export const ManageConnectionsModal = () => {
  * @return {import('react').ReactNode} - React element
  */
 export function ThemedConnectionsModal() {
-	const isModernized = useIsModernized();
+	const isDashboard = useIsDashboard();
 	const shouldModalBeOpen = useSelect( select => {
 		return select( store ).isConnectionsModalOpen();
 	}, [] );
 
-	const Connections = isModernized ? ModernManageConnectionsModal : ManageConnectionsModal;
+	const Connections = isDashboard ? DashboardManageConnectionsModal : ManageConnectionsModal;
 
 	return (
 		<ThemeProvider targetDom={ document.body }>

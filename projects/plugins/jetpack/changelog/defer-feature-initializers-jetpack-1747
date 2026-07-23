@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Defer loading Boost Speed Score classes until a REST request or Boost lifecycle action fires, reducing the per-request PHP/opcache footprint.

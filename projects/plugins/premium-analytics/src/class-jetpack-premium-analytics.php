@@ -25,7 +25,10 @@ class Jetpack_Premium_Analytics {
 	 * Constructor.
 	 */
 	public function __construct() {
-		Analytics::init( array( 'menu_title' => 'Premium Analytics' ) );
-		Cookie_Consent::init();
+		Analytics::init( array( 'menu_title' => 'Analytics' ) );
+
+		// Ships disabled: the banner is planned for a later release. The package stays wired up
+		// so the `jetpack_cookie_consent_config` filter can switch it back on for development.
+		Cookie_Consent::init( array( 'enabled' => false ) );
 	}
 }

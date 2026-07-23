@@ -2,6 +2,7 @@
  * @jest-environment node
  */
 import { buildCorePayload, buildJetpackPayload } from '../build-payload';
+import { makeSchemaSettings } from './fixtures/schema-settings-fixtures';
 import type { SettingsResponse } from '../settings-types';
 
 const makeSettings = ( overrides: Partial< SettingsResponse > = {} ): SettingsResponse => ( {
@@ -12,6 +13,7 @@ const makeSettings = ( overrides: Partial< SettingsResponse > = {} ): SettingsRe
 	sitemap_active: false,
 	sitemap_url: '',
 	canonical_active: false,
+	schema: makeSchemaSettings(),
 	...overrides,
 } );
 
@@ -89,6 +91,20 @@ describe( 'buildJetpackPayload', () => {
 	it( 'ignores search-engine visibility (that is a core option)', () => {
 		const baseline = makeSettings( { search_engines_visible: true } );
 		const local = makeSettings( { search_engines_visible: false } );
+		expect( buildJetpackPayload( baseline, local ) ).toEqual( {} );
+	} );
+
+	it( 'ignores schema settings (they use the schema route)', () => {
+		const baseline = makeSettings();
+		const local = makeSettings( {
+			schema: {
+				...baseline.schema,
+				organization: {
+					...baseline.schema.organization,
+					sameAs: [ 'https://example.com/acme' ],
+				},
+			},
+		} );
 		expect( buildJetpackPayload( baseline, local ) ).toEqual( {} );
 	} );
 } );

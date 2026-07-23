@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Read the Latest post widget's content locally from core so it resolves on private sites, source its views/likes/comments from the Stats post endpoint, and redesign the card with the post's featured image and token-based typography.

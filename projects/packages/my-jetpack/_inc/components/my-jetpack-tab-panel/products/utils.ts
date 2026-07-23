@@ -202,20 +202,35 @@ function rankBy< T >(
 }
 
 /**
+ * One weighted field per category label. Each label is scored on its own rather than against a
+ * space-joined blob, so a multi-category item can still land an exact-match on a single category
+ * word. Otherwise completing that word reshuffles results: a single-category item's joined label
+ * already exact-matches the word, but a multi-category item's joined label (e.g. "Performance
+ * Recommended") can only prefix-match it — so only the multi-category item misses the exact-match
+ * bonus and gets overtaken on the final keystroke. See `scoreTerm` for the match tiers.
+ *
+ * @param {string[] | undefined} categories - The item's category labels.
+ * @return One scored field per label (empty when there are no labels).
+ */
+function categoryFields( categories?: string[] ): Array< ScoredField > {
+	return ( categories ?? [] ).map( label => ( { value: label, weight: 2 } ) );
+}
+
+/**
  * The weighted fields for a product card. When provided, the categories the card belongs to
  * are matchable too, so searching a category name surfaces every item in that category.
  *
- * @param {CardItem}           card       - The card.
- * @param {string | undefined} categories - The card's category labels, space-joined.
+ * @param {CardItem}             card       - The card.
+ * @param {string[] | undefined} categories - The card's category labels.
  * @return The weighted fields to match against.
  */
-function cardFields( card: CardItem, categories?: string ): Array< ScoredField > {
+function cardFields( card: CardItem, categories?: string[] ): Array< ScoredField > {
 	return [
 		{ value: card.product.name, weight: 3 },
 		{ value: card.product.title, weight: 3 },
 		{ value: card.module?.name, weight: 3 },
 		{ value: card.module?.search_terms, weight: 2 },
-		{ value: categories, weight: 2 },
+		...categoryFields( categories ),
 		{ value: card.product.description, weight: 1 },
 		{ value: card.module?.description, weight: 1 },
 	];
@@ -225,15 +240,15 @@ function cardFields( card: CardItem, categories?: string ): Array< ScoredField >
  * The weighted fields for a standalone module. When provided, the categories the module
  * belongs to are matchable too.
  *
- * @param {MyJetpackModule}    module     - The module.
- * @param {string | undefined} categories - The module's category labels, space-joined.
+ * @param {MyJetpackModule}      module     - The module.
+ * @param {string[] | undefined} categories - The module's category labels.
  * @return The weighted fields to match against.
  */
-function moduleFields( module: MyJetpackModule, categories?: string ): Array< ScoredField > {
+function moduleFields( module: MyJetpackModule, categories?: string[] ): Array< ScoredField > {
 	return [
 		{ value: module.name, weight: 3 },
 		{ value: module.search_terms, weight: 2 },
-		{ value: categories, weight: 2 },
+		...categoryFields( categories ),
 		{ value: module.description, weight: 1 },
 	];
 }
@@ -315,35 +330,32 @@ export function searchAndRankItems(
 
 	const terms = searchTerms( search );
 
-	const cardsBySlug = new Map< string, CardItem >();
-	const modulesBySlug = new Map< string, MyJetpackModule >();
+	// One slug space governs de-duplication: a card claims both its product slug and the slug of
+	// the module it already carries, so the same product never surfaces as both a card and a
+	// standalone module (e.g. Forms' contact-form module, or VideoPress listed in two categories).
+	const seen = new Set< string >();
+	const items: Array< SearchResultItem > = [];
 
 	cards.forEach( card => {
-		if ( card?.product?.slug && ! cardsBySlug.has( card.product.slug ) ) {
-			cardsBySlug.set( card.product.slug, card );
+		if ( card?.product?.slug && ! seen.has( card.product.slug ) ) {
+			seen.add( card.product.slug );
+			if ( card.module?.module ) {
+				seen.add( card.module.module );
+			}
+			items.push( { kind: 'card', card } );
 		}
 	} );
 	modules.forEach( module => {
-		if ( module?.module && ! modulesBySlug.has( module.module ) ) {
-			modulesBySlug.set( module.module, module );
+		if ( module?.module && ! seen.has( module.module ) ) {
+			seen.add( module.module );
+			items.push( { kind: 'module', module } );
 		}
 	} );
 
-	const items: Array< SearchResultItem > = [
-		...[ ...cardsBySlug.values() ].map( card => ( { kind: 'card' as const, card } ) ),
-		...[ ...modulesBySlug.values() ].map( module => ( { kind: 'module' as const, module } ) ),
-	];
-
 	return rankBy( items, terms, item =>
 		item.kind === 'card'
-			? cardFields(
-					item.card,
-					categories?.cardCategories?.get( item.card.product.slug )?.join( ' ' )
-			  )
-			: moduleFields(
-					item.module,
-					categories?.moduleCategories?.get( item.module.module )?.join( ' ' )
-			  )
+			? cardFields( item.card, categories?.cardCategories?.get( item.card.product.slug ) )
+			: moduleFields( item.module, categories?.moduleCategories?.get( item.module.module ) )
 	).map( ( { item } ) => item );
 }
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Load JS translations for the Launch site admin-bar button to avoid it being rendered in English.
