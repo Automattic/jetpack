@@ -123,7 +123,7 @@ function Dashboard(): JSX.Element {
 								{ activeSection === section.slug ? (
 									<>
 										<WidgetDashboard.NoWidgetsState />
-										<WidgetDashboard.Widgets />
+										<WidgetDashboard.Widgets className={ styles.widgetGrid } />
 									</>
 								) : null }
 							</SectionTabPanel>

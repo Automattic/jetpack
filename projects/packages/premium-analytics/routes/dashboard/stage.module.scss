@@ -9,6 +9,13 @@
 	block-size: 100%;
 }
 
+.widgetGrid [data-wp-grid-item-key] > [role="button"][aria-roledescription="sortable"] > div > section {
+	// WordPress.com Simple loads a legacy, unlayered `section { display: block; }`
+	// rule that outranks the layered Card styles from `@wordpress/ui`.
+	display: flex;
+	flex-direction: column;
+}
+
 .content {
 	flex: 1 1 auto;
 	min-block-size: 0;
