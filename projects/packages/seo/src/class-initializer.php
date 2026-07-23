@@ -440,11 +440,11 @@ class Initializer {
 			$site_type = 'jetpack';
 		}
 
-		$blog_id = 0;
-		if ( class_exists( 'Jetpack_Options' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- host plugin provides Jetpack_Options.
-			$blog_id = (int) \Jetpack_Options::get_option( 'id' );
-		}
+		// `Jetpack_Options` ships in the jetpack-connection package's classmap, which
+		// this package depends on transitively through jetpack-plans — so it's a real
+		// dependency, not a host-plugin class needing a guard. Falls back to the local
+		// blog id on a site that was never connected.
+		$blog_id = (int) \Jetpack_Options::get_option( 'id' );
 		if ( ! $blog_id ) {
 			$blog_id = get_current_blog_id();
 		}
