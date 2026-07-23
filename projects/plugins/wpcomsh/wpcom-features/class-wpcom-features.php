@@ -1210,6 +1210,7 @@ class WPCOM_Features {
 		),
 
 		self::RECURRING_PAYMENTS                => array(
+			self::WPCOM_ALL_SITES,
 			self::WPCOM_STARTER_PLANS,
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
