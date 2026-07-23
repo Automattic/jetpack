@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Newsletter: show an actionable prompt to connect your WordPress.com account when the email preview and test email features fail because of a missing user connection.
+Newsletter: when a WordPress.com user connection is required for the email preview and test email features, show an actionable prompt to connect and disable the test email "Send" button until connected, instead of only surfacing the error after a failed attempt.

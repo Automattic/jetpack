@@ -1,5 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getUserConnectionUrl } from '@automattic/jetpack-connection';
+import { getUserConnectionUrl, useConnection } from '@automattic/jetpack-connection';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import {
@@ -75,6 +76,13 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 	const { __unstableSaveForPreview } = useDispatch( editorStore );
 	const { tracks } = useAnalytics();
 
+	// The connection state is known client-side, so surface the requirement (and
+	// disable sending) as soon as the modal opens rather than after a failed send.
+	const { isUserConnected } = useConnection();
+	const shouldPromptForConnection = ! isSimpleSite() && ! isUserConnected;
+	const showConnectionNotice =
+		shouldPromptForConnection || error?.code === MISSING_CONNECTION_ERROR_CODE;
+
 	const sendTestEmail = async () => {
 		tracks.recordEvent( 'jetpack_newsletter_test_email_send', { post_id: postId } );
 		setError( null );
@@ -115,12 +123,8 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 			size={ 'medium' }
 		>
 			<VStack>
-				{ error &&
-					( error.code === MISSING_CONNECTION_ERROR_CODE ? (
-						<MissingConnectionNotice />
-					) : (
-						<p>{ error.message } </p>
-					) ) }
+				{ showConnectionNotice && <MissingConnectionNotice /> }
+				{ error && error.code !== MISSING_CONNECTION_ERROR_CODE && <p>{ error.message } </p> }
 				{ isEmailSent ? (
 					<HStack alignment="left" className="jetpack-newsletter-test-email-modal__email-sent">
 						<Icon icon={ check } size={ 28 } />
@@ -144,6 +148,7 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 								variant="primary"
 								onClick={ sendTestEmail }
 								isBusy={ isEmailSending }
+								disabled={ shouldPromptForConnection }
 								__next40pxDefaultSize={ true }
 							>
 								{ __( 'Send', 'jetpack' ) }

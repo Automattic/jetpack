@@ -5,8 +5,17 @@ import { NewsletterTestEmailModal, NewsletterPreviewModal } from '../email-previ
 
 jest.mock( '@wordpress/api-fetch' );
 
+// Controls what `useConnection()` reports; toggled per test.
+let mockIsUserConnected = true;
+
 jest.mock( '@automattic/jetpack-connection', () => ( {
 	getUserConnectionUrl: () => 'https://example.com/connect',
+	useConnection: () => ( { isUserConnected: mockIsUserConnected } ),
+} ) );
+
+// Treat the site as self-hosted so the connection gate applies.
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	isSimpleSite: () => false,
 } ) );
 
 jest.mock( '@automattic/jetpack-shared-extension-utils', () => {
@@ -46,6 +55,7 @@ const MISSING_CONNECTION_ERROR = {
 describe( 'Email preview connection errors', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		mockIsUserConnected = true;
 		useSelect.mockImplementation( () => 123 );
 		useDispatch.mockReturnValue( {
 			__unstableSaveForPreview: jest.fn().mockResolvedValue( undefined ),
@@ -55,6 +65,30 @@ describe( 'Email preview connection errors', () => {
 	// Unmount between tests so a pending request from one modal can't leak state
 	// into the next test's DOM.
 	afterEach( cleanup );
+
+	it( 'disables Send and prompts to connect on open when the user is not connected', () => {
+		mockIsUserConnected = false;
+
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		// The prompt is shown immediately, without any interaction…
+		expect(
+			screen.getByRole( 'link', { name: 'Connect your account' } )
+		).toBeInTheDocument();
+		// …the Send button is disabled…
+		expect( screen.getByRole( 'button', { name: /Send/ } ) ).toBeDisabled();
+		// …and no request is attempted.
+		expect( apiFetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'keeps Send enabled and shows no prompt on open when the user is connected', () => {
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		expect(
+			screen.queryByRole( 'link', { name: 'Connect your account' } )
+		).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /Send/ } ) ).toBeEnabled();
+	} );
 
 	it( 'prompts the user to connect when sending a test email fails with a missing connection', async () => {
 		apiFetch.mockRejectedValue( MISSING_CONNECTION_ERROR );
