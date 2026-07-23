@@ -1,5 +1,5 @@
 // Shape of the AI tab's initial state, bootstrapped onto
-// `window.JetpackScriptData.seo.ai` (see `Initializer::get_ai_data()`).
+// `window.JetpackScriptData.seo.ai` (see `Dashboard_Data::get_ai_data()`).
 // Each toggle writes through the existing `/jetpack/v4/settings` endpoint:
 // the Enhancer via `ai_seo_enhancer_enabled` and llms.txt via
 // `jetpack_seo_llms_txt_enabled`.
@@ -41,7 +41,7 @@ export interface AiState {
 		/**
 		 * Sparse per-crawler overrides (`slug => blocked`). Only deviations from
 		 * each bot's default policy are present; absent slugs use the default
-		 * (training → blocked, answer → allowed).
+		 * (training → blocked, answer and mixed-use → allowed).
 		 */
 		overrides: Record< string, boolean >;
 		/** Whether search engines (and AI crawlers) may index the site. */

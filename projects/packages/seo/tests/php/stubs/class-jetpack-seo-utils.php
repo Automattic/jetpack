@@ -34,7 +34,7 @@ if ( ! class_exists( 'Jetpack_SEO_Utils' ) ) {
 
 		/**
 		 * Stub for the host plugin's front-page meta description getter, read by
-		 * Initializer::get_settings_data().
+		 * Dashboard_Data::get_settings_data().
 		 *
 		 * @return string
 		 */

@@ -2,9 +2,9 @@
 /**
  * AI crawler access controls.
  *
- * Lets a site owner allow or block individual AI crawlers (training and
- * answer-engine bots) by appending per-user-agent `Disallow` rules to the
- * WordPress-generated robots.txt.
+ * Lets a site owner allow or block individual AI crawlers (training,
+ * answer-engine, and mixed-use bots) by appending per-user-agent `Disallow`
+ * rules to the WordPress-generated robots.txt.
  *
  * Persistence uses a STORE-INTENT model rather than a literal blocked list. The
  * durable option `jetpack_seo_ai_crawler_overrides` holds only *deviations* from
@@ -133,7 +133,8 @@ class Ai_Crawlers {
 
 	/**
 	 * Whether a catalog bot is blocked when the owner hasn't set an override for
-	 * it: training crawlers are blocked by default, answer engines allowed.
+	 * it: training crawlers are blocked by default; answer and mixed-use
+	 * crawlers are allowed.
 	 *
 	 * @param string $slug Catalog slug.
 	 * @return bool
@@ -203,8 +204,8 @@ class Ai_Crawlers {
 			}
 			$blocked = (bool) $blocked;
 			// Only keep entries that actually deviate from the default policy
-			// (training blocked, answer allowed) — resolved from the catalog we
-			// already hold rather than re-fetching it per slug.
+			// (training blocked, answer and mixed-use allowed) — resolved from
+			// the catalog we already hold rather than re-fetching it per slug.
 			if ( $blocked === ( 'training' === $catalog[ $slug ]['type'] ) ) {
 				continue;
 			}

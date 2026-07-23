@@ -196,7 +196,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/activity-log",
-                "reference": "3e2c129b691220b22eca31e6f1299d5b653c2420"
+                "reference": "2cda78ede2fbf2b52ba9f34a89889a7b5adff33b"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -242,7 +242,7 @@
                     "pnpm run build"
                 ],
                 "build-production": [
-                    "pnpm run build-production-concurrently"
+                    "pnpm run build-production"
                 ],
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",

@@ -285,7 +285,7 @@ describe( 'HeatmapChart', () => {
 		renderChart();
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
 		// Non-compact sets no inline gap — the SCSS falls back to the WPDS token.
-		expect( grid.style.getPropertyValue( '--heatmap-cell-gap' ) ).toBe( '' );
+		expect( grid.style.getPropertyValue( '--a8c-charts-dimension-heatmap-cell-gap' ) ).toBe( '' );
 	} );
 
 	test( 'applies the compact gap inline from the theme compactCellGap', () => {
@@ -295,7 +295,9 @@ describe( 'HeatmapChart', () => {
 			</GlobalChartsProvider>
 		);
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
-		expect( grid.style.getPropertyValue( '--heatmap-cell-gap' ) ).toBe( '3px' );
+		expect( grid.style.getPropertyValue( '--a8c-charts-dimension-heatmap-cell-gap' ) ).toBe(
+			'3px'
+		);
 	} );
 
 	test( 'sizes compact cells to the theme compactCellSize', () => {
@@ -305,9 +307,13 @@ describe( 'HeatmapChart', () => {
 			</GlobalChartsProvider>
 		);
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
-		expect( grid.style.getPropertyValue( '--heatmap-cell-size' ) ).toBe( '20px' );
+		expect( grid.style.getPropertyValue( '--a8c-charts-dimension-heatmap-cell-size' ) ).toBe(
+			'20px'
+		);
 		// Compact track template is built from the fixed cell size.
-		expect( grid.style.gridTemplateColumns ).toContain( 'var(--heatmap-cell-size)' );
+		expect( grid.style.gridTemplateColumns ).toContain(
+			'var(--a8c-charts-dimension-heatmap-cell-size)'
+		);
 	} );
 
 	test( 'caps cell width without changing the normal vertical layout', () => {
@@ -343,7 +349,7 @@ describe( 'HeatmapChart', () => {
 	test( 'applies the primaryColor prop as the cell-scale color', () => {
 		renderChart( { primaryColor: '#abcdef' } );
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
-		expect( grid.style.getPropertyValue( '--heatmap-primary' ) ).toBe( '#abcdef' );
+		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-primary' ) ).toBe( '#abcdef' );
 	} );
 
 	test( 'resolves primaryColor from the chart theme', () => {
@@ -353,7 +359,7 @@ describe( 'HeatmapChart', () => {
 			</GlobalChartsProvider>
 		);
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
-		expect( grid.style.getPropertyValue( '--heatmap-primary' ) ).toBe( '#0a0b0c' );
+		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-primary' ) ).toBe( '#0a0b0c' );
 	} );
 
 	test( 'falls back to the palette colors[0] when no prop or theme primaryColor is set', () => {
@@ -363,7 +369,7 @@ describe( 'HeatmapChart', () => {
 			</GlobalChartsProvider>
 		);
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
-		expect( grid.style.getPropertyValue( '--heatmap-primary' ) ).toBe( '#0a0b0c' );
+		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-primary' ) ).toBe( '#0a0b0c' );
 	} );
 
 	test( 'the unresponsive export pins explicit width and height', () => {

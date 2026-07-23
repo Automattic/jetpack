@@ -47,17 +47,17 @@ type DashboardStory = StoryObj< WidgetDashboardWithWidgetControls >;
  * The widget on its own, populated from mocked followers data.
  */
 export const Default: Story = {
-	render: () => <SubscribersListRender attributes={ { num: 6 } } />,
+	render: () => <SubscribersListRender attributes={ { max: 6 } } />,
 	decorators: [ withWidgetCanvas ],
 };
 
-// Renders the widget with a `num` distinct from the other stories. The
+// Renders the widget with a `max` distinct from the other stories. The
 // followers query has no date range — its key carries the row count (`max`) —
-// so a unique `num` gives each forced-state story its own cache entry and it
+// so a unique `max` gives each forced-state story its own cache entry and it
 // hits the mock fresh instead of reading another story's cached success from
 // the shared query client.
-function renderSubscribersListWithNum( num: number ) {
-	return <SubscribersListRender attributes={ { num } } />;
+function renderSubscribersListWithMax( max: number ) {
+	return <SubscribersListRender attributes={ { max } } />;
 }
 
 /**
@@ -65,7 +65,7 @@ function renderSubscribersListWithNum( num: number ) {
  * mock is forced to never resolve for the duration of this story.
  */
 export const Loading: Story = {
-	render: () => renderSubscribersListWithNum( 5 ),
+	render: () => renderSubscribersListWithMax( 5 ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
@@ -80,7 +80,7 @@ export const Loading: Story = {
  * re-runs the query — still mocked as failing while this story is active).
  */
 export const Error: Story = {
-	render: () => renderSubscribersListWithNum( 7 ),
+	render: () => renderSubscribersListWithMax( 7 ),
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
@@ -94,7 +94,7 @@ export const Error: Story = {
  * glyph and "No subscribers yet.").
  */
 export const Empty: Story = {
-	render: () => renderSubscribersListWithNum( 8 ),
+	render: () => renderSubscribersListWithMax( 8 ),
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
@@ -113,7 +113,7 @@ export const WidgetDashboardWithWidget: DashboardStory = {
 			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ SUBSCRIBERS_LIST_RENDER_MODULE }
 			renderComponent={ SubscribersListRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { num: 6 } }
+			attributes={ { max: 6 } }
 		/>
 	),
 	args: {

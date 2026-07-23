@@ -975,19 +975,20 @@ function buildEmailBreakdownResponse( requestPath: string ): unknown {
 /**
  * Routes a Stats sub-path to the matching mock generator.
  *
- * @param subPath - Path relative to `STATS_API_BASE` (e.g. `/search-terms`).
+ * @param subPath     - Path relative to `STATS_API_BASE` (e.g. `/search-terms`).
+ * @param requestPath - The full request path, including query parameters.
  * @return The mock response body, or `null` if no specific handler matched.
  */
-function routeStatsReport( subPath: string ): unknown {
+function routeStatsReport( subPath: string, requestPath: string ): unknown {
 	// Single-post detail — `stats/post/{id}`. Any post ID resolves to the
 	// shared fixture so post-scoped widgets render real values.
 	if ( subPath.startsWith( '/post/' ) ) {
 		return mockStatsPostData;
 	}
 
-	// Single-video detail: `/video/{postId}` (drives the "Video embeds" widget).
+	// Single-video detail: `/video/{postId}` (drives video detail widgets).
 	if ( /^\/video\/\d+$/.test( subPath ) ) {
-		return mockSingleVideoData;
+		return buildSingleVideoResponse( requestPath );
 	}
 
 	// Per-post email rate breakdowns: `/opens/emails/<postId>/rate`, `/clicks/emails/<postId>/rate`.
@@ -1051,6 +1052,32 @@ function getQueryParam( requestPath: string, key: string ): string | undefined {
 	const query = requestPath.split( '?' )[ 1 ];
 
 	return query ? new URLSearchParams( query ).get( key ) ?? undefined : undefined;
+}
+
+/**
+ * Builds a single-video response for the requested metric while preserving the
+ * shared post and embed-page fixture.
+ *
+ * @param requestPath - The request path, used to read `statType`.
+ * @return Raw single-video response.
+ */
+function buildSingleVideoResponse( requestPath: string ) {
+	const statType = getQueryParam( requestPath, 'statType' );
+	let factor = 1;
+
+	if ( statType === 'impressions' ) {
+		factor = 2;
+	} else if ( statType === 'watch_time' ) {
+		factor = 0.05;
+	}
+
+	return {
+		...mockSingleVideoData,
+		data: mockSingleVideoData.data.map( ( [ period, value ] ) => [
+			period,
+			Number( ( Number( value ) * factor ).toFixed( 1 ) ),
+		] ),
+	};
 }
 
 /**
@@ -1332,7 +1359,7 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 			return buildEmailTimelineResponse( emailTimeline[ 1 ] as 'opens' | 'clicks', requestPath );
 		}
 
-		const response = routeStatsReport( subPath );
+		const response = routeStatsReport( subPath, requestPath );
 
 		if ( response !== null ) {
 			return response;

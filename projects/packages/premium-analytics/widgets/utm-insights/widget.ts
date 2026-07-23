@@ -4,6 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import { trendingUp } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
+
 /**
  * Internal dependencies
  */
@@ -64,8 +65,8 @@ export default {
 		},
 		{
 			id: 'max',
-			label: __( 'Max rows', 'jetpack-premium-analytics' ),
-			type: 'number',
+			label: __( 'Number of results', 'jetpack-premium-analytics' ),
+			type: 'integer',
 		},
 	] as WidgetAttributeField< UtmInsightsAttributes >[],
 	example: {

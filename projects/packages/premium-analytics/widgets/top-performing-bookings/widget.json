@@ -5,6 +5,6 @@
 	"help": {
 		"content": "Your best-selling bookings by revenue over the selected time period."
 	},
-	"category": "store",
+	"category": "bookings",
 	"presentation": "framed"
 }

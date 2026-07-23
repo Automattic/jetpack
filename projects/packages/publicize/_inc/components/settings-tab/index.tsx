@@ -2,7 +2,7 @@ import { currentUserCan, siteHasFeature } from '@automattic/jetpack-script-data'
 import { useSelect } from '@wordpress/data';
 import { Card, Stack } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
-import { features, getSocialScriptData } from '../../utils';
+import { features, getSocialScriptData, hasSocialPaidFeatures } from '../../utils';
 import { canToggleSocialModule } from '../../utils/misc';
 import ContentCreationCard from './content-creation-card';
 import CustomizeLinksCard from './customize-links-card';
@@ -18,7 +18,7 @@ import './style.scss';
  * → `Tabs.Panel value="settings"`). Composes four WPDS `Card` groups
  * that mirror the design's section grouping:
  *
- * - **Default share message** — global message-template editor, sticker-gated.
+ * - **Default share message** — global message-template editor, paid-gated.
  * - **Content creation** — Social Notes (Social-plugin only — the CPT registration lives in the plugin).
  * - **Customize media** — Social Image Generator (paid).
  * - **Customize links** — UTM parameters.
@@ -58,8 +58,7 @@ export default function SettingsTab(): JSX.Element {
 
 	const hasSocialPlugin = Boolean( getSocialScriptData().plugin_info.social.version );
 	const hasImageGenerator = siteHasFeature( features.IMAGE_GENERATOR );
-	const hasMessageTemplates =
-		siteHasFeature( features.MESSAGE_TEMPLATES ) && currentUserCan( 'manage_options' );
+	const hasMessageTemplates = hasSocialPaidFeatures() && currentUserCan( 'manage_options' );
 
 	return (
 		<Stack direction="column" gap="lg" className="jetpack-social-settings">
