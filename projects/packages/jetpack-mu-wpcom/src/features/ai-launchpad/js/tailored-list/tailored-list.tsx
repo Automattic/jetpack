@@ -7,6 +7,7 @@ import { createContactPage } from '../lib/contact-page.ts';
 import { createEventsPage } from '../lib/events-page.ts';
 import { createFirstPostDraft } from '../lib/first-post.ts';
 import { createGalleryPage } from '../lib/pattern-page.ts';
+import { createPortfolioPiece } from '../lib/portfolio-piece.ts';
 import {
 	contextFromInferred,
 	contextFromTaskIds,
@@ -257,6 +258,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 					createContactPage,
 					createEventsPage,
 					createVideoPage,
+					createPortfolioPiece,
 				},
 				siteUrl
 			);

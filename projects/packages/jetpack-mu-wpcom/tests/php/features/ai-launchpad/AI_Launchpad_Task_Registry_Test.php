@@ -18,6 +18,8 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-la
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-video-page-listener.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-portfolio-piece-listener.php';
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-task-registry.php';
 require_once __DIR__ . '/fixtures/trait-registers-test-task.php';
 require_once __DIR__ . '/fixtures/trait-uses-block-theme.php';
@@ -103,6 +105,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 			'the contact page'     => array( 'add_contact_page' ),
 			'the events page'      => array( 'add_events_page' ),
 			'the video page'       => array( 'add_video_page' ),
+			'the portfolio piece'  => array( 'add_portfolio_piece' ),
 			'the site icon'        => array( 'add_site_icon' ),
 			'the style variations' => array( 'pick_fonts_colors' ),
 			'Sensei LMS'           => array( 'install_sensei_lms' ),
@@ -259,23 +262,29 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_marker_page_tasks() {
 		return array(
-			'the contact page' => array(
+			'the contact page'    => array(
 				'add_contact_page',
 				AI_Launchpad_Contact_Page_Listener::META_KEY,
 				7171,
 				'Continue working on your contact page',
 			),
-			'the events page'  => array(
+			'the events page'     => array(
 				'add_events_page',
 				AI_Launchpad_Events_Page_Listener::META_KEY,
 				8181,
 				'Continue working on your events page',
 			),
-			'the video page'   => array(
+			'the video page'      => array(
 				'add_video_page',
 				AI_Launchpad_Video_Page_Listener::META_KEY,
 				9191,
 				'Continue working on your video page',
+			),
+			'the portfolio piece' => array(
+				'add_portfolio_piece',
+				AI_Launchpad_Portfolio_Piece_Listener::META_KEY,
+				10101,
+				'Continue working on your portfolio piece',
 			),
 		);
 	}
@@ -310,6 +319,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( AI_Launchpad_Task_Registry::build( 'add_contact_page', '' )['in_progress'] );
 		$this->assertFalse( AI_Launchpad_Task_Registry::build( 'add_events_page', '' )['in_progress'] );
 		$this->assertFalse( AI_Launchpad_Task_Registry::build( 'add_video_page', '' )['in_progress'] );
+		$this->assertFalse( AI_Launchpad_Task_Registry::build( 'add_portfolio_piece', '' )['in_progress'] );
 	}
 
 	/**
@@ -386,6 +396,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 			'the contact page, on click'    => array( 'add_contact_page', null ),
 			'the events page, on click'     => array( 'add_events_page', null ),
 			'the video page, on click'      => array( 'add_video_page', null ),
+			'the piece, on click'           => array( 'add_portfolio_piece', null ),
 			"Sensei LMS's installer"        => array( 'install_sensei_lms', 'plugin-install.php?tab=plugin-information&plugin=sensei-lms' ),
 		);
 	}
@@ -529,6 +540,11 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 				'add_video_page',
 				'Add a video page',
 				'Give your videos a home on your site, ready for you to upload the first one.',
+			),
+			'the portfolio piece'  => array(
+				'add_portfolio_piece',
+				'Add your first portfolio piece',
+				'Give one project a page of its own, with room for the work and the story behind it.',
 			),
 			'Sensei LMS'           => array(
 				'install_sensei_lms',

@@ -62,6 +62,7 @@ export type CtaKind =
 	| 'contact_page'
 	| 'events_page'
 	| 'video_page'
+	| 'portfolio_piece'
 	| 'launch'
 	| 'deeplink';
 
@@ -74,6 +75,7 @@ const CREATE_CONTENT_KINDS: CtaKind[] = [
 	'contact_page',
 	'events_page',
 	'video_page',
+	'portfolio_piece',
 ];
 // Launch tasks with no catalog deeplink: they open the wordpress.com launch flow.
 const LAUNCH_TASK_IDS = [
@@ -110,6 +112,9 @@ export function ctaKind( taskId: string ): CtaKind {
 	}
 	if ( 'add_video_page' === taskId ) {
 		return 'video_page';
+	}
+	if ( 'add_portfolio_piece' === taskId ) {
+		return 'portfolio_piece';
 	}
 	if ( LAUNCH_TASK_IDS.includes( taskId ) ) {
 		return 'launch';
@@ -190,6 +195,9 @@ export interface CtaHandlers {
 	createVideoPage: (
 		intro: string | undefined
 	) => Promise< { page_id: number; edit_url: string } >;
+	// No intro parameter, alone among the page tasks: the portfolio piece carries no AI-written copy,
+	// because its subject is one project the model has never heard of.
+	createPortfolioPiece: () => Promise< { page_id: number; edit_url: string } >;
 }
 
 /**
@@ -253,6 +261,10 @@ export async function resolveCtaUrl(
 		url = ( await handlers.createEventsPage( output.page_intros?.add_events_page ) ).edit_url;
 	} else if ( kind === 'video_page' && output ) {
 		url = ( await handlers.createVideoPage( output.page_intros?.add_video_page ) ).edit_url;
+	} else if ( kind === 'portfolio_piece' && output ) {
+		// Reads nothing out of `output`; the guard is here so this branch and isTaskActionable agree about
+		// when the CTA exists, since the piece is a create-content kind like the rest.
+		url = ( await handlers.createPortfolioPiece() ).edit_url;
 	} else if ( kind === 'launch' ) {
 		url = siteUrl ? launchSiteUrl( siteUrl ) : null;
 	} else {

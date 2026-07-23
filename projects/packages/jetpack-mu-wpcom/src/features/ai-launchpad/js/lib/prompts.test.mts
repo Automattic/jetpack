@@ -141,6 +141,40 @@ describe( 'TASK_ANNOTATIONS', () => {
 		assert.equal( video.goals, undefined );
 	} );
 
+	it( 'makes the portfolio piece distinguishable from the gallery and from the first post', () => {
+		// Sixth page task, and the one that has to earn its slot against two tasks already on the menu.
+		// Against add_gallery_page: a gallery is many images and no words, judged by looking; a piece is
+		// one project and the words about it — what it was, who it was for, what the user did. Against
+		// first_post_published: that publishes a dated post into the feed with AI-written prose already
+		// in it; this creates a permanent page with no prose at all, because a project write-up is facts
+		// only the user has. If the annotation does not carry both separators the model cannot act on
+		// either, and a task the model merges into another is noise on the menu.
+		const byId = Object.fromEntries( TASK_ANNOTATIONS.map( entry => [ entry.id, entry ] ) );
+		const piece = byId.add_portfolio_piece;
+
+		assert.ok( piece, 'add_portfolio_piece must be on the menu' );
+		// One project, not a body of work: the singular is the whole distinction from the gallery.
+		assert.match( piece.pickWhen, /one|single|individual/i );
+		// The page arrives blank, and the model has to know it is spending a slot on a page the user has
+		// to bring both the image and the story to.
+		assert.match( piece.what, /blank|empty/i );
+		assert.ok(
+			piece.avoidWhen?.includes( 'add_gallery_page' ),
+			'the piece entry must say when a set of images makes the gallery the better pick'
+		);
+		assert.ok(
+			piece.what.includes( 'first_post_published' ) ||
+				piece.avoidWhen?.includes( 'first_post_published' ),
+			'the piece entry must separate itself from the AI-drafted first post'
+		);
+		// The generic page task has to defer to it, or the model can spend the slot on an empty page.
+		assert.match( byId.add_new_page.avoidWhen ?? '', /more specific page task/i );
+		// No goal affinity, for the same reason the gallery has none. `portfolio` looks like the obvious
+		// hint and is the trap: a copywriter with case studies picks `write`, a studio picks `build`, and
+		// a maker selling commissions picks `sell`. Hinting one goal suppresses the task for the others.
+		assert.equal( piece.goals, undefined );
+	} );
+
 	it( 'offers the gallery task and gives it no goal affinity', () => {
 		const gallery = TASK_ANNOTATIONS.find( entry => entry.id === 'add_gallery_page' );
 

@@ -121,6 +121,24 @@ export const TASK_ANNOTATIONS: readonly TaskAnnotation[] = [
 			'the work is still images: photographs, illustration, craft and design are add_gallery_page, which shows several at once.',
 	},
 	{
+		id: 'add_portfolio_piece',
+		// No `goals`, and `portfolio` is the trap that makes saying so worth the lines. The goal slug looks
+		// like the obvious hint and would be the wrong one: a copywriter with case studies picks `write`, a
+		// studio picks `build`, a maker selling commissions picks `sell`, and a tutor showing past cohorts
+		// picks `educate`. Hinting one suppresses the task for the rest, which is the mistake the gallery
+		// annotation already documents.
+		//
+		// Sixth page task, and the one that has to earn its slot against two things already on the menu.
+		// Against add_gallery_page: a gallery is many images and no words, a page judged by looking; a piece
+		// is one job and the words about it. Against first_post_published: that publishes a dated post into
+		// the feed with AI-written prose already in it; this is a permanent page with no prose at all.
+		what: 'Creates a draft page for ONE project: an empty image block for the work, and a blank prompted line for what it was, who it was for, and what the user did. Unlike first_post_published, nothing on this page is AI-written — a project write-up is facts only the user has.',
+		pickWhen:
+			'the site is judged one piece of work at a time, and each piece needs the story behind it as much as the picture - design and architecture projects, case studies, commissions, builds, restorations, campaigns, client work.',
+		avoidWhen:
+			'the work speaks for itself as a set of images with nothing to explain: that is add_gallery_page, one page holding many pictures.',
+	},
+	{
 		id: 'update_about_page',
 		what: 'Reopens an existing About page to revise it.',
 		pickWhen: 'the site already has an About page that still holds placeholder copy.',

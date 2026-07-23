@@ -25,6 +25,8 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-la
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-video-page-listener.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-portfolio-piece-listener.php';
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-first-post-listener.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-task-registry.php';
@@ -349,7 +351,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_marker_draft_tasks() {
 		return array(
-			'about page'                            => array(
+			'about page'                               => array(
 				'add_about_page',
 				array( 'add_about_page', 'site_launched' ),
 				'',
@@ -358,7 +360,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 				'Add your About page',
 				'Continue working on the About page',
 			),
-			'first post, seeded as its id_map twin' => array(
+			'first post, seeded as its id_map twin'    => array(
 				'first_post_published',
 				array( 'first_post_published_newsletter', 'site_launched' ),
 				'',
@@ -367,7 +369,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 				'Write your first post',
 				'Continue to write your first post',
 			),
-			'gallery page, built from the registry' => array(
+			'gallery page, built from the registry'    => array(
 				'add_gallery_page',
 				array( 'add_gallery_page', 'site_launched' ),
 				'portfolio',
@@ -376,7 +378,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 				'Create your first gallery',
 				'Continue working on your gallery',
 			),
-			'contact page, built from the registry' => array(
+			'contact page, built from the registry'    => array(
 				'add_contact_page',
 				array( 'add_contact_page', 'site_launched' ),
 				'build',
@@ -385,7 +387,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 				'Add a contact page',
 				'Continue working on your contact page',
 			),
-			'events page, built from the registry'  => array(
+			'events page, built from the registry'     => array(
 				'add_events_page',
 				array( 'add_events_page', 'site_launched' ),
 				'build',
@@ -394,7 +396,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 				'Add an events page',
 				'Continue working on your events page',
 			),
-			'video page, built from the registry'   => array(
+			'video page, built from the registry'      => array(
 				'add_video_page',
 				array( 'add_video_page', 'site_launched' ),
 				'build',
@@ -402,6 +404,15 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 				9191,
 				'Add a video page',
 				'Continue working on your video page',
+			),
+			'portfolio piece, built from the registry' => array(
+				'add_portfolio_piece',
+				array( 'add_portfolio_piece', 'site_launched' ),
+				'portfolio',
+				AI_Launchpad_Portfolio_Piece_Listener::META_KEY,
+				10101,
+				'Add your first portfolio piece',
+				'Continue working on your portfolio piece',
 			),
 		);
 	}
@@ -636,7 +647,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	public function test_available_tasks_offer_the_registry_page_tasks( $goal ) {
 		$data = $this->available_tasks( $goal );
 
-		foreach ( array( 'add_contact_page', 'add_events_page', 'add_video_page' ) as $task_id ) {
+		foreach ( array( 'add_contact_page', 'add_events_page', 'add_video_page', 'add_portfolio_piece' ) as $task_id ) {
 			$this->assertContains( $task_id, $data['available_task_ids'], $task_id . ' is not offered on ' . $goal );
 			$this->assertContains( $task_id, $data['renderable_task_ids'], $task_id . ' is not renderable on ' . $goal );
 		}

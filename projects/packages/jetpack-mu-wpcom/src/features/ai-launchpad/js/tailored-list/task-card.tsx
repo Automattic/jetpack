@@ -82,6 +82,8 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
 			return __( 'Add events page', 'jetpack-mu-wpcom' );
 		case 'video_page':
 			return __( 'Add video page', 'jetpack-mu-wpcom' );
+		case 'portfolio_piece':
+			return __( 'Add portfolio piece', 'jetpack-mu-wpcom' );
 		case 'launch':
 			return __( 'Launch site', 'jetpack-mu-wpcom' );
 		default:

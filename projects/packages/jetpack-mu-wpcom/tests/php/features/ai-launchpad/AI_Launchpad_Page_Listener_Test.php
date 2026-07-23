@@ -18,6 +18,8 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-la
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-events-page-listener.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-video-page-listener.php';
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-portfolio-piece-listener.php';
 
 /**
  * Tests the marker listeners behind the registry's hand-authored page tasks.
@@ -33,10 +35,12 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-la
  * @covers \AI_Launchpad_Contact_Page_Listener
  * @covers \AI_Launchpad_Events_Page_Listener
  * @covers \AI_Launchpad_Video_Page_Listener
+ * @covers \AI_Launchpad_Portfolio_Piece_Listener
  */
 #[CoversClass( AI_Launchpad_Contact_Page_Listener::class )]
 #[CoversClass( AI_Launchpad_Events_Page_Listener::class )]
 #[CoversClass( AI_Launchpad_Video_Page_Listener::class )]
+#[CoversClass( AI_Launchpad_Portfolio_Piece_Listener::class )]
 class AI_Launchpad_Page_Listener_Test extends \WorDBless\BaseTestCase {
 
 	/**
@@ -68,9 +72,13 @@ class AI_Launchpad_Page_Listener_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_page_listeners() {
 		return array(
-			'the contact page' => array( AI_Launchpad_Contact_Page_Listener::class, 'add_contact_page', 'Contact', 7171 ),
-			'the events page'  => array( AI_Launchpad_Events_Page_Listener::class, 'add_events_page', 'Events', 8181 ),
-			'the video page'   => array( AI_Launchpad_Video_Page_Listener::class, 'add_video_page', 'Videos', 9191 ),
+			'the contact page'    => array( AI_Launchpad_Contact_Page_Listener::class, 'add_contact_page', 'Contact', 7171 ),
+			'the events page'     => array( AI_Launchpad_Events_Page_Listener::class, 'add_events_page', 'Events', 8181 ),
+			'the video page'      => array( AI_Launchpad_Video_Page_Listener::class, 'add_video_page', 'Videos', 9191 ),
+			// The empty title is this page's own: a portfolio piece is titled with the project's name, which
+			// only the user has, so createPortfolioPiece leaves the field blank for them to fill. Carried
+			// through the provider so every listener case exercises the page as it is really created.
+			'the portfolio piece' => array( AI_Launchpad_Portfolio_Piece_Listener::class, 'add_portfolio_piece', '', 10101 ),
 		);
 	}
 

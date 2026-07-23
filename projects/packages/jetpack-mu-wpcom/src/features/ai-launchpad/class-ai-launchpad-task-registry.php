@@ -48,7 +48,7 @@ class AI_Launchpad_Task_Registry {
 	 */
 	private static function definitions() {
 		$definitions = array(
-			'add_gallery_page'   => array(
+			'add_gallery_page'    => array(
 				'title'             => static function () {
 					return __( 'Create your first gallery', 'jetpack-mu-wpcom' );
 				},
@@ -78,7 +78,7 @@ class AI_Launchpad_Task_Registry {
 			 * runs on, so the task asks nothing of the site. No `calypso_path` either — the CTA creates the
 			 * page client-side, as the gallery's does.
 			 */
-			'add_contact_page'   => array(
+			'add_contact_page'    => array(
 				'title'             => static function () {
 					return __( 'Add a contact page', 'jetpack-mu-wpcom' );
 				},
@@ -107,7 +107,7 @@ class AI_Launchpad_Task_Registry {
 			 * No `is_visible`: the entries are core blocks, which every site has. No `calypso_path` either —
 			 * the CTA creates the page client-side, as the contact page's does.
 			 */
-			'add_events_page'    => array(
+			'add_events_page'     => array(
 				'title'             => static function () {
 					return __( 'Add an events page', 'jetpack-mu-wpcom' );
 				},
@@ -139,7 +139,7 @@ class AI_Launchpad_Task_Registry {
 			 *
 			 * No `calypso_path` — the CTA creates the page client-side, as the contact and events pages do.
 			 */
-			'add_video_page'     => array(
+			'add_video_page'      => array(
 				'title'             => static function () {
 					return __( 'Add a video page', 'jetpack-mu-wpcom' );
 				},
@@ -157,7 +157,47 @@ class AI_Launchpad_Task_Registry {
 					return AI_Launchpad_Video_Page_Listener::get_draft_id();
 				},
 			),
-			'add_site_icon'      => array(
+
+			/*
+			 * One project, written up on a page of its own: an empty image block for the work, and one blank
+			 * line, prompted, for what it was, who it was for, and what the user did.
+			 *
+			 * Deliberately an ordinary page, and NOT Jetpack's `jetpack-portfolio` custom post type the proof
+			 * of concept opened the editor on. That CPT is registered only where the `jetpack_portfolio`
+			 * option is on or the theme declares support, and neither holds on a new site with a block theme —
+			 * so gating this task on the CPT would hide it from precisely the sites it exists for, and not
+			 * gating it would open an editor for a post type that does not exist. Turning the option on from
+			 * the CTA was the third option and is worse than both: no route the client can reach writes it on
+			 * Simple and Atomic alike, and it is a silent, site-wide structural change — a new admin menu, two
+			 * taxonomies, an archive, a rewrite flush — bought by clicking a card that offered to add one page.
+			 * A page needs none of that, and it is where the theme's own navigation puts it.
+			 *
+			 * No `default_subtitle` invention beyond the card: the page itself carries no AI-written copy at
+			 * all, which is why this is the one page task with no `page_intros` key. The other four open with a
+			 * line about the site; a project write-up is facts about one job only the user has.
+			 *
+			 * No `is_visible`: core/image and core/paragraph are on every site. No `calypso_path` either — the
+			 * CTA creates the page client-side, as the other page tasks do.
+			 */
+			'add_portfolio_piece' => array(
+				'title'             => static function () {
+					return __( 'Add your first portfolio piece', 'jetpack-mu-wpcom' );
+				},
+				'in_progress_title' => static function () {
+					return __( 'Continue working on your portfolio piece', 'jetpack-mu-wpcom' );
+				},
+				'default_subtitle'  => static function () {
+					return __( 'Give one project a page of its own, with room for the work and the story behind it.', 'jetpack-mu-wpcom' );
+				},
+				'is_complete'       => static function () {
+					$statuses = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
+					return ! empty( $statuses['add_portfolio_piece'] );
+				},
+				'draft_id'          => static function () {
+					return AI_Launchpad_Portfolio_Piece_Listener::get_draft_id();
+				},
+			),
+			'add_site_icon'       => array(
 				'title'            => static function () {
 					return __( 'Add your logo or site icon', 'jetpack-mu-wpcom' );
 				},
@@ -174,7 +214,7 @@ class AI_Launchpad_Task_Registry {
 					return admin_url( 'options-general.php' );
 				},
 			),
-			'pick_fonts_colors'  => array(
+			'pick_fonts_colors'   => array(
 				'title'            => static function () {
 					return __( 'Customize fonts and colors', 'jetpack-mu-wpcom' );
 				},
@@ -218,7 +258,7 @@ class AI_Launchpad_Task_Registry {
 			 * that already has the plugin comes free anyway — available_task_ids() drops every complete task
 			 * from the actionable menu.
 			 */
-			'install_sensei_lms' => array(
+			'install_sensei_lms'  => array(
 				'title'            => static function () {
 					return __( 'Build your courses with Sensei LMS', 'jetpack-mu-wpcom' );
 				},

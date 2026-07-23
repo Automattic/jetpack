@@ -98,6 +98,7 @@ describe( 'ctaKind', () => {
 		[ 'add_contact_page', 'contact_page' ],
 		[ 'add_events_page', 'events_page' ],
 		[ 'add_video_page', 'video_page' ],
+		[ 'add_portfolio_piece', 'portfolio_piece' ],
 		// Pathless launch tasks open the launch flow.
 		[ 'site_launched', 'launch' ],
 		[ 'blog_launched', 'launch' ],
@@ -211,7 +212,12 @@ describe( 'isTaskActionable', () => {
 	// page" — so each is actionable exactly when there is an output to build from, like the other
 	// create-content tasks. Listed rather than repeated, so a new page task cannot be added to
 	// CREATE_CONTENT_KINDS and forgotten here.
-	for ( const id of [ 'add_contact_page', 'add_events_page', 'add_video_page' ] ) {
+	for ( const id of [
+		'add_contact_page',
+		'add_events_page',
+		'add_video_page',
+		'add_portfolio_piece',
+	] ) {
 		it( `treats ${ id } as a create-content task, actionable once the output exists`, () => {
 			const subject = task( { id, calypso_path: null } );
 
@@ -267,6 +273,10 @@ describe( 'resolveCtaUrl', () => {
 				createContactPage: async () => ( { page_id: 4, edit_url: '/wp-admin/post.php?post=4' } ),
 				createEventsPage: async () => ( { page_id: 5, edit_url: '/wp-admin/post.php?post=5' } ),
 				createVideoPage: async () => ( { page_id: 6, edit_url: '/wp-admin/post.php?post=6' } ),
+				createPortfolioPiece: async () => ( {
+					page_id: 10,
+					edit_url: '/wp-admin/post.php?post=10',
+				} ),
 			},
 		};
 	}
@@ -336,6 +346,16 @@ describe( 'resolveCtaUrl', () => {
 		[
 			'reopens the existing video draft instead of creating a second page',
 			{ id: 'add_video_page', in_progress: true, calypso_path: '/wp-admin/post.php?post=7' },
+			'/wp-admin/post.php?post=7',
+		],
+		[
+			'writes the portfolio piece and returns its editor URL',
+			{ id: 'add_portfolio_piece' },
+			'/wp-admin/post.php?post=10',
+		],
+		[
+			'reopens the existing portfolio-piece draft instead of creating a second page',
+			{ id: 'add_portfolio_piece', in_progress: true, calypso_path: '/wp-admin/post.php?post=7' },
 			'/wp-admin/post.php?post=7',
 		],
 		[
@@ -465,6 +485,36 @@ describe( 'resolveCtaUrl', () => {
 			received,
 			Object.fromEntries( PAGE_TASKS.map( ( [ id, , intro ] ) => [ id, [ intro, undefined ] ] ) )
 		);
+	} );
+
+	it( 'hands the portfolio piece no intro at all', async () => {
+		// The only page task with no `page_intros` key, and the omission is the design rather than an
+		// oversight. The other four open with a line about the SITE — what it runs, what it films, why
+		// to write in — which the model knows from the wizard. A portfolio piece is one project the
+		// model has never heard of, so any line it wrote would sit under that project's title
+		// describing it: the events page's invented-date problem with the invention moved into prose.
+		// Passing an intro anyway is the regression this catches, since the surrounding code makes it a
+		// one-word change.
+		const received: unknown[][] = [];
+		const { handlers } = stubHandlers();
+		( handlers as unknown as Record< string, unknown > ).createPortfolioPiece = async (
+			...args: unknown[]
+		) => {
+			received.push( args );
+			return { page_id: 10, edit_url: '/wp-admin/post.php?post=10' };
+		};
+		const tailored: TailoredOutput = {
+			...fixture,
+			page_intros: { add_contact_page: 'Ask about a commission.' },
+		};
+
+		await resolveCtaUrl(
+			task( { id: 'add_portfolio_piece', calypso_path: null } ),
+			tailored,
+			handlers
+		);
+
+		assert.deepEqual( received, [ [] ] );
 	} );
 } );
 
