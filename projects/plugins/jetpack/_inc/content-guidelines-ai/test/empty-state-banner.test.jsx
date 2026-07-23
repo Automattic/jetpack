@@ -1,8 +1,9 @@
-import { render, screen, fireEvent } from '@testing-library/react';
 import { useAiFeature } from '@automattic/jetpack-ai-client';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { useSelect, useDispatch } from '@wordpress/data';
-import useGenerateAll from '../hooks/use-generate-all';
 import EmptyStateBanner from '../components/empty-state-banner';
+import useGenerateAll from '../hooks/use-generate-all';
 
 jest.mock( '@wordpress/data', () => ( {
 	useSelect: jest.fn(),
@@ -11,7 +12,16 @@ jest.mock( '@wordpress/data', () => ( {
 	register: jest.fn(),
 } ) );
 jest.mock( '@wordpress/components', () => ( {
-	Button: ( { children, onClick, disabled, href, className, style, label, 'aria-hidden': ariaHidden } ) => (
+	Button: ( {
+		children,
+		onClick,
+		disabled,
+		href,
+		className,
+		style,
+		label,
+		'aria-hidden': ariaHidden,
+	} ) => (
 		<button
 			type="button"
 			onClick={ onClick }
@@ -55,37 +65,42 @@ function setup( { dismissed = false, hasFeature = true } ) {
 	useSelect.mockImplementation( map => map( () => ( { isBannerDismissed: () => dismissed } ) ) );
 }
 
-describe( 'EmptyStateBanner', () => {
-	beforeEach( () => jest.clearAllMocks() );
+let user;
 
-	it( 'renders nothing once dismissed', () => {
+describe( 'EmptyStateBanner', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		user = userEvent.setup();
+	} );
+
+	it( 'renders nothing once dismissed', async () => {
 		setup( { dismissed: true } );
 		const { container } = render( <EmptyStateBanner /> );
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
-	it( 'renders nothing without an AI plan', () => {
+	it( 'renders nothing without an AI plan', async () => {
 		setup( { hasFeature: false } );
 		const { container } = render( <EmptyStateBanner /> );
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
-	it( 'shows the banner when active and generates on Get started', () => {
+	it( 'shows the banner when active and generates on Get started', async () => {
 		setup( {} );
 		render( <EmptyStateBanner /> );
 
 		expect( screen.getByText( /generate your guidelines/i ) ).toBeInTheDocument();
 
-		fireEvent.click( screen.getByRole( 'button', { name: 'Get started' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Get started' } ) );
 		expect( dismissBanner ).toHaveBeenCalledTimes( 1 );
 		expect( generate ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'dismisses without generating on Close', () => {
+	it( 'dismisses without generating on Close', async () => {
 		setup( {} );
 		render( <EmptyStateBanner /> );
 
-		fireEvent.click( screen.getByRole( 'button', { name: 'Close' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Close' } ) );
 		expect( dismissBanner ).toHaveBeenCalledTimes( 1 );
 		expect( generate ).not.toHaveBeenCalled();
 	} );

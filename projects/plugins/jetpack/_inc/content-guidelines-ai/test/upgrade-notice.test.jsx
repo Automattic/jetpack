@@ -1,5 +1,6 @@
-import { render, screen, fireEvent } from '@testing-library/react';
 import { useAICheckout, useAiFeature } from '@automattic/jetpack-ai-client';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { useSelect, useDispatch } from '@wordpress/data';
 import UpgradeNotice from '../components/upgrade-notice';
 import { recordAiEvent } from '../lib/tracks';
@@ -11,7 +12,16 @@ jest.mock( '@wordpress/data', () => ( {
 	register: jest.fn(),
 } ) );
 jest.mock( '@wordpress/components', () => ( {
-	Button: ( { children, onClick, disabled, href, className, style, label, 'aria-hidden': ariaHidden } ) => (
+	Button: ( {
+		children,
+		onClick,
+		disabled,
+		href,
+		className,
+		style,
+		label,
+		'aria-hidden': ariaHidden,
+	} ) => (
 		<button
 			type="button"
 			onClick={ onClick }
@@ -47,7 +57,12 @@ jest.mock( '../lib/tracks', () => ( { recordAiEvent: jest.fn() } ) );
 const dismissBanner = jest.fn();
 const hideUpgradeNotice = jest.fn();
 
-function setup( { hasFeature = false, dismissed = false, forced = false, checkoutUrl = 'https://wordpress.com/checkout' } ) {
+function setup( {
+	hasFeature = false,
+	dismissed = false,
+	forced = false,
+	checkoutUrl = 'https://wordpress.com/checkout',
+} ) {
 	useAiFeature.mockReturnValue( { hasFeature } );
 	useAICheckout.mockReturnValue( { checkoutUrl } );
 	useDispatch.mockReturnValue( { dismissBanner, hideUpgradeNotice } );
@@ -58,60 +73,67 @@ function setup( { hasFeature = false, dismissed = false, forced = false, checkou
 	useSelect.mockImplementation( map => map( () => selectors ) );
 }
 
+let user;
+
 describe( 'UpgradeNotice', () => {
 	beforeAll( () => {
+		// jsdom doesn't implement scrollIntoView, so spyOn can't attach — define it.
+		// eslint-disable-next-line jest/prefer-spy-on
 		window.HTMLElement.prototype.scrollIntoView = jest.fn();
 	} );
-	beforeEach( () => jest.clearAllMocks() );
+	beforeEach( () => {
+		jest.clearAllMocks();
+		user = userEvent.setup();
+	} );
 
-	it( 'renders nothing when the site already has the AI feature', () => {
+	it( 'renders nothing when the site already has the AI feature', async () => {
 		setup( { hasFeature: true } );
 		const { container } = render( <UpgradeNotice /> );
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
-	it( 'renders nothing when dismissed and not forced', () => {
+	it( 'renders nothing when dismissed and not forced', async () => {
 		setup( { dismissed: true, forced: false } );
 		const { container } = render( <UpgradeNotice /> );
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
-	it( 'stays visible when dismissed but forced by a fresh Generate click', () => {
+	it( 'stays visible when dismissed but forced by a fresh Generate click', async () => {
 		setup( { dismissed: true, forced: true } );
 		render( <UpgradeNotice /> );
 		expect( screen.getByRole( 'button', { name: 'Upgrade' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'links Upgrade to the checkout URL and records the click', () => {
+	it( 'links Upgrade to the checkout URL and records the click', async () => {
 		setup( { checkoutUrl: 'https://wordpress.com/checkout/abc' } );
 		render( <UpgradeNotice /> );
 
 		const upgrade = screen.getByRole( 'button', { name: 'Upgrade' } );
 		expect( upgrade ).toHaveAttribute( 'href', 'https://wordpress.com/checkout/abc' );
 
-		fireEvent.click( upgrade );
+		await user.click( upgrade );
 		expect( recordAiEvent ).toHaveBeenCalledWith( 'jetpack_ai_upgrade_button', {
 			placement: 'content-guidelines',
 		} );
 	} );
 
-	it( 'omits the Upgrade button when no checkout URL is available', () => {
+	it( 'omits the Upgrade button when no checkout URL is available', async () => {
 		setup( { checkoutUrl: null } );
 		render( <UpgradeNotice /> );
 		expect( screen.queryByRole( 'button', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'scrolls into view when forced', () => {
+	it( 'scrolls into view when forced', async () => {
 		setup( { forced: true } );
 		render( <UpgradeNotice /> );
 		expect( window.HTMLElement.prototype.scrollIntoView ).toHaveBeenCalled();
 	} );
 
-	it( 'clears both the session and persisted dismissal on Close', () => {
+	it( 'clears both the session and persisted dismissal on Close', async () => {
 		setup( {} );
 		render( <UpgradeNotice /> );
 
-		fireEvent.click( screen.getByRole( 'button', { name: 'Close' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Close' } ) );
 		expect( hideUpgradeNotice ).toHaveBeenCalledTimes( 1 );
 		expect( dismissBanner ).toHaveBeenCalledTimes( 1 );
 	} );

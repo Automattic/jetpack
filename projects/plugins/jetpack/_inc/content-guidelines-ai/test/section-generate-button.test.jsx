@@ -1,5 +1,6 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { useAiFeature } from '@automattic/jetpack-ai-client';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { useSelect, useDispatch } from '@wordpress/data';
 import SectionGenerateButton from '../components/section-generate-button';
 import { useSectionHasDraft } from '../hooks/use-drafts';
@@ -14,7 +15,16 @@ jest.mock( '@wordpress/data', () => ( {
 	register: jest.fn(),
 } ) );
 jest.mock( '@wordpress/components', () => ( {
-	Button: ( { children, onClick, disabled, href, className, style, label, 'aria-hidden': ariaHidden } ) => (
+	Button: ( {
+		children,
+		onClick,
+		disabled,
+		href,
+		className,
+		style,
+		label,
+		'aria-hidden': ariaHidden,
+	} ) => (
 		<button
 			type="button"
 			onClick={ onClick }
@@ -63,29 +73,36 @@ function setup( { hasFeature = true, hasDraft = false, sectionLoading = false } 
 	useAiFeature.mockReturnValue( { hasFeature } );
 	useSectionHasDraft.mockReturnValue( hasDraft );
 	useDispatch.mockReturnValue( bag );
-	useSelect.mockImplementation( map => map( () => ( { isSectionLoading: () => sectionLoading } ) ) );
+	useSelect.mockImplementation( map =>
+		map( () => ( { isSectionLoading: () => sectionLoading } ) )
+	);
 }
 
-describe( 'SectionGenerateButton', () => {
-	beforeEach( () => jest.clearAllMocks() );
+let user;
 
-	it( 'labels the button Generate when the section is empty', () => {
+describe( 'SectionGenerateButton', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		user = userEvent.setup();
+	} );
+
+	it( 'labels the button Generate when the section is empty', async () => {
 		setup( { hasDraft: false } );
 		render( <SectionGenerateButton slug="copy" /> );
 		expect( screen.getByRole( 'button', { name: 'Generate guidelines' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'labels the button Improve when the section already has a draft', () => {
+	it( 'labels the button Improve when the section already has a draft', async () => {
 		setup( { hasDraft: true } );
 		render( <SectionGenerateButton slug="copy" /> );
 		expect( screen.getByRole( 'button', { name: 'Improve guidelines' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'opens the upgrade notice instead of generating without an AI plan', () => {
+	it( 'opens the upgrade notice instead of generating without an AI plan', async () => {
 		setup( { hasFeature: false } );
 		render( <SectionGenerateButton slug="copy" /> );
 
-		fireEvent.click( screen.getByRole( 'button', { name: /guidelines/i } ) );
+		await user.click( screen.getByRole( 'button', { name: /guidelines/i } ) );
 
 		expect( bag.showUpgradeNotice ).toHaveBeenCalledTimes( 1 );
 		expect( recordGuidelinesEvent ).toHaveBeenCalledWith( 'upgrade_notice', {
@@ -101,7 +118,7 @@ describe( 'SectionGenerateButton', () => {
 		suggestGuidelines.mockResolvedValue( { suggestions: { copy: 'AI generated text.' } } );
 
 		render( <SectionGenerateButton slug="copy" /> );
-		fireEvent.click( screen.getByRole( 'button', { name: 'Generate guidelines' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Generate guidelines' } ) );
 
 		await waitFor( () =>
 			expect( bag.setSuggestion ).toHaveBeenCalledWith( 'copy', 'AI generated text.' )
@@ -121,7 +138,7 @@ describe( 'SectionGenerateButton', () => {
 		suggestGuidelines.mockResolvedValue( { suggestions: { copy: 'Refined.' } } );
 
 		render( <SectionGenerateButton slug="copy" /> );
-		fireEvent.click( screen.getByRole( 'button', { name: 'Improve guidelines' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Improve guidelines' } ) );
 
 		await waitFor( () => expect( bag.setSuggestion ).toHaveBeenCalled() );
 		expect( suggestGuidelines ).toHaveBeenCalledWith( [ 'copy' ], {
@@ -140,14 +157,14 @@ describe( 'SectionGenerateButton', () => {
 		suggestGuidelines.mockRejectedValue( new Error( 'boom' ) );
 
 		render( <SectionGenerateButton slug="copy" /> );
-		fireEvent.click( screen.getByRole( 'button', { name: 'Generate guidelines' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Generate guidelines' } ) );
 
 		await waitFor( () => expect( bag.createErrorNotice ).toHaveBeenCalled() );
 		expect( bag.setSuggestion ).not.toHaveBeenCalled();
 		expect( bag.stopSectionLoading ).toHaveBeenCalledWith( 'copy' );
 	} );
 
-	it( 'disables the button while the section is loading', () => {
+	it( 'disables the button while the section is loading', async () => {
 		setup( { sectionLoading: true } );
 		render( <SectionGenerateButton slug="copy" /> );
 		expect( screen.getByRole( 'button', { name: /guidelines/i } ) ).toBeDisabled();

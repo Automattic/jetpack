@@ -1,5 +1,6 @@
-import { render, screen, fireEvent } from '@testing-library/react';
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import ReadMoreLink from '../components/read-more-link';
 import {
 	GUIDELINES_SUPPORT_REDIRECT_JETPACK,
@@ -15,10 +16,15 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 } ) );
 jest.mock( '../lib/tracks', () => ( { recordGuidelinesEvent: jest.fn() } ) );
 
-describe( 'ReadMoreLink', () => {
-	beforeEach( () => jest.clearAllMocks() );
+let user;
 
-	it( 'links to the wordpress.com support redirect on wpcom platform sites', () => {
+describe( 'ReadMoreLink', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		user = userEvent.setup();
+	} );
+
+	it( 'links to the wordpress.com support redirect on wpcom platform sites', async () => {
 		isWpcomPlatformSite.mockReturnValue( true );
 
 		render( <ReadMoreLink /> );
@@ -29,7 +35,7 @@ describe( 'ReadMoreLink', () => {
 		);
 	} );
 
-	it( 'links to the jetpack.com support redirect on self-hosted sites', () => {
+	it( 'links to the jetpack.com support redirect on self-hosted sites', async () => {
 		isWpcomPlatformSite.mockReturnValue( false );
 
 		render( <ReadMoreLink /> );
@@ -40,11 +46,11 @@ describe( 'ReadMoreLink', () => {
 		);
 	} );
 
-	it( 'records a read_more_click event when clicked', () => {
+	it( 'records a read_more_click event when clicked', async () => {
 		isWpcomPlatformSite.mockReturnValue( true );
 
 		render( <ReadMoreLink /> );
-		fireEvent.click( screen.getByRole( 'link', { name: /read more/i } ) );
+		await user.click( screen.getByRole( 'link', { name: /read more/i } ) );
 
 		expect( recordGuidelinesEvent ).toHaveBeenCalledWith( 'read_more_click' );
 	} );

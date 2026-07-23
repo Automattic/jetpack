@@ -1,4 +1,5 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { useSelect, useDispatch } from '@wordpress/data';
 import SuggestionActions from '../components/suggestion-actions';
 import { acceptSectionSuggestion } from '../lib/dom';
@@ -11,7 +12,16 @@ jest.mock( '@wordpress/data', () => ( {
 	register: jest.fn(),
 } ) );
 jest.mock( '@wordpress/components', () => ( {
-	Button: ( { children, onClick, disabled, href, className, style, label, 'aria-hidden': ariaHidden } ) => (
+	Button: ( {
+		children,
+		onClick,
+		disabled,
+		href,
+		className,
+		style,
+		label,
+		'aria-hidden': ariaHidden,
+	} ) => (
 		<button
 			type="button"
 			onClick={ onClick }
@@ -52,20 +62,25 @@ function setup( { suggestion = '', sectionLoading = false } ) {
 	useSelect.mockImplementation( map => map( () => selectors ) );
 }
 
-describe( 'SuggestionActions', () => {
-	beforeEach( () => jest.clearAllMocks() );
+let user;
 
-	it( 'renders nothing without a suggestion', () => {
+describe( 'SuggestionActions', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		user = userEvent.setup();
+	} );
+
+	it( 'renders nothing without a suggestion', async () => {
 		setup( { suggestion: '' } );
 		const { container } = render( <SuggestionActions slug="copy" /> );
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
-	it( 'accepts the suggestion into the section on Accept', () => {
+	it( 'accepts the suggestion into the section on Accept', async () => {
 		setup( { suggestion: 'Improved guideline.' } );
 		render( <SuggestionActions slug="copy" /> );
 
-		fireEvent.click( screen.getByRole( 'button', { name: 'Accept suggestion' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Accept suggestion' } ) );
 
 		expect( recordGuidelinesEvent ).toHaveBeenCalledWith( 'accept', {
 			type: 'section',
@@ -78,11 +93,11 @@ describe( 'SuggestionActions', () => {
 		);
 	} );
 
-	it( 'discards the suggestion on Dismiss without writing it', () => {
+	it( 'discards the suggestion on Dismiss without writing it', async () => {
 		setup( { suggestion: 'Improved guideline.' } );
 		render( <SuggestionActions slug="copy" /> );
 
-		fireEvent.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
 
 		expect( recordGuidelinesEvent ).toHaveBeenCalledWith( 'dismiss', {
 			type: 'section',
@@ -92,25 +107,29 @@ describe( 'SuggestionActions', () => {
 		expect( acceptSectionSuggestion ).not.toHaveBeenCalled();
 	} );
 
-	it( 'captures the current section draft as the diff baseline and flags the form', () => {
-		setup( { suggestion: 'New guideline.' } );
+	it( 'captures the current section draft as the diff baseline and flags the form', async () => {
+		// Single-word draft/suggestion so the diff is one clean removed token.
+		setup( { suggestion: 'newguideline' } );
 
 		// The effect reads the live draft straight from Gutenberg's section
-		// markup, so inject that structure before rendering.
+		// markup, so inject that structure before rendering. Keep a direct ref
+		// to the form to assert on it without DOM traversal.
 		const item = document.createElement( 'li' );
 		item.className = 'guidelines__list-item';
 		item.dataset.slug = 'copy';
-		item.innerHTML = '<form><textarea rows="4">Old draft.</textarea></form>';
+		const form = document.createElement( 'form' );
+		form.innerHTML = '<textarea rows="4">oldguideline</textarea>';
+		item.appendChild( form );
 		document.body.appendChild( item );
 
-		const { container } = render( <SuggestionActions slug="copy" /> );
+		render( <SuggestionActions slug="copy" /> );
 
-		// The captured "Old draft." becomes the diff's removed text...
-		expect( container.querySelector( 'del' ) ).toHaveTextContent( 'Old' );
+		// The captured draft becomes the diff's removed text. (The injected
+		// textarea also holds it, so pick the <del> among the matches.)
+		const removed = screen.getAllByText( 'oldguideline' ).find( el => el.tagName === 'DEL' );
+		expect( removed ).toBeInTheDocument();
 		// ...and the Gutenberg form is flagged so its textarea can be hidden.
-		expect( item.querySelector( 'form' ).classList.contains( 'has-jetpack-suggestion' ) ).toBe(
-			true
-		);
+		expect( form ).toHaveClass( 'has-jetpack-suggestion' );
 
 		document.body.removeChild( item );
 	} );

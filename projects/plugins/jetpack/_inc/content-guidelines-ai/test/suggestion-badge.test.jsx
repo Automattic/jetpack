@@ -9,10 +9,10 @@ jest.mock( '@wordpress/data', () => ( {
 	register: jest.fn(),
 } ) );
 jest.mock( '@wordpress/components', () => ( {
-	Spinner: () => <span className="components-spinner" />,
+	Spinner: () => <span data-testid="cg-spinner" />,
 } ) );
 jest.mock( '@wordpress/ui', () => ( {
-	Badge: ( { children } ) => <span className="mock-badge">{ children }</span>,
+	Badge: ( { children } ) => <span>{ children }</span>,
 } ) );
 
 function mockStore( { loading = false, has = false } ) {
@@ -28,11 +28,9 @@ describe( 'SuggestionBadge', () => {
 
 	it( 'shows a spinner while loading with no suggestion yet', () => {
 		mockStore( { loading: true, has: false } );
-		const { container } = render( <SuggestionBadge slug="copy" /> );
+		render( <SuggestionBadge slug="copy" /> );
 
-		expect(
-			container.querySelector( '.jetpack-content-guidelines-ai__badge--loading' )
-		).toBeInTheDocument();
+		expect( screen.getByTestId( 'cg-spinner' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Suggestion' ) ).not.toBeInTheDocument();
 	} );
 
@@ -45,12 +43,10 @@ describe( 'SuggestionBadge', () => {
 
 	it( 'prefers the badge over the spinner when both loading and a suggestion are present', () => {
 		mockStore( { loading: true, has: true } );
-		const { container } = render( <SuggestionBadge slug="copy" /> );
+		render( <SuggestionBadge slug="copy" /> );
 
 		expect( screen.getByText( 'Suggestion' ) ).toBeInTheDocument();
-		expect(
-			container.querySelector( '.jetpack-content-guidelines-ai__badge--loading' )
-		).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'cg-spinner' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders nothing when idle with no suggestion', () => {

@@ -1,5 +1,5 @@
-import { renderHook, act } from '@testing-library/react';
 import { useAiFeature } from '@automattic/jetpack-ai-client';
+import { renderHook, act } from '@testing-library/react';
 import { useSelect, useDispatch } from '@wordpress/data';
 import useGenerateAll from '../hooks/use-generate-all';
 import { suggestGuidelines } from '../lib/api';
@@ -103,10 +103,9 @@ describe( 'useGenerateAll', () => {
 			await result.current.generate();
 		} );
 
-		expect( suggestGuidelines ).toHaveBeenCalledWith(
-			[ 'site', 'copy', 'images', 'additional' ],
-			{ site: 'A blog.' }
-		);
+		expect( suggestGuidelines ).toHaveBeenCalledWith( [ 'site', 'copy', 'images', 'additional' ], {
+			site: 'A blog.',
+		} );
 		expect( recordGuidelinesEvent ).toHaveBeenCalledWith( 'generate_all', { action: 'improve' } );
 	} );
 

@@ -1,4 +1,5 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { useSelect, useDispatch } from '@wordpress/data';
 import BlockSuggestionActions from '../components/block-suggestion-actions';
 import { acceptBlockSuggestion } from '../lib/dom';
@@ -34,13 +35,18 @@ function makeModal() {
 	return modal;
 }
 
+let user;
+
 describe( 'BlockSuggestionActions', () => {
-	beforeEach( () => jest.clearAllMocks() );
+	beforeEach( () => {
+		jest.clearAllMocks();
+		user = userEvent.setup();
+	} );
 	afterEach( () => {
 		document.body.innerHTML = '';
 	} );
 
-	it( 'renders nothing without a suggestion', () => {
+	it( 'renders nothing without a suggestion', async () => {
 		setup( { suggestion: '' } );
 		const { container } = render(
 			<BlockSuggestionActions blockName="core/paragraph" blockModal={ makeModal() } />
@@ -48,12 +54,12 @@ describe( 'BlockSuggestionActions', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
-	it( 'renders the diff and accepts the block suggestion on click', () => {
+	it( 'renders the diff and accepts the block suggestion on click', async () => {
 		setup( { suggestion: 'Keep paragraphs short.' } );
 		const modal = makeModal();
 		render( <BlockSuggestionActions blockName="core/paragraph" blockModal={ modal } /> );
 
-		fireEvent.click( screen.getByRole( 'button', { name: /accept suggested changes/i } ) );
+		await user.click( screen.getByRole( 'button', { name: /accept suggested changes/i } ) );
 
 		expect( recordGuidelinesEvent ).toHaveBeenCalledWith( 'accept', {
 			type: 'block',
@@ -67,7 +73,7 @@ describe( 'BlockSuggestionActions', () => {
 		);
 	} );
 
-	it( 'clears the stale block suggestion when the modal unmounts', () => {
+	it( 'clears the stale block suggestion when the modal unmounts', async () => {
 		setup( { suggestion: 'Keep paragraphs short.' } );
 		const { unmount } = render(
 			<BlockSuggestionActions blockName="core/paragraph" blockModal={ makeModal() } />

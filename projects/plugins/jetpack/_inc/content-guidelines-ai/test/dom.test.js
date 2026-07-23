@@ -86,7 +86,7 @@ describe( 'dom', () => {
 
 	describe( 'acceptBlockSuggestion', () => {
 		it( 'writes the suggestion into the modal textarea and clears the store', () => {
-			const { modal, textarea } = renderBlockModal( 'Old block draft' );
+			const { modal } = renderBlockModal( 'Old block draft' );
 			const clearSuggestion = jest.fn();
 			const onInput = jest.fn();
 			document.addEventListener( 'input', onInput );

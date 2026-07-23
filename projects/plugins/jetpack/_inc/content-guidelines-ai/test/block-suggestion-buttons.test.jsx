@@ -1,5 +1,6 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { useAiFeature } from '@automattic/jetpack-ai-client';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { useSelect, useDispatch } from '@wordpress/data';
 import BlockSuggestionButtons from '../components/block-suggestion-buttons';
 import { useBlockHasDraft } from '../hooks/use-drafts';
@@ -15,7 +16,16 @@ jest.mock( '@wordpress/data', () => ( {
 	register: jest.fn(),
 } ) );
 jest.mock( '@wordpress/components', () => ( {
-	Button: ( { children, onClick, disabled, href, className, style, label, 'aria-hidden': ariaHidden } ) => (
+	Button: ( {
+		children,
+		onClick,
+		disabled,
+		href,
+		className,
+		style,
+		label,
+		'aria-hidden': ariaHidden,
+	} ) => (
 		<button
 			type="button"
 			onClick={ onClick }
@@ -62,7 +72,13 @@ const bag = {
 };
 const blockModal = { id: 'modal' };
 
-function setup( { suggestion = '', hasFeature = true, hasDraft = false, blockLoading = false, modalValue = '' } ) {
+function setup( {
+	suggestion = '',
+	hasFeature = true,
+	hasDraft = false,
+	blockLoading = false,
+	modalValue = '',
+} ) {
 	useAiFeature.mockReturnValue( { hasFeature } );
 	useBlockHasDraft.mockReturnValue( hasDraft );
 	useDispatch.mockReturnValue( bag );
@@ -74,10 +90,15 @@ function setup( { suggestion = '', hasFeature = true, hasDraft = false, blockLoa
 	useSelect.mockImplementation( map => map( () => selectors ) );
 }
 
-describe( 'BlockSuggestionButtons', () => {
-	beforeEach( () => jest.clearAllMocks() );
+let user;
 
-	it( 'labels Generate with no block draft and Improve with one', () => {
+describe( 'BlockSuggestionButtons', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		user = userEvent.setup();
+	} );
+
+	it( 'labels Generate with no block draft and Improve with one', async () => {
 		setup( { hasDraft: false } );
 		const { rerender } = render(
 			<BlockSuggestionButtons blockName="core/image" blockModal={ blockModal } />
@@ -89,7 +110,7 @@ describe( 'BlockSuggestionButtons', () => {
 		expect( screen.getByRole( 'button', { name: 'Improve guidelines' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'disables the button without an AI plan', () => {
+	it( 'disables the button without an AI plan', async () => {
 		setup( { hasFeature: false } );
 		render( <BlockSuggestionButtons blockName="core/image" blockModal={ blockModal } /> );
 		expect( screen.getByRole( 'button', { name: /guidelines/i } ) ).toBeDisabled();
@@ -100,7 +121,7 @@ describe( 'BlockSuggestionButtons', () => {
 		suggestGuidelines.mockResolvedValue( { suggestions: { 'core/image': 'Add alt text.' } } );
 
 		render( <BlockSuggestionButtons blockName="core/image" blockModal={ blockModal } /> );
-		fireEvent.click( screen.getByRole( 'button', { name: 'Generate guidelines' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Generate guidelines' } ) );
 
 		await waitFor( () =>
 			expect( bag.setSuggestion ).toHaveBeenCalledWith( 'core/image', 'Add alt text.' )
@@ -118,7 +139,7 @@ describe( 'BlockSuggestionButtons', () => {
 		suggestGuidelines.mockResolvedValue( { suggestions: { 'core/image': 'Refined.' } } );
 
 		render( <BlockSuggestionButtons blockName="core/image" blockModal={ blockModal } /> );
-		fireEvent.click( screen.getByRole( 'button', { name: /guidelines/i } ) );
+		await user.click( screen.getByRole( 'button', { name: /guidelines/i } ) );
 
 		await waitFor( () => expect( bag.setSuggestion ).toHaveBeenCalled() );
 		expect( suggestGuidelines ).toHaveBeenCalledWith( [ 'core/image' ], {
@@ -136,17 +157,17 @@ describe( 'BlockSuggestionButtons', () => {
 		suggestGuidelines.mockRejectedValue( new Error( 'nope' ) );
 
 		render( <BlockSuggestionButtons blockName="core/image" blockModal={ blockModal } /> );
-		fireEvent.click( screen.getByRole( 'button', { name: /guidelines/i } ) );
+		await user.click( screen.getByRole( 'button', { name: /guidelines/i } ) );
 
 		await waitFor( () => expect( bag.createErrorNotice ).toHaveBeenCalled() );
 		expect( bag.setSuggestion ).not.toHaveBeenCalled();
 	} );
 
-	it( 'shows Accept/Dismiss once a suggestion exists and wires them up', () => {
+	it( 'shows Accept/Dismiss once a suggestion exists and wires them up', async () => {
 		setup( { suggestion: 'Add alt text.' } );
 		render( <BlockSuggestionButtons blockName="core/image" blockModal={ blockModal } /> );
 
-		fireEvent.click( screen.getByRole( 'button', { name: 'Accept suggestion' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Accept suggestion' } ) );
 		expect( acceptBlockSuggestion ).toHaveBeenCalledWith(
 			blockModal,
 			'core/image',
@@ -154,7 +175,7 @@ describe( 'BlockSuggestionButtons', () => {
 			bag.clearSuggestion
 		);
 
-		fireEvent.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
 		expect( bag.clearSuggestion ).toHaveBeenCalledWith( 'core/image' );
 	} );
 } );
