@@ -62,8 +62,6 @@ function wpcom_fiverr_cta() {
 				<?php echo $logo_img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_get_attachment_image() returns escaped markup. ?>
 			</div>
 		<?php endif; ?>
-		<p><b><?php esc_html_e( 'Make an incredible logo in minutes', 'jetpack-mu-wpcom' ); ?></b></p>
-		<p><?php esc_html_e( 'Pre-designed by top talent. Just add your touch.', 'jetpack-mu-wpcom' ); ?></p>
 		<button class="wpcom-fiverr-cta-button button" type="button">
 			<svg width="20" height="20" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
 				<circle cx="250" cy="250" r="177" fill="white"/>
@@ -71,6 +69,10 @@ function wpcom_fiverr_cta() {
 			</svg>
 			<?php esc_html_e( 'Try Fiverr Logo Maker', 'jetpack-mu-wpcom' ); ?>
 		</button>
+		<p class="description">
+			<b><?php esc_html_e( 'Make an incredible logo in minutes', 'jetpack-mu-wpcom' ); ?></b><br />
+			<?php esc_html_e( 'Pre-designed by top talent. Just add your touch.', 'jetpack-mu-wpcom' ); ?>
+		</p>
 	</div>
 	<?php
 }
