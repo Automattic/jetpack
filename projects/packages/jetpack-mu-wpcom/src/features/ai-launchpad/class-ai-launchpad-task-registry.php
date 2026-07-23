@@ -48,6 +48,19 @@ class AI_Launchpad_Task_Registry {
 	 */
 	private static function definitions() {
 		$definitions = array(
+
+			/*
+			 * The page is hand-authored markup — a heading, one AI-written line, and one empty core/gallery
+			 * block — and no longer built from the WordPress.com pattern library. The library carries no
+			 * topical tags at all, so the niche scoring that chose the pattern was dead: production logged
+			 * `picked_score: 0, fallback: first_usable` on every event, and the pattern it always settled on
+			 * shipped three photographs hotlinked from dotcompatterns.wordpress.com, with that site's own
+			 * attachment ids on them. A gallery page whose whole purpose is the user's own work is the worst
+			 * place on the menu to leave a stranger's photographs.
+			 *
+			 * No `is_visible`: core/gallery is a core block, so the task asks nothing of the site. No
+			 * `calypso_path` either — the CTA creates the page client-side, as the other page tasks do.
+			 */
 			'add_gallery_page'    => array(
 				'title'             => static function () {
 					return __( 'Create your first gallery', 'jetpack-mu-wpcom' );
@@ -69,10 +82,10 @@ class AI_Launchpad_Task_Registry {
 
 			/*
 			 * The page is hand-authored markup — a heading, one AI-written line, and a Jetpack contact form —
-			 * not a block pattern. The pattern library carries no topical tags, so the gallery's niche scoring
-			 * cannot fire for a contact page, and the pattern it would settle on is map-only with a hardcoded
-			 * address and phone number on it. A wrong address stated confidently on a real business's contact
-			 * page is worse than none, so the form is the only channel the page offers.
+			 * not a block pattern. The pattern library carries no topical tags, so niche scoring could never
+			 * fire for a contact page, and the pattern it would settle on is map-only with a hardcoded address
+			 * and phone number on it. A wrong address stated confidently on a real business's contact page is
+			 * worse than none, so the form is the only channel the page offers.
 			 *
 			 * No `is_visible`: the form block ships with Jetpack, which is active on every site this feature
 			 * runs on, so the task asks nothing of the site. No `calypso_path` either — the CTA creates the
@@ -173,7 +186,7 @@ class AI_Launchpad_Task_Registry {
 			 * A page needs none of that, and it is where the theme's own navigation puts it.
 			 *
 			 * No `default_subtitle` invention beyond the card: the page itself carries no AI-written copy at
-			 * all, which is why this is the one page task with no `page_intros` key. The other four open with a
+			 * all, which is why this is the one page task with no `page_intros` key. The other five open with a
 			 * line about the site; a project write-up is facts about one job only the user has.
 			 *
 			 * No `is_visible`: core/image and core/paragraph are on every site. No `calypso_path` either — the

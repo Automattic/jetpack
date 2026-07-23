@@ -19,7 +19,7 @@ require_once __DIR__ . '/class-ai-launchpad-task-registry.php';
 class AI_Launchpad_Gallery_Page_Listener {
 
 	/**
-	 * Marker meta set by createPatternPage on the AI-created gallery page.
+	 * Marker meta set by createGalleryPage on the AI-created gallery page.
 	 */
 	const META_KEY = '_wpcom_ai_launchpad_gallery_page';
 

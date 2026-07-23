@@ -392,7 +392,7 @@ export const TASK_ANNOTATIONS: readonly TaskAnnotation[] = [
 		// Deliberately no `goals`. The criterion is whether the site is visual, which no goal slug tracks: a
 		// photographer or food blogger picks `write` as readily as a florist picks `build`. Hinting a goal here
 		// would suppress the gallery for the very sites this task exists to reach.
-		what: 'Creates a draft gallery page built from a block pattern matched to the site.',
+		what: 'Creates a draft Gallery page: a heading, an AI-written line, and one empty gallery block the user fills with their own photographs.',
 		pickWhen:
 			"the site's value is visual and people judge it by looking — photography, art, craft, food, interiors, tattoo work, floristry, design.",
 		avoidWhen: 'the site is text-first and has no images to show.',
@@ -567,6 +567,7 @@ Some tasks create a page whose content is already written except for the one lin
 - "add_contact_page": one sentence, max 200 characters, inviting the visitor to get in touch, grounded in what someone would really contact THIS site about - a commission, a booking, a quote, a wholesale order, a question about the work. The page already carries a working contact form, so do not put an email address, a phone number, opening hours, or a street address in this sentence, and never invent one.
 - "add_events_page": one sentence, max 200 characters, saying what kind of thing THIS site runs and why someone would come - a class, a gig, a market stall, a screening, an open studio. The page leaves each event blank for the user to fill in, and only they know their own schedule, so do not put a date, a day, a time, a venue, an address, or a price in this sentence, and never invent one.
 - "add_video_page": one sentence, max 200 characters, saying what THIS site's videos show and why someone would watch - a technique, a lesson, a performance, a walkthrough, an episode. The page holds one empty video block for the user to fill, so do not describe a specific video as if it were already there, do not promise how many there are, do not name a video platform or channel, and never invent one.
+- "add_gallery_page": one sentence, max 200 characters, saying what THIS site's pictures show and why someone would look - the work, the place, the plates, the finished pieces, the process. The page holds one empty gallery block the user fills with their OWN photographs, so do not describe a particular image as if it were already there, do not promise how many there are, do not name a photo-sharing platform or account, and never invent one.
 
 ============ name resolution ============
 Treat the "Site name:" value above as THE ONLY brand/name to use anywhere - in the title, subtitle, paragraphs, and inferred.brand_name. It overrides any name mentioned inside the user description. If the description names a different brand, ignore it and use the "Site name:" value.
@@ -582,7 +583,7 @@ Return only a JSON object matching this schema. Do not include prose, code fence
   "tasks": [ { "id": "...", "subtitle": "..." }, ... 6 total ],
   "first_post_draft": { "title": "...", "subtitle": "...", "paragraphs": [ "...", "..." ] },
   "about_page_draft": { "title": "...", "paragraphs": [ "...", "..." ] },
-  "page_intros": { "add_contact_page": "...", "add_events_page": "...", "add_video_page": "..." }
+  "page_intros": { "add_contact_page": "...", "add_events_page": "...", "add_video_page": "...", "add_gallery_page": "..." }
 }
 
 Leave "page_intros" out altogether unless STEP 5 applies.`;

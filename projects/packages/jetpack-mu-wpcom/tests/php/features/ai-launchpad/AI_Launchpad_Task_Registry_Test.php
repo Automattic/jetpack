@@ -364,7 +364,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	 * destination needs no marker draft to be actionable.
 	 *
 	 * The gallery is the counter-case in the same provider: its CTA is built client-side (it creates the
-	 * pattern page), so it deliberately ships no path and the card carries none.
+	 * gallery page), so it deliberately ships no path and the card carries none.
 	 *
 	 * @param string      $task_id  The registry task id.
 	 * @param string|null $expected The expected CTA path, relative to admin_url().

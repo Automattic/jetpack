@@ -6,7 +6,7 @@ import { createAboutPage } from '../lib/about-page.ts';
 import { createContactPage } from '../lib/contact-page.ts';
 import { createEventsPage } from '../lib/events-page.ts';
 import { createFirstPostDraft } from '../lib/first-post.ts';
-import { createGalleryPage } from '../lib/pattern-page.ts';
+import { createGalleryPage } from '../lib/gallery-page.ts';
 import { createPortfolioPiece } from '../lib/portfolio-piece.ts';
 import {
 	contextFromInferred,

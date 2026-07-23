@@ -8,12 +8,13 @@ interface CreatedPage {
 /**
  * Contact-page creation from hand-authored markup.
  *
- * Deliberately not built from the WordPress.com pattern library, the way the gallery page is. The
- * library carries no topical tags at all — every tag is structural — so the niche scoring in
- * pattern-page.ts cannot fire for a contact page, and production logging bears that out: the picks
- * come back `picked_score: 0, fallback: first_usable`. The pattern that would win for "contact" is
- * map-only, with no form on it, and ships a hardcoded San Francisco address and phone number. A
- * confident, specific, wrong address on a real business's contact page is worse than a blank one.
+ * Deliberately not built from the WordPress.com pattern library — the first page task to refuse it,
+ * and the gallery has since followed. The library carries no topical tags at all (every tag is
+ * structural), so niche scoring could never fire for a contact page, and production logging bore that
+ * out: the picks came back `picked_score: 0, fallback: first_usable`. The pattern that would win for
+ * "contact" is map-only, with no form on it, and ships a hardcoded San Francisco address and phone
+ * number. A confident, specific, wrong address on a real business's contact page is worse than a
+ * blank one.
  *
  * So the page is a heading, one AI-written line, and a form. The form is the whole payload and is
  * identical for every site; the intro is the only part worth tailoring, which is why it is the only

@@ -1,9 +1,4 @@
-import type {
-	AboutPageDraft,
-	TailoredInferred,
-	TailoredOutput,
-	FirstPostDraft,
-} from '../lib/types.ts';
+import type { AboutPageDraft, TailoredOutput, FirstPostDraft } from '../lib/types.ts';
 
 /**
  * A single enriched task: AI subtitle merged with the catalog's title,
@@ -87,9 +82,9 @@ const LAUNCH_TASK_IDS = [
 
 /**
  * Resolve how a task's "Get started" CTA behaves: first-creation tasks draft a
- * post, the About task writes the AI-drafted page, the gallery task builds a
- * pattern page, launch tasks open the launch flow, everything else deeplinks to
- * the catalog's `calypso_path`.
+ * post, the About task writes the AI-drafted page, the hand-authored page tasks
+ * create their page, launch tasks open the launch flow, everything else
+ * deeplinks to the catalog's `calypso_path`.
  *
  * @param taskId - The catalog task ID.
  * @return The CTA kind.
@@ -184,7 +179,7 @@ export interface CtaHandlers {
 		draft: AboutPageDraft | undefined
 	) => Promise< { page_id: number; edit_url: string } >;
 	createGalleryPage: (
-		inferred: TailoredInferred
+		intro: string | undefined
 	) => Promise< { page_id: number; edit_url: string } >;
 	createContactPage: (
 		intro: string | undefined
@@ -250,7 +245,10 @@ export async function resolveCtaUrl(
 	} else if ( kind === 'about_page' && output ) {
 		url = ( await handlers.createAboutPage( output.about_page_draft ) ).edit_url;
 	} else if ( kind === 'gallery_page' && output ) {
-		url = ( await handlers.createGalleryPage( output.inferred ) ).edit_url;
+		// Its own key too. This one used to be handed `output.inferred` instead, because it scored the
+		// pattern library against the site's niche before building the page; there is no library and no
+		// scoring left, so it reads a line like every other page task.
+		url = ( await handlers.createGalleryPage( output.page_intros?.add_gallery_page ) ).edit_url;
 	} else if ( kind === 'contact_page' && output ) {
 		// Keyed by task id, so the page task reads its own line and nothing else. Undefined for an
 		// output persisted before page_intros existed, or a run where the model omitted the key —

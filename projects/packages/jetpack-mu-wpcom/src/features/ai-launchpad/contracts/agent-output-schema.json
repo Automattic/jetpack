@@ -173,6 +173,12 @@
 					"minLength": 1,
 					"maxLength": 200,
 					"description": "One sentence saying what this site's videos show and why someone would watch. The page carries one empty core/video block for the user to fill, so the prompt forbids describing a particular video as if it were already there, promising a number of them, or naming a video platform or channel."
+				},
+				"add_gallery_page": {
+					"type": "string",
+					"minLength": 1,
+					"maxLength": 200,
+					"description": "One sentence saying what this site's pictures show and why someone would look. The page carries one empty core/gallery block for the user to fill with their OWN images, so the prompt forbids describing a particular image as if it were already there, promising a number of them, or naming a photo-sharing platform or account."
 				}
 			}
 		}

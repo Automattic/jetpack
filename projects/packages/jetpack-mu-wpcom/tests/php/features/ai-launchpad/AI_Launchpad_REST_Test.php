@@ -2242,11 +2242,13 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 			'a contact-page intro' => array( array( 'add_contact_page' => 'Ask about a commission or a wholesale order.' ) ),
 			'an events-page intro' => array( array( 'add_events_page' => 'Come and throw a pot with us.' ) ),
 			'a video-page intro'   => array( array( 'add_video_page' => 'Every glaze test, filmed start to finish.' ) ),
+			'a gallery-page intro' => array( array( 'add_gallery_page' => 'A year of finished pieces in one place.' ) ),
 			'all at once'          => array(
 				array(
 					'add_contact_page' => 'Ask about a commission.',
 					'add_events_page'  => 'Come and throw a pot with us.',
 					'add_video_page'   => 'Every glaze test, filmed start to finish.',
+					'add_gallery_page' => 'A year of finished pieces in one place.',
 				),
 			),
 			'none, chosen'         => array( array() ),

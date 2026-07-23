@@ -116,6 +116,10 @@ describe( 'validateAgainstSchema', () => {
 		[ 'a contact-page intro', out => ( out.page_intros = { add_contact_page: 'Say hello.' } ) ],
 		[ 'an events-page intro', out => ( out.page_intros = { add_events_page: 'Come along.' } ) ],
 		[ 'a video-page intro', out => ( out.page_intros = { add_video_page: 'Take a look.' } ) ],
+		[
+			'a gallery-page intro',
+			out => ( out.page_intros = { add_gallery_page: 'A year of work.' } ),
+		],
 		// All at once: the keys are independent, so a run that picked several page tasks writes several.
 		[
 			'an intro for every page task at once',
@@ -124,6 +128,7 @@ describe( 'validateAgainstSchema', () => {
 					add_contact_page: 'Say hello.',
 					add_events_page: 'Come along.',
 					add_video_page: 'Take a look.',
+					add_gallery_page: 'A year of work.',
 				} ),
 		],
 		[ 'an empty page_intros object', out => ( out.page_intros = {} ) ],
@@ -157,6 +162,10 @@ describe( 'validateAgainstSchema', () => {
 		[
 			'a video-page intro past the subtitle-length ceiling',
 			out => ( out.page_intros = { add_video_page: 'x'.repeat( 201 ) } ),
+		],
+		[
+			'a gallery-page intro past the subtitle-length ceiling',
+			out => ( out.page_intros = { add_gallery_page: 'x'.repeat( 201 ) } ),
 		],
 	];
 	for ( const [ label, mutate ] of REJECTED ) {

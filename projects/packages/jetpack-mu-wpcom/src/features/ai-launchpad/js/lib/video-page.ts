@@ -14,9 +14,10 @@ interface CreatedPage {
  * Gallery, each embedding a specific real third-party YouTube video (one id, `nGYGC6cxRlQ`, appears
  * four times across the library). Shipping one of those puts a stranger's video on the user's site,
  * which is a rights problem, and the slot-rewriting pass would not catch it: rewriting only touches
- * heading and paragraph text, and the video is an attribute. The niche scoring in pattern-page.ts
- * could not have picked a better one anyway — the library carries no topical tags, and production
- * Logstash reports `picked_score: 0, fallback: first_usable` on every event.
+ * heading and paragraph text, and the video is an attribute. Niche scoring could not have picked a
+ * better one anyway — the library carries no topical tags, and production Logstash reported
+ * `picked_score: 0, fallback: first_usable` on every event, which is why the gallery page dropped the
+ * library too and the scoring no longer exists.
  *
  * So the page is a heading, one AI-written line, and one empty video block.
  *

@@ -395,7 +395,7 @@ describe( 'resolveCtaUrl', () => {
 		} );
 	}
 
-	it( 'hands each page task its own input, and undefined for an output without an About draft', async () => {
+	it( 'hands the About page its draft, and undefined for an output without one', async () => {
 		// Outputs persisted before about_page_draft existed lack the field; the handler receives
 		// undefined and must still be called rather than the CTA falling through to nothing.
 		const received: unknown[] = [];
@@ -404,24 +404,42 @@ describe( 'resolveCtaUrl', () => {
 			received.push( draft );
 			return { page_id: 2, edit_url: '/wp-admin/post.php?post=2' };
 		};
-		handlers.createGalleryPage = async ( inferred?: TailoredOutput[ 'inferred' ] ) => {
-			received.push( inferred );
-			return { page_id: 3, edit_url: '/wp-admin/post.php?post=3' };
-		};
 		const legacy = { ...fixture };
 		delete ( legacy as Record< string, unknown > ).about_page_draft;
 		const aboutTask = task( { id: 'add_about_page', calypso_path: null } );
 
-		await resolveCtaUrl(
-			task( { id: 'add_gallery_page', calypso_path: null } ),
-			fixture,
-			handlers
-		);
 		await resolveCtaUrl( aboutTask, fixture, handlers );
 		const legacyUrl = await resolveCtaUrl( aboutTask, legacy, handlers );
 
-		assert.deepEqual( received, [ fixture.inferred, fixture.about_page_draft, undefined ] );
+		assert.deepEqual( received, [ fixture.about_page_draft, undefined ] );
 		assert.equal( legacyUrl, '/wp-admin/post.php?post=2' );
+	} );
+
+	it( 'hands the gallery page an intro, and never the inferred blob it used to read', async () => {
+		// The gallery was the one page task fed `output.inferred`, because it scored the pattern
+		// library against the site's niche before building the page. There is no library and no
+		// scoring now — the page is hand-authored markup like the other four — so it takes the same
+		// keyed intro they do. Passing `inferred` here again would be the pattern flow growing back,
+		// so the shape of the argument is pinned, not just its value.
+		const received: unknown[] = [];
+		const { handlers } = stubHandlers();
+		handlers.createGalleryPage = async ( intro?: string ) => {
+			received.push( intro );
+			return { page_id: 3, edit_url: '/wp-admin/post.php?post=3' };
+		};
+		const galleryTask = task( { id: 'add_gallery_page', calypso_path: null } );
+		const tailored: TailoredOutput = {
+			...fixture,
+			page_intros: { add_gallery_page: 'Every piece that came out of the kiln this year.' },
+		};
+
+		await resolveCtaUrl( galleryTask, tailored, handlers );
+		// The baseline fixture has no page_intros at all, standing in both for an output persisted
+		// before the field existed and for a run where the model chose to omit it.
+		const legacyUrl = await resolveCtaUrl( galleryTask, fixture, handlers );
+
+		assert.deepEqual( received, [ 'Every piece that came out of the kiln this year.', undefined ] );
+		assert.equal( legacyUrl, '/wp-admin/post.php?post=3' );
 	} );
 
 	it( 'hands the contact page its own intro, and undefined when the output carries none', async () => {
@@ -456,6 +474,7 @@ describe( 'resolveCtaUrl', () => {
 			[ 'add_contact_page', 'createContactPage', 'Ask about a commission.' ],
 			[ 'add_events_page', 'createEventsPage', 'Throw a pot with us on a Saturday morning.' ],
 			[ 'add_video_page', 'createVideoPage', 'Every glaze test, filmed start to finish.' ],
+			[ 'add_gallery_page', 'createGalleryPage', 'A year of finished pieces in one place.' ],
 		] as const;
 
 		const received: Record< string, unknown[] > = {};
@@ -489,7 +508,7 @@ describe( 'resolveCtaUrl', () => {
 
 	it( 'hands the portfolio piece no intro at all', async () => {
 		// The only page task with no `page_intros` key, and the omission is the design rather than an
-		// oversight. The other four open with a line about the SITE — what it runs, what it films, why
+		// oversight. The other five open with a line about the SITE — what it runs, what it films, what
 		// to write in — which the model knows from the wizard. A portfolio piece is one project the
 		// model has never heard of, so any line it wrote would sit under that project's title
 		// describing it: the events page's invented-date problem with the invention moved into prose.

@@ -329,6 +329,15 @@ describe( 'buildTailorPrompt', () => {
 			'asks for a video-page intro that describes no particular video and names no platform',
 			[ /^- "add_video_page": .*specific video.*platform or channel/m ],
 		],
+		// The gallery page's own key, and its own prohibitions, for the reason its page is now
+		// hand-authored at all: the block it ships is empty, so an intro that describes particular
+		// pictures promises images the page does not have — and the images it used to ship were
+		// somebody else's. Matched as one line, like the video bullet, so the key and its rules cannot
+		// drift onto separate bullets.
+		[
+			'asks for a gallery-page intro that describes no particular picture and names no platform',
+			[ /^- "add_gallery_page": .*particular image.*platform or account/m ],
+		],
 	];
 	for ( const [ name, needles ] of REQUIRED ) {
 		it( name, () => {

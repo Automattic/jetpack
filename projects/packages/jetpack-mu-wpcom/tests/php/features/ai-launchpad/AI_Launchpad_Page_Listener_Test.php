@@ -13,6 +13,8 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/launc
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/helpers.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-gallery-page-listener.php';
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-contact-page-listener.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-events-page-listener.php';
@@ -25,18 +27,26 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-la
  * Tests the marker listeners behind the registry's hand-authored page tasks.
  *
  * These tasks belong to AI_Launchpad_Task_Registry, not the shared catalog, so completion is a registry
- * write gated on the page's marker meta plus eligibility — the same shape as the gallery listener.
+ * write gated on the page's marker meta plus eligibility.
  *
  * One provider-driven class rather than one file per listener: the listeners are the same code with a
- * different constant, and three byte-identical test files would drift apart the first time one of them
- * gained a case. A page task that forgets to list itself in provide_page_listeners() is caught by
+ * different constant, and byte-identical test files would drift apart the first time one of them gained
+ * a case. A page task that forgets to list itself in provide_page_listeners() is caught by
  * AI_Launchpad_Task_Registry_Test, which asserts every registry task resolves a draft id.
  *
+ * The gallery joined this class when its page stopped being built from the WordPress.com pattern library:
+ * it was the last page task creating its content some other way, and it kept its own smaller test file
+ * for as long as that was true. Nothing about its listener was ever different, and folding it in gains it
+ * the three checks its own file never had — the publish-once guard, the own-marker draft lookup, and the
+ * distinct-marker check.
+ *
+ * @covers \AI_Launchpad_Gallery_Page_Listener
  * @covers \AI_Launchpad_Contact_Page_Listener
  * @covers \AI_Launchpad_Events_Page_Listener
  * @covers \AI_Launchpad_Video_Page_Listener
  * @covers \AI_Launchpad_Portfolio_Piece_Listener
  */
+#[CoversClass( AI_Launchpad_Gallery_Page_Listener::class )]
 #[CoversClass( AI_Launchpad_Contact_Page_Listener::class )]
 #[CoversClass( AI_Launchpad_Events_Page_Listener::class )]
 #[CoversClass( AI_Launchpad_Video_Page_Listener::class )]
@@ -72,6 +82,7 @@ class AI_Launchpad_Page_Listener_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_page_listeners() {
 		return array(
+			'the gallery page'    => array( AI_Launchpad_Gallery_Page_Listener::class, 'add_gallery_page', 'Gallery', 6161 ),
 			'the contact page'    => array( AI_Launchpad_Contact_Page_Listener::class, 'add_contact_page', 'Contact', 7171 ),
 			'the events page'     => array( AI_Launchpad_Events_Page_Listener::class, 'add_events_page', 'Events', 8181 ),
 			'the video page'      => array( AI_Launchpad_Video_Page_Listener::class, 'add_video_page', 'Videos', 9191 ),
