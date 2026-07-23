@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { toPostId } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	HeatmapChartUnresponsive,
@@ -69,8 +70,7 @@ function weeksForWidth( width?: number ): number {
  */
 function PostTrafficActivityInner() {
 	const { reportParams } = useWidgetRootContext();
-	const parsedPostId = Number( reportParams.post_id );
-	const postId = Number.isInteger( parsedPostId ) && parsedPostId > 0 ? parsedPostId : 0;
+	const postId = toPostId( reportParams.post_id );
 
 	// One page spans the whole week columns that fit the measured card width,
 	// so the grid fills the card without horizontal scrolling.

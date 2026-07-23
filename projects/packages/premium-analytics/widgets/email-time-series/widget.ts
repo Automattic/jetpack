@@ -47,15 +47,7 @@ export type EmailTimeSeriesAttributes = {
  * the timeline spans the dashboard date range.
  */
 export default {
-	name: 'jpa/email-time-series',
-	title: __( 'Email performance', 'jetpack-premium-analytics' ),
 	icon: envelope,
-	help: {
-		content: __(
-			'How a single email performed over time: opens or clicks per day since it was sent, following the dashboard date range. Weekly and monthly grouping aggregate the daily buckets.',
-			'jetpack-premium-analytics'
-		),
-	},
 	attributes: [
 		{
 			id: 'metric',

@@ -110,12 +110,15 @@ export {
 	type StatsVisitsStatFields,
 } from './hooks/use-stats-visits';
 export {
+	aggregateStatsDrilldownRows,
 	bucketStatsTimeSeries,
 	flattenStatsLeaves,
 	getStatsChartBucketKey,
+	getStatsReportItems,
 	sliceWordAdsStatsReport,
 } from './processing/stats';
 export type { FlattenStatsLeavesContext, FlattenStatsLeavesOptions } from './processing/stats';
+export type { StatsDrilldownRow, StatsDrilldownSourceItem } from './processing/stats';
 export {
 	useStatsSummary,
 	type StatsSummaryParams,
@@ -184,6 +187,7 @@ export {
 	useStatsSingleVideo,
 	type StatsSingleVideoDataPoint,
 	type StatsSingleVideoPage,
+	type StatsSingleVideoPost,
 	type StatsSingleVideoParams,
 	type StatsSingleVideoResponse,
 } from './hooks/use-stats-single-video';
@@ -234,6 +238,7 @@ export {
 	getStatsPlanErrorReason,
 	saveBlob,
 	shouldRetryApiError,
+	toPostId,
 	useSiteHomeUrl,
 } from './utils';
 export type { StatsPlanErrorReason } from './utils';

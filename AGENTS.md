@@ -230,6 +230,16 @@ PR descriptions MUST follow the template in `.github/PULL_REQUEST_TEMPLATE.md` â
 gh pr create --title "Title" --body-file pr-body.md --label "[Status] Needs Review" --label "Enhancement" --assignee @me
 ```
 
+### Re-running CI Checks
+
+Most CI checks can be re-run with the usual `gh` commands (e.g. `gh run rerun <run-id> --failed`, or `gh pr checks`).
+
+The exception is the **WordPress.com Tests** check (the TeamCity `JetpackPreFlightChecks_BasicChecks` build). It cannot be restarted via the GitHub UI or the `gh` CLI. When that check fails on something unrelated to your change, re-trigger it with the context-a8c command:
+
+```
+/context-a8c:rerun-jetpack-preflight <PR-number>
+```
+
 ## Code Review Guidelines
 
 When reviewing code, check for:

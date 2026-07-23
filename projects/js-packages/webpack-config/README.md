@@ -116,7 +116,8 @@ Note if you're setting `output.library.name`, you may want to also set `output.u
 * `minimizer` is configured with `TerserPlugin` and `CssMinimizerPlugin` configured as described below.
 * `emitOnErrors` is set true to facilitate debugging.
 * `concatenateModules` is set to false as that setting [may mangle WordPress's i18n function names](https://github.com/Automattic/jetpack/issues/21204).
-* `moduleIds` is set to false in production mode, as `PnpmDeterministicModuleIdsPlugin` is intended to be used instead. The Webpack default 'name' is set in development mode.
+* `chunkIds` is set to false in production mode, as `PnpmDeterministicChunkIdsPlugin` is intended to be used instead. The Webpack default 'named' is set in development mode.
+* `moduleIds` is set to false in production mode, as `PnpmDeterministicModuleIdsPlugin` is intended to be used instead. The Webpack default 'named' is set in development mode.
 * `mangleExports` is set to false in production mode, as `I18nSafeMangleExportsPlugin` is intended to be used instead.
 
 #### `TerserPlugin( options )`
@@ -205,7 +206,7 @@ plugins: {
 }
 ```
 
-Note that I18nCheckPlugin, PnpmDeterministicModuleIdsPlugin, and I18nSafeMangleExportsPlugin are only included by default in production mode. They can be turned on in development mode by passing an options object.
+Note that I18nCheckPlugin, PnpmDeterministicChunkIdsPlugin,, PnpmDeterministicModuleIdsPlugin, and I18nSafeMangleExportsPlugin are only included by default in production mode. They can be turned on in development mode by passing an options object.
 
 ##### `DefinePlugin( defines )`
 
@@ -263,6 +264,10 @@ Options are:
 ##### `MomentLocaleIgnorePlugin()`
 
 This provides an instance of Webpack's `IgnorePlugin` configured to ignore moment.js locale modules.
+
+##### `PnpmDeterministicChunkIdsPlugin( options )`
+
+This provides an slightly modified instance of Webpack's built-in DeterministicChunkIdsPlugin that does a better job of handling the paths produced by pnpm. The `options` are passed to the plugin.
 
 ##### `PnpmDeterministicModuleIdsPlugin( options )`
 

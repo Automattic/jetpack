@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add LocalBusiness details to the site Organization schema, with settings and a local-business toggle.

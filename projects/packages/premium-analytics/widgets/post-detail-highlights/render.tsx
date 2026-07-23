@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { toPostId } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTileGrid,
@@ -49,7 +50,7 @@ const ALL_TIME_NOTE = () =>
  */
 function PostDetailHighlightsInner() {
 	const { reportParams } = useWidgetRootContext();
-	const postId = Number( reportParams.post_id ) || 0;
+	const postId = toPostId( reportParams.post_id );
 
 	const {
 		views,

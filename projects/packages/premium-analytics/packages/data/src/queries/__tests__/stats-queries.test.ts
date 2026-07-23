@@ -597,10 +597,22 @@ describe( 'Stats query factories', () => {
 			'1.1',
 			'stats/video/31533',
 			'GET',
-			{ period: 'day' },
+			{ period: 'month' },
 			undefined,
 			'singleVideo',
 		] );
+	} );
+
+	it( 'forwards a supported single-video metric type', () => {
+		const query = statsSingleVideoQuery( 31533, {
+			period: 'month',
+			statType: 'watch_time',
+		} );
+
+		expect( query.queryKey[ 5 ] ).toEqual( {
+			period: 'month',
+			statType: 'watch_time',
+		} );
 	} );
 
 	it( 'converts the report date range for the single video request', () => {

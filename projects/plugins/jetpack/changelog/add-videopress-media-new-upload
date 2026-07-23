@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+VideoPress: upload videos added via the classic media-new.php uploader directly to VideoPress, matching the Media Library behavior.

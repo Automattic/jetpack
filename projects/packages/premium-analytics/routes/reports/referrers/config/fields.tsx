@@ -2,12 +2,9 @@
  * External dependencies
  */
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { LeaderboardLabel } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-/**
- * Internal dependencies
- */
-import styles from './fields.module.css';
 import type { Field } from '@wordpress/dataviews';
 
 /**
@@ -23,25 +20,6 @@ export type ReferrerRecord = {
 };
 
 /**
- * Return a URL only when it parses with an HTTP or HTTPS scheme.
- *
- * @param url - The candidate URL.
- * @return The safe HTTP(S) URL, or null when it is missing, unparseable, or uses another scheme.
- */
-function safeHttpUrl( url: string | undefined ): string | null {
-	if ( ! url ) {
-		return null;
-	}
-
-	try {
-		const { protocol } = new URL( url );
-		return protocol === 'http:' || protocol === 'https:' ? url : null;
-	} catch {
-		return null;
-	}
-}
-
-/**
  * DataViews field config for the Referrers records table.
  *
  * @return The field config.
@@ -55,16 +33,14 @@ export function getReferrerFields(): Field< ReferrerRecord >[] {
 			enableHiding: false,
 			getValue: ( { item } ) => item.label,
 			render: ( { item } ) => {
+				const safeUrl = safeHttpUrl( item.link );
 				const label = (
 					<LeaderboardLabel
 						label={ item.label }
-						imageUrl={ item.icon }
-						imageAlt=""
-						imageFallback="hidden"
-						imageClassName={ styles.referrerIcon }
+						media={ { kind: 'favicon', url: item.icon } }
+						decorativeMedia={ Boolean( safeUrl ) }
 					/>
 				);
-				const safeUrl = safeHttpUrl( item.link );
 
 				if ( ! safeUrl ) {
 					return label;

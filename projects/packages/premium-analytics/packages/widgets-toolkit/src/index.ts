@@ -28,6 +28,14 @@ export {
 	type LegendLabels,
 	LeaderboardLabel,
 	type LeaderboardLabelProps,
+	LeaderboardRow,
+	buildLeaderboardRow,
+	resolveLeaderboardRowAction,
+	type LeaderboardRowAction,
+	type LeaderboardRowActionOptions,
+	type LeaderboardRowChartProps,
+	type LeaderboardRowMedia,
+	type LeaderboardRowProps,
 	BarChart,
 	type BarChartProps,
 	type BarChartData,
@@ -45,21 +53,30 @@ export {
 	type WidgetFooterProps,
 	ReportLink,
 	type ReportLinkProps,
+	VideoTitleLink,
+	type VideoTitleLinkProps,
 	SubscriberList,
 	type SubscriberListItem,
 	type SubscriberListProps,
 	SemiCircleChart,
 	type SemiCircleChartData,
+	ReportDrilldownTable,
+	ReportErrorState,
 	ReportPageLayout,
 	ReportPageSection,
+	ReportPageShell,
 	ReportPageTabPanel,
 	ReportPageTabs,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	useReportRetry,
 	buildReportMetricSeries,
 	type ReportChartMetric,
+	type ReportDrilldownTableProps,
+	type ReportErrorStateProps,
 	type ReportPageLayoutProps,
 	type ReportPageSectionProps,
+	type ReportPageShellProps,
 	type ReportPageTab,
 	type ReportPageTabPanelProps,
 	type ReportPageTabsProps,
@@ -116,6 +133,10 @@ export {
 	getVideoKey,
 	getVideoLabel,
 	toMaxRows,
+	summaryCount,
+	toDay,
+	defaultPeriodForInterval,
+	buildMetricTab,
 } from './helpers';
 
 /**
@@ -185,3 +206,12 @@ export {
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,
 } from '@automattic/charts';
+
+/**
+ * UI passthrough
+ *
+ * Widgets must import these from here, never from
+ * `@jetpack-premium-analytics/ui` directly: the toolkit is a shared script
+ * module, so the ui package is bundled once instead of once per widget.
+ */
+export { safeHttpUrl } from '@jetpack-premium-analytics/ui';

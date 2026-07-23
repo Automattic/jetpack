@@ -181,4 +181,21 @@ describe( 'useDownloadsReportRecords', () => {
 
 		expect( result.current.chart.comparison ).toBeUndefined();
 	} );
+
+	it( 'surfaces error and refetch from the report', () => {
+		const refetch = jest.fn();
+		mockUseStatsFileDownloads.mockReturnValue( {
+			primary: { data: report },
+			comparison: { data: undefined },
+			hasComparison: false,
+			isLoading: false,
+			isError: true,
+			refetch,
+		} as unknown as ReturnType< typeof useStatsFileDownloads > );
+
+		const { result } = renderHook( () => useDownloadsReportRecords( params, 'day' ) );
+
+		expect( result.current.isError ).toBe( true );
+		expect( result.current.refetch ).toBe( refetch );
+	} );
 } );

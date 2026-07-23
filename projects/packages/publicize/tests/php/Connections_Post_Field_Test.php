@@ -12,7 +12,7 @@ use WP_REST_Request;
 use WP_REST_Server;
 
 /**
- * Unit tests for the REST_Controller class.
+ * Unit tests for the Connections_Post_Field class.
  *
  * @package automattic/jetpack-publicize
  */
@@ -135,7 +135,6 @@ class Connections_Post_Field_Test extends TestCase {
 
 		// Register REST routes.
 		$this->publicize->register_post_meta();
-		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ), 4 );
 		add_action( 'rest_api_init', array( new REST_API\Connections_Post_Field(), 'register_fields' ), 5 );
 		do_action( 'rest_api_init' );
 

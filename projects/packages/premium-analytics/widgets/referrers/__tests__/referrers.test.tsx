@@ -66,6 +66,26 @@ const REFERRERS_RESPONSE = {
 	},
 };
 
+// A single-result group renders as the result itself, so this is the shortest
+// path from an API-supplied URL to a rendered anchor.
+const HOSTILE_REFERRERS_RESPONSE = {
+	date: '2026-06-29',
+	days: {},
+	summary: {
+		groups: [
+			{
+				group: 'evil.example',
+				name: 'evil.example',
+				url: 'javascript:alert(document.cookie)',
+				total: 12,
+				results: { views: 12 },
+			},
+		],
+		other_views: 0,
+		total_views: 12,
+	},
+};
+
 describe( 'ReferrersWidget', () => {
 	beforeEach( () => {
 		queryClient.clear();
@@ -203,6 +223,26 @@ describe( 'ReferrersWidget', () => {
 		const link = await screen.findByRole( 'link', { name: /jetpack\.com/i } );
 		expect( link ).toHaveAttribute( 'href', 'https://jetpack.com/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
+	} );
+
+	// Referrer rows derive from inbound request data rather than anything the site
+	// owner authored, and the scheme is not guaranteed by the API contract.
+	it( 'renders a referrer with an unsafe URL as plain text instead of a link', async () => {
+		mockApiFetch.mockResolvedValue( HOSTILE_REFERRERS_RESPONSE );
+
+		render(
+			<ReferrersWidget
+				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+			/>
+		);
+
+		// The row still lists — rejecting the URL must not drop the data.
+		await expect( screen.findByTitle( 'evil.example' ) ).resolves.toBeInTheDocument();
+
+		expect( screen.queryByRole( 'link', { name: /evil\.example/i } ) ).not.toBeInTheDocument();
+		screen.queryAllByRole( 'link' ).forEach( link => {
+			expect( link ).not.toHaveAttribute( 'href', expect.stringMatching( /^javascript:/i ) );
+		} );
 	} );
 
 	it( 'links to the full Referrers report', () => {

@@ -2,7 +2,6 @@
  * External dependencies
  */
 import {
-	localTZDate,
 	sliceWordAdsStatsReport,
 	useStatsWordAdsStats,
 	type ReportParams,
@@ -19,7 +18,7 @@ import {
 	WORDADS_CHART_METRICS,
 	type WordAdsChartMetricId,
 } from './metrics';
-import type { DataFormat, MetricTab } from '@jetpack-premium-analytics/widgets-toolkit';
+import { buildMetricTab, type MetricTab } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
  * Granularity the chart can be grouped by. Layered onto the dashboard range as
@@ -43,69 +42,6 @@ export interface WordAdsChartState {
 	/** True when the current period resolved without any rows. */
 	isEmpty: boolean;
 	refetch: () => void;
-}
-
-/**
- * Read a single field's total from a normalized WordAds report's summary — the
- * headline value the metric card shows (impressions/revenue are period sums; CPM
- * is the period-weighted average the sanitizer computes).
- *
- * @param report - The normalized WordAds report, or undefined while loading.
- * @param field  - The metric field to total (impressions/revenue/cpm).
- * @return The summary total, or 0 when the report is empty.
- */
-function total( report: StatsWordAdsResponse | undefined, field: string ): number {
-	return Number( report?.summary?.[ field ] ?? 0 );
-}
-
-/**
- * Map a single field of a normalized WordAds report into chart points.
- *
- * @param report - The normalized WordAds report, or undefined while loading.
- * @param field  - The metric field to read from each period.
- * @return One point per period, oldest first.
- */
-function toPoints( report: StatsWordAdsResponse | undefined, field: string ) {
-	return ( report?.data ?? [] ).map( point => ( {
-		date: localTZDate( point.date_start ),
-		value: Number( point[ field as keyof typeof point ] ?? 0 ),
-	} ) );
-}
-
-/**
- * Build one metric tab. The headline is the period total; the previous-period
- * total and overlay are included only when comparison is on *and* the comparison
- * request actually returned rows — while that request is still loading or came
- * back empty, `total()` would be `0`, which would render a misleading
- * previous-period value.
- *
- * @param primary       - The current-period report.
- * @param comparison    - The previous-period report, when comparison is on.
- * @param hasComparison - Whether the dashboard comparison is enabled.
- * @param field         - The metric field, also used as the tab key.
- * @param label         - The translated tab label.
- * @param dataFormat    - Optional per-metric format override (currency for revenue/CPM).
- * @return The metric tab.
- */
-function toMetric(
-	primary: StatsWordAdsResponse | undefined,
-	comparison: StatsWordAdsResponse | undefined,
-	hasComparison: boolean,
-	field: string,
-	label: string,
-	dataFormat?: DataFormat
-): MetricTab {
-	const previous = hasComparison ? toPoints( comparison, field ) : undefined;
-	const hasPrevious = !! previous?.length;
-	return {
-		key: field,
-		label,
-		value: total( primary, field ),
-		previousValue: hasPrevious ? total( comparison, field ) : undefined,
-		current: toPoints( primary, field ),
-		previous: hasPrevious ? previous : undefined,
-		dataFormat,
-	};
 }
 
 /**
@@ -171,14 +107,14 @@ export default function useWordAdsChart(
 	const metrics = useMemo(
 		() =>
 			enabledMetrics.map( metric =>
-				toMetric(
-					primaryData,
-					comparisonData,
+				buildMetricTab( {
+					primary: primaryData,
+					comparison: comparisonData,
 					hasComparison,
-					metric.id,
-					metric.label,
-					metric.dataFormat
-				)
+					field: metric.id,
+					label: metric.label,
+					dataFormat: metric.dataFormat,
+				} )
 			),
 		[ enabledMetrics, primaryData, comparisonData, hasComparison ]
 	);

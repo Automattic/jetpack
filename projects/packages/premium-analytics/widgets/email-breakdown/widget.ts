@@ -66,14 +66,6 @@ export type EmailBreakdownAttributes = {
  * range or comparison period.
  */
 export default {
-	name: 'jpa/email-breakdown',
-	title: __( 'Email breakdown', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Breaks a sent email down by countries, devices, email clients, or clicked links.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: envelope,
 	attributes: [
 		{
