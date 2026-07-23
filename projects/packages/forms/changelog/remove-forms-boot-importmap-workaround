@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Dashboard: remove the redundant boot import-map ordering workaround, now that the bundled @wordpress/build loader defers boot until DOMContentLoaded. No functional change.
