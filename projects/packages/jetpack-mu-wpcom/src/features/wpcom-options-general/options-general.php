@@ -11,10 +11,21 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
  * The fiverr cta's DOM.
  */
 function wpcom_fiverr_cta() {
+	// The Site Logo can be set from the Site Editor's Identity section. Core keeps the
+	// `site_logo` option and the `custom_logo` theme mod in sync, so read either one.
+	$logo_id  = (int) get_option( 'site_logo' );
+	$logo_id  = $logo_id > 0 ? $logo_id : (int) get_theme_mod( 'custom_logo' );
+	$logo_img = $logo_id > 0 ? wp_get_attachment_image( $logo_id, array( 96, 96 ), false, array( 'class' => 'wpcom-site-logo-preview-image' ) ) : '';
 	?>
 	<div id="wpcom-fiverr-cta">
-		<p><b><?php esc_html_e( 'Make an incredible logo in minutes', 'jetpack-mu-wpcom' ); ?></b></p>
-		<p><?php esc_html_e( 'Pre-designed by top talent. Just add your touch.', 'jetpack-mu-wpcom' ); ?></p>
+		<?php if ( $logo_img ) : ?>
+			<div class="wpcom-site-logo-preview">
+				<?php echo $logo_img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_get_attachment_image() returns escaped markup. ?>
+			</div>
+		<?php else : ?>
+			<p><b><?php esc_html_e( 'Make an incredible logo in minutes', 'jetpack-mu-wpcom' ); ?></b></p>
+			<p><?php esc_html_e( 'Pre-designed by top talent. Just add your touch.', 'jetpack-mu-wpcom' ); ?></p>
+		<?php endif; ?>
 		<button class="wpcom-fiverr-cta-button button" type="button">
 			<svg width="20" height="20" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
 				<circle cx="250" cy="250" r="177" fill="white"/>
