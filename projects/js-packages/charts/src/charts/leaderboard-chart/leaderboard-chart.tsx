@@ -62,7 +62,7 @@ const defaultDeltaFormatter = ( value: number ): string => {
  * @return A CSS width value.
  */
 const getBarWidth = ( share: number ): string =>
-	`calc(${ share }% - var(--a8c--charts--leaderboard--bar--hover-inset, 0px) * ${ share } / 100)`;
+	`calc(${ share }% - var(--a8c-charts-dimension-leaderboard-bar-hover-inset, 0px) * ${ share } / 100)`;
 
 const hasComparisonValue = (
 	entry: LeaderboardEntry
