@@ -104,17 +104,28 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 
 	const tabs = useMemo( () => getMyJetpackSections(), [] );
 
+	// A single section has nothing to switch between, so render it directly instead
+	// of a TabPanel with its tab bar hidden. This skips TabPanel's selection
+	// lifecycle (mount `onSelect`, keyed remount, `initialTabName` matching) for a
+	// non-choice, and reproduces the surface `.components-tab-panel__tab-content`
+	// would provide (see `single-tab-content` in the stylesheet).
+	if ( tabs.length === 1 ) {
+		return (
+			<div className={ clsx( styles[ 'single-tab-content' ], 'jetpack-my-jetpack-tab-panel' ) }>
+				<FullWidthSeparator />
+				{ beforeContent }
+				<TabContent name={ currentTab as MyJetpackSection } />
+			</div>
+		);
+	}
+
 	return (
 		<TabPanel
 			key={ tabKey }
 			className={ clsx(
 				styles[ 'tab-panel' ],
 				styles[ 'my-jetpack-tab-panel--full-width' ],
-				'jetpack-my-jetpack-tab-panel',
-				{
-					// With a single section there is nothing to switch between, so hide the tab bar.
-					[ styles[ 'my-jetpack-tab-panel--single-tab' ] ]: tabs.length === 1,
-				}
+				'jetpack-my-jetpack-tab-panel'
 			) }
 			initialTabName={ currentTab }
 			onSelect={ onTabSelect }
