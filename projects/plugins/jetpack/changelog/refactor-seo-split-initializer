@@ -1,0 +1,3 @@
+Significance: patch
+Type: other
+Comment: Tests and comments only: point the SEO integration tests and doc references at the classes split out of the seo package's Initializer.
