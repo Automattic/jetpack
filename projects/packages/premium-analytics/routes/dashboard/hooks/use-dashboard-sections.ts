@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import { store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
+import { useEntityRecords } from '@wordpress/core-data';
 /**
  * Internal dependencies
  */
@@ -13,18 +12,21 @@ import type { DashboardSection } from '../config';
  * core-data entity (registered in the route's `beforeLoad`), which resolves
  * from `GET /sections`.
  *
- * @return The ordered list of dashboard sections.
+ * `hasResolved` distinguishes "still fetching" (empty `sections`) from a
+ * resolved query, so callers can hold layout-dependent UI until the sections
+ * — and the default layouts they carry — actually exist.
+ *
+ * @return The ordered list of dashboard sections, and whether the query has resolved.
  */
-export function useDashboardSections(): DashboardSection[] {
-	return useSelect( select => {
-		const core = select( coreStore ) as unknown as {
-			getEntityRecords: (
-				kind: string,
-				name: string,
-				query?: Record< string, unknown >
-			) => DashboardSection[] | null;
-		};
+export function useDashboardSections(): {
+	sections: DashboardSection[];
+	hasResolved: boolean;
+} {
+	const { records, hasResolved } = useEntityRecords< DashboardSection >(
+		'root',
+		'dashboardSection',
+		{ per_page: -1 }
+	);
 
-		return core.getEntityRecords( 'root', 'dashboardSection', { per_page: -1 } ) ?? [];
-	}, [] );
+	return { sections: records ?? [], hasResolved };
 }
