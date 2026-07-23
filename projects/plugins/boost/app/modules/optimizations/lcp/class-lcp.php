@@ -171,6 +171,18 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 												)
 											)->nullable(),
 										)
+									)->fallback(
+										// Isolate a single malformed error at the item boundary. Type_Array
+										// aborts the whole list on the first Schema_Error, and the list-level
+										// nullable() below would then null out `errors` entirely, discarding
+										// every valid sibling error (and its finalUrl) before the client parser
+										// ever sees them. Degrading only the bad item to a benign `unknown`
+										// error mirrors the client-side LcpErrorDetailsSchema.catch and keeps
+										// the good siblings intact.
+										array(
+											'type' => 'unknown',
+											'meta' => null,
+										)
 									)
 								)->nullable(),
 							)
