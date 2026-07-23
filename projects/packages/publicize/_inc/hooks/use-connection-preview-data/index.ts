@@ -49,8 +49,7 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 
 	const sig = useSigPreview( generateSigPreview );
 
-	const isPerNetworkMode =
-		siteHasFeature( features.ENHANCED_PUBLISHING ) && usingPerNetworkCustomization;
+	const isPerNetworkMode = hasSocialPaidFeatures() && usingPerNetworkCustomization;
 
 	const media = useMemo< PostPreviewData[ 'media' ] >( () => {
 		if ( ! isPerNetworkMode ) {
