@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Recurring Payments: stop gating on the gating-business-q1 sticker so free-tier paid newsletters keep working.
