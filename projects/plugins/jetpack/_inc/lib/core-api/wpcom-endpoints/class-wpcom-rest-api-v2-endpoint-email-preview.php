@@ -133,7 +133,7 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview extends WP_REST_Controller {
 	 * @return bool True if the request is authorized for the current Jetpack site.
 	 */
 	private function is_authorized_blog_token_request() {
-		if ( ! function_exists( 'is_jetpack_site' ) || ! is_jetpack_site( get_current_blog_id() ) ) {
+		if ( ! is_jetpack_site( get_current_blog_id() ) ) {
 			return false;
 		}
 
