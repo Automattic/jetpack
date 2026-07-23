@@ -2,10 +2,13 @@
  * External dependencies
  */
 import {
+	flattenStatsLeaves,
 	useSiteHomeUrl,
 	type StatsArchivesItem,
 	type StatsTopPostsItem,
 } from '@jetpack-premium-analytics/data';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import { Link } from '@wordpress/route';
@@ -79,7 +82,9 @@ export function getPostsFields(): Field< StatsTopPostsItem >[] {
 			id: 'views',
 			label: __( 'Views', 'jetpack-premium-analytics' ),
 			getValue: ( { item } ) => item.views,
-			render: ( { item } ) => <>{ item.views.toLocaleString() }</>,
+			render: ( { item } ) => (
+				<>{ formatMetricValue( item.views, 'number', { decimals: 0, useMultipliers: false } ) }</>
+			),
 		},
 	];
 }
@@ -124,39 +129,6 @@ function getArchiveFallbackLabel( parts: string[] ): string {
 }
 
 /**
- * Flatten one normalized archive item to leaf table rows.
- *
- * @param item - The normalized archive item.
- * @param path - Parent archive labels.
- * @param id   - Stable ID prefix for the item.
- * @return Leaf archive rows for the table.
- */
-function flattenArchiveEntry( item: StatsArchivesItem, path: string[], id: string ): ArchiveRow[] {
-	const label = String( item.label ?? '' );
-	const nextPath = label ? [ ...path, label ] : path;
-	const children = item.children ?? [];
-
-	if ( children.length ) {
-		return children.flatMap( ( child, index ) =>
-			flattenArchiveEntry( child, nextPath, `${ id }-${ index }` )
-		);
-	}
-
-	const link = typeof item.link === 'string' ? item.link : undefined;
-
-	return [
-		{
-			id,
-			label: link
-				? getArchiveLinkLabel( link ) ?? getArchiveFallbackLabel( nextPath )
-				: getArchiveFallbackLabel( nextPath ),
-			views: item.value,
-			link,
-		},
-	];
-}
-
-/**
  * Flatten the archives report groups into table rows. The backend groups
  * archive entries by type/taxonomy; DataViews does not show nested rows yet,
  * so the table shows only the leaf archive entries and labels them by URL
@@ -166,9 +138,23 @@ function flattenArchiveEntry( item: StatsArchivesItem, path: string[], id: strin
  * @return The flat rows.
  */
 export function flattenArchiveRows( items: StatsArchivesItem[] ): ArchiveRow[] {
-	return items.flatMap( ( group, groupIndex ) =>
-		flattenArchiveEntry( group, [], `${ String( group.label ) }-${ groupIndex }` )
-	);
+	return flattenStatsLeaves< StatsArchivesItem, ArchiveRow >( items, {
+		getChildren: item => item.children,
+		mapLeaf: ( item, { ancestors, indexPath } ) => {
+			const link = typeof item.link === 'string' ? item.link : undefined;
+			const pathLabels = [ ...ancestors, item ].map( entry => String( entry.label ?? '' ) );
+			const rootLabel = String( ( ancestors[ 0 ] ?? item ).label ?? '' );
+
+			return {
+				id: [ rootLabel, ...indexPath ].join( '-' ),
+				label: link
+					? getArchiveLinkLabel( link ) ?? getArchiveFallbackLabel( pathLabels )
+					: getArchiveFallbackLabel( pathLabels ),
+				views: item.value,
+				link,
+			};
+		},
+	} );
 }
 
 /**
@@ -185,12 +171,14 @@ export function getArchivesFields(): Field< ArchiveRow >[] {
 			enableHiding: false,
 			getValue: ( { item } ) => item.label,
 			render: ( { item } ) => {
-				if ( ! item.link ) {
+				const href = safeHttpUrl( item.link );
+
+				if ( ! href ) {
 					return <>{ item.label }</>;
 				}
 
 				return (
-					<a href={ item.link } target="_blank" rel="noopener noreferrer">
+					<a href={ href } target="_blank" rel="noopener noreferrer">
 						{ item.label }
 					</a>
 				);
@@ -200,7 +188,9 @@ export function getArchivesFields(): Field< ArchiveRow >[] {
 			id: 'views',
 			label: __( 'Views', 'jetpack-premium-analytics' ),
 			getValue: ( { item } ) => item.views,
-			render: ( { item } ) => <>{ item.views.toLocaleString() }</>,
+			render: ( { item } ) => (
+				<>{ formatMetricValue( item.views, 'number', { decimals: 0, useMultipliers: false } ) }</>
+			),
 		},
 	];
 }

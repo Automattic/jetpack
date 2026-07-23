@@ -14,6 +14,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+// Load before the class definition, not in the constructor: META_KEY below
+// delegates to a Jetpack_AI_Helper constant, and PHP resolves class constant
+// expressions at first instantiation, before the constructor body runs.
+if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
+	require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
+}
+
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Guidelines_Banner_Dismissed
  *
@@ -23,9 +30,14 @@ class WPCOM_REST_API_V2_Endpoint_Guidelines_Banner_Dismissed extends WP_REST_Con
 	/**
 	 * User meta key storing the dismissed flag.
 	 *
+	 * The canonical key lives on Jetpack_AI_Helper (required at the top of
+	 * this file) because this class is not loaded during admin page loads on
+	 * Simple sites, while the admin-page preload in
+	 * _inc/content-guidelines-ai.php needs the key there.
+	 *
 	 * @var string
 	 */
-	const META_KEY = 'jetpack_content_guidelines_ai_banner_dismissed';
+	const META_KEY = Jetpack_AI_Helper::GUIDELINES_BANNER_DISMISSED_META_KEY;
 
 	/**
 	 * Namespace prefix.
@@ -47,10 +59,6 @@ class WPCOM_REST_API_V2_Endpoint_Guidelines_Banner_Dismissed extends WP_REST_Con
 	public function __construct() {
 		$this->is_wpcom                     = true;
 		$this->wpcom_is_wpcom_only_endpoint = true;
-
-		if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
-		}
 
 		// Match the suggest-guidelines endpoint: register on Simple/Atomic only.
 		if ( ! \Jetpack_AI_Helper::is_enabled() ) {
@@ -93,13 +101,14 @@ class WPCOM_REST_API_V2_Endpoint_Guidelines_Banner_Dismissed extends WP_REST_Con
 	/**
 	 * Whether the current user has dismissed the banner.
 	 *
-	 * Also used to preload the initial value into the page (see
-	 * _inc/content-guidelines-ai.php) so the banner does not flash on load.
+	 * Back-compat alias: the admin-page preload reads the flag via
+	 * Jetpack_AI_Helper::is_guidelines_banner_dismissed() instead, because
+	 * this class is not loaded during admin page loads on Simple sites.
 	 *
 	 * @return bool
 	 */
 	public static function is_dismissed() {
-		return (bool) get_user_meta( get_current_user_id(), self::META_KEY, true );
+		return Jetpack_AI_Helper::is_guidelines_banner_dismissed();
 	}
 
 	/**

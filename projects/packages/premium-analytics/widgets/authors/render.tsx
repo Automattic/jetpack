@@ -4,11 +4,15 @@
 import { useStatsTopAuthors } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
-	LeaderboardLabel,
+	ReportLink,
 	WidgetBackLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	buildLeaderboardRow,
 	formatLegendLabels,
+	safeHttpUrl,
+	toMaxRows,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
@@ -16,7 +20,6 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
 import { useEffect, useMemo } from 'react';
 import { postAuthor } from '@wordpress/icons';
 /**
@@ -34,12 +37,6 @@ const DEFAULT_MAX = 7;
 type AuthorsRenderAttributes = AuthorsAttributes & Partial< ReportParamsFieldAttributes >;
 
 type AuthorsWidgetProps = WidgetRenderProps< AuthorsRenderAttributes >;
-
-const toPositiveInt = ( value: string | number | undefined, fallback: number ) => {
-	const parsed = typeof value === 'number' ? value : Number.parseInt( value ?? '', 10 );
-
-	return Number.isFinite( parsed ) && parsed > 0 ? parsed : fallback;
-};
 
 export type AuthorsLeaderboardProps = {
 	/**
@@ -82,7 +79,7 @@ export type AuthorsLeaderboardProps = {
  *
  * Both the interactive row affordance (chevron, hover, keyboard access) and the
  * name + picture label come from the shared `@automattic/charts` leaderboard
- * primitives via the toolkit's `LeaderboardChart` / `LeaderboardLabel`; only the
+ * primitives via the toolkit's `LeaderboardChart` / `LeaderboardRow`; only the
  * drill-down navigation state lives here.
  *
  * Takes already-built rows via props (and is exported) so Storybook can
@@ -131,29 +128,17 @@ export function AuthorsLeaderboard( {
 		// posts that only existed in the comparison period.
 		if ( selectedAuthor ) {
 			return selectedAuthor.posts.map( post => {
-				// A custom label element bypasses the chart's default overlay
-				// `.label` inset, so mirror top-posts: pad the block (sets the bar
-				// height, since there is no avatar to size the row) and inset the
-				// text from the bar's rounded left edge.
-				const label = post.link ? (
-					<Link
-						className={ styles.postLabel }
-						href={ post.link }
-						variant="unstyled"
-						openInNewTab
-						title={ post.title }
-					>
-						{ post.title }
-					</Link>
-				) : (
-					<span className={ styles.postLabel } title={ post.title }>
-						{ post.title }
-					</span>
-				);
+				// Post permalinks come from report data, so validate the scheme
+				// before the row becomes a link.
+				const postHref = safeHttpUrl( post.link );
 
 				return {
 					id: post.id,
-					label,
+					...buildLeaderboardRow( {
+						label: post.title,
+						media: { kind: 'none' },
+						action: postHref ? { kind: 'link', href: postHref } : { kind: 'static' },
+					} ),
 					currentValue: post.currentValue,
 					previousValue: post.previousValue,
 					currentShare: post.currentShare,
@@ -167,34 +152,27 @@ export function AuthorsLeaderboard( {
 		// posts. Authors without posts stay inert (no onClick).
 		return rows.map( row => ( {
 			id: row.id,
-			label: (
-				<LeaderboardLabel
-					label={ row.label }
-					imageUrl={ row.avatarUrl ?? undefined }
-					imageAlt={ sprintf(
-						/* translators: %s is the author name */
-						__( 'Avatar of %s', 'jetpack-premium-analytics' ),
-						row.label
-					) }
-					imageClassName={ styles.avatar }
-				/>
-			),
+			...buildLeaderboardRow( {
+				label: row.label,
+				media: { kind: 'avatar', url: row.avatarUrl ?? undefined, name: row.label },
+				action:
+					row.posts.length > 0
+						? {
+								kind: 'drillDown',
+								onClick: () => selectAuthor( row.id ),
+								ariaLabel: sprintf(
+									/* translators: %s is the author name */
+									__( 'View posts by %s', 'jetpack-premium-analytics' ),
+									row.label
+								),
+						  }
+						: { kind: 'static' },
+			} ),
 			currentValue: row.currentValue,
 			previousValue: row.previousValue,
 			currentShare: row.currentShare,
 			previousShare: row.previousShare,
 			delta: row.delta,
-			...( row.posts.length > 0 && {
-				onClick: () => selectAuthor( row.id ),
-				// The label already renders the name as text; without an explicit
-				// action name the button would announce the avatar alt ("Avatar of
-				// X") plus the name. Give it a concise, deterministic name instead.
-				ariaLabel: sprintf(
-					/* translators: %s is the author name */
-					__( 'View posts by %s', 'jetpack-premium-analytics' ),
-					row.label
-				),
-			} ),
 		} ) );
 	}, [ rows, selectedAuthor, selectAuthor ] );
 
@@ -290,19 +268,24 @@ function AuthorsReport( { max }: AuthorsReportProps ) {
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
 	return (
-		<AuthorsLeaderboard
-			rows={ rows }
-			isLoading={ isInitialLoading }
-			isFetching={ isFetching }
-			// The Stats queries carry `placeholderData: previousData => previousData`, so a
-			// failed range change keeps the prior period's rows while `isError` flips true.
-			// Only surface the error when there's nothing to show, so a transient refetch
-			// failure doesn't replace populated rows with the error state.
-			isError={ rows.length === 0 && isError }
-			refetch={ refetch }
-			withComparison={ hasComparison }
-			legendLabels={ legendLabels }
-		/>
+		<>
+			<AuthorsLeaderboard
+				rows={ rows }
+				isLoading={ isInitialLoading }
+				isFetching={ isFetching }
+				// The Stats queries carry `placeholderData: previousData => previousData`, so a
+				// failed range change keeps the prior period's rows while `isError` flips true.
+				// Only surface the error when there's nothing to show, so a transient refetch
+				// failure doesn't replace populated rows with the error state.
+				isError={ rows.length === 0 && isError }
+				refetch={ refetch }
+				withComparison={ hasComparison }
+				legendLabels={ legendLabels }
+			/>
+			<WidgetFooter>
+				<ReportLink report="authors" />
+			</WidgetFooter>
+		</>
 	);
 }
 
@@ -322,7 +305,7 @@ export default function Authors( { attributes = {} }: AuthorsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<AuthorsReport max={ toPositiveInt( attributes.max, DEFAULT_MAX ) } />
+				<AuthorsReport max={ toMaxRows( attributes.max, DEFAULT_MAX ) } />
 			</div>
 		</WidgetRoot>
 	);

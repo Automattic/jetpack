@@ -5,12 +5,14 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-stats-mocks';
 import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import DevicesRender from '../render';
 import widgetDefinition from '../widget';
+import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
@@ -20,14 +22,9 @@ registerStatsMocks();
 
 const DEVICES_RENDER_MODULE = 'storybook/devices';
 
-// Pick only the fields that StoryWidgetMetadata accepts — the attribute schema
-// and example arrays are typed differently in WidgetType and cause a type error.
-const storyWidgetType = {
-	name: widgetDefinition.name,
-	title: widgetDefinition.title,
-	icon: widgetDefinition.icon,
-	presentation: 'framed' as const,
-};
+// Carry the widget's metadata. `presentation` comes from widget.json ( 'framed' ),
+// so the host frames the widget and renders its identity (title + icon).
+const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
 interface DevicesStoryControls {
 	withComparison: boolean;

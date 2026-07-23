@@ -87,18 +87,24 @@ export function usePostsReportRecords(
 	);
 
 	return {
+		isError: activeReport.isError,
+		refetch: activeReport.refetch,
 		chart: {
 			primary: chartPrimary,
-			comparison: activeReport.hasComparison ? chartComparison : undefined,
+			comparison: activeReport.comparison.data ? chartComparison : undefined,
 			isLoading: activeReport.isLoading,
 		},
 		posts: {
 			rows: postRows,
 			isLoading: posts.isLoading,
+			isFetching: posts.isFetching,
+			isError: posts.isError,
 		},
 		archives: {
 			rows: archiveRows,
 			isLoading: archives.isLoading,
+			isFetching: archives.isFetching,
+			isError: archives.isError,
 		},
 	};
 }

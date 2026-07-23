@@ -32,6 +32,9 @@ type DashboardSectionsProps = {
  * changes upward. Panel children are rendered inside the same Tabs.Root so the
  * tablist and section content share a complete tab/panel relationship.
  *
+ * Tabs are keyed by the section `slug` (the URL-facing identifier the active
+ * section state uses), not the namespaced `id`.
+ *
  * @param props          - Component props.
  * @param props.sections - The sections to render, in order.
  * @param props.value    - The currently active section ID.
@@ -47,7 +50,7 @@ export function DashboardSections( {
 }: DashboardSectionsProps ) {
 	return (
 		<SectionTabs
-			tabs={ sections }
+			tabs={ sections.map( ( { slug, label } ) => ( { id: slug, label } ) ) }
 			value={ value }
 			onChange={ onChange }
 			rootClassName={ styles.root }

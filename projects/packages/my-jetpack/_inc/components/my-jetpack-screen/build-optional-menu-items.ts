@@ -14,6 +14,7 @@ type BuildOptionalMenuItemsArgs = {
 	userIsAdmin: boolean;
 	isSiteConnected: boolean;
 	isJetpackPluginActive: boolean;
+	isSimpleSite: boolean;
 	onModulesClick: () => void;
 	onResetClick: () => void;
 	onResetKeyDown: ( event: KeyboardEvent ) => void;
@@ -25,13 +26,16 @@ const buildOptionalMenuItems = ( {
 	userIsAdmin,
 	isSiteConnected,
 	isJetpackPluginActive,
+	isSimpleSite,
 	onModulesClick,
 	onResetClick,
 	onResetKeyDown,
 }: BuildOptionalMenuItemsArgs ): FooterMenuItem[] => {
 	const items: FooterMenuItem[] = [];
 
-	if ( userIsAdmin && isSiteConnected && isJetpackPluginActive ) {
+	// The jetpack_modules admin page is not registered on WordPress.com Simple sites,
+	// so the link would 404 there.
+	if ( userIsAdmin && isSiteConnected && isJetpackPluginActive && ! isSimpleSite ) {
 		items.push( {
 			label: _x(
 				'Modules',

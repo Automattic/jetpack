@@ -14,9 +14,12 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withStoryRouter } from '../../stories/with-story-router';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import ClicksRender from '../render';
 import widgetDefinition from '../widget';
+import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
@@ -26,12 +29,7 @@ registerStatsMocks();
 
 const CLICKS_RENDER_MODULE = 'storybook/clicks';
 
-const storyWidgetType = {
-	name: widgetDefinition.name,
-	title: widgetDefinition.title,
-	icon: widgetDefinition.icon,
-	presentation: 'framed' as const,
-};
+const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
 interface ClicksStoryControls {
 	withComparison: boolean;
@@ -98,13 +96,13 @@ type DashboardStory = StoryObj< ClicksDashboardStoryProps >;
 export const Default: Story = {
 	render: renderClicksWidget,
 	args: { withComparison: false },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 export const WithComparison: Story = {
 	render: renderClicksWidget,
 	args: { withComparison: true },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 /**
@@ -118,7 +116,7 @@ export const Loading: Story = {
 	render: () => renderClicksOnPreset( 'last-90-days' ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		forceStatsMockState( 'stats/clicks', 'loading' );
 		return () => forceStatsMockState( 'stats/clicks', null );
@@ -132,7 +130,7 @@ export const Loading: Story = {
 export const Error: Story = {
 	render: () => renderClicksOnPreset( 'last-7-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		forceStatsMockState( 'stats/clicks', 'error' );
 		return () => forceStatsMockState( 'stats/clicks', null );
@@ -146,7 +144,7 @@ export const Error: Story = {
 export const Empty: Story = {
 	render: () => renderClicksOnPreset( 'last-365-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		forceStatsMockState( 'stats/clicks', 'empty' );
 		return () => forceStatsMockState( 'stats/clicks', null );

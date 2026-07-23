@@ -8,7 +8,10 @@ import { renderHook } from '@testing-library/react';
  */
 import { useCommentFollowersReportRecords } from './use-report-records';
 
+// Only the data hook is faked; the pure helpers keep their real implementations
+// so the flattening behaviour under test is not mocked away.
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	useStatsCommentFollowersAllPages: jest.fn(),
 } ) );
 

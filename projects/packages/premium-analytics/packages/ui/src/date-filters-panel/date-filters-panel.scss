@@ -55,7 +55,7 @@
 
 		.date-range-quick-presets__pill,
 		.date-filters-panel-button {
-			--wp-ui-button-height: calc(var(--wpds-dimension-size-lg, 40px) - 2px);
+			--wp-ui-button-height: calc(var(--wpds-dimension-size-lg) - 2px);
 		}
 	}
 }

@@ -1,4 +1,4 @@
-// Configuration for when you use tsc to produce definition files only, or fork-ts-checker-webpack-plugin to produce definition files.
+// Configuration for when you use tsc to produce definition files only.
 // Note that when using tsc directly you'll probably also have to manually handle @wordpress/* packages and i18n if necessary.
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",

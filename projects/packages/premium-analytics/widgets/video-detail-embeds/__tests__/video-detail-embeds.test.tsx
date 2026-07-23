@@ -11,9 +11,7 @@ import VideoDetailEmbedsWidget from '../render';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
-jest.mock( '@wordpress/route', () => ( {
-	useSearch: () => ( {} ),
-} ) );
+jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
@@ -62,6 +60,12 @@ describe( 'VideoDetailEmbedsWidget', () => {
 			'href',
 			'https://example.com/blog/weekly-recap/'
 		);
+
+		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
+		expect( requestedPath ).toContain( 'stats/video/105' );
+		expect( requestedPath ).toContain( 'period=month' );
+		expect( requestedPath ).not.toContain( 'start_date=' );
+		expect( requestedPath ).not.toContain( 'date=' );
 	} );
 
 	it( 'prompts to select a video and skips fetching when no video is scoped', () => {

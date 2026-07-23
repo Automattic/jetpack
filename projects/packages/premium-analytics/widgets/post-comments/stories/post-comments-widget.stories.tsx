@@ -12,9 +12,12 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import PostCommentsRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import widgetManifest from '../widget.json';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -41,12 +44,6 @@ function getPostCommentsAttributes( {
 function renderPostComments( controls: PostCommentsStoryControls ) {
 	return <PostCommentsRender attributes={ getPostCommentsAttributes( controls ) } />;
 }
-
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '360px', height: '480px' } }>
-		<Story />
-	</div>
-);
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/PostComments',
@@ -95,7 +92,7 @@ function PostCommentsDashboardStory( {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ { ...widgetDefinition, presentation: 'framed' } }
+			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ POST_COMMENTS_RENDER_MODULE }
 			renderComponent={ PostCommentsRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ getPostCommentsAttributes( { hasPostScope } ) }

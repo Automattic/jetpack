@@ -2,6 +2,15 @@
 	"name": "jpa/tags",
 	"title": "Tags & categories",
 	"description": "Your most visited tags and categories, ranked by views.",
+	"help": {
+		"content": "The tags and categories associated with your most-viewed content, sorted by views.",
+		"links": [
+			{
+				"label": "Learn more",
+				"href": "https://jetpack.com/support/jetpack-stats/"
+			}
+		]
+	},
 	"category": "stats",
 	"presentation": "framed"
 }

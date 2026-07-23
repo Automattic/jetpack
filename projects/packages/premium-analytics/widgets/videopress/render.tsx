@@ -2,13 +2,16 @@
  * External dependencies
  */
 import { useStatsVideoPlays } from '@jetpack-premium-analytics/data';
+import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import {
 	LeaderboardChart,
 	ReportLink,
+	VideoTitleLink,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	calculateDelta,
+	sharePercentage,
 	toMaxRows,
 	useWidgetRootContext,
 	type LeaderboardChartData,
@@ -16,7 +19,6 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { video } from '@wordpress/icons';
-import { Link } from '@wordpress/ui';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -39,42 +41,55 @@ type VideoPressWidgetProps = WidgetRenderProps< VideoPressRenderAttributes > & {
 };
 
 /**
- * Maps normalized video rows onto the shape `LeaderboardChart` expects. Each
- * row's label opens the video's page in a new tab when the report carries a
- * URL. Shares are computed against the largest value of either period so the
- * overlay bars stay proportional. Rows without a matching comparison-period
- * value keep `previousValue`/`previousShare`/`delta` as `undefined` so the
- * chart suppresses their delta instead of fabricating a vs-zero change.
+ * Build a video row's title. Attachment rows navigate to the internal detail
+ * route; rows without an ID retain the original external-link fallback.
  *
- * @param rows - The normalized video-plays rows.
+ * @param row    - The normalized video row.
+ * @param search - Shared report-window parameters for the detail route.
+ * @return The linked or plain row title.
+ */
+function buildVideoTitle( row: VideoPlaysRow, search: Record< string, unknown > ): JSX.Element {
+	return (
+		<VideoTitleLink
+			id={ row.id }
+			label={ row.label }
+			link={ row.link }
+			search={ search }
+			classNames={ {
+				internal: styles.internalLink,
+				external: styles.labelLink,
+				plain: styles.labelText,
+			} }
+			title={ row.label }
+		/>
+	);
+}
+
+/**
+ * Maps normalized video rows onto the shape `LeaderboardChart` expects. Shares
+ * are computed against the largest value of either period so the overlay bars
+ * stay proportional. Rows without a matching comparison-period value keep
+ * comparison fields undefined so the chart suppresses fabricated deltas.
+ *
+ * @param rows   - The normalized video-plays rows.
+ * @param search - Shared report-window parameters for detail links.
  * @return The leaderboard chart data.
  */
-function buildLeaderboardData( rows: VideoPlaysRow[] ): LeaderboardChartData {
+function buildLeaderboardData(
+	rows: VideoPlaysRow[],
+	search: Record< string, unknown >
+): LeaderboardChartData {
 	// `1` guards against division by zero when every value is 0.
 	const maxPlays = Math.max( ...rows.flatMap( row => [ row.plays, row.previousPlays ?? 0 ] ), 1 );
 
 	return rows.map( row => ( {
 		id: row.key,
-		label: row.link ? (
-			<Link
-				className={ styles.labelLink }
-				href={ row.link }
-				variant="unstyled"
-				openInNewTab
-				title={ row.label }
-			>
-				{ row.label }
-			</Link>
-		) : (
-			<span className={ styles.labelText } title={ row.label }>
-				{ row.label }
-			</span>
-		),
+		label: buildVideoTitle( row, search ),
 		currentValue: row.plays,
-		currentShare: ( row.plays / maxPlays ) * 100,
+		currentShare: sharePercentage( row.plays, maxPlays ),
 		previousValue: row.previousPlays,
 		previousShare:
-			row.previousPlays !== undefined ? ( row.previousPlays / maxPlays ) * 100 : undefined,
+			row.previousPlays !== undefined ? sharePercentage( row.previousPlays, maxPlays ) : undefined,
 		delta:
 			row.previousPlays !== undefined ? calculateDelta( row.plays, row.previousPlays ) : undefined,
 	} ) );
@@ -117,8 +132,12 @@ function VideoPressReport( { max }: VideoPressReportProps ) {
 	const isInitialLoading = ( isLoading || primary.isPending ) && ! hasData;
 
 	const rows = useMemo( () => toVideoPlaysRows( comparisonRows?.rows ?? [] ), [ comparisonRows ] );
+	const detailSearch = useMemo( () => pickReportDateParams( reportParams ), [ reportParams ] );
 
-	const chartData = useMemo( () => buildLeaderboardData( rows ), [ rows ] );
+	const chartData = useMemo(
+		() => buildLeaderboardData( rows, detailSearch ),
+		[ rows, detailSearch ]
+	);
 
 	return (
 		<WidgetState

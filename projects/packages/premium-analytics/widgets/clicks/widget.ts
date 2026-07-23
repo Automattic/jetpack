@@ -22,14 +22,6 @@ export type ClicksAttributes = {
  * via the PA proxy at `stats/clicks`.
  */
 export default {
-	name: 'jpa/clicks',
-	title: __( 'Clicks', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Most clicked external links to track engaging content.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: link,
 	attributes: [
 		{

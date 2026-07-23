@@ -62,7 +62,11 @@ export function ReportPageLayout( {
 				</header>
 			) : null }
 			{ tabs }
-			{ filters ? <div className={ styles.filters }>{ filters }</div> : null }
+			{ filters ? (
+				<div className={ styles.filters }>
+					<div className={ styles.filtersContent }>{ filters }</div>
+				</div>
+			) : null }
 			<div className={ styles.sections }>{ children }</div>
 		</div>
 	);

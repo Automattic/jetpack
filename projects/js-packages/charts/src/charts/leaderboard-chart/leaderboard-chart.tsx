@@ -1,6 +1,5 @@
 /* eslint-disable @wordpress/no-unsafe-wp-apis */
 import { __experimentalGrid as Grid, VisuallyHidden } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
@@ -21,7 +20,7 @@ import { useChartChildren } from '../private/chart-composition';
 import { ChartLayout } from '../private/chart-layout';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
-import { useLeaderboardLegendItems } from './hooks';
+import { useFittedRowCount, useLeaderboardLegendItems } from './hooks';
 import styles from './leaderboard-chart.module.scss';
 import type { LeaderboardChartProps } from './types';
 import type { LeaderboardEntry } from '../../types';
@@ -63,7 +62,7 @@ const defaultDeltaFormatter = ( value: number ): string => {
  * @return A CSS width value.
  */
 const getBarWidth = ( share: number ): string =>
-	`calc(${ share }% - var(--a8c--charts--leaderboard--bar--hover-inset, 0px) * ${ share } / 100)`;
+	`calc(${ share }% - var(--a8c-charts-dimension-leaderboard-bar-hover-inset, 0px) * ${ share } / 100)`;
 
 const hasComparisonValue = (
 	entry: LeaderboardEntry
@@ -149,6 +148,7 @@ const BarWithLabel = ( {
  * @param props.valueFormatter   - Custom formatter for values
  * @param props.deltaFormatter   - Custom formatter for delta values
  * @param props.loading          - Whether the chart is in loading state
+ * @param props.fitRows          - Whether to show only the rows that fit the chart's height
  * @param props.animation        - Whether the chart should animate on load
  * @param props.showLegend       - Whether to show legend
  * @param props.legend           - Legend configuration (orientation, position, alignment, shape, shapeStyles, interactive)
@@ -172,6 +172,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	deltaFormatter = defaultDeltaFormatter,
 	animation,
 	loading = false,
+	fitRows = false,
 	showLegend = false,
 	legend = {},
 	legendLabels,
@@ -270,6 +271,16 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 
 	const prefersReducedMotion = usePrefersReducedMotion();
 
+	// There are no rows to measure while an interactive legend has hidden every
+	// series. Pausing fitting restores the full row count and, when a series is shown
+	// again, re-runs the effect against the newly mounted grid.
+	const { contentRef, fittedCount, isMeasurable } = useFittedRowCount(
+		fitRows && ! allSeriesHidden,
+		data?.length ?? 0,
+		data
+	);
+	const shouldFitRows = fitRows && isMeasurable;
+
 	// Handle empty or undefined data
 	if ( ! data || data.length === 0 ) {
 		return (
@@ -339,14 +350,38 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 				data-testid="leaderboard-chart-container"
 				trailingContent={ nonLegendChildren }
 			>
-				<div className={ styles.leaderboardChart__content }>
+				<div
+					ref={ contentRef }
+					data-testid="leaderboard-chart-content"
+					className={ clsx( styles.leaderboardChart__content, {
+						[ styles[ 'leaderboardChart__content--fit' ] ]: shouldFitRows,
+					} ) }
+				>
+					{ shouldFitRows && fittedCount === 0 && ! allSeriesHidden && (
+						// Overlaid, not swapped in: the rows must stay laid out to stay measurable.
+						<div className={ clsx( styles.emptyState, styles.fitEmptyState ) }>
+							{ __( 'Not enough space to display data', 'jetpack-charts' ) }
+						</div>
+					) }
 					{ allSeriesHidden ? (
 						<div className={ styles.emptyState }>
 							{ __( 'All series are hidden. Click legend items to show data.', 'jetpack-charts' ) }
 						</div>
 					) : (
-						<Grid templateColumns="minmax(0, 1fr) auto" rowGap={ rowGap } columnGap={ columnGap }>
-							{ data.map( entry => {
+						<Grid
+							templateColumns="minmax(0, 1fr) auto"
+							rowGap={ rowGap }
+							columnGap={ columnGap }
+							data-leaderboard-grid
+						>
+							{ data.map( ( entry, rowIndex ) => {
+								// visibility, not clipping: hidden rows keep their geometry (so a
+								// taller container can reveal them) but leave hit testing, focus,
+								// and the accessibility tree.
+								const rowStyle =
+									shouldFitRows && rowIndex >= fittedCount
+										? ( { visibility: 'hidden' } as const )
+										: undefined;
 								const showComparisonColumn = withComparison && isComparisonVisible;
 								const hasDeltaValue = hasComparisonValue( entry );
 								const showComparisonValue = showComparisonColumn && hasDeltaValue;
@@ -404,7 +439,9 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 										<button
 											key={ entry.id }
 											type="button"
-											className={ styles.interactiveRow }
+											data-row-index={ rowIndex }
+											style={ rowStyle }
+											className={ clsx( styles.row, styles.interactiveRow ) }
 											onClick={ entry.onClick }
 											aria-label={ entry.ariaLabel }
 										>
@@ -414,7 +451,16 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 									);
 								}
 
-								return <Fragment key={ entry.id }>{ rowCells }</Fragment>;
+								return (
+									<div
+										key={ entry.id }
+										data-row-index={ rowIndex }
+										style={ rowStyle }
+										className={ styles.row }
+									>
+										{ rowCells }
+									</div>
+								);
 							} ) }
 						</Grid>
 					) }

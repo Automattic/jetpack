@@ -2,6 +2,9 @@
 	"name": "jpa/top-performing-bookings",
 	"title": "Top performing bookings",
 	"description": "Shows the top booking products by net revenue over the selected time period.",
-	"category": "store",
+	"help": {
+		"content": "Your best-selling bookings by revenue over the selected time period."
+	},
+	"category": "bookings",
 	"presentation": "framed"
 }
