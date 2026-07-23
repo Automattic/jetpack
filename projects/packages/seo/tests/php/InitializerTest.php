@@ -60,7 +60,7 @@ class InitializerTest extends TestCase {
 
 	/**
 	 * With the feature flag on, the surface discoverable, and the `seo-tools` module
-	 * active, `init()` registers the front-end JSON-LD schema and the admin/REST hooks.
+	 * active, `init()` registers the front-end schema, llms.txt, and admin/REST hooks.
 	 * We drive module state through the `jetpack_active_modules` filter (the package test
 	 * context has no on-disk modules), mark the cohort surface visible so init() passes
 	 * its discoverability gate, and reset the one-shot `$initialized` guard so the body runs.
@@ -83,10 +83,13 @@ class InitializerTest extends TestCase {
 		try {
 			Initializer::init();
 
-			// Line proving the body ran past the module gate: Schema_Builder::init()
-			// self-hooks wp_head, and init() registers its admin/REST callbacks.
+			// Lines proving the body ran past the module gate: the front-end features
+			// self-hook, and init() registers its admin/REST callbacks.
 			$this->assertNotFalse(
 				has_action( 'wp_head', array( Schema_Builder::class, 'emit' ) )
+			);
+			$this->assertNotFalse(
+				has_action( 'template_redirect', array( Llms_Txt::class, 'maybe_serve' ) )
 			);
 			$this->assertNotFalse(
 				has_action( 'admin_menu', array( Admin_Page::class, 'maybe_load_wp_build' ) )

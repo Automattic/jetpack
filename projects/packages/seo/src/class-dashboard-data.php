@@ -31,6 +31,7 @@ class Dashboard_Data {
 			'overview' => array( __CLASS__, 'get_overview_data' ),
 			'settings' => array( __CLASS__, 'get_settings_data' ),
 			'ai'       => array( __CLASS__, 'get_ai_data' ),
+			'content'  => array( __CLASS__, 'get_content_data' ),
 		);
 	}
 
@@ -258,6 +259,22 @@ class Dashboard_Data {
 				'available' => $filter_on && $plan_supports,
 				'enabled'   => (bool) get_option( 'ai_seo_enhancer_enabled', false ),
 			),
+			'llmsTxt'  => array(
+				'enabled'  => Llms_Txt::is_enabled(),
+				'url'      => home_url( '/llms.txt' ),
+				'canServe' => Llms_Txt::can_serve(),
+			),
+		);
+	}
+
+	/**
+	 * Build the supported post type options for the Content tab.
+	 *
+	 * @return array{post_types:array<int,array{slug:string,label:string}>}
+	 */
+	public static function get_content_data() {
+		return array(
+			'post_types' => Post_Types::get_supported_content_type_options(),
 		);
 	}
 

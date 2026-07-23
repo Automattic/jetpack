@@ -25,7 +25,7 @@ type FakeEdits = Record< number, { meta?: Record< string, unknown > } >;
  * @return The fake `select` plus the queries it was asked for.
  */
 function createSelect(
-	counts: Record< ContentPostType, number >,
+	counts: Record< string, number >,
 	unresolved: string[] = [],
 	edits: FakeEdits = {}
 ) {
@@ -33,7 +33,7 @@ function createSelect(
 	const requested: string[] = [];
 	const isResolved = ( type: ContentPostType, page: number ) =>
 		! pending.has( `${ type }:${ page }` );
-	const totalPages = ( type: ContentPostType ) => Math.ceil( counts[ type ] / PER_PAGE );
+	const totalPages = ( type: ContentPostType ) => Math.ceil( ( counts[ type ] ?? 0 ) / PER_PAGE );
 
 	const core = {
 		getEntityRecords: ( _kind: string, type: ContentPostType, query: FakeQuery ) => {
@@ -42,9 +42,14 @@ function createSelect(
 				return null;
 			}
 			const start = ( query.page - 1 ) * PER_PAGE;
-			const size = Math.max( 0, Math.min( PER_PAGE, counts[ type ] - start ) );
-			// Offset page ids so every record across both types is unique.
-			const base = type === 'page' ? 100000 : 0;
+			const size = Math.max( 0, Math.min( PER_PAGE, ( counts[ type ] ?? 0 ) - start ) );
+			// Offset ids so every record across post types is unique.
+			let base = 200000;
+			if ( type === 'post' ) {
+				base = 0;
+			} else if ( type === 'page' ) {
+				base = 100000;
+			}
 			return Array.from( { length: size }, ( _, index ) => ( {
 				id: base + start + index,
 				type,
@@ -64,9 +69,14 @@ function createSelect(
 }
 
 const useSelect = jest.fn();
+const getPreloaded = jest.fn();
 
 jest.unstable_mockModule( '@wordpress/core-data', () => ( { store: 'core' } ) );
 jest.unstable_mockModule( '@wordpress/data', () => ( { useSelect } ) );
+jest.unstable_mockModule( '../get-preloaded', () => ( {
+	CONTENT_PATH: '/jetpack/v4/seo/content',
+	getPreloaded,
+} ) );
 
 const { default: useSeoPosts } = await import( '../use-seo-posts' );
 
@@ -79,7 +89,7 @@ const { default: useSeoPosts } = await import( '../use-seo-posts' );
  * @return The hook result and the queries the fake store was asked for.
  */
 function render(
-	counts: Record< ContentPostType, number >,
+	counts: Record< string, number >,
 	unresolved: string[] = [],
 	edits: FakeEdits = {}
 ) {
@@ -92,6 +102,12 @@ function render(
 describe( 'useSeoPosts', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		getPreloaded.mockReturnValue( {
+			post_types: [
+				{ slug: 'post', label: 'Posts' },
+				{ slug: 'page', label: 'Pages' },
+			],
+		} );
 	} );
 
 	it( 'requests a single page per type when the site fits in one', () => {
@@ -109,6 +125,30 @@ describe( 'useSeoPosts', () => {
 		expect( result.current.items ).toHaveLength( 370 );
 		// Every record is a distinct row — no page was fetched or merged twice.
 		expect( new Set( result.current.items.map( item => item.id ) ).size ).toBe( 370 );
+	} );
+
+	it( 'loads PHP-selected custom post types and exposes their filter labels', () => {
+		getPreloaded.mockReturnValue( {
+			post_types: [
+				{ slug: 'post', label: 'Posts' },
+				{ slug: 'page', label: 'Pages' },
+				{ slug: 'gear_review', label: 'Gear Reviews' },
+			],
+		} );
+
+		const { result, requested } = render( { post: 1, page: 0, gear_review: 2 } );
+
+		expect( requested ).toEqual( [ 'post:1', 'page:1', 'gear_review:1' ] );
+		expect( result.current.items.map( item => item.type ) ).toEqual( [
+			'post',
+			'gear_review',
+			'gear_review',
+		] );
+		expect( result.current.postTypeOptions ).toEqual( [
+			{ value: 'post', label: 'Posts' },
+			{ value: 'page', label: 'Pages' },
+			{ value: 'gear_review', label: 'Gear Reviews' },
+		] );
 	} );
 
 	it( 'keeps paging on a large site, with no cap on the number of pages', () => {
