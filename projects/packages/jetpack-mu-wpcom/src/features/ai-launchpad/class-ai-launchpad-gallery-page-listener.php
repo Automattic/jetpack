@@ -6,6 +6,11 @@
  */
 
 /**
+ * The registry owns this task's definition, and its completion write.
+ */
+require_once __DIR__ . '/class-ai-launchpad-task-registry.php';
+
+/**
  * Completes the `add_gallery_page` task from wp-admin when the AI-created gallery page is published.
  *
  * The task is defined by AI_Launchpad_Task_Registry rather than the shared catalog, which has no completion
@@ -71,11 +76,7 @@ class AI_Launchpad_Gallery_Page_Listener {
 			return;
 		}
 
-		// The id is not in the shared catalog, so wpcom_mark_launchpad_task_complete() would drop it
-		// (wpcom_launchpad_update_task_status() skips unknown ids); write the status option directly instead.
-		$statuses                     = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
-		$statuses['add_gallery_page'] = true;
-		update_option( 'launchpad_checklist_tasks_statuses', $statuses );
+		AI_Launchpad_Task_Registry::mark_complete( 'add_gallery_page' );
 	}
 
 	/**

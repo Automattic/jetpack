@@ -10,6 +10,7 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-la
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-task-registry.php';
 require_once __DIR__ . '/fixtures/trait-registers-test-task.php';
+require_once __DIR__ . '/fixtures/trait-uses-block-theme.php';
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -25,6 +26,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 
 	use AI_Launchpad_Registers_Test_Task;
+	use AI_Launchpad_Uses_Block_Theme;
 
 	/**
 	 * Tear down.
@@ -36,6 +38,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function tear_down() {
 		wp_cache_flush_group( 'post-queries' );
+		$this->restore_theme_directories();
 		parent::tear_down();
 	}
 
@@ -62,11 +65,34 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The registry knows the gallery task, and does not claim catalog tasks.
+	 * The registry knows its own tasks, and does not claim catalog tasks.
+	 *
+	 * @param string $task_id A task id the registry defines.
+	 * @dataProvider provide_registry_task_ids
 	 */
-	public function test_registry_owns_the_gallery_task_only() {
-		$this->assertTrue( AI_Launchpad_Task_Registry::has( 'add_gallery_page' ) );
-		$this->assertContains( 'add_gallery_page', AI_Launchpad_Task_Registry::task_ids() );
+	#[DataProvider( 'provide_registry_task_ids' )]
+	public function test_registry_owns_its_own_tasks( $task_id ) {
+		$this->assertTrue( AI_Launchpad_Task_Registry::has( $task_id ) );
+		$this->assertContains( $task_id, AI_Launchpad_Task_Registry::task_ids() );
+	}
+
+	/**
+	 * The registry's shipped ids.
+	 *
+	 * @return array
+	 */
+	public static function provide_registry_task_ids() {
+		return array(
+			'the gallery page'     => array( 'add_gallery_page' ),
+			'the site icon'        => array( 'add_site_icon' ),
+			'the style variations' => array( 'pick_fonts_colors' ),
+		);
+	}
+
+	/**
+	 * A catalog task is not the registry's to claim, so build_tasks() keeps routing it through the catalog.
+	 */
+	public function test_registry_does_not_claim_catalog_tasks() {
 		$this->assertFalse( AI_Launchpad_Task_Registry::has( 'first_post_published' ) );
 	}
 
@@ -183,5 +209,170 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( $card['in_progress'] );
 		$this->assertSame( 'Create your first gallery', $card['title'] );
 		$this->assertNull( $card['calypso_path'] );
+	}
+
+	/**
+	 * A registry task that declares a `calypso_path` renders its CTA from it, so a task with a fixed
+	 * destination needs no marker draft to be actionable.
+	 *
+	 * The gallery is the counter-case in the same provider: its CTA is built client-side (it creates the
+	 * pattern page), so it deliberately ships no path and the card carries none.
+	 *
+	 * @param string      $task_id  The registry task id.
+	 * @param string|null $expected The expected CTA path, relative to admin_url().
+	 * @dataProvider provide_registry_ctas
+	 */
+	#[DataProvider( 'provide_registry_ctas' )]
+	public function test_build_resolves_the_declared_cta( $task_id, $expected ) {
+		$this->use_block_theme();
+
+		$card = AI_Launchpad_Task_Registry::build( $task_id, 'A subtitle.' );
+
+		$this->assertSame( null === $expected ? null : admin_url( $expected ), $card['calypso_path'] );
+	}
+
+	/**
+	 * CTA cases for test_build_resolves_the_declared_cta.
+	 *
+	 * The Site Editor path uses `p=` rather than `path=`: `p` is the @wordpress/router `pathArg` the
+	 * editor is mounted with, and `section` is the Styles screen's own sub-route, which is how the CTA
+	 * lands on the style variations rather than the Styles root.
+	 *
+	 * @return array
+	 */
+	public static function provide_registry_ctas() {
+		return array(
+			'the site icon settings screen' => array( 'add_site_icon', 'options-general.php' ),
+			'the Styles variations screen'  => array( 'pick_fonts_colors', 'site-editor.php?p=/styles&section=/variations' ),
+			'the gallery, built on click'   => array( 'add_gallery_page', null ),
+		);
+	}
+
+	/**
+	 * The site-icon task completes off the live `site_icon` option, with no listener and no status write:
+	 * the option holds the uploaded attachment id, and clearing the icon empties it again.
+	 *
+	 * `has_site_icon()` is deliberately not used — it resolves the attachment's URL, so it is false for an
+	 * id whose attachment this harness never created, and it would be false in production for the window
+	 * between the option write and the attachment being readable.
+	 *
+	 * @param mixed $option   The `site_icon` option value, or null to leave it unset.
+	 * @param bool  $expected Whether the task should report complete.
+	 * @dataProvider provide_site_icon_completion_cases
+	 */
+	#[DataProvider( 'provide_site_icon_completion_cases' )]
+	public function test_site_icon_completion_reads_the_option( $option, $expected ) {
+		if ( null !== $option ) {
+			update_option( 'site_icon', $option );
+		}
+
+		$this->assertSame( $expected, AI_Launchpad_Task_Registry::is_complete( 'add_site_icon' ) );
+		$this->assertSame( $expected, AI_Launchpad_Task_Registry::build( 'add_site_icon', '' )['completed'] );
+	}
+
+	/**
+	 * Completion cases for test_site_icon_completion_reads_the_option.
+	 *
+	 * @return array
+	 */
+	public static function provide_site_icon_completion_cases() {
+		return array(
+			'no icon has ever been set' => array( null, false ),
+			'the icon was removed'      => array( 0, false ),
+			'an uploaded attachment'    => array( 4242, true ),
+		);
+	}
+
+	/**
+	 * The style-variations task has no completion signal of its own — nothing in wp-admin fires when a
+	 * variation is applied — so it completes from the status option the complete-on-click route writes.
+	 */
+	public function test_fonts_and_colors_completion_reads_the_status_option() {
+		$this->assertFalse( AI_Launchpad_Task_Registry::is_complete( 'pick_fonts_colors' ) );
+
+		AI_Launchpad_Task_Registry::mark_complete( 'pick_fonts_colors' );
+
+		$this->assertTrue( AI_Launchpad_Task_Registry::is_complete( 'pick_fonts_colors' ) );
+	}
+
+	/**
+	 * Completion is written to the shared status option directly, because wpcom_mark_launchpad_task_complete()
+	 * cannot: wpcom_launchpad_update_task_status() skips any id the shared catalog does not define, and by
+	 * design none of the registry's are. It refuses ids the registry does not own, so it cannot become a
+	 * back door onto arbitrary catalog statuses.
+	 */
+	public function test_mark_complete_writes_only_for_registry_ids() {
+		$this->assertTrue( AI_Launchpad_Task_Registry::mark_complete( 'pick_fonts_colors' ) );
+		$this->assertFalse( AI_Launchpad_Task_Registry::mark_complete( 'first_post_published' ) );
+
+		$this->assertSame( array( 'pick_fonts_colors' => true ), get_option( 'launchpad_checklist_tasks_statuses' ) );
+	}
+
+	/**
+	 * The style-variations task is offered only where the Site Editor's Styles screen exists, which is a
+	 * block theme. On a classic theme its CTA would land on an editor that has no Styles route to show,
+	 * so the task is withheld rather than rendered as a dead end.
+	 *
+	 * Both branches are asserted from the same test so the false one cannot pass by accident: the harness
+	 * has no theme on disk at all, and would report "not a block theme" for a gate keyed off anything.
+	 */
+	public function test_fonts_and_colors_needs_a_block_theme() {
+		$this->assertFalse( AI_Launchpad_Task_Registry::is_visible( 'pick_fonts_colors' ) );
+
+		$this->use_block_theme();
+
+		$this->assertTrue( wp_is_block_theme(), 'the premise: the fixture theme really is a block theme' );
+		$this->assertTrue( AI_Launchpad_Task_Registry::is_visible( 'pick_fonts_colors' ) );
+	}
+
+	/**
+	 * The site-icon task asks nothing of the site — every site has the setting — so it declares no
+	 * visibility and is offered everywhere, including on the classic theme this harness runs.
+	 */
+	public function test_the_site_icon_task_is_visible_everywhere() {
+		$this->assertFalse( wp_is_block_theme(), 'the premise: this is the theme that hides pick_fonts_colors' );
+		$this->assertTrue( AI_Launchpad_Task_Registry::is_visible( 'add_site_icon' ) );
+	}
+
+	/**
+	 * Both new tasks build the full card shape, with a translated title and a default subtitle for when
+	 * the AI supplies none.
+	 *
+	 * @param string $task_id  The registry task id.
+	 * @param string $title    The expected card title.
+	 * @param string $subtitle The expected fallback subtitle.
+	 * @dataProvider provide_registry_card_copy
+	 */
+	#[DataProvider( 'provide_registry_card_copy' )]
+	public function test_build_returns_the_declared_copy( $task_id, $title, $subtitle ) {
+		$this->use_block_theme();
+
+		$card = AI_Launchpad_Task_Registry::build( $task_id, '' );
+
+		$this->assertSame( $task_id, $card['id'] );
+		$this->assertSame( $title, $card['title'] );
+		$this->assertSame( $subtitle, $card['subtitle'] );
+		$this->assertFalse( $card['in_progress'] );
+		$this->assertFalse( $card['disabled'] );
+	}
+
+	/**
+	 * Card copy for test_build_returns_the_declared_copy.
+	 *
+	 * @return array
+	 */
+	public static function provide_registry_card_copy() {
+		return array(
+			'the site icon'        => array(
+				'add_site_icon',
+				'Add your logo or site icon',
+				'Upload your logo so your site is recognizable in browser tabs and search results.',
+			),
+			'the style variations' => array(
+				'pick_fonts_colors',
+				'Customize fonts and colors',
+				'Try a style variation to set the mood of your whole site at once.',
+			),
+		);
 	}
 }

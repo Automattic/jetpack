@@ -38,13 +38,15 @@ class AI_Launchpad_Task_Registry {
 	 *                        a task whose precondition is missing must never be offered or rendered, since
 	 *                        its CTA would lead nowhere. Omit it rather than returning a constant true, so a
 	 *                        universally renderable task reads as one.
+	 * - `calypso_path`      (callable, optional) the CTA destination, already absolute. Omit it for a task
+	 *                        whose CTA the client resolves itself, as the gallery does by creating its page.
 	 * - `draft_id`          (callable, optional) the in-progress draft's post id, or null.
 	 *
 	 * @return array
 	 */
 	private static function definitions() {
 		$definitions = array(
-			'add_gallery_page' => array(
+			'add_gallery_page'  => array(
 				'title'             => static function () {
 					return __( 'Create your first gallery', 'jetpack-mu-wpcom' );
 				},
@@ -60,6 +62,48 @@ class AI_Launchpad_Task_Registry {
 				},
 				'draft_id'          => static function () {
 					return AI_Launchpad_Gallery_Page_Listener::get_draft_id();
+				},
+			),
+			'add_site_icon'     => array(
+				'title'            => static function () {
+					return __( 'Add your logo or site icon', 'jetpack-mu-wpcom' );
+				},
+				'default_subtitle' => static function () {
+					return __( 'Upload your logo so your site is recognizable in browser tabs and search results.', 'jetpack-mu-wpcom' );
+				},
+				// Read live from the option core writes, so no listener is needed and removing the icon
+				// un-completes the task. Deliberately not has_site_icon(), which additionally resolves the
+				// attachment's URL and so reports false for an icon whose attachment is not readable yet.
+				'is_complete'      => static function () {
+					return ! empty( get_option( 'site_icon' ) );
+				},
+				'calypso_path'     => static function () {
+					return admin_url( 'options-general.php' );
+				},
+			),
+			'pick_fonts_colors' => array(
+				'title'            => static function () {
+					return __( 'Customize fonts and colors', 'jetpack-mu-wpcom' );
+				},
+				'default_subtitle' => static function () {
+					return __( 'Try a style variation to set the mood of your whole site at once.', 'jetpack-mu-wpcom' );
+				},
+				// Applying a style variation fires nothing this context can watch, so the task is on the
+				// complete-on-click allowlist and its completion arrives here through mark_complete().
+				'is_complete'      => static function () {
+					$statuses = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
+					return ! empty( $statuses['pick_fonts_colors'] );
+				},
+				// The Styles screen belongs to the Site Editor, which only a block theme has; on a classic
+				// theme the CTA would open an editor with no Styles route to land on.
+				'is_visible'       => static function () {
+					return wp_is_block_theme();
+				},
+				// `p` is the query arg the Site Editor mounts its router on (`path` is the pre-6.8 spelling
+				// and now only survives as a redirect), and `section` is the Styles screen's own sub-route,
+				// which is what opens the variations browser rather than the Styles root.
+				'calypso_path'     => static function () {
+					return admin_url( 'site-editor.php?p=/styles&section=/variations' );
 				},
 			),
 		);
@@ -113,6 +157,33 @@ class AI_Launchpad_Task_Registry {
 	}
 
 	/**
+	 * Marks a registry task complete. No-ops (and reports false) for an id the registry does not own.
+	 *
+	 * The shared status option is written directly because wpcom_mark_launchpad_task_complete() cannot do it:
+	 * wpcom_launchpad_update_task_status() resolves the id against wpcom_launchpad_get_task_definitions() and
+	 * silently skips anything absent from it — which is every registry id, by construction. Routing the
+	 * complete-on-click endpoint through that helper would answer 200 and write nothing.
+	 *
+	 * Only reaches tasks whose `is_complete` reads that option. One computing completion from live site state
+	 * (`add_site_icon`) ignores the write entirely, which is why a registry task on the complete-on-click
+	 * allowlist has to define its completion against this option.
+	 *
+	 * @param string $task_id The task id.
+	 * @return bool Whether the task was marked complete.
+	 */
+	public static function mark_complete( $task_id ) {
+		if ( ! self::has( $task_id ) ) {
+			return false;
+		}
+
+		$statuses             = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
+		$statuses[ $task_id ] = true;
+		update_option( 'launchpad_checklist_tasks_statuses', $statuses );
+
+		return true;
+	}
+
+	/**
 	 * Whether this site can render a registry task at all. False for an unknown id.
 	 *
 	 * `is_visible` is optional, so a definition without one is visible everywhere — the shape the gallery
@@ -154,8 +225,11 @@ class AI_Launchpad_Task_Registry {
 		// Via the accessor, not the callable, so the card and the availability menu can never disagree.
 		$completed = self::is_complete( $task_id );
 
-		$in_progress  = false;
-		$calypso_path = null;
+		// Resolved regardless of completion, matching build_tasks(): a done card still links to where it was
+		// done, so the user can go back and change the icon or try another variation.
+		$calypso_path = isset( $definition['calypso_path'] ) ? $definition['calypso_path']() : null;
+
+		$in_progress = false;
 		if ( ! $completed && isset( $definition['draft_id'] ) ) {
 			$draft_id = $definition['draft_id']();
 			if ( null !== $draft_id ) {

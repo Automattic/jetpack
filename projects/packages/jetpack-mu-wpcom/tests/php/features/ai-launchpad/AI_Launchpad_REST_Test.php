@@ -11,6 +11,7 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/launc
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/helpers.php';
 require_once __DIR__ . '/fixtures/memberships-stubs.php';
 require_once __DIR__ . '/fixtures/trait-registers-test-task.php';
+require_once __DIR__ . '/fixtures/trait-uses-block-theme.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-memberships.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
@@ -44,6 +45,7 @@ use WpOrg\Requests\Requests;
 class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 
 	use AI_Launchpad_Registers_Test_Task;
+	use AI_Launchpad_Uses_Block_Theme;
 
 	/**
 	 * Admin user ID.
@@ -101,6 +103,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		// A `posts_pre_query` short-circuit still writes its result to the `post-queries` cache group, which
 		// WorDBless never flushes — leaving a stubbed draft id visible to every later test.
 		wp_cache_flush_group( 'post-queries' );
+		$this->restore_theme_directories();
 	}
 
 	/**
@@ -582,6 +585,52 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$sell = $this->available_tasks( 'sell' );
 		$this->assertNotContains( 'add_gallery_page', $sell['available_task_ids'] );
 		$this->assertNotContains( 'add_gallery_page', $sell['renderable_task_ids'] );
+	}
+
+	/**
+	 * The two foundation registry tasks reach the offered menu on any goal.
+	 *
+	 * They exist to widen what the model can reach for on a site with no niche angle, so a goal filter
+	 * withholding either of them would defeat the point. Checked on two unrelated goals rather than one,
+	 * since a goal-keyed exclusion would still pass a single-goal assertion.
+	 *
+	 * @param string $goal The goal slug.
+	 * @dataProvider provide_unrelated_goals
+	 */
+	#[DataProvider( 'provide_unrelated_goals' )]
+	public function test_available_tasks_offer_the_foundation_registry_tasks( $goal ) {
+		$this->use_block_theme();
+
+		$data = $this->available_tasks( $goal );
+
+		foreach ( array( 'add_site_icon', 'pick_fonts_colors' ) as $task_id ) {
+			$this->assertContains( $task_id, $data['available_task_ids'], $task_id . ' is not offered on ' . $goal );
+			$this->assertContains( $task_id, $data['renderable_task_ids'], $task_id . ' is not renderable on ' . $goal );
+		}
+	}
+
+	/**
+	 * Goals for test_available_tasks_offer_the_foundation_registry_tasks.
+	 *
+	 * @return array
+	 */
+	public static function provide_unrelated_goals() {
+		return array(
+			'a writing site' => array( 'write' ),
+			'a store'        => array( 'sell' ),
+		);
+	}
+
+	/**
+	 * The style-variations task is withheld from the menu on a classic theme, where the Styles screen its
+	 * CTA points at does not exist. The site-icon task, which asks nothing of the site, stays.
+	 */
+	public function test_available_tasks_withhold_the_style_task_without_a_block_theme() {
+		$data = $this->available_tasks( 'write' );
+
+		$this->assertNotContains( 'pick_fonts_colors', $data['available_task_ids'] );
+		$this->assertNotContains( 'pick_fonts_colors', $data['renderable_task_ids'] );
+		$this->assertContains( 'add_site_icon', $data['available_task_ids'], 'the premise: registry tasks do reach this menu' );
 	}
 
 	/**
@@ -2277,10 +2326,58 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_complete_on_click_task_ids() {
 		return array(
-			'an acknowledgment task'           => array( 'complete_profile' ),
-			'setup_ssh, ticked optimistically' => array( 'setup_ssh' ),
-			'share_site, which has no CTA'     => array( 'share_site' ),
+			'an acknowledgment task'                => array( 'complete_profile' ),
+			'setup_ssh, ticked optimistically'      => array( 'setup_ssh' ),
+			'share_site, which has no CTA'          => array( 'share_site' ),
+			'a registry task the catalog never saw' => array( 'pick_fonts_colors' ),
 		);
+	}
+
+	/**
+	 * A completed registry task must read back as completed, not just write a status the read path ignores.
+	 *
+	 * This is the whole reason complete-on-click needed work for the registry: the route's write went
+	 * through wpcom_mark_launchpad_task_complete(), which resolves ids against the shared catalog and
+	 * silently drops anything it does not define — every registry id, by design. The route would have
+	 * answered 200 with `completed: true` while the next GET still rendered the card as to-do.
+	 */
+	public function test_complete_task_completes_a_registry_task_on_read() {
+		$this->use_block_theme();
+		$this->seed_ai_output_with_tasks( array( 'pick_fonts_colors', 'site_launched' ) );
+
+		$this->assertFalse( $this->rendered_task( 'pick_fonts_colors' )['completed'] );
+
+		$this->call_api( 'POST', '/complete-task', array( 'task_id' => 'pick_fonts_colors' ) );
+
+		$this->assertTrue( $this->rendered_task( 'pick_fonts_colors' )['completed'] );
+	}
+
+	/**
+	 * The site-icon task needs no listener and no completion write: it reads the live `site_icon` option, so
+	 * uploading an icon anywhere in wp-admin ticks the card on the next read.
+	 */
+	public function test_get_completes_the_site_icon_task_from_the_option() {
+		$this->seed_ai_output_with_tasks( array( 'add_site_icon', 'site_launched' ) );
+
+		$this->assertFalse( $this->rendered_task( 'add_site_icon' )['completed'] );
+
+		update_option( 'site_icon', 4242 );
+
+		$this->assertTrue( $this->rendered_task( 'add_site_icon' )['completed'] );
+	}
+
+	/**
+	 * A persisted registry task renders its declared CTA, so the card is actionable straight away rather
+	 * than only once a marker draft exists (the only way a registry card could carry a path before).
+	 */
+	public function test_get_renders_the_registry_deeplinks() {
+		$this->use_block_theme();
+		$this->seed_ai_output_with_tasks( array( 'add_site_icon', 'pick_fonts_colors', 'site_launched' ) );
+
+		$paths = $this->rendered_paths();
+
+		$this->assertSame( admin_url( 'options-general.php' ), $paths['add_site_icon'] );
+		$this->assertSame( admin_url( 'site-editor.php?p=/styles&section=/variations' ), $paths['pick_fonts_colors'] );
 	}
 
 	/**

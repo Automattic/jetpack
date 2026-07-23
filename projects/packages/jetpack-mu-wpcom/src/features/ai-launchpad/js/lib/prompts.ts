@@ -302,6 +302,22 @@ export const TASK_ANNOTATIONS: readonly TaskAnnotation[] = [
 		avoidWhen: 'nothing is published yet.',
 	},
 	{
+		id: 'add_site_icon',
+		// No `goals`: a mark in the browser tab is worth having whatever the site is for, and the menu's
+		// problem is too few universal alternatives, not too many.
+		what: "Uploads the site's logo or icon in Settings — the small square mark shown in browser tabs, bookmarks, and search results.",
+		pickWhen:
+			'the site has a name and identity people should recognize at a glance, and especially when a logo already exists to upload.',
+	},
+	{
+		id: 'pick_fonts_colors',
+		what: "Swaps the theme's fonts and color palette for one of its ready-made style variations, in one click and without editing any layout.",
+		pickWhen:
+			'the description implies a mood or palette the theme defaults will not carry — warm and rustic, stark and editorial, specific brand colors.',
+		avoidWhen:
+			'design_edited is already on the list: it opens the same editor and covers this plus layout.',
+	},
+	{
 		id: 'add_gallery_page',
 		// Deliberately no `goals`. The criterion is whether the site is visual, which no goal slug tracks: a
 		// photographer or food blogger picks `write` as readily as a florist picks `build`. Hinting a goal here

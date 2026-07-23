@@ -26,6 +26,28 @@ describe( 'TASK_ANNOTATIONS', () => {
 		}
 	} );
 
+	it( 'offers the foundation registry tasks to every goal', () => {
+		// Both suit any site, so a goals line would be narrower than the (absent) PHP rule and would
+		// suppress them for goals they are perfectly good on.
+		for ( const id of [ 'add_site_icon', 'pick_fonts_colors' ] ) {
+			const entry = TASK_ANNOTATIONS.find( annotation => annotation.id === id );
+			assert.ok( entry, `${ id } must be on the menu` );
+			assert.equal( entry.goals, undefined, `${ id } must carry no goal affinity` );
+		}
+	} );
+
+	it( 'distinguishes the design-ish tasks from one another', () => {
+		// The reason the model fell back to the same three: nothing in the menu said how they differ.
+		// Each of these has to name a distinct surface, or a new alternative buys nothing.
+		const byId = Object.fromEntries( TASK_ANNOTATIONS.map( entry => [ entry.id, entry ] ) );
+
+		assert.match( byId.site_theme_selected.what, /theme showcase/i );
+		assert.match( byId.design_edited.what, /Site Editor/i );
+		assert.match( byId.front_page_updated.what, /homepage/i );
+		assert.match( byId.pick_fonts_colors.what, /style variation/i );
+		assert.match( byId.add_site_icon.what, /logo|icon/i );
+	} );
+
 	it( 'offers the gallery task and gives it no goal affinity', () => {
 		const gallery = TASK_ANNOTATIONS.find( entry => entry.id === 'add_gallery_page' );
 

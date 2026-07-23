@@ -31,6 +31,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * Tasks the AI Launchpad marks complete on CTA click, because their real signal is unreachable from wp-admin.
 	 *
 	 * Server-side allowlist so the complete-task route can only tick these ids. Mirrored client-side in model.ts.
+	 *
+	 * A registry task may be listed here, but only if its `is_complete` reads `launchpad_checklist_tasks_statuses`:
+	 * that is the option complete_task() writes for it, and a definition computing completion from live site state
+	 * would ignore the write and render as to-do straight after being ticked.
 	 */
 	const COMPLETE_ON_CLICK_TASK_IDS = array(
 		'complete_profile',
@@ -41,6 +45,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		'site_monitoring_page',
 		'setup_ssh',
 		'share_site',
+		'pick_fonts_colors',
 	);
 
 	/**
@@ -926,7 +931,13 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			);
 		}
 
-		wpcom_mark_launchpad_task_complete( $task_id );
+		// The registry's ids are not in the shared catalog, and wpcom_mark_launchpad_task_complete() drops
+		// what the catalog does not define, so those go through the registry's own write.
+		if ( AI_Launchpad_Task_Registry::has( $task_id ) ) {
+			AI_Launchpad_Task_Registry::mark_complete( $task_id );
+		} else {
+			wpcom_mark_launchpad_task_complete( $task_id );
+		}
 
 		// Latch now so completing the last task hides the menu on the next page load, not just on the next read.
 		$this->maybe_mark_completed();

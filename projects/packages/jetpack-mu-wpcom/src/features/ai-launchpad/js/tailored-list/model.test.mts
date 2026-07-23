@@ -213,13 +213,21 @@ describe( 'isCompleteOnClickTask', () => {
 			'site_monitoring_page',
 			'setup_ssh',
 			'share_site',
+			// A registry task: nothing in wp-admin fires when a style variation is applied.
+			'pick_fonts_colors',
 		] ) {
 			assert.equal( isCompleteOnClickTask( id ), true, id );
 		}
 	} );
 
 	it( 'is false for tasks that complete via a real signal or listener', () => {
-		for ( const id of [ 'first_post_published', 'site_theme_selected', 'woo_products' ] ) {
+		for ( const id of [
+			'first_post_published',
+			'site_theme_selected',
+			'woo_products',
+			// A registry task too, but one whose completion is read live from the site_icon option.
+			'add_site_icon',
+		] ) {
 			assert.equal( isCompleteOnClickTask( id ), false, id );
 		}
 	} );

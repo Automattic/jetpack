@@ -107,6 +107,7 @@ const COMPLETE_ON_CLICK_TASK_IDS = [
 	'site_monitoring_page',
 	'setup_ssh',
 	'share_site',
+	'pick_fonts_colors',
 ];
 
 /**
