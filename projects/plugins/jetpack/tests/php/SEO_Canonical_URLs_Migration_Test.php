@@ -34,7 +34,16 @@ class SEO_Canonical_URLs_Migration_Test extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 		delete_option( $this->option );
+		delete_option( Jetpack::SEO_MODULE_STATE_RECONCILED_OPTION );
 		Jetpack_Options::delete_option( 'active_modules' );
+	}
+
+	/**
+	 * Drop any `jetpack_active_modules` filter a test added.
+	 */
+	public function tear_down() {
+		remove_all_filters( 'jetpack_active_modules' );
+		parent::tear_down();
 	}
 
 	/**
@@ -44,6 +53,79 @@ class SEO_Canonical_URLs_Migration_Test extends WP_UnitTestCase {
 	 */
 	private function set_active_modules( array $modules ) {
 		Jetpack_Options::update_option( 'active_modules', $modules );
+	}
+
+	/**
+	 * Suppress a module at runtime the way a host does, without changing what is stored.
+	 *
+	 * `canonical-urls` is not on wpcomsh's private-site list, but the `jetpack_active_modules`
+	 * filter is public API and any plugin can use it, so the migration must read stored state
+	 * here for the same reason it does for sitemaps.
+	 *
+	 * @param string $module Module slug to filter out.
+	 */
+	private function suppress_module_at_runtime( $module ) {
+		add_filter(
+			'jetpack_active_modules',
+			function ( $modules ) use ( $module ) {
+				return array_values( array_diff( $modules, array( $module ) ) );
+			}
+		);
+	}
+
+	/**
+	 * A module suppressed at runtime must not be recorded as disabled — the stored choice is
+	 * what migrates.
+	 */
+	public function test_migration_ignores_runtime_module_suppression() {
+		$this->set_active_modules( array( 'canonical-urls' ) );
+		$this->suppress_module_at_runtime( 'canonical-urls' );
+
+		Jetpack::migrate_canonical_urls_module_to_seo_option();
+
+		$this->assertTrue( (bool) get_option( $this->option ) );
+	}
+
+	/**
+	 * A site that never had canonical URLs on still migrates as disabled while a filter is
+	 * active, so the fix does not simply force the option on.
+	 */
+	public function test_migration_stays_false_when_suppressed_and_not_stored_active() {
+		$this->set_active_modules( array() );
+		$this->suppress_module_at_runtime( 'canonical-urls' );
+
+		Jetpack::migrate_canonical_urls_module_to_seo_option();
+
+		$this->assertFalse( (bool) get_option( $this->option ) );
+	}
+
+	/**
+	 * Sites already seeded from a filtered read by the 16.0 migration are repaired.
+	 */
+	public function test_reconciliation_repairs_value_seeded_from_filtered_read() {
+		add_option( $this->option, false );
+		$this->set_active_modules( array( 'canonical-urls' ) );
+
+		Jetpack::reconcile_seo_module_state_options();
+
+		$this->assertTrue( (bool) get_option( $this->option ) );
+	}
+
+	/**
+	 * Reconciliation runs at most once, so a later choice by the user is never re-reverted.
+	 */
+	public function test_reconciliation_runs_only_once() {
+		add_option( $this->option, false );
+		$this->set_active_modules( array( 'canonical-urls' ) );
+
+		Jetpack::reconcile_seo_module_state_options();
+		$this->assertTrue( (bool) get_option( $this->option ) );
+
+		update_option( $this->option, false );
+
+		Jetpack::reconcile_seo_module_state_options();
+
+		$this->assertFalse( (bool) get_option( $this->option ) );
 	}
 
 	/**

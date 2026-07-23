@@ -34,9 +34,18 @@ class SEO_Sitemap_Migration_Test extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 		delete_option( $this->option );
+		delete_option( Jetpack::SEO_MODULE_STATE_RECONCILED_OPTION );
 		Jetpack_Options::delete_option( 'active_modules' );
 		wp_clear_scheduled_hook( 'jp_sitemap_cron_hook' );
 		delete_option( 'jetpack-sitemap-state' );
+	}
+
+	/**
+	 * Drop any `jetpack_active_modules` filter a test added.
+	 */
+	public function tear_down() {
+		remove_all_filters( 'jetpack_active_modules' );
+		parent::tear_down();
 	}
 
 	/**
@@ -46,6 +55,23 @@ class SEO_Sitemap_Migration_Test extends WP_UnitTestCase {
 	 */
 	private function set_active_modules( array $modules ) {
 		Jetpack_Options::update_option( 'active_modules', $modules );
+	}
+
+	/**
+	 * Suppress a module at runtime the way a host does, without changing what is stored.
+	 *
+	 * Mirrors wpcomsh's private-site handling, which drops `sitemaps` from the active list
+	 * via `jetpack_active_modules` for as long as an Atomic site is private.
+	 *
+	 * @param string $module Module slug to filter out.
+	 */
+	private function suppress_module_at_runtime( $module ) {
+		add_filter(
+			'jetpack_active_modules',
+			function ( $modules ) use ( $module ) {
+				return array_values( array_diff( $modules, array( $module ) ) );
+			}
+		);
 	}
 
 	/**
@@ -107,6 +133,113 @@ class SEO_Sitemap_Migration_Test extends WP_UnitTestCase {
 		// Generation state was not initialized.
 		$this->assertFalse( get_option( 'jetpack-sitemap-state' ) );
 		// No regeneration was scheduled.
+		$this->assertFalse( wp_next_scheduled( 'jp_sitemap_cron_hook' ) );
+	}
+
+	/**
+	 * A module suppressed at runtime — as wpcomsh does to `sitemaps` while an Atomic site is
+	 * private — must not be recorded as disabled. The stored choice is what migrates.
+	 */
+	public function test_migration_ignores_runtime_module_suppression() {
+		$this->set_active_modules( array( 'sitemaps' ) );
+		$this->suppress_module_at_runtime( 'sitemaps' );
+
+		Jetpack::migrate_sitemaps_module_to_seo_option();
+
+		$this->assertTrue( (bool) get_option( $this->option ) );
+	}
+
+	/**
+	 * A site that never had sitemaps on still migrates as disabled while a filter is active,
+	 * so the fix does not simply force the option on.
+	 */
+	public function test_migration_stays_false_when_suppressed_and_not_stored_active() {
+		$this->set_active_modules( array() );
+		$this->suppress_module_at_runtime( 'sitemaps' );
+
+		Jetpack::migrate_sitemaps_module_to_seo_option();
+
+		$this->assertFalse( (bool) get_option( $this->option ) );
+	}
+
+	/**
+	 * Sites already seeded from a filtered read by the 16.0 migration are repaired: the
+	 * option reads disabled, the stored module state says otherwise, and reconciliation
+	 * restores the user's choice.
+	 */
+	public function test_reconciliation_repairs_value_seeded_from_filtered_read() {
+		// The state a private Atomic site was left in by the 16.0 migration.
+		add_option( $this->option, false );
+		$this->set_active_modules( array( 'sitemaps' ) );
+
+		Jetpack::reconcile_seo_module_state_options();
+
+		$this->assertTrue( (bool) get_option( $this->option ) );
+	}
+
+	/**
+	 * Reconciliation reads stored state, not filtered state, so it repairs correctly even
+	 * while the site is still private.
+	 */
+	public function test_reconciliation_repairs_while_module_is_still_suppressed() {
+		add_option( $this->option, false );
+		$this->set_active_modules( array( 'sitemaps' ) );
+		$this->suppress_module_at_runtime( 'sitemaps' );
+
+		Jetpack::reconcile_seo_module_state_options();
+
+		$this->assertTrue( (bool) get_option( $this->option ) );
+	}
+
+	/**
+	 * Reconciliation leaves a correctly-migrated site alone.
+	 */
+	public function test_reconciliation_is_a_noop_when_the_value_is_already_correct() {
+		add_option( $this->option, true );
+		$this->set_active_modules( array( 'sitemaps' ) );
+
+		Jetpack::reconcile_seo_module_state_options();
+
+		$this->assertTrue( (bool) get_option( $this->option ) );
+	}
+
+	/**
+	 * Reconciliation runs at most once, so a later choice by the user is never re-reverted
+	 * on a subsequent version bump.
+	 */
+	public function test_reconciliation_runs_only_once() {
+		add_option( $this->option, false );
+		$this->set_active_modules( array( 'sitemaps' ) );
+
+		Jetpack::reconcile_seo_module_state_options();
+		$this->assertTrue( (bool) get_option( $this->option ) );
+
+		// The user turns sitemaps off again from a surface that only writes the option.
+		update_option( $this->option, false );
+
+		Jetpack::reconcile_seo_module_state_options();
+
+		$this->assertFalse( (bool) get_option( $this->option ) );
+	}
+
+	/**
+	 * Reconciliation is as non-destructive as the migration it repairs.
+	 */
+	public function test_reconciliation_is_non_destructive() {
+		$this->set_active_modules( array( 'sitemaps' ) );
+
+		Jetpack::reconcile_seo_module_state_options();
+
+		$this->assertSame(
+			array(),
+			get_posts(
+				array(
+					'post_type'   => 'jp_sitemap',
+					'post_status' => 'draft',
+				)
+			)
+		);
+		$this->assertFalse( get_option( 'jetpack-sitemap-state' ) );
 		$this->assertFalse( wp_next_scheduled( 'jp_sitemap_cron_hook' ) );
 	}
 

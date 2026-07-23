@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+SEO: preserve the Sitemaps and Canonical URLs settings on sites that were private when Jetpack upgraded.
