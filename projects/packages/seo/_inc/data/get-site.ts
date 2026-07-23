@@ -5,6 +5,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 // Used to render the homepage search/social previews on the Settings tab.
 export interface SiteData {
 	title: string;
+	tagline: string;
 	url: string;
 	icon: string;
 	image: string;

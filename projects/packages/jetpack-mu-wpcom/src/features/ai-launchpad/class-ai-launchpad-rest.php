@@ -21,8 +21,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 	const MIN_VALID_TASKS = 4;
 
-	// `woo_launch_site` stays a valid launch task so a stray AI emission passes PUT validation and is normalized to
-	// `site_launched` on read (see build_tasks), rather than failing the whole list into the deterministic fallback.
+	// `woo_launch_site`, `link_in_bio_launched`, and `videopress_launched` stay valid launch tasks so a stray AI
+	// emission passes PUT validation and is normalized to `site_launched` on read (see build_tasks), rather than
+	// failing the whole list into the deterministic fallback.
 	const LAUNCH_TASK_IDS = array( 'site_launched', 'blog_launched', 'woo_launch_site', 'link_in_bio_launched', 'videopress_launched' );
 
 	/**
@@ -91,10 +92,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 	/**
 	 * Jetpack Social tasks, hidden on private sites where wpcom does not load Publicize (so their CTA page would 404).
+	 * `drive_traffic` needs no entry: it remaps onto `connect_social_media` before this gate runs.
 	 */
 	const SOCIAL_PAGE_TASK_IDS = array(
 		'connect_social_media',
-		'drive_traffic',
 	);
 
 	/**
@@ -102,10 +103,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 *
 	 * Detected through the `_wpcom_ai_launchpad_first_post` marker meta (via AI_Launchpad_First_Post_Listener), so an
 	 * unrelated pre-existing draft never counts. Paired with `add_about_page`, which has its own marker meta.
+	 * `first_post_published_newsletter` needs no entry: it remaps onto `first_post_published` before this runs.
 	 */
 	const IN_PROGRESS_FIRST_POST_TASK_IDS = array(
 		'first_post_published',
-		'first_post_published_newsletter',
 	);
 
 	/**
@@ -450,9 +451,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * The catalog visibility gate in build_tasks() drops any task it hides on this site (e.g. add_about_page needs a
 	 * page-template meta key that is absent during a REST request) with no replacement, so a gate-heavy AI pick can
 	 * collapse the list to two or three cards. This backfills from a small pool of broadly-useful tasks and keeps the
-	 * launch task last. The pool is run through build_tasks() in one pass, which gates and dedups it, so a pool task
-	 * the site hides simply does not appear. Backfilled cards are skippable (see skip_task); a fuller, AI-ranked
-	 * overflow pool is the eventual replacement.
+	 * launch task last. Candidates are built one at a time, stopping at the target, so the tail of the pool is only
+	 * evaluated when the earlier fillers were not enough — mobile_app_installed's completion check does a remote
+	 * lookup while incomplete, which the common short-by-one list never has to pay for. Backfilled cards are
+	 * skippable (see skip_task); a fuller, AI-ranked overflow pool is the eventual replacement.
 	 *
 	 * @param array  $tasks              The rendered task list, already gated, launch task last.
 	 * @param string $theme_cta          Pre-resolved themes-showcase CTA passed through to build_tasks().
@@ -465,25 +467,35 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			return $tasks;
 		}
 
-		$present    = array_column( $tasks, 'id' );
-		$candidates = array();
 		foreach ( $this->backfill_pool() as $id => $subtitle ) {
-			if ( ! in_array( $id, $present, true ) ) {
-				$candidates[] = array(
-					'id'       => $id,
-					'subtitle' => $subtitle,
-				);
-			}
-		}
-
-		// One build over every candidate: build_tasks() drops the gated ones and dedups, preserving pool order.
-		$built = $this->build_tasks( $candidates, false, $theme_cta, $disable_hidden_woo );
-		foreach ( $built as $task ) {
 			if ( count( $tasks ) >= $target ) {
 				break;
 			}
-			// A filler card that is already complete offers nothing to do; better a shorter list.
-			if ( ! empty( $task['completed'] ) ) {
+			$present = array_column( $tasks, 'id' );
+			if ( in_array( $id, $present, true ) ) {
+				continue;
+			}
+
+			// build_tasks() applies the same gating and remap the AI list gets, so a pool task the site
+			// hides simply does not appear.
+			$built = $this->build_tasks(
+				array(
+					array(
+						'id'       => $id,
+						'subtitle' => $subtitle,
+					),
+				),
+				false,
+				$theme_cta,
+				$disable_hidden_woo
+			);
+			if ( empty( $built ) ) {
+				continue;
+			}
+			$task = $built[0];
+			// A filler card that is already complete offers nothing to do; better a shorter list. The remap
+			// inside build_tasks() can also land the card on an id already present — skip that too.
+			if ( ! empty( $task['completed'] ) || in_array( $task['id'], $present, true ) ) {
 				continue;
 			}
 			$tasks = $this->insert_before_launch_task( $tasks, $task );
@@ -506,7 +518,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'design_edited'        => __( 'Make the design your own.', 'jetpack-mu-wpcom' ),
 			'add_new_page'         => __( 'Add a page your visitors will want, like About or Contact.', 'jetpack-mu-wpcom' ),
 			'connect_social_media' => __( 'Connect your social accounts to reach more people.', 'jetpack-mu-wpcom' ),
-			'drive_traffic'        => __( 'Help people discover your site.', 'jetpack-mu-wpcom' ),
+			'mobile_app_installed' => __( 'Manage your site from anywhere with the Jetpack app.', 'jetpack-mu-wpcom' ),
 		);
 	}
 
@@ -581,9 +593,11 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			}
 		}
 
-		// null = no key yet, i.e. the baseline pass right after tailoring.
+		// null = no key yet, i.e. the baseline pass right after tailoring. Remapped like the skip overlay: a
+		// baseline recorded under a since-remapped id must keep covering the id its card renders as now, or the
+		// same completion would be re-reported once under the new id.
 		$reported = isset( $ai_output['tracked_completed'] ) && is_array( $ai_output['tracked_completed'] )
-			? $ai_output['tracked_completed']
+			? array_values( array_unique( array_map( 'wpcom_ai_launchpad_remap_task_id', $ai_output['tracked_completed'] ) ) )
 			: null;
 		$newly    = array_values( array_diff( $completed, $reported ?? array() ) );
 
@@ -1566,8 +1580,6 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				return $in_progress
 					? __( 'Continue to write your first post', 'jetpack-mu-wpcom' )
 					: __( 'Write your first post', 'jetpack-mu-wpcom' );
-			case 'first_post_published_newsletter':
-				return $in_progress ? __( 'Continue writing your first post', 'jetpack-mu-wpcom' ) : $default;
 			default:
 				return $default;
 		}

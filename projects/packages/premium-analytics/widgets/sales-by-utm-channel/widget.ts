@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 
 /**
@@ -23,13 +22,5 @@ export type SalesByUtmChannelAttributes = Record< never, never >;
  * dashboards can opt in.
  */
 export default {
-	name: 'jpa/sales-by-utm-channel',
-	title: __( 'Sales by UTM channel', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'See which marketing channels are driving sales in your store.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: chartBar,
 };

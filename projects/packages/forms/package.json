@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-forms",
-	"version": "7.23.1",
+	"version": "7.23.2",
 	"private": true,
 	"description": "Jetpack Forms",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/forms/#readme",
@@ -89,7 +89,7 @@
 		"react-transition-group": "^4.4.5",
 		"semver": "7.7.3",
 		"webpack": "5.107.2",
-		"webpack-cli": "6.0.1"
+		"webpack-cli": "7.2.1"
 	},
 	"devDependencies": {
 		"@automattic/color-studio": "4.1.0",
@@ -117,12 +117,12 @@
 		"glob": "13.0.6",
 		"jest": "30.4.2",
 		"jquery": "3.7.1",
-		"postcss": "8.5.14",
+		"postcss": "8.5.21",
 		"postcss-loader": "8.2.0",
 		"postcss-modules": "^6.0.0",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
-		"sharp": "0.33.5"
+		"sharp": "0.35.0"
 	},
 	"optionalDependencies": {
 		"react": "18.3.1",

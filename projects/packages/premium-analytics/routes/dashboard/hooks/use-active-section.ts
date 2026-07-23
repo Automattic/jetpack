@@ -2,11 +2,11 @@
  * External dependencies
  */
 import { useStagedSearch } from '@jetpack-premium-analytics/routing';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
  */
-import { resolveSectionId, type DashboardSectionId } from '../config';
+import { resolveSectionId, type DashboardSection, type DashboardSectionId } from '../config';
 import { route } from '../package.json';
 
 /**
@@ -20,22 +20,38 @@ type SectionSearch = {
 };
 
 /**
- * Read and update the active dashboard section via the `?section=` search param.
+ * Read and update the active dashboard section via the `?section=` search
+ * param, so sections are deep-linkable. Built on `useStagedSearch`: switching a
+ * section is an immediate stage + commit (one history entry per change).
  *
- * Keeping the active section in the URL makes sections deep-linkable and gives the
- * future Dashboard/widget integration a single, stable place to read the
- * current section from. Built on the package's `useStagedSearch` so the section
- * shares the same search-param model as the date filters; switching a section is an
- * immediate stage + commit (one history entry per change).
+ * `?section=` is validated against the available sections. A miss resolves to
+ * the first section by order and the URL is rewritten to it.
  *
- * @return A tuple of the active section ID and a setter to change it.
+ * @param sections - The available sections, in order.
+ * @return A tuple of the active section slug and a setter to change it.
  */
-export function useActiveSection(): [ DashboardSectionId, ( id: DashboardSectionId ) => void ] {
+export function useActiveSection(
+	sections: DashboardSection[]
+): [ DashboardSectionId, ( id: DashboardSectionId ) => void ] {
 	const { effective, stage, commit } = useStagedSearch< SectionSearch, typeof ROUTE_FROM >( {
 		from: ROUTE_FROM,
 	} );
 
-	const activeSection = resolveSectionId( effective.section );
+	const activeSection = resolveSectionId( effective.section, sections );
+
+	// Rewrite an unresolvable `?section=` to the slug actually rendered, so the
+	// URL never advertises a section that isn't shown. Replace instead of push:
+	// the invalid URL should not survive as a history entry.
+	useEffect( () => {
+		if ( sections.length === 0 || effective.section === undefined ) {
+			return;
+		}
+
+		if ( effective.section !== activeSection ) {
+			stage( { section: activeSection } );
+			commit( { replace: true } );
+		}
+	}, [ sections.length, effective.section, activeSection, stage, commit ] );
 
 	const setActiveSection = useCallback(
 		( id: DashboardSectionId ) => {
