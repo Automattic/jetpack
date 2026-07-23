@@ -129,8 +129,10 @@ final class PNG_Transplanter extends Abstract_Transplanter {
 		while ( $pos + 12 <= $len ) {
 			$length_field = unpack( 'N', substr( $bytes, $pos, 4 ) );
 			$length       = $length_field[1];
-			if ( $pos + 12 + $length > $len ) {
-				break; // Corrupt: declared length overruns the file.
+			// Stop if the declared length runs past the buffer, or is negative
+			// (32-bit PHP can read a length >= 2^31 as a negative int).
+			if ( $length < 0 || $pos + 12 + $length > $len ) {
+				break;
 			}
 			$type = substr( $bytes, $pos + 4, 4 );
 			$data = substr( $bytes, $pos + 8, $length );

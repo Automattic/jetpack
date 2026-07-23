@@ -19,10 +19,10 @@ final class Image_Metadata {
 	 * or active-module state — because the whole point is to act when the Image
 	 * CDN (Photon) is off.
 	 *
-	 * Registered at PHP_INT_MAX so it injects into the FINAL on-disk bytes, after
-	 * other plugins that also rewrite derivatives on this filter (image
-	 * optimizers, WebP converters). A later offloader that replaces files via
-	 * `wp_update_attachment_metadata` can still bypass us — a documented limitation.
+	 * Registered at PHP_INT_MAX so it runs after other plugins that rewrite
+	 * derivatives on this filter (image optimizers, WebP converters) and stamps
+	 * the final bytes. An offloader that later replaces files via
+	 * `wp_update_attachment_metadata` can still bypass us.
 	 *
 	 * @return void
 	 */

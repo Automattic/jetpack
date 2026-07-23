@@ -100,17 +100,16 @@ class Image_Metadata_PNG_Transplanter_Test extends WP_UnitTestCase {
 	}
 
 	public function test_walk_stops_gracefully_on_truncated_chunk() {
-		// Start from a valid PNG, then drop its trailing IEND chunk (the last
-		// 12 bytes: a 4-byte length, the 4-byte type, and a 4-byte CRC) so the
-		// file has no valid terminator chunk at all.
-		$png_without_iend = substr( Image_Metadata_Fixtures::bare_png(), 0, -12 );
+		// The walk stops at IEND, so the corrupt chunk goes BEFORE it to be
+		// reached at all. Its declared length (~16 MB) far exceeds the bytes that
+		// follow, so the walk hits the overrun guard rather than reading past EOF.
+		$bare          = Image_Metadata_Fixtures::bare_png();
+		$corrupt_chunk = pack( 'N', 0xFFFFFF ) . 'zTXt' . str_repeat( 'x', 8 );
 
-		// Append a hand-crafted chunk whose declared length (0xFFFF bytes) is
-		// far larger than the handful of bytes that actually follow it. This
-		// is the corrupt/truncated chunk the walker's guard must catch.
-		$truncated_chunk = pack( 'N', 0xFFFF ) . 'zTXtab';
+		$iend_length_pos = strpos( $bare, 'IEND' ) - 4;
+		$png             = substr( $bare, 0, $iend_length_pos ) . $corrupt_chunk . substr( $bare, $iend_length_pos );
 
-		$path = $this->temp_file( $png_without_iend . $truncated_chunk );
+		$path = $this->temp_file( $png );
 
 		$this->assertFalse( ( new PNG_Transplanter() )->has_payload( $path ) );
 

@@ -115,10 +115,14 @@ class Image_Metadata_Fixtures {
 	/**
 	 * Offset just past a leading JFIF APP0 segment, or 2 (just past SOI) if none.
 	 *
+	 * Public so tests can splice their own segments in at the same insertion
+	 * point this class uses internally (e.g. a fill-byte fixture for a
+	 * provenance segment).
+	 *
 	 * @param string $jpeg JPEG bytes.
 	 * @return int
 	 */
-	private static function after_leading_app0( $jpeg ) {
+	public static function after_leading_app0( $jpeg ) {
 		if ( "\xFF\xE0" === substr( $jpeg, 2, 2 ) ) {
 			$len = unpack( 'n', substr( $jpeg, 4, 2 ) );
 			return 2 + 2 + $len[1];

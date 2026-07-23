@@ -19,7 +19,7 @@ abstract class Abstract_Transplanter {
 	 * Check whether this transplanter handles a given MIME type.
 	 *
 	 * @param string $mime A MIME type such as `image/png`.
-	 * @return bool True when this transplanter handles that format.
+	 * @return bool
 	 */
 	abstract public function supports( $mime );
 
@@ -36,7 +36,7 @@ abstract class Abstract_Transplanter {
 	 * Check whether a derivative already carries provenance segments.
 	 *
 	 * @param string $target_path Absolute path to a candidate derivative.
-	 * @return bool True when the derivative already carries provenance segments.
+	 * @return bool
 	 */
 	abstract public function has_payload( $target_path );
 

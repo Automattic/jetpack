@@ -104,6 +104,9 @@ final class JPEG_Transplanter extends Abstract_Transplanter {
 	 * `pos` (offset of the 0xFF prefix). Stops on a malformed marker or a length
 	 * field that overruns the buffer.
 	 *
+	 * A marker may be preceded by extra `0xFF` fill bytes (e.g. `FF FF E1` is
+	 * still APP1); these are skipped so they aren't mistaken for a marker.
+	 *
 	 * @param string $bytes JPEG bytes.
 	 * @return \Generator
 	 */
@@ -114,17 +117,25 @@ final class JPEG_Transplanter extends Abstract_Transplanter {
 			if ( "\xFF" !== $bytes[ $pos ] ) {
 				break; // Not at a marker — malformed or entropy-coded data.
 			}
-			$marker = ord( $bytes[ $pos + 1 ] );
+			$marker_pos = $pos + 1;
+			// Skip any run of additional 0xFF fill bytes to find the true marker byte.
+			while ( $marker_pos < $len && "\xFF" === $bytes[ $marker_pos ] ) {
+				++$marker_pos;
+			}
+			if ( $marker_pos + 2 >= $len ) {
+				break; // Not enough bytes left for a marker plus its length field.
+			}
+			$marker = ord( $bytes[ $marker_pos ] );
 			if ( self::SOS === $marker || self::EOI === $marker ) {
 				break; // Scan data / end of image — no more parseable segments.
 			}
-			$seglen_field = unpack( 'n', substr( $bytes, $pos + 2, 2 ) );
+			$seglen_field = unpack( 'n', substr( $bytes, $marker_pos + 1, 2 ) );
 			$seglen       = $seglen_field[1];
-			if ( $seglen < 2 || $pos + 2 + $seglen > $len ) {
+			if ( $seglen < 2 || $marker_pos + 1 + $seglen > $len ) {
 				break; // Corrupt: declared length is impossible or overruns.
 			}
-			$data = substr( $bytes, $pos + 4, $seglen - 2 );
-			$raw  = substr( $bytes, $pos, 2 + $seglen );
+			$data = substr( $bytes, $marker_pos + 3, $seglen - 2 );
+			$raw  = substr( $bytes, $pos, $marker_pos + 1 + $seglen - $pos );
 
 			yield array(
 				'marker' => $marker,
@@ -133,7 +144,7 @@ final class JPEG_Transplanter extends Abstract_Transplanter {
 				'pos'    => $pos,
 			);
 
-			$pos += 2 + $seglen;
+			$pos = $marker_pos + 1 + $seglen;
 		}
 	}
 

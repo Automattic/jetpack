@@ -26,22 +26,11 @@ class Image_Metadata_Preserver_Test extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		// The WP test harness defaults to year/month upload subfolders, so
-		// `wp_upload_dir()['path']` would be `.../uploads/2026/07` while a bare
-		// `_wp_attached_file` of `example.png` resolves against the uploads
-		// basedir (`.../uploads/example.png`) — `get_attached_file()`, which
-		// `wp_get_original_image_path()` calls, always resolves against
-		// `basedir`, never `path`. Turning off year/month folders keeps `path`
-		// equal to `basedir`, so the file this test writes is the same file
-		// `wp_get_original_image_path()` reads back.
-		//
-		// `wp_upload_dir()` memoises its result in a function-static cache keyed
-		// only by blog ID and the (here, always null) `$time` argument. The core
-		// test harness's own `set_up()` (invoked above via `parent::set_up()`)
-		// already primes that cache before this option is changed, so a plain
-		// `wp_upload_dir()` call here would still return the stale, cached
-		// year/month path. Passing `$refresh_cache = true` forces it to
-		// recompute against the option we just set.
+		// wp_get_original_image_path() resolves against the uploads basedir, but the
+		// harness defaults to year/month subfolders, so a file written under
+		// wp_upload_dir()['path'] wouldn't match. Turn those off so path == basedir.
+		// wp_upload_dir() also caches its result (already primed by parent::set_up()),
+		// so pass $refresh_cache = true below to pick up this option change.
 		update_option( 'uploads_use_yearmonth_folders', 0 );
 
 		$uploads   = wp_upload_dir( null, true, true );
@@ -321,5 +310,45 @@ class Image_Metadata_Preserver_Test extends WP_UnitTestCase {
 		Metadata_Preserver::preserve( $metadata, $id );
 
 		$this->assertSame( $bare, file_get_contents( $deriv ), 'derivative must be untouched' );
+	}
+
+	public function test_warn_fires_action_hook_even_without_wp_debug() {
+		list( $id, $metadata ) = $this->seed_png_attachment();
+
+		if ( in_array( 'provprobe', stream_get_wrappers(), true ) ) {
+			stream_wrapper_unregister( 'provprobe' );
+		}
+		Image_Metadata_Stream_Probe::$opens = 0;
+		stream_wrapper_register( 'provprobe', 'Image_Metadata_Stream_Probe' );
+
+		add_filter(
+			'wp_get_original_image_path',
+			function () {
+				return 'provprobe://vfs/example.png';
+			}
+		);
+
+		$caught_message = null;
+		$callback       = function ( $message ) use ( &$caught_message ) {
+			$caught_message = $message;
+		};
+		add_action( 'jetpack_preserve_image_provenance_failed', $callback );
+
+		// `Metadata_Preserver::warn()` also calls `trigger_error()` with
+		// E_USER_WARNING when WP_DEBUG is on (as it is in this test suite), so
+		// capture it with a narrowly-scoped error handler rather than letting
+		// this repo's `failOnWarning="true"` PHPUnit config turn it into a
+		// test failure — see test_skips_stream_wrapper_original() above, which
+		// exercises the same stream-wrapper skip.
+		set_error_handler( '__return_true' );
+		try {
+			Metadata_Preserver::preserve( $metadata, $id );
+		} finally {
+			restore_error_handler();
+			remove_action( 'jetpack_preserve_image_provenance_failed', $callback );
+		}
+
+		$this->assertNotNull( $caught_message, 'expected the observability action to fire even though WP_DEBUG gates trigger_error()' );
+		$this->assertNotEmpty( $caught_message );
 	}
 }

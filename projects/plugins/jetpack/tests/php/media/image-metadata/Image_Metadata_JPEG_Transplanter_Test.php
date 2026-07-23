@@ -87,4 +87,25 @@ class Image_Metadata_JPEG_Transplanter_Test extends WP_UnitTestCase {
 		// APP0 (FFE0) must remain the first marker after SOI.
 		$this->assertSame( "\xFF\xD8\xFF\xE0", substr( file_get_contents( $target ), 0, 4 ) );
 	}
+
+	public function test_walk_segments_skips_fill_bytes_before_a_marker() {
+		// Splice an extra `0xFF` fill byte before a provenance APP1 (XMP) segment.
+		// Without skipping fill bytes, walk_segments() would stop early and miss it.
+		$jpeg      = Image_Metadata_Fixtures::bare_jpeg();
+		$insert_at = Image_Metadata_Fixtures::after_leading_app0( $jpeg );
+
+		$app1_xmp = Image_Metadata_Fixtures::jpeg_segment( 0xE1, "http://ns.adobe.com/xap/1.0/\0" . Image_Metadata_Fixtures::xmp_packet() );
+
+		$with_fill_byte = substr( $jpeg, 0, $insert_at ) . "\xFF" . $app1_xmp . substr( $jpeg, $insert_at );
+
+		$path         = $this->temp_file( $with_fill_byte );
+		$transplanter = new JPEG_Transplanter();
+
+		$this->assertTrue( $transplanter->has_payload( $path ) );
+
+		$payload = $transplanter->extract( $path );
+		$this->assertNotNull( $payload );
+		$this->assertFalse( $payload->is_empty() );
+		$this->assertStringContainsString( 'trainedAlgorithmicMedia', implode( '', $payload->get_segments() ) );
+	}
 }

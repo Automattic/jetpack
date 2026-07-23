@@ -71,8 +71,8 @@ final class Metadata_Preserver {
 			return;
 		}
 
-		// Gate 3 — local filesystem. rename() is unreliable across stream wrappers.
-		// Gate 4 — extract once from the TRUE original (not the -scaled file).
+		// Gate 3 — local filesystem (rename() is unreliable across stream wrappers).
+		// Read the true original, not the possibly-stripped -scaled/-rotated file.
 		$original = wp_get_original_image_path( $attachment_id );
 		if ( ! $original || wp_is_stream( $original ) ) {
 			self::warn( sprintf( 'skipping attachment %d: original missing or on a stream wrapper', $attachment_id ) );
@@ -84,15 +84,15 @@ final class Metadata_Preserver {
 			return; // Unsupported source format (v1: PNG + JPEG only).
 		}
 
+		// Gate 4 — extract the provenance once, reused for every derivative.
 		$payload = $transplanter->extract( $original );
 		if ( null === $payload || $payload->is_empty() ) {
 			return; // No provenance to copy — the "image lacks it" case, deferred.
 		}
 
-		// Gate 5 — bound disk/memory amplification. The payload is copied
-		// verbatim into every derivative, so an oversized payload multiplies
-		// across every registered size; skip the whole attachment (leaving all
-		// derivatives untouched) rather than injecting a partial set.
+		// Gate 5 — cap the payload size. It's copied into every derivative, so an
+		// oversized one multiplies across all sizes; skip the whole attachment
+		// rather than injecting a partial set.
 		$total = 0;
 		foreach ( $payload->get_segments() as $segment ) {
 			$total += strlen( $segment );
@@ -170,7 +170,7 @@ final class Metadata_Preserver {
 		if ( ! empty( $metadata['sizes'] ) && is_array( $metadata['sizes'] ) ) {
 			foreach ( $metadata['sizes'] as $size ) {
 				if ( ! empty( $size['file'] ) ) {
-					$files[] = $size['file'];
+					$files[] = wp_basename( $size['file'] );
 				}
 			}
 		}
@@ -196,9 +196,9 @@ final class Metadata_Preserver {
 	}
 
 	/**
-	 * Check whether Jetpack's Image CDN (Photon) is active this request.
+	 * Whether Jetpack's Image CDN (Photon) is active this request.
 	 *
-	 * @return bool True when Jetpack's Image CDN (Photon) is active this request.
+	 * @return bool
 	 */
 	private function is_photon_active() {
 		return class_exists( '\Automattic\Jetpack\Image_CDN\Image_CDN', false )
@@ -206,13 +206,26 @@ final class Metadata_Preserver {
 	}
 
 	/**
-	 * Surface a warning without ever breaking an upload. Gated on WP_DEBUG since
-	 * there is no general-purpose Jetpack logger to rely on.
+	 * Record a skip or failure without ever breaking an upload. The action fires
+	 * on every site so monitoring can see drops; `trigger_error()` stays gated on
+	 * WP_DEBUG, as there is no general-purpose Jetpack logger.
 	 *
 	 * @param string $message Human-readable reason.
 	 * @return void
 	 */
 	private static function warn( $message ) {
+		/**
+		 * Fires when provenance preservation skips or fails for an image, so a site
+		 * can observe drops (e.g. logging/monitoring) even when WP_DEBUG is off.
+		 *
+		 * @param string $message Human-readable reason for the skip/failure.
+		 */
+		try {
+			do_action( 'jetpack_preserve_image_provenance_failed', $message );
+		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- observability must never break an upload.
+			// A subscriber throwing must not escape.
+		}
+
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			try {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
