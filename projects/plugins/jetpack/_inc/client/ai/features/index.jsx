@@ -9,7 +9,7 @@
 
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ToggleControl } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { Fragment, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Badge, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
 import analytics from 'lib/analytics';
@@ -63,20 +63,28 @@ const SECTIONS = [
 					href: getRedirectUrl( 'jetpack-ai-settings-image-editor-learn-more' ),
 					external: true,
 				},
-			},
-			{
-				key: 'feature_clip',
-				label: __( 'Feature Clip', 'jetpack' ),
-				description: __( 'Generate videos for your posts.', 'jetpack' ),
-				enabledAction: {
-					label: __( 'Try it out in the editor', 'jetpack' ),
-					href: 'post-new.php',
-				},
-				disabledAction: {
-					label: __( 'Learn more', 'jetpack' ),
-					href: getRedirectUrl( 'jetpack-ai-settings-feature-clip-learn-more' ),
-					external: true,
-				},
+				// Feature Clip is nested under the Image Editor: it shares the
+				// image bundle and only runs while the image editor is on, so it
+				// renders as an indented child that greys out (not hides) when the
+				// parent toggle is off. Tagged "Experimental Preview" while it's
+				// pre-GA.
+				children: [
+					{
+						key: 'feature_clip',
+						label: __( 'Feature Clip', 'jetpack' ),
+						badge: __( 'Experimental Preview', 'jetpack' ),
+						description: __( 'Generate videos for your posts.', 'jetpack' ),
+						enabledAction: {
+							label: __( 'Try it out in the editor', 'jetpack' ),
+							href: 'post-new.php',
+						},
+						disabledAction: {
+							label: __( 'Learn more', 'jetpack' ),
+							href: getRedirectUrl( 'jetpack-ai-settings-feature-clip-learn-more' ),
+							external: true,
+						},
+					},
+				],
 			},
 		],
 	},
@@ -162,6 +170,7 @@ export function visibleSections( sections, features ) {
  * @param {boolean}  props.masterEnabled  - Whether the site-wide AI master switch is on.
  * @param {boolean}  props.isConnected    - Whether the AI connection gate passes (connected owner, not offline).
  * @param {boolean}  props.planSupportsAi - Whether the site's plan includes Jetpack AI.
+ * @param {boolean}  props.isChild        - Whether this row is nested under a parent feature (indented).
  * @param {Function} props.onChange       - Called with (key, enabled) on toggle.
  * @return {object} Component markup.
  */
@@ -173,6 +182,7 @@ function FeatureRow( {
 	masterEnabled,
 	isConnected,
 	planSupportsAi,
+	isChild = false,
 	onChange,
 } ) {
 	const handleChange = useCallback(
@@ -181,29 +191,54 @@ function FeatureRow( {
 	);
 
 	const action = checked ? feature.enabledAction : feature.disabledAction;
+	// The endpoint reports a nested child unavailable when its parent toggle is
+	// off (Feature Clip when the Image Editor is off): the row greys out but
+	// stays visible, and its action link is withheld until the parent is on again.
+	const isUnavailable = reported?.available === false;
 	// The toggle keeps showing the SAVED value but can't be used while the
 	// connection gate fails (no feature can load without it), while the site's
 	// plan doesn't include Jetpack AI, while the master switch is off (the saved
-	// choice returns when master does), or while the plan doesn't include the
-	// individual feature.
+	// choice returns when master does), while the parent feature is off, or while
+	// the plan doesn't include the individual feature.
 	const isDisabled =
 		isSaving ||
 		! isConnected ||
 		! planSupportsAi ||
 		! masterEnabled ||
+		isUnavailable ||
 		!! reported?.requires_upgrade;
 
+	// A feature may carry an "Experimental Preview"-style badge next to its
+	// label. Amber tag matching Image Studio's own ExperimentalBadge (the clip
+	// modal), for cross-surface consistency and distinct from the blue upgrade badge.
+	const label = feature.badge ? (
+		<span className="jetpack-ai-features__label">
+			{ feature.label }
+			<span className="jetpack-ai-features__experimental-badge">{ feature.badge }</span>
+		</span>
+	) : (
+		feature.label
+	);
+
 	return (
-		<Stack direction="column" gap="xs" className="jetpack-ai-features__row">
+		<Stack
+			direction="column"
+			gap="xs"
+			className={
+				isChild
+					? 'jetpack-ai-features__row jetpack-ai-features__row--child'
+					: 'jetpack-ai-features__row'
+			}
+		>
 			<ToggleControl
 				__nextHasNoMarginBottom
 				checked={ checked }
 				disabled={ isDisabled }
-				label={ feature.label }
+				label={ label }
 				help={ feature.description }
 				onChange={ handleChange }
 			/>
-			{ action && masterEnabled && isConnected && planSupportsAi && (
+			{ action && masterEnabled && isConnected && planSupportsAi && ! isUnavailable && (
 				<Link
 					className="jetpack-ai-features__action"
 					href={ action.href }
@@ -257,6 +292,23 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 			} );
 		},
 		[ onUpdate ]
+	);
+
+	// A feature row and, below it, any nested child rows the endpoint reported
+	// (a child without a backend value is skipped, same as a top-level row).
+	const renderRow = ( feature, isChild = false ) => (
+		<FeatureRow
+			key={ feature.key }
+			feature={ feature }
+			reported={ features[ feature.key ] }
+			checked={ !! features[ feature.key ]?.enabled }
+			isSaving={ savingKeys.has( feature.key ) }
+			masterEnabled={ masterEnabled }
+			isConnected={ isConnected }
+			planSupportsAi={ planSupportsAi }
+			isChild={ isChild }
+			onChange={ handleToggle }
+		/>
 	);
 
 	return (
@@ -324,17 +376,12 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 									) }
 							</div>
 							{ section.features.map( feature => (
-								<FeatureRow
-									key={ feature.key }
-									feature={ feature }
-									reported={ features[ feature.key ] }
-									checked={ !! features[ feature.key ]?.enabled }
-									isSaving={ savingKeys.has( feature.key ) }
-									masterEnabled={ masterEnabled }
-									isConnected={ isConnected }
-									planSupportsAi={ planSupportsAi }
-									onChange={ handleToggle }
-								/>
+								<Fragment key={ feature.key }>
+									{ renderRow( feature ) }
+									{ ( feature.children ?? [] )
+										.filter( child => features[ child.key ] !== undefined )
+										.map( child => renderRow( child, true ) ) }
+								</Fragment>
 							) ) }
 						</Stack>
 					</Card.Content>
