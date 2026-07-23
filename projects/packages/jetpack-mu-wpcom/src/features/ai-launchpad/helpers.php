@@ -151,3 +151,38 @@ if ( ! function_exists( 'wpcom_ai_launchpad_get_ai_task_ids' ) ) {
 		return $task_ids;
 	}
 }
+
+if ( ! function_exists( 'wpcom_ai_launchpad_script_translations_inline' ) ) {
+	/**
+	 * Builds the inline `setLocaleData` call carrying the Site Setup app bundle's translations.
+	 *
+	 * Route modules built by wp-build have no core translation-loading path, so the language-pack
+	 * JED produced by translate.wordpress.com is inlined onto the page's prerequisites script. The
+	 * pack keys each JSON to the md5 of the source reference `wp i18n make-pot` recorded — the
+	 * unminified route bundle kept in the production build for exactly this purpose. On Atomic
+	 * the pack is installed to `WP_LANG_DIR/mu-plugins/` by the `wpcomsh_translation_update`
+	 * cron; where no file exists (English, or packs not yet synced) this is a no-op.
+	 *
+	 * @param string      $locale   The locale to load, usually `determine_locale()`.
+	 * @param string|null $lang_dir Directory holding the pack files. Defaults to `WP_LANG_DIR . '/mu-plugins'`.
+	 * @return string|null The inline script, or null when no usable JED file exists.
+	 */
+	function wpcom_ai_launchpad_script_translations_inline( $locale, $lang_dir = null ) {
+		$lang_dir  = $lang_dir ?? WP_LANG_DIR . '/mu-plugins';
+		$reference = 'jetpack_vendor/automattic/jetpack-mu-wpcom/build/routes/site-setup/content.js';
+		$file      = $lang_dir . '/jetpack-mu-wpcom-' . $locale . '-' . md5( $reference ) . '.json';
+
+		if ( ! is_readable( $file ) ) {
+			return null;
+		}
+
+		$data     = json_decode( (string) file_get_contents( $file ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local language-pack file.
+		$messages = $data['locale_data']['messages'] ?? null;
+		if ( ! is_array( $messages ) || array() === $messages ) {
+			return null;
+		}
+
+		// HEX_TAG keeps a literal "</script>" in a translation from closing the inline script tag.
+		return 'wp.i18n.setLocaleData( ' . wp_json_encode( $messages, JSON_HEX_TAG | JSON_HEX_AMP ) . ', "jetpack-mu-wpcom" );';
+	}
+}

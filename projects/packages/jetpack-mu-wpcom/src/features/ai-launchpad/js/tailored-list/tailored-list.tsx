@@ -104,6 +104,10 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 	const [ siteEditUrl, setSiteEditUrl ] = useState< string | null >(
 		() => initialData?.site?.edit_url ?? site?.edit_url ?? null
 	);
+	// The site language, forwarded to the gallery pattern fetch.
+	const [ siteLanguage, setSiteLanguage ] = useState< string | null >(
+		() => initialData?.site?.language ?? site?.language ?? null
+	);
 
 	// One viewed event per screen shown; the launchpad screen includes its
 	// loading skeleton. The host seeds the context before mounting this view.
@@ -120,6 +124,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 				setSiteUrl( initialData.site.url ?? null );
 				setSiteTitle( initialData.site.title ?? null );
 				setSiteEditUrl( initialData.site.edit_url ?? null );
+				setSiteLanguage( initialData.site.language ?? null );
 			}
 			return;
 		}
@@ -147,6 +152,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 				// missing one coalesces to null.
 				setSiteTitle( data.site.title != null ? decodeEntities( data.site.title ) : null );
 				setSiteEditUrl( data.site.edit_url ?? null );
+				setSiteLanguage( data.site.language ?? null );
 			}
 
 			let nextOutput: TailoredOutput | null = null;
@@ -250,7 +256,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 					trackTaskCtaClicked,
 					createFirstPostDraft,
 					createAboutPage,
-					createGalleryPage,
+					createGalleryPage: inferred => createGalleryPage( inferred, siteLanguage ?? 'en' ),
 				},
 				siteUrl
 			);

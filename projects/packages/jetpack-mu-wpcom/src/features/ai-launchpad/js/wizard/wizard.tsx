@@ -1,7 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { Modal, Button } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { getPrewarmedTailor, usePrewarm } from '../lib/prewarm.ts';
 import {
 	setTracksContext,
@@ -34,7 +34,7 @@ interface Props {
 	initialIntent?: string;
 	// The site's front-end URL, used to key the Calypso My Home URL on Skip.
 	siteUrl?: string;
-	// User locale, forwarded to the wizard payload and the AI call.
+	// Site language, forwarded to the wizard payload and the AI call.
 	locale?: string;
 	// Fired once Finish completes, with the persisted input and the in-flight
 	// tailor promise, so the host can swap to the tailored list.
@@ -49,7 +49,7 @@ interface Props {
  * @param props.initialSiteName - Existing site title used to pre-fill Name.
  * @param props.initialIntent   - Existing site tagline used to pre-fill the description.
  * @param props.siteUrl         - The site's front-end URL (for the Skip redirect).
- * @param props.locale          - User locale forwarded to the payload.
+ * @param props.locale          - Site language forwarded to the payload.
  * @param props.onComplete      - Called with the input and tailor promise on Finish.
  * @return The wizard element.
  */
@@ -189,7 +189,7 @@ export function Wizard( {
 
 			<footer className="ai-launchpad-wizard__footer">
 				<Button variant="link" onClick={ handleSkip } disabled={ skipping }>
-					{ __( 'Skip', 'jetpack-mu-wpcom' ) }
+					{ _x( 'Skip', 'wizard navigation', 'jetpack-mu-wpcom' ) }
 				</Button>
 				<div className="ai-launchpad-wizard__footer-right">
 					{ step > 0 && (
@@ -204,7 +204,7 @@ export function Wizard( {
 					>
 						{ isLastStep( step )
 							? __( 'Finish', 'jetpack-mu-wpcom' )
-							: __( 'Continue', 'jetpack-mu-wpcom' ) }
+							: _x( 'Continue', 'wizard navigation', 'jetpack-mu-wpcom' ) }
 					</Button>
 				</div>
 			</footer>

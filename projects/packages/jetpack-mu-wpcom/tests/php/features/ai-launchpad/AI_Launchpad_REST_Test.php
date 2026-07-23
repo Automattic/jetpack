@@ -202,6 +202,16 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( home_url(), $data['site']['url'] );
 		$this->assertSame( get_bloginfo( 'name' ), $data['site']['title'] );
 		$this->assertSame( get_bloginfo( 'description' ), $data['site']['description'] );
+		$this->assertSame( get_locale(), $data['site']['language'] );
+
+		// The language field passes through a non-default site locale, not just the test default.
+		$force_italian = static function () {
+			return 'it_IT';
+		};
+		add_filter( 'locale', $force_italian );
+		$localized = rest_do_request( new WP_REST_Request( 'GET', '/wpcom/v2/ai-launchpad' ) )->get_data();
+		remove_filter( 'locale', $force_italian );
+		$this->assertSame( 'it_IT', $localized['site']['language'] );
 
 		$this->assertCount( 6, $data['tasks'] );
 

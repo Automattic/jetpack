@@ -1,5 +1,5 @@
 import { Icon } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { border, drafts, lock, published } from '@wordpress/icons';
 import { Button, Card, CollapsibleCard } from '@wordpress/ui';
 import { ctaKind, type EnrichedTask } from './model.ts';
@@ -42,7 +42,7 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
 
 	// An in-progress task reopens its existing draft, so the CTA invites the user to pick up where they left off.
 	if ( inProgress ) {
-		return __( 'Continue', 'jetpack-mu-wpcom' );
+		return _x( 'Continue', 'task action', 'jetpack-mu-wpcom' );
 	}
 
 	switch ( taskId ) {
@@ -209,7 +209,7 @@ export function TaskCard( {
 					) }
 					{ /* Skip persists a server write too, so it shares the lock with the primary action. */ }
 					<Button variant="minimal" tone="neutral" onClick={ onSkip } disabled={ isLocked }>
-						{ __( 'Skip', 'jetpack-mu-wpcom' ) }
+						{ _x( 'Skip', 'task action', 'jetpack-mu-wpcom' ) }
 					</Button>
 				</div>
 			</CollapsibleCard.Content>

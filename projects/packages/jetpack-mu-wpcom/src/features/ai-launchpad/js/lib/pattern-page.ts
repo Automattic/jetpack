@@ -1,4 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
+import { _x } from '@wordpress/i18n';
 import { logContentTailored } from './content-log.ts';
 import type { TailoredInferred } from './types.ts';
 
@@ -7,7 +8,20 @@ import type { TailoredInferred } from './types.ts';
  * its content is images; the About page writes AI-drafted content instead (about-page.ts).
  */
 
-const PTK_ENDPOINT = 'https://public-api.wordpress.com/rest/v1/ptk/patterns/en';
+const PTK_ENDPOINT_BASE = 'https://public-api.wordpress.com/rest/v1/ptk/patterns/';
+
+/**
+ * Candidate PTK locale slugs for a WP locale, most specific first and always
+ * ending in "en": "pt_BR" → [ "pt-br", "pt", "en" ].
+ *
+ * @param locale - The site's WP locale.
+ * @return The deduplicated slug candidates.
+ */
+export function ptkLocaleSlugs( locale: string ): string[] {
+	const tag = locale.toLowerCase().replace( /_/g, '-' );
+	const lang = tag.split( '-' )[ 0 ];
+	return [ ...new Set( [ tag, lang, 'en' ] ) ].filter( Boolean );
+}
 
 interface PtkTaxonomyTerm {
 	title?: string;
@@ -169,9 +183,8 @@ export function selectGalleryPage(
 		fallback = 'first_usable';
 	}
 
-	// Fixed, untranslated placeholder title (like core's "Auto Draft"); the pattern's own name
-	// ("Gallery: Two columns…") is not a useful title.
-	const title = 'Gallery';
+	// Fixed placeholder title; the pattern's own name ("Gallery: Two columns…") is not a useful title.
+	const title = _x( 'Gallery', 'page title', 'jetpack-mu-wpcom' );
 	const rawContent = pattern?.html ?? GALLERY_FALLBACK_HTML;
 
 	return {
@@ -191,26 +204,35 @@ export function selectGalleryPage(
 let cachedPatterns: PtkPattern[] | null = null;
 
 /**
- * Fetch the English pattern library, pick a gallery pattern matching the inferred
- * niche, and create a draft page from it.
+ * Fetch the pattern library for the site language (falling back to English), pick
+ * a gallery pattern matching the inferred niche, and create a draft page from it.
  *
  * @param inferred - The AI-inferred site details.
+ * @param locale   - The site's WP locale, used to localize the pattern library.
  * @return The created page id and its editor URL.
  */
 export async function createGalleryPage(
-	inferred: TailoredInferred
+	inferred: TailoredInferred,
+	locale: string = 'en'
 ): Promise< { page_id: number; edit_url: string } > {
 	if ( cachedPatterns === null ) {
-		try {
-			const response = await fetch( PTK_ENDPOINT );
-			if ( response.ok ) {
-				const body = await response.json();
-				if ( Array.isArray( body ) ) {
-					cachedPatterns = body as PtkPattern[];
+		// Site language first so the inserted pattern content matches it, then
+		// progressively broader slugs ending in English. Only one site language per
+		// page load, so the single module cache stays correct.
+		for ( const slug of ptkLocaleSlugs( locale ) ) {
+			try {
+				const response = await fetch( PTK_ENDPOINT_BASE + slug );
+				if ( ! response.ok ) {
+					continue;
 				}
+				const body = await response.json();
+				if ( Array.isArray( body ) && body.length > 0 ) {
+					cachedPatterns = body as PtkPattern[];
+					break;
+				}
+			} catch {
+				// Leave the cache unset so a later click retries; the page is still created below.
 			}
-		} catch {
-			// Leave the cache unset so a later click retries; the page is still created below.
 		}
 	}
 

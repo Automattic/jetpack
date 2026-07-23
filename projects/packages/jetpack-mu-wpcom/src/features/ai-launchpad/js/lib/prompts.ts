@@ -76,6 +76,35 @@ export function chooseTailoringMenu(
 }
 
 /**
+ * True for English locales (en, en_US, en-gb, …), where the prompt carries no
+ * output-language section and stays byte-identical to the tuned English prompt.
+ *
+ * @param locale - The site's WP locale.
+ * @return Whether the locale is English.
+ */
+function isEnglishLocale( locale: string ): boolean {
+	return /^en([-_]|$)/i.test( locale );
+}
+
+/**
+ * Resolve a WP locale ("it_IT") to an English language name ("Italian (Italy)")
+ * for the prompt, falling back to the raw code when resolution fails.
+ *
+ * @param locale - The site's WP locale.
+ * @return The display name.
+ */
+function languageDisplayName( locale: string ): string {
+	try {
+		return (
+			new Intl.DisplayNames( [ 'en' ], { type: 'language' } ).of( locale.replace( /_/g, '-' ) ) ??
+			locale
+		);
+	} catch {
+		return locale;
+	}
+}
+
+/**
  * Build the single combined prompt sent to jetpack-ai-query, producing the
  * inferred blob, task list, and first-post draft in one JSON response. Hard rules
  * mirror the server-side validation so valid output is not rejected.
@@ -89,6 +118,19 @@ export function buildTailorPrompt(
 	availableTaskIds?: readonly string[]
 ): string {
 	const { goal, site_name, description } = input;
+	// `||` (not `??`) so an empty-string locale also falls back to English.
+	const locale = input.locale || 'en';
+	const english = isEnglishLocale( locale );
+	// "English" for en* keeps the tuned prompt byte-identical; see the tests.
+	const language = english ? 'English' : languageDisplayName( locale );
+	const languageSection = english
+		? ''
+		: `
+============ output language ============
+Write ALL free-text output in ${ language }: every task "subtitle", the "inferred" fields "niche", "vibe", "audience", and "tagline", and every field of "first_post_draft" and "about_page_draft".
+Keep these in English verbatim, exactly as listed elsewhere in this prompt: task "id" values and the "goal", "inferred_goal", and "theme_category" slugs.
+The GOOD vs BAD examples in this prompt are English illustrations only - your output must be in ${ language }.
+`;
 
 	// Offer only tasks that will actually render on this site+goal, so the model never spends a pick on a task the
 	// server would drop. Falls back to the full menu when availability is unknown (e.g. the lookup failed).
@@ -104,7 +146,7 @@ Produce a single JSON object with FOUR parts, in this order: an inferred-context
 Site name: ${ site_name }
 Goal: ${ goal }
 User description: ${ description }
-
+${ languageSection }
 ============ STEP 1 - inferred ============
 First, read the description closely and infer the site's context. You will use this to choose and describe the tasks, so do it before anything else.
 - "goal": echo the goal value above verbatim. One of: write, build, sell, newsletter, educate, portfolio. Required.
@@ -143,11 +185,15 @@ HARD RULES (do not break - the server rejects output that violates these):
 Write a friendly starter blog post the user can edit and publish.
 - "title": clear and evocative, max 8 words.
 - "subtitle": ONE line, verb-led, max 10 words, describing what publishing this post does for them. Optional.
-- "paragraphs": exactly 2 short paragraphs of opening body text. First introduces the topic in a warm, personal voice grounded in the user's niche; second invites the reader in. Plain English, no jargon. Avoid "Welcome to my blog" and "Hello world" cliches.
+- "paragraphs": exactly 2 short paragraphs of opening body text. First introduces the topic in a warm, personal voice grounded in the user's niche; second invites the reader in. Plain ${ language }, no jargon. Avoid "Welcome to my blog" and "Hello world" cliches.
 
 ============ STEP 4 - about_page_draft ============
 Write starter content for the site's About page, grounded in the user's own description - never generic filler.
-- "title": the page title, max 4 words. Usually just "About" or "About" plus the brand name.
+- "title": the page title, max 4 words. Usually just ${
+		english
+			? '"About" or "About" plus the brand name'
+			: `the ${ language } equivalent of "About", alone or plus the brand name`
+	}.
 - "paragraphs": 2 or 3 short paragraphs in the same warm voice: who is behind the site, what visitors will find here (reference the niche and what the user actually does), and a closing invitation to look around or get in touch. Use first person where it reads naturally. Never use placeholders like "[your name]" - if a detail is unknown, write around it.
 
 ============ name resolution ============

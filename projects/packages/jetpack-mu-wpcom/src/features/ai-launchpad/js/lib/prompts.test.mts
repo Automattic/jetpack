@@ -100,3 +100,40 @@ describe( 'buildTailorPrompt', () => {
 		assert.ok( /specific subject/i.test( prompt ), 'subject-over-bucket guidance missing' );
 	} );
 } );
+
+describe( 'buildTailorPrompt output language', () => {
+	const base = fixtures[ 0 ].input;
+
+	it( 'keeps the prompt byte-identical for English locales', () => {
+		const reference = buildTailorPrompt( base ); // fixture locale is "en"
+		for ( const locale of [ 'en', 'en_US', 'en-gb', 'en_AU' ] ) {
+			assert.equal( buildTailorPrompt( { ...base, locale } ), reference );
+		}
+		assert.ok( ! reference.includes( 'output language' ) );
+	} );
+
+	it( 'adds the output-language section for non-English locales', () => {
+		const prompt = buildTailorPrompt( { ...base, locale: 'it_IT' } );
+		assert.ok( prompt.includes( '============ output language ============' ) );
+		assert.ok( prompt.includes( 'Italian' ), 'resolved language name missing' );
+		assert.ok( prompt.includes( 'Keep these in English verbatim' ), 'slug carve-out missing' );
+	} );
+
+	it( 'swaps "Plain English" for the target language', () => {
+		assert.ok( buildTailorPrompt( base ).includes( 'Plain English, no jargon' ) );
+		const prompt = buildTailorPrompt( { ...base, locale: 'it_IT' } );
+		assert.ok( ! prompt.includes( 'Plain English, no jargon' ) );
+		assert.ok( /Plain Italian[^,]*, no jargon/.test( prompt ) );
+	} );
+
+	it( 'asks for the target-language equivalent of the About title', () => {
+		assert.ok( buildTailorPrompt( base ).includes( 'Usually just "About" or "About" plus' ) );
+		const prompt = buildTailorPrompt( { ...base, locale: 'de_DE' } );
+		assert.ok( prompt.includes( 'equivalent of "About"' ) );
+	} );
+
+	it( 'falls back to the raw code when the locale cannot be resolved', () => {
+		const prompt = buildTailorPrompt( { ...base, locale: '!!invalid!!' } );
+		assert.ok( prompt.includes( '!!invalid!!' ) );
+	} );
+} );
