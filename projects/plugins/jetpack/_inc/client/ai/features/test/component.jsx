@@ -326,4 +326,35 @@ describe( 'AiFeatures rendering', () => {
 		const tryIt = screen.getByRole( 'link', { name: /Try it out/ } );
 		expect( tryIt ).not.toHaveAttribute( 'target' );
 	} );
+
+	test( 'Try it out links target each feature surface', () => {
+		render(
+			<AiFeatures
+				settings={ {
+					master_enabled: true,
+					is_connected: true,
+					features: {
+						writing_assistant: { enabled: true },
+						image_editor: { enabled: true },
+					},
+				} }
+				savingKeys={ new Set() }
+				onUpdate={ jest.fn() }
+			/>
+		);
+
+		// Writing Assistant asks the editor to pre-open the AI Assistant panel
+		// (handled by the ai-assistant-plugin sidebar on the other end).
+		expect( screen.getByRole( 'link', { name: 'Try it out in the editor' } ) ).toHaveAttribute(
+			'href',
+			'post-new.php?openSidebar=jetpack-ai-assistant'
+		);
+
+		// Image Studio has no URL-driven open mechanism (its bundle only adds
+		// click handlers on the Media Library), so the link stays upload.php.
+		expect( screen.getByRole( 'link', { name: 'Try it out' } ) ).toHaveAttribute(
+			'href',
+			'upload.php'
+		);
+	} );
 } );

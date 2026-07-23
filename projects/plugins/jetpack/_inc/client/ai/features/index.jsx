@@ -36,7 +36,9 @@ const SECTIONS = [
 				),
 				enabledAction: {
 					label: __( 'Try it out in the editor', 'jetpack' ),
-					href: 'post-new.php',
+					// The arg asks the ai-assistant-plugin sidebar to open itself
+					// once the editor loads (same convention as openSidebar=global-styles).
+					href: 'post-new.php?openSidebar=jetpack-ai-assistant',
 				},
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
