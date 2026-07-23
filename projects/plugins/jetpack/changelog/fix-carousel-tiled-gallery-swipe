@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Carousel: show the already-loaded thumbnail while the full-size image downloads, so slides are no longer blank when moving quickly through a gallery
+Carousel: show the already-loaded thumbnail while the full-size image downloads, so slides are no longer blank when moving quickly through a gallery.

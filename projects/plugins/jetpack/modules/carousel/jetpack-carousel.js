@@ -1305,28 +1305,46 @@
 			image.setAttribute( 'itemprop', 'image' );
 			image.setAttribute( 'data-loaded', 1 );
 
+			var hasPreview = attrs.previewImage && attrs.previewImage !== attrs.src;
+
+			if ( ! hasPreview ) {
+				// No usable in-page thumbnail (e.g. a lazy-loading plugin swapped the
+				// gallery src for a placeholder). Load the full-size image straight
+				// into the visible element so the slide is never left without a src.
+				image.src = attrs.src;
+				return;
+			}
+
 			// Show the thumbnail the browser has already decoded for this image in the
 			// post itself. Without it the slide stays empty until the full-size image
 			// arrives, which reads as a black screen whenever the reader moves through
 			// the gallery faster than the images can download.
-			if ( attrs.previewImage && attrs.previewImage !== attrs.src ) {
-				image.src = attrs.previewImage;
-				// The thumbnail is much smaller than the slide, so soften the upscale
-				// until the full-size image replaces it.
-				image.style.filter = 'blur(8px)';
-			}
+			image.src = attrs.previewImage;
+			// The thumbnail is much smaller than the slide, so soften the upscale
+			// until the full-size image replaces it.
+			image.style.filter = 'blur(8px)';
 
+			// Load the full-size image off-DOM, then swap it in over the preview. On
+			// error the (blurred) preview stays put rather than reverting to blank.
 			var fullImage = new window.Image();
 
-			fullImage.addEventListener( 'load', function () {
-				// Cached by this point, so swapping it in is effectively instant.
-				image.src = attrs.src;
-				image.style.filter = '';
-			} );
+			fullImage.addEventListener(
+				'load',
+				function () {
+					// Cached by this point, so swapping it in is effectively instant.
+					image.src = attrs.src;
+					image.style.filter = '';
+				},
+				{ once: true }
+			);
 
-			fullImage.addEventListener( 'error', function () {
-				image.style.filter = '';
-			} );
+			fullImage.addEventListener(
+				'error',
+				function () {
+					image.style.filter = '';
+				},
+				{ once: true }
+			);
 
 			fullImage.src = attrs.src;
 		}
@@ -1377,14 +1395,18 @@
 
 			// The thumbnail in the post may still be loading, or may be lazy-loaded.
 			// Use an event listener rather than `onload`, which would overwrite any
-			// handler the page has already attached to its own image.
-			image.addEventListener(
-				'load',
-				function () {
-					applyBackgroundImage( slide, image );
-				},
-				{ once: true }
-			);
+			// handler the page has already attached to its own image. Pair the load
+			// handler with an error handler so a thumbnail that never loads doesn't
+			// leave a listener (and its reference to the slide) attached for good.
+			var onLoad = function () {
+				image.removeEventListener( 'error', onError );
+				applyBackgroundImage( slide, image );
+			};
+			var onError = function () {
+				image.removeEventListener( 'load', onLoad );
+			};
+			image.addEventListener( 'load', onLoad, { once: true } );
+			image.addEventListener( 'error', onError, { once: true } );
 		}
 
 		function applyBackgroundImage( slide, image ) {
