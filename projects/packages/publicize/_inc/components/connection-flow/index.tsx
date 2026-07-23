@@ -5,6 +5,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { chevronLeft } from '@wordpress/icons';
 import { Dialog, IconButton, Text, Tooltip } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
+import { SelectPlatform } from './select-platform';
 import type { ConnectionFlowStep } from '../../social-store/types';
 
 /**
@@ -22,8 +23,7 @@ const StepPlaceholder = ( { step }: { step: ConnectionFlowStep } ) => (
 );
 
 /**
- * Step router: maps the current connection-flow step to its content. Every step
- * renders a placeholder for now; M2-01…04 slot their components in here.
+ * Step router: maps the current connection-flow step to its content.
  *
  * @param step - The current flow step.
  * @return The step content.
@@ -31,6 +31,7 @@ const StepPlaceholder = ( { step }: { step: ConnectionFlowStep } ) => (
 function renderStep( step: ConnectionFlowStep ): JSX.Element {
 	switch ( step ) {
 		case 'select-platform':
+			return <SelectPlatform />;
 		case 'platform-input':
 		case 'authorizing':
 		case 'confirm':
