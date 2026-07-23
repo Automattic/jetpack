@@ -546,10 +546,10 @@ class Mode {
 				box-shadow: none;
 			}
 			#adminmenu .jetpack-newsletter-mode-write .jetpack-newsletter-mode-write-btn svg {
-				display: none;
+				display: block;
 				width: 20px;
 				height: 20px;
-				fill: currentColor;
+				flex-shrink: 0;
 			}
 			/* Collapsed menu: compact icon-only button (text hidden). */
 			body.folded #adminmenu .jetpack-newsletter-mode-write {
@@ -675,7 +675,7 @@ class Mode {
 		);
 
 		$write_markup = sprintf(
-			'<a href="%1$s" class="jetpack-newsletter-mode-write-btn"><svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M20.1 5.1L16.9 2 6.2 12.7l-1.3 4.4 4.5-1.3L20.1 5.1zM4 20.8h8v-1.5H4v1.5z"></path></svg><span>%2$s</span></a>',
+			'<a href="%1$s" class="jetpack-newsletter-mode-write-btn"><svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="none" aria-hidden="true" focusable="false"><g stroke="currentColor" stroke-linecap="square" stroke-linejoin="round" stroke-width="1.5"><path d="m10.0009 4.16602v11.66828"></path><path d="m15.835 10.002h-11.66837"></path></g></svg><span>%2$s</span></a>',
 			esc_url( self::get_write_url() ),
 			esc_html__( 'Write', 'jetpack-newsletter' )
 		);
