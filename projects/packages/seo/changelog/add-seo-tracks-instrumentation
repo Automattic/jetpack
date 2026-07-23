@@ -1,3 +1,3 @@
 Significance: patch
 Type: added
-Comment: SEO: instrument the dashboard with Tracks events (settings updates, SEO-tools toggle, screen views, and the GEO tab's llms.txt and AI-crawler toggles), and load the Tracks transport on the page so they actually send. Pre-launch; internal analytics, no user-facing change.
+Comment: SEO: instrument the dashboard with Tracks events (settings updates, SEO-tools toggle, screen views, and the GEO tab's llms.txt and AI-crawler toggles), and load the Tracks transport on the page so they actually send, gated on the site having opted into tracking. Pre-launch; internal analytics, no user-facing change.

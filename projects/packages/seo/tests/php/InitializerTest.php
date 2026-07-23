@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\SEO;
 
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -604,12 +605,14 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * The WordPress.com Tracks transport is enqueued on the SEO admin page. Without
-	 * it `jetpack-analytics` only ever queues events into `window._tkq` and nothing
-	 * reaches Tracks, so every event this package fires would be silently dropped.
+	 * The WordPress.com Tracks transport is enqueued on the SEO admin page once the
+	 * site has opted in. Without it `jetpack-analytics` only ever queues events into
+	 * `window._tkq` and nothing reaches Tracks, so every event this package fires
+	 * would be silently dropped.
 	 */
 	public function test_enqueue_tracks_transport_enqueues_the_tracks_script() {
 		$this->assertFalse( wp_script_is( 'jp-tracks', 'enqueued' ) );
+		$this->agree_to_terms_of_service();
 
 		try {
 			Initializer::enqueue_tracks_transport();
@@ -618,7 +621,40 @@ class InitializerTest extends TestCase {
 		} finally {
 			wp_dequeue_script( 'jp-tracks' );
 			wp_deregister_script( 'jp-tracks' );
+			$this->revoke_terms_of_service();
 		}
+	}
+
+	/**
+	 * A self-hosted site that hasn't agreed to the terms of service (or connected a
+	 * user) gets no transport, so nothing it queues is ever sent. The host plugin
+	 * applies the same gate before starting its own tracking; the SEO dashboard is
+	 * reachable before that happens, so it has to check for itself.
+	 */
+	public function test_enqueue_tracks_transport_is_skipped_without_consent() {
+		$this->assertFalse( Initializer::can_use_analytics() );
+
+		Initializer::enqueue_tracks_transport();
+
+		$this->assertFalse( wp_script_is( 'jp-tracks', 'enqueued' ) );
+	}
+
+	/**
+	 * Mark the site as having agreed to the Jetpack terms of service, which is what
+	 * `Tracking::should_enable_tracking()` reads on a self-hosted site.
+	 */
+	private function agree_to_terms_of_service() {
+		\Jetpack_Options::update_option( 'tos_agreed', true );
+		Status_Cache::clear();
+	}
+
+	/**
+	 * Undo {@see self::agree_to_terms_of_service()} — the option store persists
+	 * between tests in this suite.
+	 */
+	private function revoke_terms_of_service() {
+		\Jetpack_Options::delete_option( 'tos_agreed' );
+		Status_Cache::clear();
 	}
 
 	/**

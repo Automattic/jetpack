@@ -3448,10 +3448,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/seo",
-                "reference": "023d07b38698ef8d98232bb530de0faad7677d03"
+                "reference": "c139815c547e534b74443a42323a55e52e82da13"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
+                "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-wp-build-polyfills": "@dev",

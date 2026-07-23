@@ -12,10 +12,13 @@
 namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Jetpack_SEO_Titles;
 use Jetpack_SEO_Utils;
@@ -304,12 +307,44 @@ class Initializer {
 	 * grows for the life of the page. Mirrors the Newsletter and Search dashboards.
 	 *
 	 * Registered from {@see self::maybe_load_wp_build()}, which already ran the
-	 * SEO-admin-page check, so this only enqueues on our page.
+	 * SEO-admin-page check, so this only enqueues on our page. No-ops when the site
+	 * hasn't opted into tracking (see {@see self::can_use_analytics()}) — the client
+	 * wrapper keeps queueing into `_tkq`, but with no transport nothing is sent.
 	 *
 	 * @return void
 	 */
 	public static function enqueue_tracks_transport() {
+		if ( ! self::can_use_analytics() ) {
+			return;
+		}
+
 		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+	}
+
+	/**
+	 * Whether this site has opted into the analytics Tracks depends on.
+	 *
+	 * Self-hosted Jetpack only sends Tracks once the site has agreed to the terms of
+	 * service or connected a user, and never in offline mode — the same gate the host
+	 * plugin applies in `Jetpack::initialize_tracking()`. The SEO dashboard is reachable
+	 * before any of that is true, so it has to run the check itself rather than assume
+	 * the host plugin already opened the door.
+	 *
+	 * WordPress.com Simple short-circuits: it's covered by WordPress.com's own terms
+	 * and has no Jetpack connection for `should_enable_tracking()` to read. Atomic
+	 * falls through to the real check, which passes on a connected site. Mirrors
+	 * `Contact_Form_Plugin::can_use_analytics()`.
+	 *
+	 * @return bool
+	 */
+	public static function can_use_analytics() {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return true;
+		}
+
+		$tracking = new Tracking( 'jetpack', new Connection_Manager() );
+
+		return $tracking->should_enable_tracking( new Terms_Of_Service(), new Status() );
 	}
 
 	/**
