@@ -17,8 +17,9 @@
  * Each definition supplies the same fields build_tasks() resolves from the catalog. definitions()
  * is rebuilt on every call, including from has() and task_ids(), which is what decides the shape:
  *
- * - `is_complete` and `draft_id` MUST stay callables. They read an option and run a WP_Query, so
- *   resolving them eagerly would put a database round-trip behind every id check.
+ * - `is_complete`, `is_visible` and `draft_id` MUST stay callables. They inspect site state — an
+ *   option, a WP_Query, an active plugin — so resolving them eagerly would put that work behind
+ *   every id check.
  * - The string fields are callables only to match. Deferring __() keeps it off the has() path too,
  *   but a new entry that used plain translated strings there would be correct.
  */
@@ -32,12 +33,17 @@ class AI_Launchpad_Task_Registry {
 	 * - `in_progress_title` (callable, optional) the title while a marker draft is unpublished.
 	 * - `default_subtitle`  (callable) the subtitle used when the AI supplies none.
 	 * - `is_complete`       (callable) whether the task is done.
+	 * - `is_visible`        (callable, optional) whether this site can render the task at all; absent means
+	 *                        always. This is the registry's equivalent of the catalog's visibility callback:
+	 *                        a task whose precondition is missing must never be offered or rendered, since
+	 *                        its CTA would lead nowhere. Omit it rather than returning a constant true, so a
+	 *                        universally renderable task reads as one.
 	 * - `draft_id`          (callable, optional) the in-progress draft's post id, or null.
 	 *
 	 * @return array
 	 */
 	private static function definitions() {
-		return array(
+		$definitions = array(
 			'add_gallery_page' => array(
 				'title'             => static function () {
 					return __( 'Create your first gallery', 'jetpack-mu-wpcom' );
@@ -57,6 +63,19 @@ class AI_Launchpad_Task_Registry {
 				},
 			),
 		);
+
+		/**
+		 * Filters the AI Launchpad's own task definitions.
+		 *
+		 * The registry is otherwise closed, and this is the only seam through which it can hold more than
+		 * its shipped entries — which is what makes it testable with a second definition at all. Callbacks
+		 * must be cheap: this map is rebuilt on every has() / task_ids() / is_complete() / is_visible() call.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $definitions Task definitions keyed by task id. See the docblock above for the shape.
+		 */
+		return apply_filters( 'wpcom_ai_launchpad_task_registry_definitions', $definitions );
 	}
 
 	/**
@@ -94,10 +113,33 @@ class AI_Launchpad_Task_Registry {
 	}
 
 	/**
+	 * Whether this site can render a registry task at all. False for an unknown id.
+	 *
+	 * `is_visible` is optional, so a definition without one is visible everywhere — the shape the gallery
+	 * relies on. Same rationale as is_complete() for living outside build(): available_task_ids() needs the
+	 * flag alone, on every wizard prewarm.
+	 *
+	 * @param string $task_id The task id.
+	 * @return bool
+	 */
+	public static function is_visible( $task_id ) {
+		$definition = self::definitions()[ $task_id ] ?? null;
+		if ( null === $definition ) {
+			return false;
+		}
+
+		return ! isset( $definition['is_visible'] ) || (bool) $definition['is_visible']();
+	}
+
+	/**
 	 * Builds a registry task into the card shape build_tasks() emits, or null for an unknown id.
 	 *
 	 * An unpublished marker draft puts the task in progress: the card reopens that draft and takes
 	 * the in-progress title, matching how build_tasks() treats catalog site-editor tasks.
+	 *
+	 * Visibility is deliberately not checked here, mirroring the catalog: the gate belongs to the callers
+	 * that decide whether a task surfaces, since build_tasks() has to be able to bypass it for the
+	 * `?all_tasks=1` testing view.
 	 *
 	 * @param string $task_id  The task id.
 	 * @param string $subtitle The AI-written subtitle; falls back to the registry default when empty.

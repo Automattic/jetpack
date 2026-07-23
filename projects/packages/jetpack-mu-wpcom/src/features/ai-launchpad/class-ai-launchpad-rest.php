@@ -1118,12 +1118,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * client intersects these with its own TASK_MENU. Computed once per wizard submit.
 	 *
 	 * The AI Launchpad's own tasks are appended separately, since they are not catalog entries and the catalog
-	 * sweep cannot find them. Note the asymmetry that creates: catalog ids came through the real visibility gate,
-	 * registry ids are appended ungated, because the registry has no notion of visibility at all. That is only
-	 * correct while every registry task renders on every site, which holds for the gallery — it asks nothing of
-	 * the site. A registry entry that is not universally renderable must gain a visibility notion before it
-	 * reaches this list, or it will be offered to sites that then drop it, spending one of the model's six picks
-	 * on nothing.
+	 * sweep cannot find them. They run their own gate on the way in: a registry definition may declare an
+	 * `is_visible` callable, and one that fails it is withheld from both lists here exactly as a catalog task
+	 * failing wpcom_launchpad_checklists()->is_visible() is. A definition without one is visible everywhere —
+	 * the gallery's shape, since it asks nothing of the site.
 	 *
 	 * @param string $goal The inferred/selected goal.
 	 * @return array{renderable: string[], actionable: string[]}
@@ -1147,9 +1145,16 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		$excluded = self::excluded_task_ids_for_goal( $goal );
 
 		// The registry's tasks are not in the catalog, so the sweep above cannot see them. Offer every registry
-		// task that is not already complete; a completed one still renders, so it stays on the renderable list
-		// the client relaxes to.
-		$registry_renderable = AI_Launchpad_Task_Registry::task_ids();
+		// task that this site can render and that is not already complete; a completed one still renders, so it
+		// stays on the renderable list the client relaxes to.
+		$registry_renderable = array_values(
+			array_filter(
+				AI_Launchpad_Task_Registry::task_ids(),
+				static function ( $task_id ) {
+					return AI_Launchpad_Task_Registry::is_visible( $task_id );
+				}
+			)
+		);
 		$registry_actionable = array_values(
 			array_filter(
 				$registry_renderable,
@@ -1253,6 +1258,13 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			// define them, and routing them through wpcom_launchpad_checklists() would mean relying on
 			// the catalog accepting entries it never registered.
 			if ( AI_Launchpad_Task_Registry::has( $task['id'] ) ) {
+				// The registry's own visibility gate, filtered on read for the same reason as the catalog's
+				// below: a persisted list outlives the site state it was tailored for, so a task whose
+				// precondition has since gone must stop rendering rather than offer a CTA that leads nowhere.
+				if ( ! $bypass_visibility && ! AI_Launchpad_Task_Registry::is_visible( $task['id'] ) ) {
+					continue;
+				}
+
 				$card = AI_Launchpad_Task_Registry::build( $task['id'], (string) $task['subtitle'] );
 				if ( null !== $card ) {
 					$seen_ids[ $task['id'] ] = true;

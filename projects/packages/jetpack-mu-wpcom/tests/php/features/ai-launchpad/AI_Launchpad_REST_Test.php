@@ -10,6 +10,7 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/launc
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/helpers.php';
 require_once __DIR__ . '/fixtures/memberships-stubs.php';
+require_once __DIR__ . '/fixtures/trait-registers-test-task.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-memberships.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
@@ -41,6 +42,9 @@ use WpOrg\Requests\Requests;
  */
 #[CoversClass( AI_Launchpad_REST::class )]
 class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
+
+	use AI_Launchpad_Registers_Test_Task;
+
 	/**
 	 * Admin user ID.
 	 *
@@ -578,6 +582,64 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$sell = $this->available_tasks( 'sell' );
 		$this->assertNotContains( 'add_gallery_page', $sell['available_task_ids'] );
 		$this->assertNotContains( 'add_gallery_page', $sell['renderable_task_ids'] );
+	}
+
+	/**
+	 * A registry task its own definition hides must not be offered to the model, on either list.
+	 *
+	 * Both lists matter: the client relaxes from `available_task_ids` to `renderable_task_ids` when completion
+	 * leaves the actionable list too thin, so gating only the actionable one would let the exclusion evaporate
+	 * exactly when the menu is already weak. An offered-but-unrenderable task spends one of the model's six
+	 * picks on a card the site then drops.
+	 *
+	 * @param bool|null $is_visible The injected definition's `is_visible` return, or null to omit the key.
+	 * @param bool      $offered    Whether the task should reach the offered menu.
+	 * @dataProvider provide_registry_visibility_cases
+	 */
+	#[DataProvider( 'provide_registry_visibility_cases' )]
+	public function test_available_tasks_honor_registry_visibility( $is_visible, $offered ) {
+		$task_id = $this->register_test_task( $is_visible );
+
+		$data = $this->available_tasks( 'write' );
+
+		$this->assertSame( $offered, in_array( $task_id, $data['available_task_ids'], true ) );
+		$this->assertSame( $offered, in_array( $task_id, $data['renderable_task_ids'], true ) );
+		// The premise: the registry pass really did run, so an absent id is the visibility gate rather than
+		// registry tasks missing from this menu altogether.
+		$this->assertContains( 'add_gallery_page', $data['renderable_task_ids'] );
+	}
+
+	/**
+	 * A registry task its own definition hides must not render, even when an earlier tailoring already
+	 * persisted it — the same read-time drop the catalog gate performs, since site state can change under a
+	 * saved list.
+	 *
+	 * @param bool|null $is_visible The injected definition's `is_visible` return, or null to omit the key.
+	 * @param bool      $rendered   Whether the persisted task should still render.
+	 * @dataProvider provide_registry_visibility_cases
+	 */
+	#[DataProvider( 'provide_registry_visibility_cases' )]
+	public function test_persisted_registry_tasks_honor_visibility_on_read( $is_visible, $rendered ) {
+		$task_id = $this->register_test_task( $is_visible );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', $task_id, 'site_launched' ), 'write' );
+
+		$ids = $this->rendered_ids();
+
+		$this->assertSame( $rendered, in_array( $task_id, $ids, true ) );
+		$this->assertContains( 'first_post_published', $ids, 'the premise: the rest of the persisted list still renders' );
+	}
+
+	/**
+	 * Visibility cases for the two registry-visibility tests above.
+	 *
+	 * @return array
+	 */
+	public static function provide_registry_visibility_cases() {
+		return array(
+			'a definition with no is_visible' => array( null, true ),
+			'an is_visible returning true'    => array( true, true ),
+			'an is_visible returning false'   => array( false, false ),
+		);
 	}
 
 	/**

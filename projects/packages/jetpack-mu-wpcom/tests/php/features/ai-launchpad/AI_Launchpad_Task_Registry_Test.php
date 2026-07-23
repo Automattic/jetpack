@@ -9,8 +9,10 @@
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-gallery-page-listener.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-task-registry.php';
+require_once __DIR__ . '/fixtures/trait-registers-test-task.php';
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * The registry holds task definitions the shared launchpad catalog does not own. It is
@@ -21,6 +23,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
  */
 #[CoversClass( AI_Launchpad_Task_Registry::class )]
 class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
+
+	use AI_Launchpad_Registers_Test_Task;
 
 	/**
 	 * Tear down.
@@ -72,7 +76,49 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_unknown_ids_resolve_to_nothing() {
 		$this->assertFalse( AI_Launchpad_Task_Registry::is_complete( 'first_post_published' ) );
+		$this->assertFalse( AI_Launchpad_Task_Registry::is_visible( 'first_post_published' ) );
 		$this->assertNull( AI_Launchpad_Task_Registry::build( 'not_a_task', 'x' ) );
+	}
+
+	/**
+	 * `is_visible` is optional: a definition without one is visible, and one with a callable reports what
+	 * that callable returns.
+	 *
+	 * Exercised through a test-only definition injected into the registry, because the only real entry
+	 * (`add_gallery_page`) is universally renderable and deliberately declares no `is_visible` — see the
+	 * fixture trait.
+	 *
+	 * @param bool|null $is_visible The `is_visible` return value, or null to omit the key.
+	 * @param bool      $expected   Whether the task should report as visible.
+	 * @dataProvider provide_registry_visibility_cases
+	 */
+	#[DataProvider( 'provide_registry_visibility_cases' )]
+	public function test_is_visible_honors_the_optional_callable( $is_visible, $expected ) {
+		$task_id = $this->register_test_task( $is_visible );
+
+		$this->assertTrue( AI_Launchpad_Task_Registry::has( $task_id ), 'the premise: the definition is registered' );
+		$this->assertSame( $expected, AI_Launchpad_Task_Registry::is_visible( $task_id ) );
+	}
+
+	/**
+	 * Visibility cases for test_is_visible_honors_the_optional_callable.
+	 *
+	 * @return array
+	 */
+	public static function provide_registry_visibility_cases() {
+		return array(
+			'a definition with no is_visible' => array( null, true ),
+			'an is_visible returning true'    => array( true, true ),
+			'an is_visible returning false'   => array( false, false ),
+		);
+	}
+
+	/**
+	 * The gallery task declares no visibility and so is visible everywhere, which is what lets it be
+	 * appended to the offered menu on any site.
+	 */
+	public function test_the_gallery_task_is_visible_everywhere() {
+		$this->assertTrue( AI_Launchpad_Task_Registry::is_visible( 'add_gallery_page' ) );
 	}
 
 	/**
