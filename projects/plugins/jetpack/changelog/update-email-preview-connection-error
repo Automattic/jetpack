@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter: show an actionable prompt to connect your WordPress.com account when the email preview and test email features fail because of a missing user connection.
