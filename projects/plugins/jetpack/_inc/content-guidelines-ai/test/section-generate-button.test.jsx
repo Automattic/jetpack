@@ -42,6 +42,10 @@ jest.mock( '@wordpress/components', () => ( {
 	Spinner: () => <span className="components-spinner" />,
 } ) );
 jest.mock( '@automattic/jetpack-ai-client', () => ( { useAiFeature: jest.fn() } ) );
+// @wordpress/notices pulls in @wordpress/components transitively; mock it so
+// that chain (rich-text -> combineReducers) never loads under the test's
+// partial @wordpress/data mock.
+jest.mock( '@wordpress/notices', () => ( { store: {} } ) );
 jest.mock( '../hooks/use-drafts', () => ( { useSectionHasDraft: jest.fn() } ) );
 jest.mock( '../lib/api', () => ( { suggestGuidelines: jest.fn() } ) );
 jest.mock( '../lib/drafts', () => ( { readSectionDraft: jest.fn() } ) );
