@@ -11,42 +11,55 @@
 	padding: 1rem;
 	position: relative;
 	box-shadow: 0 0 15px var(--jp-gray-off);
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 
 	&--selected {
 		border-color: var(--jp-black);
 		background: var(--jp-gray-off);
 	}
 
-	&::after {
-		content: "";
-		display: block;
-		width: 5px;
-		height: 5px;
-		position: absolute;
-		top: 50%;
-		right: 1.5rem;
-		border-top: 2px solid var(--jp-black);
-		border-right: 2px solid var(--jp-black);
-		transform: translateY(-50%) rotate(45deg);
-	}
-
 	&:hover {
 		cursor: pointer;
 	}
 
+	// `:focus-within` rather than `:focus`: the focusable element is now the
+	// radio inside the card, not the card itself.
 	&:hover,
-	&:focus {
+	&:focus-within {
 
-		&:not(.jp-disconnect-survey-card--selected) {
+		&:not(.jp-connect__disconnect-survey-card--selected) {
 			border-color: var(--jp-black-80);
 		}
 	}
 
+	&__radio {
+		// Sits above the label's stretched hit area so the radio itself stays
+		// directly clickable, and so its focus ring is not painted over.
+		position: relative;
+		z-index: 1;
+		flex-shrink: 0;
+		margin: 0;
+	}
+
 	&__answer {
+		// Set explicitly rather than inherited: as a `<p>` the answer used to
+		// pick this up from the dialog's `p` rule, but a `<label>` never matches
+		// that selector and would otherwise fall back to @wordpress/ui's
+		// smaller default body size.
+		font-size: var(--font-body);
 		font-weight: 700;
 		margin: 0;
-		display: flex;
-		align-items: center;
+
+		// Stretch the label over the whole card, so clicking anywhere in the
+		// card selects the option — as it did when the card was one big
+		// `role="button"`.
+		&::before {
+			content: "";
+			position: absolute;
+			inset: 0;
+		}
 	}
 }
 
@@ -55,9 +68,14 @@ input.jp-connect__disconnect-survey-card__input {
 	border: none;
 	background-color: transparent;
 	color: var(--jp-black-80);
+	font-size: var(--font-body);
 	flex-grow: 1;
-	padding-right: 40px;
-	max-width: calc(100% - 40px);
+	min-width: 0;
+
+	// Keep the free text field above the label's stretched hit area, so that
+	// clicking it focuses the field rather than the "Other" radio.
+	position: relative;
+	z-index: 1;
 }
 
 .jp-connection__disconnect-dialog__content .jp-connection__disconnect-dialog__btn-back-to-wp {

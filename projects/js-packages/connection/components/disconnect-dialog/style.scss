@@ -131,9 +131,17 @@
 		color: var(--jp-red);
 	}
 
+	// The survey options form a radio group, so they are wrapped in a
+	// `<fieldset>` with a (visually hidden) `<legend>` naming the group. These
+	// rules strip the UA fieldset chrome, leaving the previous layout intact.
 	&__survey {
-		margin-bottom: 1.5rem;
+		margin: 0 0 1.5rem;
 		max-width: 100%;
+		border: 0;
+		padding: 0;
+		// A fieldset's default `min-width: min-content` would otherwise keep it
+		// from shrinking below its widest option on narrow screens.
+		min-width: 0;
 	}
 
 	// The thank-you step wraps its copy in a @wordpress/ui Stack, so let the

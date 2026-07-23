@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connection UI: Make the disconnect survey a real radio group so its options are announced and keyboard-operable as a single-choice control, and drop the decorative arrow the options no longer need.
