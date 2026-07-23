@@ -108,6 +108,27 @@ describe( 'drafts', () => {
 			unsubscribe();
 		} );
 
+		it( 'sees draft edits even when a page handler stops the bubbling input event', async () => {
+			renderSections();
+			startDraftTracking();
+			await flushObserver();
+
+			const listener = jest.fn();
+			const unsubscribe = subscribeToDrafts( listener );
+
+			const textarea = getSectionTextarea( 'site' );
+			// A page-owned handler that swallows the event on the way up. The
+			// draft listener is attached in the capture phase precisely so this
+			// cannot hide an edit; a bubble-phase listener would miss it.
+			textarea.parentElement.addEventListener( 'input', e => e.stopPropagation() );
+
+			textarea.value = 'Captured despite stopPropagation.';
+			textarea.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+
+			expect( listener ).toHaveBeenCalledTimes( 1 );
+			unsubscribe();
+		} );
+
 		it( 'does not notify on input events in unrelated fields', async () => {
 			renderSections();
 			startDraftTracking();

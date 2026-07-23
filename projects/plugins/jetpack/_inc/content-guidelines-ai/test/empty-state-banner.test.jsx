@@ -1,0 +1,88 @@
+import { render, screen, fireEvent } from '@testing-library/react';
+import { useAiFeature } from '@automattic/jetpack-ai-client';
+import { useSelect, useDispatch } from '@wordpress/data';
+import useGenerateAll from '../hooks/use-generate-all';
+import EmptyStateBanner from '../components/empty-state-banner';
+
+jest.mock( '@wordpress/data', () => ( {
+	useSelect: jest.fn(),
+	useDispatch: jest.fn(),
+	createReduxStore: jest.fn(),
+	register: jest.fn(),
+} ) );
+jest.mock( '@wordpress/components', () => ( {
+	Button: ( { children, onClick, disabled, href, className, style, label, 'aria-hidden': ariaHidden } ) => (
+		<button
+			type="button"
+			onClick={ onClick }
+			disabled={ disabled }
+			href={ href }
+			className={ className }
+			style={ style }
+			aria-hidden={ ariaHidden }
+			aria-label={ label }
+		>
+			{ children }
+		</button>
+	),
+	Tooltip: ( { children } ) => children,
+	Notice: ( { children, onRemove, isDismissible } ) => (
+		<div>
+			{ children }
+			{ isDismissible !== false && (
+				<button type="button" aria-label="Close" onClick={ onRemove }>
+					Close
+				</button>
+			) }
+		</div>
+	),
+	Spinner: () => <span className="components-spinner" />,
+} ) );
+jest.mock( '@automattic/jetpack-ai-client', () => ( { useAiFeature: jest.fn() } ) );
+jest.mock( '../hooks/use-generate-all' );
+
+const generate = jest.fn();
+const dismissBanner = jest.fn();
+
+function setup( { dismissed = false, hasFeature = true } ) {
+	useGenerateAll.mockReturnValue( { generate } );
+	useAiFeature.mockReturnValue( { hasFeature } );
+	useDispatch.mockReturnValue( { dismissBanner } );
+	useSelect.mockImplementation( map => map( () => ( { isBannerDismissed: () => dismissed } ) ) );
+}
+
+describe( 'EmptyStateBanner', () => {
+	beforeEach( () => jest.clearAllMocks() );
+
+	it( 'renders nothing once dismissed', () => {
+		setup( { dismissed: true } );
+		const { container } = render( <EmptyStateBanner /> );
+		expect( container ).toBeEmptyDOMElement();
+	} );
+
+	it( 'renders nothing without an AI plan', () => {
+		setup( { hasFeature: false } );
+		const { container } = render( <EmptyStateBanner /> );
+		expect( container ).toBeEmptyDOMElement();
+	} );
+
+	it( 'shows the banner when active and generates on Get started', () => {
+		setup( {} );
+		render( <EmptyStateBanner /> );
+
+		expect( screen.getByText( /generate your guidelines/i ) ).toBeInTheDocument();
+
+		fireEvent.click( screen.getByRole( 'button', { name: 'Get started' } ) );
+		expect( dismissBanner ).toHaveBeenCalledTimes( 1 );
+		expect( generate ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'dismisses without generating on Close', () => {
+		setup( {} );
+		render( <EmptyStateBanner /> );
+
+		fireEvent.click( screen.getByRole( 'button', { name: 'Close' } ) );
+		expect( dismissBanner ).toHaveBeenCalledTimes( 1 );
+		expect( generate ).not.toHaveBeenCalled();
+	} );
+} );
