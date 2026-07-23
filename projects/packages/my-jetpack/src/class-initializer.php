@@ -178,7 +178,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function update_init_options( array $options ): void {
-		if ( ! isset( $options['skip'] ) ) {
+		if ( ! array_key_exists( 'skip', $options ) ) {
 			return;
 		}
 
@@ -479,6 +479,26 @@ class Initializer {
 	}
 
 	/**
+	 * Whether the My Jetpack app should advertise the Add License screen.
+	 *
+	 * True only when the licensing UI feature flag is on AND the licensing REST
+	 * endpoints are actually registered -- that is, Licensing::initialize() ran,
+	 * whether from My Jetpack's own licensing subsystem or independently from the
+	 * Jetpack plugin. is_licensing_ui_enabled() alone is just a feature flag and
+	 * does not track initialization, so a consumer that skips the licensing
+	 * subsystem via update_init_options() would otherwise still show an Add License
+	 * screen whose REST calls 404. Keyed on route availability rather than on the
+	 * skip flag so a site where the Jetpack plugin initialized Licensing
+	 * independently still advertises the screen.
+	 *
+	 * @return bool
+	 */
+	public static function should_load_add_license_screen() {
+		return self::is_licensing_ui_enabled()
+			&& false !== has_action( 'rest_api_init', array( Licensing::instance(), 'initialize_endpoints' ) );
+	}
+
+	/**
 	 * Add My Jetpack menu item to the admin menu.
 	 *
 	 * @return void
@@ -689,7 +709,7 @@ class Initializer {
 				'myJetpackVersion'       => self::PACKAGE_VERSION,
 				'myJetpackFlags'         => self::get_my_jetpack_flags(),
 				'fileSystemWriteAccess'  => self::has_file_system_write_access(),
-				'loadAddLicenseScreen'   => self::is_licensing_ui_enabled(),
+				'loadAddLicenseScreen'   => self::should_load_add_license_screen(),
 				'adminUrl'               => esc_url( admin_url() ),
 				'IDCContainerID'         => static::get_idc_container_id(),
 				'userIsAdmin'            => current_user_can( 'manage_options' ),

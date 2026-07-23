@@ -90,12 +90,15 @@ class Initializer_Subsystems_Test extends BaseTestCase {
 		remove_action( 'admin_init', array( Initializer::class, 'setup_historically_active_jetpack_modules_sync' ) );
 		remove_action( 'admin_menu', array( Initializer::class, 'maybe_show_red_bubble' ), 30 );
 
-		// Jetpack Manage's admin_menu hook: WorDBless restores every test to a single
-		// frozen hook snapshot taken at the suite's first test, so in reverse/random order
-		// that baseline can already carry this hook from another class. Scrub it so the
-		// skip-list absence assertions start clean. Safe to re-add because
-		// Jetpack_Manage::init() is unconditional (no did_action guard), unlike JITM/ExPlat.
+		// Jetpack Manage's admin_menu hook and Licensing's rest_api_init endpoint hook:
+		// WorDBless restores every test to a single frozen hook snapshot taken at the
+		// suite's first test, so in reverse/random order that baseline can already carry
+		// these hooks from another class. Scrub them so the skip-list absence assertions
+		// (and should_load_add_license_screen) start clean. Safe to re-add because both
+		// Jetpack_Manage::init() and Licensing::initialize() are unconditional (no
+		// did_action guard), unlike JITM/ExPlat.
 		remove_action( 'admin_menu', array( Jetpack_Manage::class, 'add_submenu_jetpack' ) );
+		remove_action( 'rest_api_init', array( Licensing::instance(), 'initialize_endpoints' ) );
 
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'doing_it_wrong_run' );
@@ -251,6 +254,34 @@ class Initializer_Subsystems_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Every init_* wrapper is a no-op when the site is ineligible: each returns at its
+	 * should_initialize() guard without wiring anything or firing my_jetpack_init, and
+	 * without consuming its one-shot mark (so a later eligible call still boots it).
+	 * Exercises the guard return in all eight wrappers.
+	 */
+	public function test_wrappers_are_no_ops_when_ineligible() {
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
+
+		Initializer::init_plugins_action_links();
+		Initializer::init_rest_api();
+		Initializer::init_licensing();
+		Initializer::init_speed_score();
+		Initializer::init_admin_ui();
+		Initializer::init_explat();
+		Initializer::init_jitm();
+		Initializer::init_jetpack_manage();
+
+		remove_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
+
+		$this->assertSame( 0, did_action( 'my_jetpack_init' ) );
+
+		// No mark was consumed: a later eligible individual call still boots (order-safe delta).
+		$before = self::count_speed_score_instances();
+		Initializer::init_speed_score();
+		$this->assertSame( $before + 1, self::count_speed_score_instances() );
+	}
+
+	/**
 	 * Speed Score hooks itself as an object, so WordPress cannot deduplicate a second
 	 * instance. Mixing init_speed_score() with init() must still leave one instance.
 	 */
@@ -259,9 +290,14 @@ class Initializer_Subsystems_Test extends BaseTestCase {
 
 		Initializer::init_speed_score();
 		$this->assertSame( $before + 1, self::count_speed_score_instances() );
+		// The individual wrapper must not fire the aggregate lifecycle action.
+		$this->assertSame( 0, did_action( 'my_jetpack_init' ) );
 
 		Initializer::init();
 		$this->assertSame( $before + 1, self::count_speed_score_instances() );
+		// The aggregate call still wires representative work and fires its action once.
+		$this->assertNotFalse( has_action( 'rest_api_init', array( Initializer::class, 'register_rest_endpoints' ) ) );
+		$this->assertSame( 1, did_action( 'my_jetpack_init' ) );
 	}
 
 	/**
@@ -421,6 +457,18 @@ class Initializer_Subsystems_Test extends BaseTestCase {
 	}
 
 	/**
+	 * An explicit null skip is a malformed value, not an omission: it is rejected with
+	 * _doing_it_wrong() like any other non-array skip, rather than silently doing nothing.
+	 */
+	public function test_update_init_options_rejects_null_skip() {
+		$this->capture_doing_it_wrong();
+
+		Initializer::update_init_options( array( 'skip' => null ) );
+
+		$this->assertCount( 1, $this->doing_it_wrong );
+	}
+
+	/**
 	 * Calling update_init_options() with a skip list after init() has run warns via
 	 * _doing_it_wrong(), but still records the key (recorded-but-ineffective).
 	 */
@@ -454,6 +502,45 @@ class Initializer_Subsystems_Test extends BaseTestCase {
 
 		Initializer::init_speed_score();
 		$this->assertSame( $before + 1, self::count_speed_score_instances() );
+	}
+
+	/**
+	 * When licensing boots normally, the Add License screen is advertised, because the
+	 * licensing REST endpoints its fetches call are registered.
+	 */
+	public function test_add_license_screen_advertised_when_licensing_booted() {
+		Initializer::init();
+
+		$this->assertTrue( Initializer::should_load_add_license_screen() );
+	}
+
+	/**
+	 * When licensing is skipped, the Add License screen is not advertised: its REST
+	 * endpoints were never registered, so advertising it would produce 404s. Guards
+	 * against reintroducing the UI/REST mismatch the skip list can otherwise create.
+	 */
+	public function test_add_license_screen_hidden_when_licensing_skipped() {
+		Initializer::update_init_options( array( 'skip' => array( 'licensing' ) ) );
+		Initializer::init();
+
+		$this->assertFalse( has_action( 'rest_api_init', array( Licensing::instance(), 'initialize_endpoints' ) ) );
+		$this->assertFalse( Initializer::should_load_add_license_screen() );
+	}
+
+	/**
+	 * The Add License gate keys on actual route availability, not on the skip flag: a
+	 * consumer that skips My Jetpack's licensing boot but has Licensing initialized
+	 * independently (as the Jetpack plugin does) still advertises the screen.
+	 */
+	public function test_add_license_screen_advertised_when_licensing_initialized_independently() {
+		Initializer::update_init_options( array( 'skip' => array( 'licensing' ) ) );
+		Initializer::init();
+		$this->assertFalse( Initializer::should_load_add_license_screen() );
+
+		// Simulate the Jetpack plugin's independent Licensing::initialize().
+		Licensing::instance()->initialize();
+
+		$this->assertTrue( Initializer::should_load_add_license_screen() );
 	}
 
 	/**
