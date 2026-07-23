@@ -8,9 +8,10 @@ import {
 	ReportDrilldownTable,
 	ReportErrorState,
 	ReportPageLayout,
+	ReportPageShell,
 	useReportRetry,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs, Page } from '@wordpress/admin-ui';
+import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
@@ -19,7 +20,6 @@ import { useSearch } from '@wordpress/route';
  */
 import { route } from '../package.json';
 import { getAuthorsFields, useAuthorsReportRecords, type AuthorRow } from './config';
-import styles from './page.module.css';
 
 const ROUTE_FROM = route.path;
 
@@ -77,7 +77,7 @@ function AuthorsReport(): JSX.Element {
 	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
 
 	return (
-		<Page
+		<ReportPageShell
 			breadcrumbs={
 				<Breadcrumbs
 					items={ [
@@ -86,41 +86,38 @@ function AuthorsReport(): JSX.Element {
 					] }
 				/>
 			}
-			className={ styles.page }
 		>
-			<div className={ styles.content }>
-				<ReportPageLayout
-					filters={
-						<div ref={ setContainerElement } className={ styles.dateFilters }>
-							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-						</div>
-					}
-				>
-					{ /*
-					 * Replace the row-count-based table state when either request fails,
-					 * so cached rows are not shown as current and an initial failure does
-					 * not look like a legitimate empty report.
-					 */ }
-					{ records.isError ? (
-						<ReportErrorState
-							title={ __( 'Unable to load authors', 'jetpack-premium-analytics' ) }
-							onRetry={ retry }
-						/>
-					) : (
-						<ReportDrilldownTable< AuthorRow >
-							data={ records.rows }
-							fields={ fields }
-							getItemId={ getAuthorRowId }
-							getItemParentId={ getAuthorRowParentId }
-							isLoading={ records.isLoading }
-							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search authors', 'jetpack-premium-analytics' ) }
-							hideLevelMarkers
-						/>
-					) }
-				</ReportPageLayout>
-			</div>
-		</Page>
+			<ReportPageLayout
+				filters={
+					<div ref={ setContainerElement }>
+						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
+					</div>
+				}
+			>
+				{ /*
+				 * Replace the row-count-based table state when either request fails,
+				 * so cached rows are not shown as current and an initial failure does
+				 * not look like a legitimate empty report.
+				 */ }
+				{ records.isError ? (
+					<ReportErrorState
+						title={ __( 'Unable to load authors', 'jetpack-premium-analytics' ) }
+						onRetry={ retry }
+					/>
+				) : (
+					<ReportDrilldownTable< AuthorRow >
+						data={ records.rows }
+						fields={ fields }
+						getItemId={ getAuthorRowId }
+						getItemParentId={ getAuthorRowParentId }
+						isLoading={ records.isLoading }
+						initialView={ RECORDS_VIEW }
+						searchLabel={ __( 'Search authors', 'jetpack-premium-analytics' ) }
+						hideLevelMarkers
+					/>
+				) }
+			</ReportPageLayout>
+		</ReportPageShell>
 	);
 }
 
