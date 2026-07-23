@@ -186,23 +186,6 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The REST API endpoint classes are no longer constructed at init time; their construction is
-	 * deferred to priority-0 `rest_api_init` callbacks. Initializer::init() has two such blocks:
-	 * the always-run WPCOM v2 endpoints in unconditional_initialization(), and the active-module
-	 * endpoints in active_initialization(). Guard both: firing the hook must still register the
-	 * routes — each priority-0 callback constructs/inits the endpoints, which add their own
-	 * default-priority callbacks that register the routes within the same firing. A regression to
-	 * that re-entrancy (e.g. bumping a deferred priority off 0) would silently drop the routes.
-	 *
-	 * Runs in a separate process: driving the real Initializer autoloads VideoPress classes
-	 * (e.g. Jwt_Token_Bridge) that other tests in this suite replace with alias mocks, which
-	 * require the class to be unloaded. The isolated process also lets us force the module-active
-	 * path via a standalone-plugin class stub without leaking it into the rest of the suite.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	/**
 	 * When the VideoPress module is not active but the admin UI is enabled (as the
 	 * Jetpack plugin does via Config), init() must still register the dynamic menu
 	 * callback so "Jetpack > VideoPress" renders, linking to the My Jetpack
@@ -229,6 +212,19 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The REST API endpoint classes are no longer constructed at init time; their construction is
+	 * deferred to priority-0 `rest_api_init` callbacks. Initializer::init() has two such blocks:
+	 * the always-run WPCOM v2 endpoints in unconditional_initialization(), and the active-module
+	 * endpoints in active_initialization(). Guard both: firing the hook must still register the
+	 * routes — each priority-0 callback constructs/inits the endpoints, which add their own
+	 * default-priority callbacks that register the routes within the same firing. A regression to
+	 * that re-entrancy (e.g. bumping a deferred priority off 0) would silently drop the routes.
+	 *
+	 * Runs in a separate process: driving the real Initializer autoloads VideoPress classes
+	 * (e.g. Jwt_Token_Bridge) that other tests in this suite replace with alias mocks, which
+	 * require the class to be unloaded. The isolated process also lets us force the module-active
+	 * path via a standalone-plugin class stub without leaking it into the rest of the suite.
+	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
