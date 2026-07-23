@@ -16,6 +16,29 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
 } ) );
 
+jest.mock( '@wordpress/core-data', () => ( {
+	store: {},
+} ) );
+
+jest.mock( '@wordpress/data', () => ( {
+	useSelect: () => [],
+} ) );
+
+jest.mock( '@wordpress/widget-dashboard', () => {
+	const WidgetDashboard = ( { children }: { children: ReactNode } ) => <>{ children }</>;
+	WidgetDashboard.Widgets = () => <div>Video widgets</div>;
+
+	return { WidgetDashboard };
+} );
+
+jest.mock( '@wordpress/widget-primitives', () => ( {
+	useWidgetTypes: () => [ [], false ],
+} ) );
+
+jest.mock( '../dashboard/hooks/use-dashboard-grid-settings', () => ( {
+	useDashboardGridSettings: () => [ {} ],
+} ) );
+
 jest.mock( '@wordpress/admin-ui', () => ( {
 	Breadcrumbs: ( { items }: { items: Array< { label: string } > } ) => (
 		<nav aria-label="Breadcrumbs">
@@ -107,7 +130,7 @@ describe( 'video detail stage', () => {
 	} );
 
 	it.each( [ { isLoading: true }, { isError: true }, { isNotFound: true } ] )(
-		'shows only the Stats crumb while no title is available',
+		'shows only the Stats crumb and does not mount widgets while no video is available',
 		summary => {
 			mockSummary( summary );
 
@@ -118,6 +141,8 @@ describe( 'video detail stage', () => {
 			const crumbs = within( nav ).getAllByRole( 'listitem' );
 			expect( crumbs ).toHaveLength( 1 );
 			expect( crumbs[ 0 ] ).toHaveTextContent( 'Stats' );
+			expect( screen.queryByRole( 'heading', { level: 1 } ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Video widgets' ) ).not.toBeInTheDocument();
 		}
 	);
 
@@ -130,5 +155,6 @@ describe( 'video detail stage', () => {
 		expect( breadcrumbs.getByText( 'Stats' ) ).toBeInTheDocument();
 		expect( breadcrumbs.getByText( 'Launch recap' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'heading', { level: 1, name: 'Launch recap' } ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Video widgets' ) ).toBeInTheDocument();
 	} );
 } );

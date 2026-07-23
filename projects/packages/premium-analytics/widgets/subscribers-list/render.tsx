@@ -96,12 +96,14 @@ type SubscribersReportProps = {
 function SubscribersReport( { attributes }: SubscribersReportProps ) {
 	// Show six rows by default (matching the card design). A missing or
 	// non-positive setting falls back to that default — `?? 6` alone wouldn't,
-	// since an explicit `0` from the number field is not nullish.
-	const num = attributes?.num && attributes.num > 0 ? attributes.num : 6;
+	// since an explicit `0` from the number field is not nullish. `max` goes
+	// straight to the paginated `stats/followers` endpoint, which has no
+	// client-side cap, so 0 does not mean "all rows" here.
+	const max = attributes?.max && attributes.max > 0 ? attributes.max : 6;
 
 	const { data, isLoading, isFetching, isError, refetch } = useStatsFollowers( {
 		type: 'all',
-		max: num,
+		max,
 	} );
 
 	const report = data as StatsNormalizedReport< StatsFollowersItem > | undefined;

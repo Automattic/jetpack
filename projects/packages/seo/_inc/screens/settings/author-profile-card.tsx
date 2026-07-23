@@ -2,7 +2,6 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Badge, Card, CollapsibleCard, Stack } from '@wordpress/ui';
 import { useAuthorProfile } from '../../data/use-author-profile';
 import AuthorProfileSection from './schema-settings/author-profile-section';
-import './style.scss';
 
 const notSetLabel = __( 'Not set', 'jetpack-seo' );
 

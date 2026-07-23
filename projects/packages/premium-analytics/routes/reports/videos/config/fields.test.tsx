@@ -96,6 +96,13 @@ describe( 'videos fields', () => {
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'renders plain text when the payload URL is unsafe', () => {
+		renderTitleField( { ...video, id: undefined, link: 'javascript:alert(1)' } );
+
+		expect( screen.getByText( 'Launch video' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'keeps the report-owned untitled fallback', () => {
 		renderTitleField( { ...video, id: undefined, label: undefined, link: null } );
 

@@ -11,7 +11,7 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 export type VideoDetailHighlightsAttributes = Record< never, never >;
 
 /**
- * Widget type definition for the selected video's complete Stats metrics.
+ * Widget type definition for the selected video's trailing-30-day metrics.
  */
 export default {
 	icon: video,

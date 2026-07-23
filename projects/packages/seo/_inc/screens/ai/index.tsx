@@ -56,7 +56,7 @@ const AiScreen: FC< Props > = ( { form } ) => {
 							<ToggleControl
 								label={ __( 'Generate an llms.txt file', 'jetpack-seo' ) }
 								help={ __(
-									'Publishes a curated, AI-readable map of your content at /llms.txt to help AI assistants find and understand your pages and posts.',
+									'Publishes a curated, AI-readable map at /llms.txt to help AI assistants find and understand your supported content.',
 									'jetpack-seo'
 								) }
 								checked={ llmsTxt.enabled }
