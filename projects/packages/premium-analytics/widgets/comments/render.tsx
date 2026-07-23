@@ -3,20 +3,21 @@
  */
 import {
 	LeaderboardChart,
-	LeaderboardLabel,
 	ReportLink,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	buildLeaderboardRow,
 	safeHttpUrl,
 	sharePercentage,
 	type LeaderboardChartData,
+	type LeaderboardRowChartProps,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { comment } from '@wordpress/icons';
-import { Link, Stack } from '@wordpress/ui';
+import { Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -24,7 +25,6 @@ import styles from './style.module.css';
 import useCommentViews, { type CommentRow } from './use-comment-views';
 import { type CommentsAttributes, type CommentsView } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ReactElement } from 'react';
 
 type CommentsRenderAttributes = CommentsAttributes & Partial< ReportParamsFieldAttributes >;
 type CommentsWidgetProps = WidgetRenderProps< CommentsRenderAttributes >;
@@ -38,52 +38,36 @@ function isCommentView( value: unknown ): value is CommentsView {
 }
 
 /**
- * Builds a leaderboard row label. Authors render as a name + avatar; posts render
- * as an external link to the published post (or plain text when a post has no
- * permalink). Author rows carry no link in the normalized data, so they are
- * always static labels.
+ * Builds a leaderboard row label. Authors render as a name + avatar, linking to
+ * the comments-admin search when the normalized data carries a URL (or a static
+ * label when it doesn't); posts render as an external link to the published post
+ * (or plain text when a post has no permalink).
  *
  * @param {CommentRow}   row  - The row to label.
  * @param {CommentsView} view - The active view.
  * @return The label node.
  */
-function buildRowLabel( row: CommentRow, view: CommentsView ): ReactElement {
+function buildRowLabel( row: CommentRow, view: CommentsView ): LeaderboardRowChartProps {
 	if ( view === 'authors' ) {
-		return (
-			<LeaderboardLabel
-				label={ row.label }
-				imageUrl={ row.avatarUrl }
-				imageAlt={ sprintf(
-					/* translators: %s is the comment author name */
-					__( 'Avatar of %s', 'jetpack-premium-analytics' ),
-					row.label
-				) }
-				imageClassName={ styles.avatar }
-			/>
-		);
+		// The author link is constructed locally by the data layer (a relative
+		// `edit-comments.php?s=…` search), so it needs no scheme guard — which
+		// would reject it as relative anyway.
+		return buildLeaderboardRow( {
+			label: row.label,
+			media: { kind: 'avatar', url: row.avatarUrl, name: row.label },
+			action: row.link ? { kind: 'link', href: row.link } : { kind: 'static' },
+		} );
 	}
 
+	// Post permalinks come from report data, so validate the scheme before the
+	// row becomes a link.
 	const href = safeHttpUrl( row.link );
 
-	if ( href ) {
-		return (
-			<Link
-				className={ styles.postLabel }
-				href={ href }
-				variant="unstyled"
-				openInNewTab
-				title={ row.label }
-			>
-				{ row.label }
-			</Link>
-		);
-	}
-
-	return (
-		<span className={ styles.postLabel } title={ row.label }>
-			{ row.label }
-		</span>
-	);
+	return buildLeaderboardRow( {
+		label: row.label,
+		media: { kind: 'none' },
+		action: href ? { kind: 'link', href } : { kind: 'static' },
+	} );
 }
 
 interface CommentsInnerProps {
@@ -115,7 +99,7 @@ function CommentsInner( { max = 10, view }: CommentsInnerProps ) {
 
 		return data.map( row => ( {
 			id: row.id,
-			label: buildRowLabel( row, view ),
+			...buildRowLabel( row, view ),
 			currentValue: row.value,
 			currentShare: sharePercentage( row.value, maxValue ),
 		} ) );

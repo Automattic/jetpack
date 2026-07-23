@@ -1,3 +1,4 @@
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { LIBRARY_QUERY_KEY } from './use-library';
@@ -13,6 +14,10 @@ type UploadStatusResponse = {
 	// Returned for the `uploaded` (already-on-VideoPress) terminal status.
 	uploaded_post_id?: number | string;
 	uploaded_video_guid?: string;
+	// Chunk-progress fields present on `new` / `resume` / `uploading` /
+	// `complete` responses (`bytes_uploaded` is -1 on `error`).
+	bytes_uploaded?: number;
+	file_size?: number;
 };
 
 export type UploadFromLibraryResult = {
@@ -25,6 +30,8 @@ export type UploadFromLibraryOptions = {
 	delayMs?: number;
 	/** Maximum total attempts before giving up. */
 	maxAttempts?: number;
+	/** Called with the upload percentage (0–100) after each chunk response. */
+	onProgress?: ( percent: number ) => void;
 };
 
 const DEFAULT_DELAY_MS = 500;
@@ -77,6 +84,21 @@ export async function uploadFromLibrary(
 			continue;
 		}
 
+		// Each POST pushes one chunk server-side and reports the running
+		// offset; surface it so callers can render real upload progress.
+		// `bytes_uploaded` is -1 on `error` responses, hence the >= 0 guard.
+		if (
+			options.onProgress &&
+			typeof result.bytes_uploaded === 'number' &&
+			typeof result.file_size === 'number' &&
+			result.bytes_uploaded >= 0 &&
+			result.file_size > 0
+		) {
+			options.onProgress(
+				Math.min( 100, Math.round( ( result.bytes_uploaded / result.file_size ) * 100 ) )
+			);
+		}
+
 		if ( result.status === 'complete' && result.uploaded_details ) {
 			return {
 				guid: result.uploaded_details.guid,
@@ -107,19 +129,77 @@ export async function uploadFromLibrary(
 	throw new Error( 'Upload from library timed out.' );
 }
 
+export type UploadFromLibraryVariables = {
+	/** The numeric or string WordPress attachment ID. */
+	id: string | number;
+	/** Called with the upload percentage (0–100) after each chunk response. */
+	onProgress?: ( percent: number ) => void;
+};
+
+type WpcomPromoteResponse = {
+	guid: string;
+	media_id: number;
+	// Present (true) when the attachment was already on VideoPress and the
+	// endpoint reported success idempotently instead of re-promoting.
+	already_videopress?: boolean;
+};
+
+/**
+ * Promote a local attachment in-process on WordPress.com Simple. The file
+ * already lives on WordPress.com storage, so there is no chunked upload to
+ * walk: a single POST creates the videos-table row and enqueues the
+ * transcode. Promotion is in-place — the attachment keeps its id (no
+ * sibling attachment is created), and the next library refetch shows the
+ * same row as a processing VideoPress video.
+ *
+ * @param attachmentId - The numeric or string WordPress attachment ID.
+ * @return The VideoPress GUID and (unchanged) media post ID.
+ */
+export async function promoteOnSimple(
+	attachmentId: string | number
+): Promise< UploadFromLibraryResult > {
+	let result: WpcomPromoteResponse;
+	try {
+		result = await apiFetch< WpcomPromoteResponse >( {
+			path: `/wpcom/v2/videopress/promote/${ attachmentId }`,
+			method: 'POST',
+		} );
+	} catch ( err ) {
+		// apiFetch rejects REST errors as plain { code, message } objects;
+		// normalize to Error so the mutation's declared error type stays
+		// truthful and stage-level notices can rely on `.message`.
+		if ( err instanceof Error ) {
+			throw err;
+		}
+		const message = ( err as { message?: string } )?.message;
+		throw new Error(
+			typeof message === 'string' && message !== ''
+				? message
+				: 'Failed to promote video to VideoPress.',
+			{ cause: err }
+		);
+	}
+	return { guid: result.guid, mediaId: result.media_id };
+}
 /**
  * Promote an existing local WordPress media attachment to a
- * VideoPress-hosted video by walking the chunked upload endpoint.
- * On success the library query is invalidated so the new VideoPress
- * item appears (in processing state, which the library's existing
- * 2s polling then resolves once the backend finishes transcoding).
+ * VideoPress-hosted video. On WordPress.com Simple this is one in-process
+ * POST to wpcom/v2/videopress/promote (the file is already on WordPress.com
+ * storage); elsewhere it walks the chunked videopress/v1 upload endpoint.
+ * On success the library query is invalidated so the new VideoPress item
+ * appears (in processing state, which the library's existing 2s polling
+ * then resolves once the backend finishes transcoding).
  *
  * @return A react-query mutation.
  */
 export function useUploadFromLibrary() {
 	const client = useQueryClient();
-	return useMutation< UploadFromLibraryResult, Error, string | number >( {
-		mutationFn: id => uploadFromLibrary( id ),
+	return useMutation< UploadFromLibraryResult, Error, UploadFromLibraryVariables >( {
+		// On Simple the promote is a single in-process POST — there are no
+		// chunks, so onProgress never fires and the row's promoting overlay
+		// stays indeterminate until the mutation settles.
+		mutationFn: ( { id, onProgress } ) =>
+			isSimpleSite() ? promoteOnSimple( id ) : uploadFromLibrary( id, { onProgress } ),
 		onSuccess: () => {
 			client.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );
 		},

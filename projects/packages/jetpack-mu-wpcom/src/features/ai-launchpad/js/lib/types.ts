@@ -1,5 +1,29 @@
 export type GoalSlug = 'write' | 'build' | 'sell' | 'newsletter' | 'educate' | 'portfolio';
 
+// The theme showcase's subject-category slugs (the `subject` taxonomy from
+// /rest/v1.2/theme-filters). Every category carries free themes, which is why
+// the theme task filters by category instead of free-text search.
+export type ThemeCategorySlug =
+	| 'blog'
+	| 'portfolio'
+	| 'business'
+	| 'store'
+	| 'art-design'
+	| 'about'
+	| 'real-estate'
+	| 'health-wellness'
+	| 'authors-writers'
+	| 'newsletter'
+	| 'education'
+	| 'magazine'
+	| 'music'
+	| 'restaurant'
+	| 'travel-lifestyle'
+	| 'fashion-beauty'
+	| 'community-non-profit'
+	| 'podcast'
+	| 'entertainment';
+
 export interface WizardInput {
 	goal: GoalSlug;
 	site_name: string;
@@ -16,7 +40,7 @@ export interface TailoredInferred {
 	goal: GoalSlug;
 	brand_name?: string;
 	niche?: string;
-	theme_keyword?: string;
+	theme_category?: ThemeCategorySlug;
 	vibe?: string;
 	audience?: string;
 	tagline?: string;

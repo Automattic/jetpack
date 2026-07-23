@@ -2,6 +2,9 @@
 	"name": "jpa/wordads-sponsored-content-history",
 	"title": "Sponsored Content History",
 	"description": "Your WordAds sponsored-content earnings by period, with amounts, ads served, and payment status.",
+	"help": {
+		"content": "Ads Served is the number of ads we attempted to display (page impressions × available ad slots). Not every ad served results in a paid impression."
+	},
 	"category": "stats",
 	"presentation": "content-bleed"
 }

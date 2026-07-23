@@ -80,6 +80,11 @@ function get_widget_modules_response() {
 			'render_module' => $widget_type->render_module,
 			'widget_module' => $widget_type->widget_module,
 			'presentation'  => $widget_type->presentation,
+			'category'      => $widget_type->category,
+			'title'         => $widget_type->title,
+			'description'   => $widget_type->description,
+			'help'          => $widget_type->help,
+			'keywords'      => $widget_type->keywords,
 		);
 	}
 

@@ -41,20 +41,6 @@ export type CommentsAttributes = {
  * the dashboard date range.
  */
 export default {
-	name: 'jpa/comments',
-	title: __( 'Comments', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'A breakdown of comments, grouped by author and by post or page.',
-			'jetpack-premium-analytics'
-		),
-		links: [
-			{
-				label: __( 'Learn more', 'jetpack-premium-analytics' ),
-				href: 'https://jetpack.com/support/jetpack-stats/',
-			},
-		],
-	},
 	icon: comment,
 	attributes: [
 		{
