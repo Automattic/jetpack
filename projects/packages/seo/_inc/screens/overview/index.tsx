@@ -94,6 +94,10 @@ const OverviewScreen: FC = () => {
 					} }
 					onManage={ () => goToSection( 'visibility' ) }
 				/>
+				<SiteVerificationCard
+					data={ data.site_verification }
+					onManage={ () => goToSection( 'verification' ) }
+				/>
 				{ crawlers && (
 					<AiCrawlerCard
 						data={ crawlers }
@@ -103,10 +107,6 @@ const OverviewScreen: FC = () => {
 						onManage={ goToAi }
 					/>
 				) }
-				<SiteVerificationCard
-					data={ data.site_verification }
-					onManage={ () => goToSection( 'verification' ) }
-				/>
 			</div>
 			<div className={ styles.contentCard }>
 				<ContentCoverageCard data={ coverage ?? data.content_coverage } onManage={ goToContent } />

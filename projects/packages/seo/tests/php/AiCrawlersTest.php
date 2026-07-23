@@ -110,16 +110,17 @@ class AiCrawlersTest extends TestCase {
 	}
 
 	/**
-	 * Google-Extended is mixed-use and therefore allowed by default.
+	 * Google-Extended is dual-purpose (Gemini training + grounding AI answers) but
+	 * filed under training and blocked by default, so the owner actively opts in.
 	 *
 	 * @return void
 	 */
-	public function test_google_extended_is_mixed_use_and_allowed_by_default() {
+	public function test_google_extended_is_training_and_blocked_by_default() {
 		$catalog = Ai_Crawlers::get_catalog();
 
-		$this->assertSame( 'mixed', $catalog['google-extended']['type'] );
-		$this->assertFalse( Ai_Crawlers::is_blocked( 'google-extended' ) );
-		$this->assertNotContains( 'google-extended', Ai_Crawlers::get_blocked_slugs() );
+		$this->assertSame( 'training', $catalog['google-extended']['type'] );
+		$this->assertTrue( Ai_Crawlers::is_blocked( 'google-extended' ) );
+		$this->assertContains( 'google-extended', Ai_Crawlers::get_blocked_slugs() );
 	}
 
 	/**

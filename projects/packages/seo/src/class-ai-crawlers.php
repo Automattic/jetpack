@@ -2,14 +2,14 @@
 /**
  * AI crawler access controls.
  *
- * Lets a site owner allow or block individual AI crawlers (training,
- * answer-engine, and mixed-use bots) by appending per-user-agent `Disallow`
- * rules to the WordPress-generated robots.txt.
+ * Lets a site owner allow or block individual AI crawlers (training and
+ * answer-engine bots) by appending per-user-agent `Disallow` rules to the
+ * WordPress-generated robots.txt.
  *
  * Persistence uses a STORE-INTENT model rather than a literal blocked list. The
  * durable option `jetpack_seo_ai_crawler_overrides` holds only *deviations* from
- * each bot's default policy (training crawlers blocked, answer and mixed-use
- * crawlers allowed); a bot with no stored override falls back to its default.
+ * each bot's default policy (training crawlers blocked, answer-engine crawlers
+ * allowed); a bot with no stored override falls back to its default.
  * This keeps the stored map sparse and means newly added training crawlers are
  * covered automatically without a migration.
  *
@@ -52,77 +52,84 @@ class Ai_Crawlers {
 	 * `slug` is the stable key persisted in the override map and sent by the AI
 	 * tab; `user_agent` is the token written to the `User-agent:` robots line;
 	 * `label` is the human name shown in the UI; `type` is `answer` (fetches to
-	 * cite in live AI answers), `training` (collects to train models), or `mixed`
-	 * (does both). Training crawlers are blocked by default; answer and mixed-use
-	 * crawlers are allowed.
+	 * cite in live AI answers) or `training` (collects to train models; some, like
+	 * Google Gemini, also ground AI answers but are filed here). Training crawlers
+	 * are blocked by default; answer-engine crawlers are allowed.
 	 *
 	 * @return array<string, array<string, string>>
 	 */
 	public static function get_catalog() {
+		// Labels are the name a user is most likely to recognize, with the exact
+		// robots.txt user-agent token in parentheses so a technical user can verify
+		// the emitted directive (and to disambiguate the search/training pairs, e.g.
+		// ChatGPT's GPTBot vs OAI-SearchBot).
 		$catalog = array(
 			// Answer-engine crawlers fetch pages so AI assistants can cite them in
 			// live answers. Allowed by default — blocking them costs AI visibility.
 			'oai-searchbot'      => array(
-				'label'      => __( 'ChatGPT Search (OpenAI)', 'jetpack-seo' ),
+				'label'      => __( 'ChatGPT Search (OAI-SearchBot)', 'jetpack-seo' ),
 				'user_agent' => 'OAI-SearchBot',
 				'type'       => 'answer',
 			),
 			'claude-searchbot'   => array(
-				'label'      => __( 'Claude Search (Anthropic)', 'jetpack-seo' ),
+				'label'      => __( 'Claude Search (Claude-SearchBot)', 'jetpack-seo' ),
 				'user_agent' => 'Claude-SearchBot',
 				'type'       => 'answer',
 			),
 			'perplexitybot'      => array(
-				'label'      => __( 'Perplexity', 'jetpack-seo' ),
+				'label'      => __( 'Perplexity (PerplexityBot)', 'jetpack-seo' ),
 				'user_agent' => 'PerplexityBot',
 				'type'       => 'answer',
 			),
 			'amzn-searchbot'     => array(
-				'label'      => __( 'Amazon (Alexa)', 'jetpack-seo' ),
+				'label'      => __( 'Amazon Alexa (Amzn-SearchBot)', 'jetpack-seo' ),
 				'user_agent' => 'Amzn-SearchBot',
 				'type'       => 'answer',
 			),
 			// Training crawlers collect content to train AI models. Blocked by
-			// default.
+			// default. Some (e.g. Google Gemini) are also used to ground live AI
+			// answers, so blocking them protects privacy but can cost that
+			// visibility — filed here as training and blocked by default so the
+			// owner actively opts in.
 			'gptbot'             => array(
-				'label'      => __( 'ChatGPT (OpenAI)', 'jetpack-seo' ),
+				'label'      => __( 'ChatGPT (GPTBot)', 'jetpack-seo' ),
 				'user_agent' => 'GPTBot',
 				'type'       => 'training',
 			),
 			'claudebot'          => array(
-				'label'      => __( 'Claude (Anthropic)', 'jetpack-seo' ),
+				'label'      => __( 'Claude (ClaudeBot)', 'jetpack-seo' ),
 				'user_agent' => 'ClaudeBot',
 				'type'       => 'training',
 			),
 			'google-extended'    => array(
-				'label'      => __( 'Google AI (Gemini)', 'jetpack-seo' ),
+				'label'      => __( 'Google Gemini (Google-Extended)', 'jetpack-seo' ),
 				'user_agent' => 'Google-Extended',
-				'type'       => 'mixed',
+				'type'       => 'training',
 			),
 			'applebot-extended'  => array(
-				'label'      => __( 'Apple Intelligence', 'jetpack-seo' ),
+				'label'      => __( 'Apple Intelligence (Applebot-Extended)', 'jetpack-seo' ),
 				'user_agent' => 'Applebot-Extended',
 				'type'       => 'training',
 			),
 			'meta-externalagent' => array(
-				'label'      => __( 'Meta AI', 'jetpack-seo' ),
+				'label'      => __( 'Meta AI (meta-externalagent)', 'jetpack-seo' ),
 				'user_agent' => 'meta-externalagent',
 				'type'       => 'training',
 			),
 			'bytespider'         => array(
-				'label'      => __( 'ByteDance', 'jetpack-seo' ),
+				'label'      => __( 'ByteDance (Bytespider)', 'jetpack-seo' ),
 				'user_agent' => 'Bytespider',
 				'type'       => 'training',
 			),
 			'ccbot'              => array(
-				'label'      => __( 'Common Crawl', 'jetpack-seo' ),
+				'label'      => __( 'Common Crawl (CCBot)', 'jetpack-seo' ),
 				'user_agent' => 'CCBot',
 				'type'       => 'training',
 			),
 			'amazonbot'          => array(
 				// Amazon's own docs: Amazonbot "may be used to train Amazon AI
 				// models" (Amzn-SearchBot is the answer-engine bot above).
-				'label'      => __( 'Amazon', 'jetpack-seo' ),
+				'label'      => __( 'Amazon (Amazonbot)', 'jetpack-seo' ),
 				'user_agent' => 'Amazonbot',
 				'type'       => 'training',
 			),
@@ -133,8 +140,8 @@ class Ai_Crawlers {
 
 	/**
 	 * Whether a catalog bot is blocked when the owner hasn't set an override for
-	 * it: training crawlers are blocked by default; answer and mixed-use
-	 * crawlers are allowed.
+	 * it: training crawlers are blocked by default; answer-engine crawlers are
+	 * allowed.
 	 *
 	 * @param string $slug Catalog slug.
 	 * @return bool
@@ -204,8 +211,8 @@ class Ai_Crawlers {
 			}
 			$blocked = (bool) $blocked;
 			// Only keep entries that actually deviate from the default policy
-			// (training blocked, answer and mixed-use allowed) — resolved from
-			// the catalog we already hold rather than re-fetching it per slug.
+			// (training blocked, answer-engine allowed) — resolved from the
+			// catalog we already hold rather than re-fetching it per slug.
 			if ( $blocked === ( 'training' === $catalog[ $slug ]['type'] ) ) {
 				continue;
 			}
@@ -371,6 +378,21 @@ class Ai_Crawlers {
 			'staticRobotsTxt'      => self::has_static_robots_txt(),
 			'dataSharingOptOut'    => self::has_data_sharing_opt_out(),
 			'pathBasedMultisite'   => self::is_path_based_multisite(),
+			'privacySettingsUrl'   => self::privacy_settings_url(),
 		);
+	}
+
+	/**
+	 * URL of the settings screen holding "Prevent third-party sharing", linked from
+	 * the AI tab when that setting is governing crawler access.
+	 *
+	 * Points at wp-admin → Settings → Reading, which is the same-origin home of the
+	 * option on the sites where it exists (WordPress.com). Left as a package method
+	 * so a Calypso deep link can replace it without touching the client.
+	 *
+	 * @return string
+	 */
+	public static function privacy_settings_url() {
+		return admin_url( 'options-reading.php' );
 	}
 }

@@ -43,16 +43,22 @@ const crawlerForm = (
 	crawlers: {
 		catalog: [
 			{
+				slug: 'oai-searchbot',
+				label: 'ChatGPT Search (OAI-SearchBot)',
+				userAgent: 'OAI-SearchBot',
+				type: 'answer',
+			},
+			{
 				slug: 'gptbot',
-				label: 'ChatGPT (OpenAI)',
+				label: 'ChatGPT (GPTBot)',
 				userAgent: 'GPTBot',
 				type: 'training',
 			},
 			{
 				slug: 'google-extended',
-				label: 'Google AI (Gemini)',
+				label: 'Google Gemini (Google-Extended)',
 				userAgent: 'Google-Extended',
-				type: 'mixed',
+				type: 'training',
 			},
 		],
 		overrides: {},
@@ -61,6 +67,7 @@ const crawlerForm = (
 		staticRobotsTxt: false,
 		dataSharingOptOut: false,
 		pathBasedMultisite: false,
+		privacySettingsUrl: 'http://example.com/wp-admin/options-reading.php',
 		...flags,
 	},
 } );
@@ -119,13 +126,15 @@ describe( 'AiScreen (GEO tab) — llms.txt serving state', () => {
 } );
 
 describe( 'AiScreen (GEO tab) — crawler policy state', () => {
-	it( 'describes Google-Extended as mixed-use', () => {
+	it( 'files Google-Extended under Training, not its own module', () => {
 		render( <AiScreen form={ crawlerForm() } searchEnginesVisible onManageVisibility={ noop } /> );
 
-		expect( screen.getByText( 'AI answers and training' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Training crawlers' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Google Gemini (Google-Extended)' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'AI answers and training' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'hides per-bot controls behind the data-sharing opt-out', () => {
+	it( 'disables the crawler controls and links to the setting under the data-sharing opt-out', () => {
 		render(
 			<AiScreen
 				form={ crawlerForm( { dataSharingOptOut: true } ) }
@@ -134,8 +143,18 @@ describe( 'AiScreen (GEO tab) — crawler policy state', () => {
 			/>
 		);
 
-		expect( screen.getAllByText( /data sharing opt-out is enabled/i ).length ).toBeGreaterThan( 0 );
-		expect( screen.queryByText( 'Google AI (Gemini)' ) ).not.toBeInTheDocument();
+		// The modules stay visible so the user can see what's here...
+		expect( screen.getByText( 'Google Gemini (Google-Extended)' ) ).toBeInTheDocument();
+		// ...with an explanation and a link to the governing setting...
+		expect( screen.getAllByText( /third-party sharing is turned off/i ).length ).toBeGreaterThan(
+			0
+		);
+		const link = screen.getAllByRole( 'link', { name: /manage sharing settings/i } )[ 0 ];
+		expect( link ).toHaveAttribute( 'href', 'http://example.com/wp-admin/options-reading.php' );
+		// ...and the toggles disabled.
+		expect( screen.getAllByRole( 'checkbox' ).every( box => box.hasAttribute( 'disabled' ) ) ).toBe(
+			true
+		);
 	} );
 
 	it( 'hides per-site controls on path-based multisite', () => {
@@ -148,7 +167,7 @@ describe( 'AiScreen (GEO tab) — crawler policy state', () => {
 		);
 
 		expect( screen.getAllByText( /shares one robots\.txt/i ).length ).toBeGreaterThan( 0 );
-		expect( screen.queryByText( 'Google AI (Gemini)' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Google Gemini (Google-Extended)' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'accurately describes a detected static robots.txt file', () => {

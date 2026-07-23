@@ -67,10 +67,8 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, onManage } ) 
 		data.overrides[ bot.slug ] ?? bot.type === 'training';
 	const answerBots = data.catalog.filter( bot => bot.type === 'answer' );
 	const trainingBots = data.catalog.filter( bot => bot.type === 'training' );
-	const mixedBots = data.catalog.filter( bot => bot.type === 'mixed' );
 	const answerAllowed = answerBots.filter( bot => ! isBotBlocked( bot ) ).length;
 	const trainingBlocked = trainingBots.filter( bot => isBotBlocked( bot ) ).length;
-	const mixedAllowed = mixedBots.filter( bot => ! isBotBlocked( bot ) ).length;
 
 	// When the settings can't apply, choose the highest-precedence reason.
 	// Module-scope labels keep
@@ -114,17 +112,6 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, onManage } ) 
 								trainingBots.length
 							) }
 						/>
-						{ mixedBots.length > 0 && (
-							<StatusDot
-								status={ mixedAllowed > 0 ? 'ok' : 'warn' }
-								label={ sprintf(
-									/* translators: %1$d is the number of allowed mixed-use crawlers, %2$d the total. */
-									__( 'AI answers and training: %1$d of %2$d allowed', 'jetpack-seo' ),
-									mixedAllowed,
-									mixedBots.length
-								) }
-							/>
-						) }
 					</Stack>
 				) : (
 					<StatusDot status="warn" label={ blockedLabel } />

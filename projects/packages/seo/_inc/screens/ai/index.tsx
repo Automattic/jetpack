@@ -5,7 +5,7 @@ import { Badge, Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui
 import './style.scss';
 import type { AiCrawler } from '../../data/ai-types';
 import type { AiForm } from '../../data/use-ai';
-import type { FC } from 'react';
+import type { FC, ReactNode } from 'react';
 
 interface Props {
 	form: AiForm;
@@ -82,6 +82,8 @@ interface CrawlerSectionProps {
 	disabled: boolean;
 	onToggle: ( slug: string, blocked: boolean ) => void;
 	onToggleAll: ( type: AiCrawler[ 'type' ], blocked: boolean ) => void;
+	/** Shown at the top of the module (e.g. why the toggles are disabled). */
+	notice?: ReactNode;
 }
 
 /**
@@ -99,6 +101,7 @@ interface CrawlerSectionProps {
  * @param props.disabled    - Whether toggles are disabled (mid-save).
  * @param props.onToggle    - Called with `(slug, blocked)` on a single toggle.
  * @param props.onToggleAll - Called with `(type, blocked)` on the "Allow all" toggle.
+ * @param props.notice      - Optional message shown at the top of the module.
  * @return The section card.
  */
 const CrawlerSection: FC< CrawlerSectionProps > = ( {
@@ -110,6 +113,7 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 	disabled,
 	onToggle,
 	onToggleAll,
+	notice,
 } ) => {
 	// "Allow all" is on only when every crawler in the group is allowed; toggling
 	// it writes the whole group in one save (see `setCrawlerGroupBlocked`).
@@ -123,12 +127,15 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 	);
 
 	return (
-		<CollapsibleCard.Root>
+		// Collapsed by default (most people won't open these), but opened when a
+		// notice is present so its explanation and the disabled toggles are visible.
+		<CollapsibleCard.Root defaultOpen={ Boolean( notice ) }>
 			<CollapsibleCard.Header>
 				<Card.Title>{ title }</Card.Title>
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
 				<Stack direction="column" gap="md">
+					{ notice }
 					<p className="jetpack-seo-ai__crawlers-intro">{ intro }</p>
 					<div className="jetpack-seo-ai__crawler-bulk">
 						<ToggleControl
@@ -158,8 +165,8 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
  * GEO (Generative Engine Optimization) tab — internal id/route still keyed `ai`.
  * Stacks (in a single centered column matching the Settings tab's width):
  * llms.txt, the plan-gated AI SEO Enhancer, then the AI-crawler controls — split
- * into answer, training, and mixed-use groups. When the controls can't take
- * effect, they are replaced by an explanation instead of ineffective toggles.
+ * into answer-engine and training groups. When the controls can't take effect,
+ * they are replaced by an explanation instead of ineffective toggles.
  *
  * State + auto-save live in the `form` controller (passed from the page root so
  * it survives tab switches); this component is the presentation.
@@ -274,28 +281,6 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 			);
 		}
 
-		// WordPress.com's existing data-sharing policy runs after this feature and
-		// remains authoritative, so don't offer controls it can override.
-		if ( crawlers.dataSharingOptOut ) {
-			return (
-				<CollapsibleCard.Root defaultOpen>
-					<CollapsibleCard.Header>
-						<Card.Title>{ __( 'AI crawler access', 'jetpack-seo' ) }</Card.Title>
-					</CollapsibleCard.Header>
-					<CollapsibleCard.Content>
-						<Notice.Root intent="info">
-							<Notice.Description>
-								{ __(
-									"Individual crawler controls are unavailable while this site's data sharing opt-out is enabled. Turn it off in the site's privacy settings to manage crawlers individually.",
-									'jetpack-seo'
-								) }
-							</Notice.Description>
-						</Notice.Root>
-					</CollapsibleCard.Content>
-				</CollapsibleCard.Root>
-			);
-		}
-
 		// A static robots.txt file in the WordPress installation is separate from
 		// the virtual output these settings change.
 		if ( crawlers.staticRobotsTxt ) {
@@ -320,7 +305,27 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 
 		const answerCrawlers = crawlers.catalog.filter( crawler => crawler.type === 'answer' );
 		const trainingCrawlers = crawlers.catalog.filter( crawler => crawler.type === 'training' );
-		const mixedCrawlers = crawlers.catalog.filter( crawler => crawler.type === 'mixed' );
+
+		// WordPress.com's "Prevent third-party sharing" (Reading settings) is a
+		// distinct privacy control that already governs whether AI partners may use
+		// this site. While it's on, we let that setting rule: the modules stay
+		// visible so the user can see what's here, but the toggles are disabled and
+		// each explains why, with a link to the setting. Only reachable on
+		// WordPress.com — the option doesn't exist on self-hosted.
+		const managedByPrivacySetting = crawlers.dataSharingOptOut;
+		const privacyNotice = managedByPrivacySetting ? (
+			<Notice.Root intent="info">
+				<Notice.Description>
+					{ __(
+						'AI crawler access is set by your privacy settings while third-party sharing is turned off. Turn sharing on to manage individual crawlers here.',
+						'jetpack-seo'
+					) }{ ' ' }
+					<Link href={ crawlers.privacySettingsUrl }>
+						{ __( 'Manage sharing settings', 'jetpack-seo' ) }
+					</Link>
+				</Notice.Description>
+			</Notice.Root>
+		) : undefined;
 
 		return (
 			<>
@@ -333,35 +338,24 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 					crawlers={ answerCrawlers }
 					type="answer"
 					overrides={ crawlers.overrides }
-					disabled={ isSaving }
+					disabled={ isSaving || managedByPrivacySetting }
 					onToggle={ setCrawlerBlocked }
 					onToggleAll={ setCrawlerGroupBlocked }
+					notice={ privacyNotice }
 				/>
 				<CrawlerSection
 					title={ __( 'Training crawlers', 'jetpack-seo' ) }
 					intro={ __(
-						'These crawlers collect your content to train AI models. Block them to limit that use.',
+						'These crawlers use your content to train AI models. Some — like Google Gemini — also power the AI answers shown above search results, so blocking them protects privacy but can cost you that visibility.',
 						'jetpack-seo'
 					) }
 					crawlers={ trainingCrawlers }
 					type="training"
 					overrides={ crawlers.overrides }
-					disabled={ isSaving }
+					disabled={ isSaving || managedByPrivacySetting }
 					onToggle={ setCrawlerBlocked }
 					onToggleAll={ setCrawlerGroupBlocked }
-				/>
-				<CrawlerSection
-					title={ __( 'AI answers and training', 'jetpack-seo' ) }
-					intro={ __(
-						'These crawlers can use your content both to improve AI models and to ground AI answers. Blocking them may reduce your visibility in AI answers.',
-						'jetpack-seo'
-					) }
-					crawlers={ mixedCrawlers }
-					type="mixed"
-					overrides={ crawlers.overrides }
-					disabled={ isSaving }
-					onToggle={ setCrawlerBlocked }
-					onToggleAll={ setCrawlerGroupBlocked }
+					notice={ privacyNotice }
 				/>
 			</>
 		);
