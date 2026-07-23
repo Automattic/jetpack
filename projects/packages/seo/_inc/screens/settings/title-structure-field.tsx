@@ -169,11 +169,13 @@ const TitleStructureField: FC< Props > = ( {
 	const customizedCount = PAGE_TYPES.filter( pt => ( formats[ pt.id ]?.length ?? 0 ) > 0 ).length;
 
 	// Fill the site-wide placeholders in each row's preview with the site's real
-	// name and tagline (bootstrapped in `seo.site`). Per-page tokens like
-	// [Post title] keep their representative samples since they vary per page.
+	// name and tagline (bootstrapped in `seo.site`). Coalesce to '' when the site
+	// data is absent so the empty value falls through to the sample text in
+	// `buildPreview`. Per-page tokens like [Post title] keep their representative
+	// samples since they vary per page.
 	const site = getSite();
 	const previewOverrides = useMemo(
-		() => ( { site_name: site?.title, tagline: site?.tagline } ),
+		() => ( { site_name: site?.title ?? '', tagline: site?.tagline ?? '' } ),
 		[ site?.title, site?.tagline ]
 	);
 
