@@ -30,7 +30,9 @@ function wpcom_normalize_site_logo_id( $value ) {
  * Block themes edit the logo in the Site Editor's Identity screen (falling back to
  * the default Site Editor screen where that route may not exist yet). Classic
  * themes edit it in the Customizer, whose control ID depends on which logo
- * integration the theme supports — mirroring the logo-tool feature.
+ * integration the theme supports — mirroring the logo-tool feature. The URL is
+ * empty when no known logo control exists (e.g. a leftover `site_logo` option
+ * under a classic theme without logo support), so callers can omit the link.
  *
  * @return array{url:string, is_block:bool} The edit URL and block-theme flag.
  */
@@ -53,7 +55,7 @@ function wpcom_site_logo_edit_link() {
 	} elseif ( current_theme_supports( 'site-logo' ) ) {
 		$url = admin_url( 'customize.php?autofocus[control]=site_logo' );
 	} else {
-		$url = admin_url( 'customize.php' );
+		$url = '';
 	}
 
 	return array(
@@ -118,26 +120,33 @@ function wpcom_fiverr_cta() {
 				</div>
 				<?php wpcom_fiverr_cta_button(); ?>
 			</div>
-			<p class="description">
-				<?php
-				$logo_edit_link = wpcom_site_logo_edit_link();
-				if ( $logo_edit_link['is_block'] ) {
-					printf(
-						/* translators: %1$s: opening link tag to the Site Editor, %2$s: closing link tag. */
-						esc_html__( 'Displays in your site\'s layout via the Site Logo block. %1$sYou can change your site logo in the site editor%2$s.', 'jetpack-mu-wpcom' ),
-						'<a href="' . esc_url( $logo_edit_link['url'] ) . '">',
-						'</a>'
-					);
-				} else {
-					printf(
-						/* translators: %1$s: opening link tag to the Customizer, %2$s: closing link tag. */
-						esc_html__( '%1$sYou can change your site logo in the Customizer%2$s.', 'jetpack-mu-wpcom' ),
-						'<a href="' . esc_url( $logo_edit_link['url'] ) . '">',
-						'</a>'
-					);
-				}
+			<?php
+			$logo_edit_link = wpcom_site_logo_edit_link();
+			// Only promise an edit path when a known destination exists.
+			if ( $logo_edit_link['url'] ) :
 				?>
-			</p>
+				<p class="description">
+					<?php
+					if ( $logo_edit_link['is_block'] ) {
+						printf(
+							/* translators: %1$s: opening link tag to the Site Editor, %2$s: closing link tag. */
+							esc_html__( 'Displays in your site\'s layout via the Site Logo block. %1$sYou can change your site logo in the site editor%2$s.', 'jetpack-mu-wpcom' ),
+							'<a href="' . esc_url( $logo_edit_link['url'] ) . '">',
+							'</a>'
+						);
+					} else {
+						printf(
+							/* translators: %1$s: opening link tag to the Customizer, %2$s: closing link tag. */
+							esc_html__( '%1$sYou can change your site logo in the Customizer%2$s.', 'jetpack-mu-wpcom' ),
+							'<a href="' . esc_url( $logo_edit_link['url'] ) . '">',
+							'</a>'
+						);
+					}
+					?>
+				</p>
+				<?php
+			endif;
+			?>
 		<?php else : ?>
 			<p><b><?php esc_html_e( 'Make an incredible logo in minutes', 'jetpack-mu-wpcom' ); ?></b></p>
 			<p><?php esc_html_e( 'Pre-designed by top talent. Just add your touch.', 'jetpack-mu-wpcom' ); ?></p>
