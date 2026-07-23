@@ -38,15 +38,17 @@ class AI_Launchpad_Task_Registry {
 	 *                        a task whose precondition is missing must never be offered or rendered, since
 	 *                        its CTA would lead nowhere. Omit it rather than returning a constant true, so a
 	 *                        universally renderable task reads as one.
-	 * - `calypso_path`      (callable, optional) the CTA destination, already absolute. Omit it for a task
-	 *                        whose CTA the client resolves itself, as the gallery does by creating its page.
+	 * - `calypso_path`      (callable, optional) the CTA destination, already resolved: an absolute admin URL,
+	 *                        or the Calypso router path a Simple site needs for a screen wp-admin does not
+	 *                        serve there. Omit it for a task whose CTA the client resolves itself, as the
+	 *                        gallery does by creating its page.
 	 * - `draft_id`          (callable, optional) the in-progress draft's post id, or null.
 	 *
 	 * @return array
 	 */
 	private static function definitions() {
 		$definitions = array(
-			'add_gallery_page'  => array(
+			'add_gallery_page'   => array(
 				'title'             => static function () {
 					return __( 'Create your first gallery', 'jetpack-mu-wpcom' );
 				},
@@ -64,7 +66,7 @@ class AI_Launchpad_Task_Registry {
 					return AI_Launchpad_Gallery_Page_Listener::get_draft_id();
 				},
 			),
-			'add_site_icon'     => array(
+			'add_site_icon'      => array(
 				'title'            => static function () {
 					return __( 'Add your logo or site icon', 'jetpack-mu-wpcom' );
 				},
@@ -81,7 +83,7 @@ class AI_Launchpad_Task_Registry {
 					return admin_url( 'options-general.php' );
 				},
 			),
-			'pick_fonts_colors' => array(
+			'pick_fonts_colors'  => array(
 				'title'            => static function () {
 					return __( 'Customize fonts and colors', 'jetpack-mu-wpcom' );
 				},
@@ -106,6 +108,39 @@ class AI_Launchpad_Task_Registry {
 					return admin_url( 'site-editor.php?p=/styles&section=/variations' );
 				},
 			),
+
+			/*
+			 * Plugin discovery: recommend a plugin only a particular kind of site wants, so that the pick is
+			 * itself the personalization — the model reaching for Sensei is the model saying "this site
+			 * teaches courses". A plugin every site would benefit from carries no such signal and would just
+			 * spend one of six slots.
+			 *
+			 * Only Automattic's own plugins belong here. This is an official Automattic surface, so it does
+			 * not send people to third-party products, however well those would fit a niche. That rules out
+			 * the obvious SEO, page-builder and events candidates and is why Sensei is currently alone; a
+			 * niche with no first-party plugin behind it wants a hand-authored task instead, the way
+			 * `add_gallery_page` covers visual sites.
+			 *
+			 * No `is_visible`: an already-active plugin makes the task *complete*, not hidden. Completion is
+			 * what lets the card tick when the user acts on the recommendation, and the completion diff on
+			 * read is the only signal that says whether the recommendation landed. Withholding it from a site
+			 * that already has the plugin comes free anyway — available_task_ids() drops every complete task
+			 * from the actionable menu.
+			 */
+			'install_sensei_lms' => array(
+				'title'            => static function () {
+					return __( 'Build your courses with Sensei LMS', 'jetpack-mu-wpcom' );
+				},
+				'default_subtitle' => static function () {
+					return __( 'Install Sensei to turn what you teach into structured lessons, quizzes, and student progress.', 'jetpack-mu-wpcom' );
+				},
+				'is_complete'      => static function () {
+					return self::plugin_active( 'sensei-lms/sensei-lms.php' );
+				},
+				'calypso_path'     => static function () {
+					return self::plugin_install_path( 'sensei-lms' );
+				},
+			),
 		);
 
 		/**
@@ -120,6 +155,45 @@ class AI_Launchpad_Task_Registry {
 		 * @param array $definitions Task definitions keyed by task id. See the docblock above for the shape.
 		 */
 		return apply_filters( 'wpcom_ai_launchpad_task_registry_definitions', $definitions );
+	}
+
+	/**
+	 * Whether a plugin is active, from anywhere the registry's definitions are resolved.
+	 *
+	 * `is_plugin_active()` lives in an admin include that is not loaded during a REST request. Every REST
+	 * caller of this registry already loads it before asking (get_current_tasks(), available_task_ids() and
+	 * build_tasks() each require it), so this guard is for the callers that do not: the completion-check
+	 * route, anything reached through the definitions filter, and the tests.
+	 *
+	 * @param string $plugin_file The plugin's `directory/file.php` entry.
+	 * @return bool
+	 */
+	private static function plugin_active( $plugin_file ) {
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		return is_plugin_active( $plugin_file );
+	}
+
+	/**
+	 * The CTA for installing a plugin from the WordPress.org directory.
+	 *
+	 * `tab=plugin-information` opens that one plugin's install screen directly, so the destination does not
+	 * depend on how the directory's search happens to rank the slug that day.
+	 *
+	 * Run through the Simple rewrite here rather than in build_tasks(), which returns before the point where
+	 * it rewrites catalog CTAs: Simple sites cannot reach either wp-admin plugins screen, and the slug the
+	 * Calypso deep link needs is known here and nowhere else.
+	 *
+	 * @param string $plugin_slug The plugin's WordPress.org slug.
+	 * @return string
+	 */
+	private static function plugin_install_path( $plugin_slug ) {
+		return wpcom_ai_launchpad_to_simple_plugins_path(
+			admin_url( 'plugin-install.php?tab=plugin-information&plugin=' . rawurlencode( $plugin_slug ) ),
+			$plugin_slug
+		);
 	}
 
 	/**

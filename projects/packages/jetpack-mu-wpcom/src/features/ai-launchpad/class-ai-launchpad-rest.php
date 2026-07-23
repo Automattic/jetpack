@@ -1339,7 +1339,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				}
 
 				// Simple sites have no reachable wp-admin plugins screen; route any plugin-screen CTA to Calypso.
-				$calypso_path = $this->to_simple_plugins_path( $calypso_path );
+				$calypso_path = wpcom_ai_launchpad_to_simple_plugins_path( $calypso_path );
 			}
 
 			$title       = isset( $definition['get_title'] ) ? $definition['get_title']() : '';
@@ -1394,30 +1394,6 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		}
 
 		return null;
-	}
-
-	/**
-	 * On Simple sites, rewrite a wp-admin plugins-screen CTA to its Calypso equivalent.
-	 *
-	 * Simple sites have no reachable wp-admin plugins UI, so any task whose CTA lands on `plugins.php` or
-	 * `plugin-install.php` would dead-end. Those are mapped to the Calypso plugins page — a specific plugin
-	 * when a slug is given, otherwise the site's plugins list. Non-plugin paths and Atomic sites pass through.
-	 *
-	 * @param string|null $path        The resolved CTA path.
-	 * @param string      $plugin_slug Optional plugin slug to deep-link to on Calypso.
-	 * @return string|null
-	 */
-	private function to_simple_plugins_path( $path, $plugin_slug = '' ) {
-		if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ! is_string( $path ) ) {
-			return $path;
-		}
-
-		if ( false === strpos( $path, 'plugins.php' ) && false === strpos( $path, 'plugin-install.php' ) ) {
-			return $path;
-		}
-
-		$slug_segment = '' !== $plugin_slug ? rawurlencode( $plugin_slug ) . '/' : '';
-		return '/plugins/' . $slug_segment . rawurlencode( wpcom_get_site_slug() );
 	}
 
 	/**
@@ -1554,7 +1530,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			$wp_admin_path = $in_progress
 				? admin_url( 'plugins.php?plugin_status=inactive' )
 				: admin_url( 'plugin-install.php?s=woocommerce&tab=search&type=term' );
-			$calypso_path  = $this->to_simple_plugins_path( $wp_admin_path, 'woocommerce' );
+			$calypso_path  = wpcom_ai_launchpad_to_simple_plugins_path( $wp_admin_path, 'woocommerce' );
 		}
 
 		return array(

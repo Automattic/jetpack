@@ -262,8 +262,11 @@ export const TASK_ANNOTATIONS: readonly TaskAnnotation[] = [
 	},
 	{
 		id: 'install_custom_plugin',
-		what: 'Installs a plugin from the WordPress plugin directory.',
-		pickWhen: 'the site needs functionality WordPress does not ship with.',
+		what: 'Opens the plugin directory to browse and install any plugin, with none named in advance.',
+		pickWhen:
+			'the site clearly needs a capability WordPress does not ship with and no other task names it — booking and appointments, ticketing, directories, membership tiers, real-estate listings.',
+		avoidWhen:
+			'install_sensei_lms already names the plugin this site needs, or the need is vague — sending a new site owner to browse the directory unguided is a poor task.',
 	},
 	{
 		id: 'setup_ssh',
@@ -326,6 +329,25 @@ export const TASK_ANNOTATIONS: readonly TaskAnnotation[] = [
 		pickWhen:
 			"the site's value is visual and people judge it by looking — photography, art, craft, food, interiors, tattoo work, floristry, design.",
 		avoidWhen: 'the site is text-first and has no images to show.',
+	},
+	/*
+	 * Plugin discovery, currently one entry: the registry only carries Automattic's own plugins, since this
+	 * is an official Automattic surface. It exists to be picked rarely and precisely — the model reaching
+	 * for Sensei is the model saying "this site teaches courses", which is a stronger statement about the
+	 * site than any subtitle it could write. So `pick when` names the kind of site rather than the benefit;
+	 * a benefit phrased as "the site needs SEO" would match everything and select nothing.
+	 *
+	 * No `goals` line, deliberately. The signal is the niche, and no goal slug tracks it: a tutor selling a
+	 * course picks `sell`, a school picks `build`, a coach writing lessons picks `write`. Hinting a goal
+	 * would suppress the task for the sites it exists for.
+	 */
+	{
+		id: 'install_sensei_lms',
+		what: 'Installs Sensei LMS, which turns the site into a course platform: lessons, modules, quizzes, and student progress.',
+		pickWhen:
+			'the site teaches something in a set sequence people work through — a course, a curriculum, training, lessons, a certification, a multi-week program.',
+		avoidWhen:
+			'the site teaches informally through posts or videos, with nothing to enroll in and no progress to track.',
 	},
 ];
 

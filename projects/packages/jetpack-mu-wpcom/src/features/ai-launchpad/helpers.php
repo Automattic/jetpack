@@ -71,6 +71,37 @@ if ( ! function_exists( 'wpcom_ai_launchpad_resolve_goal' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wpcom_ai_launchpad_to_simple_plugins_path' ) ) {
+	/**
+	 * On Simple sites, rewrite a wp-admin plugins-screen CTA to its Calypso equivalent.
+	 *
+	 * Simple sites have no reachable wp-admin plugins UI, so any task whose CTA lands on `plugins.php` or
+	 * `plugin-install.php` would dead-end. Those are mapped to the Calypso plugins page — a specific plugin
+	 * when a slug is given, otherwise the site's plugins list. Non-plugin paths and Atomic sites pass through.
+	 *
+	 * Shared rather than private to AI_Launchpad_REST because both task sources need it and each resolves its
+	 * CTA in a different place: the catalog's path is rewritten as build_tasks() enriches it, while a registry
+	 * task resolves its own `calypso_path` and returns before that point, so it has to apply the rewrite
+	 * itself. Two implementations would be one host check away from disagreeing.
+	 *
+	 * @param string|null $path        The resolved CTA path.
+	 * @param string      $plugin_slug Optional plugin slug to deep-link to on Calypso.
+	 * @return string|null
+	 */
+	function wpcom_ai_launchpad_to_simple_plugins_path( $path, $plugin_slug = '' ) {
+		if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ! is_string( $path ) ) {
+			return $path;
+		}
+
+		if ( false === strpos( $path, 'plugins.php' ) && false === strpos( $path, 'plugin-install.php' ) ) {
+			return $path;
+		}
+
+		$slug_segment = '' !== $plugin_slug ? rawurlencode( $plugin_slug ) . '/' : '';
+		return '/plugins/' . $slug_segment . rawurlencode( wpcom_get_site_slug() );
+	}
+}
+
 if ( ! function_exists( 'wpcom_ai_launchpad_tracks_context' ) ) {
 	/**
 	 * The shared analytics context merged into every AI Launchpad Tracks event, mirroring the

@@ -48,6 +48,28 @@ describe( 'TASK_ANNOTATIONS', () => {
 		assert.match( byId.add_site_icon.what, /logo|icon/i );
 	} );
 
+	it( 'names the plugin in the discovery task and gives it no goal affinity', () => {
+		// The pick is the personalization here, so the model has to be able to tell what the plugin is —
+		// an entry that does not name it is the bare-id problem again. And the niche that decides (teaching
+		// a structured course) is not what the goal slug tracks, so a goals line would suppress the task
+		// for exactly the sites it exists to reach.
+		const sensei = TASK_ANNOTATIONS.find( entry => entry.id === 'install_sensei_lms' );
+
+		assert.ok( sensei, 'install_sensei_lms must be on the menu' );
+		assert.match( sensei.what, /Sensei/ );
+		assert.equal( sensei.goals, undefined );
+	} );
+
+	it( 'keeps the generic plugin task pointed at what no other task names', () => {
+		// It is the only remaining route to the wider directory, so its pick when has to describe that role
+		// rather than read as the leftover of a set of named-plugin tasks.
+		const generic = TASK_ANNOTATIONS.find( entry => entry.id === 'install_custom_plugin' );
+
+		assert.ok( generic, 'install_custom_plugin must be on the menu' );
+		assert.match( generic.pickWhen, /no other task names it/ );
+		assert.ok( generic.avoidWhen?.includes( 'install_sensei_lms' ) );
+	} );
+
 	it( 'offers the gallery task and gives it no goal affinity', () => {
 		const gallery = TASK_ANNOTATIONS.find( entry => entry.id === 'add_gallery_page' );
 

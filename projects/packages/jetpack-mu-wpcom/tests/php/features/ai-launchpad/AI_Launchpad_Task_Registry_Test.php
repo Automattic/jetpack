@@ -5,6 +5,10 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+// The registry resolves its plugin CTAs through the shared helper, which ai-launchpad.php loads before it in
+// production; a test running in its own process gets neither unless it asks.
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/helpers.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-gallery-page-listener.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
@@ -14,6 +18,8 @@ require_once __DIR__ . '/fixtures/trait-uses-block-theme.php';
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
  * The registry holds task definitions the shared launchpad catalog does not own. It is
@@ -86,6 +92,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 			'the gallery page'     => array( 'add_gallery_page' ),
 			'the site icon'        => array( 'add_site_icon' ),
 			'the style variations' => array( 'pick_fonts_colors' ),
+			'Sensei LMS'           => array( 'install_sensei_lms' ),
 		);
 	}
 
@@ -245,6 +252,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 			'the site icon settings screen' => array( 'add_site_icon', 'options-general.php' ),
 			'the Styles variations screen'  => array( 'pick_fonts_colors', 'site-editor.php?p=/styles&section=/variations' ),
 			'the gallery, built on click'   => array( 'add_gallery_page', null ),
+			"Sensei LMS's installer"        => array( 'install_sensei_lms', 'plugin-install.php?tab=plugin-information&plugin=sensei-lms' ),
 		);
 	}
 
@@ -373,6 +381,139 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 				'Customize fonts and colors',
 				'Try a style variation to set the mood of your whole site at once.',
 			),
+			'Sensei LMS'           => array(
+				'install_sensei_lms',
+				'Build your courses with Sensei LMS',
+				'Install Sensei to turn what you teach into structured lessons, quizzes, and student progress.',
+			),
+		);
+	}
+
+	/**
+	 * A plugin-discovery task is complete exactly while its plugin is active, read live from
+	 * `is_plugin_active()` — so installing the plugin ticks the card with no listener, and deactivating
+	 * it un-ticks it again.
+	 *
+	 * The round trip back to inactive is asserted deliberately: a definition that latched completion into
+	 * an option on first read would pass the forward direction alone.
+	 *
+	 * @param string $task_id     The registry task id.
+	 * @param string $plugin_file The plugin's `dir/file.php` entry in `active_plugins`.
+	 * @dataProvider provide_plugin_discovery_tasks
+	 */
+	#[DataProvider( 'provide_plugin_discovery_tasks' )]
+	public function test_plugin_discovery_completion_tracks_the_active_plugin( $task_id, $plugin_file ) {
+		$this->assertFalse( AI_Launchpad_Task_Registry::is_complete( $task_id ) );
+		$this->assertFalse( AI_Launchpad_Task_Registry::build( $task_id, '' )['completed'] );
+
+		update_option( 'active_plugins', array( $plugin_file ) );
+
+		$this->assertTrue( AI_Launchpad_Task_Registry::is_complete( $task_id ) );
+		$this->assertTrue( AI_Launchpad_Task_Registry::build( $task_id, '' )['completed'] );
+
+		update_option( 'active_plugins', array() );
+
+		$this->assertFalse( AI_Launchpad_Task_Registry::is_complete( $task_id ) );
+	}
+
+	/**
+	 * The plugin-discovery tasks and the plugin each one recommends.
+	 *
+	 * @return array
+	 */
+	public static function provide_plugin_discovery_tasks() {
+		return array(
+			'Sensei LMS' => array( 'install_sensei_lms', 'sensei-lms/sensei-lms.php' ),
+		);
+	}
+
+	/**
+	 * A discovery task watches its own plugin and nothing else.
+	 *
+	 * Guards the failure mode the case above cannot see — a completion callable keyed off "any plugin is
+	 * active", or off a file this site happens to run — which would tick the card for a site that installed
+	 * something else entirely. The unrelated plugin is deliberately one the harness genuinely has active
+	 * state for, so the negative result is the callable discriminating rather than the option being empty.
+	 */
+	public function test_plugin_discovery_completion_keys_off_its_own_plugin() {
+		update_option( 'active_plugins', array( 'woocommerce/woocommerce.php', 'akismet/akismet.php' ) );
+
+		$this->assertFalse( AI_Launchpad_Task_Registry::is_complete( 'install_sensei_lms' ) );
+
+		// The premise: this harness does report an active plugin, so the false above is the file being
+		// compared rather than is_plugin_active() answering false for everything.
+		$this->assertTrue( is_plugin_active( 'woocommerce/woocommerce.php' ) );
+
+		update_option( 'active_plugins', array( 'woocommerce/woocommerce.php', 'sensei-lms/sensei-lms.php' ) );
+
+		$this->assertTrue( AI_Launchpad_Task_Registry::is_complete( 'install_sensei_lms' ) );
+	}
+
+	/**
+	 * A discovery task's completion comes from the site's plugin state alone, never from the shared
+	 * launchpad status option.
+	 *
+	 * The option is what the complete-on-click route writes, and a discovery task must not be tickable that
+	 * way: the point of the task is that the plugin ends up installed, which clicking a CTA does not achieve.
+	 */
+	public function test_plugin_discovery_completion_ignores_the_status_option() {
+		update_option( 'launchpad_checklist_tasks_statuses', array( 'install_sensei_lms' => true ) );
+		$this->assertFalse( AI_Launchpad_Task_Registry::is_complete( 'install_sensei_lms' ) );
+
+		// The same write does complete a task that is defined against that option, so the assertion above is
+		// about this definition rather than about the option never being read.
+		AI_Launchpad_Task_Registry::mark_complete( 'pick_fonts_colors' );
+		$this->assertTrue( AI_Launchpad_Task_Registry::is_complete( 'pick_fonts_colors' ) );
+	}
+
+	/**
+	 * A plugin that is already active makes its discovery task *complete*, not invisible.
+	 *
+	 * The two were both defensible, and this pins the choice. Completion is what lets the card tick when the
+	 * user acts on the recommendation — which is also the only signal that says whether the recommendation
+	 * landed, since task completions are reported by diffing the rendered list on read. Withholding the task
+	 * from a site that already has the plugin is handled elsewhere and for free: available_task_ids() drops
+	 * every complete task from the actionable menu, so the model is not offered it anyway.
+	 *
+	 * @param string $task_id     The registry task id.
+	 * @param string $plugin_file The plugin's `dir/file.php` entry in `active_plugins`.
+	 * @dataProvider provide_plugin_discovery_tasks
+	 */
+	#[DataProvider( 'provide_plugin_discovery_tasks' )]
+	public function test_an_active_plugin_completes_a_discovery_task_rather_than_hiding_it( $task_id, $plugin_file ) {
+		update_option( 'active_plugins', array( $plugin_file ) );
+
+		$this->assertTrue( AI_Launchpad_Task_Registry::is_complete( $task_id ) );
+		$this->assertTrue( AI_Launchpad_Task_Registry::is_visible( $task_id ) );
+	}
+
+	/**
+	 * On a Simple site the discovery CTA points at the Calypso page for that specific plugin, not at a
+	 * wp-admin installer Simple has no route to.
+	 *
+	 * The registry resolves its own `calypso_path` and build_tasks() returns before the rewrite it applies to
+	 * catalog CTAs, so a registry task carrying a wp-admin plugins path would dead-end on Simple. These are
+	 * the first registry tasks to have one, so the rewrite has to happen here.
+	 *
+	 * The counterpart is test_build_resolves_the_declared_cta, which runs without IS_WPCOM and asserts the
+	 * wp-admin installer URL for the same task — so the pair shows the rewrite firing on one host and not
+	 * the other, rather than the CTA having been a Calypso path all along.
+	 *
+	 * Runs in a separate process so defining IS_WPCOM does not leak into the rest of the suite.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_plugin_discovery_ctas_target_calypso_on_simple() {
+		define( 'IS_WPCOM', true );
+		$site = rawurlencode( wpcom_get_site_slug() );
+
+		$this->assertSame(
+			'/plugins/sensei-lms/' . $site,
+			AI_Launchpad_Task_Registry::build( 'install_sensei_lms', '' )['calypso_path'],
+			'install_sensei_lms must link to its Calypso plugin page on Simple'
 		);
 	}
 }

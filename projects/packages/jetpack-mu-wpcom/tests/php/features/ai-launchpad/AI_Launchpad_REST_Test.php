@@ -622,6 +622,61 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The plugin-discovery task reaches the offered menu on any goal.
+	 *
+	 * Its whole value is that the *pick* is the personalization — Sensei only makes sense for a site that
+	 * teaches — and the niche that decides is not tracked by any goal slug: a tutor picks `educate` or
+	 * `build` or `sell` with equal likelihood. A goal filter would suppress it for the sites it exists to
+	 * reach, so there is deliberately no restriction to bypass here.
+	 *
+	 * @param string $goal The goal slug.
+	 * @dataProvider provide_unrelated_goals
+	 */
+	#[DataProvider( 'provide_unrelated_goals' )]
+	public function test_available_tasks_offer_the_plugin_discovery_task( $goal ) {
+		$data = $this->available_tasks( $goal );
+
+		$this->assertContains( 'install_sensei_lms', $data['available_task_ids'], 'not offered on ' . $goal );
+		$this->assertContains( 'install_sensei_lms', $data['renderable_task_ids'], 'not renderable on ' . $goal );
+	}
+
+	/**
+	 * A site that already runs the plugin is not offered its discovery task — there is nothing left to
+	 * discover — but the task stays renderable.
+	 *
+	 * This is the completion-over-visibility decision paying off: the task is complete rather than hidden, so
+	 * the actionable filter withholds it exactly as it withholds any other finished task, without the
+	 * read-time drop an `is_visible` gate would also bring. The other registry tasks stay offered, so the
+	 * drop is this plugin's state rather than registry tasks leaving the menu.
+	 */
+	public function test_available_tasks_drop_a_discovery_task_whose_plugin_is_active() {
+		update_option( 'active_plugins', array( 'sensei-lms/sensei-lms.php' ) );
+
+		$data = $this->available_tasks( 'write' );
+
+		$this->assertNotContains( 'install_sensei_lms', $data['available_task_ids'] );
+		$this->assertContains( 'install_sensei_lms', $data['renderable_task_ids'] );
+		$this->assertContains( 'add_site_icon', $data['available_task_ids'], 'the premise: registry tasks do reach this menu' );
+	}
+
+	/**
+	 * A persisted discovery task renders, and ticks itself once its plugin is active.
+	 *
+	 * Completion is resolved on every read, so the card the user was given at tailoring time reports the
+	 * install whenever it happens, with no listener and nothing written at click time. That live read is also
+	 * what feeds the `task_completed` diff, which is the only measure of whether a recommendation landed.
+	 */
+	public function test_get_completes_a_persisted_discovery_task_from_the_plugin_state() {
+		$this->seed_ai_output_with_tasks( array( 'install_sensei_lms', 'site_launched' ), 'write' );
+
+		$this->assertFalse( $this->rendered_task( 'install_sensei_lms' )['completed'] );
+
+		update_option( 'active_plugins', array( 'sensei-lms/sensei-lms.php' ) );
+
+		$this->assertTrue( $this->rendered_task( 'install_sensei_lms' )['completed'] );
+	}
+
+	/**
 	 * The style-variations task is withheld from the menu on a classic theme, where the Styles screen its
 	 * CTA points at does not exist. The site-icon task, which asks nothing of the site, stays.
 	 */
