@@ -330,15 +330,20 @@ class Initializer {
 	 * before any of that is true, so it has to run the check itself rather than assume
 	 * the host plugin already opened the door.
 	 *
-	 * WordPress.com Simple short-circuits: it's covered by WordPress.com's own terms
-	 * and has no Jetpack connection for `should_enable_tracking()` to read. Atomic
-	 * falls through to the real check, which passes on a connected site. Mirrors
-	 * `Contact_Form_Plugin::can_use_analytics()`.
+	 * The whole WordPress.com platform short-circuits — Simple *and* Atomic. Both are
+	 * covered by WordPress.com's own terms, and neither is a reliable read for
+	 * `should_enable_tracking()`: Simple has no Jetpack connection for it to inspect,
+	 * and on Atomic it turns on a per-user connection that an admin may not have. Since
+	 * paid Simple and Atomic sites *are* the population the launch metric counts, a
+	 * false negative there would silently undercount the thing this instrumentation
+	 * exists to measure. Self-hosted is the case the gate is actually for. Mirrors
+	 * `Contact_Form_Plugin::can_use_analytics()`, widened from `IS_WPCOM` to the
+	 * platform check.
 	 *
 	 * @return bool
 	 */
 	public static function can_use_analytics() {
-		if ( ( new Host() )->is_wpcom_simple() ) {
+		if ( ( new Host() )->is_wpcom_platform() ) {
 			return true;
 		}
 
@@ -484,8 +489,12 @@ class Initializer {
 			$blog_id = get_current_blog_id();
 		}
 
-		// Whether the visitor is an Automattician (WordPress.com only; the function
-		// is undefined on self-hosted).
+		// Whether the visitor is an Automattician. `is_automattician()` is defined on
+		// WordPress.com Simple only, so this reads false on Atomic and self-hosted even
+		// for an a8c user. Known limitation, not a complete signal: the Atomic analogue
+		// (`Status\Visitor::is_automattician_feature_flags_only()`) only detects proxied
+		// requests, so it would report a different thing under the same property name.
+		// Tracked with the rest of the Part 2 instrumentation on JETPACK-1728.
 		$is_a11n = false;
 		if ( function_exists( 'is_automattician' ) ) {
 			// @phan-suppress-next-line PhanUndeclaredFunction -- is_automattician() lives on WordPress.com, guarded by function_exists.
