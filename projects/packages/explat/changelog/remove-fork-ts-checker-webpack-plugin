@@ -1,4 +1,0 @@
-Significance: minor
-Type: removed
-
-Remove the broken prebuilt JS client bundle. Within the monorepo the client is consumed from source.

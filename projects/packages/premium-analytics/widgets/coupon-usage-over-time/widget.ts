@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 
 /**
@@ -22,13 +21,5 @@ export type CouponUsageOverTimeAttributes = Record< never, never >;
  * dashboards can opt in.
  */
 export default {
-	name: 'jpa/coupon-usage-over-time',
-	title: __( 'Coupon usage over time', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Track how effective your discounts and promotions have been over a set period of time.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: chartBar,
 };

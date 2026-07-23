@@ -359,78 +359,6 @@
 	padding-top: 164px;
 }
 
-/* ===== Beta disclaimer banner ===== */
-.bw-disclaimer-banner {
-	position: fixed;
-	top: 56px;
-	left: 0;
-	right: 0;
-	z-index: 100001;
-	box-sizing: border-box;
-	height: 44px;
-	background: #fff8e6;
-	border-bottom: 1px solid #e8c84a;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 12px;
-	animation: bw-fade-in 0.2s ease;
-}
-
-.bw-disclaimer-banner[hidden] {
-	display: none;
-}
-
-.bw-disclaimer-text {
-	font-size: 14px;
-	color: #1a1a1a;
-}
-
-.bw-disclaimer-dismiss {
-	border: none;
-	background: transparent;
-	color: #999;
-	font-size: 20px;
-	cursor: pointer;
-	padding: 4px 8px;
-	line-height: 1;
-}
-
-.bw-disclaimer-dismiss:hover {
-	color: #333;
-}
-
-/* Push toolbar, link popover, and content down
-   when disclaimer banner is visible */
-.bw-disclaimer-banner:not([hidden]) ~ .bw-toolbar {
-	top: 100px;
-}
-
-.bw-disclaimer-banner:not([hidden]) ~ .bw-link-popover {
-	top: 144px;
-}
-
-.bw-disclaimer-banner:not([hidden]) ~ .bw-main {
-	padding-top: 164px;
-}
-
-/* Both disclaimer and recovery visible — stack recovery below disclaimer */
-.bw-disclaimer-banner:not([hidden]) ~ .bw-recovery-banner:not([hidden]) {
-	top: 100px;
-}
-
-.bw-disclaimer-banner:not([hidden]) ~ .bw-recovery-banner:not([hidden]) ~ .bw-toolbar {
-	top: 144px;
-}
-
-.bw-disclaimer-banner:not([hidden]) ~ .bw-recovery-banner:not([hidden]) ~ .bw-link-popover {
-	top: 188px;
-}
-
-.bw-disclaimer-banner:not([hidden]) ~ .bw-recovery-banner:not([hidden]) ~ .bw-main {
-	padding-top: 208px;
-}
-
 /* ===== Persistent formatting toolbar ===== */
 .bw-toolbar {
 	position: fixed;
@@ -1692,10 +1620,10 @@ body.bw-modal-open {
 	align-items: flex-start;
 	justify-content: center;
 
-	/* Anchor the modal below the disclaimer banner (~56px) + toolbar (~88px
-	 * incl. its shifted top), with a small breathing gap. Pairs with the
-	 * modal's max-height: calc(100vh - 200px) so the modal can't grow
-	 * behind the toolbar even when both expanders + a preview are open. */
+	/* Anchor the modal below the header (~56px) + toolbar (~88px incl. its
+	 * shifted top), with a small breathing gap. Pairs with the modal's
+	 * max-height: calc(100vh - 200px) so the modal can't grow behind the
+	 * toolbar even when both expanders + a preview are open. */
 	padding: 168px 0 32px;
 	box-sizing: border-box;
 	animation: bw-fade-in 0.15s ease;
@@ -1712,11 +1640,10 @@ body.bw-modal-open {
 	width: 420px;
 	max-width: 90vw;
 
-	/* Hard cap below "banner + toolbar height + bottom breathing room" so the
-	 * modal never grows behind the toolbar. With the disclaimer banner
-	 * visible the toolbar's bottom sits at ~144px; we leave ~24px of air
-	 * above and below the modal — anything taller scrolls internally.
-	 * border-box so max-height includes the padding. */
+	/* Hard cap below "header + toolbar height + bottom breathing room" so the
+	 * modal never grows behind the toolbar, whose bottom sits at ~144px; we
+	 * leave ~24px of air above and below the modal — anything taller scrolls
+	 * internally. border-box so max-height includes the padding. */
 	box-sizing: border-box;
 	max-height: calc(100vh - 200px);
 	overflow-y: auto;
@@ -2444,8 +2371,7 @@ body.bw-modal-open {
 		padding: 0 16px;
 	}
 
-	.bw-recovery-banner,
-	.bw-disclaimer-banner {
+	.bw-recovery-banner {
 		padding: 0 16px;
 	}
 
@@ -2529,7 +2455,6 @@ html.bw-anon .bw-back,
 html.bw-anon .bw-help-wrap,
 html.bw-anon .bw-more-wrap,
 html.bw-anon .bw-btn-draft,
-html.bw-anon .bw-disclaimer-banner,
 html.bw-anon .bw-toolbar [data-wp-on--click="actions.openImageModal"],
 html.bw-anon #bw-slash-opt-image,
 html.bw-anon .bw-unsupported-open-editor {

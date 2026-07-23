@@ -5,7 +5,6 @@ import { useSchemaSettings } from '../../data/use-schema-settings';
 import LocalBusinessSection from './schema-settings/local-business-section';
 import OrganizationSection from './schema-settings/organization-section';
 import type { SchemaSettings } from '../../data/schema-settings-types';
-import './style.scss';
 
 const notSetLabel = __( 'Not set', 'jetpack-seo' );
 const enabledLabel = __( 'Enabled', 'jetpack-seo' );

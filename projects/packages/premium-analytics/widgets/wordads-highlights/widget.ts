@@ -50,15 +50,7 @@ export const DEFAULT_WORDADS_EARNINGS_METRICS: WordAdsEarningsMetricId[] =
  * card enabled.
  */
 export default {
-	name: 'jpa/wordads-highlights',
-	title: __( 'WordAds highlights', 'jetpack-premium-analytics' ),
 	icon: megaphone,
-	help: {
-		content: __(
-			'Payment is made once your outstanding balance reaches $100, approximately 45 days after the end of the month in which it was earned.',
-			'jetpack-premium-analytics'
-		),
-	},
 	attributes: [
 		{
 			id: 'metrics',

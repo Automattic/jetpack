@@ -6,6 +6,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { WidgetCanvas } from '../../stories/with-widget-canvas';
 import {
 	registerReportMocks,
@@ -13,6 +14,7 @@ import {
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import VisitorsByLocationRender from '../render';
 import widgetDefinition from '../widget';
+import widgetManifest from '../widget.json';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
@@ -107,7 +109,7 @@ function VisitorsByLocationDashboardStory( {
 		<GlobalErrorProvider>
 			<WidgetDashboardWithWidgetStory
 				{ ...dashboardStoryArgs }
-				widgetType={ widgetDefinition }
+				widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 				renderModule={ VISITORS_BY_LOCATION_RENDER_MODULE }
 				renderComponent={
 					VisitorsByLocationRender as ComponentType< WidgetRenderProps< unknown > >

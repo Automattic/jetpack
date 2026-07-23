@@ -1,5 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { createAboutPage } from '../lib/about-page.ts';
 import { createFirstPostDraft } from '../lib/first-post.ts';
@@ -141,7 +142,10 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 
 			if ( data?.site ) {
 				setSiteUrl( data.site.url ?? null );
-				setSiteTitle( data.site.title ?? null );
+				// blogname is stored HTML-escaped; decode it or the preview renders literal entities. A
+				// present-but-blank title stays blank (matches the initial read in app.tsx), only a
+				// missing one coalesces to null.
+				setSiteTitle( data.site.title != null ? decodeEntities( data.site.title ) : null );
 				setSiteEditUrl( data.site.edit_url ?? null );
 			}
 

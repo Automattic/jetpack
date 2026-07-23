@@ -37,11 +37,10 @@ class Dashboard_Support_Routes {
 	 * Deferred here (rest_api_init), not run from register() itself: register()
 	 * runs on every request that boots this package, and on WPCOM Simple that's
 	 * every request across all of WPCOM's public-api process, most of which
-	 * never dispatch a Premium Analytics route. dashboard-layout.php hooks
-	 * get_user_metadata unconditionally at file scope, and dashboard-sections.php
-	 * hydrates its own section registry at file scope — neither should run
-	 * before WordPress has decided this request is actually dispatching a REST
-	 * route. widget-modules.php hydrates the widget type registry itself, lazily,
+	 * never dispatch a Premium Analytics route. dashboard-sections.php hydrates
+	 * its own section registry at file scope, which should not run before
+	 * WordPress has decided this request is actually dispatching a REST route.
+	 * widget-modules.php hydrates the widget type registry itself, lazily,
 	 * only when its REST callback or the boot-deps filter actually runs.
 	 *
 	 * @return void

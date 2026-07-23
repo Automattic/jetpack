@@ -946,6 +946,31 @@ class Manager {
 	}
 
 	/**
+	 * Determines whether the connection ownership can be transferred to another user.
+	 *
+	 * The default Jetpack connection uses a transferable ownership model. A consumer
+	 * can declare ownership locked by returning `false` from the `jetpack_connection_ownership_transferable`
+	 * filter. This is the single chokepoint used both when deciding which connection-error
+	 * CTA to surface and (eventually) when performing an ownership change.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool True if ownership can be transferred, false if it is locked.
+	 */
+	public function is_ownership_transferable() {
+		/**
+		 * Filters whether the Jetpack connection ownership can be transferred.
+		 *
+		 * Return `false` to lock ownership so it can never be taken over.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $transferable Whether ownership can be transferred. Default true.
+		 */
+		return (bool) apply_filters( 'jetpack_connection_ownership_transferable', true );
+	}
+
+	/**
 	 * Connects the user with a specified ID to a WordPress.com user using the
 	 * remote login flow.
 	 *
@@ -2779,7 +2804,7 @@ class Manager {
 	 *
 	 * @since 6.11.0 Add the list of Jetpack package versions to the heartbeat.
 	 * @since 8.7.4 Add the missing connection owner and XML-RPC error stats to the heartbeat.
-	 * @since $$next-version$$ Add the site environment stats (WordPress/PHP versions, etc.) to the heartbeat.
+	 * @since 8.7.9 Add the site environment stats (WordPress/PHP versions, etc.) to the heartbeat.
 	 *
 	 * @param array $stats The Heartbeat stats array.
 	 * @return array $stats

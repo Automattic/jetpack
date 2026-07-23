@@ -1,12 +1,9 @@
-import apiFetch from '@wordpress/api-fetch';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
 import { useCallback, useMemo } from 'react';
 import { isDashboardSectionLayouts } from '../config';
-import { DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_REST_NAMESPACE } from './constants';
-import { useDashboardLayout } from './use-dashboard-layout';
-import type { DashboardSectionId, DashboardSectionLayouts } from '../config';
-import type { DashboardName } from './use-dashboard-layout';
+import { DASHBOARD_PREFERENCES_SCOPE } from './constants';
+import type { DashboardSection, DashboardSectionId, DashboardSectionLayouts } from '../config';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 const PREFERENCES_KEY = 'dashboardSectionLayouts';
@@ -17,23 +14,21 @@ type PreferencesActions = {
 };
 
 /**
- * Manage the customizable widget layout for the currently active dashboard section.
+ * Manage the customizable widget layout for the active dashboard section.
  *
- * The shared `useDashboardLayout` hook stores one dashboard-wide layout. This
- * route layers a section map on top of that hook so each section can commit
- * its own customized layout while reset can fetch the active section's bundled
- * default.
+ * Reads the customized layout from the preferences map, falling back to the
+ * section's `default_layout` from the `dashboardSection` record. Reset writes
+ * that same default back. Both first paint and reset come from the entity, so
+ * there is no server-seeded preference.
  *
- * @param dashboardName   - Dashboard registration name for fetching defaults.
- * @param activeSectionId - Currently active section ID.
+ * @param activeSectionId - Currently active section slug.
+ * @param sections        - The available sections, carrying their defaults.
  * @return Active section layout, setter, and reset action.
  */
 export function useDashboardSectionLayout(
-	dashboardName: DashboardName,
-	activeSectionId: DashboardSectionId
-): [ DashboardWidget[], ( layout: DashboardWidget[] ) => void, () => Promise< void > ] {
-	const [ defaultLayout ] = useDashboardLayout( dashboardName );
-
+	activeSectionId: DashboardSectionId,
+	sections: DashboardSection[]
+): [ DashboardWidget[], ( layout: DashboardWidget[] ) => void, () => void ] {
 	const sectionLayouts = useSelect( select => {
 		const value = (
 			select( preferencesStore ) as unknown as {
@@ -46,10 +41,12 @@ export function useDashboardSectionLayout(
 
 	const { set } = useDispatch( preferencesStore ) as unknown as PreferencesActions;
 
-	const layout = useMemo(
-		() => sectionLayouts[ activeSectionId ] ?? defaultLayout,
-		[ activeSectionId, defaultLayout, sectionLayouts ]
+	const sectionDefault = useMemo(
+		() => sections.find( section => section.slug === activeSectionId )?.default_layout ?? [],
+		[ sections, activeSectionId ]
 	);
+
+	const layout = sectionLayouts[ activeSectionId ] ?? sectionDefault;
 
 	const setLayout = useCallback(
 		( nextLayout: DashboardWidget[] ) => {
@@ -61,16 +58,12 @@ export function useDashboardSectionLayout(
 		[ activeSectionId, sectionLayouts, set ]
 	);
 
-	const resetLayout = useCallback( async () => {
-		const fresh = ( await apiFetch( {
-			path: `/${ DASHBOARD_REST_NAMESPACE }/dashboards/${ activeSectionId }/default-layout`,
-		} ) ) as DashboardWidget[];
-
+	const resetLayout = useCallback( () => {
 		void set( DASHBOARD_PREFERENCES_SCOPE, PREFERENCES_KEY, {
 			...sectionLayouts,
-			[ activeSectionId ]: fresh,
+			[ activeSectionId ]: sectionDefault,
 		} );
-	}, [ activeSectionId, sectionLayouts, set ] );
+	}, [ activeSectionId, sectionDefault, sectionLayouts, set ] );
 
 	return [ layout, setLayout, resetLayout ];
 }

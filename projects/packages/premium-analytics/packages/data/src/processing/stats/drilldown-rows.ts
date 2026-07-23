@@ -1,184 +1,173 @@
 /**
- * The item shape the drilldown aggregation consumes: the standard grouped
- * Stats module shape (clicks, referrers, archives, ...) where top-level items
- * are either a single linked record or a group whose `children` hold the
- * records and whose `views` already include the children's totals.
+ * The minimal report shape consumed by drill-down aggregation.
  */
-export interface StatsDrilldownSourceItem {
-	/** `unknown` to match `StatsNormalizedItemBase`; coerced with `String()`. */
-	label?: unknown;
-	link?: string | null;
-	views: number;
-	children?: StatsDrilldownSourceItem[] | null;
+export interface StatsDrilldownSourceReport< TItem > {
+	data?: ReadonlyArray< { items: readonly TItem[] } > | null;
 }
 
 /**
- * The minimal report shape the aggregation reads — structurally satisfied by
- * any `StatsNormalizedReport` whose items carry label/link/views/children.
+ * Source context available while identifying and classifying an item.
  */
-export interface StatsDrilldownSourceReport< TItem extends StatsDrilldownSourceItem > {
-	data?: Array< { items: TItem[] } > | null;
-}
-
-/**
- * One flat row for DataViews' native hierarchy: group parent rows carry
- * `isGroup`, leaf rows carry `href` and point at their parent via `parentId`.
- */
-export interface StatsDrilldownRow {
-	id: string;
+export type StatsDrilldownItemContext< TItem > = {
+	depth: number;
 	parentId?: string;
-	label: string;
-	href?: string;
-	isGroup?: boolean;
-	value: number;
-}
-
-type DrilldownGroupAggregate = {
-	label: string;
-	value: number;
+	parentItem?: TItem;
 	hasChildren: boolean;
-	leavesById: Map< string, StatsDrilldownRow >;
 };
 
 /**
- * Flatten a grouped item to linked leaf rows.
- *
- * @param item  - The current item.
- * @param group - The root group label.
- * @return Linked leaf rows.
+ * Aggregated context available when adding report-specific row metadata.
  */
-function flattenDrilldownItem(
-	item: StatsDrilldownSourceItem,
-	group: string
-): StatsDrilldownRow[] {
-	const children = item.children ?? [];
-
-	if ( children.length ) {
-		return children.flatMap( child => flattenDrilldownItem( child, group ) );
-	}
-
-	if ( ! item.link ) {
-		return [];
-	}
-
-	return [
-		{
-			id: `${ group }|${ item.link }`,
-			label: String( item.label ?? item.link ),
-			href: item.link,
-			value: item.views,
-		},
-	];
-}
+export type StatsDrilldownRowContext< TItem > = StatsDrilldownItemContext< TItem > & {
+	id: string;
+	label: string;
+	isGroup: boolean;
+	value: number;
+};
 
 /**
- * Aggregate a bucketed grouped Stats report into nested drilldown rows: one
- * parent row per group with its records as child rows. Groups that are a
- * single linked record in the source stay flat top-level rows so they don't
- * read as drill-down parents.
- *
- * Rows come out ordered by value (groups, then each group's records), so an
- * unsorted DataViews hierarchy shows a meaningful default order without a
- * view-level sort.
- *
- * @param report - The bucketed grouped report.
- * @return Nested drilldown rows in display order.
+ * One flat row for DataViews' native hierarchy. Report-specific metadata is
+ * supplied through the generic type instead of adding optional fields for
+ * every report to this common shape.
  */
-export function aggregateStatsDrilldownRows< TItem extends StatsDrilldownSourceItem >(
-	report?: StatsDrilldownSourceReport< TItem >
-): StatsDrilldownRow[] {
-	const groups = new Map< string, DrilldownGroupAggregate >();
+export type StatsDrilldownRow< TMetadata extends object = Record< never, never > > = {
+	id: string;
+	parentId?: string;
+	label: string;
+	isGroup?: true;
+	value: number;
+} & TMetadata;
 
-	for ( const point of report?.data ?? [] ) {
-		for ( const item of point.items ) {
-			const label = String( item.label ?? '' );
-			let aggregate = groups.get( label );
-
-			if ( ! aggregate ) {
-				aggregate = { label, value: 0, hasChildren: false, leavesById: new Map() };
-				groups.set( label, aggregate );
-			}
-
-			// Top-level group views already include the children's totals.
-			aggregate.value += item.views;
-			aggregate.hasChildren ||= !! item.children?.length;
-
-			for ( const row of flattenDrilldownItem( item, label ) ) {
-				const existing = aggregate.leavesById.get( row.id );
-
-				if ( existing ) {
-					existing.value += row.value;
-				} else {
-					aggregate.leavesById.set( row.id, row );
-				}
-			}
-		}
-	}
-
-	/*
-	 * On a day when only one of a group's records is clicked, Stats reports
-	 * that record as its own single-record group instead of nesting it. Fold
-	 * those flat groups into the nested group that already lists the same
-	 * URL so one record never renders twice.
+export type AggregateStatsDrilldownRowsOptions<
+	TItem,
+	TMetadata extends object = Record< never, never >,
+> = {
+	/** Return an item's child records. */
+	getChildren: ( item: TItem ) => readonly TItem[] | null | undefined;
+	/** Return a stable, globally unique DataViews row id, or omit the item. */
+	getId: ( item: TItem, context: StatsDrilldownItemContext< TItem > ) => string | null | undefined;
+	/** Return the item's display label. */
+	getLabel: ( item: TItem ) => string;
+	/** Return the metric to sum across report buckets. */
+	getValue: ( item: TItem ) => number;
+	/**
+	 * Classify a row as a group. By default, any item with children is a
+	 * group. Override this for semantic parents that can be empty.
 	 */
-	const nestedLeafByUrl = new Map<
-		string,
-		{ aggregate: DrilldownGroupAggregate; leaf: StatsDrilldownRow }
-	>();
+	isGroup?: ( item: TItem, context: StatsDrilldownItemContext< TItem > ) => boolean;
+	/** Add metadata used only by the consuming report. */
+	getRowMetadata?: ( item: TItem, context: StatsDrilldownRowContext< TItem > ) => TMetadata;
+};
 
-	for ( const aggregate of groups.values() ) {
-		if ( ! aggregate.hasChildren ) {
-			continue;
-		}
+type StatsDrilldownAggregate< TItem > = {
+	id: string;
+	parentId?: string;
+	parent?: StatsDrilldownAggregate< TItem >;
+	item: TItem;
+	depth: number;
+	isGroup: boolean;
+	value: number;
+	childrenById: Map< string, StatsDrilldownAggregate< TItem > >;
+};
 
-		for ( const leaf of aggregate.leavesById.values() ) {
-			if ( leaf.href && ! nestedLeafByUrl.has( leaf.href ) ) {
-				nestedLeafByUrl.set( leaf.href, { aggregate, leaf } );
-			}
-		}
-	}
+/**
+ * Aggregate a bucketed Stats hierarchy into flat, depth-first rows for
+ * DataViews' native hierarchy support. The shared traversal owns value
+ * aggregation, parent wiring, and sibling sorting; callbacks own report
+ * identity, group semantics, and metadata.
+ *
+ * @param report  - The bucketed report.
+ * @param options - Report-specific hierarchy adapters.
+ * @return Nested rows in descending value order at every hierarchy level.
+ */
+export function aggregateStatsDrilldownRows<
+	TItem,
+	TMetadata extends object = Record< never, never >,
+>(
+	report: StatsDrilldownSourceReport< TItem > | undefined,
+	options: AggregateStatsDrilldownRowsOptions< TItem, TMetadata >
+): Array< StatsDrilldownRow< TMetadata > > {
+	const rootsById = new Map< string, StatsDrilldownAggregate< TItem > >();
 
-	for ( const [ label, aggregate ] of groups ) {
-		if ( aggregate.hasChildren ) {
-			continue;
-		}
+	const aggregateItems = (
+		items: readonly TItem[],
+		rowsById: Map< string, StatsDrilldownAggregate< TItem > >,
+		parent?: StatsDrilldownAggregate< TItem >
+	) => {
+		for ( const item of items ) {
+			const children = options.getChildren( item ) ?? [];
+			const itemContext: StatsDrilldownItemContext< TItem > = {
+				depth: parent ? parent.depth + 1 : 0,
+				parentId: parent?.id,
+				parentItem: parent?.item,
+				hasChildren: children.length > 0,
+			};
+			const id = options.getId( item, itemContext );
 
-		for ( const [ id, leaf ] of aggregate.leavesById ) {
-			const target = leaf.href ? nestedLeafByUrl.get( leaf.href ) : undefined;
-
-			if ( ! target ) {
+			if ( ! id ) {
 				continue;
 			}
 
-			target.leaf.value += leaf.value;
-			target.aggregate.value += leaf.value;
-			aggregate.leavesById.delete( id );
-		}
+			const itemIsGroup = options.isGroup?.( item, itemContext ) ?? itemContext.hasChildren;
+			let aggregate = rowsById.get( id );
 
-		if ( ! aggregate.leavesById.size ) {
-			groups.delete( label );
+			if ( aggregate ) {
+				aggregate.value += options.getValue( item );
+				aggregate.isGroup ||= itemIsGroup;
+			} else {
+				aggregate = {
+					id,
+					parentId: parent?.id,
+					parent,
+					item,
+					depth: itemContext.depth,
+					isGroup: itemIsGroup,
+					value: options.getValue( item ),
+					childrenById: new Map(),
+				};
+				rowsById.set( id, aggregate );
+			}
+
+			aggregateItems( children, aggregate.childrenById, aggregate );
 		}
+	};
+
+	for ( const point of report?.data ?? [] ) {
+		aggregateItems( point.items, rootsById );
 	}
 
-	const byValueDesc = ( a: { value: number }, b: { value: number } ) => b.value - a.value;
-	const rows: StatsDrilldownRow[] = [];
+	const rows: Array< StatsDrilldownRow< TMetadata > > = [];
+	const appendRows = ( aggregates: Iterable< StatsDrilldownAggregate< TItem > > ) => {
+		const sortedAggregates = [ ...aggregates ].sort( ( a, b ) => b.value - a.value );
 
-	for ( const aggregate of [ ...groups.values() ].sort( byValueDesc ) ) {
-		const leaves = [ ...aggregate.leavesById.values() ].sort( byValueDesc );
+		for ( const aggregate of sortedAggregates ) {
+			const label = options.getLabel( aggregate.item );
+			const rowContext: StatsDrilldownRowContext< TItem > = {
+				id: aggregate.id,
+				parentId: aggregate.parentId,
+				parentItem: aggregate.parent?.item,
+				depth: aggregate.depth,
+				hasChildren: aggregate.childrenById.size > 0,
+				label,
+				isGroup: aggregate.isGroup,
+				value: aggregate.value,
+			};
+			const metadata =
+				options.getRowMetadata?.( aggregate.item, rowContext ) ?? ( {} as TMetadata );
 
-		if ( ! aggregate.hasChildren ) {
-			rows.push( ...leaves );
-			continue;
+			rows.push( {
+				...metadata,
+				id: aggregate.id,
+				...( aggregate.parentId ? { parentId: aggregate.parentId } : {} ),
+				label,
+				...( aggregate.isGroup ? { isGroup: true as const } : {} ),
+				value: aggregate.value,
+			} );
+			appendRows( aggregate.childrenById.values() );
 		}
+	};
 
-		rows.push( {
-			id: aggregate.label,
-			label: aggregate.label,
-			isGroup: true,
-			value: aggregate.value,
-		} );
-		rows.push( ...leaves.map( leaf => ( { ...leaf, parentId: aggregate.label } ) ) );
-	}
+	appendRows( rootsById.values() );
 
 	return rows;
 }

@@ -5,6 +5,8 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { withStoryRouter } from '../../stories/with-story-router';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
 	registerReportMocks,
@@ -12,6 +14,7 @@ import {
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import AuthorsRender from '../render';
 import widgetDefinition from '../widget';
+import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
@@ -20,12 +23,7 @@ registerReportMocks();
 
 const AUTHORS_RENDER_MODULE = 'storybook/authors';
 
-const storyWidgetType = {
-	name: widgetDefinition.name,
-	title: widgetDefinition.title,
-	icon: widgetDefinition.icon,
-	presentation: 'framed' as const,
-};
+const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
 interface AuthorsStoryControls {
 	withComparison: boolean;
@@ -79,13 +77,13 @@ type Story = StoryObj< AuthorsStoryControls >;
 export const Default: Story = {
 	render: renderAuthors,
 	args: { withComparison: false },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 export const WithComparison: Story = {
 	render: renderAuthors,
 	args: { withComparison: true },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 /**
@@ -96,7 +94,7 @@ export const Loading: Story = {
 	render: () => renderAuthorsOnPreset( 'last-90-days' ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/top-authors', 'loading' );
 		return () => setReportMockState( 'stats/top-authors', null );
@@ -110,7 +108,7 @@ export const Loading: Story = {
 export const Error: Story = {
 	render: () => renderAuthorsOnPreset( 'last-7-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/top-authors', 'error' );
 		return () => setReportMockState( 'stats/top-authors', null );
@@ -124,7 +122,7 @@ export const Error: Story = {
 export const Empty: Story = {
 	render: () => renderAuthorsOnPreset( 'last-365-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/top-authors', 'empty' );
 		return () => setReportMockState( 'stats/top-authors', null );

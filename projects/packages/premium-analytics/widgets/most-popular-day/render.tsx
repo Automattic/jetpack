@@ -5,6 +5,7 @@ import { useStatsSite } from '@jetpack-premium-analytics/data';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { calendar } from '@jetpack-premium-analytics/icons';
 import {
+	summaryCount,
 	WidgetRoot,
 	WidgetState,
 	type ReportParamsFieldAttributes,
@@ -97,22 +98,6 @@ export const MostPopularDayHighlight = ( {
 );
 
 /**
- * Reads a numeric summary field, returning `undefined` when the key is absent
- * or not a finite number, so a malformed value falls through to the empty state
- * rather than rendering a misleading `0`.
- *
- * @param {Record< string, unknown > | undefined} summary - The site summary.
- * @param {string}                                key     - The field to read.
- * @return The finite number, or undefined when unavailable.
- */
-function readCount( summary: Record< string, unknown > | undefined, key: string ) {
-	const value = summary?.[ key ];
-	const parsed = typeof value === 'string' ? Number( value ) : value;
-
-	return typeof parsed === 'number' && Number.isFinite( parsed ) ? parsed : undefined;
-}
-
-/**
  * Parses the best-day field (`YYYY-MM-DD`) into a date. `parseISO` validates the
  * calendar date, so `isValid` rejects the "-" / empty sentinels low-traffic
  * sites send and impossible days like `2020-02-31`, falling through to the empty
@@ -144,8 +129,8 @@ function MostPopularDayReport() {
 
 	const summary = data?.stats;
 	const date = readBestDay( summary );
-	const views = readCount( summary, 'views_best_day_total' );
-	const totalViews = readCount( summary, 'views' );
+	const views = summaryCount( summary, 'views_best_day_total' );
+	const totalViews = summaryCount( summary, 'views' );
 	const isEmpty = date === undefined || views === undefined;
 
 	return (

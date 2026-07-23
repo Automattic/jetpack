@@ -22,7 +22,7 @@ const PAID_FEATURES = [
 ];
 
 /**
- * Free-plan upsell gate for the modernization chassis. A compact native
+ * Free-plan upsell gate for the Social dashboard. A compact native
  * `@wordpress/ui` replacement for the legacy two-column `PricingTable`: it surfaces the
  * paid price (from `useProductInfo`) with an upgrade CTA, plus a "Start for free" action
  * that enables the Social module and dismisses the nudge.
