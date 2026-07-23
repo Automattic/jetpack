@@ -13,9 +13,35 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 function wpcom_fiverr_cta() {
 	// The Site Logo can be set from the Site Editor's Identity section. Core keeps the
 	// `site_logo` option and the `custom_logo` theme mod in sync, so read either one.
-	$logo_id  = (int) get_option( 'site_logo' );
-	$logo_id  = $logo_id > 0 ? $logo_id : (int) get_theme_mod( 'custom_logo' );
-	$logo_img = $logo_id > 0 ? wp_get_attachment_image( $logo_id, array( 96, 96 ), false, array( 'class' => 'wpcom-site-logo-preview-image' ) ) : '';
+	// The option may hold an attachment ID, a legacy `array( 'id' => ... )`, or a
+	// WP_Error, so normalize to a positive ID before using it.
+	$logo_id = get_option( 'site_logo' );
+	if ( is_array( $logo_id ) && isset( $logo_id['id'] ) ) {
+		$logo_id = $logo_id['id'];
+	}
+	$logo_id = ( is_scalar( $logo_id ) && (int) $logo_id > 0 ) ? (int) $logo_id : (int) get_theme_mod( 'custom_logo' );
+
+	$logo_img = '';
+	if ( $logo_id > 0 ) {
+		// A logo's own alt text is often empty, so fall back to the site title so the
+		// populated state is still announced to assistive technology.
+		$logo_alt = trim( wp_strip_all_tags( (string) get_post_meta( $logo_id, '_wp_attachment_image_alt', true ) ) );
+		if ( '' === $logo_alt ) {
+			/* translators: %s: The site title. */
+			$logo_alt = sprintf( __( 'Current site logo for %s', 'jetpack-mu-wpcom' ), get_bloginfo( 'name' ) );
+		}
+		// Request a proportionally-scaled size rather than a square (which can select the
+		// hard-cropped thumbnail and show only the logo's center); CSS caps its dimensions.
+		$logo_img = wp_get_attachment_image(
+			$logo_id,
+			'medium',
+			false,
+			array(
+				'class' => 'wpcom-site-logo-preview-image',
+				'alt'   => $logo_alt,
+			)
+		);
+	}
 	?>
 	<div id="wpcom-fiverr-cta">
 		<?php if ( $logo_img ) : ?>

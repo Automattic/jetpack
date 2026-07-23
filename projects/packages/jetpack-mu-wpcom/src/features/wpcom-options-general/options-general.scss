@@ -1,11 +1,27 @@
 .options-general-php {
 
 	.wpcom-site-logo-preview {
-		margin-bottom: 0.4em;
+		display: inline-block;
+		margin-block-end: 0.4em;
+		padding: 8px;
+		border: 1px solid #dcdcde;
+		border-radius: 2px;
+		// Checkerboard surface so white, dark, and transparent logos all stay visible
+		// against WP Admin's light canvas.
+		background-color: #fff;
+		background-image:
+			linear-gradient(45deg, #f0f0f1 25%, transparent 25%),
+			linear-gradient(-45deg, #f0f0f1 25%, transparent 25%),
+			linear-gradient(45deg, transparent 75%, #f0f0f1 75%),
+			linear-gradient(-45deg, transparent 75%, #f0f0f1 75%);
+		background-size: 16px 16px;
+		background-position: 0 0, 0 8px, 8px -8px, -8px 0;
 
 		.wpcom-site-logo-preview-image {
-			height: auto;
-			max-width: 96px;
+			display: block;
+			block-size: auto;
+			max-inline-size: 200px;
+			max-block-size: 96px;
 		}
 	}
 
