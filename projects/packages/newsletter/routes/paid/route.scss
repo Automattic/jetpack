@@ -1,0 +1,8 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// Same viewport-pinned white/rounded panel chrome as the unified Newsletter
+// page. WP names a hidden (empty-parent) page's body class `admin_page_<slug>`.
+body.admin_page_jetpack-newsletter-paid {
+
+	@include jetpack-admin-page-layout-wp-build;
+}

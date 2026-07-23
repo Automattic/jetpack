@@ -46,7 +46,7 @@ class Mode {
 	 *
 	 * @var string
 	 */
-	const PAGE_DASHBOARD = 'jetpack-newsletter-dashboard';
+	const PAGE_DASHBOARD = 'jetpack-newsletter-home';
 
 	/**
 	 * Slug of the mode-only Paid page (last item in the focused nav).
@@ -110,6 +110,88 @@ class Mode {
 		// Let the mu-wpcom Write editor's back button return to the Newsletter
 		// page (the "Write & send" link passes source=newsletter).
 		add_filter( 'wpcom_write_back_destinations', array( self::class, 'add_write_back_destination' ) );
+
+		// Load the wp-build assets + generated render functions on the mode's own
+		// AdminPage pages (Dashboard, Paid). Priority 1 mirrors Settings so the
+		// render functions exist before the menu callbacks fire.
+		add_action( 'admin_menu', array( self::class, 'maybe_load_wp_build' ), 1 );
+	}
+
+	/**
+	 * Whether the current request targets one of the mode's own wp-build
+	 * AdminPage pages (Dashboard or Paid). Their menu slugs double as their
+	 * wp-build page ids.
+	 *
+	 * @return bool
+	 */
+	private static function is_wp_build_page() {
+		if ( ! self::is_enabled() || ! is_admin() || ! isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return false;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only page routing.
+		$page = sanitize_text_field( wp_unslash( $_GET['page'] ) );
+
+		return in_array( $page, array( self::PAGE_DASHBOARD, self::PAGE_PAID ), true );
+	}
+
+	/**
+	 * Load the newsletter package's wp-build bundle so the generated AdminPage
+	 * render + enqueue functions exist for the Dashboard / Paid pages. Mirrors
+	 * Settings::maybe_load_wp_build() / Subscribers_Announcement.
+	 *
+	 * @return void
+	 */
+	public static function maybe_load_wp_build() {
+		if ( ! self::is_wp_build_page() ) {
+			return;
+		}
+
+		$build_index = dirname( __DIR__ ) . '/build/build.php';
+		if ( ! file_exists( $build_index ) ) {
+			return;
+		}
+
+		require_once $build_index;
+
+		// The wp-build tool also generates a standalone full-screen page.php that
+		// hooks admin_init and takes over the request (no wp-admin chrome). We want
+		// the *embedded* AdminPage (so the mode nav stays), so drop those
+		// interceptors. This admin_menu hook runs before admin_init, so removing
+		// them here prevents the takeover.
+		remove_action( 'admin_init', 'jetpack_newsletter_jetpack_newsletter_home_intercept_render' );
+		remove_action( 'admin_init', 'jetpack_newsletter_jetpack_newsletter_paid_intercept_render' );
+
+		\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
+			'jetpack-newsletter',
+			array_merge(
+				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::SCRIPT_HANDLES,
+				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::MODULE_IDS
+			)
+		);
+
+		add_action( 'current_screen', array( self::class, 'alias_screen_id' ) );
+	}
+
+	/**
+	 * Alias the screen id to the page's wp-build id so the generated enqueue
+	 * gate (which matches on the bare page id) fires. WP would otherwise report
+	 * `admin_page_<slug>` for these hidden pages.
+	 *
+	 * @param \WP_Screen|null $screen The current screen (passed by WP).
+	 * @return void
+	 */
+	public static function alias_screen_id( $screen ) {
+		if ( ! is_object( $screen ) || ! isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only page routing.
+		$page = sanitize_text_field( wp_unslash( $_GET['page'] ) );
+
+		if ( in_array( $page, array( self::PAGE_DASHBOARD, self::PAGE_PAID ), true ) ) {
+			$screen->id = $page;
+		}
 	}
 
 	/**
@@ -279,26 +361,40 @@ class Mode {
 	 * @return void
 	 */
 	public static function render_dashboard_page() {
-		self::render_stub( __( 'Dashboard', 'jetpack-newsletter' ) );
+		self::render_wp_build_page(
+			'jetpack_newsletter_jetpack_newsletter_home_wp_admin_render_page',
+			__( 'Dashboard', 'jetpack-newsletter' )
+		);
 	}
 
 	/**
-	 * Render the mode-only Paid stub page.
+	 * Render the mode-only Paid page (its wp-build AdminPage).
 	 *
 	 * @return void
 	 */
 	public static function render_paid_page() {
-		self::render_stub( __( 'Paid', 'jetpack-newsletter' ) );
+		self::render_wp_build_page(
+			'jetpack_newsletter_jetpack_newsletter_paid_wp_admin_render_page',
+			__( 'Paid', 'jetpack-newsletter' )
+		);
 	}
 
 	/**
-	 * Render a placeholder screen for a mode-only page. Intentionally empty for
-	 * now — real UIs (e.g. a custom payments screen) get built on top later.
+	 * Render a mode page through its generated wp-build AdminPage function when
+	 * available; fall back to a simple stub (e.g. before the package is built).
+	 * Calls the function via a variable so static analysis doesn't flag the
+	 * generated symbol as undeclared.
 	 *
-	 * @param string $heading The page heading.
+	 * @param string $render_fn Generated wp-build render function name.
+	 * @param string $heading   Fallback heading if the build isn't present.
 	 * @return void
 	 */
-	private static function render_stub( $heading ) {
+	private static function render_wp_build_page( $render_fn, $heading ) {
+		if ( function_exists( $render_fn ) ) {
+			$render_fn();
+			return;
+		}
+
 		printf(
 			'<div class="wrap"><h1>%1$s</h1><p>%2$s</p></div>',
 			esc_html( $heading ),
@@ -526,13 +622,13 @@ class Mode {
 	private static function get_menu_icon_css() {
 		$icons = array(
 			// Dashboard.
-			'a[href*="jetpack-newsletter-dashboard"]' => '<svg height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m16 2c1.1046 0 2 .89543 2 2v12c0 1.1046-.8954 2-2 2h-12c-1.10457 0-2-.8954-2-2v-12c0-1.10457.89543-2 2-2zm-10.25 9v3h1.5v-3zm3.5 3h1.5v-5h-1.5zm3.5 0h1.5v-8h-1.5z" fill="#fff"/></svg>',
+			'a[href*="jetpack-newsletter-home"]' => '<svg height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m16 2c1.1046 0 2 .89543 2 2v12c0 1.1046-.8954 2-2 2h-12c-1.10457 0-2-.8954-2-2v-12c0-1.10457.89543-2 2-2zm-10.25 9v3h1.5v-3zm3.5 3h1.5v-5h-1.5zm3.5 0h1.5v-8h-1.5z" fill="#fff"/></svg>',
 			// Subscribers (the bare Newsletter page URL).
-			'a[href$="page=jetpack-newsletter"]'      => '<svg height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path clip-rule="evenodd" d="m10 1.6665c-4.60287 0-8.33333 3.73098-8.33333 8.33334 0 2.41416 1.02539 4.58856 2.66601 6.11046 1.48764 1.3795 3.47982 2.2229 5.66732 2.2229s4.1797-.8434 5.6673-2.2229c1.6406-1.5219 2.666-3.6963 2.666-6.11046 0-4.60236-3.7305-8.33334-8.3333-8.33334zm-5.01953 13.3307c1.10351-1.519 2.86133-2.4974 5.01953-2.4974s3.916.9784 5.0195 2.4974c-1.2825 1.2885-3.0566 2.086-5.0195 2.086-1.96289 0-3.73698-.7975-5.01953-2.086zm5.01953-9.37236c-1.49742 0-2.70833 1.21256-2.70833 2.70833 0 1.49575 1.21091 2.70833 2.70833 2.70833 1.4974 0 2.7083-1.21258 2.7083-2.70833 0-1.49577-1.2109-2.70833-2.7083-2.70833z" fill="#fff" fill-rule="evenodd"/></svg>',
+			'a[href$="page=jetpack-newsletter"]' => '<svg height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path clip-rule="evenodd" d="m10 1.6665c-4.60287 0-8.33333 3.73098-8.33333 8.33334 0 2.41416 1.02539 4.58856 2.66601 6.11046 1.48764 1.3795 3.47982 2.2229 5.66732 2.2229s4.1797-.8434 5.6673-2.2229c1.6406-1.5219 2.666-3.6963 2.666-6.11046 0-4.60236-3.7305-8.33334-8.3333-8.33334zm-5.01953 13.3307c1.10351-1.519 2.86133-2.4974 5.01953-2.4974s3.916.9784 5.0195 2.4974c-1.2825 1.2885-3.0566 2.086-5.0195 2.086-1.96289 0-3.73698-.7975-5.01953-2.086zm5.01953-9.37236c-1.49742 0-2.70833 1.21256-2.70833 2.70833 0 1.49575 1.21091 2.70833 2.70833 2.70833 1.4974 0 2.7083-1.21258 2.7083-2.70833 0-1.49577-1.2109-2.70833-2.7083-2.70833z" fill="#fff" fill-rule="evenodd"/></svg>',
 			// Settings (carries the tab param).
 			'a[href*="jetpack-newsletter"][href*="settings"]' => '<svg height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path clip-rule="evenodd" d="m1.45833 3.75016c0-1.26565 1.02602-2.29166 2.29167-2.29166h12.5c1.2657 0 2.2917 1.02601 2.2917 2.29166v12.50004c0 1.2656-1.026 2.2916-2.2917 2.2916h-12.5c-1.26565 0-2.29167-1.026-2.29167-2.2916zm6.45834 2.5c0-.46023-.3731-.83333-.83334-.83333-.46023 0-.83333.3731-.83333.83333v4.85204c-.60239.1793-1.04167.7373-1.04167 1.398v.8333c0 .8054.65292 1.4583 1.45834 1.4583h.83333c.80542 0 1.45833-.6529 1.45833-1.4583v-.8333c0-.6607-.43925-1.2187-1.04166-1.398zm3.12503.41667c0-.80542.6529-1.45833 1.4583-1.45833h.8333c.8054 0 1.4584.65291 1.4584 1.45833v.83333c0 .66064-.4393 1.21867-1.0417 1.39792v4.85212c0 .4602-.3731.8333-.8333.8333-.4603 0-.8334-.3731-.8334-.8333v-4.85212c-.6024-.17925-1.0416-.73728-1.0416-1.39792z" fill="#fff" fill-rule="evenodd"/></svg>',
 			// Paid.
-			'a[href*="jetpack-newsletter-paid"]'      => '<svg height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m18.3301 15.2051c0 .8053-.6528 1.4588-1.458 1.459h-13.7471c-.80542 0-1.45801-.6536-1.45801-1.459v-6.2051h16.66311zm-7.3301-2.2051v1.5h5v-1.5zm7.3291-5.5h-16.66211v-2.70605c.00018-.80527.6527-1.45801 1.45801-1.45801h13.7461c.8035.00012 1.4567.65062 1.458 1.45508.0016.90316.0001 1.80638 0 2.70898z" fill="#fff"/></svg>',
+			'a[href*="jetpack-newsletter-paid"]' => '<svg height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m18.3301 15.2051c0 .8053-.6528 1.4588-1.458 1.459h-13.7471c-.80542 0-1.45801-.6536-1.45801-1.459v-6.2051h16.66311zm-7.3301-2.2051v1.5h5v-1.5zm7.3291-5.5h-16.66211v-2.70605c.00018-.80527.6527-1.45801 1.45801-1.45801h13.7461c.8035.00012 1.4567.65062 1.458 1.45508.0016.90316.0001 1.80638 0 2.70898z" fill="#fff"/></svg>',
 		);
 
 		$css = '';

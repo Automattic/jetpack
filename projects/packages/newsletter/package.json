@@ -102,18 +102,10 @@
 		"packageNamespace": "jetpack-newsletter",
 		"handlePrefix": "jetpack-newsletter",
 		"pages": [
-			{
-				"id": "jetpack-newsletter-dashboard",
-				"init": [
-					"@jetpack-newsletter/init"
-				]
-			},
-			{
-				"id": "jetpack-subscribers-announcement",
-				"init": [
-					"@jetpack-newsletter/init"
-				]
-			}
+			"jetpack-newsletter-dashboard",
+			"jetpack-subscribers-announcement",
+			"jetpack-newsletter-home",
+			"jetpack-newsletter-paid"
 		]
 	}
 }
