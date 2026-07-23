@@ -22,7 +22,7 @@ class PostTypesTest extends TestCase {
 	 * @return void
 	 */
 	public function tearDown(): void {
-		foreach ( array( 'seo_book', 'seo_hidden', 'seo_no_rest' ) as $post_type ) {
+		foreach ( array( 'seo_book', 'seo_hidden', 'seo_no_rest', 'seo_internal' ) as $post_type ) {
 			if ( post_type_exists( $post_type ) ) {
 				unregister_post_type( $post_type );
 			}
@@ -65,6 +65,16 @@ class PostTypesTest extends TestCase {
 				'show_in_rest' => false,
 			)
 		);
+		register_post_type(
+			'seo_internal',
+			array(
+				'label'              => 'Internal',
+				'public'             => true,
+				'publicly_queryable' => false,
+				'show_ui'            => true,
+				'show_in_rest'       => true,
+			)
+		);
 
 		$post_types = Post_Types::get_supported_content_types();
 
@@ -74,6 +84,7 @@ class PostTypesTest extends TestCase {
 		$this->assertNotContains( 'attachment', $post_types );
 		$this->assertNotContains( 'seo_hidden', $post_types );
 		$this->assertNotContains( 'seo_no_rest', $post_types );
+		$this->assertNotContains( 'seo_internal', $post_types );
 	}
 
 	/**

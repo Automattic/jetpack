@@ -20,10 +20,7 @@ const ContentRoute = () => (
 // When the `seo-tools` module is off, show the enable affordance instead of the
 // content list — its per-post SEO meta has no effect while the module is off.
 const Stage = () => {
-	const { status, retry } = useEnsureTabData( [
-		{ path: OVERVIEW_PATH },
-		{ path: CONTENT_PATH },
-	] );
+	const { status, retry } = useEnsureTabData( [ { path: OVERVIEW_PATH }, { path: CONTENT_PATH } ] );
 
 	if ( status === 'loading' ) {
 		return (

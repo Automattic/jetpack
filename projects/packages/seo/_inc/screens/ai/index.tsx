@@ -1,10 +1,7 @@
 import { Button, ToggleControl } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
-import { useCallback } from '@wordpress/element';
+import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useNavigate } from '@wordpress/route';
-import { Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui';
-import { settingsStore } from '../../data/settings-store';
+import { Badge, Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui';
 import './style.scss';
 import type { AiCrawler } from '../../data/ai-types';
 import type { AiForm } from '../../data/use-ai';
@@ -12,7 +9,16 @@ import type { FC } from 'react';
 
 interface Props {
 	form: AiForm;
+	searchEnginesVisible: boolean;
+	onManageVisibility: () => void;
 }
+
+const llmsTxtHelp = __(
+	'Publishes a curated, AI-readable map at /llms.txt to help AI assistants find and understand your supported content.',
+	'jetpack-seo'
+);
+const enabledLabel = __( 'Enabled', 'jetpack-seo' );
+const disabledLabel = __( 'Disabled', 'jetpack-seo' );
 
 /**
  * Whether a crawler is currently blocked: an explicit override wins, otherwise
@@ -158,11 +164,13 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
  * State + auto-save live in the `form` controller (passed from the page root so
  * it survives tab switches); this component is the presentation.
  *
- * @param props      - Component props.
- * @param props.form - The AI form controller from `useAiForm`.
+ * @param props                      - Component props.
+ * @param props.form                 - The AI form controller from `useAiForm`.
+ * @param props.searchEnginesVisible - Whether the site allows search-engine indexing.
+ * @param props.onManageVisibility   - Opens the Settings visibility controls.
  * @return The AI tab content.
  */
-const AiScreen: FC< Props > = ( { form } ) => {
+const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility } ) => {
 	const {
 		enhancer,
 		llmsTxt,
@@ -173,19 +181,6 @@ const AiScreen: FC< Props > = ( { form } ) => {
 		setCrawlerBlocked,
 		setCrawlerGroupBlocked,
 	} = form;
-
-	const navigate = useNavigate();
-	const goToVisibility = useCallback(
-		() => navigate( { href: '/settings?focus=visibility' } ),
-		[ navigate ]
-	);
-
-	// Site-visibility lives on the Settings tab, so read it from the settings store
-	// (updated on each save) and overlay it on the one-time crawler bootstrap —
-	// otherwise flipping visibility on Settings and returning here without a reload
-	// would leave this tab disagreeing with the Overview card, which overlays the
-	// same live value.
-	const settings = useSelect( select => select( settingsStore ).getSettings(), [] );
 
 	if ( ! enhancer ) {
 		return (
@@ -207,8 +202,6 @@ const AiScreen: FC< Props > = ( { form } ) => {
 		if ( ! crawlers ) {
 			return null;
 		}
-
-		const searchEnginesVisible = settings?.search_engines_visible ?? crawlers.searchEnginesVisible;
 
 		// Path-based multisite networks share one origin-level robots.txt, so a
 		// site-level setting cannot safely represent its scope.
@@ -272,7 +265,7 @@ const AiScreen: FC< Props > = ( { form } ) => {
 									) }
 								</Notice.Description>
 							</Notice.Root>
-							<Button variant="link" onClick={ goToVisibility }>
+							<Button variant="link" onClick={ onManageVisibility }>
 								{ __( 'Open site visibility settings', 'jetpack-seo' ) }
 							</Button>
 						</Stack>
@@ -374,16 +367,24 @@ const AiScreen: FC< Props > = ( { form } ) => {
 		);
 	};
 
+	const llmsTxtEffectivelyOn = Boolean( searchEnginesVisible && llmsTxt?.enabled );
+	const llmsTxtStatusLabel = llmsTxtEffectivelyOn ? enabledLabel : disabledLabel;
+
 	return (
 		<div className="jetpack-seo-ai">
 			{ llmsTxt && (
 				<CollapsibleCard.Root defaultOpen>
 					<CollapsibleCard.Header>
-						<Card.Title>{ __( 'llms.txt', 'jetpack-seo' ) }</Card.Title>
+						<Stack direction="row" justify="space-between" align="center" gap="sm">
+							<Card.Title>{ __( 'llms.txt', 'jetpack-seo' ) }</Card.Title>
+							<Badge intent={ llmsTxtEffectivelyOn ? 'stable' : 'draft' }>
+								{ llmsTxtStatusLabel }
+							</Badge>
+						</Stack>
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>
 						<Stack direction="column" gap="md">
-							{ ! llmsTxt.canServe && (
+							{ searchEnginesVisible && ! llmsTxt.canServe && (
 								<Notice.Root intent="warning">
 									<Notice.Description>
 										{ __(
@@ -393,27 +394,41 @@ const AiScreen: FC< Props > = ( { form } ) => {
 									</Notice.Description>
 								</Notice.Root>
 							) }
-							<ToggleControl
-								label={ __( 'Generate an llms.txt file', 'jetpack-seo' ) }
-								help={ __(
-									'Publishes a curated, AI-readable map at /llms.txt to help AI assistants find and understand your supported content.',
-									'jetpack-seo'
+							<Stack direction="column" gap="xs">
+								<ToggleControl
+									label={ __( 'Generate an llms.txt file', 'jetpack-seo' ) }
+									help={ llmsTxtHelp }
+									checked={ llmsTxtEffectivelyOn }
+									onChange={ setLlmsTxtEnabled }
+									disabled={ isSaving || ! searchEnginesVisible }
+									__nextHasNoMarginBottom
+								/>
+								{ ! searchEnginesVisible && (
+									<Notice.Root intent="info" className="jetpack-seo-ai__llms-notice">
+										<Notice.Description>
+											{ createInterpolateElement(
+												__(
+													'To enable, allow search engines to index this site under <link>Settings</link>.',
+													'jetpack-seo'
+												),
+												{
+													link: <Button variant="link" onClick={ onManageVisibility } />,
+												}
+											) }
+										</Notice.Description>
+									</Notice.Root>
 								) }
-								checked={ llmsTxt.enabled }
-								onChange={ setLlmsTxtEnabled }
-								disabled={ isSaving }
-								__nextHasNoMarginBottom
-							/>
-							{ llmsTxt.enabled && llmsTxt.canServe && (
-								<Link
-									className="jetpack-seo-ai__llms-link"
-									href={ llmsTxt.url }
-									openInNewTab
-									rel="noopener noreferrer"
-								>
-									{ __( 'View your llms.txt', 'jetpack-seo' ) }
-								</Link>
-							) }
+								{ llmsTxtEffectivelyOn && llmsTxt.canServe && (
+									<Link
+										className="jetpack-seo-ai__llms-link"
+										href={ llmsTxt.url }
+										openInNewTab
+										rel="noopener noreferrer"
+									>
+										{ __( 'View your llms.txt', 'jetpack-seo' ) }
+									</Link>
+								) }
+							</Stack>
 						</Stack>
 					</CollapsibleCard.Content>
 				</CollapsibleCard.Root>

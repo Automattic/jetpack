@@ -4,13 +4,15 @@ const setEnhancer = jest.fn();
 const setLlmsTxt = jest.fn();
 const setCrawlers = jest.fn();
 const useEnsureTabData = jest.fn<
-	(
-		requests: Array< { seed?: ( body: unknown ) => void } >
-	) => { status: 'loading'; retry: () => void }
+	( requests: Array< { seed?: ( body: unknown ) => void } > ) => {
+		status: 'loading';
+		retry: () => void;
+	}
 >();
 
 jest.unstable_mockModule( '@wordpress/data', () => ( {
 	useDispatch: () => ( { setEnhancer, setLlmsTxt, setCrawlers } ),
+	useSelect: jest.fn(),
 } ) );
 jest.unstable_mockModule( '../../../_inc/components/dashboard-load-error', () => ( {
 	default: () => null,
@@ -29,8 +31,14 @@ jest.unstable_mockModule( '../../../_inc/data/get-preloaded', () => ( {
 	AI_PATH: '/jetpack/v4/seo/ai',
 	OVERVIEW_PATH: '/jetpack/v4/seo/overview',
 } ) );
+jest.unstable_mockModule( '../../../_inc/data/get-overview', () => ( {
+	default: jest.fn(),
+} ) );
 jest.unstable_mockModule( '../../../_inc/data/is-seo-tools-active', () => ( {
 	default: () => true,
+} ) );
+jest.unstable_mockModule( '../../../_inc/data/settings-store', () => ( {
+	settingsStore: 'settings',
 } ) );
 jest.unstable_mockModule( '../../../_inc/data/use-ai', () => ( {
 	useAiForm: jest.fn(),

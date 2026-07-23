@@ -9,11 +9,16 @@
 	margin-inline: auto;
 }
 
-// Align the "View your llms.txt" link with the toggle's label/help text rather
-// than the switch. 40px matches @wordpress/components ToggleControl's help
-// margin-inline-start (≈ 36px switch + gap) — same treatment as the Settings
-// tab's sitemap link.
+// Align llms.txt action links with the toggle's label/help text rather than the
+// switch. 40px matches @wordpress/components ToggleControl's help
+// margin-inline-start (≈ 36px switch + gap).
 .jetpack-seo-ai__llms-link {
+	align-self: flex-start;
+	margin-inline-start: 40px;
+}
+
+.jetpack-seo-ai__llms-notice {
+	margin-block-start: var(--wpds-dimension-gap-sm);
 	margin-inline-start: 40px;
 }
 
