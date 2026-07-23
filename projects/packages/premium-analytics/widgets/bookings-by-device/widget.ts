@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 
 /**
@@ -23,13 +22,5 @@ export type BookingsByDeviceAttributes = Record< never, never >;
  * dashboards can opt in.
  */
 export default {
-	name: 'jpa/bookings-by-device',
-	title: __( 'Bookings by device', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'See which devices your customers are using to make bookings in your store.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: chartBar,
 };

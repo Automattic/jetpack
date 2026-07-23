@@ -11,6 +11,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
 	registerReportMocks,
@@ -18,8 +19,9 @@ import {
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SubscriberHighlightsRender from '../render';
 import widgetDefinition, { DEFAULT_SUBSCRIBER_METRICS, type SubscriberMetricId } from '../widget';
+import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
-import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
@@ -29,15 +31,8 @@ const SUBSCRIBER_HIGHLIGHTS_RENDER_MODULE = 'storybook/subscriber-highlights';
 // Carry the widget's metadata, including the metric-visibility attribute schema
 // so the dashboard story's settings drawer renders the real checkboxes.
 // Presentation is left unset so the host frames the widget and renders its
-// identity (title + icon), matching widget.json. The attribute schema is typed
-// loosely on the widget definition, so it is cast to the WidgetType shape.
-const storyWidgetType = {
-	name: widgetDefinition.name,
-	title: widgetDefinition.title,
-	icon: widgetDefinition.icon,
-	attributes: widgetDefinition.attributes as WidgetType[ 'attributes' ],
-	example: widgetDefinition.example,
-};
+// identity (title + icon), matching widget.json.
+const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
 interface SubscriberHighlightsStoryControls {
 	/**

@@ -96,10 +96,12 @@ describe( 'validateAgainstSchema', () => {
 		assert.ok( validateAgainstSchema( out, fileSchema ).length > 0 );
 	} );
 
-	it( 'accepts an inferred theme_keyword', () => {
+	it( 'accepts an inferred theme_category and rejects an out-of-enum slug', () => {
 		const out = validOutput();
-		( out.inferred as Record< string, unknown > ).theme_keyword = 'hiking';
+		( out.inferred as Record< string, unknown > ).theme_category = 'travel-lifestyle';
 		assert.deepEqual( validateAgainstSchema( out, fileSchema ), [] );
+		( out.inferred as Record< string, unknown > ).theme_category = 'hiking';
+		assert.ok( validateAgainstSchema( out, fileSchema ).length > 0 );
 	} );
 
 	it( 'accepts an inferred_goal and rejects an out-of-enum value', () => {

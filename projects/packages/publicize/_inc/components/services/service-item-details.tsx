@@ -2,12 +2,12 @@ import { Disabled } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import clsx from 'clsx';
-import { useIsModernized } from '../../hooks/use-is-modernized';
+import { useIsDashboard } from '../../hooks/use-is-dashboard';
 import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
 import { ServiceConnectionInfo } from './service-connection-info';
-import { ModernServiceConnectionInfo } from './service-connection-info-modern';
+import { DashboardServiceConnectionInfo } from './service-connection-info-dashboard';
 import styles from './style.module.scss';
 import { SupportedService } from './types';
 
@@ -24,9 +24,9 @@ export type ServicesItemDetailsProps = {
  * @return {import('react').ReactNode} Service item details component
  */
 export function ServiceItemDetails( { service, serviceConnections }: ServicesItemDetailsProps ) {
-	const isModernized = useIsModernized();
-	const ServiceConnectionInfoVariant = isModernized
-		? ModernServiceConnectionInfo
+	const isDashboard = useIsDashboard();
+	const ServiceConnectionInfoVariant = isDashboard
+		? DashboardServiceConnectionInfo
 		: ServiceConnectionInfo;
 	const isSmall = useViewportMatch( 'small', '<' );
 

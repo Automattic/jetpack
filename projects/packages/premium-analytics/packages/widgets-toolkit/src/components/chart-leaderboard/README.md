@@ -28,7 +28,7 @@ import { GlobalChartsProvider } from '@automattic/charts';
 ## Usage
 
 ```tsx
-import { LeaderboardChart } from '@jetpack-premium-analytics/widgets-toolkit';
+import { buildLeaderboardRow, LeaderboardChart } from '@jetpack-premium-analytics/widgets-toolkit';
 
 const data = [
 	{
@@ -74,6 +74,67 @@ const data = [
 />;
 ```
 
+### Row labels
+
+Use `buildLeaderboardRow` for chart rows that need media, links, or drill-down actions. It
+returns one `ReactElement` label plus the chart-level button props for drill-down rows, so links
+and row buttons cannot be combined.
+
+```tsx
+const row = {
+	id: 'example',
+	...buildLeaderboardRow( {
+		label: 'Example',
+		media: { kind: 'favicon', url: 'https://example.com/favicon.ico' },
+		action: { kind: 'link', href: 'https://example.com' },
+	} ),
+	currentValue: 100,
+	currentShare: 100,
+};
+```
+
+For a drill-down row, pass the chart-level action to the builder. Its result includes the
+`onClick` and `ariaLabel` fields expected by `LeaderboardChart`:
+
+```tsx
+const row = {
+	id: 'group',
+	...buildLeaderboardRow( {
+		label: 'Example group',
+		media: { kind: 'favicon', url: 'https://example.com/favicon.ico' },
+		action: {
+			kind: 'drillDown',
+			onClick: () => selectGroup( 'group' ),
+			ariaLabel: 'View items in Example group',
+		},
+	} ),
+	currentValue: 100,
+	currentShare: 100,
+};
+```
+
+An explicit drill-down `ariaLabel` replaces the accessible name otherwise computed from both
+the media alt text and visible label, which can cause a screen reader to announce the label
+twice.
+
+`LeaderboardRowMedia` provides five semantic media variants. The variant owns its size,
+fallback, and default alt-text policy:
+
+| Kind        | Size      | Missing or failed image behavior |
+| ----------- | --------- | -------------------------------- |
+| `avatar`    | 20 × 20px | Placeholder                      |
+| `favicon`   | 16 × 16px | Hidden; always decorative        |
+| `flag`      | 28px wide | Placeholder; proportional height |
+| `thumbnail` | 28 × 28px | Placeholder                      |
+| `none`      | No media  | Renders text only                |
+
+Use `resolveLeaderboardRowAction` when raw data can contain both an external URL and children.
+It applies the shared precedence: drill-down for rows with children, external links for
+childless rows, and static content otherwise.
+
+Use `LeaderboardLabel` directly for media plus truncating text outside chart rows, such as a
+DataViews table cell. It deliberately does not add the chart row's 36px minimum block size.
+
 ## Props
 
 | Prop               | Type                   | Default                                                                | Description                                                        |
@@ -96,7 +157,9 @@ const data = [
 ```tsx
 type LeaderboardChartData = Array< {
 	id: string;
-	label: string;
+	label: string | ReactElement;
+	onClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+	ariaLabel?: string;
 	currentValue: number;
 	previousValue: number;
 	currentShare: number; // Percentage (0-100)

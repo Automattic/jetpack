@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.23.2] - 2026-07-20
+### Changed
+- Update package dependencies. [#50510] [#50529]
+
 ## [7.23.1] - 2026-07-13
 ### Changed
 - Forms now reports its unread count to the central menu-badges registry instead of writing admin-menu markup directly. [#50190]
@@ -2593,6 +2597,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.23.2]: https://github.com/automattic/jetpack-forms/compare/v7.23.1...v7.23.2
 [7.23.1]: https://github.com/automattic/jetpack-forms/compare/v7.23.0...v7.23.1
 [7.23.0]: https://github.com/automattic/jetpack-forms/compare/v7.22.6...v7.23.0
 [7.22.6]: https://github.com/automattic/jetpack-forms/compare/v7.22.5...v7.22.6

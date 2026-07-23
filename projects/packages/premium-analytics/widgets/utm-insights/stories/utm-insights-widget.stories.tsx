@@ -6,12 +6,14 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { withStoryRouter } from '../../stories/with-story-router';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-stats-mocks';
 import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import UtmInsightsRender from '../render';
 import widgetDefinition from '../widget';
+import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
@@ -21,12 +23,7 @@ registerStatsMocks();
 
 const UTM_INSIGHTS_RENDER_MODULE = 'storybook/utm-insights';
 
-const storyWidgetType = {
-	name: widgetDefinition.name,
-	title: widgetDefinition.title,
-	icon: widgetDefinition.icon,
-	presentation: 'framed' as const,
-};
+const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
 interface UtmInsightsStoryControls {
 	withComparison: boolean;

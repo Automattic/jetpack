@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -13,7 +14,7 @@ import ContentCoverageCard from './content-coverage-card';
 import DisableSeoTools from './disable-seo-tools';
 import SiteVerificationCard from './site-verification-card';
 import SiteVisibilityCard from './site-visibility-card';
-import './style.scss';
+import styles from './style.module.scss';
 import type { FC } from 'react';
 
 const OverviewScreen: FC = () => {
@@ -55,14 +56,14 @@ const OverviewScreen: FC = () => {
 	// `useSeoToolsToggle` and `Initializer::init()`.
 	if ( ! data.site_visibility.seo_tools_active ) {
 		return (
-			<div className="jetpack-seo-overview">
+			<div className={ styles.root }>
 				<EnableSeoCard />
 			</div>
 		);
 	}
 
 	return (
-		<div className="jetpack-seo-overview">
+		<div className={ styles.root }>
 			{ ! data.plan.seo_enabled_for_site && (
 				<Notice.Root intent="warning">
 					<Notice.Description>
@@ -73,7 +74,7 @@ const OverviewScreen: FC = () => {
 					</Notice.Description>
 				</Notice.Root>
 			) }
-			<div className="jetpack-seo-overview__grid">
+			<div className={ styles.grid }>
 				<SiteVisibilityCard
 					data={ {
 						...data.site_visibility,
@@ -88,10 +89,13 @@ const OverviewScreen: FC = () => {
 					onManage={ () => goToSection( 'verification' ) }
 				/>
 			</div>
-			<div className="jetpack-seo-overview__content-card">
+			<div className={ styles.contentCard }>
 				<ContentCoverageCard data={ coverage ?? data.content_coverage } onManage={ goToContent } />
 			</div>
-			<DisableSeoTools />
+			{ /* Hidden on WordPress.com Simple, where `Modules::is_active()` reports
+			     every module active regardless of stored state, so SEO tools can't
+			     actually be turned off — the off-ramp would appear to do nothing. */ }
+			{ ! isSimpleSite() && <DisableSeoTools /> }
 		</div>
 	);
 };
