@@ -6,7 +6,7 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { getArchivesFields, getPostsFields, type ArchiveRow } from './fields';
+import { buildArchiveRows, getArchivesFields, getPostsFields, type ArchiveRow } from './fields';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	useSiteHomeUrl: jest.fn(),
@@ -106,12 +106,13 @@ describe( 'posts title field', () => {
 
 		renderTitleField( homepage );
 
-		const link = screen.getByRole( 'link', { name: 'Homepage (Latest posts)' } );
+		const link = screen.getByRole( 'link', {
+			name: /Homepage \(Latest posts\).*opens in a new tab/i,
+		} );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
-		// eslint-disable-next-line testing-library/no-node-access -- The external-link icon SVG has no accessible role or text to query.
-		expect( link.querySelector( 'svg' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'img', { name: '(opens in a new tab)' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders plain text when the site home URL is unavailable', () => {
@@ -143,6 +144,7 @@ describe( 'posts title field', () => {
 				label: '/category/news',
 				views: 30,
 				previousViews: 20,
+				isGroup: false,
 			},
 			true
 		);
@@ -152,16 +154,79 @@ describe( 'posts title field', () => {
 	} );
 } );
 
-describe( 'archives title field', () => {
+describe( 'archive rows', () => {
 	it( 'renders an archive with an unsafe URL as plain text', () => {
 		renderArchiveTitleField( {
 			id: 'search-0',
 			label: 'javascript:alert(1)',
 			views: 12,
 			link: 'javascript:alert(1)',
+			isGroup: false,
 		} );
 
 		expect( screen.getByText( 'javascript:alert(1)' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows an external-link icon for linked archive rows', () => {
+		renderArchiveTitleField( {
+			id: 'tag-analytics',
+			label: 'analytics',
+			views: 30,
+			link: 'https://example.com/tag/analytics/',
+			isGroup: false,
+		} );
+
+		const link = screen.getByRole( 'link', { name: /analytics.*opens in a new tab/i } );
+		expect( link ).toHaveAttribute( 'target', '_blank' );
+		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
+		expect( screen.getByRole( 'img', { name: '(opens in a new tab)' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'preserves the archive hierarchy and uses Calypso archive labels', () => {
+		expect(
+			buildArchiveRows( [
+				{
+					label: 'tax',
+					value: 30,
+					children: [
+						{
+							label: 'post_tag',
+							value: 30,
+							children: [
+								{
+									label: 'Analytics',
+									value: 30,
+									link: 'https://example.com/tag/analytics/',
+									children: null,
+								},
+							],
+						},
+					],
+				},
+			] )
+		).toEqual( [
+			{
+				id: 'tax-0',
+				label: 'Taxonomies',
+				views: 30,
+				isGroup: true,
+			},
+			{
+				id: 'tax-0-0',
+				parentId: 'tax-0',
+				label: 'Post tag',
+				views: 30,
+				isGroup: true,
+			},
+			{
+				id: 'tax-0-0-0',
+				parentId: 'tax-0-0',
+				label: 'Analytics',
+				views: 30,
+				link: 'https://example.com/tag/analytics/',
+				isGroup: false,
+			},
+		] );
 	} );
 } );

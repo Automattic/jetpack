@@ -3,6 +3,7 @@
  */
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import {
+	ReportDrilldownTable,
 	ReportErrorState,
 	ReportRecordsTable,
 	RowsCsvDownloadButton,
@@ -49,6 +50,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		</>
 	),
 	ReportPageTabs: () => null,
+	ReportDrilldownTable: jest.fn( () => null ),
 	ReportRecordsTable: jest.fn( () => null ),
 	RowsCsvDownloadButton: jest.fn( ( { label }: { label: string } ) => <button>{ label }</button> ),
 	useReportCsvExport: jest.fn(),
@@ -74,6 +76,7 @@ jest.mock( '@wordpress/route', () => ( {
 const useRecordsMock = jest.mocked( usePostsReportRecords );
 const useSectionTabMock = jest.mocked( useSectionTab );
 const useReportCsvExportMock = jest.mocked( useReportCsvExport );
+const reportDrilldownTableMock = jest.mocked( ReportDrilldownTable );
 const reportErrorStateMock = jest.mocked( ReportErrorState );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
 const rowsCsvDownloadButtonMock = jest.mocked( RowsCsvDownloadButton );
@@ -191,6 +194,7 @@ describe( 'PostsReportPage', () => {
 				label: '/category/news',
 				views: 8,
 				link: 'https://example.com/category/news',
+				isGroup: false,
 			},
 		];
 		useSectionTabMock.mockReturnValue( [ 'archives', jest.fn() ] );
@@ -213,6 +217,41 @@ describe( 'PostsReportPage', () => {
 		] );
 	} );
 
+	it( 'renders Archives through the nested drilldown table', () => {
+		const records = buildRecords();
+		records.archives.rows = [
+			{
+				id: 'tags-0',
+				label: 'Tags',
+				views: 12,
+				isGroup: true,
+			},
+			{
+				id: 'tags-0-0',
+				parentId: 'tags-0',
+				label: 'Analytics',
+				views: 12,
+				isGroup: false,
+			},
+		];
+		useSectionTabMock.mockReturnValue( [ 'archives', jest.fn() ] );
+		useRecordsMock.mockReturnValue( records );
+
+		render( <PostsReportPage /> );
+
+		expect( reportDrilldownTableMock ).toHaveBeenCalledTimes( 1 );
+		const drilldownProps = reportDrilldownTableMock.mock.calls[ 0 ][ 0 ];
+		expect( drilldownProps ).toEqual(
+			expect.objectContaining( {
+				data: records.archives.rows,
+				hideLevelMarkers: true,
+				searchLabel: 'Search archives',
+			} )
+		);
+		expect( drilldownProps.getItemParentId?.( records.archives.rows[ 1 ] ) ).toBe( 'tags-0' );
+		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
+	} );
+
 	it( 'renders the error state instead of the records table', () => {
 		useRecordsMock.mockReturnValue( buildRecords( { isError: true } ) );
 
@@ -223,6 +262,7 @@ describe( 'PostsReportPage', () => {
 		);
 		expect( reportErrorStateMock ).toHaveBeenCalled();
 		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
+		expect( reportDrilldownTableMock ).not.toHaveBeenCalled();
 	} );
 
 	it( 'refetches the report when Retry is clicked', async () => {

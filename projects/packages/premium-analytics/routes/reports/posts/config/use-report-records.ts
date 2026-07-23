@@ -10,7 +10,7 @@ import { useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { flattenArchiveRows } from './fields';
+import { buildArchiveRows } from './fields';
 import type { ReportPostsTabId } from './tabs';
 
 /**
@@ -47,7 +47,7 @@ export function usePostsReportRecords( activeTab: ReportPostsTabId, reportParams
 	const activeReport = isPostsTab ? posts : archives;
 	const postRows = posts.comparisonRows?.rows ?? [];
 	const archiveRows = useMemo(
-		() => flattenArchiveRows( archives.comparisonRows?.rows ?? [] ),
+		() => buildArchiveRows( archives.comparisonRows?.rows ?? [] ),
 		[ archives.comparisonRows ]
 	);
 

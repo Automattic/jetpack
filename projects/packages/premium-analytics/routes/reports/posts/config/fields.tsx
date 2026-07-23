@@ -10,12 +10,8 @@ import {
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Icon, external } from '@wordpress/icons';
-import { Link } from '@wordpress/route';
-/**
- * Internal dependencies
- */
-import styles from './fields.module.css';
+import { Link as RouteLink } from '@wordpress/route';
+import { Link as UiLink } from '@wordpress/ui';
 import type { Field } from '@wordpress/dataviews';
 
 const VIEWS_DATA_FORMAT = {
@@ -38,10 +34,9 @@ function HomepageTitle( { title }: { title: string } ) {
 	}
 
 	return (
-		<a className={ styles.homepageLink } href={ homeUrl } target="_blank" rel="noopener noreferrer">
+		<UiLink href={ homeUrl } variant="unstyled" openInNewTab rel="noopener noreferrer">
 			{ title }
-			<Icon className={ styles.externalIcon } icon={ external } size={ 16 } />
-		</a>
+		</UiLink>
 	);
 }
 
@@ -78,9 +73,12 @@ export function getPostsFields( withComparison = false ): Field< StatsTopPostsCo
 				}
 
 				return (
-					<Link to="/post/$postId" params={ { postId: String( item.id ) } as unknown as never }>
+					<RouteLink
+						to="/post/$postId"
+						params={ { postId: String( item.id ) } as unknown as never }
+					>
 						{ title }
-					</Link>
+					</RouteLink>
 				);
 			},
 		},
@@ -100,102 +98,125 @@ export function getPostsFields( withComparison = false ): Field< StatsTopPostsCo
 	];
 }
 
-/**
- * A flattened Archives row: the normalized archives report is grouped by
- * archive type (`home`, `tax`, …) with the individual archive pages/terms as
- * children; the table shows the flat list of those entries.
- */
+/** A flat DataViews row carrying its place in the archives hierarchy. */
 export type ArchiveRow = {
 	id: string;
+	parentId?: string;
 	label: string;
 	views: number;
 	previousViews?: number;
 	link?: string;
+	isGroup: boolean;
 };
 
 /**
- * Build the visible table label from an archive URL.
+ * Human-readable labels for the archive-type keys returned by the API.
  *
- * @param link - The archive URL from the stats response.
- * @return The archive path and query string.
+ * These match Calypso's `getArchiveKeyLabel`, while unknown archive types use
+ * Calypso's capitalized fallback.
+ *
+ * @param archiveType - The raw archive-type key.
+ * @return The archive type's display label.
  */
-function getArchiveLinkLabel( link: string ): string | undefined {
-	try {
-		const url = new URL( link, 'https://example.com' );
-		const path = url.pathname.replace( /\/+$/, '' ) || '/';
-
-		return `${ path }${ url.search }`;
-	} catch {
-		return undefined;
+function getArchiveTypeLabel( archiveType: string ): string {
+	switch ( archiveType ) {
+		case 'author':
+			return __( 'Authors', 'jetpack-premium-analytics' );
+		case 'cat':
+			return __( 'Categories', 'jetpack-premium-analytics' );
+		case 'err':
+			return __( 'Error', 'jetpack-premium-analytics' );
+		case 'home':
+			return __( 'Homepage (Latest posts)', 'jetpack-premium-analytics' );
+		case 'search':
+			return __( 'Searches', 'jetpack-premium-analytics' );
+		case 'tag':
+			return __( 'Tags', 'jetpack-premium-analytics' );
+		case 'tax':
+			return __( 'Taxonomies', 'jetpack-premium-analytics' );
+		case 'date':
+			return __( 'Dates', 'jetpack-premium-analytics' );
+		case 'multiple':
+			return __( 'Aggregated', 'jetpack-premium-analytics' );
+		case 'other':
+			return __( 'Others', 'jetpack-premium-analytics' );
+		case 'post_type':
+			return __( 'Post types', 'jetpack-premium-analytics' );
+		default:
+			return archiveType.charAt( 0 ).toUpperCase() + archiveType.slice( 1 ).toLowerCase();
 	}
 }
 
 /**
- * Build a fallback label from the normalized archive group path.
+ * Humanize an intermediate archive group such as a taxonomy key.
  *
- * @param parts - Archive group labels from root to leaf.
- * @return The slash-joined fallback label.
+ * @param label - The raw group label.
+ * @return The human-readable group label.
  */
-function getArchiveFallbackLabel( parts: string[] ): string {
-	return parts.filter( Boolean ).join( '/' );
+function getArchiveGroupLabel( label: string ): string {
+	const spaced = label.replace( /_/g, ' ' );
+	return spaced.charAt( 0 ).toUpperCase() + spaced.slice( 1 );
 }
 
 /**
- * Flatten one normalized archive item to leaf table rows.
+ * Convert one normalized archive item into DataViews' flat hierarchy shape.
  *
- * @param item - The normalized archive item.
- * @param path - Parent archive labels.
- * @param id   - Stable ID prefix for the item.
- * @return Leaf archive rows for the table.
+ * @param item       - The normalized archive item.
+ * @param id         - Stable ID for the item.
+ * @param parentId   - Stable ID of the parent item, when nested.
+ * @param isTopLevel - Whether this item is an archive-type row.
+ * @return The item followed by all of its descendants.
  */
-function flattenArchiveEntry(
+function buildArchiveEntryRows(
 	item: StatsArchivesItem | StatsArchivesComparisonItem,
-	path: string[],
-	id: string
+	id: string,
+	parentId: string | undefined,
+	isTopLevel: boolean
 ): ArchiveRow[] {
-	const label = String( item.label ?? '' );
-	const nextPath = label ? [ ...path, label ] : path;
+	const rawLabel = String( item.label ?? '' );
 	const children = item.children ?? [];
-
-	if ( children.length ) {
-		return children.flatMap( ( child, index ) =>
-			flattenArchiveEntry( child, nextPath, `${ id }-${ index }` )
-		);
-	}
-
 	const link = typeof item.link === 'string' ? item.link : undefined;
 	const previousViews =
 		'previousValue' in item && item.previousValue !== undefined
 			? { previousViews: item.previousValue }
 			: {};
+	let label = rawLabel;
+	if ( isTopLevel ) {
+		label = getArchiveTypeLabel( rawLabel );
+	} else if ( children.length ) {
+		label = getArchiveGroupLabel( rawLabel );
+	}
+	const row: ArchiveRow = {
+		id,
+		...( parentId ? { parentId } : {} ),
+		label: label || __( 'Untitled', 'jetpack-premium-analytics' ),
+		views: item.value,
+		...previousViews,
+		...( link ? { link } : {} ),
+		isGroup: children.length > 0,
+	};
 
 	return [
-		{
-			id,
-			label: link
-				? getArchiveLinkLabel( link ) ?? getArchiveFallbackLabel( nextPath )
-				: getArchiveFallbackLabel( nextPath ),
-			views: item.value,
-			...previousViews,
-			link,
-		},
+		row,
+		...children.flatMap( ( child, index ) =>
+			buildArchiveEntryRows( child, `${ id }-${ index }`, id, false )
+		),
 	];
 }
 
 /**
- * Flatten the archives report groups into table rows. The backend groups
- * archive entries by type/taxonomy; DataViews does not show nested rows yet,
- * so the table shows only the leaf archive entries and labels them by URL
- * path/query (`/category/news`, `/?s=analytics`, …).
+ * Flatten the normalized archives tree while retaining parent IDs for
+ * DataViews' native hierarchy. The API's value-sorted order is preserved at
+ * each level; the table can also re-sort siblings without breaking nesting.
  *
  * @param items - The top-level archive groups.
- * @return The flat rows.
+ * @return Parent and child rows in depth-first order.
  */
-export function flattenArchiveRows(
+export function buildArchiveRows(
 	items: Array< StatsArchivesItem | StatsArchivesComparisonItem >
 ): ArchiveRow[] {
 	return items.flatMap( ( group, groupIndex ) =>
-		flattenArchiveEntry( group, [], `${ String( group.label ) }-${ groupIndex }` )
+		buildArchiveEntryRows( group, `${ String( group.label ) }-${ groupIndex }`, undefined, true )
 	);
 }
 
@@ -214,16 +235,17 @@ export function getArchivesFields( withComparison = false ): Field< ArchiveRow >
 			enableHiding: false,
 			getValue: ( { item } ) => item.label,
 			render: ( { item } ) => {
+				const label = item.isGroup ? <strong>{ item.label }</strong> : <>{ item.label }</>;
 				const href = safeHttpUrl( item.link );
 
 				if ( ! href ) {
-					return <>{ item.label }</>;
+					return label;
 				}
 
 				return (
-					<a href={ href } target="_blank" rel="noopener noreferrer">
-						{ item.label }
-					</a>
+					<UiLink href={ href } variant="unstyled" openInNewTab rel="noopener noreferrer">
+						{ label }
+					</UiLink>
 				);
 			},
 		},

@@ -16,6 +16,7 @@ import {
 	ReportPageLayout,
 	ReportPageShell,
 	ReportPageTabs,
+	ReportDrilldownTable,
 	ReportRecordsTable,
 	RowsCsvDownloadButton,
 	useReportCsvExport,
@@ -67,6 +68,16 @@ function getPostRowId( item: StatsTopPostsComparisonItem ): string {
  */
 function getArchiveRowId( item: ArchiveRow ): string {
 	return item.id;
+}
+
+/**
+ * Resolve the parent row for DataViews' archives hierarchy.
+ *
+ * @param item - The archive row.
+ * @return The parent row ID, if the row is nested.
+ */
+function getArchiveRowParentId( item: ArchiveRow ): string | undefined {
+	return item.parentId;
 }
 
 /**
@@ -172,14 +183,16 @@ function PostsReport(): JSX.Element {
 				searchLabel={ __( 'Search posts', 'jetpack-premium-analytics' ) }
 			/>
 		) : (
-			<ReportRecordsTable
+			<ReportDrilldownTable< ArchiveRow >
 				key="archives"
 				data={ records.archives.rows }
 				fields={ archivesFields }
 				getItemId={ getArchiveRowId }
+				getItemParentId={ getArchiveRowParentId }
 				isLoading={ records.archives.isLoading }
 				initialView={ RECORDS_VIEW }
 				searchLabel={ __( 'Search archives', 'jetpack-premium-analytics' ) }
+				hideLevelMarkers
 			/>
 		);
 

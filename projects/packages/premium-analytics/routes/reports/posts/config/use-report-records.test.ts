@@ -128,7 +128,7 @@ describe( 'usePostsReportRecords', () => {
 		expect( result.current.posts.hasComparison ).toBe( true );
 	} );
 
-	it( 'flattens archives while preserving comparison views', () => {
+	it( 'preserves the archive hierarchy and comparison views', () => {
 		const comparedArchives: StatsArchivesComparisonItem[] = [
 			{
 				...archiveRows[ 0 ],
@@ -163,11 +163,26 @@ describe( 'usePostsReportRecords', () => {
 
 		expect( result.current.archives.rows ).toEqual( [
 			{
+				id: 'tax-0',
+				label: 'Taxonomies',
+				views: 8,
+				isGroup: true,
+			},
+			{
+				id: 'tax-0-0',
+				parentId: 'tax-0',
+				label: 'Category',
+				views: 8,
+				isGroup: true,
+			},
+			{
 				id: 'tax-0-0-0',
-				label: '/category/news',
+				parentId: 'tax-0-0',
+				label: 'News',
 				views: 8,
 				previousViews: 5,
 				link: 'https://example.com/category/news/',
+				isGroup: false,
 			},
 		] );
 		expect( result.current.archives.hasComparison ).toBe( true );
