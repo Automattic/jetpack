@@ -21,6 +21,11 @@ if ( ! function_exists( 'populate_roles' ) ) {
 }
 populate_roles();
 
+// Shared base for test cases that touch site content or the coverage cache.
+// Not autoloaded: the package maps only src/, and the file doesn't match the
+// suite's *Test.php suffix.
+require_once __DIR__ . '/SeoTestCase.php';
+
 // Controllable stand-ins for the host-plugin classes the SEO package guards on
 // with class_exists(). The real implementations live in projects/plugins/jetpack
 // and are not autoloaded in the package test context, so these let the tests

@@ -1,9 +1,8 @@
-import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useRegistry, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useMemo } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
-import { features } from '../../utils';
+import { hasSocialPaidFeatures } from '../../utils';
 import { MANUAL_SHARE_SENTINEL, type RenderItem } from '../../utils/render-messages';
 import { useDebouncedRenderInputs, usePostIntent } from '../use-render-message-items';
 import useSocialMediaMessage from '../use-social-media-message';
@@ -34,7 +33,7 @@ export type ManualShareMessage = {
  * template, returns `{ message: null, isLoading: false }`.
  */
 export function useManualShareMessage(): ManualShareMessage {
-	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
+	const templatesEnabled = hasSocialPaidFeatures();
 	const registry = useRegistry();
 
 	const { message: globalMessage } = useSocialMediaMessage();

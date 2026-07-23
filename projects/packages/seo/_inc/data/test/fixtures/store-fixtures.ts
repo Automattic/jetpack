@@ -52,11 +52,19 @@ export const SEEDED_AI: AiState = {
 				userAgent: 'GPTBot',
 				type: 'training',
 			},
+			{
+				slug: 'google-extended',
+				label: 'Google AI (Gemini)',
+				userAgent: 'Google-Extended',
+				type: 'mixed',
+			},
 		],
 		overrides: {},
 		searchEnginesVisible: true,
 		restrictedSubdomain: false,
 		staticRobotsTxt: false,
+		dataSharingOptOut: false,
+		pathBasedMultisite: false,
 	},
 };
 

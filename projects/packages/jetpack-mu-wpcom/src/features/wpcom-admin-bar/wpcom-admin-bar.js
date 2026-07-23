@@ -3,11 +3,17 @@ import { wpcomTrackEvent } from '../../common/tracks';
 import './wpcom-admin-bar.scss';
 
 document.addEventListener( 'DOMContentLoaded', () => {
-	const launchButton = document.querySelector( '#wp-admin-bar-site-plan-badge a' );
-	if ( ! launchButton ) {
-		return;
+	const planBadge = document.querySelector( '#wp-admin-bar-site-plan-badge a' );
+	if ( planBadge ) {
+		planBadge.addEventListener( 'click', () => {
+			wpcomTrackEvent( 'wpcom_adminbar_plan_clicked' );
+		} );
 	}
-	launchButton.addEventListener( 'click', () => {
-		wpcomTrackEvent( 'wpcom_adminbar_plan_clicked' );
-	} );
+
+	const commandPalette = document.querySelector( '#wp-admin-bar-command-palette a' );
+	if ( commandPalette ) {
+		commandPalette.addEventListener( 'click', () => {
+			wpcomTrackEvent( 'wpcom_adminbar_command_palette_clicked' );
+		} );
+	}
 } );

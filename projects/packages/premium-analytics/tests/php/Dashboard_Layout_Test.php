@@ -129,7 +129,7 @@ class Dashboard_Layout_Test extends TestCase {
 				'uuid'       => $top_posts_uuid,
 				'type'       => 'jpa/stats-top-posts',
 				'attributes' => array(
-					'num' => 10,
+					'max' => 10,
 				),
 				'placement'  => array(
 					'width'  => 1,
@@ -197,7 +197,7 @@ class Dashboard_Layout_Test extends TestCase {
 				'uuid'       => 'default-subscribers-list-widget-instance',
 				'type'       => 'jpa/subscribers-list',
 				'attributes' => array(
-					'num' => 6,
+					'max' => 6,
 				),
 				'placement'  => array(
 					'width'  => 2,

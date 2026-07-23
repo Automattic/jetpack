@@ -10,7 +10,7 @@ import type { ContentRow } from '../../data/content-types';
 import type { Field, Operator, View } from '@wordpress/dataviews';
 import type { FC } from 'react';
 
-// Filter field ids. Every filter runs client-side over the merged posts+pages
+// Filter field ids. Every filter runs client-side over the merged content
 // set via `filterSortAndPaginate`, matching each row through the field's
 // `getValue`. Post type filters on the record's `type`; schema / description /
 // search-visibility filter on the derived SEO-meta flags.
@@ -47,7 +47,7 @@ const DEFAULT_VIEW: View = {
 	sort: { field: 'title', direction: 'asc' },
 	titleField: 'title',
 	fields: [ 'schema', 'seoTitle', 'metaDescription', 'searchVisibility', 'editAction' ],
-	// No post-type filter by default, so both posts and pages show.
+	// No post-type filter by default, so every supported type shows.
 	filters: [],
 };
 
@@ -89,9 +89,9 @@ function schemaLabel( schemaType: ContentRow[ 'schemaType' ] ): string {
 }
 
 /**
- * Content route stage: a DataViews list of posts *and* pages backed by
+ * Content route stage: a DataViews list of supported post types backed by
  * WordPress core REST, reporting the factual *state* of each post's SEO fields
- * (never a score). The hook fetches both types and merges them; filtering
+ * (never a score). The hook fetches every type and merges them; filtering
  * (including the post-type filter), sorting and pagination all run client-side
  * over the merged set via `filterSortAndPaginate`. Editing a row selects it via
  * the URL (`?postId`), which opens the SEO editor in the route's native
@@ -103,7 +103,7 @@ const ContentScreen: FC = () => {
 	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
 	const navigate = useNavigate();
 
-	const { items, isLoading } = useSeoPosts();
+	const { items, isLoading, postTypeOptions } = useSeoPosts();
 
 	// Select a row for editing by writing it to the URL; the Content route's
 	// `inspector` predicate (`?postId`) then renders the editor in the sidebar.
@@ -128,15 +128,12 @@ const ContentScreen: FC = () => {
 			{
 				id: POST_TYPE_FIELD,
 				label: __( 'Type', 'jetpack-seo' ),
-				elements: [
-					{ value: 'post', label: __( 'Posts', 'jetpack-seo' ) },
-					{ value: 'page', label: __( 'Pages', 'jetpack-seo' ) },
-				],
+				elements: postTypeOptions,
 				filterBy: { operators: [ 'is' ] as Operator[], isPrimary: true },
 				enableSorting: false,
 				enableHiding: false,
 				// Filter-only field; not shown as a column. Core REST records
-				// expose `type` as 'post' | 'page', matching the elements, so
+				// expose the post type slug, matching the elements, so
 				// `filterSortAndPaginate` narrows the merged set.
 				render: () => null,
 				getValue: ( { item } ) => item.type,
@@ -239,10 +236,10 @@ const ContentScreen: FC = () => {
 				render: ( { item } ) => <EditButton item={ item } onEdit={ onEdit } />,
 			},
 		],
-		[ onEdit ]
+		[ onEdit, postTypeOptions ]
 	);
 
-	// Client-side filter, sort and paginate the merged posts+pages set. Returns
+	// Client-side filter, sort and paginate the merged content set. Returns
 	// the page slice plus the pagination totals DataViews needs.
 	const { data, paginationInfo } = useMemo(
 		() => filterSortAndPaginate( items, view, fields ),

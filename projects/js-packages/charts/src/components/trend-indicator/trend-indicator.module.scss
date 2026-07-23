@@ -6,18 +6,19 @@
 	font-weight: var(--wpds-typography-font-weight-medium, 499);
 	line-height: 1;
 
-	// Trend colors use the documented --charts-trend-* override API, falling
-	// back to the accessible WPDS semantic tokens.
+	// Trend colours use the --a8c-charts-color-trend-* catalog roles, falling back
+	// to the deprecated --charts-trend-*-color override API and then to the
+	// accessible WPDS semantic tokens.
 	&--up {
-		color: var(--charts-trend-up-color, var(--wpds-color-foreground-content-success-weak, #008030));
+		color: var(--a8c-charts-color-trend-up, var(--charts-trend-up-color, var(--wpds-color-foreground-content-success-weak, #008030)));
 	}
 
 	&--down {
-		color: var(--charts-trend-down-color, var(--wpds-color-foreground-content-error-weak, #cc1818));
+		color: var(--a8c-charts-color-trend-down, var(--charts-trend-down-color, var(--wpds-color-foreground-content-error-weak, #cc1818)));
 	}
 
 	&--neutral {
-		color: var(--charts-trend-neutral-color, var(--wpds-color-foreground-content-neutral-weak, #707070));
+		color: var(--a8c-charts-color-trend-neutral, var(--charts-trend-neutral-color, var(--wpds-color-foreground-content-neutral-weak, #707070)));
 	}
 
 	&__icon {

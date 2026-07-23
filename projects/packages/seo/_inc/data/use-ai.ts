@@ -22,7 +22,7 @@ export interface AiForm {
 	setLlmsTxtEnabled: ( next: boolean ) => void;
 	/** Allow or block a single AI crawler and save immediately. */
 	setCrawlerBlocked: ( slug: string, blocked: boolean ) => void;
-	/** Allow or block every AI crawler in a group (answer/training) in one save. */
+	/** Allow or block every AI crawler in a group in one save. */
 	setCrawlerGroupBlocked: ( type: AiCrawler[ 'type' ], blocked: boolean ) => void;
 }
 
@@ -126,9 +126,9 @@ export function useAiForm(): AiForm {
 			if ( ! crawlers ) {
 				return;
 			}
-			// The default policy for this bot: training crawlers blocked, answer
-			// engines allowed. An override that matches the default is dropped so the
-			// stored map stays sparse (and new training bots stay covered).
+			// The default policy for this bot: training crawlers blocked, answer and
+			// mixed-use crawlers allowed. An override that matches the default is
+			// dropped so the stored map stays sparse (and new training bots stay covered).
 			const bot = crawlers.catalog.find( entry => entry.slug === slug );
 			const defaultBlocked = bot ? bot.type === 'training' : false;
 
@@ -159,8 +159,8 @@ export function useAiForm(): AiForm {
 			if ( ! crawlers ) {
 				return;
 			}
-			// Every bot in a group shares one default policy (answer → allowed,
-			// training → blocked), so an override matching that default is dropped to
+			// Every bot in a group shares one default policy (training → blocked,
+			// otherwise allowed), so an override matching that default is dropped to
 			// keep the stored map sparse — same rule as the single-crawler setter.
 			const defaultBlocked = type === 'training';
 			const nextOverrides = { ...crawlers.overrides };

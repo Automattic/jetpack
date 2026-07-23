@@ -1,0 +1,29 @@
+// One page type's title editor: field, insert buttons, then a preview + Save
+// footer. Not boxed — rows are separated by a hairline divider (below), the
+// standard settings-list pattern, so the card doesn't read as boxes-in-a-box.
+// Hairline divider between rows (not a box). The parent Stack's `lg` gap sits
+// above the rule; the matching padding sits below it, so the divider is evenly
+// spaced between adjacent rows.
+.row + .row {
+	padding-block-start: var(--wpds-dimension-gap-lg);
+	border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+}
+
+.muted {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+// Preview + Save share one row so there's no dead space beneath the preview.
+// The preview takes the remaining width and wraps when long; the Save button
+// keeps to the right with a gap between, so a long preview never crowds it.
+.preview {
+	flex: 1 1 auto;
+	min-inline-size: 0;
+	overflow-wrap: anywhere;
+}
+
+.save {
+	flex-shrink: 0;
+	// Keep Save at the right edge even when there's no preview yet.
+	margin-inline-start: auto;
+}

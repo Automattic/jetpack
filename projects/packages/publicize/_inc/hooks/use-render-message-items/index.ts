@@ -4,7 +4,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
-import { features } from '../../utils';
+import { features, hasSocialPaidFeatures } from '../../utils';
 import useFeaturedImage from '../use-featured-image';
 import useMediaDetails from '../use-media-details';
 import { usePerNetworkCustomization } from '../use-per-network-customization';
@@ -103,7 +103,7 @@ export function useRenderMessageItems(): RenderItem[] {
  * @return The current post intent.
  */
 export function usePostIntent(): RenderPostIntent {
-	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
+	const templatesEnabled = hasSocialPaidFeatures();
 
 	return useSelect(
 		select => {
@@ -132,7 +132,7 @@ export function useRenderMessageInputs(): {
 	items: RenderItem[];
 	postIntent: RenderPostIntent;
 } {
-	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
+	const templatesEnabled = hasSocialPaidFeatures();
 
 	// All connections (not just enabled ones) — the per-connection customization
 	// editor is visible for the focused tab regardless of toggle state, so editing

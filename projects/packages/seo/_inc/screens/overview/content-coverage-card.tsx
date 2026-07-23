@@ -25,7 +25,7 @@ interface RingProps {
  * @param props         - Component props.
  * @param props.label   - Localized label for the metric.
  * @param props.segment - Number of posts with the field set.
- * @param props.total   - Total published posts/pages.
+ * @param props.total   - Total published supported content items.
  * @return A labelled coverage ring.
  */
 const CoverageRing: FC< RingProps > = ( { label, segment, total } ) => (

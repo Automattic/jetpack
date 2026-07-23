@@ -19,7 +19,7 @@ export function screenForTab( tab: SeoTab ): SeoTracksScreen {
 
 /**
  * Server-provided identifiers attached to every SEO event
- * (see `Initializer::get_tracks_context()`).
+ * (see `Admin_Page::get_tracks_context()`).
  */
 interface SeoTracksContext {
 	blog_id: number;

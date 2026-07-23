@@ -46,7 +46,7 @@ const LocalBusinessSection: FC< Props > = ( { form } ) => {
 
 			{ localBusiness.enabled && <LocalBusinessFields form={ form } /> }
 
-			<div className="jetpack-seo-settings__save">
+			<Stack direction="row" justify="flex-end">
 				<Button
 					onClick={ saveLocalBusiness }
 					disabled={
@@ -58,7 +58,7 @@ const LocalBusinessSection: FC< Props > = ( { form } ) => {
 				>
 					{ saveLabel }
 				</Button>
-			</div>
+			</Stack>
 		</Stack>
 	);
 };

@@ -1,0 +1,35 @@
+.card {
+	display: flex;
+	align-items: center;
+	min-inline-size: 0;
+}
+
+.details {
+	display: flex;
+	flex-direction: column;
+	// Keep the same title/subtitle rhythm as the post-details header while the
+	// video image is intentionally omitted.
+	justify-content: space-between;
+	block-size: 72px;
+	flex: 1 1 auto;
+	min-inline-size: 0;
+}
+
+// Outranks the Text heading variant's `:is(h1,…).__heading` font-size rule
+// ((0,1,1)) without touching its private custom properties.
+.details h1.title {
+	font-size: 32px;
+	font-weight: 500;
+	line-height: 1.2;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.subtitle {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-size: 13px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
