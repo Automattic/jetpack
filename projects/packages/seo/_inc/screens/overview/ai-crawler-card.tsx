@@ -1,5 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, Card, Stack } from '@wordpress/ui';
+import { Button, Card, Stack, Text } from '@wordpress/ui';
 import StatusDot from './status-dot';
 import styles from './style.module.scss';
 import type { AiCrawler, AiState } from '../../data/ai-types';
@@ -20,23 +20,23 @@ interface Props {
 // `cond ? __(A) : __(B)` into `__(cond ? A : B)`, which would erase the literals
 // from i18n extraction. See feedback_i18n_ternary_minifier_fold.
 const cantCrawlStagingLabel = __(
-	"AI crawlers can't reach this site while it's on a staging address",
+	"AI crawlers can't reach this site while it's on a staging address.",
 	'jetpack-seo'
 );
 const cantCrawlIndexingLabel = __(
-	"AI crawlers can't reach this site while search engines are blocked",
+	"AI crawlers can't reach this site while search engines are blocked.",
 	'jetpack-seo'
 );
 const staticRobotsLabel = __(
-	"Crawler settings can't apply while a static robots.txt file exists in the WordPress installation directory",
+	"Crawler settings can't apply while a static robots.txt file exists in the WordPress installation directory.",
 	'jetpack-seo'
 );
 const dataSharingOptOutLabel = __(
-	"Individual crawler settings are overridden by this site's data sharing opt-out",
+	"Individual crawler settings are overridden by this site's data sharing opt-out.",
 	'jetpack-seo'
 );
 const pathBasedMultisiteLabel = __(
-	"Per-site crawler settings aren't available on this path-based multisite network",
+	"Per-site crawler settings aren't available on this path-based multisite network.",
 	'jetpack-seo'
 );
 
@@ -115,7 +115,9 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, onManage } ) 
 						/>
 					</Stack>
 				) : (
-					<StatusDot status="warn" label={ blockedLabel } />
+					// A full-sentence explanation, not a status — so no indicator dot
+					// (the vertically-centred dot next to wrapping text reads oddly).
+					<Text>{ blockedLabel }</Text>
 				) }
 				<Stack direction="row" justify="flex-end" className={ styles.footer }>
 					<Button variant="outline" tone="neutral" onClick={ onManage }>

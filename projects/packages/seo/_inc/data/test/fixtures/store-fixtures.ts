@@ -65,6 +65,7 @@ export const SEEDED_AI: AiState = {
 		dataSharingOptOut: false,
 		pathBasedMultisite: false,
 		privacySettingsUrl: 'http://example.com/wp-admin/options-reading.php',
+		robotsTxtUrl: 'http://example.com/robots.txt',
 	},
 };
 

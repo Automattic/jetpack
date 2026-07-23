@@ -56,5 +56,7 @@ export interface AiState {
 		pathBasedMultisite: boolean;
 		/** URL of the "Prevent third-party sharing" setting, linked when it governs crawler access. */
 		privacySettingsUrl: string;
+		/** The site's `/robots.txt` URL, linked under each crawler group so the output can be verified. */
+		robotsTxtUrl: string;
 	};
 }

@@ -84,6 +84,8 @@ interface CrawlerSectionProps {
 	disabled: boolean;
 	onToggle: ( slug: string, blocked: boolean ) => void;
 	onToggleAll: ( type: AiCrawler[ 'type' ], blocked: boolean ) => void;
+	/** The site's `/robots.txt` URL, linked under the description. */
+	robotsTxtUrl: string;
 	/** Shown at the top of the module (e.g. why the toggles are disabled). */
 	notice?: ReactNode;
 }
@@ -94,16 +96,17 @@ interface CrawlerSectionProps {
  * "Allow all" master toggle for the group. Collapsed by default — the AI-crawler
  * controls sit at the bottom of the tab and most people won't need to open them.
  *
- * @param props             - Component props.
- * @param props.title       - Section title.
- * @param props.intro       - One-line description of the group's purpose.
- * @param props.crawlers    - The crawlers in this group.
- * @param props.type        - The crawler group's type.
- * @param props.overrides   - The sparse override map (`slug => blocked`).
- * @param props.disabled    - Whether toggles are disabled (mid-save).
- * @param props.onToggle    - Called with `(slug, blocked)` on a single toggle.
- * @param props.onToggleAll - Called with `(type, blocked)` on the "Allow all" toggle.
- * @param props.notice      - Optional message shown at the top of the module.
+ * @param props              - Component props.
+ * @param props.title        - Section title.
+ * @param props.intro        - One-line description of the group's purpose.
+ * @param props.crawlers     - The crawlers in this group.
+ * @param props.type         - The crawler group's type.
+ * @param props.overrides    - The sparse override map (`slug => blocked`).
+ * @param props.disabled     - Whether toggles are disabled (mid-save).
+ * @param props.onToggle     - Called with `(slug, blocked)` on a single toggle.
+ * @param props.onToggleAll  - Called with `(type, blocked)` on the "Allow all" toggle.
+ * @param props.robotsTxtUrl - The site's `/robots.txt` URL, linked under the description.
+ * @param props.notice       - Optional message shown at the top of the module.
  * @return The section card.
  */
 const CrawlerSection: FC< CrawlerSectionProps > = ( {
@@ -115,6 +118,7 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 	disabled,
 	onToggle,
 	onToggleAll,
+	robotsTxtUrl,
 	notice,
 } ) => {
 	// "Allow all" is on only when every crawler in the group is allowed; toggling
@@ -152,13 +156,25 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 			<CollapsibleCard.Header>
 				<Stack direction="row" justify="space-between" align="center" gap="sm">
 					<Card.Title>{ title }</Card.Title>
-					<Badge intent={ statusIntent }>{ statusLabel }</Badge>
+					{ /* The status tag reflects the toggle state; hide it when the toggles
+					   are governed elsewhere (the notice explains the state instead). */ }
+					{ ! notice && <Badge intent={ statusIntent }>{ statusLabel }</Badge> }
 				</Stack>
 			</CollapsibleCard.Header>
 			{ notice }
 			<CollapsibleCard.Content>
 				<Stack direction="column" gap="md">
-					<p className="jetpack-seo-ai__crawlers-intro">{ intro }</p>
+					<Stack direction="column" gap="xs">
+						<p className="jetpack-seo-ai__crawlers-intro">{ intro }</p>
+						<Link
+							className="jetpack-seo-ai__robots-link"
+							href={ robotsTxtUrl }
+							openInNewTab
+							rel="noopener noreferrer"
+						>
+							{ __( 'View robots.txt', 'jetpack-seo' ) }
+						</Link>
+					</Stack>
 					<div className="jetpack-seo-ai__crawler-bulk">
 						<ToggleControl
 							label={ __( 'Allow all', 'jetpack-seo' ) }
@@ -363,6 +379,7 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 					disabled={ isSaving || managedByPrivacySetting }
 					onToggle={ setCrawlerBlocked }
 					onToggleAll={ setCrawlerGroupBlocked }
+					robotsTxtUrl={ crawlers.robotsTxtUrl }
 					notice={ privacyNotice }
 				/>
 				<CrawlerSection
@@ -377,6 +394,7 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 					disabled={ isSaving || managedByPrivacySetting }
 					onToggle={ setCrawlerBlocked }
 					onToggleAll={ setCrawlerGroupBlocked }
+					robotsTxtUrl={ crawlers.robotsTxtUrl }
 					notice={ privacyNotice }
 				/>
 			</>

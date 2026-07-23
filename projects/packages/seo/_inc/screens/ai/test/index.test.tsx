@@ -68,6 +68,7 @@ const crawlerForm = (
 		dataSharingOptOut: false,
 		pathBasedMultisite: false,
 		privacySettingsUrl: 'http://example.com/wp-admin/options-reading.php',
+		robotsTxtUrl: 'http://example.com/robots.txt',
 		...flags,
 	},
 } );
@@ -156,6 +157,17 @@ describe( 'AiScreen (GEO tab) — crawler policy state', () => {
 		expect( within( trainingHeader ).getByText( 'Partly blocked' ) ).toBeInTheDocument();
 	} );
 
+	it( 'links each group to the robots.txt file under its description', () => {
+		render( <AiScreen form={ crawlerForm() } searchEnginesVisible onManageVisibility={ noop } /> );
+
+		// The link sits under the description, inside the collapsed panel — include hidden.
+		const links = screen.getAllByRole( 'link', { name: /view robots\.txt/i, hidden: true } );
+		expect( links ).toHaveLength( 2 ); // one per group
+		links.forEach( link =>
+			expect( link ).toHaveAttribute( 'href', 'http://example.com/robots.txt' )
+		);
+	} );
+
 	it( 'disables the crawler controls and links to the setting under the data-sharing opt-out', () => {
 		render(
 			<AiScreen
@@ -176,6 +188,9 @@ describe( 'AiScreen (GEO tab) — crawler policy state', () => {
 		const boxes = screen.getAllByRole( 'checkbox', { hidden: true } );
 		expect( boxes.length ).toBeGreaterThan( 0 );
 		expect( boxes.every( box => box.hasAttribute( 'disabled' ) ) ).toBe( true );
+		// The allow/block status tags are hidden while the setting governs the group.
+		const trainingHeader = screen.getByRole( 'button', { name: /training crawlers/i } );
+		expect( within( trainingHeader ).queryByText( 'Blocked' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'hides per-site controls on path-based multisite', () => {

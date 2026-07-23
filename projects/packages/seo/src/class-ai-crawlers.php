@@ -379,6 +379,7 @@ class Ai_Crawlers {
 			'dataSharingOptOut'    => self::has_data_sharing_opt_out(),
 			'pathBasedMultisite'   => self::is_path_based_multisite(),
 			'privacySettingsUrl'   => self::privacy_settings_url(),
+			'robotsTxtUrl'         => home_url( '/robots.txt' ),
 		);
 	}
 
