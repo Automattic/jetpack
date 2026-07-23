@@ -16,6 +16,15 @@
 		flex: 1;
 		min-height: 0;
 		overflow: auto;
+
+		// With fitRows the chart hides the rows that would not fit, so there is
+		// nothing left to scroll to — a scrollbar here would only ever reveal the
+		// hidden rows' reserved space.
+		&--fit {
+			overflow: hidden;
+			// Anchors .fitEmptyState, which is laid over the hidden rows.
+			position: relative;
+		}
 	}
 }
 
@@ -98,6 +107,20 @@
 	color: var(--wpds-color-foreground-content-neutral-weak, #707070);
 	font-size: var(--wpds-typography-font-size-md, 13px);
 	font-style: italic;
+}
+
+// Shown when not even one row fits. The rows stay in the layout underneath so
+// they remain measurable, so this is taken out of flow to sit over them.
+.fitEmptyState {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	// The shared empty state reserves generous vertical whitespace. This overlay
+	// is specifically for compact containers, where the text may fit even though
+	// a complete data row does not.
+	padding-block: 0;
 }
 
 .row {

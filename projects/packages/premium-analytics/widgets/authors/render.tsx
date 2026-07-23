@@ -9,6 +9,7 @@ import {
 	WidgetState,
 	buildLeaderboardRow,
 	formatLegendLabels,
+	safeHttpUrl,
 	toMaxRows,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -125,12 +126,16 @@ export function AuthorsLeaderboard( {
 		// posts that only existed in the comparison period.
 		if ( selectedAuthor ) {
 			return selectedAuthor.posts.map( post => {
+				// Post permalinks come from report data, so validate the scheme
+				// before the row becomes a link.
+				const postHref = safeHttpUrl( post.link );
+
 				return {
 					id: post.id,
 					...buildLeaderboardRow( {
 						label: post.title,
 						media: { kind: 'none' },
-						action: post.link ? { kind: 'link', href: post.link } : { kind: 'static' },
+						action: postHref ? { kind: 'link', href: postHref } : { kind: 'static' },
 					} ),
 					currentValue: post.currentValue,
 					previousValue: post.previousValue,
