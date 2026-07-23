@@ -70,8 +70,14 @@ function wpcom_fiverr_cta() {
 			<?php esc_html_e( 'Try Fiverr Logo Maker', 'jetpack-mu-wpcom' ); ?>
 		</button>
 		<p class="description">
-			<b><?php esc_html_e( 'Make an incredible logo in minutes', 'jetpack-mu-wpcom' ); ?></b><br />
-			<?php esc_html_e( 'Pre-designed by top talent. Just add your touch.', 'jetpack-mu-wpcom' ); ?>
+			<?php
+			printf(
+				/* translators: %1$s: opening link tag to the Site Editor identity screen, %2$s: closing link tag. */
+				esc_html__( 'Displays in your site\'s layout via the Site Logo block. %1$sYou can change your site logo in the site editor%2$s', 'jetpack-mu-wpcom' ),
+				'<a href="' . esc_url( admin_url( 'site-editor.php?p=%2Fidentity' ) ) . '">',
+				'</a>'
+			);
+			?>
 		</p>
 	</div>
 	<?php
