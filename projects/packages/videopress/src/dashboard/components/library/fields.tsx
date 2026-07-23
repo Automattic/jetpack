@@ -77,7 +77,7 @@ const OrientationCell = ( { item }: { item: LibraryItem } ) => {
 			title={ label }
 			className={ `vp-library__orientation vp-library__orientation--${ item.orientation }` }
 		>
-			<Icon icon={ mobile } size={ 16 } />
+			<Icon icon={ mobile } size={ 24 } />
 		</span>
 	);
 };
