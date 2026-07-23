@@ -11,7 +11,8 @@
  * Deliberately NOT merged into wpcom_launchpad_get_task_definitions(): that catalog is shared
  * with the legacy launchpad, and routing foreign definitions through
  * wpcom_launchpad_checklists() would depend on it accepting entries it never registered. These
- * tasks are built here instead, which generalizes what build_gallery_task() already did.
+ * tasks are built here instead, and available_task_ids() offers them to the model alongside the
+ * catalog's, so an AI Launchpad task is selectable without the catalog knowing it exists.
  *
  * Each definition supplies the same fields build_tasks() resolves from the catalog. definitions()
  * is rebuilt on every call, including from has() and task_ids(), which is what decides the shape:
@@ -78,6 +79,21 @@ class AI_Launchpad_Task_Registry {
 	}
 
 	/**
+	 * Whether a registry task is already complete. False for an unknown id.
+	 *
+	 * Separate from build() so a caller that only needs the flag — available_task_ids(), which runs on every
+	 * wizard prewarm — pays for the completion check alone. build() additionally resolves the in-progress draft,
+	 * a WP_Query whose result that caller would throw away.
+	 *
+	 * @param string $task_id The task id.
+	 * @return bool
+	 */
+	public static function is_complete( $task_id ) {
+		$definition = self::definitions()[ $task_id ] ?? null;
+		return null !== $definition && (bool) $definition['is_complete']();
+	}
+
+	/**
 	 * Builds a registry task into the card shape build_tasks() emits, or null for an unknown id.
 	 *
 	 * An unpublished marker draft puts the task in progress: the card reopens that draft and takes
@@ -93,7 +109,8 @@ class AI_Launchpad_Task_Registry {
 			return null;
 		}
 
-		$completed = (bool) $definition['is_complete']();
+		// Via the accessor, not the callable, so the card and the availability menu can never disagree.
+		$completed = self::is_complete( $task_id );
 
 		$in_progress  = false;
 		$calypso_path = null;

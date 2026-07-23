@@ -44,7 +44,9 @@ export interface TaskAnnotation {
  * dropped twin remaps onto the kept one on read (see wpcom_ai_launchpad_remap_task_id). Dropped:
  * first_post_published_newsletter, link_in_bio_launched, subscribers_added, drive_traffic.
  *
- * A PHP test guards these ids against catalog drift.
+ * Most ids come from the shared launchpad catalog; `add_gallery_page` is defined by the AI
+ * Launchpad's own registry (AI_Launchpad_Task_Registry). A PHP test guards every id against
+ * both sources.
  */
 export const TASK_ANNOTATIONS: readonly TaskAnnotation[] = [
 	{
@@ -298,6 +300,16 @@ export const TASK_ANNOTATIONS: readonly TaskAnnotation[] = [
 		what: 'Opens the audience-growth tools.',
 		pickWhen: 'the site is published and ready to find readers.',
 		avoidWhen: 'nothing is published yet.',
+	},
+	{
+		id: 'add_gallery_page',
+		// Deliberately no `goals`. The criterion is whether the site is visual, which no goal slug tracks: a
+		// photographer or food blogger picks `write` as readily as a florist picks `build`. Hinting a goal here
+		// would suppress the gallery for the very sites this task exists to reach.
+		what: 'Creates a draft gallery page built from a block pattern matched to the site.',
+		pickWhen:
+			"the site's value is visual and people judge it by looking — photography, art, craft, food, interiors, tattoo work, floristry, design.",
+		avoidWhen: 'the site is text-first and has no images to show.',
 	},
 ];
 

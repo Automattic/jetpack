@@ -44,15 +44,14 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 	/**
 	 * Task ids the AI Launchpad synthesizes itself (never present in the AI payload): the sell goal's store-setup
-	 * lead tasks and the niche-gated gallery task. Skips must accept them alongside the AI-selected ids.
+	 * lead tasks. Skips must accept them alongside the AI-selected ids.
 	 *
-	 * Must list every id minted by build_store_tasks() / build_gallery_task() — a synthetic task missing here
-	 * renders with a Skip button whose write is rejected.
+	 * Must list every id minted by build_store_tasks() — a synthetic task missing here renders with a
+	 * Skip button whose write is rejected.
 	 */
 	const SYNTHETIC_TASK_IDS = array(
 		'install_woocommerce',
 		'setup_woocommerce_store',
-		'add_gallery_page',
 	);
 
 	/**
@@ -146,9 +145,14 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * meaning flips on a prefix and each docblock describes all of its own entries.
 	 *
 	 * `add_gallery_page` is excluded for sell so a store site cannot end up with both the store sequence and a
-	 * gallery, the mutual exclusion get_current_tasks() enforces structurally through its if/else. The entry has
-	 * no effect on a tailored list yet: the gallery is not on the menu, so the model cannot pick it and
-	 * available_task_ids() never offers it. It starts mattering when the gallery becomes AI-selectable.
+	 * gallery. get_current_tasks() used to enforce that structurally, through the if/else that injected the
+	 * gallery only on the non-sell branch; now that the model picks the gallery from the menu, this entry is
+	 * the only thing holding it — the menu never offers it on sell, and PUT drops it if the model picks it anyway.
+	 *
+	 * Both ends are write-side: build_tasks() applies no exclusion, so a payload that already holds an excluded id
+	 * renders it. Reaching that needs a compound failure (the availability lookup fails, so the prompt falls back
+	 * to the full menu, AND the wizard-goal option has not landed yet, so the goal comes from the model's echo).
+	 * True of every entry in both maps, not just this one; read-side enforcement is the fix if it ever bites.
 	 */
 	const GOAL_EXCLUDED_TASK_IDS = array(
 		'add_gallery_page' => 'sell',
@@ -439,7 +443,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
-	 * The site's tailored task list (AI-selected + synthetic store/gallery tasks, skip overlay applied) — the tasks
+	 * The site's tailored task list (AI-selected + the synthetic store tasks, skip overlay applied) — the tasks
 	 * GET renders, minus the ?all_tasks testing view. Shared by GET and the completion check.
 	 *
 	 * @return array
@@ -480,18 +484,12 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 		$tasks = empty( $ai_tasks ) ? array() : $this->build_tasks( $ai_tasks, false, $theme_cta, $disable_hidden_woo );
 
-		// The sell goal leads with the store-setup task; every other goal may offer the gallery task. They are
-		// mutually exclusive so a sell site with a visual niche doesn't also get an off-target gallery task.
+		// The sell goal leads with the store-setup tasks; the theme task then follows them: pick the
+		// store's look once the store exists. Other goals need no injection — the gallery task is now
+		// on the menu, so the AI picks it when the site is visual.
 		if ( 'sell' === $goal ) {
-			// The store-setup tasks lead the sell list. Their synthetic ids never appear in the AI payload, so a
-			// plain prepend is safe. The theme task then follows them: pick the store's look once the store exists.
 			$tasks = array_merge( $this->build_store_tasks( $woo_active ), $tasks );
 			$tasks = $this->move_task_after( $tasks, 'site_theme_selected', 'setup_woocommerce_store' );
-		} else {
-			$gallery = $this->build_gallery_task( $inferred );
-			if ( null !== $gallery ) {
-				$tasks = $this->insert_before_launch_task( $tasks, $gallery );
-			}
 		}
 
 		// Restore the list toward six after the visibility gate has dropped tasks (before skips, which are the
@@ -1115,6 +1113,14 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * ones: the client falls back to it when completion leaves too few actionable tasks to fill a valid list. The
 	 * client intersects these with its own TASK_MENU. Computed once per wizard submit.
 	 *
+	 * The AI Launchpad's own tasks are appended separately, since they are not catalog entries and the catalog
+	 * sweep cannot find them. Note the asymmetry that creates: catalog ids came through the real visibility gate,
+	 * registry ids are appended ungated, because the registry has no notion of visibility at all. That is only
+	 * correct while every registry task renders on every site, which holds for the gallery — it asks nothing of
+	 * the site. A registry entry that is not universally renderable must gain a visibility notion before it
+	 * reaches this list, or it will be offered to sites that then drop it, spending one of the model's six picks
+	 * on nothing.
+	 *
 	 * @param string $goal The inferred/selected goal.
 	 * @return array{renderable: string[], actionable: string[]}
 	 */
@@ -1136,9 +1142,27 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 		$excluded = self::excluded_task_ids_for_goal( $goal );
 
+		// The registry's tasks are not in the catalog, so the sweep above cannot see them. Offer every registry
+		// task that is not already complete; a completed one still renders, so it stays on the renderable list
+		// the client relaxes to.
+		$registry_renderable = AI_Launchpad_Task_Registry::task_ids();
+		$registry_actionable = array_values(
+			array_filter(
+				$registry_renderable,
+				static function ( $task_id ) {
+					return ! AI_Launchpad_Task_Registry::is_complete( $task_id );
+				}
+			)
+		);
+
+		// array_unique guards a future registry id that shadows a catalog one: the endpoint would otherwise
+		// advertise it twice.
+		$renderable = array_unique( array_merge( array_column( $tasks, 'id' ), $registry_renderable ) );
+		$actionable = array_unique( array_merge( array_column( $actionable, 'id' ), $registry_actionable ) );
+
 		return array(
-			'renderable' => array_values( array_diff( array_column( $tasks, 'id' ), $excluded ) ),
-			'actionable' => array_values( array_diff( array_column( $actionable, 'id' ), $excluded ) ),
+			'renderable' => array_values( array_diff( $renderable, $excluded ) ),
+			'actionable' => array_values( array_diff( $actionable, $excluded ) ),
 		);
 	}
 
@@ -1469,67 +1493,6 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
-	 * Visual-work niche keywords that (along with the `portfolio` goal) surface the synthetic gallery task.
-	 */
-	const GALLERY_NICHE_KEYWORDS = array(
-		'photography',
-		'photo',
-		'photos',
-		'photographer',
-		'portfolio',
-		'gallery',
-		'art',
-		'artist',
-		'illustration',
-		'illustrator',
-		'design',
-		'designer',
-		'visual',
-		'painting',
-		'drawing',
-	);
-
-	/**
-	 * Whether the synthetic "Create your first gallery" task should be offered, based on the inferred goal/niche.
-	 *
-	 * @param array $inferred The AI output's `inferred` block.
-	 * @return bool
-	 */
-	private function should_offer_gallery_task( $inferred ) {
-		$goal = isset( $inferred['goal'] ) && is_string( $inferred['goal'] ) ? $inferred['goal'] : '';
-		if ( 'portfolio' === $goal ) {
-			return true;
-		}
-
-		$niche = isset( $inferred['niche'] ) && is_string( $inferred['niche'] ) ? strtolower( $inferred['niche'] ) : '';
-		if ( '' === $niche ) {
-			return false;
-		}
-
-		// Split on any non-alphanumeric run so hyphenated/compound niches ("wildlife-photography") tokenize like the client.
-		$words = preg_split( '/[^a-z0-9]+/', $niche, -1, PREG_SPLIT_NO_EMPTY );
-		return array() !== array_intersect( $words, self::GALLERY_NICHE_KEYWORDS );
-	}
-
-	/**
-	 * Builds the injected gallery-task entry, or null when it should not be offered.
-	 *
-	 * The definition lives in AI_Launchpad_Task_Registry; this method is only the niche gate.
-	 *
-	 * Its id is listed in SYNTHETIC_TASK_IDS so the task stays skippable.
-	 *
-	 * @param array $inferred The AI output's `inferred` block.
-	 * @return array|null
-	 */
-	private function build_gallery_task( $inferred ) {
-		if ( ! $this->should_offer_gallery_task( $inferred ) ) {
-			return null;
-		}
-
-		return AI_Launchpad_Task_Registry::build( 'add_gallery_page', '' );
-	}
-
-	/**
 	 * Builds the synthetic store-setup lead tasks for the sell goal: an "install WooCommerce" task and a "set up
 	 * your store" task. Their ids are listed in SYNTHETIC_TASK_IDS so the tasks stay skippable.
 	 *
@@ -1603,10 +1566,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
-	 * Inserts a synthetic task immediately before the trailing launch task (or appends it), idempotently by id.
+	 * Inserts a task immediately before the trailing launch task (or appends it), idempotently by id.
 	 *
 	 * @param array $tasks The enriched task list.
-	 * @param array $task  The synthetic task entry.
+	 * @param array $task  The task entry to insert.
 	 * @return array
 	 */
 	private function insert_before_launch_task( $tasks, $task ) {

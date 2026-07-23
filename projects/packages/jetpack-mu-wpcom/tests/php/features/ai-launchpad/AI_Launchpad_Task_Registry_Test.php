@@ -73,6 +73,24 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Completion reads the same status option through is_complete() as it does through build().
+	 */
+	public function test_is_complete_tracks_the_status_option() {
+		$this->assertFalse( AI_Launchpad_Task_Registry::is_complete( 'add_gallery_page' ) );
+
+		update_option( 'launchpad_checklist_tasks_statuses', array( 'add_gallery_page' => true ) );
+
+		$this->assertTrue( AI_Launchpad_Task_Registry::is_complete( 'add_gallery_page' ) );
+	}
+
+	/**
+	 * An id the registry does not own is not complete, rather than fataling on a missing definition.
+	 */
+	public function test_is_complete_is_false_for_an_unknown_id() {
+		$this->assertFalse( AI_Launchpad_Task_Registry::is_complete( 'first_post_published' ) );
+	}
+
+	/**
 	 * A registry task builds into the same card shape build_tasks() emits for catalog tasks.
 	 */
 	public function test_build_returns_a_complete_card() {

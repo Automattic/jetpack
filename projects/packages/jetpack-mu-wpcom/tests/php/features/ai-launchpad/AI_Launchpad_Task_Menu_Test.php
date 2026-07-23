@@ -6,14 +6,19 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-gallery-page-listener.php';
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-task-registry.php';
+
 /**
  * The prompt offers the model a hardcoded `TASK_ANNOTATIONS` table (js/lib/prompts.ts)
- * while titles, CTAs, and completion all resolve through the canonical catalog
- * (`wpcom_launchpad_get_task_definitions()`). The two lists are maintained
- * separately today — see the catalog-as-single-source refactor (DOTOBRD-472).
- * This test fails if the menu ever offers an ID the catalog doesn't define,
- * which would be silently dropped at `PUT /tailored` validation and GET
- * enrichment.
+ * while titles, CTAs, and completion resolve through the canonical catalog
+ * (`wpcom_launchpad_get_task_definitions()`) or, for the AI Launchpad's own tasks,
+ * `AI_Launchpad_Task_Registry`. The lists are maintained separately today — see the
+ * catalog-as-single-source refactor (DOTOBRD-472). This test fails if the menu ever offers
+ * an ID neither source defines, which would be silently dropped at `PUT /tailored`
+ * validation and GET enrichment.
  */
 class AI_Launchpad_Task_Menu_Test extends \WorDBless\BaseTestCase {
 
@@ -26,19 +31,22 @@ class AI_Launchpad_Task_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Every ID in the prompt's annotated task table must exist in the canonical catalog.
+	 * Every ID in the prompt's task table must be defined by the catalog or the AI Launchpad registry.
 	 */
-	public function test_task_menu_is_subset_of_catalog() {
+	public function test_task_menu_is_subset_of_catalog_or_registry() {
 		$menu_ids = $this->parse_task_menu_ids();
 		$this->assertNotEmpty( $menu_ids, 'Could not parse TASK_ANNOTATIONS from prompts.ts.' );
 
-		$catalog_ids = array_keys( wpcom_launchpad_get_task_definitions() );
-		$unknown     = array_values( array_diff( $menu_ids, $catalog_ids ) );
+		$known   = array_merge(
+			array_keys( wpcom_launchpad_get_task_definitions() ),
+			AI_Launchpad_Task_Registry::task_ids()
+		);
+		$unknown = array_values( array_diff( $menu_ids, $known ) );
 
 		$this->assertSame(
 			array(),
 			$unknown,
-			'TASK_MENU offers task IDs absent from the canonical catalog (they would be dropped at validation/enrichment): ' . implode( ', ', $unknown )
+			'The task table offers IDs defined by neither the catalog nor the AI Launchpad registry (they would be dropped at validation/enrichment): ' . implode( ', ', $unknown )
 		);
 	}
 

@@ -38,6 +38,15 @@ describe( 'TASK_ANNOTATIONS', () => {
 			assert.ok( entry.pickWhen.length > 0, `${ entry.id } is missing "pickWhen"` );
 		}
 	} );
+
+	it( 'offers the gallery task and gives it no goal affinity', () => {
+		const gallery = TASK_ANNOTATIONS.find( entry => entry.id === 'add_gallery_page' );
+
+		assert.ok( gallery, 'add_gallery_page must be on the menu' );
+		// A goal affinity would suppress the gallery for the sites it exists to reach: a photographer or food
+		// blogger picks `write`. Whether the site is visual is the criterion, and pickWhen carries it.
+		assert.equal( gallery.goals, undefined );
+	} );
 } );
 
 describe( 'buildTailorPrompt', () => {

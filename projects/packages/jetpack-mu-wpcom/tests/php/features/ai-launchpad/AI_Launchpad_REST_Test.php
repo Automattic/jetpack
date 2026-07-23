@@ -515,6 +515,73 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The registry's tasks reach the offered menu, and the sell exclusion still withholds the gallery there.
+	 *
+	 * The availability sweep runs over the shared catalog, which does not define add_gallery_page, so without the
+	 * registry pass the menu filter in buildTailorPrompt would drop the gallery again and the model could never
+	 * pick it. On sell the store sequence leads instead, so the gallery must be off both lists.
+	 */
+	public function test_available_tasks_offer_the_registry_gallery_task_except_on_sell() {
+		wp_set_current_user( $this->admin_id );
+
+		$portfolio = $this->call_api( Requests::GET, '/available-tasks', null, array( 'goal' => 'portfolio' ) )->get_data();
+		$this->assertContains( 'add_gallery_page', $portfolio['available_task_ids'] );
+		$this->assertContains( 'add_gallery_page', $portfolio['renderable_task_ids'] );
+
+		$sell = $this->call_api( Requests::GET, '/available-tasks', null, array( 'goal' => 'sell' ) )->get_data();
+		$this->assertNotContains( 'add_gallery_page', $sell['available_task_ids'] );
+		$this->assertNotContains( 'add_gallery_page', $sell['renderable_task_ids'] );
+	}
+
+	/**
+	 * The availability sweep must not resolve the gallery's in-progress draft.
+	 *
+	 * It only needs the completed flag, and the endpoint is hit on every wizard prewarm — which fires on every
+	 * 1500ms typing pause — so a marker-meta WP_Query here is paid repeatedly for a result that is discarded.
+	 * Pinned by failing the test if the draft lookup's query runs at all.
+	 */
+	public function test_available_tasks_do_not_resolve_the_gallery_draft() {
+		wp_set_current_user( $this->admin_id );
+
+		$resolved = false;
+		add_filter(
+			'posts_pre_query',
+			function ( $posts, $query ) use ( &$resolved ) {
+				if ( AI_Launchpad_Gallery_Page_Listener::META_KEY === $query->get( 'meta_key' ) ) {
+					$resolved = true;
+				}
+				return $posts;
+			},
+			10,
+			2
+		);
+
+		$data = $this->call_api( Requests::GET, '/available-tasks', null, array( 'goal' => 'portfolio' ) )->get_data();
+
+		// The premise: the gallery really is on the menu here, so the absent query is a saved lookup rather
+		// than a task that was never considered.
+		$this->assertContains( 'add_gallery_page', $data['available_task_ids'] );
+		$this->assertFalse( $resolved, 'the availability sweep must not run the gallery draft lookup' );
+
+		// posts_pre_query seeds the post-queries cache group, which WorDBless does not flush between tests.
+		wp_cache_flush_group( 'post-queries' );
+	}
+
+	/**
+	 * A completed gallery leaves nothing to do, so it drops off the actionable menu — but stays renderable, like
+	 * every completed catalog task, so the client's relaxation set can still reach it.
+	 */
+	public function test_available_tasks_keep_a_completed_gallery_only_as_renderable() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'launchpad_checklist_tasks_statuses', array( 'add_gallery_page' => true ) );
+
+		$data = $this->call_api( Requests::GET, '/available-tasks', null, array( 'goal' => 'portfolio' ) )->get_data();
+
+		$this->assertNotContains( 'add_gallery_page', $data['available_task_ids'] );
+		$this->assertContains( 'add_gallery_page', $data['renderable_task_ids'] );
+	}
+
+	/**
 	 * The launch tasks are exempt from the already-completed filter: the output contract requires the tailored list
 	 * to end on one, so a site that already launched must still be able to produce a valid list.
 	 */
@@ -1255,38 +1322,27 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The gallery task is injected before the launch task for a portfolio goal, defaulting to todo.
+	 * The gallery task is no longer injected on the goal/niche gate that used to surface it.
+	 *
+	 * It is on the model's menu now, so a portfolio site whose AI list does not name it gets no gallery — the
+	 * deterministic coverage this replaced is the accepted cost of letting the model judge instead.
 	 */
-	public function test_get_injects_gallery_task_for_portfolio_goal() {
+	public function test_get_does_not_inject_the_gallery_task() {
 		wp_set_current_user( $this->admin_id );
-		// seed_gallery_output seeds [ site_title, site_launched ] — both reliably visible in the test env
+		// seed_output_for_goal seeds [ site_title, site_launched ] — both reliably visible in the test env
 		// (unlike add_about_page, whose visibility gate needs extra meta registered).
-		$this->seed_gallery_output( 'portfolio', 'freelance work' );
+		$this->seed_output_for_goal( 'portfolio', 'wildlife photography' );
 
 		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
 
-		$this->assertContains( 'add_gallery_page', $ids );
-		// Injected immediately after the AI task and before the launch task; any backfill filler follows it.
-		$this->assertSame( array( 'site_title', 'add_gallery_page' ), array_slice( $ids, 0, 2 ), 'gallery follows the AI task' );
-		$this->assertSame( 'site_launched', end( $ids ), 'launch stays last' );
-
-		$gallery = null;
-		foreach ( $this->call_api( Requests::GET )->get_data()['tasks'] as $task ) {
-			if ( 'add_gallery_page' === $task['id'] ) {
-				$gallery = $task;
-			}
-		}
-		$this->assertSame( 'Create your first gallery', $gallery['title'] );
-		$this->assertFalse( $gallery['completed'] );
-		$this->assertFalse( $gallery['in_progress'] );
+		$this->assertNotContains( 'add_gallery_page', $ids );
 	}
 
 	/**
 	 * A persisted list carrying the gallery id builds it from the registry (not the catalog, which does not define
-	 * it) and keeps the persisted subtitle, and the niche gate does not then inject a second copy. The AI cannot
-	 * pick the id until it joins the menu, but PUT already accepts registry ids.
+	 * it) and keeps the persisted subtitle over the registry default.
 	 */
-	public function test_get_renders_a_persisted_gallery_task_once() {
+	public function test_get_renders_a_persisted_gallery_task() {
 		wp_set_current_user( $this->admin_id );
 		update_option(
 			'wpcom_ai_launchpad_ai_output',
@@ -1315,9 +1371,6 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$tasks = $this->call_api( Requests::GET )->get_data()['tasks'];
-		$ids   = array_column( $tasks, 'id' );
-
-		$this->assertSame( array( 'add_gallery_page' ), array_values( array_filter( $ids, static fn ( $id ) => 'add_gallery_page' === $id ) ) );
 
 		$gallery = array_column( $tasks, null, 'id' )['add_gallery_page'];
 		$this->assertSame( 'Show off your ceramics.', $gallery['subtitle'], 'the persisted subtitle wins over the registry default' );
@@ -1325,41 +1378,11 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The gallery task is injected for a photo/visual niche even when the goal is not portfolio.
-	 */
-	public function test_get_injects_gallery_task_for_photo_niche() {
-		wp_set_current_user( $this->admin_id );
-		$this->seed_gallery_output( 'build', 'wedding photography' );
-		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
-		$this->assertContains( 'add_gallery_page', $ids );
-	}
-
-	/**
-	 * A hyphenated/compound niche still matches on its keyword tokens.
-	 */
-	public function test_get_injects_gallery_task_for_hyphenated_niche() {
-		wp_set_current_user( $this->admin_id );
-		$this->seed_gallery_output( 'build', 'wildlife-photography' );
-		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
-		$this->assertContains( 'add_gallery_page', $ids );
-	}
-
-	/**
-	 * The gallery task is NOT injected for an unrelated goal + niche.
-	 */
-	public function test_get_omits_gallery_task_for_unrelated_site() {
-		wp_set_current_user( $this->admin_id );
-		$this->seed_gallery_output( 'sell', 'organic coffee beans' );
-		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
-		$this->assertNotContains( 'add_gallery_page', $ids );
-	}
-
-	/**
-	 * A completed gallery page marks the injected task done.
+	 * A completed gallery page marks the AI-selected task done.
 	 */
 	public function test_get_marks_gallery_task_complete_from_status_option() {
 		wp_set_current_user( $this->admin_id );
-		$this->seed_gallery_output( 'portfolio', 'sculpture' );
+		$this->seed_ai_output_with_tasks( array( 'add_gallery_page', 'site_launched' ), 'portfolio' );
 		update_option( 'launchpad_checklist_tasks_statuses', array( 'add_gallery_page' => true ) );
 
 		$gallery = null;
@@ -1372,11 +1395,11 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * An unpublished gallery draft puts the injected task in progress and reopens that draft.
+	 * An unpublished gallery draft puts the AI-selected task in progress and reopens that draft.
 	 */
 	public function test_get_marks_gallery_task_in_progress_with_draft() {
 		wp_set_current_user( $this->admin_id );
-		$this->seed_gallery_output( 'portfolio', 'sculpture' );
+		$this->seed_ai_output_with_tasks( array( 'add_gallery_page', 'site_launched' ), 'portfolio' );
 
 		// The marker-meta draft lookup runs through WP_Query, which WorDBless can't execute, so short-circuit it with
 		// core's posts_pre_query filter to return a seeded draft id (mirrors the About-page in-progress test).
@@ -1406,11 +1429,10 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Returns the sell task list keyed by id (WooCommerce state controlled by the caller beforehand).
 	 *
-	 * @param string $niche The inferred niche.
 	 * @return array<string, array> Tasks keyed by id.
 	 */
-	private function sell_tasks_by_id( $niche = 'organic coffee beans' ) {
-		$this->seed_gallery_output( 'sell', $niche );
+	private function sell_tasks_by_id() {
+		$this->seed_output_for_goal( 'sell', 'organic coffee beans' );
 		$tasks = $this->call_api( Requests::GET )->get_data()['tasks'];
 		return array_column( $tasks, null, 'id' );
 	}
@@ -1639,30 +1661,18 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_get_omits_store_tasks_for_non_sell_goal() {
 		wp_set_current_user( $this->admin_id );
-		$this->seed_gallery_output( 'build', 'organic coffee beans' );
+		$this->seed_output_for_goal( 'build', 'organic coffee beans' );
 		$ids = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'id' );
 		$this->assertNotContains( 'install_woocommerce', $ids );
 		$this->assertNotContains( 'setup_woocommerce_store', $ids );
 	}
 
 	/**
-	 * A sell site whose niche matches a gallery keyword gets the store tasks, not the off-target gallery task.
-	 */
-	public function test_get_prefers_store_over_gallery_for_sell_goal() {
-		wp_set_current_user( $this->admin_id );
-		update_option( 'active_plugins', array() );
-
-		$ids = array_keys( $this->sell_tasks_by_id( 'handmade art' ) );
-		$this->assertContains( 'install_woocommerce', $ids );
-		$this->assertNotContains( 'add_gallery_page', $ids );
-	}
-
-	/**
-	 * The gallery task is not injected on the ?all_tasks=1 catalog view.
+	 * The ?all_tasks=1 catalog view does not show the gallery task, which is not a catalog task.
 	 */
 	public function test_get_all_tasks_param_omits_gallery_task() {
 		wp_set_current_user( $this->admin_id );
-		$this->seed_gallery_output( 'portfolio', 'sculpture' );
+		$this->seed_output_for_goal( 'portfolio', 'sculpture' );
 		$ids = array_column( $this->call_api( Requests::GET, '', null, array( 'all_tasks' => '1' ) )->get_data()['tasks'], 'id' );
 		$this->assertNotContains( 'add_gallery_page', $ids );
 	}
@@ -2073,6 +2083,31 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that PUT /tailored drops the gallery on a sell goal, keeping the store and the gallery mutually exclusive.
+	 *
+	 * The read path used to guarantee this structurally, injecting the gallery only on the non-sell branch of
+	 * get_current_tasks(). Now that the model picks it, GOAL_EXCLUDED_TASK_IDS is the guarantee and this drop is its
+	 * enforcing end — the menu filter is advisory, since a failed availability lookup falls back to the full menu.
+	 */
+	public function test_put_tailored_drops_the_gallery_task_on_a_sell_goal() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'wpcom_ai_launchpad_wizard', array( 'goal' => 'sell' ), false );
+
+		$payload                     = self::valid_payload();
+		$payload['inferred']['goal'] = 'sell';
+		$payload['tasks'][1]         = array(
+			'id'       => 'add_gallery_page',
+			'subtitle' => 'Show off your ceramics.',
+		);
+
+		$result = $this->call_api( 'PUT', '/tailored', $payload );
+		$this->assertSame( 200, $result->get_status() );
+
+		$persisted = array_column( get_option( 'wpcom_ai_launchpad_ai_output' )['payload']['tasks'], 'id' );
+		$this->assertNotContains( 'add_gallery_page', $persisted );
+	}
+
+	/**
 	 * Test that PUT /tailored rejects a payload whose last task is not a launch task.
 	 */
 	public function test_put_tailored_rejects_when_last_task_is_not_launch_task() {
@@ -2160,7 +2195,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	 * @param string $goal  The inferred goal.
 	 * @param string $niche The inferred niche.
 	 */
-	private function seed_gallery_output( $goal, $niche ) {
+	private function seed_output_for_goal( $goal, $niche ) {
 		update_option(
 			'wpcom_ai_launchpad_ai_output',
 			array(
@@ -2596,11 +2631,13 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that the synthetic tasks (absent from the AI payload by design) are skippable too.
+	 * Test that the gallery task stays skippable now that the model picks it instead of the server synthesizing it.
+	 *
+	 * It is out of SYNTHETIC_TASK_IDS, so nothing but its presence in the AI payload makes the skip route accept it.
 	 */
-	public function test_skip_task_accepts_synthetic_gallery_task() {
+	public function test_skip_task_accepts_the_ai_selected_gallery_task() {
 		wp_set_current_user( $this->admin_id );
-		$this->seed_gallery_output( 'portfolio', 'wildlife photography' );
+		$this->seed_ai_output_with_tasks( array( 'add_gallery_page', 'site_launched' ), 'portfolio' );
 
 		$result = $this->call_api( 'POST', '/skip-task', array( 'task_id' => 'add_gallery_page' ) );
 		$this->assertSame( 200, $result->get_status() );
