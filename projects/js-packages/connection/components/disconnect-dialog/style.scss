@@ -24,6 +24,8 @@
 	&__large-text,
 	p.jp-connection__disconnect-dialog__large-text {
 		font-size: 1.25rem;
+		display: block;
+		margin-block: 0 1em;
 	}
 
 	&__link,
@@ -131,16 +133,14 @@
 		color: var(--jp-red);
 	}
 
-	// The survey options form a radio group, so they are wrapped in a
-	// `<fieldset>` with a (visually hidden) `<legend>` naming the group. These
-	// rules strip the UA fieldset chrome, leaving the previous layout intact.
 	&__survey {
-		margin: 0 0 1.5rem;
+		display: flex;
+		flex-direction: column;
+		gap: 1.25rem;
+		margin: 1.25rem 0 1.5rem;
 		max-width: 100%;
 		border: 0;
 		padding: 0;
-		// A fieldset's default `min-width: min-content` would otherwise keep it
-		// from shrinking below its widest option on narrow screens.
 		min-width: 0;
 	}
 

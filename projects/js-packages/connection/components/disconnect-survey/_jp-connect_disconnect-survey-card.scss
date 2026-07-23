@@ -1,19 +1,18 @@
 @use "@automattic/jetpack-base-styles/style";
 
+// Layout, selected state and elevation on top of @wordpress/ui's Card, which
+// supplies the surface itself.
 .jp-connect__disconnect-survey-card {
+	--wp-ui-card-padding: 1rem;
+
 	border: 2px solid transparent;
 	width: 800px;
 	max-width: 100%;
 	margin-left: auto;
 	margin-right: auto;
-	border-radius: 4px;
 	text-align: left;
-	padding: 1rem;
 	position: relative;
 	box-shadow: 0 0 15px var(--jp-gray-off);
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
 
 	&--selected {
 		border-color: var(--jp-black);
@@ -24,8 +23,6 @@
 		cursor: pointer;
 	}
 
-	// `:focus-within` rather than `:focus`: the focusable element is now the
-	// radio inside the card, not the card itself.
 	&:hover,
 	&:focus-within {
 
@@ -35,8 +32,6 @@
 	}
 
 	&__radio {
-		// Sits above the label's stretched hit area so the radio itself stays
-		// directly clickable, and so its focus ring is not painted over.
 		position: relative;
 		z-index: 1;
 		flex-shrink: 0;
@@ -44,17 +39,11 @@
 	}
 
 	&__answer {
-		// Set explicitly rather than inherited: as a `<p>` the answer used to
-		// pick this up from the dialog's `p` rule, but a `<label>` never matches
-		// that selector and would otherwise fall back to @wordpress/ui's
-		// smaller default body size.
 		font-size: var(--font-body);
+		line-height: 1.5;
 		font-weight: 700;
 		margin: 0;
 
-		// Stretch the label over the whole card, so clicking anywhere in the
-		// card selects the option — as it did when the card was one big
-		// `role="button"`.
 		&::before {
 			content: "";
 			position: absolute;
@@ -72,8 +61,6 @@ input.jp-connect__disconnect-survey-card__input {
 	flex-grow: 1;
 	min-width: 0;
 
-	// Keep the free text field above the label's stretched hit area, so that
-	// clicking it focuses the field rather than the "Other" radio.
 	position: relative;
 	z-index: 1;
 }
