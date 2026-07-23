@@ -306,13 +306,40 @@ class Mode {
 			3
 		);
 		add_menu_page(
+			__( 'Posts', 'jetpack-newsletter' ),
+			__( 'Posts', 'jetpack-newsletter' ),
+			'edit_posts',
+			'edit.php',
+			'',
+			'none',
+			4
+		);
+		add_menu_page(
 			__( 'Subscribers', 'jetpack-newsletter' ),
 			__( 'Subscribers', 'jetpack-newsletter' ),
 			'manage_options',
 			$newsletter_url,
 			'',
 			'none',
-			4
+			5
+		);
+		add_menu_page(
+			__( 'Replies', 'jetpack-newsletter' ),
+			__( 'Replies', 'jetpack-newsletter' ),
+			'moderate_comments',
+			'edit-comments.php',
+			'',
+			'none',
+			6
+		);
+		add_menu_page(
+			__( 'Paid', 'jetpack-newsletter' ),
+			__( 'Paid', 'jetpack-newsletter' ),
+			'manage_options',
+			'admin.php?page=' . self::PAGE_PAID,
+			'',
+			'none',
+			7
 		);
 		add_menu_page(
 			__( 'Settings', 'jetpack-newsletter' ),
@@ -324,18 +351,7 @@ class Mode {
 			$newsletter_url . '&p=' . rawurlencode( '/?tab=settings' ),
 			'',
 			'none',
-			6
-		);
-		// "Write" is a prominent button injected at the top of the menu (see
-		// maybe_render_mode_header), not a list item.
-		add_menu_page(
-			__( 'Paid', 'jetpack-newsletter' ),
-			__( 'Paid', 'jetpack-newsletter' ),
-			'manage_options',
-			'admin.php?page=' . self::PAGE_PAID,
-			'',
-			'none',
-			5
+			8
 		);
 	}
 
@@ -530,7 +546,7 @@ class Mode {
 				/* Neutral surface button (not the accent/primary color). */
 				background: var( --color-surface, #fff );
 				color: var( --color-text, #1e1e1e );
-				font-size: 15px;
+				font-size: 14px;
 				font-weight: 400;
 				line-height: 1.4;
 				padding: 8px 16px;
@@ -623,13 +639,17 @@ class Mode {
 	private static function get_menu_icon_css() {
 		$icons = array(
 			// Dashboard.
-			'a[href*="jetpack-newsletter-home"]' => '<svg height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m16 2c1.1046 0 2 .89543 2 2v12c0 1.1046-.8954 2-2 2h-12c-1.10457 0-2-.8954-2-2v-12c0-1.10457.89543-2 2-2zm-10.25 9v3h1.5v-3zm3.5 3h1.5v-5h-1.5zm3.5 0h1.5v-8h-1.5z" fill="#fff"/></svg>',
+			'a[href*="jetpack-newsletter-home"]' => '<svg fill="none" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m16.5 2c.8284 0 1.5.67157 1.5 1.5v13c0 .8284-.6716 1.5-1.5 1.5h-13c-.82843 0-1.5-.6716-1.5-1.5v-13c0-.82843.67157-1.5 1.5-1.5zm-10.875 9v4h1.75v-4zm3.5 4h1.75v-7h-1.75zm3.5 0h1.75v-10h-1.75z" fill="#fff"/></svg>',
+			// Posts (edit.php).
+			'a[href$="edit.php"]'                => '<svg fill="none" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m18.0588 8.36327c.4947-.36224.5499-1.08037.1163-1.51397l-5.034-5.034c-.4303-.43031-1.1419-.37973-1.5071.10711l-3.55535 4.74051c-1.21348-.10112-2.42696.10113-3.64045.70787-.10112 0-.10112.10112-.20225.10112-.32088.19253-.60104.38506-.84046.57759-.2152.17305-.21473.49081-.01946.68608l3.38801 3.38802-5.76404 5.764v1.1124h1.11236l5.76404-5.764 3.388 3.388c.1953.1952.5142.197.6929-.0136.2395-.2821.4297-.5642.5708-.8464.1011-.1011.1011-.2022.2022-.3033.6068-1.1124.809-2.427.6068-3.6405z" fill="#fff"/></svg>',
 			// Subscribers (the bare Newsletter page URL).
-			'a[href$="page=jetpack-newsletter"]' => '<svg height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path clip-rule="evenodd" d="m10 1.6665c-4.60287 0-8.33333 3.73098-8.33333 8.33334 0 2.41416 1.02539 4.58856 2.66601 6.11046 1.48764 1.3795 3.47982 2.2229 5.66732 2.2229s4.1797-.8434 5.6673-2.2229c1.6406-1.5219 2.666-3.6963 2.666-6.11046 0-4.60236-3.7305-8.33334-8.3333-8.33334zm-5.01953 13.3307c1.10351-1.519 2.86133-2.4974 5.01953-2.4974s3.916.9784 5.0195 2.4974c-1.2825 1.2885-3.0566 2.086-5.0195 2.086-1.96289 0-3.73698-.7975-5.01953-2.086zm5.01953-9.37236c-1.49742 0-2.70833 1.21256-2.70833 2.70833 0 1.49575 1.21091 2.70833 2.70833 2.70833 1.4974 0 2.7083-1.21258 2.7083-2.70833 0-1.49577-1.2109-2.70833-2.7083-2.70833z" fill="#fff" fill-rule="evenodd"/></svg>',
-			// Settings (carries the tab param).
-			'a[href*="jetpack-newsletter"][href*="settings"]' => '<svg height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path clip-rule="evenodd" d="m1.45833 3.75016c0-1.26565 1.02602-2.29166 2.29167-2.29166h12.5c1.2657 0 2.2917 1.02601 2.2917 2.29166v12.50004c0 1.2656-1.026 2.2916-2.2917 2.2916h-12.5c-1.26565 0-2.29167-1.026-2.29167-2.2916zm6.45834 2.5c0-.46023-.3731-.83333-.83334-.83333-.46023 0-.83333.3731-.83333.83333v4.85204c-.60239.1793-1.04167.7373-1.04167 1.398v.8333c0 .8054.65292 1.4583 1.45834 1.4583h.83333c.80542 0 1.45833-.6529 1.45833-1.4583v-.8333c0-.6607-.43925-1.2187-1.04166-1.398zm3.12503.41667c0-.80542.6529-1.45833 1.4583-1.45833h.8333c.8054 0 1.4584.65291 1.4584 1.45833v.83333c0 .66064-.4393 1.21867-1.0417 1.39792v4.85212c0 .4602-.3731.8333-.8333.8333-.4603 0-.8334-.3731-.8334-.8333v-4.85212c-.6024-.17925-1.0416-.73728-1.0416-1.39792z" fill="#fff" fill-rule="evenodd"/></svg>',
+			'a[href$="page=jetpack-newsletter"]' => '<svg fill="none" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m19 15.5c0 .8284-.6716 1.5-1.5 1.5h-15c-.82843 0-1.5-.6716-1.5-1.5v-8.09863l8.50586 5.82033.50004.3428.4961-.3477 8.498-5.94922zm-1.5-12.5c.8284 0 1.5.67157 1.5 1.5v.63086l-9.00684 6.30464-8.99316-6.15327v-.78223c0-.82843.67157-1.5 1.5-1.5z" fill="#fff"/></svg>',
+			// Replies (edit-comments.php).
+			'a[href$="edit-comments.php"]'       => '<svg fill="none" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m16 2h-12c-1.1 0-2 .9-2 2v12.9c0 .6.5 1.1 1.1 1.1.3 0 .5-.1.8-.3l2.6-2.7h9.5c1.1 0 2-.9 2-2v-9c0-1.1-.9-2-2-2z" fill="#fff"/></svg>',
 			// Paid.
-			'a[href*="jetpack-newsletter-paid"]' => '<svg height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m18.3301 15.2051c0 .8053-.6528 1.4588-1.458 1.459h-13.7471c-.80542 0-1.45801-.6536-1.45801-1.459v-6.2051h16.66311zm-7.3301-2.2051v1.5h5v-1.5zm7.3291-5.5h-16.66211v-2.70605c.00018-.80527.6527-1.45801 1.45801-1.45801h13.7461c.8035.00012 1.4567.65062 1.458 1.45508.0016.90316.0001 1.80638 0 2.70898z" fill="#fff"/></svg>',
+			'a[href*="jetpack-newsletter-paid"]' => '<svg fill="none" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m19 15.5c0 .8284-.6716 1.5-1.5 1.5h-15c-.82843 0-1.5-.6716-1.5-1.5v-6.625h18zm-1.5-12.5c.8284 0 1.5.67157 1.5 1.5v2.625h-18v-2.625c0-.82843.67157-1.5 1.5-1.5z" fill="#fff"/></svg>',
+			// Settings (carries the tab param).
+			'a[href*="jetpack-newsletter"][href*="settings"]' => '<svg fill="none" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><clipPath id="a"><path d="m0 0h20v20h-20z"/></clipPath><g clip-path="url(#a)"><path clip-rule="evenodd" d="m12.226 1.77803c-.0025-.34164-.2789-.61797-.6205-.62043l-3.3195-.02396c-.16733-.00121-.32815.06473-.44647.18306-.11831.11832-.18424.27915-.18303.44648.01364 1.8736-2.07741 3.06983-3.74144 2.1091-.29893-.17258-.68117-.07017-.85375.22874l-1.63904 2.8389c-.17258.29893-.07017.68118.22877.85377 1.66361.96049 1.67285 3.36871.04309 4.29401-.1455.0826-.25181.2201-.29515.3817-.04329.1616-.02002.3339.06471.4782l1.6805 2.8628c.17296.2946.55042.3958.84755.2271 1.682-.9548 3.77042.2509 3.78456 2.1849.00241.3417.2788.618.62041.6204l3.31949.024c.1674.0013.3282-.0648.4465-.183.1183-.1184.1843-.2792.183-.4465-.0136-1.8744 2.0759-3.0705 3.7391-2.1103.2989.1726.6812.0702.8538-.2287l1.639-2.8389c.1726-.299.0701-.6812-.2288-.8538-1.6636-.9605-1.6728-3.36878-.0431-4.29401.1456-.08259.2519-.22009.2952-.38173s.02-.33386-.0647-.47816l-1.6805-2.86279c-.173-.29468-.5505-.39584-.8475-.22714-1.6809.95423-3.7681-.25084-3.7822-2.18374zm-3.68438 10.74747c1.39502.8054 3.17878.3275 3.98428-1.0676.8054-1.395.3274-3.17879-1.0676-3.98421-1.395-.80541-3.17884-.32744-3.98425 1.06758-.80542 1.39502-.32745 3.17883 1.06757 3.98423z" fill="#fff" fill-rule="evenodd"/></g></svg>',
 		);
 
 		$css = '';
@@ -770,18 +790,22 @@ class Mode {
 	 * @return bool
 	 */
 	public static function is_mode_surface() {
-		if ( ! self::is_enabled() || ! is_admin() || ! isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! self::is_enabled() || ! is_admin() ) {
 			return false;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only page routing.
-		$page = sanitize_text_field( wp_unslash( $_GET['page'] ) );
+		// Newsletter pages, identified by the ?page= param.
+		if ( isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only page routing.
+			$page = sanitize_text_field( wp_unslash( $_GET['page'] ) );
+			if ( in_array( $page, array( Settings::ADMIN_PAGE_SLUG, self::PAGE_DASHBOARD, self::PAGE_PAID ), true ) ) {
+				return true;
+			}
+		}
 
-		return in_array(
-			$page,
-			array( Settings::ADMIN_PAGE_SLUG, self::PAGE_DASHBOARD, self::PAGE_PAID ),
-			true
-		);
+		// Posts / Replies live on their own core scripts (no ?page= param).
+		global $pagenow;
+		return in_array( $pagenow, array( 'edit.php', 'edit-comments.php' ), true );
 	}
 
 	/**
