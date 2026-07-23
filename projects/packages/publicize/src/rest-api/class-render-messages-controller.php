@@ -237,6 +237,8 @@ class Render_Messages_Controller extends Base_Controller {
 				);
 			}
 
+			require_lib( 'publicize/util/message-templates' );
+
 			return rest_ensure_response(
 				\Publicize\render_messages( $post, $items, $intent )
 			);
