@@ -38,6 +38,7 @@ const STATUSES = [ 'publish' ];
 // fetching the page of rows being displayed — which also removes the need to
 // hold every record in memory.
 const PER_PAGE = 100;
+const EMPTY_POST_TYPES: ContentData[ 'post_types' ] = [];
 
 // The shape of a core REST post type record, narrowed to what we read.
 interface SeoPostRecord {
@@ -226,17 +227,20 @@ function selectPostType( select: CoreSelect, postType: ContentPostType ): PostTy
  */
 export default function useSeoPosts(): UseSeoPostsReturn {
 	const contentData = getPreloaded< ContentData >( CONTENT_PATH );
-	const postTypes = contentData?.post_types ?? [];
-	const { records, isLoading } = useSelect( select => {
-		const selections = postTypes.map( postType => selectPostType( select, postType.slug ) );
+	const postTypes = contentData?.post_types ?? EMPTY_POST_TYPES;
+	const { records, isLoading } = useSelect(
+		select => {
+			const selections = postTypes.map( postType => selectPostType( select, postType.slug ) );
 
-		return {
-			records: selections.flatMap( selection => selection.records ),
-			// Show the loading state until *every* page of every type has
-			// resolved, so the table doesn't flash a partial list.
-			isLoading: selections.some( selection => selection.isLoading ),
-		};
-	}, [ postTypes ] );
+			return {
+				records: selections.flatMap( selection => selection.records ),
+				// Show the loading state until *every* page of every type has
+				// resolved, so the table doesn't flash a partial list.
+				isLoading: selections.some( selection => selection.isLoading ),
+			};
+		},
+		[ postTypes ]
+	);
 
 	const items = useMemo( () => records.map( toContentRow ), [ records ] );
 	const postTypeOptions = useMemo(

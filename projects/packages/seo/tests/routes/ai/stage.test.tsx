@@ -3,9 +3,10 @@ import { jest } from '@jest/globals';
 const setEnhancer = jest.fn();
 const setLlmsTxt = jest.fn();
 const useEnsureTabData = jest.fn<
-	(
-		requests: Array< { seed?: ( body: unknown ) => void } >
-	) => { status: 'loading'; retry: () => void }
+	( requests: Array< { seed?: ( body: unknown ) => void } > ) => {
+		status: 'loading';
+		retry: () => void;
+	}
 >();
 
 jest.unstable_mockModule( '@wordpress/data', () => ( {

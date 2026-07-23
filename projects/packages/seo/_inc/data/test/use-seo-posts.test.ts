@@ -43,8 +43,13 @@ function createSelect(
 			}
 			const start = ( query.page - 1 ) * PER_PAGE;
 			const size = Math.max( 0, Math.min( PER_PAGE, ( counts[ type ] ?? 0 ) - start ) );
-			// Offset page ids so every record across both types is unique.
-			const base = type === 'page' ? 100000 : type === 'post' ? 0 : 200000;
+			// Offset ids so every record across post types is unique.
+			let base = 200000;
+			if ( type === 'post' ) {
+				base = 0;
+			} else if ( type === 'page' ) {
+				base = 100000;
+			}
 			return Array.from( { length: size }, ( _, index ) => ( {
 				id: base + start + index,
 				type,
