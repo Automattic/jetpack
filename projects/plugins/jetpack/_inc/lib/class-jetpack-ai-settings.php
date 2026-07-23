@@ -10,8 +10,10 @@
  *   3. AI is on for the whole site   — the jetpack_ai_enabled option (master switch)
  *   4. the feature's own switch      — per-feature options surfaced on the AI settings page
  *
- * Gates 1 and 3 are folded into the existing `jetpack_ai_enabled` filter here, so
- * every load point that already consults that filter honors them without changes.
+ * Gates 1 and 3 are enforced by is_ai_enabled(), which plugin load points call
+ * instead of applying `jetpack_ai_enabled` directly: the gates AND in after the
+ * filter chain, so no later-priority callback can override them. The gates also
+ * ride the filter itself for package consumers that cannot reference this class.
  * Gate 4 options are registered here and consulted at each feature's registration
  * or enqueue point — a disabled feature must stop loading, not just hide.
  *
@@ -102,8 +104,11 @@ class Jetpack_AI_Settings {
 		add_action( 'init', array( __CLASS__, 'register_settings' ) );
 		add_filter( 'jetpack_sync_options_whitelist', array( __CLASS__, 'add_sync_options_whitelist' ) );
 
-		// Gates 1 (host) and 3 (master) ride the existing master filter, so all
-		// current call sites honor them.
+		// Plugin call sites use is_ai_enabled(), which applies gates 1 (host) and
+		// 3 (master) after the filter chain. This in-chain registration stays for
+		// the package consumers that cannot reference this plugin class
+		// (external-media, my-jetpack): there the gates keep their pre-helper,
+		// priority-10 behavior.
 		add_filter( 'jetpack_ai_enabled', array( __CLASS__, 'apply_master_gates' ) );
 
 		// AI surfaces that do not flow through jetpack_ai_enabled.
@@ -174,6 +179,36 @@ class Jetpack_AI_Settings {
 	 */
 	public static function apply_master_gates( $enabled ) {
 		return (bool) $enabled && self::host_allows_ai() && self::is_master_enabled();
+	}
+
+	/**
+	 * Whether Jetpack AI is enabled on this site, with the host (gate 1) and
+	 * master switch (gate 3) as final, non-overridable checks.
+	 *
+	 * Runs the `jetpack_ai_enabled` filter with the call site's default — the
+	 * chain may still enable or disable as before — then ANDs the host and
+	 * master gates after it, so no late-priority callback can turn AI back on
+	 * once either gate says no. Plugin call sites use this helper; the filter
+	 * registration in init() stays for the package consumers that cannot
+	 * reference this class.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $default The call site's computed default. Defaults differ
+	 *                      between call sites — see apply_master_gates().
+	 * @return bool
+	 */
+	public static function is_ai_enabled( $default = true ) {
+		/**
+		 * Filter whether the AI features are enabled in the Jetpack plugin.
+		 *
+		 * @since 11.8
+		 *
+		 * @param bool $default Are AI features enabled? The default varies by call site.
+		 */
+		$enabled = (bool) apply_filters( 'jetpack_ai_enabled', $default );
+
+		return $enabled && self::host_allows_ai() && self::is_master_enabled();
 	}
 
 	/**

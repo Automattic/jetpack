@@ -23,8 +23,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Required directly rather than relying on the plugin bootstrap: on
 // WordPress.com Simple the extension files load through wpcom's own loader
-// and load-jetpack.php never runs. Without it the jetpack_ai_enabled master
-// gate below would silently no-op there.
+// and load-jetpack.php never runs. Without it the is_ai_enabled() master-gate
+// check below would fatal there.
 require_once __DIR__ . '/../../../_inc/lib/class-jetpack-ai-settings.php';
 
 /**
@@ -38,7 +38,7 @@ function register_block() {
 			( new Host() )->is_wpcom_simple()
 			|| ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() )
 		)
-		&& apply_filters( 'jetpack_ai_enabled', true )
+		&& \Jetpack_AI_Settings::is_ai_enabled()
 	) {
 		Blocks::jetpack_register_block(
 			__DIR__,

@@ -35,7 +35,7 @@ function register_block() {
 	if (
 	( ( new Host() )->is_wpcom_simple()
 		|| ! ( new Status() )->is_offline_mode()
-	) && apply_filters( 'jetpack_ai_enabled', true )
+	) && \Jetpack_AI_Settings::is_ai_enabled()
 		&& \Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' )
 	) {
 		Blocks::jetpack_register_block(
@@ -73,7 +73,7 @@ function load_assets( $attr, $content ) {
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
-		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
+		if ( \Jetpack_AI_Settings::is_ai_enabled() ) {
 			if ( \Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' ) ) {
 				Jetpack_Gutenberg::set_extension_available( 'ai-content-lens' );
 				Jetpack_Gutenberg::set_extension_available( 'ai-assistant-support' );
@@ -116,7 +116,7 @@ add_action(
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
-		if ( apply_filters( 'jetpack_ai_enabled', true ) &&
+		if ( \Jetpack_AI_Settings::is_ai_enabled() &&
 			apply_filters( 'list_to_table_transform_enabled', false )
 		) {
 			\Jetpack_Gutenberg::set_extension_available( 'ai-list-to-table-transform' );
@@ -130,7 +130,7 @@ add_action(
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
-		if ( apply_filters( 'jetpack_ai_enabled', true ) &&
+		if ( \Jetpack_AI_Settings::is_ai_enabled() &&
 			apply_filters( 'ai_response_feedback_enabled', true )
 		) {
 			\Jetpack_Gutenberg::set_extension_available( 'ai-response-feedback' );

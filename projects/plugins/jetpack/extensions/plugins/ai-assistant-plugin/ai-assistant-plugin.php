@@ -29,15 +29,15 @@ require_once __DIR__ . '/../../../_inc/lib/class-jetpack-ai-settings.php';
 function register_plugin() {
 	// Connection check, the AI master switch, and the writing toggle that owns
 	// the legacy "Improve with AI" panel on the AI settings page. Grouping the
-	// connection term explicitly also makes the jetpack_ai_enabled filter
-	// (host + master gates) effective on WordPress.com Simple — the previous
+	// connection term explicitly also makes the master gate (host + master via
+	// is_ai_enabled()) effective on WordPress.com Simple — the previous
 	// precedence short-circuited it there.
 	if (
 		(
 			( new Host() )->is_wpcom_simple()
 			|| ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() )
 		)
-		&& apply_filters( 'jetpack_ai_enabled', true )
+		&& \Jetpack_AI_Settings::is_ai_enabled()
 		&& \Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' )
 	) {
 		// Register AI assistant plugin.

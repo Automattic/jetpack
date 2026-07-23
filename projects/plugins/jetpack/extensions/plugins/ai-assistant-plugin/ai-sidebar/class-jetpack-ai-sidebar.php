@@ -738,7 +738,7 @@ class Jetpack_AI_Sidebar {
 	 * @return bool
 	 */
 	private static function has_ai_features(): bool {
-		if ( ! apply_filters( 'jetpack_ai_enabled', true ) ) {
+		if ( ! \Jetpack_AI_Settings::is_ai_enabled() ) {
 			return false;
 		}
 

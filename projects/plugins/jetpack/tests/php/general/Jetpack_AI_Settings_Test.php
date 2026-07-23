@@ -34,6 +34,8 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		}
 		remove_filter( 'jetpack_ai_writing_assistant_enabled', '__return_false' );
 		remove_filter( 'wp_supports_ai', '__return_false' );
+		remove_filter( 'jetpack_ai_enabled', '__return_true', PHP_INT_MAX );
+		remove_filter( 'jetpack_ai_enabled', '__return_true', 11 );
 
 		parent::tear_down();
 	}
@@ -69,6 +71,55 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		$this->assertFalse( apply_filters( 'jetpack_ai_enabled', true ) );
 		$this->assertFalse( apply_filters( 'jetpack_search_ai_answers_enabled', true ) );
 		$this->assertFalse( apply_filters( 'jetpack_ai_sidebar_enabled', true ) );
+	}
+
+	/**
+	 * The master gate is final in is_ai_enabled(). A callback registered at the
+	 * latest possible priority can override the in-chain gate callback — that
+	 * bypass is exactly why the helper exists — but it must not get past the
+	 * helper's hard AND.
+	 */
+	public function test_is_ai_enabled_master_gate_is_final() {
+		update_option( Jetpack_AI_Settings::MASTER_OPTION, 0 );
+		add_filter( 'jetpack_ai_enabled', '__return_true', PHP_INT_MAX );
+
+		$this->assertTrue( apply_filters( 'jetpack_ai_enabled', true ), 'Precondition: a late callback overrides the in-chain gate.' );
+		$this->assertFalse( Jetpack_AI_Settings::is_ai_enabled(), 'The helper must keep AI off while the master option is off.' );
+	}
+
+	/**
+	 * The host gate is final in is_ai_enabled() too.
+	 */
+	public function test_is_ai_enabled_host_gate_is_final() {
+		if ( ! function_exists( 'wp_supports_ai' ) ) {
+			$this->markTestSkipped( 'wp_supports_ai() is not available in this WordPress version.' );
+		}
+
+		add_filter( 'wp_supports_ai', '__return_false' );
+		add_filter( 'jetpack_ai_enabled', '__return_true', PHP_INT_MAX );
+
+		$this->assertFalse( Jetpack_AI_Settings::is_ai_enabled(), 'The helper must keep AI off while the host disallows it.' );
+	}
+
+	/**
+	 * The helper forwards the call-site default into the filter, keeping
+	 * the restrictive-only contract: a self-hosted default of false must never
+	 * come back true just because every gate happens to be open.
+	 */
+	public function test_is_ai_enabled_respects_call_site_default() {
+		$this->assertFalse( Jetpack_AI_Settings::is_ai_enabled( false ), 'A call-site false must survive open gates.' );
+		$this->assertTrue( Jetpack_AI_Settings::is_ai_enabled( true ) );
+		$this->assertTrue( Jetpack_AI_Settings::is_ai_enabled(), 'The default parameter is true.' );
+	}
+
+	/**
+	 * The filter chain still runs inside is_ai_enabled(): a callback may enable AI
+	 * from a false default — the gates only ever subtract.
+	 */
+	public function test_is_ai_enabled_filter_can_enable_when_gates_open() {
+		add_filter( 'jetpack_ai_enabled', '__return_true', 11 );
+
+		$this->assertTrue( Jetpack_AI_Settings::is_ai_enabled( false ) );
 	}
 
 	/**
