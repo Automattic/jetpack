@@ -833,7 +833,7 @@ class Initializer {
 
 	/**
 	 * Site identity used to render the homepage search/social previews on the
-	 * Settings tab: title, URL, and representative images. The front-page
+	 * Settings tab: title, tagline, URL, and representative images. The front-page
 	 * description that completes the preview is read from the Settings form
 	 * (it's editable there), not bootstrapped here.
 	 *
@@ -846,10 +846,11 @@ class Initializer {
 		$logo_url = $logo_id ? (string) wp_get_attachment_image_url( $logo_id, 'full' ) : '';
 
 		return array(
-			'title' => (string) get_bloginfo( 'name' ),
-			'url'   => (string) home_url(),
-			'icon'  => $icon_url,
-			'image' => $logo_url ? $logo_url : $icon_url,
+			'title'   => (string) get_bloginfo( 'name' ),
+			'tagline' => (string) get_bloginfo( 'description' ),
+			'url'     => (string) home_url(),
+			'icon'    => $icon_url,
+			'image'   => $logo_url ? $logo_url : $icon_url,
 		);
 	}
 
