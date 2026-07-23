@@ -1959,7 +1959,6 @@ abstract class Publicize_Base {
 			return ! is_wp_error( $api_data_response ) ? $api_data_response : array();
 		}
 
-		$rest_controller   = new REST_Controller();
 		$response          = Client::wpcom_json_api_request_as_blog(
 			sprintf( 'sites/%d/jetpack-social', absint( $blog_id ) ),
 			'2',
@@ -1970,7 +1969,7 @@ abstract class Publicize_Base {
 			null,
 			'wpcom'
 		);
-		$api_data_response = $rest_controller->make_proper_response( $response );
+		$api_data_response = Publicize_Utils::make_proper_response( $response );
 
 		if ( ! is_wp_error( $api_data_response ) ) {
 			set_transient( $key, $api_data_response, DAY_IN_SECONDS );
