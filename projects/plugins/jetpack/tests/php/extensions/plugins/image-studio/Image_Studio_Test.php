@@ -872,21 +872,19 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that clips and the image editor toggle independently: switching the
-	 * image editor off hides the image surfaces but must not change the clip
-	 * generation outcome — the two features are independent by contract,
-	 * sharing only the environment checks. Compares against a baseline rather
-	 * than asserting an absolute, so the test holds in environments where the
-	 * video-upload capability differs (e.g. the wpcomsh job).
+	 * Test that Feature Clip is nested under the image editor: switching the
+	 * image editor off must turn clip generation off too. The image editor gate
+	 * short-circuits before the wpcom video-upload capability check, so clip
+	 * generation is unconditionally false here — the assertion holds in every
+	 * environment, including the wpcomsh job.
 	 */
-	public function test_can_generate_video_clips_independent_of_image_editor_toggle() {
+	public function test_can_generate_video_clips_requires_image_editor_toggle() {
 		$this->enable_big_sky();
-		$baseline = ImageStudio\image_studio_can_generate_video_clips();
 
 		update_option( 'jetpack_ai_image_editor_enabled', 0 );
 
 		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
-		$this->assertSame( $baseline, ImageStudio\image_studio_can_generate_video_clips() );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
 
 		delete_option( 'jetpack_ai_image_editor_enabled' );
 	}
@@ -2197,6 +2195,37 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 		remove_filter( 'jetpack_ai_enabled', '__return_false' );
 
+		// Restore for any later tests that depend on the meta being present.
+		ImageStudio\register_feature_clip_post_meta();
+	}
+
+	/**
+	 * Test the nesting split: Feature Clip *generation* is gated on the image
+	 * editor, but a post's existing clip *meta* must stay readable when the
+	 * image editor is off. The meta registration follows the shared environment
+	 * and the clips toggle only — never the image editor — so a post that
+	 * already carries a clip keeps its meta even while generation is turned off.
+	 */
+	public function test_feature_clip_meta_stays_readable_when_image_editor_off() {
+		$this->enable_big_sky();
+		update_option( 'jetpack_ai_image_editor_enabled', 0 );
+
+		// Registration deliberately ignores the image editor toggle.
+		unregister_post_meta( 'post', ImageStudio\FEATURE_CLIP_META_KEY );
+		ImageStudio\register_feature_clip_post_meta();
+
+		$registered = get_registered_meta_keys( 'post', 'post' );
+		$this->assertArrayHasKey(
+			ImageStudio\FEATURE_CLIP_META_KEY,
+			$registered,
+			'Clip meta must stay registered/readable with the image editor off.'
+		);
+
+		// Generation, on the other hand, is gated on the image editor and is off.
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
+
+		delete_option( 'jetpack_ai_image_editor_enabled' );
 		// Restore for any later tests that depend on the meta being present.
 		ImageStudio\register_feature_clip_post_meta();
 	}

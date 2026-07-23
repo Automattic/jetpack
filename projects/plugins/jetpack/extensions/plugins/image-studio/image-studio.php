@@ -158,10 +158,10 @@ function has_jetpack_ai_features() {
 /**
  * Check whether the video clip generation flow can run on the current site.
  *
- * The shared Image Studio environment is always required — video clip
- * generation is only offered on the same plans/environments that surface
- * Image Studio itself, on WPCOM and off, but it does NOT require the image
- * editor toggle: the two features toggle independently by contract.
+ * Feature Clip is nested under the image editor: generation requires the image
+ * editor to be enabled (`is_image_studio_enabled()` — the shared environment
+ * plus the image editor toggle) as well as clips' own toggle. Image Studio is
+ * the same set of plans/environments on WPCOM and off.
  * On WPCOM the helper also mirrors the server-side
  * `wpcom_site_can_upload_videos()` capability check so the client and server
  * agree. Off-WPCOM (self-hosted Jetpack, standalone VideoPress, dev
@@ -171,10 +171,11 @@ function has_jetpack_ai_features() {
  * @return bool
  */
 function image_studio_can_generate_video_clips() {
-	// Clips and the image editor toggle independently by contract: only the
-	// shared environment and clips' own toggle gate generation here — the
-	// image editor toggle must not flow into clips.
-	if ( ! is_image_studio_environment_available() ) {
+	// Feature Clip is nested under the image editor: the image editor toggle
+	// (via is_image_studio_enabled(), which also covers the shared environment)
+	// and clips' own toggle both gate generation. With the image editor off,
+	// clips cannot generate.
+	if ( ! is_image_studio_enabled() ) {
 		return false;
 	}
 

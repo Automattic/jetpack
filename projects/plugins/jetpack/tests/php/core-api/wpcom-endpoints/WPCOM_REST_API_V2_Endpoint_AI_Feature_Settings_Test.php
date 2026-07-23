@@ -16,9 +16,10 @@ use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
-// Defines the Image Studio environment predicate the feature_clip availability
-// reads. The endpoint falls back to available when it is absent, so it has to be
-// loaded here for these assertions to exercise the predicate at all.
+// Defines the is_image_studio_enabled() predicate the feature_clip availability
+// reads (shared environment plus the image editor toggle). The endpoint falls
+// back to available when it is absent, so it has to be loaded here for these
+// assertions to exercise the predicate at all.
 require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
 
 /**
@@ -284,12 +285,11 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	}
 
 	/**
-	 * Availability reports the shared Image Studio *environment* only. Feature
-	 * Clip and the image editor toggle independently by contract, so turning the
-	 * image editor off must leave the clip row available — it only turns the
-	 * image surfaces off, not clip generation.
+	 * Feature Clip is nested under the image editor: with the image editor
+	 * toggle off, availability reports false. The settings page keys the greyed
+	 * (but still visible) nested clip row off this field.
 	 */
-	public function test_feature_clip_available_is_independent_of_image_editor_toggle() {
+	public function test_feature_clip_unavailable_when_image_editor_off() {
 		wp_set_current_user( self::$admin_id );
 		self::connect_owner();
 
@@ -298,7 +298,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		$data = $this->dispatch( 'GET' )->get_data();
 
 		$this->assertFalse( $data['features']['image_editor']['enabled'] );
-		$this->assertTrue( $data['features']['feature_clip']['available'] );
+		$this->assertFalse( $data['features']['feature_clip']['available'] );
 	}
 
 	/**
