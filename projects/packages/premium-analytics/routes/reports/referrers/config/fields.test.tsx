@@ -47,7 +47,7 @@ describe( 'referrer field', () => {
 		} );
 
 		const link = screen.getByRole( 'link', {
-			name: ( accessibleName: string ) => accessibleName.startsWith( 'google.com' ),
+			name: 'google.com (opens in a new tab)',
 		} );
 		expect( link ).toHaveAttribute( 'href', 'https://www.google.com/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
