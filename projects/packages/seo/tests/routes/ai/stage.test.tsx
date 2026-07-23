@@ -2,6 +2,7 @@ import { jest } from '@jest/globals';
 
 const setEnhancer = jest.fn();
 const setLlmsTxt = jest.fn();
+const setCrawlers = jest.fn();
 const useEnsureTabData = jest.fn<
 	( requests: Array< { seed?: ( body: unknown ) => void } > ) => {
 		status: 'loading';
@@ -10,7 +11,7 @@ const useEnsureTabData = jest.fn<
 >();
 
 jest.unstable_mockModule( '@wordpress/data', () => ( {
-	useDispatch: () => ( { setEnhancer, setLlmsTxt } ),
+	useDispatch: () => ( { setEnhancer, setLlmsTxt, setCrawlers } ),
 	useSelect: jest.fn(),
 } ) );
 jest.unstable_mockModule( '../../../_inc/components/dashboard-load-error', () => ( {
@@ -63,10 +64,12 @@ describe( 'AI route stage', () => {
 		const ai = {
 			enhancer: { available: true, enabled: false },
 			llmsTxt: { enabled: true, url: 'https://example.com/llms.txt', canServe: true },
+			crawlers: { catalog: [], overrides: {} },
 		};
 		seed( ai );
 
 		expect( setEnhancer ).toHaveBeenCalledWith( ai.enhancer );
 		expect( setLlmsTxt ).toHaveBeenCalledWith( ai.llmsTxt );
+		expect( setCrawlers ).toHaveBeenCalledWith( ai.crawlers );
 	} );
 } );

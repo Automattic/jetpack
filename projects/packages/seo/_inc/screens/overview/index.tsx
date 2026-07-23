@@ -7,9 +7,11 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Notice } from '@wordpress/ui';
 import EnableSeoCard from '../../components/enable-seo-card';
+import { aiStore } from '../../data/ai-store';
 import { coverageStore } from '../../data/coverage-store';
 import getOverview from '../../data/get-overview';
 import { settingsStore } from '../../data/settings-store';
+import AiCrawlerCard from './ai-crawler-card';
 import ContentCoverageCard from './content-coverage-card';
 import DisableSeoTools from './disable-seo-tools';
 import SiteVerificationCard from './site-verification-card';
@@ -31,6 +33,11 @@ const OverviewScreen: FC = () => {
 	// here until a full reload. The "View" link itself lives on the Settings tab.
 	const settings = useSelect( select => select( settingsStore ).getSettings(), [] );
 
+	// AI-crawler state lives in the same store the GEO tab uses (seeded from the
+	// page's `ai` preload), so the Overview reads it directly rather than adding a
+	// crawler slice to the Overview payload.
+	const crawlers = useSelect( select => select( aiStore ).getCrawlers(), [] );
+
 	// Deep-link to a Settings section: navigate to the Settings route with
 	// `?focus=`, which the Settings screen reads to scroll the section to top.
 	const goToSection = useCallback(
@@ -41,6 +48,9 @@ const OverviewScreen: FC = () => {
 
 	// Deep-link to the Content route.
 	const goToContent = useCallback( () => navigate( { href: '/content' } ), [ navigate ] );
+
+	// Deep-link to the GEO route (AI crawler management).
+	const goToAi = useCallback( () => navigate( { href: '/ai' } ), [ navigate ] );
 
 	if ( ! data ) {
 		return (
@@ -88,6 +98,15 @@ const OverviewScreen: FC = () => {
 					data={ data.site_verification }
 					onManage={ () => goToSection( 'verification' ) }
 				/>
+				{ crawlers && (
+					<AiCrawlerCard
+						data={ crawlers }
+						searchEnginesVisible={
+							settings?.search_engines_visible ?? crawlers.searchEnginesVisible
+						}
+						onManage={ goToAi }
+					/>
+				) }
 			</div>
 			<div className={ styles.contentCard }>
 				<ContentCoverageCard data={ coverage ?? data.content_coverage } onManage={ goToContent } />

@@ -93,6 +93,14 @@ class DashboardDataTest extends SeoTestCase {
 			$this->assertIsBool( $ai['llmsTxt']['enabled'] );
 			$this->assertIsString( $ai['llmsTxt']['url'] );
 			$this->assertIsBool( $ai['llmsTxt']['canServe'] );
+			$this->assertArrayHasKey( 'crawlers', $ai );
+			$this->assertIsArray( $ai['crawlers']['catalog'] );
+			// A sparse map, cast to an object by get_bootstrap_data() so an empty
+			// override set serializes as `{}` rather than `[]` — the same reason
+			// `title_formats` is cast in get_settings_data().
+			$this->assertIsObject( $ai['crawlers']['overrides'] );
+			$this->assertIsBool( $ai['crawlers']['dataSharingOptOut'] );
+			$this->assertIsBool( $ai['crawlers']['pathBasedMultisite'] );
 		} finally {
 			remove_filter( 'ai_seo_enhancer_enabled', '__return_false' );
 		}

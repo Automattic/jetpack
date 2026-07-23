@@ -169,6 +169,9 @@ class Initializer {
 			// action, so it no-ops off the front end and stays behind the same gates as
 			// the schema above.
 			Llms_Txt::init();
+			// GEO tab front-end behavior: robots.txt directives for blocked AI crawlers.
+			// Self-hooks the `robots_txt` filter, so it stays inert off the front end.
+			Ai_Crawlers::init();
 			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ) );
 			// Package-owned route for the site-level Schema settings (see the controller).
 			add_action( 'rest_api_init', array( Schema_Settings_Controller::class, 'register_routes' ) );

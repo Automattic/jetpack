@@ -264,6 +264,7 @@ class Dashboard_Data {
 				'url'      => home_url( '/llms.txt' ),
 				'canServe' => Llms_Txt::can_serve(),
 			),
+			'crawlers' => Ai_Crawlers::get_bootstrap_data(),
 		);
 	}
 

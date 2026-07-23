@@ -43,7 +43,7 @@ const AiReady = () => {
 };
 
 const Stage = () => {
-	const { setEnhancer, setLlmsTxt } = useDispatch( aiStore );
+	const { setEnhancer, setLlmsTxt, setCrawlers } = useDispatch( aiStore );
 	// AI gates on the seo-tools state, which lives in the Overview slice, so ensure
 	// both are available. Every slice of a recovered AI payload is pushed into
 	// the store so the form (seeded from it) reflects it.
@@ -55,6 +55,7 @@ const Stage = () => {
 				const ai = body as AiState;
 				setEnhancer( ai.enhancer );
 				setLlmsTxt( ai.llmsTxt );
+				setCrawlers( ai.crawlers );
 			},
 		},
 	] );

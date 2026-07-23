@@ -60,7 +60,7 @@ class InitializerTest extends TestCase {
 
 	/**
 	 * With the feature flag on, the surface discoverable, and the `seo-tools` module
-	 * active, `init()` registers the front-end schema, llms.txt, and admin/REST hooks.
+	 * active, `init()` registers the front-end schema, GEO, and admin/REST hooks.
 	 * We drive module state through the `jetpack_active_modules` filter (the package test
 	 * context has no on-disk modules), mark the cohort surface visible so init() passes
 	 * its discoverability gate, and reset the one-shot `$initialized` guard so the body runs.
@@ -90,6 +90,9 @@ class InitializerTest extends TestCase {
 			);
 			$this->assertNotFalse(
 				has_action( 'template_redirect', array( Llms_Txt::class, 'maybe_serve' ) )
+			);
+			$this->assertNotFalse(
+				has_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ) )
 			);
 			$this->assertNotFalse(
 				has_action( 'admin_menu', array( Admin_Page::class, 'maybe_load_wp_build' ) )
