@@ -20,6 +20,7 @@ Main chart component for displaying ranked data with optional comparison values.
 | `valueFormatter` | `(value: number) => string` | `defaultValueFormatter` | Custom formatter for values |
 | `deltaFormatter` | `(value: number) => string` | `defaultDeltaFormatter` | Custom formatter for delta values |
 | `loading` | `boolean` | `false` | Whether the chart is in loading state |
+| `fitRows` | `boolean` | `false` | Show only complete rows that fit the chart height instead of scrolling. Needs a height-constrained container; refits are debounced on the responsive export. |
 | `animation` | `boolean` | `false` | Enable entry animation on initial render. Bars stretch from left to right. Automatically respects user's `prefers-reduced-motion` system setting |
 | `showLegend` | `boolean` | `false` | Whether to display the legend |
 | `legend` | `ChartLegendConfig` | `undefined` | Legend configuration object. See [ChartLegendConfig](#chartlegendconfig-type). Supports `shapeStyles` for controlling legend shape dimensions. When `interactive` is enabled, legend items are clickable to toggle series visibility. **Note:** For props-based legends, use `showLegend={true}`. For composition API, render an interactive legend child (for example, `<LeaderboardChart.Legend interactive />`) so it can use chart context. |

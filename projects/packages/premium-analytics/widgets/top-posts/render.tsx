@@ -20,6 +20,7 @@ import {
 	buildCsvDateRangeFilename,
 	calculateDelta,
 	getCombinedPeriodMax,
+	safeHttpUrl,
 	sharePercentage,
 	usePostDetailHrefBuilder,
 	useWidgetDrillDown,
@@ -243,13 +244,14 @@ function toTopPostRows(
 ): TopPostRow[] {
 	return items.map( item => {
 		const postId = Number( item.id );
+		const href = safeHttpUrl( item.link );
 
 		return {
 			// A row without a title still needs a visible, clickable label.
 			label: String( item.label ?? '' ) || __( 'Untitled', 'jetpack-premium-analytics' ),
 			value: item.views,
 			...( item.previousViews !== undefined ? { previousValue: item.previousViews } : {} ),
-			...( typeof item.link === 'string' && item.link !== '' ? { href: item.link } : {} ),
+			...( href ? { href } : {} ),
 			// The homepage entry (id 0) has no post-detail page.
 			...( Number.isFinite( postId ) && postId > 0
 				? { detailHref: buildDetailHref( postId ) }
@@ -428,6 +430,7 @@ function toArchiveRows( items: StatsArchivesComparisonItem[], isTopLevel = true 
 	return items.map( item => {
 		const rawLabel = String( item.label ?? '' );
 		const children = item.children?.length ? toArchiveRows( item.children, false ) : undefined;
+		const href = safeHttpUrl( item.link );
 
 		let label = rawLabel;
 		if ( isTopLevel ) {
@@ -441,7 +444,7 @@ function toArchiveRows( items: StatsArchivesComparisonItem[], isTopLevel = true 
 			value: item.value,
 			type: 'archive',
 			...( item.previousValue !== undefined ? { previousValue: item.previousValue } : {} ),
-			...( typeof item.link === 'string' && item.link !== '' ? { href: item.link } : {} ),
+			...( href ? { href } : {} ),
 			...( children ? { children } : {} ),
 		};
 	} );

@@ -5,6 +5,7 @@ import {
 	MetricValue,
 	WidgetRoot,
 	WidgetState,
+	safeHttpUrl,
 	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -96,21 +97,27 @@ function MetricTile( { label, value }: MetricTileProps ) {
  */
 export const LatestPostCard = ( { post }: LatestPostCardProps ) => {
 	const publishDate = formatPublishDate( post.date );
+	const postHref = safeHttpUrl( post.url );
 
 	return (
 		<div className={ styles.root }>
 			<div className={ styles.content }>
 				<div className={ styles.header }>
 					<Text className={ styles.title } variant="heading-2xl" render={ <h3 /> }>
-						<Link
-							className={ styles.titleLink }
-							href={ post.url }
-							variant="unstyled"
-							openInNewTab
-							title={ post.title }
-						>
-							{ post.title }
-						</Link>
+						{ postHref ? (
+							<Link
+								className={ styles.titleLink }
+								href={ postHref }
+								variant="unstyled"
+								openInNewTab
+								title={ post.title }
+							>
+								{ post.title }
+							</Link>
+						) : (
+							// `.title` clamps to three lines, so keep the tooltip the link branch carries.
+							<span title={ post.title }>{ post.title }</span>
+						) }
 					</Text>
 					{ publishDate && (
 						<Text className={ styles.date } variant="body-md">

@@ -11,25 +11,33 @@ jetpack watch plugins/premium-analytics
 
 ## Installable zip
 
-Use the local build script to create a WordPress-installable plugin zip that
-combines this plugin bootstrap with the mirrored Premium Analytics package:
+Use the local build script to create a WordPress-installable plugin zip from the
+**current monorepo working tree**:
 
 ```bash
 composer build-zip
 ```
 
-By default, the script clones `trunk` from
-`https://github.com/Automattic/jetpack-premium-analytics.git` and writes the zip
-to `jetpack-premium-analytics.zip` in this plugin directory.
+The script:
 
-Useful options:
+1. Builds the plugin for production in place (`jetpack build plugins/premium-analytics --production`),
+   which installs the production autoloader and compiles the bundled
+   Premium Analytics package.
+2. Stages the production file set with the same file-collection `jetpack rsync`
+   uses — filtered by `.gitattributes`, following the `jetpack_vendor/*` package
+   symlinks — so dev-only source, configs, and dev dependencies are left out.
+3. Writes `jetpack-premium-analytics.zip` to this plugin directory.
 
-```bash
-composer build-zip -- --package-ref <branch|tag|sha>
-composer build-zip -- --package-path /path/to/jetpack-premium-analytics
-```
+Because it builds from the working tree, any in-progress local edits to the
+plugin or the bundled package are reflected in the zip.
 
-The package source must already contain the `build/build.php` output generated
-by `wp-build`. The package mirror is expected to contain this output. A local
-monorepo package checkout usually needs to be built before it can be used with
-`--package-path`.
+### Requirements
+
+- A set-up monorepo dev environment (run `pnpm install` at the repo root first).
+- Standard `rsync`. macOS ships openrsync, which cannot sync the package
+  symlinks and would silently produce an empty archive; install real rsync with
+  `brew install rsync`. The script fails fast if it detects openrsync.
+
+> **Note:** The build performs a production install (`composer install --no-dev`)
+> in your working tree. Re-run `jetpack build plugins/premium-analytics`
+> afterwards to restore your dev dependencies.
