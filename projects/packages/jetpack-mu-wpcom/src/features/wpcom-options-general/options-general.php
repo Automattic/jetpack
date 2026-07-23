@@ -73,7 +73,7 @@ function wpcom_fiverr_cta() {
 			<?php
 			printf(
 				/* translators: %1$s: opening link tag to the Site Editor identity screen, %2$s: closing link tag. */
-				esc_html__( 'Displays in your site\'s layout via the Site Logo block. %1$sYou can change your site logo in the site editor%2$s', 'jetpack-mu-wpcom' ),
+				esc_html__( 'Displays in your site\'s layout via the Site Logo block. %1$sYou can change your site logo in the site editor%2$s.', 'jetpack-mu-wpcom' ),
 				'<a href="' . esc_url( admin_url( 'site-editor.php?p=%2Fidentity' ) ) . '">',
 				'</a>'
 			);
