@@ -10,7 +10,7 @@ import { productBlouse } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/ui';
 import { useMemo } from 'react';
-import { LeaderboardChart, LeaderboardLabel } from '../../components/chart-leaderboard';
+import { buildLeaderboardRow, LeaderboardChart } from '../../components/chart-leaderboard';
 import { useWidgetRootContext } from '../../components/widget-root';
 import { WidgetState } from '../../components/widget-state';
 /**
@@ -167,7 +167,11 @@ export function TopPerformingProductLeaderboardWidget( {
 
 				return {
 					id: String( product.product_id || index ),
-					label: <LeaderboardLabel label={ label } imageUrl={ imageUrl } imageAlt={ imageAlt } />,
+					...buildLeaderboardRow( {
+						label,
+						media: { kind: 'thumbnail', url: imageUrl, alt: imageAlt },
+						action: { kind: 'static' },
+					} ),
 					currentValue,
 					currentShare: sharePercentage( currentValue, maxCurrentValue ),
 					previousValue,

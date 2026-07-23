@@ -144,7 +144,7 @@ class Blaze {
 		/**
 		 * Filter the menu page slug used for the Blaze dashboard.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.28.0
 		 *
 		 * @param string $menu_slug The menu page slug. Default 'advertising'.
 		 */
@@ -165,7 +165,7 @@ class Blaze {
 		/**
 		 * Filter the menu label for the Blaze dashboard menu item.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.28.0
 		 *
 		 * @param string $menu_label The menu label. Default 'Blaze Ads'.
 		 */
@@ -174,7 +174,7 @@ class Blaze {
 		/**
 		 * Filter the CSS class prefix for the Blaze dashboard.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.28.0
 		 *
 		 * @param string $css_prefix The CSS class prefix. Default 'jp-blaze'.
 		 */
@@ -242,7 +242,7 @@ class Blaze {
 		 * menu slug, the package skips registering its own Blaze Ads menu to avoid a
 		 * duplicate entry.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.28.0
 		 *
 		 * @param bool $is_active Whether the standalone Blaze Ads plugin is active.
 		 */
@@ -267,7 +267,7 @@ class Blaze {
 					/**
 					 * Filter the parent menu slug for the Blaze dashboard submenu item.
 					 *
-					 * @since $$next-version$$
+					 * @since 0.28.0
 					 *
 					 * @param string $parent The parent menu slug.
 					 */
@@ -303,7 +303,7 @@ class Blaze {
 		 * Filter whether to show the temporary migration notice at the old
 		 * Tools > Advertising location.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.28.0
 		 *
 		 * @param bool $show_notice Whether to show the migration notice. Default true.
 		 */
@@ -458,7 +458,7 @@ class Blaze {
 			 * Filter the standalone Blaze Ads plugin's menu slug used as the redirect
 			 * target when this package defers to it.
 			 *
-			 * @since $$next-version$$
+			 * @since 0.28.0
 			 *
 			 * @param string $standalone_slug The standalone menu slug. Default 'wp-blaze'.
 			 */

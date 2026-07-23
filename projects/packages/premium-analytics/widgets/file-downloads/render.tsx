@@ -15,6 +15,7 @@ import { download } from '@wordpress/icons';
 import { Link } from '@wordpress/ui';
 import {
 	calculateDelta,
+	safeHttpUrl,
 	LeaderboardChart,
 	ReportLink,
 	sharePercentage,
@@ -203,7 +204,8 @@ function toFileDownloadRows( items: StatsFileDownloadsComparisonItem[] ): FileDo
 		label: item.shortLabel ?? String( item.label ?? '' ),
 		value: item.downloads,
 		previousValue: item.previousDownloads,
-		href: item.link,
+		// The endpoint falls back to a root-relative `relative_url` here.
+		href: safeHttpUrl( item.link, { allowRelative: true } ) ?? undefined,
 	} ) );
 }
 

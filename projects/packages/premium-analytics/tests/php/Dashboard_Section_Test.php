@@ -57,6 +57,8 @@ class Dashboard_Section_Test extends BaseTestCase {
 		remove_all_actions( 'doing_it_wrong_run' );
 		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
 
+		wp_set_current_user( 0 );
+
 		parent::tear_down();
 	}
 
@@ -102,6 +104,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame( $section, $registry->get_registered( 'example_dashboard', 'example/traffic' ) );
 		$this->assertSame( 'example_dashboard', $section->dashboard_name );
 		$this->assertSame( 'example/traffic', $section->id );
+		$this->assertSame( 'traffic', $section->slug );
 		$this->assertSame( 'Traffic', $section->label );
 		$this->assertSame( 15, $section->order );
 		$this->assertSame( $layout, $section->get_default_layout() );
@@ -163,6 +166,27 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Slugs are derived from the section ID segment after the namespace.
+	 */
+	public function test_section_slug_is_derived_from_id() {
+		register_default_dashboard_sections();
+
+		$expected = array(
+			'analytics/traffic'     => 'traffic',
+			'analytics/insights'    => 'insights',
+			'analytics/subscribers' => 'subscribers',
+			'woocommerce/store'     => 'store',
+		);
+
+		foreach ( $expected as $id => $slug ) {
+			$section = get_registered_dashboard_section( DASHBOARD_NAME, $id );
+
+			$this->assertInstanceOf( Dashboard_Section::class, $section );
+			$this->assertSame( $slug, $section->slug );
+		}
+	}
+
+	/**
 	 * The built-in traffic section resolves its layout from the dashboard default.
 	 */
 	public function test_traffic_section_default_layout_uses_dashboard_default() {
@@ -202,6 +226,20 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Section to_array() carries its default layout.
+	 */
+	public function test_to_array_includes_default_layout() {
+		register_default_dashboard_sections();
+
+		$traffic = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/traffic' );
+		$data    = $traffic->to_array();
+
+		$this->assertArrayHasKey( 'default_layout', $data );
+		$this->assertSame( $traffic->get_default_layout(), $data['default_layout'] );
+		$this->assertNotEmpty( $data['default_layout'] );
+	}
+
+	/**
 	 * Dashboard names can omit underscores when they match the REST route grammar.
 	 */
 	public function test_accepts_dashboard_names_without_underscores() {
@@ -227,11 +265,11 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				array(
-					'id'              => 'analytics/traffic',
-					'label'           => 'Traffic',
-					'order'           => 10,
-					'layout'          => array(),
-					'hasCustomLayout' => false,
+					'id'             => 'analytics/traffic',
+					'slug'           => 'traffic',
+					'label'          => 'Traffic',
+					'order'          => 10,
+					'default_layout' => array(),
 				),
 			),
 			$response->get_data()
@@ -343,23 +381,31 @@ class Dashboard_Section_Test extends BaseTestCase {
 			array(
 				array(
 					'id'    => 'analytics/traffic',
+					'slug'  => 'traffic',
 					'label' => 'Traffic',
 					'order' => 10,
 				),
 				array(
 					'id'    => 'analytics/insights',
+					'slug'  => 'insights',
 					'label' => 'Insights',
 					'order' => 20,
 				),
 				array(
 					'id'    => 'analytics/subscribers',
+					'slug'  => 'subscribers',
 					'label' => 'Subscribers',
 					'order' => 30,
 				),
 			),
 			array_map(
 				static function ( Dashboard_Section $section ) {
-					return $section->to_array();
+					// Assert on the metadata shape here; the default layout is
+					// covered by test_to_array_includes_default_layout().
+					$data = $section->to_array();
+					unset( $data['default_layout'] );
+
+					return $data;
 				},
 				get_available_dashboard_sections( DASHBOARD_NAME )
 			)
@@ -378,7 +424,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertInstanceOf( Dashboard_Section::class, $woocommerce );
 		$this->assertTrue( $woocommerce->is_available() );
-		$this->assertSame( 'WooCommerce', $woocommerce->label );
+		$this->assertSame( 'Store', $woocommerce->label );
 		$this->assertSame( 40, $woocommerce->order );
 		$this->assertSame(
 			array(
@@ -481,18 +527,18 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				array(
-					'id'              => 'example/first',
-					'label'           => 'First',
-					'order'           => 10,
-					'layout'          => array(),
-					'hasCustomLayout' => false,
+					'id'             => 'example/first',
+					'slug'           => 'first',
+					'label'          => 'First',
+					'order'          => 10,
+					'default_layout' => array(),
 				),
 				array(
-					'id'              => 'example/later',
-					'label'           => 'Later',
-					'order'           => 20,
-					'layout'          => array(),
-					'hasCustomLayout' => false,
+					'id'             => 'example/later',
+					'slug'           => 'later',
+					'label'          => 'Later',
+					'order'          => 20,
+					'default_layout' => array(),
 				),
 			),
 			$response->get_data()
@@ -500,23 +546,55 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Sections route includes resolved default layouts.
+	 * Sections route includes the store section only when WooCommerce is detected.
 	 */
-	public function test_sections_route_resolves_default_layouts() {
-		$default_layout = array(
-			array(
-				'uuid' => 'default-route-widget',
-				'type' => 'example/widget',
-			),
+	public function test_sections_route_reflects_woocommerce_availability() {
+		register_default_dashboard_sections();
+
+		$this->set_admin_user();
+
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+
+		$response = rest_get_server()->dispatch(
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/' . DASHBOARD_NAME . '/sections' )
 		);
 
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame(
+			array( 'traffic', 'insights', 'subscribers' ),
+			array_column( $response->get_data(), 'slug' )
+		);
+
+		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+
+		$response = rest_get_server()->dispatch(
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/' . DASHBOARD_NAME . '/sections' )
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame(
+			array( 'traffic', 'insights', 'subscribers', 'store' ),
+			array_column( $response->get_data(), 'slug' )
+		);
+	}
+
+	/**
+	 * Sections route responses carry the definition fields and the default layout.
+	 */
+	public function test_sections_route_returns_section_shape() {
 		register_dashboard_section(
 			'route_sections_dashboard',
 			'analytics/traffic',
 			array(
 				'label'          => 'Traffic',
 				'order'          => 10,
-				'default_layout' => $default_layout,
+				'default_layout' => array(
+					array(
+						'uuid' => 'default-route-widget',
+						'type' => 'example/widget',
+					),
+				),
 			)
 		);
 
@@ -530,59 +608,16 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				array(
-					'id'              => 'analytics/traffic',
-					'label'           => 'Traffic',
-					'order'           => 10,
-					'layout'          => $default_layout,
-					'hasCustomLayout' => false,
-				),
-			),
-			$response->get_data()
-		);
-	}
-
-	/**
-	 * Sections route treats an empty stored layout as a deliberate customization.
-	 */
-	public function test_sections_route_resolves_customized_empty_layouts() {
-		$default_layout = array(
-			array(
-				'uuid' => 'default-route-widget',
-				'type' => 'example/widget',
-			),
-		);
-
-		register_dashboard_section(
-			'route_sections_dashboard',
-			'analytics/traffic',
-			array(
-				'label'          => 'Traffic',
-				'order'          => 10,
-				'default_layout' => $default_layout,
-			)
-		);
-
-		$user_id = $this->set_admin_user();
-		$this->set_section_layouts_preference(
-			$user_id,
-			array(
-				'analytics/traffic' => array(),
-			)
-		);
-
-		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/route_sections_dashboard/sections' )
-		);
-
-		$this->assertSame( 200, $response->get_status() );
-		$this->assertSame(
-			array(
-				array(
-					'id'              => 'analytics/traffic',
-					'label'           => 'Traffic',
-					'order'           => 10,
-					'layout'          => array(),
-					'hasCustomLayout' => true,
+					'id'             => 'analytics/traffic',
+					'slug'           => 'traffic',
+					'label'          => 'Traffic',
+					'order'          => 10,
+					'default_layout' => array(
+						array(
+							'uuid' => 'default-route-widget',
+							'type' => 'example/widget',
+						),
+					),
 				),
 			),
 			$response->get_data()
@@ -674,144 +709,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Layout route persists a custom layout for the current user.
+	 * Retired section-layout write routes are no longer registered.
 	 */
-	public function test_update_layout_route_persists_current_user_layout() {
-		$custom_layout = array(
-			array(
-				'uuid'       => 'custom-route-widget',
-				'type'       => 'example/widget',
-				'attributes' => array(
-					'example' => true,
-				),
-				'placement'  => array(
-					'width'  => 2,
-					'height' => 1,
-					'order'  => 0,
-				),
-			),
-		);
-
-		register_dashboard_section(
-			'route_layout_dashboard',
-			'analytics/traffic',
-			array(
-				'label' => 'Traffic',
-				'order' => 10,
-			)
-		);
-
-		$user_id = $this->set_admin_user();
-
-		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/traffic/layout' );
-		$request->set_param( 'layout', $custom_layout );
-
-		$response = rest_get_server()->dispatch( $request );
-
-		$this->assertSame( 200, $response->get_status() );
-		$this->assertSame(
-			array(
-				'id'              => 'analytics/traffic',
-				'label'           => 'Traffic',
-				'order'           => 10,
-				'layout'          => $custom_layout,
-				'hasCustomLayout' => true,
-			),
-			$response->get_data()
-		);
-
-		$stored = get_stored_persisted_preferences_for_user( $user_id );
-
-		$this->assertSame(
-			$custom_layout,
-			$stored[ DASHBOARD_LAYOUT_SCOPE ][ DASHBOARD_SECTION_LAYOUTS_KEY ]['analytics/traffic']
-		);
-	}
-
-	/**
-	 * Layout route does not persist the injected dashboard default layout.
-	 */
-	public function test_update_layout_route_does_not_persist_injected_dashboard_layout() {
-		$custom_layout = array(
-			array(
-				'uuid' => 'custom-route-widget',
-				'type' => 'example/widget',
-			),
-		);
-
-		register_dashboard_section(
-			'route_layout_dashboard',
-			'analytics/traffic',
-			array(
-				'label' => 'Traffic',
-				'order' => 10,
-			)
-		);
-
-		$user_id = $this->set_admin_user();
-
-		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/traffic/layout' );
-		$request->set_param( 'layout', $custom_layout );
-
-		$response = rest_get_server()->dispatch( $request );
-
-		$this->assertSame( 200, $response->get_status() );
-
-		$stored = get_stored_persisted_preferences_for_user( $user_id );
-
-		$this->assertArrayHasKey( DASHBOARD_SECTION_LAYOUTS_KEY, $stored[ DASHBOARD_LAYOUT_SCOPE ] );
-		$this->assertSame(
-			$custom_layout,
-			$stored[ DASHBOARD_LAYOUT_SCOPE ][ DASHBOARD_SECTION_LAYOUTS_KEY ]['analytics/traffic']
-		);
-		$this->assertArrayNotHasKey( DASHBOARD_LAYOUT_KEY, $stored[ DASHBOARD_LAYOUT_SCOPE ] );
-	}
-
-	/**
-	 * Layout route accepts an empty custom layout.
-	 */
-	public function test_update_layout_route_persists_empty_layout_as_custom() {
-		$default_layout = array(
-			array(
-				'uuid' => 'default-route-widget',
-				'type' => 'example/widget',
-			),
-		);
-
-		register_dashboard_section(
-			'route_layout_dashboard',
-			'analytics/traffic',
-			array(
-				'label'          => 'Traffic',
-				'order'          => 10,
-				'default_layout' => $default_layout,
-			)
-		);
-
-		$this->set_admin_user();
-
-		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/traffic/layout' );
-		$request->set_param( 'layout', array() );
-
-		$response = rest_get_server()->dispatch( $request );
-
-		$this->assertSame( 200, $response->get_status() );
-		$this->assertSame(
-			array(
-				'id'              => 'analytics/traffic',
-				'label'           => 'Traffic',
-				'order'           => 10,
-				'layout'          => array(),
-				'hasCustomLayout' => true,
-			),
-			$response->get_data()
-		);
-	}
-
-	/**
-	 * Layout route rejects invalid widget layout entries.
-	 */
-	public function test_update_layout_route_rejects_invalid_layout() {
+	public function test_retired_layout_write_routes_are_not_registered() {
 		register_dashboard_section(
 			'route_layout_dashboard',
 			'analytics/traffic',
@@ -823,352 +723,25 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->set_admin_user();
 
-		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/traffic/layout' );
-		$request->set_param(
-			'layout',
-			array(
-				array(
-					'uuid' => 'missing-type-widget',
-				),
-			)
+		$retired_requests = array(
+			'PUT section layout'    => array( 'PUT', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/traffic/layout' ),
+			'DELETE section layout' => array( 'DELETE', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/traffic/layout' ),
+			'DELETE all sections'   => array( 'DELETE', '/wpcom/v2/dashboards/route_layout_dashboard/sections' ),
 		);
 
-		$response = rest_get_server()->dispatch( $request );
+		foreach ( $retired_requests as $case => $retired_request ) {
+			list( $method, $route ) = $retired_request;
 
-		$this->assertSame( 400, $response->get_status() );
-	}
+			$request = new WP_REST_Request( $method, $route );
+			if ( 'PUT' === $method ) {
+				$request->set_param( 'layout', array() );
+			}
 
-	/**
-	 * Layout route rejects non-array widget attributes.
-	 */
-	public function test_update_layout_route_rejects_invalid_attributes() {
-		register_dashboard_section(
-			'route_layout_dashboard',
-			'analytics/traffic',
-			array(
-				'label' => 'Traffic',
-				'order' => 10,
-			)
-		);
+			$response = rest_get_server()->dispatch( $request );
 
-		$this->set_admin_user();
-
-		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/traffic/layout' );
-		$request->set_param(
-			'layout',
-			array(
-				array(
-					'uuid'       => 'invalid-attributes-widget',
-					'type'       => 'example/widget',
-					'attributes' => 'oops',
-				),
-			)
-		);
-
-		$response = rest_get_server()->dispatch( $request );
-
-		$this->assertSame( 400, $response->get_status() );
-	}
-
-	/**
-	 * Layout route requires manage_options.
-	 */
-	public function test_update_layout_route_requires_manage_options() {
-		register_dashboard_section(
-			'route_layout_dashboard',
-			'analytics/traffic',
-			array(
-				'label' => 'Traffic',
-				'order' => 10,
-			)
-		);
-
-		wp_set_current_user( 0 );
-
-		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/traffic/layout' );
-		$request->set_param( 'layout', array() );
-
-		$response = rest_get_server()->dispatch( $request );
-
-		$this->assertSame( 401, $response->get_status() );
-	}
-
-	/**
-	 * Layout route returns 404 for unknown sections.
-	 */
-	public function test_update_layout_route_returns_404_for_unknown_section() {
-		$this->set_admin_user();
-
-		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/missing/layout' );
-		$request->set_param( 'layout', array() );
-
-		$response = rest_get_server()->dispatch( $request );
-
-		$this->assertSame( 404, $response->get_status() );
-		$this->assertSame( 'dashboard_section_not_found', $response->as_error()->get_error_code() );
-	}
-
-	/**
-	 * Layout route returns 404 for unavailable sections.
-	 */
-	public function test_update_layout_route_returns_404_for_unavailable_section() {
-		register_dashboard_section(
-			'route_unavailable_dashboard',
-			'analytics/insights',
-			array(
-				'label'        => 'Insights',
-				'order'        => 10,
-				'is_available' => '__return_false',
-			)
-		);
-
-		$this->set_admin_user();
-
-		$request = new WP_REST_Request( 'PUT', '/wpcom/v2/dashboards/route_unavailable_dashboard/sections/analytics/insights/layout' );
-		$request->set_param( 'layout', array() );
-
-		$response = rest_get_server()->dispatch( $request );
-
-		$this->assertSame( 404, $response->get_status() );
-		$this->assertSame( 'dashboard_section_unavailable', $response->as_error()->get_error_code() );
-	}
-
-	/**
-	 * Delete layout route resets a section to its default layout.
-	 */
-	public function test_delete_layout_route_resets_to_default_layout() {
-		$default_layout = array(
-			array(
-				'uuid' => 'default-route-widget',
-				'type' => 'example/widget',
-			),
-		);
-		$custom_layout  = array(
-			array(
-				'uuid' => 'custom-route-widget',
-				'type' => 'example/widget',
-			),
-		);
-
-		register_dashboard_section(
-			'route_layout_dashboard',
-			'analytics/traffic',
-			array(
-				'label'          => 'Traffic',
-				'order'          => 10,
-				'default_layout' => $default_layout,
-			)
-		);
-
-		$user_id = $this->set_admin_user();
-		$this->set_section_layouts_preference(
-			$user_id,
-			array(
-				'analytics/traffic' => $custom_layout,
-			)
-		);
-
-		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'DELETE', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/traffic/layout' )
-		);
-
-		$this->assertSame( 200, $response->get_status() );
-		$this->assertSame(
-			array(
-				'id'              => 'analytics/traffic',
-				'label'           => 'Traffic',
-				'order'           => 10,
-				'layout'          => $default_layout,
-				'hasCustomLayout' => false,
-			),
-			$response->get_data()
-		);
-
-		$stored = get_stored_persisted_preferences_for_user( $user_id );
-
-		$this->assertArrayNotHasKey( DASHBOARD_SECTION_LAYOUTS_KEY, $stored[ DASHBOARD_LAYOUT_SCOPE ] );
-		$this->assertSame( 'keep-me', $stored[ DASHBOARD_LAYOUT_SCOPE ]['unrelatedPreference'] );
-	}
-
-	/**
-	 * Delete layout route returns 404 for unknown sections.
-	 */
-	public function test_delete_layout_route_returns_404_for_unknown_section() {
-		$this->set_admin_user();
-
-		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'DELETE', '/wpcom/v2/dashboards/route_layout_dashboard/sections/analytics/missing/layout' )
-		);
-
-		$this->assertSame( 404, $response->get_status() );
-		$this->assertSame( 'dashboard_section_not_found', $response->as_error()->get_error_code() );
-	}
-
-	/**
-	 * Delete layout route returns 404 for unavailable sections.
-	 */
-	public function test_delete_layout_route_returns_404_for_unavailable_section() {
-		register_dashboard_section(
-			'route_unavailable_dashboard',
-			'analytics/insights',
-			array(
-				'label'        => 'Insights',
-				'order'        => 10,
-				'is_available' => '__return_false',
-			)
-		);
-
-		$this->set_admin_user();
-
-		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'DELETE', '/wpcom/v2/dashboards/route_unavailable_dashboard/sections/analytics/insights/layout' )
-		);
-
-		$this->assertSame( 404, $response->get_status() );
-		$this->assertSame( 'dashboard_section_unavailable', $response->as_error()->get_error_code() );
-	}
-
-	/**
-	 * Delete sections route resets every custom section layout.
-	 */
-	public function test_delete_sections_route_resets_all_section_layouts() {
-		$traffic_default  = array(
-			array(
-				'uuid' => 'default-traffic-widget',
-				'type' => 'example/widget',
-			),
-		);
-		$insights_default = array(
-			array(
-				'uuid' => 'default-insights-widget',
-				'type' => 'example/widget',
-			),
-		);
-		$traffic_custom   = array(
-			array(
-				'uuid' => 'custom-traffic-widget',
-				'type' => 'example/widget',
-			),
-		);
-		$insights_custom  = array(
-			array(
-				'uuid' => 'custom-insights-widget',
-				'type' => 'example/widget',
-			),
-		);
-
-		register_dashboard_section(
-			'route_layout_dashboard',
-			'analytics/traffic',
-			array(
-				'label'          => 'Traffic',
-				'order'          => 10,
-				'default_layout' => $traffic_default,
-			)
-		);
-		register_dashboard_section(
-			'route_layout_dashboard',
-			'analytics/insights',
-			array(
-				'label'          => 'Insights',
-				'order'          => 20,
-				'default_layout' => $insights_default,
-			)
-		);
-
-		$user_id = $this->set_admin_user();
-		$this->set_section_layouts_preference(
-			$user_id,
-			array(
-				'analytics/traffic'  => $traffic_custom,
-				'analytics/insights' => $insights_custom,
-			)
-		);
-
-		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'DELETE', '/wpcom/v2/dashboards/route_layout_dashboard/sections' )
-		);
-
-		$this->assertSame( 200, $response->get_status() );
-		$this->assertSame(
-			array(
-				array(
-					'id'              => 'analytics/traffic',
-					'label'           => 'Traffic',
-					'order'           => 10,
-					'layout'          => $traffic_default,
-					'hasCustomLayout' => false,
-				),
-				array(
-					'id'              => 'analytics/insights',
-					'label'           => 'Insights',
-					'order'           => 20,
-					'layout'          => $insights_default,
-					'hasCustomLayout' => false,
-				),
-			),
-			$response->get_data()
-		);
-
-		$stored = get_stored_persisted_preferences_for_user( $user_id );
-
-		$this->assertArrayNotHasKey( DASHBOARD_SECTION_LAYOUTS_KEY, $stored[ DASHBOARD_LAYOUT_SCOPE ] );
-		$this->assertSame( 'keep-me', $stored[ DASHBOARD_LAYOUT_SCOPE ]['unrelatedPreference'] );
-	}
-
-	/**
-	 * Delete sections route removes the empty dashboard scope.
-	 */
-	public function test_delete_sections_route_removes_empty_dashboard_scope() {
-		register_dashboard_section(
-			'route_layout_dashboard',
-			'analytics/traffic',
-			array(
-				'label' => 'Traffic',
-				'order' => 10,
-			)
-		);
-
-		$user_id = $this->set_admin_user();
-		update_user_meta(
-			$user_id,
-			get_persisted_preferences_meta_key(),
-			array(
-				DASHBOARD_LAYOUT_SCOPE => array(
-					DASHBOARD_SECTION_LAYOUTS_KEY => array(
-						'analytics/traffic' => array(
-							array(
-								'uuid' => 'custom-traffic-widget',
-								'type' => 'example/widget',
-							),
-						),
-					),
-				),
-			)
-		);
-
-		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'DELETE', '/wpcom/v2/dashboards/route_layout_dashboard/sections' )
-		);
-
-		$this->assertSame( 200, $response->get_status() );
-
-		$stored = get_stored_persisted_preferences_for_user( $user_id );
-
-		$this->assertArrayNotHasKey( DASHBOARD_LAYOUT_SCOPE, $stored );
-	}
-
-	/**
-	 * Delete sections route requires manage_options.
-	 */
-	public function test_delete_sections_route_requires_manage_options() {
-		wp_set_current_user( 0 );
-
-		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'DELETE', '/wpcom/v2/dashboards/route_layout_dashboard/sections' )
-		);
-
-		$this->assertSame( 401, $response->get_status() );
+			$this->assertSame( 404, $response->get_status(), $case );
+			$this->assertSame( 'rest_no_route', $response->as_error()->get_error_code(), $case );
+		}
 	}
 
 	/**
@@ -1190,25 +763,5 @@ class Dashboard_Section_Test extends BaseTestCase {
 		wp_set_current_user( $admin_id );
 
 		return $admin_id;
-	}
-
-	/**
-	 * Store section layout preferences for a user.
-	 *
-	 * @param int   $user_id         User ID.
-	 * @param array $section_layouts Section layout map.
-	 * @return void
-	 */
-	private function set_section_layouts_preference( $user_id, $section_layouts ) {
-		update_user_meta(
-			$user_id,
-			get_persisted_preferences_meta_key(),
-			array(
-				DASHBOARD_LAYOUT_SCOPE => array(
-					'unrelatedPreference'         => 'keep-me',
-					DASHBOARD_SECTION_LAYOUTS_KEY => $section_layouts,
-				),
-			)
-		);
 	}
 }

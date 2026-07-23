@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search overlay/embedded templates: make it obvious in the editor when adding a new filter to the Filters (or Product Filters) block — a bounded insertion target and a labeled boundary outline mark where it belongs.

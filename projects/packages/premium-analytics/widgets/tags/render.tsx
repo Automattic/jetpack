@@ -8,6 +8,7 @@ import {
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	safeHttpUrl,
 	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -54,13 +55,15 @@ interface TagGroupMembersProps {
  * @return The rendered label.
  */
 function TagLabel( { labelIcon, label, link }: TagLabelProps ) {
+	const href = safeHttpUrl( link );
+
 	return (
 		<>
 			<Icon icon={ rowGlyph( labelIcon ) } size={ 20 } className={ styles.itemIcon } />
-			{ link ? (
+			{ href ? (
 				<Link
 					className={ styles.itemLabelText }
-					href={ link }
+					href={ href }
 					variant="unstyled"
 					openInNewTab
 					title={ label }

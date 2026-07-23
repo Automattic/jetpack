@@ -47,7 +47,7 @@ const NoConnectionsEmptyState = () => {
 };
 
 /**
- * Overview tab — sits inside the modernized Social chassis (`SocialPage`
+ * Overview tab — sits inside the Social dashboard (`SocialPage`
  * → `Tabs.Panel value="overview"`). Renders the connection-error notice
  * + JITM mount-point above a single `Card.Root` that wraps the existing
  * `ConnectionManagement` list. The "Connect an account" CTA is lifted

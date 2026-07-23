@@ -9,17 +9,18 @@ interface Props {
 }
 
 /**
- * AI tab. Hosts the AI SEO Enhancer toggle today; llms.txt and AI-crawler
+ * GEO (Generative Engine Optimization) tab — internal id/route still keyed
+ * `ai`. Hosts the AI SEO Enhancer toggle today; llms.txt and AI-crawler
  * controls land here later (tracked separately). State + auto-save live in the
  * `form` controller (passed from the page root so it survives tab switches);
  * this component is the presentation.
  *
  * The tab itself is always shown — only the Enhancer card is plan-gated, so the
- * tab stays a home for the free AI settings still to come.
+ * tab stays a home for the free GEO settings still to come.
  *
  * @param props      - Component props.
  * @param props.form - The AI form controller from `useAiForm`.
- * @return The AI tab content.
+ * @return The GEO tab content.
  */
 const AiScreen: FC< Props > = ( { form } ) => {
 	const { enhancer, isSaving, setEnhancerEnabled } = form;
@@ -28,7 +29,7 @@ const AiScreen: FC< Props > = ( { form } ) => {
 		return (
 			<Notice.Root intent="error">
 				<Notice.Description>
-					{ __( 'Unable to load AI settings.', 'jetpack-seo' ) }
+					{ __( 'Unable to load GEO settings.', 'jetpack-seo' ) }
 				</Notice.Description>
 			</Notice.Root>
 		);
@@ -36,19 +37,19 @@ const AiScreen: FC< Props > = ( { form } ) => {
 
 	// The Enhancer requires a supporting plan; when unavailable the card is
 	// hidden (parity with the legacy Traffic page). The tab stays in place for
-	// the free AI settings still to come.
+	// the free GEO settings still to come.
 	if ( ! enhancer.available ) {
 		return (
 			<Notice.Root intent="info">
 				<Notice.Description>
-					{ __( 'More AI tools for your SEO are on the way.', 'jetpack-seo' ) }
+					{ __( 'More tools to optimize for AI search engines are on the way.', 'jetpack-seo' ) }
 				</Notice.Description>
 			</Notice.Root>
 		);
 	}
 
 	return (
-		<div className="jetpack-seo-ai">
+		<div>
 			<CollapsibleCard.Root defaultOpen>
 				<CollapsibleCard.Header>
 					<Card.Title>{ __( 'AI SEO Enhancer', 'jetpack-seo' ) }</Card.Title>

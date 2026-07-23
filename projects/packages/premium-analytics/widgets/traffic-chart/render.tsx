@@ -6,6 +6,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
+	defaultPeriodForInterval,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { reports } from '@jetpack-premium-analytics/icons';
@@ -36,27 +37,8 @@ const DATA_FORMAT = {
 	options: { useMultipliers: true, decimals: 0 },
 };
 
-/**
- * Default granularity for the dashboard interval: opens the control at the
- * granularity the range implies (and, until the user picks one explicitly,
- * keeps following the range). The dropdown only offers day/week/month, so
- * finer/coarser dashboard intervals collapse onto those.
- *
- * @param interval - The dashboard-derived interval.
- * @return The matching selectable granularity.
- */
-function defaultPeriodForInterval( interval?: string ): TrafficPeriod {
-	switch ( interval ) {
-		case 'week':
-			return 'week';
-		case 'month':
-		case 'quarter':
-		case 'year':
-			return 'month';
-		default:
-			return 'day';
-	}
-}
+// Ordered finest to coarsest, as `defaultPeriodForInterval` requires.
+const TRAFFIC_PERIODS = [ 'day', 'week', 'month' ] as const satisfies readonly TrafficPeriod[];
 
 type TrafficChartInnerProps = {
 	/**
@@ -86,7 +68,9 @@ function TrafficChartInner( { granularity, metrics }: TrafficChartInnerProps ) {
 	// granularity (and blow up the bucket count) while the user hasn't picked
 	// a granularity themselves.
 	const period: TrafficPeriod =
-		granularity === 'auto' ? defaultPeriodForInterval( reportParams.interval ) : granularity;
+		granularity === 'auto'
+			? defaultPeriodForInterval( reportParams.interval, TRAFFIC_PERIODS )
+			: granularity;
 
 	const {
 		metrics: metricTabs,
