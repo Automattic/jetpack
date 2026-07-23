@@ -1,4 +1,4 @@
 Significance: minor
-Type: changed
+Type: enhancement
 
 Newsletter: let the email preview render for an editor whose WordPress.com account isn't connected, as long as the site is connected. Sending a test email still requires a user connection.
