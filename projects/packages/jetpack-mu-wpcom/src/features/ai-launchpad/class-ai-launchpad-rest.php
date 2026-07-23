@@ -147,9 +147,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 *
 	 * `add_gallery_page` is excluded for sell so a store site cannot end up with both the store sequence and a
 	 * gallery, the mutual exclusion get_current_tasks() enforces structurally through its if/else. The entry has
-	 * no effect yet: the gallery is still a synthetic task the AI cannot pick, so PUT already drops it as an id
-	 * the catalog does not define and available_task_ids() never offers it. It starts mattering when the gallery
-	 * becomes AI-selectable.
+	 * no effect on a tailored list yet: the gallery is not on the menu, so the model cannot pick it and
+	 * available_task_ids() never offers it. It starts mattering when the gallery becomes AI-selectable.
 	 */
 	const GOAL_EXCLUDED_TASK_IDS = array(
 		'add_gallery_page' => 'sell',
@@ -753,7 +752,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		$excluded     = self::excluded_task_ids_for_goal( $goal );
 
 		foreach ( $payload['tasks'] as $task ) {
-			if ( ! isset( $definitions[ $task['id'] ] ) ) {
+			if ( ! isset( $definitions[ $task['id'] ] ) && ! AI_Launchpad_Task_Registry::has( $task['id'] ) ) {
 				continue;
 			}
 
@@ -1215,14 +1214,26 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			// Broken/meaningless-in-context ids render as their working equivalent (see the helper for the why).
 			$task['id'] = wpcom_ai_launchpad_remap_task_id( $task['id'] );
 
-			if ( ! isset( $definitions[ $task['id'] ] ) ) {
-				continue;
-			}
-
 			// One card per id — the client keys cards by id. The remap above can collide with the target id already
 			// being present (notably the ?all_tasks=1 view, which enumerates every catalog id), so collapse any
 			// repeat to the first occurrence.
 			if ( isset( $seen_ids[ $task['id'] ] ) ) {
+				continue;
+			}
+
+			// Tasks the AI Launchpad owns are built from its own registry: the shared catalog does not
+			// define them, and routing them through wpcom_launchpad_checklists() would mean relying on
+			// the catalog accepting entries it never registered.
+			if ( AI_Launchpad_Task_Registry::has( $task['id'] ) ) {
+				$card = AI_Launchpad_Task_Registry::build( $task['id'], (string) $task['subtitle'] );
+				if ( null !== $card ) {
+					$seen_ids[ $task['id'] ] = true;
+					$built[]                 = $card;
+				}
+				continue;
+			}
+
+			if ( ! isset( $definitions[ $task['id'] ] ) ) {
 				continue;
 			}
 
@@ -1501,12 +1512,11 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
-	 * Builds the synthetic gallery-task entry, or null when it should not be offered.
+	 * Builds the injected gallery-task entry, or null when it should not be offered.
+	 *
+	 * The definition lives in AI_Launchpad_Task_Registry; this method is only the niche gate.
 	 *
 	 * Its id is listed in SYNTHETIC_TASK_IDS so the task stays skippable.
-	 *
-	 * Completion is read from the status option (written by AI_Launchpad_Gallery_Page_Listener on publish); an
-	 * unpublished marker draft puts it in progress and reopens that draft.
 	 *
 	 * @param array $inferred The AI output's `inferred` block.
 	 * @return array|null
@@ -1516,28 +1526,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			return null;
 		}
 
-		$statuses  = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
-		$completed = ! empty( $statuses['add_gallery_page'] );
-
-		$in_progress  = false;
-		$calypso_path = null;
-		if ( ! $completed ) {
-			$draft_url = $this->get_in_progress_draft_url( 'add_gallery_page' );
-			if ( null !== $draft_url ) {
-				$in_progress  = true;
-				$calypso_path = $draft_url;
-			}
-		}
-
-		return array(
-			'id'           => 'add_gallery_page',
-			'subtitle'     => __( 'Show your work in a beautiful photo gallery.', 'jetpack-mu-wpcom' ),
-			'title'        => $this->get_task_title( 'add_gallery_page', $in_progress, __( 'Create your first gallery', 'jetpack-mu-wpcom' ) ),
-			'completed'    => $completed,
-			'in_progress'  => $in_progress,
-			'disabled'     => false,
-			'calypso_path' => $calypso_path,
-		);
+		return AI_Launchpad_Task_Registry::build( 'add_gallery_page', '' );
 	}
 
 	/**
@@ -1653,8 +1642,6 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 		if ( 'add_about_page' === $task_id ) {
 			$draft_id = AI_Launchpad_About_Page_Listener::get_draft_id();
-		} elseif ( 'add_gallery_page' === $task_id ) {
-			$draft_id = AI_Launchpad_Gallery_Page_Listener::get_draft_id();
 		} elseif ( in_array( $task_id, self::IN_PROGRESS_FIRST_POST_TASK_IDS, true ) ) {
 			$draft_id = AI_Launchpad_First_Post_Listener::get_draft_id();
 		}
@@ -1683,8 +1670,6 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		switch ( $task_id ) {
 			case 'add_about_page':
 				return $in_progress ? __( 'Continue working on the About page', 'jetpack-mu-wpcom' ) : $default;
-			case 'add_gallery_page':
-				return $in_progress ? __( 'Continue working on your gallery', 'jetpack-mu-wpcom' ) : $default;
 			case 'first_post_published':
 				return $in_progress
 					? __( 'Continue to write your first post', 'jetpack-mu-wpcom' )

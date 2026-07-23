@@ -19,6 +19,8 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-la
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-first-post-listener.php';
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-task-registry.php';
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-rest.php';
 
 // Block real Logstash dispatch of the tailoring observation event for the entire phpunit
@@ -1280,6 +1282,49 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * A persisted list carrying the gallery id builds it from the registry (not the catalog, which does not define
+	 * it) and keeps the persisted subtitle, and the niche gate does not then inject a second copy. The AI cannot
+	 * pick the id until it joins the menu, but PUT already accepts registry ids.
+	 */
+	public function test_get_renders_a_persisted_gallery_task_once() {
+		wp_set_current_user( $this->admin_id );
+		update_option(
+			'wpcom_ai_launchpad_ai_output',
+			array(
+				'version'      => 1,
+				'source'       => 'ai',
+				'generated_at' => 1717000000,
+				'payload'      => array(
+					'tasks'    => array(
+						array(
+							'id'       => 'add_gallery_page',
+							'subtitle' => 'Show off your ceramics.',
+						),
+						array(
+							'id'       => 'site_launched',
+							'subtitle' => 'Go live.',
+						),
+					),
+					'inferred' => array(
+						'goal'  => 'portfolio',
+						'niche' => 'ceramics',
+					),
+				),
+			),
+			false
+		);
+
+		$tasks = $this->call_api( Requests::GET )->get_data()['tasks'];
+		$ids   = array_column( $tasks, 'id' );
+
+		$this->assertSame( array( 'add_gallery_page' ), array_values( array_filter( $ids, static fn ( $id ) => 'add_gallery_page' === $id ) ) );
+
+		$gallery = array_column( $tasks, null, 'id' )['add_gallery_page'];
+		$this->assertSame( 'Show off your ceramics.', $gallery['subtitle'], 'the persisted subtitle wins over the registry default' );
+		$this->assertSame( 'Create your first gallery', $gallery['title'] );
+	}
+
+	/**
 	 * The gallery task is injected for a photo/visual niche even when the goal is not portfolio.
 	 */
 	public function test_get_injects_gallery_task_for_photo_niche() {
@@ -2008,6 +2053,23 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$persisted_tasks = get_option( 'wpcom_ai_launchpad_ai_output' )['payload']['tasks'];
 		$this->assertCount( 5, $persisted_tasks );
 		$this->assertNotContains( 'made_up_task', array_column( $persisted_tasks, 'id' ) );
+	}
+
+	/**
+	 * Test that PUT /tailored keeps registry ids, which the shared catalog does not define.
+	 */
+	public function test_put_tailored_keeps_registry_task_ids() {
+		wp_set_current_user( $this->admin_id );
+
+		$payload                   = self::valid_payload();
+		$payload['tasks'][1]['id'] = 'add_gallery_page';
+
+		$result = $this->call_api( 'PUT', '/tailored', $payload );
+
+		$this->assertSame( 200, $result->get_status() );
+
+		$persisted_tasks = get_option( 'wpcom_ai_launchpad_ai_output' )['payload']['tasks'];
+		$this->assertContains( 'add_gallery_page', array_column( $persisted_tasks, 'id' ) );
 	}
 
 	/**

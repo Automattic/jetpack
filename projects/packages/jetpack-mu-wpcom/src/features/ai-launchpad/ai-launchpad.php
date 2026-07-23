@@ -14,6 +14,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/eligibility.php';
 require_once __DIR__ . '/class-ai-launchpad-memberships.php';
+require_once __DIR__ . '/class-ai-launchpad-task-registry.php';
 require_once __DIR__ . '/class-ai-launchpad-rest.php';
 require_once __DIR__ . '/class-ai-launchpad-listeners.php';
 require_once __DIR__ . '/class-ai-launchpad-theme-listener.php';
