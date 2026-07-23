@@ -45,12 +45,7 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview extends WP_REST_Controller {
 		$options = array(
 			'show_in_index'       => true,
 			'methods'             => 'GET',
-			'callback'            => ( ( new Host() )->is_wpcom_simple() )
-				? array( $this, 'email_preview' )
-				// On a non-wpcom site, proxy to WordPress.com with the user's token, falling back to the site's blog token.
-				: function ( $request ) {
-					return $this->proxy_request_to_wpcom( $request, '', 'user', true );
-				},
+			'callback'            => array( $this, 'email_preview' ),
 			'permission_callback' => array( $this, 'permissions_check' ),
 			'args'                => array(
 				'id'     => array(
@@ -152,13 +147,18 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview extends WP_REST_Controller {
 	}
 
 	/**
-	 * Returns an email preview of a post.
+	 * Returns an email preview of a post, or proxies the request to WordPress.com on non-wpcom sites.
 	 *
 	 * @param WP_REST_Request $request Full data about the request.
 	 *
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function email_preview( $request ) {
+		// On a non-wpcom site, proxy to WordPress.com with the user's token, falling back to the site's blog token.
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
+			return $this->proxy_request_to_wpcom( $request, '', 'user', true );
+		}
+
 		$post_id = $request['post_id'];
 		$access  = $request['access'];
 		$post    = get_post( $post_id );
