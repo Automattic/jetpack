@@ -503,9 +503,9 @@ class Initializer {
 	 * dashboard (JETPACK-1700). Gating lives server-side, where the signals actually are. The
 	 * card shows only when both of:
 	 *
-	 * - the SEO package is loaded — checked with `class_exists()` because the SEO package isn't a
-	 *   composer dependency of My Jetpack, so a guarded read of its public API keeps this from
-	 *   adding plumbing to consumers that don't load SEO;
+	 * - the SEO package is loaded and new enough — checked with `method_exists()` because the SEO
+	 *   package isn't a composer dependency of My Jetpack, and an older bundled copy can ship the
+	 *   Initializer class without this method, so `class_exists()` alone would still fatal;
 	 * - the install hasn't opted in yet — `Initializer::is_optin_available()` is true. It returns
 	 *   `! is_seo_surface_visible()`, and the surface is already visible for WordPress.com (Simple +
 	 *   Atomic) and for self-hosted installs that have opted in, so "opt-in available" cleanly means
