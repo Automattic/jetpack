@@ -24,6 +24,45 @@ function wpcom_normalize_site_logo_id( $value ) {
 }
 
 /**
+ * Build the URL for editing the current site logo, and whether the block-theme
+ * copy applies.
+ *
+ * Block themes edit the logo in the Site Editor's Identity screen (falling back to
+ * the default Site Editor screen where that route may not exist yet). Classic
+ * themes edit it in the Customizer, whose control ID depends on which logo
+ * integration the theme supports — mirroring the logo-tool feature.
+ *
+ * @return array{url:string, is_block:bool} The edit URL and block-theme flag.
+ */
+function wpcom_site_logo_edit_link() {
+	if ( wp_is_block_theme() ) {
+		// The Identity screen shipped in Gutenberg 22.8 / WordPress 7.1; fall back to
+		// the default Site Editor screen when it may not be present.
+		$has_identity = defined( 'GUTENBERG_VERSION' )
+			? version_compare( GUTENBERG_VERSION, '22.8', '>=' )
+			: version_compare( get_bloginfo( 'version' ), '7.1', '>=' );
+
+		return array(
+			'url'      => admin_url( $has_identity ? 'site-editor.php?p=%2Fidentity' : 'site-editor.php' ),
+			'is_block' => true,
+		);
+	}
+
+	if ( current_theme_supports( 'custom-logo' ) ) {
+		$url = admin_url( 'customize.php?autofocus[control]=custom_logo' );
+	} elseif ( current_theme_supports( 'site-logo' ) ) {
+		$url = admin_url( 'customize.php?autofocus[control]=site_logo' );
+	} else {
+		$url = admin_url( 'customize.php' );
+	}
+
+	return array(
+		'url'      => $url,
+		'is_block' => false,
+	);
+}
+
+/**
  * The Fiverr logo-maker CTA button's DOM.
  */
 function wpcom_fiverr_cta_button() {
@@ -81,21 +120,19 @@ function wpcom_fiverr_cta() {
 			</div>
 			<p class="description">
 				<?php
-				if ( wp_is_block_theme() ) {
-					// Block themes render the logo via the Site Logo block and expose the
-					// Site Editor's Identity screen for editing it.
+				$logo_edit_link = wpcom_site_logo_edit_link();
+				if ( $logo_edit_link['is_block'] ) {
 					printf(
-						/* translators: %1$s: opening link tag to the Site Editor identity screen, %2$s: closing link tag. */
+						/* translators: %1$s: opening link tag to the Site Editor, %2$s: closing link tag. */
 						esc_html__( 'Displays in your site\'s layout via the Site Logo block. %1$sYou can change your site logo in the site editor%2$s.', 'jetpack-mu-wpcom' ),
-						'<a href="' . esc_url( admin_url( 'site-editor.php?p=%2Fidentity' ) ) . '">',
+						'<a href="' . esc_url( $logo_edit_link['url'] ) . '">',
 						'</a>'
 					);
 				} else {
-					// Classic themes have no Site Editor; the logo lives in the Customizer.
 					printf(
-						/* translators: %1$s: opening link tag to the Customizer logo control, %2$s: closing link tag. */
+						/* translators: %1$s: opening link tag to the Customizer, %2$s: closing link tag. */
 						esc_html__( '%1$sYou can change your site logo in the Customizer%2$s.', 'jetpack-mu-wpcom' ),
-						'<a href="' . esc_url( admin_url( 'customize.php?autofocus[control]=custom_logo' ) ) . '">',
+						'<a href="' . esc_url( $logo_edit_link['url'] ) . '">',
 						'</a>'
 					);
 				}
