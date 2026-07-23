@@ -3,8 +3,9 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { STORE_NAME, VALID_SECTIONS } from '../constants';
+import { VALID_SECTIONS } from '../constants';
 import { suggestGuidelines } from '../lib/api';
+import { areAllSectionDraftsEmpty, readAllSectionDrafts } from '../lib/drafts';
 import { recordGuidelinesEvent } from '../lib/tracks';
 import { AI_STORE_NAME } from '../store';
 
@@ -20,11 +21,6 @@ export default function useGenerateAll() {
 	const loading = useSelect( select => select( AI_STORE_NAME ).isLoading(), [] );
 	const { hasFeature } = useAiFeature();
 
-	const allGuidelines = useSelect( select => {
-		const store = select( STORE_NAME );
-		return Object.fromEntries( VALID_SECTIONS.map( slug => [ slug, store.getGuideline( slug ) ] ) );
-	}, [] );
-
 	const generate = useCallback( async () => {
 		if ( ! hasFeature ) {
 			// No AI plan: surface the upgrade notice instead of generating. The
@@ -35,7 +31,10 @@ export default function useGenerateAll() {
 			return;
 		}
 
-		const allEmpty = VALID_SECTIONS.every( slug => ! allGuidelines[ slug ] );
+		// Snapshot the drafts at click time — they live in the page's DOM
+		// textareas, not in a store (see lib/drafts.js).
+		const allGuidelines = readAllSectionDrafts();
+		const allEmpty = areAllSectionDraftsEmpty();
 		recordGuidelinesEvent( 'generate_all', {
 			action: allEmpty ? 'generate' : 'improve',
 		} );
@@ -68,7 +67,6 @@ export default function useGenerateAll() {
 		}
 	}, [
 		hasFeature,
-		allGuidelines,
 		startLoading,
 		stopLoading,
 		setSuggestion,

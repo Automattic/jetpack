@@ -6,6 +6,7 @@
  * @package jetpack
  */
 
+use Automattic\Jetpack\SEO\Dashboard_Data as Jetpack_SEO_Dashboard_Data;
 use Automattic\Jetpack\SEO\Initializer as Jetpack_SEO_Initializer;
 use PHPUnit\Framework\Attributes\CoversClass;
 
@@ -127,11 +128,11 @@ class SEO_Sitemap_Migration_Test extends WP_UnitTestCase {
 	 */
 	public function test_overview_read_sources_sitemap_active_from_option() {
 		update_option( $this->option, true );
-		$overview = Jetpack_SEO_Initializer::get_overview_data();
+		$overview = Jetpack_SEO_Dashboard_Data::get_overview_data();
 		$this->assertTrue( $overview['site_visibility']['sitemap_active'] );
 
 		update_option( $this->option, false );
-		$overview = Jetpack_SEO_Initializer::get_overview_data();
+		$overview = Jetpack_SEO_Dashboard_Data::get_overview_data();
 		$this->assertFalse( $overview['site_visibility']['sitemap_active'] );
 	}
 
@@ -142,7 +143,7 @@ class SEO_Sitemap_Migration_Test extends WP_UnitTestCase {
 		delete_option( $this->option );
 		$this->set_active_modules( array( 'sitemaps' ) );
 
-		$overview = Jetpack_SEO_Initializer::get_overview_data();
+		$overview = Jetpack_SEO_Dashboard_Data::get_overview_data();
 
 		$this->assertTrue( $overview['site_visibility']['sitemap_active'] );
 	}
