@@ -87,17 +87,11 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 										<Notice.Description>
 											{ createInterpolateElement(
 												__(
-													'To enable llms.txt, turn on “Allow search engines to index this site”. <link>Manage site visibility</link>',
+													'To enable, allow search engines to index this site under <link>Settings</link>.',
 													'jetpack-seo'
 												),
 												{
-													link: (
-														<Button
-															variant="link"
-															className="jetpack-seo-ai__llms-notice-link"
-															onClick={ onManageVisibility }
-														/>
-													),
+													link: <Button variant="link" onClick={ onManageVisibility } />,
 												}
 											) }
 										</Notice.Description>

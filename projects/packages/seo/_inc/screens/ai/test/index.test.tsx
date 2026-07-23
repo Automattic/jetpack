@@ -61,14 +61,14 @@ describe( 'AiScreen (GEO tab) — llms.txt serving state', () => {
 		expect(
 			screen.getByRole( 'checkbox', { name: /generate an llms\.txt file/i } )
 		).not.toBeChecked();
-		expect( screen.getAllByText( /to enable llms\.txt/i ).length ).toBeGreaterThan( 0 );
+		expect( screen.getAllByText( /to enable, allow search engines/i ).length ).toBeGreaterThan( 0 );
 		expect( screen.getByText( 'Disabled' ) ).toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'link', { name: /view your llms\.txt/i } )
 		).not.toBeInTheDocument();
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep for a single click.
-		fireEvent.click( screen.getByRole( 'button', { name: /manage site visibility/i } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: /settings/i } ) );
 		expect( onManageVisibility ).toHaveBeenCalledTimes( 1 );
 	} );
 } );
