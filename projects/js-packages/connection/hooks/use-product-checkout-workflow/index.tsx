@@ -7,6 +7,7 @@ import useConnection from '../../components/use-connection';
 import getCalypsoOrigin from '../../helpers/get-calypso-origin';
 import { initConnectionStore } from '../../state/store.jsx';
 import type { UseProductCheckoutWorkflowProps } from './types';
+import type { StoreDescriptor } from '@wordpress/data';
 
 const debug = debugFactory( 'jetpack:connection:useProductCheckoutWorkflow' );
 
@@ -56,7 +57,8 @@ export default function useProductCheckoutWorkflow(
 	const { registerSite } = useDispatch( connectionStore );
 
 	const blogID = useSelect(
-		select => ( select( connectionStore ) as { getBlogId: () => string } ).getBlogId(),
+		( select: ( store: StoreDescriptor ) => Record< string, ( ...args: unknown[] ) => unknown > ) =>
+			select( connectionStore ).getBlogId() as string,
 		[ connectionStore ]
 	);
 	debug( 'blogID is %s', blogID ?? 'undefined' );

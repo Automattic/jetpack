@@ -28,9 +28,12 @@ export default function useRestoreConnection() {
 	const [ isRestoringConnection, setIsRestoringConnection ] = useState( false );
 	const [ restoreConnectionError, setRestoreConnectionError ] = useState< string | null >( null );
 
+	// The store descriptor carries generic action types, so assert to the
+	// narrow shape this hook uses (via `unknown`, as the two don't structurally
+	// overlap).
 	const { disconnectUserSuccess, setConnectionErrors } = useDispatch(
 		connectionStore
-	) as ConnectionStoreDispatch;
+	) as unknown as ConnectionStoreDispatch;
 
 	const USER_CONNECTION_URL = getUserConnectionUrl();
 
