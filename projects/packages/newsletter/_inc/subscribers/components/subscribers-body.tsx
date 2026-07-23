@@ -32,21 +32,29 @@ type RenderProps = {
  * (the `Tabs.Root` indicator slides only when the tab control persists
  * between tab changes — re-mounting per route would reset it).
  *
- * @param props          - Props.
- * @param props.children - Render-prop receiving `{ body, actions }` so the
- *                       caller decides how to slot them into the page.
+ * @param props                      - Props.
+ * @param props.canManageSubscribers - Whether this visitor can import (connected + feature
+ *                                   enabled); gates the import-completion poll so gated and
+ *                                   Settings-only loads don't hit the WP.com import endpoint.
+ * @param props.children             - Render-prop receiving `{ body, actions }` so the
+ *                                   caller decides how to slot them into the page.
  * @return Whatever `children` returns.
  */
 export default function SubscribersBody( {
+	canManageSubscribers,
 	children,
 }: {
+	canManageSubscribers: boolean;
 	children: ( props: RenderProps ) => ReactNode;
 } ): JSX.Element {
 	const blogId = useMemo( () => getBlogId(), [] );
 
 	// Refresh the list when an async import job finishes — the poll lives here (not in the modal)
-	// so it survives the Add Subscribers modal closing right after a submit.
-	useImportCompletionRefresh();
+	// so it survives the Add Subscribers modal closing right after a submit. Gated on whether this
+	// visitor can actually import (connected + feature enabled): this shell mounts on every
+	// Newsletter page load, so an ungated poll would hit the WP.com import endpoint on the Settings
+	// tab, for connection-gated users, and on Settings-only sites.
+	useImportCompletionRefresh( canManageSubscribers );
 
 	const [ isAddOpen, setAddOpen ] = useState( false );
 	const openAdd = useCallback( () => setAddOpen( true ), [] );

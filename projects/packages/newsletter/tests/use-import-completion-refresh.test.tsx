@@ -10,14 +10,15 @@ import type { ImportJob, ImportJobStatus } from '../_inc/subscribers/data/types'
 // The watcher reads its jobs through `useImportJobs`; we drive that hook's return value from this
 // module-level handle so a `rerender()` simulates the next poll returning a new job status. The
 // real `isJobInProgress` and `IMPORT_IN_PROGRESS_NOTICE_ID` are kept (via requireActual) so the
-// transition logic and notice id under test are real.
+// transition logic and notice id under test are real. The mock honours `enabled` (returning no data
+// when disabled) so the gating path is exercised, mirroring the real query.
 let mockJobs: ImportJob[] | undefined;
 
 jest.mock( '../_inc/subscribers/data/use-import-jobs', () => {
 	const actual = jest.requireActual( '../_inc/subscribers/data/use-import-jobs' );
 	return {
 		...actual,
-		useImportJobs: () => ( { data: mockJobs } ),
+		useImportJobs: ( enabled: boolean ) => ( { data: enabled ? mockJobs : undefined } ),
 	};
 } );
 
@@ -43,7 +44,7 @@ const job = ( status: ImportJobStatus, overrides: Partial< ImportJob > = {} ): I
 	...overrides,
 } );
 
-const renderWatcher = () => {
+const renderWatcher = ( enabled = true ) => {
 	const queryClient = new QueryClient( {
 		defaultOptions: { queries: { retry: false } },
 	} );
@@ -51,7 +52,7 @@ const renderWatcher = () => {
 	const wrapper = ( { children }: { children: React.ReactNode } ) => (
 		<QueryClientProvider client={ queryClient }>{ children }</QueryClientProvider>
 	);
-	const view = renderHook( () => useImportCompletionRefresh(), { wrapper } );
+	const view = renderHook( () => useImportCompletionRefresh( enabled ), { wrapper } );
 	return { ...view, invalidateSpy };
 };
 
@@ -228,5 +229,20 @@ describe( 'useImportCompletionRefresh', () => {
 
 		expect( invalidateSpy ).not.toHaveBeenCalled();
 		expect( mockRemoveNotice ).not.toHaveBeenCalled();
+	} );
+
+	it( 'stays inert when disabled, even if an import finishes', () => {
+		// Gated visitors (Settings tab, connection-gated, Settings-only sites) pass `enabled=false`,
+		// which withholds the poll entirely — so a finished job must not invalidate or announce.
+		mockJobs = [];
+		const { rerender, invalidateSpy } = renderWatcher( false );
+
+		mockJobs = [ job( 'imported', { id: 11, subscribed_count: 1 } ) ];
+		rerender();
+
+		expect( invalidateSpy ).not.toHaveBeenCalled();
+		expect( mockRemoveNotice ).not.toHaveBeenCalled();
+		expect( mockCreateSuccessNotice ).not.toHaveBeenCalled();
+		expect( mockCreateErrorNotice ).not.toHaveBeenCalled();
 	} );
 } );

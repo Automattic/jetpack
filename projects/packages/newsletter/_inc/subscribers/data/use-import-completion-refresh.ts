@@ -45,6 +45,12 @@ export function describeImportOutcome( job: ImportJob ): OutcomeNotice | null {
 		// success notice but surface the shortfall. The trailing clause is noun-free
 		// ("%2$d couldn't be added") so it reads correctly for any count — a single _n can only
 		// pluralize on one number, and that one is the imported count.
+		//
+		// This branch intentionally takes precedence over the already-subscribed cases below: a
+		// batch that is partly rejected AND partly already-subscribed reports only the rejections,
+		// since "couldn't be added" is the actionable signal (points at the confirmation email) and
+		// already-subscribed is a benign no-op. The copy never claims a total, so omitting the
+		// duplicate count reads as incomplete, not wrong — and a three-count snackbar would be worse.
 		return {
 			status: 'success',
 			message: sprintf(
@@ -137,14 +143,23 @@ export function describeImportOutcome( job: ImportJob ): OutcomeNotice | null {
  * detection still catches those. Jobs already finished when the dashboard loads are recorded as
  * "already announced" so old imports aren't re-announced on every visit. Mount once, near the top of
  * the subscribers dashboard.
+ *
+ * @param enabled - Whether to run at all. Gate this on the subscribers feature actually being
+ *                usable by this visitor (connected + feature enabled): the dashboard shell mounts
+ *                on every Newsletter page load — including the Settings tab, connection-gated users,
+ *                and Settings-only sites — and without this gate each of those would poll the WP.com
+ *                import endpoint (a 401/403 + retries for unconnected users). Pass `true` while the
+ *                poll should stay alive even across tab changes, so an in-flight import still
+ *                resolves if the user flips to Settings mid-import.
  */
-export function useImportCompletionRefresh(): void {
+export function useImportCompletionRefresh( enabled: boolean ): void {
 	const queryClient = useQueryClient();
 	const { createSuccessNotice, createErrorNotice, removeNotice } = useDispatch( noticesStore );
-	// Always enabled so the poll outlives the Add Subscribers modal (which mounts its own
-	// `useImportJobs( isOpen )` — React Query dedupes both to a single query by key). The query only
-	// polls the network while a job is actually in progress, so an idle dashboard makes one request.
-	const { data } = useImportJobs( true );
+	// Enabled only when the visitor can actually import; see the `enabled` param note. The query
+	// outlives the Add Subscribers modal (which mounts its own `useImportJobs( isOpen )` — React
+	// Query dedupes both to a single query by key), and only polls the network while a job is
+	// actually in progress, so an idle dashboard makes one request.
+	const { data } = useImportJobs( enabled );
 
 	const announced = useRef< Set< number > >( new Set() );
 	const seeded = useRef( false );
