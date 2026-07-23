@@ -19,19 +19,19 @@ jest.unstable_mockModule( '@wordpress/route', () => ( {
 
 // Heavy child cards are paid surfaces hidden when gated; stub them so the screen
 // renders in isolation and the presence of the front-page field is unambiguous.
-jest.unstable_mockModule( './author-profile-card', () => ( {
+jest.unstable_mockModule( '../author-profile-card', () => ( {
 	default: () => <div>author</div>,
 } ) );
-jest.unstable_mockModule( './schema-card', () => ( {
+jest.unstable_mockModule( '../schema-card', () => ( {
 	default: () => <div>schema</div>,
 } ) );
-jest.unstable_mockModule( './social-previews-card', () => ( {
+jest.unstable_mockModule( '../social-previews-card', () => ( {
 	default: () => <div>social previews</div>,
 } ) );
-jest.unstable_mockModule( './title-structure-field', () => ( {
+jest.unstable_mockModule( '../title-structure-field', () => ( {
 	default: () => <div>title structure</div>,
 } ) );
-jest.unstable_mockModule( './verification-card', () => ( {
+jest.unstable_mockModule( '../verification-card', () => ( {
 	default: () => <div>verification</div>,
 } ) );
 
