@@ -23,6 +23,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { MyJetpackRoutes } from '../../constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
 import useProduct from '../../data/products/use-product';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
 import { useInterstitialsState } from '../../hooks/use-interstitials-state';
@@ -48,6 +49,9 @@ export default function PricingInterstitial( { slug } ) {
 	const { onClickGoBack } = useGoBack( { slug, fallback: '/products' } );
 	const { activate, isPending: isActivating } = useActivatePlugins( slug );
 	const myJetpackCheckoutUri = getMyJetpackUrl();
+	// The built-in Add License route 404s when the licensing REST endpoints aren't
+	// registered (e.g. the licensing subsystem was skipped); hide the action then.
+	const { loadAddLicenseScreen } = getMyJetpackWindowInitialState();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
 		redirectUri: detail?.postActivationUrl || null,
@@ -388,15 +392,17 @@ export default function PricingInterstitial( { slug } ) {
 				/>
 			}
 			actions={
-				<Button
-					size="compact"
-					variant="outline"
-					nativeButton={ false }
-					render={ <a href={ getMyJetpackUrl( '#/add-license' ) } /> }
-					onClick={ handleLicenseActivationClick }
-				>
-					{ __( 'Use license key', 'jetpack-my-jetpack' ) }
-				</Button>
+				loadAddLicenseScreen ? (
+					<Button
+						size="compact"
+						variant="outline"
+						nativeButton={ false }
+						render={ <a href={ getMyJetpackUrl( '#/add-license' ) } /> }
+						onClick={ handleLicenseActivationClick }
+					>
+						{ __( 'Use license key', 'jetpack-my-jetpack' ) }
+					</Button>
+				) : null
 			}
 		>
 			<Container

@@ -166,10 +166,13 @@ class Initializer {
 	 *
 	 * Call this before Initializer::init() runs. In the Jetpack plugin that means
 	 * before Jetpack's plugins_loaded-priority-90 late initialization on eagerly
-	 * loaded requests, and before rest_api_init priority 0 on deferred ones --
-	 * simplest is at plugin load time. Calling it with a skip list after
-	 * my_jetpack_init has fired trips _doing_it_wrong(); the keys are still
-	 * recorded, but the already-completed init() is unaffected for this request.
+	 * loaded requests, and before rest_api_init priority 0 on deferred ones. Hook it
+	 * on an early plugins_loaded callback (a priority below 90) rather than at
+	 * plugin-file load time: resolving this class before plugins_loaded lets the
+	 * Jetpack Autoloader select a stale My Jetpack package when another plugin
+	 * bundles a newer one. Calling it with a skip list after my_jetpack_init has
+	 * fired trips _doing_it_wrong(); the keys are still recorded, but the
+	 * already-completed init() is unaffected for this request.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -481,15 +484,17 @@ class Initializer {
 	/**
 	 * Whether the My Jetpack app should advertise the Add License screen.
 	 *
-	 * True only when the licensing UI feature flag is on AND the licensing REST
-	 * endpoints are actually registered -- that is, Licensing::initialize() ran,
-	 * whether from My Jetpack's own licensing subsystem or independently from the
-	 * Jetpack plugin. is_licensing_ui_enabled() alone is just a feature flag and
-	 * does not track initialization, so a consumer that skips the licensing
-	 * subsystem via update_init_options() would otherwise still show an Add License
-	 * screen whose REST calls 404. Keyed on route availability rather than on the
-	 * skip flag so a site where the Jetpack plugin initialized Licensing
+	 * True only when the licensing UI feature flag is on AND the callback that
+	 * registers the licensing REST endpoints is hooked on rest_api_init -- that is,
+	 * Licensing::initialize() ran, whether from My Jetpack's own licensing subsystem
+	 * or independently from the Jetpack plugin. is_licensing_ui_enabled() alone is
+	 * just a feature flag and does not track initialization, so a consumer that skips
+	 * the licensing subsystem via update_init_options() would otherwise still show an
+	 * Add License screen whose REST calls 404. Keyed on route availability rather than
+	 * on the skip flag so a site where the Jetpack plugin initialized Licensing
 	 * independently still advertises the screen.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return bool
 	 */

@@ -13,6 +13,7 @@ import { useCallback, useEffect } from 'react';
 import { MyJetpackRoutes } from '../../constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
 import useProduct from '../../data/products/use-product';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -21,6 +22,10 @@ import GoBackLink from '../go-back-link';
 import ProductDetailCard from '../product-detail-card';
 import ProductDetailTable from '../product-detail-table';
 import styles from './style.module.scss';
+
+// Built-in My Jetpack Add License route; the button to it is suppressed when that
+// route isn't loadable (e.g. the licensing subsystem was skipped at init()).
+const ADD_LICENSE_URL = 'admin.php?page=my-jetpack#/add-license';
 
 /**
  * Product Interstitial component.
@@ -45,7 +50,7 @@ import styles from './style.module.scss';
  */
 export default function ProductInterstitial( {
 	bundle,
-	existingLicenseKeyUrl = 'admin.php?page=my-jetpack#/add-license',
+	existingLicenseKeyUrl = ADD_LICENSE_URL,
 	installsPlugin = false,
 	slug,
 	supportingInfo,
@@ -193,6 +198,14 @@ export default function ProductInterstitial( {
 		]
 	);
 
+	const { loadAddLicenseScreen } = getMyJetpackWindowInitialState();
+	// The built-in Add License route 404s when the licensing REST endpoints aren't
+	// registered (e.g. the licensing subsystem was skipped); hide the action then.
+	// A custom license-key URL (e.g. Akismet) points elsewhere and always shows.
+	const showLicenseAction =
+		!! existingLicenseKeyUrl &&
+		( existingLicenseKeyUrl !== ADD_LICENSE_URL || loadAddLicenseScreen );
+
 	return (
 		<AdminPage
 			showBackground={ false }
@@ -204,7 +217,7 @@ export default function ProductInterstitial( {
 				/>
 			}
 			actions={
-				existingLicenseKeyUrl ? (
+				showLicenseAction ? (
 					<Button
 						size="compact"
 						variant="outline"
