@@ -822,6 +822,29 @@ class Jetpack {
 	}
 
 	/**
+	 * Whether the bundled Premium Analytics dashboard is enabled.
+	 *
+	 * Premium Analytics ships with the plugin behind this flag while it rolls
+	 * out (WOOA7S-1595). When enabled it replaces the Stats wp-admin UI (menu,
+	 * admin-bar entries, post-list column, and WP dashboard widget); the Stats
+	 * module's tracking is unaffected — Premium Analytics depends on it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_premium_analytics_enabled() {
+		/**
+		 * Filters whether the bundled Premium Analytics dashboard is enabled.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $enabled Defaults to the `jetpack_premium_analytics_enabled` option (false).
+		 */
+		return (bool) apply_filters( 'jetpack_premium_analytics_enabled', (bool) get_option( 'jetpack_premium_analytics_enabled' ) );
+	}
+
+	/**
 	 * Before everything else starts getting initalized, we need to initialize Jetpack using the
 	 * Config object.
 	 */
@@ -922,6 +945,19 @@ class Jetpack {
 					}
 				},
 				0
+			);
+		}
+
+		/*
+		 * Premium Analytics (WOOA7S-1595): bundled behind a flag while it rolls
+		 * out. Unlike Stats above it must initialize on every request when
+		 * enabled: its WooCommerce store-event tracker listens on the front end
+		 * and its REST surfaces self-gate on rest_api_init. When enabled it
+		 * replaces the Stats wp-admin UI (see modules/stats.php).
+		 */
+		if ( self::is_premium_analytics_enabled() && class_exists( 'Automattic\Jetpack\PremiumAnalytics\Analytics' ) ) {
+			\Automattic\Jetpack\PremiumAnalytics\Analytics::init(
+				array( 'menu_title' => __( 'Analytics', 'jetpack' ) )
 			);
 		}
 

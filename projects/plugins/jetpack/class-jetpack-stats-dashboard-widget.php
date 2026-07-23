@@ -42,6 +42,11 @@ class Jetpack_Stats_Dashboard_Widget {
 	 */
 	public static function wp_dashboard_setup() {
 
+		// The bundled Premium Analytics dashboard replaces the Stats widget when enabled (WOOA7S-1595).
+		if ( Jetpack::is_premium_analytics_enabled() ) {
+			return;
+		}
+
 		/**
 		 * Filter whether the Jetpack Stats dashboard widget should be shown to the current user.
 		 * By default, the dashboard widget is shown to users who can view_stats.
