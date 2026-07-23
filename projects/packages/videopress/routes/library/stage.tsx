@@ -36,13 +36,14 @@ const PRIVACY_LABELS: Record< LibraryItemPrivacy, string > = {
 // Grid tiles already lead with the thumbnail + title; the filename
 // below repeats information the title implies and clutters the tile.
 // Keep it hidden by default — users who want it can still toggle it
-// on via the DataViews field-visibility control.
-const GRID_VISIBLE_FIELDS: string[] = [];
+// on via the DataViews field-visibility control. The orientation
+// indicator is icon-only, so it earns its spot on the tile.
+const GRID_VISIBLE_FIELDS: string[] = [ 'orientation' ];
 // `fileSize` is intentionally omitted: it's only populated for local
 // (non-VideoPress) uploads today, so it's blank for most rows. Users
 // who want the column can still toggle it on via the DataViews column-
 // visibility control.
-const TABLE_VISIBLE_FIELDS = [ 'filename', 'duration', 'uploadDate', 'privacy' ];
+const TABLE_VISIBLE_FIELDS = [ 'filename', 'duration', 'orientation', 'uploadDate', 'privacy' ];
 
 const DEFAULT_VIEW: View = {
 	type: 'grid',
@@ -383,6 +384,7 @@ const StageInner = () => {
 				allowDownloads: false,
 				shortcode: '',
 				isProcessing: false,
+				orientation: null,
 				tracks: [],
 			} ) );
 		// Overlay an in-flight state on items currently being promoted from

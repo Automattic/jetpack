@@ -358,6 +358,26 @@ describe( 'on WordPress.com Simple', () => {
 			expect( local.type ).toBe( 'local' );
 		} );
 
+		it( 'derives the orientation from the source dimensions', () => {
+			const withDimensions = ( width?: number, height?: number ) =>
+				toLibraryItem(
+					{
+						id: 10,
+						title: { rendered: 'Oriented' },
+						mime_type: 'video/mp4',
+						media_details: { width, height },
+					},
+					false
+				);
+
+			expect( withDimensions( 1920, 1080 ).orientation ).toBe( 'landscape' );
+			expect( withDimensions( 1080, 1920 ).orientation ).toBe( 'portrait' );
+			// Square and unknown dimensions carry no orientation.
+			expect( withDimensions( 1080, 1080 ).orientation ).toBeNull();
+			expect( withDimensions( undefined, undefined ).orientation ).toBeNull();
+			expect( withDimensions( 1920, undefined ).orientation ).toBeNull();
+		} );
+
 		it( 'sends the privacy filter as a server param in a single request, totals from headers', async () => {
 			// Server-side filtering: the privacy filter is a query param, the
 			// server does the narrowing, and the hook reads X-WP-Total verbatim.
