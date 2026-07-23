@@ -170,9 +170,16 @@ class Initializer {
 	 * on an early plugins_loaded callback (a priority below 90) rather than at
 	 * plugin-file load time: resolving this class before plugins_loaded lets the
 	 * Jetpack Autoloader select a stale My Jetpack package when another plugin
-	 * bundles a newer one. Calling it with a skip list after my_jetpack_init has
-	 * fired trips _doing_it_wrong(); the keys are still recorded, but the
-	 * already-completed init() is unaffected for this request.
+	 * bundles a newer one.
+	 *
+	 * Because this configures a shared package, it only affects the init() call that
+	 * runs after it. A consumer that boots My Jetpack from its own plugin file, as
+	 * some standalone Jetpack plugins do, initializes before any such point and
+	 * cannot use this to skip subsystems.
+	 *
+	 * Calling it with a skip list after my_jetpack_init has fired trips
+	 * _doing_it_wrong(); the keys are still recorded, but the already-completed
+	 * init() is unaffected for this request.
 	 *
 	 * @since $$next-version$$
 	 *
