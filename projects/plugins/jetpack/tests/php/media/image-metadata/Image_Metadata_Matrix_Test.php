@@ -109,7 +109,7 @@ class Image_Metadata_Matrix_Test extends WP_UnitTestCase {
 	private function process( $bytes, $filename ) {
 		$path = $this->dir . $filename;
 		file_put_contents( $path, $bytes );
-		$id = $this->factory->attachment->create_object(
+		$id = self::factory()->attachment->create_object(
 			array(
 				'file'           => $path,
 				'post_mime_type' => wp_check_filetype( $path )['type'],

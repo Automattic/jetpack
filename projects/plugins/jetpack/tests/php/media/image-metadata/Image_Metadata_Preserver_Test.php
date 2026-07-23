@@ -59,7 +59,7 @@ class Image_Metadata_Preserver_Test extends WP_UnitTestCase {
 		file_put_contents( $original, Image_Metadata_Fixtures::png_with_provenance() );
 		file_put_contents( $deriv, Image_Metadata_Fixtures::bare_png() );
 
-		$attachment_id = $this->factory->attachment->create_object(
+		$attachment_id = self::factory()->attachment->create_object(
 			array(
 				'file'           => $original,
 				'post_mime_type' => 'image/png',
@@ -119,7 +119,9 @@ class Image_Metadata_Preserver_Test extends WP_UnitTestCase {
 		// Flip the Image CDN's private static enabled flag without instantiating
 		// the singleton, then restore it so no state leaks to other tests.
 		$prop = new ReflectionProperty( '\Automattic\Jetpack\Image_CDN\Image_CDN', 'is_enabled' );
-		$prop->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true ); // Needed before PHP 8.1; a no-op (and deprecated) after.
+		}
 		$prop->setValue( null, true );
 		try {
 			Metadata_Preserver::preserve( $metadata, $id );
@@ -210,7 +212,7 @@ class Image_Metadata_Preserver_Test extends WP_UnitTestCase {
 		file_put_contents( $original, $oversized_png );
 		file_put_contents( $deriv, $bare );
 
-		$id = $this->factory->attachment->create_object(
+		$id = self::factory()->attachment->create_object(
 			array(
 				'file'           => $original,
 				'post_mime_type' => 'image/png',
@@ -267,7 +269,7 @@ class Image_Metadata_Preserver_Test extends WP_UnitTestCase {
 		file_put_contents( $original, $oversized_png );
 		file_put_contents( $deriv, $bare );
 
-		$id = $this->factory->attachment->create_object(
+		$id = self::factory()->attachment->create_object(
 			array(
 				'file'           => $original,
 				'post_mime_type' => 'image/png',
@@ -295,7 +297,7 @@ class Image_Metadata_Preserver_Test extends WP_UnitTestCase {
 		$bare = Image_Metadata_Fixtures::bare_png();
 		file_put_contents( $deriv, $bare );
 
-		$id = $this->factory->attachment->create_object(
+		$id = self::factory()->attachment->create_object(
 			array(
 				'file'           => $original,
 				'post_mime_type' => 'image/png',

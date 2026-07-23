@@ -133,7 +133,7 @@ final class Metadata_Preserver {
 		// Only inject when the derivative is the same format as the source; a
 		// derivative in another format (e.g. a WebP of a PNG) is left alone.
 		$check      = wp_check_filetype( $path );
-		$deriv_mime = isset( $check['type'] ) ? $check['type'] : false;
+		$deriv_mime = $check['type'] ?? false;
 		if ( $deriv_mime !== $source_mime ) {
 			return;
 		}
