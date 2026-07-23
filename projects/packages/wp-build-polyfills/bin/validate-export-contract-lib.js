@@ -1,4 +1,4 @@
-/* global __dirname */
+/* global __dirname, process */
 /**
  * Export-contract validation: assert every symbol a consumer package imports from
  * a polyfilled provider actually exists in the shipped provider's public exports.
@@ -55,8 +55,10 @@ function getShippedPackages( packageRoot ) {
 
 /**
  * Original names of the symbols named-imported from a provider in ESM source.
- * Handles `import { A, B as C } from '@wordpress/x'` (imported name is before `as`);
- * ignores namespace/default imports, which can't be a missing named export.
+ * Handles `import { A, B as C } from '@wordpress/x'` and the mixed default form
+ * `import Def, { A } from '@wordpress/x'` (imported name is before `as`); a pure
+ * default or namespace import has no `{ … }` and is ignored (can't be a missing
+ * named export).
  *
  * @param {string} source      - ESM source text.
  * @param {string} providerPkg - e.g. '@wordpress/theme'.
@@ -65,7 +67,11 @@ function getShippedPackages( packageRoot ) {
 function parseNamedImports( source, providerPkg ) {
 	const found = new Set();
 	const escaped = providerPkg.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' );
-	const re = new RegExp( `import\\s*\\{([^}]*)\\}\\s*from\\s*['"]${ escaped }['"]`, 'g' );
+	// Optional `Default,` before the named block covers `import Def, { A } from …`.
+	const re = new RegExp(
+		`import\\s*(?:[\\w$]+\\s*,\\s*)?\\{([^}]*)\\}\\s*from\\s*['"]${ escaped }['"]`,
+		'g'
+	);
 	let match;
 	while ( ( match = re.exec( source ) ) !== null ) {
 		for ( const specifier of match[ 1 ].split( ',' ) ) {
@@ -220,6 +226,28 @@ function formatError( failures, errors ) {
 }
 
 /**
+ * Parse WP_BUILD_POLYFILLS_SIMULATE_MISSING (`pkg:Symbol,pkg:Symbol`) into a
+ * `{ pkg: [ symbol ] }` drop-map. This is a TEST-ONLY hook that lets the CLI's
+ * failure path be exercised end-to-end (see the CLI test); it is not a
+ * user-facing feature.
+ *
+ * @param {string|undefined} raw - Raw env value.
+ * @return {object} Map of provider package → symbol[] to drop.
+ */
+function parseSimulateEnv( raw ) {
+	const map = {};
+	for ( const pair of ( raw || '' ).split( ',' ) ) {
+		const idx = pair.lastIndexOf( ':' );
+		const pkg = idx === -1 ? '' : pair.slice( 0, idx ).trim();
+		const symbol = idx === -1 ? '' : pair.slice( idx + 1 ).trim();
+		if ( pkg && symbol ) {
+			( map[ pkg ] = map[ pkg ] || [] ).push( symbol );
+		}
+	}
+	return map;
+}
+
+/**
  * Validate the export contracts across the shipped package set. Reads the shipped
  * versions from the polyfill's own resolution context (same as the build).
  *
@@ -235,7 +263,8 @@ function validateExportContracts( options = {} ) {
 	const shipped = getShippedPackages( packageRoot );
 	const providers = options.providers || shipped.providers;
 	const consumers = options.consumers || shipped.consumers;
-	const simulateMissing = options.simulateMissing || {};
+	const simulateMissing =
+		options.simulateMissing || parseSimulateEnv( process.env.WP_BUILD_POLYFILLS_SIMULATE_MISSING );
 
 	const errors = [];
 	const providerExports = {};
@@ -248,6 +277,16 @@ function validateExportContracts( options = {} ) {
 		if ( ! exp ) {
 			errors.push( `Could not read exports for ${ provider }.` );
 			continue;
+		}
+		if ( exp.opaque ) {
+			// A barrel (`export *`) can't be statically enumerated, so we can't verify
+			// this provider — warn loudly rather than skip it silently, which would be
+			// a hole in exactly the protection this check exists for.
+			// eslint-disable-next-line no-console
+			console.warn(
+				`[export-contract] Not verifying ${ provider }: its index uses \`export *\`, ` +
+					'so its public exports can’t be enumerated statically.'
+			);
 		}
 		const dropped = simulateMissing[ provider ] || [];
 		providerExports[ provider ] = {

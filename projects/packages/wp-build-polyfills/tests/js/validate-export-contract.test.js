@@ -15,11 +15,16 @@ const {
 const packageRoot = path.join( __dirname, '..', '..' );
 
 describe( 'validate-export-contract', () => {
-	it( 'parseNamedImports extracts imported names, honouring `as` aliases', () => {
+	it( 'parseNamedImports extracts imported names, honouring `as` aliases and mixed default imports', () => {
 		const src =
 			"import { ThemeProvider } from '@wordpress/theme';\nimport { privateApis as p } from '@wordpress/route';";
 		assert.deepEqual( parseNamedImports( src, '@wordpress/theme' ), [ 'ThemeProvider' ] );
 		assert.deepEqual( parseNamedImports( src, '@wordpress/route' ), [ 'privateApis' ] );
+		// `import Def, { Bar } from …` must still yield the named symbol.
+		assert.deepEqual(
+			parseNamedImports( "import Def, { Bar } from '@wordpress/theme';", '@wordpress/theme' ),
+			[ 'Bar' ]
+		);
 	} );
 
 	it( 'parsePublicExports reads export names, honouring `as` aliases and `export *`', () => {
@@ -82,13 +87,29 @@ describe( 'validate-export-contract', () => {
 		} );
 	} );
 
+	const cli = path.join( packageRoot, 'bin', 'validate-export-contract.js' );
+
 	it( 'the CLI exits 0 when contracts hold', () => {
-		execFileSync(
-			process.execPath,
-			[ path.join( packageRoot, 'bin', 'validate-export-contract.js' ) ],
-			{
-				cwd: packageRoot,
-				stdio: 'pipe',
+		execFileSync( process.execPath, [ cli ], { cwd: packageRoot, stdio: 'pipe' } );
+	} );
+
+	// Covers the actual CI gate end-to-end: the CLI must exit non-zero on a violation.
+	// WP_BUILD_POLYFILLS_SIMULATE_MISSING is a test-only hook to inject one.
+	it( 'the CLI exits non-zero and reports the violation on a skew', () => {
+		assert.throws(
+			() =>
+				execFileSync( process.execPath, [ cli ], {
+					cwd: packageRoot,
+					stdio: 'pipe',
+					env: {
+						...process.env,
+						WP_BUILD_POLYFILLS_SIMULATE_MISSING: '@wordpress/theme:ThemeProvider',
+					},
+				} ),
+			err => {
+				assert.notEqual( err.status, 0 );
+				assert.match( String( err.stderr ), /ThemeProvider/ );
+				return true;
 			}
 		);
 	} );
