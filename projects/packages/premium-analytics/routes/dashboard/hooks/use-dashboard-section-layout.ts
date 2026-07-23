@@ -17,9 +17,10 @@ type PreferencesActions = {
  * Manage the customizable widget layout for the active dashboard section.
  *
  * Reads the customized layout from the preferences map, falling back to the
- * section's `default_layout` from the `dashboardSection` record. Reset writes
- * that same default back. Both first paint and reset come from the entity, so
- * there is no server-seeded preference.
+ * section's `default_layout` from the `dashboardSection` record. Reset deletes
+ * the section's entry instead of writing the default's contents: a stored
+ * snapshot would shadow the entity default forever, pinning users who asked to
+ * follow the default to whatever it happened to be at reset time.
  *
  * @param activeSectionId - Currently active section slug.
  * @param sections        - The available sections, carrying their defaults.
@@ -59,11 +60,14 @@ export function useDashboardSectionLayout(
 	);
 
 	const resetLayout = useCallback( () => {
-		void set( DASHBOARD_PREFERENCES_SCOPE, PREFERENCES_KEY, {
-			...sectionLayouts,
-			[ activeSectionId ]: sectionDefault,
-		} );
-	}, [ activeSectionId, sectionDefault, sectionLayouts, set ] );
+		if ( ! ( activeSectionId in sectionLayouts ) ) {
+			return;
+		}
+
+		const nextLayouts = { ...sectionLayouts };
+		delete nextLayouts[ activeSectionId ];
+		void set( DASHBOARD_PREFERENCES_SCOPE, PREFERENCES_KEY, nextLayouts );
+	}, [ activeSectionId, sectionLayouts, set ] );
 
 	return [ layout, setLayout, resetLayout ];
 }
