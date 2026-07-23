@@ -619,7 +619,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/cookie-consent",
-                "reference": "92110df34cdb10905abd390cbd0d660853428783"
+                "reference": "dd9e44d90e1d39c705a3ef43d800bef179df4b45"
             },
             "require": {
                 "automattic/jetpack-ip": "@dev",
@@ -659,6 +659,9 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ]
             },
             "license": [
