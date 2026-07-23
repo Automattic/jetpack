@@ -83,6 +83,25 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Build a registry card, failing the test rather than handing back null.
+	 *
+	 * `build()` is nullable because an id the registry does not define has no card, and every call here
+	 * but one passes an id it does define. Asserting that up front says so, and turns a null into a
+	 * named failure instead of an "array offset on null" several assertions later — which is also what
+	 * stops static analysis reading each `$card['id']` as an unguarded nullable access.
+	 *
+	 * @param string $task_id  A task id the registry defines.
+	 * @param string $subtitle The AI-written subtitle, or '' to take the registry default.
+	 * @return array The built card.
+	 */
+	private function build_card( $task_id, $subtitle ) {
+		$card = AI_Launchpad_Task_Registry::build( $task_id, $subtitle );
+		$this->assertIsArray( $card, "the registry defines $task_id but built no card for it" );
+
+		return (array) $card;
+	}
+
+	/**
 	 * The registry knows its own tasks, and does not claim catalog tasks.
 	 *
 	 * @param string $task_id A task id the registry defines.
@@ -186,7 +205,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	 * empty subtitle falls back to the registry default rather than rendering a blank card.
 	 */
 	public function test_build_returns_a_complete_card() {
-		$card = AI_Launchpad_Task_Registry::build( 'add_gallery_page', 'Show off your ceramics.' );
+		$card = $this->build_card( 'add_gallery_page', 'Show off your ceramics.' );
 
 		$this->assertSame( 'add_gallery_page', $card['id'] );
 		$this->assertSame( 'Show off your ceramics.', $card['subtitle'] );
@@ -196,7 +215,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( $card['disabled'] );
 		$this->assertNull( $card['calypso_path'] );
 
-		$default = AI_Launchpad_Task_Registry::build( 'add_gallery_page', '' );
+		$default = $this->build_card( 'add_gallery_page', '' );
 		$this->assertSame( 'Show your work in a beautiful photo gallery.', $default['subtitle'] );
 	}
 
@@ -207,7 +226,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 		$draft_id = 4343;
 		$this->seed_marker_draft( $draft_id );
 
-		$card = AI_Launchpad_Task_Registry::build( 'add_gallery_page', 'Show your work.' );
+		$card = $this->build_card( 'add_gallery_page', 'Show your work.' );
 
 		$this->assertTrue( $card['in_progress'] );
 		$this->assertSame( 'Continue working on your gallery', $card['title'] );
@@ -226,7 +245,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 		update_option( 'launchpad_checklist_tasks_statuses', array( 'add_gallery_page' => true ) );
 		$this->seed_marker_draft( 4343 );
 
-		$card = AI_Launchpad_Task_Registry::build( 'add_gallery_page', 'Show your work.' );
+		$card = $this->build_card( 'add_gallery_page', 'Show your work.' );
 
 		$this->assertTrue( $card['completed'] );
 		$this->assertFalse( $card['in_progress'] );
@@ -248,7 +267,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	public function test_a_page_task_reports_its_own_in_progress_draft( $task_id, $meta_key, $draft_id, $continue_title ) {
 		$this->seed_marker_draft( $draft_id, $meta_key );
 
-		$card = AI_Launchpad_Task_Registry::build( $task_id, 'Whatever the AI wrote.' );
+		$card = $this->build_card( $task_id, 'Whatever the AI wrote.' );
 
 		$this->assertTrue( $card['in_progress'] );
 		$this->assertSame( $continue_title, $card['title'] );
@@ -313,13 +332,13 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 		$this->seed_marker_draft( 4343, AI_Launchpad_Gallery_Page_Listener::META_KEY );
 
 		$this->assertTrue(
-			AI_Launchpad_Task_Registry::build( 'add_gallery_page', '' )['in_progress'],
+			$this->build_card( 'add_gallery_page', '' )['in_progress'],
 			'the premise: this harness can produce an in-progress card at all'
 		);
-		$this->assertFalse( AI_Launchpad_Task_Registry::build( 'add_contact_page', '' )['in_progress'] );
-		$this->assertFalse( AI_Launchpad_Task_Registry::build( 'add_events_page', '' )['in_progress'] );
-		$this->assertFalse( AI_Launchpad_Task_Registry::build( 'add_video_page', '' )['in_progress'] );
-		$this->assertFalse( AI_Launchpad_Task_Registry::build( 'add_portfolio_piece', '' )['in_progress'] );
+		$this->assertFalse( $this->build_card( 'add_contact_page', '' )['in_progress'] );
+		$this->assertFalse( $this->build_card( 'add_events_page', '' )['in_progress'] );
+		$this->assertFalse( $this->build_card( 'add_video_page', '' )['in_progress'] );
+		$this->assertFalse( $this->build_card( 'add_portfolio_piece', '' )['in_progress'] );
 	}
 
 	/**
@@ -336,7 +355,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 		update_option( 'launchpad_checklist_tasks_statuses', array( $task_id => true ) );
 
 		$this->assertTrue( AI_Launchpad_Task_Registry::is_complete( $task_id ) );
-		$this->assertTrue( AI_Launchpad_Task_Registry::build( $task_id, '' )['completed'] );
+		$this->assertTrue( $this->build_card( $task_id, '' )['completed'] );
 	}
 
 	/**
@@ -374,7 +393,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	public function test_build_resolves_the_declared_cta( $task_id, $expected ) {
 		$this->use_block_theme();
 
-		$card = AI_Launchpad_Task_Registry::build( $task_id, 'A subtitle.' );
+		$card = $this->build_card( $task_id, 'A subtitle.' );
 
 		$this->assertSame( null === $expected ? null : admin_url( $expected ), $card['calypso_path'] );
 	}
@@ -420,7 +439,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 		}
 
 		$this->assertSame( $expected, AI_Launchpad_Task_Registry::is_complete( 'add_site_icon' ) );
-		$this->assertSame( $expected, AI_Launchpad_Task_Registry::build( 'add_site_icon', '' )['completed'] );
+		$this->assertSame( $expected, $this->build_card( 'add_site_icon', '' )['completed'] );
 	}
 
 	/**
@@ -500,7 +519,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	public function test_build_returns_the_declared_copy( $task_id, $title, $subtitle ) {
 		$this->use_block_theme();
 
-		$card = AI_Launchpad_Task_Registry::build( $task_id, '' );
+		$card = $this->build_card( $task_id, '' );
 
 		$this->assertSame( $task_id, $card['id'] );
 		$this->assertSame( $title, $card['title'] );
@@ -569,12 +588,12 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 	#[DataProvider( 'provide_plugin_discovery_tasks' )]
 	public function test_plugin_discovery_completion_tracks_the_active_plugin( $task_id, $plugin_file ) {
 		$this->assertFalse( AI_Launchpad_Task_Registry::is_complete( $task_id ) );
-		$this->assertFalse( AI_Launchpad_Task_Registry::build( $task_id, '' )['completed'] );
+		$this->assertFalse( $this->build_card( $task_id, '' )['completed'] );
 
 		update_option( 'active_plugins', array( $plugin_file ) );
 
 		$this->assertTrue( AI_Launchpad_Task_Registry::is_complete( $task_id ) );
-		$this->assertTrue( AI_Launchpad_Task_Registry::build( $task_id, '' )['completed'] );
+		$this->assertTrue( $this->build_card( $task_id, '' )['completed'] );
 
 		update_option( 'active_plugins', array() );
 
@@ -677,7 +696,7 @@ class AI_Launchpad_Task_Registry_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame(
 			'/plugins/sensei-lms/' . $site,
-			AI_Launchpad_Task_Registry::build( 'install_sensei_lms', '' )['calypso_path'],
+			$this->build_card( 'install_sensei_lms', '' )['calypso_path'],
 			'install_sensei_lms must link to its Calypso plugin page on Simple'
 		);
 	}
