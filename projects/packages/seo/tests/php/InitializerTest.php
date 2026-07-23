@@ -566,6 +566,62 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
+	 * The Tracks bootstrap exposes exactly the standard identifier set the client
+	 * `recordSeoEvent()` wrapper spreads onto every event, with the types the Data
+	 * team's schema expects. `blog_id` is the join key for the distinct-site launch
+	 * metric, so it must always be an int and never null.
+	 */
+	public function test_get_tracks_context_shape() {
+		$context = Initializer::get_tracks_context();
+
+		$this->assertSame(
+			array( 'blog_id', 'site_type', 'is_a11n', 'is_test', 'product_version' ),
+			array_keys( $context )
+		);
+		$this->assertIsInt( $context['blog_id'] );
+		$this->assertContains( $context['site_type'], array( 'simple', 'atomic', 'jetpack' ) );
+		$this->assertIsBool( $context['is_a11n'] );
+		$this->assertIsBool( $context['is_test'] );
+		$this->assertSame( Initializer::PACKAGE_VERSION, $context['product_version'] );
+	}
+
+	/**
+	 * A WordPress.com staging site counts as internal traffic, so `is_test` is true
+	 * and the launch metric can filter it out. `wpcom_is_staging_site` is the signal
+	 * Dotcom sets, and it's the case the deprecated `Status::is_staging_site()`
+	 * wouldn't have caught on its own.
+	 */
+	public function test_get_tracks_context_flags_a_wpcom_staging_site_as_test() {
+		$this->assertFalse( Initializer::get_tracks_context()['is_test'] );
+
+		update_option( 'wpcom_is_staging_site', '1' );
+
+		try {
+			$this->assertTrue( Initializer::get_tracks_context()['is_test'] );
+		} finally {
+			delete_option( 'wpcom_is_staging_site' );
+		}
+	}
+
+	/**
+	 * The WordPress.com Tracks transport is enqueued on the SEO admin page. Without
+	 * it `jetpack-analytics` only ever queues events into `window._tkq` and nothing
+	 * reaches Tracks, so every event this package fires would be silently dropped.
+	 */
+	public function test_enqueue_tracks_transport_enqueues_the_tracks_script() {
+		$this->assertFalse( wp_script_is( 'jp-tracks', 'enqueued' ) );
+
+		try {
+			Initializer::enqueue_tracks_transport();
+
+			$this->assertTrue( wp_script_is( 'jp-tracks', 'enqueued' ) );
+		} finally {
+			wp_dequeue_script( 'jp-tracks' );
+			wp_deregister_script( 'jp-tracks' );
+		}
+	}
+
+	/**
 	 * The site-identity bootstrap (used by the Settings search/social previews)
 	 * exposes title, url, icon and image, all as strings. With no site icon or
 	 * custom logo in the test environment the image falls back to the (empty)

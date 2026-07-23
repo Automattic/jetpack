@@ -291,7 +291,25 @@ class Initializer {
 
 		self::load_wp_build();
 		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_script_data' ) );
+	}
+
+	/**
+	 * Load the WordPress.com Tracks transport on the SEO admin page.
+	 *
+	 * `jetpack-analytics` (behind the client `recordSeoEvent()` wrapper) only queues
+	 * events into `window._tkq`. Without `jp-tracks` (`stats.wp.com/w.js`) loaded
+	 * nothing flushes that queue, so no event ever reaches Tracks and the queue just
+	 * grows for the life of the page. Mirrors the Newsletter and Search dashboards.
+	 *
+	 * Registered from {@see self::maybe_load_wp_build()}, which already ran the
+	 * SEO-admin-page check, so this only enqueues on our page.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_tracks_transport() {
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 	}
 
 	/**
@@ -431,16 +449,28 @@ class Initializer {
 			$blog_id = get_current_blog_id();
 		}
 
-		$status = new Status();
+		// Whether the visitor is an Automattician (WordPress.com only; the function
+		// is undefined on self-hosted).
+		$is_a11n = false;
+		if ( function_exists( 'is_automattician' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- is_automattician() lives on WordPress.com, guarded by function_exists.
+			$is_a11n = (bool) is_automattician();
+		}
+
+		// Internal traffic to exclude from the metrics: WordPress.com staging sites,
+		// installs declaring a non-production environment, and local installs.
+		// `Status::is_staging_site()` covers the middle case but is deprecated since
+		// 3.3.0, and its suggested replacement (`in_safe_mode`) detects an Identity
+		// Crisis rather than a staging site.
+		$is_test = (bool) get_option( 'wpcom_is_staging_site' )
+			|| 'production' !== wp_get_environment_type()
+			|| ( new Status() )->is_local_site();
 
 		return array(
 			'blog_id'         => $blog_id,
 			'site_type'       => $site_type,
-			// Whether the visitor is an Automattician (WordPress.com only; the
-			// function is undefined on self-hosted).
-			'is_a11n'         => function_exists( 'is_automattician' ) ? (bool) is_automattician() : false,
-			// Staging / local installs are internal traffic to exclude from metrics.
-			'is_test'         => $status->is_staging_site() || $status->is_local_site(),
+			'is_a11n'         => $is_a11n,
+			'is_test'         => $is_test,
 			'product_version' => self::PACKAGE_VERSION,
 		);
 	}
