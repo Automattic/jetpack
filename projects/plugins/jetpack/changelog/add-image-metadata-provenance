@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Images: preserve AI-provenance metadata (IPTC/XMP, such as DigitalSourceType) on resized images when the Image CDN is not active.
+Images: preserve AI-provenance XMP metadata on resized JPEG and PNG images when the Image CDN is not active.

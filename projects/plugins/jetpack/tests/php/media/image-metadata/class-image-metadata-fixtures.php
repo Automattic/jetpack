@@ -1,58 +1,40 @@
 <?php
 /**
- * Builds image fixtures with and without provenance metadata.
+ * Image fixtures for XMP preservation tests.
  *
  * @package automattic/jetpack
  */
 
 /**
- * Builds valid base images with GD.
+ * Builds JPEG and PNG images with optional XMP.
  */
 class Image_Metadata_Fixtures {
 
-	const SOURCE_TYPE = 'http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia';
-	const EXIF_MARKER = 'GPS-EXIF-MUST-NOT-SURVIVE';
-
-	/**
-	 * DigitalSourceType for a non-AI image.
-	 */
+	const AI_SOURCE_TYPE     = 'http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia';
 	const NON_AI_SOURCE_TYPE = 'http://cv.iptc.org/newscodes/digitalsourcetype/digitalCapture';
+	const EXIF_MARKER        = 'EXIF-MUST-NOT-BE-COPIED';
 
 	/**
-	 * A minimal XMP packet carrying DigitalSourceType.
+	 * Build a minimal XMP packet.
 	 *
+	 * @param string $source_type DigitalSourceType value.
+	 * @param string $padding     Optional packet padding.
 	 * @return string
 	 */
-	public static function xmp_packet() {
-		return '<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>'
+	public static function xmp_packet( $source_type = self::AI_SOURCE_TYPE, $padding = '' ) {
+		return '<?xpacket begin=""?>'
 			. '<x:xmpmeta xmlns:x="adobe:ns:meta/">'
 			. '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">'
 			. '<rdf:Description xmlns:Iptc4xmpExt="http://iptc.org/std/Iptc4xmpExt/2008-02-29/">'
-			. '<Iptc4xmpExt:DigitalSourceType>' . self::SOURCE_TYPE . '</Iptc4xmpExt:DigitalSourceType>'
+			. '<Iptc4xmpExt:DigitalSourceType>' . $source_type . '</Iptc4xmpExt:DigitalSourceType>'
+			. $padding
 			. '</rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end="w"?>';
 	}
 
 	/**
-	 * A minimal non-AI XMP packet.
+	 * Build a PNG chunk.
 	 *
-	 * @return string
-	 */
-	public static function non_ai_xmp_packet() {
-		return '<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>'
-			. '<x:xmpmeta xmlns:x="adobe:ns:meta/">'
-			. '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">'
-			. '<rdf:Description'
-			. ' xmlns:Iptc4xmpExt="http://iptc.org/std/Iptc4xmpExt/2008-02-29/"'
-			. ' xmlns:dc="http://purl.org/dc/elements/1.1/">'
-			. '<Iptc4xmpExt:DigitalSourceType>' . self::NON_AI_SOURCE_TYPE . '</Iptc4xmpExt:DigitalSourceType>'
-			. '<dc:rights>Copyright Example Photographer</dc:rights>'
-			. '</rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end="w"?>';
-	}
-
-	/**
-	 * Build a PNG chunk: length + type + data + CRC32(type+data).
-	 *
-	 * @param string $type Four-character chunk type.
+	 * @param string $type Chunk type.
 	 * @param string $data Chunk data.
 	 * @return string
 	 */
@@ -61,54 +43,37 @@ class Image_Metadata_Fixtures {
 	}
 
 	/**
-	 * A valid PNG with no ancillary metadata.
+	 * Build a small PNG without metadata.
 	 *
 	 * @return string
 	 */
 	public static function bare_png() {
-		$img = imagecreatetruecolor( 4, 4 );
+		$image = imagecreatetruecolor( 4, 4 );
 		ob_start();
-		imagepng( $img );
+		imagepng( $image );
 		return ob_get_clean();
 	}
 
 	/**
-	 * A PNG carrying an iTXt XMP chunk (provenance) and an eXIf chunk (must be excluded).
+	 * Add XMP and optional EXIF chunks to a PNG.
 	 *
+	 * @param string $xmp       XMP packet.
+	 * @param bool   $with_exif Whether to add an EXIF chunk.
 	 * @return string
 	 */
-	public static function png_with_provenance() {
-		$png = self::bare_png();
-
-		// Uncompressed iTXt fields: keyword, flags, language, translation, and text.
-		$itxt_data  = "XML:com.adobe.xmp\0\0\0\0\0" . self::xmp_packet();
-		$xmp_chunk  = self::png_chunk( 'iTXt', $itxt_data );
-		$exif_chunk = self::png_chunk( 'eXIf', self::EXIF_MARKER );
-
-		$iend_length_pos = strpos( $png, 'IEND' ) - 4;
-		return substr( $png, 0, $iend_length_pos ) . $xmp_chunk . $exif_chunk . substr( $png, $iend_length_pos );
+	public static function png_with_xmp( $xmp, $with_exif = false ) {
+		$png  = self::bare_png();
+		$itxt = self::png_chunk( 'iTXt', "XML:com.adobe.xmp\0\0\0\0\0" . $xmp );
+		$exif = $with_exif ? self::png_chunk( 'eXIf', self::EXIF_MARKER ) : '';
+		$iend = strlen( $png ) - 12;
+		return substr( $png, 0, $iend ) . $itxt . $exif . substr( $png, $iend );
 	}
 
 	/**
-	 * A PNG carrying non-AI XMP provenance.
+	 * Build a JPEG segment.
 	 *
-	 * @return string
-	 */
-	public static function png_with_non_ai_provenance() {
-		$png = self::bare_png();
-
-		$itxt_data = "XML:com.adobe.xmp\0\0\0\0\0" . self::non_ai_xmp_packet();
-		$xmp_chunk = self::png_chunk( 'iTXt', $itxt_data );
-
-		$iend_length_pos = strpos( $png, 'IEND' ) - 4;
-		return substr( $png, 0, $iend_length_pos ) . $xmp_chunk . substr( $png, $iend_length_pos );
-	}
-
-	/**
-	 * Build a JPEG marker segment: 0xFF marker length(data+2) data.
-	 *
-	 * @param int    $marker Marker byte (e.g. 0xE1 for APP1).
-	 * @param string $data   Segment payload.
+	 * @param int    $marker Marker byte.
+	 * @param string $data   Segment data.
 	 * @return string
 	 */
 	public static function jpeg_segment( $marker, $data ) {
@@ -116,44 +81,35 @@ class Image_Metadata_Fixtures {
 	}
 
 	/**
-	 * A valid JPEG with no XMP/IPTC metadata (GD emits a JFIF APP0 only).
+	 * Build a small JPEG without metadata.
 	 *
 	 * @return string
 	 */
 	public static function bare_jpeg() {
-		$img = imagecreatetruecolor( 8, 8 );
+		$image = imagecreatetruecolor( 8, 8 );
 		ob_start();
-		imagejpeg( $img, null, 90 );
+		imagejpeg( $image, null, 90 );
 		return ob_get_clean();
 	}
 
 	/**
-	 * A JPEG carrying XMP, Photoshop/IPTC, and excluded EXIF segments.
+	 * Add XMP and optional EXIF segments to a JPEG.
 	 *
+	 * @param string $xmp       XMP packet.
+	 * @param bool   $with_exif Whether to add an EXIF segment.
 	 * @return string
 	 */
-	public static function jpeg_with_provenance() {
+	public static function jpeg_with_xmp( $xmp, $with_exif = false ) {
 		$jpeg = self::bare_jpeg();
+		$xmp  = self::jpeg_segment( 0xE1, "http://ns.adobe.com/xap/1.0/\0" . $xmp );
+		$exif = $with_exif ? self::jpeg_segment( 0xE1, "Exif\0\0" . self::EXIF_MARKER ) : '';
 
-		$app1_xmp   = self::jpeg_segment( 0xE1, "http://ns.adobe.com/xap/1.0/\0" . self::xmp_packet() );
-		$app13_iptc = self::jpeg_segment( 0xED, "Photoshop 3.0\0" . '8BIM-IPTC-' . self::SOURCE_TYPE );
-		$app1_exif  = self::jpeg_segment( 0xE1, "Exif\0\0" . self::EXIF_MARKER );
-
-		$insert_at = self::after_leading_app0( $jpeg );
-		return substr( $jpeg, 0, $insert_at ) . $app1_xmp . $app13_iptc . $app1_exif . substr( $jpeg, $insert_at );
-	}
-
-	/**
-	 * Get the offset after a leading JFIF APP0 segment or SOI.
-	 *
-	 * @param string $jpeg JPEG bytes.
-	 * @return int
-	 */
-	public static function after_leading_app0( $jpeg ) {
+		$insert_at = 2;
 		if ( "\xFF\xE0" === substr( $jpeg, 2, 2 ) ) {
-			$len = unpack( 'n', substr( $jpeg, 4, 2 ) );
-			return 2 + 2 + $len[1];
+			$length    = unpack( 'nvalue', substr( $jpeg, 4, 2 ) );
+			$insert_at = 4 + $length['value'];
 		}
-		return 2;
+
+		return substr( $jpeg, 0, $insert_at ) . $xmp . $exif . substr( $jpeg, $insert_at );
 	}
 }
