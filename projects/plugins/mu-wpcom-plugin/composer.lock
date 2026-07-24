@@ -1044,12 +1044,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/help-center",
-                "reference": "2d010ecc94259eacbbe328e9314a0cf9cff734ac"
+                "reference": "91a45bf85bebe2f5792374b804fe40d3d157f118"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-status": "@dev",
-                "php": ">=8.1"
+                "php": ">=7.2"
             },
             "require-dev": {
                 "automattic/jetpack-test-environment": "@dev",

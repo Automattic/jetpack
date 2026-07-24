@@ -25,12 +25,12 @@ final class Jetpack_Wpcom_Request_Client implements Wpcom_Request_Client {
 	 * @return array|\WP_Error Response data, or WP_Error on failure.
 	 */
 	public function request_as_user(
-		string $path,
-		string $version = '2',
-		array $args = array(),
-		array|string|null $body = null,
-		string $base_api_path = 'wpcom'
-	): array|\WP_Error {
+		$path,
+		$version = '2',
+		$args = array(),
+		$body = null,
+		$base_api_path = 'wpcom'
+	) {
 		return Client::wpcom_json_api_request_as_user( $path, $version, $args, $body, $base_api_path );
 	}
 }

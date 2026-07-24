@@ -31,12 +31,12 @@ use Automattic\Jetpack\Help_Center\Wpcom_Request_Client;
 
 final class My_Help_Center_Request_Client implements Wpcom_Request_Client {
 	public function request_as_user(
-		string $path,
-		string $version = '2',
-		array $args = array(),
-		array|string|null $body = null,
-		string $base_api_path = 'wpcom'
-	): array|\WP_Error {
+		$path,
+		$version = '2',
+		$args = array(),
+		$body = null,
+		$base_api_path = 'wpcom'
+	) {
 		return my_authenticated_wpcom_request( $path, $version, $args, $body, $base_api_path );
 	}
 }

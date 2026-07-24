@@ -141,12 +141,12 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 	public function test_init_uses_filtered_wpcom_request_client() {
 		$wpcom_request_client = new class() implements Wpcom_Request_Client {
 			public function request_as_user(
-				string $path,
-				string $version = '2',
-				array $args = array(),
-				array|string|null $body = null,
-				string $base_api_path = 'wpcom'
-			): array|\WP_Error {
+				$path,
+				$version = '2',
+				$args = array(),
+				$body = null,
+				$base_api_path = 'wpcom'
+			) {
 				return compact( 'path', 'version', 'args', 'body', 'base_api_path' );
 			}
 		};
@@ -176,12 +176,12 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 			public $requests = array();
 
 			public function request_as_user(
-				string $path,
-				string $version = '2',
-				array $args = array(),
-				array|string|null $body = null,
-				string $base_api_path = 'wpcom'
-			): array|\WP_Error {
+				$path,
+				$version = '2',
+				$args = array(),
+				$body = null,
+				$base_api_path = 'wpcom'
+			) {
 				$this->requests[] = compact( 'path', 'version', 'args', 'body', 'base_api_path' );
 				return array( 'body' => '{"items":[]}' );
 			}
