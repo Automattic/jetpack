@@ -26,8 +26,14 @@
 const fs = require( 'fs' );
 const path = require( 'path' );
 const { transformSync } = require( '@babel/core' );
+const { extractGettextCalls } = require( './i18n-stub-lib.js' );
 
 const PLUGIN = require.resolve( '@automattic/babel-plugin-replace-textdomain' );
+
+// Name of the catalog manifest emitted next to the stamped bundles. The
+// shared `loadI18nCatalogs` init-module helper fetches it at runtime to learn
+// which bundles carry translatable strings.
+const I18N_MANIFEST = 'i18n-manifest.json';
 
 // The wp-build subdirs that hold JS. Same set strip-unminified-prod walks,
 // minus `styles` (no gettext calls in CSS).
@@ -118,6 +124,50 @@ function stampDir( buildDir, domain ) {
 }
 
 /**
+ * Write the i18n catalog manifest for a wp-build output tree.
+ *
+ * Lists every non-minified `.js` bundle that carries gettext calls, as
+ * package-relative paths (e.g. `build/routes/inbox/content.js`) — the exact
+ * path shape `wp.jpI18nLoader.downloadI18n()` hashes to name a catalog. The
+ * shared `loadI18nCatalogs` helper fetches this manifest at runtime instead of
+ * each dashboard hand-maintaining a bundle list that drifts as routes,
+ * scripts, and widgets are added.
+ *
+ * Call after `stampDir()`: in production builds `strip-unminified-prod` later
+ * replaces each listed `.js` with an i18n reference stub at the same path, so
+ * the manifest stays valid.
+ *
+ * @param {string} buildDir - Absolute path to the package's build/ directory.
+ * @return {string[]} The package-relative bundle paths written to the manifest.
+ */
+function writeI18nManifest( buildDir ) {
+	const prefix = path.basename( buildDir );
+	const bundles = [];
+	for ( const sub of TARGET_SUBDIRS ) {
+		const dir = path.join( buildDir, sub );
+		if ( ! fs.existsSync( dir ) ) {
+			continue;
+		}
+		walk( dir, file => {
+			if ( ! file.endsWith( '.js' ) || file.endsWith( '.min.js' ) ) {
+				return;
+			}
+			if ( extractGettextCalls( fs.readFileSync( file, 'utf8' ) ).length > 0 ) {
+				bundles.push(
+					prefix + '/' + path.relative( buildDir, file ).split( path.sep ).join( '/' )
+				);
+			}
+		} );
+	}
+	bundles.sort();
+	fs.writeFileSync(
+		path.join( buildDir, I18N_MANIFEST ),
+		JSON.stringify( { bundles }, null, '\t' ) + '\n'
+	);
+	return bundles;
+}
+
+/**
  * Recursively walk a directory, passing every regular file path to a callback.
  *
  * @param {string}                   dir   - Absolute path to the directory to walk.
@@ -134,4 +184,12 @@ function walk( dir, visit ) {
 	}
 }
 
-module.exports = { stampCode, stampFile, stampDir, walk, TARGET_SUBDIRS };
+module.exports = {
+	stampCode,
+	stampFile,
+	stampDir,
+	writeI18nManifest,
+	walk,
+	TARGET_SUBDIRS,
+	I18N_MANIFEST,
+};

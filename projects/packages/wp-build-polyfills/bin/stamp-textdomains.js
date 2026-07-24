@@ -15,7 +15,7 @@
 
 const fs = require( 'fs' );
 const path = require( 'path' );
-const { stampDir } = require( './stamp-textdomains-lib.js' );
+const { stampDir, writeI18nManifest } = require( './stamp-textdomains-lib.js' );
 
 /**
  * Resolve the text domain to stamp: an explicit `--domain` wins, otherwise
@@ -50,5 +50,8 @@ const getFlag = name => {
 const domain = getDomain( getFlag( 'domain' ) );
 const buildDir = path.resolve( getFlag( 'dir' ) || 'build' );
 const count = stampDir( buildDir, domain );
+const bundles = writeI18nManifest( buildDir );
 // eslint-disable-next-line no-console
-console.log( `stamp-textdomains: stamped "${ domain }" onto ${ count } file(s) in ${ buildDir }` );
+console.log(
+	`stamp-textdomains: stamped "${ domain }" onto ${ count } file(s) in ${ buildDir }; ${ bundles.length } string-bearing bundle(s) listed in the i18n manifest`
+);

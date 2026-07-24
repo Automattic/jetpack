@@ -15,7 +15,12 @@ const assert = require( 'node:assert/strict' );
 const os = require( 'node:os' );
 const { describe, it } = require( 'node:test' );
 const path = require( 'path' );
-const { stampCode, stampDir } = require( '../../bin/stamp-textdomains-lib.js' );
+const {
+	stampCode,
+	stampDir,
+	writeI18nManifest,
+	I18N_MANIFEST,
+} = require( '../../bin/stamp-textdomains-lib.js' );
 
 const DOMAIN = 'jetpack-videopress-pkg';
 
@@ -91,6 +96,59 @@ describe( 'stamp-textdomains', () => {
 				'minified bundle stamped'
 			);
 			assert.equal( readFileSync( assetFile, 'utf8' ), assetSource, '.asset.php left untouched' );
+		} finally {
+			rmSync( tmp, { recursive: true, force: true } );
+		}
+	} );
+
+	it( 'writeI18nManifest lists only string-bearing non-min bundles, sorted, across subdirs', () => {
+		const tmp = mkdtempSync( path.join( os.tmpdir(), 'stamp-textdomains-' ) );
+		try {
+			const buildDir = path.join( tmp, 'build' );
+			const routeDir = path.join( buildDir, 'routes', 'dashboard' );
+			const widgetDir = path.join( buildDir, 'widgets', 'latest-post' );
+			const moduleDir = path.join( buildDir, 'modules', 'init' );
+			mkdirSync( routeDir, { recursive: true } );
+			mkdirSync( widgetDir, { recursive: true } );
+			mkdirSync( moduleDir, { recursive: true } );
+
+			// String-bearing bundles in three subdirs; the min variant must not be listed.
+			writeFileSync(
+				path.join( widgetDir, 'render.js' ),
+				'x = (0, import_i18n.__)("Published %s");\n'
+			);
+			writeFileSync( path.join( routeDir, 'content.js' ), 'x = (0, i.__)("Hello");\n' );
+			writeFileSync( path.join( routeDir, 'content.min.js' ), 'var a=(0,e.__)("Hello");' );
+			// String-less bundle and non-JS files must not be listed.
+			writeFileSync( path.join( moduleDir, 'index.js' ), 'export const answer = 42;\n' );
+			writeFileSync( path.join( routeDir, 'content.asset.php' ), '<?php return array();\n' );
+
+			const bundles = writeI18nManifest( buildDir );
+
+			const expected = [
+				'build/routes/dashboard/content.js',
+				'build/widgets/latest-post/render.js',
+			];
+			assert.deepEqual( bundles, expected, 'returns the sorted string-bearing bundle list' );
+			assert.deepEqual(
+				JSON.parse( readFileSync( path.join( buildDir, I18N_MANIFEST ), 'utf8' ) ),
+				{ bundles: expected },
+				'manifest file holds the same list'
+			);
+		} finally {
+			rmSync( tmp, { recursive: true, force: true } );
+		}
+	} );
+
+	it( 'writeI18nManifest keys entries off the build directory name', () => {
+		const tmp = mkdtempSync( path.join( os.tmpdir(), 'stamp-textdomains-' ) );
+		try {
+			const buildDir = path.join( tmp, 'output' );
+			const routeDir = path.join( buildDir, 'routes', 'a' );
+			mkdirSync( routeDir, { recursive: true } );
+			writeFileSync( path.join( routeDir, 'content.js' ), 'x = (0, i.__)("Hi");\n' );
+
+			assert.deepEqual( writeI18nManifest( buildDir ), [ 'output/routes/a/content.js' ] );
 		} finally {
 			rmSync( tmp, { recursive: true, force: true } );
 		}

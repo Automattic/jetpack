@@ -4,5 +4,5 @@ import { loadI18nCatalogs } from '@automattic/jetpack-wp-build-polyfills/src/js/
  * Load the Activity Log JS translation catalogs before the app renders.
  */
 export async function init(): Promise< void > {
-	await loadI18nCatalogs( 'jetpack-activity-log', [ 'build/routes/dashboard/content.js' ] );
+	await loadI18nCatalogs( 'jetpack-activity-log', import.meta.url );
 }

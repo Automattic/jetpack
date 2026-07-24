@@ -62,6 +62,11 @@ describe( 'stamp-textdomains bin', () => {
 				).includes( '"jetpack-from-composer"' ),
 				'bundle stamped with the composer.json domain'
 			);
+			assert.deepEqual(
+				JSON.parse( readFileSync( path.join( tmp, 'build', 'i18n-manifest.json' ), 'utf8' ) ),
+				{ bundles: [ 'build/routes/dashboard/content.js' ] },
+				'the i18n manifest is written next to the stamped bundles'
+			);
 		} finally {
 			rmSync( tmp, { recursive: true, force: true } );
 		}

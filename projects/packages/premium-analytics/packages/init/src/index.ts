@@ -43,14 +43,7 @@ function setupApiFetch(): void {
 export async function init(): Promise< void > {
 	// Kick off the JS translation catalog downloads first (async), then do the
 	// synchronous setup in parallel while they're in flight.
-	const catalogs = loadI18nCatalogs( 'jetpack-premium-analytics', [
-		'build/routes/connect/content.js',
-		'build/routes/dashboard/content.js',
-		'build/routes/post-detail/content.js',
-		'build/routes/reports/content.js',
-		'build/routes/syncing/content.js',
-		'build/routes/video-detail/content.js',
-	] );
+	const catalogs = loadI18nCatalogs( 'jetpack-premium-analytics', import.meta.url );
 
 	setupApiFetch();
 
