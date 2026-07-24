@@ -994,6 +994,16 @@ class Jetpack_Carousel {
 		$attr['data-orig-size']       = $size;
 		$attr['data-comments-opened'] = $comments_opened;
 
+		/*
+		Lets the Carousel show its "has comments" badge without fetching the comments
+		themselves. Omitted when there are none, which is the common case, so galleries
+		without comments pay nothing for it.
+		*/
+		$comments_count = (int) $attachment->comment_count;
+		if ( $comments_count > 0 ) {
+			$attr['data-comments-count'] = $comments_count;
+		}
+
 		if ( $display_exif ) {
 			// See https://github.com/Automattic/jetpack/issues/2765.
 			if ( isset( $img_meta['keywords'] ) ) {

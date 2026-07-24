@@ -192,4 +192,31 @@ class Jetpack_Carousel_Test extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'data-permalink', $attr );
 		$this->assertArrayHasKey( 'data-image-title', $attr );
 	}
+
+	/**
+	 * An attachment with no comments should not carry a data-comments-count attribute,
+	 * so galleries without comments pay nothing for it.
+	 */
+	public function test_add_data_to_images_omits_comments_count_when_there_are_none() {
+		$attachment = $this->create_image_attachment_with_exif();
+
+		$attr = $this->instance->add_data_to_images( array(), $attachment );
+
+		$this->assertArrayNotHasKey( 'data-comments-count', $attr );
+	}
+
+	/**
+	 * The carousel shows its "has comments" badge from this attribute, so it must
+	 * carry the attachment's approved comment count.
+	 */
+	public function test_add_data_to_images_includes_comments_count() {
+		$attachment = $this->create_image_attachment_with_exif();
+
+		self::factory()->comment->create_post_comments( $attachment->ID, 2 );
+
+		$attr = $this->instance->add_data_to_images( array(), get_post( $attachment->ID ) );
+
+		$this->assertArrayHasKey( 'data-comments-count', $attr );
+		$this->assertSame( 2, $attr['data-comments-count'] );
+	}
 }
