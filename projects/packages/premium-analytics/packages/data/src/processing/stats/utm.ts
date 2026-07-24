@@ -50,8 +50,8 @@ function getUtmItemKey( item: { label: unknown; paramValues?: string } ): string
 	return item.paramValues ?? getUtmItemLabel( item );
 }
 
-function getUtmTopPostKey( item: StatsUtmTopPostItem ): string {
-	return item.href ?? getUtmItemLabel( item );
+function getUtmTopPostKey( item: StatsUtmTopPostItem ): number {
+	return item.id;
 }
 
 function parseUtmLabelParts( key: string ): string[] {
