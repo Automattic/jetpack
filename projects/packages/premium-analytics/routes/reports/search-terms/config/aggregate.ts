@@ -2,12 +2,10 @@
  * External dependencies
  */
 import {
-	bucketStatsTimeSeries,
-	type StatsChartBucketPeriod,
+	mergeStatsComparisonRows,
 	type StatsNormalizedDataPoint,
 	type StatsNormalizedReport,
 	type StatsSearchTermsItem,
-	type StatsTimeSeriesReport,
 } from '@jetpack-premium-analytics/data';
 
 /**
@@ -17,10 +15,15 @@ export type SearchTermRow = {
 	id: string;
 	term: string;
 	views: number;
+	previousViews?: number;
 };
 
 type SearchTermsDataPoint = StatsNormalizedDataPoint< StatsSearchTermsItem > & {
 	encrypted_search_terms?: unknown;
+};
+
+type AggregateSingleReportOptions = {
+	includeZeroEncrypted?: boolean;
 };
 
 /**
@@ -48,42 +51,22 @@ function getTermLabel( item: StatsSearchTermsItem ): string {
 }
 
 /**
- * Build the chart's views-per-bucket series from daily search-terms data.
- * Known-term views and the encrypted aggregate are both included so the chart
- * represents the same records shown in the table. Week and month intervals are
- * derived client-side so changing the chart does not change the requested range.
+ * Aggregate one bucketed report into table rows.
  *
- * @param report - The bucketed search-terms report.
- * @param period - The chart bucket period.
- * @return The chart-ready time series.
+ * @param report                       - The bucketed search-terms report.
+ * @param unknownLabel                 - Translated label for encrypted search terms.
+ * @param options                      - Aggregation behavior.
+ * @param options.includeZeroEncrypted - Keep an explicit zero encrypted count for matching.
+ * @return Aggregated rows for one report period.
  */
-export function searchTermsToTimeSeries(
+function aggregateSingleSearchTermReport(
 	report: StatsNormalizedReport< StatsSearchTermsItem > | undefined,
-	period: StatsChartBucketPeriod = 'day'
-): StatsTimeSeriesReport {
-	return bucketStatsTimeSeries( report, period, point => {
-		const knownViews = point.items.reduce( ( total, item ) => total + item.views, 0 );
-		const views = knownViews + ( getEncryptedSearchTerms( point ) ?? 0 );
-
-		return { value: views, views };
-	} );
-}
-
-/**
- * Aggregate bucketed search terms into one row per known term plus one regular
- * row for the encrypted aggregate. The caller supplies the translated label
- * so this transform stays independent of i18n state.
- *
- * @param report       - The bucketed search-terms report.
- * @param unknownLabel - Translated label for encrypted search terms.
- * @return Search-term table rows.
- */
-export function aggregateSearchTermRows(
-	report: StatsNormalizedReport< StatsSearchTermsItem > | undefined,
-	unknownLabel: string
+	unknownLabel: string,
+	{ includeZeroEncrypted = false }: AggregateSingleReportOptions = {}
 ): SearchTermRow[] {
 	const byTerm = new Map< string, SearchTermRow >();
 	let encryptedViews = 0;
+	let hasEncryptedViews = false;
 
 	for ( const point of report?.data ?? [] ) {
 		for ( const item of point.items ) {
@@ -99,15 +82,51 @@ export function aggregateSearchTermRows(
 
 		const bucketEncryptedViews = getEncryptedSearchTerms( point );
 		if ( bucketEncryptedViews !== undefined ) {
+			hasEncryptedViews = true;
 			encryptedViews += bucketEncryptedViews;
 		}
 	}
 
 	const rows = [ ...byTerm.values() ];
 
-	if ( encryptedViews > 0 ) {
+	if ( encryptedViews > 0 || ( includeZeroEncrypted && hasEncryptedViews ) ) {
 		rows.push( { id: 'unknown-search-terms', term: unknownLabel, views: encryptedViews } );
 	}
 
 	return rows;
+}
+
+/**
+ * Aggregate and match Search terms rows across the current and comparison periods.
+ *
+ * Terms are summed before matching because the report intentionally stays
+ * day-bucketed to preserve encrypted search counts. The encrypted aggregate is
+ * represented by the stable "Unknown search terms" row and participates in
+ * comparison matching like a regular term.
+ *
+ * @param primaryReport    - The current bucketed search-terms report.
+ * @param unknownLabel     - Translated label for encrypted search terms.
+ * @param comparisonReport - The comparison bucketed search-terms report, when enabled.
+ * @return Comparison-aware rows and whether any visible row has a previous value.
+ */
+export function aggregateSearchTermRows(
+	primaryReport: StatsNormalizedReport< StatsSearchTermsItem > | undefined,
+	unknownLabel: string,
+	comparisonReport?: StatsNormalizedReport< StatsSearchTermsItem >
+): { rows: SearchTermRow[]; hasComparison: boolean } {
+	return mergeStatsComparisonRows< SearchTermRow, SearchTermRow, SearchTermRow >( {
+		primaryRows: aggregateSingleSearchTermReport( primaryReport, unknownLabel ),
+		// Preserve an explicit comparison zero so a current encrypted row still
+		// renders the shared delta fallback instead of looking unmatched.
+		comparisonRows: aggregateSingleSearchTermReport( comparisonReport, unknownLabel, {
+			includeZeroEncrypted: true,
+		} ),
+		getPrimaryKey: row => row.id,
+		getComparisonKey: row => row.id,
+		getComparisonValue: row => row.views,
+		mapRow: ( row, { previousValue } ) => ( {
+			...row,
+			...( previousValue !== undefined ? { previousViews: previousValue } : {} ),
+		} ),
+	} );
 }

@@ -2,32 +2,28 @@
  * External dependencies
  */
 import {
+	hasComparisonEnabled,
 	useStatsSearchTerms,
 	type ReportParams,
-	type StatsChartBucketPeriod,
 } from '@jetpack-premium-analytics/data';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { aggregateSearchTermRows, searchTermsToTimeSeries } from './aggregate';
+import { aggregateSearchTermRows } from './aggregate';
 
 /**
- * Fetch and derive the chart and table records for the Search terms report.
+ * Fetch and derive the table records for the Search terms report.
  *
  * @param reportParams - The shared report-window parameters.
- * @param chartPeriod  - The chart's bucket period.
- * @return Chart data and table records.
+ * @return Table records.
  */
-export function useSearchTermsReportRecords(
-	reportParams: ReportParams,
-	chartPeriod: StatsChartBucketPeriod
-) {
+export function useSearchTermsReportRecords( reportParams: ReportParams ) {
 	/*
-	 * One bucketed report feeds both the chart and table. `summarize: 0` keeps
-	 * the per-period buckets, while `max: 0` requests all known terms for
-	 * client-side search, sorting, and pagination.
+	 * Keep per-period buckets so encrypted search counts can be aggregated into
+	 * the table's "Unknown search terms" row. `max: 0` requests all known terms
+	 * for client-side search, sorting, and pagination.
 	 */
 	const recordsParams = useMemo(
 		() => ( {
@@ -40,33 +36,23 @@ export function useSearchTermsReportRecords(
 	);
 	const report = useStatsSearchTerms( recordsParams );
 	const unknownLabel = __( 'Unknown search terms', 'jetpack-premium-analytics-pkg' );
+	const comparisonEnabled = hasComparisonEnabled( reportParams );
 
-	const chartPrimary = useMemo(
-		() => searchTermsToTimeSeries( report.primary.data, chartPeriod ),
-		[ report.primary.data, chartPeriod ]
-	);
-	const chartComparison = useMemo( () => {
-		if ( ! reportParams.compare_from || ! reportParams.compare_to ) {
-			return undefined;
-		}
-
-		return searchTermsToTimeSeries( report.comparison.data, chartPeriod );
-	}, [ reportParams, report.comparison.data, chartPeriod ] );
-	const rows = useMemo(
-		() => aggregateSearchTermRows( report.primary.data, unknownLabel ),
-		[ report.primary.data, unknownLabel ]
+	const table = useMemo(
+		() =>
+			aggregateSearchTermRows(
+				report.primary.data,
+				unknownLabel,
+				comparisonEnabled ? report.comparison.data : undefined
+			),
+		[ comparisonEnabled, report.primary.data, report.comparison.data, unknownLabel ]
 	);
 
 	return {
 		isError: report.isError,
 		refetch: report.refetch,
-		chart: {
-			primary: chartPrimary,
-			comparison: report.comparison.data ? chartComparison : undefined,
-			isLoading: report.isLoading,
-		},
 		table: {
-			rows,
+			...table,
 			isLoading: report.isLoading,
 		},
 	};

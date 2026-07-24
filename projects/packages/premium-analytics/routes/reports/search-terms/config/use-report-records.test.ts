@@ -3,7 +3,6 @@ import { renderHook } from '@testing-library/react';
 import { useSearchTermsReportRecords } from './use-report-records';
 import type {
 	ReportParams,
-	StatsChartBucketPeriod,
 	StatsNormalizedReport,
 	StatsSearchTermsItem,
 } from '@jetpack-premium-analytics/data';
@@ -52,16 +51,20 @@ const report: StatsNormalizedReport< StatsSearchTermsItem > = {
 };
 
 /**
- * Mock the shared Stats hook with the daily fixture.
+ * Mock the shared Stats hook with the daily fixtures.
  *
- * @param hasComparison - Whether comparison data is available.
+ * @param comparisonReport - Optional comparison-period report.
+ * @param isLoading        - Whether the report is loading.
  */
-function mockSearchTermsReport( hasComparison = false ) {
+function mockSearchTermsReport(
+	comparisonReport?: StatsNormalizedReport< StatsSearchTermsItem >,
+	isLoading = false
+) {
 	mockUseStatsSearchTerms.mockReturnValue( {
 		primary: { data: report },
-		comparison: { data: hasComparison ? report : undefined },
-		hasComparison,
-		isLoading: false,
+		comparison: { data: comparisonReport },
+		hasComparison: Boolean( comparisonReport ),
+		isLoading,
 	} as unknown as ReturnType< typeof useStatsSearchTerms > );
 }
 
@@ -70,15 +73,16 @@ describe( 'useSearchTermsReportRecords', () => {
 		mockUseStatsSearchTerms.mockReset();
 	} );
 
-	it( 'requests daily buckets for the shared chart and table data', () => {
-		mockSearchTermsReport();
+	it( 'requests daily buckets and returns the aggregated table data', () => {
+		// A disabled comparison must not leak cached comparison values into the table.
+		mockSearchTermsReport( report );
 		const params: ReportParams = {
 			from: '2026-06-03',
 			to: '2026-06-04',
 			interval: 'day',
 		};
 
-		renderHook( () => useSearchTermsReportRecords( params, 'day' ) );
+		const { result } = renderHook( () => useSearchTermsReportRecords( params ) );
 
 		expect( mockUseStatsSearchTerms ).toHaveBeenCalledWith( {
 			...params,
@@ -86,39 +90,67 @@ describe( 'useSearchTermsReportRecords', () => {
 			summarize: 0,
 			period: 'day',
 		} );
+		expect( result.current.table.rows ).toEqual( [
+			{ id: 'term:jetpack stats', term: 'jetpack stats', views: 12 },
+			{ id: 'unknown-search-terms', term: 'Unknown search terms', views: 10 },
+		] );
+		expect( result.current.table.hasComparison ).toBe( false );
+		expect( result.current.table.isLoading ).toBe( false );
 	} );
 
-	it( 'keeps the request and table daily while grouping both chart series by week', () => {
-		mockSearchTermsReport( true );
+	it( 'adds comparison values to matching known and encrypted rows', () => {
+		const comparisonReport: StatsNormalizedReport< StatsSearchTermsItem > = {
+			...report,
+			data: report.data.map( point => ( {
+				...point,
+				items: point.items.map( item => ( { ...item, views: item.views - 2 } ) ),
+				encrypted_search_terms: Number( point.encrypted_search_terms ) - 2,
+			} ) ),
+		};
+		mockSearchTermsReport( comparisonReport );
 		const params: ReportParams = {
 			from: '2026-06-03',
 			to: '2026-06-04',
 			interval: 'day',
+			comp: '1',
 			compare_from: '2026-05-27',
 			compare_to: '2026-05-28',
 		};
-		const { result, rerender } = renderHook(
-			( { chartPeriod }: { chartPeriod: StatsChartBucketPeriod } ) =>
-				useSearchTermsReportRecords( params, chartPeriod ),
-			{ initialProps: { chartPeriod: 'day' } }
-		);
-		const dayRows = result.current.table.rows;
 
-		rerender( { chartPeriod: 'week' } );
+		const { result } = renderHook( () => useSearchTermsReportRecords( params ) );
 
-		expect( mockUseStatsSearchTerms ).toHaveBeenLastCalledWith( {
-			...params,
-			max: 0,
-			summarize: 0,
-			period: 'day',
-		} );
-		expect( result.current.chart.primary.data ).toEqual( [
-			expect.objectContaining( { time_interval: '2026-06-01', views: 22 } ),
+		expect( result.current.table.rows ).toEqual( [
+			{
+				id: 'term:jetpack stats',
+				term: 'jetpack stats',
+				views: 12,
+				previousViews: 8,
+			},
+			{
+				id: 'unknown-search-terms',
+				term: 'Unknown search terms',
+				views: 10,
+				previousViews: 6,
+			},
 		] );
-		expect( result.current.chart.comparison?.data ).toEqual( [
-			expect.objectContaining( { time_interval: '2026-06-01', views: 22 } ),
-		] );
-		expect( result.current.table.rows ).toEqual( dayRows );
+		expect( result.current.table.hasComparison ).toBe( true );
+	} );
+
+	it( 'forwards loading state while comparison data is pending', () => {
+		mockSearchTermsReport( undefined, true );
+		const params: ReportParams = {
+			from: '2026-06-03',
+			to: '2026-06-04',
+			interval: 'day',
+			comp: '1',
+			compare_from: '2026-05-27',
+			compare_to: '2026-05-28',
+		};
+
+		const { result } = renderHook( () => useSearchTermsReportRecords( params ) );
+
+		expect( result.current.table.isLoading ).toBe( true );
+		expect( result.current.table.hasComparison ).toBe( false );
 	} );
 
 	it( 'surfaces error and refetch from the report', () => {
@@ -137,7 +169,7 @@ describe( 'useSearchTermsReportRecords', () => {
 			interval: 'day',
 		};
 
-		const { result } = renderHook( () => useSearchTermsReportRecords( params, 'day' ) );
+		const { result } = renderHook( () => useSearchTermsReportRecords( params ) );
 
 		expect( result.current.isError ).toBe( true );
 		expect( result.current.refetch ).toBe( refetch );

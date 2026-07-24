@@ -1,4 +1,4 @@
-import { aggregateSearchTermRows, searchTermsToTimeSeries } from './aggregate';
+import { aggregateSearchTermRows } from './aggregate';
 import type { StatsNormalizedReport, StatsSearchTermsItem } from '@jetpack-premium-analytics/data';
 
 describe( 'report search terms aggregate', () => {
@@ -43,11 +43,14 @@ describe( 'report search terms aggregate', () => {
 	};
 
 	it( 'aggregates known terms and renders encrypted searches as a regular row', () => {
-		expect( aggregateSearchTermRows( report, 'Unknown search terms' ) ).toEqual( [
-			{ id: 'term:wordpress analytics', term: 'wordpress analytics', views: 8 },
-			{ id: 'term:jetpack stats', term: 'jetpack stats', views: 2 },
-			{ id: 'unknown-search-terms', term: 'Unknown search terms', views: 10 },
-		] );
+		expect( aggregateSearchTermRows( report, 'Unknown search terms' ) ).toEqual( {
+			rows: [
+				{ id: 'term:wordpress analytics', term: 'wordpress analytics', views: 8 },
+				{ id: 'term:jetpack stats', term: 'jetpack stats', views: 2 },
+				{ id: 'unknown-search-terms', term: 'Unknown search terms', views: 10 },
+			],
+			hasComparison: false,
+		} );
 	} );
 
 	it( 'omits the unknown row when encrypted search counts are all zero', () => {
@@ -60,47 +63,7 @@ describe( 'report search terms aggregate', () => {
 			} ) ),
 		};
 
-		expect( aggregateSearchTermRows( emptyReport, 'Unknown search terms' ) ).toEqual( [] );
-	} );
-
-	it( 'includes known and encrypted views in each chart bucket', () => {
-		const series = searchTermsToTimeSeries( report, 'day' );
-
-		expect( series.summary ).toEqual( {
-			date_start: '2026-06-03T00:00:00+00:00',
-			date_end: '2026-06-04T23:59:59+00:00',
-		} );
-		expect( series.data.map( point => point.views ) ).toEqual( [ 9, 11 ] );
-	} );
-
-	it( 'groups daily totals into ISO weeks starting on Monday', () => {
-		const series = searchTermsToTimeSeries( report, 'week' );
-
-		expect( series.data ).toEqual( [
-			expect.objectContaining( {
-				time_interval: '2026-06-01',
-				date_start: '2026-06-01T00:00:00+00:00',
-				date_end: '2026-06-04T23:59:59+00:00',
-				views: 20,
-			} ),
-		] );
-		expect( series.summary ).toEqual( {
-			date_start: '2026-06-03T00:00:00+00:00',
-			date_end: '2026-06-04T23:59:59+00:00',
-		} );
-	} );
-
-	it( 'groups daily totals into calendar months', () => {
-		const series = searchTermsToTimeSeries( report, 'month' );
-
-		expect( series.data ).toEqual( [
-			expect.objectContaining( {
-				time_interval: '2026-06-01',
-				date_start: '2026-06-01T00:00:00+00:00',
-				date_end: '2026-06-04T23:59:59+00:00',
-				views: 20,
-			} ),
-		] );
+		expect( aggregateSearchTermRows( emptyReport, 'Unknown search terms' ).rows ).toEqual( [] );
 	} );
 
 	it( 'omits the unknown row when the payload has no encrypted aggregate', () => {
@@ -114,7 +77,84 @@ describe( 'report search terms aggregate', () => {
 		};
 
 		expect(
-			aggregateSearchTermRows( reportWithoutEncrypted, 'Unknown search terms' )
+			aggregateSearchTermRows( reportWithoutEncrypted, 'Unknown search terms' ).rows
 		).toHaveLength( 2 );
+	} );
+
+	it( 'matches aggregated known and encrypted rows across comparison buckets', () => {
+		const comparisonReport: StatsNormalizedReport< StatsSearchTermsItem > = {
+			summary: {},
+			data: [
+				{
+					...report.data[ 0 ],
+					items: [
+						{
+							label: 'wordpress analytics',
+							views: 1,
+							className: 'user-selectable',
+							children: null,
+						},
+						{
+							label: 'comparison-only term',
+							views: 9,
+							className: 'user-selectable',
+							children: null,
+						},
+					],
+					encrypted_search_terms: 2,
+				},
+				{
+					...report.data[ 1 ],
+					items: [
+						{
+							label: 'wordpress analytics',
+							views: 3,
+							className: 'user-selectable',
+							children: null,
+						},
+					],
+					encrypted_search_terms: 3,
+				},
+			],
+		};
+
+		expect( aggregateSearchTermRows( report, 'Unknown search terms', comparisonReport ) ).toEqual( {
+			rows: [
+				{
+					id: 'term:wordpress analytics',
+					term: 'wordpress analytics',
+					views: 8,
+					previousViews: 4,
+				},
+				{ id: 'term:jetpack stats', term: 'jetpack stats', views: 2 },
+				{
+					id: 'unknown-search-terms',
+					term: 'Unknown search terms',
+					views: 10,
+					previousViews: 5,
+				},
+			],
+			hasComparison: true,
+		} );
+	} );
+
+	it( 'preserves an explicit zero for the encrypted comparison aggregate', () => {
+		const zeroComparisonReport: StatsNormalizedReport< StatsSearchTermsItem > = {
+			summary: {},
+			data: report.data.map( point => ( {
+				...point,
+				items: [],
+				encrypted_search_terms: 0,
+			} ) ),
+		};
+		const result = aggregateSearchTermRows( report, 'Unknown search terms', zeroComparisonReport );
+
+		expect( result.rows ).toContainEqual( {
+			id: 'unknown-search-terms',
+			term: 'Unknown search terms',
+			views: 10,
+			previousViews: 0,
+		} );
+		expect( result.hasComparison ).toBe( true );
 	} );
 } );
