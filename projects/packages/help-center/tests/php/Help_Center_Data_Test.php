@@ -53,7 +53,9 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 		if ( $singleton !== null ) {
 			self::remove_help_center_hooks( $singleton );
 			$property = new \ReflectionProperty( Help_Center::class, 'instance' );
-			$property->setAccessible( true );
+			if ( PHP_VERSION_ID < 80100 ) {
+				$property->setAccessible( true );
+			}
 			$property->setValue( null, null );
 		}
 
@@ -167,7 +169,9 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertInstanceOf( Help_Center::class, $help_center );
 		$property = new \ReflectionProperty( Help_Center::class, 'wpcom_request_client' );
-		$property->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
 		$this->assertSame( $wpcom_request_client, $property->getValue( $help_center ) );
 	}
 
