@@ -50,9 +50,14 @@ export function useSidebarOpenFromUrl(): boolean {
 	const requested = useMemo( isSidebarOpenRequested, [] );
 
 	useEffect( () => {
-		if ( requested ) {
-			openJetpackSidebar();
+		if ( ! requested ) {
+			return;
 		}
+		// Defer a task: the editor's open-document-sidebar-by-default effect
+		// runs later in this same commit with a render-time closure that saw no
+		// active sidebar, so a synchronous dispatch here would be overwritten.
+		const timer = setTimeout( openJetpackSidebar, 0 );
+		return () => clearTimeout( timer );
 	}, [ requested ] );
 
 	return requested;

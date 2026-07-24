@@ -60,7 +60,8 @@ describe( 'open-sidebar-from-url', () => {
 	} );
 
 	describe( 'useSidebarOpenFromUrl', () => {
-		test( 'opens the sidebar on mount and reports the request', () => {
+		test( 'opens the sidebar after mount and reports the request', () => {
+			jest.useFakeTimers();
 			window.history.pushState( {}, '', '/wp-admin/post-new.php?openSidebar=jetpack-ai-assistant' );
 			const openGeneralSidebar = jest.fn();
 			dispatchMock.mockReturnValue( { openGeneralSidebar } );
@@ -68,11 +69,33 @@ describe( 'open-sidebar-from-url', () => {
 			const { result, rerender } = renderHook( () => useSidebarOpenFromUrl() );
 
 			expect( result.current ).toBe( true );
+			// The open is deferred a task: the editor's open-document-sidebar-by-
+			// default effect runs after ours in the same commit and would stomp a
+			// synchronous dispatch (its closure still sees no active sidebar).
+			expect( openGeneralSidebar ).not.toHaveBeenCalled();
+
+			jest.runAllTimers();
 			expect( openGeneralSidebar ).toHaveBeenCalledWith( 'jetpack-sidebar/jetpack' );
 
 			// Re-renders must not re-open a sidebar the user may have closed.
 			rerender();
+			jest.runAllTimers();
 			expect( openGeneralSidebar ).toHaveBeenCalledTimes( 1 );
+			jest.useRealTimers();
+		} );
+
+		test( 'unmounting before the deferred open cancels it', () => {
+			jest.useFakeTimers();
+			window.history.pushState( {}, '', '/wp-admin/post-new.php?openSidebar=jetpack-ai-assistant' );
+			const openGeneralSidebar = jest.fn();
+			dispatchMock.mockReturnValue( { openGeneralSidebar } );
+
+			const { unmount } = renderHook( () => useSidebarOpenFromUrl() );
+			unmount();
+			jest.runAllTimers();
+
+			expect( openGeneralSidebar ).not.toHaveBeenCalled();
+			jest.useRealTimers();
 		} );
 
 		test( 'stays quiet without the query arg', () => {
