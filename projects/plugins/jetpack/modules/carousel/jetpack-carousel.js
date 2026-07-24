@@ -206,6 +206,12 @@
 			);
 		}
 
+		function prefersReducedMotion() {
+			return (
+				!! window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches
+			);
+		}
+
 		function scrollToElement( el, container, callback ) {
 			if ( ! el || ! container ) {
 				if ( callback ) {
@@ -299,6 +305,7 @@
 			stripHTML: stripHTML,
 			emitEvent: emitEvent,
 			isTouch: isTouch,
+			prefersReducedMotion: prefersReducedMotion,
 		};
 	} )();
 
@@ -1668,6 +1675,11 @@
 
 			swiper = new window.JetpackSwiper( '.jp-carousel-swiper-container', {
 				centeredSlides: true,
+				/*
+				Swiper's 300ms default is most of what makes slide-to-slide feel slow. Keep a
+				visible movement -- the slide is a real affordance on touch -- but a shorter one.
+				*/
+				speed: domUtil.prefersReducedMotion() ? 0 : 150,
 				zoom: true,
 				loop: carousel.slides.length > 1,
 				// Turn off interactions and hide navigation arrows if there is only one slide.
