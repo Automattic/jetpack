@@ -1,0 +1,49 @@
+# Help Center
+
+The Help Center package provides the PHP backend used to load the WordPress.com Help Center on WordPress sites. It enqueues the frontend bundles from `widgets.wp.com`, exposes the `helpCenterData` bootstrap payload, and registers the `/help-center` REST API proxy endpoints.
+
+The frontend is maintained in the Calypso repository under `packages/help-center` and `apps/help-center`.
+
+## Installation
+
+Require the Composer package:
+
+```bash
+composer require automattic/jetpack-help-center
+```
+
+Initialize it on WordPress's `init` hook:
+
+```php
+use Automattic\Jetpack\Help_Center\Help_Center;
+
+add_action( 'init', array( Help_Center::class, 'init' ) );
+```
+
+The package expects the consuming plugin to load its Composer autoloader. Jetpack Autoloader is recommended when multiple plugins may ship Jetpack packages.
+
+## Features
+
+- Loads Help Center bundles in wp-admin, the block editor, the customizer, and supported frontend contexts.
+- Adds the Help Center entry point to the WordPress admin bar.
+- Provides connected and disconnected variants based on Jetpack connection state.
+- Registers the `/help-center` REST namespace used by the frontend.
+- Limits persisted Help Center router history to 50 entries.
+
+## Development
+
+Run the PHP test suite from the Jetpack monorepo:
+
+```bash
+pnpm jetpack test php packages/help-center
+```
+
+Frontend JS and CSS changes belong in Calypso and are deployed to `widgets.wp.com`. PHP changes require a release of this package and an update to the consuming plugin.
+
+## Security
+
+Need to report a security vulnerability? Go to [Automattic's security page](https://automattic.com/security/) or the [Automattic HackerOne program](https://hackerone.com/automattic).
+
+## License
+
+jetpack-help-center is licensed under the [GNU General Public License v2 or later](./LICENSE.txt).

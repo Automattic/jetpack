@@ -2805,6 +2805,8 @@ importers:
 
   projects/packages/google-analytics: {}
 
+  projects/packages/help-center: {}
+
   projects/packages/import: {}
 
   projects/packages/jetpack-mu-wpcom:
