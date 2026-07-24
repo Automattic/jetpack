@@ -14,6 +14,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/eligibility.php';
 require_once __DIR__ . '/class-ai-launchpad-memberships.php';
+require_once __DIR__ . '/class-ai-launchpad-task-registry.php';
 require_once __DIR__ . '/class-ai-launchpad-rest.php';
 require_once __DIR__ . '/class-ai-launchpad-listeners.php';
 require_once __DIR__ . '/class-ai-launchpad-theme-listener.php';
@@ -22,6 +23,10 @@ require_once __DIR__ . '/class-ai-launchpad-subscribers-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-subscribe-block-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-about-page-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-gallery-page-listener.php';
+require_once __DIR__ . '/class-ai-launchpad-contact-page-listener.php';
+require_once __DIR__ . '/class-ai-launchpad-events-page-listener.php';
+require_once __DIR__ . '/class-ai-launchpad-video-page-listener.php';
+require_once __DIR__ . '/class-ai-launchpad-portfolio-piece-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-first-post-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-dev-enable.php';
 

@@ -134,6 +134,22 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
+	 * Ownership is transferable by default.
+	 */
+	public function test_is_ownership_transferable_default() {
+		$this->assertTrue( ( new Manager() )->is_ownership_transferable() );
+	}
+
+	/**
+	 * A consumer can lock ownership via the jetpack_connection_ownership_transferable filter.
+	 */
+	public function test_is_ownership_transferable_can_be_locked_via_filter() {
+		add_filter( 'jetpack_connection_ownership_transferable', '__return_false' );
+		$this->assertFalse( ( new Manager() )->is_ownership_transferable() );
+		remove_filter( 'jetpack_connection_ownership_transferable', '__return_false' );
+	}
+
+	/**
 	 * `Manager::configure()` registers the package version tracker on `shutdown` when the site is connected.
 	 *
 	 * This intentionally invokes the full `configure()` because it builds its own

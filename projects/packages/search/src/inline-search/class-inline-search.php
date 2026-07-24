@@ -478,6 +478,14 @@ class Inline_Search extends Classic_Search {
 			);
 		}
 
+		if ( ! empty( $options['highlightPhraseOnly'] ) ) {
+			$api_query_args['highlight_phrase_only'] = true;
+		}
+
+		if ( ! empty( $options['highlightFilterStopwords'] ) && is_array( $options['highlightFilterStopwords'] ) ) {
+			$api_query_args['highlight_filter_stopwords'] = array_values( $options['highlightFilterStopwords'] );
+		}
+
 		return $api_query_args;
 	}
 

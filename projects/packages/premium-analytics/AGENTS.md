@@ -497,6 +497,8 @@ stories so it hits the mock fresh instead of reading their cached success. See
   sizing when the style is not part of the shipped widget UI.
 - Reimplementing a utility that already exists in `widgets-toolkit` (e.g. `flagUrl`) — check
   `packages/widgets-toolkit/src/helpers/` before writing a new one.
+- Passing a URL from report data straight to `href` — it must go through `safeHttpUrl` first.
+  See "Remote URLs in links" below; nothing upstream validates the scheme.
 - Importing `@automattic/charts` directly from a widget — chart components must come through
   `@jetpack-premium-analytics/widgets-toolkit` (a shared script module). A direct import
   bundles the entire charting stack into that widget's render bundle; add a re-export to the
@@ -529,8 +531,14 @@ the query factory — do not do it in the widget or the view hook.
 
 **`max` semantics**
 
-`max = 0` means "all rows". Use `slice( 0, max > 0 ? max : undefined )`, never
+`max = 0` means "all rows" — but only where the widget caps rows _after_ fetching,
+via `limitStatsRows()`. Use `slice( 0, max > 0 ? max : undefined )`, never
 `slice( 0, max )` (the latter returns an empty array when `max` is 0).
+
+Where `max` is instead passed straight to the endpoint as a request param, it is a
+page size and `0` carries no "all rows" meaning — clamp it to the widget's own
+default. `widgets/subscribers-list/render.tsx` is the current example: its
+`stats/followers` request is paginated, so it falls back to 6.
 
 **Loading / error / empty state**
 
@@ -595,6 +603,25 @@ Widgets should consume `comparisonRows?.rows` and the hook-level `hasComparison`
 Widget-level mapping may still add presentation-only fields such as labels, icons, links,
 shares, or chart colors. Leave missing `previousValue`/`previousShare`/`delta` values as
 `undefined` so charts suppress the row delta instead of rendering fake `0%` or `100%` changes.
+
+**Remote URLs in links**
+
+Pass every URL from report data through `safeHttpUrl` from `@jetpack-premium-analytics/ui`
+(re-exported by `widgets-toolkit` for widgets) before using it as an `href`. It allows http(s)
+only; render a plain-text fallback when it returns `null`:
+
+```tsx
+const href = safeHttpUrl( item.link );
+// …
+return href ? <Link href={ href }>{ label }</Link> : <span>{ label }</span>;
+```
+
+Pass `{ allowRelative: true }` only where the endpoint is known to return a root-relative path
+— currently just the file-download sinks, whose `relative_url` fallback has no scheme.
+
+Guard in the widget or route layer, either where the row is mapped or at the link itself, but
+never in `packages/data/`: some modules key comparison rows on the raw URL. Locally constructed
+URLs do not need the guard.
 
 **Drill-down leaderboards**
 

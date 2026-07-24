@@ -23,6 +23,5 @@ module.exports = {
 		'!<rootDir>/src/**/*.stories.{js,jsx,ts,tsx}',
 		'!<rootDir>/src/**/index.{js,jsx,ts,tsx}',
 	],
-	coverageDirectory: '<rootDir>/coverage',
 	testMatch: [ '<rootDir>/tests/js/**/*.test.[jt]s?(x)' ],
 };

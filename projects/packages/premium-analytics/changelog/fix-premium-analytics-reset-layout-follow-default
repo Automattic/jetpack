@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: make Reset to default follow the section's current default layout instead of pinning a snapshot of it.

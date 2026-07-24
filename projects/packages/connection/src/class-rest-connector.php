@@ -649,7 +649,15 @@ class REST_Connector {
 
 		$connection = new Manager();
 
-		$current_user     = wp_get_current_user();
+		$current_user = wp_get_current_user();
+
+		// Token-dependent on purpose: connectionOwner and isMaster describe the
+		// *connected* owner and go null/false when the owner's token is broken. Status
+		// UIs (e.g. My Jetpack's connection card) rely on that meaning. Record-based
+		// ownership identity (who holds the connection per the master_user option,
+		// token or not) is exposed separately via Initial_State's connectionOwner, and
+		// owner token health via connectionStatus.hasConnectedOwner. Do not consolidate
+		// the two derivations: they answer different questions.
 		$connection_owner = $connection->get_connection_owner();
 
 		$owner_display_name = false === $connection_owner ? null : $connection_owner->display_name;

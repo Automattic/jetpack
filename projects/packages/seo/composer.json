@@ -6,6 +6,7 @@
 	"require": {
 		"php": ">=7.2",
 		"automattic/jetpack-admin-ui": "@dev",
+		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-wp-build-polyfills": "@dev"
 	},

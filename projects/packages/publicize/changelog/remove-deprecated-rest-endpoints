@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Remove the deprecated `jetpack/v4` REST endpoints.
+
+

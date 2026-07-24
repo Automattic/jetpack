@@ -8,6 +8,7 @@ import {
 	type StatsCommentsPostItem,
 	type StatsCommentsResponse,
 } from '@jetpack-premium-analytics/data';
+import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
@@ -69,10 +70,12 @@ export function useCommentsReportRecords( activeTab: CommentsReportTabId ) {
 				const label = toLabel( post.label );
 
 				return {
+					// Keyed on the raw link so row identity survives a rejected URL.
 					id: post.id != null ? String( post.id ) : post.link ?? `post-${ label }`,
 					label,
 					value: post.value,
-					link: post.link ?? undefined,
+					// Unlike the author link above, this one comes straight from the API.
+					link: safeHttpUrl( post.link ) ?? undefined,
 					postId: post.id != null ? String( post.id ) : undefined,
 				};
 			} )

@@ -106,6 +106,29 @@ export type UnifiedModalState = {
 	data?: UnifiedModalData;
 };
 
+/**
+ * Ordered steps of the connection flow. `platform-input` is skipped for
+ * services that go straight to authorization; `confirm`/`creating` sit past the
+ * OAuth boundary and have no back affordance.
+ */
+export type ConnectionFlowStep =
+	| 'select-platform'
+	| 'platform-input'
+	| 'authorizing'
+	| 'confirm'
+	| 'creating';
+
+/**
+ * Where the flow was started from — drives Tracks and post-connect behaviour.
+ */
+export type ConnectionFlowOrigin = 'dashboard' | 'editor';
+
+export type ConnectionFlowState = {
+	step?: ConnectionFlowStep;
+	selectedServiceId?: string;
+	origin?: ConnectionFlowOrigin;
+};
+
 export type RenderCount = { [ Key in 'social-preview' | 'edit-template' ]?: number };
 
 /**
@@ -180,6 +203,7 @@ export type SocialStoreState = {
 	sharePost?: SharePost;
 	scheduledShares?: ScheduledShares;
 	unifiedModal?: UnifiedModalState;
+	connectionFlow?: ConnectionFlowState;
 	renderCount?: RenderCount;
 	renderedMessages?: RenderedMessages;
 	trafficStats?: TrafficStatsState;

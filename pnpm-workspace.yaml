@@ -42,6 +42,8 @@ minimumReleaseAgeExclude:
   - js-yaml@4.3.0
   # Renovate security update: sharp@0.35.0
   - sharp@0.35.0
+  # Renovate security update: react-router@7.18.0
+  - react-router@7.18.0
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440

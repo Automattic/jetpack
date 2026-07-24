@@ -1,17 +1,13 @@
-import { getRedirectUrl, Text, ThemeProvider } from '@automattic/jetpack-components';
-import { Modal } from '@wordpress/components';
+import { getRedirectUrl, ThemeProvider } from '@automattic/jetpack-components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
-import clsx from 'clsx';
-import { useIsDashboard } from '../../hooks/use-is-dashboard';
+import { __ } from '@wordpress/i18n';
+import { Dialog, Link, Text, Tooltip } from '@wordpress/ui';
 import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
 import { store } from '../../social-store';
 import { ServicesList } from '../services/services-list';
 import { ConfirmationForm } from './confirmation-form';
-import { DashboardManageConnectionsModal } from './index-dashboard';
 import styles from './style.module.scss';
 
 export const ManageConnectionsModal = () => {
@@ -33,60 +29,106 @@ export const ManageConnectionsModal = () => {
 		closeConnectionsModal();
 	}, [ closeConnectionsModal, setKeyringResult, setReconnectingAccount ] );
 
+	// The modal only mounts while open, so any close intent (Esc, backdrop
+	// click, close button) routes through here to tear down the store state.
+	const onOpenChange = useCallback(
+		( open: boolean ) => {
+			if ( ! open ) {
+				closeModal();
+			}
+		},
+		[ closeModal ]
+	);
+
 	const hasKeyringResult = Boolean( keyringResult?.ID );
 
-	const title = hasKeyringResult
-		? __( 'Connection confirmation', 'jetpack-publicize-pkg' )
-		: _x( 'Manage Jetpack Social connections', '', 'jetpack-publicize-pkg' );
+	// Hold each title in its own variable and select with the ternary afterwards.
+	// Picking inline (`cond ? __( 'A' ) : __( 'B' )`) lets the minifier fold both
+	// branches into a single `__( cond ? 'A' : 'B' )` call, which the i18n string
+	// extraction can no longer read.
+	const confirmationTitle = __( 'Connection confirmation', 'jetpack-publicize-pkg' );
+	const manageTitle = __( 'Manage Jetpack Social connections', 'jetpack-publicize-pkg' );
+	const title = hasKeyringResult ? confirmationTitle : manageTitle;
 
 	const canMarkAsShared = useUserCanShareConnection();
 
 	return (
-		<Modal
-			className={ clsx( styles.modal, {
-				[ styles.small ]: isSmall,
-			} ) }
-			onRequestClose={ closeModal }
-			title={ title }
-		>
-			{
-				//Use IIFE to avoid nested ternary
-				( () => {
-					if ( hasKeyringResult ) {
-						return (
+		<Tooltip.Provider delay={ 0 }>
+			<Dialog.Root open onOpenChange={ onOpenChange }>
+				{ /*
+				 * `large` (960px) replaces the previous custom 65rem width; on
+				 * small viewports `full` gives the edge-to-edge treatment the
+				 * legacy Modal had. While listing services we pin the frame to its
+				 * full height (`services-list`): the Dialog is vertically centered,
+				 * so a content-sized frame would shift its contents up/down as a
+				 * disclosure row expands — pinning it makes the row scroll inside
+				 * the popup instead. The short confirmation view keeps its natural
+				 * height, and `full` already fills the viewport on mobile.
+				 *
+				 * Both non-`full` views also carry the admin-menu workaround so they
+				 * don't tuck under the wp-admin sidebar: `services-list` (its
+				 * horizontal half) and `menu-aware` (the confirmation view). See the
+				 * workaround section in style.module.scss.
+				 *
+				 * Leave the portal on its default `document.body` container. It is
+				 * tempting to pass `getWpCompatOverlaySlot()` so the popup stacks in
+				 * the reserved band rather than relying on the editor chrome being a
+				 * `position: fixed` stacking context — but the slot sits at z-index
+				 * 1000000003 and the disconnect confirmation inside this modal is a
+				 * `@wordpress/components` ConfirmDialog at 100000, so the modal would
+				 * cover its own confirmation. Both must move together; see
+				 * WordPress/gutenberg#76135.
+				 */ }
+				<Dialog.Popup
+					size={ isSmall ? 'full' : 'large' }
+					className={
+						isSmall ? undefined : styles[ hasKeyringResult ? 'menu-aware' : 'services-list' ]
+					}
+				>
+					<Dialog.Header className={ styles[ 'modal-header' ] }>
+						<Dialog.Title>{ title }</Dialog.Title>
+						<Dialog.CloseIcon />
+					</Dialog.Header>
+					{ hasKeyringResult ? (
+						/*
+						 * Wrap the confirmation form in `Dialog.Content` too, so it
+						 * picks up the same body inset the services list gets
+						 * (`0 24px 24px`). Rendered bare, the form ran edge-to-edge
+						 * and the footer buttons sat flush against the popup bottom.
+						 */
+						<Dialog.Content>
 							<ConfirmationForm
 								keyringResult={ keyringResult }
 								onComplete={ closeModal }
 								canMarkAsShared={ canMarkAsShared }
 							/>
-						);
-					}
-
-					return (
-						<>
+						</Dialog.Content>
+					) : (
+						/*
+						 * `Dialog.Content` is the library's scroll region (flex:1;
+						 * min-block-size:0; overflow-block:auto), so when the pinned
+						 * frame (`services-list`) is shorter than the content —
+						 * e.g. an expanded disclosure row like the Instagram preview —
+						 * the body scrolls inside the frame instead of clipping, and
+						 * the header/footer stay pinned at the popup edges.
+						 */
+						<Dialog.Content className={ styles[ 'modal-content' ] }>
 							<ServicesList />
-							<div className={ styles[ 'manual-share' ] }>
-								<em>
-									<Text>
-										{ __(
-											`Want to share to other networks? Use our Manual Sharing feature from the editor.`,
-											'jetpack-publicize-pkg'
-										) }
-										&nbsp;
-										<Link
-											openInNewTab
-											href={ getRedirectUrl( 'jetpack-social-manual-sharing-help' ) }
-										>
-											{ __( 'Learn more', 'jetpack-publicize-pkg' ) }
-										</Link>
-									</Text>
-								</em>
-							</div>
-						</>
-					);
-				} )()
-			}
-		</Modal>
+							<Text variant="body-sm" render={ <p className={ styles[ 'manual-share' ] } /> }>
+								{ __(
+									'Want to share to other networks? Use our Manual Sharing feature from the editor.',
+									'jetpack-publicize-pkg'
+								) }
+								&nbsp;
+								<Link openInNewTab href={ getRedirectUrl( 'jetpack-social-manual-sharing-help' ) }>
+									{ __( 'Learn more', 'jetpack-publicize-pkg' ) }
+								</Link>
+							</Text>
+						</Dialog.Content>
+					) }
+				</Dialog.Popup>
+			</Dialog.Root>
+		</Tooltip.Provider>
 	);
 };
 
@@ -98,16 +140,13 @@ export const ManageConnectionsModal = () => {
  * @return {import('react').ReactNode} - React element
  */
 export function ThemedConnectionsModal() {
-	const isDashboard = useIsDashboard();
 	const shouldModalBeOpen = useSelect( select => {
 		return select( store ).isConnectionsModalOpen();
 	}, [] );
 
-	const Connections = isDashboard ? DashboardManageConnectionsModal : ManageConnectionsModal;
-
 	return (
 		<ThemeProvider targetDom={ document.body }>
-			{ shouldModalBeOpen ? <Connections /> : null }
+			{ shouldModalBeOpen ? <ManageConnectionsModal /> : null }
 		</ThemeProvider>
 	);
 }
