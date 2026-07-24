@@ -31,6 +31,7 @@ class AI_Launchpad_Eligibility_Test extends \WorDBless\BaseTestCase {
 	 * Tear down.
 	 */
 	public function tear_down() {
+		remove_all_filters( 'wpcom_launchpad_personalization_arm' );
 		\Brain\Monkey\tearDown();
 		parent::tear_down();
 	}
@@ -81,5 +82,58 @@ class AI_Launchpad_Eligibility_Test extends \WorDBless\BaseTestCase {
 			'onboarded blocks' => array( true, true, false, false ),
 			'dismissed blocks' => array( false, true, true, false ),
 		);
+	}
+
+	/**
+	 * The ai-launchpad arm makes the site eligible without the legacy option.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_ai_launchpad_arm_makes_the_site_eligible() {
+		add_filter( 'wpcom_launchpad_personalization_arm', fn() => 'ai-launchpad' );
+		$this->assertTrue( AI_Launchpad::is_eligible() );
+	}
+
+	/**
+	 * The no-guidance arm is not eligible for the AI Launchpad.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_no_guidance_arm_is_not_eligible() {
+		add_filter( 'wpcom_launchpad_personalization_arm', fn() => 'no-guidance' );
+		$this->assertFalse( AI_Launchpad::is_eligible() );
+	}
+
+	/**
+	 * The control arm without the legacy option is not eligible.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_control_without_legacy_option_is_not_eligible() {
+		add_filter( 'wpcom_launchpad_personalization_arm', fn() => 'control' );
+		$this->assertFalse( AI_Launchpad::is_eligible() );
+	}
+
+	/**
+	 * The legacy per-site option still enables the AI Launchpad as a dev override.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_legacy_option_still_enables_as_a_dev_override() {
+		add_filter( 'wpcom_launchpad_personalization_arm', fn() => 'control' );
+		update_option( 'wpcom_ai_launchpad_enabled', 1 );
+		$this->assertTrue( AI_Launchpad::is_eligible() );
 	}
 }
