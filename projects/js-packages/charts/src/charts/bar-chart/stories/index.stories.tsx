@@ -415,7 +415,7 @@ export const ComparisonSingle: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
-		legendCollapseGroups: true,
+		legendCollapseGroups: false,
 		data: [
 			{
 				label: 'Views',
@@ -446,7 +446,7 @@ export const ComparisonSingle: Story = {
 		docs: {
 			description: {
 				story:
-					'One primary series paired with a `type: "comparison"` series sharing the same `group`. The comparison series renders as a translucent (50% opacity) shadow bar at the standard slot width, behind a primary bar narrowed to 60% — so it reads as a shadow peeking around the current period. `legend.collapseGroups` folds the pair into a single **Views** legend item; turn the `legendCollapseGroups` control off to give each series its own item.',
+					'One primary series paired with a `type: "comparison"` series sharing the same `group`. The comparison series renders as a translucent (50% opacity) shadow bar at the standard slot width, behind a primary bar narrowed to 60% — so it reads as a shadow peeking around the current period. `legend.collapseGroups` is off here, the default, so each series keeps its own legend item; turn the `legendCollapseGroups` control on to fold the pair into a single **Views** item.',
 			},
 		},
 	},
