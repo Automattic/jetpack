@@ -5,3 +5,4 @@ jetpack_vendor
 .cache
 build
 build-module
+/routes/**/.content-entry.js

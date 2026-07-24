@@ -25,7 +25,6 @@ export const SEEDED_SCHEMA = makeSchemaSettings();
 
 export const SEEDED_SETTINGS: SettingsResponse = {
 	front_page_description: 'Welcome to the site.',
-	has_legacy_front_page_meta: false,
 	title_formats: {},
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	search_engines_visible: true,
@@ -42,21 +41,21 @@ export const SEEDED_AI: AiState = {
 		catalog: [
 			{
 				slug: 'perplexitybot',
-				label: 'Perplexity',
+				label: 'Perplexity (PerplexityBot)',
 				userAgent: 'PerplexityBot',
 				type: 'answer',
 			},
 			{
 				slug: 'gptbot',
-				label: 'ChatGPT (OpenAI)',
+				label: 'ChatGPT (GPTBot)',
 				userAgent: 'GPTBot',
 				type: 'training',
 			},
 			{
 				slug: 'google-extended',
-				label: 'Google AI (Gemini)',
+				label: 'Google Gemini (Google-Extended)',
 				userAgent: 'Google-Extended',
-				type: 'mixed',
+				type: 'training',
 			},
 		],
 		overrides: {},
@@ -65,6 +64,8 @@ export const SEEDED_AI: AiState = {
 		staticRobotsTxt: false,
 		dataSharingOptOut: false,
 		pathBasedMultisite: false,
+		privacySettingsUrl: 'http://example.com/wp-admin/options-reading.php',
+		robotsTxtUrl: 'http://example.com/robots.txt',
 	},
 };
 

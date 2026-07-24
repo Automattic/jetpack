@@ -12,8 +12,8 @@ export interface AiCrawler {
 	label: string;
 	/** User-agent token written to the robots.txt `User-agent:` line. */
 	userAgent: string;
-	/** Training crawlers are blocked by default; answer and mixed-use crawlers are allowed. */
-	type: 'answer' | 'training' | 'mixed';
+	/** Training crawlers are blocked by default; answer-engine crawlers are allowed. */
+	type: 'answer' | 'training';
 }
 
 export interface AiState {
@@ -41,7 +41,7 @@ export interface AiState {
 		/**
 		 * Sparse per-crawler overrides (`slug => blocked`). Only deviations from
 		 * each bot's default policy are present; absent slugs use the default
-		 * (training → blocked, answer and mixed-use → allowed).
+		 * (training → blocked, answer → allowed).
 		 */
 		overrides: Record< string, boolean >;
 		/** Whether search engines (and AI crawlers) may index the site. */
@@ -54,5 +54,9 @@ export interface AiState {
 		dataSharingOptOut: boolean;
 		/** Whether the network shares one origin-level robots.txt across path-based sites. */
 		pathBasedMultisite: boolean;
+		/** URL of the "Prevent third-party sharing" setting, linked when it governs crawler access. */
+		privacySettingsUrl: string;
+		/** The site's `/robots.txt` URL, linked under each crawler group so the output can be verified. */
+		robotsTxtUrl: string;
 	};
 }

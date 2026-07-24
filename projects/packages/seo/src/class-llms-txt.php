@@ -190,6 +190,9 @@ class Llms_Txt {
 			'posts_per_page'   => self::MAX_POSTS_PER_TYPE,
 			'suppress_filters' => false,
 			'meta_query'       => array(
+				// WP_Query's meta_query takes its `relation` as a keyed entry alongside
+				// the positional clauses below; the mixed shape is required, not a slip.
+				// @phan-suppress-next-line PhanPluginMixedKeyNoKey
 				'relation' => 'OR',
 				array(
 					'key'     => Content_Coverage::META_NOINDEX,

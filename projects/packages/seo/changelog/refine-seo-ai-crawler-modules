@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+SEO: simplify the AI crawler controls to two groups, label each crawler by its robots.txt token, and keep the controls visible-but-disabled (with a link to the setting) when third-party sharing is off.

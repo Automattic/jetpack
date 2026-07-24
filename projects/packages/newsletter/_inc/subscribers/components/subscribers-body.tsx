@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { useNavigate, useSearch } from '@wordpress/route';
+import { useImportCompletionRefresh } from '../data/use-import-completion-refresh';
 import { installDataViewsFooterI18n } from '../lib/dataviews-i18n';
 import { getBlogId } from '../lib/site';
 import { isOpenSubscriberRemoved, toFiniteNumber } from '../lib/subscriber-helpers';
@@ -31,17 +32,32 @@ type RenderProps = {
  * (the `Tabs.Root` indicator slides only when the tab control persists
  * between tab changes — re-mounting per route would reset it).
  *
- * @param props          - Props.
- * @param props.children - Render-prop receiving `{ body, actions }` so the
- *                       caller decides how to slot them into the page.
+ * @param props                      - Props.
+ * @param props.importRefreshEnabled - Whether to run the import-completion poll: true only when the
+ *                                   visitor can import (connected + feature enabled) AND the
+ *                                   Subscribers tab is active. This shell stays mounted on every
+ *                                   Newsletter page load, so the flag keeps the WP.com import
+ *                                   endpoint from being polled off the Subscribers surface.
+ * @param props.children             - Render-prop receiving `{ body, actions }` so the
+ *                                   caller decides how to slot them into the page.
  * @return Whatever `children` returns.
  */
 export default function SubscribersBody( {
+	importRefreshEnabled,
 	children,
 }: {
+	importRefreshEnabled: boolean;
 	children: ( props: RenderProps ) => ReactNode;
 } ): JSX.Element {
 	const blogId = useMemo( () => getBlogId(), [] );
+
+	// Refresh the list when an async import job finishes — the poll lives here (not in the modal) so
+	// it survives the Add Subscribers modal closing right after a submit (the user stays on the
+	// Subscribers tab). The caller gates it to the Subscribers tab of an import-capable visitor, so
+	// this always-mounted shell doesn't poll the WP.com import endpoint on the Settings tab, for
+	// connection-gated users, or on Settings-only sites.
+	useImportCompletionRefresh( importRefreshEnabled );
+
 	const [ isAddOpen, setAddOpen ] = useState( false );
 	const openAdd = useCallback( () => setAddOpen( true ), [] );
 	const closeAdd = useCallback( () => setAddOpen( false ), [] );
