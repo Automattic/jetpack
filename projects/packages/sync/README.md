@@ -97,9 +97,12 @@ Registration is idempotent and only takes effect when WooCommerce is active. Dur
 migration, the shared module defers to known legacy Analytics Sync implementations so
 the same actions are not registered twice.
 
-The existing `jetpack_sync_active_modules` callable reports the configured module class
-to WordPress.com. Receivers can use the shared class there as a consumer-neutral
-capability signal while retaining legacy plugin detection during rollout.
+The existing `jetpack_sync_active_modules` callable reports the filtered module classes
+to WordPress.com. Its output is not deduplicated by public module name, so mixed
+installs may report both the shared and a legacy implementation, depending on filter
+registration order. The shared class is therefore a consumer-neutral capability
+signal, but its presence does not prove that it is the active implementation.
+Receivers should retain legacy plugin detection during rollout.
 
 ##### `jetpack_sync_options_whitelist` / `jetpack_sync_options_contentless`
 
