@@ -44,6 +44,7 @@ import {
 	statsEmailClicksTimeSeriesQuery,
 	statsEmailOpensTimeSeriesQuery,
 } from '../stats-email-time-series-query';
+import { statsFileDownloadsQuery } from '../stats-file-downloads-query';
 import { statsFollowersQuery } from '../stats-followers-query';
 import { STATS_HIGHLIGHTS_STALE_TIME, statsHighlightsQuery } from '../stats-highlights-query';
 import { statsInsightsQuery } from '../stats-insights-query';
@@ -347,6 +348,35 @@ describe( 'Stats query factories', () => {
 				} ),
 			] )
 		);
+	} );
+
+	it( 'matches the legacy file-downloads custom-range request without days', () => {
+		const query = statsFileDownloadsQuery( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'day',
+			period: 'day',
+			max: 0,
+			summarize: 1,
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'file-downloads',
+			'1.1',
+			'stats/file-downloads',
+			'GET',
+			{
+				period: 'day',
+				max: 0,
+				summarize: 1,
+				start_date: '2026-06-01',
+				date: '2026-06-07',
+			},
+			undefined,
+			'fileDownloads',
+		] );
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
 	} );
 
 	it( 'keeps the complete video summary mode out of the request params', () => {

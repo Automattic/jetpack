@@ -63,6 +63,7 @@ function DownloadsReport(): JSX.Element {
 		() => getDownloadsFields( records.hasComparison ),
 		[ records.hasComparison ]
 	);
+	const isRecordsLoading = records.isLoading || records.isFetching;
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dashboardLink = useDashboardLink();
@@ -93,10 +94,10 @@ function DownloadsReport(): JSX.Element {
 					/>
 				) : (
 					<ReportRecordsTable< StatsFileDownloadsComparisonItem >
-						data={ records.rows }
+						data={ isRecordsLoading ? [] : records.rows }
 						fields={ fields }
 						getItemId={ getDownloadRowId }
-						isLoading={ records.isLoading }
+						isLoading={ isRecordsLoading }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search files', 'jetpack-premium-analytics-pkg' ) }
 					/>

@@ -109,4 +109,26 @@ describe( 'Stats file downloads processing', () => {
 			{ link: guideUrl, previousDownloads: 4 },
 		] );
 	} );
+
+	it( 'keeps a missing comparison row unknown because the API may truncate results', () => {
+		const reportUrl = 'https://example.com/files/report.pdf';
+		const primary = makeReport( [ makeDownload( 'report.pdf', reportUrl, 12 ) ] );
+		const comparison = makeReport( [] );
+
+		const result = mergeStatsFileDownloadsComparisonRows( primary, comparison );
+
+		expect( result.hasComparison ).toBe( false );
+		expect( result.rows[ 0 ].previousDownloads ).toBeUndefined();
+	} );
+
+	it( 'preserves an explicitly matched zero comparison value', () => {
+		const reportUrl = 'https://example.com/files/report.pdf';
+		const primary = makeReport( [ makeDownload( 'report.pdf', reportUrl, 12 ) ] );
+		const comparison = makeReport( [ makeDownload( 'report.pdf', reportUrl, 0 ) ] );
+
+		const result = mergeStatsFileDownloadsComparisonRows( primary, comparison );
+
+		expect( result.hasComparison ).toBe( true );
+		expect( result.rows[ 0 ].previousDownloads ).toBe( 0 );
+	} );
 } );

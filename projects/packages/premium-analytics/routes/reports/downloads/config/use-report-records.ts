@@ -30,5 +30,6 @@ export function useDownloadsReportRecords( reportParams: ReportParams ) {
 		rows: report.comparisonRows?.rows ?? [],
 		hasComparison: report.hasComparison,
 		isLoading: report.isLoading,
+		isFetching: report.isFetching,
 	};
 }

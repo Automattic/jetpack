@@ -40,6 +40,7 @@ describe( 'useDownloadsReportRecords', () => {
 			comparisonRows: { rows: [ row ], hasComparison: false },
 			hasComparison: false,
 			isLoading: false,
+			isFetching: false,
 			isError: false,
 			refetch: jest.fn(),
 		} as unknown as ReturnType< typeof useStatsFileDownloads > );
@@ -67,6 +68,7 @@ describe( 'useDownloadsReportRecords', () => {
 			comparisonRows: { rows: [ comparisonRow ], hasComparison: true },
 			hasComparison: true,
 			isLoading: false,
+			isFetching: false,
 			isError: false,
 			refetch: jest.fn(),
 		} as unknown as ReturnType< typeof useStatsFileDownloads > );
@@ -84,7 +86,7 @@ describe( 'useDownloadsReportRecords', () => {
 		expect( result.current.hasComparison ).toBe( true );
 	} );
 
-	it( 'surfaces loading, error, and refetch from the report', () => {
+	it( 'surfaces loading, fetching, error, and refetch from the report', () => {
 		const refetch = jest.fn();
 		mockUseStatsFileDownloads.mockReturnValue( {
 			primary: { data: undefined },
@@ -92,6 +94,7 @@ describe( 'useDownloadsReportRecords', () => {
 			comparisonRows: { rows: [], hasComparison: false },
 			hasComparison: false,
 			isLoading: true,
+			isFetching: true,
 			isError: true,
 			refetch,
 		} as unknown as ReturnType< typeof useStatsFileDownloads > );
@@ -99,6 +102,7 @@ describe( 'useDownloadsReportRecords', () => {
 		const { result } = renderHook( () => useDownloadsReportRecords( params ) );
 
 		expect( result.current.isLoading ).toBe( true );
+		expect( result.current.isFetching ).toBe( true );
 		expect( result.current.isError ).toBe( true );
 		expect( result.current.refetch ).toBe( refetch );
 	} );
