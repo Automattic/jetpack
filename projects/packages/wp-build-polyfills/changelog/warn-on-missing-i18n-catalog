@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Add developer console warnings when a JS translation catalog cannot be loaded, so an untranslated dashboard is not mistaken for a missing translation.

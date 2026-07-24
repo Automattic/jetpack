@@ -37,16 +37,33 @@ export async function loadI18nCatalogs( domain: string, bundles: string[] ): Pro
 		?.jpI18nLoader;
 
 	if ( ! loader || typeof loader.downloadI18n !== 'function' ) {
-		// Loader script not on the page; the UI falls back to English.
+		// The dashboard PHP always enqueues `wp-jp-i18n-loader`; if it's missing
+		// (or the classic loader script hasn't run yet) every string silently
+		// renders untranslated — the hardest failure mode to diagnose. Surface it
+		// rather than falling back to English without a trace.
+		// eslint-disable-next-line no-console
+		console.warn(
+			`[jetpack-i18n] wp.jpI18nLoader unavailable; "${ domain }" strings will render untranslated.`
+		);
 		return;
 	}
 
 	await Promise.all(
 		bundles.map( path =>
-			// No-op for en_US; rejects when no catalog exists for this
-			// build/locale. Swallow so a missing catalog falls back to English
-			// instead of blocking the render.
-			loader.downloadI18n( path, domain, 'plugin' ).catch( () => undefined )
+			// No-op for en_US. An `HTTP request failed:` rejection means no
+			// catalog exists for this locale/build — the expected English
+			// fallback, kept silent. Any other error (loader state not set,
+			// malformed catalog JSON) is a real misconfiguration worth
+			// surfacing, but must never block the render.
+			loader.downloadI18n( path, domain, 'plugin' ).catch( error => {
+				const message = error instanceof Error ? error.message : String( error );
+				if ( ! message.startsWith( 'HTTP request failed:' ) ) {
+					// eslint-disable-next-line no-console
+					console.warn(
+						`[jetpack-i18n] Failed to load "${ domain }" catalog (${ path }): ${ message }`
+					);
+				}
+			} )
 		)
 	);
 }
