@@ -178,7 +178,7 @@ function PostsReport(): JSX.Element {
 				data={ records.posts.rows }
 				fields={ postsFields }
 				getItemId={ getPostRowId }
-				isLoading={ records.posts.isLoading }
+				isLoading={ records.posts.isLoading || records.posts.isFetching }
 				initialView={ RECORDS_VIEW }
 				searchLabel={ __( 'Search posts', 'jetpack-premium-analytics' ) }
 			/>
@@ -189,7 +189,7 @@ function PostsReport(): JSX.Element {
 				fields={ archivesFields }
 				getItemId={ getArchiveRowId }
 				getItemParentId={ getArchiveRowParentId }
-				isLoading={ records.archives.isLoading }
+				isLoading={ records.archives.isLoading || records.archives.isFetching }
 				initialView={ RECORDS_VIEW }
 				searchLabel={ __( 'Search archives', 'jetpack-premium-analytics' ) }
 				hideLevelMarkers

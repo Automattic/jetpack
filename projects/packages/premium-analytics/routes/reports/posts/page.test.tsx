@@ -172,6 +172,14 @@ describe( 'PostsReportPage', () => {
 		);
 	} );
 
+	it( 'shows the Posts table loading while the active report is fetching', () => {
+		useRecordsMock.mockReturnValue( buildRecords( { isFetching: true } ) );
+
+		render( <PostsReportPage /> );
+
+		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ].isLoading ).toBe( true );
+	} );
+
 	it( 'does not render a page action when the hook disables export', () => {
 		useRecordsMock.mockReturnValue( buildRecords() );
 		useReportCsvExportMock.mockReturnValue( {
@@ -234,6 +242,7 @@ describe( 'PostsReportPage', () => {
 				isGroup: false,
 			},
 		];
+		records.archives.isFetching = true;
 		useSectionTabMock.mockReturnValue( [ 'archives', jest.fn() ] );
 		useRecordsMock.mockReturnValue( records );
 
@@ -245,6 +254,7 @@ describe( 'PostsReportPage', () => {
 			expect.objectContaining( {
 				data: records.archives.rows,
 				hideLevelMarkers: true,
+				isLoading: true,
 				searchLabel: 'Search archives',
 			} )
 		);
