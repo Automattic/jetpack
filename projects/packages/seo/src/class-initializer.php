@@ -166,6 +166,11 @@ class Initializer {
 		// Writes are still capability-gated by the core settings controller.
 		if ( self::is_seo_tools_module_active() ) {
 			// Front-end JSON-LD schema output and author profile schema fields.
+			// Intentionally NOT gated: every site keeps emitting its structured data —
+			// a plan-gated site loses the schema *settings* card (a paid control), but
+			// stripping the schema its pages already carry would hurt SEO it has today.
+			// (Finer per-type gating — e.g. sitewide LocalBusiness to paid plans on
+			// self-hosted — is a separate follow-up, tracked in the schema project.)
 			Schema_Builder::init();
 			Author_Schema_Node::init();
 
