@@ -1321,23 +1321,58 @@
 		}
 
 		function loadFullImage( slide ) {
-			var el = slide.el;
 			var attrs = slide.attrs;
-			var image = el.querySelector( 'img' );
+			var image = slide.el.querySelector( 'img' );
 
-			if ( ! image.hasAttribute( 'data-loaded' ) ) {
-				var hasPreview = !! attrs.previewImage;
-				var thumbSize = attrs.thumbSize;
-
-				if ( ! hasPreview || ( thumbSize && el.offsetWidth > thumbSize.width ) ) {
-					image.src = attrs.src;
-				} else {
-					image.src = attrs.previewImage;
-				}
-
-				image.setAttribute( 'itemprop', 'image' );
-				image.setAttribute( 'data-loaded', 1 );
+			if ( image.hasAttribute( 'data-loaded' ) ) {
+				return;
 			}
+
+			image.setAttribute( 'itemprop', 'image' );
+			image.setAttribute( 'data-loaded', 1 );
+
+			var hasPreview = attrs.previewImage && attrs.previewImage !== attrs.src;
+
+			if ( ! hasPreview ) {
+				// No usable in-page thumbnail (e.g. a lazy-loading plugin swapped the
+				// gallery src for a placeholder). Load the full-size image straight
+				// into the visible element so the slide is never left without a src.
+				image.src = attrs.src;
+				return;
+			}
+
+			// Show the thumbnail the browser has already decoded for this image in the
+			// post itself. Without it the slide stays empty until the full-size image
+			// arrives, which reads as a black screen whenever the reader moves through
+			// the gallery faster than the images can download.
+			image.src = attrs.previewImage;
+			// The thumbnail is much smaller than the slide, so soften the upscale
+			// until the full-size image replaces it.
+			image.style.filter = 'blur(8px)';
+
+			// Load the full-size image off-DOM, then swap it in over the preview. On
+			// error the (blurred) preview stays put rather than reverting to blank.
+			var fullImage = new window.Image();
+
+			fullImage.addEventListener(
+				'load',
+				function () {
+					// Cached by this point, so swapping it in is effectively instant.
+					image.src = attrs.src;
+					image.style.filter = '';
+				},
+				{ once: true }
+			);
+
+			fullImage.addEventListener(
+				'error',
+				function () {
+					image.style.filter = '';
+				},
+				{ once: true }
+			);
+
+			fullImage.src = attrs.src;
 		}
 
 		function preloadAdjacentImages( currentIndex ) {
@@ -1373,30 +1408,48 @@
 		}
 
 		function loadBackgroundImage( slide ) {
-			var currentSlide = slide.el;
-
-			if ( swiper && swiper.slides ) {
-				currentSlide = swiper.slides[ swiper.activeIndex ];
-			}
-
 			var image = slide.attrs.originalElement;
-			var isLoaded = image.complete && image.naturalHeight !== 0;
 
-			if ( isLoaded ) {
-				applyBackgroundImage( slide, currentSlide, image );
+			if ( ! image ) {
 				return;
 			}
 
-			image.onload = function () {
-				applyBackgroundImage( slide, currentSlide, image );
+			if ( image.complete && image.naturalHeight !== 0 ) {
+				applyBackgroundImage( slide, image );
+				return;
+			}
+
+			// The thumbnail in the post may still be loading, or may be lazy-loaded.
+			// Use an event listener rather than `onload`, which would overwrite any
+			// handler the page has already attached to its own image. Pair the load
+			// handler with an error handler so a thumbnail that never loads doesn't
+			// leave a listener (and its reference to the slide) attached for good.
+			var onLoad = function () {
+				image.removeEventListener( 'error', onError );
+				applyBackgroundImage( slide, image );
 			};
+			var onError = function () {
+				image.removeEventListener( 'load', onLoad );
+			};
+			image.addEventListener( 'load', onLoad, { once: true } );
+			image.addEventListener( 'error', onError, { once: true } );
 		}
 
-		function applyBackgroundImage( slide, currentSlide, image ) {
+		function applyBackgroundImage( slide, image ) {
 			var url = util.getBackgroundImage( image );
+
+			if ( ! url ) {
+				return;
+			}
+
+			// Always paint onto the slide the image belongs to. Preloading runs this
+			// for the neighbouring slides too, so painting onto whichever slide happens
+			// to be active would put the wrong image behind it and leave the slide it
+			// was meant for with no placeholder at all.
 			slide.backgroundImage = url;
-			currentSlide.style.backgroundImage = 'url(' + url + ')';
-			currentSlide.style.backgroundSize = 'cover';
+			slide.el.style.backgroundImage = 'url(' + url + ')';
+			slide.el.style.backgroundSize = 'cover';
+			slide.el.style.backgroundPosition = 'center';
 		}
 
 		function clearCommentTextAreaValue() {
@@ -1429,8 +1482,6 @@
 				var img = new Image();
 				img.src = items[ startIndex ].getAttribute( 'data-gallery-src' );
 			}
-
-			var useInPageThumbnails = !! domUtil.closest( items[ 0 ], '.tiled-gallery.type-rectangular' );
 
 			// create the 'slide'
 			Array.prototype.forEach.call( items, function ( item, i ) {
@@ -1517,10 +1568,10 @@
 					slideEl.setAttribute( 'data-permalink', attrs.permalink );
 					slideEl.setAttribute( 'data-orig-file', attrs.origFile );
 
-					if ( useInPageThumbnails ) {
-						// Use the image already loaded in the gallery as a preview.
-						attrs.previewImage = attrs.src;
-					}
+					// Reuse the thumbnail the browser has already decoded for this image
+					// in the post. It costs nothing to display and gives the slide
+					// something to show while the full-size image is downloading.
+					attrs.previewImage = item.currentSrc || item.getAttribute( 'src' ) || '';
 
 					var slide = { el: slideEl, attrs: attrs, index: i };
 					carousel.slides.push( slide );
