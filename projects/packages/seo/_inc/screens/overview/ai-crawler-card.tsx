@@ -1,6 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, Card, Stack } from '@wordpress/ui';
+import { Button, Card, Stack, Text } from '@wordpress/ui';
 import StatusDot from './status-dot';
+import styles from './style.module.scss';
 import type { AiCrawler, AiState } from '../../data/ai-types';
 import type { FC } from 'react';
 
@@ -19,23 +20,23 @@ interface Props {
 // `cond ? __(A) : __(B)` into `__(cond ? A : B)`, which would erase the literals
 // from i18n extraction. See feedback_i18n_ternary_minifier_fold.
 const cantCrawlStagingLabel = __(
-	"AI crawlers can't reach this site while it's on a staging address",
+	"AI crawlers can't reach this site while it's on a staging address.",
 	'jetpack-seo'
 );
 const cantCrawlIndexingLabel = __(
-	"AI crawlers can't reach this site while search engines are blocked",
+	"AI crawlers can't reach this site while search engines are blocked.",
 	'jetpack-seo'
 );
 const staticRobotsLabel = __(
-	"Crawler settings can't apply while a static robots.txt file exists in the WordPress installation directory",
+	"Crawler settings can't apply while a static robots.txt file exists in the WordPress installation directory.",
 	'jetpack-seo'
 );
 const dataSharingOptOutLabel = __(
-	"Individual crawler settings are overridden by this site's data sharing opt-out",
+	"Individual crawler settings are overridden by this site's data sharing opt-out.",
 	'jetpack-seo'
 );
 const pathBasedMultisiteLabel = __(
-	"Per-site crawler settings aren't available on this path-based multisite network",
+	"Per-site crawler settings aren't available on this path-based multisite network.",
 	'jetpack-seo'
 );
 
@@ -67,10 +68,8 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, onManage } ) 
 		data.overrides[ bot.slug ] ?? bot.type === 'training';
 	const answerBots = data.catalog.filter( bot => bot.type === 'answer' );
 	const trainingBots = data.catalog.filter( bot => bot.type === 'training' );
-	const mixedBots = data.catalog.filter( bot => bot.type === 'mixed' );
 	const answerAllowed = answerBots.filter( bot => ! isBotBlocked( bot ) ).length;
 	const trainingBlocked = trainingBots.filter( bot => isBotBlocked( bot ) ).length;
-	const mixedAllowed = mixedBots.filter( bot => ! isBotBlocked( bot ) ).length;
 
 	// When the settings can't apply, choose the highest-precedence reason.
 	// Module-scope labels keep
@@ -93,7 +92,7 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, onManage } ) 
 			<Card.Header>
 				<Card.Title>{ __( 'AI crawler access', 'jetpack-seo' ) }</Card.Title>
 			</Card.Header>
-			<Card.Content>
+			<Stack render={ <Card.Content /> } direction="column" className={ styles.cardContent }>
 				{ settingsApply ? (
 					<Stack direction="column" gap="xs">
 						<StatusDot
@@ -114,27 +113,18 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, onManage } ) 
 								trainingBots.length
 							) }
 						/>
-						{ mixedBots.length > 0 && (
-							<StatusDot
-								status={ mixedAllowed > 0 ? 'ok' : 'warn' }
-								label={ sprintf(
-									/* translators: %1$d is the number of allowed mixed-use crawlers, %2$d the total. */
-									__( 'AI answers and training: %1$d of %2$d allowed', 'jetpack-seo' ),
-									mixedAllowed,
-									mixedBots.length
-								) }
-							/>
-						) }
 					</Stack>
 				) : (
-					<StatusDot status="warn" label={ blockedLabel } />
+					// A full-sentence explanation, not a status — so no indicator dot
+					// (the vertically-centred dot next to wrapping text reads oddly).
+					<Text>{ blockedLabel }</Text>
 				) }
-				<div className="jetpack-seo-overview__card-footer">
+				<Stack direction="row" justify="flex-end" className={ styles.footer }>
 					<Button variant="outline" tone="neutral" onClick={ onManage }>
 						{ __( 'Manage AI crawlers', 'jetpack-seo' ) }
 					</Button>
-				</div>
-			</Card.Content>
+				</Stack>
+			</Stack>
 		</Card.Root>
 	);
 };

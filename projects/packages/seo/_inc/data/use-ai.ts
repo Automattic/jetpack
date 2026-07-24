@@ -126,9 +126,9 @@ export function useAiForm(): AiForm {
 			if ( ! crawlers ) {
 				return;
 			}
-			// The default policy for this bot: training crawlers blocked, answer and
-			// mixed-use crawlers allowed. An override that matches the default is
-			// dropped so the stored map stays sparse (and new training bots stay covered).
+			// The default policy for this bot: training crawlers blocked, answer-engine
+			// crawlers allowed. An override that matches the default is dropped so the
+			// stored map stays sparse (and new training bots stay covered).
 			const bot = crawlers.catalog.find( entry => entry.slug === slug );
 			const defaultBlocked = bot ? bot.type === 'training' : false;
 

@@ -35,3 +35,18 @@
 	padding-block-end: var(--wpds-dimension-gap-md);
 	border-block-end: 1px solid var(--wpds-color-stroke-surface-neutral);
 }
+
+// The "managed by your privacy setting" notice sits between the header and the
+// collapsible content — a bare child of the card, so it doesn't inherit the
+// card's content padding. Inset it so its box lines up with the module content,
+// with vertical breathing room from the header and the card edge.
+.jetpack-seo-ai__crawler-notice {
+	margin-block: var(--wpds-dimension-gap-sm) var(--wpds-dimension-padding-2xl);
+	margin-inline: var(--wpds-dimension-padding-2xl);
+}
+
+// "View robots.txt" link under each crawler group's description. Aligned to the
+// start of the content (no toggle-label indent, unlike the llms.txt link).
+.jetpack-seo-ai__robots-link {
+	align-self: flex-start;
+}
