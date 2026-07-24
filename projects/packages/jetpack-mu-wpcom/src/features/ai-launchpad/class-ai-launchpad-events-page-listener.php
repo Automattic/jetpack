@@ -1,6 +1,6 @@
 <?php
 /**
- * AI Launchpad gallery-page completion listener.
+ * AI Launchpad events-page completion listener.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -11,17 +11,21 @@
 require_once __DIR__ . '/class-ai-launchpad-task-registry.php';
 
 /**
- * Completes the `add_gallery_page` task from wp-admin when the AI-created gallery page is published.
+ * Completes the `add_events_page` task from wp-admin when the AI-created events page is published.
  *
  * The task is defined by AI_Launchpad_Task_Registry rather than the shared catalog, which has no completion
  * callback for it, so completion is gated on the page's marker meta plus eligibility.
+ *
+ * The marker is also what puts the task "in progress": an events page saved but not yet published reopens
+ * through get_draft_id() instead of the card creating a second one. Each page task queries its own marker for
+ * that, so a gallery or contact draft never puts the events card in progress.
  */
-class AI_Launchpad_Gallery_Page_Listener {
+class AI_Launchpad_Events_Page_Listener {
 
 	/**
-	 * Marker meta set by createGalleryPage on the AI-created gallery page.
+	 * Marker meta set by createEventsPage on the AI-created events page.
 	 */
-	const META_KEY = '_wpcom_ai_launchpad_gallery_page';
+	const META_KEY = '_wpcom_ai_launchpad_events_page';
 
 	/**
 	 * Registers the marker meta and the publish watcher.
@@ -54,7 +58,7 @@ class AI_Launchpad_Gallery_Page_Listener {
 	}
 
 	/**
-	 * Completes add_gallery_page when a page carrying the marker is first published.
+	 * Completes add_events_page when a page carrying the marker is first published.
 	 *
 	 * @param string   $new_status The new post status.
 	 * @param string   $old_status The previous post status.
@@ -76,11 +80,11 @@ class AI_Launchpad_Gallery_Page_Listener {
 			return;
 		}
 
-		AI_Launchpad_Task_Registry::mark_complete( 'add_gallery_page' );
+		AI_Launchpad_Task_Registry::mark_complete( 'add_events_page' );
 	}
 
 	/**
-	 * Returns the ID of the newest unpublished AI-created gallery page (a `draft` page carrying the marker), or null.
+	 * Returns the ID of the newest unpublished AI-created events page (a `draft` page carrying the marker), or null.
 	 *
 	 * @return int|null
 	 */
@@ -103,4 +107,4 @@ class AI_Launchpad_Gallery_Page_Listener {
 	}
 }
 
-AI_Launchpad_Gallery_Page_Listener::register();
+AI_Launchpad_Events_Page_Listener::register();
