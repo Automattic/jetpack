@@ -75,11 +75,11 @@ class Launchpad_Personalization_Experiment {
 			return null;
 		}
 
-		// Atomic: no local ExPlat engine — ask wpcom as the connected user.
-		// NOTE: confirm the platform segment ('wpcom') matches how the experiment is registered.
-		$request_path = '/experiments/0.1.0/assignments/wpcom';
+		// Atomic: no local ExPlat engine — ask wpcom as the connected user. The experiment is
+		// registered on the `calypso` platform, so the assignment must be fetched from there.
+		$request_path = '/experiments/0.1.0/assignments/calypso';
 		$response     = Client::wpcom_json_api_request_as_user(
-			add_query_arg( array( 'experiment_name' => self::EXPERIMENT_NAME ), $request_path ),
+			add_query_arg( array( 'experiment_names' => self::EXPERIMENT_NAME ), $request_path ),
 			'v2'
 		);
 
