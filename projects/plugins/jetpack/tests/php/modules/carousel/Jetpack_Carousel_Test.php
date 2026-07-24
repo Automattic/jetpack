@@ -219,4 +219,72 @@ class Jetpack_Carousel_Test extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'data-comments-count', $attr );
 		$this->assertSame( 2, $attr['data-comments-count'] );
 	}
+
+	/**
+	 * Empty strings and numeric zeroes are never rendered in the EXIF panel, so they
+	 * should not be serialised into the page either.
+	 */
+	public function test_add_data_to_images_strips_empty_image_meta_values() {
+		update_option( 'carousel_display_exif', 1 );
+		$attachment = $this->create_image_attachment_with_exif();
+
+		wp_update_attachment_metadata(
+			$attachment->ID,
+			array(
+				'width'      => 100,
+				'height'     => 100,
+				'file'       => 'jetpack-icon.jpg',
+				'image_meta' => array(
+					'camera'        => 'JetpackCam',
+					'aperture'      => '0',
+					'focal_length'  => '0',
+					'shutter_speed' => '0',
+					'iso'           => '0',
+					'credit'        => '',
+					'copyright'     => '',
+					'orientation'   => '1',
+				),
+			)
+		);
+
+		$attr = $this->instance->add_data_to_images( array(), $attachment );
+		$meta = json_decode( html_entity_decode( $attr['data-image-meta'], ENT_QUOTES ), true );
+
+		$this->assertSame(
+			array(
+				'camera'      => 'JetpackCam',
+				'orientation' => '1',
+			),
+			$meta
+		);
+	}
+
+	/**
+	 * When every metadata value is empty there is nothing to show, so the attribute
+	 * should be dropped rather than emitted full of zeroes.
+	 */
+	public function test_add_data_to_images_omits_image_meta_when_all_values_are_empty() {
+		update_option( 'carousel_display_exif', 1 );
+		$attachment = $this->create_image_attachment_with_exif();
+
+		wp_update_attachment_metadata(
+			$attachment->ID,
+			array(
+				'width'      => 100,
+				'height'     => 100,
+				'file'       => 'jetpack-icon.jpg',
+				'image_meta' => array(
+					'camera'        => '',
+					'aperture'      => '0',
+					'focal_length'  => '0',
+					'shutter_speed' => '0.0',
+					'iso'           => '0',
+				),
+			)
+		);
+
+		$attr = $this->instance->add_data_to_images( array(), $attachment );
+
+		$this->assertArrayNotHasKey( 'data-image-meta', $attr );
+	}
 }

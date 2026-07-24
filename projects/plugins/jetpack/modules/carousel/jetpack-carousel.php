@@ -1010,8 +1010,24 @@ class Jetpack_Carousel {
 				unset( $img_meta['keywords'] );
 			}
 
-			$img_meta                = wp_json_encode( array_map( 'strval', array_filter( $img_meta, 'is_scalar' ) ), JSON_UNESCAPED_SLASHES | JSON_HEX_AMP );
-			$attr['data-image-meta'] = esc_attr( $img_meta );
+			/*
+			Filtering on `is_scalar` alone kept every "" and "0" in the metadata array, which
+			on a typical photo is most of it. The carousel skips those values when it renders
+			the EXIF panel anyway, so serialising them only inflates the page. Mirror that
+			check here: drop empties and numeric zeroes, but keep text that merely casts to
+			zero, such as a camera name.
+			*/
+			$img_meta = array_filter(
+				array_map( 'strval', array_filter( $img_meta, 'is_scalar' ) ),
+				function ( $value ) {
+					return '' !== $value && ! ( is_numeric( $value ) && 0.0 === (float) $value );
+				}
+			);
+
+			// With nothing left to show, the attribute itself is dead weight.
+			if ( ! empty( $img_meta ) ) {
+				$attr['data-image-meta'] = esc_attr( wp_json_encode( $img_meta, JSON_UNESCAPED_SLASHES | JSON_HEX_AMP ) );
+			}
 		}
 
 		// The lines below use `esc_attr( htmlspecialchars( ) )` because esc_attr tries to be too smart and won't double-encode, and we need that here.
