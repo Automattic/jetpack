@@ -68,10 +68,9 @@ const OverviewScreen: FC = () => {
 	// content-coverage cards and the disable control are paid surfaces, hidden here.
 	if ( isGated() ) {
 		return (
-			// Column Stack (matching the Settings tab) so the upsell banner has space
-			// above the cards rather than butting against them.
+			// Column Stack (matching the Settings tab) so the upsell banner — which sits
+			// below the cards and isn't dismissible — has space above it.
 			<Stack direction="column" gap="lg" className={ styles.root }>
-				<UpsellBanner />
 				<div className={ styles.grid }>
 					<SiteVisibilityCard
 						data={ {
@@ -87,6 +86,7 @@ const OverviewScreen: FC = () => {
 						onManage={ () => goToSection( 'verification' ) }
 					/>
 				</div>
+				<UpsellBanner />
 			</Stack>
 		);
 	}

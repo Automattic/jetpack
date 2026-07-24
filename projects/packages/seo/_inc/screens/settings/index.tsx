@@ -155,7 +155,6 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 
 	return (
 		<Stack direction="column" gap="lg" className={ styles.root }>
-			{ gated && <UpsellBanner /> }
 			<div id="visibility" className={ styles.section }>
 				<CollapsibleCard.Root defaultOpen>
 					<CollapsibleCard.Header>
@@ -290,6 +289,9 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					{ frontPageDescriptionCard }
 				</div>
 			) }
+			{ /* Not dismissible, so it sits below the settings rather than pushing them
+			   down; the Stack's lg gap keeps space between it and the last section. */ }
+			{ gated && <UpsellBanner /> }
 		</Stack>
 	);
 };
