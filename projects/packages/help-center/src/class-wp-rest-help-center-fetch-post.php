@@ -7,16 +7,17 @@
 
 namespace Automattic\Jetpack\Help_Center;
 
-use Automattic\Jetpack\Connection\Client;
-
 /**
  * Class WP_REST_Help_Center_Fetch_Post.
  */
-class WP_REST_Help_Center_Fetch_Post extends \WP_REST_Controller {
+class WP_REST_Help_Center_Fetch_Post extends WP_REST_Help_Center_Controller {
 	/**
 	 * WP_REST_Help_Center_Fetch_Post constructor.
+	 *
+	 * @param Wpcom_Request_Client|null $wpcom_request_client WP.com request client.
 	 */
-	public function __construct() {
+	public function __construct( ?Wpcom_Request_Client $wpcom_request_client = null ) {
+		parent::__construct( $wpcom_request_client );
 		$this->namespace = 'help-center';
 		$this->rest_base = 'fetch-post';
 	}
@@ -80,7 +81,7 @@ class WP_REST_Help_Center_Fetch_Post extends \WP_REST_Controller {
 			'blog_id'  => $request['blog_id'],
 			'post_ids' => $request['post_ids'],
 		);
-		$body             = Client::wpcom_json_api_request_as_user(
+		$body             = $this->wpcom_request_client->request_as_user(
 			'/help/articles?' . http_build_query( $query_parameters )
 		);
 
@@ -100,7 +101,7 @@ class WP_REST_Help_Center_Fetch_Post extends \WP_REST_Controller {
 	 */
 	public function get_post( \WP_REST_Request $request ) {
 		if ( isset( $request['post_url'] ) ) {
-			$body = Client::wpcom_json_api_request_as_user(
+			$body = $this->wpcom_request_client->request_as_user(
 				'/help/article?post_url=' . $request['post_url']
 			);
 		} else {
@@ -109,7 +110,7 @@ class WP_REST_Help_Center_Fetch_Post extends \WP_REST_Controller {
 				return $alternate_data;
 			}
 
-			$body = Client::wpcom_json_api_request_as_user(
+			$body = $this->wpcom_request_client->request_as_user(
 				'/help/article/' . $alternate_data['blog_id'] . '/' . $alternate_data['post_id']
 			);
 		}
@@ -141,7 +142,7 @@ class WP_REST_Help_Center_Fetch_Post extends \WP_REST_Controller {
 			return $default_alternate_data;
 		}
 
-		$body = Client::wpcom_json_api_request_as_user(
+		$body = $this->wpcom_request_client->request_as_user(
 			"/support/alternates/$blog_id/posts/$post_id",
 			'1.1',
 			array(),

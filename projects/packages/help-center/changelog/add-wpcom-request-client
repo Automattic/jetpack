@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Allow consumers to provide the authenticated WordPress.com request client used by the Help Center.

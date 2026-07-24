@@ -7,16 +7,17 @@
 
 namespace Automattic\Jetpack\Help_Center;
 
-use Automattic\Jetpack\Connection\Client;
-
 /**
  * Class WP_REST_Help_Center_Sibyl.
  */
-class WP_REST_Help_Center_Sibyl extends \WP_REST_Controller {
+class WP_REST_Help_Center_Sibyl extends WP_REST_Help_Center_Controller {
 	/**
 	 * WP_REST_Help_Center_Sibyl constructor.
+	 *
+	 * @param Wpcom_Request_Client|null $wpcom_request_client WP.com request client.
 	 */
-	public function __construct() {
+	public function __construct( ?Wpcom_Request_Client $wpcom_request_client = null ) {
+		parent::__construct( $wpcom_request_client );
 		$this->namespace = 'help-center';
 		$this->rest_base = '/sibyl';
 	}
@@ -45,7 +46,7 @@ class WP_REST_Help_Center_Sibyl extends \WP_REST_Controller {
 		$query = $request['query'];
 		$site  = $request['site'];
 
-		$body = Client::wpcom_json_api_request_as_user(
+		$body = $this->wpcom_request_client->request_as_user(
 			'/help/sibyl?query=' . $query . '&site=' . $site
 		);
 

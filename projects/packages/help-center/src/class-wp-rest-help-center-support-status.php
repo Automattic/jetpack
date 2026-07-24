@@ -7,16 +7,17 @@
 
 namespace Automattic\Jetpack\Help_Center;
 
-use Automattic\Jetpack\Connection\Client;
-
 /**
  * Class WP_REST_Help_Center_Support_Status.
  */
-class WP_REST_Help_Center_Support_Status extends \WP_REST_Controller {
+class WP_REST_Help_Center_Support_Status extends WP_REST_Help_Center_Controller {
 	/**
 	 * WP_REST_Help_Center_Support_Status constructor.
+	 *
+	 * @param Wpcom_Request_Client|null $wpcom_request_client WP.com request client.
 	 */
-	public function __construct() {
+	public function __construct( ?Wpcom_Request_Client $wpcom_request_client = null ) {
+		parent::__construct( $wpcom_request_client );
 		$this->namespace = 'help-center';
 		$this->rest_base = '/support-status';
 	}
@@ -60,7 +61,7 @@ class WP_REST_Help_Center_Support_Status extends \WP_REST_Controller {
 	 * Should return the support status for the user
 	 */
 	public function get_support_status() {
-		$body = Client::wpcom_json_api_request_as_user( 'help/support-status' );
+		$body = $this->wpcom_request_client->request_as_user( 'help/support-status' );
 		if ( is_wp_error( $body ) ) {
 			return $body;
 		}
@@ -79,7 +80,7 @@ class WP_REST_Help_Center_Support_Status extends \WP_REST_Controller {
 			'group'       => $request['group'],
 			'environment' => $request['environment'],
 		);
-		$body             = Client::wpcom_json_api_request_as_user( 'help/support-status/messaging?' . http_build_query( $query_parameters ) );
+		$body             = $this->wpcom_request_client->request_as_user( 'help/support-status/messaging?' . http_build_query( $query_parameters ) );
 		if ( is_wp_error( $body ) ) {
 			return $body;
 		}

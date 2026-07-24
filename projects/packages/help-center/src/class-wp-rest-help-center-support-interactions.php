@@ -7,16 +7,17 @@
 
 namespace Automattic\Jetpack\Help_Center;
 
-use Automattic\Jetpack\Connection\Client;
-
 /**
  * Class WP_REST_Help_Center_Support_Interactions.
  */
-class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
+class WP_REST_Help_Center_Support_Interactions extends WP_REST_Help_Center_Controller {
 	/**
 	 * WP_REST_Help_Center_Support_Interactions constructor.
+	 *
+	 * @param Wpcom_Request_Client|null $wpcom_request_client WP.com request client.
 	 */
-	public function __construct() {
+	public function __construct( ?Wpcom_Request_Client $wpcom_request_client = null ) {
+		parent::__construct( $wpcom_request_client );
 		$this->namespace = 'help-center';
 		$this->rest_base = '/support-interactions';
 	}
@@ -164,7 +165,7 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 			$url = '/support-interactions/?' . http_build_query( stripslashes_deep( $request->get_params() ) );
 		}
 
-		$body = Client::wpcom_json_api_request_as_user( $url );
+		$body = $this->wpcom_request_client->request_as_user( $url );
 
 		if ( is_wp_error( $body ) ) {
 			return $body;
@@ -203,7 +204,7 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 			$data['is_test_mode'] = $request['is_test_mode'];
 		}
 
-		$body = Client::wpcom_json_api_request_as_user(
+		$body = $this->wpcom_request_client->request_as_user(
 			'/support-interactions',
 			'2',
 			array(
@@ -247,7 +248,7 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 			$data['is_test_mode'] = $request['is_test_mode'];
 		}
 
-		$body = Client::wpcom_json_api_request_as_user(
+		$body = $this->wpcom_request_client->request_as_user(
 			"/support-interactions/$support_interaction_id/events",
 			'2',
 			array(
@@ -275,7 +276,7 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 
 		$status = $request['status'];
 
-		$body = Client::wpcom_json_api_request_as_user(
+		$body = $this->wpcom_request_client->request_as_user(
 			"/support-interactions/$support_interaction_id/status",
 			'2',
 			array(

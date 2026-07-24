@@ -5,7 +5,9 @@
 This package is the backend for the Help Center. It is consumed by `jetpack-mu-wpcom` and may also be used by other WordPress plugins. It is responsible for:
 
 1. **Loading the Help Center UI** — enqueues the webpack bundles (built in `wp-calypso/apps/help-center/`) from `widgets.wp.com` into wp-admin, the block editor, the customizer, CIAB, `/support`, and `/forums`.
-2. **Registering REST API endpoints** — all under the `/help-center/` namespace. These are used by the frontend on Atomic sites when `canAccessWpcomApis()` returns `false`. Every endpoint proxies to a WPcom REST API via `Client::wpcom_json_api_request_as_user()`.
+2. **Registering REST API endpoints** — all under the `/help-center/` namespace. These are used by the frontend on Atomic sites when `canAccessWpcomApis()` returns `false`. Every endpoint proxies to a WPcom REST API through the configured `Wpcom_Request_Client`; the default adapter uses `Client::wpcom_json_api_request_as_user()`.
+
+Consumers may replace the default Jetpack Connection transport by implementing `Wpcom_Request_Client` and using the `jetpack_help_center_wpcom_request_client` filter before `Help_Center::init()` runs.
 
 The frontend code lives in a separate repo: `wp-calypso/packages/help-center/`.
 

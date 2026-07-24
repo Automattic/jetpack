@@ -7,17 +7,18 @@
 
 namespace Automattic\Jetpack\Help_Center;
 
-use Automattic\Jetpack\Connection\Client;
-
 /**
  * Class WP_REST_Help_Center_Persisted_Open_State.
  */
-class WP_REST_Help_Center_Persisted_Open_State extends \WP_REST_Controller {
+class WP_REST_Help_Center_Persisted_Open_State extends WP_REST_Help_Center_Controller {
 
 	/**
 	 * WP_REST_Help_Center_Persisted_Open_State constructor.
+	 *
+	 * @param Wpcom_Request_Client|null $wpcom_request_client WP.com request client.
 	 */
-	public function __construct() {
+	public function __construct( ?Wpcom_Request_Client $wpcom_request_client = null ) {
+		parent::__construct( $wpcom_request_client );
 		$this->namespace = 'help-center';
 		$this->rest_base = '/open-state';
 	}
@@ -51,7 +52,7 @@ class WP_REST_Help_Center_Persisted_Open_State extends \WP_REST_Controller {
 	 */
 	public function get_state() {
 		// Forward the request body to the support chat endpoint.
-		$body = Client::wpcom_json_api_request_as_user(
+		$body = $this->wpcom_request_client->request_as_user(
 			'/me/preferences',
 			'2',
 			array( 'method' => 'GET' )
@@ -102,7 +103,7 @@ class WP_REST_Help_Center_Persisted_Open_State extends \WP_REST_Controller {
 			$data['calypso_preferences']['help_center_minimized'] = $minimized;
 		}
 
-		$body = Client::wpcom_json_api_request_as_user(
+		$body = $this->wpcom_request_client->request_as_user(
 			'/me/preferences',
 			'2',
 			array( 'method' => 'POST' ),

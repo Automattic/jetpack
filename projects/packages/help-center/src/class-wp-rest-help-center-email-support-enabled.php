@@ -7,16 +7,17 @@
 
 namespace Automattic\Jetpack\Help_Center;
 
-use Automattic\Jetpack\Connection\Client;
-
 /**
  * Class WP_REST_Help_Center_Email_Support_Enabled.
  */
-class WP_REST_Help_Center_Email_Support_Enabled extends \WP_REST_Controller {
+class WP_REST_Help_Center_Email_Support_Enabled extends WP_REST_Help_Center_Controller {
 	/**
 	 * WP_REST_Help_Center_Email_Support_Enabled constructor.
+	 *
+	 * @param Wpcom_Request_Client|null $wpcom_request_client WP.com request client.
 	 */
-	public function __construct() {
+	public function __construct( ?Wpcom_Request_Client $wpcom_request_client = null ) {
+		parent::__construct( $wpcom_request_client );
 		$this->namespace = 'help-center';
 		$this->rest_base = '/support-availability';
 	}
@@ -40,7 +41,7 @@ class WP_REST_Help_Center_Email_Support_Enabled extends \WP_REST_Controller {
 	 * Should return if email contact is enabled for the user.
 	 */
 	public function get_email_support_configuration() {
-		$body = Client::wpcom_json_api_request_as_user( 'help/eligibility/email/mine' );
+		$body = $this->wpcom_request_client->request_as_user( 'help/eligibility/email/mine' );
 
 		if ( is_wp_error( $body ) ) {
 			return $body;

@@ -22,6 +22,35 @@ add_action( 'init', array( Help_Center::class, 'init' ) );
 
 The package expects the consuming plugin to load its Composer autoloader. Jetpack Autoloader is recommended when multiple plugins may ship Jetpack packages.
 
+### Custom WordPress.com Authentication
+
+By default, the package sends authenticated WordPress.com requests through Jetpack Connection. Consumers with another authentication system can implement `Wpcom_Request_Client` and provide it before Help Center initializes:
+
+```php
+use Automattic\Jetpack\Help_Center\Wpcom_Request_Client;
+
+final class My_Help_Center_Request_Client implements Wpcom_Request_Client {
+	public function request_as_user(
+		string $path,
+		string $version = '2',
+		array $args = array(),
+		array|string|null $body = null,
+		string $base_api_path = 'wpcom'
+	): array|\WP_Error {
+		return my_authenticated_wpcom_request( $path, $version, $args, $body, $base_api_path );
+	}
+}
+
+add_filter(
+	'jetpack_help_center_wpcom_request_client',
+	static function () {
+		return new My_Help_Center_Request_Client();
+	}
+);
+```
+
+Standalone consumers may instead pass the client directly to `Help_Center::init()`.
+
 ## Features
 
 - Loads Help Center bundles in wp-admin, the block editor, the customizer, and supported frontend contexts.

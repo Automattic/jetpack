@@ -6,6 +6,8 @@
  */
 
 use Automattic\Jetpack\Help_Center\Help_Center;
+use Automattic\Jetpack\Help_Center\WP_REST_Help_Center_Support_Activity;
+use Automattic\Jetpack\Help_Center\Wpcom_Request_Client;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
@@ -134,5 +136,71 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 	public function test_get_instance_returns_singleton_after_init() {
 		Help_Center::init();
 		$this->assertInstanceOf( Help_Center::class, Help_Center::get_instance() );
+	}
+
+	public function test_init_uses_filtered_wpcom_request_client() {
+		$wpcom_request_client = new class() implements Wpcom_Request_Client {
+			public function request_as_user(
+				string $path,
+				string $version = '2',
+				array $args = array(),
+				array|string|null $body = null,
+				string $base_api_path = 'wpcom'
+			): array|\WP_Error {
+				return compact( 'path', 'version', 'args', 'body', 'base_api_path' );
+			}
+		};
+
+		$filter = static function () use ( $wpcom_request_client ) {
+			return $wpcom_request_client;
+		};
+		add_filter( 'jetpack_help_center_wpcom_request_client', $filter );
+
+		try {
+			$help_center = Help_Center::init();
+		} finally {
+			remove_filter( 'jetpack_help_center_wpcom_request_client', $filter );
+		}
+
+		$property = new \ReflectionProperty( Help_Center::class, 'wpcom_request_client' );
+		$this->assertSame( $wpcom_request_client, $property->getValue( $help_center ) );
+	}
+
+	public function test_rest_controller_uses_injected_wpcom_request_client() {
+		$wpcom_request_client = new class() implements Wpcom_Request_Client {
+			/**
+			 * Captured requests.
+			 *
+			 * @var array
+			 */
+			public $requests = array();
+
+			public function request_as_user(
+				string $path,
+				string $version = '2',
+				array $args = array(),
+				array|string|null $body = null,
+				string $base_api_path = 'wpcom'
+			): array|\WP_Error {
+				$this->requests[] = compact( 'path', 'version', 'args', 'body', 'base_api_path' );
+				return array( 'body' => '{"items":[]}' );
+			}
+		};
+
+		$controller = new WP_REST_Help_Center_Support_Activity( $wpcom_request_client );
+		$controller->get_support_activity();
+
+		$this->assertSame(
+			array(
+				array(
+					'path'          => '/support-activity',
+					'version'       => '2',
+					'args'          => array(),
+					'body'          => null,
+					'base_api_path' => 'wpcom',
+				),
+			),
+			$wpcom_request_client->requests
+		);
 	}
 }

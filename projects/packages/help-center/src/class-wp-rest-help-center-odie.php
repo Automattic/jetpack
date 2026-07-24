@@ -7,17 +7,18 @@
 
 namespace Automattic\Jetpack\Help_Center;
 
-use Automattic\Jetpack\Connection\Client;
-
 /**
  * Class WP_REST_Help_Center_Odie.
  */
-class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
+class WP_REST_Help_Center_Odie extends WP_REST_Help_Center_Controller {
 
 	/**
 	 * WP_REST_Help_Center_Odie constructor.
+	 *
+	 * @param Wpcom_Request_Client|null $wpcom_request_client WP.com request client.
 	 */
-	public function __construct() {
+	public function __construct( ?Wpcom_Request_Client $wpcom_request_client = null ) {
+		parent::__construct( $wpcom_request_client );
 		$this->namespace = 'help-center';
 		$this->rest_base = '/odie';
 	}
@@ -208,7 +209,7 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 		$chat_id       = $request->get_param( 'chat_id' );
 
 		// Forward the request body to the support chat endpoint.
-		$body = Client::wpcom_json_api_request_as_user(
+		$body = $this->wpcom_request_client->request_as_user(
 			'/odie/chat/' . $bot_name_slug . '/' . $chat_id,
 			'2',
 			array(
@@ -251,7 +252,7 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 			)
 		);
 
-		$body = Client::wpcom_json_api_request_as_user(
+		$body = $this->wpcom_request_client->request_as_user(
 			'/odie/chat/' . $bot_name_slug . '/' . $chat_id . '?' . $url_query_params
 		);
 
@@ -276,7 +277,7 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 		$rating_value = $request->get_param( 'rating_value' );
 
 		// Forward the request body to the feedback endpoint.
-		$body = Client::wpcom_json_api_request_as_user(
+		$body = $this->wpcom_request_client->request_as_user(
 			'/odie/chat/' . $bot_id . '/' . $chat_id . '/' . $message_id . '/feedback',
 			'2',
 			array( 'method' => 'POST' ),
@@ -313,7 +314,7 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 			)
 		);
 
-		$body = Client::wpcom_json_api_request_as_user(
+		$body = $this->wpcom_request_client->request_as_user(
 			'/odie/conversations/' . $bot_ids . '?' . $url_query_params
 		);
 

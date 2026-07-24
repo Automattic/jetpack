@@ -7,16 +7,17 @@
 
 namespace Automattic\Jetpack\Help_Center;
 
-use Automattic\Jetpack\Connection\Client;
-
 /**
  * Class WP_REST_Help_Center_User_Fields.
  */
-class WP_REST_Help_Center_User_Fields extends \WP_REST_Controller {
+class WP_REST_Help_Center_User_Fields extends WP_REST_Help_Center_Controller {
 	/**
 	 * WP_REST_Help_Center_User_Fields constructor.
+	 *
+	 * @param Wpcom_Request_Client|null $wpcom_request_client WP.com request client.
 	 */
-	public function __construct() {
+	public function __construct( ?Wpcom_Request_Client $wpcom_request_client = null ) {
+		parent::__construct( $wpcom_request_client );
 		$this->namespace = 'help-center';
 		$this->rest_base = '/zendesk/user-fields';
 	}
@@ -48,7 +49,7 @@ class WP_REST_Help_Center_User_Fields extends \WP_REST_Controller {
 	 * @param \WP_REST_Request $request    The request sent to the API.
 	 */
 	public function update_user_fields( \WP_REST_Request $request ) {
-		$body = Client::wpcom_json_api_request_as_user(
+		$body = $this->wpcom_request_client->request_as_user(
 			'help/zendesk/update-user-fields',
 			'2',
 			array(
