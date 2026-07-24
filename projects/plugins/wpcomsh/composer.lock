@@ -832,7 +832,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "ac92fb106fb48e2bdfe0946da6e387b2f61585fb"
+                "reference": "2a21eca9ea6ba033ea8560a5d39c0f7beef81be2"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -843,6 +843,7 @@
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-roles": "@dev",
                 "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {
