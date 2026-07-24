@@ -25,6 +25,11 @@ export interface ChartLegendOptions {
 	showValues?: boolean;
 	legendValueDisplay?: LegendValueDisplay;
 	legendShape?: LegendShape< SeriesData[], number >;
+	/**
+	 * Collapse series that share a `group` into a single legend item, labelled by the group's
+	 * primary series. Off by default, so every series gets its own item.
+	 */
+	collapseGroups?: boolean;
 }
 
 /**
@@ -169,14 +174,15 @@ function buildSeriesLegendItem(
 }
 
 /**
- * Processes SeriesData into legend items. A group collapses to a single item only when it holds a
- * `type: 'comparison'` overlay (the primary + previous-period pattern); every other series — grouped
- * or not — keeps its own legend entry.
+ * Processes SeriesData into legend items. Every series keeps its own legend entry unless
+ * `collapseGroups` is set, in which case series sharing a `group` collapse to one item labelled by
+ * the group's primary (its first non-comparison member).
  * @param seriesData       - The series data to process
  * @param getElementStyles - Function to get element styles
  * @param showValues       - Whether to show values in legend
  * @param withGlyph        - Whether to include glyph rendering
  * @param glyphSize        - Size of the glyph
+ * @param collapseGroups   - Whether series sharing a group collapse to a single item
  * @param renderGlyph      - Component to render the glyph
  * @param legendShape      - The shape type for legend items (string literal or React component)
  * @return Array of processed legend items
@@ -187,6 +193,7 @@ function processSeriesData(
 	showValues: boolean,
 	withGlyph: boolean,
 	glyphSize: number,
+	collapseGroups: boolean,
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode,
 	legendShape?: LegendShape< SeriesData[], number >
 ): BaseLegendItem[] {
@@ -203,10 +210,7 @@ function processSeriesData(
 		);
 
 	return groupSeriesForLegend( seriesData ).flatMap( members => {
-		const hasComparison = members.some( ( { series } ) => series.options?.type === 'comparison' );
-
-		// Only the comparison pattern (a primary paired with its overlay) collapses to one item.
-		if ( members.length > 1 && hasComparison ) {
+		if ( collapseGroups && members.length > 1 ) {
 			const primary =
 				members.find( ( { series } ) => series.options?.type !== 'comparison' ) ?? members[ 0 ];
 
@@ -284,6 +288,7 @@ export function useChartLegendItems<
 		legendValueDisplay = 'percentage',
 		withGlyph = false,
 		glyphSize = 8,
+		collapseGroups = false,
 		renderGlyph,
 	} = options;
 	const { getElementStyles } = useGlobalChartsContext();
@@ -301,6 +306,7 @@ export function useChartLegendItems<
 				showValues,
 				withGlyph,
 				glyphSize,
+				collapseGroups,
 				renderGlyph,
 				legendShape
 			);
@@ -324,6 +330,7 @@ export function useChartLegendItems<
 		legendValueDisplay,
 		withGlyph,
 		glyphSize,
+		collapseGroups,
 		renderGlyph,
 		legendShape,
 	] );

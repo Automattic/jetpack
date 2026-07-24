@@ -186,6 +186,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		ref
 	) => {
 		const legendInteractive = legend.interactive ?? false;
+		const legendCollapseGroups = legend.collapseGroups ?? false;
 		const legendShape = legend.shape ?? 'line';
 		const legendPosition = legend.position ?? 'bottom';
 
@@ -350,9 +351,10 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			() => ( {
 				withGlyph: withLegendGlyph,
 				glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
+				collapseGroups: legendCollapseGroups,
 				renderGlyph,
 			} ),
-			[ withLegendGlyph, glyphStyle?.radius, renderGlyph ]
+			[ withLegendGlyph, glyphStyle?.radius, legendCollapseGroups, renderGlyph ]
 		);
 
 		// Create legend items using the reusable hook

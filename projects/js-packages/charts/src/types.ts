@@ -591,6 +591,13 @@ export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry 
 	 */
 	interactive?: boolean;
 	/**
+	 * Collapse series that share a `group` into a single legend item, labelled by the group's
+	 * primary series (its first non-comparison member). Off by default, so every series keeps its
+	 * own item. Combines with `interactive`: a collapsed item toggles every series in its group,
+	 * an uncollapsed one toggles only its own.
+	 */
+	collapseGroups?: boolean;
+	/**
 	 * Additional CSS class name for individual legend items.
 	 */
 	itemClassName?: string;

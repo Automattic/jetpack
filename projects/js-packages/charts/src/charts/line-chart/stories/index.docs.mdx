@@ -200,7 +200,7 @@ Use semantic line types to distinguish between different data categories with au
 
 ### Comparison type
 
-The `comparison` type can be used to differentiate comparison data from primary data series. Give the primary series and its comparison overlay the same `group` so they pair up and the legend can collapse them into a single item:
+The `comparison` type can be used to differentiate comparison data from primary data series. Give the primary series and its comparison overlay the same `group` so they pair up. By default each still gets its own legend item; set `legend.collapseGroups` to fold them into one:
 
 <Canvas of={ LineChartStories.ComparisonSingle } />
 
@@ -224,7 +224,7 @@ The `comparison` type can be used to differentiate comparison data from primary 
 	/>` }
 />
 
-Pair several metrics side by side, each with its own comparison overlay. With an interactive legend (`legend.interactive`), each group collapses to a single item labelled by its primary series; clicking it toggles that metric's current and previous-period lines together, and the value axis stays fixed to the full data range so it doesn't jump as series are toggled. When every series is hidden, the axes are dropped and only the empty state is shown.
+Pair several metrics side by side, each with its own comparison overlay. With `legend.collapseGroups`, each group renders as a single item labelled by its primary series. Add `legend.interactive` and clicking that item toggles the metric's current and previous-period lines together — without `collapseGroups`, each line keeps its own item and toggles alone. While the legend is interactive the value axis stays fixed to the full data range so it doesn't jump as series are toggled, and when every series is hidden the axes are dropped and only the empty state is shown.
 
 <Canvas of={ LineChartStories.ComparisonMulti } />
 

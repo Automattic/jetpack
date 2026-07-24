@@ -525,12 +525,13 @@ DateStringFormats.parameters = {
 	},
 };
 
-// One metric paired with its previous-period comparison overlay, sharing a `group` so the legend
-// collapses to a single item.
+// One metric paired with its previous-period comparison overlay, sharing a `group`. With
+// `legendCollapseGroups` the legend folds them into a single item.
 export const ComparisonSingle: StoryObj< StoryArgs > = Template.bind( {} );
 ComparisonSingle.args = {
 	...lineChartStoryArgs,
 	showLegend: true,
+	legendCollapseGroups: true,
 	smoothing: false,
 	data: [
 		{
@@ -552,19 +553,20 @@ ComparisonSingle.parameters = {
 	docs: {
 		description: {
 			story:
-				'A primary series paired with a `type: "comparison"` previous-period series sharing the same `group`, so the legend shows a single **Views** item.',
+				'A primary series paired with a `type: "comparison"` previous-period series sharing the same `group`. With `legend.collapseGroups` enabled the legend shows a single **Views** item; turn the `legendCollapseGroups` control off to give each series its own item.',
 		},
 	},
 };
 
-// Two metrics side by side, each with its own previous-period comparison overlay. The interactive
-// legend collapses each group to one item (Views, Visitors); clicking one toggles both of that
-// metric's series at once.
+// Two metrics side by side, each with its own previous-period comparison overlay. With
+// `legendCollapseGroups` the legend shows one item per group (Views, Visitors); because it is also
+// interactive, clicking one toggles both of that metric's series at once.
 export const ComparisonMulti: StoryObj< StoryArgs > = Template.bind( {} );
 ComparisonMulti.args = {
 	...lineChartStoryArgs,
 	showLegend: true,
 	legendInteractive: true,
+	legendCollapseGroups: true,
 	smoothing: false,
 	data: [
 		{
@@ -599,7 +601,7 @@ ComparisonMulti.parameters = {
 	docs: {
 		description: {
 			story:
-				'Two groups (`views` and `visitors`), each a primary series plus its `type: "comparison"` overlay. With `legend.interactive` enabled, each group collapses to a single legend item that toggles both its current and previous-period series at once, and the value axis stays fixed as series are toggled.',
+				'Two groups (`views` and `visitors`), each a primary series plus its `type: "comparison"` overlay. With `legend.collapseGroups` each group is a single legend item, and because `legend.interactive` is also on, clicking one toggles both its current and previous-period series at once. The value axis stays fixed as series are toggled. Turn the `legendCollapseGroups` control off to get one item per series, each toggling alone.',
 		},
 	},
 };

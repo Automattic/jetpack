@@ -238,7 +238,14 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 		const error = validateData( dataSorted );
 		const isDataValid = ! error;
 
-		const legendOptions = useMemo( () => ( { withGlyph: false, glyphSize: 0 } ), [] );
+		const legendOptions = useMemo(
+			() => ( {
+				withGlyph: false,
+				glyphSize: 0,
+				collapseGroups: legend.collapseGroups ?? false,
+			} ),
+			[ legend.collapseGroups ]
+		);
 		const legendItems = useChartLegendItems( dataSorted, legendOptions, legendShape );
 
 		const chartMetadata = useMemo(

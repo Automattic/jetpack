@@ -544,4 +544,38 @@ describe( 'AreaChart', () => {
 			'url(#chart-zoom-clip-zoomtest)'
 		);
 	} );
+
+	describe( 'Legend group collapsing', () => {
+		const groupedData = [
+			{
+				label: 'Views',
+				group: 'views',
+				data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+			},
+			{
+				label: 'Views — previous',
+				group: 'views',
+				options: { type: 'comparison' as const },
+				data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+			},
+		];
+
+		test( 'renders one legend item per series by default', () => {
+			renderWithProvider( { showLegend: true, data: groupedData } );
+
+			expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Views — previous' ) ).toBeInTheDocument();
+		} );
+
+		test( 'collapses a group to one item when legend.collapseGroups is set', () => {
+			renderWithProvider( {
+				showLegend: true,
+				legend: { collapseGroups: true },
+				data: groupedData,
+			} );
+
+			expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Views — previous' ) ).not.toBeInTheDocument();
+		} );
+	} );
 } );

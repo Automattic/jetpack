@@ -1,4 +1,4 @@
 Significance: minor
-Type: changed
+Type: added
 
-Charts: comparison series that share a group now collapse into a single legend item, and an interactive legend toggles the whole group from one click. Supported in both the bar chart and the line chart, where the value axis also stays fixed as series are toggled. When every series is hidden, the grid and axes are dropped so the empty state stands on its own.
+Charts: new `legend.collapseGroups` option folds series that share a `group` into a single legend item, labelled by the group's primary series; with `legend.interactive` that item toggles the whole group in one click. Off by default, so legends keep one item per series unless you opt in. Available on the bar, line and area charts. The line chart's value axis now also stays fixed as series are toggled, and when every series is hidden the grid and axes are dropped so the empty state stands on its own.

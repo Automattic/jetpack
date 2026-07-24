@@ -1295,6 +1295,89 @@ describe( 'LineChart', () => {
 		);
 	} );
 
+	describe( 'Legend group collapsing', () => {
+		const comparisonPair = [
+			{
+				label: 'Views',
+				group: 'views',
+				data: [
+					{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+					{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+				],
+			},
+			{
+				label: 'Views — previous',
+				group: 'views',
+				options: { type: 'comparison' as const },
+				data: [
+					{ date: new Date( '2024-01-01' ), value: 8, label: 'Jan 1' },
+					{ date: new Date( '2024-01-02' ), value: 16, label: 'Jan 2' },
+				],
+			},
+		];
+
+		it( 'renders one legend item per series by default', () => {
+			renderWithTheme( {
+				showLegend: true,
+				chartId: 'legend-groups-default',
+				data: comparisonPair,
+			} );
+
+			expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Views — previous' ) ).toBeInTheDocument();
+		} );
+
+		it( 'collapses a group to one item when legend.collapseGroups is set', () => {
+			renderWithTheme( {
+				showLegend: true,
+				legend: { collapseGroups: true },
+				chartId: 'legend-groups-collapsed',
+				data: comparisonPair,
+			} );
+
+			expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Views — previous' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'toggles only the clicked series when interactive without collapseGroups', async () => {
+			const user = userEvent.setup();
+
+			renderWithTheme( {
+				showLegend: true,
+				legend: { interactive: true },
+				chartId: 'legend-groups-interactive',
+				data: comparisonPair,
+			} );
+
+			const buttons = screen.getAllByRole( 'button' );
+			await user.click( buttons[ 0 ] );
+
+			expect( buttons[ 0 ] ).toHaveAttribute( 'aria-pressed', 'false' );
+			expect( buttons[ 1 ] ).toHaveAttribute( 'aria-pressed', 'true' );
+		} );
+
+		it( 'toggles the whole group when interactive with collapseGroups', async () => {
+			const user = userEvent.setup();
+
+			renderWithTheme( {
+				showLegend: true,
+				legend: { interactive: true, collapseGroups: true },
+				chartId: 'legend-groups-interactive-collapsed',
+				data: comparisonPair,
+			} );
+
+			const buttons = screen.getAllByRole( 'button' );
+			expect( buttons ).toHaveLength( 1 );
+
+			await user.click( buttons[ 0 ] );
+
+			expect( buttons[ 0 ] ).toHaveAttribute( 'aria-pressed', 'false' );
+			expect(
+				screen.getByText( /all series are hidden.*click legend items to show data/i )
+			).toBeInTheDocument();
+		} );
+	} );
+
 	describe( 'Interactive Legend — value axis', () => {
 		const twoSeries = [
 			{

@@ -117,6 +117,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	gap = 'md',
 } ) => {
 	const legendInteractive = legend.interactive ?? false;
+	const legendCollapseGroups = legend.collapseGroups ?? false;
 	const horizontal = orientation === 'horizontal';
 	const chartId = useChartId( providedChartId );
 	const theme = useXYChartTheme( data );
@@ -131,7 +132,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	} );
 
 	// Create legend items using the reusable hook
-	const legendItems = useChartLegendItems( dataSorted );
+	const legendOptions = useMemo(
+		() => ( { collapseGroups: legendCollapseGroups } ),
+		[ legendCollapseGroups ]
+	);
+	const legendItems = useChartLegendItems( dataSorted, legendOptions );
 	const chartOptions = useBarChartOptions( dataWithVisibleZeros, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
 	const chartRef = useRef< HTMLDivElement >( null );

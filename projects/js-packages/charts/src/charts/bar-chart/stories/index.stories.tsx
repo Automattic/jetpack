@@ -415,6 +415,7 @@ export const ComparisonSingle: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
+		legendCollapseGroups: true,
 		data: [
 			{
 				label: 'Views',
@@ -445,7 +446,7 @@ export const ComparisonSingle: Story = {
 		docs: {
 			description: {
 				story:
-					'One primary series paired with a `type: "comparison"` series sharing the same `group`. The comparison series renders as a translucent (50% opacity) shadow bar at the standard slot width, behind a primary bar narrowed to 60% — so it reads as a shadow peeking around the current period.',
+					'One primary series paired with a `type: "comparison"` series sharing the same `group`. The comparison series renders as a translucent (50% opacity) shadow bar at the standard slot width, behind a primary bar narrowed to 60% — so it reads as a shadow peeking around the current period. `legend.collapseGroups` folds the pair into a single **Views** legend item; turn the `legendCollapseGroups` control off to give each series its own item.',
 			},
 		},
 	},
@@ -459,6 +460,7 @@ export const ComparisonMulti: Story = {
 		...Default.args,
 		showLegend: true,
 		legendInteractive: true,
+		legendCollapseGroups: true,
 		data: [
 			{
 				label: 'Views',
@@ -512,7 +514,7 @@ export const ComparisonMulti: Story = {
 		docs: {
 			description: {
 				story:
-					'Two groups (`views` and `visitors`) rendered side by side, each paired with its own `type: "comparison"` series. Each group\'s standard-width shadow bar sits behind its 60%-width primary bar, with clear gaps preserved between groups — confirming comparison mode composes correctly with grouped bar layouts. With `legend.interactive` enabled, each group collapses to a single legend item (Views, Visitors) that toggles both its current and previous-period series at once.',
+					'Two groups (`views` and `visitors`) rendered side by side, each paired with its own `type: "comparison"` series. Each group\'s standard-width shadow bar sits behind its 60%-width primary bar, with clear gaps preserved between groups — confirming comparison mode composes correctly with grouped bar layouts. With `legend.collapseGroups` each group is a single legend item (Views, Visitors), and because `legend.interactive` is also on, clicking one toggles both its current and previous-period series at once. Turn the `legendCollapseGroups` control off to get one item per series, each toggling alone.',
 			},
 		},
 	},

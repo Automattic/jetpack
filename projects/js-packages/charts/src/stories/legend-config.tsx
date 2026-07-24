@@ -19,6 +19,7 @@ export type LegendStoryControls = {
 	legendTextOverflow?: 'wrap' | 'ellipsis';
 	legendItemClassName?: string;
 	legendInteractive?: boolean;
+	legendCollapseGroups?: boolean;
 	legendShapeStyles?: ChartLegendConfig[ 'shapeStyles' ];
 	legendItemStyles?: ChartLegendConfig[ 'itemStyles' ];
 };
@@ -90,6 +91,12 @@ export const legendArgTypes = {
 		description:
 			'Enable interactive legend items that can toggle series visibility. Requires GlobalChartsProvider and chartId to be set.',
 	},
+	legendCollapseGroups: {
+		control: { type: 'boolean' as const },
+		table: { category: 'Legend' },
+		description:
+			"Collapse series sharing a `group` into one legend item, labelled by the group's primary series. Combined with legendInteractive, that item toggles every series in its group.",
+	},
 	legendShapeStyles: {
 		control: { type: 'object' as const },
 		table: {
@@ -127,6 +134,7 @@ export function extractLegendConfig< T = ChartLegendConfig >(
 		legendOrientation,
 		legendShape,
 		legendInteractive,
+		legendCollapseGroups,
 		legendItemClassName,
 		legendMaxWidth,
 		legendTextOverflow,
@@ -140,6 +148,7 @@ export function extractLegendConfig< T = ChartLegendConfig >(
 		legendOrientation !== undefined ||
 		legendShape !== undefined ||
 		legendInteractive !== undefined ||
+		legendCollapseGroups !== undefined ||
 		legendItemClassName !== undefined ||
 		legendMaxWidth !== undefined ||
 		legendTextOverflow !== undefined ||
@@ -166,6 +175,9 @@ export function extractLegendConfig< T = ChartLegendConfig >(
 	}
 	if ( legendInteractive !== undefined ) {
 		config.interactive = legendInteractive as boolean;
+	}
+	if ( legendCollapseGroups !== undefined ) {
+		config.collapseGroups = legendCollapseGroups as boolean;
 	}
 	if ( legendItemClassName !== undefined ) {
 		config.itemClassName = legendItemClassName as string;
