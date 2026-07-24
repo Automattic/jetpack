@@ -52,6 +52,7 @@ describe( 'referrer field', () => {
 		expect( link ).toHaveAttribute( 'href', 'https://www.google.com/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
+		expect( screen.getByText( 'google.com' ).parentElement?.tagName ).toBe( 'SPAN' );
 	} );
 
 	it( 'renders referrers without a URL as plain text', () => {

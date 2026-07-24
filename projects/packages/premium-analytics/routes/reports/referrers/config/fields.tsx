@@ -52,7 +52,7 @@ export function getReferrerFields(): Field< ReferrerRecord >[] {
 			render: ( { item } ) => {
 				const safeUrl = safeHttpUrl( item.link );
 				const label = (
-					<Stack direction="row" gap="sm" align="center">
+					<Stack render={ <span /> } direction="row" gap="sm" align="center">
 						{ item.icon && (
 							<img
 								src={ item.icon }
@@ -75,7 +75,7 @@ export function getReferrerFields(): Field< ReferrerRecord >[] {
 					<DrilldownLeafCell groupLabel={ item.parentLabel }>
 						{ safeUrl ? (
 							<Link href={ safeUrl } openInNewTab rel="noopener noreferrer">
-								{ label }
+								{ label }{ ' ' }
 							</Link>
 						) : (
 							label
