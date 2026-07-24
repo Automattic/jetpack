@@ -64,6 +64,8 @@ class Launchpad_Personalization_Experiment {
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			// Non-assigning read: rendering wp-admin must never create an assignment.
 			if ( function_exists( '\ExPlat\get_current_user_assignment' ) ) {
+				// The \ExPlat\ helpers live in wpcom, outside this monorepo, so Phan can't see them.
+				// @phan-suppress-next-line PhanUndeclaredFunction
 				return \ExPlat\get_current_user_assignment( self::EXPERIMENT_NAME );
 			}
 			return null;
