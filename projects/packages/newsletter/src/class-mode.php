@@ -135,6 +135,10 @@ class Mode {
 		// page (the "Write & send" link passes source=newsletter).
 		add_filter( 'wpcom_write_back_destinations', array( self::class, 'add_write_back_destination' ) );
 
+		// That filter only exists in a mu-wpcom this plugin doesn't ship, so also
+		// override the destination directly on the editor page.
+		add_action( 'admin_footer', array( self::class, 'maybe_override_write_back_url' ) );
+
 		// Load the wp-build assets + generated render functions on the mode's own
 		// AdminPage pages (Dashboard, Paid). Priority 1 mirrors Settings so the
 		// render functions exist before the menu callbacks fire.
@@ -219,17 +223,82 @@ class Mode {
 	}
 
 	/**
-	 * Register the Newsletter page as a Write editor "back" destination, so the
-	 * editor's back button returns to the mode instead of the dashboard.
+	 * Where the Write editor's back button should return to — the mode's landing
+	 * surface, matching where the "Newsletters" menu link enters.
+	 *
+	 * @return string
+	 */
+	private static function get_write_back_url() {
+		return admin_url( 'admin.php?page=' . self::PAGE_DASHBOARD );
+	}
+
+	/**
+	 * Register the mode as a Write editor "back" destination, so the editor's
+	 * back button returns to it instead of the dashboard.
 	 * Consumed by wpcom_write_resolve_back_url() for source=newsletter.
 	 *
 	 * @param array $destinations Map of source token to destination URL.
 	 * @return array
 	 */
 	public static function add_write_back_destination( $destinations ) {
-		$destinations['newsletter'] = admin_url( 'admin.php?page=' . Settings::ADMIN_PAGE_SLUG );
+		$destinations['newsletter'] = self::get_write_back_url();
 
 		return $destinations;
+	}
+
+	/**
+	 * Point the Write editor's back button at the mode, without depending on the
+	 * editor's own destination map.
+	 *
+	 * The editor resolves where "back" goes from `?source=`, but that lookup —
+	 * and the `wpcom_write_back_destinations` filter add_write_back_destination()
+	 * registers against — lives in jetpack-mu-wpcom, which this plugin does not
+	 * ship: it reaches sites via mu-wpcom-plugin / wpcomsh, deployed by
+	 * WordPress.com. So on a site whose mu-wpcom predates that filter, `newsletter`
+	 * is simply not a key in the map and the editor falls back to `admin_url()` —
+	 * the plain dashboard — no matter what `source` we pass.
+	 *
+	 * Overriding it here keeps the button working on those sites today, and stays
+	 * harmless once the filter ships (both resolve to the same URL). Both exit
+	 * paths need covering: a back-click on a clean post follows the link's href,
+	 * while a dirty post routes through the leave-confirm modal, which navigates
+	 * to the Interactivity store's `backUrl`.
+	 *
+	 * @return void
+	 */
+	public static function maybe_override_write_back_url() {
+		if ( ! self::is_enabled() || ! is_admin() ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only page routing.
+		if ( ! isset( $_GET['page'] ) || ! isset( $_GET['source'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only page routing.
+		if ( 'write' !== sanitize_key( wp_unslash( $_GET['page'] ) ) || 'newsletter' !== sanitize_key( wp_unslash( $_GET['source'] ) ) ) {
+			return;
+		}
+
+		$back_url = self::get_write_back_url();
+
+		// Merges over the value the editor seeded while rendering the page: the
+		// state is not serialized until the script modules print, which happens
+		// after admin_footer.
+		if ( function_exists( 'wp_interactivity_state' ) ) {
+			wp_interactivity_state( 'wpcom-write', array( 'backUrl' => $back_url ) );
+		}
+
+		wp_print_inline_script_tag(
+			sprintf(
+				'( function () {' .
+					'var back = document.querySelector( "a.bw-back" );' .
+					'if ( back ) { back.href = %1$s; }' .
+				'}() );',
+				wp_json_encode( $back_url, JSON_HEX_TAG | JSON_HEX_AMP )
+			)
+		);
 	}
 
 	/**
