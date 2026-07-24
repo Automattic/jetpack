@@ -62,6 +62,16 @@ const OverviewScreen: FC = () => {
 		);
 	}
 
+	// Overlay the live Settings-store visibility values on the Overview bootstrap so a
+	// toggle reflects here without a reload; rendered by the Site visibility card in
+	// both the gated and ungated layouts.
+	const siteVisibilityData = {
+		...data.site_visibility,
+		search_engines_visible:
+			settings?.search_engines_visible ?? data.site_visibility.search_engines_visible,
+		sitemap_active: settings?.sitemap_active ?? data.site_visibility.sitemap_active,
+	};
+
 	// On plan-gated sites (below-Premium WordPress.com) the Overview reduces to the
 	// two always-valid cards (site visibility + verification, both backed by core
 	// WordPress options) topped with the upsell banner. The AI-crawler and
@@ -73,12 +83,7 @@ const OverviewScreen: FC = () => {
 			<Stack direction="column" gap="lg" className={ styles.root }>
 				<div className={ styles.grid }>
 					<SiteVisibilityCard
-						data={ {
-							...data.site_visibility,
-							search_engines_visible:
-								settings?.search_engines_visible ?? data.site_visibility.search_engines_visible,
-							sitemap_active: settings?.sitemap_active ?? data.site_visibility.sitemap_active,
-						} }
+						data={ siteVisibilityData }
 						onManage={ () => goToSection( 'visibility' ) }
 					/>
 					<SiteVerificationCard
@@ -117,12 +122,7 @@ const OverviewScreen: FC = () => {
 			) }
 			<div className={ styles.grid }>
 				<SiteVisibilityCard
-					data={ {
-						...data.site_visibility,
-						search_engines_visible:
-							settings?.search_engines_visible ?? data.site_visibility.search_engines_visible,
-						sitemap_active: settings?.sitemap_active ?? data.site_visibility.sitemap_active,
-					} }
+					data={ siteVisibilityData }
 					onManage={ () => goToSection( 'visibility' ) }
 				/>
 				<SiteVerificationCard
