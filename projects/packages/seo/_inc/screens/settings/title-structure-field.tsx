@@ -6,7 +6,7 @@ import { TextControl } from '@wordpress/components';
 import { useCallback, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { title as titleIcon } from '@wordpress/icons';
-import { Button, Card, CollapsibleCard, Stack, Text } from '@wordpress/ui';
+import { Button, Card, CollapsibleCard, Notice, Stack, Text } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
 import StatusIndicator from '../../components/status-indicator';
 import getSite from '../../data/get-site';
@@ -179,6 +179,8 @@ interface Props {
 	isFormatDirty: ( pageType: string ) => boolean;
 	/** The site's document-title separator, for previewing untouched page types. */
 	titleSeparator: string;
+	/** Whether Jetpack currently controls title output. */
+	editable: boolean;
 	disabled?: boolean;
 }
 
@@ -197,6 +199,7 @@ const TitleStructureField: FC< Props > = ( {
 	onSaveFormat,
 	isFormatDirty,
 	titleSeparator,
+	editable,
 	disabled,
 } ) => {
 	// A smart default counts as configured — the same rule the Schema module uses.
@@ -239,6 +242,16 @@ const TitleStructureField: FC< Props > = ( {
 					<Text variant="body-md" render={ <p /> }>
 						{ moduleDescription }
 					</Text>
+					{ ! editable && (
+						<Notice.Root intent="warning">
+							<Notice.Description>
+								{ __(
+									'Another SEO plugin is controlling title output. Your saved title structures are shown here but cannot be edited while it is active.',
+									'jetpack-seo'
+								) }
+							</Notice.Description>
+						</Notice.Root>
+					) }
 					{ PAGE_TYPES.map( pt => (
 						<TitleStructureRow
 							key={ pt.id }
@@ -250,7 +263,7 @@ const TitleStructureField: FC< Props > = ( {
 							canSave={ isFormatDirty( pt.id ) }
 							previewOverrides={ previewOverrides }
 							titleSeparator={ titleSeparator }
-							disabled={ disabled }
+							disabled={ disabled || ! editable }
 						/>
 					) ) }
 				</Stack>
