@@ -9,6 +9,10 @@
 	padding: 0;
 	overflow-y: auto;
 
+	&#{&} {
+		max-width: 1200px;
+	}
+
 	&__content {
 		background: var(--jp-white-off);
 		padding: 80px;
@@ -126,12 +130,5 @@
 		max-width: 100%;
 		margin: var(--spacing-base) auto;
 		text-align: left;
-	}
-}
-
-@media (min-width: 960px) {
-
-	.jp-connection__manage-dialog {
-		width: 1200px;
 	}
 }
