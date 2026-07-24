@@ -20,7 +20,22 @@ import { dateToISOStringWithTZ } from '../tz';
 // A zone behind UTC, so a naive (UTC) year boundary would land on the wrong day.
 const TIME_ZONE = 'America/New_York';
 
-const CURRENT_YEAR = new Date().getFullYear();
+/*
+ * Pinned clock. The module derives the current year in `TIME_ZONE` while the
+ * test runner reads it in its own zone, and around New Year the two disagree
+ * for as long as the offset between them. Midday mid-year is far from both the
+ * year boundary and any DST transition, so the two readings can't diverge.
+ */
+const NOW = new Date( '2026-06-15T12:00:00.000Z' );
+const CURRENT_YEAR = NOW.getUTCFullYear();
+
+beforeAll( () => {
+	jest.useFakeTimers().setSystemTime( NOW );
+} );
+
+afterAll( () => {
+	jest.useRealTimers();
+} );
 
 describe( 'year preset IDs', () => {
 	it( 'round-trips a year through its preset ID', () => {

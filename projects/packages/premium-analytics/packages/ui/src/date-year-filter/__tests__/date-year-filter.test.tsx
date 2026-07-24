@@ -3,50 +3,67 @@ import userEvent from '@testing-library/user-event';
 import { DateYearFilter } from '../date-year-filter';
 import type { ComponentProps } from 'react';
 
-const CURRENT_YEAR = new Date().getFullYear();
+// Read in UTC, the zone the filter is rendered with below: the local year would
+// disagree with it for a few hours around New Year.
+const CURRENT_YEAR = new Date().getUTCFullYear();
 
 // Width jsdom reports for every pill, so the surface asks for a known total.
 const PILL_WIDTH = 80;
 
 /**
  * Replace the global no-op ResizeObserver stub with one that hands back its
- * callbacks, so a test can report a container width the way the browser would.
+ * callbacks, so a test can report a container width the way the browser would,
+ * and records what it was told to stop observing.
  *
- * @return Callable that reports a width to every live observer.
+ * @return `resizeTo`, which reports a width to every live observer, and the
+ *         list of unobserved elements.
  */
 function mockContainerResize() {
 	const callbacks: ResizeObserverCallback[] = [];
+	const unobserved: Element[] = [];
 
 	globalThis.ResizeObserver = class {
 		constructor( callback: ResizeObserverCallback ) {
 			callbacks.push( callback );
 		}
 		observe() {}
-		unobserve() {}
+		unobserve( element: Element ) {
+			unobserved.push( element );
+		}
 		disconnect() {}
 	} as unknown as typeof ResizeObserver;
 
-	return ( width: number ) =>
+	const resizeTo = ( width: number ) =>
 		act( () => {
 			callbacks.forEach( callback =>
 				callback( [ { contentRect: { width } } as ResizeObserverEntry ], {} as ResizeObserver )
 			);
 		} );
+
+	return { resizeTo, unobserved };
 }
 
 function renderFilter( props: Partial< ComponentProps< typeof DateYearFilter > > = {} ) {
 	const onSelect = jest.fn();
 
-	render(
+	const element = ( overrides: Partial< ComponentProps< typeof DateYearFilter > > = {} ) => (
 		<DateYearFilter
 			timeZone="UTC"
 			startYear={ CURRENT_YEAR - 2 }
 			{ ...props }
+			{ ...overrides }
 			onSelect={ onSelect }
 		/>
 	);
 
-	return { onSelect };
+	const { rerender, unmount } = render( element() );
+
+	return {
+		onSelect,
+		unmount,
+		rerender: ( overrides: Partial< ComponentProps< typeof DateYearFilter > > ) =>
+			rerender( element( overrides ) ),
+	};
 }
 
 describe( 'DateYearFilter', () => {
@@ -159,7 +176,7 @@ describe( 'DateYearFilter', () => {
 		} );
 
 		it( 'keeps the pills while they fit the container', () => {
-			const resizeTo = mockContainerResize();
+			const { resizeTo } = mockContainerResize();
 			renderFilter();
 
 			resizeTo( 4 * PILL_WIDTH );
@@ -169,7 +186,7 @@ describe( 'DateYearFilter', () => {
 		} );
 
 		it( 'collapses to the select once the pills no longer fit', () => {
-			const resizeTo = mockContainerResize();
+			const { resizeTo } = mockContainerResize();
 			renderFilter();
 
 			resizeTo( 4 * PILL_WIDTH - 1 );
@@ -179,7 +196,7 @@ describe( 'DateYearFilter', () => {
 		} );
 
 		it( 'goes back to the pills when the container grows again', () => {
-			const resizeTo = mockContainerResize();
+			const { resizeTo } = mockContainerResize();
 			renderFilter();
 
 			resizeTo( 100 );
@@ -189,13 +206,36 @@ describe( 'DateYearFilter', () => {
 			expect( screen.getAllByRole( 'button' ) ).toHaveLength( 4 );
 		} );
 
+		it( 'measures a shorter preset list instead of judging it by the previous one', () => {
+			const { resizeTo } = mockContainerResize();
+			const { rerender } = renderFilter();
+
+			// Four pills ask for 320px, so this container collapses to the select.
+			resizeTo( 3 * PILL_WIDTH );
+			expect( screen.getByRole( 'combobox' ) ).toBeInTheDocument();
+
+			// One year fewer: three pills fit the same container exactly.
+			rerender( { startYear: CURRENT_YEAR - 1 } );
+
+			expect( screen.getAllByRole( 'button' ) ).toHaveLength( 3 );
+		} );
+
 		it( 'lets an explicit isCompact override the measurement', () => {
-			const resizeTo = mockContainerResize();
+			const { resizeTo } = mockContainerResize();
 			renderFilter( { isCompact: false } );
 
 			resizeTo( 100 );
 
 			expect( screen.getAllByRole( 'button' ) ).toHaveLength( 4 );
+		} );
+
+		it( 'releases the container it observes when it unmounts', () => {
+			const { unobserved } = mockContainerResize();
+			const { unmount } = renderFilter();
+
+			unmount();
+
+			expect( unobserved ).toContain( document.body );
 		} );
 	} );
 } );

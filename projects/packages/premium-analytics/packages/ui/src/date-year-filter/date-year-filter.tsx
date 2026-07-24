@@ -4,6 +4,7 @@
 import {
 	computePrimaryRange,
 	getYearSurfacePresets,
+	type DateRangePreset,
 	type PrimaryPresetId,
 	type YearSurfacePresetId,
 } from '@jetpack-premium-analytics/datetime';
@@ -11,7 +12,7 @@ import { Composite } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { Button, SelectControl } from '@wordpress/ui';
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -60,6 +61,14 @@ export type DateYearFilterProps = {
 	 * measurements chase each other every time the layout switches.
 	 */
 	containerElement?: HTMLElement | null;
+};
+
+/**
+ * Width the pills asked for, tagged with the list they were measured from.
+ */
+type PillsMeasurement = {
+	presets: DateRangePreset< YearSurfacePresetId >[];
+	width: number;
 };
 
 /**
@@ -131,8 +140,7 @@ export function DateYearFilter( {
 	 * both sides instead: the space available, and the width the pills ask for.
 	 */
 	const [ containerWidth, setContainerWidth ] = useState< number | null >( null );
-	const [ pillsWidth, setPillsWidth ] = useState< number | null >( null );
-	const groupRef = useRef< HTMLDivElement | null >( null );
+	const [ measurement, setMeasurement ] = useState< PillsMeasurement | null >( null );
 
 	const handleResize = useCallback( ( entries: ResizeObserverEntry[] ) => {
 		const entry = entries[ 0 ];
@@ -149,37 +157,53 @@ export function DateYearFilter( {
 	 * would land after the first paint, showing a frame of wrapped pills on a
 	 * container too narrow for them; measuring here means React can commit the
 	 * select in the same paint.
+	 *
+	 * The setter is called by hand rather than passed as a ref, so releasing the
+	 * container falls to us: nothing else stops the observer on unmount, and the
+	 * default container outlives every mount.
 	 */
 	useLayoutEffect( () => {
 		const container = containerElement ?? document.body;
 
 		setContainerWidth( getContentWidth( container ) );
 		setObserverRef( container );
+
+		return () => setObserverRef( null );
 	}, [ containerElement, setObserverRef ] );
 
 	/*
 	 * The group wraps when it runs out of room, so its own box reports the width
 	 * it was given rather than the width it needs: sum the pills instead.
 	 *
-	 * Only measurable while the pills are mounted, so the last measurement is
-	 * kept once the select takes over. That is what brings the pills back at
-	 * exactly the width they last asked for, instead of flip-flopping around the
-	 * boundary; a preset list that changes while compact keeps the older width
-	 * until the pills render again.
+	 * Measured from a ref rather than an effect, because the moment to measure is
+	 * when the pills attach, which is also the moment the select gives way to
+	 * them. Keyed on the preset list, so a list that changes under mounted pills
+	 * is measured again.
 	 */
-	useLayoutEffect( () => {
-		const group = groupRef.current;
-		if ( ! group ) {
-			return;
-		}
+	const measurePills = useCallback(
+		( group: HTMLDivElement | null ) => {
+			if ( ! group ) {
+				return;
+			}
 
-		const pills = Array.from( group.children ).reduce(
-			( total, pill ) => total + pill.getBoundingClientRect().width,
-			0
-		);
+			const pills = Array.from( group.children ).reduce(
+				( total, pill ) => total + pill.getBoundingClientRect().width,
+				0
+			);
 
-		setPillsWidth( pills + ( group.offsetWidth - group.clientWidth ) );
-	}, [ presets ] );
+			setMeasurement( { presets, width: pills + ( group.offsetWidth - group.clientWidth ) } );
+		},
+		[ presets ]
+	);
+
+	/*
+	 * A measurement answers for the list it was taken from. It survives the
+	 * switch to the select, which is what brings the pills back at exactly the
+	 * width they last asked for instead of flip-flopping around the boundary; it
+	 * is dropped when the list itself changes, so a shorter list is never judged
+	 * by a longer one's width.
+	 */
+	const pillsWidth = measurement?.presets === presets ? measurement.width : null;
 
 	// Until both measurements land, assume the pills fit: they are the layout
 	// this surface is designed around, and the first paint shouldn't flash a
@@ -210,7 +234,7 @@ export function DateYearFilter( {
 	 */
 	return (
 		<Composite
-			ref={ groupRef }
+			ref={ measurePills }
 			className="date-year-filter__group"
 			role="toolbar"
 			aria-label={ __( 'Time period', 'jetpack-premium-analytics' ) }

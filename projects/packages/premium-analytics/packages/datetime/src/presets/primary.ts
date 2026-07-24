@@ -235,7 +235,7 @@ export type DateRangePreset< TId extends ComputablePresetId = SelectablePresetId
 function resolveStartYear( startYear: number | undefined, ctx: DateContext ): number {
 	const currentYear = ctx.now.getFullYear();
 
-	if ( startYear === undefined || ! Number.isInteger( startYear ) ) {
+	if ( ! Number.isInteger( startYear ) ) {
 		return currentYear - ( DEFAULT_YEAR_SURFACE_COUNT - 1 );
 	}
 
