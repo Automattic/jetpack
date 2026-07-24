@@ -1,5 +1,5 @@
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useEffect } from '@wordpress/element';
 import { useNavigate } from '@wordpress/route';
 import DashboardLoadError from '../../_inc/components/dashboard-load-error';
 import DashboardSkeleton from '../../_inc/components/dashboard-skeleton';
@@ -8,6 +8,7 @@ import DashboardPage from '../../_inc/dashboard/dashboard-page';
 import { aiStore } from '../../_inc/data/ai-store';
 import getOverview from '../../_inc/data/get-overview';
 import { AI_PATH, OVERVIEW_PATH } from '../../_inc/data/get-preloaded';
+import { isGated } from '../../_inc/data/is-gated';
 import isSeoToolsActive from '../../_inc/data/is-seo-tools-active';
 import { settingsStore } from '../../_inc/data/settings-store';
 import { useAiForm } from '../../_inc/data/use-ai';
@@ -44,6 +45,17 @@ const AiReady = () => {
 
 const Stage = () => {
 	const { setEnhancer, setLlmsTxt, setCrawlers } = useDispatch( aiStore );
+	const navigate = useNavigate();
+
+	// The GEO tab is a paid feature on plan-gated sites (below-Premium WordPress.com),
+	// where its tab is hidden — silently redirect to Overview if reached directly.
+	const gated = isGated();
+	useEffect( () => {
+		if ( gated ) {
+			navigate( { href: '/' } );
+		}
+	}, [ gated, navigate ] );
+
 	// AI gates on the seo-tools state, which lives in the Overview slice, so ensure
 	// both are available. Every slice of a recovered AI payload is pushed into
 	// the store so the form (seeded from it) reflects it.
@@ -59,6 +71,10 @@ const Stage = () => {
 			},
 		},
 	] );
+
+	if ( gated ) {
+		return null;
+	}
 
 	if ( status === 'loading' ) {
 		return (

@@ -123,4 +123,140 @@ class InitializerTest extends TestCase {
 			$initialized->setValue( null, false );
 		}
 	}
+
+	/**
+	 * Put the site on WordPress.com, entitled to `advanced-seo` or not.
+	 *
+	 * `advanced-seo` sits in the FREE plan's supports list and plan classes are
+	 * cumulative, so the plan data alone can never report it unsupported. On
+	 * WordPress.com `Current_Plan::supports()` hijacks to the platform's own feature
+	 * check instead, and that hijack is the only thing that can gate the dashboard.
+	 *
+	 * @param bool $entitled Whether the site is entitled to `advanced-seo`.
+	 */
+	private function simulate_wpcom_site( $entitled ) {
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+
+		\Wpcom_Test_Features::$known    = array( 'advanced-seo' );
+		\Wpcom_Test_Features::$entitled = $entitled ? array( 'advanced-seo' ) : array();
+	}
+
+	/**
+	 * Undo {@see self::simulate_wpcom_site()}.
+	 */
+	private function reset_wpcom_site() {
+		\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+		\Wpcom_Test_Features::reset();
+	}
+
+	/**
+	 * Run `init()` with the surface visible and the `seo-tools` module active, and
+	 * report whether the two GEO-tab front-end services hooked themselves.
+	 *
+	 * Mirrors test_init_registers_schema_and_hooks_when_enabled()'s setup: module
+	 * state is driven through `jetpack_active_modules` (the package test context has
+	 * no on-disk modules), the cohort surface is marked visible, and the one-shot
+	 * `$initialized` guard is reset so the body runs.
+	 *
+	 * @return array{llms_txt: bool, ai_crawlers: bool}
+	 */
+	private function init_and_check_geo_services() {
+		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$initialized->setAccessible( true );
+		}
+		$initialized->setValue( null, false );
+
+		$enable_module = static function () {
+			return array( 'seo-tools' );
+		};
+		add_filter( 'rsm_jetpack_seo', '__return_true' );
+		add_filter( 'jetpack_active_modules', $enable_module );
+		update_option( Initializer::VISIBILITY_OPTION, '1' );
+
+		// Both services self-hook on init(), so a stale registration from an earlier
+		// test would mask a missing one here.
+		remove_action( 'template_redirect', array( Llms_Txt::class, 'maybe_serve' ) );
+		remove_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ), 10 );
+
+		try {
+			Initializer::init();
+
+			return array(
+				'llms_txt'    => false !== has_action( 'template_redirect', array( Llms_Txt::class, 'maybe_serve' ) ),
+				'ai_crawlers' => false !== has_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ) ),
+			);
+		} finally {
+			remove_filter( 'rsm_jetpack_seo', '__return_true' );
+			remove_filter( 'jetpack_active_modules', $enable_module );
+			delete_option( Initializer::VISIBILITY_OPTION );
+			$initialized->setValue( null, false );
+		}
+	}
+
+	/**
+	 * A self-hosted (never-gated) site registers both GEO-tab front-end services:
+	 * /llms.txt is served and the AI-crawler robots.txt directives are appended.
+	 */
+	public function test_init_registers_geo_services_when_not_gated() {
+		$hooked = $this->init_and_check_geo_services();
+
+		$this->assertTrue( $hooked['llms_txt'] );
+		$this->assertTrue( $hooked['ai_crawlers'] );
+	}
+
+	/**
+	 * A WordPress.com site entitled to `advanced-seo` (Premium and above) is not
+	 * gated, so it too registers both GEO services — gating keys off entitlement,
+	 * not merely off being on WordPress.com.
+	 */
+	public function test_init_registers_geo_services_on_entitled_wpcom_site() {
+		$this->simulate_wpcom_site( true );
+
+		try {
+			$hooked = $this->init_and_check_geo_services();
+
+			$this->assertTrue( $hooked['llms_txt'] );
+			$this->assertTrue( $hooked['ai_crawlers'] );
+		} finally {
+			$this->reset_wpcom_site();
+		}
+	}
+
+	/**
+	 * A plan-gated WordPress.com site must not merely hide the GEO tab — it must stop
+	 * running the services behind it, or it would keep serving /llms.txt and emitting
+	 * AI-crawler robots.txt directives it isn't entitled to.
+	 */
+	public function test_init_skips_geo_services_when_gated() {
+		$this->simulate_wpcom_site( false );
+
+		try {
+			$hooked = $this->init_and_check_geo_services();
+
+			$this->assertFalse( $hooked['llms_txt'] );
+			$this->assertFalse( $hooked['ai_crawlers'] );
+		} finally {
+			$this->reset_wpcom_site();
+		}
+	}
+
+	/**
+	 * Gating only suppresses the GEO-tab services — the schema output and the admin
+	 * surface still register, so a gated site keeps the free subset of the dashboard.
+	 */
+	public function test_init_still_registers_schema_and_menu_when_gated() {
+		$this->simulate_wpcom_site( false );
+
+		try {
+			$this->init_and_check_geo_services();
+
+			$this->assertNotFalse( has_action( 'wp_head', array( Schema_Builder::class, 'emit' ) ) );
+			$this->assertNotFalse(
+				has_action( 'admin_menu', array( Admin_Page::class, 'maybe_load_wp_build' ) )
+			);
+		} finally {
+			$this->reset_wpcom_site();
+		}
+	}
 }

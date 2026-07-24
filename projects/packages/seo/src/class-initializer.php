@@ -12,7 +12,10 @@
 
 namespace Automattic\Jetpack\SEO;
 
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Boots the package and carries its cross-plugin contract: the feature flag,
@@ -163,15 +166,28 @@ class Initializer {
 		// Writes are still capability-gated by the core settings controller.
 		if ( self::is_seo_tools_module_active() ) {
 			// Front-end JSON-LD schema output and author profile schema fields.
+			// Intentionally NOT gated: every site keeps emitting its structured data —
+			// a plan-gated site loses the schema *settings* card (a paid control), but
+			// stripping the schema its pages already carry would hurt SEO it has today.
+			// (Finer per-type gating — e.g. sitewide LocalBusiness to paid plans on
+			// self-hosted — is a separate follow-up, tracked in the schema project.)
 			Schema_Builder::init();
 			Author_Schema_Node::init();
-			// GEO tab front-end behavior: the /llms.txt handler. Self-hooks a front-end
-			// action, so it no-ops off the front end and stays behind the same gates as
-			// the schema above.
-			Llms_Txt::init();
-			// GEO tab front-end behavior: robots.txt directives for blocked AI crawlers.
-			// Self-hooks the `robots_txt` filter, so it stays inert off the front end.
-			Ai_Crawlers::init();
+
+			// GEO-tab front-end services. These are paid surfaces on WordPress.com: a
+			// plan-gated site has the GEO tab hidden from its dashboard, so it must not
+			// keep emitting their front-end output either — otherwise it would still
+			// serve /llms.txt and AI-crawler robots.txt directives it doesn't qualify
+			// for. Self-hosted is never gated, so it always registers both.
+			if ( ! self::is_gated() ) {
+				// The /llms.txt handler. Self-hooks a front-end action, so it no-ops off
+				// the front end and stays behind the same gates as the schema above.
+				Llms_Txt::init();
+				// robots.txt directives for blocked AI crawlers. Self-hooks the
+				// `robots_txt` filter, so it stays inert off the front end.
+				Ai_Crawlers::init();
+			}
+
 			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ) );
 			// Package-owned route for the site-level Schema settings (see the controller).
 			add_action( 'rest_api_init', array( Schema_Settings_Controller::class, 'register_routes' ) );
@@ -201,6 +217,43 @@ class Initializer {
 	 */
 	public static function is_optin_available() {
 		return Surface_Visibility::is_optin_available();
+	}
+
+	/**
+	 * Whether the SEO dashboard is plan-gated for this site.
+	 *
+	 * Gating applies only on WordPress.com (Simple + Atomic): `advanced-seo` is in the
+	 * FREE plan's supports list, so `Current_Plan::supports( 'advanced-seo' )` returns
+	 * true on self-hosted (never gated) and hijacks to `wpcom_site_has_feature()` on
+	 * WordPress.com, where it's false below the Premium plan. Mirrors the AI SEO
+	 * Enhancer's plan check in {@see Dashboard_Data::get_ai_data()}.
+	 *
+	 * Public because {@see Admin_Page::inject_script_data()} reads it to build the
+	 * dashboard's gating payload, and {@see self::init()} uses it to decide whether the
+	 * GEO-tab front-end services register at all.
+	 *
+	 * @return bool
+	 */
+	public static function is_gated() {
+		return ( new Host() )->is_wpcom_platform()
+			&& ! Current_Plan::supports( 'advanced-seo' );
+	}
+
+	/**
+	 * The WordPress.com Premium checkout URL for this site, used by the upsell banner
+	 * shown to gated sites.
+	 *
+	 * Built server-side because the client doesn't have the site slug. `value_bundle`
+	 * is the wpcom Premium plan slug (see the `premium` entry in
+	 * `Automattic\Jetpack\Current_Plan`), and `Status::get_site_suffix()` resolves the
+	 * Calypso site slug (via `WPCOM_Masterbar::get_calypso_site_slug()` on wpcom).
+	 *
+	 * @return string
+	 */
+	public static function get_upsell_url() {
+		$site_slug = ( new Status() )->get_site_suffix();
+
+		return sprintf( 'https://wordpress.com/checkout/%s/value_bundle', $site_slug );
 	}
 
 	/**

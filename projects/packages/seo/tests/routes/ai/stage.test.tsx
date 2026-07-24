@@ -14,6 +14,21 @@ jest.unstable_mockModule( '@wordpress/data', () => ( {
 	useDispatch: () => ( { setEnhancer, setLlmsTxt, setCrawlers } ),
 	useSelect: jest.fn(),
 } ) );
+// The stage is invoked as a plain function below (it's the seed wiring under test,
+// not the rendered tree), so the hooks it calls are stubbed rather than run through
+// a renderer: `useEffect` would be an invalid hook call outside a component, and
+// `useNavigate` would reach for a router that isn't mounted.
+jest.unstable_mockModule( '@wordpress/element', () => ( {
+	useCallback: ( fn: unknown ) => fn,
+	useEffect: () => undefined,
+} ) );
+jest.unstable_mockModule( '@wordpress/route', () => ( {
+	useNavigate: () => jest.fn(),
+} ) );
+// Ungated: the gated path returns early without reaching the seed wiring.
+jest.unstable_mockModule( '../../../_inc/data/is-gated', () => ( {
+	isGated: () => false,
+} ) );
 jest.unstable_mockModule( '../../../_inc/components/dashboard-load-error', () => ( {
 	default: () => null,
 } ) );
