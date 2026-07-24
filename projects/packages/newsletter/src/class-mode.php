@@ -609,7 +609,7 @@ class Mode {
 		);
 
 		// "Newsletter" is a product name; used for the unified page and as fallback.
-		$label = isset( $labels[ $page ] ) ? $labels[ $page ] : 'Newsletter';
+		$label = $labels[ $page ] ?? 'Newsletter';
 
 		return $label . $admin_title;
 	}
