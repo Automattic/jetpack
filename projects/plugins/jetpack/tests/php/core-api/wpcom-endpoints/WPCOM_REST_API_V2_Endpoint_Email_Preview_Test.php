@@ -153,7 +153,7 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview_Test extends Jetpack_REST_TestCas
 		$request->set_param( 'post_id', static::$post_id );
 		$response = $this->server->dispatch( $request );
 
-		$this->assertErrorResponse( 'rest_cannot_send_email_preview', $response, 403 );
+		$this->assertErrorResponse( 'rest_cannot_view_email_preview', $response, 403 );
 	}
 
 	/**

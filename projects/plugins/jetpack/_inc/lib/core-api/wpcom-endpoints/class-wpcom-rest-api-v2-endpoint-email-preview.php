@@ -48,11 +48,11 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview extends WP_REST_Controller {
 			'callback'            => array( $this, 'email_preview' ),
 			'permission_callback' => array( $this, 'permissions_check' ),
 			'args'                => array(
-				'id'     => array(
+				'post_id' => array(
 					'description' => __( 'Unique identifier for the post.', 'jetpack' ),
 					'type'        => 'integer',
 				),
-				'access' => array(
+				'access'  => array(
 					'description'       => __( 'Access level.', 'jetpack' ),
 					'enum'              => array( 'everybody', 'subscribers', 'paid_subscribers' ),
 					'default'           => 'everybody',
@@ -88,9 +88,10 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview extends WP_REST_Controller {
 		$is_wpcom_simple = ( new Host() )->is_wpcom_simple();
 
 		// On a self-hosted site, the site must be connected before we can proxy the preview to WordPress.com.
+		// This uses its own error code (not the user-connection one) so the client can tell the two apart.
 		if ( ! $is_wpcom_simple && ! ( new Manager() )->is_connected() ) {
 			return new WP_Error(
-				'rest_cannot_send_email_preview',
+				'rest_cannot_view_email_preview',
 				__( 'Please connect your site to WordPress.com to preview emails.', 'jetpack' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
