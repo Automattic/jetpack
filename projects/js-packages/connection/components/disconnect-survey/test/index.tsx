@@ -132,6 +132,6 @@ describe( 'DisconnectSurvey', () => {
 
 		await user.click( screen.getByText( "It's buggy." ) );
 
-		await expect( user.click( getSubmit() ) ).resolves.not.toThrow();
+		await expect( user.click( getSubmit() ) ).resolves.toBeUndefined();
 	} );
 } );

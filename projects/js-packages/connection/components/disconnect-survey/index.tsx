@@ -130,6 +130,8 @@ const DisconnectSurvey = ( props: DisconnectSurveyProps ) => {
 				onSelect={ setSelectedAnswer }
 			>
 				<input
+					id="jp-connect__disconnect-survey-custom-input"
+					name="jp-connect__disconnect-survey-custom-input"
 					placeholder={ __( 'Share your experience', 'jetpack-connection-js' ) }
 					// Names the option as well as the field: the two are adjacent
 					// visually, but nothing otherwise ties this input to the
