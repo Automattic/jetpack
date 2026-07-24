@@ -1,23 +1,19 @@
 /**
  * External dependencies
  */
-import {
-	ReportErrorState,
-	ReportPerformanceChart,
-	ReportRecordsTable,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import { ReportErrorState, ReportRecordsTable } from '@jetpack-premium-analytics/widgets-toolkit';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
-import { useVideosReportRecords } from './config';
+import { getVideosFields, useVideosReportRecords } from './config';
 import VideosReportPage from './page';
+import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
 import type { ReactNode } from 'react';
 
 jest.mock( './config', () => ( {
-	getVideoRowId: ( item: { id?: number | string | null } ) => String( item.id ),
-	getVideosFields: () => [],
+	getVideosFields: jest.fn( () => [] ),
 	useVideosReportRecords: jest.fn(),
 } ) );
 
@@ -31,7 +27,6 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	formatLegendLabels: () => [],
 	ReportErrorState: jest.fn( ( { title, onRetry }: { title: string; onRetry: () => void } ) => (
 		<div data-testid="report-error-state">
 			<span>{ title }</span>
@@ -40,7 +35,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	) ),
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportPageShell: ( { children }: { children: ReactNode } ) => <>{ children }</>,
-	ReportPerformanceChart: jest.fn( () => null ),
 	ReportRecordsTable: jest.fn( () => null ),
 	useReportRetry: ( refetch: () => unknown ) => () => {
 		void refetch();
@@ -52,7 +46,6 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
-	useNavigate: () => jest.fn(),
 	useSearch: () => ( {
 		from: '2026-06-01T00:00:00+02:00',
 		to: '2026-06-30T23:59:59+02:00',
@@ -61,8 +54,8 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 const useRecordsMock = jest.mocked( useVideosReportRecords );
+const getVideosFieldsMock = jest.mocked( getVideosFields );
 const reportErrorStateMock = jest.mocked( ReportErrorState );
-const reportPerformanceChartMock = jest.mocked( ReportPerformanceChart );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
 
 /**
@@ -75,12 +68,8 @@ function buildRecords( overrides: Partial< ReturnType< typeof useVideosReportRec
 	return {
 		isError: false,
 		refetch: jest.fn(),
-		chart: {
-			primary: undefined,
-			comparison: undefined,
-			isLoading: false,
-		},
 		rows: [],
+		hasComparison: false,
 		isLoading: false,
 		...overrides,
 	} as ReturnType< typeof useVideosReportRecords >;
@@ -91,17 +80,48 @@ describe( 'VideosReportPage', () => {
 		jest.clearAllMocks();
 	} );
 
-	it( 'renders the chart and records table when the report succeeds', () => {
+	it( 'renders the records table when the report succeeds', () => {
 		useRecordsMock.mockReturnValue( buildRecords() );
 
 		render( <VideosReportPage /> );
 
-		expect( reportPerformanceChartMock ).toHaveBeenCalled();
 		expect( reportRecordsTableMock ).toHaveBeenCalled();
 		expect( reportErrorStateMock ).not.toHaveBeenCalled();
 	} );
 
-	it( 'renders the error state instead of the chart and records table', () => {
+	it( 'enables comparison fields when matching comparison rows are available', () => {
+		useRecordsMock.mockReturnValue( buildRecords( { hasComparison: true } ) );
+
+		render( <VideosReportPage /> );
+
+		expect( getVideosFieldsMock ).toHaveBeenCalledWith( true );
+	} );
+
+	it( 'provides stable row ids for videos without a numeric id', () => {
+		useRecordsMock.mockReturnValue( buildRecords() );
+
+		render( <VideosReportPage /> );
+
+		const getItemId = reportRecordsTableMock.mock.calls[ 0 ][ 0 ].getItemId as (
+			item: StatsVideoPlaysComparisonItem
+		) => string;
+		const video = {
+			id: undefined,
+			label: 'Launch video',
+			plays: 0,
+			impressions: 0,
+			watch_time: 0,
+			retention_rate: 0,
+			link: 'https://example.com/video/',
+			children: null,
+		} satisfies StatsVideoPlaysComparisonItem;
+
+		expect( getItemId( video ) ).toBe( 'https://example.com/video/' );
+		expect( getItemId( { ...video, link: null } ) ).toBe( 'video:Launch video' );
+		expect( getItemId( { ...video, label: '', link: null } ) ).toBe( 'video:unknown' );
+	} );
+
+	it( 'renders the error state instead of the records table', () => {
 		useRecordsMock.mockReturnValue( buildRecords( { isError: true } ) );
 
 		render( <VideosReportPage /> );
@@ -109,7 +129,6 @@ describe( 'VideosReportPage', () => {
 		expect( screen.getByTestId( 'report-error-state' ) ).toHaveTextContent(
 			'Unable to load videos'
 		);
-		expect( reportPerformanceChartMock ).not.toHaveBeenCalled();
 		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
 	} );
 
