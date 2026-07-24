@@ -17,11 +17,6 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/common/class-launchpad-personaliza
 #[CoversClass( Launchpad_Personalization_Experiment::class )]
 class Launchpad_Personalization_Experiment_Test extends \WorDBless\BaseTestCase {
 
-	public function set_up() {
-		parent::set_up();
-		delete_transient( 'launchpad-personalization-variation-' . get_current_user_id() );
-	}
-
 	public function tear_down() {
 		remove_all_filters( 'wpcom_launchpad_personalization_variation' );
 		wp_set_current_user( 0 );
