@@ -525,13 +525,13 @@ DateStringFormats.parameters = {
 	},
 };
 
-// One metric paired with its previous-period comparison overlay, sharing a `group`. With
-// `legendCollapseGroups` the legend folds them into a single item.
+// One metric paired with its previous-period comparison overlay, sharing a `group`. Left
+// uncollapsed so the legend keeps an item per series — the default.
 export const ComparisonSingle: StoryObj< StoryArgs > = Template.bind( {} );
 ComparisonSingle.args = {
 	...lineChartStoryArgs,
 	showLegend: true,
-	legendCollapseGroups: true,
+	legendCollapseGroups: false,
 	smoothing: false,
 	data: [
 		{
@@ -553,7 +553,7 @@ ComparisonSingle.parameters = {
 	docs: {
 		description: {
 			story:
-				'A primary series paired with a `type: "comparison"` previous-period series sharing the same `group`. With `legend.collapseGroups` enabled the legend shows a single **Views** item; turn the `legendCollapseGroups` control off to give each series its own item.',
+				'A primary series paired with a `type: "comparison"` previous-period series sharing the same `group`. `legend.collapseGroups` is off here, the default, so each series keeps its own legend item; turn the `legendCollapseGroups` control on to fold the pair into a single **Views** item.',
 		},
 	},
 };
