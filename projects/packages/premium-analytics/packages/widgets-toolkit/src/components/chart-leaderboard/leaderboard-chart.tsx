@@ -92,6 +92,15 @@ export type LeaderboardChartProps = {
 	style?: React.CSSProperties & {
 		'--a8c--charts--leaderboard--bar--border-radius'?: string;
 	};
+
+	/**
+	 * Show only complete rows that fit the widget height instead of scrolling.
+	 *
+	 * Defaults to `true` here, unlike the underlying charts prop, because widgets
+	 * sit in fixed-height tiles. Pass `false` to keep the list scrollable.
+	 * @default true
+	 */
+	fitRows?: boolean;
 };
 
 /**
@@ -125,6 +134,7 @@ export function LeaderboardChart( {
 	emptyStateIcon,
 	emptyStateText,
 	style,
+	fitRows = true,
 }: LeaderboardChartProps ) {
 	const { getElementStyles, theme } = useGlobalChartsContext();
 
@@ -192,6 +202,7 @@ export function LeaderboardChart( {
 				primaryColor={ barColor }
 				withOverlayLabel={ withOverlayLabel }
 				showLegend={ false }
+				fitRows={ fitRows }
 				style={ chartStyle }
 				className={ styles.chart }
 			>

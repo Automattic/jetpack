@@ -7,6 +7,8 @@ import {
 	type StatsArchivesItem,
 	type StatsTopPostsItem,
 } from '@jetpack-premium-analytics/data';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import { Link } from '@wordpress/route';
@@ -80,7 +82,9 @@ export function getPostsFields(): Field< StatsTopPostsItem >[] {
 			id: 'views',
 			label: __( 'Views', 'jetpack-premium-analytics' ),
 			getValue: ( { item } ) => item.views,
-			render: ( { item } ) => <>{ item.views.toLocaleString() }</>,
+			render: ( { item } ) => (
+				<>{ formatMetricValue( item.views, 'number', { decimals: 0, useMultipliers: false } ) }</>
+			),
 		},
 	];
 }
@@ -167,12 +171,14 @@ export function getArchivesFields(): Field< ArchiveRow >[] {
 			enableHiding: false,
 			getValue: ( { item } ) => item.label,
 			render: ( { item } ) => {
-				if ( ! item.link ) {
+				const href = safeHttpUrl( item.link );
+
+				if ( ! href ) {
 					return <>{ item.label }</>;
 				}
 
 				return (
-					<a href={ item.link } target="_blank" rel="noopener noreferrer">
+					<a href={ href } target="_blank" rel="noopener noreferrer">
 						{ item.label }
 					</a>
 				);
@@ -182,7 +188,9 @@ export function getArchivesFields(): Field< ArchiveRow >[] {
 			id: 'views',
 			label: __( 'Views', 'jetpack-premium-analytics' ),
 			getValue: ( { item } ) => item.views,
-			render: ( { item } ) => <>{ item.views.toLocaleString() }</>,
+			render: ( { item } ) => (
+				<>{ formatMetricValue( item.views, 'number', { decimals: 0, useMultipliers: false } ) }</>
+			),
 		},
 	];
 }

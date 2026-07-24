@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 
 /**
@@ -23,13 +22,5 @@ export type OrdersFulfillmentAttributes = Record< never, never >;
  * dashboards can opt in.
  */
 export default {
-	name: 'jpa/orders-fulfillment',
-	title: __( 'Orders fulfillment', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Shows the breakdown of fulfilled vs unfulfilled order counts over the selected time period.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: chartBar,
 };

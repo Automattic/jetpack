@@ -2,10 +2,9 @@ import { safeParseFloat } from '../../utils/parsing';
 import {
 	coerceStatsArray,
 	getStatsReportItems,
-	limitStatsRows,
 	mapNestedItems,
 	mapStatsReportDataPoints,
-	mergeStatsComparisonRows,
+	mergeStatsTreeComparisonRows,
 	normalizeStatsReportSummary,
 } from './utils';
 import type {
@@ -59,62 +58,42 @@ function sortStatsReferrersComparisonItems(
 	return [ ...items ].sort( ( a, b ) => b.views - a.views );
 }
 
-function mergeStatsReferrersComparisonItems(
-	items: StatsReferrersItem[],
-	comparisonItems: StatsReferrersItem[],
-	parent?: ReferrerParentContext
-): { rows: StatsReferrersComparisonItem[]; hasComparison: boolean } {
-	const { rows, hasComparison } = mergeStatsComparisonRows<
-		StatsReferrersItem,
-		StatsReferrersItem,
-		StatsReferrersComparisonItem
-	>( {
-		primaryRows: items,
-		comparisonRows: comparisonItems,
-		getPrimaryKey: getStatsReferrersItemKey,
-		getComparisonKey: getStatsReferrersItemKey,
-		getComparisonValue: item => item.views,
-		mapRow: ( item, { previousValue, comparisonItem } ) => {
-			// Sources inherit their group's favicon so drill-down rows stay
-			// recognizable (e.g. Google Search → google.com keeps the Google icon).
-			const icon = item.icon ?? parent?.icon ?? null;
-			const { rows: children, hasComparison: childrenHaveComparison } =
-				mergeStatsReferrersComparisonItems( item.children ?? [], comparisonItem?.children ?? [], {
-					icon,
-				} );
-
-			return {
-				...item,
-				label: getStatsReferrersItemLabel( item ),
-				icon,
-				previousValue,
-				children: children.length ? children : null,
-				childrenHaveComparison,
-			};
-		},
-	} );
-
-	return { rows: sortStatsReferrersComparisonItems( rows ), hasComparison };
-}
-
 export function mergeStatsReferrersComparisonRows(
 	primaryReport: StatsNormalizedReport< StatsReferrersItem > | undefined,
 	comparisonReport: StatsNormalizedReport< StatsReferrersItem > | undefined,
 	maxRows?: number
 ): { rows: StatsReferrersComparisonItem[]; hasComparison: boolean } {
-	const { rows } = mergeStatsReferrersComparisonItems(
-		getStatsReportItems( primaryReport ),
-		getStatsReportItems( comparisonReport )
-	);
-
-	// The overlap gate is computed on the visible rows so an off-screen match
-	// cannot switch the comparison UI on (see AGENTS.md).
-	const visibleRows = limitStatsRows( rows, maxRows );
-
-	return {
-		rows: visibleRows,
-		hasComparison: visibleRows.some( row => row.previousValue !== undefined ),
-	};
+	return mergeStatsTreeComparisonRows<
+		StatsReferrersItem,
+		StatsReferrersItem,
+		StatsReferrersComparisonItem,
+		ReferrerParentContext
+	>( {
+		primaryRows: getStatsReportItems( primaryReport ),
+		comparisonRows: getStatsReportItems( comparisonReport ),
+		maxRows,
+		getPrimaryKey: getStatsReferrersItemKey,
+		getComparisonKey: getStatsReferrersItemKey,
+		getComparisonValue: item => item.views,
+		getPrimaryChildren: item => item.children,
+		getComparisonChildren: item => item.children,
+		mapRow: ( item, { previousValue }, parent ) => ( {
+			...item,
+			label: getStatsReferrersItemLabel( item ),
+			// Sources inherit their group's favicon so drill-down rows stay
+			// recognizable (e.g. Google Search → google.com keeps the Google icon).
+			icon: item.icon ?? parent?.icon ?? null,
+			previousValue,
+			children: null,
+		} ),
+		setChildren: ( item, children, childrenHaveComparison ) => ( {
+			...item,
+			children: children.length ? children : null,
+			childrenHaveComparison,
+		} ),
+		getChildContext: item => ( { icon: item.icon } ),
+		sortRows: sortStatsReferrersComparisonItems,
+	} );
 }
 
 export function sanitizeStatsReferrersResponse(

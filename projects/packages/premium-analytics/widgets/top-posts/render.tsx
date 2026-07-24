@@ -10,14 +10,17 @@ import {
 import { reports } from '@jetpack-premium-analytics/icons';
 import { Icon, external } from '@wordpress/icons';
 import {
-	DownloadCsvButton,
 	LeaderboardChart,
 	ReportLink,
+	RowsCsvDownloadButton,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	buildCsvDateRangeFilename,
 	calculateDelta,
+	safeHttpUrl,
+	sharePercentage,
 	usePostDetailHrefBuilder,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -80,7 +83,7 @@ export type TopPostRow = {
 type TopPostsRenderAttributes = TopPostsAttributes & Partial< ReportParamsFieldAttributes >;
 type TopPostsWidgetProps = WidgetRenderProps< TopPostsRenderAttributes >;
 
-type TopPostsReportProps = { num: number };
+type TopPostsReportProps = { max: number };
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
 /**
@@ -155,13 +158,13 @@ function buildLeaderboardData(
 				</span>
 			),
 			currentValue: row.value,
-			currentShare: ( row.value / maxCurrentViews ) * 100,
+			currentShare: sharePercentage( row.value, maxCurrentViews ),
 			// Rows without a comparison-period match keep `undefined` so the chart
 			// renders a placeholder instead of a fabricated delta (see AGENTS.md).
 			previousValue,
 			previousShare:
 				withComparison && previousValue !== undefined
-					? ( previousValue / maxPreviousViews ) * 100
+					? sharePercentage( previousValue, maxPreviousViews )
 					: undefined,
 			delta:
 				withComparison && previousValue !== undefined
@@ -239,13 +242,14 @@ function toTopPostRows(
 ): TopPostRow[] {
 	return items.map( item => {
 		const postId = Number( item.id );
+		const href = safeHttpUrl( item.link );
 
 		return {
 			// A row without a title still needs a visible, clickable label.
 			label: String( item.label ?? '' ) || __( 'Untitled', 'jetpack-premium-analytics' ),
 			value: item.views,
 			...( item.previousViews !== undefined ? { previousValue: item.previousViews } : {} ),
-			...( typeof item.link === 'string' && item.link !== '' ? { href: item.link } : {} ),
+			...( href ? { href } : {} ),
 			// The homepage entry (id 0) has no post-detail page.
 			...( Number.isFinite( postId ) && postId > 0
 				? { detailHref: buildDetailHref( postId ) }
@@ -269,18 +273,18 @@ function toTopPostRows(
  * @param {TopPostsReportProps} props - The component props.
  * @return The widget content.
  */
-function TopPostsReport( { num }: TopPostsReportProps ) {
+function TopPostsReport( { max }: TopPostsReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 
 	// The widget's "Number of results" maps to the WPCOM stats API's `max`; the
 	// date range is owned by the dashboard picker and carried in `reportParams`.
-	const statsParams = useMemo( () => ( { ...reportParams, max: num } ), [ reportParams, num ] );
+	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
 
 	// Row matching, ranked capping (the API caps `postviews` at `max` but
 	// appends the homepage entry on top of it), and comparison-overlap gating
 	// all live in the data layer's merge helper (see AGENTS.md).
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
-		useStatsTopPosts( statsParams, { maxRows: num } );
+		useStatsTopPosts( statsParams, { maxRows: max } );
 
 	const buildDetailHref = usePostDetailHrefBuilder();
 	const rows = useMemo(
@@ -307,12 +311,7 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 		return base;
 	}, [ withComparison ] );
 
-	// Date-stamp the download so exports of different periods don't collide.
-	// `from`/`to` are coerced because the router JSON-parses search params, so a
-	// hand-edited numeric `?from=123` would otherwise throw on `.slice`.
-	const csvFilename = `top-posts-${ String( reportParams.from ).slice( 0, 10 ) }_${ String(
-		reportParams.to
-	).slice( 0, 10 ) }`;
+	const csvFilename = buildCsvDateRangeFilename( 'top-posts', reportParams );
 
 	// Only expose the export once the query has settled on data for the current
 	// params. Stats queries keep the previous period's rows as placeholder data
@@ -349,7 +348,7 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 			<WidgetFooter>
 				<ReportLink report="posts" section="posts-pages" />
 				{ canExport && (
-					<DownloadCsvButton columns={ csvColumns } rows={ rows } filename={ csvFilename } />
+					<RowsCsvDownloadButton columns={ csvColumns } rows={ rows } filename={ csvFilename } />
 				) }
 			</WidgetFooter>
 		</>
@@ -429,6 +428,7 @@ function toArchiveRows( items: StatsArchivesComparisonItem[], isTopLevel = true 
 	return items.map( item => {
 		const rawLabel = String( item.label ?? '' );
 		const children = item.children?.length ? toArchiveRows( item.children, false ) : undefined;
+		const href = safeHttpUrl( item.link );
 
 		let label = rawLabel;
 		if ( isTopLevel ) {
@@ -442,7 +442,7 @@ function toArchiveRows( items: StatsArchivesComparisonItem[], isTopLevel = true 
 			value: item.value,
 			type: 'archive',
 			...( item.previousValue !== undefined ? { previousValue: item.previousValue } : {} ),
-			...( typeof item.link === 'string' && item.link !== '' ? { href: item.link } : {} ),
+			...( href ? { href } : {} ),
 			...( children ? { children } : {} ),
 		};
 	} );
@@ -459,10 +459,10 @@ function toArchiveRows( items: StatsArchivesComparisonItem[], isTopLevel = true 
  * comparison UI is gated on real row overlap between the two periods.
  *
  * @param props     - The component props.
- * @param props.num - Maximum number of top-level rows to display.
+ * @param props.max - Maximum number of top-level rows to display.
  * @return The widget content.
  */
-function ArchivesReport( { num }: { num: number } ) {
+function ArchivesReport( { max }: { max: number } ) {
 	const { reportParams } = useWidgetRootContext();
 	const { drillDownItem: drillPath, drillDown, resetDrillDown } = useWidgetDrillDown< string[] >();
 
@@ -470,7 +470,7 @@ function ArchivesReport( { num }: { num: number } ) {
 	// cannot cross-match), the visible-row cap, and the comparison-overlap
 	// gate all live in the data layer's merge helper (see AGENTS.md).
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
-		useStatsArchives( reportParams, { maxRows: num } );
+		useStatsArchives( reportParams, { maxRows: max } );
 
 	const rows = useMemo(
 		() =>
@@ -589,7 +589,7 @@ function ArchivesReport( { num }: { num: number } ) {
  * @return The rendered widget.
  */
 export default function TopPosts( { attributes = {} }: TopPostsWidgetProps ) {
-	const num = attributes.num ?? 10;
+	const max = attributes.max ?? 10;
 	const contentView = attributes.contentView ?? 'posts';
 
 	return (
@@ -597,13 +597,13 @@ export default function TopPosts( { attributes = {} }: TopPostsWidgetProps ) {
 			<div className={ styles.root }>
 				{ contentView === 'archives' ? (
 					<>
-						<ArchivesReport num={ num } />
+						<ArchivesReport max={ max } />
 						<WidgetFooter>
 							<ReportLink report="posts" section="archives" />
 						</WidgetFooter>
 					</>
 				) : (
-					<TopPostsReport num={ num } />
+					<TopPostsReport max={ max } />
 				) }
 			</div>
 		</WidgetRoot>

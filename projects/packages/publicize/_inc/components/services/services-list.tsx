@@ -1,5 +1,6 @@
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
+import { Card } from '@wordpress/ui';
 import { store } from '../../social-store';
 import { Connection } from '../../social-store/types';
 import { ServiceItem } from './service-item';
@@ -36,16 +37,18 @@ export function ServicesList() {
 	const reconnectingAccount = useSelect( select => select( store ).getReconnectingAccount(), [] );
 
 	return (
-		<ul className={ styles.services }>
-			{ supportedServices.map( service => (
-				<li key={ service.id } className={ styles[ 'service-list-item' ] }>
-					<ServiceItem
-						service={ service }
-						serviceConnections={ connections[ service.id ] || [] }
-						isPanelDefaultOpen={ reconnectingAccount?.service_name === service.id }
-					/>
-				</li>
-			) ) }
-		</ul>
+		<Card.Root>
+			<ul className={ styles.services }>
+				{ supportedServices.map( service => (
+					<li key={ service.id } className={ styles[ 'service-list-item' ] }>
+						<ServiceItem
+							service={ service }
+							serviceConnections={ connections[ service.id ] || [] }
+							isPanelDefaultOpen={ reconnectingAccount?.service_name === service.id }
+						/>
+					</li>
+				) ) }
+			</ul>
+		</Card.Root>
 	);
 }

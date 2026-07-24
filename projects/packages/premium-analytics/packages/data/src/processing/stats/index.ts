@@ -1,6 +1,7 @@
 export {
 	combineStatsNormalizedReports,
 	flattenStatsLeaves,
+	getStatsReportItems,
 	mergeStatsComparisonRows,
 	sanitizeStatsPassthroughResponse,
 	sanitizeStatsSiteResponse,
@@ -12,6 +13,14 @@ export type {
 } from './utils';
 export { bucketStatsTimeSeries, getStatsChartBucketKey } from './chart-buckets';
 export type { StatsChartBucketPeriod } from './chart-buckets';
+export { aggregateStatsDrilldownRows } from './drilldown-rows';
+export type {
+	AggregateStatsDrilldownRowsOptions,
+	StatsDrilldownItemContext,
+	StatsDrilldownRow,
+	StatsDrilldownRowContext,
+	StatsDrilldownSourceReport,
+} from './drilldown-rows';
 export { mergeStatsTopPostsComparisonRows, sanitizeStatsTopPostsResponse } from './top-posts';
 export { sanitizeStatsPostResponse } from './post';
 export { sanitizeStatsPostCommentsResponse } from './post-comments';
@@ -174,6 +183,7 @@ export type {
 export type {
 	StatsSingleVideoDataPoint,
 	StatsSingleVideoPage,
+	StatsSingleVideoPost,
 	StatsSingleVideoReport,
 } from './single-video';
 export type {

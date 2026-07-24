@@ -120,6 +120,183 @@ describe( 'PostViewsWidget', () => {
 		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	it( 'uses primary month buckets for a previous period that crosses a month boundary', async () => {
+		mockApiFetch.mockResolvedValue( {
+			data: [
+				[ '2026-01-29', 1 ],
+				[ '2026-02-01', 2 ],
+				[ '2026-02-28', 3 ],
+				[ '2026-03-01', 4 ],
+				[ '2026-03-31', 5 ],
+			],
+		} );
+
+		render(
+			<PostViewsWidget
+				attributes={ {
+					reportParams: {
+						...DEFAULT_PARAMS,
+						from: '2026-03-01T00:00:00.000+08:00',
+						to: '2026-03-31T23:59:59.999+08:00',
+						post_id: 779,
+						comp: '1',
+						compare_from: '2026-01-29T00:00:00.000+08:00',
+						compare_to: '2026-02-28T23:59:59.999+08:00',
+					},
+					granularity: 'month',
+				} }
+			/>
+		);
+
+		const chart = await screen.findByTestId( 'comparative-line-chart' );
+		expect( chart ).toHaveAttribute( 'data-values', '9' );
+		// The previous period is one relative monthly bucket, not separate January
+		// and February points that the comparative chart would collapse onto March.
+		expect( chart ).toHaveAttribute( 'data-previous-values', '6' );
+	} );
+
+	it( 'clamps a shorter previous-month compare bucket to its own window', async () => {
+		// Primary March (31 days) vs previous-month February (28 days), monthly.
+		// The compare bucket must sum only February — a naive relative offset
+		// would run three days past the compare window and pull March 2 in.
+		mockApiFetch.mockResolvedValue( {
+			data: [
+				[ '2026-02-10', 5 ],
+				[ '2026-02-20', 7 ],
+				[ '2026-03-02', 50 ],
+				[ '2026-03-10', 100 ],
+				[ '2026-03-20', 200 ],
+			],
+		} );
+
+		render(
+			<PostViewsWidget
+				attributes={ {
+					reportParams: {
+						...DEFAULT_PARAMS,
+						from: '2026-03-01T00:00:00.000+08:00',
+						to: '2026-03-31T23:59:59.999+08:00',
+						post_id: 779,
+						comp: '1',
+						compare_from: '2026-02-01T00:00:00.000+08:00',
+						compare_to: '2026-02-28T23:59:59.999+08:00',
+					},
+					granularity: 'month',
+				} }
+			/>
+		);
+
+		const chart = await screen.findByTestId( 'comparative-line-chart' );
+		expect( chart ).toHaveAttribute( 'data-values', '350' );
+		// Only February's 5 + 7; March 2's 50 stays out of the compare bucket.
+		expect( chart ).toHaveAttribute( 'data-previous-values', '12' );
+	} );
+
+	it( 'keeps a longer previous-month compare window from truncating', async () => {
+		// Primary February (28 days) vs previous-month January (31 days),
+		// monthly. The compare bucket must sum all of January — the last bucket
+		// has to extend to the compare window end rather than stopping at the
+		// primary length.
+		mockApiFetch.mockResolvedValue( {
+			data: [
+				[ '2026-01-15', 10 ],
+				[ '2026-01-30', 20 ],
+				[ '2026-02-15', 100 ],
+			],
+		} );
+
+		render(
+			<PostViewsWidget
+				attributes={ {
+					reportParams: {
+						...DEFAULT_PARAMS,
+						from: '2026-02-01T00:00:00.000+08:00',
+						to: '2026-02-28T23:59:59.999+08:00',
+						post_id: 779,
+						comp: '1',
+						compare_from: '2026-01-01T00:00:00.000+08:00',
+						compare_to: '2026-01-31T23:59:59.999+08:00',
+					},
+					granularity: 'month',
+				} }
+			/>
+		);
+
+		const chart = await screen.findByTestId( 'comparative-line-chart' );
+		expect( chart ).toHaveAttribute( 'data-values', '100' );
+		// Both January days, including Jan 30 which the old offset would drop.
+		expect( chart ).toHaveAttribute( 'data-previous-values', '30' );
+	} );
+
+	it( 'keeps one comparison point per calendar day when the compare window is longer', async () => {
+		mockApiFetch.mockResolvedValue( {
+			data: [
+				[ '2026-01-28', 1 ],
+				[ '2026-01-29', 2 ],
+				[ '2026-01-30', 3 ],
+				[ '2026-01-31', 4 ],
+				[ '2026-02-01', 5 ],
+				[ '2026-02-28', 10 ],
+				[ '2026-03-01', 20 ],
+			],
+		} );
+
+		render(
+			<PostViewsWidget
+				attributes={ {
+					reportParams: {
+						...DEFAULT_PARAMS,
+						from: '2026-02-28T00:00:00.000+08:00',
+						to: '2026-03-01T23:59:59.999+08:00',
+						post_id: 779,
+						comp: '1',
+						compare_from: '2026-01-28T00:00:00.000+08:00',
+						compare_to: '2026-02-01T23:59:59.999+08:00',
+					},
+					granularity: 'day',
+				} }
+			/>
+		);
+
+		const chart = await screen.findByTestId( 'comparative-line-chart' );
+		expect( chart ).toHaveAttribute( 'data-values', '10,20' );
+		// Day grouping must not fold Jan 29-Feb 1 into one point merely to
+		// mirror the shorter primary range.
+		expect( chart ).toHaveAttribute( 'data-previous-values', '1,2,3,4,5' );
+	} );
+
+	it( 'does not invent trailing comparison days when the compare window is shorter', async () => {
+		mockApiFetch.mockResolvedValue( {
+			data: [
+				[ '2026-02-28', 5 ],
+				[ '2026-03-29', 10 ],
+				[ '2026-03-30', 20 ],
+				[ '2026-03-31', 30 ],
+			],
+		} );
+
+		render(
+			<PostViewsWidget
+				attributes={ {
+					reportParams: {
+						...DEFAULT_PARAMS,
+						from: '2026-03-29T00:00:00.000+08:00',
+						to: '2026-03-31T23:59:59.999+08:00',
+						post_id: 779,
+						comp: '1',
+						compare_from: '2026-02-28T00:00:00.000+08:00',
+						compare_to: '2026-02-28T23:59:59.999+08:00',
+					},
+					granularity: 'day',
+				} }
+			/>
+		);
+
+		const chart = await screen.findByTestId( 'comparative-line-chart' );
+		expect( chart ).toHaveAttribute( 'data-values', '10,20,30' );
+		expect( chart ).toHaveAttribute( 'data-previous-values', '5' );
+	} );
+
 	it( 'renders the scopeless empty state and makes no request without a post scope', async () => {
 		render( <PostViewsWidget attributes={ {} } /> );
 

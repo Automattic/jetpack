@@ -121,9 +121,10 @@ function PostDetail(): JSX.Element {
 						{ /*
 						 * The date filters and the summary card are shared by every tab
 						 * (same post, same date range), so they render once below the
-						 * tab bar and above the per-tab widget grid. The filters sit
-						 * directly under the tabs, mirroring the main dashboard's
-						 * placement, with the summary header below them.
+						 * tab bar and above the per-tab widget grid. The tab bar and the
+						 * filters stay fixed outside the scroll container, exactly like
+						 * the dashboard's section tabs; the summary header scrolls away
+						 * inside it with the widgets, giving them the vertical room.
 						 *
 						 * The filters wrapper is also the responsive-measurement
 						 * target: DateFiltersPanel reads its width to pick mobile/wide
@@ -132,14 +133,19 @@ function PostDetail(): JSX.Element {
 						<div ref={ setContainerElement } className={ styles.dateFilters }>
 							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
 						</div>
-						<div className={ styles.header }>
-							<PostSummaryCard summary={ summary } performanceRange={ dateFilters.appliedRange } />
+						<div className={ styles.scrollArea }>
+							<div className={ styles.header }>
+								<PostSummaryCard
+									summary={ summary }
+									performanceRange={ dateFilters.appliedRange }
+								/>
+							</div>
+							{ tabs.map( tab => (
+								<SectionTabPanel key={ tab.id } value={ tab.id } className={ styles.content }>
+									{ activeTab === tab.id ? <WidgetDashboard.Widgets /> : null }
+								</SectionTabPanel>
+							) ) }
 						</div>
-						{ tabs.map( tab => (
-							<SectionTabPanel key={ tab.id } value={ tab.id } className={ styles.content }>
-								{ activeTab === tab.id ? <WidgetDashboard.Widgets /> : null }
-							</SectionTabPanel>
-						) ) }
 					</PostDetailTabs>
 				</Page>
 			</WidgetDashboard>

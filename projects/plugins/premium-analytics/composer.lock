@@ -619,7 +619,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/cookie-consent",
-                "reference": "92110df34cdb10905abd390cbd0d660853428783"
+                "reference": "dd9e44d90e1d39c705a3ef43d800bef179df4b45"
             },
             "require": {
                 "automattic/jetpack-ip": "@dev",
@@ -659,6 +659,9 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ]
             },
             "license": [
@@ -841,7 +844,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "c1cc2e268a640efec6587b9b21f013a6165e9b0f"
+                "reference": "8a37e653800a0f6eab73996b880000796cd0ff4c"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1023,7 +1026,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats",
-                "reference": "353dcc22a8de746e21bd2c6334d1ca7206fea704"
+                "reference": "0ebd3991d1a99f1843f5071fdda658e0ca77abc6"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1051,7 +1054,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-stats/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.19.x-dev"
+                    "dev-trunk": "0.20.x-dev"
                 },
                 "textdomain": "jetpack-stats"
             },

@@ -12,6 +12,7 @@ import {
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
@@ -53,6 +54,10 @@ type UtmInsightsInnerProps = {
 	 * Max rows to display.
 	 */
 	max: number;
+	/**
+	 * Whether to render the "See report" footer link.
+	 */
+	showReportLink: boolean;
 };
 
 /** Map a widget dimension to a section supported by the UTM report. */
@@ -77,7 +82,7 @@ function getUtmReportSection( utmDimension: StatsUtmParam ): UtmReportSection {
  * @param {UtmInsightsInnerProps} props - The component props.
  * @return The rendered leaderboard or state placeholder.
  */
-function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
+function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const {
 		drillDownItem: selectedUtmLabel,
@@ -135,11 +140,11 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 					</Stack>
 				),
 				currentValue: item.value,
-				currentShare: ( item.value / maxValue ) * 100,
+				currentShare: sharePercentage( item.value, maxValue ),
 				previousValue,
 				previousShare:
 					withComparison && previousValue !== undefined
-						? ( previousValue / maxPreviousValue ) * 100
+						? sharePercentage( previousValue, maxPreviousValue )
 						: undefined,
 				delta:
 					withComparison && previousValue !== undefined
@@ -197,9 +202,11 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 					/>
 				</WidgetState>
 			</div>
-			<WidgetFooter>
-				<ReportLink report="utm" section={ getUtmReportSection( utmDimension ) } />
-			</WidgetFooter>
+			{ showReportLink && (
+				<WidgetFooter>
+					<ReportLink report="utm" section={ getUtmReportSection( utmDimension ) } />
+				</WidgetFooter>
+			) }
 		</>
 	);
 }
@@ -217,11 +224,16 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 export default function UtmInsightsWidget( { attributes = {} }: UtmInsightsWidgetProps ) {
 	const utmDimension = attributes.utmDimension ?? DEFAULT_UTM_DIMENSION;
 	const max = attributes.max ?? 10;
+	const showReportLink = attributes.showReportLink ?? true;
 
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<UtmInsightsInner utmDimension={ utmDimension } max={ max } />
+				<UtmInsightsInner
+					utmDimension={ utmDimension }
+					max={ max }
+					showReportLink={ showReportLink }
+				/>
 			</div>
 		</WidgetRoot>
 	);

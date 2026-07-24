@@ -7,6 +7,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
+	defaultPeriodForInterval,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
@@ -28,28 +29,14 @@ const DATA_FORMAT = {
 	options: { useMultipliers: true, decimals: 0 },
 };
 
-/**
- * Default granularity for the dashboard interval: opens the control at the
- * granularity the range implies (and, until the user picks one explicitly,
- * keeps following the range). The dropdown offers day/week/month/year, so a
- * dashboard quarter interval collapses onto month.
- *
- * @param interval - The dashboard-derived interval.
- * @return The matching selectable granularity.
- */
-function defaultPeriodForInterval( interval?: string ): WordAdsPeriod {
-	switch ( interval ) {
-		case 'week':
-			return 'week';
-		case 'month':
-		case 'quarter':
-			return 'month';
-		case 'year':
-			return 'year';
-		default:
-			return 'day';
-	}
-}
+// Ordered finest to coarsest, as `defaultPeriodForInterval` requires. Unlike the
+// traffic and subscribers charts, this dropdown offers year.
+const WORDADS_PERIODS = [
+	'day',
+	'week',
+	'month',
+	'year',
+] as const satisfies readonly WordAdsPeriod[];
 
 type WordAdsChartTabsInnerProps = {
 	/**
@@ -81,7 +68,9 @@ function WordAdsChartTabsInner( { granularity, metricIds }: WordAdsChartTabsInne
 	// granularity (and blow up the bucket count) while the user hasn't picked
 	// a granularity themselves.
 	const period: WordAdsPeriod =
-		granularity === 'auto' ? defaultPeriodForInterval( reportParams.interval ) : granularity;
+		granularity === 'auto'
+			? defaultPeriodForInterval( reportParams.interval, WORDADS_PERIODS )
+			: granularity;
 
 	const { metrics, isLoading, isFetching, isError, isEmpty, refetch } = useWordAdsChart(
 		reportParams,

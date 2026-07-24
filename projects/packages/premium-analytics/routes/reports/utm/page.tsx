@@ -9,11 +9,14 @@ import {
 } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
+	ReportErrorState,
 	ReportPageLayout,
+	ReportPageShell,
 	ReportPageTabs,
 	ReportRecordsTable,
+	useReportRetry,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs, Page } from '@wordpress/admin-ui';
+import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
@@ -28,7 +31,6 @@ import {
 	useUtmReportRecords,
 	type UtmReportRow,
 } from './config';
-import styles from './page.module.css';
 
 const ROUTE_FROM = route.path;
 
@@ -66,13 +68,15 @@ function UtmReport(): JSX.Element {
 	const tabs = useMemo( () => getReportUtmTabs(), [] );
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveSection );
 	const records = useUtmReportRecords( activeTab, reportParams );
+	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getUtmFields( activeTab ), [ activeTab ] );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dashboardLink = useDashboardLink();
 	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
 
 	return (
-		<Page
+		<ReportPageShell
+			tabbed
 			breadcrumbs={
 				<Breadcrumbs
 					items={ [
@@ -81,17 +85,21 @@ function UtmReport(): JSX.Element {
 					] }
 				/>
 			}
-			className={ styles.page }
 		>
-			<div className={ styles.content }>
-				<ReportPageLayout
-					tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
-					filters={
-						<div ref={ setContainerElement } className={ styles.dateFilters }>
-							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-						</div>
-					}
-				>
+			<ReportPageLayout
+				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
+				filters={
+					<div ref={ setContainerElement }>
+						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
+					</div>
+				}
+			>
+				{ records.isError ? (
+					<ReportErrorState
+						title={ __( 'Unable to load UTM data', 'jetpack-premium-analytics' ) }
+						onRetry={ retry }
+					/>
+				) : (
 					<ReportRecordsTable< UtmReportRow >
 						key={ activeTab }
 						data={ records.rows }
@@ -101,9 +109,9 @@ function UtmReport(): JSX.Element {
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search UTM values', 'jetpack-premium-analytics' ) }
 					/>
-				</ReportPageLayout>
-			</div>
-		</Page>
+				) }
+			</ReportPageLayout>
+		</ReportPageShell>
 	);
 }
 

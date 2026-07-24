@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 
 /**
@@ -23,13 +22,5 @@ export type AverageItemsPerOrderAttributes = Record< never, never >;
  * dashboards can opt in.
  */
 export default {
-	name: 'jpa/average-items-per-order',
-	title: __( 'Average items per order', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Show the average number of products per order over a set period of time.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: chartBar,
 };

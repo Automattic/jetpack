@@ -42,6 +42,10 @@
 			"type": "array",
 			"default": [],
 			"items": { "type": "string" }
+		},
+		"resultsPerPage": {
+			"type": "number",
+			"default": 0
 		}
 	},
 	"render": "file:./render.php",

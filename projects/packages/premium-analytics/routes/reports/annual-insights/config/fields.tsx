@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { __ } from '@wordpress/i18n';
 import type { StatsInsightsYear } from '@jetpack-premium-analytics/data';
 import type { Field } from '@wordpress/dataviews';
@@ -12,7 +13,7 @@ import type { Field } from '@wordpress/dataviews';
  * @return The formatted number.
  */
 function formatNumber( value: number ): string {
-	return value.toLocaleString();
+	return formatMetricValue( value, 'number', { decimals: 0, useMultipliers: false } );
 }
 
 /**
@@ -23,10 +24,7 @@ function formatNumber( value: number ): string {
  * @return The formatted average.
  */
 function formatAverage( value: number ): string {
-	return value.toLocaleString( undefined, {
-		minimumFractionDigits: 1,
-		maximumFractionDigits: 1,
-	} );
+	return formatMetricValue( value, 'average', { decimals: 1 } );
 }
 
 /**

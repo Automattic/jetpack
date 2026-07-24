@@ -84,6 +84,7 @@ export const chartDecorator: Decorator = ( Story, context ) => {
 				) }
 				<div
 					ref={ containerRef }
+					data-testid="chart-story-container"
 					style={ {
 						resize: args.resize || 'both',
 						overflow: 'auto',
