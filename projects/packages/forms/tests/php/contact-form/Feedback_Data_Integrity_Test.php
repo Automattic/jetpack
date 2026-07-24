@@ -891,4 +891,88 @@ class Feedback_Data_Integrity_Test extends BaseTestCase {
 		wp_delete_user( $author_id );
 		wp_delete_user( $subscriber_id );
 	}
+
+	/**
+	 * Submitters without `unfiltered_html` (every logged-out visitor, and every
+	 * user on a multisite who isn't a super admin) have `wp_filter_post_kses`
+	 * attached to `content_save_pre`, so the serialized response runs through
+	 * KSES on `wp_insert_post()`. KSES reads a bare `<` as the start of a tag
+	 * and escapes everything after it, which turns the JSON payload into
+	 * something `json_decode()` can't read - the whole response is lost.
+	 *
+	 * Set up the logged-out submitter state shared by the tests below.
+	 */
+	private function set_up_anonymous_submitter() {
+		wp_set_current_user( 0 );
+		kses_init_filters();
+
+		$this->assertNotFalse(
+			has_filter( 'content_save_pre', 'wp_filter_post_kses' ),
+			'Precondition: KSES post filters must be active for a submitter without unfiltered_html.'
+		);
+	}
+
+	/**
+	 * A field label containing angle brackets must survive being saved by an
+	 * anonymous submitter.
+	 */
+	public function test_anonymous_submission_preserves_label_with_angle_brackets() {
+		$this->set_up_anonymous_submitter();
+
+		$_post_data = array( 'name' => 'Jane Doe' );
+
+		// A name field labelled "> < Name" in the editor renders to this shortcode.
+		$form = new Contact_Form(
+			array(),
+			"[contact-field id='name' label='&gt; &lt; Name' type='name' required='1'/]"
+		);
+
+		$response = Feedback::from_submission( $_post_data, $form );
+		$post_id  = $response->save();
+
+		$saved_response = Feedback::get( $post_id );
+		$saved_fields   = $saved_response->get_fields();
+
+		$this->assertCount( 1, $saved_fields, 'The saved response should still hold the submitted field.' );
+
+		$saved_field = array_shift( $saved_fields );
+		$this->assertSame( '> < Name', $saved_field->get_label(), 'The label should round-trip unchanged.' );
+		$this->assertSame( 'Jane Doe', $saved_field->get_value(), 'The value should round-trip unchanged.' );
+
+		$this->assertEquals(
+			$response->serialize(),
+			$saved_response->serialize(),
+			'The stored payload should match what was serialized.'
+		);
+	}
+
+	/**
+	 * The label is not the only way a bare `<` reaches the payload: the source
+	 * entry title is stored decoded too, so a page titled `RSVP < 2026` would
+	 * corrupt every response collected on it.
+	 */
+	public function test_anonymous_submission_preserves_source_title_with_angle_brackets() {
+		$this->set_up_anonymous_submitter();
+
+		$current_post = get_post(
+			wp_insert_post(
+				array(
+					'post_title'   => 'RSVP &lt; 2026',
+					'post_content' => 'POST CONTENT',
+					'post_status'  => 'publish',
+				)
+			)
+		);
+
+		$_post_data = array( 'name' => 'Jane Doe' );
+		$form       = new Contact_Form( array(), "[contact-field id='name' label='Name' type='name' required='1'/]" );
+
+		$response = Feedback::from_submission( $_post_data, $form, $current_post );
+		$saved    = Feedback::get( $response->save() );
+
+		$this->assertSame( 'RSVP < 2026', $saved->get_entry_title(), 'The source title should round-trip unchanged.' );
+		$this->assertCount( 1, $saved->get_fields(), 'The saved response should still hold the submitted field.' );
+
+		wp_delete_post( $current_post->ID, true );
+	}
 }

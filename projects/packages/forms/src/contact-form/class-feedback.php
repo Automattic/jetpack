@@ -1584,7 +1584,11 @@ class Feedback {
 			$fields_to_serialize['country_code'] = null;
 		}
 
-		return addslashes( wp_json_encode( $fields_to_serialize, JSON_UNESCAPED_SLASHES ) );
+		/*
+		 * JSON_HEX_TAG escapes every `<` and `>` as a \u003C / \u003E sequence,
+		 * which is what keeps this payload intact on the way into the database.
+		 */
+		return addslashes( wp_json_encode( $fields_to_serialize, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG ) );
 	}
 
 	/**
