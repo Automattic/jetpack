@@ -40,5 +40,6 @@ export function useClicksReportRecords( reportParams: ReportParams ) {
 		rows,
 		hasComparison: report.hasComparison,
 		isLoading: report.isLoading,
+		isFetching: report.isFetching,
 	};
 }

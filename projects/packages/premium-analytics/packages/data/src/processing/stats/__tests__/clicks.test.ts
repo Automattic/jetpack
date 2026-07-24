@@ -213,4 +213,152 @@ describe( 'Stats clicks normalizer', () => {
 			],
 		} );
 	} );
+
+	it( 'matches a flat primary URL to the same URL inside a grouped comparison domain', () => {
+		const primary = sanitizeStatsClicksResponse(
+			{
+				date: '2026-06-29',
+				summary: {
+					clicks: [
+						{
+							name: 'wordpress.org/plugins/jetpack-search',
+							views: 42,
+							url: 'https://wordpress.org/plugins/jetpack-search',
+							children: null,
+						},
+					],
+				},
+			},
+			{
+				period: 'day',
+				start_date: '2026-06-29',
+				end_date: '2026-06-29',
+				summarize: true,
+			}
+		);
+		const comparison = sanitizeStatsClicksResponse(
+			{
+				date: '2026-06-22',
+				summary: {
+					clicks: [
+						{
+							name: 'wordpress.org',
+							views: 40,
+							url: null,
+							children: [
+								{
+									name: 'wordpress.org/plugins/jetpack-search',
+									views: 28,
+									url: 'https://wordpress.org/plugins/jetpack-search',
+								},
+								{
+									name: 'wordpress.org/plugins/jetpack-boost',
+									views: 12,
+									url: 'https://wordpress.org/plugins/jetpack-boost',
+								},
+							],
+						},
+					],
+				},
+			},
+			{
+				period: 'day',
+				start_date: '2026-06-22',
+				end_date: '2026-06-22',
+				summarize: true,
+			}
+		);
+
+		expect( mergeStatsClicksComparisonRows( primary, comparison ) ).toEqual( {
+			hasComparison: true,
+			rows: [
+				expect.objectContaining( {
+					link: 'https://wordpress.org/plugins/jetpack-search',
+					views: 42,
+					previousValue: 28,
+					children: null,
+				} ),
+			],
+		} );
+	} );
+
+	it( 'matches grouped primary totals and nested URLs to a flat comparison row', () => {
+		const primary = sanitizeStatsClicksResponse(
+			{
+				date: '2026-06-29',
+				summary: {
+					clicks: [
+						{
+							name: 'wordpress.org',
+							views: 42,
+							url: null,
+							children: [
+								{
+									name: 'wordpress.org/plugins/jetpack-search',
+									views: 30,
+									url: 'https://wordpress.org/plugins/jetpack-search',
+								},
+								{
+									name: 'wordpress.org/plugins/jetpack-boost',
+									views: 12,
+									url: 'https://wordpress.org/plugins/jetpack-boost',
+								},
+							],
+						},
+					],
+				},
+			},
+			{
+				period: 'day',
+				start_date: '2026-06-29',
+				end_date: '2026-06-29',
+				summarize: true,
+			}
+		);
+		const comparison = sanitizeStatsClicksResponse(
+			{
+				date: '2026-06-22',
+				summary: {
+					clicks: [
+						{
+							name: 'wordpress.org/plugins/jetpack-search',
+							views: 28,
+							url: 'https://wordpress.org/plugins/jetpack-search',
+							children: null,
+						},
+					],
+				},
+			},
+			{
+				period: 'day',
+				start_date: '2026-06-22',
+				end_date: '2026-06-22',
+				summarize: true,
+			}
+		);
+
+		expect( mergeStatsClicksComparisonRows( primary, comparison ) ).toEqual( {
+			hasComparison: true,
+			rows: [
+				expect.objectContaining( {
+					label: 'wordpress.org',
+					views: 42,
+					previousValue: 28,
+					childrenHaveComparison: true,
+					children: [
+						expect.objectContaining( {
+							link: 'https://wordpress.org/plugins/jetpack-search',
+							views: 30,
+							previousValue: 28,
+						} ),
+						expect.objectContaining( {
+							link: 'https://wordpress.org/plugins/jetpack-boost',
+							views: 12,
+							previousValue: undefined,
+						} ),
+					],
+				} ),
+			],
+		} );
+	} );
 } );

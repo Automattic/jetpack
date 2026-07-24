@@ -73,6 +73,7 @@ describe( 'useClicksReportRecords', () => {
 			comparisonRows: { rows: primaryRows, hasComparison: false },
 			hasComparison: false,
 			isLoading: false,
+			isFetching: false,
 		} as ReturnType< typeof useStatsClicks > );
 	} );
 
@@ -103,6 +104,7 @@ describe( 'useClicksReportRecords', () => {
 			comparisonRows: { rows: comparisonRows, hasComparison: true },
 			hasComparison: true,
 			isLoading: false,
+			isFetching: false,
 		} as ReturnType< typeof useStatsClicks > );
 
 		const { result } = renderHook( () =>
@@ -131,12 +133,30 @@ describe( 'useClicksReportRecords', () => {
 			comparisonRows: { rows: primaryRows, hasComparison: false },
 			hasComparison: false,
 			isLoading: true,
+			isFetching: true,
 		} as ReturnType< typeof useStatsClicks > );
 
 		const { result } = renderHook( () => useClicksReportRecords( reportParams ) );
 
 		expect( result.current.isLoading ).toBe( true );
+		expect( result.current.isFetching ).toBe( true );
 		expect( result.current.rows ).toHaveLength( 1 );
+	} );
+
+	it( 'surfaces active fetching after the initial load has settled', () => {
+		mockUseStatsClicks.mockReturnValue( {
+			primary: { data: report },
+			comparison: { data: report },
+			comparisonRows: { rows: comparisonRows, hasComparison: true },
+			hasComparison: true,
+			isLoading: false,
+			isFetching: true,
+		} as ReturnType< typeof useStatsClicks > );
+
+		const { result } = renderHook( () => useClicksReportRecords( reportParams ) );
+
+		expect( result.current.isLoading ).toBe( false );
+		expect( result.current.isFetching ).toBe( true );
 	} );
 
 	it( 'surfaces error and refetch from the report', () => {
@@ -147,6 +167,7 @@ describe( 'useClicksReportRecords', () => {
 			comparisonRows: { rows: primaryRows, hasComparison: false },
 			hasComparison: false,
 			isLoading: false,
+			isFetching: false,
 			isError: true,
 			refetch,
 		} as unknown as ReturnType< typeof useStatsClicks > );

@@ -32,6 +32,7 @@ import {
 } from '../stats-app-referrers-spam-query';
 import { statsAppSiteHasNeverPublishedPostQuery } from '../stats-app-site-has-never-published-post-query';
 import { statsArchivesQuery } from '../stats-archives-query';
+import { statsClicksQuery } from '../stats-clicks-query';
 import { statsCommentFollowersQuery } from '../stats-comment-followers-query';
 import { statsCommentsQuery } from '../stats-comments-query';
 import { statsDevicesQuery } from '../stats-devices-query';
@@ -347,6 +348,34 @@ describe( 'Stats query factories', () => {
 				} ),
 			] )
 		);
+	} );
+
+	it( 'matches the legacy Clicks custom-range request without a days parameter', () => {
+		const query = statsClicksQuery( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'month',
+			max: 0,
+			summarize: 1,
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'clicks',
+			'1.1',
+			'stats/clicks',
+			'GET',
+			{
+				period: 'day',
+				start_date: '2026-06-01',
+				date: '2026-06-07',
+				max: 0,
+				summarize: 1,
+			},
+			undefined,
+			'clicks',
+		] );
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
 	} );
 
 	it( 'keeps the complete video summary mode out of the request params', () => {

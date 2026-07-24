@@ -79,6 +79,7 @@ function ClicksReport(): JSX.Element {
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dashboardLink = useDashboardLink();
 	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
+	const isTableLoading = records.isLoading || records.isFetching;
 
 	return (
 		<ReportPageShell
@@ -108,11 +109,11 @@ function ClicksReport(): JSX.Element {
 					/>
 				) : (
 					<ReportDrilldownTable< ClickRow >
-						data={ records.rows }
+						data={ isTableLoading ? [] : records.rows }
 						fields={ fields }
 						getItemId={ getClickRowId }
 						getItemParentId={ getClickRowParentId }
-						isLoading={ records.isLoading }
+						isLoading={ isTableLoading }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search clicked URLs', 'jetpack-premium-analytics-pkg' ) }
 						hideLevelMarkers
