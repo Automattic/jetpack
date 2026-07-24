@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Help_Center;
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -368,7 +367,7 @@ class Help_Center {
 
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			$result = $experiment_variation === \ExPlat\assign_current_user( $experiment_name );
-		} elseif ( ( new Connection_Manager() )->is_user_connected() ) {
+		} elseif ( $this->wpcom_request_client->is_user_connected() ) {
 			$request_path = '/experiments/0.1.0/assignments/calypso';
 			$response     = $this->wpcom_request_client->request_as_user(
 				add_query_arg( array( 'experiment_name' => $experiment_name ), $request_path ),
@@ -601,15 +600,14 @@ class Help_Center {
 	 * Returns true if the current user is connected through Jetpack
 	 */
 	public function is_jetpack_disconnected() {
-		$user_id = get_current_user_id();
 		$blog_id = get_current_blog_id();
 
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
-			return ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $user_id );
+			return ! $this->wpcom_request_client->is_user_connected();
 		}
 
 		if ( true === apply_filters( 'is_jetpack_site', false, $blog_id ) ) {
-			return ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $user_id );
+			return ! $this->wpcom_request_client->is_user_connected();
 		}
 
 		return false;

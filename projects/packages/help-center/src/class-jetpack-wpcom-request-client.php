@@ -8,11 +8,21 @@
 namespace Automattic\Jetpack\Help_Center;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
 
 /**
  * Sends authenticated WP.com requests through Jetpack Connection.
  */
 final class Jetpack_Wpcom_Request_Client implements Wpcom_Request_Client {
+	/**
+	 * Whether the current user has a Jetpack user connection.
+	 *
+	 * @return bool
+	 */
+	public function is_user_connected() {
+		return ( new Manager( 'jetpack' ) )->is_user_connected();
+	}
+
 	/**
 	 * Send a request authenticated as the current Jetpack-connected user.
 	 *

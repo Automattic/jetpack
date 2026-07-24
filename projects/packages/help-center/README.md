@@ -30,6 +30,10 @@ By default, the package sends authenticated WordPress.com requests through Jetpa
 use Automattic\Jetpack\Help_Center\Wpcom_Request_Client;
 
 final class My_Help_Center_Request_Client implements Wpcom_Request_Client {
+	public function is_user_connected() {
+		return my_wpcom_access_token() !== null;
+	}
+
 	public function request_as_user(
 		$path,
 		$version = '2',

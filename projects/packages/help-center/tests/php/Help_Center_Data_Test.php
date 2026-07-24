@@ -144,6 +144,10 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 
 	public function test_init_uses_filtered_wpcom_request_client() {
 		$wpcom_request_client = new class() implements Wpcom_Request_Client {
+			public function is_user_connected() {
+				return true;
+			}
+
 			public function request_as_user(
 				$path,
 				$version = '2',
@@ -184,6 +188,10 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 			 */
 			public $requests = array();
 
+			public function is_user_connected() {
+				return true;
+			}
+
 			public function request_as_user(
 				$path,
 				$version = '2',
@@ -211,5 +219,35 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 			),
 			$wpcom_request_client->requests
 		);
+	}
+
+	public function test_connection_status_uses_injected_wpcom_request_client() {
+		$wpcom_request_client = new class() implements Wpcom_Request_Client {
+			public function is_user_connected() {
+				return true;
+			}
+
+			public function request_as_user(
+				$path,
+				$version = '2',
+				$args = array(),
+				$body = null,
+				$base_api_path = 'wpcom'
+			) {
+				return compact( 'path', 'version', 'args', 'body', 'base_api_path' );
+			}
+		};
+		$help_center          = new Help_Center( $wpcom_request_client );
+		$is_jetpack_site      = static function () {
+			return true;
+		};
+
+		add_filter( 'is_jetpack_site', $is_jetpack_site );
+		try {
+			$this->assertFalse( $help_center->is_jetpack_disconnected() );
+		} finally {
+			remove_filter( 'is_jetpack_site', $is_jetpack_site );
+			self::remove_help_center_hooks( $help_center );
+		}
 	}
 }

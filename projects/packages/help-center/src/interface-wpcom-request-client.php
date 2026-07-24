@@ -12,6 +12,13 @@ namespace Automattic\Jetpack\Help_Center;
  */
 interface Wpcom_Request_Client {
 	/**
+	 * Whether the current user can make authenticated WordPress.com requests.
+	 *
+	 * @return bool
+	 */
+	public function is_user_connected();
+
+	/**
 	 * Send a request authenticated as the current user.
 	 *
 	 * @param string            $path          REST API path.
