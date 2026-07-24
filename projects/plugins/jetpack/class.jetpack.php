@@ -2950,7 +2950,7 @@ p {
 	 * changing what the site has saved: on Atomic, wpcomsh's private-site handling drops
 	 * `sitemaps` and `verification-tools` from the list for as long as the site is private.
 	 * Reading through the filter is right for "should this run now?", but wrong for "what did
-	 * the user choose?" — which is what a migration into a durable option needs.
+	 * the user choose?" — which is the value migrations and synchronization must preserve.
 	 *
 	 * `Jetpack_Options::get_raw_option()` goes straight to the options table, so it also
 	 * skips the `jetpack_options` filter that {@see Jetpack_Options::get_option()} applies.
@@ -3014,11 +3014,12 @@ p {
 	 * Hooked to the module's activate/deactivate actions, so toggling sitemaps from any
 	 * surface (the legacy Traffic settings, the SEO Settings tab, or WP-CLI) keeps the
 	 * durable {@see Jetpack_SEO_Initializer::SITEMAP_ENABLED_OPTION} option current. The
-	 * actions fire after `active_modules` is updated, so the module state read here
-	 * already reflects the new value. Removed alongside the module itself.
+	 * actions fire after `active_modules` is updated, so the stored state already reflects
+	 * the new choice. Read it without runtime filters so temporary host suppression cannot
+	 * overwrite the durable preference. Removed alongside the module itself.
 	 */
 	public static function sync_seo_sitemap_option() {
-		update_option( Jetpack_SEO_Initializer::SITEMAP_ENABLED_OPTION, ( new Modules() )->is_active( 'sitemaps' ) );
+		update_option( Jetpack_SEO_Initializer::SITEMAP_ENABLED_OPTION, self::is_module_active_unfiltered( 'sitemaps' ) );
 	}
 
 	/**
@@ -3054,11 +3055,12 @@ p {
 	 * Hooked to the module's activate/deactivate actions, so toggling canonical URLs from any
 	 * surface (the legacy Traffic settings, the SEO Settings tab, or WP-CLI) keeps the
 	 * durable {@see Jetpack_SEO_Initializer::CANONICAL_ENABLED_OPTION} option current. The
-	 * actions fire after `active_modules` is updated, so the module state read here
-	 * already reflects the new value. Removed alongside the module itself.
+	 * actions fire after `active_modules` is updated, so the stored state already reflects
+	 * the new choice. Read it without runtime filters so temporary suppression cannot
+	 * overwrite the durable preference. Removed alongside the module itself.
 	 */
 	public static function sync_seo_canonical_urls_option() {
-		update_option( Jetpack_SEO_Initializer::CANONICAL_ENABLED_OPTION, ( new Modules() )->is_active( 'canonical-urls' ) );
+		update_option( Jetpack_SEO_Initializer::CANONICAL_ENABLED_OPTION, self::is_module_active_unfiltered( 'canonical-urls' ) );
 	}
 
 	/**

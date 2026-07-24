@@ -244,10 +244,11 @@ class SEO_Sitemap_Migration_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The sync reflects the current module state into the option, in both directions.
+	 * The sync reflects stored module state even when the module is suppressed at runtime.
 	 */
-	public function test_sync_tracks_module_state() {
+	public function test_sync_tracks_stored_module_state_during_runtime_suppression() {
 		$this->set_active_modules( array( 'sitemaps' ) );
+		$this->suppress_module_at_runtime( 'sitemaps' );
 		Jetpack::sync_seo_sitemap_option();
 		$this->assertTrue( (bool) get_option( $this->option ) );
 

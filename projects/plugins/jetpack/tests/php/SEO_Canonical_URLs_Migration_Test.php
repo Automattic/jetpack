@@ -166,10 +166,11 @@ class SEO_Canonical_URLs_Migration_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The sync reflects the current module state into the option, in both directions.
+	 * The sync reflects stored module state even when the module is suppressed at runtime.
 	 */
-	public function test_sync_tracks_module_state() {
+	public function test_sync_tracks_stored_module_state_during_runtime_suppression() {
 		$this->set_active_modules( array( 'canonical-urls' ) );
+		$this->suppress_module_at_runtime( 'canonical-urls' );
 		Jetpack::sync_seo_canonical_urls_option();
 		$this->assertTrue( (bool) get_option( $this->option ) );
 
@@ -215,6 +216,7 @@ class SEO_Canonical_URLs_Migration_Test extends WP_UnitTestCase {
 			array( 'updating_jetpack_version', array( 'Jetpack', 'migrate_canonical_urls_module_to_seo_option' ) ),
 			array( 'jetpack_activate_module_canonical-urls', array( 'Jetpack', 'sync_seo_canonical_urls_option' ) ),
 			array( 'jetpack_deactivate_module_canonical-urls', array( 'Jetpack', 'sync_seo_canonical_urls_option' ) ),
+			array( 'updating_jetpack_version', array( 'Jetpack', 'reconcile_seo_module_state_options' ) ),
 		);
 
 		// Start from a clean slate so this proves the registrar wires the hooks, not the
