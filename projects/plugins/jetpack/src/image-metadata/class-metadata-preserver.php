@@ -8,25 +8,19 @@
 namespace Automattic\Jetpack\Plugin\Image_Metadata;
 
 /**
- * Runs on `wp_generate_attachment_metadata`: gates on Photon-off + local files,
- * extracts provenance once from the true original, and transplants it into each
- * derivative that is missing it.
+ * Copies AI provenance from an original image to local derivatives.
  */
 final class Metadata_Preserver {
 
 	/**
-	 * Default cap, in bytes, on the total size of a provenance payload (the sum
-	 * of every extracted chunk/segment). Bounds disk/memory amplification, since
-	 * the payload is copied verbatim into every derivative; XMP/IPTC provenance
-	 * is far smaller than this (C2PA manifests are out of scope in v1).
+	 * Maximum payload size copied to each derivative by default.
 	 *
 	 * @var int
 	 */
 	const DEFAULT_MAX_PAYLOAD_BYTES = 4194304; // 4 MB.
 
 	/**
-	 * WordPress filter callback. Always returns `$metadata` unchanged — only file
-	 * bytes are rewritten. Wrapped so a failure never breaks an upload.
+	 * Preserve provenance while returning attachment metadata unchanged.
 	 *
 	 * @param mixed $metadata      Attachment metadata array.
 	 * @param int   $attachment_id Attachment post ID.
@@ -45,8 +39,7 @@ final class Metadata_Preserver {
 	}
 
 	/**
-	 * Run the gates and, if all pass, transplant provenance into every output
-	 * derivative that is missing it.
+	 * Copy provenance into eligible derivatives.
 	 *
 	 * @param array $metadata      Attachment metadata.
 	 * @param int   $attachment_id Attachment post ID.
@@ -59,20 +52,17 @@ final class Metadata_Preserver {
 
 		$mime = (string) get_post_mime_type( $attachment_id );
 
-		// Gate 1 — Photon off. When the Image CDN serves derivatives, preserving
-		// WordPress's own is wasted work (and WPCOM strips metadata anyway).
+		// Photon serves its own derivatives, so local copies do not need rewriting.
 		if ( $this->is_photon_active() ) {
 			return;
 		}
 
-		// Gate 2 — filterable override (default on).
 		$should = apply_filters( 'jetpack_preserve_image_provenance_metadata', true, $attachment_id, $mime );
 		if ( ! $should ) {
 			return;
 		}
 
-		// Gate 3 — local filesystem (rename() is unreliable across stream wrappers).
-		// Read the true original, not the possibly-stripped -scaled/-rotated file.
+		// Use the untouched original; atomic replacement requires local files.
 		$original = wp_get_original_image_path( $attachment_id );
 		if ( ! $original || wp_is_stream( $original ) ) {
 			self::warn( sprintf( 'skipping attachment %d: original missing or on a stream wrapper', $attachment_id ) );
@@ -81,18 +71,20 @@ final class Metadata_Preserver {
 
 		$transplanter = $this->transplanter_for( $mime );
 		if ( null === $transplanter ) {
-			return; // Unsupported source format (v1: PNG + JPEG only).
+			return;
 		}
 
-		// Gate 4 — extract the provenance once, reused for every derivative.
 		$payload = $transplanter->extract( $original );
 		if ( null === $payload || $payload->is_empty() ) {
-			return; // No provenance to copy — the "image lacks it" case, deferred.
+			return;
 		}
 
-		// Gate 5 — cap the payload size. It's copied into every derivative, so an
-		// oversized one multiplies across all sizes; skip the whole attachment
-		// rather than injecting a partial set.
+		// Leave ordinary XMP/IPTC, such as copyright and GPS, untouched.
+		if ( ! $this->payload_has_ai_provenance( $payload, $attachment_id, $mime ) ) {
+			return;
+		}
+
+		// A copied payload multiplies across every derivative.
 		$total = 0;
 		foreach ( $payload->get_segments() as $segment ) {
 			$total += strlen( $segment );
@@ -110,36 +102,76 @@ final class Metadata_Preserver {
 	}
 
 	/**
-	 * Transplant into a single derivative, honouring the idempotent skip.
+	 * Check for an AI DigitalSourceType marker with a best-effort byte scan.
+	 *
+	 * @param Payload $payload       Extracted provenance segments.
+	 * @param int     $attachment_id Attachment post ID.
+	 * @param string  $mime          Source MIME type.
+	 * @return bool True when a marker is found or the marker list is empty.
+	 */
+	private function payload_has_ai_provenance( Payload $payload, $attachment_id, $mime ) {
+		/**
+		 * Filters AI DigitalSourceType markers.
+		 *
+		 * Return an empty array to preserve all provenance payloads.
+		 *
+		 * @param string[] $markers       AI DigitalSourceType tokens to match.
+		 * @param int      $attachment_id Attachment post ID.
+		 * @param string   $mime          Source MIME type.
+		 */
+		$markers = (array) apply_filters(
+			'jetpack_preserve_image_provenance_ai_markers',
+			array(
+				'trainedAlgorithmicMedia',
+				'compositeWithTrainedAlgorithmicMedia',
+				'compositeSynthetic',
+			),
+			$attachment_id,
+			$mime
+		);
+
+		if ( array() === $markers ) {
+			return true;
+		}
+
+		$haystack = implode( '', $payload->get_segments() );
+		foreach ( $markers as $marker ) {
+			$marker = (string) $marker;
+			if ( '' !== $marker && false !== stripos( $haystack, $marker ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Copy provenance into one derivative when needed.
 	 *
 	 * @param string                $path          Absolute derivative path.
-	 * @param string                $file          Derivative basename (for logging).
+	 * @param string                $file          Derivative basename.
 	 * @param Payload               $payload       Extracted provenance.
-	 * @param Abstract_Transplanter $transplanter  Source transplanter (same one used to extract the payload).
-	 * @param string                $source_mime   Source MIME type the payload was extracted from.
-	 * @param string                $original      Absolute original path (never rewritten).
-	 * @param int                   $attachment_id Attachment post ID (for logging).
+	 * @param Abstract_Transplanter $transplanter  Source transplanter.
+	 * @param string                $source_mime   Source MIME type.
+	 * @param string                $original      Absolute original path.
+	 * @param int                   $attachment_id Attachment post ID.
 	 * @return void
 	 */
 	private function preserve_one( $path, $file, Payload $payload, Abstract_Transplanter $transplanter, $source_mime, $original, $attachment_id ) {
 		if ( $path === $original || ! file_exists( $path ) ) {
-			return; // Never touch the original; skip missing sizes.
+			return;
 		}
 		if ( wp_is_stream( $path ) ) {
 			self::warn( sprintf( 'skipping derivative %s for attachment %d: stream wrapper', $file, $attachment_id ) );
 			return;
 		}
 
-		// Only inject when the derivative is the same format as the source; a
-		// derivative in another format (e.g. a WebP of a PNG) is left alone.
-		$check      = wp_check_filetype( $path );
-		$deriv_mime = $check['type'] ?? false;
-		if ( $deriv_mime !== $source_mime ) {
+		// Verify the bytes because a derivative's extension may not match its format.
+		if ( wp_get_image_mime( $path ) !== $source_mime ) {
 			return;
 		}
 
 		if ( $transplanter->has_payload( $path ) ) {
-			return; // Idempotent no-op (the Imagick-JPEG case).
+			return;
 		}
 
 		if ( ! $transplanter->inject( $path, $payload ) ) {
@@ -148,9 +180,7 @@ final class Metadata_Preserver {
 	}
 
 	/**
-	 * All derivative basenames to process: every registered size plus the main
-	 * full-size derivative (`-scaled`/`-rotated`/converted) when it differs from
-	 * the original.
+	 * Get derivative basenames, including a main scaled or rotated file.
 	 *
 	 * @param array  $metadata Attachment metadata.
 	 * @param string $original Absolute original path.
@@ -179,7 +209,7 @@ final class Metadata_Preserver {
 	}
 
 	/**
-	 * Select the transplanter for a MIME type, or null when unsupported (v1: PNG + JPEG only).
+	 * Select a transplanter for a supported MIME type.
 	 *
 	 * @param string $mime MIME type such as `image/png`.
 	 * @return Abstract_Transplanter|null
@@ -206,33 +236,29 @@ final class Metadata_Preserver {
 	}
 
 	/**
-	 * Record a skip or failure without ever breaking an upload. The action fires
-	 * on every site so monitoring can see drops; `trigger_error()` stays gated on
-	 * WP_DEBUG, as there is no general-purpose Jetpack logger.
+	 * Report a skip or failure without breaking an upload.
 	 *
 	 * @param string $message Human-readable reason.
 	 * @return void
 	 */
 	private static function warn( $message ) {
 		/**
-		 * Fires when provenance preservation skips or fails for an image, so a site
-		 * can observe drops (e.g. logging/monitoring) even when WP_DEBUG is off.
+		 * Fires when image provenance preservation skips or fails.
 		 *
 		 * @param string $message Human-readable reason for the skip/failure.
 		 */
 		try {
 			do_action( 'jetpack_preserve_image_provenance_failed', $message );
-		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- observability must never break an upload.
-			// A subscriber throwing must not escape.
+		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- Reporting must not break uploads.
+			// Ignore subscriber failures.
 		}
 
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			try {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 				trigger_error( 'Jetpack Image Metadata: ' . esc_html( $message ), E_USER_WARNING );
-			} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- never let logging break an upload.
-				// A custom error handler on a strict dev/staging host may convert
-				// E_USER_WARNING into an exception; it must not escape this method.
+			} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- Reporting must not break uploads.
+				// Ignore error-handler failures.
 			}
 		}
 	}

@@ -26,13 +26,10 @@ class Image_Metadata_Preserver_Test extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		// wp_get_original_image_path() resolves against the uploads basedir, but the
-		// harness defaults to year/month subfolders, so a file written under
-		// wp_upload_dir()['path'] wouldn't match. Turn those off so path == basedir.
-		// wp_upload_dir() also caches its result (already primed by parent::set_up()),
-		// so pass $refresh_cache = true below to pick up this option change.
+		// Match the upload path to the base directory used for attached files.
 		update_option( 'uploads_use_yearmonth_folders', 0 );
 
+		// Refresh the upload directory after changing the option.
 		$uploads   = wp_upload_dir( null, true, true );
 		$this->dir = trailingslashit( $uploads['path'] );
 		wp_mkdir_p( $this->dir );
@@ -48,8 +45,7 @@ class Image_Metadata_Preserver_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Create a real PNG attachment whose original carries provenance, plus one
-	 * bare derivative on disk. Returns [ attachment_id, metadata ].
+	 * Create a PNG attachment with one bare derivative.
 	 *
 	 * @return array
 	 */
@@ -67,9 +63,6 @@ class Image_Metadata_Preserver_Test extends WP_UnitTestCase {
 		);
 		update_post_meta( $attachment_id, '_wp_attached_file', 'example.png' );
 
-		// Confirm the upload-path fix above actually resolved to the file this
-		// test wrote, so a mismatch fails loudly here instead of masquerading as
-		// a "no provenance found" skip further down the pipeline.
 		$this->assertSame( $original, wp_get_original_image_path( $attachment_id ) );
 
 		$metadata = array(
@@ -79,6 +72,71 @@ class Image_Metadata_Preserver_Test extends WP_UnitTestCase {
 			),
 		);
 		return array( $attachment_id, $metadata );
+	}
+
+	/**
+	 * Create a non-AI PNG attachment with one bare derivative.
+	 *
+	 * @return array
+	 */
+	private function seed_non_ai_png_attachment() {
+		$original = $this->dir . 'photo.png';
+		$deriv    = $this->dir . 'photo-150x150.png';
+		file_put_contents( $original, Image_Metadata_Fixtures::png_with_non_ai_provenance() );
+		file_put_contents( $deriv, Image_Metadata_Fixtures::bare_png() );
+
+		$attachment_id = self::factory()->attachment->create_object(
+			array(
+				'file'           => $original,
+				'post_mime_type' => 'image/png',
+			)
+		);
+		update_post_meta( $attachment_id, '_wp_attached_file', 'photo.png' );
+		$this->assertSame( $original, wp_get_original_image_path( $attachment_id ) );
+
+		$this->assertStringContainsString( 'digitalCapture', file_get_contents( $original ) );
+
+		$metadata = array(
+			'file'  => 'photo.png',
+			'sizes' => array(
+				'thumbnail' => array( 'file' => 'photo-150x150.png' ),
+			),
+		);
+		return array( $attachment_id, $metadata, $deriv );
+	}
+
+	public function test_skips_when_provenance_is_not_ai() {
+		list( $id, $metadata, $deriv ) = $this->seed_non_ai_png_attachment();
+		$bare                          = file_get_contents( $deriv );
+
+		Metadata_Preserver::preserve( $metadata, $id );
+
+		$this->assertSame( $bare, file_get_contents( $deriv ), 'a non-AI payload must leave the derivative untouched' );
+	}
+
+	public function test_ai_markers_filter_can_broaden_to_a_non_ai_value() {
+		list( $id, $metadata, $deriv ) = $this->seed_non_ai_png_attachment();
+
+		add_filter(
+			'jetpack_preserve_image_provenance_ai_markers',
+			function () {
+				return array( 'digitalCapture' );
+			}
+		);
+
+		Metadata_Preserver::preserve( $metadata, $id );
+
+		$this->assertStringContainsString( 'digitalCapture', file_get_contents( $deriv ), 'a matching custom marker must let the payload through' );
+	}
+
+	public function test_empty_ai_markers_filter_preserves_all_provenance() {
+		list( $id, $metadata, $deriv ) = $this->seed_non_ai_png_attachment();
+
+		add_filter( 'jetpack_preserve_image_provenance_ai_markers', '__return_empty_array' );
+
+		Metadata_Preserver::preserve( $metadata, $id );
+
+		$this->assertStringContainsString( 'digitalCapture', file_get_contents( $deriv ), 'an empty marker list must fall back to preserving all provenance' );
 	}
 
 	public function test_injects_provenance_into_derivative() {
@@ -98,10 +156,6 @@ class Image_Metadata_Preserver_Test extends WP_UnitTestCase {
 		$after_second = file_get_contents( $this->dir . 'example-150x150.png' );
 
 		$this->assertSame( $after_first, $after_second, 'a second run must be a no-op' );
-		// Note: this test's fixture is a PNG, whose provenance chunk carries the
-		// keyword `XML:com.adobe.xmp` (see Image_Metadata_Fixtures::png_with_provenance())
-		// rather than the JPEG-only `http://ns.adobe.com/xap/1.0/` APP1 signature, so
-		// the format-agnostic DigitalSourceType marker is what proves a single copy.
 		$this->assertSame( 1, substr_count( $after_second, 'trainedAlgorithmicMedia' ) );
 	}
 
@@ -116,11 +170,10 @@ class Image_Metadata_Preserver_Test extends WP_UnitTestCase {
 	public function test_skips_when_photon_active() {
 		list( $id, $metadata ) = $this->seed_png_attachment();
 
-		// Flip the Image CDN's private static enabled flag without instantiating
-		// the singleton, then restore it so no state leaks to other tests.
+		// Restore the Image CDN state after the assertion.
 		$prop = new ReflectionProperty( '\Automattic\Jetpack\Image_CDN\Image_CDN', 'is_enabled' );
 		if ( PHP_VERSION_ID < 80100 ) {
-			$prop->setAccessible( true ); // Needed before PHP 8.1; a no-op (and deprecated) after.
+			$prop->setAccessible( true ); // Required before PHP 8.1.
 		}
 		$prop->setValue( null, true );
 		try {
@@ -147,30 +200,18 @@ class Image_Metadata_Preserver_Test extends WP_UnitTestCase {
 			}
 		);
 
-		// Sanity-check that the condition gate 3 relies on is actually true here,
-		// so this test would fail loudly (rather than silently pass) if a future
-		// change made `wp_is_stream()` stop recognising this scheme.
+		// Confirm WordPress recognizes the test wrapper.
 		$this->assertTrue( wp_is_stream( 'provprobe://vfs/example.png' ) );
 
-		// `Metadata_Preserver::warn()` deliberately calls `trigger_error()` with
-		// E_USER_WARNING when gate 3 skips, so this is the expected, intended
-		// behaviour of the code under test rather than an accident. Install a
-		// no-op error handler for the duration of the call so PHPUnit's own
-		// error handler (which would otherwise convert that warning into a test
-		// failure) never sees it; the assertions below are what actually verify
-		// the gate worked.
+		// Suppress the expected debug warning.
 		set_error_handler( '__return_true' );
 		try {
-			// Must not fatal and must return metadata unchanged; derivative untouched.
 			$this->assertSame( $metadata, Metadata_Preserver::preserve( $metadata, $id ) );
 		} finally {
 			restore_error_handler();
 		}
 
-		// The key assertion: if gate 3 were bypassed, extracting provenance from
-		// the "original" would call file_get_contents( 'provprobe://...' ), which
-		// PHP routes through Image_Metadata_Stream_Probe::stream_open(). A count
-		// of zero proves the gate stopped execution before any read was attempted.
+		// Zero opens proves the stream check ran before extraction.
 		$this->assertSame( 0, Image_Metadata_Stream_Probe::$opens, 'gate 3 must skip before extract() opens the original' );
 
 		$this->assertStringNotContainsString( 'trainedAlgorithmicMedia', file_get_contents( $this->dir . 'example-150x150.png' ) );
@@ -179,16 +220,10 @@ class Image_Metadata_Preserver_Test extends WP_UnitTestCase {
 	public function test_injects_into_scaled_main_derivative() {
 		list( $id ) = $this->seed_png_attachment();
 
-		// A bare (no-provenance) "-scaled" derivative, standing in for the case
-		// where WordPress downsizes an oversized upload and stores the resized
-		// copy as the attachment's main file while the untouched original stays
-		// on disk under its own name.
+		// Simulate WordPress's main scaled derivative.
 		$scaled = $this->dir . 'example-scaled.png';
 		file_put_contents( $scaled, Image_Metadata_Fixtures::bare_png() );
 
-		// `wp_get_original_image_path()` still resolves to `example.png` (the
-		// real original seeded above), so this main file genuinely differs from
-		// the original and exercises the main-derivative branch of `output_files()`.
 		$metadata = array(
 			'file'  => 'example-scaled.png',
 			'sizes' => array(),
@@ -202,7 +237,8 @@ class Image_Metadata_Preserver_Test extends WP_UnitTestCase {
 		$original = $this->dir . 'oversized.png';
 		$deriv    = $this->dir . 'oversized-150x150.png';
 
-		$oversized_xmp   = 'XML:com.adobe.xmp' . "\0\0\0\0\0" . str_repeat( 'x', Metadata_Preserver::DEFAULT_MAX_PAYLOAD_BYTES + 1024 );
+		// Keep the AI marker while padding the payload past the limit.
+		$oversized_xmp   = 'XML:com.adobe.xmp' . "\0\0\0\0\0" . Image_Metadata_Fixtures::xmp_packet() . str_repeat( 'x', Metadata_Preserver::DEFAULT_MAX_PAYLOAD_BYTES + 1024 );
 		$oversized_chunk = Image_Metadata_Fixtures::png_chunk( 'iTXt', $oversized_xmp );
 
 		$bare            = Image_Metadata_Fixtures::bare_png();
@@ -226,10 +262,7 @@ class Image_Metadata_Preserver_Test extends WP_UnitTestCase {
 			'sizes' => array( 'thumbnail' => array( 'file' => 'oversized-150x150.png' ) ),
 		);
 
-		// `Metadata_Preserver::warn()` deliberately calls `trigger_error()` with
-		// E_USER_WARNING when the cap is exceeded, so capture it with a
-		// narrowly-scoped error handler rather than letting this repo's
-		// `failOnWarning="true"` PHPUnit config turn it into a test failure.
+		// Capture the expected warning without failing the test.
 		$caught = null;
 		set_error_handler(
 			function ( $errno, $errstr ) use ( &$caught ) {
@@ -254,10 +287,7 @@ class Image_Metadata_Preserver_Test extends WP_UnitTestCase {
 		$original = $this->dir . 'uncapped.png';
 		$deriv    = $this->dir . 'uncapped-150x150.png';
 
-		// The cap check only counts bytes; PNG extraction is keyword-based (see
-		// PNG_Transplanter::is_provenance_chunk()), so padding after the real XMP
-		// packet both pushes this chunk over the cap and keeps the
-		// DigitalSourceType marker the assertion below looks for.
+		// Keep the AI marker while padding the payload past the default limit.
 		$oversized_xmp   = 'XML:com.adobe.xmp' . "\0\0\0\0\0" . Image_Metadata_Fixtures::xmp_packet()
 			. str_repeat( 'x', Metadata_Preserver::DEFAULT_MAX_PAYLOAD_BYTES + 1024 );
 		$oversized_chunk = Image_Metadata_Fixtures::png_chunk( 'iTXt', $oversized_xmp );
@@ -283,7 +313,6 @@ class Image_Metadata_Preserver_Test extends WP_UnitTestCase {
 			'sizes' => array( 'thumbnail' => array( 'file' => 'uncapped-150x150.png' ) ),
 		);
 
-		// 0 disables the cap (treated as unbounded).
 		add_filter( 'jetpack_preserve_image_provenance_max_bytes', '__return_zero' );
 		Metadata_Preserver::preserve( $metadata, $id );
 
@@ -336,12 +365,7 @@ class Image_Metadata_Preserver_Test extends WP_UnitTestCase {
 		};
 		add_action( 'jetpack_preserve_image_provenance_failed', $callback );
 
-		// `Metadata_Preserver::warn()` also calls `trigger_error()` with
-		// E_USER_WARNING when WP_DEBUG is on (as it is in this test suite), so
-		// capture it with a narrowly-scoped error handler rather than letting
-		// this repo's `failOnWarning="true"` PHPUnit config turn it into a
-		// test failure — see test_skips_stream_wrapper_original() above, which
-		// exercises the same stream-wrapper skip.
+		// Suppress the expected debug warning.
 		set_error_handler( '__return_true' );
 		try {
 			Metadata_Preserver::preserve( $metadata, $id );

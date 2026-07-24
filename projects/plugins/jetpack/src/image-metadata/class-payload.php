@@ -8,13 +8,12 @@
 namespace Automattic\Jetpack\Plugin\Image_Metadata;
 
 /**
- * Holds the raw, verbatim chunk/segment byte strings extracted from one source
- * image, reused across all of that image's derivatives.
+ * Holds raw chunks or segments extracted from a source image.
  */
 final class Payload {
 
 	/**
-	 * Raw, verbatim chunk/segment byte strings.
+	 * Raw chunk or segment bytes.
 	 *
 	 * @var string[]
 	 */
@@ -30,7 +29,7 @@ final class Payload {
 	}
 
 	/**
-	 * Get the raw, verbatim chunk/segment byte strings.
+	 * Get the raw chunks or segments.
 	 *
 	 * @return string[]
 	 */

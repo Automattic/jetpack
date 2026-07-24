@@ -1,6 +1,6 @@
 <?php
 /**
- * Entry point for the Image Metadata provenance-preservation feature.
+ * Image metadata preservation entry point.
  *
  * @package automattic/jetpack
  */
@@ -13,16 +13,9 @@ namespace Automattic\Jetpack\Plugin\Image_Metadata;
 final class Image_Metadata {
 
 	/**
-	 * Register the single hook that drives metadata preservation.
+	 * Register preservation after other derivative filters.
 	 *
-	 * Called unconditionally on plugin load — independent of Jetpack connection
-	 * or active-module state — because the whole point is to act when the Image
-	 * CDN (Photon) is off.
-	 *
-	 * Registered at PHP_INT_MAX so it runs after other plugins that rewrite
-	 * derivatives on this filter (image optimizers, WebP converters) and stamps
-	 * the final bytes. An offloader that later replaces files via
-	 * `wp_update_attachment_metadata` can still bypass us.
+	 * This runs independently of connection and module state.
 	 *
 	 * @return void
 	 */

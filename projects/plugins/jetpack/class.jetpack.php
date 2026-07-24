@@ -655,10 +655,7 @@ class Jetpack {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
-		// Preserve AI-provenance image metadata (IPTC/XMP) across intermediate
-		// sizes when the Image CDN (Photon) is not serving them. Unconditional —
-		// independent of connection/module state — and registered at PHP_INT_MAX
-		// so it injects into the final on-disk bytes.
+		// Preserve AI provenance in locally generated image sizes.
 		\Automattic\Jetpack\Plugin\Image_Metadata\Image_Metadata::init();
 
 		// Register Jetpack-specific connection tests (sync health, etc.) with the connection

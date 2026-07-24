@@ -8,8 +8,8 @@
 namespace Automattic\Jetpack\Plugin\Image_Metadata;
 
 /**
- * Copies XMP (`APP1`) and Photoshop/IPTC (`APP13`) segments verbatim between
- * JPEG files. EXIF (`APP1` beginning `Exif\0\0`) is deliberately excluded.
+ * Copies XMP and Photoshop/IPTC segments between JPEG files, excluding EXIF
+ * containers.
  */
 final class JPEG_Transplanter extends Abstract_Transplanter {
 
@@ -64,8 +64,7 @@ final class JPEG_Transplanter extends Abstract_Transplanter {
 	}
 
 	/**
-	 * Insert the provenance segments after any leading JFIF APP0 (which must stay
-	 * first), otherwise directly after SOI.
+	 * Insert segments after a leading JFIF APP0, or directly after SOI.
 	 *
 	 * @param string  $bytes   Current JPEG bytes.
 	 * @param Payload $payload Segments to insert.
@@ -89,52 +88,52 @@ final class JPEG_Transplanter extends Abstract_Transplanter {
 	}
 
 	/**
-	 * Walk JPEG marker segments from just past SOI until SOS/EOI. Yields `marker`
-	 * (int), `data` (payload minus the 2 length bytes), `raw` (full segment), and
-	 * `pos` (offset of the 0xFF prefix). Stops on a malformed marker or a length
-	 * field that overruns the buffer.
+	 * Yield length-prefixed segments before SOS or EOI.
 	 *
-	 * A marker may be preceded by extra `0xFF` fill bytes (e.g. `FF FF E1` is
-	 * still APP1); these are skipped so they aren't mistaken for a marker.
+	 * Handles extra 0xFF fill bytes and stops at malformed or truncated data.
 	 *
 	 * @param string $bytes JPEG bytes.
 	 * @return \Generator
 	 */
 	private function walk_segments( $bytes ) {
 		$len = strlen( $bytes );
-		$pos = 2; // Skip SOI.
+		$pos = 2; // Skip the 2-byte SOI.
+
 		while ( $pos + 4 <= $len ) {
 			if ( "\xFF" !== $bytes[ $pos ] ) {
-				break; // Not at a marker — malformed or entropy-coded data.
+				break;
 			}
+
+			// Skip marker fill bytes.
 			$marker_pos = $pos + 1;
-			// Skip any run of additional 0xFF fill bytes to find the true marker byte.
 			while ( $marker_pos < $len && "\xFF" === $bytes[ $marker_pos ] ) {
 				++$marker_pos;
 			}
 			if ( $marker_pos + 2 >= $len ) {
-				break; // Not enough bytes left for a marker plus its length field.
+				break;
 			}
+
 			$marker = ord( $bytes[ $marker_pos ] );
 			if ( self::SOS === $marker || self::EOI === $marker ) {
-				break; // Scan data / end of image — no more parseable segments.
+				break;
 			}
-			$seglen_field = unpack( 'n', substr( $bytes, $marker_pos + 1, 2 ) );
-			$seglen       = $seglen_field[1];
-			if ( $seglen < 2 || $marker_pos + 1 + $seglen > $len ) {
-				break; // Corrupt: declared length is impossible or overruns.
+
+			// The length includes its two bytes, but not the marker.
+			$length_field_pos = $marker_pos + 1;
+			$length           = unpack( 'n', substr( $bytes, $length_field_pos, 2 ) )[1];
+			$segment_end      = $length_field_pos + $length;
+			if ( $length < 2 || $segment_end > $len ) {
+				break;
 			}
-			$data = substr( $bytes, $marker_pos + 3, $seglen - 2 );
-			$raw  = substr( $bytes, $pos, $marker_pos + 1 + $seglen - $pos );
 
 			yield array(
 				'marker' => $marker,
-				'data'   => $data,
-				'raw'    => $raw,
+				'data'   => substr( $bytes, $length_field_pos + 2, $length - 2 ),
+				'raw'    => substr( $bytes, $pos, $segment_end - $pos ),
 				'pos'    => $pos,
 			);
 
-			$pos = $marker_pos + 1 + $seglen;
+			$pos = $segment_end;
 		}
 	}
 
@@ -153,6 +152,6 @@ final class JPEG_Transplanter extends Abstract_Transplanter {
 		if ( self::APP13 === $marker ) {
 			return 0 === strpos( $data, self::PHOTOSHOP_SIGNATURE );
 		}
-		return false; // Notably excludes EXIF APP1 (`Exif\0\0`).
+		return false; // Excludes EXIF APP1.
 	}
 }

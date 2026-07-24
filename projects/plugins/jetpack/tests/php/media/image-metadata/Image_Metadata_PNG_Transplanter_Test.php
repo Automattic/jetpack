@@ -94,9 +94,7 @@ class Image_Metadata_PNG_Transplanter_Test extends WP_UnitTestCase {
 	}
 
 	public function test_walk_stops_gracefully_on_truncated_chunk() {
-		// The walk stops at IEND, so the corrupt chunk goes BEFORE it to be
-		// reached at all. Its declared length (~16 MB) far exceeds the bytes that
-		// follow, so the walk hits the overrun guard rather than reading past EOF.
+		// Put an oversized chunk before IEND so the walker reaches it.
 		$bare          = Image_Metadata_Fixtures::bare_png();
 		$corrupt_chunk = pack( 'N', 0xFFFFFF ) . 'zTXt' . str_repeat( 'x', 8 );
 

@@ -83,8 +83,7 @@ class Image_Metadata_JPEG_Transplanter_Test extends WP_UnitTestCase {
 	}
 
 	public function test_walk_segments_skips_fill_bytes_before_a_marker() {
-		// Splice an extra `0xFF` fill byte before a provenance APP1 (XMP) segment.
-		// Without skipping fill bytes, walk_segments() would stop early and miss it.
+		// Add a fill byte before the XMP segment.
 		$jpeg      = Image_Metadata_Fixtures::bare_jpeg();
 		$insert_at = Image_Metadata_Fixtures::after_leading_app0( $jpeg );
 

@@ -8,10 +8,7 @@
 namespace Automattic\Jetpack\Plugin\Image_Metadata;
 
 /**
- * Provides the atomic, validated, permission-preserving write shared by every
- * format's transplanter. Concrete subclasses copy provenance-bearing container
- * chunks/segments verbatim between two files of the same image format, without
- * parsing or understanding their contents.
+ * Provides guarded file replacement shared by format transplanters.
  */
 abstract class Abstract_Transplanter {
 
@@ -19,8 +16,7 @@ abstract class Abstract_Transplanter {
 	 * Read the provenance segments from a source file.
 	 *
 	 * @param string $source_path Absolute path to the source image.
-	 * @return Payload|null Payload (possibly empty) on a readable file of this
-	 *                      format, or null when the file cannot be read/parsed.
+	 * @return Payload|null Payload on success, or null when the file cannot be parsed.
 	 */
 	abstract public function extract( $source_path );
 
@@ -33,8 +29,7 @@ abstract class Abstract_Transplanter {
 	abstract public function has_payload( $target_path );
 
 	/**
-	 * Build the new file bytes with the payload spliced in at the correct
-	 * format-specific position.
+	 * Add the payload at the format-specific position.
 	 *
 	 * @param string  $bytes   Current bytes of the target file.
 	 * @param Payload $payload Segments to insert.
@@ -55,12 +50,11 @@ abstract class Abstract_Transplanter {
 	}
 
 	/**
-	 * Inject the payload atomically, keeping WordPress's file unless the rewrite
-	 * both still decodes and demonstrably carries the payload.
+	 * Inject the payload without replacing the target with an unrecognized image.
 	 *
 	 * @param string  $target_path Absolute path to the derivative to rewrite.
 	 * @param Payload $payload     Segments to transplant.
-	 * @return bool
+	 * @return bool True when the file was rewritten; false when nothing changed.
 	 */
 	public function inject( $target_path, Payload $payload ) {
 		if ( $payload->is_empty() ) {
@@ -77,43 +71,113 @@ abstract class Abstract_Transplanter {
 			return false;
 		}
 
-		// A unique, same-directory temp file: same filesystem guarantees an
-		// atomic rename, and the unique suffix avoids collisions with concurrent
-		// regeneration of the same attachment.
-		$tmp = $target_path . '.' . uniqid( 'jpprov', true ) . '.tmp';
+		return $this->atomically_replace( $target_path, $injected );
+	}
+
+	/**
+	 * Replace $target_path with $bytes atomically.
+	 *
+	 * @param string $target_path Absolute path to the derivative.
+	 * @param string $bytes       Complete replacement bytes.
+	 * @return bool
+	 */
+	private function atomically_replace( $target_path, $bytes ) {
+		$tmp = $this->write_temp( $target_path, $bytes );
+		if ( null === $tmp ) {
+			return false;
+		}
+
+		if ( ! $this->is_valid_payload_carrier( $tmp ) ) {
+			$this->discard( $tmp );
+			return false;
+		}
+
+		$this->match_permissions( $target_path, $tmp );
+
+		if ( ! $this->swap_into_place( $tmp, $target_path ) ) {
+			$this->discard( $tmp );
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Write bytes to a unique temporary file beside the derivative.
+	 *
+	 * @param string $target_path Absolute path to the derivative.
+	 * @param string $bytes       Bytes to write.
+	 * @return string|null
+	 */
+	private function write_temp( $target_path, $bytes ) {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_tempnam, WordPress.PHP.NoSilencedErrors.Discouraged
+		$tmp = @tempnam( dirname( $target_path ), '.jetpack-provenance-' );
+
+		// tempnam() may fall back to another directory, where rename() is not atomic.
+		if ( false === $tmp || dirname( $tmp ) !== dirname( $target_path ) ) {
+			if ( false !== $tmp ) {
+				$this->discard( $tmp );
+			}
+			return null;
+		}
+
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents, WordPress.PHP.NoSilencedErrors.Discouraged
-		if ( false === @file_put_contents( $tmp, $injected ) ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
-			@unlink( $tmp );
-			return false;
+		if ( false === @file_put_contents( $tmp, $bytes ) ) {
+			$this->discard( $tmp );
+			return null;
 		}
+		return $tmp;
+	}
 
-		// Two cheap, independent checks: the result still decodes, and it
-		// actually carries the payload (getimagesize alone never inspects metadata).
+	/**
+	 * Whether the rewritten file has a recognizable image header and payload.
+	 *
+	 * The getimagesize() check covers the header, not whether every pixel decodes.
+	 *
+	 * @param string $path Absolute path to the candidate file.
+	 * @return bool
+	 */
+	private function is_valid_payload_carrier( $path ) {
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-		if ( false === @getimagesize( $tmp ) || ! $this->has_payload( $tmp ) ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
-			@unlink( $tmp );
-			return false;
-		}
+		return false !== @getimagesize( $path ) && $this->has_payload( $path );
+	}
 
-		// Preserve WordPress's file mode. Without this, rename() leaves the temp
-		// file's umask-derived permissions, which on a restrictive-umask host can
-		// be unreadable to the web server (broken images).
+	/**
+	 * Match permissions so the renamed file remains readable.
+	 *
+	 * @param string $target_path File whose permissions to copy.
+	 * @param string $tmp         Temporary file to adjust.
+	 * @return void
+	 */
+	private function match_permissions( $target_path, $tmp ) {
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		$perms = @fileperms( $target_path );
 		if ( false !== $perms ) {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_chmod, WordPress.PHP.NoSilencedErrors.Discouraged
 			@chmod( $tmp, $perms & 0777 );
 		}
+	}
 
+	/**
+	 * Move the temporary file onto the derivative.
+	 *
+	 * @param string $tmp         Temporary file.
+	 * @param string $target_path Destination path.
+	 * @return bool
+	 */
+	private function swap_into_place( $tmp, $target_path ) {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename, WordPress.PHP.NoSilencedErrors.Discouraged
-		if ( ! @rename( $tmp, $target_path ) ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
-			@unlink( $tmp );
-			return false;
-		}
+		return @rename( $tmp, $target_path );
+	}
 
-		return true;
+	/**
+	 * Delete a temporary file.
+	 *
+	 * @param string $tmp Temporary file path.
+	 * @return void
+	 */
+	private function discard( $tmp ) {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+		@unlink( $tmp );
 	}
 }

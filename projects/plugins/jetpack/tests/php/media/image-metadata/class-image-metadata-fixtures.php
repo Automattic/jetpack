@@ -1,21 +1,22 @@
 <?php
 /**
- * Builds in-memory image fixtures carrying (or lacking) provenance metadata.
- *
- * Provenance payloads embed the IPTC DigitalSourceType value
- * `trainedAlgorithmicMedia` so tests can assert it survives, and an EXIF marker
- * so tests can assert EXIF is NOT copied.
+ * Builds image fixtures with and without provenance metadata.
  *
  * @package automattic/jetpack
  */
 
 /**
- * Fixture factory. Uses GD to produce structurally valid base images.
+ * Builds valid base images with GD.
  */
 class Image_Metadata_Fixtures {
 
 	const SOURCE_TYPE = 'http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia';
 	const EXIF_MARKER = 'GPS-EXIF-MUST-NOT-SURVIVE';
+
+	/**
+	 * DigitalSourceType for a non-AI image.
+	 */
+	const NON_AI_SOURCE_TYPE = 'http://cv.iptc.org/newscodes/digitalsourcetype/digitalCapture';
 
 	/**
 	 * A minimal XMP packet carrying DigitalSourceType.
@@ -28,6 +29,23 @@ class Image_Metadata_Fixtures {
 			. '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">'
 			. '<rdf:Description xmlns:Iptc4xmpExt="http://iptc.org/std/Iptc4xmpExt/2008-02-29/">'
 			. '<Iptc4xmpExt:DigitalSourceType>' . self::SOURCE_TYPE . '</Iptc4xmpExt:DigitalSourceType>'
+			. '</rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end="w"?>';
+	}
+
+	/**
+	 * A minimal non-AI XMP packet.
+	 *
+	 * @return string
+	 */
+	public static function non_ai_xmp_packet() {
+		return '<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>'
+			. '<x:xmpmeta xmlns:x="adobe:ns:meta/">'
+			. '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">'
+			. '<rdf:Description'
+			. ' xmlns:Iptc4xmpExt="http://iptc.org/std/Iptc4xmpExt/2008-02-29/"'
+			. ' xmlns:dc="http://purl.org/dc/elements/1.1/">'
+			. '<Iptc4xmpExt:DigitalSourceType>' . self::NON_AI_SOURCE_TYPE . '</Iptc4xmpExt:DigitalSourceType>'
+			. '<dc:rights>Copyright Example Photographer</dc:rights>'
 			. '</rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end="w"?>';
 	}
 
@@ -62,14 +80,28 @@ class Image_Metadata_Fixtures {
 	public static function png_with_provenance() {
 		$png = self::bare_png();
 
-		// Uncompressed iTXt: keyword \0 compressionFlag(0) compressionMethod(0)
-		// languageTag \0 translatedKeyword \0 text.
+		// Uncompressed iTXt fields: keyword, flags, language, translation, and text.
 		$itxt_data  = "XML:com.adobe.xmp\0\0\0\0\0" . self::xmp_packet();
 		$xmp_chunk  = self::png_chunk( 'iTXt', $itxt_data );
 		$exif_chunk = self::png_chunk( 'eXIf', self::EXIF_MARKER );
 
 		$iend_length_pos = strpos( $png, 'IEND' ) - 4;
 		return substr( $png, 0, $iend_length_pos ) . $xmp_chunk . $exif_chunk . substr( $png, $iend_length_pos );
+	}
+
+	/**
+	 * A PNG carrying non-AI XMP provenance.
+	 *
+	 * @return string
+	 */
+	public static function png_with_non_ai_provenance() {
+		$png = self::bare_png();
+
+		$itxt_data = "XML:com.adobe.xmp\0\0\0\0\0" . self::non_ai_xmp_packet();
+		$xmp_chunk = self::png_chunk( 'iTXt', $itxt_data );
+
+		$iend_length_pos = strpos( $png, 'IEND' ) - 4;
+		return substr( $png, 0, $iend_length_pos ) . $xmp_chunk . substr( $png, $iend_length_pos );
 	}
 
 	/**
@@ -96,8 +128,7 @@ class Image_Metadata_Fixtures {
 	}
 
 	/**
-	 * A JPEG carrying APP1 XMP + APP13 Photoshop/IPTC (provenance) and an APP1
-	 * EXIF segment (must be excluded), inserted after the leading JFIF APP0.
+	 * A JPEG carrying XMP, Photoshop/IPTC, and excluded EXIF segments.
 	 *
 	 * @return string
 	 */
@@ -113,11 +144,7 @@ class Image_Metadata_Fixtures {
 	}
 
 	/**
-	 * Offset just past a leading JFIF APP0 segment, or 2 (just past SOI) if none.
-	 *
-	 * Public so tests can splice their own segments in at the same insertion
-	 * point this class uses internally (e.g. a fill-byte fixture for a
-	 * provenance segment).
+	 * Get the offset after a leading JFIF APP0 segment or SOI.
 	 *
 	 * @param string $jpeg JPEG bytes.
 	 * @return int

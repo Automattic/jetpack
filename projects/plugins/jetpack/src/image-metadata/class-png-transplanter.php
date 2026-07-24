@@ -8,8 +8,7 @@
 namespace Automattic\Jetpack\Plugin\Image_Metadata;
 
 /**
- * Copies XMP/IPTC text chunks verbatim between PNG files. EXIF (the `eXIf`
- * chunk) is deliberately excluded.
+ * Copies XMP/IPTC text chunks between PNG files, excluding EXIF containers.
  */
 final class PNG_Transplanter extends Abstract_Transplanter {
 
@@ -17,6 +16,11 @@ final class PNG_Transplanter extends Abstract_Transplanter {
 	 * PNG 8-byte signature.
 	 */
 	const SIGNATURE = "\x89PNG\r\n\x1a\n";
+
+	/**
+	 * Chunk overhead: length, type, and CRC.
+	 */
+	const CHUNK_OVERHEAD = 12;
 
 	/**
 	 * Text-chunk keywords that carry provenance we preserve.
@@ -77,10 +81,7 @@ final class PNG_Transplanter extends Abstract_Transplanter {
 	}
 
 	/**
-	 * Splice the provenance chunks in immediately before the IEND chunk.
-	 *
-	 * Chunks are copied byte-for-byte, so their existing CRC32 is already valid —
-	 * no recompute is needed.
+	 * Insert chunks before IEND. Their copied CRC values remain valid.
 	 *
 	 * @param string  $bytes   Current PNG bytes.
 	 * @param Payload $payload Segments to insert.
@@ -106,39 +107,36 @@ final class PNG_Transplanter extends Abstract_Transplanter {
 	}
 
 	/**
-	 * Walk PNG chunks. Yields `type`, `data`, `raw` (length+type+data+crc), and
-	 * `pos` (offset of the chunk's length field). Guards against a length field
-	 * that runs past the buffer (corrupt/truncated).
+	 * Yield PNG chunks through IEND, stopping at malformed or truncated data.
 	 *
 	 * @param string $bytes PNG bytes.
 	 * @return \Generator
 	 */
 	private function walk_chunks( $bytes ) {
 		$len = strlen( $bytes );
-		$pos = 8; // Skip the signature.
-		while ( $pos + 12 <= $len ) {
-			$length_field = unpack( 'N', substr( $bytes, $pos, 4 ) );
-			$length       = $length_field[1];
-			// Stop if the declared length runs past the buffer, or is negative
-			// (32-bit PHP can read a length >= 2^31 as a negative int).
-			if ( $length < 0 || $pos + 12 + $length > $len ) {
+		$pos = 8; // Skip the 8-byte PNG signature.
+
+		while ( $pos + self::CHUNK_OVERHEAD <= $len ) {
+			// PHP on 32-bit systems may unpack large unsigned lengths as negative.
+			$length    = unpack( 'N', substr( $bytes, $pos, 4 ) )[1];
+			$chunk_end = $pos + self::CHUNK_OVERHEAD + $length;
+			if ( $length < 0 || $chunk_end > $len ) {
 				break;
 			}
+
 			$type = substr( $bytes, $pos + 4, 4 );
-			$data = substr( $bytes, $pos + 8, $length );
-			$raw  = substr( $bytes, $pos, 12 + $length );
 
 			yield array(
 				'type' => $type,
-				'data' => $data,
-				'raw'  => $raw,
+				'data' => substr( $bytes, $pos + 8, $length ),
+				'raw'  => substr( $bytes, $pos, $chunk_end - $pos ),
 				'pos'  => $pos,
 			);
 
 			if ( 'IEND' === $type ) {
 				break;
 			}
-			$pos += 12 + $length;
+			$pos = $chunk_end;
 		}
 	}
 
