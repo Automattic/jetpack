@@ -56,6 +56,18 @@ class Mode {
 	const PAGE_PAID = 'jetpack-newsletter-paid';
 
 	/**
+	 * Query arg marking a shared wp-admin screen as reached from the mode's nav.
+	 *
+	 * Posts and Replies are core screens the whole of wp-admin links to, so —
+	 * unlike the mode's own pages — the URL alone can't say whether the visitor
+	 * is inside the mode. The curated nav appends this to its links; arriving at
+	 * the same screen from the normal menu carries no marker and stays normal.
+	 *
+	 * @var string
+	 */
+	const NAV_QUERY_ARG = 'newsletter-mode';
+
+	/**
 	 * Whether init() has already wired up hooks.
 	 *
 	 * @var bool
@@ -110,6 +122,14 @@ class Mode {
 		// Mark the Subscribers / Settings nav item as current. Unlike the mode's
 		// own pages, those two can only be resolved client side.
 		add_action( 'admin_footer', array( self::class, 'maybe_highlight_newsletter_nav_item' ) );
+
+		// Same for Posts / Replies, whose nav slugs carry NAV_QUERY_ARG.
+		add_filter( 'parent_file', array( self::class, 'maybe_mark_core_screen_current' ) );
+
+		// Keep NAV_QUERY_ARG across the list-table filter/search forms on those
+		// screens, which submit their own fields rather than the current URL.
+		add_action( 'restrict_manage_posts', array( self::class, 'maybe_render_nav_marker_field' ) );
+		add_action( 'restrict_manage_comments', array( self::class, 'maybe_render_nav_marker_field' ) );
 
 		// Let the mu-wpcom Write editor's back button return to the Newsletter
 		// page (the "Write & send" link passes source=newsletter).
@@ -283,7 +303,7 @@ class Mode {
 			return;
 		}
 
-		global $menu;
+		global $menu, $submenu;
 
 		// Remove every existing top-level item; we rebuild a focused set below.
 		$slugs = array();
@@ -319,7 +339,7 @@ class Mode {
 			__( 'Posts', 'jetpack-newsletter' ),
 			__( 'Posts', 'jetpack-newsletter' ),
 			'edit_posts',
-			'edit.php',
+			$nav['posts'],
 			'',
 			'none',
 			4
@@ -337,7 +357,7 @@ class Mode {
 			__( 'Replies', 'jetpack-newsletter' ),
 			__( 'Replies', 'jetpack-newsletter' ),
 			'moderate_comments',
-			'edit-comments.php',
+			$nav['replies'],
 			'',
 			'none',
 			6
@@ -360,6 +380,37 @@ class Mode {
 			'none',
 			8
 		);
+
+		// The nav is deliberately flat: every item is a single destination, so
+		// strip the submenus the native screens bring with them (Posts otherwise
+		// flies out to All Posts / Add Post / Categories / Tags). The top-level
+		// sweep above only clears $menu — submenus live in their own global and
+		// survive it. Sweeping $menu rather than naming slugs keeps this correct
+		// if the nav gains another core screen. Each item's own link is unchanged:
+		// with no children, core builds the href from the item's slug instead of
+		// its first submenu entry, which for Posts is edit.php either way.
+		foreach ( (array) $menu as $item ) {
+			if ( empty( $item[2] ) ) {
+				continue;
+			}
+
+			// $submenu is keyed on the bare screen, but the nav's core-screen
+			// items carry NAV_QUERY_ARG, so drop the query string first — the same
+			// way core resolves a menu slug to a file in menu-header.php.
+			$screen = $item[2];
+			$query  = strpos( $screen, '?' );
+			if ( false !== $query ) {
+				$screen = substr( $screen, 0, $query );
+			}
+
+			if ( empty( $submenu[ $screen ] ) ) {
+				continue;
+			}
+
+			foreach ( wp_list_pluck( $submenu[ $screen ], 2 ) as $child_slug ) {
+				remove_submenu_page( $screen, $child_slug );
+			}
+		}
 	}
 
 	/**
@@ -379,14 +430,22 @@ class Mode {
 	 * loads its assets. They are marked current in
 	 * maybe_highlight_newsletter_nav_item() instead.
 	 *
+	 * Posts and Replies carry NAV_QUERY_ARG so the shared core screens they point
+	 * at can tell a visit from inside the mode apart from one from the normal
+	 * menu — which also puts a `?` in their slug, so they are marked current in
+	 * maybe_mark_core_screen_current() rather than by core's slug match.
+	 *
 	 * @return array<string, string>
 	 */
 	private static function get_nav_slugs() {
 		$newsletter_url = 'admin.php?page=' . Settings::ADMIN_PAGE_SLUG;
+		$mode_arg       = '?' . self::NAV_QUERY_ARG . '=1';
 
 		return array(
 			'dashboard'   => self::PAGE_DASHBOARD,
+			'posts'       => 'edit.php' . $mode_arg,
 			'subscribers' => $newsletter_url,
+			'replies'     => 'edit-comments.php' . $mode_arg,
 			'paid'        => self::PAGE_PAID,
 			// The SPA router encodes its path+search into a single `p` param, so
 			// encode the value rather than letting the nested `?`/`&` be parsed as
@@ -693,11 +752,11 @@ class Mode {
 			// Dashboard.
 			'a[href*="jetpack-newsletter-home"]' => '<svg fill="none" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m16.5 2c.8284 0 1.5.67157 1.5 1.5v13c0 .8284-.6716 1.5-1.5 1.5h-13c-.82843 0-1.5-.6716-1.5-1.5v-13c0-.82843.67157-1.5 1.5-1.5zm-10.875 9v4h1.75v-4zm3.5 4h1.75v-7h-1.75zm3.5 0h1.75v-10h-1.75z" fill="#fff"/></svg>',
 			// Posts (edit.php).
-			'a[href$="edit.php"]'                => '<svg fill="none" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m18.0588 8.36327c.4947-.36224.5499-1.08037.1163-1.51397l-5.034-5.034c-.4303-.43031-1.1419-.37973-1.5071.10711l-3.55535 4.74051c-1.21348-.10112-2.42696.10113-3.64045.70787-.10112 0-.10112.10112-.20225.10112-.32088.19253-.60104.38506-.84046.57759-.2152.17305-.21473.49081-.01946.68608l3.38801 3.38802-5.76404 5.764v1.1124h1.11236l5.76404-5.764 3.388 3.388c.1953.1952.5142.197.6929-.0136.2395-.2821.4297-.5642.5708-.8464.1011-.1011.1011-.2022.2022-.3033.6068-1.1124.809-2.427.6068-3.6405z" fill="#fff"/></svg>',
+			'a[href^="edit.php"]'                => '<svg fill="none" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m18.0588 8.36327c.4947-.36224.5499-1.08037.1163-1.51397l-5.034-5.034c-.4303-.43031-1.1419-.37973-1.5071.10711l-3.55535 4.74051c-1.21348-.10112-2.42696.10113-3.64045.70787-.10112 0-.10112.10112-.20225.10112-.32088.19253-.60104.38506-.84046.57759-.2152.17305-.21473.49081-.01946.68608l3.38801 3.38802-5.76404 5.764v1.1124h1.11236l5.76404-5.764 3.388 3.388c.1953.1952.5142.197.6929-.0136.2395-.2821.4297-.5642.5708-.8464.1011-.1011.1011-.2022.2022-.3033.6068-1.1124.809-2.427.6068-3.6405z" fill="#fff"/></svg>',
 			// Subscribers (the bare Newsletter page URL).
 			'a[href$="page=jetpack-newsletter"]' => '<svg fill="none" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m19 15.5c0 .8284-.6716 1.5-1.5 1.5h-15c-.82843 0-1.5-.6716-1.5-1.5v-8.09863l8.50586 5.82033.50004.3428.4961-.3477 8.498-5.94922zm-1.5-12.5c.8284 0 1.5.67157 1.5 1.5v.63086l-9.00684 6.30464-8.99316-6.15327v-.78223c0-.82843.67157-1.5 1.5-1.5z" fill="#fff"/></svg>',
 			// Replies (edit-comments.php).
-			'a[href$="edit-comments.php"]'       => '<svg fill="none" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m16 2h-12c-1.1 0-2 .9-2 2v12.9c0 .6.5 1.1 1.1 1.1.3 0 .5-.1.8-.3l2.6-2.7h9.5c1.1 0 2-.9 2-2v-9c0-1.1-.9-2-2-2z" fill="#fff"/></svg>',
+			'a[href^="edit-comments.php"]'       => '<svg fill="none" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m16 2h-12c-1.1 0-2 .9-2 2v12.9c0 .6.5 1.1 1.1 1.1.3 0 .5-.1.8-.3l2.6-2.7h9.5c1.1 0 2-.9 2-2v-9c0-1.1-.9-2-2-2z" fill="#fff"/></svg>',
 			// Paid.
 			'a[href*="jetpack-newsletter-paid"]' => '<svg fill="none" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m19 15.5c0 .8284-.6716 1.5-1.5 1.5h-15c-.82843 0-1.5-.6716-1.5-1.5v-6.625h18zm-1.5-12.5c.8284 0 1.5.67157 1.5 1.5v2.625h-18v-2.625c0-.82843.67157-1.5 1.5-1.5z" fill="#fff"/></svg>',
 			// Settings (carries the tab param).
@@ -773,6 +832,60 @@ class Mode {
 				wp_json_encode( $header_markup, JSON_HEX_TAG | JSON_HEX_AMP )
 			)
 		);
+	}
+
+	/**
+	 * Carry NAV_QUERY_ARG through the Posts / Replies filter and search forms.
+	 *
+	 * Those forms are GET forms that submit only their own fields, so without
+	 * this a search or filter would drop the marker and drop the visitor back out
+	 * to the normal wp-admin menu mid-task. Paging and column sorting need no
+	 * help: core rebuilds those links from the current URL.
+	 *
+	 * @return void
+	 */
+	public static function maybe_render_nav_marker_field() {
+		if ( ! self::is_mode_surface() ) {
+			return;
+		}
+
+		printf( '<input type="hidden" name="%s" value="1" />', esc_attr( self::NAV_QUERY_ARG ) );
+	}
+
+	/**
+	 * Mark the Posts or Replies nav item as the current one.
+	 *
+	 * Their nav slugs carry NAV_QUERY_ARG, so they no longer equal the bare
+	 * `edit.php` / `edit-comments.php` that those screens set as `$parent_file`,
+	 * and core's slug match misses them. Pointing `$parent_file` at the slug the
+	 * nav registered fixes that — and unlike on the mode's own pages, the value
+	 * survives here: get_admin_page_parent() (which runs right after this filter)
+	 * only overwrites `$parent_file` when it finds a matching submenu entry, and
+	 * on these screens it finds none — the curated nav strips their submenus, and
+	 * its one remaining branch that could match declines any `$parent_file`
+	 * containing a `?`. Its closing fallback only fires on an empty value.
+	 *
+	 * @param string $parent_file Menu slug of the current item's parent.
+	 * @return string
+	 */
+	public static function maybe_mark_core_screen_current( $parent_file ) {
+		if ( ! self::is_mode_surface() ) {
+			return $parent_file;
+		}
+
+		global $pagenow;
+
+		$nav = self::get_nav_slugs();
+
+		if ( 'edit.php' === $pagenow ) {
+			return $nav['posts'];
+		}
+
+		if ( 'edit-comments.php' === $pagenow ) {
+			return $nav['replies'];
+		}
+
+		return $parent_file;
 	}
 
 	/**
@@ -925,9 +1038,14 @@ class Mode {
 			}
 		}
 
-		// Posts / Replies live on their own core scripts (no ?page= param).
+		// Posts / Replies live on their own core scripts (no ?page= param). Those
+		// screens belong to the whole of wp-admin, not to the mode, so they only
+		// count while the visitor got there from the curated nav — reaching Posts
+		// or Comments from the normal menu must not pull anyone into the mode.
 		global $pagenow;
-		return in_array( $pagenow, array( 'edit.php', 'edit-comments.php' ), true );
+
+		return in_array( $pagenow, array( 'edit.php', 'edit-comments.php' ), true )
+			&& isset( $_GET[ self::NAV_QUERY_ARG ] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only page routing.
 	}
 
 	/**
