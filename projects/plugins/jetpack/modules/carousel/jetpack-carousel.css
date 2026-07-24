@@ -4,6 +4,24 @@
 	--jp-carousel-bg-color: #000;
 	--jp-carousel-bg-faded-color: #222;
 	--jp-carousel-border-color: #3a3a3a;
+	--jp-carousel-fade-duration: 100ms;
+}
+
+/*
+Every opacity fade in the module runs through this class, so it stays on the
+compositor and JS only has to flip the target value.
+*/
+.jp-carousel-fade {
+	transition: opacity var(--jp-carousel-fade-duration) ease-out;
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+
+	.jp-carousel-fade {
+
+		/* Not 0s: `transitionend` still has to fire for the fade callbacks to run. */
+		transition-duration: 1ms;
+	}
 }
 
 :root .jp-carousel-light {

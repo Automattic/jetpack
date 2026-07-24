@@ -108,38 +108,48 @@
 			}
 		}
 
+		/**
+		 * CSS-transition fade (compositor). Duration + reduced-motion live in the
+		 * `.jp-carousel-fade` rule. A timer drives the finish, not `transitionend` -- that
+		 * event is skipped in background tabs / `transition: none` / zero duration, so the
+		 * timer is the reliable single source. `callback` fires once, after the fade.
+		 */
 		function fade( el, start, end, callback ) {
 			if ( ! el ) {
 				return callback();
 			}
 
-			// Prepare for transition.
-			// Ensure the item is in the render tree, in its initial state.
+			// A fade already running on this element must not deliver its callback any more.
+			if ( el.jpCarouselCancelFade ) {
+				el.jpCarouselCancelFade();
+			}
+
+			// Set + commit the start state before attaching the transition, or the fade is swallowed.
+			el.classList.remove( 'jp-carousel-fade' );
 			el.style.removeProperty( 'display' );
 			el.style.opacity = start;
 			el.style.pointerEvents = 'none';
 
-			var animate = function ( t0, duration ) {
-				var t = performance.now();
-				var diff = t - t0;
-				var ratio = diff / duration;
+			// Commit the starting opacity, otherwise the browser has nothing to animate from.
+			void el.offsetWidth;
 
-				if ( ratio < 1 ) {
-					el.style.opacity = start + ( end - start ) * ratio;
-					requestAnimationFrame( () => animate( t0, duration ) );
-				} else {
-					el.style.opacity = end;
-					el.style.removeProperty( 'pointer-events' );
-					callback();
-				}
+			el.classList.add( 'jp-carousel-fade' );
+			el.style.opacity = end;
+
+			// Read the duration back from the stylesheet so the timer always outlives the transition.
+			var duration = parseFloat( getComputedStyle( el ).transitionDuration ) * 1000 || 0;
+
+			var timer = setTimeout( function () {
+				el.jpCarouselCancelFade = null;
+				el.style.opacity = end;
+				el.style.removeProperty( 'pointer-events' );
+				callback();
+			}, duration + 50 );
+
+			el.jpCarouselCancelFade = function () {
+				clearTimeout( timer );
+				el.jpCarouselCancelFade = null;
 			};
-
-			requestAnimationFrame( function () {
-				// Double rAF for browser compatibility.
-				requestAnimationFrame( function () {
-					animate( performance.now(), 200 );
-				} );
-			} );
 		}
 
 		function fadeIn( el, callback ) {
