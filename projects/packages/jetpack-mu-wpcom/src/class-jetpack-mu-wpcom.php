@@ -369,7 +369,7 @@ class Jetpack_Mu_Wpcom {
 	public static function load_wpcom_user_features() {
 		// To avoid potential collisions with ETK.
 		if ( ! class_exists( 'A8C\FSE\Help_Center' ) && class_exists( \Automattic\Jetpack\Help_Center\Help_Center::class ) ) {
-			add_action( 'init', array( \Automattic\Jetpack\Help_Center\Help_Center::class, 'init' ) );
+			add_action( 'init', array( \Automattic\Jetpack\Help_Center\Help_Center::class, 'init' ), 10, 0 );
 		}
 
 		if ( ! is_wpcom_user() ) {

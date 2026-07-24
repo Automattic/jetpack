@@ -17,7 +17,7 @@ Initialize it on WordPress's `init` hook:
 ```php
 use Automattic\Jetpack\Help_Center\Help_Center;
 
-add_action( 'init', array( Help_Center::class, 'init' ) );
+add_action( 'init', array( Help_Center::class, 'init' ), 10, 0 );
 ```
 
 The package expects the consuming plugin to load its Composer autoloader. Jetpack Autoloader is recommended when multiple plugins may ship Jetpack packages.
