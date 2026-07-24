@@ -47,7 +47,9 @@ export function useDashboardSectionLayout(
 		[ sections, activeSectionId ]
 	);
 
-	const layout = sectionLayouts[ activeSectionId ] ?? sectionDefault;
+	const layout = Object.hasOwn( sectionLayouts, activeSectionId )
+		? sectionLayouts[ activeSectionId ] ?? sectionDefault
+		: sectionDefault;
 
 	const setLayout = useCallback(
 		( nextLayout: DashboardWidget[] ) => {
@@ -60,7 +62,7 @@ export function useDashboardSectionLayout(
 	);
 
 	const resetLayout = useCallback( () => {
-		if ( ! ( activeSectionId in sectionLayouts ) ) {
+		if ( ! Object.hasOwn( sectionLayouts, activeSectionId ) ) {
 			return;
 		}
 
