@@ -183,7 +183,7 @@ describe( 'archive rows', () => {
 		expect( screen.getByRole( 'img', { name: '(opens in a new tab)' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'preserves the archive hierarchy and uses Calypso archive labels', () => {
+	it( 'preserves the archive hierarchy and uses standard archive labels', () => {
 		expect(
 			buildArchiveRows( [
 				{

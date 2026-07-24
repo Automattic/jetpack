@@ -112,9 +112,6 @@ export type ArchiveRow = {
 /**
  * Human-readable labels for the archive-type keys returned by the API.
  *
- * These match Calypso's `getArchiveKeyLabel`, while unknown archive types use
- * Calypso's capitalized fallback.
- *
  * @param archiveType - The raw archive-type key.
  * @return The archive type's display label.
  */

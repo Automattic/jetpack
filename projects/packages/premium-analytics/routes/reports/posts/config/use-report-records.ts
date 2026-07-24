@@ -23,13 +23,6 @@ import type { ReportPostsTabId } from './tabs';
 export function usePostsReportRecords( activeTab: ReportPostsTabId, reportParams: ReportParams ) {
 	const isPostsTab = activeTab === 'posts-pages';
 
-	/*
-	 * Match Calypso's legacy Posts report: request all rows from a summarized,
-	 * day-based custom range. With no chart requiring daily buckets, the table
-	 * can consume the merged comparison rows directly. `omitDerivedDays` keeps
-	 * the API request to `period`, `start_date`, `date`, `max`, `summarize`, and
-	 * `skip_archives`, exactly as the legacy report sends it.
-	 */
 	const recordsParams = useMemo(
 		() => ( {
 			...reportParams,
@@ -37,7 +30,6 @@ export function usePostsReportRecords( activeTab: ReportPostsTabId, reportParams
 			period: 'day',
 			summarize: 1,
 			skip_archives: 1,
-			omitDerivedDays: true,
 		} ),
 		[ reportParams ]
 	);

@@ -81,7 +81,7 @@ describe( 'usePostsReportRecords', () => {
 		} as unknown as ReturnType< typeof useStatsArchives > );
 	} );
 
-	it( 'uses the full summarized request from the legacy Posts report', () => {
+	it( 'requests all summarized rows for the selected range', () => {
 		const paramsWithStaleChartPeriod = { ...reportParams, period: 'month' as const };
 		const { result } = renderHook( () =>
 			usePostsReportRecords( 'posts-pages', paramsWithStaleChartPeriod )
@@ -92,7 +92,6 @@ describe( 'usePostsReportRecords', () => {
 			period: 'day',
 			summarize: 1,
 			skip_archives: 1,
-			omitDerivedDays: true,
 		};
 
 		expect( mockUseStatsTopPosts ).toHaveBeenLastCalledWith( expectedParams, { enabled: true } );
