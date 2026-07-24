@@ -487,9 +487,16 @@ class Mode {
 	}
 
 	/**
-	 * Restore the Newsletter page's expected <body> class while the mode is
-	 * active, so its layout CSS (keyed on `body.jetpack_page_jetpack-newsletter`)
-	 * still applies even though the page is registered as a hidden page.
+	 * Restore the expected <body> class on the mode's surfaces, so their layout
+	 * CSS still applies even though the mode changes how the pages are
+	 * registered. Two cases, in opposite directions:
+	 *
+	 * - The Newsletter page's CSS is keyed on `body.jetpack_page_jetpack-newsletter`,
+	 *   but hiding the Jetpack submenu makes it a hidden page → `admin_page_…`.
+	 * - Dashboard and Paid are keyed on `body.admin_page_<slug>` (see their
+	 *   route.scss), the class WP gives a hidden page — but the curated nav
+	 *   registers them as top-level pages so they can be marked current, which
+	 *   renames the class to `toplevel_page_<slug>`.
 	 *
 	 * @param string $classes Space-separated admin body classes.
 	 * @return string
@@ -497,6 +504,11 @@ class Mode {
 	public static function maybe_add_body_class( $classes ) {
 		if ( self::is_active_for_request() ) {
 			$classes .= ' jetpack_page_jetpack-newsletter';
+		}
+
+		if ( self::is_wp_build_page() && isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only page routing; is_wp_build_page() has already matched this against the mode's own page slugs.
+			$classes .= ' admin_page_' . sanitize_text_field( wp_unslash( $_GET['page'] ) );
 		}
 
 		return $classes;

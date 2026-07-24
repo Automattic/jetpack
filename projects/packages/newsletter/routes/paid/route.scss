@@ -2,6 +2,9 @@
 
 // Same viewport-pinned white/rounded panel chrome as the unified Newsletter
 // page. WP names a hidden (empty-parent) page's body class `admin_page_<slug>`.
+// In Newsletter Mode the curated nav registers this as a top-level page (so it
+// can be marked current), which WP would name `toplevel_page_<slug>` instead —
+// Mode::maybe_add_body_class() adds the class below back on that surface.
 body.admin_page_jetpack-newsletter-paid {
 
 	@include jetpack-admin-page-layout-wp-build;
