@@ -1,12 +1,11 @@
-import { IconTooltip, Text } from '@automattic/jetpack-components';
-import { Panel, PanelBody } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { __, _x } from '@wordpress/i18n';
-import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
-import { Button } from '@wordpress/ui';
-import { useReducer } from 'react';
+import { useState } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import { chevronDown, info } from '@wordpress/icons';
+import { Collapsible, Icon, IconButton, Stack, Text } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import ConnectionIcon from '../connection-icon';
+import { useServiceLabel } from '../services/use-service-label';
 import { ConnectionName } from './connection-name';
 import { ConnectionStatus, ConnectionStatusProps } from './connection-status';
 import { ConnectionTemplateEditor } from './connection-template';
@@ -26,66 +25,106 @@ type ConnectionInfoProps = ConnectionStatusProps & {
  * @return React element
  */
 export function ConnectionInfo( { connection, service, canMarkAsShared }: ConnectionInfoProps ) {
-	const [ isPanelOpen, togglePanel ] = useReducer( state => ! state, false );
+	const [ isPanelOpen, setIsPanelOpen ] = useState( false );
 
-	const canManageConnection = useSelect(
-		select => select( socialStore ).canUserManageConnection( connection ),
+	const getServiceLabel = useServiceLabel();
+
+	const { canManageConnection, isUnsupported } = useSelect(
+		select => {
+			const { canUserManageConnection, getServicesBy } = select( socialStore );
+
+			return {
+				canManageConnection: canUserManageConnection( connection ),
+				isUnsupported: getServicesBy( 'status', 'unsupported' ).some(
+					( { id } ) => id === connection.service_name
+				),
+			};
+		},
 		[ connection ]
 	);
 
+	const hasStatus =
+		connection.status === 'broken' || connection.status === 'must_reauth' || isUnsupported;
+
+	const markAsSharedHelp = __(
+		'If enabled, the connection will be available to all administrators, editors, and authors.',
+		'jetpack-publicize-pkg'
+	);
+
+	const toggleLabel = sprintf(
+		/* translators: %1$s: name of the connected social media account. %2$s: name of the social network, e.g. Facebook. */
+		__( 'Toggle details for %1$s on %2$s', 'jetpack-publicize-pkg' ),
+		connection.display_name,
+		getServiceLabel( connection.service_name )
+	);
+
 	return (
-		<>
-			<div className={ styles[ 'connection-item' ] }>
+		<Collapsible.Root open={ isPanelOpen } onOpenChange={ setIsPanelOpen }>
+			{ /*
+			 * The row is a plain container, not the trigger: it holds the profile
+			 * name link (and, when broken, the Reconnect link), and an interactive
+			 * <a> may not be nested inside a role="button". Only the chevron is the
+			 * disclosure trigger, so the links stay siblings of the button.
+			 */ }
+			<div className={ styles[ 'connection-row' ] }>
 				<ConnectionIcon
 					serviceName={ connection.service_name }
 					label={ connection.display_name }
 					profilePicture={ connection.profile_picture }
+					size="medium"
 				/>
-				<div className={ styles[ 'connection-name-wrapper' ] }>
-					<div className={ styles[ 'connection-item-name' ] }>
-						<ConnectionName connection={ connection } />
-					</div>
-					<ConnectionStatus connection={ connection } service={ service } />
-				</div>
-				<Button
-					size={ 'small' }
-					className={ styles[ 'learn-more' ] }
-					variant="minimal"
-					onClick={ togglePanel }
-					aria-label={
-						isPanelOpen
-							? __( 'Close panel', 'jetpack-publicize-pkg' )
-							: _x( 'Open panel', 'Accessibility label', 'jetpack-publicize-pkg' )
-					}
-				>
-					{ <Icon className={ styles.chevron } icon={ isPanelOpen ? chevronUp : chevronDown } /> }
-				</Button>
+				<Stack direction="column" gap="xs" className={ styles[ 'connection-name-wrapper' ] }>
+					{ /*
+					 * Rendered as a `<div>`: `Text` defaults to a `<span>`, and
+					 * `ConnectionName`'s root is a `<div>`, which is not valid inside
+					 * one.
+					 */ }
+					<Text variant="body-lg" render={ <div className={ styles[ 'connection-item-name' ] } /> }>
+						<ConnectionName connection={ connection } tone="neutral" />
+					</Text>
+					{ hasStatus ? (
+						<ConnectionStatus connection={ connection } service={ service } />
+					) : (
+						<Text variant="body-md" className={ styles[ 'connection-network' ] }>
+							{ service?.label }
+						</Text>
+					) }
+				</Stack>
+				<Collapsible.Trigger className={ styles[ 'panel-toggle' ] } aria-label={ toggleLabel }>
+					<Icon className={ styles.chevron } icon={ chevronDown } />
+				</Collapsible.Trigger>
 			</div>
-			<Panel className={ styles[ 'connection-panel' ] }>
-				<PanelBody opened={ isPanelOpen } onToggle={ togglePanel }>
+			<Collapsible.Panel className={ styles[ 'connection-panel' ] }>
+				<div className={ styles[ 'connection-panel-inner' ] }>
 					{ canMarkAsShared && (
-						<div className={ styles[ 'mark-shared-wrap' ] }>
+						<Stack
+							direction="row"
+							align="center"
+							gap="sm"
+							className={ styles[ 'mark-shared-wrap' ] }
+						>
 							<MarkAsShared connection={ connection } />
-							<IconTooltip>
-								{ __(
-									'If enabled, the connection will be available to all administrators, editors, and authors.',
-									'jetpack-publicize-pkg'
-								) }
-							</IconTooltip>
-						</div>
+							<IconButton
+								variant="minimal"
+								tone="neutral"
+								size="small"
+								label={ markAsSharedHelp }
+								icon={ info }
+							/>
+						</Stack>
 					) }
 					<div className={ styles[ 'connection-template-wrap' ] }>
 						<ConnectionTemplateEditor connection={ connection } />
 					</div>
 					{ canManageConnection ? (
-						<Disconnect connection={ connection } />
+						<Disconnect connection={ connection } size="compact" tone="neutral" />
 					) : (
 						<Text className={ styles.description }>
 							{ __( 'This connection is added by a site administrator.', 'jetpack-publicize-pkg' ) }
 						</Text>
 					) }
-				</PanelBody>
-			</Panel>
-		</>
+				</div>
+			</Collapsible.Panel>
+		</Collapsible.Root>
 	);
 }

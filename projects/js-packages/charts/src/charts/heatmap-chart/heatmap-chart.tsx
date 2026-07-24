@@ -277,20 +277,20 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	// and a min floor makes the grid overflow (for a scrollable wrapper)
 	// rather than crushing cells on long ranges.
 	const columnTrack = compact
-		? 'var(--heatmap-cell-size)'
+		? 'var(--a8c-charts-dimension-heatmap-cell-size)'
 		: `minmax(${ minCellWidth ?? 0 }px, ${ maxCellWidth ? `${ maxCellWidth }px` : '1fr' })`;
 	const rowTrack = compact
-		? 'var(--heatmap-cell-size)'
+		? 'var(--a8c-charts-dimension-heatmap-cell-size)'
 		: `minmax(${ minCellHeight ?? 0 }px, ${ maxCellHeight ? `${ maxCellHeight }px` : '1fr' })`;
 	const gridStyle: Record< string, string | number > = {
-		'--heatmap-primary': primaryColorHex,
-		'--heatmap-bg': theme.backgroundColor,
+		'--a8c-charts-color-heatmap-primary': primaryColorHex,
+		'--a8c-charts-color-heatmap-background': theme.backgroundColor,
 		gridTemplateColumns: `auto repeat(${ columns }, ${ columnTrack })`,
 		gridTemplateRows: `auto repeat(${ rows }, ${ rowTrack })`,
 	};
 	if ( compact ) {
-		gridStyle[ '--heatmap-cell-gap' ] = `${ compactCellGap }px`;
-		gridStyle[ '--heatmap-cell-size' ] = `${ compactCellSize }px`;
+		gridStyle[ '--a8c-charts-dimension-heatmap-cell-gap' ] = `${ compactCellGap }px`;
+		gridStyle[ '--a8c-charts-dimension-heatmap-cell-size' ] = `${ compactCellSize }px`;
 	}
 
 	const activeDescendant =
@@ -419,7 +419,11 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 														selectedIndex === flatIndex,
 												} ) }
 												style={
-													present ? ( { '--intensity': normalized } as CSSProperties ) : undefined
+													present
+														? ( {
+																'--a8c-charts-heatmap-cell-intensity': normalized,
+														  } as CSSProperties )
+														: undefined
 												}
 												onMouseMove={ handleCellMouseMove }
 												onMouseLeave={ handleCellMouseLeave }

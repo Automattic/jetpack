@@ -42,6 +42,18 @@ export default class JetpackConnectionErrors extends Component {
 						</NoticeAction>
 					</SimpleNotice>
 				);
+			case 'none':
+				// Informational only (e.g. a secondary admin viewing a locked connection
+				// owner's error). Render the message with no call to action.
+				return (
+					<SimpleNotice
+						text={ message }
+						status={ 'is-error' }
+						icon={ 'link-break' }
+						showDismiss={ false }
+						display={ this.props.display }
+					/>
+				);
 			default:
 				// Check for URL action (navigation)
 				if ( errorData.action_url && errorData.action_label ) {

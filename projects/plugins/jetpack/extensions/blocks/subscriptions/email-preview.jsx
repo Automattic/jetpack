@@ -1,4 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getUserConnectionUrl, useConnection } from '@automattic/jetpack-connection';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import {
@@ -34,16 +36,56 @@ import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
 import { SendIcon } from './icons';
 
+/**
+ * Error code returned by the email-preview REST endpoints when the current user
+ * has no WordPress.com user connection. Both `send-email-preview` and
+ * `email-preview` share this code.
+ *
+ * @see projects/plugins/jetpack/_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-send-email-preview.php
+ */
+const MISSING_CONNECTION_ERROR_CODE = 'rest_cannot_send_email_preview';
+
+/**
+ * Actionable notice shown when a preview request fails because the user's
+ * WordPress.com account isn't connected. Links to the connection flow so the
+ * user can resolve it without leaving the editor guessing.
+ *
+ * @return {Element} The connection prompt.
+ */
+function MissingConnectionNotice() {
+	return (
+		<p>
+			{ createInterpolateElement(
+				__(
+					'Previewing and sending test emails requires a connection to WordPress.com. <connectLink>Connect your account</connectLink> to continue.',
+					'jetpack'
+				),
+				{
+					connectLink: <Link href={ getUserConnectionUrl() } />,
+				}
+			) }
+		</p>
+	);
+}
+
 export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 	const [ isEmailSent, setIsEmailSent ] = useState( false );
 	const [ isEmailSending, setIsEmailSending ] = useState( false );
-	const [ errorMessage, setErrorMessage ] = useState( false );
+	const [ error, setError ] = useState( null );
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 	const { __unstableSaveForPreview } = useDispatch( editorStore );
 	const { tracks } = useAnalytics();
 
+	// The connection state is known client-side, so surface the requirement (and
+	// disable sending) as soon as the modal opens rather than after a failed send.
+	const { isUserConnected } = useConnection();
+	const shouldPromptForConnection = ! isSimpleSite() && ! isUserConnected;
+	const showConnectionNotice =
+		shouldPromptForConnection || error?.code === MISSING_CONNECTION_ERROR_CODE;
+
 	const sendTestEmail = async () => {
 		tracks.recordEvent( 'jetpack_newsletter_test_email_send', { post_id: postId } );
+		setError( null );
 		setIsEmailSending( true );
 		await __unstableSaveForPreview();
 
@@ -58,10 +100,12 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 			} )
 			.catch( e => {
 				setIsEmailSending( false );
-				setErrorMessage(
-					e.message ||
-						__( 'Whoops, we have encountered an error. Please try again later.', 'jetpack' )
-				);
+				setError( {
+					code: e?.code,
+					message:
+						e?.message ||
+						__( 'Whoops, we have encountered an error. Please try again later.', 'jetpack' ),
+				} );
 			} );
 	};
 
@@ -79,7 +123,8 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 			size={ 'medium' }
 		>
 			<VStack>
-				{ errorMessage && <p>{ errorMessage } </p> }
+				{ showConnectionNotice && <MissingConnectionNotice /> }
+				{ error && error.code !== MISSING_CONNECTION_ERROR_CODE && <p>{ error.message } </p> }
 				{ isEmailSent ? (
 					<HStack alignment="left" className="jetpack-newsletter-test-email-modal__email-sent">
 						<Icon icon={ check } size={ 28 } />
@@ -103,6 +148,7 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 								variant="primary"
 								onClick={ sendTestEmail }
 								isBusy={ isEmailSending }
+								disabled={ shouldPromptForConnection }
 								__next40pxDefaultSize={ true }
 							>
 								{ __( 'Send', 'jetpack' ) }
@@ -243,6 +289,7 @@ const PreviewControls = ( {
 export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ isError, setError ] = useState( false );
+	const [ errorCode, setErrorCode ] = useState( null );
 	const [ refetchedOnError, setRefetchedOnError ] = useState( false );
 	const [ previewCache, setPreviewCache ] = useState( {} );
 	const [ selectedAccess, setSelectedAccess ] = useState( accessOptions.subscribers.key );
@@ -257,6 +304,7 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 
 			setIsLoading( true );
 			setError( false );
+			setErrorCode( null );
 
 			try {
 				const response = await apiFetch( {
@@ -272,9 +320,10 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 				} else {
 					throw new Error( 'Invalid response format' );
 				}
-			} catch {
+			} catch ( e ) {
 				tracks.recordEvent( 'jetpack_newsletter_preview_modal_error' );
 				setError( true );
+				setErrorCode( e?.code ?? null );
 			} finally {
 				setIsLoading( false );
 			}
@@ -332,7 +381,19 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 					} }
 				>
 					{ isLoading && <Spinner /> }
-					{ isError && (
+					{ isError && errorCode === MISSING_CONNECTION_ERROR_CODE && (
+						<VStack
+							alignment="center"
+							aria-live="polite"
+							role="alert"
+							style={ { textAlign: 'center' } }
+						>
+							<Icon icon={ warning } />
+							<h3>{ __( 'Connect your account to preview this email', 'jetpack' ) }</h3>
+							<MissingConnectionNotice />
+						</VStack>
+					) }
+					{ isError && errorCode !== MISSING_CONNECTION_ERROR_CODE && (
 						<VStack
 							alignment="center"
 							aria-live="polite"

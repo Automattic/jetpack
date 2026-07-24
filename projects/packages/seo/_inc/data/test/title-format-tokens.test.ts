@@ -129,6 +129,29 @@ describe( 'buildPreview', () => {
 	it( 'falls back to the raw value for an unknown token id', () => {
 		expect( buildPreview( [ { type: 'token', value: 'mystery' } ] ) ).toBe( 'mystery' );
 	} );
+
+	it( 'uses real override values for tokens when provided', () => {
+		const tokens: TitleFormatToken[] = [
+			{ type: 'token', value: 'site_name' },
+			{ type: 'string', value: ' | ' },
+			{ type: 'token', value: 'tagline' },
+		];
+		expect( buildPreview( tokens, { site_name: 'Acme Co', tagline: 'We make things' } ) ).toBe(
+			'Acme Co | We make things'
+		);
+	} );
+
+	it( 'falls back to sample text when an override is missing or empty', () => {
+		const tokens: TitleFormatToken[] = [
+			{ type: 'token', value: 'site_name' },
+			{ type: 'string', value: ' | ' },
+			{ type: 'token', value: 'tagline' },
+		];
+		// site_name has a real value; tagline is empty, so it uses the sample.
+		expect( buildPreview( tokens, { site_name: 'Acme Co', tagline: '' } ) ).toBe(
+			'Acme Co | Your tagline'
+		);
+	} );
 } );
 
 describe( 'tokensToString', () => {

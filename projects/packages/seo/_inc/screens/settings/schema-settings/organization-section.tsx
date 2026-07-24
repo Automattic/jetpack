@@ -2,8 +2,9 @@
 
 import { TextControl, TextareaControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Button, Stack } from '@wordpress/ui';
+import { Button, Stack, Text } from '@wordpress/ui';
 import ProfileUrlList, { hasProfileUrlErrors } from './profile-url-list';
+import styles from './style.module.scss';
 import type { SchemaSettingsForm } from '../../../data/use-schema-settings';
 import type { FC } from 'react';
 
@@ -34,9 +35,9 @@ const OrganizationSection: FC< Props > = ( { form } ) => {
 
 	return (
 		<Stack direction="column" gap="lg">
-			<span className="jetpack-seo-settings__title-tokens-label">
+			<Text variant="body-sm" className={ styles.muted }>
 				{ __( 'Help search engines understand the organization behind this site.', 'jetpack-seo' ) }
-			</span>
+			</Text>
 
 			<TextControl
 				label={ __( 'Organization name', 'jetpack-seo' ) }
@@ -88,7 +89,7 @@ const OrganizationSection: FC< Props > = ( { form } ) => {
 				__nextHasNoMarginBottom
 			/>
 
-			<div className="jetpack-seo-settings__save">
+			<Stack direction="row" justify="flex-end">
 				<Button
 					onClick={ saveOrganization }
 					disabled={ isSaving || ! isOrganizationDirty || hasProfileUrlErrors( sameAs ) }
@@ -96,7 +97,7 @@ const OrganizationSection: FC< Props > = ( { form } ) => {
 				>
 					{ saveLabel }
 				</Button>
-			</div>
+			</Stack>
 		</Stack>
 	);
 };

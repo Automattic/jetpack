@@ -118,7 +118,13 @@ export {
 	sliceWordAdsStatsReport,
 } from './processing/stats';
 export type { FlattenStatsLeavesContext, FlattenStatsLeavesOptions } from './processing/stats';
-export type { StatsDrilldownRow, StatsDrilldownSourceItem } from './processing/stats';
+export type {
+	AggregateStatsDrilldownRowsOptions,
+	StatsDrilldownItemContext,
+	StatsDrilldownRow,
+	StatsDrilldownRowContext,
+	StatsDrilldownSourceReport,
+} from './processing/stats';
 export {
 	useStatsSummary,
 	type StatsSummaryParams,
