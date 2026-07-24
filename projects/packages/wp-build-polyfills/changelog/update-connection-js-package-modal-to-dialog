@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Register requested polyfills for every consumer, even those that register after wp_default_scripts has fired. Previously the first such consumer locked the singleton, so a later consumer's handles or modules (e.g. the @wordpress/boot module) were silently dropped.

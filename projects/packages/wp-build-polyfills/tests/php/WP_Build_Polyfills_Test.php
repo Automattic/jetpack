@@ -596,6 +596,31 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Regression test: a consumer that registers after `wp_default_scripts` has
+	 * fired must still get its handles/modules registered, even when an earlier
+	 * consumer already triggered the synchronous registration path.
+	 */
+	public function test_register_registers_late_consumer_modules_after_wp_default_scripts() {
+		// Mirror an admin request where scripts are touched before our consumers run.
+		wp_scripts();
+		$this->assertTrue( (bool) did_action( 'wp_default_scripts' ), 'Precondition: wp_default_scripts must have fired.' );
+
+		// First consumer requests classic scripts only (mirrors the connection package).
+		WP_Build_Polyfills::register( 'consumer-scripts-only', array( 'wp-theme', 'wp-private-apis' ) );
+		$this->assertFalse(
+			$this->is_module_registered( '@wordpress/boot' ),
+			'@wordpress/boot should not be registered until a consumer requests it.'
+		);
+
+		// Second consumer requests the boot module (mirrors the Social dashboard).
+		WP_Build_Polyfills::register( 'consumer-with-modules', array( '@wordpress/boot' ) );
+		$this->assertTrue(
+			$this->is_module_registered( '@wordpress/boot' ),
+			'@wordpress/boot must register for a later consumer even after an earlier synchronous run.'
+		);
+	}
+
+	/**
 	 * Test that get_consumers returns the correct consumer map.
 	 */
 	public function test_get_consumers_tracks_polyfill_consumers() {
