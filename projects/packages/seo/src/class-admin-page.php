@@ -163,7 +163,7 @@ class Admin_Page {
 		// is never gated (see Initializer::is_gated()). The upsell URL is only meaningful
 		// when gated, so it's built only then — every ungated and self-hosted admin load
 		// otherwise pays for a site-suffix lookup it never uses.
-		$is_gated                                        = Initializer::is_gated();
+		$is_gated                                       = Initializer::is_gated();
 		$data[ Initializer::SCRIPT_DATA_KEY ]['gating'] = array(
 			'is_gated'   => $is_gated,
 			'upsell_url' => $is_gated ? Initializer::get_upsell_url() : '',
