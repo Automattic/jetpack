@@ -67,6 +67,10 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 
 		$this->original_wp_version        = $GLOBALS['wp_version'];
 		$this->original_wp_script_modules = $GLOBALS['wp_script_modules'] ?? null;
+
+		// Ensure each test starts with a fresh WP_Scripts singleton.
+		unset( $GLOBALS['wp_scripts'], $GLOBALS['wp_actions']['wp_default_scripts'] );
+		remove_all_actions( 'wp_default_scripts' );
 	}
 
 	/**
@@ -601,23 +605,53 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	 * consumer already triggered the synchronous registration path.
 	 */
 	public function test_register_registers_late_consumer_modules_after_wp_default_scripts() {
-		// Mirror an admin request where scripts are touched before our consumers run.
-		wp_scripts();
+		// Mirror an admin request where scripts were already touched before our
+		// consumers run. Pre-seed the WP_Scripts singleton ourselves.
+		$GLOBALS['wp_scripts']                       = $this->create_clean_scripts();
+		$GLOBALS['wp_script_modules']                = new \WP_Script_Modules();
+		$GLOBALS['wp_actions']['wp_default_scripts'] = 1;
 		$this->assertTrue( (bool) did_action( 'wp_default_scripts' ), 'Precondition: wp_default_scripts must have fired.' );
 
-		// First consumer requests classic scripts only (mirrors the connection package).
-		WP_Build_Polyfills::register( 'consumer-scripts-only', array( 'wp-theme', 'wp-private-apis' ) );
-		$this->assertFalse(
-			$this->is_module_registered( '@wordpress/boot' ),
-			'@wordpress/boot should not be registered until a consumer requests it.'
+		$modules_dir = dirname( __DIR__, 2 ) . '/build/modules/boot';
+		$asset_file  = $modules_dir . '/index.asset.php';
+		$original    = file_exists( $asset_file ) ? file_get_contents( $asset_file ) : null;
+
+		if ( ! is_dir( $modules_dir ) ) {
+			mkdir( $modules_dir, 0755, true );
+		}
+		file_put_contents(
+			$asset_file,
+			'<?php return ' . var_export(
+				array(
+					'dependencies'        => array(),
+					'version'             => '9.9.9',
+					'module_dependencies' => array(),
+				),
+				true
+			) . ";\n"
 		);
 
-		// Second consumer requests the boot module (mirrors the Social dashboard).
-		WP_Build_Polyfills::register( 'consumer-with-modules', array( '@wordpress/boot' ) );
-		$this->assertTrue(
-			$this->is_module_registered( '@wordpress/boot' ),
-			'@wordpress/boot must register for a later consumer even after an earlier synchronous run.'
-		);
+		try {
+			// First consumer requests classic scripts only.
+			WP_Build_Polyfills::register( 'consumer-scripts-only', array( 'wp-theme', 'wp-private-apis' ) );
+			$this->assertFalse(
+				$this->is_module_registered( '@wordpress/boot' ),
+				'@wordpress/boot should not be registered until a consumer requests it.'
+			);
+
+			// Second consumer requests the boot module.
+			WP_Build_Polyfills::register( 'consumer-with-modules', array( '@wordpress/boot' ) );
+			$this->assertTrue(
+				$this->is_module_registered( '@wordpress/boot' ),
+				'@wordpress/boot must register for a later consumer even after an earlier synchronous run.'
+			);
+		} finally {
+			if ( null === $original ) {
+				unlink( $asset_file );
+			} else {
+				file_put_contents( $asset_file, $original );
+			}
+		}
 	}
 
 	/**
