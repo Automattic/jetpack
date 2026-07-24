@@ -663,6 +663,30 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The master gate is final on the preview surface: with master off, a late
+	 * jetpack_ai_sidebar_enabled filter cannot re-open the gate, matching
+	 * is_ai_enabled() making the host and master gates final for plugin load
+	 * points.
+	 */
+	public function test_init_does_nothing_when_master_off_despite_late_filter() {
+		update_option( \Jetpack_AI_Settings::MASTER_OPTION, 0 );
+		add_filter( 'jetpack_ai_sidebar_enabled', '__return_true', 999 );
+
+		Jetpack_AI_Sidebar::init();
+
+		delete_option( \Jetpack_AI_Settings::MASTER_OPTION );
+
+		$this->assertFalse(
+			has_filter( 'agents_manager_agent_providers', array( Jetpack_AI_Sidebar::class, 'register_provider' ) ),
+			'register_provider should not be hooked when master is off, even with a late filter forcing the gate.'
+		);
+		$this->assertFalse(
+			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_toolbar_button_extension' ) ),
+			'register_toolbar_button_extension should not be hooked when master is off.'
+		);
+	}
+
+	/**
 	 * With both feature toggles off, init() registers nothing — the sidebar
 	 * bundle, provider registration, and enqueue hooks all stay out.
 	 */

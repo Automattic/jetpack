@@ -462,8 +462,11 @@ class Jetpack_AI_Sidebar {
 		$enabled = (bool) apply_filters( 'jetpack_ai_sidebar_enabled', $enabled );
 
 		// Re-asserted after the filter so a later filter cannot surface a
-		// sidebar whose features are all off.
-		return $enabled && self::has_enabled_sidebar_features();
+		// sidebar whose features are all off, or one blocked by the host or
+		// master gates — the gates are final, as with is_ai_enabled().
+		return $enabled
+			&& \Jetpack_AI_Settings::apply_master_gates( true )
+			&& self::has_enabled_sidebar_features();
 	}
 
 	/**
