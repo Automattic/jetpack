@@ -5,7 +5,7 @@ import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import { Notice } from '@wordpress/ui';
+import { Notice, Stack } from '@wordpress/ui';
 import EnableSeoCard from '../../components/enable-seo-card';
 import UpsellBanner from '../../components/upsell-banner';
 import { aiStore } from '../../data/ai-store';
@@ -68,7 +68,9 @@ const OverviewScreen: FC = () => {
 	// content-coverage cards and the disable control are paid surfaces, hidden here.
 	if ( isGated() ) {
 		return (
-			<div className={ styles.root }>
+			// Column Stack (matching the Settings tab) so the upsell banner has space
+			// above the cards rather than butting against them.
+			<Stack direction="column" gap="lg" className={ styles.root }>
 				<UpsellBanner />
 				<div className={ styles.grid }>
 					<SiteVisibilityCard
@@ -85,7 +87,7 @@ const OverviewScreen: FC = () => {
 						onManage={ () => goToSection( 'verification' ) }
 					/>
 				</div>
-			</div>
+			</Stack>
 		);
 	}
 
