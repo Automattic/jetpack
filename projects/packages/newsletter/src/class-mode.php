@@ -107,6 +107,10 @@ class Mode {
 		add_action( 'admin_enqueue_scripts', array( self::class, 'maybe_enqueue_mode_assets' ) );
 		add_action( 'admin_footer', array( self::class, 'maybe_render_mode_header' ) );
 
+		// Mark the Subscribers / Settings nav item as current. Unlike the mode's
+		// own pages, those two can only be resolved client side.
+		add_action( 'admin_footer', array( self::class, 'maybe_highlight_newsletter_nav_item' ) );
+
 		// Let the mu-wpcom Write editor's back button return to the Newsletter
 		// page (the "Write & send" link passes source=newsletter).
 		add_filter( 'wpcom_write_back_destinations', array( self::class, 'add_write_back_destination' ) );
@@ -212,11 +216,11 @@ class Mode {
 	 * When the mode is enabled, add a top-level "Newsletters" menu link and hide
 	 * the default "Jetpack → Newsletter" submenu so there is no duplicate entry.
 	 *
-	 * The top-level item uses the Newsletter page URL as its menu slug, so it
-	 * deep-links to the page Settings already registers — no new page or render
-	 * callback is created here. Core add_menu_page() is used deliberately: the
-	 * admin-ui Admin_Menu wrapper only creates submenus under `jetpack`, never a
-	 * new top-level root.
+	 * The top-level item uses a page URL as its menu slug, so it deep-links to
+	 * the mode's Dashboard (the landing surface) rather than creating another
+	 * page or render callback here. Core add_menu_page() is used deliberately:
+	 * the admin-ui Admin_Menu wrapper only creates submenus under `jetpack`,
+	 * never a new top-level root.
 	 *
 	 * @return void
 	 */
@@ -235,7 +239,7 @@ class Mode {
 			__( 'Newsletters', 'jetpack-newsletter' ),
 			__( 'Newsletters', 'jetpack-newsletter' ),
 			'manage_options',
-			'admin.php?page=' . Settings::ADMIN_PAGE_SLUG,
+			'admin.php?page=' . self::PAGE_DASHBOARD,
 			'',
 			'dashicons-email',
 			3.9
@@ -292,16 +296,22 @@ class Mode {
 			remove_menu_page( $slug );
 		}
 
-		$newsletter_url = 'admin.php?page=' . Settings::ADMIN_PAGE_SLUG;
+		$nav = self::get_nav_slugs();
 
 		// The exit affordance is the chevron in the injected "Newsletters" header
 		// (see maybe_render_mode_header), not a menu item.
+		//
+		// Dashboard and Paid pass their render callbacks here because taking their
+		// bare page slug as the menu slug moves their page hook from
+		// `admin_page_<slug>` (set by the hidden registration in
+		// maybe_register_admin_menu) to `toplevel_page_<slug>`; without the
+		// callback on the item that owns the slug, the page would render empty.
 		add_menu_page(
 			__( 'Dashboard', 'jetpack-newsletter' ),
 			__( 'Dashboard', 'jetpack-newsletter' ),
 			'manage_options',
-			'admin.php?page=' . self::PAGE_DASHBOARD,
-			'',
+			$nav['dashboard'],
+			array( self::class, 'render_dashboard_page' ),
 			'none',
 			3
 		);
@@ -318,7 +328,7 @@ class Mode {
 			__( 'Subscribers', 'jetpack-newsletter' ),
 			__( 'Subscribers', 'jetpack-newsletter' ),
 			'manage_options',
-			$newsletter_url,
+			$nav['subscribers'],
 			'',
 			'none',
 			5
@@ -336,8 +346,8 @@ class Mode {
 			__( 'Paid', 'jetpack-newsletter' ),
 			__( 'Paid', 'jetpack-newsletter' ),
 			'manage_options',
-			'admin.php?page=' . self::PAGE_PAID,
-			'',
+			$nav['paid'],
+			array( self::class, 'render_paid_page' ),
 			'none',
 			7
 		);
@@ -345,13 +355,43 @@ class Mode {
 			__( 'Settings', 'jetpack-newsletter' ),
 			__( 'Settings', 'jetpack-newsletter' ),
 			'manage_options',
-			// The SPA router encodes its path+search into a single `p` param, so
-			// encode the value rather than letting the nested `?`/`&` be parsed as
-			// separate query args.
-			$newsletter_url . '&p=' . rawurlencode( '/?tab=settings' ),
+			$nav['settings'],
 			'',
 			'none',
 			8
+		);
+	}
+
+	/**
+	 * The menu slugs of the curated nav's plugin-page items, keyed by surface.
+	 *
+	 * The mode's own pages use their bare page slug. That is what makes them
+	 * highlight when current: core resolves the active top-level item by looking
+	 * for a `$menu` entry whose slug equals the current `?page=` value (see
+	 * get_admin_page_parent(), called from wp-admin/menu-header.php), then
+	 * compares that back against each item's slug in _wp_menu_output(). A
+	 * link-style `admin.php?page=…` slug matches neither test, so such an item can
+	 * never be marked current — it always renders `wp-not-current-submenu`.
+	 *
+	 * The two Newsletter-page entries keep the link-style form deliberately: that
+	 * page is registered and rendered by Settings, and claiming its slug here
+	 * would repoint its page hook and drop the `load-{$page_suffix}` binding that
+	 * loads its assets. They are marked current in
+	 * maybe_highlight_newsletter_nav_item() instead.
+	 *
+	 * @return array<string, string>
+	 */
+	private static function get_nav_slugs() {
+		$newsletter_url = 'admin.php?page=' . Settings::ADMIN_PAGE_SLUG;
+
+		return array(
+			'dashboard'   => self::PAGE_DASHBOARD,
+			'subscribers' => $newsletter_url,
+			'paid'        => self::PAGE_PAID,
+			// The SPA router encodes its path+search into a single `p` param, so
+			// encode the value rather than letting the nested `?`/`&` be parsed as
+			// separate query args.
+			'settings'    => $newsletter_url . '&p=' . rawurlencode( '/?tab=settings' ),
 		);
 	}
 
@@ -720,6 +760,76 @@ class Mode {
 				wp_json_encode( $write_markup, JSON_HEX_TAG | JSON_HEX_AMP ),
 				wp_json_encode( $header_markup, JSON_HEX_TAG | JSON_HEX_AMP )
 			)
+		);
+	}
+
+	/**
+	 * Mark the Subscribers or Settings nav item as the current one.
+	 *
+	 * These two items are the exception to the bare-slug registration that makes
+	 * Dashboard and Paid highlight natively (see get_nav_slugs). They address the
+	 * same page — `page=jetpack-newsletter`, owned by Settings — and are told
+	 * apart only by the SPA route, so at least one of them has to keep a
+	 * link-style slug to carry its `p=` deep link, and a link-style slug can
+	 * never match core's current-item lookup. Claiming the page's bare slug for
+	 * the other would repoint its page hook away from the `load-{$page_suffix}`
+	 * binding Settings uses to load the page's assets.
+	 *
+	 * Resolving it here also keeps the highlight correct when the in-page tabs
+	 * switch between Subscribers and Settings, which a server-rendered menu
+	 * cannot follow: the SPA changes the route without a reload.
+	 *
+	 * @return void
+	 */
+	public static function maybe_highlight_newsletter_nav_item() {
+		if ( ! self::is_mode_surface() || ! isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only page routing.
+		if ( sanitize_text_field( wp_unslash( $_GET['page'] ) ) !== Settings::ADMIN_PAGE_SLUG ) {
+			return;
+		}
+
+		// Same selectors the icon CSS uses (see get_menu_icon_css): Subscribers is
+		// the bare Newsletter page URL, Settings the one carrying the tab route.
+		wp_print_inline_script_tag(
+			'( function () {' .
+				'var menu = document.getElementById( "adminmenu" );' .
+				'if ( ! menu ) { return; }' .
+				'var subscribers = menu.querySelector( \'a[href$="page=jetpack-newsletter"]\' );' .
+				'var settings = menu.querySelector( \'a[href*="jetpack-newsletter"][href*="settings"]\' );' .
+				'if ( ! subscribers || ! settings ) { return; }' .
+				'function mark( link, isCurrent ) {' .
+					'[ link.parentNode, link ].forEach( function ( el ) {' .
+						'el.classList.toggle( "current", isCurrent );' .
+						'el.classList.toggle( "wp-not-current-submenu", ! isCurrent );' .
+					'} );' .
+					'if ( isCurrent ) { link.setAttribute( "aria-current", "page" ); }' .
+					'else { link.removeAttribute( "aria-current" ); }' .
+				'}' .
+				'function apply() {' .
+					'var search = window.location.search;' .
+					// The route is percent-encoded inside `p`; a malformed value
+					// must not take the whole menu down.
+					'try { search = decodeURIComponent( search ); } catch ( e ) {}' .
+					'var onSettings = search.indexOf( "tab=settings" ) !== -1;' .
+					'mark( settings, onSettings );' .
+					'mark( subscribers, ! onSettings );' .
+				'}' .
+				'apply();' .
+				// The SPA routes with history calls, which fire no event of their
+				// own — wrap them so an in-page tab switch re-runs the match.
+				'window.addEventListener( "popstate", apply );' .
+				'[ "pushState", "replaceState" ].forEach( function ( name ) {' .
+					'var original = window.history[ name ];' .
+					'window.history[ name ] = function () {' .
+						'var result = original.apply( this, arguments );' .
+						'apply();' .
+						'return result;' .
+					'};' .
+				'} );' .
+			'}() );'
 		);
 	}
 
