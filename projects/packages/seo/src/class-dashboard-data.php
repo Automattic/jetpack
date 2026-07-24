@@ -230,7 +230,6 @@ class Dashboard_Data {
 
 		$is_connected = false;
 		if ( class_exists( 'Automattic\\Jetpack\\Connection\\Manager' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded; Connection package is provided by the host plugin.
 			$is_connected = ( new \Automattic\Jetpack\Connection\Manager() )->is_user_connected();
 		}
 
@@ -256,10 +255,10 @@ class Dashboard_Data {
 	public static function get_ai_data() {
 		$filter_on = (bool) apply_filters( 'ai_seo_enhancer_enabled', true );
 
-		// Current_Plan is provided by the host Jetpack plugin, not a package
-		// dependency — guard like the Jetpack_SEO_* helpers above.
+		// Current_Plan comes from the jetpack-plans package (a dependency of this
+		// package since the plan-gating work), so it's always available here; the
+		// class_exists guard is kept as belt-and-suspenders for older bundled snapshots.
 		$plan_supports = class_exists( 'Automattic\\Jetpack\\Current_Plan' )
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- guarded by class_exists; host plugin provides the class.
 			&& \Automattic\Jetpack\Current_Plan::supports( 'ai-seo-enhancer' );
 
 		return array(
