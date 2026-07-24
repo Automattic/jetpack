@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Migrate Settings styles to CSS Modules and reuse WPUI components without changing user-facing behavior.
+

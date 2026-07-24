@@ -421,11 +421,9 @@ describe( 'useConnectionPreviewData', () => {
 		expect( result.current.isLoading ).toBe( false );
 	} );
 
-	it( 'ignores rendered message when MESSAGE_TEMPLATES feature is off', () => {
+	it( 'ignores rendered message when the site lacks paid features', () => {
 		mockSelectCalls( { rendered: 'Should not be used', isLoadingRendered: true } );
-		mockSiteHasFeature.mockImplementation(
-			( feature: string ) => feature !== 'social-message-templates'
-		);
+		mockSiteHasFeature.mockReturnValue( false );
 		mockUseRenderMessageInputs.mockReturnValue( {
 			items: [
 				{

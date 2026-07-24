@@ -5,7 +5,8 @@
 import { TextControl } from '@wordpress/components';
 import { useCallback, useMemo, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Badge, Button, Card, CollapsibleCard, Stack } from '@wordpress/ui';
+import { Badge, Button, Card, CollapsibleCard, Stack, Text } from '@wordpress/ui';
+import getSite from '../../data/get-site';
 import {
 	PAGE_TYPES,
 	PAGE_TYPE_SUGGESTIONS,
@@ -15,7 +16,7 @@ import {
 	stringToTokens,
 	tokensToString,
 } from '../../data/title-format-tokens';
-import './style.scss';
+import styles from './title-structure-field.module.scss';
 import type { TitleFormatToken } from '../../data/settings-types';
 import type { FC } from 'react';
 
@@ -34,6 +35,7 @@ interface RowProps {
 	onChange: ( next: TitleFormatToken[] ) => void;
 	onSave: () => void;
 	canSave: boolean;
+	previewOverrides: Partial< Record< string, string > >;
 	disabled?: boolean;
 }
 
@@ -59,12 +61,16 @@ const TitleStructureRow: FC< RowProps > = ( {
 	onChange,
 	onSave,
 	canSave,
+	previewOverrides,
 	disabled,
 } ) => {
 	const inputRef = useRef< HTMLInputElement | null >( null );
 	const value = useMemo( () => tokensToString( tokens ), [ tokens ] );
 	const allowed = PAGE_TYPE_TOKENS[ pageTypeId ];
-	const preview = useMemo( () => buildPreview( tokens ), [ tokens ] );
+	const preview = useMemo(
+		() => buildPreview( tokens, previewOverrides ),
+		[ tokens, previewOverrides ]
+	);
 
 	const setFromString = useCallback(
 		( next: string ) => onChange( stringToTokens( next, allowed ) ),
@@ -91,7 +97,7 @@ const TitleStructureRow: FC< RowProps > = ( {
 	);
 
 	return (
-		<div className="jetpack-seo-settings__title-row">
+		<Stack direction="column" gap="md" className={ styles.row }>
 			<TextControl
 				ref={ inputRef }
 				label={ label }
@@ -101,8 +107,10 @@ const TitleStructureRow: FC< RowProps > = ( {
 				__next40pxDefaultSize
 				__nextHasNoMarginBottom
 			/>
-			<div className="jetpack-seo-settings__title-tokens">
-				<span className="jetpack-seo-settings__title-tokens-label">{ insertLabel }</span>
+			<Stack direction="column" gap="xs">
+				<Text variant="body-sm" className={ styles.muted }>
+					{ insertLabel }
+				</Text>
 				<Stack direction="row" gap="xs" wrap="wrap">
 					{ PAGE_TYPE_SUGGESTIONS[ pageTypeId ].map( tokenId => (
 						<Button
@@ -117,20 +125,18 @@ const TitleStructureRow: FC< RowProps > = ( {
 						</Button>
 					) ) }
 				</Stack>
-			</div>
-			<div className="jetpack-seo-settings__title-footer">
+			</Stack>
+			<Stack direction="row" align="flex-start" gap="lg">
 				{ tokens.length > 0 && (
-					<div className="jetpack-seo-settings__preview">
+					<Text variant="body-md" className={ styles.preview }>
 						<strong>{ previewLabel }:</strong> { preview }
-					</div>
+					</Text>
 				) }
-				<div className="jetpack-seo-settings__save">
-					<Button onClick={ onSave } disabled={ disabled || ! canSave }>
-						{ saveLabel }
-					</Button>
-				</div>
-			</div>
-		</div>
+				<Button className={ styles.save } onClick={ onSave } disabled={ disabled || ! canSave }>
+					{ saveLabel }
+				</Button>
+			</Stack>
+		</Stack>
 	);
 };
 
@@ -162,6 +168,17 @@ const TitleStructureField: FC< Props > = ( {
 } ) => {
 	const customizedCount = PAGE_TYPES.filter( pt => ( formats[ pt.id ]?.length ?? 0 ) > 0 ).length;
 
+	// Fill the site-wide placeholders in each row's preview with the site's real
+	// name and tagline (bootstrapped in `seo.site`). Coalesce to '' when the site
+	// data is absent so the empty value falls through to the sample text in
+	// `buildPreview`. Per-page tokens like [Post title] keep their representative
+	// samples since they vary per page.
+	const site = getSite();
+	const previewOverrides = useMemo(
+		() => ( { site_name: site?.title ?? '', tagline: site?.tagline ?? '' } ),
+		[ site?.title, site?.tagline ]
+	);
+
 	return (
 		<CollapsibleCard.Root defaultOpen={ false }>
 			<CollapsibleCard.Header>
@@ -190,6 +207,7 @@ const TitleStructureField: FC< Props > = ( {
 							onChange={ next => onChange( pt.id, next ) }
 							onSave={ () => onSaveFormat( pt.id ) }
 							canSave={ isFormatDirty( pt.id ) }
+							previewOverrides={ previewOverrides }
 							disabled={ disabled }
 						/>
 					) ) }

@@ -39,11 +39,11 @@
 		"@wordpress/browserslist-config": "6.51.0",
 		"autoprefixer": "10.4.20",
 		"glob": "13.0.6",
-		"postcss": "8.5.14",
+		"postcss": "8.5.21",
 		"postcss-loader": "8.2.0",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
 		"webpack": "5.107.2",
-		"webpack-cli": "6.0.1"
+		"webpack-cli": "7.2.1"
 	}
 }

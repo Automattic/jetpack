@@ -1,5 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { isSimpleSite, siteHasFeature } from '@automattic/jetpack-script-data';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { getSiteFragment, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useDebounce } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -12,10 +12,9 @@ import {
 } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
-import { useIsDashboard } from '../../../hooks/use-is-dashboard';
 import { store as socialStore } from '../../../social-store';
 import { Connection } from '../../../social-store/types';
-import { features } from '../../../utils/constants';
+import { hasSocialPaidFeatures } from '../../../utils';
 import { MessageTemplateEditor } from '../../message-template-editor';
 import styles from './style.module.scss';
 
@@ -42,13 +41,10 @@ const NOOP = () => {};
 /**
  * Per-connection message template editor.
  *
- * The per-connection message area only exists once the `social-message-templates`
- * engine is enabled (currently a rollout flag, not a purchasable plan feature),
- * so the component renders nothing for every connection until then. With the
- * engine on, it renders the live editor when the site also has the
- * `social-enhanced-publishing` paid plan and the user can manage the connection,
- * or — in the Social dashboard only — a disabled-textarea variant with an
- * Upgrade link for plan tiers that lack per-connection customization.
+ * Renders the live editor when the site has social paid features and the user
+ * can manage the connection. On plan tiers without paid features it renders a
+ * disabled-textarea variant with an Upgrade link showing the global default
+ * message; Simple sites render nothing.
  *
  * @param {ConnectionTemplateEditorProps} props - The component's props.
  * @return The rendered editor, its locked upsell variant, or null.
@@ -56,19 +52,13 @@ const NOOP = () => {};
 export function ConnectionTemplateEditor( props: ConnectionTemplateEditorProps ) {
 	const { connection } = props;
 
-	const isDashboard = useIsDashboard();
-
 	const { canManageConnection, globalTemplate } = useSelect(
 		select => ( {
 			canManageConnection: select( socialStore ).canUserManageConnection( connection ),
-			// Only the Social dashboard renders the gated upsell, which is the
-			// only consumer of the global default message. Keeping this read out
-			// of the legacy path preserves the trunk data dependencies exactly.
-			globalTemplate: isDashboard
-				? select( socialStore ).getSocialSettings().messageTemplate ?? ''
-				: '',
+			// The upsell variant shows the site's default message.
+			globalTemplate: select( socialStore ).getSocialSettings().messageTemplate ?? '',
 		} ),
-		[ connection, isDashboard ]
+		[ connection ]
 	);
 
 	const { recordEvent } = useAnalytics();
@@ -117,25 +107,10 @@ export function ConnectionTemplateEditor( props: ConnectionTemplateEditorProps )
 		return null;
 	}
 
-	// The message-templates engine is a rollout flag (a WPCOM blog sticker), not
-	// a purchasable plan feature, so no plan unlocks it. Hide the per-connection
-	// message area entirely until the engine is on — otherwise every site,
-	// including paid plans that already have `social-enhanced-publishing`, sees a
-	// misleading "upgrade your plan" upsell for something no plan can unlock.
-	// Once the engine ships the area appears and the plan-based upsell below
-	// becomes meaningful again.
-	if ( ! siteHasFeature( features.MESSAGE_TEMPLATES ) ) {
-		return null;
-	}
-
-	const planEnabled = siteHasFeature( features.ENHANCED_PUBLISHING );
-
-	if ( ! planEnabled ) {
-		// Engine is on but the site's plan tier lacks per-connection
-		// customization; surface the upgrade path. Ships only in the Social
-		// dashboard — the block editor keeps the trunk behavior (no editor when
-		// the plan is missing).
-		if ( ! isDashboard || isSimpleSite() ) {
+	if ( ! hasSocialPaidFeatures() ) {
+		// The site's plan tier lacks per-connection customization; surface the
+		// upgrade path. Simple sites render nothing.
+		if ( isSimpleSite() ) {
 			return null;
 		}
 

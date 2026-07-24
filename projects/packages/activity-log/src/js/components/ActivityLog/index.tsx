@@ -7,11 +7,13 @@
  * until #48236 lands.
  */
 import { AdminPage } from '@automattic/jetpack-components';
-import {
+// Deep imports (not the package barrel): wp-build's esbuild bundles the whole
+// re-export graph of a barrel, and the connection barrel pulls in the
+// disconnect-dialog's `.jpg` imports, which esbuild has no loader for.
+import CONNECTION_STORE_ID from '@automattic/jetpack-connection/state/store-id';
+import useConnectionErrorNotice, {
 	ConnectionError,
-	useConnectionErrorNotice,
-	CONNECTION_STORE_ID,
-} from '@automattic/jetpack-connection';
+} from '@automattic/jetpack-connection/use-connection-error-notice';
 import { useQuery } from '@tanstack/react-query';
 import { useDispatch } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';

@@ -4,7 +4,6 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Tabs, Tooltip } from '@wordpress/ui';
-import { DashboardProvider } from '../hooks/use-is-dashboard';
 import SocialGate from './social-gate';
 import useSocialGate from './social-gate/use-social-gate';
 // Define the `--jetpack-social-logo-color-facebook`, `--jetpack-social-logo-color-twitter`,
@@ -89,44 +88,42 @@ export default function SocialPage( {
 	);
 
 	return (
-		<DashboardProvider>
-			<Tooltip.Provider delay={ 0 }>
-				<AdminPage
-					apiRoot={ getSiteData()?.rest_root }
-					apiNonce={ getSiteData()?.rest_nonce }
-					title={ PRODUCT_NAME }
-					subTitle={ SUBTITLES[ activeTab ]() }
-					actions={ headerActions }
-				>
-					<SocialGate gate={ gate } onDismissPricing={ dismissPricing }>
-						{ showTabs ? (
-							<Tabs.Root
-								className="jetpack-social-tabs"
-								value={ activeTab }
-								onValueChange={ onTabChange }
-							>
-								<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
-									<Tabs.List variant="minimal">
-										<Tabs.Tab value="overview">
-											{ __( 'Overview', 'jetpack-publicize-pkg' ) }
-										</Tabs.Tab>
-										<Tabs.Tab value="settings">
-											{ __( 'Settings', 'jetpack-publicize-pkg' ) }
-										</Tabs.Tab>
-									</Tabs.List>
-								</div>
-								<div className="jetpack-social-page__content jetpack-social-page__content--padded">
-									{ children }
-								</div>
-							</Tabs.Root>
-						) : (
+		<Tooltip.Provider delay={ 0 }>
+			<AdminPage
+				apiRoot={ getSiteData()?.rest_root }
+				apiNonce={ getSiteData()?.rest_nonce }
+				title={ PRODUCT_NAME }
+				subTitle={ SUBTITLES[ activeTab ]() }
+				actions={ headerActions }
+			>
+				<SocialGate gate={ gate } onDismissPricing={ dismissPricing }>
+					{ showTabs ? (
+						<Tabs.Root
+							className="jetpack-social-tabs"
+							value={ activeTab }
+							onValueChange={ onTabChange }
+						>
+							<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
+								<Tabs.List variant="minimal">
+									<Tabs.Tab value="overview">
+										{ __( 'Overview', 'jetpack-publicize-pkg' ) }
+									</Tabs.Tab>
+									<Tabs.Tab value="settings">
+										{ __( 'Settings', 'jetpack-publicize-pkg' ) }
+									</Tabs.Tab>
+								</Tabs.List>
+							</div>
 							<div className="jetpack-social-page__content jetpack-social-page__content--padded">
 								{ children }
 							</div>
-						) }
-					</SocialGate>
-				</AdminPage>
-			</Tooltip.Provider>
-		</DashboardProvider>
+						</Tabs.Root>
+					) : (
+						<div className="jetpack-social-page__content jetpack-social-page__content--padded">
+							{ children }
+						</div>
+					) }
+				</SocialGate>
+			</AdminPage>
+		</Tooltip.Provider>
 	);
 }

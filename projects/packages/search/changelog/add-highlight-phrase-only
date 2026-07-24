@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Search: add highlightPhraseOnly and highlightFilterStopwords Instant Search options for highlight API params.

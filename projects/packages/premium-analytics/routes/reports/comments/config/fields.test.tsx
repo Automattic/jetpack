@@ -87,6 +87,8 @@ describe( 'comments fields', () => {
 		expect( link ).not.toHaveAttribute( 'target' );
 	} );
 
+	// This link is built locally in `use-report-records` from the author's email, so it is
+	// document-relative by construction and must not be run through `safeHttpUrl`.
 	it( 'falls back to the external link for rows without a post id', () => {
 		renderLabelField( {
 			id: 'author-aggie',
@@ -98,5 +100,12 @@ describe( 'comments fields', () => {
 		const link = screen.getByRole( 'link', { name: 'Aggie' } );
 		expect( link ).toHaveAttribute( 'href', 'edit-comments.php?s=aggie%40example.com' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
+	} );
+
+	it( 'renders a row without a link as plain text', () => {
+		renderLabelField( { id: 'post-untitled', label: 'Untitled', value: 1 } );
+
+		expect( screen.getByText( 'Untitled' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 } );

@@ -4,13 +4,15 @@ import { TextareaControl, ToggleControl } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
-import { Badge, Button, Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui';
+import { Badge, Button, Card, CollapsibleCard, Link, Notice, Stack, Text } from '@wordpress/ui';
+import UpsellBanner from '../../components/upsell-banner';
+import { isGated } from '../../data/is-gated';
 import AuthorProfileCard from './author-profile-card';
 import SchemaCard from './schema-card';
 import SocialPreviewsCard from './social-previews-card';
+import styles from './style.module.scss';
 import TitleStructureField from './title-structure-field';
 import VerificationCard from './verification-card';
-import './style.scss';
 import type { SettingsForm } from '../../data/use-settings';
 import type { FC } from 'react';
 
@@ -68,7 +70,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	} = form;
 
 	// Overview deep links (`?focus=visibility|verification`) scroll the matching
-	// section to its top. `scroll-margin-top` on the section (style.scss) clears
+	// section to its top. `scroll-margin-block-start` on the section's module clears
 	// the fixed header + sticky tabs so the section title stays visible.
 	// Bound to the Settings route id (`/settings`); the screen only renders there.
 	const search = useSearch( {
@@ -109,9 +111,51 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	const visibilityEnabledCount =
 		( local.search_engines_visible ? 1 : 0 ) + ( sitemapEffectivelyOn ? 1 : 0 );
 
+	// On plan-gated sites (below-Premium WordPress.com) the Settings tab keeps only
+	// the two always-valid sections (site visibility + verification, both backed by
+	// core WordPress options) topped with the upsell banner. Schema, author profile,
+	// canonical URLs, title structure and social previews are paid surfaces, hidden
+	// here. The front-page description is the one exception: a site that set it back
+	// when it was free for all WordPress.com Simple sites keeps editing it even when
+	// gated (the value stays live), so its card is shown below in that case too.
+	const gated = isGated();
+
+	const frontPageDescriptionCard = (
+		<CollapsibleCard.Root defaultOpen={ false }>
+			<CollapsibleCard.Header>
+				<Stack direction="row" justify="space-between" align="center" gap="sm">
+					<Card.Title>{ __( 'Front-page description', 'jetpack-seo' ) }</Card.Title>
+					<Badge intent={ local.front_page_description ? 'stable' : 'draft' }>
+						{ local.front_page_description ? setLabel : notSetLabel }
+					</Badge>
+				</Stack>
+			</CollapsibleCard.Header>
+			<CollapsibleCard.Content>
+				<Stack direction="column" gap="md">
+					<TextareaControl
+						label={ __( 'Meta description shown on the home page', 'jetpack-seo' ) }
+						value={ local.front_page_description }
+						onChange={ next => setField( { front_page_description: next } ) }
+						rows={ 3 }
+						disabled={ isSaving }
+						__nextHasNoMarginBottom
+					/>
+					<Stack direction="row" justify="flex-end">
+						<Button
+							onClick={ () => commitFields( [ 'front_page_description' ] ) }
+							disabled={ isSaving || ! isDirty( [ 'front_page_description' ] ) }
+						>
+							{ saveLabel }
+						</Button>
+					</Stack>
+				</Stack>
+			</CollapsibleCard.Content>
+		</CollapsibleCard.Root>
+	);
+
 	return (
-		<div className="jetpack-seo-settings">
-			<div id="visibility" className="jetpack-seo-settings__section">
+		<Stack direction="column" gap="lg" className={ styles.root }>
+			<div id="visibility" className={ styles.section }>
 				<CollapsibleCard.Root defaultOpen>
 					<CollapsibleCard.Header>
 						<Stack direction="row" justify="space-between" align="center" gap="sm">
@@ -139,7 +183,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 								disabled={ isSaving }
 								__nextHasNoMarginBottom
 							/>
-							<div className="jetpack-seo-settings__sitemap-field">
+							<Stack direction="column" gap="xs">
 								<ToggleControl
 									label={ __( 'Generate an XML sitemap', 'jetpack-seo' ) }
 									help={ local.search_engines_visible ? sitemapHelp : sitemapBlockedHelp }
@@ -154,7 +198,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 								{ sitemapEffectivelyOn &&
 									( local.sitemap_url ? (
 										<Link
-											className="jetpack-seo-settings__sitemap-link"
+											className={ styles.sitemapLink }
 											href={ local.sitemap_url }
 											openInNewTab
 											rel="noopener noreferrer"
@@ -162,17 +206,17 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 											{ sitemapViewLabel }
 										</Link>
 									) : (
-										<span className="jetpack-seo-settings__sitemap-hint">
+										<Text variant="body-sm" className={ styles.sitemapHint }>
 											{ sitemapGeneratingLabel }
-										</span>
+										</Text>
 									) ) }
-							</div>
+							</Stack>
 						</Stack>
 					</CollapsibleCard.Content>
 				</CollapsibleCard.Root>
 			</div>
 
-			<div id="verification" className="jetpack-seo-settings__section">
+			<div id="verification" className={ styles.section }>
 				<VerificationCard
 					value={ local.verification }
 					onChange={ setVerification }
@@ -183,85 +227,72 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 				/>
 			</div>
 
-			{ /* Container for the site-level schema controls delivered by later
-			   issues. Own `id` so it can be deep-linked like `#verification`. */ }
-			<div id="schema" className="jetpack-seo-settings__section">
-				<SchemaCard initialSettings={ local.schema } onSave={ setSchemaSettings } />
-			</div>
+			{ ! gated && (
+				<>
+					{ /* Container for the site-level schema controls delivered by later
+				   issues. Own `id` so it can be deep-linked like `#verification`. */ }
+					<div id="schema" className={ styles.section }>
+						<SchemaCard initialSettings={ local.schema } onSave={ setSchemaSettings } />
+					</div>
 
-			{ /* The signed-in user's Person / ProfilePage schema source — per-user,
-			   unlike the site-level Schema card above. */ }
-			<div id="author-profile" className="jetpack-seo-settings__section">
-				<AuthorProfileCard />
-			</div>
+					{ /* The signed-in user's Person / ProfilePage schema source — per-user,
+				   unlike the site-level Schema card above. */ }
+					<div id="author-profile" className={ styles.section }>
+						<AuthorProfileCard />
+					</div>
 
-			<CollapsibleCard.Root defaultOpen={ false }>
-				<CollapsibleCard.Header>
-					<Stack direction="row" justify="space-between" align="center" gap="sm">
-						<Card.Title>{ __( 'Canonical URLs', 'jetpack-seo' ) }</Card.Title>
-						<Badge intent={ local.canonical_active ? 'stable' : 'draft' }>
-							{ local.canonical_active ? enabledLabel : disabledLabel }
-						</Badge>
-					</Stack>
-				</CollapsibleCard.Header>
-				<CollapsibleCard.Content>
-					<ToggleControl
-						label={ __( 'Add canonical URLs to archive pages', 'jetpack-seo' ) }
-						help={ __(
-							'Adds a rel="canonical" link to archive pages, helping search engines identify the preferred URL and avoid indexing duplicate content.',
-							'jetpack-seo'
-						) }
-						checked={ local.canonical_active }
-						onChange={ next => commit( { canonical_active: next } ) }
+					<CollapsibleCard.Root defaultOpen={ false }>
+						<CollapsibleCard.Header>
+							<Stack direction="row" justify="space-between" align="center" gap="sm">
+								<Card.Title>{ __( 'Canonical URLs', 'jetpack-seo' ) }</Card.Title>
+								<Badge intent={ local.canonical_active ? 'stable' : 'draft' }>
+									{ local.canonical_active ? enabledLabel : disabledLabel }
+								</Badge>
+							</Stack>
+						</CollapsibleCard.Header>
+						<CollapsibleCard.Content>
+							<ToggleControl
+								label={ __( 'Add canonical URLs to archive pages', 'jetpack-seo' ) }
+								help={ __(
+									'Adds a rel="canonical" link to archive pages, helping search engines identify the preferred URL and avoid indexing duplicate content.',
+									'jetpack-seo'
+								) }
+								checked={ local.canonical_active }
+								onChange={ next => commit( { canonical_active: next } ) }
+								disabled={ isSaving }
+								__nextHasNoMarginBottom
+							/>
+						</CollapsibleCard.Content>
+					</CollapsibleCard.Root>
+
+					<TitleStructureField
+						formats={ local.title_formats }
+						onChange={ ( pageType, next ) =>
+							setField( { title_formats: { ...local.title_formats, [ pageType ]: next } } )
+						}
+						onSaveFormat={ pageType => commitTitleFormat( pageType ) }
+						isFormatDirty={ pageType => isTitleFormatDirty( pageType ) }
 						disabled={ isSaving }
-						__nextHasNoMarginBottom
 					/>
-				</CollapsibleCard.Content>
-			</CollapsibleCard.Root>
 
-			<TitleStructureField
-				formats={ local.title_formats }
-				onChange={ ( pageType, next ) =>
-					setField( { title_formats: { ...local.title_formats, [ pageType ]: next } } )
-				}
-				onSaveFormat={ pageType => commitTitleFormat( pageType ) }
-				isFormatDirty={ pageType => isTitleFormatDirty( pageType ) }
-				disabled={ isSaving }
-			/>
+					{ frontPageDescriptionCard }
 
-			<CollapsibleCard.Root defaultOpen={ false }>
-				<CollapsibleCard.Header>
-					<Stack direction="row" justify="space-between" align="center" gap="sm">
-						<Card.Title>{ __( 'Front-page description', 'jetpack-seo' ) }</Card.Title>
-						<Badge intent={ local.front_page_description ? 'stable' : 'draft' }>
-							{ local.front_page_description ? setLabel : notSetLabel }
-						</Badge>
-					</Stack>
-				</CollapsibleCard.Header>
-				<CollapsibleCard.Content>
-					<Stack direction="column" gap="md">
-						<TextareaControl
-							label={ __( 'Meta description shown on the home page', 'jetpack-seo' ) }
-							value={ local.front_page_description }
-							onChange={ next => setField( { front_page_description: next } ) }
-							rows={ 3 }
-							disabled={ isSaving }
-							__nextHasNoMarginBottom
-						/>
-						<div className="jetpack-seo-settings__save">
-							<Button
-								onClick={ () => commitFields( [ 'front_page_description' ] ) }
-								disabled={ isSaving || ! isDirty( [ 'front_page_description' ] ) }
-							>
-								{ saveLabel }
-							</Button>
-						</div>
-					</Stack>
-				</CollapsibleCard.Content>
-			</CollapsibleCard.Root>
+					<SocialPreviewsCard description={ local.front_page_description } />
+				</>
+			) }
 
-			<SocialPreviewsCard description={ local.front_page_description } />
-		</div>
+			{ /* Grandfathered exception: a gated site that kept a front-page description
+			   from the era it was free for all Simple sites keeps editing that one
+			   field — the value is still live, and the platform still reads/writes it. */ }
+			{ gated && local.has_legacy_front_page_meta && (
+				<div id="front-page-description" className={ styles.section }>
+					{ frontPageDescriptionCard }
+				</div>
+			) }
+			{ /* Not dismissible, so it sits below the settings rather than pushing them
+			   down; the Stack's lg gap keeps space between it and the last section. */ }
+			{ gated && <UpsellBanner /> }
+		</Stack>
 	);
 };
 
