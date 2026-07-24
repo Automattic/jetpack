@@ -1,12 +1,7 @@
 import { useStatsVideoPlays } from '@jetpack-premium-analytics/data';
 import { renderHook } from '@testing-library/react';
 import { useVideosReportRecords } from './use-report-records';
-import type {
-	ReportParams,
-	StatsNormalizedReport,
-	StatsVideoPlaysComparisonItem,
-	StatsVideoPlaysItem,
-} from '@jetpack-premium-analytics/data';
+import type { ReportParams, StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
@@ -17,52 +12,14 @@ const mockUseStatsVideoPlays = useStatsVideoPlays as jest.MockedFunction<
 	typeof useStatsVideoPlays
 >;
 
-const linkReport: StatsNormalizedReport< StatsVideoPlaysItem > = {
-	summary: {},
-	data: [
-		{
-			time_interval: '2026-07-09',
-			date_start: '2026-07-09T00:00:00+00:00',
-			date_end: '2026-07-09T23:59:59+00:00',
-			items: [
-				{
-					id: 441,
-					label: 'Demo',
-					plays: 7,
-					impressions: 0,
-					watch_time: 0,
-					retention_rate: 0,
-					link: 'https://example.com/video/441',
-					children: null,
-				},
-			],
-		},
-		{
-			time_interval: '2026-07-10',
-			date_start: '2026-07-10T00:00:00+00:00',
-			date_end: '2026-07-10T23:59:59+00:00',
-			items: [
-				{
-					id: 441,
-					label: 'Demo',
-					plays: 6,
-					impressions: 0,
-					watch_time: 0,
-					retention_rate: 0,
-					link: null,
-					children: null,
-				},
-			],
-		},
-	],
-};
-
 const summaryRows: StatsVideoPlaysComparisonItem[] = [
 	{
 		id: 441,
 		label: 'Demo',
 		plays: 13,
+		previousPlays: 0,
 		impressions: 22,
+		previousImpressions: 0,
 		watch_time: 0.04,
 		retention_rate: 64.5,
 		link: null,
@@ -87,51 +44,41 @@ const params: ReportParams = {
 };
 
 /**
- * Configure the daily link-enrichment and complete-stats summary hook calls.
+ * Configure the complete-stats summary hook call.
  *
- * @param options                  - Mocked request state and comparison rows.
- * @param options.rows             - Comparison-aware summary table rows.
- * @param options.hasComparison    - Whether at least one summary row matched.
- * @param options.summaryIsLoading - Whether the complete-stats request is loading.
- * @param options.summaryIsError   - Whether the complete-stats request failed.
- * @return Refetch mocks for both report sources.
+ * @param options               - Mocked request state and comparison rows.
+ * @param options.rows          - Comparison-aware summary table rows.
+ * @param options.hasComparison - Whether at least one summary row matched.
+ * @param options.isLoading     - Whether the summary request is initially loading.
+ * @param options.isFetching    - Whether either summary range is actively fetching.
+ * @param options.isError       - Whether the summary request failed.
+ * @return The summary refetch mock.
  */
-function mockQueries( {
+function mockQuery( {
 	rows = summaryRows,
 	hasComparison = false,
-	summaryIsLoading = false,
-	summaryIsError = false,
+	isLoading = false,
+	isFetching = false,
+	isError = false,
 }: {
 	rows?: StatsVideoPlaysComparisonItem[];
 	hasComparison?: boolean;
-	summaryIsLoading?: boolean;
-	summaryIsError?: boolean;
+	isLoading?: boolean;
+	isFetching?: boolean;
+	isError?: boolean;
 } = {} ) {
-	const linkRefetch = jest.fn();
-	const summaryRefetch = jest.fn();
+	const refetch = jest.fn();
 
-	mockUseStatsVideoPlays.mockImplementation( requestParams => {
-		if ( requestParams.complete_stats ) {
-			return {
-				comparisonRows: { rows, hasComparison },
-				hasComparison,
-				isLoading: summaryIsLoading,
-				isError: summaryIsError,
-				refetch: summaryRefetch,
-			} as unknown as ReturnType< typeof useStatsVideoPlays >;
-		}
+	mockUseStatsVideoPlays.mockReturnValue( {
+		comparisonRows: { rows, hasComparison },
+		hasComparison,
+		isLoading,
+		isFetching,
+		isError,
+		refetch,
+	} as unknown as ReturnType< typeof useStatsVideoPlays > );
 
-		return {
-			primary: { data: linkReport },
-			comparison: { data: undefined },
-			hasComparison: false,
-			isLoading: false,
-			isError: false,
-			refetch: linkRefetch,
-		} as unknown as ReturnType< typeof useStatsVideoPlays >;
-	} );
-
-	return { linkRefetch, summaryRefetch };
+	return refetch;
 }
 
 describe( 'useVideosReportRecords', () => {
@@ -139,56 +86,23 @@ describe( 'useVideosReportRecords', () => {
 		jest.clearAllMocks();
 	} );
 
-	it( 'uses comparison-aware complete-stats rows and daily data only for links', () => {
-		mockQueries();
+	it( 'uses one comparison-aware complete-stats request with no daily enrichment query', () => {
+		mockQuery();
 
 		const { result } = renderHook( () => useVideosReportRecords( params ) );
 
-		expect( mockUseStatsVideoPlays ).toHaveBeenNthCalledWith( 1, {
-			...params,
-			max: 0,
-			summarize: 0,
-			period: 'day',
-		} );
-		expect( mockUseStatsVideoPlays ).toHaveBeenNthCalledWith( 2, {
+		expect( mockUseStatsVideoPlays ).toHaveBeenCalledTimes( 1 );
+		expect( mockUseStatsVideoPlays ).toHaveBeenCalledWith( {
 			...params,
 			max: 0,
 			summarize: 1,
 			complete_stats: 1,
 		} );
-		expect( result.current.rows.map( row => row.plays ) ).toEqual( [ 13, 3 ] );
-		expect( result.current.hasComparison ).toBe( false );
+		expect( result.current.rows ).toBe( summaryRows );
 	} );
 
-	it( 'restores summary links from matching daily rows and leaves unmatched rows unlinked', () => {
-		mockQueries();
-
-		const { result } = renderHook( () => useVideosReportRecords( params ) );
-
-		expect( result.current.rows ).toEqual( [
-			expect.objectContaining( {
-				id: 441,
-				link: 'https://example.com/video/441',
-			} ),
-			expect.objectContaining( {
-				id: 999,
-				link: null,
-			} ),
-		] );
-	} );
-
-	it( 'preserves comparison metrics while keeping link enrichment primary-only', () => {
-		mockQueries( {
-			rows: [
-				{
-					...summaryRows[ 0 ],
-					previousPlays: 8,
-					previousImpressions: 11,
-				},
-				summaryRows[ 1 ],
-			],
-			hasComparison: true,
-		} );
+	it( 'preserves comparison metrics and explicit zero previous values', () => {
+		mockQuery( { hasComparison: true } );
 		const comparisonParams: ReportParams = {
 			...params,
 			comp: '1',
@@ -198,13 +112,7 @@ describe( 'useVideosReportRecords', () => {
 
 		const { result } = renderHook( () => useVideosReportRecords( comparisonParams ) );
 
-		expect( mockUseStatsVideoPlays ).toHaveBeenNthCalledWith( 1, {
-			...params,
-			max: 0,
-			summarize: 0,
-			period: 'day',
-		} );
-		expect( mockUseStatsVideoPlays ).toHaveBeenNthCalledWith( 2, {
+		expect( mockUseStatsVideoPlays ).toHaveBeenCalledWith( {
 			...comparisonParams,
 			max: 0,
 			summarize: 1,
@@ -212,33 +120,33 @@ describe( 'useVideosReportRecords', () => {
 		} );
 		expect( result.current.rows[ 0 ] ).toEqual(
 			expect.objectContaining( {
-				link: 'https://example.com/video/441',
+				id: 441,
 				plays: 13,
-				previousPlays: 8,
+				previousPlays: 0,
 				impressions: 22,
-				previousImpressions: 11,
+				previousImpressions: 0,
 			} )
 		);
 		expect( result.current.rows[ 1 ].previousPlays ).toBeUndefined();
 		expect( result.current.hasComparison ).toBe( true );
 	} );
 
-	it( 'reports the table loading state from the summary query', () => {
-		mockQueries( { summaryIsLoading: true } );
+	it( 'propagates initial loading and active fetching independently', () => {
+		mockQuery( { isLoading: true, isFetching: true } );
 
 		const { result } = renderHook( () => useVideosReportRecords( params ) );
 
 		expect( result.current.isLoading ).toBe( true );
+		expect( result.current.isFetching ).toBe( true );
 	} );
 
-	it( 'combines errors and refetches both table data sources', async () => {
-		const { linkRefetch, summaryRefetch } = mockQueries( { summaryIsError: true } );
+	it( 'reports errors and refetches the primary and comparison summary queries', async () => {
+		const refetch = mockQuery( { isError: true } );
 
 		const { result } = renderHook( () => useVideosReportRecords( params ) );
 
 		expect( result.current.isError ).toBe( true );
 		await result.current.refetch();
-		expect( linkRefetch ).toHaveBeenCalledTimes( 1 );
-		expect( summaryRefetch ).toHaveBeenCalledTimes( 1 );
+		expect( refetch ).toHaveBeenCalledTimes( 1 );
 	} );
 } );

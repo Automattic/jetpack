@@ -71,6 +71,7 @@ function buildRecords( overrides: Partial< ReturnType< typeof useVideosReportRec
 		rows: [],
 		hasComparison: false,
 		isLoading: false,
+		isFetching: false,
 		...overrides,
 	} as ReturnType< typeof useVideosReportRecords >;
 }
@@ -95,6 +96,56 @@ describe( 'VideosReportPage', () => {
 		render( <VideosReportPage /> );
 
 		expect( getVideosFieldsMock ).toHaveBeenCalledWith( true );
+	} );
+
+	it( 'hides stale rows and loads the table while a changed range is fetching', () => {
+		const rows = [
+			{
+				id: 12,
+				label: 'Old range video',
+				plays: 11,
+				impressions: 42,
+				watch_time: 128.5,
+				retention_rate: 61.25,
+				link: null,
+				children: null,
+			},
+		] satisfies StatsVideoPlaysComparisonItem[];
+		useRecordsMock.mockReturnValue( buildRecords( { rows, isFetching: true } ) );
+
+		render( <VideosReportPage /> );
+
+		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
+			expect.objectContaining( {
+				data: [],
+				isLoading: true,
+			} )
+		);
+	} );
+
+	it( 'passes ready rows to the table after loading and fetching complete', () => {
+		const rows = [
+			{
+				id: 12,
+				label: 'Current range video',
+				plays: 11,
+				impressions: 42,
+				watch_time: 128.5,
+				retention_rate: 61.25,
+				link: null,
+				children: null,
+			},
+		] satisfies StatsVideoPlaysComparisonItem[];
+		useRecordsMock.mockReturnValue( buildRecords( { rows } ) );
+
+		render( <VideosReportPage /> );
+
+		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
+			expect.objectContaining( {
+				data: rows,
+				isLoading: false,
+			} )
+		);
 	} );
 
 	it( 'provides stable row ids for videos without a numeric id', () => {

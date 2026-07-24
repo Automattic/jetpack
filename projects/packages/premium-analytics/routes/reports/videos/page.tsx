@@ -76,6 +76,7 @@ function VideosReport(): JSX.Element {
 		() => getVideosFields( records.hasComparison ),
 		[ records.hasComparison ]
 	);
+	const isTableLoading = records.isLoading || records.isFetching;
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dashboardLink = useDashboardLink();
@@ -110,10 +111,10 @@ function VideosReport(): JSX.Element {
 					/>
 				) : (
 					<ReportRecordsTable< StatsVideoPlaysComparisonItem >
-						data={ records.rows }
+						data={ isTableLoading ? [] : records.rows }
 						fields={ fields }
 						getItemId={ getVideoRowId }
-						isLoading={ records.isLoading }
+						isLoading={ isTableLoading }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search videos', 'jetpack-premium-analytics-pkg' ) }
 					/>
