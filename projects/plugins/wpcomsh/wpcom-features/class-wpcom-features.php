@@ -664,13 +664,14 @@ class WPCOM_Features {
 		),
 		self::BLAZE_CREDITS_VOUCHER             => array(
 			array(
-				'required_sticker' => 'gating-business-q1',
-				// Business (Excluding Monthly).
+				// Business.
 				self::BUSINESS_BUNDLE,
+				self::BUSINESS_BUNDLE_MONTHLY,
 				self::BUSINESS_BUNDLE_2Y,
 				self::BUSINESS_BUNDLE_3Y,
-				// Ecommerce (Excluding Monthly).
+				// Ecommerce.
 				self::ECOMMERCE_BUNDLE,
+				self::ECOMMERCE_BUNDLE_MONTHLY,
 				self::ECOMMERCE_BUNDLE_2Y,
 				self::ECOMMERCE_BUNDLE_3Y,
 			),
