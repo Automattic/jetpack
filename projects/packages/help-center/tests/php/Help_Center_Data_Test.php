@@ -156,12 +156,14 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 		};
 		add_filter( 'jetpack_help_center_wpcom_request_client', $filter );
 
+		$help_center = null;
 		try {
 			$help_center = Help_Center::init();
 		} finally {
 			remove_filter( 'jetpack_help_center_wpcom_request_client', $filter );
 		}
 
+		$this->assertInstanceOf( Help_Center::class, $help_center );
 		$property = new \ReflectionProperty( Help_Center::class, 'wpcom_request_client' );
 		$this->assertSame( $wpcom_request_client, $property->getValue( $help_center ) );
 	}
