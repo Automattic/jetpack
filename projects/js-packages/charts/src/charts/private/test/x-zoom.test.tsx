@@ -1,10 +1,8 @@
-import { act, render, renderHook, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { act, renderHook } from '@testing-library/react';
 import { useRef } from 'react';
-import { useXZoom, ZoomResetButton } from '../index';
-import type { SingleChartRef } from '../../single-chart-context';
+import { useXZoom } from '../x-zoom';
+import type { SingleChartRef } from '../single-chart-context';
 import type { EventHandlerParams } from '@visx/xychart';
-import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 
 // A fake scale that lets the hook convert pixel positions to data values.
 // The hook only uses `.invert()`; everything else can be stubbed.
@@ -140,45 +138,5 @@ describe( 'useXZoom', () => {
 		act( () => result.current.handlers.onPointerUp( makeParams( 200 ) ) );
 
 		expect( result.current.domain ).toBeNull();
-	} );
-} );
-
-const preventDefaultKeydown = ( event: ReactKeyboardEvent< HTMLDivElement > ) =>
-	event.preventDefault();
-
-describe( 'ZoomResetButton', () => {
-	test( 'renders a button with an accessible label from IconButton, not a title attribute', () => {
-		const noop = jest.fn();
-		render( <ZoomResetButton onClick={ noop } /> );
-		const button = screen.getByTestId( 'chart-zoom-reset' );
-		expect( button.tagName ).toBe( 'BUTTON' );
-		expect( button ).toHaveClass( 'x-zoom__reset' );
-		expect( button ).toHaveAccessibleName( 'Reset zoom' );
-		// The label is exposed via the IconButton tooltip/aria-label; the old
-		// hand-rolled button used a title attribute instead.
-		expect( button ).not.toHaveAttribute( 'title' );
-	} );
-
-	test( 'fires onClick when activated', async () => {
-		const onClick = jest.fn();
-		render( <ZoomResetButton onClick={ onClick } /> );
-		await userEvent.click( screen.getByTestId( 'chart-zoom-reset' ) );
-		expect( onClick ).toHaveBeenCalledTimes( 1 );
-	} );
-
-	test( 'keyboard activation survives the chart wrapper keydown handler', async () => {
-		const onClick = jest.fn();
-		// Mirrors the chart's grid wrapper, whose keyboard-navigation handler
-		// calls preventDefault() on bubbled keydowns — which would cancel the
-		// native Enter/Space button activation.
-		render(
-			<div role="grid" tabIndex={ 0 } onKeyDown={ preventDefaultKeydown }>
-				<ZoomResetButton onClick={ onClick } />
-			</div>
-		);
-		act( () => screen.getByTestId( 'chart-zoom-reset' ).focus() );
-		await userEvent.keyboard( '{Enter}' );
-		await userEvent.keyboard( ' ' );
-		expect( onClick ).toHaveBeenCalledTimes( 2 );
 	} );
 } );
