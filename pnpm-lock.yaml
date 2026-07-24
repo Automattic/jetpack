@@ -100,8 +100,8 @@ importers:
         specifier: 10.4.0
         version: 10.4.0
       js-yaml:
-        specifier: 4.3.0
-        version: 4.3.0
+        specifier: 5.2.1
+        version: 5.2.1
       picomatch:
         specifier: 4.0.4
         version: 4.0.4
@@ -6569,8 +6569,8 @@ importers:
         specifier: 7.0.0
         version: 7.0.0
       js-yaml:
-        specifier: 4.3.0
-        version: 4.3.0
+        specifier: 5.2.1
+        version: 5.2.1
       listr:
         specifier: 0.14.3
         version: 0.14.3
@@ -14789,6 +14789,10 @@ packages:
 
   js-yaml@4.3.0:
     resolution: {integrity: sha512-1td788aAnnZ5qs7V2QIRl1owjtYpbKt749Y3xauqQgwIIGF/xXWz1wMTEBx5O3LK3lXLVuqXPdPxj2BoFHaW9Q==}
+    hasBin: true
+
+  js-yaml@5.2.1:
+    resolution: {integrity: sha512-zfLtNfQqxVqq3uaTqSkh4x4hZw3KHobGUA0fJUj4wawW8bsQLTVqpHdXSIzidh7o+4lEW36tANuAGdaFx6Zgnw==}
     hasBin: true
 
   jsdoc-type-pratt-parser@7.2.0:
@@ -33941,6 +33945,10 @@ snapshots:
   js-tokens@4.0.0: {}
 
   js-yaml@4.3.0:
+    dependencies:
+      argparse: 2.0.1
+
+  js-yaml@5.2.1:
     dependencies:
       argparse: 2.0.1
 
