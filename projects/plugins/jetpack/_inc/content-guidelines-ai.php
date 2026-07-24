@@ -9,33 +9,11 @@
  */
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Status\Visitor;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
-}
-
-/**
- * Check if the current user is an Automattician.
- *
- * - Simple sites: wpcom_is_proxied_request() + is_automattician()
- * - Atomic sites: Visitor::is_automattician_feature_flags_only()
- *
- * @return bool
- */
-function jetpack_content_guidelines_ai_is_automattician() {
-	// Simple sites.
-	if ( function_exists( 'wpcom_is_proxied_request' )
-		&& wpcom_is_proxied_request()
-		&& function_exists( 'is_automattician' )
-		&& is_automattician()
-	) {
-		return true;
-	}
-
-	// Atomic sites.
-	return ( new Visitor() )->is_automattician_feature_flags_only();
 }
 
 /**
@@ -50,8 +28,19 @@ function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 		return;
 	}
 
-	// Temporarily gate to Automatticians only during internal rollout.
-	if ( ! jetpack_content_guidelines_ai_is_automattician() ) {
+	// Content Guidelines AI is only offered on WordPress.com platform sites
+	// (Simple and Atomic) — a hard gate the jetpack_ai_enabled filter below
+	// cannot widen. Free-tier Simple/Atomic sites still load the bundle so
+	// the upgrade path can be shown — the paid-plan requirement is enforced
+	// by the suggest-guidelines API.
+	if ( ! ( new Host() )->is_wpcom_platform() ) {
+		return;
+	}
+
+	// Bail when Jetpack AI is disabled for the site: the AI settings master
+	// switch and other site-wide disables ride this filter.
+	/** This filter is documented in projects/plugins/jetpack/_inc/lib/class-jetpack-ai-helper.php */
+	if ( ! apply_filters( 'jetpack_ai_enabled', true ) ) {
 		return;
 	}
 

@@ -1,9 +1,9 @@
 {
 	"name": "jpa/video-detail-highlights",
 	"title": "Video highlights",
-	"description": "Views, impressions, hours watched, and retention rate for the video being viewed.",
+	"description": "Views, impressions, and hours watched over the last 30 days for the video being viewed.",
 	"help": {
-		"content": "Views, impressions, hours watched, and retention rate for the video being viewed."
+		"content": "Views, impressions, and hours watched over the last 30 days for the video being viewed."
 	},
 	"category": "stats",
 	"presentation": "framed"

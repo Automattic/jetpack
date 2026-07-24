@@ -1,0 +1,9 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-activity-log-init",
+	"version": "0.1.0",
+	"type": "module",
+	"wpScript": true,
+	"module": "build-module/index.mjs",
+	"wpScriptModuleExports": "./build-module/index.mjs"
+}

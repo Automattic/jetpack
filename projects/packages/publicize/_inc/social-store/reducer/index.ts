@@ -1,5 +1,6 @@
 import { combineReducers } from '@wordpress/data';
 import connectionData from './connection-data';
+import { connectionFlow } from './connection-flow';
 import { renderedMessages } from './rendered-messages';
 import { scheduledShares } from './scheduled-shares';
 import { sharePost } from './share-post';
@@ -14,6 +15,7 @@ const reducer = combineReducers( {
 	scheduledShares,
 	trafficStats,
 	unifiedModal,
+	connectionFlow,
 	renderedMessages,
 } );
 
