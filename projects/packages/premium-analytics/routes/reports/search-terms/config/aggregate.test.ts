@@ -53,6 +53,35 @@ describe( 'report search terms aggregate', () => {
 		} );
 	} );
 
+	it( 'uses the summarized encrypted count without folding other terms into Unknown', () => {
+		const summarizedReport: StatsNormalizedReport< StatsSearchTermsItem > = {
+			summary: {
+				encrypted_search_terms: 12,
+				other_search_terms: 99,
+			},
+			data: [
+				{
+					...report.data[ 0 ],
+					items: [
+						{
+							label: 'wordpress analytics',
+							views: 8,
+							className: 'user-selectable',
+							children: null,
+						},
+					],
+					// Summary metadata is authoritative when both shapes are present.
+					encrypted_search_terms: 4,
+				},
+			],
+		};
+
+		expect( aggregateSearchTermRows( summarizedReport, 'Unknown search terms' ).rows ).toEqual( [
+			{ id: 'term:wordpress analytics', term: 'wordpress analytics', views: 8 },
+			{ id: 'unknown-search-terms', term: 'Unknown search terms', views: 12 },
+		] );
+	} );
+
 	it( 'omits the unknown row when encrypted search counts are all zero', () => {
 		const emptyReport = {
 			...report,
@@ -81,7 +110,7 @@ describe( 'report search terms aggregate', () => {
 		).toHaveLength( 2 );
 	} );
 
-	it( 'matches aggregated known and encrypted rows across comparison buckets', () => {
+	it( 'matches known and encrypted rows and treats absent known terms as zero', () => {
 		const comparisonReport: StatsNormalizedReport< StatsSearchTermsItem > = {
 			summary: {},
 			data: [
@@ -126,7 +155,12 @@ describe( 'report search terms aggregate', () => {
 					views: 8,
 					previousViews: 4,
 				},
-				{ id: 'term:jetpack stats', term: 'jetpack stats', views: 2 },
+				{
+					id: 'term:jetpack stats',
+					term: 'jetpack stats',
+					views: 2,
+					previousViews: 0,
+				},
 				{
 					id: 'unknown-search-terms',
 					term: 'Unknown search terms',
@@ -156,5 +190,38 @@ describe( 'report search terms aggregate', () => {
 			previousViews: 0,
 		} );
 		expect( result.hasComparison ).toBe( true );
+	} );
+
+	it( 'treats an empty settled comparison report as zero for every primary row', () => {
+		const emptyComparisonReport: StatsNormalizedReport< StatsSearchTermsItem > = {
+			summary: { encrypted_search_terms: 0 },
+			data: [],
+		};
+
+		expect(
+			aggregateSearchTermRows( report, 'Unknown search terms', emptyComparisonReport )
+		).toEqual( {
+			rows: [
+				{
+					id: 'term:wordpress analytics',
+					term: 'wordpress analytics',
+					views: 8,
+					previousViews: 0,
+				},
+				{
+					id: 'term:jetpack stats',
+					term: 'jetpack stats',
+					views: 2,
+					previousViews: 0,
+				},
+				{
+					id: 'unknown-search-terms',
+					term: 'Unknown search terms',
+					views: 10,
+					previousViews: 0,
+				},
+			],
+			hasComparison: true,
+		} );
 	} );
 } );

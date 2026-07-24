@@ -21,15 +21,15 @@ import { aggregateSearchTermRows } from './aggregate';
  */
 export function useSearchTermsReportRecords( reportParams: ReportParams ) {
 	/*
-	 * Keep per-period buckets so encrypted search counts can be aggregated into
-	 * the table's "Unknown search terms" row. `max: 0` requests all known terms
-	 * for client-side search, sorting, and pagination.
+	 * Match legacy Stats' full custom-range request. `max: 0` preserves its
+	 * list behavior for client-side search, sorting, and pagination; the
+	 * endpoint-specific query omits the generic `days` parameter.
 	 */
 	const recordsParams = useMemo(
 		() => ( {
 			...reportParams,
 			max: 0,
-			summarize: 0,
+			summarize: 1,
 			period: 'day',
 		} ),
 		[ reportParams ]
@@ -37,15 +37,25 @@ export function useSearchTermsReportRecords( reportParams: ReportParams ) {
 	const report = useStatsSearchTerms( recordsParams );
 	const unknownLabel = __( 'Unknown search terms', 'jetpack-premium-analytics-pkg' );
 	const comparisonEnabled = hasComparisonEnabled( reportParams );
+	const comparisonSettled =
+		comparisonEnabled &&
+		report.comparison.isSuccess &&
+		! report.comparison.isFetching &&
+		! report.comparison.isPlaceholderData &&
+		! report.comparison.isError;
+	const isLoading =
+		report.primary.isLoading || ( comparisonEnabled && report.comparison.isLoading );
+	const isFetching =
+		report.primary.isFetching || ( comparisonEnabled && report.comparison.isFetching );
 
 	const table = useMemo(
 		() =>
 			aggregateSearchTermRows(
 				report.primary.data,
 				unknownLabel,
-				comparisonEnabled ? report.comparison.data : undefined
+				comparisonSettled ? report.comparison.data : undefined
 			),
-		[ comparisonEnabled, report.primary.data, report.comparison.data, unknownLabel ]
+		[ comparisonSettled, report.primary.data, report.comparison.data, unknownLabel ]
 	);
 
 	return {
@@ -53,7 +63,8 @@ export function useSearchTermsReportRecords( reportParams: ReportParams ) {
 		refetch: report.refetch,
 		table: {
 			...table,
-			isLoading: report.isLoading,
+			isLoading,
+			isFetching,
 		},
 	};
 }

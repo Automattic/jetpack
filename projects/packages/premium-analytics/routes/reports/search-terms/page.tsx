@@ -63,6 +63,7 @@ export default function SearchTermsReportPage(): JSX.Element {
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dashboardLink = useDashboardLink();
 	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
+	const tableIsLoading = records.table.isLoading || records.table.isFetching;
 
 	return (
 		<ReportPageShell
@@ -89,10 +90,10 @@ export default function SearchTermsReportPage(): JSX.Element {
 					/>
 				) : (
 					<ReportRecordsTable< SearchTermRow >
-						data={ records.table.rows }
+						data={ tableIsLoading ? [] : records.table.rows }
 						fields={ fields }
 						getItemId={ getSearchTermRowId }
-						isLoading={ records.table.isLoading }
+						isLoading={ tableIsLoading }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search terms', 'jetpack-premium-analytics-pkg' ) }
 					/>

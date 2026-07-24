@@ -52,6 +52,7 @@ import { statsPostCommentsQuery } from '../stats-post-comments-query';
 import { statsPostQuery } from '../stats-post-query';
 import { statsPublicizeQuery } from '../stats-publicize-query';
 import { statsReferrersQuery } from '../stats-referrers-query';
+import { statsSearchTermsQuery } from '../stats-search-terms-query';
 import { statsSingleVideoQuery } from '../stats-single-video-query';
 import { statsStreakQuery } from '../stats-streak-query';
 import {
@@ -347,6 +348,35 @@ describe( 'Stats query factories', () => {
 				} ),
 			] )
 		);
+	} );
+
+	it( 'matches the legacy summarized Search Terms range request without days', () => {
+		const query = statsSearchTermsQuery( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'week',
+			period: 'day',
+			max: 0,
+			summarize: 1,
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'search-terms',
+			'1.1',
+			'stats/search-terms',
+			'GET',
+			{
+				period: 'day',
+				max: 0,
+				summarize: 1,
+				start_date: '2026-06-01',
+				date: '2026-06-07',
+			},
+			undefined,
+			'searchTerms',
+		] );
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
 	} );
 
 	it( 'keeps the complete video summary mode out of the request params', () => {

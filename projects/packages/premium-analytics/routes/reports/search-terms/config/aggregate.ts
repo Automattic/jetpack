@@ -2,7 +2,6 @@
  * External dependencies
  */
 import {
-	mergeStatsComparisonRows,
 	type StatsNormalizedDataPoint,
 	type StatsNormalizedReport,
 	type StatsSearchTermsItem,
@@ -22,9 +21,17 @@ type SearchTermsDataPoint = StatsNormalizedDataPoint< StatsSearchTermsItem > & {
 	encrypted_search_terms?: unknown;
 };
 
-type AggregateSingleReportOptions = {
-	includeZeroEncrypted?: boolean;
-};
+/**
+ * Read a finite count without losing an explicit zero.
+ *
+ * @param value - The raw Stats count.
+ * @return The numeric count when present and finite.
+ */
+function getCount( value: unknown ): number | undefined {
+	const count = typeof value === 'number' ? value : Number( value );
+
+	return value !== undefined && Number.isFinite( count ) ? count : undefined;
+}
 
 /**
  * Read the aggregate encrypted-search count that the Stats payload stores
@@ -34,10 +41,7 @@ type AggregateSingleReportOptions = {
  * @return The encrypted search count when present.
  */
 function getEncryptedSearchTerms( point: SearchTermsDataPoint ): number | undefined {
-	const value = point.encrypted_search_terms;
-	const count = typeof value === 'number' ? value : Number( value );
-
-	return value !== undefined && Number.isFinite( count ) ? count : undefined;
+	return getCount( point.encrypted_search_terms );
 }
 
 /**
@@ -53,20 +57,22 @@ function getTermLabel( item: StatsSearchTermsItem ): string {
 /**
  * Aggregate one bucketed report into table rows.
  *
- * @param report                       - The bucketed search-terms report.
- * @param unknownLabel                 - Translated label for encrypted search terms.
- * @param options                      - Aggregation behavior.
- * @param options.includeZeroEncrypted - Keep an explicit zero encrypted count for matching.
+ * Summary responses already contain one range-wide encrypted-search count.
+ * Prefer it over bucket metadata so the Unknown row follows the API contract
+ * without folding `other_search_terms` into it.
+ *
+ * @param report       - The search-terms report.
+ * @param unknownLabel - Translated label for encrypted search terms.
  * @return Aggregated rows for one report period.
  */
 function aggregateSingleSearchTermReport(
 	report: StatsNormalizedReport< StatsSearchTermsItem > | undefined,
-	unknownLabel: string,
-	{ includeZeroEncrypted = false }: AggregateSingleReportOptions = {}
+	unknownLabel: string
 ): SearchTermRow[] {
 	const byTerm = new Map< string, SearchTermRow >();
-	let encryptedViews = 0;
-	let hasEncryptedViews = false;
+	const summaryEncryptedViews = getCount( report?.summary.encrypted_search_terms );
+	let encryptedViews = summaryEncryptedViews ?? 0;
+	let hasEncryptedViews = summaryEncryptedViews !== undefined;
 
 	for ( const point of report?.data ?? [] ) {
 		for ( const item of point.items ) {
@@ -80,16 +86,18 @@ function aggregateSingleSearchTermReport(
 			}
 		}
 
-		const bucketEncryptedViews = getEncryptedSearchTerms( point );
-		if ( bucketEncryptedViews !== undefined ) {
-			hasEncryptedViews = true;
-			encryptedViews += bucketEncryptedViews;
+		if ( summaryEncryptedViews === undefined ) {
+			const bucketEncryptedViews = getEncryptedSearchTerms( point );
+			if ( bucketEncryptedViews !== undefined ) {
+				hasEncryptedViews = true;
+				encryptedViews += bucketEncryptedViews;
+			}
 		}
 	}
 
 	const rows = [ ...byTerm.values() ];
 
-	if ( encryptedViews > 0 || ( includeZeroEncrypted && hasEncryptedViews ) ) {
+	if ( encryptedViews > 0 && hasEncryptedViews ) {
 		rows.push( { id: 'unknown-search-terms', term: unknownLabel, views: encryptedViews } );
 	}
 
@@ -99,34 +107,39 @@ function aggregateSingleSearchTermReport(
 /**
  * Aggregate and match Search terms rows across the current and comparison periods.
  *
- * Terms are summed before matching because the report intentionally stays
- * day-bucketed to preserve encrypted search counts. The encrypted aggregate is
- * represented by the stable "Unknown search terms" row and participates in
- * comparison matching like a regular term.
+ * The encrypted aggregate is represented by the stable "Unknown search terms"
+ * row and participates in comparison matching like a regular term.
  *
- * @param primaryReport    - The current bucketed search-terms report.
+ * @param primaryReport    - The current search-terms report.
  * @param unknownLabel     - Translated label for encrypted search terms.
- * @param comparisonReport - The comparison bucketed search-terms report, when enabled.
- * @return Comparison-aware rows and whether any visible row has a previous value.
+ * @param comparisonReport - A successfully settled comparison report, when enabled.
+ * @return Comparison-aware rows and whether the comparison is available.
  */
 export function aggregateSearchTermRows(
 	primaryReport: StatsNormalizedReport< StatsSearchTermsItem > | undefined,
 	unknownLabel: string,
 	comparisonReport?: StatsNormalizedReport< StatsSearchTermsItem >
 ): { rows: SearchTermRow[]; hasComparison: boolean } {
-	return mergeStatsComparisonRows< SearchTermRow, SearchTermRow, SearchTermRow >( {
-		primaryRows: aggregateSingleSearchTermReport( primaryReport, unknownLabel ),
-		// Preserve an explicit comparison zero so a current encrypted row still
-		// renders the shared delta fallback instead of looking unmatched.
-		comparisonRows: aggregateSingleSearchTermReport( comparisonReport, unknownLabel, {
-			includeZeroEncrypted: true,
-		} ),
-		getPrimaryKey: row => row.id,
-		getComparisonKey: row => row.id,
-		getComparisonValue: row => row.views,
-		mapRow: ( row, { previousValue } ) => ( {
+	const primaryRows = aggregateSingleSearchTermReport( primaryReport, unknownLabel );
+
+	if ( comparisonReport === undefined ) {
+		return { rows: primaryRows, hasComparison: false };
+	}
+
+	const comparisonById = new Map(
+		aggregateSingleSearchTermReport( comparisonReport, unknownLabel ).map( row => [
+			row.id,
+			row.views,
+		] )
+	);
+
+	return {
+		rows: primaryRows.map( row => ( {
 			...row,
-			...( previousValue !== undefined ? { previousViews: previousValue } : {} ),
-		} ),
-	} );
+			// For the legacy `max=0` request, absence from a successfully
+			// settled comparison response is an explicit zero.
+			previousViews: comparisonById.get( row.id ) ?? 0,
+		} ) ),
+		hasComparison: true,
+	};
 }
