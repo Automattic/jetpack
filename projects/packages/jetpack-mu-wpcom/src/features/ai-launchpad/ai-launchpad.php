@@ -12,6 +12,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 // helpers.php defines the shared option reader the listeners depend on, so it loads first.
 require_once __DIR__ . '/helpers.php';
+require_once __DIR__ . '/../../common/class-launchpad-personalization-experiment.php';
 require_once __DIR__ . '/eligibility.php';
 require_once __DIR__ . '/class-ai-launchpad-memberships.php';
 require_once __DIR__ . '/class-ai-launchpad-task-registry.php';
@@ -110,7 +111,13 @@ class AI_Launchpad {
 	 * @return bool
 	 */
 	private static function is_enabled_for_site() {
-		return (bool) get_option( 'wpcom_ai_launchpad_enabled' );
+		// Legacy per-site switch kept as a manual/dev override: the ?enable-ai-launchpad=1
+		// handler and the onboarding hand-off both set this option.
+		if ( (bool) get_option( 'wpcom_ai_launchpad_enabled' ) ) {
+			return true;
+		}
+
+		return 'ai_launchpad' === Launchpad_Personalization_Experiment::get_variation();
 	}
 
 	/**
