@@ -26,7 +26,25 @@ class Modules_Test extends BaseTestCase {
 	 * Runs before every test in this class.
 	 */
 	public function set_up() {
-		// Reset private static properties after each test.
+		// Reset private static properties before each test.
+		$this->reset_initialized_modules();
+	}
+
+	/**
+	 * Runs after every test in this class.
+	 */
+	public function tear_down() {
+		remove_filter( 'jetpack_sync_modules', array( $this, 'add_posts_module' ) );
+		remove_filter( 'jetpack_sync_modules', array( $this, 'add_additional_modules' ), PHP_INT_MAX );
+
+		// Avoid leaking test module instances to later test classes in this process.
+		$this->reset_initialized_modules();
+	}
+
+	/**
+	 * Reset Modules' initialized module cache.
+	 */
+	private function reset_initialized_modules() {
 		$reflection_class = new \ReflectionClass( '\Automattic\Jetpack\Sync\Modules' );
 		try {
 			$reflection_class->setStaticPropertyValue( 'initialized_modules', null );
@@ -38,14 +56,6 @@ class Modules_Test extends BaseTestCase {
 			}
 			$configured->setValue( null );
 		}
-	}
-
-	/**
-	 * Runs after every test in this class.
-	 */
-	public function tear_down() {
-		remove_filter( 'jetpack_sync_modules', array( $this, 'add_posts_module' ) );
-		remove_filter( 'jetpack_sync_modules', array( $this, 'add_additional_modules' ), PHP_INT_MAX );
 	}
 
 	/**
