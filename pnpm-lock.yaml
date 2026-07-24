@@ -6872,8 +6872,8 @@ importers:
         specifier: 5.55.7
         version: 5.55.7
       svelte-eslint-parser:
-        specifier: 1.4.1
-        version: 1.4.1(svelte@5.55.7)
+        specifier: 1.8.0
+        version: 1.8.0(svelte@5.55.7)
       typescript:
         specifier: 6.0.3
         version: 6.0.3
@@ -17451,15 +17451,6 @@ packages:
   supports-preserve-symlinks-flag@1.0.0:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
-
-  svelte-eslint-parser@1.4.1:
-    resolution: {integrity: sha512-1eqkfQ93goAhjAXxZiu1SaKI9+0/sxp4JIWQwUpsz7ybehRE5L8dNuz7Iry7K22R47p5/+s9EM+38nHV2OlgXA==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0, pnpm: 10.24.0}
-    peerDependencies:
-      svelte: ^3.37.0 || ^4.0.0 || ^5.0.0
-    peerDependenciesMeta:
-      svelte:
-        optional: true
 
   svelte-eslint-parser@1.8.0:
     resolution: {integrity: sha512-mikR1qwIVy3t5WthUoAXkMwxkXvabZP9FJgdx35Ei7EbGWmctva1Pih16Koeor/bdNNq8NXHlwKGS6NkYTawLg==}
@@ -37015,17 +37006,6 @@ snapshots:
       supports-color: 10.2.2
 
   supports-preserve-symlinks-flag@1.0.0: {}
-
-  svelte-eslint-parser@1.4.1(svelte@5.55.7):
-    dependencies:
-      eslint-scope: 8.4.0
-      eslint-visitor-keys: 4.2.1
-      espree: 10.4.0
-      postcss: 8.5.21
-      postcss-scss: 4.0.9(postcss@8.5.21)
-      postcss-selector-parser: 7.1.4
-    optionalDependencies:
-      svelte: 5.55.7
 
   svelte-eslint-parser@1.8.0(svelte@5.55.7):
     dependencies:
