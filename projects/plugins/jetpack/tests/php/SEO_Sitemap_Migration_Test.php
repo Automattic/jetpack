@@ -6,6 +6,7 @@
  * @package jetpack
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\SEO\Dashboard_Data as Jetpack_SEO_Dashboard_Data;
 use Automattic\Jetpack\SEO\Initializer as Jetpack_SEO_Initializer;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -45,6 +46,7 @@ class SEO_Sitemap_Migration_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		remove_all_filters( 'jetpack_active_modules' );
+		Constants::clear_single_constant( 'IS_WPCOM' );
 		parent::tear_down();
 	}
 
@@ -58,20 +60,14 @@ class SEO_Sitemap_Migration_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Suppress a module at runtime the way a host does, without changing what is stored.
-	 *
-	 * Mirrors wpcomsh's private-site handling, which drops `sitemaps` from the active list
-	 * via `jetpack_active_modules` for as long as an Atomic site is private.
-	 *
-	 * @param string $module Module slug to filter out.
+	 * Add wpcomsh's private-site module suppression callback.
 	 */
-	private function suppress_module_at_runtime( $module ) {
-		add_filter(
-			'jetpack_active_modules',
-			function ( $modules ) use ( $module ) {
-				return array_values( array_diff( $modules, array( $module ) ) );
-			}
-		);
+	private function suppress_sitemaps_for_private_site() {
+		if ( ! function_exists( '\Private_Site\filter_jetpack_active_modules' ) ) {
+			require_once __DIR__ . '/files/wpcomsh-private-site-filter.php';
+		}
+
+		add_filter( 'jetpack_active_modules', '\Private_Site\filter_jetpack_active_modules' );
 	}
 
 	/**
@@ -142,7 +138,7 @@ class SEO_Sitemap_Migration_Test extends WP_UnitTestCase {
 	 */
 	public function test_migration_ignores_runtime_module_suppression() {
 		$this->set_active_modules( array( 'sitemaps' ) );
-		$this->suppress_module_at_runtime( 'sitemaps' );
+		$this->suppress_sitemaps_for_private_site();
 
 		Jetpack::migrate_sitemaps_module_to_seo_option();
 
@@ -155,7 +151,7 @@ class SEO_Sitemap_Migration_Test extends WP_UnitTestCase {
 	 */
 	public function test_migration_stays_false_when_suppressed_and_not_stored_active() {
 		$this->set_active_modules( array() );
-		$this->suppress_module_at_runtime( 'sitemaps' );
+		$this->suppress_sitemaps_for_private_site();
 
 		Jetpack::migrate_sitemaps_module_to_seo_option();
 
@@ -184,7 +180,7 @@ class SEO_Sitemap_Migration_Test extends WP_UnitTestCase {
 	public function test_reconciliation_repairs_while_module_is_still_suppressed() {
 		add_option( $this->option, false );
 		$this->set_active_modules( array( 'sitemaps' ) );
-		$this->suppress_module_at_runtime( 'sitemaps' );
+		$this->suppress_sitemaps_for_private_site();
 
 		Jetpack::reconcile_seo_module_state_options();
 
@@ -248,13 +244,85 @@ class SEO_Sitemap_Migration_Test extends WP_UnitTestCase {
 	 */
 	public function test_sync_tracks_stored_module_state_during_runtime_suppression() {
 		$this->set_active_modules( array( 'sitemaps' ) );
-		$this->suppress_module_at_runtime( 'sitemaps' );
+		$this->suppress_sitemaps_for_private_site();
 		Jetpack::sync_seo_sitemap_option();
 		$this->assertTrue( (bool) get_option( $this->option ) );
 
 		$this->set_active_modules( array() );
 		Jetpack::sync_seo_sitemap_option();
 		$this->assertFalse( (bool) get_option( $this->option ) );
+	}
+
+	/**
+	 * Permanent overrides remain authoritative even while wpcomsh's temporary private-site
+	 * suppression is present.
+	 */
+	public function test_seo_state_writes_honor_permanent_module_override_during_private_site_suppression() {
+		$this->set_active_modules( array( 'sitemaps' ) );
+		$this->suppress_sitemaps_for_private_site();
+		add_filter(
+			'jetpack_active_modules',
+			function ( $modules ) {
+				return array_values( array_diff( $modules, array( 'sitemaps' ) ) );
+			},
+			20
+		);
+
+		Jetpack::migrate_sitemaps_module_to_seo_option();
+		$this->assertFalse( (bool) get_option( $this->option ) );
+
+		update_option( $this->option, true );
+		Jetpack::sync_seo_sitemap_option();
+		$this->assertFalse( (bool) get_option( $this->option ) );
+
+		update_option( $this->option, true );
+		Jetpack::reconcile_seo_module_state_options();
+		$this->assertFalse( (bool) get_option( $this->option ) );
+	}
+
+	/**
+	 * Reading the migration state does not change same-priority filter ordering.
+	 */
+	public function test_migration_preserves_module_filter_order() {
+		$this->set_active_modules( array() );
+		$this->suppress_sitemaps_for_private_site();
+		add_filter(
+			'jetpack_active_modules',
+			function ( $modules ) {
+				$modules[] = 'sitemaps';
+				return array_unique( $modules );
+			}
+		);
+
+		$this->assertContains( 'sitemaps', apply_filters( 'jetpack_active_modules', array() ) );
+
+		Jetpack::migrate_sitemaps_module_to_seo_option();
+
+		$this->assertTrue( (bool) get_option( $this->option ) );
+		$this->assertContains( 'sitemaps', apply_filters( 'jetpack_active_modules', array() ) );
+	}
+
+	/**
+	 * WordPress.com Simple uses its filtered module state instead of the local raw option.
+	 */
+	public function test_migration_uses_filtered_module_state_on_wpcom_simple() {
+		$filter = function ( $value, $name ) {
+			return 'active_modules' === $name ? array( 'sitemaps' ) : $value;
+		};
+
+		Constants::set_constant( 'IS_WPCOM', true );
+		add_filter( 'jetpack_options', $filter, 10, 2 );
+
+		try {
+			$this->assertSame( array(), Jetpack_Options::get_raw_option( 'jetpack_active_modules', array() ) );
+
+			Jetpack::migrate_sitemaps_module_to_seo_option();
+
+			$this->assertTrue( (bool) get_option( $this->option ) );
+		} finally {
+			remove_filter( 'jetpack_options', $filter );
+			Constants::clear_single_constant( 'IS_WPCOM' );
+		}
 	}
 
 	/**

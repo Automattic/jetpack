@@ -39,9 +39,10 @@ class SEO_Canonical_URLs_Migration_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Drop any `jetpack_active_modules` filter a test added.
+	 * Drop any module override filter a test added.
 	 */
 	public function tear_down() {
+		remove_all_filters( 'option_jetpack_active_modules' );
 		remove_all_filters( 'jetpack_active_modules' );
 		parent::tear_down();
 	}
@@ -56,47 +57,49 @@ class SEO_Canonical_URLs_Migration_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Suppress a module at runtime the way a host does, without changing what is stored.
+	 * Override a module's active state without changing what is stored.
 	 *
-	 * `canonical-urls` is not on wpcomsh's private-site list, but the `jetpack_active_modules`
-	 * filter is public API and any plugin can use it, so the migration must read stored state
-	 * here for the same reason it does for sitemaps.
-	 *
-	 * @param string $module Module slug to filter out.
+	 * @param string $module Module slug to override.
+	 * @param bool   $active Whether to force the module active.
+	 * @param string $hook   Module override hook.
 	 */
-	private function suppress_module_at_runtime( $module ) {
+	private function override_module_state( $module, $active, $hook = 'jetpack_active_modules' ) {
 		add_filter(
-			'jetpack_active_modules',
-			function ( $modules ) use ( $module ) {
-				return array_values( array_diff( $modules, array( $module ) ) );
+			$hook,
+			function ( $modules ) use ( $module, $active ) {
+				$modules = array_values( array_diff( $modules, array( $module ) ) );
+
+				if ( $active ) {
+					$modules[] = $module;
+				}
+
+				return $modules;
 			}
 		);
 	}
 
 	/**
-	 * A module suppressed at runtime must not be recorded as disabled — the stored choice is
-	 * what migrates.
+	 * A permanent option override that forces the module off remains authoritative.
 	 */
-	public function test_migration_ignores_runtime_module_suppression() {
+	public function test_migration_honors_forced_off_option_override() {
 		$this->set_active_modules( array( 'canonical-urls' ) );
-		$this->suppress_module_at_runtime( 'canonical-urls' );
-
-		Jetpack::migrate_canonical_urls_module_to_seo_option();
-
-		$this->assertTrue( (bool) get_option( $this->option ) );
-	}
-
-	/**
-	 * A site that never had canonical URLs on still migrates as disabled while a filter is
-	 * active, so the fix does not simply force the option on.
-	 */
-	public function test_migration_stays_false_when_suppressed_and_not_stored_active() {
-		$this->set_active_modules( array() );
-		$this->suppress_module_at_runtime( 'canonical-urls' );
+		$this->override_module_state( 'canonical-urls', false, 'option_jetpack_active_modules' );
 
 		Jetpack::migrate_canonical_urls_module_to_seo_option();
 
 		$this->assertFalse( (bool) get_option( $this->option ) );
+	}
+
+	/**
+	 * A permanent active-modules override that forces the module on remains authoritative.
+	 */
+	public function test_migration_honors_forced_on_module_override() {
+		$this->set_active_modules( array() );
+		$this->override_module_state( 'canonical-urls', true );
+
+		Jetpack::migrate_canonical_urls_module_to_seo_option();
+
+		$this->assertTrue( (bool) get_option( $this->option ) );
 	}
 
 	/**
@@ -109,6 +112,19 @@ class SEO_Canonical_URLs_Migration_Test extends WP_UnitTestCase {
 		Jetpack::reconcile_seo_module_state_options();
 
 		$this->assertTrue( (bool) get_option( $this->option ) );
+	}
+
+	/**
+	 * Reconciliation preserves a permanent forced-off module override.
+	 */
+	public function test_reconciliation_honors_forced_off_module_override() {
+		add_option( $this->option, true );
+		$this->set_active_modules( array( 'canonical-urls' ) );
+		$this->override_module_state( 'canonical-urls', false );
+
+		Jetpack::reconcile_seo_module_state_options();
+
+		$this->assertFalse( (bool) get_option( $this->option ) );
 	}
 
 	/**
@@ -166,17 +182,19 @@ class SEO_Canonical_URLs_Migration_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The sync reflects stored module state even when the module is suppressed at runtime.
+	 * The sync honors permanent forced-off and forced-on module overrides.
 	 */
-	public function test_sync_tracks_stored_module_state_during_runtime_suppression() {
+	public function test_sync_honors_module_overrides() {
 		$this->set_active_modules( array( 'canonical-urls' ) );
-		$this->suppress_module_at_runtime( 'canonical-urls' );
-		Jetpack::sync_seo_canonical_urls_option();
-		$this->assertTrue( (bool) get_option( $this->option ) );
-
-		$this->set_active_modules( array() );
+		$this->override_module_state( 'canonical-urls', false );
 		Jetpack::sync_seo_canonical_urls_option();
 		$this->assertFalse( (bool) get_option( $this->option ) );
+
+		remove_all_filters( 'jetpack_active_modules' );
+		$this->set_active_modules( array() );
+		$this->override_module_state( 'canonical-urls', true );
+		Jetpack::sync_seo_canonical_urls_option();
+		$this->assertTrue( (bool) get_option( $this->option ) );
 	}
 
 	/**
