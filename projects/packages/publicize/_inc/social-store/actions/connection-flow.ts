@@ -2,8 +2,10 @@ import { ConnectionFlowOrigin } from '../types';
 import { setKeyringResult, setReconnectingAccount } from './connection-data';
 import {
 	CANCEL_CONNECTION_FLOW,
+	GO_TO_NEXT_CONNECTION_FLOW_STEP,
 	GO_TO_PREVIOUS_CONNECTION_FLOW_STEP,
 	SELECT_CONNECTION_FLOW_PLATFORM,
+	SET_CONNECTION_FLOW_INPUT,
 	START_CONNECTION_FLOW,
 } from './constants';
 
@@ -45,6 +47,34 @@ export function selectPlatform( serviceId: string ) {
 export function goToPreviousStep() {
 	return {
 		type: GO_TO_PREVIOUS_CONNECTION_FLOW_STEP,
+	};
+}
+
+/**
+ * Advances to the next step. Past the OAuth boundary the keyring result drives
+ * the transition instead.
+ *
+ * @return An action object.
+ */
+export function goToNextStep() {
+	return {
+		type: GO_TO_NEXT_CONNECTION_FLOW_STEP,
+	};
+}
+
+/**
+ * Records a connect input value, so it survives leaving the input step.
+ *
+ * @param field - The input name.
+ * @param value - The value entered.
+ *
+ * @return An action object.
+ */
+export function setConnectionFlowInput( field: string, value: string ) {
+	return {
+		type: SET_CONNECTION_FLOW_INPUT,
+		field,
+		value,
 	};
 }
 

@@ -127,6 +127,11 @@ export type ConnectionFlowState = {
 	step?: ConnectionFlowStep;
 	selectedServiceId?: string;
 	origin?: ConnectionFlowOrigin;
+	/**
+	 * Values entered on the `platform-input` step, keyed by input name. Held here
+	 * so they survive stepping back; cleared when the flow starts or is cancelled.
+	 */
+	inputs?: Record< string, string >;
 };
 
 export type RenderCount = { [ Key in 'social-preview' | 'edit-template' ]?: number };
