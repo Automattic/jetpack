@@ -21,7 +21,7 @@ const DisconnectSurvey = ( props: DisconnectSurveyProps ) => {
 	const { onSubmit, isSubmittingFeedback } = props;
 	// The `name` shared by every radio in the survey, which is what groups them
 	// into one radio group. Generated per instance rather than hard-coded, so
-	// that two surveys on a page stay separate groups with unique input IDs.
+	// that two surveys on a page (though unlikely) stay separate groups with unique input IDs.
 	const surveyGroupName = `jp-connect__disconnect-survey${ useId() }`;
 	const [ selectedAnswer, setSelectedAnswer ] = useState< string >();
 	const [ customResponse, setCustomResponse ] = useState( '' );
@@ -61,9 +61,7 @@ const DisconnectSurvey = ( props: DisconnectSurveyProps ) => {
 	 * Will send the survey response to the collection endpoint.
 	 */
 	const handleSurveySubmit = useCallback( () => {
-		// The submit button is disabled until an answer is picked, so this is
-		// only a guard — but it also narrows `selectedAnswer` to a string, which
-		// is what every consumer of `onSubmit` already declares it takes.
+		// The submit button is disabled until an answer is picked.
 		if ( ! selectedAnswer ) {
 			return;
 		}
@@ -75,10 +73,8 @@ const DisconnectSurvey = ( props: DisconnectSurveyProps ) => {
 	/**
 	 * Select the "Other" option.
 	 *
-	 * The free text field sits above the label's hit area, so a click on it no
-	 * longer reaches the option the way it did when the whole card was one
-	 * `role="button"`. Interacting with the field is an unambiguous choice of
-	 * "Other", so it selects the option itself.
+	 * The free text field sits above the label's hit area. Interacting with the
+	 * field is an unambiguous choice of "Other", so it selects the option itself.
 	 */
 	const selectCustomOption = useCallback( () => {
 		setSelectedAnswer( customOption.id );

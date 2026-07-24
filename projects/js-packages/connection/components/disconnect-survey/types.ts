@@ -12,9 +12,7 @@ export interface SurveyChoiceProps {
 	/** Called with the option's ID when this option is selected. */
 	onSelect: ( id: string ) => void;
 	/**
-	 * Extra content rendered inside the card, beside the label — e.g. the free
-	 * text field on the "Other" option. Kept outside the `<label>` so that
-	 * interactive content is never nested in it.
+	 * Extra content rendered inside the card, beside the label.
 	 */
 	children?: ReactNode;
 }
