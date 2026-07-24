@@ -1,8 +1,8 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
-import { chevronLeft } from '@wordpress/icons';
+import { __, isRTL, sprintf } from '@wordpress/i18n';
+import { chevronLeft, chevronRight } from '@wordpress/icons';
 import { Dialog, IconButton, Text, Tooltip } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import { SelectPlatform } from './select-platform';
@@ -111,7 +111,7 @@ const ConnectionFlowDialog = () => {
 								variant="minimal"
 								tone="neutral"
 								size="small"
-								icon={ chevronLeft }
+								icon={ isRTL() ? chevronRight : chevronLeft }
 								label={ __( 'Back', 'jetpack-publicize-pkg' ) }
 								onClick={ goToPreviousStep }
 							/>
