@@ -104,13 +104,6 @@ module.exports = [
 					requestMap: {
 						// We don't want to externalize this package, we rather want to bundle it.
 						'@automattic/jetpack-connection': {},
-						// @wordpress/ui's overlay components (Dialog, Popover, etc.) depend on
-						// these, but they aren't registered as WP core scripts on all supported
-						// WordPress versions (WP 6.9 lacks `wp-theme`/`wp-private-apis`), which
-						// silently drops this entire script from being enqueued. Bundle them
-						// instead of externalizing. Matches AI, Search, Boost and others.
-						'@wordpress/theme': { external: false },
-						'@wordpress/private-apis': { external: false },
 					},
 				},
 			} ),

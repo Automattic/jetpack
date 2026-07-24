@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 /**
  * Connection_Assets class.
@@ -30,6 +31,14 @@ class Connection_Assets {
 	 * Those scripts are intended to be used in WP admin area.
 	 */
 	public static function register_assets() {
+		// jetpack-connection.js externalizes @wordpress/theme and @wordpress/private-apis
+		// to wp-theme / wp-private-apis. Older WP core (and Gutenberg without a
+		// compatible private-apis allowlist) don't provide usable versions of those,
+		// which silently drops the whole script from being enqueued. Register the
+		// polyfills before the script below declares them as dependencies.
+		if ( class_exists( WP_Build_Polyfills::class ) ) {
+			WP_Build_Polyfills::register( 'jetpack-connection', array( 'wp-private-apis', 'wp-theme' ) );
+		}
 
 		Assets::register_script(
 			'jetpack-connection',

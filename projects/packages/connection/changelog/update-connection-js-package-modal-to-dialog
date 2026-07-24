@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Connection UI: Bundles wordpress/theme and @wordpress/private-apis directly into jetpack-connection.js.
+Connection UI: Register wp-build-polyfills for wp-theme and wp-private-apis, so jetpack-connection.js's externalized dependencies resolve on WordPress versions that don't provide them.
