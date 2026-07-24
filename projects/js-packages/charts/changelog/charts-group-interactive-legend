@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Charts: render one legend item per comparison group and, when the legend is interactive, toggle every series in that group from a single click.
+Charts: comparison series that share a group now collapse into a single legend item, and an interactive legend toggles the whole group from one click. Supported in both the bar chart and the line chart, where the value axis also stays fixed as series are toggled. When every series is hidden, the grid and axes are dropped so the empty state stands on its own.
