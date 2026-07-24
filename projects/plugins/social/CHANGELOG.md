@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 9.0.3 - 2026-06-26
+### Fixed
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active. [#49994]
+
 ## 9.0.2 - 2026-06-24
 ### Fixed
 - Fix the Social admin page rendering blank, and restore the editor sharing panel, on WordPress 6.9. [#49859]

@@ -10,13 +10,16 @@
  * bundle unlocks 30 days of activity history (the cap documented on
  * cloud.jetpack.com/features/comparison).
  */
-import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+// Deep import (not the package barrel): wp-build's esbuild bundles the whole
+// re-export graph of a barrel, and the connection barrel pulls in the
+// disconnect-dialog's `.jpg` imports, which esbuild has no loader for.
+import useProductCheckoutWorkflow from '@automattic/jetpack-connection/hooks/use-product-checkout-workflow';
 import { Button, __experimentalText as Text } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { useCallback } from 'react';
 import { useAnalytics } from '../../hooks/use-analytics';
-import illustrationUrl from './activity-logs-callout-illustration.svg';
+import illustrationUrl from './activity-logs-callout-illustration';
 // Stylesheet is `@use`d from `src/js/style.scss` so the rules ride the
 // main entry chunk instead of relying on a side-effect JS import.
 

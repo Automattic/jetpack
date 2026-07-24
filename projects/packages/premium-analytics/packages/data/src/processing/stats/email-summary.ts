@@ -30,7 +30,8 @@ function normalizeStatsEmailSummaryItem( post: StatsRecord ): StatsEmailSummaryI
 	return {
 		id: post.id as string | number | undefined,
 		label: post.title,
-		value: safeParseFloat( post.clicks_rate ),
+		// Opens is the headline metric for the emails leaderboard; clicks_rate is frequently 0.
+		value: safeParseFloat( post.opens ),
 		link,
 		actions: typeof link === 'string' ? [ { type: 'link', data: link } ] : [],
 		date: post.date,

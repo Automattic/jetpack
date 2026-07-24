@@ -1,9 +1,8 @@
 import type { TailoredOutput } from './types.ts';
 
 /**
- * The slice of `GET /wpcom/v2/ai-launchpad` the host orchestration reads to
- * decide which view to show on load. Only the fields the decision depends on
- * are typed here; the tailored list types the rest of the response itself.
+ * The slice of `GET /wpcom/v2/ai-launchpad` the host reads to decide which view
+ * to show on load.
  */
 export interface OrchestrationData {
 	ai_output: {
@@ -15,14 +14,23 @@ export interface OrchestrationData {
 export type View = 'wizard' | 'list';
 
 /**
- * Decide the initial view from the composite read. A site that has never run
- * the wizard has no persisted AI output (`ai_output` is null) and is treated as
- * a new user who should see the wizard; a site with AI output already has a
- * tailored list to show, so the wizard is skipped.
+ * Decide the initial view: sites with no persisted AI output see the wizard,
+ * sites with output see the list.
  *
  * @param data - The relevant slice of the `GET /ai-launchpad` response.
  * @return The view to render on load.
  */
 export function decideInitialView( data: OrchestrationData ): View {
 	return data.ai_output ? 'list' : 'wizard';
+}
+
+/**
+ * Whether the page was opened in all-tasks testing mode (`?all_tasks=1`), which
+ * skips the wizard and renders the full task catalog.
+ *
+ * @param search - The page's `location.search` string.
+ * @return True when the all-tasks param is enabled.
+ */
+export function isAllTasksMode( search: string ): boolean {
+	return new URLSearchParams( search ).get( 'all_tasks' ) === '1';
 }

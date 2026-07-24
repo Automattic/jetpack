@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the Posts & Pages report page at /reports/posts with Posts & Pages and Archives tabs, date-range and comparison controls, a performance chart, a Core DataViews records table, and a Top pages by views widget link.

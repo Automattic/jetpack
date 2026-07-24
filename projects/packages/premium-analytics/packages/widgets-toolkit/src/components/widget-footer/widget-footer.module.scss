@@ -1,0 +1,15 @@
+.footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wpds-dimension-gap-sm);
+	flex: 0 0 auto;
+	border-block-start:
+		var(--wpds-border-width-xs) solid
+		var(--wpds-color-stroke-surface-neutral-weak);
+	padding-block-start: var(--wpds-dimension-padding-md);
+}
+
+.footer:empty {
+	display: none;
+}

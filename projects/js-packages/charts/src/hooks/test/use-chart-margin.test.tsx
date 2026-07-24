@@ -13,8 +13,8 @@ describe( 'useChartMargin', () => {
 	const baseTheme = {
 		axisStyles: {
 			y: {
-				left: { axisLabel: { fontSize: 11 }, tickLength: 8 },
-				right: { axisLabel: { fontSize: 11 }, tickLength: 8 },
+				left: { axisLabel: { fontSize: 12 }, tickLabel: { fontSize: 11 }, tickLength: 8 },
+				right: { axisLabel: { fontSize: 12 }, tickLabel: { fontSize: 11 }, tickLength: 8 },
 			},
 		},
 	} as XYChartTheme;
@@ -64,7 +64,8 @@ describe( 'useChartMargin', () => {
 			options.axis.y.tickFormat,
 			theme.axisStyles.y.left.axisLabel
 		);
-		expect( result.current.left ).toBe( 48 ); // 40 + 8
+		// 40 label width + 8 tick length + ceil(11 * 0.25) label dx offset
+		expect( result.current.left ).toBe( 51 );
 	} );
 
 	it( 'calculates right margin for right y axis', () => {
@@ -86,7 +87,8 @@ describe( 'useChartMargin', () => {
 			options.axis.y.tickFormat,
 			theme.axisStyles.y.right.axisLabel
 		);
-		expect( result.current.right ).toBe( 48 ); // 40 + 8
+		// 40 label width + 8 tick length + ceil(11 * 0.25) label dx offset
+		expect( result.current.right ).toBe( 51 );
 	} );
 
 	it( 'uses explicit y tickValues when provided', () => {
@@ -133,7 +135,8 @@ describe( 'useChartMargin', () => {
 		const height = 300;
 		const theme = baseTheme;
 		const { result } = renderHook( () => useChartMargin( height, options, data, theme ) );
-		expect( result.current.left ).toBe( 48 );
+		// 40 label width + 8 tick length + ceil(11 * 0.25) label dx offset
+		expect( result.current.left ).toBe( 51 );
 		expect( result.current.top ).toBe( 10 );
 		// 12px font + 8 tick length = 20
 		expect( result.current.bottom ).toBe( 20 );

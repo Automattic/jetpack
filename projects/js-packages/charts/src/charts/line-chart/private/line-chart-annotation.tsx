@@ -10,7 +10,7 @@ import { DataContext } from '@visx/xychart';
 import merge from 'deepmerge';
 import { useContext, useRef, useEffect, useState, useMemo } from 'react';
 import { useGlobalChartsTheme } from '../../../providers';
-import { isSafari } from '../../../utils';
+import { isSafari, resolveCssVariable } from '../../../utils';
 import LineChartAnnotationLabelWithPopover, {
 	POPOVER_BUTTON_SIZE,
 } from './line-chart-annotation-label-popover';
@@ -159,6 +159,11 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 	// Deep merge styles to preserve nested object properties
 	const styles = merge( providerTheme.annotationStyles ?? {}, datumStyles ?? {} );
 
+	// visx annotation parts apply these colors as SVG presentation attributes,
+	// where CSS var() cannot resolve. Resolve WPDS tokens to concrete values first.
+	const resolveColor = ( value?: string ): string | undefined =>
+		value ? resolveCssVariable( value ) ?? value : value;
+
 	// Measure the label height once after initial render
 	useEffect( () => {
 		if ( labelRef.current?.getBBox ) {
@@ -264,8 +269,14 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 	return (
 		<g data-testid={ testId }>
 			<Annotation x={ x } y={ y } dx={ dx } dy={ dy }>
-				<Connector { ...styles?.connector } />
-				{ subjectType === 'circle' && <CircleSubject { ...styles?.circleSubject } /> }
+				<Connector { ...styles?.connector } stroke={ resolveColor( styles?.connector?.stroke ) } />
+				{ subjectType === 'circle' && (
+					<CircleSubject
+						{ ...styles?.circleSubject }
+						fill={ resolveColor( styles?.circleSubject?.fill ) }
+						stroke={ resolveColor( styles?.circleSubject?.stroke ) }
+					/>
+				) }
 				{ subjectType === 'line-vertical' && (
 					<LineSubject
 						min={ yMax }
@@ -301,6 +312,8 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 							title={ title }
 							subtitle={ subtitle }
 							{ ...styles?.label }
+							anchorLineStroke={ resolveColor( styles?.label?.anchorLineStroke ) }
+							backgroundFill={ resolveColor( styles?.label?.backgroundFill ) }
 							{ ...labelPosition }
 							horizontalAnchor={ getHorizontalAnchor( subjectType, isFlippedHorizontally ) }
 							verticalAnchor={ getVerticalAnchor(

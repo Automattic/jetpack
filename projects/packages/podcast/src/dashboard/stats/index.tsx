@@ -126,6 +126,14 @@ const Stats = () => {
 	// Gate the full empty state on all-time plays so a quiet period doesn't masquerade as a new show.
 	const isEmpty = ! isLoading && ! isError && stats?.all_time_plays === 0;
 
+	// Some panels report over a window the API fixes regardless of the selection,
+	// so label those scopes when they differ from the heading. The All time view
+	// sources its breakdowns from a 30-day snapshot; top_day is always 90 days.
+	const isAllTime = selection.period === 'all';
+	const breakdownScope = isAllTime ? __( 'Last 30 days', 'jetpack-podcast' ) : undefined;
+	const topDayScope =
+		selection.period !== '90d' ? __( 'Last 90 days', 'jetpack-podcast' ) : undefined;
+
 	return (
 		<div className="podcast-stats podcast-stats--stack">
 			<div className="podcast-stats__header">
@@ -179,8 +187,9 @@ const Stats = () => {
 								byApp={ stats?.by_app }
 								byCountry={ stats?.by_country }
 								topDay={ stats?.top_day }
+								breakdownScope={ breakdownScope }
+								topDayScope={ topDayScope }
 								isLoading={ isLoading }
-								layout="chart"
 							/>
 						}
 					/>
@@ -188,11 +197,20 @@ const Stats = () => {
 						<StatsTopEpisodes
 							episodes={ stats?.top_episodes }
 							isLoading={ isLoading }
+							scopeLabel={ breakdownScope }
 							onSelect={ handleSelect }
 						/>
-						<StatsByApp rows={ stats?.by_app } isLoading={ isLoading } />
+						<StatsByApp
+							rows={ stats?.by_app }
+							isLoading={ isLoading }
+							scopeLabel={ breakdownScope }
+						/>
 					</div>
-					<StatsLocations rows={ stats?.by_country } isLoading={ isLoading } />
+					<StatsLocations
+						rows={ stats?.by_country }
+						isLoading={ isLoading }
+						scopeLabel={ breakdownScope }
+					/>
 				</>
 			) }
 		</div>

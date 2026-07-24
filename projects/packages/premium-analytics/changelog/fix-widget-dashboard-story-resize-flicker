@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Storybook: Fix widget dashboard stories flickering when resizing widgets vertically.

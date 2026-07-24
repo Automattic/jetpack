@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep the widget-dashboard Storybook story's settings drawer on-screen when the dashboard is wider than the preview canvas.

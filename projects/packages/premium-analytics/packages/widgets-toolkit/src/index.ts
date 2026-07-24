@@ -3,11 +3,23 @@
  */
 export {
 	MetricDelta,
+	MetricTileGrid,
+	MetricValue,
 	MetricWithComparison,
 	ComparativeLineChart,
+	type ComparativeLineChartSeries,
+	DonutChart,
 	Legend,
+	ReportMetricWidget,
+	MetricTabsChart,
+	type MetricTab,
+	type MetricTabDatum,
+	type MetricTabsChartProps,
 	WidgetRoot,
+	WidgetRootContext,
 	useWidgetRootContext,
+	type DonutChartData,
+	type WidgetRootContextValue,
 	type LegendItem,
 	type SeriesStyle,
 	LeaderboardChart,
@@ -16,11 +28,71 @@ export {
 	type LegendLabels,
 	LeaderboardLabel,
 	type LeaderboardLabelProps,
+	LeaderboardRow,
+	buildLeaderboardRow,
+	resolveLeaderboardRowAction,
+	type LeaderboardRowAction,
+	type LeaderboardRowActionOptions,
+	type LeaderboardRowChartProps,
+	type LeaderboardRowMedia,
+	type LeaderboardRowProps,
 	BarChart,
 	type BarChartProps,
 	type BarChartData,
 	type BarChartStyle,
 	WidgetLoadingOverlay,
+	ChartEmptyState,
+	type ChartEmptyStateProps,
+	WidgetState,
+	type WidgetStateProps,
+	type WidgetStateError,
+	type WidgetStateEmpty,
+	WidgetBackLink,
+	type WidgetBackLinkProps,
+	WidgetFooter,
+	type WidgetFooterProps,
+	ReportLink,
+	type ReportLinkProps,
+	VideoTitleLink,
+	type VideoTitleLinkProps,
+	SubscriberList,
+	type SubscriberListItem,
+	type SubscriberListProps,
+	SemiCircleChart,
+	type SemiCircleChartData,
+	ReportDrilldownTable,
+	ReportErrorState,
+	ReportPageLayout,
+	ReportPageSection,
+	ReportPageShell,
+	ReportPageTabPanel,
+	ReportPageTabs,
+	ReportPerformanceChart,
+	ReportRecordsTable,
+	useReportRetry,
+	buildReportMetricSeries,
+	type ReportChartMetric,
+	type ReportDrilldownTableProps,
+	type ReportErrorStateProps,
+	type ReportPageLayoutProps,
+	type ReportPageSectionProps,
+	type ReportPageShellProps,
+	type ReportPageTab,
+	type ReportPageTabPanelProps,
+	type ReportPageTabsProps,
+	type ReportPerformanceChartProps,
+	type ReportRecordsTableProps,
+	isCsvExportEnabled,
+	ReportCsvDownloadButton,
+	type ReportCsvDownloadButtonProps,
+	RowsCsvDownloadButton,
+	type RowsCsvDownloadButtonProps,
+	WidgetDataTable,
+	type WidgetDataTableProps,
+	EARNINGS_HISTORY_VIEW,
+	flattenEarningsBreakdown,
+	getWordAdsHistoryFields,
+	type EarningsHistoryRow,
 } from './components';
 
 /**
@@ -31,12 +103,7 @@ export { WOO_COLORS, COLOR_GRAY_100 } from './constants';
 /**
  * Widget edit fields
  */
-export {
-	ReportParamsField,
-	type ReportParamsFieldAttributes,
-	MetricsField,
-	DEFAULT_METRICS,
-} from './fields';
+export { ReportParamsField, type ReportParamsFieldAttributes } from './fields';
 
 /**
  * Helpers and utilities
@@ -53,6 +120,23 @@ export {
 	FULFILLED_ORDERS_FILTER,
 	UNFULFILLED_ORDERS_FILTER,
 	PAYMENT_STATUS_FILTERS,
+	buildPaymentStatusData,
+	type PaymentStatusData,
+	buildSalesByUtmData,
+	formatLegendLabels,
+	formatDisplayLabel,
+	buildCsv,
+	buildCsvDateRangeFilename,
+	saveCsv,
+	type CsvColumn,
+	sharePercentage,
+	getVideoKey,
+	getVideoLabel,
+	toMaxRows,
+	summaryCount,
+	toDay,
+	defaultPeriodForInterval,
+	buildMetricTab,
 } from './helpers';
 
 /**
@@ -61,8 +145,12 @@ export {
 export {
 	useAttributesWithSearchFallback,
 	useChartTheme,
+	useElementSize,
+	type ElementSize,
+	useSegmentStyles,
 	useSeriesStyles,
-	useWidgetError,
+	useWidgetDrillDown,
+	usePostDetailHrefBuilder,
 } from './hooks';
 
 /**
@@ -79,16 +167,13 @@ export {
 	RevenueByCustomerTypeWidget,
 	NewVsReturningCustomerWidget,
 	OrderMetricWidget,
-	PaymentStatusWidget,
 	OrdersFulfillmentWidget,
 	SalesByCouponWidget,
 	TotalReturnsWidget,
-	VisitorMetricWidget,
 	VisitorsByLocationWidget,
 	SalesByDeviceWidget,
-	BookingsByDeviceWidget,
-	SessionsByDeviceWidget,
 	SalesByUtmWidget,
+	SessionsByDeviceWidget,
 	TopPerformingProductLeaderboardWidget,
 	type TopPerformingProductLeaderboardWidgetProps,
 	TopPerformingProductsWidget,
@@ -100,4 +185,33 @@ export {
 /**
  * Types
  */
-export type { OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat } from './types';
+export type { MetricKey, OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat } from './types';
+
+/**
+ * Charts passthrough
+ *
+ * Widgets must import chart components from here, never from
+ * `@automattic/charts` directly: the toolkit is a shared script module, so
+ * charts is bundled once instead of once per widget.
+ */
+export {
+	GeoChart,
+	GlobalChartsProvider,
+	HeatmapChart,
+	HeatmapChartUnresponsive,
+	buildCalendarHeatmapData,
+	type DataPointDate,
+	type GeoChartError,
+	type GeoData,
+	type GoogleDataTableColumn,
+	type GoogleDataTableRow,
+} from '@automattic/charts';
+
+/**
+ * UI passthrough
+ *
+ * Widgets must import these from here, never from
+ * `@jetpack-premium-analytics/ui` directly: the toolkit is a shared script
+ * module, so the ui package is bundled once instead of once per widget.
+ */
+export { safeHttpUrl } from '@jetpack-premium-analytics/ui';

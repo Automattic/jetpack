@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the Referrers widget to the Premium Analytics dashboard: a ranked leaderboard of the websites and search engines referring visitors, with drill-down into referrer groups and sources, backed by the Jetpack Stats API.

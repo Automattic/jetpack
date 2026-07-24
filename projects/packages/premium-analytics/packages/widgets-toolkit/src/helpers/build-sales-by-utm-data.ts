@@ -2,22 +2,22 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { calculateDelta } from './calculate-delta';
-import type { LeaderboardChartData } from '../components/chart-leaderboard';
-import type { ReportDataMap } from '@jetpack-premium-analytics/data';
-
 /**
  * Internal dependencies
  */
+import { calculateDelta } from './calculate-delta';
+import { sharePercentage } from './share-percentage';
+import type { LeaderboardChartData } from '../components/chart-leaderboard/leaderboard-chart';
+import type { ReportDataMap } from '@jetpack-premium-analytics/data';
 
 /**
  * Builds leaderboard chart data for the Sales by UTM widget.
  *
  * Transforms order attribution data into the format required by LeaderboardChart.
  *
- * @param orderAttribution - Primary period order attribution data
- * @param maxEntries       - Maximum number of entries to include in the leaderboard
- * @return Processed data ready for LeaderboardChart component
+ * @param orderAttribution - Primary period order attribution data.
+ * @param maxEntries       - Maximum number of entries to include in the leaderboard.
+ * @return Processed data ready for LeaderboardChart.
  */
 export function buildSalesByUtmData(
 	orderAttribution: ReportDataMap[ 'order-attribution' ] | undefined,
@@ -29,12 +29,11 @@ export function buildSalesByUtmData(
 
 	const { data } = orderAttribution;
 
-	// Find the max value for share calculation
 	const maxValue = Math.max(
 		...data.map( item =>
 			Math.max( item.current_period.value || 0, item.previous_period?.value || 0 )
 		),
-		1 // Prevent division by zero
+		1
 	);
 
 	return data.slice( 0, maxEntries ).map( ( item, idx ) => {
@@ -47,8 +46,8 @@ export function buildSalesByUtmData(
 			label: item.item || __( 'Unassigned', 'jetpack-premium-analytics' ),
 			currentValue,
 			previousValue,
-			currentShare: ( currentValue / maxValue ) * 100,
-			previousShare: ( previousValue / maxValue ) * 100,
+			currentShare: sharePercentage( currentValue, maxValue ),
+			previousShare: sharePercentage( previousValue, maxValue ),
 			delta,
 		};
 	} );

@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Heartbeat: Report the missing connection owner and XML-RPC error stats for all connected sites.

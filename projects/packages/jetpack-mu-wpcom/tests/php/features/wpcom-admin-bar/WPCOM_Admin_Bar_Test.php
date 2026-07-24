@@ -142,4 +142,109 @@ class WPCOM_Admin_Bar_Test extends \WorDBless\BaseTestCase {
 		}
 		$property->setValue( null, null );
 	}
+
+	/**
+	 * Builds an admin bar with a 'site-name' node and, optionally, a child of it
+	 * (e.g. 'dashboard' as core adds on the front end, or 'view-site' as core
+	 * adds in wp-admin), then fires `admin_bar_menu`, the hook our Stats node
+	 * listens on.
+	 *
+	 * @param string|null $site_name_child Child node id to add under 'site-name', or null for none.
+	 */
+	private static function make_test_admin_bar_with_site_name( $site_name_child = null ) {
+		$admin_bar = new \WP_Admin_Bar();
+		$admin_bar->add_node(
+			array(
+				'id'    => 'site-name',
+				'title' => 'Test Site',
+			)
+		);
+
+		if ( $site_name_child !== null ) {
+			$admin_bar->add_node(
+				array(
+					'id'     => $site_name_child,
+					'parent' => 'site-name',
+					'title'  => ucfirst( $site_name_child ),
+					'href'   => 'https://example.com/wp-admin/',
+				)
+			);
+		}
+
+		do_action( 'admin_bar_menu', $admin_bar );
+
+		return $admin_bar;
+	}
+
+	/**
+	 * Forces `current_user_can( 'view_stats' )` to true for the test's duration.
+	 *
+	 * @param array $allcaps All capabilities of the user.
+	 * @return array
+	 */
+	public function grant_view_stats( $allcaps ) {
+		$allcaps['view_stats'] = true;
+		return $allcaps;
+	}
+
+	/**
+	 * Forces `current_user_can( 'view_stats' )` to false for the test's duration.
+	 *
+	 * @param array $allcaps All capabilities of the user.
+	 * @return array
+	 */
+	public function deny_view_stats( $allcaps ) {
+		$allcaps['view_stats'] = false;
+		return $allcaps;
+	}
+
+	public function test_stats_link_shown_when_dashboard_node_present() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		$admin_bar = self::make_test_admin_bar_with_site_name( 'dashboard' );
+		remove_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+
+		$stats_node = $admin_bar->get_node( 'wpcom-stats' );
+
+		$this->assertNotNull( $stats_node );
+		$this->assertSame( 'site-name', $stats_node->parent );
+		$this->assertSame( 'Stats', $stats_node->title );
+		$this->assertSame( admin_url( 'admin.php?page=stats' ), $stats_node->href );
+	}
+
+	/**
+	 * Core adds 'view-site' instead of 'dashboard' under 'site-name' in wp-admin
+	 * (is_admin() === true). The Stats link must show there too.
+	 */
+	public function test_stats_link_shown_when_view_site_node_present() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		$admin_bar = self::make_test_admin_bar_with_site_name( 'view-site' );
+		remove_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+
+		$stats_node = $admin_bar->get_node( 'wpcom-stats' );
+
+		$this->assertNotNull( $stats_node );
+		$this->assertSame( 'site-name', $stats_node->parent );
+		$this->assertSame( 'Stats', $stats_node->title );
+		$this->assertSame( admin_url( 'admin.php?page=stats' ), $stats_node->href );
+	}
+
+	public function test_stats_link_hidden_when_user_cannot_view_stats() {
+		add_filter( 'user_has_cap', array( $this, 'deny_view_stats' ) );
+		$admin_bar = self::make_test_admin_bar_with_site_name( 'dashboard' );
+		remove_filter( 'user_has_cap', array( $this, 'deny_view_stats' ) );
+
+		$stats_node = $admin_bar->get_node( 'wpcom-stats' );
+
+		$this->assertNull( $stats_node );
+	}
+
+	public function test_stats_link_hidden_when_dashboard_and_view_site_nodes_absent() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		$admin_bar = self::make_test_admin_bar_with_site_name();
+		remove_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+
+		$stats_node = $admin_bar->get_node( 'wpcom-stats' );
+
+		$this->assertNull( $stats_node );
+	}
 }

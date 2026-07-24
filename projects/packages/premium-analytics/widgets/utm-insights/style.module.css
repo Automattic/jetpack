@@ -1,0 +1,34 @@
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+.content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 0;
+	min-block-size: 0;
+}
+
+.backLink {
+	align-self: flex-start;
+	min-inline-size: 0;
+	margin-block-end: 0;
+}
+
+.itemLabel {
+	min-inline-size: 0;
+	padding-block: var(--wpds-dimension-padding-md);
+	padding-inline-start: var(--wpds-dimension-padding-sm);
+	padding-inline-end: var(--wpds-dimension-padding-lg);
+}
+
+.itemLabelText {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}

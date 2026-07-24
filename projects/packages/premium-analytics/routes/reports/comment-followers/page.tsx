@@ -1,0 +1,131 @@
+/**
+ * External dependencies
+ */
+import { type StatsCommentFollowersItem } from '@jetpack-premium-analytics/data';
+import { useDashboardLink } from '@jetpack-premium-analytics/routing';
+import {
+	MetricValue,
+	ReportErrorState,
+	ReportPageLayout,
+	ReportPageSection,
+	ReportPageShell,
+	ReportRecordsTable,
+	useReportRetry,
+} from '@jetpack-premium-analytics/widgets-toolkit';
+import { Breadcrumbs } from '@wordpress/admin-ui';
+import { Spinner } from '@wordpress/components';
+import { useMemo } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { EmptyState, Text } from '@wordpress/ui';
+/**
+ * Internal dependencies
+ */
+import { getCommentFollowersFields, useCommentFollowersReportRecords } from './config';
+import styles from './page.module.css';
+
+/**
+ * Initial records-table view: subscribers sort descending, the post column
+ * absorbs spare width, and the numeric column stays compact and right-aligned.
+ */
+const RECORDS_VIEW = {
+	sort: { field: 'subscribers', direction: 'desc' as const },
+	layout: {
+		styles: {
+			post: { width: '100%' },
+			subscribers: { align: 'end' as const },
+		},
+	},
+};
+
+/**
+ * Stable row id for the records table.
+ *
+ * @param item - The comment-followers row.
+ * @return The row id.
+ */
+function getCommentFollowerRowId( item: StatsCommentFollowersItem ): string {
+	return String( item.id ?? item.link ?? item.label );
+}
+
+/**
+ * Premium Analytics Comments Subscribers report page component.
+ *
+ * This legacy report is an all-time paginated list without date buckets, so
+ * it composes only the breadcrumb header and records table: no date filters,
+ * tabs, or performance chart.
+ *
+ * @return The Comments Subscribers report page.
+ */
+function CommentFollowersReport(): JSX.Element {
+	const records = useCommentFollowersReportRecords();
+	const fields = useMemo( () => getCommentFollowersFields(), [] );
+	const retry = useReportRetry( records.refetch );
+
+	// Preserve the shared report window when returning to the dashboard.
+	const dashboardLink = useDashboardLink();
+
+	return (
+		<ReportPageShell
+			breadcrumbs={
+				<Breadcrumbs
+					items={ [
+						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
+						{ label: __( 'Comments Subscribers', 'jetpack-premium-analytics' ) },
+					] }
+				/>
+			}
+		>
+			<ReportPageLayout>
+				{ records.isError ? (
+					<ReportErrorState
+						title={ __( 'Unable to load subscribers', 'jetpack-premium-analytics' ) }
+						onRetry={ retry }
+					/>
+				) : (
+					<>
+						<ReportPageSection className={ styles.summary }>
+							<Text variant="heading-md" render={ <h3 /> }>
+								{ __( 'All Posts', 'jetpack-premium-analytics' ) }
+							</Text>
+							{ records.isLoading ? (
+								<Spinner />
+							) : (
+								<MetricValue
+									value={ records.allPostsFollowers ?? 0 }
+									dataFormat={ { type: 'number' } }
+								/>
+							) }
+						</ReportPageSection>
+						<ReportRecordsTable< StatsCommentFollowersItem >
+							data={ records.rows }
+							fields={ fields }
+							getItemId={ getCommentFollowerRowId }
+							isLoading={ records.isLoading }
+							initialView={ RECORDS_VIEW }
+							searchLabel={ __( 'Search posts', 'jetpack-premium-analytics' ) }
+							empty={
+								<EmptyState.Root>
+									<EmptyState.Title>
+										{ __( 'No subscribers', 'jetpack-premium-analytics' ) }
+									</EmptyState.Title>
+								</EmptyState.Root>
+							}
+						/>
+					</>
+				) }
+			</ReportPageLayout>
+		</ReportPageShell>
+	);
+}
+
+/**
+ * Comments Subscribers report page (default export for the report registry).
+ *
+ * React Query and global error handling are provided by the shared report
+ * stage, which lazily renders this page through the registry.
+ *
+ * @return The Comments Subscribers report page.
+ */
+export default function CommentFollowersReportPage(): JSX.Element {
+	return <CommentFollowersReport />;
+}

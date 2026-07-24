@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Connect screen: accept React synthetic events on the connect button click handler to satisfy the `@wordpress/ui` 0.15 Button onClick type.

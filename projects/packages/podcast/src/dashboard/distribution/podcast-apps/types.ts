@@ -7,8 +7,6 @@ export interface PodcastApp {
 	Logo: ComponentType;
 	submitUrl: string;
 	learnMoreUrl?: string;
-	// Lowercase, no `www.`. Mirrors SHOW_URL_HOSTS in src/class-settings.php.
-	showHosts: readonly string[];
 	// Full replacement for the default 3-step submit modal.
 	Modal?: ComponentType< PodcastAppModalProps >;
 }

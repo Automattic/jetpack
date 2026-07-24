@@ -147,6 +147,8 @@ class Ai_Answer_Render_Test extends TestCase {
 	public function test_show_citations_true_renders_citations_list() {
 		$markup = $this->render( array( 'showCitations' => true ) );
 		$this->assertStringContainsString( 'jp-search-answers-panel__citations', $markup );
+		$this->assertStringContainsString( 'data-wp-each-key="context.citation.key"', $markup );
+		$this->assertStringNotContainsString( 'data-wp-key=', $markup );
 	}
 
 	public function test_show_citations_false_omits_citations_list() {

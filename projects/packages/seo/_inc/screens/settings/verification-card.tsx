@@ -5,7 +5,6 @@ import { __, sprintf, _n } from '@wordpress/i18n';
 import { Badge, Card, CollapsibleCard, Stack } from '@wordpress/ui';
 import { VERIFICATION_SERVICES } from '../../data/verification-services';
 import GoogleVerificationField from './google-verification-field';
-import './style.scss';
 import type { SettingsResponse, VerificationKey } from '../../data/settings-types';
 import type { FC } from 'react';
 
@@ -58,7 +57,7 @@ const VerificationCard: FC< Props > = ( {
 						{ verifiedCount > 0
 							? sprintf(
 									/* translators: %d: number of verification services configured */
-									_n( '%d verified', '%d verified', verifiedCount, 'jetpack-seo' ),
+									_n( '%d set', '%d set', verifiedCount, 'jetpack-seo' ),
 									verifiedCount
 							  )
 							: notSetLabel }
@@ -74,7 +73,7 @@ const VerificationCard: FC< Props > = ( {
 						onCommit={ onCommit }
 						disabled={ disabled }
 					/>
-					<div className="jetpack-seo-settings__verification-grid">
+					<Stack direction="column" gap="md">
 						{ VERIFICATION_SERVICES.filter( ( { key } ) => key !== 'google' ).map(
 							( { key, label } ) => (
 								<TextControl
@@ -90,7 +89,7 @@ const VerificationCard: FC< Props > = ( {
 								/>
 							)
 						) }
-					</div>
+					</Stack>
 				</Stack>
 			</CollapsibleCard.Content>
 		</CollapsibleCard.Root>

@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 4.6.2-beta
+Stable tag: 4.6.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -185,20 +185,12 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 4. Historical performance tracking with the upgraded plan.
 
 == Changelog ==
-### 4.6.2-beta - 2026-06-24
-#### Added
-- Concatenate JS/CSS: allow administrators to test additional exclude handles per-request via jb-minify-js-excludes / jb-minify-css-excludes GET parameters, without changing saved settings. The parameters are ignored for non-administrators.
-- Defer JS: add an exclusion list so specific pages can be excluded by URL pattern without disabling the feature site-wide.
-
+### 4.6.3 - 2026-06-26
 #### Changed
-- Migrate ToggleControl to @wordpress/components
-- Update package dependencies. [#49631] [#49638] [#49691] [#49757] [#49831] 
+- Update dependencies.
 
 #### Fixed
-- Critical CSS: continue generating for remaining providers when one provider fails unexpectedly, instead of failing the whole run.
-- Critical CSS: stop stripping inline SVG markup and double quotes from valid CSS values while still preventing style-tag breakout.
-- Defer JS: keep position-dependent inline scripts (document.write) in place instead of moving them after the footer.
-- Page Cache: more reliably remove the boost-cache directory on uninstall, and avoid cleanup hanging or timing out on very large caches.
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active.
 
 --------
 

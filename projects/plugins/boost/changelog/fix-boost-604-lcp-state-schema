@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+LCP: Preserve analysis results when a page reports an error or when the homepage is also configured as a cornerstone page.

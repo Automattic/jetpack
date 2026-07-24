@@ -1,7 +1,7 @@
 import { DonutMeter } from '@automattic/jetpack-components';
-import { Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { Card } from '@wordpress/ui';
+import { Button, Card, Stack, Text } from '@wordpress/ui';
+import styles from './style.module.scss';
 import type { ContentCoverage } from '../../data/overview-types';
 import type { FC } from 'react';
 
@@ -25,11 +25,11 @@ interface RingProps {
  * @param props         - Component props.
  * @param props.label   - Localized label for the metric.
  * @param props.segment - Number of posts with the field set.
- * @param props.total   - Total published posts/pages.
+ * @param props.total   - Total published supported content items.
  * @return A labelled coverage ring.
  */
 const CoverageRing: FC< RingProps > = ( { label, segment, total } ) => (
-	<div className="jetpack-seo-overview__coverage-ring">
+	<Stack direction="column" align="center" gap="xs" className={ styles.ring }>
 		<DonutMeter
 			totalCount={ total }
 			segmentCount={ segment }
@@ -42,16 +42,16 @@ const CoverageRing: FC< RingProps > = ( { label, segment, total } ) => (
 				total
 			) }
 		/>
-		<div className="jetpack-seo-overview__coverage-count">
+		<Text variant="heading-md">
 			{ sprintf(
 				/* translators: %1$d: posts with the field set, %2$d: total published posts. */
 				__( '%1$d / %2$d', 'jetpack-seo' ),
 				segment,
 				total
 			) }
-		</div>
-		<div className="jetpack-seo-overview__coverage-label">{ label }</div>
-	</div>
+		</Text>
+		<Text variant="body-sm">{ label }</Text>
+	</Stack>
 );
 
 const ContentCoverageCard: FC< Props > = ( { data, onManage } ) => {
@@ -64,9 +64,11 @@ const ContentCoverageCard: FC< Props > = ( { data, onManage } ) => {
 			</Card.Header>
 			<Card.Content>
 				{ total === 0 ? (
-					<p>{ __( 'No published posts or pages yet.', 'jetpack-seo' ) }</p>
+					<Text variant="body-md" render={ <p /> }>
+						{ __( 'No published posts or pages yet.', 'jetpack-seo' ) }
+					</Text>
 				) : (
-					<div className="jetpack-seo-overview__coverage-rings">
+					<div className={ styles.rings }>
 						<CoverageRing
 							label={ __( 'Schema applied', 'jetpack-seo' ) }
 							segment={ with_schema }
@@ -89,11 +91,11 @@ const ContentCoverageCard: FC< Props > = ( { data, onManage } ) => {
 						/>
 					</div>
 				) }
-				<div className="jetpack-seo-overview__card-footer">
-					<Button variant="secondary" onClick={ onManage }>
+				<Stack direction="row" justify="flex-end" className={ styles.footer }>
+					<Button variant="outline" tone="neutral" onClick={ onManage }>
 						{ __( 'Manage content', 'jetpack-seo' ) }
 					</Button>
-				</div>
+				</Stack>
 			</Card.Content>
 		</Card.Root>
 	);

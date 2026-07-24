@@ -8,8 +8,8 @@
 namespace Automattic\Jetpack\Podcast;
 
 /**
- * Prefills the new-post screen with the configured podcast category and, on
- * Premium, an inserted Podcast Episode block.
+ * Prefills the new-post screen with the configured podcast category and a media
+ * block: the Podcast Episode block on qualifying plans, a core Audio block otherwise.
  */
 class New_Episode_Prefill {
 
@@ -51,18 +51,12 @@ class New_Episode_Prefill {
 		}
 
 		add_action( 'wp_insert_post', array( __CLASS__, 'assign_category' ), 10, 3 );
-
-		if ( Podcast_Gate::has_product_access() ) {
-			add_filter( 'default_content', array( __CLASS__, 'prefill_block_content' ), 10, 2 );
-		}
+		add_filter( 'default_content', array( __CLASS__, 'prefill_block_content' ), 10, 2 );
 	}
 
 	/**
-	 * Assign the configured podcast category to the new auto-draft.
-	 *
-	 * Narrowed to the initial auto-draft so user-driven saves later in the
-	 * session aren't re-overridden; self-unhooks so sibling auto-drafts in the
-	 * same request are left alone.
+	 * Assign the configured podcast category to the initial auto-draft only, so
+	 * later user saves aren't overridden. Self-unhooks after handling one draft.
 	 *
 	 * @param int      $post_id Post ID.
 	 * @param \WP_Post $post    Post object.
@@ -94,10 +88,8 @@ class New_Episode_Prefill {
 	}
 
 	/**
-	 * Inject a Podcast Episode block as the new post's initial content.
-	 *
-	 * No-op if another plugin has already filled `$content`, so this composes
-	 * politely.
+	 * Inject the new post's initial media block: the Podcast Episode block with
+	 * product access, else a core Audio block. No-op if `$content` is already set.
 	 *
 	 * @param string   $content Default post content.
 	 * @param \WP_Post $post    Post object.
@@ -116,7 +108,9 @@ class New_Episode_Prefill {
 
 		remove_filter( 'default_content', array( __CLASS__, 'prefill_block_content' ), 10 );
 
-		return "<!-- wp:jetpack/podcast-episode /-->\n";
+		return Podcast_Gate::has_product_access()
+			? "<!-- wp:jetpack/podcast-episode /-->\n"
+			: "<!-- wp:audio /-->\n";
 	}
 
 	/**

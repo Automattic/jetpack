@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Content Guidelines AI: Restore compatibility with the Gutenberg 23.6 Guidelines page by reading section drafts from the page DOM instead of the removed core/guidelines store.

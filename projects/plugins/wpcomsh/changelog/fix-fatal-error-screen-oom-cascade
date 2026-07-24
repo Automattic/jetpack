@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fatal error screen: ensure enough free memory before rendering (raising the limit when headroom is short, or falling back to core's screen) so the screen no longer exhausts memory mid-render on a near-limit request and masks the real error in logs.

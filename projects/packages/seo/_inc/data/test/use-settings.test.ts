@@ -1,5 +1,6 @@
 import { jest } from '@jest/globals';
 import { act, renderHook, waitFor } from '@testing-library/react';
+import { makeSchemaSettings } from './fixtures/schema-settings-fixtures';
 import type { SettingsResponse } from '../settings-types';
 
 // True-ESM Jest (`--experimental-vm-modules`): register mocks with
@@ -13,12 +14,14 @@ const setSettings = jest.fn();
 
 const SEED: SettingsResponse = {
 	front_page_description: 'Old description.',
+	has_legacy_front_page_meta: false,
 	title_formats: { posts: [ { type: 'token', value: 'site_name' } ] },
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	search_engines_visible: true,
 	sitemap_active: false,
 	sitemap_url: '',
 	canonical_active: false,
+	schema: makeSchemaSettings(),
 };
 
 const SETTINGS_STORE = 'seo/settings';
@@ -141,6 +144,25 @@ describe( 'useSettingsForm', () => {
 		act( () => result.current.commitFields( [ 'front_page_description' ] ) );
 		act( () => result.current.commitTitleFormat( 'posts' ) );
 
+		expect( mockApiFetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'updates the saved settings snapshot when schema saves separately', () => {
+		const { result } = renderHook( () => useSettingsForm() );
+		const schema = {
+			...SEED.schema,
+			organization: {
+				...SEED.schema.organization,
+				sameAs: [ 'https://example.com/acme' ],
+			},
+		};
+
+		act( () => result.current.setField( { front_page_description: 'Unsaved description.' } ) );
+		act( () => result.current.setSchemaSettings( schema ) );
+
+		expect( result.current.local?.schema ).toEqual( schema );
+		expect( result.current.local?.front_page_description ).toBe( 'Unsaved description.' );
+		expect( setSettings ).toHaveBeenCalledWith( { ...SEED, schema } );
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 } );

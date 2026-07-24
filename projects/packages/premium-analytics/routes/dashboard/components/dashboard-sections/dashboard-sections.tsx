@@ -1,5 +1,4 @@
-import { Tabs } from '@wordpress/ui';
-import { useCallback } from 'react';
+import { SectionTabs } from '@jetpack-premium-analytics/ui';
 import styles from './dashboard-sections.module.scss';
 import type { DashboardSection, DashboardSectionId } from '../../config';
 import type { ReactNode } from 'react';
@@ -33,6 +32,9 @@ type DashboardSectionsProps = {
  * changes upward. Panel children are rendered inside the same Tabs.Root so the
  * tablist and section content share a complete tab/panel relationship.
  *
+ * Tabs are keyed by the section `slug` (the URL-facing identifier the active
+ * section state uses), not the namespaced `id`.
+ *
  * @param props          - Component props.
  * @param props.sections - The sections to render, in order.
  * @param props.value    - The currently active section ID.
@@ -46,24 +48,15 @@ export function DashboardSections( {
 	onChange,
 	children,
 }: DashboardSectionsProps ) {
-	// Hoisted so it isn't an inline arrow in JSX (react/jsx-no-bind is an error).
-	const handleValueChange = useCallback(
-		( sectionId: string ) => onChange( sectionId as DashboardSectionId ),
-		[ onChange ]
-	);
-
 	return (
-		<Tabs.Root value={ value } onValueChange={ handleValueChange }>
-			<div className={ styles.tabList }>
-				<Tabs.List variant="minimal">
-					{ sections.map( section => (
-						<Tabs.Tab key={ section.id } value={ section.id }>
-							{ section.label }
-						</Tabs.Tab>
-					) ) }
-				</Tabs.List>
-			</div>
+		<SectionTabs
+			tabs={ sections.map( ( { slug, label } ) => ( { id: slug, label } ) ) }
+			value={ value }
+			onChange={ onChange }
+			rootClassName={ styles.root }
+			className={ styles.tabList }
+		>
 			{ children }
-		</Tabs.Root>
+		</SectionTabs>
 	);
 }

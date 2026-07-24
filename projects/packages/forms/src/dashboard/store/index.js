@@ -1,4 +1,3 @@
-// import { createStore, applyMiddleware, compose } from 'redux';
 import { createReduxStore, register } from '@wordpress/data';
 import * as actions from './actions.js';
 import reducer from './reducer.js';

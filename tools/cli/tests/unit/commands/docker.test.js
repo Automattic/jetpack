@@ -28,6 +28,7 @@ jest.unstable_mockModule( 'child_process', () => ( {
 const {
 	getProjectName,
 	buildEnv,
+	buildExecCmd,
 	resolveDevCloneSource,
 	normalizeProjectShortName,
 	pipeDbDump,
@@ -150,6 +151,34 @@ describe( 'buildEnv', () => {
 		expect( env.PORT_INBOX ).toBeUndefined();
 		expect( env.PORT_SMTP ).toBeUndefined();
 		expect( env.PORT_SFTP ).toBeUndefined();
+	} );
+} );
+
+describe( 'buildExecCmd', () => {
+	// Strip the `-f<compose file>` args, which aren't what these tests are about.
+	const execArgs = argv => buildExecCmd( argv ).filter( arg => ! arg.startsWith( '-f' ) );
+
+	test( 'passes the version through to update-core', () => {
+		expect( execArgs( { _: [ 'docker', 'update-core' ], version: '6.9' } ) ).toEqual( [
+			'exec',
+			'-T',
+			'wordpress',
+			'/var/scripts/update-core.sh',
+			'6.9',
+		] );
+	} );
+
+	// Without -T, `docker compose exec` tries to allocate a pseudo-tty and fails when there
+	// isn't one, which is how e2e-env.sh and CI invoke it.
+	test.each( [ [ 'update-core' ], [ 'install' ], [ 'exec-silent' ] ] )(
+		'disables pseudo-tty allocation for %s',
+		cmd => {
+			expect( execArgs( { _: [ 'docker', cmd ], version: 'latest' } ) ).toContain( '-T' );
+		}
+	);
+
+	test( 'keeps pseudo-tty allocation for interactive commands', () => {
+		expect( execArgs( { _: [ 'docker', 'sh' ] } ) ).toEqual( [ 'exec', 'wordpress', 'bash' ] );
 	} );
 } );
 

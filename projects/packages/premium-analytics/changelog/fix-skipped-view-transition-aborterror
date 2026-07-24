@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Routing: Disable view transitions for URL-only dashboard updates.

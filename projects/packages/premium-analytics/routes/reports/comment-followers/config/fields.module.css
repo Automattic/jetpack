@@ -1,0 +1,9 @@
+.postLink {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xs);
+}
+
+.externalIcon {
+	flex-shrink: 0;
+}

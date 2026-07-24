@@ -22,11 +22,8 @@ export const DASHBOARD_NAME = 'jetpack-premium-analytics_dashboard';
  */
 export const DASHBOARD_PREFERENCES_SCOPE = 'jetpack-premium-analytics/dashboard';
 
-/** Preferences key holding the dashboard layout array. */
-export const DASHBOARD_LAYOUT_KEY = 'dashboardLayout';
-
 /** Preferences key holding the dashboard grid settings. */
 export const DASHBOARD_GRID_SETTINGS_KEY = 'dashboardGridSettings';
 
-/** REST namespace that exposes the dashboard's default layout. */
-export const DASHBOARD_REST_NAMESPACE = 'jetpack/v4';
+/** REST namespace that exposes Premium Analytics dashboard endpoints. */
+export const DASHBOARD_REST_NAMESPACE = 'wpcom/v2';

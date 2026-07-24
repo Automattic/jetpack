@@ -29,12 +29,9 @@ class Podcast_Test extends BaseTestCase {
 	}
 
 	/**
-	 * `init()` should run cleanly on every host. In test environments (and on
-	 * any non-Simple/non-Atomic site in production), the host gate
-	 * short-circuits before the filter is evaluated, so this exercises the
-	 * most common no-op path.
+	 * `init()` wires the full package on any host without erroring.
 	 */
-	public function test_init_returns_cleanly_on_non_wpcom_host() {
+	public function test_init_wires_cleanly_on_non_wpcom_host() {
 		Podcast::init();
 		$this->expectNotToPerformAssertions();
 	}

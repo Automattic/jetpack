@@ -1,17 +1,7 @@
 /**
  * External dependencies
  */
-import { describe, expect, it, jest, beforeEach } from '@jest/globals';
-
-// Create mock function
-const updateMenuCounterOptimistically = jest.fn();
-
-// Mock the utils module before importing
-await jest.unstable_mockModule( '../../../../src/dashboard/inbox/utils.js', () => ( {
-	updateMenuCounterOptimistically,
-	updateMenuCounter: jest.fn(),
-	withTimeout: promise => promise,
-} ) );
+import { describe, expect, it, jest, beforeEach, afterEach } from '@jest/globals';
 
 /**
  * Internal dependencies
@@ -19,6 +9,20 @@ await jest.unstable_mockModule( '../../../../src/dashboard/inbox/utils.js', () =
 const { processStatusChange } = await import(
 	'../../../../src/dashboard/inbox/stage/process-status-change.ts'
 );
+
+const FORMS_MENU_BADGE_SLUG = 'jetpack-forms-responses-wp-admin';
+
+/**
+ * A `setCount` stand-in that mirrors the real shared client: it writes the new
+ * count back onto the badge's `data-jp-menu-count` attribute, so sequential
+ * optimistic updates (e.g. across a bulk operation) compound correctly.
+ */
+const setCount = jest.fn( ( menuSlug, count ) => {
+	const badge = document.querySelector( `[data-jp-menu-badge="${ menuSlug }"]` );
+	if ( badge ) {
+		badge.setAttribute( 'data-jp-menu-count', String( count ) );
+	}
+} );
 
 describe( 'processStatusChange menu counter', () => {
 	let editEntityRecord;
@@ -28,6 +32,12 @@ describe( 'processStatusChange menu counter', () => {
 		jest.clearAllMocks();
 		editEntityRecord = jest.fn();
 		updateCountsOptimistically = jest.fn();
+		document.body.innerHTML = `<span data-jp-menu-badge="${ FORMS_MENU_BADGE_SLUG }" data-jp-menu-count="5"></span>`;
+		window.jetpackMenuBadges = { setCount };
+	} );
+
+	afterEach( () => {
+		delete window.jetpackMenuBadges;
 	} );
 
 	it( 'decrements counter when moving unread publish item to spam', async () => {
@@ -43,7 +53,7 @@ describe( 'processStatusChange menu counter', () => {
 			queryParams: {},
 		} );
 
-		expect( updateMenuCounterOptimistically ).toHaveBeenCalledWith( -1 );
+		expect( setCount ).toHaveBeenCalledWith( FORMS_MENU_BADGE_SLUG, 4 );
 	} );
 
 	it( 'decrements counter when moving unread publish item to trash', async () => {
@@ -59,7 +69,7 @@ describe( 'processStatusChange menu counter', () => {
 			queryParams: {},
 		} );
 
-		expect( updateMenuCounterOptimistically ).toHaveBeenCalledWith( -1 );
+		expect( setCount ).toHaveBeenCalledWith( FORMS_MENU_BADGE_SLUG, 4 );
 	} );
 
 	it( 'increments counter when restoring unread spam item to publish', async () => {
@@ -75,7 +85,7 @@ describe( 'processStatusChange menu counter', () => {
 			queryParams: {},
 		} );
 
-		expect( updateMenuCounterOptimistically ).toHaveBeenCalledWith( 1 );
+		expect( setCount ).toHaveBeenCalledWith( FORMS_MENU_BADGE_SLUG, 6 );
 	} );
 
 	it( 'increments counter when restoring unread trash item to publish', async () => {
@@ -91,7 +101,7 @@ describe( 'processStatusChange menu counter', () => {
 			queryParams: {},
 		} );
 
-		expect( updateMenuCounterOptimistically ).toHaveBeenCalledWith( 1 );
+		expect( setCount ).toHaveBeenCalledWith( FORMS_MENU_BADGE_SLUG, 6 );
 	} );
 
 	it( 'does not update counter for read items', async () => {
@@ -107,7 +117,7 @@ describe( 'processStatusChange menu counter', () => {
 			queryParams: {},
 		} );
 
-		expect( updateMenuCounterOptimistically ).not.toHaveBeenCalled();
+		expect( setCount ).not.toHaveBeenCalled();
 	} );
 
 	it( 'does not update counter when moving spam to trash', async () => {
@@ -123,7 +133,7 @@ describe( 'processStatusChange menu counter', () => {
 			queryParams: {},
 		} );
 
-		expect( updateMenuCounterOptimistically ).not.toHaveBeenCalled();
+		expect( setCount ).not.toHaveBeenCalled();
 	} );
 
 	it( 'updates counter once per item in bulk operations', async () => {
@@ -147,8 +157,11 @@ describe( 'processStatusChange menu counter', () => {
 			queryParams: {},
 		} );
 
-		expect( updateMenuCounterOptimistically ).toHaveBeenCalledTimes( 3 );
-		expect( updateMenuCounterOptimistically ).toHaveBeenCalledWith( -1 );
+		// Each item decrements the shared badge count in turn: 5 -> 4 -> 3 -> 2.
+		expect( setCount ).toHaveBeenCalledTimes( 3 );
+		expect( setCount ).toHaveBeenNthCalledWith( 1, FORMS_MENU_BADGE_SLUG, 4 );
+		expect( setCount ).toHaveBeenNthCalledWith( 2, FORMS_MENU_BADGE_SLUG, 3 );
+		expect( setCount ).toHaveBeenNthCalledWith( 3, FORMS_MENU_BADGE_SLUG, 2 );
 	} );
 
 	it( 'reverts counter when API call fails', async () => {
@@ -164,10 +177,10 @@ describe( 'processStatusChange menu counter', () => {
 			queryParams: {},
 		} );
 
-		// Should be called twice: once to decrement, once to revert
-		expect( updateMenuCounterOptimistically ).toHaveBeenCalledTimes( 2 );
-		expect( updateMenuCounterOptimistically ).toHaveBeenNthCalledWith( 1, -1 ); // Initial optimistic update
-		expect( updateMenuCounterOptimistically ).toHaveBeenNthCalledWith( 2, 1 ); // Revert
+		// Should be called twice: once to decrement (5 -> 4), once to revert (4 -> 5).
+		expect( setCount ).toHaveBeenCalledTimes( 2 );
+		expect( setCount ).toHaveBeenNthCalledWith( 1, FORMS_MENU_BADGE_SLUG, 4 ); // Initial optimistic update
+		expect( setCount ).toHaveBeenNthCalledWith( 2, FORMS_MENU_BADGE_SLUG, 5 ); // Revert
 	} );
 
 	it( 'reverts counter when restoring from spam fails', async () => {
@@ -183,10 +196,10 @@ describe( 'processStatusChange menu counter', () => {
 			queryParams: {},
 		} );
 
-		// Should be called twice: once to increment, once to revert
-		expect( updateMenuCounterOptimistically ).toHaveBeenCalledTimes( 2 );
-		expect( updateMenuCounterOptimistically ).toHaveBeenNthCalledWith( 1, 1 ); // Initial optimistic update
-		expect( updateMenuCounterOptimistically ).toHaveBeenNthCalledWith( 2, -1 ); // Revert
+		// Should be called twice: once to increment (5 -> 6), once to revert (6 -> 5).
+		expect( setCount ).toHaveBeenCalledTimes( 2 );
+		expect( setCount ).toHaveBeenNthCalledWith( 1, FORMS_MENU_BADGE_SLUG, 6 ); // Initial optimistic update
+		expect( setCount ).toHaveBeenNthCalledWith( 2, FORMS_MENU_BADGE_SLUG, 5 ); // Revert
 	} );
 
 	it( 'reverts only failed items in bulk operations', async () => {
@@ -210,12 +223,12 @@ describe( 'processStatusChange menu counter', () => {
 			queryParams: {},
 		} );
 
-		// Called 3 times for optimistic updates, 1 time to revert the failed item
-		expect( updateMenuCounterOptimistically ).toHaveBeenCalledTimes( 4 );
-		expect( updateMenuCounterOptimistically ).toHaveBeenNthCalledWith( 1, -1 );
-		expect( updateMenuCounterOptimistically ).toHaveBeenNthCalledWith( 2, -1 );
-		expect( updateMenuCounterOptimistically ).toHaveBeenNthCalledWith( 3, -1 );
-		expect( updateMenuCounterOptimistically ).toHaveBeenNthCalledWith( 4, 1 ); // Revert for item 2
+		// 3 optimistic decrements (5 -> 4 -> 3 -> 2), then 1 revert for the failed item (2 -> 3).
+		expect( setCount ).toHaveBeenCalledTimes( 4 );
+		expect( setCount ).toHaveBeenNthCalledWith( 1, FORMS_MENU_BADGE_SLUG, 4 );
+		expect( setCount ).toHaveBeenNthCalledWith( 2, FORMS_MENU_BADGE_SLUG, 3 );
+		expect( setCount ).toHaveBeenNthCalledWith( 3, FORMS_MENU_BADGE_SLUG, 2 );
+		expect( setCount ).toHaveBeenNthCalledWith( 4, FORMS_MENU_BADGE_SLUG, 3 ); // Revert for item 2
 	} );
 
 	it( 'does not revert counter for read items when API fails', async () => {
@@ -232,6 +245,6 @@ describe( 'processStatusChange menu counter', () => {
 		} );
 
 		// Should not be called at all since item is read
-		expect( updateMenuCounterOptimistically ).not.toHaveBeenCalled();
+		expect( setCount ).not.toHaveBeenCalled();
 	} );
 } );

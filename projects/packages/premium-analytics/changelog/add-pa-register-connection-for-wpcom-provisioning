@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Register Premium Analytics as a connected plugin and sync its version constant so WPCom provisions the WooCommerce Analytics custom tables for PA-only stores.

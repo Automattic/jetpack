@@ -2,7 +2,6 @@ import { useState } from '@wordpress/element';
 import { Tabs } from '@wordpress/ui';
 import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
 import { DashboardSections } from '../../../routes/dashboard/components';
-import { DEFAULT_SECTION_ID, getDashboardSections } from '../../../routes/dashboard/config';
 import styles from '../../../routes/dashboard/stage.module.scss';
 import type { Meta, StoryObj } from '@storybook/react';
 import type {
@@ -14,6 +13,8 @@ import type {
 type StoryWidgetAttributes = {
 	title: string;
 };
+
+type StoryWidgetProps = WidgetRenderProps< StoryWidgetAttributes >;
 
 const widgetTypes: WidgetType< StoryWidgetAttributes >[] = [
 	{
@@ -60,11 +61,10 @@ const initialLayout: DashboardWidget[] = [
 /**
  * Story-only widget renderer.
  *
- * @param props            - Widget render props.
- * @param props.attributes - Story widget attributes.
+ * @param {StoryWidgetProps} props - Widget render props.
  * @return Rendered story widget.
  */
-function StoryWidget( { attributes }: WidgetRenderProps< StoryWidgetAttributes > ) {
+function StoryWidget( { attributes }: StoryWidgetProps ) {
 	return (
 		<div
 			style={ {
@@ -91,14 +91,29 @@ const resolveWidgetModule: ResolveWidgetModule = moduleId =>
 		? Promise.resolve( { default: StoryWidget } )
 		: Promise.reject( new Error( `Unknown story widget module: ${ moduleId }` ) );
 
+// In product the section list is server-driven (the dashboardSection entity);
+// the story pins a static list mirroring that response shape.
+const storySections = [
+	{ id: 'analytics/traffic', slug: 'traffic', label: 'Traffic', order: 10, default_layout: [] },
+	{ id: 'analytics/insights', slug: 'insights', label: 'Insights', order: 20, default_layout: [] },
+	{
+		id: 'analytics/subscribers',
+		slug: 'subscribers',
+		label: 'Subscribers',
+		order: 30,
+		default_layout: [],
+	},
+	{ id: 'woocommerce/store', slug: 'store', label: 'Store', order: 40, default_layout: [] },
+];
+
 /**
  * Story showing the dashboard section panel scroll surface around a widget grid.
  *
  * @return Story component.
  */
 function DashboardSectionsGridStory() {
-	const sections = getDashboardSections();
-	const [ activeSection, setActiveSection ] = useState( DEFAULT_SECTION_ID );
+	const sections = storySections;
+	const [ activeSection, setActiveSection ] = useState( sections[ 0 ].slug );
 	const [ layout, setLayout ] = useState< DashboardWidget[] >( initialLayout );
 
 	return (
@@ -130,13 +145,8 @@ function DashboardSectionsGridStory() {
 				onChange={ setActiveSection }
 			>
 				{ sections.map( section => (
-					<Tabs.Panel
-						key={ section.id }
-						value={ section.id }
-						focusable={ false }
-						className={ styles.content }
-					>
-						{ activeSection === section.id ? (
+					<Tabs.Panel key={ section.slug } value={ section.slug } className={ styles.content }>
+						{ activeSection === section.slug ? (
 							<WidgetDashboard
 								widgetTypes={ widgetTypes }
 								layout={ layout }

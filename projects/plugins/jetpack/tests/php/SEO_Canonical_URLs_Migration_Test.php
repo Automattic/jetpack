@@ -6,6 +6,7 @@
  * @package jetpack
  */
 
+use Automattic\Jetpack\SEO\Dashboard_Data as Jetpack_SEO_Dashboard_Data;
 use Automattic\Jetpack\SEO\Initializer as Jetpack_SEO_Initializer;
 use PHPUnit\Framework\Attributes\CoversClass;
 
@@ -100,11 +101,11 @@ class SEO_Canonical_URLs_Migration_Test extends WP_UnitTestCase {
 	 */
 	public function test_settings_read_sources_canonical_active_from_option() {
 		update_option( $this->option, true );
-		$settings = Jetpack_SEO_Initializer::get_settings_data();
+		$settings = Jetpack_SEO_Dashboard_Data::get_settings_data();
 		$this->assertTrue( $settings['canonical_active'] );
 
 		update_option( $this->option, false );
-		$settings = Jetpack_SEO_Initializer::get_settings_data();
+		$settings = Jetpack_SEO_Dashboard_Data::get_settings_data();
 		$this->assertFalse( $settings['canonical_active'] );
 	}
 
@@ -115,7 +116,7 @@ class SEO_Canonical_URLs_Migration_Test extends WP_UnitTestCase {
 		delete_option( $this->option );
 		$this->set_active_modules( array( 'canonical-urls' ) );
 
-		$settings = Jetpack_SEO_Initializer::get_settings_data();
+		$settings = Jetpack_SEO_Dashboard_Data::get_settings_data();
 
 		$this->assertTrue( $settings['canonical_active'] );
 	}
