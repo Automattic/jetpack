@@ -93,7 +93,7 @@ class AI_Launchpad_Eligibility_Test extends \WorDBless\BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_ai_launchpad_variation_makes_the_site_eligible() {
-		add_filter( 'wpcom_launchpad_personalization_variation', fn() => 'ai-launchpad' );
+		add_filter( 'wpcom_launchpad_personalization_variation', fn() => 'ai_launchpad' );
 		$this->assertTrue( AI_Launchpad::is_eligible() );
 	}
 
@@ -106,7 +106,7 @@ class AI_Launchpad_Eligibility_Test extends \WorDBless\BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_no_guidance_variation_is_not_eligible() {
-		add_filter( 'wpcom_launchpad_personalization_variation', fn() => 'no-guidance' );
+		add_filter( 'wpcom_launchpad_personalization_variation', fn() => 'no_guidance' );
 		$this->assertFalse( AI_Launchpad::is_eligible() );
 	}
 

@@ -43,8 +43,8 @@ class Launchpad_Personalization_Experiment_Test extends \WorDBless\BaseTestCase 
 			)
 		);
 		wp_set_current_user( $user_id );
-		add_filter( 'wpcom_launchpad_personalization_variation', fn() => 'no-guidance' );
-		$this->assertSame( 'no-guidance', Launchpad_Personalization_Experiment::get_variation() );
+		add_filter( 'wpcom_launchpad_personalization_variation', fn() => 'no_guidance' );
+		$this->assertSame( 'no_guidance', Launchpad_Personalization_Experiment::get_variation() );
 	}
 
 	public function test_unknown_override_normalizes_to_control() {

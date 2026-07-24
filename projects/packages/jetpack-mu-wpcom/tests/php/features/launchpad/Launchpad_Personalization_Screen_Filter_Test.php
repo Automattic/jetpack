@@ -17,7 +17,7 @@ class Launchpad_Personalization_Screen_Filter_Test extends \WorDBless\BaseTestCa
 	}
 
 	public function test_ai_launchpad_variation_forces_off() {
-		add_filter( 'wpcom_launchpad_personalization_variation', fn() => 'ai-launchpad' );
+		add_filter( 'wpcom_launchpad_personalization_variation', fn() => 'ai_launchpad' );
 		$this->assertSame(
 			'off',
 			wpcom_maybe_disable_for_launchpad_personalization( 'full' )
@@ -25,7 +25,7 @@ class Launchpad_Personalization_Screen_Filter_Test extends \WorDBless\BaseTestCa
 	}
 
 	public function test_no_guidance_variation_forces_off() {
-		add_filter( 'wpcom_launchpad_personalization_variation', fn() => 'no-guidance' );
+		add_filter( 'wpcom_launchpad_personalization_variation', fn() => 'no_guidance' );
 		$this->assertSame(
 			'off',
 			wpcom_maybe_disable_for_launchpad_personalization( 'full' )

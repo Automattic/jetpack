@@ -23,7 +23,7 @@ class Launchpad_Personalization_Experiment {
 	const EXPERIMENT_NAME = 'wpcom_launchpad_personalization_202607_v1';
 
 	/**
-	 * The current user's variation: 'control', 'ai-launchpad', or 'no-guidance'.
+	 * The current user's variation: 'control', 'ai_launchpad', or 'no_guidance'.
 	 *
 	 * @return string
 	 */
@@ -100,7 +100,7 @@ class Launchpad_Personalization_Experiment {
 	 * @return string
 	 */
 	private static function normalize( $variation ) {
-		if ( 'ai-launchpad' === $variation || 'no-guidance' === $variation ) {
+		if ( 'ai_launchpad' === $variation || 'no_guidance' === $variation ) {
 			return $variation;
 		}
 		return 'control';

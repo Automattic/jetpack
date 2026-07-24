@@ -767,7 +767,7 @@ function wpcom_maybe_disable_for_launchpad_personalization( $value ) {
 	}
 
 	$variation = \Automattic\Jetpack\Jetpack_Mu_Wpcom\Launchpad_Personalization_Experiment::get_variation();
-	if ( 'ai-launchpad' === $variation || 'no-guidance' === $variation ) {
+	if ( 'ai_launchpad' === $variation || 'no_guidance' === $variation ) {
 		return 'off';
 	}
 
