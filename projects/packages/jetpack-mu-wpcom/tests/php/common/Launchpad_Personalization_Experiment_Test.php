@@ -19,18 +19,18 @@ class Launchpad_Personalization_Experiment_Test extends \WorDBless\BaseTestCase 
 
 	public function set_up() {
 		parent::set_up();
-		delete_transient( 'launchpad-personalization-arm-' . get_current_user_id() );
+		delete_transient( 'launchpad-personalization-variation-' . get_current_user_id() );
 	}
 
 	public function tear_down() {
-		remove_all_filters( 'wpcom_launchpad_personalization_arm' );
+		remove_all_filters( 'wpcom_launchpad_personalization_variation' );
 		wp_set_current_user( 0 );
 		parent::tear_down();
 	}
 
 	public function test_returns_control_without_a_logged_in_user() {
 		wp_set_current_user( 0 );
-		$this->assertSame( 'control', Launchpad_Personalization_Experiment::get_arm() );
+		$this->assertSame( 'control', Launchpad_Personalization_Experiment::get_variation() );
 	}
 
 	public function test_override_filter_wins() {
@@ -43,8 +43,8 @@ class Launchpad_Personalization_Experiment_Test extends \WorDBless\BaseTestCase 
 			)
 		);
 		wp_set_current_user( $user_id );
-		add_filter( 'wpcom_launchpad_personalization_arm', fn() => 'no-guidance' );
-		$this->assertSame( 'no-guidance', Launchpad_Personalization_Experiment::get_arm() );
+		add_filter( 'wpcom_launchpad_personalization_variation', fn() => 'no-guidance' );
+		$this->assertSame( 'no-guidance', Launchpad_Personalization_Experiment::get_variation() );
 	}
 
 	public function test_unknown_override_normalizes_to_control() {
@@ -57,7 +57,7 @@ class Launchpad_Personalization_Experiment_Test extends \WorDBless\BaseTestCase 
 			)
 		);
 		wp_set_current_user( $user_id );
-		add_filter( 'wpcom_launchpad_personalization_arm', fn() => 'bogus' );
-		$this->assertSame( 'control', Launchpad_Personalization_Experiment::get_arm() );
+		add_filter( 'wpcom_launchpad_personalization_variation', fn() => 'bogus' );
+		$this->assertSame( 'control', Launchpad_Personalization_Experiment::get_variation() );
 	}
 }

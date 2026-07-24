@@ -1,6 +1,6 @@
 <?php
 /**
- * Resolves the wpcom_launchpad_personalization_202607_v1 experiment arm server-side.
+ * Resolves the wpcom_launchpad_personalization_202607_v1 experiment variation server-side.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -12,7 +12,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status\Host;
 
 /**
- * Reads the launchpad-personalization arm for the current user.
+ * Reads the launchpad-personalization variation for the current user.
  *
  * Simple sites use the native non-assigning ExPlat read; Atomic sites fetch the
  * assignment over the connected-user REST endpoint (segmentation-bounded). The result
@@ -23,17 +23,17 @@ class Launchpad_Personalization_Experiment {
 	const EXPERIMENT_NAME = 'wpcom_launchpad_personalization_202607_v1';
 
 	/**
-	 * The current user's arm: 'control', 'ai-launchpad', or 'no-guidance'.
+	 * The current user's variation: 'control', 'ai-launchpad', or 'no-guidance'.
 	 *
 	 * @return string
 	 */
-	public static function get_arm() {
+	public static function get_variation() {
 		/**
-		 * Overrides the resolved arm (testing / manual QA). Return one of the arm strings, or null to use ExPlat.
+		 * Overrides the resolved variation (testing / manual QA). Return one of the variation strings, or null to use ExPlat.
 		 *
-		 * @param string|null $override The forced arm, or null.
+		 * @param string|null $override The forced variation, or null.
 		 */
-		$override = apply_filters( 'wpcom_launchpad_personalization_arm', null );
+		$override = apply_filters( 'wpcom_launchpad_personalization_variation', null );
 		if ( null !== $override ) {
 			return self::normalize( $override );
 		}
@@ -43,16 +43,16 @@ class Launchpad_Personalization_Experiment {
 			return 'control';
 		}
 
-		$cache_key = 'launchpad-personalization-arm-' . $user_id;
+		$cache_key = 'launchpad-personalization-variation-' . $user_id;
 		$cached    = get_transient( $cache_key );
 		if ( false !== $cached ) {
 			return (string) $cached;
 		}
 
-		$arm = self::normalize( self::fetch_variation() );
-		set_transient( $cache_key, $arm, HOUR_IN_SECONDS );
+		$variation = self::normalize( self::fetch_variation() );
+		set_transient( $cache_key, $variation, HOUR_IN_SECONDS );
 
-		return $arm;
+		return $variation;
 	}
 
 	/**
@@ -94,7 +94,7 @@ class Launchpad_Personalization_Experiment {
 	}
 
 	/**
-	 * Map any variation onto a known arm; unknown/null becomes 'control'.
+	 * Map any variation onto a known value; unknown/null becomes 'control'.
 	 *
 	 * @param string|null $variation The raw variation name.
 	 * @return string

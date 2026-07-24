@@ -753,21 +753,21 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 
 /**
  * Filter for `get_option( 'launchpad_screen' )`: hide the old Launchpad for the
- * launchpad-personalization treatment arms. Derives from the arm rather than writing
- * the option, so no non-experiment site is ever mistaken for a cohort. Runs on Simple
- * and Atomic (not gated on IS_WPCOM).
+ * launchpad-personalization treatment variations. Derives from the variation rather than
+ * writing the option, so no non-experiment site is ever mistaken for a cohort. Runs on
+ * Simple and Atomic (not gated on IS_WPCOM).
  *
  * @param mixed $value The filterable option value, retrieved from the DB.
- * @return mixed 'off' for a treatment arm, the unaltered value otherwise.
+ * @return mixed 'off' for a treatment variation, the unaltered value otherwise.
  */
 function wpcom_maybe_disable_for_launchpad_personalization( $value ) {
-	// If it's already false, leave it — and avoid resolving the arm needlessly.
+	// If it's already false, leave it — and avoid resolving the variation needlessly.
 	if ( $value === false ) {
 		return $value;
 	}
 
-	$arm = \Automattic\Jetpack\Jetpack_Mu_Wpcom\Launchpad_Personalization_Experiment::get_arm();
-	if ( 'ai-launchpad' === $arm || 'no-guidance' === $arm ) {
+	$variation = \Automattic\Jetpack\Jetpack_Mu_Wpcom\Launchpad_Personalization_Experiment::get_variation();
+	if ( 'ai-launchpad' === $variation || 'no-guidance' === $variation ) {
 		return 'off';
 	}
 

@@ -12,20 +12,20 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/launchpad/launchpad.php';
 class Launchpad_Personalization_Screen_Filter_Test extends \WorDBless\BaseTestCase {
 
 	public function tear_down() {
-		remove_all_filters( 'wpcom_launchpad_personalization_arm' );
+		remove_all_filters( 'wpcom_launchpad_personalization_variation' );
 		parent::tear_down();
 	}
 
-	public function test_ai_launchpad_arm_forces_off() {
-		add_filter( 'wpcom_launchpad_personalization_arm', fn() => 'ai-launchpad' );
+	public function test_ai_launchpad_variation_forces_off() {
+		add_filter( 'wpcom_launchpad_personalization_variation', fn() => 'ai-launchpad' );
 		$this->assertSame(
 			'off',
 			wpcom_maybe_disable_for_launchpad_personalization( 'full' )
 		);
 	}
 
-	public function test_no_guidance_arm_forces_off() {
-		add_filter( 'wpcom_launchpad_personalization_arm', fn() => 'no-guidance' );
+	public function test_no_guidance_variation_forces_off() {
+		add_filter( 'wpcom_launchpad_personalization_variation', fn() => 'no-guidance' );
 		$this->assertSame(
 			'off',
 			wpcom_maybe_disable_for_launchpad_personalization( 'full' )
@@ -33,14 +33,14 @@ class Launchpad_Personalization_Screen_Filter_Test extends \WorDBless\BaseTestCa
 	}
 
 	public function test_control_passes_the_value_through() {
-		add_filter( 'wpcom_launchpad_personalization_arm', fn() => 'control' );
+		add_filter( 'wpcom_launchpad_personalization_variation', fn() => 'control' );
 		$this->assertSame(
 			'full',
 			wpcom_maybe_disable_for_launchpad_personalization( 'full' )
 		);
 	}
 
-	public function test_false_short_circuits_before_resolving_the_arm() {
+	public function test_false_short_circuits_before_resolving_the_variation() {
 		$this->assertFalse( wpcom_maybe_disable_for_launchpad_personalization( false ) );
 	}
 }

@@ -117,7 +117,7 @@ class AI_Launchpad {
 			return true;
 		}
 
-		return 'ai-launchpad' === Launchpad_Personalization_Experiment::get_arm();
+		return 'ai-launchpad' === Launchpad_Personalization_Experiment::get_variation();
 	}
 
 	/**
