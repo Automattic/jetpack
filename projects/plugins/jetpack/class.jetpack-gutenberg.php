@@ -1158,8 +1158,11 @@ class Jetpack_Gutenberg {
 	 * display blocks are registered just-in-time as they render.
 	 *
 	 * This runs at module-load time (around after_setup_theme), before core defines
-	 * REST_REQUEST during parse_request, so REST requests are detected from the
-	 * request URL instead of the constant.
+	 * REST_REQUEST during parse_request, so self-hosted and Atomic REST requests are
+	 * detected from the request URL instead of the constant. WordPress.com Simple
+	 * dispatches proxied wpcom/v2 requests (such as the GutenbergKit editor-assets
+	 * endpoint) without a /wp-json/ REQUEST_URI, so those are detected via the
+	 * REST_API_REQUEST constant, which Simple defines during bootstrap.
 	 *
 	 * @since 16.0
 	 *
@@ -1174,11 +1177,20 @@ class Jetpack_Gutenberg {
 		 * Treat any non-front-end execution context as block-editor. These are not the
 		 * front-end hot path this gate optimizes, and some still render block content
 		 * (e.g. cron-generated subscription e-mails) that depends on full registration.
+		 *
+		 * Core defines REST_REQUEST during parse_request, after this runs, so it is
+		 * normally still unset here; it is checked anyway so the result stays correct
+		 * if this is ever called later in the request. WordPress.com Simple defines
+		 * REST_API_REQUEST during bootstrap, which *is* set by module-load time, and is
+		 * how proxied wpcom/v2 requests identify themselves — their REQUEST_URI is not
+		 * a /wp-json/ path, so the URL check below cannot see them.
 		 */
 		if (
-			( defined( 'DOING_CRON' ) && DOING_CRON )
-			|| ( defined( 'WP_CLI' ) && WP_CLI )
-			|| ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
+			Constants::is_true( 'DOING_CRON' )
+			|| Constants::is_true( 'WP_CLI' )
+			|| Constants::is_true( 'XMLRPC_REQUEST' )
+			|| Constants::is_true( 'REST_REQUEST' )
+			|| Constants::is_true( 'REST_API_REQUEST' )
 		) {
 			return true;
 		}

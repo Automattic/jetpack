@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Blocks: load editor-only extensions for WordPress.com Simple REST requests, restoring block plan availability (such as the core/video upgrade nudge) in the mobile editor.

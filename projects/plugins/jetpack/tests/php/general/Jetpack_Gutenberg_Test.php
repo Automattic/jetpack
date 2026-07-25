@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -52,6 +53,9 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		parent::tear_down();
+
+		Constants::clear_single_constant( 'REST_REQUEST' );
+		Constants::clear_single_constant( 'REST_API_REQUEST' );
 
 		Jetpack_Gutenberg::reset();
 		remove_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_extensions_whitelist' ) );
@@ -659,6 +663,48 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 		$saved                  = $_SERVER['REQUEST_URI'] ?? null;
 		$_SERVER['REQUEST_URI'] = '/?rest_route=/wp/v2/block-types';
 		$this->assertTrue( $this->invoke_is_block_editor_context() );
+		$_SERVER['REQUEST_URI'] = $saved;
+	}
+
+	/**
+	 * WordPress.com Simple dispatches proxied wpcom/v2 requests (e.g. the GutenbergKit
+	 * editor-assets endpoint) without a /wp-json/ REQUEST_URI, so the URL checks cannot
+	 * see them. They are identified by the REST_API_REQUEST constant, which Simple
+	 * defines during bootstrap — early enough for this module-load-time check.
+	 *
+	 * Without this, editor-only extensions (e.g. extended-blocks/core-video) are skipped
+	 * and their plan availability never reaches the editor.
+	 */
+	public function test_is_block_editor_context_is_true_for_wpcom_rest_api_request() {
+		$saved                  = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/sample-page/';
+		Constants::set_constant( 'REST_API_REQUEST', true );
+		$this->assertTrue( $this->invoke_is_block_editor_context() );
+		$_SERVER['REQUEST_URI'] = $saved;
+	}
+
+	/**
+	 * Core defines REST_REQUEST during parse_request, after this check normally runs,
+	 * but it must still be honored if the constant is already set.
+	 */
+	public function test_is_block_editor_context_is_true_for_rest_request_constant() {
+		$saved                  = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/sample-page/';
+		Constants::set_constant( 'REST_REQUEST', true );
+		$this->assertTrue( $this->invoke_is_block_editor_context() );
+		$_SERVER['REQUEST_URI'] = $saved;
+	}
+
+	/**
+	 * Neither REST constant set on a front-end URL keeps the front-end hot path
+	 * deferred, which is what the extension gate exists to optimize.
+	 */
+	public function test_is_block_editor_context_is_false_without_rest_constants() {
+		$saved                  = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/sample-page/';
+		Constants::clear_single_constant( 'REST_REQUEST' );
+		Constants::clear_single_constant( 'REST_API_REQUEST' );
+		$this->assertFalse( $this->invoke_is_block_editor_context() );
 		$_SERVER['REQUEST_URI'] = $saved;
 	}
 
