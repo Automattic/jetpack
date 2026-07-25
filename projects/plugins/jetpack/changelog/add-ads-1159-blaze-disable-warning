@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Blaze: warn users with active campaigns before disabling the Blaze module.

@@ -2,10 +2,11 @@
 
 /* eslint-disable react/jsx-no-bind */
 
-import { Button, TextControl } from '@wordpress/components';
+import { TextControl } from '@wordpress/components';
 import { useCallback, useMemo, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Badge, Card, CollapsibleCard, Stack } from '@wordpress/ui';
+import { Badge, Button, Card, CollapsibleCard, Stack, Text } from '@wordpress/ui';
+import getSite from '../../data/get-site';
 import {
 	PAGE_TYPES,
 	PAGE_TYPE_SUGGESTIONS,
@@ -15,7 +16,7 @@ import {
 	stringToTokens,
 	tokensToString,
 } from '../../data/title-format-tokens';
-import './style.scss';
+import styles from './title-structure-field.module.scss';
 import type { TitleFormatToken } from '../../data/settings-types';
 import type { FC } from 'react';
 
@@ -24,31 +25,52 @@ import type { FC } from 'react';
 // extraction. See feedback_i18n_ternary_minifier_fold.
 const defaultLabel = __( 'Default', 'jetpack-seo' );
 const previewLabel = __( 'Preview', 'jetpack-seo' );
+const insertLabel = __( 'Insert placeholder', 'jetpack-seo' );
+const saveLabel = __( 'Save', 'jetpack-seo' );
 
 interface RowProps {
 	pageTypeId: string;
 	label: string;
 	tokens: TitleFormatToken[];
 	onChange: ( next: TitleFormatToken[] ) => void;
+	onSave: () => void;
+	canSave: boolean;
+	previewOverrides: Partial< Record< string, string > >;
 	disabled?: boolean;
 }
 
 /**
- * One page type's title-structure editor: a text input holding the format as an
- * editable string (placeholders shown as bracketed labels like `[Site name]`,
- * with literal text — including separators like ` | ` — typed in between), plus
- * a row of buttons that insert a placeholder at the caret, and a live preview.
+ * One page type's title-structure editor as a single row (rows are separated by
+ * a hairline divider, not boxed): the labelled text input (holding the format as
+ * an editable string — bracketed placeholders like `[Site name]` with literal
+ * text, including separators like ` | `, typed between), then a labelled row of
+ * buttons that insert a placeholder at the caret, and a footer pairing the live
+ * preview with this row's own Save button.
  *
  * This mirrors the legacy Jetpack SEO title editor (a text field + insert-token
  * buttons) rather than a token/chip field, so separators and repeated separators
  * round-trip cleanly. A bracketed label not valid for this page type is kept as
  * a literal fragment so the save never carries a token the back-end rejects.
+ * Each row saves on its own (the list is long enough to scroll), persisting only
+ * this page type.
  */
-const TitleStructureRow: FC< RowProps > = ( { pageTypeId, label, tokens, onChange, disabled } ) => {
+const TitleStructureRow: FC< RowProps > = ( {
+	pageTypeId,
+	label,
+	tokens,
+	onChange,
+	onSave,
+	canSave,
+	previewOverrides,
+	disabled,
+} ) => {
 	const inputRef = useRef< HTMLInputElement | null >( null );
 	const value = useMemo( () => tokensToString( tokens ), [ tokens ] );
 	const allowed = PAGE_TYPE_TOKENS[ pageTypeId ];
-	const preview = useMemo( () => buildPreview( tokens ), [ tokens ] );
+	const preview = useMemo(
+		() => buildPreview( tokens, previewOverrides ),
+		[ tokens, previewOverrides ]
+	);
 
 	const setFromString = useCallback(
 		( next: string ) => onChange( stringToTokens( next, allowed ) ),
@@ -75,20 +97,7 @@ const TitleStructureRow: FC< RowProps > = ( { pageTypeId, label, tokens, onChang
 	);
 
 	return (
-		<div className="jetpack-seo-settings__title-row">
-			<Stack direction="row" gap="xs" wrap>
-				{ PAGE_TYPE_SUGGESTIONS[ pageTypeId ].map( tokenId => (
-					<Button
-						key={ tokenId }
-						variant="secondary"
-						size="small"
-						disabled={ disabled }
-						onClick={ () => insertToken( tokenId ) }
-					>
-						{ TOKEN_LABELS[ tokenId ] }
-					</Button>
-				) ) }
-			</Stack>
+		<Stack direction="column" gap="md" className={ styles.row }>
 			<TextControl
 				ref={ inputRef }
 				label={ label }
@@ -98,29 +107,77 @@ const TitleStructureRow: FC< RowProps > = ( { pageTypeId, label, tokens, onChang
 				__next40pxDefaultSize
 				__nextHasNoMarginBottom
 			/>
-			{ tokens.length > 0 && (
-				<div className="jetpack-seo-settings__preview">
-					<strong>{ previewLabel }:</strong> { preview }
-				</div>
-			) }
-		</div>
+			<Stack direction="column" gap="xs">
+				<Text variant="body-sm" className={ styles.muted }>
+					{ insertLabel }
+				</Text>
+				<Stack direction="row" gap="xs" wrap="wrap">
+					{ PAGE_TYPE_SUGGESTIONS[ pageTypeId ].map( tokenId => (
+						<Button
+							key={ tokenId }
+							variant="outline"
+							tone="neutral"
+							size="compact"
+							disabled={ disabled }
+							onClick={ () => insertToken( tokenId ) }
+						>
+							{ TOKEN_LABELS[ tokenId ] }
+						</Button>
+					) ) }
+				</Stack>
+			</Stack>
+			<Stack direction="row" align="flex-start" gap="lg">
+				{ tokens.length > 0 && (
+					<Text variant="body-md" className={ styles.preview }>
+						<strong>{ previewLabel }:</strong> { preview }
+					</Text>
+				) }
+				<Button className={ styles.save } onClick={ onSave } disabled={ disabled || ! canSave }>
+					{ saveLabel }
+				</Button>
+			</Stack>
+		</Stack>
 	);
 };
 
 interface Props {
 	formats: Record< string, TitleFormatToken[] >;
 	onChange: ( pageType: string, next: TitleFormatToken[] ) => void;
+	/** Persist one page type's format — each row saves independently. */
+	onSaveFormat: ( pageType: string ) => void;
+	/** Whether a page type has unsaved edits (enables that row's Save button). */
+	isFormatDirty: ( pageType: string ) => boolean;
 	disabled?: boolean;
 }
 
 /**
  * Title structure editor covering every page type (front page, posts, pages,
- * tags, archives), one text-input row per type. The back-end stores a format
- * per page type under `advanced_seo_title_formats`; each type accepts its own
- * token subset (see `PAGE_TYPE_TOKENS`).
+ * tags, archives), one row per type (separated by a divider). The back-end
+ * stores a format per page type under `advanced_seo_title_formats`; each type
+ * accepts its own token
+ * subset (see `PAGE_TYPE_TOKENS`). Each row edits local state while typing and
+ * saves on its own button — the list is long enough to scroll, so a single
+ * section Save would be out of reach from the lower rows.
  */
-const TitleStructureField: FC< Props > = ( { formats, onChange, disabled } ) => {
+const TitleStructureField: FC< Props > = ( {
+	formats,
+	onChange,
+	onSaveFormat,
+	isFormatDirty,
+	disabled,
+} ) => {
 	const customizedCount = PAGE_TYPES.filter( pt => ( formats[ pt.id ]?.length ?? 0 ) > 0 ).length;
+
+	// Fill the site-wide placeholders in each row's preview with the site's real
+	// name and tagline (bootstrapped in `seo.site`). Coalesce to '' when the site
+	// data is absent so the empty value falls through to the sample text in
+	// `buildPreview`. Per-page tokens like [Post title] keep their representative
+	// samples since they vary per page.
+	const site = getSite();
+	const previewOverrides = useMemo(
+		() => ( { site_name: site?.title ?? '', tagline: site?.tagline ?? '' } ),
+		[ site?.title, site?.tagline ]
+	);
 
 	return (
 		<CollapsibleCard.Root defaultOpen={ false }>
@@ -148,6 +205,9 @@ const TitleStructureField: FC< Props > = ( { formats, onChange, disabled } ) => 
 							label={ pt.label }
 							tokens={ formats[ pt.id ] ?? [] }
 							onChange={ next => onChange( pt.id, next ) }
+							onSave={ () => onSaveFormat( pt.id ) }
+							canSave={ isFormatDirty( pt.id ) }
+							previewOverrides={ previewOverrides }
 							disabled={ disabled }
 						/>
 					) ) }

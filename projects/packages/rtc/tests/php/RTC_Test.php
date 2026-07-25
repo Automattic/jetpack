@@ -184,9 +184,7 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_is_enabled_returns_true_when_allowed_and_option_enabled() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
-		// Short-circuit get_option so the stored value is independent of how the
-		// test harness persists this option across WP versions.
-		add_filter( 'pre_option_' . RTC::OPTION_NEW, '__return_true' );
+		RTC::init();
 		$this->assertTrue( RTC::is_enabled() );
 	}
 
@@ -242,7 +240,6 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_get_providers_returns_providers_when_enabled() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
-		update_option( RTC::OPTION_NEW, '1' );
 		RTC::init();
 		add_filter(
 			'jetpack_rtc_providers',
@@ -259,7 +256,6 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_get_providers_filters_unknown_providers() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
-		update_option( RTC::OPTION_NEW, '1' );
 		RTC::init();
 		add_filter(
 			'jetpack_rtc_providers',
@@ -292,7 +288,6 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_get_providers_reindexes_after_filtering() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
-		update_option( RTC::OPTION_NEW, '1' );
 		RTC::init();
 		add_filter(
 			'jetpack_rtc_providers',
@@ -328,7 +323,6 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_get_providers_default_passes_allowlist() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
-		update_option( RTC::OPTION_NEW, '1' );
 		RTC::init();
 
 		$this->assertSame( array( 'pinghub' ), RTC::get_providers() );
@@ -361,7 +355,6 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_register_providers_enqueues_when_pinghub() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
-		update_option( RTC::OPTION_NEW, '1' );
 		RTC::init();
 		add_filter(
 			'jetpack_rtc_providers',
@@ -380,7 +373,6 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_register_providers_enqueues_with_multiple_providers() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
-		update_option( RTC::OPTION_NEW, '1' );
 		RTC::init();
 		add_filter(
 			'jetpack_rtc_providers',
@@ -399,7 +391,6 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_register_providers_does_not_include_jwt_token() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
-		update_option( RTC::OPTION_NEW, '1' );
 		RTC::init();
 		add_filter(
 			'jetpack_rtc_providers',
@@ -513,14 +504,12 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that default_rtc_option returns '0' when RTC is allowed but no option is stored.
-	 *
-	 * RTC is disabled by default; sites must explicitly opt in via the setting.
+	 * Tests that default_rtc_option returns '1' when RTC is allowed and no option is stored.
 	 */
-	public function test_default_rtc_option_returns_0_when_allowed_and_not_stored() {
+	public function test_default_rtc_option_returns_1_when_allowed() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
 
-		$this->assertSame( '0', RTC::default_rtc_option( '', RTC::OPTION_OLD ) );
+		$this->assertSame( '1', RTC::default_rtc_option( '', RTC::OPTION_OLD ) );
 	}
 
 	/**
@@ -528,9 +517,9 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_default_rtc_option_migrates_old_to_new() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
-		update_option( RTC::OPTION_OLD, '1' );
+		update_option( RTC::OPTION_OLD, '0' );
 
-		$this->assertSame( '1', RTC::default_rtc_option( '', RTC::OPTION_NEW ) );
+		$this->assertSame( '0', RTC::default_rtc_option( '', RTC::OPTION_NEW ) );
 	}
 
 	// -------------------------------------------------------------------------

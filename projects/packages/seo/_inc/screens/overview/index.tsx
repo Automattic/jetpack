@@ -1,18 +1,24 @@
 /* eslint-disable react/jsx-no-bind */
 
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import { Notice } from '@wordpress/ui';
+import { Notice, Stack } from '@wordpress/ui';
+import EnableSeoCard from '../../components/enable-seo-card';
+import UpsellBanner from '../../components/upsell-banner';
+import { aiStore } from '../../data/ai-store';
 import { coverageStore } from '../../data/coverage-store';
 import getOverview from '../../data/get-overview';
+import { isGated } from '../../data/is-gated';
+import { settingsStore } from '../../data/settings-store';
+import AiCrawlerCard from './ai-crawler-card';
 import ContentCoverageCard from './content-coverage-card';
 import DisableSeoTools from './disable-seo-tools';
-import EnableSeoCard from './enable-seo-card';
 import SiteVerificationCard from './site-verification-card';
 import SiteVisibilityCard from './site-visibility-card';
-import './style.scss';
+import styles from './style.module.scss';
 import type { FC } from 'react';
 
 const OverviewScreen: FC = () => {
@@ -22,6 +28,17 @@ const OverviewScreen: FC = () => {
 	// Coverage comes from the shared store (seeded from the bootstrap) so a save
 	// in the Content route's inspector reflects here on navigation, no reload.
 	const coverage = useSelect( select => select( coverageStore ).getCoverage(), [] );
+
+	// Site-visibility toggles live in the Settings route, so read them from the
+	// settings store (seeded from the bootstrap, updated on each save) rather than
+	// the static Overview bootstrap — otherwise a toggle there wouldn't reflect
+	// here until a full reload. The "View" link itself lives on the Settings tab.
+	const settings = useSelect( select => select( settingsStore ).getSettings(), [] );
+
+	// AI-crawler state lives in the same store the GEO tab uses (seeded from the
+	// page's `ai` preload), so the Overview reads it directly rather than adding a
+	// crawler slice to the Overview payload.
+	const crawlers = useSelect( select => select( aiStore ).getCrawlers(), [] );
 
 	// Deep-link to a Settings section: navigate to the Settings route with
 	// `?focus=`, which the Settings screen reads to scroll the section to top.
@@ -34,11 +51,48 @@ const OverviewScreen: FC = () => {
 	// Deep-link to the Content route.
 	const goToContent = useCallback( () => navigate( { href: '/content' } ), [ navigate ] );
 
+	// Deep-link to the GEO route (AI crawler management).
+	const goToAi = useCallback( () => navigate( { href: '/ai' } ), [ navigate ] );
+
 	if ( ! data ) {
 		return (
 			<Notice.Root intent="error">
 				<Notice.Description>{ __( 'Unable to load overview.', 'jetpack-seo' ) }</Notice.Description>
 			</Notice.Root>
+		);
+	}
+
+	// Overlay the live Settings-store visibility values on the Overview bootstrap so a
+	// toggle reflects here without a reload; rendered by the Site visibility card in
+	// both the gated and ungated layouts.
+	const siteVisibilityData = {
+		...data.site_visibility,
+		search_engines_visible:
+			settings?.search_engines_visible ?? data.site_visibility.search_engines_visible,
+		sitemap_active: settings?.sitemap_active ?? data.site_visibility.sitemap_active,
+	};
+
+	// On plan-gated sites (below-Premium WordPress.com) the Overview reduces to the
+	// two always-valid cards (site visibility + verification, both backed by core
+	// WordPress options) topped with the upsell banner. The AI-crawler and
+	// content-coverage cards and the disable control are paid surfaces, hidden here.
+	if ( isGated() ) {
+		return (
+			// Column Stack (matching the Settings tab) so the upsell banner — which sits
+			// below the cards and isn't dismissible — has space above it.
+			<Stack direction="column" gap="lg" className={ styles.root }>
+				<div className={ styles.grid }>
+					<SiteVisibilityCard
+						data={ siteVisibilityData }
+						onManage={ () => goToSection( 'visibility' ) }
+					/>
+					<SiteVerificationCard
+						data={ data.site_verification }
+						onManage={ () => goToSection( 'verification' ) }
+					/>
+				</div>
+				<UpsellBanner />
+			</Stack>
 		);
 	}
 
@@ -48,14 +102,14 @@ const OverviewScreen: FC = () => {
 	// `useSeoToolsToggle` and `Initializer::init()`.
 	if ( ! data.site_visibility.seo_tools_active ) {
 		return (
-			<div className="jetpack-seo-overview">
+			<div className={ styles.root }>
 				<EnableSeoCard />
 			</div>
 		);
 	}
 
 	return (
-		<div className="jetpack-seo-overview">
+		<div className={ styles.root }>
 			{ ! data.plan.seo_enabled_for_site && (
 				<Notice.Root intent="warning">
 					<Notice.Description>
@@ -66,20 +120,32 @@ const OverviewScreen: FC = () => {
 					</Notice.Description>
 				</Notice.Root>
 			) }
-			<div className="jetpack-seo-overview__grid">
+			<div className={ styles.grid }>
 				<SiteVisibilityCard
-					data={ data.site_visibility }
+					data={ siteVisibilityData }
 					onManage={ () => goToSection( 'visibility' ) }
 				/>
 				<SiteVerificationCard
 					data={ data.site_verification }
 					onManage={ () => goToSection( 'verification' ) }
 				/>
+				{ crawlers && (
+					<AiCrawlerCard
+						data={ crawlers }
+						searchEnginesVisible={
+							settings?.search_engines_visible ?? crawlers.searchEnginesVisible
+						}
+						onManage={ goToAi }
+					/>
+				) }
 			</div>
-			<div className="jetpack-seo-overview__content-card">
+			<div className={ styles.contentCard }>
 				<ContentCoverageCard data={ coverage ?? data.content_coverage } onManage={ goToContent } />
 			</div>
-			<DisableSeoTools />
+			{ /* Hidden on WordPress.com Simple, where `Modules::is_active()` reports
+			     every module active regardless of stored state, so SEO tools can't
+			     actually be turned off — the off-ramp would appear to do nothing. */ }
+			{ ! isSimpleSite() && <DisableSeoTools /> }
 		</div>
 	);
 };

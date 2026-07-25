@@ -8,6 +8,7 @@ describe( 'toSyncStatus', () => {
 			isRunning: false,
 			percentage: 0,
 			initialFullSyncFinished: 0,
+			hasStoreData: true,
 		} );
 	} );
 
@@ -143,6 +144,66 @@ describe( 'toSyncStatus', () => {
 	} );
 } );
 
+describe( 'toSyncStatus without an analytics backend (hasStoreData = false)', () => {
+	it( 'reports not-started before any sync runs, so the screen auto-triggers', () => {
+		const status = toSyncStatus( { started: false }, 0, false );
+		expect( status ).toEqual( {
+			isStarted: false,
+			isRunning: false,
+			percentage: 0,
+			initialFullSyncFinished: 0,
+			hasStoreData: false,
+		} );
+	} );
+
+	it( 'tracks an in-flight generic full sync as running', () => {
+		const status = toSyncStatus( { started: true, finished: false }, 0, false );
+		expect( status.isStarted ).toBe( true );
+		expect( status.isRunning ).toBe( true );
+	} );
+
+	it( 'sums progress across all modules for the percentage', () => {
+		const status = toSyncStatus(
+			{
+				started: true,
+				finished: false,
+				progress: {
+					options: { sent: 1, total: 2 },
+					posts: { sent: 1, total: 2 },
+				},
+			},
+			0,
+			false
+		);
+		// (1 + 1) / (2 + 2) = 50%
+		expect( status.percentage ).toBe( 50 );
+	} );
+
+	it( 'does not treat a finished connection-time initial_sync as stalled', () => {
+		// The connection-time initial_sync sets started/finished before the user
+		// triggers anything. Without a backend we must still auto-trigger rather
+		// than show "Sync interrupted", so this is neither started nor stalled.
+		const status = toSyncStatus(
+			{ started: true, finished: 1_700_000_000, progress: { options: { sent: 1, total: 1 } } },
+			0,
+			false
+		);
+		expect( status.isStarted ).toBe( false );
+		expect( status.isRunning ).toBe( false );
+		// Percentage stays 0: the milestone is unset and the sync is not in flight, so
+		// the stale 100% progress of the connection-time sync must not flash a full bar.
+		expect( status.percentage ).toBe( 0 );
+		expect( isSyncStalled( status ) ).toBe( false );
+		expect( isSyncComplete( status ) ).toBe( false );
+	} );
+
+	it( 'is complete once the generic full sync milestone is set', () => {
+		const status = toSyncStatus( { started: true, finished: true }, 1_700_000_000, false );
+		expect( status.percentage ).toBe( 100 );
+		expect( isSyncComplete( status ) ).toBe( true );
+	} );
+} );
+
 describe( 'isSyncComplete', () => {
 	it( 'is complete when the milestone is set', () => {
 		expect(
@@ -151,6 +212,7 @@ describe( 'isSyncComplete', () => {
 				isRunning: false,
 				percentage: 100,
 				initialFullSyncFinished: 1_700_000_000,
+				hasStoreData: true,
 			} )
 		).toBe( true );
 	} );
@@ -162,6 +224,7 @@ describe( 'isSyncComplete', () => {
 				isRunning: false,
 				percentage: 100,
 				initialFullSyncFinished: 0,
+				hasStoreData: true,
 			} )
 		).toBe( false );
 	} );
@@ -173,6 +236,7 @@ describe( 'isSyncComplete', () => {
 				isRunning: true,
 				percentage: 50,
 				initialFullSyncFinished: 1_700_000_000,
+				hasStoreData: true,
 			} )
 		).toBe( false );
 	} );
@@ -184,6 +248,7 @@ describe( 'isSyncComplete', () => {
 				isRunning: true,
 				percentage: 50,
 				initialFullSyncFinished: 0,
+				hasStoreData: true,
 			} )
 		).toBe( false );
 	} );
@@ -197,6 +262,7 @@ describe( 'isSyncStalled', () => {
 				isRunning: false,
 				percentage: 50,
 				initialFullSyncFinished: 0,
+				hasStoreData: true,
 			} )
 		).toBe( true );
 	} );
@@ -208,6 +274,7 @@ describe( 'isSyncStalled', () => {
 				isRunning: false,
 				percentage: 0,
 				initialFullSyncFinished: 0,
+				hasStoreData: true,
 			} )
 		).toBe( false );
 	} );
@@ -219,6 +286,7 @@ describe( 'isSyncStalled', () => {
 				isRunning: false,
 				percentage: 100,
 				initialFullSyncFinished: 1_700_000_000,
+				hasStoreData: true,
 			} )
 		).toBe( false );
 	} );

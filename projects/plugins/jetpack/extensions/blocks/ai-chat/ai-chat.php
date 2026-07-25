@@ -88,6 +88,11 @@ function add_ai_chat_block_data() {
 	$plan          = new Search_Plan();
 	$initial_state = array(
 		'jetpackSettings' => array(
+			// `module_active` reflects whether the Jetpack Search module is on, which is
+			// what controls site indexing — independent of the chosen front-end experience
+			// (Overlay / Theme / Inline / Embedded). The AI Chat block only needs the
+			// index, so it gates on this rather than on `instant_search_enabled`.
+			'module_active'          => $search->is_active(),
 			'instant_search_enabled' => $search->is_instant_search_enabled(),
 			'plan_supports_search'   => $plan->supports_instant_search(),
 		),

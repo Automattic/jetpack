@@ -2,6 +2,51 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [2.0.0] - 2026-07-22
+### Removed
+- Number Slider: remove the NumberSlider component. It wrapped the unmaintained react-slider dependency (which blocked React 19) and had a single consumer; use the WordPress RangeControl component from @wordpress/components directly instead. [#50289]
+
+## [1.12.17] - 2026-07-20
+### Changed
+- PricingTable: Add optional `breakpoint` prop to control the viewport width at which offers switch from columns to stacked blocks (defaults to 'large'). [#50567]
+- Update package dependencies. [#50510] [#50529]
+
+### Fixed
+- Jetpack Footer: Add explicit `display: flex` so the footer lays out horizontally on WordPress.com Simple sites instead of stacking vertically. [#50637]
+
+## [1.12.16] - 2026-07-13
+### Fixed
+- Pricing table: Align the highlighted column's gradient background to the right edge of the card. [#50346]
+
+## [1.12.15] - 2026-07-09
+### Changed
+- Update package dependencies. [#49272]
+- Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names (see https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/CHANGELOG.md#0160-2026-06-24 ). [#49272]
+
+## [1.12.14] - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183] [#50212]
+
+## [1.12.13] - 2026-06-26
+### Changed
+- Internal updates.
+
+## [1.12.12] - 2026-06-25
+### Fixed
+- Icon tooltip: Type `iconCode` as `ReactElement` so it matches the `@wordpress/icons` Icon and `@wordpress/ui` 0.15 type definitions. [#49795]
+
+## [1.12.11] - 2026-06-24
+### Removed
+- Remove deprecated Spinner component. Use Spinner from @wordpress/components instead. [#49856]
+
+## [1.12.10] - 2026-06-23
+### Changed
+- Update package dependencies. [#49831]
+
+## [1.12.9] - 2026-06-22
+### Changed
+- Update package dependencies. [#49691] [#49757]
+
 ## [1.12.8] - 2026-06-15
 ### Changed
 - Update package dependencies. [#49631]
@@ -1844,6 +1889,16 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[2.0.0]: https://github.com/Automattic/jetpack-components/compare/1.12.17...2.0.0
+[1.12.17]: https://github.com/Automattic/jetpack-components/compare/1.12.16...1.12.17
+[1.12.16]: https://github.com/Automattic/jetpack-components/compare/1.12.15...1.12.16
+[1.12.15]: https://github.com/Automattic/jetpack-components/compare/1.12.14...1.12.15
+[1.12.14]: https://github.com/Automattic/jetpack-components/compare/1.12.13...1.12.14
+[1.12.13]: https://github.com/Automattic/jetpack-components/compare/1.12.12...1.12.13
+[1.12.12]: https://github.com/Automattic/jetpack-components/compare/1.12.11...1.12.12
+[1.12.11]: https://github.com/Automattic/jetpack-components/compare/1.12.10...1.12.11
+[1.12.10]: https://github.com/Automattic/jetpack-components/compare/1.12.9...1.12.10
+[1.12.9]: https://github.com/Automattic/jetpack-components/compare/1.12.8...1.12.9
 [1.12.8]: https://github.com/Automattic/jetpack-components/compare/1.12.7...1.12.8
 [1.12.7]: https://github.com/Automattic/jetpack-components/compare/1.12.6...1.12.7
 [1.12.6]: https://github.com/Automattic/jetpack-components/compare/1.12.5...1.12.6

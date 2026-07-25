@@ -21,7 +21,7 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.9.1';
+	const PACKAGE_VERSION = '0.12.1';
 
 	const ADMIN_PAGE_SLUG = 'jetpack-newsletter';
 
@@ -269,7 +269,7 @@ class Settings {
 		$is_block_theme         = wp_is_block_theme();
 		$setup_payment_plan_url = ( $is_wpcom ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/' ) . $site_suffix;
 
-		$wp_admin_subscriber_management_enabled = apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false );
+		$wp_admin_subscriber_management_enabled = apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', true );
 
 		// Populate blog_id which is needed for API calls on Simple sites.
 		$data['site']['wpcom']['blog_id'] = $blog_id;
@@ -311,6 +311,22 @@ class Settings {
 			// newsletter script and JetpackScriptData are intentionally skipped
 			// for the wp-build dashboard.
 			return;
+		}
+
+		// The legacy bundle imports `@wordpress/ui`, which reaches
+		// `@wordpress/theme` and so lists `wp-theme` in its generated asset file.
+		// Core does not register that handle, and `load_wp_build()` — the only
+		// other caller — runs on the modernized path alone. Without this,
+		// WordPress silently drops the script over the unregistered dependency
+		// and the page renders blank. Request only the handles this bundle needs:
+		// `wp-theme` (Core never registers it) and `wp-private-apis` (so the
+		// polyfill can replace Core's incomplete allowlist on older WP). We leave
+		// out `wp-notices` so the polyfill's force-replacement never touches it.
+		if ( class_exists( \Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::class ) ) {
+			\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
+				'jetpack-newsletter',
+				array( 'wp-theme', 'wp-private-apis' )
+			);
 		}
 
 		Assets::register_script(
@@ -491,15 +507,15 @@ class Settings {
 	/**
 	 * Returns true when the wp-build modernization filter is enabled.
 	 *
-	 * Defaults to `false`: the modernization prep work ships behind the filter,
-	 * and a separate PR flips the default on so the feature switch lands in
-	 * isolation. Hosts can opt in early with
-	 * `add_filter( self::MODERNIZATION_FILTER, '__return_true' );`.
+	 * The modernized Newsletter dashboard, wp-admin subscriber management, and the
+	 * retired Calypso Subscribers submenu now default on for every site. Hosts (and
+	 * a11ns who want the legacy view back) can still force the legacy experience with
+	 * `add_filter( self::MODERNIZATION_FILTER, '__return_false' );`.
 	 *
 	 * @return bool
 	 */
 	private static function is_modernized() {
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, true );
 	}
 
 	/**

@@ -11,3 +11,18 @@
 	padding-inline: variables.$grid-unit * 2.5;
 	padding-block: variables.$grid-unit * 1.5;
 }
+
+// Persistent warning shown on a single form's responses view when the form
+// isn't collecting responses anywhere (and the form already has responses).
+.jetpack-forms__not-collecting-banner {
+	margin: 16px;
+}
+
+// Front-and-center warning that replaces the responses table when a single form
+// isn't collecting responses and has none stored. Centering/layout comes from
+// the <Stack> wrapper and the EmptyState's own styles; this just gives it
+// vertical presence and breathing room.
+.jetpack-forms__not-collecting-callout {
+	min-height: 320px;
+	padding: 64px 32px;
+}

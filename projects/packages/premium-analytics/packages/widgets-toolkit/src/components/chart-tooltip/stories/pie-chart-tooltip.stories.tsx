@@ -20,7 +20,7 @@ type Story = StoryObj< typeof PieChartTooltip >;
 const TooltipWrapper = ( { children }: { children: ReactNode } ) => (
 	<div
 		style={ {
-			background: 'var(--wpds-color-bg-surface-neutral)',
+			background: 'var(--wpds-color-background-surface-neutral)',
 			padding: '20px',
 			borderRadius: '8px',
 		} }

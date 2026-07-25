@@ -14,6 +14,7 @@ import { ORDER_ATTRIBUTION_VIEWS } from '../api/report-order-attribution-summary
 import { getDefaultQueryParams } from '../defaults';
 import { getDefaultIntervalForPeriod } from './interval';
 import { computeDateRangeFromPreset } from './preset-date-range';
+import { toPostId } from './to-post-id';
 import type { DateType } from './types';
 import type { FilterCondition } from '../types/filter-condition';
 
@@ -48,6 +49,7 @@ export type ReportParams = {
 	filters?: FilterCondition[];
 	section?: string;
 	date_type?: DateType; // For filtering by different date fields (created, paid, completed)
+	post_id?: string | number; // Scopes a report to a single post/page (detail page). String from the URL; numeric at the query layer.
 };
 
 type PartialComparisonFields = Partial<
@@ -114,13 +116,20 @@ export function normalizeReportParams(
 	// Calculate the interval from the resolved date range.
 	const interval = getDefaultIntervalForPeriod( undefined, from, to );
 
+	const postId = toPostId( search?.post_id );
+
 	// Params from `search`, or fallback to defaults.
 	const normalized: ReportParams = {
 		from,
 		to,
 		interval: interval ?? defaults.interval,
 		preset,
+		...( typeof search?.period === 'string' ? { period: search.period } : {} ),
 		date_type: search?.date_type ?? 'created',
+		// Preserve the single-resource scope so detail-page widgets stay bound to
+		// their post/page, dropping an invalid one so a hand-edited deep link can't
+		// push a malformed post_id into downstream Stats requests.
+		...( postId > 0 ? { post_id: postId } : {} ),
 	};
 
 	// Add comparison params from search if enabled

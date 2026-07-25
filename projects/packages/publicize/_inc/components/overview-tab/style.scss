@@ -7,7 +7,7 @@
 .jetpack-social-overview {
 	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-lg, 16px);
+	gap: var(--wpds-dimension-gap-lg);
 	margin-inline: auto;
 	max-inline-size: 720px;
 	inline-size: 100%;
@@ -22,7 +22,7 @@
 	align-items: center;
 	display: flex;
 	flex-direction: column;
-	padding-block: var(--wpds-dimension-padding-2xl, 24px);
+	padding-block: var(--wpds-dimension-padding-2xl);
 	text-align: center;
 }
 
@@ -40,7 +40,7 @@
 // The top padding stays at Card.Header's default 24px so the title still
 // has comfortable headroom from the card edge.
 .jetpack-social-overview__accounts-card-header {
-	padding-block-end: var(--wpds-dimension-padding-xl, 20px);
+	padding-block-end: var(--wpds-dimension-padding-xl);
 }
 
 // Strip the Card.Content padding when the body is the flat connections

@@ -1,0 +1,64 @@
+/**
+ * External dependencies
+ */
+import type { DashboardWidget } from '@wordpress/widget-dashboard';
+
+/**
+ * A dashboard section, served by `GET /dashboards/{name}/sections` and read
+ * through the `dashboardSection` core-data entity. The server-side registry is
+ * the source of truth for which sections exist, their order, and labels.
+ */
+export type DashboardSection = {
+	/**
+	 * Canonical namespaced identifier, e.g. `analytics/traffic`.
+	 */
+	id: string;
+
+	/**
+	 * URL-facing slug (the segment after the namespace), e.g. `traffic`.
+	 * Persisted in the `?section=` search param and as the section-layout
+	 * preference key.
+	 */
+	slug: string;
+
+	/**
+	 * Translated display label.
+	 */
+	label: string;
+
+	/**
+	 * Sort order (ascending).
+	 */
+	order: number;
+
+	/**
+	 * Bundled default widget layout, consumed by the reset action.
+	 */
+	default_layout: DashboardWidget[];
+};
+
+/**
+ * Dashboard section identifier: the URL-facing `slug` of a `DashboardSection`.
+ * Server-driven, so an open string.
+ */
+export type DashboardSectionId = string;
+
+/**
+ * Narrow a candidate slug to an available section, falling back to the first
+ * section by order. A miss is a stale slug or a section unavailable now
+ * (`?section=store` with WooCommerce off).
+ *
+ * @param value    - The candidate section slug (e.g. from the URL).
+ * @param sections - The available sections, in order.
+ * @return The resolved section slug, or an empty string when no sections exist.
+ */
+export function resolveSectionId(
+	value: string | undefined,
+	sections: DashboardSection[]
+): DashboardSectionId {
+	if ( value && sections.some( section => section.slug === value ) ) {
+		return value;
+	}
+
+	return sections[ 0 ]?.slug ?? '';
+}

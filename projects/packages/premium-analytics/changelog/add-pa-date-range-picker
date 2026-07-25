@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Dashboard: Add the date range picker with comparison support, syncing the selected range to URL search params so all widgets pick it up.

@@ -1,0 +1,16 @@
+{
+	"name": "jpa/referrers",
+	"title": "Referrers",
+	"description": "Websites and search engines referring visitors to your site.",
+	"help": {
+		"content": "The sources that sent the most visitors to your site, sorted by clicks.",
+		"links": [
+			{
+				"label": "Learn more",
+				"href": "https://jetpack.com/support/jetpack-stats/"
+			}
+		]
+	},
+	"category": "traffic",
+	"presentation": "framed"
+}

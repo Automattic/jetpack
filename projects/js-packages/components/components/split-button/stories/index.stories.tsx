@@ -5,7 +5,10 @@ const meta: Meta< typeof SplitButton > = {
 	title: 'JS Packages/Components/Split Button',
 	component: SplitButton,
 	argTypes: {
-		variant: { type: 'select', options: [ undefined, 'secondary', 'primary', 'tertiary', 'link' ] },
+		variant: {
+			control: { type: 'select' },
+			options: [ undefined, 'secondary', 'primary', 'tertiary', 'link' ],
+		},
 	},
 	args: {
 		controls: [

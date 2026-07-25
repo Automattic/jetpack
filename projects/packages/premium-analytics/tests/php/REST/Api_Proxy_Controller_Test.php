@@ -211,7 +211,8 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'analytics', $route );
 		$this->assertStringContainsString( 'stats', $route );
 		$this->assertStringContainsString( 'commercial', $route );
-		$this->assertStringNotContainsString( 'posts', $route );
+		// `posts` is pattern-constrained: only public interaction lists are anchored in the route.
+		$this->assertStringContainsString( 'posts/[0-9]+/(?:likes|replies)', $route );
 		$this->assertStringNotContainsString( 'media', $route );
 	}
 
@@ -395,6 +396,151 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertFalse( $this->controller->validate_data_endpoint( 'upgrades/foo' ) );
 	}
 
+	public function test_post_likes_forwards_unsigned() {
+		// The likes endpoint rejects blog-token auth but serves public posts without
+		// credentials, so the `posts` group forwards unsigned (no connection needed).
+		\Jetpack_Options::update_option( 'id', 4242 );
+
+		$captured = array(
+			'url'  => '',
+			'args' => array(),
+		);
+		add_filter(
+			'pre_http_request',
+			function ( $pre, $args, $url ) use ( &$captured ) {
+				$captured = array(
+					'url'  => $url,
+					'args' => $args,
+				);
+
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode(
+						array(
+							'found' => 1,
+							'likes' => array(),
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+					'headers'  => array(),
+				);
+			},
+			10,
+			3
+		);
+
+		$response = $this->controller->handle_data_request( $this->build_data_request( 'GET', 'posts/91/likes', array(), '1.2' ) );
+
+		remove_all_filters( 'pre_http_request' );
+		\Jetpack_Options::delete_option( 'id' );
+
+		$this->assertInstanceOf( WP_REST_Response::class, $response );
+		$this->assertSame( 1, $response->get_data()->found );
+		$this->assertStringContainsString( '/rest/v1.2/sites/4242/posts/91/likes', $captured['url'] );
+		$this->assertArrayNotHasKey( 'Authorization', (array) ( $captured['args']['headers'] ?? array() ) );
+	}
+
+	public function test_post_comments_forwards_unsigned() {
+		// The replies endpoint is public and the local view_stats gate remains in
+		// place, so the constrained posts group can forward it without a blog token.
+		\Jetpack_Options::update_option( 'id', 4242 );
+
+		$captured = array(
+			'url'  => '',
+			'args' => array(),
+		);
+		add_filter(
+			'pre_http_request',
+			function ( $pre, $args, $url ) use ( &$captured ) {
+				$captured = array(
+					'url'  => $url,
+					'args' => $args,
+				);
+
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode(
+						array(
+							'found'    => 1,
+							'comments' => array(),
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+					'headers'  => array(),
+				);
+			},
+			10,
+			3
+		);
+
+		$response = $this->controller->handle_data_request(
+			$this->build_data_request(
+				'GET',
+				'posts/91/replies',
+				array(
+					'number' => 10,
+					'type'   => 'comment',
+				),
+				'1.1'
+			)
+		);
+
+		remove_all_filters( 'pre_http_request' );
+		\Jetpack_Options::delete_option( 'id' );
+
+		$this->assertInstanceOf( WP_REST_Response::class, $response );
+		$this->assertSame( 1, $response->get_data()->found );
+		$this->assertStringContainsString( '/rest/v1.1/sites/4242/posts/91/replies', $captured['url'] );
+		$this->assertStringContainsString( 'number=10', $captured['url'] );
+		$this->assertStringContainsString( 'type=comment', $captured['url'] );
+		$this->assertArrayNotHasKey( 'Authorization', (array) ( $captured['args']['headers'] ?? array() ) );
+	}
+
+	public function test_post_likes_requires_a_blog_id() {
+		// Unsigned forwards skip the connection gate but still need the blog id
+		// baked into the path; without one the request must not leave the site.
+		\Jetpack_Options::delete_option( 'id' );
+
+		$response = $this->controller->handle_data_request( $this->build_data_request( 'GET', 'posts/91/likes', array(), '1.2' ) );
+
+		$this->assertInstanceOf( \WP_Error::class, $response );
+		$this->assertSame( 'no_connection', $response->get_error_code() );
+		$this->assertSame( 403, $response->get_error_data()['status'] );
+	}
+
+	public function test_post_likes_maps_transport_errors_to_api_error() {
+		\Jetpack_Options::update_option( 'id', 4242 );
+
+		add_filter(
+			'pre_http_request',
+			function () {
+				return new \WP_Error( 'http_request_failed', 'boom' );
+			}
+		);
+
+		$response = $this->controller->handle_data_request( $this->build_data_request( 'GET', 'posts/91/likes', array(), '1.2' ) );
+
+		remove_all_filters( 'pre_http_request' );
+		\Jetpack_Options::delete_option( 'id' );
+
+		$this->assertInstanceOf( \WP_Error::class, $response );
+		$this->assertSame( 'api_error', $response->get_error_code() );
+		$this->assertSame( 500, $response->get_error_data()['status'] );
+	}
+
+	public function test_validate_data_endpoint_enforces_the_posts_pattern() {
+		// `posts` only exposes public interaction lists — never post content, which
+		// the blog token could otherwise read for any view_stats user.
+		$this->assertTrue( $this->controller->validate_data_endpoint( 'posts/123/likes' ) );
+		$this->assertTrue( $this->controller->validate_data_endpoint( 'posts/123/likes/' ) );
+		$this->assertTrue( $this->controller->validate_data_endpoint( 'posts/123/replies' ) );
+		$this->assertTrue( $this->controller->validate_data_endpoint( 'posts/123/replies/' ) );
+		$this->assertFalse( $this->controller->validate_data_endpoint( 'posts/123' ) );
+		$this->assertFalse( $this->controller->validate_data_endpoint( 'posts/123/likes/extra' ) );
+		$this->assertFalse( $this->controller->validate_data_endpoint( 'posts/123/replies/extra' ) );
+		$this->assertFalse( $this->controller->validate_data_endpoint( 'posts/slug/likes' ) );
+	}
+
 	/**
 	 * Unsupported endpoints must not route at all — the request never reaches the handler and the
 	 * blog token is never forwarded. Covers other resources, foreign namespaces, prefix-extension
@@ -460,7 +606,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		wp_set_current_user( $admin_id );
 
 		// A prefix outside the config fails closed (config lookup misses) — admins included.
-		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'posts' ) ) );
+		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'media' ) ) );
 		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'wp/v2/users' ) ) );
 	}
 
@@ -578,6 +724,10 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 
 			// Purchases — site-less path (view_stats).
 			'purchases'            => array( 'upgrades', $stats, false, '/upgrades?site=%d' ),
+
+			// Public post interactions — the only `posts` sub-paths the pattern exposes (view_stats).
+			'post likes'           => array( 'posts/123/likes', $stats, false, '/sites/%d/posts/123/likes' ),
+			'post comments'        => array( 'posts/123/replies', $stats, false, '/sites/%d/posts/123/replies' ),
 		);
 	}
 

@@ -61,7 +61,7 @@ jobs:
     timeout-minutes: 7  # 2025-11-06: Successful runs seem to take ~2 minutes.
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup

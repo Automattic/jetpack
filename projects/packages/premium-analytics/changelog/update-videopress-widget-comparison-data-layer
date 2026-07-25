@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress widget: Consume merged comparison rows from the Stats data layer instead of matching periods in the widget.

@@ -43,7 +43,11 @@ jp install plugins/jetpack        # Install project dependencies
 jp clean plugins/jetpack          # Clean build artifacts
 jp docker up -d                   # Start Docker environment
 jp docker install                 # Install WordPress in Docker
-# Parallel instances on a second worktree: `jp docker up -d --name <slug> --port <n> [--port-phpmy/-inbox/-smtp/-sftp <n>]`.
+# In a git worktree, run `tools/docker/bin/seed-worktree-env.sh` once BEFORE `jp docker up`.
+# It writes a unique COMPOSE_PROJECT_NAME + free ports to tools/docker/.env (which `jp docker up`
+# reads) so worktrees don't clobber the primary jetpack_dev or each other. Without it, every
+# bare `up` shares jetpack_dev on the default ports. The script is idempotent and a no-op in the
+# primary checkout, so it's safe to run before every `up`.
 # See tools/docker/README.md ยง "Parallel development environments", or use the `/work-on` skill end-to-end.
 jp phan                           # Run PHP static analysis
 ```
@@ -224,6 +228,16 @@ PR descriptions MUST follow the template in `.github/PULL_REQUEST_TEMPLATE.md` โ
 
 ```bash
 gh pr create --title "Title" --body-file pr-body.md --label "[Status] Needs Review" --label "Enhancement" --assignee @me
+```
+
+### Re-running CI Checks
+
+Most CI checks can be re-run with the usual `gh` commands (e.g. `gh run rerun <run-id> --failed`, or `gh pr checks`).
+
+The exception is the **WordPress.com Tests** check (the TeamCity `JetpackPreFlightChecks_BasicChecks` build). It cannot be restarted via the GitHub UI or the `gh` CLI. When that check fails on something unrelated to your change, re-trigger it with the context-a8c command:
+
+```
+/context-a8c:rerun-jetpack-preflight <PR-number>
 ```
 
 ## Code Review Guidelines

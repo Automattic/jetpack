@@ -1,6 +1,29 @@
 import type { ChartLegendConfig } from '../types';
 
 /**
+ * Flat Storybook controls corresponding to `legendArgTypes`. These are story-only
+ * controls (not component props); `extractLegendConfig` maps them into the nested
+ * `legend` prop. Include this in a story's `StoryArgs` type so Storybook v10's typed
+ * `Meta`/`StoryObj`/`ArgTypes` accept the flat keys.
+ *
+ * Note: `showLegend` is intentionally omitted — it is a real component prop
+ * (`BaseChartProps`), not a synthetic control.
+ */
+export type LegendStoryControls = {
+	legendPosition?: 'top' | 'bottom';
+	legendAlignment?: 'start' | 'center' | 'end';
+	legendOrientation?: 'horizontal' | 'vertical';
+	legendShape?: 'circle' | 'line' | 'rect';
+	withLegendGlyph?: boolean;
+	legendMaxWidth?: string;
+	legendTextOverflow?: 'wrap' | 'ellipsis';
+	legendItemClassName?: string;
+	legendInteractive?: boolean;
+	legendShapeStyles?: ChartLegendConfig[ 'shapeStyles' ];
+	legendItemStyles?: ChartLegendConfig[ 'itemStyles' ];
+};
+
+/**
  * Shared legend configuration for chart stories.
  * Provides consistent argTypes and decorators across all chart legend stories.
  *
@@ -96,7 +119,7 @@ export const legendArgTypes = {
  * @return The legend config object, or undefined if no legend args are set.
  */
 export function extractLegendConfig< T = ChartLegendConfig >(
-	args: Record< string, unknown >
+	args: Partial< LegendStoryControls >
 ): T | undefined {
 	const {
 		legendPosition,
@@ -139,7 +162,7 @@ export function extractLegendConfig< T = ChartLegendConfig >(
 		config.alignment = legendAlignment as ChartLegendConfig[ 'alignment' ];
 	}
 	if ( legendShape !== undefined ) {
-		config.shape = legendShape as ChartLegendConfig[ 'shape' ];
+		config.shape = legendShape as unknown as ChartLegendConfig[ 'shape' ];
 	}
 	if ( legendInteractive !== undefined ) {
 		config.interactive = legendInteractive as boolean;

@@ -105,9 +105,9 @@
 	// We override only the bits that need to differ from those defaults.
 	float: none;
 	text-align: right;
-	background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+	background: var(--wpds-color-background-surface-neutral-strong, #fff);
 	font-style: italic;
-	color: var(--wpds-color-fg-content-neutral-weak, #87a6bc);
+	color: var(--wpds-color-foreground-content-neutral-weak, #87a6bc);
 	border-bottom: none;
 
 	@media (max-width: 659px) {

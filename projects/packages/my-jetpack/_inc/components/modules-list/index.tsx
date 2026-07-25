@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { Badge } from '@wordpress/ui';
 import { useId, useMemo } from 'react';
 import { MyJetpackModule } from '../../types';
+import { getSharingBlockNotice } from '../../utils/sharing-block';
 import { ModuleStatus } from '../module-status';
 import { ModuleToggle } from '../module-toggle';
 import styles from './styles.module.scss';
@@ -45,7 +46,7 @@ export function ModulesList( { modules }: ModulesListProps ) {
 								id={ `${ baseId }-description-${ item.module }` }
 								className={ styles[ 'module-description' ] }
 							>
-								{ item.description }
+								{ getSharingBlockNotice( item ) ?? item.description }
 							</span>
 						</div>
 					);

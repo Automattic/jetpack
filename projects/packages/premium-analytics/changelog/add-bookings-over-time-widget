@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Port the Bookings over time dashboard widget from next-woocommerce-analytics, composed from the widgets-toolkit and data packages.

@@ -17,7 +17,6 @@ const fileSchema = JSON.parse(
 const LAUNCH_TASKS = new Set( [
 	'site_launched',
 	'blog_launched',
-	'woo_launch_site',
 	'link_in_bio_launched',
 	'videopress_launched',
 ] );
@@ -42,25 +41,22 @@ describe( 'selectFallback', () => {
 			assert.deepEqual( errors, [], `expected no schema errors, got: ${ errors.join( '; ' ) }` );
 		} );
 
-		it( `emits exactly 6 tasks with a launch task last for goal "${ goal }"`, () => {
+		it( `emits 6 subtitled tasks, launch last, echoing goal "${ goal }"`, () => {
 			const output = selectFallback( inputFor( goal ) );
 			assert.equal( output.tasks.length, 6 );
 			const last = output.tasks[ output.tasks.length - 1 ];
 			assert.ok( LAUNCH_TASKS.has( last.id ), `last task "${ last.id }" is not a launch task` );
-		} );
-
-		it( `gives every task a non-empty subtitle for goal "${ goal }"`, () => {
-			const output = selectFallback( inputFor( goal ) );
 			for ( const task of output.tasks ) {
 				assert.ok( task.subtitle.length > 0, `task "${ task.id }" has an empty subtitle` );
 			}
-		} );
-
-		it( `echoes the goal into inferred for goal "${ goal }"`, () => {
-			const output = selectFallback( inputFor( goal ) );
 			assert.equal( output.inferred.goal, goal );
 		} );
 	}
+
+	it( 'leads the sell sequence with store customization then products', () => {
+		const ids = selectFallback( inputFor( 'sell' ) ).tasks.map( task => task.id );
+		assert.deepEqual( ids.slice( 0, 2 ), [ 'woo_customize_store', 'woo_products' ] );
+	} );
 
 	it( 'clamps an over-long site name to stay schema-valid', () => {
 		const longName = 'X'.repeat( 200 );
@@ -72,11 +68,5 @@ describe( 'selectFallback', () => {
 		} );
 		const errors = validateAgainstSchema( output, fileSchema );
 		assert.deepEqual( errors, [], `expected no schema errors, got: ${ errors.join( '; ' ) }` );
-	} );
-
-	it( 'validates against the schema-validator inlined constant too', () => {
-		// The inlined AGENT_OUTPUT_SCHEMA must agree with the committed file.
-		const output = selectFallback( inputFor( 'sell' ) );
-		assert.deepEqual( validateAgainstSchema( output, fileSchema ), [] );
 	} );
 } );

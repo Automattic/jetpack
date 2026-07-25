@@ -1,6 +1,6 @@
 import { createBlock } from '@wordpress/blocks';
 import INNER_BLOCKS_DEPRECATION from '../shared/deprecations/inner-blocks-deprecation.js';
-import save from './save.js';
+import save from './save.jsx';
 
 export default [
 	{

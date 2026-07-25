@@ -18,6 +18,7 @@ global $current_screen;
 $is_notice = ( 'plugins' === $current_screen->base );
 
 ?>
+		<?php if ( $is_notice ) { ?>
 		<style type="text/css">
 			#jetpack-beta-tester__start {
 				background: #FFF;
@@ -26,7 +27,7 @@ $is_notice = ( 'plugins' === $current_screen->base );
 				box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
 				position: relative;
 			}
-			#jetpack-beta-tester__start.updated {
+			#jetpack-beta-tester__start.notice-updated {
 				border-left: 3px solid #8CC258;
 			}
 			#jetpack-beta-tester__start h1 {
@@ -38,6 +39,7 @@ $is_notice = ( 'plugins' === $current_screen->base );
 				margin-bottom:1em;
 			}
 		</style>
+		<?php } ?>
 		<div id="jetpack-beta-tester__start" class="<?php echo ( $is_notice ? 'notice notice-updated' : 'dops-card' ); ?>">
 			<h1><?php esc_html_e( 'Welcome to Jetpack Beta Tester', 'jetpack-beta' ); ?></h1>
 			<p><?php esc_html_e( 'Thank you for helping to test our plugins!  We appreciate your time and effort.', 'jetpack-beta' ); ?></p>

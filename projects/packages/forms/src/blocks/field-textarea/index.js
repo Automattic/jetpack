@@ -1,9 +1,9 @@
 import { __ } from '@wordpress/i18n';
 import defaultSettings from '../shared/settings/index.js';
 import deprecated from './deprecated.js';
-import edit from './edit.js';
+import edit from './edit.jsx';
 import blockIcon from './icon.jsx';
-import save from './save.js';
+import save from './save.jsx';
 
 export const name = 'field-textarea';
 

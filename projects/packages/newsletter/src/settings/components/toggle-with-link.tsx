@@ -4,16 +4,17 @@
 import analytics from '@automattic/jetpack-analytics';
 import { getAdminUrl, type SiteType } from '@automattic/jetpack-script-data';
 import { ToggleControl } from '@wordpress/components';
-import { type Field } from '@wordpress/dataviews';
+import { type NormalizedField, type DeepPartial } from '@wordpress/dataviews';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
+import type { NewsletterSettings } from '../types';
 
 interface ToggleWithLinkProps {
-	data: Record< string, unknown >;
-	field: Field< Record< string, unknown > >;
-	onChange: ( updates: Record< string, unknown > ) => void;
+	data: NewsletterSettings;
+	field: NormalizedField< NewsletterSettings >;
+	onChange: ( value: DeepPartial< NewsletterSettings > ) => void;
 	url: string;
 	linkText: string;
 	isExternal?: boolean;
@@ -43,13 +44,15 @@ export function ToggleWithLink( {
 	onLinkClick,
 }: ToggleWithLinkProps ): JSX.Element {
 	const handleChange = useCallback( () => {
-		onChange( { [ field.id ]: ! data[ field.id ] } );
+		onChange( {
+			[ field.id ]: ! ( data as Record< string, unknown > )[ field.id ],
+		} as DeepPartial< NewsletterSettings > );
 	}, [ data, field.id, onChange ] );
 
 	return (
 		<ToggleControl
 			__nextHasNoMarginBottom
-			checked={ !! data[ field.id ] }
+			checked={ !! ( data as Record< string, unknown > )[ field.id ] }
 			onChange={ handleChange }
 			label={
 				<span>
@@ -71,9 +74,9 @@ export function ToggleWithLink( {
 }
 
 interface ToggleWithEditorLinkProps {
-	data: Record< string, unknown >;
-	field: Field< Record< string, unknown > >;
-	onChange: ( updates: Record< string, unknown > ) => void;
+	data: NewsletterSettings;
+	field: NormalizedField< NewsletterSettings >;
+	onChange: ( value: DeepPartial< NewsletterSettings > ) => void;
 	themeStylesheet: string;
 	postType: 'wp_template' | 'wp_template_part';
 	templateId: string;

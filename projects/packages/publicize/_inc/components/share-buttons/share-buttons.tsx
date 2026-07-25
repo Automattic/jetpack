@@ -68,12 +68,17 @@ export function ShareButtons( { buttonStyle = 'icon' }: ShareButtonsProps ) {
 					label
 				);
 
-				const linkProps = {
-					href,
-					target: '_blank',
-					rel: 'noopener noreferrer',
-					onClick: getOnClick( href, { network: networkName } ),
-				};
+				// `@wordpress/ui`'s Button is not a link, so render it as an anchor and
+				// keep the anchor-specific props (incl. the `HTMLAnchorElement` onClick)
+				// on the rendered `<a>`.
+				const renderLink = (
+					<a
+						href={ href }
+						target="_blank"
+						rel="noopener noreferrer"
+						onClick={ getOnClick( href, { network: networkName } ) }
+					/>
+				);
 
 				return (
 					<div className={ styles.container } key={ networkName }>
@@ -81,12 +86,12 @@ export function ShareButtons( { buttonStyle = 'icon' }: ShareButtonsProps ) {
 							<Button
 								aria-label={ text }
 								className={ clsx( styles[ 'icon-button' ], styles[ networkName ] ) }
-								{ ...linkProps }
+								render={ renderLink }
 							>
 								<SocialServiceIcon serviceName={ networkName } />
 							</Button>
 						) : (
-							<Button aria-label={ text } className="has-text" { ...linkProps }>
+							<Button aria-label={ text } className="has-text" render={ renderLink }>
 								{ 'icon-text' === buttonStyle && (
 									<SocialServiceIcon
 										className={ styles[ networkName ] }

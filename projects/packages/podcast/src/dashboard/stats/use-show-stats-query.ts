@@ -103,9 +103,14 @@ export function useShowStatsQuery(
 
 	const isError = overviewError || summaryError;
 
-	// Wait for both queries — keeps prior data on screen across period changes.
+	// The summary effect refetches on range change but leaves the previous
+	// response in state until the new one resolves. Compose only once the loaded
+	// summary actually covers the selected range; otherwise a period switch would
+	// relabel stale data as the new range and report isLoading:false mid-flight.
+	const summaryMatchesSelection = summary?.range.from === from && summary?.range.to === to;
+
 	let data: PodcastShowStats | undefined;
-	if ( summary && overview ) {
+	if ( summary && overview && summaryMatchesSelection ) {
 		const presetTotal = getOverviewTotal( overview, period );
 		data = {
 			...summary,

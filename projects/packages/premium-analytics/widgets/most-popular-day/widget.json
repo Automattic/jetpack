@@ -1,0 +1,10 @@
+{
+	"name": "jpa/most-popular-day",
+	"title": "Most popular day",
+	"description": "The day your site received the most views.",
+	"help": {
+		"content": "The day your site received the most views."
+	},
+	"category": "stats",
+	"presentation": "framed"
+}

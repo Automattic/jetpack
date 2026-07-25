@@ -23,12 +23,10 @@ import { __, sprintf } from '@wordpress/i18n';
 import { check, external, link } from '@wordpress/icons';
 import { prependHTTPS } from '@wordpress/url';
 import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
+import { getShowHostsFor, getShowUrlMaxLength } from '../podcatchers';
 import type { PodcastSettingsUpdate } from '../types';
 import type { PodcastAppModalProps } from './podcast-apps';
 import type { FormEvent } from 'react';
-
-// Mirrors `SHOW_URL_MAX_LENGTH` in src/class-settings.php.
-const SHOW_URL_MAX_LENGTH = 2048;
 
 // `prependHTTPS` leaves an existing `http://` alone, but the backend rejects
 // non-https — upgrade ourselves.
@@ -39,7 +37,7 @@ const isValidShowUrl = ( url: string, allowedHosts: readonly string[] ): boolean
 	if ( ! url ) {
 		return false;
 	}
-	if ( url.length > SHOW_URL_MAX_LENGTH ) {
+	if ( url.length > getShowUrlMaxLength() ) {
 		return false;
 	}
 	let parsed: URL;
@@ -50,6 +48,10 @@ const isValidShowUrl = ( url: string, allowedHosts: readonly string[] ): boolean
 	}
 	if ( parsed.protocol !== 'https:' ) {
 		return false;
+	}
+	// No host list injected → skip the check; the server validates anyway.
+	if ( allowedHosts.length === 0 ) {
+		return true;
 	}
 	const host = parsed.hostname.toLowerCase().replace( /^www\./, '' );
 	return allowedHosts.includes( host );
@@ -131,9 +133,9 @@ const SubmitModal = ( { app, feedUrl, onClose, onFirstSave }: PodcastAppModalPro
 	const handleSave = useCallback(
 		( event: FormEvent< HTMLFormElement > ) => {
 			event.preventDefault();
-			if ( ! isValidShowUrl( normalizedDraft, app.showHosts ) ) {
+			if ( ! isValidShowUrl( normalizedDraft, getShowHostsFor( app.id ) ) ) {
 				setSaveError(
-					normalizedDraft.length > SHOW_URL_MAX_LENGTH
+					normalizedDraft.length > getShowUrlMaxLength()
 						? sprintf(
 								/* translators: %s: podcast directory name (e.g. "Apple Podcasts"). */
 								__( 'Your %s URL is too long.', 'jetpack-podcast' ),
@@ -200,7 +202,6 @@ const SubmitModal = ( { app, feedUrl, onClose, onFirstSave }: PodcastAppModalPro
 		},
 		[
 			normalizedDraft,
-			app.showHosts,
 			app.id,
 			app.name,
 			saveSettings,
@@ -287,6 +288,7 @@ const SubmitModal = ( { app, feedUrl, onClose, onFirstSave }: PodcastAppModalPro
 						</Text>
 					) }
 					<Button
+						className="podcast__submit-visit-button"
 						variant="secondary"
 						__next40pxDefaultSize
 						icon={ external }

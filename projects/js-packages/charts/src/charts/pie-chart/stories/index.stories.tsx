@@ -4,17 +4,23 @@ import {
 	sharedChartArgTypes,
 	ChartStoryArgs,
 } from '../../../stories/chart-decorator';
-import { extractLegendConfig, legendArgTypes } from '../../../stories/legend-config';
+import {
+	extractLegendConfig,
+	legendArgTypes,
+	type LegendStoryControls,
+} from '../../../stories/legend-config';
 import { osUsageData as data } from '../../../stories/sample-data';
 import { sharedThemeArgs, themeArgTypes } from '../../../stories/theme-config';
 import { PieChart } from '../index';
 import { PieChartUnresponsive } from '../pie-chart';
+import type { ChartLegendConfig, DataPointPercentage } from '../../../types';
 import type { Meta, StoryObj } from '@storybook/react';
 
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieChart > > & {
-	labelTextColor?: string;
-	labelBackgroundColor?: string;
-};
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieChart > > &
+	LegendStoryControls & {
+		labelTextColor?: string;
+		labelBackgroundColor?: string;
+	};
 
 const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts Library/Charts/Pie Chart',
@@ -103,7 +109,7 @@ const meta: Meta< StoryArgs > = {
 		},
 	},
 	render: ( { labelTextColor, labelBackgroundColor, ...chartProps } ) => {
-		const legend = extractLegendConfig( chartProps );
+		const legend = extractLegendConfig< ChartLegendConfig< DataPointPercentage[] > >( chartProps );
 		const ChartComponent = <PieChart { ...chartProps } legend={ legend } />;
 
 		if ( labelTextColor || labelBackgroundColor ) {
@@ -192,7 +198,7 @@ export const WithLegend: Story = {
 
 export const WithCompositionLegend: Story = {
 	render: args => {
-		const legend = extractLegendConfig( args );
+		const legend = extractLegendConfig< ChartLegendConfig< DataPointPercentage[] > >( args );
 		return (
 			<PieChart
 				{ ...args }

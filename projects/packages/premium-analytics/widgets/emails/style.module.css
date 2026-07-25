@@ -1,0 +1,48 @@
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-block-size: 0;
+	overflow: hidden;
+}
+
+/* Fixed-height column so the See report footer stays pinned below the list
+   instead of overflowing the tile and scrolling with the host. */
+.widget {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-block-size: 0;
+	overflow: hidden;
+}
+
+/* Positioned anchor so WidgetState's overlay (position: absolute; inset: 0)
+   resolves against the widget body, not the host frame. */
+.body {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 0;
+	min-block-size: 0;
+}
+
+.leaderboard {
+	flex: 1 1 0;
+	min-inline-size: 0;
+	min-block-size: 0;
+	overflow: hidden;
+}
+
+/* The label fills its row; vertical padding sets the overlay bar height (there
+   is no image to size it) and the inline padding insets the text from the bar's
+   rounded left edge. */
+.label {
+	display: block;
+	padding-block: var(--wpds-dimension-padding-md);
+	padding-inline-start: var(--wpds-dimension-padding-sm);
+	overflow: hidden;
+	color: inherit;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}

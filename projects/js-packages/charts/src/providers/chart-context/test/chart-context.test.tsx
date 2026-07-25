@@ -4,6 +4,7 @@ import { GlobalChartsProvider } from '../global-charts-provider';
 import { useChartId } from '../hooks/use-chart-id';
 import { useChartRegistration } from '../hooks/use-chart-registration';
 import { useGlobalChartsContext } from '../hooks/use-global-charts-context';
+import { defaultTheme } from '../themes';
 import type { BaseLegendItem } from '../../../components/legend';
 import type { ChartTheme, SeriesData } from '../../../types';
 import type { GlobalChartsContextValue } from '../types';
@@ -1165,10 +1166,12 @@ describe( 'ChartContext', () => {
 				legendShape: 'rect',
 			} );
 
-			// Should get theme legend shape styles, not line styles
+			// Should get theme legend shape styles (not line styles), with the comparison bar
+			// opacity layered on so the swatch matches the translucent comparison bar.
 			expect( styles.shapeStyles ).toEqual( {
 				fill: '#LEGEND1',
 				stroke: '#BORDER1',
+				opacity: 0.5,
 			} );
 		} );
 	} );
@@ -2531,6 +2534,55 @@ describe( 'ChartContext', () => {
 				// Colors should remain stable
 				expect( afterRerenderColor ).toBe( initialColor );
 				expect( afterRerenderColor ).toBe( '#ff0000' );
+			} );
+		} );
+
+		describe( 'resolveThemeColor', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			const mountProvider = () =>
+				render(
+					<GlobalChartsProvider>
+						<TestComponent />
+					</GlobalChartsProvider>
+				);
+
+			it( 'resolves a CSS variable against the provider scope, not the document root', () => {
+				window.getComputedStyle = jest.fn( ( element: Element ) => ( {
+					getPropertyValue: ( prop: string ) =>
+						prop === '--surface' && element !== document.documentElement ? '#1e1e1e' : '#ffffff',
+				} ) ) as unknown as typeof window.getComputedStyle;
+
+				mountProvider();
+
+				expect( contextValue.resolveThemeColor( 'var(--surface, #fff)' ) ).toBe( '#1e1e1e' );
+			} );
+
+			it( 'passes a resolved color through to hex', () => {
+				mountProvider();
+
+				expect( contextValue.resolveThemeColor( '#abcdef' ) ).toBe( '#abcdef' );
+				expect( contextValue.resolveThemeColor( 'rgb(255, 0, 0)' ) ).toBe( '#ff0000' );
+			} );
+
+			it( 'returns an empty string for an empty value', () => {
+				mountProvider();
+
+				expect( contextValue.resolveThemeColor( '' ) ).toBe( '' );
+			} );
+		} );
+	} );
+
+	describe( 'defaultTheme', () => {
+		it( 'exposes default barChart comparison styles', () => {
+			expect( defaultTheme.barChart.barStyles.comparison ).toEqual( {
+				widthFactor: 1.5,
+				opacity: 0.5,
 			} );
 		} );
 	} );

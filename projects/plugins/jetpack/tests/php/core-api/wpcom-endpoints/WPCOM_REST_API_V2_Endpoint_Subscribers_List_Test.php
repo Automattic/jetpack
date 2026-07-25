@@ -448,10 +448,10 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List_Test extends Jetpack_REST_Test
 	}
 
 	/**
-	 * Same contract on `/subscribers/stats`.
+	 * Same contract on `/subscribers/individual-stats`.
 	 */
 	public function test_stats_rejects_missing_ids() {
-		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/subscribers/stats' );
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/subscribers/individual-stats' );
 
 		$response = $this->server->dispatch( $request );
 

@@ -1,0 +1,14 @@
+// Flex column so the section panel fills the remaining viewport height and
+// scrolls internally instead of collapsing to its content height. Otherwise
+// the panel grows with the widget grid, and the grid (fixed row height)
+// resizes it back, so the two oscillate while resizing a widget (flicker).
+.root {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+	min-block-size: 0;
+}
+
+.tabList {
+	padding-inline: var(--wpds-dimension-padding-2xl);
+}

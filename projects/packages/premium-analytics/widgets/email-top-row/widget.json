@@ -1,0 +1,10 @@
+{
+	"name": "jpa/email-top-row",
+	"title": "Email highlights",
+	"description": "Headline open and click totals for a single email, split into Opens and Clicks views.",
+	"help": {
+		"content": "Headline stats for a single email. The Opens view shows total sends, unique opens, total opens, and open rate; the Clicks view shows total sends, unique opens, total clicks, and click rate. Rates are measured against total sends. Figures are all-time and are not affected by the dashboard date range."
+	},
+	"category": "stats",
+	"presentation": "framed"
+}

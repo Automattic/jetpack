@@ -28,7 +28,8 @@ export const WithComparison: Story = {
 };
 
 /**
- * Simulate a single-column dashboard tile (map only)
+ * Simulate a narrow single-column dashboard tile: the map is hidden and only
+ * the leaderboard is shown.
  */
 export const SingleColumnTile: Story = {
 	decorators: [
@@ -50,7 +51,8 @@ export const SingleColumnTile: Story = {
 };
 
 /**
- * Simulate being rendered inside 'Add widget' DataViews picker grid (map only)
+ * Simulate being rendered inside the 'Add widget' DataViews picker grid: the
+ * narrow tile hides the map and shows only the leaderboard.
  */
 export const WidgetPickerGrid: Story = {
 	decorators: [

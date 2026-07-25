@@ -1,10 +1,9 @@
-import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { store as socialStore } from '../../../social-store';
 import { Connection } from '../../../social-store/types';
-import { features } from '../../../utils/constants';
+import { hasSocialPaidFeatures } from '../../../utils';
 import { SharePostForm, SharePostFormProps } from '../../form/share-post-form';
 
 type PerNetworkCustomizationFormProps = {
@@ -24,13 +23,12 @@ const FALLBACK_TEMPLATE_HELP = __(
  */
 export function PerNetworkCustomizationForm( { connection }: PerNetworkCustomizationFormProps ) {
 	const { customizeConnectionById } = useDispatch( socialStore );
-	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
 
 	/*
 	 * The message field is bound strictly to `connection.message`.
 	 */
 	const message = connection.message ?? '';
-	const fallbackHelp = templatesEnabled ? FALLBACK_TEMPLATE_HELP : undefined;
+	const fallbackHelp = hasSocialPaidFeatures() ? FALLBACK_TEMPLATE_HELP : undefined;
 
 	/*
 	 * Per-network values come strictly from the connection. We don't fall back to global
