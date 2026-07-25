@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Ignore textdomain self-aliases: aliasing a domain to itself made the gettext filter recurse infinitely on any untranslated string in that domain.

@@ -994,6 +994,18 @@ class AssetsTest extends TestCase {
 		);
 	}
 
+	/** Test that a self-alias is ignored: it would recurse infinitely in filter_gettext() on any untranslated string. */
+	public function test_alias_textdomain__self_alias_is_ignored() {
+		Filters\expectAdded( 'gettext_foo' )->never();
+
+		Assets::alias_textdomain( 'foo', 'foo', 'plugins', '1.2.3', 'path/to/foo/1.2.3' );
+
+		$this->assertEquals(
+			array(),
+			TestingAccessWrapper::newFromClass( Assets::class )->domain_map
+		);
+	}
+
 	/** Test textdomain aliasing with bad type. */
 	public function test_alias_textdomain__bad_type() {
 		$this->expectException( InvalidArgumentException::class );

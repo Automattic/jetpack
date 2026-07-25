@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+i18n map: skip packages whose textdomain equals the plugin domain; such a self-alias recurses infinitely in the assets gettext filter.

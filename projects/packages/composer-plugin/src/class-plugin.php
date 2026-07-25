@@ -128,6 +128,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 			$extra = $package->getExtra();
 			if ( empty( $extra['textdomain'] ) ) {
 				$io->info( "  {$package->getName()} ($ver): no textdomain set" );
+			} elseif ( $extra['textdomain'] === $todomain ) {
+				// A self-alias would make Assets::filter_gettext() recurse
+				// infinitely on any untranslated string in that domain.
+				$io->info( "  {$package->getName()} ($ver): textdomain {$extra['textdomain']} matches the plugin domain, skipping alias" );
 			} else {
 				$data['packages'][ $extra['textdomain'] ] = array(
 					'path' => 'jetpack_vendor/' . $package->getPrettyName(),

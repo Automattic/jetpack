@@ -568,6 +568,13 @@ class Assets {
 			throw new InvalidArgumentException( 'Type must be "plugins", "themes", or "core"' );
 		}
 
+		// A self-alias would make filter_gettext() re-translate into the same
+		// domain, recursing infinitely on any untranslated string (a package
+		// textdomain can collide with its containing plugin's slug).
+		if ( $from === $to ) {
+			return;
+		}
+
 		if (
 			did_action( 'wp_default_scripts' ) &&
 			// Don't complain during plugin activation.
