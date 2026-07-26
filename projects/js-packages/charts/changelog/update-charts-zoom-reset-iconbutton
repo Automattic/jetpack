@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Charts: render the zoom reset control with the WordPress UI Button, fix its keyboard activation, and document the zoomable prop for the line and area charts.
+Zoom: Render the reset control with the WordPress UI Button, fix keyboard activation, and document the `zoomable` prop for the line and area charts.
