@@ -147,16 +147,17 @@ const preventDefaultKeydown = ( event: ReactKeyboardEvent< HTMLDivElement > ) =>
 	event.preventDefault();
 
 describe( 'ZoomResetButton', () => {
-	test( 'renders a button with an accessible label from IconButton, not a title attribute', () => {
+	test( 'renders a labelled button with a hover tooltip', () => {
 		const noop = jest.fn();
 		render( <ZoomResetButton onClick={ noop } /> );
 		const button = screen.getByTestId( 'chart-zoom-reset' );
 		expect( button.tagName ).toBe( 'BUTTON' );
 		expect( button ).toHaveClass( 'x-zoom__reset' );
 		expect( button ).toHaveAccessibleName( 'Reset zoom' );
-		// The label is exposed via the IconButton tooltip/aria-label; the old
-		// hand-rolled button used a title attribute instead.
-		expect( button ).not.toHaveAttribute( 'title' );
+		// WPDS `IconButton` would supply a tooltip of its own, but it pulls in a
+		// CommonJS dependency that breaks Script Module consumers (see
+		// ZoomResetButton). `title` restores the hover hint on plain `Button`.
+		expect( button ).toHaveAttribute( 'title', 'Reset zoom' );
 	} );
 
 	test( 'fires onClick when activated', async () => {
