@@ -10,6 +10,7 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Search\Plan as Search_Plan;
 use Automattic\Jetpack\Status\Cache as StatusCache;
@@ -76,6 +77,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 			delete_option( $option );
 		}
 		remove_filter( 'wp_supports_ai', '__return_false' );
+		Constants::clear_single_constant( 'IS_WPCOM' );
 
 		delete_option( Search_Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
 
@@ -322,6 +324,33 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	 */
 	public function test_route_is_registered() {
 		$this->assertArrayHasKey( self::ROUTE, $this->server->get_routes() );
+	}
+
+	/**
+	 * On WordPress.com Simple the route must not register: Simple keeps the
+	 * existing wp.com settings contract, and the per-feature toggles apply to
+	 * Atomic and self-hosted sites only.
+	 */
+	public function test_route_is_not_registered_on_wpcom_simple() {
+		// Control: rebuilding the server off-Simple re-registers the route,
+		// proving the rebuild below exercises registration at all.
+		$this->rebuild_rest_server();
+		$this->assertArrayHasKey( self::ROUTE, $this->server->get_routes() );
+
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->rebuild_rest_server();
+
+		$this->assertArrayNotHasKey( self::ROUTE, $this->server->get_routes() );
+	}
+
+	/**
+	 * Throw away the spy REST server and register every route from scratch.
+	 */
+	private function rebuild_rest_server() {
+		global $wp_rest_server;
+		$wp_rest_server = new JPTest_Spy_REST_Server();
+		$this->server   = $wp_rest_server;
+		do_action( 'rest_api_init', $wp_rest_server );
 	}
 
 	/**
