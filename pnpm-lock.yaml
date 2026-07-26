@@ -454,6 +454,9 @@ importers:
       '@types/jest':
         specifier: ^30.0.0
         version: 30.0.0
+      '@types/node':
+        specifier: ^24.12.0
+        version: 24.13.3
       '@types/react':
         specifier: 18.3.28
         version: 18.3.28
@@ -483,10 +486,10 @@ importers:
         version: 3.0.0
       jest:
         specifier: 30.4.2
-        version: 30.4.2
+        version: 30.4.2(@types/node@24.13.3)
       jest-extended:
         specifier: 7.0.0
-        version: 7.0.0(jest@30.4.2)(typescript@6.0.3)
+        version: 7.0.0(jest@30.4.2(@types/node@24.13.3))(typescript@6.0.3)
       magic-string:
         specifier: 0.30.21
         version: 0.30.21
@@ -33717,6 +33720,13 @@ snapshots:
       jest-mock: 30.4.1
       jest-util: 30.4.1
       jest-validate: 30.4.1
+
+  jest-extended@7.0.0(jest@30.4.2(@types/node@24.13.3))(typescript@6.0.3):
+    dependencies:
+      jest-diff: 30.4.1
+      typescript: 6.0.3
+    optionalDependencies:
+      jest: 30.4.2(@types/node@24.13.3)
 
   jest-extended@7.0.0(jest@30.4.2)(typescript@6.0.3):
     dependencies:

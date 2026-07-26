@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { readFileSync } from 'node:fs';
 import { defineConfig } from 'tsdown';
 import { assertNoDynamicRequire } from './tools/assert-no-dynamic-require.ts';
