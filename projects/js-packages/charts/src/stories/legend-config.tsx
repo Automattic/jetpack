@@ -19,9 +19,17 @@ export type LegendStoryControls = {
 	legendTextOverflow?: 'wrap' | 'ellipsis';
 	legendItemClassName?: string;
 	legendInteractive?: boolean;
-	legendCollapseGroups?: boolean;
 	legendShapeStyles?: ChartLegendConfig[ 'shapeStyles' ];
 	legendItemStyles?: ChartLegendConfig[ 'itemStyles' ];
+};
+
+/**
+ * Flat controls for charts built from `SeriesData` (line, bar, area), which additionally expose
+ * `legendCollapseGroups`. Point charts (pie, semi-circle pie) use the base `LegendStoryControls`,
+ * since collapsing legend rows by `group` is meaningless for their data.
+ */
+export type SeriesLegendStoryControls = LegendStoryControls & {
+	legendCollapseGroups?: boolean;
 };
 
 /**
@@ -91,12 +99,6 @@ export const legendArgTypes = {
 		description:
 			'Enable interactive legend items that can toggle series visibility. Requires GlobalChartsProvider and chartId to be set.',
 	},
-	legendCollapseGroups: {
-		control: { type: 'boolean' as const },
-		table: { category: 'Legend' },
-		description:
-			"Collapse series sharing a `group` into one legend item, labelled by the group's primary series. Combined with legendInteractive, that item toggles every series in its group.",
-	},
 	legendShapeStyles: {
 		control: { type: 'object' as const },
 		table: {
@@ -119,6 +121,21 @@ export const legendArgTypes = {
 };
 
 /**
+ * `legendArgTypes` plus the `legendCollapseGroups` control. Spread this in stories for charts built
+ * from `SeriesData` (line, bar, area); point charts use the base `legendArgTypes` so the control
+ * does not appear where it has no effect.
+ */
+export const seriesLegendArgTypes = {
+	...legendArgTypes,
+	legendCollapseGroups: {
+		control: { type: 'boolean' as const },
+		table: { category: 'Legend' },
+		description:
+			"Collapse series sharing a `group` into one legend item, labelled by the group's primary series. Combined with legendInteractive, that item toggles every series in its group.",
+	},
+};
+
+/**
  * Extracts flat legend story args into a `ChartLegendConfig` object.
  * Use in story render functions to bridge flat Storybook controls to the nested `legend` prop.
  *
@@ -126,7 +143,7 @@ export const legendArgTypes = {
  * @return The legend config object, or undefined if no legend args are set.
  */
 export function extractLegendConfig< T = ChartLegendConfig >(
-	args: Partial< LegendStoryControls >
+	args: Partial< SeriesLegendStoryControls >
 ): T | undefined {
 	const {
 		legendPosition,

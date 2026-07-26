@@ -3,13 +3,13 @@ import {
 	sharedChartArgTypes,
 	sharedThemeArgs,
 	ChartStoryArgs,
-	legendArgTypes,
+	seriesLegendArgTypes,
 	extractLegendConfig,
 	medalCountsData,
 	largeValuesData,
 	trafficData,
 	themeArgTypes,
-	type LegendStoryControls,
+	type SeriesLegendStoryControls,
 } from '../../../stories';
 import BarChart from '../bar-chart';
 import type { ChartLegendConfig, SeriesData } from '../../../types';
@@ -20,7 +20,7 @@ import type { Meta, StoryObj } from '@storybook/react';
  * These don't map directly to component props but control how data/state is manipulated in stories.
  */
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof BarChart > > &
-	LegendStoryControls & {
+	SeriesLegendStoryControls & {
 		/** Controls how many data series to display: 'single' (1 series), 'multiple' (3 series), or 'many' (all series) */
 		seriesCount?: 'single' | 'multiple' | 'many';
 	};
@@ -35,7 +35,7 @@ const meta: Meta< StoryArgs > = {
 	argTypes: {
 		...sharedChartArgTypes,
 		...themeArgTypes,
-		...legendArgTypes,
+		...seriesLegendArgTypes,
 		orientation: {
 			control: { type: 'radio' },
 			options: [ 'vertical', 'horizontal' ],

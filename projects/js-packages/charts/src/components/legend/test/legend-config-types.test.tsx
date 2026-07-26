@@ -1,3 +1,7 @@
+import type {
+	LegendStoryControls,
+	SeriesLegendStoryControls,
+} from '../../../stories/legend-config';
 import type { ChartLegendConfig, DataPointPercentage, SeriesData } from '../../../types';
 
 // Type-level tests. The assertions that matter are the `@ts-expect-error` directives, which the
@@ -24,5 +28,23 @@ describe( 'ChartLegendConfig collapseGroups', () => {
 		const pieLegend: ChartLegendConfig< DataPointPercentage[] > = { interactive: true };
 
 		expect( pieLegend.interactive ).toBe( true );
+	} );
+} );
+
+describe( 'Story legend controls', () => {
+	test( 'series stories expose the legendCollapseGroups control', () => {
+		const controls: SeriesLegendStoryControls = { legendCollapseGroups: true };
+
+		expect( controls.legendCollapseGroups ).toBe( true );
+	} );
+
+	test( 'the base controls used by point charts do not', () => {
+		const controls: LegendStoryControls = {
+			// @ts-expect-error legendCollapseGroups is a series-only control — point charts (pie,
+			// semi-circle pie) spread the base controls, which must not offer it.
+			legendCollapseGroups: true,
+		};
+
+		expect( controls ).toBeDefined();
 	} );
 } );
