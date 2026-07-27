@@ -368,6 +368,21 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
+	 * UI feature flag for AI block transformations.
+	 *
+	 * Transformations rewrite block content with AI, so they are writing
+	 * suggestions and follow the writing assistant toggle on the AI settings
+	 * page, like every other writing suggestion the sidebar exposes. Unlike
+	 * the in-development suggestions there is no testing-environment term:
+	 * the feature is part of the released preview surface.
+	 *
+	 * @return bool
+	 */
+	private static function is_block_transformations_enabled(): bool {
+		return \Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' );
+	}
+
+	/**
 	 * UI feature flag for the Generate Excerpt suggestion.
 	 *
 	 * Exposed only in internal testing environments while the feature is in development,
@@ -513,7 +528,7 @@ class Jetpack_AI_Sidebar {
 			'aiEditorialReview'       => self::is_ai_editorial_review_enabled(),
 			'generateFeedback'        => self::is_generate_feedback_enabled(),
 			'proofreadContent'        => self::is_proofread_content_enabled(),
-			'blockTransformations'    => true,
+			'blockTransformations'    => self::is_block_transformations_enabled(),
 			'blockToolbarButton'      => self::is_block_toolbar_button_enabled(),
 			'optimizeTitleSuggestion' => self::is_optimize_title_suggestion_enabled(),
 			'seoSuggestions'          => self::is_seo_suggestions_enabled(),
@@ -531,7 +546,10 @@ class Jetpack_AI_Sidebar {
 		$features          = is_array( $filtered_features ) ? array_merge( $features, $filtered_features ) : $features;
 
 		// Re-assert the testing-environment gates so the generic features filter cannot
-		// expose in-development suggestions outside internal testing environments.
+		// expose in-development suggestions outside internal testing environments —
+		// and the writing toggle on block transformations, so a switched-off
+		// feature stays off.
+		$features['blockTransformations']    = (bool) $features['blockTransformations'] && self::is_block_transformations_enabled();
 		$features['generateFeedback']        = self::is_generate_feedback_enabled();
 		$features['proofreadContent']        = self::is_proofread_content_enabled();
 		$features['optimizeTitleSuggestion'] = (bool) $features['optimizeTitleSuggestion'] && self::is_optimize_title_suggestion_enabled();

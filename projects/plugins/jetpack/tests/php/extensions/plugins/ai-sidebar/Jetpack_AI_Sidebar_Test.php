@@ -1080,7 +1080,36 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['generateFeedback'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['aiEditorialReview'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['excerptSuggestion'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['blockTransformations'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
+	}
+
+	/**
+	 * Block transformations rewrite block content with AI, so they are a writing
+	 * feature: the writing assistant toggle switches them off, and the generic
+	 * preview-features filter cannot re-enable them while the toggle is off —
+	 * a switched-off feature stays off, matching the contract's state test.
+	 */
+	public function test_block_transformations_cannot_be_reenabled_by_preview_filter_when_writing_off() {
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->activate_seo_tools_module();
+		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
+		update_option( 'ai_seo_enhancer_enabled', 1 );
+		add_filter(
+			'jetpack_ai_sidebar_preview_features',
+			static function ( $features ) {
+				$features['blockTransformations'] = true;
+				return $features;
+			}
+		);
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		delete_option( 'jetpack_ai_writing_assistant_enabled' );
+		delete_option( 'ai_seo_enhancer_enabled' );
+
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['blockTransformations'] );
 	}
 
 	/**
