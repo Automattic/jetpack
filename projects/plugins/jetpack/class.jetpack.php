@@ -829,19 +829,48 @@ class Jetpack {
 	 * admin-bar entries, post-list column, and WP dashboard widget); the Stats
 	 * module's tracking is unaffected — Premium Analytics depends on it.
 	 *
+	 * The package has to be loadable for this to be true. The same answer both
+	 * tears the Stats UI down and brings the dashboard up, so if the two could
+	 * disagree a site missing the package would end up with neither.
+	 *
+	 * Resolved once per request: `configure()` asks first, on `plugins_loaded`,
+	 * and the Stats module and dashboard widget ask much later. Without the
+	 * cache a filter registered in between would be seen by only some of them.
+	 *
 	 * @since $$next-version$$
 	 *
 	 * @return bool
 	 */
 	public static function is_premium_analytics_enabled() {
+		static $enabled = null;
+
+		if ( null !== $enabled ) {
+			return $enabled;
+		}
+
 		/**
 		 * Filters whether the bundled Premium Analytics dashboard is enabled.
+		 *
+		 * Resolved once, from `Jetpack::configure()` on `plugins_loaded`. Register
+		 * this from a mu-plugin or a plugin's main file — a callback added on
+		 * `plugins_loaded` or later runs too late to be seen.
 		 *
 		 * @since $$next-version$$
 		 *
 		 * @param bool $enabled Defaults to the `jetpack_premium_analytics_enabled` option (false).
 		 */
-		return (bool) apply_filters( 'jetpack_premium_analytics_enabled', (bool) get_option( 'jetpack_premium_analytics_enabled' ) );
+		$flag = (bool) apply_filters( 'jetpack_premium_analytics_enabled', (bool) get_option( 'jetpack_premium_analytics_enabled' ) );
+
+		$enabled = $flag && class_exists( 'Automattic\Jetpack\PremiumAnalytics\Analytics' );
+
+		if ( $flag && ! $enabled ) {
+			wp_trigger_error(
+				__METHOD__,
+				'The jetpack_premium_analytics_enabled flag is on but the Premium Analytics package is not loadable; keeping the Stats UI in place.'
+			);
+		}
+
+		return $enabled;
 	}
 
 	/**
@@ -955,10 +984,11 @@ class Jetpack {
 		 * and its REST surfaces self-gate on rest_api_init. When enabled it
 		 * replaces the Stats wp-admin UI (see modules/stats.php).
 		 */
-		if ( self::is_premium_analytics_enabled() && class_exists( 'Automattic\Jetpack\PremiumAnalytics\Analytics' ) ) {
-			\Automattic\Jetpack\PremiumAnalytics\Analytics::init(
-				array( 'menu_title' => __( 'Analytics', 'jetpack' ) )
-			);
+		if ( self::is_premium_analytics_enabled() ) {
+			// No menu_title here: the package labels its own menu on admin_menu.
+			// Translating at this point would load the textdomain before
+			// after_setup_theme, which core flags as too early.
+			\Automattic\Jetpack\PremiumAnalytics\Analytics::init();
 		}
 
 		$config->ensure(
