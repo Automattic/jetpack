@@ -162,6 +162,7 @@ class Image_Metadata_Test extends WP_UnitTestCase {
 		// Force an unexpected error deep inside preservation.
 		add_filter(
 			'wp_get_original_image_path',
+			/** @return never */
 			static function () {
 				throw new \RuntimeException( 'boom' );
 			}
@@ -190,6 +191,45 @@ class Image_Metadata_Test extends WP_UnitTestCase {
 
 		$this->assertNotNull( $fired, 'the failure action must fire when preservation throws' );
 		$this->assertStringContainsString( 'boom', $fired );
+	}
+
+	public function test_filter_can_disable_preservation() {
+		$original = $this->dir . 'off.png';
+		$target   = $this->dir . 'off-2x2.png';
+		file_put_contents( $original, Image_Metadata_Fixtures::png_with_xmp( Image_Metadata_Fixtures::xmp_packet() ) );
+		file_put_contents( $target, Image_Metadata_Fixtures::bare_png() );
+		$id       = $this->create_attachment( $original, 'off.png' );
+		$metadata = array(
+			'file'  => 'off.png',
+			'sizes' => array( 'small' => array( 'file' => 'off-2x2.png' ) ),
+		);
+
+		add_filter( 'jetpack_preserve_image_provenance', '__return_false' );
+
+		Image_Metadata::preserve( $metadata, $id );
+
+		$this->assertStringNotContainsString( 'trainedAlgorithmicMedia', file_get_contents( $target ) );
+	}
+
+	public function test_skips_on_wpcom_platform() {
+		$original = $this->dir . 'wpcom.png';
+		$target   = $this->dir . 'wpcom-2x2.png';
+		file_put_contents( $original, Image_Metadata_Fixtures::png_with_xmp( Image_Metadata_Fixtures::xmp_packet() ) );
+		file_put_contents( $target, Image_Metadata_Fixtures::bare_png() );
+		$id       = $this->create_attachment( $original, 'wpcom.png' );
+		$metadata = array(
+			'file'  => 'wpcom.png',
+			'sizes' => array( 'small' => array( 'file' => 'wpcom-2x2.png' ) ),
+		);
+
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+		try {
+			Image_Metadata::preserve( $metadata, $id );
+		} finally {
+			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+		}
+
+		$this->assertStringNotContainsString( 'trainedAlgorithmicMedia', file_get_contents( $target ) );
 	}
 
 	/**

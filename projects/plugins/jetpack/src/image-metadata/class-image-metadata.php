@@ -34,7 +34,19 @@ final class Image_Metadata {
 	 * @return mixed Unchanged attachment metadata.
 	 */
 	public static function preserve( $metadata, $attachment_id ) {
-		if ( ! is_array( $metadata ) || empty( $metadata['file'] ) || self::is_photon_active() ) {
+		if ( ! is_array( $metadata ) || empty( $metadata['file'] ) || self::is_photon_active() || self::is_wpcom_platform() ) {
+			return $metadata;
+		}
+
+		/**
+		 * Filters whether to preserve AI-provenance XMP in generated image sizes.
+		 *
+		 * Return false to disable the feature.
+		 *
+		 * @param bool $enabled       Whether to run. Default true.
+		 * @param int  $attachment_id Attachment post ID.
+		 */
+		if ( ! apply_filters( 'jetpack_preserve_image_provenance', true, (int) $attachment_id ) ) {
 			return $metadata;
 		}
 
@@ -133,5 +145,15 @@ final class Image_Metadata {
 	private static function is_photon_active() {
 		return class_exists( '\Automattic\Jetpack\Image_CDN\Image_CDN', false )
 			&& \Automattic\Jetpack\Image_CDN\Image_CDN::is_enabled();
+	}
+
+	/**
+	 * Check whether the site runs on the WordPress.com platform (Simple or WoA),
+	 * where image sizes and their metadata are handled by the platform.
+	 *
+	 * @return bool
+	 */
+	private static function is_wpcom_platform() {
+		return ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_platform();
 	}
 }

@@ -218,6 +218,8 @@ final class XMP_Copier {
 	 * @return bool
 	 */
 	private static function has_ai_marker( $bytes ) {
+		// Case-insensitive, so 'trainedAlgorithmicMedia' also matches the composite
+		// value 'compositeWithTrainedAlgorithmicMedia'.
 		return false !== stripos( $bytes, 'trainedAlgorithmicMedia' )
 			|| false !== stripos( $bytes, 'compositeSynthetic' );
 	}
