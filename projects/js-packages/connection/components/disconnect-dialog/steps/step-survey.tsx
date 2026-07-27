@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { Text } from '@wordpress/ui';
 import '../../disconnect-survey/_jp-connect_disconnect-survey-card.scss';
 import DisconnectSurvey from '../../disconnect-survey';
 import type { MouseEvent } from 'react';
@@ -7,7 +8,7 @@ interface StepSurveyProps {
 	/** Callback function used to close the modal and leave the disconnect flow. */
 	onExit?: ( e?: MouseEvent< HTMLElement > ) => void;
 	/** Callback function to handle submission of survey response. */
-	onFeedBackProvided?: ( answerId: string | undefined, answerText: string ) => void;
+	onFeedBackProvided?: ( answerId: string, answerText: string ) => void;
 	/** If the survey feedback is currently being saved/submitted. */
 	isSubmittingFeedback?: boolean;
 }
@@ -22,9 +23,9 @@ const StepSurvey = ( { onExit, onFeedBackProvided, isSubmittingFeedback }: StepS
 	return (
 		<div className="jp-connection__disconnect-dialog__content">
 			<h1>{ __( 'Before you go, help us improve Jetpack', 'jetpack-connection-js' ) }</h1>
-			<p className="jp-connection__disconnect-dialog__large-text">
-				{ __( 'Let us know what didn‘t work for you', 'jetpack-connection-js' ) }
-			</p>
+			<Text className="jp-connection__disconnect-dialog__large-text">
+				{ __( "Let us know what didn't work for you", 'jetpack-connection-js' ) }
+			</Text>
 			<DisconnectSurvey
 				onSubmit={ onFeedBackProvided }
 				isSubmittingFeedback={ isSubmittingFeedback }
