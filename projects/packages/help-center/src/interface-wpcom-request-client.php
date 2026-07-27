@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Help_Center;
 
 /**
- * Sends authenticated requests to the WordPress.com API.
+ * Sends requests to the WordPress.com API.
  */
 interface Wpcom_Request_Client {
 	/**
@@ -19,7 +19,10 @@ interface Wpcom_Request_Client {
 	public function is_user_connected();
 
 	/**
-	 * Send a request authenticated as the current user.
+	 * Send a request to WordPress.com.
+	 *
+	 * Implementations should authenticate the request as the current user when
+	 * possible and send it anonymously when the user is logged out.
 	 *
 	 * @param string            $path          REST API path.
 	 * @param string            $version       REST API version.
@@ -29,7 +32,7 @@ interface Wpcom_Request_Client {
 	 *
 	 * @return array|\WP_Error Response data, or WP_Error on failure.
 	 */
-	public function request_as_user(
+	public function request(
 		$path,
 		$version = '2',
 		$args = array(),

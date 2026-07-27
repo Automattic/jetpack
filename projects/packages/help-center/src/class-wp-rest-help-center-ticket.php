@@ -32,7 +32,7 @@ class WP_REST_Help_Center_Ticket extends WP_REST_Help_Center_Controller {
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'new_ticket' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => '__return_true',
 				'args'                => array(
 					'subject'          => array(
 						'type' => 'string',
@@ -73,7 +73,7 @@ class WP_REST_Help_Center_Ticket extends WP_REST_Help_Center_Controller {
 			'blog_url'         => $request['blog_url'],
 		);
 
-		$body = $this->wpcom_request_client->request_as_user(
+		$body = $this->wpcom_request_client->request(
 			'/help/ticket/new',
 			'2',
 			array(

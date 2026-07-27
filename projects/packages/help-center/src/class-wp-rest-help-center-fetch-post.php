@@ -32,7 +32,7 @@ class WP_REST_Help_Center_Fetch_Post extends WP_REST_Help_Center_Controller {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_post' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => '__return_true',
 				'args'                => array(
 					'blog_id'  => array(
 						'type' => 'number',
@@ -53,7 +53,7 @@ class WP_REST_Help_Center_Fetch_Post extends WP_REST_Help_Center_Controller {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_blog_post_articles' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => '__return_true',
 				'args'                => array(
 					'blog_id'  => array(
 						'type'     => 'number',
@@ -81,7 +81,7 @@ class WP_REST_Help_Center_Fetch_Post extends WP_REST_Help_Center_Controller {
 			'blog_id'  => $request['blog_id'],
 			'post_ids' => $request['post_ids'],
 		);
-		$body             = $this->wpcom_request_client->request_as_user(
+		$body             = $this->wpcom_request_client->request(
 			'/help/articles?' . http_build_query( $query_parameters )
 		);
 
@@ -101,7 +101,7 @@ class WP_REST_Help_Center_Fetch_Post extends WP_REST_Help_Center_Controller {
 	 */
 	public function get_post( \WP_REST_Request $request ) {
 		if ( isset( $request['post_url'] ) ) {
-			$body = $this->wpcom_request_client->request_as_user(
+			$body = $this->wpcom_request_client->request(
 				'/help/article?post_url=' . $request['post_url']
 			);
 		} else {
@@ -110,7 +110,7 @@ class WP_REST_Help_Center_Fetch_Post extends WP_REST_Help_Center_Controller {
 				return $alternate_data;
 			}
 
-			$body = $this->wpcom_request_client->request_as_user(
+			$body = $this->wpcom_request_client->request(
 				'/help/article/' . $alternate_data['blog_id'] . '/' . $alternate_data['post_id']
 			);
 		}
@@ -142,7 +142,7 @@ class WP_REST_Help_Center_Fetch_Post extends WP_REST_Help_Center_Controller {
 			return $default_alternate_data;
 		}
 
-		$body = $this->wpcom_request_client->request_as_user(
+		$body = $this->wpcom_request_client->request(
 			"/support/alternates/$blog_id/posts/$post_id",
 			'1.1',
 			array(),

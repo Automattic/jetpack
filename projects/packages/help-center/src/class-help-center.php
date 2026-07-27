@@ -18,7 +18,7 @@ class Help_Center {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.1.0';
+	const PACKAGE_VERSION = '0.2.0';
 
 	/**
 	 * Class instance.
@@ -369,7 +369,7 @@ class Help_Center {
 			$result = $experiment_variation === \ExPlat\assign_current_user( $experiment_name );
 		} elseif ( $this->wpcom_request_client->is_user_connected() ) {
 			$request_path = '/experiments/0.1.0/assignments/calypso';
-			$response     = $this->wpcom_request_client->request_as_user(
+			$response     = $this->wpcom_request_client->request(
 				add_query_arg( array( 'experiment_name' => $experiment_name ), $request_path ),
 				'v2'
 			);
@@ -708,23 +708,38 @@ class Help_Center {
 		$can_edit_posts = current_user_can( 'edit_posts' ) && is_user_member_of_blog();
 		$is_p2          = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( get_current_blog_id() );
 
+		/**
+		 * Filters whether to load the logged-out Help Center bundle on the current frontend request.
+		 *
+		 * Consumers can use this filter to opt public-facing surfaces into the
+		 * Help Center without taking ownership of its asset-loading logic.
+		 *
+		 * @since 0.2.0
+		 *
+		 * @param bool $should_load Whether to load the logged-out Help Center bundle.
+		 */
+		$should_load_logged_out = ! is_admin()
+			&& (bool) apply_filters( 'jetpack_help_center_should_load_logged_out', false );
+
 		// We will show the help center icon in the admin bar when;
 		// 1. On wp-admin
 		// 2. On the front end of the site if the current user can edit posts
 		// 3. On the front end of the site and the theme is not P2
 		// 4. If it is the frontend we show the disconnected version of the help center.
-		if ( ! is_admin() && ( ! $can_edit_posts || $is_p2 ) && ! $this->is_support_site ) {
+		if ( ! is_admin() && ( ! $can_edit_posts || $is_p2 ) && ! $this->is_support_site && ! $should_load_logged_out ) {
 			return;
 		}
 
 		// Do not load Help Center for logged-out users if we are not on support sites.
-		if ( ! is_user_logged_in() && ! $this->is_support_site ) {
+		if ( ! is_user_logged_in() && ! $this->is_support_site && ! $should_load_logged_out ) {
 			return;
 		}
 
 		$suffix = $this->is_jetpack_disconnected() ? '-disconnected' : '';
 
-		if ( $this->is_support_site ) {
+		if ( $should_load_logged_out ) {
+			$variant = 'logged-out';
+		} elseif ( $this->is_support_site ) {
 			if ( ! is_user_logged_in() ) {
 				$variant = 'logged-out';
 			} else {

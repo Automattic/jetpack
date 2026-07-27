@@ -32,7 +32,7 @@ class WP_REST_Help_Center_Search extends WP_REST_Help_Center_Controller {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_search_results' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => '__return_true',
 				'args'                => array(
 					'query'   => array(
 						'type' => 'string',
@@ -73,7 +73,7 @@ class WP_REST_Help_Center_Search extends WP_REST_Help_Center_Controller {
 			$query_parameters['source'] = $source;
 		}
 
-		$body = $this->wpcom_request_client->request_as_user(
+		$body = $this->wpcom_request_client->request(
 			'/help/search?' . http_build_query( $query_parameters )
 		);
 

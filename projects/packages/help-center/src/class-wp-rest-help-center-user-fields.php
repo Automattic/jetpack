@@ -32,7 +32,7 @@ class WP_REST_Help_Center_User_Fields extends WP_REST_Help_Center_Controller {
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'update_user_fields' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => '__return_true',
 				'args'                => array(
 					'fields' => array(
 						'type'     => 'object',
@@ -49,7 +49,7 @@ class WP_REST_Help_Center_User_Fields extends WP_REST_Help_Center_Controller {
 	 * @param \WP_REST_Request $request    The request sent to the API.
 	 */
 	public function update_user_fields( \WP_REST_Request $request ) {
-		$body = $this->wpcom_request_client->request_as_user(
+		$body = $this->wpcom_request_client->request(
 			'help/zendesk/update-user-fields',
 			'2',
 			array(
