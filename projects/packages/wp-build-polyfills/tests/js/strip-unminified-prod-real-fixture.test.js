@@ -19,16 +19,20 @@
  */
 
 const { spawnSync } = require( 'child_process' );
+const crypto = require( 'crypto' );
 const { existsSync, readFileSync, rmSync } = require( 'fs' );
 const assert = require( 'node:assert/strict' );
 const { describe, it, before, after } = require( 'node:test' );
 const path = require( 'path' );
 const { isStub } = require( '../../bin/i18n-stub-lib.js' );
+const { stampDir } = require( '../../bin/stamp-textdomains-lib.js' );
 const {
 	strip,
 	hasUnpatchedFallback,
 	PHP_TARGETS,
 } = require( '../../bin/strip-unminified-prod-lib.js' );
+
+const DOMAIN = 'jetpack-wp-build-polyfills';
 
 const POLYFILLS_DIR = path.join( __dirname, '..', '..' );
 const FIXTURE_DIR = path.join( POLYFILLS_DIR, 'tests', 'fixtures', 'wp-build-source' );
@@ -115,6 +119,51 @@ describe(
 			}
 		} );
 
+		it( 'stamps real gettext calls but not gettext-shaped calls on other objects', () => {
+			// Runs before the strip tests below, matching the real build order
+			// (`build:stamp-textdomains` then `build:strip-unminified-prod`).
+			assert.ok( stampDir( FIXTURE_BUILD, DOMAIN ) > 0, 'some bundles were stamped' );
+
+			for ( const file of [ 'routes/dashboard/content.js', 'routes/dashboard/content.min.js' ] ) {
+				const src = readFileSync( path.join( FIXTURE_BUILD, file ), 'utf8' );
+				assert.ok(
+					src.includes( 'not-a-translatable-string' ),
+					`${ file }: the decoy call survived bundling, so this test still means something`
+				);
+				assert.match(
+					src,
+					/["']Hello from fixture["'],\s*["']jetpack-wp-build-polyfills["']/,
+					`${ file }: the real gettext call carries the domain`
+				);
+				assert.doesNotMatch(
+					src,
+					/not-a-translatable-string["'],\s*["']jetpack-wp-build-polyfills/,
+					`${ file }: the decoy call on an unrelated object was left alone`
+				);
+			}
+		} );
+
+		it( 'rehashes the asset file of every stamped bundle', () => {
+			// A second stamp pass is a no-op on the JS, so the versions written
+			// by the pass above must already match the files on disk.
+			const bundle = path.join( FIXTURE_BUILD, 'routes/dashboard/content.min.js' );
+			const asset = readFileSync(
+				path.join( FIXTURE_BUILD, 'routes/dashboard/content.min.asset.php' ),
+				'utf8'
+			);
+			const version = crypto
+				.createHash( 'sha256' )
+				.update( readFileSync( bundle ) )
+				.digest( 'hex' )
+				.slice( 0, 20 );
+
+			assert.match(
+				asset,
+				new RegExp( `'version'\\s*=>\\s*'${ version }'` ),
+				'the asset version matches the stamped bundle wp-build no longer hashed'
+			);
+		} );
+
 		it( 'strips paired unminified bundles and patches every PHP loader', () => {
 			const result = strip( FIXTURE_BUILD );
 			assert.equal( result.skipped, false );
@@ -151,6 +200,10 @@ describe(
 			assert.ok(
 				! stubSource.includes( 'stage' ),
 				'application code does not survive in the stub'
+			);
+			assert.ok(
+				! stubSource.includes( 'not-a-translatable-string' ),
+				'a gettext-shaped call on an unrelated object stays out of the .pot'
 			);
 
 			// Paired `.js.map` sourcemaps for the deleted `.js` files are

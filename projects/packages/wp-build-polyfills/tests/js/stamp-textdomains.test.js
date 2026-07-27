@@ -10,6 +10,7 @@
  * `(0,e.__)(…)` in the `.min.js`.
  */
 
+const crypto = require( 'crypto' );
 const { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } = require( 'fs' );
 const assert = require( 'node:assert/strict' );
 const os = require( 'node:os' );
@@ -18,11 +19,26 @@ const path = require( 'path' );
 const {
 	stampCode,
 	stampDir,
+	refreshAssetVersion,
 	writeI18nManifest,
 	I18N_MANIFEST,
 } = require( '../../bin/stamp-textdomains-lib.js' );
 
 const DOMAIN = 'jetpack-videopress-pkg';
+
+/**
+ * wp-build's content hash for an emitted bundle: sha256, first 20 hex chars.
+ *
+ * @param {string} file - Path to the emitted file.
+ * @return {string} The expected `'version'` value.
+ */
+function contentHash( file ) {
+	return crypto
+		.createHash( 'sha256' )
+		.update( readFileSync( file ) )
+		.digest( 'hex' )
+		.slice( 0, 20 );
+}
 
 describe( 'stamp-textdomains', () => {
 	it( 'adds domain to a bare sequence-expression call (esbuild non-min shape)', () => {
@@ -68,7 +84,24 @@ describe( 'stamp-textdomains', () => {
 		);
 	} );
 
-	it( 'stampDir walks routes and rewrites both .js and .min.js, leaving .asset.php alone', () => {
+	it( 'leaves a gettext-shaped call on an unrelated object alone', () => {
+		// What a bundled dependency's own cache/registry helper looks like once
+		// esbuild has inlined it next to the real gettext calls.
+		const input = 'var cache={__:k=>k};var v=cache.__("some-key");';
+		assert.equal( stampCode( input, DOMAIN, true ), input, 'the call is untouched' );
+	} );
+
+	it( 'stamps a call whose callee traces back to @wordpress/i18n', () => {
+		const input =
+			'var require_i18n=__commonJS({"package-external:@wordpress/i18n"(exports,module){module.exports=window.wp.i18n;}});' +
+			'var import_i18n=__toESM(require_i18n(),1);var v=(0,import_i18n.__)("Hi");';
+		assert.ok(
+			stampCode( input, DOMAIN, true ).includes( '"Hi","jetpack-videopress-pkg"' ),
+			'the real gettext call is stamped'
+		);
+	} );
+
+	it( 'stampDir walks routes, rewrites both .js and .min.js, and rehashes the paired .asset.php', () => {
 		const tmp = mkdtempSync( path.join( os.tmpdir(), 'stamp-textdomains-' ) );
 		try {
 			const routeDir = path.join( tmp, 'build', 'routes', 'dashboard' );
@@ -76,13 +109,15 @@ describe( 'stamp-textdomains', () => {
 
 			const jsFile = path.join( routeDir, 'content.js' );
 			const minFile = path.join( routeDir, 'content.min.js' );
-			const assetFile = path.join( routeDir, 'content.asset.php' );
+			// wp-build emits the asset file next to the minified bundle only.
+			const assetFile = path.join( routeDir, 'content.min.asset.php' );
 
 			writeFileSync( jsFile, 'x = (0, import_i18n.__)("Hello");\n' );
 			writeFileSync( minFile, 'var a=(0,e.__)("Hello");' );
-			const assetSource =
-				"<?php return array('dependencies' => array('wp-i18n'), 'version' => 'abc');\n";
-			writeFileSync( assetFile, assetSource );
+			writeFileSync(
+				assetFile,
+				"<?php return array('dependencies' => array('wp-i18n'), 'version' => 'abc');\n"
+			);
 
 			const count = stampDir( path.join( tmp, 'build' ), DOMAIN );
 			assert.equal( count, 2, 'both .js and .min.js stamped' );
@@ -95,7 +130,54 @@ describe( 'stamp-textdomains', () => {
 				readFileSync( minFile, 'utf8' ).includes( '"jetpack-videopress-pkg"' ),
 				'minified bundle stamped'
 			);
-			assert.equal( readFileSync( assetFile, 'utf8' ), assetSource, '.asset.php left untouched' );
+
+			const asset = readFileSync( assetFile, 'utf8' );
+			assert.equal(
+				asset,
+				`<?php return array('dependencies' => array('wp-i18n'), 'version' => '${ contentHash(
+					minFile
+				) }');\n`,
+				'only the version changed, and it matches the stamped bytes'
+			);
+		} finally {
+			rmSync( tmp, { recursive: true, force: true } );
+		}
+	} );
+
+	it( 'refreshAssetVersion leaves a bundle with no paired asset file alone', () => {
+		const tmp = mkdtempSync( path.join( os.tmpdir(), 'stamp-textdomains-' ) );
+		try {
+			const routeDir = path.join( tmp, 'build', 'routes', 'dashboard' );
+			mkdirSync( routeDir, { recursive: true } );
+
+			const jsFile = path.join( routeDir, 'content.js' );
+			const minAssetFile = path.join( routeDir, 'content.min.asset.php' );
+			writeFileSync( jsFile, 'x = 1;\n' );
+			const minAssetSource = "<?php return array('version' => 'abc');\n";
+			writeFileSync( minAssetFile, minAssetSource );
+
+			assert.equal( refreshAssetVersion( jsFile ), false, 'content.js pairs with no asset file' );
+			assert.equal(
+				readFileSync( minAssetFile, 'utf8' ),
+				minAssetSource,
+				"the minified bundle's asset file is not the unminified bundle's"
+			);
+		} finally {
+			rmSync( tmp, { recursive: true, force: true } );
+		}
+	} );
+
+	it( 'refreshAssetVersion leaves an asset file with no version entry alone', () => {
+		const tmp = mkdtempSync( path.join( os.tmpdir(), 'stamp-textdomains-' ) );
+		try {
+			const file = path.join( tmp, 'index.min.js' );
+			const assetFile = path.join( tmp, 'index.min.asset.php' );
+			writeFileSync( file, 'var a=1;' );
+			const assetSource = "<?php return array('dependencies' => array());\n";
+			writeFileSync( assetFile, assetSource );
+
+			assert.equal( refreshAssetVersion( file ), false );
+			assert.equal( readFileSync( assetFile, 'utf8' ), assetSource );
 		} finally {
 			rmSync( tmp, { recursive: true, force: true } );
 		}
