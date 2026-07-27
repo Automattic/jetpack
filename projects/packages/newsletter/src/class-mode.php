@@ -174,6 +174,10 @@ class Mode {
 			// What the Share modal hands out. `home_url()` rather than the admin
 			// URL — this is the address readers visit.
 			'siteUrl'      => home_url(),
+			// Where "Make it yours" sends people. Taken from the curated nav's own
+			// slug so the Dashboard and the nav's Settings item stay in step,
+			// including the `p` param the SPA router reads.
+			'settingsUrl'  => admin_url( self::get_nav_slugs()['settings'] ),
 		);
 
 		return $data;

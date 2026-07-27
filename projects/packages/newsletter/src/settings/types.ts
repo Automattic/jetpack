@@ -93,6 +93,11 @@ export interface NewsletterModeScriptData {
 	writeUrl: string;
 	/** The newsletter's public address — what the Share modal hands out. */
 	siteUrl: string;
+	/**
+	 * The Newsletter Settings tab, as the curated nav links to it — including
+	 * the `p` param the SPA router reads.
+	 */
+	settingsUrl: string;
 }
 
 /**

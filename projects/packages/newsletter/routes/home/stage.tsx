@@ -99,6 +99,9 @@ const getChecklist = ( options: EntryPointOptions ): ChecklistTask[] => [
 		title: __( 'Make it yours', 'jetpack-newsletter' ),
 		description: __( 'Customize the name, description, and more.', 'jetpack-newsletter' ),
 		done: false,
+		// The Settings tab, where Newsletter identity is the first section — so
+		// the title and tagline this row promises are already in view on arrival.
+		href: getNewsletterModeScriptData()?.settingsUrl,
 	},
 	{
 		title: __( 'Write your first post', 'jetpack-newsletter' ),

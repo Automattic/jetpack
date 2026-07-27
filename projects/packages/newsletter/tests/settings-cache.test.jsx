@@ -19,6 +19,10 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 jest.mock( '../src/settings/api', () => ( {
 	fetchSettings: jest.fn(),
 	updateSettings: jest.fn(),
+	// The identity section fetches on mount; these suites don't exercise it, so
+	// resolve empty and let the section stay out of the tree.
+	fetchSiteIdentity: jest.fn( () => Promise.resolve( { title: '', description: '' } ) ),
+	updateSiteIdentity: jest.fn(),
 } ) );
 
 jest.mock( '../src/settings/script-data', () => ( {
@@ -27,6 +31,7 @@ jest.mock( '../src/settings/script-data', () => ( {
 
 jest.mock( '../src/settings/sections', () => ( {
 	EmailBylineSection: () => <div data-testid="email-byline-section" />,
+	NewsletterIdentitySection: () => <div data-testid="newsletter-identity-section" />,
 	EmailContentSection: () => <div data-testid="email-content-section" />,
 	EmailDefaultsSection: () => <div data-testid="email-defaults-section" />,
 	EmailReplyToSettingsSection: () => <div data-testid="email-reply-to-settings-section" />,

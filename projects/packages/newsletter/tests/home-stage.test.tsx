@@ -31,7 +31,7 @@
 //    Writing a post needs no connection, so that link is never gated.
 
 const mockGetNewsletterScriptData = jest.fn<
-	{ greetingName?: string; writeUrl?: string; siteUrl?: string } | undefined,
+	{ greetingName?: string; writeUrl?: string; siteUrl?: string; settingsUrl?: string } | undefined,
 	[]
 >();
 const mockShareModalProps = jest.fn();
@@ -85,6 +85,8 @@ const CONNECTED = {
 const SUBSCRIBERS_PAGE = 'https://example.com/wp-admin/admin.php?page=jetpack-newsletter';
 const WRITE_URL = 'https://example.com/wp-admin/post-new.php?source=newsletter';
 const SITE_URL = 'https://octagonal.example.com';
+const SETTINGS_URL =
+	'https://example.com/wp-admin/admin.php?page=jetpack-newsletter&p=%2F%3Ftab%3Dsettings';
 
 /**
  * Click a button by its accessible name — a native click, the way the sibling
@@ -105,6 +107,7 @@ beforeEach( () => {
 		greetingName: '',
 		writeUrl: WRITE_URL,
 		siteUrl: SITE_URL,
+		settingsUrl: SETTINGS_URL,
 	} );
 	mockShareModalProps.mockReset();
 	mockIsSimpleSite.mockReturnValue( true );
@@ -144,6 +147,7 @@ describe( 'Newsletter Mode dashboard links', () => {
 		expect( screen.getAllByRole( 'link' ).map( anchor => anchor.textContent ) ).toEqual( [
 			expect.stringContaining( 'Bring your contacts' ),
 			expect.stringContaining( 'Invite by email' ),
+			expect.stringContaining( 'Make it yours' ),
 			expect.stringContaining( 'Write your first post' ),
 			expect.stringContaining( 'Bring your first readers' ),
 		] );
@@ -159,6 +163,15 @@ describe( 'Newsletter Mode dashboard links', () => {
 		expect( screen.getByRole( 'link', { name: new RegExp( label ) } ) ).toHaveAttribute(
 			'href',
 			`${ SUBSCRIBERS_PAGE }#add-subscribers=${ tab }`
+		);
+	} );
+
+	it( '"Make it yours" goes to the Settings tab, where the identity section lives', () => {
+		render( <Stage /> );
+
+		expect( screen.getByRole( 'link', { name: /Make it yours/ } ) ).toHaveAttribute(
+			'href',
+			SETTINGS_URL
 		);
 	} );
 
@@ -187,8 +200,10 @@ describe( 'Newsletter Mode dashboard links', () => {
 
 		render( <Stage /> );
 
-		// The write task is never gated on the connection, so it survives.
+		// Neither the settings nor the write task is gated on the connection, so
+		// both survive.
 		expect( screen.getAllByRole( 'link' ).map( anchor => anchor.textContent ) ).toEqual( [
+			expect.stringContaining( 'Make it yours' ),
 			expect.stringContaining( 'Write your first post' ),
 		] );
 	} );
@@ -203,7 +218,7 @@ describe( 'Newsletter Mode dashboard links', () => {
 
 		render( <Stage /> );
 
-		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 4 );
+		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 5 );
 	} );
 } );
 
