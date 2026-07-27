@@ -9,6 +9,7 @@ import {
 } from '../presets';
 import {
 	getPresetYear,
+	isComputablePreset,
 	isPrimaryPreset,
 	isSelectablePreset,
 	isYearPresetId,
@@ -63,6 +64,16 @@ describe( 'year preset IDs', () => {
 		expect( isPrimaryPreset( 'year-2024' ) ).toBe( true );
 		expect( isPrimaryPreset( 'all-time' ) ).toBe( true );
 		expect( isPrimaryPreset( 'year-24' ) ).toBe( false );
+	} );
+
+	it( 'treats every preset but custom as computable from its ID', () => {
+		expect( isComputablePreset( 'last-7-days' ) ).toBe( true );
+		expect( isComputablePreset( 'year-2024' ) ).toBe( true );
+		expect( isComputablePreset( 'all-time' ) ).toBe( true );
+
+		// The one primary preset that carries its range instead of deriving it.
+		expect( isComputablePreset( 'custom' ) ).toBe( false );
+		expect( isPrimaryPreset( 'custom' ) ).toBe( true );
 	} );
 } );
 

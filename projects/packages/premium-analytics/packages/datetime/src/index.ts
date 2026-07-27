@@ -43,6 +43,7 @@ export {
 
 	// Guards
 	isSelectablePreset,
+	isComputablePreset,
 	isPrimaryPreset,
 	isYearPresetId,
 	isYearSurfacePresetId,

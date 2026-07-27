@@ -14,6 +14,7 @@ export {
 	PRESET_ALL_TIME,
 	YEAR_PRESET_PREFIX,
 	isSelectablePreset,
+	isComputablePreset,
 	isPrimaryPreset,
 	isYearPresetId,
 	isYearSurfacePresetId,

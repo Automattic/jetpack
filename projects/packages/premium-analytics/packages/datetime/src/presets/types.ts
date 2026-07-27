@@ -136,6 +136,18 @@ export function getPresetYear( value: unknown ): number | null {
 }
 
 /**
+ * Type guard for a preset whose range is computable from its ID alone: a
+ * rolling window or the year surface. Excludes 'custom', which carries its own
+ * range and has nothing to compute from.
+ *
+ * @param value - The value to check.
+ * @return True if the value is a valid ComputablePresetId.
+ */
+export function isComputablePreset( value: unknown ): value is ComputablePresetId {
+	return isSelectablePreset( value ) || isYearSurfacePresetId( value );
+}
+
+/**
  * Type guard to check if a value is any primary preset ID
  * (selectable, year surface, or custom).
  *
@@ -143,5 +155,5 @@ export function getPresetYear( value: unknown ): number | null {
  * @return True if the value is a valid PrimaryPresetId.
  */
 export function isPrimaryPreset( value: unknown ): value is PrimaryPresetId {
-	return isSelectablePreset( value ) || isYearSurfacePresetId( value ) || value === PRESET_CUSTOM;
+	return isComputablePreset( value ) || value === PRESET_CUSTOM;
 }
