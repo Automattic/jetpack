@@ -365,10 +365,21 @@ class Jetpack_Boost {
 				'jetpack_sync_callable_whitelist' => array(
 					'boost_modules'                => array( new Modules_Setup(), 'get_status' ),
 					'boost_sub_modules_state'      => array( new Modules_Setup(), 'get_all_sub_modules_state' ),
-					'boost_latest_scores'          => array( new Speed_Score_History( get_home_url() ), 'latest' ),
-					'boost_latest_no_boost_scores' => array( new Speed_Score_History( add_query_arg( Module::DISABLE_MODULE_QUERY_VAR, 'all', get_home_url() ) ), 'latest' ),
-					'critical_css_state'           => array( new Critical_CSS_State(), 'get' ),
-					'lcp_state'                    => array( new LCP_State(), 'get' ),
+					// Closures defer construction (and the non-autoloaded option reads in these
+					// constructors) to Sync invocation time. Sync only ever invokes these values;
+					// they must never be serialized as definitions.
+					'boost_latest_scores'          => static function () {
+						return ( new Speed_Score_History( get_home_url() ) )->latest();
+					},
+					'boost_latest_no_boost_scores' => static function () {
+						return ( new Speed_Score_History( add_query_arg( Module::DISABLE_MODULE_QUERY_VAR, 'all', get_home_url() ) ) )->latest();
+					},
+					'critical_css_state'           => static function () {
+						return ( new Critical_CSS_State() )->get();
+					},
+					'lcp_state'                    => static function () {
+						return ( new LCP_State() )->get();
+					},
 				),
 			)
 		);

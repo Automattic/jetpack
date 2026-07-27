@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Sync: lazy-load speed score history, Critical CSS and LCP state callables to avoid reading their non-autoloaded options on every request
