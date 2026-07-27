@@ -5,7 +5,7 @@ import { getReferrerFields, type ReferrerRecord } from './fields';
  * Mount the referrer field's render component for a table row.
  *
  * @param item - The referrer row to render.
- * @return The Testing Library render result.
+ * @return The Testing Library render result, with `rerender` taking a row.
  */
 function renderReferrerField( item: ReferrerRecord ) {
 	const field = getReferrerFields().find( candidate => candidate.id === 'referrer' );
@@ -16,7 +16,13 @@ function renderReferrerField( item: ReferrerRecord ) {
 		throw new Error( 'Referrer field render callback is unavailable' );
 	}
 
-	return render( <ReferrerField item={ item } field={ field as never } /> );
+	const utils = render( <ReferrerField item={ item } field={ field as never } /> );
+
+	return {
+		...utils,
+		rerender: ( nextItem: ReferrerRecord ) =>
+			utils.rerender( <ReferrerField item={ nextItem } field={ field as never } /> ),
+	};
 }
 
 /**
@@ -123,7 +129,7 @@ describe( 'referrer field', () => {
 		);
 	} );
 
-	it( 'hides a referrer favicon when the image cannot be loaded', () => {
+	it( 'drops a referrer favicon that cannot be loaded but keeps its slot', () => {
 		renderReferrerField( {
 			id: 'search|google.com|https://www.google.com/',
 			label: 'google.com',
@@ -132,13 +138,36 @@ describe( 'referrer field', () => {
 			icon: 'https://icons.example/missing.png',
 		} );
 
-		const favicon = screen.getByRole( 'presentation' );
-		fireEvent.error( favicon );
+		fireEvent.error( screen.getByRole( 'presentation' ) );
 
-		expect( favicon ).not.toBeVisible();
+		// The slot stays so the label keeps the indent of siblings whose
+		// favicon did load, instead of jumping left once the error fires. The
+		// slot is presentational, so structure is the only thing to assert on.
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		// eslint-disable-next-line testing-library/no-node-access -- The reserved slot is a layout box with no role or text.
+		expect( screen.getByText( 'google.com' ).previousElementSibling ).not.toBeNull();
 	} );
 
-	it( 'renders no favicon image when the row has no icon', () => {
+	it( 'retries a referrer favicon when the row renders a different icon', () => {
+		const item: ReferrerRecord = {
+			id: 'search|google.com|https://www.google.com/',
+			label: 'google.com',
+			views: 10,
+			link: 'https://www.google.com/',
+			icon: 'https://icons.example/missing.png',
+		};
+		const { rerender } = renderReferrerField( item );
+
+		fireEvent.error( screen.getByRole( 'presentation' ) );
+		rerender( { ...item, icon: 'https://icons.example/google.png' } );
+
+		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute(
+			'src',
+			'https://icons.example/google.png'
+		);
+	} );
+
+	it( 'reserves the favicon slot when the row has no icon', () => {
 		renderReferrerField( {
 			id: '|Unknown|',
 			label: 'Unknown',
@@ -146,6 +175,8 @@ describe( 'referrer field', () => {
 		} );
 
 		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		// eslint-disable-next-line testing-library/no-node-access -- The reserved slot is a layout box with no role or text.
+		expect( screen.getByText( 'Unknown' ).previousElementSibling ).not.toBeNull();
 	} );
 
 	it( 'renders the views delta when a comparison value is available', () => {

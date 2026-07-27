@@ -3,6 +3,7 @@
  */
 import { DrilldownLeafCell, safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, Stack } from '@wordpress/ui';
 /**
@@ -10,7 +11,6 @@ import { Link, Stack } from '@wordpress/ui';
  */
 import styles from './fields.module.css';
 import type { Field } from '@wordpress/dataviews';
-import type { SyntheticEvent } from 'react';
 
 /**
  * A flattened referrer group, source, or domain shown in the records table.
@@ -28,12 +28,42 @@ export type ReferrerRecord = {
 };
 
 /**
- * Hide an unavailable referrer favicon without replacing it with a broken-image indicator.
+ * Fixed-size favicon slot for a referrer row.
  *
- * @param event - The favicon image error event.
+ * Rendered for every row, with or without a usable favicon: Stats leaves
+ * `icon` empty for many referrers, and the remote favicons it does return can
+ * 404. Reserving the slot keeps sibling labels on one indent instead of
+ * shifting them by the icon's width as each image resolves.
+ *
+ * @param props      - The component props.
+ * @param props.icon - The row's favicon URL, when it has one.
+ * @return The favicon slot.
  */
-function handleFaviconError( event: SyntheticEvent< HTMLImageElement > ): void {
-	event.currentTarget.hidden = true;
+function ReferrerFavicon( { icon }: { icon?: string } ) {
+	// Remember which URL failed rather than a boolean, so a row that later
+	// renders a different favicon tries that one instead of staying blank.
+	const [ failedIcon, setFailedIcon ] = useState< string | undefined >( undefined );
+	const showIcon = !! icon && failedIcon !== icon;
+	const handleError = useCallback( () => setFailedIcon( icon ), [ icon ] );
+
+	return (
+		<span className={ styles.faviconSlot }>
+			{ showIcon && (
+				// The intrinsic size must come from the attributes, not just the
+				// stylesheet: without them the image has no height until it loads,
+				// which moves the slot's baseline and nudges the whole row. Keep
+				// them in step with `--wpds-dimension-size-2xs` in the stylesheet.
+				<img
+					src={ icon }
+					onError={ handleError }
+					alt=""
+					width={ 16 }
+					height={ 16 }
+					className={ styles.favicon }
+				/>
+			) }
+		</span>
+	);
 }
 
 /**
@@ -53,14 +83,7 @@ export function getReferrerFields(): Field< ReferrerRecord >[] {
 				const safeUrl = safeHttpUrl( item.link );
 				const label = (
 					<Stack render={ <span /> } direction="row" gap="sm" align="center">
-						{ item.icon && (
-							<img
-								src={ item.icon }
-								onError={ handleFaviconError }
-								alt=""
-								className={ styles.favicon }
-							/>
-						) }
+						<ReferrerFavicon icon={ item.icon } />
 						<span>{ item.label }</span>
 					</Stack>
 				);
