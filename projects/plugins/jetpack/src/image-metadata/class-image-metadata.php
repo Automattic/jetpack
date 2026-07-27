@@ -77,8 +77,8 @@ final class Image_Metadata {
 			return;
 		}
 
-		$xmp = XMP_Copier::extract( $original, $mime );
-		if ( null === $xmp ) {
+		$source_type = XMP_Copier::extract( $original, $mime );
+		if ( null === $source_type ) {
 			return;
 		}
 
@@ -102,7 +102,7 @@ final class Image_Metadata {
 			$target = $dir . $file;
 			if ( $target !== $original && file_exists( $target ) && ! wp_is_stream( $target ) ) {
 				// false means a write was attempted and failed; null means nothing to do.
-				if ( false === XMP_Copier::inject( $target, $xmp, $mime ) ) {
+				if ( false === XMP_Copier::inject( $target, $source_type, $mime ) ) {
 					self::warn( sprintf( 'could not write XMP into %s for attachment %d', $file, $attachment_id ) );
 				}
 			}
@@ -125,15 +125,6 @@ final class Image_Metadata {
 			do_action( 'jetpack_preserve_image_provenance_failed', $message );
 		} catch ( \Throwable $error ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- A subscriber must not break the upload.
 			// Swallowed intentionally.
-		}
-
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			try {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
-				trigger_error( 'Jetpack Image Metadata: ' . esc_html( $message ), E_USER_WARNING );
-			} catch ( \Throwable $error ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- A strict handler must not break the upload.
-				// Swallowed intentionally.
-			}
 		}
 	}
 

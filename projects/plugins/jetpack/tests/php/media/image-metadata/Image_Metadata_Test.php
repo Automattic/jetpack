@@ -176,18 +176,11 @@ class Image_Metadata_Test extends WP_UnitTestCase {
 			}
 		);
 
-		// warn() also raises a WP_DEBUG-gated E_USER_WARNING; swallow just that so
-		// the suite's failOnWarning does not turn the intended diagnostic into a failure.
-		set_error_handler( '__return_true', E_USER_WARNING );
-		try {
-			$metadata = array(
-				'file'  => 'boom.png',
-				'sizes' => array(),
-			);
-			$this->assertSame( $metadata, Image_Metadata::preserve( $metadata, $id ), 'metadata must be returned unchanged even on error' );
-		} finally {
-			restore_error_handler();
-		}
+		$metadata = array(
+			'file'  => 'boom.png',
+			'sizes' => array(),
+		);
+		$this->assertSame( $metadata, Image_Metadata::preserve( $metadata, $id ), 'metadata must be returned unchanged even on error' );
 
 		$this->assertNotNull( $fired, 'the failure action must fire when preservation throws' );
 		$this->assertStringContainsString( 'boom', $fired );

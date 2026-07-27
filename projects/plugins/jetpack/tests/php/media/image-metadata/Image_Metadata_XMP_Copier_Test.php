@@ -183,14 +183,51 @@ class Image_Metadata_XMP_Copier_Test extends WP_UnitTestCase {
 		$this->assertSame( 0644, fileperms( $target ) & 0777, "the rewritten derivative must keep the target's mode, not tempnam()'s 0600" );
 	}
 
-	public function test_ignores_oversized_png_xmp() {
-		$xmp    = Image_Metadata_Fixtures::xmp_packet(
+	/**
+	 * Only the DigitalSourceType is written to the derivative — the original's other
+	 * XMP fields (creator, location, prompt, …) are not republished.
+	 *
+	 * @param string $mime         MIME type.
+	 * @param string $extension    File extension.
+	 * @param string $with_xmp     Fixture method with XMP.
+	 * @param string $without_xmp  Fixture method without XMP.
+	 * @dataProvider format_provider
+	 */
+	#[DataProvider( 'format_provider' )]
+	public function test_injects_only_digitalsourcetype_not_other_metadata( $mime, $extension, $with_xmp, $without_xmp ) {
+		$xmp         = Image_Metadata_Fixtures::xmp_packet(
 			Image_Metadata_Fixtures::AI_SOURCE_TYPE,
-			str_repeat( 'x', XMP_Copier::MAX_XMP_BYTES )
+			'<Iptc4xmpExt:LocationCreated>SECRET-LOCATION-AND-PROMPT</Iptc4xmpExt:LocationCreated>'
 		);
-		$source = $this->temp_file( Image_Metadata_Fixtures::png_with_xmp( $xmp ), '.png' );
+		$source      = $this->temp_file( Image_Metadata_Fixtures::$with_xmp( $xmp ), $extension );
+		$source_type = XMP_Copier::extract( $source, $mime );
+		$target      = $this->temp_file( Image_Metadata_Fixtures::$without_xmp(), $extension );
 
-		$this->assertNull( XMP_Copier::extract( $source, 'image/png' ) );
+		$this->assertTrue( XMP_Copier::inject( $target, $source_type, $mime ) );
+
+		$contents = file_get_contents( $target );
+		$this->assertStringContainsString( 'trainedAlgorithmicMedia', $contents, 'the AI marker must be written' );
+		$this->assertStringNotContainsString( 'SECRET-LOCATION-AND-PROMPT', $contents, 'other source XMP must not be copied' );
+	}
+
+	public function test_inject_canonicalizes_untrusted_source_type() {
+		$target = $this->temp_file( Image_Metadata_Fixtures::bare_png(), '.png' );
+		// A valid marker wrapped in XML metacharacters, as an untrusted caller might pass.
+		$untrusted = '"><injected/>http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia';
+
+		$this->assertTrue( XMP_Copier::inject( $target, $untrusted, 'image/png' ) );
+
+		$contents = file_get_contents( $target );
+		$this->assertStringContainsString( 'trainedAlgorithmicMedia', $contents );
+		$this->assertStringNotContainsString( '<injected/>', $contents, 'untrusted text around the marker must not reach the packet' );
+	}
+
+	public function test_inject_rejects_source_type_without_marker() {
+		$target = $this->temp_file( Image_Metadata_Fixtures::bare_png(), '.png' );
+		$before = file_get_contents( $target );
+
+		$this->assertNull( XMP_Copier::inject( $target, 'not a source type', 'image/png' ), 'a value with no valid DigitalSourceType must be rejected' );
+		$this->assertSame( $before, file_get_contents( $target ), 'the target must be left unchanged' );
 	}
 
 	/**
