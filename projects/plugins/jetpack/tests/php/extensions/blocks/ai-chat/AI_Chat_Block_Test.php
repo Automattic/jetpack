@@ -31,6 +31,20 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 	private $registered_block;
 
 	/**
+	 * The original wp_scripts global, restored after each test.
+	 *
+	 * @var WP_Scripts|null
+	 */
+	private $saved_wp_scripts;
+
+	/**
+	 * The original current screen, restored after each test.
+	 *
+	 * @var WP_Screen|null
+	 */
+	private $saved_current_screen;
+
+	/**
 	 * Set up before each test.
 	 */
 	public function set_up() {
@@ -46,6 +60,10 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 		if ( $this->registered_block ) {
 			unregister_block_type( self::BLOCK_NAME );
 		}
+
+		$this->saved_wp_scripts     = $GLOBALS['wp_scripts'] ?? null;
+		$GLOBALS['wp_scripts']      = new WP_Scripts();
+		$this->saved_current_screen = $GLOBALS['current_screen'] ?? null;
 	}
 
 	/**
@@ -59,6 +77,9 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 			WP_Block_Type_Registry::get_instance()->register( $this->registered_block );
 		}
 
+		$GLOBALS['wp_scripts']     = $this->saved_wp_scripts;
+		$GLOBALS['current_screen'] = $this->saved_current_screen;
+
 		$this->deactivate_ai_module_for_test();
 		remove_filter( 'jetpack_ai_enabled', '__return_false' );
 		remove_filter( 'jetpack_offline_mode', '__return_false' );
@@ -66,6 +87,22 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 		$this->disconnect_owner();
 
 		parent::tear_down();
+	}
+
+	/**
+	 * The Jetpack_AIChatBlock inline payload attached to the editor bundle, or
+	 * null when absent.
+	 *
+	 * @return string|null
+	 */
+	private function get_editor_inline_payload() {
+		$data = $GLOBALS['wp_scripts']->get_data( 'jetpack-blocks-editor', 'before' );
+		if ( ! is_array( $data ) ) {
+			return null;
+		}
+
+		$joined = implode( "\n", array_filter( $data ) );
+		return false !== strpos( $joined, 'Jetpack_AIChatBlock' ) ? $joined : null;
 	}
 
 	/**
@@ -127,5 +164,55 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 		AIChat\register_block();
 
 		$this->assertFalse( Blocks::is_registered( self::BLOCK_NAME ) );
+	}
+
+	/**
+	 * The editor payload ships when the block is registered.
+	 */
+	public function test_editor_payload_prints_when_block_registered() {
+		set_current_screen( 'edit-post' );
+		wp_register_script( 'jetpack-blocks-editor', false, array(), '1.0', true );
+
+		AIChat\register_block();
+		$this->assertTrue( Blocks::is_registered( self::BLOCK_NAME ), 'Precondition: the block must be registered.' );
+
+		AIChat\add_ai_chat_block_data();
+
+		$this->assertNotNull( $this->get_editor_inline_payload() );
+	}
+
+	/**
+	 * The editor payload follows the registration gate: with the master off the
+	 * block never registers, so no payload may ship either.
+	 */
+	public function test_editor_payload_absent_when_master_option_off() {
+		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->deactivate_ai_module_for_test();
+		set_current_screen( 'edit-post' );
+		wp_register_script( 'jetpack-blocks-editor', false, array(), '1.0', true );
+
+		AIChat\register_block();
+		$this->assertFalse( Blocks::is_registered( self::BLOCK_NAME ), 'Precondition: the block must not be registered.' );
+
+		AIChat\add_ai_chat_block_data();
+
+		$this->assertNull( $this->get_editor_inline_payload() );
+	}
+
+	/**
+	 * Same rule for the connection gate: a disconnected site has no registered
+	 * block, so the editor payload must not ship.
+	 */
+	public function test_editor_payload_absent_when_disconnected() {
+		$this->disconnect_owner();
+		set_current_screen( 'edit-post' );
+		wp_register_script( 'jetpack-blocks-editor', false, array(), '1.0', true );
+
+		AIChat\register_block();
+		$this->assertFalse( Blocks::is_registered( self::BLOCK_NAME ), 'Precondition: the block must not be registered.' );
+
+		AIChat\add_ai_chat_block_data();
+
+		$this->assertNull( $this->get_editor_inline_payload() );
 	}
 }
