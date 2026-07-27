@@ -4075,16 +4075,16 @@
         },
         {
             "name": "automattic/woocommerce-analytics",
-            "version": "0.16.6",
+            "version": "0.16.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/woocommerce-analytics.git",
-                "reference": "92b67c5f12b3f9b3dcb34e1b668743cfbe552666"
+                "reference": "0437625896899842389fe38c3f807d46066edd1a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/woocommerce-analytics/zipball/92b67c5f12b3f9b3dcb34e1b668743cfbe552666",
-                "reference": "92b67c5f12b3f9b3dcb34e1b668743cfbe552666",
+                "url": "https://api.github.com/repos/Automattic/woocommerce-analytics/zipball/0437625896899842389fe38c3f807d46066edd1a",
+                "reference": "0437625896899842389fe38c3f807d46066edd1a",
                 "shasum": ""
             },
             "require": {
@@ -4121,9 +4121,9 @@
             ],
             "description": "Enhanced analytics for WooCommerce users.",
             "support": {
-                "source": "https://github.com/Automattic/woocommerce-analytics/tree/v0.16.6"
+                "source": "https://github.com/Automattic/woocommerce-analytics/tree/v0.16.7"
             },
-            "time": "2026-06-17T08:21:41+00:00"
+            "time": "2026-07-27T09:32:22+00:00"
         },
         {
             "name": "wikimedia/aho-corasick",
