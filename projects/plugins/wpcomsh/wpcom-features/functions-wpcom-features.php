@@ -85,6 +85,20 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 
 	if ( isset( $blog->registered ) ) {
 		WPCOM_Features::add_free_plan_purchase( $purchases, $site_type, $blog->registered );
+	} elseif ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+		/*
+		 * Atomic-side evaluation never populates $blog — the branch above needs the blogs table,
+		 * which only exists WPCOM-side. Without this, the baseline purchase that every site is
+		 * supposed to carry is missing on Atomic only, so feature rules that nest WPCOM_ALL_SITES
+		 * inside a sub-array resolve differently here than they do for the same blog on WPCOM.
+		 *
+		 * The date is deliberately null rather than a stand-in: Atomic has no trustworthy
+		 * registration date, and purchase_in_products_map() reads subscribed_date to decide legacy
+		 * date-gated rules. A fabricated date would hand out features nobody granted — an old one
+		 * unlocks STATS_FREE and STATS_BASIC_TEMP, for instance. Left null, isset() fails and every
+		 * date-gated branch stays closed, which is the behavior Atomic already has today.
+		 */
+		WPCOM_Features::add_free_plan_purchase( $purchases, $site_type, null );
 	}
 
 	return WPCOM_Features::has_feature( $feature, $purchases, $site_type, $blog_id );

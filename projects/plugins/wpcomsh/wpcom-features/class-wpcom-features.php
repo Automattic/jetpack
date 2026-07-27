@@ -1884,9 +1884,11 @@ class WPCOM_Features {
 	 * Treat free plan as a purchase so the logic for purchase_in_products_map are applied when checking for legacy features.
 	 * As the free plan isn't actually a purchase, there is no subscribed_date, so we use the blog_registered_date instead.
 	 *
-	 * @param array  $purchases Reference to an array of purchases, this function adds a free plan to the end of the array passed in.
-	 * @param string $site_type Site type to check. Can be 'wpcom' or 'jetpack'.
-	 * @param string $blog_registered_date The date the blog was registered.
+	 * @param array       $purchases Reference to an array of purchases, this function adds a free plan to the end of the array passed in.
+	 * @param string      $site_type Site type to check. Can be 'wpcom' or 'jetpack'.
+	 * @param string|null $blog_registered_date The date the blog was registered, or null where no trustworthy date is
+	 *                                          available (Atomic). A null date leaves subscribed_date unset, so the
+	 *                                          purchase can never satisfy a legacy date-gated rule.
 	 */
 	public static function add_free_plan_purchase( &$purchases, $site_type, $blog_registered_date ) {
 		$free_purchase_object                  = new stdClass();

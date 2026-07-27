@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WPCOM Features: give Atomic sites the baseline free-plan purchase, so feature rules nesting WPCOM_ALL_SITES resolve the same on Atomic as they do WPCOM-side.
