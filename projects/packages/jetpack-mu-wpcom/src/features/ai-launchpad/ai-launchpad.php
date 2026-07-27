@@ -75,17 +75,14 @@ class AI_Launchpad {
 	 * Whether the current site is eligible for the AI Launchpad.
 	 *
 	 * Gate: enabled for the site (see is_enabled_for_site()) and not dismissed (skipping the
-	 * wizard dismisses it, reverting the site to the regular launchpad). The paid-plan
-	 * requirement is temporarily lifted (see below).
+	 * wizard dismisses it, reverting the site to the regular launchpad).
 	 *
 	 * @return bool
 	 */
 	public static function is_eligible() {
 		static $eligible = null;
 
-		if ( null === $eligible ) {
-			// TEMPORARY: the paid-plan gate is lifted so the AI Launchpad is available on all plans, including free.
-			// Revert this commit to re-require a paid bundle (the removed has_paid_plan() check).
+		if (null === $eligible) {
 			$eligible = self::is_enabled_for_site()
 				&& ! get_option( \AI_Launchpad_REST::OPTION_DISMISSED );
 		}
@@ -102,9 +99,7 @@ class AI_Launchpad {
 	 */
 	private static function is_enabled_for_site() {
 		// Explicit per-site switch: set at site creation for the ai_launchpad onboarding
-		// cohort, by the ?enable-ai-launchpad=1 dev handler, or manually. AI-built sites
-		// (Big Sky) are eligible like any other: the tasklist tailors to what the build
-		// already covered, so an AI onboarding is no reason to withhold the launchpad.
+		// cohort, by the ?enable-ai-launchpad=1 dev handler, or manually.
 		if ( (bool) get_option( 'wpcom_ai_launchpad_enabled' ) ) {
 			return true;
 		}
