@@ -225,6 +225,7 @@ export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
 	normalizeReportParams,
+	needsReportDateParamsSeed,
 	hasComparisonEnabled,
 	type PresetType,
 	type ReportParams,
@@ -253,7 +254,6 @@ export { ORDER_ATTRIBUTION_VIEWS } from './api/report-order-attribution-summary-
 export {
 	getDateFormatFromInterval,
 	getDefaultIntervalForPeriod,
-	needsReportDateParamsSeed,
 	resolveIntervalForRange,
 } from './utils/interval';
 export type { IntervalType } from './utils/interval';

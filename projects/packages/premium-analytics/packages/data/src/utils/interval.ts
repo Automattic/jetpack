@@ -12,7 +12,6 @@ import {
 	PRESET_LAST_YEAR,
 	PRESET_TODAY,
 	PRESET_YESTERDAY,
-	isPrimaryPreset,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
 import { differenceInCalendarDays, differenceInHours } from 'date-fns';
@@ -22,7 +21,7 @@ import { differenceInCalendarDays, differenceInHours } from 'date-fns';
 import { localTZDate } from './date';
 
 /**
- * Bucket sizes the report window / Stats time-series APIs understand.
+ * Report time-series bucket sizes.
  */
 export type IntervalType = 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year';
 
@@ -36,10 +35,10 @@ const INTERVAL_TYPES = [
 ] as const satisfies readonly IntervalType[];
 
 /**
- * Whether a value is a known report-window interval.
+ * Whether a value is a known `IntervalType`.
  *
- * @param value - Candidate from URL search or other untyped input.
- * @return Whether the value is an `IntervalType`.
+ * @param value - Untyped candidate.
+ * @return Whether `value` is an `IntervalType`.
  */
 function isIntervalType( value: unknown ): value is IntervalType {
 	return typeof value === 'string' && ( INTERVAL_TYPES as readonly string[] ).includes( value );
@@ -89,8 +88,10 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 }
 
 /**
- * Allowed intervals for a primary preset, or for a custom / year-surface
- * window via the length of `from`–`to`.
+ * Allowed intervals for a preset, ordered finest-first.
+ *
+ * Unknown / custom / year-surface presets derive the list from `from`–`to`
+ * length.
  *
  * @param preset - Primary date-range preset, when known.
  * @param from   - Range start.
@@ -119,23 +120,21 @@ function getAllowedIntervalsForPreset(
 		case PRESET_LAST_YEAR:
 			return [ 'month', 'quarter' ];
 		default:
-			// `custom`, year-surface presets, and unknown fall through to range length.
 			return getAllowedIntervalsByRange( from, to );
 	}
 }
 
 /**
- * Resolve the report-window interval for a date range.
+ * Resolve a valid interval for a date range.
  *
- * Keeps `current` when it is still allowed for the range; otherwise falls back
- * to the range's default. Used by URL normalization and date-filter commits so
- * the query string never carries an interval the active window cannot support.
+ * Returns `current` when it is allowed for the range; otherwise the range
+ * default (finest allowed).
  *
  * @param preset  - Primary date-range preset, when known.
  * @param from    - Range start.
  * @param to      - Range end.
- * @param current - Interval already in the URL / search state, if any.
- * @return A valid interval for the range.
+ * @param current - Candidate interval to keep when still allowed.
+ * @return An interval allowed for the range.
  */
 export function resolveIntervalForRange(
 	preset: PrimaryPresetId | undefined,
@@ -166,36 +165,6 @@ export function getDefaultIntervalForPeriod(
 	to: string
 ): IntervalType {
 	return resolveIntervalForRange( preset, from, to );
-}
-
-/**
- * Whether the URL's report-window date params need a seed / redirect.
- *
- * True when `from` / `to` / `interval` are missing, or when `interval` is not
- * allowed for the current preset / range. Routes use this in `beforeLoad` so a
- * hand-edited or stale deep link cannot keep an invalid bucket size.
- *
- * @param search          - Candidate URL search params.
- * @param search.from     - Range start.
- * @param search.to       - Range end.
- * @param search.interval - Report-window interval.
- * @param search.preset   - Date-range preset id, when present.
- * @return Whether the route should redirect to a normalized search.
- */
-export function needsReportDateParamsSeed( search?: {
-	from?: string;
-	to?: string;
-	interval?: string;
-	preset?: string;
-} ): boolean {
-	if ( ! search?.from || ! search?.to || ! search?.interval ) {
-		return true;
-	}
-
-	const preset = isPrimaryPreset( search.preset ) ? search.preset : undefined;
-	return (
-		resolveIntervalForRange( preset, search.from, search.to, search.interval ) !== search.interval
-	);
 }
 
 export function getDateFormatFromInterval(

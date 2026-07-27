@@ -1,11 +1,8 @@
 /**
  * Internal dependencies
  */
-import {
-	getDefaultIntervalForPeriod,
-	needsReportDateParamsSeed,
-	resolveIntervalForRange,
-} from '../interval';
+import { getDefaultIntervalForPeriod, resolveIntervalForRange } from '../interval';
+import { needsReportDateParamsSeed } from '../search';
 
 describe( 'resolveIntervalForRange', () => {
 	it( 'keeps the current interval when it is still allowed', () => {

@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	isPrimaryPreset,
 	isSelectablePreset,
 	type SelectablePresetId,
 	type ComparisonPresetId,
@@ -70,10 +71,18 @@ type NormalizeReportParamsArgType = Omit< ReportParams, 'from' | 'to' | 'interva
 };
 
 /**
+ * Unnormalized date-window fields from report search params.
+ */
+type ReportDateWindowSearch = Pick<
+	NormalizeReportParamsArgType,
+	'from' | 'to' | 'interval' | 'preset'
+>;
+
+/**
  * Returns normalized params for the report request query.
  * When no defined, it will use the defaults.
  *
- * @param {NormalizeReportParamsArgType} [search]        - URL search params.
+ * @param {NormalizeReportParamsArgType} [search]        - Candidate report params.
  * @param {PresetType}                   [defaultPreset] - Override the fallback preset.
  */
 export function normalizeReportParams(
@@ -112,8 +121,6 @@ export function normalizeReportParams(
 	const from = presetRange?.from ?? search?.from ?? defaults.from;
 	const to = presetRange?.to ?? search?.to ?? defaults.to;
 
-	// Keep a URL interval that is still valid for this window; otherwise fall
-	// back to the range's default so consumers never see an unsupported bucket.
 	const interval = resolveIntervalForRange( preset, from, to, search?.interval );
 
 	const postId = toPostId( search?.post_id );
@@ -147,4 +154,21 @@ export function normalizeReportParams(
 	}
 
 	return normalized;
+}
+
+/**
+ * Whether report date params are incomplete or the interval is invalid for the range.
+ *
+ * @param search - Candidate report date-window fields.
+ * @return True when `from`, `to`, or `interval` is missing, or `interval` is not allowed for the range.
+ */
+export function needsReportDateParamsSeed( search?: ReportDateWindowSearch ): boolean {
+	if ( ! search?.from || ! search?.to || ! search?.interval ) {
+		return true;
+	}
+
+	const preset = isPrimaryPreset( search.preset ) ? search.preset : undefined;
+	return (
+		resolveIntervalForRange( preset, search.from, search.to, search.interval ) !== search.interval
+	);
 }
