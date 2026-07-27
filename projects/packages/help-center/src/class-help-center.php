@@ -18,7 +18,7 @@ class Help_Center {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.0';
 
 	/**
 	 * Class instance.
@@ -192,7 +192,7 @@ class Help_Center {
 				/**
 				 * Filters the client used for authenticated WordPress.com requests.
 				 *
-				 * @since $$next-version$$
+				 * @since 0.1.0
 				 *
 				 * @param Wpcom_Request_Client $wpcom_request_client WP.com request client.
 				 */

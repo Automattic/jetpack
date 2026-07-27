@@ -356,7 +356,7 @@ class Error_Handler {
 	 * Unattributable errors (user ID 'invalid') are skipped by the display pipeline
 	 * before classification, so this method only receives numeric user IDs.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.8.0
 	 *
 	 * @param string|int $user_id  The user ID associated with the error (`0` or a positive integer).
 	 * @param int        $owner_id The local user ID of the connection owner, or 0 if there is none.
