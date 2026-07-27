@@ -52,12 +52,17 @@ export function PlatformInput() {
 
 	const isReconnecting = Boolean( serviceId && reconnectingAccount?.service_name === serviceId );
 
-	// A reconnect starts from its account's handle; anything typed wins.
+	const fields = useMemo( () => getConnectFields( serviceId ), [ serviceId ] );
+
+	// The account handle goes in the service's first field (`instance` for
+	// Mastodon, `handle` for Bluesky); a reconnect starts from it, typed wins.
 	const values = useMemo< ConnectInputValues >( () => {
-		const defaults = isReconnecting ? { handle: reconnectingAccount.external_handle } : {};
+		const handleField = fields[ 0 ]?.name;
+		const defaults =
+			isReconnecting && handleField ? { [ handleField ]: reconnectingAccount.external_handle } : {};
 
 		return { ...defaults, ...storedValues };
-	}, [ isReconnecting, reconnectingAccount, storedValues ] );
+	}, [ fields, isReconnecting, reconnectingAccount, storedValues ] );
 
 	const validateInputs = useConnectInputValidation();
 	const { error } = validateInputs( serviceId, values, { allowDuplicate: isReconnecting } );
@@ -118,8 +123,6 @@ export function PlatformInput() {
 		},
 		[ setConnectionFlowInput ]
 	);
-
-	const fields = getConnectFields( serviceId );
 
 	if ( ! fields.length ) {
 		return null;

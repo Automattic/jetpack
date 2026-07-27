@@ -40,9 +40,11 @@ describe( 'PlatformInput', () => {
 	beforeEach( () => {
 		setup();
 		jest.spyOn( getStoreSelect(), 'getServicesList' ).mockReturnValue( SERVICES );
-		// Starting the flow also clears anything a previous test entered.
-		dispatchToStore( ( { setConnections, startConnectionFlow } ) => {
+		// Starting the flow also clears anything a previous test entered, but the
+		// reconnecting account lives outside the flow state, so reset it too.
+		dispatchToStore( ( { setConnections, setReconnectingAccount, startConnectionFlow } ) => {
 			setConnections( [] );
+			setReconnectingAccount( undefined );
 			startConnectionFlow( { origin: 'dashboard' } );
 		} );
 	} );
@@ -117,6 +119,28 @@ describe( 'PlatformInput', () => {
 		await user.type( getHandleField(), 'foo.bar.bsky.social' );
 
 		expect( screen.getByText( /Bluesky usernames cannot contain dots/ ) ).toBeInTheDocument();
+	} );
+
+	test( 'prefills the handle from the account being reconnected', () => {
+		const account = {
+			connection_id: '1',
+			service_name: 'mastodon',
+			external_handle: '@user@mastodon.social',
+		};
+
+		// Reconnect is an entry point: it lands straight on this step with the
+		// account set, the handle belongs in Mastodon's `instance` field, and the
+		// duplicate check is waived so the existing account can re-auth.
+		dispatchToStore( ( { setConnections, setReconnectingAccount } ) => {
+			setConnections( [ account ] );
+			setReconnectingAccount( account );
+		} );
+
+		render( <PlatformInput /> );
+
+		expect( getHandleField() ).toHaveValue( '@user@mastodon.social' );
+		// A reconnect is allowed to re-auth the already-connected account.
+		expect( getSubmitButton() ).toHaveAttribute( 'aria-disabled', 'false' );
 	} );
 
 	test( 'keeps the entered handle when going back to the picker and returning', async () => {
