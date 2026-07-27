@@ -365,9 +365,7 @@ class Jetpack_Boost {
 				'jetpack_sync_callable_whitelist' => array(
 					'boost_modules'                => array( new Modules_Setup(), 'get_status' ),
 					'boost_sub_modules_state'      => array( new Modules_Setup(), 'get_all_sub_modules_state' ),
-					// Closures defer construction (and the non-autoloaded option reads in these
-					// constructors) to Sync invocation time. Sync only ever invokes these values;
-					// they must never be serialized as definitions.
+					// Closures defer construction (and option reads) to Sync invocation time.
 					'boost_latest_scores'          => static function () {
 						return ( new Speed_Score_History( get_home_url() ) )->latest();
 					},
