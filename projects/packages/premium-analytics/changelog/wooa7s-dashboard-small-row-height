@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Default the main dashboard grid to the small (200px) row height to match the design mocks.

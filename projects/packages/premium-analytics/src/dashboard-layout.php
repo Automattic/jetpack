@@ -152,11 +152,12 @@ function get_dashboard_default_widget_instance(
 function get_dashboard_default_section_layouts() {
 	return array(
 		DASHBOARD_TRAFFIC_SECTION_ID     => array(
+			// Row 1: traffic chart + most-viewed posts.
 			get_dashboard_default_widget_instance(
 				'default-traffic-chart-widget-instance',
 				'jpa/traffic-chart',
 				0,
-				2,
+				3,
 				2,
 				array(
 					'granularity' => 'auto',
@@ -172,6 +173,7 @@ function get_dashboard_default_section_layouts() {
 					'max' => 10,
 				)
 			),
+			// Row 2: referrers + locations map + devices.
 			get_dashboard_default_widget_instance(
 				'default-referrers-widget-instance',
 				'jpa/referrers',
@@ -202,6 +204,7 @@ function get_dashboard_default_section_layouts() {
 					'max' => 5,
 				)
 			),
+			// Row 3: top platforms + VideoPress + authors + UTM insights.
 			get_dashboard_default_widget_instance(
 				'default-top-platforms-widget-instance',
 				'jpa/top-platforms',
@@ -213,19 +216,29 @@ function get_dashboard_default_section_layouts() {
 				)
 			),
 			get_dashboard_default_widget_instance(
-				'default-search-terms-widget-instance',
-				'jpa/search-terms',
+				'default-videopress-widget-instance',
+				'jpa/videopress',
 				6,
 				1,
 				2,
 				array(
-					'max' => 10,
+					'max' => 7,
+				)
+			),
+			get_dashboard_default_widget_instance(
+				'default-authors-widget-instance',
+				'jpa/authors',
+				7,
+				1,
+				2,
+				array(
+					'max' => 7,
 				)
 			),
 			get_dashboard_default_widget_instance(
 				'default-utm-insights-widget-instance',
 				'jpa/utm-insights',
-				7,
+				8,
 				1,
 				2,
 				array(
@@ -233,16 +246,7 @@ function get_dashboard_default_section_layouts() {
 					'max'          => 10,
 				)
 			),
-			get_dashboard_default_widget_instance(
-				'default-file-downloads-widget-instance',
-				'jpa/file-downloads',
-				8,
-				1,
-				2,
-				array(
-					'max' => 10,
-				)
-			),
+			// Row 4: clicks + search terms + file downloads + plan usage.
 			get_dashboard_default_widget_instance(
 				'default-clicks-widget-instance',
 				'jpa/clicks',
@@ -254,76 +258,78 @@ function get_dashboard_default_section_layouts() {
 				)
 			),
 			get_dashboard_default_widget_instance(
-				'default-authors-widget-instance',
-				'jpa/authors',
+				'default-search-terms-widget-instance',
+				'jpa/search-terms',
 				10,
 				1,
 				2,
 				array(
-					'max' => 7,
+					'max' => 10,
 				)
 			),
 			get_dashboard_default_widget_instance(
-				'default-videopress-widget-instance',
-				'jpa/videopress',
+				'default-file-downloads-widget-instance',
+				'jpa/file-downloads',
 				11,
 				1,
 				2,
 				array(
-					'max' => 7,
+					'max' => 10,
 				)
 			),
 			get_dashboard_default_widget_instance(
 				'default-plan-usage-widget-instance',
 				'jpa/plan-usage',
 				12,
-				2,
-				1
+				1,
+				2
 			),
 		),
 		DASHBOARD_INSIGHTS_SECTION_ID    => array(
+			// Mirrors the legacy Calypso Stats Insights page (WOOA7S-1616).
+			// Emails is not an Insights module (it lives on the Subscribers
+			// tab). Two canonical modules are not ported yet — All-time total
+			// views (WOOA7S-1512) and Most popular post (part of WOOA7S-1510).
+			// Row 1: annual highlights + all-time stats.
 			get_dashboard_default_widget_instance(
 				'default-annual-highlights-widget-instance',
 				'jpa/annual-highlights',
 				0,
 				2,
-				1
+				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-all-time-stats-widget-instance',
 				'jpa/all-time-stats',
 				1,
 				2,
-				1
+				2
 			),
+			// Row 2: latest post + the two most-popular cards + tags.
 			get_dashboard_default_widget_instance(
 				'default-latest-post-widget-instance',
 				'jpa/latest-post',
 				2,
 				1,
-				1
-			),
-			get_dashboard_default_widget_instance(
-				'default-posting-activity-widget-instance',
-				'jpa/posting-activity',
-				3,
-				2,
 				2
 			),
 			get_dashboard_default_widget_instance(
-				'default-emails-widget-instance',
-				'jpa/stats-emails',
-				4,
+				'default-most-popular-time-widget-instance',
+				'jpa/most-popular-time',
+				3,
 				1,
-				2,
-				array(
-					'max'    => 10,
-					'metric' => 'opens',
-				)
+				2
 			),
 			get_dashboard_default_widget_instance(
-				'default-shares-widget-instance',
-				'jpa/shares',
+				'default-most-popular-day-widget-instance',
+				'jpa/most-popular-day',
+				4,
+				1,
+				2
+			),
+			get_dashboard_default_widget_instance(
+				'default-tags-widget-instance',
+				'jpa/tags',
 				5,
 				1,
 				2,
@@ -331,39 +337,33 @@ function get_dashboard_default_section_layouts() {
 					'max' => 10,
 				)
 			),
+			// Row 3: posting-activity heatmap + comments + shares.
 			get_dashboard_default_widget_instance(
-				'default-tags-widget-instance',
-				'jpa/tags',
+				'default-posting-activity-widget-instance',
+				'jpa/posting-activity',
 				6,
 				2,
-				2,
-				array(
-					'max' => 10,
-				)
+				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-comments-widget-instance',
 				'jpa/comments',
 				7,
-				2,
+				1,
 				2,
 				array(
 					'max' => 10,
 				)
 			),
 			get_dashboard_default_widget_instance(
-				'default-most-popular-day-widget-instance',
-				'jpa/most-popular-day',
+				'default-shares-widget-instance',
+				'jpa/shares',
 				8,
 				1,
-				1
-			),
-			get_dashboard_default_widget_instance(
-				'default-most-popular-time-widget-instance',
-				'jpa/most-popular-time',
-				9,
-				1,
-				1
+				2,
+				array(
+					'max' => 10,
+				)
 			),
 		),
 		DASHBOARD_SUBSCRIBERS_SECTION_ID => array(
@@ -385,7 +385,7 @@ function get_dashboard_default_section_layouts() {
 				'jpa/subscribers-chart',
 				1,
 				4,
-				1,
+				2,
 				array(
 					'granularity' => 'auto',
 				)
