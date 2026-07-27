@@ -1,12 +1,49 @@
 /**
  * External dependencies
  */
+import {
+	PRESET_LAST_12_MONTHS,
+	PRESET_LAST_24_HOURS,
+	PRESET_LAST_30_DAYS,
+	PRESET_LAST_365_DAYS,
+	PRESET_LAST_7_DAYS,
+	PRESET_LAST_90_DAYS,
+	PRESET_LAST_MONTH,
+	PRESET_LAST_YEAR,
+	PRESET_TODAY,
+	PRESET_YESTERDAY,
+	isPrimaryPreset,
+	type PrimaryPresetId,
+} from '@jetpack-premium-analytics/datetime';
 import { differenceInCalendarDays, differenceInHours } from 'date-fns';
 /**
  * Internal dependencies
  */
 import { localTZDate } from './date';
-import type { IntervalType } from './search';
+
+/**
+ * Bucket sizes the report window / Stats time-series APIs understand.
+ */
+export type IntervalType = 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year';
+
+const INTERVAL_TYPES = [
+	'hour',
+	'day',
+	'week',
+	'month',
+	'quarter',
+	'year',
+] as const satisfies readonly IntervalType[];
+
+/**
+ * Whether a value is a known report-window interval.
+ *
+ * @param value - Candidate from URL search or other untyped input.
+ * @return Whether the value is an `IntervalType`.
+ */
+function isIntervalType( value: unknown ): value is IntervalType {
+	return typeof value === 'string' && ( INTERVAL_TYPES as readonly string[] ).includes( value );
+}
 
 export function getDaysBetweenInclusive( from: string, to: string ): number {
 	// Anchor both dates in UTC before diffing: `differenceInCalendarDays` reads
@@ -52,50 +89,121 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 }
 
 /**
- * Returns the allowed selectable intervals for a specific period.
+ * Allowed intervals for a primary preset, or for a custom / year-surface
+ * window via the length of `from`–`to`.
  *
- * @return {Array} Array containing allowed intervals.
+ * @param preset - Primary date-range preset, when known.
+ * @param from   - Range start.
+ * @param to     - Range end.
+ * @return Allowed intervals, finest first.
  */
-function getAllowedIntervalsForPeriod(
-	period: string | undefined,
+function getAllowedIntervalsForPreset(
+	preset: PrimaryPresetId | undefined,
 	from: string,
 	to: string
 ): IntervalType[] {
-	switch ( period ) {
-		case 'today':
-		case 'yesterday':
-		case 'last-24-hours':
+	switch ( preset ) {
+		case PRESET_TODAY:
+		case PRESET_YESTERDAY:
+		case PRESET_LAST_24_HOURS:
 			return [ 'hour', 'day' ];
-		case 'last-7-days':
+		case PRESET_LAST_7_DAYS:
 			return [ 'day' ];
-		case 'last-30-days':
-		case 'last-month':
+		case PRESET_LAST_30_DAYS:
+		case PRESET_LAST_MONTH:
 			return [ 'day', 'week' ];
-		case 'last-90-days':
+		case PRESET_LAST_90_DAYS:
 			return [ 'week', 'month' ];
-		case 'last-12-months':
-		case 'last-365-days':
-		case 'last-year':
+		case PRESET_LAST_12_MONTHS:
+		case PRESET_LAST_365_DAYS:
+		case PRESET_LAST_YEAR:
 			return [ 'month', 'quarter' ];
 		default:
+			// `custom`, year-surface presets, and unknown fall through to range length.
 			return getAllowedIntervalsByRange( from, to );
 	}
 }
 
+/**
+ * Resolve the report-window interval for a date range.
+ *
+ * Keeps `current` when it is still allowed for the range; otherwise falls back
+ * to the range's default. Used by URL normalization and date-filter commits so
+ * the query string never carries an interval the active window cannot support.
+ *
+ * @param preset  - Primary date-range preset, when known.
+ * @param from    - Range start.
+ * @param to      - Range end.
+ * @param current - Interval already in the URL / search state, if any.
+ * @return A valid interval for the range.
+ */
+export function resolveIntervalForRange(
+	preset: PrimaryPresetId | undefined,
+	from: string,
+	to: string,
+	current?: string
+): IntervalType {
+	const allowed = getAllowedIntervalsForPreset( preset, from, to );
+
+	if ( isIntervalType( current ) && allowed.includes( current ) ) {
+		return current;
+	}
+
+	return allowed[ 0 ] ?? 'day';
+}
+
+/**
+ * Default (finest) interval for a preset / date range.
+ *
+ * @param preset - Primary date-range preset, when known.
+ * @param from   - Range start.
+ * @param to     - Range end.
+ * @return The default interval.
+ */
 export function getDefaultIntervalForPeriod(
-	period: string | undefined,
+	preset: PrimaryPresetId | undefined,
 	from: string,
 	to: string
 ): IntervalType {
-	return getAllowedIntervalsForPeriod( period, from, to )?.[ 0 ] ?? 'day';
+	return resolveIntervalForRange( preset, from, to );
+}
+
+/**
+ * Whether the URL's report-window date params need a seed / redirect.
+ *
+ * True when `from` / `to` / `interval` are missing, or when `interval` is not
+ * allowed for the current preset / range. Routes use this in `beforeLoad` so a
+ * hand-edited or stale deep link cannot keep an invalid bucket size.
+ *
+ * @param search          - Candidate URL search params.
+ * @param search.from     - Range start.
+ * @param search.to       - Range end.
+ * @param search.interval - Report-window interval.
+ * @param search.preset   - Date-range preset id, when present.
+ * @return Whether the route should redirect to a normalized search.
+ */
+export function needsReportDateParamsSeed( search?: {
+	from?: string;
+	to?: string;
+	interval?: string;
+	preset?: string;
+} ): boolean {
+	if ( ! search?.from || ! search?.to || ! search?.interval ) {
+		return true;
+	}
+
+	const preset = isPrimaryPreset( search.preset ) ? search.preset : undefined;
+	return (
+		resolveIntervalForRange( preset, search.from, search.to, search.interval ) !== search.interval
+	);
 }
 
 export function getDateFormatFromInterval(
-	period: string | undefined, // Pass in undefined to use the default interval.
+	preset: PrimaryPresetId | undefined,
 	from: string,
 	to: string
 ): string {
-	const interval = getDefaultIntervalForPeriod( period, from, to );
+	const interval = getDefaultIntervalForPeriod( preset, from, to );
 
 	switch ( interval ) {
 		case 'hour':
