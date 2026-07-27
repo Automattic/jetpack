@@ -1871,4 +1871,75 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$this->assertCount( 0, $providers );
 	}
+
+	// ──────────────────────────────────────────────────
+	// Agents Manager package loading (FORNO-368: the AM scripts
+	// respect the AI toggles on hosts where Jetpack is the voter)
+	// ──────────────────────────────────────────────────
+
+	/**
+	 * Baseline: with the sidebar gates open, the Agents Manager package
+	 * resolves an editor variant. get_active_variant() is the package's
+	 * single source of truth for "are the AM scripts loaded on this
+	 * request", so these tests pin the load decision itself rather than
+	 * Jetpack's filter wiring.
+	 */
+	public function test_agents_manager_resolves_a_variant_when_gates_open() {
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		Jetpack_AI_Sidebar::init();
+
+		$this->assertSame( 'gutenberg', \Automattic\Jetpack\Agents_Manager\Agents_Manager::get_active_variant() );
+	}
+
+	/**
+	 * Master off: the package resolves no variant, so no Agents Manager
+	 * script, style, or payload can load on a host where Jetpack is the
+	 * only block-editor voter.
+	 */
+	public function test_agents_manager_resolves_no_variant_when_master_off() {
+		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->deactivate_ai_module_for_test();
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		Jetpack_AI_Sidebar::init();
+
+		$this->assertNull( \Automattic\Jetpack\Agents_Manager\Agents_Manager::get_active_variant() );
+	}
+
+	/**
+	 * Both sidebar feature toggles off: same result — the AM scripts follow
+	 * the per-feature toggles, not just the master.
+	 */
+	public function test_agents_manager_resolves_no_variant_when_sidebar_features_off() {
+		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
+		update_option( 'ai_seo_enhancer_enabled', 0 );
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		Jetpack_AI_Sidebar::init();
+
+		$variant = \Automattic\Jetpack\Agents_Manager\Agents_Manager::get_active_variant();
+
+		delete_option( 'jetpack_ai_writing_assistant_enabled' );
+		delete_option( 'ai_seo_enhancer_enabled' );
+
+		$this->assertNull( $variant );
+	}
+
+	/**
+	 * Enqueue level: with the master off, the package's own enqueue callback
+	 * ships nothing — the asset-absence half of Katrina's master-off check.
+	 */
+	public function test_agents_manager_enqueues_nothing_when_master_off() {
+		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->deactivate_ai_module_for_test();
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		Jetpack_AI_Sidebar::init();
+
+		\Automattic\Jetpack\Agents_Manager\Agents_Manager::init()->enqueue_scripts();
+
+		$this->assertFalse( wp_script_is( 'agents-manager', 'enqueued' ) );
+		$this->assertFalse( wp_style_is( 'agents-manager-style', 'enqueued' ) );
+	}
 }
