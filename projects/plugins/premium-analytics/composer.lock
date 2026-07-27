@@ -844,7 +844,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "8a37e653800a0f6eab73996b880000796cd0ff4c"
+                "reference": "65140eaa3f8196b645d464edf243e9282a392e13"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -891,6 +891,12 @@
                 ],
                 "test-php-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
                 ],
                 "build-development": [
                     "pnpm run build"
