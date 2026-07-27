@@ -8,4 +8,6 @@ export {
 	type PostDetailTabId,
 } from './tabs';
 
-export { isPostDetailTabLayouts, type PostDetailTabLayouts } from './tab-layouts';
+export { POST_DETAIL_TAB_LAYOUTS } from './tab-layouts';
+
+export { EMAIL_WIDGET_TYPE_ALIASES } from './email-widget-variants';

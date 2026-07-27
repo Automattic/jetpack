@@ -1,5 +1,6 @@
 import { jest } from '@jest/globals';
 import { act, renderHook, waitFor } from '@testing-library/react';
+import { makeSchemaSettings } from './fixtures/schema-settings-fixtures';
 import type { SettingsResponse } from '../settings-types';
 
 // True-ESM Jest (`--experimental-vm-modules`): register mocks with
@@ -13,16 +14,14 @@ const setSettings = jest.fn();
 
 const SEED: SettingsResponse = {
 	front_page_description: 'Old description.',
+	has_legacy_front_page_meta: false,
 	title_formats: { posts: [ { type: 'token', value: 'site_name' } ] },
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	search_engines_visible: true,
 	sitemap_active: false,
 	sitemap_url: '',
 	canonical_active: false,
-	schema: {
-		organization: { name: '', description: '', sameAs: [], email: '' },
-		defaults: { organization: { name: 'Acme Co', description: 'We make things' } },
-	},
+	schema: makeSchemaSettings(),
 };
 
 const SETTINGS_STORE = 'seo/settings';

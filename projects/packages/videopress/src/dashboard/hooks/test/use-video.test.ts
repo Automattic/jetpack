@@ -54,6 +54,20 @@ describe( 'useVideo', () => {
 		expect( result.current.video?.tracks ).toEqual( [] );
 	} );
 
+	it( 'decodes HTML entities in the rendered title', async () => {
+		mockApiFetch( async () => ( {
+			id: 42,
+			title: { rendered: 'Molly&#8217;s &#8220;Best&#8221; Day' },
+			jetpack_videopress: { guid: 'g' },
+			media_details: { videopress: { poster: 'https://example.com/p.jpg', finished: true } },
+		} ) );
+
+		const { result } = renderHook( () => useVideo( 42 ), { wrapper: createTestWrapper() } );
+
+		await waitFor( () => expect( result.current.video ).toBeDefined() );
+		expect( result.current.video?.title ).toBe( 'Molly’s “Best” Day' );
+	} );
+
 	it( 'maps an item without VideoPress data to a local item with defaults', async () => {
 		mockApiFetch( async () => ( {
 			id: 7,

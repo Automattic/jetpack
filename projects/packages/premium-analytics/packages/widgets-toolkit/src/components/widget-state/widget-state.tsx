@@ -20,7 +20,8 @@ export interface WidgetStateError {
 
 export interface WidgetStateEmpty {
 	icon?: ComponentProps< typeof Icon >[ 'icon' ];
-	description: string;
+	/** Defaults to "No data in this period." when omitted. */
+	description?: string;
 }
 
 export interface WidgetStateProps {
@@ -72,16 +73,12 @@ export function WidgetState( {
 	children,
 }: WidgetStateProps ) {
 	if ( isError ) {
+		// Vertical centering lives in the stylesheet (`safe center`), not the
+		// `justify` prop: the prop's inline style would beat the class rule and
+		// reintroduce the unreachable-top overflow on short tiles.
 		return (
-			<Stack
-				className={ styles.state }
-				direction="column"
-				gap="lg"
-				align="center"
-				justify="center"
-				role="alert"
-			>
-				<Icon size={ 40 } icon={ errorStateIcon } />
+			<Stack className={ styles.state } direction="column" gap="lg" align="center" role="alert">
+				<Icon size={ 40 } className={ styles.stateIcon } icon={ errorStateIcon } />
 				{ error?.title && <div className={ styles.title }>{ error.title }</div> }
 				<div className={ styles.description }>
 					{ error?.description ??
@@ -113,8 +110,11 @@ export function WidgetState( {
 	// nothing to keep visible regardless of how the caller derived `isEmpty`.
 	// `isFetching` only blocks when the resolved data is empty; with rows shown
 	// it falls through to the ready branch's non-blocking busy overlay.
+	// The wrapper anchors the absolute overlay to the widget body — without a
+	// positioned ancestor it would reach the framed host card and cover the
+	// header title.
 	if ( isLoading || ( isEmpty && isFetching ) ) {
-		return <>{ renderLoading ?? <WidgetLoadingOverlay /> }</>;
+		return <div className={ styles.loading }>{ renderLoading ?? <WidgetLoadingOverlay /> }</div>;
 	}
 
 	if ( isEmpty ) {
@@ -126,10 +126,9 @@ export function WidgetState( {
 				// the error state, which always carries its own glyph. `null`
 				// suppresses `ChartEmptyState`'s own `cautionFilled` default.
 				icon={ empty?.icon ?? null }
-				text={
-					empty?.description ??
-					__( 'No data found for this date range.', 'jetpack-premium-analytics' )
-				}
+				// `ChartEmptyState` supplies the "No data in this period." default when
+				// `description` is omitted — keep that copy in one place.
+				text={ empty?.description }
 			/>
 		);
 	}

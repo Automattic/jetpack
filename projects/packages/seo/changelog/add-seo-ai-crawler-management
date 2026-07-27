@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add AI crawler management — free per-bot allow/block toggles (answer and mixed-use crawlers allowed, training crawlers blocked by default) that write robots.txt directives.

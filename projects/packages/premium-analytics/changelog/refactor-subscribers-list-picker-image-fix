@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Subscribers list: move the widget-picker preview avatar-size fix from the widget stylesheet into the shared SubscriberList component.

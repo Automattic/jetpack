@@ -1,17 +1,17 @@
 import { GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
-import { Page } from '@wordpress/admin-ui';
+import { DateFiltersPanel, SectionTabPanel } from '@jetpack-premium-analytics/ui';
+import { Page, Breadcrumbs } from '@wordpress/admin-ui';
+import { Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Tabs } from '@wordpress/ui';
+import { Stack } from '@wordpress/ui';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { DashboardSections } from './components';
 import {
-	DASHBOARD_NAME,
 	useActiveSection,
 	useDashboardGridSettings,
 	useDashboardSectionLayout,
@@ -25,12 +25,9 @@ import styles from './stage.module.scss';
  * @return {JSX.Element} The Premium Analytics dashboard.
  */
 function Dashboard(): JSX.Element {
-	const sections = useDashboardSections();
-	const [ activeSection, setActiveSection ] = useActiveSection();
-	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout(
-		DASHBOARD_NAME,
-		activeSection
-	);
+	const { sections, hasResolved: hasResolvedSections } = useDashboardSections();
+	const [ activeSection, setActiveSection ] = useActiveSection( sections );
+	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout( activeSection, sections );
 	const [ gridSettings ] = useDashboardGridSettings();
 
 	const widgetModules = useSelect(
@@ -65,6 +62,18 @@ function Dashboard(): JSX.Element {
 	// Container element for the date filters panel responsive layout.
 	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
 
+	// The sections carry each section's default layout, so until the entity
+	// resolves the layout above is transiently empty. WidgetDashboard treats an
+	// empty layout as "no widgets" and force-opens edit mode, so it must not
+	// mount before the sections exist.
+	if ( ! hasResolvedSections ) {
+		return (
+			<Stack justify="center" align="center" className={ styles.loading }>
+				<Spinner />
+			</Stack>
+		);
+	}
+
 	return (
 		<GlobalErrorProvider>
 			<WidgetDashboard
@@ -78,7 +87,9 @@ function Dashboard(): JSX.Element {
 				onEditChange={ setEditMode }
 			>
 				<Page
-					title={ __( 'Analytics', 'jetpack-premium-analytics' ) }
+					breadcrumbs={
+						<Breadcrumbs items={ [ { label: __( 'Analytics', 'jetpack-premium-analytics' ) } ] } />
+					}
 					subTitle={ __(
 						'Track your site performance and visitor insights.',
 						'jetpack-premium-analytics'
@@ -104,14 +115,18 @@ function Dashboard(): JSX.Element {
 							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
 						</div>
 						{ sections.map( section => (
-							<Tabs.Panel key={ section.id } value={ section.id } className={ styles.content }>
-								{ activeSection === section.id ? (
+							<SectionTabPanel
+								key={ section.slug }
+								value={ section.slug }
+								className={ styles.content }
+							>
+								{ activeSection === section.slug ? (
 									<>
 										<WidgetDashboard.NoWidgetsState />
 										<WidgetDashboard.Widgets />
 									</>
 								) : null }
-							</Tabs.Panel>
+							</SectionTabPanel>
 						) ) }
 					</DashboardSections>
 

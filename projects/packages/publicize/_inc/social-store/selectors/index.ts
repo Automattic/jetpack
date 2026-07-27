@@ -1,4 +1,5 @@
 import * as connectionDataSelectors from './connection-data';
+import * as connectionFlowSelectors from './connection-flow';
 import * as renderedMessagesSelectors from './rendered-messages';
 import * as scheduledSharesSelectors from './scheduled-shares';
 import * as servicesSelectors from './services';
@@ -12,6 +13,7 @@ import * as unifiedModalSelectors from './unified-modal';
 
 const selectors = {
 	...connectionDataSelectors,
+	...connectionFlowSelectors,
 	...renderedMessagesSelectors,
 	...shareStatusSelectors,
 	...sharepostSelectors,

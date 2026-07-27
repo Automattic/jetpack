@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Collapse the duplicated legacy/dashboard connection components onto the WordPress design system. The block editor sidebar now renders the same connection UI as the Social admin page.

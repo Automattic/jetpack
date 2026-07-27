@@ -1,6 +1,7 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { getApiFetchMock, mockApiFetch } from '../../test-utils/mock-api-fetch';
 import { createTestWrapper } from '../../test-utils/query-client-wrapper';
+import { setSimpleSite, unsetSimpleSite } from '../../test-utils/simple-site';
 import { transformVideoPlays, useStats, videoPlaysQueryOptions } from '../use-stats';
 
 describe( 'transformVideoPlays', () => {
@@ -227,6 +228,38 @@ describe( 'videoPlaysQueryOptions', () => {
 		expect( path ).toContain( 'num=7' );
 		expect( path ).toContain( 'date=2026-05-15' );
 	} );
+
+	describe( 'on WordPress.com Simple', () => {
+		beforeEach( setSimpleSite );
+		afterEach( unsetSimpleSite );
+
+		it( 'targets rest/v1.1 directly with the proxy-forced params made explicit', async () => {
+			mockApiFetch( async () => ( {} ) );
+			const options = videoPlaysQueryOptions( { num: 7, date: '2026-05-15' } );
+			await options.queryFn!( {} as never );
+
+			const [ [ args ] ] = getApiFetchMock().mock.calls;
+			const path = ( args as { path: string } ).path;
+			expect( path ).toContain( '/rest/v1.1/stats/video-plays' );
+			expect( path ).not.toContain( '/jetpack/v4/' );
+			expect( path ).toContain( 'period=day' );
+			// The jetpack/v4 proxy forces these two server-side; on Simple they
+			// must travel with the request.
+			expect( path ).toContain( 'complete_stats=true' );
+			expect( path ).toContain( 'check_stats_module=false' );
+			expect( path ).toContain( 'num=7' );
+			expect( path ).toContain( 'date=2026-05-15' );
+		} );
+
+		it( 'keeps the query key unchanged across hosts', () => {
+			const params = { num: 7, date: '2026-05-15' };
+			expect( videoPlaysQueryOptions( params ).queryKey ).toEqual( [
+				'jetpack-videopress-stats',
+				'video-plays',
+				params,
+			] );
+		} );
+	} );
 } );
 
 describe( 'useStats', () => {
@@ -265,5 +298,59 @@ describe( 'useStats', () => {
 
 		expect( result.current.activeMetric ).toBe( 'impressions' );
 		expect( result.current.compare ).toBe( 'secondary_and_previous_period' );
+	} );
+
+	it( 'surfaces isError on a failed fetch instead of laundering it into zero data', async () => {
+		// A rejected request leaves both windows undefined, so `stats` still
+		// reads as EMPTY_STATS (all zeros). The consumer must be able to tell
+		// that apart from a genuine zero-activity site — that's what `isError`
+		// (and `error`) are for.
+		mockApiFetch( async () => {
+			throw new Error( 'network boom' );
+		} );
+
+		const { result } = renderHook( () => useStats(), { wrapper: createTestWrapper() } );
+
+		await waitFor( () => expect( result.current.isError ).toBe( true ) );
+		expect( result.current.error ).toBeInstanceOf( Error );
+		expect( result.current.isLoading ).toBe( false );
+		// The zeros are still present (nothing loaded), but they're now flagged
+		// as an error rather than presented as real data.
+		expect( result.current.stats.views ).toEqual( { current: 0, previousPeriod: 0 } );
+		// No data ever loaded — the Overview should show the error pane, not
+		// cached stats.
+		expect( result.current.hasData ).toBe( false );
+	} );
+
+	it( 'reports hasData once the current window has loaded', async () => {
+		mockApiFetch( async () => ( { days: {} } ) );
+
+		const { result } = renderHook( () => useStats(), { wrapper: createTestWrapper() } );
+
+		await waitFor( () => expect( result.current.hasData ).toBe( true ) );
+		expect( result.current.isError ).toBe( false );
+	} );
+
+	it( 'withholds hasData when only the previous window fails on first load', async () => {
+		// A previous-window-only failure must not render: transformVideoPlays
+		// would fabricate previousPeriod zeros for every KPI and chart bucket,
+		// presented as real comparison data. useQueries fires the current
+		// window's queryFn first (array order), so the second distinct path is
+		// the previous window.
+		const seen: string[] = [];
+		mockApiFetch( async ( { path } ) => {
+			if ( ! seen.includes( path ?? '' ) ) {
+				seen.push( path ?? '' );
+			}
+			if ( seen.indexOf( path ?? '' ) === 1 ) {
+				throw new Error( 'previous window boom' );
+			}
+			return { days: {} };
+		} );
+
+		const { result } = renderHook( () => useStats(), { wrapper: createTestWrapper() } );
+
+		await waitFor( () => expect( result.current.isError ).toBe( true ) );
+		expect( result.current.hasData ).toBe( false );
 	} );
 } );

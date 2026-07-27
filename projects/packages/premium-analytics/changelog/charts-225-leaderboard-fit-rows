@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Leaderboard widgets now show only the rows that fit the tile instead of scrolling. Rows that do not fit are hidden until the tile is made taller.

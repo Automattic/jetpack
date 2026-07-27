@@ -1586,6 +1586,33 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Whether the AI Launchpad is enabled for this site.
+	 *
+	 * @return bool
+	 */
+	public function is_ai_launchpad_enabled() {
+		return (bool) get_option( 'wpcom_ai_launchpad_enabled' );
+	}
+
+	/**
+	 * Whether the AI Launchpad was dismissed, reverting the site to the regular launchpad.
+	 *
+	 * @return bool
+	 */
+	public function is_ai_launchpad_dismissed() {
+		return (bool) get_option( 'wpcom_ai_launchpad_dismissed' );
+	}
+
+	/**
+	 * Whether every AI Launchpad task has been completed.
+	 *
+	 * @return bool
+	 */
+	public function is_ai_launchpad_completed() {
+		return (bool) get_option( 'wpcom_ai_launchpad_completed' );
+	}
+
+	/**
 	 * Get site option for migration source site domain
 	 *
 	 * @return string

@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.42.0] - 2026-07-20
+### Added
+- Library: Show live transcoding progress on processing videos after upload. [#50550]
+- Library: Show live upload progress when uploading a video from the media library to VideoPress. [#50550]
+- Make the modernized VideoPress dashboard fully functional on WordPress.com Simple: server-side library filtering (video-only, privacy, type), stats and settings rerouted to WPCOM-reachable endpoints, and storage/features queries gated off unmappable routes. [#50410]
+- Play videos directly on the library's video details page via an embedded VideoPress player, replacing the static thumbnail. [#50511]
+- Surface the modernized VideoPress dashboard on WordPress.com Simple sites (menu + boot), with a Simple-aware media-library mapping. [#50410]
+- Video details: Show the video player while a video is processing, reporting live transcoding progress, instead of a static placeholder. [#50550]
+
+### Changed
+- Dashboard on WordPress.com Simple: Drop a redundant access-check branch and de-duplicate the wp-build dashboard load and menu-callback selection. [#50410]
+- Dashboard on WordPress.com Simple: Filter the library on the server by privacy and VideoPress/local type, fixing truncated filtered results, inexact pagination totals, and the free-tier upload count. [#50410]
+- Update package dependencies. [#50510] [#50529] [#50582]
+
+### Fixed
+- Dashboard: Show a retryable error notice when video stats fail to load, and stop the "still processing" library poll after 15 minutes. [#50410]
+- Dashboard: Show the "make all videos private" toggle read-only on WordPress.com Simple and private Atomic sites, where the value is resolved server-side. [#50410]
+- Fix "Could not obtain a VideoPress upload token" when setting a video thumbnail from a frame on WordPress.com Simple sites. [#50410]
+- Fix "You do not have permission to upload files" when publishing or deleting a subtitle track from the VideoPress dashboard on WordPress.com Simple sites. [#50410]
+- Fix VideoPress dashboard dialogs (thumbnail picker, chapters help) rendering behind the admin sidebar on WordPress.com. [#50410]
+
+## [0.41.0] - 2026-07-13
+### Added
+- Captions: Add a shared manager for uploading, drafting, editing, publishing, and deleting caption tracks. [#49336]
+
+### Changed
+- Captions: Surface outcome and async error messages as snackbars, keeping only form-validation errors as an inline notice. [#50430]
+- Media Library: Reuse the attachment title, description and caption for the VideoPress video when promoting a video with the "Upload to VideoPress" action, instead of only the file name. [#50427]
+
+### Fixed
+- Captions: Fix the caption manager failing to load on WordPress.com Simple sites by setting Webpack's public path explicitly. [#50417]
+- Decode HTML entities in video titles so they no longer display as raw entities (e.g. `&#8217;`) in the dashboard library and video details header. [#50429]
+
 ## [0.40.0] - 2026-07-09
 ### Added
 - Resumable video uploads are now verified as they arrive, instead of re-reading the whole file once the upload completes. [#50054]
@@ -2067,6 +2100,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.42.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.41.0...v0.42.0
+[0.41.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.40.0...v0.41.0
 [0.40.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.39.0...v0.40.0
 [0.39.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.38.2...v0.39.0
 [0.38.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.38.1...v0.38.2

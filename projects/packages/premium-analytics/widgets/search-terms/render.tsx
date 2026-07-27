@@ -3,9 +3,14 @@
  */
 import {
 	calculateDelta,
+	describeError,
+	getCombinedPeriodMax,
 	LeaderboardChart,
+	ReportLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	sharePercentage,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
@@ -34,28 +39,41 @@ type SearchTermsWidgetProps = WidgetRenderProps< SearchTermsRenderAttributes >;
 function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 	const { reportParams } = useWidgetRootContext();
 
-	const { data, isLoading, isFetching, isError, hasComparison, refetch } = useSearchTermViews( {
-		reportParams,
-		max,
-	} );
+	const { data, isLoading, isFetching, isError, error, hasComparison, refetch } =
+		useSearchTermViews( {
+			reportParams,
+			max,
+		} );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
-		const maxValue = Math.max( ...data.map( t => t.views ), 0 );
-		const prevMaxValue = Math.max( ...data.map( t => t.previousViews ), 0 );
+		const maxValue = getCombinedPeriodMax(
+			data.map( term => term.views ),
+			hasComparison ? data.map( term => term.previousViews ) : []
+		);
 
-		return data.map( ( term, index ) => ( {
-			id: `${ index }-${ term.label }`,
-			label: (
-				<Stack align="center" className={ styles.itemLabel }>
-					<Text className={ styles.itemLabelText }>{ term.label }</Text>
-				</Stack>
-			),
-			currentValue: term.views,
-			previousValue: term.previousViews,
-			currentShare: maxValue > 0 ? ( term.views / maxValue ) * 100 : 0,
-			previousShare: prevMaxValue > 0 ? ( term.previousViews / prevMaxValue ) * 100 : 0,
-			delta: hasComparison ? calculateDelta( term.views, term.previousViews ) : 0,
-		} ) );
+		return data.map( ( term, index ) => {
+			const previousViews = term.previousViews;
+
+			return {
+				id: `${ index }-${ term.label }`,
+				label: (
+					<Stack align="center" className={ styles.itemLabel }>
+						<Text className={ styles.itemLabelText }>{ term.label }</Text>
+					</Stack>
+				),
+				currentValue: term.views,
+				previousValue: previousViews,
+				currentShare: sharePercentage( term.views, maxValue ),
+				previousShare:
+					hasComparison && previousViews !== undefined
+						? sharePercentage( previousViews, maxValue )
+						: undefined,
+				delta:
+					hasComparison && previousViews !== undefined
+						? calculateDelta( term.views, previousViews )
+						: undefined,
+			};
+		} );
 	}, [ data, hasComparison ] );
 
 	return (
@@ -66,13 +84,13 @@ function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 					isFetching={ isFetching }
 					isError={ isError }
 					isEmpty={ data.length === 0 }
-					error={ {
-						description: __(
+					error={ describeError( error, {
+						retryDescription: __(
 							"We couldn't load search terms. Please try again in a moment.",
 							'jetpack-premium-analytics'
 						),
-						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
-					} }
+						onRetry: refetch,
+					} ) }
 					empty={ {
 						icon: search,
 						description: __( 'No search terms in this period.', 'jetpack-premium-analytics' ),
@@ -90,6 +108,9 @@ function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 					/>
 				</WidgetState>
 			</div>
+			<WidgetFooter>
+				<ReportLink report="search-terms" />
+			</WidgetFooter>
 		</Stack>
 	);
 }

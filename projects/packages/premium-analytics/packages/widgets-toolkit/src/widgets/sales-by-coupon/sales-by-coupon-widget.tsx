@@ -3,15 +3,14 @@
  */
 import { useReportCoupons } from '@jetpack-premium-analytics/data';
 import { coupon } from '@jetpack-premium-analytics/icons';
+import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { BarChart } from '../../components';
-import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
+import { BarChart, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
 import { useWidgetRootContext } from '../../components/widget-root';
-import { buildSalesByCouponData } from '../../helpers';
-import { useWidgetError } from '../../hooks';
+import { buildSalesByCouponData, isEmptyChartData } from '../../helpers';
 import { useBarStyles } from '../common';
 
 /**
@@ -33,11 +32,8 @@ import { useBarStyles } from '../common';
 export function SalesByCouponWidget() {
 	const { reportParams } = useWidgetRootContext();
 
-	const { primary, comparison, isLoading, isFetching, hasData, isError, error, refetch } =
+	const { primary, comparison, isLoading, isFetching, hasData, isError, refetch } =
 		useReportCoupons( reportParams );
-
-	const isInitialLoading = isLoading && ! hasData;
-	const isRefetching = isFetching && hasData;
 
 	const { chartData } = useMemo(
 		() => buildSalesByCouponData( primary.data, comparison.data, reportParams, 3 ),
@@ -46,17 +42,27 @@ export function SalesByCouponWidget() {
 
 	const barStyles = useBarStyles( chartData );
 
-	const hasError = useWidgetError( isError, error, refetch );
-	if ( hasError ) {
-		return null;
-	}
-
-	if ( isInitialLoading ) {
-		return <WidgetLoadingOverlay />;
-	}
-
 	return (
-		<>
+		<WidgetState
+			isLoading={ isLoading && ! hasData }
+			isFetching={ isFetching }
+			// The report queries keep the previous period's data as placeholders
+			// across range changes, so only surface the error when there is
+			// nothing to show.
+			isError={ isError && ! hasData }
+			isEmpty={ isEmptyChartData( chartData ) }
+			error={ {
+				description: __(
+					"We couldn't load coupon sales data. Please try again in a moment.",
+					'jetpack-premium-analytics'
+				),
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+			} }
+			empty={ {
+				icon: coupon,
+				description: __( 'No coupon sales in this period.', 'jetpack-premium-analytics' ),
+			} }
+		>
 			<BarChart
 				chartData={ chartData }
 				styles={ barStyles }
@@ -64,9 +70,7 @@ export function SalesByCouponWidget() {
 					type: 'currency',
 					options: { useMultipliers: true, decimals: 0 },
 				} }
-				emptyStateIcon={ coupon }
 			/>
-			{ isRefetching && <WidgetLoadingOverlay /> }
-		</>
+		</WidgetState>
 	);
 }

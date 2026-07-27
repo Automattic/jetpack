@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Remove unused react-redux, redux, and redux-thunk dependencies

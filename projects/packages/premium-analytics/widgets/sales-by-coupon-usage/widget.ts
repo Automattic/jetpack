@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 
 /**
@@ -23,11 +22,5 @@ export type SalesByCouponUsageAttributes = Record< never, never >;
  * dashboards can opt in.
  */
 export default {
-	name: 'jpa/sales-by-coupon-usage',
-	title: __( 'Sales by coupon usage', 'jetpack-premium-analytics' ),
-	description: __(
-		'Sales by coupon usage over the selected time period.',
-		'jetpack-premium-analytics'
-	),
 	icon: chartBar,
 };

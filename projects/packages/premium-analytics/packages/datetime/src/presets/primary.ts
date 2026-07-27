@@ -6,6 +6,7 @@ import {
 	startOfDay,
 	endOfDay,
 	subDays,
+	subHours,
 	subMonths,
 	subYears,
 	startOfMonth,
@@ -16,10 +17,11 @@ import {
 /**
  * Internal dependencies
  */
-import { toLocalTZ } from '../tz';
+import { createTZDateFromParts, toLocalTZ } from '../tz';
 import {
 	PRESET_TODAY,
 	PRESET_YESTERDAY,
+	PRESET_LAST_24_HOURS,
 	PRESET_LAST_7_DAYS,
 	PRESET_LAST_30_DAYS,
 	PRESET_LAST_90_DAYS,
@@ -28,8 +30,15 @@ import {
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_YEAR,
 	PRESET_CUSTOM,
+	PRESET_ALL_TIME,
+	QUICK_SURFACE_PRESETS,
+	getPresetYear,
+	isYearSurfacePresetId,
+	toYearPresetId,
+	type ComputablePresetId,
 	type SelectablePresetId,
 	type PrimaryPresetId,
+	type YearSurfacePresetId,
 } from './types';
 import type { DateRange } from '../get-comparison-range';
 
@@ -37,13 +46,20 @@ import type { DateRange } from '../get-comparison-range';
  * Shared date calculations used by multiple presets.
  */
 type DateContext = {
+	now: Date;
 	initOfToday: Date;
 	endOfToday: Date;
 	endOfYesterday: Date;
 	lastMonth: Date;
 	endOfLastMonth: Date;
 	lastYear: Date;
+	timeZone: string;
 };
+
+/**
+ * Years listed on the year surface when the caller doesn't pass a start year.
+ */
+export const DEFAULT_YEAR_SURFACE_COUNT = 6;
 
 /**
  * Preset definition with label getter and range calculator.
@@ -73,6 +89,14 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 		getRange: ( { initOfToday, endOfYesterday } ) => ( {
 			from: subDays( initOfToday, 1 ),
 			to: endOfYesterday,
+		} ),
+	},
+	{
+		id: PRESET_LAST_24_HOURS,
+		getLabel: () => __( 'Last 24 hours', 'jetpack-premium-analytics' ),
+		getRange: ( { now } ) => ( {
+			from: subHours( now, 24 ),
+			to: now,
 		} ),
 	},
 	{
@@ -118,9 +142,9 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	{
 		id: PRESET_LAST_12_MONTHS,
 		getLabel: () => __( 'Last 12 months', 'jetpack-premium-analytics' ),
-		getRange: ( { initOfToday, endOfLastMonth } ) => ( {
-			from: startOfMonth( subMonths( initOfToday, 12 ) ),
-			to: endOfLastMonth,
+		getRange: ( { initOfToday, endOfYesterday } ) => ( {
+			from: subMonths( initOfToday, 12 ),
+			to: endOfYesterday,
 		} ),
 	},
 	{
@@ -134,6 +158,19 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 ];
 
 /**
+ * Label for a year-surface preset. Years are shown as the bare number, so only
+ * the all-time entry is translated.
+ *
+ * @param id - A year-surface preset identifier.
+ * @return The preset label.
+ */
+function getYearSurfaceLabel( id: YearSurfacePresetId ): string {
+	return id === PRESET_ALL_TIME
+		? __( 'All time', 'jetpack-premium-analytics' )
+		: String( getPresetYear( id ) );
+}
+
+/**
  * Get the label for a preset without calculating date ranges.
  *
  * @param id - The preset identifier
@@ -142,6 +179,10 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 export function getPresetLabel( id: PrimaryPresetId | null | undefined ): string | null {
 	if ( ! id || id === PRESET_CUSTOM ) {
 		return null;
+	}
+
+	if ( isYearSurfacePresetId( id ) ) {
+		return getYearSurfaceLabel( id );
 	}
 
 	const preset = PRESET_DEFINITIONS.find( p => p.id === id );
@@ -162,12 +203,14 @@ function buildDateContext( timeZone: string ): DateContext {
 	const lastYear = subYears( initOfToday, 1 );
 
 	return {
+		now: nowWithTZ,
 		initOfToday,
 		endOfToday,
 		endOfYesterday,
 		lastMonth,
 		endOfLastMonth,
 		lastYear,
+		timeZone,
 	};
 }
 
@@ -175,11 +218,60 @@ function buildDateContext( timeZone: string ): DateContext {
  * Represents a date range preset option.
  * Preset ranges always have both `from` and `to` defined.
  */
-export type DateRangePreset = {
-	id: PrimaryPresetId;
+export type DateRangePreset< TId extends ComputablePresetId = SelectablePresetId > = {
+	id: TId;
 	label: string;
 	range: Required< DateRange >;
 };
+
+/**
+ * Resolve the oldest year the year surface covers. Anything past the current
+ * year is clamped: the surface can't offer a year that hasn't started.
+ *
+ * @param startYear - Caller-provided start year, if any.
+ * @param ctx       - The date context.
+ * @return The oldest year to list.
+ */
+function resolveStartYear( startYear: number | undefined, ctx: DateContext ): number {
+	const currentYear = ctx.now.getFullYear();
+
+	if ( ! Number.isInteger( startYear ) ) {
+		return currentYear - ( DEFAULT_YEAR_SURFACE_COUNT - 1 );
+	}
+
+	return Math.min( startYear, currentYear );
+}
+
+/**
+ * Range covering one calendar year. The current year stops at the end of today
+ * rather than at a December that hasn't happened yet, so charts aren't padded
+ * with empty future days.
+ *
+ * @param year - Four-digit year.
+ * @param ctx  - The date context.
+ * @return The year's range.
+ */
+function computeYearRange( year: number, ctx: DateContext ): Required< DateRange > {
+	const from = createTZDateFromParts( [ year, 0, 1 ], ctx.timeZone );
+	const to = endOfYear( from );
+
+	return { from, to: to > ctx.endOfToday ? ctx.endOfToday : to };
+}
+
+/**
+ * Range covering every year the surface lists, from the start of the oldest one
+ * through the end of today.
+ *
+ * @param startYear - The oldest year listed.
+ * @param ctx       - The date context.
+ * @return The all-time range.
+ */
+function computeAllTimeRange( startYear: number, ctx: DateContext ): Required< DateRange > {
+	return {
+		from: createTZDateFromParts( [ startYear, 0, 1 ], ctx.timeZone ),
+		to: ctx.endOfToday,
+	};
+}
 
 /**
  * Get the default date range presets with computed ranges.
@@ -198,23 +290,93 @@ export function getDefaultDateRangePresets( timeZone: string ): DateRangePreset[
 }
 
 /**
- * Compute the absolute date range (as Date objects) for a given
- * selectable preset ID in the specified timezone.
+ * Rolling-window presets for the date-range filter surface pills.
  *
- * @param presetId - A valid selectable preset identifier.
+ * @param timeZone - IANA timezone string (e.g., 'America/New_York')
+ * @return Quick surface presets in display order.
+ */
+export function getQuickSurfacePresets( timeZone: string ): DateRangePreset[] {
+	const presetsById = new Map(
+		getDefaultDateRangePresets( timeZone ).map( preset => [ preset.id, preset ] )
+	);
+
+	return QUICK_SURFACE_PRESETS.map( id => presetsById.get( id ) ).filter(
+		( preset ): preset is DateRangePreset => preset !== undefined
+	);
+}
+
+/**
+ * Options shared by the year surface and its range calculations.
+ */
+export type YearSurfaceOptions = {
+	/**
+	 * Oldest year to cover. Doubles as the start of the all-time range, so both
+	 * stay in step with what the surface shows. Defaults to
+	 * `DEFAULT_YEAR_SURFACE_COUNT` years back.
+	 */
+	startYear?: number;
+};
+
+/**
+ * All-time and per-year presets for the year filter surface, newest year first.
+ *
+ * @param timeZone - IANA timezone string (e.g., 'America/New_York')
+ * @param options  - Year surface options.
+ * @return Year surface presets in display order.
+ */
+export function getYearSurfacePresets(
+	timeZone: string,
+	options: YearSurfaceOptions = {}
+): DateRangePreset< YearSurfacePresetId >[] {
+	const ctx = buildDateContext( timeZone );
+	const firstYear = resolveStartYear( options.startYear, ctx );
+	const currentYear = ctx.now.getFullYear();
+
+	const years: DateRangePreset< YearSurfacePresetId >[] = [];
+	for ( let year = currentYear; year >= firstYear; year-- ) {
+		years.push( {
+			id: toYearPresetId( year ),
+			label: getYearSurfaceLabel( toYearPresetId( year ) ),
+			range: computeYearRange( year, ctx ),
+		} );
+	}
+
+	return [
+		{
+			id: PRESET_ALL_TIME,
+			label: getYearSurfaceLabel( PRESET_ALL_TIME ),
+			range: computeAllTimeRange( firstYear, ctx ),
+		},
+		...years,
+	];
+}
+
+/**
+ * Compute the absolute date range (as Date objects) for a given
+ * preset ID in the specified timezone.
+ *
+ * @param presetId - A valid computable preset identifier.
  * @param timeZone - IANA timezone string.
+ * @param options  - Year surface options; only read for the all-time preset,
+ *                 whose start is a property of the surface, not of the ID.
  * @return The computed { from, to } Date range, or undefined
  *         if the preset is not recognized.
  */
 export function computePrimaryRange(
-	presetId: SelectablePresetId,
-	timeZone: string
-): DateRange | undefined {
-	const def = PRESET_DEFINITIONS.find( p => p.id === presetId );
-	if ( ! def ) {
-		return undefined;
+	presetId: ComputablePresetId,
+	timeZone: string,
+	options: YearSurfaceOptions = {}
+): Required< DateRange > | undefined {
+	const ctx = buildDateContext( timeZone );
+
+	if ( presetId === PRESET_ALL_TIME ) {
+		return computeAllTimeRange( resolveStartYear( options.startYear, ctx ), ctx );
 	}
 
-	const ctx = buildDateContext( timeZone );
-	return def.getRange( ctx );
+	const year = getPresetYear( presetId );
+	if ( year !== null ) {
+		return computeYearRange( year, ctx );
+	}
+
+	return PRESET_DEFINITIONS.find( p => p.id === presetId )?.getRange( ctx );
 }

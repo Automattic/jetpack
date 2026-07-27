@@ -29,6 +29,9 @@
 		],
 		"test-php": [
 			"@composer phpunit"
+		],
+		"test-php-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 		]
 	},
 	"repositories": [

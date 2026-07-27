@@ -22,7 +22,7 @@ use WP_Error;
 /**
  * Connection Manager functionality testing.
  */
-#[AllowMockObjectsWithoutExpectations /* Mocks created in setUp, some tests add expectations and others don't. Plus getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
+#[AllowMockObjectsWithoutExpectations /* Mocks created in setUp, some tests add expectations and others don't. Plus getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */]
 class ManagerTest extends TestCase {
 
 	/**
@@ -134,6 +134,22 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
+	 * Ownership is transferable by default.
+	 */
+	public function test_is_ownership_transferable_default() {
+		$this->assertTrue( ( new Manager() )->is_ownership_transferable() );
+	}
+
+	/**
+	 * A consumer can lock ownership via the jetpack_connection_ownership_transferable filter.
+	 */
+	public function test_is_ownership_transferable_can_be_locked_via_filter() {
+		add_filter( 'jetpack_connection_ownership_transferable', '__return_false' );
+		$this->assertFalse( ( new Manager() )->is_ownership_transferable() );
+		remove_filter( 'jetpack_connection_ownership_transferable', '__return_false' );
+	}
+
+	/**
 	 * `Manager::configure()` registers the package version tracker on `shutdown` when the site is connected.
 	 *
 	 * This intentionally invokes the full `configure()` because it builds its own
@@ -207,11 +223,15 @@ class ManagerTest extends TestCase {
 
 		// `add_stats_to_heartbeat()` reads the connected plugins list, which requires Plugin_Storage to be configured.
 		Plugin_Storage::configure();
+		// Avoid a network request for the `ssl` environment stat.
+		set_transient( 'jetpack_https_test', 1 );
 
 		$stats = $manager->add_stats_to_heartbeat( array() );
 
 		$this->assertArrayHasKey( 'missing-owner', $stats );
 		$this->assertTrue( $stats['missing-owner'] );
+		// Site environment stats are merged in from the Connection Heartbeat.
+		$this->assertArrayHasKey( 'wp-version', $stats );
 	}
 
 	/**
@@ -238,6 +258,8 @@ class ManagerTest extends TestCase {
 
 		// `add_stats_to_heartbeat()` reads the connected plugins list, which requires Plugin_Storage to be configured.
 		Plugin_Storage::configure();
+		// Avoid a network request for the `ssl` environment stat.
+		set_transient( 'jetpack_https_test', 1 );
 
 		Jetpack_Options::update_option( 'xmlrpc_errors', array( 'malformed_token' => true ) );
 

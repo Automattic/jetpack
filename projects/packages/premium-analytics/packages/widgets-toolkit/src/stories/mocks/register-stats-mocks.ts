@@ -216,6 +216,182 @@ const MOCK_CLICKS_COMPARISON = {
 	},
 };
 
+const MOCK_TOP_POSTS_POSTVIEWS = [
+	{
+		id: 1,
+		href: 'https://example.com/hello-world/',
+		date: '2026-06-01',
+		title: 'Hello World Post',
+		type: 'post',
+		status: 'publish',
+		public: true,
+		views: 4210,
+		video_play: false,
+	},
+	{
+		id: 2,
+		href: 'https://example.com/about/',
+		date: null,
+		title: 'About Page',
+		type: 'page',
+		status: 'publish',
+		public: true,
+		views: 3180,
+		video_play: false,
+	},
+	{
+		id: 3,
+		href: 'https://example.com/pricing/',
+		date: '2026-06-12',
+		title: 'Pricing',
+		type: 'page',
+		status: 'publish',
+		public: true,
+		views: 1840,
+		video_play: false,
+	},
+	{
+		id: 4,
+		href: 'https://example.com/build-times/',
+		date: '2026-06-18',
+		title: 'How we cut our build times in half',
+		type: 'post',
+		status: 'publish',
+		public: true,
+		views: 1260,
+		video_play: false,
+	},
+	{
+		id: 5,
+		href: 'https://example.com/changelog/',
+		date: '2026-06-22',
+		title: 'Changelog',
+		type: 'page',
+		status: 'publish',
+		public: true,
+		views: 940,
+		video_play: false,
+	},
+];
+
+const MOCK_TOP_POSTS_COMPARISON_POSTVIEWS = [
+	{
+		id: 1,
+		href: 'https://example.com/hello-world/',
+		date: '2026-05-01',
+		title: 'Hello World Post',
+		type: 'post',
+		status: 'publish',
+		public: true,
+		views: 3980,
+		video_play: false,
+	},
+	{
+		id: 2,
+		href: 'https://example.com/about/',
+		date: null,
+		title: 'About Page',
+		type: 'page',
+		status: 'publish',
+		public: true,
+		views: 3510,
+		video_play: false,
+	},
+	{
+		id: 3,
+		href: 'https://example.com/pricing/',
+		date: '2026-05-12',
+		title: 'Pricing',
+		type: 'page',
+		status: 'publish',
+		public: true,
+		views: 1640,
+		video_play: false,
+	},
+	{
+		id: 4,
+		href: 'https://example.com/build-times/',
+		date: '2026-05-18',
+		title: 'How we cut our build times in half',
+		type: 'post',
+		status: 'publish',
+		public: true,
+		views: 880,
+		video_play: false,
+	},
+];
+
+const MOCK_TOP_POSTS = {
+	date: '2026-06-29',
+	period: 'day',
+	days: {},
+	summary: {
+		postviews: [
+			...MOCK_TOP_POSTS_POSTVIEWS,
+			// With skip_archives=1 the API keeps the homepage-as-latest-posts
+			// entry in postviews, server-titled and without a URL.
+			{
+				id: 0,
+				href: null,
+				date: null,
+				title: 'Homepage (Latest posts)',
+				type: 'homepage',
+				status: 'publish',
+				public: true,
+				views: 2140,
+				video_play: false,
+			},
+		],
+		total_views: 13570,
+		dropped_ids: [],
+	},
+};
+
+const MOCK_TOP_POSTS_COMPARISON = {
+	date: '2026-05-30',
+	period: 'day',
+	days: {},
+	summary: {
+		postviews: MOCK_TOP_POSTS_COMPARISON_POSTVIEWS,
+		total_views: 10010,
+		dropped_ids: [],
+	},
+};
+
+// `stats/archives` groups archive-page views by archive type; the widget's
+// Archives view renders one aggregate row per type.
+// With skip_archives=1 (sent to both reports, mirroring the Stats card) the
+// API returns no `home` entry here — it lives in the top-posts response.
+const MOCK_ARCHIVES = {
+	date: '2026-06-29',
+	period: 'day',
+	summary: {
+		tax: {
+			category: [
+				{ value: 'News', href: 'https://example.com/category/news/', views: '430' },
+				{ value: 'Guides', href: 'https://example.com/category/guides/', views: '180' },
+			],
+			post_tag: [ { value: 'release', href: 'https://example.com/tag/release/', views: '120' } ],
+		},
+		post_type: [ { value: 'post', href: 'https://example.com/type/post/', views: '460' } ],
+		search: [
+			{ value: 'pricing', href: 'https://example.com/?s=pricing', views: '210' },
+			{ value: 'changelog', href: 'https://example.com/?s=changelog', views: '90' },
+		],
+	},
+};
+
+const MOCK_ARCHIVES_COMPARISON = {
+	date: '2026-05-30',
+	period: 'day',
+	summary: {
+		tax: {
+			category: [ { value: 'News', href: 'https://example.com/category/news/', views: '510' } ],
+		},
+		search: [ { value: 'pricing', href: 'https://example.com/?s=pricing', views: '260' } ],
+	},
+};
+
 // Exercises every referrer shape the widget renders: a multi-source group that
 // drills down twice (group → source → domain), a single-result group (which the
 // normalizer flattens into the result itself), and childless domains with URLs
@@ -318,6 +494,9 @@ const MOCK_REFERRERS = {
 	},
 };
 
+// The Search Engines comparison total exceeds every current-period value so the
+// combined-scale contract is visible: the widest current bar stays below 100%
+// and its width agrees with the negative delta (see getCombinedPeriodMax).
 const MOCK_REFERRERS_COMPARISON = {
 	date: '2026-05-30',
 	period: 'day',
@@ -328,22 +507,22 @@ const MOCK_REFERRERS_COMPARISON = {
 				group: 'Search Engines',
 				name: 'Search Engines',
 				icon: 'https://www.google.com/s2/favicons?domain=google.com&sz=32',
-				total: 4160,
+				total: 6400,
 				results: [
 					{
 						name: 'Google Search',
 						icon: 'https://www.google.com/s2/favicons?domain=google.com&sz=32',
-						views: 3410,
+						views: 5650,
 						children: [
 							{
 								name: 'google.com',
 								url: 'https://www.google.com/',
-								views: 3280,
+								views: 5500,
 							},
 							{
 								name: 'google.co.uk',
 								url: 'https://www.google.co.uk/',
-								views: 130,
+								views: 150,
 							},
 						],
 					},
@@ -958,15 +1137,23 @@ function buildStatsLocationViewsResponse(
 	};
 }
 
-function getStatsMock( path: string ): unknown | null {
+export function getStatsMock( path: string ): unknown | null {
 	const withoutBase = path.slice( STATS_BASE.length );
 	const queryIndex = withoutBase.indexOf( '?' );
 	const subPath = queryIndex === -1 ? withoutBase : withoutBase.slice( 0, queryIndex );
 	const query = new URLSearchParams( queryIndex === -1 ? '' : withoutBase.slice( queryIndex + 1 ) );
 	const isComparison = isComparisonRequest( path );
 
-	if ( subPath.startsWith( '/clicks' ) ) {
+	if ( subPath === '/clicks' ) {
 		return isComparison ? MOCK_CLICKS_COMPARISON : MOCK_CLICKS;
+	}
+
+	if ( subPath.startsWith( '/top-posts' ) ) {
+		return isComparison ? MOCK_TOP_POSTS_COMPARISON : MOCK_TOP_POSTS;
+	}
+
+	if ( subPath.startsWith( '/archives' ) ) {
+		return isComparison ? MOCK_ARCHIVES_COMPARISON : MOCK_ARCHIVES;
 	}
 
 	if ( subPath.startsWith( '/referrers' ) ) {

@@ -16,6 +16,14 @@
 	object-fit: cover;
 }
 
+/* The DataViews picker grids stretch media-cell images to 100%. Widget
+ * previews render inert, so restore the avatar size there. */
+:global([inert]) .row .avatar {
+	width: 32px;
+	height: 32px;
+	object-fit: cover;
+}
+
 .name {
 	overflow: hidden;
 	color: var(--wpds-color-foreground-content-neutral);

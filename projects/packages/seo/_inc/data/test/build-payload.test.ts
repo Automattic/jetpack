@@ -2,20 +2,19 @@
  * @jest-environment node
  */
 import { buildCorePayload, buildJetpackPayload } from '../build-payload';
+import { makeSchemaSettings } from './fixtures/schema-settings-fixtures';
 import type { SettingsResponse } from '../settings-types';
 
 const makeSettings = ( overrides: Partial< SettingsResponse > = {} ): SettingsResponse => ( {
 	front_page_description: '',
+	has_legacy_front_page_meta: false,
 	title_formats: { posts: [ { type: 'token', value: 'site_name' } ] },
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	search_engines_visible: true,
 	sitemap_active: false,
 	sitemap_url: '',
 	canonical_active: false,
-	schema: {
-		organization: { name: '', description: '', sameAs: [], email: '' },
-		defaults: { organization: { name: 'Acme Co', description: 'We make things' } },
-	},
+	schema: makeSchemaSettings(),
 	...overrides,
 } );
 

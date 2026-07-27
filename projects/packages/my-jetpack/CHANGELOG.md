@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.40.9] - 2026-07-22
+### Changed
+- Update package dependencies. [#50683]
+
+### Fixed
+- Hide the Modules footer link and the Help tab's Useful links section (All Jetpack modules, Debug information) on WordPress.com Simple sites, where the target admin pages do not exist. [#50675]
+
+## [5.40.8] - 2026-07-20
+### Changed
+- Allow pricing interstitials to limit container width. [#50567]
+- Update package dependencies. [#50510] [#50529] [#50582]
+
+### Fixed
+- Connection: Ensure My Jetpack Connection status card is compatible with TSX in Jetpack Connection package. [#50370]
+- Hide the large Stats graph when the Stats module is disabled, and show the compact Stats card with an activation CTA instead. [#50464]
+- Register a pricing-table config for Stats so the interstitial no longer renders an empty column. [#50535]
+- Reload the page after toggling a menu-registering module (Podcast, Newsletter, Reader) in My Jetpack so the wp-admin sidebar reflects the change, matching the Forms toggle behavior. [#50269]
+
+## [5.40.7] - 2026-07-13
+### Changed
+- Update package dependencies. [#50407]
+
+### Fixed
+- Fix route changes in Chrome when scroll APIs return promises. [#50465]
+- Show a Site Editor action for sharing buttons on block themes. [#50355]
+
 ## [5.40.6] - 2026-07-09
 ### Changed
 - My Jetpack now reports its red-bubble alerts to the central menu-badges registry instead of writing admin-menu markup directly; the Protect alert is skipped there since Protect reports its own count. [#50190]
@@ -2771,6 +2797,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.40.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.8...5.40.9
+[5.40.8]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.7...5.40.8
+[5.40.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.6...5.40.7
 [5.40.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.5...5.40.6
 [5.40.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.4...5.40.5
 [5.40.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.3...5.40.4

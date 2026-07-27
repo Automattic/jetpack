@@ -2,11 +2,17 @@
  * External dependencies
  */
 import { useStatsVideoPlays } from '@jetpack-premium-analytics/data';
+import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import {
 	LeaderboardChart,
+	ReportLink,
+	VideoTitleLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	calculateDelta,
+	getCombinedPeriodMax,
+	sharePercentage,
 	toMaxRows,
 	useWidgetRootContext,
 	type LeaderboardChartData,
@@ -14,7 +20,6 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { video } from '@wordpress/icons';
-import { Link } from '@wordpress/ui';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -37,49 +42,60 @@ type VideoPressWidgetProps = WidgetRenderProps< VideoPressRenderAttributes > & {
 };
 
 /**
- * Maps normalized video rows onto the shape `LeaderboardChart` expects. Each
- * row's label opens the video's page in a new tab when the report carries a
- * URL. Shares are computed against the largest value of either period so the
- * overlay bars stay proportional.
+ * Build a video row's title. Attachment rows navigate to the internal detail
+ * route; rows without an ID retain the original external-link fallback.
  *
- * @param rows           - The normalized video-plays rows.
- * @param withComparison - Whether to derive previous-period shares and deltas.
+ * @param row    - The normalized video row.
+ * @param search - Shared report-window parameters for the detail route.
+ * @return The linked or plain row title.
+ */
+function buildVideoTitle( row: VideoPlaysRow, search: Record< string, unknown > ): JSX.Element {
+	return (
+		<VideoTitleLink
+			id={ row.id }
+			label={ row.label }
+			link={ row.link }
+			search={ search }
+			classNames={ {
+				internal: styles.internalLink,
+				external: styles.labelLink,
+				plain: styles.labelText,
+			} }
+			title={ row.label }
+		/>
+	);
+}
+
+/**
+ * Maps normalized video rows onto the shape `LeaderboardChart` expects. Shares
+ * are computed against the largest value of either period so the overlay bars
+ * stay proportional. Rows without a matching comparison-period value keep
+ * comparison fields undefined so the chart suppresses fabricated deltas.
+ *
+ * @param rows   - The normalized video-plays rows.
+ * @param search - Shared report-window parameters for detail links.
  * @return The leaderboard chart data.
  */
 function buildLeaderboardData(
 	rows: VideoPlaysRow[],
-	withComparison: boolean
+	search: Record< string, unknown >
 ): LeaderboardChartData {
-	// `1` guards against division by zero when every value is 0.
-	const maxPlays = Math.max( ...rows.flatMap( row => [ row.plays, row.previousPlays ?? 0 ] ), 1 );
+	const maxPlays = getCombinedPeriodMax(
+		rows.map( row => row.plays ),
+		rows.map( row => row.previousPlays )
+	);
 
-	return rows.map( row => {
-		const previousValue = row.previousPlays ?? 0;
-
-		return {
-			id: row.key,
-			label: row.link ? (
-				<Link
-					className={ styles.labelLink }
-					href={ row.link }
-					variant="unstyled"
-					openInNewTab
-					title={ row.label }
-				>
-					{ row.label }
-				</Link>
-			) : (
-				<span className={ styles.labelText } title={ row.label }>
-					{ row.label }
-				</span>
-			),
-			currentValue: row.plays,
-			currentShare: ( row.plays / maxPlays ) * 100,
-			previousValue,
-			previousShare: withComparison ? ( previousValue / maxPlays ) * 100 : 0,
-			delta: withComparison ? calculateDelta( row.plays, previousValue ) : 0,
-		};
-	} );
+	return rows.map( row => ( {
+		id: row.key,
+		label: buildVideoTitle( row, search ),
+		currentValue: row.plays,
+		currentShare: sharePercentage( row.plays, maxPlays ),
+		previousValue: row.previousPlays,
+		previousShare:
+			row.previousPlays !== undefined ? sharePercentage( row.previousPlays, maxPlays ) : undefined,
+		delta:
+			row.previousPlays !== undefined ? calculateDelta( row.plays, row.previousPlays ) : undefined,
+	} ) );
 }
 
 type VideoPressReportProps = {
@@ -100,34 +116,40 @@ function VideoPressReport( { max }: VideoPressReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
 
-	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
-		useStatsVideoPlays( statsParams );
+	// The hook merges comparison rows in the data layer and gates
+	// `hasComparison` on at least one visible row (`maxRows`) having a matching
+	// comparison row, so the chart never fabricates vs-zero deltas.
+	const {
+		primary,
+		comparisonRows,
+		hasComparison,
+		isLoading,
+		isFetching,
+		hasData,
+		isError,
+		refetch,
+	} = useStatsVideoPlays( statsParams, { maxRows: max } );
 
 	// `primary.isPending` also covers the brief window where the query is disabled
 	// while the report params resolve (isLoading is false there).
 	const isInitialLoading = ( isLoading || primary.isPending ) && ! hasData;
-	const primaryData = primary.data;
-	const comparisonData = comparison.data;
 
-	const rows = useMemo(
-		() => toVideoPlaysRows( primaryData, comparisonData ),
-		[ primaryData, comparisonData ]
-	);
-
-	// Only render comparison UI when at least one primary row matched a
-	// comparison row; otherwise every row would show a fabricated vs-zero delta.
-	const withComparison = hasComparison && rows.some( row => row.previousPlays !== null );
+	const rows = useMemo( () => toVideoPlaysRows( comparisonRows?.rows ?? [] ), [ comparisonRows ] );
+	const detailSearch = useMemo( () => pickReportDateParams( reportParams ), [ reportParams ] );
 
 	const chartData = useMemo(
-		() => buildLeaderboardData( rows, withComparison ),
-		[ rows, withComparison ]
+		() => buildLeaderboardData( rows, detailSearch ),
+		[ rows, detailSearch ]
 	);
 
 	return (
 		<WidgetState
 			isLoading={ isInitialLoading }
 			isFetching={ isFetching }
-			isError={ isError }
+			// The Stats queries carry `placeholderData`, so a failed range change keeps
+			// the prior period's rows visible; only surface the error when there is
+			// nothing to show.
+			isError={ rows.length === 0 && isError }
 			isEmpty={ rows.length === 0 }
 			error={ {
 				description: __(
@@ -138,15 +160,12 @@ function VideoPressReport( { max }: VideoPressReportProps ) {
 			} }
 			empty={ {
 				icon: video,
-				description: __(
-					'Learn which VideoPress videos your visitors watch most to understand what keeps them engaged.',
-					'jetpack-premium-analytics'
-				),
+				description: __( 'No VideoPress plays in this period.', 'jetpack-premium-analytics' ),
 			} }
 		>
 			<LeaderboardChart
 				data={ chartData }
-				withComparison={ withComparison }
+				withComparison={ hasComparison }
 				withOverlayLabel
 				showLegend={ false }
 				dataFormat={ {
@@ -171,7 +190,14 @@ function VideoPressReport( { max }: VideoPressReportProps ) {
 export default function VideoPress( { attributes = {}, setError }: VideoPressWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError }>
-			<VideoPressReport max={ toMaxRows( attributes.max, DEFAULT_MAX ) } />
+			<div className={ styles.root }>
+				<div className={ styles.content }>
+					<VideoPressReport max={ toMaxRows( attributes.max, DEFAULT_MAX ) } />
+				</div>
+				<WidgetFooter>
+					<ReportLink report="videos" />
+				</WidgetFooter>
+			</div>
 		</WidgetRoot>
 	);
 }

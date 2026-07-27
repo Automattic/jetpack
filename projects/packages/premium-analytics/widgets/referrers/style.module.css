@@ -1,57 +1,3 @@
-.labelContent {
-	display: inline-flex;
-	align-items: center;
-	min-inline-size: 0;
-	max-inline-size: 100%;
-	gap: var(--wpds-dimension-gap-xs, 4px);
-}
-
-.labelIconBox {
-	flex: 0 0 auto;
-	inline-size: 16px;
-	block-size: 16px;
-}
-
-.labelIcon {
-	inline-size: 16px;
-	block-size: 16px;
-	border-radius: var(--wpds-border-radius-sm);
-	object-fit: cover;
-}
-
-.labelLink,
-.labelText {
-	padding-block: var(--wpds-dimension-padding-md, 12px);
-	padding-inline-start: var(--wpds-dimension-padding-sm, 8px);
-	overflow: hidden;
-	color: inherit;
-	text-decoration: none;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.labelLink {
-	display: flex;
-	align-items: center;
-	gap: var(--wpds-dimension-gap-xs, 4px);
-}
-
-.labelText {
-	display: block;
-}
-
-.labelLink:hover .labelTitle,
-.labelLink:focus .labelTitle {
-	text-decoration: underline;
-}
-
-.labelTitle {
-	min-inline-size: 0;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
 .placeholder {
 	flex: 1 1 0;
 	inline-size: 100%;
@@ -76,10 +22,3 @@
 	flex: 1 1 0;
 	min-height: 0;
 }
-
-:global([inert]:not([inert="true"])) .root {
-	height: auto;
-	aspect-ratio: 4 / 3;
-	overflow: hidden;
-}
-

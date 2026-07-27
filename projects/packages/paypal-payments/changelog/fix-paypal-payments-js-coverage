@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Remove erroneous `coverageDirectory` from jest config, so the monorepo test framework can find the coverage.
+
+

@@ -1136,6 +1136,92 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 				),
 
 				/*
+				 * deepcore duplicates the same magazine markup — with the same three
+				 * per-branch static counters — a second time in the Elementor widget's
+				 * render() (src/components/elementor/widgets/magazine.php). It only
+				 * compiles on pages that use the magazine widget, so it surfaces
+				 * separately from the functions-general.php copy. Same treatment:
+				 * hoist `$magazin_uniqid`/`$title_uniqid`, reference-bind `$uniqid`
+				 * to a hoisted `$deep_widget_uniqid` slot. Registered under its own
+				 * key (same `deepcore` folder) so targeted runs can patch this file
+				 * explicitly: `wp wpcomsh php83-plugin-patch deepcore-widget`.
+				 */
+				'deepcore-widget'         => array(
+					'folders'          => array( 'deepcore' ),
+					'file'             => 'src/components/elementor/widgets/magazine.php',
+					'patched_marker'   => '$deep_widget_uniqid',
+					'strategy'         => 'replace_once',
+					'replacement_sets' => array(
+						// CRLF variant.
+						array(
+							array(
+								"\tprotected function render() {\r\n",
+								"\tprotected function render() {\r\n\t\t// wpcomsh: hoisted out of the type branches below (PHP 8.3+ duplicate-static fatal).\r\n\t\tstatic \$magazin_uniqid = 0;\r\n\t\tstatic \$title_uniqid = 0;\r\n\t\tstatic \$deep_widget_uniqid = 0;\r\n",
+							),
+							array(
+								"\t\t\tstatic \$magazin_uniqid = 0;\r\n\t\t\t\$magazin_uniqid++;",
+								"\t\t\t\$magazin_uniqid++;",
+								3,
+							),
+							array(
+								"\t\t\t<?php static \$title_uniqid = 0; \$title_uniqid++; ?>\r\n",
+								"\t\t\t<?php \$title_uniqid++; ?>\r\n",
+							),
+							array(
+								"\t\t\tstatic \$title_uniqid = 0;\r\n\t\t\t\$title_uniqid++;",
+								"\t\t\t\$title_uniqid++;",
+								2,
+							),
+							array(
+								"\n\t\t\t\t\tstatic \$uniqid = 0;\r",
+								"\n\t\t\t\t\t\$uniqid = &\$deep_widget_uniqid;\r",
+							),
+							array(
+								"\n\t\t\t\t\t\tstatic \$uniqid = 0;\r",
+								"\n\t\t\t\t\t\t\$uniqid = &\$deep_widget_uniqid;\r",
+							),
+							array(
+								"\n\t\t\t\t\t\t\tstatic \$uniqid = 0;\r",
+								"\n\t\t\t\t\t\t\t\$uniqid = &\$deep_widget_uniqid;\r",
+							),
+						),
+						// LF variant (same code, normalized line endings).
+						array(
+							array(
+								"\tprotected function render() {\n",
+								"\tprotected function render() {\n\t\t// wpcomsh: hoisted out of the type branches below (PHP 8.3+ duplicate-static fatal).\n\t\tstatic \$magazin_uniqid = 0;\n\t\tstatic \$title_uniqid = 0;\n\t\tstatic \$deep_widget_uniqid = 0;\n",
+							),
+							array(
+								"\t\t\tstatic \$magazin_uniqid = 0;\n\t\t\t\$magazin_uniqid++;",
+								"\t\t\t\$magazin_uniqid++;",
+								3,
+							),
+							array(
+								"\t\t\t<?php static \$title_uniqid = 0; \$title_uniqid++; ?>\n",
+								"\t\t\t<?php \$title_uniqid++; ?>\n",
+							),
+							array(
+								"\t\t\tstatic \$title_uniqid = 0;\n\t\t\t\$title_uniqid++;",
+								"\t\t\t\$title_uniqid++;",
+								2,
+							),
+							array(
+								"\n\t\t\t\t\tstatic \$uniqid = 0;\n",
+								"\n\t\t\t\t\t\$uniqid = &\$deep_widget_uniqid;\n",
+							),
+							array(
+								"\n\t\t\t\t\t\tstatic \$uniqid = 0;\n",
+								"\n\t\t\t\t\t\t\$uniqid = &\$deep_widget_uniqid;\n",
+							),
+							array(
+								"\n\t\t\t\t\t\t\tstatic \$uniqid = 0;\n",
+								"\n\t\t\t\t\t\t\t\$uniqid = &\$deep_widget_uniqid;\n",
+							),
+						),
+					),
+				),
+
+				/*
 				 * `MalinaGridPosts()` in inc/shortcodes.php declares `static $i = 0;` in
 				 * both the style_3 and style_7 branches (shared layout counter). Hoisted
 				 * to the top of the function, branch declarations deleted. The file uses
@@ -1334,19 +1420,29 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		private static function php83_theme_patches() {
 			$patches = array();
 
-			$secondline_replacement = array(
+			// Older SecondLine builds ship CRLF line endings, newer (licensed)
+			// builds ship LF; the target line is byte-identical otherwise.
+			$secondline_replacement_sets = array(
 				array(
-					"\t\t\tstatic \$secondline_player_called = true;\r\n",
-					"\t\t\t\$secondline_player_called = true; // wpcomsh: dropped a duplicate `static` keyword (PHP 8.3+ fatal); the variable is declared static at the top of this function.\r\n",
+					array(
+						"\t\t\tstatic \$secondline_player_called = true;\r\n",
+						"\t\t\t\$secondline_player_called = true; // wpcomsh: dropped a duplicate `static` keyword (PHP 8.3+ fatal); the variable is declared static at the top of this function.\r\n",
+					),
+				),
+				array(
+					array(
+						"\t\t\tstatic \$secondline_player_called = true;\n",
+						"\t\t\t\$secondline_player_called = true; // wpcomsh: dropped a duplicate `static` keyword (PHP 8.3+ fatal); the variable is declared static at the top of this function.\n",
+					),
 				),
 			);
 
 			foreach ( array( 'tusant-secondline', 'gumbo-secondline', 'dixie-secondline', 'satchmo-secondline', 'bolden-secondline' ) as $slug ) {
 				$patches[ $slug ] = array(
-					'file'           => 'inc/audio-functions.php',
-					'patched_marker' => 'wpcomsh: dropped a duplicate',
-					'strategy'       => 'replace_once',
-					'replacements'   => $secondline_replacement,
+					'file'             => 'inc/audio-functions.php',
+					'patched_marker'   => 'wpcomsh: dropped a duplicate',
+					'strategy'         => 'replace_once',
+					'replacement_sets' => $secondline_replacement_sets,
 				);
 			}
 

@@ -9,33 +9,11 @@
  */
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Status\Visitor;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
-}
-
-/**
- * Check if the current user is an Automattician.
- *
- * - Simple sites: wpcom_is_proxied_request() + is_automattician()
- * - Atomic sites: Visitor::is_automattician_feature_flags_only()
- *
- * @return bool
- */
-function jetpack_content_guidelines_ai_is_automattician() {
-	// Simple sites.
-	if ( function_exists( 'wpcom_is_proxied_request' )
-		&& wpcom_is_proxied_request()
-		&& function_exists( 'is_automattician' )
-		&& is_automattician()
-	) {
-		return true;
-	}
-
-	// Atomic sites.
-	return ( new Visitor() )->is_automattician_feature_flags_only();
 }
 
 /**
@@ -50,8 +28,19 @@ function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 		return;
 	}
 
-	// Temporarily gate to Automatticians only during internal rollout.
-	if ( ! jetpack_content_guidelines_ai_is_automattician() ) {
+	// Content Guidelines AI is only offered on WordPress.com platform sites
+	// (Simple and Atomic) — a hard gate the jetpack_ai_enabled filter below
+	// cannot widen. Free-tier Simple/Atomic sites still load the bundle so
+	// the upgrade path can be shown — the paid-plan requirement is enforced
+	// by the suggest-guidelines API.
+	if ( ! ( new Host() )->is_wpcom_platform() ) {
+		return;
+	}
+
+	// Bail when Jetpack AI is disabled for the site: the AI settings master
+	// switch and other site-wide disables ride this filter.
+	/** This filter is documented in projects/plugins/jetpack/_inc/lib/class-jetpack-ai-helper.php */
+	if ( ! apply_filters( 'jetpack_ai_enabled', true ) ) {
 		return;
 	}
 
@@ -82,17 +71,41 @@ function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 		)
 	);
 
+	// Jetpack_AI_Helper backs both preloaded values below: the per-user
+	// "banner dismissed" flag and the AI feature state.
+	if ( ! class_exists( 'Jetpack_AI_Helper' ) && is_readable( JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php' ) ) {
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
+	}
+
 	// Preload the per-user "banner dismissed" flag so the empty-state banner
 	// doesn't flash before an async read. Persisted via the
-	// guidelines-banner-dismissed REST endpoint. Defaults to dismissed so a
-	// load error hides the banner rather than showing it on every visit.
-	$banner_dismissed = class_exists( 'WPCOM_REST_API_V2_Endpoint_Guidelines_Banner_Dismissed' )
-		? WPCOM_REST_API_V2_Endpoint_Guidelines_Banner_Dismissed::is_dismissed()
-		: true;
+	// guidelines-banner-dismissed REST endpoint, but read via Jetpack_AI_Helper
+	// rather than the endpoint class: on Simple sites the wpcom-endpoints
+	// classes are only loaded in REST requests, so a class_exists() check on
+	// the endpoint always failed here and permanently suppressed the banner
+	// and upgrade notice.
+	$initial_state = array(
+		'bannerDismissed' => class_exists( 'Jetpack_AI_Helper' ) && Jetpack_AI_Helper::is_guidelines_banner_dismissed(),
+	);
+
+	// Resolve the AI feature state server-side so the bundle can hydrate the
+	// wordpress-com/plans store at boot and render the correct locked/unlocked
+	// buttons on first paint, with no client-side plan fetch. On WordPress.com
+	// Simple this is a synchronous local lookup; on Atomic/self-hosted it is
+	// transient-cached with a blocking remote refresh when cold. On failure
+	// the key is omitted and the bundle renders no AI UI for this load (fail
+	// closed) rather than guessing.
+	if ( class_exists( 'Jetpack_AI_Helper' ) ) {
+		$ai_feature = Jetpack_AI_Helper::get_ai_assistance_feature();
+		if ( ! is_wp_error( $ai_feature ) ) {
+			$initial_state['aiFeature'] = $ai_feature;
+		}
+	}
+
 	wp_add_inline_script(
 		'jetpack-content-guidelines-ai',
 		'window.jetpackContentGuidelinesAi = ' . wp_json_encode(
-			array( 'bannerDismissed' => $banner_dismissed ),
+			$initial_state,
 			JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
 		) . ';',
 		'before'

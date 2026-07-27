@@ -1,10 +1,9 @@
-import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
 import { useManualShareMessage } from '../../hooks/use-manual-share-message';
 import { usePostMeta } from '../../hooks/use-post-meta';
-import { features } from '../../utils';
+import { hasSocialPaidFeatures } from '../../utils';
 
 /**
  * Prepares the text to share.
@@ -12,7 +11,7 @@ import { features } from '../../utils';
  * @return {(textWithPlaceholders: string, isUrl: boolean) => string} A function that accepts the text with placeholders and returns the text with the placeholders replaced.
  */
 export function useShareButtonText() {
-	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
+	const templatesEnabled = hasSocialPaidFeatures();
 	const { shareMessage } = usePostMeta();
 	const manual = useManualShareMessage();
 

@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 
 /**
@@ -23,11 +22,5 @@ export type RevenueByCustomerTypeAttributes = Record< never, never >;
  * dashboards can opt in.
  */
 export default {
-	name: 'jpa/revenue-by-customer-type',
-	title: __( 'Revenue by customer type', 'jetpack-premium-analytics' ),
-	description: __(
-		'Shows the breakdown of order revenue from new and returning customers over the selected time period.',
-		'jetpack-premium-analytics'
-	),
 	icon: chartBar,
 };

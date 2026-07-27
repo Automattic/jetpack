@@ -1,6 +1,7 @@
 import colorStudio from '@automattic/color-studio';
 import { G, Path, Polygon, Rect, SVG, Circle } from '@wordpress/components';
 import clsx from 'clsx';
+import 'social-logos/colors.css';
 
 import './icons.scss';
 

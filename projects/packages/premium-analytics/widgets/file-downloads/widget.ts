@@ -23,14 +23,12 @@ export type FileDownloadsAttributes = {
  * (the shared dashboard date picker).
  */
 export default {
-	name: 'jpa/file-downloads',
-	title: __( 'File downloads', 'jetpack-premium-analytics' ),
 	icon: download,
 	attributes: [
 		{
 			id: 'max',
-			label: __( 'Max rows', 'jetpack-premium-analytics' ),
-			type: 'number',
+			label: __( 'Number of results', 'jetpack-premium-analytics' ),
+			type: 'integer',
 		},
 	] as WidgetAttributeField< FileDownloadsAttributes >[],
 	example: {

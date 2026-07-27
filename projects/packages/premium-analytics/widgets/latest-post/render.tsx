@@ -3,12 +3,14 @@
  */
 import {
 	MetricValue,
-	WidgetLoadingOverlay,
 	WidgetRoot,
+	WidgetState,
+	safeHttpUrl,
 	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
+import { postList } from '@wordpress/icons';
 import { Link, Text } from '@wordpress/ui';
 import { format, parseISO } from 'date-fns';
 /**
@@ -31,17 +33,9 @@ const METRIC_FORMAT: DataFormat = {
 
 type LatestPostCardProps = {
 	/**
-	 * The resolved latest post, or null to render the empty state.
+	 * The resolved latest post.
 	 */
-	post?: LatestPostWithMetrics | null;
-	/**
-	 * When `true` and there is no post yet, the full loading overlay is shown.
-	 */
-	isLoading?: boolean;
-	/**
-	 * When `true`, an error message is rendered in place of the post.
-	 */
-	isError?: boolean;
+	post: LatestPostWithMetrics;
 };
 
 /**
@@ -94,62 +88,36 @@ function MetricTile( { label, value }: MetricTileProps ) {
  * the published post), its publish date, three lifetime metric tiles (views,
  * likes, comments), and the post's featured image when present.
  *
- * Takes the already-fetched post via props and owns only the loading, error,
- * empty, and populated states. Exported so Storybook can exercise those states
- * with fixtures.
+ * Renders only the populated state; loading, error, and empty are handled by
+ * `<WidgetState>` in `LatestPostReport`. Exported so Storybook can exercise the
+ * card with fixtures.
  *
  * @param {LatestPostCardProps} props - The component props.
  * @return The rendered card.
  */
-export const LatestPostCard = ( {
-	post = null,
-	isLoading = false,
-	isError = false,
-}: LatestPostCardProps ) => {
-	if ( isError ) {
-		return (
-			<div className={ styles.root }>
-				<Text className={ styles.placeholder }>
-					{ __( 'Unable to load your latest post.', 'jetpack-premium-analytics' ) }
-				</Text>
-			</div>
-		);
-	}
-
-	if ( isLoading && ! post ) {
-		return (
-			<div className={ styles.root }>
-				<WidgetLoadingOverlay />
-			</div>
-		);
-	}
-
-	if ( ! post ) {
-		return (
-			<div className={ styles.root }>
-				<Text className={ styles.placeholder }>
-					{ __( 'Publish a post to see its stats here.', 'jetpack-premium-analytics' ) }
-				</Text>
-			</div>
-		);
-	}
-
+export const LatestPostCard = ( { post }: LatestPostCardProps ) => {
 	const publishDate = formatPublishDate( post.date );
+	const postHref = safeHttpUrl( post.url );
 
 	return (
 		<div className={ styles.root }>
 			<div className={ styles.content }>
 				<div className={ styles.header }>
 					<Text className={ styles.title } variant="heading-2xl" render={ <h3 /> }>
-						<Link
-							className={ styles.titleLink }
-							href={ post.url }
-							variant="unstyled"
-							openInNewTab
-							title={ post.title }
-						>
-							{ post.title }
-						</Link>
+						{ postHref ? (
+							<Link
+								className={ styles.titleLink }
+								href={ postHref }
+								variant="unstyled"
+								openInNewTab
+								title={ post.title }
+							>
+								{ post.title }
+							</Link>
+						) : (
+							// `.title` clamps to three lines, so keep the tooltip the link branch carries.
+							<span title={ post.title }>{ post.title }</span>
+						) }
 					</Text>
 					{ publishDate && (
 						<Text className={ styles.date } variant="body-md">
@@ -180,14 +148,35 @@ export const LatestPostCard = ( {
 
 /**
  * Fetches the site's latest post (with its metrics) through `useLatestPost`
- * and hands it to the presentational `LatestPostCard`.
+ * and hands it to the presentational `LatestPostCard`, with loading, error,
+ * and empty states handled by `<WidgetState>`.
  *
  * @return The widget content.
  */
 function LatestPostReport() {
-	const { post, isLoading, isError } = useLatestPost();
+	const { post, isLoading, isFetching, isError, refetch } = useLatestPost();
 
-	return <LatestPostCard post={ post } isLoading={ isLoading } isError={ isError } />;
+	return (
+		<WidgetState
+			isLoading={ isLoading }
+			isFetching={ isFetching }
+			isError={ isError }
+			isEmpty={ ! post }
+			error={ {
+				description: __(
+					"We couldn't load your latest post. Please try again in a moment.",
+					'jetpack-premium-analytics'
+				),
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+			} }
+			empty={ {
+				icon: postList,
+				description: __( 'Publish a post to see its stats here.', 'jetpack-premium-analytics' ),
+			} }
+		>
+			{ post && <LatestPostCard post={ post } /> }
+		</WidgetState>
+	);
 }
 
 /**
