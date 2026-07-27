@@ -79,7 +79,10 @@ function ReferrersReport(): JSX.Element {
 	const csvColumns = useMemo< CsvColumn< ReferrerRecord >[] >(
 		() => [
 			{ label: __( 'Referrer', 'jetpack-premium-analytics' ), getValue: row => row.label },
-			{ label: __( 'Group', 'jetpack-premium-analytics' ), getValue: row => row.group },
+			{
+				label: __( 'Group', 'jetpack-premium-analytics' ),
+				getValue: row => row.parentLabel ?? '',
+			},
 			{ label: __( 'Views', 'jetpack-premium-analytics' ), getValue: row => row.views },
 			{ label: __( 'URL', 'jetpack-premium-analytics' ), getValue: row => row.link ?? '' },
 		],

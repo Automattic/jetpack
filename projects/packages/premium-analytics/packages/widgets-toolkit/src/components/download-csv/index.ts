@@ -1,4 +1,3 @@
-export { ReportCsvAction, type ReportCsvActionProps } from './report-csv-action';
 export {
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,

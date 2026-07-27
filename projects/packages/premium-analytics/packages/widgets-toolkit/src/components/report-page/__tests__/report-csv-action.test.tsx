@@ -5,10 +5,10 @@ import { render } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { RowsCsvDownloadButton } from '../../download-csv/rows-csv-download-button';
 import { ReportCsvAction } from '../report-csv-action';
-import { RowsCsvDownloadButton } from '../rows-csv-download-button';
 
-jest.mock( '../rows-csv-download-button', () => ( {
+jest.mock( '../../download-csv/rows-csv-download-button', () => ( {
 	RowsCsvDownloadButton: jest.fn( () => null ),
 } ) );
 

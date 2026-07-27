@@ -109,7 +109,6 @@ function CommentFollowersReport(): JSX.Element {
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
 				) : undefined
 			}
-			className={ styles.page }
 		>
 			<ReportPageLayout>
 				{ records.isError ? (

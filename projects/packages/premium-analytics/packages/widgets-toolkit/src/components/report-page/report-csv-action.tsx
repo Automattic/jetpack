@@ -5,7 +5,10 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { RowsCsvDownloadButton, type RowsCsvDownloadButtonProps } from './rows-csv-download-button';
+import {
+	RowsCsvDownloadButton,
+	type RowsCsvDownloadButtonProps,
+} from '../download-csv/rows-csv-download-button';
 
 export type ReportCsvActionProps< Row > = Pick<
 	RowsCsvDownloadButtonProps< Row >,
