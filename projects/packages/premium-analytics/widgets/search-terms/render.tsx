@@ -3,6 +3,7 @@
  */
 import {
 	calculateDelta,
+	describeError,
 	getCombinedPeriodMax,
 	LeaderboardChart,
 	ReportLink,
@@ -38,10 +39,11 @@ type SearchTermsWidgetProps = WidgetRenderProps< SearchTermsRenderAttributes >;
 function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 	const { reportParams } = useWidgetRootContext();
 
-	const { data, isLoading, isFetching, isError, hasComparison, refetch } = useSearchTermViews( {
-		reportParams,
-		max,
-	} );
+	const { data, isLoading, isFetching, isError, error, hasComparison, refetch } =
+		useSearchTermViews( {
+			reportParams,
+			max,
+		} );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
 		const maxValue = getCombinedPeriodMax(
@@ -82,13 +84,13 @@ function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 					isFetching={ isFetching }
 					isError={ isError }
 					isEmpty={ data.length === 0 }
-					error={ {
-						description: __(
+					error={ describeError( error, {
+						retryDescription: __(
 							"We couldn't load search terms. Please try again in a moment.",
 							'jetpack-premium-analytics'
 						),
-						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
-					} }
+						onRetry: refetch,
+					} ) }
 					empty={ {
 						icon: search,
 						description: __( 'No search terms in this period.', 'jetpack-premium-analytics' ),

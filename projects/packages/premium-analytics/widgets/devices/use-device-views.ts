@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getStatsPlanErrorReason, useStatsDevices } from '@jetpack-premium-analytics/data';
+import { useStatsDevices } from '@jetpack-premium-analytics/data';
 import { formatDisplayLabel } from '@jetpack-premium-analytics/widgets-toolkit';
 import type {
 	ReportParams,
@@ -41,7 +41,7 @@ interface DeviceViewsState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
-	errorReason: 'upgrade-required' | null;
+	error: unknown;
 	refetch: () => void;
 }
 
@@ -91,21 +91,23 @@ export default function useDeviceViews( {
 
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
 		useStatsDevices( statsParams, { maxRows: max } );
-	const errorReason = getStatsPlanErrorReason( error );
 
 	const items = ( comparisonRows?.rows ?? [] ).map( toDeviceView );
+
+	// The Stats queries carry `placeholderData: previousData => previousData`, so a
+	// failed range change keeps the prior period's rows in `data` while `isError`
+	// flips true. Only surface the error when there's nothing to show, so a transient
+	// refetch failure doesn't replace populated rows with the error state. `error` is
+	// gated by the same predicate so it is populated iff `isError` is true.
+	const showError = items.length === 0 && isError;
 
 	return {
 		data: items,
 		hasComparison,
 		isLoading,
 		isFetching,
-		// The Stats queries carry `placeholderData: previousData => previousData`, so a
-		// failed range change keeps the prior period's rows in `data` while `isError`
-		// flips true. Only surface the error when there's nothing to show, so a transient
-		// refetch failure doesn't replace populated rows with the error state.
-		isError: items.length === 0 && isError,
-		errorReason,
+		isError: showError,
+		error: showError ? error : null,
 		refetch,
 	};
 }
