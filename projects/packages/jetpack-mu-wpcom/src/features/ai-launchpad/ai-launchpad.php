@@ -94,15 +94,6 @@ class AI_Launchpad {
 	}
 
 	/**
-	 * Whether the site already went through an AI onboarding flow.
-	 *
-	 * @return bool
-	 */
-	private static function was_ai_onboarded() {
-		return get_option( 'site_intent' ) === 'ai-assembler' || get_option( 'site_creation_flow' ) === 'ai-site-builder';
-	}
-
-	/**
 	 * Whether the AI Launchpad has been explicitly enabled for this site.
 	 *
 	 * Set per-site with `wp option update wpcom_ai_launchpad_enabled 1`.
@@ -111,17 +102,14 @@ class AI_Launchpad {
 	 */
 	private static function is_enabled_for_site() {
 		// Explicit per-site switch: set at site creation for the ai_launchpad onboarding
-		// cohort, by the ?enable-ai-launchpad=1 dev handler, or manually. It deliberately
-		// bypasses the AI-onboarded exclusion below, so an explicitly enabled site keeps
-		// its AI Launchpad even after building with Big Sky.
+		// cohort, by the ?enable-ai-launchpad=1 dev handler, or manually. AI-built sites
+		// (Big Sky) are eligible like any other: the tasklist tailors to what the build
+		// already covered, so an AI onboarding is no reason to withhold the launchpad.
 		if ( (bool) get_option( 'wpcom_ai_launchpad_enabled' ) ) {
 			return true;
 		}
 
-		// Implicit enablement via the experiment variation: excludes sites that already
-		// went through an AI onboarding flow, which covers the setup the launchpad guides.
-		return 'ai_launchpad' === Launchpad_Personalization_Experiment::get_variation()
-			&& ! self::was_ai_onboarded();
+		return 'ai_launchpad' === Launchpad_Personalization_Experiment::get_variation();
 	}
 
 	/**

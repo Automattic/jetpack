@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-AI Launchpad: keep explicitly enabled sites eligible after a Big Sky build; the AI-onboarded exclusion now only applies to experiment-variation enablement.
+AI Launchpad: drop the AI-onboarded exclusion — sites built with Big Sky are now eligible like any other; the tasklist tailors to what the build already covered.

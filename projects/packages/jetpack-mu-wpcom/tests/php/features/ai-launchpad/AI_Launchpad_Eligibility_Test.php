@@ -71,18 +71,18 @@ class AI_Launchpad_Eligibility_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * The paid-plan requirement is temporarily lifted, so eligibility depends on the
 	 * per-site enabled option and the user not having dismissed the AI Launchpad
-	 * (skipping the wizard dismisses it). The AI-onboarded exclusion does not apply
-	 * to the explicit per-site option, only to variation-based enablement.
+	 * (skipping the wizard dismisses it). Being AI-onboarded (e.g. built with Big Sky)
+	 * does not affect eligibility either way.
 	 *
 	 * @return array
 	 */
 	public static function provide_eligibility_inputs() {
 		return array(
-			'enabled'                         => array( false, true, false, true ),
-			'not enabled'                     => array( false, false, false, false ),
-			'onboarded keeps explicit enable' => array( true, true, false, true ),
-			'onboarded without enable blocks' => array( true, false, false, false ),
-			'dismissed blocks'                => array( false, true, true, false ),
+			'enabled'                     => array( false, true, false, true ),
+			'not enabled'                 => array( false, false, false, false ),
+			'ai-onboarded stays eligible' => array( true, true, false, true ),
+			'ai-onboarded without enable' => array( true, false, false, false ),
+			'dismissed blocks'            => array( false, true, true, false ),
 		);
 	}
 
@@ -100,18 +100,18 @@ class AI_Launchpad_Eligibility_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Variation-based enablement is still excluded for AI-onboarded sites (e.g. a site
-	 * built with Big Sky without the explicit per-site option).
+	 * Variation-based enablement also covers AI-onboarded sites (e.g. a site built
+	 * with Big Sky): the tasklist tailors to what the build already covered.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_ai_launchpad_variation_is_not_eligible_when_ai_onboarded() {
+	public function test_ai_launchpad_variation_is_eligible_for_ai_built_sites() {
 		add_filter( 'wpcom_launchpad_personalization_variation', fn() => 'ai_launchpad' );
 		update_option( 'site_intent', 'ai-assembler' );
-		$this->assertFalse( AI_Launchpad::is_eligible() );
+		$this->assertTrue( AI_Launchpad::is_eligible() );
 	}
 
 	/**
