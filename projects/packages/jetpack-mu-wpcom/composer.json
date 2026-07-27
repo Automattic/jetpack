@@ -17,6 +17,7 @@
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-device-detection": "@dev",
 		"automattic/jetpack-google-analytics": "@dev",
+		"automattic/jetpack-help-center": "@dev",
 		"automattic/jetpack-masterbar": "@dev",
 		"automattic/jetpack-podcast": "@dev",
 		"automattic/jetpack-premium-analytics": "@dev",
