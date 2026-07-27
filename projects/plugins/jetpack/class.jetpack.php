@@ -428,6 +428,14 @@ class Jetpack {
 	public static $instance = false;
 
 	/**
+	 * Resolved answer for `is_premium_analytics_enabled()`, or null before the first call.
+	 *
+	 * @since $$next-version$$
+	 * @var bool|null
+	 */
+	private static $premium_analytics_enabled = null;
+
+	/**
 	 * Singleton
 	 *
 	 * @static
@@ -842,10 +850,8 @@ class Jetpack {
 	 * @return bool
 	 */
 	public static function is_premium_analytics_enabled() {
-		static $enabled = null;
-
-		if ( null !== $enabled ) {
-			return $enabled;
+		if ( null !== self::$premium_analytics_enabled ) {
+			return self::$premium_analytics_enabled;
 		}
 
 		/**
@@ -861,16 +867,16 @@ class Jetpack {
 		 */
 		$flag = (bool) apply_filters( 'jetpack_premium_analytics_enabled', (bool) get_option( 'jetpack_premium_analytics_enabled' ) );
 
-		$enabled = $flag && class_exists( 'Automattic\Jetpack\PremiumAnalytics\Analytics' );
+		self::$premium_analytics_enabled = $flag && class_exists( 'Automattic\Jetpack\PremiumAnalytics\Analytics' );
 
-		if ( $flag && ! $enabled ) {
+		if ( $flag && ! self::$premium_analytics_enabled ) {
 			wp_trigger_error(
 				__METHOD__,
 				'The jetpack_premium_analytics_enabled flag is on but the Premium Analytics package is not loadable; keeping the Stats UI in place.'
 			);
 		}
 
-		return $enabled;
+		return self::$premium_analytics_enabled;
 	}
 
 	/**
