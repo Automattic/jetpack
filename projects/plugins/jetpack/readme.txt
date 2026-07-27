@@ -331,7 +331,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Add aria-label to hidden Carousel download link for better accessibility.
 - Change empty h2 and h3 tags in Carousel to div tags to fix SEO and accessibility warnings.
 - Content Guidelines AI: Make AI guideline suggestions available on WordPress.com Simple and Atomic sites, with a paid Jetpack AI or Complete plan required to generate guidelines.
-- Memberships supports of MYR.
+- Memberships: Add support for the Malaysian ringgit (MYR) currency.
 - REST API: Defer loading of WPCOM REST endpoint files to REST requests, saving execution time on every non-REST page load.
 - SEO: Add AI crawler management — free per-bot allow/block toggles (answer and mixed-use crawlers allowed, training crawlers blocked by default) that write robots.txt directives.
 - SEO: Add custom post type support and llms.txt generation.
@@ -347,7 +347,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Carousel: Show the already-loaded thumbnail while the full-size image downloads, so slides are no longer blank when moving quickly through a gallery.
 - Change EXIF data rendering to be dynamic via JavaScript to resolve empty list accessibility warning.
 - Likes: Do not show the Like button on password-protected posts, even for viewers who can read the post (owners, admins, or after unlocking).
-- Newsletter: Show a prompt to connect when a WordPress.com user connection is required for the email preview and test email features, and disable the test email "Send" button until connected.
+- Newsletter: Show a connect prompt when a WordPress.com user connection is required for email preview and test emails, and disable the "Send" button until connected.
 - SEO: Preserve Sitemaps and Canonical URLs settings when runtime filters temporarily suppress their modules.
 - Tiled Gallery: Fix images collapsing to ~105px in the editor when the canvas is not iframed.
 

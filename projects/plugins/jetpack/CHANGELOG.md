@@ -7,7 +7,7 @@
 - Add aria-label to hidden Carousel download link for better accessibility. [#50181]
 - Change empty h2 and h3 tags in Carousel to div tags to fix SEO and accessibility warnings. [#50199]
 - Content Guidelines AI: Make AI guideline suggestions available on WordPress.com Simple and Atomic sites, with a paid Jetpack AI or Complete plan required to generate guidelines. [#49933]
-- Memberships supports of MYR. [#50741]
+- Memberships: Add support for the Malaysian ringgit (MYR) currency. [#50741]
 - REST API: Defer loading of WPCOM REST endpoint files to REST requests, saving execution time on every non-REST page load. [#48363]
 - SEO: Add AI crawler management — free per-bot allow/block toggles (answer and mixed-use crawlers allowed, training crawlers blocked by default) that write robots.txt directives. [#50186]
 - SEO: Add custom post type support and llms.txt generation. [#50185]
@@ -23,7 +23,7 @@
 - Carousel: Show the already-loaded thumbnail while the full-size image downloads, so slides are no longer blank when moving quickly through a gallery. [#50760]
 - Change EXIF data rendering to be dynamic via JavaScript to resolve empty list accessibility warning. [#50201]
 - Likes: Do not show the Like button on password-protected posts, even for viewers who can read the post (owners, admins, or after unlocking). [#50670]
-- Newsletter: Show a prompt to connect when a WordPress.com user connection is required for the email preview and test email features, and disable the test email "Send" button until connected. [#50767]
+- Newsletter: Show a connect prompt when a WordPress.com user connection is required for email preview and test emails, and disable the "Send" button until connected. [#50767]
 - SEO: Preserve Sitemaps and Canonical URLs settings when runtime filters temporarily suppress their modules. [#50781]
 - Tiled Gallery: Fix images collapsing to ~105px in the editor when the canvas is not iframed. [#50682]
 
