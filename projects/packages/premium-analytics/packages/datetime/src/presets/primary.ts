@@ -311,8 +311,10 @@ export function getQuickSurfacePresets( timeZone: string ): DateRangePreset[] {
 export type YearSurfaceOptions = {
 	/**
 	 * Oldest year to cover. Doubles as the start of the all-time range, so both
-	 * stay in step with what the surface shows. Defaults to
-	 * `DEFAULT_YEAR_SURFACE_COUNT` years back.
+	 * stay in step with what the surface shows.
+	 *
+	 * Defaults to the oldest of DEFAULT_YEAR_SURFACE_COUNT years
+	 * ending at the current one
 	 */
 	startYear?: number;
 };

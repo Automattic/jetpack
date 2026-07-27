@@ -67,8 +67,9 @@ export type YearPresetId = `${ typeof YEAR_PRESET_PREFIX }${ number }`;
 export type YearSurfacePresetId = typeof PRESET_ALL_TIME | YearPresetId;
 
 /**
- * Every preset whose range can be computed from its ID — the fixed rolling
- * windows plus the year surface. Excludes 'custom', which carries its own range.
+ * Every preset whose range can be computed from its ID, including the
+ * fixed rolling windows plus the year surface.
+ * Excludes 'custom', which carries its own range.
  */
 export type ComputablePresetId = SelectablePresetId | YearSurfacePresetId;
 
