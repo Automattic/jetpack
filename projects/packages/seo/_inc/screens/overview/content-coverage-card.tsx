@@ -32,9 +32,10 @@ interface RingProps {
 
 /**
  * One factual coverage ring: a proportion (segment of total) plus the literal
- * count beneath it. Deliberately a single neutral fill colour and never
- * adaptive — fuller is not "better", it's just how many posts have the field
- * set. The admin decides what matters.
+ * count and a centered percentage. Uses the DonutMeter's default Jetpack-brand
+ * green — a deliberate brand choice, not a health grade, and never adaptive (a
+ * fuller ring never turns yellow/red); more posts with the field set just means
+ * a fuller ring. The admin decides what matters.
  *
  * When some items still lack the field, the ring is an interactive control that
  * deep-links to the Content tab filtered to *those* rows — the ones there's an
@@ -59,16 +60,30 @@ const CoverageRing: FC< RingProps > = ( { label, action, segment, total, need, o
 		total
 	);
 
+	const percent = sprintf(
+		/* translators: %d: percentage of posts with the field set. */
+		__( '%d%%', 'jetpack-seo' ),
+		Math.round( ( segment / total ) * 100 )
+	);
+
 	const inner: ReactNode = (
 		<>
-			{ /* Chart is decorative here: the ring's aria-label carries the action and
-			     the count/label are visible text below, so the DonutMeter is left
-			     unlabeled (aria-hidden) — this also removes its native SVG `<title>`
-			     tooltip, which otherwise duplicated the action tooltip on hover. */ }
+			{ /* Chart is decorative: the ring's aria-label carries the action and the
+			     count/label are visible text below, so the DonutMeter and the centered
+			     percentage are aria-hidden — this also removes the DonutMeter's native
+			     SVG `<title>` tooltip, which duplicated the action tooltip on hover. */ }
 			<div className={ styles.donutWrap }>
-				<DonutMeter totalCount={ total } segmentCount={ segment } donutWidth="96px" thickness="5" />
+				<DonutMeter
+					totalCount={ total }
+					segmentCount={ segment }
+					donutWidth="112px"
+					thickness="4"
+				/>
+				<span className={ styles.pct } aria-hidden="true">
+					<Text variant="heading-lg">{ percent }</Text>
+				</span>
 			</div>
-			<Text variant="heading-md">{ count }</Text>
+			<Text variant="heading-lg">{ count }</Text>
 			<Text variant="body-sm">{ label }</Text>
 		</>
 	);

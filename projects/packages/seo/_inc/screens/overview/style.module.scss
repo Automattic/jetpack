@@ -107,7 +107,19 @@
 }
 
 .donutWrap {
+	position: relative;
+	display: inline-flex;
 	transition: transform 0.18s ease;
+}
+
+// Percentage centered in the donut hole. Visual summary only — the count and
+// label below carry the same value for assistive tech, so it's aria-hidden.
+.pct {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .ringTrigger:hover .donutWrap,
