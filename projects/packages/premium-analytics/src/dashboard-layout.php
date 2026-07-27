@@ -99,7 +99,7 @@ function register_dashboard_default_layout_route() {
 			},
 			'args'                => array(
 				'name' => array(
-					'description' => __( 'Dashboard identifier as produced by the build pipeline.', 'jetpack-premium-analytics' ),
+					'description' => __( 'Dashboard identifier as produced by the build pipeline.', 'jetpack-premium-analytics-pkg' ),
 					'type'        => 'string',
 				),
 			),

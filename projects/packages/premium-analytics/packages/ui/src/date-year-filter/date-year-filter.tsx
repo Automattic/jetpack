@@ -221,9 +221,9 @@ export function DateYearFilter( {
 						selectPreset( item.value );
 					}
 				} }
-				label={ __( 'Time period', 'jetpack-premium-analytics' ) }
+				label={ __( 'Time period', 'jetpack-premium-analytics-pkg' ) }
 				hideLabelFromVision
-				placeholder={ __( 'Select period', 'jetpack-premium-analytics' ) }
+				placeholder={ __( 'Select period', 'jetpack-premium-analytics-pkg' ) }
 			/>
 		);
 	}
@@ -237,7 +237,7 @@ export function DateYearFilter( {
 			ref={ measurePills }
 			className="date-year-filter__group"
 			role="toolbar"
-			aria-label={ __( 'Time period', 'jetpack-premium-analytics' ) }
+			aria-label={ __( 'Time period', 'jetpack-premium-analytics-pkg' ) }
 			orientation="horizontal"
 		>
 			{ presets.map( ( { id, label } ) => (

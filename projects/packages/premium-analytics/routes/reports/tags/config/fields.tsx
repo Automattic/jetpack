@@ -57,7 +57,7 @@ export function getTagsFields(): Field< StatsTagsItem >[] {
 	return [
 		{
 			id: 'label',
-			label: __( 'Tag or category', 'jetpack-premium-analytics' ),
+			label: __( 'Tag or category', 'jetpack-premium-analytics-pkg' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => item.labelText,
@@ -65,7 +65,7 @@ export function getTagsFields(): Field< StatsTagsItem >[] {
 		},
 		{
 			id: 'views',
-			label: __( 'Views', 'jetpack-premium-analytics' ),
+			label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.value,
 			render: ( { item } ) => (
 				<>{ formatMetricValue( item.value, 'number', { decimals: 0, useMultipliers: false } ) }</>

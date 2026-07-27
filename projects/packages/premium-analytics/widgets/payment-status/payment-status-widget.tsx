@@ -61,13 +61,13 @@ export function PaymentStatusWidget() {
 			error={ {
 				description: __(
 					"We couldn't load payment data. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: payment,
-				description: __( 'No order revenue in this period.', 'jetpack-premium-analytics' ),
+				description: __( 'No order revenue in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			<Stack className={ styles.container } direction="column" align="center" justify="center">

@@ -38,7 +38,7 @@ class Average_Order_Value_Controller extends Abstract_Csv_Report_Controller {
 	 * @return string The report label.
 	 */
 	public function get_report_label(): string {
-		return __( 'Average Order Value', 'jetpack-premium-analytics' );
+		return __( 'Average Order Value', 'jetpack-premium-analytics-pkg' );
 	}
 
 	/**
@@ -59,9 +59,9 @@ class Average_Order_Value_Controller extends Abstract_Csv_Report_Controller {
 	public function get_column_headers( ?string $interval = null ): array {
 		return array(
 			'time_interval'       => $this->get_interval_label( $interval ),
-			'orders_no'           => __( 'Orders', 'jetpack-premium-analytics' ),
-			'total_sales'         => __( 'Gross sales', 'jetpack-premium-analytics' ),
-			'average_order_value' => __( 'Average order value', 'jetpack-premium-analytics' ),
+			'orders_no'           => __( 'Orders', 'jetpack-premium-analytics-pkg' ),
+			'total_sales'         => __( 'Gross sales', 'jetpack-premium-analytics-pkg' ),
+			'average_order_value' => __( 'Average order value', 'jetpack-premium-analytics-pkg' ),
 		);
 	}
 

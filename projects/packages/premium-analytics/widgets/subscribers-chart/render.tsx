@@ -154,7 +154,7 @@ function SubscribersChartInner( {
 
 	const state = useSubscribersChart( reportParams, period );
 	const metricTabs = useMemo( () => buildMetrics( state, metricIds ), [ state, metricIds ] );
-	const groupLabel = __( 'Subscriber metric', 'jetpack-premium-analytics' );
+	const groupLabel = __( 'Subscriber metric', 'jetpack-premium-analytics-pkg' );
 
 	// An empty selection is a configuration state, not a data state: it stands
 	// whatever the fetch is doing.
@@ -164,7 +164,7 @@ function SubscribersChartInner( {
 				icon={ trendingUp }
 				text={ __(
 					'No metric selected. Please select a metric from the metrics list.',
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				) }
 			/>
 		);
@@ -183,7 +183,7 @@ function SubscribersChartInner( {
 		return (
 			<ChartEmptyState
 				icon={ trendingUp }
-				text={ __( 'No paid subscribers in this date range.', 'jetpack-premium-analytics' ) }
+				text={ __( 'No paid subscribers in this date range.', 'jetpack-premium-analytics-pkg' ) }
 			/>
 		);
 	}
@@ -204,15 +204,15 @@ function SubscribersChartInner( {
 				error={ {
 					description: __(
 						"We couldn't load subscriber data. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 					actions: [
-						{ label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: state.refetch },
+						{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: state.refetch },
 					],
 				} }
 				empty={ {
 					icon: customer,
-					description: __( 'No subscriber data in this period.', 'jetpack-premium-analytics' ),
+					description: __( 'No subscriber data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 				// First load keeps the widget's chart-shaped skeleton (the metric tabs
 				// over the chart's own loading overlay) instead of the default overlay.

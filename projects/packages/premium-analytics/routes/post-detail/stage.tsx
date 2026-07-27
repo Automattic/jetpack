@@ -111,7 +111,7 @@ function PostDetail(): JSX.Element {
 					breadcrumbs={
 						<Breadcrumbs
 							items={ [
-								{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
+								{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
 								...( summary.title ? [ { label: summary.title } ] : [] ),
 							] }
 						/>

@@ -40,28 +40,28 @@ export default {
 	attributes: [
 		{
 			id: 'utmDimension',
-			label: __( 'UTM parameter', 'jetpack-premium-analytics' ),
+			label: __( 'UTM parameter', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
 			Edit: SelectField,
 			elements: [
 				{
-					label: __( 'Source / Medium', 'jetpack-premium-analytics' ),
+					label: __( 'Source / Medium', 'jetpack-premium-analytics-pkg' ),
 					value: 'utm_source,utm_medium',
 				},
 				{
-					label: __( 'Campaign / Source / Medium', 'jetpack-premium-analytics' ),
+					label: __( 'Campaign / Source / Medium', 'jetpack-premium-analytics-pkg' ),
 					value: 'utm_campaign,utm_source,utm_medium',
 				},
 				{
-					label: __( 'Source', 'jetpack-premium-analytics' ),
+					label: __( 'Source', 'jetpack-premium-analytics-pkg' ),
 					value: 'utm_source',
 				},
 				{
-					label: __( 'Medium', 'jetpack-premium-analytics' ),
+					label: __( 'Medium', 'jetpack-premium-analytics-pkg' ),
 					value: 'utm_medium',
 				},
 				{
-					label: __( 'Campaign', 'jetpack-premium-analytics' ),
+					label: __( 'Campaign', 'jetpack-premium-analytics-pkg' ),
 					value: 'utm_campaign',
 				},
 			],
@@ -69,7 +69,7 @@ export default {
 		},
 		{
 			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics' ),
+			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
 			type: 'integer',
 		},
 	] as WidgetAttributeField< UtmInsightsAttributes >[],

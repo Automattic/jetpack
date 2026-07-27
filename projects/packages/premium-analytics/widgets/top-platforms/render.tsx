@@ -103,13 +103,13 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
 				error={ describeError( error, {
 					retryDescription: __(
 						"We couldn't load platform data. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 					onRetry: refetch,
 				} ) }
 				empty={ {
 					icon: device,
-					description: __( 'No platform data in this period.', 'jetpack-premium-analytics' ),
+					description: __( 'No platform data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				<LeaderboardChart

@@ -26,7 +26,7 @@ export function getDownloadsFields(): Field< StatsFileDownloadsItem >[] {
 	return [
 		{
 			id: 'file',
-			label: __( 'File', 'jetpack-premium-analytics' ),
+			label: __( 'File', 'jetpack-premium-analytics-pkg' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => getFileLabel( item ),
@@ -48,7 +48,7 @@ export function getDownloadsFields(): Field< StatsFileDownloadsItem >[] {
 		},
 		{
 			id: 'downloads',
-			label: __( 'Downloads', 'jetpack-premium-analytics' ),
+			label: __( 'Downloads', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.downloads,
 			render: ( { item } ) => (
 				<>

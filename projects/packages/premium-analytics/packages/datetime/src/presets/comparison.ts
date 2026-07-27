@@ -22,19 +22,19 @@ const COMPARISON_PRESET_LABELS: {
 }[] = [
 	{
 		id: COMPARISON_PREVIOUS_PERIOD,
-		getLabel: () => __( 'Previous period', 'jetpack-premium-analytics' ),
+		getLabel: () => __( 'Previous period', 'jetpack-premium-analytics-pkg' ),
 	},
 	{
 		id: COMPARISON_PREVIOUS_WEEK,
-		getLabel: () => __( 'Previous week', 'jetpack-premium-analytics' ),
+		getLabel: () => __( 'Previous week', 'jetpack-premium-analytics-pkg' ),
 	},
 	{
 		id: COMPARISON_PREVIOUS_MONTH,
-		getLabel: () => __( 'Previous month', 'jetpack-premium-analytics' ),
+		getLabel: () => __( 'Previous month', 'jetpack-premium-analytics-pkg' ),
 	},
 	{
 		id: COMPARISON_PREVIOUS_YEAR,
-		getLabel: () => __( 'Previous year', 'jetpack-premium-analytics' ),
+		getLabel: () => __( 'Previous year', 'jetpack-premium-analytics-pkg' ),
 	},
 ];
 

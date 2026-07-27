@@ -90,9 +90,9 @@ export function DateRangeQuickPresets( {
 						selectPreset( item.value );
 					}
 				} }
-				label={ __( 'Period', 'jetpack-premium-analytics' ) }
+				label={ __( 'Period', 'jetpack-premium-analytics-pkg' ) }
 				hideLabelFromVision
-				placeholder={ __( 'Select period', 'jetpack-premium-analytics' ) }
+				placeholder={ __( 'Select period', 'jetpack-premium-analytics-pkg' ) }
 			/>
 		);
 	}

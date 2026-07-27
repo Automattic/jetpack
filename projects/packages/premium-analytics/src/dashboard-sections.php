@@ -85,28 +85,28 @@ function register_default_dashboard_sections() {
 
 	$sections = array(
 		'analytics/traffic'     => array(
-			'label'          => __( 'Traffic', 'jetpack-premium-analytics' ),
+			'label'          => __( 'Traffic', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 10,
 			'default_layout' => static function () {
 				return get_dashboard_default_layout_for( 'analytics/traffic' );
 			},
 		),
 		'analytics/insights'    => array(
-			'label'          => __( 'Insights', 'jetpack-premium-analytics' ),
+			'label'          => __( 'Insights', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 20,
 			'default_layout' => static function () {
 				return get_dashboard_default_layout_for( 'analytics/insights' );
 			},
 		),
 		'analytics/subscribers' => array(
-			'label'          => __( 'Subscribers', 'jetpack-premium-analytics' ),
+			'label'          => __( 'Subscribers', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 30,
 			'default_layout' => static function () {
 				return get_dashboard_default_layout_for( 'analytics/subscribers' );
 			},
 		),
 		'woocommerce/store'     => array(
-			'label'          => __( 'Store', 'jetpack-premium-analytics' ),
+			'label'          => __( 'Store', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 40,
 			'is_available'   => __NAMESPACE__ . '\\is_woocommerce_dashboard_section_available',
 			'default_layout' => __NAMESPACE__ . '\\get_woocommerce_dashboard_section_default_layout',
@@ -155,7 +155,7 @@ function get_available_dashboard_section_for_route( $dashboard_name, $section_id
 	if ( ! $section ) {
 		return new \WP_Error(
 			'dashboard_section_not_found',
-			__( 'Dashboard section not found.', 'jetpack-premium-analytics' ),
+			__( 'Dashboard section not found.', 'jetpack-premium-analytics-pkg' ),
 			array( 'status' => 404 )
 		);
 	}
@@ -163,7 +163,7 @@ function get_available_dashboard_section_for_route( $dashboard_name, $section_id
 	if ( ! $section->is_available() ) {
 		return new \WP_Error(
 			'dashboard_section_unavailable',
-			__( 'Dashboard section is not available.', 'jetpack-premium-analytics' ),
+			__( 'Dashboard section is not available.', 'jetpack-premium-analytics-pkg' ),
 			array( 'status' => 404 )
 		);
 	}
@@ -219,7 +219,7 @@ function register_dashboard_sections_rest_routes() {
 			'permission_callback' => __NAMESPACE__ . '\\check_dashboard_sections_permission',
 			'args'                => array(
 				'name' => array(
-					'description' => __( 'Dashboard identifier as produced by the build pipeline.', 'jetpack-premium-analytics' ),
+					'description' => __( 'Dashboard identifier as produced by the build pipeline.', 'jetpack-premium-analytics-pkg' ),
 					'type'        => 'string',
 				),
 			),
@@ -235,11 +235,11 @@ function register_dashboard_sections_rest_routes() {
 			'permission_callback' => __NAMESPACE__ . '\\check_dashboard_sections_permission',
 			'args'                => array(
 				'name'    => array(
-					'description' => __( 'Dashboard identifier as produced by the build pipeline.', 'jetpack-premium-analytics' ),
+					'description' => __( 'Dashboard identifier as produced by the build pipeline.', 'jetpack-premium-analytics-pkg' ),
 					'type'        => 'string',
 				),
 				'section' => array(
-					'description' => __( 'Dashboard section identifier.', 'jetpack-premium-analytics' ),
+					'description' => __( 'Dashboard section identifier.', 'jetpack-premium-analytics-pkg' ),
 					'type'        => 'string',
 				),
 			),

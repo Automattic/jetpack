@@ -50,7 +50,7 @@ export function buildSalesByUtmData(
 
 		return {
 			id: item.item ? String( item.item ) : String( idx ),
-			label: item.item || __( 'Unassigned', 'jetpack-premium-analytics' ),
+			label: item.item || __( 'Unassigned', 'jetpack-premium-analytics-pkg' ),
 			currentValue,
 			previousValue,
 			currentShare: sharePercentage( currentValue, maxValue ),

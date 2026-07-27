@@ -63,7 +63,7 @@ class Report_Csv_Generator {
 				$this->logger->log_error( 'Failed to open CSV file for writing: ' . $file_path, __METHOD__ );
 				return new WP_Error(
 					'csv_file_open_failed',
-					__( 'Failed to open CSV file for writing.', 'jetpack-premium-analytics' )
+					__( 'Failed to open CSV file for writing.', 'jetpack-premium-analytics-pkg' )
 				);
 			}
 
@@ -115,7 +115,7 @@ class Report_Csv_Generator {
 			$this->logger->log_error( $e->getMessage(), __METHOD__ );
 			return new WP_Error(
 				'csv_generation_failed',
-				__( 'Failed to generate CSV file.', 'jetpack-premium-analytics' ),
+				__( 'Failed to generate CSV file.', 'jetpack-premium-analytics-pkg' ),
 				array( 'exception' => $e->getMessage() )
 			);
 		}
@@ -205,7 +205,7 @@ class Report_Csv_Generator {
 			$this->logger->log_error( 'Export directory is not writable: ' . $export_dir, __METHOD__ );
 			return new WP_Error(
 				'directory_not_writable',
-				__( 'Export directory is not writable.', 'jetpack-premium-analytics' )
+				__( 'Export directory is not writable.', 'jetpack-premium-analytics-pkg' )
 			);
 		}
 

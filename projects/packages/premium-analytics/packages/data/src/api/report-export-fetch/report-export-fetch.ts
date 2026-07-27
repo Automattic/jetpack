@@ -214,7 +214,7 @@ async function getResponseErrorMessage( response: Response ): Promise< string > 
 
 	return sprintf(
 		/* translators: %d: HTTP status code. */
-		__( 'Report download failed with status %d.', 'jetpack-premium-analytics' ),
+		__( 'Report download failed with status %d.', 'jetpack-premium-analytics-pkg' ),
 		response.status
 	);
 }

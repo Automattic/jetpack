@@ -116,15 +116,17 @@ function CommentsInner( { max = 10, view }: CommentsInnerProps ) {
 					error={ {
 						description: __(
 							"We couldn't load comments. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
-						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
 					} }
 					empty={ {
 						icon: comment,
 						description: __(
 							'Learn about the comments your site receives by authors, posts, and pages.',
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
 					} }
 				>

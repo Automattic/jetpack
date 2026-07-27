@@ -27,11 +27,11 @@ export const EMAIL_WIDGET_TYPE_ALIASES: ReadonlyArray< {
 		variants: [
 			{
 				name: 'jpa/email-time-series--total-opens',
-				getTitle: () => __( 'Total opens', 'jetpack-premium-analytics' ),
+				getTitle: () => __( 'Total opens', 'jetpack-premium-analytics-pkg' ),
 			},
 			{
 				name: 'jpa/email-time-series--total-clicks',
-				getTitle: () => __( 'Total clicks', 'jetpack-premium-analytics' ),
+				getTitle: () => __( 'Total clicks', 'jetpack-premium-analytics-pkg' ),
 			},
 		],
 	},
@@ -40,31 +40,31 @@ export const EMAIL_WIDGET_TYPE_ALIASES: ReadonlyArray< {
 		variants: [
 			{
 				name: 'jpa/email-breakdown--location-opens',
-				getTitle: () => __( 'Location opens', 'jetpack-premium-analytics' ),
+				getTitle: () => __( 'Location opens', 'jetpack-premium-analytics-pkg' ),
 			},
 			{
 				name: 'jpa/email-breakdown--platforms-opens',
-				getTitle: () => __( 'Platforms opens', 'jetpack-premium-analytics' ),
+				getTitle: () => __( 'Platforms opens', 'jetpack-premium-analytics-pkg' ),
 			},
 			{
 				name: 'jpa/email-breakdown--clients-opens',
-				getTitle: () => __( 'Clients opens', 'jetpack-premium-analytics' ),
+				getTitle: () => __( 'Clients opens', 'jetpack-premium-analytics-pkg' ),
 			},
 			{
 				name: 'jpa/email-breakdown--location-clicks',
-				getTitle: () => __( 'Location clicks', 'jetpack-premium-analytics' ),
+				getTitle: () => __( 'Location clicks', 'jetpack-premium-analytics-pkg' ),
 			},
 			{
 				name: 'jpa/email-breakdown--platforms-clicks',
-				getTitle: () => __( 'Platforms clicks', 'jetpack-premium-analytics' ),
+				getTitle: () => __( 'Platforms clicks', 'jetpack-premium-analytics-pkg' ),
 			},
 			{
 				name: 'jpa/email-breakdown--clients-clicks',
-				getTitle: () => __( 'Clients clicks', 'jetpack-premium-analytics' ),
+				getTitle: () => __( 'Clients clicks', 'jetpack-premium-analytics-pkg' ),
 			},
 			{
 				name: 'jpa/email-breakdown--top-links',
-				getTitle: () => __( 'Top links', 'jetpack-premium-analytics' ),
+				getTitle: () => __( 'Top links', 'jetpack-premium-analytics-pkg' ),
 			},
 		],
 	},

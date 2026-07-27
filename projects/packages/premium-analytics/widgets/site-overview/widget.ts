@@ -34,10 +34,10 @@ export type SiteOverviewAttributes = {
  * apart; `render.tsx` maps the ids to icons and summary-response fields.
  */
 export const SITE_OVERVIEW_METRICS: { id: SiteOverviewMetricId; label: string }[] = [
-	{ id: 'views', label: __( 'Views', 'jetpack-premium-analytics' ) },
-	{ id: 'visitors', label: __( 'Visitors', 'jetpack-premium-analytics' ) },
-	{ id: 'likes', label: __( 'Likes', 'jetpack-premium-analytics' ) },
-	{ id: 'comments', label: __( 'Comments', 'jetpack-premium-analytics' ) },
+	{ id: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'visitors', label: __( 'Visitors', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'likes', label: __( 'Likes', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'comments', label: __( 'Comments', 'jetpack-premium-analytics-pkg' ) },
 ];
 
 /**
@@ -61,7 +61,7 @@ export default {
 	attributes: [
 		{
 			id: 'metrics',
-			label: __( 'Metrics', 'jetpack-premium-analytics' ),
+			label: __( 'Metrics', 'jetpack-premium-analytics-pkg' ),
 			type: 'array',
 			relevance: 'high',
 			Edit: ArrayCheckboxField,
