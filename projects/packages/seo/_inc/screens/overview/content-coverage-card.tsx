@@ -162,7 +162,7 @@ const ContentCoverageCard: FC< Props > = ( { data, onManage, onFilter } ) => {
 				) }
 				<Stack direction="row" justify="flex-end" className={ styles.footer }>
 					<Button variant="solid" onClick={ onManage }>
-						{ __( 'Manage content', 'jetpack-seo' ) }
+						{ __( 'Manage content SEO', 'jetpack-seo' ) }
 					</Button>
 				</Stack>
 			</Card.Content>
