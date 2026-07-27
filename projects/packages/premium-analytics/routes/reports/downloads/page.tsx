@@ -94,7 +94,7 @@ function DownloadsReport(): JSX.Element {
 					/>
 				) : (
 					<ReportRecordsTable< StatsFileDownloadsComparisonItem >
-						data={ isRecordsLoading ? [] : records.rows }
+						data={ records.rows }
 						fields={ fields }
 						getItemId={ getDownloadRowId }
 						isLoading={ isRecordsLoading }

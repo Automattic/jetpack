@@ -379,6 +379,26 @@ describe( 'Stats query factories', () => {
 		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
 	} );
 
+	it( 'keeps file-downloads day-bucketed and summarized when the caller only passes a range', () => {
+		// The File downloads widget passes the dashboard params through untouched,
+		// so a long range arrives with a coarse chart interval and no summarize.
+		// The interval must not become the period, or the endpoint would count
+		// the range in weeks and stop returning one row per file.
+		const query = statsFileDownloadsQuery( {
+			from: '2026-04-01',
+			to: '2026-06-29',
+			interval: 'week',
+		} );
+
+		expect( query.queryKey[ 5 ] ).toMatchObject( {
+			period: 'day',
+			summarize: 1,
+			start_date: '2026-04-01',
+			date: '2026-06-29',
+		} );
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
+	} );
+
 	it( 'keeps the complete video summary mode out of the request params', () => {
 		const query = statsVideoPlaysSummaryQuery( {
 			from: '2026-07-09',

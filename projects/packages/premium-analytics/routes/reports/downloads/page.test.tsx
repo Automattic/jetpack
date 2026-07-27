@@ -62,24 +62,45 @@ describe( 'DownloadsReportPage', () => {
 		jest.clearAllMocks();
 	} );
 
-	it.each( [
-		[ 'initial loading', true, false ],
-		[ 'active fetching', false, true ],
-	] )( 'hides stale rows during %s', ( _label, isLoading, isFetching ) => {
+	it( 'reports the loading state on first load, when there is nothing to show yet', () => {
 		useRecordsMock.mockReturnValue( {
 			isError: false,
 			refetch: jest.fn(),
-			rows: [ row ],
-			hasComparison: true,
-			isLoading,
-			isFetching,
-		} as ReturnType< typeof useDownloadsReportRecords > );
+			rows: [],
+			hasComparison: false,
+			isLoading: true,
+			isFetching: true,
+		} as unknown as ReturnType< typeof useDownloadsReportRecords > );
 
 		render( <DownloadsReportPage /> );
 
 		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
 			expect.objectContaining( {
 				data: [],
+				isLoading: true,
+			} )
+		);
+	} );
+
+	it( 'keeps the rows on screen while a background refetch is in flight', () => {
+		// The queries carry `placeholderData`, so a refetch triggered by a date or
+		// comparison change still has the previous rows. Handing the table an empty
+		// set would drop the user's search, sorting, and page position mid-refetch,
+		// so the rows stay mounted and only the loading state reflects the refetch.
+		useRecordsMock.mockReturnValue( {
+			isError: false,
+			refetch: jest.fn(),
+			rows: [ row ],
+			hasComparison: true,
+			isLoading: false,
+			isFetching: true,
+		} as unknown as ReturnType< typeof useDownloadsReportRecords > );
+
+		render( <DownloadsReportPage /> );
+
+		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
+			expect.objectContaining( {
+				data: [ row ],
 				isLoading: true,
 			} )
 		);
