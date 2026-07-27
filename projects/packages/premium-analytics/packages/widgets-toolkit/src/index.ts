@@ -138,6 +138,7 @@ export {
 	getVideoKey,
 	getVideoLabel,
 	toMaxRows,
+	describeError,
 	summaryCount,
 	toDay,
 	defaultPeriodForInterval,
