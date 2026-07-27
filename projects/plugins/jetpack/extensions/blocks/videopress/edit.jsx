@@ -34,6 +34,7 @@ import {
 	createRef,
 	Fragment,
 	useEffect,
+	useMemo,
 } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, _x, sprintf } from '@wordpress/i18n';
@@ -1063,7 +1064,9 @@ export const VpBlock = props => {
 		} ),
 	} );
 
-	const sandboxScripts = getVideoPressSandboxScripts( scripts );
+	// Memoized so loading-state re-renders don't mint a new (never-revoked)
+	// blob URL each time — getVideoPressSandboxScripts calls URL.createObjectURL.
+	const sandboxScripts = useMemo( () => getVideoPressSandboxScripts( scripts ), [ scripts ] );
 
 	if ( shouldRenderLoadingBlock ) {
 		return (
