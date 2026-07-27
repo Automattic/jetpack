@@ -38,8 +38,12 @@ export function buildSalesByUtmData(
 
 	return data.slice( 0, maxEntries ).map( ( item, idx ) => {
 		const currentValue = item.current_period.value || 0;
-		const previousValue = item.previous_period?.value ?? 0;
-		const delta = calculateDelta( currentValue, previousValue );
+
+		// The attribution summary aggregates every order, so it always reports a
+		// previous_period: a source with no sales in the comparison period is a
+		// real 0, not missing data, and its unavailable delta renders as the
+		// placeholder.
+		const previousValue = item.previous_period.value || 0;
 
 		return {
 			id: item.item ? String( item.item ) : String( idx ),
@@ -48,7 +52,7 @@ export function buildSalesByUtmData(
 			previousValue,
 			currentShare: sharePercentage( currentValue, maxValue ),
 			previousShare: sharePercentage( previousValue, maxValue ),
-			delta,
+			delta: calculateDelta( currentValue, previousValue ),
 		};
 	} );
 }

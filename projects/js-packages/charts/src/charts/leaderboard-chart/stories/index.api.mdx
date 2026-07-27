@@ -42,10 +42,10 @@ interface LeaderboardEntry {
 	id: string;                  // Unique identifier
 	label: string | ReactElement; // Display name or React component
 	currentValue: number;        // Current period value
-	previousValue: number;       // Previous period value
+	previousValue?: number;      // Previous period value; omit when no comparison row exists
 	currentShare: number;        // Current bar width (0-100)
-	previousShare: number;       // Previous bar width (0-100)
-	delta: number;               // Percentage change
+	previousShare?: number;      // Previous bar width (0-100)
+	delta?: number;              // Percentage change; omit when unavailable
 	imageColor?: string;         // Optional color for the entry's image/icon
 	onClick?: ( event: MouseEvent ) => void; // Optional. Makes the whole row an interactive button (click + keyboard); the consumer supplies the action.
 	ariaLabel?: string;          // Optional. Accessible name for the row button when onClick is set; use for image-only JSX labels.
