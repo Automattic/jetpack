@@ -85,6 +85,48 @@ class Image_Metadata_XMP_Copier_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A marker token elsewhere in the metadata (not as a DigitalSourceType value)
+	 * must not be treated as AI provenance.
+	 *
+	 * @param string $mime         MIME type.
+	 * @param string $extension    File extension.
+	 * @param string $with_xmp     Fixture method with XMP.
+	 * @param string $without_xmp  Fixture method without XMP.
+	 * @dataProvider format_provider
+	 */
+	#[DataProvider( 'format_provider' )]
+	public function test_ignores_marker_token_outside_digitalsourcetype( $mime, $extension, $with_xmp, $without_xmp ) {
+		unset( $without_xmp );
+		$xmp    = Image_Metadata_Fixtures::xmp_packet(
+			Image_Metadata_Fixtures::NON_AI_SOURCE_TYPE,
+			'<xmp:Label>trainedAlgorithmicMedia</xmp:Label>'
+		);
+		$source = $this->temp_file( Image_Metadata_Fixtures::$with_xmp( $xmp ), $extension );
+
+		$this->assertNull( XMP_Copier::extract( $source, $mime ), 'a bare marker token outside the DigitalSourceType URI must not count as AI' );
+	}
+
+	/**
+	 * The composite value must still be recognised now that matching is URI-anchored.
+	 *
+	 * @param string $mime         MIME type.
+	 * @param string $extension    File extension.
+	 * @param string $with_xmp     Fixture method with XMP.
+	 * @param string $without_xmp  Fixture method without XMP.
+	 * @dataProvider format_provider
+	 */
+	#[DataProvider( 'format_provider' )]
+	public function test_detects_composite_with_trained_source_type( $mime, $extension, $with_xmp, $without_xmp ) {
+		unset( $without_xmp );
+		$xmp    = Image_Metadata_Fixtures::xmp_packet(
+			'http://cv.iptc.org/newscodes/digitalsourcetype/compositeWithTrainedAlgorithmicMedia'
+		);
+		$source = $this->temp_file( Image_Metadata_Fixtures::$with_xmp( $xmp ), $extension );
+
+		$this->assertNotNull( XMP_Copier::extract( $source, $mime ), 'compositeWithTrainedAlgorithmicMedia must be recognised as AI' );
+	}
+
+	/**
 	 * @param string $mime         MIME type.
 	 * @param string $extension    File extension.
 	 * @param string $with_xmp     Fixture method with XMP.

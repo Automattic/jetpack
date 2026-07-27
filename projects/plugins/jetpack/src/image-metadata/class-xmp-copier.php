@@ -218,10 +218,11 @@ final class XMP_Copier {
 	 * @return bool
 	 */
 	private static function has_ai_marker( $bytes ) {
-		// Case-insensitive, so 'trainedAlgorithmicMedia' also matches the composite
-		// value 'compositeWithTrainedAlgorithmicMedia'.
-		return false !== stripos( $bytes, 'trainedAlgorithmicMedia' )
-			|| false !== stripos( $bytes, 'compositeSynthetic' );
+		// Match the AI values when they follow the IPTC `digitalsourcetype/` URI path.
+		return 1 === preg_match(
+			'#digitalsourcetype/(?:trainedAlgorithmicMedia|compositeWithTrainedAlgorithmicMedia|compositeSynthetic)(?![A-Za-z])#i',
+			$bytes
+		);
 	}
 
 	/**
