@@ -2,9 +2,9 @@
 /**
  * AI Chat block tests.
  *
- * Locks down the registration gates: connection (or WordPress.com Simple) and
- * the jetpack_ai_enabled master filter, including the master option that backs
- * it.
+ * Locks down the registration gates — connection (or WordPress.com Simple) and
+ * the jetpack_ai_enabled master filter, including the AI master switch that
+ * backs it — and the editor payload following them.
  *
  * @package automattic/jetpack
  */

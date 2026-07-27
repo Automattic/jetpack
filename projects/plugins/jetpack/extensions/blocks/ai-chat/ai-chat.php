@@ -97,9 +97,10 @@ function add_ai_chat_block_data() {
 	// The payload only feeds the block's own editor UI, so it follows the
 	// registration gate above (connection or Simple, plus the AI master):
 	// when register_block() bailed, ship nothing.
-	if ( ! \WP_Block_Type_Registry::get_instance()->is_registered( 'jetpack/ai-chat' ) ) {
+	if ( ! Blocks::is_registered( Blocks::get_block_name( __DIR__ ) ) ) {
 		return;
 	}
+
 	$search        = new Search_Module_Control();
 	$plan          = new Search_Plan();
 	$initial_state = array(
