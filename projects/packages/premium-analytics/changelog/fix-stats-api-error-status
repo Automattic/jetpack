@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stats: Stop retrying unavailable reports and show authentication and server errors correctly.

@@ -16,6 +16,9 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 require_once __DIR__ . '/dashboard-grammar.php';
 require_once __DIR__ . '/rest-namespace.php';
+// Availability policy for default layout instances: defaults are read outside
+// the widget registry bootstrap, so the policy must be loaded here explicitly.
+require_once __DIR__ . '/widget-type-support.php';
 
 /**
  * Identifier of the Premium Analytics dashboard, formatted as `<plugin>_<page>`
@@ -62,7 +65,11 @@ function get_dashboard_default_layout_for( $dashboard_name ) {
 	 */
 	$default = apply_filters( DASHBOARD_DEFAULT_LAYOUT_FILTER, array(), $dashboard_name );
 
-	return is_array( $default ) ? array_values( $default ) : array();
+	return remove_unsupported_widget_items(
+		is_array( $default ) ? array_values( $default ) : array(),
+		'type',
+		get_widget_support_context()
+	);
 }
 
 /**

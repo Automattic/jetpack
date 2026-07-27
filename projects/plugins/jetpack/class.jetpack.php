@@ -841,8 +841,9 @@ class Jetpack {
 		}
 
 		// Enable the VideoPress admin UI (the "Jetpack > VideoPress" dashboard) inside the
-		// Jetpack plugin, mirroring the standalone Jetpack VideoPress plugin. The page only
-		// renders when the VideoPress module is active (Status::is_active()).
+		// Jetpack plugin, mirroring the standalone Jetpack VideoPress plugin. The dashboard
+		// only renders when the VideoPress module is active (Status::is_active()); when it
+		// is not, the menu item links to the My Jetpack interstitial to activate it.
 		$config->ensure( 'videopress', array( 'admin_ui' => true ) );
 
 		/*

@@ -116,7 +116,7 @@
 		"print-this": "2.0.0",
 		"prop-types": "15.8.1",
 		"react-redux": "9.3.0",
-		"react-router": "7.15.1",
+		"react-router": "7.18.0",
 		"redux": "5.0.1",
 		"redux-thunk": "3.1.0",
 		"refx": "3.1.1",

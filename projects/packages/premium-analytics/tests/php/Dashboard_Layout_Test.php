@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\TestCase;
 use WP_REST_Server;
 
@@ -21,11 +22,12 @@ class Dashboard_Layout_Test extends TestCase {
 	const LEGACY_ROUTE = '/jetpack/v4/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)*)/default-layout';
 
 	/**
-	 * Reset REST globals after route registration tests.
+	 * Reset REST globals and constants between tests.
 	 */
 	protected function tearDown(): void {
 		global $wp_rest_server;
 		$wp_rest_server = null;
+		Constants::clear_constants();
 		parent::tearDown();
 	}
 
@@ -73,6 +75,28 @@ class Dashboard_Layout_Test extends TestCase {
 		$this->assertSame( $traffic, $layout );
 		$this->assertContains( 'jpa/traffic-chart', $layout_types );
 		$this->assertNotContains( 'jpa/hello-world', $layout_types );
+	}
+
+	/**
+	 * Default layouts pass through the availability policy: on self-hosted
+	 * Jetpack sites (this test env), Simple-only widget instances are dropped.
+	 */
+	public function test_traffic_default_excludes_simple_only_widgets_on_self_hosted() {
+		$layout_types = array_column( get_dashboard_default_layout_for( DASHBOARD_TRAFFIC_SECTION_ID ), 'type' );
+
+		$this->assertNotContains( 'jpa/file-downloads', $layout_types, 'Simple-only widget instances must not be part of the default layout on self-hosted sites.' );
+		$this->assertContains( 'jpa/clicks', $layout_types, 'Regular widget instances remain in the default layout.' );
+	}
+
+	/**
+	 * WPCOM Simple keeps Simple-only widgets in the default layout.
+	 */
+	public function test_traffic_default_keeps_simple_only_widgets_on_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$layout_types = array_column( get_dashboard_default_layout_for( DASHBOARD_TRAFFIC_SECTION_ID ), 'type' );
+
+		$this->assertContains( 'jpa/file-downloads', $layout_types );
 	}
 
 	/**
