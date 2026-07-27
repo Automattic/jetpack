@@ -289,6 +289,7 @@ describe( 'PostsReportPage', () => {
 			} )
 		);
 		expect( drilldownProps.getItemParentId?.( records.archives.rows[ 1 ] ) ).toBe( 'tags-0' );
+		expect( drilldownProps.getItemId( records.archives.rows[ 1 ] ) ).toBe( 'tags-0-0' );
 		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
 	} );
 

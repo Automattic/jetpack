@@ -7,9 +7,25 @@ import { render, screen } from '@testing-library/react';
  * Internal dependencies
  */
 import { buildArchiveRows, getArchivesFields, getPostsFields, type ArchiveRow } from './fields';
+import type { ReactNode } from 'react';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	useSiteHomeUrl: jest.fn(),
+} ) );
+
+// The router is built dynamically at runtime, so a field-level test has no
+// router to mount. Render `Link` as the anchor it becomes, keeping `to`/
+// `params` assertable, matching the other report field tests.
+jest.mock( '@wordpress/route', () => ( {
+	Link: ( {
+		to,
+		params,
+		children,
+	}: {
+		to: string;
+		params: Record< string, string >;
+		children: ReactNode;
+	} ) => <a href={ to.replace( /\$(\w+)/g, ( _match, key ) => params[ key ] ) }>{ children }</a>,
 } ) );
 
 const mockUseSiteHomeUrl = useSiteHomeUrl as jest.MockedFunction< typeof useSiteHomeUrl >;
@@ -137,6 +153,31 @@ describe( 'posts title field', () => {
 		expect( screen.queryByText( '+61%' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'drills a row with a post ID into the post detail page', () => {
+		renderTitleField( {
+			id: 42,
+			label: 'Hello world',
+			views: 12,
+			link: 'https://example.com/hello-world/',
+			type: 'post',
+		} );
+
+		expect( screen.getByRole( 'link', { name: 'Hello world' } ) ).toHaveAttribute(
+			'href',
+			'/post/42'
+		);
+	} );
+
+	// Every row the API returns carries an ID, and the ID-less homepage row is
+	// caught by the branch above, so this only guards against a malformed row
+	// linking to `/post/undefined`.
+	it( 'renders a row with no post ID as plain text rather than a broken link', () => {
+		renderTitleField( { label: 'Uncategorized', views: 3, link: null, type: 'post' } );
+
+		expect( screen.getByText( 'Uncategorized' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'shows the archives views delta when comparison is enabled', () => {
 		renderArchiveViewsField(
 			{
@@ -181,6 +222,50 @@ describe( 'archive rows', () => {
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 		expect( screen.getByRole( 'img', { name: '(opens in a new tab)' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'falls back to Untitled for an archive row with an empty label', () => {
+		expect( buildArchiveRows( [ { label: '', value: 5, children: null } ] )[ 0 ].label ).toBe(
+			'Untitled'
+		);
+	} );
+
+	it( 'gives every archive type the API returns a human-readable group label', () => {
+		const archiveTypes = [
+			'author',
+			'cat',
+			'date',
+			'err',
+			'home',
+			'multiple',
+			'other',
+			'post_type',
+			'search',
+			'tag',
+			'tax',
+			// An archive type added after this ships falls back to its key,
+			// capitalized — the API sends some of these shouty.
+			'FEED',
+		];
+
+		expect(
+			buildArchiveRows(
+				archiveTypes.map( archiveType => ( { label: archiveType, value: 5, children: null } ) )
+			).map( row => row.label )
+		).toEqual( [
+			'Authors',
+			'Categories',
+			'Dates',
+			'Error',
+			'Homepage (Latest posts)',
+			'Aggregated',
+			'Others',
+			'Post types',
+			'Searches',
+			'Tags',
+			'Taxonomies',
+			'Feed',
+		] );
 	} );
 
 	it( 'preserves the archive hierarchy and uses standard archive labels', () => {
