@@ -248,8 +248,8 @@ class Jetpack_AI_Settings {
 	 *
 	 * Checks only the feature's own toggle — callers remain responsible for the
 	 * outer gates (most already consult the jetpack_ai_enabled filter, which
-	 * carries host + master). The options this class owns are filterable under
-	 * their own names so hosts keep a code-level kill switch per feature.
+	 * carries host + master). Only the matching option is read: a code-level
+	 * override belongs on the option itself, through core's own option filters.
 	 *
 	 * @param string $feature Feature key (see FEATURE_OPTIONS).
 	 * @return bool False for unknown features.
@@ -268,24 +268,9 @@ class Jetpack_AI_Settings {
 			return true;
 		}
 
-		$option  = self::FEATURE_OPTIONS[ $feature ];
-		$enabled = (bool) get_option( $option, self::FEATURE_DEFAULTS[ $feature ] );
+		$option = self::FEATURE_OPTIONS[ $feature ];
 
-		if ( in_array( $feature, self::OWNED_FEATURES, true ) ) {
-			/**
-			 * Filter an individual Jetpack AI feature toggle.
-			 *
-			 * The filter name matches the option backing the toggle, e.g.
-			 * `jetpack_ai_writing_assistant_enabled`.
-			 *
-			 * @since $$next-version$$
-			 *
-			 * @param bool $enabled Whether the feature is enabled.
-			 */
-			$enabled = (bool) apply_filters( $option, $enabled );
-		}
-
-		return $enabled;
+		return (bool) get_option( $option, self::FEATURE_DEFAULTS[ $feature ] );
 	}
 }
 

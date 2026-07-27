@@ -234,16 +234,6 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The owned options stay filterable under their own names as a code-level
-	 * kill switch.
-	 */
-	public function test_feature_filter_kill_switch() {
-		add_filter( 'jetpack_ai_writing_assistant_enabled', '__return_false' );
-
-		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' ) );
-	}
-
-	/**
 	 * The master switch and the owned per-feature options sync to WordPress.com.
 	 */
 	public function test_sync_options_whitelist() {

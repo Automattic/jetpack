@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+AI settings: drop the per-feature toggle filters in favor of the option check alone.
