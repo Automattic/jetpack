@@ -71,6 +71,36 @@ the following modules will be enabled no matter the configuration:
 
 **Attention**: Sync currently only supports configuring the list of [default Sync modules](https://github.com/Automattic/jetpack/blob/trunk/projects/packages/sync/src/class-modules.php#L25). Any modules that Sync already loads conditionally, such as `WooCommerce` or `Search` are **NOT** configurable.
 
+#### Opting in to WooCommerce Analytics Sync
+
+The high-volume `woocommerce_analytics` module is not enabled by default. A consumer
+must register its filters and pass its data settings to the Config package:
+
+```php
+use Automattic\Jetpack\Config;
+use Automattic\Jetpack\Sync\WooCommerce_Analytics_Settings;
+
+WooCommerce_Analytics_Settings::register();
+
+add_action(
+	'plugins_loaded',
+	function () {
+		if ( WooCommerce_Analytics_Settings::is_woocommerce_active() ) {
+			( new Config() )->ensure( 'sync', WooCommerce_Analytics_Settings::get_data_settings() );
+		}
+	},
+	1
+);
+```
+
+Registration is idempotent and only takes effect when WooCommerce is active. During
+migration, the shared module defers to known legacy Analytics Sync implementations so
+the same actions are not registered twice.
+
+The existing `jetpack_sync_active_modules` callable reports the configured module class
+to WordPress.com. Receivers can use the shared class there as a consumer-neutral
+capability signal while retaining legacy plugin detection during rollout.
+
 ##### `jetpack_sync_options_whitelist` / `jetpack_sync_options_contentless`
 
 **Controlled by the Sync Options Module, which is required.**

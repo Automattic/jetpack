@@ -14,16 +14,20 @@ return [
     // PhanTypeMismatchReturn : 15+ occurrences
     // PhanParamSignatureMismatch : 10+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 10+ occurrences
+    // PhanUndeclaredMethod : 10+ occurrences
     // PhanTypeExpectedObjectPropAccess : 8 occurrences
     // PhanPluginDuplicateSwitchCaseLooseEquality : 6 occurrences
     // PhanNonClassMethodCall : 3 occurrences
     // PhanTypeArraySuspiciousNullable : 3 occurrences
     // PhanTypePossiblyInvalidDimOffset : 3 occurrences
+    // PhanUndeclaredClassReference : 3 occurrences
+    // UnusedPluginSuppression : 3 occurrences
     // PhanImpossibleCondition : 2 occurrences
     // PhanTypeArraySuspicious : 2 occurrences
     // PhanTypeMismatchArgumentNullable : 2 occurrences
     // PhanTypeMismatchPropertyDefault : 2 occurrences
     // PhanTypeMismatchReturnNullable : 2 occurrences
+    // PhanUndeclaredClassMethod : 2 occurrences
     // PhanParamTooManyCallable : 1 occurrence
     // PhanPluginUseReturnValueInternalKnown : 1 occurrence
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
@@ -31,6 +35,7 @@ return [
     // PhanTypeMismatchDefault : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
     // PhanTypeMismatchPropertyProbablyReal : 1 occurrence
+    // PhanUndeclaredClassConstant : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
@@ -57,7 +62,9 @@ return [
         'src/modules/class-themes.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/modules/class-updates.php' => ['PhanImpossibleCondition', 'PhanParamSignatureMismatch', 'PhanTypeMismatchReturn'],
         'src/modules/class-users.php' => ['PhanTypeMismatchDefault', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/modules/class-woocommerce-analytics.php' => ['PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredMethod', 'UnusedPluginSuppression'],
         'src/modules/class-woocommerce-hpos-orders.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/modules/trait-woocommerce-analytics-utilities.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference'],
         'src/replicastore/class-table-checksum.php' => ['PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchPropertyProbablyReal'],
         'tests/php/Actions_Test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/REST_Endpoints_Test.php' => ['PhanTypeMismatchReturn'],
