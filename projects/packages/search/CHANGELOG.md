@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fix uncaught error when a malformed query string parameter (invalid percent-encoding) crashed Instant Search initialization. [#50806]
-- Search blocks: Resize result images through Photon in the Embedded search layout to improve performance. [#50710]
+- Blocks: Resize result images through Photon in the Embedded search layout to improve performance. [#50710]
 
 ## [7.3.1] - 2026-07-22
 ### Changed

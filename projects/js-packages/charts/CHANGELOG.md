@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add a `fitRows` prop to LeaderboardChart so a chart in a fixed-height container shows only the rows that fit instead of scrolling. [#50688]
 
 ### Changed
-- Standardise package CSS custom properties on the --a8c-charts-{category}-{name} naming convention and document the token catalog; existing public override variables keep working via deprecated aliases. [#50656]
+- Standardize CSS custom properties on the `--a8c-charts-{category}-{name}` naming convention; existing override variables keep working via deprecated aliases. [#50656]
 
 ### Fixed
 - Leaderboard: Distinguish unavailable percentage changes from missing comparison data. [#50690]

@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Register wp-build polyfills on the legacy settings page so the admin bundle loads when the wp-theme script handle isn't registered. [#50587]
-- Subscribers dashboard: Refresh the subscriber list automatically once an import finishes, and replace the "Importing…" notice with a success or failure message reporting the outcome, instead of requiring a manual page reload. [#50756]
+- Subscribers dashboard: Refresh the subscriber list automatically once an import finishes and show a success or failure notice, without requiring a page reload. [#50756]
 
 ## [0.12.1] - 2026-07-20
 ### Changed

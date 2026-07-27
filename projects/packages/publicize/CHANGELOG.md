@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add the platform picker step for the new connection flow. [#50773]
 
 ### Changed
-- Collapse the duplicated legacy/dashboard connection components onto the WordPress design system. The block editor sidebar now renders the same connection UI as the Social admin page. [#50731]
+- Use the same connection management UI in the block editor sidebar as on the Social admin page. [#50731]
 - Update package dependencies. [#50683] [#50751] [#50753]
 
 ## [0.84.1] - 2026-07-20

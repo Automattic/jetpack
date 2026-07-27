@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.43.0] - 2026-07-27
 ### Added
-- Admin menu: Keep the VideoPress item under the Jetpack menu when VideoPress is not active, linking to the My Jetpack page to activate it. The item is only shown to users with their own Jetpack user connection. [#50740]
+- Admin menu: Keep the VideoPress item under the Jetpack menu when VideoPress is not active, linking to the My Jetpack page to activate it. [#50740]
 - Library: Show an orientation indicator icon on each video in the dashboard library. [#50793]
 - Allow promoting existing local videos to VideoPress on WordPress.com Simple via an in-process wpcom/v2 endpoint. [#50611]
 

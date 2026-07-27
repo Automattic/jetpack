@@ -17,14 +17,13 @@
 
 ### Improved compatibility
 - Content Guidelines AI: Restore compatibility with the Gutenberg 23.6 Guidelines page by reading section drafts from the page DOM instead of the removed core/guidelines store. [#50658]
-- Notifications: show the notification bell in the admin bar on the Post editor and Site editor,
-  now that Gutenberg 23.6+ renders the admin bar there. [#50686]
+- Notifications: Show the notification bell in the admin bar on the Post editor and Site editor. [#50686]
 
 ### Bug fixes
 - Carousel: Show the already-loaded thumbnail while the full-size image downloads, so slides are no longer blank when moving quickly through a gallery. [#50760]
 - Change EXIF data rendering to be dynamic via JavaScript to resolve empty list accessibility warning. [#50201]
 - Likes: Do not show the Like button on password-protected posts, even for viewers who can read the post (owners, admins, or after unlocking). [#50670]
-- Newsletter: When a WordPress.com user connection is required for the email preview and test email features, show an actionable prompt to connect and disable the test email "Send" button until connected, instead of only surfacing the error after a failed attempt. [#50767]
+- Newsletter: Show a prompt to connect when a WordPress.com user connection is required for the email preview and test email features, and disable the test email "Send" button until connected. [#50767]
 - SEO: Preserve Sitemaps and Canonical URLs settings when runtime filters temporarily suppress their modules. [#50781]
 - Tiled Gallery: Fix images collapsing to ~105px in the editor when the canvas is not iframed. [#50682]
 
