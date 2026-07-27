@@ -7,14 +7,13 @@ jest.mock( '@jetpack-premium-analytics/data', () => {
 	const { TZDateMini } = jest.requireActual( '@date-fns/tz' );
 
 	/**
-	 * Mirror resolveIntervalForRange for the presets these tests exercise:
-	 * keep `current` when allowed, otherwise the preset's default.
+	 * Stub of `resolveIntervalForRange` for the presets these tests exercise.
 	 *
 	 * @param period  - Active date-range preset id.
-	 * @param _from   - Unused range start (signature parity).
-	 * @param _to     - Unused range end (signature parity).
-	 * @param current - Candidate interval from the URL / previous patch.
-	 * @return Coerced interval for the mocked preset.
+	 * @param _from   - Unused; signature parity with the real helper.
+	 * @param _to     - Unused; signature parity with the real helper.
+	 * @param current - Candidate interval to keep when still allowed.
+	 * @return Interval allowed for the mocked preset.
 	 */
 	const resolveIntervalForRange = (
 		period: string | undefined,

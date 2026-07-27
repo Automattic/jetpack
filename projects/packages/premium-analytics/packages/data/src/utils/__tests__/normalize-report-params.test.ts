@@ -119,7 +119,7 @@ describe( 'normalizeReportParams', () => {
 		expect( result.comp ).toBeUndefined();
 	} );
 
-	it( 'passes the URL interval through resolveIntervalForRange for coercion', () => {
+	it( 'passes the candidate interval through resolveIntervalForRange', () => {
 		mockResolveInterval.mockReturnValue( 'week' );
 
 		const result = normalizeReportParams( {

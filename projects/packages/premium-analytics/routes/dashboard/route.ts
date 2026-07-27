@@ -31,13 +31,12 @@ type DashboardSearch = Record< string, string | undefined >;
  * Seed the default date range into the URL on first visit so the date picker
  * and the widgets share a populated search state. Defaults to the last 30 days
  * with a previous-period comparison, resolved from the shared analytics
- * defaults (`getDefaultQueryParams`). Also re-seeds when `interval` is present
- * but not allowed for the active range — a hand-edited deep link must not keep
- * an unsupported bucket. The seed runs after `ensureCoreSettingsReady()` so the
- * dates are encoded in the site timezone; otherwise `getDefaultQueryParams`
- * would fall back to the browser timezone (core `site` settings not loaded yet)
- * and the seeded `to` boundary would land on a different instant than a later
- * Apply writes.
+ * defaults (`getDefaultQueryParams`). Also re-seeds when `interval` is missing
+ * or not allowed for the active range. The seed runs after
+ * `ensureCoreSettingsReady()` so the dates are encoded in the site timezone;
+ * otherwise `getDefaultQueryParams` would fall back to the browser timezone
+ * (core `site` settings not loaded yet) and the seeded `to` boundary would land
+ * on a different instant than a later Apply writes.
  *
  * Then register the widget-modules discovery entity before the stage renders,
  * so the stage's `getEntityRecords` read resolves and feeds the records to
