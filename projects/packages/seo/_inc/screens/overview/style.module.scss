@@ -59,3 +59,58 @@
 	margin-block-start: var(--wpds-dimension-gap-lg);
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
+
+// Card title with a trailing accent icon. The icon sits after the title text so
+// the title still left-aligns with the card body below it.
+.cardTitle {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xs);
+}
+
+.titleIcon {
+	flex: none;
+	color: var(--wpds-color-foreground-interactive-brand);
+}
+
+// Interactive coverage ring: the whole ring is a button that deep-links to the
+// Content tab filtered to the rows still missing this field. Reset the native
+// button chrome; the donut lifts on hover/focus to signal it's actionable.
+.ringTrigger {
+	display: block;
+	inline-size: 100%;
+	margin: 0;
+	padding: var(--wpds-dimension-gap-xs);
+	border: 0;
+	border-radius: 6px;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	cursor: pointer;
+}
+
+.ringTrigger:focus-visible {
+	outline: 2px solid var(--wpds-color-stroke-interactive-brand);
+	outline-offset: 2px;
+}
+
+.donutWrap {
+	transition: transform 0.18s ease;
+}
+
+.ringTrigger:hover .donutWrap,
+.ringTrigger:focus-visible .donutWrap {
+	transform: scale(1.06);
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+
+	.donutWrap {
+		transition: none;
+	}
+
+	.ringTrigger:hover .donutWrap,
+	.ringTrigger:focus-visible .donutWrap {
+		transform: none;
+	}
+}
