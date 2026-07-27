@@ -75,6 +75,23 @@ function errorMessage( error: unknown ): string {
 }
 
 /**
+ * Whether a failure is the expected "this build has no catalog for this
+ * locale" case: a 404. `downloadI18n()` rejects with
+ * `HTTP request failed: <status> <statusText>` and `fetchManifest()` mirrors
+ * that format, so the status is read back out of the message. Any other status
+ * — a 403 from a hardened languages directory, a 500 from the origin — means
+ * the catalog may well exist and something is in the way, which is exactly the
+ * class of failure that otherwise ships as a silently English UI.
+ *
+ * @param message - Message of the rejection.
+ * @return Whether the failure should be kept silent.
+ */
+function isMissingCatalog( message: string ): boolean {
+	const match = /^HTTP request failed: (\d+)\b/.exec( message );
+	return match !== null && match[ 1 ] === '404';
+}
+
+/**
  * Fetch the bundle list from the build's i18n manifest.
  *
  * @param moduleUrl - `import.meta.url` of the calling init module. wp-build
@@ -135,24 +152,23 @@ export async function loadI18nCatalogs(
 	}
 
 	const download = ( path: string ) =>
-		// No-op for en_US. An `HTTP request failed:` rejection means no catalog
-		// exists for this locale/build — the expected English fallback, kept
-		// silent. Any other error (loader state not set, malformed catalog
-		// JSON) is a real misconfiguration worth surfacing, but must never
-		// block the render.
+		// A 404 means no catalog exists for this locale/build — the expected
+		// English fallback, kept silent. Any other failure (another HTTP
+		// status, loader state not set, malformed catalog JSON) is a real
+		// misconfiguration worth surfacing, but must never block the render.
 		loader.downloadI18n( path, domain, 'plugin' ).catch( ( error: unknown ) => {
 			const message = errorMessage( error );
-			if ( ! message.startsWith( 'HTTP request failed:' ) ) {
+			if ( ! isMissingCatalog( message ) ) {
 				warn( `Failed to load "${ domain }" catalog (${ path }): ${ message }` );
 			}
 		} );
 
 	const load = async () => {
-		// A missing manifest (dev watch build) rejects with `HTTP request
-		// failed:` — expected, kept silent. Anything else is surfaced.
+		// A missing manifest (dev watch build) 404s — expected, kept silent.
+		// Anything else is surfaced.
 		const bundles = await fetchManifest( moduleUrl ).catch( ( error: unknown ) => {
 			const message = errorMessage( error );
-			if ( ! message.startsWith( 'HTTP request failed:' ) ) {
+			if ( ! isMissingCatalog( message ) ) {
 				warn( `Failed to load the i18n manifest for "${ domain }": ${ message }` );
 			}
 			return [] as string[];

@@ -169,6 +169,34 @@ describe( 'loadI18nCatalogs', () => {
 		assert.match( warnings[ 0 ], /build\/routes\/b\/content\.js.*state is not set/ );
 	} );
 
+	it( 'warns when the manifest request fails with a status other than 404', async () => {
+		installLoader( () => Promise.resolve() );
+		globalThis.fetch = () => Promise.resolve( { ok: false, status: 403, statusText: 'Forbidden' } );
+		const { loadI18nCatalogs } = await import( HELPER );
+
+		await assert.doesNotReject( loadI18nCatalogs( 'jetpack-test', MODULE_URL ) );
+		assert.equal( warnings.length, 1, 'a 403 is not the expected missing-manifest case' );
+		assert.match( warnings[ 0 ], /manifest.*403 Forbidden/ );
+	} );
+
+	it( 'warns when a catalog request fails with a status other than 404', async () => {
+		installLoader( path =>
+			Promise.reject(
+				new Error(
+					path.includes( '/a/' )
+						? 'HTTP request failed: 404 Not Found'
+						: 'HTTP request failed: 500 Internal Server Error'
+				)
+			)
+		);
+		installFetch( { bundles: [ 'build/routes/a/content.js', 'build/routes/b/content.js' ] } );
+		const { loadI18nCatalogs } = await import( HELPER );
+
+		await assert.doesNotReject( loadI18nCatalogs( 'jetpack-test', MODULE_URL ) );
+		assert.equal( warnings.length, 1, 'only the 500 is surfaced' );
+		assert.match( warnings[ 0 ], /build\/routes\/b\/content\.js.*500 Internal Server Error/ );
+	} );
+
 	it( 'skips the manifest fetch entirely for the en_US locale', async () => {
 		const calls = installLoader( () => Promise.resolve(), { locale: 'en_US' } );
 		const requests = installFetch( { bundles: [ 'build/a.js' ] } );
