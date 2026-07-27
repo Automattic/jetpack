@@ -50,7 +50,9 @@ export function ChartEmptyState( {
 }: ChartEmptyStateProps ) {
 	return (
 		<EmptyState.Root className={ styles.container }>
-			{ icon && <Icon size={ 48 } className={ styles.icon } icon={ icon } /> }
+			{ /* 40px matches the error state's glyph so adjacent widgets showing
+			     different states keep the same vertical rhythm. */ }
+			{ icon && <Icon size={ 40 } className={ styles.icon } icon={ icon } /> }
 			<EmptyState.Description>{ text }</EmptyState.Description>
 		</EmptyState.Root>
 	);

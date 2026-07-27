@@ -26,6 +26,7 @@ interface SearchTermViewsState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	error: unknown;
 	hasComparison: boolean;
 	refetch: () => void;
 }
@@ -51,6 +52,7 @@ export default function useSearchTermViews( {
 		isLoading,
 		isFetching,
 		isError: hasError,
+		error,
 		refetch,
 	} = useStatsSearchTerms( reportParams as Parameters< typeof useStatsSearchTerms >[ 0 ], {
 		maxRows: max,
@@ -63,15 +65,19 @@ export default function useSearchTermViews( {
 		previousViews: comparisonUsable ? item.previousViews : undefined,
 	} ) );
 
+	// The Stats queries carry `placeholderData: previousData => previousData`, so a
+	// failed range change keeps the prior period's rows in `data` while `isError`
+	// flips true. Only surface the error when there's nothing to show, so a transient
+	// refetch failure doesn't replace populated rows with the error state. `error` is
+	// gated by the same predicate so it is populated iff `isError` is true.
+	const showError = items.length === 0 && hasError;
+
 	return {
 		data: items,
 		isLoading,
 		isFetching,
-		// The Stats queries carry `placeholderData: previousData => previousData`, so a
-		// failed range change keeps the prior period's rows in `data` while `isError`
-		// flips true. Only surface the error when there's nothing to show, so a transient
-		// refetch failure doesn't replace populated rows with the error state.
-		isError: items.length === 0 && hasError,
+		isError: showError,
+		error: showError ? error : null,
 		hasComparison: comparisonUsable,
 		refetch,
 	};

@@ -3,8 +3,8 @@
  */
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import {
+	ReportDrilldownTable,
 	ReportErrorState,
-	ReportPerformanceChart,
 	ReportRecordsTable,
 	ReportCsvAction,
 	useReportCsvExport,
@@ -50,7 +50,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		</>
 	),
 	ReportPageTabs: () => null,
-	ReportPerformanceChart: jest.fn( () => null ),
+	ReportDrilldownTable: jest.fn( () => null ),
 	ReportRecordsTable: jest.fn( () => null ),
 	ReportCsvAction: jest.fn( () => <button>Download</button> ),
 	useReportCsvExport: jest.fn(),
@@ -76,8 +76,8 @@ jest.mock( '@wordpress/route', () => ( {
 const useRecordsMock = jest.mocked( usePostsReportRecords );
 const useSectionTabMock = jest.mocked( useSectionTab );
 const useReportCsvExportMock = jest.mocked( useReportCsvExport );
+const reportDrilldownTableMock = jest.mocked( ReportDrilldownTable );
 const reportErrorStateMock = jest.mocked( ReportErrorState );
-const reportPerformanceChartMock = jest.mocked( ReportPerformanceChart );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
 const reportCsvActionMock = jest.mocked( ReportCsvAction );
 
@@ -102,11 +102,6 @@ function buildRecords( {
 	return {
 		isError,
 		refetch: jest.fn(),
-		chart: {
-			primary: undefined,
-			comparison: undefined,
-			isLoading: false,
-		},
 		posts: {
 			rows: [
 				{
@@ -116,12 +111,14 @@ function buildRecords( {
 					link: 'https://example.com/hello-world',
 				},
 			],
+			hasComparison: false,
 			isLoading,
 			isFetching,
 			isError,
 		},
 		archives: {
 			rows: [],
+			hasComparison: false,
 			isLoading: false,
 			isFetching: false,
 			isError: false,
@@ -172,6 +169,14 @@ describe( 'PostsReportPage', () => {
 		);
 	} );
 
+	it( 'shows the Posts table loading while the active report is fetching', () => {
+		useRecordsMock.mockReturnValue( buildRecords( { isFetching: true } ) );
+
+		render( <PostsReportPage /> );
+
+		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ].isLoading ).toBe( true );
+	} );
+
 	it( 'does not render a page action when the hook disables export', () => {
 		useRecordsMock.mockReturnValue( buildRecords() );
 		useReportCsvExportMock.mockReturnValue( {
@@ -194,6 +199,7 @@ describe( 'PostsReportPage', () => {
 				label: '/category/news',
 				views: 8,
 				link: 'https://example.com/category/news',
+				isGroup: false,
 			},
 		];
 		useSectionTabMock.mockReturnValue( [ 'archives', jest.fn() ] );
@@ -216,7 +222,79 @@ describe( 'PostsReportPage', () => {
 		] );
 	} );
 
-	it( 'renders the error state instead of the chart and records table', () => {
+	// Legacy Stats exports the archives tree depth-first, keeping each group as a
+	// subtotal row and qualifying its descendants — `"Tags",300` then
+	// `"Tags > video",80`. Re-sorting the flattened rows by views would break
+	// that grouping, so the export leaves the order alone.
+	it( 'exports the archives tree with its groups and ancestor-qualified labels', () => {
+		const records = buildRecords();
+		records.archives.rows = [
+			{ id: 'tags-0', label: 'Tags', views: 300, isGroup: true },
+			{
+				id: 'tags-0-0',
+				parentId: 'tags-0',
+				label: 'video',
+				views: 80,
+				link: 'https://example.com/tag/video/',
+				isGroup: false,
+			},
+			{ id: 'cat-1', label: 'Categories', views: 201, isGroup: true },
+		];
+		useSectionTabMock.mockReturnValue( [ 'archives', jest.fn() ] );
+		useRecordsMock.mockReturnValue( records );
+
+		render( <PostsReportPage /> );
+
+		const { columns, rows } = reportCsvActionMock.mock.calls[ 0 ][ 0 ];
+		expect( rows.map( row => columns.map( column => column.getValue( row ) ) ) ).toEqual( [
+			[ 'Tags', 300, '' ],
+			[ 'Tags > video', 80, 'https://example.com/tag/video/' ],
+			[ 'Categories', 201, '' ],
+		] );
+		expect( useReportCsvExportMock ).toHaveBeenCalledWith(
+			expect.objectContaining( { sort: undefined } )
+		);
+	} );
+
+	it( 'renders Archives through the nested drilldown table', () => {
+		const records = buildRecords();
+		records.archives.rows = [
+			{
+				id: 'tags-0',
+				label: 'Tags',
+				views: 12,
+				isGroup: true,
+			},
+			{
+				id: 'tags-0-0',
+				parentId: 'tags-0',
+				label: 'Analytics',
+				views: 12,
+				isGroup: false,
+			},
+		];
+		records.archives.isFetching = true;
+		useSectionTabMock.mockReturnValue( [ 'archives', jest.fn() ] );
+		useRecordsMock.mockReturnValue( records );
+
+		render( <PostsReportPage /> );
+
+		expect( reportDrilldownTableMock ).toHaveBeenCalledTimes( 1 );
+		const drilldownProps = reportDrilldownTableMock.mock.calls[ 0 ][ 0 ];
+		expect( drilldownProps ).toEqual(
+			expect.objectContaining( {
+				data: records.archives.rows,
+				hideLevelMarkers: true,
+				isLoading: true,
+				searchLabel: 'Search archives',
+			} )
+		);
+		expect( drilldownProps.getItemParentId?.( records.archives.rows[ 1 ] ) ).toBe( 'tags-0' );
+		expect( drilldownProps.getItemId( records.archives.rows[ 1 ] ) ).toBe( 'tags-0-0' );
+		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
+	} );
+
+	it( 'renders the error state instead of the records table', () => {
 		useRecordsMock.mockReturnValue( buildRecords( { isError: true } ) );
 
 		render( <PostsReportPage /> );
@@ -225,8 +303,8 @@ describe( 'PostsReportPage', () => {
 			'Unable to load posts'
 		);
 		expect( reportErrorStateMock ).toHaveBeenCalled();
-		expect( reportPerformanceChartMock ).not.toHaveBeenCalled();
 		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
+		expect( reportDrilldownTableMock ).not.toHaveBeenCalled();
 	} );
 
 	it( 'refetches the report when Retry is clicked', async () => {

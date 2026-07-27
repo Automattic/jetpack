@@ -1,40 +1,59 @@
-import type { StatsNormalizedReport, StatsUtmItem } from '@jetpack-premium-analytics/data';
+import type {
+	StatsUtmComparisonItem,
+	StatsUtmComparisonTopPostItem,
+} from '@jetpack-premium-analytics/data';
 
-/** A single UTM value aggregated across the selected report range. */
+/** A UTM parent or nested post row shown in the report table. */
 export type UtmReportRow = {
 	id: string;
+	parentId?: string;
 	label: string;
+	groupLabel?: string;
+	postId?: number;
 	views: number;
+	previousViews?: number;
+	isGroup?: boolean;
 };
 
 /**
- * Flatten a normalized UTM report into one row per UTM value.
+ * Build a stable id for a post nested under a UTM parent.
  *
- * The current endpoint returns one range-level data point. Aggregating across
- * every point keeps this transform correct if the normalizer later exposes
- * bucketed responses, without mutating data held in the query cache.
- *
- * @param report - The normalized UTM report.
- * @return Aggregated UTM value rows.
+ * @param parentId - The UTM parent row id.
+ * @param post     - The nested post.
+ * @return The post row id.
  */
-export function aggregateUtmRows( report?: StatsNormalizedReport< StatsUtmItem > ): UtmReportRow[] {
-	// Key rows by the raw UTM tuple, not the display label: distinct tuples such as
-	// `["a / b","c"]` and `["a","b / c"]` format to the same label but are separate rows.
-	const byParamValues = new Map< string, UtmReportRow >();
+function getUtmPostRowId( parentId: string, post: StatsUtmComparisonTopPostItem ): string {
+	return JSON.stringify( [ parentId, post.id, post.href, post.label ] );
+}
 
-	for ( const point of report?.data ?? [] ) {
-		for ( const item of point.items ) {
-			const label = String( item.label ?? '' );
-			const key = item.paramValues ?? label;
-			const existing = byParamValues.get( key );
+/**
+ * Flatten comparison-aware UTM items into parent rows followed by their posts.
+ *
+ * @param items - The merged current/comparison UTM items.
+ * @return UTM parents and nested post rows in display order.
+ */
+export function aggregateUtmRows( items: StatsUtmComparisonItem[] ): UtmReportRow[] {
+	return items.flatMap( item => {
+		const label = String( item.label ?? '' );
+		// The raw tuple distinguishes labels that happen to format identically.
+		const id = JSON.stringify( [ 'utm', item.paramValues ?? label ] );
+		const parent: UtmReportRow = {
+			id,
+			label,
+			views: item.value,
+			previousViews: item.previousValue,
+			isGroup: true,
+		};
+		const posts = ( item.children ?? [] ).map( post => ( {
+			id: getUtmPostRowId( id, post ),
+			parentId: id,
+			label: String( post.label ?? '' ),
+			groupLabel: label,
+			postId: post.id,
+			views: post.value,
+			previousViews: post.previousValue,
+		} ) );
 
-			if ( existing ) {
-				existing.views += item.value;
-			} else {
-				byParamValues.set( key, { id: key, label, views: item.value } );
-			}
-		}
-	}
-
-	return [ ...byParamValues.values() ];
+		return [ parent, ...posts ];
+	} );
 }

@@ -10,10 +10,10 @@ import {
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
 	ReportErrorState,
+	ReportDrilldownTable,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportPageTabs,
-	ReportRecordsTable,
 	ReportCsvAction,
 	useReportCsvExport,
 	useReportRetry,
@@ -38,8 +38,11 @@ import {
 
 const ROUTE_FROM = route.path;
 
+/*
+ * No default sort: rows arrive as UTM parents followed by their posts. The
+ * unsorted view preserves that hierarchy; user sorting stays within levels.
+ */
 const RECORDS_VIEW = {
-	sort: { field: 'views', direction: 'desc' as const },
 	layout: {
 		styles: {
 			utmValue: { width: '100%' },
@@ -58,6 +61,16 @@ const sortUtmCsvRows = ( a: UtmReportRow, b: UtmReportRow ) => b.views - a.views
  */
 function getUtmRowId( item: UtmReportRow ): string {
 	return item.id;
+}
+
+/**
+ * Resolve the UTM parent row id for nested post rows.
+ *
+ * @param item - The UTM or post row.
+ * @return The parent row id, if any.
+ */
+function getUtmRowParentId( item: UtmReportRow ): string | undefined {
+	return item.parentId;
 }
 
 /**
@@ -129,14 +142,16 @@ function UtmReport(): JSX.Element {
 						onRetry={ retry }
 					/>
 				) : (
-					<ReportRecordsTable< UtmReportRow >
+					<ReportDrilldownTable< UtmReportRow >
 						key={ activeTab }
 						data={ records.rows }
 						fields={ fields }
 						getItemId={ getUtmRowId }
+						getItemParentId={ getUtmRowParentId }
 						isLoading={ records.isLoading }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search UTM values', 'jetpack-premium-analytics' ) }
+						hideLevelMarkers
 					/>
 				) }
 			</ReportPageLayout>

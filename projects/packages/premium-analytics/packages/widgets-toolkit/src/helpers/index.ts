@@ -54,8 +54,10 @@ export {
 	type CsvDateRange,
 } from './build-csv';
 export { sharePercentage } from './share-percentage';
+export { getCombinedPeriodMax } from './get-combined-period-max';
 export { getVideoKey, getVideoLabel } from './video-plays';
 export { toMaxRows } from './to-max-rows';
+export { describeError } from './describe-error';
 export { summaryCount } from './summary-count';
 export { toDay } from './to-day';
 export { defaultPeriodForInterval } from './default-period-for-interval';

@@ -4,7 +4,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 
-type ForcedMockState = 'error' | 'loading' | 'empty';
+type ForcedMockState = 'error' | 'error-retryable' | 'loading' | 'empty';
 
 const stateOverrides = new Map< string, ForcedMockState >();
 
@@ -24,12 +24,24 @@ const forcedStateMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 			// (`summary` / `days` / `data`), so the widget resolves to its empty state.
 			return { date: '2026-01-01', period: 'day', summary: {}, days: {}, data: [] };
 		}
-		// A 403 is not retried by `shouldRetryApiError`, so the error UI shows at
-		// once instead of after the query's retry backoff.
+		if ( state === 'error-retryable' ) {
+			// The local proxy's `no_connection` shape. Still a 403, so the error UI
+			// shows at once, but `describeError` keeps it retryable: a broken Jetpack
+			// connection can heal, unlike a permission gate.
+			return Promise.reject( {
+				code: 'no_connection',
+				message: 'Mocked connection failure for Storybook.',
+				data: { status: 403 },
+			} );
+		}
+		// The WPCOM pass-through envelope, with the status attached the way the fetch
+		// layer attaches it. A 403 is not retried by `shouldRetryApiError`, so the
+		// error UI shows at once instead of after the query's retry backoff. Widgets
+		// on `describeError` read this as a permission gate and drop their Retry action.
 		return Promise.reject( {
-			code: 'stats_mock_error',
+			error: 'unauthorized',
 			message: 'Mocked error response for Storybook.',
-			data: { status: 403 },
+			status: 403,
 		} );
 	}
 
@@ -64,6 +76,9 @@ const forcedStateMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
  *   key carries no date params, a distinct preset can't isolate it — evict the
  *   query from the shared client on enter and cleanup instead (see the
  *   `latest-post` stories).
+ * - `'error'` mocks a permission-gated 403 and `'error-retryable'` the proxy's
+ *   `no_connection` 403. Widgets on `describeError` render a Retry action only
+ *   for the latter, so give those widgets a story for each.
  *
  * @param pathFragment - Substring matched against the request path (e.g. `stats/clicks`).
  * @param state        - The forced state, or `null` to clear.

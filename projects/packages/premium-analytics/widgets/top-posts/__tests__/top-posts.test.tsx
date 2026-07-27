@@ -333,7 +333,7 @@ describe( 'TopPostsWidget', () => {
 		).resolves.toBeInTheDocument();
 	} );
 
-	it( 'renders a delta when an overlapping comparison row has zero views', async () => {
+	it( 'renders an unavailable delta when an overlapping comparison row has zero views', async () => {
 		const zeroComparisonResponse = {
 			date: '2026-02-10',
 			days: {},
@@ -375,12 +375,13 @@ describe( 'TopPostsWidget', () => {
 		await expect(
 			screen.findByRole( 'link', { name: /^Hello World Post$/ } )
 		).resolves.toBeInTheDocument();
-		expect( screen.getByText( '+100%' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Percentage change unavailable' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '+100%' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders a placeholder instead of a fabricated delta for unmatched rows', async () => {
 		// Only one post overlaps the comparison period; the other must show the
-		// chart's placeholder, not a fabricated +100%.
+		// chart's missing-data placeholder, not an implied zero previous value.
 		const partialComparison = {
 			date: '2026-02-10',
 			days: {},
@@ -422,7 +423,8 @@ describe( 'TopPostsWidget', () => {
 		).resolves.toBeInTheDocument();
 		// Matched row: real delta (42 vs 21 → +100%). Unmatched row: placeholder.
 		expect( screen.getByText( /100%/ ) ).toBeInTheDocument();
-		expect( screen.getByText( '-' ) ).toBeInTheDocument();
+		expect( screen.getByText( '—' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'No comparison data' ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders the empty state when there are no views', async () => {
