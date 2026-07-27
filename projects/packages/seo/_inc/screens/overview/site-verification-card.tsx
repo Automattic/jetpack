@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { shield } from '@wordpress/icons';
+import { check } from '@wordpress/icons';
 import { Button, Card, Icon, Stack } from '@wordpress/ui';
 import { VERIFICATION_SERVICES } from '../../data/verification-services';
 import StatusDot from './status-dot';
@@ -23,7 +23,9 @@ const SiteVerificationCard: FC< Props > = ( { data, onManage } ) => (
 			<Card.Title>
 				<span className={ styles.cardTitle }>
 					{ __( 'Site verification', 'jetpack-seo' ) }
-					<Icon icon={ shield } size={ 20 } className={ styles.titleIcon } />
+					<span className={ styles.titleIcon }>
+						<Icon icon={ check } size={ 20 } />
+					</span>
 				</span>
 			</Card.Title>
 		</Card.Header>

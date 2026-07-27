@@ -60,8 +60,9 @@
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
-// Card title with a trailing accent icon. The icon sits after the title text so
-// the title still left-aligns with the card body below it.
+// Card title with a trailing accent icon, presented as a small tinted "chip"
+// badge. The icon sits after the title text so the title still left-aligns with
+// the card body below it.
 .cardTitle {
 	display: inline-flex;
 	align-items: center;
@@ -69,8 +70,15 @@
 }
 
 .titleIcon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 	flex: none;
+	inline-size: 30px;
+	block-size: 30px;
+	border-radius: 50%;
 	color: var(--wpds-color-foreground-interactive-brand);
+	background: color-mix(in sRGB, var(--wpds-color-foreground-interactive-brand) 13%, transparent);
 }
 
 // Interactive coverage ring: the whole ring is a button that deep-links to the

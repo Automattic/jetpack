@@ -1,7 +1,7 @@
 import { DonutMeter } from '@automattic/jetpack-components';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { postList } from '@wordpress/icons';
+import { formatListBullets } from '@wordpress/icons';
 import { Button, Card, Icon, Stack, Text, Tooltip } from '@wordpress/ui';
 import styles from './style.module.scss';
 import type { ContentCoverage } from '../../data/overview-types';
@@ -115,7 +115,9 @@ const ContentCoverageCard: FC< Props > = ( { data, onManage, onFilter } ) => {
 				<Card.Title>
 					<span className={ styles.cardTitle }>
 						{ __( 'Content SEO', 'jetpack-seo' ) }
-						<Icon icon={ postList } size={ 20 } className={ styles.titleIcon } />
+						<span className={ styles.titleIcon }>
+							<Icon icon={ formatListBullets } size={ 20 } />
+						</span>
 					</span>
 				</Card.Title>
 			</Card.Header>
