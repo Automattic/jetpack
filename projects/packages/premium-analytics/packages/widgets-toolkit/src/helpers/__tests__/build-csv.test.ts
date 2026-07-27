@@ -10,9 +10,9 @@ type Row = {
 };
 
 const columns: CsvColumn< Row >[] = [
-	{ key: 'label', label: 'Title' },
-	{ key: 'value', label: 'Views' },
-	{ key: 'href', label: 'URL' },
+	{ label: 'Title', getValue: row => row.label },
+	{ label: 'Views', getValue: row => row.value },
+	{ label: 'URL', getValue: row => row.href },
 ];
 
 describe( 'buildCsv', () => {
@@ -39,8 +39,8 @@ describe( 'buildCsv', () => {
 
 	it( 'renders null and undefined cells as empty strings', () => {
 		const sparseColumns: CsvColumn< Record< string, unknown > >[] = [
-			{ key: 'a', label: 'A' },
-			{ key: 'b', label: 'B' },
+			{ label: 'A', getValue: row => row.a },
+			{ label: 'B', getValue: row => row.b },
 		];
 		const csv = buildCsv( sparseColumns, [ { a: null, b: undefined } ] );
 		expect( csv ).toBe( '"A","B"\n"",""' );
@@ -54,22 +54,22 @@ describe( 'buildCsv', () => {
 		[ '\tindented', '"\'\tindented"' ],
 		[ '\rreturn', '"\'\rreturn"' ],
 	] )( 'neutralizes formula injection for %j', ( input, expected ) => {
-		const csv = buildCsv( [ { key: 'a', label: 'A' } ], [ { a: input } ] );
+		const csv = buildCsv( [ { label: 'A', getValue: row => row.a } ], [ { a: input } ] );
 		expect( csv.split( '\n' )[ 1 ] ).toBe( expected );
 	} );
 
 	it( 'does not prefix negative numbers', () => {
-		const csv = buildCsv( [ { key: 'a', label: 'A' } ], [ { a: -12 } ] );
+		const csv = buildCsv( [ { label: 'A', getValue: row => row.a } ], [ { a: -12 } ] );
 		expect( csv.split( '\n' )[ 1 ] ).toBe( '"-12"' );
 	} );
 
 	it( 'does not prefix negative bigints', () => {
-		const csv = buildCsv( [ { key: 'a', label: 'A' } ], [ { a: -12n } ] );
+		const csv = buildCsv( [ { label: 'A', getValue: row => row.a } ], [ { a: -12n } ] );
 		expect( csv.split( '\n' )[ 1 ] ).toBe( '"-12"' );
 	} );
 
 	it( 'neutralizes non-finite numbers that start with a sign', () => {
-		const csv = buildCsv( [ { key: 'a', label: 'A' } ], [ { a: -Infinity } ] );
+		const csv = buildCsv( [ { label: 'A', getValue: row => row.a } ], [ { a: -Infinity } ] );
 		expect( csv.split( '\n' )[ 1 ] ).toBe( '"\'-Infinity"' );
 	} );
 } );

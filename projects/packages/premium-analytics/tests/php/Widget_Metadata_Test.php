@@ -53,9 +53,9 @@ class Widget_Metadata_Test extends BaseTestCase {
 		remove_filter( 'gettext_with_context', $callback );
 
 		$this->assertSame( 'Hello world', $widget['title'], 'Untranslated strings pass through unchanged.' );
-		$this->assertContains( array( 'Hello world', 'widget title', 'jetpack-premium-analytics' ), $calls, 'The title is translated under the package domain.' );
-		$this->assertContains( array( 'A friendly greeting.', 'widget description', 'jetpack-premium-analytics' ), $calls, 'The description is translated under the package domain.' );
-		$this->assertContains( array( 'greeting', 'widget keyword', 'jetpack-premium-analytics' ), $calls, 'Each keyword is translated under the package domain.' );
+		$this->assertContains( array( 'Hello world', 'widget title', 'jetpack-premium-analytics-pkg' ), $calls, 'The title is translated under the package domain.' );
+		$this->assertContains( array( 'A friendly greeting.', 'widget description', 'jetpack-premium-analytics-pkg' ), $calls, 'The description is translated under the package domain.' );
+		$this->assertContains( array( 'greeting', 'widget keyword', 'jetpack-premium-analytics-pkg' ), $calls, 'Each keyword is translated under the package domain.' );
 	}
 
 	/**

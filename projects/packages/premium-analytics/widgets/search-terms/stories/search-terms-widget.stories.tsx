@@ -6,6 +6,7 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { withStoryRouter } from '../../stories/with-story-router';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
 	registerReportMocks,
@@ -13,6 +14,7 @@ import {
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SearchTermsRender from '../render';
 import widgetDefinition from '../widget';
+import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
@@ -21,14 +23,9 @@ registerReportMocks();
 
 const SEARCH_TERMS_RENDER_MODULE = 'storybook/search-terms';
 
-// Pick only the fields that StoryWidgetMetadata accepts; the attribute schema
-// and example arrays are typed differently in WidgetType and cause a type error.
-const storyWidgetType = {
-	name: widgetDefinition.name,
-	title: widgetDefinition.title,
-	icon: widgetDefinition.icon,
-	presentation: 'framed' as const,
-};
+// Build the story widget type from its manifest and module. `presentation`
+// comes from widget.json ( 'framed' ), so the host frames the widget.
+const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
 interface SearchTermsStoryControls {
 	withComparison: boolean;
@@ -104,8 +101,9 @@ export const Loading: Story = {
 };
 
 /**
- * The fetch failed: the widget shows its error state with a Retry action (which
- * re-runs the query — still mocked as failing while this story is active).
+ * The fetch failed with a permission-gated 403: the widget shows the neutral
+ * "You don't have access to this data." copy and no Retry action, since a
+ * permission gate is deterministic and retrying cannot clear it.
  */
 export const Error: Story = {
 	render: () => renderSearchTermsOnPreset( 'last-7-days' ),
@@ -113,6 +111,21 @@ export const Error: Story = {
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/search-terms', 'error' );
+		return () => setReportMockState( 'stats/search-terms', null );
+	},
+};
+
+/**
+ * The fetch failed in a way that can heal — the proxy's `no_connection` 403: the
+ * widget shows its retryable copy with a Retry action, which re-runs the query
+ * (still mocked as failing while this story is active).
+ */
+export const ErrorRetryable: Story = {
+	render: () => renderSearchTermsOnPreset( 'last-12-months' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+	beforeEach: () => {
+		setReportMockState( 'stats/search-terms', 'error-retryable' );
 		return () => setReportMockState( 'stats/search-terms', null );
 	},
 };

@@ -13,9 +13,7 @@ import type { SocialNotesConfig } from '../../social-store/types';
  * Social Notes lives in the Social plugin (the CPT registration is in
  * `projects/plugins/social/src/class-note.php`), so this card is only
  * mounted when the Social plugin is active. The chassis composes WPDS
- * primitives directly; the legacy `SocialNotesToggle` from
- * `_inc/components/admin-page/toggles/social-notes-toggle/` is left in
- * place for the legacy admin shell and is retired alongside it in PR 5.
+ * primitives directly.
  *
  * @return The card.
  */

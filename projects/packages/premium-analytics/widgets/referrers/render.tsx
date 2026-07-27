@@ -8,13 +8,16 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
-	LeaderboardLabel,
 	ReportLink,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	buildLeaderboardRow,
 	calculateDelta,
+	getCombinedPeriodMax,
+	resolveLeaderboardRowAction,
+	safeHttpUrl,
 	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -24,7 +27,6 @@ import {
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { globe } from '@wordpress/icons';
-import { Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -86,7 +88,7 @@ export function toReferrerRow( item: StatsReferrersComparisonItem ): ReferrerRow
 		label: item.label,
 		value: item.views,
 		previousValue: item.previousValue,
-		href: item.link ?? undefined,
+		href: safeHttpUrl( item.link ) ?? undefined,
 		icon: item.icon,
 		children: item.children?.map( toReferrerRow ),
 		...( item.childrenHaveComparison ? { childrenHaveComparison: true } : {} ),
@@ -106,55 +108,41 @@ function buildLeaderboardData(
 	withComparison: boolean,
 	onDrillDown?: ( row: ReferrerRow ) => void
 ): LeaderboardChartData {
-	const maxCurrentViews = Math.max( ...rows.map( row => row.value ), 1 );
-	const maxPreviousViews = Math.max( ...rows.map( row => row.previousValue ?? 0 ), 1 );
+	const maxViews = getCombinedPeriodMax(
+		rows.map( row => row.value ),
+		withComparison ? rows.map( row => row.previousValue ) : []
+	);
 
 	return rows.map( ( row, index ) => {
 		const previousValue = row.previousValue;
 		const hasPrevious = withComparison && previousValue !== undefined;
 		const hasChildren = !! row.children?.length;
-		const shouldRenderLink = !! row.href && ! hasChildren;
-		const label = (
-			<LeaderboardLabel
-				label={ row.label }
-				imageUrl={ row.icon ?? undefined }
-				imageAlt=""
-				imageFallback="hidden"
-				imageClassName={ styles.labelIcon }
-			/>
-		);
 
 		return {
 			id: `${ index }-${ row.href ?? row.label }`,
-			label: shouldRenderLink ? (
-				<Link
-					className={ styles.labelLink }
-					href={ row.href }
-					variant="unstyled"
-					openInNewTab
-					title={ row.label }
-				>
-					{ label }
-				</Link>
-			) : (
-				<span className={ styles.labelText } title={ row.label }>
-					{ label }
-				</span>
-			),
-			currentValue: row.value,
-			currentShare: sharePercentage( row.value, maxCurrentViews ),
-			previousValue,
-			previousShare: hasPrevious ? sharePercentage( previousValue, maxPreviousViews ) : undefined,
-			delta: hasPrevious ? calculateDelta( row.value, previousValue ) : undefined,
-			...( hasChildren &&
-				onDrillDown && {
-					onClick: () => onDrillDown( row ),
-					ariaLabel: sprintf(
-						/* translators: %s is the referrer group or domain label. */
-						__( 'View referrers for %s', 'jetpack-premium-analytics' ),
-						row.label
-					),
+			...buildLeaderboardRow( {
+				label: row.label,
+				media: { kind: 'favicon', url: row.icon ?? undefined },
+				action: resolveLeaderboardRowAction( {
+					href: row.href,
+					hasChildren,
+					drillDown: onDrillDown
+						? {
+								onClick: () => onDrillDown( row ),
+								ariaLabel: sprintf(
+									/* translators: %s is the referrer group or domain label. */
+									__( 'View referrers for %s', 'jetpack-premium-analytics-pkg' ),
+									row.label
+								),
+						  }
+						: undefined,
 				} ),
+			} ),
+			currentValue: row.value,
+			currentShare: sharePercentage( row.value, maxViews ),
+			previousValue,
+			previousShare: hasPrevious ? sharePercentage( previousValue, maxViews ) : undefined,
+			delta: hasPrevious ? calculateDelta( row.value, previousValue ) : undefined,
 		};
 	} );
 }
@@ -292,14 +280,14 @@ function ReferrersInner( { max }: { max: number } ) {
 	// one level up, or the full top-level list. The visible label stays short
 	// while the accessible name spells out the action.
 	const parentLabel = trail.length > 1 ? trail[ trail.length - 2 ].label : null;
-	const backLabel = parentLabel ?? __( 'All referrers', 'jetpack-premium-analytics' );
+	const backLabel = parentLabel ?? __( 'All referrers', 'jetpack-premium-analytics-pkg' );
 	const backAriaLabel = parentLabel
 		? sprintf(
 				/* translators: %s is the parent referrer group or source label. */
-				__( 'Back to %s', 'jetpack-premium-analytics' ),
+				__( 'Back to %s', 'jetpack-premium-analytics-pkg' ),
 				parentLabel
 		  )
-		: __( 'View all referrers', 'jetpack-premium-analytics' );
+		: __( 'View all referrers', 'jetpack-premium-analytics-pkg' );
 
 	return (
 		<div className={ styles.content }>
@@ -318,13 +306,13 @@ function ReferrersInner( { max }: { max: number } ) {
 				error={ {
 					description: __(
 						"We couldn't load referrers. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
 					icon: globe,
-					description: __( 'No referrers in this period.', 'jetpack-premium-analytics' ),
+					description: __( 'No referrers in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				<ReferrersLeaderboard

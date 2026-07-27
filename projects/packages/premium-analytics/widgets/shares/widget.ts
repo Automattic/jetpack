@@ -23,19 +23,11 @@ export type SharesAttributes = {
  * and has no comparison period, so the widget ignores the dashboard date range.
  */
 export default {
-	name: 'jpa/shares',
-	title: __( 'Shares', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'The platforms where your content was shared most often, sorted by number of shares.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: share,
 	attributes: [
 		{
 			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics' ),
+			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
 			type: 'integer',
 		},
 	] as WidgetAttributeField< SharesAttributes >[],

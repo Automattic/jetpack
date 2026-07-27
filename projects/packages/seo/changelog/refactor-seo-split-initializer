@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Split the Initializer class into Admin_Page, Content_Coverage, Dashboard_Data and Surface_Visibility. No behavior change.

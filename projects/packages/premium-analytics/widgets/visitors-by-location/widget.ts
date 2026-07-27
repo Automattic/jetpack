@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { mapMarker } from '@wordpress/icons';
 
 /**
@@ -23,13 +22,5 @@ export type VisitorsByLocationAttributes = Record< never, never >;
  * dashboards can opt in.
  */
 export default {
-	name: 'jpa/visitors-by-location',
-	title: __( 'Visitors by location', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'See where your store visitors are located geographically.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: mapMarker,
 };

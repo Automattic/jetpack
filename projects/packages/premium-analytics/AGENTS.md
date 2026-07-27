@@ -11,7 +11,9 @@ Jetpack Premium Analytics is the unified analytics dashboard for Jetpack-connect
 
 - Composer package: `automattic/jetpack-premium-analytics`
 - PHP namespace: `Automattic\Jetpack\PremiumAnalytics`
-- Text domain / REST namespace: `jetpack-premium-analytics` / `jetpack-premium-analytics/v1`
+- Text domain / REST namespace: `jetpack-premium-analytics-pkg` / `jetpack-premium-analytics/v1`
+  (the `-pkg` suffix keeps the package's domain distinct from the plugin slug it ships under;
+  `Assets::alias_textdomain()` maps it back to the plugin's domain at runtime)
 
 ## How it works
 
@@ -197,16 +199,16 @@ Each new widget MUST ship as a self-contained folder with these files:
 ```text
 widgets/<widget-name>/
 ├── package.json                            # workspace package; link: deps on widgets-toolkit
-├── widget.json                             # declarative metadata (name, title, description, category)
-├── widget.ts                               # runtime widget type definition (icon + translatable strings)
+├── widget.json                             # declarative metadata (name, title, description, help, category, presentation)
+├── widget.ts                               # runtime-only definition (icon, attributes, example)
 ├── render.tsx                              # the React component, wrapped in <WidgetRoot> from widgets-toolkit
 └── stories/<widget-name>-widget.stories.tsx
 ```
 
 Notes:
 
-- `name` in both `widget.json` and `widget.ts` MUST use the `jpa/` prefix
-  (e.g. `jpa/<widget-name>`).
+- `name` lives in `widget.json` and MUST use the `jpa/` prefix
+  (e.g. `jpa/<widget-name>`). `widget.ts` no longer declares it.
 - Keep `render.tsx` thin: compose toolkit primitives (`WidgetRoot`,
   `OrderMetricWidget`, etc.) rather than reimplementing data fetching, chart wiring, or
   theming.
@@ -318,10 +320,12 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import MyWidgetRender from '../render';
 import widgetDefinition from '../widget';
+import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
@@ -377,7 +381,7 @@ function MyWidgetDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControl
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ widgetDefinition }
+			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ MY_WIDGET_RENDER_MODULE }
 			renderComponent={ MyWidgetRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ { reportParams: getDefaultQueryParams( true ) } }
@@ -463,12 +467,16 @@ module has a special failure mode. Prefer adding those shapes to the widget's ex
 over creating one-off state stories unless the state needs direct review.
 
 To review a widget's loading / error / empty state directly, force it with
-`setReportMockState( '<endpoint>', 'loading' | 'error' | 'empty' )` in the story's `beforeEach`,
-clearing it in the returned cleanup. Keep such stories off the shared autodocs page
-(`tags: [ '!autodocs' ]`, since the override is keyed by path and would otherwise force the
-sibling stories into the same state) and give each one a date preset distinct from the other
-stories so it hits the mock fresh instead of reading their cached success. See
+`setReportMockState( '<endpoint>', 'loading' | 'error' | 'error-retryable' | 'empty' )` in the
+story's `beforeEach`, clearing it in the returned cleanup. Keep such stories off the shared
+autodocs page (`tags: [ '!autodocs' ]`, since the override is keyed by path and would otherwise
+force the sibling stories into the same state) and give each one a date preset distinct from the
+other stories so it hits the mock fresh instead of reading their cached success. See
 `widgets/search-terms/stories/` for the reference.
+
+`error` mocks a permission-gated 403 and `error-retryable` the proxy's `no_connection` 403. A
+widget that maps its error through `describeError` renders a Retry action only for the latter, so
+give it a story for each; both mocks are 403s, so neither waits out the query's retry backoff.
 
 ### Widget pitfalls
 
@@ -476,8 +484,10 @@ stories so it hits the mock fresh instead of reading their cached success. See
   legacy widgets that haven't been migrated yet.
 - Using the legacy `withWidgetRoot()` decorator for new stories — new widgets render via the
   real `WidgetDashboard` through the shared story helper instead.
-- Declaring `presentation` in `widget.ts` — `widget.json` is the source of truth for that
-  field; omit it from `widget.ts` entirely.
+- Declaring `name`, `title`, `help`, `description`, `category`, or `presentation` in
+  `widget.ts` — `widget.json` is the source of truth for all declarative metadata; the
+  `widget.ts` default export carries only `icon`, `attributes`, and `example`. Stories read
+  those declarative fields from `widget.json` via `createStoryWidgetType()`.
 - Re-declaring the attribute type in `render.tsx` — the shape is declared once in `widget.ts`
   and imported in `render.tsx`; render-only types may compose that imported shape with host
   fields like `Partial<ReportParamsFieldAttributes>`, but must not duplicate the shape.
@@ -493,6 +503,8 @@ stories so it hits the mock fresh instead of reading their cached success. See
   sizing when the style is not part of the shipped widget UI.
 - Reimplementing a utility that already exists in `widgets-toolkit` (e.g. `flagUrl`) — check
   `packages/widgets-toolkit/src/helpers/` before writing a new one.
+- Passing a URL from report data straight to `href` — it must go through `safeHttpUrl` first.
+  See "Remote URLs in links" below; nothing upstream validates the scheme.
 - Importing `@automattic/charts` directly from a widget — chart components must come through
   `@jetpack-premium-analytics/widgets-toolkit` (a shared script module). A direct import
   bundles the entire charting stack into that widget's render bundle; add a re-export to the
@@ -525,14 +537,24 @@ the query factory — do not do it in the widget or the view hook.
 
 **`max` semantics**
 
-`max = 0` means "all rows". Use `slice( 0, max > 0 ? max : undefined )`, never
+`max = 0` means "all rows" — but only where the widget caps rows _after_ fetching,
+via `limitStatsRows()`. Use `slice( 0, max > 0 ? max : undefined )`, never
 `slice( 0, max )` (the latter returns an empty array when `max` is 0).
+
+Where `max` is instead passed straight to the endpoint as a request param, it is a
+page size and `0` carries no "all rows" meaning — clamp it to the widget's own
+default. `widgets/subscribers-list/render.tsx` is the current example: its
+`stats/followers` request is paginated, so it falls back to 6.
 
 **Loading / error / empty state**
 
 Render these states through `<WidgetState>` from `@jetpack-premium-analytics/widgets-toolkit`
 rather than hand-rolling `if ( isError )` / empty branches or a `WidgetLoadingOverlay`. Map the
-data/view hook's result to its four signals and pass generic descriptors:
+data/view hook's result to its four signals. For Stats API errors, pass the raw `error` to the
+shared `describeError()` mapper so 403 access failures have neutral copy and no retry action,
+while other failures — including the proxy's `no_connection` 403, which can heal after
+reconnecting — offer Retry. Pass the retryable copy as a full sentence (not a fragment
+interpolated into a shared frame) so translators see the whole sentence:
 
 ```tsx
 <WidgetState
@@ -541,11 +563,11 @@ data/view hook's result to its four signals and pass generic descriptors:
 	isEmpty={ data.length === 0 }
 	// isFetching is optional: a background refetch shows a non-blocking busy overlay
 	// over the existing rows instead of hiding them.
-	error={ {
-		description: __( "We couldn't load this data. Please try again in a moment.", 'jetpack-premium-analytics' ),
-		actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
-	} }
-	empty={ { icon: search, description: __( 'No search terms in this period.', 'jetpack-premium-analytics' ) } }
+	error={ describeError( error, {
+		retryDescription: __( "We couldn't load search terms. Please try again in a moment.", 'jetpack-premium-analytics-pkg' ),
+		onRetry: refetch,
+	} ) }
+	empty={ { icon: search, description: __( 'No search terms in this period.', 'jetpack-premium-analytics-pkg' ) } }
 >
 	<LeaderboardChart … />
 </WidgetState>
@@ -555,6 +577,9 @@ data/view hook's result to its four signals and pass generic descriptors:
 `isFetching` and data are shown) and swaps only the content area. Notes:
 
 - Expose `refetch` from the data/view hook so the error state's Retry can re-run the query.
+- When a view hook masks `isError` (e.g. `rows.length === 0 && isError` to keep placeholder
+  rows), gate `error` with the same predicate (`error: showError ? error : null`) so the two
+  fields can't disagree.
 - Give `empty.icon` a neutral glyph distinct from the error icon — the widget's own glyph from
   `@jetpack-premium-analytics/icons` (e.g. `search`, `customer`); omit it for no icon. Don't use
   a caution glyph: empty is not an error.
@@ -566,8 +591,8 @@ data/view hook's result to its four signals and pass generic descriptors:
 > Many Stats widgets predate this and still hand-roll loading/empty via `<WidgetLoadingOverlay>`,
 > `isLoading && data.length === 0`, and `LeaderboardChart`'s `emptyStateText`. They are being
 > migrated to `<WidgetState>` — follow the contract above, not those widgets.
-> `widgets/search-terms/render.tsx` is the reference. (A `describeError` mapper and a
-> `ReportWidget` wrapper that remove the per-widget error/retry boilerplate are planned follow-ups.)
+> `widgets/search-terms/render.tsx` is the reference. (A `ReportWidget` wrapper that removes the
+> remaining per-widget state boilerplate is a planned follow-up.)
 
 **Comparison data**
 
@@ -590,7 +615,33 @@ Widgets should consume `comparisonRows?.rows` and the hook-level `hasComparison`
 `mergeStats*ComparisonRows()` or duplicate the row-overlap guard from render/view code.
 Widget-level mapping may still add presentation-only fields such as labels, icons, links,
 shares, or chart colors. Leave missing `previousValue`/`previousShare`/`delta` values as
-`undefined` so charts suppress the row delta instead of rendering fake `0%` or `100%` changes.
+`undefined` so charts show the missing-data placeholder, instead of coercing them to `0` and
+implying a real zero previous period.
+
+For comparison leaderboards, calculate one denominator from the largest value represented in
+either period with `getCombinedPeriodMax()`. Use that denominator for both `currentShare` and
+`previousShare`; separate per-period maxima make equal-width bars represent different values and
+can contradict the displayed delta. Only include visible primary rows and their matched comparison
+values in the denominator. Missing comparison values remain `undefined` and are ignored.
+
+**Remote URLs in links**
+
+Pass every URL from report data through `safeHttpUrl` from `@jetpack-premium-analytics/ui`
+(re-exported by `widgets-toolkit` for widgets) before using it as an `href`. It allows http(s)
+only; render a plain-text fallback when it returns `null`:
+
+```tsx
+const href = safeHttpUrl( item.link );
+// …
+return href ? <Link href={ href }>{ label }</Link> : <span>{ label }</span>;
+```
+
+Pass `{ allowRelative: true }` only where the endpoint is known to return a root-relative path
+— currently just the file-download sinks, whose `relative_url` fallback has no scheme.
+
+Guard in the widget or route layer, either where the row is mapped or at the link itself, but
+never in `packages/data/`: some modules key comparison rows on the raw URL. Locally constructed
+URLs do not need the guard.
 
 **Drill-down leaderboards**
 

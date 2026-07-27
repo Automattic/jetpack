@@ -58,7 +58,7 @@ function Highlight( { label, value, percent }: HighlightProps ) {
 			<Text variant="body-md" className={ styles.caption }>
 				{ sprintf(
 					/* translators: %d: share of total views as a whole percent. */
-					__( '%d%% of views', 'jetpack-premium-analytics' ),
+					__( '%d%% of views', 'jetpack-premium-analytics-pkg' ),
 					percent
 				) }
 			</Text>
@@ -90,29 +90,32 @@ function MostPopularTimeReport() {
 				error={ {
 					description: __(
 						"We couldn't load your most popular time. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 					actions: [
-						{ label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: () => void refetch() },
+						{
+							label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
+							onClick: () => void refetch(),
+						},
 					],
 				} }
 				empty={ {
 					icon: scheduled,
 					description: __(
 						'Not enough data to determine your most popular time yet.',
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 				} }
 			>
 				{ report?.day && report?.hour && (
 					<Stack className={ styles.root } direction="column" gap="lg">
 						<Highlight
-							label={ __( 'Best day', 'jetpack-premium-analytics' ) }
+							label={ __( 'Best day', 'jetpack-premium-analytics-pkg' ) }
 							value={ report.day }
 							percent={ report.percent ?? 0 }
 						/>
 						<Highlight
-							label={ __( 'Best hour', 'jetpack-premium-analytics' ) }
+							label={ __( 'Best hour', 'jetpack-premium-analytics-pkg' ) }
 							value={ report.hour }
 							percent={ report.hourPercent ?? 0 }
 						/>

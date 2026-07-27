@@ -60,7 +60,7 @@ export function buildTotalReturnsData(
 			data: [
 				{ label: 'Total sales', value: salesAmount },
 				{
-					label: __( 'Refunds', 'jetpack-premium-analytics' ),
+					label: __( 'Refunds', 'jetpack-premium-analytics-pkg' ),
 					value: refundsAmount,
 				},
 			],
@@ -77,11 +77,11 @@ export function buildTotalReturnsData(
 			label: comparisonLabel,
 			data: [
 				{
-					label: __( 'Total sales', 'jetpack-premium-analytics' ),
+					label: __( 'Total sales', 'jetpack-premium-analytics-pkg' ),
 					value: comparisonSalesAmount,
 				},
 				{
-					label: __( 'Refunds', 'jetpack-premium-analytics' ),
+					label: __( 'Refunds', 'jetpack-premium-analytics-pkg' ),
 					value: comparisonTotalRefunds,
 				},
 			],

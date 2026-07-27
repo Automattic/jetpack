@@ -57,29 +57,29 @@ export function Syncing() {
 	const hasStoreData = data?.hasStoreData ?? false;
 
 	const title = error
-		? __( 'Sync interrupted', 'jetpack-premium-analytics' )
-		: __( "We're preparing your data", 'jetpack-premium-analytics' );
+		? __( 'Sync interrupted', 'jetpack-premium-analytics-pkg' )
+		: __( "We're preparing your data", 'jetpack-premium-analytics-pkg' );
 
 	let description;
 	if ( error ) {
 		description = hasStoreData
 			? __(
 					'Something went wrong while syncing your store data. Please try again.',
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 			  )
 			: __(
 					'Something went wrong while syncing your site data. Please try again.',
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 			  );
 	} else {
 		description = hasStoreData
 			? __(
 					'Your store data is being synced. This may take a few minutes depending on the size of your store.',
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 			  )
 			: __(
 					'Your site data is being synced. This may take a few minutes.',
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 			  );
 	}
 
@@ -116,7 +116,7 @@ export function Syncing() {
 					disabled={ isTriggering }
 					loading={ isTriggering }
 				>
-					{ __( 'Try again', 'jetpack-premium-analytics' ) }
+					{ __( 'Try again', 'jetpack-premium-analytics-pkg' ) }
 				</Button>
 			) }
 		</Stack>

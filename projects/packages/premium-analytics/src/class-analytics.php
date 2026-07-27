@@ -290,7 +290,7 @@ class Analytics {
 		// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by function_exists() above.
 		jpa_register_jetpack_premium_analytics_menu_item(
 			'dashboard',
-			__( 'Dashboard', 'jetpack-premium-analytics' ),
+			__( 'Dashboard', 'jetpack-premium-analytics-pkg' ),
 			'/'
 		);
 	}

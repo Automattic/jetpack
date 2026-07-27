@@ -47,35 +47,27 @@ export type EmailTimeSeriesAttributes = {
  * the timeline spans the dashboard date range.
  */
 export default {
-	name: 'jpa/email-time-series',
-	title: __( 'Email performance', 'jetpack-premium-analytics' ),
 	icon: envelope,
-	help: {
-		content: __(
-			'How a single email performed over time: opens or clicks per day since it was sent, following the dashboard date range. Weekly and monthly grouping aggregate the daily buckets.',
-			'jetpack-premium-analytics'
-		),
-	},
 	attributes: [
 		{
 			id: 'metric',
-			label: __( 'Metric', 'jetpack-premium-analytics' ),
+			label: __( 'Metric', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
 			Edit: SelectField,
 			elements: [
-				{ label: __( 'Opens', 'jetpack-premium-analytics' ), value: 'opens' },
-				{ label: __( 'Clicks', 'jetpack-premium-analytics' ), value: 'clicks' },
+				{ label: __( 'Opens', 'jetpack-premium-analytics-pkg' ), value: 'opens' },
+				{ label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ), value: 'clicks' },
 			],
 		},
 		{
 			id: 'granularity',
-			label: __( 'Group by', 'jetpack-premium-analytics' ),
+			label: __( 'Group by', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
 			Edit: SelectField,
 			elements: [
-				{ label: __( 'By days', 'jetpack-premium-analytics' ), value: 'day' },
-				{ label: __( 'By weeks', 'jetpack-premium-analytics' ), value: 'week' },
-				{ label: __( 'By months', 'jetpack-premium-analytics' ), value: 'month' },
+				{ label: __( 'By days', 'jetpack-premium-analytics-pkg' ), value: 'day' },
+				{ label: __( 'By weeks', 'jetpack-premium-analytics-pkg' ), value: 'week' },
+				{ label: __( 'By months', 'jetpack-premium-analytics-pkg' ), value: 'month' },
 			],
 			relevance: 'high',
 		},

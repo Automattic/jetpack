@@ -22,25 +22,11 @@ export type ClicksAttributes = {
  * via the PA proxy at `stats/clicks`.
  */
 export default {
-	name: 'jpa/clicks',
-	title: __( 'Clicks', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'The external links your visitors clicked most often, sorted by clicks.',
-			'jetpack-premium-analytics'
-		),
-		links: [
-			{
-				label: __( 'Learn more', 'jetpack-premium-analytics' ),
-				href: 'https://jetpack.com/support/jetpack-stats/',
-			},
-		],
-	},
 	icon: link,
 	attributes: [
 		{
 			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics' ),
+			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
 			type: 'integer',
 		},
 	] as WidgetAttributeField< ClicksAttributes >[],

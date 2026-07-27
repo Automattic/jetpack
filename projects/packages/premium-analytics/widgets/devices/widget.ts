@@ -23,26 +23,12 @@ export type DevicesAttributes = {
  * reportParams (the shared dashboard date picker).
  */
 export default {
-	name: 'jpa/devices',
-	title: __( 'Devices', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'A breakdown of the device types your visitors used, sorted by views.',
-			'jetpack-premium-analytics'
-		),
-		links: [
-			{
-				label: __( 'Learn more', 'jetpack-premium-analytics' ),
-				href: 'https://jetpack.com/support/jetpack-stats/',
-			},
-		],
-	},
 	icon: desktop,
 	attributes: [
 		{
 			id: 'max',
-			label: __( 'Max rows', 'jetpack-premium-analytics' ),
-			type: 'number',
+			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
+			type: 'integer',
 		},
 	] as WidgetAttributeField< DevicesAttributes >[],
 	example: {

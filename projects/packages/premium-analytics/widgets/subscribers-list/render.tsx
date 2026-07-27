@@ -96,12 +96,14 @@ type SubscribersReportProps = {
 function SubscribersReport( { attributes }: SubscribersReportProps ) {
 	// Show six rows by default (matching the card design). A missing or
 	// non-positive setting falls back to that default — `?? 6` alone wouldn't,
-	// since an explicit `0` from the number field is not nullish.
-	const num = attributes?.num && attributes.num > 0 ? attributes.num : 6;
+	// since an explicit `0` from the number field is not nullish. `max` goes
+	// straight to the paginated `stats/followers` endpoint, which has no
+	// client-side cap, so 0 does not mean "all rows" here.
+	const max = attributes?.max && attributes.max > 0 ? attributes.max : 6;
 
 	const { data, isLoading, isFetching, isError, refetch } = useStatsFollowers( {
 		type: 'all',
-		max: num,
+		max,
 	} );
 
 	const report = data as StatsNormalizedReport< StatsFollowersItem > | undefined;
@@ -124,13 +126,13 @@ function SubscribersReport( { attributes }: SubscribersReportProps ) {
 			error={ {
 				description: __(
 					"We couldn't load subscribers. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: customer,
-				description: __( 'No subscribers yet.', 'jetpack-premium-analytics' ),
+				description: __( 'No subscribers yet.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			<SubscribersRoster items={ items } moreCount={ moreCount } />

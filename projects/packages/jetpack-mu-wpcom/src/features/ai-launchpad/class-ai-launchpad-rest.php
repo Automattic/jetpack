@@ -21,14 +21,20 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 	const MIN_VALID_TASKS = 4;
 
-	// `woo_launch_site` stays a valid launch task so a stray AI emission passes PUT validation and is normalized to
-	// `site_launched` on read (see build_tasks), rather than failing the whole list into the deterministic fallback.
+	// `woo_launch_site`, `link_in_bio_launched`, and `videopress_launched` stay valid launch tasks so a stray AI
+	// emission passes PUT validation rather than failing the whole list into the deterministic fallback. It is
+	// normalized to `site_launched` as it is persisted (see update_tailored) and again on read (see build_tasks,
+	// which is what covers lists persisted before the write-side remap existed).
 	const LAUNCH_TASK_IDS = array( 'site_launched', 'blog_launched', 'woo_launch_site', 'link_in_bio_launched', 'videopress_launched' );
 
 	/**
 	 * Tasks the AI Launchpad marks complete on CTA click, because their real signal is unreachable from wp-admin.
 	 *
 	 * Server-side allowlist so the complete-task route can only tick these ids. Mirrored client-side in model.ts.
+	 *
+	 * A registry task may be listed here, but only if its `is_complete` reads `launchpad_checklist_tasks_statuses`:
+	 * that is the option complete_task() writes for it, and a definition computing completion from live site state
+	 * would ignore the write and render as to-do straight after being ticked.
 	 */
 	const COMPLETE_ON_CLICK_TASK_IDS = array(
 		'complete_profile',
@@ -39,19 +45,19 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		'site_monitoring_page',
 		'setup_ssh',
 		'share_site',
+		'pick_fonts_colors',
 	);
 
 	/**
 	 * Task ids the AI Launchpad synthesizes itself (never present in the AI payload): the sell goal's store-setup
-	 * lead tasks and the niche-gated gallery task. Skips must accept them alongside the AI-selected ids.
+	 * lead tasks. Skips must accept them alongside the AI-selected ids.
 	 *
-	 * Must list every id minted by build_store_tasks() / build_gallery_task() — a synthetic task missing here
-	 * renders with a Skip button whose write is rejected.
+	 * Must list every id minted by build_store_tasks() — a synthetic task missing here renders with a
+	 * Skip button whose write is rejected.
 	 */
 	const SYNTHETIC_TASK_IDS = array(
 		'install_woocommerce',
 		'setup_woocommerce_store',
-		'add_gallery_page',
 	);
 
 	/**
@@ -91,10 +97,78 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 	/**
 	 * Jetpack Social tasks, hidden on private sites where wpcom does not load Publicize (so their CTA page would 404).
+	 * `drive_traffic` needs no entry: it remaps onto `connect_social_media` before this gate runs.
 	 */
 	const SOCIAL_PAGE_TASK_IDS = array(
 		'connect_social_media',
-		'drive_traffic',
+	);
+
+	/**
+	 * Tasks the model may pick only when the site's goal is one of the listed goals.
+	 *
+	 * These were prose rules in the tailoring prompt ("Only include woo_* if the goal is sell OR the user
+	 * explicitly mentions selling"). Prose is not enforcement: the model can ignore it, and when the
+	 * available-tasks lookup fails the prompt falls back to the unfiltered menu. Enforced here instead, at
+	 * both ends — the menu never offers them (available_task_ids) and PUT drops them (update_tailored).
+	 *
+	 * The free-text escape hatch is deliberately gone. The wizard goal is an explicit user choice, and the
+	 * escape hatch was the non-determinism being removed.
+	 *
+	 * The two directions of disagreement with a task's `goals` annotation in js/lib/prompts.ts are not
+	 * equivalent, and only one is acceptable:
+	 *
+	 * - Annotation BROADER than this map is fine. The annotation is soft affinity for the model, this is the
+	 *   hard rule, and a task can be a tasteful fit for a goal it is not permitted on — the rule still blocks
+	 *   it. The payment tasks are the live example: annotated for `newsletter` as well as `sell`, permitted
+	 *   only on `sell`.
+	 * - Annotation NARROWER than this map is a bug. It means a task the annotation itself calls goal-specific
+	 *   can be selected and persisted on any goal, which is the inappropriate-task problem this whole change
+	 *   exists to fix. `woo_tax`, `woo_marketing` and `woo_add_domain` were exactly that: annotated `sell`,
+	 *   unrestricted here, and renderable on a blog — their catalog gate
+	 *   (wpcom_launchpad_is_woocommerce_setup_visible) is goal-agnostic and passes on any WoA site with
+	 *   WooCommerce active, which is every site this feature runs on.
+	 *
+	 * So: every id annotated with a single goal belongs here. No exceptions — `sensei_setup` is listed even
+	 * though its catalog gate (WoA plus Sensei LMS active) already hides it almost everywhere, because a rule
+	 * with one documented exception is a rule the next auditor has to re-derive. AI_Launchpad_Task_Menu_Test
+	 * reads the annotations and fails if a single-goal one is missing here.
+	 *
+	 * The ids are matched after wpcom_ai_launchpad_remap_task_id(), so a twin of a restricted task is covered
+	 * by the entry for the id it renders as and must not be listed separately.
+	 */
+	const GOAL_RESTRICTED_TASK_IDS = array(
+		'woo_products'             => 'sell',
+		'woo_customize_store'      => 'sell',
+		'woo_woocommerce_payments' => 'sell',
+		'woo_tax'                  => 'sell',
+		'woo_marketing'            => 'sell',
+		'woo_add_domain'           => 'sell',
+		'set_up_payments'          => 'sell',
+		'stripe_connected'         => 'sell',
+		'add_10_email_subscribers' => 'newsletter',
+		'import_subscribers'       => 'newsletter',
+		'newsletter_plan_created'  => 'newsletter',
+		'sensei_setup'             => 'educate',
+	);
+
+	/**
+	 * Tasks excluded for one specific goal and allowed on every other — the inverse of GOAL_RESTRICTED_TASK_IDS.
+	 *
+	 * Split into its own map rather than folded in behind a `!sell` marker, so neither map needs a value whose
+	 * meaning flips on a prefix and each docblock describes all of its own entries.
+	 *
+	 * `add_gallery_page` is excluded for sell so a store site cannot end up with both the store sequence and a
+	 * gallery. get_current_tasks() used to enforce that structurally, through the if/else that injected the
+	 * gallery only on the non-sell branch; now that the model picks the gallery from the menu, this entry is
+	 * the only thing holding it — the menu never offers it on sell, and PUT drops it if the model picks it anyway.
+	 *
+	 * Both ends are write-side: build_tasks() applies no exclusion, so a payload that already holds an excluded id
+	 * renders it. Reaching that needs a compound failure (the availability lookup fails, so the prompt falls back
+	 * to the full menu, AND the wizard-goal option has not landed yet, so the goal comes from the model's echo).
+	 * True of every entry in both maps, not just this one; read-side enforcement is the fix if it ever bites.
+	 */
+	const GOAL_EXCLUDED_TASK_IDS = array(
+		'add_gallery_page' => 'sell',
 	);
 
 	/**
@@ -102,10 +176,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 *
 	 * Detected through the `_wpcom_ai_launchpad_first_post` marker meta (via AI_Launchpad_First_Post_Listener), so an
 	 * unrelated pre-existing draft never counts. Paired with `add_about_page`, which has its own marker meta.
+	 * `first_post_published_newsletter` needs no entry: it remaps onto `first_post_published` before this runs.
 	 */
 	const IN_PROGRESS_FIRST_POST_TASK_IDS = array(
 		'first_post_published',
-		'first_post_published_newsletter',
 	);
 
 	/**
@@ -382,7 +456,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
-	 * The site's tailored task list (AI-selected + synthetic store/gallery tasks, skip overlay applied) — the tasks
+	 * The site's tailored task list (AI-selected + the synthetic store tasks, skip overlay applied) — the tasks
 	 * GET renders, minus the ?all_tasks testing view. Shared by GET and the completion check.
 	 *
 	 * @return array
@@ -395,19 +469,14 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			? $ai_output['payload']
 			: array();
 		// Validate `inferred` as an array before reading from it, since a partial write could leave it non-array.
-		$inferred = isset( $payload['inferred'] ) && is_array( $payload['inferred'] ) ? $payload['inferred'] : array();
-		$niche    = isset( $inferred['niche'] ) && is_string( $inferred['niche'] )
-			? trim( $inferred['niche'] )
+		$inferred       = isset( $payload['inferred'] ) && is_array( $payload['inferred'] ) ? $payload['inferred'] : array();
+		$theme_category = isset( $inferred['theme_category'] ) && is_string( $inferred['theme_category'] )
+			? $inferred['theme_category']
 			: '';
 
-		// The AI's dedicated theme-search word beats the first-word-of-niche heuristic; outputs
-		// persisted before the field existed fall back to the niche.
-		$theme_keyword = isset( $inferred['theme_keyword'] ) && is_string( $inferred['theme_keyword'] )
-			? trim( $inferred['theme_keyword'] )
-			: '';
-		$theme_search  = '' !== $theme_keyword ? $theme_keyword : $niche;
-
-		$goal = isset( $inferred['goal'] ) && is_string( $inferred['goal'] ) ? $inferred['goal'] : '';
+		// The same authority update_tailored() enforces against: the user's own wizard goal, not the
+		// model's echo of it. Anything else lets PUT strip a goal's tasks while GET injects them.
+		$goal = wpcom_ai_launchpad_resolve_goal( $payload );
 
 		if ( ! function_exists( 'is_plugin_active' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -418,7 +487,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		// roadmap instead of dropping them (which would collapse the list to almost nothing).
 		$disable_hidden_woo = 'sell' === $goal && ! $woo_active;
 
-		$theme_cta = $this->get_themes_showcase_path( $goal, $theme_search );
+		$theme_cta = $this->get_themes_showcase_path( $goal, $theme_category );
 
 		$ai_tasks = isset( $payload['tasks'] ) && is_array( $payload['tasks'] ) ? $payload['tasks'] : array();
 
@@ -430,18 +499,12 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 		$tasks = empty( $ai_tasks ) ? array() : $this->build_tasks( $ai_tasks, false, $theme_cta, $disable_hidden_woo );
 
-		// The sell goal leads with the store-setup task; every other goal may offer the gallery task. They are
-		// mutually exclusive so a sell site with a visual niche doesn't also get an off-target gallery task.
+		// The sell goal leads with the store-setup tasks; the theme task then follows them: pick the
+		// store's look once the store exists. Other goals need no injection — the gallery task is now
+		// on the menu, so the AI picks it when the site is visual.
 		if ( 'sell' === $goal ) {
-			// The store-setup tasks lead the sell list. Their synthetic ids never appear in the AI payload, so a
-			// plain prepend is safe. The theme task then follows them: pick the store's look once the store exists.
 			$tasks = array_merge( $this->build_store_tasks( $woo_active ), $tasks );
 			$tasks = $this->move_task_after( $tasks, 'site_theme_selected', 'setup_woocommerce_store' );
-		} else {
-			$gallery = $this->build_gallery_task( $inferred );
-			if ( null !== $gallery ) {
-				$tasks = $this->insert_before_launch_task( $tasks, $gallery );
-			}
 		}
 
 		// Restore the list toward six after the visibility gate has dropped tasks (before skips, which are the
@@ -457,9 +520,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * The catalog visibility gate in build_tasks() drops any task it hides on this site (e.g. add_about_page needs a
 	 * page-template meta key that is absent during a REST request) with no replacement, so a gate-heavy AI pick can
 	 * collapse the list to two or three cards. This backfills from a small pool of broadly-useful tasks and keeps the
-	 * launch task last. The pool is run through build_tasks() in one pass, which gates and dedups it, so a pool task
-	 * the site hides simply does not appear. Backfilled cards are skippable (see skip_task); a fuller, AI-ranked
-	 * overflow pool is the eventual replacement.
+	 * launch task last. Candidates are built one at a time, stopping at the target, so the tail of the pool is only
+	 * evaluated when the earlier fillers were not enough — mobile_app_installed's completion check does a remote
+	 * lookup while incomplete, which the common short-by-one list never has to pay for. Backfilled cards are
+	 * skippable (see skip_task); a fuller, AI-ranked overflow pool is the eventual replacement.
 	 *
 	 * @param array  $tasks              The rendered task list, already gated, launch task last.
 	 * @param string $theme_cta          Pre-resolved themes-showcase CTA passed through to build_tasks().
@@ -472,25 +536,35 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			return $tasks;
 		}
 
-		$present    = array_column( $tasks, 'id' );
-		$candidates = array();
 		foreach ( $this->backfill_pool() as $id => $subtitle ) {
-			if ( ! in_array( $id, $present, true ) ) {
-				$candidates[] = array(
-					'id'       => $id,
-					'subtitle' => $subtitle,
-				);
-			}
-		}
-
-		// One build over every candidate: build_tasks() drops the gated ones and dedups, preserving pool order.
-		$built = $this->build_tasks( $candidates, false, $theme_cta, $disable_hidden_woo );
-		foreach ( $built as $task ) {
 			if ( count( $tasks ) >= $target ) {
 				break;
 			}
-			// A filler card that is already complete offers nothing to do; better a shorter list.
-			if ( ! empty( $task['completed'] ) ) {
+			$present = array_column( $tasks, 'id' );
+			if ( in_array( $id, $present, true ) ) {
+				continue;
+			}
+
+			// build_tasks() applies the same gating and remap the AI list gets, so a pool task the site
+			// hides simply does not appear.
+			$built = $this->build_tasks(
+				array(
+					array(
+						'id'       => $id,
+						'subtitle' => $subtitle,
+					),
+				),
+				false,
+				$theme_cta,
+				$disable_hidden_woo
+			);
+			if ( empty( $built ) ) {
+				continue;
+			}
+			$task = $built[0];
+			// A filler card that is already complete offers nothing to do; better a shorter list. The remap
+			// inside build_tasks() can also land the card on an id already present — skip that too.
+			if ( ! empty( $task['completed'] ) || in_array( $task['id'], $present, true ) ) {
 				continue;
 			}
 			$tasks = $this->insert_before_launch_task( $tasks, $task );
@@ -513,7 +587,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'design_edited'        => __( 'Make the design your own.', 'jetpack-mu-wpcom' ),
 			'add_new_page'         => __( 'Add a page your visitors will want, like About or Contact.', 'jetpack-mu-wpcom' ),
 			'connect_social_media' => __( 'Connect your social accounts to reach more people.', 'jetpack-mu-wpcom' ),
-			'drive_traffic'        => __( 'Help people discover your site.', 'jetpack-mu-wpcom' ),
+			'mobile_app_installed' => __( 'Manage your site from anywhere with the Jetpack app.', 'jetpack-mu-wpcom' ),
 		);
 	}
 
@@ -588,9 +662,11 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			}
 		}
 
-		// null = no key yet, i.e. the baseline pass right after tailoring.
+		// null = no key yet, i.e. the baseline pass right after tailoring. Remapped like the skip overlay: a
+		// baseline recorded under a since-remapped id must keep covering the id its card renders as now, or the
+		// same completion would be re-reported once under the new id.
 		$reported = isset( $ai_output['tracked_completed'] ) && is_array( $ai_output['tracked_completed'] )
-			? $ai_output['tracked_completed']
+			? array_values( array_unique( array_map( 'wpcom_ai_launchpad_remap_task_id', $ai_output['tracked_completed'] ) ) )
 			: null;
 		$newly    = array_values( array_diff( $completed, $reported ?? array() ) );
 
@@ -672,8 +748,24 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		$definitions = wpcom_launchpad_get_task_definitions();
 		$tasks       = array();
 
+		// The exclusions key off the goal the user chose, resolved through the shared helper so this and the
+		// read path cannot disagree about which goal the site has.
+		$excluded = self::excluded_task_ids_for_goal( wpcom_ai_launchpad_resolve_goal( $payload ) );
+
 		foreach ( $payload['tasks'] as $task ) {
-			if ( ! isset( $definitions[ $task['id'] ] ) ) {
+			// Judge — and persist — the id this task will actually render as. build_tasks() remaps broken and
+			// twinned ids on read, so checking the raw id would let a restricted task in under its other name:
+			// `subscribers_added` is off the menu and unrestricted, yet renders as the newsletter-restricted
+			// `import_subscribers`. The rule has to see the card, not the spelling.
+			$task_id = wpcom_ai_launchpad_remap_task_id( $task['id'] );
+
+			if ( ! isset( $definitions[ $task_id ] ) && ! AI_Launchpad_Task_Registry::has( $task_id ) ) {
+				continue;
+			}
+
+			// Goal-restricted tasks are dropped even if the model picked them: the menu filter is advisory
+			// (a failed availability lookup falls back to the full menu), this is not.
+			if ( in_array( $task_id, $excluded, true ) ) {
 				continue;
 			}
 
@@ -683,7 +775,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			}
 
 			$tasks[] = array(
-				'id'       => $task['id'],
+				'id'       => $task_id,
 				'subtitle' => $subtitle,
 			);
 		}
@@ -839,7 +931,13 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			);
 		}
 
-		wpcom_mark_launchpad_task_complete( $task_id );
+		// The registry's ids are not in the shared catalog, and wpcom_mark_launchpad_task_complete() drops
+		// what the catalog does not define, so those go through the registry's own write.
+		if ( AI_Launchpad_Task_Registry::has( $task_id ) ) {
+			AI_Launchpad_Task_Registry::mark_complete( $task_id );
+		} else {
+			wpcom_mark_launchpad_task_complete( $task_id );
+		}
 
 		// Latch now so completing the last task hides the menu on the next page load, not just on the next read.
 		$this->maybe_mark_completed();
@@ -993,6 +1091,34 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
+	 * The task ids that must not be offered to, or accepted from, the model for a given goal.
+	 *
+	 * The two maps read in opposite directions, and an unknown or empty goal matches neither: every
+	 * GOAL_RESTRICTED_TASK_IDS entry is excluded (it never got the goal it requires), while every
+	 * GOAL_EXCLUDED_TASK_IDS entry is allowed (it never hit the goal that excludes it).
+	 *
+	 * @param string $goal The selected goal.
+	 * @return string[]
+	 */
+	public static function excluded_task_ids_for_goal( $goal ) {
+		$excluded = array();
+
+		foreach ( self::GOAL_RESTRICTED_TASK_IDS as $task_id => $required_goal ) {
+			if ( $goal !== $required_goal ) {
+				$excluded[] = $task_id;
+			}
+		}
+
+		foreach ( self::GOAL_EXCLUDED_TASK_IDS as $task_id => $excluded_goal ) {
+			if ( $goal === $excluded_goal ) {
+				$excluded[] = $task_id;
+			}
+		}
+
+		return $excluded;
+	}
+
+	/**
 	 * The task ids that will actually render on this site for the given goal — the menu tailoring should choose from.
 	 *
 	 * Built by running the whole catalog through the real gate (visibility + force-visible overrides, and the sell
@@ -1001,6 +1127,12 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * which the output contract requires last even on a site that already launched. `renderable` keeps the completed
 	 * ones: the client falls back to it when completion leaves too few actionable tasks to fill a valid list. The
 	 * client intersects these with its own TASK_MENU. Computed once per wizard submit.
+	 *
+	 * The AI Launchpad's own tasks are appended separately, since they are not catalog entries and the catalog
+	 * sweep cannot find them. They run their own gate on the way in: a registry definition may declare an
+	 * `is_visible` callable, and one that fails it is withheld from both lists here exactly as a catalog task
+	 * failing wpcom_launchpad_checklists()->is_visible() is. A definition without one is visible everywhere —
+	 * the gallery's shape, since it asks nothing of the site.
 	 *
 	 * @param string $goal The inferred/selected goal.
 	 * @return array{renderable: string[], actionable: string[]}
@@ -1021,9 +1153,36 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			}
 		);
 
+		$excluded = self::excluded_task_ids_for_goal( $goal );
+
+		// The registry's tasks are not in the catalog, so the sweep above cannot see them. Offer every registry
+		// task that this site can render and that is not already complete; a completed one still renders, so it
+		// stays on the renderable list the client relaxes to.
+		$registry_renderable = array_values(
+			array_filter(
+				AI_Launchpad_Task_Registry::task_ids(),
+				static function ( $task_id ) {
+					return AI_Launchpad_Task_Registry::is_visible( $task_id );
+				}
+			)
+		);
+		$registry_actionable = array_values(
+			array_filter(
+				$registry_renderable,
+				static function ( $task_id ) {
+					return ! AI_Launchpad_Task_Registry::is_complete( $task_id );
+				}
+			)
+		);
+
+		// array_unique guards a future registry id that shadows a catalog one: the endpoint would otherwise
+		// advertise it twice.
+		$renderable = array_unique( array_merge( array_column( $tasks, 'id' ), $registry_renderable ) );
+		$actionable = array_unique( array_merge( array_column( $actionable, 'id' ), $registry_actionable ) );
+
 		return array(
-			'renderable' => array_column( $tasks, 'id' ),
-			'actionable' => array_column( $actionable, 'id' ),
+			'renderable' => array_values( array_diff( $renderable, $excluded ) ),
+			'actionable' => array_values( array_diff( $actionable, $excluded ) ),
 		);
 	}
 
@@ -1099,14 +1258,33 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			// Broken/meaningless-in-context ids render as their working equivalent (see the helper for the why).
 			$task['id'] = wpcom_ai_launchpad_remap_task_id( $task['id'] );
 
-			if ( ! isset( $definitions[ $task['id'] ] ) ) {
-				continue;
-			}
-
 			// One card per id — the client keys cards by id. The remap above can collide with the target id already
 			// being present (notably the ?all_tasks=1 view, which enumerates every catalog id), so collapse any
 			// repeat to the first occurrence.
 			if ( isset( $seen_ids[ $task['id'] ] ) ) {
+				continue;
+			}
+
+			// Tasks the AI Launchpad owns are built from its own registry: the shared catalog does not
+			// define them, and routing them through wpcom_launchpad_checklists() would mean relying on
+			// the catalog accepting entries it never registered.
+			if ( AI_Launchpad_Task_Registry::has( $task['id'] ) ) {
+				// The registry's own visibility gate, filtered on read for the same reason as the catalog's
+				// below: a persisted list outlives the site state it was tailored for, so a task whose
+				// precondition has since gone must stop rendering rather than offer a CTA that leads nowhere.
+				if ( ! $bypass_visibility && ! AI_Launchpad_Task_Registry::is_visible( $task['id'] ) ) {
+					continue;
+				}
+
+				$card = AI_Launchpad_Task_Registry::build( $task['id'], (string) $task['subtitle'] );
+				if ( null !== $card ) {
+					$seen_ids[ $task['id'] ] = true;
+					$built[]                 = $card;
+				}
+				continue;
+			}
+
+			if ( ! isset( $definitions[ $task['id'] ] ) ) {
 				continue;
 			}
 
@@ -1148,7 +1326,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 					: wpcom_launchpad_checklists()->is_task_complete( $definition );
 
 				// The theme-picker task points at the showcase pre-filtered for the site (Store category on sell,
-				// the AI's theme keyword elsewhere) instead of plain themes.php. The legacy design_selected/
+				// the AI's inferred category elsewhere) instead of plain themes.php. The legacy design_selected/
 				// design_completed ids consolidate onto site_theme_selected via wpcom_ai_launchpad_remap_task_id().
 				$theme_showcase_path = 'site_theme_selected' === $task['id'] ? $theme_cta : null;
 				$cta_override        = $this->get_cta_override( $task['id'] );
@@ -1161,7 +1339,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				}
 
 				// Simple sites have no reachable wp-admin plugins screen; route any plugin-screen CTA to Calypso.
-				$calypso_path = $this->to_simple_plugins_path( $calypso_path );
+				$calypso_path = wpcom_ai_launchpad_to_simple_plugins_path( $calypso_path );
 			}
 
 			$title       = isset( $definition['get_title'] ) ? $definition['get_title']() : '';
@@ -1219,51 +1397,54 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
-	 * On Simple sites, rewrite a wp-admin plugins-screen CTA to its Calypso equivalent.
-	 *
-	 * Simple sites have no reachable wp-admin plugins UI, so any task whose CTA lands on `plugins.php` or
-	 * `plugin-install.php` would dead-end. Those are mapped to the Calypso plugins page — a specific plugin
-	 * when a slug is given, otherwise the site's plugins list. Non-plugin paths and Atomic sites pass through.
-	 *
-	 * @param string|null $path        The resolved CTA path.
-	 * @param string      $plugin_slug Optional plugin slug to deep-link to on Calypso.
-	 * @return string|null
+	 * The theme-showcase subject-category slugs (the `subject` taxonomy from /rest/v1.2/theme-filters).
+	 * Every category carries free themes, unlike free-text search, which surfaces mostly paid results.
 	 */
-	private function to_simple_plugins_path( $path, $plugin_slug = '' ) {
-		if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ! is_string( $path ) ) {
-			return $path;
-		}
-
-		if ( false === strpos( $path, 'plugins.php' ) && false === strpos( $path, 'plugin-install.php' ) ) {
-			return $path;
-		}
-
-		$slug_segment = '' !== $plugin_slug ? rawurlencode( $plugin_slug ) . '/' : '';
-		return '/plugins/' . $slug_segment . rawurlencode( wpcom_get_site_slug() );
-	}
+	const THEME_CATEGORIES = array(
+		'blog',
+		'portfolio',
+		'business',
+		'store',
+		'art-design',
+		'about',
+		'real-estate',
+		'health-wellness',
+		'authors-writers',
+		'newsletter',
+		'education',
+		'magazine',
+		'music',
+		'restaurant',
+		'travel-lifestyle',
+		'fashion-beauty',
+		'community-non-profit',
+		'podcast',
+		'entertainment',
+	);
 
 	/**
 	 * The wordpress.com themes-showcase path the theme-picker tasks should point at.
 	 *
 	 * Sell sites always land on the showcase's Store category so shop-ready templates lead; other goals get the
-	 * showcase pre-filtered by the AI's theme search term (as the free-text `?s=`), and null when nothing was
-	 * inferred to search by, so the caller falls back to the task's default CTA. The client's `toNavigableUrl`
-	 * resolves the relative path against wordpress.com.
+	 * showcase pre-filtered by the AI's inferred category, re-checked against the allowlist since the envelope is
+	 * stored data. Without a valid category the plain showcase is returned (never null: the catalog CTA can resolve
+	 * to wp-admin's themes.php, which skips the showcase). The client's `toNavigableUrl` resolves the relative path
+	 * against wordpress.com.
 	 *
-	 * @param string $goal   The inferred goal.
-	 * @param string $search The AI's theme_keyword, or the inferred niche as fallback.
-	 * @return string|null
+	 * @param string $goal     The inferred goal.
+	 * @param string $category The AI's inferred theme_category slug.
+	 * @return string
 	 */
-	private function get_themes_showcase_path( $goal, $search ) {
+	private function get_themes_showcase_path( $goal, $category ) {
 		if ( 'sell' === $goal ) {
-			return '/themes/filter/store/' . rawurlencode( wpcom_get_site_slug() );
+			$category = 'store';
 		}
 
-		if ( '' === $search ) {
-			return null;
+		if ( ! in_array( $category, self::THEME_CATEGORIES, true ) ) {
+			return '/themes/' . rawurlencode( wpcom_get_site_slug() );
 		}
 
-		return '/themes/all/' . rawurlencode( wpcom_get_site_slug() ) . '?s=' . rawurlencode( $this->niche_to_search_term( $search ) );
+		return '/themes/filter/' . $category . '/' . rawurlencode( wpcom_get_site_slug() );
 	}
 
 	/**
@@ -1315,112 +1496,6 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
-	 * Reduces a possibly multi-word niche to a single keyword for the themes-showcase search.
-	 *
-	 * The showcase ANDs its search terms, so a phrase like "ceramics and pottery" matches no theme even
-	 * though "ceramics" and "pottery" each do. Connective/filler words are dropped and the first remaining
-	 * keyword is kept. Falls back to the trimmed niche when nothing survives filtering.
-	 *
-	 * @param string $niche The AI-inferred niche.
-	 * @return string
-	 */
-	private function niche_to_search_term( $niche ) {
-		$stop_words = array( 'and', 'or', 'the', 'a', 'an', 'of', 'for', 'with', 'in', 'on', 'to', 'your', 'my' );
-		$words      = preg_split( '/[\s,&]+/', strtolower( $niche ), -1, PREG_SPLIT_NO_EMPTY );
-
-		foreach ( $words as $word ) {
-			if ( ! in_array( $word, $stop_words, true ) ) {
-				return $word;
-			}
-		}
-
-		return trim( $niche );
-	}
-
-	/**
-	 * Visual-work niche keywords that (along with the `portfolio` goal) surface the synthetic gallery task.
-	 */
-	const GALLERY_NICHE_KEYWORDS = array(
-		'photography',
-		'photo',
-		'photos',
-		'photographer',
-		'portfolio',
-		'gallery',
-		'art',
-		'artist',
-		'illustration',
-		'illustrator',
-		'design',
-		'designer',
-		'visual',
-		'painting',
-		'drawing',
-	);
-
-	/**
-	 * Whether the synthetic "Create your first gallery" task should be offered, based on the inferred goal/niche.
-	 *
-	 * @param array $inferred The AI output's `inferred` block.
-	 * @return bool
-	 */
-	private function should_offer_gallery_task( $inferred ) {
-		$goal = isset( $inferred['goal'] ) && is_string( $inferred['goal'] ) ? $inferred['goal'] : '';
-		if ( 'portfolio' === $goal ) {
-			return true;
-		}
-
-		$niche = isset( $inferred['niche'] ) && is_string( $inferred['niche'] ) ? strtolower( $inferred['niche'] ) : '';
-		if ( '' === $niche ) {
-			return false;
-		}
-
-		// Split on any non-alphanumeric run so hyphenated/compound niches ("wildlife-photography") tokenize like the client.
-		$words = preg_split( '/[^a-z0-9]+/', $niche, -1, PREG_SPLIT_NO_EMPTY );
-		return array() !== array_intersect( $words, self::GALLERY_NICHE_KEYWORDS );
-	}
-
-	/**
-	 * Builds the synthetic gallery-task entry, or null when it should not be offered.
-	 *
-	 * Its id is listed in SYNTHETIC_TASK_IDS so the task stays skippable.
-	 *
-	 * Completion is read from the status option (written by AI_Launchpad_Gallery_Page_Listener on publish); an
-	 * unpublished marker draft puts it in progress and reopens that draft.
-	 *
-	 * @param array $inferred The AI output's `inferred` block.
-	 * @return array|null
-	 */
-	private function build_gallery_task( $inferred ) {
-		if ( ! $this->should_offer_gallery_task( $inferred ) ) {
-			return null;
-		}
-
-		$statuses  = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
-		$completed = ! empty( $statuses['add_gallery_page'] );
-
-		$in_progress  = false;
-		$calypso_path = null;
-		if ( ! $completed ) {
-			$draft_url = $this->get_in_progress_draft_url( 'add_gallery_page' );
-			if ( null !== $draft_url ) {
-				$in_progress  = true;
-				$calypso_path = $draft_url;
-			}
-		}
-
-		return array(
-			'id'           => 'add_gallery_page',
-			'subtitle'     => __( 'Show your work in a beautiful photo gallery.', 'jetpack-mu-wpcom' ),
-			'title'        => $this->get_task_title( 'add_gallery_page', $in_progress, __( 'Create your first gallery', 'jetpack-mu-wpcom' ) ),
-			'completed'    => $completed,
-			'in_progress'  => $in_progress,
-			'disabled'     => false,
-			'calypso_path' => $calypso_path,
-		);
-	}
-
-	/**
 	 * Builds the synthetic store-setup lead tasks for the sell goal: an "install WooCommerce" task and a "set up
 	 * your store" task. Their ids are listed in SYNTHETIC_TASK_IDS so the tasks stay skippable.
 	 *
@@ -1455,7 +1530,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			$wp_admin_path = $in_progress
 				? admin_url( 'plugins.php?plugin_status=inactive' )
 				: admin_url( 'plugin-install.php?s=woocommerce&tab=search&type=term' );
-			$calypso_path  = $this->to_simple_plugins_path( $wp_admin_path, 'woocommerce' );
+			$calypso_path  = wpcom_ai_launchpad_to_simple_plugins_path( $wp_admin_path, 'woocommerce' );
 		}
 
 		return array(
@@ -1494,10 +1569,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
-	 * Inserts a synthetic task immediately before the trailing launch task (or appends it), idempotently by id.
+	 * Inserts a task immediately before the trailing launch task (or appends it), idempotently by id.
 	 *
 	 * @param array $tasks The enriched task list.
-	 * @param array $task  The synthetic task entry.
+	 * @param array $task  The task entry to insert.
 	 * @return array
 	 */
 	private function insert_before_launch_task( $tasks, $task ) {
@@ -1533,8 +1608,6 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 		if ( 'add_about_page' === $task_id ) {
 			$draft_id = AI_Launchpad_About_Page_Listener::get_draft_id();
-		} elseif ( 'add_gallery_page' === $task_id ) {
-			$draft_id = AI_Launchpad_Gallery_Page_Listener::get_draft_id();
 		} elseif ( in_array( $task_id, self::IN_PROGRESS_FIRST_POST_TASK_IDS, true ) ) {
 			$draft_id = AI_Launchpad_First_Post_Listener::get_draft_id();
 		}
@@ -1563,14 +1636,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		switch ( $task_id ) {
 			case 'add_about_page':
 				return $in_progress ? __( 'Continue working on the About page', 'jetpack-mu-wpcom' ) : $default;
-			case 'add_gallery_page':
-				return $in_progress ? __( 'Continue working on your gallery', 'jetpack-mu-wpcom' ) : $default;
 			case 'first_post_published':
 				return $in_progress
 					? __( 'Continue to write your first post', 'jetpack-mu-wpcom' )
 					: __( 'Write your first post', 'jetpack-mu-wpcom' );
-			case 'first_post_published_newsletter':
-				return $in_progress ? __( 'Continue writing your first post', 'jetpack-mu-wpcom' ) : $default;
 			default:
 				return $default;
 		}

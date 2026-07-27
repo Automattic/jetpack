@@ -34,10 +34,10 @@ export type SiteOverviewAttributes = {
  * apart; `render.tsx` maps the ids to icons and summary-response fields.
  */
 export const SITE_OVERVIEW_METRICS: { id: SiteOverviewMetricId; label: string }[] = [
-	{ id: 'views', label: __( 'Views', 'jetpack-premium-analytics' ) },
-	{ id: 'visitors', label: __( 'Visitors', 'jetpack-premium-analytics' ) },
-	{ id: 'likes', label: __( 'Likes', 'jetpack-premium-analytics' ) },
-	{ id: 'comments', label: __( 'Comments', 'jetpack-premium-analytics' ) },
+	{ id: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'visitors', label: __( 'Visitors', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'likes', label: __( 'Likes', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'comments', label: __( 'Comments', 'jetpack-premium-analytics-pkg' ) },
 ];
 
 /**
@@ -57,19 +57,11 @@ export const DEFAULT_SITE_OVERVIEW_METRICS: SiteOverviewMetricId[] = SITE_OVERVI
  * instances: every metric enabled.
  */
 export default {
-	name: 'jpa/site-overview',
-	title: __( 'Site overview', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			"A summary of your site's views, visitors, likes, and comments, with period-over-period change.",
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: globe,
 	attributes: [
 		{
 			id: 'metrics',
-			label: __( 'Metrics', 'jetpack-premium-analytics' ),
+			label: __( 'Metrics', 'jetpack-premium-analytics-pkg' ),
 			type: 'array',
 			relevance: 'high',
 			Edit: ArrayCheckboxField,

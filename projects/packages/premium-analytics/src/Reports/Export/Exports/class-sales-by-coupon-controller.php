@@ -39,7 +39,7 @@ class Sales_By_Coupon_Controller extends Abstract_Csv_Report_Controller {
 	 * @return string The report label.
 	 */
 	public function get_report_label(): string {
-		return __( 'Sales by Coupon', 'jetpack-premium-analytics' );
+		return __( 'Sales by Coupon', 'jetpack-premium-analytics-pkg' );
 	}
 
 	/**
@@ -59,13 +59,13 @@ class Sales_By_Coupon_Controller extends Abstract_Csv_Report_Controller {
 	 */
 	public function get_column_headers( ?string $interval = null ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Signature required by the report controller interface.
 		return array(
-			'coupon_code'         => __( 'Coupon Code', 'jetpack-premium-analytics' ),
-			'orders_count'        => __( 'Orders with coupon', 'jetpack-premium-analytics' ),
-			'net_total'           => __( 'Net sales', 'jetpack-premium-analytics' ),
-			'discount_amount'     => __( 'Discount amount', 'jetpack-premium-analytics' ),
-			'average_order_value' => __( 'Average order value with coupon', 'jetpack-premium-analytics' ),
-			'new_customers'       => __( 'New customers', 'jetpack-premium-analytics' ),
-			'returning_customers' => __( 'Returning customers', 'jetpack-premium-analytics' ),
+			'coupon_code'         => __( 'Coupon Code', 'jetpack-premium-analytics-pkg' ),
+			'orders_count'        => __( 'Orders with coupon', 'jetpack-premium-analytics-pkg' ),
+			'net_total'           => __( 'Net sales', 'jetpack-premium-analytics-pkg' ),
+			'discount_amount'     => __( 'Discount amount', 'jetpack-premium-analytics-pkg' ),
+			'average_order_value' => __( 'Average order value with coupon', 'jetpack-premium-analytics-pkg' ),
+			'new_customers'       => __( 'New customers', 'jetpack-premium-analytics-pkg' ),
+			'returning_customers' => __( 'Returning customers', 'jetpack-premium-analytics-pkg' ),
 		);
 	}
 

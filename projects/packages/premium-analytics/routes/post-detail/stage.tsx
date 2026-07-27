@@ -7,12 +7,8 @@ import { useSelect } from '@wordpress/data';
 import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
-import { WidgetDashboard } from '@wordpress/widget-dashboard';
+import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
 import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
-// Grid settings are intentionally shared across analytics dashboards (see the
-// hook's own note), so the post-detail page reuses the dashboard's hook rather
-// than storing a separate copy.
-import { useDashboardGridSettings } from '../dashboard/hooks/use-dashboard-grid-settings';
 import { PostDetailTabs, PostSummaryCard } from './components';
 import { EMAIL_WIDGET_TYPE_ALIASES } from './config';
 import { usePostDetailTabs, usePostSummary } from './hooks';
@@ -20,6 +16,12 @@ import { route } from './package.json';
 import styles from './stage.module.scss';
 
 const ROUTE_FROM = route.path;
+
+// The post-detail composition is fixed (WOOA7S-1622) and laid out against the
+// small (200px) row height used by the design. Keep its grid independent from
+// the customizable main-dashboard preference so a future settings control
+// cannot stretch these tiles out of proportion.
+const POST_DETAIL_GRID = { ...DEFAULT_GRID, rowHeight: ROW_HEIGHT_PRESETS.small };
 
 // The layout is fixed, so the change callback never fires; the dashboard
 // still requires one because it owns a staging copy internally.
@@ -41,7 +43,6 @@ function PostDetail(): JSX.Element {
 	const postId = Number( postIdParam );
 
 	const { tabs, activeTab, setActiveTab, layout } = usePostDetailTabs( postId );
-	const [ gridSettings ] = useDashboardGridSettings();
 
 	const summary = usePostSummary( postId );
 
@@ -104,13 +105,13 @@ function PostDetail(): JSX.Element {
 				isResolvingWidgetTypes={ isResolvingWidgetTypes }
 				layout={ layout }
 				onLayoutChange={ noopLayoutChange }
-				gridSettings={ gridSettings }
+				gridSettings={ POST_DETAIL_GRID }
 			>
 				<Page
 					breadcrumbs={
 						<Breadcrumbs
 							items={ [
-								{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
+								{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
 								...( summary.title ? [ { label: summary.title } ] : [] ),
 							] }
 						/>

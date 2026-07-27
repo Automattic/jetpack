@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\TestCase;
 use WP_REST_Server;
 
@@ -21,11 +22,12 @@ class Dashboard_Layout_Test extends TestCase {
 	const LEGACY_ROUTE = '/jetpack/v4/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)*)/default-layout';
 
 	/**
-	 * Reset REST globals after route registration tests.
+	 * Reset REST globals and constants between tests.
 	 */
 	protected function tearDown(): void {
 		global $wp_rest_server;
 		$wp_rest_server = null;
+		Constants::clear_constants();
 		parent::tearDown();
 	}
 
@@ -76,6 +78,28 @@ class Dashboard_Layout_Test extends TestCase {
 	}
 
 	/**
+	 * Default layouts pass through the availability policy: on self-hosted
+	 * Jetpack sites (this test env), Simple-only widget instances are dropped.
+	 */
+	public function test_traffic_default_excludes_simple_only_widgets_on_self_hosted() {
+		$layout_types = array_column( get_dashboard_default_layout_for( DASHBOARD_TRAFFIC_SECTION_ID ), 'type' );
+
+		$this->assertNotContains( 'jpa/file-downloads', $layout_types, 'Simple-only widget instances must not be part of the default layout on self-hosted sites.' );
+		$this->assertContains( 'jpa/clicks', $layout_types, 'Regular widget instances remain in the default layout.' );
+	}
+
+	/**
+	 * WPCOM Simple keeps Simple-only widgets in the default layout.
+	 */
+	public function test_traffic_default_keeps_simple_only_widgets_on_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$layout_types = array_column( get_dashboard_default_layout_for( DASHBOARD_TRAFFIC_SECTION_ID ), 'type' );
+
+		$this->assertContains( 'jpa/file-downloads', $layout_types );
+	}
+
+	/**
 	 * Traffic section aliases resolve to the same default layout.
 	 */
 	public function test_traffic_aliases_resolve_same_default_layout() {
@@ -118,7 +142,7 @@ class Dashboard_Layout_Test extends TestCase {
 				'placement'  => array(
 					'width'  => 1,
 					'height' => 2,
-					'order'  => 7,
+					'order'  => 8,
 				),
 			),
 			$layout_by_uuid[ $utm_widget_uuid ]
@@ -129,7 +153,7 @@ class Dashboard_Layout_Test extends TestCase {
 				'uuid'       => $top_posts_uuid,
 				'type'       => 'jpa/stats-top-posts',
 				'attributes' => array(
-					'num' => 10,
+					'max' => 10,
 				),
 				'placement'  => array(
 					'width'  => 1,
@@ -157,7 +181,8 @@ class Dashboard_Layout_Test extends TestCase {
 		$this->assertContains( 'jpa/posting-activity', $layout_types );
 		$this->assertNotContains( 'jpa/authors', $layout_types );
 		$this->assertNotContains( 'jpa/videopress', $layout_types );
-		$this->assertContains( 'jpa/stats-emails', $layout_types );
+		// Emails is not an Insights module — it lives on the Subscribers tab.
+		$this->assertNotContains( 'jpa/stats-emails', $layout_types );
 		$this->assertContains( 'jpa/shares', $layout_types );
 		$this->assertSame(
 			array(
@@ -169,7 +194,7 @@ class Dashboard_Layout_Test extends TestCase {
 				'placement'  => array(
 					'width'  => 1,
 					'height' => 2,
-					'order'  => 5,
+					'order'  => 8,
 				),
 			),
 			$layout_by_uuid['default-shares-widget-instance']
@@ -197,7 +222,7 @@ class Dashboard_Layout_Test extends TestCase {
 				'uuid'       => 'default-subscribers-list-widget-instance',
 				'type'       => 'jpa/subscribers-list',
 				'attributes' => array(
-					'num' => 6,
+					'max' => 6,
 				),
 				'placement'  => array(
 					'width'  => 2,

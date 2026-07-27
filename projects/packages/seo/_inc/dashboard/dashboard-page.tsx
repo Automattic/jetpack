@@ -1,5 +1,6 @@
 import { AdminPage, ThemeProvider } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import clsx from 'clsx';
 import DashboardNav from './dashboard-nav';
 import '../admin-page-layout.scss';
 import type { SeoTab } from './dashboard-nav';
@@ -26,7 +27,7 @@ interface Props {
  * Shared chrome for every SEO dashboard route: the `AdminPage` page frame
  * (`@automattic/jetpack-components`) plus the route-based tab navigation. Each
  * route's `stage` wraps its screen in this so the header, tabs and footer are
- * identical across Overview / Settings / AI. The shell (nav included) is part of
+ * identical across Overview / Settings / Content / GEO. The shell (nav included) is part of
  * each route's stage, so it re-renders on navigation rather than persisting
  * beneath a swapped panel.
  *
@@ -49,9 +50,9 @@ const DashboardPage = ( { active, showFooter = true, flush = false, children }: 
 		>
 			<DashboardNav active={ active }>
 				<div
-					className={ `jetpack-seo-page-content${
-						flush ? ' jetpack-seo-page-content--flush' : ''
-					}` }
+					className={ clsx( 'jetpack-seo-page-content', {
+						'jetpack-seo-page-content--flush': flush,
+					} ) }
 				>
 					{ children }
 				</div>

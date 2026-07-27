@@ -13,7 +13,7 @@ import {
 	isPremiumAnalyticsInitialSyncFinished,
 	isPremiumAnalyticsSiteConnected,
 } from '../site-readiness';
-import { DASHBOARD_REST_NAMESPACE } from './hooks/constants';
+import { DASHBOARD_NAME, DASHBOARD_REST_NAMESPACE } from './hooks/constants';
 
 type DashboardSearch = Record< string, string | undefined >;
 
@@ -118,7 +118,16 @@ export const route = {
 				key: 'name',
 				baseURL: `/${ DASHBOARD_REST_NAMESPACE }/widget-modules`,
 				plural: 'widgetModules',
-				label: __( 'Widget modules', 'jetpack-premium-analytics' ),
+				label: __( 'Widget modules', 'jetpack-premium-analytics-pkg' ),
+				supportsPagination: false,
+			},
+			{
+				name: 'dashboardSection',
+				kind: 'root',
+				key: 'slug',
+				baseURL: `/${ DASHBOARD_REST_NAMESPACE }/dashboards/${ DASHBOARD_NAME }/sections`,
+				plural: 'dashboardSections',
+				label: __( 'Dashboard sections', 'jetpack-premium-analytics-pkg' ),
 				supportsPagination: false,
 			},
 		] );

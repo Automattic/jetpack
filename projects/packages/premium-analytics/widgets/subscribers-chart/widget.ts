@@ -24,8 +24,8 @@ export type SubscribersChartGranularity = 'auto' | 'day' | 'week' | 'month';
  * renders when the site has paid subscribers, even while selected.
  */
 export const SUBSCRIBERS_CHART_METRICS = [
-	{ id: 'subscribers', label: __( 'Subscribers', 'jetpack-premium-analytics' ) },
-	{ id: 'paid', label: __( 'Paid subscribers', 'jetpack-premium-analytics' ) },
+	{ id: 'subscribers', label: __( 'Subscribers', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'paid', label: __( 'Paid subscribers', 'jetpack-premium-analytics-pkg' ) },
 ] as const satisfies readonly { id: string; label: string }[];
 
 /**
@@ -65,36 +65,28 @@ export const DEFAULT_SUBSCRIBERS_CHART_METRICS: SubscribersChartMetricId[] =
  * as the defaults applied to new instances.
  */
 export default {
-	name: 'jpa/subscribers-chart',
-	title: __( 'Subscribers', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'A summary of your subscriber growth over time, with paid subscribers and the previous period overlaid for comparison.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: trendingUp,
 	attributes: [
 		{
 			id: 'granularity',
-			label: __( 'Group by', 'jetpack-premium-analytics' ),
+			label: __( 'Group by', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
 			Edit: SelectField,
 			elements: [
 				{
-					label: __( 'Auto', 'jetpack-premium-analytics' ),
+					label: __( 'Auto', 'jetpack-premium-analytics-pkg' ),
 					value: 'auto',
 				},
 				{
-					label: __( 'By days', 'jetpack-premium-analytics' ),
+					label: __( 'By days', 'jetpack-premium-analytics-pkg' ),
 					value: 'day',
 				},
 				{
-					label: __( 'By weeks', 'jetpack-premium-analytics' ),
+					label: __( 'By weeks', 'jetpack-premium-analytics-pkg' ),
 					value: 'week',
 				},
 				{
-					label: __( 'By months', 'jetpack-premium-analytics' ),
+					label: __( 'By months', 'jetpack-premium-analytics-pkg' ),
 					value: 'month',
 				},
 			],
@@ -102,7 +94,7 @@ export default {
 		},
 		{
 			id: 'metrics',
-			label: __( 'Metrics', 'jetpack-premium-analytics' ),
+			label: __( 'Metrics', 'jetpack-premium-analytics-pkg' ),
 			type: 'array',
 			relevance: 'high',
 			Edit: ArrayCheckboxField,

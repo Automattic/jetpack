@@ -10,6 +10,10 @@ import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/d
  */
 export type VideoPlaysRow = {
 	/**
+	 * Attachment post ID used by the internal video-detail route.
+	 */
+	id?: number;
+	/**
 	 * Stable row key: the video's post ID, else its URL, else its label.
 	 */
 	key: string;
@@ -43,11 +47,16 @@ export type VideoPlaysRow = {
  * @return Normalized rows ready for the leaderboard.
  */
 export function toVideoPlaysRows( videos: StatsVideoPlaysComparisonItem[] = [] ): VideoPlaysRow[] {
-	return videos.map( video => ( {
-		key: getVideoKey( video ),
-		label: getVideoLabel( video ),
-		link: video.link,
-		plays: video.plays,
-		previousPlays: video.previousPlays,
-	} ) );
+	return videos.map( video => {
+		const id = Number( video.id );
+
+		return {
+			...( Number.isInteger( id ) && id > 0 ? { id } : {} ),
+			key: getVideoKey( video ),
+			label: getVideoLabel( video ),
+			link: video.link,
+			plays: video.plays,
+			previousPlays: video.previousPlays,
+		};
+	} );
 }

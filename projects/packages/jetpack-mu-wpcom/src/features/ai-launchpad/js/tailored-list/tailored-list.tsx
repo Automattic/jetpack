@@ -1,9 +1,13 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { createAboutPage } from '../lib/about-page.ts';
+import { createContactPage } from '../lib/contact-page.ts';
+import { createEventsPage } from '../lib/events-page.ts';
 import { createFirstPostDraft } from '../lib/first-post.ts';
-import { createGalleryPage } from '../lib/pattern-page.ts';
+import { createGalleryPage } from '../lib/gallery-page.ts';
+import { createPortfolioPiece } from '../lib/portfolio-piece.ts';
 import {
 	contextFromInferred,
 	contextFromTaskIds,
@@ -15,6 +19,7 @@ import {
 	trackWizardCompleted,
 	type TaskStatus,
 } from '../lib/tracks.ts';
+import { createVideoPage } from '../lib/video-page.ts';
 import { Layout } from './layout.tsx';
 import {
 	nextIncompleteId,
@@ -141,7 +146,10 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 
 			if ( data?.site ) {
 				setSiteUrl( data.site.url ?? null );
-				setSiteTitle( data.site.title ?? null );
+				// blogname is stored HTML-escaped; decode it or the preview renders literal entities. A
+				// present-but-blank title stays blank (matches the initial read in app.tsx), only a
+				// missing one coalesces to null.
+				setSiteTitle( data.site.title != null ? decodeEntities( data.site.title ) : null );
 				setSiteEditUrl( data.site.edit_url ?? null );
 			}
 
@@ -247,6 +255,10 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 					createFirstPostDraft,
 					createAboutPage,
 					createGalleryPage,
+					createContactPage,
+					createEventsPage,
+					createVideoPage,
+					createPortfolioPiece,
 				},
 				siteUrl
 			);

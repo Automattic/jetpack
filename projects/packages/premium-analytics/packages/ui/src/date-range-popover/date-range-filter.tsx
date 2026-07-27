@@ -91,10 +91,10 @@ function DateRangePopoverActions( {
 			className="date-range-popover-actions"
 		>
 			<Button variant="minimal" size="compact" onClick={ onCancel }>
-				{ __( 'Cancel', 'jetpack-premium-analytics' ) }
+				{ __( 'Cancel', 'jetpack-premium-analytics-pkg' ) }
 			</Button>
 			<Button variant="solid" size="compact" disabled={ ! canApply } onClick={ onApply }>
-				{ __( 'Apply', 'jetpack-premium-analytics' ) }
+				{ __( 'Apply', 'jetpack-premium-analytics-pkg' ) }
 			</Button>
 		</Stack>
 	);
@@ -303,7 +303,7 @@ export function DateRangePopover( {
 		range,
 		committedRange,
 		rememberedCustomRange,
-		customLabel: __( 'Custom', 'jetpack-premium-analytics' ),
+		customLabel: __( 'Custom', 'jetpack-premium-analytics-pkg' ),
 		formatRange: formatDateRange,
 	} );
 

@@ -71,6 +71,18 @@
 		}
 	}
 
+	// Orientation indicator: the core `mobile` icon reads as a portrait
+	// phone; a quarter turn makes it read as a landscape one.
+	&__orientation {
+		display: inline-flex;
+		align-items: center;
+		color: currentColor;
+
+		&--landscape svg {
+			transform: rotate(90deg);
+		}
+	}
+
 	// Overlays — flex/centering live on the wp/ui Stack wrappers in JSX. The SCSS
 	// only owns position, background, and color so the visual treatment stays
 	// thumbnail-shaped (full overlay) while layout uses design-system primitives.

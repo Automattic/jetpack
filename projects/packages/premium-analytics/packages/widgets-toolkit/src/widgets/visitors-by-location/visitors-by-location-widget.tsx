@@ -7,10 +7,10 @@ import {
 	__experimentalToggleGroupControl as ToggleGroupControl,
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { useMemo, useState } from 'react';
 import { WidgetState } from '../../components';
-import { LeaderboardChart, LeaderboardLabel } from '../../components/chart-leaderboard';
+import { buildLeaderboardRow, LeaderboardChart } from '../../components/chart-leaderboard';
 /**
  * Internal dependencies
  */
@@ -44,25 +44,21 @@ export function VisitorsByLocationWidget() {
 			leaderboardData.map( item => {
 				const imageUrl = flagUrl( region === 'US' ? 'us' : item.id );
 				const labelText = typeof item.label === 'string' ? item.label : '';
-				const imageAlt =
-					region === 'US'
-						? __( 'United States flag', 'jetpack-premium-analytics' )
-						: sprintf(
-								/* translators: %s is the country name */
-								__( 'Flag of %s', 'jetpack-premium-analytics' ),
-								labelText
-						  );
 
 				return {
 					...item,
-					label: (
-						<LeaderboardLabel
-							label={ labelText }
-							imageAlt={ imageAlt }
-							imageClassName={ styles.leaderboardImage }
-							{ ...( imageUrl ? { imageUrl } : {} ) }
-						/>
-					),
+					...buildLeaderboardRow( {
+						label: labelText,
+						media: {
+							kind: 'flag',
+							url: imageUrl ?? undefined,
+							country:
+								region === 'US'
+									? __( 'United States', 'jetpack-premium-analytics-pkg' )
+									: labelText,
+						},
+						action: { kind: 'static' },
+					} ),
 				};
 			} ),
 		[ leaderboardData, region ]
@@ -90,7 +86,7 @@ export function VisitorsByLocationWidget() {
 						__next40pxDefaultSize
 						isBlock
 						hideLabelFromVision
-						label={ __( 'Location', 'jetpack-premium-analytics' ) }
+						label={ __( 'Location', 'jetpack-premium-analytics-pkg' ) }
 						onChange={ value => {
 							if ( isRegion( value ) ) {
 								setRegion( value );
@@ -100,11 +96,11 @@ export function VisitorsByLocationWidget() {
 					>
 						<ToggleGroupControlOption
 							value="US"
-							label={ __( 'United States', 'jetpack-premium-analytics' ) }
+							label={ __( 'United States', 'jetpack-premium-analytics-pkg' ) }
 						/>
 						<ToggleGroupControlOption
 							value="world"
-							label={ __( 'Worldwide', 'jetpack-premium-analytics' ) }
+							label={ __( 'Worldwide', 'jetpack-premium-analytics-pkg' ) }
 						/>
 					</ToggleGroupControl>
 				</div>
@@ -120,13 +116,15 @@ export function VisitorsByLocationWidget() {
 					error={ {
 						description: __(
 							"We couldn't load location data. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
-						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
 					} }
 					empty={ {
 						icon: location,
-						description: __( 'No location data in this period.', 'jetpack-premium-analytics' ),
+						description: __( 'No location data in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
 				>
 					<LeaderboardChart

@@ -20,6 +20,7 @@ import { useSetPrivacy } from '../../src/dashboard/hooks/use-set-privacy';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
 import { useVideoPressUpgrade } from '../../src/dashboard/hooks/use-videopress-upgrade';
+import { createPromoteLocal } from './promote-local';
 import { planVideoDrop } from './upload-drop';
 import './style.scss';
 import type { LibraryItem, LibraryItemPrivacy } from '../../src/dashboard/types/library';
@@ -35,13 +36,14 @@ const PRIVACY_LABELS: Record< LibraryItemPrivacy, string > = {
 // Grid tiles already lead with the thumbnail + title; the filename
 // below repeats information the title implies and clutters the tile.
 // Keep it hidden by default — users who want it can still toggle it
-// on via the DataViews field-visibility control.
-const GRID_VISIBLE_FIELDS: string[] = [];
+// on via the DataViews field-visibility control. The orientation
+// indicator is icon-only, so it earns its spot on the tile.
+const GRID_VISIBLE_FIELDS: string[] = [ 'orientation' ];
 // `fileSize` is intentionally omitted: it's only populated for local
 // (non-VideoPress) uploads today, so it's blank for most rows. Users
 // who want the column can still toggle it on via the DataViews column-
 // visibility control.
-const TABLE_VISIBLE_FIELDS = [ 'filename', 'duration', 'uploadDate', 'privacy' ];
+const TABLE_VISIBLE_FIELDS = [ 'filename', 'duration', 'orientation', 'uploadDate', 'privacy' ];
 
 const DEFAULT_VIEW: View = {
 	type: 'grid',
@@ -89,7 +91,7 @@ const StageInner = () => {
 	const { uploadQueue, startUpload, retryUpload } = useUpload();
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
-	const { mutate: uploadFromLibrary } = useUploadFromLibrary();
+	const { mutateAsync: uploadFromLibrary } = useUploadFromLibrary();
 	const { isAtLimit, isFree, isUnlimited, videoCount, limit } = useFreeTier();
 	const runUpgrade = useVideoPressUpgrade();
 
@@ -117,16 +119,6 @@ const StageInner = () => {
 		}
 		filePickerRef.current?.click();
 	}, [ isAtLimit ] );
-	const onFilePicked = useCallback(
-		( event: ChangeEvent< HTMLInputElement > ) => {
-			const file = event.target.files?.[ 0 ];
-			if ( file ) {
-				startUpload( file );
-			}
-			event.target.value = '';
-		},
-		[ startUpload ]
-	);
 
 	const navigate = useNavigate();
 
@@ -139,10 +131,10 @@ const StageInner = () => {
 
 	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useGlobalNotices();
 
-	// Drag-and-drop entry point. Mirrors the file-picker's `startUpload`
-	// path but accepts multiple files and enforces the free-tier cap up
-	// front so a drop can't sneak past the limit the picker button guards.
-	const handleFilesDrop = useCallback(
+	// Shared multi-file entry point for both the DropZone and the header
+	// "Upload video" file picker. Enforces the free-tier cap up front so
+	// neither path can sneak past the limit the picker button guards.
+	const handleFilesSelected = useCallback(
 		( files: File[] ) => {
 			const decision = planVideoDrop( files, {
 				isFree,
@@ -189,52 +181,33 @@ const StageInner = () => {
 		[ isFree, isUnlimited, limit, videoCount, startUpload, createErrorNotice, runUpgrade ]
 	);
 
-	const promoteLocal = useCallback(
-		( id: string ) => {
-			setPromotingProgress( prev => new Map( prev ).set( id, 0 ) );
-			uploadFromLibrary(
-				{
-					id,
-					onProgress: ( percent: number ) => {
-						setPromotingProgress( prev => {
-							// Ignore a straggler progress report after settle.
-							if ( ! prev.has( id ) ) {
-								return prev;
-							}
-							return new Map( prev ).set( id, percent );
-						} );
-					},
-				},
-				{
-					onSuccess: () => {
-						createSuccessNotice( __( 'Video uploaded to VideoPress.', 'jetpack-videopress-pkg' ) );
-					},
-					onError: ( error: Error ) => {
-						const reason = error?.message?.trim();
-						createErrorNotice(
-							reason
-								? sprintf(
-										/* translators: %s: reason returned by the upload endpoint, e.g. "403: Invalid Mime". */
-										__( 'Failed to upload video to VideoPress: %s', 'jetpack-videopress-pkg' ),
-										reason
-								  )
-								: __( 'Failed to upload video to VideoPress.', 'jetpack-videopress-pkg' )
-						);
-					},
-					onSettled: () => {
-						setPromotingProgress( prev => {
-							if ( ! prev.has( id ) ) {
-								return prev;
-							}
-							const next = new Map( prev );
-							next.delete( id );
-							return next;
-						} );
-					},
-				}
-			);
+	const onFilePicked = useCallback(
+		( event: ChangeEvent< HTMLInputElement > ) => {
+			const files = Array.from( event.target.files ?? [] );
+			if ( files.length > 0 ) {
+				handleFilesSelected( files );
+			}
+			event.target.value = '';
 		},
-		[ uploadFromLibrary, createSuccessNotice, createErrorNotice ]
+		[ handleFilesSelected ]
+	);
+
+	// The factory owns the in-flight progress map (re-entry guard + overlay
+	// snapshots, chunk progress folded in) and reacts via the mutateAsync
+	// promise; see promote-local.ts for why.
+	// Deliberately created ONCE per stage instance: useGlobalNotices() returns
+	// fresh wrapper closures every render, so a dep-keyed useMemo would rebuild
+	// the factory (emptying its in-flight state) on each render — including the
+	// renders its own publishes trigger. All captured deps are stable: the
+	// notice wrappers forward to registry-bound dispatchers, mutateAsync is
+	// referentially stable in TanStack v5, and state setters never change.
+	const [ promoteLocal ] = useState( () =>
+		createPromoteLocal( {
+			promote: uploadFromLibrary,
+			createSuccessNotice,
+			createErrorNotice,
+			onPromotingChange: setPromotingProgress,
+		} )
 	);
 
 	const actions = useMemo(
@@ -412,6 +385,7 @@ const StageInner = () => {
 				allowDownloads: false,
 				shortcode: '',
 				isProcessing: false,
+				orientation: null,
 				tracks: [],
 			} ) );
 		// Overlay an in-flight state on items currently being promoted from
@@ -447,6 +421,10 @@ const StageInner = () => {
 						ref={ filePickerRef }
 						type="file"
 						accept="video/*"
+						// The capped free tier can only ever host `limit` videos, so
+						// multi-select there would only produce skipped-file notices;
+						// paid and grandfathered-unlimited plans get bulk selection.
+						multiple={ ! isFree || isUnlimited }
 						style={ { display: 'none' } }
 						onChange={ onFilePicked }
 					/>
@@ -475,8 +453,8 @@ const StageInner = () => {
 			<UploadActionsProvider value={ { promoteLocal, retryUpload, openVideoDetails } }>
 				<div className={ `vp-library__viewport vp-library__viewport--${ view.type }` }>
 					<DropZone
-						label={ __( 'Drop a video to upload', 'jetpack-videopress-pkg' ) }
-						onFilesDrop={ handleFilesDrop }
+						label={ __( 'Drop videos to upload', 'jetpack-videopress-pkg' ) }
+						onFilesDrop={ handleFilesSelected }
 					/>
 					{ isError && items.length === 0 ? (
 						// A failed listing request would otherwise render as DataViews'

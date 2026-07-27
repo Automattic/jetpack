@@ -4,12 +4,13 @@
 import {
 	GeoChart,
 	LeaderboardChart,
-	LeaderboardLabel,
 	WidgetBackLink,
 	WidgetRoot,
 	WidgetState,
+	buildLeaderboardRow,
 	calculateDelta,
 	flagUrl,
+	getCombinedPeriodMax,
 	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -204,9 +205,9 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 		const useLocationHeader = renderGeoMode === 'region' && ! useCountryFallbackMap;
 		const header: GoogleDataTableColumn[] = [
 			useLocationHeader
-				? __( 'Location', 'jetpack-premium-analytics' )
-				: __( 'Country', 'jetpack-premium-analytics' ),
-			__( 'Views', 'jetpack-premium-analytics' ),
+				? __( 'Location', 'jetpack-premium-analytics-pkg' )
+				: __( 'Country', 'jetpack-premium-analytics-pkg' ),
+			__( 'Views', 'jetpack-premium-analytics-pkg' ),
 		];
 
 		if ( fallbackCountry ) {
@@ -254,67 +255,61 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 	] );
 
 	const leaderboardData = useMemo( () => {
-		const maxValue = Math.max( ...data.map( l => l.value ), 0 );
-		const maxComparisonValue = Math.max( ...data.map( l => l.previousValue ?? 0 ), 0 );
+		const maxValue = getCombinedPeriodMax(
+			data.map( location => location.value ),
+			hasComparison ? data.map( location => location.previousValue ) : []
+		);
 
 		return data.map( location => {
 			const imageUrl = flagUrl( location.countryCode );
 			const previousValue = location.previousValue;
+			const countryCode = location.countryCode;
 
 			return {
 				id: location.key,
-				label: (
-					<div className={ styles.leaderboardLabel }>
-						<LeaderboardLabel
-							label={ location.label }
-							imageUrl={ imageUrl ?? undefined }
-							imageAlt={ sprintf(
-								/* translators: %s is the country name */
-								__( 'Flag of %s', 'jetpack-premium-analytics' ),
-								location.countryFull
-							) }
-							imageClassName={ styles.leaderboardImage }
-						/>
-					</div>
-				),
+				...buildLeaderboardRow( {
+					label: location.label,
+					media: {
+						kind: 'flag',
+						url: imageUrl ?? undefined,
+						country: location.countryFull,
+					},
+					action:
+						renderGeoMode === 'country' && countryCode
+							? {
+									kind: 'drillDown',
+									onClick: () =>
+										selectCountry( {
+											code: countryCode,
+											name: location.countryFull,
+										} ),
+									ariaLabel: sprintf(
+										/* translators: %s is the country name */
+										__( 'View regions in %s', 'jetpack-premium-analytics-pkg' ),
+										location.countryFull
+									),
+							  }
+							: { kind: 'static' },
+				} ),
 				currentValue: location.value,
 				previousValue,
 				currentShare: sharePercentage( location.value, maxValue ),
 				previousShare:
 					hasComparison && previousValue !== undefined
-						? sharePercentage( previousValue, maxComparisonValue )
+						? sharePercentage( previousValue, maxValue )
 						: undefined,
 				delta:
 					hasComparison && previousValue !== undefined
 						? calculateDelta( location.value, previousValue )
 						: undefined,
-				// Country mode: click to drill into regions.
-				// Region/city mode: rows are not interactive.
-				...( renderGeoMode === 'country' &&
-					location.countryCode && {
-						onClick: () =>
-							selectCountry( {
-								code: location.countryCode,
-								name: location.countryFull,
-							} ),
-						// Without ariaLabel the button's accessible name is computed from
-						// its children: "Flag of X" (image alt) + "X" (visible label) ->
-						// screen readers announce the country name twice. Provide a concise
-						// action label that replaces the computed name.
-						ariaLabel: sprintf(
-							/* translators: %s is the country name */
-							__( 'View regions in %s', 'jetpack-premium-analytics' ),
-							location.countryFull
-						),
-					} ),
 			};
 		} ) as LeaderboardChartData;
 	}, [ data, renderGeoMode, hasComparison, selectCountry ] );
 
 	const backLink = renderSelectedCountry ? (
 		<WidgetBackLink
-			label={ __( 'All Locations', 'jetpack-premium-analytics' ) }
-			ariaLabel={ __( 'View all locations', 'jetpack-premium-analytics' ) }
+			label={ __( 'All Locations', 'jetpack-premium-analytics-pkg' ) }
+			ariaLabel={ __( 'View all locations', 'jetpack-premium-analytics-pkg' ) }
 			onClick={ clearSelectedCountry }
 			className={ styles.backLink }
 		/>
@@ -340,13 +335,15 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 					error={ {
 						description: __(
 							"We couldn't load location data. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
-						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
 					} }
 					empty={ {
 						icon: locationIcon,
-						description: __( 'No location data in this period.', 'jetpack-premium-analytics' ),
+						description: __( 'No location data in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
 				>
 					<div className={ styles.chartArea }>

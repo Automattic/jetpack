@@ -102,13 +102,13 @@ export function OrdersFulfillmentWidget() {
 			error={ {
 				description: __(
 					"We couldn't load orders data. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: reports,
-				description: __( 'No orders in this period.', 'jetpack-premium-analytics' ),
+				description: __( 'No orders in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			<Stack className={ styles.container } direction="column" align="center" justify="center">

@@ -15,18 +15,26 @@ import { saveBlob } from '@jetpack-premium-analytics/data';
 import { getDatePart } from '@jetpack-premium-analytics/datetime';
 
 /**
- * A single CSV column: which row key to read and the header label to print.
+ * A single CSV column: how to read a row value and the header label to print.
  */
 export type CsvColumn< Row > = {
 	/**
-	 * Row property to serialize for this column.
+	 * Read the raw value to serialize for this column.
 	 */
-	key: keyof Row & string;
+	getValue: ( row: Row ) => unknown;
 
 	/**
 	 * Header label printed on the first line.
 	 */
 	label: string;
+};
+
+/**
+ * Date range used to label a CSV export.
+ */
+export type CsvDateRange = {
+	from: string | number;
+	to: string | number;
 };
 
 /**
@@ -62,16 +70,13 @@ function escapeField( value: unknown ): string {
  * Serialize already-loaded rows into a CSV string.
  *
  * @param columns - Column definitions (order preserved, drives the header).
- * @param rows    - The rows to serialize; each is read by column `key`.
+ * @param rows    - The rows to serialize; each is read by column `getValue`.
  * @return The CSV text (header row followed by one line per row).
  */
-export function buildCsv< Row extends Record< string, unknown > >(
-	columns: CsvColumn< Row >[],
-	rows: Row[]
-): string {
+export function buildCsv< Row >( columns: CsvColumn< Row >[], rows: Row[] ): string {
 	const header = columns.map( column => escapeField( column.label ) ).join( ',' );
 	const body = rows.map( row =>
-		columns.map( column => escapeField( row[ column.key ] ) ).join( ',' )
+		columns.map( column => escapeField( column.getValue( row ) ) ).join( ',' )
 	);
 
 	return [ header, ...body ].join( '\n' );
@@ -89,10 +94,7 @@ export function buildCsv< Row extends Record< string, unknown > >(
  * @param range.to   - End of the report date range.
  * @return The filename without its `.csv` extension.
  */
-export function buildCsvDateRangeFilename(
-	prefix: string,
-	range: { from: string | number; to: string | number }
-): string {
+export function buildCsvDateRangeFilename( prefix: string, range: CsvDateRange ): string {
 	const from = getDatePart( range.from ) ?? String( range.from );
 	const to = getDatePart( range.to ) ?? String( range.to );
 	return `${ prefix }-${ from }_${ to }`;

@@ -304,7 +304,7 @@ class Inline_Search_Filters_Test extends TestCase {
 	 */
 	public static function data_provider_instant_search_options_filter(): array {
 		return array(
-			'additional_should'   => array(
+			'additional_should'          => array(
 				'wp_query_args'     => array(
 					's'              => 'hello_world',
 					'posts_per_page' => 5,
@@ -362,7 +362,7 @@ class Inline_Search_Filters_Test extends TestCase {
 					),
 				),
 			),
-			'additional_must_not' => array(
+			'additional_must_not'        => array(
 				'wp_query_args'     => array(
 					's'              => 'hello_world',
 					'posts_per_page' => 5,
@@ -416,6 +416,86 @@ class Inline_Search_Filters_Test extends TestCase {
 					'highlight'        => array(
 						'fields' => array( 'title', 'content', 'comments' ),
 					),
+				),
+			),
+			'highlight_phrase_only'      => array(
+				'wp_query_args'     => array(
+					's'              => 'the search',
+					'posts_per_page' => 5,
+					'post_type'      => 'any',
+				),
+				'is_opt_filter'     => function ( $options ) {
+					$options['highlightPhraseOnly'] = true;
+
+					return $options;
+				},
+				'expected_api_args' => array(
+					'size'                  => '5',
+					'from'                  => '0',
+					'fields'                => array( 'post_id' ),
+					'query'                 => 'the search',
+					'sort'                  => 'score_recency',
+					'langs'                 => array( 'en_US' ),
+					'filter'                => array(
+						'bool' => array(
+							'must' => array(
+								array(
+									'terms' => array(
+										'post_type' => array(
+											'post',
+											'page',
+											'attachment',
+										),
+									),
+								),
+							),
+						),
+					),
+					'highlight_fields'      => array( 'title', 'content', 'comments' ),
+					'highlight'             => array(
+						'fields' => array( 'title', 'content', 'comments' ),
+					),
+					'highlight_phrase_only' => '1',
+				),
+			),
+			'highlight_filter_stopwords' => array(
+				'wp_query_args'     => array(
+					's'              => 'the search',
+					'posts_per_page' => 5,
+					'post_type'      => 'any',
+				),
+				'is_opt_filter'     => function ( $options ) {
+					$options['highlightFilterStopwords'] = array( 'the', 'a' );
+
+					return $options;
+				},
+				'expected_api_args' => array(
+					'size'                       => '5',
+					'from'                       => '0',
+					'fields'                     => array( 'post_id' ),
+					'query'                      => 'the search',
+					'sort'                       => 'score_recency',
+					'langs'                      => array( 'en_US' ),
+					'filter'                     => array(
+						'bool' => array(
+							'must' => array(
+								array(
+									'terms' => array(
+										'post_type' => array(
+											'post',
+											'page',
+											'attachment',
+										),
+									),
+								),
+							),
+						),
+					),
+					'highlight_fields'           => array( 'title', 'content', 'comments' ),
+					'highlight'                  => array(
+						'fields' => array( 'title', 'content', 'comments' ),
+					),
+					'highlight_filter_stopwords' => array( 'the', 'a' ),
 				),
 			),
 		);

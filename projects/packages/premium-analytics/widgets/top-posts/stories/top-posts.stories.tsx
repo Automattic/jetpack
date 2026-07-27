@@ -15,11 +15,13 @@ import {
 } from '../../stories/widget-dashboard-with-widget';
 import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import { withStoryRouter } from '../../stories/with-story-router';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import TopPostsRender from '../render';
 import widgetDefinition from '../widget';
+import widgetManifest from '../widget.json';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
-import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
@@ -27,16 +29,10 @@ registerStatsMocks();
 
 const TOP_POSTS_RENDER_MODULE = 'storybook/top-posts';
 
-const storyWidgetType = {
-	name: widgetDefinition.name,
-	title: widgetDefinition.title,
-	icon: widgetDefinition.icon,
-	// Attribute metadata drives the host-rendered chrome: the high-relevance
-	// `contentView` control in the framed header and the settings fields.
-	attributes: widgetDefinition.attributes as WidgetType[ 'attributes' ],
-	example: widgetDefinition.example,
-	presentation: 'framed' as const,
-};
+// Attribute metadata flows through from the module to drive the host-rendered
+// chrome: the high-relevance `contentView` control in the framed header and the
+// settings fields. `presentation` comes from widget.json ( 'framed' ).
+const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
 interface TopPostsStoryControls {
 	withComparison: boolean;
@@ -57,7 +53,7 @@ function renderTopPostsWidget( { withComparison, contentView }: TopPostsStoryCon
 	return (
 		<TopPostsRender
 			attributes={ {
-				num: 10,
+				max: 10,
 				contentView,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }
@@ -77,7 +73,7 @@ function TopPostsDashboardStory( {
 			renderModule={ TOP_POSTS_RENDER_MODULE }
 			renderComponent={ TopPostsRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ {
-				num: 10,
+				max: 10,
 				contentView,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }
@@ -163,7 +159,7 @@ function renderTopPostsOnPreset( preset: PresetType ) {
 	return (
 		<TopPostsRender
 			attributes={ {
-				num: 10,
+				max: 10,
 				contentView: 'posts',
 				reportParams: getDefaultQueryParams( false, preset ),
 			} }

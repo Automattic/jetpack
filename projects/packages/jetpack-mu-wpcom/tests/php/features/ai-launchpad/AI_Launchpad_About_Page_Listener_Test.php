@@ -6,7 +6,9 @@
  */
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
+require_once __DIR__ . '/fixtures/trait-seeds-ai-output.php';
 require_once __DIR__ . '/../../../../src/features/ai-launchpad/helpers.php';
 require_once __DIR__ . '/../../../../src/features/ai-launchpad/class-ai-launchpad-about-page-listener.php';
 
@@ -17,6 +19,7 @@ require_once __DIR__ . '/../../../../src/features/ai-launchpad/class-ai-launchpa
  */
 #[CoversClass( AI_Launchpad_About_Page_Listener::class )]
 class AI_Launchpad_About_Page_Listener_Test extends \WorDBless\BaseTestCase {
+	use AI_Launchpad_Seeds_AI_Output;
 
 	/**
 	 * Set up.
@@ -24,24 +27,6 @@ class AI_Launchpad_About_Page_Listener_Test extends \WorDBless\BaseTestCase {
 	public function set_up() {
 		parent::set_up();
 		wpcom_register_default_launchpad_checklists();
-	}
-
-	/**
-	 * Seeds the AI output option with the given task IDs.
-	 *
-	 * @param string[] $task_ids Task IDs for the payload.
-	 */
-	private function seed_tasks( array $task_ids ) {
-		$tasks = array_map(
-			static function ( $id ) {
-				return array(
-					'id'       => $id,
-					'subtitle' => 'Subtitle.',
-				);
-			},
-			$task_ids
-		);
-		update_option( 'wpcom_ai_launchpad_ai_output', array( 'payload' => array( 'tasks' => $tasks ) ), false );
 	}
 
 	/**
@@ -76,40 +61,42 @@ class AI_Launchpad_About_Page_Listener_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that the marked AI About page completes add_about_page on first publish
-	 * and update_about_page on a later edit — and that an unmarked page or an
-	 * unselected task completes nothing.
+	 * The marked AI About page completes add_about_page on its first publish and
+	 * update_about_page when the already-published page is edited again. An unmarked page is
+	 * somebody else's page, and a task the AI did not select never completes.
+	 *
+	 * @dataProvider provide_transitions
+	 *
+	 * @param bool        $marked         Whether the page carries the marker meta.
+	 * @param string[]    $selected       The AI-selected task IDs.
+	 * @param string      $old_status     The status the page is transitioning from.
+	 * @param string|null $completed_task The task expected to complete, or null for neither.
 	 */
-	public function test_completes_about_tasks_on_marked_page_transitions() {
-		$this->seed_tasks( array( 'add_about_page', 'update_about_page' ) );
+	#[DataProvider( 'provide_transitions' )]
+	public function test_completes_about_tasks_on_marked_page_transitions( $marked, $selected, $old_status, $completed_task ) {
+		$this->seed_ai_output( $selected );
+		$page = $this->make_page( $marked );
+
+		AI_Launchpad_About_Page_Listener::maybe_complete( 'publish', $old_status, $page );
+
 		$task_lists = wpcom_launchpad_checklists();
-
-		// An unmarked page: nothing completes.
-		$plain = $this->make_page( false );
-		AI_Launchpad_About_Page_Listener::maybe_complete( 'publish', 'draft', $plain );
-		$this->assertFalse( $task_lists->is_task_id_complete( 'add_about_page' ) );
-
-		$page = $this->make_page( true );
-
-		// First publish of the marked page completes add_about_page only.
-		AI_Launchpad_About_Page_Listener::maybe_complete( 'publish', 'draft', $page );
-		$this->assertTrue( $task_lists->is_task_id_complete( 'add_about_page' ) );
-		$this->assertFalse( $task_lists->is_task_id_complete( 'update_about_page' ) );
-
-		// A later edit of the already-published marked page completes update_about_page.
-		AI_Launchpad_About_Page_Listener::maybe_complete( 'publish', 'publish', $page );
-		$this->assertTrue( $task_lists->is_task_id_complete( 'update_about_page' ) );
+		$this->assertSame( 'add_about_page' === $completed_task, $task_lists->is_task_id_complete( 'add_about_page' ) );
+		$this->assertSame( 'update_about_page' === $completed_task, $task_lists->is_task_id_complete( 'update_about_page' ) );
 	}
 
 	/**
-	 * Test that a marked page does not complete tasks the AI did not select.
+	 * Data provider for test_completes_about_tasks_on_marked_page_transitions.
+	 *
+	 * @return array
 	 */
-	public function test_no_completion_when_task_not_selected() {
-		$this->seed_tasks( array( 'site_launched' ) );
-		$page = $this->make_page( true );
+	public static function provide_transitions() {
+		$both = array( 'add_about_page', 'update_about_page' );
 
-		AI_Launchpad_About_Page_Listener::maybe_complete( 'publish', 'draft', $page );
-
-		$this->assertFalse( wpcom_launchpad_checklists()->is_task_id_complete( 'add_about_page' ) );
+		return array(
+			'first publish of the marked page'   => array( true, $both, 'draft', 'add_about_page' ),
+			'later edit of the published page'   => array( true, $both, 'publish', 'update_about_page' ),
+			'an unmarked page completes nothing' => array( false, $both, 'draft', null ),
+			'the task was not ai-selected'       => array( true, array( 'site_launched' ), 'draft', null ),
+		);
 	}
 }

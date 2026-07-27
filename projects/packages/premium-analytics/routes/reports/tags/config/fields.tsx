@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { __ } from '@wordpress/i18n';
 import { category, tag as tagGlyph } from '@wordpress/icons';
 import { Icon, Link } from '@wordpress/ui';
@@ -23,13 +24,14 @@ const rowGlyph = ( labelIcon: string ) => ( labelIcon === 'folder' ? category : 
  */
 function TagLabel( { item }: { item: StatsTagsItem } ) {
 	const labelIcon = item.label[ 0 ]?.labelIcon ?? '';
+	const href = safeHttpUrl( item.link );
 
 	return (
 		<span className={ styles.tagLabel }>
 			<Icon icon={ rowGlyph( labelIcon ) } size={ 20 } className={ styles.tagIcon } />
-			{ item.link ? (
+			{ href ? (
 				<Link
-					href={ item.link }
+					href={ href }
 					variant="unstyled"
 					openInNewTab
 					title={ item.labelText }
@@ -55,7 +57,7 @@ export function getTagsFields(): Field< StatsTagsItem >[] {
 	return [
 		{
 			id: 'label',
-			label: __( 'Tag or category', 'jetpack-premium-analytics' ),
+			label: __( 'Tag or category', 'jetpack-premium-analytics-pkg' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => item.labelText,
@@ -63,7 +65,7 @@ export function getTagsFields(): Field< StatsTagsItem >[] {
 		},
 		{
 			id: 'views',
-			label: __( 'Views', 'jetpack-premium-analytics' ),
+			label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.value,
 			render: ( { item } ) => (
 				<>{ formatMetricValue( item.value, 'number', { decimals: 0, useMultipliers: false } ) }</>

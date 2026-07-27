@@ -27,6 +27,7 @@ export function makeLibraryItem( overrides: Partial< LibraryItem > = {} ): Libra
 		allowDownloads: false,
 		shortcode: '',
 		isProcessing: false,
+		orientation: null,
 		tracks: [],
 		...overrides,
 	};

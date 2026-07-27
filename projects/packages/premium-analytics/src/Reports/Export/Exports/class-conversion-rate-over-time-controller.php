@@ -38,7 +38,7 @@ class Conversion_Rate_Over_Time_Controller extends Abstract_Csv_Report_Controlle
 	 * @return string The report label.
 	 */
 	public function get_report_label(): string {
-		return __( 'Conversion Rate Over Time', 'jetpack-premium-analytics' );
+		return __( 'Conversion Rate Over Time', 'jetpack-premium-analytics-pkg' );
 	}
 
 	/**
@@ -59,11 +59,11 @@ class Conversion_Rate_Over_Time_Controller extends Abstract_Csv_Report_Controlle
 	public function get_column_headers( ?string $interval = null ): array {
 		return array(
 			'time_interval'         => $this->get_interval_label( $interval ),
-			'sessions'              => __( 'Sessions', 'jetpack-premium-analytics' ),
-			'cart'                  => __( 'Cart', 'jetpack-premium-analytics' ),
-			'checkout'              => __( 'Checkout', 'jetpack-premium-analytics' ),
-			'purchase'              => __( 'Purchase', 'jetpack-premium-analytics' ),
-			'store_conversion_rate' => __( 'Store conversion rate', 'jetpack-premium-analytics' ),
+			'sessions'              => __( 'Sessions', 'jetpack-premium-analytics-pkg' ),
+			'cart'                  => __( 'Cart', 'jetpack-premium-analytics-pkg' ),
+			'checkout'              => __( 'Checkout', 'jetpack-premium-analytics-pkg' ),
+			'purchase'              => __( 'Purchase', 'jetpack-premium-analytics-pkg' ),
+			'store_conversion_rate' => __( 'Store conversion rate', 'jetpack-premium-analytics-pkg' ),
 		);
 	}
 

@@ -23,25 +23,11 @@ export type TagsAttributes = {
  * archive URL and drill down to their individual members instead.
  */
 export default {
-	name: 'jpa/tags',
-	title: __( 'Tags & categories', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'The tags and categories associated with your most-viewed content, sorted by views.',
-			'jetpack-premium-analytics'
-		),
-		links: [
-			{
-				label: __( 'Learn more', 'jetpack-premium-analytics' ),
-				href: 'https://jetpack.com/support/jetpack-stats/',
-			},
-		],
-	},
 	icon: tag,
 	attributes: [
 		{
 			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics' ),
+			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
 			type: 'integer',
 		},
 	] as WidgetAttributeField< TagsAttributes >[],

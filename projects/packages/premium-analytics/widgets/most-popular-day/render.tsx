@@ -5,6 +5,7 @@ import { useStatsSite } from '@jetpack-premium-analytics/data';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { calendar } from '@jetpack-premium-analytics/icons';
 import {
+	summaryCount,
 	WidgetRoot,
 	WidgetState,
 	type ReportParamsFieldAttributes,
@@ -80,37 +81,21 @@ export const MostPopularDayHighlight = ( {
 }: MostPopularDayHighlightProps ) => (
 	<Stack className={ styles.highlight } direction="column" gap="xl" justify="center">
 		<MostPopularDayField
-			label={ __( 'Day', 'jetpack-premium-analytics' ) }
+			label={ __( 'Day', 'jetpack-premium-analytics-pkg' ) }
 			value={ formatDate( date, 'MMMM d' ) }
 			caption={ formatDate( date, 'year' ) }
 		/>
 		<MostPopularDayField
-			label={ __( 'Views', 'jetpack-premium-analytics' ) }
+			label={ __( 'Views', 'jetpack-premium-analytics-pkg' ) }
 			value={ formatMetricValue( views, 'number', { useMultipliers: true, decimals: 1 } ) }
 			caption={ sprintf(
 				/* translators: %s is a percentage, e.g. "0.32%". */
-				__( '%s of views', 'jetpack-premium-analytics' ),
+				__( '%s of views', 'jetpack-premium-analytics-pkg' ),
 				formatMetricValue( share, 'percentage', { decimals: 2, signDisplay: 'never' } )
 			) }
 		/>
 	</Stack>
 );
-
-/**
- * Reads a numeric summary field, returning `undefined` when the key is absent
- * or not a finite number, so a malformed value falls through to the empty state
- * rather than rendering a misleading `0`.
- *
- * @param {Record< string, unknown > | undefined} summary - The site summary.
- * @param {string}                                key     - The field to read.
- * @return The finite number, or undefined when unavailable.
- */
-function readCount( summary: Record< string, unknown > | undefined, key: string ) {
-	const value = summary?.[ key ];
-	const parsed = typeof value === 'string' ? Number( value ) : value;
-
-	return typeof parsed === 'number' && Number.isFinite( parsed ) ? parsed : undefined;
-}
 
 /**
  * Parses the best-day field (`YYYY-MM-DD`) into a date. `parseISO` validates the
@@ -144,8 +129,8 @@ function MostPopularDayReport() {
 
 	const summary = data?.stats;
 	const date = readBestDay( summary );
-	const views = readCount( summary, 'views_best_day_total' );
-	const totalViews = readCount( summary, 'views' );
+	const views = summaryCount( summary, 'views_best_day_total' );
+	const totalViews = summaryCount( summary, 'views' );
 	const isEmpty = date === undefined || views === undefined;
 
 	return (
@@ -161,11 +146,11 @@ function MostPopularDayReport() {
 					error={ {
 						description: __(
 							"We couldn't load your most popular day. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
 						actions: [
 							{
-								label: __( 'Retry', 'jetpack-premium-analytics' ),
+								label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
 								onClick: () => void refetch(),
 							},
 						],
@@ -174,7 +159,7 @@ function MostPopularDayReport() {
 						icon: calendar,
 						description: __(
 							'Not enough views yet to pick a most popular day.',
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
 					} }
 				>
