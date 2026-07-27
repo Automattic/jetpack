@@ -66,7 +66,9 @@
 .cardTitle {
 	display: inline-flex;
 	align-items: center;
-	gap: var(--wpds-dimension-gap-xs);
+	// `sm` (8px) matches the icon-to-label spacing used by StatusDot in these
+	// same cards, rather than the tighter `xs`.
+	gap: var(--wpds-dimension-gap-sm);
 }
 
 .titleIcon {
