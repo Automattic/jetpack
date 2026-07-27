@@ -638,13 +638,14 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		add_filter( 'jetpack_ai_sidebar_enabled', array( \Jetpack_AI_Settings::class, 'apply_master_gates' ), 11 );
 
 		// Master off + features on: hidden (existing rule, no regression).
-		update_option( \Jetpack_AI_Settings::MASTER_OPTION, 0 );
+		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->deactivate_ai_module_for_test();
 		update_option( 'jetpack_ai_writing_assistant_enabled', 1 );
 		update_option( 'ai_seo_enhancer_enabled', 1 );
 		$master_off_features_on = $this->gate_open();
 
 		// Master on + both features off: hidden (the new rule).
-		update_option( \Jetpack_AI_Settings::MASTER_OPTION, 1 );
+		$this->activate_ai_module_for_test();
 		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
 		update_option( 'ai_seo_enhancer_enabled', 0 );
 		$master_on_features_off = $this->gate_open();
@@ -653,7 +654,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		update_option( 'jetpack_ai_writing_assistant_enabled', 1 );
 		$master_on_writing_on = $this->gate_open();
 
-		delete_option( \Jetpack_AI_Settings::MASTER_OPTION );
 		delete_option( 'jetpack_ai_writing_assistant_enabled' );
 		delete_option( 'ai_seo_enhancer_enabled' );
 
@@ -669,12 +669,11 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * points.
 	 */
 	public function test_init_does_nothing_when_master_off_despite_late_filter() {
-		update_option( \Jetpack_AI_Settings::MASTER_OPTION, 0 );
+		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->deactivate_ai_module_for_test();
 		add_filter( 'jetpack_ai_sidebar_enabled', '__return_true', 999 );
 
 		Jetpack_AI_Sidebar::init();
-
-		delete_option( \Jetpack_AI_Settings::MASTER_OPTION );
 
 		$this->assertFalse(
 			has_filter( 'agents_manager_agent_providers', array( Jetpack_AI_Sidebar::class, 'register_provider' ) ),
