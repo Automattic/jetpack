@@ -1,5 +1,7 @@
 import { mergeStatsClicksComparisonRows, sanitizeStatsClicksResponse } from '..';
 import { clicksFixture, clicksSummaryFixture } from '../__fixtures__/clicks';
+import type { StatsClicksItem } from '../clicks';
+import type { StatsNormalizedReport } from '../types';
 
 describe( 'Stats clicks normalizer', () => {
 	it( 'normalizes summarized clicks into range data', () => {
@@ -360,5 +362,95 @@ describe( 'Stats clicks normalizer', () => {
 				} ),
 			],
 		} );
+	} );
+
+	it( 'matches rows whose URL cannot be parsed by falling back to the raw value', () => {
+		// Not every `url` the endpoint returns is absolute — a root-relative one
+		// makes `new URL()` throw. Both periods have to key off the same raw
+		// string, or such rows would never match and would lose their delta.
+		const buildReport = ( views: number, date: string ) =>
+			sanitizeStatsClicksResponse(
+				{
+					date,
+					summary: {
+						clicks: [ { name: '', views, url: '/downloads/report.pdf', children: null } ],
+					},
+				},
+				{ period: 'day', start_date: date, end_date: date, summarize: true }
+			);
+
+		expect(
+			mergeStatsClicksComparisonRows(
+				buildReport( 42, '2026-06-29' ),
+				buildReport( 28, '2026-06-22' )
+			)
+		).toEqual( {
+			hasComparison: true,
+			rows: [
+				expect.objectContaining( {
+					// An empty name falls back to the link for the display label.
+					label: '/downloads/report.pdf',
+					views: 42,
+					previousValue: 28,
+				} ),
+			],
+		} );
+	} );
+
+	it( 'reports comparison on grandchildren of a nested click group', () => {
+		const buildReport = ( leafViews: number ): StatsNormalizedReport< StatsClicksItem > => ( {
+			summary: {},
+			data: [
+				{
+					time_interval: '2026-06-29',
+					date_start: '2026-06-29T00:00:00+00:00',
+					date_end: '2026-06-29T23:59:59+00:00',
+					items: [
+						{
+							label: 'wordpress.org',
+							views: leafViews,
+							link: null,
+							icon: null,
+							labelIcon: null,
+							children: [
+								{
+									label: '/plugins',
+									views: leafViews,
+									link: 'https://wordpress.org/plugins',
+									icon: null,
+									labelIcon: 'external',
+									children: [
+										{
+											label: '/plugins/jetpack-search',
+											views: leafViews,
+											link: 'https://wordpress.org/plugins/jetpack-search',
+											icon: null,
+											labelIcon: 'external',
+											children: null,
+										},
+									],
+								},
+							],
+						},
+					],
+				},
+			],
+		} );
+
+		const result = mergeStatsClicksComparisonRows( buildReport( 42 ), buildReport( 28 ) );
+
+		expect( result.rows[ 0 ].children?.[ 0 ] ).toEqual(
+			expect.objectContaining( {
+				link: 'https://wordpress.org/plugins',
+				previousValue: 28,
+				childrenHaveComparison: true,
+				children: [
+					expect.objectContaining( {
+						link: 'https://wordpress.org/plugins/jetpack-search',
+						previousValue: 28,
+					} ),
+				],
+			} )
+		);
 	} );
 } );

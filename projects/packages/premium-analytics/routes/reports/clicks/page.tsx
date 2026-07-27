@@ -109,7 +109,7 @@ function ClicksReport(): JSX.Element {
 					/>
 				) : (
 					<ReportDrilldownTable< ClickRow >
-						data={ isTableLoading ? [] : records.rows }
+						data={ records.rows }
 						fields={ fields }
 						getItemId={ getClickRowId }
 						getItemParentId={ getClickRowParentId }
