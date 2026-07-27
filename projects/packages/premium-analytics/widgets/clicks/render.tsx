@@ -18,6 +18,7 @@ import {
 	WidgetState,
 	buildLeaderboardRow,
 	calculateDelta,
+	getCombinedPeriodMax,
 	resolveLeaderboardRowAction,
 	safeHttpUrl,
 	sharePercentage,
@@ -150,8 +151,10 @@ function buildLeaderboardData(
 	withComparison: boolean,
 	onDrillDown?: ( row: ClickRow ) => void
 ): LeaderboardChartData {
-	const maxCurrentClicks = Math.max( ...rows.map( row => row.value ), 1 );
-	const maxPreviousClicks = Math.max( ...rows.map( row => row.previousValue ?? 0 ), 1 );
+	const maxClicks = getCombinedPeriodMax(
+		rows.map( row => row.value ),
+		withComparison ? rows.map( row => row.previousValue ) : []
+	);
 
 	return rows.map( ( row, index ) => {
 		const previousValue = row.previousValue;
@@ -178,11 +181,11 @@ function buildLeaderboardData(
 				} ),
 			} ),
 			currentValue: row.value,
-			currentShare: sharePercentage( row.value, maxCurrentClicks ),
+			currentShare: sharePercentage( row.value, maxClicks ),
 			previousValue,
 			previousShare:
 				withComparison && previousValue !== undefined
-					? sharePercentage( previousValue, maxPreviousClicks )
+					? sharePercentage( previousValue, maxClicks )
 					: undefined,
 			delta:
 				withComparison && previousValue !== undefined

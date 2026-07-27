@@ -22,6 +22,12 @@ const buildOrderAttribution = (
 		} ) ),
 	} ) as ReportDataMap[ 'order-attribution' ];
 
+const report = buildOrderAttribution( [
+	{ item: 'Search', current: 100, previous: 200 },
+	{ item: 'Email', current: 50, previous: 25 },
+	{ item: 'Hidden by limit', current: 1000, previous: 1000 },
+] );
+
 describe( 'buildSalesByUtmData', () => {
 	it( 'keeps a real delta for sources present in both periods', () => {
 		const [ row ] = buildSalesByUtmData(
@@ -48,5 +54,26 @@ describe( 'buildSalesByUtmData', () => {
 		);
 
 		expect( row.delta ).toBe( 0 );
+	} );
+
+	it( 'shares one scale across both periods for the visible rows', () => {
+		const data = buildSalesByUtmData( report, 2 );
+
+		expect( data ).toHaveLength( 2 );
+		expect( data[ 0 ] ).toMatchObject( {
+			currentShare: 50,
+			previousShare: 100,
+		} );
+	} );
+
+	it( 'keeps every row when maxEntries is 0', () => {
+		const data = buildSalesByUtmData( report, 0 );
+
+		expect( data ).toHaveLength( 3 );
+		// The third row's 1000 now sets the shared scale for every row.
+		expect( data[ 0 ] ).toMatchObject( {
+			currentShare: 10,
+			previousShare: 20,
+		} );
 	} );
 } );

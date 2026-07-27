@@ -3,6 +3,7 @@
  */
 import {
 	calculateDelta,
+	getCombinedPeriodMax,
 	LeaderboardChart,
 	ReportLink,
 	WidgetFooter,
@@ -43,8 +44,10 @@ function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 	} );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
-		const maxValue = Math.max( ...data.map( t => t.views ), 0 );
-		const prevMaxValue = Math.max( ...data.map( t => t.previousViews ?? 0 ), 0 );
+		const maxValue = getCombinedPeriodMax(
+			data.map( term => term.views ),
+			hasComparison ? data.map( term => term.previousViews ) : []
+		);
 
 		return data.map( ( term, index ) => {
 			const previousViews = term.previousViews;
@@ -61,7 +64,7 @@ function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 				currentShare: sharePercentage( term.views, maxValue ),
 				previousShare:
 					hasComparison && previousViews !== undefined
-						? sharePercentage( previousViews, prevMaxValue )
+						? sharePercentage( previousViews, maxValue )
 						: undefined,
 				delta:
 					hasComparison && previousViews !== undefined

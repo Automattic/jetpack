@@ -605,6 +605,12 @@ shares, or chart colors. Leave missing `previousValue`/`previousShare`/`delta` v
 `undefined` so charts show the missing-data placeholder, instead of coercing them to `0` and
 implying a real zero previous period.
 
+For comparison leaderboards, calculate one denominator from the largest value represented in
+either period with `getCombinedPeriodMax()`. Use that denominator for both `currentShare` and
+`previousShare`; separate per-period maxima make equal-width bars represent different values and
+can contradict the displayed delta. Only include visible primary rows and their matched comparison
+values in the denominator. Missing comparison values remain `undefined` and are ignored.
+
 **Remote URLs in links**
 
 Pass every URL from report data through `safeHttpUrl` from `@jetpack-premium-analytics/ui`

@@ -133,6 +133,7 @@ export {
 	saveCsv,
 	type CsvColumn,
 	type CsvDateRange,
+	getCombinedPeriodMax,
 	sharePercentage,
 	getVideoKey,
 	getVideoLabel,

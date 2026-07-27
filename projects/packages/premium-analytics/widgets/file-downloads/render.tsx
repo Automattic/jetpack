@@ -15,6 +15,7 @@ import { download } from '@wordpress/icons';
 import { Link } from '@wordpress/ui';
 import {
 	calculateDelta,
+	getCombinedPeriodMax,
 	safeHttpUrl,
 	LeaderboardChart,
 	ReportLink,
@@ -68,8 +69,10 @@ function buildLeaderboardData(
 	rows: FileDownloadRow[],
 	withComparison: boolean
 ): LeaderboardChartData {
-	const maxValue = Math.max( ...rows.map( r => r.value ), 1 );
-	const maxPreviousValue = Math.max( ...rows.map( r => r.previousValue ?? 0 ), 1 );
+	const maxValue = getCombinedPeriodMax(
+		rows.map( row => row.value ),
+		withComparison ? rows.map( row => row.previousValue ) : []
+	);
 
 	return rows.map( ( row, index ) => {
 		const previousValue = row.previousValue;
@@ -96,7 +99,7 @@ function buildLeaderboardData(
 			previousValue,
 			previousShare:
 				withComparison && previousValue !== undefined
-					? sharePercentage( previousValue, maxPreviousValue )
+					? sharePercentage( previousValue, maxValue )
 					: undefined,
 			delta:
 				withComparison && previousValue !== undefined
