@@ -1602,6 +1602,7 @@ abstract class SAL_Site {
 		}
 
 		return class_exists( '\Automattic\Jetpack\Jetpack_Mu_Wpcom\Launchpad_Personalization_Experiment' )
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Lives in jetpack-mu-wpcom, outside this plugin's dependency graph; the class_exists guard above covers contexts where it isn't loaded.
 			&& 'ai_launchpad' === \Automattic\Jetpack\Jetpack_Mu_Wpcom\Launchpad_Personalization_Experiment::get_variation();
 	}
 
