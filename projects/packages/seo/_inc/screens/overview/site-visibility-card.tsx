@@ -55,7 +55,7 @@ const SiteVisibilityCard: FC< Props > = ( { data, onManage } ) => {
 					/>
 				</Stack>
 				<Stack direction="row" justify="flex-end" className={ styles.footer }>
-					<Button variant="solid" onClick={ onManage }>
+					<Button variant="solid" size="compact" onClick={ onManage }>
 						{ __( 'Manage visibility', 'jetpack-seo' ) }
 					</Button>
 				</Stack>

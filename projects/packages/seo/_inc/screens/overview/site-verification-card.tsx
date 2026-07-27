@@ -43,7 +43,7 @@ const SiteVerificationCard: FC< Props > = ( { data, onManage } ) => (
 				</Stack>
 			) ) }
 			<Stack direction="row" justify="flex-end" className={ styles.footer }>
-				<Button variant="solid" onClick={ onManage }>
+				<Button variant="solid" size="compact" onClick={ onManage }>
 					{ __( 'Manage verification', 'jetpack-seo' ) }
 				</Button>
 			</Stack>
