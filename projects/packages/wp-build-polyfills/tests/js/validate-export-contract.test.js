@@ -27,11 +27,15 @@ describe( 'validate-export-contract', () => {
 		);
 	} );
 
-	it( 'parsePublicExports reads export names, honouring `as` aliases and `export *`', () => {
+	it( 'parsePublicExports reads block, inline and aliased exports, and flags `export *`', () => {
 		assert.deepEqual(
 			parsePublicExports( 'export { default2 as SnackbarNotices, store };' ).names,
 			[ 'SnackbarNotices', 'store' ]
 		);
+		// Inline declarations (not just consolidated `export { … }` blocks).
+		assert.deepEqual( parsePublicExports( 'export const ThemeProvider = () => {};' ).names, [
+			'ThemeProvider',
+		] );
 		assert.equal( parsePublicExports( "export * from './x';" ).opaque, true );
 	} );
 
@@ -75,6 +79,12 @@ describe( 'validate-export-contract', () => {
 		it( 'passes for the actually-shipped @wordpress/* versions', () => {
 			const result = validateExportContracts( { packageRoot } );
 			assert.equal( result.ok, true, result.error || 'unexpected contract failure' );
+			// Guard against a vacuous green: the boot↔theme/notices/private-apis and
+			// route↔private-apis pairs must actually be scanned.
+			assert.ok(
+				result.results.length > 0,
+				'no contracts were scanned — the check may be silently verifying nothing'
+			);
 		} );
 
 		it( 'fails on a simulated skew (theme missing ThemeProvider)', () => {

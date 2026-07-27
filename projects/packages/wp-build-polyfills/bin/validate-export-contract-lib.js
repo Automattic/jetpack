@@ -58,7 +58,8 @@ function getShippedPackages( packageRoot ) {
  * Handles `import { A, B as C } from '@wordpress/x'` and the mixed default form
  * `import Def, { A } from '@wordpress/x'` (imported name is before `as`); a pure
  * default or namespace import has no `{ … }` and is ignored (can't be a missing
- * named export).
+ * named export). Matches `import` statements only — an `export { … } from
+ * '@wordpress/x'` re-export is not a consumer import and yields nothing.
  *
  * @param {string} source      - ESM source text.
  * @param {string} providerPkg - e.g. '@wordpress/theme'.
@@ -88,19 +89,23 @@ function parseNamedImports( source, providerPkg ) {
 }
 
 /**
- * Public export names from a provider's built ESM index. Handles `export { A, B as C }`
- * (public name is after `as`); flags wildcard `export *` as opaque so callers skip it
- * rather than emit a false "missing export".
+ * Public export names from a provider's built ESM index. Handles consolidated
+ * `export { A, B as C }` blocks (public name is after `as`) and inline
+ * declarations `export const/function/class/let/var X`; flags wildcard
+ * `export *` as opaque so callers skip it rather than emit a false "missing
+ * export". (`@wordpress/*` ship esbuild-consolidated indexes today, but an
+ * inline-export bump must not make the check report every symbol missing.)
  *
- * @param {string} indexSource - Contents of the package's `module`/`main` entry.
+ * @param {string} indexSource - Contents of the package's entry point.
  * @return {{ names: string[], opaque: boolean }} Public export names + opacity flag.
  */
 function parsePublicExports( indexSource ) {
 	const names = new Set();
 	const opaque = /export\s*\*/.test( indexSource );
-	const re = /export\s*\{([^}]*)\}/g;
+
+	const blockRe = /export\s*\{([^}]*)\}/g;
 	let match;
-	while ( ( match = re.exec( indexSource ) ) !== null ) {
+	while ( ( match = blockRe.exec( indexSource ) ) !== null ) {
 		for ( const specifier of match[ 1 ].split( ',' ) ) {
 			const trimmed = specifier.trim();
 			if ( ! trimmed ) {
@@ -113,6 +118,14 @@ function parsePublicExports( indexSource ) {
 			}
 		}
 	}
+
+	// Inline declarations, e.g. `export const ThemeProvider = …`.
+	for ( const m of indexSource.matchAll(
+		/export\s+(?:async\s+)?(?:function|class|const|let|var)\s+([\w$]+)/g
+	) ) {
+		names.add( m[ 1 ] );
+	}
+
 	return { names: [ ...names ].sort(), opaque };
 }
 
@@ -185,7 +198,10 @@ function readBuildModuleSource( pkgDir ) {
  */
 function readPackageExports( pkgDir ) {
 	const pkg = JSON.parse( readFileSync( path.join( pkgDir, 'package.json' ), 'utf8' ) );
-	const entry = pkg.module || pkg.main;
+	// Prefer the `exports` map's ESM entry (how resolution actually works), then
+	// fall back to `module`/`main`. `@wordpress/boot` already ships no `main`.
+	const dot = pkg.exports?.[ '.' ];
+	const entry = ( typeof dot === 'string' ? dot : dot?.import ) ?? pkg.module ?? pkg.main;
 	if ( ! entry ) {
 		return null;
 	}
@@ -266,12 +282,20 @@ function validateExportContracts( options = {} ) {
 	const simulateMissing =
 		options.simulateMissing || parseSimulateEnv( process.env.WP_BUILD_POLYFILLS_SIMULATE_MISSING );
 
+	// Never drop a package from coverage silently — a check that verifies nothing
+	// but stays green is the failure mode this exists to prevent.
+	const warn = message => {
+		// eslint-disable-next-line no-console
+		console.warn( `[export-contract] ${ message }` );
+	};
+
 	const errors = [];
 	const providerExports = {};
 	for ( const provider of providers ) {
 		const dir = resolvePackageDir( provider, packageRoot );
 		if ( ! dir ) {
-			continue; // Not installed → not shipped.
+			warn( `Provider ${ provider } is not resolvable — not verifying it.` );
+			continue;
 		}
 		const exp = readPackageExports( dir );
 		if ( ! exp ) {
@@ -279,13 +303,9 @@ function validateExportContracts( options = {} ) {
 			continue;
 		}
 		if ( exp.opaque ) {
-			// A barrel (`export *`) can't be statically enumerated, so we can't verify
-			// this provider — warn loudly rather than skip it silently, which would be
-			// a hole in exactly the protection this check exists for.
-			// eslint-disable-next-line no-console
-			console.warn(
-				`[export-contract] Not verifying ${ provider }: its index uses \`export *\`, ` +
-					'so its public exports can’t be enumerated statically.'
+			warn(
+				`Not verifying ${ provider }: its index uses \`export *\`, so its public ` +
+					'exports can’t be enumerated statically.'
 			);
 		}
 		const dropped = simulateMissing[ provider ] || [];
@@ -299,10 +319,12 @@ function validateExportContracts( options = {} ) {
 	for ( const consumer of consumers ) {
 		const dir = resolvePackageDir( consumer, packageRoot );
 		if ( ! dir ) {
+			warn( `Consumer ${ consumer } is not resolvable — its imports were not checked.` );
 			continue;
 		}
 		const source = readBuildModuleSource( dir );
 		if ( ! source ) {
+			warn( `Consumer ${ consumer } has no build-module/ — its imports were not checked.` );
 			continue;
 		}
 		for ( const provider of Object.keys( providerExports ) ) {
