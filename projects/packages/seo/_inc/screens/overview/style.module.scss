@@ -122,6 +122,13 @@
 	justify-content: center;
 }
 
+// Bold (600 — the WPDS emphasis weight, which has no lint-approved token, so a
+// literal per the house convention) so the percentage leads the value hierarchy
+// while keeping the same heading-lg size as the count.
+.pctValue {
+	font-weight: 600;
+}
+
 .ringTrigger:hover .donutWrap,
 .ringTrigger:focus-visible .donutWrap {
 	transform: scale(1.06);
