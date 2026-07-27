@@ -78,11 +78,11 @@ class AI_Launchpad_Eligibility_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_eligibility_inputs() {
 		return array(
-			'enabled'                          => array( false, true, false, true ),
-			'not enabled'                      => array( false, false, false, false ),
-			'onboarded keeps explicit enable'  => array( true, true, false, true ),
-			'onboarded without enable blocks'  => array( true, false, false, false ),
-			'dismissed blocks'                 => array( false, true, true, false ),
+			'enabled'                         => array( false, true, false, true ),
+			'not enabled'                     => array( false, false, false, false ),
+			'onboarded keeps explicit enable' => array( true, true, false, true ),
+			'onboarded without enable blocks' => array( true, false, false, false ),
+			'dismissed blocks'                => array( false, true, true, false ),
 		);
 	}
 
