@@ -1,10 +1,16 @@
+/**
+ * External dependencies
+ */
 import { useStatsArchives, useStatsTopPosts } from '@jetpack-premium-analytics/data';
 import { renderHook } from '@testing-library/react';
+/**
+ * Internal dependencies
+ */
 import { usePostsReportRecords } from './use-report-records';
 import type {
 	ReportParams,
-	StatsNormalizedReport,
-	StatsTopPostsItem,
+	StatsArchivesComparisonItem,
+	StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -16,75 +22,38 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 const mockUseStatsArchives = useStatsArchives as jest.MockedFunction< typeof useStatsArchives >;
 const mockUseStatsTopPosts = useStatsTopPosts as jest.MockedFunction< typeof useStatsTopPosts >;
 
-const report: StatsNormalizedReport< StatsTopPostsItem > = {
-	summary: {},
-	data: [
-		{
-			time_interval: '2026-07-09',
-			date_start: '2026-07-09T00:00:00+00:00',
-			date_end: '2026-07-09T23:59:59+00:00',
-			items: [
-				{
-					id: 42,
-					label: 'Post A',
-					views: 7,
-					link: 'https://example.com/post-a/',
-					type: 'post',
-				},
-			],
-		},
-		{
-			time_interval: '2026-07-10',
-			date_start: '2026-07-10T00:00:00+00:00',
-			date_end: '2026-07-10T23:59:59+00:00',
-			items: [
-				{
-					id: 42,
-					label: 'Post A',
-					views: 6,
-					link: 'https://example.com/post-a/',
-					type: 'post',
-				},
-			],
-		},
-	],
-};
+const postRows: StatsTopPostsComparisonItem[] = [
+	{
+		id: 1,
+		label: 'Analytical Engine',
+		views: 13,
+		link: 'https://example.com/analytical-engine/',
+		type: 'post',
+	},
+];
 
-const comparisonReport: StatsNormalizedReport< StatsTopPostsItem > = {
-	summary: {},
-	data: [
-		{
-			time_interval: '2026-07-07',
-			date_start: '2026-07-07T00:00:00+00:00',
-			date_end: '2026-07-07T23:59:59+00:00',
-			items: [
-				{
-					id: 99,
-					label: 'Post B',
-					views: 4,
-					link: 'https://example.com/post-b/',
-					type: 'post',
-				},
-			],
-		},
-		{
-			time_interval: '2026-07-08',
-			date_start: '2026-07-08T00:00:00+00:00',
-			date_end: '2026-07-08T23:59:59+00:00',
-			items: [
-				{
-					id: 99,
-					label: 'Post B',
-					views: 5,
-					link: 'https://example.com/post-b/',
-					type: 'post',
-				},
-			],
-		},
-	],
-};
+const archiveRows: StatsArchivesComparisonItem[] = [
+	{
+		label: 'tax',
+		value: 8,
+		children: [
+			{
+				label: 'category',
+				value: 8,
+				children: [
+					{
+						label: 'News',
+						value: 8,
+						link: 'https://example.com/category/news/',
+						children: null,
+					},
+				],
+			},
+		],
+	},
+];
 
-const params: ReportParams = {
+const reportParams: ReportParams = {
 	from: '2026-07-09',
 	to: '2026-07-10',
 	interval: 'day',
@@ -92,95 +61,144 @@ const params: ReportParams = {
 
 describe( 'usePostsReportRecords', () => {
 	beforeEach( () => {
-		mockUseStatsArchives.mockReset();
 		mockUseStatsTopPosts.mockReset();
+		mockUseStatsArchives.mockReset();
 		mockUseStatsTopPosts.mockReturnValue( {
-			primary: { data: report },
-			comparison: { data: undefined },
+			comparisonRows: { rows: postRows, hasComparison: false },
 			hasComparison: false,
 			isLoading: false,
-		} as ReturnType< typeof useStatsTopPosts > );
+			isFetching: false,
+			isError: false,
+			refetch: jest.fn(),
+		} as unknown as ReturnType< typeof useStatsTopPosts > );
 		mockUseStatsArchives.mockReturnValue( {
-			primary: { data: undefined },
-			comparison: { data: undefined },
+			comparisonRows: { rows: archiveRows, hasComparison: false },
 			hasComparison: false,
 			isLoading: false,
-		} as ReturnType< typeof useStatsArchives > );
+			isFetching: false,
+			isError: false,
+			refetch: jest.fn(),
+		} as unknown as ReturnType< typeof useStatsArchives > );
 	} );
 
-	it( 'keeps both requests day-bucketed while grouping only the chart by week', () => {
-		const dayResult = renderHook( () =>
-			usePostsReportRecords( 'posts-pages', params, 'day' )
-		).result;
-		const weekResult = renderHook( () =>
-			usePostsReportRecords( 'posts-pages', params, 'week' )
-		).result;
+	it( 'requests all summarized rows for the selected range', () => {
+		const paramsWithStaleChartPeriod = { ...reportParams, period: 'month' as const };
+		const { result } = renderHook( () =>
+			usePostsReportRecords( 'posts-pages', paramsWithStaleChartPeriod )
+		);
 		const expectedParams = {
-			...params,
+			...paramsWithStaleChartPeriod,
 			max: 0,
-			summarize: 0,
 			period: 'day',
+			summarize: 1,
 			skip_archives: 1,
 		};
 
 		expect( mockUseStatsTopPosts ).toHaveBeenLastCalledWith( expectedParams, { enabled: true } );
 		expect( mockUseStatsArchives ).toHaveBeenLastCalledWith( expectedParams, { enabled: false } );
-		expect( weekResult.current.chart.primary.data ).toEqual( [
-			expect.objectContaining( {
-				time_interval: '2026-07-06',
-				value: 13,
-				views: 13,
-			} ),
-		] );
-		expect( weekResult.current.posts.rows ).toEqual( dayResult.current.posts.rows );
+		expect( result.current.posts.rows ).toEqual( postRows );
 	} );
 
-	it( 'includes comparison chart buckets when posts do not overlap the primary period', () => {
+	it( 'preserves merged comparison views for posts', () => {
 		mockUseStatsTopPosts.mockReturnValue( {
-			primary: { data: report },
-			comparison: { data: comparisonReport },
-			hasComparison: false,
+			comparisonRows: {
+				rows: [ { ...postRows[ 0 ], previousViews: 10 } ],
+				hasComparison: true,
+			},
+			hasComparison: true,
 			isLoading: false,
-		} as ReturnType< typeof useStatsTopPosts > );
-		const comparisonParams: ReportParams = {
-			...params,
-			compare_from: '2026-07-07',
-			compare_to: '2026-07-08',
-		};
+			isFetching: false,
+			isError: false,
+			refetch: jest.fn(),
+		} as unknown as ReturnType< typeof useStatsTopPosts > );
 
 		const { result } = renderHook( () =>
-			usePostsReportRecords( 'posts-pages', comparisonParams, 'day' )
+			usePostsReportRecords( 'posts-pages', {
+				...reportParams,
+				comp: '1',
+				compare_from: '2026-07-07',
+				compare_to: '2026-07-08',
+			} )
 		);
 
-		expect( result.current.chart.comparison ).toBeDefined();
-		expect( result.current.chart.comparison?.data.map( point => point.views ) ).toEqual( [ 4, 5 ] );
+		expect( result.current.posts.rows[ 0 ] ).toEqual(
+			expect.objectContaining( { views: 13, previousViews: 10 } )
+		);
+		expect( result.current.posts.hasComparison ).toBe( true );
 	} );
 
-	it( 'omits the comparison chart when comparison params are absent', () => {
-		mockUseStatsTopPosts.mockReturnValue( {
-			primary: { data: report },
-			comparison: { data: comparisonReport },
-			hasComparison: false,
+	it( 'preserves the archive hierarchy and comparison views', () => {
+		const comparedArchives: StatsArchivesComparisonItem[] = [
+			{
+				...archiveRows[ 0 ],
+				children: [
+					{
+						...archiveRows[ 0 ].children?.[ 0 ],
+						label: 'category',
+						value: 8,
+						children: [
+							{
+								label: 'News',
+								value: 8,
+								previousValue: 5,
+								link: 'https://example.com/category/news/',
+								children: null,
+							},
+						],
+					},
+				],
+			},
+		];
+		mockUseStatsArchives.mockReturnValue( {
+			comparisonRows: { rows: comparedArchives, hasComparison: true },
+			hasComparison: true,
 			isLoading: false,
-		} as ReturnType< typeof useStatsTopPosts > );
+			isFetching: false,
+			isError: false,
+			refetch: jest.fn(),
+		} as unknown as ReturnType< typeof useStatsArchives > );
 
-		const { result } = renderHook( () => usePostsReportRecords( 'posts-pages', params, 'day' ) );
+		const { result } = renderHook( () => usePostsReportRecords( 'archives', reportParams ) );
 
-		expect( result.current.chart.comparison ).toBeUndefined();
+		expect( result.current.archives.rows ).toEqual( [
+			{
+				id: 'tax-0',
+				label: 'Taxonomies',
+				views: 8,
+				isGroup: true,
+			},
+			{
+				id: 'tax-0-0',
+				parentId: 'tax-0',
+				label: 'Category',
+				views: 8,
+				isGroup: true,
+			},
+			{
+				id: 'tax-0-0-0',
+				parentId: 'tax-0-0',
+				label: 'News',
+				views: 8,
+				previousViews: 5,
+				link: 'https://example.com/category/news/',
+				isGroup: false,
+			},
+		] );
+		expect( result.current.archives.hasComparison ).toBe( true );
 	} );
 
 	it( 'surfaces error and refetch from the active report', () => {
 		const refetch = jest.fn();
 		mockUseStatsArchives.mockReturnValue( {
-			primary: { data: undefined },
-			comparison: { data: undefined },
+			comparisonRows: { rows: [], hasComparison: false },
 			hasComparison: false,
 			isLoading: false,
+			isFetching: false,
 			isError: true,
 			refetch,
 		} as unknown as ReturnType< typeof useStatsArchives > );
 
-		const { result } = renderHook( () => usePostsReportRecords( 'archives', params, 'day' ) );
+		const { result } = renderHook( () => usePostsReportRecords( 'archives', reportParams ) );
 
 		expect( result.current.isError ).toBe( true );
 		expect( result.current.refetch ).toBe( refetch );

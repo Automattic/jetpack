@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { Link } from '@wordpress/route';
 
 export type VideoTitleLinkProps = {
@@ -53,11 +54,15 @@ export function VideoTitleLink( {
 		);
 	}
 
-	if ( link ) {
+	// Callers pass `link` straight from report data, so the scheme is guarded
+	// here at the sink rather than in each consuming widget or route.
+	const href = safeHttpUrl( link );
+
+	if ( href ) {
 		return (
 			<a
 				className={ classNames?.external }
-				href={ link }
+				href={ href }
 				target="_blank"
 				rel="noopener noreferrer"
 				title={ title }

@@ -11,6 +11,7 @@
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build:wp-build && pnpm run build:strip-unminified-prod && pnpm run build:boot-asset && pnpm run validate",
 		"storybook": "cd ../../js-packages/storybook && pnpm run storybook:dev",
 		"test": "jest --config=tests/jest.config.cjs",
+		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsgo --noEmit",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
 		"watch": "wp-build --watch"

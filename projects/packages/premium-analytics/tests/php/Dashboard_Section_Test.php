@@ -226,6 +226,20 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Section to_array() carries its default layout.
+	 */
+	public function test_to_array_includes_default_layout() {
+		register_default_dashboard_sections();
+
+		$traffic = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/traffic' );
+		$data    = $traffic->to_array();
+
+		$this->assertArrayHasKey( 'default_layout', $data );
+		$this->assertSame( $traffic->get_default_layout(), $data['default_layout'] );
+		$this->assertNotEmpty( $data['default_layout'] );
+	}
+
+	/**
 	 * Dashboard names can omit underscores when they match the REST route grammar.
 	 */
 	public function test_accepts_dashboard_names_without_underscores() {
@@ -251,10 +265,11 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				array(
-					'id'    => 'analytics/traffic',
-					'slug'  => 'traffic',
-					'label' => 'Traffic',
-					'order' => 10,
+					'id'             => 'analytics/traffic',
+					'slug'           => 'traffic',
+					'label'          => 'Traffic',
+					'order'          => 10,
+					'default_layout' => array(),
 				),
 			),
 			$response->get_data()
@@ -385,7 +400,12 @@ class Dashboard_Section_Test extends BaseTestCase {
 			),
 			array_map(
 				static function ( Dashboard_Section $section ) {
-					return $section->to_array();
+					// Assert on the metadata shape here; the default layout is
+					// covered by test_to_array_includes_default_layout().
+					$data = $section->to_array();
+					unset( $data['default_layout'] );
+
+					return $data;
 				},
 				get_available_dashboard_sections( DASHBOARD_NAME )
 			)
@@ -507,16 +527,18 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				array(
-					'id'    => 'example/first',
-					'slug'  => 'first',
-					'label' => 'First',
-					'order' => 10,
+					'id'             => 'example/first',
+					'slug'           => 'first',
+					'label'          => 'First',
+					'order'          => 10,
+					'default_layout' => array(),
 				),
 				array(
-					'id'    => 'example/later',
-					'slug'  => 'later',
-					'label' => 'Later',
-					'order' => 20,
+					'id'             => 'example/later',
+					'slug'           => 'later',
+					'label'          => 'Later',
+					'order'          => 20,
+					'default_layout' => array(),
 				),
 			),
 			$response->get_data()
@@ -558,9 +580,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Sections route responses carry definition fields only.
+	 * Sections route responses carry the definition fields and the default layout.
 	 */
-	public function test_sections_route_returns_lean_section_shape() {
+	public function test_sections_route_returns_section_shape() {
 		register_dashboard_section(
 			'route_sections_dashboard',
 			'analytics/traffic',
@@ -586,10 +608,16 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				array(
-					'id'    => 'analytics/traffic',
-					'slug'  => 'traffic',
-					'label' => 'Traffic',
-					'order' => 10,
+					'id'             => 'analytics/traffic',
+					'slug'           => 'traffic',
+					'label'          => 'Traffic',
+					'order'          => 10,
+					'default_layout' => array(
+						array(
+							'uuid' => 'default-route-widget',
+							'type' => 'example/widget',
+						),
+					),
 				),
 			),
 			$response->get_data()

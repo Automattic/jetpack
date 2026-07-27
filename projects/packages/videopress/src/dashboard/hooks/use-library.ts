@@ -231,6 +231,13 @@ export function toLibraryItem( raw: ApiMediaItem, simple: boolean ): LibraryItem
 	// on Simple that flag is absent (no media_details.videopress), so the poster check
 	// carries it. Rendered as a processing placeholder instead of a blank/black tile.
 	const isProcessing = isVideoPress && ( ! poster || finished === false );
+	// Orientation is derived from the source dimensions; unknown (missing
+	// dimensions) and square videos carry no orientation.
+	const { width, height } = details ?? {};
+	let orientation: LibraryItem[ 'orientation' ] = null;
+	if ( width && height && width !== height ) {
+		orientation = width > height ? 'landscape' : 'portrait';
+	}
 	return {
 		id: String( raw.id ),
 		guid: vp?.guid ?? '',
@@ -251,6 +258,7 @@ export function toLibraryItem( raw: ApiMediaItem, simple: boolean ): LibraryItem
 		shortcode: buildShortcode( vp?.guid, raw.media_details?.width, raw.media_details?.height ),
 		sourceUrl: raw.source_url,
 		isProcessing,
+		orientation,
 		// The media REST field omits `tracks` today, so this is seed-only:
 		// the caption manager modal fetches the authoritative list itself.
 		tracks: flattenVideoTracks( vp?.tracks ),

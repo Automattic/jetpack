@@ -16,7 +16,7 @@ on:
 
 concurrency:
   # wp_version keeps concurrent dispatches for different WordPress versions from cancelling each other.
-  group: e2e-tests-${{ github.event_name }}-${{ github.ref }}-${{ github.event.action }}-${{ inputs.wp_version }}
+  group: e2e-tests-${{ github.event_name }}-${{ github.ref }}-${{ case( github.event_name == 'repository_dispatch', github.event.action, '' ) }}-${{ inputs.wp_version }}
   cancel-in-progress: true
 
 permissions:

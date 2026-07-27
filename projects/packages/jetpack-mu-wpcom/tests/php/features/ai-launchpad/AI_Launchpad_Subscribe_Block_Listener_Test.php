@@ -6,7 +6,9 @@
  */
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
+require_once __DIR__ . '/fixtures/trait-seeds-ai-output.php';
 require_once __DIR__ . '/../../../../src/features/ai-launchpad/helpers.php';
 require_once __DIR__ . '/../../../../src/features/ai-launchpad/class-ai-launchpad-subscribe-block-listener.php';
 
@@ -17,6 +19,18 @@ require_once __DIR__ . '/../../../../src/features/ai-launchpad/class-ai-launchpa
  */
 #[CoversClass( AI_Launchpad_Subscribe_Block_Listener::class )]
 class AI_Launchpad_Subscribe_Block_Listener_Test extends \WorDBless\BaseTestCase {
+	use AI_Launchpad_Seeds_AI_Output;
+
+	/**
+	 * The block whose presence completes the task.
+	 */
+	const SUBSCRIBE_BLOCK = '<!-- wp:jetpack/subscriptions /-->';
+
+	/**
+	 * Content holding no Subscribe block.
+	 */
+	const PLAIN_CONTENT = '<!-- wp:paragraph --><p>Hello</p><!-- /wp:paragraph -->';
+
 	/**
 	 * Set up.
 	 */
@@ -26,127 +40,73 @@ class AI_Launchpad_Subscribe_Block_Listener_Test extends \WorDBless\BaseTestCase
 	}
 
 	/**
-	 * Seeds the AI output option with the given task IDs.
+	 * The task completes when the Subscribe block reaches a surface that actually renders a
+	 * subscribe form, and only while the task is AI-selected — the legacy launchpad must stay
+	 * untouched. The two surfaces are gated separately in the listener: `save_post` for
+	 * front-end-viewable published content (drafts, blockless content and non-viewable types such
+	 * as synced patterns are skipped), and the block-widget option, the classic-theme CTA target,
+	 * whose saves never fire `save_post` at all.
 	 *
-	 * @param string[] $task_ids Task IDs for the payload.
-	 */
-	private function seed_ai_output( $task_ids ) {
-		update_option(
-			'wpcom_ai_launchpad_ai_output',
-			array(
-				'version'      => 1,
-				'source'       => 'ai',
-				'generated_at' => 1717000000,
-				'payload'      => array(
-					'tasks' => array_map(
-						function ( $task_id ) {
-							return array(
-								'id'       => $task_id,
-								'subtitle' => 'Subtitle for ' . $task_id,
-							);
-						},
-						$task_ids
-					),
-				),
-			),
-			false
-		);
-	}
-
-	/**
-	 * Inserts a post and runs it through the post watcher.
+	 * @dataProvider provide_saves
 	 *
-	 * @param string $post_type   The post type.
-	 * @param string $post_status The post status.
-	 * @param string $content     The post content.
-	 * @return void
+	 * @param string        $surface     'post' or 'widget'.
+	 * @param string[]|null $selected    AI-selected task IDs, or null for no AI output at all.
+	 * @param string        $content     The post or widget content.
+	 * @param bool          $expected    Whether the task should complete.
+	 * @param string        $post_type   The post type (post surface only).
+	 * @param string        $post_status The post status (post surface only).
 	 */
-	private function save( $post_type, $post_status, $content ) {
-		$post_id = wp_insert_post(
-			array(
-				'post_title'   => 'Test',
-				'post_content' => $content,
-				'post_status'  => $post_status,
-				'post_type'    => $post_type,
-			)
+	#[DataProvider( 'provide_saves' )]
+	public function test_completion_by_surface( $surface, $selected, $content, $expected, $post_type = 'post', $post_status = 'publish' ) {
+		if ( null !== $selected ) {
+			$this->seed_ai_output( $selected );
+		}
+
+		if ( 'post' === $surface ) {
+			$post_id = wp_insert_post(
+				array(
+					'post_title'   => 'Test',
+					'post_content' => $content,
+					'post_status'  => $post_status,
+					'post_type'    => $post_type,
+				)
+			);
+			AI_Launchpad_Subscribe_Block_Listener::maybe_complete_from_post( $post_id, get_post( $post_id ) );
+		} else {
+			AI_Launchpad_Subscribe_Block_Listener::maybe_complete_from_widget(
+				null,
+				array(
+					2              => array( 'content' => $content ),
+					'_multiwidget' => 1,
+				)
+			);
+		}
+
+		$statuses = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
+		$this->assertSame( $expected, ! empty( $statuses['add_subscribe_block'] ) );
+	}
+
+	/**
+	 * Data provider for test_completion_by_surface.
+	 *
+	 * @return array
+	 */
+	public static function provide_saves() {
+		$selected     = array( 'add_subscribe_block' );
+		$not_selected = array( 'first_post_published' );
+
+		return array(
+			'published post with the block'        => array( 'post', $selected, self::SUBSCRIBE_BLOCK, true ),
+			'draft with the block is ignored'      => array( 'post', $selected, self::SUBSCRIBE_BLOCK, false, 'post', 'draft' ),
+			'published page without the block'     => array( 'post', $selected, self::PLAIN_CONTENT, false, 'page' ),
+			'synced pattern is not viewable'       => array( 'post', $selected, self::SUBSCRIBE_BLOCK, false, 'wp_block' ),
+			'post while task is not ai-selected'   => array( 'post', $not_selected, self::SUBSCRIBE_BLOCK, false ),
+			'post without any ai output'           => array( 'post', null, self::SUBSCRIBE_BLOCK, false ),
+			'block widget with the block'          => array( 'widget', $selected, self::SUBSCRIBE_BLOCK, true ),
+			'block widget without the block'       => array( 'widget', $selected, self::PLAIN_CONTENT, false ),
+			'widget while task is not ai-selected' => array( 'widget', $not_selected, self::SUBSCRIBE_BLOCK, false ),
+			'widget without any ai output'         => array( 'widget', null, self::SUBSCRIBE_BLOCK, false ),
 		);
-		AI_Launchpad_Subscribe_Block_Listener::maybe_complete_from_post( $post_id, get_post( $post_id ) );
-	}
-
-	/**
-	 * A published, viewable post carrying the Subscribe block completes the AI-selected task.
-	 */
-	public function test_published_post_with_block_completes_task() {
-		$this->seed_ai_output( array( 'add_subscribe_block' ) );
-
-		$this->save( 'post', 'publish', '<!-- wp:jetpack/subscriptions /-->' );
-
-		$statuses = get_option( 'launchpad_checklist_tasks_statuses', array() );
-		$this->assertTrue( ! empty( $statuses['add_subscribe_block'] ) );
-	}
-
-	/**
-	 * Drafts, blockless content, and non-viewable types (e.g. synced patterns) are ignored.
-	 */
-	public function test_ignores_drafts_blockless_and_nonviewable_content() {
-		$this->seed_ai_output( array( 'add_subscribe_block' ) );
-
-		$this->save( 'post', 'draft', '<!-- wp:jetpack/subscriptions /-->' );
-		$this->save( 'page', 'publish', '<!-- wp:paragraph --><p>Hello</p><!-- /wp:paragraph -->' );
-		$this->save( 'wp_block', 'publish', '<!-- wp:jetpack/subscriptions /-->' );
-
-		$statuses = get_option( 'launchpad_checklist_tasks_statuses', array() );
-		$this->assertArrayNotHasKey( 'add_subscribe_block', (array) $statuses );
-	}
-
-	/**
-	 * A block widget carrying the Subscribe block completes the task; a widget without it does not.
-	 */
-	public function test_widget_with_block_completes_task() {
-		$this->seed_ai_output( array( 'add_subscribe_block' ) );
-
-		AI_Launchpad_Subscribe_Block_Listener::maybe_complete_from_widget(
-			null,
-			array(
-				2              => array( 'content' => '<!-- wp:paragraph --><p>Hello</p><!-- /wp:paragraph -->' ),
-				'_multiwidget' => 1,
-			)
-		);
-		$this->assertArrayNotHasKey( 'add_subscribe_block', (array) get_option( 'launchpad_checklist_tasks_statuses', array() ) );
-
-		AI_Launchpad_Subscribe_Block_Listener::maybe_complete_from_widget(
-			null,
-			array(
-				2              => array( 'content' => '<!-- wp:jetpack/subscriptions /-->' ),
-				'_multiwidget' => 1,
-			)
-		);
-		$statuses = get_option( 'launchpad_checklist_tasks_statuses', array() );
-		$this->assertTrue( ! empty( $statuses['add_subscribe_block'] ) );
-	}
-
-	/**
-	 * When the task is not AI-selected, nothing is written — the legacy launchpad is untouched.
-	 */
-	public function test_does_nothing_when_task_not_ai_selected() {
-		$this->seed_ai_output( array( 'first_post_published' ) );
-
-		$this->save( 'post', 'publish', '<!-- wp:jetpack/subscriptions /-->' );
-		AI_Launchpad_Subscribe_Block_Listener::maybe_complete_from_widget(
-			null,
-			array( 2 => array( 'content' => '<!-- wp:jetpack/subscriptions /-->' ) )
-		);
-
-		$this->assertFalse( get_option( 'launchpad_checklist_tasks_statuses' ) );
-	}
-
-	/**
-	 * Without any AI output, nothing is written.
-	 */
-	public function test_does_nothing_without_ai_output() {
-		$this->save( 'post', 'publish', '<!-- wp:jetpack/subscriptions /-->' );
-
-		$this->assertFalse( get_option( 'launchpad_checklist_tasks_statuses' ) );
 	}
 
 	/**

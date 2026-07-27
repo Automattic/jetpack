@@ -33,9 +33,8 @@ import { useQueryParameter } from '../../hooks/use-query-parameter';
 import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
 import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
-import { MY_JETPACK_SECTION_OVERVIEW } from '../my-jetpack-tab-panel/constants';
 import { useReplayPendingNotice } from '../my-jetpack-tab-panel/products/pending-notice';
-import { isValidMyJetpackSection } from '../my-jetpack-tab-panel/utils';
+import { getDefaultMyJetpackSection, isValidMyJetpackSection } from '../my-jetpack-tab-panel/utils';
 import OnboardingTour from '../onboarding-tour';
 import buildOptionalMenuItems from './build-optional-menu-items';
 import styles from './styles.module.scss';
@@ -123,7 +122,7 @@ export default function MyJetpackScreen() {
 	// Determine current tab
 	const currentTab = isValidMyJetpackSection( params.section )
 		? params.section
-		: MY_JETPACK_SECTION_OVERVIEW;
+		: getDefaultMyJetpackSection();
 
 	useLayoutEffect( () => {
 		let customTracksData = {};

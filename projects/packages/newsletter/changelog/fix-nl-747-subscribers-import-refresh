@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Subscribers dashboard: refresh the subscriber list automatically once an import finishes, and replace the "Importing…" notice with a success or failure message reporting the outcome, instead of requiring a manual page reload.

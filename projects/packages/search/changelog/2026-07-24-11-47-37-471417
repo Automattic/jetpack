@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search: fix uncaught error when a malformed query string parameter (invalid percent-encoding) crashed Instant Search initialization

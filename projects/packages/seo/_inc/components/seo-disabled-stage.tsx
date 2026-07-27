@@ -10,7 +10,7 @@ import type { FC } from 'react';
  * to act on while the module is inactive, and their REST endpoints aren't even
  * registered (see `Initializer::init()`), so they'd be editable-but-dead.
  *
- * Mirrors the Overview's own module-off state, so Settings / Content / AI behave
+ * Mirrors the Overview's own module-off state, so Settings / Content / GEO behave
  * consistently with it. Enabling SEO tools reloads the page (see
  * `useSeoToolsToggle`), bringing the full surface online.
  *

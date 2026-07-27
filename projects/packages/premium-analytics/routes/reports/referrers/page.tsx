@@ -1,26 +1,20 @@
 /**
  * External dependencies
  */
-import {
-	normalizeReportParams,
-	type IntervalType,
-	type StatsChartBucketPeriod,
-} from '@jetpack-premium-analytics/data';
+import { normalizeReportParams } from '@jetpack-premium-analytics/data';
 import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
-	formatLegendLabels,
+	ReportDrilldownTable,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
-	ReportPerformanceChart,
-	ReportRecordsTable,
 	useReportRetry,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs } from '@wordpress/admin-ui';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useNavigate, useSearch } from '@wordpress/route';
+import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
  */
@@ -28,40 +22,6 @@ import { route } from '../package.json';
 import { getReferrerFields, useReferrersReportRecords, type ReferrerRecord } from './config';
 
 const ROUTE_FROM = route.path;
-const REPORT_PARAMS = { report: 'referrers' };
-const CHART_PERIODS = [
-	'day',
-	'week',
-	'month',
-] as const satisfies readonly StatsChartBucketPeriod[];
-
-/**
- * Check whether a URL value is a supported chart period.
- *
- * @param value - The URL search value.
- * @return Whether the value is a chart period.
- */
-function isChartPeriod( value: unknown ): value is StatsChartBucketPeriod {
-	return CHART_PERIODS.includes( value as StatsChartBucketPeriod );
-}
-
-/**
- * Choose the chart bucket period for a report interval.
- *
- * @param interval - The report date interval.
- * @return The default chart bucket period.
- */
-function getDefaultChartPeriod( interval?: IntervalType ): StatsChartBucketPeriod {
-	if ( interval === 'week' ) {
-		return 'week';
-	}
-
-	if ( interval === 'month' || interval === 'quarter' || interval === 'year' ) {
-		return 'month';
-	}
-
-	return 'day';
-}
 
 /**
  * Stable row id for the Referrers records table.
@@ -73,8 +33,21 @@ function getReferrerRowId( item: ReferrerRecord ): string {
 	return item.id;
 }
 
+/**
+ * Resolve the parent row for nested referrers.
+ *
+ * @param item - The referrer row.
+ * @return The parent row id, if present.
+ */
+function getReferrerParentId( item: ReferrerRecord ): string | undefined {
+	return item.parentId;
+}
+
 const RECORDS_VIEW = {
 	sort: { field: 'views', direction: 'desc' as const },
+	// Keep Referrer as the title field so DataViews renders native hierarchy
+	// levels on the same nested group/source/domain structure as the widget.
+	fields: [ 'referrer', 'views' ],
 	layout: {
 		styles: {
 			referrer: { width: '100%' },
@@ -95,40 +68,9 @@ function ReferrersReport(): JSX.Element {
 		[ search ]
 	);
 
-	const chartPeriod = isChartPeriod( search.period )
-		? search.period
-		: getDefaultChartPeriod( reportParams.interval );
-	const records = useReferrersReportRecords( reportParams, chartPeriod );
+	const records = useReferrersReportRecords( reportParams );
 	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getReferrerFields(), [] );
-	const chartMetrics = useMemo(
-		() => [ { key: 'views', label: __( 'Views', 'jetpack-premium-analytics' ) } ],
-		[]
-	);
-	const chartLegendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
-
-	const navigate = useNavigate();
-	const handleIntervalChange = useCallback(
-		( interval: IntervalType ) => {
-			const period = isChartPeriod( interval ) ? interval : getDefaultChartPeriod( interval );
-			navigate( {
-				to: ROUTE_FROM,
-				/*
-				 * The router is built dynamically, so `/reports/$report` has no
-				 * statically-typed params/search schema (tanstack widens them to
-				 * `never`). Cast the same way the routing package does when it
-				 * writes the URL.
-				 */
-				params: REPORT_PARAMS as unknown as never,
-				replace: true,
-				search: ( ( current: Record< string, unknown > ) => ( {
-					...current,
-					period,
-				} ) ) as unknown as never,
-			} );
-		},
-		[ navigate ]
-	);
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dashboardLink = useDashboardLink();
@@ -161,25 +103,16 @@ function ReferrersReport(): JSX.Element {
 						onRetry={ retry }
 					/>
 				) : (
-					<>
-						<ReportPerformanceChart
-							primary={ records.chart.primary }
-							comparison={ records.chart.comparison }
-							isLoading={ records.chart.isLoading }
-							metrics={ chartMetrics }
-							interval={ chartPeriod }
-							onIntervalChange={ handleIntervalChange }
-							legendLabels={ chartLegendLabels }
-						/>
-						<ReportRecordsTable
-							data={ records.rows }
-							fields={ fields }
-							getItemId={ getReferrerRowId }
-							isLoading={ records.isLoading }
-							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search referrers', 'jetpack-premium-analytics' ) }
-						/>
-					</>
+					<ReportDrilldownTable< ReferrerRecord >
+						data={ records.rows }
+						fields={ fields }
+						getItemId={ getReferrerRowId }
+						getItemParentId={ getReferrerParentId }
+						hideLevelMarkers
+						isLoading={ records.isLoading }
+						initialView={ RECORDS_VIEW }
+						searchLabel={ __( 'Search referrers', 'jetpack-premium-analytics' ) }
+					/>
 				) }
 			</ReportPageLayout>
 		</ReportPageShell>

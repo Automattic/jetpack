@@ -35,7 +35,7 @@ describe( 'RowsCsvDownloadButton', () => {
 
 	it( 'builds and saves rows after committing the loading state', async () => {
 		const rows = [ { title: 'Hello' } ];
-		const columns = [ { key: 'title' as const, label: 'Title' } ];
+		const columns = [ { label: 'Title', getValue: ( row: { title: string } ) => row.title } ];
 
 		render( <RowsCsvDownloadButton columns={ columns } rows={ rows } filename="top-posts" /> );
 
@@ -54,7 +54,7 @@ describe( 'RowsCsvDownloadButton', () => {
 	it( 'stays hidden when there are no rows', () => {
 		render(
 			<RowsCsvDownloadButton
-				columns={ [ { key: 'title', label: 'Title' } ] }
+				columns={ [ { label: 'Title', getValue: row => row.title } ] }
 				rows={ [] }
 				filename="top-posts"
 			/>
@@ -74,7 +74,7 @@ describe( 'RowsCsvDownloadButton', () => {
 
 		render(
 			<RowsCsvDownloadButton
-				columns={ [ { key: 'title', label: 'Title' } ] }
+				columns={ [ { label: 'Title', getValue: row => row.title } ] }
 				rows={ [ { title: 'Hello' } ] }
 				filename="top-posts"
 			/>

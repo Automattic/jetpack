@@ -20,7 +20,41 @@ class Cornerstone_Utils {
 		 *
 		 * @param string[] $urls The absolute URLs of all the cornerstone pages.
 		 */
-		return apply_filters( 'jetpack_boost_cornerstone_pages_list_complete', array_merge( self::get_predefined_list(), self::get_custom_list() ) );
+		$urls = apply_filters( 'jetpack_boost_cornerstone_pages_list_complete', array_merge( self::get_predefined_list(), self::get_custom_list() ) );
+
+		return self::dedupe_by_provider_key( $urls );
+	}
+
+	/**
+	 * Dedupe a list of cornerstone URLs by their provider key.
+	 *
+	 * Different URL forms of the same page collapse to one provider key: the predefined
+	 * home_url() and a "/" (or "") homepage entry in the custom list both hash to
+	 * `cornerstone_d41d8cd9`. Keeping both produces two page entries with the same key, and
+	 * LCP_State::set_pending_pages() only marks the first — leaving the duplicate without a
+	 * `status`, which fails the lcp_state schema on write and silently stores the empty
+	 * not_analyzed fallback. The first occurrence wins, so the predefined entry is kept.
+	 *
+	 * @param string[] $urls The URLs to dedupe.
+	 * @return string[] The URLs with provider-key duplicates removed, re-indexed.
+	 */
+	private static function dedupe_by_provider_key( $urls ) {
+		if ( ! is_array( $urls ) ) {
+			return array();
+		}
+
+		$seen    = array();
+		$deduped = array();
+		foreach ( $urls as $url ) {
+			$key = self::get_provider_key( $url );
+			if ( isset( $seen[ $key ] ) ) {
+				continue;
+			}
+			$seen[ $key ] = true;
+			$deduped[]    = $url;
+		}
+
+		return $deduped;
 	}
 
 	/**

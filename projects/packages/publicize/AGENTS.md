@@ -40,7 +40,7 @@ Social Plugin (or Jetpack Plugin)
 
 The codebase handles two runtime environments:
 - **WPCOM Simple**: `(new Host())->is_wpcom_simple()` — uses `wpcom_rest_api_v2_load_plugin()` for REST, `$publicize` global is pre-initialized
-- **Jetpack sites**: Standard REST registration, `REST_Controller` loaded for legacy `jetpack/v4` namespace
+- **Jetpack sites**: Standard REST registration via the controllers in `src/rest-api/`
 
 ## PHP Codebase (`src/`)
 
@@ -67,7 +67,7 @@ Other REST API components:
 - `Connections_Post_Field` — Registers a REST field to add connections data to post responses (via `rest_api_init`)
 - `Proxy_Requests` — Helper for proxying requests to WPCOM API endpoints
 
-**REST namespaces**: `wpcom/v2/publicize/*` (primary, loaded via controllers above) and `jetpack/v4/publicize/*` (legacy, via `REST_Controller`, Jetpack sites only)
+**REST namespace**: `wpcom/v2/publicize/*`, loaded via the controllers above. The legacy `jetpack/v4` endpoints were removed; a few unrelated `jetpack/v4` routes remain (SIG settings/token, Social settings in the Social plugin).
 
 ### Social Image Generator (`src/social-image-generator/`)
 

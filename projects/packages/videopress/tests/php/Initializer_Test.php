@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\VideoPress\Admin_UI as VideoPress_Admin_UI;
 use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Initializer;
 use Automattic\Jetpack\VideoPress\Utils;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -182,6 +183,32 @@ class Initializer_Test extends BaseTestCase {
 		$html = $this->render();
 
 		$this->assertStringContainsString( '<iframe', $html );
+	}
+
+	/**
+	 * When the VideoPress module is not active but the admin UI is enabled (as the
+	 * Jetpack plugin does via Config), init() must still register the dynamic menu
+	 * callback so "Jetpack > VideoPress" renders, linking to the My Jetpack
+	 * interstitial where the module can be activated.
+	 *
+	 * Runs in a separate process: init() is guarded by the videopress_init action
+	 * and the admin_ui init option is static state, so neither may leak into (or
+	 * from) the rest of the suite.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_init_registers_inactive_menu_when_module_inactive() {
+		VideoPress_Initializer::update_init_options( array( 'admin_ui' => true ) );
+
+		VideoPress_Initializer::init();
+
+		$this->assertSame(
+			1,
+			has_action( 'admin_menu', array( VideoPress_Admin_UI::class, 'enable_menu' ) )
+		);
 	}
 
 	/**

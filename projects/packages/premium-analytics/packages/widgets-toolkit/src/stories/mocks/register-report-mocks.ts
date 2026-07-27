@@ -156,11 +156,13 @@ const requestCounters: Record< string, number > = {};
 
 /**
  * Forced response state for a request path fragment, so stories can exercise a
- * widget's loading, error, and empty UI. `error` rejects the request; `loading`
- * returns a promise that never settles; `empty` resolves with a valid response
- * that has no rows.
+ * widget's loading, error, and empty UI. `error` rejects the request with a
+ * permission-gated 403; `error-retryable` rejects it with the proxy's
+ * `no_connection` 403, which widgets on `describeError` render with a Retry
+ * action; `loading` returns a promise that never settles; `empty` resolves with
+ * a valid response that has no rows.
  */
-type ReportMockState = 'error' | 'loading' | 'empty';
+type ReportMockState = 'error' | 'error-retryable' | 'loading' | 'empty';
 
 const mockStateOverrides = new Map< string, ReportMockState >();
 
@@ -975,19 +977,20 @@ function buildEmailBreakdownResponse( requestPath: string ): unknown {
 /**
  * Routes a Stats sub-path to the matching mock generator.
  *
- * @param subPath - Path relative to `STATS_API_BASE` (e.g. `/search-terms`).
+ * @param subPath     - Path relative to `STATS_API_BASE` (e.g. `/search-terms`).
+ * @param requestPath - The full request path, including query parameters.
  * @return The mock response body, or `null` if no specific handler matched.
  */
-function routeStatsReport( subPath: string ): unknown {
+function routeStatsReport( subPath: string, requestPath: string ): unknown {
 	// Single-post detail — `stats/post/{id}`. Any post ID resolves to the
 	// shared fixture so post-scoped widgets render real values.
 	if ( subPath.startsWith( '/post/' ) ) {
 		return mockStatsPostData;
 	}
 
-	// Single-video detail: `/video/{postId}` (drives the "Video embeds" widget).
+	// Single-video detail: `/video/{postId}` (drives video detail widgets).
 	if ( /^\/video\/\d+$/.test( subPath ) ) {
-		return mockSingleVideoData;
+		return buildSingleVideoResponse( requestPath );
 	}
 
 	// Per-post email rate breakdowns: `/opens/emails/<postId>/rate`, `/clicks/emails/<postId>/rate`.
@@ -1051,6 +1054,32 @@ function getQueryParam( requestPath: string, key: string ): string | undefined {
 	const query = requestPath.split( '?' )[ 1 ];
 
 	return query ? new URLSearchParams( query ).get( key ) ?? undefined : undefined;
+}
+
+/**
+ * Builds a single-video response for the requested metric while preserving the
+ * shared post and embed-page fixture.
+ *
+ * @param requestPath - The request path, used to read `statType`.
+ * @return Raw single-video response.
+ */
+function buildSingleVideoResponse( requestPath: string ) {
+	const statType = getQueryParam( requestPath, 'statType' );
+	let factor = 1;
+
+	if ( statType === 'impressions' ) {
+		factor = 2;
+	} else if ( statType === 'watch_time' ) {
+		factor = 0.05;
+	}
+
+	return {
+		...mockSingleVideoData,
+		data: mockSingleVideoData.data.map( ( [ period, value ] ) => [
+			period,
+			Number( ( Number( value ) * factor ).toFixed( 1 ) ),
+		] ),
+	};
 }
 
 /**
@@ -1255,12 +1284,24 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 			// (`summary` / `days` / `data`), so the widget resolves to its empty state.
 			return { date: '2026-01-01', period: 'day', summary: {}, days: {}, data: [] };
 		}
-		// A 403 is not retried by `shouldRetryApiError`, so the error UI shows at
-		// once instead of after the query's retry backoff.
+		if ( state === 'error-retryable' ) {
+			// The local proxy's `no_connection` shape. Still a 403, so the error UI
+			// shows at once, but `describeError` keeps it retryable: a broken Jetpack
+			// connection can heal, unlike a permission gate.
+			return Promise.reject( {
+				code: 'no_connection',
+				message: 'Mocked connection failure for Storybook.',
+				data: { status: 403 },
+			} );
+		}
+		// The WPCOM pass-through error envelope, with the status attached the way
+		// the fetch layer attaches it. A 403 is not retried by `shouldRetryApiError`,
+		// so the error UI shows at once instead of after the query's retry backoff.
+		// Widgets on `describeError` read it as a permission gate and drop Retry.
 		return Promise.reject( {
-			code: 'stats_mock_error',
+			error: 'unauthorized',
 			message: 'Mocked error response for Storybook.',
-			data: { status: 403 },
+			status: 403,
 		} );
 	}
 
@@ -1332,7 +1373,7 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 			return buildEmailTimelineResponse( emailTimeline[ 1 ] as 'opens' | 'clicks', requestPath );
 		}
 
-		const response = routeStatsReport( subPath );
+		const response = routeStatsReport( subPath, requestPath );
 
 		if ( response !== null ) {
 			return response;

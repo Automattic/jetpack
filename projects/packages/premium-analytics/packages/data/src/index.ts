@@ -118,7 +118,13 @@ export {
 	sliceWordAdsStatsReport,
 } from './processing/stats';
 export type { FlattenStatsLeavesContext, FlattenStatsLeavesOptions } from './processing/stats';
-export type { StatsDrilldownRow, StatsDrilldownSourceItem } from './processing/stats';
+export type {
+	AggregateStatsDrilldownRowsOptions,
+	StatsDrilldownItemContext,
+	StatsDrilldownRow,
+	StatsDrilldownRowContext,
+	StatsDrilldownSourceReport,
+} from './processing/stats';
 export {
 	useStatsSummary,
 	type StatsSummaryParams,
@@ -235,13 +241,11 @@ export {
 	computeDateRangeFromPreset,
 	getApiErrorCode,
 	getApiErrorStatus,
-	getStatsPlanErrorReason,
 	saveBlob,
 	shouldRetryApiError,
 	toPostId,
 	useSiteHomeUrl,
 } from './utils';
-export type { StatsPlanErrorReason } from './utils';
 export type { ReportDataMap } from './types';
 export type { ReportQueryParams } from './api';
 export type { FilterCondition } from './types/filter-condition';

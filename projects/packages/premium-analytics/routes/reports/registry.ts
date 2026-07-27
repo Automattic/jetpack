@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -56,6 +57,13 @@ export type ReportDefinition = {
 	resolveSection?: ( value: string | undefined ) => string;
 
 	/**
+	 * Whether the report is available on this site, resolved at lookup time.
+	 * An unavailable report is treated like an unknown one — the route guard
+	 * redirects it to the dashboard. Omit for reports available everywhere.
+	 */
+	isAvailable?: () => boolean;
+
+	/**
 	 * Dynamic import of the report's page component (default export). Kept as a
 	 * thunk so React/UI is only pulled in when the report actually renders, and
 	 * so this module stays importable from `route.ts` guards.
@@ -77,6 +85,11 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		getDescription: () =>
 			__( 'Year-by-year publishing and engagement totals.', 'jetpack-premium-analytics' ),
 		load: () => import( './annual-insights/page' ),
+	},
+	authors: {
+		id: 'authors',
+		getTitle: () => __( 'Top authors', 'jetpack-premium-analytics' ),
+		load: () => import( './authors/page' ),
 	},
 	'comment-followers': {
 		id: 'comment-followers',
@@ -102,6 +115,11 @@ export const REPORTS: Record< string, ReportDefinition > = {
 	downloads: {
 		id: 'downloads',
 		getTitle: () => __( 'File downloads', 'jetpack-premium-analytics' ),
+		// File download tracking happens on WPCOM infrastructure; Calypso only
+		// shows the module on Simple sites ("not yet supported in Jetpack
+		// environment") and we mirror that boundary. Mirrors the widget-level
+		// gate in `src/widget-type-support.php`.
+		isAvailable: isSimpleSite,
 		load: () => import( './downloads/page' ),
 	},
 	emails: {
@@ -156,5 +174,11 @@ export const REPORTS: Record< string, ReportDefinition > = {
  * @return The matching definition, or `undefined` when the id is missing or unknown.
  */
 export function getReportDefinition( id: string | undefined ): ReportDefinition | undefined {
-	return id ? REPORTS[ id ] : undefined;
+	const definition = id ? REPORTS[ id ] : undefined;
+
+	if ( definition?.isAvailable && ! definition.isAvailable() ) {
+		return undefined;
+	}
+
+	return definition;
 }

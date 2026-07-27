@@ -2,8 +2,9 @@
 	padding: var(--wpds-dimension-padding-sm, 8px);
 	// No WPDS token fits a translucent dark tooltip surface:
 	// bg-interactive-neutral-strong is opaque, and there is no
-	// white-on-dark content foreground token.
-	background-color: rgba(0, 0, 0, 0.85);
+	// white-on-dark content foreground token. The role carries the
+	// hardcoded translucent value as its fallback.
+	background-color: var(--a8c-charts-color-tooltip-surface, rgba(0, 0, 0, 0.85));
 	color: #fff;
 	border-radius: var(--wpds-border-radius-md, 4px);
 	font-size: var(--wpds-typography-font-size-md, 13px);

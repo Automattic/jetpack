@@ -15,7 +15,9 @@ import {
 	WidgetState,
 	buildLeaderboardRow,
 	calculateDelta,
+	getCombinedPeriodMax,
 	resolveLeaderboardRowAction,
+	safeHttpUrl,
 	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -86,7 +88,7 @@ export function toReferrerRow( item: StatsReferrersComparisonItem ): ReferrerRow
 		label: item.label,
 		value: item.views,
 		previousValue: item.previousValue,
-		href: item.link ?? undefined,
+		href: safeHttpUrl( item.link ) ?? undefined,
 		icon: item.icon,
 		children: item.children?.map( toReferrerRow ),
 		...( item.childrenHaveComparison ? { childrenHaveComparison: true } : {} ),
@@ -106,8 +108,10 @@ function buildLeaderboardData(
 	withComparison: boolean,
 	onDrillDown?: ( row: ReferrerRow ) => void
 ): LeaderboardChartData {
-	const maxCurrentViews = Math.max( ...rows.map( row => row.value ), 1 );
-	const maxPreviousViews = Math.max( ...rows.map( row => row.previousValue ?? 0 ), 1 );
+	const maxViews = getCombinedPeriodMax(
+		rows.map( row => row.value ),
+		withComparison ? rows.map( row => row.previousValue ) : []
+	);
 
 	return rows.map( ( row, index ) => {
 		const previousValue = row.previousValue;
@@ -135,9 +139,9 @@ function buildLeaderboardData(
 				} ),
 			} ),
 			currentValue: row.value,
-			currentShare: sharePercentage( row.value, maxCurrentViews ),
+			currentShare: sharePercentage( row.value, maxViews ),
 			previousValue,
-			previousShare: hasPrevious ? sharePercentage( previousValue, maxPreviousViews ) : undefined,
+			previousShare: hasPrevious ? sharePercentage( previousValue, maxViews ) : undefined,
 			delta: hasPrevious ? calculateDelta( row.value, previousValue ) : undefined,
 		};
 	} );
