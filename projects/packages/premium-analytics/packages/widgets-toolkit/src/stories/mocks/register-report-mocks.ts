@@ -156,11 +156,13 @@ const requestCounters: Record< string, number > = {};
 
 /**
  * Forced response state for a request path fragment, so stories can exercise a
- * widget's loading, error, and empty UI. `error` rejects the request; `loading`
- * returns a promise that never settles; `empty` resolves with a valid response
- * that has no rows.
+ * widget's loading, error, and empty UI. `error` rejects the request with a
+ * permission-gated 403; `error-retryable` rejects it with the proxy's
+ * `no_connection` 403, which widgets on `describeError` render with a Retry
+ * action; `loading` returns a promise that never settles; `empty` resolves with
+ * a valid response that has no rows.
  */
-type ReportMockState = 'error' | 'loading' | 'empty';
+type ReportMockState = 'error' | 'error-retryable' | 'loading' | 'empty';
 
 const mockStateOverrides = new Map< string, ReportMockState >();
 
@@ -1255,9 +1257,20 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 			// (`summary` / `days` / `data`), so the widget resolves to its empty state.
 			return { date: '2026-01-01', period: 'day', summary: {}, days: {}, data: [] };
 		}
+		if ( state === 'error-retryable' ) {
+			// The local proxy's `no_connection` shape. Still a 403, so the error UI
+			// shows at once, but `describeError` keeps it retryable: a broken Jetpack
+			// connection can heal, unlike a permission gate.
+			return Promise.reject( {
+				code: 'no_connection',
+				message: 'Mocked connection failure for Storybook.',
+				data: { status: 403 },
+			} );
+		}
 		// The WPCOM pass-through error envelope, with the status attached the way
 		// the fetch layer attaches it. A 403 is not retried by `shouldRetryApiError`,
 		// so the error UI shows at once instead of after the query's retry backoff.
+		// Widgets on `describeError` read it as a permission gate and drop Retry.
 		return Promise.reject( {
 			error: 'unauthorized',
 			message: 'Mocked error response for Storybook.',

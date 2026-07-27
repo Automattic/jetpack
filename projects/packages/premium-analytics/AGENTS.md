@@ -463,12 +463,16 @@ module has a special failure mode. Prefer adding those shapes to the widget's ex
 over creating one-off state stories unless the state needs direct review.
 
 To review a widget's loading / error / empty state directly, force it with
-`setReportMockState( '<endpoint>', 'loading' | 'error' | 'empty' )` in the story's `beforeEach`,
-clearing it in the returned cleanup. Keep such stories off the shared autodocs page
-(`tags: [ '!autodocs' ]`, since the override is keyed by path and would otherwise force the
-sibling stories into the same state) and give each one a date preset distinct from the other
-stories so it hits the mock fresh instead of reading their cached success. See
+`setReportMockState( '<endpoint>', 'loading' | 'error' | 'error-retryable' | 'empty' )` in the
+story's `beforeEach`, clearing it in the returned cleanup. Keep such stories off the shared
+autodocs page (`tags: [ '!autodocs' ]`, since the override is keyed by path and would otherwise
+force the sibling stories into the same state) and give each one a date preset distinct from the
+other stories so it hits the mock fresh instead of reading their cached success. See
 `widgets/search-terms/stories/` for the reference.
+
+`error` mocks a permission-gated 403 and `error-retryable` the proxy's `no_connection` 403. A
+widget that maps its error through `describeError` renders a Retry action only for the latter, so
+give it a story for each; both mocks are 403s, so neither waits out the query's retry backoff.
 
 ### Widget pitfalls
 
