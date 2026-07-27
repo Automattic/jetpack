@@ -167,6 +167,13 @@ class Mode {
 
 		$data['newsletter_mode'] = array(
 			'greetingName' => self::get_greeting_name(),
+			// The same destination the nav's "Write" button uses, resolved once
+			// here so the Dashboard's "Write your first post" task can't drift
+			// from it.
+			'writeUrl'     => self::get_write_url(),
+			// What the Share modal hands out. `home_url()` rather than the admin
+			// URL — this is the address readers visit.
+			'siteUrl'      => home_url(),
 		);
 
 		return $data;

@@ -48,14 +48,17 @@ body.admin_page_jetpack-newsletter-home {
 		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
 	}
 
-	// Tiles that go somewhere render as `<a>` (`Card.Root render=`), which brings
-	// along the UA's link styling — reset what `Card.Root` doesn't already set,
-	// then add the affordances a card doesn't have. Keyed off the element so the
-	// markup stays the single source of truth for which tiles are actionable.
-	a.jetpack-newsletter-home__tile {
+	// Interactive tiles render as `<a>` or `<button>` (`Card.Root render=`),
+	// which brings along the UA's styling for those — reset what `Card.Root`
+	// doesn't already set, then add the affordances a card doesn't have. Keyed
+	// off the elements so the markup stays the single source of truth for which
+	// tiles are actionable.
+	:is(a, button).jetpack-newsletter-home__tile {
 		color: inherit;
 		cursor: pointer;
 		display: flex;
+		font: inherit;
+		text-align: start;
 		text-decoration: none;
 
 		// One rung up from the `-weak` border `Card.Root` draws by default.

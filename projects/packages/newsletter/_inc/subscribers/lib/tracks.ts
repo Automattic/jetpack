@@ -22,7 +22,8 @@ export type TracksEventName =
 	| 'jetpack_subscribers_remove_comp_confirm'
 	| 'jetpack_subscribers_export_downloaded'
 	| 'jetpack_subscribers_add_question'
-	| 'jetpack_subscribers_empty_view_displayed';
+	| 'jetpack_subscribers_empty_view_displayed'
+	| 'jetpack_subscribers_share_site';
 
 type Props = Record< string, unknown >;
 

@@ -11,21 +11,30 @@
 //    outside the mode's own pages sees, since `Mode::maybe_add_script_data()`
 //    is the only thing that sets it.
 //
-// The three entry points into Add Subscribers — the "Bring your contacts" and
-// "Invite by email" tiles, and the "Bring your first readers" checklist row:
+// The links out of the page. Three go to Add Subscribers — the "Bring your
+// contacts" and "Invite by email" tiles, and the "Bring your first readers"
+// checklist row — and one, "Write your first post", goes wherever the nav's
+// Write button goes:
 //
-// 4. each LINKS to the Subscribers page with the modal deep-linked to the tab
-//    its copy promised — CSV upload for the import tile, the manual address
-//    list for the other two. Links, not a modal rendered here, so this route
-//    doesn't carry the import stack (see `getAddSubscribersUrl()`).
-// 5. nothing else on the page is a link — an entry point with no destination
+// 4. each Add Subscribers link deep-links to the tab its copy promised — CSV
+//    upload for the import tile, the manual address list for the other two.
+//    Links, not a modal rendered here, so this route doesn't carry the import
+//    stack (see `getAddSubscribersUrl()`).
+// 5. "Write your first post" uses the server-resolved `writeUrl`, the same
+//    value `Mode::get_write_url()` gives the nav button, so the two can't drift.
+// 6. nothing else on the page is a link — an entry point with no destination
 //    must not advertise an affordance it doesn't have.
-// 6. all three go inert when the site can't manage subscribers, rather than
-//    pointing at a page that would only refuse. That gate mirrors the one the
-//    Subscribers page applies: Simple sites always pass; everywhere else needs
-//    a registered site, a connected owner, and a connected user.
+// 7. the Add Subscribers links go inert when the site can't manage subscribers,
+//    rather than pointing at a page that would only refuse. That gate mirrors
+//    the one the Subscribers page applies: Simple sites always pass; everywhere
+//    else needs a registered site, a connected owner, and a connected user.
+//    Writing a post needs no connection, so that link is never gated.
 
-const mockGetNewsletterScriptData = jest.fn< { greetingName?: string } | undefined, [] >();
+const mockGetNewsletterScriptData = jest.fn<
+	{ greetingName?: string; writeUrl?: string; siteUrl?: string } | undefined,
+	[]
+>();
+const mockShareModalProps = jest.fn();
 const mockIsSimpleSite = jest.fn< boolean, [] >();
 const mockConnection = jest.fn< Record< string, unknown >, [] >();
 
@@ -54,7 +63,17 @@ jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
 	default: ( { children } ) => <div data-testid="admin-page">{ children }</div>,
 } ) );
 
-import { render, screen } from '@testing-library/react';
+// The Share modal has its own coverage; here we only care that the route mounts
+// it with the URL to share.
+jest.mock( '../_inc/share/share-newsletter-modal', () => ( {
+	__esModule: true,
+	default: props => {
+		mockShareModalProps( props );
+		return <div data-testid="share-modal" />;
+	},
+} ) );
+
+import { act, render, screen } from '@testing-library/react';
 import { stage as Stage } from '../routes/home/stage';
 
 const CONNECTED = {
@@ -64,9 +83,30 @@ const CONNECTED = {
 };
 
 const SUBSCRIBERS_PAGE = 'https://example.com/wp-admin/admin.php?page=jetpack-newsletter';
+const WRITE_URL = 'https://example.com/wp-admin/post-new.php?source=newsletter';
+const SITE_URL = 'https://octagonal.example.com';
+
+/**
+ * Click a button by its accessible name — a native click, the way the sibling
+ * suites do, since this package doesn't pull in `@testing-library/user-event`.
+ * Wrapped in `act` because these clicks drive React state.
+ *
+ * @param label - Text the target button's accessible name contains.
+ */
+function clickButton( label: string ): void {
+	const button = screen.getByRole( 'button', { name: new RegExp( label ) } );
+
+	act( () => button.click() );
+}
 
 beforeEach( () => {
 	mockGetNewsletterScriptData.mockReset();
+	mockGetNewsletterScriptData.mockReturnValue( {
+		greetingName: '',
+		writeUrl: WRITE_URL,
+		siteUrl: SITE_URL,
+	} );
+	mockShareModalProps.mockReset();
 	mockIsSimpleSite.mockReturnValue( true );
 	mockConnection.mockReturnValue( CONNECTED );
 } );
@@ -97,13 +137,14 @@ describe( 'Newsletter Mode dashboard greeting', () => {
 	} );
 } );
 
-describe( 'Newsletter Mode dashboard Add Subscribers entry points', () => {
-	it( 'makes links of exactly the three entry points', () => {
+describe( 'Newsletter Mode dashboard links', () => {
+	it( 'makes links of exactly the entry points that have a destination', () => {
 		render( <Stage /> );
 
 		expect( screen.getAllByRole( 'link' ).map( anchor => anchor.textContent ) ).toEqual( [
 			expect.stringContaining( 'Bring your contacts' ),
 			expect.stringContaining( 'Invite by email' ),
+			expect.stringContaining( 'Write your first post' ),
 			expect.stringContaining( 'Bring your first readers' ),
 		] );
 	} );
@@ -121,13 +162,35 @@ describe( 'Newsletter Mode dashboard Add Subscribers entry points', () => {
 		);
 	} );
 
-	it( 'leaves every entry point inert when the site cannot manage subscribers', () => {
+	it( '"Write your first post" goes where the nav Write button goes', () => {
+		render( <Stage /> );
+
+		expect( screen.getByRole( 'link', { name: /Write your first post/ } ) ).toHaveAttribute(
+			'href',
+			WRITE_URL
+		);
+	} );
+
+	it( 'leaves the write task inert when the server sent no write URL', () => {
+		mockGetNewsletterScriptData.mockReturnValue( { greetingName: '' } );
+
+		render( <Stage /> );
+
+		expect(
+			screen.queryByRole( 'link', { name: /Write your first post/ } )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'leaves the subscriber links inert when the site cannot manage subscribers', () => {
 		mockIsSimpleSite.mockReturnValue( false );
 		mockConnection.mockReturnValue( { ...CONNECTED, isUserConnected: false } );
 
 		render( <Stage /> );
 
-		expect( screen.queryAllByRole( 'link' ) ).toHaveLength( 0 );
+		// The write task is never gated on the connection, so it survives.
+		expect( screen.getAllByRole( 'link' ).map( anchor => anchor.textContent ) ).toEqual( [
+			expect.stringContaining( 'Write your first post' ),
+		] );
 	} );
 
 	it( 'keeps them live on a Simple site, which never carries a connection', () => {
@@ -140,6 +203,45 @@ describe( 'Newsletter Mode dashboard Add Subscribers entry points', () => {
 
 		render( <Stage /> );
 
-		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 3 );
+		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 4 );
+	} );
+} );
+
+describe( 'Newsletter Mode dashboard Share entry points', () => {
+	it( 'makes buttons of the two share entry points', () => {
+		render( <Stage /> );
+
+		expect( screen.getAllByRole( 'button' ).map( button => button.textContent ) ).toEqual( [
+			expect.stringContaining( 'Share your link' ),
+			expect.stringContaining( 'Share your newsletter' ),
+		] );
+	} );
+
+	it( 'stays unmounted until a share entry point is clicked', () => {
+		render( <Stage /> );
+
+		expect( screen.queryByTestId( 'share-modal' ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [ 'Share your link', 'Share your newsletter' ] )(
+		'"%s" opens the Share modal with the site URL',
+		label => {
+			render( <Stage /> );
+
+			clickButton( label );
+
+			expect( screen.getByTestId( 'share-modal' ) ).toBeInTheDocument();
+			expect( mockShareModalProps ).toHaveBeenCalledWith(
+				expect.objectContaining( { siteUrl: SITE_URL } )
+			);
+		}
+	);
+
+	it( 'leaves them inert when the server sent no site URL', () => {
+		mockGetNewsletterScriptData.mockReturnValue( { greetingName: '', writeUrl: WRITE_URL } );
+
+		render( <Stage /> );
+
+		expect( screen.queryAllByRole( 'button' ) ).toHaveLength( 0 );
 	} );
 } );

@@ -1,0 +1,27 @@
+// Wide enough for the service row to settle into two lines, narrow enough that
+// the URL field doesn't stretch. Paired with `.components-modal__frame` — the
+// element `Modal` puts our class on — because WP's own frame width rules
+// are single-class too, so this shouldn't depend on stylesheet order.
+.components-modal__frame.jetpack-newsletter-share {
+	max-width: 632px;
+}
+
+// Service list. `HStack` gives the row/wrap/gap; these rules only strip the
+// list chrome and line the logo up with its label.
+.jetpack-newsletter-share__services {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.jetpack-newsletter-share__service {
+	// `Button` centers a single child; with a logo *and* a label it needs the
+	// gap and start alignment spelled out.
+	gap: var(--wpds-dimension-gap-sm);
+	height: auto;
+}
+
+.jetpack-newsletter-share__service-icon {
+	fill: currentColor;
+	flex-shrink: 0;
+}

@@ -14,7 +14,8 @@
 		"@wordpress/icons": "15.1.0",
 		"@wordpress/notices": "5.51.0",
 		"@wordpress/ui": "0.17.0",
-		"@wordpress/url": "4.51.0"
+		"@wordpress/url": "4.51.0",
+		"social-logos": "workspace:*"
 	},
 	"route": {
 		"path": "/",

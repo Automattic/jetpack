@@ -6,35 +6,46 @@ import {
 	__experimentalItem as Item, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalItemGroup as ItemGroup, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
+import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { border, chevronRight, envelope, link, published, upload } from '@wordpress/icons';
 import { Card, Stack, Text } from '@wordpress/ui';
+import ShareNewsletterModal from '../../_inc/share/share-newsletter-modal';
 import { getAddSubscribersUrl } from '../../_inc/subscribers/lib/add-subscribers-link';
 import { getNewsletterModeScriptData } from '../../src/settings/script-data';
 import './route.scss';
-import type { AddSubscribersTab } from '../../_inc/subscribers/components/modals/add-subscribers-modal';
 
-type ActionTile = {
+/**
+ * What the page's entry points need in order to resolve a destination. Anything
+ * an entry point can't know for itself arrives here.
+ */
+type EntryPointOptions = {
+	/** Whether the site can manage subscribers at all. */
+	canAddSubscribers: boolean;
+	/** Opens the Share modal, or undefined when there's no URL to share. */
+	onShare?: () => void;
+};
+
+/**
+ * An entry point either goes somewhere (`href`), does something in place
+ * (`onClick`), or does neither — in which case it renders as plain content, so
+ * nothing advertises an affordance it doesn't have.
+ */
+type EntryPointAction = {
+	href?: string;
+	onClick?: () => void;
+};
+
+type ActionTile = EntryPointAction & {
 	icon: JSX.Element;
 	title: string;
 	description: string;
-	/**
-	 * Which Add Subscribers tab this tile links to, when it links anywhere.
-	 * Tiles without a tab render as plain cards rather than as links, so nothing
-	 * advertises an affordance it doesn't have.
-	 */
-	importTab?: AddSubscribersTab;
 };
 
-type ChecklistTask = {
+type ChecklistTask = EntryPointAction & {
 	title: string;
 	description: string;
 	done: boolean;
-	/**
-	 * Which Add Subscribers tab this row links to, if any — same rule as
-	 * {@link ActionTile}.
-	 */
-	importTab?: AddSubscribersTab;
 };
 
 /**
@@ -43,25 +54,27 @@ type ChecklistTask = {
  * A function rather than a module constant so each `__()` runs at render time —
  * at module scope they would resolve before the locale data is in place.
  *
+ * @param options - What the tiles can't resolve for themselves.
  * @return The action tiles, in display order.
  */
-const getActionTiles = (): ActionTile[] => [
+const getActionTiles = ( options: EntryPointOptions ): ActionTile[] => [
 	{
 		icon: upload,
 		title: __( 'Bring your contacts', 'jetpack-newsletter' ),
 		description: __( 'Import an existing list', 'jetpack-newsletter' ),
-		importTab: 'upload',
+		href: options.canAddSubscribers ? getAddSubscribersUrl( 'upload' ) : undefined,
 	},
 	{
 		icon: link,
 		title: __( 'Share your link', 'jetpack-newsletter' ),
 		description: __( 'Paste it anywhere you like', 'jetpack-newsletter' ),
+		onClick: options.onShare,
 	},
 	{
 		icon: envelope,
 		title: __( 'Invite by email', 'jetpack-newsletter' ),
 		description: __( 'Ask a few people directly', 'jetpack-newsletter' ),
-		importTab: 'manual',
+		href: options.canAddSubscribers ? getAddSubscribersUrl( 'manual' ) : undefined,
 	},
 ];
 
@@ -72,9 +85,11 @@ const getActionTiles = (): ActionTile[] => [
  * A function rather than a module constant, for the same reason as
  * {@link getActionTiles}.
  *
+ * @param options - As for {@link getActionTiles}. Writing a post needs no Jetpack
+ *                connection, so that task is never gated.
  * @return The checklist tasks, in display order.
  */
-const getChecklist = (): ChecklistTask[] => [
+const getChecklist = ( options: EntryPointOptions ): ChecklistTask[] => [
 	{
 		title: __( 'Your newsletter is live', 'jetpack-newsletter' ),
 		description: __( 'octagonal.wordpress.com is ready for the world.', 'jetpack-newsletter' ),
@@ -89,17 +104,21 @@ const getChecklist = (): ChecklistTask[] => [
 		title: __( 'Write your first post', 'jetpack-newsletter' ),
 		description: __( 'Three sentences is enough. Start small.', 'jetpack-newsletter' ),
 		done: false,
+		// Same destination as the nav's "Write" button — `Mode::get_write_url()`
+		// resolves both, so they can't drift apart.
+		href: getNewsletterModeScriptData()?.writeUrl,
 	},
 	{
 		title: __( 'Bring your first readers', 'jetpack-newsletter' ),
 		description: __( "Invite the people you'd usually text first.", 'jetpack-newsletter' ),
 		done: false,
-		importTab: 'manual',
+		href: options.canAddSubscribers ? getAddSubscribersUrl( 'manual' ) : undefined,
 	},
 	{
 		title: __( 'Share your newsletter', 'jetpack-newsletter' ),
 		description: __( "Invite the people you'd text first.", 'jetpack-newsletter' ),
 		done: false,
+		onClick: options.onShare,
 	},
 ];
 
@@ -125,23 +144,39 @@ const getGreeting = (): string => {
 };
 
 /**
+ * The element an entry point should render as: an anchor when it navigates, a
+ * button when it acts in place, and nothing — leaving the caller's default — when
+ * it does neither.
+ *
+ * @param action - The entry point's destination or handler.
+ * @return An element for `Card.Root`'s `render` prop, or undefined.
+ */
+const renderInteractive = ( action: EntryPointAction ): JSX.Element | undefined => {
+	if ( action.href ) {
+		return <a href={ action.href } />;
+	}
+
+	if ( action.onClick ) {
+		return <button type="button" onClick={ action.onClick } />;
+	}
+
+	return undefined;
+};
+
+/**
  * One of the three action tiles inside the "Reach your first 3 readers" card.
  *
- * Given an `href` the tile becomes a link through `Card.Root`'s `render` prop,
- * which swaps the underlying element without adding a wrapper — the stylesheet
- * keys the interactive affordances off that element. Tiles without one stay
- * plain cards until they have somewhere to go.
+ * `Card.Root`'s `render` prop swaps the underlying element without adding a
+ * wrapper: an anchor for a tile that navigates, a button for one that acts in
+ * place, and the plain card for one that does neither. The stylesheet keys the
+ * interactive affordances off those elements.
  *
  * @param props      - Component props.
  * @param props.tile - The tile to render.
- * @param props.href - Where the tile goes, when it goes anywhere.
  * @return The tile card.
  */
-const ActionTileCard = ( { tile, href }: { tile: ActionTile; href?: string } ): JSX.Element => (
-	<Card.Root
-		className="jetpack-newsletter-home__tile"
-		render={ href ? <a href={ href } /> : undefined }
-	>
+const ActionTileCard = ( { tile }: { tile: ActionTile } ): JSX.Element => (
+	<Card.Root className="jetpack-newsletter-home__tile" render={ renderInteractive( tile ) }>
 		<Card.Content>
 			<Stack direction="column" gap="md" align="flex-start">
 				<Icon icon={ tile.icon } size={ 24 } className="jetpack-newsletter-home__tile-icon" />
@@ -162,17 +197,20 @@ const ActionTileCard = ( { tile, href }: { tile: ActionTile; href?: string } ): 
  * One checklist row. `ItemGroup` supplies the shared border, the separators and
  * the row padding; `Item` supplies `role="listitem"`.
  *
- * Given an `href` the row renders as an anchor — `Item` takes an `as`, and
- * brings the hover and focus treatment with it either way. Rows without one
- * stay plain list items until they have somewhere to go.
+ * `Item` renders as an anchor given `as="a"` and as a button given an `onClick`,
+ * bringing the hover and focus treatment with it either way. Rows with neither
+ * stay plain list items.
  *
  * @param props      - Component props.
  * @param props.task - The task to render.
- * @param props.href - Where the row goes, when it goes anywhere.
  * @return The checklist row.
  */
-const ChecklistRow = ( { task, href }: { task: ChecklistTask; href?: string } ): JSX.Element => (
-	<Item className="jetpack-newsletter-home__task" { ...( href ? { as: 'a' as const, href } : {} ) }>
+const ChecklistRow = ( { task }: { task: ChecklistTask } ): JSX.Element => (
+	<Item
+		className="jetpack-newsletter-home__task"
+		{ ...( task.href ? { as: 'a' as const, href: task.href } : {} ) }
+		onClick={ task.href ? undefined : task.onClick }
+	>
 		<Stack direction="row" align="center" gap="md">
 			<Icon
 				icon={ task.done ? published : border }
@@ -202,14 +240,15 @@ const ChecklistRow = ( { task, href }: { task: ChecklistTask; href?: string } ):
  * The dashboard body — greeting, the "Reach your first 3 readers" card, and the
  * getting-started checklist.
  *
- * Owns the Add Subscribers modal that the page's three subscriber-adding entry
- * points share. The tab doubles as the open state — null is closed — and the
- * modal is mounted only while open, so each entry point lands on its own tab
- * rather than resuming whichever tab the previous visit left behind.
+ * Resolves what the data builders can't: whether this site can manage
+ * subscribers, and whether there's a URL to share — which between them decide
+ * which entry points get a destination. Also owns the Share modal, which unlike
+ * Add Subscribers has no other page to link to.
  *
  * @return The dashboard content.
  */
 const Dashboard = (): JSX.Element => {
+	const [ isShareOpen, setShareOpen ] = useState( false );
 	const { isRegistered, hasConnectedOwner, isUserConnected } = useConnection();
 
 	// Subscriber management proxies to WP.com signed as the current user, so a
@@ -222,11 +261,14 @@ const Dashboard = (): JSX.Element => {
 	const canAddSubscribers =
 		isSimpleSite() || ( isRegistered && hasConnectedOwner && isUserConnected );
 
-	// The one place the "where does this go, and may we send them there at all"
-	// rule lives. An entry point whose tab is gated away gets no href, which
-	// leaves it inert rather than pointing at a page that would only refuse.
-	const importUrl = ( tab?: AddSubscribersTab ) =>
-		tab && canAddSubscribers ? getAddSubscribersUrl( tab ) : undefined;
+	const openShare = useCallback( () => setShareOpen( true ), [] );
+	const closeShare = useCallback( () => setShareOpen( false ), [] );
+
+	const siteUrl = getNewsletterModeScriptData()?.siteUrl;
+	const options: EntryPointOptions = {
+		canAddSubscribers,
+		onShare: siteUrl ? openShare : undefined,
+	};
 
 	return (
 		<Stack direction="column" gap="xl" className="jetpack-newsletter-home">
@@ -255,12 +297,8 @@ const Dashboard = (): JSX.Element => {
 							) }
 						</Text>
 						<Stack direction="row" gap="md" wrap="wrap" className="jetpack-newsletter-home__tiles">
-							{ getActionTiles().map( tile => (
-								<ActionTileCard
-									key={ tile.title }
-									tile={ tile }
-									href={ importUrl( tile.importTab ) }
-								/>
+							{ getActionTiles( options ).map( tile => (
+								<ActionTileCard key={ tile.title } tile={ tile } />
 							) ) }
 						</Stack>
 					</Stack>
@@ -268,10 +306,14 @@ const Dashboard = (): JSX.Element => {
 			</Card.Root>
 
 			<ItemGroup isBordered isRounded isSeparated className="jetpack-newsletter-home__checklist">
-				{ getChecklist().map( task => (
-					<ChecklistRow key={ task.title } task={ task } href={ importUrl( task.importTab ) } />
+				{ getChecklist( options ).map( task => (
+					<ChecklistRow key={ task.title } task={ task } />
 				) ) }
 			</ItemGroup>
+
+			{ isShareOpen && siteUrl && (
+				<ShareNewsletterModal siteUrl={ siteUrl } onClose={ closeShare } />
+			) }
 		</Stack>
 	);
 };

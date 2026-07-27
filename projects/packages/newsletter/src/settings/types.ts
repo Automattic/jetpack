@@ -85,6 +85,14 @@ export interface NewsletterModeScriptData {
 	 * else their first name, else an empty string.
 	 */
 	greetingName: string;
+	/**
+	 * Where "Write" goes: the mu-wpcom Write editor when that feature is loaded,
+	 * else the block editor. Resolved by Mode::get_write_url(), the same source
+	 * the nav's Write button uses.
+	 */
+	writeUrl: string;
+	/** The newsletter's public address — what the Share modal hands out. */
+	siteUrl: string;
 }
 
 /**

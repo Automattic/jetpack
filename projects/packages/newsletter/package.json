@@ -66,7 +66,8 @@
 		"@wordpress/theme": "0.17.0",
 		"@wordpress/ui": "0.17.0",
 		"@wordpress/url": "4.51.0",
-		"debug": "4.4.3"
+		"debug": "4.4.3",
+		"social-logos": "workspace:*"
 	},
 	"devDependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
