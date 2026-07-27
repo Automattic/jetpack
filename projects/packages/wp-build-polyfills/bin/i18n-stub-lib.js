@@ -15,11 +15,20 @@
  * names keep matching; it is never loaded at runtime because the generated
  * PHP loaders are pinned to the `.min.js` sibling by `strip-unminified-prod`.
  *
- * The callee matching mirrors `@automattic/babel-plugin-replace-textdomain`:
- * bare identifiers (`__(…)`), member expressions (`i18n.__(…)`), and esbuild's
- * sequence-expression interop shape (`(0, import_i18n.__)(…)`).
+ * The callee matching is `@automattic/babel-plugin-replace-textdomain`'s own,
+ * so the stub carries exactly the calls the stamp pass domained: bare
+ * identifiers (`__(…)`), member expressions (`i18n.__(…)`), and esbuild's
+ * sequence-expression interop shape (`(0, import_i18n.__)(…)`) — minus any
+ * whose callee provably comes from somewhere other than `@wordpress/i18n`,
+ * which would otherwise put a bundled dependency's `cache.__( key )` into the
+ * .pot as a translatable string.
  */
 
+const {
+	defaultFunctions,
+	defaultI18nModule,
+	resolveGettextCallee,
+} = require( '@automattic/babel-plugin-replace-textdomain' );
 const { transformSync, types: t } = require( '@babel/core' );
 
 /**
@@ -65,27 +74,20 @@ function literalString( node ) {
 }
 
 /**
- * Resolve the gettext function name for a call expression's callee, unwrapping
- * the `(0, obj.__)` sequence-expression shape esbuild emits for externalized
- * imports. Returns `null` when the callee is not a known gettext function.
+ * Resolve the gettext function name for a call, unwrapping the
+ * `(0, obj.__)` sequence-expression shape esbuild emits for externalized
+ * imports and checking that the callee traces back to `@wordpress/i18n`.
+ * Returns `null` when the call is not a gettext call.
  *
- * @param {object} callee - The CallExpression's callee node.
+ * @param {object} path - Babel path of the CallExpression / OptionalCallExpression.
  * @return {string|null} One of `__`/`_x`/`_n`/`_nx`, or `null`.
  */
-function gettextFunctionName( callee ) {
-	let node = callee;
-	if ( t.isSequenceExpression( node ) ) {
-		node = node.expressions[ node.expressions.length - 1 ];
-	}
-	let name;
-	if (
-		( t.isMemberExpression( node ) || t.isOptionalMemberExpression( node ) ) &&
-		! node.computed
-	) {
-		name = node.property.name;
-	} else if ( t.isIdentifier( node ) ) {
-		name = node.name;
-	}
+function gettextFunctionName( path ) {
+	const name = resolveGettextCallee( t, path, {
+		functions: defaultFunctions,
+		i18nModule: defaultI18nModule,
+		requireI18nSource: true,
+	} );
 	return name && Object.hasOwn( GETTEXT_FUNCTIONS, name ) ? name : null;
 }
 
@@ -160,7 +162,7 @@ function translatorComments( path ) {
 function extractGettextCalls( code ) {
 	const calls = [];
 	const collect = path => {
-		const fn = gettextFunctionName( path.node.callee );
+		const fn = gettextFunctionName( path );
 		if ( ! fn ) {
 			return;
 		}

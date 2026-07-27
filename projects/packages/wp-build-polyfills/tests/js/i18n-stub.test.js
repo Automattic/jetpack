@@ -31,6 +31,19 @@ describe( 'makeI18nStub', () => {
 		assert.ok( stub.includes( '__( "Member", "some-domain" );' ), 'member call kept' );
 	} );
 
+	it( 'skips a gettext-shaped call on an object that is not the i18n module', () => {
+		const code =
+			'const cache = { __: k => k };\n' +
+			'const a = cache.__("some-key");\n' +
+			'const b = window.wp.i18n.__("Real string", "d1");';
+		const stub = makeI18nStub( code );
+		assert.ok( stub.includes( '__( "Real string", "d1" );' ), 'the real call is extracted' );
+		assert.ok(
+			! stub.includes( 'some-key' ),
+			"a bundled dependency's own `__` does not become a translatable string"
+		);
+	} );
+
 	it( 'handles _x, _n, and _nx argument positions, normalizing the count to 1', () => {
 		const code = [
 			'var a = (0, i._x)("Go", "verb", "d1");',
