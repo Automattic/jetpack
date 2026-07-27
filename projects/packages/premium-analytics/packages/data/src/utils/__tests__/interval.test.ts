@@ -73,11 +73,23 @@ describe( 'needsReportDateParamsSeed', () => {
 		).toBe( false );
 	} );
 
-	it( 'treats an unrecognized preset string as range-based', () => {
+	it( 'seeds when the interval is unrecognized', () => {
+		expect(
+			needsReportDateParamsSeed( {
+				from: '2026-06-01',
+				to: '2026-06-30',
+				preset: 'last-30-days',
+				interval: 'not-an-interval',
+			} )
+		).toBe( true );
+	} );
+
+	it( 'treats an unrecognized preset as range-based', () => {
 		expect(
 			needsReportDateParamsSeed( {
 				from: '2026-06-01T00:00:00.000Z',
 				to: '2026-06-07T23:59:59.999Z',
+				// @ts-expect-error – testing with invalid preset on purpose
 				preset: 'not-a-preset',
 				interval: 'day',
 			} )
