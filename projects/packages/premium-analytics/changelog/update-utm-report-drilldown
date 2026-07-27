@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+UTM report: Group posts by UTM value, link them to post details, and show view comparison deltas. Searching a drilldown report now keeps a matched parent's rows with it.

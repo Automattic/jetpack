@@ -32,6 +32,7 @@ describe( 'useUtmReportRecords', () => {
 		mockUseStatsUtm.mockReset();
 		mockUseStatsUtm.mockReturnValue( {
 			primary: { data: undefined },
+			comparisonRows: { rows: [], hasComparison: false },
 			isLoading: false,
 		} as never );
 	} );
@@ -47,10 +48,63 @@ describe( 'useUtmReportRecords', () => {
 				utmParam,
 				max: 0,
 				summarize: 0,
-				query_top_posts: false,
+				query_top_posts: true,
 			} );
 			expect( options ).toEqual( { enabled: utmParam === activeUtmParam } );
 		} );
+	} );
+
+	it( 'builds comparison-aware UTM parent and post rows from the active report', () => {
+		mockUseStatsUtm.mockImplementation(
+			( _params, options ) =>
+				( {
+					primary: { data: undefined },
+					comparisonRows: {
+						rows: options?.enabled
+							? [
+									{
+										label: 'newsletter / email',
+										value: 18,
+										previousValue: 10,
+										paramValues: '["newsletter","email"]',
+										children: [
+											{
+												id: 41,
+												label: 'Landing page',
+												value: 12,
+												previousValue: 8,
+												href: 'https://example.com/landing/',
+												page: '/stats/post/41',
+												actions: [],
+												children: null,
+											},
+										],
+									},
+							  ]
+							: [],
+						hasComparison: options?.enabled ?? false,
+					},
+					isLoading: false,
+				} ) as never
+		);
+
+		const { result } = renderHook( () => useUtmReportRecords( 'source-medium', REPORT_PARAMS ) );
+
+		expect( result.current.rows ).toEqual( [
+			expect.objectContaining( {
+				label: 'newsletter / email',
+				views: 18,
+				previousViews: 10,
+				isGroup: true,
+			} ),
+			expect.objectContaining( {
+				label: 'Landing page',
+				postId: 41,
+				views: 12,
+				previousViews: 8,
+				groupLabel: 'newsletter / email',
+			} ),
+		] );
 	} );
 
 	it( 'surfaces error and refetch from the active report', () => {
@@ -59,6 +113,7 @@ describe( 'useUtmReportRecords', () => {
 			( _params, options ) =>
 				( {
 					primary: { data: undefined },
+					comparisonRows: { rows: [], hasComparison: false },
 					isLoading: false,
 					isError: options?.enabled ?? false,
 					refetch: options?.enabled ? refetch : jest.fn(),
