@@ -7,6 +7,11 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\Sync;
 
+use Automattic\Jetpack\Sync\Modules\Meta;
+use Automattic\Jetpack\Sync\Modules\Posts;
+use Automattic\Jetpack\Sync\Modules\Term_Relationships;
+use Automattic\Jetpack\Sync\Modules\Terms;
+use Automattic\Jetpack\Sync\Modules\WooCommerce_Analytics;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
@@ -42,6 +47,8 @@ class Configuration_Test extends TestCase {
 		$configuration->configure_sync();
 
 		$this->assertFalse( has_filter( 'jetpack_sync_modules', array( $configuration, 'add_woocommerce_analytics_module' ) ) );
+		$this->assertFalse( has_filter( 'jetpack_full_sync_config', array( $configuration, 'expand_full_sync_config' ) ) );
+		$this->assertFalse( has_filter( 'jetpack_sync_post_meta_whitelist', array( $configuration, 'add_meta_to_sync_post_meta_whitelist' ) ) );
 	}
 
 	/**
@@ -53,6 +60,138 @@ class Configuration_Test extends TestCase {
 		$this->assertContains( 'JETPACK_PREMIUM_ANALYTICS__VERSION', $config['jetpack_sync_constants_whitelist'] );
 		// WC_ANALYTICS_VERSION is the standalone plugin's constant; PA must not whitelist it.
 		$this->assertNotContains( 'WC_ANALYTICS_VERSION', $config['jetpack_sync_constants_whitelist'] );
+		$this->assertSame(
+			array(
+				WooCommerce_Analytics::class,
+				Meta::class,
+				Posts::class,
+				Terms::class,
+				Term_Relationships::class,
+			),
+			$config['jetpack_sync_modules']
+		);
+	}
+
+	/**
+	 * The shared module is added exactly once when no legacy implementation exists.
+	 */
+	public function test_add_woocommerce_analytics_module_adds_shared_module_once() {
+		$configuration = new Configuration();
+		$modules       = $configuration->add_woocommerce_analytics_module( array() );
+
+		$this->assertSame( array( WooCommerce_Analytics::class ), $modules );
+		$this->assertSame( $modules, $configuration->add_woocommerce_analytics_module( $modules ) );
+	}
+
+	/**
+	 * Woo AI remains authoritative when it has registered its Analytics module.
+	 */
+	public function test_add_woocommerce_analytics_module_defers_to_woo_ai() {
+		$configuration = new Configuration();
+		$modules       = array(
+			WooCommerce_Analytics::class,
+			Configuration::WOO_AI_MODULE_FQCN,
+		);
+
+		$this->assertSame(
+			array( Configuration::WOO_AI_MODULE_FQCN ),
+			$configuration->add_woocommerce_analytics_module( $modules )
+		);
+	}
+
+	/**
+	 * Premium Analytics arbitrates after Woo AI when both use the final filter priority.
+	 */
+	public function test_registered_module_filter_defers_to_woo_ai() {
+		$configuration = new Configuration();
+		$woo_ai_filter = static function ( $modules ) {
+			$modules[] = Configuration::WOO_AI_MODULE_FQCN;
+			return $modules;
+		};
+
+		add_filter( 'jetpack_sync_modules', $woo_ai_filter, PHP_INT_MAX );
+		$configuration->register_module_filter();
+
+		try {
+			$this->assertSame(
+				array( Configuration::WOO_AI_MODULE_FQCN ),
+				apply_filters( 'jetpack_sync_modules', array( WooCommerce_Analytics::class ) )
+			);
+		} finally {
+			remove_filter( 'jetpack_sync_modules', $woo_ai_filter, PHP_INT_MAX );
+			remove_filter( 'jetpack_sync_modules', array( $configuration, 'add_woocommerce_analytics_module' ), PHP_INT_MAX );
+		}
+	}
+
+	/**
+	 * The standalone Analytics plugin remains authoritative during migration.
+	 */
+	public function test_add_woocommerce_analytics_module_defers_to_standalone_plugin() {
+		$configuration = new Configuration();
+		$modules       = array(
+			Configuration::ANALYTICS_PLUGIN_MODULE_FQCN,
+			WooCommerce_Analytics::class,
+		);
+
+		$this->assertSame(
+			array( Configuration::ANALYTICS_PLUGIN_MODULE_FQCN ),
+			$configuration->add_woocommerce_analytics_module( $modules )
+		);
+	}
+
+	/**
+	 * An interim module bundled by another active plugin remains authoritative.
+	 */
+	public function test_add_woocommerce_analytics_module_defers_to_interim_premium_analytics() {
+		$configuration = new Configuration();
+		$modules       = array(
+			WooCommerce_Analytics::class,
+			Configuration::PREMIUM_ANALYTICS_MODULE_FQCN,
+		);
+
+		$this->assertSame(
+			array( Configuration::PREMIUM_ANALYTICS_MODULE_FQCN ),
+			$configuration->add_woocommerce_analytics_module( $modules )
+		);
+	}
+
+	/**
+	 * Full sync includes Analytics and keeps Posts after the taxonomy modules.
+	 */
+	public function test_expand_full_sync_config_adds_analytics_when_order_sync_is_allowed() {
+		$configuration = new class() extends Configuration {
+			protected function can_site_sync_orders(): bool {
+				return true;
+			}
+		};
+
+		$this->assertSame(
+			array(
+				'woocommerce_analytics' => 1,
+				'terms'                 => 1,
+				'posts'                 => 1,
+			),
+			$configuration->expand_full_sync_config(
+				array(
+					'posts' => 1,
+					'terms' => 1,
+				)
+			)
+		);
+	}
+
+	/**
+	 * Full sync remains unchanged when the site cannot sync orders.
+	 */
+	public function test_expand_full_sync_config_is_no_op_when_order_sync_is_not_allowed() {
+		$configuration = new class() extends Configuration {
+			protected function can_site_sync_orders(): bool {
+				return false;
+			}
+		};
+		$config        = array( 'posts' => 1 );
+
+		$this->assertSame( $config, $configuration->expand_full_sync_config( $config ) );
 	}
 
 	/**
