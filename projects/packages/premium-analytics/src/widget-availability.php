@@ -5,16 +5,18 @@
  * Premium Analytics' policy over the neutral filters in widget-types.php:
  * availability is the consumer's job, core only offers the hooks.
  *
- * Ships two policies, both hooked on the registry-time filter (a hard hide,
- * which keeps every registry consumer correct without a filtered accessor):
- * developer-only widget types are never registered in production, and the
- * commerce widget categories are only registered while the plugin backing
- * them (WooCommerce, plus WooCommerce Bookings for `bookings`) is active.
+ * Policies are hooked on the registry-time filter (a hard hide, which keeps
+ * every registry consumer correct without a filtered accessor): developer-only
+ * widget types are never registered in production, Simple-only types are only
+ * registered on WPCOM Simple, and commerce categories require their plugins.
  *
  * @package automattic/jetpack-premium-analytics
  */
 
 namespace Automattic\Jetpack\PremiumAnalytics;
+
+require_once __DIR__ . '/widget-types.php';
+require_once __DIR__ . '/widget-type-support.php';
 
 /**
  * Widget categories that are only meaningful with WooCommerce active.
@@ -68,6 +70,22 @@ function filter_registrable_widget_types_by_environment( $widget_candidates ) {
 }
 
 add_filter( REGISTRABLE_WIDGET_TYPES_FILTER, __NAMESPACE__ . '\\filter_registrable_widget_types_by_environment' );
+
+/**
+ * Applies shared type-level availability at registry time.
+ *
+ * @param array $widget_candidates Manifest candidates.
+ * @return array Filtered candidates.
+ */
+function filter_registrable_widget_types_by_availability( $widget_candidates ) {
+	return remove_unsupported_widget_items(
+		$widget_candidates,
+		'name',
+		get_widget_support_context()
+	);
+}
+
+add_filter( REGISTRABLE_WIDGET_TYPES_FILTER, __NAMESPACE__ . '\\filter_registrable_widget_types_by_availability' );
 
 /**
  * Removes candidates whose commerce category lacks its backing plugin.
