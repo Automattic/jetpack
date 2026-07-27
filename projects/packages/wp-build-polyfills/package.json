@@ -16,8 +16,9 @@
 		"strip-unminified-prod": "bin/strip-unminified-prod.js"
 	},
 	"scripts": {
-		"build": "pnpm run clean && webpack && node bin/validate-boot-asset.js",
+		"build": "pnpm run clean && webpack && node bin/validate-boot-asset.js && node bin/validate-export-contract.js",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build",
+		"check-contracts": "node bin/validate-export-contract.js",
 		"clean": "rm -rf build/",
 		"test": "node --test 'tests/js/**/*.test.js'",
 		"test-coverage": "c8 --report-dir=\"$COVERAGE_DIR\" --temp-directory=\"$ARTIFACTS_DIR/v8\" pnpm run test"
