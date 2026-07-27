@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-AI Launchpad: the site payload's wpcom_ai_launchpad_enabled now reflects user-scoped enablement (the ai_launchpad launchpad-personalization variation), not just the per-site option, so Calypso agrees with wp-admin for every site of an assigned user.
+AI Launchpad: enable on all sites of a user in the ai_launchpad experiment variation, matching wp-admin.
