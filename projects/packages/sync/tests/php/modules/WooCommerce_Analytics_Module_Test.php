@@ -13,9 +13,7 @@ use WorDBless\BaseTestCase;
 /**
  * Class WooCommerce_Analytics_Module_Test
  *
- * Covers the parts of the module that do not require a WooCommerce runtime.
- * Order-data building is exercised by the plugin/E2E suites where WooCommerce
- * is available.
+ * Covers the public module contract that does not require a WooCommerce runtime.
  *
  * @covers Automattic\Jetpack\Sync\Modules\WooCommerce_Analytics
  */

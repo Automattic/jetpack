@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add the WooCommerce Analytics sync module (woocommerce_analytics), opt-in via WooCommerce_Analytics_Settings::register().
+Add an opt-in WooCommerce Analytics sync module with compatibility for integrations that provide the same module.
