@@ -259,6 +259,15 @@ class Jetpack_AI_Settings {
 			return false;
 		}
 
+		// WordPress.com Simple has no per-feature toggles. It keeps the existing
+		// wp.com settings contract, so the features Jetpack owns stay on there and
+		// the host and master gates remain the only controls. The reused SEO and
+		// Search options are deliberately excluded: they have their own settings
+		// surfaces on Simple and must keep honoring their stored values.
+		if ( in_array( $feature, self::OWNED_FEATURES, true ) && ( new Host() )->is_wpcom_simple() ) {
+			return true;
+		}
+
 		$option  = self::FEATURE_OPTIONS[ $feature ];
 		$enabled = (bool) get_option( $option, self::FEATURE_DEFAULTS[ $feature ] );
 

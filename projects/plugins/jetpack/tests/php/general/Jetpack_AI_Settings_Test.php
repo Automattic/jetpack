@@ -11,6 +11,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
@@ -36,6 +37,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		remove_filter( 'wp_supports_ai', '__return_false' );
 		remove_filter( 'jetpack_ai_enabled', '__return_true', PHP_INT_MAX );
 		remove_filter( 'jetpack_ai_enabled', '__return_true', 11 );
+		Constants::clear_single_constant( 'IS_WPCOM' );
 
 		parent::tear_down();
 	}
@@ -175,6 +177,60 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
 
 		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' ) );
+	}
+
+	/**
+	 * WordPress.com Simple has no per-feature toggles: the options Jetpack owns
+	 * are ignored there, so a stored `off` cannot switch a feature off. Simple
+	 * keeps the existing wp.com settings contract instead.
+	 */
+	public function test_owned_features_ignore_their_option_on_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		foreach ( Jetpack_AI_Settings::OWNED_FEATURES as $feature ) {
+			update_option( Jetpack_AI_Settings::FEATURE_OPTIONS[ $feature ], 0 );
+
+			$this->assertTrue(
+				Jetpack_AI_Settings::is_feature_enabled( $feature ),
+				"$feature should stay on for WordPress.com Simple"
+			);
+		}
+	}
+
+	/**
+	 * The Simple carve-out is scoped to the features Jetpack owns. SEO and
+	 * Search reuse pre-existing options that keep their own controls on Simple,
+	 * so their values must still be honored there.
+	 */
+	public function test_reused_features_still_read_their_option_on_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		// Off must stay off: a carve-out that returned true for every feature
+		// would switch these on for Simple.
+		update_option( 'ai_seo_enhancer_enabled', 0 );
+		update_option( 'jetpack_search_ai_answers_enabled', 0 );
+
+		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'seo_enhancer' ) );
+		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'ai_search' ) );
+
+		// ...and on must stay on, so the value is genuinely read rather than
+		// hardcoded in either direction.
+		update_option( 'ai_seo_enhancer_enabled', 1 );
+		update_option( 'jetpack_search_ai_answers_enabled', 1 );
+
+		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'seo_enhancer' ) );
+		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'ai_search' ) );
+	}
+
+	/**
+	 * Off Simple the same option still switches the feature off.
+	 */
+	public function test_owned_features_honor_their_option_off_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', false );
+
+		update_option( 'jetpack_ai_image_editor_enabled', 0 );
+
+		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'image_editor' ) );
 	}
 
 	/**
