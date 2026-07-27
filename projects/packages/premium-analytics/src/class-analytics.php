@@ -284,8 +284,9 @@ class Analytics {
 
 		Sync_Status_Tracker::configure();
 
-		// TEMPORARY (WOOA7S-1550): register the interim woocommerce_analytics sync module so
-		// Sync_Status_Tracker has a full sync to observe. Remove when the shared sync-modules package lands.
+		// Opt in to the shared woocommerce_analytics sync module (jetpack-sync package)
+		// and register the PA-specific sync configuration, so Sync_Status_Tracker has a
+		// full sync to observe.
 		Sync_Configuration::register();
 	}
 
