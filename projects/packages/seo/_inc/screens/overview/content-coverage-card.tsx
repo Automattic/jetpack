@@ -83,18 +83,20 @@ const CoverageRing: FC< RingProps > = ( { label, action, segment, total, need, o
 	}
 
 	return (
-		<Tooltip.Root>
-			<Tooltip.Trigger
-				className={ styles.ringTrigger }
-				aria-label={ action }
-				onClick={ handleFilter }
-			>
-				<Stack direction="column" align="center" gap="xs" className={ styles.ring }>
-					{ inner }
-				</Stack>
-			</Tooltip.Trigger>
-			<Tooltip.Popup>{ action }</Tooltip.Popup>
-		</Tooltip.Root>
+		<Tooltip.Provider delay={ 150 }>
+			<Tooltip.Root>
+				<Tooltip.Trigger
+					className={ styles.ringTrigger }
+					aria-label={ action }
+					onClick={ handleFilter }
+				>
+					<Stack direction="column" align="center" gap="xs" className={ styles.ring }>
+						{ inner }
+					</Stack>
+				</Tooltip.Trigger>
+				<Tooltip.Popup>{ action }</Tooltip.Popup>
+			</Tooltip.Root>
+		</Tooltip.Provider>
 	);
 };
 
