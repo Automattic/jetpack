@@ -267,11 +267,23 @@ class Analytics {
 	 * @return void
 	 */
 	public static function register_admin_menu() {
-		$render_callback = function_exists( 'jpa_jetpack_premium_analytics_wp_admin_render_page' )
+		$has_build = function_exists( 'jpa_jetpack_premium_analytics_wp_admin_render_page' );
+
+		if ( ! $has_build ) {
+			// Surfaced here rather than only on the page itself, so a partial deploy shows up on
+			// the first admin request instead of waiting for someone to open the dashboard.
+			_doing_it_wrong(
+				__METHOD__,
+				'The Premium Analytics build output is missing, so the dashboard cannot render. The package build did not run for this deploy.',
+				''
+			);
+		}
+
+		$render_callback = $has_build
 			? 'jpa_jetpack_premium_analytics_wp_admin_render_page'
 			: array( __CLASS__, 'render_missing_build_notice' );
 
-		$menu_title = self::$menu_title ?? __( 'Analytics', 'jetpack-premium-analytics' );
+		$menu_title = self::menu_title();
 
 		add_menu_page(
 			esc_html( $menu_title ),
@@ -295,9 +307,20 @@ class Analytics {
 	public static function render_missing_build_notice() {
 		printf(
 			'<div class="wrap"><h1>%s</h1><p>%s</p></div>',
-			esc_html__( 'Analytics', 'jetpack-premium-analytics' ),
+			esc_html( self::menu_title() ),
 			esc_html__( 'The Premium Analytics assets are missing. The package build did not run for this deploy.', 'jetpack-premium-analytics' )
 		);
+	}
+
+	/**
+	 * The caller's menu label override, or the package's own translated label.
+	 *
+	 * Only call once translations can load — admin_menu or later.
+	 *
+	 * @return string
+	 */
+	private static function menu_title() {
+		return self::$menu_title ?? __( 'Analytics', 'jetpack-premium-analytics' );
 	}
 
 	/**

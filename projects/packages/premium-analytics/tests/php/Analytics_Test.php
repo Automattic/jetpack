@@ -18,12 +18,17 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass( Analytics::class )]
 class Analytics_Test extends TestCase {
 
+	const MENU_SLUG     = 'jetpack-premium-analytics-wp-admin';
+	const MENU_HOOKNAME = 'toplevel_page_' . self::MENU_SLUG;
+
 	/**
 	 * Reset request and screen globals touched by the dashboard-request tests.
 	 */
 	protected function tearDown(): void {
 		unset( $_GET['page'] );
 		unset( $GLOBALS['current_screen'] );
+		unset( $GLOBALS['menu'] );
+		remove_all_actions( self::MENU_HOOKNAME );
 		global $wp_rest_server;
 		$wp_rest_server = null;
 		remove_all_actions( 'jetpack_sync_processed_actions' );
@@ -39,14 +44,25 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * Reset the one-shot init guard between tests.
+	 * Reset the one-shot init guard and the caller-supplied menu label between tests.
 	 */
 	private function reset_analytics_init_state() {
-		$property = new \ReflectionProperty( Analytics::class, 'initialized' );
+		$this->set_analytics_property( 'initialized', false );
+		$this->set_analytics_property( 'menu_title', null );
+	}
+
+	/**
+	 * Set one of the class's private statics.
+	 *
+	 * @param string $name  Property name.
+	 * @param mixed  $value Value to set.
+	 */
+	private function set_analytics_property( $name, $value ) {
+		$property = new \ReflectionProperty( Analytics::class, $name );
 		if ( PHP_VERSION_ID < 80500 ) {
 			$property->setAccessible( true );
 		}
-		$property->setValue( null, false );
+		$property->setValue( null, $value );
 	}
 
 	/**
@@ -163,5 +179,93 @@ class Analytics_Test extends TestCase {
 		$_GET['page'] = 'jetpack-premium-analytics';
 
 		$this->assertFalse( Analytics::is_dashboard_request() );
+	}
+
+	/**
+	 * With no caller override the label comes from the package itself, so nobody has
+	 * to translate it before the textdomain can load.
+	 */
+	public function test_register_admin_menu_labels_the_page_from_the_package() {
+		$menu_item = $this->register_admin_menu_without_build();
+
+		$this->assertSame( 'Analytics', $menu_item[0] ?? null );
+	}
+
+	/**
+	 * A caller-supplied label wins over the package default.
+	 */
+	public function test_register_admin_menu_honors_a_caller_label() {
+		Analytics::init( array( 'menu_title' => 'Store Analytics' ) );
+
+		$menu_item = $this->register_admin_menu_without_build();
+
+		$this->assertSame( 'Store Analytics', $menu_item[0] ?? null );
+	}
+
+	/**
+	 * Without the generated render function the page falls back to the notice rather
+	 * than the blank screen __return_null used to leave behind.
+	 */
+	public function test_register_admin_menu_falls_back_to_the_missing_build_notice() {
+		$this->register_admin_menu_without_build();
+
+		$this->assertNotFalse(
+			has_action(
+				self::MENU_HOOKNAME,
+				array( Analytics::class, 'render_missing_build_notice' )
+			)
+		);
+	}
+
+	/**
+	 * The missing-build page explains itself, under the same label as the menu.
+	 */
+	public function test_missing_build_notice_explains_itself_under_the_menu_label() {
+		Analytics::init( array( 'menu_title' => 'Store Analytics' ) );
+
+		ob_start();
+		Analytics::render_missing_build_notice();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '<h1>Store Analytics</h1>', $output );
+		$this->assertStringContainsString( 'The package build did not run for this deploy.', $output );
+	}
+
+	/**
+	 * Register the admin menu from a clean menu global, with the generated render
+	 * function absent - the state _doing_it_wrong() deliberately reports, so its
+	 * notice is muted for the duration. add_menu_page() only wires the render
+	 * callback for a user who can reach the page, hence the capability grant.
+	 *
+	 * @return array|null The registered menu entry.
+	 */
+	private function register_admin_menu_without_build() {
+		$GLOBALS['menu'] = array();
+
+		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		Analytics::register_admin_menu();
+		remove_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		remove_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
+
+		foreach ( $GLOBALS['menu'] as $item ) {
+			if ( self::MENU_SLUG === ( $item[2] ?? null ) ) {
+				return $item;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Grant manage_options to the (logged-out) test user.
+	 *
+	 * @param array $caps Capabilities.
+	 * @return array
+	 */
+	public function grant_manage_options( $caps ) {
+		$caps['manage_options'] = true;
+
+		return $caps;
 	}
 }
