@@ -51,7 +51,10 @@ export function ZoomSchedulerEdit( props ) {
 	const setErrorNotice = () => {
 		noticeOperations.removeAllNotices();
 		noticeOperations.createErrorNotice(
-			__( "Your calendar couldn't be embedded. Please double check your URL or code.", 'jetpack' )
+			__(
+				"Your Zoom Scheduler booking page couldn't be embedded. Please double check your URL.",
+				'jetpack'
+			)
 		);
 	};
 
