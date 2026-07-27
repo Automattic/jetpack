@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.8.0] - 2026-07-27
 ### Added
-- Make connection error notices owner-aware: on sites where connection ownership is locked, non-owner admins see who needs to reconnect instead of a reconnect button. Attribute errors to the affected user via error data when the token cannot identify one, and stop displaying errors that cannot be attributed to anyone. The owner's identity is only exposed to users who can manage the connection, and the new initial-state owner field is derived from the connection ownership record instead of the owner's token, so it stays available while that token is broken; existing connection data fields keep describing the connected owner. Errors injected via the jetpack_connection_get_verified_errors filter continue to take precedence and are left untouched.
+- Show non-owner admins who needs to reconnect instead of a reconnect button, and hide errors that can't be attributed to a user.
 
 ### Changed
 - Update package dependencies.
