@@ -78,7 +78,7 @@
 	block-size: 30px;
 	border-radius: 50%;
 	color: var(--wpds-color-foreground-interactive-brand);
-	background: color-mix(in sRGB, var(--wpds-color-foreground-interactive-brand) 13%, transparent);
+	background: var(--wpds-color-background-surface-brand);
 }
 
 // Interactive coverage ring: the whole ring is a button that deep-links to the
