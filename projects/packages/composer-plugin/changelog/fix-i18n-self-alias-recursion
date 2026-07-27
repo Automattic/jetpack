@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-i18n map: skip packages whose textdomain equals the plugin domain; such a self-alias recurses infinitely in the assets gettext filter.
+i18n map: don't alias a package whose textdomain equals the plugin domain — that self-alias recurses infinitely in the assets gettext filter. Its path is emitted under the new `paths` key instead, so its JavaScript translations can still be found.
