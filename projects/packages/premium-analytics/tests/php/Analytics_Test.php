@@ -203,6 +203,30 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
+	 * A caller that needs its own textdomain passes a closure, which we resolve here
+	 * rather than at init time.
+	 */
+	public function test_register_admin_menu_resolves_a_caller_label_closure() {
+		$calls = 0;
+		Analytics::init(
+			array(
+				'menu_title' => function () use ( &$calls ) {
+					++$calls;
+
+					return 'Store Analytics';
+				},
+			)
+		);
+
+		$this->assertSame( 0, $calls, 'The label closure must not run at init time.' );
+
+		$menu_item = $this->register_admin_menu_without_build();
+
+		$this->assertSame( 'Store Analytics', $menu_item[0] ?? null );
+		$this->assertSame( 1, $calls );
+	}
+
+	/**
 	 * Without the generated render function the page falls back to the notice rather
 	 * than the blank screen __return_null used to leave behind.
 	 */

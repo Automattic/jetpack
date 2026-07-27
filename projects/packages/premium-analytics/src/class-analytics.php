@@ -34,9 +34,10 @@ class Analytics {
 	/**
 	 * Menu title override for the admin page. Null falls back to the package's
 	 * own translated label, resolved on admin_menu — callers init far too early
-	 * to translate anything themselves.
+	 * to translate anything themselves. A closure is resolved there too, which is
+	 * how a caller supplies a label in its own textdomain.
 	 *
-	 * @var string|null
+	 * @var string|\Closure|null
 	 */
 	private static $menu_title = null;
 
@@ -48,8 +49,10 @@ class Analytics {
 	 *
 	 * @param array $options Optional configuration options.
 	 *                       Supported keys:
-	 *                       - menu_title (string): Admin menu label. Defaults to the
-	 *                         package's own translated label.
+	 *                       - menu_title (string|\Closure): Admin menu label. Defaults to
+	 *                         the package's own translated label. Pass a closure to supply
+	 *                         a translated label of your own: it runs on admin_menu, where
+	 *                         a textdomain can load, unlike init time.
 	 * @return void
 	 */
 	public static function init( $options = array() ) {
@@ -80,8 +83,10 @@ class Analytics {
 	 *
 	 * @param array $options Optional configuration options.
 	 *                       Supported keys:
-	 *                       - menu_title (string): Admin menu label. Defaults to the
-	 *                         package's own translated label.
+	 *                       - menu_title (string|\Closure): Admin menu label. Defaults to
+	 *                         the package's own translated label. Pass a closure to supply
+	 *                         a translated label of your own: it runs on admin_menu, where
+	 *                         a textdomain can load, unlike init time.
 	 * @return void
 	 */
 	public static function init_wpcom_simple( $options = array() ) {
@@ -317,10 +322,19 @@ class Analytics {
 	 *
 	 * Only call once translations can load — admin_menu or later.
 	 *
+	 * Closures are resolved here rather than at init time, so a caller can hand us
+	 * `__()` in its own textdomain without translating too early. Deliberately not
+	 * is_callable(): PHP function names are case-insensitive, so a plain label like
+	 * "Analytics" would match a stray analytics() function and get called.
+	 *
 	 * @return string
 	 */
 	private static function menu_title() {
-		return self::$menu_title ?? __( 'Analytics', 'jetpack-premium-analytics' );
+		$title = self::$menu_title instanceof \Closure
+			? ( self::$menu_title )()
+			: self::$menu_title;
+
+		return $title ?? __( 'Analytics', 'jetpack-premium-analytics' );
 	}
 
 	/**
