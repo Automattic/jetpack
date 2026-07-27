@@ -120,7 +120,7 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, onManage } ) 
 					<Text>{ blockedLabel }</Text>
 				) }
 				<Stack direction="row" justify="flex-end" className={ styles.footer }>
-					<Button variant="outline" tone="neutral" onClick={ onManage }>
+					<Button variant="solid" onClick={ onManage }>
 						{ __( 'Manage AI crawlers', 'jetpack-seo' ) }
 					</Button>
 				</Stack>

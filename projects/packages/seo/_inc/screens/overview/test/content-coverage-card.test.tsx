@@ -28,7 +28,7 @@ describe( 'ContentCoverageCard', () => {
 		);
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep (avoids lockfile churn) for a single click.
-		fireEvent.click( screen.getByRole( 'button', { name: 'View content missing an SEO title' } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Set SEO titles' } ) );
 
 		expect( onFilter ).toHaveBeenCalledWith( 'title' );
 	} );
@@ -41,7 +41,7 @@ describe( 'ContentCoverageCard', () => {
 		// with_search_visible === total, so the "Visible to search engines" ring is
 		// not a button.
 		expect(
-			screen.queryByRole( 'button', { name: 'View content hidden from search engines' } )
+			screen.queryByRole( 'button', { name: 'Configure search visibility' } )
 		).not.toBeInTheDocument();
 	} );
 
@@ -74,7 +74,7 @@ describe( 'ContentCoverageCard', () => {
 
 		expect( screen.getByText( 'No published posts or pages yet.' ) ).toBeInTheDocument();
 		expect(
-			screen.queryByRole( 'button', { name: 'View content without a schema type' } )
+			screen.queryByRole( 'button', { name: 'Add schema to content' } )
 		).not.toBeInTheDocument();
 	} );
 } );

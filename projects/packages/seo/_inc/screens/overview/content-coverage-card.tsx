@@ -52,12 +52,6 @@ interface RingProps {
 const CoverageRing: FC< RingProps > = ( { label, action, segment, total, need, onFilter } ) => {
 	const handleFilter = useCallback( () => onFilter( need ), [ need, onFilter ] );
 
-	const description = sprintf(
-		/* translators: %1$d: posts with the field set, %2$d: total published posts. */
-		__( '%1$d of %2$d', 'jetpack-seo' ),
-		segment,
-		total
-	);
 	const count = sprintf(
 		/* translators: %1$d: posts with the field set, %2$d: total published posts. */
 		__( '%1$d / %2$d', 'jetpack-seo' ),
@@ -67,14 +61,12 @@ const CoverageRing: FC< RingProps > = ( { label, action, segment, total, need, o
 
 	const inner: ReactNode = (
 		<>
+			{ /* Chart is decorative here: the ring's aria-label carries the action and
+			     the count/label are visible text below, so the DonutMeter is left
+			     unlabeled (aria-hidden) — this also removes its native SVG `<title>`
+			     tooltip, which otherwise duplicated the action tooltip on hover. */ }
 			<div className={ styles.donutWrap }>
-				<DonutMeter
-					totalCount={ total }
-					segmentCount={ segment }
-					donutWidth="56px"
-					title={ label }
-					description={ description }
-				/>
+				<DonutMeter totalCount={ total } segmentCount={ segment } donutWidth="56px" />
 			</div>
 			<Text variant="heading-md">{ count }</Text>
 			<Text variant="body-sm">{ label }</Text>
@@ -109,10 +101,10 @@ const CoverageRing: FC< RingProps > = ( { label, action, segment, total, need, o
 // Per-ring action copy resolved at module scope (static, one per ring) so the
 // production minifier can't fold adjacent `__()` calls. See
 // feedback_i18n_ternary_minifier_fold.
-const schemaAction = __( 'View content without a schema type', 'jetpack-seo' );
-const titleAction = __( 'View content missing an SEO title', 'jetpack-seo' );
-const descriptionAction = __( 'View content missing a meta description', 'jetpack-seo' );
-const searchAction = __( 'View content hidden from search engines', 'jetpack-seo' );
+const schemaAction = __( 'Add schema to content', 'jetpack-seo' );
+const titleAction = __( 'Set SEO titles', 'jetpack-seo' );
+const descriptionAction = __( 'Add meta descriptions', 'jetpack-seo' );
+const searchAction = __( 'Configure search visibility', 'jetpack-seo' );
 
 const ContentCoverageCard: FC< Props > = ( { data, onManage, onFilter } ) => {
 	const { total, with_schema, with_title, with_description, with_search_visible } = data;
