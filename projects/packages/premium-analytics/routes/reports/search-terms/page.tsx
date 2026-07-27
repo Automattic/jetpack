@@ -90,7 +90,7 @@ export default function SearchTermsReportPage(): JSX.Element {
 					/>
 				) : (
 					<ReportRecordsTable< SearchTermRow >
-						data={ tableIsLoading ? [] : records.table.rows }
+						data={ records.table.rows }
 						fields={ fields }
 						getItemId={ getSearchTermRowId }
 						isLoading={ tableIsLoading }
