@@ -74,9 +74,9 @@ class AI_Launchpad {
 	/**
 	 * Whether the current site is eligible for the AI Launchpad.
 	 *
-	 * Gate: not already AI-onboarded, not dismissed (skipping the wizard dismisses it, reverting the site
-	 * to the regular launchpad), and explicitly enabled for the site via the `wpcom_ai_launchpad_enabled`
-	 * option. The paid-plan requirement is temporarily lifted (see below).
+	 * Gate: enabled for the site (see is_enabled_for_site()) and not dismissed (skipping the
+	 * wizard dismisses it, reverting the site to the regular launchpad). The paid-plan
+	 * requirement is temporarily lifted (see below).
 	 *
 	 * @return bool
 	 */
@@ -87,7 +87,6 @@ class AI_Launchpad {
 			// TEMPORARY: the paid-plan gate is lifted so the AI Launchpad is available on all plans, including free.
 			// Revert this commit to re-require a paid bundle (the removed has_paid_plan() check).
 			$eligible = self::is_enabled_for_site()
-				&& ! self::was_ai_onboarded()
 				&& ! get_option( \AI_Launchpad_REST::OPTION_DISMISSED );
 		}
 
@@ -111,13 +110,18 @@ class AI_Launchpad {
 	 * @return bool
 	 */
 	private static function is_enabled_for_site() {
-		// Legacy per-site switch kept as a manual/dev override: the ?enable-ai-launchpad=1
-		// handler and the onboarding hand-off both set this option.
+		// Explicit per-site switch: set at site creation for the ai_launchpad onboarding
+		// cohort, by the ?enable-ai-launchpad=1 dev handler, or manually. It deliberately
+		// bypasses the AI-onboarded exclusion below, so an explicitly enabled site keeps
+		// its AI Launchpad even after building with Big Sky.
 		if ( (bool) get_option( 'wpcom_ai_launchpad_enabled' ) ) {
 			return true;
 		}
 
-		return 'ai_launchpad' === Launchpad_Personalization_Experiment::get_variation();
+		// Implicit enablement via the experiment variation: excludes sites that already
+		// went through an AI onboarding flow, which covers the setup the launchpad guides.
+		return 'ai_launchpad' === Launchpad_Personalization_Experiment::get_variation()
+			&& ! self::was_ai_onboarded();
 	}
 
 	/**

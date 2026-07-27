@@ -70,17 +70,19 @@ class AI_Launchpad_Eligibility_Test extends \WorDBless\BaseTestCase {
 	 * Data provider for test_is_eligible.
 	 *
 	 * The paid-plan requirement is temporarily lifted, so eligibility depends on the
-	 * per-site enabled option, the site not already being AI-onboarded, and the user
-	 * not having dismissed the AI Launchpad (skipping the wizard dismisses it).
+	 * per-site enabled option and the user not having dismissed the AI Launchpad
+	 * (skipping the wizard dismisses it). The AI-onboarded exclusion does not apply
+	 * to the explicit per-site option, only to variation-based enablement.
 	 *
 	 * @return array
 	 */
 	public static function provide_eligibility_inputs() {
 		return array(
-			'enabled'          => array( false, true, false, true ),
-			'not enabled'      => array( false, false, false, false ),
-			'onboarded blocks' => array( true, true, false, false ),
-			'dismissed blocks' => array( false, true, true, false ),
+			'enabled'                          => array( false, true, false, true ),
+			'not enabled'                      => array( false, false, false, false ),
+			'onboarded keeps explicit enable'  => array( true, true, false, true ),
+			'onboarded without enable blocks'  => array( true, false, false, false ),
+			'dismissed blocks'                 => array( false, true, true, false ),
 		);
 	}
 
@@ -95,6 +97,21 @@ class AI_Launchpad_Eligibility_Test extends \WorDBless\BaseTestCase {
 	public function test_ai_launchpad_variation_makes_the_site_eligible() {
 		add_filter( 'wpcom_launchpad_personalization_variation', fn() => 'ai_launchpad' );
 		$this->assertTrue( AI_Launchpad::is_eligible() );
+	}
+
+	/**
+	 * Variation-based enablement is still excluded for AI-onboarded sites (e.g. a site
+	 * built with Big Sky without the explicit per-site option).
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_ai_launchpad_variation_is_not_eligible_when_ai_onboarded() {
+		add_filter( 'wpcom_launchpad_personalization_variation', fn() => 'ai_launchpad' );
+		update_option( 'site_intent', 'ai-assembler' );
+		$this->assertFalse( AI_Launchpad::is_eligible() );
 	}
 
 	/**
