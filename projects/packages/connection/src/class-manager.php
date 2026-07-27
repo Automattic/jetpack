@@ -953,7 +953,7 @@ class Manager {
 	 * filter. This is the single chokepoint used both when deciding which connection-error
 	 * CTA to surface and (eventually) when performing an ownership change.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.8.0
 	 *
 	 * @return bool True if ownership can be transferred, false if it is locked.
 	 */
@@ -963,7 +963,7 @@ class Manager {
 		 *
 		 * Return `false` to lock ownership so it can never be taken over.
 		 *
-		 * @since $$next-version$$
+		 * @since 8.8.0
 		 *
 		 * @param bool $transferable Whether ownership can be transferred. Default true.
 		 */

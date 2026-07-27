@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.8.0] - 2026-07-27
+### Added
+- Make connection error notices owner-aware: on sites where connection ownership is locked, non-owner admins see who needs to reconnect instead of a reconnect button. Attribute errors to the affected user via error data when the token cannot identify one, and stop displaying errors that cannot be attributed to anyone. The owner's identity is only exposed to users who can manage the connection, and the new initial-state owner field is derived from the connection ownership record instead of the owner's token, so it stays available while that token is broken; existing connection data fields keep describing the connected owner. Errors injected via the jetpack_connection_get_verified_errors filter continue to take precedence and are left untouched. [#50662]
+
+### Changed
+- Update package dependencies. [#50751]
+
 ## [8.7.10] - 2026-07-22
 ### Changed
 - Update dependencies. [#50674]
@@ -1953,6 +1960,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[8.8.0]: https://github.com/Automattic/jetpack-connection/compare/v8.7.10...v8.8.0
 [8.7.10]: https://github.com/Automattic/jetpack-connection/compare/v8.7.9...v8.7.10
 [8.7.9]: https://github.com/Automattic/jetpack-connection/compare/v8.7.8...v8.7.9
 [8.7.8]: https://github.com/Automattic/jetpack-connection/compare/v8.7.7...v8.7.8

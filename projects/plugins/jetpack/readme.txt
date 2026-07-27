@@ -326,20 +326,31 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 16.1-a.3 - 2026-07-20
+### 16.1-a.5 - 2026-07-27
 #### Enhancements
-- AI Sidebar: Add Jetpack AI abilities in the page and site editors.
-- Content Guidelines: Add a Read more support link to the page description.
-- Content Guidelines AI: Show AI buttons in the correct locked/unlocked state on first paint, omitting the AI UI for that load when the plan lookup fails.
-- Content Guidelines AI: Show the Generate/Improve buttons in a locked state for sites without an AI plan, and open the upgrade notice when clicked (even after dismissal). Prevent the AI buttons from briefly appearing unlocked while the feature check resolves.
-- Podcast: Release Podcast to self-hosted sites, enabled by default on new installations and available but disabled on existing installations.
+- Add aria-label to hidden Carousel download link for better accessibility.
+- Change empty h2 and h3 tags in Carousel to div tags to fix SEO and accessibility warnings.
+- Content Guidelines AI: make AI guideline suggestions available on WordPress.com Simple and Atomic sites, with a paid Jetpack AI or Complete plan required to generate guidelines.
+- Memberships supports of MYR
+- REST API: Defer loading of WPCOM REST endpoint files to REST requests, saving execution time on every non-REST page load.
+- SEO: Add AI crawler management — free per-bot allow/block toggles (answer and mixed-use crawlers allowed, training crawlers blocked by default) that write robots.txt directives.
+- SEO: Add custom post type support and llms.txt generation.
+- Social: the block editor sidebar now uses the same connection management UI as the Social admin page.
+- VideoPress: keep the VideoPress item under the Jetpack menu when the module is not active, linking to the My Jetpack page to activate it.
+- VideoPress: upload videos added via the classic media-new.php uploader directly to VideoPress, matching the Media Library behavior.
+
+#### Improved compatibility
+- Content Guidelines AI: Restore compatibility with the Gutenberg 23.6 Guidelines page by reading section drafts from the page DOM instead of the removed core/guidelines store.
+- Notifications: show the notification bell in the admin bar on the Post editor and Site editor,
+  now that Gutenberg 23.6+ renders the admin bar there.
 
 #### Bug fixes
-- Content Guidelines AI: Read the banner-dismissed flag from user meta directly when preloading, so the empty-state banner and upgrade notice are no longer permanently suppressed on WordPress.com Simple sites.
-- Likes: Restore the per-post Likes toggle in the block editor, which failed to register when withSelect returned a memo object.
-- Normalize the size, weight, centering, and alignment of block inserter icons across Jetpack monetize blocks (Donations, Tips, Payment Button, Paid Content, Tock, WhatsApp Button, and others) so they render consistently.
-- Paid Content: Expire subscription access at the end of the `end_date` day (UTC) rather than the exact purchase timestamp, so a same-day auto-renewal completes before access is cut.
-- Related Posts: Enqueue the block stylesheet whenever the block renders, so it is styled on pages and classic themes where the module's front-end asset gate does not run.
+- Carousel: show the already-loaded thumbnail while the full-size image downloads, so slides are no longer blank when moving quickly through a gallery.
+- Change EXIF data rendering to be dynamic via JavaScript to resolve empty list accessibility warning.
+- Likes: Do not show the Like button on password-protected posts, even for viewers who can read the post (owners, admins, or after unlocking).
+- Newsletter: when a WordPress.com user connection is required for the email preview and test email features, show an actionable prompt to connect and disable the test email "Send" button until connected, instead of only surfacing the error after a failed attempt.
+- SEO: Preserve Sitemaps and Canonical URLs settings when runtime filters temporarily suppress their modules.
+- Tiled Gallery: fix images collapsing to ~105px in the editor when the canvas is not iframed
 
 --------
 

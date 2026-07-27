@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-REST API: Defer loading of WPCOM REST endpoint files to REST requests, saving execution time on every non-REST page load.

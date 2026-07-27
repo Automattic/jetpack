@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/remove-asset-webpack-plugin",
-	"version": "1.0.41",
+	"version": "1.0.42",
 	"description": "A Webpack plugin to remove assets from the build.",
 	"keywords": [
 		"webpack",

@@ -86,7 +86,7 @@ class Jetpack {
 	 *
 	 * {@see self::reconcile_seo_module_state_options()}
 	 *
-	 * @since $$next-version$$
+	 * @since 16.1
 	 *
 	 * @var string
 	 */
@@ -2957,7 +2957,7 @@ p {
 	 * WordPress.com Simple keeps module state outside this site's options table, so its
 	 * normal filtered read remains authoritative.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.1
 	 *
 	 * @param string $module Module slug.
 	 * @return bool Whether the module should be recorded as active.
@@ -3095,7 +3095,7 @@ p {
 	 * Idempotent: the marker is written with `add_option()`, so reruns on later version bumps
 	 * are no-ops. Like the migrations it seeds from, it touches no sitemap data or cron state.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.1
 	 */
 	public static function reconcile_seo_module_state_options() {
 		if ( get_option( self::SEO_MODULE_STATE_RECONCILED_OPTION ) ) {
