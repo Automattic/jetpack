@@ -17,7 +17,8 @@ import type { ReportDataMap } from '@jetpack-premium-analytics/data';
  * Transforms order attribution data into the format required by LeaderboardChart.
  *
  * @param orderAttribution - Primary period order attribution data.
- * @param maxEntries       - Maximum number of entries to include in the leaderboard.
+ * @param maxEntries       - Maximum number of entries to include in the leaderboard; 0 keeps
+ *                         every row, matching the `max` widget attribute convention.
  * @return Processed data ready for LeaderboardChart.
  */
 export function buildSalesByUtmData(
@@ -28,7 +29,7 @@ export function buildSalesByUtmData(
 		return [];
 	}
 
-	const data = orderAttribution.data.slice( 0, maxEntries );
+	const data = orderAttribution.data.slice( 0, maxEntries > 0 ? maxEntries : undefined );
 
 	// The order-attribution summary reports both periods for every row (see
 	// SanitizedOrderAttributionSummaryItem), so unlike the row-matched stats

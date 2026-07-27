@@ -36,4 +36,15 @@ describe( 'buildSalesByUtmData', () => {
 			previousShare: 100,
 		} );
 	} );
+
+	it( 'keeps every row when maxEntries is 0', () => {
+		const data = buildSalesByUtmData( report, 0 );
+
+		expect( data ).toHaveLength( 3 );
+		// The third row's 1000 now sets the shared scale for every row.
+		expect( data[ 0 ] ).toMatchObject( {
+			currentShare: 10,
+			previousShare: 20,
+		} );
+	} );
 } );
