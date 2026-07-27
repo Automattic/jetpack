@@ -18,7 +18,7 @@ class Help_Center {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.1.0';
+	const PACKAGE_VERSION = '0.2.0';
 
 	/**
 	 * Class instance.
@@ -714,7 +714,7 @@ class Help_Center {
 		 * Consumers can use this filter to opt public-facing surfaces into the
 		 * Help Center without taking ownership of its asset-loading logic.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.2.0
 		 *
 		 * @param bool $should_load Whether to load the logged-out Help Center bundle.
 		 */
