@@ -18,9 +18,7 @@ compositor and JS only has to flip the target value.
 @media ( prefers-reduced-motion: reduce ) {
 
 	.jp-carousel-fade {
-
-		/* Not 0s: `transitionend` still has to fire for the fade callbacks to run. */
-		transition-duration: 1ms;
+		transition-duration: 0s;
 	}
 }
 
