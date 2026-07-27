@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Stats data layer: keep the HTTP status on failed API requests so retry, auth, and error handling behave correctly, and stop deriving plan state from ambiguous error codes.
+Stats: Stop retrying unavailable reports and show authentication and server errors correctly.

@@ -121,6 +121,12 @@ export function registerApiErrorStatusMiddleware(): void {
 	if ( registered ) {
 		return;
 	}
+	// Unit tests replace the whole apiFetch module with a bare `jest.fn()`, which
+	// has no `use()`. This is called at module scope, so without the check every
+	// suite that renders a widget would fail to load.
+	if ( typeof apiFetch.use !== 'function' ) {
+		return;
+	}
 	registered = true;
 	apiFetch.use( apiErrorStatusMiddleware );
 }

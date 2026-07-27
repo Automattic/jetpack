@@ -200,4 +200,36 @@ describe( 'registerApiErrorStatusMiddleware', () => {
 			use.mockRestore();
 		}
 	} );
+
+	it( 'skips registration when the apiFetch instance exposes no use()', async () => {
+		// Suites that mock `@wordpress/api-fetch` with a bare function get such an
+		// instance, and this runs at module scope in the data package.
+		await jest.isolateModulesAsync( async () => {
+			const isolatedApiFetch = ( await import( '@wordpress/api-fetch' ) ).default as unknown as
+				| Record< string, unknown >
+				| undefined;
+			const original = isolatedApiFetch?.use;
+			delete isolatedApiFetch?.use;
+
+			try {
+				const middleware = await import( '../error-status-middleware' );
+
+				expect( isolatedApiFetch?.use ).toBeUndefined();
+				expect( () => middleware.registerApiErrorStatusMiddleware() ).not.toThrow();
+
+				// Skipping must not latch: a later call on a usable instance still registers.
+				const use = jest.fn();
+				if ( isolatedApiFetch ) {
+					isolatedApiFetch.use = use;
+				}
+				middleware.registerApiErrorStatusMiddleware();
+
+				expect( use ).toHaveBeenCalledWith( middleware.apiErrorStatusMiddleware );
+			} finally {
+				if ( isolatedApiFetch ) {
+					isolatedApiFetch.use = original;
+				}
+			}
+		} );
+	} );
 } );

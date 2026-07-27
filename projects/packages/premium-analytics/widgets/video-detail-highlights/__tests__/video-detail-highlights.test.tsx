@@ -85,10 +85,12 @@ const COMPARISON_WITHOUT_SELECTED_VIDEO_RESPONSE = {
 	},
 };
 
+// The WPCOM pass-through error envelope, with the status attached the way the
+// fetch layer attaches it.
 const MOCK_API_ERROR = {
-	code: 'stats_mock_error',
+	error: 'unauthorized',
 	message: 'Mocked error response.',
-	data: { status: 403 },
+	status: 403,
 };
 
 function renderWidget( postId?: number, withComparison = false ) {

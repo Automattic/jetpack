@@ -24,12 +24,13 @@ const forcedStateMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 			// (`summary` / `days` / `data`), so the widget resolves to its empty state.
 			return { date: '2026-01-01', period: 'day', summary: {}, days: {}, data: [] };
 		}
-		// A 403 is not retried by `shouldRetryApiError`, so the error UI shows at
-		// once instead of after the query's retry backoff.
+		// The WPCOM pass-through error envelope, with the status attached the way
+		// the fetch layer attaches it. A 403 is not retried by `shouldRetryApiError`,
+		// so the error UI shows at once instead of after the query's retry backoff.
 		return Promise.reject( {
-			code: 'stats_mock_error',
+			error: 'unauthorized',
 			message: 'Mocked error response for Storybook.',
-			data: { status: 403 },
+			status: 403,
 		} );
 	}
 
