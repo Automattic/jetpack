@@ -32,7 +32,7 @@ class WP_REST_Help_Center_Email_Support_Enabled extends WP_REST_Help_Center_Cont
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_email_support_configuration' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => '__return_true',
 			)
 		);
 	}
@@ -41,7 +41,7 @@ class WP_REST_Help_Center_Email_Support_Enabled extends WP_REST_Help_Center_Cont
 	 * Should return if email contact is enabled for the user.
 	 */
 	public function get_email_support_configuration() {
-		$body = $this->wpcom_request_client->request_as_user( 'help/eligibility/email/mine' );
+		$body = $this->wpcom_request_client->request( 'help/eligibility/email/mine' );
 
 		if ( is_wp_error( $body ) ) {
 			return $body;

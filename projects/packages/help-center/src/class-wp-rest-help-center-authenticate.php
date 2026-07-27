@@ -32,7 +32,7 @@ class WP_REST_Help_Center_Authenticate extends WP_REST_Help_Center_Controller {
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'get_chat_authentication' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => '__return_true',
 				'args'                => array(
 					'type'      => array(
 						'type'     => 'string',
@@ -60,7 +60,7 @@ class WP_REST_Help_Center_Authenticate extends WP_REST_Help_Center_Controller {
 			'type'      => $request['type'],
 		);
 
-		$body = $this->wpcom_request_client->request_as_user(
+		$body = $this->wpcom_request_client->request(
 			'help/authenticate/chat?' . http_build_query( $query_parameters ),
 			'2',
 			array(

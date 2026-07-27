@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Allow consumers to load the logged-out Help Center bundle and proxy logged-out requests anonymously.

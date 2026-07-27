@@ -32,7 +32,7 @@ class WP_REST_Help_Center_Support_Interactions extends WP_REST_Help_Center_Contr
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_support_interactions' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => '__return_true',
 				'args'                => array(
 					'status'   => array(
 						'type'     => 'array',
@@ -71,7 +71,7 @@ class WP_REST_Help_Center_Support_Interactions extends WP_REST_Help_Center_Contr
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_support_interactions' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => '__return_true',
 			)
 		);
 
@@ -81,7 +81,7 @@ class WP_REST_Help_Center_Support_Interactions extends WP_REST_Help_Center_Contr
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'create_support_interaction' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => '__return_true',
 				'args'                => array(
 					'event_external_id' => array(
 						'type'     => 'string',
@@ -113,7 +113,7 @@ class WP_REST_Help_Center_Support_Interactions extends WP_REST_Help_Center_Contr
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'create_support_interaction_event' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => '__return_true',
 				'args'                => array(
 					'event_external_id' => array(
 						'type'     => 'string',
@@ -137,7 +137,7 @@ class WP_REST_Help_Center_Support_Interactions extends WP_REST_Help_Center_Contr
 			array(
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'update_support_interaction_status' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => '__return_true',
 				'args'                => array(
 					'status' => array(
 						'type'     => 'string',
@@ -165,7 +165,7 @@ class WP_REST_Help_Center_Support_Interactions extends WP_REST_Help_Center_Contr
 			$url = '/support-interactions/?' . http_build_query( stripslashes_deep( $request->get_params() ) );
 		}
 
-		$body = $this->wpcom_request_client->request_as_user( $url );
+		$body = $this->wpcom_request_client->request( $url );
 
 		if ( is_wp_error( $body ) ) {
 			return $body;
@@ -204,7 +204,7 @@ class WP_REST_Help_Center_Support_Interactions extends WP_REST_Help_Center_Contr
 			$data['is_test_mode'] = $request['is_test_mode'];
 		}
 
-		$body = $this->wpcom_request_client->request_as_user(
+		$body = $this->wpcom_request_client->request(
 			'/support-interactions',
 			'2',
 			array(
@@ -248,7 +248,7 @@ class WP_REST_Help_Center_Support_Interactions extends WP_REST_Help_Center_Contr
 			$data['is_test_mode'] = $request['is_test_mode'];
 		}
 
-		$body = $this->wpcom_request_client->request_as_user(
+		$body = $this->wpcom_request_client->request(
 			"/support-interactions/$support_interaction_id/events",
 			'2',
 			array(
@@ -276,7 +276,7 @@ class WP_REST_Help_Center_Support_Interactions extends WP_REST_Help_Center_Contr
 
 		$status = $request['status'];
 
-		$body = $this->wpcom_request_client->request_as_user(
+		$body = $this->wpcom_request_client->request(
 			"/support-interactions/$support_interaction_id/status",
 			'2',
 			array(
