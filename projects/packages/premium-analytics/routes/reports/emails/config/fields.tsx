@@ -118,7 +118,7 @@ export function getEmailsFields(): Field< StatsEmailSummaryItem >[] {
 	return [
 		{
 			id: 'label',
-			label: __( 'Email', 'jetpack-premium-analytics' ),
+			label: __( 'Email', 'jetpack-premium-analytics-pkg' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => emailTitle( item ),
@@ -126,32 +126,32 @@ export function getEmailsFields(): Field< StatsEmailSummaryItem >[] {
 		},
 		{
 			id: 'date',
-			label: __( 'Sent', 'jetpack-premium-analytics' ),
+			label: __( 'Sent', 'jetpack-premium-analytics-pkg' ),
 			// ISO date strings sort correctly as plain strings.
 			getValue: ( { item } ) => String( item.date ?? '' ),
 			render: ( { item } ) => <>{ formatSentDate( item.date ) }</>,
 		},
 		{
 			id: 'opens',
-			label: __( 'Opens', 'jetpack-premium-analytics' ),
+			label: __( 'Opens', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.opens,
 			render: ( { item } ) => <>{ formatNumber( item.opens ) }</>,
 		},
 		{
 			id: 'opens_rate',
-			label: __( 'Open rate', 'jetpack-premium-analytics' ),
+			label: __( 'Open rate', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.opens_rate,
 			render: ( { item } ) => <>{ formatRate( item.opens_rate, item.opens, item.unique_opens ) }</>,
 		},
 		{
 			id: 'clicks',
-			label: __( 'Clicks', 'jetpack-premium-analytics' ),
+			label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.clicks,
 			render: ( { item } ) => <>{ formatNumber( item.clicks ) }</>,
 		},
 		{
 			id: 'clicks_rate',
-			label: __( 'Click rate', 'jetpack-premium-analytics' ),
+			label: __( 'Click rate', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.clicks_rate,
 			render: ( { item } ) => (
 				<>{ formatRate( item.clicks_rate, item.clicks, item.unique_clicks ) }</>

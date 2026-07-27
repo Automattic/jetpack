@@ -46,11 +46,11 @@ export function buildRevenueByCustomerTypeData(
 			label: primaryLabel,
 			data: [
 				{
-					label: __( 'Returning', 'jetpack-premium-analytics' ),
+					label: __( 'Returning', 'jetpack-premium-analytics-pkg' ),
 					value: returningCustomerSales,
 				},
 				{
-					label: __( 'New', 'jetpack-premium-analytics' ),
+					label: __( 'New', 'jetpack-premium-analytics-pkg' ),
 					value: newCustomerSales,
 				},
 			],

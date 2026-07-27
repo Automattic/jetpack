@@ -82,10 +82,10 @@ function ReferrersReport(): JSX.Element {
 				<Breadcrumbs
 					items={ [
 						{
-							label: __( 'Stats', 'jetpack-premium-analytics' ),
+							label: __( 'Stats', 'jetpack-premium-analytics-pkg' ),
 							to: dashboardLink,
 						},
-						{ label: __( 'Referrers', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Referrers', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
 			}
@@ -99,7 +99,7 @@ function ReferrersReport(): JSX.Element {
 			>
 				{ records.isError ? (
 					<ReportErrorState
-						title={ __( 'Unable to load referrers', 'jetpack-premium-analytics' ) }
+						title={ __( 'Unable to load referrers', 'jetpack-premium-analytics-pkg' ) }
 						onRetry={ retry }
 					/>
 				) : (
@@ -111,7 +111,7 @@ function ReferrersReport(): JSX.Element {
 						hideLevelMarkers
 						isLoading={ records.isLoading }
 						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search referrers', 'jetpack-premium-analytics' ) }
+						searchLabel={ __( 'Search referrers', 'jetpack-premium-analytics-pkg' ) }
 					/>
 				) }
 			</ReportPageLayout>

@@ -64,7 +64,7 @@ function getAuthorLabel( author: StatsTopAuthorsComparisonItem ) {
 	const label = typeof author.label === 'string' ? author.label : '';
 
 	if ( ! label || label === UNTRACKED_AUTHORS_SENTINEL ) {
-		return __( 'Untracked authors', 'jetpack-premium-analytics' );
+		return __( 'Untracked authors', 'jetpack-premium-analytics-pkg' );
 	}
 
 	return label;

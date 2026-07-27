@@ -44,7 +44,7 @@ export function formatLegendLabels( reportParams: ReportParams ): LegendLabels {
 					from: new Date( reportParams.compare_from ),
 					to: new Date( reportParams.compare_to ),
 			  } )
-			: __( 'Previous period', 'jetpack-premium-analytics' );
+			: __( 'Previous period', 'jetpack-premium-analytics-pkg' );
 
 	return {
 		primary: primaryLabel,

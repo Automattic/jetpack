@@ -101,28 +101,28 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 					{
 						key: 'posts',
 						icon: postList,
-						label: __( 'Posts', 'jetpack-premium-analytics' ),
+						label: __( 'Posts', 'jetpack-premium-analytics-pkg' ),
 						value: year.total_posts,
 						enabled: enabledMetrics.has( 'posts' ),
 					},
 					{
 						key: 'words',
 						icon: paragraph,
-						label: __( 'Words', 'jetpack-premium-analytics' ),
+						label: __( 'Words', 'jetpack-premium-analytics-pkg' ),
 						value: year.total_words,
 						enabled: enabledMetrics.has( 'words' ),
 					},
 					{
 						key: 'likes',
 						icon: starEmpty,
-						label: __( 'Likes', 'jetpack-premium-analytics' ),
+						label: __( 'Likes', 'jetpack-premium-analytics-pkg' ),
 						value: year.total_likes,
 						enabled: enabledMetrics.has( 'likes' ),
 					},
 					{
 						key: 'comments',
 						icon: comment,
-						label: __( 'Comments', 'jetpack-premium-analytics' ),
+						label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
 						value: year.total_comments,
 						enabled: enabledMetrics.has( 'comments' ),
 					},
@@ -143,13 +143,13 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 				error={ {
 					description: __(
 						"We couldn't load annual highlights. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
 					icon: calendar,
-					description: __( 'No highlights to show yet.', 'jetpack-premium-analytics' ),
+					description: __( 'No highlights to show yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				{ year && (
@@ -163,7 +163,7 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 								className={ styles.navButton }
 								onClick={ showOlderYear }
 								disabled={ ! canShowOlder }
-								aria-label={ __( 'Previous year', 'jetpack-premium-analytics' ) }
+								aria-label={ __( 'Previous year', 'jetpack-premium-analytics-pkg' ) }
 							>
 								<Button.Icon icon={ arrowLeft } size={ 16 } />
 							</Button>
@@ -178,7 +178,7 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 								className={ styles.navButton }
 								onClick={ showNewerYear }
 								disabled={ ! canShowNewer }
-								aria-label={ __( 'Next year', 'jetpack-premium-analytics' ) }
+								aria-label={ __( 'Next year', 'jetpack-premium-analytics-pkg' ) }
 							>
 								<Button.Icon icon={ arrowRight } size={ 16 } />
 							</Button>
@@ -186,7 +186,10 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 						{ tiles.length === 0 ? (
 							<Stack align="center" justify="center" className={ styles.placeholder }>
 								<Text>
-									{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics' ) }
+									{ __(
+										'Select at least one metric to display.',
+										'jetpack-premium-analytics-pkg'
+									) }
 								</Text>
 							</Stack>
 						) : (

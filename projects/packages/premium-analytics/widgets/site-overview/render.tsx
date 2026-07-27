@@ -67,7 +67,7 @@ const TILE_CONFIG: Record<
 		// visitors, so a returning visitor counts once per day, not once overall.
 		note: __(
 			'Sum of daily visitors — a returning visitor is counted once per day, not once for the whole period.',
-			'jetpack-premium-analytics'
+			'jetpack-premium-analytics-pkg'
 		),
 	},
 	likes: { icon: starEmpty, value: summary => summary.likes },
@@ -115,7 +115,7 @@ function SiteOverviewReport( {
 			<div className={ styles.root }>
 				<div className={ styles.state }>
 					<Text>
-						{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics' ) }
+						{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics-pkg' ) }
 					</Text>
 				</div>
 			</div>
@@ -164,13 +164,13 @@ function SiteOverviewReport( {
 				error={ {
 					description: __(
 						"We couldn't load the site overview. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
 					icon: globe,
-					description: __( 'No stats recorded for this period.', 'jetpack-premium-analytics' ),
+					description: __( 'No stats recorded for this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />

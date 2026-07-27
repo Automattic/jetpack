@@ -48,7 +48,7 @@ class Tax_Rate_Breakdown_Controller extends Abstract_Csv_Report_Controller {
 	 * @return string The report label.
 	 */
 	public function get_report_label(): string {
-		return __( 'Tax Rate Breakdown', 'jetpack-premium-analytics' );
+		return __( 'Tax Rate Breakdown', 'jetpack-premium-analytics-pkg' );
 	}
 
 	/**
@@ -68,12 +68,12 @@ class Tax_Rate_Breakdown_Controller extends Abstract_Csv_Report_Controller {
 	 */
 	public function get_column_headers( ?string $interval = null ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Signature required by the report controller interface.
 		return array(
-			'tax_code'     => __( 'Tax code', 'jetpack-premium-analytics' ),
-			'rate'         => __( 'Rate', 'jetpack-premium-analytics' ),
-			'total_tax'    => __( 'Total tax', 'jetpack-premium-analytics' ),
-			'order_tax'    => __( 'Order tax', 'jetpack-premium-analytics' ),
-			'shipping_tax' => __( 'Shipping tax', 'jetpack-premium-analytics' ),
-			'orders'       => __( 'Orders', 'jetpack-premium-analytics' ),
+			'tax_code'     => __( 'Tax code', 'jetpack-premium-analytics-pkg' ),
+			'rate'         => __( 'Rate', 'jetpack-premium-analytics-pkg' ),
+			'total_tax'    => __( 'Total tax', 'jetpack-premium-analytics-pkg' ),
+			'order_tax'    => __( 'Order tax', 'jetpack-premium-analytics-pkg' ),
+			'shipping_tax' => __( 'Shipping tax', 'jetpack-premium-analytics-pkg' ),
+			'orders'       => __( 'Orders', 'jetpack-premium-analytics-pkg' ),
 		);
 	}
 

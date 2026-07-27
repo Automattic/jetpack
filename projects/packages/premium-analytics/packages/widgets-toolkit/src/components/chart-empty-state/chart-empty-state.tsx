@@ -46,7 +46,7 @@ export type ChartEmptyStateProps = {
  */
 export function ChartEmptyState( {
 	icon = cautionFilled,
-	text = __( 'No data in this period.', 'jetpack-premium-analytics' ),
+	text = __( 'No data in this period.', 'jetpack-premium-analytics-pkg' ),
 }: ChartEmptyStateProps ) {
 	return (
 		<EmptyState.Root className={ styles.container }>

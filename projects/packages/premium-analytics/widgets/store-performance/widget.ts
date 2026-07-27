@@ -43,7 +43,7 @@ export default {
 	attributes: [
 		{
 			id: 'metrics',
-			label: __( 'Metrics', 'jetpack-premium-analytics' ),
+			label: __( 'Metrics', 'jetpack-premium-analytics-pkg' ),
 			type: 'array',
 			relevance: 'high',
 			Edit: ArrayCheckboxField,

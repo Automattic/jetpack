@@ -65,14 +65,14 @@ function CommentsReport(): JSX.Element {
 			breadcrumbs={
 				<Breadcrumbs
 					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'Comments', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
+						{ label: __( 'Comments', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
 			}
 			subTitle={ __(
 				'Learn about the comments your site receives by authors, posts, and pages.',
-				'jetpack-premium-analytics'
+				'jetpack-premium-analytics-pkg'
 			) }
 			className={ styles.page }
 		>
@@ -87,7 +87,7 @@ function CommentsReport(): JSX.Element {
 					 */ }
 					{ records.isError ? (
 						<ReportErrorState
-							title={ __( 'Unable to load comments', 'jetpack-premium-analytics' ) }
+							title={ __( 'Unable to load comments', 'jetpack-premium-analytics-pkg' ) }
 							onRetry={ retry }
 						/>
 					) : (
@@ -98,7 +98,7 @@ function CommentsReport(): JSX.Element {
 							getItemId={ getCommentRowId }
 							isLoading={ records.isLoading }
 							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search comments', 'jetpack-premium-analytics' ) }
+							searchLabel={ __( 'Search comments', 'jetpack-premium-analytics-pkg' ) }
 						/>
 					) }
 				</ReportPageLayout>

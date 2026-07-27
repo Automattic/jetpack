@@ -70,14 +70,14 @@ function EmailsReport(): JSX.Element {
 			breadcrumbs={
 				<Breadcrumbs
 					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'Emails', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
+						{ label: __( 'Emails', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
 			}
 			subTitle={ __(
 				'Open and click performance of your latest emails.',
-				'jetpack-premium-analytics'
+				'jetpack-premium-analytics-pkg'
 			) }
 			className={ styles.page }
 		>
@@ -91,7 +91,7 @@ function EmailsReport(): JSX.Element {
 					 */ }
 					{ records.isError ? (
 						<ReportErrorState
-							title={ __( 'Unable to load emails', 'jetpack-premium-analytics' ) }
+							title={ __( 'Unable to load emails', 'jetpack-premium-analytics-pkg' ) }
 							onRetry={ retry }
 						/>
 					) : (
@@ -101,7 +101,7 @@ function EmailsReport(): JSX.Element {
 							getItemId={ getEmailRowId }
 							isLoading={ records.isLoading }
 							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search emails', 'jetpack-premium-analytics' ) }
+							searchLabel={ __( 'Search emails', 'jetpack-premium-analytics-pkg' ) }
 						/>
 					) }
 				</ReportPageLayout>

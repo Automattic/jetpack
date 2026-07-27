@@ -150,7 +150,7 @@ function buildLeaderboardData(
 							render={ <a target="_blank" rel="noopener noreferrer" /> }
 							aria-label={ sprintf(
 								/* translators: %s is a post, page, or archive page title. */
-								__( 'Open %s in a new tab', 'jetpack-premium-analytics' ),
+								__( 'Open %s in a new tab', 'jetpack-premium-analytics-pkg' ),
 								row.label
 							) }
 						>
@@ -177,7 +177,7 @@ function buildLeaderboardData(
 					onClick: () => onDrillDown( row ),
 					ariaLabel: sprintf(
 						/* translators: %s is an archive category label, e.g. "Searches". */
-						__( 'View %s archive pages', 'jetpack-premium-analytics' ),
+						__( 'View %s archive pages', 'jetpack-premium-analytics-pkg' ),
 						row.label
 					),
 				} ),
@@ -248,7 +248,7 @@ function toTopPostRows(
 
 		return {
 			// A row without a title still needs a visible, clickable label.
-			label: String( item.label ?? '' ) || __( 'Untitled', 'jetpack-premium-analytics' ),
+			label: String( item.label ?? '' ) || __( 'Untitled', 'jetpack-premium-analytics-pkg' ),
 			value: item.views,
 			...( item.previousViews !== undefined ? { previousValue: item.previousViews } : {} ),
 			...( href ? { href } : {} ),
@@ -299,14 +299,14 @@ function TopPostsReport( { max }: TopPostsReportProps ) {
 	// client-side "Download CSV" (bounded to the rows already in the browser).
 	const csvColumns = useMemo< CsvColumn< TopPostRow >[] >( () => {
 		const base: CsvColumn< TopPostRow >[] = [
-			{ label: __( 'Title', 'jetpack-premium-analytics' ), getValue: row => row.label },
-			{ label: __( 'Views', 'jetpack-premium-analytics' ), getValue: row => row.value },
-			{ label: __( 'Type', 'jetpack-premium-analytics' ), getValue: row => row.type },
-			{ label: __( 'URL', 'jetpack-premium-analytics' ), getValue: row => row.href },
+			{ label: __( 'Title', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
+			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.value },
+			{ label: __( 'Type', 'jetpack-premium-analytics-pkg' ), getValue: row => row.type },
+			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.href },
 		];
 		if ( withComparison ) {
 			base.splice( 2, 0, {
-				label: __( 'Previous views', 'jetpack-premium-analytics' ),
+				label: __( 'Previous views', 'jetpack-premium-analytics-pkg' ),
 				getValue: row => row.previousValue,
 			} );
 		}
@@ -341,13 +341,15 @@ function TopPostsReport( { max }: TopPostsReportProps ) {
 					error={ {
 						description: __(
 							"We couldn't load posts and pages. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
-						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
 					} }
 					empty={ {
 						icon: reports,
-						description: __( 'No views in this period.', 'jetpack-premium-analytics' ),
+						description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
 				>
 					<TopPostsLeaderboard rows={ rows } withComparison={ withComparison } />
@@ -377,31 +379,31 @@ function archiveTypeLabel( archiveType: string ): string {
 	// addition — Calypso falls through to capitalization for it.
 	switch ( archiveType ) {
 		case 'author':
-			return __( 'Authors', 'jetpack-premium-analytics' );
+			return __( 'Authors', 'jetpack-premium-analytics-pkg' );
 		case 'cat':
-			return __( 'Categories', 'jetpack-premium-analytics' );
+			return __( 'Categories', 'jetpack-premium-analytics-pkg' );
 		case 'err':
-			return __( 'Error', 'jetpack-premium-analytics' );
+			return __( 'Error', 'jetpack-premium-analytics-pkg' );
 		case 'home':
 			// Defensive only: with `skip_archives=1` the API surfaces the homepage
 			// entry inside the Posts & pages list (server-titled) and drops it
 			// from this report, and the Archives view filters any residual `home`
 			// entry out. This label matches the server title if one slips through.
-			return __( 'Homepage (Latest posts)', 'jetpack-premium-analytics' );
+			return __( 'Homepage (Latest posts)', 'jetpack-premium-analytics-pkg' );
 		case 'search':
-			return __( 'Searches', 'jetpack-premium-analytics' );
+			return __( 'Searches', 'jetpack-premium-analytics-pkg' );
 		case 'tag':
-			return __( 'Tags', 'jetpack-premium-analytics' );
+			return __( 'Tags', 'jetpack-premium-analytics-pkg' );
 		case 'tax':
-			return __( 'Taxonomies', 'jetpack-premium-analytics' );
+			return __( 'Taxonomies', 'jetpack-premium-analytics-pkg' );
 		case 'date':
-			return __( 'Dates', 'jetpack-premium-analytics' );
+			return __( 'Dates', 'jetpack-premium-analytics-pkg' );
 		case 'multiple':
-			return __( 'Aggregated', 'jetpack-premium-analytics' );
+			return __( 'Aggregated', 'jetpack-premium-analytics-pkg' );
 		case 'other':
-			return __( 'Others', 'jetpack-premium-analytics' );
+			return __( 'Others', 'jetpack-premium-analytics-pkg' );
 		case 'post_type':
-			return __( 'Post types', 'jetpack-premium-analytics' );
+			return __( 'Post types', 'jetpack-premium-analytics-pkg' );
 		default:
 			return archiveType.charAt( 0 ).toUpperCase() + archiveType.slice( 1 ).toLowerCase();
 	}
@@ -446,7 +448,7 @@ function toArchiveRows( items: StatsArchivesComparisonItem[], isTopLevel = true 
 		}
 
 		return {
-			label: label || __( 'Untitled', 'jetpack-premium-analytics' ),
+			label: label || __( 'Untitled', 'jetpack-premium-analytics-pkg' ),
 			value: item.value,
 			type: 'archive',
 			...( item.previousValue !== undefined ? { previousValue: item.previousValue } : {} ),
@@ -506,7 +508,7 @@ function ArchivesReport( { max }: { max: number } ) {
 				resolved = false;
 				break;
 			}
-			label = previousStep ?? __( 'All Archives', 'jetpack-premium-analytics' );
+			label = previousStep ?? __( 'All Archives', 'jetpack-premium-analytics-pkg' );
 			list = parent.children;
 			previousStep = step;
 		}
@@ -543,8 +545,8 @@ function ArchivesReport( { max }: { max: number } ) {
 	const backLink =
 		activeRows === rows ? null : (
 			<WidgetBackLink
-				label={ backLabel ?? __( 'All Archives', 'jetpack-premium-analytics' ) }
-				ariaLabel={ __( 'Back to the previous archive list', 'jetpack-premium-analytics' ) }
+				label={ backLabel ?? __( 'All Archives', 'jetpack-premium-analytics-pkg' ) }
+				ariaLabel={ __( 'Back to the previous archive list', 'jetpack-premium-analytics-pkg' ) }
 				onClick={ handleBack }
 			/>
 		);
@@ -562,13 +564,13 @@ function ArchivesReport( { max }: { max: number } ) {
 				error={ {
 					description: __(
 						"We couldn't load archives. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
 					icon: reports,
-					description: __( 'No views in this period.', 'jetpack-premium-analytics' ),
+					description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				<TopPostsLeaderboard

@@ -69,8 +69,8 @@ function CommentFollowersReport(): JSX.Element {
 			breadcrumbs={
 				<Breadcrumbs
 					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'Comments Subscribers', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
+						{ label: __( 'Comments Subscribers', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
 			}
@@ -78,14 +78,14 @@ function CommentFollowersReport(): JSX.Element {
 			<ReportPageLayout>
 				{ records.isError ? (
 					<ReportErrorState
-						title={ __( 'Unable to load subscribers', 'jetpack-premium-analytics' ) }
+						title={ __( 'Unable to load subscribers', 'jetpack-premium-analytics-pkg' ) }
 						onRetry={ retry }
 					/>
 				) : (
 					<>
 						<ReportPageSection className={ styles.summary }>
 							<Text variant="heading-md" render={ <h3 /> }>
-								{ __( 'All Posts', 'jetpack-premium-analytics' ) }
+								{ __( 'All Posts', 'jetpack-premium-analytics-pkg' ) }
 							</Text>
 							{ records.isLoading ? (
 								<Spinner />
@@ -102,11 +102,11 @@ function CommentFollowersReport(): JSX.Element {
 							getItemId={ getCommentFollowerRowId }
 							isLoading={ records.isLoading }
 							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search posts', 'jetpack-premium-analytics' ) }
+							searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
 							empty={
 								<EmptyState.Root>
 									<EmptyState.Title>
-										{ __( 'No subscribers', 'jetpack-premium-analytics' ) }
+										{ __( 'No subscribers', 'jetpack-premium-analytics-pkg' ) }
 									</EmptyState.Title>
 								</EmptyState.Root>
 							}

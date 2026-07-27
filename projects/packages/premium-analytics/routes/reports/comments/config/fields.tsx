@@ -68,7 +68,7 @@ export function getCommentsFields(): Field< CommentReportRow >[] {
 	return [
 		{
 			id: 'label',
-			label: __( 'Name', 'jetpack-premium-analytics' ),
+			label: __( 'Name', 'jetpack-premium-analytics-pkg' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => item.label,
@@ -76,7 +76,7 @@ export function getCommentsFields(): Field< CommentReportRow >[] {
 		},
 		{
 			id: 'comments',
-			label: __( 'Comments', 'jetpack-premium-analytics' ),
+			label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.value,
 			render: ( { item } ) => (
 				<>{ formatMetricValue( item.value, 'number', { decimals: 0, useMultipliers: false } ) }</>

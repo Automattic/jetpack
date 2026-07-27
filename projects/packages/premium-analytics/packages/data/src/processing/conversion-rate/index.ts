@@ -100,13 +100,13 @@ export const sanitizeReportConversionRateResponse = (
 	const steps: FunnelStep[] = [
 		{
 			id: 'sessions',
-			label: __( 'Sessions', 'jetpack-premium-analytics' ),
+			label: __( 'Sessions', 'jetpack-premium-analytics-pkg' ),
 			count: sanitizedSummary.active_sessions,
 			rate: 100, // Starting point
 		},
 		{
 			id: 'cart-addition',
-			label: __( 'Cart', 'jetpack-premium-analytics' ),
+			label: __( 'Cart', 'jetpack-premium-analytics-pkg' ),
 			count: sanitizedSummary.with_cart_addition,
 			rate:
 				sanitizedSummary.active_sessions > 0
@@ -115,7 +115,7 @@ export const sanitizeReportConversionRateResponse = (
 		},
 		{
 			id: 'checkout',
-			label: __( 'Checkout', 'jetpack-premium-analytics' ),
+			label: __( 'Checkout', 'jetpack-premium-analytics-pkg' ),
 			count: sanitizedSummary.reached_checkout,
 			rate:
 				sanitizedSummary.active_sessions > 0
@@ -124,7 +124,7 @@ export const sanitizeReportConversionRateResponse = (
 		},
 		{
 			id: 'completed',
-			label: __( 'Purchase', 'jetpack-premium-analytics' ),
+			label: __( 'Purchase', 'jetpack-premium-analytics-pkg' ),
 			count: sanitizedSummary.completed_checkout,
 			rate:
 				sanitizedSummary.active_sessions > 0

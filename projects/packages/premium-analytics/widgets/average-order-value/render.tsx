@@ -42,10 +42,10 @@ export default function AverageOrderValueRender( {
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<OrderMetricWidget
 				metricKey="average_order_value"
-				emptyStateText={ __( 'No orders in this period.', 'jetpack-premium-analytics' ) }
+				emptyStateText={ __( 'No orders in this period.', 'jetpack-premium-analytics-pkg' ) }
 				errorText={ __(
 					"We couldn't load average order value. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				) }
 			/>
 		</WidgetRoot>

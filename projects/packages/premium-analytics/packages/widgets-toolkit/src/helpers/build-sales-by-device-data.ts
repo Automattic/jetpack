@@ -43,7 +43,7 @@ export function buildSalesByDeviceData(
 		{
 			label: primaryLabel,
 			data: data.map( item => ( {
-				label: item.item || __( 'Unassigned', 'jetpack-premium-analytics' ),
+				label: item.item || __( 'Unassigned', 'jetpack-premium-analytics-pkg' ),
 				value: item.current_period?.value ?? 0,
 			} ) ),
 		},
@@ -54,7 +54,7 @@ export function buildSalesByDeviceData(
 		chartData.push( {
 			label: comparisonLabel,
 			data: data.map( item => ( {
-				label: item.item || __( 'Unassigned', 'jetpack-premium-analytics' ),
+				label: item.item || __( 'Unassigned', 'jetpack-premium-analytics-pkg' ),
 				value: item.previous_period?.value ?? 0,
 			} ) ),
 		} );
