@@ -9,8 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Build the Activity Log dashboard with wp-build (boot script modules) instead of webpack. [#50714]
 - Update dependencies. [#50719]
-- Update package dependencies. [#50751]
-- Update package dependencies. [#50753]
+- Update package dependencies. [#50751] [#50753]
 
 ### Fixed
 - Send analytics events for Activity Log dashboard interactions by loading the Tracks library. [#50714]

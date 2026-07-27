@@ -17,9 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Collapse the duplicated legacy/dashboard connection components onto the WordPress design system. The block editor sidebar now renders the same connection UI as the Social admin page. [#50731]
-- Update package dependencies. [#50683]
-- Update package dependencies. [#50751]
-- Update package dependencies. [#50753]
+- Update package dependencies. [#50683] [#50751] [#50753]
 
 ## [0.84.1] - 2026-07-20
 ### Changed

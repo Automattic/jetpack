@@ -9,16 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add AI crawler management — free per-bot allow/block toggles (answer and mixed-use crawlers allowed, training crawlers blocked by default) that write robots.txt directives. [#50186]
 - Add custom post type support and llms.txt generation. [#50185]
-- SEO: gate the dashboard to a free subset (Overview + Settings visibility/verification) with an upsell banner on below-Premium WordPress.com sites, and stop serving llms.txt and AI-crawler robots.txt directives there; self-hosted is never gated. Pre-launch, behind the rsm_jetpack_seo feature flag. [#50546]
+- Gate the dashboard to a free subset (Overview + Settings visibility/verification) with an upsell banner on below-Premium WordPress.com sites, and stop serving llms.txt and AI-crawler robots.txt directives there; self-hosted is never gated. Pre-launch, behind the rsm_jetpack_seo feature flag. [#50546]
 
 ### Changed
-- SEO: rename the AI dashboard tab to GEO (Generative Engine Optimization). [#50512]
-- SEO: simplify the AI crawler controls to two groups, label each crawler by its robots.txt token, and keep the controls visible-but-disabled (with a link to the setting) when third-party sharing is off. [#50186]
-- SEO: use the site's real name and tagline in the title-structure preview instead of placeholder samples. [#50182]
+- Rename the AI dashboard tab to GEO (Generative Engine Optimization). [#50512]
+- Simplify the AI crawler controls to two groups, label each crawler by its robots.txt token, and keep the controls visible-but-disabled (with a link to the setting) when third-party sharing is off. [#50186]
+- Use the site's real name and tagline in the title-structure preview instead of placeholder samples. [#50182]
 - Split the Initializer class into Admin_Page, Content_Coverage, Dashboard_Data and Surface_Visibility. No behavior change. [#50571]
 
 ### Fixed
-- SEO: hide the "Disable SEO tools" option on WordPress.com Simple sites, where SEO tools are always active and cannot be disabled. [#50184]
+- Hide the "Disable SEO tools" option on WordPress.com Simple sites, where SEO tools are always active and cannot be disabled. [#50184]
 
 ## [0.6.0] - 2026-07-20
 ### Added

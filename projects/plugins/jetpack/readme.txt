@@ -330,14 +330,14 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 #### Enhancements
 - Add aria-label to hidden Carousel download link for better accessibility.
 - Change empty h2 and h3 tags in Carousel to div tags to fix SEO and accessibility warnings.
-- Content Guidelines AI: make AI guideline suggestions available on WordPress.com Simple and Atomic sites, with a paid Jetpack AI or Complete plan required to generate guidelines.
-- Memberships supports of MYR
+- Content Guidelines AI: Make AI guideline suggestions available on WordPress.com Simple and Atomic sites, with a paid Jetpack AI or Complete plan required to generate guidelines.
+- Memberships supports of MYR.
 - REST API: Defer loading of WPCOM REST endpoint files to REST requests, saving execution time on every non-REST page load.
 - SEO: Add AI crawler management — free per-bot allow/block toggles (answer and mixed-use crawlers allowed, training crawlers blocked by default) that write robots.txt directives.
 - SEO: Add custom post type support and llms.txt generation.
-- Social: the block editor sidebar now uses the same connection management UI as the Social admin page.
-- VideoPress: keep the VideoPress item under the Jetpack menu when the module is not active, linking to the My Jetpack page to activate it.
-- VideoPress: upload videos added via the classic media-new.php uploader directly to VideoPress, matching the Media Library behavior.
+- Social: The block editor sidebar now uses the same connection management UI as the Social admin page.
+- VideoPress: Keep the VideoPress item under the Jetpack menu when the module is not active, linking to the My Jetpack page to activate it.
+- VideoPress: Upload videos added via the classic media-new.php uploader directly to VideoPress, matching the Media Library behavior.
 
 #### Improved compatibility
 - Content Guidelines AI: Restore compatibility with the Gutenberg 23.6 Guidelines page by reading section drafts from the page DOM instead of the removed core/guidelines store.
@@ -345,12 +345,12 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
   now that Gutenberg 23.6+ renders the admin bar there.
 
 #### Bug fixes
-- Carousel: show the already-loaded thumbnail while the full-size image downloads, so slides are no longer blank when moving quickly through a gallery.
+- Carousel: Show the already-loaded thumbnail while the full-size image downloads, so slides are no longer blank when moving quickly through a gallery.
 - Change EXIF data rendering to be dynamic via JavaScript to resolve empty list accessibility warning.
 - Likes: Do not show the Like button on password-protected posts, even for viewers who can read the post (owners, admins, or after unlocking).
-- Newsletter: when a WordPress.com user connection is required for the email preview and test email features, show an actionable prompt to connect and disable the test email "Send" button until connected, instead of only surfacing the error after a failed attempt.
+- Newsletter: When a WordPress.com user connection is required for the email preview and test email features, show an actionable prompt to connect and disable the test email "Send" button until connected, instead of only surfacing the error after a failed attempt.
 - SEO: Preserve Sitemaps and Canonical URLs settings when runtime filters temporarily suppress their modules.
-- Tiled Gallery: fix images collapsing to ~105px in the editor when the canvas is not iframed
+- Tiled Gallery: Fix images collapsing to ~105px in the editor when the canvas is not iframed.
 
 --------
 

@@ -7,14 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [7.3.2] - 2026-07-27
 ### Added
-- Search: add highlightPhraseOnly and highlightFilterStopwords Instant Search options for highlight API params. [#50738]
+- Add highlightPhraseOnly and highlightFilterStopwords Instant Search options for highlight API params. [#50738]
 
 ### Changed
-- Update package dependencies. [#50751]
-- Update package dependencies. [#50753]
+- Update package dependencies. [#50751] [#50753]
 
 ### Fixed
-- Search: fix uncaught error when a malformed query string parameter (invalid percent-encoding) crashed Instant Search initialization [#50806]
+- Fix uncaught error when a malformed query string parameter (invalid percent-encoding) crashed Instant Search initialization. [#50806]
 - Search blocks: Resize result images through Photon in the Embedded search layout to improve performance. [#50710]
 
 ## [7.3.1] - 2026-07-22
