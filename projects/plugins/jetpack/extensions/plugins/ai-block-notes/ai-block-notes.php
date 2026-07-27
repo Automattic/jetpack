@@ -1,127 +1,81 @@
 <?php
 /**
- * Block Editor - Block Notes plugin feature.
+ * Block Editor - AI Block Notes plugin feature.
  *
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Extensions\BlockNotes;
+namespace Automattic\Jetpack\Extensions\AiBlockNotes;
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\My_Jetpack\Products\Jetpack_Ai;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-const FEATURE_NAME            = 'block-notes';
-const ASSET_BASE_PATH         = 'widgets.wp.com/agents-manager/';
-const ASSET_JS_URL            = 'https://' . ASSET_BASE_PATH . 'block-notes.min.js';
-const ASSET_JSON_URL          = 'https://' . ASSET_BASE_PATH . 'block-notes.asset.json';
-const ASSET_JSON_PATH         = ASSET_BASE_PATH . 'block-notes.asset.json';
-const ASSET_TRANSIENT         = 'jetpack_block_notes_asset';
-const HEADLESS_AGENT_PROVIDER = 'block-notes/headless-agent-provider';
+const FEATURE_NAME    = 'ai-block-notes';
+const ASSET_BASE_PATH = 'widgets.wp.com/agents-manager/';
+
+// Keep the legacy asset basename while Jetpack 16.1 installations still request it.
+const ASSET_JS_URL    = 'https://' . ASSET_BASE_PATH . 'block-notes.min.js';
+const ASSET_JSON_URL  = 'https://' . ASSET_BASE_PATH . 'block-notes.asset.json';
+const ASSET_JSON_PATH = ASSET_BASE_PATH . 'block-notes.asset.json';
+const ASSET_TRANSIENT = 'jetpack_ai_block_notes_asset';
 
 /**
- * Check if Block Notes is enabled.
- *
- * Enabled when the Big Sky plugin is active, or when the site has
- * a paid Jetpack AI plan and AI features are not disabled.
+ * Check if AI collaboration in Block Notes is enabled.
  *
  * @return bool
  */
-function is_block_notes_enabled() {
+function is_ai_block_notes_enabled() {
 	/**
-	 * Temporarily disabled while we investigate expensive API calls
-	 * triggered by has_paid_ai_plan() on every Gutenberg page load for
-	 * self-hosted sites. Filter allows tests and development to re-enable.
+	 * Filter whether AI collaboration in Block Notes is enabled.
 	 *
-	 * @since 15.8
+	 * @since $$next-version$$
 	 *
-	 * @param bool $enabled Whether Block Notes is force-enabled. Default false.
+	 * @param bool $enabled Whether AI collaboration in Block Notes is enabled.
 	 */
-	if ( ! apply_filters( 'jetpack_block_notes_enabled', false ) ) {
-		return false;
-	}
+	return (bool) apply_filters( 'jetpack_ai_block_notes_enabled', false );
+}
 
-	if ( is_big_sky_enabled() ) {
+/**
+ * Enable AI collaboration in Block Notes for its WordPress.com Big Sky cohort.
+ *
+ * Simple sites default on when Big Sky is available. WoA sites require the
+ * Big Sky setting to be explicitly enabled.
+ *
+ * @param bool $enabled Whether AI collaboration in Block Notes is already enabled.
+ * @return bool Whether AI collaboration in Block Notes should be enabled.
+ */
+function enable_ai_block_notes_for_wpcom_big_sky( $enabled ) {
+	if ( $enabled ) {
 		return true;
 	}
 
-	if ( ! has_jetpack_ai_features() ) {
-		return false;
-	}
-
-	if ( ! has_paid_ai_plan() ) {
-		return false;
-	}
-
-	return true;
-}
-
-/**
- * Check if the site has a paid Jetpack AI plan.
- *
- * On WordPress.com, uses the lightweight wpcom_site_has_feature() lookup.
- * On self-hosted and Atomic sites, uses the My Jetpack product class.
- *
- * @return bool
- */
-function has_paid_ai_plan() {
-	$has_paid_plan = false;
-
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'wpcom_site_has_feature' ) ) {
-		$has_paid_plan = wpcom_site_has_feature( 'ai-assistant', get_current_blog_id() );
-	} elseif ( class_exists( Jetpack_Ai::class ) ) {
-		$has_paid_plan = Jetpack_Ai::has_paid_plan_for_product();
-	}
-
-	/**
-	 * Filter whether the site has a paid AI plan.
-	 *
-	 * @since 15.7
-	 *
-	 * @param bool $has_paid_plan Whether the site has a paid AI plan.
-	 */
-	return apply_filters( 'jetpack_block_notes_has_paid_ai_plan', $has_paid_plan );
-}
-
-/**
- * Check if the Big Sky plugin is active and enabled.
- *
- * Defaults to enabled ('1') when the Big_Sky class exists but the option
- * has never been set — plugin presence implies the feature should be on.
- *
- * @return bool
- */
-function is_big_sky_enabled() {
-	return class_exists( 'Big_Sky' ) && get_option( 'big_sky_enable', '1' );
-}
-
-/**
- * Check whether AI features are available.
- *
- * - wpcom simple: always returns true. The jetpack_ai_enabled filter
- *   does not apply here; the paid plan check in has_paid_ai_plan()
- *   gates access instead.
- * - Otherwise requires a connected owner, not in offline mode, and
- *   AI not disabled via the jetpack_ai_enabled filter.
- *
- * @return bool
- */
-function has_jetpack_ai_features() {
 	$host = new Host();
 
-	if ( $host->is_wpcom_simple() ) {
-		return true;
+	if ( ! $host->is_wpcom_platform() || ! class_exists( 'Big_Sky' ) ) {
+		return false;
 	}
 
-	return ( new Connection_Manager( 'jetpack' ) )->has_connected_owner()
-		&& ! ( new Status() )->is_offline_mode()
-		&& apply_filters( 'jetpack_ai_enabled', true );
+	$default = $host->is_wpcom_simple() ? '1' : '0';
+	return (bool) get_option( 'big_sky_enable', $default );
 }
+add_filter( 'jetpack_ai_block_notes_enabled', __NAMESPACE__ . '\enable_ai_block_notes_for_wpcom_big_sky', 5 );
+
+/**
+ * Signal to older Big Sky releases that Jetpack owns the AI Block Notes loader.
+ *
+ * The former filter is retained only as a loader-deduplication signal. It does
+ * not participate in Jetpack's enablement decision.
+ *
+ * @param bool $enabled Whether another integration already signalled ownership.
+ * @return bool Whether AI Block Notes is active through Jetpack or another integration.
+ */
+function signal_ai_block_notes_active( $enabled ) {
+	return $enabled || is_ai_block_notes_enabled();
+}
+add_filter( 'jetpack_block_notes_enabled', __NAMESPACE__ . '\signal_ai_block_notes_active', 5 );
 
 /**
  * Check if the current screen is the post editor for a 'post' post type.
@@ -143,7 +97,7 @@ function is_post_editor() {
 }
 
 /**
- * Determine if Block Notes should load on the current screen.
+ * Determine if AI Block Notes should load on the current screen.
  *
  * @return bool
  */
@@ -152,15 +106,15 @@ function should_load_on_current_screen() {
 }
 
 /**
- * Register the Block Notes plugin.
+ * Register the AI Block Notes plugin.
  *
- * Registers when Block Notes is enabled. Screen-level gating happens at
+ * Registers when AI Block Notes is enabled. Screen-level gating happens at
  * enqueue time since get_current_screen() is not available here.
  *
  * @return void
  */
 function register_plugin() {
-	if ( ! is_block_notes_enabled() ) {
+	if ( ! is_ai_block_notes_enabled() ) {
 		return;
 	}
 
@@ -253,12 +207,12 @@ function get_asset_data_from_remote() {
 }
 
 /**
- * Enqueue Block Notes script asset.
+ * Enqueue AI Block Notes script asset.
  *
  * @return void
  */
 function do_enqueue_assets() {
-	if ( ! is_block_notes_enabled() ) {
+	if ( ! is_ai_block_notes_enabled() ) {
 		return;
 	}
 
@@ -278,69 +232,34 @@ function do_enqueue_assets() {
 		true
 	);
 
+	$config = wp_json_encode( array( 'enabled' => true ), JSON_HEX_TAG | JSON_HEX_AMP );
+
 	wp_add_inline_script(
 		FEATURE_NAME,
-		'if ( typeof window.blockNotesData === "undefined" ) { window.blockNotesData = ' . wp_json_encode( array( 'enabled' => true ), JSON_HEX_TAG | JSON_HEX_AMP ) . '; }',
+		'if ( typeof window.aiBlockNotesData === "undefined" ) { window.aiBlockNotesData = ' . $config . '; }'
+			. ' if ( typeof window.blockNotesData === "undefined" ) { window.blockNotesData = window.aiBlockNotesData; }',
 		'before'
 	);
 }
 
 /**
- * Enqueue Block Notes assets in the post editor.
+ * Enqueue AI Block Notes assets in the post editor.
  *
  * Only loads when should_load_on_current_screen() returns true.
  *
  * @return void
  */
-function enqueue_block_notes() {
+function enqueue_ai_block_notes() {
 	if ( ! should_load_on_current_screen() ) {
 		return;
 	}
 
 	do_enqueue_assets();
 }
-add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\enqueue_block_notes' );
+add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\enqueue_ai_block_notes' );
 
 /**
- * Enable the agents manager unified experience on self-hosted sites
- * when Block Notes is enabled.
- *
- * This ensures the agents manager loads and can host the headless agent
- * even when the unified chat experience is not otherwise enabled.
- *
- * @param bool $use_unified_experience Current value of the filter.
- * @return bool
- */
-function enable_agents_manager_for_block_notes( $use_unified_experience ) {
-	if ( $use_unified_experience ) {
-		return true;
-	}
-
-	return is_block_notes_enabled();
-}
-add_filter( 'agents_manager_use_unified_experience', __NAMESPACE__ . '\enable_agents_manager_for_block_notes' );
-
-/**
- * Register the Block Notes headless agent provider with the agents manager.
- *
- * When Block Notes is enabled, adds the Block Notes headless
- * agent provider module so the agents manager can load it.
- *
- * @param array $providers Existing agent provider module IDs.
- * @return array Modified array of provider module IDs.
- */
-function register_headless_agent_provider( $providers ) {
-	if ( ! is_block_notes_enabled() ) {
-		return $providers;
-	}
-
-	$providers[] = HEADLESS_AGENT_PROVIDER;
-	return $providers;
-}
-add_filter( 'agents_manager_agent_providers', __NAMESPACE__ . '\register_headless_agent_provider' );
-
-/**
- * Register Block Notes meta fields and filters.
+ * Register AI Block Notes meta fields and filters.
  *
  * Registers the comment meta field used to track AI processing, and hooks
  * the avatar filter for AI-authored notes.
@@ -348,7 +267,7 @@ add_filter( 'agents_manager_agent_providers', __NAMESPACE__ . '\register_headles
  * @return void
  */
 function register_meta_fields() {
-	if ( ! is_block_notes_enabled() ) {
+	if ( ! is_ai_block_notes_enabled() ) {
 		return;
 	}
 

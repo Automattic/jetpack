@@ -1248,7 +1248,7 @@ class Jetpack_Gutenberg {
 			// which can run on the front end.
 			'image-studio',
 			// Filters get_avatar_data on the front end to customize AI-authored note avatars.
-			'block-notes',
+			'ai-block-notes',
 		),
 		'extended-blocks' => array(
 			// Registers the videopress/video block on `init`, required to render it on the front end.

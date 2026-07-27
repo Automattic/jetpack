@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI collaboration in Block Notes: Avoid subscription checks when opening the editor.

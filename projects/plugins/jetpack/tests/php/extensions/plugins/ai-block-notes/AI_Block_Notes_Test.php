@@ -1,18 +1,20 @@
 <?php
 /**
- * Block Notes extension tests.
+ * AI Block Notes extension tests.
  *
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Extensions\BlockNotes;
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Extensions\AiBlockNotes;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 
-require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/block-notes/block-notes.php';
+require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/ai-block-notes/ai-block-notes.php';
 
 /**
- * Block Notes extension tests.
+ * AI Block Notes extension tests.
  */
-class Block_Notes_Test extends \WP_UnitTestCase {
+class AI_Block_Notes_Test extends \WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
@@ -34,18 +36,13 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		delete_transient( BlockNotes\ASSET_TRANSIENT );
+		delete_transient( AiBlockNotes\ASSET_TRANSIENT );
 		$this->saved_wp_scripts = $GLOBALS['wp_scripts'] ?? null;
 		$GLOBALS['wp_scripts']  = new WP_Scripts();
 		$this->reset_availability();
-		$this->simulate_connected_owner();
-		$this->simulate_paid_ai_plan();
-		// Re-enable Block Notes for tests (production is temporarily disabled via the
-		// jetpack_block_notes_enabled filter defaulting to false).
-		add_filter( 'jetpack_block_notes_enabled', '__return_true' );
-		// Ensure Big Sky is disabled by default so tests aren't affected by the
-		// Big_Sky class persisting across tests once simulate_big_sky_class() runs.
-		update_option( 'big_sky_enable', '0' );
+		add_filter( 'jetpack_ai_block_notes_enabled', 'Automattic\Jetpack\Extensions\AiBlockNotes\enable_ai_block_notes_for_wpcom_big_sky', 5 );
+		$this->simulate_wpcom_simple();
+		$this->enable_big_sky();
 		$this->saved_screen = $GLOBALS['current_screen'] ?? null;
 	}
 
@@ -53,17 +50,19 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 * Tear down after each test.
 	 */
 	public function tear_down() {
-		delete_transient( BlockNotes\ASSET_TRANSIENT );
-		remove_all_filters( 'jetpack_block_notes_enabled' );
-		remove_all_filters( 'agents_manager_use_unified_experience' );
-		remove_all_filters( 'agents_manager_agent_providers' );
+		delete_transient( AiBlockNotes\ASSET_TRANSIENT );
+		remove_filter( 'jetpack_ai_block_notes_enabled', '__return_false', 10 );
+		remove_filter( 'jetpack_ai_block_notes_enabled', '__return_true', 10 );
+		remove_filter( 'jetpack_block_notes_enabled', '__return_true' );
 		remove_all_filters( 'pre_http_request' );
-		remove_all_filters( 'jetpack_ai_enabled' );
-		remove_all_filters( 'jetpack_block_notes_has_paid_ai_plan' );
-		remove_filter( 'get_avatar_data', 'Automattic\Jetpack\Extensions\BlockNotes\customize_ai_avatar', 10 );
+		remove_filter( 'get_avatar_data', 'Automattic\Jetpack\Extensions\AiBlockNotes\customize_ai_avatar', 10 );
 		unregister_meta_key( 'comment', 'bigsky_ai_processed_date' );
-		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		delete_option( 'big_sky_enable' );
+		Constants::clear_single_constant( 'IS_WPCOM' );
+		Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
+		Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
+		Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
+		Status_Cache::clear();
 		$GLOBALS['current_screen'] = $this->saved_screen;
 		$GLOBALS['wp_scripts']     = $this->saved_wp_scripts;
 		parent::tear_down();
@@ -80,37 +79,43 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Simulate a connected Jetpack owner so has_jetpack_ai_features() returns true.
-	 *
-	 * Called in set_up() so every test starts with AI features available.
-	 * Tests that need AI features off should use disable_ai_features() instead.
+	 * Disable AI collaboration in Block Notes through its kill switch.
 	 */
-	private function simulate_connected_owner() {
-		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		\Jetpack_Options::update_option( 'master_user', $user_id );
-		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'token.secret.' . $user_id ) );
-		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
+	private function disable_ai_block_notes() {
+		add_filter( 'jetpack_ai_block_notes_enabled', '__return_false', 10 );
 	}
 
 	/**
-	 * Disable AI features via the jetpack_ai_enabled kill switch.
+	 * Simulate a WordPress.com Simple site.
 	 */
-	private function disable_ai_features() {
-		add_filter( 'jetpack_ai_enabled', '__return_false' );
+	private function simulate_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		Constants::set_constant( 'ATOMIC_SITE_ID', false );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', false );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', false );
+		Status_Cache::clear();
 	}
 
 	/**
-	 * Simulate having a paid AI plan via the jetpack_block_notes_has_paid_ai_plan filter.
+	 * Simulate a WordPress.com Atomic site.
 	 */
-	private function simulate_paid_ai_plan() {
-		add_filter( 'jetpack_block_notes_has_paid_ai_plan', '__return_true' );
+	private function simulate_wpcom_atomic() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		Constants::set_constant( 'ATOMIC_SITE_ID', 123456789 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', '2' );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/wpcomsh/wpcomsh.php' );
+		Status_Cache::clear();
 	}
 
 	/**
-	 * Simulate not having a paid AI plan via the jetpack_block_notes_has_paid_ai_plan filter.
+	 * Simulate a self-hosted site.
 	 */
-	private function simulate_no_paid_ai_plan() {
-		add_filter( 'jetpack_block_notes_has_paid_ai_plan', '__return_false' );
+	private function simulate_self_hosted() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		Constants::set_constant( 'ATOMIC_SITE_ID', false );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', false );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', false );
+		Status_Cache::clear();
 	}
 
 	/**
@@ -151,7 +156,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Enable Block Notes, cache asset data, and enqueue via block editor path.
+	 * Enable AI Block Notes, cache asset data, and enqueue via block editor path.
 	 *
 	 * Sets up post editor screen before enqueuing.
 	 *
@@ -165,9 +170,9 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 			);
 		}
 		$this->set_post_editor_screen();
-		BlockNotes\register_plugin();
-		set_transient( BlockNotes\ASSET_TRANSIENT, $asset_data, HOUR_IN_SECONDS );
-		BlockNotes\enqueue_block_notes();
+		AiBlockNotes\register_plugin();
+		set_transient( AiBlockNotes\ASSET_TRANSIENT, $asset_data, HOUR_IN_SECONDS );
+		AiBlockNotes\enqueue_ai_block_notes();
 	}
 
 	/**
@@ -219,111 +224,113 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// has_jetpack_ai_features() tests
+	// is_ai_block_notes_enabled() tests
 	// -------------------------------------------------------------------------
 
 	/**
-	 * AI features available by default in the test environment.
+	 * Enabled on WordPress.com Simple when Big Sky is enabled.
 	 */
-	public function test_has_jetpack_ai_features_true_by_default() {
-		$this->assertTrue( BlockNotes\has_jetpack_ai_features() );
+	public function test_is_enabled_on_wpcom_simple_with_big_sky() {
+		$this->assertTrue( AiBlockNotes\is_ai_block_notes_enabled() );
 	}
 
 	/**
-	 * AI features disabled via jetpack_ai_enabled kill switch.
+	 * Disabled off the WordPress.com platform even when Big Sky is enabled.
 	 */
-	public function test_has_jetpack_ai_features_false_when_ai_disabled() {
-		$this->disable_ai_features();
-		$this->assertFalse( BlockNotes\has_jetpack_ai_features() );
-	}
+	public function test_is_disabled_on_self_hosted_with_big_sky() {
+		$this->simulate_self_hosted();
 
-	// -------------------------------------------------------------------------
-	// is_block_notes_enabled() tests
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Enabled when AI features are available.
-	 */
-	public function test_is_enabled_with_ai_features() {
-		$this->assertTrue( BlockNotes\is_block_notes_enabled() );
+		$this->assertFalse( AiBlockNotes\is_ai_block_notes_enabled() );
 	}
 
 	/**
-	 * Enabled when Big Sky is active and AI features are disabled.
+	 * Enabled on WordPress.com Atomic when Big Sky is explicitly enabled.
 	 */
-	public function test_is_enabled_via_big_sky() {
-		$this->disable_ai_features();
-		$this->enable_big_sky();
-		$this->assertTrue( BlockNotes\is_block_notes_enabled() );
+	public function test_is_enabled_on_atomic_when_big_sky_enabled() {
+		$this->simulate_wpcom_atomic();
+		update_option( 'big_sky_enable', '1' );
+
+		$this->assertTrue( AiBlockNotes\is_ai_block_notes_enabled() );
 	}
 
 	/**
-	 * Not enabled when AI features are disabled and no Big Sky override.
+	 * Atomic defaults off when the Big Sky setting has not been stored.
 	 */
-	public function test_is_not_enabled_when_ai_features_disabled() {
-		$this->disable_ai_features();
-		$this->assertFalse( BlockNotes\is_block_notes_enabled() );
-	}
-
-	/**
-	 * Not enabled via Big Sky when Big_Sky class exists but option is disabled.
-	 */
-	public function test_is_not_enabled_via_big_sky_when_option_disabled() {
-		$this->disable_ai_features();
-		$this->simulate_big_sky_class();
-		update_option( 'big_sky_enable', '' );
-		$this->assertFalse( BlockNotes\is_block_notes_enabled() );
-	}
-
-	/**
-	 * Enabled via Big Sky when class exists and option has never been set.
-	 *
-	 * The big_sky_enable option defaults to '1', so plugin presence
-	 * implies the feature should be on.
-	 */
-	public function test_is_enabled_via_big_sky_when_option_never_set() {
-		$this->disable_ai_features();
-		$this->simulate_big_sky_class();
+	public function test_is_disabled_on_atomic_when_big_sky_option_is_absent() {
+		$this->simulate_wpcom_atomic();
 		delete_option( 'big_sky_enable' );
-		$this->assertTrue( BlockNotes\is_block_notes_enabled() );
+
+		$this->assertFalse( AiBlockNotes\is_ai_block_notes_enabled() );
 	}
 
 	/**
-	 * Not enabled when AI features are available but no paid AI plan.
+	 * Simple defaults on when Big Sky is present and its setting has not been stored.
 	 */
-	public function test_is_not_enabled_without_paid_ai_plan() {
-		$this->simulate_no_paid_ai_plan();
-		$this->assertFalse( BlockNotes\is_block_notes_enabled() );
+	public function test_is_enabled_on_wpcom_simple_when_big_sky_option_is_absent() {
+		delete_option( 'big_sky_enable' );
+
+		$this->assertTrue( AiBlockNotes\is_ai_block_notes_enabled() );
 	}
 
 	/**
-	 * Enabled via Big Sky even without a paid AI plan.
+	 * Explicitly disabling Big Sky closes the gate.
 	 */
-	public function test_is_enabled_via_big_sky_without_paid_plan() {
-		$this->simulate_no_paid_ai_plan();
-		$this->enable_big_sky();
-		$this->assertTrue( BlockNotes\is_block_notes_enabled() );
-	}
+	public function test_is_disabled_when_big_sky_option_is_off() {
+		update_option( 'big_sky_enable', '0' );
 
-	// -------------------------------------------------------------------------
-	// has_paid_ai_plan() tests
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Returns false when no paid plan and no filter — exercises the
-	 * Jetpack_Ai::has_paid_plan_for_product() branch (class is autoloaded
-	 * but returns false without a real WPCOM connection).
-	 */
-	public function test_has_paid_ai_plan_false_without_paid_plan() {
-		remove_all_filters( 'jetpack_block_notes_has_paid_ai_plan' );
-		$this->assertFalse( BlockNotes\has_paid_ai_plan() );
+		$this->assertFalse( AiBlockNotes\is_ai_block_notes_enabled() );
 	}
 
 	/**
-	 * Returns true when filter overrides to true.
+	 * The AI-specific filter can disable an otherwise eligible site.
 	 */
-	public function test_has_paid_ai_plan_true_via_filter() {
-		$this->assertTrue( BlockNotes\has_paid_ai_plan() );
+	public function test_ai_specific_filter_can_disable_block_notes() {
+		$this->disable_ai_block_notes();
+
+		$this->assertFalse( AiBlockNotes\is_ai_block_notes_enabled() );
+	}
+
+	/**
+	 * The AI-specific filter can explicitly enable development environments.
+	 */
+	public function test_ai_specific_filter_can_enable_self_hosted() {
+		$this->simulate_self_hosted();
+		add_filter( 'jetpack_ai_block_notes_enabled', '__return_true', 10 );
+
+		$this->assertTrue( AiBlockNotes\is_ai_block_notes_enabled() );
+	}
+
+	/**
+	 * The renamed filter exposes the same computed state to Big Sky.
+	 */
+	public function test_ai_specific_filter_exposes_enabled_state_to_big_sky() {
+		$this->assertTrue( apply_filters( 'jetpack_ai_block_notes_enabled', false ) );
+	}
+
+	/**
+	 * The legacy filter no longer controls Jetpack availability.
+	 */
+	public function test_legacy_filter_does_not_enable_jetpack_on_self_hosted() {
+		$this->simulate_self_hosted();
+		add_filter( 'jetpack_block_notes_enabled', '__return_true' );
+
+		$this->assertFalse( AiBlockNotes\is_ai_block_notes_enabled() );
+	}
+
+	/**
+	 * Older Big Sky releases receive the former filter as an active-loader signal.
+	 */
+	public function test_legacy_filter_signals_when_jetpack_ai_block_notes_is_active() {
+		$this->assertTrue( apply_filters( 'jetpack_block_notes_enabled', false ) );
+	}
+
+	/**
+	 * The former filter signal remains off when the canonical gate is disabled.
+	 */
+	public function test_legacy_filter_signal_is_off_when_canonical_gate_is_disabled() {
+		$this->disable_ai_block_notes();
+
+		$this->assertFalse( apply_filters( 'jetpack_block_notes_enabled', false ) );
 	}
 
 	// -------------------------------------------------------------------------
@@ -335,7 +342,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 */
 	public function test_is_post_editor_true() {
 		$this->set_post_editor_screen();
-		$this->assertTrue( BlockNotes\is_post_editor() );
+		$this->assertTrue( AiBlockNotes\is_post_editor() );
 	}
 
 	/**
@@ -343,7 +350,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 */
 	public function test_is_post_editor_false_for_page_post_type() {
 		$this->set_page_editor_screen();
-		$this->assertFalse( BlockNotes\is_post_editor() );
+		$this->assertFalse( AiBlockNotes\is_post_editor() );
 	}
 
 	/**
@@ -351,7 +358,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 */
 	public function test_is_post_editor_false_on_media_library() {
 		set_current_screen( 'upload' );
-		$this->assertFalse( BlockNotes\is_post_editor() );
+		$this->assertFalse( AiBlockNotes\is_post_editor() );
 	}
 
 	/**
@@ -359,7 +366,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 */
 	public function test_is_post_editor_false_on_dashboard() {
 		set_current_screen( 'dashboard' );
-		$this->assertFalse( BlockNotes\is_post_editor() );
+		$this->assertFalse( AiBlockNotes\is_post_editor() );
 	}
 
 	/**
@@ -367,7 +374,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 */
 	public function test_is_post_editor_false_when_no_screen() {
 		$GLOBALS['current_screen'] = null;
-		$this->assertFalse( BlockNotes\is_post_editor() );
+		$this->assertFalse( AiBlockNotes\is_post_editor() );
 	}
 
 	// -------------------------------------------------------------------------
@@ -379,7 +386,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 */
 	public function test_should_load_on_post_editor() {
 		$this->set_post_editor_screen();
-		$this->assertTrue( BlockNotes\should_load_on_current_screen() );
+		$this->assertTrue( AiBlockNotes\should_load_on_current_screen() );
 	}
 
 	/**
@@ -387,7 +394,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 */
 	public function test_should_not_load_on_page_editor() {
 		$this->set_page_editor_screen();
-		$this->assertFalse( BlockNotes\should_load_on_current_screen() );
+		$this->assertFalse( AiBlockNotes\should_load_on_current_screen() );
 	}
 
 	/**
@@ -395,7 +402,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 */
 	public function test_should_not_load_on_media_library() {
 		set_current_screen( 'upload' );
-		$this->assertFalse( BlockNotes\should_load_on_current_screen() );
+		$this->assertFalse( AiBlockNotes\should_load_on_current_screen() );
 	}
 
 	/**
@@ -403,7 +410,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 */
 	public function test_should_not_load_on_dashboard() {
 		set_current_screen( 'dashboard' );
-		$this->assertFalse( BlockNotes\should_load_on_current_screen() );
+		$this->assertFalse( AiBlockNotes\should_load_on_current_screen() );
 	}
 
 	/**
@@ -411,7 +418,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 */
 	public function test_should_not_load_when_no_screen() {
 		$GLOBALS['current_screen'] = null;
-		$this->assertFalse( BlockNotes\should_load_on_current_screen() );
+		$this->assertFalse( AiBlockNotes\should_load_on_current_screen() );
 	}
 
 	// -------------------------------------------------------------------------
@@ -419,30 +426,31 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Test that register_plugin sets extension available when AI features are available.
+	 * Test that register_plugin sets the extension available when the feature is enabled.
 	 */
 	public function test_register_plugin_sets_available_when_enabled() {
-		BlockNotes\register_plugin();
-		$this->assertTrue( \Jetpack_Gutenberg::is_available( BlockNotes\FEATURE_NAME ) );
+		AiBlockNotes\register_plugin();
+		$this->assertTrue( \Jetpack_Gutenberg::is_available( AiBlockNotes\FEATURE_NAME ) );
 	}
 
 	/**
-	 * Test that register_plugin sets extension available via Big Sky.
+	 * Test that register_plugin sets the extension available on eligible Atomic sites.
 	 */
-	public function test_register_plugin_sets_available_via_big_sky() {
-		$this->disable_ai_features();
-		$this->enable_big_sky();
-		BlockNotes\register_plugin();
-		$this->assertTrue( \Jetpack_Gutenberg::is_available( BlockNotes\FEATURE_NAME ) );
+	public function test_register_plugin_sets_available_on_atomic() {
+		$this->simulate_wpcom_atomic();
+		update_option( 'big_sky_enable', '1' );
+
+		AiBlockNotes\register_plugin();
+		$this->assertTrue( \Jetpack_Gutenberg::is_available( AiBlockNotes\FEATURE_NAME ) );
 	}
 
 	/**
-	 * Test that register_plugin does not set extension available when AI features are disabled.
+	 * Test that register_plugin does not set the extension available when disabled.
 	 */
 	public function test_register_plugin_not_available_when_disabled() {
-		$this->disable_ai_features();
-		BlockNotes\register_plugin();
-		$this->assertFalse( \Jetpack_Gutenberg::is_available( BlockNotes\FEATURE_NAME ) );
+		$this->disable_ai_block_notes();
+		AiBlockNotes\register_plugin();
+		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiBlockNotes\FEATURE_NAME ) );
 	}
 
 	/**
@@ -453,19 +461,19 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	public function test_register_plugin_available_regardless_of_screen() {
 		// Post editor - still registers.
 		$this->set_post_editor_screen();
-		BlockNotes\register_plugin();
-		$this->assertTrue( \Jetpack_Gutenberg::is_available( BlockNotes\FEATURE_NAME ) );
+		AiBlockNotes\register_plugin();
+		$this->assertTrue( \Jetpack_Gutenberg::is_available( AiBlockNotes\FEATURE_NAME ) );
 
 		$this->reset_availability();
 
 		// Dashboard - still registers.
 		set_current_screen( 'dashboard' );
-		BlockNotes\register_plugin();
-		$this->assertTrue( \Jetpack_Gutenberg::is_available( BlockNotes\FEATURE_NAME ) );
+		AiBlockNotes\register_plugin();
+		$this->assertTrue( \Jetpack_Gutenberg::is_available( AiBlockNotes\FEATURE_NAME ) );
 	}
 
 	// -------------------------------------------------------------------------
-	// enqueue_block_notes() tests
+	// enqueue_ai_block_notes() tests
 	// -------------------------------------------------------------------------
 
 	/**
@@ -479,9 +487,9 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 			)
 		);
 
-		$this->assertTrue( wp_script_is( BlockNotes\FEATURE_NAME, 'enqueued' ) );
+		$this->assertTrue( wp_script_is( AiBlockNotes\FEATURE_NAME, 'enqueued' ) );
 
-		$script = $GLOBALS['wp_scripts']->registered[ BlockNotes\FEATURE_NAME ];
+		$script = $GLOBALS['wp_scripts']->registered[ AiBlockNotes\FEATURE_NAME ];
 		$this->assertContains( 'wp-element', $script->deps );
 		$this->assertContains( 'wp-plugins', $script->deps );
 	}
@@ -491,18 +499,18 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 */
 	public function test_nothing_enqueued_on_dashboard() {
 		set_current_screen( 'dashboard' );
-		BlockNotes\register_plugin();
+		AiBlockNotes\register_plugin();
 		set_transient(
-			BlockNotes\ASSET_TRANSIENT,
+			AiBlockNotes\ASSET_TRANSIENT,
 			array(
 				'version'      => '1.0.0',
 				'dependencies' => array(),
 			),
 			HOUR_IN_SECONDS
 		);
-		BlockNotes\enqueue_block_notes();
+		AiBlockNotes\enqueue_ai_block_notes();
 
-		$this->assertFalse( wp_script_is( BlockNotes\FEATURE_NAME, 'enqueued' ) );
+		$this->assertFalse( wp_script_is( AiBlockNotes\FEATURE_NAME, 'enqueued' ) );
 	}
 
 	/**
@@ -510,37 +518,44 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 */
 	public function test_nothing_enqueued_on_page_editor() {
 		$this->set_page_editor_screen();
-		BlockNotes\register_plugin();
+		AiBlockNotes\register_plugin();
 		set_transient(
-			BlockNotes\ASSET_TRANSIENT,
+			AiBlockNotes\ASSET_TRANSIENT,
 			array(
 				'version'      => '1.0.0',
 				'dependencies' => array(),
 			),
 			HOUR_IN_SECONDS
 		);
-		BlockNotes\enqueue_block_notes();
+		AiBlockNotes\enqueue_ai_block_notes();
 
-		$this->assertFalse( wp_script_is( BlockNotes\FEATURE_NAME, 'enqueued' ) );
+		$this->assertFalse( wp_script_is( AiBlockNotes\FEATURE_NAME, 'enqueued' ) );
 	}
 
 	/**
-	 * Test inline script sets blockNotesData with enabled true.
+	 * Test inline script sets canonical and legacy config globals with enabled true.
 	 */
-	public function test_inline_script_sets_block_notes_data() {
+	public function test_inline_script_sets_ai_block_notes_data_with_legacy_alias() {
 		$this->enable_and_enqueue_post_editor();
 
-		$inline = $GLOBALS['wp_scripts']->get_data( BlockNotes\FEATURE_NAME, 'before' );
+		$inline = $GLOBALS['wp_scripts']->get_data( AiBlockNotes\FEATURE_NAME, 'before' );
 
 		$this->assertIsArray( $inline );
-		$found = false;
+		$found_canonical = false;
+		$found_legacy    = false;
 		foreach ( $inline as $line ) {
+			if ( is_string( $line ) && strpos( $line, 'aiBlockNotesData' ) !== false ) {
+				$found_canonical = true;
+			}
 			if ( is_string( $line ) && strpos( $line, 'blockNotesData' ) !== false ) {
-				$found = true;
+				$found_legacy = true;
+			}
+			if ( is_string( $line ) ) {
 				$this->assertStringContainsString( '"enabled":true', $line );
 			}
 		}
-		$this->assertTrue( $found, 'Inline script with blockNotesData not found.' );
+		$this->assertTrue( $found_canonical, 'Inline script with aiBlockNotesData not found.' );
+		$this->assertTrue( $found_legacy, 'Inline script with legacy blockNotesData alias not found.' );
 	}
 
 	/**
@@ -548,12 +563,12 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 */
 	public function test_nothing_enqueued_when_asset_unavailable() {
 		$this->set_post_editor_screen();
-		BlockNotes\register_plugin();
+		AiBlockNotes\register_plugin();
 		$this->mock_remote_asset( false );
 
-		BlockNotes\enqueue_block_notes();
+		AiBlockNotes\enqueue_ai_block_notes();
 
-		$this->assertFalse( wp_script_is( BlockNotes\FEATURE_NAME, 'enqueued' ) );
+		$this->assertFalse( wp_script_is( AiBlockNotes\FEATURE_NAME, 'enqueued' ) );
 	}
 
 	/**
@@ -567,28 +582,30 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 			)
 		);
 
-		$script = $GLOBALS['wp_scripts']->registered[ BlockNotes\FEATURE_NAME ];
+		$script = $GLOBALS['wp_scripts']->registered[ AiBlockNotes\FEATURE_NAME ];
 		$this->assertEquals( '4.5.6', $script->ver );
 	}
 
 	/**
-	 * Test nothing enqueued when AI features are disabled.
+	 * Test nothing is registered or enqueued when AI Block Notes is disabled.
 	 */
-	public function test_nothing_enqueued_when_ai_features_disabled() {
-		$this->disable_ai_features();
+	public function test_nothing_registered_or_enqueued_when_ai_block_notes_disabled() {
+		$this->disable_ai_block_notes();
 		$this->set_post_editor_screen();
-		BlockNotes\register_plugin();
+		AiBlockNotes\register_plugin();
 		set_transient(
-			BlockNotes\ASSET_TRANSIENT,
+			AiBlockNotes\ASSET_TRANSIENT,
 			array(
 				'version'      => '1.0.0',
 				'dependencies' => array(),
 			),
 			HOUR_IN_SECONDS
 		);
-		BlockNotes\enqueue_block_notes();
+		AiBlockNotes\enqueue_ai_block_notes();
 
-		$this->assertFalse( wp_script_is( BlockNotes\FEATURE_NAME, 'enqueued' ) );
+		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiBlockNotes\FEATURE_NAME ) );
+		$this->assertFalse( wp_script_is( AiBlockNotes\FEATURE_NAME, 'enqueued' ) );
+		$this->assertArrayNotHasKey( AiBlockNotes\FEATURE_NAME, $GLOBALS['wp_scripts']->registered );
 	}
 
 	/**
@@ -597,7 +614,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	public function test_script_url_points_to_widgets() {
 		$this->enable_and_enqueue_post_editor();
 
-		$script = $GLOBALS['wp_scripts']->registered[ BlockNotes\FEATURE_NAME ];
+		$script = $GLOBALS['wp_scripts']->registered[ AiBlockNotes\FEATURE_NAME ];
 		$this->assertStringContainsString( 'widgets.wp.com', $script->src );
 		$this->assertStringContainsString( 'block-notes.min.js', $script->src );
 	}
@@ -613,8 +630,8 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 			)
 		);
 
-		$this->assertTrue( wp_script_is( BlockNotes\FEATURE_NAME, 'enqueued' ) );
-		$script = $GLOBALS['wp_scripts']->registered[ BlockNotes\FEATURE_NAME ];
+		$this->assertTrue( wp_script_is( AiBlockNotes\FEATURE_NAME, 'enqueued' ) );
+		$script = $GLOBALS['wp_scripts']->registered[ AiBlockNotes\FEATURE_NAME ];
 		$this->assertEmpty( $script->deps );
 	}
 
@@ -624,7 +641,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	public function test_script_loaded_in_footer() {
 		$this->enable_and_enqueue_post_editor();
 
-		$script = $GLOBALS['wp_scripts']->registered[ BlockNotes\FEATURE_NAME ];
+		$script = $GLOBALS['wp_scripts']->registered[ AiBlockNotes\FEATURE_NAME ];
 		$this->assertSame( 1, $script->extra['group'] );
 	}
 
@@ -642,14 +659,14 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 		);
 		$this->mock_remote_asset( $asset_data );
 
-		$result = BlockNotes\get_asset_data();
+		$result = AiBlockNotes\get_asset_data();
 
 		$this->assertEquals( $asset_data, $result );
 
 		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
-			$this->assertFalse( get_transient( BlockNotes\ASSET_TRANSIENT ) );
+			$this->assertFalse( get_transient( AiBlockNotes\ASSET_TRANSIENT ) );
 		} else {
-			$this->assertEquals( $asset_data, get_transient( BlockNotes\ASSET_TRANSIENT ) );
+			$this->assertEquals( $asset_data, get_transient( AiBlockNotes\ASSET_TRANSIENT ) );
 		}
 	}
 
@@ -661,11 +678,11 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 			'version'      => '3.0.0',
 			'dependencies' => array( 'wp-plugins' ),
 		);
-		set_transient( BlockNotes\ASSET_TRANSIENT, $asset_data, HOUR_IN_SECONDS );
+		set_transient( AiBlockNotes\ASSET_TRANSIENT, $asset_data, HOUR_IN_SECONDS );
 
 		$this->mock_remote_asset( false );
 
-		$result = BlockNotes\get_asset_data();
+		$result = AiBlockNotes\get_asset_data();
 
 		$this->assertEquals( $asset_data, $result );
 	}
@@ -676,7 +693,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	public function test_get_asset_data_returns_false_on_wp_error() {
 		$this->mock_remote_asset( false );
 
-		$result = BlockNotes\get_asset_data();
+		$result = AiBlockNotes\get_asset_data();
 
 		$this->assertFalse( $result );
 	}
@@ -687,7 +704,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	public function test_get_asset_data_returns_false_on_non_200_status() {
 		$this->mock_remote_asset_with_status( 500, 'Internal Server Error' );
 
-		$result = BlockNotes\get_asset_data();
+		$result = AiBlockNotes\get_asset_data();
 
 		$this->assertFalse( $result );
 	}
@@ -698,7 +715,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	public function test_get_asset_data_returns_false_on_404_status() {
 		$this->mock_remote_asset_with_status( 404, 'Not Found' );
 
-		$result = BlockNotes\get_asset_data();
+		$result = AiBlockNotes\get_asset_data();
 
 		$this->assertFalse( $result );
 	}
@@ -709,7 +726,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	public function test_get_asset_data_returns_false_on_invalid_json() {
 		$this->mock_remote_asset_with_status( 200, 'not valid json{{{' );
 
-		$result = BlockNotes\get_asset_data();
+		$result = AiBlockNotes\get_asset_data();
 
 		$this->assertFalse( $result );
 	}
@@ -720,7 +737,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	public function test_get_asset_data_returns_false_on_json_string() {
 		$this->mock_remote_asset_with_status( 200, '"just a string"' );
 
-		$result = BlockNotes\get_asset_data();
+		$result = AiBlockNotes\get_asset_data();
 
 		$this->assertFalse( $result );
 	}
@@ -731,9 +748,9 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	public function test_get_asset_data_no_transient_on_failure() {
 		$this->mock_remote_asset( false );
 
-		BlockNotes\get_asset_data();
+		AiBlockNotes\get_asset_data();
 
-		$this->assertFalse( get_transient( BlockNotes\ASSET_TRANSIENT ) );
+		$this->assertFalse( get_transient( AiBlockNotes\ASSET_TRANSIENT ) );
 	}
 
 	/**
@@ -742,9 +759,9 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	public function test_get_asset_data_no_transient_on_invalid_json() {
 		$this->mock_remote_asset_with_status( 200, 'not json' );
 
-		BlockNotes\get_asset_data();
+		AiBlockNotes\get_asset_data();
 
-		$this->assertFalse( get_transient( BlockNotes\ASSET_TRANSIENT ) );
+		$this->assertFalse( get_transient( AiBlockNotes\ASSET_TRANSIENT ) );
 	}
 
 	/**
@@ -753,7 +770,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	public function test_get_asset_data_returns_false_on_non_json_content_type() {
 		$this->mock_remote_asset_with_status( 200, '<html>Not JSON</html>', 'text/html' );
 
-		$result = BlockNotes\get_asset_data();
+		$result = AiBlockNotes\get_asset_data();
 
 		$this->assertFalse( $result );
 	}
@@ -766,7 +783,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 * Test get_asset_data_from_file returns false when file does not exist.
 	 */
 	public function test_get_asset_data_from_file_returns_false_when_file_missing() {
-		$result = BlockNotes\get_asset_data_from_file();
+		$result = AiBlockNotes\get_asset_data_from_file();
 		$this->assertFalse( $result );
 	}
 
@@ -778,13 +795,13 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 			'version'      => '5.0.0',
 			'dependencies' => array( 'wp-element' ),
 		);
-		$local_path = ABSPATH . BlockNotes\ASSET_JSON_PATH;
+		$local_path = ABSPATH . AiBlockNotes\ASSET_JSON_PATH;
 		$dir        = dirname( $local_path );
 
 		wp_mkdir_p( $dir );
 		file_put_contents( $local_path, wp_json_encode( $asset_data, JSON_UNESCAPED_SLASHES ) );
 
-		$result = BlockNotes\get_asset_data_from_file();
+		$result = AiBlockNotes\get_asset_data_from_file();
 
 		unlink( $local_path );
 
@@ -795,13 +812,13 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 * Test get_asset_data_from_file returns false when file contains invalid JSON.
 	 */
 	public function test_get_asset_data_from_file_returns_false_on_invalid_json() {
-		$local_path = ABSPATH . BlockNotes\ASSET_JSON_PATH;
+		$local_path = ABSPATH . AiBlockNotes\ASSET_JSON_PATH;
 		$dir        = dirname( $local_path );
 
 		wp_mkdir_p( $dir );
 		file_put_contents( $local_path, 'not valid json{{{' );
 
-		$result = BlockNotes\get_asset_data_from_file();
+		$result = AiBlockNotes\get_asset_data_from_file();
 
 		unlink( $local_path );
 
@@ -812,13 +829,13 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 * Test get_asset_data_from_file returns false when file contains a JSON string instead of array.
 	 */
 	public function test_get_asset_data_from_file_returns_false_on_json_string() {
-		$local_path = ABSPATH . BlockNotes\ASSET_JSON_PATH;
+		$local_path = ABSPATH . AiBlockNotes\ASSET_JSON_PATH;
 		$dir        = dirname( $local_path );
 
 		wp_mkdir_p( $dir );
 		file_put_contents( $local_path, '"just a string"' );
 
-		$result = BlockNotes\get_asset_data_from_file();
+		$result = AiBlockNotes\get_asset_data_from_file();
 
 		unlink( $local_path );
 
@@ -838,7 +855,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 			'dependencies' => array(),
 		);
 
-		$local_path = ABSPATH . BlockNotes\ASSET_JSON_PATH;
+		$local_path = ABSPATH . AiBlockNotes\ASSET_JSON_PATH;
 		$dir        = dirname( $local_path );
 
 		wp_mkdir_p( $dir );
@@ -846,7 +863,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 
 		$this->mock_remote_asset( $remote_data );
 
-		$result = BlockNotes\get_asset_data();
+		$result = AiBlockNotes\get_asset_data();
 
 		unlink( $local_path );
 
@@ -864,7 +881,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 
 		$this->mock_remote_asset( $remote_data );
 
-		$result = BlockNotes\get_asset_data();
+		$result = AiBlockNotes\get_asset_data();
 
 		$this->assertEquals( $remote_data, $result );
 	}
@@ -883,7 +900,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 		);
 		$this->mock_remote_asset( $asset_data );
 
-		$result = BlockNotes\get_asset_data_from_remote();
+		$result = AiBlockNotes\get_asset_data_from_remote();
 
 		$this->assertEquals( $asset_data, $result );
 	}
@@ -894,7 +911,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	public function test_get_asset_data_from_remote_returns_false_on_wp_error() {
 		$this->mock_remote_asset( false );
 
-		$result = BlockNotes\get_asset_data_from_remote();
+		$result = AiBlockNotes\get_asset_data_from_remote();
 
 		$this->assertFalse( $result );
 	}
@@ -905,7 +922,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	public function test_get_asset_data_from_remote_returns_false_on_non_200() {
 		$this->mock_remote_asset_with_status( 500, 'Internal Server Error' );
 
-		$result = BlockNotes\get_asset_data_from_remote();
+		$result = AiBlockNotes\get_asset_data_from_remote();
 
 		$this->assertFalse( $result );
 	}
@@ -916,7 +933,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	public function test_get_asset_data_from_remote_returns_false_on_404() {
 		$this->mock_remote_asset_with_status( 404, 'Not Found' );
 
-		$result = BlockNotes\get_asset_data_from_remote();
+		$result = AiBlockNotes\get_asset_data_from_remote();
 
 		$this->assertFalse( $result );
 	}
@@ -927,7 +944,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	public function test_get_asset_data_from_remote_returns_false_on_invalid_json() {
 		$this->mock_remote_asset_with_status( 200, 'not valid json{{{' );
 
-		$result = BlockNotes\get_asset_data_from_remote();
+		$result = AiBlockNotes\get_asset_data_from_remote();
 
 		$this->assertFalse( $result );
 	}
@@ -938,7 +955,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	public function test_get_asset_data_from_remote_returns_false_on_json_string() {
 		$this->mock_remote_asset_with_status( 200, '"just a string"' );
 
-		$result = BlockNotes\get_asset_data_from_remote();
+		$result = AiBlockNotes\get_asset_data_from_remote();
 
 		$this->assertFalse( $result );
 	}
@@ -949,99 +966,22 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	public function test_get_asset_data_from_remote_returns_false_on_non_json_content_type() {
 		$this->mock_remote_asset_with_status( 200, '<html>Not JSON</html>', 'text/html' );
 
-		$result = BlockNotes\get_asset_data_from_remote();
+		$result = AiBlockNotes\get_asset_data_from_remote();
 
 		$this->assertFalse( $result );
 	}
 
 	// -------------------------------------------------------------------------
-	// enable_agents_manager_for_block_notes() tests
+	// Agents Manager integration tests
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Test that enable_agents_manager_for_block_notes returns true
-	 * when AI features are available.
+	 * AI Block Notes must not enable the unified Help Center takeover.
 	 */
-	public function test_enable_agents_manager_returns_true_when_block_notes_enabled() {
-		$result = BlockNotes\enable_agents_manager_for_block_notes( false );
+	public function test_does_not_enable_agents_manager_unified_experience() {
+		$callback = 'Automattic\Jetpack\Extensions\AiBlockNotes\enable_agents_manager_for_ai_block_notes';
 
-		$this->assertTrue( $result );
-	}
-
-	/**
-	 * Test that enable_agents_manager_for_block_notes returns false
-	 * when AI features are disabled and input is false.
-	 */
-	public function test_enable_agents_manager_returns_false_when_block_notes_disabled() {
-		$this->disable_ai_features();
-
-		$result = BlockNotes\enable_agents_manager_for_block_notes( false );
-
-		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Test that enable_agents_manager_for_block_notes does not override
-	 * when agents_manager_use_unified_experience is already true.
-	 */
-	public function test_enable_agents_manager_preserves_existing_true() {
-		$result = BlockNotes\enable_agents_manager_for_block_notes( true );
-
-		$this->assertTrue( $result );
-	}
-
-	/**
-	 * Test that enable_agents_manager_for_block_notes preserves true
-	 * when input is already true and block notes is also enabled.
-	 */
-	public function test_enable_agents_manager_no_double_registration() {
-		$result = BlockNotes\enable_agents_manager_for_block_notes( true );
-
-		$this->assertTrue( $result );
-	}
-
-	// -------------------------------------------------------------------------
-	// register_headless_agent_provider() tests
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Test that agents_manager_agent_providers includes Block Notes provider
-	 * when AI features are available.
-	 */
-	public function test_agent_providers_includes_block_notes_when_enabled() {
-		$providers = BlockNotes\register_headless_agent_provider( array() );
-
-		$this->assertContains( BlockNotes\HEADLESS_AGENT_PROVIDER, $providers );
-	}
-
-	/**
-	 * Test that agents_manager_agent_providers does NOT include Block Notes
-	 * provider when AI features are disabled.
-	 */
-	public function test_agent_providers_excludes_block_notes_when_disabled() {
-		$this->disable_ai_features();
-
-		$providers = BlockNotes\register_headless_agent_provider( array() );
-
-		$this->assertNotContains( BlockNotes\HEADLESS_AGENT_PROVIDER, $providers );
-	}
-
-	/**
-	 * Test that register_headless_agent_provider preserves existing providers.
-	 */
-	public function test_agent_providers_preserves_existing_providers() {
-		$existing  = array( 'some-other/provider' );
-		$providers = BlockNotes\register_headless_agent_provider( $existing );
-
-		$this->assertContains( 'some-other/provider', $providers );
-		$this->assertContains( BlockNotes\HEADLESS_AGENT_PROVIDER, $providers );
-	}
-
-	/**
-	 * Test HEADLESS_AGENT_PROVIDER constant value.
-	 */
-	public function test_headless_agent_provider_constant() {
-		$this->assertEquals( 'block-notes/headless-agent-provider', BlockNotes\HEADLESS_AGENT_PROVIDER );
+		$this->assertFalse( has_filter( 'agents_manager_use_unified_experience', $callback ) );
 	}
 
 	// -------------------------------------------------------------------------
@@ -1052,7 +992,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 * Test that register_meta_fields registers the bigsky_ai_processed_date comment meta when enabled.
 	 */
 	public function test_register_meta_fields_registers_comment_meta_when_enabled() {
-		BlockNotes\register_meta_fields();
+		AiBlockNotes\register_meta_fields();
 
 		$registered = get_registered_meta_keys( 'comment' );
 
@@ -1068,8 +1008,8 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 * Test that register_meta_fields does not register comment meta when disabled.
 	 */
 	public function test_register_meta_fields_skipped_when_disabled() {
-		$this->disable_ai_features();
-		BlockNotes\register_meta_fields();
+		$this->disable_ai_block_notes();
+		AiBlockNotes\register_meta_fields();
 
 		$registered = get_registered_meta_keys( 'comment' );
 
@@ -1087,7 +1027,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 		$comment                 = new stdClass();
 		$comment->comment_author = 'AI [experimental]';
 
-		$args = BlockNotes\customize_ai_avatar( array( 'url' => 'https://example.com/default.jpg' ), $comment );
+		$args = AiBlockNotes\customize_ai_avatar( array( 'url' => 'https://example.com/default.jpg' ), $comment );
 
 		$this->assertStringContainsString( '.svg', $args['url'] );
 		$this->assertNotEquals( 'https://example.com/default.jpg', $args['url'] );
@@ -1101,7 +1041,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 		$comment->comment_author = 'John Doe';
 
 		$original_url = 'https://example.com/default.jpg';
-		$args         = BlockNotes\customize_ai_avatar( array( 'url' => $original_url ), $comment );
+		$args         = AiBlockNotes\customize_ai_avatar( array( 'url' => $original_url ), $comment );
 
 		$this->assertEquals( $original_url, $args['url'] );
 	}
@@ -1111,7 +1051,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 */
 	public function test_customize_ai_avatar_leaves_non_comment_objects_unchanged() {
 		$original_url = 'https://example.com/default.jpg';
-		$args         = BlockNotes\customize_ai_avatar( array( 'url' => $original_url ), 42 );
+		$args         = AiBlockNotes\customize_ai_avatar( array( 'url' => $original_url ), 42 );
 
 		$this->assertEquals( $original_url, $args['url'] );
 	}
@@ -1124,42 +1064,46 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 * Test that the feature name constant is defined correctly.
 	 */
 	public function test_feature_name_constant() {
-		$this->assertEquals( 'block-notes', BlockNotes\FEATURE_NAME );
+		$this->assertEquals( 'ai-block-notes', AiBlockNotes\FEATURE_NAME );
 	}
 
 	/**
 	 * Test that ASSET_BASE_PATH is defined correctly.
 	 */
 	public function test_asset_base_path_constant() {
-		$this->assertEquals( 'widgets.wp.com/agents-manager/', BlockNotes\ASSET_BASE_PATH );
+		$this->assertEquals( 'widgets.wp.com/agents-manager/', AiBlockNotes\ASSET_BASE_PATH );
 	}
 
 	/**
 	 * Test that ASSET_JSON_PATH is defined correctly.
 	 */
 	public function test_asset_json_path_constant() {
-		$this->assertEquals( 'widgets.wp.com/agents-manager/block-notes.asset.json', BlockNotes\ASSET_JSON_PATH );
+		$this->assertEquals(
+			'widgets.wp.com/agents-manager/block-notes.asset.json',
+			AiBlockNotes\ASSET_JSON_PATH,
+			'Jetpack 16.1 compatibility requires the legacy asset basename.'
+		);
 	}
 
 	/**
 	 * Test that asset URLs point to the expected base URL.
 	 */
 	public function test_asset_urls_use_expected_base() {
-		$this->assertStringStartsWith( 'https://widgets.wp.com/agents-manager/', BlockNotes\ASSET_JS_URL );
-		$this->assertStringStartsWith( 'https://widgets.wp.com/agents-manager/', BlockNotes\ASSET_JSON_URL );
+		$this->assertStringStartsWith( 'https://widgets.wp.com/agents-manager/', AiBlockNotes\ASSET_JS_URL );
+		$this->assertStringStartsWith( 'https://widgets.wp.com/agents-manager/', AiBlockNotes\ASSET_JSON_URL );
 	}
 
 	/**
 	 * Test that JS URL contains .min.js.
 	 */
 	public function test_js_url_has_min() {
-		$this->assertStringContainsString( '.min.js', BlockNotes\ASSET_JS_URL );
+		$this->assertStringContainsString( '.min.js', AiBlockNotes\ASSET_JS_URL );
 	}
 
 	/**
 	 * Test that the asset transient constant is defined correctly.
 	 */
 	public function test_asset_transient_constant() {
-		$this->assertEquals( 'jetpack_block_notes_asset', BlockNotes\ASSET_TRANSIENT );
+		$this->assertEquals( 'jetpack_ai_block_notes_asset', AiBlockNotes\ASSET_TRANSIENT );
 	}
 }
