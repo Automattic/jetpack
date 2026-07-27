@@ -71,6 +71,23 @@ export interface NewsletterScriptData {
 }
 
 /**
+ * Data the Newsletter Mode surfaces need, added to JetpackScriptData by
+ * Mode::maybe_add_script_data().
+ *
+ * A namespace of its own rather than more keys on {@link NewsletterScriptData},
+ * because that payload comes from Settings::add_script_data(), which is bound to
+ * the Newsletter page's own load hook and so never runs on the mode's pages.
+ * Sharing the key would mean one name covering two shapes that never coexist.
+ */
+export interface NewsletterModeScriptData {
+	/**
+	 * The name to greet the current user by on the Dashboard — their nickname,
+	 * else their first name, else an empty string.
+	 */
+	greetingName: string;
+}
+
+/**
  * Type definition for WordPress category
  */
 export interface WordPressCategory {

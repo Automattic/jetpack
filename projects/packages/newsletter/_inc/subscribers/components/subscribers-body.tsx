@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { useImportCompletionRefresh } from '../data/use-import-completion-refresh';
+import { readAddSubscribersHash } from '../lib/add-subscribers-link';
 import { installDataViewsFooterI18n } from '../lib/dataviews-i18n';
 import { getBlogId } from '../lib/site';
 import { isOpenSubscriberRemoved, toFiniteNumber } from '../lib/subscriber-helpers';
@@ -11,8 +12,6 @@ import type { Subscriber } from '../data/types';
 import type { ReactNode } from 'react';
 
 installDataViewsFooterI18n();
-
-const ADD_SUBSCRIBERS_HASH = '#add-subscribers';
 
 type SubscribersSearch = Record< string, unknown > & {
 	subscriber?: string | number;
@@ -58,19 +57,25 @@ export default function SubscribersBody( {
 	// connection-gated users, or on Settings-only sites.
 	useImportCompletionRefresh( importRefreshEnabled );
 
-	const [ isAddOpen, setAddOpen ] = useState( false );
+	// Read the deep link during the first render, not in an effect: the modal
+	// latches its tab when it mounts, and this shell mounts it right away (it
+	// stays mounted, closed, for the life of the page). Setting the tab
+	// afterwards would land on Manual whatever the link asked for.
+	const [ addLink ] = useState( () => readAddSubscribersHash( window.location.hash ) );
+	const [ isAddOpen, setAddOpen ] = useState( addLink.open );
 	const openAdd = useCallback( () => setAddOpen( true ), [] );
 	const closeAdd = useCallback( () => setAddOpen( false ), [] );
 
+	// Strip the hash once it has been honored, so a reload — or a bookmark of
+	// this URL — doesn't reopen the modal.
 	useEffect( () => {
-		if ( window.location.hash !== ADD_SUBSCRIBERS_HASH ) {
+		if ( ! addLink.open ) {
 			return;
 		}
-		setAddOpen( true );
 		const url = new URL( window.location.href );
 		url.hash = '';
 		window.history.replaceState( window.history.state, '', url.toString() );
-	}, [] );
+	}, [ addLink.open ] );
 
 	const navigate = useNavigate();
 	const search = useSearch( {
@@ -124,7 +129,7 @@ export default function SubscribersBody( {
 				onViewSubscriber={ handleViewSubscriber }
 				onSubscribersRemoved={ handleSubscribersRemoved }
 			/>
-			<AddSubscribersModal isOpen={ isAddOpen } onClose={ closeAdd } />
+			<AddSubscribersModal isOpen={ isAddOpen } onClose={ closeAdd } initialTab={ addLink.tab } />
 		</>
 	);
 

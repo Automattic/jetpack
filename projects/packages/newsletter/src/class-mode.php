@@ -143,6 +143,56 @@ class Mode {
 		// AdminPage pages (Dashboard, Paid). Priority 1 mirrors Settings so the
 		// render functions exist before the menu callbacks fire.
 		add_action( 'admin_menu', array( self::class, 'maybe_load_wp_build' ), 1 );
+
+		// Feed the mode's own pages the script data their routes read.
+		add_filter( 'jetpack_admin_js_script_data', array( self::class, 'maybe_add_script_data' ) );
+	}
+
+	/**
+	 * Add the mode's own script data on its wp-build pages.
+	 *
+	 * Its own `newsletter_mode` namespace rather than more keys on
+	 * `JetpackScriptData.newsletter`: that payload comes from
+	 * Settings::add_script_data(), which is bound to the Newsletter page's
+	 * `load-{$page_suffix}` hook and so never runs here. Sharing the key would
+	 * mean one name covering two shapes that never coexist.
+	 *
+	 * @param array $data The existing script data.
+	 * @return array The modified script data.
+	 */
+	public static function maybe_add_script_data( $data ) {
+		if ( ! self::is_wp_build_page() ) {
+			return $data;
+		}
+
+		$data['newsletter_mode'] = array(
+			'greetingName' => self::get_greeting_name(),
+		);
+
+		return $data;
+	}
+
+	/**
+	 * The name the Dashboard greets the current user by: their nickname, else
+	 * their first name, else an empty string (the route then greets them without
+	 * a name). A logged-out request has neither, and so gets the empty string.
+	 *
+	 * A nickname that still matches the username is treated as unset. WordPress
+	 * seeds `nickname` with `user_login` at registration, so without that check
+	 * the first-name and no-name paths would be unreachable and the greeting
+	 * would read "Welcome, jdoe17" for anyone who never edited their profile.
+	 *
+	 * @return string
+	 */
+	private static function get_greeting_name() {
+		$user     = wp_get_current_user();
+		$nickname = trim( (string) $user->nickname );
+
+		if ( '' !== $nickname && $nickname !== $user->user_login ) {
+			return $nickname;
+		}
+
+		return trim( (string) $user->first_name );
 	}
 
 	/**
