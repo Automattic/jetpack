@@ -163,7 +163,7 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 		$coupon = new WC_Coupon();
 		$coupon->set_code( 'sync-analytics-' . wp_generate_uuid4() );
 		$coupon->set_discount_type( 'fixed_cart' );
-		$coupon->set_amount( '5' );
+		$coupon->set_amount( 5.0 );
 		$coupon->save();
 
 		$coupon_item = new WC_Order_Item_Coupon();
