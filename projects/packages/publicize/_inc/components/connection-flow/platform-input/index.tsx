@@ -46,6 +46,7 @@ export function PlatformInput() {
 	} = useDispatch( store );
 
 	const [ isSubmitting, setIsSubmitting ] = useState( false );
+	const [ submitError, setSubmitError ] = useState< string | null >( null );
 
 	const getService = useService();
 	const service = getService( serviceId );
@@ -95,6 +96,7 @@ export function PlatformInput() {
 			}
 
 			setIsSubmitting( true );
+			setSubmitError( null );
 
 			const formData = new FormData();
 
@@ -106,6 +108,8 @@ export function PlatformInput() {
 				refresh: isReconnecting,
 				// An abandoned attempt drops back here, with the values intact.
 				onAbort: goToPreviousStep,
+				// Surface failures in the step; a global notice sits behind the modal.
+				onError: setSubmitError,
 			} );
 
 			setIsSubmitting( false );
@@ -119,6 +123,7 @@ export function PlatformInput() {
 
 	const onChange = useCallback(
 		( event: ChangeEvent< HTMLInputElement > ) => {
+			setSubmitError( null );
 			setConnectionFlowInput( event.target.name, event.target.value );
 		},
 		[ setConnectionFlowInput ]
@@ -165,13 +170,14 @@ export function PlatformInput() {
 					);
 				} ) }
 
-				{ /* Only duplicates are called out while typing — unlike a malformed
-				     handle, the field alone cannot explain the refusal. */ }
-				{ 'duplicate' === error?.code ? (
+				{ /* Duplicates are called out while typing — unlike a malformed handle,
+				     the field alone cannot explain the refusal. A submit failure (e.g.
+				     a blocked popup) shows here too, since it has no field to attach to. */ }
+				{ ( 'duplicate' === error?.code || submitError ) && (
 					<Notice.Root intent="error">
-						<Notice.Description>{ error.message }</Notice.Description>
+						<Notice.Description>{ submitError ?? error?.message }</Notice.Description>
 					</Notice.Root>
-				) : null }
+				) }
 			</Stack>
 
 			<Dialog.Footer>

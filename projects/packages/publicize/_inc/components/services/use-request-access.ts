@@ -25,6 +25,12 @@ export type RequestAccessArgs = {
 	 * Called when this auth_flow=v2 attempt looks abandoned (the user returned without a result, or the TTL elapsed).
 	 */
 	onAbort?: VoidFunction;
+	/**
+	 * Called with the failure message instead of the global error notice. The
+	 * connection flow passes this so the error renders inside its modal, where a
+	 * global notice would sit behind the dialog.
+	 */
+	onError?: ( message: string ) => void;
 };
 
 /**
@@ -45,6 +51,8 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 	return useCallback(
 		// Resolves to true when the connect popup opened, false on any early failure.
 		async ( formData: FormData, options: RequestAccessArgs = {} ): Promise< boolean > => {
+			const reportError = options.onError ?? createErrorNotice;
+
 			let connectUrl = service.url;
 
 			if ( ! connectUrl ) {
@@ -54,7 +62,7 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 				connectUrl = getService( service.id )?.url;
 
 				if ( ! connectUrl ) {
-					createErrorNotice(
+					reportError(
 						__(
 							'Could not start the connection. Please refresh the page and try again.',
 							'jetpack-publicize-pkg'
@@ -80,7 +88,7 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 			);
 
 			if ( error ) {
-				createErrorNotice( error.message );
+				reportError( error.message );
 
 				return false;
 			}
@@ -119,7 +127,7 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 			);
 
 			if ( ! opened ) {
-				createErrorNotice(
+				reportError(
 					__(
 						'The connection window could not be opened. Please allow pop-ups for this site and try again.',
 						'jetpack-publicize-pkg'
