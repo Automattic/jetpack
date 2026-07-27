@@ -4,7 +4,7 @@ export {
 	DrilldownLeafCell,
 	type DrilldownLeafCellProps,
 	processHierarchyLevels,
-	withAncestors,
+	withHierarchyContext,
 } from './dataviews-drilldown-native';
 export { DateFiltersPanel } from './date-filters-panel';
 export { safeHttpUrl } from './utils/safe-http-url';

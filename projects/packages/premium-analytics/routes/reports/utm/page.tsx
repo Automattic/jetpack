@@ -121,7 +121,7 @@ function UtmReport(): JSX.Element {
 						getItemParentId={ getUtmRowParentId }
 						isLoading={ records.isLoading }
 						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search UTM values and posts', 'jetpack-premium-analytics' ) }
+						searchLabel={ __( 'Search UTM values', 'jetpack-premium-analytics' ) }
 						hideLevelMarkers
 					/>
 				) }
