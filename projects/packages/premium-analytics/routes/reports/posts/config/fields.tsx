@@ -218,6 +218,29 @@ export function buildArchiveRows(
 }
 
 /**
+ * Prepare the archive rows for CSV export the way legacy Stats does: group
+ * rows stay in as subtotals, and every descendant carries its ancestors in the
+ * label (`Tags > video`) so a row still identifies itself once the table's
+ * nesting is gone. `buildArchiveRows` emits parents ahead of their children,
+ * so each parent's full label is already resolved by the time a child needs it.
+ *
+ * @param rows - The flat archive rows, in depth-first order.
+ * @return The same rows, with ancestor-qualified labels.
+ */
+export function buildArchiveCsvRows( rows: ArchiveRow[] ): ArchiveRow[] {
+	const pathById = new Map< string, string >();
+
+	return rows.map( row => {
+		const parentPath = row.parentId ? pathById.get( row.parentId ) : undefined;
+		const label = parentPath ? `${ parentPath } > ${ row.label }` : row.label;
+
+		pathById.set( row.id, label );
+
+		return { ...row, label };
+	} );
+}
+
+/**
  * DataViews field config for the Archives records table.
  *
  * @param withComparison - Whether to render available period-over-period deltas.

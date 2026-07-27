@@ -6,7 +6,13 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { buildArchiveRows, getArchivesFields, getPostsFields, type ArchiveRow } from './fields';
+import {
+	buildArchiveCsvRows,
+	buildArchiveRows,
+	getArchivesFields,
+	getPostsFields,
+	type ArchiveRow,
+} from './fields';
 import type { ReactNode } from 'react';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -265,6 +271,35 @@ describe( 'archive rows', () => {
 			'Tags',
 			'Taxonomies',
 			'Feed',
+		] );
+	} );
+
+	it( 'qualifies a nested archive row with its full ancestor path for export', () => {
+		const rows = buildArchiveRows( [
+			{
+				label: 'tax',
+				value: 30,
+				children: [
+					{
+						label: 'post_tag',
+						value: 30,
+						children: [
+							{
+								label: 'Analytics',
+								value: 30,
+								link: 'https://example.com/tag/analytics/',
+								children: null,
+							},
+						],
+					},
+				],
+			},
+		] );
+
+		expect( buildArchiveCsvRows( rows ).map( row => row.label ) ).toEqual( [
+			'Taxonomies',
+			'Taxonomies > Post tag',
+			'Taxonomies > Post tag > Analytics',
 		] );
 	} );
 

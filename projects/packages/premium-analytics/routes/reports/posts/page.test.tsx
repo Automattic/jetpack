@@ -225,34 +225,38 @@ describe( 'PostsReportPage', () => {
 		] );
 	} );
 
-	it( 'leaves archive group rows out of the export', () => {
+	// Legacy Stats exports the archives tree depth-first, keeping each group as a
+	// subtotal row and qualifying its descendants — `"Tags",300` then
+	// `"Tags > video",80`. Re-sorting the flattened rows by views would break
+	// that grouping, so the export leaves the order alone.
+	it( 'exports the archives tree with its groups and ancestor-qualified labels', () => {
 		const records = buildRecords();
-		const leafRow = {
-			id: 'tags-0-0',
-			parentId: 'tags-0',
-			label: 'Analytics',
-			views: 12,
-			link: 'https://example.com/tag/analytics',
-			isGroup: false,
-		};
 		records.archives.rows = [
+			{ id: 'tags-0', label: 'Tags', views: 300, isGroup: true },
 			{
-				id: 'tags-0',
-				label: 'Tags',
-				views: 12,
-				isGroup: true,
+				id: 'tags-0-0',
+				parentId: 'tags-0',
+				label: 'video',
+				views: 80,
+				link: 'https://example.com/tag/video/',
+				isGroup: false,
 			},
-			leafRow,
+			{ id: 'cat-1', label: 'Categories', views: 201, isGroup: true },
 		];
 		useSectionTabMock.mockReturnValue( [ 'archives', jest.fn() ] );
 		useRecordsMock.mockReturnValue( records );
 
 		render( <PostsReportPage /> );
 
+		const { columns, rows } = rowsCsvDownloadButtonMock.mock.calls[ 0 ][ 0 ];
+		expect( rows.map( row => columns.map( column => column.getValue( row ) ) ) ).toEqual( [
+			[ 'Tags', 300, '' ],
+			[ 'Tags > video', 80, 'https://example.com/tag/video/' ],
+			[ 'Categories', 201, '' ],
+		] );
 		expect( useReportCsvExportMock ).toHaveBeenCalledWith(
-			expect.objectContaining( { rows: [ leafRow ] } )
+			expect.objectContaining( { sort: undefined } )
 		);
-		expect( rowsCsvDownloadButtonMock.mock.calls[ 0 ][ 0 ].rows ).toEqual( [ leafRow ] );
 	} );
 
 	it( 'renders Archives through the nested drilldown table', () => {

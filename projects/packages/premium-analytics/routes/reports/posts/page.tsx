@@ -32,6 +32,7 @@ import { useSearch } from '@wordpress/route';
  */
 import { route } from '../package.json';
 import {
+	buildArchiveCsvRows,
 	getArchivesFields,
 	getPostsFields,
 	getReportPostsTabs,
@@ -145,13 +146,11 @@ function PostsReport(): JSX.Element {
 	);
 	const activeRecords = activeTab === 'posts-pages' ? records.posts : records.archives;
 
-	// An archive group's views are the sum of its children's, and a group has no
-	// URL of its own, so the export keeps the leaf rows only.
 	const csvExportRows = useMemo< ReportCsvRow[] >(
 		() =>
 			activeTab === 'posts-pages'
 				? records.posts.rows
-				: records.archives.rows.filter( row => ! row.isGroup ),
+				: buildArchiveCsvRows( records.archives.rows ),
 		[ activeTab, records.posts.rows, records.archives.rows ]
 	);
 	const {
@@ -163,7 +162,9 @@ function PostsReport(): JSX.Element {
 		filenamePrefix: activeTab === 'posts-pages' ? 'top-posts' : 'archives',
 		range: reportParams,
 		status: activeRecords,
-		sort: sortReportCsvRows,
+		// Archives are already ordered depth-first by views within each group;
+		// sorting the flattened rows again would interleave the groups.
+		sort: activeTab === 'posts-pages' ? sortReportCsvRows : undefined,
 	} );
 
 	// Date-range state lives in the URL search params, staged and committed by
