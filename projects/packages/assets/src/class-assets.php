@@ -45,6 +45,16 @@ class Assets {
 	 * name a JS translation file. A package whose textdomain is already its
 	 * plugin's has nothing to alias but still needs the path.
 	 *
+	 * Note the entries are keyed by domain, not by script: `downloadI18n()`
+	 * prepends a domain's prefix to every bundle path looked up under it. That
+	 * is only ever one package's path, so a plugin must not both bundle a
+	 * package whose textdomain is the plugin's own and load its own
+	 * `wp-jp-i18n-loader` bundles under that same domain — the package's prefix
+	 * would be applied to the plugin's catalogs too, and they would all 404. No
+	 * plugin does both today. One that needs to should give the package a
+	 * distinct textdomain, the way `jetpack-backup-pkg` and
+	 * `jetpack-videopress-pkg` do.
+	 *
 	 * @var array `array( domain => array( string semver, string path_prefix ) )`.
 	 */
 	private static $domain_paths = array();
