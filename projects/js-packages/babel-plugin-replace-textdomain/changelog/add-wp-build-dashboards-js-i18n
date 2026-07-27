@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a `requireI18nSource` option to skip gettext-shaped calls whose callee provably comes from a module other than the i18n one — needed when the plugin runs over whole bundles rather than hand-written source.
