@@ -111,7 +111,7 @@ function VideosReport(): JSX.Element {
 					/>
 				) : (
 					<ReportRecordsTable< StatsVideoPlaysComparisonItem >
-						data={ isTableLoading ? [] : records.rows }
+						data={ records.rows }
 						fields={ fields }
 						getItemId={ getVideoRowId }
 						isLoading={ isTableLoading }

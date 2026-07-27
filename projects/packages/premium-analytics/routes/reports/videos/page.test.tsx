@@ -98,7 +98,11 @@ describe( 'VideosReportPage', () => {
 		expect( getVideosFieldsMock ).toHaveBeenCalledWith( true );
 	} );
 
-	it( 'hides stale rows and loads the table while a changed range is fetching', () => {
+	it( 'keeps the rows on screen while a changed range is fetching', () => {
+		// The queries carry `placeholderData`, so a refetch triggered by a date or
+		// comparison change still has the previous rows. Handing the table an empty
+		// set would drop the user's search, sorting, and page position mid-refetch,
+		// so the rows stay mounted and only the loading state reflects the refetch.
 		const rows = [
 			{
 				id: 12,
@@ -117,7 +121,7 @@ describe( 'VideosReportPage', () => {
 
 		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
 			expect.objectContaining( {
-				data: [],
+				data: rows,
 				isLoading: true,
 			} )
 		);
