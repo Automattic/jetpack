@@ -48,7 +48,8 @@ jp docker install                 # Install WordPress in Docker
 # reads) so worktrees don't clobber the primary jetpack_dev or each other. Without it, every
 # bare `up` shares jetpack_dev on the default ports. The script is idempotent and a no-op in the
 # primary checkout, so it's safe to run before every `up`.
-# See tools/docker/README.md § "Parallel development environments", or use the `/work-on` skill end-to-end.
+# See tools/docker/README.md § "Parallel development environments", or follow the
+# .agents/skills/work-on.md playbook end-to-end.
 jp phan                           # Run PHP static analysis
 ```
 
@@ -64,21 +65,10 @@ Use `jp generate` to create new projects:
 
 Detailed guidelines are in `docs/coding-guidelines.md`.
 
-### Naming Conventions
-
-- Use WordPress naming conventions for functions and classes
-- Prefix global PHP functions and hooks with `jetpack_`
-- Use lowercase with underscores for PHP functions
-- Follow WordPress React component naming patterns
-- Use BEM-like naming for SCSS
-
 ### PHP Standards
 
-- Follow WordPress PHP Coding Standards
-- Use proper WordPress prefix for functions and classes
-- Implement WordPress nonce verification for form handling and AJAX
-- Follow WordPress database operations best practices (`$wpdb` prepared statements)
-- Structure plugin hooks logically
+- Prefix global PHP functions and hooks with `jetpack_`
+- WordPress PHP Coding Standards apply and are enforced by PHPCS (see "Linting & Formatting" below), including nonce verification on form/AJAX handlers and `$wpdb` prepared statements
 
 #### Version Annotations
 
@@ -93,11 +83,9 @@ The `$$next-version$$` placeholder is automatically replaced with the correct ve
 
 ### JavaScript & React Standards
 
-- Write modern ES6+ code following WordPress JS standards
 - Importing from `react` directly is fine. `@wordpress/element` also works but is no longer required — follow the convention used in the package you're working in
 - Use WordPress data stores (`@wordpress/data`) for state management
 - Use `@wordpress/i18n` for translations with an appropriate unique text domain
-- Follow WordPress component lifecycle patterns and accessibility guidelines
 - When using TypeScript with Webpack, use `@babel/preset-typescript` rather than `ts-loader`
 
 ### CSS / SCSS
@@ -157,6 +145,25 @@ See `docs/automated-testing.md` for full testing guidelines.
 - Follow WordPress testing patterns for async testing and mocking
 
 See `projects/packages/my-jetpack/_inc/components/connection-status-card/test/component.tsx` for a representative example.
+
+## Linting & Formatting
+
+Run from the monorepo root:
+
+```bash
+pnpm run lint-changed             # ESLint, changed files only (fastest)
+pnpm run lint                     # ESLint, everything
+pnpm run lint-style               # Stylelint (CSS/SCSS)
+pnpm run typecheck                # TypeScript, every project that defines it
+composer phpcs:changed            # PHPCS on changed files
+composer phpcs:lint               # PHPCS, everything
+composer phpcs:fix                # PHPCS autofix (phpcbf)
+composer phpcs:compatibility      # PHP cross-version compatibility
+```
+
+- `composer php:lint` is a PHP **syntax** check (parallel-lint), NOT PHPCS. The other `php:*` scripts (`php:autofix`, `php:changed`, `php:lint:errors`) are deprecated aliases that print a warning — use the `phpcs:*` names.
+- A husky **pre-commit hook** runs most of this on staged files and rewrites them in place: Prettier, `eslint --fix`, `stylelint --fix`, and `phpcs:fix`, plus `phpcs:compatibility`, `shellcheck`, and repo consistency checks. It fails the commit on anything left unfixed, so expect files to be reformatted and re-staged under you.
+- `jp draft enable` relaxes the hook for work in progress — ESLint tolerates up to 100 warnings and PHPCS failures stop blocking. `jp draft disable` restores it.
 
 ## Changelog Entries
 
@@ -244,10 +251,7 @@ The exception is the **WordPress.com Tests** check (the TeamCity `JetpackPreFlig
 
 When reviewing code, check for:
 - Adherence to `docs/coding-guidelines.md`
-- Inconsistent naming conventions and typos
-- Missing documentation for public APIs
-- Missing explanations for complex or non-obvious logic
-- Inefficient algorithms
+- Missing documentation for public APIs, or missing explanations for non-obvious logic
 - CSS/SCSS files not using logical properties for RTL
 
 Do NOT suggest modifying `$$next-version$$` placeholders — these are intentionally used and replaced during release.
@@ -263,8 +267,6 @@ Before introducing new dependencies:
 ## Common Pitfalls
 
 - **Do NOT edit WordPress core files** — all changes must be in plugins/packages
-- **Do NOT modify `$$next-version$$` placeholders** — they are replaced automatically at release time
-- **Reuse monorepo packages** before adding external dependencies — check `projects/packages/` and `projects/js-packages/` first
 - **Git merge conflicts**: after resolving, use `git commit --no-edit --no-verify` — pre-commit hooks can make unintended changes to merge commit files
 
 ## Maintaining This File
