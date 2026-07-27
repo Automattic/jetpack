@@ -5,11 +5,40 @@
  */
 jest.mock( '@jetpack-premium-analytics/data', () => {
 	const { TZDateMini } = jest.requireActual( '@date-fns/tz' );
+
+	/**
+	 * Mirror resolveIntervalForRange for the presets these tests exercise:
+	 * keep `current` when allowed, otherwise the preset's default.
+	 *
+	 * @param period  - Active date-range preset id.
+	 * @param _from   - Unused range start (signature parity).
+	 * @param _to     - Unused range end (signature parity).
+	 * @param current - Candidate interval from the URL / previous patch.
+	 * @return Coerced interval for the mocked preset.
+	 */
+	const resolveIntervalForRange = (
+		period: string | undefined,
+		_from: string,
+		_to: string,
+		current?: string
+	) => {
+		let allowed = [ 'hour', 'day' ];
+		if ( period === 'last-7-days' ) {
+			allowed = [ 'day' ];
+		}
+
+		if ( current && allowed.includes( current ) ) {
+			return current;
+		}
+		return allowed[ 0 ];
+	};
+
 	return {
 		getSiteTimezone: () => '+00:00',
 		dateToISOStringWithLocalTZ: ( date: Date ) => new Date( date.getTime() ).toISOString(),
 		localTZDate: ( value: number | Date ) =>
 			new TZDateMini( typeof value === 'number' ? value : value.getTime(), '+00:00' ),
+		resolveIntervalForRange,
 	};
 } );
 /**
@@ -43,7 +72,28 @@ describe( 'buildRangePatch', () => {
 			from: '2026-07-09T14:30:00.000Z',
 			to: '2026-07-10T14:30:00.000Z',
 			preset: 'last-24-hours',
+			interval: 'hour',
 		} );
+	} );
+
+	it( 'keeps the current interval when the new range still allows it', () => {
+		const patch = buildRangePatch( {
+			nextRange: { from, to },
+			nextPresetId: 'last-24-hours',
+			effective: { interval: 'day' },
+		} );
+
+		expect( patch?.interval ).toBe( 'day' );
+	} );
+
+	it( 'clamps an unsupported interval to the range default', () => {
+		const patch = buildRangePatch( {
+			nextRange: { from, to },
+			nextPresetId: 'last-24-hours',
+			effective: { interval: 'month' },
+		} );
+
+		expect( patch?.interval ).toBe( 'hour' );
 	} );
 
 	it( 'extends calendar and manual edits to the end of the day', () => {

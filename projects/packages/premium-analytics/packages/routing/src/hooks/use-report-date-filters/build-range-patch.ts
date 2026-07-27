@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { type ReportQueryParams } from '@jetpack-premium-analytics/data';
+import { resolveIntervalForRange, type ReportQueryParams } from '@jetpack-premium-analytics/data';
 import {
 	isSelectablePreset,
 	type ComparisonPresetId,
@@ -71,6 +71,19 @@ export function buildRangePatch( {
 		);
 		patch.from = rangeFrom;
 		patch.to = rangeTo;
+
+		/*
+		 * Keep the current interval when the new window still allows it;
+		 * otherwise write the range's default so the URL never carries a
+		 * bucket the active dates cannot support. `custom` / year-surface
+		 * presets fall through to range-length rules inside the resolver.
+		 */
+		patch.interval = resolveIntervalForRange(
+			nextPresetId,
+			rangeFrom,
+			rangeTo,
+			effective.interval
+		);
 
 		if ( effective.comp === '1' ) {
 			const derived = deriveComparisonRange( { ...effective, from: rangeFrom, to: rangeTo } );
