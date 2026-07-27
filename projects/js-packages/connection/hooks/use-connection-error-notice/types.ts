@@ -14,12 +14,22 @@ export interface ConnectionErrorData {
 	[ key: string ]: unknown;
 }
 
+/**
+ * Who a connection error is relevant to:
+ * - `site`: blog-token / site-wide errors.
+ * - `owner`: errors tied to the connection owner's user token.
+ * - `user`: errors tied to another specific user's token.
+ */
+export type ConnectionErrorAudience = 'site' | 'owner' | 'user';
+
 export interface ConnectionErrorObject {
 	error_message: string;
 	error_code?: string;
 	user_id?: string;
 	error_type?: string;
 	error_data?: ConnectionErrorData;
+	/** Optional audience metadata; readers must treat a missing value as site-wide. */
+	audience?: ConnectionErrorAudience;
 	[ key: string ]: unknown;
 }
 

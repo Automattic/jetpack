@@ -9,6 +9,11 @@ export const MESSAGE_TEMPLATE_KEY = 'jetpack_social_message_template';
 export const CUSTOMIZE_PER_NETWORK_KEY = '_wpas_customize_per_network';
 
 /**
+ * Services that require an intermediate input step
+ */
+export const CONNECTION_FLOW_INPUT_SERVICES = [ 'bluesky', 'mastodon' ] as const;
+
+/**
  * This is to avoid creating a new empty array each time.
  *
  * This helps to avoid unnecessary changes to the reference of the array.

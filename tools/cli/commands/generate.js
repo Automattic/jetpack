@@ -4,7 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import enquirer from 'enquirer';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import pluralize from 'pluralize';
 import semver from 'semver';
 import { doesRepoExist } from '../helpers/github.js';

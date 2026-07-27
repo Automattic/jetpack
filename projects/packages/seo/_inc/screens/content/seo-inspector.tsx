@@ -32,7 +32,7 @@ const SCHEMA_OPTIONS: Array< { value: SchemaType; label: string } > = [
 interface Props {
 	// The selected post id (from the Content route's `?postId`).
 	postId: number;
-	// The core endpoint to save through: 'post' or 'page'.
+	// The core endpoint to save through.
 	postType: ContentPostType;
 	// Dismiss the inspector (clears the URL selection).
 	onClose: () => void;
@@ -84,7 +84,7 @@ function toEditableMeta( meta: Partial< SeoPostMeta > | undefined ): EditableMet
  *
  * @param props          - Component props.
  * @param props.postId   - The selected post id.
- * @param props.postType - The core endpoint to save through ('post' | 'page').
+ * @param props.postType - The core endpoint to save through.
  * @param props.onClose  - Dismiss the inspector.
  * @return The SEO inspector editor.
  */

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Admin menu: keep the VideoPress item under the Jetpack menu when VideoPress is not active, linking to the My Jetpack page to activate it. The item is only shown to users with their own Jetpack user connection.

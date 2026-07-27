@@ -14,9 +14,7 @@ import {
 } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
-	buildCsvDateRangeFilename,
 	formatLegendLabels,
-	isCsvExportEnabled,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
@@ -24,6 +22,7 @@ import {
 	ReportPerformanceChart,
 	ReportRecordsTable,
 	RowsCsvDownloadButton,
+	useReportCsvExport,
 	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -52,11 +51,9 @@ const REPORT_PARAMS = { report: 'posts' };
 const CHART_PERIODS = [ 'day', 'week', 'month' ] as const satisfies readonly StatsPeriod[];
 type ChartPeriod = ( typeof CHART_PERIODS )[ number ];
 
-type ReportCsvRow = {
-	title: string;
-	views: number;
-	url: string;
-};
+type ReportCsvRow = StatsTopPostsItem | ArchiveRow;
+
+const sortReportCsvRows = ( a: ReportCsvRow, b: ReportCsvRow ) => b.views - a.views;
 
 /**
  * Check whether a URL value is a supported chart period.
@@ -166,39 +163,27 @@ function PostsReport(): JSX.Element {
 
 	const csvColumns = useMemo< CsvColumn< ReportCsvRow >[] >(
 		() => [
-			{ key: 'title', label: __( 'Title', 'jetpack-premium-analytics' ) },
-			{ key: 'views', label: __( 'Views', 'jetpack-premium-analytics' ) },
-			{ key: 'url', label: __( 'URL', 'jetpack-premium-analytics' ) },
+			{
+				label: __( 'Title', 'jetpack-premium-analytics' ),
+				getValue: row => String( row.label ?? '' ),
+			},
+			{ label: __( 'Views', 'jetpack-premium-analytics' ), getValue: row => row.views },
+			{ label: __( 'URL', 'jetpack-premium-analytics' ), getValue: row => row.link ?? '' },
 		],
 		[]
 	);
-	const csvRows = useMemo< ReportCsvRow[] >( () => {
-		const rows =
-			activeTab === 'posts-pages'
-				? records.posts.rows.map( item => ( {
-						title: String( item.label ?? '' ),
-						views: item.views,
-						url: item.link ?? '',
-				  } ) )
-				: records.archives.rows.map( item => ( {
-						title: item.label,
-						views: item.views,
-						url: item.link ?? '',
-				  } ) );
-
-		return rows.sort( ( a, b ) => b.views - a.views );
-	}, [ activeTab, records.posts.rows, records.archives.rows ] );
 	const activeRecords = activeTab === 'posts-pages' ? records.posts : records.archives;
-	const canExport =
-		isCsvExportEnabled() &&
-		csvRows.length > 0 &&
-		! activeRecords.isLoading &&
-		! activeRecords.isFetching &&
-		! activeRecords.isError;
-	const csvFilename = buildCsvDateRangeFilename(
-		activeTab === 'posts-pages' ? 'top-posts' : 'archives',
-		reportParams
-	);
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport< ReportCsvRow >( {
+		rows: activeRecords.rows,
+		filenamePrefix: activeTab === 'posts-pages' ? 'top-posts' : 'archives',
+		range: reportParams,
+		status: activeRecords,
+		sort: sortReportCsvRows,
+	} );
 
 	// The chart period is written to the URL and applied to the daily report
 	// data client-side rather than living in component state.

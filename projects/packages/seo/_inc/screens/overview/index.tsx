@@ -5,11 +5,15 @@ import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import { Notice } from '@wordpress/ui';
+import { Notice, Stack } from '@wordpress/ui';
 import EnableSeoCard from '../../components/enable-seo-card';
+import UpsellBanner from '../../components/upsell-banner';
+import { aiStore } from '../../data/ai-store';
 import { coverageStore } from '../../data/coverage-store';
 import getOverview from '../../data/get-overview';
+import { isGated } from '../../data/is-gated';
 import { settingsStore } from '../../data/settings-store';
+import AiCrawlerCard from './ai-crawler-card';
 import ContentCoverageCard from './content-coverage-card';
 import DisableSeoTools from './disable-seo-tools';
 import SiteVerificationCard from './site-verification-card';
@@ -31,6 +35,11 @@ const OverviewScreen: FC = () => {
 	// here until a full reload. The "View" link itself lives on the Settings tab.
 	const settings = useSelect( select => select( settingsStore ).getSettings(), [] );
 
+	// AI-crawler state lives in the same store the GEO tab uses (seeded from the
+	// page's `ai` preload), so the Overview reads it directly rather than adding a
+	// crawler slice to the Overview payload.
+	const crawlers = useSelect( select => select( aiStore ).getCrawlers(), [] );
+
 	// Deep-link to a Settings section: navigate to the Settings route with
 	// `?focus=`, which the Settings screen reads to scroll the section to top.
 	const goToSection = useCallback(
@@ -42,11 +51,48 @@ const OverviewScreen: FC = () => {
 	// Deep-link to the Content route.
 	const goToContent = useCallback( () => navigate( { href: '/content' } ), [ navigate ] );
 
+	// Deep-link to the GEO route (AI crawler management).
+	const goToAi = useCallback( () => navigate( { href: '/ai' } ), [ navigate ] );
+
 	if ( ! data ) {
 		return (
 			<Notice.Root intent="error">
 				<Notice.Description>{ __( 'Unable to load overview.', 'jetpack-seo' ) }</Notice.Description>
 			</Notice.Root>
+		);
+	}
+
+	// Overlay the live Settings-store visibility values on the Overview bootstrap so a
+	// toggle reflects here without a reload; rendered by the Site visibility card in
+	// both the gated and ungated layouts.
+	const siteVisibilityData = {
+		...data.site_visibility,
+		search_engines_visible:
+			settings?.search_engines_visible ?? data.site_visibility.search_engines_visible,
+		sitemap_active: settings?.sitemap_active ?? data.site_visibility.sitemap_active,
+	};
+
+	// On plan-gated sites (below-Premium WordPress.com) the Overview reduces to the
+	// two always-valid cards (site visibility + verification, both backed by core
+	// WordPress options) topped with the upsell banner. The AI-crawler and
+	// content-coverage cards and the disable control are paid surfaces, hidden here.
+	if ( isGated() ) {
+		return (
+			// Column Stack (matching the Settings tab) so the upsell banner — which sits
+			// below the cards and isn't dismissible — has space above it.
+			<Stack direction="column" gap="lg" className={ styles.root }>
+				<div className={ styles.grid }>
+					<SiteVisibilityCard
+						data={ siteVisibilityData }
+						onManage={ () => goToSection( 'visibility' ) }
+					/>
+					<SiteVerificationCard
+						data={ data.site_verification }
+						onManage={ () => goToSection( 'verification' ) }
+					/>
+				</div>
+				<UpsellBanner />
+			</Stack>
 		);
 	}
 
@@ -76,18 +122,22 @@ const OverviewScreen: FC = () => {
 			) }
 			<div className={ styles.grid }>
 				<SiteVisibilityCard
-					data={ {
-						...data.site_visibility,
-						search_engines_visible:
-							settings?.search_engines_visible ?? data.site_visibility.search_engines_visible,
-						sitemap_active: settings?.sitemap_active ?? data.site_visibility.sitemap_active,
-					} }
+					data={ siteVisibilityData }
 					onManage={ () => goToSection( 'visibility' ) }
 				/>
 				<SiteVerificationCard
 					data={ data.site_verification }
 					onManage={ () => goToSection( 'verification' ) }
 				/>
+				{ crawlers && (
+					<AiCrawlerCard
+						data={ crawlers }
+						searchEnginesVisible={
+							settings?.search_engines_visible ?? crawlers.searchEnginesVisible
+						}
+						onManage={ goToAi }
+					/>
+				) }
 			</div>
 			<div className={ styles.contentCard }>
 				<ContentCoverageCard data={ coverage ?? data.content_coverage } onManage={ goToContent } />

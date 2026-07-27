@@ -17,12 +17,12 @@ import {
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
-	buildCsvDateRangeFilename,
 	calculateDelta,
 	getCombinedPeriodMax,
 	safeHttpUrl,
 	sharePercentage,
 	usePostDetailHrefBuilder,
+	useReportCsvExport,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type CsvColumn,
@@ -84,7 +84,7 @@ export type TopPostRow = {
 type TopPostsRenderAttributes = TopPostsAttributes & Partial< ReportParamsFieldAttributes >;
 type TopPostsWidgetProps = WidgetRenderProps< TopPostsRenderAttributes >;
 
-type TopPostsReportProps = { num: number };
+type TopPostsReportProps = { max: number };
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
 /**
@@ -275,18 +275,18 @@ function toTopPostRows(
  * @param {TopPostsReportProps} props - The component props.
  * @return The widget content.
  */
-function TopPostsReport( { num }: TopPostsReportProps ) {
+function TopPostsReport( { max }: TopPostsReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 
 	// The widget's "Number of results" maps to the WPCOM stats API's `max`; the
 	// date range is owned by the dashboard picker and carried in `reportParams`.
-	const statsParams = useMemo( () => ( { ...reportParams, max: num } ), [ reportParams, num ] );
+	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
 
 	// Row matching, ranked capping (the API caps `postviews` at `max` but
 	// appends the homepage entry on top of it), and comparison-overlap gating
 	// all live in the data layer's merge helper (see AGENTS.md).
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
-		useStatsTopPosts( statsParams, { maxRows: num } );
+		useStatsTopPosts( statsParams, { maxRows: max } );
 
 	const buildDetailHref = usePostDetailHrefBuilder();
 	const rows = useMemo(
@@ -299,27 +299,33 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 	// client-side "Download CSV" (bounded to the rows already in the browser).
 	const csvColumns = useMemo< CsvColumn< TopPostRow >[] >( () => {
 		const base: CsvColumn< TopPostRow >[] = [
-			{ key: 'label', label: __( 'Title', 'jetpack-premium-analytics' ) },
-			{ key: 'value', label: __( 'Views', 'jetpack-premium-analytics' ) },
-			{ key: 'type', label: __( 'Type', 'jetpack-premium-analytics' ) },
-			{ key: 'href', label: __( 'URL', 'jetpack-premium-analytics' ) },
+			{ label: __( 'Title', 'jetpack-premium-analytics' ), getValue: row => row.label },
+			{ label: __( 'Views', 'jetpack-premium-analytics' ), getValue: row => row.value },
+			{ label: __( 'Type', 'jetpack-premium-analytics' ), getValue: row => row.type },
+			{ label: __( 'URL', 'jetpack-premium-analytics' ), getValue: row => row.href },
 		];
 		if ( withComparison ) {
 			base.splice( 2, 0, {
-				key: 'previousValue',
 				label: __( 'Previous views', 'jetpack-premium-analytics' ),
+				getValue: row => row.previousValue,
 			} );
 		}
 		return base;
 	}, [ withComparison ] );
 
-	const csvFilename = buildCsvDateRangeFilename( 'top-posts', reportParams );
-
-	// Only expose the export once the query has settled on data for the current
-	// params. Stats queries keep the previous period's rows as placeholder data
-	// while a refetch is in flight, so exporting mid-fetch (or after an error)
-	// could hand the user stale rows under the new-period `csvFilename`.
-	const canExport = rows.length > 0 && ! isFetching && ! isError;
+	// Stats queries keep the previous period's rows as placeholder data while a
+	// refetch is in flight. The shared hook keeps the export hidden until those
+	// rows belong to the active date range.
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport( {
+		rows,
+		filenamePrefix: 'top-posts',
+		range: reportParams,
+		status: { isLoading, isFetching, isError },
+	} );
 
 	return (
 		<>
@@ -350,7 +356,7 @@ function TopPostsReport( { num }: TopPostsReportProps ) {
 			<WidgetFooter>
 				<ReportLink report="posts" section="posts-pages" />
 				{ canExport && (
-					<RowsCsvDownloadButton columns={ csvColumns } rows={ rows } filename={ csvFilename } />
+					<RowsCsvDownloadButton columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
 				) }
 			</WidgetFooter>
 		</>
@@ -461,10 +467,10 @@ function toArchiveRows( items: StatsArchivesComparisonItem[], isTopLevel = true 
  * comparison UI is gated on real row overlap between the two periods.
  *
  * @param props     - The component props.
- * @param props.num - Maximum number of top-level rows to display.
+ * @param props.max - Maximum number of top-level rows to display.
  * @return The widget content.
  */
-function ArchivesReport( { num }: { num: number } ) {
+function ArchivesReport( { max }: { max: number } ) {
 	const { reportParams } = useWidgetRootContext();
 	const { drillDownItem: drillPath, drillDown, resetDrillDown } = useWidgetDrillDown< string[] >();
 
@@ -472,7 +478,7 @@ function ArchivesReport( { num }: { num: number } ) {
 	// cannot cross-match), the visible-row cap, and the comparison-overlap
 	// gate all live in the data layer's merge helper (see AGENTS.md).
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
-		useStatsArchives( reportParams, { maxRows: num } );
+		useStatsArchives( reportParams, { maxRows: max } );
 
 	const rows = useMemo(
 		() =>
@@ -591,7 +597,7 @@ function ArchivesReport( { num }: { num: number } ) {
  * @return The rendered widget.
  */
 export default function TopPosts( { attributes = {} }: TopPostsWidgetProps ) {
-	const num = attributes.num ?? 10;
+	const max = attributes.max ?? 10;
 	const contentView = attributes.contentView ?? 'posts';
 
 	return (
@@ -599,13 +605,13 @@ export default function TopPosts( { attributes = {} }: TopPostsWidgetProps ) {
 			<div className={ styles.root }>
 				{ contentView === 'archives' ? (
 					<>
-						<ArchivesReport num={ num } />
+						<ArchivesReport max={ max } />
 						<WidgetFooter>
 							<ReportLink report="posts" section="archives" />
 						</WidgetFooter>
 					</>
 				) : (
-					<TopPostsReport num={ num } />
+					<TopPostsReport max={ max } />
 				) }
 			</div>
 		</WidgetRoot>

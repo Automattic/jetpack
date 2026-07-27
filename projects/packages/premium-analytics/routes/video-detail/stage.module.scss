@@ -2,7 +2,29 @@
 	min-block-size: 0;
 }
 
+.scrollArea {
+	flex: 1 1 auto;
+	min-block-size: 0;
+	overflow-y: auto;
+}
+
 .content {
-	padding-block: var(--wpds-dimension-padding-xl);
+	// Reserve paint space for the widget host's outer focus outline.
+	padding-block-start: calc(var(--wpds-border-width-focus) + 2px);
+	padding-block-end: 24px;
 	padding-inline: var(--wpds-dimension-padding-2xl);
+}
+
+.header {
+	// Summary row above the widget grid. Inline padding matches the widget grid;
+	// the 40px block spacing is the design's breathing room around the header.
+	display: flex;
+	align-items: center;
+	padding-block: 40px;
+	padding-inline: var(--wpds-dimension-padding-2xl);
+}
+
+.summary {
+	flex: 1 1 360px;
+	min-inline-size: min(100%, 320px);
 }

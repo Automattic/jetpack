@@ -531,8 +531,14 @@ the query factory — do not do it in the widget or the view hook.
 
 **`max` semantics**
 
-`max = 0` means "all rows". Use `slice( 0, max > 0 ? max : undefined )`, never
+`max = 0` means "all rows" — but only where the widget caps rows _after_ fetching,
+via `limitStatsRows()`. Use `slice( 0, max > 0 ? max : undefined )`, never
 `slice( 0, max )` (the latter returns an empty array when `max` is 0).
+
+Where `max` is instead passed straight to the endpoint as a request param, it is a
+page size and `0` carries no "all rows" meaning — clamp it to the widget's own
+default. `widgets/subscribers-list/render.tsx` is the current example: its
+`stats/followers` request is paginated, so it falls back to 6.
 
 **Loading / error / empty state**
 

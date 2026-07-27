@@ -17,9 +17,6 @@ jest.mock( '../../connection-management/disconnect', () => ( {
 jest.mock( '../../connection-management/mark-as-shared', () => ( {
 	MarkAsShared: () => <button>Mark as Shared</button>,
 } ) );
-jest.mock( '../../../hooks/use-user-can-share-connection', () => ( {
-	useUserCanShareConnection: jest.fn( () => true ),
-} ) );
 
 describe( 'ServiceConnectionInfo', () => {
 	const connection = {
@@ -28,22 +25,13 @@ describe( 'ServiceConnectionInfo', () => {
 		status: 'connected',
 	};
 
-	beforeAll( () => {
-		global.JetpackScriptData = {
-			user: {
-				current_user: {
-					id: 123,
-				},
-			},
-		};
-	} );
-
 	const renderComponent = ( connOverrides = {}, serviceOverrides = {}, props = {} ) => {
+		setup( { canUserManageConnection: props.canUserManageConnection ?? true } );
 		render(
 			<ServiceConnectionInfo
 				connection={ { ...connection, ...connOverrides } }
 				service={ { ...serviceOverrides } }
-				{ ...props }
+				canMarkAsShared={ props.canMarkAsShared ?? false }
 			/>
 		);
 	};
@@ -52,43 +40,40 @@ describe( 'ServiceConnectionInfo', () => {
 		jest.clearAllMocks();
 	} );
 
-	test( 'renders profile picture if available', () => {
+	test( 'renders the profile picture and connection name', () => {
 		renderComponent();
+
 		const profilePic = screen.getByAltText( 'Example User' );
-		expect( profilePic ).toBeInTheDocument();
 		expect( profilePic ).toHaveAttribute( 'src', 'https://example.com/profile.jpg' );
-	} );
-
-	test( 'displays ConnectionName', () => {
-		renderComponent();
 		expect( screen.getByText( 'Example User' ) ).toBeInTheDocument();
-	} );
-
-	test( 'displays ConnectionStatus if status is broken', () => {
-		renderComponent( { status: 'broken' } );
-		expect( screen.getByText( 'Status: broken' ) ).toBeInTheDocument();
-	} );
-
-	test( 'displays MarkAsShared button if connection can be disconnected', () => {
-		renderComponent( {}, {}, { canMarkAsShared: true } );
-		expect( screen.getByText( 'Mark as Shared' ) ).toBeInTheDocument();
-	} );
-
-	test( 'displays disconnect button', () => {
-		renderComponent();
 		expect( screen.getByText( 'Disconnect Example User' ) ).toBeInTheDocument();
 	} );
 
-	test( 'displays description if connection cannot be disconnected', () => {
-		setup( { canUserManageConnection: false } );
-		renderComponent();
+	test( 'renders the mark-as-shared toggle with the info IconButton', () => {
+		renderComponent( {}, {}, { canMarkAsShared: true } );
+
+		expect( screen.getByText( 'Mark as Shared' ) ).toBeInTheDocument();
+		// The IconButton exposes its help text as an accessible name.
+		expect(
+			screen.getByRole( 'button', { name: /available to all administrators/i } )
+		).toBeInTheDocument();
+	} );
+
+	test( 'renders the connection status when broken and manageable', () => {
+		renderComponent( { status: 'broken' } );
+
+		expect( screen.getByText( 'Status: broken' ) ).toBeInTheDocument();
+	} );
+
+	test( 'tells non-admins the connection was added by a site administrator', () => {
+		renderComponent( {}, {}, { canUserManageConnection: false } );
 
 		expect(
 			screen.getByText( 'This connection is added by a site administrator.' )
 		).toBeInTheDocument();
 	} );
 
-	test( 'does not display tooltip information without action', async () => {
+	test( 'does not render the mark-as-shared help text without the action', () => {
 		renderComponent();
 
 		expect(

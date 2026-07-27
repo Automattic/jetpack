@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Booking_Status_Breakdown_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Bookings_Over_Time_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Conversion_Rate_Over_Time_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Orders_Over_Time_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Revenue_By_Customer_Type_Controller;
@@ -25,6 +27,8 @@ use PHPUnit\Framework\TestCase;
  * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Revenue_By_Customer_Type_Controller
  * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Sales_By_Campaign_Controller
  * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Tax_Rate_Breakdown_Controller
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Bookings_Over_Time_Controller
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Booking_Status_Breakdown_Controller
  * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Controller
  */
 #[CoversClass( Orders_Over_Time_Controller::class )]
@@ -34,6 +38,8 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass( Revenue_By_Customer_Type_Controller::class )]
 #[CoversClass( Sales_By_Campaign_Controller::class )]
 #[CoversClass( Tax_Rate_Breakdown_Controller::class )]
+#[CoversClass( Bookings_Over_Time_Controller::class )]
+#[CoversClass( Booking_Status_Breakdown_Controller::class )]
 #[CoversClass( Abstract_Csv_Report_Controller::class )]
 class Controllers_Test extends TestCase {
 
@@ -63,6 +69,14 @@ class Controllers_Test extends TestCase {
 
 	private function tax_rate_breakdown(): Tax_Rate_Breakdown_Controller {
 		return new Tax_Rate_Breakdown_Controller( new Report_Registry() );
+	}
+
+	private function bookings_over_time(): Bookings_Over_Time_Controller {
+		return new Bookings_Over_Time_Controller( new Report_Registry() );
+	}
+
+	private function booking_status_breakdown(): Booking_Status_Breakdown_Controller {
+		return new Booking_Status_Breakdown_Controller( new Report_Registry() );
 	}
 
 	public function test_orders_metadata() {
@@ -157,6 +171,73 @@ class Controllers_Test extends TestCase {
 
 		$row = $c->format_row_for_csv( array( 'active_sessions' => 0 ) );
 		$this->assertSame( '0.00%', $row['store_conversion_rate'] );
+	}
+
+	public function test_bookings_over_time_metadata_and_filter() {
+		$c = $this->bookings_over_time();
+		$this->assertSame( 'bookingsovertime', $c->get_report_key() );
+		$this->assertSame( 'Bookings Over Time', $c->get_report_label() );
+		$this->assertSame( 'reports/orders-by-product-type/by-date', $c->get_data_endpoint() );
+		$this->assertSame(
+			array(
+				'date_type' => 'created',
+				'filters'   => array(
+					array(
+						'key'     => 'product_type',
+						'compare' => 'IN',
+						'value'   => 'booking,bookable-event,bookable-service',
+					),
+				),
+			),
+			$c->get_additional_params()
+		);
+	}
+
+	public function test_bookings_over_time_format_row() {
+		$c = $this->bookings_over_time();
+
+		$row = $c->format_row_for_csv(
+			array(
+				'date_start' => '2026-01-02 00:00:00',
+				'orders_no'  => '12',
+			)
+		);
+		$this->assertSame( '2026-01-02', $row['time_interval'] );
+		$this->assertSame( 12, $row['orders_no'] );
+
+		$this->assertSame( 0, $c->format_row_for_csv( array() )['orders_no'] );
+	}
+
+	public function test_booking_status_breakdown_metadata() {
+		$c = $this->booking_status_breakdown();
+		$this->assertSame( 'bookingstatusbreakdown', $c->get_report_key() );
+		$this->assertSame( 'Booking Status Breakdown', $c->get_report_label() );
+		$this->assertSame( 'reports/bookings/by-date', $c->get_data_endpoint() );
+		$this->assertSame(
+			array( 'time_interval', 'completed', 'pending', 'cancelled' ),
+			array_keys( $c->get_column_headers() )
+		);
+	}
+
+	public function test_booking_status_breakdown_sums_pending_statuses() {
+		$c = $this->booking_status_breakdown();
+
+		$row = $c->format_row_for_csv(
+			array(
+				'date_start'                  => '2026-01-02 00:00:00',
+				'status_complete'             => 4,
+				'status_pending_confirmation' => 1,
+				'status_confirmed'            => 2,
+				'status_paid'                 => 3,
+				'status_unpaid'               => 4,
+				'status_cancelled'            => 5,
+			)
+		);
+
+		$this->assertSame( '2026-01-02', $row['time_interval'] );
+		$this->assertSame( 4, $row['completed'] );
+		$this->assertSame( 10, $row['pending'] );
+		$this->assertSame( 5, $row['cancelled'] );
 	}
 
 	public function test_products_metadata() {

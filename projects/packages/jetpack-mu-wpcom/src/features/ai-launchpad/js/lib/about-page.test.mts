@@ -2,15 +2,18 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { createAboutPage } from './about-page.ts';
 
+type PageData = { title: string; content: string; status: string; meta: object };
+type PageRequest = { path: string; method: string; data: PageData };
+
 /**
  * Stub fetcher that records the request and returns a created page.
  *
  * @return The stub and its recorded requests.
  */
 function stubFetcher() {
-	const requests: object[] = [];
+	const requests: PageRequest[] = [];
 	const fetcher = async ( options: object ) => {
-		requests.push( options );
+		requests.push( options as PageRequest );
 		return { id: 42 };
 	};
 	return { fetcher, requests };
@@ -25,11 +28,7 @@ describe( 'createAboutPage', () => {
 		);
 
 		assert.deepEqual( result, { page_id: 42, edit_url: '/wp-admin/post.php?post=42&action=edit' } );
-		const request = requests[ 0 ] as {
-			path: string;
-			method: string;
-			data: { title: string; content: string; status: string; meta: object };
-		};
+		const request = requests[ 0 ];
 		assert.equal( request.path, '/wp/v2/pages' );
 		assert.equal( request.method, 'POST' );
 		assert.equal( request.data.title, 'About Alpine Notes' );
@@ -45,8 +44,7 @@ describe( 'createAboutPage', () => {
 		const result = await createAboutPage( undefined, fetcher );
 
 		assert.equal( result.page_id, 42 );
-		const request = requests[ 0 ] as { data: { title: string; content: string } };
-		assert.equal( request.data.title, 'About' );
-		assert.equal( request.data.content, '' );
+		assert.equal( requests[ 0 ].data.title, 'About' );
+		assert.equal( requests[ 0 ].data.content, '' );
 	} );
 } );

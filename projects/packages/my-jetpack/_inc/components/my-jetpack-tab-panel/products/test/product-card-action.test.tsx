@@ -100,4 +100,48 @@ describe( 'ProductCardAction', () => {
 		);
 		expect( reloadPage ).toHaveBeenCalled();
 	} );
+
+	it( 'reloads the page after toggling VideoPress so the admin sidebar link updates', async () => {
+		// The "Jetpack > VideoPress" sidebar item links to the VideoPress library
+		// or to the My Jetpack activation interstitial depending on the module
+		// state, so toggling it must force a page reload.
+		render(
+			<ProductCardAction
+				product={ buildProduct( {
+					slug: 'videopress',
+					name: 'VideoPress',
+					status: 'active',
+					hasPaidPlanForProduct: true,
+				} ) }
+				module={ formsModule }
+			/>
+		);
+
+		await userEvent.click( screen.getByRole( 'checkbox' ) );
+
+		expect( mockDeactivate ).toHaveBeenCalled();
+		expect( setPendingSuccessNotice ).toHaveBeenCalledWith(
+			expect.stringContaining( 'deactivated' )
+		);
+		expect( reloadPage ).toHaveBeenCalled();
+	} );
+
+	it( 'does not reload the page when toggling a product with no admin menu changes', async () => {
+		render(
+			<ProductCardAction
+				product={ buildProduct( {
+					slug: 'search',
+					name: 'Search',
+					status: 'active',
+					hasPaidPlanForProduct: true,
+				} ) }
+				module={ formsModule }
+			/>
+		);
+
+		await userEvent.click( screen.getByRole( 'checkbox' ) );
+
+		expect( mockDeactivate ).toHaveBeenCalled();
+		expect( reloadPage ).not.toHaveBeenCalled();
+	} );
 } );

@@ -215,7 +215,7 @@ export const MissingComparisonRowsWithOverlayLabel: Story = {
 		withOverlayLabel: true,
 		loading: false,
 		style: {
-			'--a8c--charts--leaderboard--bar--border-radius': '4px',
+			'--a8c-charts-border-radius-leaderboard-bar': '4px',
 		},
 	},
 	parameters: {
@@ -260,7 +260,7 @@ export const Interactive: Story = {
 		withComparison: true,
 		withOverlayLabel: true,
 		style: {
-			'--a8c--charts--leaderboard--bar--border-radius': '4px',
+			'--a8c-charts-border-radius-leaderboard-bar': '4px',
 		},
 	},
 	render: args => <LeaderboardChartWithOverlayLabelImage { ...args } />,
@@ -508,7 +508,7 @@ export const OverlayLabelWithImage: Story = {
 		withOverlayLabel: true,
 		loading: false,
 		style: {
-			'--a8c--charts--leaderboard--bar--border-radius': '4px',
+			'--a8c-charts-border-radius-leaderboard-bar': '4px',
 		},
 	},
 	render: args => <LeaderboardChartWithOverlayLabelImage { ...args } />,

@@ -62,6 +62,7 @@ describe( 'useVideoSummary', () => {
 			const { result } = renderHook( () => useVideoSummary( 42 ) );
 
 			expect( result.current.isNotFound ).toBe( false );
+			expect( mockUseStatsSingleVideo ).toHaveBeenCalledWith( 42 );
 		}
 	);
 
