@@ -66,7 +66,7 @@ const CoverageRing: FC< RingProps > = ( { label, action, segment, total, need, o
 			     unlabeled (aria-hidden) — this also removes its native SVG `<title>`
 			     tooltip, which otherwise duplicated the action tooltip on hover. */ }
 			<div className={ styles.donutWrap }>
-				<DonutMeter totalCount={ total } segmentCount={ segment } donutWidth="56px" />
+				<DonutMeter totalCount={ total } segmentCount={ segment } donutWidth="96px" thickness="5" />
 			</div>
 			<Text variant="heading-md">{ count }</Text>
 			<Text variant="body-sm">{ label }</Text>
