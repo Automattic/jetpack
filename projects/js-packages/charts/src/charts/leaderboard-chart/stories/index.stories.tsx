@@ -1,6 +1,6 @@
 import { Stack } from '@wordpress/ui';
 import { action } from 'storybook/actions';
-import { expect, userEvent, waitFor } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { defaultTheme, useGlobalChartsContext } from '../../../providers';
 import {
 	chartDecorator,
@@ -181,6 +181,80 @@ export const WithOverlayLabel: Story = {
 	},
 };
 
+const zeroChangeData: LeaderboardEntry[] = sampleData.map( ( entry, index ) =>
+	index === 0
+		? {
+				...entry,
+				currentValue: 0,
+				previousValue: 0,
+				currentShare: 0,
+				previousShare: 0,
+				delta: 0,
+		  }
+		: entry
+);
+
+export const ZeroChange: Story = {
+	args: {
+		data: zeroChangeData,
+		withComparison: true,
+		loading: false,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The first row is `0` in both periods, so its genuine zero change renders as a neutral `0%` rather than an unavailable-delta placeholder.',
+			},
+		},
+	},
+	play: async ( { canvasElement } ) => {
+		const canvas = within( canvasElement );
+
+		await expect( canvas.getByText( '0%' ) ).toBeInTheDocument();
+		await expect( canvas.queryByText( 'Percentage change unavailable' ) ).not.toBeInTheDocument();
+	},
+};
+
+const unavailableDeltaData: LeaderboardEntry[] = sampleData.map( ( entry, index ) =>
+	index === 0
+		? {
+				...entry,
+				previousValue: 0,
+				previousShare: 0,
+				delta: undefined,
+		  }
+		: entry
+);
+
+export const UnavailableDelta: Story = {
+	args: {
+		data: unavailableDeltaData,
+		withComparison: true,
+		loading: false,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The first row has a known previous value of `0`, so its comparison data remains available while its mathematically undefined percentage change renders as an em dash instead of `+100%`.',
+			},
+		},
+	},
+	play: async ( { canvasElement } ) => {
+		const canvas = within( canvasElement );
+
+		// getAllByText rather than getByText so adding another placeholder row to
+		// the fixture fails on the count instead of on an ambiguous match.
+		await expect( canvas.getAllByText( '—' ) ).toHaveLength( 1 );
+		await expect( canvas.getByText( 'Percentage change unavailable' ) ).toBeInTheDocument();
+		// The discriminator: a known previous value of 0 must not fall into the
+		// missing-comparison bucket.
+		await expect( canvas.queryByText( 'No comparison data' ) ).not.toBeInTheDocument();
+		await expect( canvas.queryByText( '+100%' ) ).not.toBeInTheDocument();
+	},
+};
+
 const missingComparisonData: LeaderboardEntry[] = sampleData.map( entry =>
 	entry.id === 'social' || entry.id === 'referral'
 		? {
@@ -206,6 +280,12 @@ export const MissingComparisonRows: Story = {
 			},
 		},
 	},
+	play: async ( { canvasElement } ) => {
+		const canvas = within( canvasElement );
+
+		await expect( canvas.getAllByText( '—' ) ).toHaveLength( 2 );
+		await expect( canvas.getAllByText( 'No comparison data' ) ).toHaveLength( 2 );
+	},
 };
 
 export const MissingComparisonRowsWithOverlayLabel: Story = {
@@ -215,7 +295,7 @@ export const MissingComparisonRowsWithOverlayLabel: Story = {
 		withOverlayLabel: true,
 		loading: false,
 		style: {
-			'--a8c--charts--leaderboard--bar--border-radius': '4px',
+			'--a8c-charts-border-radius-leaderboard-bar': '4px',
 		},
 	},
 	parameters: {
@@ -260,7 +340,7 @@ export const Interactive: Story = {
 		withComparison: true,
 		withOverlayLabel: true,
 		style: {
-			'--a8c--charts--leaderboard--bar--border-radius': '4px',
+			'--a8c-charts-border-radius-leaderboard-bar': '4px',
 		},
 	},
 	render: args => <LeaderboardChartWithOverlayLabelImage { ...args } />,
@@ -508,7 +588,7 @@ export const OverlayLabelWithImage: Story = {
 		withOverlayLabel: true,
 		loading: false,
 		style: {
-			'--a8c--charts--leaderboard--bar--border-radius': '4px',
+			'--a8c-charts-border-radius-leaderboard-bar': '4px',
 		},
 	},
 	render: args => <LeaderboardChartWithOverlayLabelImage { ...args } />,

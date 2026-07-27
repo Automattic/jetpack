@@ -10,6 +10,7 @@ import SuggestionActions from '../components/suggestion-actions';
 import SuggestionBadge from '../components/suggestion-badge';
 import UpgradeNotice from '../components/upgrade-notice';
 import { VALID_SECTIONS } from '../constants';
+import { getBlockModalTextarea, startDraftTracking } from './drafts';
 
 // Each injection point tracks both the DOM container and its React root.
 // Before re-injecting, we unmount the old root to ensure proper cleanup
@@ -353,7 +354,7 @@ function runAll() {
 			if ( ! blockName || ! blockModal ) {
 				return null;
 			}
-			const textareaInput = blockModal.querySelector( '.components-textarea-control__input' );
+			const textareaInput = getBlockModalTextarea( blockModal );
 			const field = textareaInput?.parentElement;
 			return field
 				? {
@@ -412,6 +413,7 @@ export function startInjection() {
 	}
 	injectionStarted = true;
 
+	startDraftTracking();
 	runAll();
 
 	let scheduled = false;

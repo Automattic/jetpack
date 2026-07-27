@@ -2,6 +2,13 @@
 	min-block-size: 0;
 }
 
+.loading {
+	// Fill the route stage and center the spinner while the sections entity
+	// resolves. Mirrors the reports stage's centered loading state.
+	min-block-size: 240px;
+	block-size: 100%;
+}
+
 .content {
 	flex: 1 1 auto;
 	min-block-size: 0;

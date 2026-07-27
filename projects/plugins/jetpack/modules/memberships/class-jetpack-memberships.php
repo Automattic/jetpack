@@ -194,6 +194,7 @@ class Jetpack_Memberships {
 		'PHP' => 0,
 		'RUB' => 0,
 		'TRY' => 0,
+		'MYR' => 2.00,
 	);
 
 	/**

@@ -5,7 +5,7 @@
 import { TextControl } from '@wordpress/components';
 import { useCallback, useMemo, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Badge, Button, Card, CollapsibleCard, Stack } from '@wordpress/ui';
+import { Badge, Button, Card, CollapsibleCard, Stack, Text } from '@wordpress/ui';
 import getSite from '../../data/get-site';
 import {
 	PAGE_TYPES,
@@ -16,7 +16,7 @@ import {
 	stringToTokens,
 	tokensToString,
 } from '../../data/title-format-tokens';
-import './style.scss';
+import styles from './title-structure-field.module.scss';
 import type { TitleFormatToken } from '../../data/settings-types';
 import type { FC } from 'react';
 
@@ -97,7 +97,7 @@ const TitleStructureRow: FC< RowProps > = ( {
 	);
 
 	return (
-		<div className="jetpack-seo-settings__title-row">
+		<Stack direction="column" gap="md" className={ styles.row }>
 			<TextControl
 				ref={ inputRef }
 				label={ label }
@@ -107,8 +107,10 @@ const TitleStructureRow: FC< RowProps > = ( {
 				__next40pxDefaultSize
 				__nextHasNoMarginBottom
 			/>
-			<div className="jetpack-seo-settings__title-tokens">
-				<span className="jetpack-seo-settings__title-tokens-label">{ insertLabel }</span>
+			<Stack direction="column" gap="xs">
+				<Text variant="body-sm" className={ styles.muted }>
+					{ insertLabel }
+				</Text>
 				<Stack direction="row" gap="xs" wrap="wrap">
 					{ PAGE_TYPE_SUGGESTIONS[ pageTypeId ].map( tokenId => (
 						<Button
@@ -123,20 +125,18 @@ const TitleStructureRow: FC< RowProps > = ( {
 						</Button>
 					) ) }
 				</Stack>
-			</div>
-			<div className="jetpack-seo-settings__title-footer">
+			</Stack>
+			<Stack direction="row" align="flex-start" gap="lg">
 				{ tokens.length > 0 && (
-					<div className="jetpack-seo-settings__preview">
+					<Text variant="body-md" className={ styles.preview }>
 						<strong>{ previewLabel }:</strong> { preview }
-					</div>
+					</Text>
 				) }
-				<div className="jetpack-seo-settings__save">
-					<Button onClick={ onSave } disabled={ disabled || ! canSave }>
-						{ saveLabel }
-					</Button>
-				</div>
-			</div>
-		</div>
+				<Button className={ styles.save } onClick={ onSave } disabled={ disabled || ! canSave }>
+					{ saveLabel }
+				</Button>
+			</Stack>
+		</Stack>
 	);
 };
 

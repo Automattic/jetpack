@@ -3,7 +3,7 @@
 import { TextControl } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Badge, Button, Link, Stack } from '@wordpress/ui';
+import { Badge, Button, Link, Stack, Text } from '@wordpress/ui';
 import { useGoogleVerify } from '../../data/use-google-verify';
 import type { FC } from 'react';
 
@@ -68,25 +68,25 @@ const GoogleVerificationField: FC< Props > = ( { value, onChange, onCommit, disa
 	// `unavailable` (e.g. a `forbidden` response on an under-construction site).
 	if ( ! isConnected || state === 'unavailable' ) {
 		return (
-			<div className="jetpack-seo-settings__google-verification">
-				<TextControl
-					label={ __( 'Google', 'jetpack-seo' ) }
-					value={ value }
-					onChange={ onChange }
-					onBlur={ onCommit }
-					help={ manualHelp }
-					disabled={ disabled }
-					__next40pxDefaultSize
-					__nextHasNoMarginBottom
-				/>
-			</div>
+			<TextControl
+				label={ __( 'Google', 'jetpack-seo' ) }
+				value={ value }
+				onChange={ onChange }
+				onBlur={ onCommit }
+				help={ manualHelp }
+				disabled={ disabled }
+				__next40pxDefaultSize
+				__nextHasNoMarginBottom
+			/>
 		);
 	}
 
 	return (
-		<Stack direction="column" gap="md" className="jetpack-seo-settings__google-verification">
+		<Stack direction="column" gap="md">
 			<Stack direction="row" justify="space-between" align="center" gap="sm">
-				<strong>{ __( 'Google', 'jetpack-seo' ) }</strong>
+				<Text variant="heading-md" render={ <strong /> }>
+					{ __( 'Google', 'jetpack-seo' ) }
+				</Text>
 				{ state === 'verified' && (
 					<Badge intent="stable">{ __( 'Verified', 'jetpack-seo' ) }</Badge>
 				) }

@@ -73,6 +73,15 @@ describe( 'resolveConnectionErrorActions', () => {
 		} );
 	} );
 
+	it( "returns no actions for an informational error whose action is 'none'", () => {
+		const actions = resolveConnectionErrorActions(
+			{ error_message: 'Owner must reconnect', error_data: { action: 'none' } },
+			baseOptions
+		);
+
+		expect( actions ).toHaveLength( 0 );
+	} );
+
 	it( 'fires the default reconnect tracking event on the fallback action', () => {
 		const trackingCallback = jest.fn();
 		const actions = resolveConnectionErrorActions(

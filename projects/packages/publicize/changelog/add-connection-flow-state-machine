@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a connection-flow state machine to the social store.

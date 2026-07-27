@@ -75,7 +75,7 @@
 		"stylelint-config-recommended-scss": "17.0.1",
 		"stylelint-scss": "7.2.0",
 		"svelte": "5.55.7",
-		"svelte-eslint-parser": "1.4.1",
+		"svelte-eslint-parser": "1.8.0",
 		"typescript": "6.0.3",
 		"typescript-eslint": "8.63.0",
 		"yaml": "2.8.3"

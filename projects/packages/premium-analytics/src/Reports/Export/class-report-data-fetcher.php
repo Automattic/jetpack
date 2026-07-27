@@ -484,7 +484,7 @@ class Report_Data_Fetcher {
 			&& is_numeric( $data['data']['status'] )
 			&& (int) $data['data']['status'] >= 400
 		) {
-			return $this->build_external_api_error( $response );
+			return $this->build_external_api_error( $response, $data );
 		}
 
 		return $data;
@@ -500,16 +500,26 @@ class Report_Data_Fetcher {
 	 * @since $$next-version$$
 	 *
 	 * @param WP_REST_Response $response Response containing an external API error.
+	 * @param mixed            $data     Optional already-normalized response data.
 	 * @return WP_Error Normalized external API error.
 	 */
-	private function build_external_api_error( WP_REST_Response $response ): WP_Error {
-		$data = $this->normalize_response_data( $response->get_data() );
-		if ( is_wp_error( $data ) ) {
-			return $data;
+	private function build_external_api_error( WP_REST_Response $response, $data = null ): WP_Error {
+		if ( null === $data ) {
+			$data = $this->normalize_response_data( $response->get_data() );
 		}
 
-		$response_status  = (int) $response->get_status();
-		$status           = $response_status >= 400 ? $response_status : 500;
+		$response_status = (int) $response->get_status();
+		$status          = $response_status >= 400 ? $response_status : 500;
+		if ( is_wp_error( $data ) ) {
+			return new WP_Error(
+				'external_api_error',
+				__( 'External API error', 'jetpack-premium-analytics' ),
+				array(
+					'status' => $status,
+				)
+			);
+		}
+
 		$external_code    = null;
 		$external_message = null;
 		$external_params  = null;

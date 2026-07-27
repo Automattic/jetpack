@@ -531,8 +531,14 @@ the query factory — do not do it in the widget or the view hook.
 
 **`max` semantics**
 
-`max = 0` means "all rows". Use `slice( 0, max > 0 ? max : undefined )`, never
+`max = 0` means "all rows" — but only where the widget caps rows _after_ fetching,
+via `limitStatsRows()`. Use `slice( 0, max > 0 ? max : undefined )`, never
 `slice( 0, max )` (the latter returns an empty array when `max` is 0).
+
+Where `max` is instead passed straight to the endpoint as a request param, it is a
+page size and `0` carries no "all rows" meaning — clamp it to the widget's own
+default. `widgets/subscribers-list/render.tsx` is the current example: its
+`stats/followers` request is paginated, so it falls back to 6.
 
 **Loading / error / empty state**
 
@@ -596,7 +602,14 @@ Widgets should consume `comparisonRows?.rows` and the hook-level `hasComparison`
 `mergeStats*ComparisonRows()` or duplicate the row-overlap guard from render/view code.
 Widget-level mapping may still add presentation-only fields such as labels, icons, links,
 shares, or chart colors. Leave missing `previousValue`/`previousShare`/`delta` values as
-`undefined` so charts suppress the row delta instead of rendering fake `0%` or `100%` changes.
+`undefined` so charts show the missing-data placeholder, instead of coercing them to `0` and
+implying a real zero previous period.
+
+For comparison leaderboards, calculate one denominator from the largest value represented in
+either period with `getCombinedPeriodMax()`. Use that denominator for both `currentShare` and
+`previousShare`; separate per-period maxima make equal-width bars represent different values and
+can contradict the displayed delta. Only include visible primary rows and their matched comparison
+values in the denominator. Missing comparison values remain `undefined` and are ignored.
 
 **Remote URLs in links**
 

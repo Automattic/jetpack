@@ -34,7 +34,10 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 		{
 			uuid: 'post-utm',
 			type: 'jpa/utm-insights',
-			attributes: { utmDimension: 'utm_source,utm_medium', max: 10 },
+			// Detail-page widgets carry no "See report" action per the design
+			// mocks — the post detail page is itself the terminal page, and the
+			// site-wide UTM report would silently drop this post's scope.
+			attributes: { utmDimension: 'utm_source,utm_medium', max: 10, showReportLink: false },
 			placement: { width: 2, height: 2, order: 5 },
 		},
 		{

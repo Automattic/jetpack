@@ -90,10 +90,7 @@ function VideoDetailEmbedsReport() {
 	const { reportParams } = useWidgetRootContext();
 	const videoId = toPostId( reportParams.post_id );
 
-	const { data, isLoading, isFetching, isError, refetch } = useStatsSingleVideo(
-		videoId,
-		reportParams
-	);
+	const { data, isLoading, isFetching, isError, refetch } = useStatsSingleVideo( videoId );
 
 	let body;
 
