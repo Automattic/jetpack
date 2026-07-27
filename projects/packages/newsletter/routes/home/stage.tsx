@@ -1,271 +1,219 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import { getSiteData } from '@automattic/jetpack-script-data';
+import {
+	Icon,
+	__experimentalItem as Item, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalItemGroup as ItemGroup, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { border, chevronRight, envelope, link, published, upload } from '@wordpress/icons';
+import { Card, Stack, Text } from '@wordpress/ui';
 import './route.scss';
 
 /**
  * Newsletter Mode "Dashboard" page.
  *
- * NOTE: everything below the AdminPage title is a static, HTML-only preview of
- * the day-one dashboard design — inline styles, placeholder copy, no data
- * wiring. It is throwaway scaffolding to look at the layout, not the real page.
+ * NOTE: everything below the AdminPage title is still a preview of the day-one
+ * dashboard design — placeholder copy, no data wiring, and no destinations
+ * behind the tiles or checklist rows. The chrome is real, though: it is built
+ * from the design-system components (`Card`, `Stack`, `Text` from
+ * `@wordpress/ui`, `ItemGroup`/`Item`/`Icon` from `@wordpress/components`), so
+ * wiring it up later is a matter of adding handlers rather than rewriting the
+ * markup.
  *
  * @return Stage content.
  */
 
-// --- design tokens (local to this static preview) ---------------------------
-const ink = '#1e1e1e';
-const ink2 = '#50575e';
-const muted = '#757575';
-const line = '#e0e0e0';
-const line2 = '#f0f0f0';
-const paper = '#fbfbfc';
-const blue = 'var(--wp-admin-theme-color, #3858e9)';
+type ActionTile = {
+	icon: JSX.Element;
+	title: string;
+	description: string;
+};
 
-// Inline icon helper. Static preview only.
-const Icon = ( { d, size = 20 }: { d: string; size?: number } ): JSX.Element => (
-	<svg
-		width={ size }
-		height={ size }
-		viewBox="0 0 24 24"
-		fill="none"
-		stroke="currentColor"
-		strokeWidth="1.6"
-		strokeLinecap="round"
-		strokeLinejoin="round"
-		aria-hidden="true"
-		focusable="false"
-	>
-		{ d.split( '|' ).map( ( path, i ) => (
-			<path key={ i } d={ path } />
-		) ) }
-	</svg>
-);
+type ChecklistTask = {
+	title: string;
+	description: string;
+	done: boolean;
+};
 
-// Chevron (row affordance).
-const Chevron = (): JSX.Element => (
-	<svg
-		width="18"
-		height="18"
-		viewBox="0 0 24 24"
-		fill="none"
-		stroke={ muted }
-		strokeWidth="1.6"
-		strokeLinecap="round"
-		strokeLinejoin="round"
-		aria-hidden="true"
-		focusable="false"
-		style={ { flex: '0 0 auto' } }
-	>
-		<path d="m9 6 6 6-6 6" />
-	</svg>
-);
-
-const actionTiles = [
+/**
+ * The three day-one actions offered by the "Reach your first 3 readers" card.
+ *
+ * A function rather than a module constant so each `__()` runs at render time —
+ * at module scope they would resolve before the locale data is in place.
+ *
+ * @return The action tiles, in display order.
+ */
+const getActionTiles = (): ActionTile[] => [
 	{
-		icon: 'M12 3v12|M7 10l5 5 5-5|M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2',
+		icon: upload,
 		title: __( 'Bring your contacts', 'jetpack-newsletter' ),
-		desc: __( 'Import an existing list', 'jetpack-newsletter' ),
+		description: __( 'Import an existing list', 'jetpack-newsletter' ),
 	},
 	{
-		icon: 'M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7|M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7',
+		icon: link,
 		title: __( 'Share your link', 'jetpack-newsletter' ),
-		desc: __( 'Paste it anywhere you like', 'jetpack-newsletter' ),
+		description: __( 'Paste it anywhere you like', 'jetpack-newsletter' ),
 	},
 	{
-		icon: 'M2 4h20v16H2z|m2 6 10 7L22 6',
+		icon: envelope,
 		title: __( 'Invite by email', 'jetpack-newsletter' ),
-		desc: __( 'Ask a few people directly', 'jetpack-newsletter' ),
+		description: __( 'Ask a few people directly', 'jetpack-newsletter' ),
 	},
 ];
 
-const checklist = [
+/**
+ * The getting-started checklist. Completion is hard-coded until the tasks are
+ * backed by real site state.
+ *
+ * A function rather than a module constant, for the same reason as
+ * {@link getActionTiles}.
+ *
+ * @return The checklist tasks, in display order.
+ */
+const getChecklist = (): ChecklistTask[] => [
 	{
 		title: __( 'Your newsletter is live', 'jetpack-newsletter' ),
-		desc: __( 'octagonal.wordpress.com is ready for the world.', 'jetpack-newsletter' ),
+		description: __( 'octagonal.wordpress.com is ready for the world.', 'jetpack-newsletter' ),
 		done: true,
 	},
 	{
 		title: __( 'Make it yours', 'jetpack-newsletter' ),
-		desc: __( 'Customize the name, description, and more.', 'jetpack-newsletter' ),
+		description: __( 'Customize the name, description, and more.', 'jetpack-newsletter' ),
 		done: false,
 	},
 	{
 		title: __( 'Write your first post', 'jetpack-newsletter' ),
-		desc: __( 'Three sentences is enough. Start small.', 'jetpack-newsletter' ),
+		description: __( 'Three sentences is enough. Start small.', 'jetpack-newsletter' ),
 		done: false,
 	},
 	{
 		title: __( 'Bring your first readers', 'jetpack-newsletter' ),
-		desc: __( "Invite the people you'd usually text first.", 'jetpack-newsletter' ),
+		description: __( "Invite the people you'd usually text first.", 'jetpack-newsletter' ),
 		done: false,
 	},
 	{
 		title: __( 'Share your newsletter', 'jetpack-newsletter' ),
-		desc: __( "Invite the people you'd text first.", 'jetpack-newsletter' ),
+		description: __( "Invite the people you'd text first.", 'jetpack-newsletter' ),
 		done: false,
 	},
 ];
 
-const Preview = (): JSX.Element => (
-	<div
-		style={ {
-			maxWidth: '780px',
-			margin: '0 auto 40px',
-			paddingTop: '48px',
-			fontFamily:
-				'-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif',
-			color: ink,
-		} }
-	>
-		<h1
-			style={ {
-				fontSize: '30px',
-				fontWeight: 600,
-				letterSpacing: '-0.02em',
-				margin: '0 0 28px',
-			} }
-		>
+/**
+ * One of the three action tiles inside the "Reach your first 3 readers" card.
+ *
+ * Presentational for now. Once an action has somewhere to go, `Card.Root` takes
+ * a `render` prop — `render={ <button type="button" /> }` turns the whole tile
+ * into a button without adding a wrapper element.
+ *
+ * @param props      - Component props.
+ * @param props.tile - The tile to render.
+ * @return The tile card.
+ */
+const ActionTileCard = ( { tile }: { tile: ActionTile } ): JSX.Element => (
+	<Card.Root className="jetpack-newsletter-home__tile">
+		<Card.Content>
+			<Stack direction="column" gap="md" align="flex-start">
+				<Icon icon={ tile.icon } size={ 24 } className="jetpack-newsletter-home__tile-icon" />
+				<Stack direction="column" gap="xs">
+					<Text variant="heading-md" render={ <span /> }>
+						{ tile.title }
+					</Text>
+					<Text variant="body-sm" className="jetpack-newsletter-home__muted">
+						{ tile.description }
+					</Text>
+				</Stack>
+			</Stack>
+		</Card.Content>
+	</Card.Root>
+);
+
+/**
+ * One checklist row. `ItemGroup` supplies the shared border, the separators and
+ * the row padding; `Item` supplies `role="listitem"`.
+ *
+ * Presentational for now — passing `onClick` to `Item` renders it as a real
+ * `<button>` with the hover and focus treatment already built in, so wiring a
+ * task up is a one-prop change.
+ *
+ * @param props      - Component props.
+ * @param props.task - The task to render.
+ * @return The checklist row.
+ */
+const ChecklistRow = ( { task }: { task: ChecklistTask } ): JSX.Element => (
+	<Item className="jetpack-newsletter-home__task">
+		<Stack direction="row" align="center" gap="md">
+			<Icon
+				icon={ task.done ? published : border }
+				size={ 24 }
+				className={
+					task.done
+						? 'jetpack-newsletter-home__task-icon is-done'
+						: 'jetpack-newsletter-home__task-icon'
+				}
+			/>
+			<Stack direction="column" gap="xs" className="jetpack-newsletter-home__task-text">
+				<Text variant="heading-md" render={ <span /> }>
+					{ task.title }
+				</Text>
+				<Text variant="body-sm" className="jetpack-newsletter-home__muted">
+					{ task.description }
+				</Text>
+			</Stack>
+			{ ! task.done && (
+				<Icon icon={ chevronRight } size={ 24 } className="jetpack-newsletter-home__task-chevron" />
+			) }
+		</Stack>
+	</Item>
+);
+
+/**
+ * The dashboard body — greeting, the "Reach your first 3 readers" card, and the
+ * getting-started checklist.
+ *
+ * @return The dashboard content.
+ */
+const Dashboard = (): JSX.Element => (
+	<Stack direction="column" gap="xl" className="jetpack-newsletter-home">
+		<Text variant="heading-2xl" render={ <h1 /> }>
 			{ __( 'Welcome, Zara', 'jetpack-newsletter' ) }
-		</h1>
+		</Text>
 
-		{ /* Reach your first 3 readers */ }
-		<div
-			style={ {
-				background: '#fff',
-				border: `1px solid ${ line }`,
-				borderRadius: '10px',
-				padding: '24px',
-				marginBottom: '24px',
-			} }
-		>
-			<h2
-				style={ {
-					fontSize: '15px',
-					fontWeight: 600,
-					margin: '0 0 8px',
-				} }
-			>
-				{ __( 'Reach your first 3 readers', 'jetpack-newsletter' ) }
-			</h2>
-			<p
-				style={ {
-					fontSize: '13.5px',
-					lineHeight: 1.6,
-					color: muted,
-					margin: '0 0 20px',
-					maxWidth: '52ch',
-				} }
-			>
-				{ __(
-					'Writers who reach three readers in their first week almost always keep going. Try starting with people who already know you.',
-					'jetpack-newsletter'
-				) }
-			</p>
-			<div
-				style={ {
-					display: 'grid',
-					gridTemplateColumns: 'repeat(3, 1fr)',
-					gap: '12px',
-				} }
-			>
-				{ actionTiles.map( tile => (
-					<div
-						key={ tile.title }
-						style={ {
-							border: `1px solid ${ line }`,
-							borderRadius: '8px',
-							padding: '18px 16px',
-							cursor: 'pointer',
-						} }
+		<Card.Root className="jetpack-newsletter-home__reach">
+			<Card.Header>
+				<Card.Title>
+					<Text variant="heading-lg" render={ <h2 /> }>
+						{ __( 'Reach your first 3 readers', 'jetpack-newsletter' ) }
+					</Text>
+				</Card.Title>
+			</Card.Header>
+			<Card.Content>
+				<Stack direction="column" gap="xl">
+					<Text
+						variant="body-md"
+						render={ <p /> }
+						className="jetpack-newsletter-home__muted jetpack-newsletter-home__lede"
 					>
-						<span style={ { color: ink2, display: 'inline-flex' } }>
-							<Icon d={ tile.icon } />
-						</span>
-						<div style={ { fontSize: '14px', fontWeight: 600, marginTop: '12px' } }>
-							{ tile.title }
-						</div>
-						<div style={ { fontSize: '12.5px', color: muted, marginTop: '2px' } }>
-							{ tile.desc }
-						</div>
-					</div>
-				) ) }
-			</div>
-		</div>
+						{ __(
+							'Writers who reach three readers in their first week almost always keep going. Try starting with people who already know you.',
+							'jetpack-newsletter'
+						) }
+					</Text>
+					<Stack direction="row" gap="md" wrap="wrap" className="jetpack-newsletter-home__tiles">
+						{ getActionTiles().map( tile => (
+							<ActionTileCard key={ tile.title } tile={ tile } />
+						) ) }
+					</Stack>
+				</Stack>
+			</Card.Content>
+		</Card.Root>
 
-		{ /* Getting-started checklist */ }
-		<div
-			style={ {
-				background: '#fff',
-				border: `1px solid ${ line }`,
-				borderRadius: '10px',
-				overflow: 'hidden',
-			} }
-		>
-			{ checklist.map( ( item, i ) => (
-				<div
-					key={ item.title }
-					style={ {
-						display: 'flex',
-						alignItems: 'center',
-						gap: '14px',
-						padding: '16px 20px',
-						borderTop: i === 0 ? 'none' : `1px solid ${ line2 }`,
-						cursor: item.done ? 'default' : 'pointer',
-					} }
-				>
-					{ item.done ? (
-						<span
-							style={ {
-								width: '22px',
-								height: '22px',
-								borderRadius: '50%',
-								background: blue,
-								color: '#fff',
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-								flex: '0 0 22px',
-							} }
-						>
-							<svg
-								width="13"
-								height="13"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								strokeWidth="3"
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								aria-hidden="true"
-								focusable="false"
-							>
-								<path d="M20 6 9 17l-5-5" />
-							</svg>
-						</span>
-					) : (
-						<span
-							style={ {
-								width: '22px',
-								height: '22px',
-								borderRadius: '50%',
-								border: `1.5px solid ${ line }`,
-								background: paper,
-								flex: '0 0 22px',
-							} }
-						/>
-					) }
-					<div style={ { flex: 1, minWidth: 0 } }>
-						<div style={ { fontSize: '14px', fontWeight: 600 } }>{ item.title }</div>
-						<div style={ { fontSize: '12.5px', color: muted, marginTop: '2px' } }>
-							{ item.desc }
-						</div>
-					</div>
-					{ ! item.done && <Chevron /> }
-				</div>
+		<ItemGroup isBordered isRounded isSeparated className="jetpack-newsletter-home__checklist">
+			{ getChecklist().map( task => (
+				<ChecklistRow key={ task.title } task={ task } />
 			) ) }
-		</div>
-	</div>
+		</ItemGroup>
+	</Stack>
 );
 
 const Stage = (): JSX.Element => (
@@ -279,7 +227,7 @@ const Stage = (): JSX.Element => (
 		) }
 	>
 		<div className="jetpack-newsletter-mode-page">
-			<Preview />
+			<Dashboard />
 		</div>
 	</AdminPage>
 );
