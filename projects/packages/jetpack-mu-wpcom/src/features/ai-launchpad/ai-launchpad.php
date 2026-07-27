@@ -82,7 +82,7 @@ class AI_Launchpad {
 	public static function is_eligible() {
 		static $eligible = null;
 
-		if (null === $eligible) {
+		if ( null === $eligible ) {
 			$eligible = self::is_enabled_for_site()
 				&& ! get_option( \AI_Launchpad_REST::OPTION_DISMISSED );
 		}
