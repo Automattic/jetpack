@@ -50,6 +50,8 @@
 		margin: 0 0 1em;
 		font-size: 1.25rem;
 		line-height: 1.5;
+		display: block;
+		margin-block: 0 1em;
 	}
 
 	&__link,
@@ -156,8 +158,14 @@
 	}
 
 	&__survey {
-		margin-bottom: 1.5rem;
+		display: flex;
+		flex-direction: column;
+		gap: 1.25rem;
+		margin: 1.25rem 0 1.5rem;
 		max-width: 100%;
+		border: 0;
+		padding: 0;
+		min-width: 0;
 	}
 
 	// The thank-you step wraps its copy in a @wordpress/ui Stack, so let the

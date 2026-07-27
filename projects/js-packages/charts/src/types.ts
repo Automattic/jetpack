@@ -208,8 +208,8 @@ export type LeaderboardEntry = {
 	previousShare?: number;
 
 	/**
-	 * Delta of the entry. Omit when this row has no matching comparison-period
-	 * value.
+	 * Delta of the entry. Omit when the percentage change is unavailable, such
+	 * as when the row has no comparison value or its previous value is zero.
 	 */
 	delta?: number;
 

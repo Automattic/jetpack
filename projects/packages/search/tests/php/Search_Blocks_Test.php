@@ -59,6 +59,7 @@ class Search_Blocks_Test extends TestCase {
 			'nonce',
 			'isPrivateSite',
 			'isWpcom',
+			'isPhotonEnabled',
 			'isWooCommerceBlocksEnabled',
 			'homeUrl',
 			'locale',

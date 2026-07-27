@@ -97,9 +97,56 @@ describe( 'LeaderboardChart', () => {
 		expect( screen.getByText( '+25%' ) ).toBeInTheDocument();
 		expect( screen.getByText( '-8%' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'New Source' ) ).toBeInTheDocument();
-		expect( screen.getByText( '-' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByText( '—' ) ).toHaveAttribute( 'aria-hidden', 'true' );
 		expect( screen.getByText( 'No comparison data' ) ).toBeInTheDocument();
 		expect( screen.queryByText( '+100%' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows an unavailable delta when a known previous value is zero', () => {
+		render(
+			<LeaderboardChart
+				data={ [
+					{
+						id: 'new',
+						label: 'New Source',
+						currentValue: 100,
+						previousValue: 0,
+						currentShare: 100,
+						previousShare: 0,
+					},
+				] }
+				withComparison={ true }
+			/>
+		);
+
+		expect( screen.getByText( '—' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByText( 'Percentage change unavailable' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'No comparison data' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( '+100%' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'still renders the comparison bar when the previous value is known but the delta is unavailable', () => {
+		// The comparison bar is gated on a known previous value, not on the
+		// delta, so a row whose delta is unavailable keeps its bar. previousShare
+		// is non-zero here so a dropped bar cannot hide behind a zero width.
+		const { container } = render(
+			<LeaderboardChart
+				data={ [
+					{
+						id: 'zero-prev',
+						label: 'Zero Prev',
+						currentValue: 100,
+						previousValue: 0,
+						currentShare: 100,
+						previousShare: 40,
+					},
+				] }
+				withComparison={ true }
+			/>
+		);
+
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+		expect( container.querySelectorAll( '.bar' ) ).toHaveLength( 2 );
 	} );
 
 	it( 'shows custom label when provided', () => {
@@ -440,7 +487,31 @@ describe( 'LeaderboardChart', () => {
 			expect( screen.getByRole( 'button' ) ).toHaveAccessibleName(
 				/New Source.*100.*No comparison data/
 			);
-			expect( screen.getByRole( 'button' ) ).not.toHaveAccessibleName( /-/ );
+			expect( screen.getByRole( 'button' ) ).not.toHaveAccessibleName( /—/ );
+		} );
+
+		it( 'does not include the unavailable delta dash in interactive row names', () => {
+			render(
+				<LeaderboardChart
+					data={ [
+						{
+							id: 'zero-prev',
+							label: 'Zero Prev',
+							currentValue: 100,
+							previousValue: 0,
+							currentShare: 1,
+							previousShare: 0,
+							onClick: jest.fn(),
+						},
+					] }
+					withComparison={ true }
+				/>
+			);
+
+			expect( screen.getByRole( 'button' ) ).toHaveAccessibleName(
+				/Zero Prev.*100.*Percentage change unavailable/
+			);
+			expect( screen.getByRole( 'button' ) ).not.toHaveAccessibleName( /—/ );
 		} );
 
 		it( 'derives the accessible name from an image label via its alt text', () => {

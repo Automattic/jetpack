@@ -14,6 +14,9 @@ jest.mock( '../../connection-management', () => () => <div data-testid="connecti
 jest.mock( '../../manage-connections-modal', () => ( {
 	ThemedConnectionsModal: () => <div data-testid="connections-modal" />,
 } ) );
+jest.mock( '../../connection-flow', () => ( {
+	ConnectionFlowModal: () => <div data-testid="connection-flow-modal" />,
+} ) );
 
 jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => ( {
 	__esModule: true,

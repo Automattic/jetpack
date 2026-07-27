@@ -38,22 +38,36 @@ export {
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_YEAR,
 	PRESET_CUSTOM,
+	PRESET_ALL_TIME,
+	YEAR_PRESET_PREFIX,
 
 	// Guards
 	isSelectablePreset,
 	isPrimaryPreset,
+	isYearPresetId,
+	isYearSurfacePresetId,
+
+	// Year preset ID helpers
+	toYearPresetId,
+	getPresetYear,
 
 	// Types
 	type SelectablePresetId,
 	type PrimaryPresetId,
+	type ComputablePresetId,
+	type YearPresetId,
+	type YearSurfacePresetId,
 
 	// Primary presets
 	PRESET_DEFINITIONS,
+	DEFAULT_YEAR_SURFACE_COUNT,
 	getPresetLabel,
 	getDefaultDateRangePresets,
 	getQuickSurfacePresets,
+	getYearSurfacePresets,
 	computePrimaryRange,
 	type DateRangePreset,
+	type YearSurfaceOptions,
 
 	// Comparison presets
 	getComparisonPresetLabel,
