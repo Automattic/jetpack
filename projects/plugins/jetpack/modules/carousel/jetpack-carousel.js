@@ -141,7 +141,6 @@
 
 			var timer = setTimeout( function () {
 				el.jpCarouselCancelFade = null;
-				el.style.opacity = end;
 				el.style.removeProperty( 'pointer-events' );
 				callback();
 			}, duration + 50 );
