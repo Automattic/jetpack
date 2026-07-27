@@ -74,9 +74,10 @@ describe( 'normalizeReportParams', () => {
 	it( 'applies defaults with preset and comparison on fresh load', () => {
 		const result = normalizeReportParams();
 
-		// Preset should come from defaults.
+		// Preset should come from defaults. Rolling presets carry no year
+		// surface options, so the second argument is empty.
 		expect( result.preset ).toBe( 'last-30-days' );
-		expect( mockComputeRange ).toHaveBeenCalledWith( 'last-30-days' );
+		expect( mockComputeRange ).toHaveBeenCalledWith( 'last-30-days', {} );
 
 		// Dates should come from computeDateRangeFromPreset.
 		expect( result.from ).toBe( FRESH_FROM );
@@ -155,7 +156,7 @@ describe( 'normalizeReportParams', () => {
 		expect( result.from ).toBe( FRESH_FROM );
 		expect( result.to ).toBe( FRESH_TO );
 		expect( result.preset ).toBe( 'last-30-days' );
-		expect( mockComputeRange ).toHaveBeenCalledWith( 'last-30-days' );
+		expect( mockComputeRange ).toHaveBeenCalledWith( 'last-30-days', {} );
 	} );
 
 	/*
@@ -359,5 +360,63 @@ describe( 'normalizeReportParams', () => {
 		} );
 
 		expect( result.post_id ).toBeUndefined();
+	} );
+
+	/*
+	 * The year surface. Before these presets were recognized, a URL carrying one
+	 * fell through to the custom-range branch: the preset was dropped and the
+	 * dates it was linked with were used as-is, so `all-time` and the current
+	 * year silently stopped at the day the link was made.
+	 */
+	describe( 'year surface presets', () => {
+		it( 'recomputes a year preset instead of trusting the linked dates', () => {
+			const result = normalizeReportParams( {
+				from: STALE_FROM,
+				to: STALE_TO,
+				preset: 'year-2024',
+			} );
+
+			expect( result.preset ).toBe( 'year-2024' );
+			expect( result.from ).toBe( FRESH_FROM );
+			expect( result.to ).toBe( FRESH_TO );
+		} );
+
+		it( 'reads the all-time start back out of the linked from', () => {
+			normalizeReportParams( {
+				from: '2010-01-01T00:00:00.000-05:00',
+				to: STALE_TO,
+				preset: 'all-time',
+			} );
+
+			// Without this the widget would resolve all time to the default six
+			// years while the surface shows every year since 2010.
+			expect( mockComputeRange ).toHaveBeenCalledWith( 'all-time', { startYear: 2010 } );
+		} );
+
+		it( 'leaves the all-time start to the default when no from is linked', () => {
+			normalizeReportParams( { preset: 'all-time' } );
+
+			expect( mockComputeRange ).toHaveBeenCalledWith( 'all-time', {} );
+		} );
+
+		it( 'reads no start year for a single year, whose ID already says it', () => {
+			normalizeReportParams( {
+				from: '2010-01-01T00:00:00.000-05:00',
+				to: STALE_TO,
+				preset: 'year-2024',
+			} );
+
+			expect( mockComputeRange ).toHaveBeenCalledWith( 'year-2024', {} );
+		} );
+
+		it( 'ignores an unparseable from when resolving all time', () => {
+			normalizeReportParams( {
+				from: 'not a date',
+				to: STALE_TO,
+				preset: 'all-time',
+			} );
+
+			expect( mockComputeRange ).toHaveBeenCalledWith( 'all-time', {} );
+		} );
 	} );
 } );
