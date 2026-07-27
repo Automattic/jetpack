@@ -1,11 +1,59 @@
 .container {
 	display: flex;
 	align-items: center;
-	justify-content: center;
+
+	// On short tiles the icon + text can outgrow the widget body; scroll the
+	// overflow instead of painting over the widget footer.
+	overflow-y: auto;
 	height: 100%;
 	width: 100%;
 	margin-inline: auto;
+
+	// Size container so the icon can hide on short tiles (see the query below).
+	// Safe here: the empty state always sits in a definite-height body (grid
+	// tile, chart area, or story canvas), so size containment cannot collapse it.
+	container-type: size;
+
+	// Match the error state's container padding so adjacent widgets showing
+	// different states keep the same vertical rhythm.
+	padding: var(--wpds-dimension-padding-md);
 	gap: var(--wpds-dimension-gap-lg);
+}
+
+// Mirror the error state's short-tile degradation (see widget-state): below
+// the threshold every state renders text only, vertically centered, so
+// adjacent widgets in different states stay visually aligned.
+@container (max-block-size: 140px) {
+
+	.icon {
+		display: none;
+	}
+
+	// The hidden icon generates no flex box, so the start auto margin on
+	// `:first-child` stops centering; hand it to the first visible sibling so
+	// the text stays vertically centered.
+	.container > .icon + * {
+		margin-block-start: auto;
+	}
+}
+
+// Keep the icon and text at their intrinsic size: flex children default to
+// `flex-shrink: 1`, so a too-short tile would squash them (a visibly shrunken
+// icon) before the container ever scrolls.
+.container > * {
+	flex-shrink: 0;
+}
+
+// Overflow-safe vertical centering: auto margins center the content when there
+// is room and collapse to zero when there is not, so the state top-anchors and
+// stays fully scrollable. `justify-content: center` would push the overflow
+// past the top edge where it cannot be scrolled to.
+.container > :first-child {
+	margin-block-start: auto;
+}
+
+.container > :last-child {
+	margin-block-end: auto;
 }
 
 .icon {

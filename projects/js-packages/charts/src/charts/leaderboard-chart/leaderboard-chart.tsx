@@ -64,13 +64,20 @@ const defaultDeltaFormatter = ( value: number ): string => {
 const getBarWidth = ( share: number ): string =>
 	`calc(${ share }% - var(--a8c-charts-dimension-leaderboard-bar-hover-inset, 0px) * ${ share } / 100)`;
 
-const hasComparisonValue = (
+const hasPreviousValue = (
+	entry: LeaderboardEntry
+): entry is LeaderboardEntry & {
+	previousValue: number;
+	previousShare: number;
+} => entry.previousValue != null && entry.previousShare != null;
+
+const hasDeltaValue = (
 	entry: LeaderboardEntry
 ): entry is LeaderboardEntry & {
 	previousValue: number;
 	previousShare: number;
 	delta: number;
-} => entry.previousValue != null && entry.previousShare != null && entry.delta != null;
+} => hasPreviousValue( entry ) && entry.delta != null;
 
 const BarLabel = ( { label }: { label: LeaderboardEntry[ 'label' ] } ) => (
 	<>{ typeof label === 'string' ? <Text className={ styles.label }>{ label }</Text> : label }</>
@@ -117,7 +124,7 @@ const BarWithLabel = ( {
 				></div>
 			) }
 
-			{ showComparisonBar && hasComparisonValue( entry ) && (
+			{ showComparisonBar && hasPreviousValue( entry ) && (
 				<div
 					className={ clsx( styles.bar, {
 						[ styles[ 'bar--animated' ] ]: animation,
@@ -383,9 +390,10 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 										? ( { visibility: 'hidden' } as const )
 										: undefined;
 								const showComparisonColumn = withComparison && isComparisonVisible;
-								const hasDeltaValue = hasComparisonValue( entry );
-								const showComparisonValue = showComparisonColumn && hasDeltaValue;
-								const showComparisonPlaceholder = showComparisonColumn && ! hasDeltaValue;
+								const hasPreviousPeriodValue = hasPreviousValue( entry );
+								const hasDelta = hasDeltaValue( entry );
+								const showComparisonValue = showComparisonColumn && hasDelta;
+								const showComparisonPlaceholder = showComparisonColumn && ! hasDelta;
 								const colorIndex = showComparisonValue ? Math.sign( entry.delta ) + 1 : 1;
 								const deltaColor = deltaColors[ colorIndex ];
 
@@ -424,9 +432,11 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 													className={ clsx( styles.deltaValue, styles.deltaPlaceholder ) }
 													style={ { color: deltaColor } }
 												>
-													<span aria-hidden="true">-</span>
+													<span aria-hidden="true">—</span>
 													<VisuallyHidden as="span">
-														{ __( 'No comparison data', 'jetpack-charts' ) }
+														{ hasPreviousPeriodValue
+															? __( 'Percentage change unavailable', 'jetpack-charts' )
+															: __( 'No comparison data', 'jetpack-charts' ) }
 													</VisuallyHidden>
 												</Text>
 											) }

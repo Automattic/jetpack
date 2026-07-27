@@ -18,6 +18,17 @@ use PHPUnit\Framework\Attributes\DataProvider;
 class ContentCoverageTest extends SeoTestCase {
 
 	/**
+	 * Clean up custom post types registered by these tests.
+	 */
+	protected function tearDown(): void {
+		if ( post_type_exists( 'seo_book' ) ) {
+			unregister_post_type( 'seo_book' );
+		}
+
+		parent::tearDown();
+	}
+
+	/**
 	 * The factual content-coverage counts expose the expected integer shape
 	 * (state, not a score).
 	 */
@@ -41,6 +52,16 @@ class ContentCoverageTest extends SeoTestCase {
 	 * the affected metric silently count zero rather than fail. Pin both lists.
 	 */
 	public function test_coverage_targets_the_seo_meta_keys_and_post_types() {
+		register_post_type(
+			'seo_book',
+			array(
+				'label'        => 'Books',
+				'public'       => true,
+				'show_ui'      => true,
+				'show_in_rest' => true,
+			)
+		);
+
 		$this->assertEqualsCanonicalizing(
 			array(
 				Content_Coverage::META_SCHEMA_TYPE,
@@ -52,7 +73,11 @@ class ContentCoverageTest extends SeoTestCase {
 			'Every meta key a CASE arm counts must also be selected by the join.'
 		);
 
-		$this->assertSame( array( 'post', 'page' ), $this->invoke_private( Content_Coverage::class, 'post_types' ) );
+		$post_types = $this->invoke_private( Content_Coverage::class, 'post_types' );
+		$this->assertContains( 'post', $post_types );
+		$this->assertContains( 'page', $post_types );
+		$this->assertContains( 'seo_book', $post_types );
+		$this->assertNotContains( 'attachment', $post_types );
 	}
 
 	/**
@@ -77,10 +102,20 @@ class ContentCoverageTest extends SeoTestCase {
 	 * The counts against real content. Every fixture here is one the query could plausibly
 	 * get wrong: a post with two rows for the same meta key must be counted once, not
 	 * twice; an empty-string value means "not set"; noindex only counts on an exact '1',
-	 * so '0' leaves the post search-visible; and drafts, trashed posts and other post types
-	 * are not part of the published set at all.
+	 * so '0' leaves the post search-visible; and drafts, trashed posts and unsupported
+	 * post types are not part of the published set at all.
 	 */
-	public function test_content_coverage_counts_published_posts_and_pages() {
+	public function test_content_coverage_counts_published_supported_content() {
+		register_post_type(
+			'seo_book',
+			array(
+				'label'        => 'Books',
+				'public'       => true,
+				'show_ui'      => true,
+				'show_in_rest' => true,
+			)
+		);
+
 		// Published, everything set, and hidden from search.
 		$this->publish(
 			array(
@@ -113,6 +148,9 @@ class ContentCoverageTest extends SeoTestCase {
 		// A page counts alongside posts.
 		$this->publish( array( Content_Coverage::META_DESCRIPTION => 'Page description' ), 'page' );
 
+		// A supported custom post type counts across every SEO surface.
+		$this->publish( array( Content_Coverage::META_TITLE => 'Book title' ), 'seo_book' );
+
 		// None of these are part of the published set.
 		$this->publish( array( Content_Coverage::META_TITLE => 'Draft title' ), 'post', 'draft' );
 		$this->publish( array( Content_Coverage::META_TITLE => 'Trashed title' ), 'post', 'trash' );
@@ -120,11 +158,11 @@ class ContentCoverageTest extends SeoTestCase {
 
 		$this->assertSame(
 			array(
-				'total'               => 6,
+				'total'               => 7,
 				'with_schema'         => 1,
-				'with_title'          => 2,
+				'with_title'          => 3,
 				'with_description'    => 2,
-				'with_search_visible' => 5,
+				'with_search_visible' => 6,
 			),
 			Content_Coverage::get()
 		);

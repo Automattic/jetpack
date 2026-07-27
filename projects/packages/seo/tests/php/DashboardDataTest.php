@@ -17,6 +17,17 @@ use PHPUnit\Framework\Attributes\CoversClass;
 class DashboardDataTest extends SeoTestCase {
 
 	/**
+	 * Clean up custom post types registered by these tests.
+	 */
+	protected function tearDown(): void {
+		if ( post_type_exists( 'seo_book' ) ) {
+			unregister_post_type( 'seo_book' );
+		}
+
+		parent::tearDown();
+	}
+
+	/**
 	 * `get_overview_data()` assembles the full Overview bootstrap (site
 	 * visibility, verification booleans, content coverage, and plan state) the
 	 * dashboard reads. With no host-plugin options present it degrades to
@@ -78,9 +89,44 @@ class DashboardDataTest extends SeoTestCase {
 			$this->assertIsBool( $ai['enhancer']['enabled'] );
 			// With the feature filter forced off, the enhancer is never available.
 			$this->assertFalse( $ai['enhancer']['available'] );
+			$this->assertArrayHasKey( 'llmsTxt', $ai );
+			$this->assertIsBool( $ai['llmsTxt']['enabled'] );
+			$this->assertIsString( $ai['llmsTxt']['url'] );
+			$this->assertIsBool( $ai['llmsTxt']['canServe'] );
+			$this->assertArrayHasKey( 'crawlers', $ai );
+			$this->assertIsArray( $ai['crawlers']['catalog'] );
+			// A sparse map, cast to an object by get_bootstrap_data() so an empty
+			// override set serializes as `{}` rather than `[]` — the same reason
+			// `title_formats` is cast in get_settings_data().
+			$this->assertIsObject( $ai['crawlers']['overrides'] );
+			$this->assertIsBool( $ai['crawlers']['dataSharingOptOut'] );
+			$this->assertIsBool( $ai['crawlers']['pathBasedMultisite'] );
 		} finally {
 			remove_filter( 'ai_seo_enhancer_enabled', '__return_false' );
 		}
+	}
+
+	/**
+	 * The Content tab receives the shared supported post type options.
+	 */
+	public function test_get_content_data_includes_supported_custom_post_types() {
+		register_post_type(
+			'seo_book',
+			array(
+				'label'        => 'Books',
+				'public'       => true,
+				'show_ui'      => true,
+				'show_in_rest' => true,
+			)
+		);
+
+		$this->assertContains(
+			array(
+				'slug'  => 'seo_book',
+				'label' => 'Books',
+			),
+			Dashboard_Data::get_content_data()['post_types']
+		);
 	}
 
 	/**

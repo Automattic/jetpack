@@ -11,19 +11,31 @@ export {
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_YEAR,
 	PRESET_CUSTOM,
+	PRESET_ALL_TIME,
+	YEAR_PRESET_PREFIX,
 	isSelectablePreset,
 	isPrimaryPreset,
+	isYearPresetId,
+	isYearSurfacePresetId,
+	toYearPresetId,
+	getPresetYear,
 	type SelectablePresetId,
 	type PrimaryPresetId,
+	type ComputablePresetId,
+	type YearPresetId,
+	type YearSurfacePresetId,
 } from './types';
 
 export {
 	PRESET_DEFINITIONS,
+	DEFAULT_YEAR_SURFACE_COUNT,
 	getPresetLabel,
 	getDefaultDateRangePresets,
 	getQuickSurfacePresets,
+	getYearSurfacePresets,
 	computePrimaryRange,
 	type DateRangePreset,
+	type YearSurfaceOptions,
 } from './primary';
 
 export { getComparisonPresetLabel, getComparisonPresetConfigs } from './comparison';

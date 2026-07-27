@@ -27,7 +27,7 @@ describe( 'post detail tab layouts', () => {
 			{
 				uuid: 'post-utm',
 				type: 'jpa/utm-insights',
-				attributes: { utmDimension: 'utm_source,utm_medium', max: 10 },
+				attributes: { utmDimension: 'utm_source,utm_medium', max: 10, showReportLink: false },
 				placement: { width: 2, height: 2, order: 5 },
 			},
 			{

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Initial version, extracted from Jetpack MU WPCOM to its own package for external consumption.

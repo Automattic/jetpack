@@ -31,6 +31,7 @@ import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../go-back-link';
 import { getProductConfigs } from './config';
 import ProductInterstitial from './product-interstitial';
+import { reloadIfActivationChangesAdminMenu } from './reload-after-activation';
 import styles from './style.module.scss';
 
 /**
@@ -217,7 +218,7 @@ export default function PricingInterstitial( { slug } ) {
 									if ( postRegisterRedirectUri ) {
 										// Redirect to the product's admin page
 										window.location.href = postRegisterRedirectUri;
-									} else {
+									} else if ( ! reloadIfActivationChangesAdminMenu( slug, product?.title ) ) {
 										// Fall back to the My Jetpack overview page.
 										return navigateToMyJetpackOverviewPage();
 									}
