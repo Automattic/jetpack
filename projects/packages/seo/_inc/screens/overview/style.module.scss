@@ -70,9 +70,9 @@
 	gap: var(--wpds-dimension-gap-sm);
 }
 
-// A 24px icon (the @wordpress/ui default) in a `size-md` (32px) chip — both from
-// the WPDS scale — reads as a filled badge rather than a small icon floating in
-// an oversized circle.
+// A 24px icon (the @wordpress/ui default) in a `size-md` (32px) chip — both
+// from the WPDS size scale, so the glyph fills the badge instead of floating
+// in an oversized circle.
 .titleIcon {
 	display: inline-flex;
 	align-items: center;
