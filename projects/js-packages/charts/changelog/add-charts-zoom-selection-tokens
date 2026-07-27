@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Zoom: Add `--a8c-charts-color-zoom-selection` and `--a8c-charts-color-zoom-selection-stroke` override variables for theming the drag-to-zoom selection rectangle.
