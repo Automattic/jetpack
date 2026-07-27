@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Translate the admin menu label in the package instead of requiring callers to pass one, and show an explanatory notice instead of a blank page when the build output is missing.
