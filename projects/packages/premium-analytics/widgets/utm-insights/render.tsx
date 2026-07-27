@@ -6,6 +6,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import {
 	calculateDelta,
+	describeError,
 	LeaderboardChart,
 	ReportLink,
 	WidgetBackLink,
@@ -92,7 +93,7 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 		clearSelectedUtm();
 	}, [ clearSelectedUtm, utmDimension ] );
 
-	const { data, hasComparison, isLoading, isFetching, isError, refetch } = useUtmInsights( {
+	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = useUtmInsights( {
 		reportParams,
 		utmParam: utmDimension,
 		max,
@@ -177,13 +178,13 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 					isFetching={ isFetching }
 					isError={ isError }
 					isEmpty={ data.length === 0 }
-					error={ {
-						description: __(
+					error={ describeError( error, {
+						retryDescription: __(
 							"We couldn't load UTM data. Please try again in a moment.",
 							'jetpack-premium-analytics'
 						),
-						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
-					} }
+						onRetry: refetch,
+					} ) }
 					empty={ {
 						icon: megaphone,
 						description: __( 'No UTM data in this period.', 'jetpack-premium-analytics' ),
