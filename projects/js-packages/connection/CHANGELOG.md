@@ -5,7 +5,7 @@
 ## [2.2.0] - 2026-07-27
 ### Added
 - Add a `./state/store-id` subpath export so CONNECTION_STORE_ID can be imported without pulling the package barrel.
-- Connection: Support informational-only connection error notices. When an error's action is "none", the notice renders without a reconnect CTA.
+- Support informational-only connection error notices. When an error's action is "none", the notice renders without a reconnect CTA.
 
 ## [2.1.0] - 2026-07-22
 ### Removed
