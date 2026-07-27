@@ -144,12 +144,22 @@ function PostsReport(): JSX.Element {
 		[]
 	);
 	const activeRecords = activeTab === 'posts-pages' ? records.posts : records.archives;
+
+	// An archive group's views are the sum of its children's, and a group has no
+	// URL of its own, so the export keeps the leaf rows only.
+	const csvExportRows = useMemo< ReportCsvRow[] >(
+		() =>
+			activeTab === 'posts-pages'
+				? records.posts.rows
+				: records.archives.rows.filter( row => ! row.isGroup ),
+		[ activeTab, records.posts.rows, records.archives.rows ]
+	);
 	const {
 		canExport,
 		rows: csvRows,
 		filename: csvFilename,
 	} = useReportCsvExport< ReportCsvRow >( {
-		rows: activeRecords.rows,
+		rows: csvExportRows,
 		filenamePrefix: activeTab === 'posts-pages' ? 'top-posts' : 'archives',
 		range: reportParams,
 		status: activeRecords,

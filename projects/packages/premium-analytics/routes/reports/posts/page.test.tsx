@@ -225,6 +225,36 @@ describe( 'PostsReportPage', () => {
 		] );
 	} );
 
+	it( 'leaves archive group rows out of the export', () => {
+		const records = buildRecords();
+		const leafRow = {
+			id: 'tags-0-0',
+			parentId: 'tags-0',
+			label: 'Analytics',
+			views: 12,
+			link: 'https://example.com/tag/analytics',
+			isGroup: false,
+		};
+		records.archives.rows = [
+			{
+				id: 'tags-0',
+				label: 'Tags',
+				views: 12,
+				isGroup: true,
+			},
+			leafRow,
+		];
+		useSectionTabMock.mockReturnValue( [ 'archives', jest.fn() ] );
+		useRecordsMock.mockReturnValue( records );
+
+		render( <PostsReportPage /> );
+
+		expect( useReportCsvExportMock ).toHaveBeenCalledWith(
+			expect.objectContaining( { rows: [ leafRow ] } )
+		);
+		expect( rowsCsvDownloadButtonMock.mock.calls[ 0 ][ 0 ].rows ).toEqual( [ leafRow ] );
+	} );
+
 	it( 'renders Archives through the nested drilldown table', () => {
 		const records = buildRecords();
 		records.archives.rows = [
