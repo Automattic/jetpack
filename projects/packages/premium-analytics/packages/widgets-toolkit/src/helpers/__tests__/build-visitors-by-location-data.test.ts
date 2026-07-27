@@ -62,7 +62,8 @@ describe( 'buildVisitorsByLocationData', () => {
 
 		const japan = leaderboardData.find( row => row.id === 'JP' );
 
-		// No matching comparison row → em dash, not a fabricated +100%.
+		// No matching comparison row → comparison fields stay undefined, so the
+		// chart shows the missing-data placeholder rather than implying a real 0.
 		expect( japan?.previousValue ).toBeUndefined();
 		expect( japan?.previousShare ).toBeUndefined();
 		expect( japan?.delta ).toBeUndefined();
@@ -77,12 +78,10 @@ describe( 'buildVisitorsByLocationData', () => {
 
 		const japan = leaderboardData.find( row => row.id === 'JP' );
 
-		// A real 0 is a known previous value, so the row keeps a delta rather
-		// than falling back to the placeholder. 0 visitors to 1 is calculateDelta's
-		// documented "new/appeared" case, matching every other comparison widget.
+		// A real 0 is a known previous value, but its percentage change is undefined.
 		expect( japan?.previousValue ).toBe( 0 );
 		expect( japan?.previousShare ).toBe( 0 );
-		expect( japan?.delta ).toBe( 100 );
+		expect( japan?.delta ).toBeUndefined();
 	} );
 
 	it( 'leaves comparison fields undefined for every row when no comparison data is provided', () => {

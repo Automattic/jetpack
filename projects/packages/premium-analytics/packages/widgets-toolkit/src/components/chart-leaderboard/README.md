@@ -164,7 +164,7 @@ type LeaderboardChartData = Array< {
 	previousValue?: number;
 	currentShare: number; // Percentage (0-100)
 	previousShare?: number; // Percentage (0-100); omitted when no comparison row matches
-	delta?: number; // Percentage change; omitted when no comparison row matches
+	delta?: number; // Percentage change; omitted when no comparison row matches or unavailable
 } >;
 ```
 

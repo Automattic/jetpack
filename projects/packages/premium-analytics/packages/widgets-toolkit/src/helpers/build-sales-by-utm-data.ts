@@ -41,6 +41,11 @@ export function buildSalesByUtmData(
 
 	return data.map( ( item, idx ) => {
 		const currentValue = item.current_period.value || 0;
+
+		// The attribution summary aggregates every order, so it always reports a
+		// previous_period: a source with no sales in the comparison period is a
+		// real 0, not missing data, and its unavailable delta renders as the
+		// placeholder.
 		const previousValue = item.previous_period.value || 0;
 
 		return {

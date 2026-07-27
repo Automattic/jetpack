@@ -79,8 +79,9 @@ export function buildVisitorsByLocationData( {
 	const leaderboardData: LeaderboardChartData = visiblePrimaryData.map( item => {
 		// A location absent from the comparison period has an unknown previous
 		// value, not a real 0, so leave the comparison fields undefined and let
-		// the chart show a placeholder instead of a fabricated delta. A location
-		// present with 0 visitors has a known previous value and keeps its delta.
+		// the chart show a missing-data placeholder instead of a fabricated delta.
+		// A location present with 0 visitors keeps its known comparison value while
+		// its unavailable delta renders separately.
 		const previousValue = comparisonValues.get( item.id );
 		const hasComparisonValue = previousValue !== undefined;
 

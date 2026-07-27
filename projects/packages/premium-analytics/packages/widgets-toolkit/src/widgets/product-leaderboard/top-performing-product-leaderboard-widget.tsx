@@ -157,9 +157,10 @@ export function TopPerformingProductLeaderboardWidget( {
 			// A product ranked below the previous top-N cutoff is absent from
 			// the comparison list. That is an unknown previous value, not a
 			// real 0, so leave the comparison fields undefined and let the
-			// chart show a placeholder instead of a fabricated +100% delta. A
-			// product present with 0 revenue has a known previous value and
-			// keeps its real delta.
+			// chart show a missing-data placeholder instead of implying the
+			// product earned nothing. A product present with 0 revenue keeps
+			// its known comparison value while its unavailable delta renders
+			// separately.
 			const previousValue = comparisonProduct?.product_net_revenue;
 			const hasComparisonValue = previousValue !== undefined;
 

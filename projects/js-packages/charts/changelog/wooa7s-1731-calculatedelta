@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Leaderboard: Distinguish unavailable percentage changes from missing comparison data.

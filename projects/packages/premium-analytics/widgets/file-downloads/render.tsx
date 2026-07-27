@@ -42,93 +42,6 @@ type FileDownloadsRenderAttributes = FileDownloadsAttributes &
 type FileDownloadsWidgetProps = WidgetRenderProps< FileDownloadsRenderAttributes >;
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
-const FILE_DOWNLOADS_UNAVAILABLE_STATUS = 404;
-
-function toStatusNumber( value: unknown ): number | null {
-	if ( typeof value === 'number' ) {
-		return value;
-	}
-
-	if ( typeof value === 'string' ) {
-		const status = Number.parseInt( value, 10 );
-		return Number.isNaN( status ) ? null : status;
-	}
-
-	return null;
-}
-
-function getErrorStatus( error: unknown ): number | null {
-	if ( ! error || typeof error !== 'object' ) {
-		return null;
-	}
-
-	const err = error as Record< string, unknown >;
-
-	const status = toStatusNumber( err.status );
-	if ( status !== null ) {
-		return status;
-	}
-
-	if ( err.data && typeof err.data === 'object' ) {
-		const data = err.data as Record< string, unknown >;
-		const dataStatus = toStatusNumber( data.status );
-		if ( dataStatus !== null ) {
-			return dataStatus;
-		}
-	}
-
-	if ( err.response && typeof err.response === 'object' ) {
-		const response = err.response as Record< string, unknown >;
-		const responseStatus = toStatusNumber( response.status );
-		if ( responseStatus !== null ) {
-			return responseStatus;
-		}
-	}
-
-	return null;
-}
-
-function getErrorText( error: unknown ): string {
-	if ( ! error || typeof error !== 'object' ) {
-		return '';
-	}
-
-	const err = error as Record< string, unknown >;
-	const candidates = [
-		err.message,
-		err.error,
-		err.code,
-		err.data && typeof err.data === 'object'
-			? ( err.data as Record< string, unknown > ).message
-			: undefined,
-		err.data && typeof err.data === 'object'
-			? ( err.data as Record< string, unknown > ).error
-			: undefined,
-		err.response && typeof err.response === 'object'
-			? ( err.response as Record< string, unknown > ).message
-			: undefined,
-	];
-
-	return candidates
-		.filter( ( candidate ): candidate is string => typeof candidate === 'string' )
-		.join( ' ' );
-}
-
-function getFileDownloadsErrorMessage( error: unknown ) {
-	const errorText = getErrorText( error ).toLowerCase();
-	const isUnavailableMessage =
-		errorText.includes( 'file download' ) &&
-		( errorText.includes( 'not available' ) || errorText.includes( 'jetpack site' ) );
-
-	if ( getErrorStatus( error ) === FILE_DOWNLOADS_UNAVAILABLE_STATUS || isUnavailableMessage ) {
-		return __(
-			'File download stats are not available for Jetpack sites.',
-			'jetpack-premium-analytics'
-		);
-	}
-
-	return undefined;
-}
 
 /**
  * A single normalized file-downloads row, ready for the leaderboard.
@@ -267,11 +180,8 @@ type FileDownloadsInnerProps = {
  */
 function FileDownloadsInner( { max }: FileDownloadsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	const { comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
+	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsFileDownloads( reportParams as StatsReportParams, { maxRows: max } );
-	// File downloads has a known unsupported case (404 on Jetpack sites); Retry
-	// can't succeed there, so the action is dropped for that message.
-	const unavailableMessage = getFileDownloadsErrorMessage( error );
 
 	const rows = useMemo(
 		() => toFileDownloadRows( comparisonRows?.rows ?? [] ),
@@ -291,15 +201,11 @@ function FileDownloadsInner( { max }: FileDownloadsInnerProps ) {
 					isError={ rows.length === 0 && isError }
 					isEmpty={ rows.length === 0 }
 					error={ {
-						description:
-							unavailableMessage ??
-							__(
-								"We couldn't load file downloads. Please try again in a moment.",
-								'jetpack-premium-analytics'
-							),
-						actions: unavailableMessage
-							? []
-							: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+						description: __(
+							"We couldn't load file downloads. Please try again in a moment.",
+							'jetpack-premium-analytics'
+						),
+						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
 					} }
 					empty={ {
 						icon: download,

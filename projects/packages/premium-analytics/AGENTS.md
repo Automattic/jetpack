@@ -602,7 +602,8 @@ Widgets should consume `comparisonRows?.rows` and the hook-level `hasComparison`
 `mergeStats*ComparisonRows()` or duplicate the row-overlap guard from render/view code.
 Widget-level mapping may still add presentation-only fields such as labels, icons, links,
 shares, or chart colors. Leave missing `previousValue`/`previousShare`/`delta` values as
-`undefined` so charts suppress the row delta instead of rendering fake `0%` or `100%` changes.
+`undefined` so charts show the missing-data placeholder, instead of coercing them to `0` and
+implying a real zero previous period.
 
 For comparison leaderboards, calculate one denominator from the largest value represented in
 either period with `getCombinedPeriodMax()`. Use that denominator for both `currentShare` and
