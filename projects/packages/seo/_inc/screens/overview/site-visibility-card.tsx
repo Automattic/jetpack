@@ -32,10 +32,10 @@ const SiteVisibilityCard: FC< Props > = ( { data, onManage } ) => {
 			<Card.Header>
 				<Card.Title>
 					<span className={ styles.cardTitle }>
-						{ __( 'Site visibility', 'jetpack-seo' ) }
 						<span className={ styles.titleIcon }>
-							<Icon icon={ seen } size={ 20 } />
+							<Icon icon={ seen } size={ 24 } />
 						</span>
+						{ __( 'Site visibility', 'jetpack-seo' ) }
 					</span>
 				</Card.Title>
 			</Card.Header>

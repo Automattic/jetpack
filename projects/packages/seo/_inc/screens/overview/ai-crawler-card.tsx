@@ -93,10 +93,10 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, onManage } ) 
 			<Card.Header>
 				<Card.Title>
 					<span className={ styles.cardTitle }>
-						{ __( 'AI crawler access', 'jetpack-seo' ) }
 						<span className={ styles.titleIcon }>
-							<Icon icon={ key } size={ 20 } />
+							<Icon icon={ key } size={ 24 } />
 						</span>
+						{ __( 'AI crawler access', 'jetpack-seo' ) }
 					</span>
 				</Card.Title>
 			</Card.Header>

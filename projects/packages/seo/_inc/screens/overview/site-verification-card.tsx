@@ -22,10 +22,10 @@ const SiteVerificationCard: FC< Props > = ( { data, onManage } ) => (
 		<Card.Header>
 			<Card.Title>
 				<span className={ styles.cardTitle }>
-					{ __( 'Site verification', 'jetpack-seo' ) }
 					<span className={ styles.titleIcon }>
-						<Icon icon={ check } size={ 20 } />
+						<Icon icon={ check } size={ 24 } />
 					</span>
+					{ __( 'Site verification', 'jetpack-seo' ) }
 				</span>
 			</Card.Title>
 		</Card.Header>

@@ -116,10 +116,10 @@ const ContentCoverageCard: FC< Props > = ( { data, onManage, onFilter } ) => {
 			<Card.Header>
 				<Card.Title>
 					<span className={ styles.cardTitle }>
-						{ __( 'Content SEO', 'jetpack-seo' ) }
 						<span className={ styles.titleIcon }>
-							<Icon icon={ formatListBullets } size={ 20 } />
+							<Icon icon={ formatListBullets } size={ 24 } />
 						</span>
+						{ __( 'Content SEO', 'jetpack-seo' ) }
 					</span>
 				</Card.Title>
 			</Card.Header>
