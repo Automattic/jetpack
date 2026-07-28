@@ -63,7 +63,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "eb7d71cd6ca5ef62b08b33f45e272836d9f6689d"
+                "reference": "53be68ef7636bbd5a82899db6ed297f229e2ac5f"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
@@ -73,7 +73,7 @@
                 "phpcompatibility/phpcompatibility-wp": "^2.1",
                 "phpcsstandards/phpcsutils": "^1.0",
                 "sirbrillig/phpcs-variable-analysis": "^2.10",
-                "wp-coding-standards/wpcs": "^3.0"
+                "wp-coding-standards/wpcs": ">=3.0.0 <3.4.1"
             },
             "require-dev": {
                 "automattic/phpunit-select-config": "@dev",
@@ -87,7 +87,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-codesniffer/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "8.0.x-dev"
+                    "dev-trunk": "8.1.x-dev"
                 }
             },
             "autoload": {
