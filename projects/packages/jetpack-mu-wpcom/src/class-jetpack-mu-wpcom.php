@@ -76,7 +76,6 @@ class Jetpack_Mu_Wpcom {
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_custom_css' ) );
 			add_action( 'init', array( __CLASS__, 'schedule_translation_updates' ) );
-			add_action( 'plugins_loaded', array( __CLASS__, 'load_plugin_state' ) );
 		}
 
 		// Unified navigation fix for changes in WordPress 6.2.
@@ -368,8 +367,8 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_wpcom_user_features() {
 		// To avoid potential collisions with ETK.
-		if ( ! class_exists( 'A8C\FSE\Help_Center' ) ) {
-			require_once __DIR__ . '/features/help-center/class-help-center.php';
+		if ( ! class_exists( 'A8C\FSE\Help_Center' ) && class_exists( \Automattic\Jetpack\Help_Center\Help_Center::class ) ) {
+			add_action( 'init', array( \Automattic\Jetpack\Help_Center\Help_Center::class, 'init' ), 10, 0 );
 		}
 
 		if ( ! is_wpcom_user() ) {
@@ -807,7 +806,9 @@ class Jetpack_Mu_Wpcom {
 
 		Premium_Analytics::init_wpcom_simple(
 			array(
-				'menu_title' => 'Premium Analytics',
+				// A closure, not a string: we run on plugins_loaded, too early to translate.
+				// The package calls this back on admin_menu.
+				'menu_title' => fn () => __( 'Premium Analytics', 'jetpack-mu-wpcom' ),
 			)
 		);
 	}
@@ -818,13 +819,6 @@ class Jetpack_Mu_Wpcom {
 	public static function load_custom_css() {
 		require_once __DIR__ . '/features/custom-css/custom-css/preprocessors.php';
 		require_once __DIR__ . '/features/custom-css/custom-css.php';
-	}
-
-	/**
-	 * Load the Plugin State feature.
-	 */
-	public static function load_plugin_state() {
-		require_once __DIR__ . '/features/plugin-state/plugin-state.php';
 	}
 
 	/**

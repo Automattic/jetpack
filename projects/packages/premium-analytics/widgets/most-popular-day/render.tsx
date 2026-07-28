@@ -81,16 +81,16 @@ export const MostPopularDayHighlight = ( {
 }: MostPopularDayHighlightProps ) => (
 	<Stack className={ styles.highlight } direction="column" gap="xl" justify="center">
 		<MostPopularDayField
-			label={ __( 'Day', 'jetpack-premium-analytics' ) }
+			label={ __( 'Day', 'jetpack-premium-analytics-pkg' ) }
 			value={ formatDate( date, 'MMMM d' ) }
 			caption={ formatDate( date, 'year' ) }
 		/>
 		<MostPopularDayField
-			label={ __( 'Views', 'jetpack-premium-analytics' ) }
+			label={ __( 'Views', 'jetpack-premium-analytics-pkg' ) }
 			value={ formatMetricValue( views, 'number', { useMultipliers: true, decimals: 1 } ) }
 			caption={ sprintf(
 				/* translators: %s is a percentage, e.g. "0.32%". */
-				__( '%s of views', 'jetpack-premium-analytics' ),
+				__( '%s of views', 'jetpack-premium-analytics-pkg' ),
 				formatMetricValue( share, 'percentage', { decimals: 2, signDisplay: 'never' } )
 			) }
 		/>
@@ -146,11 +146,11 @@ function MostPopularDayReport() {
 					error={ {
 						description: __(
 							"We couldn't load your most popular day. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
 						actions: [
 							{
-								label: __( 'Retry', 'jetpack-premium-analytics' ),
+								label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
 								onClick: () => void refetch(),
 							},
 						],
@@ -159,7 +159,7 @@ function MostPopularDayReport() {
 						icon: calendar,
 						description: __(
 							'Not enough views yet to pick a most popular day.',
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
 					} }
 				>

@@ -4,7 +4,8 @@
 import {
 	computePrimaryRange,
 	getQuickSurfacePresets,
-	PRESET_CUSTOM,
+	isSelectablePreset,
+	type PrimaryPresetId,
 	type SelectablePresetId,
 } from '@jetpack-premium-analytics/datetime';
 import { Composite } from '@wordpress/components';
@@ -89,9 +90,9 @@ export function DateRangeQuickPresets( {
 						selectPreset( item.value );
 					}
 				} }
-				label={ __( 'Period', 'jetpack-premium-analytics' ) }
+				label={ __( 'Period', 'jetpack-premium-analytics-pkg' ) }
 				hideLabelFromVision
-				placeholder={ __( 'Select period', 'jetpack-premium-analytics' ) }
+				placeholder={ __( 'Select period', 'jetpack-premium-analytics-pkg' ) }
 			/>
 		);
 	}
@@ -127,14 +128,11 @@ export function DateRangeQuickPresets( {
  * Returns the preset ID to highlight on the surface controls.
  *
  * @param presetId - Active preset from staged search state.
- * @return The selectable preset ID, or null when custom is active.
+ * @return The selectable preset ID, or null when a custom range or a preset
+ *         from another surface (e.g. a year) is active.
  */
 export function getSurfacePresetId(
-	presetId: SelectablePresetId | typeof PRESET_CUSTOM | null | undefined
+	presetId: PrimaryPresetId | null | undefined
 ): SelectablePresetId | null {
-	if ( ! presetId || presetId === PRESET_CUSTOM ) {
-		return null;
-	}
-
-	return presetId;
+	return isSelectablePreset( presetId ) ? presetId : null;
 }

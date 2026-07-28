@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Carousel: Run the overlay fade as a CSS transition instead of a main-thread animation loop, and honour prefers-reduced-motion.

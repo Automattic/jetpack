@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -18,12 +19,26 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass( Analytics::class )]
 class Analytics_Test extends TestCase {
 
+	const MENU_SLUG     = 'jetpack-premium-analytics-wp-admin';
+	const MENU_HOOKNAME = 'toplevel_page_' . self::MENU_SLUG;
+
+	/**
+	 * _doing_it_wrong() function names captured during a test.
+	 *
+	 * @var string[]
+	 */
+	private $doing_it_wrong = array();
+
 	/**
 	 * Reset request and screen globals touched by the dashboard-request tests.
 	 */
 	protected function tearDown(): void {
 		unset( $_GET['page'] );
 		unset( $GLOBALS['current_screen'] );
+		unset( $GLOBALS['menu'] );
+		remove_all_actions( self::MENU_HOOKNAME );
+		remove_all_filters( 'doing_it_wrong_trigger_error' );
+		remove_all_actions( 'doing_it_wrong_run' );
 		global $wp_rest_server;
 		$wp_rest_server = null;
 		remove_all_actions( 'jetpack_sync_processed_actions' );
@@ -39,14 +54,26 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * Reset the one-shot init guard between tests.
+	 * Reset the one-shot init guard and the caller-supplied menu label between tests.
 	 */
 	private function reset_analytics_init_state() {
-		$property = new \ReflectionProperty( Analytics::class, 'initialized' );
+		$this->set_analytics_property( 'initialized', false );
+		$this->set_analytics_property( 'menu_title', null );
+		$this->set_analytics_property( 'resolved_menu_title', null );
+	}
+
+	/**
+	 * Set one of the class's private statics.
+	 *
+	 * @param string $name  Property name.
+	 * @param mixed  $value Value to set.
+	 */
+	private function set_analytics_property( $name, $value ) {
+		$property = new \ReflectionProperty( Analytics::class, $name );
 		if ( PHP_VERSION_ID < 80500 ) {
 			$property->setAccessible( true );
 		}
-		$property->setValue( null, false );
+		$property->setValue( null, $value );
 	}
 
 	/**
@@ -163,5 +190,209 @@ class Analytics_Test extends TestCase {
 		$_GET['page'] = 'jetpack-premium-analytics';
 
 		$this->assertFalse( Analytics::is_dashboard_request() );
+	}
+
+	/**
+	 * With no caller override the label comes from the package itself, so nobody has
+	 * to translate it before the textdomain can load.
+	 */
+	public function test_register_admin_menu_labels_the_page_from_the_package() {
+		$menu_item = $this->register_admin_menu_without_build();
+
+		$this->assertSame( 'Analytics', $menu_item[0] ?? null );
+	}
+
+	/**
+	 * A caller-supplied label wins over the package default.
+	 */
+	public function test_register_admin_menu_honors_a_caller_label() {
+		Analytics::init( array( 'menu_title' => 'Store Analytics' ) );
+
+		$menu_item = $this->register_admin_menu_without_build();
+
+		$this->assertSame( 'Store Analytics', $menu_item[0] ?? null );
+	}
+
+	/**
+	 * A caller that needs its own textdomain passes a closure, which we resolve here
+	 * rather than at init time.
+	 */
+	public function test_register_admin_menu_resolves_a_caller_label_closure() {
+		$calls = 0;
+		Analytics::init(
+			array(
+				'menu_title' => function () use ( &$calls ) {
+					++$calls;
+
+					return 'Store Analytics';
+				},
+			)
+		);
+
+		$this->assertSame( 0, $calls, 'The label closure must not run at init time.' );
+
+		$menu_item = $this->register_admin_menu_without_build();
+
+		$this->assertSame( 'Store Analytics', $menu_item[0] ?? null );
+		$this->assertSame( 1, $calls );
+	}
+
+	/**
+	 * Values a caller's closure might hand back instead of a usable label.
+	 *
+	 * @return array<string, array{mixed}>
+	 */
+	public static function data_unusable_closure_labels() {
+		return array(
+			'null'         => array( null ),
+			'empty string' => array( '' ),
+			'not a string' => array( 42 ),
+		);
+	}
+
+	/**
+	 * A closure that returns nothing usable leaves the menu labelled rather than blank.
+	 *
+	 * @dataProvider data_unusable_closure_labels
+	 *
+	 * @param mixed $returned What the caller's closure hands back.
+	 */
+	#[DataProvider( 'data_unusable_closure_labels' )]
+	public function test_register_admin_menu_falls_back_when_a_closure_returns_no_label( $returned ) {
+		Analytics::init(
+			array(
+				'menu_title' => function () use ( $returned ) {
+					return $returned;
+				},
+			)
+		);
+
+		$menu_item = $this->register_admin_menu_without_build();
+
+		$this->assertSame( 'Analytics', $menu_item[0] ?? null );
+	}
+
+	/**
+	 * The label is resolved once, so an unstable closure can't leave the menu and the
+	 * page heading disagreeing with each other.
+	 */
+	public function test_menu_label_is_resolved_once_per_request() {
+		$calls = 0;
+		Analytics::init(
+			array(
+				'menu_title' => function () use ( &$calls ) {
+					++$calls;
+
+					return 'Analytics ' . $calls;
+				},
+			)
+		);
+
+		$menu_item = $this->register_admin_menu_without_build();
+
+		ob_start();
+		Analytics::render_missing_build_notice();
+		$output = ob_get_clean();
+
+		$this->assertSame( 1, $calls );
+		$this->assertSame( 'Analytics 1', $menu_item[0] ?? null );
+		$this->assertStringContainsString( '<h1>Analytics 1</h1>', $output );
+	}
+
+	/**
+	 * A missing build is reported on the admin request that registers the menu, not
+	 * only when someone opens the dashboard.
+	 */
+	public function test_register_admin_menu_reports_a_missing_build() {
+		$this->register_admin_menu_without_build();
+
+		$this->assertSame(
+			array( Analytics::class . '::register_admin_menu' ),
+			$this->doing_it_wrong
+		);
+	}
+
+	/**
+	 * Without the generated render function the page falls back to the notice rather
+	 * than the blank screen __return_null used to leave behind.
+	 */
+	public function test_register_admin_menu_falls_back_to_the_missing_build_notice() {
+		$this->register_admin_menu_without_build();
+
+		$this->assertNotFalse(
+			has_action(
+				self::MENU_HOOKNAME,
+				array( Analytics::class, 'render_missing_build_notice' )
+			)
+		);
+	}
+
+	/**
+	 * The missing-build page explains itself, under the same label as the menu.
+	 */
+	public function test_missing_build_notice_explains_itself_under_the_menu_label() {
+		Analytics::init( array( 'menu_title' => 'Store Analytics' ) );
+
+		ob_start();
+		Analytics::render_missing_build_notice();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '<h1>Store Analytics</h1>', $output );
+		$this->assertStringContainsString( 'The package build did not run for this deploy.', $output );
+	}
+
+	/**
+	 * Register the admin menu from a clean menu global, with the generated render
+	 * function absent - the state _doing_it_wrong() deliberately reports, so the
+	 * call is captured rather than left to trip the suite's warning gate.
+	 * add_menu_page() only wires the render callback for a user who can reach the
+	 * page, hence the capability grant.
+	 *
+	 * @return array|null The registered menu entry.
+	 */
+	private function register_admin_menu_without_build() {
+		$GLOBALS['menu'] = array();
+
+		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
+		$this->capture_doing_it_wrong();
+		Analytics::register_admin_menu();
+		remove_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
+
+		foreach ( $GLOBALS['menu'] as $item ) {
+			if ( self::MENU_SLUG === ( $item[2] ?? null ) ) {
+				return $item;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Capture _doing_it_wrong() calls without tripping the suite's failOnWarning gate.
+	 *
+	 * Records each triggering function name in $this->doing_it_wrong and suppresses the
+	 * underlying PHP warning, so a test can assert the diagnostic fired.
+	 */
+	private function capture_doing_it_wrong() {
+		$this->doing_it_wrong = array();
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		add_action(
+			'doing_it_wrong_run',
+			function ( $function_name ) {
+				$this->doing_it_wrong[] = $function_name;
+			}
+		);
+	}
+
+	/**
+	 * Grant manage_options to the (logged-out) test user.
+	 *
+	 * @param array $caps Capabilities.
+	 * @return array
+	 */
+	public function grant_manage_options( $caps ) {
+		$caps['manage_options'] = true;
+
+		return $caps;
 	}
 }

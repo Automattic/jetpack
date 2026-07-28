@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Connection: Support informational-only connection error notices. When an error's action is "none", the notice renders without a reconnect CTA.

@@ -38,10 +38,12 @@ minimumReleaseAgeExclude:
   - 'i18n-calypso'
   # Renovate security update: webpack-dev-server@5.2.6
   - webpack-dev-server@5.2.6
-  # Renovate security update: js-yaml@4.3.0
-  - js-yaml@4.3.0
+  # Renovate security update: js-yaml@4.3.0 || 5.2.2
+  - js-yaml@4.3.0 || 5.2.2
   # Renovate security update: sharp@0.35.0
   - sharp@0.35.0
+  # Renovate security update: react-router@7.18.0
+  - react-router@7.18.0
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
@@ -89,3 +91,10 @@ patchedDependencies:
   # uuid up to v11 had CommonJS files with ESM content too.
   # No bug report, because it's already fixed in the latest versions.
   "uuid@<11": .pnpm-patches/uuid.patch
+
+  # The wp-admin page template delegates boot init modules to initSinglePage(),
+  # but WordPress cores bundling an older @wordpress/boot (e.g. WP 7.0) ignore
+  # the option, so init modules never run there. The patch runs them in the
+  # inline bootstrap instead. Remove once the template runs init modules itself
+  # upstream (or Jetpack's WP floor ships a boot with initModules support).
+  "@wordpress/build": .pnpm-patches/@wordpress__build.patch

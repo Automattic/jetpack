@@ -81,6 +81,18 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php';
  */
 class Jetpack {
 	/**
+	 * Marks that the durable Jetpack SEO module-state options have been reconciled against
+	 * the site's module configuration, so the repair runs at most once.
+	 *
+	 * {@see self::reconcile_seo_module_state_options()}
+	 *
+	 * @since 16.1
+	 *
+	 * @var string
+	 */
+	const SEO_MODULE_STATE_RECONCILED_OPTION = 'jetpack_seo_module_state_reconciled';
+
+	/**
 	 * XMLRPC server instance.
 	 *
 	 * @var null|Jetpack_XMLRPC_Server XMLRPC server used by Jetpack.
@@ -426,6 +438,14 @@ class Jetpack {
 	 * @var Jetpack
 	 */
 	public static $instance = false;
+
+	/**
+	 * Resolved answer for `is_premium_analytics_enabled()`, or null before the first call.
+	 *
+	 * @since $$next-version$$
+	 * @var bool|null
+	 */
+	private static $premium_analytics_enabled = null;
 
 	/**
 	 * Singleton
@@ -822,6 +842,56 @@ class Jetpack {
 	}
 
 	/**
+	 * Whether the bundled Premium Analytics dashboard is enabled.
+	 *
+	 * Premium Analytics ships with the plugin behind this flag while it rolls
+	 * out (WOOA7S-1595). When enabled it replaces the Stats wp-admin UI (menu,
+	 * admin-bar entries, post-list column, and WP dashboard widget); the Stats
+	 * module's tracking is unaffected — Premium Analytics depends on it.
+	 *
+	 * The package has to be loadable for this to be true. The same answer both
+	 * tears the Stats UI down and brings the dashboard up, so if the two could
+	 * disagree a site missing the package would end up with neither.
+	 *
+	 * Resolved once per request: `configure()` asks first, on `plugins_loaded`,
+	 * and the Stats module and dashboard widget ask much later. Without the
+	 * cache a filter registered in between would be seen by only some of them.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_premium_analytics_enabled() {
+		if ( null !== self::$premium_analytics_enabled ) {
+			return self::$premium_analytics_enabled;
+		}
+
+		/**
+		 * Filters whether the bundled Premium Analytics dashboard is enabled.
+		 *
+		 * Resolved once, from `Jetpack::configure()` on `plugins_loaded`. Register
+		 * this from a mu-plugin or a plugin's main file — a callback added on
+		 * `plugins_loaded` or later runs too late to be seen.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $enabled Defaults to the `jetpack_premium_analytics_enabled` option (false).
+		 */
+		$flag = (bool) apply_filters( 'jetpack_premium_analytics_enabled', (bool) get_option( 'jetpack_premium_analytics_enabled' ) );
+
+		self::$premium_analytics_enabled = $flag && class_exists( 'Automattic\Jetpack\PremiumAnalytics\Analytics' );
+
+		if ( $flag && ! self::$premium_analytics_enabled ) {
+			wp_trigger_error(
+				__METHOD__,
+				'The jetpack_premium_analytics_enabled flag is on but the Premium Analytics package is not loadable; keeping the Stats UI in place.'
+			);
+		}
+
+		return self::$premium_analytics_enabled;
+	}
+
+	/**
 	 * Before everything else starts getting initalized, we need to initialize Jetpack using the
 	 * Config object.
 	 */
@@ -841,8 +911,9 @@ class Jetpack {
 		}
 
 		// Enable the VideoPress admin UI (the "Jetpack > VideoPress" dashboard) inside the
-		// Jetpack plugin, mirroring the standalone Jetpack VideoPress plugin. The page only
-		// renders when the VideoPress module is active (Status::is_active()).
+		// Jetpack plugin, mirroring the standalone Jetpack VideoPress plugin. The dashboard
+		// only renders when the VideoPress module is active (Status::is_active()); when it
+		// is not, the menu item links to the My Jetpack interstitial to activate it.
 		$config->ensure( 'videopress', array( 'admin_ui' => true ) );
 
 		/*
@@ -922,6 +993,20 @@ class Jetpack {
 				},
 				0
 			);
+		}
+
+		/*
+		 * Premium Analytics (WOOA7S-1595): bundled behind a flag while it rolls
+		 * out. Unlike Stats above it must initialize on every request when
+		 * enabled: its WooCommerce store-event tracker listens on the front end
+		 * and its REST surfaces self-gate on rest_api_init. When enabled it
+		 * replaces the Stats wp-admin UI (see modules/stats.php).
+		 */
+		if ( self::is_premium_analytics_enabled() ) {
+			// No menu_title here: the package labels its own menu on admin_menu.
+			// Translating at this point would load the textdomain before
+			// after_setup_theme, which core flags as too early.
+			\Automattic\Jetpack\PremiumAnalytics\Analytics::init();
 		}
 
 		$config->ensure(
@@ -2929,6 +3014,57 @@ p {
 	}
 
 	/**
+	 * Whether a module should be recorded as active in its durable Jetpack SEO option.
+	 *
+	 * Permanent module overrides are part of the site's configuration, so the normal
+	 * filtered module state is authoritative. The exception is wpcomsh's private-site
+	 * callback, which temporarily suppresses `sitemaps` on Atomic sites without changing
+	 * the site's configured state. Evaluate the module state with only that callback
+	 * disabled.
+	 *
+	 * The hook is cloned before removing the callback so its ordering remains unchanged for
+	 * the rest of the request. `$available_only` is false because these migrations can run
+	 * after the standalone module file has been removed.
+	 *
+	 * WordPress.com Simple keeps module state outside this site's options table, so its
+	 * normal filtered read remains authoritative.
+	 *
+	 * @since 16.1
+	 *
+	 * @param string $module Module slug.
+	 * @return bool Whether the module should be recorded as active.
+	 */
+	private static function is_module_active_for_seo_option( $module ) {
+		$modules = new Modules();
+
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return $modules->is_active( $module, false );
+		}
+
+		global $wp_filter;
+
+		$hook_name             = 'jetpack_active_modules';
+		$private_site_callback = '\Private_Site\filter_jetpack_active_modules';
+		$callback_priority     = has_filter( $hook_name, $private_site_callback );
+
+		if ( false === $callback_priority ) {
+			return $modules->is_active( $module, false );
+		}
+
+		$original_hook = $wp_filter[ $hook_name ];
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Use an isolated hook copy without changing callback order.
+		$wp_filter[ $hook_name ] = clone $original_hook;
+		remove_filter( $hook_name, $private_site_callback, $callback_priority );
+
+		try {
+			return $modules->is_active( $module, false );
+		} finally {
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Restore the untouched original hook.
+			$wp_filter[ $hook_name ] = $original_hook;
+		}
+	}
+
+	/**
 	 * Records whether the standalone Sitemaps module is active so the setting survives
 	 * the module's removal.
 	 *
@@ -2936,8 +3072,8 @@ p {
 	 * option instead of the `sitemaps` module's active state. Module-active state is
 	 * filtered against the modules present on disk, so once the standalone module is
 	 * removed it would read as inactive even for sites that had it on. This one-time
-	 * migration captures the raw `active_modules` membership — which persists regardless
-	 * of whether the module file is present — into the durable option.
+	 * migration captures the configured module state — which persists regardless of
+	 * whether the module file is present — into the durable option.
 	 *
 	 * Deliberately non-destructive: it never touches generated sitemap data
 	 * (`jp_sitemap*` posts), the `jetpack-sitemap-state` option, sitemap settings, or the
@@ -2949,9 +3085,9 @@ p {
 	 * `add_option()` provides the run-once guard.
 	 */
 	public static function migrate_sitemaps_module_to_seo_option() {
-		// $available_only = false reads raw `active_modules` membership, so the value is
-		// correct even when the standalone sitemaps module file has already been removed.
-		$sitemaps_active = ( new Modules() )->is_active( 'sitemaps', false );
+		// Ignore wpcomsh's temporary private-site suppression while preserving permanent
+		// module overrides. {@see self::is_module_active_for_seo_option()}.
+		$sitemaps_active = self::is_module_active_for_seo_option( 'sitemaps' );
 
 		add_option( Jetpack_SEO_Initializer::SITEMAP_ENABLED_OPTION, $sitemaps_active );
 	}
@@ -2963,11 +3099,12 @@ p {
 	 * Hooked to the module's activate/deactivate actions, so toggling sitemaps from any
 	 * surface (the legacy Traffic settings, the SEO Settings tab, or WP-CLI) keeps the
 	 * durable {@see Jetpack_SEO_Initializer::SITEMAP_ENABLED_OPTION} option current. The
-	 * actions fire after `active_modules` is updated, so the module state read here
-	 * already reflects the new value. Removed alongside the module itself.
+	 * actions fire after `active_modules` is updated, so the configured state already
+	 * reflects the new choice. Ignore temporary private-site suppression without bypassing
+	 * permanent module overrides. Removed alongside the module itself.
 	 */
 	public static function sync_seo_sitemap_option() {
-		update_option( Jetpack_SEO_Initializer::SITEMAP_ENABLED_OPTION, ( new Modules() )->is_active( 'sitemaps' ) );
+		update_option( Jetpack_SEO_Initializer::SITEMAP_ENABLED_OPTION, self::is_module_active_for_seo_option( 'sitemaps' ) );
 	}
 
 	/**
@@ -2978,8 +3115,8 @@ p {
 	 * option instead of the `canonical-urls` module's active state. Module-active state is
 	 * filtered against the modules present on disk, so once the standalone module is
 	 * removed it would read as inactive even for sites that had it on. This one-time
-	 * migration captures the raw `active_modules` membership — which persists regardless
-	 * of whether the module file is present — into the durable option.
+	 * migration captures the configured module state — which persists regardless of
+	 * whether the module file is present — into the durable option.
 	 *
 	 * Deliberately non-destructive: `add_option()` only seeds when the option is absent, so
 	 * it is safe to run on every version bump and never reverts a value the user has since
@@ -2989,9 +3126,7 @@ p {
 	 * `add_option()` provides the run-once guard.
 	 */
 	public static function migrate_canonical_urls_module_to_seo_option() {
-		// $available_only = false reads raw `active_modules` membership, so the value is
-		// correct even when the standalone canonical-urls module file has already been removed.
-		$canonical_active = ( new Modules() )->is_active( 'canonical-urls', false );
+		$canonical_active = self::is_module_active_for_seo_option( 'canonical-urls' );
 
 		add_option( Jetpack_SEO_Initializer::CANONICAL_ENABLED_OPTION, $canonical_active );
 	}
@@ -3003,11 +3138,46 @@ p {
 	 * Hooked to the module's activate/deactivate actions, so toggling canonical URLs from any
 	 * surface (the legacy Traffic settings, the SEO Settings tab, or WP-CLI) keeps the
 	 * durable {@see Jetpack_SEO_Initializer::CANONICAL_ENABLED_OPTION} option current. The
-	 * actions fire after `active_modules` is updated, so the module state read here
-	 * already reflects the new value. Removed alongside the module itself.
+	 * actions fire after `active_modules` is updated, so the configured state already
+	 * reflects the new choice. Permanent module overrides remain authoritative. Removed
+	 * alongside the module itself.
 	 */
 	public static function sync_seo_canonical_urls_option() {
-		update_option( Jetpack_SEO_Initializer::CANONICAL_ENABLED_OPTION, ( new Modules() )->is_active( 'canonical-urls' ) );
+		update_option( Jetpack_SEO_Initializer::CANONICAL_ENABLED_OPTION, self::is_module_active_for_seo_option( 'canonical-urls' ) );
+	}
+
+	/**
+	 * Repairs durable SEO module-state options that the first pass of the migration seeded
+	 * from a filtered read.
+	 *
+	 * Jetpack 16.0 seeded {@see Jetpack_SEO_Initializer::SITEMAP_ENABLED_OPTION} and
+	 * {@see Jetpack_SEO_Initializer::CANONICAL_ENABLED_OPTION} through
+	 * {@see Modules::is_active()}, which passes the `jetpack_active_modules` filter. A site
+	 * that was private at the time therefore recorded `sitemaps` as off even though the user
+	 * had it on, and because the migration seeds with `add_option()` the value was never
+	 * revisited — making the site public again did not restore the setting.
+	 *
+	 * This runs once and rewrites both options from the site's configured module state,
+	 * including permanent module overrides. That is safe against a choice the user has made
+	 * since: every surface that toggles these settings (the legacy Traffic page, the SEO
+	 * Settings tab, WP-CLI) goes through {@see Modules::activate()}/{@see Modules::deactivate()},
+	 * so the module state and durable option are already in agreement wherever the original
+	 * migration got it right.
+	 *
+	 * Idempotent: the marker is written with `add_option()`, so reruns on later version bumps
+	 * are no-ops. Like the migrations it seeds from, it touches no sitemap data or cron state.
+	 *
+	 * @since 16.1
+	 */
+	public static function reconcile_seo_module_state_options() {
+		if ( get_option( self::SEO_MODULE_STATE_RECONCILED_OPTION ) ) {
+			return;
+		}
+
+		update_option( Jetpack_SEO_Initializer::SITEMAP_ENABLED_OPTION, self::is_module_active_for_seo_option( 'sitemaps' ) );
+		update_option( Jetpack_SEO_Initializer::CANONICAL_ENABLED_OPTION, self::is_module_active_for_seo_option( 'canonical-urls' ) );
+
+		add_option( self::SEO_MODULE_STATE_RECONCILED_OPTION, true );
 	}
 
 	/**
@@ -3028,6 +3198,10 @@ p {
 		add_action( 'updating_jetpack_version', array( 'Jetpack', 'migrate_canonical_urls_module_to_seo_option' ) );
 		add_action( 'jetpack_activate_module_canonical-urls', array( 'Jetpack', 'sync_seo_canonical_urls_option' ) );
 		add_action( 'jetpack_deactivate_module_canonical-urls', array( 'Jetpack', 'sync_seo_canonical_urls_option' ) );
+
+		// Runs after both migrations above (default priority, registered last) so a freshly
+		// seeded site is already correct and the reconciliation is a no-op there.
+		add_action( 'updating_jetpack_version', array( 'Jetpack', 'reconcile_seo_module_state_options' ) );
 	}
 
 	/**

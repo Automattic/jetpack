@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.84.2] - 2026-07-27
+### Security
+- REST API: Require the `edit_others_posts` capability to create a shared connection, matching the update check. [#50722]
+
+### Added
+- Add a connection-flow state machine to the social store. [#50772]
+- Add the admin UI v2 feature flag. [#50733]
+- Add the connection-flow modal and open it from the Social dashboard behind the admin UI v2 flag. [#50775]
+- Add the platform picker step for the new connection flow. [#50773]
+
+### Changed
+- Update package dependencies. [#50683] [#50751] [#50753]
+- Use the same connection management UI in the block editor sidebar as on the Social admin page. [#50731]
+
 ## [0.84.1] - 2026-07-20
 ### Changed
 - Update package dependencies. [#50510] [#50529] [#50582]
@@ -1576,6 +1590,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.84.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.1...v0.84.2
 [0.84.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.0...v0.84.1
 [0.84.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.5...v0.84.0
 [0.83.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.4...v0.83.5

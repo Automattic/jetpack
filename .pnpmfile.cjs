@@ -78,6 +78,14 @@ async function fixDeps( pkg ) {
 		}
 	}
 
+	// Unused, vulnerable dep.
+	if (
+		pkg.name === '@automattic/components' &&
+		pkg.dependencies[ 'react-router-dom' ]?.startsWith( '^6' )
+	) {
+		delete pkg.dependencies[ 'react-router-dom' ];
+	}
+
 	// Breaking change in @wordpress/icons v11.
 	if (
 		pkg.name === '@automattic/components' &&

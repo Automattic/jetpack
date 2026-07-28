@@ -241,13 +241,11 @@ export {
 	computeDateRangeFromPreset,
 	getApiErrorCode,
 	getApiErrorStatus,
-	getStatsPlanErrorReason,
 	saveBlob,
 	shouldRetryApiError,
 	toPostId,
 	useSiteHomeUrl,
 } from './utils';
-export type { StatsPlanErrorReason } from './utils';
 export type { ReportDataMap } from './types';
 export type { ReportQueryParams } from './api';
 export type { FilterCondition } from './types/filter-condition';

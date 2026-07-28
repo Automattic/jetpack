@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-podcast",
-	"version": "1.4.1",
+	"version": "1.4.2",
 	"private": true,
 	"description": "Jetpack Podcast functionality (Simple and Atomic only).",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/podcast/#readme",

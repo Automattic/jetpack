@@ -36,3 +36,5 @@ require_once __DIR__ . '/stubs/class-jetpack-options.php';
 require_once __DIR__ . '/stubs/class-wc-structured-data.php';
 require_once __DIR__ . '/stubs/class-woocommerce.php';
 require_once __DIR__ . '/stubs/woocommerce-functions.php';
+require_once __DIR__ . '/stubs/class-wpcom-test-features.php';
+require_once __DIR__ . '/stubs/wpcom-feature-functions.php';

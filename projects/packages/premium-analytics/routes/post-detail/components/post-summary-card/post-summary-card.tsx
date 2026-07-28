@@ -31,8 +31,8 @@ const DATE_FORMAT = 'MMM d, yyyy';
  */
 function getTypeLabel( type?: string ): string {
 	return type === 'page'
-		? __( 'Page', 'jetpack-premium-analytics' )
-		: __( 'Post', 'jetpack-premium-analytics' );
+		? __( 'Page', 'jetpack-premium-analytics-pkg' )
+		: __( 'Post', 'jetpack-premium-analytics-pkg' );
 }
 
 /**
@@ -53,7 +53,7 @@ export function PostSummaryCard( { summary, performanceRange }: PostSummaryCardP
 		publishedDateObject && isValid( publishedDateObject )
 			? sprintf(
 					/* translators: %1$s: "Post" or "Page". %2$s: the publish date, e.g. "Aug 19, 2025". */
-					__( '%1$s published on %2$s.', 'jetpack-premium-analytics' ),
+					__( '%1$s published on %2$s.', 'jetpack-premium-analytics-pkg' ),
 					getTypeLabel( type ),
 					format( publishedDateObject, DATE_FORMAT )
 			  )
@@ -64,7 +64,7 @@ export function PostSummaryCard( { summary, performanceRange }: PostSummaryCardP
 		from && to && isValid( from ) && isValid( to )
 			? sprintf(
 					/* translators: %1$s and %2$s: the report range bounds, e.g. "Jul 9, 2026". */
-					__( 'Performance from %1$s to %2$s', 'jetpack-premium-analytics' ),
+					__( 'Performance from %1$s to %2$s', 'jetpack-premium-analytics-pkg' ),
 					format( from, DATE_FORMAT ),
 					format( to, DATE_FORMAT )
 			  )

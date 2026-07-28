@@ -6,6 +6,17 @@ interface HierarchyRow< Item > {
 	id: string;
 }
 
+/**
+ * Normalise a `getItemParentId` result to the string ids the walks compare, or
+ * `undefined` for a row with no parent.
+ *
+ * @param rawParentId - The resolver's return value.
+ * @return The parent id as a string, or undefined.
+ */
+function resolveParentId( rawParentId: string | number | null | undefined ): string | undefined {
+	return rawParentId === null || rawParentId === undefined ? undefined : rawParentId.toString();
+}
+
 type ProcessedHierarchyLevels< Item > = {
 	/** The items re-emitted in depth-first hierarchy order. */
 	data: Item[];
@@ -50,9 +61,7 @@ export function processHierarchyLevels< Item >(
 	const childrenByParentId = new Map< string, HierarchyRow< Item >[] >();
 
 	for ( const row of rows ) {
-		const rawParentId = getItemParentId( row.item );
-		const parentId =
-			rawParentId === null || rawParentId === undefined ? undefined : rawParentId.toString();
+		const parentId = resolveParentId( getItemParentId( row.item ) );
 		const parent = parentId && parentId !== row.id ? rowById.get( parentId ) : undefined;
 
 		if ( ! parent ) {
@@ -96,18 +105,27 @@ export function processHierarchyLevels< Item >(
 
 /**
  * Given the ids of the rows a search or filter matched, return those rows plus
- * every ancestor up to a root, in the original `data` order (ready for
- * {@link processHierarchyLevels}). This keeps a filtered view's matches under
- * their parents instead of orphaning them. A missing, self-referential, or
- * already-kept parent ends the walk, so cycles cannot loop.
+ * the rows needed to read each match in its hierarchy, in the original `data`
+ * order (ready for {@link processHierarchyLevels}):
+ *
+ * - **Ancestors** of a match, so a matching child stays under its parents
+ *   instead of orphaned.
+ * - **Descendants** of a match, so a matching parent keeps its group. Without
+ *   this a matched parent renders alone while still showing the aggregate its
+ *   children explain — reading as a group that has no children at all.
+ *
+ * Descendants are collected only for the matches themselves, never for the
+ * ancestors pulled in above them, so a match never drags in its siblings. Both
+ * walks stop on a missing, self-referential, or already-visited id, so cycles
+ * cannot loop.
  *
  * @param data            - The full flat rows.
  * @param matchedIds      - Ids (from `getItemId`) of the rows that matched.
  * @param getItemId       - Row id resolver.
  * @param getItemParentId - Parent id resolver.
- * @return The matched rows plus their ancestors, in `data` order.
+ * @return The matched rows plus their ancestors and descendants, in `data` order.
  */
-export function withAncestors< Item >(
+export function withHierarchyContext< Item >(
 	data: Item[],
 	matchedIds: ReadonlySet< string >,
 	getItemId: ( item: Item ) => string,
@@ -120,9 +138,7 @@ export function withAncestors< Item >(
 		let current = itemById.get( id );
 
 		while ( current ) {
-			const rawParentId = getItemParentId( current );
-			const parentId =
-				rawParentId === null || rawParentId === undefined ? undefined : rawParentId.toString();
+			const parentId = resolveParentId( getItemParentId( current ) );
 
 			// Stop at a root, a self-referential parent, or one already kept
 			// (the last also breaks cycles, since a kept id's ancestors are
@@ -138,6 +154,39 @@ export function withAncestors< Item >(
 
 			keep.add( parentId );
 			current = parent;
+		}
+	}
+
+	const childIdsByParentId = new Map< string, string[] >();
+	for ( const item of data ) {
+		const id = getItemId( item );
+		const parentId = resolveParentId( getItemParentId( item ) );
+
+		if ( ! parentId || parentId === id ) {
+			continue;
+		}
+
+		const siblingIds = childIdsByParentId.get( parentId ) ?? [];
+		siblingIds.push( id );
+		childIdsByParentId.set( parentId, siblingIds );
+	}
+
+	// Walk down from the matches only — seeding from `keep` would sweep in the
+	// ancestors' other branches.
+	const pending = [ ...matchedIds ];
+	const visited = new Set< string >();
+	while ( pending.length ) {
+		const id = pending.pop() as string;
+
+		if ( visited.has( id ) ) {
+			continue;
+		}
+
+		visited.add( id );
+
+		for ( const childId of childIdsByParentId.get( id ) ?? [] ) {
+			keep.add( childId );
+			pending.push( childId );
 		}
 	}
 

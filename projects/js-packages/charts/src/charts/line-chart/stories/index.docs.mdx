@@ -503,9 +503,35 @@ Handle user interactions with custom event handlers:
 	/>` }
 />
 
+### Zooming
+
+Set `zoomable` to let users drag horizontally across the plot to zoom the X axis into that range:
+
+<Canvas of={ LineChartStories.Zoomable } />
+
+<Source
+	language="jsx"
+	code={ `<LineChart
+		data={data}
+		zoomable={true}
+	/>` }
+/>
+
+Zoom behaviour:
+
+- Disabled by default (`zoomable={false}`).
+- Only the X axis rescales; the Y axis is unaffected.
+- A selection rectangle follows the pointer while dragging.
+- Drags shorter than 6px are ignored, so a click never zooms.
+- While zoomed, a "Reset zoom" button appears in the top-right to restore the full domain.
+- Series are clipped to the plot area while zoomed, so lines never overflow the axes.
+- `zoomable` chains with your own `onPointerDown`/`onPointerMove`/`onPointerUp` handlers rather than replacing them.
+
 ### Keyboard Navigation
 
 Charts are fully keyboard accessible with Tab navigation and arrow key data point selection.
+
+When zoomed, the reset button is reachable with Tab and activates with Enter or Space.
 
 ## Legends
 

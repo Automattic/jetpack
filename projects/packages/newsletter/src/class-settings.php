@@ -21,7 +21,7 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.12.1';
+	const PACKAGE_VERSION = '0.12.2';
 
 	const ADMIN_PAGE_SLUG = 'jetpack-newsletter';
 
@@ -147,6 +147,14 @@ class Settings {
 		}
 
 		self::load_wp_build();
+
+		// wp-build registers standalone modules (e.g. the init module) on
+		// wp_default_scripts, which has already fired by admin_menu. Register them
+		// directly so the init module makes it into the import map.
+		if ( function_exists( 'jetpack_newsletter_register_script_modules' ) ) {
+			jetpack_newsletter_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
+
 		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 	}
 
@@ -307,6 +315,14 @@ class Settings {
 		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 
 		if ( self::is_modernized() ) {
+			// The i18n loader is registered on every admin page by jetpack-assets but
+			// only enqueued when depended on; the esbuild bundles don't pull it in.
+			// Enqueue it so the wp-build dashboard's init module can download its JS
+			// translation catalogs.
+			if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+				wp_enqueue_script( 'wp-jp-i18n-loader' );
+			}
+
 			// wp-build manages the rest of its enqueue pipeline. The legacy
 			// newsletter script and JetpackScriptData are intentionally skipped
 			// for the wp-build dashboard.

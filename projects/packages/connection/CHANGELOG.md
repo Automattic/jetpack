@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.8.0] - 2026-07-27
+### Added
+- Show non-owner admins who needs to reconnect instead of a reconnect button when connection ownership is locked. [#50662]
+
+### Changed
+- Update package dependencies. [#50751]
+
 ## [8.7.10] - 2026-07-22
 ### Changed
 - Update dependencies. [#50674]
@@ -1953,6 +1960,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[8.8.0]: https://github.com/Automattic/jetpack-connection/compare/v8.7.10...v8.8.0
 [8.7.10]: https://github.com/Automattic/jetpack-connection/compare/v8.7.9...v8.7.10
 [8.7.9]: https://github.com/Automattic/jetpack-connection/compare/v8.7.8...v8.7.9
 [8.7.8]: https://github.com/Automattic/jetpack-connection/compare/v8.7.7...v8.7.8

@@ -94,7 +94,7 @@ function VideosReport(): JSX.Element {
 	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getVideosFields(), [] );
 	const chartMetrics = useMemo(
-		() => [ { key: 'plays', label: __( 'Plays', 'jetpack-premium-analytics' ) } ],
+		() => [ { key: 'plays', label: __( 'Plays', 'jetpack-premium-analytics-pkg' ) } ],
 		[]
 	);
 	const chartLegendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
@@ -126,14 +126,14 @@ function VideosReport(): JSX.Element {
 				<Breadcrumbs
 					items={ [
 						{
-							label: __( 'Stats', 'jetpack-premium-analytics' ),
+							label: __( 'Stats', 'jetpack-premium-analytics-pkg' ),
 							to: dashboardLink,
 						},
-						{ label: __( 'Videos', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Videos', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
 			}
-			subTitle={ __( 'See how your videos perform.', 'jetpack-premium-analytics' ) }
+			subTitle={ __( 'See how your videos perform.', 'jetpack-premium-analytics-pkg' ) }
 		>
 			<ReportPageLayout
 				filters={
@@ -144,7 +144,7 @@ function VideosReport(): JSX.Element {
 			>
 				{ records.isError ? (
 					<ReportErrorState
-						title={ __( 'Unable to load videos', 'jetpack-premium-analytics' ) }
+						title={ __( 'Unable to load videos', 'jetpack-premium-analytics-pkg' ) }
 						onRetry={ retry }
 					/>
 				) : (
@@ -164,7 +164,7 @@ function VideosReport(): JSX.Element {
 							getItemId={ getVideoRowId }
 							isLoading={ records.isLoading }
 							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search videos', 'jetpack-premium-analytics' ) }
+							searchLabel={ __( 'Search videos', 'jetpack-premium-analytics-pkg' ) }
 						/>
 					</>
 				) }

@@ -324,6 +324,7 @@ if ( '' === $error_message ) {
 							class="jetpack-search-results__image"
 							data-wp-bind--src="context.result.imageUrl"
 							alt=""
+							loading="lazy"
 						/>
 					</a>
 				<?php endif; ?>

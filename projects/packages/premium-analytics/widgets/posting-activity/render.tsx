@@ -139,15 +139,18 @@ function PostingActivityInner() {
 				error={ {
 					description: __(
 						"We couldn't load posting activity. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 					actions: [
-						{ label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: () => void refetch() },
+						{
+							label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
+							onClick: () => void refetch(),
+						},
 					],
 				} }
 				empty={ {
 					icon: calendar,
-					description: __( 'No posts published in this period.', 'jetpack-premium-analytics' ),
+					description: __( 'No posts published in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				<HeatmapChartUnresponsive
@@ -159,8 +162,8 @@ function PostingActivityInner() {
 					{ ...sizingProps }
 				>
 					<HeatmapChartUnresponsive.Legend
-						lessLabel={ __( 'Fewer Posts', 'jetpack-premium-analytics' ) }
-						moreLabel={ __( 'More Posts', 'jetpack-premium-analytics' ) }
+						lessLabel={ __( 'Fewer Posts', 'jetpack-premium-analytics-pkg' ) }
+						moreLabel={ __( 'More Posts', 'jetpack-premium-analytics-pkg' ) }
 					/>
 				</HeatmapChartUnresponsive>
 			</WidgetState>
