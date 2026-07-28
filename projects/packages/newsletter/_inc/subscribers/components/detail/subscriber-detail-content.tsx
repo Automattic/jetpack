@@ -1,6 +1,7 @@
 import Gravatar from '@automattic/jetpack-components/gravatar';
 import { Spinner } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
+import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { Card, Link, Stack, Text } from '@wordpress/ui';
 import {
@@ -173,9 +174,11 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 	const stats = statsQuery.data;
 
 	const categoriesEnabled = !! categoriesQuery.data?.enabled;
+	// WordPress stores term names HTML-encoded (`Tips &amp; Tricks`) and WP.com passes them through
+	// as stored, so they have to be decoded before rendering as text.
 	const subscribedCategories = ( categoriesQuery.data?.newsletter_categories ?? [] )
 		.filter( category => category.subscribed )
-		.map( category => category.name );
+		.map( category => decodeEntities( category.name ) );
 
 	if ( detailsQuery.isLoading || ! subscriber ) {
 		return (

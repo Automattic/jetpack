@@ -138,12 +138,10 @@ export type SubscriberDetails = Subscriber & {
 	url?: string | null;
 	open_rate?: number;
 
-	// The individual endpoint names things differently from the list: one `date_subscribed`
-	// (already a full ISO string with an offset, unlike the list's naive UTC timestamps) rather
-	// than the `wpcom_`/`email_` pair, and `subscription_id` rather than the two id fields.
+	// The individual endpoint names the subscription date differently from the list: one
+	// `date_subscribed`, already a full ISO string with an offset, rather than the `wpcom_`/`email_`
+	// pair of naive UTC timestamps.
 	date_subscribed?: string;
-	subscription_id?: number;
-	is_email_subscriber?: boolean;
 };
 
 export type NewsletterCategory = {

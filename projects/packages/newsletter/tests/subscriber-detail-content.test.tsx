@@ -34,7 +34,6 @@ const OPEN = { subscriptionId: 946836646, userId: 229907063 };
 function makeDetails( overrides: Partial< SubscriberDetails > = {} ): SubscriberDetails {
 	return {
 		user_id: OPEN.userId,
-		subscription_id: OPEN.subscriptionId,
 		display_name: 'douglashenritest',
 		email_address: 'reader@example.com',
 		subscription_status: 'Subscribed',
@@ -113,6 +112,20 @@ describe( 'SubscriberDetailContent', () => {
 		);
 	} );
 
+	it( 'decodes HTML entities in category names', async () => {
+		// WordPress stores term names encoded (`Tips &amp; Tricks`) and WP.com passes them through
+		// as stored, so an undecoded name renders the raw entity to the user.
+		mockFetchSubscribedNewsletterCategories.mockResolvedValue( {
+			enabled: true,
+			newsletter_categories: [ { id: 23, name: 'Tips &amp; Tricks', subscribed: true } ],
+		} );
+
+		renderPanel();
+
+		await expect( screen.findByText( 'Tips & Tricks' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( /&amp;/ ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'says so when the subscriber opted out of every category', async () => {
 		mockFetchSubscribedNewsletterCategories.mockResolvedValue( {
 			enabled: true,
@@ -136,8 +149,36 @@ describe( 'SubscriberDetailContent', () => {
 		expect( screen.queryByText( 'Receives emails for' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'keeps the panel usable when the categories request fails', async () => {
-		mockFetchSubscribedNewsletterCategories.mockRejectedValue( new Error( 'rest_no_route' ) );
+	it( 'hides the row when WP.com has no categories record for the subscriber', async () => {
+		// A 404 is an expected absence, not a failure: it resolves to "feature off" so the query
+		// settles rather than retrying something that will never succeed.
+		mockFetchSubscribedNewsletterCategories.mockRejectedValue( {
+			code: 'rest_subscriber_not_found',
+			data: { status: 404 },
+		} );
+
+		renderPanel();
+
+		await expect( screen.findByText( 'Subscription type' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Receives emails for' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'hides the row on a missing route, for a Jetpack version without the proxy', async () => {
+		mockFetchSubscribedNewsletterCategories.mockRejectedValue( { code: 'rest_no_route' } );
+
+		renderPanel();
+
+		await expect( screen.findByText( 'Subscription type' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Receives emails for' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'leaves the rest of the panel intact when the categories request errors outright', async () => {
+		// A 500 is left to reject so React Query can retry it, rather than being cached as a
+		// successful "feature off" for the rest of the session.
+		mockFetchSubscribedNewsletterCategories.mockRejectedValue( {
+			code: 'internal_server_error',
+			data: { status: 500 },
+		} );
 
 		renderPanel();
 
