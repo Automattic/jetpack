@@ -122,11 +122,11 @@
 	justify-content: center;
 }
 
-// Bold (600 — the WPDS emphasis weight, which has no lint-approved token, so a
-// literal per the house convention) so the percentage leads the value hierarchy
-// while keeping the same heading-lg size as the count.
+// Bold (700) so the percentage clearly leads the medium-weight count below,
+// while keeping the same heading-lg size. Literal weight per the house
+// convention (WPDS exposes no lint-approved emphasis/bold weight token).
 .pctValue {
-	font-weight: 600;
+	font-weight: 700;
 }
 
 .ringTrigger:hover .donutWrap,
