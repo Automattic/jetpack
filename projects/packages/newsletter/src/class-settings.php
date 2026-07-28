@@ -34,7 +34,7 @@ class Settings {
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_newsletter';
 
 	/**
-	 * Highest site ID that should still see the Subscribers announcement page.
+	 * Site ID cutoff for displaying the Subscribers announcement page.
 	 *
 	 * Sites registered below this ID existed before Subscribers moved out of
 	 * its old placement, so they need the transitional announcement. Sites at
