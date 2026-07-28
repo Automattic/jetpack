@@ -21,3 +21,25 @@
 		}
 	}
 }
+
+/*
+ * The pre-rendered upgrade nudge shares its markup with the editor's paid-block
+ * banner, but not its stylesheet: the spacing lives in
+ * extended-blocks/paid-blocks/editor.scss, which never loads on the frontend.
+ * Without it the banner collapses to the height of its own button, leaving the
+ * Upgrade button flush against the top and bottom edges and the description
+ * running underneath it instead of wrapping.
+ */
+.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper {
+	flex-wrap: wrap;
+
+	.banner-title,
+	.banner-description {
+		margin-block: 10px;
+		margin-inline-end: 10px;
+	}
+
+	.components-button {
+		margin-block: 10px;
+	}
+}
