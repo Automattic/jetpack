@@ -24,6 +24,17 @@ jest.unstable_mockModule( '../../../state/store.jsx', () => ( {
 
 const { default: useProductCheckoutWorkflow } = await import( '../index' );
 
+// `@wordpress/jest-console` augments the global jest matchers at runtime, but
+// the package typecheck doesn't pick up its types — declare the one we use.
+declare global {
+	// eslint-disable-next-line @typescript-eslint/no-namespace
+	namespace jest {
+		interface Matchers< R > {
+			toHaveErrored(): R;
+		}
+	}
+}
+
 const handleConnectUser = jest.fn();
 
 // Site already owns the product being purchased, so `handleAfterRegistration` skips
@@ -44,6 +55,7 @@ describe( 'useProductCheckoutWorkflow: site already has the product', () => {
 				productSlug: 'jetpack_search',
 				redirectUrl: 'https://example.com/wp-admin/admin.php?page=jetpack-search',
 				siteSuffix: 'example.com',
+				from: 'jetpack-search',
 				siteProductAvailabilityHandler: () => Promise.resolve( true ),
 			} )
 		);
@@ -72,6 +84,7 @@ describe( 'useProductCheckoutWorkflow: site already has the product', () => {
 				productSlug: 'jetpack_search',
 				redirectUrl: 'https://example.com/wp-admin/admin.php?page=jetpack-search',
 				siteSuffix: 'example.com',
+				from: 'jetpack-search',
 				siteProductAvailabilityHandler: () => Promise.resolve( true ),
 			} )
 		);
