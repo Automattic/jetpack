@@ -19,28 +19,14 @@
 	// inherited value cannot override.
 	&__large-text,
 	p.jp-connection__disconnect-dialog__large-text {
-		--_gcd-p-font-size: 1.25rem;
-		--_gcd-p-line-height: 1.5;
-
 		font-size: 1.25rem;
 		line-height: 1.5;
 		display: block;
 		margin-block: 0 1em;
 	}
 
-	&__copy-text {
-		--_gcd-p-font-size: var(--font-body);
-		--_gcd-p-line-height: 1.5;
-
-		font-size: var(--font-body);
-		line-height: 1.5;
-		display: block;
-	}
-
 	&__link,
 	.jp-connection__disconnect-dialog__link {
-		--_gcd-a-color: var(--jp-black);
-
 		color: var(--jp-black);
 		text-decoration: underline;
 		height: auto;
@@ -154,9 +140,8 @@
 	&__copy {
 
 		h1,
-		.jp-connection__disconnect-dialog__large-text,
-		.jp-connection__disconnect-dialog__copy-text {
-			--_gcd-heading-margin: 0;
+		p,
+		.jp-connection__disconnect-dialog__large-text {
 			margin: 0;
 		}
 	}
@@ -233,8 +218,6 @@
 
 		&__large-text,
 		p.jp-connection__disconnect-dialog__large-text {
-			--_gcd-p-font-size: 1.5rem;
-
 			font-size: 1.5rem;
 		}
 

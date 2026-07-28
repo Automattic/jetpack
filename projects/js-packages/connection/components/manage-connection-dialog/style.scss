@@ -62,15 +62,6 @@
 		white-space: nowrap;
 	}
 
-	&__btn-dismiss {
-		--wp-ui-button-font-size: var(--font-body);
-		--wp-ui-button-padding-block: var(--spacing-base);
-		--wp-ui-button-padding-inline: calc(var(--spacing-base) * 3);
-		--wp-ui-button-height: auto;
-
-		line-height: 24px;
-	}
-
 	&__action-card {
 		--wp-ui-card-padding: 0;
 

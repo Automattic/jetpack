@@ -1,7 +1,7 @@
 import { DecorativeCard } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Link, Stack, Text } from '@wordpress/ui';
+import { Button, Link, Stack } from '@wordpress/ui';
 import disconnectImage from '../images/disconnect-confirm.jpg';
 import type { MouseEvent } from 'react';
 
@@ -47,12 +47,12 @@ const StepDisconnectConfirm = ( {
 
 				{ canProvideFeedback && (
 					<>
-						<Text className="jp-connection__disconnect-dialog__copy-text">
+						<p>
 							{ __(
 								'We’re sorry to see you go. Here at Jetpack, we’re always striving to provide the best experience for our customers. Please take our short survey (2 minutes, promise).',
 								'jetpack-connection-js'
 							) }
-						</Text>
+						</p>
 						<Button
 							onClick={ onProvideFeedback }
 							className="jp-connection__disconnect-dialog__btn-back-to-wp"

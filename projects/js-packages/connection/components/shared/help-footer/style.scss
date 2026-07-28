@@ -1,13 +1,6 @@
-@use "@automattic/jetpack-base-styles/style";
-
 // The message renders through @wordpress/ui's `Text`, which sets its own 13px
 // `body-md` font-size on the element, so an inherited value cannot override it.
-// The `--_gcd-*` pair feeds @wordpress/ui's unlayered "global CSS defense"
-// rules, which are element-scoped and so outrank a plain class selector.
 .jp-connection__help-footer {
-	--_gcd-p-font-size: var(--font-body);
-	--_gcd-p-line-height: 1.5;
-
 	font-size: var(--font-body);
 	line-height: 1.5;
 }
