@@ -762,18 +762,45 @@ class Mode {
 					display: none;
 				}
 			}
-			/* Pin the exit link to the foot of the nav: lay #adminmenu out as a
-			   column tall enough to fill the viewport below the admin bar, then let
-			   an auto top margin on the link absorb the slack. Width is inherited
-			   rather than declared, so this holds at every menu width — core 160px,
-			   the wpcom 272px override below, and the folded 36px. Desktop only:
-			   under 783px core turns the menu into a full-width toggle panel that
-			   should keep flowing with the page. */
+			/* Pin the exit link to the foot of the nav: fill the sidebar with a
+			   flex column and let an auto top margin on the link absorb the slack.
+
+			   The sidebar is pinned to the viewport rather than sized to it. The
+			   page layout mixin fixes the content column, which leaves the sidebar
+			   as the only thing in normal flow tall enough to size the document —
+			   so any height that missed the viewport by even a pixel grew a second
+			   window scrollbar beside the one on the scrolling middle. Fixed, it
+			   contributes no flow height at all, so that cannot happen however the
+			   admin bar is sized. Safe here specifically because the curated nav is
+			   flat: there are no `.wp-submenu` flyouts for `overflow` to clip, which
+			   is what stops the mixin doing this to the sidebar generally. Core
+			   itself fixes this element for its sticky-menu feature
+			   (`.sticky-menu #adminmenuwrap` in admin-menu.css), and drops back to
+			   static below 783px — the same width this block is scoped to.
+
+			   Widths are inherited rather than declared, so this holds at every
+			   menu width — core 160px, the wpcom 272px override below, and the
+			   folded 36px. Desktop only: under 783px core turns the menu into a
+			   full-width toggle panel that should keep flowing with the page. */
 			@media only screen and ( min-width: 783px ) {
+				#adminmenuwrap {
+					position: fixed;
+					top: var( --wp-admin-bar-height, 32px );
+					bottom: 0;
+					/* Only bites on viewports too short for the nav; without it those
+					   items would be clipped with no way to reach them. */
+					overflow-y: auto;
+				}
 				#adminmenu {
 					display: flex;
 					flex-direction: column;
-					min-height: calc( 100vh - 32px );
+					min-height: 100%;
+					/* Own the block spacing instead of inheriting the `margin: 12px 0`
+					   that core sets: margins sit outside the box the height applies
+					   to, so as padding under border-box the same 12px gaps fall
+					   inside it and the column still fills the sidebar exactly. */
+					margin-block: 0;
+					padding-block: 12px;
 					box-sizing: border-box;
 				}
 				#adminmenu .jetpack-newsletter-mode-back {
@@ -781,7 +808,7 @@ class Mode {
 				}
 			}
 			#adminmenu .jetpack-newsletter-mode-back {
-				margin-block-end: 48px;
+				margin-block-end: 16px;
 			}
 			#adminmenu .jetpack-newsletter-mode-back .jetpack-newsletter-mode-exit {
 				display: flex;
@@ -830,7 +857,7 @@ class Mode {
 			/* Prominent "Write" button at the top of the nav (below the header). */
 			#adminmenu .jetpack-newsletter-mode-write {
 				margin: 0;
-				padding: 4px 12px 12px;
+				padding: 4px 12px 20px;
 			}
 			#adminmenu .jetpack-newsletter-mode-write .jetpack-newsletter-mode-write-btn {
 				display: flex;

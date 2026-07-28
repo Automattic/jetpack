@@ -195,6 +195,35 @@ describe( 'Newsletter Mode dashboard links', () => {
 		expect( screen.getByRole( 'link', { name: /Make it yours/ } ) ).not.toHaveAttribute( 'target' );
 	} );
 
+	it( 'gives the Earn row the new-window glyph instead of the chevron', () => {
+		render( <Stage /> );
+
+		const external = screen.getByRole( 'link', { name: /Set up paid subscriptions/ } );
+		const internal = screen.getByRole( 'link', { name: /Make it yours/ } );
+
+		// One trailing indicator per row, shaped to where the row goes — so the
+		// external row must not also carry a plain chevron. These are decorative
+		// `aria-hidden` SVGs with no accessible role or name, so there is no
+		// Testing Library query that reaches them; the class is the only handle.
+		/* eslint-disable testing-library/no-node-access */
+		expect(
+			external.querySelector( '.jetpack-newsletter-home__task-chevron.is-external' )
+		).not.toBeNull();
+		expect( internal.querySelector( '.jetpack-newsletter-home__task-chevron' ) ).not.toBeNull();
+		expect( internal.querySelector( '.is-external' ) ).toBeNull();
+		/* eslint-enable testing-library/no-node-access */
+	} );
+
+	it( 'warns non-visually that the Earn row leaves wp-admin', () => {
+		render( <Stage /> );
+
+		// The glyph carries this for sighted visitors; the accessible name has to
+		// carry it for everyone else, since the new tab is a context switch.
+		expect(
+			screen.getByRole( 'link', { name: /Set up paid subscriptions/ } )
+		).toHaveAccessibleName( expect.stringContaining( 'opens in a new tab' ) );
+	} );
+
 	it( 'links the first checklist row to the newsletter address, shown as a bare host', () => {
 		render( <Stage /> );
 

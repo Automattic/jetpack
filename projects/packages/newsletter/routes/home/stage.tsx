@@ -9,7 +9,15 @@ import {
 } from '@wordpress/components';
 import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { border, chevronRight, envelope, link, published, upload } from '@wordpress/icons';
+import {
+	border,
+	chevronRight,
+	envelope,
+	external,
+	link,
+	published,
+	upload,
+} from '@wordpress/icons';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
 import ShareNewsletterModal from '../../_inc/share/share-newsletter-modal';
 import { getAddSubscribersUrl } from '../../_inc/subscribers/lib/add-subscribers-link';
@@ -251,7 +259,9 @@ const ActionTileCard = ( { tile }: { tile: ActionTile } ): JSX.Element => (
  * `Item` renders as an anchor given `as="a"` and as a button given an `onClick`,
  * bringing the hover and focus treatment with it either way. Rows with neither
  * stay plain list items. A row that leaves wp-admin opens in a new tab, with
- * `rel` so the opened page can't reach back through `window.opener`.
+ * `rel` so the opened page can't reach back through `window.opener`, and trades
+ * the chevron for the new-window glyph so the trailing indicator matches where
+ * the row actually goes.
  *
  * @param props      - Component props.
  * @param props.task - The task to render.
@@ -282,13 +292,36 @@ const ChecklistRow = ( { task }: { task: ChecklistTask } ): JSX.Element => (
 			<Stack direction="column" gap="xs" className="jetpack-newsletter-home__task-text">
 				<Text variant="heading-md" render={ <span /> }>
 					{ task.title }
+					{ task.isExternal && (
+						// The icon alone warns sighted visitors that the row leaves
+						// wp-admin; this says so for everyone else.
+						<span className="screen-reader-text">
+							{ __( '(opens in a new tab)', 'jetpack-newsletter' ) }
+						</span>
+					) }
 				</Text>
 				<Text variant="body-sm" className="jetpack-newsletter-home__muted">
 					{ task.description }
 				</Text>
 			</Stack>
-			{ ! task.done && (
-				<Icon icon={ chevronRight } size={ 24 } className="jetpack-newsletter-home__task-chevron" />
+			{ /* One trailing indicator per row, shaped to where the row goes. The
+			     external glyph is keyed on `isExternal` rather than on completion,
+			     so a row that leaves wp-admin keeps saying so even once it is
+			     ticked off. */ }
+			{ task.isExternal ? (
+				<Icon
+					icon={ external }
+					size={ 24 }
+					className="jetpack-newsletter-home__task-chevron is-external"
+				/>
+			) : (
+				! task.done && (
+					<Icon
+						icon={ chevronRight }
+						size={ 24 }
+						className="jetpack-newsletter-home__task-chevron"
+					/>
+				)
 			) }
 		</Stack>
 	</Item>
