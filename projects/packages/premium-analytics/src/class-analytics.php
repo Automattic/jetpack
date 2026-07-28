@@ -330,7 +330,7 @@ class Analytics {
 		printf(
 			'<div class="wrap"><h1>%s</h1><p>%s</p></div>',
 			esc_html( self::menu_title() ),
-			esc_html__( 'The Premium Analytics assets are missing. The package build did not run for this deploy.', 'jetpack-premium-analytics' )
+			esc_html__( 'The Premium Analytics assets are missing. The package build did not run for this deploy.', 'jetpack-premium-analytics-pkg' )
 		);
 	}
 
@@ -361,7 +361,7 @@ class Analytics {
 		// esc_html() as a broken label instead of falling back here.
 		self::$resolved_menu_title = is_string( $title ) && '' !== $title
 			? $title
-			: __( 'Analytics', 'jetpack-premium-analytics' );
+			: __( 'Analytics', 'jetpack-premium-analytics-pkg' );
 
 		return self::$resolved_menu_title;
 	}
