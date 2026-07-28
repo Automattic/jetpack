@@ -34,16 +34,6 @@ class Settings {
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_newsletter';
 
 	/**
-	 * Site ID cutoff for displaying the Subscribers announcement page.
-	 *
-	 * Sites with an ID *below* this value registered before Subscribers moved
-	 * out of its old placement, so they need the transitional announcement.
-	 * Sites at or above it only ever saw the current placement. The bound is
-	 * exclusive: a site whose ID equals this value does not see the page.
-	 */
-	const SUBSCRIBERS_ANNOUNCEMENT_SITE_ID_CUTOFF = 256340000;
-
-	/**
 	 * Whether the class has been initialized
 	 *
 	 * @var boolean
@@ -98,14 +88,10 @@ class Settings {
 		// and wp-build loading here so they exist on admin-ajax.php and
 		// admin-post.php requests. The menu itself is added by the Jetpack
 		// plugin's subscriptions module, which owns the Subscribers placement.
-		// Sites created before this ID predate the Subscribers move, so they
-		// still get the announcement page. Newer sites never saw the old
-		// placement and have nothing to be told about. Sites with no known
-		// site ID (disconnected) are treated as newer and skip the page.
-		$site_id = Connection_Manager::get_site_id( true );
-		if ( $site_id !== null && $site_id < self::SUBSCRIBERS_ANNOUNCEMENT_SITE_ID_CUTOFF ) {
-			Subscribers_Announcement::init();
-		}
+		// init() self-gates on Subscribers_Announcement::is_enabled(), which is
+		// also what the menu-registration entry points consult, so the handlers
+		// and the menu can never disagree about whether the feature is on.
+		Subscribers_Announcement::init();
 
 		// Add the Reading settings notice as long as subscriptions are active.
 		if ( $this->is_subscriptions_active() ) {
