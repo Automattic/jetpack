@@ -162,7 +162,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 							) : (
 								<Text variant="muted">
 									{ __(
-										'Set your podcast category to generate the feed URL you can submit to directories.',
+										'Set your post category to generate the feed URL you can submit to directories.',
 										'jetpack-podcast'
 									) }
 								</Text>
