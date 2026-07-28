@@ -259,4 +259,55 @@ class InitializerTest extends TestCase {
 			$this->reset_wpcom_site();
 		}
 	}
+
+	/**
+	 * Run init() with the surface visible and the given sitemap-enabled state, and
+	 * report whether it suppressed WordPress core's own sitemap (registered the
+	 * `wp_sitemaps_enabled` → false filter). Mirrors the schema/GEO test setup.
+	 *
+	 * @param bool $sitemap_enabled Stored SITEMAP_ENABLED_OPTION value.
+	 * @return bool Whether init() registered the core-sitemap-suppression filter.
+	 */
+	private function init_and_report_core_sitemaps_disabled( $sitemap_enabled ) {
+		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$initialized->setAccessible( true );
+		}
+		$initialized->setValue( null, false );
+
+		add_filter( 'rsm_jetpack_seo', '__return_true' );
+		update_option( Initializer::VISIBILITY_OPTION, '1' );
+		update_option( Initializer::SITEMAP_ENABLED_OPTION, $sitemap_enabled ? '1' : '' );
+		// Isolate from any stale registration so the result reflects only this run.
+		remove_filter( 'wp_sitemaps_enabled', '__return_false' );
+
+		try {
+			Initializer::init();
+			return false !== has_filter( 'wp_sitemaps_enabled', '__return_false' );
+		} finally {
+			remove_filter( 'rsm_jetpack_seo', '__return_true' );
+			remove_filter( 'wp_sitemaps_enabled', '__return_false' );
+			delete_option( Initializer::VISIBILITY_OPTION );
+			delete_option( Initializer::SITEMAP_ENABLED_OPTION );
+			$initialized->setValue( null, false );
+		}
+	}
+
+	/**
+	 * With the site's sitemap turned off, init() suppresses WordPress core's own
+	 * sitemap — the same `wp_sitemaps_enabled` → false filter the Jetpack sitemaps
+	 * module applies when on — so `/sitemap.xml` and `/wp-sitemap.xml` both 404
+	 * rather than the toggle silently falling back to core's sitemap.
+	 */
+	public function test_init_disables_core_sitemaps_when_sitemap_off() {
+		$this->assertTrue( $this->init_and_report_core_sitemaps_disabled( false ) );
+	}
+
+	/**
+	 * With the sitemap on, init() leaves core sitemaps alone — the Jetpack sitemaps
+	 * module already disables core's duplicate, so the package must not double up.
+	 */
+	public function test_init_leaves_core_sitemaps_to_jetpack_when_sitemap_on() {
+		$this->assertFalse( $this->init_and_report_core_sitemaps_disabled( true ) );
+	}
 }

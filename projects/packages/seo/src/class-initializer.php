@@ -134,6 +134,18 @@ class Initializer {
 			return;
 		}
 
+		// When the site's sitemap is turned off, suppress WordPress core's own sitemap
+		// too — otherwise turning the Jetpack sitemap off silently falls back to core's
+		// `/wp-sitemap.xml` (and its `/sitemap.xml` → `/wp-sitemap.xml` redirect), so the
+		// toggle wouldn't mean "no sitemap." When it's on, the Jetpack sitemaps module
+		// already disables core's duplicate. This runs on `plugins_loaded` (priority 90),
+		// before core registers its sitemap server on `init`, so the filter is in place
+		// in time; with core sitemaps disabled, `/sitemap.xml` and `/wp-sitemap.xml` both
+		// return a proper 404.
+		if ( ! self::is_sitemap_generation_enabled() ) {
+			add_filter( 'wp_sitemaps_enabled', '__return_false' );
+		}
+
 		// The admin menu and app shell register whenever the surface is visible, even
 		// when the `seo-tools` module is inactive, so SEO stays discoverable and can be
 		// turned on from within the page itself (JETPACK-1700). When the module is off,
@@ -266,5 +278,25 @@ class Initializer {
 			return false;
 		}
 		return ( new Modules() )->is_active( 'seo-tools' );
+	}
+
+	/**
+	 * Whether XML sitemap generation is enabled for this site.
+	 *
+	 * Reads the durable {@see self::SITEMAP_ENABLED_OPTION} flag, falling back to the
+	 * live `sitemaps` module state only when the option is absent (before the Jetpack
+	 * plugin's migration has seeded it). Mirrors {@see Dashboard_Data::is_sitemap_enabled()}.
+	 *
+	 * @return bool
+	 */
+	private static function is_sitemap_generation_enabled() {
+		$enabled = get_option( self::SITEMAP_ENABLED_OPTION, null );
+
+		if ( null === $enabled ) {
+			$enabled = class_exists( 'Automattic\\Jetpack\\Modules' )
+				&& ( new Modules() )->is_active( 'sitemaps' );
+		}
+
+		return (bool) $enabled;
 	}
 }
