@@ -1,8 +1,10 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, render, renderHook, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { useRef } from 'react';
-import { useXZoom } from '../x-zoom';
-import type { SingleChartRef } from '../single-chart-context';
+import { useXZoom, ZoomResetButton } from '../index';
+import type { SingleChartRef } from '../../single-chart-context';
 import type { EventHandlerParams } from '@visx/xychart';
+import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 
 // A fake scale that lets the hook convert pixel positions to data values.
 // The hook only uses `.invert()`; everything else can be stubbed.
@@ -138,5 +140,46 @@ describe( 'useXZoom', () => {
 		act( () => result.current.handlers.onPointerUp( makeParams( 200 ) ) );
 
 		expect( result.current.domain ).toBeNull();
+	} );
+} );
+
+const preventDefaultKeydown = ( event: ReactKeyboardEvent< HTMLDivElement > ) =>
+	event.preventDefault();
+
+describe( 'ZoomResetButton', () => {
+	test( 'renders a labelled button with a hover tooltip', () => {
+		const noop = jest.fn();
+		render( <ZoomResetButton onClick={ noop } /> );
+		const button = screen.getByTestId( 'chart-zoom-reset' );
+		expect( button.tagName ).toBe( 'BUTTON' );
+		expect( button ).toHaveClass( 'x-zoom__reset' );
+		expect( button ).toHaveAccessibleName( 'Reset zoom' );
+		// WPDS `IconButton` would supply a tooltip of its own, but it pulls in a
+		// CommonJS dependency that breaks Script Module consumers (see
+		// ZoomResetButton). `title` restores the hover hint on plain `Button`.
+		expect( button ).toHaveAttribute( 'title', 'Reset zoom' );
+	} );
+
+	test( 'fires onClick when activated', async () => {
+		const onClick = jest.fn();
+		render( <ZoomResetButton onClick={ onClick } /> );
+		await userEvent.click( screen.getByTestId( 'chart-zoom-reset' ) );
+		expect( onClick ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	test( 'keyboard activation survives the chart wrapper keydown handler', async () => {
+		const onClick = jest.fn();
+		// Mirrors the chart's grid wrapper, whose keyboard-navigation handler
+		// calls preventDefault() on bubbled keydowns — which would cancel the
+		// native Enter/Space button activation.
+		render(
+			<div role="grid" tabIndex={ 0 } onKeyDown={ preventDefaultKeydown }>
+				<ZoomResetButton onClick={ onClick } />
+			</div>
+		);
+		act( () => screen.getByTestId( 'chart-zoom-reset' ).focus() );
+		await userEvent.keyboard( '{Enter}' );
+		await userEvent.keyboard( ' ' );
+		expect( onClick ).toHaveBeenCalledTimes( 2 );
 	} );
 } );
