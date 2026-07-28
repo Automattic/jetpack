@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Upgrade nudge: fix the banner rendering collapsed with clipped text when it appears outside the block editor.

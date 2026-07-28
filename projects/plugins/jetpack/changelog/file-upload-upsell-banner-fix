@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix the premium block upgrade banner rendering collapsed with clipped text on the site frontend.
