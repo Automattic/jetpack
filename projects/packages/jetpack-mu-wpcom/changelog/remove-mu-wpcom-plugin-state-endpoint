@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Plugin State: Remove the internal Atomic REST endpoint reporting a single plugin's state, now that nothing calls it.
