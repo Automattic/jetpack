@@ -12,7 +12,7 @@
 //    is the only thing that sets it.
 //
 // The links out of the page. Three go to Add Subscribers — the "Bring your
-// contacts" and "Invite by email" tiles, and the "Bring your first readers"
+// contacts" and "Invite by email" tiles, and the "Grow your audience"
 // checklist row — and one, "Write your first post", goes wherever the nav's
 // Write button goes:
 //
@@ -24,6 +24,9 @@
 //    value `Mode::get_write_url()` gives the nav button, so the two can't drift.
 // 6. nothing else on the page is a link — an entry point with no destination
 //    must not advertise an affordance it doesn't have.
+// 6a. "Set up paid subscriptions" leaves wp-admin for the WordPress.com Earn
+//    screen — the same `monetizeUrl` the nav's Monetize item opens — so it is
+//    the one checklist row that opens in a new tab, `rel` and all.
 // 7. the Add Subscribers links go inert when the site can't manage subscribers,
 //    rather than pointing at a page that would only refuse. That gate mirrors
 //    the one the Subscribers page applies: Simple sites always pass; everywhere
@@ -37,6 +40,7 @@ const mockGetNewsletterScriptData = jest.fn<
 			siteUrl?: string;
 			settingsUrl?: string;
 			checklistDismissed?: boolean;
+			monetizeUrl?: string;
 	  }
 	| undefined,
 	[]
@@ -98,6 +102,7 @@ const CONNECTED = {
 const SUBSCRIBERS_PAGE = 'https://example.com/wp-admin/admin.php?page=jetpack-newsletter';
 const WRITE_URL = 'https://example.com/wp-admin/post-new.php?source=newsletter';
 const SITE_URL = 'https://octagonal.example.com';
+const MONETIZE_URL = 'https://wordpress.com/earn/octagonal.example.com';
 const SETTINGS_URL =
 	'https://example.com/wp-admin/admin.php?page=jetpack-newsletter&p=%2F%3Ftab%3Dsettings';
 
@@ -121,6 +126,7 @@ beforeEach( () => {
 		writeUrl: WRITE_URL,
 		siteUrl: SITE_URL,
 		settingsUrl: SETTINGS_URL,
+		monetizeUrl: MONETIZE_URL,
 	} );
 	mockShareModalProps.mockReset();
 	mockIsSimpleSite.mockReturnValue( true );
@@ -167,8 +173,26 @@ describe( 'Newsletter Mode dashboard links', () => {
 			'octagonal.example.com',
 			expect.stringContaining( 'Make it yours' ),
 			expect.stringContaining( 'Write your first post' ),
-			expect.stringContaining( 'Bring your first readers' ),
+			expect.stringContaining( 'Grow your audience' ),
+			expect.stringContaining( 'Set up paid subscriptions' ),
 		] );
+	} );
+
+	it( '"Set up paid subscriptions" opens the Earn screen in a new tab', () => {
+		render( <Stage /> );
+
+		const link = screen.getByRole( 'link', { name: /Set up paid subscriptions/ } );
+
+		expect( link ).toHaveAttribute( 'href', MONETIZE_URL );
+		expect( link ).toHaveAttribute( 'target', '_blank' );
+		// Without this the opened page could reach back through `window.opener`.
+		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
+	} );
+
+	it( 'leaves the internal checklist links in the same tab', () => {
+		render( <Stage /> );
+
+		expect( screen.getByRole( 'link', { name: /Make it yours/ } ) ).not.toHaveAttribute( 'target' );
 	} );
 
 	it( 'links the first checklist row to the newsletter address, shown as a bare host', () => {
@@ -198,7 +222,7 @@ describe( 'Newsletter Mode dashboard links', () => {
 	it.each( [
 		[ 'Bring your contacts', 'upload' ],
 		[ 'Invite by email', 'manual' ],
-		[ 'Bring your first readers', 'manual' ],
+		[ 'Grow your audience', 'manual' ],
 	] )( '"%s" deep-links to the %s tab', ( label, tab ) => {
 		render( <Stage /> );
 
@@ -245,10 +269,11 @@ describe( 'Newsletter Mode dashboard links', () => {
 		// Neither the settings nor the write task is gated on the connection, so
 		// both survive.
 		expect( screen.getAllByRole( 'link' ).map( anchor => anchor.textContent ) ).toEqual( [
-			// The address link is gated on the site URL, not the connection.
+			// These are gated on their own URLs, not on the connection.
 			'octagonal.example.com',
 			expect.stringContaining( 'Make it yours' ),
 			expect.stringContaining( 'Write your first post' ),
+			expect.stringContaining( 'Set up paid subscriptions' ),
 		] );
 	} );
 
@@ -262,20 +287,19 @@ describe( 'Newsletter Mode dashboard links', () => {
 
 		render( <Stage /> );
 
-		// Five entry points plus the site address in the first checklist row.
-		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 6 );
+		// Six entry points plus the site address in the first checklist row.
+		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 7 );
 	} );
 } );
 
 describe( 'Newsletter Mode dashboard Share entry points', () => {
-	it( 'makes buttons of the two share entry points', () => {
+	it( 'makes a button of the one share entry point', () => {
 		render( <Stage /> );
 
 		expect( screen.getAllByRole( 'button' ).map( button => button.textContent ) ).toEqual( [
 			expect.stringContaining( 'Share your link' ),
 			// Not a share entry point — the checklist's own Dismiss control.
 			'Dismiss',
-			expect.stringContaining( 'Share your newsletter' ),
 		] );
 	} );
 
@@ -285,19 +309,16 @@ describe( 'Newsletter Mode dashboard Share entry points', () => {
 		expect( screen.queryByTestId( 'share-modal' ) ).not.toBeInTheDocument();
 	} );
 
-	it.each( [ 'Share your link', 'Share your newsletter' ] )(
-		'"%s" opens the Share modal with the site URL',
-		label => {
-			render( <Stage /> );
+	it.each( [ 'Share your link' ] )( '"%s" opens the Share modal with the site URL', label => {
+		render( <Stage /> );
 
-			clickButton( label );
+		clickButton( label );
 
-			expect( screen.getByTestId( 'share-modal' ) ).toBeInTheDocument();
-			expect( mockShareModalProps ).toHaveBeenCalledWith(
-				expect.objectContaining( { siteUrl: SITE_URL } )
-			);
-		}
-	);
+		expect( screen.getByTestId( 'share-modal' ) ).toBeInTheDocument();
+		expect( mockShareModalProps ).toHaveBeenCalledWith(
+			expect.objectContaining( { siteUrl: SITE_URL } )
+		);
+	} );
 
 	it( 'leaves them inert when the server sent no site URL', () => {
 		mockGetNewsletterScriptData.mockReturnValue( { greetingName: '', writeUrl: WRITE_URL } );

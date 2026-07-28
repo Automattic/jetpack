@@ -103,9 +103,24 @@
 		"packageNamespace": "jetpack-newsletter",
 		"handlePrefix": "jetpack-newsletter",
 		"pages": [
-			"jetpack-newsletter-dashboard",
-			"jetpack-subscribers-announcement",
-			"jetpack-newsletter-home",
+			{
+				"id": "jetpack-newsletter-dashboard",
+				"init": [
+					"@jetpack-newsletter/init"
+				]
+			},
+			{
+				"id": "jetpack-subscribers-announcement",
+				"init": [
+					"@jetpack-newsletter/init"
+				]
+			},
+			{
+				"id": "jetpack-newsletter-home",
+				"init": [
+					"@jetpack-newsletter/init"
+				]
+			},
 			"jetpack-newsletter-paid"
 		]
 	}

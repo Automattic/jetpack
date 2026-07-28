@@ -104,6 +104,11 @@ export interface NewsletterModeScriptData {
 	 * the checklist and then pulling it away.
 	 */
 	checklistDismissed: boolean;
+	/**
+	 * This site's Earn screen on WordPress.com — the same destination the nav's
+	 * Monetize item opens. Both come from Mode::get_monetize_url().
+	 */
+	monetizeUrl: string;
 }
 
 /**

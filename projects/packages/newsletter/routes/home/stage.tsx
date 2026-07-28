@@ -40,6 +40,8 @@ type EntryPointOptions = {
 type EntryPointAction = {
 	href?: string;
 	onClick?: () => void;
+	/** Whether `href` leaves wp-admin, and so should open in a new tab. */
+	isExternal?: boolean;
 };
 
 type ActionTile = EntryPointAction & {
@@ -152,16 +154,22 @@ const getChecklist = ( options: EntryPointOptions ): ChecklistTask[] => [
 		href: getNewsletterModeScriptData()?.writeUrl,
 	},
 	{
-		title: __( 'Bring your first readers', 'jetpack-newsletter' ),
-		description: __( "Invite the people you'd usually text first.", 'jetpack-newsletter' ),
+		title: __( 'Grow your audience', 'jetpack-newsletter' ),
+		description: __( 'Invite the people most likely to support you.', 'jetpack-newsletter' ),
 		done: false,
 		href: options.canAddSubscribers ? getAddSubscribersUrl( 'manual' ) : undefined,
 	},
 	{
-		title: __( 'Share your newsletter', 'jetpack-newsletter' ),
-		description: __( "Invite the people you'd text first.", 'jetpack-newsletter' ),
+		title: __( 'Set up paid subscriptions', 'jetpack-newsletter' ),
+		description: __(
+			'Offer subscriber-only content and start earning from your newsletter.',
+			'jetpack-newsletter'
+		),
 		done: false,
-		onClick: options.onShare,
+		// The same WordPress.com Earn screen the nav's Monetize item opens —
+		// `Mode::get_monetize_url()` resolves both, so they can't drift apart.
+		href: getNewsletterModeScriptData()?.monetizeUrl,
+		isExternal: true,
 	},
 ];
 
@@ -242,7 +250,8 @@ const ActionTileCard = ( { tile }: { tile: ActionTile } ): JSX.Element => (
  *
  * `Item` renders as an anchor given `as="a"` and as a button given an `onClick`,
  * bringing the hover and focus treatment with it either way. Rows with neither
- * stay plain list items.
+ * stay plain list items. A row that leaves wp-admin opens in a new tab, with
+ * `rel` so the opened page can't reach back through `window.opener`.
  *
  * @param props      - Component props.
  * @param props.task - The task to render.
@@ -251,7 +260,13 @@ const ActionTileCard = ( { tile }: { tile: ActionTile } ): JSX.Element => (
 const ChecklistRow = ( { task }: { task: ChecklistTask } ): JSX.Element => (
 	<Item
 		className="jetpack-newsletter-home__task"
-		{ ...( task.href ? { as: 'a' as const, href: task.href } : {} ) }
+		{ ...( task.href
+			? {
+					as: 'a' as const,
+					href: task.href,
+					...( task.isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {} ),
+			  }
+			: {} ) }
 		onClick={ task.href ? undefined : task.onClick }
 	>
 		<Stack direction="row" align="center" gap="md">
