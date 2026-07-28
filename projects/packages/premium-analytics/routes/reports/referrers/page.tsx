@@ -59,8 +59,6 @@ const RECORDS_VIEW = {
 	},
 };
 
-const sortReferrerCsvRows = ( a: ReferrerRecord, b: ReferrerRecord ) => b.views - a.views;
-
 /**
  * Premium Analytics Referrers report page component.
  *
@@ -97,7 +95,6 @@ function ReferrersReport(): JSX.Element {
 		filenamePrefix: 'referrers',
 		range: reportParams,
 		status: records,
-		sort: sortReferrerCsvRows,
 	} );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );

@@ -420,22 +420,25 @@ describe( 'report CSV exports', () => {
 		);
 	} );
 
-	it( 'configures the Referrers export', () => {
+	it( 'configures the Referrers export in hierarchy order', () => {
 		const rows = [
-			{ id: 'first', label: 'First source', parentLabel: 'Search', views: 2, link: '/first' },
-			{ id: 'second', label: 'Second source', parentLabel: 'Social', views: 5, link: '/second' },
+			{ id: 'search', label: 'Search', views: 10 },
+			{
+				id: 'search|first',
+				parentId: 'search',
+				label: 'First source',
+				parentLabel: 'Search',
+				views: 2,
+				link: '/first',
+			},
+			{ id: 'social', label: 'Social', views: 5 },
 		];
 		useReferrersReportRecordsMock.mockReturnValue( {
 			...reportStatus,
 			rows,
 		} as ReturnType< typeof useReferrersReportRecords > );
 
-		expectCsvExport(
-			ReferrersReportPage,
-			'referrers',
-			[ rows[ 1 ], rows[ 0 ] ],
-			[ 'Second source', 'Social', 5, '/second' ]
-		);
+		expectCsvExport( ReferrersReportPage, 'referrers', rows, [ 'Search', '', 10, '' ] );
 	} );
 
 	it( 'configures the Search terms export', () => {
