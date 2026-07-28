@@ -807,7 +807,9 @@ class Jetpack_Mu_Wpcom {
 
 		Premium_Analytics::init_wpcom_simple(
 			array(
-				'menu_title' => 'Premium Analytics',
+				// A closure, not a string: we run on plugins_loaded, too early to translate.
+				// The package calls this back on admin_menu.
+				'menu_title' => fn () => __( 'Premium Analytics', 'jetpack-mu-wpcom' ),
 			)
 		);
 	}

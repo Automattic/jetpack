@@ -32,11 +32,23 @@ class Analytics {
 	private static $initialized = false;
 
 	/**
-	 * Menu title for the admin page.
+	 * Menu title override for the admin page. Null falls back to the package's
+	 * own translated label, resolved on admin_menu — callers init far too early
+	 * to translate anything themselves. A closure is resolved there too, which is
+	 * how a caller supplies a label in its own textdomain.
 	 *
-	 * @var string
+	 * @var string|\Closure|null
 	 */
-	private static $menu_title = 'Analytics';
+	private static $menu_title = null;
+
+	/**
+	 * The menu label once resolved, so the menu and the missing-build notice can't
+	 * disagree if a caller hands us a closure that returns something different
+	 * each call. Reset whenever $menu_title is assigned.
+	 *
+	 * @var string|null
+	 */
+	private static $resolved_menu_title = null;
 
 	/**
 	 * Initialize the Analytics app on a connected Jetpack site.
@@ -46,7 +58,10 @@ class Analytics {
 	 *
 	 * @param array $options Optional configuration options.
 	 *                       Supported keys:
-	 *                       - menu_title (string): Admin menu label.
+	 *                       - menu_title (string|\Closure): Admin menu label. Defaults to
+	 *                         the package's own translated label. Pass a closure to supply
+	 *                         a translated label of your own: it runs on admin_menu, where
+	 *                         a textdomain can load, unlike init time.
 	 * @return void
 	 */
 	public static function init( $options = array() ) {
@@ -77,7 +92,10 @@ class Analytics {
 	 *
 	 * @param array $options Optional configuration options.
 	 *                       Supported keys:
-	 *                       - menu_title (string): Admin menu label.
+	 *                       - menu_title (string|\Closure): Admin menu label. Defaults to
+	 *                         the package's own translated label. Pass a closure to supply
+	 *                         a translated label of your own: it runs on admin_menu, where
+	 *                         a textdomain can load, unlike init time.
 	 * @return void
 	 */
 	public static function init_wpcom_simple( $options = array() ) {
@@ -100,7 +118,8 @@ class Analytics {
 	 */
 	private static function apply_options( $options ) {
 		if ( ! empty( $options['menu_title'] ) ) {
-			self::$menu_title = $options['menu_title'];
+			self::$menu_title          = $options['menu_title'];
+			self::$resolved_menu_title = null;
 		}
 	}
 
@@ -264,24 +283,87 @@ class Analytics {
 	 * Uses the wp-build "wp-admin integrated" variant (`-wp-admin` slug) so the
 	 * dashboard renders inside the native wp-admin shell, not the full-page
 	 * variant that takes over the screen via admin_init. The render callback
-	 * comes from the generated build, with a no-op fallback when it is absent.
+	 * comes from the generated build; when that is missing we say so rather
+	 * than render an empty page, since the two look identical from the outside.
 	 *
 	 * @return void
 	 */
 	public static function register_admin_menu() {
-		$render_callback = function_exists( 'jpa_jetpack_premium_analytics_wp_admin_render_page' )
+		$has_build = function_exists( 'jpa_jetpack_premium_analytics_wp_admin_render_page' );
+
+		if ( ! $has_build ) {
+			// Surfaced here rather than only on the page itself, so a partial deploy shows up on
+			// the first admin request instead of waiting for someone to open the dashboard.
+			_doing_it_wrong(
+				__METHOD__,
+				'The Premium Analytics build output is missing, so the dashboard cannot render. The package build did not run for this deploy.',
+				''
+			);
+		}
+
+		$render_callback = $has_build
 			? 'jpa_jetpack_premium_analytics_wp_admin_render_page'
-			: '__return_null';
+			: array( __CLASS__, 'render_missing_build_notice' );
+
+		$menu_title = self::menu_title();
 
 		add_menu_page(
-			esc_html( self::$menu_title ),
-			esc_html( self::$menu_title ),
+			esc_html( $menu_title ),
+			esc_html( $menu_title ),
 			'manage_options',
 			'jetpack-premium-analytics-wp-admin',
 			$render_callback,
 			'dashicons-chart-bar',
 			2
 		);
+	}
+
+	/**
+	 * Stand-in for the generated render callback when the build output is absent.
+	 *
+	 * The PHP classes come from Composer and the build output from pnpm, so a
+	 * partial deploy can leave the class loadable with nothing to render.
+	 *
+	 * @return void
+	 */
+	public static function render_missing_build_notice() {
+		printf(
+			'<div class="wrap"><h1>%s</h1><p>%s</p></div>',
+			esc_html( self::menu_title() ),
+			esc_html__( 'The Premium Analytics assets are missing. The package build did not run for this deploy.', 'jetpack-premium-analytics-pkg' )
+		);
+	}
+
+	/**
+	 * The caller's menu label override, or the package's own translated label.
+	 *
+	 * Only call once translations can load — admin_menu or later. Memoized, so every
+	 * call site in a request shows the same label.
+	 *
+	 * Closures are resolved here rather than at init time, so a caller can hand us
+	 * `__()` in its own textdomain without translating too early. Deliberately not
+	 * is_callable(): PHP function names are case-insensitive, so a plain label like
+	 * "Analytics" would match a stray analytics() function and get called.
+	 *
+	 * @return string
+	 */
+	private static function menu_title() {
+		if ( null !== self::$resolved_menu_title ) {
+			return self::$resolved_menu_title;
+		}
+
+		$title = self::$menu_title instanceof \Closure
+			? ( self::$menu_title )()
+			: self::$menu_title;
+
+		// A positive check rather than a null coalesce: a closure is free to return an
+		// empty string, or something that isn't a string at all, and either would reach
+		// esc_html() as a broken label instead of falling back here.
+		self::$resolved_menu_title = is_string( $title ) && '' !== $title
+			? $title
+			: __( 'Analytics', 'jetpack-premium-analytics-pkg' );
+
+		return self::$resolved_menu_title;
 	}
 
 	/**
