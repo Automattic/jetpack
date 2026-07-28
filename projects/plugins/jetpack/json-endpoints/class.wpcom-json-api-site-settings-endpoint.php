@@ -267,21 +267,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
-	 * Determines whether the site can require visitors to be registered and logged in to comment
-	 *
-	 * The Jetpack comment form is served from a cross-origin iframe, where browsers block the cookies
-	 * its login flows depend on. Visitors have no way to sign in there, so the requirement is not
-	 * enforced and clients should not offer the setting.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return bool
-	 */
-	public function comment_registration_supported() {
-		return ! Jetpack::is_module_active( 'comments' );
-	}
-
-	/**
 	 * Returns category details
 	 *
 	 * @param WP_Term $category Category object.
@@ -432,7 +417,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'default_pingback_flag'            => (bool) get_option( 'default_pingback_flag' ),
 						'require_name_email'               => (bool) get_option( 'require_name_email' ),
 						'comment_registration'             => (bool) get_option( 'comment_registration' ),
-						'comment_registration_supported'   => (bool) $this->comment_registration_supported(),
 						'close_comments_for_old_posts'     => (bool) get_option( 'close_comments_for_old_posts' ),
 						'close_comments_days_old'          => (int) get_option( 'close_comments_days_old' ),
 						'thread_comments'                  => (bool) get_option( 'thread_comments' ),
@@ -857,14 +841,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'jetpack_sync_non_public_post_stati':
 					Jetpack_Options::update_option( 'sync_non_public_post_stati', $value );
-					break;
-				case 'comment_registration':
-					if ( ! $this->comment_registration_supported() ) {
-						break;
-					}
-					if ( update_option( $key, $value ) ) {
-						$updated[ $key ] = $value;
-					}
 					break;
 				case 'jetpack_search_enabled':
 					if ( $value ) {

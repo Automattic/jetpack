@@ -449,7 +449,7 @@ HTML;
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sniff misses the esc_url_raw.
 		$url              = "{$url}#parent=" . rawurlencode( esc_url_raw( set_url_scheme( 'http://' . ( isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : '' ) . ( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' ) ) ) );
 		$this->signed_url = $url;
-		$height           = is_user_logged_in() ? '315' : '430'; // Iframe can be shorter if we're not showing the guest fields.
+		$height           = $params['comment_registration'] || is_user_logged_in() ? '315' : '430'; // Iframe can be shorter if we're not allowing guest commenting.
 		$transparent      = ( 'transparent' === $params['color_scheme'] ) ? 'true' : 'false';
 
 		if ( isset( $_GET['replytocom'] ) ) { //phpcs:ignore WordPress.Security.NonceVerification.Recommended

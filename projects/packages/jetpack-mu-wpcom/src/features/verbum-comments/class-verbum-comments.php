@@ -105,19 +105,6 @@ class Verbum_Comments {
 	}
 
 	/**
-	 * Whether the blog can require visitors to be registered and logged in to comment.
-	 *
-	 * Jetpack serves the comment form in a cross-origin iframe, where browsers block the cookies the
-	 * WordPress.com and Facebook logins depend on. With no way to sign in there, requiring
-	 * registration leaves visitors with a form they can never submit, so they comment as guests.
-	 *
-	 * @return bool
-	 */
-	public function is_comment_registration_supported() {
-		return ! is_jetpack_comments();
-	}
-
-	/**
 	 * Load the div where Verbum app is rendered.
 	 */
 	public function verbum_render_element() {
@@ -131,7 +118,8 @@ class Verbum_Comments {
 
 		$verbum = '<div class="comment-form__verbum ' . $color_scheme . '"></div>' . $this->hidden_fields();
 
-		// When the blog requires login, core skips its own <form>, so Verbum needs to bring one.
+		// If the blog requires login, Verbum need to be wrapped in a <form> to work.
+		// Verbum is given `mustLogIn` to handle the login flow.
 		if ( get_option( 'comment_registration' ) && ! is_user_logged_in() ) {
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo "<form action=\"$comment_url\" method=\"post\" id=\"commentform\" class=\"comment-form\">$verbum</form>";
@@ -210,7 +198,7 @@ class Verbum_Comments {
 		$jetpack_signature            = isset( $__get['sig'] ) && is_string( $__get['sig'] ) ? $__get['sig'] : '';
 		$iframe_unique_id             = isset( $__get['iframe_unique_id'] ) && is_numeric( $__get['iframe_unique_id'] ) ? (int) $__get['iframe_unique_id'] : 0;
 		list( $jetpack_avatar )       = wpcom_get_avatar_url( "$email_hash@md5.gravatar.com" );
-		$comment_registration_enabled = $this->is_comment_registration_supported() && boolval( get_blog_option( $this->blog_id, 'comment_registration' ) );
+		$comment_registration_enabled = boolval( get_blog_option( $this->blog_id, 'comment_registration' ) );
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$post_id = isset( $_GET['postid'] ) ? intval( $_GET['postid'] ) : get_queried_object_id();
 		$locale  = get_locale();
