@@ -137,6 +137,33 @@ export type SubscriberDetails = Subscriber & {
 	country?: SubscriberCountry | null;
 	url?: string | null;
 	open_rate?: number;
+
+	// The individual endpoint names things differently from the list: one `date_subscribed`
+	// (already a full ISO string with an offset, unlike the list's naive UTC timestamps) rather
+	// than the `wpcom_`/`email_` pair, and `subscription_id` rather than the two id fields.
+	date_subscribed?: string;
+	subscription_id?: number;
+	is_email_subscriber?: boolean;
+};
+
+export type NewsletterCategory = {
+	id: number;
+	name: string;
+	slug?: string;
+	description?: string;
+	parent?: number;
+	subscription_count?: number;
+	// Only present on the per-subscriber response: false when the subscriber opted out of this
+	// category. WP.com stores opt-outs, so every site category comes back and `subscribed` is the
+	// discriminator — not the presence of the entry.
+	subscribed?: boolean;
+};
+
+export type SubscribedNewsletterCategories = {
+	// Whether the site has Newsletter categories turned on. When false the categories are
+	// meaningless and the UI hides the field entirely (mirrors Calypso).
+	enabled: boolean;
+	newsletter_categories: NewsletterCategory[];
 };
 
 export type SubscriberStats = {

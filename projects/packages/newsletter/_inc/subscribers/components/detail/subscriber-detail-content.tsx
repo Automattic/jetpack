@@ -3,7 +3,11 @@ import { Spinner } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { Card, Link, Stack, Text } from '@wordpress/ui';
-import { useSubscriberDetails, useSubscriberStats } from '../../data/use-subscriber-details';
+import {
+	useSubscribedNewsletterCategories,
+	useSubscriberDetails,
+	useSubscriberStats,
+} from '../../data/use-subscriber-details';
 import { getSubscribedAt } from '../../lib/subscriber-helpers';
 import SubscriptionStatusCell from '../cells/subscription-status-cell';
 import SubscriptionTypeCell from '../cells/subscription-type-cell';
@@ -160,8 +164,18 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 		user_id: open.userId,
 	} );
 
+	const categoriesQuery = useSubscribedNewsletterCategories( {
+		subscription_id: open.subscriptionId,
+		user_id: open.userId,
+	} );
+
 	const subscriber = detailsQuery.data;
 	const stats = statsQuery.data;
+
+	const categoriesEnabled = !! categoriesQuery.data?.enabled;
+	const subscribedCategories = ( categoriesQuery.data?.newsletter_categories ?? [] )
+		.filter( category => category.subscribed )
+		.map( category => category.name );
 
 	if ( detailsQuery.isLoading || ! subscriber ) {
 		return (
@@ -246,6 +260,16 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 						label={ __( 'Date subscribed', 'jetpack-newsletter' ) }
 						value={ formatDate( getSubscribedAt( subscriber ) ) }
 					/>
+					{ categoriesEnabled ? (
+						<DetailRow
+							label={ __( 'Receives emails for', 'jetpack-newsletter' ) }
+							value={
+								subscribedCategories.length
+									? subscribedCategories.join( ', ' )
+									: __( 'Not subscribed to any newsletter categories', 'jetpack-newsletter' )
+							}
+						/>
+					) : null }
 					<DetailRow
 						label={ __( 'Email subscription', 'jetpack-newsletter' ) }
 						value={
