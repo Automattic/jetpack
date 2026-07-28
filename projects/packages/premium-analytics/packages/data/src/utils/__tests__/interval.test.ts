@@ -95,4 +95,25 @@ describe( 'needsReportDateParamsSeed', () => {
 			} )
 		).toBe( false );
 	} );
+
+	it( 'treats custom and year-surface presets as range-based', () => {
+		// `normalizeReportParams` keeps only selectable presets, so these must
+		// resolve from the range on both sides or the seed check would loop.
+		expect(
+			needsReportDateParamsSeed( {
+				from: '2020-01-01T00:00:00.000Z',
+				to: '2026-06-30T23:59:59.999Z',
+				preset: 'all-time',
+				interval: 'year',
+			} )
+		).toBe( false );
+		expect(
+			needsReportDateParamsSeed( {
+				from: '2026-06-01T00:00:00.000Z',
+				to: '2026-06-07T23:59:59.999Z',
+				preset: 'custom',
+				interval: 'month',
+			} )
+		).toBe( true );
+	} );
 } );

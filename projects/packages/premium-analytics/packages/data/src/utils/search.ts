@@ -2,7 +2,6 @@
  * External dependencies
  */
 import {
-	isPrimaryPreset,
 	isSelectablePreset,
 	type SelectablePresetId,
 	type ComparisonPresetId,
@@ -167,7 +166,9 @@ export function needsReportDateParamsSeed( search?: ReportDateWindowSearch ): bo
 		return true;
 	}
 
-	const preset = isPrimaryPreset( search.preset ) ? search.preset : undefined;
+	// Narrow with the same guard `normalizeReportParams` uses, so the two can't
+	// disagree on which presets carry their own interval rules.
+	const preset = isSelectablePreset( search.preset ) ? search.preset : undefined;
 	return (
 		resolveIntervalForRange( preset, search.from, search.to, search.interval ) !== search.interval
 	);
