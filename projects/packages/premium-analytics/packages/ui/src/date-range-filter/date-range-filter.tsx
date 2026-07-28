@@ -99,7 +99,7 @@ export function DateRangeFilter( {
 		<Composite
 			className="date-range-filter__group"
 			role="toolbar"
-			aria-label={ __( 'Date range', 'jetpack-premium-analytics' ) }
+			aria-label={ __( 'Date range', 'jetpack-premium-analytics-pkg' ) }
 			orientation="horizontal"
 		>
 			{ quickPresets }

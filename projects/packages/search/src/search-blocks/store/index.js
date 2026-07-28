@@ -1033,7 +1033,7 @@ const { state, actions } = store( NAMESPACE, {
 					return;
 				}
 				const nextResults = ( data.results ?? [] ).map( ( r, i ) => ( {
-					...normalizeResult( r, state.locale, state.searchQuery ),
+					...normalizeResult( r, state.locale, state.searchQuery, state.isPhotonEnabled ),
 					index: i,
 				} ) );
 				replaceStateArray( 'results', nextResults );
@@ -1095,7 +1095,7 @@ const { state, actions } = store( NAMESPACE, {
 				}
 				const offset = state.results.length;
 				const appended = ( data.results ?? [] ).map( ( r, i ) => ( {
-					...normalizeResult( r, state.locale, state.searchQuery ),
+					...normalizeResult( r, state.locale, state.searchQuery, state.isPhotonEnabled ),
 					index: offset + i,
 				} ) );
 				state.results.push( ...appended );

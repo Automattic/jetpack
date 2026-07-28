@@ -32,7 +32,7 @@ class WP_REST_Help_Center_Support_Activity extends WP_REST_Help_Center_Controlle
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_support_activity' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => '__return_true',
 			)
 		);
 	}
@@ -41,7 +41,7 @@ class WP_REST_Help_Center_Support_Activity extends WP_REST_Help_Center_Controlle
 	 * Get support activity through Jetpack.
 	 */
 	public function get_support_activity() {
-		$body = $this->wpcom_request_client->request_as_user( '/support-activity' );
+		$body = $this->wpcom_request_client->request( '/support-activity' );
 
 		if ( is_wp_error( $body ) ) {
 			return $body;

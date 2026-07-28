@@ -97,7 +97,7 @@ class Report_Data_Fetcher {
 				return new WP_Error(
 					'missing_comparison_param',
 					/* translators: %s: parameter name. */
-					sprintf( __( 'Missing required comparison parameter: %s', 'jetpack-premium-analytics' ), $required ),
+					sprintf( __( 'Missing required comparison parameter: %s', 'jetpack-premium-analytics-pkg' ), $required ),
 					array( 'status' => 400 )
 				);
 			}
@@ -513,7 +513,7 @@ class Report_Data_Fetcher {
 		if ( is_wp_error( $data ) ) {
 			return new WP_Error(
 				'external_api_error',
-				__( 'External API error', 'jetpack-premium-analytics' ),
+				__( 'External API error', 'jetpack-premium-analytics-pkg' ),
 				array(
 					'status' => $status,
 				)
@@ -571,7 +571,7 @@ class Report_Data_Fetcher {
 
 		return new WP_Error(
 			'external_api_error',
-			__( 'External API error', 'jetpack-premium-analytics' ),
+			__( 'External API error', 'jetpack-premium-analytics-pkg' ),
 			$error_data
 		);
 	}
@@ -592,7 +592,7 @@ class Report_Data_Fetcher {
 			$this->logger->log_error( 'Failed to JSON encode proxy response data: ' . json_last_error_msg(), __METHOD__ );
 			return new WP_Error(
 				'proxy_response_encode_failed',
-				__( 'Failed to normalize proxy response data.', 'jetpack-premium-analytics' )
+				__( 'Failed to normalize proxy response data.', 'jetpack-premium-analytics-pkg' )
 			);
 		}
 

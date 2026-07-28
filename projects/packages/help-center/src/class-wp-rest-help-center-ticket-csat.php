@@ -32,7 +32,7 @@ class WP_REST_Help_Center_Ticket_CSAT extends WP_REST_Help_Center_Controller {
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'submit_rating' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => '__return_true',
 				'args'                => array(
 					'ticket_id' => array(
 						'required' => true,
@@ -74,7 +74,7 @@ class WP_REST_Help_Center_Ticket_CSAT extends WP_REST_Help_Center_Controller {
 			'test_mode' => $request['test_mode'],
 		);
 
-		$body = $this->wpcom_request_client->request_as_user(
+		$body = $this->wpcom_request_client->request(
 			'/help/csat',
 			'2',
 			array(

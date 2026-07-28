@@ -35,7 +35,7 @@ export function describeError(
 ): WidgetStateError {
 	if ( getApiErrorStatus( error ) === 403 && getApiErrorCode( error ) !== 'no_connection' ) {
 		return {
-			description: __( "You don't have access to this data.", 'jetpack-premium-analytics' ),
+			description: __( "You don't have access to this data.", 'jetpack-premium-analytics-pkg' ),
 		};
 	}
 
@@ -43,7 +43,7 @@ export function describeError(
 		description: retryDescription,
 		actions: [
 			{
-				label: __( 'Retry', 'jetpack-premium-analytics' ),
+				label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
 				onClick: onRetry,
 			},
 		],

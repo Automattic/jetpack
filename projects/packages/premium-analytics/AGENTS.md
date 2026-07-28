@@ -11,7 +11,9 @@ Jetpack Premium Analytics is the unified analytics dashboard for Jetpack-connect
 
 - Composer package: `automattic/jetpack-premium-analytics`
 - PHP namespace: `Automattic\Jetpack\PremiumAnalytics`
-- Text domain / REST namespace: `jetpack-premium-analytics` / `jetpack-premium-analytics/v1`
+- Text domain / REST namespace: `jetpack-premium-analytics-pkg` / `jetpack-premium-analytics/v1`
+  (the `-pkg` suffix keeps the package's domain distinct from the plugin slug it ships under;
+  `Assets::alias_textdomain()` maps it back to the plugin's domain at runtime)
 
 ## How it works
 
@@ -562,10 +564,10 @@ interpolated into a shared frame) so translators see the whole sentence:
 	// isFetching is optional: a background refetch shows a non-blocking busy overlay
 	// over the existing rows instead of hiding them.
 	error={ describeError( error, {
-		retryDescription: __( "We couldn't load search terms. Please try again in a moment.", 'jetpack-premium-analytics' ),
+		retryDescription: __( "We couldn't load search terms. Please try again in a moment.", 'jetpack-premium-analytics-pkg' ),
 		onRetry: refetch,
 	} ) }
-	empty={ { icon: search, description: __( 'No search terms in this period.', 'jetpack-premium-analytics' ) } }
+	empty={ { icon: search, description: __( 'No search terms in this period.', 'jetpack-premium-analytics-pkg' ) } }
 >
 	<LeaderboardChart … />
 </WidgetState>

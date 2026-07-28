@@ -116,7 +116,7 @@ function ClicksReport(): JSX.Element {
 	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getClicksFields(), [] );
 	const chartMetrics = useMemo(
-		() => [ { key: 'clicks', label: __( 'Clicks', 'jetpack-premium-analytics' ) } ],
+		() => [ { key: 'clicks', label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ) } ],
 		[]
 	);
 	const chartLegendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
@@ -154,10 +154,10 @@ function ClicksReport(): JSX.Element {
 				<Breadcrumbs
 					items={ [
 						{
-							label: __( 'Stats', 'jetpack-premium-analytics' ),
+							label: __( 'Stats', 'jetpack-premium-analytics-pkg' ),
 							to: dashboardLink,
 						},
-						{ label: __( 'Clicks', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
 			}
@@ -171,7 +171,7 @@ function ClicksReport(): JSX.Element {
 			>
 				{ records.isError ? (
 					<ReportErrorState
-						title={ __( 'Unable to load clicks', 'jetpack-premium-analytics' ) }
+						title={ __( 'Unable to load clicks', 'jetpack-premium-analytics-pkg' ) }
 						onRetry={ retry }
 					/>
 				) : (
@@ -192,7 +192,7 @@ function ClicksReport(): JSX.Element {
 							getItemParentId={ getClickRowParentId }
 							isLoading={ records.isLoading }
 							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search clicked URLs', 'jetpack-premium-analytics' ) }
+							searchLabel={ __( 'Search clicked URLs', 'jetpack-premium-analytics-pkg' ) }
 							hideLevelMarkers
 						/>
 					</>

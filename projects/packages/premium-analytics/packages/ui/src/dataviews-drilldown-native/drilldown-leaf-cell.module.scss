@@ -8,12 +8,11 @@
 }
 
 /*
- * DataViews' own `.dataviews-title-field a` (0,1,1) paints title links as
- * neutral, undecorated text — it also outweighs `Link`'s layered styles.
- * `span.leaf a` (0,1,2) deterministically wins and covers any composed link
- * (the built-in external `Link` or an internal router link) alike.
+ * DataViews' scoped title-link selector makes composed links blocks. Include
+ * the link's `href` attribute here to win only the layout properties while
+ * leaving its color to the report table's standard link treatment.
  */
-span.leaf a {
-	color: var(--wpds-color-foreground-interactive-brand);
-	text-decoration: underline;
+span.leaf a[href] {
+	display: inline-flex;
+	align-items: center;
 }

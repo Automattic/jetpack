@@ -94,14 +94,14 @@ const EMAIL_METRICS: readonly EmailMetricSpec[] = [
 	{
 		key: 'total_sends',
 		icon: send,
-		label: () => __( 'Emails sent', 'jetpack-premium-analytics' ),
+		label: () => __( 'Emails sent', 'jetpack-premium-analytics-pkg' ),
 		kind: 'count',
 		views: [ 'opens' ],
 	},
 	{
 		key: 'unique_opens',
 		icon: people,
-		label: () => __( 'Unique opens', 'jetpack-premium-analytics' ),
+		label: () => __( 'Unique opens', 'jetpack-premium-analytics-pkg' ),
 		kind: 'count',
 		views: [ 'opens' ],
 		hideWhenZero: true,
@@ -109,28 +109,28 @@ const EMAIL_METRICS: readonly EmailMetricSpec[] = [
 	{
 		key: 'total_opens',
 		icon: seen,
-		label: () => __( 'Total opens', 'jetpack-premium-analytics' ),
+		label: () => __( 'Total opens', 'jetpack-premium-analytics-pkg' ),
 		kind: 'count',
 		views: [ 'opens', 'clicks' ],
 	},
 	{
 		key: 'opens_rate',
 		icon: percent,
-		label: () => __( 'Open rate', 'jetpack-premium-analytics' ),
+		label: () => __( 'Open rate', 'jetpack-premium-analytics-pkg' ),
 		kind: 'rate',
 		views: [ 'opens' ],
 	},
 	{
 		key: 'total_clicks',
 		icon: link,
-		label: () => __( 'Total clicks', 'jetpack-premium-analytics' ),
+		label: () => __( 'Total clicks', 'jetpack-premium-analytics-pkg' ),
 		kind: 'count',
 		views: [ 'clicks' ],
 	},
 	{
 		key: 'clicks_rate',
 		icon: chartBar,
-		label: () => __( 'Click rate', 'jetpack-premium-analytics' ),
+		label: () => __( 'Click rate', 'jetpack-premium-analytics-pkg' ),
 		kind: 'rate',
 		views: [ 'clicks' ],
 	},
@@ -310,17 +310,17 @@ const EmailTopRowTiles = ( {
 					error={ {
 						description: __(
 							"We couldn't load this email's stats. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
 						actions: onRetry
-							? [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: onRetry } ]
+							? [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: onRetry } ]
 							: undefined,
 					} }
 					empty={ {
 						icon: envelope,
 						description: hasSelection
-							? __( 'No stats are available for this email yet.', 'jetpack-premium-analytics' )
-							: __( 'Select an email to see its stats.', 'jetpack-premium-analytics' ),
+							? __( 'No stats are available for this email yet.', 'jetpack-premium-analytics-pkg' )
+							: __( 'Select an email to see its stats.', 'jetpack-premium-analytics-pkg' ),
 					} }
 				>
 					<MetricTileGrid tiles={ metrics ?? [] } />

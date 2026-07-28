@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add DateYearFilter, an all-time and per-year date filter that switches between pills and a select based on the space it measures.

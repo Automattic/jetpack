@@ -30,6 +30,10 @@ define( 'JETPACK_PREMIUM_ANALYTICS__VERSION', '0.1.0-alpha' );
 $jetpack_autoloader = JETPACK_PREMIUM_ANALYTICS_DIR . 'vendor/autoload_packages.php';
 if ( is_readable( $jetpack_autoloader ) ) {
 	require_once $jetpack_autoloader;
+	$jetpack_i18n_map = JETPACK_PREMIUM_ANALYTICS_DIR . 'jetpack_vendor/i18n-map.php';
+	if ( is_readable( $jetpack_i18n_map ) && method_exists( \Automattic\Jetpack\Assets::class, 'alias_textdomains_from_file' ) ) {
+		\Automattic\Jetpack\Assets::alias_textdomains_from_file( $jetpack_i18n_map );
+	}
 } else {
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log( 'Error loading autoloader file for Jetpack Premium Analytics plugin' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log

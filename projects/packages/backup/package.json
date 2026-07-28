@@ -13,12 +13,13 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "pnpm run clean && pnpm run build-client && pnpm run build:wp-build && pnpm run build:boot-asset",
+		"build": "pnpm run clean && pnpm run build-client && pnpm run build:wp-build && pnpm run build:stamp-textdomains && pnpm run build:boot-asset",
 		"build:boot-asset": "provide-boot-asset-file",
+		"build:stamp-textdomains": "stamp-textdomains",
 		"build:strip-unminified-prod": "strip-unminified-prod",
 		"build:wp-build": "wp-build",
 		"build-client": "webpack",
-		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client' 'pnpm:build:wp-build' && pnpm run build:boot-asset",
+		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client' 'pnpm:build:wp-build' && pnpm run build:stamp-textdomains && pnpm run build:boot-asset",
 		"build-production-concurrently": "NODE_ENV=production BABEL_ENV=production pnpm run build-concurrently && pnpm run build:strip-unminified-prod && pnpm run validate",
 		"clean": "rm -rf build/",
 		"test": "jest --config=tests/jest.config.js",
@@ -38,6 +39,7 @@
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
+		"@jetpack-backup/init": "link:packages/init",
 		"@tanstack/react-query": "5.101.2",
 		"@wordpress/admin-ui": "2.5.0",
 		"@wordpress/api-fetch": "7.51.0",
@@ -88,7 +90,12 @@
 		"packageNamespace": "jetpack-backup",
 		"handlePrefix": "jetpack-backup",
 		"pages": [
-			"jetpack-backup-dashboard"
+			{
+				"id": "jetpack-backup-dashboard",
+				"init": [
+					"@jetpack-backup/init"
+				]
+			}
 		]
 	}
 }

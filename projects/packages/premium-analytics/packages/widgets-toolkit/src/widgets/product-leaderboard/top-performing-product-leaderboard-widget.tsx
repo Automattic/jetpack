@@ -213,14 +213,15 @@ export function TopPerformingProductLeaderboardWidget( {
 					errorText ??
 					__(
 						"We couldn't load product data. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: emptyStateIcon,
 				description:
-					emptyStateText ?? __( 'No product sales in this period.', 'jetpack-premium-analytics' ),
+					emptyStateText ??
+					__( 'No product sales in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			<LeaderboardChart

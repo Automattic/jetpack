@@ -37,33 +37,36 @@ export function getEarningsStatus( status: number | undefined ): {
 	switch ( status ) {
 		case 0:
 			return {
-				label: __( 'Unpaid', 'jetpack-premium-analytics' ),
+				label: __( 'Unpaid', 'jetpack-premium-analytics-pkg' ),
 				tooltip: __(
 					'Payment is on hold until the end of the current month.',
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
 			};
 		case 1:
 			return {
-				label: __( 'Paid', 'jetpack-premium-analytics' ),
-				tooltip: __( 'Payment has been processed through PayPal.', 'jetpack-premium-analytics' ),
+				label: __( 'Paid', 'jetpack-premium-analytics-pkg' ),
+				tooltip: __(
+					'Payment has been processed through PayPal.',
+					'jetpack-premium-analytics-pkg'
+				),
 			};
 		case 2:
-			return { label: __( 'a8c-only', 'jetpack-premium-analytics' ) };
+			return { label: __( 'a8c-only', 'jetpack-premium-analytics-pkg' ) };
 		case 3:
 			return {
-				label: __( 'Pending (Missing Tax Info)', 'jetpack-premium-analytics' ),
+				label: __( 'Pending (Missing Tax Info)', 'jetpack-premium-analytics-pkg' ),
 				tooltip: __(
 					'Payment is pending due to missing information. You can provide tax information in the settings screen.',
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
 			};
 		case 4:
 			return {
-				label: __( 'Pending (Invalid PayPal)', 'jetpack-premium-analytics' ),
+				label: __( 'Pending (Invalid PayPal)', 'jetpack-premium-analytics-pkg' ),
 				tooltip: __(
 					'Payment processing has failed due to invalid PayPal address. You can correct the PayPal address in the settings screen.',
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
 			};
 		default:
@@ -120,25 +123,25 @@ export function getWordAdsHistoryFields(): Field< EarningsHistoryRow >[] {
 			// `item[ field.id ]`, and each id already matches its row property.
 			// Sorting Period on the raw `YYYY-MM` key keeps it chronological.
 			id: 'period',
-			label: __( 'Period', 'jetpack-premium-analytics' ),
+			label: __( 'Period', 'jetpack-premium-analytics-pkg' ),
 			enableHiding: false,
 			render: ( { item } ) => <>{ formatPeriodLabel( item.period ) }</>,
 		},
 		{
 			id: 'amount',
-			label: __( 'Earnings', 'jetpack-premium-analytics' ),
+			label: __( 'Earnings', 'jetpack-premium-analytics-pkg' ),
 			render: ( { item } ) => (
 				<>{ formatMetricValue( item.amount, 'currency', { decimals: 2 } ) }</>
 			),
 		},
 		{
 			id: 'pageviews',
-			label: __( 'Ads Served', 'jetpack-premium-analytics' ),
+			label: __( 'Ads Served', 'jetpack-premium-analytics-pkg' ),
 			render: ( { item } ) => <>{ formatMetricValue( item.pageviews, 'number' ) }</>,
 		},
 		{
 			id: 'status',
-			label: __( 'Status', 'jetpack-premium-analytics' ),
+			label: __( 'Status', 'jetpack-premium-analytics-pkg' ),
 			// Sorts by the visible label rather than the numeric code.
 			getValue: ( { item } ) => getEarningsStatus( item.status ).label,
 			render: ( { item } ) => {

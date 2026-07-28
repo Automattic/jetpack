@@ -1,0 +1,25 @@
+@use "../styles/preset-surface";
+
+.date-year-filter__group {
+
+	@include preset-surface.group;
+
+	// One row or a select — never two rows. This surface measures whether the
+	// pills fit and swaps in the select when they don't, so wrapping would only
+	// mask a wrong measurement, and a wrapped row hangs a divider at its start.
+	// Paired with `flex-shrink: 0` below: without it, `nowrap` would squeeze the
+	// pills to fit and the measurement would always report that they fit.
+	flex-wrap: nowrap;
+}
+
+.date-year-filter__pill {
+
+	@include preset-surface.pill;
+
+	flex-shrink: 0;
+
+	// This surface stands on its own rather than inside a BaseControl row, so
+	// it sets the control height the sibling pills inherit from
+	// `.date-filters-panel`: a full-size control minus the group's own border.
+	--wp-ui-button-height: calc(var(--wpds-dimension-size-lg) - 2px);
+}

@@ -1,6 +1,10 @@
 <?xml version="1.0"?>
 <ruleset>
-	<rule ref="WordPress" />
+	<rule ref="WordPress">
+		<!-- Excluded for security (GHSA-3pwp-g2mj-5p3v), see the exclusion in the Jetpack standard's
+		     ruleset.xml. Remove once WordPressCS >= 3.4.1 is installable. -->
+		<exclude name="WordPress.WP.EnqueuedResourceParameters" />
+	</rule>
 
 	<rule ref="WordPress.WP.I18n">
 		<properties>

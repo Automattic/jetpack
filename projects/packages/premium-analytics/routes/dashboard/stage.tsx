@@ -88,11 +88,13 @@ function Dashboard(): JSX.Element {
 			>
 				<Page
 					breadcrumbs={
-						<Breadcrumbs items={ [ { label: __( 'Analytics', 'jetpack-premium-analytics' ) } ] } />
+						<Breadcrumbs
+							items={ [ { label: __( 'Analytics', 'jetpack-premium-analytics-pkg' ) } ] }
+						/>
 					}
 					subTitle={ __(
 						'Track your site performance and visitor insights.',
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					) }
 					actions={ <WidgetDashboard.Actions /> }
 					className={ styles.dashboard }

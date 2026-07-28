@@ -69,7 +69,7 @@ export function ReportLink( { report, section, label, ariaLabel, className }: Re
 			className={ className }
 			aria-label={ ariaLabel }
 		>
-			{ label ?? __( 'See report', 'jetpack-premium-analytics' ) }
+			{ label ?? __( 'See report', 'jetpack-premium-analytics-pkg' ) }
 		</RouteLink>
 	);
 }
