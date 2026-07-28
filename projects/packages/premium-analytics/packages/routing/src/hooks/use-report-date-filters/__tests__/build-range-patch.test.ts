@@ -75,11 +75,11 @@ describe( 'buildRangePatch', () => {
 		} );
 	} );
 
-	it( 'keeps the current interval when the new range still allows it', () => {
+	it( 'keeps the current interval when the preset is unchanged and still allows it', () => {
 		const patch = buildRangePatch( {
 			nextRange: { from, to },
 			nextPresetId: 'last-24-hours',
-			effective: { interval: 'day' },
+			effective: { preset: 'last-24-hours', interval: 'day' },
 		} );
 
 		expect( patch?.interval ).toBe( 'day' );
@@ -89,7 +89,29 @@ describe( 'buildRangePatch', () => {
 		const patch = buildRangePatch( {
 			nextRange: { from, to },
 			nextPresetId: 'last-24-hours',
-			effective: { interval: 'month' },
+			effective: { preset: 'last-24-hours', interval: 'month' },
+		} );
+
+		expect( patch?.interval ).toBe( 'hour' );
+	} );
+
+	it( 'resets the interval to the range default when the preset changes', () => {
+		const patch = buildRangePatch( {
+			nextRange: { from, to },
+			nextPresetId: 'last-24-hours',
+			effective: { preset: 'last-7-days', interval: 'day' },
+		} );
+
+		// `day` is allowed for last-24-hours, but it was inherited from
+		// last-7-days rather than chosen, so it must not survive the switch.
+		expect( patch?.interval ).toBe( 'hour' );
+	} );
+
+	it( 'resets the interval when a manual edit leaves a preset', () => {
+		const patch = buildRangePatch( {
+			nextRange: { from, to },
+			nextPresetId: 'custom',
+			effective: { preset: 'last-7-days', interval: 'day' },
 		} );
 
 		expect( patch?.interval ).toBe( 'hour' );

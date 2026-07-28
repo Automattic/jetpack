@@ -72,11 +72,22 @@ export function buildRangePatch( {
 		patch.from = rangeFrom;
 		patch.to = rangeTo;
 
+		/*
+		 * A preset change resets the interval to the new range's default.
+		 * Without a granularity picker, `effective.interval` can't be told
+		 * apart from one inherited from the previous preset, and carrying it
+		 * over would bucket the new range at the old granularity: last-7-days
+		 * (`day`) → last-24-hours would render one daily bucket instead of 24
+		 * hourly ones. Within the same preset the value is a deliberate
+		 * override, so it is kept when the range still allows it.
+		 */
+		const presetChanged = nextPresetId !== effective.preset;
+
 		patch.interval = resolveIntervalForRange(
 			nextPresetId,
 			rangeFrom,
 			rangeTo,
-			effective.interval
+			presetChanged ? undefined : effective.interval
 		);
 
 		if ( effective.comp === '1' ) {
