@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Skip redundant WP.com re-authorization when checking out for a product the site already owns and the current user is already connected.

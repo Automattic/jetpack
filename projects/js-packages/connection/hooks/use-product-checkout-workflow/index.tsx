@@ -128,13 +128,6 @@ export default function useProductCheckoutWorkflow(
 			}
 
 			if ( siteHasWpcomProduct ) {
-				if ( isUserConnected ) {
-					debug(
-						'handleAfterRegistration: Site has a product associated and user is already connected'
-					);
-					window.location.href = redirect || redirectUrl;
-					return;
-				}
 				debug( 'handleAfterRegistration: Site has a product associated' );
 				return handleConnectUser();
 			}
