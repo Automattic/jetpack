@@ -29,22 +29,18 @@ const addWordPressDomain = window.location.hostname.endsWith( '.wordpress.com' )
  * Ask the browser to grant this (cross-origin) frame access to its first-party cookies.
  *
  * On Atomic/Jetpack, Verbum runs inside a third-party iframe where the `.wordpress.com` auth
- * cookies can't be read/written, so the social login state can't be established. The Storage
- * Access API restores first-party cookie access, but only from a user gesture — so this must be
- * called synchronously off the login click. If it's denied or unsupported we fall through: the
- * popup + postMessage flow still authenticates for the current session, only persistence is lost.
+ * cookies can't be read or written, so a social login never sticks — and the comment POST back to
+ * jetpack.wordpress.com arrives without a session, which WP.com downgrades to a guest comment.
+ *
+ * Best-effort: not awaited, so the login popup still opens on the same click. `window.open()` and
+ * this both want the user gesture, and the popup is the one that breaks visibly without it. If
+ * access is denied the visitor stays logged out and the top-level login link remains available.
  */
-const ensureCookieAccess = async () => {
+const requestCookieAccess = () => {
 	try {
-		if (
-			typeof document.hasStorageAccess === 'function' &&
-			typeof document.requestStorageAccess === 'function' &&
-			! ( await document.hasStorageAccess() )
-		) {
-			await document.requestStorageAccess();
-		}
+		document.requestStorageAccess?.().catch( () => {} );
 	} catch {
-		// Access denied or unsupported — social login still works in-session via postMessage.
+		// Unsupported — the caller handles the still-logged-out case.
 	}
 };
 
@@ -95,15 +91,8 @@ export default function useSocialLogin() {
 		document.cookie = `${ cookieName }=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=None; Secure=True;${ addWordPressDomain }`;
 	};
 
-	const login = async ( service: SocialServiceName ) => {
+	const login = ( service: SocialServiceName ) => {
 		const { connectURL } = VerbumComments;
-
-		// Restore first-party cookie access before logging in, so the login state can persist
-		// inside the iframe. Runs off the login-button gesture, which the Storage Access API requires.
-		if ( VerbumComments.isJetpackComments ) {
-			await ensureCookieAccess();
-		}
-
 		const broadcastChannel = new BroadcastChannel( 'verbum_post_message' );
 
 		const loginWindow = window.open(
@@ -111,6 +100,11 @@ export default function useSocialLogin() {
 			'VerbumCommentsLogin',
 			`status=0,toolbar=0,location=1,menubar=0,directories=0,resizable=1,scrollbars=0${ serviceData[ service ].popup }`
 		);
+
+		// Requested once the popup is open, so it resolves while the visitor is still logging in.
+		if ( VerbumComments.isJetpackComments ) {
+			requestCookieAccess();
+		}
 
 		const waitForLogin = ( event: MessageEvent ) => {
 			if (

@@ -46,6 +46,8 @@ const getLoginCommentText = ( commentParent: Signal ) => {
  * On Atomic/Jetpack the comment form runs inside a cross-origin iframe, so the parent post URL
  * is passed in via the location hash (`#parent=…`). We log in against that site so the visitor
  * returns authenticated (via Jetpack SSO) and can comment.
+ *
+ * @return {string} - The site's login URL, or the bare target if it can't be parsed.
  */
 const getSiteLoginUrl = () => {
 	const parentUrl = decodeURIComponent(
@@ -111,13 +113,11 @@ export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOut
 	// so the buttons render even when the cookie test currently fails.
 	const showSocialButtons = canWeAccessCookies || !! VerbumComments.isJetpackComments;
 
-	// Login is required but there's no way to log in here (cookies blocked and not in the iframe
-	// where social login is offered). Showing the guest form would be a dead end: the comment is
-	// rejected on submit with "you must be logged in". Surface the requirement with a login link.
-	const loginRequiredWithoutInFrameAuth =
-		mustLogIn && ! canWeAccessCookies && ! VerbumComments.isJetpackComments;
+	// Login is required but cookies are blocked, so an in-frame login may not stick. Keep the
+	// top-level login link on offer — without it, a denied cookie prompt is a dead end again.
+	const showSiteLogin = mustLogIn && ! canWeAccessCookies;
 
-	if ( loginRequiredWithoutInFrameAuth ) {
+	if ( showSiteLogin && ! showSocialButtons ) {
 		return (
 			<div className="verbum-subscriptions logged-out">
 				<div className="verbum-subscriptions__wrapper">
@@ -202,10 +202,19 @@ export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOut
 							</div>
 						</>
 					) }
+					{ showSiteLogin && showSocialButtons && (
+						<a
+							className="components-button is-link verbum-subscriptions__login-link"
+							href={ getSiteLoginUrl() }
+							target="_top"
+							rel="noopener noreferrer"
+						>
+							{ translate( 'Log in' ) }
+						</a>
+					) }
 					<EmailForm
 						shouldShowEmailForm={
-							activeService === 'mail' ||
-							( ! canWeAccessCookies && ! VerbumComments.isJetpackComments )
+							activeService === 'mail' || ( ! canWeAccessCookies && ! mustLogIn )
 						}
 					/>
 				</div>

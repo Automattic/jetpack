@@ -20,15 +20,12 @@ export function createSignals() {
 	 * Here we also check if cookies are accessible, userInfo is set and the service is different from 'guest' or 'jetpack'.
 	 */
 	const userLoggedIn = computed( () => {
-		const info = userInfo.value;
-		const isExternalService =
-			!! info && info.service !== 'guest' && info.service !== 'jetpack';
-
-		// A fresh social login (via postMessage) carries an access_token even when cookies are
-		// blocked in the iframe, so treat that as logged in too — not just readable-cookie logins.
 		return (
 			VerbumComments.isJetpackCommentsLoggedIn ||
-			( isExternalService && ( canWeAccessCookies() || !! info.access_token ) )
+			( canWeAccessCookies() &&
+				userInfo.value &&
+				userInfo.value?.service !== 'guest' &&
+				userInfo.value?.service !== 'jetpack' )
 		);
 	} );
 
