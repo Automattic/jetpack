@@ -113,9 +113,9 @@ class Mode {
 		// on the former. Add the expected class back on that page.
 		add_filter( 'admin_body_class', array( self::class, 'maybe_add_body_class' ) );
 
-		// Render the "Newsletters" header (with a chevron exit link) at the top of
-		// the decluttered menu on mode surfaces: styles here, markup injected in
-		// the footer once #adminmenu exists in the DOM.
+		// Render the "Newsletter" header at the top of the decluttered menu on mode
+		// surfaces, and the chevron exit link at its foot: styles here, markup
+		// injected in the footer once #adminmenu exists in the DOM.
 		add_action( 'admin_enqueue_scripts', array( self::class, 'maybe_enqueue_mode_assets' ) );
 		add_action( 'admin_footer', array( self::class, 'maybe_render_mode_header' ) );
 
@@ -448,7 +448,7 @@ class Mode {
 
 		$nav = self::get_nav_slugs();
 
-		// The exit affordance is the chevron in the injected "Newsletters" header
+		// The exit affordance is the chevron link injected at the foot of the nav
 		// (see maybe_render_mode_header), not a menu item.
 		//
 		// Dashboard and Paid pass their render callbacks here because taking their
@@ -704,7 +704,7 @@ class Mode {
 	}
 
 	/**
-	 * Enqueue styles for the injected "Newsletters" menu header on mode surfaces.
+	 * Enqueue styles for the injected "Newsletter" menu chrome on mode surfaces.
 	 *
 	 * @return void
 	 */
@@ -719,58 +719,91 @@ class Mode {
 		wp_add_inline_style(
 			$handle,
 			'#adminmenu .jetpack-newsletter-mode-header {
-				display: flex;
-				align-items: center;
-				gap: 4px;
-				padding: 14px 12px 14px 0;
+				padding: 14px 12px;
 				margin: 0;
 			}
-			#adminmenu .jetpack-newsletter-mode-header .jetpack-newsletter-mode-exit {
-				display: inline-flex;
-				align-items: center;
-				justify-content: center;
-				/* No color set: inherit the active color scheme #adminmenu link color. */
-				opacity: 0.7;
-				text-decoration: none;
-			}
-			#adminmenu .jetpack-newsletter-mode-header .jetpack-newsletter-mode-exit:hover,
-			#adminmenu .jetpack-newsletter-mode-header .jetpack-newsletter-mode-exit:focus {
-				opacity: 1;
-			}
-			#adminmenu .jetpack-newsletter-mode-header .jetpack-newsletter-mode-exit svg {
-				display: block;
-				width: 24px;
-				height: 24px;
-				fill: currentColor;
-			}
-			#adminmenu .jetpack-newsletter-mode-header p {
+			#adminmenu .jetpack-newsletter-mode-header h3 {
 				margin: 0;
-				padding: 0;
+				padding: 0 0 6px;
 				/* Menu text color: wpcom sidebar-text var, light fallback for core schemes. */
 				color: var( --color-sidebar-text, #fff );
-				/* Match the left-nav link size/weight. */
-				font-size: 14px;
+				font-size: 16px;
 				font-weight: 400;
 				line-height: 1.4;
 			}
 			/* Collapsed menu (#collapse-button → body.folded, or the responsive
-			   auto-fold range): show only the chevron, hide the heading text —
-			   mirroring how core folds a normal menu item to icon-only. */
+			   auto-fold range): the header is text-only now that the exit link has
+			   moved to the foot of the nav, so fold it away entirely. */
 			body.folded #adminmenu .jetpack-newsletter-mode-header {
-				justify-content: center;
-				padding-left: 0;
-				padding-right: 0;
-			}
-			body.folded #adminmenu .jetpack-newsletter-mode-header p {
 				display: none;
 			}
 			@media only screen and ( min-width: 783px ) and ( max-width: 960px ) {
 				.auto-fold #adminmenu .jetpack-newsletter-mode-header {
-					justify-content: center;
-					padding-left: 0;
-					padding-right: 0;
+					display: none;
 				}
-				.auto-fold #adminmenu .jetpack-newsletter-mode-header p {
+			}
+			/* Pin the exit link to the foot of the nav: lay #adminmenu out as a
+			   column tall enough to fill the viewport below the admin bar, then let
+			   an auto top margin on the link absorb the slack. Width is inherited
+			   rather than declared, so this holds at every menu width — core 160px,
+			   the wpcom 272px override below, and the folded 36px. Desktop only:
+			   under 783px core turns the menu into a full-width toggle panel that
+			   should keep flowing with the page. */
+			@media only screen and ( min-width: 783px ) {
+				#adminmenu {
+					display: flex;
+					flex-direction: column;
+					min-height: calc( 100vh - 32px );
+					box-sizing: border-box;
+				}
+				#adminmenu .jetpack-newsletter-mode-back {
+					margin-block-start: auto;
+				}
+			}
+			#adminmenu .jetpack-newsletter-mode-back {
+				margin-block-end: 48px;
+			}
+			#adminmenu .jetpack-newsletter-mode-back .jetpack-newsletter-mode-exit {
+				display: flex;
+				align-items: center;
+				gap: 4px;
+				padding: 4px 12px;
+				/* No color set: inherit the active color scheme #adminmenu link color. */
+				opacity: 0.7;
+				text-decoration: none;
+				font-size: 13px;
+				line-height: 1.4;
+			}
+			#adminmenu .jetpack-newsletter-mode-back .jetpack-newsletter-mode-exit:hover,
+			#adminmenu .jetpack-newsletter-mode-back .jetpack-newsletter-mode-exit:focus {
+				opacity: 1;
+			}
+			#adminmenu .jetpack-newsletter-mode-back .jetpack-newsletter-mode-exit svg {
+				display: block;
+				width: 24px;
+				height: 24px;
+				flex-shrink: 0;
+				fill: currentColor;
+			}
+			/* The chevron points back toward the start of the line, so mirror it
+			   when the start edge flips. */
+			body.rtl #adminmenu .jetpack-newsletter-mode-back .jetpack-newsletter-mode-exit svg {
+				transform: scaleX( -1 );
+			}
+			/* Collapsed menu: chevron only, matching the Write button below. */
+			body.folded #adminmenu .jetpack-newsletter-mode-back .jetpack-newsletter-mode-exit {
+				justify-content: center;
+				padding-inline: 0;
+			}
+			body.folded #adminmenu .jetpack-newsletter-mode-back .jetpack-newsletter-mode-exit span {
+				display: none;
+			}
+			@media only screen and ( min-width: 783px ) and ( max-width: 960px ) {
+				.auto-fold #adminmenu .jetpack-newsletter-mode-back .jetpack-newsletter-mode-exit {
+					justify-content: center;
+					padding-inline: 0;
+				}
+				.auto-fold #adminmenu .jetpack-newsletter-mode-back .jetpack-newsletter-mode-exit span {
 					display: none;
 				}
 			}
@@ -914,9 +947,10 @@ class Mode {
 	}
 
 	/**
-	 * Inject the "Newsletters" header at the top of the decluttered menu.
+	 * Inject the "Newsletter" header and the exit link into the decluttered menu.
 	 *
-	 * An <h3> heading with a chevron to its left that links back out of the mode.
+	 * An <h3> heading at the top of the nav, and a chevron link back out of the
+	 * mode pinned to its foot.
 	 * Injected client-side because wp-admin renders each menu item as `<li><a>`,
 	 * which can't hold a separate heading + exit link; this runs in the footer,
 	 * after #adminmenu is in the DOM.
@@ -928,12 +962,16 @@ class Mode {
 			return;
 		}
 
-		$header_markup = sprintf(
-			'<a href="%1$s" class="jetpack-newsletter-mode-exit" aria-label="%2$s"><svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M14.6 7l-1.2-1L8 12l5.4 6 1.2-1-4.6-5z"></path></svg></a><p>%3$s</p>',
+		/** "Newsletter" is a product surface name. */
+		$header_markup = '<h3>Newsletter</h3>';
+
+		// The visible text is just "wp-admin"; the label spells out the direction
+		// for screen readers, and contains the visible text so the two agree.
+		$back_markup = sprintf(
+			'<a href="%1$s" class="jetpack-newsletter-mode-exit" aria-label="%2$s"><svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M14.6 7l-1.2-1L8 12l5.4 6 1.2-1-4.6-5z"></path></svg><span>%3$s</span></a>',
 			esc_url( admin_url() ),
-			esc_attr__( 'Exit Newsletter Mode', 'jetpack-newsletter' ),
-			/** "Newsletters" is a product surface name. */
-			'Newsletters'
+			esc_attr__( 'Back to wp-admin', 'jetpack-newsletter' ),
+			esc_html__( 'wp-admin', 'jetpack-newsletter' )
 		);
 
 		$write_markup = sprintf(
@@ -943,7 +981,8 @@ class Mode {
 		);
 
 		// Inject the Write button first, then the header above it, so the final
-		// order is: header, Write button, then the existing menu items.
+		// order is: header, Write button, then the existing menu items. The exit
+		// link is appended last so it sits at the very bottom of the nav.
 		wp_print_inline_script_tag(
 			sprintf(
 				'( function () {' .
@@ -957,9 +996,14 @@ class Mode {
 					'header.className = "jetpack-newsletter-mode-header";' .
 					'header.innerHTML = %2$s;' .
 					'menu.insertBefore( header, menu.firstChild );' .
+					'var back = document.createElement( "li" );' .
+					'back.className = "jetpack-newsletter-mode-back";' .
+					'back.innerHTML = %3$s;' .
+					'menu.appendChild( back );' .
 				'}() );',
 				wp_json_encode( $write_markup, JSON_HEX_TAG | JSON_HEX_AMP ),
-				wp_json_encode( $header_markup, JSON_HEX_TAG | JSON_HEX_AMP )
+				wp_json_encode( $header_markup, JSON_HEX_TAG | JSON_HEX_AMP ),
+				wp_json_encode( $back_markup, JSON_HEX_TAG | JSON_HEX_AMP )
 			)
 		);
 	}
