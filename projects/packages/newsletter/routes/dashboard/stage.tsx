@@ -57,6 +57,12 @@ const Stage = () => {
 		activeTab = 'settings';
 	}
 
+	// In Newsletter Mode the curated nav is the frame, so the Jetpack footer is
+	// dropped here the way it already is on the mode's own Dashboard. This page
+	// is shared — it is still reachable as the plain Jetpack Newsletter page —
+	// so the footer only goes away while the mode is on.
+	const modeEnabled = getNewsletterScriptData()?.modeEnabled === true;
+
 	const {
 		isRegistered,
 		hasConnectedOwner,
@@ -136,7 +142,7 @@ const Stage = () => {
 							activeTab={ activeTab }
 							actions={ activeTab === 'subscribers' && canManageSubscribers ? actions : undefined }
 							contentHasPadding={ activeTab === 'settings' }
-							hideFooter={ activeTab === 'subscribers' }
+							hideFooter={ activeTab === 'subscribers' || modeEnabled }
 						>
 							{ subscribersEnabled ? (
 								<>

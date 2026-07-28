@@ -90,7 +90,7 @@ class Mode {
 
 		add_action( 'rest_api_init', array( self::class, 'register_rest_routes' ) );
 
-		// Register the top-level "Newsletters" menu link when the mode is on. On
+		// Register the top-level "Newsletter" menu link when the mode is on. On
 		// wpcom Simple the Jetpack menu is built at priority 999999, so match that
 		// ordering there; standalone Jetpack / Atomic use an early priority so the
 		// submenu-hiding filter lands before Settings adds its submenu at 999.
@@ -285,7 +285,7 @@ class Mode {
 
 	/**
 	 * Where the Write editor's back button should return to — the mode's landing
-	 * surface, matching where the "Newsletters" menu link enters.
+	 * surface, matching where the "Newsletter" menu link enters.
 	 *
 	 * @return string
 	 */
@@ -363,7 +363,7 @@ class Mode {
 	}
 
 	/**
-	 * When the mode is enabled, add a top-level "Newsletters" menu link and hide
+	 * When the mode is enabled, add a top-level "Newsletter" menu link and hide
 	 * the default "Jetpack → Newsletter" submenu so there is no duplicate entry.
 	 *
 	 * The top-level item uses a page URL as its menu slug, so it deep-links to
@@ -385,9 +385,9 @@ class Mode {
 		add_filter( 'jetpack_show_newsletter_menu_item', '__return_false' );
 
 		add_menu_page(
-			/** "Newsletters" is a product surface name. */
-			__( 'Newsletters', 'jetpack-newsletter' ),
-			__( 'Newsletters', 'jetpack-newsletter' ),
+			/** "Newsletter" is a product surface name. */
+			__( 'Newsletter', 'jetpack-newsletter' ),
+			__( 'Newsletter', 'jetpack-newsletter' ),
 			'manage_options',
 			'admin.php?page=' . self::PAGE_DASHBOARD,
 			'',

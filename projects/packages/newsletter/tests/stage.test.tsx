@@ -15,6 +15,10 @@ const mockInitialize = jest.fn();
 const mockSearch = jest.fn< { tab?: string }, [] >();
 const mockIsSimpleSite = jest.fn< boolean, [] >();
 const mockConnection = jest.fn< Record< string, unknown >, [] >();
+const mockScriptData = jest.fn< Record< string, unknown >, [] >();
+
+// Records the `hideFooter` the Stage hands the shell.
+let mockHideFooter: boolean | undefined;
 
 jest.mock( '@automattic/jetpack-analytics', () => ( {
 	__esModule: true,
@@ -85,18 +89,19 @@ jest.mock( '../src/settings/newsletter-settings', () => ( {
 } ) );
 
 jest.mock( '../src/settings/script-data', () => ( {
-	getNewsletterScriptData: () => ( {
-		subscriberManagementEnabled: true,
-		tracksUserData: { userid: 1, username: 'tester' },
-	} ),
+	getNewsletterScriptData: () => mockScriptData(),
 } ) );
 
 // NewsletterPage's render output is irrelevant for the analytics contract;
 // reduce it to a children passthrough so the test doesn't depend on the
-// shell's tab nav, AdminPage wiring, or SCSS imports.
+// shell's tab nav, AdminPage wiring, or SCSS imports. `hideFooter` is recorded
+// so the footer-gating tests below can assert it.
 jest.mock( '../_inc/components/newsletter-page', () => ( {
 	__esModule: true,
-	default: ( { children }: { children: React.ReactNode } ) => <>{ children }</>,
+	default: ( { hideFooter, children }: { hideFooter?: boolean; children: React.ReactNode } ) => {
+		mockHideFooter = hideFooter;
+		return <>{ children }</>;
+	},
 } ) );
 
 // SCSS side-effect imports — no-op in jest.
@@ -125,6 +130,12 @@ beforeEach( () => {
 		handleRegisterSite: jest.fn(),
 	} );
 	mockImportRefreshEnabled = undefined;
+	mockHideFooter = undefined;
+	mockScriptData.mockReset();
+	mockScriptData.mockReturnValue( {
+		subscriberManagementEnabled: true,
+		tracksUserData: { userid: 1, username: 'tester' },
+	} );
 } );
 
 const connected = {
@@ -260,5 +271,42 @@ describe( 'Newsletter dashboard Stage import-poll gating', () => {
 		render( <Stage /> );
 
 		expect( mockImportRefreshEnabled ).toBe( false );
+	} );
+} );
+
+describe( 'Newsletter dashboard Stage footer gating', () => {
+	// This page is shared: it is the mode's Settings screen, and also the plain
+	// Jetpack Newsletter page when the mode is off. The Jetpack footer is dropped
+	// inside the mode (the curated nav is the frame there) but must survive
+	// outside it. The Subscribers tab drops it either way — its DataViews wrapper
+	// grows to fill the viewport and leaves no room beneath.
+	const modeOn = {
+		subscriberManagementEnabled: true,
+		tracksUserData: { userid: 1, username: 'tester' },
+		modeEnabled: true,
+	};
+
+	it( 'hides the footer on the Settings tab while Newsletter Mode is on', () => {
+		mockScriptData.mockReturnValue( modeOn );
+		mockSearch.mockReturnValue( { tab: 'settings' } );
+
+		render( <Stage /> );
+
+		expect( mockHideFooter ).toBe( true );
+	} );
+
+	it( 'keeps the footer on the Settings tab when the mode is off', () => {
+		// Default mocks carry no `modeEnabled`.
+		mockSearch.mockReturnValue( { tab: 'settings' } );
+
+		render( <Stage /> );
+
+		expect( mockHideFooter ).toBe( false );
+	} );
+
+	it( 'hides the footer on the Subscribers tab regardless of the mode', () => {
+		render( <Stage /> );
+
+		expect( mockHideFooter ).toBe( true );
 	} );
 } );

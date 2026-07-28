@@ -343,6 +343,10 @@ const Stage = (): JSX.Element => (
 			'Expand your reach, engage readers, and monetize your writing.',
 			'jetpack-newsletter'
 		) }
+		// The mode's own nav is the frame here, so the Jetpack footer would be
+		// out of place. This page only ever renders inside the mode, so it needs
+		// no condition — unlike the Newsletter page, which is shared.
+		showFooter={ false }
 	>
 		<div className="jetpack-newsletter-mode-page">
 			<Dashboard />
