@@ -61,6 +61,7 @@ class Jetpack_Comments_Settings {
 
 		// Setup settings.
 		add_action( 'admin_init', array( $this, 'add_settings' ) );
+		add_action( 'admin_footer-options-discussion.php', array( $this, 'disable_comment_registration_setting' ) );
 		$this->setup_globals();
 	}
 
@@ -132,6 +133,47 @@ class Jetpack_Comments_Settings {
 			'discussion',
 			'jetpack_comment_form_color_scheme',
 			array( $this, 'comment_form_color_scheme_sanitize' )
+		);
+	}
+
+	/**
+	 * Take core's "Users must be registered and logged in to comment" setting off the table.
+	 *
+	 * The Jetpack comment form is served from a cross-origin iframe, where browsers block the cookies
+	 * its login flows depend on. Visitors have no way to sign in, so the requirement is not enforced
+	 * and the setting is disabled rather than left to look like it does something.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function disable_comment_registration_setting() {
+		$note = __( 'The Jetpack comment form is displayed in an iframe, where visitors are unable to log in, so this setting has no effect while the Comments module is active.', 'jetpack' );
+
+		wp_print_inline_script_tag(
+			sprintf(
+				'( function () {
+					var field = document.getElementById( "comment_registration" );
+					if ( ! field ) {
+						return;
+					}
+
+					field.disabled = true;
+
+					// Disabled fields are not submitted, so mirror the stored value to preserve it on save.
+					if ( field.checked ) {
+						var mirror = document.createElement( "input" );
+						mirror.type = "hidden";
+						mirror.name = field.name;
+						mirror.value = field.value;
+						field.after( mirror );
+					}
+
+					var note = document.createElement( "p" );
+					note.className = "description";
+					note.textContent = %s;
+					field.closest( "label" ).after( note );
+				} )();',
+				wp_json_encode( $note, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT )
+			)
 		);
 	}
 

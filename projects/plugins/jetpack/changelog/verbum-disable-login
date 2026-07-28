@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Comments: let visitors comment when the comment form is unable to offer a login option.

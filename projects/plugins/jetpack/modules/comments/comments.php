@@ -449,7 +449,7 @@ HTML;
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sniff misses the esc_url_raw.
 		$url              = "{$url}#parent=" . rawurlencode( esc_url_raw( set_url_scheme( 'http://' . ( isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : '' ) . ( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' ) ) ) );
 		$this->signed_url = $url;
-		$height           = $params['comment_registration'] || is_user_logged_in() ? '315' : '430'; // Iframe can be shorter if we're not allowing guest commenting.
+		$height           = is_user_logged_in() ? '315' : '430'; // Iframe can be shorter if we're not showing the guest fields.
 		$transparent      = ( 'transparent' === $params['color_scheme'] ) ? 'true' : 'false';
 
 		if ( isset( $_GET['replytocom'] ) ) { //phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -740,6 +740,29 @@ HTML;
 	}
 
 	/** Capabilities **********************************************************/
+
+	/**
+	 * Allows a logged out user to leave a comment, even when `comment_registration` is enabled.
+	 *
+	 * On top of the WordPress.com and Facebook credentials the parent handles, guests are accepted
+	 * as well: the comment form is served from a cross-origin iframe, where browsers block the
+	 * cookies those login flows depend on, so a visitor has no way to sign in. Enforcing
+	 * `comment_registration` there rejects the only comment they can make.
+	 *
+	 * Guests are only trusted because ::pre_comment_on_post() has already verified the request
+	 * signature and stripped `hc_post_as` from unsigned requests. `require_name_email` is left
+	 * alone so guests still have to identify themselves.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function allow_logged_out_user_to_comment_as_external() {
+		if ( $this->is_highlander_comment_post( 'guest' ) ) {
+			add_filter( 'pre_option_comment_registration', '__return_zero' );
+			return;
+		}
+
+		parent::allow_logged_out_user_to_comment_as_external();
+	}
 
 	/**
 	 * Add some additional comment meta after comment is saved about what

@@ -113,6 +113,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	public function tear_down() {
 		// Remove the filter to avoid affecting other tests
 		remove_all_filters( 'jetpack_mcp_abilities' );
+		Jetpack_Options::delete_option( 'active_modules' );
 		parent::tear_down();
 	}
 
@@ -218,6 +219,47 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 		$updated  = $response['updated'];
 		$this->assertSame( 'Still saved', $updated['subscription_options']['subscribe_modal_heading'] );
 		$this->assertArrayNotHasKey( 'free_tier_description', $updated['subscription_options'] );
+	}
+
+	/**
+	 * The Comments module serves the comment form in an iframe where visitors cannot log in, so the
+	 * GET response reports `comment_registration` as unsupported for clients to gate their UI on.
+	 */
+	public function test_get_settings_reports_comment_registration_unsupported_with_jetpack_comments() {
+		Jetpack_Options::update_option( 'active_modules', array() );
+		$response = $this->make_get_request();
+		$this->assertTrue( $response['settings']['comment_registration_supported'] );
+
+		Jetpack_Options::update_option( 'active_modules', array( 'comments' ) );
+		$response = $this->make_get_request();
+		$this->assertFalse( $response['settings']['comment_registration_supported'] );
+	}
+
+	/**
+	 * While the setting is unsupported it cannot be turned on, so the stored option is left untouched
+	 * rather than saved as a requirement that is never enforced.
+	 */
+	public function test_post_settings_ignores_comment_registration_when_unsupported() {
+		Jetpack_Options::update_option( 'active_modules', array( 'comments' ) );
+		update_option( 'comment_registration', '0' );
+
+		$response = $this->make_post_request( wp_json_encode( array( 'comment_registration' => true ), JSON_UNESCAPED_SLASHES ) );
+
+		$this->assertArrayNotHasKey( 'comment_registration', $response['updated'] );
+		$this->assertFalse( (bool) get_option( 'comment_registration' ) );
+	}
+
+	/**
+	 * Without the Comments module the comment form can offer a login, so the setting saves as usual.
+	 */
+	public function test_post_settings_sets_comment_registration_when_supported() {
+		Jetpack_Options::update_option( 'active_modules', array() );
+		update_option( 'comment_registration', '0' );
+
+		$response = $this->make_post_request( wp_json_encode( array( 'comment_registration' => true ), JSON_UNESCAPED_SLASHES ) );
+
+		$this->assertArrayHasKey( 'comment_registration', $response['updated'] );
+		$this->assertTrue( (bool) get_option( 'comment_registration' ) );
 	}
 
 	/**
