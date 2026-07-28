@@ -7,10 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.8.0] - 2026-07-27
 ### Added
-- Show non-owner admins who needs to reconnect instead of a reconnect button, and hide errors that can't be attributed to a user.
+- Show non-owner admins who needs to reconnect instead of a reconnect button when connection ownership is locked. [#50662]
 
 ### Changed
-- Update package dependencies.
+- Update package dependencies. [#50751]
 
 ## [8.7.10] - 2026-07-22
 ### Changed

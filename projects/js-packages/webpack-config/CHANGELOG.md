@@ -7,10 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 4.1.0 - 2026-07-27
 ### Added
-- Add `PnpmDeterministicChunkIds` plugin.
+- Add `PnpmDeterministicChunkIds` plugin. [#50758]
 
 ### Changed
-- Update package dependencies.
+- Update package dependencies. [#50751]
 
 ## 4.0.1 - 2026-07-22
 ### Changed

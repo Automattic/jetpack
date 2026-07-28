@@ -4,7 +4,7 @@
 
 ## [2.0.1] - 2026-07-27
 ### Changed
-- Update package dependencies.
+- Update package dependencies. [#50751]
 
 ## [2.0.0] - 2026-07-22
 ### Removed

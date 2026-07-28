@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Ignore the wp-build .content-entry.js route artifact.
-
