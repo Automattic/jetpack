@@ -123,7 +123,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		remove_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
 		remove_filter( 'jetpack_gutenberg', '__return_true' );
 		remove_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_sidebar_extension_allowlist' ) );
-		remove_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_enqueue_abilities_script' ), 201 );
 		remove_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_patch_jetpack_ai_sidebar_preview_data' ), 250 );
 		remove_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_toolbar_button_extension' ), 99 );
 	}
@@ -408,10 +407,24 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			has_filter( 'agents_manager_agent_providers', array( Jetpack_AI_Sidebar::class, 'register_provider' ) ),
 			'register_provider should be hooked when the preview gate is true.'
 		);
-		$this->assertNotFalse(
+	}
+
+	/**
+	 * The provider IIFE is no longer eagerly enqueued: the ESM wrapper loads
+	 * it on demand when the Agents Manager imports the provider, so init()
+	 * must not hook an asset enqueue for it. This behavior must not ship
+	 * before the widgets.wp.com wrapper that self-loads the bundle deploys.
+	 */
+	public function test_init_does_not_hook_eager_provider_enqueue() {
+		$this->enable_sidebar();
+		Jetpack_AI_Sidebar::init();
+
+		$this->assertFalse(
 			has_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_enqueue_abilities_script' ) ),
-			'maybe_enqueue_abilities_script should be hooked when the preview gate is true.'
+			'The provider bundle must not be enqueued eagerly; the ESM wrapper loads it on demand.'
 		);
+		$this->assertFalse( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
+		$this->assertFalse( wp_style_is( 'jetpack-ai-provider', 'enqueued' ) );
 	}
 
 	/**
@@ -432,10 +445,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertNotFalse(
 			has_filter( 'agents_manager_enabled_in_block_editor', array( Jetpack_AI_Sidebar::class, 'enable_agents_manager_on_provider_surfaces' ) ),
 			'enable_agents_manager_on_provider_surfaces should be hooked when filter is true.'
-		);
-		$this->assertNotFalse(
-			has_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_enqueue_abilities_script' ) ),
-			'maybe_enqueue_abilities_script should be hooked when filter is true.'
 		);
 		$this->assertNotFalse(
 			has_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_patch_jetpack_ai_sidebar_preview_data' ) ),
@@ -709,10 +718,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertFalse(
 			has_filter( 'agents_manager_enabled_in_block_editor', array( Jetpack_AI_Sidebar::class, 'enable_agents_manager_on_provider_surfaces' ) ),
 			'enable_agents_manager_on_provider_surfaces should not be hooked when both sidebar features are off.'
-		);
-		$this->assertFalse(
-			has_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_enqueue_abilities_script' ) ),
-			'maybe_enqueue_abilities_script should not be hooked when both sidebar features are off.'
 		);
 		$this->assertFalse(
 			has_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_patch_jetpack_ai_sidebar_preview_data' ) ),
@@ -1554,101 +1559,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	// ──────────────────────────────────────────────────
-	// maybe_enqueue_abilities_script() tests
-	// ──────────────────────────────────────────────────
-
-	/**
-	 * Test that abilities script is not enqueued outside block editor.
-	 */
-	public function test_abilities_script_skips_non_block_editor() {
-		set_current_screen( 'dashboard' );
-		$this->cache_sidebar_asset_data();
-
-		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
-
-		$this->assertFalse( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
-	}
-
-	/**
-	 * Test that abilities script is enqueued in the page editor.
-	 */
-	public function test_abilities_script_enqueues_in_page_editor() {
-		$this->set_page_block_editor_screen();
-		$this->cache_sidebar_asset_data();
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-
-		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
-
-		$this->assertTrue( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
-	}
-
-	/**
-	 * Test that abilities script is enqueued in the site editor.
-	 */
-	public function test_abilities_script_enqueues_in_site_editor() {
-		$this->set_site_editor_screen();
-		$this->cache_sidebar_asset_data();
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-
-		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
-
-		$this->assertTrue( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
-	}
-
-	/**
-	 * Test that abilities script is not enqueued when the preview gate is disabled.
-	 */
-	public function test_abilities_script_skips_when_preview_disabled() {
-		$this->set_block_editor_screen();
-		$this->cache_sidebar_asset_data();
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-		add_filter( 'jetpack_ai_sidebar_enabled', '__return_false' );
-
-		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
-
-		$this->assertFalse( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
-	}
-
-	/**
-	 * Test that abilities script is not enqueued in the page editor outside internal testing.
-	 */
-	public function test_abilities_script_skips_page_editor_outside_internal_testing_environment() {
-		$this->set_page_block_editor_screen();
-		$this->cache_sidebar_asset_data();
-
-		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
-
-		$this->assertFalse( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
-	}
-
-	/**
-	 * Test that abilities script remains enqueued in the post editor outside internal testing.
-	 */
-	public function test_abilities_script_enqueues_in_post_editor_outside_internal_testing() {
-		$this->set_block_editor_screen();
-		$this->cache_sidebar_asset_data();
-		$this->simulate_wpcom_simple();
-
-		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
-
-		$this->assertTrue( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
-	}
-
-	/**
-	 * Test that abilities script is skipped when AI features are disabled.
-	 */
-	public function test_abilities_script_skips_when_ai_disabled() {
-		$this->set_block_editor_screen();
-		$this->cache_sidebar_asset_data();
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-		add_filter( 'jetpack_ai_enabled', '__return_false' );
-
-		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
-
-		$this->assertFalse( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
-	}
-
-	// ──────────────────────────────────────────────────
 	// register_provider() tests
 	// ──────────────────────────────────────────────────
 
@@ -1664,9 +1574,51 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$this->assertCount( 1, $providers );
 		$this->assert_jetpack_provider_url( $providers[0] );
-		// Asset enqueueing is handled by maybe_enqueue_abilities_script, not register_provider.
+		// No server-side asset enqueue: the ESM wrapper self-loads the bundle
+		// when the Agents Manager imports the provider.
 		$this->assertFalse( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
 		$this->assertFalse( wp_style_is( 'jetpack-ai-provider', 'enqueued' ) );
+	}
+
+	/**
+	 * Test that register_provider skips outside the block editor.
+	 */
+	public function test_register_provider_skips_non_block_editor() {
+		set_current_screen( 'dashboard' );
+		$this->cache_sidebar_asset_data();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		$providers = Jetpack_AI_Sidebar::register_provider( array() );
+
+		$this->assertCount( 0, $providers );
+	}
+
+	/**
+	 * Test that register_provider stays active in the post editor outside internal testing.
+	 */
+	public function test_register_provider_adds_url_in_post_editor_outside_internal_testing() {
+		$this->set_block_editor_screen();
+		$this->cache_sidebar_asset_data();
+		$this->simulate_wpcom_simple();
+
+		$providers = Jetpack_AI_Sidebar::register_provider( array() );
+
+		$this->assertCount( 1, $providers );
+		$this->assert_jetpack_provider_url( $providers[0] );
+	}
+
+	/**
+	 * Test that register_provider skips when AI features are disabled.
+	 */
+	public function test_register_provider_skips_when_ai_disabled() {
+		$this->set_block_editor_screen();
+		$this->cache_sidebar_asset_data();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		$providers = Jetpack_AI_Sidebar::register_provider( array() );
+
+		$this->assertCount( 0, $providers );
 	}
 
 	/**
@@ -1790,20 +1742,25 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 				'dependencies' => array(),
 			)
 		);
+		// Any HTTP fetch would fail, so a registered provider proves the
+		// cached transient satisfied the asset-availability check.
+		add_filter(
+			'pre_http_request',
+			function () {
+				return new WP_Error( 'blocked', 'No HTTP.' );
+			}
+		);
 
-		// Enqueue is handled by maybe_enqueue_abilities_script, not register_provider.
-		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
+		$providers = Jetpack_AI_Sidebar::register_provider( array() );
 
-		$this->assertTrue( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
-		$registered = $GLOBALS['wp_scripts']->registered['jetpack-ai-provider'] ?? null;
-		$this->assertNotNull( $registered );
-		$this->assertSame( 'cached-version', $registered->ver );
+		$this->assertCount( 1, $providers );
+		$this->assert_jetpack_provider_url( $providers[0] );
 	}
 
 	/**
-	 * Test that enqueue is skipped when asset manifest fetch fails.
+	 * Test that the provider is not registered when asset manifest fetch fails.
 	 */
-	public function test_sidebar_asset_data_skips_enqueue_when_fetch_fails() {
+	public function test_sidebar_asset_data_skips_provider_when_fetch_fails() {
 		$this->set_block_editor_screen();
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 		// Block remote fetches.
@@ -1813,10 +1770,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 				return new WP_Error( 'blocked', 'No HTTP.' );
 			}
 		);
-
-		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
-
-		$this->assertFalse( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
 
 		$providers = Jetpack_AI_Sidebar::register_provider( array() );
 		$this->assertCount( 0, $providers );

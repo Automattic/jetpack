@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Jetpack AI: load the sidebar provider bundle on demand when the Agents Manager imports the provider, instead of on every editor load.

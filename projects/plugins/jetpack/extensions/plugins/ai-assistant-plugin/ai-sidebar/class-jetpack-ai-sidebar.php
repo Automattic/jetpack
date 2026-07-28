@@ -26,9 +26,6 @@ require_once __DIR__ . '/../../../../_inc/lib/class-jetpack-ai-settings.php';
 
 const AM_ASSET_BASE_PATH                  = 'widgets.wp.com/agents-manager/';
 const AI_SIDEBAR_ASSET_TRANSIENT          = 'jetpack_ai_sidebar_asset';
-const AI_SIDEBAR_JS_URL                   = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.min.js';
-const AI_SIDEBAR_CSS_URL                  = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.css';
-const AI_SIDEBAR_RTL_CSS_URL              = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.rtl.css';
 const AI_SIDEBAR_PROVIDER_URL             = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.provider.mjs';
 const AI_SIDEBAR_AGENT_ID                 = 'wp-orchestrator';
 const AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION = 'ai-sidebar-toolbar-button';
@@ -67,12 +64,10 @@ class Jetpack_AI_Sidebar {
 		// Ask the Agents Manager package to mount on Jetpack AI provider surfaces.
 		add_filter( 'agents_manager_enabled_in_block_editor', array( __CLASS__, 'enable_agents_manager_on_provider_surfaces' ) );
 
-		// Enqueue the IIFE bundle on supported editor surfaces — it exposes the
-		// Jetpack AI provider on window.__JetpackAIProvider, which the Agents
-		// Manager consumes through the ESM wrapper registered below. (It does
-		// NOT register anything into @wordpress/abilities, and Big Sky
-		// standalone does not read it — verified 2026-07-28.)
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_enqueue_abilities_script' ), 201 );
+		// The provider IIFE bundle is NOT enqueued here: the ESM wrapper
+		// registered via register_provider() self-loads the bundle (and its
+		// stylesheet) when the Agents Manager imports the provider, so the
+		// assets ship only when the sidebar is actually invoked.
 
 		// Patch Jetpack AI Sidebar Preview data into agentsManagerData when the
 		// Agents Manager bundle was enqueued by an external host (Big Sky on
@@ -83,61 +78,6 @@ class Jetpack_AI_Sidebar {
 
 		// Let editor JS know when the Jetpack AI Sidebar toolbar button replaces the legacy AI toolbar.
 		add_action( 'jetpack_register_gutenberg_extensions', array( __CLASS__, 'register_toolbar_button_extension' ), 99 );
-	}
-
-	// ──────────────────────────────────────────────────
-	// Jetpack AI provider bundle
-	// ──────────────────────────────────────────────────
-
-	/**
-	 * Enqueue the IIFE bundle that exposes the Jetpack AI provider.
-	 *
-	 * The bundle assigns window.__JetpackAIProvider, which the ESM wrapper
-	 * re-exports for the Agents Manager's provider merge. Its only consumer is
-	 * that merge: the bundle registers nothing into @wordpress/abilities, and
-	 * Big Sky standalone does not read the provider global (both verified
-	 * 2026-07-28 — the standalone-discovery design this enqueue originally
-	 * served was retired with its consumer).
-	 *
-	 * @return void
-	 */
-	public static function maybe_enqueue_abilities_script(): void {
-		if ( ! self::should_expose_provider() ) {
-			return;
-		}
-
-		// CIAB (next-admin) has its own AM setup — don't enqueue alongside it.
-		if ( did_action( 'next_admin_init' ) ) {
-			return;
-		}
-
-		// Guard against double-enqueue (e.g. hooked multiple times).
-		if ( wp_script_is( 'jetpack-ai-provider' ) ) {
-			return;
-		}
-
-		$asset_data = self::get_ai_sidebar_asset_data();
-		if ( ! $asset_data ) {
-			return;
-		}
-
-		$version      = $asset_data['version'] ?? false;
-		$dependencies = $asset_data['dependencies'] ?? array();
-
-		wp_enqueue_script(
-			'jetpack-ai-provider',
-			AI_SIDEBAR_JS_URL,
-			$dependencies,
-			$version,
-			true
-		);
-
-		wp_enqueue_style(
-			'jetpack-ai-provider',
-			is_rtl() ? AI_SIDEBAR_RTL_CSS_URL : AI_SIDEBAR_CSS_URL,
-			array(),
-			$version
-		);
 	}
 
 	// ──────────────────────────────────────────────────
@@ -205,9 +145,10 @@ class Jetpack_AI_Sidebar {
 	/**
 	 * Register Jetpack AI as an Agents Manager provider.
 	 *
-	 * Appends the CDN-hosted ESM wrapper URL to the providers list so AM
-	 * can dynamically import it. Asset enqueueing is handled separately by
-	 * maybe_enqueue_abilities_script.
+	 * Appends the CDN-hosted ESM wrapper URL to the providers list so AM can
+	 * dynamically import it. The wrapper self-loads the provider IIFE bundle
+	 * (and its stylesheet) on import, so no asset is enqueued here and nothing
+	 * ships until AM actually imports the provider.
 	 *
 	 * @param array $providers Existing provider URLs.
 	 * @return array Updated providers.
@@ -218,25 +159,22 @@ class Jetpack_AI_Sidebar {
 			return $providers;
 		}
 
-		// The provider IIFE is enqueued on the same surfaces where the ESM
-		// wrapper is registered. Avoid registering the wrapper when AM may
-		// import it before window.__JetpackAIProvider exists.
 		if ( ! self::should_expose_provider() ) {
 			return $providers;
 		}
 
-		// Don't register if the IIFE bundle cannot be loaded. The ESM wrapper
-		// re-exports from window.__JetpackAIProvider at import time; if the
-		// IIFE never ran, toolProvider is still a truthy Proxy and AM would
-		// call getAbilities() on it and get undefined, breaking the merge.
+		// Don't register if the bundle cannot be loaded: an unreachable asset
+		// manifest means the browser likely cannot reach widgets.wp.com either,
+		// and a wrapper whose self-load fails contributes only undefined
+		// exports to the merge.
 		if ( ! self::get_ai_sidebar_asset_data() ) {
 			return $providers;
 		}
 
 		// Register as AM provider via CDN-hosted ESM wrapper.
 		// AM dynamically imports this module to merge tools, suggestions, and components.
-		// No ?ver= needed — the wrapper re-exports from window.__JetpackAIProvider
-		// at import time, so its behavior always matches the loaded IIFE bundle.
+		// No ?ver= needed — the wrapper loads and re-exports the co-published
+		// bundle, so its behavior always matches what it self-loads.
 		$providers[] = AI_SIDEBAR_PROVIDER_URL;
 
 		return $providers;
