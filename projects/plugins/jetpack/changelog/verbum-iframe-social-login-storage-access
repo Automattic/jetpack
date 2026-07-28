@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Comments: allow the comment form iframe to request first-party cookie access, so social login can work inside it.
