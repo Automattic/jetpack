@@ -391,13 +391,22 @@ class Dashboard_Data {
 			return '';
 		}
 
-		// The master file is 'sitemap.xml'. `jp_sitemap_filename()` returns an error
-		// string ("error-not-int-…") unless a non-null number is passed — the master
-		// ignores the number, so pass 0, matching Jetpack's own call sites. esc_url_raw
-		// (not esc_url): the value is transported via script data and rendered by React,
+		// `jp_sitemap_filename()` returns an error string ("error-not-int-…") unless a
+		// non-null number is passed; the master ignores the number, so pass 0 (matching
+		// Jetpack's own call sites). Fail safe: the master file is always 'sitemap.xml',
+		// so if a bundled Jetpack ever returns something else, report not-reachable
+		// rather than surface a broken URL — the exact failure this method shipped with
+		// before (the missing number silently produced an "error-not-int-…" link).
+		// @phan-suppress-next-line PhanUndeclaredFunction -- guarded above; symbols live in plugins/jetpack.
+		$filename = (string) jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, 0 );
+		if ( 'sitemap.xml' !== $filename ) {
+			return '';
+		}
+
+		// esc_url_raw (not esc_url): transported via script data and rendered by React,
 		// so it must not be HTML-entity-encoded (e.g. the plain-permalink
 		// `?jetpack-sitemap=` form keeps its raw `&`).
 		// @phan-suppress-next-line PhanUndeclaredFunction -- guarded above; symbols live in plugins/jetpack.
-		return esc_url_raw( (string) jetpack_sitemap_uri( jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, 0 ) ) );
+		return esc_url_raw( (string) jetpack_sitemap_uri( $filename ) );
 	}
 }

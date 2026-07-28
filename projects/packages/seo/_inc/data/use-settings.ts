@@ -128,8 +128,11 @@ export function useSettingsForm(): SettingsForm {
 					// (de)activates its module), so re-read the SEO settings to surface the
 					// freshly-reachable `sitemap_url` — the View link then appears without a
 					// page reload. Non-fatal on failure: the save already succeeded.
+					// Returned (not fire-and-forget) so `isSaving` stays true — and the
+					// toggle disabled — until the re-read settles, preventing a second
+					// toggle from racing an in-flight refetch and landing a stale value.
 					if ( 'sitemaps' in jetpackPayload ) {
-						apiFetch< SettingsResponse >( { path: SEO_SETTINGS_PATH } )
+						return apiFetch< SettingsResponse >( { path: SEO_SETTINGS_PATH } )
 							.then( fresh => {
 								const cur = localRef.current;
 								const base = baselineRef.current;
