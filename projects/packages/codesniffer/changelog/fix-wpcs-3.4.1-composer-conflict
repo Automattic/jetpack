@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep the package installable while WPCS 3.4.1 is blocked by mediawiki/mediawiki-codesniffer: cap wp-coding-standards/wpcs below 3.4.1 and ignore the GHSA-3pwp-g2mj-5p3v advisory (the vulnerable sniff is already excluded).
