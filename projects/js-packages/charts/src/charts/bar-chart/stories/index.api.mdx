@@ -133,6 +133,8 @@ type ChartLegendConfig = {
 	alignment?: 'start' | 'center' | 'end';
 	shape?: LegendShape;
 	interactive?: boolean;
+	// Collapse series sharing a `group` into one item (line, bar, area charts only).
+	collapseGroups?: boolean;
 	itemClassName?: string;
 	itemStyles?: LegendItemStyles;
 	labelStyles?: LegendLabelStyles;

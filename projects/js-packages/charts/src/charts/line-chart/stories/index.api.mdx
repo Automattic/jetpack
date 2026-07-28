@@ -23,6 +23,7 @@ Main chart component with responsive behavior by default.
 | `animation` | `boolean` | `false` | Enable entry animation on initial render. Creates a rising effect where lines scale up from the bottom. Automatically respects user's `prefers-reduced-motion` system setting |
 | `showLegend` | `boolean` | `false` | Display chart legend |
 | `legend` | `ChartLegendConfig` | `undefined` | Legend configuration object. See [ChartLegendConfig](#chartlegendconfig-type) |
+| `rescaleYOnLegendToggle` | `boolean?` | `true` | With an interactive legend, whether the value axis rescales to the visible series. Set `false` to pin it to the full data range so the baseline doesn't move as series are toggled |
 | `withStartGlyphs` | `boolean?` | `false` | Show markers at the first data point of each series |
 | `withLegendGlyph` | `boolean?` | `false` | Use custom glyphs in legend |
 | `renderGlyph` | `(props: GlyphProps) => ReactNode?` | - | Custom glyph render function |
@@ -187,6 +188,8 @@ type ChartLegendConfig = {
 	alignment?: 'start' | 'center' | 'end';
 	shape?: LegendShape;
 	interactive?: boolean;
+	// Collapse series sharing a `group` into one item (line, bar, area charts only).
+	collapseGroups?: boolean;
 	itemClassName?: string;
 	itemStyles?: LegendItemStyles;
 	labelStyles?: LegendLabelStyles;

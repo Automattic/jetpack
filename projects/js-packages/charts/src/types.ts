@@ -562,69 +562,67 @@ export type LegendShapeStyles = {
 export type LegendPosition = 'top' | 'bottom';
 
 /**
- * Legend options that only mean something for charts built from `SeriesData`. Point-based charts
- * (pie, semi-circle pie) carry `group` on their data points purely to coordinate colours with other
- * charts, so collapsing by group would silently drop legend rows there.
- */
-type SeriesOnlyLegendConfig< T > = T extends SeriesData[]
-	? {
-			/**
-			 * Collapse series that share a `group` into a single legend item, labelled by the group's
-			 * primary series (its first non-comparison member). Off by default, so every series keeps
-			 * its own item. Combines with `interactive`: a collapsed item toggles every series in its
-			 * group, an uncollapsed one toggles only its own.
-			 */
-			collapseGroups?: boolean;
-	  }
-	: object;
-
-/**
  * Configuration object for chart legend appearance and behavior.
  * Consolidates all legend styling and layout props into a single structured object.
  */
-export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry > =
-	SeriesOnlyLegendConfig< T > & {
-		/**
-		 * Layout direction of legend items.
-		 */
-		orientation?: 'horizontal' | 'vertical';
-		/**
-		 * Position of the legend relative to the chart.
-		 * TODO: Add 'left' | 'right' positioning support in future implementation
-		 */
-		position?: LegendPosition;
-		/**
-		 * Alignment of the legend within its position.
-		 */
-		alignment?: 'start' | 'center' | 'end';
-		/**
-		 * Shape of the legend marker icon.
-		 */
-		shape?: LegendShape< T, number >;
-		/**
-		 * Enable interactive legend items that can toggle series visibility.
-		 * Supported for all chart types that render series.
-		 * Requires chartId and GlobalChartsProvider.
-		 * For pie charts, percentages are recalculated so visible segments total 100%.
-		 */
-		interactive?: boolean;
-		/**
-		 * Additional CSS class name for individual legend items.
-		 */
-		itemClassName?: string;
-		/**
-		 * CSS styles for each legend item (margin, flexDirection).
-		 */
-		itemStyles?: LegendItemStyles;
-		/**
-		 * CSS styles for legend labels (maxWidth, textOverflow, justifyContent, flex, margin).
-		 */
-		labelStyles?: LegendLabelStyles;
-		/**
-		 * Styles for legend shapes (width, height, margin).
-		 */
-		shapeStyles?: LegendShapeStyles;
-	};
+export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry > = {
+	/**
+	 * Layout direction of legend items.
+	 */
+	orientation?: 'horizontal' | 'vertical';
+	/**
+	 * Position of the legend relative to the chart.
+	 * TODO: Add 'left' | 'right' positioning support in future implementation
+	 */
+	position?: LegendPosition;
+	/**
+	 * Alignment of the legend within its position.
+	 */
+	alignment?: 'start' | 'center' | 'end';
+	/**
+	 * Shape of the legend marker icon.
+	 */
+	shape?: LegendShape< T, number >;
+	/**
+	 * Enable interactive legend items that can toggle series visibility.
+	 * Supported for all chart types that render series.
+	 * Requires chartId and GlobalChartsProvider.
+	 * For pie charts, percentages are recalculated so visible segments total 100%.
+	 */
+	interactive?: boolean;
+	/**
+	 * Additional CSS class name for individual legend items.
+	 */
+	itemClassName?: string;
+	/**
+	 * CSS styles for each legend item (margin, flexDirection).
+	 */
+	itemStyles?: LegendItemStyles;
+	/**
+	 * CSS styles for legend labels (maxWidth, textOverflow, justifyContent, flex, margin).
+	 */
+	labelStyles?: LegendLabelStyles;
+	/**
+	 * Styles for legend shapes (width, height, margin).
+	 */
+	shapeStyles?: LegendShapeStyles;
+};
+
+/**
+ * Legend config for charts built from `SeriesData` (line, bar, area). Adds `collapseGroups` on top
+ * of the shared config. It is intentionally absent from the base `ChartLegendConfig` so point-based
+ * charts (pie, semi-circle pie) — whose data points carry `group` only to coordinate colours — can't
+ * set it.
+ */
+export type SeriesChartLegendConfig = ChartLegendConfig< SeriesData[] > & {
+	/**
+	 * Collapse series that share a `group` into a single legend item, labelled by the group's
+	 * primary series (its first non-comparison member). Off by default, so every series keeps its
+	 * own item. Combines with `interactive`: a collapsed item toggles every series in its group, an
+	 * uncollapsed one toggles only its own.
+	 */
+	collapseGroups?: boolean;
+};
 
 /**
  * Base properties shared across all chart components

@@ -1,4 +1,4 @@
-import type { ChartLegendConfig, SeriesData } from '../types';
+import type { ChartLegendConfig, SeriesChartLegendConfig } from '../types';
 
 /**
  * Flat Storybook controls corresponding to `legendArgTypes`. These are story-only
@@ -176,9 +176,9 @@ export function extractLegendConfig< T = ChartLegendConfig >(
 		return undefined;
 	}
 
-	// Typed as the SeriesData variant so `collapseGroups` is assignable here; stories for
-	// point-based charts simply never set the corresponding control.
-	const config: ChartLegendConfig< SeriesData[] > = {};
+	// Typed as the series variant so `collapseGroups` is assignable here; stories for point-based
+	// charts simply never set the corresponding control.
+	const config: SeriesChartLegendConfig = {};
 
 	if ( legendOrientation !== undefined ) {
 		config.orientation = legendOrientation as ChartLegendConfig[ 'orientation' ];
@@ -190,7 +190,7 @@ export function extractLegendConfig< T = ChartLegendConfig >(
 		config.alignment = legendAlignment as ChartLegendConfig[ 'alignment' ];
 	}
 	if ( legendShape !== undefined ) {
-		config.shape = legendShape as unknown as ChartLegendConfig< SeriesData[] >[ 'shape' ];
+		config.shape = legendShape as unknown as SeriesChartLegendConfig[ 'shape' ];
 	}
 	if ( legendInteractive !== undefined ) {
 		config.interactive = legendInteractive as boolean;

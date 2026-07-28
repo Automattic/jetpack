@@ -179,6 +179,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			onPointerMove = undefined,
 			onPointerOut = undefined,
 			zoomable = false,
+			rescaleYOnLegendToggle = true,
 			children,
 			gridVisibility,
 			gap = 'md',
@@ -253,11 +254,12 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			return seriesWithVisibility.every( ( { isVisible } ) => ! isVisible );
 		}, [ seriesWithVisibility ] );
 
-		// When the interactive legend can hide series, pin the value axis to the full data range so
-		// it stays put as series are toggled — matching the bar chart — instead of visx rescaling
-		// the domain to whatever is currently visible and making the axis jump.
+		// When the interactive legend can hide series and rescaling is opted out, pin the value axis
+		// to the full data range so it stays put as series are toggled instead of visx rescaling the
+		// domain to whatever is currently visible and making the axis jump. Default is to rescale,
+		// matching the pre-existing behaviour and AreaChart's `rescaleYOnLegendToggle`.
 		const stableYDomain = useMemo< [ number, number ] | undefined >( () => {
-			if ( ! legendInteractive ) {
+			if ( ! legendInteractive || rescaleYOnLegendToggle ) {
 				return undefined;
 			}
 			let min = Infinity;
@@ -272,7 +274,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 				}
 			}
 			return min < max ? [ min, max ] : undefined;
-		}, [ legendInteractive, dataSorted ] );
+		}, [ legendInteractive, rescaleYOnLegendToggle, dataSorted ] );
 
 		// Use the keyboard navigation hook
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {

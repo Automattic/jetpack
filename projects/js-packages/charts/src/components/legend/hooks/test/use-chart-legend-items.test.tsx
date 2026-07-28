@@ -311,6 +311,36 @@ describe( 'useChartLegendItems', () => {
 					[ 'Visitors — previous' ],
 				] );
 			} );
+
+			test( 'preserves the original series order for interleaved groups', () => {
+				// `group` predates collapsing and was used for colour coordination, so existing
+				// charts may interleave grouped series. The default legend must not reorder them.
+				const interleaved: SeriesData[] = [
+					{ label: 'Views', group: 'views', data: [ { label: 'Mon', value: 100 } ] },
+					{ label: 'Visitors', group: 'visitors', data: [ { label: 'Mon', value: 50 } ] },
+					{
+						label: 'Views — previous',
+						group: 'views',
+						options: { type: 'comparison' as const },
+						data: [ { label: 'Mon', value: 90 } ],
+					},
+					{
+						label: 'Visitors — previous',
+						group: 'visitors',
+						options: { type: 'comparison' as const },
+						data: [ { label: 'Mon', value: 45 } ],
+					},
+				];
+
+				const { result } = renderHook( () => useChartLegendItems( interleaved ), { wrapper } );
+
+				expect( result.current.map( item => item.label ) ).toEqual( [
+					'Views',
+					'Visitors',
+					'Views — previous',
+					'Visitors — previous',
+				] );
+			} );
 		} );
 
 		describe( 'with collapseGroups enabled', () => {

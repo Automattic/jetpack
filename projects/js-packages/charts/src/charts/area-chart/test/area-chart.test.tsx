@@ -578,4 +578,43 @@ describe( 'AreaChart', () => {
 			expect( screen.queryByText( 'Views — previous' ) ).not.toBeInTheDocument();
 		} );
 	} );
+
+	describe( 'All series hidden', () => {
+		it( 'drops the grid so it does not collapse when every series is hidden', async () => {
+			const user = userEvent.setup();
+
+			renderWithProvider( {
+				showLegend: true,
+				legend: { interactive: true },
+				chartId: 'area-hidden-axes',
+				data: [
+					{
+						label: 'Series A',
+						data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+					},
+					{
+						label: 'Series B',
+						data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+					},
+				],
+			} );
+
+			// The visx grid has no role/testid, so query its internal class from within the plot.
+			/* eslint-disable testing-library/no-node-access */
+			const plot = screen.getByRole( 'grid' );
+			expect( plot.querySelector( '.visx-rows' ) ).toBeInTheDocument();
+
+			const buttons = screen.getAllByRole( 'button' );
+			await user.click( buttons[ 0 ] );
+			await user.click( buttons[ 1 ] );
+
+			// With no visible data the value scale collapses, so the grid is removed rather than
+			// rendered squished at the top behind the empty state.
+			expect( plot.querySelector( '.visx-rows' ) ).not.toBeInTheDocument();
+			/* eslint-enable testing-library/no-node-access */
+			expect(
+				screen.getByText( /all series are hidden.*click legend items to show data/i )
+			).toBeInTheDocument();
+		} );
+	} );
 } );

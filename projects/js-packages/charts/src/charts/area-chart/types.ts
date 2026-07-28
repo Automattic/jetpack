@@ -1,9 +1,18 @@
-import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
+import type {
+	BaseChartProps,
+	DataPointDate,
+	SeriesData,
+	SeriesChartLegendConfig,
+} from '../../types';
 import type { RenderTooltipParams } from '../../visx/types';
 import type { CurveType } from '../line-chart/types';
 import type { ReactNode } from 'react';
 
 export interface AreaChartProps extends BaseChartProps< SeriesData[] > {
+	/**
+	 * Legend configuration. Supports `collapseGroups` on top of the shared options.
+	 */
+	legend?: SeriesChartLegendConfig;
 	/**
 	 * Whether series should be stacked on top of each other.
 	 * When false, series are rendered as overlapping filled areas.

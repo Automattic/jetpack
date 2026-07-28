@@ -1402,12 +1402,13 @@ describe( 'LineChart', () => {
 		// and the empty-state message is text-only.
 		const numericTick = /^[\d,]+$/;
 
-		it( 'keeps the value axis fixed when a series is toggled off', async () => {
+		it( 'pins the value axis when rescaleYOnLegendToggle is false', async () => {
 			const user = userEvent.setup();
 
 			renderWithTheme( {
 				showLegend: true,
 				legend: { interactive: true },
+				rescaleYOnLegendToggle: false,
 				chartId: 'line-stable-axis',
 				data: twoSeries,
 			} );
@@ -1419,8 +1420,7 @@ describe( 'LineChart', () => {
 				.sort();
 			expect( ticksBefore.length ).toBeGreaterThan( 0 );
 
-			// Hide the high-range Visitors series; without a pinned domain the axis would rescale to
-			// the Views range and its ticks would change.
+			// Hide the high-range Visitors series; with a pinned domain the axis keeps its ticks.
 			await user.click( screen.getAllByRole( 'button' )[ 1 ] );
 
 			const ticksAfter = within( chart )
@@ -1428,6 +1428,34 @@ describe( 'LineChart', () => {
 				.map( el => el.textContent )
 				.sort();
 			expect( ticksAfter ).toEqual( ticksBefore );
+		} );
+
+		it( 'rescales the value axis by default when a series is toggled off', async () => {
+			const user = userEvent.setup();
+
+			renderWithTheme( {
+				showLegend: true,
+				legend: { interactive: true },
+				chartId: 'line-rescale-axis',
+				data: twoSeries,
+			} );
+
+			const chart = screen.getByRole( 'grid' );
+			const ticksBefore = within( chart )
+				.getAllByText( numericTick )
+				.map( el => el.textContent )
+				.sort();
+			expect( ticksBefore.length ).toBeGreaterThan( 0 );
+
+			// Default preserves the pre-existing behaviour: hiding the high-range Visitors series
+			// lets the axis rescale to the remaining Views range, so its ticks change.
+			await user.click( screen.getAllByRole( 'button' )[ 1 ] );
+
+			const ticksAfter = within( chart )
+				.getAllByText( numericTick )
+				.map( el => el.textContent )
+				.sort();
+			expect( ticksAfter ).not.toEqual( ticksBefore );
 		} );
 
 		it( 'drops the axes when all series are hidden so they do not collapse', async () => {

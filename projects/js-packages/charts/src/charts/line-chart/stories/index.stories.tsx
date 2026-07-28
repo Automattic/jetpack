@@ -567,6 +567,7 @@ ComparisonMulti.args = {
 	showLegend: true,
 	legendInteractive: true,
 	legendCollapseGroups: true,
+	rescaleYOnLegendToggle: false,
 	smoothing: false,
 	data: [
 		{

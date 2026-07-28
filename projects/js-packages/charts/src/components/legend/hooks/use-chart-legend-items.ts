@@ -209,8 +209,14 @@ function processSeriesData(
 			legendShape
 		);
 
+	// Without collapsing there is no reason to bucket by group — mapping series directly keeps the
+	// original order, which matters for charts that already interleave grouped series for colour.
+	if ( ! collapseGroups ) {
+		return seriesData.map( ( series, index ) => buildItem( { series, index }, [ series.label ] ) );
+	}
+
 	return groupSeriesForLegend( seriesData ).flatMap( members => {
-		if ( collapseGroups && members.length > 1 ) {
+		if ( members.length > 1 ) {
 			const primary =
 				members.find( ( { series } ) => series.options?.type !== 'comparison' ) ?? members[ 0 ];
 
