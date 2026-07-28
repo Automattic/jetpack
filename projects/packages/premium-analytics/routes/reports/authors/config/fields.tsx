@@ -37,7 +37,7 @@ function handleAvatarError( event: SyntheticEvent< HTMLImageElement > ): void {
  * @param name - The raw author name.
  * @return The localized author display name.
  */
-function getAuthorName( name: string ): string {
+export function getAuthorName( name: string ): string {
 	if ( ! name || name === UNTRACKED_AUTHORS_SENTINEL ) {
 		return __( 'Untracked authors', 'jetpack-premium-analytics' );
 	}

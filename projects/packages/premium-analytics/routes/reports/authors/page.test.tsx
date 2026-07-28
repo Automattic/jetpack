@@ -6,10 +6,13 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { useAuthorsReportRecords, type AuthorRow } from './config';
+import { getAuthorName, useAuthorsReportRecords, type AuthorRow } from './config';
 import AuthorsReportPage from './page';
 
 jest.mock( './config', () => ( {
+	getAuthorName: jest.fn( ( name: string ) =>
+		name === 'Untracked Authors' ? 'Untracked authors' : name
+	),
 	getAuthorsFields: () => [],
 	useAuthorsReportRecords: jest.fn(),
 } ) );
@@ -45,6 +48,7 @@ jest.mock( '@wordpress/route', () => ( {
 const useRecordsMock = jest.mocked( useAuthorsReportRecords );
 const useReportCsvExportMock = jest.mocked( useReportCsvExport );
 const reportCsvActionMock = jest.mocked( ReportCsvAction );
+const getAuthorNameMock = jest.mocked( getAuthorName );
 
 /**
  * Build a records-hook return value for the page under test.
@@ -97,11 +101,11 @@ describe( 'AuthorsReportPage', () => {
 		expect( screen.queryByText( 'Ada Lovelace' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'exports authors and nested posts in their existing hierarchy order', () => {
+	it( 'exports displayed author names in their existing hierarchy order', () => {
 		const rows: AuthorRow[] = [
 			{
 				id: 'id:42',
-				label: 'Ada Lovelace',
+				label: 'Untracked Authors',
 				avatarUrl: null,
 				isGroup: true,
 				views: 12,
@@ -109,7 +113,7 @@ describe( 'AuthorsReportPage', () => {
 			{
 				id: 'id:42|post:id:1',
 				parentId: 'id:42',
-				parentName: 'Ada Lovelace',
+				parentName: 'Untracked Authors',
 				label: 'Analytical Engine',
 				avatarUrl: null,
 				views: 7,
@@ -138,9 +142,10 @@ describe( 'AuthorsReportPage', () => {
 
 		const { columns, rows: exportRows } = reportCsvActionMock.mock.calls[ 0 ][ 0 ];
 		expect( exportRows.map( row => columns.map( column => column.getValue( row ) ) ) ).toEqual( [
-			[ 'Ada Lovelace', 12 ],
-			[ 'Ada Lovelace > Analytical Engine', 7 ],
+			[ 'Untracked authors', 12 ],
+			[ 'Untracked authors > Analytical Engine', 7 ],
 		] );
+		expect( getAuthorNameMock ).toHaveBeenCalledWith( 'Untracked Authors' );
 		expect( reportCsvActionMock.mock.calls[ 0 ][ 0 ] ).toEqual(
 			expect.objectContaining( {
 				rows,

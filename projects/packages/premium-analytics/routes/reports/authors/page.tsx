@@ -22,7 +22,7 @@ import { useSearch } from '@wordpress/route';
  * Internal dependencies
  */
 import { route } from '../package.json';
-import { getAuthorsFields, useAuthorsReportRecords, type AuthorRow } from './config';
+import { getAuthorName, getAuthorsFields, useAuthorsReportRecords, type AuthorRow } from './config';
 
 const ROUTE_FROM = route.path;
 
@@ -63,7 +63,9 @@ const RECORDS_VIEW = {
  * @return The author name or author-qualified post title.
  */
 function getAuthorCsvLabel( item: AuthorRow ): string {
-	return item.parentName ? `${ item.parentName } > ${ item.label }` : item.label;
+	return item.parentName
+		? `${ getAuthorName( item.parentName ) } > ${ item.label }`
+		: getAuthorName( item.label );
 }
 
 /**
