@@ -3,11 +3,13 @@
  */
 import { getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
+import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
 import { statsProxyPath } from './constants';
+import { isResponse } from './is-response';
 
 export type StatsProxyVersion = '1.1' | '1.2' | '2';
 
@@ -148,6 +150,111 @@ export function getNoticesPath() {
 }
 
 /**
+ * apiFetch's own parse step throws the parsed JSON body and drops the
+ * `Response`, so the HTTP status is lost. Every stats/report failure is a WPCOM
+ * pass-through shaped `{ error, message }` with no status in the body, which
+ * leaves the data layer unable to tell a 401 from a 502 — see
+ * `getApiErrorStatus()` and `shouldRetryApiError()`. So this module asks for the
+ * raw `Response` and does the parsing itself.
+ *
+ * The parse semantics below intentionally mirror `parseResponseAndNormalizeError`
+ * / `parseAndThrowError` in `@wordpress/api-fetch`.
+ *
+ * @param response - The response to parse.
+ * @return The parsed JSON body.
+ */
+async function parseJsonAndNormalizeError( response: Response ): Promise< unknown > {
+	try {
+		return await response.json();
+	} catch {
+		// Same shape apiFetch throws. The string is core's — translating it under
+		// this package's domain would hand non-English users a different message
+		// for the identical failure, so it stays on the `default` domain.
+		throw {
+			code: 'invalid_json',
+			// eslint-disable-next-line @wordpress/i18n-text-domain
+			message: __( 'The response is not a valid JSON response.', 'default' ),
+		};
+	}
+}
+
+function isPlainErrorBody( body: unknown ): body is Record< string, unknown > {
+	return typeof body === 'object' && body !== null && ! Array.isArray( body );
+}
+
+/**
+ * Turn a rejected error `Response` into the thrown error the caller expects,
+ * with the HTTP status attached.
+ *
+ * The body of a gateway failure (502/503/504) is often HTML or plain text, so
+ * parsing can itself fail. Either way the status must survive: it is what the
+ * server-error UI and the retry guard key off. On a parse failure we keep
+ * apiFetch's own `invalid_json` shape and still attach the status.
+ *
+ * @param response - The failed response.
+ * @return The error value to throw.
+ */
+async function normalizeErrorResponse( response: Response ): Promise< unknown > {
+	const { status } = response;
+
+	let body: unknown;
+	try {
+		body = await parseJsonAndNormalizeError( response );
+	} catch ( parseError ) {
+		body = parseError;
+	}
+
+	// Our own `WP_Error` responses carry `data.status`; adding a top-level
+	// `status` is fine, but never overwrite one the body already provides.
+	if ( isPlainErrorBody( body ) && ! ( 'status' in body ) ) {
+		return { ...body, status };
+	}
+
+	return body;
+}
+
+/**
+ * Request through apiFetch without its parse step, then parse the response here
+ * so a failure keeps its HTTP status.
+ *
+ * @param options - apiFetch request options.
+ * @return The parsed response body.
+ */
+async function fetchPreservingStatus< TResponse >(
+	options: Record< string, unknown >
+): Promise< TResponse > {
+	let result: unknown;
+
+	try {
+		result = await apiFetch( { ...options, parse: false } );
+	} catch ( thrown ) {
+		// With `parse: false`, apiFetch throws the raw `Response` for a non-2xx
+		// reply rather than returning it (see `parseAndThrowError`). This catch
+		// is where every real API error lands. Anything that is not a `Response`
+		// — an offline/fetch error, an `AbortError`, a mock's own rejection —
+		// has no HTTP status to add, so rethrow it untouched.
+		if ( isResponse( thrown ) ) {
+			throw await normalizeErrorResponse( thrown );
+		}
+		throw thrown;
+	}
+
+	// Storybook's report mocks (and the stats mocks beside them) are registered
+	// as apiFetch middlewares that resolve plain data and ignore `parse`, so a
+	// resolved value that is not a `Response` is already-parsed data. A resolved
+	// `Response` is always 2xx: apiFetch only throws (never resolves) a non-ok one.
+	if ( ! isResponse( result ) ) {
+		return result as TResponse;
+	}
+
+	if ( result.status === 204 ) {
+		return null as TResponse;
+	}
+
+	return ( await parseJsonAndNormalizeError( result ) ) as TResponse;
+}
+
+/**
  * Fetch a Woo analytics report through the stats transport.
  *
  * @param endpoint - Report endpoint below `analytics/reports`, e.g. `orders/by-date`.
@@ -180,7 +287,7 @@ export async function fetchStatsProxy< TResponse = unknown, TBody = unknown >( {
 		global,
 	} );
 
-	return apiFetch< TResponse >( {
+	return fetchPreservingStatus< TResponse >( {
 		path,
 		method,
 		...( method === 'POST' ? { data: body } : {} ),
