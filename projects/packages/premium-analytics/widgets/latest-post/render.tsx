@@ -5,6 +5,7 @@ import {
 	MetricValue,
 	WidgetRoot,
 	WidgetState,
+	safeHttpUrl,
 	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -54,7 +55,7 @@ function formatPublishDate( date: string ): string {
 
 	return sprintf(
 		/* translators: %s: the post's publish date, e.g. "Jun 5, 2026". */
-		__( 'Published %s', 'jetpack-premium-analytics' ),
+		__( 'Published %s', 'jetpack-premium-analytics-pkg' ),
 		formatted
 	);
 }
@@ -96,21 +97,27 @@ function MetricTile( { label, value }: MetricTileProps ) {
  */
 export const LatestPostCard = ( { post }: LatestPostCardProps ) => {
 	const publishDate = formatPublishDate( post.date );
+	const postHref = safeHttpUrl( post.url );
 
 	return (
 		<div className={ styles.root }>
 			<div className={ styles.content }>
 				<div className={ styles.header }>
 					<Text className={ styles.title } variant="heading-2xl" render={ <h3 /> }>
-						<Link
-							className={ styles.titleLink }
-							href={ post.url }
-							variant="unstyled"
-							openInNewTab
-							title={ post.title }
-						>
-							{ post.title }
-						</Link>
+						{ postHref ? (
+							<Link
+								className={ styles.titleLink }
+								href={ postHref }
+								variant="unstyled"
+								openInNewTab
+								title={ post.title }
+							>
+								{ post.title }
+							</Link>
+						) : (
+							// `.title` clamps to three lines, so keep the tooltip the link branch carries.
+							<span title={ post.title }>{ post.title }</span>
+						) }
 					</Text>
 					{ publishDate && (
 						<Text className={ styles.date } variant="body-md">
@@ -119,13 +126,16 @@ export const LatestPostCard = ( { post }: LatestPostCardProps ) => {
 					) }
 				</div>
 				<div className={ styles.metrics }>
-					<MetricTile label={ __( 'Views', 'jetpack-premium-analytics' ) } value={ post.views } />
 					<MetricTile
-						label={ __( 'Likes', 'jetpack-premium-analytics' ) }
+						label={ __( 'Views', 'jetpack-premium-analytics-pkg' ) }
+						value={ post.views }
+					/>
+					<MetricTile
+						label={ __( 'Likes', 'jetpack-premium-analytics-pkg' ) }
 						value={ post.likeCount }
 					/>
 					<MetricTile
-						label={ __( 'Comments', 'jetpack-premium-analytics' ) }
+						label={ __( 'Comments', 'jetpack-premium-analytics-pkg' ) }
 						value={ post.commentCount }
 					/>
 				</div>
@@ -158,13 +168,13 @@ function LatestPostReport() {
 			error={ {
 				description: __(
 					"We couldn't load your latest post. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: postList,
-				description: __( 'Publish a post to see its stats here.', 'jetpack-premium-analytics' ),
+				description: __( 'Publish a post to see its stats here.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			{ post && <LatestPostCard post={ post } /> }

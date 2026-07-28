@@ -91,21 +91,21 @@ function WordAdsChartTabsInner( { granularity, metricIds }: WordAdsChartTabsInne
 				error={ {
 					description: __(
 						"We couldn't load WordAds data. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
 					icon: megaphone,
 					description: noMetricSelected
-						? __( 'Select at least one metric to display.', 'jetpack-premium-analytics' )
-						: __( 'No WordAds data in this period.', 'jetpack-premium-analytics' ),
+						? __( 'Select at least one metric to display.', 'jetpack-premium-analytics-pkg' )
+						: __( 'No WordAds data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				<MetricTabsChart
 					metrics={ metrics }
 					dataFormat={ DATA_FORMAT }
-					groupLabel={ __( 'WordAds metric', 'jetpack-premium-analytics' ) }
+					groupLabel={ __( 'WordAds metric', 'jetpack-premium-analytics-pkg' ) }
 				/>
 			</WidgetState>
 		</div>

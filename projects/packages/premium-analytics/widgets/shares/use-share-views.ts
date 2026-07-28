@@ -56,7 +56,7 @@ const SERVICE_LABELS: Record< string, string > = {
 	print: 'Print',
 	email: 'Email',
 	press_this: 'Press This',
-	custom: __( 'Custom share buttons', 'jetpack-premium-analytics' ),
+	custom: __( 'Custom share buttons', 'jetpack-premium-analytics-pkg' ),
 };
 
 function canonicalService( service: string ): string {

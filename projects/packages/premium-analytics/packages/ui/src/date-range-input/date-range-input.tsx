@@ -78,7 +78,7 @@ export function DateRangeInput( { range, onChange, timeZone }: DateRangeInputPro
 	return (
 		<Stack gap="sm" justify="space-between">
 			<DateInput
-				label={ __( 'From', 'jetpack-premium-analytics' ) }
+				label={ __( 'From', 'jetpack-premium-analytics-pkg' ) }
 				date={ from }
 				timeZone={ timeZone }
 				onChange={ nextFrom => {
@@ -89,7 +89,7 @@ export function DateRangeInput( { range, onChange, timeZone }: DateRangeInputPro
 			/>
 
 			<DateInput
-				label={ __( 'To', 'jetpack-premium-analytics' ) }
+				label={ __( 'To', 'jetpack-premium-analytics-pkg' ) }
 				date={ to }
 				timeZone={ timeZone }
 				onChange={ nextTo => {

@@ -76,7 +76,7 @@ export function getComparisonTriggerLabel( {
 
 	return sprintf(
 		// translators: %s is the comparison range label
-		__( 'Compare to: %s', 'jetpack-premium-analytics' ),
+		__( 'Compare to: %s', 'jetpack-premium-analytics-pkg' ),
 		formatDateRange( selectedPreset.range )
 	);
 }
@@ -89,8 +89,8 @@ export function DateComparisonDropdown( {
 	onPresetChange,
 	onClear,
 }: DateComparisonDropdownProps ) {
-	const noComparisonLabel = __( 'No comparison', 'jetpack-premium-analytics' );
-	const selectComparisonLabel = __( 'Select comparison', 'jetpack-premium-analytics' );
+	const noComparisonLabel = __( 'No comparison', 'jetpack-premium-analytics-pkg' );
+	const selectComparisonLabel = __( 'Select comparison', 'jetpack-premium-analytics-pkg' );
 
 	const items = useMemo( (): ComparisonSelectItem[] => {
 		return [
@@ -155,7 +155,7 @@ export function DateComparisonDropdown( {
 			value={ selectedItem }
 			onValueChange={ handleValueChange }
 			triggerContent={ () => triggerLabel }
-			label={ label ?? __( 'Compare to', 'jetpack-premium-analytics' ) }
+			label={ label ?? __( 'Compare to', 'jetpack-premium-analytics-pkg' ) }
 			hideLabelFromVision={ ! label }
 			placeholder={ selectComparisonLabel }
 		/>

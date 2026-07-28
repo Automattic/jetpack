@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Enable the existing JavaScript test and coverage suites in CI.

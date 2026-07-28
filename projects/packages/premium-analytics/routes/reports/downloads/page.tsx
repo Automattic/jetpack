@@ -103,7 +103,7 @@ function DownloadsReport(): JSX.Element {
 	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getDownloadsFields(), [] );
 	const chartMetrics = useMemo(
-		() => [ { key: 'downloads', label: __( 'Downloads', 'jetpack-premium-analytics' ) } ],
+		() => [ { key: 'downloads', label: __( 'Downloads', 'jetpack-premium-analytics-pkg' ) } ],
 		[]
 	);
 	const chartLegendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
@@ -134,8 +134,8 @@ function DownloadsReport(): JSX.Element {
 			breadcrumbs={
 				<Breadcrumbs
 					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'File downloads', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
+						{ label: __( 'File downloads', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
 			}
@@ -149,7 +149,7 @@ function DownloadsReport(): JSX.Element {
 			>
 				{ records.isError ? (
 					<ReportErrorState
-						title={ __( 'Unable to load file downloads', 'jetpack-premium-analytics' ) }
+						title={ __( 'Unable to load file downloads', 'jetpack-premium-analytics-pkg' ) }
 						onRetry={ retry }
 					/>
 				) : (
@@ -169,7 +169,7 @@ function DownloadsReport(): JSX.Element {
 							getItemId={ getDownloadRowId }
 							isLoading={ records.isLoading }
 							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search files', 'jetpack-premium-analytics' ) }
+							searchLabel={ __( 'Search files', 'jetpack-premium-analytics-pkg' ) }
 						/>
 					</>
 				) }

@@ -130,7 +130,7 @@ export const route = {
 				key: 'name',
 				baseURL: `/${ DASHBOARD_REST_NAMESPACE }/widget-modules`,
 				plural: 'widgetModules',
-				label: __( 'Widget modules', 'jetpack-premium-analytics' ),
+				label: __( 'Widget modules', 'jetpack-premium-analytics-pkg' ),
 				supportsPagination: false,
 			},
 		] );

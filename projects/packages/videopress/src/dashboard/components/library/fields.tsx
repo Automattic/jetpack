@@ -1,5 +1,6 @@
 import { getSettings as getDateSettings } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
+import { Icon, mobile } from '@wordpress/icons';
 import { Badge, Stack, Text } from '@wordpress/ui';
 import { useProcessingProgress } from '../../hooks/use-processing-progress';
 import { formatBytes, formatDuration } from '../../utils/format';
@@ -44,6 +45,39 @@ const TitleText = ( { item }: { item: LibraryItem } ) => {
 	return (
 		<span className="vp-library__title-text" title={ title }>
 			{ title }
+		</span>
+	);
+};
+
+const orientationLabel = ( orientation: NonNullable< LibraryItem[ 'orientation' ] > ): string =>
+	orientation === 'landscape'
+		? __( 'Landscape', 'jetpack-videopress-pkg' )
+		: __( 'Portrait', 'jetpack-videopress-pkg' );
+
+/**
+ * Render the orientation indicator: the core `mobile` icon, upright for
+ * portrait videos and rotated a quarter turn (via CSS) for landscape ones.
+ * Videos with unknown dimensions or a square frame render nothing.
+ *
+ * @param props      - Component props.
+ * @param props.item - The library item rendered by this cell.
+ * @return The orientation indicator, or null.
+ */
+const OrientationCell = ( { item }: { item: LibraryItem } ) => {
+	if ( ! item.orientation ) {
+		return null;
+	}
+
+	const label = orientationLabel( item.orientation );
+
+	return (
+		<span
+			role="img"
+			aria-label={ label }
+			title={ label }
+			className={ `vp-library__orientation vp-library__orientation--${ item.orientation }` }
+		>
+			<Icon icon={ mobile } size={ 24 } />
 		</span>
 	);
 };
@@ -174,6 +208,13 @@ export const libraryFields: Field< LibraryItem >[] = [
 		label: __( 'Duration', 'jetpack-videopress-pkg' ),
 		getValue: ( { item } ) => item.durationSeconds,
 		render: ( { item } ) => formatDuration( item.durationSeconds ),
+		enableSorting: false,
+	},
+	{
+		id: 'orientation',
+		label: __( 'Orientation', 'jetpack-videopress-pkg' ),
+		getValue: ( { item } ) => item.orientation ?? '',
+		render: OrientationCell,
 		enableSorting: false,
 	},
 	{

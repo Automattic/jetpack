@@ -79,14 +79,14 @@ function TrafficChartInner( { granularity, metrics }: TrafficChartInnerProps ) {
 		isError,
 		refetch,
 	} = useTrafficChart( reportParams, period, metrics );
-	const groupLabel = __( 'Traffic metric', 'jetpack-premium-analytics' );
+	const groupLabel = __( 'Traffic metric', 'jetpack-premium-analytics-pkg' );
 
 	if ( ! metricTabs.length ) {
 		return (
 			<div className={ styles.emptyState }>
 				{ __(
 					'No metric selected. Please select a metric from the metrics list.',
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				) }
 			</div>
 		);
@@ -107,13 +107,13 @@ function TrafficChartInner( { granularity, metrics }: TrafficChartInnerProps ) {
 				error={ {
 					description: __(
 						"We couldn't load traffic data. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
 					icon: reports,
-					description: __( 'No traffic data in this period.', 'jetpack-premium-analytics' ),
+					description: __( 'No traffic data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 				// First load keeps the widget's chart-shaped skeleton (the metric tabs
 				// over the chart's own loading overlay) instead of the default overlay.

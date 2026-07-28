@@ -51,6 +51,7 @@ import { statsLocationsQuery } from '../stats-locations-query';
 import { statsPostCommentsQuery } from '../stats-post-comments-query';
 import { statsPostQuery } from '../stats-post-query';
 import { statsPublicizeQuery } from '../stats-publicize-query';
+import { statsReferrersQuery } from '../stats-referrers-query';
 import { statsSingleVideoQuery } from '../stats-single-video-query';
 import { statsStreakQuery } from '../stats-streak-query';
 import {
@@ -92,6 +93,34 @@ describe( 'Stats query factories', () => {
 
 	it( 'disables report queries until a date range is available', () => {
 		expect( statsTopPostsQuery( {} as StatsReportParams ).enabled ).toBe( false );
+	} );
+
+	it( 'matches the Calypso referrers range request', () => {
+		const query = statsReferrersQuery( {
+			from: '2026-07-01',
+			to: '2026-07-07',
+			interval: 'day',
+			period: 'day',
+			max: 0,
+			summarize: 1,
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'referrers',
+			'1.1',
+			'stats/referrers',
+			'GET',
+			{
+				period: 'day',
+				max: 0,
+				summarize: 1,
+				date: '2026-07-07',
+				start_date: '2026-07-01',
+			},
+			undefined,
+			'referrers',
+		] );
 	} );
 
 	it( 'builds post stats query keys with fields', () => {
@@ -597,10 +626,22 @@ describe( 'Stats query factories', () => {
 			'1.1',
 			'stats/video/31533',
 			'GET',
-			{ period: 'day' },
+			{ period: 'month' },
 			undefined,
 			'singleVideo',
 		] );
+	} );
+
+	it( 'forwards a supported single-video metric type', () => {
+		const query = statsSingleVideoQuery( 31533, {
+			period: 'month',
+			statType: 'watch_time',
+		} );
+
+		expect( query.queryKey[ 5 ] ).toEqual( {
+			period: 'month',
+			statType: 'watch_time',
+		} );
 	} );
 
 	it( 'converts the report date range for the single video request', () => {

@@ -9,6 +9,8 @@ import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import {
 	calculateDelta,
+	describeError,
+	getCombinedPeriodMax,
 	LeaderboardChart,
 	sharePercentage,
 	WidgetRoot,
@@ -55,16 +57,18 @@ type TopPlatformsInnerProps = {
 function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 
-	const { data, hasComparison, isLoading, isFetching, isError, errorReason, refetch } =
-		usePlatformViews( {
+	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = usePlatformViews(
+		{
 			reportParams,
 			max,
 			deviceProperty: platformDimension,
-		} );
+		}
+	);
 
-	const maxViews = Math.max( ...data.map( d => d.views ), 0 );
-	const maxComparisonViews = Math.max( ...data.map( d => d.previousViews ?? 0 ), 0 );
-	const withComparison = hasComparison;
+	const maxViews = getCombinedPeriodMax(
+		data.map( item => item.views ),
+		hasComparison ? data.map( item => item.previousViews ) : []
+	);
 	const leaderboardData: LeaderboardChartData = data.map( ( item, index ) => {
 		const previousValue = item.previousViews;
 
@@ -79,19 +83,15 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
 			currentShare: sharePercentage( item.views, maxViews ),
 			previousValue,
 			previousShare:
-				withComparison && previousValue !== undefined
-					? sharePercentage( previousValue, maxComparisonViews )
+				hasComparison && previousValue !== undefined
+					? sharePercentage( previousValue, maxViews )
 					: undefined,
 			delta:
-				withComparison && previousValue !== undefined
+				hasComparison && previousValue !== undefined
 					? calculateDelta( item.views, previousValue )
 					: undefined,
 		};
 	} );
-
-	// A plan error can't be fixed by retrying, so the Retry action is only
-	// offered for regular fetch failures.
-	const isPlanError = errorReason === 'upgrade-required';
 
 	return (
 		<div className={ styles.content }>
@@ -100,23 +100,16 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
 				isFetching={ isFetching }
 				isError={ isError }
 				isEmpty={ data.length === 0 }
-				error={ {
-					description: isPlanError
-						? __(
-								'Platform stats are not included in your current plan.',
-								'jetpack-premium-analytics'
-						  )
-						: __(
-								"We couldn't load platform data. Please try again in a moment.",
-								'jetpack-premium-analytics'
-						  ),
-					actions: isPlanError
-						? undefined
-						: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
-				} }
+				error={ describeError( error, {
+					retryDescription: __(
+						"We couldn't load platform data. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					onRetry: refetch,
+				} ) }
 				empty={ {
 					icon: device,
-					description: __( 'No platform data in this period.', 'jetpack-premium-analytics' ),
+					description: __( 'No platform data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				<LeaderboardChart

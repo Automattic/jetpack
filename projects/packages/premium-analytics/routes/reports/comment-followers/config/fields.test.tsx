@@ -92,6 +92,21 @@ describe( 'comment followers fields', () => {
 		expect( screen.getByText( 'Hello world' ) ).toBeInTheDocument();
 	} );
 
+	it( 'renders plain text for rows with an unsafe external link', () => {
+		renderPostField( {
+			id: undefined,
+			label: 'Hello world',
+			followers: 12,
+			value: 12,
+			link: 'javascript:alert(1)',
+			labelIcon: 'external',
+			children: null,
+		} as never );
+
+		expect( screen.getByText( 'Hello world' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'uses followers as the Subscribers field value', () => {
 		const subscribersField = getCommentFollowersFields().find(
 			candidate => candidate.id === 'subscribers'

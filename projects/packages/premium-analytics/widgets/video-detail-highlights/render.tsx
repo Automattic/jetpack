@@ -2,9 +2,8 @@
  * External dependencies
  */
 import {
-	useStatsVideoPlays,
-	type StatsNormalizedReport,
-	type StatsVideoPlaysItem,
+	useStatsSingleVideo,
+	type StatsSingleVideoResponse,
 } from '@jetpack-premium-analytics/data';
 import {
 	MetricTileGrid,
@@ -14,9 +13,8 @@ import {
 	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { percent, scheduled, seen, video } from '@wordpress/icons';
+import { scheduled, seen, video } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -38,11 +36,6 @@ const HOURS_FORMAT: DataFormat = {
 	options: { decimals: 1 },
 };
 
-const RATE_FORMAT: DataFormat = {
-	type: 'percentage',
-	options: { decimals: 1, signDisplay: 'never' },
-};
-
 /**
  * Resolve the routed VideoPress attachment ID. Invalid or missing values keep
  * the data query disabled and show the widget's scope-empty descriptor.
@@ -57,47 +50,24 @@ function toVideoId( postId: string | number | undefined ): number {
 }
 
 /**
- * Find the selected video in a normalized complete-stats range summary.
+ * Sum the single-video endpoint's trailing 30-day metric series.
  *
- * @param report  - The normalized video-plays report.
- * @param videoId - The selected VideoPress attachment ID.
- * @return The selected video's metrics, when present.
+ * The endpoint's `period=month` window contains 31 inclusive daily buckets,
+ * so mirror Calypso by trimming the oldest bucket before calculating the total.
+ *
+ * @param report - A normalized single-video metric response.
+ * @return The metric total for the trailing 30 days.
  */
-export function selectVideoHighlights(
-	report: StatsNormalizedReport< StatsVideoPlaysItem > | undefined,
-	videoId: number
-): StatsVideoPlaysItem | undefined {
-	for ( const point of report?.data ?? [] ) {
-		const row = point.items.find( item => Number( item.id ) === videoId );
+export function sumVideoMetric( report: StatsSingleVideoResponse | undefined ): number {
+	const data = report?.data ?? [];
+	const trailingWindow = data.length > 30 ? data.slice( -30 ) : data;
 
-		if ( row ) {
-			return row;
-		}
-	}
-
-	return undefined;
+	return trailingWindow.reduce( ( total, point ) => total + point.value, 0 );
 }
 
 /**
- * Map a comparison metric to MetricTileGrid's three-state previous-value
- * contract while preserving zero as a real value.
- *
- * @param hasComparison - Whether the user requested a comparison window.
- * @param value         - The selected video's comparison metric.
- * @return A number for a matched row, null for an unmatched row, or undefined
- *         when comparison is off.
- */
-function toPreviousValue( hasComparison: boolean, value?: number ): number | null | undefined {
-	if ( ! hasComparison ) {
-		return undefined;
-	}
-
-	return value ?? null;
-}
-
-/**
- * Read the selected video scope from WidgetRoot, fetch the complete Stats range
- * summary, and render its four metrics through the shared tile grid.
+ * Read the selected video scope from WidgetRoot, fetch its three metric series,
+ * and render their trailing-30-day totals through the shared tile grid.
  *
  * @return The video highlights widget content.
  */
@@ -105,96 +75,73 @@ function VideoDetailHighlightsInner() {
 	const { reportParams } = useWidgetRootContext();
 	const videoId = toVideoId( reportParams.post_id );
 	const hasVideoScope = Number.isInteger( videoId );
-	const queryParams = useMemo(
-		() => ( {
-			...reportParams,
-			complete_stats: 1,
-			max: 0,
-			period: 'day',
-			summarize: 1,
-		} ),
-		[ reportParams ]
+	const views = useStatsSingleVideo( videoId, undefined, { enabled: hasVideoScope } );
+	const impressions = useStatsSingleVideo(
+		videoId,
+		{ period: 'month', statType: 'impressions' },
+		{ enabled: hasVideoScope }
 	);
-	const { primary, comparison, isLoading, isFetching, isError, refetch } = useStatsVideoPlays(
-		queryParams,
+	const watchTime = useStatsSingleVideo(
+		videoId,
+		{ period: 'month', statType: 'watch_time' },
+		{ enabled: hasVideoScope }
+	);
+	const queries = [ views, impressions, watchTime ];
+	const isLoading = queries.some( query => query.isLoading );
+	const isFetching = queries.some( query => query.isFetching );
+	const isError = queries.some( query => query.isError );
+	const hasData = queries.some( query => query.data?.data.length );
+	const tiles = [
 		{
-			enabled: hasVideoScope,
-		}
-	);
-	const row = useMemo(
-		() => selectVideoHighlights( primary.data, videoId ),
-		[ primary.data, videoId ]
-	);
-	const comparisonRow = useMemo(
-		() => selectVideoHighlights( comparison.data, videoId ),
-		[ comparison.data, videoId ]
-	);
-	// Mirror post-detail-highlights: `comp` is the report params contract's
-	// comparison toggle. The hook's `hasComparison` is intentionally not used
-	// because video row merging gates it on overlap across every returned video,
-	// not whether the user requested a comparison window for this selected one.
-	const hasComparison = reportParams.comp === '1';
-	const comparisonRetentionRate = comparisonRow ? comparisonRow.retention_rate / 100 : undefined;
-	const tiles = useMemo(
-		() => [
-			{
-				key: 'views',
-				label: __( 'Views', 'jetpack-premium-analytics' ),
-				icon: seen,
-				value: row?.plays ?? 0,
-				previousValue: toPreviousValue( hasComparison, comparisonRow?.plays ),
-			},
-			{
-				key: 'impressions',
-				label: __( 'Impressions', 'jetpack-premium-analytics' ),
-				icon: video,
-				value: row?.impressions ?? 0,
-				previousValue: toPreviousValue( hasComparison, comparisonRow?.impressions ),
-			},
-			{
-				key: 'watch-time',
-				label: __( 'Hours watched', 'jetpack-premium-analytics' ),
-				icon: scheduled,
-				value: row?.watch_time ?? 0,
-				previousValue: toPreviousValue( hasComparison, comparisonRow?.watch_time ),
-				dataFormat: HOURS_FORMAT,
-			},
-			{
-				key: 'retention-rate',
-				label: __( 'Retention rate', 'jetpack-premium-analytics' ),
-				icon: percent,
-				value: ( row?.retention_rate ?? 0 ) / 100,
-				previousValue: toPreviousValue( hasComparison, comparisonRetentionRate ),
-				dataFormat: RATE_FORMAT,
-			},
-		],
-		[ row, comparisonRow, comparisonRetentionRate, hasComparison ]
-	);
+			key: 'views',
+			label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
+			icon: seen,
+			value: sumVideoMetric( views.data ),
+		},
+		{
+			key: 'impressions',
+			label: __( 'Impressions', 'jetpack-premium-analytics-pkg' ),
+			icon: video,
+			value: sumVideoMetric( impressions.data ),
+		},
+		{
+			key: 'watch-time',
+			label: __( 'Hours watched', 'jetpack-premium-analytics-pkg' ),
+			icon: scheduled,
+			value: sumVideoMetric( watchTime.data ),
+			dataFormat: HOURS_FORMAT,
+		},
+	];
 
 	return (
 		<div className={ styles.root }>
 			<WidgetState
 				isLoading={ hasVideoScope && isLoading }
 				isFetching={ isFetching }
-				isError={ hasVideoScope && ! row && isError }
-				isEmpty={ ! hasVideoScope || ( ! isLoading && ! isError && ! row ) }
+				isError={ hasVideoScope && isError }
+				isEmpty={ ! hasVideoScope || ( ! isLoading && ! isError && ! hasData ) }
 				error={ {
 					description: __(
 						"We couldn't load this video's highlights. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 					actions: [
 						{
-							label: __( 'Retry', 'jetpack-premium-analytics' ),
-							onClick: () => void refetch(),
+							label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
+							onClick: () => {
+								void Promise.all( queries.map( query => query.refetch() ) );
+							},
 						},
 					],
 				} }
 				empty={ {
 					icon: video,
 					description: hasVideoScope
-						? __( 'No highlights are available for this video.', 'jetpack-premium-analytics' )
-						: __( 'Open a video report to see its highlights here.', 'jetpack-premium-analytics' ),
+						? __( 'No highlights are available for this video.', 'jetpack-premium-analytics-pkg' )
+						: __(
+								'Open a video report to see its highlights here.',
+								'jetpack-premium-analytics-pkg'
+						  ),
 				} }
 			>
 				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />

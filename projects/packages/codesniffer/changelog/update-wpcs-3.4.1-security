@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Exclude the WordPress.WP.EnqueuedResourceParameters sniff from the Jetpack standard: versions of WordPressCS before 3.4.1 pass untrusted code through eval() when the sniff runs (GHSA-3pwp-g2mj-5p3v).

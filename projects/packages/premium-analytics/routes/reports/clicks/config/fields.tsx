@@ -28,7 +28,7 @@ export function getClicksFields(): Field< ClickRow >[] {
 	return [
 		{
 			id: 'clickedUrl',
-			label: __( 'Clicked URL', 'jetpack-premium-analytics' ),
+			label: __( 'Clicked URL', 'jetpack-premium-analytics-pkg' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => item.clickedUrl,
@@ -59,7 +59,7 @@ export function getClicksFields(): Field< ClickRow >[] {
 		},
 		{
 			id: 'clicks',
-			label: __( 'Clicks', 'jetpack-premium-analytics' ),
+			label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.clicks,
 			render: ( { item } ) => (
 				<>{ formatMetricValue( item.clicks, 'number', { decimals: 0, useMultipliers: false } ) }</>

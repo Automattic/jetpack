@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Comparison widgets: Show an unavailable percentage change when the previous value is zero.

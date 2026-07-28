@@ -36,7 +36,7 @@ function getMediaDetails( media: Exclude< LeaderboardRowMedia, { kind: 'none' } 
 			return {
 				alt: sprintf(
 					/* translators: %s is a person's name. */
-					__( 'Avatar of %s', 'jetpack-premium-analytics' ),
+					__( 'Avatar of %s', 'jetpack-premium-analytics-pkg' ),
 					media.name
 				),
 				className: styles.avatar,
@@ -54,7 +54,7 @@ function getMediaDetails( media: Exclude< LeaderboardRowMedia, { kind: 'none' } 
 			return {
 				alt: sprintf(
 					/* translators: %s is a country name. */
-					__( 'Flag of %s', 'jetpack-premium-analytics' ),
+					__( 'Flag of %s', 'jetpack-premium-analytics-pkg' ),
 					media.country
 				),
 				className: styles.flag,

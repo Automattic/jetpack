@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getStatsPlanErrorReason, useStatsDevices } from '@jetpack-premium-analytics/data';
+import { useStatsDevices } from '@jetpack-premium-analytics/data';
 import { formatDisplayLabel } from '@jetpack-premium-analytics/widgets-toolkit';
 import type {
 	ReportParams,
@@ -41,7 +41,7 @@ interface DeviceViewsState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
-	errorReason: 'upgrade-required' | null;
+	error: unknown;
 	refetch: () => void;
 }
 
@@ -50,11 +50,11 @@ interface DeviceViewsState {
  * Keys not in this map are title-cased as a fallback.
  */
 const DEVICE_LABELS: Record< string, string > = {
-	desktop: __( 'Desktop', 'jetpack-premium-analytics' ),
-	mobile: __( 'Mobile', 'jetpack-premium-analytics' ),
-	tablet: __( 'Tablet', 'jetpack-premium-analytics' ),
-	phone: __( 'Phone', 'jetpack-premium-analytics' ),
-	unknown: __( 'Unknown', 'jetpack-premium-analytics' ),
+	desktop: __( 'Desktop', 'jetpack-premium-analytics-pkg' ),
+	mobile: __( 'Mobile', 'jetpack-premium-analytics-pkg' ),
+	tablet: __( 'Tablet', 'jetpack-premium-analytics-pkg' ),
+	phone: __( 'Phone', 'jetpack-premium-analytics-pkg' ),
+	unknown: __( 'Unknown', 'jetpack-premium-analytics-pkg' ),
 };
 
 /**
@@ -91,21 +91,23 @@ export default function useDeviceViews( {
 
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
 		useStatsDevices( statsParams, { maxRows: max } );
-	const errorReason = getStatsPlanErrorReason( error );
 
 	const items = ( comparisonRows?.rows ?? [] ).map( toDeviceView );
+
+	// The Stats queries carry `placeholderData: previousData => previousData`, so a
+	// failed range change keeps the prior period's rows in `data` while `isError`
+	// flips true. Only surface the error when there's nothing to show, so a transient
+	// refetch failure doesn't replace populated rows with the error state. `error` is
+	// gated by the same predicate so it is populated iff `isError` is true.
+	const showError = items.length === 0 && isError;
 
 	return {
 		data: items,
 		hasComparison,
 		isLoading,
 		isFetching,
-		// The Stats queries carry `placeholderData: previousData => previousData`, so a
-		// failed range change keeps the prior period's rows in `data` while `isError`
-		// flips true. Only surface the error when there's nothing to show, so a transient
-		// refetch failure doesn't replace populated rows with the error state.
-		isError: items.length === 0 && isError,
-		errorReason,
+		isError: showError,
+		error: showError ? error : null,
 		refetch,
 	};
 }

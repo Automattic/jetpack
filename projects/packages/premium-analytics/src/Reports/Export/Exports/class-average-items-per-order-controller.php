@@ -38,7 +38,7 @@ class Average_Items_Per_Order_Controller extends Abstract_Csv_Report_Controller 
 	 * @return string The report label.
 	 */
 	public function get_report_label(): string {
-		return __( 'Average Items Per Order', 'jetpack-premium-analytics' );
+		return __( 'Average Items Per Order', 'jetpack-premium-analytics-pkg' );
 	}
 
 	/**
@@ -59,7 +59,7 @@ class Average_Items_Per_Order_Controller extends Abstract_Csv_Report_Controller 
 	public function get_column_headers( ?string $interval = null ): array {
 		return array(
 			'time_interval' => $this->get_interval_label( $interval ),
-			'avg_items'     => __( 'Avg items per order', 'jetpack-premium-analytics' ),
+			'avg_items'     => __( 'Avg items per order', 'jetpack-premium-analytics-pkg' ),
 		);
 	}
 

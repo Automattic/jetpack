@@ -1,7 +1,7 @@
 import { LineChart } from '@automattic/charts';
 import '@automattic/charts/style.css';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getScriptData, siteHasFeature } from '@automattic/jetpack-script-data';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { Spinner, SelectControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useMemo } from '@wordpress/element';
@@ -9,7 +9,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { trendingUp } from '@wordpress/icons';
 import { Button, Card, EmptyState, Notice, Stack, Text, Tooltip } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
-import { features } from '../../utils';
+import { hasSocialPaidFeatures } from '../../utils';
 import { getRefreshPlanQuery } from '../../utils/script-data';
 import { buildSeries } from '../../utils/traffic-series';
 import './traffic-chart-card.scss';
@@ -38,7 +38,7 @@ const INTERVAL_OPTIONS: Array< { label: string; value: string } > = [
  * @return The chart card element.
  */
 export default function TrafficChartCard(): JSX.Element {
-	const needsUpgrade = ! siteHasFeature( features.ENHANCED_PUBLISHING );
+	const needsUpgrade = ! hasSocialPaidFeatures();
 	const { setTrafficInterval } = useDispatch( socialStore );
 
 	// Only read real referrer data when we'd actually show it. Reading

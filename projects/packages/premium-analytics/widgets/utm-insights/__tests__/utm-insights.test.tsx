@@ -45,4 +45,10 @@ describe( 'UtmInsightsWidget', () => {
 			expect.stringContaining( 'section=campaign-source-medium' )
 		);
 	} );
+
+	it( 'hides the report link when the host composition opts out', () => {
+		render( <UtmInsightsWidget attributes={ { showReportLink: false } } /> );
+
+		expect( screen.queryByRole( 'link', { name: 'See report' } ) ).not.toBeInTheDocument();
+	} );
 } );

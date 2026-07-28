@@ -43,7 +43,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '5.40.9';
+	const PACKAGE_VERSION = '5.41.0';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -191,19 +191,9 @@ class Initializer {
 		}
 
 		// Handle onboarding redirects based on connection status
-		$should_redirect = false;
-		$redirect_args   = array( 'page' => 'my-jetpack' );
+		$redirect_args = self::get_onboarding_redirect_args( $step, $connection->is_connected(), self::is_onboarding_available() );
 
-		if ( ! $connection->is_connected() && $step !== 'onboarding' ) {
-			// Redirect to onboarding if not connected
-			$redirect_args['step'] = 'onboarding';
-			$should_redirect       = true;
-		} elseif ( $connection->is_connected() && $step === 'onboarding' ) {
-			// Redirect away from onboarding if already connected
-			$should_redirect = true;
-		}
-
-		if ( $should_redirect ) {
+		if ( null !== $redirect_args ) {
 			$admin_page = add_query_arg( $redirect_args, admin_url( 'admin.php' ) );
 			$location   = wp_sanitize_redirect( $admin_page );
 
@@ -222,6 +212,48 @@ class Initializer {
 		self::$site_info = self::get_site_info();
 		add_filter( 'identity_crisis_container_id', array( static::class, 'get_idc_container_id' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
+	}
+
+	/**
+	 * Whether the My Jetpack onboarding flow is available on this site.
+	 *
+	 * WordPress.com Simple sites are connected by definition and don't manage their
+	 * connection through My Jetpack, so the onboarding flow (which asks the user to
+	 * connect) never applies there.
+	 *
+	 * @internal Not part of the package's public API.
+	 *
+	 * @return bool
+	 */
+	public static function is_onboarding_available() {
+		return ! ( new Status_Host() )->is_wpcom_simple();
+	}
+
+	/**
+	 * Decide whether the current My Jetpack request should redirect, and where to.
+	 *
+	 * @internal Not part of the package's public API.
+	 *
+	 * @param string $step                 The current `step` query param.
+	 * @param bool   $is_connected         Whether the site is connected to WordPress.com.
+	 * @param bool   $onboarding_available Whether the onboarding flow is available on this site.
+	 * @return array|null Query args for the redirect, or null to stay on the current page.
+	 */
+	public static function get_onboarding_redirect_args( $step, $is_connected, $onboarding_available ) {
+		if ( $onboarding_available && ! $is_connected && $step !== 'onboarding' ) {
+			// Redirect to onboarding if not connected
+			return array(
+				'page' => 'my-jetpack',
+				'step' => 'onboarding',
+			);
+		}
+
+		if ( $step === 'onboarding' && ( ! $onboarding_available || $is_connected ) ) {
+			// Redirect away from onboarding if already connected or onboarding is not available on this site
+			return array( 'page' => 'my-jetpack' );
+		}
+
+		return null;
 	}
 
 	/**
@@ -541,8 +573,12 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_page() {
-		$step          = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$is_onboarding = $step === 'onboarding';
+		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		// No connection check needed here: admin_init() has already redirected connected users away from onboarding.
+		// Availability IS re-checked on purpose: this render can run even when that redirect did not,
+		// and the check below is what keeps the onboarding route off WordPress.com Simple sites.
+		$is_onboarding = $step === 'onboarding' && self::is_onboarding_available();
 
 		// Add data attribute for onboarding, otherwise render normal container
 		echo '<div id="my-jetpack-container" ' . ( $is_onboarding ? 'data-route="onboarding"' : '' ) . '></div>';

@@ -5,9 +5,10 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { STORE_NAME } from '../constants';
+import { useBlockHasDraft } from '../hooks/use-drafts';
 import { suggestGuidelines } from '../lib/api';
 import { acceptBlockSuggestion } from '../lib/dom';
+import { getBlockModalTextarea } from '../lib/drafts';
 import { recordGuidelinesEvent } from '../lib/tracks';
 import { AI_STORE_NAME } from '../store';
 
@@ -27,17 +28,15 @@ export default function BlockSuggestionButtons( { blockName, blockModal } ) {
 		[ blockName ]
 	);
 
-	const saved = useSelect(
-		select => select( STORE_NAME ).getBlockGuideline( blockName ),
-		[ blockName ]
-	);
+	// The modal textarea opens prefilled with the saved guideline, so a
+	// non-empty draft is what "a guideline exists" looks like from here.
+	const hasDraft = useBlockHasDraft( blockModal );
 
 	const handleGenerate = useCallback( async () => {
-		const action = saved ? 'improve' : 'generate';
+		// Snapshot at click time; the render-time hook value drives the label.
+		const currentText = getBlockModalTextarea( blockModal )?.value || '';
+		const action = currentText ? 'improve' : 'generate';
 		recordGuidelinesEvent( 'generate', { type: 'block', slug: blockName, action } );
-
-		const textarea = blockModal?.querySelector( '.components-textarea-control__input' );
-		const currentText = textarea?.value || '';
 
 		startSectionLoading( blockName );
 		try {
@@ -58,7 +57,6 @@ export default function BlockSuggestionButtons( { blockName, blockModal } ) {
 	}, [
 		blockModal,
 		blockName,
-		saved,
 		startSectionLoading,
 		stopSectionLoading,
 		setSuggestion,
@@ -90,7 +88,7 @@ export default function BlockSuggestionButtons( { blockName, blockModal } ) {
 
 	const generateLabel = __( 'Generate guidelines', 'jetpack' );
 	const improveLabel = __( 'Improve guidelines', 'jetpack' );
-	const label = saved ? improveLabel : generateLabel;
+	const label = hasDraft ? improveLabel : generateLabel;
 
 	// Locked look without an AI plan, but no click action: the upgrade notice
 	// renders on the page behind this modal, so a click-to-nudge here would be

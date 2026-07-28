@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Translate the admin menu label in the package instead of requiring callers to pass one, accept a closure from callers that need a label in their own textdomain, and show an explanatory notice instead of a blank page when the build output is missing.

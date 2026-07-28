@@ -44,26 +44,26 @@ export default {
 	attributes: [
 		{
 			id: 'metrics',
-			label: __( 'Metrics', 'jetpack-premium-analytics' ),
+			label: __( 'Metrics', 'jetpack-premium-analytics-pkg' ),
 			type: 'array',
 			relevance: 'high',
 			Edit: ArrayCheckboxField,
 			elements: [
 				{
 					value: 'posts',
-					label: __( 'Posts', 'jetpack-premium-analytics' ),
+					label: __( 'Posts', 'jetpack-premium-analytics-pkg' ),
 				},
 				{
 					value: 'words',
-					label: __( 'Words', 'jetpack-premium-analytics' ),
+					label: __( 'Words', 'jetpack-premium-analytics-pkg' ),
 				},
 				{
 					value: 'likes',
-					label: __( 'Likes', 'jetpack-premium-analytics' ),
+					label: __( 'Likes', 'jetpack-premium-analytics-pkg' ),
 				},
 				{
 					value: 'comments',
-					label: __( 'Comments', 'jetpack-premium-analytics' ),
+					label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
 				},
 			],
 		},

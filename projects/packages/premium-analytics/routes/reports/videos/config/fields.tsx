@@ -19,7 +19,7 @@ import type { Field } from '@wordpress/dataviews';
 function getVideoTitle( video: StatsVideoPlaysItem ) {
 	return typeof video.label === 'string' && video.label
 		? video.label
-		: __( 'Untitled video', 'jetpack-premium-analytics' );
+		: __( 'Untitled video', 'jetpack-premium-analytics-pkg' );
 }
 
 /**
@@ -51,7 +51,7 @@ export function getVideosFields(): Field< StatsVideoPlaysItem >[] {
 	return [
 		{
 			id: 'label',
-			label: __( 'Video', 'jetpack-premium-analytics' ),
+			label: __( 'Video', 'jetpack-premium-analytics-pkg' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => getVideoTitle( item ),
@@ -59,7 +59,7 @@ export function getVideosFields(): Field< StatsVideoPlaysItem >[] {
 		},
 		{
 			id: 'plays',
-			label: __( 'Plays', 'jetpack-premium-analytics' ),
+			label: __( 'Plays', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.plays,
 			render: ( { item } ) => (
 				<>{ formatMetricValue( item.plays, 'number', { decimals: 0, useMultipliers: false } ) }</>
@@ -67,7 +67,7 @@ export function getVideosFields(): Field< StatsVideoPlaysItem >[] {
 		},
 		{
 			id: 'impressions',
-			label: __( 'Impressions', 'jetpack-premium-analytics' ),
+			label: __( 'Impressions', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.impressions,
 			render: ( { item } ) => (
 				<>
