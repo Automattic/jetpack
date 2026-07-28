@@ -199,3 +199,57 @@ async function fetchCategoriesViaWpApi(): Promise< Category[] > {
 
 	return allCategories;
 }
+
+/**
+ * Create a new category.
+ * On Simple sites, uses the WordPress.com REST API; otherwise the WordPress REST API.
+ *
+ * Mirrors the Simple-vs-self-hosted split used by `fetchCategories` — the plain
+ * `/wp/v2/categories` endpoint isn't directly reachable on WordPress.com Simple
+ * sites, so we can't rely on `@wordpress/core-data` here.
+ *
+ * @param {string} name - The name of the category to create.
+ * @return {Promise<Category>} The created category.
+ */
+export async function createCategory( name: string ): Promise< Category > {
+	const blogId = getBlogId();
+	if ( isSimpleSite() && blogId ) {
+		return createCategoryViaWpcomApi( name, blogId );
+	}
+
+	return createCategoryViaWpApi( name );
+}
+
+/**
+ * Create a category via the WordPress.com REST API.
+ *
+ * @param {string} name   - The name of the category to create.
+ * @param {number} blogId - The blog ID.
+ * @return {Promise<Category>} The created category.
+ */
+async function createCategoryViaWpcomApi( name: string, blogId: number ): Promise< Category > {
+	const term = ( await apiFetch( {
+		path: `/rest/v1.1/sites/${ blogId }/taxonomies/category/terms/new`,
+		method: 'POST',
+		data: { name },
+	} ) ) as { ID: number; name: string };
+
+	// WordPress.com API returns ID (uppercase), normalize to id (lowercase).
+	return { id: term.ID, name: term.name };
+}
+
+/**
+ * Create a category via the WordPress REST API.
+ *
+ * @param {string} name - The name of the category to create.
+ * @return {Promise<Category>} The created category.
+ */
+async function createCategoryViaWpApi( name: string ): Promise< Category > {
+	const category = ( await apiFetch( {
+		path: '/wp/v2/categories',
+		method: 'POST',
+		data: { name },
+	} ) ) as { id: number; name: string };
+
+	return { id: category.id, name: category.name };
+}

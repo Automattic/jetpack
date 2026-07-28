@@ -88,4 +88,16 @@ body.jetpack_page_jetpack-newsletter {
 			justify-content: space-between;
 		}
 	}
+
+	// The "Add new category" trigger is a minimal button styled as a link. Pull it
+	// flush with the surrounding content by offsetting the button's own inline
+	// padding token, which otherwise leaves a stray gap to its start edge.
+	.newsletter-add-category-trigger {
+		margin-inline-start: calc(-1 * var(--wpds-dimension-padding-md));
+	}
+
+	// The inline create-category form sits between the field and the footer.
+	.newsletter-add-category-form {
+		margin-block: var(--wpds-dimension-gap-sm);
+	}
 }

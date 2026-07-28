@@ -2,21 +2,17 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
-import {
-	getAdminUrl,
-	getSiteData,
-	getSiteType,
-	isWpcomPlatformSite,
-} from '@automattic/jetpack-script-data';
+import { getSiteData, getSiteType, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components/wpcom-support-link';
+import { TextControl } from '@wordpress/components';
 import { DataForm, type Field, useFormValidity } from '@wordpress/dataviews';
 import { createInterpolateElement, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Card, Fieldset, Link, Notice, Text } from '@wordpress/ui';
+import { Button, Card, Fieldset, Link, Notice, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
-import { fetchCategories } from '../api';
+import { createCategory, fetchCategories } from '../api';
 import type { NewsletterSettings, WordPressCategory } from '../types';
 
 interface NewsletterCategoriesSectionProps {
@@ -50,6 +46,13 @@ export function NewsletterCategoriesSection( {
 	const [ isFetchingCategories, setIsFetchingCategories ] = useState( true );
 	const [ categoriesError, setCategoriesError ] = useState< string | null >( null );
 
+	// Inline "add new category" flow. Replaces the old wp-admin link so the new
+	// category is created in place and shows up in the list without a refresh.
+	const [ isAddingCategory, setIsAddingCategory ] = useState( false );
+	const [ newCategoryName, setNewCategoryName ] = useState( '' );
+	const [ isCreatingCategory, setIsCreatingCategory ] = useState( false );
+	const [ createCategoryError, setCreateCategoryError ] = useState< string | null >( null );
+
 	// Track section save with the keys that changed since the last save.
 	const handleSave = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_newsletter_section_save', {
@@ -60,6 +63,68 @@ export function NewsletterCategoriesSection( {
 		} );
 		onSave();
 	}, [ changedKeys, onSave, siteType ] );
+
+	const trimmedNewCategoryName = newCategoryName.trim();
+
+	// Open the inline add-category form.
+	const startAddCategory = useCallback( () => {
+		setIsAddingCategory( true );
+	}, [] );
+
+	// Reset and close the inline add-category form.
+	const cancelAddCategory = useCallback( () => {
+		setIsAddingCategory( false );
+		setNewCategoryName( '' );
+		setCreateCategoryError( null );
+	}, [] );
+
+	// Create the category, append it to the list, and auto-select it.
+	const handleCreateCategory = useCallback( () => {
+		if ( ! trimmedNewCategoryName || isCreatingCategory ) {
+			return;
+		}
+
+		setIsCreatingCategory( true );
+		setCreateCategoryError( null );
+
+		createCategory( trimmedNewCategoryName )
+			.then( created => {
+				const newCategory: WordPressCategory = {
+					id: String( created.id ),
+					name: created.name,
+				};
+
+				// Add to the local list so it appears in the DataForm without a
+				// page refresh, avoiding duplicates if it somehow already exists.
+				setCategories( prev =>
+					prev.some( cat => cat.id === newCategory.id ) ? prev : [ ...prev, newCategory ]
+				);
+
+				// Auto-select the newly created category (staged for save).
+				const selected = data.wpcom_newsletter_categories ?? [];
+				if ( ! selected.includes( newCategory.id ) ) {
+					onChange( { wpcom_newsletter_categories: [ ...selected, newCategory.id ] } );
+				}
+
+				setIsAddingCategory( false );
+				setNewCategoryName( '' );
+			} )
+			.catch( ( err: Error ) => {
+				// WordPress surfaces a long parent-aware message for duplicates
+				// ("A term with the name provided already exists…"); the inline
+				// form has no parent picker, so show a short, plain message.
+				const code = ( err as Error & { code?: string } )?.code;
+				setCreateCategoryError(
+					code === 'term_exists'
+						? __( 'This category already exists.', 'jetpack-newsletter' )
+						: err.message ||
+								__( 'Could not create the category. Please try again.', 'jetpack-newsletter' )
+				);
+			} )
+			.finally( () => {
+				setIsCreatingCategory( false );
+			} );
+	}, [ trimmedNewCategoryName, isCreatingCategory, data.wpcom_newsletter_categories, onChange ] );
 
 	// Fetch WordPress categories on mount
 	useEffect( () => {
@@ -193,18 +258,52 @@ export function NewsletterCategoriesSection( {
 						validity={ validity }
 					/>
 
-					{ data.wpcom_newsletter_categories_enabled && (
-						<p>
-							<Link
-								openInNewTab
-								href={ getAdminUrl(
-									'edit-tags.php?taxonomy=category&referer=newsletter-categories'
+					{ data.wpcom_newsletter_categories_enabled &&
+						( isAddingCategory ? (
+							<Stack direction="column" gap="sm" className="newsletter-add-category-form">
+								{ createCategoryError && (
+									<Notice.Root intent="error">
+										<Notice.Description>{ createCategoryError }</Notice.Description>
+									</Notice.Root>
 								) }
-							>
-								{ __( 'Add new category', 'jetpack-newsletter' ) }
-							</Link>
-						</p>
-					) }
+								<TextControl
+									__next40pxDefaultSize
+									__nextHasNoMarginBottom
+									label={ __( 'New category name', 'jetpack-newsletter' ) }
+									value={ newCategoryName }
+									onChange={ setNewCategoryName }
+									disabled={ isCreatingCategory }
+								/>
+								<Stack direction="row" gap="sm" align="center" justify="flex-start">
+									<Button
+										variant="solid"
+										onClick={ handleCreateCategory }
+										disabled={ ! trimmedNewCategoryName || isCreatingCategory }
+										loading={ isCreatingCategory }
+										loadingAnnouncement={ __( 'Adding…', 'jetpack-newsletter' ) }
+									>
+										{ __( 'Add category', 'jetpack-newsletter' ) }
+									</Button>
+									<Button
+										variant="minimal"
+										onClick={ cancelAddCategory }
+										disabled={ isCreatingCategory }
+									>
+										{ __( 'Cancel', 'jetpack-newsletter' ) }
+									</Button>
+								</Stack>
+							</Stack>
+						) : (
+							<p>
+								<Button
+									variant="minimal"
+									className="newsletter-add-category-trigger"
+									onClick={ startAddCategory }
+								>
+									{ __( 'Add new category', 'jetpack-newsletter' ) }
+								</Button>
+							</p>
+						) ) }
 				</Fieldset.Root>
 				<div className="newsletter-card-footer">
 					<Button
