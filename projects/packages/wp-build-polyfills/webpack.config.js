@@ -170,8 +170,7 @@ const disabledPlugins = {
 
 // ── Polyfill definitions ────────────────────────────────────────────────────
 //
-// If adding or removing something here, you'll probably also want to add or remove it
-// from the "Bundled @wordpress/* monorepo" group in `.github/renovate.json5`.
+// Keep these package versions in sync with each other.
 
 const classicPolyfills = [
 	{

@@ -51,6 +51,17 @@
 			extends: [ 'monorepo:wordpress' ],
 			separateMajorMinor: false,
 			prPriority: 1,
+			// Bundled WordPress dependencies are still considered unstable and can have
+			// significant breaking changes. Since they're not externalized to WP, they have
+			// a higher chance of impacting functionality.
+			additionalReviewers: [
+				'team:jetpack-social', // Social
+				'team:jetpack-my-jetpack', // My Jetpack
+				'team:loop', // Newsletter dashboard & subscriber management
+				'team:jetpack-newsletter', // Newsletter dashboard & subscriber management
+				'team:jetpack-forms', // Forms and related component work
+				'team:jetpack-stats', // Premium Analytics
+			],
 		},
 		{
 			extends: [ 'monorepo:react' ],
@@ -108,55 +119,6 @@
 			matchUpdateTypes: [ 'minor', 'patch', 'pin', 'digest', 'pinDigest' ],
 			schedule: [ '* 0-3 * * 1' ],
 			additionalReviewers: [ 'team:qualityops' ],
-		},
-
-		// Bundled WordPress dependencies are separated from 'monorepo:wordpress' while
-		// they're still considered unstable and can have significant breaking changes.
-		// Since they're not externalized to WP, they have higher chance of impacting functionality.
-		//
-		// Some related packages are included here too.
-		{
-			groupName: 'Bundled @wordpress/* monorepo',
-			matchPackageNames: [
-				// Bundled packages, from the list at https://github.com/WordPress/gutenberg/blob/trunk/packages/dependency-extraction-webpack-plugin/lib/util.js#L2
-				'@wordpress/admin-ui',
-				'@wordpress/dataviews',
-				'@wordpress/fields',
-				'@wordpress/icons',
-				'@wordpress/interface',
-				'@wordpress/style-runtime',
-				'@wordpress/ui',
-				'@wordpress/undo-manager',
-				'@wordpress/views',
-				// Additional packages polyfilled by wp-build-polyfills, which need to be kept in sync with each other.
-				'@wordpress/a11y',
-				'@wordpress/boot',
-				// Bundled into the rich-text polyfill (rich-text unlocks its private
-				// APIs at module scope), so it must move in lockstep with rich-text.
-				'@wordpress/compose',
-				'@wordpress/notices',
-				'@wordpress/private-apis',
-				'@wordpress/rich-text',
-				'@wordpress/route',
-				'@wordpress/theme',
-				// @wordpress/build is still heavily developed; its dashboards share the same bundled
-				// packages and test surface, so exercising build alongside the rest is practical.
-				'@wordpress/build',
-				// Widgets Dashboard packages used by Premium Analytics
-				'@wordpress/grid',
-				'@wordpress/widget-dashboard',
-				'@wordpress/widget-primitives',
-			],
-			separateMajorMinor: false,
-			// Teams that can help test the update
-			additionalReviewers: [
-				'team:jetpack-social', // Social
-				'team:jetpack-my-jetpack', // My Jetpack
-				'team:loop', // Newsletter dashboard & subscriber management
-				'team:jetpack-newsletter', // Newsletter dashboard & subscriber management
-				'team:jetpack-forms', // Forms and related component work
-				'team:jetpack-stats', // Premium Analytics
-			],
 		},
 
 		// 🤷
