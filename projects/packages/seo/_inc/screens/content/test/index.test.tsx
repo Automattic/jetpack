@@ -66,6 +66,26 @@ describe( 'ContentScreen — ?needs= deep-link seeding', () => {
 		] );
 	} );
 
+	it( 'seeds the meta-description filter from ?needs=description', () => {
+		useSearch.mockReturnValue( { needs: 'description' } );
+
+		render( <ContentScreen /> );
+
+		expect( capturedView?.filters ).toEqual( [
+			{ field: 'description', operator: 'is', value: 'not_set' },
+		] );
+	} );
+
+	it( 'seeds the search-visibility filter from ?needs=search', () => {
+		useSearch.mockReturnValue( { needs: 'search' } );
+
+		render( <ContentScreen /> );
+
+		expect( capturedView?.filters ).toEqual( [
+			{ field: 'searchFilter', operator: 'is', value: 'hidden' },
+		] );
+	} );
+
 	it( 'starts unfiltered when there is no ?needs= param', () => {
 		useSearch.mockReturnValue( {} );
 
