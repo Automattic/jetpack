@@ -42,6 +42,15 @@ class Analytics {
 	private static $menu_title = null;
 
 	/**
+	 * The menu label once resolved, so the menu and the missing-build notice can't
+	 * disagree if a caller hands us a closure that returns something different
+	 * each call. Reset whenever $menu_title is assigned.
+	 *
+	 * @var string|null
+	 */
+	private static $resolved_menu_title = null;
+
+	/**
 	 * Initialize the Analytics app on a connected Jetpack site.
 	 *
 	 * Registers the full local surface: the site serves the WPCOM data proxy,
@@ -109,7 +118,8 @@ class Analytics {
 	 */
 	private static function apply_options( $options ) {
 		if ( ! empty( $options['menu_title'] ) ) {
-			self::$menu_title = $options['menu_title'];
+			self::$menu_title          = $options['menu_title'];
+			self::$resolved_menu_title = null;
 		}
 	}
 
@@ -320,7 +330,8 @@ class Analytics {
 	/**
 	 * The caller's menu label override, or the package's own translated label.
 	 *
-	 * Only call once translations can load — admin_menu or later.
+	 * Only call once translations can load — admin_menu or later. Memoized, so every
+	 * call site in a request shows the same label.
 	 *
 	 * Closures are resolved here rather than at init time, so a caller can hand us
 	 * `__()` in its own textdomain without translating too early. Deliberately not
@@ -330,11 +341,22 @@ class Analytics {
 	 * @return string
 	 */
 	private static function menu_title() {
+		if ( null !== self::$resolved_menu_title ) {
+			return self::$resolved_menu_title;
+		}
+
 		$title = self::$menu_title instanceof \Closure
 			? ( self::$menu_title )()
 			: self::$menu_title;
 
-		return $title ?? __( 'Analytics', 'jetpack-premium-analytics' );
+		// A positive check rather than a null coalesce: a closure is free to return an
+		// empty string, or something that isn't a string at all, and either would reach
+		// esc_html() as a broken label instead of falling back here.
+		self::$resolved_menu_title = is_string( $title ) && '' !== $title
+			? $title
+			: __( 'Analytics', 'jetpack-premium-analytics' );
+
+		return self::$resolved_menu_title;
 	}
 
 	/**

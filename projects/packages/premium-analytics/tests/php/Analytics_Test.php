@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -22,6 +23,13 @@ class Analytics_Test extends TestCase {
 	const MENU_HOOKNAME = 'toplevel_page_' . self::MENU_SLUG;
 
 	/**
+	 * _doing_it_wrong() function names captured during a test.
+	 *
+	 * @var string[]
+	 */
+	private $doing_it_wrong = array();
+
+	/**
 	 * Reset request and screen globals touched by the dashboard-request tests.
 	 */
 	protected function tearDown(): void {
@@ -29,6 +37,8 @@ class Analytics_Test extends TestCase {
 		unset( $GLOBALS['current_screen'] );
 		unset( $GLOBALS['menu'] );
 		remove_all_actions( self::MENU_HOOKNAME );
+		remove_all_filters( 'doing_it_wrong_trigger_error' );
+		remove_all_actions( 'doing_it_wrong_run' );
 		global $wp_rest_server;
 		$wp_rest_server = null;
 		remove_all_actions( 'jetpack_sync_processed_actions' );
@@ -49,6 +59,7 @@ class Analytics_Test extends TestCase {
 	private function reset_analytics_init_state() {
 		$this->set_analytics_property( 'initialized', false );
 		$this->set_analytics_property( 'menu_title', null );
+		$this->set_analytics_property( 'resolved_menu_title', null );
 	}
 
 	/**
@@ -227,6 +238,81 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
+	 * Values a caller's closure might hand back instead of a usable label.
+	 *
+	 * @return array<string, array{mixed}>
+	 */
+	public static function data_unusable_closure_labels() {
+		return array(
+			'null'         => array( null ),
+			'empty string' => array( '' ),
+			'not a string' => array( 42 ),
+		);
+	}
+
+	/**
+	 * A closure that returns nothing usable leaves the menu labelled rather than blank.
+	 *
+	 * @dataProvider data_unusable_closure_labels
+	 *
+	 * @param mixed $returned What the caller's closure hands back.
+	 */
+	#[DataProvider( 'data_unusable_closure_labels' )]
+	public function test_register_admin_menu_falls_back_when_a_closure_returns_no_label( $returned ) {
+		Analytics::init(
+			array(
+				'menu_title' => function () use ( $returned ) {
+					return $returned;
+				},
+			)
+		);
+
+		$menu_item = $this->register_admin_menu_without_build();
+
+		$this->assertSame( 'Analytics', $menu_item[0] ?? null );
+	}
+
+	/**
+	 * The label is resolved once, so an unstable closure can't leave the menu and the
+	 * page heading disagreeing with each other.
+	 */
+	public function test_menu_label_is_resolved_once_per_request() {
+		$calls = 0;
+		Analytics::init(
+			array(
+				'menu_title' => function () use ( &$calls ) {
+					++$calls;
+
+					return 'Analytics ' . $calls;
+				},
+			)
+		);
+
+		$menu_item = $this->register_admin_menu_without_build();
+
+		ob_start();
+		Analytics::render_missing_build_notice();
+		$output = ob_get_clean();
+
+		$this->assertSame( 1, $calls );
+		$this->assertSame( 'Analytics 1', $menu_item[0] ?? null );
+		$this->assertStringContainsString( '<h1>Analytics 1</h1>', $output );
+	}
+
+	/**
+	 * A missing build is reported on the admin request that registers the menu, not
+	 * only when someone opens the dashboard.
+	 */
+	public function test_register_admin_menu_reports_a_missing_build() {
+		$this->register_admin_menu_without_build();
+
+		$this->assertSame(
+			array( Analytics::class . '::register_admin_menu' ),
+			$this->doing_it_wrong
+		);
+	}
+
+	/**
 	 * Without the generated render function the page falls back to the notice rather
 	 * than the blank screen __return_null used to leave behind.
 	 */
@@ -257,9 +343,10 @@ class Analytics_Test extends TestCase {
 
 	/**
 	 * Register the admin menu from a clean menu global, with the generated render
-	 * function absent - the state _doing_it_wrong() deliberately reports, so its
-	 * notice is muted for the duration. add_menu_page() only wires the render
-	 * callback for a user who can reach the page, hence the capability grant.
+	 * function absent - the state _doing_it_wrong() deliberately reports, so the
+	 * call is captured rather than left to trip the suite's warning gate.
+	 * add_menu_page() only wires the render callback for a user who can reach the
+	 * page, hence the capability grant.
 	 *
 	 * @return array|null The registered menu entry.
 	 */
@@ -267,9 +354,8 @@ class Analytics_Test extends TestCase {
 		$GLOBALS['menu'] = array();
 
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
-		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		$this->capture_doing_it_wrong();
 		Analytics::register_admin_menu();
-		remove_filter( 'doing_it_wrong_trigger_error', '__return_false' );
 		remove_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 
 		foreach ( $GLOBALS['menu'] as $item ) {
@@ -279,6 +365,23 @@ class Analytics_Test extends TestCase {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Capture _doing_it_wrong() calls without tripping the suite's failOnWarning gate.
+	 *
+	 * Records each triggering function name in $this->doing_it_wrong and suppresses the
+	 * underlying PHP warning, so a test can assert the diagnostic fired.
+	 */
+	private function capture_doing_it_wrong() {
+		$this->doing_it_wrong = array();
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		add_action(
+			'doing_it_wrong_run',
+			function ( $function_name ) {
+				$this->doing_it_wrong[] = $function_name;
+			}
+		);
 	}
 
 	/**
