@@ -34,14 +34,6 @@ function wpcom_videopress_init_admin_ui() {
 		return;
 	}
 
-	/*
-	 * VIDP-285: rolled out at 100%. No callback is registered on the
-	 * rsm_jetpack_ui_modernization_videopress filter anymore, so Simple keeps
-	 * the filter's default (enabled) exactly like self-hosted and Atomic. The
-	 * staged gate (Automatticians + the videopress-modernized-dashboard blog
-	 * sticker for CFT testers) lived here until the July 2026 CFT concluded;
-	 * the sticker and its Blog RC toggle are inert now and can be retired.
-	 */
 	if ( ! class_exists( '\Automattic\Jetpack\VideoPress\Admin_UI' ) ) {
 		return;
 	}
