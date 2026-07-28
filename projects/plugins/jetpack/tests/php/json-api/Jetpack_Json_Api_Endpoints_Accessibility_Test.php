@@ -43,6 +43,12 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	 * @var int $no_read_user_id.
 	 */
 	private static $no_read_user_id;
+	/**
+	 * A low-privileged (subscriber) user_id.
+	 *
+	 * @var int $subscriber_user_id.
+	 */
+	private static $subscriber_user_id;
 
 	/**
 	 * Create fixtures once, before any tests in the class have run.
@@ -50,8 +56,9 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	 * @param object $factory A factory object needed for creating fixtures.
 	 */
 	public static function wpSetUpBeforeClass( $factory ) {
-		self::$admin_user_id   = $factory->user->create( array( 'role' => 'administrator' ) );
-		self::$no_read_user_id = $factory->user->create();
+		self::$admin_user_id      = $factory->user->create( array( 'role' => 'administrator' ) );
+		self::$no_read_user_id    = $factory->user->create();
+		self::$subscriber_user_id = $factory->user->create( array( 'role' => 'subscriber' ) );
 
 		$no_read_user = get_user_by( 'id', self::$no_read_user_id );
 		$no_read_user->add_cap( 'read', false );
@@ -180,6 +187,48 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * An endpoint that declares no required capabilities (like the Backup helper-script
+	 * endpoints) must only be reachable with a Jetpack blog token (site-based auth). A
+	 * low-privileged connected user token must be rejected with a 403.
+	 *
+	 * Regression test for the empty-capabilities authorization bypass: an empty
+	 * `$needed_capabilities` array previously made `check_capability()` pass for any
+	 * connected user token, letting a low-privileged user reach site-token-only endpoints.
+	 *
+	 * @group json-api
+	 * @dataProvider data_provider_test_empty_capabilities_requires_site_auth
+	 *
+	 * @param bool            $use_blog_token If we should simulate a blog token for this test.
+	 * @param WP_Error|string $result         The expected result.
+	 */
+	#[Group( 'json-api' )]
+	#[DataProvider( 'data_provider_test_empty_capabilities_requires_site_auth' )]
+	public function test_empty_capabilities_requires_site_auth( $use_blog_token, $result ) {
+		$endpoint = new Jetpack_JSON_API_Empty_Capabilities_Dummy_Endpoint(
+			array(
+				'stat'                    => 'dummy',
+				'allow_jetpack_site_auth' => true,
+			)
+		);
+
+		if ( ! $use_blog_token ) {
+			wp_set_current_user( self::$subscriber_user_id );
+		}
+
+		$this->assertEquals( $result, $endpoint->api->process_request( $endpoint, array() ) );
+	}
+
+	/**
+	 * Data provider for test_empty_capabilities_requires_site_auth.
+	 */
+	public static function data_provider_test_empty_capabilities_requires_site_auth() {
+		return array(
+			'blog token is accepted'          => array( true, 'success' ),
+			'low-priv user token is rejected' => array( false, new WP_Error( 'unauthorized', 'This endpoint is only accessible using a Jetpack site token.', 403 ) ),
+		);
+	}
+
+	/**
 	 * Data provider for test_accepts_site_based_authentication.
 	 */
 	public static function data_provider_test_accepts_site_based_authentication() {
@@ -231,6 +280,27 @@ class Jetpack_JSON_API_Dummy_Endpoint extends Jetpack_JSON_API_Endpoint {
 	 * @var array|string
 	 */
 	protected $needed_capabilities = 'manage_options';
+
+	/**
+	 * Dummy result.
+	 */
+	public function result() {
+
+		return 'success';
+	}
+}
+
+/**
+ * Dummy endpoint that declares no required capabilities, mirroring the Backup
+ * helper-script endpoints. Intended to be reachable only with a blog token.
+ */
+class Jetpack_JSON_API_Empty_Capabilities_Dummy_Endpoint extends Jetpack_JSON_API_Endpoint {
+	/**
+	 * No capabilities required; site-token-only endpoint.
+	 *
+	 * @var array
+	 */
+	protected $needed_capabilities = array();
 
 	/**
 	 * Dummy result.

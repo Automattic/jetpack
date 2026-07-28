@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Security: Reject low-privileged user tokens on capability-less JSON API endpoints (such as the Backup helper script endpoints), requiring a Jetpack site (blog) token instead.

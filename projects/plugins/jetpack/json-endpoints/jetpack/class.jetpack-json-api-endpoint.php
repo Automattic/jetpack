@@ -150,6 +150,15 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 			// the idea is that the we can pass in an array of capabilitie that the user needs to have before we allowing them to do something
 			$capabilities = ( $capability['capabilities'] ?? $capability );
 
+			// Deny by default: an empty capability set must never authorize a request that is not
+			// site-based (blog token) authenticated. Endpoints that declare no capabilities (e.g. the
+			// Backup helper-script endpoints) are intended to be reachable only with a Jetpack blog
+			// token, which is handled by the site-based authentication short-circuit above. Without
+			// this guard an empty list makes `$must_pass` 0, so any connected user token would pass.
+			if ( empty( $capabilities ) ) {
+				return new WP_Error( 'unauthorized', __( 'This endpoint is only accessible using a Jetpack site token.', 'jetpack' ), 403 );
+			}
+
 			// We can pass in the number of conditions we must pass by default it is all.
 			$must_pass = ( isset( $capability['must_pass'] ) && is_int( $capability['must_pass'] ) ? $capability['must_pass'] : count( $capabilities ) );
 
