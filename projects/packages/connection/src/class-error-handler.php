@@ -433,7 +433,8 @@ class Error_Handler {
 	 *                   'action' => 'reconnect',
 	 *                   'data' => [
 	 *                     'api_error_code' => 'invalid_token',
-	 *                     'action' => 'reconnect'
+	 *                     'action' => 'reconnect',
+	 *                     'audience' => 'site' // Who the error is relevant to: 'site', 'owner', or 'user'.
 	 *                   ]
 	 *                 ]
 	 *               ]
