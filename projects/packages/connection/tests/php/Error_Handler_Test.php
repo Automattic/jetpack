@@ -1426,6 +1426,37 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that jetpack_react_dashboard_error() exposes the error audience in its data
+	 * payload so the dashboard can render audience-aware copy. The audience is a
+	 * top-level field on the displayable error, so it must be threaded through the
+	 * reshape rather than being dropped with the other non-error_data fields.
+	 */
+	public function test_jetpack_react_dashboard_error_includes_audience() {
+		// A blog-token error (user_id 0) is site-scoped.
+		$test_errors = array(
+			'invalid_token' => array(
+				'0' => array(
+					'error_code'    => 'invalid_token',
+					'user_id'       => '0',
+					'error_message' => 'Test message',
+					'error_data'    => array(),
+					'timestamp'     => time(),
+					'nonce'         => 'test_nonce',
+					'error_type'    => 'xmlrpc',
+				),
+			),
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $test_errors );
+
+		$result = $this->error_handler->jetpack_react_dashboard_error( array() );
+
+		$this->assertIsArray( $result );
+		$this->assertCount( 1, $result );
+		$this->assertArrayHasKey( 'audience', $result[0]['data'], 'The dashboard error data must expose the audience.' );
+		$this->assertSame( 'site', $result[0]['data']['audience'], 'A blog-token (user_id 0) error is site-scoped.' );
+	}
+
+	/**
 	 * Test build_action_error_data method with default values
 	 */
 	public function test_build_action_error_data_defaults() {

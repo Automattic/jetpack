@@ -478,6 +478,11 @@ class Error_Handler {
 			}
 		}
 
+		// Expose the error audience (site/owner/user) so the dashboard can render
+		// audience-aware copy. Falls back to site-wide for consumer-injected errors
+		// that predate the audience field.
+		$dashboard_data['audience'] = $first_error['audience'] ?? 'site';
+
 		$dashboard_error = array(
 			array(
 				'code'    => 'connection_error',
