@@ -31,12 +31,20 @@
 //    Writing a post needs no connection, so that link is never gated.
 
 const mockGetNewsletterScriptData = jest.fn<
-	{ greetingName?: string; writeUrl?: string; siteUrl?: string; settingsUrl?: string } | undefined,
+	| {
+			greetingName?: string;
+			writeUrl?: string;
+			siteUrl?: string;
+			settingsUrl?: string;
+			checklistDismissed?: boolean;
+	  }
+	| undefined,
 	[]
 >();
 const mockShareModalProps = jest.fn();
 const mockIsSimpleSite = jest.fn< boolean, [] >();
 const mockConnection = jest.fn< Record< string, unknown >, [] >();
+const mockApiFetch = jest.fn< Promise< unknown >, unknown[] >();
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getSiteData: () => ( {
@@ -50,6 +58,11 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 jest.mock( '@automattic/jetpack-connection/use-connection', () => ( {
 	__esModule: true,
 	default: () => mockConnection(),
+} ) );
+
+jest.mock( '@wordpress/api-fetch', () => ( {
+	__esModule: true,
+	default: ( ...args: unknown[] ) => mockApiFetch( ...args ),
 } ) );
 
 jest.mock( '../src/settings/script-data', () => ( {
@@ -112,6 +125,8 @@ beforeEach( () => {
 	mockShareModalProps.mockReset();
 	mockIsSimpleSite.mockReturnValue( true );
 	mockConnection.mockReturnValue( CONNECTED );
+	mockApiFetch.mockReset();
+	mockApiFetch.mockResolvedValue( { dismissed: true } );
 } );
 
 describe( 'Newsletter Mode dashboard greeting', () => {
@@ -147,10 +162,37 @@ describe( 'Newsletter Mode dashboard links', () => {
 		expect( screen.getAllByRole( 'link' ).map( anchor => anchor.textContent ) ).toEqual( [
 			expect.stringContaining( 'Bring your contacts' ),
 			expect.stringContaining( 'Invite by email' ),
+			// Not an entry point — the site's own address, inside the first
+			// checklist row's sentence.
+			'octagonal.example.com',
 			expect.stringContaining( 'Make it yours' ),
 			expect.stringContaining( 'Write your first post' ),
 			expect.stringContaining( 'Bring your first readers' ),
 		] );
+	} );
+
+	it( 'links the first checklist row to the newsletter address, shown as a bare host', () => {
+		render( <Stage /> );
+
+		expect( screen.getByRole( 'link', { name: 'octagonal.example.com' } ) ).toHaveAttribute(
+			'href',
+			SITE_URL
+		);
+	} );
+
+	it( 'names no address when the server sent no site URL', () => {
+		mockGetNewsletterScriptData.mockReturnValue( {
+			greetingName: '',
+			writeUrl: WRITE_URL,
+			settingsUrl: SETTINGS_URL,
+		} );
+
+		render( <Stage /> );
+
+		expect( screen.getByText( 'Your newsletter is ready to share.' ) ).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: 'octagonal.example.com' } )
+		).not.toBeInTheDocument();
 	} );
 
 	it.each( [
@@ -203,6 +245,8 @@ describe( 'Newsletter Mode dashboard links', () => {
 		// Neither the settings nor the write task is gated on the connection, so
 		// both survive.
 		expect( screen.getAllByRole( 'link' ).map( anchor => anchor.textContent ) ).toEqual( [
+			// The address link is gated on the site URL, not the connection.
+			'octagonal.example.com',
 			expect.stringContaining( 'Make it yours' ),
 			expect.stringContaining( 'Write your first post' ),
 		] );
@@ -218,7 +262,8 @@ describe( 'Newsletter Mode dashboard links', () => {
 
 		render( <Stage /> );
 
-		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 5 );
+		// Five entry points plus the site address in the first checklist row.
+		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 6 );
 	} );
 } );
 
@@ -228,6 +273,8 @@ describe( 'Newsletter Mode dashboard Share entry points', () => {
 
 		expect( screen.getAllByRole( 'button' ).map( button => button.textContent ) ).toEqual( [
 			expect.stringContaining( 'Share your link' ),
+			// Not a share entry point — the checklist's own Dismiss control.
+			'Dismiss',
 			expect.stringContaining( 'Share your newsletter' ),
 		] );
 	} );
@@ -257,6 +304,65 @@ describe( 'Newsletter Mode dashboard Share entry points', () => {
 
 		render( <Stage /> );
 
-		expect( screen.queryAllByRole( 'button' ) ).toHaveLength( 0 );
+		// Only the checklist's Dismiss remains — neither share entry point has a
+		// URL to hand out, so neither renders a control.
+		expect( screen.queryAllByRole( 'button' ).map( button => button.textContent ) ).toEqual( [
+			'Dismiss',
+		] );
+	} );
+} );
+
+describe( 'Newsletter Mode dashboard checklist dismissal', () => {
+	// Dismissal is per user and persisted server side, so the state arrives in
+	// script data. The route hides the checklist optimistically and puts it back
+	// if the write fails, rather than leaving the page disagreeing with what the
+	// next load will render.
+	it( 'shows the checklist under its heading by default', () => {
+		render( <Stage /> );
+
+		expect( screen.getByRole( 'heading', { name: 'Getting started' } ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Make it yours' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders without the checklist when the server says this user dismissed it', () => {
+		mockGetNewsletterScriptData.mockReturnValue( {
+			greetingName: '',
+			writeUrl: WRITE_URL,
+			siteUrl: SITE_URL,
+			settingsUrl: SETTINGS_URL,
+			checklistDismissed: true,
+		} );
+
+		render( <Stage /> );
+
+		expect( screen.queryByRole( 'heading', { name: 'Getting started' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Make it yours' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'hides the checklist and persists the dismissal when Dismiss is clicked', () => {
+		render( <Stage /> );
+
+		clickButton( 'Dismiss' );
+
+		expect( screen.queryByRole( 'heading', { name: 'Getting started' } ) ).not.toBeInTheDocument();
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/jetpack-newsletter/v1/checklist-dismissed',
+			method: 'POST',
+			data: { dismissed: true },
+		} );
+	} );
+
+	it( 'brings the checklist back when the write fails', async () => {
+		mockApiFetch.mockRejectedValue( new Error( 'nope' ) );
+
+		render( <Stage /> );
+
+		clickButton( 'Dismiss' );
+
+		// `find*` retries, so it settles the rejected write and then sees the
+		// checklist restored.
+		await expect(
+			screen.findByRole( 'heading', { name: 'Getting started' } )
+		).resolves.toBeInTheDocument();
 	} );
 } );

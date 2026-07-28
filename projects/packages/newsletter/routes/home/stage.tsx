@@ -1,19 +1,21 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import useConnection from '@automattic/jetpack-connection/use-connection';
 import { getSiteData, isSimpleSite } from '@automattic/jetpack-script-data';
+import apiFetch from '@wordpress/api-fetch';
 import {
 	Icon,
 	__experimentalItem as Item, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalItemGroup as ItemGroup, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
-import { useCallback, useState } from '@wordpress/element';
+import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { border, chevronRight, envelope, link, published, upload } from '@wordpress/icons';
-import { Card, Stack, Text } from '@wordpress/ui';
+import { Button, Card, Stack, Text } from '@wordpress/ui';
 import ShareNewsletterModal from '../../_inc/share/share-newsletter-modal';
 import { getAddSubscribersUrl } from '../../_inc/subscribers/lib/add-subscribers-link';
 import { getNewsletterModeScriptData } from '../../src/settings/script-data';
 import './route.scss';
+import type { ReactNode } from 'react';
 
 /**
  * What the page's entry points need in order to resolve a destination. Anything
@@ -24,6 +26,10 @@ type EntryPointOptions = {
 	canAddSubscribers: boolean;
 	/** Opens the Share modal, or undefined when there's no URL to share. */
 	onShare?: () => void;
+	/** The newsletter's public URL, when script data carries one. */
+	siteUrl?: string;
+	/** {@link siteUrl} reduced to a bare host, for display. */
+	siteHost?: string;
 };
 
 /**
@@ -44,8 +50,27 @@ type ActionTile = EntryPointAction & {
 
 type ChecklistTask = EntryPointAction & {
 	title: string;
-	description: string;
+	/** Rich rather than plain text: the first row links the site's address. */
+	description: ReactNode;
 	done: boolean;
+};
+
+/**
+ * The newsletter's public address as a bare host — what the checklist shows,
+ * rather than the full URL with its scheme.
+ *
+ * @param siteUrl - The public URL from script data, if any.
+ * @return The host (e.g. `example.com`), or undefined when there's no usable URL.
+ */
+const getSiteHost = ( siteUrl: string | undefined ): string | undefined => {
+	if ( ! siteUrl ) {
+		return undefined;
+	}
+	try {
+		return new URL( siteUrl ).host;
+	} catch {
+		return undefined;
+	}
 };
 
 /**
@@ -91,13 +116,28 @@ const getActionTiles = ( options: EntryPointOptions ): ActionTile[] => [
  */
 const getChecklist = ( options: EntryPointOptions ): ChecklistTask[] => [
 	{
-		title: __( 'Your newsletter is live', 'jetpack-newsletter' ),
-		description: __( 'octagonal.wordpress.com is ready for the world.', 'jetpack-newsletter' ),
+		title: __( 'Start a newsletter', 'jetpack-newsletter' ),
+		description: options.siteHost
+			? createInterpolateElement(
+					sprintf(
+						/* translators: %s: the newsletter's public web address, e.g. example.com. */
+						__( '<link>%s</link> is ready to share.', 'jetpack-newsletter' ),
+						options.siteHost
+					),
+					{
+						link: (
+							<a className="jetpack-newsletter-home__task-link" href={ options.siteUrl }>
+								{ /* Filled by createInterpolateElement. */ }
+							</a>
+						),
+					}
+			  )
+			: __( 'Your newsletter is ready to share.', 'jetpack-newsletter' ),
 		done: true,
 	},
 	{
 		title: __( 'Make it yours', 'jetpack-newsletter' ),
-		description: __( 'Customize the name, description, and more.', 'jetpack-newsletter' ),
+		description: __( 'Customize the name, tagline, and more.', 'jetpack-newsletter' ),
 		done: false,
 		// The Settings tab, where Newsletter identity is the first section — so
 		// the title and tagline this row promises are already in view on arrival.
@@ -267,10 +307,29 @@ const Dashboard = (): JSX.Element => {
 	const openShare = useCallback( () => setShareOpen( true ), [] );
 	const closeShare = useCallback( () => setShareOpen( false ), [] );
 
+	// Seeded from script data so a returning visitor never sees the checklist
+	// flash before a fetch resolves.
+	const [ isChecklistDismissed, setChecklistDismissed ] = useState(
+		getNewsletterModeScriptData()?.checklistDismissed === true
+	);
+
+	// Hide it straight away, then persist. If the write fails, put it back
+	// rather than leave the page disagreeing with what the next load will show.
+	const dismissChecklist = useCallback( () => {
+		setChecklistDismissed( true );
+		apiFetch( {
+			path: '/jetpack-newsletter/v1/checklist-dismissed',
+			method: 'POST',
+			data: { dismissed: true },
+		} ).catch( () => setChecklistDismissed( false ) );
+	}, [] );
+
 	const siteUrl = getNewsletterModeScriptData()?.siteUrl;
 	const options: EntryPointOptions = {
 		canAddSubscribers,
 		onShare: siteUrl ? openShare : undefined,
+		siteUrl,
+		siteHost: getSiteHost( siteUrl ),
 	};
 
 	return (
@@ -308,11 +367,27 @@ const Dashboard = (): JSX.Element => {
 				</Card.Content>
 			</Card.Root>
 
-			<ItemGroup isBordered isRounded isSeparated className="jetpack-newsletter-home__checklist">
-				{ getChecklist( options ).map( task => (
-					<ChecklistRow key={ task.title } task={ task } />
-				) ) }
-			</ItemGroup>
+			{ ! isChecklistDismissed && (
+				<div className="jetpack-newsletter-home__checklist-card">
+					<div className="jetpack-newsletter-home__checklist-header">
+						<Text variant="heading-lg" render={ <h2 /> }>
+							{ __( 'Getting started', 'jetpack-newsletter' ) }
+						</Text>
+						<Button
+							variant="unstyled"
+							className="jetpack-newsletter-home__checklist-dismiss"
+							onClick={ dismissChecklist }
+						>
+							{ __( 'Dismiss', 'jetpack-newsletter' ) }
+						</Button>
+					</div>
+					<ItemGroup isSeparated className="jetpack-newsletter-home__checklist">
+						{ getChecklist( options ).map( task => (
+							<ChecklistRow key={ task.title } task={ task } />
+						) ) }
+					</ItemGroup>
+				</div>
+			) }
 
 			{ isShareOpen && siteUrl && (
 				<ShareNewsletterModal siteUrl={ siteUrl } onClose={ closeShare } />

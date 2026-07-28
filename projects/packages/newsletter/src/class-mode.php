@@ -32,6 +32,17 @@ class Mode {
 	const OPTION_NAME = 'jetpack_newsletter_mode_enabled';
 
 	/**
+	 * Per-user meta recording that the Dashboard's getting-started checklist has
+	 * been dismissed.
+	 *
+	 * User meta rather than a site option: the checklist is a personal onboarding
+	 * aid, so one admin finishing with it must not hide it from another.
+	 *
+	 * @var string
+	 */
+	const META_CHECKLIST_DISMISSED = 'jetpack_newsletter_checklist_dismissed';
+
+	/**
 	 * REST namespace for the package-owned Newsletter Mode route.
 	 *
 	 * Deliberately a package-owned namespace (not `jetpack/v4`) so persisting the
@@ -166,21 +177,34 @@ class Mode {
 		}
 
 		$data['newsletter_mode'] = array(
-			'greetingName' => self::get_greeting_name(),
+			'greetingName'       => self::get_greeting_name(),
 			// The same destination the nav's "Write" button uses, resolved once
 			// here so the Dashboard's "Write your first post" task can't drift
 			// from it.
-			'writeUrl'     => self::get_write_url(),
+			'writeUrl'           => self::get_write_url(),
 			// What the Share modal hands out. `home_url()` rather than the admin
 			// URL — this is the address readers visit.
-			'siteUrl'      => home_url(),
+			'siteUrl'            => home_url(),
 			// Where "Make it yours" sends people. Taken from the curated nav's own
 			// slug so the Dashboard and the nav's Settings item stay in step,
 			// including the `p` param the SPA router reads.
-			'settingsUrl'  => admin_url( self::get_nav_slugs()['settings'] ),
+			'settingsUrl'        => admin_url( self::get_nav_slugs()['settings'] ),
+			// Whether this user has dismissed the getting-started checklist, so
+			// the Dashboard can render without it rather than flashing it and
+			// then removing it once a fetch resolves.
+			'checklistDismissed' => self::is_checklist_dismissed(),
 		);
 
 		return $data;
+	}
+
+	/**
+	 * Whether the current user has dismissed the getting-started checklist.
+	 *
+	 * @return bool
+	 */
+	public static function is_checklist_dismissed() {
+		return (bool) get_user_meta( get_current_user_id(), self::META_CHECKLIST_DISMISSED, true );
 	}
 
 	/**
@@ -1253,6 +1277,29 @@ class Mode {
 				),
 			)
 		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/checklist-dismissed',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( self::class, 'rest_get_checklist_dismissed' ),
+					'permission_callback' => array( self::class, 'rest_permission_check' ),
+				),
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( self::class, 'rest_update_checklist_dismissed' ),
+					'permission_callback' => array( self::class, 'rest_permission_check' ),
+					'args'                => array(
+						'dismissed' => array(
+							'type'     => 'boolean',
+							'required' => true,
+						),
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -1286,5 +1333,35 @@ class Mode {
 		update_option( self::OPTION_NAME, (bool) $request->get_param( 'enabled' ) );
 
 		return rest_ensure_response( array( 'enabled' => self::is_enabled() ) );
+	}
+
+	/**
+	 * GET handler: return whether this user has dismissed the checklist.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function rest_get_checklist_dismissed() {
+		return rest_ensure_response( array( 'dismissed' => self::is_checklist_dismissed() ) );
+	}
+
+	/**
+	 * POST handler: persist the checklist dismissal for the current user.
+	 *
+	 * Deletes rather than stores a falsey value when undismissed, so the meta row
+	 * only exists for users who actually dismissed it.
+	 *
+	 * @param \WP_REST_Request $request The REST request.
+	 * @return \WP_REST_Response
+	 */
+	public static function rest_update_checklist_dismissed( \WP_REST_Request $request ) {
+		$user_id = get_current_user_id();
+
+		if ( $request->get_param( 'dismissed' ) ) {
+			update_user_meta( $user_id, self::META_CHECKLIST_DISMISSED, 1 );
+		} else {
+			delete_user_meta( $user_id, self::META_CHECKLIST_DISMISSED );
+		}
+
+		return rest_ensure_response( array( 'dismissed' => self::is_checklist_dismissed() ) );
 	}
 }

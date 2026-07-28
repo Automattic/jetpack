@@ -77,13 +77,33 @@ body.admin_page_jetpack-newsletter-home {
 		fill: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
-	// `ItemGroup` predates the design system: it borders and rounds itself with
-	// the classic 2px radius and `#ddd`. Match the `Card` above it instead.
-	.jetpack-newsletter-home__checklist {
+	// The heading and the rows share one surface, so the border, radius and
+	// background live on this wrapper rather than on `ItemGroup` — which
+	// predates the design system and would otherwise draw its own classic 2px
+	// `#ddd` frame around just the rows. Match the `Card` above it instead.
+	.jetpack-newsletter-home__checklist-card {
 		background-color: var(--wpds-color-background-surface-neutral-strong);
-		border-color: var(--wpds-color-stroke-surface-neutral-weak);
+		border: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
 		border-radius: var(--wpds-border-radius-lg);
 		overflow: clip;
+	}
+
+	// Same rule the `ItemGroup` draws between rows, so the heading reads as the
+	// first band of the same list.
+	.jetpack-newsletter-home__checklist-header {
+		align-items: center;
+		border-block-end: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+		display: flex;
+		gap: var(--wpds-dimension-gap-md);
+		justify-content: space-between;
+		padding: var(--wpds-dimension-padding-lg) var(--wpds-dimension-padding-xl);
+	}
+
+	.jetpack-newsletter-home__checklist-dismiss {
+		color: var(--wpds-color-foreground-content-neutral);
+		cursor: pointer;
+		flex-shrink: 0;
+		text-decoration: underline;
 	}
 
 	// `Item`'s own padding is derived from the classic control heights, which
@@ -95,6 +115,12 @@ body.admin_page_jetpack-newsletter-home {
 	.jetpack-newsletter-home__task-text {
 		flex: 1;
 		min-width: 0;
+	}
+
+	// The site address sits inside the muted sentence under the first task's
+	// title. Lift it back to the body tone so it reads as the link it is.
+	.jetpack-newsletter-home__task-link {
+		color: var(--wpds-color-foreground-content-neutral);
 	}
 
 	.jetpack-newsletter-home__task-icon {

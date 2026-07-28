@@ -98,6 +98,12 @@ export interface NewsletterModeScriptData {
 	 * the `p` param the SPA router reads.
 	 */
 	settingsUrl: string;
+	/**
+	 * Whether this user has dismissed the Dashboard's getting-started checklist.
+	 * Bootstrapped so the page renders in its final shape rather than flashing
+	 * the checklist and then pulling it away.
+	 */
+	checklistDismissed: boolean;
 }
 
 /**
