@@ -1,7 +1,8 @@
 import { __ } from '@wordpress/i18n';
 import { check } from '@wordpress/icons';
-import { Button, Card, Icon, Stack } from '@wordpress/ui';
+import { Button, Card, Stack } from '@wordpress/ui';
 import { VERIFICATION_SERVICES } from '../../data/verification-services';
+import CardHeaderIcon from './card-header-icon';
 import StatusDot from './status-dot';
 import styles from './style.module.scss';
 import type { SiteVerification } from '../../data/overview-types';
@@ -19,16 +20,7 @@ const notSetLabel = __( 'Not set', 'jetpack-seo' );
 
 const SiteVerificationCard: FC< Props > = ( { data, onManage } ) => (
 	<Card.Root>
-		<Card.Header>
-			<Card.Title>
-				<span className={ styles.cardTitle }>
-					<span className={ styles.titleIcon }>
-						<Icon icon={ check } size={ 24 } />
-					</span>
-					{ __( 'Site verification', 'jetpack-seo' ) }
-				</span>
-			</Card.Title>
-		</Card.Header>
+		<CardHeaderIcon icon={ check } title={ __( 'Site verification', 'jetpack-seo' ) } />
 		<Stack render={ <Card.Content /> } direction="column" className={ styles.cardContent }>
 			{ VERIFICATION_SERVICES.map( ( { key, label } ) => (
 				<Stack

@@ -57,9 +57,7 @@ const DEFAULT_VIEW: View = {
 
 const defaultLayouts = { table: {} };
 
-// A coverage ring on the Overview deep-links here with `?needs=`, naming the
-// unconfigured slice to show. Map it to the matching filter-only field so the
-// user lands pre-filtered to exactly the rows that still need that field.
+// The Overview's coverage rings deep-link here via `?needs=` (see needsToFilter).
 type ContentSearch = Record< string, unknown > & { needs?: string };
 type ViewFilter = NonNullable< View[ 'filters' ] >[ number ];
 

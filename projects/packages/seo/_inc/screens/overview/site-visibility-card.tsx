@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { seen } from '@wordpress/icons';
-import { Button, Card, Icon, Stack } from '@wordpress/ui';
+import { Button, Card, Stack } from '@wordpress/ui';
+import CardHeaderIcon from './card-header-icon';
 import StatusDot from './status-dot';
 import styles from './style.module.scss';
 import type { OverviewResponse } from '../../data/overview-types';
@@ -29,16 +30,7 @@ const SiteVisibilityCard: FC< Props > = ( { data, onManage } ) => {
 
 	return (
 		<Card.Root>
-			<Card.Header>
-				<Card.Title>
-					<span className={ styles.cardTitle }>
-						<span className={ styles.titleIcon }>
-							<Icon icon={ seen } size={ 24 } />
-						</span>
-						{ __( 'Site visibility', 'jetpack-seo' ) }
-					</span>
-				</Card.Title>
-			</Card.Header>
+			<CardHeaderIcon icon={ seen } title={ __( 'Site visibility', 'jetpack-seo' ) } />
 			<Stack render={ <Card.Content /> } direction="column" className={ styles.cardContent }>
 				<Stack direction="column" gap="xs">
 					<StatusDot

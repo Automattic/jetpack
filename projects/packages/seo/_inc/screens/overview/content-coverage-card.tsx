@@ -2,7 +2,8 @@ import { DonutMeter } from '@automattic/jetpack-components';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { formatListBullets } from '@wordpress/icons';
-import { Button, Card, Icon, Stack, Text, Tooltip } from '@wordpress/ui';
+import { Button, Card, Stack, Text, Tooltip } from '@wordpress/ui';
+import CardHeaderIcon from './card-header-icon';
 import styles from './style.module.scss';
 import type { ContentCoverage } from '../../data/overview-types';
 import type { FC, ReactNode } from 'react';
@@ -22,7 +23,7 @@ interface Props {
 interface RingProps {
 	label: string;
 	// Localized action for the interactive ring: describes what filtering to the
-	// unconfigured rows will show. Doubles as the ring's accessible label.
+	// unconfigured rows will show, and seeds the ring's accessible name.
 	action: string;
 	segment: number;
 	total: number;
@@ -43,7 +44,7 @@ interface RingProps {
  *
  * @param props          - Component props.
  * @param props.label    - Localized label for the metric.
- * @param props.action   - Localized action/aria label for the interactive ring.
+ * @param props.action   - Localized action; also seeds the ring's accessible name.
  * @param props.segment  - Number of posts with the field set.
  * @param props.total    - Total published supported content items.
  * @param props.need     - The unconfigured slice this ring filters to.
@@ -60,18 +61,21 @@ const CoverageRing: FC< RingProps > = ( { label, action, segment, total, need, o
 		total
 	);
 
+	// Round to whole percent, but never show a misleading "100%" while the ring is
+	// still incomplete (e.g. 199/200 → 99%). A fully-covered ring reads exactly 100%.
+	const rounded = segment >= total ? 100 : Math.min( 99, Math.round( ( segment / total ) * 100 ) );
 	const percent = sprintf(
 		/* translators: %d: percentage of posts with the field set. */
 		__( '%d%%', 'jetpack-seo' ),
-		Math.round( ( segment / total ) * 100 )
+		rounded
 	);
 
 	const inner: ReactNode = (
 		<>
-			{ /* Chart is decorative: the ring's aria-label carries the action and the
-			     count/label are visible text below, so the DonutMeter and the centered
-			     percentage are aria-hidden — this also removes the DonutMeter's native
-			     SVG `<title>` tooltip, which duplicated the action tooltip on hover. */ }
+			{ /* Chart is decorative: the interactive ring's aria-label carries the action
+			     and count, and the count/label are visible text below, so the DonutMeter
+			     and the centered percentage are aria-hidden — this also removes the
+			     DonutMeter's native SVG `<title>` tooltip, which duplicated the tooltip. */ }
 			<div className={ styles.donutWrap }>
 				<DonutMeter
 					totalCount={ total }
@@ -99,21 +103,30 @@ const CoverageRing: FC< RingProps > = ( { label, action, segment, total, need, o
 		);
 	}
 
+	// The button's aria-label overrides its contents for the accessible name, so
+	// fold the count in — otherwise a screen reader hears the action but loses the
+	// coverage value the sighted user sees.
+	const accessibleName = sprintf(
+		/* translators: %1$s: the action (e.g. "Set SEO titles"); %2$d: posts with the field set; %3$d: total posts. */
+		__( '%1$s. %2$d of %3$d.', 'jetpack-seo' ),
+		action,
+		segment,
+		total
+	);
+
 	return (
-		<Tooltip.Provider delay={ 150 }>
-			<Tooltip.Root>
-				<Tooltip.Trigger
-					className={ styles.ringTrigger }
-					aria-label={ action }
-					onClick={ handleFilter }
-				>
-					<Stack direction="column" align="center" gap="xs" className={ styles.ring }>
-						{ inner }
-					</Stack>
-				</Tooltip.Trigger>
-				<Tooltip.Popup>{ action }</Tooltip.Popup>
-			</Tooltip.Root>
-		</Tooltip.Provider>
+		<Tooltip.Root>
+			<Tooltip.Trigger
+				className={ styles.ringTrigger }
+				aria-label={ accessibleName }
+				onClick={ handleFilter }
+			>
+				<Stack direction="column" align="center" gap="xs" className={ styles.ring }>
+					{ inner }
+				</Stack>
+			</Tooltip.Trigger>
+			<Tooltip.Popup>{ action }</Tooltip.Popup>
+		</Tooltip.Root>
 	);
 };
 
@@ -130,56 +143,51 @@ const ContentCoverageCard: FC< Props > = ( { data, onManage, onFilter } ) => {
 
 	return (
 		<Card.Root>
-			<Card.Header>
-				<Card.Title>
-					<span className={ styles.cardTitle }>
-						<span className={ styles.titleIcon }>
-							<Icon icon={ formatListBullets } size={ 24 } />
-						</span>
-						{ __( 'Content SEO', 'jetpack-seo' ) }
-					</span>
-				</Card.Title>
-			</Card.Header>
+			<CardHeaderIcon icon={ formatListBullets } title={ __( 'Content SEO', 'jetpack-seo' ) } />
 			<Card.Content>
 				{ total === 0 ? (
 					<Text variant="body-md" render={ <p /> }>
 						{ __( 'No published posts or pages yet.', 'jetpack-seo' ) }
 					</Text>
 				) : (
-					<div className={ styles.rings }>
-						<CoverageRing
-							label={ __( 'Schema applied', 'jetpack-seo' ) }
-							action={ schemaAction }
-							segment={ with_schema }
-							total={ total }
-							need="schema"
-							onFilter={ onFilter }
-						/>
-						<CoverageRing
-							label={ __( 'SEO title set', 'jetpack-seo' ) }
-							action={ titleAction }
-							segment={ with_title }
-							total={ total }
-							need="title"
-							onFilter={ onFilter }
-						/>
-						<CoverageRing
-							label={ __( 'Meta description added', 'jetpack-seo' ) }
-							action={ descriptionAction }
-							segment={ with_description }
-							total={ total }
-							need="description"
-							onFilter={ onFilter }
-						/>
-						<CoverageRing
-							label={ __( 'Visible to search engines', 'jetpack-seo' ) }
-							action={ searchAction }
-							segment={ with_search_visible }
-							total={ total }
-							need="search"
-							onFilter={ onFilter }
-						/>
-					</div>
+					// One shared Tooltip.Provider for all rings so hovering between
+					// adjacent rings re-opens instantly instead of re-waiting the delay.
+					<Tooltip.Provider delay={ 150 }>
+						<div className={ styles.rings }>
+							<CoverageRing
+								label={ __( 'Schema applied', 'jetpack-seo' ) }
+								action={ schemaAction }
+								segment={ with_schema }
+								total={ total }
+								need="schema"
+								onFilter={ onFilter }
+							/>
+							<CoverageRing
+								label={ __( 'SEO title set', 'jetpack-seo' ) }
+								action={ titleAction }
+								segment={ with_title }
+								total={ total }
+								need="title"
+								onFilter={ onFilter }
+							/>
+							<CoverageRing
+								label={ __( 'Meta description added', 'jetpack-seo' ) }
+								action={ descriptionAction }
+								segment={ with_description }
+								total={ total }
+								need="description"
+								onFilter={ onFilter }
+							/>
+							<CoverageRing
+								label={ __( 'Visible to search engines', 'jetpack-seo' ) }
+								action={ searchAction }
+								segment={ with_search_visible }
+								total={ total }
+								need="search"
+								onFilter={ onFilter }
+							/>
+						</div>
+					</Tooltip.Provider>
 				) }
 				<Stack direction="row" justify="flex-end" className={ styles.footer }>
 					<Button variant="solid" size="compact" onClick={ onManage }>

@@ -1,6 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { key } from '@wordpress/icons';
-import { Button, Card, Icon, Stack, Text } from '@wordpress/ui';
+import { Button, Card, Stack, Text } from '@wordpress/ui';
+import CardHeaderIcon from './card-header-icon';
 import StatusDot from './status-dot';
 import styles from './style.module.scss';
 import type { AiCrawler, AiState } from '../../data/ai-types';
@@ -90,16 +91,7 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, onManage } ) 
 
 	return (
 		<Card.Root>
-			<Card.Header>
-				<Card.Title>
-					<span className={ styles.cardTitle }>
-						<span className={ styles.titleIcon }>
-							<Icon icon={ key } size={ 24 } />
-						</span>
-						{ __( 'AI crawler access', 'jetpack-seo' ) }
-					</span>
-				</Card.Title>
-			</Card.Header>
+			<CardHeaderIcon icon={ key } title={ __( 'AI crawler access', 'jetpack-seo' ) } />
 			<Stack render={ <Card.Content /> } direction="column" className={ styles.cardContent }>
 				{ settingsApply ? (
 					<Stack direction="column" gap="xs">

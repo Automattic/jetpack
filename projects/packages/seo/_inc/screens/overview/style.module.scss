@@ -122,9 +122,10 @@
 	justify-content: center;
 }
 
-// Bold (700) so the percentage clearly leads the medium-weight count below,
-// while keeping the same heading-lg size. Literal weight per the house
-// convention (WPDS exposes no lint-approved emphasis/bold weight token).
+// Bold (700): leads the medium-weight count, same heading-lg size.
+// Literal weight (WPDS has no lint-approved bold weight token). It only wins
+// over @wordpress/ui's layered variant weight because this module CSS is
+// unlayered; if it's ever moved into a cascade layer, make it win explicitly.
 .pctValue {
 	font-weight: 700;
 }
