@@ -314,6 +314,21 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
+	 * UI feature flag for Draft Assist: turning an empty new post or page into a first draft.
+	 *
+	 * Exposed only in internal testing environments while the feature is in development.
+	 * Governs both halves of the feature: the editor entry point (the /draft placeholder
+	 * offered on an empty post) and the client-side ability that writes the generated
+	 * draft into the open post. No plan gate: the draft is written into a post the user
+	 * can already edit.
+	 *
+	 * @return bool
+	 */
+	private static function is_draft_assist_enabled(): bool {
+		return jetpack_is_internal_testing_environment();
+	}
+
+	/**
 	 * UI feature flag for the public Jetpack AI Sidebar Preview surface.
 	 *
 	 * Defaults to enabled only on WordPress.com platform sites (Simple or WoA)
@@ -419,6 +434,7 @@ class Jetpack_AI_Sidebar {
 			'optimizeTitleSuggestion' => $writing_on,
 			'seoSuggestions'          => self::is_seo_suggestions_enabled(),
 			'excerptSuggestion'       => $writing_on,
+			'draftAssist'             => self::is_draft_assist_enabled(),
 			'chatHistory'             => false,
 			'supportGuides'           => false,
 		);
@@ -441,6 +457,7 @@ class Jetpack_AI_Sidebar {
 		$features['optimizeTitleSuggestion'] = (bool) $features['optimizeTitleSuggestion'] && $writing_on;
 		$features['seoSuggestions']          = (bool) $features['seoSuggestions'] && self::is_seo_suggestions_enabled();
 		$features['excerptSuggestion']       = (bool) $features['excerptSuggestion'] && $writing_on;
+		$features['draftAssist']             = (bool) $features['draftAssist'] && self::is_draft_assist_enabled();
 		// Block transformations (Translate, Change Tone, etc.) are writing features
 		// and follow the writing assistant toggle.
 		$features['blockTransformations'] = (bool) $features['blockTransformations'] && $writing_on;
