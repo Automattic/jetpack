@@ -894,7 +894,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 
 		$cached           = get_transient( "jetpack_connected_user_data_$user_id" );
 		$requested_url    = $this->intercepted_url;
-		$requested_method = isset( $this->intercepted_args['method'] ) ? $this->intercepted_args['method'] : null;
+		$requested_method = $this->intercepted_args['method'] ?? null;
 
 		remove_filter( 'pre_http_request', array( $this, 'intercept_user_data_request' ), 10 );
 		delete_transient( "jetpack_connected_user_data_$user_id" );
