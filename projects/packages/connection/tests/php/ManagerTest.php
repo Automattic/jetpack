@@ -443,11 +443,11 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
-	 * Test that `get_connected_user_data` caches XML-RPC failures so a failing
-	 * request is not repeated on every call.
+	 * Test that `get_connected_user_data` caches remote request failures so a
+	 * failing request is not repeated on every call.
 	 */
 	public function test_get_connected_user_data_caches_error_responses() {
-		Constants::set_constant( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/' );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 		Jetpack_Options::update_option( 'blog_token', 'blogtoken.secret' );
 		Jetpack_Options::update_option( 'id', 1234 );
 		Jetpack_Options::update_option( 'user_tokens', array( $this->user_id => 'usertoken.secret.' . $this->user_id ) );
@@ -478,15 +478,17 @@ class ManagerTest extends TestCase {
 	 * Test that `get_connected_user_data` returns and caches the user data on success.
 	 */
 	public function test_get_connected_user_data_returns_and_caches_user_data() {
-		Constants::set_constant( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/' );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 		Jetpack_Options::update_option( 'blog_token', 'blogtoken.secret' );
 		Jetpack_Options::update_option( 'id', 1234 );
 		Jetpack_Options::update_option( 'user_tokens', array( $this->user_id => 'usertoken.secret.' . $this->user_id ) );
 
-		$body = '<?xml version="1.0"?><methodResponse><params><param><value><struct>'
-			. '<member><name>ID</name><value><int>7</int></value></member>'
-			. '<member><name>email</name><value><string>user@example.com</string></value></member>'
-			. '</struct></value></param></params></methodResponse>';
+		$body = wp_json_encode(
+			array(
+				'ID'    => 7,
+				'email' => 'user@example.com',
+			)
+		);
 
 		$http_request_count = 0;
 		$intercept          = function () use ( &$http_request_count, $body ) {
