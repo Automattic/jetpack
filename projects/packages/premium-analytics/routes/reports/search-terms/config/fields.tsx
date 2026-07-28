@@ -18,7 +18,7 @@ export function getSearchTermsFields(): Field< SearchTermRow >[] {
 	return [
 		{
 			id: 'term',
-			label: __( 'Search term', 'jetpack-premium-analytics' ),
+			label: __( 'Search term', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
 			enableGlobalSearch: true,
 			enableSorting: true,
@@ -27,7 +27,7 @@ export function getSearchTermsFields(): Field< SearchTermRow >[] {
 		},
 		{
 			id: 'views',
-			label: __( 'Views', 'jetpack-premium-analytics' ),
+			label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
 			type: 'integer',
 			enableSorting: true,
 			getValue: ( { item } ) => item.views,

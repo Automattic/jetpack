@@ -69,7 +69,7 @@ function VideoDetail(): JSX.Element {
 	const title =
 		summary.isLoading || summary.isError || summary.isNotFound
 			? undefined
-			: summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics' );
+			: summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics-pkg' );
 	const resolvedSummary = { ...summary, title };
 	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
 	let summaryContent: JSX.Element | null;
@@ -82,24 +82,24 @@ function VideoDetail(): JSX.Element {
 				<Text>
 					{ __(
 						"We couldn't load this video. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					) }
 				</Text>
 				<Button variant="outline" onClick={ summary.refetch }>
-					{ __( 'Retry', 'jetpack-premium-analytics' ) }
+					{ __( 'Retry', 'jetpack-premium-analytics-pkg' ) }
 				</Button>
 			</Stack>
 		);
 	} else if ( summary.isNotFound ) {
 		summaryContent = (
 			<Stack direction="column" align="flex-start" gap="sm">
-				<Text>{ __( "We couldn't find this video.", 'jetpack-premium-analytics' ) }</Text>
+				<Text>{ __( "We couldn't find this video.", 'jetpack-premium-analytics-pkg' ) }</Text>
 				<Link
 					to="/reports/$report"
 					params={ { report: 'videos' } as unknown as never }
 					search={ reportSearch as unknown as never }
 				>
-					{ __( 'Back to Videos', 'jetpack-premium-analytics' ) }
+					{ __( 'Back to Videos', 'jetpack-premium-analytics-pkg' ) }
 				</Link>
 			</Stack>
 		);
@@ -119,7 +119,7 @@ function VideoDetail(): JSX.Element {
 				breadcrumbs={
 					<Breadcrumbs
 						items={ [
-							{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
+							{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
 							...( title ? [ { label: title } ] : [] ),
 						] }
 					/>

@@ -101,18 +101,18 @@ function VideosReport(): JSX.Element {
 	const csvColumns = useMemo< CsvColumn< StatsVideoPlaysItem >[] >(
 		() => [
 			{
-				label: __( 'Video', 'jetpack-premium-analytics' ),
+				label: __( 'Video', 'jetpack-premium-analytics-pkg' ),
 				getValue: row =>
 					typeof row.label === 'string' && row.label
 						? row.label
-						: __( 'Untitled video', 'jetpack-premium-analytics' ),
+						: __( 'Untitled video', 'jetpack-premium-analytics-pkg' ),
 			},
-			{ label: __( 'Plays', 'jetpack-premium-analytics' ), getValue: row => row.plays },
+			{ label: __( 'Plays', 'jetpack-premium-analytics-pkg' ), getValue: row => row.plays },
 			{
-				label: __( 'Impressions', 'jetpack-premium-analytics' ),
+				label: __( 'Impressions', 'jetpack-premium-analytics-pkg' ),
 				getValue: row => row.impressions,
 			},
-			{ label: __( 'URL', 'jetpack-premium-analytics' ), getValue: row => row.link ?? '' },
+			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
 		],
 		[]
 	);
@@ -128,7 +128,7 @@ function VideosReport(): JSX.Element {
 		sort: sortVideoCsvRows,
 	} );
 	const chartMetrics = useMemo(
-		() => [ { key: 'plays', label: __( 'Plays', 'jetpack-premium-analytics' ) } ],
+		() => [ { key: 'plays', label: __( 'Plays', 'jetpack-premium-analytics-pkg' ) } ],
 		[]
 	);
 	const chartLegendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
@@ -160,14 +160,14 @@ function VideosReport(): JSX.Element {
 				<Breadcrumbs
 					items={ [
 						{
-							label: __( 'Stats', 'jetpack-premium-analytics' ),
+							label: __( 'Stats', 'jetpack-premium-analytics-pkg' ),
 							to: dashboardLink,
 						},
-						{ label: __( 'Videos', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Videos', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
 			}
-			subTitle={ __( 'See how your videos perform.', 'jetpack-premium-analytics' ) }
+			subTitle={ __( 'See how your videos perform.', 'jetpack-premium-analytics-pkg' ) }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
@@ -183,7 +183,7 @@ function VideosReport(): JSX.Element {
 			>
 				{ records.isError ? (
 					<ReportErrorState
-						title={ __( 'Unable to load videos', 'jetpack-premium-analytics' ) }
+						title={ __( 'Unable to load videos', 'jetpack-premium-analytics-pkg' ) }
 						onRetry={ retry }
 					/>
 				) : (
@@ -203,7 +203,7 @@ function VideosReport(): JSX.Element {
 							getItemId={ getVideoRowId }
 							isLoading={ records.isLoading }
 							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search videos', 'jetpack-premium-analytics' ) }
+							searchLabel={ __( 'Search videos', 'jetpack-premium-analytics-pkg' ) }
 						/>
 					</>
 				) }

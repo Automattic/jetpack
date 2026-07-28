@@ -131,6 +131,13 @@ class Subscribers_Announcement {
 			)
 		);
 
+		// wp-build registers standalone modules (e.g. the init module) on
+		// wp_default_scripts, which has already fired by admin_menu. Register them
+		// directly so the init module makes it into the import map.
+		if ( function_exists( 'jetpack_newsletter_register_script_modules' ) ) {
+			jetpack_newsletter_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
+
 		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 	}
 
@@ -236,11 +243,25 @@ class Subscribers_Announcement {
 	 */
 	public static function on_page_load() {
 		add_action( 'admin_head', array( __CLASS__, 'print_app_data' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_i18n_loader' ) );
 
 		self::tracking()->record_user_event(
 			'subscribers_announcement_page_view',
 			array( 'menu_removed' => (bool) get_option( self::REMOVED_OPTION ) )
 		);
+	}
+
+	/**
+	 * Enqueue the i18n loader so the wp-build init module can download its JS
+	 * translation catalogs. It's registered on every admin page by jetpack-assets
+	 * but only enqueued when depended on; the esbuild bundles don't pull it in.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_i18n_loader() {
+		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+			wp_enqueue_script( 'wp-jp-i18n-loader' );
+		}
 	}
 
 	/**

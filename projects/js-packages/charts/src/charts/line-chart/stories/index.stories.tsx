@@ -105,7 +105,21 @@ const Template: StoryFn< StoryArgs > = args => {
 export const Default: StoryObj< StoryArgs > = Template.bind( {} );
 Default.args = {
 	...lineChartStoryArgs,
+};
+
+export const Zoomable: StoryObj< StoryArgs > = Template.bind( {} );
+Zoomable.args = {
+	...lineChartStoryArgs,
 	zoomable: true,
+};
+
+Zoomable.parameters = {
+	docs: {
+		description: {
+			story:
+				'With `zoomable`, drag horizontally across the plot to zoom into a range. A reset button appears while zoomed to restore the full domain. Defaults to `false`.',
+		},
+	},
 };
 
 export const FixedDimensions: StoryObj< StoryArgs > = Template.bind( {} );

@@ -116,9 +116,9 @@ function AllTimeStatsReport( {
 				error={ {
 					description: __(
 						"We couldn't load all-time stats. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
 					icon: trendingUp,
@@ -126,8 +126,8 @@ function AllTimeStatsReport( {
 					// data — prompt to pick one rather than implying there are no stats.
 					description:
 						enabledMetrics.length === 0
-							? __( 'Select at least one metric to display.', 'jetpack-premium-analytics' )
-							: __( 'No stats recorded yet.', 'jetpack-premium-analytics' ),
+							? __( 'Select at least one metric to display.', 'jetpack-premium-analytics-pkg' )
+							: __( 'No stats recorded yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />

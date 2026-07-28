@@ -89,10 +89,10 @@ function AuthorsReport(): JSX.Element {
 	const csvColumns = useMemo< CsvColumn< AuthorRow >[] >(
 		() => [
 			{
-				label: __( 'Author / post', 'jetpack-premium-analytics' ),
+				label: __( 'Author / post', 'jetpack-premium-analytics-pkg' ),
 				getValue: getAuthorCsvLabel,
 			},
-			{ label: __( 'Views', 'jetpack-premium-analytics' ), getValue: row => row.views },
+			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
 		],
 		[]
 	);
@@ -116,8 +116,8 @@ function AuthorsReport(): JSX.Element {
 			breadcrumbs={
 				<Breadcrumbs
 					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'Top authors', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
+						{ label: __( 'Top authors', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
 			}
@@ -141,7 +141,7 @@ function AuthorsReport(): JSX.Element {
 				 */ }
 				{ records.isError ? (
 					<ReportErrorState
-						title={ __( 'Unable to load authors', 'jetpack-premium-analytics' ) }
+						title={ __( 'Unable to load authors', 'jetpack-premium-analytics-pkg' ) }
 						onRetry={ retry }
 					/>
 				) : (
@@ -152,7 +152,7 @@ function AuthorsReport(): JSX.Element {
 						getItemParentId={ getAuthorRowParentId }
 						isLoading={ records.isLoading }
 						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search authors', 'jetpack-premium-analytics' ) }
+						searchLabel={ __( 'Search authors', 'jetpack-premium-analytics-pkg' ) }
 						hideLevelMarkers
 					/>
 				) }

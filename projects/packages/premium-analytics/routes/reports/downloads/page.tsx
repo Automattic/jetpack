@@ -111,14 +111,14 @@ function DownloadsReport(): JSX.Element {
 	const csvColumns = useMemo< CsvColumn< StatsFileDownloadsItem >[] >(
 		() => [
 			{
-				label: __( 'File', 'jetpack-premium-analytics' ),
+				label: __( 'File', 'jetpack-premium-analytics-pkg' ),
 				getValue: row => row.shortLabel ?? String( row.label ?? '' ),
 			},
 			{
-				label: __( 'Downloads', 'jetpack-premium-analytics' ),
+				label: __( 'Downloads', 'jetpack-premium-analytics-pkg' ),
 				getValue: row => row.downloads,
 			},
-			{ label: __( 'URL', 'jetpack-premium-analytics' ), getValue: row => row.link ?? '' },
+			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
 		],
 		[]
 	);
@@ -134,7 +134,7 @@ function DownloadsReport(): JSX.Element {
 		sort: sortDownloadCsvRows,
 	} );
 	const chartMetrics = useMemo(
-		() => [ { key: 'downloads', label: __( 'Downloads', 'jetpack-premium-analytics' ) } ],
+		() => [ { key: 'downloads', label: __( 'Downloads', 'jetpack-premium-analytics-pkg' ) } ],
 		[]
 	);
 	const chartLegendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
@@ -165,8 +165,8 @@ function DownloadsReport(): JSX.Element {
 			breadcrumbs={
 				<Breadcrumbs
 					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'File downloads', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
+						{ label: __( 'File downloads', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
 			}
@@ -185,7 +185,7 @@ function DownloadsReport(): JSX.Element {
 			>
 				{ records.isError ? (
 					<ReportErrorState
-						title={ __( 'Unable to load file downloads', 'jetpack-premium-analytics' ) }
+						title={ __( 'Unable to load file downloads', 'jetpack-premium-analytics-pkg' ) }
 						onRetry={ retry }
 					/>
 				) : (
@@ -205,7 +205,7 @@ function DownloadsReport(): JSX.Element {
 							getItemId={ getDownloadRowId }
 							isLoading={ records.isLoading }
 							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search files', 'jetpack-premium-analytics' ) }
+							searchLabel={ __( 'Search files', 'jetpack-premium-analytics-pkg' ) }
 						/>
 					</>
 				) }

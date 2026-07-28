@@ -69,21 +69,21 @@ function EmailsReport(): JSX.Element {
 	const csvColumns = useMemo< CsvColumn< StatsEmailSummaryItem >[] >(
 		() => [
 			{
-				label: __( 'Email', 'jetpack-premium-analytics' ),
+				label: __( 'Email', 'jetpack-premium-analytics-pkg' ),
 				getValue: row => String( row.label ?? '' ),
 			},
 			{
-				label: __( 'Sent', 'jetpack-premium-analytics' ),
+				label: __( 'Sent', 'jetpack-premium-analytics-pkg' ),
 				getValue: row => String( row.date ?? '' ),
 			},
-			{ label: __( 'Opens', 'jetpack-premium-analytics' ), getValue: row => row.opens },
+			{ label: __( 'Opens', 'jetpack-premium-analytics-pkg' ), getValue: row => row.opens },
 			{
-				label: __( 'Open rate', 'jetpack-premium-analytics' ),
+				label: __( 'Open rate', 'jetpack-premium-analytics-pkg' ),
 				getValue: row => row.opens_rate,
 			},
-			{ label: __( 'Clicks', 'jetpack-premium-analytics' ), getValue: row => row.clicks },
+			{ label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ), getValue: row => row.clicks },
 			{
-				label: __( 'Click rate', 'jetpack-premium-analytics' ),
+				label: __( 'Click rate', 'jetpack-premium-analytics-pkg' ),
 				getValue: row => row.clicks_rate,
 			},
 		],
@@ -109,14 +109,14 @@ function EmailsReport(): JSX.Element {
 			breadcrumbs={
 				<Breadcrumbs
 					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'Emails', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
+						{ label: __( 'Emails', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
 			}
 			subTitle={ __(
 				'Open and click performance of your latest emails.',
-				'jetpack-premium-analytics'
+				'jetpack-premium-analytics-pkg'
 			) }
 			actions={
 				canExport ? (
@@ -135,7 +135,7 @@ function EmailsReport(): JSX.Element {
 					 */ }
 					{ records.isError ? (
 						<ReportErrorState
-							title={ __( 'Unable to load emails', 'jetpack-premium-analytics' ) }
+							title={ __( 'Unable to load emails', 'jetpack-premium-analytics-pkg' ) }
 							onRetry={ retry }
 						/>
 					) : (
@@ -145,7 +145,7 @@ function EmailsReport(): JSX.Element {
 							getItemId={ getEmailRowId }
 							isLoading={ records.isLoading }
 							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search emails', 'jetpack-premium-analytics' ) }
+							searchLabel={ __( 'Search emails', 'jetpack-premium-analytics-pkg' ) }
 						/>
 					) }
 				</ReportPageLayout>

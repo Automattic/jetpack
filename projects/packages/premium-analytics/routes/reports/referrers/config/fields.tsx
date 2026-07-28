@@ -75,7 +75,7 @@ export function getReferrerFields(): Field< ReferrerRecord >[] {
 	return [
 		{
 			id: 'referrer',
-			label: __( 'Referrer', 'jetpack-premium-analytics' ),
+			label: __( 'Referrer', 'jetpack-premium-analytics-pkg' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => item.label,
@@ -109,7 +109,7 @@ export function getReferrerFields(): Field< ReferrerRecord >[] {
 		},
 		{
 			id: 'views',
-			label: __( 'Views', 'jetpack-premium-analytics' ),
+			label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.views,
 			render: ( { item } ) => (
 				<MetricWithComparison

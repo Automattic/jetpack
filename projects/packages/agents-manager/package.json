@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-agents-manager",
-	"version": "0.8.3",
+	"version": "0.8.4",
 	"private": true,
 	"description": "Shared AI infrastructure helpers for Automattic plugins",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/agents-manager/#readme",

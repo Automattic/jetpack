@@ -98,13 +98,13 @@ function DevicesInner( { max }: DevicesInnerProps ) {
 				error={ describeError( error, {
 					retryDescription: __(
 						"We couldn't load device data. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 					onRetry: refetch,
 				} ) }
 				empty={ {
 					icon: device,
-					description: __( 'No device data in this period.', 'jetpack-premium-analytics' ),
+					description: __( 'No device data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				<div className={ styles.chartWrap }>

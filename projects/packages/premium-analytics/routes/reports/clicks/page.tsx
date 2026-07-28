@@ -132,11 +132,11 @@ function ClicksReport(): JSX.Element {
 	const csvColumns = useMemo< CsvColumn< ClickCsvRow >[] >(
 		() => [
 			{
-				label: __( 'Clicked URL', 'jetpack-premium-analytics' ),
+				label: __( 'Clicked URL', 'jetpack-premium-analytics-pkg' ),
 				getValue: row => row.clickedUrl,
 			},
-			{ label: __( 'Group', 'jetpack-premium-analytics' ), getValue: row => row.group },
-			{ label: __( 'Clicks', 'jetpack-premium-analytics' ), getValue: row => row.clicks },
+			{ label: __( 'Group', 'jetpack-premium-analytics-pkg' ), getValue: row => row.group },
+			{ label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ), getValue: row => row.clicks },
 		],
 		[]
 	);
@@ -152,7 +152,7 @@ function ClicksReport(): JSX.Element {
 		sort: sortClickCsvRows,
 	} );
 	const chartMetrics = useMemo(
-		() => [ { key: 'clicks', label: __( 'Clicks', 'jetpack-premium-analytics' ) } ],
+		() => [ { key: 'clicks', label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ) } ],
 		[]
 	);
 	const chartLegendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
@@ -190,10 +190,10 @@ function ClicksReport(): JSX.Element {
 				<Breadcrumbs
 					items={ [
 						{
-							label: __( 'Stats', 'jetpack-premium-analytics' ),
+							label: __( 'Stats', 'jetpack-premium-analytics-pkg' ),
 							to: dashboardLink,
 						},
-						{ label: __( 'Clicks', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
 			}
@@ -212,7 +212,7 @@ function ClicksReport(): JSX.Element {
 			>
 				{ records.isError ? (
 					<ReportErrorState
-						title={ __( 'Unable to load clicks', 'jetpack-premium-analytics' ) }
+						title={ __( 'Unable to load clicks', 'jetpack-premium-analytics-pkg' ) }
 						onRetry={ retry }
 					/>
 				) : (
@@ -233,7 +233,7 @@ function ClicksReport(): JSX.Element {
 							getItemParentId={ getClickRowParentId }
 							isLoading={ records.isLoading }
 							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search clicked URLs', 'jetpack-premium-analytics' ) }
+							searchLabel={ __( 'Search clicked URLs', 'jetpack-premium-analytics-pkg' ) }
 							hideLevelMarkers
 						/>
 					</>

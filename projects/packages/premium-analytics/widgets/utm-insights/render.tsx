@@ -160,7 +160,7 @@ function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInn
 						onClick: () => selectUtmLabel( item.label ),
 						ariaLabel: sprintf(
 							/* translators: %s is the UTM value label. */
-							__( 'View posts for %s', 'jetpack-premium-analytics' ),
+							__( 'View posts for %s', 'jetpack-premium-analytics-pkg' ),
 							item.label
 						),
 					} ),
@@ -170,8 +170,8 @@ function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInn
 
 	const backLink = isDrillDown ? (
 		<WidgetBackLink
-			label={ __( 'All UTM Insights', 'jetpack-premium-analytics' ) }
-			ariaLabel={ __( 'View all UTM insights', 'jetpack-premium-analytics' ) }
+			label={ __( 'All UTM Insights', 'jetpack-premium-analytics-pkg' ) }
+			ariaLabel={ __( 'View all UTM insights', 'jetpack-premium-analytics-pkg' ) }
 			onClick={ clearSelectedUtm }
 			className={ styles.backLink }
 		/>
@@ -188,13 +188,13 @@ function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInn
 					error={ describeError( error, {
 						retryDescription: __(
 							"We couldn't load UTM data. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
 						onRetry: refetch,
 					} ) }
 					empty={ {
 						icon: megaphone,
-						description: __( 'No UTM data in this period.', 'jetpack-premium-analytics' ),
+						description: __( 'No UTM data in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
 				>
 					<LeaderboardChart

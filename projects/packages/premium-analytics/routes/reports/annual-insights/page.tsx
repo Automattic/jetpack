@@ -60,24 +60,33 @@ function AnnualInsightsReport(): JSX.Element {
 	const fields = useMemo( () => getAnnualInsightsFields(), [] );
 	const csvColumns = useMemo< CsvColumn< StatsInsightsYear >[] >(
 		() => [
-			{ label: __( 'Year', 'jetpack-premium-analytics' ), getValue: row => row.year },
-			{ label: __( 'Total posts', 'jetpack-premium-analytics' ), getValue: row => row.total_posts },
+			{ label: __( 'Year', 'jetpack-premium-analytics-pkg' ), getValue: row => row.year },
 			{
-				label: __( 'Total comments', 'jetpack-premium-analytics' ),
+				label: __( 'Total posts', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.total_posts,
+			},
+			{
+				label: __( 'Total comments', 'jetpack-premium-analytics-pkg' ),
 				getValue: row => row.total_comments,
 			},
 			{
-				label: __( 'Avg comments per post', 'jetpack-premium-analytics' ),
+				label: __( 'Avg comments per post', 'jetpack-premium-analytics-pkg' ),
 				getValue: row => row.avg_comments,
 			},
-			{ label: __( 'Total likes', 'jetpack-premium-analytics' ), getValue: row => row.total_likes },
 			{
-				label: __( 'Avg likes per post', 'jetpack-premium-analytics' ),
+				label: __( 'Total likes', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.total_likes,
+			},
+			{
+				label: __( 'Avg likes per post', 'jetpack-premium-analytics-pkg' ),
 				getValue: row => row.avg_likes,
 			},
-			{ label: __( 'Total words', 'jetpack-premium-analytics' ), getValue: row => row.total_words },
 			{
-				label: __( 'Avg words per post', 'jetpack-premium-analytics' ),
+				label: __( 'Total words', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.total_words,
+			},
+			{
+				label: __( 'Avg words per post', 'jetpack-premium-analytics-pkg' ),
 				getValue: row => row.avg_words,
 			},
 		],
@@ -101,14 +110,14 @@ function AnnualInsightsReport(): JSX.Element {
 			breadcrumbs={
 				<Breadcrumbs
 					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'Annual insights', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
+						{ label: __( 'Annual insights', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
 			}
 			subTitle={ __(
 				'Year-by-year publishing and engagement totals.',
-				'jetpack-premium-analytics'
+				'jetpack-premium-analytics-pkg'
 			) }
 			actions={
 				canExport ? (
@@ -126,7 +135,7 @@ function AnnualInsightsReport(): JSX.Element {
 					 */ }
 					{ records.isError ? (
 						<ReportErrorState
-							title={ __( 'Unable to load annual insights', 'jetpack-premium-analytics' ) }
+							title={ __( 'Unable to load annual insights', 'jetpack-premium-analytics-pkg' ) }
 							onRetry={ retry }
 						/>
 					) : (
@@ -136,7 +145,7 @@ function AnnualInsightsReport(): JSX.Element {
 							getItemId={ getAnnualInsightRowId }
 							isLoading={ records.isLoading }
 							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search annual insights', 'jetpack-premium-analytics' ) }
+							searchLabel={ __( 'Search annual insights', 'jetpack-premium-analytics-pkg' ) }
 						/>
 					) }
 				</ReportPageLayout>

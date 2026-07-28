@@ -39,7 +39,7 @@ function handleAvatarError( event: SyntheticEvent< HTMLImageElement > ): void {
  */
 export function getAuthorName( name: string ): string {
 	if ( ! name || name === UNTRACKED_AUTHORS_SENTINEL ) {
-		return __( 'Untracked authors', 'jetpack-premium-analytics' );
+		return __( 'Untracked authors', 'jetpack-premium-analytics-pkg' );
 	}
 
 	return name;
@@ -55,7 +55,7 @@ export function getAuthorsFields( withComparison = false ): Field< AuthorRow >[]
 	return [
 		{
 			id: 'author',
-			label: __( 'Author / post', 'jetpack-premium-analytics' ),
+			label: __( 'Author / post', 'jetpack-premium-analytics-pkg' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => ( item.isGroup ? getAuthorName( item.label ) : item.label ),
@@ -85,7 +85,7 @@ export function getAuthorsFields( withComparison = false ): Field< AuthorRow >[]
 							onError={ handleAvatarError }
 							alt={ sprintf(
 								/* translators: %s is the author name */
-								__( 'Avatar of %s', 'jetpack-premium-analytics' ),
+								__( 'Avatar of %s', 'jetpack-premium-analytics-pkg' ),
 								name
 							) }
 							className={ styles.avatar }
@@ -97,7 +97,7 @@ export function getAuthorsFields( withComparison = false ): Field< AuthorRow >[]
 		},
 		{
 			id: 'views',
-			label: __( 'Views', 'jetpack-premium-analytics' ),
+			label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.views,
 			render: ( { item } ) => (
 				<MetricWithComparison

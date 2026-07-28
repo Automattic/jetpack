@@ -58,8 +58,8 @@ export function buildVisitorsByLocationData( {
 }: BuildVisitorsByLocationDataParams ): VisitorsByLocationData {
 	const headerLabel =
 		region === 'US'
-			? __( 'State', 'jetpack-premium-analytics' )
-			: __( 'Country', 'jetpack-premium-analytics' );
+			? __( 'State', 'jetpack-premium-analytics-pkg' )
+			: __( 'Country', 'jetpack-premium-analytics-pkg' );
 
 	// Build geo chart data
 	const geoData: GeoData = [

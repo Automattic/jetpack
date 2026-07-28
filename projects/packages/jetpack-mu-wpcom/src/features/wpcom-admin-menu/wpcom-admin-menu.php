@@ -8,11 +8,13 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Launchpad_Personalization_Experiment;
 use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
 use Automattic\Jetpack\Podcast\Admin_Page as Podcast_Admin_Page;
 use Automattic\Jetpack\Redirect;
 
 require_once __DIR__ . '/../../common/wpcom-callout.php';
+require_once __DIR__ . '/../../common/class-launchpad-personalization-experiment.php';
 
 /**
  * Checks if the current user has a WordPress.com account connected.
@@ -98,6 +100,13 @@ function wpcom_add_my_home_menu() {
 		&& function_exists( 'wpcom_ai_launchpad_is_eligible' )
 		&& wpcom_ai_launchpad_is_eligible()
 	) {
+		return;
+	}
+
+	// The no_guidance launchpad-personalization variation gets no My Home at all: these
+	// users work from the wp-admin dashboard. Removing the menu item here also removes it
+	// from the Calypso sidebar, which is built from this menu via the admin-menu endpoint.
+	if ( 'no_guidance' === Launchpad_Personalization_Experiment::get_variation() ) {
 		return;
 	}
 

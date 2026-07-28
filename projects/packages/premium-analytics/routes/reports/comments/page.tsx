@@ -64,9 +64,9 @@ function CommentsReport(): JSX.Element {
 	const fields = useMemo( () => getCommentsFields(), [] );
 	const csvColumns = useMemo< CsvColumn< CommentReportRow >[] >(
 		() => [
-			{ label: __( 'Name', 'jetpack-premium-analytics' ), getValue: row => row.label },
-			{ label: __( 'Comments', 'jetpack-premium-analytics' ), getValue: row => row.value },
-			{ label: __( 'URL', 'jetpack-premium-analytics' ), getValue: row => row.link ?? '' },
+			{ label: __( 'Name', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
+			{ label: __( 'Comments', 'jetpack-premium-analytics-pkg' ), getValue: row => row.value },
+			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
 		],
 		[]
 	);
@@ -88,14 +88,14 @@ function CommentsReport(): JSX.Element {
 			breadcrumbs={
 				<Breadcrumbs
 					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'Comments', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
+						{ label: __( 'Comments', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
 			}
 			subTitle={ __(
 				'Learn about the comments your site receives by authors, posts, and pages.',
-				'jetpack-premium-analytics'
+				'jetpack-premium-analytics-pkg'
 			) }
 			actions={
 				canExport ? (
@@ -115,7 +115,7 @@ function CommentsReport(): JSX.Element {
 					 */ }
 					{ records.isError ? (
 						<ReportErrorState
-							title={ __( 'Unable to load comments', 'jetpack-premium-analytics' ) }
+							title={ __( 'Unable to load comments', 'jetpack-premium-analytics-pkg' ) }
 							onRetry={ retry }
 						/>
 					) : (
@@ -126,7 +126,7 @@ function CommentsReport(): JSX.Element {
 							getItemId={ getCommentRowId }
 							isLoading={ records.isLoading }
 							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search comments', 'jetpack-premium-analytics' ) }
+							searchLabel={ __( 'Search comments', 'jetpack-premium-analytics-pkg' ) }
 						/>
 					) }
 				</ReportPageLayout>

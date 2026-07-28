@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Don't honor a textdomain self-alias: aliasing a domain to itself made the gettext filter recurse infinitely on any untranslated string in that domain. The package's path is still recorded, since JavaScript translation files are located by it whether or not the domain is aliased.

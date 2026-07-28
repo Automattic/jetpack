@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Zoom: Render the reset control with the WordPress UI Button, fix keyboard activation, expose the selection rectangle's colors as `--a8c-charts-color-zoom-selection` and `--a8c-charts-color-zoom-selection-stroke`, and document the `zoomable` prop for the line and area charts.

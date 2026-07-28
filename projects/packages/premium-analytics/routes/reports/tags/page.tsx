@@ -53,11 +53,11 @@ function TagsReport(): JSX.Element {
 	const csvColumns = useMemo< CsvColumn< StatsTagsItem >[] >(
 		() => [
 			{
-				label: __( 'Tag or category', 'jetpack-premium-analytics' ),
+				label: __( 'Tag or category', 'jetpack-premium-analytics-pkg' ),
 				getValue: row => row.labelText,
 			},
-			{ label: __( 'Views', 'jetpack-premium-analytics' ), getValue: row => row.value },
-			{ label: __( 'URL', 'jetpack-premium-analytics' ), getValue: row => row.link ?? '' },
+			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.value },
+			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
 		],
 		[]
 	);
@@ -81,12 +81,12 @@ function TagsReport(): JSX.Element {
 			breadcrumbs={
 				<Breadcrumbs
 					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'Tags & categories', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
+						{ label: __( 'Tags & categories', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
 			}
-			subTitle={ __( 'Your most visited tags and categories.', 'jetpack-premium-analytics' ) }
+			subTitle={ __( 'Your most visited tags and categories.', 'jetpack-premium-analytics-pkg' ) }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
@@ -104,7 +104,7 @@ function TagsReport(): JSX.Element {
 					 */ }
 					{ records.isError ? (
 						<ReportErrorState
-							title={ __( 'Unable to load tags and categories', 'jetpack-premium-analytics' ) }
+							title={ __( 'Unable to load tags and categories', 'jetpack-premium-analytics-pkg' ) }
 							onRetry={ retry }
 						/>
 					) : (
@@ -114,7 +114,7 @@ function TagsReport(): JSX.Element {
 							getItemId={ getTagRowId }
 							isLoading={ records.isLoading }
 							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search tags and categories', 'jetpack-premium-analytics' ) }
+							searchLabel={ __( 'Search tags and categories', 'jetpack-premium-analytics-pkg' ) }
 						/>
 					) }
 				</ReportPageLayout>

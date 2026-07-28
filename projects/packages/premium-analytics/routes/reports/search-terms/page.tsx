@@ -108,8 +108,8 @@ export default function SearchTermsReportPage(): JSX.Element {
 	const fields = useMemo( () => getSearchTermsFields(), [] );
 	const csvColumns = useMemo< CsvColumn< SearchTermRow >[] >(
 		() => [
-			{ label: __( 'Search term', 'jetpack-premium-analytics' ), getValue: row => row.term },
-			{ label: __( 'Views', 'jetpack-premium-analytics' ), getValue: row => row.views },
+			{ label: __( 'Search term', 'jetpack-premium-analytics-pkg' ), getValue: row => row.term },
+			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
 		],
 		[]
 	);
@@ -125,7 +125,7 @@ export default function SearchTermsReportPage(): JSX.Element {
 		sort: sortSearchTermCsvRows,
 	} );
 	const chartMetrics = useMemo(
-		() => [ { key: 'views', label: __( 'Views', 'jetpack-premium-analytics' ) } ],
+		() => [ { key: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ) } ],
 		[]
 	);
 	const chartLegendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
@@ -154,8 +154,8 @@ export default function SearchTermsReportPage(): JSX.Element {
 			breadcrumbs={
 				<Breadcrumbs
 					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'Search terms', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
+						{ label: __( 'Search terms', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
 			}
@@ -174,7 +174,7 @@ export default function SearchTermsReportPage(): JSX.Element {
 			>
 				{ records.isError ? (
 					<ReportErrorState
-						title={ __( 'Unable to load search terms', 'jetpack-premium-analytics' ) }
+						title={ __( 'Unable to load search terms', 'jetpack-premium-analytics-pkg' ) }
 						onRetry={ retry }
 					/>
 				) : (
@@ -194,7 +194,7 @@ export default function SearchTermsReportPage(): JSX.Element {
 							getItemId={ getSearchTermRowId }
 							isLoading={ records.table.isLoading }
 							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search terms', 'jetpack-premium-analytics' ) }
+							searchLabel={ __( 'Search terms', 'jetpack-premium-analytics-pkg' ) }
 						/>
 					</>
 				) }

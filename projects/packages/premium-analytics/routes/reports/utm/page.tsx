@@ -92,7 +92,7 @@ function UtmReport(): JSX.Element {
 	const csvColumns = useMemo< CsvColumn< UtmReportRow >[] >(
 		() => [
 			{ label: getUtmTabLabel( activeTab ), getValue: row => row.label },
-			{ label: __( 'Views', 'jetpack-premium-analytics' ), getValue: row => row.views },
+			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
 		],
 		[ activeTab ]
 	);
@@ -117,8 +117,8 @@ function UtmReport(): JSX.Element {
 			breadcrumbs={
 				<Breadcrumbs
 					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'UTM', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
+						{ label: __( 'UTM', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
 			}
@@ -138,7 +138,7 @@ function UtmReport(): JSX.Element {
 			>
 				{ records.isError ? (
 					<ReportErrorState
-						title={ __( 'Unable to load UTM data', 'jetpack-premium-analytics' ) }
+						title={ __( 'Unable to load UTM data', 'jetpack-premium-analytics-pkg' ) }
 						onRetry={ retry }
 					/>
 				) : (
@@ -150,7 +150,7 @@ function UtmReport(): JSX.Element {
 						getItemParentId={ getUtmRowParentId }
 						isLoading={ records.isLoading }
 						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search UTM values', 'jetpack-premium-analytics' ) }
+						searchLabel={ __( 'Search UTM values', 'jetpack-premium-analytics-pkg' ) }
 						hideLevelMarkers
 					/>
 				) }

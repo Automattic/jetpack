@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [2.0.1] - 2026-07-27
+### Changed
+- Update package dependencies. [#50751]
+
 ## [2.0.0] - 2026-07-22
 ### Removed
 - Number Slider: remove the NumberSlider component. It wrapped the unmaintained react-slider dependency (which blocked React 19) and had a single consumer; use the WordPress RangeControl component from @wordpress/components directly instead. [#50289]
@@ -1889,6 +1893,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[2.0.1]: https://github.com/Automattic/jetpack-components/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/Automattic/jetpack-components/compare/1.12.17...2.0.0
 [1.12.17]: https://github.com/Automattic/jetpack-components/compare/1.12.16...1.12.17
 [1.12.16]: https://github.com/Automattic/jetpack-components/compare/1.12.15...1.12.16

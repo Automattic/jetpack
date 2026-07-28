@@ -1,5 +1,7 @@
+/// <reference types="node" />
 import { readFileSync } from 'node:fs';
 import { defineConfig } from 'tsdown';
+import { assertNoDynamicRequire } from './tools/assert-no-dynamic-require.ts';
 import { removeDataTestId } from './tools/remove-data-testid.ts';
 
 const pkg = JSON.parse( readFileSync( new URL( './package.json', import.meta.url ), 'utf8' ) ) as {
@@ -59,5 +61,6 @@ export default defineConfig( {
 				'@tsdown/css no longer emits SOURCEMAP_BROKEN — remove the onLog suppression in tsdown.config.ts.'
 			);
 		}
+		assertNoDynamicRequire( 'dist' );
 	},
 } );

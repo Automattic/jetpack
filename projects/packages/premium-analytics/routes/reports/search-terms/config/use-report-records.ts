@@ -39,7 +39,7 @@ export function useSearchTermsReportRecords(
 		[ reportParams ]
 	);
 	const report = useStatsSearchTerms( recordsParams );
-	const unknownLabel = __( 'Unknown search terms', 'jetpack-premium-analytics' );
+	const unknownLabel = __( 'Unknown search terms', 'jetpack-premium-analytics-pkg' );
 
 	const chartPrimary = useMemo(
 		() => searchTermsToTimeSeries( report.primary.data, chartPeriod ),

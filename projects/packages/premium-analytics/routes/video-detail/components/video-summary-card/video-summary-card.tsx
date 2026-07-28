@@ -33,14 +33,14 @@ export function VideoSummaryCard( { summary }: VideoSummaryCardProps ) {
 		publishedDateObject && isValid( publishedDateObject )
 			? sprintf(
 					/* translators: %s: the video publish date, e.g. "Aug 19, 2025". */
-					__( 'Video published on %s.', 'jetpack-premium-analytics' ),
+					__( 'Video published on %s.', 'jetpack-premium-analytics-pkg' ),
 					format( publishedDateObject, DATE_FORMAT )
 			  )
 			: undefined;
 
 	const performanceSentence = __(
 		'Performance over the last 30 days.',
-		'jetpack-premium-analytics'
+		'jetpack-premium-analytics-pkg'
 	);
 	const subtitle = [ publishedSentence, performanceSentence ].filter( Boolean ).join( ' ' );
 

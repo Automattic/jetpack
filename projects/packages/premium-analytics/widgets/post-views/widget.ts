@@ -40,20 +40,20 @@ export default {
 	attributes: [
 		{
 			id: 'granularity',
-			label: __( 'Group by', 'jetpack-premium-analytics' ),
+			label: __( 'Group by', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
 			Edit: SelectField,
 			elements: [
 				{
-					label: __( 'By days', 'jetpack-premium-analytics' ),
+					label: __( 'By days', 'jetpack-premium-analytics-pkg' ),
 					value: 'day',
 				},
 				{
-					label: __( 'By weeks', 'jetpack-premium-analytics' ),
+					label: __( 'By weeks', 'jetpack-premium-analytics-pkg' ),
 					value: 'week',
 				},
 				{
-					label: __( 'By months', 'jetpack-premium-analytics' ),
+					label: __( 'By months', 'jetpack-premium-analytics-pkg' ),
 					value: 'month',
 				},
 			],
