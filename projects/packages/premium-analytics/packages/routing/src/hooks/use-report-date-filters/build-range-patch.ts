@@ -40,13 +40,16 @@ type BuildRangePatchArgs = {
 
 	/**
 	 * The current effective search params, used to re-derive the comparison
-	 * range when comparison is enabled.
+	 * range and to resolve the interval for the next range.
 	 */
 	effective: ReportQuerySearchParams;
 };
 
 /**
  * Builds the search-param patch to stage for a date-range change.
+ *
+ * When the change carries a range, the patch also stages an interval valid
+ * for it.
  *
  * @param {BuildRangePatchArgs} args - The change and the current search state.
  * @return The patch to stage, or null when there is nothing to stage.
@@ -73,13 +76,10 @@ export function buildRangePatch( {
 		patch.to = rangeTo;
 
 		/*
-		 * A preset change resets the interval to the new range's default.
-		 * Without a granularity picker, `effective.interval` can't be told
-		 * apart from one inherited from the previous preset, and carrying it
-		 * over would bucket the new range at the old granularity: last-7-days
-		 * (`day`) → last-24-hours would render one daily bucket instead of 24
-		 * hourly ones. Within the same preset the value is a deliberate
-		 * override, so it is kept when the range still allows it.
+		 * Without a granularity picker, a carried-over interval can't be told
+		 * apart from one inherited from the previous preset: last-7-days
+		 * (`day`) into last-24-hours would bucket 24 hours into a single daily
+		 * point. Keep it only within the same preset, where it is deliberate.
 		 */
 		const presetChanged = nextPresetId !== effective.preset;
 
