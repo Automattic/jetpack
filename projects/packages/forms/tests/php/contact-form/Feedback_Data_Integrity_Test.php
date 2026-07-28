@@ -900,9 +900,15 @@ class Feedback_Data_Integrity_Test extends BaseTestCase {
 	 * and escapes everything after it, which turns the JSON payload into
 	 * something `json_decode()` can't read - the whole response is lost.
 	 *
-	 * Set up the logged-out submitter state shared by the tests below.
+	 * Set up the logged-out submitter state shared by the tests below. No paired
+	 * kses_remove_filters() is needed: WorDBless restores $wp_filter after each
+	 * test, along with posts, users and options.
 	 */
 	private function set_up_anonymous_submitter() {
+		// Registers the `contact-field` shortcode, without which the form below
+		// parses to zero fields and the assertions become vacuous.
+		Contact_Form_Plugin::init();
+
 		wp_set_current_user( 0 );
 		kses_init_filters();
 
@@ -930,6 +936,14 @@ class Feedback_Data_Integrity_Test extends BaseTestCase {
 		$response = Feedback::from_submission( $_post_data, $form );
 		$post_id  = $response->save();
 
+		// Assert on the bytes that actually reached the database first, since
+		// that is what KSES rewrites. Comparing two in-memory serializations
+		// would pass even on a mangled payload, because both sides would be
+		// re-encoded from the same parsed data.
+		$stored = get_post( $post_id )->post_content;
+		$this->assertStringNotContainsString( '<', $stored, 'A bare `<` in the stored payload is what KSES latches onto.' );
+		$this->assertStringNotContainsString( '&quot;', $stored, 'Escaped quotes are the signature of KSES having rewritten the payload.' );
+
 		$saved_response = Feedback::get( $post_id );
 		$saved_fields   = $saved_response->get_fields();
 
@@ -938,12 +952,6 @@ class Feedback_Data_Integrity_Test extends BaseTestCase {
 		$saved_field = array_shift( $saved_fields );
 		$this->assertSame( '> < Name', $saved_field->get_label(), 'The label should round-trip unchanged.' );
 		$this->assertSame( 'Jane Doe', $saved_field->get_value(), 'The value should round-trip unchanged.' );
-
-		$this->assertEquals(
-			$response->serialize(),
-			$saved_response->serialize(),
-			'The stored payload should match what was serialized.'
-		);
 	}
 
 	/**
@@ -972,7 +980,5 @@ class Feedback_Data_Integrity_Test extends BaseTestCase {
 
 		$this->assertSame( 'RSVP < 2026', $saved->get_entry_title(), 'The source title should round-trip unchanged.' );
 		$this->assertCount( 1, $saved->get_fields(), 'The saved response should still hold the submitted field.' );
-
-		wp_delete_post( $current_post->ID, true );
 	}
 }
