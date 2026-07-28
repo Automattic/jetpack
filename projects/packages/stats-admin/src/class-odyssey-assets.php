@@ -40,6 +40,14 @@ class Odyssey_Assets {
 			'enqueue_css'          => true,
 		);
 		$options         = wp_parse_args( $options, $default_options );
+
+		// Odyssey bundles its own copy of @wordpress/components' base CSS (scoped to its own
+		// elements via a `.is-odyssey-stats` marker, so it can't leak onto wp-admin's own
+		// instances of the same components). Explicitly enqueuing core's own `wp-components`
+		// style here guarantees Odyssey's Button/Card/Modal/etc. styling doesn't depend on some
+		// other plugin or admin feature happening to have already loaded it as a side effect.
+		wp_enqueue_style( 'wp-components' );
+
 		if ( file_exists( __DIR__ . "/../dist/{$asset_name}.js" ) ) {
 			// Load local assets for the convinience of development.
 			Assets::register_script(

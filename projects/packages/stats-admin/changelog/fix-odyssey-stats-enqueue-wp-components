@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Stats Dashboard: explicitly enqueue core's `wp-components` style alongside the Odyssey Stats script, so the dashboard's own component styling (Button, Card, Modal, etc.) no longer implicitly depends on some other admin feature or plugin happening to have already loaded it.

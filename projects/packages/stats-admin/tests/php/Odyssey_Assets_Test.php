@@ -12,6 +12,20 @@ use WP_Error;
 class Odyssey_Assets_Test extends Stats_TestCase {
 
 	/**
+	 * load_admin_scripts() must guarantee core's `wp-components` style is enqueued, independent of
+	 * whatever else on the page might otherwise pull it in (some other plugin's own admin notice,
+	 * a WP admin feature, etc.) — Odyssey's own component styling shouldn't depend on that.
+	 */
+	public function test_load_admin_scripts_enqueues_wp_components_style() {
+		wp_register_style( 'wp-components', false );
+		$this->assertFalse( wp_style_is( 'wp-components', 'enqueued' ) );
+
+		( new Odyssey_Assets() )->load_admin_scripts( 'jp-stats-dashboard', 'build.min' );
+
+		$this->assertTrue( wp_style_is( 'wp-components', 'enqueued' ) );
+	}
+
+	/**
 	 * Test remote cache buster.
 	 */
 	public function test_get_cdn_asset_cache_buster() {
