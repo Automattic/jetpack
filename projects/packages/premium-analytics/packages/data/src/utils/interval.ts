@@ -20,19 +20,13 @@ import { differenceInCalendarDays, differenceInHours } from 'date-fns';
  */
 import { localTZDate } from './date';
 
-/**
- * Report time-series bucket sizes.
- */
-export type IntervalType = 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year';
+const INTERVAL_TYPES = [ 'hour', 'day', 'week', 'month', 'quarter', 'year' ] as const;
 
-const INTERVAL_TYPES = [
-	'hour',
-	'day',
-	'week',
-	'month',
-	'quarter',
-	'year',
-] as const satisfies readonly IntervalType[];
+/**
+ * Report time-series bucket sizes, derived from the runtime tuple so both
+ * stay in sync.
+ */
+export type IntervalType = ( typeof INTERVAL_TYPES )[ number ];
 
 /**
  * Whether a value is a known `IntervalType`.
