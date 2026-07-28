@@ -86,7 +86,7 @@ class Jetpack {
 	 *
 	 * {@see self::reconcile_seo_module_state_options()}
 	 *
-	 * @since $$next-version$$
+	 * @since 16.1
 	 *
 	 * @var string
 	 */
@@ -438,6 +438,14 @@ class Jetpack {
 	 * @var Jetpack
 	 */
 	public static $instance = false;
+
+	/**
+	 * Resolved answer for `is_premium_analytics_enabled()`, or null before the first call.
+	 *
+	 * @since $$next-version$$
+	 * @var bool|null
+	 */
+	private static $premium_analytics_enabled = null;
 
 	/**
 	 * Singleton
@@ -834,6 +842,56 @@ class Jetpack {
 	}
 
 	/**
+	 * Whether the bundled Premium Analytics dashboard is enabled.
+	 *
+	 * Premium Analytics ships with the plugin behind this flag while it rolls
+	 * out (WOOA7S-1595). When enabled it replaces the Stats wp-admin UI (menu,
+	 * admin-bar entries, post-list column, and WP dashboard widget); the Stats
+	 * module's tracking is unaffected — Premium Analytics depends on it.
+	 *
+	 * The package has to be loadable for this to be true. The same answer both
+	 * tears the Stats UI down and brings the dashboard up, so if the two could
+	 * disagree a site missing the package would end up with neither.
+	 *
+	 * Resolved once per request: `configure()` asks first, on `plugins_loaded`,
+	 * and the Stats module and dashboard widget ask much later. Without the
+	 * cache a filter registered in between would be seen by only some of them.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_premium_analytics_enabled() {
+		if ( null !== self::$premium_analytics_enabled ) {
+			return self::$premium_analytics_enabled;
+		}
+
+		/**
+		 * Filters whether the bundled Premium Analytics dashboard is enabled.
+		 *
+		 * Resolved once, from `Jetpack::configure()` on `plugins_loaded`. Register
+		 * this from a mu-plugin or a plugin's main file — a callback added on
+		 * `plugins_loaded` or later runs too late to be seen.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $enabled Defaults to the `jetpack_premium_analytics_enabled` option (false).
+		 */
+		$flag = (bool) apply_filters( 'jetpack_premium_analytics_enabled', (bool) get_option( 'jetpack_premium_analytics_enabled' ) );
+
+		self::$premium_analytics_enabled = $flag && class_exists( 'Automattic\Jetpack\PremiumAnalytics\Analytics' );
+
+		if ( $flag && ! self::$premium_analytics_enabled ) {
+			wp_trigger_error(
+				__METHOD__,
+				'The jetpack_premium_analytics_enabled flag is on but the Premium Analytics package is not loadable; keeping the Stats UI in place.'
+			);
+		}
+
+		return self::$premium_analytics_enabled;
+	}
+
+	/**
 	 * Before everything else starts getting initalized, we need to initialize Jetpack using the
 	 * Config object.
 	 */
@@ -935,6 +993,20 @@ class Jetpack {
 				},
 				0
 			);
+		}
+
+		/*
+		 * Premium Analytics (WOOA7S-1595): bundled behind a flag while it rolls
+		 * out. Unlike Stats above it must initialize on every request when
+		 * enabled: its WooCommerce store-event tracker listens on the front end
+		 * and its REST surfaces self-gate on rest_api_init. When enabled it
+		 * replaces the Stats wp-admin UI (see modules/stats.php).
+		 */
+		if ( self::is_premium_analytics_enabled() ) {
+			// No menu_title here: the package labels its own menu on admin_menu.
+			// Translating at this point would load the textdomain before
+			// after_setup_theme, which core flags as too early.
+			\Automattic\Jetpack\PremiumAnalytics\Analytics::init();
 		}
 
 		$config->ensure(
@@ -2957,7 +3029,7 @@ p {
 	 * WordPress.com Simple keeps module state outside this site's options table, so its
 	 * normal filtered read remains authoritative.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.1
 	 *
 	 * @param string $module Module slug.
 	 * @return bool Whether the module should be recorded as active.
@@ -3095,7 +3167,7 @@ p {
 	 * Idempotent: the marker is written with `add_option()`, so reruns on later version bumps
 	 * are no-ops. Like the migrations it seeds from, it touches no sitemap data or cron state.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.1
 	 */
 	public static function reconcile_seo_module_state_options() {
 		if ( get_option( self::SEO_MODULE_STATE_RECONCILED_OPTION ) ) {

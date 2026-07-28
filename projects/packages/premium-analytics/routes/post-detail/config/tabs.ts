@@ -43,9 +43,9 @@ const TAB_DEFINITIONS: ReadonlyArray< {
 	id: PostDetailTabId;
 	getLabel: () => string;
 } > = [
-	{ id: 'post-traffic', getLabel: () => __( 'Post traffic', 'jetpack-premium-analytics' ) },
-	{ id: 'email-opens', getLabel: () => __( 'Email opens', 'jetpack-premium-analytics' ) },
-	{ id: 'email-clicks', getLabel: () => __( 'Email clicks', 'jetpack-premium-analytics' ) },
+	{ id: 'post-traffic', getLabel: () => __( 'Post traffic', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'email-opens', getLabel: () => __( 'Email opens', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'email-clicks', getLabel: () => __( 'Email clicks', 'jetpack-premium-analytics-pkg' ) },
 ];
 
 /**

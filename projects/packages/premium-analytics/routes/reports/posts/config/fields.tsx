@@ -54,7 +54,7 @@ export function getPostsFields( withComparison = false ): Field< StatsTopPostsCo
 	return [
 		{
 			id: 'title',
-			label: __( 'Title', 'jetpack-premium-analytics' ),
+			label: __( 'Title', 'jetpack-premium-analytics-pkg' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => String( item.label ?? '' ),
@@ -84,7 +84,7 @@ export function getPostsFields( withComparison = false ): Field< StatsTopPostsCo
 		},
 		{
 			id: 'views',
-			label: __( 'Views', 'jetpack-premium-analytics' ),
+			label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.views,
 			render: ( { item } ) => (
 				<MetricWithComparison
@@ -118,27 +118,27 @@ export type ArchiveRow = {
 function getArchiveTypeLabel( archiveType: string ): string {
 	switch ( archiveType ) {
 		case 'author':
-			return __( 'Authors', 'jetpack-premium-analytics' );
+			return __( 'Authors', 'jetpack-premium-analytics-pkg' );
 		case 'cat':
-			return __( 'Categories', 'jetpack-premium-analytics' );
+			return __( 'Categories', 'jetpack-premium-analytics-pkg' );
 		case 'err':
-			return __( 'Error', 'jetpack-premium-analytics' );
+			return __( 'Error', 'jetpack-premium-analytics-pkg' );
 		case 'home':
-			return __( 'Homepage (Latest posts)', 'jetpack-premium-analytics' );
+			return __( 'Homepage (Latest posts)', 'jetpack-premium-analytics-pkg' );
 		case 'search':
-			return __( 'Searches', 'jetpack-premium-analytics' );
+			return __( 'Searches', 'jetpack-premium-analytics-pkg' );
 		case 'tag':
-			return __( 'Tags', 'jetpack-premium-analytics' );
+			return __( 'Tags', 'jetpack-premium-analytics-pkg' );
 		case 'tax':
-			return __( 'Taxonomies', 'jetpack-premium-analytics' );
+			return __( 'Taxonomies', 'jetpack-premium-analytics-pkg' );
 		case 'date':
-			return __( 'Dates', 'jetpack-premium-analytics' );
+			return __( 'Dates', 'jetpack-premium-analytics-pkg' );
 		case 'multiple':
-			return __( 'Aggregated', 'jetpack-premium-analytics' );
+			return __( 'Aggregated', 'jetpack-premium-analytics-pkg' );
 		case 'other':
-			return __( 'Others', 'jetpack-premium-analytics' );
+			return __( 'Others', 'jetpack-premium-analytics-pkg' );
 		case 'post_type':
-			return __( 'Post types', 'jetpack-premium-analytics' );
+			return __( 'Post types', 'jetpack-premium-analytics-pkg' );
 		default:
 			return archiveType.charAt( 0 ).toUpperCase() + archiveType.slice( 1 ).toLowerCase();
 	}
@@ -186,7 +186,7 @@ function buildArchiveEntryRows(
 	const row: ArchiveRow = {
 		id,
 		...( parentId ? { parentId } : {} ),
-		label: label || __( 'Untitled', 'jetpack-premium-analytics' ),
+		label: label || __( 'Untitled', 'jetpack-premium-analytics-pkg' ),
 		views: item.value,
 		...previousViews,
 		...( link ? { link } : {} ),
@@ -250,7 +250,7 @@ export function getArchivesFields( withComparison = false ): Field< ArchiveRow >
 	return [
 		{
 			id: 'title',
-			label: __( 'Title', 'jetpack-premium-analytics' ),
+			label: __( 'Title', 'jetpack-premium-analytics-pkg' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => item.label,
@@ -271,7 +271,7 @@ export function getArchivesFields( withComparison = false ): Field< ArchiveRow >
 		},
 		{
 			id: 'views',
-			label: __( 'Views', 'jetpack-premium-analytics' ),
+			label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.views,
 			render: ( { item } ) => (
 				<MetricWithComparison

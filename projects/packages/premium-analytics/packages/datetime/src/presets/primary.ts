@@ -77,7 +77,7 @@ type PresetDefinition = {
 export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	{
 		id: PRESET_TODAY,
-		getLabel: () => __( 'Today', 'jetpack-premium-analytics' ),
+		getLabel: () => __( 'Today', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { initOfToday, endOfToday } ) => ( {
 			from: initOfToday,
 			to: endOfToday,
@@ -85,7 +85,7 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_YESTERDAY,
-		getLabel: () => __( 'Yesterday', 'jetpack-premium-analytics' ),
+		getLabel: () => __( 'Yesterday', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { initOfToday, endOfYesterday } ) => ( {
 			from: subDays( initOfToday, 1 ),
 			to: endOfYesterday,
@@ -93,7 +93,7 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_LAST_24_HOURS,
-		getLabel: () => __( 'Last 24 hours', 'jetpack-premium-analytics' ),
+		getLabel: () => __( 'Last 24 hours', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { now } ) => ( {
 			from: subHours( now, 24 ),
 			to: now,
@@ -101,7 +101,7 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_LAST_7_DAYS,
-		getLabel: () => __( 'Last 7 days', 'jetpack-premium-analytics' ),
+		getLabel: () => __( 'Last 7 days', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { initOfToday, endOfYesterday } ) => ( {
 			from: subDays( initOfToday, 7 ),
 			to: endOfYesterday,
@@ -109,7 +109,7 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_LAST_30_DAYS,
-		getLabel: () => __( 'Last 30 days', 'jetpack-premium-analytics' ),
+		getLabel: () => __( 'Last 30 days', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { initOfToday, endOfYesterday } ) => ( {
 			from: subDays( initOfToday, 30 ),
 			to: endOfYesterday,
@@ -117,7 +117,7 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_LAST_90_DAYS,
-		getLabel: () => __( 'Last 90 days', 'jetpack-premium-analytics' ),
+		getLabel: () => __( 'Last 90 days', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { initOfToday, endOfYesterday } ) => ( {
 			from: subDays( initOfToday, 90 ),
 			to: endOfYesterday,
@@ -125,7 +125,7 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_LAST_365_DAYS,
-		getLabel: () => __( 'Last 365 days', 'jetpack-premium-analytics' ),
+		getLabel: () => __( 'Last 365 days', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { initOfToday, endOfYesterday } ) => ( {
 			from: subDays( initOfToday, 365 ),
 			to: endOfYesterday,
@@ -133,7 +133,7 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_LAST_MONTH,
-		getLabel: () => __( 'Last month', 'jetpack-premium-analytics' ),
+		getLabel: () => __( 'Last month', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { lastMonth, endOfLastMonth } ) => ( {
 			from: startOfMonth( lastMonth ),
 			to: endOfLastMonth,
@@ -141,7 +141,7 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_LAST_12_MONTHS,
-		getLabel: () => __( 'Last 12 months', 'jetpack-premium-analytics' ),
+		getLabel: () => __( 'Last 12 months', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { initOfToday, endOfYesterday } ) => ( {
 			from: subMonths( initOfToday, 12 ),
 			to: endOfYesterday,
@@ -149,7 +149,7 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_LAST_YEAR,
-		getLabel: () => __( 'Last year', 'jetpack-premium-analytics' ),
+		getLabel: () => __( 'Last year', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { lastYear } ) => ( {
 			from: startOfYear( lastYear ),
 			to: endOfYear( lastYear ),
@@ -166,7 +166,7 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
  */
 function getYearSurfaceLabel( id: YearSurfacePresetId ): string {
 	return id === PRESET_ALL_TIME
-		? __( 'All time', 'jetpack-premium-analytics' )
+		? __( 'All time', 'jetpack-premium-analytics-pkg' )
 		: String( getPresetYear( id ) );
 }
 

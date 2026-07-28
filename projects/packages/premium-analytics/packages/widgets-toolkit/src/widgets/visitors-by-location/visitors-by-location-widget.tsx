@@ -53,7 +53,9 @@ export function VisitorsByLocationWidget() {
 							kind: 'flag',
 							url: imageUrl ?? undefined,
 							country:
-								region === 'US' ? __( 'United States', 'jetpack-premium-analytics' ) : labelText,
+								region === 'US'
+									? __( 'United States', 'jetpack-premium-analytics-pkg' )
+									: labelText,
 						},
 						action: { kind: 'static' },
 					} ),
@@ -84,7 +86,7 @@ export function VisitorsByLocationWidget() {
 						__next40pxDefaultSize
 						isBlock
 						hideLabelFromVision
-						label={ __( 'Location', 'jetpack-premium-analytics' ) }
+						label={ __( 'Location', 'jetpack-premium-analytics-pkg' ) }
 						onChange={ value => {
 							if ( isRegion( value ) ) {
 								setRegion( value );
@@ -94,11 +96,11 @@ export function VisitorsByLocationWidget() {
 					>
 						<ToggleGroupControlOption
 							value="US"
-							label={ __( 'United States', 'jetpack-premium-analytics' ) }
+							label={ __( 'United States', 'jetpack-premium-analytics-pkg' ) }
 						/>
 						<ToggleGroupControlOption
 							value="world"
-							label={ __( 'Worldwide', 'jetpack-premium-analytics' ) }
+							label={ __( 'Worldwide', 'jetpack-premium-analytics-pkg' ) }
 						/>
 					</ToggleGroupControl>
 				</div>
@@ -114,13 +116,15 @@ export function VisitorsByLocationWidget() {
 					error={ {
 						description: __(
 							"We couldn't load location data. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
-						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
 					} }
 					empty={ {
 						icon: location,
-						description: __( 'No location data in this period.', 'jetpack-premium-analytics' ),
+						description: __( 'No location data in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
 				>
 					<LeaderboardChart

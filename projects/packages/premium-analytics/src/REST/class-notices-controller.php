@@ -74,17 +74,17 @@ class Notices_Controller {
 						'id'            => array(
 							'required'    => true,
 							'type'        => 'string',
-							'description' => __( 'ID of the notice.', 'jetpack-premium-analytics' ),
+							'description' => __( 'ID of the notice.', 'jetpack-premium-analytics-pkg' ),
 						),
 						'status'        => array(
 							'required'    => true,
 							'type'        => 'string',
-							'description' => __( 'Status of the notice.', 'jetpack-premium-analytics' ),
+							'description' => __( 'Status of the notice.', 'jetpack-premium-analytics-pkg' ),
 						),
 						'postponed_for' => array(
 							'type'        => 'number',
 							'default'     => 0,
-							'description' => __( 'Postponed for (in seconds).', 'jetpack-premium-analytics' ),
+							'description' => __( 'Postponed for (in seconds).', 'jetpack-premium-analytics-pkg' ),
 							'minimum'     => 0,
 						),
 					),

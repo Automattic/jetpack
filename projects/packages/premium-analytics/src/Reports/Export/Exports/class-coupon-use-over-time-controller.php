@@ -38,7 +38,7 @@ class Coupon_Use_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 	 * @return string The report label.
 	 */
 	public function get_report_label(): string {
-		return __( 'Coupon Use Over Time', 'jetpack-premium-analytics' );
+		return __( 'Coupon Use Over Time', 'jetpack-premium-analytics-pkg' );
 	}
 
 	/**
@@ -59,14 +59,14 @@ class Coupon_Use_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 	public function get_column_headers( ?string $interval = null ): array {
 		return array(
 			'time_interval'              => $this->get_interval_label( $interval ),
-			'orders_no'                  => __( 'Total Orders', 'jetpack-premium-analytics' ),
-			'orders_with_coupon'         => __( 'Orders with coupon', 'jetpack-premium-analytics' ),
-			'total_sales'                => __( 'Total sales', 'jetpack-premium-analytics' ),
-			'gross_sales_with_coupon'    => __( 'Gross sales with coupon', 'jetpack-premium-analytics' ),
-			'gross_sales_without_coupon' => __( 'Gross sales without coupon', 'jetpack-premium-analytics' ),
-			'coupons'                    => __( 'Discount amount - Total', 'jetpack-premium-analytics' ),
-			'orders_value_net'           => __( 'Net sales - after discounts', 'jetpack-premium-analytics' ),
-			'coupon_use_pct_of_sales'    => __( 'Coupon use as % of sales', 'jetpack-premium-analytics' ),
+			'orders_no'                  => __( 'Total Orders', 'jetpack-premium-analytics-pkg' ),
+			'orders_with_coupon'         => __( 'Orders with coupon', 'jetpack-premium-analytics-pkg' ),
+			'total_sales'                => __( 'Total sales', 'jetpack-premium-analytics-pkg' ),
+			'gross_sales_with_coupon'    => __( 'Gross sales with coupon', 'jetpack-premium-analytics-pkg' ),
+			'gross_sales_without_coupon' => __( 'Gross sales without coupon', 'jetpack-premium-analytics-pkg' ),
+			'coupons'                    => __( 'Discount amount - Total', 'jetpack-premium-analytics-pkg' ),
+			'orders_value_net'           => __( 'Net sales - after discounts', 'jetpack-premium-analytics-pkg' ),
+			'coupon_use_pct_of_sales'    => __( 'Coupon use as % of sales', 'jetpack-premium-analytics-pkg' ),
 		);
 	}
 

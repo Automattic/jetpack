@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Allow consumers to provide the WordPress.com authentication state and request client used by the Help Center.

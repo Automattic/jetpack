@@ -55,12 +55,12 @@ function TagsReport(): JSX.Element {
 			breadcrumbs={
 				<Breadcrumbs
 					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'Tags & categories', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
+						{ label: __( 'Tags & categories', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
 			}
-			subTitle={ __( 'Your most visited tags and categories.', 'jetpack-premium-analytics' ) }
+			subTitle={ __( 'Your most visited tags and categories.', 'jetpack-premium-analytics-pkg' ) }
 			className={ styles.page }
 		>
 			<div className={ styles.content }>
@@ -73,7 +73,7 @@ function TagsReport(): JSX.Element {
 					 */ }
 					{ records.isError ? (
 						<ReportErrorState
-							title={ __( 'Unable to load tags and categories', 'jetpack-premium-analytics' ) }
+							title={ __( 'Unable to load tags and categories', 'jetpack-premium-analytics-pkg' ) }
 							onRetry={ retry }
 						/>
 					) : (
@@ -83,7 +83,7 @@ function TagsReport(): JSX.Element {
 							getItemId={ getTagRowId }
 							isLoading={ records.isLoading }
 							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search tags and categories', 'jetpack-premium-analytics' ) }
+							searchLabel={ __( 'Search tags and categories', 'jetpack-premium-analytics-pkg' ) }
 						/>
 					) }
 				</ReportPageLayout>

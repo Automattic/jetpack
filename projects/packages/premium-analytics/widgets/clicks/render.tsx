@@ -173,7 +173,7 @@ function buildLeaderboardData(
 								onClick: () => onDrillDown( row ),
 								ariaLabel: sprintf(
 									/* translators: %s is the clicked link or domain label. */
-									__( 'View clicked links for %s', 'jetpack-premium-analytics' ),
+									__( 'View clicked links for %s', 'jetpack-premium-analytics-pkg' ),
 									row.label
 								),
 						  }
@@ -295,8 +295,8 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 
 	const backLink = isDrillDown ? (
 		<WidgetBackLink
-			label={ __( 'All Clicks', 'jetpack-premium-analytics' ) }
-			ariaLabel={ __( 'View all clicks', 'jetpack-premium-analytics' ) }
+			label={ __( 'All Clicks', 'jetpack-premium-analytics-pkg' ) }
+			ariaLabel={ __( 'View all clicks', 'jetpack-premium-analytics-pkg' ) }
 			onClick={ clearSelectedClick }
 		/>
 	) : null;
@@ -316,13 +316,13 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 				error={ {
 					description: __(
 						"We couldn't load clicks. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
 					icon: link,
-					description: __( 'No clicks in this period.', 'jetpack-premium-analytics' ),
+					description: __( 'No clicks in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				<ClicksLeaderboard

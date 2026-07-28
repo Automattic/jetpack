@@ -32,7 +32,7 @@ class WP_REST_Help_Center_Jetpack_Connection_Health extends WP_REST_Help_Center_
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_connection_health' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => '__return_true',
 			)
 		);
 	}
@@ -52,7 +52,7 @@ class WP_REST_Help_Center_Jetpack_Connection_Health extends WP_REST_Help_Center_
 			$site = get_current_blog_id();
 		}
 
-		$body = $this->wpcom_request_client->request_as_user(
+		$body = $this->wpcom_request_client->request(
 			'sites/' . $site . '/jetpack-connection-health',
 			'2'
 		);

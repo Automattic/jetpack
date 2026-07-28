@@ -45,10 +45,10 @@ export default function OrdersOverTimeRender( {
 			<div className={ styles.root }>
 				<OrderMetricWidget
 					metricKey="orders_no"
-					emptyStateText={ __( 'No orders in this period.', 'jetpack-premium-analytics' ) }
+					emptyStateText={ __( 'No orders in this period.', 'jetpack-premium-analytics-pkg' ) }
 					errorText={ __(
 						"We couldn't load orders. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					) }
 				/>
 				<WidgetFooter>

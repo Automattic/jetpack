@@ -123,7 +123,7 @@ export const route = {
 				key: 'name',
 				baseURL: `/${ DASHBOARD_REST_NAMESPACE }/widget-modules`,
 				plural: 'widgetModules',
-				label: __( 'Widget modules', 'jetpack-premium-analytics' ),
+				label: __( 'Widget modules', 'jetpack-premium-analytics-pkg' ),
 				supportsPagination: false,
 			},
 			{
@@ -132,7 +132,7 @@ export const route = {
 				key: 'slug',
 				baseURL: `/${ DASHBOARD_REST_NAMESPACE }/dashboards/${ DASHBOARD_NAME }/sections`,
 				plural: 'dashboardSections',
-				label: __( 'Dashboard sections', 'jetpack-premium-analytics' ),
+				label: __( 'Dashboard sections', 'jetpack-premium-analytics-pkg' ),
 				supportsPagination: false,
 			},
 		] );

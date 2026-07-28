@@ -31,12 +31,12 @@ export function SiteNotConnected() {
 
 			<Stack direction="column" gap="sm" align="center">
 				<span className="jetpack-premium-analytics-site-not-connected__title">
-					{ __( 'Connect your site', 'jetpack-premium-analytics' ) }
+					{ __( 'Connect your site', 'jetpack-premium-analytics-pkg' ) }
 				</span>
 				<span className="jetpack-premium-analytics-site-not-connected__description">
 					{ __(
 						"This site isn't connected to WordPress.com yet. Connect it to start syncing your store data and view your analytics.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					) }
 				</span>
 			</Stack>

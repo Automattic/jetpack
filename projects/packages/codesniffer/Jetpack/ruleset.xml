@@ -3,7 +3,14 @@
 	<description>Jetpack coding standards. Based on the WordPress coding standards, with some additions.</description>
 
 	<rule ref="PHPCompatibilityWP" />
-	<rule ref="WordPress"/>
+	<rule ref="WordPress">
+		<!-- Versions of WordPressCS before 3.4.1 pass the `$ver` argument of enqueue/register calls
+		     through `eval()`, allowing arbitrary code execution when scanning untrusted code
+		     (GHSA-3pwp-g2mj-5p3v). WordPressCS 3.4.1 is currently blocked by
+		     mediawiki/mediawiki-codesniffer pinning phpcsstandards/phpcsextra to 1.5.0.
+		     Remove this exclusion once WordPressCS >= 3.4.1 is installable. -->
+		<exclude name="WordPress.WP.EnqueuedResourceParameters" />
+	</rule>
 	<rule ref="VariableAnalysis" />
 
 	<!-- We only include some rules from mediawiki/mediawiki-codesniffer. -->

@@ -84,9 +84,10 @@ class AssetsTest extends TestCase {
 		Jetpack_Constants::clear_constants();
 
 		// Clear the instance.
-		$wrap             = TestingAccessWrapper::newFromClass( Assets::class );
-		$wrap->instance   = null;
-		$wrap->domain_map = array();
+		$wrap               = TestingAccessWrapper::newFromClass( Assets::class );
+		$wrap->instance     = null;
+		$wrap->domain_map   = array();
+		$wrap->domain_paths = array();
 	}
 
 	/**
@@ -711,9 +712,10 @@ class AssetsTest extends TestCase {
 	#[DataProvider( 'provide_wp_default_scripts_hook' )]
 	public function test_wp_default_scripts_hook( $expect_filter, $expect_js, $options = array() ) {
 		$options += array(
-			'constants'  => array(),
-			'locale'     => 'en_US',
-			'domain_map' => array(),
+			'constants'    => array(),
+			'locale'       => 'en_US',
+			'domain_map'   => array(),
+			'domain_paths' => array(),
 		);
 
 		$constants = $options['constants'] + array(
@@ -725,7 +727,9 @@ class AssetsTest extends TestCase {
 			Jetpack_Constants::set_constant( $k, $v );
 		}
 
-		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = $options['domain_map'];
+		$wrap               = TestingAccessWrapper::newFromClass( Assets::class );
+		$wrap->domain_map   = $options['domain_map'];
+		$wrap->domain_paths = $options['domain_paths'];
 
 		Functions\expect( 'determine_locale' )->andReturn( $options['locale'] );
 		Functions\expect( 'site_url' )->andReturnUsing(
@@ -833,12 +837,17 @@ class AssetsTest extends TestCase {
 				),
 				'wp.jpI18nLoader.state = {"baseUrl":"http://example.com/wp-includes/languages/","locale":"de_DE","domainMap":{"jetpack-foo":"plugins/jetpack","jetpack-bar":"themes/sometheme","core":"default"},"domainPaths":{"jetpack-foo":"path/to/foo/"}};',
 				array(
-					'constants'  => array( 'WP_LANG_DIR' => '/path/to/wordpress/wp-includes/languages' ),
-					'locale'     => 'de_DE',
-					'domain_map' => array(
-						'jetpack-foo' => array( 'jetpack', 'plugins', '1.2.3', 'path/to/foo' ),
-						'jetpack-bar' => array( 'sometheme', 'themes', '1.2.3', '' ),
-						'core'        => array( 'default', 'core', '1.2.3', '' ),
+					'constants'    => array( 'WP_LANG_DIR' => '/path/to/wordpress/wp-includes/languages' ),
+					'locale'       => 'de_DE',
+					'domain_map'   => array(
+						'jetpack-foo' => array( 'jetpack', 'plugins', '1.2.3' ),
+						'jetpack-bar' => array( 'sometheme', 'themes', '1.2.3' ),
+						'core'        => array( 'default', 'core', '1.2.3' ),
+					),
+					'domain_paths' => array(
+						'jetpack-foo' => array( '1.2.3', 'path/to/foo' ),
+						'jetpack-bar' => array( '1.2.3', '' ),
+						'core'        => array( '1.2.3', '' ),
 					),
 				),
 			),
@@ -985,12 +994,35 @@ class AssetsTest extends TestCase {
 		Assets::alias_textdomain( 'bar', 'one', 'themes', '1.2.3', 'path/to/bar/1.2.3' );
 		Assets::alias_textdomain( 'bar', 'two', 'themes', '1.2.2', 'path/to/bar/1.2.2' );
 
+		$wrap = TestingAccessWrapper::newFromClass( Assets::class );
 		$this->assertEquals(
 			array(
-				'foo' => array( 'two', 'plugins', '1.2.4', 'path/to/foo/1.2.4' ),
-				'bar' => array( 'one', 'themes', '1.2.3', 'path/to/bar/1.2.3' ),
+				'foo' => array( 'two', 'plugins', '1.2.4' ),
+				'bar' => array( 'one', 'themes', '1.2.3' ),
 			),
-			TestingAccessWrapper::newFromClass( Assets::class )->domain_map
+			$wrap->domain_map
+		);
+		$this->assertEquals(
+			array(
+				'foo' => array( '1.2.4', 'path/to/foo/1.2.4' ),
+				'bar' => array( '1.2.3', 'path/to/bar/1.2.3' ),
+			),
+			$wrap->domain_paths
+		);
+	}
+
+	/** Test that a self-alias registers the path but no alias: aliasing would recurse infinitely in filter_gettext() on any untranslated string. */
+	public function test_alias_textdomain__self_alias_records_path_only() {
+		Filters\expectAdded( 'gettext_foo' )->never();
+
+		Assets::alias_textdomain( 'foo', 'foo', 'plugins', '1.2.3', 'path/to/foo/1.2.3' );
+
+		$wrap = TestingAccessWrapper::newFromClass( Assets::class );
+		$this->assertEquals( array(), $wrap->domain_map, 'no alias is registered' );
+		$this->assertEquals(
+			array( 'foo' => array( '1.2.3', 'path/to/foo/1.2.3' ) ),
+			$wrap->domain_paths,
+			'the path is still needed to locate the package\'s JS translations'
 		);
 	}
 
@@ -1004,12 +1036,22 @@ class AssetsTest extends TestCase {
 	/** Test alias_textdomains_from_file */
 	public function test_alias_textdomains_from_file() {
 		Assets::alias_textdomains_from_file( __DIR__ . '/test-assets-files/i18n-map.php' );
+		$wrap = TestingAccessWrapper::newFromClass( Assets::class );
 		$this->assertEquals(
 			array(
-				'foo' => array( 'target', 'plugins', '1.2.3', 'path/to/foo' ),
-				'bar' => array( 'target', 'plugins', '4.5.6', '' ),
+				'foo' => array( 'target', 'plugins', '1.2.3' ),
+				'bar' => array( 'target', 'plugins', '4.5.6' ),
 			),
-			TestingAccessWrapper::newFromClass( Assets::class )->domain_map
+			$wrap->domain_map
+		);
+		$this->assertEquals(
+			array(
+				'foo'    => array( '1.2.3', 'path/to/foo' ),
+				'bar'    => array( '4.5.6', '' ),
+				'target' => array( '7.8.9', 'path/to/target' ),
+			),
+			$wrap->domain_paths,
+			'the `paths` entry registers a path without aliasing the plugin domain to itself'
 		);
 	}
 
@@ -1026,7 +1068,7 @@ class AssetsTest extends TestCase {
 
 	/** Test filter_gettext. */
 	public function test_filter_gettext() {
-		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = array( 'olddomain' => array( 'newdomain', 'plugins', '1.2.3', '' ) );
+		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = array( 'olddomain' => array( 'newdomain', 'plugins', '1.2.3' ) );
 
 		Functions\expect( '__' )->once()->with( 'foo', 'newdomain' )->andReturn( 'oo-fay' );
 		Functions\expect( '__' )->never()->with( 'bar', 'newdomain' );
@@ -1038,7 +1080,7 @@ class AssetsTest extends TestCase {
 
 	/** Test filter_ngettext. */
 	public function test_filter_ngettext() {
-		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = array( 'olddomain' => array( 'newdomain', 'plugins', '1.2.3', '' ) );
+		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = array( 'olddomain' => array( 'newdomain', 'plugins', '1.2.3' ) );
 
 		Functions\expect( '_n' )->once()->with( 'foo', 'foos', 10, 'newdomain' )->andReturn( 'oos-fay' );
 		Functions\expect( '_n' )->never()->with( 'bar', 'bars', 42, 'newdomain' );
@@ -1050,7 +1092,7 @@ class AssetsTest extends TestCase {
 
 	/** Test filter_gettext_with_context. */
 	public function test_filter_gettext_with_context() {
-		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = array( 'olddomain' => array( 'newdomain', 'plugins', '1.2.3', '' ) );
+		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = array( 'olddomain' => array( 'newdomain', 'plugins', '1.2.3' ) );
 
 		Functions\expect( '_x' )->once()->with( 'foo', 'context', 'newdomain' )->andReturn( 'oo-fay' );
 		Functions\expect( '_x' )->never()->with( 'bar', 'context', 'newdomain' );
@@ -1062,7 +1104,7 @@ class AssetsTest extends TestCase {
 
 	/** Test filter_ngettext_with_context. */
 	public function test_filter_ngettext_with_context() {
-		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = array( 'olddomain' => array( 'newdomain', 'plugins', '1.2.3', '' ) );
+		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = array( 'olddomain' => array( 'newdomain', 'plugins', '1.2.3' ) );
 
 		Functions\expect( '_nx' )->once()->with( 'foo', 'foos', 10, 'context', 'newdomain' )->andReturn( 'oos-fay' );
 		Functions\expect( '_nx' )->never()->with( 'bar', 'bars', 42, 'context', 'newdomain' );
@@ -1084,9 +1126,9 @@ class AssetsTest extends TestCase {
 	public function test_filter_load_script_translation_file( $args, $is_readable, $expect ) {
 		Jetpack_Constants::set_constant( 'WP_LANG_DIR', '/path/to/wordpress/wp-content/languages' );
 		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = array(
-			'one'   => array( 'new1', 'plugins', '1.2.3', 'path/to/one' ),
-			'two'   => array( 'new2', 'themes', '1.2.3', '' ),
-			'three' => array( 'new3', 'core', '1.2.3', '' ),
+			'one'   => array( 'new1', 'plugins', '1.2.3' ),
+			'two'   => array( 'new2', 'themes', '1.2.3' ),
+			'three' => array( 'new3', 'core', '1.2.3' ),
 		);
 		Functions\when( 'is_readable' )->alias(
 			function ( $file ) use ( $is_readable ) {

@@ -2,6 +2,11 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [2.2.0] - 2026-07-27
+### Added
+- Add a `./state/store-id` subpath export so `CONNECTION_STORE_ID` can be imported without pulling the package barrel. [#50714]
+- Render connection error notices without a reconnect button when the error's action is `none`. [#50662]
+
 ## [2.1.0] - 2026-07-22
 ### Removed
 - Connection UI: Unify error handling across Basic and Required Plan screens, modernize components, and remove the unused `ConnectUser` component. [#50663]
@@ -1435,6 +1440,7 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[2.2.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.0.2...v2.1.0
 [2.0.2]: https://github.com/Automattic/jetpack-connection-js/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/Automattic/jetpack-connection-js/compare/v2.0.0...v2.0.1

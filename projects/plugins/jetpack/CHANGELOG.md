@@ -2,6 +2,35 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 16.1-a.5 - 2026-07-27
+### Enhancements
+- Add aria-label to hidden Carousel download link for better accessibility. [#50181]
+- Change empty h2 and h3 tags in Carousel to div tags to fix SEO and accessibility warnings. [#50199]
+- Content Guidelines AI: Make AI guideline suggestions available on WordPress.com Simple and Atomic sites, with a paid Jetpack AI or Complete plan required to generate guidelines. [#49933]
+- Memberships: Add support for the Malaysian ringgit (MYR) currency. [#50741]
+- REST API: Defer loading of WPCOM REST endpoint files to REST requests, saving execution time on every non-REST page load. [#48363]
+- SEO: Add AI crawler management — free per-bot allow/block toggles (answer and mixed-use crawlers allowed, training crawlers blocked by default) that write robots.txt directives. [#50186]
+- SEO: Add custom post type support and llms.txt generation. [#50185]
+- Social: The block editor sidebar now uses the same connection management UI as the Social admin page. [#50731]
+- VideoPress: Keep the VideoPress item under the Jetpack menu when the module is not active, linking to the My Jetpack page to activate it. [#50740]
+- VideoPress: Upload videos added via the classic media-new.php uploader directly to VideoPress, matching the Media Library behavior. [#50700]
+
+### Improved compatibility
+- Content Guidelines AI: Restore compatibility with the Gutenberg 23.6 Guidelines page by reading section drafts from the page DOM instead of the removed core/guidelines store. [#50658]
+- Notifications: Show the notification bell in the admin bar on the Post editor and Site editor. [#50686]
+
+### Bug fixes
+- Carousel: Show the already-loaded thumbnail while the full-size image downloads, so slides are no longer blank when moving quickly through a gallery. [#50760]
+- Change EXIF data rendering to be dynamic via JavaScript to resolve empty list accessibility warning. [#50201]
+- Likes: Do not show the Like button on password-protected posts, even for viewers who can read the post (owners, admins, or after unlocking). [#50670]
+- Newsletter: Show a connect prompt when a WordPress.com user connection is required for email preview and test emails, and disable the "Send" button until connected. [#50767]
+- SEO: Preserve Sitemaps and Canonical URLs settings when runtime filters temporarily suppress their modules. [#50781]
+- Tiled Gallery: Fix images collapsing to ~105px in the editor when the canvas is not iframed. [#50682]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Connection: Render informational-only connection error notices (no reconnect button) in the dashboard when an error's action is "none". [#50662]
+- Update package dependencies. [#50825] [#50751] [#50753] [#50792]
+
 ## 16.1-a.3 - 2026-07-20
 ### Enhancements
 - AI Sidebar: Add Jetpack AI abilities in the page and site editors. [#49979]

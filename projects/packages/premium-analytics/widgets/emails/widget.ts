@@ -46,21 +46,21 @@ export default {
 	attributes: [
 		{
 			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics' ),
+			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
 			type: 'integer',
 		},
 		{
 			id: 'metric',
-			label: __( 'View by', 'jetpack-premium-analytics' ),
+			label: __( 'View by', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
 			Edit: SelectField,
 			elements: [
 				{
-					label: __( 'Open rate', 'jetpack-premium-analytics' ),
+					label: __( 'Open rate', 'jetpack-premium-analytics-pkg' ),
 					value: 'opens',
 				},
 				{
-					label: __( 'Click rate', 'jetpack-premium-analytics' ),
+					label: __( 'Click rate', 'jetpack-premium-analytics-pkg' ),
 					value: 'clicks',
 				},
 			],

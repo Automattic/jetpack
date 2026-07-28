@@ -53,19 +53,19 @@ export function buildBookingsByAttendanceData(
 	const statusMap: Array< { key: AttendanceStatusKey; label: string } > = [
 		{
 			key: 'attendance_status_booked',
-			label: __( 'Booked', 'jetpack-premium-analytics' ),
+			label: __( 'Booked', 'jetpack-premium-analytics-pkg' ),
 		},
 		{
 			key: 'attendance_status_checked_in',
-			label: __( 'Checked In', 'jetpack-premium-analytics' ),
+			label: __( 'Checked In', 'jetpack-premium-analytics-pkg' ),
 		},
 		{
 			key: 'attendance_status_no_show',
-			label: __( 'No Show', 'jetpack-premium-analytics' ),
+			label: __( 'No Show', 'jetpack-premium-analytics-pkg' ),
 		},
 		{
 			key: 'status_cancelled',
-			label: __( 'Cancelled', 'jetpack-premium-analytics' ),
+			label: __( 'Cancelled', 'jetpack-premium-analytics-pkg' ),
 		},
 	];
 

@@ -56,8 +56,8 @@ const METRIC_FIELDS: Record< EmailTimeSeriesMetric, 'opens_count' | 'clicks_coun
  */
 function metricLabel( metric: EmailTimeSeriesMetric ): string {
 	return metric === 'clicks'
-		? __( 'Total clicks', 'jetpack-premium-analytics' )
-		: __( 'Total opens', 'jetpack-premium-analytics' );
+		? __( 'Total clicks', 'jetpack-premium-analytics-pkg' )
+		: __( 'Total opens', 'jetpack-premium-analytics-pkg' );
 }
 
 type EmailTimeSeriesReportProps = {
@@ -227,15 +227,18 @@ function EmailTimeSeriesReport( { metric, granularity }: EmailTimeSeriesReportPr
 				error={ {
 					description: __(
 						"We couldn't load this email's timeline. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: retry } ],
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: retry } ],
 				} }
 				empty={ {
 					icon: reports,
 					description: hasSelection
-						? __( 'No activity for this email in this period.', 'jetpack-premium-analytics' )
-						: __( 'Open an email report to see its timeline here.', 'jetpack-premium-analytics' ),
+						? __( 'No activity for this email in this period.', 'jetpack-premium-analytics-pkg' )
+						: __(
+								'Open an email report to see its timeline here.',
+								'jetpack-premium-analytics-pkg'
+						  ),
 				} }
 			>
 				<ComparativeLineChart

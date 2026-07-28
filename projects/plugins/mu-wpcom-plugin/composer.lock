@@ -716,7 +716,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "ce362d9d8bf97228d5267f8d4a9b05379ff98aa2"
+                "reference": "b73cc2a68522658c6693f035e7a8c0d5b6984688"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -753,7 +753,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "8.7.x-dev"
+                    "dev-trunk": "8.8.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1044,7 +1044,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/help-center",
-                "reference": "91a45bf85bebe2f5792374b804fe40d3d157f118"
+                "reference": "48d4a0c0e828efd684bf626fbfd0428d6a235bb7"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1065,7 +1065,7 @@
                 "autorelease": true,
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-help-center/compare/v${old}...v${new}"
@@ -1796,7 +1796,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "65140eaa3f8196b645d464edf243e9282a392e13"
+                "reference": "304ceeeb57ae0338fe605547cbc391fdf1b33d3b"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1818,7 +1818,7 @@
             "extra": {
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-premium-analytics",
-                "textdomain": "jetpack-premium-analytics",
+                "textdomain": "jetpack-premium-analytics-pkg",
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-analytics.php"
                 },
