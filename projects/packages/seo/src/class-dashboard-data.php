@@ -361,11 +361,10 @@ class Dashboard_Data {
 	 * The public URL of the XML sitemap, or an empty string when none is reachable.
 	 *
 	 * A sitemap is reachable as soon as generation is enabled and the site is public:
-	 * Jetpack serves the sitemap at a stable URL and returns a valid (empty-until-built)
-	 * sitemap there — never a 404 — so the link is safe to surface immediately. We do
-	 * NOT gate on the master sitemap having been generated: that left the Settings tab
-	 * stuck on "Generating…" for the 1–15 minutes before Jetpack's first cron run and,
-	 * because the tab never re-checked, effectively forever.
+	 * Jetpack serves a valid (empty-until-built) sitemap at a stable URL — never a 404 —
+	 * so the link is safe to surface immediately, without waiting on (or gating against)
+	 * the cron build. A prior gate looked the master sitemap up by a mis-built filename
+	 * and so never matched, which is what left the Settings tab stuck on "Generating…".
 	 *
 	 * `jetpack_sitemap_uri()` / `jp_sitemap_filename()` and the JP_MASTER_SITEMAP_TYPE
 	 * constant live in the Jetpack plugin's Sitemaps module (loaded only for an active
