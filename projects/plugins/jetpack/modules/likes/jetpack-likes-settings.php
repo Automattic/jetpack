@@ -442,15 +442,6 @@ class Jetpack_Likes_Settings {
 	public function is_single_post_enabled( $post_type = 'post' ) {
 		$options = $this->get_options();
 
-		$is_in_show = in_array( $post_type, $options['show'], true );
-
-		if ( ! $is_in_show ) {
-			$post_type_obj = get_post_type_object( $post_type );
-			if ( $post_type_obj && ! $post_type_obj->_builtin ) {
-				$is_in_show = in_array( 'post', $options['show'], true );
-			}
-		}
-
 		/**
 		 * Filters whether Likes should be enabled on single posts.
 		 *
@@ -464,7 +455,7 @@ class Jetpack_Likes_Settings {
 		 */
 		$post_likes_enabled = apply_filters(
 			"wpl_is_single_{$post_type}_disabled",
-			$is_in_show
+			in_array( $post_type, $options['show'], true )
 		);
 
 		return (bool) $post_likes_enabled;
@@ -489,7 +480,7 @@ class Jetpack_Likes_Settings {
 
 		// Default visibility settings
 		if ( ! isset( $sharing['global']['show'] ) ) {
-			$public_cpts               = array_values(
+			$public_cpts = array_values(
 				get_post_types(
 					array(
 						'public'   => true,
@@ -497,7 +488,21 @@ class Jetpack_Likes_Settings {
 					)
 				)
 			);
-			$sharing['global']['show'] = array_merge( array( 'post', 'page' ), $public_cpts );
+
+			/**
+			 * Filters the default post types that show Likes when no sharing settings have been saved.
+			 *
+			 * Only applies when the site has never explicitly configured Likes visibility.
+			 * Once a site owner saves sharing settings, those are used instead.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param string[] $post_types Array of post type slugs that will show Likes by default.
+			 */
+			$sharing['global']['show'] = apply_filters(
+				'jetpack_likes_default_post_types',
+				array_merge( array( 'post', 'page' ), $public_cpts )
+			);
 
 			// Scalar check
 		} elseif ( is_scalar( $sharing['global']['show'] ) ) {
