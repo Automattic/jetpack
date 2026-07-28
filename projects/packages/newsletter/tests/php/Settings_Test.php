@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Newsletter\Tests;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Newsletter\Settings;
+use Automattic\Jetpack\Newsletter\Subscribers_Announcement;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
@@ -49,6 +50,12 @@ class Settings_Test extends BaseTestCase {
 
 		// Clear the load action registered by add_wp_admin_menu on success.
 		remove_all_actions( 'load-jetpack_page_jetpack-newsletter' );
+
+		// Clear the Subscribers announcement handlers. Without this a test that
+		// registers them leaks into the next one, and a test asserting they are
+		// absent would pass or fail on ordering rather than on the site-ID gate.
+		remove_all_actions( 'wp_ajax_' . Subscribers_Announcement::TOGGLE_ACTION );
+		remove_all_actions( 'admin_post_' . Subscribers_Announcement::GO_ACTION );
 	}
 
 	/**
@@ -462,6 +469,110 @@ class Settings_Test extends BaseTestCase {
 			has_action( 'current_screen', array( Settings::class, 'alias_screen_id_for_wp_build' ) ),
 			'maybe_load_wp_build must not register the screen alias when modernization is disabled.'
 		);
+	}
+
+	/**
+	 * Sites registered before the cutoff predate the Subscribers move, so
+	 * `init_hooks()` must wire up the transitional announcement page for them.
+	 */
+	public function test_init_hooks_registers_announcement_for_site_below_cutoff() {
+		$this->connect_site_with_id( Settings::SUBSCRIBERS_ANNOUNCEMENT_SITE_ID_CUTOFF - 1 );
+
+		( new Settings() )->init_hooks();
+
+		$this->assertAnnouncementHandlersRegistered(
+			true,
+			'Sites below the cutoff predate the move and must get the announcement handlers.'
+		);
+	}
+
+	/**
+	 * Sites registered at or after the cutoff never saw the old Subscribers
+	 * placement, so the announcement page must not be initialized for them.
+	 */
+	public function test_init_hooks_skips_announcement_for_site_at_cutoff() {
+		$this->connect_site_with_id( Settings::SUBSCRIBERS_ANNOUNCEMENT_SITE_ID_CUTOFF );
+
+		( new Settings() )->init_hooks();
+
+		$this->assertAnnouncementHandlersRegistered(
+			false,
+			'The cutoff is exclusive: a site whose ID equals it must not see the announcement.'
+		);
+	}
+
+	/**
+	 * A comfortably newer site is the common case for the skip path.
+	 */
+	public function test_init_hooks_skips_announcement_for_site_above_cutoff() {
+		$this->connect_site_with_id( Settings::SUBSCRIBERS_ANNOUNCEMENT_SITE_ID_CUTOFF + 1000 );
+
+		( new Settings() )->init_hooks();
+
+		$this->assertAnnouncementHandlersRegistered(
+			false,
+			'Sites above the cutoff only ever saw the current placement.'
+		);
+	}
+
+	/**
+	 * Regression test: on a disconnected site `get_site_id()` has no ID to
+	 * return. The quiet form yields null, which must be treated as a newer site
+	 * and skipped — comparing the non-quiet `WP_Error` against an int would
+	 * raise a TypeError on PHP 8.
+	 */
+	public function test_init_hooks_skips_announcement_when_site_id_is_unknown() {
+		\Jetpack_Options::delete_option( 'id' );
+		\Jetpack_Options::delete_option( 'blog_token' );
+		( new Connection_Manager() )->reset_connection_status();
+
+		$this->assertNull(
+			Connection_Manager::get_site_id( true ),
+			'Precondition: a disconnected site must have no known site ID.'
+		);
+
+		( new Settings() )->init_hooks();
+
+		$this->assertAnnouncementHandlersRegistered(
+			false,
+			'A site with no known ID must be treated as newer and skip the announcement.'
+		);
+	}
+
+	/**
+	 * Simulate a connected site carrying a specific WPCOM site ID.
+	 *
+	 * @param int $site_id The site ID to store.
+	 */
+	private function connect_site_with_id( $site_id ) {
+		\Jetpack_Options::update_option( 'id', $site_id );
+		\Jetpack_Options::update_option( 'blog_token', 'test_token.secret' );
+		( new Connection_Manager() )->reset_connection_status();
+	}
+
+	/**
+	 * Assert whether `Subscribers_Announcement::init()` ran, via the handlers it
+	 * registers. Those AJAX/admin-post hooks are the reason init() is called from
+	 * `init_hooks()` at all, so they are the meaningful observable effect.
+	 *
+	 * @param bool   $expected Whether the handlers should be present.
+	 * @param string $message  Assertion message.
+	 */
+	private function assertAnnouncementHandlersRegistered( $expected, $message ) {
+		$hooks = array(
+			'wp_ajax_' . Subscribers_Announcement::TOGGLE_ACTION => 'handle_toggle_menu',
+			'admin_post_' . Subscribers_Announcement::GO_ACTION => 'handle_go_to_newsletter',
+		);
+
+		foreach ( $hooks as $hook => $method ) {
+			$registered = has_action( $hook, array( Subscribers_Announcement::class, $method ) );
+
+			if ( $expected ) {
+				$this->assertNotFalse( $registered, $message . " ($hook)" );
+			} else {
+				$this->assertFalse( $registered, $message . " ($hook)" );
+			}
+		}
 	}
 
 	/**

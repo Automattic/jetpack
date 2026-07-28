@@ -36,11 +36,12 @@ class Settings {
 	/**
 	 * Site ID cutoff for displaying the Subscribers announcement page.
 	 *
-	 * Sites registered below this ID existed before Subscribers moved out of
-	 * its old placement, so they need the transitional announcement. Sites at
-	 * or above it only ever saw the current placement.
+	 * Sites with an ID *below* this value registered before Subscribers moved
+	 * out of its old placement, so they need the transitional announcement.
+	 * Sites at or above it only ever saw the current placement. The bound is
+	 * exclusive: a site whose ID equals this value does not see the page.
 	 */
-	const SUBSCRIBERS_ANNOUNCEMENT_MAX_SITE_ID = 256340000;
+	const SUBSCRIBERS_ANNOUNCEMENT_SITE_ID_CUTOFF = 256340000;
 
 	/**
 	 * Whether the class has been initialized
@@ -102,7 +103,7 @@ class Settings {
 		// placement and have nothing to be told about. Sites with no known
 		// site ID (disconnected) are treated as newer and skip the page.
 		$site_id = Connection_Manager::get_site_id( true );
-		if ( $site_id !== null && $site_id < self::SUBSCRIBERS_ANNOUNCEMENT_MAX_SITE_ID ) {
+		if ( $site_id !== null && $site_id < self::SUBSCRIBERS_ANNOUNCEMENT_SITE_ID_CUTOFF ) {
 			Subscribers_Announcement::init();
 		}
 
