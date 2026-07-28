@@ -392,11 +392,13 @@ class Dashboard_Data {
 			return '';
 		}
 
-		// `jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE )` is the master file name
-		// ('sitemap.xml'). esc_url_raw (not esc_url): the value is transported via script
-		// data and rendered by React, so it must not be HTML-entity-encoded (e.g. the
-		// plain-permalink `?jetpack-sitemap=` form keeps its raw `&`).
+		// The master file is 'sitemap.xml'. `jp_sitemap_filename()` returns an error
+		// string ("error-not-int-…") unless a non-null number is passed — the master
+		// ignores the number, so pass 0, matching Jetpack's own call sites. esc_url_raw
+		// (not esc_url): the value is transported via script data and rendered by React,
+		// so it must not be HTML-entity-encoded (e.g. the plain-permalink
+		// `?jetpack-sitemap=` form keeps its raw `&`).
 		// @phan-suppress-next-line PhanUndeclaredFunction -- guarded above; symbols live in plugins/jetpack.
-		return esc_url_raw( (string) jetpack_sitemap_uri( jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE ) ) );
+		return esc_url_raw( (string) jetpack_sitemap_uri( jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, 0 ) ) );
 	}
 }
