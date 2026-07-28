@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Connection: Add a built-in "take over ownership" call to action for connection error notices, and select the surfaced error deterministically by how actionable it is for the viewer.

@@ -20,6 +20,18 @@ jest.unstable_mockModule( '../../use-restore-connection', () => ( {
 	} ),
 } ) );
 
+// Take-over-connection also touches window/REST at import; stub it out and expose the
+// handler so tests can assert the built-in take_over_ownership CTA is wired to it.
+const takeOverOwnership = jest.fn( () => Promise.resolve() );
+jest.unstable_mockModule( '../../use-take-over-connection', () => ( {
+	__esModule: true,
+	default: () => ( {
+		takeOverOwnership,
+		isTakingOver: false,
+		takeOverError: null,
+	} ),
+} ) );
+
 // Mock the presentational notice so these tests assert the wiring (which props
 // ConnectionError passes), not the @wordpress/ui rendering.
 const ConnectionErrorNotice = jest.fn< ( props: ConnectionErrorNoticeProps ) => ReactNode >(
@@ -92,5 +104,52 @@ describe( 'ConnectionError', () => {
 		expect( props.actions ).toHaveLength( 0 );
 		// The default "Restore Connection" fallback must also be suppressed.
 		expect( props.restoreConnectionCallback ).toBeNull();
+	} );
+
+	it( 'wires the built-in take_over_ownership CTA to the takeover handler', () => {
+		mockConnection( {
+			connectionErrors: {
+				no_valid_user_token: {
+					'42': {
+						error_message: 'The connection owner needs to reconnect. You can take over ownership.',
+						error_type: 'xmlrpc',
+						audience: 'owner',
+						error_data: { action: 'take_over_ownership' },
+					},
+				},
+			},
+		} );
+
+		render( <ConnectionError /> );
+
+		const props = ConnectionErrorNotice.mock.calls[ 0 ][ 0 ];
+		expect( props.actions ).toHaveLength( 1 );
+		expect( props.actions[ 0 ].label ).toBe( 'Take over ownership' );
+
+		props.actions[ 0 ].onClick();
+		expect( takeOverOwnership ).toHaveBeenCalled();
+	} );
+
+	it( 'selects the most actionable error (site over owner) when several exist', () => {
+		mockConnection( {
+			connectionErrors: {
+				// Owner error listed first, but a site-wide error should win.
+				owner_error: {
+					'42': {
+						error_message: 'Owner message',
+						audience: 'owner',
+						error_data: { action: 'take_over_ownership' },
+					},
+				},
+				site_error: {
+					'0': { error_message: 'Site message', audience: 'site' },
+				},
+			},
+		} );
+
+		render( <ConnectionError /> );
+
+		const props = ConnectionErrorNotice.mock.calls[ 0 ][ 0 ];
+		expect( props.message ).toBe( 'Site message' );
 	} );
 } );

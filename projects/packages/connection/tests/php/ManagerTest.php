@@ -680,9 +680,9 @@ class ManagerTest extends TestCase {
 			)
 		);
 
-		$this->manager->method( 'get_connection_owner_id' )
-			->withAnyParameters()
-			->willReturn( $admin_id );
+		// The current owner is derived from the master_user record (not the token-derived
+		// owner, which is false exactly when the owner's token is broken).
+		Jetpack_Options::update_option( 'master_user', $admin_id );
 
 		$expected = new WP_Error( 'new_owner_is_existing_owner', __( 'New owner is same as existing owner', 'jetpack-connection' ), array( 'status' => 400 ) );
 
@@ -847,6 +847,170 @@ class ManagerTest extends TestCase {
 
 		// Verify that the cache properly reflects the updated owner.
 		$this->assertEquals( $admin3_id, $this->manager->get_connection_owner_id() );
+	}
+
+	/**
+	 * Test that an ownership takeover is refused when a consumer has locked ownership.
+	 */
+	public function test_update_connection_owner_refused_when_ownership_locked() {
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'locked_admin',
+				'user_pass'  => 'pass',
+				'user_email' => 'locked_admin@admin.com',
+				'role'       => 'administrator',
+			)
+		);
+
+		add_filter( 'jetpack_connection_ownership_transferable', '__return_false' );
+
+		// The WPCOM ownership call must never be attempted when ownership is locked.
+		$this->manager->expects( $this->never() )
+			->method( 'update_connection_owner_wpcom' );
+
+		$result = $this->manager->update_connection_owner( $admin_id );
+
+		remove_filter( 'jetpack_connection_ownership_transferable', '__return_false' );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'ownership_locked', $result->get_error_code() );
+	}
+
+	/**
+	 * Test that a successful ownership change fires the jetpack_connection_owner_changed
+	 * action with the previous and new owner IDs.
+	 */
+	public function test_update_connection_owner_fires_owner_changed_hook() {
+		$old_owner_id = wp_insert_user(
+			array(
+				'user_login' => 'old_owner',
+				'user_pass'  => 'pass',
+				'user_email' => 'old_owner@admin.com',
+				'role'       => 'administrator',
+			)
+		);
+		$new_owner_id = wp_insert_user(
+			array(
+				'user_login' => 'new_owner',
+				'user_pass'  => 'pass',
+				'user_email' => 'new_owner@admin.com',
+				'role'       => 'administrator',
+			)
+		);
+		Jetpack_Options::update_option( 'master_user', $old_owner_id );
+
+		$this->tokens->method( 'get_access_token' )
+			->willReturn(
+				(object) array(
+					'secret'           => 'abcd1234',
+					'external_user_id' => $new_owner_id,
+				)
+			);
+		$this->manager->method( 'update_connection_owner_wpcom' )->willReturn( true );
+
+		$fired = array();
+		add_action(
+			'jetpack_connection_owner_changed',
+			function ( $old, $new ) use ( &$fired ) {
+				$fired = array( $old, $new );
+			},
+			10,
+			2
+		);
+
+		$result = $this->manager->update_connection_owner( $new_owner_id );
+
+		remove_all_actions( 'jetpack_connection_owner_changed' );
+
+		$this->assertTrue( $result );
+		$this->assertSame( array( $old_owner_id, $new_owner_id ), $fired, 'The owner-changed hook receives the previous and new owner IDs.' );
+	}
+
+	/**
+	 * Test that a non-owner cannot silently seize ownership via a full reconnect: when a
+	 * live owner exists and only the user token is unhealthy alongside an unhealthy blog
+	 * token, restore() refuses to escalate to a full reconnect.
+	 */
+	public function test_restore_blocks_non_owner_ownership_seizing_reconnect() {
+		$owner_id = wp_insert_user(
+			array(
+				'user_login' => 'restore_owner',
+				'user_pass'  => 'pass',
+				'user_email' => 'restore_owner@admin.com',
+				'role'       => 'administrator',
+			)
+		);
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'restore_admin',
+				'user_pass'  => 'pass',
+				'user_email' => 'restore_admin@admin.com',
+				'role'       => 'administrator',
+			)
+		);
+		Jetpack_Options::update_option( 'master_user', $owner_id );
+		wp_set_current_user( $admin_id );
+
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'is_site_connection', 'get_tokens', 'reconnect' ) )
+			->getMock();
+		$manager->method( 'is_site_connection' )->willReturn( false );
+		$manager->expects( $this->never() )->method( 'reconnect' );
+
+		$tokens = $this->getMockBuilder( Tokens::class )
+			->onlyMethods( array( 'validate' ) )
+			->getMock();
+		$tokens->method( 'validate' )->willReturn(
+			array(
+				'blog_token' => array( 'is_healthy' => false ),
+				'user_token' => array( 'is_healthy' => false ),
+			)
+		);
+		$manager->method( 'get_tokens' )->willReturn( $tokens );
+
+		$result = $manager->restore();
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'reconnect_owner_required', $result->get_error_code() );
+	}
+
+	/**
+	 * Test the owner-is-gone escape hatch: when master_user points at a deleted user, a
+	 * secondary admin is still allowed to trigger a full reconnect so the site is not stuck.
+	 */
+	public function test_restore_allows_reconnect_when_owner_is_gone() {
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'rescue_admin',
+				'user_pass'  => 'pass',
+				'user_email' => 'rescue_admin@admin.com',
+				'role'       => 'administrator',
+			)
+		);
+		// master_user points at a nonexistent WP user.
+		Jetpack_Options::update_option( 'master_user', 987654 );
+		wp_set_current_user( $admin_id );
+
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'is_site_connection', 'get_tokens', 'reconnect' ) )
+			->getMock();
+		$manager->method( 'is_site_connection' )->willReturn( false );
+		$manager->expects( $this->once() )->method( 'reconnect' )->willReturn( true );
+
+		$tokens = $this->getMockBuilder( Tokens::class )
+			->onlyMethods( array( 'validate' ) )
+			->getMock();
+		$tokens->method( 'validate' )->willReturn(
+			array(
+				'blog_token' => array( 'is_healthy' => false ),
+				'user_token' => array( 'is_healthy' => false ),
+			)
+		);
+		$manager->method( 'get_tokens' )->willReturn( $tokens );
+
+		$result = $manager->restore();
+
+		$this->assertSame( 'authorize', $result, 'When the owner is gone, a full reconnect is allowed (returns authorize).' );
 	}
 
 	/**

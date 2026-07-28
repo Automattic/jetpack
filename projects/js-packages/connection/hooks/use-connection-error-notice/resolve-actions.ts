@@ -15,6 +15,16 @@ export const DEFAULT_RECONNECT_TRACKING_EVENT =
 	'jetpack_connection_error_notice_reconnect_cta_click';
 
 /**
+ * Default button labels for the package's built-in named actions, used when the error
+ * does not supply an explicit `action_label`.
+ */
+const DEFAULT_ACTION_LABELS: Record< string, string > = {
+	get take_over_ownership() {
+		return __( 'Take over ownership', 'jetpack-connection-js' );
+	},
+};
+
+/**
  * The resolver's options: the public `ConnectionErrorProps` plus the two fields
  * the hook supplies internally (`restoreConnection` / `isRestoringConnection`).
  */
@@ -86,7 +96,10 @@ export function resolveConnectionErrorActions(
 		// Named handler from the error data.
 		actions = [
 			{
-				label: errorData.action_label || __( 'Take Action', 'jetpack-connection-js' ),
+				label:
+					errorData.action_label ||
+					DEFAULT_ACTION_LABELS[ suggestedAction ] ||
+					__( 'Take Action', 'jetpack-connection-js' ),
 				onClick: () => {
 					try {
 						track( errorData.tracking_event );

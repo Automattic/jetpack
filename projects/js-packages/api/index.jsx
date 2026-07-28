@@ -177,6 +177,13 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		setConnectionOwner: ownerId =>
+			postRequest( `${ apiRoot }jetpack/v4/connection/owner`, postParams, {
+				body: JSON.stringify( { owner: ownerId } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		fetchConnectedPlugins: () =>
 			getRequest( `${ apiRoot }jetpack/v4/connection/plugins`, getParams )
 				.then( checkStatus )

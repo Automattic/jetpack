@@ -1,6 +1,7 @@
 import ConnectionErrorNotice from '../../components/connection-error-notice';
 import useConnection from '../../components/use-connection';
 import useRestoreConnection from '../../hooks/use-restore-connection';
+import useTakeOverConnection from '../../hooks/use-take-over-connection';
 import { resolveConnectionErrorActions } from './resolve-actions';
 import type {
 	ConnectionErrorMap,
@@ -16,6 +17,43 @@ export type {
 	ConnectionErrorMap,
 	ConnectionErrorObject,
 } from './types';
+
+/**
+ * Audience ordering used to pick the single notice to surface: prefer errors the
+ * viewer can act on (site-wide, then their own user error, then the owner's). Errors
+ * with no audience (e.g. consumer-injected) default to site-wide and keep top priority.
+ */
+const AUDIENCE_PRIORITY: Record< string, number > = { site: 0, user: 1, owner: 2 };
+
+/**
+ * Deterministically select the most relevant error from the map by audience priority.
+ *
+ * Replaces insertion-order selection, which is nondeterministic when several errors are
+ * stored, so the notice a viewer sees no longer depends on option write order.
+ *
+ * @param {ConnectionErrorMap} errorMap - The nested error map (code => userId => error).
+ * @return {ConnectionErrorObject | undefined} The selected error, or undefined when empty.
+ */
+function selectPrimaryError( errorMap: ConnectionErrorMap ): ConnectionErrorObject | undefined {
+	let best: ConnectionErrorObject | undefined;
+	let bestRank = Number.POSITIVE_INFINITY;
+
+	for ( const users of Object.values( errorMap ) ) {
+		if ( ! users || typeof users !== 'object' ) {
+			continue;
+		}
+		for ( const error of Object.values( users ) ) {
+			const audience = error?.audience ?? 'site';
+			const rank = AUDIENCE_PRIORITY[ audience ] ?? 0;
+			if ( rank < bestRank ) {
+				bestRank = rank;
+				best = error;
+			}
+		}
+	}
+
+	return best;
+}
 
 /**
  * Connection error notice hook.
@@ -41,6 +79,16 @@ export default function useConnectionErrorNotice( {
 	const { connectionErrors, connectionHealthErrors } = useConnection( {} );
 	const { restoreConnection, isRestoringConnection, restoreConnectionError } =
 		useRestoreConnection();
+	const { takeOverOwnership } = useTakeOverConnection();
+
+	// Built-in handler for the package's `take_over_ownership` action. Consumer-supplied
+	// handlers take precedence, so a consumer can still override the behavior.
+	const mergedActionHandlers = {
+		take_over_ownership: () => {
+			takeOverOwnership().catch( () => {} );
+		},
+		...actionHandlers,
+	};
 
 	// connectionErrors is typed as Array<string|object> but is actually a nested
 	// object at runtime; the store selector can also fall back to `[]`. Normalize
@@ -63,18 +111,14 @@ export default function useConnectionErrorNotice( {
 	const errorMap: ConnectionErrorMap = Object.keys( storedErrorMap ).length
 		? storedErrorMap
 		: healthErrorMap;
-	const connectionErrorList = Object.values( errorMap ).shift();
-	const firstError: ConnectionErrorObject | undefined =
-		connectionErrorList && Object.values( connectionErrorList ).length
-			? Object.values( connectionErrorList ).shift()
-			: undefined;
+	const firstError: ConnectionErrorObject | undefined = selectPrimaryError( errorMap );
 
 	const connectionErrorMessage = firstError?.error_message;
 	const hasConnectionError = Boolean( connectionErrorMessage );
 
 	const actions = firstError
 		? resolveConnectionErrorActions( firstError, {
-				actionHandlers,
+				actionHandlers: mergedActionHandlers,
 				trackingCallback,
 				customActions,
 				restoreConnection,

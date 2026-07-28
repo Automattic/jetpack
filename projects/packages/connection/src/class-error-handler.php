@@ -242,9 +242,25 @@ class Error_Handler {
 				'invalid_connection_owner',
 			);
 
-			$owner_id        = (int) \Jetpack_Options::get_option( 'master_user' );
-			$viewer_is_owner = $owner_id > 0 && $viewer_id === $owner_id;
-			$is_transferable = ( new Manager() )->is_ownership_transferable();
+			// Owner-identity error codes: those that mean "the connection owner's
+			// credential is broken" and can therefore be remedied by taking over
+			// ownership. Site-level faults that merely happen to be attributed to the
+			// owner (invalid_signature / signature_mismatch / could_not_sign, e.g. from
+			// clock skew or a domain change) are deliberately excluded so they can never
+			// suggest an ownership change - they keep the default reconnect CTA.
+			$owner_takeover_codes = array(
+				'no_valid_user_token',
+				'no_token_for_user',
+				'token_malformed',
+				'unknown_token',
+				'invalid_token',
+				'invalid_connection_owner',
+			);
+
+			$owner_id          = (int) \Jetpack_Options::get_option( 'master_user' );
+			$viewer_is_owner   = $owner_id > 0 && $viewer_id === $owner_id;
+			$is_transferable   = ( new Manager() )->is_ownership_transferable();
+			$viewer_can_manage = current_user_can( 'jetpack_connect' );
 
 			foreach ( $verified_errors as $error_code => $users ) {
 				// Skip error codes that are not meant to be displayed
@@ -261,34 +277,51 @@ class Error_Handler {
 
 					$audience = $this->classify_error_audience( $user_id, $owner_id );
 
+					// A specific (non-owner) user's token error is only actionable by that
+					// user (by relinking their own account). Omit it from every other
+					// viewer's set; it is low-signal clutter for everyone else.
+					if ( 'user' === $audience && (int) $user_id !== $viewer_id ) {
+						continue;
+					}
+
 					$message = __( "Your connection with WordPress.com seems to be broken. If you're experiencing issues, please try reconnecting.", 'jetpack-connection' );
 					$action  = null;
 
-					// A secondary admin looking at the connection owner's token error, on a
-					// site where ownership is locked (a consumer declared it non-transferable).
-					// This admin cannot resolve the error themselves, so surface an
-					// informational notice naming the owner and offer no reconnect CTA.
-					if ( 'owner' === $audience && ! $viewer_is_owner && ! $is_transferable ) {
+					// The connection owner's own credential is broken and a non-owner admin
+					// is looking at it. Depending on whether ownership is transferable and
+					// whether the error is remediable by a takeover, this becomes either a
+					// deliberate "take over ownership" CTA or an informational notice.
+					if ( 'owner' === $audience && ! $viewer_is_owner ) {
 						// Only name the owner for viewers who can act on connection issues:
 						// this output is also printed into the initial state for
 						// lower-capability users (e.g. contributors in the editor), who
 						// shouldn't learn who owns the connection. The name is resolved from
 						// the local user rather than get_connection_owner(), which
 						// re-reports the error and fails exactly when the token is broken.
-						$owner_name = '';
-						if ( current_user_can( 'jetpack_connect' ) ) {
-							$owner      = get_userdata( $owner_id );
-							$owner_name = $owner instanceof \WP_User ? $owner->display_name : '';
-						}
+						$owner_user    = $owner_id > 0 ? get_userdata( $owner_id ) : false;
+						$owner_deleted = $owner_id > 0 && false === $owner_user;
+						$owner_name    = ( $viewer_can_manage && $owner_user instanceof \WP_User ) ? $owner_user->display_name : '';
 
-						$message = $owner_name
-							? sprintf(
-								/* translators: %s is the display name of the Jetpack connection owner. */
-								__( 'The connection owner (%s) needs to reconnect their WordPress.com account to restore the connection.', 'jetpack-connection' ),
-								$owner_name
-							)
-							: __( 'The connection owner needs to reconnect their WordPress.com account to restore the connection.', 'jetpack-connection' );
-						$action = 'none';
+						// Takeover is only offered to a viewer who can manage the connection,
+						// on the transferable (default) ownership model, and only for
+						// owner-identity error codes (not site-level signature faults).
+						$can_take_over = $viewer_can_manage
+							&& $is_transferable
+							&& in_array( $error_code, $owner_takeover_codes, true );
+
+						if ( $can_take_over ) {
+							$action  = 'take_over_ownership';
+							$message = $this->get_owner_takeover_message( $owner_deleted, $owner_name );
+						} elseif ( ! $is_transferable ) {
+							// Ownership is locked, so this admin cannot resolve the error:
+							// surface an informational notice with no reconnect CTA.
+							$action  = 'none';
+							$message = $this->get_owner_locked_message( $owner_deleted, $owner_name );
+						}
+						// Otherwise (transferable but a non-takeover code, or a viewer who
+						// cannot manage the connection) fall through to the default generic
+						// message + reconnect CTA. Non-manager owner errors are collapsed
+						// into a single generic notice below.
 					}
 
 					$error['audience']      = $audience;
@@ -309,6 +342,14 @@ class Error_Handler {
 					}
 					$displayable_errors[ $error_code ][ $user_id ] = $error;
 				}
+			}
+
+			// Site/owner connection errors are an admin-level concern. For a viewer who
+			// cannot manage the connection, keep only their own (user-audience) error and
+			// collapse everything else into a single, diagnostics-free generic notice so
+			// we neither leak error internals nor imply an action they cannot take.
+			if ( ! $viewer_can_manage ) {
+				$displayable_errors = $this->collapse_errors_for_non_manager( $displayable_errors );
 			}
 		}
 
@@ -377,6 +418,149 @@ class Error_Handler {
 	}
 
 	/**
+	 * Builds the message for a non-owner admin who can take over a broken owner connection.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool   $owner_deleted Whether the connection owner's WordPress user no longer exists.
+	 * @param string $owner_name    The connection owner's display name, or '' when it should not be shown.
+	 * @return string The takeover-offer message.
+	 */
+	private function get_owner_takeover_message( $owner_deleted, $owner_name ) {
+		if ( $owner_deleted ) {
+			return __( "The previous connection owner's WordPress.com account no longer exists. You can take over ownership to restore this site's connection.", 'jetpack-connection' );
+		}
+
+		if ( $owner_name ) {
+			return sprintf(
+				/* translators: %s is the display name of the Jetpack connection owner. */
+				__( 'The connection owner (%s) needs to reconnect to WordPress.com. You can take over ownership to restore the connection.', 'jetpack-connection' ),
+				$owner_name
+			);
+		}
+
+		return __( 'The connection owner needs to reconnect to WordPress.com. You can take over ownership to restore the connection.', 'jetpack-connection' );
+	}
+
+	/**
+	 * Builds the informational message shown when ownership is locked (non-transferable)
+	 * and a non-owner admin cannot resolve the owner's broken connection themselves.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool   $owner_deleted Whether the connection owner's WordPress user no longer exists.
+	 * @param string $owner_name    The connection owner's display name, or '' when it should not be shown.
+	 * @return string The informational message.
+	 */
+	private function get_owner_locked_message( $owner_deleted, $owner_name ) {
+		if ( $owner_deleted ) {
+			return __( "The connection owner's WordPress.com account no longer exists, so this site's connection cannot be restored automatically. Please contact support.", 'jetpack-connection' );
+		}
+
+		if ( $owner_name ) {
+			return sprintf(
+				/* translators: %s is the display name of the Jetpack connection owner. */
+				__( 'The connection owner (%s) needs to reconnect their WordPress.com account to restore the connection.', 'jetpack-connection' ),
+				$owner_name
+			);
+		}
+
+		return __( 'The connection owner needs to reconnect their WordPress.com account to restore the connection.', 'jetpack-connection' );
+	}
+
+	/**
+	 * Collapses site/owner errors into a single generic notice for a viewer who cannot
+	 * manage the connection.
+	 *
+	 * Viewers without the `jetpack_connect` capability keep only their own user-audience
+	 * error (which they can resolve by relinking their account). All site- and
+	 * owner-audience errors are replaced by one synthetic `connection_error_generic`
+	 * entry that carries no diagnostic data (no error codes, timestamps or signature
+	 * metadata) and no CTA, so nothing sensitive leaks into the initial state and the
+	 * viewer is simply pointed at a site administrator.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $displayable_errors Hierarchical error map (error_code => user_id => error).
+	 * @return array The filtered error map for a non-managing viewer.
+	 */
+	private function collapse_errors_for_non_manager( $displayable_errors ) {
+		$viewer_errors     = array();
+		$has_site_or_owner = false;
+
+		foreach ( $displayable_errors as $error_code => $users ) {
+			foreach ( $users as $user_id => $error ) {
+				$audience = $error['audience'] ?? 'site';
+				if ( 'user' === $audience ) {
+					$viewer_errors[ $error_code ][ $user_id ] = $error;
+				} else {
+					$has_site_or_owner = true;
+				}
+			}
+		}
+
+		if ( $has_site_or_owner ) {
+			$viewer_errors['connection_error_generic'] = array(
+				'0' => array(
+					'error_code'    => 'connection_error_generic',
+					'user_id'       => '0',
+					'error_message' => __( "There is a problem with this site's connection to WordPress.com. Please contact a site administrator.", 'jetpack-connection' ),
+					'audience'      => 'site',
+					'error_data'    => array( 'action' => 'none' ),
+					'error_type'    => 'connection',
+				),
+			);
+		}
+
+		return $viewer_errors;
+	}
+
+	/**
+	 * Selects the single most relevant error to surface, ordered by how actionable it
+	 * is for the current viewer.
+	 *
+	 * When several errors are stored we show only one notice. Rather than depending on
+	 * option insertion order (nondeterministic), we prefer errors the viewer can act on:
+	 * site-wide first, then the viewer's own user error, then the owner's. Errors with no
+	 * `audience` (e.g. consumer-injected) default to site-wide, so they keep top priority.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $displayable_errors Hierarchical error map (error_code => user_id => error).
+	 * @return array|null [ $error_code, $error ] for the selected error, or null when empty.
+	 */
+	private function select_primary_error( $displayable_errors ) {
+		$priority  = array(
+			'site'  => 0,
+			'user'  => 1,
+			'owner' => 2,
+		);
+		$best      = null;
+		$best_code = null;
+		$best_rank = PHP_INT_MAX;
+
+		foreach ( $displayable_errors as $error_code => $users ) {
+			if ( ! is_array( $users ) ) {
+				continue;
+			}
+			foreach ( $users as $error ) {
+				if ( ! is_array( $error ) ) {
+					continue;
+				}
+				$audience = $error['audience'] ?? 'site';
+				$rank     = $priority[ $audience ] ?? 0;
+				if ( $rank < $best_rank ) {
+					$best_rank = $rank;
+					$best      = $error;
+					$best_code = $error_code;
+				}
+			}
+		}
+
+		return null === $best ? null : array( $best_code, $best );
+	}
+
+	/**
 	 * Sets up hooks for displaying verified errors on admin pages.
 	 *
 	 * This method is hooked into 'admin_init'. It retrieves displayable errors
@@ -441,18 +625,14 @@ class Error_Handler {
 	public function jetpack_react_dashboard_error( $errors ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$displayable_errors = $this->get_displayable_errors();
 
-		// Get the first error only
-		$first_error_code = array_key_first( $displayable_errors );
-		if ( ! $first_error_code ) {
+		// Select a single error deterministically by how actionable it is for the
+		// current viewer (site > own-user > owner) rather than by option insertion order.
+		$primary = $this->select_primary_error( $displayable_errors );
+		if ( null === $primary ) {
 			return array(); // No errors
 		}
 
-		$first_user_errors = $displayable_errors[ $first_error_code ];
-		if ( ! is_array( $first_user_errors ) || empty( $first_user_errors ) ) {
-			return array(); // Invalid error structure
-		}
-
-		$first_error = reset( $first_user_errors );
+		list( $first_error_code, $first_error ) = $primary;
 
 		// Validate error structure
 		if ( ! is_array( $first_error ) || ! isset( $first_error['error_message'] ) ) {
@@ -957,6 +1137,52 @@ class Error_Handler {
 		}
 
 		// Invalidate cache since we may have deleted verified errors
+		$this->invalidate_displayable_errors_cache();
+	}
+
+	/**
+	 * Delete all stored and verified errors attributed to a single user.
+	 *
+	 * Used after an ownership takeover to clear the previous owner's now-stale token
+	 * errors without discarding unrelated site- or user-level errors.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int|string $user_id The user ID whose errors should be removed.
+	 * @return void
+	 */
+	public function delete_errors_for_user( $user_id ) {
+		$user_id = (string) $user_id;
+		$options = array(
+			self::STORED_ERRORS_OPTION          => $this->get_stored_errors(),
+			self::STORED_VERIFIED_ERRORS_OPTION => $this->get_verified_errors(),
+		);
+
+		foreach ( $options as $option => $errors ) {
+			if ( ! is_array( $errors ) || ! count( $errors ) ) {
+				continue;
+			}
+
+			$changed = false;
+			foreach ( $errors as $error_code => $users ) {
+				if ( is_array( $users ) && array_key_exists( $user_id, $users ) ) {
+					unset( $errors[ $error_code ][ $user_id ] );
+					$changed = true;
+					if ( ! count( $errors[ $error_code ] ) ) {
+						unset( $errors[ $error_code ] );
+					}
+				}
+			}
+
+			if ( $changed ) {
+				if ( count( $errors ) ) {
+					update_option( $option, $errors );
+				} else {
+					delete_option( $option );
+				}
+			}
+		}
+
 		$this->invalidate_displayable_errors_cache();
 	}
 
