@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter: round the dashboard widget footer so it stops covering the rounded bottom corner of the WP Admin box.
