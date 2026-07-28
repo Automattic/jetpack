@@ -51,7 +51,7 @@ function DecorativeCard( {
 			<div
 				className="jp-components__decorative-card__image"
 				data-testid="decorative-card_image"
-				style={ { backgroundImage: imageUrl ? `url( ${ imageUrl } )` : undefined } }
+				style={ { backgroundImage: imageUrl ? `url(${ imageUrl })` : undefined } }
 			/>
 			{ icon === 'unlink' && (
 				<div className="jp-components__decorative-card__icon-container">
