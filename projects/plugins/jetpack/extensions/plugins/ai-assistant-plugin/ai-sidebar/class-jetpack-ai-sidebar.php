@@ -67,9 +67,11 @@ class Jetpack_AI_Sidebar {
 		// Ask the Agents Manager package to mount on Jetpack AI provider surfaces.
 		add_filter( 'agents_manager_enabled_in_block_editor', array( __CLASS__, 'enable_agents_manager_on_provider_surfaces' ) );
 
-		// Enqueue the IIFE bundle on supported editor surfaces — it registers
-		// Jetpack AI abilities via @wordpress/abilities, which Big Sky or the
-		// Agents Manager can discover regardless of which provider system is active.
+		// Enqueue the IIFE bundle on supported editor surfaces — it exposes the
+		// Jetpack AI provider on window.__JetpackAIProvider, which the Agents
+		// Manager consumes through the ESM wrapper registered below. (It does
+		// NOT register anything into @wordpress/abilities, and Big Sky
+		// standalone does not read it — verified 2026-07-28.)
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_enqueue_abilities_script' ), 201 );
 
 		// Patch Jetpack AI Sidebar Preview data into agentsManagerData when the
@@ -88,10 +90,14 @@ class Jetpack_AI_Sidebar {
 	// ──────────────────────────────────────────────────
 
 	/**
-	 * Enqueue the IIFE bundle that registers Jetpack AI abilities.
+	 * Enqueue the IIFE bundle that exposes the Jetpack AI provider.
 	 *
-	 * This runs independently of AM/provider registration so preview abilities
-	 * are available even when Big Sky standalone is the active UI.
+	 * The bundle assigns window.__JetpackAIProvider, which the ESM wrapper
+	 * re-exports for the Agents Manager's provider merge. Its only consumer is
+	 * that merge: the bundle registers nothing into @wordpress/abilities, and
+	 * Big Sky standalone does not read the provider global (both verified
+	 * 2026-07-28 — the standalone-discovery design this enqueue originally
+	 * served was retired with its consumer).
 	 *
 	 * @return void
 	 */
