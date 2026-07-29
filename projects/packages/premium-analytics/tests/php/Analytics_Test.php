@@ -537,4 +537,101 @@ class Analytics_Test extends TestCase {
 
 		return $caps;
 	}
+
+	/**
+	 * A front-end request registers none of the admin render surface: no menu,
+	 * no widget import map, no CSV export script data.
+	 *
+	 * Isolated because the filters being asserted are registered at file scope
+	 * by widget-modules.php and csv-exports.php, and require_once means an
+	 * earlier test that loaded them would leave them registered for this one.
+	 *
+	 * Each assertion names its callback rather than just the hook.
+	 * Sync_Status_Tracker also filters jetpack_admin_js_script_data, and it
+	 * stays outside the gate, so a bare has_filter() on that hook is true on a
+	 * front-end request no matter what this gate does.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_front_end_request_registers_no_admin_surface() {
+		Analytics::init();
+
+		$this->assertFalse(
+			has_action( 'admin_menu', array( Analytics::class, 'register_admin_menu' ) ),
+			'The admin menu is not registered on a front-end request.'
+		);
+		$this->assertFalse(
+			has_filter(
+				'jetpack-premium-analytics-wp-admin_boot_dependencies',
+				__NAMESPACE__ . '\\add_widget_modules_to_boot_deps'
+			),
+			'The widget import map is not wired on a front-end request.'
+		);
+		$this->assertFalse(
+			has_filter(
+				'jetpack_admin_js_script_data',
+				__NAMESPACE__ . '\\inject_csv_exports_script_data'
+			),
+			'The CSV export script data is not wired on a front-end request.'
+		);
+	}
+
+	/**
+	 * WordPress.com Simple gets the same treatment: no build on a front-end
+	 * request. Simple boots this package on every request across WPCOM's
+	 * public-api process, so this is where the saving is largest.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_wpcom_simple_front_end_request_does_not_load_the_build() {
+		$this->use_fixture_build();
+
+		Analytics::init_wpcom_simple();
+		do_action( 'init' );
+
+		$this->assertArrayNotHasKey( 'jpa_test_build_loaded', $GLOBALS );
+	}
+
+	/**
+	 * Simple's wp-admin dashboard is unchanged: build, menu, import map, and CSV
+	 * export script data all still register.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_wpcom_simple_admin_request_keeps_the_dashboard() {
+		$this->use_fixture_build();
+		set_current_screen( 'toplevel_page_jetpack-premium-analytics-wp-admin' );
+
+		Analytics::init_wpcom_simple();
+		do_action( 'init' );
+
+		$this->assertArrayHasKey( 'jpa_test_build_loaded', $GLOBALS, 'Simple still loads the build in wp-admin.' );
+		$this->assertNotFalse(
+			has_action( 'admin_menu', array( Analytics::class, 'register_admin_menu' ) ),
+			'Simple still registers the admin menu.'
+		);
+		$this->assertNotFalse(
+			has_filter(
+				'jetpack-premium-analytics-wp-admin_boot_dependencies',
+				__NAMESPACE__ . '\\add_widget_modules_to_boot_deps'
+			),
+			'Simple still wires the widget import map.'
+		);
+		$this->assertNotFalse(
+			has_filter(
+				'jetpack_admin_js_script_data',
+				__NAMESPACE__ . '\\inject_csv_exports_script_data'
+			),
+			'Simple still wires the CSV export script data.'
+		);
+	}
 }
