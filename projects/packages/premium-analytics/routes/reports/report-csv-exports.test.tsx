@@ -297,7 +297,7 @@ describe( 'report CSV exports', () => {
 		);
 	} );
 
-	it( 'configures the Clicks export without group rows', () => {
+	it( 'configures the Clicks export with parent rows in hierarchy order', () => {
 		const group = { id: 'social', clickedUrl: 'Social', isGroup: true, clicks: 10 };
 		const lowerRow = {
 			id: 'social|a',
@@ -316,17 +316,18 @@ describe( 'report CSV exports', () => {
 		useClicksReportRecordsMock.mockReturnValue( {
 			...reportStatus,
 			chart,
-			rows: [ group, lowerRow, higherRow ],
+			rows: [ group, higherRow, lowerRow ],
 		} as unknown as ReturnType< typeof useClicksReportRecords > );
 
 		expectCsvExport(
 			ClicksReportPage,
 			'clicks',
 			[
+				{ ...group, group: '' },
 				{ ...higherRow, group: 'Social' },
 				{ ...lowerRow, group: 'Social' },
 			],
-			[ 'https://example.com/b', 'Social', 7 ]
+			[ 'Social', '', 10 ]
 		);
 	} );
 

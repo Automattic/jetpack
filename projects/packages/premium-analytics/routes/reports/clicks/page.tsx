@@ -62,8 +62,6 @@ const RECORDS_VIEW = {
 
 type ClickCsvRow = ClickRow & { group: string };
 
-const sortClickCsvRows = ( a: ClickCsvRow, b: ClickCsvRow ) => b.clicks - a.clicks;
-
 /**
  * Premium Analytics Clicks report page component.
  *
@@ -84,9 +82,10 @@ function ClicksReport(): JSX.Element {
 	);
 	const csvRows = useMemo< ClickCsvRow[] >(
 		() =>
-			records.rows
-				.filter( row => ! row.isGroup )
-				.map( row => ( { ...row, group: getClickCsvGroup( row ) } ) ),
+			records.rows.map( row => ( {
+				...row,
+				group: row.isGroup ? '' : getClickCsvGroup( row ),
+			} ) ),
 		[ records.rows ]
 	);
 	const csvColumns = useMemo< CsvColumn< ClickCsvRow >[] >(
@@ -109,7 +108,6 @@ function ClicksReport(): JSX.Element {
 		filenamePrefix: 'clicks',
 		range: reportParams,
 		status: records,
-		sort: sortClickCsvRows,
 	} );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
