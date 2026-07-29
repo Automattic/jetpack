@@ -106,17 +106,6 @@ function Dashboard(): JSX.Element {
 								value={ section.slug }
 								className={ styles.content }
 							>
-								{ /*
-								 * The date filters live in the header's controls slot; their
-								 * state is shared across sections through the URL search params.
-								 *
-								 * The wrapper div is the responsive-measurement target: it spans
-								 * the full row, so DateFiltersPanel reads a stable width for its
-								 * mobile/wide layouts. Measuring the header's content-sized
-								 * controls slot instead would latch the compact layout on the
-								 * first shrink, since the slot then never outgrows the compact
-								 * control it wraps.
-								 */ }
 								<div ref={ setContainerElement } className={ styles.sectionHeader }>
 									<SectionHeader title={ section.label }>
 										<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
