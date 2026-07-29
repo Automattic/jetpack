@@ -142,19 +142,17 @@ class Initializer {
 		// feature flag, before the cohort gate — so a still-hidden install gets the signal.
 		add_filter( 'jetpack_admin_js_script_data', array( Surface_Visibility::class, 'inject_optin_availability' ) );
 
-		// Discoverability cohort gate: the SEO surface is auto-discoverable for fresh
-		// installs and all WordPress.com sites; existing self-hosted installs opt in via
-		// the legacy Traffic page or My Jetpack (JETPACK-1700). Until it's visible we
-		// register nothing else here and let those opt-in surfaces drive discovery.
-		if ( ! self::is_seo_surface_visible() ) {
-			return;
-		}
-
-		// Maintain the deliberate-off flag as the sitemap is toggled from the dashboard,
-		// so "off" can suppress WordPress core's sitemap too without steamrolling sites
-		// that simply never enabled a sitemap. These fire only on a genuine module
-		// toggle (not wpcomsh's private-site suppression, which is a filter, not a
-		// deactivation), and are registered before the toggle's REST write runs.
+		// Sitemap output is a front-end concern tied to the SEO feature itself, not to
+		// whether the admin dashboard is visible — so register it here, ahead of the
+		// cohort gate. This keeps the deliberate-off behavior consistent in the two
+		// edges the surface gate would otherwise break: a site that turns the sitemap
+		// off while the dashboard is still hidden (an existing self-hosted install that
+		// hasn't opted in), and a flag set while the dashboard was visible that must
+		// stay honored if the dashboard is later hidden.
+		//
+		// Maintain the deliberate-off flag as the sitemap is toggled: these fire only on
+		// a genuine module toggle (not wpcomsh's private-site suppression, which is a
+		// filter, not a deactivation), and are registered before the toggle's REST write.
 		add_action( 'jetpack_deactivate_module_sitemaps', array( __CLASS__, 'flag_sitemap_user_disabled' ) );
 		add_action( 'jetpack_activate_module_sitemaps', array( __CLASS__, 'clear_sitemap_user_disabled' ) );
 
@@ -169,6 +167,14 @@ class Initializer {
 		// Jetpack sitemaps module already disables core's duplicate.)
 		if ( get_option( self::SUPPRESS_WP_SITEMAP_OPTION, false ) ) {
 			add_filter( 'wp_sitemaps_enabled', '__return_false' );
+		}
+
+		// Discoverability cohort gate: the SEO surface is auto-discoverable for fresh
+		// installs and all WordPress.com sites; existing self-hosted installs opt in via
+		// the legacy Traffic page or My Jetpack (JETPACK-1700). Until it's visible we
+		// register nothing else here and let those opt-in surfaces drive discovery.
+		if ( ! self::is_seo_surface_visible() ) {
+			return;
 		}
 
 		// The admin menu and app shell register whenever the surface is visible, even
