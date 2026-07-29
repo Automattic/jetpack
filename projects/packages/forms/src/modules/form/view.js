@@ -14,7 +14,7 @@ import {
 import { validateField, isEmptyValue } from '../../contact-form/js/validate-helper.js';
 import { getRating } from '../field-rating/view.js';
 import { maybeAddColonToLabel, maybeTransformValue, getImages, getUrl } from './helpers.js';
-import { focusNextInput, submitForm } from './shared.ts';
+import { focusNextInput, getForm, submitForm } from './shared.ts';
 // Import field type icons view to register its callbacks.
 import './field-type-icons-view.js';
 
@@ -664,6 +664,20 @@ const { state, actions } = store( NAMESPACE, {
 
 			context.isSubmitting = true;
 
+			// Record the fill duration in the DOM before submitting. This has to happen
+			// outside the `useAjax` branch below: non-AJAX forms submit natively, so the
+			// value is only sent if it is already on the hidden input by this point.
+			if ( context.formFirstInteractionTime ) {
+				const duration = Math.round( ( Date.now() - context.formFirstInteractionTime ) / 1000 ); // Duration in seconds.
+				const durationField = getForm( context.formHash )?.querySelector(
+					'input[name="form_fill_duration"]'
+				);
+
+				if ( durationField ) {
+					durationField.value = duration;
+				}
+			}
+
 			if ( context.useAjax ) {
 				event.preventDefault();
 				event.stopPropagation();
@@ -671,18 +685,6 @@ const { state, actions } = store( NAMESPACE, {
 
 				// Capture file preview URLs before submission (blob URLs for images, icon URLs for other files)
 				capturedFilePreviews = captureFilePreviews( context.formHash );
-
-				// Calculate and set the form fill duration before submission
-				if ( context.formFirstInteractionTime ) {
-					const duration = Math.round( ( Date.now() - context.formFirstInteractionTime ) / 1000 ); // Duration in seconds
-					const form = document.getElementById( 'jp-form-' + context.formHash );
-					if ( form ) {
-						const durationField = form.querySelector( 'input[name="form_fill_duration"]' );
-						if ( durationField ) {
-							durationField.value = duration;
-						}
-					}
-				}
 
 				const { success, error, data, refreshArgs } = yield submitForm( context.formHash );
 

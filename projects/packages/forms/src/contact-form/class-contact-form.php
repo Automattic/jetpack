@@ -1633,7 +1633,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$r .= '<input type="submit" style="display: none;" />';
 			}
 			$r .= "<input type='hidden' name='jetpack_contact_form_jwt' value='" . esc_attr( $form->get_jwt() ) . "' />\n";
-			$r .= "<input type='hidden' name='form_fill_duration' value='0' />\n";
+			// Left empty on purpose: the view script fills this in on submit. An empty
+			// value is stored as null so "never interacted with" stays distinguishable
+			// from "filled out in under a second".
+			$r .= "<input type='hidden' name='form_fill_duration' value='' />\n";
 			$r .= $form->body;
 
 			if ( $is_multistep ) {

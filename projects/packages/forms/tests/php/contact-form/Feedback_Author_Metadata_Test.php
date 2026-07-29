@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 require_once __DIR__ . '/class-utility.php';
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -420,5 +421,93 @@ class Feedback_Author_Metadata_Test extends BaseTestCase {
 		$this->assertEquals( $response->get_form_fill_duration(), $saved_response->get_form_fill_duration(), 'Form fill duration should match after save/load' );
 		$this->assertEquals( 45, $saved_response->get_form_fill_duration(), 'Form fill duration should be 45 seconds' );
 		$this->assertIsInt( $saved_response->get_form_fill_duration(), 'Form fill duration should be an integer' );
+	}
+
+	/**
+	 * An empty form_fill_duration means the duration is unknown, and must be stored as null
+	 * rather than as 0 so it stays distinct from a form that really was filled out instantly.
+	 *
+	 * @dataProvider provide_unknown_form_fill_durations
+	 *
+	 * @param array  $extra_post_data Submission data to merge in.
+	 * @param string $message         Assertion message.
+	 */
+	#[DataProvider( 'provide_unknown_form_fill_durations' )]
+	public function test_form_fill_duration_is_null_when_unknown( $extra_post_data, $message ) {
+		$form_id = Utility::get_form_id();
+
+		$_post_data = Utility::get_post_request(
+			array_merge(
+				array(
+					'name'    => 'John Doe',
+					'email'   => 'john@example.com',
+					'message' => 'Test message',
+				),
+				$extra_post_data
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		$response       = Feedback::from_submission( $_post_data, $form );
+		$saved_response = Feedback::get( $response->save() );
+
+		$this->assertNull( $response->get_form_fill_duration(), $message );
+		$this->assertNull( $saved_response->get_form_fill_duration(), $message . ' (after save/load)' );
+	}
+
+	/**
+	 * Data provider for test_form_fill_duration_is_null_when_unknown.
+	 *
+	 * @return array
+	 */
+	public static function provide_unknown_form_fill_durations() {
+		return array(
+			'empty value (no interaction recorded)' => array(
+				array( 'form_fill_duration' => '' ),
+				'An empty duration should be stored as null, not 0',
+			),
+			'field absent entirely'                 => array(
+				array(),
+				'A missing duration should be stored as null',
+			),
+		);
+	}
+
+	/**
+	 * A real, sub-second fill still records 0 — that is a known duration, not an unknown one.
+	 */
+	public function test_form_fill_duration_zero_is_preserved() {
+		$form_id = Utility::get_form_id();
+
+		$_post_data = Utility::get_post_request(
+			array(
+				'name'               => 'John Doe',
+				'email'              => 'john@example.com',
+				'message'            => 'Test message',
+				'form_fill_duration' => '0',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		$response       = Feedback::from_submission( $_post_data, $form );
+		$saved_response = Feedback::get( $response->save() );
+
+		$this->assertSame( 0, $saved_response->get_form_fill_duration(), 'An explicit 0 duration should be preserved as 0, not converted to null' );
 	}
 }

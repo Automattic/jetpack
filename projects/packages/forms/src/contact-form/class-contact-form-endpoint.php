@@ -660,12 +660,11 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		);
 
 		$schema['properties']['form_fill_duration'] = array(
-			'description' => __( 'The duration in seconds from first user interaction to form submission. Returns null for submissions before this feature was added.', 'jetpack-forms' ),
+			'description' => __( 'The duration in seconds from first user interaction to form submission. Null when the duration is unknown, such as for submissions predating this feature.', 'jetpack-forms' ),
 			'type'        => array( 'integer', 'null' ),
 			'context'     => array( 'view', 'edit', 'embed' ),
-			'arg_options' => array(
-				'sanitize_callback' => 'absint',
-			),
+			// No sanitize_callback: the field is readonly and sanitized on storage, and
+			// `absint` would coerce a legitimate null into 0.
 			'readonly'    => true,
 		);
 

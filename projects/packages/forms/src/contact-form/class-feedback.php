@@ -507,7 +507,7 @@ class Feedback {
 		$this->ip_address         = Contact_Form_Plugin::get_ip_address();
 		$this->country_code       = $this->get_country_code_from_ip( $this->ip_address );
 		$this->user_agent         = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : null;
-		$this->form_fill_duration = isset( $post_data['form_fill_duration'] ) ? absint( $post_data['form_fill_duration'] ) : null;
+		$this->form_fill_duration = $this->get_computed_form_fill_duration( $post_data );
 		$this->subject            = $this->get_computed_subject( $post_data, $form );
 		$this->author_data        = Feedback_Author::from_submission( $post_data, $form );
 		$this->comment_content    = $this->get_computed_comment_content( $post_data, $form );
@@ -2275,6 +2275,26 @@ class Feedback {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Gets the computed form fill duration, in seconds.
+	 *
+	 * The value is supplied by the view script as a hidden field. It is left empty when the
+	 * submitter never interacted with the form (or ran without JavaScript), in which case the
+	 * duration is unknown and stored as null rather than as a misleading 0.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $post_data The post data from the form submission.
+	 * @return int|null
+	 */
+	private function get_computed_form_fill_duration( $post_data ) {
+		if ( ! isset( $post_data['form_fill_duration'] ) || $post_data['form_fill_duration'] === '' ) {
+			return null;
+		}
+
+		return absint( $post_data['form_fill_duration'] );
 	}
 
 	/**
