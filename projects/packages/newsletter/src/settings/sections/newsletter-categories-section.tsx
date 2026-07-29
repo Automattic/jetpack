@@ -127,7 +127,7 @@ export function NewsletterCategoriesSection( {
 			id: 'wpcom_newsletter_categories',
 			label: __( 'Newsletter categories', 'jetpack-newsletter' ),
 			description: __(
-				'Which categories will you use for newsletter subscribers? Select all that apply.',
+				'Search to add existing categories, or create a new one.',
 				'jetpack-newsletter'
 			),
 			type: 'array' as const,
