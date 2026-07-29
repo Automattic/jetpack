@@ -2566,6 +2566,95 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * Seed `$GLOBALS['post']` with a saved post; content is set in-memory
+	 * post-fetch to avoid wp_insert_post()'s KSES pass mangling block JSON.
+	 *
+	 * @param string $post_content Raw post content, block markup included.
+	 * @return callable Cleanup callback — call from `finally`.
+	 */
+	private function seed_current_post( string $post_content ): callable {
+		$original_post      = $GLOBALS['post'] ?? null;
+		$post_id            = wp_insert_post(
+			array(
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_title'  => 'collect_filter_configs_from_post fixture',
+			)
+		);
+		$post               = get_post( $post_id );
+		$post->post_content = $post_content;
+		$GLOBALS['post']    = $post;
+
+		return static function () use ( $original_post, $post_id ) {
+			$GLOBALS['post'] = $original_post;
+			wp_delete_post( $post_id, true );
+		};
+	}
+
+	/**
+	 * SEARCH-295: a large body with no filter blocks must skip parse_blocks().
+	 */
+	public function test_collect_filter_configs_from_post_returns_empty_for_large_body_without_filter_blocks() {
+		$paragraph     = "<!-- wp:paragraph -->\n<p>" . str_repeat( 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ', 20 ) . "</p>\n<!-- /wp:paragraph -->\n\n";
+		$large_content = str_repeat( $paragraph, 3000 );
+		$helper_names  = array_keys( $this->invoke_protected( 'filter_block_helpers' ) );
+
+		$cleanup = $this->seed_current_post( $large_content );
+		try {
+			$this->assertFalse( $this->invoke_protected( 'post_content_has_filter_block', $GLOBALS['post'], $helper_names ) );
+			$configs = $this->invoke_protected( 'collect_filter_configs_from_post' );
+			$this->assertSame( array(), $configs );
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
+	 * Posts that do contain a filter block must collect its config as before.
+	 */
+	public function test_collect_filter_configs_from_post_still_collects_configs_when_filter_block_present() {
+		$content      = '<!-- wp:paragraph --><p>Intro text.</p><!-- /wp:paragraph -->' .
+			'<!-- wp:jetpack-search/filter-checkbox {"filterType":"taxonomy","taxonomy":"category"} /-->';
+		$helper_names = array_keys( $this->invoke_protected( 'filter_block_helpers' ) );
+
+		$cleanup = $this->seed_current_post( $content );
+		try {
+			$this->assertTrue( $this->invoke_protected( 'post_content_has_filter_block', $GLOBALS['post'], $helper_names ) );
+			$configs  = $this->invoke_protected( 'collect_filter_configs_from_post' );
+			$expected = Filter_Checkbox::build_config(
+				array(
+					'filterType' => 'taxonomy',
+					'taxonomy'   => 'category',
+				),
+				'category'
+			);
+			$this->assertSame( array( 'category' => $expected ), $configs );
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
+	 * A WC-only block name in a non-Woo post's body must not match — the
+	 * scan uses the helper-derived name list, not a blanket prefix.
+	 */
+	public function test_collect_filter_configs_from_post_ignores_wc_only_block_name_on_non_woo_site() {
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( false );
+		$content = '<!-- wp:jetpack-search/filter-wc-stock-status /-->';
+
+		$cleanup = $this->seed_current_post( $content );
+		try {
+			$helper_names = array_keys( $this->invoke_protected( 'filter_block_helpers' ) );
+			$this->assertNotContains( 'jetpack-search/filter-wc-stock-status', $helper_names );
+			$this->assertFalse( $this->invoke_protected( 'post_content_has_filter_block', $GLOBALS['post'], $helper_names ) );
+			$configs = $this->invoke_protected( 'collect_filter_configs_from_post' );
+			$this->assertSame( array(), $configs );
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
 	 * `min_price` / `max_price` are WC-only; `filter-wc-price` isn't
 	 * Registered on non-Woo sites. A stray deep link must not seed the
 	 * `priceRange` slice — otherwise the JS store would re-emit the params
