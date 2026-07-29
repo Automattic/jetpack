@@ -22,7 +22,18 @@
 import { loadBundleI18nCatalog } from '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs';
 import { useEffect, useState } from '@wordpress/element';
 import { useWidgetTypes } from '@wordpress/widget-primitives';
-import type { WidgetModuleRecord, WidgetType } from '@wordpress/widget-primitives';
+import type {
+	ResolveWidgetModule,
+	WidgetModuleRecord,
+	WidgetType,
+} from '@wordpress/widget-primitives';
+
+/**
+ * The module shape `ResolveWidgetModule` must yield. Not exported by
+ * `@wordpress/widget-primitives` (only the resolver type is), so it is
+ * derived here.
+ */
+type WidgetModule = Awaited< ReturnType< ResolveWidgetModule > >;
 
 const TEXT_DOMAIN = 'jetpack-premium-analytics-pkg';
 
@@ -69,8 +80,9 @@ export function widgetModuleBundlePath( moduleId: string ): string | null {
  */
 export function resolveWidgetModuleWithI18n(
 	moduleId: string,
-	importModule: ( id: string ) => Promise< unknown > = id => import( /* webpackIgnore: true */ id )
-): Promise< unknown > {
+	importModule: ( id: string ) => Promise< WidgetModule > = id =>
+		import( /* webpackIgnore: true */ id )
+): Promise< WidgetModule > {
 	const bundlePath = widgetModuleBundlePath( moduleId );
 	if ( ! bundlePath ) {
 		return importModule( moduleId );

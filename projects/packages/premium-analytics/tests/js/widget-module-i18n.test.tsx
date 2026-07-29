@@ -6,7 +6,9 @@ import {
 	useWidgetTypesWithI18n,
 	widgetModuleBundlePath,
 } from '../../routes/widget-module-i18n';
-import type { WidgetModuleRecord } from '@wordpress/widget-primitives';
+import type { ResolveWidgetModule, WidgetModuleRecord } from '@wordpress/widget-primitives';
+
+type WidgetModule = Awaited< ReturnType< ResolveWidgetModule > >;
 
 jest.mock( '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs', () => ( {
 	loadBundleI18nCatalog: jest.fn( () => Promise.resolve() ),
@@ -55,9 +57,10 @@ describe( 'resolveWidgetModuleWithI18n', () => {
 					}, 0 )
 				)
 		);
+		const theModule = { default: () => null } as unknown as WidgetModule;
 		const importModule = jest.fn( () => {
 			catalogResolvedWhenImported = catalogResolved;
-			return Promise.resolve( { default: 'the-module' } );
+			return Promise.resolve( theModule );
 		} );
 
 		const result = await resolveWidgetModuleWithI18n(
@@ -70,11 +73,13 @@ describe( 'resolveWidgetModuleWithI18n', () => {
 			'build/widgets/search-terms/render.js'
 		);
 		expect( catalogResolvedWhenImported ).toBe( true );
-		expect( result ).toEqual( { default: 'the-module' } );
+		expect( result ).toBe( theModule );
 	} );
 
 	it( 'imports non-widget module ids without a catalog request', async () => {
-		const importModule = jest.fn( () => Promise.resolve( { default: 'x' } ) );
+		const importModule = jest.fn( () =>
+			Promise.resolve( { default: () => null } as unknown as WidgetModule )
+		);
 
 		await resolveWidgetModuleWithI18n( 'some/other/module', importModule );
 
