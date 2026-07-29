@@ -2948,7 +2948,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "65140eaa3f8196b645d464edf243e9282a392e13"
+                "reference": "304ceeeb57ae0338fe605547cbc391fdf1b33d3b"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -2970,7 +2970,7 @@
             "extra": {
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-premium-analytics",
-                "textdomain": "jetpack-premium-analytics",
+                "textdomain": "jetpack-premium-analytics-pkg",
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-analytics.php"
                 },

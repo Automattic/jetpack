@@ -3,25 +3,21 @@
  */
 import {
 	normalizeReportParams,
-	type IntervalType,
-	type StatsChartBucketPeriod,
-	type StatsFileDownloadsItem,
+	type StatsFileDownloadsComparisonItem,
 } from '@jetpack-premium-analytics/data';
 import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
-	formatLegendLabels,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
-	ReportPerformanceChart,
 	ReportRecordsTable,
 	useReportRetry,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs } from '@wordpress/admin-ui';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useNavigate, useSearch } from '@wordpress/route';
+import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
  */
@@ -29,41 +25,6 @@ import { route } from '../package.json';
 import { getDownloadsFields, useDownloadsReportRecords } from './config';
 
 const ROUTE_FROM = route.path;
-const REPORT_PARAMS = { report: 'downloads' };
-const CHART_PERIODS = [
-	'day',
-	'week',
-	'month',
-] as const satisfies readonly StatsChartBucketPeriod[];
-type ChartPeriod = ( typeof CHART_PERIODS )[ number ];
-
-/**
- * Check whether a URL value is a supported chart period.
- *
- * @param value - URL search value.
- * @return Whether the value is a chart period.
- */
-function isChartPeriod( value: unknown ): value is ChartPeriod {
-	return CHART_PERIODS.includes( value as ChartPeriod );
-}
-
-/**
- * Choose the chart bucket period for a report interval.
- *
- * @param interval - Report date interval.
- * @return The default chart period.
- */
-function getDefaultChartPeriod( interval?: IntervalType ): ChartPeriod {
-	if ( interval === 'week' ) {
-		return 'week';
-	}
-
-	if ( interval === 'month' || interval === 'quarter' || interval === 'year' ) {
-		return 'month';
-	}
-
-	return 'day';
-}
 
 /**
  * Stable table row identity for a downloaded file.
@@ -71,7 +32,7 @@ function getDefaultChartPeriod( interval?: IntervalType ): ChartPeriod {
  * @param item - File-download row.
  * @return The row identity.
  */
-function getDownloadRowId( item: StatsFileDownloadsItem ): string {
+function getDownloadRowId( item: StatsFileDownloadsComparisonItem ): string {
 	return item.link ?? String( item.label ?? item.shortLabel ?? '' );
 }
 
@@ -96,34 +57,13 @@ function DownloadsReport(): JSX.Element {
 		() => normalizeReportParams( search as Parameters< typeof normalizeReportParams >[ 0 ] ),
 		[ search ]
 	);
-	const chartPeriod = isChartPeriod( search.period )
-		? search.period
-		: getDefaultChartPeriod( reportParams.interval );
-	const records = useDownloadsReportRecords( reportParams, chartPeriod );
+	const records = useDownloadsReportRecords( reportParams );
 	const retry = useReportRetry( records.refetch );
-	const fields = useMemo( () => getDownloadsFields(), [] );
-	const chartMetrics = useMemo(
-		() => [ { key: 'downloads', label: __( 'Downloads', 'jetpack-premium-analytics-pkg' ) } ],
-		[]
+	const fields = useMemo(
+		() => getDownloadsFields( records.hasComparison ),
+		[ records.hasComparison ]
 	);
-	const chartLegendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
-
-	const navigate = useNavigate();
-	const handleIntervalChange = useCallback(
-		( interval: IntervalType ) => {
-			const period = isChartPeriod( interval ) ? interval : getDefaultChartPeriod( interval );
-			navigate( {
-				to: ROUTE_FROM,
-				params: REPORT_PARAMS as unknown as never,
-				replace: true,
-				search: ( ( current: Record< string, unknown > ) => ( {
-					...current,
-					period,
-				} ) ) as unknown as never,
-			} );
-		},
-		[ navigate ]
-	);
+	const isRecordsLoading = records.isLoading || records.isFetching;
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dashboardLink = useDashboardLink();
@@ -146,25 +86,14 @@ function DownloadsReport(): JSX.Element {
 						onRetry={ retry }
 					/>
 				) : (
-					<>
-						<ReportPerformanceChart
-							primary={ records.chart.primary }
-							comparison={ records.chart.comparison }
-							isLoading={ records.chart.isLoading }
-							metrics={ chartMetrics }
-							interval={ chartPeriod }
-							onIntervalChange={ handleIntervalChange }
-							legendLabels={ chartLegendLabels }
-						/>
-						<ReportRecordsTable< StatsFileDownloadsItem >
-							data={ records.rows }
-							fields={ fields }
-							getItemId={ getDownloadRowId }
-							isLoading={ records.isLoading }
-							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search files', 'jetpack-premium-analytics-pkg' ) }
-						/>
-					</>
+					<ReportRecordsTable< StatsFileDownloadsComparisonItem >
+						data={ records.rows }
+						fields={ fields }
+						getItemId={ getDownloadRowId }
+						isLoading={ isRecordsLoading }
+						initialView={ RECORDS_VIEW }
+						searchLabel={ __( 'Search files', 'jetpack-premium-analytics-pkg' ) }
+					/>
 				) }
 			</ReportPageLayout>
 		</ReportPageShell>

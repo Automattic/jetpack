@@ -12,7 +12,6 @@ namespace Automattic\Jetpack\SEO;
 use Automattic\Jetpack\Modules;
 use Jetpack_SEO_Titles;
 use Jetpack_SEO_Utils;
-use Jetpack_Sitemap_Librarian;
 
 /**
  * Registers the dashboard's read routes and builds their payloads.
@@ -184,8 +183,9 @@ class Dashboard_Data {
 			// Read the durable SEO option (seeded/synced from the `sitemaps` module
 			// by the Jetpack plugin) so the state survives the module's removal.
 			'sitemap_active'             => $sitemap_active,
-			// Empty until the sitemap is genuinely reachable, so the Settings tab can
-			// link to it only once it won't 404 (it's built by cron after activation).
+			// The reachable sitemap URL (Jetpack serves a valid sitemap here as soon as
+			// it's on + the site is public), or '' when sitemaps are off, so the Settings
+			// tab shows the "View sitemap" link exactly when there's a sitemap to view.
 			'sitemap_url'                => self::get_reachable_sitemap_url( $sitemap_active ),
 			// Read the durable SEO option (seeded/synced from the `canonical-urls` module
 			// by the Jetpack plugin) so the state survives the module's removal.
@@ -358,20 +358,18 @@ class Dashboard_Data {
 	}
 
 	/**
-	 * The public URL of the generated XML sitemap, or an empty string when none
-	 * is currently reachable.
+	 * The public URL of the XML sitemap, or an empty string when none is reachable.
 	 *
-	 * A sitemap is only reachable when generation is enabled, the site is public
-	 * (Jetpack does not load the Sitemaps module on sites that discourage search
-	 * engines), and the master sitemap has actually been generated — the Jetpack
-	 * plugin builds it via cron 1–15 minutes after activation, so the URL 404s
-	 * until then. Callers treat an empty string as "not yet reachable" and skip
-	 * linking to it.
+	 * A sitemap is reachable as soon as generation is enabled and the site is public:
+	 * Jetpack serves a valid (empty-until-built) sitemap at a stable URL — never a 404 —
+	 * so the link is safe to surface immediately, without waiting on (or gating against)
+	 * the cron build. A prior gate looked the master sitemap up by a mis-built filename
+	 * and so never matched, which is what left the Settings tab stuck on "Generating…".
 	 *
-	 * {@see Jetpack_Sitemap_Librarian} and jetpack_sitemap_uri() live in the
-	 * Jetpack plugin's Sitemaps module (loaded only for an active module on a
-	 * public site), so both are guarded; in the package-only context they are
-	 * absent and the sitemap is reported as not reachable.
+	 * `jetpack_sitemap_uri()` / `jp_sitemap_filename()` and the JP_MASTER_SITEMAP_TYPE
+	 * constant live in the Jetpack plugin's Sitemaps module (loaded only for an active
+	 * module on a public site), so they are guarded; in the package-only context they
+	 * are absent and the sitemap is reported as not reachable.
 	 *
 	 * @param bool $sitemap_active Whether sitemap generation is enabled.
 	 * @return string The sitemap URL, or '' when not reachable.
@@ -382,33 +380,33 @@ class Dashboard_Data {
 			return '';
 		}
 
-		// The Sitemaps module (the librarian class, the `JP_MASTER_SITEMAP_TYPE`
-		// constant, and the `jp_sitemap_filename()` / `jetpack_sitemap_uri()`
-		// helpers) all live together in plugins/jetpack and load as a unit, so this
-		// single guard covers every symbol used below.
+		// The `JP_MASTER_SITEMAP_TYPE` constant and the `jp_sitemap_filename()` /
+		// `jetpack_sitemap_uri()` helpers all live together in plugins/jetpack and load
+		// as a unit, so this single guard covers every symbol used below.
 		if (
-			! class_exists( 'Jetpack_Sitemap_Librarian' )
-			|| ! defined( 'JP_MASTER_SITEMAP_TYPE' )
+			! defined( 'JP_MASTER_SITEMAP_TYPE' )
 			|| ! function_exists( 'jp_sitemap_filename' )
 			|| ! function_exists( 'jetpack_sitemap_uri' )
 		) {
 			return '';
 		}
 
-		// The master sitemap is stored as a post once the cron generation run
-		// completes; until then there is nothing to link to.
-		// `jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE )` is the master file name
-		// ('sitemap.xml'); inlined so this stays one (untestable-in-package) line.
-		// @phan-suppress-next-line PhanUndeclaredFunction,PhanUndeclaredClassMethod -- guarded above; symbols live in plugins/jetpack.
-		$master = ( new Jetpack_Sitemap_Librarian() )->read_sitemap_data( jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE ), JP_MASTER_SITEMAP_TYPE );
-		if ( null === $master ) {
+		// `jp_sitemap_filename()` returns an error string ("error-not-int-…") unless a
+		// non-null number is passed; the master ignores the number, so pass 0 (matching
+		// Jetpack's own call sites). Fail safe: the master file is always 'sitemap.xml',
+		// so if a bundled Jetpack ever returns something else, report not-reachable
+		// rather than surface a broken URL — the exact failure this method shipped with
+		// before (the missing number silently produced an "error-not-int-…" link).
+		// @phan-suppress-next-line PhanUndeclaredFunction -- guarded above; symbols live in plugins/jetpack.
+		$filename = (string) jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, 0 );
+		if ( 'sitemap.xml' !== $filename ) {
 			return '';
 		}
 
-		// esc_url_raw (not esc_url): the value is transported via script data and
-		// rendered by React, so it must not be HTML-entity-encoded (e.g. the
-		// plain-permalink `?jetpack-sitemap=` form keeps its raw `&`).
-		// @phan-suppress-next-line PhanUndeclaredFunction -- jp_sitemap_filename()/jetpack_sitemap_uri() live in plugins/jetpack, guarded by function_exists.
-		return esc_url_raw( (string) jetpack_sitemap_uri( jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE ) ) );
+		// esc_url_raw (not esc_url): transported via script data and rendered by React,
+		// so it must not be HTML-entity-encoded (e.g. the plain-permalink
+		// `?jetpack-sitemap=` form keeps its raw `&`).
+		// @phan-suppress-next-line PhanUndeclaredFunction -- guarded above; symbols live in plugins/jetpack.
+		return esc_url_raw( (string) jetpack_sitemap_uri( $filename ) );
 	}
 }
