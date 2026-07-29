@@ -16,7 +16,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 /**
  * Meta capability for reading the dashboard.
  */
-const VIEW_ANALYTICS_CAPABILITY = 'view_jetpack_analytics';
+const VIEW_ANALYTICS_CAPABILITY = 'jetpack_view_analytics';
 
 /**
  * Hooks the dashboard's meta capability mapping.
