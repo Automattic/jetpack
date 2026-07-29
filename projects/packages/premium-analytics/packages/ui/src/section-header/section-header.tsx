@@ -8,20 +8,23 @@ type SectionHeaderProps = {
 	title: string;
 
 	/**
-	 * The subtitle of the section.
+	 * Subtitle describing the active date configuration. Omit it while the
+	 * consumer has nothing to describe.
 	 */
-	subtitle: string;
+	subtitle?: string;
 
 	/**
-	 * The children of the section.
+	 * Date controls anchored to the end of the header row.
 	 */
 	children?: ReactNode;
 };
 
 /**
- * ...
+ * Two-halves section header: title plus optional subtitle on the left, and a
+ * slot for the date controls anchored on the right.
+ *
  * @param {SectionHeaderProps} props - The props for the SectionHeader component.
- * @return The section tab bar element.
+ * @return The section header element.
  */
 export function SectionHeader( { title, subtitle, children }: SectionHeaderProps ) {
 	return (
@@ -30,7 +33,7 @@ export function SectionHeader( { title, subtitle, children }: SectionHeaderProps
 				<Text variant="heading-2xl" render={ <h2 /> }>
 					{ title }
 				</Text>
-				<Text variant="body-lg">{ subtitle }</Text>
+				{ subtitle ? <Text variant="body-lg">{ subtitle }</Text> : null }
 			</Stack>
 
 			<Stack direction="row" align="center" justify="flex-end">
