@@ -59,7 +59,7 @@ formatDate( new Date( '2025-06-21' ), 'long' ); // 'June 21, 2025'
 formatDate( new Date( '2025-06-21' ), 'dd/MM/yyyy' ); // '21/06/2025'
 ```
 
-**Named presets:** `short`, `medium` (default), `long`, `full`, `day`, `month`, `year`, `monthYear`, `numeric`, `iso`, `dateTime`.
+**Named presets:** `short`, `medium` (default), `long`, `full`, `fullNoYear`, `day`, `month`, `year`, `monthYear`, `numeric`, `iso`, `dateTime`.
 
 ## `formatDateRange( range? )`
 

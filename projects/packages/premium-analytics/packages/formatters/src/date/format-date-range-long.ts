@@ -3,16 +3,7 @@
  */
 import { formatDate } from './format-date';
 import { getDateRangeSpan, type DateRangeSpan } from './get-date-range-span';
-
-/**
- * A date range with optional start and end.
- *
- * Defined locally to avoid a cross-package import on
- * `@jetpack-premium-analytics/datetime` (which exports an identical
- * `DateRange` type). Switch to that import once the sibling-package
- * `link:` wiring is settled.
- */
-type DateRange = { from?: Date; to?: Date };
+import type { DateRange } from './types';
 
 type FormatDateRangeLongOptions = {
 	/**
@@ -98,7 +89,7 @@ export const formatDateRangeLong = (
 	const referenceYear = options.referenceYear ?? new Date().getFullYear();
 	const inReferenceYear =
 		from.getFullYear() === referenceYear && to.getFullYear() === referenceYear;
-	const pattern = inReferenceYear ? 'EEEE, MMMM d' : 'EEEE, MMMM d, yyyy';
+	const pattern = inReferenceYear ? 'fullNoYear' : 'full';
 
 	if ( isSingleDay( span ) ) {
 		return formatDate( from, pattern );

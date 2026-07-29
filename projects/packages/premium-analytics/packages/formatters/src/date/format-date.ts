@@ -14,6 +14,7 @@ import { format } from 'date-fns';
  * | medium      | Jun 21, 2025                 | Default - general use     |
  * | long        | June 21, 2025                | Prominent displays        |
  * | full        | Wednesday, June 21, 2025     | Headers, announcements    |
+ * | fullNoYear  | Wednesday, June 21           | Headers within one year   |
  * | day         | 21                           | Day-only displays         |
  * | month       | Jun                          | Month-only displays       |
  * | year        | 2025                         | Year-only displays        |
@@ -29,6 +30,7 @@ export const DATE_FORMATS = {
 	medium: 'MMM d, yyyy',
 	long: 'MMMM d, yyyy',
 	full: 'EEEE, MMMM d, yyyy',
+	fullNoYear: 'EEEE, MMMM d',
 	day: 'd',
 	month: 'MMM',
 	year: 'yyyy',
