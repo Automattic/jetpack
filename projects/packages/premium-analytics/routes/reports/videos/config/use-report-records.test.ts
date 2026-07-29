@@ -46,12 +46,13 @@ const params: ReportParams = {
 /**
  * Configure the complete-stats summary hook call.
  *
- * @param options               - Mocked request state and comparison rows.
- * @param options.rows          - Comparison-aware summary table rows.
- * @param options.hasComparison - Whether at least one summary row matched.
- * @param options.isLoading     - Whether the summary request is initially loading.
- * @param options.isFetching    - Whether either summary range is actively fetching.
- * @param options.isError       - Whether the summary request failed.
+ * @param options                   - Mocked request state and comparison rows.
+ * @param options.rows              - Comparison-aware summary table rows.
+ * @param options.hasComparison     - Whether at least one summary row matched.
+ * @param options.isLoading         - Whether the summary request is initially loading.
+ * @param options.isFetching        - Whether either summary range is actively fetching.
+ * @param options.primaryIsError    - Whether the primary-period request failed.
+ * @param options.comparisonIsError - Whether the comparison-period request failed.
  * @return The summary refetch mock.
  */
 function mockQuery( {
@@ -59,22 +60,26 @@ function mockQuery( {
 	hasComparison = false,
 	isLoading = false,
 	isFetching = false,
-	isError = false,
+	primaryIsError = false,
+	comparisonIsError = false,
 }: {
 	rows?: StatsVideoPlaysComparisonItem[];
 	hasComparison?: boolean;
 	isLoading?: boolean;
 	isFetching?: boolean;
-	isError?: boolean;
+	primaryIsError?: boolean;
+	comparisonIsError?: boolean;
 } = {} ) {
 	const refetch = jest.fn();
 
 	mockUseStatsVideoPlays.mockReturnValue( {
+		primary: { isError: primaryIsError },
+		comparison: { isError: comparisonIsError },
 		comparisonRows: { rows, hasComparison },
 		hasComparison,
 		isLoading,
 		isFetching,
-		isError,
+		isError: primaryIsError || comparisonIsError,
 		refetch,
 	} as unknown as ReturnType< typeof useStatsVideoPlays > );
 
@@ -141,12 +146,29 @@ describe( 'useVideosReportRecords', () => {
 	} );
 
 	it( 'reports errors and refetches the primary and comparison summary queries', async () => {
-		const refetch = mockQuery( { isError: true } );
+		const refetch = mockQuery( { primaryIsError: true, comparisonIsError: true } );
 
 		const { result } = renderHook( () => useVideosReportRecords( params ) );
 
 		expect( result.current.isError ).toBe( true );
 		await result.current.refetch();
 		expect( refetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'does not surface an error when only the comparison summary request fails', () => {
+		mockQuery( { comparisonIsError: true } );
+
+		const { result } = renderHook( () => useVideosReportRecords( params ) );
+
+		expect( result.current.isError ).toBe( false );
+		expect( result.current.rows ).toBe( summaryRows );
+	} );
+
+	it( 'surfaces an error when the primary summary request fails', () => {
+		mockQuery( { primaryIsError: true } );
+
+		const { result } = renderHook( () => useVideosReportRecords( params ) );
+
+		expect( result.current.isError ).toBe( true );
 	} );
 } );

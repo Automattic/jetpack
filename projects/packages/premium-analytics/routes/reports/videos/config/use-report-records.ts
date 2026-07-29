@@ -29,7 +29,7 @@ export function useVideosReportRecords( reportParams: ReportParams ) {
 	const summary = useStatsVideoPlays( summaryParams );
 
 	return {
-		isError: summary.isError,
+		isError: summary.primary.isError,
 		refetch: summary.refetch,
 		rows: summary.comparisonRows?.rows ?? EMPTY_VIDEO_ROWS,
 		hasComparison: summary.hasComparison,
