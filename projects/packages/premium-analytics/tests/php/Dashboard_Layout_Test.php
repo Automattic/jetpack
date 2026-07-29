@@ -51,6 +51,24 @@ class Dashboard_Layout_Test extends TestCase {
 	}
 
 	/**
+	 * The dashboard fetches this route on boot, so it has to admit every reader
+	 * the dashboard itself admits — not administrators only.
+	 */
+	public function test_default_layout_route_is_gated_on_the_dashboard_capability() {
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
+
+		register_dashboard_default_layout_route();
+
+		$routes = rest_get_server()->get_routes();
+
+		$this->assertSame(
+			__NAMESPACE__ . '\\current_user_can_view_analytics',
+			$routes[ self::ROUTE ][0]['permission_callback']
+		);
+	}
+
+	/**
 	 * Non-Premium-Analytics dashboards are left untouched.
 	 */
 	public function test_seed_default_dashboard_layout_ignores_other_dashboards() {

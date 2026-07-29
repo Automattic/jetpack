@@ -10,6 +10,9 @@ namespace Automattic\Jetpack\PremiumAnalytics\REST;
 use Automattic\Jetpack\PremiumAnalytics\Notices;
 use WP_REST_Request;
 use WP_REST_Server;
+use function Automattic\Jetpack\PremiumAnalytics\current_user_can_view_analytics;
+
+require_once __DIR__ . '/../capabilities.php';
 
 /**
  * Exposes `jetpack-premium-analytics/v1/notices` (GET + POST).
@@ -99,7 +102,7 @@ class Notices_Controller {
 	 * @return bool
 	 */
 	public function check_permission(): bool {
-		return current_user_can( 'manage_options' ) || current_user_can( 'view_stats' );
+		return current_user_can_view_analytics();
 	}
 
 	/**

@@ -25,6 +25,8 @@ require_once __DIR__ . '/../../src/widget-availability.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\remove_dev_only_widget_types
  * @covers ::Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_plugin
  * @covers ::Automattic\Jetpack\PremiumAnalytics\remove_plugin_gated_widget_types
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_capability
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\remove_capability_gated_widget_types
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_available_widget_types' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_widget_support_context' )]
@@ -35,6 +37,8 @@ require_once __DIR__ . '/../../src/widget-availability.php';
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\remove_dev_only_widget_types' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_plugin' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\remove_plugin_gated_widget_types' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_capability' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\remove_capability_gated_widget_types' )]
 class Widget_Availability_Test extends BaseTestCase {
 
 	/**
@@ -255,6 +259,45 @@ class Widget_Availability_Test extends BaseTestCase {
 			$candidates,
 			remove_plugin_gated_widget_types( $candidates, false, false ),
 			'A candidate without a category must not be plugin-gated.'
+		);
+	}
+
+	/**
+	 * Commerce widgets read through the proxy's administrator-only `analytics`
+	 * prefix, so a reader who can't see store data is never offered them.
+	 */
+	public function test_commerce_widgets_removed_from_a_reader_without_store_access() {
+		$this->assertSame(
+			array( 'jpa/traffic-chart' ),
+			array_column(
+				remove_capability_gated_widget_types( $this->commerce_widget_candidates(), false ),
+				'name'
+			),
+			'Every commerce category is dropped for a reader without store access.'
+		);
+	}
+
+	/**
+	 * Administrators keep every category.
+	 */
+	public function test_commerce_widgets_kept_for_a_user_with_store_access() {
+		$this->assertSame(
+			$this->commerce_widget_candidates(),
+			remove_capability_gated_widget_types( $this->commerce_widget_candidates(), true ),
+			'With store access no candidate is dropped.'
+		);
+	}
+
+	/**
+	 * Candidates without a category are never capability-gated.
+	 */
+	public function test_uncategorized_widgets_are_not_capability_gated() {
+		$candidates = array( array( 'name' => 'jpa/no-category' ) );
+
+		$this->assertSame(
+			$candidates,
+			remove_capability_gated_widget_types( $candidates, false ),
+			'A candidate without a category must not be capability-gated.'
 		);
 	}
 

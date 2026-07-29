@@ -17,6 +17,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 require_once __DIR__ . '/widget-types.php';
 require_once __DIR__ . '/widget-type-support.php';
+require_once __DIR__ . '/capabilities.php';
 
 /**
  * Widget categories that are only meaningful with WooCommerce active.
@@ -30,6 +31,14 @@ const WOOCOMMERCE_WIDGET_CATEGORIES = array( 'store', 'orders', 'coupons' );
  * extension cannot run without WooCommerce, so its presence implies both.
  */
 const WOOCOMMERCE_BOOKINGS_WIDGET_CATEGORIES = array( 'bookings' );
+
+/**
+ * Widget categories whose data the proxy only serves to administrators.
+ *
+ * Every commerce category, whichever plugin backs it: they all read through the
+ * proxy's `analytics` prefix.
+ */
+const COMMERCE_WIDGET_CATEGORIES = array( 'store', 'orders', 'coupons', 'bookings' );
 
 /**
  * Removes developer-only candidates in production.
@@ -154,3 +163,50 @@ function filter_registrable_widget_types_by_plugin( $widget_candidates ) {
 }
 
 add_filter( REGISTRABLE_WIDGET_TYPES_FILTER, __NAMESPACE__ . '\\filter_registrable_widget_types_by_plugin' );
+
+/**
+ * Removes commerce candidates the reader could not load data for anyway.
+ *
+ * Split from the hook callback so both branches are testable without a user.
+ *
+ * @since $$next-version$$
+ *
+ * @param array $widget_candidates  Manifest candidates, each with a `category`.
+ * @param bool  $can_view_commerce  Whether the reader may see store data.
+ * @return array The candidates, minus commerce categories for readers who can't.
+ */
+function remove_capability_gated_widget_types( $widget_candidates, $can_view_commerce ) {
+	if ( $can_view_commerce ) {
+		return $widget_candidates;
+	}
+
+	return array_values(
+		array_filter(
+			$widget_candidates,
+			static function ( $widget ) {
+				return ! in_array( $widget['category'] ?? '', COMMERCE_WIDGET_CATEGORIES, true );
+			}
+		)
+	);
+}
+
+/**
+ * Registry-time callback: hides commerce widgets from readers without store access.
+ *
+ * A `view_stats` reader reaching a store widget would only collect 403s from the
+ * proxy's `analytics` prefix, so the types are never registered for them. The
+ * registry is request-scoped, so filtering on the current user is safe here.
+ *
+ * @since $$next-version$$
+ *
+ * @param array $widget_candidates Manifest candidates.
+ * @return array The candidates, minus commerce categories for readers who can't see them.
+ */
+function filter_registrable_widget_types_by_capability( $widget_candidates ) {
+	return remove_capability_gated_widget_types(
+		$widget_candidates,
+		current_user_can_view_commerce_analytics()
+	);
+}
+
+add_filter( REGISTRABLE_WIDGET_TYPES_FILTER, __NAMESPACE__ . '\\filter_registrable_widget_types_by_capability' );

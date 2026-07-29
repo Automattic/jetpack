@@ -193,6 +193,16 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
+	 * The menu is gated on the dashboard capability rather than manage_options, so a
+	 * site that granted an editor view_stats keeps that editor's access to stats.
+	 */
+	public function test_register_admin_menu_uses_the_dashboard_capability() {
+		$menu_item = $this->register_admin_menu_without_build();
+
+		$this->assertSame( VIEW_ANALYTICS_CAPABILITY, $menu_item[1] ?? null );
+	}
+
+	/**
 	 * With no caller override the label comes from the package itself, so nobody has
 	 * to translate it before the textdomain can load.
 	 */
@@ -385,13 +395,15 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * Grant manage_options to the (logged-out) test user.
+	 * Give the (logged-out) test user what an administrator carries: manage_options,
+	 * and the read primitive the dashboard capability maps to.
 	 *
 	 * @param array $caps Capabilities.
 	 * @return array
 	 */
 	public function grant_manage_options( $caps ) {
 		$caps['manage_options'] = true;
+		$caps['read']           = true;
 
 		return $caps;
 	}

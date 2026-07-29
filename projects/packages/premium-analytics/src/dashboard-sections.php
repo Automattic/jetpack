@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 require_once __DIR__ . '/dashboard-layout.php';
 require_once __DIR__ . '/dashboard-grammar.php';
+require_once __DIR__ . '/capabilities.php';
 require_once __DIR__ . '/class-dashboard-section.php';
 require_once __DIR__ . '/class-dashboard-section-registry.php';
 
@@ -67,6 +68,21 @@ function is_woocommerce_dashboard_section_available() {
 }
 
 /**
+ * Whether the current user should be shown the WooCommerce dashboard section.
+ *
+ * Kept apart from is_woocommerce_dashboard_section_available(), which answers
+ * "is WooCommerce here" and is also the signal the widget registry reads. This
+ * one adds "and may this reader see store data".
+ *
+ * @since $$next-version$$
+ *
+ * @return bool
+ */
+function is_woocommerce_dashboard_section_available_to_current_user() {
+	return is_woocommerce_dashboard_section_available() && current_user_can_view_commerce_analytics();
+}
+
+/**
  * Returns the default widget layout for the WooCommerce dashboard section.
  *
  * @return array Array of widget instances.
@@ -108,7 +124,7 @@ function register_default_dashboard_sections() {
 		'woocommerce/store'     => array(
 			'label'          => __( 'Store', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 40,
-			'is_available'   => __NAMESPACE__ . '\\is_woocommerce_dashboard_section_available',
+			'is_available'   => __NAMESPACE__ . '\\is_woocommerce_dashboard_section_available_to_current_user',
 			'default_layout' => __NAMESPACE__ . '\\get_woocommerce_dashboard_section_default_layout',
 		),
 	);
@@ -139,7 +155,7 @@ function bootstrap_dashboard_sections() {
  * @return bool
  */
 function check_dashboard_sections_permission() {
-	return current_user_can( 'manage_options' );
+	return current_user_can_view_analytics();
 }
 
 /**

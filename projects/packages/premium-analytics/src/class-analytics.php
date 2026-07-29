@@ -14,6 +14,10 @@ use Automattic\Jetpack\PremiumAnalytics\Sync\Configuration as Sync_Configuration
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
+// Defines the capability the admin menu is registered with, and hooks its
+// mapping on include.
+require_once __DIR__ . '/capabilities.php';
+
 /**
  * Main Analytics class.
  *
@@ -310,7 +314,7 @@ class Analytics {
 		add_menu_page(
 			esc_html( $menu_title ),
 			esc_html( $menu_title ),
-			'manage_options',
+			VIEW_ANALYTICS_CAPABILITY,
 			'jetpack-premium-analytics-wp-admin',
 			$render_callback,
 			'dashicons-chart-bar',
