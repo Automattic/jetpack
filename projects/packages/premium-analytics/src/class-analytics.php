@@ -51,13 +51,10 @@ class Analytics {
 	private static $resolved_menu_title = null;
 
 	/**
-	 * Path to the wp-build entry point. Null uses the generated build shipped
-	 * with the package.
+	 * Path to the wp-build entry point. Null uses the generated build.
 	 *
-	 * This is a test seam and nothing else: `build/` is gitignored and the
-	 * `test-php` script runs no build step, so without a redirectable path no
-	 * test can observe whether the build was loaded. Do not hang production
-	 * behaviour off it.
+	 * A test seam, nothing else: `build/` is gitignored and `test-php` runs no
+	 * build step, so a test has nothing to observe unless it can redirect this.
 	 *
 	 * @var string|null
 	 */
@@ -98,20 +95,15 @@ class Analytics {
 	/**
 	 * Load the dashboard render surface, on the requests that can render it.
 	 *
-	 * With the rollout flag on this package boots on every request, and on
-	 * WordPress.com Simple that means every request across WPCOM's public-api
-	 * process. Everything below is admin render machinery — the wp-build output,
-	 * the widget import map, the CSV export script data — so a visitor's page
-	 * view pays for PHP it can never use.
+	 * With the rollout flag on, init() runs on every request — on WordPress.com
+	 * Simple, every request across WPCOM's public-api process — so everything
+	 * below would otherwise be parsed for visitors who can never use it.
 	 *
-	 * REST requests are deliberately not covered here even though they serve the
-	 * dashboard: they load what they need themselves, on rest_api_init. See
-	 * load_build()'s docblock.
+	 * REST serves the dashboard too but is deliberately excluded: it loads what
+	 * it needs itself. See load_build().
 	 *
-	 * admin-ajax.php sets is_admin() true, but it renders no dashboard, never
-	 * fires admin_init (so the full-page interceptor cannot run), and this
-	 * package registers no wp_ajax handlers. Much of that traffic originates on
-	 * the front end, so it is excluded too.
+	 * admin-ajax.php sets is_admin() true, yet renders no dashboard, never fires
+	 * admin_init, and this package registers no wp_ajax handlers.
 	 *
 	 * @return void
 	 */
@@ -212,10 +204,8 @@ class Analytics {
 	 * import map, the default layout seeding, the sections, and the CSV export
 	 * script data.
 	 *
-	 * Admin-only, via load_dashboard_surface(). Three of these four files are
-	 * also read by the dashboard's REST routes, which require them themselves
-	 * on rest_api_init in Dashboard_Support_Routes::boot_routes();
-	 * csv-exports.php has no REST-side counterpart.
+	 * Admin-only, via load_dashboard_surface(). The REST routes that need the
+	 * first three require them themselves, in boot_routes().
 	 *
 	 * @return void
 	 */
@@ -247,16 +237,13 @@ class Analytics {
 	/**
 	 * Load the wp-build output (interceptor, modules, routes, page render).
 	 *
-	 * Only reached from load_dashboard_surface(), i.e. in wp-admin. REST
-	 * requests serve the dashboard too but do not need this: the route files
-	 * come from Dashboard_Support_Routes::boot_routes() on rest_api_init, and
-	 * the widget manifest from ensure_widget_registry_ready() in
-	 * widget-modules.php, which requires build/widgets.php itself.
+	 * Only reached in wp-admin, via load_dashboard_surface(). REST does not need
+	 * it: boot_routes() requires the route files on rest_api_init, and
+	 * ensure_widget_registry_ready() requires build/widgets.php itself.
 	 *
-	 * That was not always true — PR #49961 hoisted this above an is_admin()
-	 * gate precisely because REST had no other way to reach the manifest. PR
-	 * #50266 made both paths self-sufficient, which is what lets this be
-	 * admin-only again (WOOA7S-1804).
+	 * PR #49961 hoisted this above an is_admin() gate because REST had no other
+	 * way to the manifest; #50266 made both paths self-sufficient, which is what
+	 * lets it be admin-only again (WOOA7S-1804).
 	 *
 	 * @return void
 	 */

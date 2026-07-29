@@ -57,14 +57,11 @@ function ensure_widget_registry_ready() {
 
 	// Manifest register_widget_types() reads; absent without a JS build.
 	//
-	// Load-bearing since WOOA7S-1804: Analytics::init() loads the build only in
-	// wp-admin, so on a REST request this require is the only thing that puts the
-	// widget manifest in reach. Drop it and /wpcom/v2/widget-modules returns an
-	// empty list, so every dashboard widget renders "Widget is no longer
-	// available" — the bug PR #49961 fixed. Note that the unit tests cannot catch
-	// that: tests/php/fixtures/widget-modules-manifest.php declares
-	// jpa_get_registered_widget_modules() itself, so it shadows this file whenever
-	// the tests run.
+	// Load-bearing since WOOA7S-1804: the build is otherwise admin-only, so on a
+	// REST request this is the only thing that puts the manifest in reach. Drop it
+	// and every dashboard widget renders "Widget is no longer available" (the
+	// #49961 bug). The tests will not catch that — the fixture declares
+	// jpa_get_registered_widget_modules() itself and shadows this file.
 	$widgets_manifest = __DIR__ . '/../build/widgets.php';
 	if ( file_exists( $widgets_manifest ) ) {
 		require_once $widgets_manifest;

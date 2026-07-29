@@ -44,12 +44,10 @@ class Dashboard_Support_Routes {
 	 * only when its REST callback or the boot-deps filter actually runs.
 	 *
 	 * The three require_once calls below are load-bearing, not defensive
-	 * duplication: since WOOA7S-1804, Analytics::init() loads these files only
-	 * in wp-admin, so on a REST request this method is the only thing that
-	 * loads them. Drop them as redundant and the register_*() calls below hit
-	 * undefined functions — and since this runs on rest_api_init, which fires
-	 * for every REST request the site serves, that fatal takes down the whole
-	 * REST API, not just the dashboard's routes.
+	 * duplication: since WOOA7S-1804 those files load only in wp-admin, so on
+	 * REST this method is their only loader. Drop them and the register_*() calls
+	 * hit undefined functions — on rest_api_init, which fires for every REST
+	 * request, so that fatal takes down the whole REST API.
 	 *
 	 * @return void
 	 */
