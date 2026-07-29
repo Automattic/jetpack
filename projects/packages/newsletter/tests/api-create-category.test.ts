@@ -87,4 +87,13 @@ describe( 'createCategory (NL-785)', () => {
 
 		await expect( createCategory( 'News' ) ).rejects.toMatchObject( { code: 'term_exists' } );
 	} );
+
+	it( 'rejects when the success payload has no numeric id', async () => {
+		mockIsSimpleSite.mockReturnValue( false );
+		mockGetSiteData.mockReturnValue( { wpcom: { blog_id: 123 } } );
+		// Malformed response: no id — must not resolve to a bogus category.
+		mockApiFetch.mockResolvedValue( { name: 'News' } );
+
+		await expect( createCategory( 'News' ) ).rejects.toThrow();
+	} );
 } );

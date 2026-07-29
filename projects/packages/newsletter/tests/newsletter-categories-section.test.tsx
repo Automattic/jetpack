@@ -326,6 +326,27 @@ describe( 'NewsletterCategoriesSection — combined search + create (NL-785)', (
 		);
 	} );
 
+	it( 'preserves a selected category absent from the loaded list instead of re-creating it', async () => {
+		// "99" is selected but not returned by fetchCategories (deleted, or still
+		// loading), so it renders as its raw ID. Selecting another category must
+		// keep "99" as-is, not treat it as a new name to create.
+		mockedFetchCategories.mockResolvedValue( [
+			{ id: 1, name: 'News' },
+			{ id: 2, name: 'Sports' },
+		] );
+		const { onChange } = renderSection( {
+			wpcom_newsletter_categories: [ '1', '99' ],
+		} as Partial< NewsletterSettings > );
+		await expect( screen.findByRole( 'button', { name: 'Sports' } ) ).resolves.toBeInTheDocument();
+
+		clickButton( 'Sports' );
+
+		expect( mockedCreateCategory ).not.toHaveBeenCalled();
+		expect( onChange ).toHaveBeenCalledWith( {
+			wpcom_newsletter_categories: [ '1', '99', '2' ],
+		} );
+	} );
+
 	it( 'selects an existing category without creating anything', async () => {
 		const { onChange } = renderSection();
 		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();

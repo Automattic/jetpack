@@ -213,11 +213,19 @@ async function fetchCategoriesViaWpApi(): Promise< Category[] > {
  */
 export async function createCategory( name: string ): Promise< Category > {
 	const blogId = getBlogId();
-	if ( isSimpleSite() && blogId ) {
-		return createCategoryViaWpcomApi( name, blogId );
+	const category =
+		isSimpleSite() && blogId
+			? await createCategoryViaWpcomApi( name, blogId )
+			: await createCategoryViaWpApi( name );
+
+	// Guard against an unexpected success payload: without a numeric id the caller
+	// would select a bogus token (e.g. `String( undefined )`). Surface it as a
+	// normal failure instead.
+	if ( typeof category.id !== 'number' || ! Number.isFinite( category.id ) ) {
+		throw new Error( 'Unexpected response while creating the category.' );
 	}
 
-	return createCategoryViaWpApi( name );
+	return category;
 }
 
 /**

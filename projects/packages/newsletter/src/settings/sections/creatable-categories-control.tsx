@@ -21,9 +21,8 @@
  */
 
 import { FormTokenField } from '@wordpress/components';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { createContext, useCallback, useContext, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { createContext, useContext } from 'react';
 import { createCategory } from '../api';
 import type { NewsletterSettings, WordPressCategory } from '../types';
 
@@ -163,7 +162,10 @@ export function CreatableCategoriesControl( {
 	// `field.elements` is a fresh array each render; memoize a stable reference so
 	// the callbacks below don't rebuild on every render.
 	const elements = useMemo( () => field.elements ?? [], [ field.elements ] );
-	const selectedIds = field.getValue( { item: data } ) ?? [];
+	// Memoize on the raw form value so `selectedIds` is stable across renders
+	// unless the selection actually changes (it feeds `onChangeTokens`' deps).
+	const rawSelectedIds = field.getValue( { item: data } );
+	const selectedIds = useMemo( () => rawSelectedIds ?? [], [ rawSelectedIds ] );
 	const disabled = field.isDisabled?.( { item: data, field } ) ?? false;
 
 	// Work in category-name space (like the editor's FlatTermSelector): the token
@@ -247,6 +249,12 @@ export function CreatableCategoriesControl( {
 				typeof token === 'object' && token && 'value' in token ? token.value : token
 			) as string[];
 
+			// A selected ID that isn't in `elements` (a deleted category, or one not
+			// yet loaded) renders as its raw ID. Keep such tokens as-is on change
+			// rather than mistaking an unresolved existing selection for a new name
+			// to create — otherwise touching the field would spawn a category named
+			// after the ID and drop the real selection.
+			const selectedIdSet = new Set( selectedIds );
 			let createName: string | null = null;
 			const keepIds: string[] = [];
 
@@ -254,14 +262,15 @@ export function CreatableCategoriesControl( {
 				if ( token.startsWith( CREATE_PREFIX ) ) {
 					// The explicit "Create ‘…’" row.
 					createName = token.slice( CREATE_PREFIX.length );
+					continue;
+				}
+				const id =
+					nameToId.get( token.toLowerCase() ) ?? ( selectedIdSet.has( token ) ? token : undefined );
+				if ( id ) {
+					keepIds.push( id );
 				} else {
-					const existingId = nameToId.get( token.toLowerCase() );
-					if ( existingId ) {
-						keepIds.push( existingId );
-					} else {
-						// A free-typed new name (e.g. Enter without picking the Create row).
-						createName = token;
-					}
+					// A genuinely new, free-typed name (e.g. Enter without the Create row).
+					createName = token;
 				}
 			}
 
@@ -273,7 +282,7 @@ export function CreatableCategoriesControl( {
 			commit( keepIds );
 			setSearch( '' );
 		},
-		[ nameToId, handleCreate, commit ]
+		[ nameToId, selectedIds, handleCreate, commit ]
 	);
 
 	// DataViews delegates validity display to the control. Surface the field's
