@@ -212,7 +212,7 @@ describe( 'report clicks aggregate', () => {
 		expect( aggregateClickRows( undefined ) ).toEqual( [] );
 	} );
 
-	it( 'drops an unlinked leaf, which has no stable id to aggregate on', () => {
+	it( 'keeps an unlinked leaf, which the Clicks widget also lists', () => {
 		const report: StatsNormalizedReport< StatsClicksItem > = {
 			summary: {},
 			data: [
@@ -238,6 +238,61 @@ describe( 'report clicks aggregate', () => {
 								},
 								{
 									label: 'untracked',
+									views: 3,
+									link: null,
+									icon: null,
+									labelIcon: null,
+									children: null,
+								},
+							],
+						},
+					],
+				},
+			],
+		};
+
+		const rows = aggregateClickRows( report );
+
+		expect( rows.map( row => row.clickedUrl ) ).toEqual( [
+			'wordpress.org',
+			'https://wordpress.org/plugins/jetpack-search',
+			'untracked',
+		] );
+		// The label carries the row, so the cell renders as plain text.
+		expect( rows[ 2 ] ).toMatchObject( {
+			id: 'wordpress.org|label:untracked',
+			parentId: 'wordpress.org',
+			clicks: 3,
+			href: undefined,
+		} );
+	} );
+
+	it( 'drops a leaf with no label and no URL, which has no stable id', () => {
+		const report: StatsNormalizedReport< StatsClicksItem > = {
+			summary: {},
+			data: [
+				{
+					time_interval: '2026-06-01',
+					date_start: '2026-06-01T00:00:00+00:00',
+					date_end: '2026-06-01T23:59:59+00:00',
+					items: [
+						{
+							label: 'wordpress.org',
+							views: 9,
+							link: null,
+							icon: null,
+							labelIcon: null,
+							children: [
+								{
+									label: '/plugins/jetpack-search',
+									views: 6,
+									link: 'https://wordpress.org/plugins/jetpack-search',
+									icon: null,
+									labelIcon: 'external',
+									children: null,
+								},
+								{
+									label: '',
 									views: 3,
 									link: null,
 									icon: null,

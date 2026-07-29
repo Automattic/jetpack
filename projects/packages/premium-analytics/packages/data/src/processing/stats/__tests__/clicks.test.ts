@@ -453,4 +453,185 @@ describe( 'Stats clicks normalizer', () => {
 			} )
 		);
 	} );
+
+	it( 'matches an unlinked child by label inside its comparison group', () => {
+		const buildReport = (
+			groupViews: number,
+			linkedViews: number,
+			unlinkedViews: number
+		): StatsNormalizedReport< StatsClicksItem > => ( {
+			summary: {},
+			data: [
+				{
+					time_interval: '2026-06-29',
+					date_start: '2026-06-29T00:00:00+00:00',
+					date_end: '2026-06-29T23:59:59+00:00',
+					items: [
+						{
+							label: 'wordpress.org',
+							views: groupViews,
+							link: null,
+							icon: null,
+							labelIcon: null,
+							children: [
+								{
+									label: '/plugins/jetpack-search',
+									views: linkedViews,
+									link: 'https://wordpress.org/plugins/jetpack-search',
+									icon: null,
+									labelIcon: 'external',
+									children: null,
+								},
+								{
+									label: 'untracked',
+									views: unlinkedViews,
+									link: null,
+									icon: null,
+									labelIcon: null,
+									children: null,
+								},
+							],
+						},
+					],
+				},
+			],
+		} );
+
+		const result = mergeStatsClicksComparisonRows( buildReport( 9, 6, 3 ), buildReport( 7, 5, 2 ) );
+
+		expect( result.hasComparison ).toBe( true );
+		expect( result.rows[ 0 ] ).toEqual(
+			expect.objectContaining( {
+				label: 'wordpress.org',
+				previousValue: 7,
+				childrenHaveComparison: true,
+			} )
+		);
+		expect( result.rows[ 0 ].children ).toEqual( [
+			expect.objectContaining( {
+				link: 'https://wordpress.org/plugins/jetpack-search',
+				previousValue: 5,
+			} ),
+			expect.objectContaining( { label: 'untracked', link: null, previousValue: 2 } ),
+		] );
+	} );
+
+	it( 'does not pair an unlinked child with a linked comparison row of the same label', () => {
+		const buildReport = (
+			children: StatsClicksItem[]
+		): StatsNormalizedReport< StatsClicksItem > => ( {
+			summary: {},
+			data: [
+				{
+					time_interval: '2026-06-29',
+					date_start: '2026-06-29T00:00:00+00:00',
+					date_end: '2026-06-29T23:59:59+00:00',
+					items: [
+						{
+							label: 'wordpress.org',
+							views: 9,
+							link: null,
+							icon: null,
+							labelIcon: null,
+							children,
+						},
+					],
+				},
+			],
+		} );
+		const linkedChild = ( views: number ): StatsClicksItem => ( {
+			label: '/plugins',
+			views,
+			link: 'https://wordpress.org/plugins',
+			icon: null,
+			labelIcon: 'external',
+			children: null,
+		} );
+
+		const result = mergeStatsClicksComparisonRows(
+			buildReport( [
+				linkedChild( 6 ),
+				{
+					label: '/plugins',
+					views: 3,
+					link: null,
+					icon: null,
+					labelIcon: null,
+					children: null,
+				},
+			] ),
+			buildReport( [ linkedChild( 5 ) ] )
+		);
+
+		// The linked comparison row belongs to the primary row that shares its
+		// URL. Pairing it by label as well would count the same 5 clicks twice.
+		expect( result.rows[ 0 ].children ).toEqual( [
+			expect.objectContaining( { link: 'https://wordpress.org/plugins', previousValue: 5 } ),
+			expect.objectContaining( { link: null, previousValue: undefined } ),
+		] );
+	} );
+
+	it( 'keeps unlinked children of different click groups apart', () => {
+		const buildGroup = (
+			domain: string,
+			groupViews: number,
+			linkedViews: number,
+			unlinkedViews: number
+		): StatsClicksItem => ( {
+			label: domain,
+			views: groupViews,
+			link: null,
+			icon: null,
+			labelIcon: null,
+			children: [
+				{
+					label: '/page',
+					views: linkedViews,
+					link: `https://${ domain }/page`,
+					icon: null,
+					labelIcon: 'external',
+					children: null,
+				},
+				{
+					label: 'untracked',
+					views: unlinkedViews,
+					link: null,
+					icon: null,
+					labelIcon: null,
+					children: null,
+				},
+			],
+		} );
+
+		const buildReport = (
+			items: StatsClicksItem[]
+		): StatsNormalizedReport< StatsClicksItem > => ( {
+			summary: {},
+			data: [
+				{
+					time_interval: '2026-06-29',
+					date_start: '2026-06-29T00:00:00+00:00',
+					date_end: '2026-06-29T23:59:59+00:00',
+					items,
+				},
+			],
+		} );
+
+		const result = mergeStatsClicksComparisonRows(
+			buildReport( [
+				buildGroup( 'a.example.com', 9, 6, 3 ),
+				buildGroup( 'b.example.com', 5, 4, 1 ),
+			] ),
+			buildReport( [ buildGroup( 'a.example.com', 7, 5, 2 ) ] )
+		);
+
+		expect( result.rows[ 0 ].children?.[ 1 ] ).toEqual(
+			expect.objectContaining( { label: 'untracked', previousValue: 2 } )
+		);
+		// The comparison period has no b.example.com group, so its unlinked
+		// child must not borrow the delta of the same label under a.example.com.
+		expect( result.rows[ 1 ].children?.[ 1 ] ).toEqual(
+			expect.objectContaining( { label: 'untracked', previousValue: undefined } )
+		);
+	} );
 } );

@@ -35,7 +35,7 @@ function getClickLabel( item: ClickItem ): string {
  *
  * @param item    - A normalized Clicks item.
  * @param context - The item's hierarchy context.
- * @return The row id, or null for an unlinked leaf.
+ * @return The row id, or null for a row with no label and no URL.
  */
 function getClickRowId(
 	item: ClickItem,
@@ -48,7 +48,13 @@ function getClickRowId(
 	}
 
 	if ( ! item.link ) {
-		return null;
+		// The Clicks widget lists unlinked rows, so the table lists them too.
+		// Without a URL the label is the only stable key.
+		if ( ! label ) {
+			return null;
+		}
+
+		return context.parentId ? `${ context.parentId }|label:${ label }` : `label:${ label }`;
 	}
 
 	return context.parentId ? `${ context.parentId }|${ item.link }` : `${ label }|${ item.link }`;

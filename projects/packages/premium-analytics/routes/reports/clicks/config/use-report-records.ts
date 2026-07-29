@@ -27,11 +27,8 @@ export function useClicksReportRecords( reportParams: ReportParams ) {
 	const report = useStatsClicks( recordsParams );
 	const comparisonRows = report.comparisonRows?.rows;
 	const rows = useMemo(
-		() =>
-			aggregateClickRows(
-				comparisonRows ? { data: [ { items: comparisonRows } ] } : report.primary.data
-			),
-		[ comparisonRows, report.primary.data ]
+		() => aggregateClickRows( { data: [ { items: comparisonRows ?? [] } ] } ),
+		[ comparisonRows ]
 	);
 
 	return {

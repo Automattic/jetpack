@@ -95,20 +95,51 @@ export function mergeStatsClicksComparisonRows(
 		return urlKey ? comparisonByUrl.get( urlKey ) : undefined;
 	};
 
+	// An unlinked row carries no URL to match on, so it matches by label. The URL
+	// index is flat, so an unscoped label lookup would pair rows from different
+	// groups: search the matched comparison parent's own children instead. Only
+	// unlinked candidates qualify, because a linked one already matches by URL.
+	const findComparisonChildByLabel = (
+		child: StatsClicksItem,
+		comparisonParent: StatsClicksItem | undefined,
+		parentLabel: string
+	): StatsClicksItem | undefined => {
+		const label = getStatsClicksItemLabel( child, parentLabel ).trim().toLowerCase();
+
+		if ( ! label ) {
+			return undefined;
+		}
+
+		const comparisonParentLabel = comparisonParent
+			? getStatsClicksItemLabel( comparisonParent )
+			: '';
+
+		return ( comparisonParent?.children ?? [] ).find(
+			candidate =>
+				! candidate.link &&
+				getStatsClicksItemLabel( candidate, comparisonParentLabel ).trim().toLowerCase() === label
+		);
+	};
+
 	const mapChildren = (
 		children: StatsClicksItem[],
-		parent: StatsClicksItem
-	): StatsClicksComparisonItem[] =>
-		sortStatsClicksComparisonItems(
+		parent: StatsClicksItem,
+		comparisonParent: StatsClicksItem | undefined
+	): StatsClicksComparisonItem[] => {
+		const parentLabel = getStatsClicksItemLabel( parent );
+
+		return sortStatsClicksComparisonItems(
 			children.map( child => {
-				const comparison = findComparisonMatch( child );
-				const mappedChildren = mapChildren( child.children ?? [], child );
+				const comparison = child.link
+					? findComparisonMatch( child )?.item
+					: findComparisonChildByLabel( child, comparisonParent, parentLabel );
+				const mappedChildren = mapChildren( child.children ?? [], child, comparison );
 
 				return {
 					...child,
-					label: getStatsClicksItemLabel( child, getStatsClicksItemLabel( parent ) ),
+					label: getStatsClicksItemLabel( child, parentLabel ),
 					icon: child.icon ?? parent.icon ?? null,
-					previousValue: comparison?.item.views,
+					previousValue: comparison?.views,
 					children: mappedChildren.length ? mappedChildren : null,
 					childrenHaveComparison: mappedChildren.some(
 						mappedChild => mappedChild.previousValue !== undefined
@@ -116,9 +147,9 @@ export function mergeStatsClicksComparisonRows(
 				};
 			} )
 		);
+	};
 
 	const rows = getStatsReportItems( primaryReport ).map( item => {
-		const children = mapChildren( item.children ?? [], item );
 		const directMatch = findComparisonMatch( item );
 		const childMatch = ( item.children ?? [] )
 			.map( findComparisonMatch )
@@ -129,15 +160,17 @@ export function mergeStatsClicksComparisonRows(
 		// multi-URL domain is returned as a parent with children. A linked row
 		// compares to the same URL; a parent compares to the matching domain
 		// total, falling back to the top-level record containing a matched URL
-		// when one side changed shape.
-		const previousValue = item.children?.length
-			? ( matchingGroup ?? childMatch?.topLevelItem )?.views
-			: directMatch?.item.views;
+		// when one side changed shape. An unlinked row has only its label, which
+		// is the key the group index uses.
+		const comparisonItem = item.children?.length
+			? matchingGroup ?? childMatch?.topLevelItem
+			: directMatch?.item ?? ( item.link ? undefined : matchingGroup );
+		const children = mapChildren( item.children ?? [], item, comparisonItem );
 
 		return {
 			...item,
 			label: getStatsClicksItemLabel( item ),
-			previousValue,
+			previousValue: comparisonItem?.views,
 			children: children.length ? children : null,
 			childrenHaveComparison: children.some( child => child.previousValue !== undefined ),
 		};
