@@ -47,12 +47,13 @@ this skill: apply feature-state setup from the Testing Instructions
 this skill: locate the UI entry point → hand off to jetpack-screenshot
 ```
 
-**v1 scope:** feature flags/options and plan/product state (local override, or real sticker).
-**Out of scope for v1:**
+**In scope:** feature flags/options and plan/product state (local override, or real sticker).
+**Out of scope — never attempt these:**
 establishing a required social/OAuth *connection* (e.g. a Publicize account link), and
-pointing the JN site's API traffic at a WPCOM sandbox. If the Testing Instructions require
-either, apply everything else, then report the remaining precondition as a clearly-labelled
-manual step rather than attempting it.
+pointing the JN site's API traffic at a WPCOM sandbox. Both need an interactive consent flow
+or an authorized session the skill can't obtain. If the Testing Instructions require either,
+apply everything else, then report the remaining precondition as a clearly-labelled manual
+step — a partial setup with one named manual step is useful; abandoning the run is not.
 
 ## Input
 
@@ -294,7 +295,7 @@ step below:
 |---|---|---|---|
 | `add_filter( 'x', '__return_true' )`, "enable the X flag", `update_option`, "activate the X module" | Flag / option | 4 | Autonomous |
 | "Upgrade to Pro/Complete", "requires the X **plan/product**", a paid feature | Plan via blog sticker | 5 | Confirm-first |
-| "requires the X **feature** AND a … **connection**", "connect a social account" | Connection (out of v1 scope) | — | Report as manual step |
+| "requires the X **feature** AND a … **connection**", "connect a social account" | Connection (out of scope) | — | Report as manual step |
 
 State the plan back to the user in one short list before acting, then proceed — auto-apply the
 flag/option items, pause on the sticker.
@@ -432,7 +433,7 @@ Concise final report:
   and recommend a rebase — otherwise the user reviews an old build and reports phantom bugs.
 - Setup applied: each flag/option set (✓), and the plan state (local override applied / real
   sticker **awaiting your confirmation** / not needed).
-- Any **out-of-v1-scope precondition** left for the user (a required connection, or sandbox
+- Any **out-of-scope precondition** left for the user (a required connection, or sandbox
   pointing), clearly labelled as manual.
 - **How to reach the site — always include all three, testing happens in wp-admin. Put access
   BEFORE the where-to-click steps:** the reader has to be logged in before any "click here"
