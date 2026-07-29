@@ -1211,11 +1211,9 @@ class Search_Blocks {
 	 * frame-themes like Twenty Sixteen use body as a colored border around a
 	 * lighter `.site` content wrapper). See AGENTS.md § Theme tokens.
 	 *
-	 * Hooked unconditionally in `init()` (registration must happen before the
-	 * module-active check so editor-facing registration isn't disturbed — see
-	 * `Initializer::init_search_blocks()`), so the module-active gate lives
-	 * here instead. Nothing in the sampled tokens' consumers (the Search
-	 * blocks' own stylesheets) matters once the module is off.
+	 * The `wp_body_open` hook registers unconditionally in `init()`, before
+	 * the module-active check in `Initializer::init_search_blocks()` — so the
+	 * module gate lives here instead, front-end only.
 	 */
 	public static function print_theme_token_sampler(): void {
 		if ( is_admin() || ! ( new Module_Control() )->is_active() ) {

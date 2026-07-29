@@ -1323,10 +1323,8 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * `print_theme_token_sampler()` is hooked into `wp_body_open` regardless
-	 * of module state — it runs before the module-active check on purpose
-	 * (see `Initializer::init_search_blocks()`), so the module gate has to
-	 * live inside the callback itself (SEARCH-299) rather than the hook.
+	 * The `wp_body_open` registration itself stays unconditional (SEARCH-299)
+	 * — the module gate lives inside the callback instead.
 	 */
 	public function test_init_registers_theme_token_sampler_hook_regardless_of_module_state() {
 		$this->reset_search_blocks_hooks();
@@ -1359,9 +1357,7 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * Disabling the Search module must stop the sampler script from printing
-	 * on the front end (SEARCH-299) — even though its `wp_body_open`
-	 * registration happens before the module-active check.
+	 * Disabling the Search module stops the sampler script from printing (SEARCH-299).
 	 */
 	public function test_print_theme_token_sampler_skipped_when_module_inactive() {
 		$this->set_module_active( false );
