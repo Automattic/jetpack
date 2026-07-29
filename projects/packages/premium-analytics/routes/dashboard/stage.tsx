@@ -111,6 +111,10 @@ function Dashboard(): JSX.Element {
 							items={ [ { label: __( 'Analytics', 'jetpack-premium-analytics-pkg' ) } ] }
 						/>
 					}
+					subTitle={ __(
+						'Track your site performance and visitor insights.',
+						'jetpack-premium-analytics-pkg'
+					) }
 					actions={ <WidgetDashboard.Actions /> }
 					className={ styles.dashboard }
 				>
