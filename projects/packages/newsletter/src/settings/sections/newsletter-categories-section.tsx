@@ -154,11 +154,17 @@ export function NewsletterCategoriesSection( {
 					( err as Error & { code?: string; error?: string } )?.code ??
 					( err as Error & { error?: string } )?.error;
 				const isDuplicate = errorCode === 'term_exists' || errorCode === 'duplicate';
-				setCreateCategoryError(
-					isDuplicate
-						? __( 'This category already exists.', 'jetpack-newsletter' )
-						: __( 'Could not create the category. Please try again.', 'jetpack-newsletter' )
+				// Assign each translated string to its own variable rather than
+				// branching a single ternary between two `__()` calls: production
+				// minification hoists the shared `__( …, 'jetpack-newsletter' )`
+				// wrapper out of the conditional, leaving a non-literal msgid that
+				// fails the i18n string check.
+				const duplicateMessage = __( 'This category already exists.', 'jetpack-newsletter' );
+				const genericMessage = __(
+					'Could not create the category. Please try again.',
+					'jetpack-newsletter'
 				);
+				setCreateCategoryError( isDuplicate ? duplicateMessage : genericMessage );
 			} )
 			.finally( () => {
 				setIsCreatingCategory( false );
