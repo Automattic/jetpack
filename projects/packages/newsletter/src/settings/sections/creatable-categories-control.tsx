@@ -12,11 +12,12 @@
  * categories plus a separate "Add new category" link — into one, removing the
  * ambiguity between "add an existing category" and "create a new one".
  *
- * The model mirrors the WordPress editor's `FlatTermSelector`: selections are
- * stored as category IDs (the form value), while the token field works in
- * display-name space via `displayTransform`. The "create" row is encoded as a
- * sentinel-prefixed suggestion so it can be told apart from a real category by
- * value, not by its (translated) label.
+ * The model mirrors the WordPress editor's `FlatTermSelector`: the token field
+ * works in category-name space (its value and suggestions are names), while the
+ * form value stays a list of IDs — names and IDs are translated at the data
+ * boundary. The "create" row is a sentinel-prefixed suggestion, told apart from
+ * a real category by value (not its translated label) and rendered as
+ * "Create ‘…’" via `displayTransform`.
  */
 
 import { FormTokenField } from '@wordpress/components';
