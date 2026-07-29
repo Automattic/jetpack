@@ -16,17 +16,54 @@ class Odyssey_Assets_Test extends Stats_TestCase {
 	 * another admin feature (e.g. WP 7.0's command palette) enqueuing it as a side effect.
 	 * Asserted as a registered dependency, not just "is enqueued", because the dependency edge is
 	 * what also guarantees WP emits wp-components *before* Odyssey's own overrides of its classes.
+	 *
+	 * `load_admin_scripts()` takes one of two branches depending on `file_exists( dist/{asset_name}.js )`
+	 * -- real behaviour on a dev machine with a local build present, but also something that can
+	 * happen to be true or false in CI/local test runs depending on whatever's sitting in dist/,
+	 * independent of anything this test controls. Both branches are asserted explicitly below with
+	 * that condition forced, so the result doesn't depend on the filesystem state a test run
+	 * happens to find.
 	 */
-	public function test_odyssey_style_declares_wp_components_dependency() {
+	public function test_odyssey_style_declares_wp_components_dependency_cdn_branch() {
+		$this->reset_wp_styles();
 		wp_register_style( 'wp-components', false );
 		$this->assertFalse( wp_style_is( 'wp-components', 'enqueued' ) );
 
-		( new Odyssey_Assets() )->load_admin_scripts( 'jp-stats-dashboard', 'build.min' );
+		// An asset name with no dist/ file forces the CDN branch regardless of what's on disk.
+		( new Odyssey_Assets() )->load_admin_scripts( 'jp-stats-dashboard', 'nonexistent-test-build' );
 
-		$registered = wp_styles()->query( 'jp-stats-dashboard', 'registered' );
+		// The CDN branch registers the stylesheet under "{$asset_handle}-style", not $asset_handle
+		// itself -- that bare handle is reserved for the script.
+		$registered = wp_styles()->query( 'jp-stats-dashboard-style', 'registered' );
 		$this->assertNotFalse( $registered, 'Odyssey should register a stylesheet handle.' );
 		$this->assertContains( 'wp-components', $registered->deps );
 		$this->assertTrue( wp_style_is( 'wp-components', 'enqueued' ) );
+	}
+
+	public function test_odyssey_style_declares_wp_components_dependency_local_dist_branch() {
+		$this->reset_wp_styles();
+		wp_register_style( 'wp-components', false );
+		$this->assertFalse( wp_style_is( 'wp-components', 'enqueued' ) );
+
+		// Assets::register_script() only registers a stylesheet at all -- under $asset_handle, no
+		// suffix -- when both a JS and a matching CSS file exist in dist/, so both are needed to
+		// force this branch.
+		$dist_dir = __DIR__ . '/../../dist';
+		wp_mkdir_p( $dist_dir );
+		file_put_contents( "$dist_dir/local-test-build.js", '' );
+		file_put_contents( "$dist_dir/local-test-build.css", '' );
+
+		try {
+			( new Odyssey_Assets() )->load_admin_scripts( 'jp-stats-dashboard', 'local-test-build' );
+
+			$registered = wp_styles()->query( 'jp-stats-dashboard', 'registered' );
+			$this->assertNotFalse( $registered, 'Odyssey should register a stylesheet handle.' );
+			$this->assertContains( 'wp-components', $registered->deps );
+			$this->assertTrue( wp_style_is( 'wp-components', 'enqueued' ) );
+		} finally {
+			unlink( "$dist_dir/local-test-build.js" );
+			unlink( "$dist_dir/local-test-build.css" );
+		}
 	}
 
 	/**
@@ -135,5 +172,21 @@ class Odyssey_Assets_Test extends Stats_TestCase {
 		}
 
 		return $get_cdn_asset_cache_buster->invoke( $odyssey_assets );
+	}
+
+	/**
+	 * The style handles both tests above register/enqueue are process-global state (via
+	 * `$GLOBALS['wp_styles']`) that persists across tests within a run -- WorDBless resets
+	 * options/posts/users in TestCase::setUp(), but not this. Without clearing them, a handle left
+	 * registered or enqueued by one test is still there for the next one. Dequeuing/deregistering
+	 * the specific handles rather than replacing the whole `WP_Styles` object, since a fresh
+	 * `new \WP_Styles()` reruns its constructor's `wp_default_styles` hook, which needs more of the
+	 * request environment set up than this test bootstrap provides.
+	 */
+	protected function reset_wp_styles() {
+		foreach ( array( 'wp-components', 'jp-stats-dashboard', 'jp-stats-dashboard-style' ) as $handle ) {
+			wp_dequeue_style( $handle );
+			wp_deregister_style( $handle );
+		}
 	}
 }
