@@ -184,10 +184,15 @@ const DEFAULT_TITLE_PARTS: Record< string, [ string, string ] > = {
  * separator. Uses the same real values and sample text as {@link buildPreview}, so
  * a defaulted row reads consistently beside a customized one.
  *
- * A theme can rewrite the parts through `document_title_parts`, which this can't
- * account for — those filters usually test the query (`is_singular()` and friends),
- * which has no meaning here. The separator is read from the site, since that is the
- * piece themes routinely override.
+ * The separator comes from the site already rendered — core texturizes the composed
+ * default title, so its `-` reaches a visitor as an en dash (see
+ * `Dashboard_Data::get_default_title_separator()`). That is why this differs from
+ * {@link buildPreview}, whose separators are literal text the user typed: a stored
+ * format short-circuits `pre_get_document_title` before the filter that texturizes.
+ *
+ * A theme can also rewrite the parts through `document_title_parts`, which this
+ * can't account for — those filters usually test the query (`is_singular()` and
+ * friends), which has no meaning here.
  *
  * @param pageTypeId - The page type (`posts`, `pages`, …).
  * @param separator  - The site's document-title separator.
