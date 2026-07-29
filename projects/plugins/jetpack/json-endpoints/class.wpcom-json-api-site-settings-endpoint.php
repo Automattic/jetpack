@@ -656,12 +656,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		// re-populating the defaults, so a partial row stays partial before the merge.
 		$default_subscription_options = (array) apply_filters( 'default_option_subscription_options', array(), 'subscription_options', false );
 		$stored_subscription_options  = (array) get_option( 'subscription_options', array() );
-		// Resolve the defaults the same way get_option() does for a missing row (via the
-		// `default_option_*` filter with $passed_default = false), then let any stored
-		// sub-keys take precedence. Passing an array default keeps get_option() from
-		// re-populating the defaults, so a partial row stays partial before the merge.
-		$default_subscription_options = (array) apply_filters( 'default_option_subscription_options', array(), 'subscription_options', false );
-		$stored_subscription_options  = (array) get_option( 'subscription_options', array() );
 		$subscription_options         = array_merge( $default_subscription_options, $stored_subscription_options );
 
 		if ( $switched_locale ) {
