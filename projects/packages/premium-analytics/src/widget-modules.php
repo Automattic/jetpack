@@ -34,6 +34,28 @@ function register_widget_modules_rest_route() {
 }
 
 /**
+ * Path to the generated widget manifest.
+ *
+ * A test seam and nothing else, for the reason Analytics::$build_entry exists:
+ * `build/` is gitignored and `test-php` runs no build step, so without a
+ * redirectable path no test can observe whether the require below still stands.
+ * Do not hang production behaviour off it.
+ *
+ * @param string|false|null $path Path to use, null to restore the packaged
+ *                                build, or false to read without changing it.
+ * @return string The manifest path in effect.
+ */
+function widgets_manifest_path( $path = false ) {
+	static $override = null;
+
+	if ( false !== $path ) {
+		$override = $path;
+	}
+
+	return $override ?? __DIR__ . '/../build/widgets.php';
+}
+
+/**
  * Load and hydrate the widget type registry, once.
  *
  * Deferred to here (the registry's only two readers) instead of running
@@ -60,9 +82,9 @@ function ensure_widget_registry_ready() {
 	// Load-bearing since WOOA7S-1804: the build is otherwise admin-only, so on a
 	// REST request this is the only thing that puts the manifest in reach. Drop it
 	// and every dashboard widget renders "Widget is no longer available" (the
-	// #49961 bug). The tests will not catch that — the fixture declares
-	// jpa_get_registered_widget_modules() itself and shadows this file.
-	$widgets_manifest = __DIR__ . '/../build/widgets.php';
+	// #49961 bug). Analytics_Test::test_rest_request_still_serves_the_widget_manifest
+	// covers that, by pointing widgets_manifest_path() at a fixture manifest.
+	$widgets_manifest = widgets_manifest_path();
 	if ( file_exists( $widgets_manifest ) ) {
 		require_once $widgets_manifest;
 	}

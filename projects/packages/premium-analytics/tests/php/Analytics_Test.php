@@ -227,11 +227,11 @@ class Analytics_Test extends TestCase {
 	 * the lazy hydration path still runs, both via
 	 * Dashboard_Support_Routes::boot_routes() on rest_api_init.
 	 *
-	 * It does not prove the generated build manifest is reachable on REST. The
-	 * fixture staged below declares jpa_get_registered_widget_modules() itself and
-	 * CI never has a build/ directory, so ensure_widget_registry_ready()'s require
-	 * of build/widgets.php is shadowed here — deleting that require would not
-	 * redden this test. Only verification against a real site covers it.
+	 * The sentinel only reaches the registry through the manifest require in
+	 * ensure_widget_registry_ready(), because the test stages the fixture through
+	 * widgets_manifest_path() rather than declaring
+	 * jpa_get_registered_widget_modules() up front. Deleting that require — the
+	 * #49961 outage — reddens this test.
 	 *
 	 * Asserts a uniquely named sentinel rather than "the response is not empty":
 	 * the widget type registry is process-wide, so a non-empty response could be
@@ -244,8 +244,6 @@ class Analytics_Test extends TestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_rest_request_still_serves_the_widget_manifest() {
-		require_once __DIR__ . '/fixtures/widget-modules-manifest.php';
-
 		$GLOBALS['jpa_test_widget_manifest'] = array(
 			array(
 				'name'          => 'test/rest-gate-sentinel',
@@ -254,14 +252,9 @@ class Analytics_Test extends TestCase {
 			),
 		);
 
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'rest_gate_admin',
-				'user_pass'  => 'rest_gate_pass',
-				'role'       => 'administrator',
-			)
-		);
-		wp_set_current_user( is_wp_error( $user_id ) ? 1 : $user_id );
+		// The route's permission_callback is manage_options; grant it by filter
+		// rather than inserting a user, as the admin-menu tests do.
+		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 
 		try {
 			Analytics::init();
@@ -271,11 +264,20 @@ class Analytics_Test extends TestCase {
 			$wp_rest_server = new \WP_REST_Server();
 			do_action( 'rest_api_init' );
 
-			$response = $wp_rest_server->dispatch( new \WP_REST_Request( 'GET', '/wpcom/v2/widget-modules' ) );
-			$names    = array_column( (array) $response->get_data(), 'name' );
+			// Staged here, not before init(): boot_routes() is what loads
+			// widget-modules.php on REST, so the seam only exists once it has run.
+			// The route callback hydrates the registry later, at dispatch.
+			widgets_manifest_path( __DIR__ . '/fixtures/build-entry/widgets.php' );
 
-			$this->assertContains( 'test/rest-gate-sentinel', $names );
+			$response = $wp_rest_server->dispatch( new \WP_REST_Request( 'GET', '/wpcom/v2/widget-modules' ) );
+
+			// Asserted separately so a permissions regression reads as one, rather
+			// than as a missing sentinel: array_column() over an error envelope is
+			// an empty list either way.
+			$this->assertSame( 200, $response->get_status(), 'The manifest route must authorize the test user.' );
+			$this->assertContains( 'test/rest-gate-sentinel', array_column( (array) $response->get_data(), 'name' ) );
 		} finally {
+			remove_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 			Widget_Type_Registry::get_instance()->unregister( 'test/rest-gate-sentinel' );
 			unset( $GLOBALS['jpa_test_widget_manifest'] );
 		}

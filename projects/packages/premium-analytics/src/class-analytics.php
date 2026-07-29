@@ -102,8 +102,10 @@ class Analytics {
 	 * REST serves the dashboard too but is deliberately excluded: it loads what
 	 * it needs itself. See load_build().
 	 *
-	 * admin-ajax.php sets is_admin() true, yet renders no dashboard, never fires
-	 * admin_init, and this package registers no wp_ajax handlers.
+	 * admin-ajax.php sets is_admin() true but renders no dashboard, and this
+	 * package registers no wp_ajax handlers. It does fire admin_init, so without
+	 * the exclusion the build's interceptor would answer
+	 * admin-ajax.php?page=jetpack-premium-analytics with a full admin page.
 	 *
 	 * @return void
 	 */
