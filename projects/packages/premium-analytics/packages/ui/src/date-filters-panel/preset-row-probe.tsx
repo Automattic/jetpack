@@ -7,15 +7,8 @@ import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
+import type { PresetRowWidths } from '../date-range-layout';
 import './preset-row-probe.scss';
-
-/**
- * Natural width of the preset row in each label form, in CSS pixels.
- */
-export type PresetRowWidths = {
-	full: number;
-	abbreviated: number;
-};
 
 export type PresetRowProbeProps = {
 	/** Pill labels in display order. A preset with no short form reuses its full label. */

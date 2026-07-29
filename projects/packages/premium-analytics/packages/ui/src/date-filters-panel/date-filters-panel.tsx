@@ -20,14 +20,18 @@ import { useMemo, useCallback, useState, useEffect } from 'react';
  */
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
 import { DateRangeFilter } from '../date-range-filter';
-import { WIDE_CALENDAR_CONTAINER_THRESHOLD, type PresetLabelMode } from '../date-range-layout';
+import {
+	resolvePresetLabelMode,
+	WIDE_CALENDAR_CONTAINER_THRESHOLD,
+	type PresetRowWidths,
+} from '../date-range-layout';
 import {
 	getCommittedCustomRange,
 	getCustomTriggerLabel,
 	getCustomTriggerState,
 } from '../date-range-popover';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
-import { PresetRowProbe, type PresetRowWidths } from './preset-row-probe';
+import { PresetRowProbe } from './preset-row-probe';
 
 import './date-filters-panel.scss';
 
@@ -260,22 +264,12 @@ export function DateFiltersPanel( {
 		setRowWidths( widths );
 	}, [] );
 
-	/*
-	 * The longest labels that still fit. Both candidates come from the probe, so
-	 * the boundary follows the active locale rather than a breakpoint picked for
-	 * English. Holds `full` until measured; a wrong guess corrects next frame.
-	 */
-	const labelMode: PresetLabelMode = useMemo( () => {
-		if ( containerWidth === null || rowWidths === null ) {
-			return 'full';
-		}
-
-		if ( containerWidth >= rowWidths.full ) {
-			return 'full';
-		}
-
-		return containerWidth >= rowWidths.abbreviated ? 'abbreviated' : 'select';
-	}, [ containerWidth, rowWidths ] );
+	// Both candidates come from the probe, so the boundary follows the active
+	// locale rather than a breakpoint picked for English.
+	const labelMode = useMemo(
+		() => resolvePresetLabelMode( containerWidth, rowWidths ),
+		[ containerWidth, rowWidths ]
+	);
 
 	const isCompact = labelMode === 'select';
 	const isWideScreen =

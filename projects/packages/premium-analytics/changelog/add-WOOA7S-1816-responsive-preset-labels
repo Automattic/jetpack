@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Date range presets now shorten their labels before collapsing into a select, and the switch is measured from the active language's own labels instead of a fixed width. The panel also measures itself, so callers no longer pass a container element.

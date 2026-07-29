@@ -15,12 +15,39 @@ export type PresetLabelMode =
 	| 'select';
 
 /**
- * Threshold width (in pixels) below which preset controls collapse to a select.
- *
- * @deprecated Superseded by the measured `PresetLabelMode`. Still read while the
- * remaining consumers migrate.
+ * Natural width of the preset row in each label form, in CSS pixels.
  */
-export const MOBILE_CONTAINER_WIDTH_THRESHOLD = 600;
+export type PresetRowWidths = {
+	full: number;
+	abbreviated: number;
+};
+
+/**
+ * Longest label form that fits the width available.
+ *
+ * Falls back to `full` until both measurements are in: it is what the panel
+ * showed before any of this existed, and a wrong guess corrects on the next
+ * frame. Boundaries are inclusive, so a form that exactly fills the row counts
+ * as fitting.
+ *
+ * @param availableWidth - Measured width of the panel, or null before first measure.
+ * @param rowWidths      - Natural widths from the probe, or null before first measure.
+ * @return The label form to render.
+ */
+export function resolvePresetLabelMode(
+	availableWidth: number | null,
+	rowWidths: PresetRowWidths | null
+): PresetLabelMode {
+	if ( availableWidth === null || rowWidths === null ) {
+		return 'full';
+	}
+
+	if ( availableWidth >= rowWidths.full ) {
+		return 'full';
+	}
+
+	return availableWidth >= rowWidths.abbreviated ? 'abbreviated' : 'select';
+}
 
 /**
  * Threshold width (in pixels) for showing two months in the custom-range calendar.

@@ -68,4 +68,37 @@ describe( 'DateRangeQuickPresets', () => {
 		expect( screen.queryAllByRole( 'button' ) ).toHaveLength( 0 );
 		expect( screen.getByRole( 'combobox', { name: 'Period' } ) ).toBeInTheDocument();
 	} );
+
+	it( 'shortens the visible labels when abbreviated', () => {
+		renderPresets( { labelMode: 'abbreviated' } );
+
+		expect( screen.getAllByRole( 'button' ).map( button => button.textContent ) ).toEqual( [
+			'24H',
+			'7D',
+			'30D',
+			'12M',
+		] );
+	} );
+
+	/*
+	 * The abbreviations drop the wording that named the period, so the accessible
+	 * name has to keep it. Querying by the full name is the assertion: it only
+	 * resolves through the aria-label, since the visible text is "7D".
+	 */
+	it( 'keeps the full label as the accessible name when abbreviated', () => {
+		renderPresets( { labelMode: 'abbreviated', value: 'last-7-days' } );
+
+		expect( screen.getByRole( 'button', { name: 'Last 7 days' } ) ).toHaveAttribute(
+			'aria-pressed',
+			'true'
+		);
+	} );
+
+	it( 'leaves the accessible name alone when labels are full', () => {
+		renderPresets( { labelMode: 'full' } );
+
+		expect( screen.getByRole( 'button', { name: 'Last 7 days' } ) ).not.toHaveAttribute(
+			'aria-label'
+		);
+	} );
 } );
