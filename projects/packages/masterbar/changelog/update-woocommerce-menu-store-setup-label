@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Relabel the WooCommerce admin menu item to "Store setup" on Commerce and Commerce-trial sites.

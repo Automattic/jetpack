@@ -433,7 +433,8 @@ class Error_Handler {
 	 *                   'action' => 'reconnect',
 	 *                   'data' => [
 	 *                     'api_error_code' => 'invalid_token',
-	 *                     'action' => 'reconnect'
+	 *                     'action' => 'reconnect',
+	 *                     'audience' => 'site' // Who the error is relevant to: 'site', 'owner', or 'user'.
 	 *                   ]
 	 *                 ]
 	 *               ]
@@ -477,6 +478,11 @@ class Error_Handler {
 				$dashboard_data[ $key ] = $value;
 			}
 		}
+
+		// Expose the error audience (site/owner/user) so the dashboard can render
+		// audience-aware copy. Falls back to site-wide for consumer-injected errors
+		// that predate the audience field.
+		$dashboard_data['audience'] = $first_error['audience'] ?? 'site';
 
 		$dashboard_error = array(
 			array(
