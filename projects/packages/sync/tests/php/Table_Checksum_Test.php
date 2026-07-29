@@ -13,6 +13,8 @@ use WorDBless\BaseTestCase;
 
 /**
  * Tests first-party WooCommerce Analytics checksum schemas.
+ *
+ * @covers Automattic\Jetpack\Sync\Replicastore\Table_Checksum
  */
 #[CoversClass( Table_Checksum::class )]
 class Table_Checksum_Test extends BaseTestCase {

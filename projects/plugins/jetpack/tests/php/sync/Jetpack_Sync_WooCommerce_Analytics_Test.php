@@ -43,6 +43,13 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 	private $order_attribution_option_captured = false;
 
 	/**
+	 * Sync module instances initialized before this test.
+	 *
+	 * @var array|null
+	 */
+	private $original_sync_modules;
+
+	/**
 	 * Set up.
 	 */
 	public function set_up() {
@@ -54,15 +61,17 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 		parent::set_up();
 
 		$this->original_order_attribution_option = get_option( self::ORDER_ATTRIBUTION_OPTION, null );
-		$this->order_attribution_option_captured  = true;
+		$this->order_attribution_option_captured = true;
+		$this->original_sync_modules             = Modules::get_modules();
 	}
 
 	/**
 	 * Tear down.
 	 */
 	public function tear_down() {
-		remove_filter( 'jetpack_sync_modules', array( $this, 'add_analytics_module' ), PHP_INT_MAX );
-		$this->reset_sync_modules();
+		if ( null !== $this->original_sync_modules ) {
+			$this->set_sync_modules( $this->original_sync_modules );
+		}
 
 		unset( $_GET['section'] );
 		unset( $_POST['woocommerce_feature_order_attribution_enabled'] );
@@ -107,6 +116,7 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 		$this->set_order_attribution_form_state( true );
 		$this->expectException( Exception::class );
 
+		// @phan-suppress-next-line PhanNoopNew -- Expecting the constructor to throw.
 		new Table_Checksum( 'wc_order_stats' );
 	}
 
@@ -118,6 +128,7 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 		$this->set_order_attribution_form_state( false );
 		$this->expectException( Exception::class );
 
+		// @phan-suppress-next-line PhanNoopNew -- Expecting the constructor to throw.
 		new Table_Checksum( 'wc_order_stats' );
 	}
 
@@ -281,22 +292,19 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 	}
 
 	/**
-	 * Add the shared Analytics module to the filtered module list.
-	 *
-	 * @param string[] $modules Existing module classes.
-	 * @return string[]
-	 */
-	public function add_analytics_module( array $modules ) {
-		$modules[] = WooCommerce_Analytics::class;
-		return $modules;
-	}
-
-	/**
 	 * Enable the shared Analytics module for the current test.
+	 *
+	 * @throws RuntimeException When Sync modules were not initialized.
 	 */
 	private function enable_analytics_module() {
-		add_filter( 'jetpack_sync_modules', array( $this, 'add_analytics_module' ), PHP_INT_MAX );
-		$this->reset_sync_modules();
+		$modules = $this->original_sync_modules;
+		if ( null === $modules ) {
+			throw new RuntimeException( 'Sync modules were not initialized for the test.' );
+		}
+
+		$modules[] = new WooCommerce_Analytics();
+
+		$this->set_sync_modules( $modules );
 	}
 
 	/**
@@ -305,7 +313,7 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 	 * @param bool $enabled Whether order attribution should be enabled.
 	 */
 	private function set_order_attribution_form_state( $enabled ) {
-		$_GET['section']            = 'features';
+		$_GET['section']           = 'features';
 		$_SERVER['REQUEST_METHOD'] = 'POST';
 
 		if ( $enabled ) {
@@ -316,15 +324,17 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 	}
 
 	/**
-	 * Reset the cached Sync module instances.
+	 * Set the cached Sync module instances without reconstructing listener-bound modules.
+	 *
+	 * @param array $modules Sync module instances.
 	 */
-	private function reset_sync_modules() {
+	private function set_sync_modules( array $modules ) {
 		$reflection = new ReflectionClass( Modules::class );
 		$property   = $reflection->getProperty( 'initialized_modules' );
 
 		if ( PHP_VERSION_ID < 80100 ) {
 			$property->setAccessible( true );
 		}
-		$property->setValue( null, null );
+		$property->setValue( null, $modules );
 	}
 }
