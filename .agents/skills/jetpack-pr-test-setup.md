@@ -36,6 +36,9 @@ jetpack-test-jurassic-ninja (provision-only, +jetpack-beta)   → fresh connecte
       ↓
 this skill: wp jetpack-beta activate <plugin> <PR-branch>   (rsync fallback if no build)
       ↓
+this skill: prove the branch code actually loads (ReflectionClass, not grep)
+            ↳ production shadowing the branch? deactivate jetpack-production  [AUTONOMOUS]
+      ↓
 this skill: apply feature-state setup from the Testing Instructions
             · flags / options  → mu-plugin                   [AUTONOMOUS — throwaway site]
             · plan / product    → local jetpack_active_plan override  [AUTONOMOUS — default]
@@ -187,12 +190,11 @@ jnwp 'wp jetpack-beta activate <plugin> "<headRefName>"'
 ```
 
 Verify it took: `jnwp 'wp jetpack-beta list <plugin>'` should mark `<headRefName>` active
-(`*`). **Heads-up on `wp plugin list --status=active` for `jetpack`:** Beta Tester runs the
-branch build as a *separate* plugin named **`jetpack-dev`** (you'll see `jetpack-dev`,
-`jetpack-production`, and `jetpack-beta` all active — the JN provisioner installs
-`jetpack-production` and activates a beta branch by default). So don't grep for a literal
-`jetpack` line and read its absence as a failure — the `*` marker in `jetpack-beta list` plus
-an active `jetpack-dev` is what "it took" looks like.
+(`*`). **`wp plugin list --status=active` is not the check you want here:** Beta Tester runs
+the branch build as a *separate* plugin named **`jetpack-dev`**, and the JN provisioner leaves
+**`jetpack-production`** active alongside it — so there's no literal `jetpack` line to grep,
+and its absence isn't a failure. But an active `jetpack-dev` does **not** mean the branch's
+code runs. Step 2b is what establishes that, and it is not optional.
 
 **Fallbacks, in order:**
 1. `wp jetpack-beta list <plugin>` doesn't include the branch, or `activate` errors that the
@@ -202,6 +204,72 @@ an active `jetpack-dev` is what "it took" looks like.
 2. The `jnwp` transport itself won't connect (password rejected / host unreachable, per
    step 1b) → drive the Beta Tester UI in the browser instead (**wp-admin → Jetpack → Beta**,
    pick the plugin, find the PR, click **Activate**), or use the rsync fallback.
+
+### 2b. Prove the branch's code actually executes — REQUIRED
+
+An active `jetpack-dev` does not mean the PR's code runs. `jetpack-dev` and
+`jetpack-production` **both** register every bundled package with the jetpack-autoloader, which
+loads the **highest version** of each package across all registrants. Beta builds are versioned
+`X.Y.Z-alpha<timestamp>` from the branch's own `composer.json`, so whenever the PR branch is
+based on a trunk older than the one `jetpack-production` was built from, **production wins and
+the branch's package sits on disk and never loads.** Everything looks healthy — site up, plugin
+list right, `jetpack-beta list` showing `*` — and the PR's change is simply absent. This is the
+single most likely reason a reviewer reports "I can't see the change."
+
+`JETPACK_AUTOLOAD_DEV` does **not** rescue this (it's what `jn-pr-review` sets for its rsync
+path). `Version_Selector::is_dev_version()` recognises only `dev-*` and `9999999-dev`; an
+`-alpha<timestamp>` build is neither, so selection falls through to `version_compare` either way.
+
+**Never verify this with a disk grep.** The PR's string is present in `jetpack-dev` whether or
+not that copy loads — grepping it proves nothing. Ask PHP where it resolved the class from,
+using a class the PR actually touches:
+
+```bash
+jnwp 'cat > /tmp/whichfile.php <<'"'"'PHP'"'"'
+<?php
+$r = new ReflectionClass( "Fully\\Qualified\\Class\\From\\The\\PR" );
+echo $r->getFileName() . "\n";
+PHP
+wp eval-file /tmp/whichfile.php'
+```
+
+- Resolves under `wp-content/plugins/jetpack-dev/…` → branch code is live; go to step 3.
+- Resolves under `wp-content/plugins/jetpack-production/…` → production is shadowing the branch.
+  Remove production from the equation — reversible and scoped to the throwaway site, so
+  **autonomous, don't ask**:
+
+  ```bash
+  jnwp 'wp plugin deactivate jetpack-production'
+  ```
+
+  Then re-run the reflection check (it must now point at `jetpack-dev`) and confirm the
+  connection survived — `Manager::is_connected()` still true and the same blog ID — before
+  moving on.
+
+To see the reason rather than infer it, compare what each plugin registers:
+
+Match on the **file path**, not the namespaced class name — the path has no backslashes to lose
+across the shell hops:
+
+```bash
+jnwp 'for p in jetpack-production jetpack-dev; do echo "== $p"; \
+  grep -B2 "jetpack-<pkg>/src/<file>.php" wp-content/plugins/$p/vendor/composer/jetpack_autoload_classmap.php; done'
+```
+
+The `version` line above each `path` is what the autoloader compares.
+
+A branch whose package version is *behind* trunk's is a **stale branch**. Say so in the final
+report: a rebase is the durable fix, and until then the user is reviewing a build several
+minors old. Expect knock-on surprises — a class trunk has may not exist in the branch build at
+all (e.g. `SEO\Surface_Visibility` is absent from `jetpack-seo` 0.6.1), so a verification step
+copied from trunk can fatal with `Class "…" not found`. That's information about the branch,
+not a broken site.
+
+**Quoting note (applies to every `wp` call in this skill):** anything with backslashes or
+nested quotes belongs in a heredoc'd file run with `wp eval-file`, never inline `wp eval`. A
+namespaced class name inside `jnwp`'s single-quoted argument loses its backslashes across local
+shell → ssh → remote shell, producing a confusing `Class "…" not found` fatal that looks like a
+missing class rather than a mangled string.
 
 ### 3. Turn the Testing Instructions into a setup plan
 
@@ -242,9 +310,11 @@ check the default first. Run every `wp …` in this step (and steps 5–6) throu
 - Gate 1 — the flag: `add_filter( 'rsm_jetpack_seo', '__return_true' )`, in a mu-plugin (must
   be before `plugins_loaded`). Verify:
   `wp eval 'var_export( apply_filters( "rsm_jetpack_seo", false ) );'`
-- Gate 2 — `jetpack_seo_surface_visible`: on a **fresh** JN install this seeds to `true`
-  automatically, so **do not set it blindly.** Only if the SEO menu still doesn't appear:
-  `wp option update jetpack_seo_surface_visible 1`.
+- Gate 2 — `jetpack_seo_surface_visible`, read via `SEO\Surface_Visibility::is_visible()`: on a
+  **fresh** JN install this seeds to `true` automatically, so **do not set it blindly.** Only if
+  the SEO menu still doesn't appear: `wp option update jetpack_seo_surface_visible 1`. Note this
+  gate only exists from `jetpack-seo` 0.7.0 on — older branch builds have no `Surface_Visibility`
+  class and the flag is the only gate, so check `class_exists()` before asserting on it.
 - The admin page then lives at `admin.php?page=jetpack-seo`.
 
 After applying, confirm the target surface is reachable (e.g. `wp option get …`, or reload the
@@ -342,7 +412,10 @@ Concise final report:
 - PR number + title (note "draft" if draft).
 - JN domain, `blog_id`, Jetpack connection status.
 - How the code was delivered: **Beta Tester `<plugin>@<branch>`** (or "rsync fallback — no beta
-  build").
+  build"), plus the step-2b evidence that it *loads* — the resolved file path, not a grep. If
+  you had to deactivate `jetpack-production`, say so; it changes what's active on the site.
+- If step 2b showed the branch's package version behind trunk's, flag the branch as **stale**
+  and recommend a rebase — otherwise the user reviews an old build and reports phantom bugs.
 - Setup applied: each flag/option set (✓), and the plan state (local override applied / real
   sticker **awaiting your confirmation** / not needed).
 - Any **out-of-v1-scope precondition** left for the user (a required connection, or sandbox
@@ -367,8 +440,17 @@ Concise final report:
   disposable, self-owned test site and admin access is the point of the whole run. (Still
   don't paste it into anything external or shared.)
 - Prefer Beta Tester; reach for rsync only when no branch build exists.
+- **"Activated" ≠ "running."** `jetpack-dev` active alongside `jetpack-production` means the
+  autoloader picks the higher package version, which is production's whenever the branch is
+  behind trunk. Always confirm with `ReflectionClass::getFileName()` (step 2b) and deactivate
+  `jetpack-production` when it's shadowing. A disk grep for the PR's string cannot detect this
+  and will make you report success on a site that isn't running the PR.
 - Don't set `jetpack_seo_surface_visible` (or any option) unconditionally — check the default
-  first; fresh installs usually already satisfy the second gate.
+  first; fresh installs usually already satisfy the second gate, and branch builds older than
+  `jetpack-seo` 0.7.0 don't have that gate at all.
+- Route any `wp` invocation containing backslashes or nested quotes through `wp eval-file` with
+  a heredoc'd file — inline `wp eval` loses backslashes across the local shell → ssh → remote
+  shell hops and fatals with a misleading `Class "…" not found`.
 - Plan/product gates: prefer the local `jetpack_active_plan` override (5a, autonomous) for UI
   testing; the real WPCOM blog sticker (5b) is confirm-first and only for server-enforced
   behavior — it's the one step that leaves the throwaway site and touches real WPCOM.
