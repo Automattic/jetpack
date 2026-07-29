@@ -89,11 +89,21 @@ body.jetpack_page_jetpack-newsletter {
 		}
 	}
 
-	// The "Add new category" trigger is a minimal button styled as a link. Pull it
-	// flush with the surrounding content by offsetting the button's own inline
-	// padding token, which otherwise leaves a stray gap to its start edge.
+	// The "Add new category" trigger reveals an inline form (an in-page action),
+	// so it stays a real <button> for accessibility but is styled to read as a
+	// text link — matching the WPDS `Link` brand tone. The `unstyled` variant
+	// strips the button chrome, leaving it flush with the surrounding content.
 	.newsletter-add-category-trigger {
-		margin-inline-start: calc(-1 * var(--wpds-dimension-padding-md));
+		color: var(--wpds-color-foreground-interactive-brand);
+		text-decoration: underline;
+		text-underline-offset: 0.2em;
+		text-decoration-thickness: from-font;
+		cursor: pointer;
+
+		&:hover,
+		&:active {
+			color: var(--wpds-color-foreground-interactive-brand-active);
+		}
 	}
 
 	// The inline create-category form sits between the field and the footer.

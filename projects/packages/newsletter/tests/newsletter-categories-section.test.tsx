@@ -66,11 +66,13 @@ jest.mock( '@wordpress/components', () => {
 					label,
 					value,
 					onChange,
+					onKeyDown,
 					disabled,
 				}: {
 					label: string;
 					value: string;
 					onChange: ( next: string ) => void;
+					onKeyDown?: ( event: React.KeyboardEvent< HTMLInputElement > ) => void;
 					disabled?: boolean;
 				},
 				ref: React.Ref< HTMLInputElement >
@@ -80,6 +82,7 @@ jest.mock( '@wordpress/components', () => {
 					aria-label={ label }
 					value={ value }
 					disabled={ disabled }
+					onKeyDown={ onKeyDown }
 					// Test-only mock; the re-bind-per-render cost is irrelevant in a jest render.
 					// eslint-disable-next-line react/jsx-no-bind
 					onChange={ e => onChange( e.target.value ) }
@@ -176,6 +179,21 @@ function typeInto( label: string, value: string ): void {
 }
 
 /**
+ * Press the Enter key in a text field, the way a user submitting a single-field
+ * form would.
+ *
+ * @param label - The field's accessible label.
+ */
+function pressEnter( label: string ): void {
+	const input = screen.getByLabelText( label ) as HTMLInputElement;
+	act( () => {
+		input.dispatchEvent(
+			new KeyboardEvent( 'keydown', { key: 'Enter', bubbles: true, cancelable: true } )
+		);
+	} );
+}
+
+/**
  * Build a `NewsletterSettings`-shaped object with newsletter categories enabled.
  *
  * @param overrides - Subset of settings to merge over the defaults.
@@ -253,6 +271,29 @@ describe( 'NewsletterCategoriesSection — inline add category (NL-785)', () => 
 				wpcom_newsletter_categories: [ '42' ],
 			} )
 		);
+	} );
+
+	it( 'creates the category when Enter is pressed in the name field', async () => {
+		mockedCreateCategory.mockResolvedValue( { id: 55, name: 'Weekly Digest' } );
+		renderSection();
+		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
+
+		clickButton( 'Add new category' );
+		typeInto( 'New category name', 'Weekly Digest' );
+		// Enter submits the single-field form without reaching for the button.
+		pressEnter( 'New category name' );
+
+		await waitFor( () => expect( mockedCreateCategory ).toHaveBeenCalledWith( 'Weekly Digest' ) );
+	} );
+
+	it( 'does not create anything when Enter is pressed with an empty name', async () => {
+		renderSection();
+		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
+
+		clickButton( 'Add new category' );
+		pressEnter( 'New category name' );
+
+		expect( mockedCreateCategory ).not.toHaveBeenCalled();
 	} );
 
 	it( 'auto-selects using the latest selection when it changes mid-request', async () => {

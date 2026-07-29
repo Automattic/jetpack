@@ -20,6 +20,7 @@ import { Button, Card, Fieldset, Link, Notice, Stack, Text } from '@wordpress/ui
  */
 import { createCategory, fetchCategories } from '../api';
 import type { NewsletterSettings, WordPressCategory } from '../types';
+import type { KeyboardEvent } from 'react';
 
 interface NewsletterCategoriesSectionProps {
 	data: NewsletterSettings;
@@ -171,6 +172,19 @@ export function NewsletterCategoriesSection( {
 			} );
 	}, [ trimmedNewCategoryName, isCreatingCategory, onChange ] );
 
+	// Submit the inline form on Enter, matching the category token field above
+	// it. `handleCreateCategory` already no-ops on an empty name or while a
+	// create is in flight, so no extra guard is needed here.
+	const handleNewCategoryKeyDown = useCallback(
+		( event: KeyboardEvent< HTMLInputElement > ) => {
+			if ( event.key === 'Enter' ) {
+				event.preventDefault();
+				handleCreateCategory();
+			}
+		},
+		[ handleCreateCategory ]
+	);
+
 	// Fetch WordPress categories on mount
 	useEffect( () => {
 		fetchCategories()
@@ -318,6 +332,7 @@ export function NewsletterCategoriesSection( {
 									label={ __( 'New category name', 'jetpack-newsletter' ) }
 									value={ newCategoryName }
 									onChange={ setNewCategoryName }
+									onKeyDown={ handleNewCategoryKeyDown }
 									disabled={ isCreatingCategory }
 								/>
 								<Stack direction="row" gap="sm" align="center" justify="flex-start">
@@ -343,7 +358,7 @@ export function NewsletterCategoriesSection( {
 							<p>
 								<Button
 									ref={ addCategoryTriggerRef }
-									variant="minimal"
+									variant="unstyled"
 									className="newsletter-add-category-trigger"
 									onClick={ startAddCategory }
 								>
