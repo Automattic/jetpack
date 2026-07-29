@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Recognize the renamed Gutenberg omnibar experiment slug (gutenberg-omnibar, Gutenberg 23.5+) so the editor admin bar entry points keep working.
