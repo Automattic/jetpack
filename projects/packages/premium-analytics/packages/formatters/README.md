@@ -101,15 +101,10 @@ WordPress publishes no per-locale elision rules to draw on.
 | --------- | ---------------------------- | ----------------- |
 | `range`   | `{ from?: Date; to?: Date }` | Date range object |
 
-## Architecture
+## Implementation
 
 Number and currency formatting delegates to `@automattic/number-formatters`
-(a tier-2 published Jetpack package). Date formatting uses `@wordpress/date`,
-which WordPress already seeds with the site's format and translations. The
-`formatMetricValue` orchestrator is domain-specific — it routes to the right
-formatter based on the metric type.
-
-## Dependencies
-
-- `@automattic/number-formatters` — number/currency primitives
-- `@wordpress/date` — locale-aware date formatting
+(a tier-2 published Jetpack package), while date formatting uses
+`@wordpress/date`, which WordPress seeds with the site's format and
+translations. `formatMetricValue` routes analytics metric types to the
+appropriate formatter.

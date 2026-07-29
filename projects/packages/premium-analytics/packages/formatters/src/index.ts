@@ -1,2 +1,2 @@
-export { formatDate, formatDateRange, siteTimeZone, type DateFormatName } from './date';
+export { formatDate, formatDateRange, type DateFormatName } from './date';
 export { formatMetricValue } from './metric';

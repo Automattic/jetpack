@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
-import { formatDateRange, siteTimeZone } from '@jetpack-premium-analytics/formatters';
+import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { __ } from '@wordpress/i18n';
 import type { LegendLabels } from '../components/chart-leaderboard';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
@@ -34,21 +34,16 @@ import type { ReportParams } from '@jetpack-premium-analytics/data';
  * ```
  */
 export function formatLegendLabels( reportParams: ReportParams ): LegendLabels {
-	// Params may be date-only, which `new Date()` would read as UTC and render a
-	// day early for any site west of Greenwich.
-	const timeZone = siteTimeZone();
-	const toDate = ( value: string ) => parseSiteDateTime( value, timeZone );
-
 	const primaryLabel = formatDateRange( {
-		from: toDate( reportParams.from ),
-		to: toDate( reportParams.to ),
+		from: parseSiteDateTime( reportParams.from ),
+		to: parseSiteDateTime( reportParams.to ),
 	} );
 
 	const comparisonLabel =
 		reportParams.compare_from && reportParams.compare_to
 			? formatDateRange( {
-					from: toDate( reportParams.compare_from ),
-					to: toDate( reportParams.compare_to ),
+					from: parseSiteDateTime( reportParams.compare_from ),
+					to: parseSiteDateTime( reportParams.compare_to ),
 			  } )
 			: __( 'Previous period', 'jetpack-premium-analytics-pkg' );
 

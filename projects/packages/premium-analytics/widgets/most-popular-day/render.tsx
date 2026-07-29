@@ -3,7 +3,7 @@
  */
 import { useStatsSite } from '@jetpack-premium-analytics/data';
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
-import { formatDate, formatMetricValue, siteTimeZone } from '@jetpack-premium-analytics/formatters';
+import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { calendar } from '@jetpack-premium-analytics/icons';
 import {
 	summaryCount,
@@ -97,23 +97,8 @@ export const MostPopularDayHighlight = ( {
 	</Stack>
 );
 
-/**
- * Parses the best-day field (`YYYY-MM-DD`) into a date.
- *
- * The field is a calendar day in site time with no offset of its own, and it is
- * rendered in the site's timezone, so it has to be anchored there when parsed —
- * reading it as browser-local or as UTC moves the day for anyone whose zone
- * differs from the site's. `parseSiteDateTime` also validates the calendar,
- * rejecting the "-" / empty sentinels low-traffic sites send and impossible days
- * like `2020-02-31`, which fall through to the empty state.
- *
- * Exported for tests.
- *
- * @param {Record< string, unknown > | undefined} summary - The site summary.
- * @return The best day, or undefined when unavailable.
- */
-export function readBestDay( summary: Record< string, unknown > | undefined ) {
-	return parseSiteDateTime( summary?.views_best_day, siteTimeZone() );
+function readBestDay( summary: Record< string, unknown > | undefined ) {
+	return parseSiteDateTime( summary?.views_best_day );
 }
 
 /**
