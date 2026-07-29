@@ -79,7 +79,7 @@ function is_woocommerce_dashboard_section_available() {
  * @return bool
  */
 function is_woocommerce_dashboard_section_available_to_current_user() {
-	return is_woocommerce_dashboard_section_available() && current_user_can_view_commerce_analytics();
+	return is_woocommerce_dashboard_section_available() && current_user_can_read_analytics_prefix();
 }
 
 /**

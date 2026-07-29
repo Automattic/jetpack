@@ -66,7 +66,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		// Drops the package's mapping along with any per-user view_stats grant a
 		// test added; set_up() hooks the mapping again.
-		remove_all_filters( 'map_meta_cap' );
+		$this->reset_analytics_capabilities();
 
 		wp_set_current_user( 0 );
 

@@ -33,12 +33,16 @@ const WOOCOMMERCE_WIDGET_CATEGORIES = array( 'store', 'orders', 'coupons' );
 const WOOCOMMERCE_BOOKINGS_WIDGET_CATEGORIES = array( 'bookings' );
 
 /**
- * Widget categories whose data the proxy only serves to administrators.
+ * Widget categories served by the proxy's `analytics` prefix.
  *
- * Every commerce category, whichever plugin backs it: they all read through the
- * proxy's `analytics` prefix.
+ * The membership rule is the data source, not the subject matter: every
+ * category here reaches WPCOM through `analytics/reports/…`, which
+ * {@see \Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller}
+ * gates on `manage_options`. That covers the commerce categories, and
+ * `visitors`, whose two widgets read `sessions/…` from the same prefix
+ * without a plugin gate of their own.
  */
-const COMMERCE_WIDGET_CATEGORIES = array( 'store', 'orders', 'coupons', 'bookings' );
+const ANALYTICS_PREFIX_WIDGET_CATEGORIES = array( 'store', 'orders', 'coupons', 'bookings', 'visitors' );
 
 /**
  * Removes developer-only candidates in production.
@@ -165,18 +169,18 @@ function filter_registrable_widget_types_by_plugin( $widget_candidates ) {
 add_filter( REGISTRABLE_WIDGET_TYPES_FILTER, __NAMESPACE__ . '\\filter_registrable_widget_types_by_plugin' );
 
 /**
- * Removes commerce candidates the reader could not load data for anyway.
+ * Removes candidates the reader could not load data for anyway.
  *
  * Split from the hook callback so both branches are testable without a user.
  *
  * @since $$next-version$$
  *
- * @param array $widget_candidates  Manifest candidates, each with a `category`.
- * @param bool  $can_view_commerce  Whether the reader may see store data.
- * @return array The candidates, minus commerce categories for readers who can't.
+ * @param array $widget_candidates    Manifest candidates, each with a `category`.
+ * @param bool  $can_read_the_prefix  Whether the reader may read the `analytics` prefix.
+ * @return array The candidates, minus that prefix's categories for readers who can't.
  */
-function remove_capability_gated_widget_types( $widget_candidates, $can_view_commerce ) {
-	if ( $can_view_commerce ) {
+function remove_capability_gated_widget_types( $widget_candidates, $can_read_the_prefix ) {
+	if ( $can_read_the_prefix ) {
 		return $widget_candidates;
 	}
 
@@ -184,28 +188,28 @@ function remove_capability_gated_widget_types( $widget_candidates, $can_view_com
 		array_filter(
 			$widget_candidates,
 			static function ( $widget ) {
-				return ! in_array( $widget['category'] ?? '', COMMERCE_WIDGET_CATEGORIES, true );
+				return ! in_array( $widget['category'] ?? '', ANALYTICS_PREFIX_WIDGET_CATEGORIES, true );
 			}
 		)
 	);
 }
 
 /**
- * Registry-time callback: hides commerce widgets from readers without store access.
+ * Registry-time callback: hides widgets whose data the reader cannot fetch.
  *
- * A `view_stats` reader reaching a store widget would only collect 403s from the
+ * A `view_stats` reader reaching one of them would only collect 403s from the
  * proxy's `analytics` prefix, so the types are never registered for them. The
  * registry is request-scoped, so filtering on the current user is safe here.
  *
  * @since $$next-version$$
  *
  * @param array $widget_candidates Manifest candidates.
- * @return array The candidates, minus commerce categories for readers who can't see them.
+ * @return array The candidates, minus that prefix's categories for readers who can't see them.
  */
 function filter_registrable_widget_types_by_capability( $widget_candidates ) {
 	return remove_capability_gated_widget_types(
 		$widget_candidates,
-		current_user_can_view_commerce_analytics()
+		current_user_can_read_analytics_prefix()
 	);
 }
 

@@ -23,7 +23,7 @@ class Dashboard_Support_Routes_Test extends TestCase {
 		$wp_rest_server = null;
 		remove_all_actions( 'rest_api_init' );
 		remove_all_actions( 'init' );
-		remove_all_filters( 'map_meta_cap' );
+		unregister_capabilities();
 		parent::tearDown();
 	}
 

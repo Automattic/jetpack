@@ -47,7 +47,7 @@ class Notices_Controller_Test extends BaseTestCase {
 	 * Drop the capability mapping this test hooked.
 	 */
 	public function tear_down() {
-		remove_all_filters( 'map_meta_cap' );
+		\Automattic\Jetpack\PremiumAnalytics\unregister_capabilities();
 
 		parent::tear_down();
 	}

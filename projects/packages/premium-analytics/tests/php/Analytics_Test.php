@@ -49,7 +49,7 @@ class Analytics_Test extends TestCase {
 		remove_all_filters( 'jetpack_admin_js_script_data' );
 		remove_all_filters( 'rest_post_dispatch' );
 		remove_all_filters( 'jetpack_stats_transient_cleanup_prefixes' );
-		remove_all_filters( 'map_meta_cap' );
+		unregister_capabilities();
 		$this->reset_analytics_init_state();
 		parent::tearDown();
 	}
@@ -93,6 +93,41 @@ class Analytics_Test extends TestCase {
 		Analytics::init();
 
 		$this->assertNotFalse( has_filter( 'jetpack_stats_transient_cleanup_prefixes' ) );
+	}
+
+	/**
+	 * Both init paths map the capability the admin menu and the dashboard routes
+	 * are gated on. Nothing else hooks it for them, so without this the menu is
+	 * registered with a capability nobody holds — including administrators.
+	 *
+	 * @param bool $wpcom_simple Whether to boot the WordPress.com Simple path.
+	 * @dataProvider provide_init_entry_points
+	 */
+	#[DataProvider( 'provide_init_entry_points' )]
+	public function test_init_maps_the_dashboard_capability( $wpcom_simple ) {
+		$this->reset_analytics_init_state();
+
+		if ( $wpcom_simple ) {
+			Analytics::init_wpcom_simple();
+		} else {
+			Analytics::init();
+		}
+
+		$this->assertNotFalse(
+			has_filter( 'map_meta_cap', __NAMESPACE__ . '\\map_analytics_meta_caps' )
+		);
+	}
+
+	/**
+	 * The two platform entry points.
+	 *
+	 * @return array<string, array{bool}>
+	 */
+	public static function provide_init_entry_points() {
+		return array(
+			'connected site' => array( false ),
+			'wpcom simple'   => array( true ),
+		);
 	}
 
 	/**

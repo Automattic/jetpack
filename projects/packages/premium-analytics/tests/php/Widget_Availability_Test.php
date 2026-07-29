@@ -104,6 +104,24 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Candidate set spanning every category the `analytics` prefix serves, plus
+	 * one served by another prefix.
+	 *
+	 * @return array[] List of widget candidates.
+	 */
+	private function analytics_prefix_widget_candidates() {
+		return array_merge(
+			$this->commerce_widget_candidates(),
+			array(
+				array(
+					'name'     => 'jpa/visitors-over-time',
+					'category' => 'visitors',
+				),
+			)
+		);
+	}
+
+	/**
 	 * Filters the standard candidates with explicit host context.
 	 *
 	 * @param bool $is_wpcom_simple Whether the site is WPCOM Simple.
@@ -263,28 +281,29 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Commerce widgets read through the proxy's administrator-only `analytics`
-	 * prefix, so a reader who can't see store data is never offered them.
+	 * Every category the `analytics` prefix serves — the commerce ones and
+	 * `visitors` — is dropped for a reader who can't read that prefix, since all
+	 * they could collect from those widgets is 403s.
 	 */
-	public function test_commerce_widgets_removed_from_a_reader_without_store_access() {
+	public function test_analytics_prefix_widgets_removed_from_a_reader_without_access() {
 		$this->assertSame(
 			array( 'jpa/traffic-chart' ),
 			array_column(
-				remove_capability_gated_widget_types( $this->commerce_widget_candidates(), false ),
+				remove_capability_gated_widget_types( $this->analytics_prefix_widget_candidates(), false ),
 				'name'
 			),
-			'Every commerce category is dropped for a reader without store access.'
+			'Only the category served by another prefix survives.'
 		);
 	}
 
 	/**
 	 * Administrators keep every category.
 	 */
-	public function test_commerce_widgets_kept_for_a_user_with_store_access() {
+	public function test_analytics_prefix_widgets_kept_for_a_user_with_access() {
 		$this->assertSame(
-			$this->commerce_widget_candidates(),
-			remove_capability_gated_widget_types( $this->commerce_widget_candidates(), true ),
-			'With store access no candidate is dropped.'
+			$this->analytics_prefix_widget_candidates(),
+			remove_capability_gated_widget_types( $this->analytics_prefix_widget_candidates(), true ),
+			'With prefix access no candidate is dropped.'
 		);
 	}
 

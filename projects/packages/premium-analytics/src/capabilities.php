@@ -38,6 +38,23 @@ function register_capabilities() {
 }
 
 /**
+ * Unhooks the mapping registered by register_capabilities().
+ *
+ * The counterpart exists so a caller — a test tearing down between cases, or a
+ * host unwinding the package — can drop this one filter by name instead of
+ * reaching for remove_all_filters( 'map_meta_cap' ), which would also take out
+ * whatever else is hooked there (the Stats package maps `view_stats` on that
+ * same filter).
+ *
+ * @since $$next-version$$
+ *
+ * @return void
+ */
+function unregister_capabilities() {
+	remove_filter( 'map_meta_cap', __NAMESPACE__ . '\\map_analytics_meta_caps', 10 );
+}
+
+/**
  * Maps the dashboard capability to the primitives that grant it.
  *
  * `view_stats` alone would track Stats more closely, but it only means
@@ -77,16 +94,18 @@ function current_user_can_view_analytics() {
 }
 
 /**
- * Whether the current user may read the commerce surfaces.
+ * Whether the current user may read data served by the proxy's `analytics` prefix.
  *
- * Store data is served by the proxy's `analytics` prefix, which requires
- * `manage_options`; a `view_stats` reader would only get 403s back, so the
- * store section and its widget categories are hidden from them instead.
+ * The store section and every widget backed by that prefix are hidden from
+ * readers who fail this, since all they could collect is 403s. The capability
+ * restated here is the one {@see \Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller}
+ * enforces for the prefix; Capabilities_Test pins the two together so loosening
+ * the proxy can't silently leave these surfaces hidden.
  *
  * @since $$next-version$$
  *
  * @return bool
  */
-function current_user_can_view_commerce_analytics() {
+function current_user_can_read_analytics_prefix() {
 	return current_user_can( 'manage_options' );
 }

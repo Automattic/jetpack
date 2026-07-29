@@ -13,6 +13,14 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 trait Analytics_Capabilities_Trait {
 
 	/**
+	 * The stand-in mapping hooked by grant_view_stats_to(), kept so tear-down can
+	 * drop it by reference rather than clearing the whole `map_meta_cap` filter.
+	 *
+	 * @var callable|null
+	 */
+	private $granted_view_stats_filter = null;
+
+	/**
 	 * Creates a user of the given role and makes it current.
 	 *
 	 * @param string $role Role slug.
@@ -40,17 +48,29 @@ trait Analytics_Capabilities_Trait {
 	 * @return void
 	 */
 	protected function grant_view_stats_to( $granted_user_id ) {
-		add_filter(
-			'map_meta_cap',
-			static function ( $caps, $cap, $user_id ) use ( $granted_user_id ) {
-				if ( 'view_stats' === $cap && (int) $granted_user_id === (int) $user_id ) {
-					return array( 'read' );
-				}
+		$this->granted_view_stats_filter = static function ( $caps, $cap, $user_id ) use ( $granted_user_id ) {
+			if ( 'view_stats' === $cap && (int) $granted_user_id === (int) $user_id ) {
+				return array( 'read' );
+			}
 
-				return $caps;
-			},
-			10,
-			3
-		);
+			return $caps;
+		};
+
+		add_filter( 'map_meta_cap', $this->granted_view_stats_filter, 10, 3 );
+	}
+
+	/**
+	 * Drops the package's mapping and this trait's stand-in for the Stats one,
+	 * leaving anything else hooked on `map_meta_cap` in place.
+	 *
+	 * @return void
+	 */
+	protected function reset_analytics_capabilities() {
+		unregister_capabilities();
+
+		if ( null !== $this->granted_view_stats_filter ) {
+			remove_filter( 'map_meta_cap', $this->granted_view_stats_filter, 10 );
+			$this->granted_view_stats_filter = null;
+		}
 	}
 }

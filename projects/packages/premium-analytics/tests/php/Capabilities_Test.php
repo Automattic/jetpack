@@ -17,12 +17,12 @@ require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\map_analytics_meta_caps
  * @covers ::Automattic\Jetpack\PremiumAnalytics\register_capabilities
  * @covers ::Automattic\Jetpack\PremiumAnalytics\current_user_can_view_analytics
- * @covers ::Automattic\Jetpack\PremiumAnalytics\current_user_can_view_commerce_analytics
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\current_user_can_read_analytics_prefix
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\map_analytics_meta_caps' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\register_capabilities' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\current_user_can_view_analytics' )]
-#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\current_user_can_view_commerce_analytics' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\current_user_can_read_analytics_prefix' )]
 class Capabilities_Test extends BaseTestCase {
 
 	use Analytics_Capabilities_Trait;
@@ -38,7 +38,7 @@ class Capabilities_Test extends BaseTestCase {
 	 * Drop the mapping and this test's stand-in for the Stats one.
 	 */
 	public function tear_down() {
-		remove_all_filters( 'map_meta_cap' );
+		$this->reset_analytics_capabilities();
 		wp_set_current_user( 0 );
 
 		parent::tear_down();
@@ -93,22 +93,38 @@ class Capabilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Commerce surfaces stay administrator-only: view_stats is not enough.
+	 * Surfaces backed by the `analytics` prefix stay administrator-only: reaching
+	 * the dashboard through view_stats is not enough to read that prefix.
 	 */
-	public function test_view_stats_reader_cannot_view_commerce_analytics() {
+	public function test_view_stats_reader_cannot_read_the_analytics_prefix() {
 		$user_id = $this->login_as( 'editor' );
 		$this->grant_view_stats_to( $user_id );
 
 		$this->assertTrue( current_user_can_view_analytics() );
-		$this->assertFalse( current_user_can_view_commerce_analytics() );
+		$this->assertFalse( current_user_can_read_analytics_prefix() );
 	}
 
 	/**
-	 * Administrators keep the commerce surfaces.
+	 * Administrators keep them.
 	 */
-	public function test_administrator_can_view_commerce_analytics() {
+	public function test_administrator_can_read_the_analytics_prefix() {
 		$this->login_as( 'administrator' );
 
-		$this->assertTrue( current_user_can_view_commerce_analytics() );
+		$this->assertTrue( current_user_can_read_analytics_prefix() );
+	}
+
+	/**
+	 * The helper restates the capability the proxy enforces for the `analytics`
+	 * prefix. Pinned here so loosening the proxy can't quietly leave the surfaces
+	 * this hides stranded behind a stricter check than their own data needs.
+	 */
+	public function test_analytics_prefix_helper_matches_the_proxy_capability() {
+		// getValue() reads a private constant without any accessibility dance.
+		$prefixes = ( new \ReflectionClassConstant(
+			\Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller::class,
+			'PREFIX_CONFIG'
+		) )->getValue();
+
+		$this->assertSame( 'manage_options', $prefixes['analytics']['capability'] );
 	}
 }
