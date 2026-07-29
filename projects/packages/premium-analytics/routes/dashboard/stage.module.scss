@@ -12,7 +12,11 @@
 .content {
 	flex: 1 1 auto;
 	min-block-size: 0;
-	overflow-y: auto;
+
+	// No scroll container of its own: the page content scrolls instead, so the
+	// section tabs move up with it and the section header can stick below the
+	// page header.
+
 	// Reserve paint space for the widget host's outer focus outline.
 	padding-block-start: calc(var(--wpds-border-width-focus) + 2px);
 	// Match the horizontal padding of the page header and the section tabs so the
@@ -21,10 +25,8 @@
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 
-.dateFilters {
-	// Sits below the section tabs and above the widgets. The tab list already
-	// adds a bottom margin, so only pad below here to keep the spacing even.
-	// Inline padding matches the tabs and widget grid so it lines up.
+.sectionHeader {
+	// Separates the header row from the widget grid below. The inline gutter
+	// comes from the panel, which already pads to match the tabs.
 	padding-block-end: var(--wpds-dimension-gap-lg);
-	padding-inline: var(--wpds-dimension-padding-2xl);
 }
