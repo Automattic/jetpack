@@ -230,9 +230,9 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	private function register_subscription_options_default() {
 		$defaults = array(
 			// The real `invitation` default writes its anchor with single-quoted
-			// attributes. Mirrored here because the change detection compares a posted
-			// value against a freshly rendered default, which only holds if the value
-			// survives the endpoint's wp_kses() pass byte-for-byte.
+			// attributes. Mirrored here because wp_kses() may rewrite that quoting, so
+			// this is what exercises the endpoint normalizing both sides of the change
+			// detection rather than comparing a raw default against a sanitized echo.
 			'invitation'     => "Default invitation to <a href='https://example.org'>example.org</a>",
 			'comment_follow' => 'Default comment follow',
 			'welcome'        => 'Default welcome',
@@ -251,13 +251,14 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The change detection compares a posted value against a freshly rendered
-	 * default, so a default containing markup only compares equal if the endpoint's
-	 * own wp_kses() pass leaves it byte-for-byte intact. `wp_kses_attr()` rebuilds
-	 * attributes from the original source text rather than re-quoting them, which is
-	 * what makes the single-quoted anchor in the `invitation` default survive — this
-	 * pins that behaviour, because if it ever changed the guard would silently stop
-	 * working for exactly the sub-key most likely to be echoed back.
+	 * A default carrying markup must survive the round trip unchanged.
+	 *
+	 * The posted value reaches the comparison already sanitized, and wp_kses() is not
+	 * byte-preserving — it rewrites attribute quoting, and not identically across
+	 * WordPress versions. So the endpoint has to normalize the current value the same
+	 * way before comparing. Without that, `invitation` — the one default containing
+	 * markup, and so the sub-key this guard most needs to catch — never compares equal
+	 * and is persisted on every save.
 	 */
 	public function test_post_subscription_options_ignores_unchanged_default_containing_markup() {
 		$defaults = $this->register_subscription_options_default();

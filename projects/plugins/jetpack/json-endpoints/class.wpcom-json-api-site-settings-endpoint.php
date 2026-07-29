@@ -1072,6 +1072,25 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					foreach ( $filtered_value as $subscription_option_key => $subscription_option_value ) {
 						$current_subscription_option = $current_subscription_options[ $subscription_option_key ] ?? null;
 
+						// The incoming value has already been through wp_kses() above, and
+						// wp_kses() is not guaranteed to be byte-preserving — it rewrites
+						// attribute quoting, and differently across WordPress versions. Put the
+						// current value through the same pass so the comparison reflects a real
+						// edit rather than a sanitizer rewrite; without this, a default carrying
+						// markup (`invitation`) never compares equal and is persisted on every
+						// save. Safe to apply to an already-sanitized value: the pass is
+						// idempotent.
+						if ( is_string( $current_subscription_option ) ) {
+							$current_subscription_option = wp_kses(
+								$current_subscription_option,
+								array(
+									'a' => array(
+										'href' => array(),
+									),
+								)
+							);
+						}
+
 						// A sub-key the site has never stored reads as unset everywhere this
 						// option is consumed, so an empty incoming value for it is not a change.
 						if (
