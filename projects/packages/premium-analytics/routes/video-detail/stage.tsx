@@ -10,14 +10,15 @@ import { __ } from '@wordpress/i18n';
 import { Link, useParams, useSearch } from '@wordpress/route';
 import { Button, Stack, Text } from '@wordpress/ui';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
-import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { useDashboardGridSettings } from '../dashboard/hooks/use-dashboard-grid-settings';
+import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 /**
  * Internal dependencies
  */
 // Grid settings are intentionally shared across analytics dashboards (see the
 // hook's own note), so the video-detail page reuses the dashboard's hook rather
 // than storing a separate copy.
-import { useDashboardGridSettings } from '../dashboard/hooks/use-dashboard-grid-settings';
 import { VideoSummaryCard } from './components';
 import { VIDEO_DETAIL_LAYOUT } from './config';
 import { useVideoSummary } from './hooks';
@@ -58,7 +59,7 @@ function VideoDetail(): JSX.Element {
 		[]
 	);
 
-	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypes( widgetModules );
+	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
 	const dashboardLink = useDashboardLink();
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
@@ -111,6 +112,7 @@ function VideoDetail(): JSX.Element {
 		<WidgetDashboard
 			widgetTypes={ widgetTypes }
 			isResolvingWidgetTypes={ isResolvingWidgetTypes }
+			resolveWidgetModule={ resolveWidgetModuleWithI18n }
 			layout={ VIDEO_DETAIL_LAYOUT }
 			onLayoutChange={ noopLayoutChange }
 			gridSettings={ gridSettings }

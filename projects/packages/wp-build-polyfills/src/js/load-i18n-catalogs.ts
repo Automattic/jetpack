@@ -18,12 +18,14 @@
  * the stamp step, so there is no manifest and the UI falls back to English —
  * same caveat as the stamping itself.)
  *
- * Only route/script/module catalogs are awaited before render. Widget bundles
- * (`build/widgets/**`) are lazy-loaded, so their catalog downloads are kicked
- * off here but not awaited — a dashboard with dozens of widgets (Premium
- * Analytics has ~76) must not block first paint on catalogs for widgets that
- * may never render, and the downloads have until the widget's own dynamic
- * import resolves to arrive.
+ * Only route/script/module catalogs are downloaded at boot, through a small
+ * concurrency-limited queue so the burst cannot starve the origin and stall
+ * the dashboard's own requests behind it. Widget bundles (`build/widgets/**`)
+ * are not requested at boot at all: a dashboard with dozens of widgets
+ * (Premium Analytics has ~40, two bundles each) must not pay one HTTP request
+ * per widget for widgets that may never render. Their catalogs load on demand
+ * via `loadBundleI18nCatalog()`, which the dashboard calls as part of
+ * importing a widget's module.
  *
  * Relies on `wp.jpI18nLoader` (jetpack-assets package, classic script
  * `wp-jp-i18n-loader`), which hashes a bundle's plugin-relative path the way
@@ -51,6 +53,130 @@ interface JpI18nLoader {
  * still install in the background (affecting subsequently rendered strings).
  */
 const CATALOG_TIMEOUT_MS = 5000;
+
+/**
+ * Cap on catalog downloads in flight at once. Sized to keep the origin
+ * responsive: on HTTP/2 the browser happily multiplexes the whole manifest
+ * (100+ requests on Premium Analytics) in one burst, and a slow origin then
+ * serves nothing else — REST calls and lazy route modules queue behind
+ * catalogs — until the burst drains.
+ */
+const MAX_CONCURRENT_DOWNLOADS = 6;
+
+/**
+ * State shared across every inlined copy of this module. wp-build bundles each
+ * entry point separately, so the boot init module and a route bundle calling
+ * `loadBundleI18nCatalog()` hold *different copies* of this file — plain
+ * module-level state would not be shared between them. Parking the state on
+ * `window` gives all copies the same manifest cache, download dedupe map, and
+ * concurrency queue.
+ */
+interface SharedCatalogState {
+	/** Per-domain manifest bundle set, keyed by text domain. */
+	manifests: Map< string, Promise< Set< string > > >;
+	/** Settled-once download per `domain|path`, so repeat requests reuse it. */
+	downloads: Map< string, Promise< void > >;
+	/** Downloads currently in flight. */
+	active: number;
+	/** Downloads waiting for a free slot. */
+	queue: Array< () => void >;
+}
+
+/**
+ * Fetch (lazily creating) the window-parked shared state.
+ *
+ * @return The shared catalog state.
+ */
+function sharedState(): SharedCatalogState {
+	const host = window as typeof window & {
+		__jetpackWpBuildI18nCatalogs?: SharedCatalogState;
+	};
+	host.__jetpackWpBuildI18nCatalogs ??= {
+		manifests: new Map(),
+		downloads: new Map(),
+		active: 0,
+		queue: [],
+	};
+	return host.__jetpackWpBuildI18nCatalogs;
+}
+
+/**
+ * Run a download task once a concurrency slot is free.
+ *
+ * @param state - The shared catalog state.
+ * @param task  - The task to run.
+ * @return Resolves/rejects with the task once it has run.
+ */
+function throttled( state: SharedCatalogState, task: () => Promise< void > ): Promise< void > {
+	return new Promise( ( resolve, reject ) => {
+		const run = () => {
+			state.active++;
+			task().then(
+				value => {
+					releaseSlot( state );
+					resolve( value );
+				},
+				error => {
+					releaseSlot( state );
+					reject( error );
+				}
+			);
+		};
+		if ( state.active < MAX_CONCURRENT_DOWNLOADS ) {
+			run();
+		} else {
+			state.queue.push( run );
+		}
+	} );
+}
+
+/**
+ * Free a concurrency slot and start the next queued download, if any.
+ *
+ * @param state - The shared catalog state.
+ */
+function releaseSlot( state: SharedCatalogState ): void {
+	state.active--;
+	const next = state.queue.shift();
+	if ( next ) {
+		next();
+	}
+}
+
+/**
+ * Download and install one bundle's catalog, at most once per page. A 404
+ * means no catalog exists for this locale/build — the expected English
+ * fallback, kept silent. Any other failure (another HTTP status, loader state
+ * not set, malformed catalog JSON) is a real misconfiguration worth surfacing,
+ * but must never block the render, so the returned promise always resolves.
+ *
+ * @param loader - The `wp.jpI18nLoader` instance.
+ * @param state  - The shared catalog state.
+ * @param domain - The package text domain.
+ * @param path   - Package-relative bundle path.
+ * @return Resolves once the download settles (or is found already requested).
+ */
+function downloadOnce(
+	loader: JpI18nLoader,
+	state: SharedCatalogState,
+	domain: string,
+	path: string
+): Promise< void > {
+	const key = `${ domain }|${ path }`;
+	let download = state.downloads.get( key );
+	if ( ! download ) {
+		download = throttled( state, () => loader.downloadI18n( path, domain, 'plugin' ) ).catch(
+			( error: unknown ) => {
+				const message = errorMessage( error );
+				if ( ! isMissingCatalog( message ) ) {
+					warn( `Failed to load "${ domain }" catalog (${ path }): ${ message }` );
+				}
+			}
+		);
+		state.downloads.set( key, download );
+	}
+	return download;
+}
 
 /**
  * Log an i18n bootstrap diagnostic. Untranslated-UI failures are otherwise
@@ -151,35 +277,32 @@ export async function loadI18nCatalogs(
 		return;
 	}
 
-	const download = ( path: string ) =>
-		// A 404 means no catalog exists for this locale/build — the expected
-		// English fallback, kept silent. Any other failure (another HTTP
-		// status, loader state not set, malformed catalog JSON) is a real
-		// misconfiguration worth surfacing, but must never block the render.
-		loader.downloadI18n( path, domain, 'plugin' ).catch( ( error: unknown ) => {
-			const message = errorMessage( error );
-			if ( ! isMissingCatalog( message ) ) {
-				warn( `Failed to load "${ domain }" catalog (${ path }): ${ message }` );
-			}
-		} );
+	const state = sharedState();
 
 	const load = async () => {
 		// A missing manifest (dev watch build) 404s — expected, kept silent.
 		// Anything else is surfaced.
-		const bundles = await fetchManifest( moduleUrl ).catch( ( error: unknown ) => {
-			const message = errorMessage( error );
-			if ( ! isMissingCatalog( message ) ) {
-				warn( `Failed to load the i18n manifest for "${ domain }": ${ message }` );
-			}
-			return [] as string[];
-		} );
+		const manifest = fetchManifest( moduleUrl )
+			.catch( ( error: unknown ) => {
+				const message = errorMessage( error );
+				if ( ! isMissingCatalog( message ) ) {
+					warn( `Failed to load the i18n manifest for "${ domain }": ${ message }` );
+				}
+				return [] as string[];
+			} )
+			.then( bundles => new Set( bundles ) );
+		// Published for `loadBundleI18nCatalog()` before it resolves, so an
+		// on-demand request never races the manifest fetch.
+		state.manifests.set( domain, manifest );
 
 		const blocking: Promise< void >[] = [];
-		for ( const path of bundles ) {
-			const catalog = download( path );
-			if ( ! path.includes( '/widgets/' ) ) {
-				blocking.push( catalog );
+		for ( const path of await manifest ) {
+			if ( path.includes( '/widgets/' ) ) {
+				// Widget catalogs load on demand, when the widget's own module
+				// is imported — see `loadBundleI18nCatalog()`.
+				continue;
 			}
+			blocking.push( downloadOnce( loader, state, domain, path ) );
 		}
 		await Promise.all( blocking );
 	};
@@ -201,6 +324,82 @@ export async function loadI18nCatalogs(
 	if ( ! settled ) {
 		warn(
 			`"${ domain }" catalog downloads still pending after ${ timeoutMs }ms; rendering may start untranslated.`
+		);
+	}
+}
+
+/**
+ * Download and install one bundle's translation catalog on demand.
+ *
+ * The complement of `loadI18nCatalogs()` for lazy-loaded bundles: call it as
+ * part of dynamically importing the bundle (e.g. a dashboard widget's render
+ * module), so a catalog is only ever requested for a bundle actually being
+ * loaded. Requires `loadI18nCatalogs()` to have run for the domain — that call
+ * caches the build's manifest; without it (dev watch build, default locale,
+ * loader missing) this resolves immediately and the bundle falls back to
+ * English. Bundles the manifest doesn't list carry no strings and are skipped
+ * without a request. Repeat calls for the same bundle reuse the first
+ * download.
+ *
+ * Resolves once the catalog is installed, when anything fails (missing
+ * catalogs fall back to English), or after a bounded wait — a stalled network
+ * must not wedge the caller's import.
+ *
+ * @param domain     - The package text domain the catalog is registered under.
+ * @param bundlePath - Package-relative path of the bundle (as listed in the build's i18n manifest).
+ * @param timeoutMs  - Maximum time to block before resolving anyway.
+ */
+export async function loadBundleI18nCatalog(
+	domain: string,
+	bundlePath: string,
+	timeoutMs: number = CATALOG_TIMEOUT_MS
+): Promise< void > {
+	const loader = ( window as typeof window & { wp?: { jpI18nLoader?: JpI18nLoader } } ).wp
+		?.jpI18nLoader;
+
+	// Boot already warned about a missing loader; stay quiet here.
+	if ( ! loader || typeof loader.downloadI18n !== 'function' ) {
+		return;
+	}
+
+	if ( loader.state?.locale === 'en_US' ) {
+		return;
+	}
+
+	const state = sharedState();
+	const manifest = state.manifests.get( domain );
+	if ( ! manifest ) {
+		// `loadI18nCatalogs()` never ran for this domain (dev watch build, or
+		// called out of order) — the expected English fallback.
+		return;
+	}
+
+	const load = async () => {
+		const bundles = await manifest;
+		if ( ! bundles.has( bundlePath ) ) {
+			// The bundle carries no gettext calls; there is no catalog to fetch.
+			return;
+		}
+		await downloadOnce( loader, state, domain, bundlePath );
+	};
+
+	let timer: ReturnType< typeof setTimeout > | undefined;
+	let settled = false;
+	try {
+		await Promise.race( [
+			load().finally( () => {
+				settled = true;
+			} ),
+			new Promise< void >( resolve => {
+				timer = setTimeout( resolve, timeoutMs );
+			} ),
+		] );
+	} finally {
+		clearTimeout( timer );
+	}
+	if ( ! settled ) {
+		warn(
+			`"${ domain }" catalog for ${ bundlePath } still pending after ${ timeoutMs }ms; rendering may start untranslated.`
 		);
 	}
 }

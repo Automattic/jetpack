@@ -98,25 +98,49 @@ describe( 'loadI18nCatalogs', () => {
 		] );
 	} );
 
-	it( 'starts widget catalog downloads but does not block on them', async () => {
-		const calls = installLoader( path =>
-			// Widget catalog downloads never settle; route download resolves.
-			path.includes( '/widgets/' ) ? new Promise( () => {} ) : Promise.resolve()
-		);
+	it( 'does not request widget catalogs at boot — they load on demand', async () => {
+		const calls = installLoader( () => Promise.resolve() );
 		installFetch( {
 			bundles: [ 'build/routes/a/content.js', 'build/widgets/latest-post/render.js' ],
 		} );
 		const { loadI18nCatalogs } = await import( HELPER );
 
-		// Default (5s) timeout: only prompt resolution proves widgets aren't awaited.
 		await loadI18nCatalogs( 'jetpack-test', MODULE_URL );
 
 		assert.deepEqual(
 			calls.map( ( [ path ] ) => path ),
-			[ 'build/routes/a/content.js', 'build/widgets/latest-post/render.js' ],
-			'the widget catalog download is still initiated'
+			[ 'build/routes/a/content.js' ],
+			'only non-widget catalogs are requested at boot'
 		);
-		assert.deepEqual( warnings, [], 'resolving via the widget split is not a timeout' );
+		assert.deepEqual( warnings, [] );
+	} );
+
+	it( 'limits how many catalog downloads run concurrently', async () => {
+		const resolvers = [];
+		const calls = installLoader(
+			() => new Promise( resolve => resolvers.push( resolve ) ) // Settles only when the test says so.
+		);
+		installFetch( {
+			bundles: Array.from( { length: 10 }, ( _, i ) => `build/routes/r${ i }/content.js` ),
+		} );
+		const { loadI18nCatalogs } = await import( HELPER );
+
+		const boot = loadI18nCatalogs( 'jetpack-test', MODULE_URL );
+		await new Promise( resolve => setTimeout( resolve, 0 ) );
+
+		assert.equal( calls.length, 6, 'only 6 of the 10 downloads start immediately' );
+
+		resolvers.shift()();
+		await new Promise( resolve => setTimeout( resolve, 0 ) );
+		assert.equal( calls.length, 7, 'a finished download frees a slot for the next one' );
+
+		while ( resolvers.length ) {
+			resolvers.shift()();
+			await new Promise( resolve => setTimeout( resolve, 0 ) );
+		}
+		await boot;
+		assert.equal( calls.length, 10, 'every download eventually runs' );
+		assert.deepEqual( warnings, [] );
 	} );
 
 	it( 'ignores non-string manifest entries and a malformed manifest shape', async () => {
@@ -264,5 +288,92 @@ describe( 'loadI18nCatalogs', () => {
 
 		await assert.doesNotReject( loadI18nCatalogs( 'jetpack-test', MODULE_URL ) );
 		assert.equal( warnings.length, 1 );
+	} );
+} );
+
+describe( 'loadBundleI18nCatalog', () => {
+	const WIDGET_BUNDLE = 'build/widgets/latest-post/render.js';
+
+	/**
+	 * Run the boot helper so the manifest is cached for on-demand loads.
+	 *
+	 * @param {string[]} bundles - Manifest bundle list to serve.
+	 * @return {Promise<{calls: Array, api: object}>} Recorded downloadI18n calls and the imported module.
+	 */
+	async function bootWithManifest( bundles ) {
+		const calls = installLoader( () => Promise.resolve() );
+		installFetch( { bundles } );
+		const api = await import( HELPER );
+		await api.loadI18nCatalogs( 'jetpack-test', MODULE_URL );
+		return { calls, api };
+	}
+
+	it( 'downloads a manifest-listed widget catalog on demand', async () => {
+		const { calls, api } = await bootWithManifest( [ 'build/routes/a/content.js', WIDGET_BUNDLE ] );
+		calls.length = 0;
+
+		await api.loadBundleI18nCatalog( 'jetpack-test', WIDGET_BUNDLE );
+
+		assert.deepEqual( calls, [ [ WIDGET_BUNDLE, 'jetpack-test', 'plugin' ] ] );
+		assert.deepEqual( warnings, [] );
+	} );
+
+	it( 'skips bundles the manifest does not list — they carry no strings', async () => {
+		const { calls, api } = await bootWithManifest( [ 'build/routes/a/content.js' ] );
+		calls.length = 0;
+
+		await api.loadBundleI18nCatalog( 'jetpack-test', WIDGET_BUNDLE );
+
+		assert.deepEqual( calls, [], 'no download for a bundle without gettext calls' );
+	} );
+
+	it( 'downloads each bundle once no matter how often it is requested', async () => {
+		const { calls, api } = await bootWithManifest( [ WIDGET_BUNDLE ] );
+		calls.length = 0;
+
+		await Promise.all( [
+			api.loadBundleI18nCatalog( 'jetpack-test', WIDGET_BUNDLE ),
+			api.loadBundleI18nCatalog( 'jetpack-test', WIDGET_BUNDLE ),
+		] );
+		await api.loadBundleI18nCatalog( 'jetpack-test', WIDGET_BUNDLE );
+
+		assert.equal( calls.length, 1, 'repeat requests reuse the first download' );
+	} );
+
+	it( 'resolves without downloading when the boot helper never ran', async () => {
+		const calls = installLoader( () => Promise.resolve() );
+		const requests = installFetch( { bundles: [ WIDGET_BUNDLE ] } );
+		const { loadBundleI18nCatalog } = await import( HELPER );
+
+		await assert.doesNotReject( loadBundleI18nCatalog( 'jetpack-test', WIDGET_BUNDLE ) );
+
+		assert.deepEqual( calls, [], 'no manifest means the English fallback' );
+		assert.deepEqual( requests, [], 'no stray manifest fetch either' );
+	} );
+
+	it( 'resolves without downloading for the en_US locale', async () => {
+		const calls = installLoader( () => Promise.resolve(), { locale: 'en_US' } );
+		installFetch( { bundles: [ WIDGET_BUNDLE ] } );
+		const api = await import( HELPER );
+		await api.loadI18nCatalogs( 'jetpack-test', MODULE_URL );
+		calls.length = 0;
+
+		await api.loadBundleI18nCatalog( 'jetpack-test', WIDGET_BUNDLE );
+
+		assert.deepEqual( calls, [] );
+	} );
+
+	it( 'resolves after the bounded wait when the download stalls, and says so', async () => {
+		const calls = installLoader( () => Promise.resolve() );
+		installFetch( { bundles: [ WIDGET_BUNDLE ] } );
+		const api = await import( HELPER );
+		await api.loadI18nCatalogs( 'jetpack-test', MODULE_URL );
+		calls.length = 0;
+		window.wp.jpI18nLoader.downloadI18n = () => new Promise( () => {} ); // Never settles.
+
+		await assert.doesNotReject( api.loadBundleI18nCatalog( 'jetpack-test', WIDGET_BUNDLE, 25 ) );
+
+		assert.equal( warnings.length, 1 );
+		assert.match( warnings[ 0 ], /still pending after 25ms/ );
 	} );
 } );

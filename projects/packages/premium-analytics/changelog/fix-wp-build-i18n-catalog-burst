@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: load each widget's translation catalogs when the widget loads, instead of requesting all of them at once at boot.
