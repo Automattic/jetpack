@@ -100,6 +100,12 @@ export interface NewsletterModeScriptData {
 	 */
 	settingsUrl: string;
 	/**
+	 * The Posts screen as the curated nav links to it — carrying NAV_QUERY_ARG so
+	 * arriving there keeps the visitor inside Newsletter Mode. Used by the
+	 * Dashboard's "View all".
+	 */
+	postsUrl: string;
+	/**
 	 * Whether this user has dismissed the Dashboard's getting-started checklist.
 	 * Bootstrapped so the page renders in its final shape rather than flashing
 	 * the checklist and then pulling it away.

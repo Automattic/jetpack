@@ -2,7 +2,8 @@ import { DataViews, type Field, type View } from '@wordpress/dataviews';
 import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Badge, Text } from '@wordpress/ui';
-import { RECENT_POSTS, type RecentPost } from './placeholder-data';
+import { getNewsletterModeScriptData } from '../../../src/settings/script-data';
+import { useRecentPosts, type RecentPost } from './use-recent-posts';
 
 /** Shown wherever a post has no figure yet, matching the mockup. */
 const EMPTY_VALUE = '—';
@@ -28,12 +29,14 @@ const getPostId = ( post: RecentPost ): string => String( post.id );
  *
  * `DataViews` rather than a hand-rolled table, so this matches the Subscribers
  * table in the same package — same field/view shape, same look. It is read only
- * here: no actions, no search, nothing sortable, since the rows are a fixed
- * five-post preview with "View all" for the rest.
+ * here: no actions, no search, nothing sortable, since the rows are a short
+ * preview with "View all" for the rest.
  *
  * @return The recent posts card.
  */
 export const RecentPosts = (): JSX.Element => {
+	const { posts, isLoading } = useRecentPosts();
+
 	const fields = useMemo< Field< RecentPost >[] >(
 		() => [
 			{
@@ -41,7 +44,9 @@ export const RecentPosts = (): JSX.Element => {
 				label: __( 'Thumbnail', 'jetpack-newsletter' ),
 				render: ( { item }: { item: RecentPost } ) => (
 					<div className="jetpack-newsletter-home__post-thumb">
-						<img src={ item.thumbnail } alt="" />
+						{ /* A post with no featured image keeps the box, empty — the
+						     column stays aligned either way. */ }
+						{ item.thumbnail && <img src={ item.thumbnail } alt="" /> }
 					</div>
 				),
 				enableSorting: false,
@@ -111,7 +116,7 @@ export const RecentPosts = (): JSX.Element => {
 	const [ view, setView ] = useState< View >( {
 		type: 'table',
 		page: 1,
-		perPage: RECENT_POSTS.length,
+		perPage: 5,
 		titleField: 'title',
 		mediaField: 'media',
 		showTitle: true,
@@ -134,19 +139,24 @@ export const RecentPosts = (): JSX.Element => {
 				<Text variant="heading-lg" render={ <h2 /> }>
 					{ __( 'Recent Posts', 'jetpack-newsletter' ) }
 				</Text>
-				{ /* TODO: point at the Posts screen filtered to newsletter sends. */ }
-				<a className="jetpack-newsletter-home__view-all" href="edit.php">
+				{ /* The mode's own Posts screen. Falls back to the plain one if script
+				     data is missing, so the link is never dead. */ }
+				<a
+					className="jetpack-newsletter-home__view-all"
+					href={ getNewsletterModeScriptData()?.postsUrl ?? 'edit.php' }
+				>
 					{ __( 'View all', 'jetpack-newsletter' ) }
 				</a>
 			</div>
 			<div className="jetpack-newsletter-home__posts">
 				<DataViews< RecentPost >
-					data={ RECENT_POSTS }
+					data={ posts }
 					fields={ fields }
 					view={ view }
 					onChangeView={ setView }
 					getItemId={ getPostId }
-					paginationInfo={ { totalItems: RECENT_POSTS.length, totalPages: 1 } }
+					isLoading={ isLoading }
+					paginationInfo={ { totalItems: posts.length, totalPages: 1 } }
 					defaultLayouts={ { table: {} } }
 					search={ false }
 				>

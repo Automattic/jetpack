@@ -218,6 +218,11 @@ class Mode {
 			// promised rather than dropping people into a full settings screen
 			// with no cue as to why they are there.
 			'settingsUrl'        => admin_url( self::get_settings_slug( 'newsletter-title' ) ),
+			// Where the Dashboard's "View all" sends people: the Posts screen as the
+			// curated nav links to it, NAV_QUERY_ARG and all, so following it keeps
+			// the visitor inside the mode rather than dropping them into plain
+			// wp-admin. Taken from the nav so the two cannot drift.
+			'postsUrl'           => admin_url( self::get_nav_slugs()['posts'] ),
 			// Whether this user has dismissed the getting-started checklist, so
 			// the Dashboard can render without it rather than flashing it and
 			// then removing it once a fetch resolves.

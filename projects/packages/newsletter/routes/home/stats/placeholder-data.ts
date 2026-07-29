@@ -8,10 +8,9 @@
 // - TODO: subscribers over time — `useStatsSubscribersReport()` in
 //   `packages/premium-analytics/packages/data/src/hooks/use-stats-subscribers.ts`.
 //   This package does not depend on premium-analytics today.
-// - TODO: open / click / CTOR — the premium-analytics email stats stack
-//   (`use-stats-email-summary.ts`). Only per-subscriber and per-post figures
-//   exist anywhere today; there is no site-wide rate.
-// - TODO: recent posts — core `wp/v2/posts`, which needs no Jetpack connection.
+// - TODO: open / click / CTOR — these are the *site-wide* rates. The per-post
+//   equivalents are real (see `use-recent-posts.ts`), but nothing aggregates
+//   them across the newsletter yet.
 //
 // Everything here is deterministic. No `Math.random()`, no `Date.now()`: the
 // series must be identical on every render and every run so the chart does not
@@ -28,20 +27,6 @@ export type StatsHeadline = {
 	openRate: string;
 	clickRate: string;
 	ctor: string;
-};
-
-export type RecentPost = {
-	id: number;
-	title: string;
-	/** Already formatted — these are fixtures, not dates to localize. */
-	date: string;
-	status: 'publish' | 'draft';
-	/** A data URI, so the stub needs no network and no bundled image files. */
-	thumbnail: string;
-	/** Null where the post has not been sent, which the table shows as an em dash. */
-	recipients: number | null;
-	openRate: number | null;
-	clickRate: number | null;
 };
 
 /** The four figures across the top, straight from the mockup. */
@@ -100,66 +85,3 @@ export function getSubscriberSeries(
 		return { date, value };
 	} );
 }
-
-/**
- * A 1x1 transparent GIF, used where a post has no featured image.
- *
- * Inline so the stub pulls nothing over the network and ships no binary; the
- * visible thumbnail is the styled box behind it.
- */
-const BLANK_THUMBNAIL =
-	'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-
-/** Sample rows for the Recent Posts table, including one unsent draft. */
-export const RECENT_POSTS: RecentPost[] = [
-	{
-		id: 1,
-		title: 'The Green Knight',
-		date: '',
-		status: 'draft',
-		thumbnail: BLANK_THUMBNAIL,
-		recipients: null,
-		openRate: null,
-		clickRate: null,
-	},
-	{
-		id: 2,
-		title: 'Parasite',
-		date: '23 Jul 2026',
-		status: 'publish',
-		thumbnail: BLANK_THUMBNAIL,
-		recipients: 122,
-		openRate: 58,
-		clickRate: 21,
-	},
-	{
-		id: 3,
-		title: 'Interstellar',
-		date: '22 Jul 2026',
-		status: 'publish',
-		thumbnail: BLANK_THUMBNAIL,
-		recipients: 121,
-		openRate: 64,
-		clickRate: 16,
-	},
-	{
-		id: 4,
-		title: 'Pillion',
-		date: '22 Jul 2026',
-		status: 'publish',
-		thumbnail: BLANK_THUMBNAIL,
-		recipients: 119,
-		openRate: 49,
-		clickRate: 18,
-	},
-	{
-		id: 5,
-		title: 'Undertone',
-		date: '22 Jul 2026',
-		status: 'publish',
-		thumbnail: BLANK_THUMBNAIL,
-		recipients: 115,
-		openRate: 52,
-		clickRate: 13,
-	},
-];
