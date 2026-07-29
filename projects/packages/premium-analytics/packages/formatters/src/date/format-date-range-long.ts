@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { formatDate } from './format-date';
-import { getDateRangeSpan } from './get-date-range-span';
+import { getDateRangeSpan, type DateRangeSpan } from './get-date-range-span';
 
 /**
  * A date range with optional start and end.
@@ -29,6 +29,33 @@ type FormatDateRangeLongOptions = {
 const RANGE_SEPARATOR = ' – ';
 
 /**
+ * Hours in a day, the longest window still named by a single date.
+ */
+const HOURS_IN_DAY = 24;
+
+/**
+ * Whether the range covers at most a day's worth of time, and so is named by
+ * the day it falls on rather than by two endpoints.
+ *
+ * Covers both shapes a single day takes: a day-aligned one, whose endpoints
+ * would otherwise repeat the same date, and a rolling 24-hour window, which
+ * straddles two calendar days without being about either of them in full.
+ *
+ * @param span - The measured span.
+ * @return Whether one date describes the range.
+ */
+function isSingleDay( span: DateRangeSpan | null ): boolean {
+	if ( ! span ) {
+		return false;
+	}
+
+	return (
+		( span.unit === 'day' && span.value === 1 ) ||
+		( span.unit === 'hour' && span.value <= HOURS_IN_DAY )
+	);
+}
+
+/**
  * Format a date range in the explicit, readable form the section header
  * subtitle uses.
  *
@@ -39,10 +66,13 @@ const RANGE_SEPARATOR = ' – ';
  * reference year, so stepping back through past periods stays unambiguous
  * without repeating the current year on every render.
  *
+ * A window of a day or less is named by a single date instead of a range.
+ *
  * @example
  * formatDateRangeLong( { from, to } ) // 7 days:      'Tuesday, July 21 – Monday, July 27'
  *                                     // past year:   'Tuesday, July 16 – Monday, July 22, 2024'
  *                                     // 12 months:   'July 1, 2025 – June 30, 2026'
+ *                                     // 24 hours:    'Tuesday, July 28'
  *
  * @param range     - The range to format.
  * @param [options] - Formatting options.
@@ -69,6 +99,10 @@ export const formatDateRangeLong = (
 	const inReferenceYear =
 		from.getFullYear() === referenceYear && to.getFullYear() === referenceYear;
 	const pattern = inReferenceYear ? 'EEEE, MMMM d' : 'EEEE, MMMM d, yyyy';
+
+	if ( isSingleDay( span ) ) {
+		return formatDate( from, pattern );
+	}
 
 	return `${ formatDate( from, pattern ) }${ RANGE_SEPARATOR }${ formatDate( to, pattern ) }`;
 };

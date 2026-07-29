@@ -85,10 +85,13 @@ the section header subtitle. Returns `''` when range or dates are missing.
 
 The shape follows the range's own length: day-scale ranges lead with the
 weekday and omit the year while they sit in the reference year; longer ranges
-drop the weekday and always carry the year.
+drop the weekday and always carry the year. A window of a day or less is named
+by a single date rather than two endpoints.
 
 ```typescript
 formatDateRangeLong( { from, to } );
+// 24 hours:    'Tuesday, July 28'
+// today:       'Wednesday, July 29'
 // 7 days:      'Tuesday, July 21 – Monday, July 27'
 // past year:   'Tuesday, July 16, 2024 – Monday, July 22, 2024'
 // 12 months:   'July 1, 2025 – June 30, 2026'

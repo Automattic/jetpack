@@ -43,6 +43,42 @@ describe( 'formatDateRangeLong', () => {
 		).toBe( 'Tuesday, July 21 – Monday, July 27' );
 	} );
 
+	it( 'names a day-aligned single day once instead of repeating it', () => {
+		expect(
+			formatDateRangeLong(
+				{ from: at( 2026, 7, 29 ), to: endOf( 2026, 7, 29 ) },
+				{ referenceYear: 2026 }
+			)
+		).toBe( 'Wednesday, July 29' );
+	} );
+
+	it( 'names a rolling 24-hour window by the day it starts on', () => {
+		// The window straddles two calendar days without being about either in
+		// full, so naming both ends would overstate its reach.
+		expect(
+			formatDateRangeLong(
+				{
+					from: new Date( 2026, 6, 28, 14, 30 ),
+					to: new Date( 2026, 6, 29, 14, 30 ),
+				},
+				{ referenceYear: 2026 }
+			)
+		).toBe( 'Tuesday, July 28' );
+	} );
+
+	it( 'keeps both ends for a window longer than a day', () => {
+		// 36 hours is still hour-scale, but no single date covers it.
+		expect(
+			formatDateRangeLong(
+				{
+					from: new Date( 2026, 6, 28, 6, 0 ),
+					to: new Date( 2026, 6, 29, 18, 0 ),
+				},
+				{ referenceYear: 2026 }
+			)
+		).toBe( 'Tuesday, July 28 – Wednesday, July 29' );
+	} );
+
 	it( 'adds the year once a day-scale range leaves the reference year', () => {
 		expect(
 			formatDateRangeLong(
