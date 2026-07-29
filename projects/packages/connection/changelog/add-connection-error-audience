@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Connection: Expose the connection-error audience (site/owner/user) to the Jetpack dashboard so error notices can be tailored to the viewer.
