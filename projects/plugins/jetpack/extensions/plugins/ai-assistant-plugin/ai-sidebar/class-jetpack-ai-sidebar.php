@@ -276,22 +276,6 @@ class Jetpack_AI_Sidebar {
 	// ──────────────────────────────────────────────────
 
 	/**
-	 * UI feature flag for AI Editorial Review.
-	 *
-	 * Server-side permission checks still gate execution. This site-side flag
-	 * controls whether the sidebar suggestion is exposed, while keeping a
-	 * feature-specific filter available as a kill switch.
-	 *
-	 * @return bool
-	 */
-	private static function is_ai_editorial_review_enabled(): bool {
-		return (bool) apply_filters(
-			'jetpack_ai_editorial_review_enabled',
-			true
-		);
-	}
-
-	/**
 	 * UI feature flag for the SEO Enhancer suggestions (SEO title and meta description).
 	 *
 	 * Exposed only where the suggestions can actually be used: the SEO Enhancer
@@ -402,7 +386,7 @@ class Jetpack_AI_Sidebar {
 		// Ability permission callbacks enforce server-side access for these
 		// features. SEO additionally requires the site-side gates below.
 		$features = array(
-			'aiEditorialReview'       => self::is_ai_editorial_review_enabled(),
+			'aiEditorialReview'       => true,
 			'generateFeedback'        => true,
 			'proofreadContent'        => true,
 			'blockTransformations'    => true,
@@ -424,6 +408,7 @@ class Jetpack_AI_Sidebar {
 
 		// Normalize the flags released here while leaving host-added values
 		// untouched. Keep SEO's site-side requirements final.
+		$features['aiEditorialReview']       = (bool) $features['aiEditorialReview'];
 		$features['generateFeedback']        = (bool) $features['generateFeedback'];
 		$features['proofreadContent']        = (bool) $features['proofreadContent'];
 		$features['blockToolbarButton']      = (bool) $features['blockToolbarButton'];
@@ -485,7 +470,7 @@ class Jetpack_AI_Sidebar {
 		// Set our fields in place, leaving the rest of $data (including agentProviders)
 		// untouched so the client-side gate can drop Jetpack AI Sidebar while keeping
 		// fallbacks such as the Big Sky provider. Hosts that need intentional overrides
-		// should use the AI Editorial Review and preview filters.
+		// should use the sidebar and preview feature filters.
 		foreach ( $fields as $key => $value ) {
 			$data[ $key ] = $value;
 		}

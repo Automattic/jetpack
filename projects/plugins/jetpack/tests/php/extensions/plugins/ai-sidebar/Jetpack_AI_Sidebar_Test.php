@@ -107,7 +107,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
 		remove_all_filters( 'agents_manager_agent_providers' );
 		remove_all_filters( 'agents_manager_enabled_in_block_editor' );
-		remove_all_filters( 'jetpack_ai_editorial_review_enabled' );
 		remove_all_filters( 'jetpack_ai_sidebar_preview_enabled' );
 		remove_all_filters( 'jetpack_ai_sidebar_preview_features' );
 		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
@@ -328,7 +327,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	// ──────────────────────────────────────────────────
 
 	/**
-	 * Test that init() registers hooks by default for AI Editorial Review.
+	 * Test that init() registers the Jetpack AI Sidebar hooks by default.
 	 */
 	public function test_init_registers_hooks_by_default() {
 		Jetpack_AI_Sidebar::init();
@@ -391,23 +390,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertFalse(
 			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_toolbar_button_extension' ) ),
 			'register_toolbar_button_extension should not be hooked when the preview gate is false.'
-		);
-	}
-
-	/**
-	 * Test that the preview surface can initialize without AI Editorial Review.
-	 */
-	public function test_init_registers_hooks_when_preview_is_enabled_without_ai_editorial_review() {
-		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_false' );
-		Jetpack_AI_Sidebar::init();
-
-		$this->assertNotFalse(
-			has_filter( 'agents_manager_agent_providers', array( Jetpack_AI_Sidebar::class, 'register_provider' ) ),
-			'register_provider should be hooked when the preview gate is true.'
-		);
-		$this->assertNotFalse(
-			has_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_enqueue_abilities_script' ) ),
-			'maybe_enqueue_abilities_script should be hooked when the preview gate is true.'
 		);
 	}
 
@@ -701,23 +683,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * Test that the Agents Manager block-editor gate preserves existing true values.
 	 */
 	public function test_enable_agents_manager_on_provider_surfaces_preserves_existing_true() {
-		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_false' );
 		$this->set_page_block_editor_screen();
 
 		$this->assertTrue( Jetpack_AI_Sidebar::enable_agents_manager_on_provider_surfaces( true ) );
-	}
-
-	/**
-	 * The AI Editorial Review filter is decoupled from this Agents Manager entrypoint.
-	 *
-	 * The preview gate is wpcom/Big Sky-based, so turning AI Editorial Review off
-	 * does not close the gate (AI Editorial Review only affects the exposed data).
-	 */
-	public function test_enable_agents_manager_on_provider_surfaces_ignores_ai_editorial_review_filter() {
-		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_false' );
-		$this->set_block_editor_screen();
-
-		$this->assertTrue( Jetpack_AI_Sidebar::enable_agents_manager_on_provider_surfaces( false ) );
 	}
 
 	/**
@@ -735,11 +703,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	// ──────────────────────────────────────────────────
 
 	/**
-	 * Platform-emitted Agents Manager data gets the AI Editorial Review flag.
+	 * Platform-emitted Agents Manager data enables AI Editorial Review by default.
 	 */
-	public function test_add_agents_manager_data_exposes_ai_editorial_review_enabled() {
+	public function test_add_agents_manager_data_exposes_ai_editorial_review_by_default() {
 		$this->set_block_editor_screen();
-		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_true' );
 
 		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
 
@@ -800,6 +767,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		add_filter(
 			'jetpack_ai_sidebar_preview_features',
 			function ( $features ) {
+				$features['aiEditorialReview']       = false;
 				$features['generateFeedback']        = false;
 				$features['proofreadContent']        = false;
 				$features['blockToolbarButton']      = false;
@@ -813,9 +781,11 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
 
 		$this->assertSame( 'wp-orchestrator', $data['agentId'] );
-		$this->assertTrue( $data['jetpackAiSidebar']['features']['aiEditorialReview'] );
+		$this->assertTrue( $data['jetpackAiSidebar']['enabled'] );
+		$this->assertFalse( $data['jetpackAiSidebar']['features']['aiEditorialReview'] );
 		$this->assertFalse( $data['jetpackAiSidebar']['features']['generateFeedback'] );
 		$this->assertFalse( $data['jetpackAiSidebar']['features']['proofreadContent'] );
+		$this->assertTrue( $data['jetpackAiSidebar']['features']['blockTransformations'] );
 		$this->assertFalse( $data['jetpackAiSidebar']['features']['blockToolbarButton'] );
 		$this->assertFalse( $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
 		$this->assertFalse( $data['jetpackAiSidebar']['features']['seoSuggestions'] );
@@ -903,22 +873,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		);
 
 		$this->assertSame( $providers, $data['agentProviders'] );
-	}
-
-	/**
-	 * Preview and AI Editorial Review have separate gates.
-	 */
-	public function test_add_agents_manager_data_allows_preview_without_ai_editorial_review() {
-		$this->set_block_editor_screen();
-		add_filter( 'jetpack_ai_editorial_review_enabled', '__return_false' );
-
-		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
-
-		$this->assertSame( 'wp-orchestrator', $data['agentId'] );
-		$this->assertSame( true, $data['jetpackAiSidebar']['enabled'] );
-		$this->assertSame( false, $data['jetpackAiSidebar']['features']['aiEditorialReview'] );
-		$this->assertSame( true, $data['jetpackAiSidebar']['features']['blockTransformations'] );
-		$this->assertSame( true, $data['jetpackAiSidebar']['features']['blockToolbarButton'] );
 	}
 
 	/**
