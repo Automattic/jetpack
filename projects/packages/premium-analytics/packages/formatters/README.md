@@ -13,6 +13,8 @@ import {
 	formatMetricValue,
 	formatDate,
 	formatDateRange,
+	formatDateRangeLong,
+	getDateRangeSpan,
 } from '@jetpack-premium-analytics/formatters';
 ```
 
@@ -71,6 +73,51 @@ formatDateRange( { from, to } );
 // same year:   'Jun 21-Jul 25, 2025'
 // cross-year:  'Jun 21, 2024-Jul 25, 2025'
 ```
+
+| Parameter | Type                         | Description       |
+| --------- | ---------------------------- | ----------------- |
+| `range`   | `{ from?: Date; to?: Date }` | Date range object |
+
+## `formatDateRangeLong( range?, options? )`
+
+Format a date range in explicit, readable form, for prominent surfaces such as
+the section header subtitle. Returns `''` when range or dates are missing.
+
+The shape follows the range's own length: day-scale ranges lead with the
+weekday and omit the year while they sit in the reference year; longer ranges
+drop the weekday and always carry the year.
+
+```typescript
+formatDateRangeLong( { from, to } );
+// 7 days:      'Tuesday, July 21 – Monday, July 27'
+// past year:   'Tuesday, July 16, 2024 – Monday, July 22, 2024'
+// 12 months:   'July 1, 2025 – June 30, 2026'
+```
+
+| Parameter               | Type                         | Default      | Description                              |
+| ----------------------- | ---------------------------- | ------------ | ---------------------------------------- |
+| `range`                 | `{ from?: Date; to?: Date }` |              | Date range object                        |
+| `options.referenceYear` | `number`                     | current year | Year against which the year is redundant |
+
+## `getDateRangeSpan( range? )`
+
+Measure how long a range is, in the coarsest unit that divides it evenly.
+Returns `null` when range or dates are missing.
+
+Derived from the range itself rather than the preset that produced it, so a
+window stepped back off a preset still reports its own length.
+
+```typescript
+getDateRangeSpan( { from, to } );
+// 24 hours:  { unit: 'hour', value: 24 }
+// 7 days:    { unit: 'day', value: 7 }
+// 12 months: { unit: 'month', value: 12 }
+// all time:  { unit: 'year', value: 6 }
+```
+
+A whole-month range stays in days below two months, so "Last 30 days" does not
+become "1 month", and only collapses into years from two years up, so a
+twelve-month window keeps reading as "12 months".
 
 | Parameter | Type                         | Description       |
 | --------- | ---------------------------- | ----------------- |
