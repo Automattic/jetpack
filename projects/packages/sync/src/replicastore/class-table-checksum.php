@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Sync\Replicastore;
 
 use Automattic\Jetpack\Sync;
 use Automattic\Jetpack\Sync\Modules\WooCommerce_HPOS_Orders;
+use Automattic\WooCommerce\Internal\Features\FeaturesController;
 use Exception;
 use WP_Error;
 
@@ -299,6 +300,35 @@ class Table_Checksum {
 				'is_table_enabled_callback' => function () {
 					return false !== Sync\Modules::get_module( 'woocommerce_products' );
 				},
+			),
+			'wc_order_stats'             => array(
+				'table'                     => "{$wpdb->prefix}wc_order_stats",
+				'range_field'               => 'order_id',
+				'key_fields'                => array( 'order_id' ),
+				'checksum_fields'           => array( 'date_paid', 'date_completed', 'total_sales' ),
+				'checksum_text_fields'      => array( 'status' ),
+				'is_table_enabled_callback' => 'Automattic\Jetpack\Sync\Replicastore\Table_Checksum::enable_woocommerce_analytics_tables',
+			),
+			'wc_order_product_lookup'    => array(
+				'table'                     => "{$wpdb->prefix}wc_order_product_lookup",
+				'range_field'               => 'order_id',
+				'key_fields'                => array( 'order_id', 'order_item_id' ),
+				'checksum_fields'           => array( 'product_id', 'variation_id', 'product_qty', 'product_net_revenue', 'date_created' ),
+				'is_table_enabled_callback' => 'Automattic\Jetpack\Sync\Replicastore\Table_Checksum::enable_woocommerce_analytics_tables',
+			),
+			'wc_order_coupon_lookup'     => array(
+				'table'                     => "{$wpdb->prefix}wc_order_coupon_lookup",
+				'range_field'               => 'order_id',
+				'key_fields'                => array( 'order_id', 'coupon_id' ),
+				'checksum_fields'           => array( 'discount_amount', 'date_created' ),
+				'is_table_enabled_callback' => 'Automattic\Jetpack\Sync\Replicastore\Table_Checksum::enable_woocommerce_analytics_tables',
+			),
+			'wc_order_tax_lookup'        => array(
+				'table'                     => "{$wpdb->prefix}wc_order_tax_lookup",
+				'range_field'               => 'order_id',
+				'key_fields'                => array( 'order_id', 'tax_rate_id' ),
+				'checksum_fields'           => array( 'order_tax', 'total_tax', 'shipping_tax', 'date_created' ),
+				'is_table_enabled_callback' => 'Automattic\Jetpack\Sync\Replicastore\Table_Checksum::enable_woocommerce_analytics_tables',
 			),
 			'woocommerce_order_items'    => array(
 				'table'                     => "{$wpdb->prefix}woocommerce_order_items",
@@ -1034,6 +1064,71 @@ class Table_Checksum {
 
 		// If the 'woocommerce' module is enabled, this means that WooCommerce class exists.
 		return false !== Sync\Modules::get_module( 'woocommerce' );
+	}
+
+	/**
+	 * Make sure the WooCommerce Analytics tables should be enabled for Checksum/Fix.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function enable_woocommerce_analytics_tables() {
+		/**
+		 * On WordPress.com, WooCommerce runtime classes and Sync modules are not
+		 * available while comparing table checksums. This override allows the
+		 * Analytics tables to be used there.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $force_woocommerce_analytics_support Whether to force-enable WooCommerce Analytics table support.
+		 */
+		$force_woocommerce_analytics_support = apply_filters( 'jetpack_table_checksum_force_enable_woocommerce_analytics', false );
+
+		if ( $force_woocommerce_analytics_support ) {
+			return true;
+		}
+
+		return self::is_order_attribution_enabled()
+			&& false !== Sync\Modules::get_module( 'woocommerce_analytics' );
+	}
+
+	/**
+	 * Check whether the WooCommerce order attribution feature is enabled.
+	 *
+	 * @return bool
+	 */
+	private static function is_order_attribution_enabled() {
+		if ( ! class_exists( FeaturesController::class ) || ! function_exists( 'wc_get_container' ) ) { // @phan-suppress-current-line PhanUndeclaredClassReference -- Optional WooCommerce dependency.
+			return false;
+		}
+
+		try {
+			$feature_controller = wc_get_container()->get( FeaturesController::class ); // @phan-suppress-current-line PhanUndeclaredClassReference -- Optional WooCommerce dependency, checked above.
+			'@phan-var FeaturesController $feature_controller';
+			$is_enabled = $feature_controller->feature_is_enabled( 'order_attribution' ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked above.
+
+			/*
+			 * The feature controller does not immediately reflect a settings form
+			 * submission, so honor the posted value during that request.
+			 */
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended
+			if ( isset( $_GET['section'] ) && 'features' === $_GET['section'] ) {
+				// phpcs:disable WordPress.Security.NonceVerification.Missing
+				if ( isset( $_POST['woocommerce_feature_order_attribution_enabled'] ) ) {
+					$posted_order_attribution = wc_clean( sanitize_text_field( wp_unslash( $_POST['woocommerce_feature_order_attribution_enabled'] ) ) );
+					$is_enabled               = wc_string_to_bool( $posted_order_attribution );
+				} elseif ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] ) {
+					$is_enabled = false;
+				}
+				// phpcs:enable WordPress.Security.NonceVerification.Missing
+			}
+			// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+			return $is_enabled;
+		} catch ( \Exception $e ) {
+			return false;
+		}
 	}
 
 	/**

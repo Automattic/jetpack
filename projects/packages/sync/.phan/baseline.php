@@ -64,7 +64,6 @@ return [
         'src/modules/class-users.php' => ['PhanTypeMismatchDefault', 'PhanTypeMismatchReturnProbablyReal'],
         'src/modules/class-woocommerce-analytics.php' => ['PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredMethod', 'UnusedPluginSuppression'],
         'src/modules/class-woocommerce-hpos-orders.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/modules/trait-woocommerce-analytics-utilities.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference'],
         'src/replicastore/class-table-checksum.php' => ['PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchPropertyProbablyReal'],
         'tests/php/Actions_Test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/REST_Endpoints_Test.php' => ['PhanTypeMismatchReturn'],

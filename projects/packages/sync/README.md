@@ -120,6 +120,10 @@ The priority-1 `plugins_loaded` callback above guards the WooCommerce runtime
 dependency and gives `Config` time to initialize Sync at its priority-2 callback.
 Consumers must also register their `jetpack_full_sync_config` policy.
 
+Analytics checksum schemas are registered centrally by `Table_Checksum` and become
+usable when the module and WooCommerce Order Attribution are enabled. Consumers do
+not need to register the schemas themselves.
+
 ##### `jetpack_sync_options_whitelist` / `jetpack_sync_options_contentless`
 
 **Controlled by the Sync Options Module, which is required.**
