@@ -1,7 +1,6 @@
 import { isWoASite, isSimpleSite } from '@automattic/jetpack-script-data';
-import { isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
+import { getJetpackData, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
 import { isBlobURL } from '@wordpress/blob';
-import { select } from '@wordpress/data';
 import photon from 'photon';
 import isOfflineMode from '../../../shared/is-offline-mode';
 import { PHOTON_MAX_RESIZE } from '../constants';
@@ -110,16 +109,17 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
  * Whether the current site should skip the external Photon (photon.js) domain and instead build
  * files.wordpress.com-style URLs via photonWpcomImage.
  *
- * The value is provided by the `block_editor_settings_all` filter in tiled-gallery.php and read
- * here from the block editor settings.
+ * The value is computed in PHP (true on VIP sites, overridable via the `jetpack_skip_photon_domain`
+ * filter) and delivered in the editor initial state. It is deliberately read from that global rather
+ * than from editor settings or any other store: this runs inside the blocks' save() output, which is
+ * regenerated during block validation while the post is parsed — before the editor stores hold any
+ * settings. Reading store state there yields the default value on the first pass and marks saved
+ * galleries as invalid.
  *
  * @return {boolean} True when the external Photon domain should be skipped.
  */
 export function skipPhotonDomain() {
-	// The value is injected via the `block_editor_settings_all` PHP filter, which surfaces on the
-	// `core/editor` editor settings. Note it does NOT propagate into `core/block-editor`'s
-	// getSettings() — that store only forwards a fixed allowlist of keys, so custom keys are dropped.
-	return true === select( 'core/editor' )?.getEditorSettings?.()?.skip_photon_domain;
+	return true === getJetpackData()?.jetpack?.skip_photon_domain;
 }
 
 /**

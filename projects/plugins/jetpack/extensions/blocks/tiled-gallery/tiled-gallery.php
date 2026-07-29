@@ -11,7 +11,6 @@
 namespace Automattic\Jetpack\Extensions;
 
 use Automattic\Jetpack\Blocks;
-use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack;
@@ -48,42 +47,7 @@ class Tiled_Gallery {
 					'render_email_callback' => array( __CLASS__, 'render_email' ),
 				)
 			);
-
-			add_filter( 'block_editor_settings_all', array( __CLASS__, 'add_block_editor_settings' ) );
 		}
-	}
-
-	/**
-	 * Expose whether the current site should skip the external Photon domain to the block editor.
-	 *
-	 * VIP sites serve images from a Photon-like host and must not be routed through the public
-	 * photon.js domain. The value is read by skipPhotonDomain() in utils/index.js (Simple sites are
-	 * handled separately there via isSimpleSite()).
-	 *
-	 * @param array $settings The block editor settings.
-	 * @return array The filtered block editor settings.
-	 */
-	public static function add_block_editor_settings( $settings ) {
-		$jetpack_plan = Jetpack_Plan::get();
-
-		/**
-		 * Filter whether the Tiled Gallery and Image Compare blocks should skip the external
-		 * Photon (photon.js) domain and build files.wordpress.com-style image URLs instead.
-		 *
-		 * Defaults to true on VIP sites only, and false everywhere else.
-		 *
-		 * @module tiled-gallery
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param bool $skip_photon_domain Whether to skip the external Photon domain.
-		 */
-		$settings['skip_photon_domain'] = apply_filters(
-			'jetpack_skip_photon_domain',
-			'vip' === $jetpack_plan['product_slug']
-		);
-
-		return $settings;
 	}
 
 	/**

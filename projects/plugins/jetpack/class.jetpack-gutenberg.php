@@ -882,6 +882,26 @@ class Jetpack_Gutenberg {
 					'data' => $jetpack_plan['product_slug'],
 				),
 				/**
+				 * Filter whether the Tiled Gallery and Image Compare blocks should skip the external
+				 * Photon (i0.wp.com) domain and build files.wordpress.com-style image URLs instead.
+				 *
+				 * VIP sites serve images from a Photon-like host of their own, and images routed
+				 * through the public Photon domain are not reachable there. Defaults to true on VIP
+				 * sites only, and false everywhere else.
+				 *
+				 * The value is read by skipPhotonDomain() in the Tiled Gallery block. It is delivered
+				 * through this initial state rather than the block editor settings because it is used
+				 * by the blocks' save() output, which is regenerated during block validation before
+				 * the editor stores are populated.
+				 *
+				 * @module tiled-gallery
+				 *
+				 * @since $$next-version$$
+				 *
+				 * @param bool $skip_photon_domain Whether to skip the external Photon domain.
+				 */
+				'skip_photon_domain'            => (bool) apply_filters( 'jetpack_skip_photon_domain', 'vip' === $jetpack_plan['product_slug'] ),
+				/**
 				 * Enable the RePublicize UI in the block editor context.
 				 *
 				 * @module publicize

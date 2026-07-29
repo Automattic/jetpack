@@ -1,4 +1,4 @@
 Significance: patch
-Type: other
+Type: bugfix
 
-Tiled Gallery: source the Photon-domain decision from the block editor settings filter instead of an inline script, dedupe the check across block versions, and add a `jetpack_skip_photon_domain` filter to control it.
+Tiled Gallery: fix images being routed through the external Photon domain on VIP sites, and add a `jetpack_skip_photon_domain` filter to control that decision.
