@@ -113,12 +113,14 @@ export function NewsletterCategoriesSection( {
 				// WordPress surfaces a long parent-aware message for duplicates
 				// ("A term with the name provided already exists…"); the inline
 				// form has no parent picker, so show a short, plain message.
+				// Everything else (permissions, expired nonce, network failure)
+				// gets a friendly generic string rather than the raw, English-only
+				// server message.
 				const code = ( err as Error & { code?: string } )?.code;
 				setCreateCategoryError(
 					code === 'term_exists'
 						? __( 'This category already exists.', 'jetpack-newsletter' )
-						: err.message ||
-								__( 'Could not create the category. Please try again.', 'jetpack-newsletter' )
+						: __( 'Could not create the category. Please try again.', 'jetpack-newsletter' )
 				);
 			} )
 			.finally( () => {

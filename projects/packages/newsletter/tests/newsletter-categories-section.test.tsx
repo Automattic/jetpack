@@ -276,6 +276,28 @@ describe( 'NewsletterCategoriesSection — inline add category (NL-785)', () => 
 		expect( screen.getByLabelText( 'New category name' ) ).toBeInTheDocument();
 	} );
 
+	it( 'shows a generic message for non-duplicate errors and never leaks the raw server text', async () => {
+		mockedCreateCategory.mockRejectedValue(
+			Object.assign( new Error( 'Sorry, you are not allowed to create terms in this taxonomy.' ), {
+				code: 'rest_cannot_create',
+			} )
+		);
+		const { onChange } = renderSection();
+		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
+
+		clickButton( 'Add new category' );
+		typeInto( 'New category name', 'Announcements' );
+		clickButton( 'Add category' );
+
+		const alert = await screen.findByRole( 'alert' );
+		expect( alert ).toHaveTextContent( 'Could not create the category. Please try again.' );
+		// The raw, English-only server message is not surfaced to the user.
+		expect( alert ).not.toHaveTextContent( 'not allowed to create terms' );
+		// Nothing was selected, and the form stays open for a retry.
+		expect( onChange ).not.toHaveBeenCalled();
+		expect( screen.getByLabelText( 'New category name' ) ).toBeInTheDocument();
+	} );
+
 	it( 'closes the inline form and clears input when cancelled', async () => {
 		renderSection();
 		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
