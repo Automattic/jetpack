@@ -121,6 +121,10 @@ export function NewsletterCategoriesSection( {
 
 		createCategory( trimmedNewCategoryName )
 			.then( created => {
+				analytics.tracks.recordEvent( 'jetpack_newsletter_category_created', {
+					site_type: siteType,
+				} );
+
 				const newCategory: WordPressCategory = {
 					id: String( created.id ),
 					name: created.name,
@@ -143,18 +147,34 @@ export function NewsletterCategoriesSection( {
 				setNewCategoryName( '' );
 			} )
 			.catch( ( err: Error ) => {
-				// Duplicate-name detection differs by platform: self-hosted WP REST
-				// (`/wp/v2/categories`) rejects with `code: 'term_exists'`, while the
-				// WordPress.com v1.1 endpoint used on Simple sites rejects with
-				// `error: 'duplicate'`. Both carry a long, English-only server message
-				// (and the inline form has no parent picker), so map either one to a
-				// short, translated string. Everything else (permissions, expired
-				// nonce, network failure) gets a friendly generic message rather than
-				// the raw server text.
-				const errorCode =
-					( err as Error & { code?: string; error?: string } )?.code ??
-					( err as Error & { error?: string } )?.error;
-				const isDuplicate = errorCode === 'term_exists' || errorCode === 'duplicate';
+				// Duplicate-name detection differs by platform and error envelope:
+				// - self-hosted WP REST (`/wp/v2/categories`) rejects with
+				//   `code: 'term_exists'`.
+				// - the WordPress.com v1.1 endpoint used on Simple sites rejects with
+				//   `error: 'duplicate'`, sometimes wrapped in a proxy envelope
+				//   (`{ code: 409, body: { error: 'duplicate' } }`) where the top-level
+				//   `code` is the HTTP status, not the error slug.
+				// Both carry a long, English-only server message (and the inline form
+				// has no parent picker), so map either one to a short, translated
+				// string. Everything else (permissions, expired nonce, network failure)
+				// gets a friendly generic message rather than the raw server text.
+				const errorLike = err as Error & {
+					code?: string | number;
+					error?: string;
+					body?: { code?: string | number; error?: string };
+				};
+				const signals = [
+					errorLike.code,
+					errorLike.error,
+					errorLike.body?.code,
+					errorLike.body?.error,
+				];
+				const isDuplicate =
+					signals.includes( 'term_exists' ) ||
+					signals.includes( 'duplicate' ) ||
+					// A 409 Conflict when creating a term always means a name clash.
+					errorLike.code === 409 ||
+					errorLike.body?.code === 409;
 				// Assign each translated string to its own variable rather than
 				// branching a single ternary between two `__()` calls: production
 				// minification hoists the shared `__( …, 'jetpack-newsletter' )`
@@ -170,7 +190,7 @@ export function NewsletterCategoriesSection( {
 			.finally( () => {
 				setIsCreatingCategory( false );
 			} );
-	}, [ trimmedNewCategoryName, isCreatingCategory, onChange ] );
+	}, [ trimmedNewCategoryName, isCreatingCategory, onChange, siteType ] );
 
 	// Submit the inline form on Enter, matching the category token field above
 	// it. `handleCreateCategory` already no-ops on an empty name or while a

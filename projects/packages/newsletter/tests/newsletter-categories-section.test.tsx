@@ -134,6 +134,7 @@ jest.mock( '../src/settings/api', () => ( {
 	createCategory: jest.fn(),
 } ) );
 
+import analytics from '@automattic/jetpack-analytics';
 import { act, render, screen, waitFor } from '@testing-library/react';
 // `mock`-prefixed so it may be referenced inside the hoisted jest.mock factories above.
 import { forwardRef as mockForwardRef } from 'react';
@@ -143,6 +144,9 @@ import type { NewsletterSettings } from '../src/settings/types';
 
 const mockedFetchCategories = fetchCategories as jest.MockedFunction< typeof fetchCategories >;
 const mockedCreateCategory = createCategory as jest.MockedFunction< typeof createCategory >;
+const mockedRecordEvent = analytics.tracks.recordEvent as jest.MockedFunction<
+	typeof analytics.tracks.recordEvent
+>;
 
 // The package intentionally doesn't pull in `@testing-library/user-event`
 // (mirrors the sibling shell tests), so drive interactions natively.
@@ -270,6 +274,41 @@ describe( 'NewsletterCategoriesSection — inline add category (NL-785)', () => 
 			expect( onChange ).toHaveBeenCalledWith( {
 				wpcom_newsletter_categories: [ '42' ],
 			} )
+		);
+	} );
+
+	it( 'records a tracking event when a category is created', async () => {
+		mockedCreateCategory.mockResolvedValue( { id: 42, name: 'Weekly Digest' } );
+		renderSection();
+		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
+
+		clickButton( 'Add new category' );
+		typeInto( 'New category name', 'Weekly Digest' );
+		clickButton( 'Add category' );
+
+		await waitFor( () =>
+			expect( mockedRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_newsletter_category_created',
+				expect.objectContaining( { site_type: 'jetpack' } )
+			)
+		);
+	} );
+
+	it( 'does not record a creation event when the create request fails', async () => {
+		mockedCreateCategory.mockRejectedValue(
+			Object.assign( new Error( 'nope' ), { code: 'term_exists' } )
+		);
+		renderSection();
+		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
+
+		clickButton( 'Add new category' );
+		typeInto( 'New category name', 'News' );
+		clickButton( 'Add category' );
+
+		await expect( screen.findByRole( 'alert' ) ).resolves.toBeInTheDocument();
+		expect( mockedRecordEvent ).not.toHaveBeenCalledWith(
+			'jetpack_newsletter_category_created',
+			expect.anything()
 		);
 	} );
 
@@ -413,6 +452,32 @@ describe( 'NewsletterCategoriesSection — inline add category (NL-785)', () => 
 		mockedCreateCategory.mockRejectedValue(
 			Object.assign( new Error( 'A taxonomy with that name already exists' ), {
 				error: 'duplicate',
+			} )
+		);
+		const { onChange } = renderSection();
+		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
+
+		clickButton( 'Add new category' );
+		typeInto( 'New category name', 'News' );
+		clickButton( 'Add category' );
+
+		const alert = await screen.findByRole( 'alert' );
+		expect( alert ).toHaveTextContent( 'This category already exists.' );
+		// The raw server message is not shown to the user.
+		expect( alert ).not.toHaveTextContent( 'A taxonomy with that name already exists' );
+		// Nothing was selected, and the form stays open for a retry.
+		expect( onChange ).not.toHaveBeenCalled();
+		expect( screen.getByLabelText( 'New category name' ) ).toBeInTheDocument();
+	} );
+
+	it( 'surfaces the friendly duplicate error for the WordPress.com proxy envelope shape', async () => {
+		// On Simple sites the v1.1 endpoint can reject inside a proxy envelope where
+		// the top-level `code` is the HTTP status (409) and the real slug lives in
+		// `body.error`.
+		mockedCreateCategory.mockRejectedValue(
+			Object.assign( new Error( 'A taxonomy with that name already exists' ), {
+				code: 409,
+				body: { error: 'duplicate', message: 'A taxonomy with that name already exists' },
 			} )
 		);
 		const { onChange } = renderSection();
