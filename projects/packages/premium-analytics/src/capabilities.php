@@ -21,11 +21,13 @@ const VIEW_ANALYTICS_CAPABILITY = 'view_jetpack_analytics';
 /**
  * Hooks the dashboard's meta capability mapping.
  *
- * Called at file scope below, not from an init entry point: WPCOM Simple calls
- * Dashboard_Support_Routes::register() standalone, without ever reaching
- * Analytics::init(), and those routes are gated on this capability. Every
- * consumer requires this file, so registering on include is what keeps the two
- * from drifting apart. Idempotent — add_filter() dedupes the same callback.
+ * Deliberately not called at file scope: this file is included while the
+ * Analytics class is autoloaded, which happens in contexts where WordPress
+ * itself isn't loaded, and add_filter() would be undefined there. Callers hook
+ * it from their own WordPress-aware entry points instead — both
+ * Analytics::init() paths, and Dashboard_Support_Routes, which WPCOM Simple
+ * boots standalone without ever reaching Analytics::init(). Idempotent, so
+ * overlapping callers are free to call it.
  *
  * @since $$next-version$$
  *
@@ -34,8 +36,6 @@ const VIEW_ANALYTICS_CAPABILITY = 'view_jetpack_analytics';
 function register_capabilities() {
 	add_filter( 'map_meta_cap', __NAMESPACE__ . '\\map_analytics_meta_caps', 10, 3 );
 }
-
-register_capabilities();
 
 /**
  * Maps the dashboard capability to the primitives that grant it.

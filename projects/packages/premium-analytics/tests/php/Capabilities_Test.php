@@ -28,12 +28,17 @@ class Capabilities_Test extends BaseTestCase {
 	use Analytics_Capabilities_Trait;
 
 	/**
-	 * Drop this test's stand-in for the Stats mapping, then put back the mapping
-	 * under test — capabilities.php hooks it on include, which is once per run.
+	 * Hook the mapping under test, the way a WordPress-aware entry point would.
+	 */
+	public function set_up() {
+		register_capabilities();
+	}
+
+	/**
+	 * Drop the mapping and this test's stand-in for the Stats one.
 	 */
 	public function tear_down() {
 		remove_all_filters( 'map_meta_cap' );
-		register_capabilities();
 		wp_set_current_user( 0 );
 
 		parent::tear_down();

@@ -14,8 +14,8 @@ use Automattic\Jetpack\PremiumAnalytics\Sync\Configuration as Sync_Configuration
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
-// Defines the capability the admin menu is registered with, and hooks its
-// mapping on include.
+// Defines the capability the admin menu is registered with. Declarations only —
+// this runs on autoload, where WordPress may not be loaded yet.
 require_once __DIR__ . '/capabilities.php';
 
 /**
@@ -134,6 +134,10 @@ class Analytics {
 	 * @return void
 	 */
 	private static function boot_shared_services() {
+		// Who may read the dashboard. Hooked on every platform, and ahead of the
+		// hooks that check it (admin_menu, rest_api_init).
+		register_capabilities();
+
 		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
 		WooCommerce_Analytics_Tracker::configure();
 

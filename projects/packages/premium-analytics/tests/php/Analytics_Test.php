@@ -49,6 +49,7 @@ class Analytics_Test extends TestCase {
 		remove_all_filters( 'jetpack_admin_js_script_data' );
 		remove_all_filters( 'rest_post_dispatch' );
 		remove_all_filters( 'jetpack_stats_transient_cleanup_prefixes' );
+		remove_all_filters( 'map_meta_cap' );
 		$this->reset_analytics_init_state();
 		parent::tearDown();
 	}
@@ -362,6 +363,10 @@ class Analytics_Test extends TestCase {
 	 */
 	private function register_admin_menu_without_build() {
 		$GLOBALS['menu'] = array();
+
+		// Hooked by boot_shared_services() in production; add_menu_page() resolves the
+		// dashboard capability, and an unmapped one would skip the page's render hook.
+		register_capabilities();
 
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 		$this->capture_doing_it_wrong();

@@ -44,6 +44,10 @@ class Dashboard_Section_Test extends BaseTestCase {
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
 		register_dashboard_sections_rest_routes();
+
+		// Hooked by the package's entry points in production; the routes under test
+		// are gated on the capability it maps.
+		register_capabilities();
 	}
 
 	/**
@@ -60,10 +64,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 		remove_all_actions( 'doing_it_wrong_run' );
 		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
 
-		// Drops any per-user view_stats grant a test added, then puts back the
-		// package's own mapping, which is hooked on include and so only once per run.
+		// Drops the package's mapping along with any per-user view_stats grant a
+		// test added; set_up() hooks the mapping again.
 		remove_all_filters( 'map_meta_cap' );
-		register_capabilities();
 
 		wp_set_current_user( 0 );
 
