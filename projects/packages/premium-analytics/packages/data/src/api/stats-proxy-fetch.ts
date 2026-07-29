@@ -8,6 +8,7 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
+import { getApiErrorCode } from '../utils/api-error';
 import { statsProxyPath } from './constants';
 import { isResponse } from './is-response';
 
@@ -149,16 +150,20 @@ export function getNoticesPath() {
 	return isSimpleSite() ? wpcomSimpleNoticesPath : localNoticesPath;
 }
 
-/**
+/*
  * apiFetch's own parse step throws the parsed JSON body and drops the
- * `Response`, so the HTTP status is lost. Every stats/report failure is a WPCOM
- * pass-through shaped `{ error, message }` with no status in the body, which
+ * `Response`, so the HTTP status is lost. Most stats/report failures are WPCOM
+ * pass-throughs shaped `{ error, message }` with no status in the body, which
  * leaves the data layer unable to tell a 401 from a 502 — see
- * `getApiErrorStatus()` and `shouldRetryApiError()`. So this module asks for the
- * raw `Response` and does the parsing itself.
+ * `getApiErrorStatus()` and `shouldRetryApiError()`. So `fetchPreservingStatus()`
+ * below asks apiFetch for the raw `Response` and does the parsing here.
  *
- * The parse semantics below intentionally mirror `parseResponseAndNormalizeError`
- * / `parseAndThrowError` in `@wordpress/api-fetch`.
+ * The parse semantics intentionally mirror `parseResponseAndNormalizeError` /
+ * `parseAndThrowError` in `@wordpress/api-fetch`.
+ */
+
+/**
+ * Parse a response body as JSON, throwing apiFetch's `invalid_json` shape on failure.
  *
  * @param response - The response to parse.
  * @return The parsed JSON body.
@@ -233,10 +238,24 @@ export async function fetchPreservingStatus< TResponse >(
 		// is where every real API error lands. Anything that is not a `Response`
 		// — an offline/fetch error, an `AbortError`, a mock's own rejection —
 		// has no HTTP status to add, so rethrow it untouched.
-		if ( isResponse( thrown ) ) {
-			throw await normalizeErrorResponse( thrown );
+		if ( ! isResponse( thrown ) ) {
+			throw thrown;
 		}
-		throw thrown;
+
+		const error = await normalizeErrorResponse( thrown );
+
+		// apiFetch refreshes an expired nonce and replays the request itself, but
+		// that recovery lives in its top-level `catch` — outside the middleware
+		// chain — and branches on `error.code`. Under `parse: false` it only ever
+		// sees the raw `Response`, whose `code` is undefined, so it never fires.
+		// Replay once through apiFetch's own parsing and let it recover: a stale
+		// nonce otherwise surfaces as a bare 403, which `shouldRetryApiError()`
+		// declines and `describeError()` reports as "no access" with no Retry.
+		if ( getApiErrorCode( error ) === 'rest_cookie_invalid_nonce' ) {
+			return ( await apiFetch( options ) ) as TResponse;
+		}
+
+		throw error;
 	}
 
 	// Storybook's report mocks (and the stats mocks beside them) are registered

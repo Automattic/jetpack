@@ -1,7 +1,8 @@
 /**
- * The fetch boundary branches on `instanceof Response`, so it needs the real
- * WHATWG `Response`. The shared jsdom environment does not provide one, and
- * `window` is unavailable here — hence the script-data mock below.
+ * These tests build real WHATWG `Response` objects to drive the fetch boundary's
+ * parse paths (`json()`, 204, non-JSON bodies), and the shared jsdom environment
+ * provides no `Response` constructor. `window` is unavailable here — hence the
+ * script-data mock below.
  *
  * @jest-environment node
  */
@@ -133,6 +134,38 @@ describe( 'fetchStatsProxy response handling', () => {
 		mockApiFetch.mockRejectedValue( offline );
 
 		await expect( request() ).rejects.toBe( offline );
+	} );
+
+	it( 'replays an expired nonce through apiFetch so its own recovery can run', async () => {
+		// apiFetch refreshes the nonce and retries in its top-level catch, which
+		// branches on `error.code` — under `parse: false` it only sees the raw
+		// `Response`. Without the replay a stale nonce reads as a plain 403.
+		const nonceError = jsonResponse(
+			{ code: 'rest_cookie_invalid_nonce', message: 'Cookie check failed', data: { status: 403 } },
+			403
+		);
+		mockApiFetch
+			.mockImplementationOnce( () => Promise.reject( nonceError ) )
+			.mockImplementationOnce( () => Promise.resolve( { ok: true } ) );
+
+		await expect( request() ).resolves.toEqual( { ok: true } );
+
+		// The replay drops `parse: false` so apiFetch parses — and recovers — itself.
+		expect( mockApiFetch ).toHaveBeenLastCalledWith( {
+			path: '/jetpack-premium-analytics/v1/proxy/v1.1/stats/top-posts',
+			method: 'GET',
+		} );
+	} );
+
+	it( 'does not replay a 403 that is not a nonce failure', async () => {
+		respondWith( jsonResponse( { error: 'unauthorized', message: 'Nope.' }, 403 ) );
+
+		await expect( request() ).rejects.toEqual( {
+			error: 'unauthorized',
+			message: 'Nope.',
+			status: 403,
+		} );
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'returns null for a 204 response', async () => {
