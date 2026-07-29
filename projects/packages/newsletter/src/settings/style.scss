@@ -93,13 +93,13 @@ body.jetpack_page_jetpack-newsletter {
 	// validation message render beneath the token field.
 	.newsletter-categories-control__help {
 		margin-block: var(--wpds-dimension-gap-xs) 0;
-		color: var(--wpds-color-foreground-interactive-neutral);
+		color: var(--wpds-color-foreground-content-neutral-weak);
 		font-size: var(--wpds-typography-font-size-sm);
 	}
 
 	.newsletter-categories-control__error {
 		margin-block: var(--wpds-dimension-gap-xs) 0;
-		color: var(--wpds-color-foreground-interactive-error-strong);
+		color: var(--wpds-color-foreground-content-error);
 		font-size: var(--wpds-typography-font-size-sm);
 	}
 }
