@@ -134,6 +134,9 @@ importers:
       minimatch:
         specifier: 10.2.4
         version: 10.2.4
+      xml2js:
+        specifier: 0.6.2
+        version: 0.6.2
     devDependencies:
       jest:
         specifier: 30.4.2

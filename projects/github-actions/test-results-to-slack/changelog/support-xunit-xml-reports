@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Support xUnit XML reports in Slack test result notifications.
