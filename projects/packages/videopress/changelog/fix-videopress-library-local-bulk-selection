@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Library: allow multi-selecting local videos; Upload to VideoPress works as a bulk action and Delete covers local rows
