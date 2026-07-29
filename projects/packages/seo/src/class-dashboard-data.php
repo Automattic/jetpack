@@ -192,6 +192,12 @@ class Dashboard_Data {
 			'canonical_active'           => self::is_canonical_enabled( $modules ),
 			// Cast to object so an empty format set serializes as `{}`, not `[]`.
 			'title_formats'              => (object) $title_formats,
+			// Separator WordPress joins document-title parts with. A page type with no
+			// stored format keeps the default title: `Jetpack_SEO_Titles::get_custom_title()`
+			// returns the incoming value untouched, so core composes the title itself.
+			// The Settings tab replays that composition to preview the default, and the
+			// separator is the one part of it a theme routinely overrides.
+			'title_separator'            => (string) apply_filters( 'document_title_separator', '-' ),
 			'front_page_description'     => (string) $front_page_desc,
 			'has_legacy_front_page_meta' => $has_legacy_front_page_meta,
 			'verification'               => array(
