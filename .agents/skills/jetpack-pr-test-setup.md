@@ -5,7 +5,8 @@ description: >
   Jurassic Ninja site, activate the PR's branch build with the Jetpack Beta Tester
   plugin, then decode the PR's "Testing Instructions" and apply the feature-state
   setup they require (feature flags/options via mu-plugin, paid plan/product state
-  via a WPCOM blog sticker), and point you at the exact UI entry point to review.
+  via a real Jetpack product license, a local plan override, or a WPCOM blog sticker),
+  and point you at the exact UI entry point to review.
   Use when the user says "jetpack-pr-test-setup", "/jetpack-pr-test-setup", "set up
   PR <n> for testing", "get PR <n> testable", "the testing instructions need a flag/
   sticker/feature", or gives a Jetpack PR number/URL and is blocked on its Testing
@@ -41,13 +42,15 @@ this skill: prove the branch code actually loads (ReflectionClass, not grep)
       ↓
 this skill: apply feature-state setup from the Testing Instructions
             · flags / options  → mu-plugin                   [AUTONOMOUS — throwaway site]
-            · plan / product    → local jetpack_active_plan override  [AUTONOMOUS — default]
-                                  ↳ real WPCOM blog sticker   [CONFIRM-FIRST — only if server-enforced]
+            · plan / product    → real license at provision  [AUTONOMOUS — preferred, needs step 1]
+                                  ↳ local jetpack_active_plan override  [AUTONOMOUS — site already up]
+                                  ↳ real WPCOM blog sticker   [CONFIRM-FIRST — rollout stickers only]
       ↓
 this skill: locate the UI entry point → hand off to jetpack-screenshot
 ```
 
-**In scope:** feature flags/options and plan/product state (local override, or real sticker).
+**In scope:** feature flags/options and plan/product state (real product license, local
+override, or real sticker).
 **Out of scope — never attempt these:**
 establishing a required social/OAuth *connection* (e.g. a Publicize account link), and
 pointing the JN site's API traffic at a WPCOM sandbox. Both need an interactive consent flow
@@ -127,7 +130,7 @@ essentials:
 - Note `jetpack` itself defaults to **true**, as do `wp-debug-log` and `cache-drop-in` — pass
   `"false"` to turn a default off. Two features take parameters that matter here: `jetpack-beta`
   accepts `branches`, and `jetpack-products` takes a multi-select of Jetpack product licenses
-  (see step 5a before reaching for a plan override).
+  (see step 5a — the preferred way to grant plan/product state).
 - Poll `list-sites` (`include_config:false`) until `status == 2` (cap ~3 min).
 - `connect-jetpack` (domain). **Capture the `blog_id`** and the **admin credentials** — the
   report in step 7 must hand these back so the user can reach `/wp-admin`. Note what
@@ -309,11 +312,11 @@ step below:
 | Precondition looks like… | Bucket | Step | Autonomy |
 |---|---|---|---|
 | `add_filter( 'x', '__return_true' )`, "enable the X flag", `update_option`, "activate the X module" | Flag / option | 4 | Autonomous |
-| "Upgrade to Pro/Complete", "requires the X **plan/product**", a paid feature | Plan via blog sticker | 5 | Confirm-first |
+| "Upgrade to Pro/Complete", "requires the X **plan/product**", a paid feature | Plan / product | 5 | Autonomous via 5a/5b; confirm-first only for 5c |
 | "requires the X **feature** AND a … **connection**", "connect a social account" | Connection (out of scope) | — | Report as manual step |
 
 State the plan back to the user in one short list before acting, then proceed — auto-apply the
-flag/option items, pause on the sticker.
+flag/option items and any product license, pause only on a 5c sticker.
 
 ### 4. Apply feature flags / options — AUTONOMOUS
 
@@ -353,11 +356,61 @@ autologin URL and check the menu/route the PR touches).
 ### 5. Apply plan / product state
 
 Some features gate on a paid plan or a rollout sticker (e.g. Social message templates), not on
-a self-hosted flag. There are two ways to grant them; **default to 5a** — it's autonomous,
-needs nothing outside the JN site, and is enough for reviewing the UI, which is what most PR
-testing is. Fall back to 5b only when you need server-enforced behavior.
+a self-hosted flag. Three ways to grant them, in order of preference:
 
-#### 5a. Local plan override on the JN site — AUTONOMOUS (default)
+- **5a — a real product license at provision time.** Best when the gate is a *product* and you
+  haven't provisioned yet. The site genuinely owns the product, so server-enforced behavior
+  works too. Must be chosen in step 1; it cannot be applied to an existing site.
+- **5b — local `jetpack_active_plan` override.** The fallback when the site already exists or
+  the gate isn't a purchasable product. Client-side only.
+- **5c — real WPCOM blog sticker.** Confirm-first, and the only option for rollout stickers,
+  which aren't products at all.
+
+**This is why step 3 has to finish before step 1 provisions.** A plan-gated PR spotted after
+the site is up leaves you with 5b's client-side approximation, when one extra provisioning
+parameter would have produced the real thing.
+
+#### 5a. Real product license at provision time — AUTONOMOUS (preferred)
+
+Pass the `jetpack-products` feature to `provision-site` with the product slugs the PR needs:
+
+```
+features: { "jetpack": "true", "jetpack-beta": "true", "jetpack-products": ["<product-slug>"] }
+```
+
+This is not a local fake. JN calls WPCOM's Jetpack Licensing API with its own OAuth2 token,
+issues a **real license** per product, and writes the keys into the site's `jetpack_licenses`
+option. Jetpack's `Licensing` class hooks `add_option_`/`update_option_jetpack_licenses` and
+`jetpack_authorize_ending_authorized`, so the licenses attach to the blog when step 1's
+`connect-jetpack` runs — the blog really owns the product on WPCOM. JN revokes the licenses
+when the site is purged, so nothing leaks. That makes this autonomous despite being real
+WPCOM state: it's issued to a throwaway site from JN's own quota, not granted on someone
+else's blog by ID the way 5c is.
+
+Two failure modes to check rather than assume:
+
+- **It no-ops silently when JN has no OAuth token** — the feature hook returns early on an
+  empty token without raising an error, so the site comes up looking fine with no licenses.
+- **Attach only runs for the connection owner** (`attach_stored_licenses_on_connection()`
+  checks `is_connection_owner()`), so a site connected as a different user won't attach.
+
+Verify both before trusting the state, and fall through to 5b if either bites:
+
+```bash
+jnwp 'wp option get jetpack_licenses --format=json'   # non-empty = licenses issued
+jnwp 'wp eval-file /tmp/plan.php'                     # then confirm Current_Plan::supports()
+```
+
+Product slugs come from WPCOM's product-families endpoint, which is also what fills the
+multi-select in `list-features` (~161 options) — the public jurassic.ninja form shows the
+common ones (Complete, Starter, Backup, Search, VideoPress, Scan, Stats, Boost):
+
+```bash
+curl -s https://public-api.wordpress.com/wpcom/v2/jetpack-licensing/product-families \
+  | jq -r '.[].products[].slug'
+```
+
+#### 5b. Local plan override on the JN site — AUTONOMOUS (fallback)
 
 Plan gates resolve locally against the **`jetpack_active_plan` option**: `Current_Plan::get()`
 reads it, `Current_Plan::supports( $feature )` checks `$plan['features']['active']`, and the
@@ -404,9 +457,9 @@ places, e.g. `social-message-templates`).
 
 **Limit:** this only convinces *this site's client code* it has the feature. Actions that call
 WPCOM and are enforced server-side (actually rendering/sending a templated message) may still
-require the real sticker — use 5b for those.
+require the real sticker — use 5c for those, or reprovision with 5a.
 
-#### 5b. Real WPCOM blog sticker — CONFIRM-FIRST (only when 5a isn't enough)
+#### 5c. Real WPCOM blog sticker — CONFIRM-FIRST (only when 5a and 5b aren't enough)
 
 The sticker lives on **WPCOM**, not the site — `wp blog-stickers` is a WPCOM-only command that
 writes to WPCOM's blog table, so it **cannot** run from the JN site's own SSH (its wp-cli has no
@@ -485,6 +538,7 @@ Concise final report:
 - Route any `wp` invocation containing backslashes or nested quotes through `wp eval-file` with
   a heredoc'd file — inline `wp eval` loses backslashes across the local shell → ssh → remote
   shell hops and fatals with a misleading `Class "…" not found`.
-- Plan/product gates: prefer the local `jetpack_active_plan` override (5a, autonomous) for UI
-  testing; the real WPCOM blog sticker (5b) is confirm-first and only for server-enforced
-  behavior — it's the one step that leaves the throwaway site and touches real WPCOM.
+- Plan/product gates: prefer a real product license at provision time (5a, autonomous) — it
+  needs deciding before step 1, so finish step 3 first. The local `jetpack_active_plan`
+  override (5b) is the client-side fallback once a site exists. The WPCOM blog sticker (5c) is
+  confirm-first and only for rollout stickers, which aren't purchasable products.
