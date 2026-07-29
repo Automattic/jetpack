@@ -96,8 +96,6 @@ function DateFiltersPanelStory( {
 		withComparison ? initialComparisonPreset : undefined
 	);
 
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
-
 	const handlePrimaryChange = useCallback(
 		( nextRange?: DateRange, nextPresetId?: PrimaryPresetId ) => {
 			const nextPrimary: PrimaryFilterState = {
@@ -147,7 +145,6 @@ function DateFiltersPanelStory( {
 
 	return (
 		<div
-			ref={ setContainerElement }
 			style={ {
 				width: containerWidth,
 				// An explicit width is a measurement, so it must not be clamped.
@@ -166,7 +163,6 @@ function DateFiltersPanelStory( {
 				onCancel={ handlePrimaryCancel }
 				canApply={ canApplyPrimary }
 				timeZone={ STORYBOOK_TIMEZONE }
-				containerElement={ containerElement }
 			/>
 		</div>
 	);

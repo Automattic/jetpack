@@ -18,7 +18,7 @@ import {
 	useReportRetry,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs } from '@wordpress/admin-ui';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 /**
@@ -146,7 +146,6 @@ function ClicksReport(): JSX.Element {
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dashboardLink = useDashboardLink();
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
 
 	return (
 		<ReportPageShell
@@ -162,13 +161,7 @@ function ClicksReport(): JSX.Element {
 				/>
 			}
 		>
-			<ReportPageLayout
-				filters={
-					<div ref={ setContainerElement }>
-						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-					</div>
-				}
-			>
+			<ReportPageLayout filters={ <DateFiltersPanel { ...dateFilters } /> }>
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load clicks', 'jetpack-premium-analytics-pkg' ) }

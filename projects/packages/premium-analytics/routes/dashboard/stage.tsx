@@ -59,9 +59,6 @@ function Dashboard(): JSX.Element {
 	 */
 	const dateFilters = useReportDateFilters( '/' );
 
-	// Container element for the date filters panel responsive layout.
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
-
 	// The sections carry each section's default layout, so until the entity
 	// resolves the layout above is transiently empty. WidgetDashboard treats an
 	// empty layout as "no widgets" and force-opens edit mode, so it must not
@@ -108,13 +105,9 @@ function Dashboard(): JSX.Element {
 						 * The date filters drive every section, so they render once
 						 * below the section tabs and above the widgets, sharing the
 						 * URL search state across all sections.
-						 *
-						 * The wrapper div is also the responsive-measurement target:
-						 * DateFiltersPanel reads its width to pick mobile/wide layouts
-						 * instead of relying on the viewport.
 						 */ }
-						<div ref={ setContainerElement } className={ styles.dateFilters }>
-							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
+						<div className={ styles.dateFilters }>
+							<DateFiltersPanel { ...dateFilters } />
 						</div>
 						{ sections.map( section => (
 							<SectionTabPanel

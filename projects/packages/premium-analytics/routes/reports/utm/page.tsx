@@ -17,7 +17,7 @@ import {
 	useReportRetry,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs } from '@wordpress/admin-ui';
-import { useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
 /**
@@ -85,7 +85,6 @@ function UtmReport(): JSX.Element {
 	const fields = useMemo( () => getUtmFields( activeTab ), [ activeTab ] );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dashboardLink = useDashboardLink();
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
 
 	return (
 		<ReportPageShell
@@ -101,11 +100,7 @@ function UtmReport(): JSX.Element {
 		>
 			<ReportPageLayout
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
-				filters={
-					<div ref={ setContainerElement }>
-						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-					</div>
-				}
+				filters={ <DateFiltersPanel { ...dateFilters } /> }
 			>
 				{ records.isError ? (
 					<ReportErrorState

@@ -106,13 +106,6 @@ export type DateFiltersPanelProps = {
 	 * Required for proper date/time handling.
 	 */
 	timeZone: string;
-
-	/**
-	 * Optional external container element for responsive calculations.
-	 * When provided, the date-range filter will measure this container's width
-	 * instead of its own wrapper to determine compact/wide layouts.
-	 */
-	containerElement?: HTMLElement | null;
 };
 
 /**
@@ -142,7 +135,6 @@ export function DateFiltersPanel( {
 	onCancel,
 	canApply = true,
 	timeZone,
-	containerElement,
 }: DateFiltersPanelProps ) {
 	/**
 	 * Validate and normalize the primary preset ID.
@@ -223,11 +215,14 @@ export function DateFiltersPanel( {
 
 	const setObserverRef = useResizeObserver< HTMLElement >( handleResize );
 
-	// Measure this panel's own root; `containerElement` is an override for a
-	// caller that needs to size against something else.
+	/*
+	 * Measure this panel's own root. Callers used to wrap the panel and hand the
+	 * wrapper back as a prop; all ten passed their immediate wrapper, so the
+	 * number was the panel's own width and the ceremony bought nothing.
+	 */
 	useEffect( () => {
-		setObserverRef( containerElement ?? rootElement ?? document.body );
-	}, [ containerElement, rootElement, setObserverRef ] );
+		setObserverRef( rootElement ?? document.body );
+	}, [ rootElement, setObserverRef ] );
 
 	// Derived through the same helpers the trigger uses, so the probe measures
 	// the string the trigger is actually showing.
