@@ -12,6 +12,8 @@ use WorDBless\BaseTestCase;
 
 /**
  * Tests the side-effect-free defaults exposed to consumers.
+ *
+ * @covers Automattic\Jetpack\Sync\WooCommerce_Analytics_Defaults
  */
 #[CoversClass( WooCommerce_Analytics_Defaults::class )]
 class WooCommerce_Analytics_Defaults_Test extends BaseTestCase {
