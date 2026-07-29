@@ -59,4 +59,48 @@ describe( 'DashboardNav', () => {
 		expect( screen.queryByRole( 'tab', { name: 'Content' } ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'tab', { name: 'GEO' } ) ).not.toBeInTheDocument();
 	} );
+
+	describe( 'the GEO infotip', () => {
+		it( 'is a real button, so it works on touch and reaches assistive tech', () => {
+			render( <DashboardNav active="overview">content</DashboardNav> );
+
+			// A `Tooltip` would satisfy neither: its popup isn't exposed to assistive
+			// technologies and it's disabled on touch devices. The affordance being a
+			// button in the accessibility tree is the whole reason for using `Popover`.
+			expect( screen.getByRole( 'button', { name: 'What is GEO?' } ) ).toBeInTheDocument();
+		} );
+
+		it( 'reveals the definition of the acronym on click', () => {
+			render( <DashboardNav active="overview">content</DashboardNav> );
+
+			// Asserting it is absent first is what makes the assertion below meaningful:
+			// a popover that rendered its content eagerly would pass either way.
+			expect( screen.queryByText( /generative engine optimization/ ) ).not.toBeInTheDocument();
+
+			// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep (avoids lockfile churn), matching the sibling tests.
+			fireEvent.click( screen.getByRole( 'button', { name: 'What is GEO?' } ) );
+
+			expect( screen.getByText( /generative engine optimization/ ) ).toBeInTheDocument();
+		} );
+
+		it( 'stays out of the tablist, so it cannot disturb tab navigation', () => {
+			render( <DashboardNav active="overview">content</DashboardNav> );
+
+			const trigger = screen.getByRole( 'button', { name: 'What is GEO?' } );
+
+			// `Tabs.Tab` renders a `<button>`, so nesting the trigger inside the GEO tab
+			// would be a button within a button; a non-tab child of the `tablist` would
+			// break its arrow-key navigation. Both are ruled out by construction here.
+			expect( screen.getByRole( 'tablist' ) ).not.toContainElement( trigger );
+			expect( screen.getByRole( 'tab', { name: 'GEO' } ) ).not.toContainElement( trigger );
+		} );
+
+		it( 'is hidden along with the tab it explains on gated sites', () => {
+			isGated.mockReturnValue( true );
+
+			render( <DashboardNav active="overview">content</DashboardNav> );
+
+			expect( screen.queryByRole( 'button', { name: 'What is GEO?' } ) ).not.toBeInTheDocument();
+		} );
+	} );
 } );
