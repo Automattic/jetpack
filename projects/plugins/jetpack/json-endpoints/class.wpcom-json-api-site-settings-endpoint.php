@@ -1034,11 +1034,43 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$filtered_value['hide_free_tier'] = $hide_free_tier;
 					}
 
+					// Clients that render the settings form tend to post the whole
+					// `subscription_options` bag back, including sub-keys the user never
+					// touched. This could result in a translated value inadvertently
+					// saved in the database.
+					// Get the value from db or the default options populated by filter.
+					$current_subscription_options = (array) get_option( 'subscription_options' );
+					$changed_subscription_options = array();
+
+					foreach ( $filtered_value as $subscription_option_key => $subscription_option_value ) {
+						$current_subscription_option = $current_subscription_options[ $subscription_option_key ] ?? null;
+
+						// A sub-key the site has never stored reads as unset everywhere this
+						// option is consumed, so an empty incoming value for it is not a change.
+						if (
+							null === $current_subscription_option
+							&& ( '' === $subscription_option_value || false === $subscription_option_value )
+						) {
+							continue;
+						}
+
+						if ( $current_subscription_option === $subscription_option_value ) {
+							continue;
+						}
+
+						$changed_subscription_options[ $subscription_option_key ] = $subscription_option_value;
+					}
+
+					if ( empty( $changed_subscription_options ) ) {
+						break;
+					}
+
+					// Get the value from the database or an empty array.
 					$old_subscription_options = get_option( 'subscription_options', array() );
-					$new_subscription_options = array_merge( $old_subscription_options, $filtered_value );
+					$new_subscription_options = array_merge( $old_subscription_options, $changed_subscription_options );
 
 					if ( update_option( $key, $new_subscription_options ) ) {
-						$updated[ $key ] = $filtered_value;
+						$updated[ $key ] = $changed_subscription_options;
 					}
 					break;
 
