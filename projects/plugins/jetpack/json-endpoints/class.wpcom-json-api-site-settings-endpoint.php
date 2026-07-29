@@ -503,7 +503,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'show_on_front'                    => (string) get_option( 'show_on_front' ),
 						'page_on_front'                    => (string) get_option( 'page_on_front' ),
 						'page_for_posts'                   => (string) get_option( 'page_for_posts' ),
-						'subscription_options'             => (array) get_option( 'subscription_options' ),
+						'subscription_options'             => $this->get_subscription_options_in_user_locale(),
 						'supports_free_tier_customization' => true,
 						'jetpack_verbum_subscription_modal' => (bool) get_option( 'jetpack_verbum_subscription_modal', true ),
 						'enable_verbum_commenting'         => (bool) get_option( 'enable_verbum_commenting', true ),
@@ -630,6 +630,32 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Reads `subscription_options` with the current user's locale active, to
+	 * ensure that the defaults would be translated when displaying to the user
+	 * or comparing the options before saving.
+	 *
+	 * @return array The `subscription_options` value, defaults included.
+	 */
+	private function get_subscription_options_in_user_locale() {
+		$switched_locale = false;
+
+		if ( function_exists( 'wpcom_switch_to_user_locale' ) ) {
+			// Compare the locales before/after switch to decide if we should switch back
+			$locale_before = determine_locale();
+			wpcom_switch_to_user_locale();
+			$switched_locale = determine_locale() !== $locale_before;
+		}
+
+		$subscription_options = (array) get_option( 'subscription_options' );
+
+		if ( $switched_locale ) {
+			wpcom_restore_current_locale();
+		}
+
+		return $subscription_options;
 	}
 
 	/**
@@ -1039,7 +1065,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					// touched. This could result in a translated value inadvertently
 					// saved in the database.
 					// Get the value from db or the default options populated by filter.
-					$current_subscription_options = (array) get_option( 'subscription_options' );
+					$current_subscription_options = $this->get_subscription_options_in_user_locale();
 					$changed_subscription_options = array();
 
 					foreach ( $filtered_value as $subscription_option_key => $subscription_option_value ) {
