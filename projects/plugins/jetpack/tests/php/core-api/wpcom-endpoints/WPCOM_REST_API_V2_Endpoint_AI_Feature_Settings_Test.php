@@ -52,6 +52,14 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	private static $admin_id;
 
 	/**
+	 * Second admin user id — an admin who is not the connection owner and holds
+	 * no user token, for the is_user_connected assertions.
+	 *
+	 * @var int
+	 */
+	private static $second_admin_id;
+
+	/**
 	 * Subscriber user id.
 	 *
 	 * @var int
@@ -64,8 +72,9 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	 * @param WP_UnitTest_Factory $factory Fixture factory.
 	 */
 	public static function wpSetUpBeforeClass( $factory ) {
-		self::$admin_id      = $factory->user->create( array( 'role' => 'administrator' ) );
-		self::$subscriber_id = $factory->user->create( array( 'role' => 'subscriber' ) );
+		self::$admin_id        = $factory->user->create( array( 'role' => 'administrator' ) );
+		self::$second_admin_id = $factory->user->create( array( 'role' => 'administrator' ) );
+		self::$subscriber_id   = $factory->user->create( array( 'role' => 'subscriber' ) );
 	}
 
 	/**
@@ -378,6 +387,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		$this->assertTrue( $data['host_allows_ai'] );
 		$this->assertTrue( $data['master_enabled'] );
 		$this->assertArrayHasKey( 'is_connected', $data );
+		$this->assertArrayHasKey( 'is_user_connected', $data );
 		$this->assertArrayHasKey( 'supports_ai', $data['plan'] );
 		$this->assertArrayHasKey( 'supports_search', $data['plan'] );
 
@@ -472,6 +482,28 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		StatusCache::clear();
 
 		$this->assertFalse( $this->dispatch( 'GET' )->get_data()['is_connected'] );
+	}
+
+	/**
+	 * The site-level is_connected reports the connected-owner gate while
+	 * is_user_connected reports the requesting user's own token: an admin whose
+	 * account is not connected on an owner-connected site gets is_connected
+	 * true with is_user_connected false — the state where the editor chat
+	 * downgrades to its disconnected variant.
+	 */
+	public function test_is_user_connected_tracks_current_user_not_owner() {
+		self::connect_owner();
+
+		wp_set_current_user( self::$second_admin_id );
+		$data = $this->dispatch( 'GET' )->get_data();
+		$this->assertTrue( $data['is_connected'] );
+		$this->assertFalse( $data['is_user_connected'] );
+
+		// The owner holds a token, so the same site reports both bits true.
+		wp_set_current_user( self::$admin_id );
+		$data = $this->dispatch( 'GET' )->get_data();
+		$this->assertTrue( $data['is_connected'] );
+		$this->assertTrue( $data['is_user_connected'] );
 	}
 
 	/**

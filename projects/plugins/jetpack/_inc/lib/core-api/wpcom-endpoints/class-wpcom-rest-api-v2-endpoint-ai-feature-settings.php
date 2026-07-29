@@ -197,14 +197,15 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 		}
 
 		return array(
-			'host_allows_ai' => Jetpack_AI_Settings::host_allows_ai(),
-			'is_connected'   => $this->is_connected(),
-			'plan'           => array(
+			'host_allows_ai'    => Jetpack_AI_Settings::host_allows_ai(),
+			'is_connected'      => $this->is_connected(),
+			'is_user_connected' => $this->is_user_connected(),
+			'plan'              => array(
 				'supports_ai'     => class_exists( Current_Plan::class ) && Current_Plan::supports( 'ai-assistant' ),
 				'supports_search' => $supports_search,
 			),
-			'master_enabled' => Jetpack_AI_Settings::is_master_enabled(),
-			'features'       => array(
+			'master_enabled'    => Jetpack_AI_Settings::is_master_enabled(),
+			'features'          => array(
 				'writing_assistant' => array( 'enabled' => $stored['writing_assistant'] ),
 				'image_editor'      => array( 'enabled' => $stored['image_editor'] ),
 				'feature_clip'      => array(
@@ -283,6 +284,22 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 		return ( new Host() )->is_wpcom_simple()
 			|| ( ( new Manager( 'jetpack' ) )->has_connected_owner()
 				&& ! ( new Status() )->is_offline_mode() );
+	}
+
+	/**
+	 * Whether the current user's own account is connected. is_connected() above
+	 * is the site-level gate the feature load points share, but the editor chat
+	 * keys its variant off the requesting user: the agents-manager loader
+	 * downgrades to its disconnected variant when the current user holds no
+	 * token, so the settings page needs this bit to tell an admin whose account
+	 * is not connected that the chat will not run for them. Simple
+	 * short-circuits true, matching is_connected().
+	 *
+	 * @return bool
+	 */
+	private function is_user_connected() {
+		return ( new Host() )->is_wpcom_simple()
+			|| ( new Manager( 'jetpack' ) )->is_user_connected();
 	}
 }
 
