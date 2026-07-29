@@ -223,8 +223,8 @@ export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
 	normalizeReportParams,
+	needsReportDateParamsSeed,
 	hasComparisonEnabled,
-	type IntervalType,
 	type PresetType,
 	type ReportParams,
 } from './utils/search';
@@ -249,7 +249,12 @@ export type { ReportQueryParams } from './api';
 export type { FilterCondition } from './types/filter-condition';
 export type { ProductType } from './types/product-type';
 export { ORDER_ATTRIBUTION_VIEWS } from './api/report-order-attribution-summary-fetch';
-export { getDefaultIntervalForPeriod, getDateFormatFromInterval } from './utils/interval';
+export {
+	getDateFormatFromInterval,
+	getDefaultIntervalForPeriod,
+	resolveIntervalForRange,
+} from './utils/interval';
+export type { IntervalType } from './utils/interval';
 export { getDefaultPreset, getDefaultQueryParams } from './defaults';
 export { downloadReport, exportReport, fetchStatsProxy, getStatsProxyPath } from './api';
 export type {
