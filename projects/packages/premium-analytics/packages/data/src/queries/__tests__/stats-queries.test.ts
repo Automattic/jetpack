@@ -457,7 +457,7 @@ describe( 'Stats query factories', () => {
 		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
 	} );
 
-	it( 'keeps the complete video summary mode out of the request params', () => {
+	it( 'matches the legacy complete video summary request params exactly', () => {
 		const query = statsVideoPlaysSummaryQuery( {
 			from: '2026-07-09',
 			to: '2026-07-14',
@@ -465,6 +465,15 @@ describe( 'Stats query factories', () => {
 			summarize: 1,
 		} );
 
+		expect( query.queryKey[ 5 ] ).toEqual( {
+			period: 'day',
+			start_date: '2026-07-09',
+			date: '2026-07-14',
+			max: 0,
+			summarize: 1,
+			complete_stats: 1,
+		} );
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
 		expect( query.queryKey ).toEqual( [
 			'stats',
 			'video-plays-summary',
@@ -474,14 +483,13 @@ describe( 'Stats query factories', () => {
 			{
 				period: 'day',
 				start_date: '2026-07-09',
-				days: 6,
 				date: '2026-07-14',
 				max: 0,
+				summarize: 1,
 				complete_stats: 1,
 			},
 			undefined,
 			'videoPlays',
-			{ summarize: 1 },
 		] );
 	} );
 
