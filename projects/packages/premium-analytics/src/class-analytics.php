@@ -212,9 +212,10 @@ class Analytics {
 	 * import map, the default layout seeding, the sections, and the CSV export
 	 * script data.
 	 *
-	 * Admin-only, via load_dashboard_surface(). The REST routes that read the
-	 * same files require them themselves on rest_api_init, in
-	 * Dashboard_Support_Routes::boot_routes().
+	 * Admin-only, via load_dashboard_surface(). Three of these four files are
+	 * also read by the dashboard's REST routes, which require them themselves
+	 * on rest_api_init in Dashboard_Support_Routes::boot_routes();
+	 * csv-exports.php has no REST-side counterpart.
 	 *
 	 * @return void
 	 */
