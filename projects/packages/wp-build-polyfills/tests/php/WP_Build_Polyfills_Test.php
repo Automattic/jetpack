@@ -519,18 +519,18 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that active Gutenberg does not suppress the wp-rich-text replacement.
+	 * Test that too-old Gutenberg does not suppress the wp-rich-text replacement.
 	 *
-	 * Unlike wp-notices (any Gutenberg) and wp-private-apis (Gutenberg >= 23.5),
-	 * no released Gutenberg version is verified to ship the rich-text private
-	 * APIs the dashboard packages need, so Gutenberg is never a safe substitute.
+	 * Gutenberg 23.5 ships a rich-text privateApis missing KeyboardShortcutContext,
+	 * shortcutsListener, and inputEventsListener (verified against the released
+	 * build), so it is not a safe substitute.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_register_scripts_force_replaces_wp_rich_text_with_active_gutenberg() {
+	public function test_register_scripts_force_replaces_wp_rich_text_with_old_gutenberg() {
 		define( 'GUTENBERG_VERSION', '23.5.0' );
 
 		$GLOBALS['wp_version'] = '7.0';
@@ -543,6 +543,33 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 
 		$rich_text = $scripts->query( 'wp-rich-text', 'registered' );
 		$this->assertSame( '9.9.9', $rich_text->ver );
+	}
+
+	/**
+	 * Test that Gutenberg >= 23.6 satisfies the rich-text private APIs.
+	 *
+	 * 23.6.0 is the first release shipping all the rich-text privateApis keys
+	 * the dashboard packages unlock (Gutenberg PR #78471, verified against the
+	 * released build).
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_register_scripts_does_not_force_replace_wp_rich_text_with_supported_gutenberg() {
+		define( 'GUTENBERG_VERSION', '23.6.0' );
+
+		$GLOBALS['wp_version'] = '7.0';
+		$this->create_asset_file( 'scripts/rich-text/index.asset.php', array(), '9.9.9' );
+
+		$scripts = $this->create_clean_scripts();
+		$scripts->add( 'wp-rich-text', 'https://example.com/gutenberg-rich-text.js', array(), '1.0.0-gutenberg' );
+
+		$this->invoke_register_scripts( $scripts );
+
+		$rich_text = $scripts->query( 'wp-rich-text', 'registered' );
+		$this->assertSame( '1.0.0-gutenberg', $rich_text->ver );
 	}
 
 	/**

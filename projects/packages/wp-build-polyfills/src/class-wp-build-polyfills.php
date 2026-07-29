@@ -33,6 +33,15 @@ class WP_Build_Polyfills {
 	const GUTENBERG_PRIVATE_APIS_MIN_VERSION = '23.5.0';
 
 	/**
+	 * Minimum Gutenberg plugin version whose rich-text ships all the privateApis
+	 * keys dashboard packages unlock (useRichText, KeyboardShortcutContext,
+	 * InputEventContext, shortcutsListener, inputEventsListener). They were
+	 * completed by Gutenberg PR #78471, first released in 23.6.0 — verified
+	 * against the released builds: 23.5.0 lacks three of the five keys.
+	 */
+	const GUTENBERG_RICH_TEXT_MIN_VERSION = '23.6.0';
+
+	/**
 	 * Tracks which polyfills have been requested and by which consumers.
 	 *
 	 * Keys are polyfill handles/module IDs, values are arrays of consumer names.
@@ -164,15 +173,14 @@ class WP_Build_Polyfills {
 			'wp-rich-text'    => array(
 				'path'                  => 'rich-text',
 				'force_threshold'       => '7.1',
-				'gutenberg_min_version' => false,
+				'gutenberg_min_version' => self::GUTENBERG_RICH_TEXT_MIN_VERSION,
 				// WP 7.0 and older ship rich-text without the `privateApis`
 				// export that current dashboard dependencies unlock at module
 				// scope (e.g. @wordpress/dataviews >= 17.2 dataform controls),
 				// which throws "Cannot unlock an undefined object" and blanks
-				// the page. Gutenberg trunk ships the export, but no released
-				// Gutenberg version has been verified to, so active Gutenberg
-				// is not accepted as a substitute (`false`) — set a minimum
-				// version here once a release is verified.
+				// the page. Older Gutenberg is not a safe substitute either:
+				// its rich-text exports `privateApis` but lacks keys the same
+				// dependencies destructure (see the constant's doc).
 			),
 			'wp-theme'        => array(
 				'path' => 'theme',
@@ -225,12 +233,12 @@ class WP_Build_Polyfills {
 	/**
 	 * Check whether the active Gutenberg plugin can satisfy a forced script.
 	 *
-	 * @param string|false|null $minimum_version   Minimum Gutenberg version required for the script, null when any active Gutenberg is sufficient, or false when no Gutenberg version is known to be sufficient.
-	 * @param string|null       $gutenberg_version Active Gutenberg version, or null when Gutenberg is inactive.
+	 * @param string|null $minimum_version   Minimum Gutenberg version required for the script, or null when any active Gutenberg is sufficient.
+	 * @param string|null $gutenberg_version Active Gutenberg version, or null when Gutenberg is inactive.
 	 * @return bool True when Gutenberg is active and new enough.
 	 */
 	private static function is_gutenberg_version_safe( $minimum_version, $gutenberg_version ) {
-		if ( null === $gutenberg_version || false === $minimum_version ) {
+		if ( null === $gutenberg_version ) {
 			return false;
 		}
 
