@@ -100,7 +100,7 @@ const getSiteHost = ( siteUrl: string | undefined ): string | undefined => {
 };
 
 /**
- * The three day-one actions offered by the "Reach your first 3 readers" card.
+ * The three day-one actions offered by the "Reach your first 3 subscribers" card.
  *
  * A function rather than a module constant so each `__()` runs at render time —
  * at module scope they would resolve before the locale data is in place.
@@ -110,10 +110,10 @@ const getSiteHost = ( siteUrl: string | undefined ): string | undefined => {
  */
 const getActionTiles = ( options: EntryPointOptions ): ActionTile[] => [
 	{
-		icon: upload,
-		title: __( 'Bring your contacts', 'jetpack-newsletter' ),
-		description: __( 'Import an existing list', 'jetpack-newsletter' ),
-		href: options.canAddSubscribers ? getAddSubscribersUrl( 'upload' ) : undefined,
+		icon: envelope,
+		title: __( 'Invite by email', 'jetpack-newsletter' ),
+		description: __( 'Ask a few people directly', 'jetpack-newsletter' ),
+		href: options.canAddSubscribers ? getAddSubscribersUrl( 'manual' ) : undefined,
 	},
 	{
 		icon: link,
@@ -122,10 +122,10 @@ const getActionTiles = ( options: EntryPointOptions ): ActionTile[] => [
 		onClick: options.onShare,
 	},
 	{
-		icon: envelope,
-		title: __( 'Invite by email', 'jetpack-newsletter' ),
-		description: __( 'Ask a few people directly', 'jetpack-newsletter' ),
-		href: options.canAddSubscribers ? getAddSubscribersUrl( 'manual' ) : undefined,
+		icon: upload,
+		title: __( 'Bring your contacts', 'jetpack-newsletter' ),
+		description: __( 'Import an existing list', 'jetpack-newsletter' ),
+		href: options.canAddSubscribers ? getAddSubscribersUrl( 'upload' ) : undefined,
 	},
 ];
 
@@ -226,7 +226,7 @@ const renderInteractive = ( action: EntryPointAction ): JSX.Element | undefined 
 };
 
 /**
- * One of the three action tiles inside the "Reach your first 3 readers" card.
+ * One of the three action tiles inside the "Reach your first 3 subscribers" card.
  *
  * `Card.Root`'s `render` prop swaps the underlying element without adding a
  * wrapper: an anchor for a tile that navigates, a button for one that acts in
@@ -350,7 +350,7 @@ const ChecklistRow = ( {
 };
 
 /**
- * The onboarding view — greeting, the "Reach your first 3 readers" card, and
+ * The onboarding view — greeting, the "Reach your first 3 subscribers" card, and
  * the getting-started checklist. What the Dashboard shows before a newsletter
  * has an audience; {@link StatsView} is what it becomes after.
  *
@@ -444,19 +444,15 @@ export const OnboardingView = (): JSX.Element => {
 				<Card.Header>
 					<Card.Title>
 						<Text variant="heading-lg" render={ <h2 /> }>
-							{ __( 'Reach your first 3 readers', 'jetpack-newsletter' ) }
+							{ __( 'Reach your first 3 subscribers', 'jetpack-newsletter' ) }
 						</Text>
 					</Card.Title>
 				</Card.Header>
 				<Card.Content>
 					<Stack direction="column" gap="xl">
-						<Text
-							variant="body-md"
-							render={ <p /> }
-							className="jetpack-newsletter-home__muted jetpack-newsletter-home__lede"
-						>
+						<Text variant="body-md" render={ <p /> } className="jetpack-newsletter-home__muted">
 							{ __(
-								'Writers who reach three readers in their first week almost always keep going. Try starting with people who already know you.',
+								'Writing success starts with getting your first three subscribers. Invite people who already know you to build momentum from day one.',
 								'jetpack-newsletter'
 							) }
 						</Text>

@@ -167,8 +167,9 @@ describe( 'Newsletter Mode dashboard links', () => {
 		render( <Stage /> );
 
 		expect( screen.getAllByRole( 'link' ).map( anchor => anchor.textContent ) ).toEqual( [
-			expect.stringContaining( 'Bring your contacts' ),
+			// Row order: invite, share, import.
 			expect.stringContaining( 'Invite by email' ),
+			expect.stringContaining( 'Bring your contacts' ),
 			// Not an entry point — the site's own address, inside the first
 			// checklist row's sentence.
 			'octagonal.example.com',

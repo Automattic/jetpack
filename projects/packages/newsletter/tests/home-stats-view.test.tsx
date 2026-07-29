@@ -169,7 +169,7 @@ function respondWith( emailStats: unknown = EMAIL_STATS_RESPONSE ) {
 	} );
 }
 
-const isOnboarding = () => screen.queryByText( 'Reach your first 3 readers' ) !== null;
+const isOnboarding = () => screen.queryByText( 'Reach your first 3 subscribers' ) !== null;
 const isStats = () => screen.queryByText( 'Recent Posts' ) !== null;
 
 beforeEach( () => {

@@ -45,10 +45,6 @@ body.admin_page_jetpack-newsletter-home {
 		--wp-ui-card-header-content-gap: var(--wpds-dimension-gap-sm);
 	}
 
-	.jetpack-newsletter-home__lede {
-		max-width: 52ch;
-	}
-
 	// Three equal tiles that wrap to one column on a narrow viewport rather
 	// than shrinking past legibility.
 	.jetpack-newsletter-home__tiles > * {
