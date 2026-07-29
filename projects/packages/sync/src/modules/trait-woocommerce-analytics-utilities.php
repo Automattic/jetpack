@@ -2,15 +2,14 @@
 /**
  * WooCommerce Analytics sync helpers.
  *
- * Minimal slice of woocommerce-analytics' HelperTraits\Utilities trait: only the
- * helpers referenced by the WooCommerce Analytics sync module and its registration.
+ * Minimal slice of woocommerce-analytics' HelperTraits\Utilities trait containing
+ * only the helpers referenced by the WooCommerce Analytics sync module.
  *
  * @package automattic/jetpack-sync
  */
 
 namespace Automattic\Jetpack\Sync\Modules;
 
-use Automattic\WooCommerce\Internal\Features\FeaturesController;
 use DateTimeZone;
 use WC_DateTime;
 
@@ -21,61 +20,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Trait WooCommerce_Analytics_Utilities.
  *
- * WooCommerce is a runtime (not composer) dependency, so the WC symbols below are
- * only ever reached when WooCommerce is active. Callers guard with class/function
- * existence checks; see {@see \Automattic\Jetpack\Sync\WooCommerce_Analytics_Settings::register()}.
+ * WooCommerce is a runtime (not composer) dependency, so consumers must only
+ * register the module when WooCommerce is active.
  */
 trait WooCommerce_Analytics_Utilities {
-
-	/**
-	 * Can site sync orders to WPCOM infrastructure.
-	 *
-	 * @return boolean
-	 */
-	protected function can_site_sync_orders(): bool {
-		return $this->is_order_attribution_enabled();
-	}
-
-	/**
-	 * Check if the order attribution feature is enabled.
-	 *
-	 * @return bool
-	 */
-	protected function is_order_attribution_enabled(): bool {
-
-		if ( ! class_exists( FeaturesController::class ) || ! function_exists( 'wc_get_container' ) ) {
-			return false;
-		}
-
-		try {
-			$feature_controller = wc_get_container()->get( FeaturesController::class );
-			'@phan-var FeaturesController $feature_controller';
-			$is_enabled = $feature_controller->feature_is_enabled( 'order_attribution' );
-
-			/*
-			 * When the feature settings form is submitted, feature_is_enabled won't return false right away
-			 * We need to check what value was actually posted. Only checked options are posted.
-			 * So if it's a POST request and $_POST[ 'woocommerce_feature_order_attribution_enabled' ] does not exist
-			 * we optimistically assume this is now false.
-			 */
-			// phpcs:disable WordPress.Security.NonceVerification.Recommended
-			if ( isset( $_GET['section'] ) && 'features' === $_GET['section'] ) {
-				// phpcs:disable WordPress.Security.NonceVerification.Missing
-				if ( isset( $_POST['woocommerce_feature_order_attribution_enabled'] ) ) {
-					$posted_order_attribution = wc_clean( sanitize_text_field( wp_unslash( $_POST['woocommerce_feature_order_attribution_enabled'] ) ) );
-					$is_enabled               = wc_string_to_bool( $posted_order_attribution );
-				} elseif ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] ) {
-					$is_enabled = false;
-				}
-				// phpcs:enable WordPress.Security.NonceVerification.Missing
-			}
-			// phpcs:enable WordPress.Security.NonceVerification.Recommended
-
-			return $is_enabled;
-		} catch ( \Exception $e ) {
-			return false;
-		}
-	}
 
 	/**
 	 * Maps order status provided by the user to the one used in the database.

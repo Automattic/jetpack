@@ -9,8 +9,8 @@
  * payload shapes are consumed by the WPCOM receiving side and by consumer packages
  * (Premium Analytics, WooCommerce AI); treat them as a public contract.
  *
- * This module is NOT registered by default. Consumers opt in via
- * {@see \Automattic\Jetpack\Sync\WooCommerce_Analytics_Settings::register()}.
+ * This module is NOT registered by default. Consumers own its registration,
+ * WooCommerce runtime guard, and Sync data configuration.
  *
  * WooCommerce is a runtime (not composer) dependency. The WC classes/traits
  * referenced here resolve via WooCommerce's autoloader at runtime; registration is

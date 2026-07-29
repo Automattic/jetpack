@@ -71,38 +71,54 @@ the following modules will be enabled no matter the configuration:
 
 **Attention**: Sync currently only supports configuring the list of [default Sync modules](https://github.com/Automattic/jetpack/blob/trunk/projects/packages/sync/src/class-modules.php#L25). Any modules that Sync already loads conditionally, such as `WooCommerce` or `Search` are **NOT** configurable.
 
-#### Opting in to WooCommerce Analytics Sync
+#### Configuring WooCommerce Analytics Sync
 
-The high-volume `woocommerce_analytics` module is not enabled by default. A consumer
-must register its filters and pass its data settings to the Config package:
+The high-volume `woocommerce_analytics` module is not enabled by default. Consumers
+own its registration, full-sync policy, and data configuration. The Sync package
+provides the module implementation and suggested option and post meta whitelists:
 
 ```php
 use Automattic\Jetpack\Config;
-use Automattic\Jetpack\Sync\WooCommerce_Analytics_Settings;
-
-WooCommerce_Analytics_Settings::register();
+use Automattic\Jetpack\Sync\Modules\Meta;
+use Automattic\Jetpack\Sync\Modules\Posts;
+use Automattic\Jetpack\Sync\Modules\Term_Relationships;
+use Automattic\Jetpack\Sync\Modules\Terms;
+use Automattic\Jetpack\Sync\Modules\WooCommerce_Analytics;
+use Automattic\Jetpack\Sync\WooCommerce_Analytics_Defaults;
 
 add_action(
 	'plugins_loaded',
-	function () {
-		if ( WooCommerce_Analytics_Settings::is_woocommerce_active() ) {
-			( new Config() )->ensure( 'sync', WooCommerce_Analytics_Settings::get_data_settings() );
+	static function () {
+		if ( ! class_exists( 'WooCommerce' ) && ! function_exists( 'WC' ) ) {
+			return;
 		}
+
+		( new Config() )->ensure(
+			'sync',
+			array(
+				'jetpack_sync_modules'             => array(
+					WooCommerce_Analytics::class,
+					Meta::class,
+					Posts::class,
+					Terms::class,
+					Term_Relationships::class,
+				),
+				'jetpack_sync_options_whitelist'   => WooCommerce_Analytics_Defaults::get_options_whitelist(),
+				'jetpack_sync_post_meta_whitelist' => WooCommerce_Analytics_Defaults::get_post_meta_whitelist(),
+			)
+		);
 	},
 	1
 );
 ```
 
-Registration is idempotent and only takes effect when WooCommerce is active. During
-migration, the shared module defers to known legacy Analytics Sync implementations so
-the same actions are not registered twice.
+Consumers may extend the returned defaults or replace either list before calling
+`Config::ensure()`. A replacement affects only that consumer's contribution because
+Sync combines data requirements from all configured consumers.
 
-The existing `jetpack_sync_active_modules` callable reports the filtered module classes
-to WordPress.com. Its output is not deduplicated by public module name, so mixed
-installs may report both the shared and a legacy implementation, depending on filter
-registration order. The shared class is therefore a consumer-neutral capability
-signal, but its presence does not prove that it is the active implementation.
-Receivers should retain legacy plugin detection during rollout.
+The priority-1 `plugins_loaded` callback above guards the WooCommerce runtime
+dependency and gives `Config` time to initialize Sync at its priority-2 callback.
+Consumers must also register their `jetpack_full_sync_config` policy.
 
 ##### `jetpack_sync_options_whitelist` / `jetpack_sync_options_contentless`
 
