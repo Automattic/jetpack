@@ -25,10 +25,37 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * The feature-flag filter name is the expected slug.
+	 * The feature gates use the expected slugs.
 	 */
-	public function test_feature_filter_constant_is_defined() {
+	public function test_feature_gate_constants_are_defined() {
+		$this->assertSame( 'seo-admin-ui', Initializer::FEATURE_SLUG );
 		$this->assertSame( 'rsm_jetpack_seo', Initializer::FEATURE_FILTER );
+	}
+
+	/**
+	 * Either the existing filter or the WordPress.com site feature can make SEO
+	 * available; neither path is required when the other is enabled.
+	 */
+	public function test_is_available_uses_filter_or_site_feature() {
+		\Wpcom_Test_Features::reset();
+		$this->assertFalse( Initializer::is_available() );
+
+		add_filter( Initializer::FEATURE_FILTER, '__return_true' );
+		try {
+			$this->assertTrue( Initializer::is_available() );
+		} finally {
+			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
+		}
+
+		\Wpcom_Test_Features::$known = array( Initializer::FEATURE_SLUG );
+		try {
+			$this->assertFalse( Initializer::is_available() );
+
+			\Wpcom_Test_Features::$entitled = array( Initializer::FEATURE_SLUG );
+			$this->assertTrue( Initializer::is_available() );
+		} finally {
+			\Wpcom_Test_Features::reset();
+		}
 	}
 
 	/**
@@ -43,6 +70,7 @@ class InitializerTest extends TestCase {
 		$this->assertSame( 'jetpack_seo_canonical_urls_enabled', Initializer::CANONICAL_ENABLED_OPTION );
 		$this->assertSame( 'jetpack_seo_surface_visible', Initializer::VISIBILITY_OPTION );
 
+		$this->assertTrue( method_exists( Initializer::class, 'is_available' ) );
 		$this->assertTrue( method_exists( Initializer::class, 'is_optin_available' ) );
 
 		// The delegators track Surface_Visibility's answer, not a stale copy of it.
