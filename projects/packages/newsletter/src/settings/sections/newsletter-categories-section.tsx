@@ -6,7 +6,13 @@ import { getSiteData, getSiteType, isWpcomPlatformSite } from '@automattic/jetpa
 import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components/wpcom-support-link';
 import { TextControl } from '@wordpress/components';
 import { DataForm, type Field, useFormValidity } from '@wordpress/dataviews';
-import { createInterpolateElement, useCallback, useEffect, useState } from '@wordpress/element';
+import {
+	createInterpolateElement,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Card, Fieldset, Link, Notice, Stack, Text } from '@wordpress/ui';
 /**
@@ -52,6 +58,31 @@ export function NewsletterCategoriesSection( {
 	const [ newCategoryName, setNewCategoryName ] = useState( '' );
 	const [ isCreatingCategory, setIsCreatingCategory ] = useState( false );
 	const [ createCategoryError, setCreateCategoryError ] = useState< string | null >( null );
+
+	// Focus targets for the disclosure pattern: move focus into the form on open,
+	// return it to the trigger on close.
+	const newCategoryInputRef = useRef< HTMLInputElement >( null );
+	const addCategoryTriggerRef = useRef< HTMLButtonElement >( null );
+	const wasAddingCategoryRef = useRef( false );
+
+	// Latest saved selection, read inside the async create handler so a category
+	// the user toggles while the request is in flight isn't clobbered by a stale
+	// closure over `data.wpcom_newsletter_categories`.
+	const selectedCategoriesRef = useRef( data.wpcom_newsletter_categories );
+	useEffect( () => {
+		selectedCategoriesRef.current = data.wpcom_newsletter_categories;
+	}, [ data.wpcom_newsletter_categories ] );
+
+	// Move focus into the form when it opens; return it to the trigger on close
+	// (but not on the initial render, when the form was never open).
+	useEffect( () => {
+		if ( isAddingCategory ) {
+			newCategoryInputRef.current?.focus();
+		} else if ( wasAddingCategoryRef.current ) {
+			addCategoryTriggerRef.current?.focus();
+		}
+		wasAddingCategoryRef.current = isAddingCategory;
+	}, [ isAddingCategory ] );
 
 	// Track section save with the keys that changed since the last save.
 	const handleSave = useCallback( () => {
@@ -100,8 +131,9 @@ export function NewsletterCategoriesSection( {
 					prev.some( cat => cat.id === newCategory.id ) ? prev : [ ...prev, newCategory ]
 				);
 
-				// Auto-select the newly created category (staged for save).
-				const selected = data.wpcom_newsletter_categories ?? [];
+				// Auto-select the newly created category (staged for save). Read the
+				// latest selection from the ref so a concurrent toggle isn't lost.
+				const selected = selectedCategoriesRef.current ?? [];
 				if ( ! selected.includes( newCategory.id ) ) {
 					onChange( { wpcom_newsletter_categories: [ ...selected, newCategory.id ] } );
 				}
@@ -110,15 +142,20 @@ export function NewsletterCategoriesSection( {
 				setNewCategoryName( '' );
 			} )
 			.catch( ( err: Error ) => {
-				// WordPress surfaces a long parent-aware message for duplicates
-				// ("A term with the name provided already exists…"); the inline
-				// form has no parent picker, so show a short, plain message.
-				// Everything else (permissions, expired nonce, network failure)
-				// gets a friendly generic string rather than the raw, English-only
-				// server message.
-				const code = ( err as Error & { code?: string } )?.code;
+				// Duplicate-name detection differs by platform: self-hosted WP REST
+				// (`/wp/v2/categories`) rejects with `code: 'term_exists'`, while the
+				// WordPress.com v1.1 endpoint used on Simple sites rejects with
+				// `error: 'duplicate'`. Both carry a long, English-only server message
+				// (and the inline form has no parent picker), so map either one to a
+				// short, translated string. Everything else (permissions, expired
+				// nonce, network failure) gets a friendly generic message rather than
+				// the raw server text.
+				const errorCode =
+					( err as Error & { code?: string; error?: string } )?.code ??
+					( err as Error & { error?: string } )?.error;
+				const isDuplicate = errorCode === 'term_exists' || errorCode === 'duplicate';
 				setCreateCategoryError(
-					code === 'term_exists'
+					isDuplicate
 						? __( 'This category already exists.', 'jetpack-newsletter' )
 						: __( 'Could not create the category. Please try again.', 'jetpack-newsletter' )
 				);
@@ -126,7 +163,7 @@ export function NewsletterCategoriesSection( {
 			.finally( () => {
 				setIsCreatingCategory( false );
 			} );
-	}, [ trimmedNewCategoryName, isCreatingCategory, data.wpcom_newsletter_categories, onChange ] );
+	}, [ trimmedNewCategoryName, isCreatingCategory, onChange ] );
 
 	// Fetch WordPress categories on mount
 	useEffect( () => {
@@ -269,6 +306,7 @@ export function NewsletterCategoriesSection( {
 									</Notice.Root>
 								) }
 								<TextControl
+									ref={ newCategoryInputRef }
 									__next40pxDefaultSize
 									__nextHasNoMarginBottom
 									label={ __( 'New category name', 'jetpack-newsletter' ) }
@@ -298,6 +336,7 @@ export function NewsletterCategoriesSection( {
 						) : (
 							<p>
 								<Button
+									ref={ addCategoryTriggerRef }
 									variant="minimal"
 									className="newsletter-add-category-trigger"
 									onClick={ startAddCategory }

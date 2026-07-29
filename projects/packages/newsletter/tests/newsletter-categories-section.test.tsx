@@ -12,65 +12,82 @@
  * we can assert a freshly created category shows up in the list without a reload.
  */
 
-jest.mock( '@wordpress/ui', () => ( {
-	__esModule: true,
-	Button: ( {
-		children,
-		onClick,
-		disabled,
-	}: {
-		children: React.ReactNode;
-		onClick?: () => void;
-		disabled?: boolean;
-		loading?: boolean;
-	} ) => (
-		<button onClick={ onClick } disabled={ disabled }>
-			{ children }
-		</button>
-	),
-	Card: {
-		Root: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
-		Header: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
-		Title: ( { children }: { children: React.ReactNode } ) => <h2>{ children }</h2>,
-		Content: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
-	},
-	Fieldset: {
-		Root: ( { children }: { children: React.ReactNode } ) => <fieldset>{ children }</fieldset>,
-	},
-	Link: ( { children, href }: { children: React.ReactNode; href?: string } ) => (
-		<a href={ href }>{ children }</a>
-	),
-	Notice: {
-		Root: ( { children }: { children: React.ReactNode } ) => <div role="alert">{ children }</div>,
-		Description: ( { children }: { children: React.ReactNode } ) => <p>{ children }</p>,
-	},
-	Stack: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
-	Text: ( { children }: { children: React.ReactNode } ) => <span>{ children }</span>,
-} ) );
+jest.mock( '@wordpress/ui', () => {
+	// forwardRef so the component can focus the "Add new category" trigger.
+	return {
+		__esModule: true,
+		Button: mockForwardRef(
+			(
+				{
+					children,
+					onClick,
+					disabled,
+				}: {
+					children: React.ReactNode;
+					onClick?: () => void;
+					disabled?: boolean;
+					loading?: boolean;
+				},
+				ref: React.Ref< HTMLButtonElement >
+			) => (
+				<button ref={ ref } onClick={ onClick } disabled={ disabled }>
+					{ children }
+				</button>
+			)
+		),
+		Card: {
+			Root: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
+			Header: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
+			Title: ( { children }: { children: React.ReactNode } ) => <h2>{ children }</h2>,
+			Content: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
+		},
+		Fieldset: {
+			Root: ( { children }: { children: React.ReactNode } ) => <fieldset>{ children }</fieldset>,
+		},
+		Link: ( { children, href }: { children: React.ReactNode; href?: string } ) => (
+			<a href={ href }>{ children }</a>
+		),
+		Notice: {
+			Root: ( { children }: { children: React.ReactNode } ) => <div role="alert">{ children }</div>,
+			Description: ( { children }: { children: React.ReactNode } ) => <p>{ children }</p>,
+		},
+		Stack: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
+		Text: ( { children }: { children: React.ReactNode } ) => <span>{ children }</span>,
+	};
+} );
 
-jest.mock( '@wordpress/components', () => ( {
-	__esModule: true,
-	TextControl: ( {
-		label,
-		value,
-		onChange,
-		disabled,
-	}: {
-		label: string;
-		value: string;
-		onChange: ( next: string ) => void;
-		disabled?: boolean;
-	} ) => (
-		<input
-			aria-label={ label }
-			value={ value }
-			disabled={ disabled }
-			// Test-only mock; the re-bind-per-render cost is irrelevant in a jest render.
-			// eslint-disable-next-line react/jsx-no-bind
-			onChange={ e => onChange( e.target.value ) }
-		/>
-	),
-} ) );
+jest.mock( '@wordpress/components', () => {
+	// forwardRef so the component can focus the name field when the form opens.
+	return {
+		__esModule: true,
+		TextControl: mockForwardRef(
+			(
+				{
+					label,
+					value,
+					onChange,
+					disabled,
+				}: {
+					label: string;
+					value: string;
+					onChange: ( next: string ) => void;
+					disabled?: boolean;
+				},
+				ref: React.Ref< HTMLInputElement >
+			) => (
+				<input
+					ref={ ref }
+					aria-label={ label }
+					value={ value }
+					disabled={ disabled }
+					// Test-only mock; the re-bind-per-render cost is irrelevant in a jest render.
+					// eslint-disable-next-line react/jsx-no-bind
+					onChange={ e => onChange( e.target.value ) }
+				/>
+			)
+		),
+	};
+} );
 
 interface StubField {
 	id: string;
@@ -115,6 +132,8 @@ jest.mock( '../src/settings/api', () => ( {
 } ) );
 
 import { act, render, screen, waitFor } from '@testing-library/react';
+// `mock`-prefixed so it may be referenced inside the hoisted jest.mock factories above.
+import { forwardRef as mockForwardRef } from 'react';
 import { createCategory, fetchCategories } from '../src/settings/api';
 import { NewsletterCategoriesSection } from '../src/settings/sections/newsletter-categories-section';
 import type { NewsletterSettings } from '../src/settings/types';
@@ -236,6 +255,77 @@ describe( 'NewsletterCategoriesSection — inline add category (NL-785)', () => 
 		);
 	} );
 
+	it( 'auto-selects using the latest selection when it changes mid-request', async () => {
+		// Hold the create promise open so we can change the selection while the
+		// request is "in flight".
+		let resolveCreate: ( category: { id: number; name: string } ) => void = () => {};
+		mockedCreateCategory.mockReturnValue(
+			new Promise< { id: number; name: string } >( resolve => {
+				resolveCreate = resolve;
+			} )
+		);
+
+		const onChange = jest.fn();
+		const sharedProps = {
+			onChange,
+			onSave: jest.fn(),
+			isSaving: false,
+			hasChanges: false,
+			changedKeys: [],
+			isNewsletterEnabled: true,
+		};
+		const { rerender } = render(
+			<NewsletterCategoriesSection
+				data={ buildData( { wpcom_newsletter_categories: [] } ) }
+				{ ...sharedProps }
+			/>
+		);
+		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
+
+		clickButton( 'Add new category' );
+		typeInto( 'New category name', 'Weekly Digest' );
+		clickButton( 'Add category' );
+
+		// The user selects an existing category while the request is pending; the
+		// parent re-renders with the updated selection.
+		rerender(
+			<NewsletterCategoriesSection
+				data={ buildData( { wpcom_newsletter_categories: [ '1' ] } ) }
+				{ ...sharedProps }
+			/>
+		);
+
+		await act( async () => {
+			resolveCreate( { id: 42, name: 'Weekly Digest' } );
+		} );
+
+		// The new id is appended to the latest selection, not the stale empty one.
+		await waitFor( () =>
+			expect( onChange ).toHaveBeenCalledWith( {
+				wpcom_newsletter_categories: [ '1', '42' ],
+			} )
+		);
+	} );
+
+	it( 'moves focus to the name field when the add-category form opens', async () => {
+		renderSection();
+		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
+
+		clickButton( 'Add new category' );
+
+		expect( screen.getByLabelText( 'New category name' ) ).toHaveFocus();
+	} );
+
+	it( 'returns focus to the trigger when the form is cancelled', async () => {
+		renderSection();
+		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
+
+		clickButton( 'Add new category' );
+		clickButton( 'Cancel' );
+
+		expect( screen.getByRole( 'button', { name: 'Add new category' } ) ).toHaveFocus();
+	} );
+
 	it( 'trims the name and does not create a whitespace-only category', async () => {
 		mockedCreateCategory.mockResolvedValue( { id: 7, name: 'Trimmed' } );
 		renderSection();
@@ -271,6 +361,30 @@ describe( 'NewsletterCategoriesSection — inline add category (NL-785)', () => 
 		expect( alert ).toHaveTextContent( 'This category already exists.' );
 		// The long parent-aware core message is not shown to the user.
 		expect( alert ).not.toHaveTextContent( 'already exists with this parent' );
+		// Nothing was selected, and the form stays open for a retry.
+		expect( onChange ).not.toHaveBeenCalled();
+		expect( screen.getByLabelText( 'New category name' ) ).toBeInTheDocument();
+	} );
+
+	it( 'surfaces the friendly duplicate error for the WordPress.com Simple-site error shape', async () => {
+		// WordPress.com's `/rest/v1.1` terms/new endpoint rejects duplicates with
+		// `error: 'duplicate'`, not the self-hosted WP REST `code: 'term_exists'`.
+		mockedCreateCategory.mockRejectedValue(
+			Object.assign( new Error( 'A taxonomy with that name already exists' ), {
+				error: 'duplicate',
+			} )
+		);
+		const { onChange } = renderSection();
+		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
+
+		clickButton( 'Add new category' );
+		typeInto( 'New category name', 'News' );
+		clickButton( 'Add category' );
+
+		const alert = await screen.findByRole( 'alert' );
+		expect( alert ).toHaveTextContent( 'This category already exists.' );
+		// The raw server message is not shown to the user.
+		expect( alert ).not.toHaveTextContent( 'A taxonomy with that name already exists' );
 		// Nothing was selected, and the form stays open for a retry.
 		expect( onChange ).not.toHaveBeenCalled();
 		expect( screen.getByLabelText( 'New category name' ) ).toBeInTheDocument();
