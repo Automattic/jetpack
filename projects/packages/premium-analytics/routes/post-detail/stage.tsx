@@ -125,6 +125,8 @@ function PostDetail(): JSX.Element {
 								variant="solid"
 								tone="neutral"
 								size="compact"
+								nativeButton={ false }
+								role="link"
 								className={ styles.viewPost }
 								render={ <a href={ publicUrl } target="_blank" rel="noopener noreferrer" /> }
 							>
