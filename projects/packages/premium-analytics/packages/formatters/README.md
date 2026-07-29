@@ -3,8 +3,8 @@
 Locale-aware formatting utilities for Jetpack Premium Analytics.
 
 Thin wrapper over `@automattic/number-formatters` (numbers, currency) and
-`date-fns` (dates), plus a domain-specific orchestrator (`formatMetricValue`)
-that routes between formatters by analytics metric type.
+`@wordpress/date` (dates), plus a domain-specific orchestrator
+(`formatMetricValue`) that routes between formatters by analytics metric type.
 
 ## Exports
 
@@ -45,19 +45,41 @@ formatMetricValue( 192088, 'currency', {
 | `options.signDisplay`    | `Intl` sign mode                                      | `'auto'` (`'exceptZero'` for percentage) | Sign display                                   |
 | `options.currencyCode`   | `string`                                              | `'USD'`                                  | ISO 4217 currency code                         |
 
-## `formatDate( date, format? )`
+## `formatDate( date, name? )`
 
-Format a date using a named preset or custom `date-fns` pattern.
-Defaults to `'medium'`.
+Format a date in the site's locale and timezone. Month and weekday names come
+from WordPress's own translation tables and the ordering from the site's
+`date_format` option, so dates match the rest of wp-admin rather than the
+browser's locale. Defaults to `'medium'`.
 
 ```typescript
-formatDate( new Date( '2025-06-21' ) ); // 'Jun 21, 2025'
-formatDate( new Date( '2025-06-21' ), 'short' ); // 'Jun 21'
-formatDate( new Date( '2025-06-21' ), 'long' ); // 'June 21, 2025'
-formatDate( new Date( '2025-06-21' ), 'dd/MM/yyyy' ); // '21/06/2025'
+// On a site left on the US English default:
+formatDate( date ); // 'June 21, 2025'
+formatDate( date, 'short' ); // 'June 21'
+formatDate( date, 'year' ); // '2025'
+formatDate( date, 'iso' ); // '2025-06-21'
+
+// The same calls on an es_ES site:
+formatDate( date ); // '21 de junio de 2025'
+formatDate( date, 'short' ); // '21 de junio'
 ```
 
-**Named presets:** `short`, `medium` (default), `long`, `full`, `day`, `month`, `year`, `monthYear`, `numeric`, `iso`, `dateTime`.
+| Name     | Purpose                                                       |
+| -------- | ------------------------------------------------------------- |
+| `medium` | Default. The site's `date_format` verbatim.                   |
+| `short`  | The site format minus its year.                               |
+| `year`   | Year alone.                                                   |
+| `iso`    | Machine-readable `YYYY-MM-DD`. Never localized.               |
+
+There is no custom-pattern escape hatch: a hand-written pattern fixes the
+day/month order to whatever the author happened to type, which is the problem
+this formatter exists to avoid.
+
+**Pass a date that carries its offset** — a `TZDate` from
+`@jetpack-premium-analytics/datetime`, a timestamp, or a string with an explicit
+offset. A bare `YYYY-MM-DD` is read as browser-local midnight and then shifted
+into the site's timezone, landing on the previous day for any visitor ahead of
+the site.
 
 ## `formatDateRange( range? )`
 
@@ -66,11 +88,14 @@ Returns `''` when range or dates are missing.
 
 ```typescript
 formatDateRange( { from, to } );
-// same day:    'Jun 21, 2025'
-// same month:  'Jun 21-25, 2025'
-// same year:   'Jun 21-Jul 25, 2025'
-// cross-year:  'Jun 21, 2024-Jul 25, 2025'
+// same day: 'June 21, 2025'
+// range:    'June 21, 2025 – June 25, 2025'
 ```
+
+Both ends are spelled out in full. Eliding the shared month or year
+("Jun 21-25, 2025") is an English typographic convention that does not carry
+over — on an es_ES site it yields "21 de junio-25 de junio de 2025" — and
+WordPress publishes no per-locale elision rules to draw on.
 
 | Parameter | Type                         | Description       |
 | --------- | ---------------------------- | ----------------- |
@@ -79,11 +104,12 @@ formatDateRange( { from, to } );
 ## Architecture
 
 Number and currency formatting delegates to `@automattic/number-formatters`
-(a tier-2 published Jetpack package). Date formatting uses `date-fns`. The
+(a tier-2 published Jetpack package). Date formatting uses `@wordpress/date`,
+which WordPress already seeds with the site's format and translations. The
 `formatMetricValue` orchestrator is domain-specific — it routes to the right
 formatter based on the metric type.
 
 ## Dependencies
 
 - `@automattic/number-formatters` — number/currency primitives
-- `date-fns` — date formatting
+- `@wordpress/date` — locale-aware date formatting

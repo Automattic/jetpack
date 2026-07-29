@@ -2,7 +2,11 @@
  * External dependencies
  */
 import { LineChart } from '@automattic/charts';
-import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import {
+	formatDate,
+	formatMetricValue,
+	type DateFormatName,
+} from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -134,7 +138,8 @@ export type ComparativeLineChartProps = {
 	 */
 	dataFormat: DataFormat;
 
-	tickFormat?: string;
+	/** Named date format for the X-axis ticks. Defaults to `'short'`. */
+	tickFormat?: DateFormatName;
 
 	/**
 	 * Degrade to a sparkline (no y-axis, grid, or legend) when the chart area

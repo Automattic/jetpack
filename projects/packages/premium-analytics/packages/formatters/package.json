@@ -8,6 +8,6 @@
 	"sideEffects": false,
 	"dependencies": {
 		"@automattic/number-formatters": "workspace:*",
-		"date-fns": "4.1.0"
+		"@wordpress/date": "5.51.0"
 	}
 }

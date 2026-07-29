@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dates now follow the site's language and date format instead of always rendering in US English.

@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
+import { formatDate, formatMetricValue, siteTimeZone } from '@jetpack-premium-analytics/formatters';
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/route';
 /**
@@ -54,11 +55,10 @@ function formatRate( rate: number, total: number, unique: number ): string {
  * @return The formatted date, or an em dash placeholder.
  */
 function formatSentDate( value: unknown ): string {
-	const date = new Date( String( value ?? '' ) );
+	// The endpoint sends a MySQL datetime with no offset, already in site time.
+	const date = parseSiteDateTime( value, siteTimeZone() );
 
-	return Number.isNaN( date.getTime() )
-		? '—'
-		: date.toLocaleDateString( undefined, { year: 'numeric', month: 'short', day: 'numeric' } );
+	return date ? formatDate( date ) : '—';
 }
 
 /**

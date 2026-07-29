@@ -13,43 +13,37 @@ import { formatDate } from './format-date';
  */
 type DateRange = { from?: Date; to?: Date };
 
+/** En dash, the conventional range separator. */
+const RANGE_SEPARATOR = ' – ';
+
 /**
  * Format a date range into a human-readable string.
- * Adjusts output based on whether dates share the same day, month, or year.
+ *
+ * Both ends are spelled out in full. Shortening a range by eliding the shared
+ * month or year ("Jun 21-25, 2025") follows English typographic convention and
+ * does not carry over: applied to a Spanish site it yields
+ * "21 de junio-25 de junio de 2025". WordPress publishes whole date formats
+ * only, with no per-locale elision rules to draw on, so the repetition is kept
+ * in exchange for being right in every locale.
+ *
  * Returns `''` when `range`, `from`, or `to` is missing.
  *
+ * @param range - The range to format.
+ * @return The formatted range.
+ *
  * @example
- * formatDateRange( { from, to } ) // same day:    'Jun 21, 2025'
- *                                  // same month:  'Jun 21-25, 2025'
- *                                  // same year:   'Jun 21-Jul 25, 2025'
- *                                  // cross-year:  'Jun 21, 2024-Jul 25, 2025'
+ * formatDateRange( { from, to } ) // same day: 'June 21, 2025'
+ *                                 // range:    'June 21, 2025 – June 25, 2025'
  */
 export const formatDateRange = ( range?: DateRange ): string => {
-	if ( ! range ) {
-		return '';
-	}
-
-	const { from, to } = range;
+	const { from, to } = range ?? {};
 
 	if ( ! from || ! to ) {
 		return '';
 	}
 
-	const sameYear = from.getFullYear() === to.getFullYear();
-	const sameMonth = sameYear && from.getMonth() === to.getMonth();
-	const sameDay = sameMonth && from.getDate() === to.getDate();
+	const start = formatDate( from );
+	const end = formatDate( to );
 
-	if ( sameDay ) {
-		return formatDate( from, 'medium' );
-	}
-
-	if ( sameMonth ) {
-		return `${ formatDate( from, 'short' ) }-${ formatDate( to, 'd, yyyy' ) }`;
-	}
-
-	if ( sameYear ) {
-		return `${ formatDate( from, 'short' ) }-${ formatDate( to ) }`;
-	}
-
-	return `${ formatDate( from ) }-${ formatDate( to ) }`;
+	return start === end ? start : `${ start }${ RANGE_SEPARATOR }${ end }`;
 };

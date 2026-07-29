@@ -82,7 +82,7 @@ export const MostPopularDayHighlight = ( {
 	<Stack className={ styles.highlight } direction="column" gap="xl" justify="center">
 		<MostPopularDayField
 			label={ __( 'Day', 'jetpack-premium-analytics-pkg' ) }
-			value={ formatDate( date, 'MMMM d' ) }
+			value={ formatDate( date, 'short' ) }
 			caption={ formatDate( date, 'year' ) }
 		/>
 		<MostPopularDayField
