@@ -130,7 +130,13 @@ body.admin_page_jetpack-newsletter-home {
 
 	// Completed tasks pick up the admin color scheme, like the rest of the
 	// Newsletter Mode chrome.
-	.jetpack-newsletter-home__task-icon.is-done {
+	// `color` as well as `fill`, and scoped through the row so it outranks the
+	// styles `Item` brings: these icons render as `<svg fill="currentColor">`, so
+	// on a row that renders as an anchor the link colour was winning and left the
+	// tick dark while the rows that stay plain list items went blue. Setting the
+	// colour too means `currentColor` is already blue whichever rule applies.
+	.jetpack-newsletter-home__task .jetpack-newsletter-home__task-icon.is-done {
+		color: var(--wp-admin-theme-color, #3858e9);
 		fill: var(--wp-admin-theme-color, #3858e9);
 	}
 

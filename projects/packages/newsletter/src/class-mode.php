@@ -44,6 +44,37 @@ class Mode {
 	const META_CHECKLIST_DISMISSED = 'jetpack_newsletter_checklist_dismissed';
 
 	/**
+	 * Per-user meta listing the getting-started checklist tasks this user has
+	 * completed. Same reasoning as {@see META_CHECKLIST_DISMISSED}: progress
+	 * through a personal onboarding aid, so it does not follow one admin to the
+	 * next.
+	 *
+	 * @var string
+	 */
+	const META_CHECKLIST_COMPLETED = 'jetpack_newsletter_checklist_completed';
+
+	/**
+	 * The checklist tasks that can be completed, by stable id.
+	 *
+	 * Ids rather than titles because the titles are translated and still being
+	 * reworded — either would make a stored value locale- and copy-dependent.
+	 * This list is also the REST enum, so a request can only ever store one of
+	 * these and the meta cannot grow from arbitrary input. Mirrored by
+	 * `TASK_IDS` in routes/home/stage.tsx.
+	 *
+	 * "Start a newsletter" is absent deliberately: it is true the moment the site
+	 * exists, so it is always shown complete and is never clicked.
+	 *
+	 * @var string[]
+	 */
+	const CHECKLIST_TASKS = array(
+		'make-it-yours',
+		'write-first-post',
+		'grow-audience',
+		'paid-subscriptions',
+	);
+
+	/**
 	 * REST namespace for the package-owned Newsletter Mode route.
 	 *
 	 * Deliberately a package-owned namespace (not `jetpack/v4`) so persisting the
@@ -182,11 +213,19 @@ class Mode {
 			// Where "Make it yours" sends people. Taken from the curated nav's own
 			// slug so the Dashboard and the nav's Settings item stay in step,
 			// including the `p` param the SPA router reads.
-			'settingsUrl'        => admin_url( self::get_nav_slugs()['settings'] ),
+			// Where "Make it yours" sends people. It asks the identity section to
+			// put focus in the newsletter title, so the row lands on the thing it
+			// promised rather than dropping people into a full settings screen
+			// with no cue as to why they are there.
+			'settingsUrl'        => admin_url( self::get_settings_slug( 'newsletter-title' ) ),
 			// Whether this user has dismissed the getting-started checklist, so
 			// the Dashboard can render without it rather than flashing it and
 			// then removing it once a fetch resolves.
 			'checklistDismissed' => self::is_checklist_dismissed(),
+			// Which checklist tasks this user has ticked off, so the Dashboard
+			// renders their progress rather than an empty list they have to
+			// re-derive.
+			'checklistCompleted' => self::get_completed_checklist_tasks(),
 			// Where "Set up paid subscriptions" goes — the same WordPress.com Earn
 			// screen the nav's Monetize item opens, resolved once here so the two
 			// can't drift.
@@ -203,6 +242,25 @@ class Mode {
 	 */
 	public static function is_checklist_dismissed() {
 		return (bool) get_user_meta( get_current_user_id(), self::META_CHECKLIST_DISMISSED, true );
+	}
+
+	/**
+	 * The checklist tasks the current user has completed.
+	 *
+	 * Intersected with {@see CHECKLIST_TASKS} on the way out so a task that has
+	 * since been renamed or dropped cannot linger in what callers see, however it
+	 * came to be stored.
+	 *
+	 * @return string[] Completed task ids, in the checklist display order.
+	 */
+	public static function get_completed_checklist_tasks() {
+		$stored = get_user_meta( get_current_user_id(), self::META_CHECKLIST_COMPLETED, true );
+
+		if ( ! is_array( $stored ) ) {
+			return array();
+		}
+
+		return array_values( array_intersect( self::CHECKLIST_TASKS, $stored ) );
 	}
 
 	/**
@@ -594,11 +652,29 @@ class Mode {
 			'subscribers' => $newsletter_url,
 			'comments'    => 'edit-comments.php' . $mode_arg,
 			'monetize'    => self::get_monetize_url(),
-			// The SPA router encodes its path+search into a single `p` param, so
-			// encode the value rather than letting the nested `?`/`&` be parsed as
-			// separate query args.
-			'settings'    => $newsletter_url . '&p=' . rawurlencode( '/?tab=settings' ),
+			'settings'    => self::get_settings_slug(),
 		);
+	}
+
+	/**
+	 * The Newsletter Settings tab, optionally asking a section there to take
+	 * focus on arrival.
+	 *
+	 * The SPA router encodes its path and search into a single `p` param, so the
+	 * whole thing is encoded rather than letting the nested `?`/`&` be parsed as
+	 * separate query args.
+	 *
+	 * @param string $focus Field the destination should focus, if any.
+	 * @return string Admin-relative URL.
+	 */
+	private static function get_settings_slug( $focus = '' ) {
+		$path = '/?tab=settings';
+
+		if ( '' !== $focus ) {
+			$path .= '&focus=' . $focus;
+		}
+
+		return 'admin.php?page=' . Settings::ADMIN_PAGE_SLUG . '&p=' . rawurlencode( $path );
 	}
 
 	/**
@@ -1369,6 +1445,32 @@ class Mode {
 				),
 			)
 		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/checklist-completed',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( self::class, 'rest_get_checklist_completed' ),
+					'permission_callback' => array( self::class, 'rest_permission_check' ),
+				),
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( self::class, 'rest_update_checklist_completed' ),
+					'permission_callback' => array( self::class, 'rest_permission_check' ),
+					'args'                => array(
+						'task' => array(
+							'type'     => 'string',
+							'required' => true,
+							// Rejects anything that is not a real task, so the meta
+							// cannot be grown by an arbitrary request.
+							'enum'     => self::CHECKLIST_TASKS,
+						),
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -1432,5 +1534,36 @@ class Mode {
 		}
 
 		return rest_ensure_response( array( 'dismissed' => self::is_checklist_dismissed() ) );
+	}
+
+	/**
+	 * GET handler: return the tasks this user has completed.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function rest_get_checklist_completed() {
+		return rest_ensure_response( array( 'completed' => self::get_completed_checklist_tasks() ) );
+	}
+
+	/**
+	 * POST handler: record one task as completed for the current user.
+	 *
+	 * Additive and idempotent — completing a task twice is a no-op rather than an
+	 * error, since the Dashboard fires this on a click it does not try to
+	 * de-duplicate across tabs.
+	 *
+	 * @param \WP_REST_Request $request The REST request.
+	 * @return \WP_REST_Response
+	 */
+	public static function rest_update_checklist_completed( \WP_REST_Request $request ) {
+		$completed = self::get_completed_checklist_tasks();
+		$task      = $request->get_param( 'task' );
+
+		if ( ! in_array( $task, $completed, true ) ) {
+			$completed[] = $task;
+			update_user_meta( get_current_user_id(), self::META_CHECKLIST_COMPLETED, $completed );
+		}
+
+		return rest_ensure_response( array( 'completed' => self::get_completed_checklist_tasks() ) );
 	}
 }

@@ -94,8 +94,9 @@ export interface NewsletterModeScriptData {
 	/** The newsletter's public address — what the Share modal hands out. */
 	siteUrl: string;
 	/**
-	 * The Newsletter Settings tab, as the curated nav links to it — including
-	 * the `p` param the SPA router reads.
+	 * Where the Dashboard's "Make it yours" row goes: the Newsletter Settings
+	 * tab — including the `p` param the SPA router reads — carrying a `focus`
+	 * hint the identity section uses to put the cursor in the title field.
 	 */
 	settingsUrl: string;
 	/**
@@ -109,6 +110,12 @@ export interface NewsletterModeScriptData {
 	 * Monetize item opens. Both come from Mode::get_monetize_url().
 	 */
 	monetizeUrl: string;
+	/**
+	 * Ids of the getting-started checklist tasks this user has completed.
+	 * Bootstrapped from Mode::get_completed_checklist_tasks(); the ids are the
+	 * ones in Mode::CHECKLIST_TASKS.
+	 */
+	checklistCompleted: string[];
 }
 
 /**

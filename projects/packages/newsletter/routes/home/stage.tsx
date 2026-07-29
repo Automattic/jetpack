@@ -38,6 +38,8 @@ type EntryPointOptions = {
 	siteUrl?: string;
 	/** {@link siteUrl} reduced to a bare host, for display. */
 	siteHost?: string;
+	/** Ids of the checklist tasks this user has already ticked off. */
+	completed: string[];
 };
 
 /**
@@ -58,7 +60,21 @@ type ActionTile = EntryPointAction & {
 	description: string;
 };
 
+/**
+ * Stable ids for the checklist rows. Completion is stored against these rather
+ * than titles, which are translated and still being reworded. Mirrors
+ * `Mode::CHECKLIST_TASKS`, which is the REST enum the server validates against.
+ */
+const TASK_IDS = {
+	startNewsletter: 'start-newsletter',
+	makeItYours: 'make-it-yours',
+	writeFirstPost: 'write-first-post',
+	growAudience: 'grow-audience',
+	paidSubscriptions: 'paid-subscriptions',
+} as const;
+
 type ChecklistTask = EntryPointAction & {
+	id: string;
 	title: string;
 	/** Rich rather than plain text: the first row links the site's address. */
 	description: ReactNode;
@@ -114,8 +130,9 @@ const getActionTiles = ( options: EntryPointOptions ): ActionTile[] => [
 ];
 
 /**
- * The getting-started checklist. Completion is hard-coded until the tasks are
- * backed by real site state.
+ * The getting-started checklist. Completion is recorded when a row is clicked
+ * rather than detected from site state — a stand-in until the tasks can be
+ * derived from what the site actually has.
  *
  * A function rather than a module constant, for the same reason as
  * {@link getActionTiles}.
@@ -126,6 +143,7 @@ const getActionTiles = ( options: EntryPointOptions ): ActionTile[] => [
  */
 const getChecklist = ( options: EntryPointOptions ): ChecklistTask[] => [
 	{
+		id: TASK_IDS.startNewsletter,
 		title: __( 'Start a newsletter', 'jetpack-newsletter' ),
 		description: options.siteHost
 			? createInterpolateElement(
@@ -143,37 +161,43 @@ const getChecklist = ( options: EntryPointOptions ): ChecklistTask[] => [
 					}
 			  )
 			: __( 'Your newsletter is ready to share.', 'jetpack-newsletter' ),
+		// True the moment the site exists, so this row is never clicked and
+		// carries no id in the completable set.
 		done: true,
 	},
 	{
+		id: TASK_IDS.makeItYours,
 		title: __( 'Make it yours', 'jetpack-newsletter' ),
 		description: __( 'Customize the name, tagline, and more.', 'jetpack-newsletter' ),
-		done: false,
+		done: options.completed.includes( TASK_IDS.makeItYours ),
 		// The Settings tab, where Newsletter identity is the first section — so
 		// the title and tagline this row promises are already in view on arrival.
 		href: getNewsletterModeScriptData()?.settingsUrl,
 	},
 	{
+		id: TASK_IDS.writeFirstPost,
 		title: __( 'Write your first post', 'jetpack-newsletter' ),
 		description: __( 'Three sentences is enough. Start small.', 'jetpack-newsletter' ),
-		done: false,
+		done: options.completed.includes( TASK_IDS.writeFirstPost ),
 		// Same destination as the nav's "Write" button — `Mode::get_write_url()`
 		// resolves both, so they can't drift apart.
 		href: getNewsletterModeScriptData()?.writeUrl,
 	},
 	{
+		id: TASK_IDS.growAudience,
 		title: __( 'Grow your audience', 'jetpack-newsletter' ),
 		description: __( 'Invite the people most likely to support you.', 'jetpack-newsletter' ),
-		done: false,
+		done: options.completed.includes( TASK_IDS.growAudience ),
 		href: options.canAddSubscribers ? getAddSubscribersUrl( 'manual' ) : undefined,
 	},
 	{
+		id: TASK_IDS.paidSubscriptions,
 		title: __( 'Set up paid subscriptions', 'jetpack-newsletter' ),
 		description: __(
 			'Offer subscriber-only content and start earning from your newsletter.',
 			'jetpack-newsletter'
 		),
-		done: false,
+		done: options.completed.includes( TASK_IDS.paidSubscriptions ),
 		// The same WordPress.com Earn screen the nav's Monetize item opens —
 		// `Mode::get_monetize_url()` resolves both, so they can't drift apart.
 		href: getNewsletterModeScriptData()?.monetizeUrl,
@@ -263,69 +287,88 @@ const ActionTileCard = ( { tile }: { tile: ActionTile } ): JSX.Element => (
  * the chevron for the new-window glyph so the trailing indicator matches where
  * the row actually goes.
  *
- * @param props      - Component props.
- * @param props.task - The task to render.
+ * @param props            - Component props.
+ * @param props.task       - The task to render.
+ * @param props.onActivate - Records the row as complete when it is followed.
  * @return The checklist row.
  */
-const ChecklistRow = ( { task }: { task: ChecklistTask } ): JSX.Element => (
-	<Item
-		className="jetpack-newsletter-home__task"
-		{ ...( task.href
-			? {
-					as: 'a' as const,
-					href: task.href,
-					...( task.isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {} ),
-			  }
-			: {} ) }
-		onClick={ task.href ? undefined : task.onClick }
-	>
-		<Stack direction="row" align="center" gap="md">
-			<Icon
-				icon={ task.done ? published : border }
-				size={ 24 }
-				className={
-					task.done
-						? 'jetpack-newsletter-home__task-icon is-done'
-						: 'jetpack-newsletter-home__task-icon'
-				}
-			/>
-			<Stack direction="column" gap="xs" className="jetpack-newsletter-home__task-text">
-				<Text variant="heading-md" render={ <span /> }>
-					{ task.title }
-					{ task.isExternal && (
-						// The icon alone warns sighted visitors that the row leaves
-						// wp-admin; this says so for everyone else.
-						<span className="screen-reader-text">
-							{ __( '(opens in a new tab)', 'jetpack-newsletter' ) }
-						</span>
-					) }
-				</Text>
-				<Text variant="body-sm" className="jetpack-newsletter-home__muted">
-					{ task.description }
-				</Text>
-			</Stack>
-			{ /* One trailing indicator per row, shaped to where the row goes. The
+const ChecklistRow = ( {
+	task,
+	onActivate,
+}: {
+	task: ChecklistTask;
+	onActivate: ( task: ChecklistTask ) => void;
+} ): JSX.Element => {
+	const handleClick = useCallback( () => {
+		onActivate( task );
+		if ( ! task.href ) {
+			task.onClick?.();
+		}
+	}, [ onActivate, task ] );
+
+	return (
+		<Item
+			className="jetpack-newsletter-home__task"
+			{ ...( task.href
+				? {
+						as: 'a' as const,
+						href: task.href,
+						...( task.isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {} ),
+				  }
+				: {} ) }
+			// Only rows that actually do something get a handler: `Item` renders as
+			// a button the moment it has one, and a row with no destination must not
+			// advertise an affordance it doesn't have.
+			onClick={ task.href || task.onClick ? handleClick : undefined }
+		>
+			<Stack direction="row" align="center" gap="md">
+				<Icon
+					icon={ task.done ? published : border }
+					size={ 24 }
+					className={
+						task.done
+							? 'jetpack-newsletter-home__task-icon is-done'
+							: 'jetpack-newsletter-home__task-icon'
+					}
+				/>
+				<Stack direction="column" gap="xs" className="jetpack-newsletter-home__task-text">
+					<Text variant="heading-md" render={ <span /> }>
+						{ task.title }
+						{ task.isExternal && (
+							// The icon alone warns sighted visitors that the row leaves
+							// wp-admin; this says so for everyone else.
+							<span className="screen-reader-text">
+								{ __( '(opens in a new tab)', 'jetpack-newsletter' ) }
+							</span>
+						) }
+					</Text>
+					<Text variant="body-sm" className="jetpack-newsletter-home__muted">
+						{ task.description }
+					</Text>
+				</Stack>
+				{ /* One trailing indicator per row, shaped to where the row goes. The
 			     external glyph is keyed on `isExternal` rather than on completion,
 			     so a row that leaves wp-admin keeps saying so even once it is
 			     ticked off. */ }
-			{ task.isExternal ? (
-				<Icon
-					icon={ external }
-					size={ 24 }
-					className="jetpack-newsletter-home__task-chevron is-external"
-				/>
-			) : (
-				! task.done && (
+				{ task.isExternal ? (
 					<Icon
-						icon={ chevronRight }
+						icon={ external }
 						size={ 24 }
-						className="jetpack-newsletter-home__task-chevron"
+						className="jetpack-newsletter-home__task-chevron is-external"
 					/>
-				)
-			) }
-		</Stack>
-	</Item>
-);
+				) : (
+					! task.done && (
+						<Icon
+							icon={ chevronRight }
+							size={ 24 }
+							className="jetpack-newsletter-home__task-chevron"
+						/>
+					)
+				) }
+			</Stack>
+		</Item>
+	);
+};
 
 /**
  * The dashboard body — greeting, the "Reach your first 3 readers" card, and the
@@ -372,12 +415,43 @@ const Dashboard = (): JSX.Element => {
 		} ).catch( () => setChecklistDismissed( false ) );
 	}, [] );
 
+	// Seeded the same way, so progress is on screen from the first paint.
+	const [ completed, setCompleted ] = useState< string[] >(
+		() => getNewsletterModeScriptData()?.checklistCompleted ?? []
+	);
+
+	// Following a row ticks it off. Completion isn't derived from site state yet,
+	// so the click is what we have — see getChecklist().
+	const completeTask = useCallback( ( task: ChecklistTask ) => {
+		if ( task.done ) {
+			return;
+		}
+
+		// Tick it immediately, and put it back if the write fails rather than
+		// leave the page disagreeing with what the next load will show.
+		setCompleted( previous =>
+			previous.includes( task.id ) ? previous : [ ...previous, task.id ]
+		);
+
+		apiFetch( {
+			path: '/jetpack-newsletter/v1/checklist-completed',
+			method: 'POST',
+			data: { task: task.id },
+			// These rows navigate as they are clicked, and an in-flight request is
+			// torn down when the page unloads — which would drop the tick that was
+			// just shown. `keepalive` hands the request to the browser to finish
+			// on its own, so the row does not have to be held back to save it.
+			keepalive: true,
+		} ).catch( () => setCompleted( previous => previous.filter( id => id !== task.id ) ) );
+	}, [] );
+
 	const siteUrl = getNewsletterModeScriptData()?.siteUrl;
 	const options: EntryPointOptions = {
 		canAddSubscribers,
 		onShare: siteUrl ? openShare : undefined,
 		siteUrl,
 		siteHost: getSiteHost( siteUrl ),
+		completed,
 	};
 
 	return (
@@ -431,7 +505,7 @@ const Dashboard = (): JSX.Element => {
 					</div>
 					<ItemGroup isSeparated className="jetpack-newsletter-home__checklist">
 						{ getChecklist( options ).map( task => (
-							<ChecklistRow key={ task.title } task={ task } />
+							<ChecklistRow key={ task.id } task={ task } onActivate={ completeTask } />
 						) ) }
 					</ItemGroup>
 				</div>

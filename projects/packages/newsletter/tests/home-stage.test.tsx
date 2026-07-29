@@ -41,6 +41,7 @@ const mockGetNewsletterScriptData = jest.fn<
 			settingsUrl?: string;
 			checklistDismissed?: boolean;
 			monetizeUrl?: string;
+			checklistCompleted?: string[];
 	  }
 	| undefined,
 	[]
@@ -90,7 +91,7 @@ jest.mock( '../_inc/share/share-newsletter-modal', () => ( {
 	},
 } ) );
 
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { stage as Stage } from '../routes/home/stage';
 
 const CONNECTED = {
@@ -414,5 +415,137 @@ describe( 'Newsletter Mode dashboard checklist dismissal', () => {
 		await expect(
 			screen.findByRole( 'heading', { name: 'Getting started' } )
 		).resolves.toBeInTheDocument();
+	} );
+} );
+
+describe( 'Newsletter Mode dashboard checklist completion', () => {
+	// Completion is not derived from site state yet — following a row is what
+	// ticks it off. It is stored per user against stable ids (so translated,
+	// still-being-reworded titles are not the key), and seeded into script data
+	// so progress is on screen from the first paint.
+	//
+	// The wrinkle is that these rows navigate as they are clicked, which tears
+	// down an in-flight request. `keepalive` hands the write to the browser to
+	// finish on its own, so the row does not have to be held back to save it.
+	const findTask = ( label: string ) => screen.getByRole( 'link', { name: new RegExp( label ) } );
+
+	/**
+	 * Follow a checklist row — a native click, the way `clickButton` above does,
+	 * since this package doesn't pull in `@testing-library/user-event`.
+	 *
+	 * These rows are real links and jsdom cannot navigate, so it logs an error
+	 * when one is followed. A listener cancels the default for the duration of
+	 * the click, which keeps that out of the console without the component
+	 * needing to care: `keepalive` is what saves the write, not any hold on the
+	 * click.
+	 *
+	 * @param label - Text the target row's accessible name contains.
+	 */
+	const clickTask = ( label: string ) => {
+		const link = findTask( label );
+		const cancelNavigation = ( event: Event ) => event.preventDefault();
+
+		link.addEventListener( 'click', cancelNavigation );
+		act( () => link.click() );
+		link.removeEventListener( 'click', cancelNavigation );
+	};
+
+	const chevronOf = ( label: string ) =>
+		// The chevron is dropped once a row is done, so its absence is the tell.
+		// A decorative `aria-hidden` SVG has no query that reaches it.
+		// eslint-disable-next-line testing-library/no-node-access
+		findTask( label ).querySelector( '.jetpack-newsletter-home__task-chevron' );
+
+	const scriptDataWith = ( completed: string[] ) => ( {
+		greetingName: '',
+		writeUrl: WRITE_URL,
+		siteUrl: SITE_URL,
+		settingsUrl: SETTINGS_URL,
+		monetizeUrl: MONETIZE_URL,
+		checklistCompleted: completed,
+	} );
+
+	it( 'renders a task the server already recorded as complete', () => {
+		mockGetNewsletterScriptData.mockReturnValue( scriptDataWith( [ 'make-it-yours' ] ) );
+
+		render( <Stage /> );
+
+		expect( chevronOf( 'Make it yours' ) ).toBeNull();
+		// Its neighbours are untouched.
+		expect( chevronOf( 'Write your first post' ) ).not.toBeNull();
+	} );
+
+	it( 'records the task against its stable id, not its title', () => {
+		render( <Stage /> );
+
+		clickTask( 'Grow your audience' );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				path: '/jetpack-newsletter/v1/checklist-completed',
+				method: 'POST',
+				data: { task: 'grow-audience' },
+			} )
+		);
+	} );
+
+	it( 'writes with keepalive so the navigation cannot drop it', () => {
+		render( <Stage /> );
+
+		clickTask( 'Grow your audience' );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith( expect.objectContaining( { keepalive: true } ) );
+	} );
+
+	it( 'ticks the row off straight away rather than waiting on the write', () => {
+		render( <Stage /> );
+
+		clickTask( 'Grow your audience' );
+
+		expect( chevronOf( 'Grow your audience' ) ).toBeNull();
+	} );
+
+	it( 'unticks the row when the write fails', async () => {
+		mockApiFetch.mockRejectedValue( new Error( 'nope' ) );
+
+		render( <Stage /> );
+
+		clickTask( 'Grow your audience' );
+
+		await waitFor( () => expect( chevronOf( 'Grow your audience' ) ).not.toBeNull() );
+	} );
+
+	it( 'does not re-record a task that is already complete', () => {
+		mockGetNewsletterScriptData.mockReturnValue( scriptDataWith( [ 'grow-audience' ] ) );
+
+		render( <Stage /> );
+
+		clickTask( 'Grow your audience' );
+
+		expect( mockApiFetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'records the row that leaves wp-admin too', () => {
+		render( <Stage /> );
+
+		clickTask( 'Set up paid subscriptions' );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( { data: { task: 'paid-subscriptions' } } )
+		);
+	} );
+
+	it( 'leaves a row with no destination inert rather than completable', () => {
+		// No connection and not a Simple site, so "Grow your audience" has nowhere
+		// to send anyone — it must not render as something to click.
+		mockIsSimpleSite.mockReturnValue( false );
+		mockConnection.mockReturnValue( { ...CONNECTED, isUserConnected: false } );
+
+		render( <Stage /> );
+
+		expect( screen.queryByRole( 'link', { name: /Grow your audience/ } ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'button', { name: /Grow your audience/ } )
+		).not.toBeInTheDocument();
 	} );
 } );

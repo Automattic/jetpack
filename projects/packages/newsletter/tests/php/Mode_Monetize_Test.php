@@ -45,4 +45,28 @@ class Mode_Monetize_Test extends BaseTestCase {
 		$this->assertSame( Mode::get_monetize_url(), $nav['monetize'] );
 		$this->assertArrayNotHasKey( 'paid', $nav );
 	}
+
+	/**
+	 * The nav's Settings item is unchanged, while the Dashboard's "Make it yours"
+	 * row asks the identity section to focus the title. Both go to the same tab,
+	 * so the hint has to be on one and not the other.
+	 */
+	public function test_settings_slug_carries_a_focus_hint_only_when_asked() {
+		$method = new \ReflectionMethod( Mode::class, 'get_settings_slug' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$plain   = $method->invoke( null );
+		$focused = $method->invoke( null, 'newsletter-title' );
+
+		$this->assertStringNotContainsString( 'focus', $plain );
+		// The SPA router reads one encoded `p` param, so the nested query has to
+		// arrive encoded rather than as separate args.
+		$this->assertStringContainsString( rawurlencode( '/?tab=settings' ), $plain );
+		$this->assertStringContainsString(
+			rawurlencode( '/?tab=settings&focus=newsletter-title' ),
+			$focused
+		);
+	}
 }

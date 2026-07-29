@@ -4,7 +4,7 @@
 import analytics from '@automattic/jetpack-analytics';
 import { getSiteType } from '@automattic/jetpack-script-data';
 import { DataForm, type Field } from '@wordpress/dataviews';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Card } from '@wordpress/ui';
 /**
@@ -20,6 +20,31 @@ interface NewsletterIdentitySectionProps {
 	hasChanges: boolean;
 	/** Fields staged in this section's changeset, fed into section_save analytics. */
 	changedKeys?: string[];
+}
+
+/** The `focus` value that asks this section for the title field. */
+const FOCUS_TITLE = 'newsletter-title';
+
+/**
+ * Whether the address asks for `field` to take focus on arrival.
+ *
+ * Read straight off the URL rather than through the router: this section also
+ * renders on the legacy settings surface, which mounts outside any route
+ * context, so a `useSearch()` here would throw there. The SPA router packs its
+ * own path and search into a single `p` param, hence the second parse.
+ *
+ * @param field - The focus target to look for.
+ * @return Whether the current address asks for it.
+ */
+function addressAsksToFocus( field: string ): boolean {
+	if ( typeof window === 'undefined' ) {
+		return false;
+	}
+
+	const routed = new URLSearchParams( window.location.search ).get( 'p' ) ?? '';
+	const query = routed.includes( '?' ) ? routed.slice( routed.indexOf( '?' ) + 1 ) : '';
+
+	return new URLSearchParams( query ).get( 'focus' ) === field;
 }
 
 /**
@@ -45,6 +70,24 @@ export function NewsletterIdentitySection( {
 	changedKeys,
 }: NewsletterIdentitySectionProps ): JSX.Element {
 	const siteType = getSiteType();
+
+	// `DataForm` owns the inputs, so there is no prop to focus one — reach for it
+	// through the fields wrapper instead. The form declares `title` first, so it
+	// is the first input in the section.
+	const fieldsRef = useRef< HTMLDivElement >( null );
+
+	useEffect( () => {
+		if ( ! addressAsksToFocus( FOCUS_TITLE ) ) {
+			return;
+		}
+
+		const input = fieldsRef.current?.querySelector< HTMLInputElement >( 'input' );
+
+		input?.focus();
+		// Select the existing name so it can be typed straight over — arriving
+		// here means the intent was to change it.
+		input?.select();
+	}, [] );
 
 	const handleSave = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_newsletter_section_save', {
@@ -79,18 +122,22 @@ export function NewsletterIdentitySection( {
 				<Card.Title>{ __( 'Newsletter identity', 'jetpack-newsletter' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
-				<DataForm
-					data={ data }
-					fields={ fields }
-					form={ {
-						layout: {
-							type: 'regular',
-							labelPosition: 'top',
-						},
-						fields: [ 'title', 'description' ],
-					} }
-					onChange={ onChange }
-				/>
+				{ /* `display: contents` so this wrapper is only a handle for the
+				     focus lookup above and leaves the card layout untouched. */ }
+				<div ref={ fieldsRef } style={ { display: 'contents' } }>
+					<DataForm
+						data={ data }
+						fields={ fields }
+						form={ {
+							layout: {
+								type: 'regular',
+								labelPosition: 'top',
+							},
+							fields: [ 'title', 'description' ],
+						} }
+						onChange={ onChange }
+					/>
+				</div>
 				<div className="newsletter-card-footer">
 					<Button
 						onClick={ handleSave }
