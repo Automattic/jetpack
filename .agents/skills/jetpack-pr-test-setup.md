@@ -125,9 +125,9 @@ essentials:
   `gutenberg`/`gutenberg-nightly` (block-editor changes; mutually exclusive), and `php_version`
   when a PR is about PHP compatibility.
 - Note `jetpack` itself defaults to **true**, as do `wp-debug-log` and `cache-drop-in` — pass
-  `"false"` to turn a default off. Two features take parameters that matter here: `jetpack-beta`
-  accepts `branches`, and `jetpack-products` takes a multi-select of Jetpack product licenses
-  (see step 5a before reaching for a plan override).
+  `"false"` to turn a default off. `jetpack-beta` takes a `branches` parameter; with none, JN
+  provisions `wp jetpack-beta activate jetpack trunk`. Ignore `jetpack-products` however
+  promising it looks — it can't be driven through this MCP and fails silently; see step 5.
 - Poll `list-sites` (`include_config:false`) until `status == 2` (cap ~3 min).
 - `connect-jetpack` (domain). **Capture the `blog_id`** and the **admin credentials** — the
   report in step 7 must hand these back so the user can reach `/wp-admin`. Note what
