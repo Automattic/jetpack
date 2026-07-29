@@ -451,7 +451,7 @@ class Jetpack_AI_Sidebar {
 			'aiEditorialReview'       => (bool) apply_filters( 'jetpack_ai_editorial_review_enabled', true ) && $writing_on,
 			'generateFeedback'        => $writing_on,
 			'proofreadContent'        => $writing_on,
-			'blockTransformations'    => true,
+			'blockTransformations'    => $writing_on,
 			'blockToolbarButton'      => true,
 			'optimizeTitleSuggestion' => $writing_on,
 			'seoSuggestions'          => self::is_seo_suggestions_enabled(),
@@ -478,6 +478,9 @@ class Jetpack_AI_Sidebar {
 		$features['optimizeTitleSuggestion'] = (bool) $features['optimizeTitleSuggestion'] && $writing_on;
 		$features['seoSuggestions']          = (bool) $features['seoSuggestions'] && self::is_seo_suggestions_enabled();
 		$features['excerptSuggestion']       = (bool) $features['excerptSuggestion'] && $writing_on;
+		// Block transformations (Translate, Change Tone, etc.) are writing features
+		// and follow the writing assistant toggle.
+		$features['blockTransformations'] = (bool) $features['blockTransformations'] && $writing_on;
 
 		return array(
 			'enabled'  => self::is_jetpack_ai_sidebar_preview_enabled(),
