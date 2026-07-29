@@ -5,6 +5,7 @@ import type {
 	ImportJob,
 	RemoveSubscriberPayload,
 	RemoveSubscriberResponse,
+	SubscribedNewsletterCategories,
 	SubscriberDetails,
 	SubscriberStats,
 	SubscribersQueryParams,
@@ -144,6 +145,28 @@ export function fetchSubscriberStats( params: IndividualParams ): Promise< Subsc
 			subscription_id: params.subscription_id ?? 0,
 			user_id: params.user_id ?? 0,
 		} ),
+		method: 'GET',
+	} );
+}
+
+/**
+ * Fetch the site's newsletter categories annotated with this subscriber's opt-in state, via the
+ * Jetpack proxy. Mirrors Calypso's `useSubscribedNewsletterCategories`: WP.com keys the record by
+ * subscription id, but accepts a WP.com user id instead when `type=wpcom` is passed, so prefer
+ * `user_id` when we have one (an email-only subscriber has no user id).
+ *
+ * @param params - Subscription identifiers.
+ * @return Site categories plus the feature flag and per-category `subscribed` state.
+ */
+export function fetchSubscribedNewsletterCategories(
+	params: IndividualParams
+): Promise< SubscribedNewsletterCategories > {
+	const userId = params.user_id ?? 0;
+	const id = userId || params.subscription_id || 0;
+	const path = `/wpcom/v2/newsletter-categories/subscriptions/${ id }`;
+
+	return apiFetch< SubscribedNewsletterCategories >( {
+		path: userId ? addQueryArgs( path, { type: 'wpcom' } ) : path,
 		method: 'GET',
 	} );
 }

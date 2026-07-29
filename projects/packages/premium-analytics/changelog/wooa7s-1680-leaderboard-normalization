@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Leaderboard widgets: Use a shared scale for current and comparison-period bars.

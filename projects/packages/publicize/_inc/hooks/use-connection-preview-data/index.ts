@@ -3,7 +3,7 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useMemo, useRef } from 'react';
 import { store as socialStore } from '../../social-store';
-import { features } from '../../utils';
+import { features, hasSocialPaidFeatures } from '../../utils';
 import useMediaDetails from '../use-media-details';
 import { usePerNetworkCustomization } from '../use-per-network-customization';
 import { usePostMeta } from '../use-post-meta';
@@ -49,8 +49,7 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 
 	const sig = useSigPreview( generateSigPreview );
 
-	const isPerNetworkMode =
-		siteHasFeature( features.ENHANCED_PUBLISHING ) && usingPerNetworkCustomization;
+	const isPerNetworkMode = hasSocialPaidFeatures() && usingPerNetworkCustomization;
 
 	const media = useMemo< PostPreviewData[ 'media' ] >( () => {
 		if ( ! isPerNetworkMode ) {
@@ -89,7 +88,7 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 		sig.url,
 	] );
 
-	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
+	const templatesEnabled = hasSocialPaidFeatures();
 	const { items, postIntent } = useRenderMessageInputs();
 	const siteMessageTemplate = useSelect(
 		select =>

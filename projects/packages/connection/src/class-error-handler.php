@@ -102,29 +102,34 @@ class Error_Handler {
 	 * @var array
 	 */
 	public $known_errors = array(
-		'malformed_token',
-		'malformed_user_id',
-		'unknown_user',
-		'no_user_tokens',
-		'empty_master_user_option',
-		'no_token_for_user',
-		'token_malformed',
-		'user_id_mismatch',
-		'no_possible_tokens',
-		'no_valid_user_token',
-		'no_valid_blog_token',
-		'unknown_token',
-		'could_not_sign',
-		'invalid_scheme',
-		'invalid_secret',
-		'invalid_token',
-		'token_mismatch',
-		'invalid_body',
-		'invalid_signature',
-		'invalid_body_hash',
-		'invalid_nonce',
-		'signature_mismatch',
-		'invalid_connection_owner',
+		// Incoming request token problems (Manager::internal_verify_xml_rpc_signature).
+		'malformed_token',           // Token in the request is empty/garbled, or its API version doesn't match ours.
+		'malformed_user_id',         // The user_id segment of the request token is not numeric.
+		'unknown_user',              // The request token's user does not exist on this site.
+		// Locally stored token problems (Tokens::get_access_token).
+		'no_user_tokens',            // The user_tokens option is empty; no user tokens exist at all.
+		'empty_master_user_option',  // The owner's token was requested but the master_user option is empty.
+		'no_token_for_user',         // No stored token for the requested user.
+		'token_malformed',           // The stored token for the requested user is corrupt (missing chunks).
+		'user_id_mismatch',          // The requested user ID doesn't match the user_id segment of their stored token.
+		'no_possible_tokens',        // No stored blog token.
+		'no_valid_user_token',       // The stored user token doesn't match the key the request was signed with.
+		'no_valid_blog_token',       // The stored blog token doesn't match the key the request was signed with.
+		'unknown_token',             // No stored token matches the request token's key.
+		// Signature verification problems (Jetpack_Signature), or errors WPCOM returned
+		// for an outbound request (Error_Handler::check_api_response_for_errors).
+		'could_not_sign',            // Signing the request failed for an unknown reason.
+		'invalid_scheme',            // Invalid URL scheme when signing.
+		'invalid_secret',            // The stored token secret is invalid.
+		'invalid_token',             // No token available when signing; from WPCOM: the token used was rejected.
+		'token_mismatch',            // The request token doesn't match the token we hold.
+		'invalid_body',              // The request body is malformed.
+		'invalid_signature',         // A signature parameter is malformed, or the timestamp is off (clock skew).
+		'invalid_body_hash',         // The body hash doesn't match the request body.
+		'invalid_nonce',             // The request nonce could not be added (likely a reuse/replay).
+		'signature_mismatch',        // Computed signature differs: wrong secret, or URL/body drift (domain change, proxy).
+		// Connection state problems (Manager::get_connection_owner).
+		'invalid_connection_owner',  // The connection owner cannot be resolved: token missing or WP user deleted.
 	);
 
 	/**
@@ -175,6 +180,10 @@ class Error_Handler {
 	 * predefined error messages and actions, with optional filtering for specific sites.
 	 * Only processes a limited set of error codes that are meant to be displayed to users.
 	 *
+	 * error_data.action is only set when it deviates from the default behavior
+	 * (e.g. 'none' to suppress the reconnect CTA); when absent, readers fall back
+	 * to offering the reconnect CTA.
+	 *
 	 * @since 6.13.10
 	 *
 	 * @return array Array of displayable errors with hierarchical structure.
@@ -185,7 +194,8 @@ class Error_Handler {
 	 *                     'error_code' => 'invalid_token',
 	 *                     'user_id' => '123',
 	 *                     'error_message' => 'Your connection with WordPress.com seems to be broken...',
-	 *                     'error_data' => ['action' => 'reconnect'],
+	 *                     'audience' => 'user',
+	 *                     'error_data' => [...],
 	 *                     'timestamp' => 1234567890,
 	 *                     'nonce' => 'abc123def',
 	 *                     'error_type' => 'xmlrpc'
@@ -194,48 +204,111 @@ class Error_Handler {
 	 *               ]
 	 */
 	public function get_displayable_errors() {
-		// Check if we have cached result AND no filters are applied
-		if ( $this->cached_displayable_errors !== null && ! $this->has_external_filters() ) {
-			return $this->cached_displayable_errors;
+		$viewer_id = get_current_user_id();
+
+		// Check if we have a cached result for this viewer AND no filters are applied.
+		// The output is viewer-dependent (see audience classification below), so the
+		// cache is keyed by the current user.
+		if ( is_array( $this->cached_displayable_errors )
+			&& array_key_exists( $viewer_id, $this->cached_displayable_errors )
+			&& ! $this->has_external_filters() ) {
+			return $this->cached_displayable_errors[ $viewer_id ];
 		}
 
 		$verified_errors    = $this->get_verified_errors();
 		$displayable_errors = array();
 
-		// Only process error codes that are meant to be displayed to users
-		$displayable_error_codes = array(
-			'malformed_token',
-			'token_malformed',
-			'no_possible_tokens',
-			'no_valid_user_token',
-			'no_valid_blog_token',
-			'unknown_token',
-			'could_not_sign',
-			'invalid_token',
-			'token_mismatch',
-			'invalid_signature',
-			'signature_mismatch',
-			'no_user_tokens',
-			'no_token_for_user',
-			'invalid_connection_owner',
-		);
+		// The common case is zero verified errors: skip the owner/transferability
+		// lookups entirely then. The external filter below still runs so consumers
+		// (e.g. wpcomsh) can inject errors into an empty set.
+		if ( ! empty( $verified_errors ) ) {
+			// Only process error codes that are meant to be displayed to users.
+			// `no_user_tokens` is deliberately excluded: with an empty user_tokens option the
+			// site already behaves as site-only connected, and the connection UI prompts users
+			// to connect their accounts. The owner flavor is covered by `invalid_connection_owner`.
+			$displayable_error_codes = array(
+				'malformed_token',
+				'token_malformed',
+				'no_possible_tokens',
+				'no_valid_user_token',
+				'no_valid_blog_token',
+				'unknown_token',
+				'could_not_sign',
+				'invalid_token',
+				'token_mismatch',
+				'invalid_signature',
+				'signature_mismatch',
+				'no_token_for_user',
+				'invalid_connection_owner',
+			);
 
-		foreach ( $verified_errors as $error_code => $users ) {
-			// Skip error codes that are not meant to be displayed
-			if ( ! in_array( $error_code, $displayable_error_codes, true ) ) {
-				continue;
-			}
+			$owner_id        = (int) \Jetpack_Options::get_option( 'master_user' );
+			$viewer_is_owner = $owner_id > 0 && $viewer_id === $owner_id;
+			$is_transferable = ( new Manager() )->is_ownership_transferable();
 
-			$displayable_errors[ $error_code ] = array();
+			foreach ( $verified_errors as $error_code => $users ) {
+				// Skip error codes that are not meant to be displayed
+				if ( ! in_array( $error_code, $displayable_error_codes, true ) ) {
+					continue;
+				}
 
-			foreach ( $users as $user_id => $error ) {
-				// Override other error messages with default display message
-				$displayable_errors[ $error_code ][ $user_id ] = array_merge(
-					$error,
-					array(
-						'error_message' => __( "Your connection with WordPress.com seems to be broken. If you're experiencing issues, please try reconnecting.", 'jetpack-connection' ),
-					)
-				);
+				foreach ( $users as $user_id => $error ) {
+					// An error that cannot be attributed to the blog token or to any user's
+					// token belongs to no audience and is not actionable by any viewer.
+					if ( 'invalid' === $user_id ) {
+						continue;
+					}
+
+					$audience = $this->classify_error_audience( $user_id, $owner_id );
+
+					$message = __( "Your connection with WordPress.com seems to be broken. If you're experiencing issues, please try reconnecting.", 'jetpack-connection' );
+					$action  = null;
+
+					// A secondary admin looking at the connection owner's token error, on a
+					// site where ownership is locked (a consumer declared it non-transferable).
+					// This admin cannot resolve the error themselves, so surface an
+					// informational notice naming the owner and offer no reconnect CTA.
+					if ( 'owner' === $audience && ! $viewer_is_owner && ! $is_transferable ) {
+						// Only name the owner for viewers who can act on connection issues:
+						// this output is also printed into the initial state for
+						// lower-capability users (e.g. contributors in the editor), who
+						// shouldn't learn who owns the connection. The name is resolved from
+						// the local user rather than get_connection_owner(), which
+						// re-reports the error and fails exactly when the token is broken.
+						$owner_name = '';
+						if ( current_user_can( 'jetpack_connect' ) ) {
+							$owner      = get_userdata( $owner_id );
+							$owner_name = $owner instanceof \WP_User ? $owner->display_name : '';
+						}
+
+						$message = $owner_name
+							? sprintf(
+								/* translators: %s is the display name of the Jetpack connection owner. */
+								__( 'The connection owner (%s) needs to reconnect their WordPress.com account to restore the connection.', 'jetpack-connection' ),
+								$owner_name
+							)
+							: __( 'The connection owner needs to reconnect their WordPress.com account to restore the connection.', 'jetpack-connection' );
+						$action = 'none';
+					}
+
+					$error['audience']      = $audience;
+					$error['error_message'] = $message;
+
+					// Only emit error_data.action when it deviates from the default. Readers
+					// already fall back to the reconnect CTA when no action is set, and
+					// injecting an explicit 'reconnect' could trip consumer code paths
+					// reserved for custom actions.
+					if ( null !== $action ) {
+						$error_data           = ( isset( $error['error_data'] ) && is_array( $error['error_data'] ) ) ? $error['error_data'] : array();
+						$error_data['action'] = $action;
+						$error['error_data']  = $error_data;
+					}
+
+					if ( ! isset( $displayable_errors[ $error_code ] ) ) {
+						$displayable_errors[ $error_code ] = array();
+					}
+					$displayable_errors[ $error_code ][ $user_id ] = $error;
+				}
 			}
 		}
 
@@ -245,6 +318,11 @@ class Error_Handler {
 		 * This filter allows sites to customize how connection errors are displayed,
 		 * including modifying error messages, actions, and data. Access to this filter
 		 * is controlled by should_allow_error_filtering().
+		 *
+		 * Consumer-injected errors take precedence over the default state. They are not
+		 * required to carry the newer `audience` field: it is optional metadata used
+		 * only for our own audience-aware messaging, and any reader must treat a missing
+		 * value as site-wide (`$error['audience'] ?? 'site'`).
 		 *
 		 * @since 6.12.0
 		 *
@@ -257,10 +335,45 @@ class Error_Handler {
 
 		// Only cache if no external filters are applied
 		if ( ! $this->has_external_filters() ) {
-			$this->cached_displayable_errors = $displayable_errors;
+			if ( ! is_array( $this->cached_displayable_errors ) ) {
+				$this->cached_displayable_errors = array();
+			}
+			$this->cached_displayable_errors[ $viewer_id ] = $displayable_errors;
 		}
 
 		return $displayable_errors;
+	}
+
+	/**
+	 * Classifies the audience of a stored connection error based on its user ID.
+	 *
+	 * The audience determines who a connection error is relevant to and, in turn,
+	 * how it should be surfaced:
+	 * - `site`  : blog-token / site-wide errors (user ID `0`).
+	 * - `owner` : errors tied to the connection owner's user token.
+	 * - `user`  : errors tied to a specific (non-owner) user's token.
+	 *
+	 * Unattributable errors (user ID 'invalid') are skipped by the display pipeline
+	 * before classification, so this method only receives numeric user IDs.
+	 *
+	 * @since 8.8.0
+	 *
+	 * @param string|int $user_id  The user ID associated with the error (`0` or a positive integer).
+	 * @param int        $owner_id The local user ID of the connection owner, or 0 if there is none.
+	 * @return string One of 'site', 'owner', or 'user'.
+	 */
+	private function classify_error_audience( $user_id, $owner_id ) {
+		$user_id = (int) $user_id;
+
+		if ( 0 === $user_id ) {
+			return 'site';
+		}
+
+		if ( $owner_id > 0 && $user_id === $owner_id ) {
+			return 'owner';
+		}
+
+		return 'user';
 	}
 
 	/**
@@ -320,7 +433,8 @@ class Error_Handler {
 	 *                   'action' => 'reconnect',
 	 *                   'data' => [
 	 *                     'api_error_code' => 'invalid_token',
-	 *                     'action' => 'reconnect'
+	 *                     'action' => 'reconnect',
+	 *                     'audience' => 'site' // Who the error is relevant to: 'site', 'owner', or 'user'.
 	 *                   ]
 	 *                 ]
 	 *               ]
@@ -364,6 +478,11 @@ class Error_Handler {
 				$dashboard_data[ $key ] = $value;
 			}
 		}
+
+		// Expose the error audience (site/owner/user) so the dashboard can render
+		// audience-aware copy. Falls back to site-wide for consumer-injected errors
+		// that predate the audience field.
+		$dashboard_data['audience'] = $first_error['audience'] ?? 'site';
 
 		$dashboard_error = array(
 			array(
@@ -591,6 +710,11 @@ class Error_Handler {
 	/**
 	 * Converts a WP_Error object in the array representation we store in the database
 	 *
+	 * The user attribution comes from the token in `signature_details`, which identifies
+	 * the exact credential that failed. An explicit `user_id` in the error data is only
+	 * consulted as a fallback when the token yields no user (e.g. non-signature errors
+	 * such as `invalid_connection_owner`, which are reported with an empty token).
+	 *
 	 * @since 1.14.2
 	 *
 	 * @param \WP_Error $error the error object.
@@ -612,10 +736,23 @@ class Error_Handler {
 
 		$user_id = $this->get_user_id_from_token( $signature_details['token'] );
 
+		if ( 'invalid' === $user_id && isset( $data['user_id'] ) && is_numeric( $data['user_id'] ) ) {
+			$user_id = (string) (int) $data['user_id'];
+		}
+
+		$error_data = $signature_details;
+
+		// For invalid_connection_owner, has_user_token distinguishes a missing owner
+		// token from a deleted owner WP user. Keep it so display code can tell the
+		// two flavors apart.
+		if ( isset( $data['has_user_token'] ) ) {
+			$error_data['has_user_token'] = (bool) $data['has_user_token'];
+		}
+
 		return $this->build_error_array(
 			$error->get_error_code(),
 			$error->get_error_message(),
-			$signature_details,
+			$error_data,
 			$user_id,
 			empty( $data['error_type'] ) ? '' : $data['error_type']
 		);

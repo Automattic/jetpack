@@ -40,7 +40,7 @@ final class Dashboard_Section_Registry {
 		if ( ! $this->is_valid_dashboard_name( $dashboard_name ) ) {
 			_doing_it_wrong(
 				__METHOD__,
-				esc_html__( 'Dashboard names must be lowercase strings of letters, numbers, and hyphens, optionally separated by underscores.', 'jetpack-premium-analytics' ),
+				esc_html__( 'Dashboard names must be lowercase strings of letters, numbers, and hyphens, optionally separated by underscores.', 'jetpack-premium-analytics-pkg' ),
 				'0.1.0'
 			);
 			return false;
@@ -49,7 +49,7 @@ final class Dashboard_Section_Registry {
 		if ( ! $this->is_valid_section_id( $id ) ) {
 			_doing_it_wrong(
 				__METHOD__,
-				esc_html__( 'Dashboard section IDs must contain a namespace prefix. Example: my-plugin/my-custom-section', 'jetpack-premium-analytics' ),
+				esc_html__( 'Dashboard section IDs must contain a namespace prefix. Example: my-plugin/my-custom-section', 'jetpack-premium-analytics-pkg' ),
 				'0.1.0'
 			);
 			return false;
@@ -60,7 +60,7 @@ final class Dashboard_Section_Registry {
 				__METHOD__,
 				sprintf(
 					/* translators: 1: Dashboard name. 2: Dashboard section ID. */
-					esc_html__( 'Dashboard section "%2$s" is already registered for dashboard "%1$s".', 'jetpack-premium-analytics' ),
+					esc_html__( 'Dashboard section "%2$s" is already registered for dashboard "%1$s".', 'jetpack-premium-analytics-pkg' ),
 					esc_html( $dashboard_name ),
 					esc_html( $id )
 				),

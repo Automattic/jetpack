@@ -176,7 +176,7 @@ export function MetricTabsChart( {
 	onMetricChange,
 	controls,
 	loading = false,
-	groupLabel = __( 'Select metric', 'jetpack-premium-analytics' ),
+	groupLabel = __( 'Select metric', 'jetpack-premium-analytics-pkg' ),
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
 

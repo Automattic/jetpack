@@ -19,31 +19,6 @@
 use Automattic\Jetpack\Status\Host;
 
 /**
- * Whether the modernized VideoPress dashboard is rolled out to this Simple
- * site and user (VIDP-285).
- *
- * The whole admin UI keys off Admin_UI::is_modernized() — menu registration
- * (add_wp_admin_submenu bails without it), the wp-build asset load, and the
- * boot payload — so this is the Simple staged-rollout switch: off by default,
- * on for CFT testers via the blog sticker, and always on for Automatticians.
- * UI-only by design: the REST surface (wpcom/v2 routes, attachment query
- * filters, the server-side token mint) stays registered regardless, so the
- * API contract doesn't flap with the flag.
- *
- * @return bool Whether the modernized dashboard should be enabled.
- */
-function wpcom_videopress_modernized_dashboard_enabled() {
-	if (
-		function_exists( 'wpcom_has_blog_sticker' ) && function_exists( 'get_wpcom_blog_id' )
-		&& wpcom_has_blog_sticker( 'videopress-modernized-dashboard', get_wpcom_blog_id() )
-	) {
-		return true;
-	}
-
-	return function_exists( 'is_automattician' ) && is_automattician( get_current_user_id() );
-}
-
-/**
  * Initialize the VideoPress Admin UI on WordPress.com Simple sites.
  *
  * Guarded on Simple because on Atomic and standalone Jetpack the VideoPress package
@@ -58,14 +33,6 @@ function wpcom_videopress_init_admin_ui() {
 	if ( ! ( new Host() )->is_wpcom_simple() ) {
 		return;
 	}
-
-	/*
-	 * VIDP-285: staged rollout. Registered on Simple only, so self-hosted and
-	 * Atomic keep the filter's default (enabled). The callbacks that consult
-	 * Admin_UI::is_modernized() run at admin_menu time, well after this
-	 * plugins_loaded-time registration.
-	 */
-	add_filter( 'rsm_jetpack_ui_modernization_videopress', 'wpcom_videopress_modernized_dashboard_enabled' );
 
 	if ( ! class_exists( '\Automattic\Jetpack\VideoPress\Admin_UI' ) ) {
 		return;

@@ -113,14 +113,14 @@ const PAID_FEATURES_SELF_HOSTED: ReadonlyArray< string > = [
 const STEPS: ReadonlyArray< { number: string; title: string; body: string } > = [
 	{
 		number: '1',
-		title: __( 'Pick a category', 'jetpack-podcast' ),
-		body: __( 'Choose or create the category that holds your episodes.', 'jetpack-podcast' ),
+		title: __( 'Pick a post category', 'jetpack-podcast' ),
+		body: __( 'Choose or create the post category that holds your episodes.', 'jetpack-podcast' ),
 	},
 	{
 		number: '2',
 		title: __( 'Publish a post with audio', 'jetpack-podcast' ),
 		body: __(
-			'Add an audio or podcast episode block to any post and assign it to your podcast category.',
+			'Add an audio or podcast episode block to any post and assign it to your post category.',
 			'jetpack-podcast'
 		),
 	},

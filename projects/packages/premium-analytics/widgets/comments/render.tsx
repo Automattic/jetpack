@@ -8,6 +8,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
+	safeHttpUrl,
 	sharePercentage,
 	type LeaderboardChartData,
 	type LeaderboardRowChartProps,
@@ -48,6 +49,9 @@ function isCommentView( value: unknown ): value is CommentsView {
  */
 function buildRowLabel( row: CommentRow, view: CommentsView ): LeaderboardRowChartProps {
 	if ( view === 'authors' ) {
+		// The author link is constructed locally by the data layer (a relative
+		// `edit-comments.php?s=…` search), so it needs no scheme guard — which
+		// would reject it as relative anyway.
 		return buildLeaderboardRow( {
 			label: row.label,
 			media: { kind: 'avatar', url: row.avatarUrl, name: row.label },
@@ -55,10 +59,14 @@ function buildRowLabel( row: CommentRow, view: CommentsView ): LeaderboardRowCha
 		} );
 	}
 
+	// Post permalinks come from report data, so validate the scheme before the
+	// row becomes a link.
+	const href = safeHttpUrl( row.link );
+
 	return buildLeaderboardRow( {
 		label: row.label,
 		media: { kind: 'none' },
-		action: row.link ? { kind: 'link', href: row.link } : { kind: 'static' },
+		action: href ? { kind: 'link', href } : { kind: 'static' },
 	} );
 }
 
@@ -108,15 +116,17 @@ function CommentsInner( { max = 10, view }: CommentsInnerProps ) {
 					error={ {
 						description: __(
 							"We couldn't load comments. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
-						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
 					} }
 					empty={ {
 						icon: comment,
 						description: __(
 							'Learn about the comments your site receives by authors, posts, and pages.',
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
 					} }
 				>

@@ -4,11 +4,14 @@
 import { useStatsTopAuthors } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	ReportLink,
 	WidgetBackLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
 	formatLegendLabels,
+	safeHttpUrl,
 	toMaxRows,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -125,12 +128,16 @@ export function AuthorsLeaderboard( {
 		// posts that only existed in the comparison period.
 		if ( selectedAuthor ) {
 			return selectedAuthor.posts.map( post => {
+				// Post permalinks come from report data, so validate the scheme
+				// before the row becomes a link.
+				const postHref = safeHttpUrl( post.link );
+
 				return {
 					id: post.id,
 					...buildLeaderboardRow( {
 						label: post.title,
 						media: { kind: 'none' },
-						action: post.link ? { kind: 'link', href: post.link } : { kind: 'static' },
+						action: postHref ? { kind: 'link', href: postHref } : { kind: 'static' },
 					} ),
 					currentValue: post.currentValue,
 					previousValue: post.previousValue,
@@ -155,7 +162,7 @@ export function AuthorsLeaderboard( {
 								onClick: () => selectAuthor( row.id ),
 								ariaLabel: sprintf(
 									/* translators: %s is the author name */
-									__( 'View posts by %s', 'jetpack-premium-analytics' ),
+									__( 'View posts by %s', 'jetpack-premium-analytics-pkg' ),
 									row.label
 								),
 						  }
@@ -175,7 +182,7 @@ export function AuthorsLeaderboard( {
 		<div className={ styles.content }>
 			{ selectedAuthor && (
 				<WidgetBackLink
-					label={ __( 'All authors', 'jetpack-premium-analytics' ) }
+					label={ __( 'All authors', 'jetpack-premium-analytics-pkg' ) }
 					onClick={ clearSelectedAuthor }
 				/>
 			) }
@@ -187,10 +194,10 @@ export function AuthorsLeaderboard( {
 				error={ {
 					description: __(
 						"We couldn't load authors. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 					actions: refetch
-						? [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ]
+						? [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ]
 						: undefined,
 				} }
 				empty={ {
@@ -198,9 +205,9 @@ export function AuthorsLeaderboard( {
 					description: isDrilled
 						? __(
 								'This author has no posts with views for the selected period.',
-								'jetpack-premium-analytics'
+								'jetpack-premium-analytics-pkg'
 						  )
-						: __( 'No author views in this period.', 'jetpack-premium-analytics' ),
+						: __( 'No author views in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				<LeaderboardChart
@@ -261,19 +268,24 @@ function AuthorsReport( { max }: AuthorsReportProps ) {
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
 	return (
-		<AuthorsLeaderboard
-			rows={ rows }
-			isLoading={ isInitialLoading }
-			isFetching={ isFetching }
-			// The Stats queries carry `placeholderData: previousData => previousData`, so a
-			// failed range change keeps the prior period's rows while `isError` flips true.
-			// Only surface the error when there's nothing to show, so a transient refetch
-			// failure doesn't replace populated rows with the error state.
-			isError={ rows.length === 0 && isError }
-			refetch={ refetch }
-			withComparison={ hasComparison }
-			legendLabels={ legendLabels }
-		/>
+		<>
+			<AuthorsLeaderboard
+				rows={ rows }
+				isLoading={ isInitialLoading }
+				isFetching={ isFetching }
+				// The Stats queries carry `placeholderData: previousData => previousData`, so a
+				// failed range change keeps the prior period's rows while `isError` flips true.
+				// Only surface the error when there's nothing to show, so a transient refetch
+				// failure doesn't replace populated rows with the error state.
+				isError={ rows.length === 0 && isError }
+				refetch={ refetch }
+				withComparison={ hasComparison }
+				legendLabels={ legendLabels }
+			/>
+			<WidgetFooter>
+				<ReportLink report="authors" />
+			</WidgetFooter>
+		</>
 	);
 }
 

@@ -32,10 +32,6 @@ export { useStatsLocations } from './use-stats-locations';
 export { useStatsCountryViews } from './use-stats-country-views';
 export { useStatsVideoPlays } from './use-stats-video-plays';
 export {
-	useStatsVideoPlaysSummary,
-	type StatsVideoPlaysSummaryParams,
-} from './use-stats-video-plays-summary';
-export {
 	useStatsAppCommercialClassificationMutation,
 	type StatsAppCommercialClassificationParams,
 } from './use-stats-app-commercial-classification';
@@ -76,8 +72,6 @@ export {
 } from './use-stats-comment-followers';
 export { useStatsFollowers } from './use-stats-followers';
 export type { StatsFollowersParams, StatsFollowersResponse } from './use-stats-followers';
-export { useStatsPublicize } from './use-stats-publicize';
-export type { StatsPublicizeParams, StatsPublicizeResponse } from './use-stats-publicize';
 export {
 	useStatsComments,
 	type StatsCommentsParams,

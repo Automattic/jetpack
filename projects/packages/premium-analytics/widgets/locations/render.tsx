@@ -10,6 +10,7 @@ import {
 	buildLeaderboardRow,
 	calculateDelta,
 	flagUrl,
+	getCombinedPeriodMax,
 	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -204,9 +205,9 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 		const useLocationHeader = renderGeoMode === 'region' && ! useCountryFallbackMap;
 		const header: GoogleDataTableColumn[] = [
 			useLocationHeader
-				? __( 'Location', 'jetpack-premium-analytics' )
-				: __( 'Country', 'jetpack-premium-analytics' ),
-			__( 'Views', 'jetpack-premium-analytics' ),
+				? __( 'Location', 'jetpack-premium-analytics-pkg' )
+				: __( 'Country', 'jetpack-premium-analytics-pkg' ),
+			__( 'Views', 'jetpack-premium-analytics-pkg' ),
 		];
 
 		if ( fallbackCountry ) {
@@ -254,8 +255,10 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 	] );
 
 	const leaderboardData = useMemo( () => {
-		const maxValue = Math.max( ...data.map( l => l.value ), 0 );
-		const maxComparisonValue = Math.max( ...data.map( l => l.previousValue ?? 0 ), 0 );
+		const maxValue = getCombinedPeriodMax(
+			data.map( location => location.value ),
+			hasComparison ? data.map( location => location.previousValue ) : []
+		);
 
 		return data.map( location => {
 			const imageUrl = flagUrl( location.countryCode );
@@ -282,7 +285,7 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 										} ),
 									ariaLabel: sprintf(
 										/* translators: %s is the country name */
-										__( 'View regions in %s', 'jetpack-premium-analytics' ),
+										__( 'View regions in %s', 'jetpack-premium-analytics-pkg' ),
 										location.countryFull
 									),
 							  }
@@ -293,7 +296,7 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 				currentShare: sharePercentage( location.value, maxValue ),
 				previousShare:
 					hasComparison && previousValue !== undefined
-						? sharePercentage( previousValue, maxComparisonValue )
+						? sharePercentage( previousValue, maxValue )
 						: undefined,
 				delta:
 					hasComparison && previousValue !== undefined
@@ -305,8 +308,8 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 
 	const backLink = renderSelectedCountry ? (
 		<WidgetBackLink
-			label={ __( 'All Locations', 'jetpack-premium-analytics' ) }
-			ariaLabel={ __( 'View all locations', 'jetpack-premium-analytics' ) }
+			label={ __( 'All Locations', 'jetpack-premium-analytics-pkg' ) }
+			ariaLabel={ __( 'View all locations', 'jetpack-premium-analytics-pkg' ) }
 			onClick={ clearSelectedCountry }
 			className={ styles.backLink }
 		/>
@@ -332,13 +335,15 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 					error={ {
 						description: __(
 							"We couldn't load location data. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
-						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
 					} }
 					empty={ {
 						icon: locationIcon,
-						description: __( 'No location data in this period.', 'jetpack-premium-analytics' ),
+						description: __( 'No location data in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
 				>
 					<div className={ styles.chartArea }>

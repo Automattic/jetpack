@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { calculateDelta } from './calculate-delta';
+import { getCombinedPeriodMax } from './get-combined-period-max';
 import { sharePercentage } from './share-percentage';
 import type { LeaderboardChartData } from '../components/chart-leaderboard/leaderboard-chart';
 import type { GeoData } from '@automattic/charts';
@@ -57,8 +58,8 @@ export function buildVisitorsByLocationData( {
 }: BuildVisitorsByLocationDataParams ): VisitorsByLocationData {
 	const headerLabel =
 		region === 'US'
-			? __( 'State', 'jetpack-premium-analytics' )
-			: __( 'Country', 'jetpack-premium-analytics' );
+			? __( 'State', 'jetpack-premium-analytics-pkg' )
+			: __( 'Country', 'jetpack-premium-analytics-pkg' );
 
 	// Build geo chart data
 	const geoData: GeoData = [
@@ -66,23 +67,22 @@ export function buildVisitorsByLocationData( {
 		...primaryData.map( item => [ item.label, item.value ] as [ string, number ] ),
 	];
 
-	// Find max values for bar width scaling (largest value = 100% width)
-	const maxPrimaryValue = Math.max( ...primaryData.map( d => d.value ), 0 );
-	const maxComparisonValue = comparisonData
-		? Math.max( ...comparisonData.map( d => d.value ), 0 )
-		: 0;
-
 	let hasRowComparison = false;
+	const comparisonValues = new Map( comparisonData?.map( item => [ item.id, item.value ] ) );
+	const visiblePrimaryData = primaryData.slice( 0, limit );
+	const maxValue = getCombinedPeriodMax(
+		visiblePrimaryData.map( item => item.value ),
+		visiblePrimaryData.map( item => comparisonValues.get( item.id ) )
+	);
 
 	// Build leaderboard data (top N items)
-	const leaderboardData: LeaderboardChartData = primaryData.slice( 0, limit ).map( item => {
-		const comparisonItem = comparisonData?.find( c => c.id === item.id );
-
+	const leaderboardData: LeaderboardChartData = visiblePrimaryData.map( item => {
 		// A location absent from the comparison period has an unknown previous
 		// value, not a real 0, so leave the comparison fields undefined and let
-		// the chart show a placeholder instead of a fabricated delta. A location
-		// present with 0 visitors has a known previous value and keeps its delta.
-		const previousValue = comparisonItem?.value;
+		// the chart show a missing-data placeholder instead of a fabricated delta.
+		// A location present with 0 visitors keeps its known comparison value while
+		// its unavailable delta renders separately.
+		const previousValue = comparisonValues.get( item.id );
 		const hasComparisonValue = previousValue !== undefined;
 
 		if ( hasComparisonValue ) {
@@ -94,10 +94,8 @@ export function buildVisitorsByLocationData( {
 			label: item.label,
 			currentValue: item.value,
 			previousValue,
-			currentShare: sharePercentage( item.value, maxPrimaryValue ),
-			previousShare: hasComparisonValue
-				? sharePercentage( previousValue, maxComparisonValue )
-				: undefined,
+			currentShare: sharePercentage( item.value, maxValue ),
+			previousShare: hasComparisonValue ? sharePercentage( previousValue, maxValue ) : undefined,
 			delta: hasComparisonValue ? calculateDelta( item.value, previousValue ) : undefined,
 		};
 	} );

@@ -25,7 +25,7 @@ export default {
 	attributes: [
 		{
 			id: 'max',
-			label: __( 'Maximum authors', 'jetpack-premium-analytics' ),
+			label: __( 'Maximum authors', 'jetpack-premium-analytics-pkg' ),
 			type: 'integer',
 		},
 	] as WidgetAttributeField< AuthorsAttributes >[],

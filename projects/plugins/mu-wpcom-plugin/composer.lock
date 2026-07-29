@@ -716,7 +716,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "ce362d9d8bf97228d5267f8d4a9b05379ff98aa2"
+                "reference": "b73cc2a68522658c6693f035e7a8c0d5b6984688"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -753,7 +753,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "8.7.x-dev"
+                    "dev-trunk": "8.8.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1034,6 +1034,74 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Set up Google Analytics without touching a line of code.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-help-center",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/help-center",
+                "reference": "48d4a0c0e828efd684bf626fbfd0428d6a235bb7"
+            },
+            "require": {
+                "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-status": "@dev",
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "brain/monkey": "^2.6.2",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autorelease": true,
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.2.x-dev"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-help-center/compare/v${old}...v${new}"
+                },
+                "mirror-repo": "Automattic/jetpack-help-center",
+                "textdomain": "jetpack-help-center",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-help-center.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "build-production": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Help Center backend for WordPress.com-connected sites",
             "transport-options": {
                 "relative": true
             }
@@ -1371,7 +1439,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "f5a0802d45daac83c0bf9df90cf6f330527227cf"
+                "reference": "a4ec5bb16c17e8463f28a6246fc68e19331b6497"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1384,6 +1452,7 @@
                 "automattic/jetpack-device-detection": "@dev",
                 "automattic/jetpack-explat": "@dev",
                 "automattic/jetpack-google-analytics": "@dev",
+                "automattic/jetpack-help-center": "@dev",
                 "automattic/jetpack-masterbar": "@dev",
                 "automattic/jetpack-podcast": "@dev",
                 "automattic/jetpack-premium-analytics": "@dev",
@@ -1727,7 +1796,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "8a37e653800a0f6eab73996b880000796cd0ff4c"
+                "reference": "304ceeeb57ae0338fe605547cbc391fdf1b33d3b"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1749,7 +1818,7 @@
             "extra": {
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-premium-analytics",
-                "textdomain": "jetpack-premium-analytics",
+                "textdomain": "jetpack-premium-analytics-pkg",
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-analytics.php"
                 },
@@ -1774,6 +1843,12 @@
                 ],
                 "test-php-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
                 ],
                 "build-development": [
                     "pnpm run build"

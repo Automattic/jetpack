@@ -152,7 +152,7 @@ export function ReportMetricWidget( {
 				// Omitted copy falls back to WidgetState's generic line, so the
 				// default lives in one place instead of being restated here.
 				description: errorText,
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: emptyStateIcon,

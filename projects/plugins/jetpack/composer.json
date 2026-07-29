@@ -49,6 +49,7 @@
 		"automattic/jetpack-podcast": "@dev",
 		"automattic/jetpack-post-list": "@dev",
 		"automattic/jetpack-post-media": "@dev",
+		"automattic/jetpack-premium-analytics": "@dev",
 		"automattic/jetpack-publicize": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-roles": "@dev",
@@ -116,7 +117,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ16_1_a_3",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ16_1_a_5",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

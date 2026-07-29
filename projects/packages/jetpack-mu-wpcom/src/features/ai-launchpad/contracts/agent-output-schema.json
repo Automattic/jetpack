@@ -150,6 +150,37 @@
 					}
 				}
 			}
+		},
+		"page_intros": {
+			"type": "object",
+			"additionalProperties": false,
+			"description": "Opening lines for the page tasks whose page is otherwise fixed markup: the client hand-authors heading + block, and this is the one part worth tailoring. Keyed by task id so the client looks the line up by the id it is already rendering, and so a new page task costs one property here rather than a new top-level field. Optional as a whole, and every key inside it is optional too: the model writes a key only for a page task it actually selected, so a run that selected none carries nothing. Outputs persisted before this field existed lack it; the client then creates the page without an intro paragraph.",
+			"properties": {
+				"add_contact_page": {
+					"type": "string",
+					"minLength": 1,
+					"maxLength": 200,
+					"description": "One sentence inviting the visitor to get in touch, grounded in what someone would contact this site about. The page carries a working contact form, so the prompt forbids naming an email address, phone number, or postal address here."
+				},
+				"add_events_page": {
+					"type": "string",
+					"minLength": 1,
+					"maxLength": 200,
+					"description": "One sentence saying what kind of thing this site runs and why someone would come. The page's event entries are deliberately left blank for the user to fill in, so the prompt forbids naming a date, a day, a time, a venue, or a price here: only the user knows when their events are."
+				},
+				"add_video_page": {
+					"type": "string",
+					"minLength": 1,
+					"maxLength": 200,
+					"description": "One sentence saying what this site's videos show and why someone would watch. The page carries one empty core/video block for the user to fill, so the prompt forbids describing a particular video as if it were already there, promising a number of them, or naming a video platform or channel."
+				},
+				"add_gallery_page": {
+					"type": "string",
+					"minLength": 1,
+					"maxLength": 200,
+					"description": "One sentence saying what this site's pictures show and why someone would look. The page carries one empty core/gallery block for the user to fill with their OWN images, so the prompt forbids describing a particular image as if it were already there, promising a number of them, or naming a photo-sharing platform or account."
+				}
+			}
 		}
 	}
 }

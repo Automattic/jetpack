@@ -1,21 +1,32 @@
 /**
  * External dependencies
  */
-import { useMemo } from 'react';
+import { useEntityRecords } from '@wordpress/core-data';
 /**
  * Internal dependencies
  */
-import { getDashboardSections, type DashboardSection } from '../config';
+import type { DashboardSection } from '../config';
 
 /**
- * Get the ordered list of dashboard sections.
+ * Get the ordered list of dashboard sections. Reads the `dashboardSection`
+ * core-data entity (registered in the route's `beforeLoad`), which resolves
+ * from `GET /sections`.
  *
- * Wraps the pure `getDashboardSections()` builder in `useMemo` so the section
- * list (and its translated labels) is built once per mount instead of on every
- * render. The section set is static, so an empty dependency array is correct.
+ * `hasResolved` distinguishes "still fetching" (empty `sections`) from a
+ * resolved query, so callers can hold layout-dependent UI until the sections
+ * — and the default layouts they carry — actually exist.
  *
- * @return The ordered, memoized list of dashboard sections.
+ * @return The ordered list of dashboard sections, and whether the query has resolved.
  */
-export function useDashboardSections(): DashboardSection[] {
-	return useMemo( () => getDashboardSections(), [] );
+export function useDashboardSections(): {
+	sections: DashboardSection[];
+	hasResolved: boolean;
+} {
+	const { records, hasResolved } = useEntityRecords< DashboardSection >(
+		'root',
+		'dashboardSection',
+		{ per_page: -1 }
+	);
+
+	return { sections: records ?? [], hasResolved };
 }

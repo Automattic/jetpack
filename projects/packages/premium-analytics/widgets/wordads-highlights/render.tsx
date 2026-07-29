@@ -97,11 +97,11 @@ function WordAdsHighlightsReport( {
 				error={ {
 					description: __(
 						"We couldn't load WordAds earnings. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 					actions: [
 						{
-							label: __( 'Retry', 'jetpack-premium-analytics' ),
+							label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
 							onClick: () => {
 								refetch();
 							},
@@ -110,7 +110,10 @@ function WordAdsHighlightsReport( {
 				} }
 				empty={ {
 					icon: megaphone,
-					description: __( 'Select at least one metric to display.', 'jetpack-premium-analytics' ),
+					description: __(
+						'Select at least one metric to display.',
+						'jetpack-premium-analytics-pkg'
+					),
 				} }
 			>
 				<MetricTileGrid tiles={ tiles } dataFormat={ CURRENCY_FORMAT } currencyCode="USD" />

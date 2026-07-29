@@ -372,15 +372,15 @@ function StorePerformanceContent( {
 				error={ {
 					description: __(
 						"We couldn't load store performance data. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
 					icon: store,
 					description: __(
 						'No metric selected. Please select a metric from the metrics list.',
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 				} }
 				// First load keeps the widget's chart-shaped skeleton (the metric tabs
@@ -390,7 +390,7 @@ function StorePerformanceContent( {
 						metrics={ metricTabs }
 						dataFormat={ DEFAULT_DATA_FORMAT }
 						loading
-						groupLabel={ __( 'Store metric', 'jetpack-premium-analytics' ) }
+						groupLabel={ __( 'Store metric', 'jetpack-premium-analytics-pkg' ) }
 					/>
 				}
 			>
@@ -400,7 +400,7 @@ function StorePerformanceContent( {
 					metrics={ metricTabs }
 					dataFormat={ DEFAULT_DATA_FORMAT }
 					loading={ isFetching }
-					groupLabel={ __( 'Store metric', 'jetpack-premium-analytics' ) }
+					groupLabel={ __( 'Store metric', 'jetpack-premium-analytics-pkg' ) }
 				/>
 			</WidgetState>
 		</div>

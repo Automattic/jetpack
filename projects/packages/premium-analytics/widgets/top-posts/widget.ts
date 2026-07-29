@@ -20,7 +20,7 @@ export type TopPostsAttributes = {
 	/**
 	 * Maximum number of rows to display.
 	 */
-	num?: number;
+	max?: number;
 
 	/**
 	 * Which report the widget shows: published posts and pages (including the
@@ -45,25 +45,25 @@ export default {
 	icon: postList,
 	attributes: [
 		{
-			id: 'num',
-			label: __( 'Number of results', 'jetpack-premium-analytics' ),
+			id: 'max',
+			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
 			type: 'integer',
 		},
 		{
 			id: 'contentView',
-			label: __( 'View', 'jetpack-premium-analytics' ),
+			label: __( 'View', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
 			Edit: SelectField,
 			elements: [
-				{ label: __( 'Posts & pages', 'jetpack-premium-analytics' ), value: 'posts' },
-				{ label: __( 'Archives', 'jetpack-premium-analytics' ), value: 'archives' },
+				{ label: __( 'Posts & pages', 'jetpack-premium-analytics-pkg' ), value: 'posts' },
+				{ label: __( 'Archives', 'jetpack-premium-analytics-pkg' ), value: 'archives' },
 			],
 			relevance: 'high',
 		},
 	] as WidgetAttributeField< TopPostsAttributes >[],
 	example: {
 		attributes: {
-			num: 10,
+			max: 10,
 			contentView: 'posts',
 		},
 	},
