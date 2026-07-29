@@ -128,36 +128,7 @@ class Modules {
 		$modules = array_unique( $modules );
 
 		$modules = array_map( array( __CLASS__, 'load_module' ), $modules );
-		$modules = self::deduplicate_modules_by_name( $modules );
 		return array_map( array( __CLASS__, 'set_module_defaults' ), $modules );
-	}
-
-	/**
-	 * Ensure only one implementation of each Sync module is initialized.
-	 *
-	 * Module names are the public identity used by full-sync configuration and
-	 * module lookup. When multiple classes expose the same name, keep the class
-	 * contributed last so compatibility filters can override an earlier default
-	 * without both implementations registering listeners.
-	 *
-	 * All contributed classes are instantiated before deduplication, so this does
-	 * not isolate constructor side effects from discarded implementations.
-	 *
-	 * @param \Automattic\Jetpack\Sync\Modules\Module[] $modules Module instances in filtered registration order.
-	 * @return \Automattic\Jetpack\Sync\Modules\Module[] Module instances keyed uniquely by module name.
-	 */
-	private static function deduplicate_modules_by_name( array $modules ) {
-		$modules_by_name = array();
-
-		foreach ( $modules as $module ) {
-			$module_name = $module->name();
-
-			// Reinsert replacements so the surviving module retains its later order.
-			unset( $modules_by_name[ $module_name ] );
-			$modules_by_name[ $module_name ] = $module;
-		}
-
-		return array_values( $modules_by_name );
 	}
 
 	/**
