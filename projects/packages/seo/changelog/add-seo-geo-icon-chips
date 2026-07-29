@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Add an icon chip to each GEO module title and give the module headers heading semantics.
+Add an icon chip to each GEO module title, give the module headers heading semantics, and keep the state badges out of the collapsible buttons' accessible names.
