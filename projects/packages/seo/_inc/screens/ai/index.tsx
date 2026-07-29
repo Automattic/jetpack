@@ -34,8 +34,6 @@ const llmsTxtHelp = __(
 	'Publishes a curated, AI-readable map at /llms.txt to help AI assistants find and understand your supported content.',
 	'jetpack-seo'
 );
-const enabledLabel = __( 'Enabled', 'jetpack-seo' );
-const disabledLabel = __( 'Disabled', 'jetpack-seo' );
 // Crawler-group status tags. Module-scope (not inline ternaries) so the
 // production minifier can't fold `cond ? __() : __()` and break i18n extraction.
 const allowedLabel = __( 'Allowed', 'jetpack-seo' );
@@ -148,11 +146,17 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 	const allAllowed = blockedCount === 0;
 	const allBlocked = crawlers.length > 0 && blockedCount === crawlers.length;
 
-	// Header status tag, matching the Enabled/Disabled tags on the other module
-	// headers: green when every crawler is allowed, red when every one is blocked,
-	// grey when it's a mix. `statusLabel` typed `string` (not the inferred branded
-	// `TransformedText` of the first label) so the branches can assign other literals.
-	let statusIntent: 'stable' | 'high' | 'draft' = 'draft';
+	// Header status tag: green when every crawler is allowed, red when every one is
+	// blocked, amber in between. Red is the "stop" reading rather than a severity
+	// claim — blocking training crawlers is a legitimate choice, and `intent` is a
+	// CSS class with no `role` or `aria-*`, so every tag is announced alike.
+	//
+	// Amber matters because the mixed state used to be grey, identical to a module
+	// that is simply switched off — the one state you couldn't read at a glance.
+	//
+	// `statusLabel` typed `string` (not the inferred branded `TransformedText` of the
+	// first label) so the branches can assign other literals.
+	let statusIntent: 'stable' | 'high' | 'medium' = 'medium';
 	let statusLabel: string = partlyBlockedLabel;
 	if ( allAllowed ) {
 		statusIntent = 'stable';
@@ -450,25 +454,18 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 	};
 
 	const llmsTxtEffectivelyOn = Boolean( searchEnginesVisible && llmsTxt?.enabled );
-	const llmsTxtStatusLabel = llmsTxtEffectivelyOn ? enabledLabel : disabledLabel;
 
 	return (
 		<div className="jetpack-seo-ai">
 			{ llmsTxt && (
 				<CollapsibleCard.Root defaultOpen>
 					<CollapsibleCard.Header render={ <h2 /> }>
-						<Stack direction="row" justify="space-between" align="center" gap="sm">
-							<Card.Title>
-								<CardTitleIcon icon={ page } title={ __( 'llms.txt', 'jetpack-seo' ) } />
-							</Card.Title>
-							{ /* Announced via `aria-describedby` rather than as part of the
-							   trigger's name — see the crawler section above. */ }
-							<CollapsibleCard.HeaderDescription>
-								<Badge intent={ llmsTxtEffectivelyOn ? 'stable' : 'draft' }>
-									{ llmsTxtStatusLabel }
-								</Badge>
-							</CollapsibleCard.HeaderDescription>
-						</Stack>
+						{ /* No status tag here, unlike the crawler groups: this module opens by
+						   default, so its toggle — the same information, in the control that
+						   changes it — is on screen already. A tag would just say it twice. */ }
+						<Card.Title>
+							<CardTitleIcon icon={ page } title={ __( 'llms.txt', 'jetpack-seo' ) } />
+						</Card.Title>
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>
 						<Stack direction="column" gap="md">

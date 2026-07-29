@@ -115,7 +115,6 @@ describe( 'AiScreen (GEO tab) — llms.txt serving state', () => {
 			screen.getByRole( 'checkbox', { name: /generate an llms\.txt file/i } )
 		).not.toBeChecked();
 		expect( screen.getAllByText( /to enable, allow search engines/i ).length ).toBeGreaterThan( 0 );
-		expect( screen.getByText( 'Disabled' ) ).toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'link', { name: /view your llms\.txt/i } )
 		).not.toBeInTheDocument();
@@ -298,6 +297,41 @@ describe( 'AiScreen (GEO tab) — module titles', () => {
 		}
 	} );
 
+	// Only the two crawler groups carry a state tag. The other modules open by
+	// default, so their toggle — the same fact, in the control that changes it — is
+	// already on screen; a tag would state it twice. If one of them ever opens
+	// closed, it needs a tag, and this test should be the thing that says so.
+	it( 'gives no state tag to the modules that open by default', () => {
+		render(
+			<AiScreen form={ allModulesForm() } searchEnginesVisible onManageVisibility={ noop } />
+		);
+
+		for ( const title of [ 'llms.txt', 'AI SEO Enhancer' ] ) {
+			expect( screen.getByRole( 'button', { name: title } ) ).not.toHaveAttribute(
+				'aria-describedby'
+			);
+		}
+	} );
+
+	// A partly-blocked group used to be grey — indistinguishable from a module that
+	// is simply switched off, which made it the one state you couldn't read from the
+	// header. Amber is what separates them, so the intent is worth pinning down.
+	it( 'marks a partly-blocked group amber, distinct from allowed and blocked', () => {
+		// `gptbot` allowed, `google-extended` left at the training default of blocked.
+		render(
+			<AiScreen
+				form={ crawlerForm( { overrides: { gptbot: false } } ) }
+				searchEnginesVisible
+				onManageVisibility={ noop }
+			/>
+		);
+
+		// The class name is hashed by the CSS-module build, so match the stable suffix
+		// rather than a literal. Asserted on `className` (a string) instead of via
+		// `toHaveClass`, whose types don't admit a pattern.
+		expect( screen.getByText( 'Partly blocked' ).className ).toMatch( /is-medium-intent/ );
+	} );
+
 	// The badge must stay visible — this is an accessibility relocation, not a
 	// removal. Asserting it through the trigger's `aria-describedby` target proves
 	// both halves at once: the badge still renders, and it now reaches assistive
@@ -312,7 +346,6 @@ describe( 'AiScreen (GEO tab) — module titles', () => {
 		for ( const [ title, state ] of [
 			[ 'Answer engines', 'Allowed' ],
 			[ 'Training crawlers', 'Blocked' ],
-			[ 'llms.txt', 'Enabled' ],
 		] ) {
 			const describedBy = screen
 				.getByRole( 'button', { name: title } )
