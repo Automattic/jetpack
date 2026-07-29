@@ -96,6 +96,16 @@ export {
 } from './download-csv';
 export { WidgetDataTable, type WidgetDataTableProps } from './widget-data-table';
 export {
+	buildLocationsMapView,
+	getGeoChartCountryId,
+	LocationsGeoChart,
+	type LocationsGeoChartProps,
+	type LocationsGeoChartRow,
+	type LocationsGeoCountry,
+	type LocationsGeoMode,
+	type LocationsMapView,
+} from './locations-geo-chart';
+export {
 	EARNINGS_HISTORY_VIEW,
 	flattenEarningsBreakdown,
 	getWordAdsHistoryFields,

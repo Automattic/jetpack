@@ -66,7 +66,31 @@ describe( 'useLocationsReportRecords', () => {
 	} );
 
 	it( 'keeps every location request day-bucketed', () => {
-		renderHook( () => useLocationsReportRecords( 'countries', params, 'day' ) );
+		renderHook( () => useLocationsReportRecords( 'cities', params ) );
+
+		expect(
+			mockUseStatsLocations.mock.calls.every(
+				( [ requestParams ] ) => requestParams.period === 'day'
+			)
+		).toBe( true );
+	} );
+
+	it( 'requests countries unfiltered on every tab, so the filter keeps its options', () => {
+		renderHook( () => useLocationsReportRecords( 'regions', params, 'IN' ) );
+
+		// No `enabled` gate and no `filter_by_country`: this call backs the
+		// country filter's options as well as the Countries tab.
+		expect( mockUseStatsLocations ).toHaveBeenCalledWith( {
+			...params,
+			max: 0,
+			summarize: 0,
+			period: 'day',
+			geoMode: 'country',
+		} );
+	} );
+
+	it( 'scopes the active tab to the selected country', () => {
+		renderHook( () => useLocationsReportRecords( 'regions', params, 'IN' ) );
 
 		expect( mockUseStatsLocations ).toHaveBeenCalledWith(
 			{
@@ -74,28 +98,53 @@ describe( 'useLocationsReportRecords', () => {
 				max: 0,
 				summarize: 0,
 				period: 'day',
-				geoMode: 'country',
+				geoMode: 'region',
+				filter_by_country: 'IN',
 			},
 			{ enabled: true }
 		);
 	} );
 
-	it( 'keeps the request day-bucketed while grouping only the chart by week', () => {
-		const { result: dailyResult } = renderHook( () =>
-			useLocationsReportRecords( 'countries', params, 'day' )
-		);
-		const { result: weeklyResult } = renderHook( () =>
-			useLocationsReportRecords( 'countries', params, 'week' )
+	it( 'omits the country scope when no country is selected', () => {
+		renderHook( () => useLocationsReportRecords( 'regions', params ) );
+
+		const regionCall = mockUseStatsLocations.mock.calls.find(
+			( [ requestParams ] ) => requestParams.geoMode === 'region'
 		);
 
-		expect(
-			mockUseStatsLocations.mock.calls.every(
-				( [ requestParams ] ) => requestParams.period === 'day'
-			)
-		).toBe( true );
-		expect( weeklyResult.current.chart.primary.data ).toEqual( [
-			expect.objectContaining( { time_interval: '2026-07-06', views: 13 } ),
+		expect( regionCall?.[ 0 ] ).not.toHaveProperty( 'filter_by_country' );
+	} );
+
+	it( 'orders country filter options by views, descending', () => {
+		const { result } = renderHook( () => useLocationsReportRecords( 'regions', params ) );
+
+		expect( result.current.countries.options ).toEqual( [ { code: 'IN', label: 'India' } ] );
+	} );
+
+	it( 'sums each location across the range for the table', () => {
+		const { result } = renderHook( () => useLocationsReportRecords( 'countries', params ) );
+
+		expect( result.current.table.rows ).toEqual( [
+			{ id: 'IN:India', label: 'India', countryCode: 'IN', countryFull: 'India', views: 13 },
 		] );
-		expect( weeklyResult.current.table.rows ).toEqual( dailyResult.current.table.rows );
+	} );
+
+	it( 'reports the active tab error and retry, not the country options query', () => {
+		mockUseStatsLocations.mockImplementation(
+			( requestParams, options ) =>
+				( {
+					primary: { data: report },
+					comparison: { data: undefined },
+					hasComparison: false,
+					isLoading: false,
+					// Only the enabled per-tab query fails; the always-on countries
+					// query stays healthy, so the page must not read its state.
+					isError: options?.enabled === true,
+				} ) as ReturnType< typeof useStatsLocations >
+		);
+
+		const { result } = renderHook( () => useLocationsReportRecords( 'regions', params ) );
+
+		expect( result.current.isError ).toBe( true );
 	} );
 } );

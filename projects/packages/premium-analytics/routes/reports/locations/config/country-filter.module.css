@@ -1,0 +1,5 @@
+/* The filter sits in the DataViews toolbar row beside the view controls, so it
+ * needs a width that fits country names without crowding the search field. */
+.countryFilter {
+	min-inline-size: 180px;
+}

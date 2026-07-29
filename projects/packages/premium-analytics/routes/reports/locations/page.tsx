@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	normalizeReportParams,
-	type IntervalType,
-	type StatsChartBucketPeriod,
-} from '@jetpack-premium-analytics/data';
+import { normalizeReportParams } from '@jetpack-premium-analytics/data';
 import {
 	useDashboardLink,
 	useReportDateFilters,
@@ -13,64 +9,34 @@ import {
 } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
-	formatLegendLabels,
+	ReportErrorState,
 	ReportPageLayout,
+	ReportPageShell,
 	ReportPageTabs,
-	ReportPerformanceChart,
 	ReportRecordsTable,
+	useReportRetry,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs, Page } from '@wordpress/admin-ui';
+import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useNavigate, useSearch } from '@wordpress/route';
+import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
 import {
+	getCountryFilterAllLabel,
 	getLocationFields,
 	getReportLocationsTabs,
+	LocationsCountryFilter,
 	resolveSection,
+	supportsCountryFilter,
 	useLocationsReportRecords,
 	type LocationRow,
+	type ReportLocationsTabId,
 } from './config';
-import styles from './page.module.css';
 
 const ROUTE_FROM = route.path;
-const REPORT_PARAMS = { report: 'locations' };
-const CHART_PERIODS = [
-	'day',
-	'week',
-	'month',
-] as const satisfies readonly StatsChartBucketPeriod[];
-
-/**
- * Check whether a URL value is a supported chart period.
- *
- * @param value - The URL search value.
- * @return Whether the value is a chart period.
- */
-function isChartPeriod( value: unknown ): value is StatsChartBucketPeriod {
-	return CHART_PERIODS.includes( value as StatsChartBucketPeriod );
-}
-
-/**
- * Choose the default chart bucket period for a report interval.
- *
- * @param interval - The report date interval.
- * @return The default chart period.
- */
-function getDefaultChartPeriod( interval?: IntervalType ): StatsChartBucketPeriod {
-	if ( interval === 'week' ) {
-		return 'week';
-	}
-
-	if ( interval === 'month' || interval === 'quarter' || interval === 'year' ) {
-		return 'month';
-	}
-
-	return 'day';
-}
 
 /**
  * Get the stable ID for a Locations records table row.
@@ -105,32 +71,19 @@ export default function LocationsReportPage(): JSX.Element {
 	);
 	const tabs = useMemo( () => getReportLocationsTabs(), [] );
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveSection );
-	const chartPeriod = isChartPeriod( search.period )
-		? search.period
-		: getDefaultChartPeriod( reportParams.interval );
-	const records = useLocationsReportRecords( activeTab, reportParams, chartPeriod );
+	const [ countryFilter, setCountryFilter ] = useState( '' );
+	const records = useLocationsReportRecords( activeTab, reportParams, countryFilter || undefined );
+	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getLocationFields(), [] );
-	const chartMetrics = useMemo(
-		() => [ { key: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ) } ],
-		[]
-	);
-	const chartLegendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
-	const navigate = useNavigate();
-	const handleIntervalChange = useCallback(
-		( interval: IntervalType ) => {
-			const period = isChartPeriod( interval ) ? interval : getDefaultChartPeriod( interval );
-			navigate( {
-				to: ROUTE_FROM,
-				params: REPORT_PARAMS as unknown as never,
-				replace: true,
-				search: ( ( current: Record< string, unknown > ) => ( {
-					...current,
-					period,
-				} ) ) as unknown as never,
-			} );
+	// A country picked on one tab does not carry to the next: the Countries tab
+	// cannot be scoped at all, and a country with regions may have no cities.
+	const handleTabChange = useCallback(
+		( tab: ReportLocationsTabId ) => {
+			setCountryFilter( '' );
+			setActiveTab( tab );
 		},
-		[ navigate ]
+		[ setActiveTab ]
 	);
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
@@ -138,7 +91,8 @@ export default function LocationsReportPage(): JSX.Element {
 	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
 
 	return (
-		<Page
+		<ReportPageShell
+			tabbed
 			breadcrumbs={
 				<Breadcrumbs
 					items={ [
@@ -147,30 +101,21 @@ export default function LocationsReportPage(): JSX.Element {
 					] }
 				/>
 			}
-			subTitle={ __(
-				'See where your visitors are viewing from.',
-				'jetpack-premium-analytics-pkg'
-			) }
-			className={ styles.page }
 		>
-			<div className={ styles.content }>
-				<ReportPageLayout
-					tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
-					filters={
-						<div ref={ setContainerElement } className={ styles.dateFilters }>
-							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-						</div>
-					}
-				>
-					<ReportPerformanceChart
-						primary={ records.chart.primary }
-						comparison={ records.chart.comparison }
-						isLoading={ records.chart.isLoading }
-						metrics={ chartMetrics }
-						interval={ chartPeriod }
-						onIntervalChange={ handleIntervalChange }
-						legendLabels={ chartLegendLabels }
+			<ReportPageLayout
+				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ handleTabChange } /> }
+				filters={
+					<div ref={ setContainerElement }>
+						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
+					</div>
+				}
+			>
+				{ records.isError ? (
+					<ReportErrorState
+						title={ __( 'Unable to load locations', 'jetpack-premium-analytics-pkg' ) }
+						onRetry={ retry }
 					/>
+				) : (
 					<ReportRecordsTable< LocationRow >
 						key={ activeTab }
 						data={ records.table.rows }
@@ -179,9 +124,19 @@ export default function LocationsReportPage(): JSX.Element {
 						isLoading={ records.table.isLoading }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search locations', 'jetpack-premium-analytics-pkg' ) }
+						header={
+							supportsCountryFilter( activeTab ) ? (
+								<LocationsCountryFilter
+									countries={ records.countries.options }
+									value={ countryFilter }
+									allLabel={ getCountryFilterAllLabel( activeTab ) }
+									onChange={ setCountryFilter }
+								/>
+							) : undefined
+						}
 					/>
-				</ReportPageLayout>
-			</div>
-		</Page>
+				) }
+			</ReportPageLayout>
+		</ReportPageShell>
 	);
 }

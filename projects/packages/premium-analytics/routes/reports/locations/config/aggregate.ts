@@ -1,17 +1,8 @@
 /**
  * External dependencies
  */
-import {
-	bucketStatsTimeSeries,
-	type StatsChartBucketPeriod,
-	type StatsLocationsItem,
-	type StatsNormalizedReport,
-	type StatsTimeSeriesReport,
-} from '@jetpack-premium-analytics/data';
-/**
- * Internal dependencies
- */
 import type { LocationRow } from './fields';
+import type { StatsLocationsItem, StatsNormalizedReport } from '@jetpack-premium-analytics/data';
 
 /**
  * Build a stable identity for a location within its country.
@@ -24,24 +15,6 @@ import type { LocationRow } from './fields';
  */
 function getLocationId( item: StatsLocationsItem ): string {
 	return `${ item.countryCode ?? '' }:${ String( item.label ?? '' ) }`;
-}
-
-/**
- * Convert the bucketed locations report to chart-ready views over time.
- *
- * @param report - The bucketed locations report.
- * @param period - The chart bucket period.
- * @return The chart-ready time series.
- */
-export function locationsToTimeSeries(
-	report: StatsNormalizedReport< StatsLocationsItem > | undefined,
-	period: StatsChartBucketPeriod = 'day'
-): StatsTimeSeriesReport {
-	return bucketStatsTimeSeries( report, period, point => {
-		const views = point.items.reduce( ( total, item ) => total + item.views, 0 );
-
-		return { value: views, views };
-	} );
 }
 
 /**

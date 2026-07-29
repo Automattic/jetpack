@@ -38,6 +38,7 @@ const GenericDataViews = DataViews as unknown as < Item >( props: {
 	empty?: ReactNode;
 	searchLabel?: string;
 	config?: { perPageSizes: number[] };
+	header?: ReactNode;
 	isItemClickable?: ( item: Item ) => boolean;
 	renderItemLink?: (
 		props: {
@@ -65,6 +66,12 @@ export interface ReportRecordsTableProps< Item > {
 	empty?: ReactNode;
 	/** Page size choices (defaults to 10/25/50/100). */
 	perPageSizes?: number[];
+	/**
+	 * Extra control rendered in the table's toolbar row, at the end of the row
+	 * opposite the search field (after the view-config button). Use it for a
+	 * report-level filter that belongs with the table rather than the page.
+	 */
+	header?: ReactNode;
 	/** Whether a record's primary field should render as an interactive link. */
 	isItemClickable?: ( item: Item ) => boolean;
 	/** Render the primary-field link while preserving DataViews table styling. */
@@ -98,6 +105,7 @@ export function ReportRecordsTable< Item >( {
 	actions,
 	empty,
 	perPageSizes = DEFAULT_PER_PAGE_SIZES,
+	header,
 	isItemClickable,
 	renderItemLink,
 }: ReportRecordsTableProps< Item > ) {
@@ -136,6 +144,7 @@ export function ReportRecordsTable< Item >( {
 				empty={ empty }
 				searchLabel={ searchLabel }
 				config={ { perPageSizes } }
+				header={ header }
 				isItemClickable={ isItemClickable }
 				renderItemLink={ renderItemLink }
 			/>
