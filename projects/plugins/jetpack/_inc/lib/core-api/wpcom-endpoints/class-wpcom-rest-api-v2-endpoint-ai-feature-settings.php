@@ -56,13 +56,6 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 	public $rest_base = 'jetpack-ai/feature-settings';
 
 	/**
-	 * Feature keys whose toggles the endpoint reads and writes.
-	 *
-	 * @var string[]
-	 */
-	const FEATURE_KEYS = array( 'writing_assistant', 'image_editor', 'feature_clip', 'seo_enhancer', 'ai_search' );
-
-	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -158,7 +151,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 
 		$features = $request->get_param( 'features' );
 		if ( is_array( $features ) ) {
-			foreach ( self::FEATURE_KEYS as $key ) {
+			foreach ( Jetpack_AI_Settings::FEATURE_OPTIONS as $key => $option ) {
 				if ( ! array_key_exists( $key, $features ) ) {
 					continue;
 				}
@@ -172,7 +165,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 					$value = $value['enabled'];
 				}
 
-				update_option( Jetpack_AI_Settings::FEATURE_OPTIONS[ $key ], rest_sanitize_boolean( $value ) );
+				update_option( $option, rest_sanitize_boolean( $value ) );
 			}
 		}
 
@@ -196,9 +189,9 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 		$ai_search_requires_upgrade = ! ( $search_plan && $search_plan->supports_instant_search() && ! $search_plan->is_free_plan() );
 
 		$stored = array();
-		foreach ( self::FEATURE_KEYS as $key ) {
+		foreach ( Jetpack_AI_Settings::FEATURE_OPTIONS as $key => $option ) {
 			$stored[ $key ] = (bool) get_option(
-				Jetpack_AI_Settings::FEATURE_OPTIONS[ $key ],
+				$option,
 				Jetpack_AI_Settings::FEATURE_DEFAULTS[ $key ]
 			);
 		}
