@@ -240,9 +240,16 @@ class Analytics {
 	/**
 	 * Load the wp-build output (interceptor, modules, routes, page render).
 	 *
-	 * Must run before the is_admin() gate: the registry serves REST requests
-	 * too (is_admin() false there). Render pieces self-gate on admin_init, so
-	 * this is inert off the dashboard.
+	 * Only reached from load_dashboard_surface(), i.e. in wp-admin. REST
+	 * requests serve the dashboard too but do not need this: the route files
+	 * come from Dashboard_Support_Routes::boot_routes() on rest_api_init, and
+	 * the widget manifest from ensure_widget_registry_ready() in
+	 * widget-modules.php, which requires build/widgets.php itself.
+	 *
+	 * That was not always true — PR #49961 hoisted this above an is_admin()
+	 * gate precisely because REST had no other way to reach the manifest. PR
+	 * #50266 made both paths self-sufficient, which is what lets this be
+	 * admin-only again (WOOA7S-1804).
 	 *
 	 * @return void
 	 */
