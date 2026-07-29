@@ -64,6 +64,22 @@ class Initializer {
 	const SITEMAP_ENABLED_OPTION = 'jetpack_seo_sitemap_enabled';
 
 	/**
+	 * Option recording that the user has deliberately turned the site's sitemap OFF,
+	 * so WordPress core's own sitemap should be suppressed too ("off" means no sitemap
+	 * at all, not a fallback to `/wp-sitemap.xml`).
+	 *
+	 * Set when the sitemaps module is switched off and cleared when it's switched on
+	 * (see {@see self::flag_sitemap_user_disabled()} / {@see self::clear_sitemap_user_disabled()}),
+	 * so it captures a deliberate off — a *transition* — rather than the ambient
+	 * off-state. A site that simply never enabled the sitemap never fires the toggle,
+	 * so the flag stays absent and its existing (e.g. WordPress-native) sitemap is left
+	 * untouched.
+	 *
+	 * @var string
+	 */
+	const SUPPRESS_WP_SITEMAP_OPTION = 'jetpack_seo_suppress_wp_sitemap';
+
+	/**
 	 * Option recording whether canonical URLs are enabled.
 	 *
 	 * Read in place of the standalone `canonical-urls` module's active state. Module-active
@@ -134,15 +150,24 @@ class Initializer {
 			return;
 		}
 
-		// When the site's sitemap is turned off, suppress WordPress core's own sitemap
-		// too — otherwise turning the Jetpack sitemap off silently falls back to core's
-		// `/wp-sitemap.xml` (and its `/sitemap.xml` → `/wp-sitemap.xml` redirect), so the
-		// toggle wouldn't mean "no sitemap." When it's on, the Jetpack sitemaps module
-		// already disables core's duplicate. This runs on `plugins_loaded` (priority 90),
-		// before core registers its sitemap server on `init`, so the filter is in place
-		// in time; with core sitemaps disabled, `/sitemap.xml` and `/wp-sitemap.xml` both
-		// return a proper 404.
-		if ( ! self::is_sitemap_generation_enabled() ) {
+		// Maintain the deliberate-off flag as the sitemap is toggled from the dashboard,
+		// so "off" can suppress WordPress core's sitemap too without steamrolling sites
+		// that simply never enabled a sitemap. These fire only on a genuine module
+		// toggle (not wpcomsh's private-site suppression, which is a filter, not a
+		// deactivation), and are registered before the toggle's REST write runs.
+		add_action( 'jetpack_deactivate_module_sitemaps', array( __CLASS__, 'flag_sitemap_user_disabled' ) );
+		add_action( 'jetpack_activate_module_sitemaps', array( __CLASS__, 'clear_sitemap_user_disabled' ) );
+
+		// When the user has deliberately turned the sitemap off, suppress WordPress
+		// core's own sitemap too — otherwise "off" silently falls back to core's
+		// `/wp-sitemap.xml` (and its `/sitemap.xml` → `/wp-sitemap.xml` redirect). Keyed
+		// on the deliberate-off flag, NOT the ambient off-state, so a site that never
+		// enabled the sitemap keeps whatever sitemap it already had. Runs on
+		// `plugins_loaded`, before core registers its sitemap server on `init`, so the
+		// filter is in place; with core sitemaps disabled, `/sitemap.xml` and
+		// `/wp-sitemap.xml` both return a proper 404. (When the sitemap is ON, the
+		// Jetpack sitemaps module already disables core's duplicate.)
+		if ( get_option( self::SUPPRESS_WP_SITEMAP_OPTION, false ) ) {
 			add_filter( 'wp_sitemaps_enabled', '__return_false' );
 		}
 
@@ -281,22 +306,25 @@ class Initializer {
 	}
 
 	/**
-	 * Whether XML sitemap generation is enabled for this site.
+	 * Record that the user has turned the sitemap off, so WordPress core's own sitemap
+	 * is suppressed too. Hooked to the sitemaps module's deactivation, which fires only
+	 * on a real toggle from a surface (the SEO Settings tab, the legacy Traffic page, or
+	 * WP-CLI) — not wpcomsh's private-site suppression, which is a filter on the
+	 * active-modules read rather than a deactivation.
 	 *
-	 * Reads the durable {@see self::SITEMAP_ENABLED_OPTION} flag, falling back to the
-	 * live `sitemaps` module state only when the option is absent (before the Jetpack
-	 * plugin's migration has seeded it). Mirrors {@see Dashboard_Data::is_sitemap_enabled()}.
-	 *
-	 * @return bool
+	 * @return void
 	 */
-	private static function is_sitemap_generation_enabled() {
-		$enabled = get_option( self::SITEMAP_ENABLED_OPTION, null );
+	public static function flag_sitemap_user_disabled() {
+		update_option( self::SUPPRESS_WP_SITEMAP_OPTION, true );
+	}
 
-		if ( null === $enabled ) {
-			$enabled = class_exists( 'Automattic\\Jetpack\\Modules' )
-				&& ( new Modules() )->is_active( 'sitemaps' );
-		}
-
-		return (bool) $enabled;
+	/**
+	 * Clear the deliberate-off flag when the sitemap is turned back on — the Jetpack
+	 * sitemaps module then serves `/sitemap.xml` and suppresses core's duplicate itself.
+	 *
+	 * @return void
+	 */
+	public static function clear_sitemap_user_disabled() {
+		delete_option( self::SUPPRESS_WP_SITEMAP_OPTION );
 	}
 }

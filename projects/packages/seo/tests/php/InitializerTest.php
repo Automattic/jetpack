@@ -261,14 +261,14 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * Run init() with the surface visible and the given sitemap-enabled state, and
+	 * Run init() with the surface visible and the given deliberate-off flag state, and
 	 * report whether it suppressed WordPress core's own sitemap (registered the
 	 * `wp_sitemaps_enabled` → false filter). Mirrors the schema/GEO test setup.
 	 *
-	 * @param bool $sitemap_enabled Stored SITEMAP_ENABLED_OPTION value.
+	 * @param bool $user_disabled Whether SUPPRESS_WP_SITEMAP_OPTION (deliberate off) is set.
 	 * @return bool Whether init() registered the core-sitemap-suppression filter.
 	 */
-	private function init_and_report_core_sitemaps_disabled( $sitemap_enabled ) {
+	private function init_and_report_core_sitemaps_disabled( $user_disabled ) {
 		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$initialized->setAccessible( true );
@@ -277,7 +277,11 @@ class InitializerTest extends TestCase {
 
 		add_filter( 'rsm_jetpack_seo', '__return_true' );
 		update_option( Initializer::VISIBILITY_OPTION, '1' );
-		update_option( Initializer::SITEMAP_ENABLED_OPTION, $sitemap_enabled ? '1' : '' );
+		if ( $user_disabled ) {
+			update_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION, true );
+		} else {
+			delete_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION );
+		}
 		// Isolate from any stale registration so the result reflects only this run.
 		remove_filter( 'wp_sitemaps_enabled', '__return_false' );
 
@@ -287,27 +291,76 @@ class InitializerTest extends TestCase {
 		} finally {
 			remove_filter( 'rsm_jetpack_seo', '__return_true' );
 			remove_filter( 'wp_sitemaps_enabled', '__return_false' );
+			$this->remove_sitemap_toggle_hooks();
 			delete_option( Initializer::VISIBILITY_OPTION );
-			delete_option( Initializer::SITEMAP_ENABLED_OPTION );
+			delete_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION );
 			$initialized->setValue( null, false );
 		}
 	}
 
 	/**
-	 * With the site's sitemap turned off, init() suppresses WordPress core's own
-	 * sitemap — the same `wp_sitemaps_enabled` → false filter the Jetpack sitemaps
-	 * module applies when on — so `/sitemap.xml` and `/wp-sitemap.xml` both 404
-	 * rather than the toggle silently falling back to core's sitemap.
+	 * Remove the sitemap-toggle actions init() registers, so they don't leak into
+	 * other tests.
+	 *
+	 * @return void
 	 */
-	public function test_init_disables_core_sitemaps_when_sitemap_off() {
-		$this->assertTrue( $this->init_and_report_core_sitemaps_disabled( false ) );
+	private function remove_sitemap_toggle_hooks() {
+		remove_action( 'jetpack_deactivate_module_sitemaps', array( Initializer::class, 'flag_sitemap_user_disabled' ) );
+		remove_action( 'jetpack_activate_module_sitemaps', array( Initializer::class, 'clear_sitemap_user_disabled' ) );
 	}
 
 	/**
-	 * With the sitemap on, init() leaves core sitemaps alone — the Jetpack sitemaps
-	 * module already disables core's duplicate, so the package must not double up.
+	 * When the user has deliberately turned the sitemap off, init() suppresses
+	 * WordPress core's own sitemap (the `wp_sitemaps_enabled` → false filter) so
+	 * `/sitemap.xml` and `/wp-sitemap.xml` both 404 rather than falling back to core.
 	 */
-	public function test_init_leaves_core_sitemaps_to_jetpack_when_sitemap_on() {
-		$this->assertFalse( $this->init_and_report_core_sitemaps_disabled( true ) );
+	public function test_init_suppresses_core_sitemaps_when_user_turned_it_off() {
+		$this->assertTrue( $this->init_and_report_core_sitemaps_disabled( true ) );
+	}
+
+	/**
+	 * The regression guard: a site that never turned the sitemap off keeps whatever
+	 * sitemap it already had. Even with no deliberate-off flag, init() must NOT suppress
+	 * core sitemaps — a brand-new or never-configured site must not silently lose its
+	 * WordPress-native sitemap just because the SEO surface became visible.
+	 */
+	public function test_init_leaves_core_sitemaps_alone_when_never_disabled() {
+		$this->assertFalse( $this->init_and_report_core_sitemaps_disabled( false ) );
+	}
+
+	/**
+	 * Toggling the sitemap maintains the deliberate-off flag: switching it off records
+	 * the flag (so core is suppressed), switching it on clears it. init() registers the
+	 * hooks; firing the module actions simulates a toggle from any surface.
+	 */
+	public function test_sitemap_toggle_maintains_the_deliberate_off_flag() {
+		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$initialized->setAccessible( true );
+		}
+		$initialized->setValue( null, false );
+
+		add_filter( 'rsm_jetpack_seo', '__return_true' );
+		update_option( Initializer::VISIBILITY_OPTION, '1' );
+		delete_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION );
+		$this->remove_sitemap_toggle_hooks();
+
+		try {
+			Initializer::init();
+
+			// Turning the sitemap off records the deliberate-off flag.
+			do_action( 'jetpack_deactivate_module_sitemaps' );
+			$this->assertTrue( (bool) get_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION ) );
+
+			// Turning it back on clears it.
+			do_action( 'jetpack_activate_module_sitemaps' );
+			$this->assertFalse( get_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION, false ) );
+		} finally {
+			remove_filter( 'rsm_jetpack_seo', '__return_true' );
+			$this->remove_sitemap_toggle_hooks();
+			delete_option( Initializer::VISIBILITY_OPTION );
+			delete_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION );
+			$initialized->setValue( null, false );
+		}
 	}
 }
