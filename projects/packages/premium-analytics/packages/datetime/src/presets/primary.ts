@@ -68,13 +68,9 @@ type PresetDefinition = {
 	id: SelectablePresetId;
 	getLabel: () => string;
 	/**
-	 * Short label for the surface pills when the full one does not fit. Only the
-	 * quick surface presets carry one, since they are the only presets that
-	 * render as pills in a fixed-width row.
-	 *
-	 * Translated separately rather than derived from the full label: these are
-	 * not truncations, and the English forms are initials that most languages
-	 * write differently.
+	 * Short label for the surface pills. Only the quick surface presets carry
+	 * one: they are the only presets rendered in a fixed-width row. Translated
+	 * separately rather than truncated, since the English forms are initials.
 	 */
 	getShortLabel?: () => string;
 	getRange: ( ctx: DateContext ) => Required< DateRange >;
@@ -106,7 +102,7 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 		getLabel: () => __( 'Last 24 hours', 'jetpack-premium-analytics-pkg' ),
 		getShortLabel: () =>
 			/* translators: abbreviation for "Last 24 hours". Shown in a segmented control too narrow for the full label, so keep it as short as the language allows. */
-			_x( '24H', 'short date range preset', 'jetpack-premium-analytics-pkg' ),
+			_x( 'Last 24H', 'short date range preset', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { now } ) => ( {
 			from: subHours( now, 24 ),
 			to: now,

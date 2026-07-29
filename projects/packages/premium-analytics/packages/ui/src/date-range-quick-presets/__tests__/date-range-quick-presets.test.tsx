@@ -73,7 +73,7 @@ describe( 'DateRangeQuickPresets', () => {
 		renderPresets( { labelMode: 'abbreviated' } );
 
 		expect( screen.getAllByRole( 'button' ).map( button => button.textContent ) ).toEqual( [
-			'24H',
+			'Last 24H',
 			'7D',
 			'30D',
 			'12M',
