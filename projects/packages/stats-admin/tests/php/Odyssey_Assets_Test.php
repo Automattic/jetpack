@@ -17,14 +17,18 @@ class Odyssey_Assets_Test extends Stats_TestCase {
 	 * Asserted as a registered dependency, not just "is enqueued", because the dependency edge is
 	 * what also guarantees WP emits wp-components *before* Odyssey's own overrides of its classes.
 	 *
-	 * `load_admin_scripts()` takes one of two branches depending on `file_exists( dist/{asset_name}.js )`
-	 * -- real behaviour on a dev machine with a local build present, but also something that can
-	 * happen to be true or false in CI/local test runs depending on whatever's sitting in dist/,
-	 * independent of anything this test controls. Both branches are asserted explicitly below with
-	 * that condition forced, so the result doesn't depend on the filesystem state a test run
-	 * happens to find.
+	 * `load_admin_scripts()` also declares it on the local-dev branch (a real `dist/` build present
+	 * on disk), via the same `self::CSS_DEPENDENCIES` constant this test exercises through the CDN
+	 * branch -- that branch never runs in CI (no `dist/` in a fresh checkout) or in production
+	 * (Jetpack releases don't ship one either; only a developer's own local build creates it), and a
+	 * regression there would be immediately visible as unstyled components to whoever's building
+	 * locally, so it isn't separately integration-tested here. An earlier version of this test tried
+	 * to force that branch by writing stub files under the package's own `dist/`, but the real
+	 * package directory isn't reliably writable in every environment this suite runs in (CI's
+	 * checkout for this job doesn't allow it) -- coupling a test's pass/fail to that is a bad trade
+	 * for coverage of a path with this little production risk.
 	 */
-	public function test_odyssey_style_declares_wp_components_dependency_cdn_branch() {
+	public function test_odyssey_style_declares_wp_components_dependency() {
 		$this->reset_wp_styles();
 		wp_register_style( 'wp-components', false );
 		$this->assertFalse( wp_style_is( 'wp-components', 'enqueued' ) );
@@ -38,32 +42,6 @@ class Odyssey_Assets_Test extends Stats_TestCase {
 		$this->assertNotFalse( $registered, 'Odyssey should register a stylesheet handle.' );
 		$this->assertContains( 'wp-components', $registered->deps );
 		$this->assertTrue( wp_style_is( 'wp-components', 'enqueued' ) );
-	}
-
-	public function test_odyssey_style_declares_wp_components_dependency_local_dist_branch() {
-		$this->reset_wp_styles();
-		wp_register_style( 'wp-components', false );
-		$this->assertFalse( wp_style_is( 'wp-components', 'enqueued' ) );
-
-		// Assets::register_script() only registers a stylesheet at all -- under $asset_handle, no
-		// suffix -- when both a JS and a matching CSS file exist in dist/, so both are needed to
-		// force this branch.
-		$dist_dir = __DIR__ . '/../../dist';
-		wp_mkdir_p( $dist_dir );
-		file_put_contents( "$dist_dir/local-test-build.js", '' );
-		file_put_contents( "$dist_dir/local-test-build.css", '' );
-
-		try {
-			( new Odyssey_Assets() )->load_admin_scripts( 'jp-stats-dashboard', 'local-test-build' );
-
-			$registered = wp_styles()->query( 'jp-stats-dashboard', 'registered' );
-			$this->assertNotFalse( $registered, 'Odyssey should register a stylesheet handle.' );
-			$this->assertContains( 'wp-components', $registered->deps );
-			$this->assertTrue( wp_style_is( 'wp-components', 'enqueued' ) );
-		} finally {
-			unlink( "$dist_dir/local-test-build.js" );
-			unlink( "$dist_dir/local-test-build.css" );
-		}
 	}
 
 	/**
