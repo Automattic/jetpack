@@ -93,9 +93,13 @@ class Mode_Checklist_Completion_Test extends BaseTestCase {
 	 * fires on a click it does not de-duplicate across tabs.
 	 */
 	public function test_recording_a_task_twice_is_idempotent() {
-		Mode::rest_update_checklist_completed( $this->completion_request( 'grow-audience' ) );
-		Mode::rest_update_checklist_completed( $this->completion_request( 'grow-audience' ) );
+		$first_request = $this->completion_request( 'grow-audience' );
+		Mode::rest_update_checklist_completed( $first_request );
 
+		$duplicate_request = $this->completion_request( 'grow-audience' );
+		$response          = Mode::rest_update_checklist_completed( $duplicate_request );
+
+		$this->assertSame( array( 'grow-audience' ), $response->get_data()['completed'] );
 		$this->assertSame( array( 'grow-audience' ), Mode::get_completed_checklist_tasks() );
 	}
 
