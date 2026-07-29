@@ -107,5 +107,7 @@ function current_user_can_view_analytics() {
  * @return bool
  */
 function current_user_can_read_analytics_prefix() {
-	return current_user_can( 'manage_options' );
+	// The proxy accepts manage_options for every prefix, so administrators pass
+	// even where WooCommerce never registered its capabilities.
+	return current_user_can( 'manage_options' ) || current_user_can( 'view_woocommerce_reports' );
 }

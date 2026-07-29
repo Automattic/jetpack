@@ -20,6 +20,9 @@ use WC_REST_Controller;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
+use function Automattic\Jetpack\PremiumAnalytics\current_user_can_read_analytics_prefix;
+
+require_once __DIR__ . '/../../capabilities.php';
 
 /**
  * CSV Export Controller class.
@@ -135,14 +138,14 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 	/**
 	 * Check if user has permission to export reports.
 	 *
-	 * Must match the capability the analytics proxy enforces (`manage_options` for the
-	 * `analytics` prefix in Api_Proxy_Controller); otherwise the route would advertise
-	 * access the async data fetch cannot honor, scheduling a job that then fails.
+	 * Every report exported here is fetched through the proxy's `analytics` prefix, so
+	 * this defers to the same check rather than restating a capability: advertising
+	 * access the async fetch cannot honor would schedule a job that then fails.
 	 *
 	 * @return bool True if user has permission.
 	 */
 	public function check_permission(): bool {
-		return current_user_can( 'manage_options' );
+		return current_user_can_read_analytics_prefix();
 	}
 
 	/**

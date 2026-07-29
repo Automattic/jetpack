@@ -125,7 +125,7 @@ class Capabilities_Test extends BaseTestCase {
 	 * Asserted through check_data_permission() rather than by reading
 	 * PREFIX_CONFIG, so what's compared is the decision each side actually
 	 * reaches for the same user. Api_Proxy_Controller_Test pins the proxy's own
-	 * capability to `manage_options` in its endpoint matrix.
+	 * capability to `view_woocommerce_reports` in its endpoint matrix.
 	 */
 	public function test_analytics_prefix_helper_matches_the_proxy_capability() {
 		$controller = new Api_Proxy_Controller();
@@ -148,5 +148,30 @@ class Capabilities_Test extends BaseTestCase {
 			current_user_can_read_analytics_prefix(),
 			'An administrator must be admitted by both.'
 		);
+
+		// WooCommerce's own capability, held by shop managers, who have no
+		// manage_options. WorDBless has no shop_manager role, so grant the
+		// capability the role would carry.
+		$shop_manager = $this->login_as( 'subscriber' );
+		$this->grant_capability_to( $shop_manager, 'view_woocommerce_reports' );
+
+		$this->assertTrue( current_user_can_read_analytics_prefix() );
+		$this->assertSame(
+			$controller->check_data_permission( $request ),
+			current_user_can_read_analytics_prefix(),
+			'A WooCommerce report viewer must be admitted by both.'
+		);
+	}
+
+	/**
+	 * Store access is not dashboard access: the capability that opens the store
+	 * reports says nothing about who may read stats.
+	 */
+	public function test_woocommerce_report_viewer_is_not_a_dashboard_reader() {
+		$shop_manager = $this->login_as( 'subscriber' );
+		$this->grant_capability_to( $shop_manager, 'view_woocommerce_reports' );
+
+		$this->assertTrue( current_user_can_read_analytics_prefix() );
+		$this->assertFalse( current_user_can_view_analytics() );
 	}
 }

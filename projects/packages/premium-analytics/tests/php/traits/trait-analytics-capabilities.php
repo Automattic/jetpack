@@ -42,6 +42,24 @@ trait Analytics_Capabilities_Trait {
 	}
 
 	/**
+	 * Grants a capability to a user and makes it visible to current_user_can().
+	 *
+	 * A capability added after login stays invisible behind the cached user object,
+	 * because wp_set_current_user() returns early when the ID is unchanged. Dropping
+	 * to the logged-out user first forces that object to be rebuilt.
+	 *
+	 * @param int    $user_id    User to grant to.
+	 * @param string $capability Capability to add.
+	 * @return void
+	 */
+	protected function grant_capability_to( $user_id, $capability ) {
+		( new \WP_User( $user_id ) )->add_cap( $capability );
+
+		wp_set_current_user( 0 );
+		wp_set_current_user( $user_id );
+	}
+
+	/**
 	 * Stands in for Stats' map_meta_cap, which the package under test does not boot.
 	 *
 	 * @param int $granted_user_id User who should hold `view_stats`.
