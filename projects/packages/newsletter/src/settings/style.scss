@@ -89,25 +89,17 @@ body.jetpack_page_jetpack-newsletter {
 		}
 	}
 
-	// The "Add new category" trigger reveals an inline form (an in-page action),
-	// so it stays a real <button> for accessibility but is styled to read as a
-	// text link — matching the WPDS `Link` brand tone. The `unstyled` variant
-	// strips the button chrome, leaving it flush with the surrounding content.
-	.newsletter-add-category-trigger {
-		color: var(--wpds-color-foreground-interactive-brand);
-		text-decoration: underline;
-		text-underline-offset: 0.2em;
-		text-decoration-thickness: from-font;
-		cursor: pointer;
-
-		&:hover,
-		&:active {
-			color: var(--wpds-color-foreground-interactive-brand-active);
-		}
+	// Combined search-and-create categories control: help text and the field's
+	// validation message render beneath the token field.
+	.newsletter-categories-control__help {
+		margin-block: var(--wpds-dimension-gap-xs) 0;
+		color: var(--wpds-color-foreground-interactive-neutral);
+		font-size: var(--wpds-typography-font-size-sm);
 	}
 
-	// The inline create-category form sits between the field and the footer.
-	.newsletter-add-category-form {
-		margin-block: var(--wpds-dimension-gap-sm);
+	.newsletter-categories-control__error {
+		margin-block: var(--wpds-dimension-gap-xs) 0;
+		color: var(--wpds-color-foreground-interactive-error-strong);
+		font-size: var(--wpds-typography-font-size-sm);
 	}
 }

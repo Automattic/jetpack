@@ -1,115 +1,151 @@
 /**
- * Tests for inline category creation in the Newsletter categories section (NL-785).
+ * Tests for the Newsletter categories section (NL-785).
  *
- * The section used to link out to wp-admin's `edit-tags.php` to add a category,
- * which meant the new term only appeared after a full page refresh. These tests
- * exercise the inline "add new category" flow against the real component:
- * creating a term appends it to the list (no refresh) and auto-selects it, and
- * failures surface an inline error instead of navigating away.
+ * The section used to link out to wp-admin's `edit-tags.php` to add a category
+ * (new terms only appeared after a full refresh); it was then reworked into a
+ * single combined field that both *searches* existing categories and *creates*
+ * new ones inline via a "Create ‘…’" suggestion row.
  *
- * `@wordpress/ui` / `@wordpress/components` / `@wordpress/dataviews` are stubbed
- * to plain HTML. The `DataForm` stub renders the category field's `elements` so
- * we can assert a freshly created category shows up in the list without a reload.
+ * These are integration tests: the `DataForm` stub renders the categories
+ * field's real custom `Edit` control (`CreatableCategoriesControl`) with a
+ * stubbed `FormTokenField`, so creating a category exercises the real
+ * create/select/error wiring end to end — appearing without a refresh,
+ * auto-selecting, firing analytics, and surfacing inline errors.
  */
 
-jest.mock( '@wordpress/ui', () => {
-	// forwardRef so the component can focus the "Add new category" trigger.
-	return {
-		__esModule: true,
-		Button: mockForwardRef(
-			(
-				{
-					children,
-					onClick,
-					disabled,
-				}: {
-					children: React.ReactNode;
-					onClick?: () => void;
-					disabled?: boolean;
-					loading?: boolean;
-				},
-				ref: React.Ref< HTMLButtonElement >
-			) => (
-				<button ref={ ref } onClick={ onClick } disabled={ disabled }>
-					{ children }
-				</button>
-			)
-		),
-		Card: {
-			Root: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
-			Header: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
-			Title: ( { children }: { children: React.ReactNode } ) => <h2>{ children }</h2>,
-			Content: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
-		},
-		Fieldset: {
-			Root: ( { children }: { children: React.ReactNode } ) => <fieldset>{ children }</fieldset>,
-		},
-		Link: ( { children, href }: { children: React.ReactNode; href?: string } ) => (
-			<a href={ href }>{ children }</a>
-		),
-		Notice: {
-			Root: ( { children }: { children: React.ReactNode } ) => <div role="alert">{ children }</div>,
-			Description: ( { children }: { children: React.ReactNode } ) => <p>{ children }</p>,
-		},
-		Stack: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
-		Text: ( { children }: { children: React.ReactNode } ) => <span>{ children }</span>,
-	};
-} );
+interface TokenFieldProps {
+	label?: string;
+	placeholder?: string;
+	value: string[];
+	suggestions: string[];
+	displayTransform?: ( token: string ) => string;
+	onChange: ( tokens: string[] ) => void;
+	onInputChange?: ( input: string ) => void;
+}
 
-jest.mock( '@wordpress/components', () => {
-	// forwardRef so the component can focus the name field when the form opens.
-	return {
-		__esModule: true,
-		TextControl: mockForwardRef(
-			(
-				{
-					label,
-					value,
-					onChange,
-					onKeyDown,
-					disabled,
-				}: {
-					label: string;
-					value: string;
-					onChange: ( next: string ) => void;
-					onKeyDown?: ( event: React.KeyboardEvent< HTMLInputElement > ) => void;
-					disabled?: boolean;
-				},
-				ref: React.Ref< HTMLInputElement >
-			) => (
+jest.mock( '@wordpress/components', () => ( {
+	__esModule: true,
+	// Minimal FormTokenField: an input that drives `onInputChange`, the selected
+	// tokens, and one button per suggestion that adds it via `onChange`.
+	FormTokenField: ( {
+		label,
+		placeholder,
+		value,
+		suggestions,
+		displayTransform,
+		onChange,
+		onInputChange,
+	}: TokenFieldProps ) => {
+		const show = ( token: string ) => ( displayTransform ? displayTransform( token ) : token );
+		return (
+			<div>
 				<input
-					ref={ ref }
-					aria-label={ label }
-					value={ value }
-					disabled={ disabled }
-					onKeyDown={ onKeyDown }
-					// Test-only mock; the re-bind-per-render cost is irrelevant in a jest render.
+					aria-label={ label || placeholder }
 					// eslint-disable-next-line react/jsx-no-bind
-					onChange={ e => onChange( e.target.value ) }
+					onChange={ e => onInputChange?.( e.target.value ) }
 				/>
-			)
-		),
-	};
-} );
+				<ul aria-label="Selected categories">
+					{ value.map( token => (
+						<li key={ token }>{ show( token ) }</li>
+					) ) }
+				</ul>
+				{ suggestions.map( token => (
+					<button
+						key={ token }
+						type="button"
+						// eslint-disable-next-line react/jsx-no-bind
+						onClick={ () => onChange( [ ...value, token ] ) }
+					>
+						{ show( token ) }
+					</button>
+				) ) }
+			</div>
+		);
+	},
+} ) );
 
 interface StubField {
 	id: string;
+	Edit?: ( props: Record< string, unknown > ) => React.ReactNode;
 	elements?: Array< { value: string; label: string } >;
 }
 
 jest.mock( '@wordpress/dataviews', () => ( {
 	__esModule: true,
-	// Render the category field's elements so a newly created category is
-	// observable in the list without a page refresh.
-	DataForm: ( { fields }: { fields: StubField[] } ) => {
-		const categoryField = fields?.find( f => f.id === 'wpcom_newsletter_categories' );
-		return (
-			<div data-testid="data-form">
-				{ categoryField?.elements?.map( el => <span key={ el.value }>{ el.label }</span> ) }
-			</div>
-		);
-	},
+	// Render each field's real custom `Edit` control (the categories field), so
+	// tests drive the actual create/search behavior. Non-custom fields (the
+	// enable toggle) render nothing — they aren't under test here.
+	DataForm: ( {
+		data,
+		fields,
+		onChange,
+		validity,
+	}: {
+		data: Record< string, unknown >;
+		fields: StubField[];
+		onChange: ( updates: Record< string, unknown > ) => void;
+		validity?: Record< string, unknown >;
+	} ) => (
+		<div data-testid="data-form">
+			{ fields.map( field => {
+				if ( typeof field.Edit === 'function' ) {
+					const Edit = field.Edit;
+					const normalized = {
+						...field,
+						getValue: ( { item }: { item: Record< string, unknown > } ) => item[ field.id ],
+						setValue: ( { value }: { value: unknown } ) => ( { [ field.id ]: value } ),
+						isDisabled: () => false,
+					};
+					return (
+						<Edit
+							key={ field.id }
+							data={ data }
+							field={ normalized }
+							onChange={ onChange }
+							validity={ validity?.[ field.id ] }
+							hideLabelFromVision={ false }
+						/>
+					);
+				}
+				return <div key={ field.id } data-field={ field.id } />;
+			} ) }
+		</div>
+	),
 	useFormValidity: () => ( { validity: {}, isValid: true } ),
+} ) );
+
+jest.mock( '@wordpress/ui', () => ( {
+	__esModule: true,
+	Button: ( {
+		children,
+		onClick,
+		disabled,
+	}: {
+		children: React.ReactNode;
+		onClick?: () => void;
+		disabled?: boolean;
+	} ) => (
+		<button onClick={ onClick } disabled={ disabled }>
+			{ children }
+		</button>
+	),
+	Card: {
+		Root: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
+		Header: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
+		Title: ( { children }: { children: React.ReactNode } ) => <h2>{ children }</h2>,
+		Content: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
+	},
+	Fieldset: {
+		Root: ( { children }: { children: React.ReactNode } ) => <fieldset>{ children }</fieldset>,
+	},
+	Link: ( { children, href }: { children: React.ReactNode; href?: string } ) => (
+		<a href={ href }>{ children }</a>
+	),
+	Notice: {
+		Root: ( { children }: { children: React.ReactNode } ) => <div role="alert">{ children }</div>,
+		Description: ( { children }: { children: React.ReactNode } ) => <p>{ children }</p>,
+	},
+	Text: ( { children }: { children: React.ReactNode } ) => <span>{ children }</span>,
 } ) );
 
 jest.mock( '@automattic/jetpack-analytics', () => ( {
@@ -135,9 +171,8 @@ jest.mock( '../src/settings/api', () => ( {
 } ) );
 
 import analytics from '@automattic/jetpack-analytics';
-import { act, render, screen, waitFor } from '@testing-library/react';
-// `mock`-prefixed so it may be referenced inside the hoisted jest.mock factories above.
-import { forwardRef as mockForwardRef } from 'react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
+import { useState } from 'react';
 import { createCategory, fetchCategories } from '../src/settings/api';
 import { NewsletterCategoriesSection } from '../src/settings/sections/newsletter-categories-section';
 import type { NewsletterSettings } from '../src/settings/types';
@@ -148,8 +183,6 @@ const mockedRecordEvent = analytics.tracks.recordEvent as jest.MockedFunction<
 	typeof analytics.tracks.recordEvent
 >;
 
-// The package intentionally doesn't pull in `@testing-library/user-event`
-// (mirrors the sibling shell tests), so drive interactions natively.
 const nativeInputSetter = Object.getOwnPropertyDescriptor(
 	window.HTMLInputElement.prototype,
 	'value'
@@ -161,7 +194,6 @@ const nativeInputSetter = Object.getOwnPropertyDescriptor(
  * @param name - The button's accessible name.
  */
 function clickButton( name: string ): void {
-	// Native click: the package doesn't pull in @testing-library/user-event.
 	const button = screen.getByRole( 'button', { name } );
 	act( () => {
 		button.click();
@@ -169,13 +201,12 @@ function clickButton( name: string ): void {
 }
 
 /**
- * Set a text field's value the way a user would, triggering React's onChange.
+ * Type into the category search input, triggering the field's `onInputChange`.
  *
- * @param label - The field's accessible label.
- * @param value - The value to enter.
+ * @param value - The text to enter.
  */
-function typeInto( label: string, value: string ): void {
-	const input = screen.getByLabelText( label ) as HTMLInputElement;
+function typeSearch( value: string ): void {
+	const input = screen.getByLabelText( 'Newsletter categories' ) as HTMLInputElement;
 	act( () => {
 		nativeInputSetter.call( input, value );
 		input.dispatchEvent( new Event( 'input', { bubbles: true } ) );
@@ -183,61 +214,52 @@ function typeInto( label: string, value: string ): void {
 }
 
 /**
- * Press the Enter key in a text field, the way a user submitting a single-field
- * form would.
+ * Render the section inside a small controlled wrapper so `onChange` updates the
+ * `data` prop (as the real settings screen does), letting a created + selected
+ * category render as a token without a refresh.
  *
- * @param label - The field's accessible label.
+ * @param overrides - Settings overrides merged over the defaults.
+ * @return RTL helpers plus the `onChange` spy.
  */
-function pressEnter( label: string ): void {
-	const input = screen.getByLabelText( label ) as HTMLInputElement;
-	act( () => {
-		input.dispatchEvent(
-			new KeyboardEvent( 'keydown', { key: 'Enter', bubbles: true, cancelable: true } )
+function renderSection( overrides: Partial< NewsletterSettings > = {} ) {
+	const onChange = jest.fn();
+
+	/**
+	 * Controlled wrapper that owns `data` so a create/select round-trips back
+	 * into the field via `onChange`, as the real settings screen does.
+	 *
+	 * @return The rendered section.
+	 */
+	function Wrapper() {
+		const [ data, setData ] = useState< NewsletterSettings >( {
+			wpcom_newsletter_categories_enabled: true,
+			wpcom_newsletter_categories: [],
+			...overrides,
+		} as NewsletterSettings );
+
+		const handleChange = ( updates: Partial< NewsletterSettings > ) => {
+			onChange( updates );
+			setData( prev => ( { ...prev, ...updates } ) );
+		};
+		return (
+			<NewsletterCategoriesSection
+				data={ data }
+				// eslint-disable-next-line react/jsx-no-bind
+				onChange={ handleChange }
+				onSave={ jest.fn() }
+				isSaving={ false }
+				hasChanges={ false }
+				changedKeys={ [] }
+				isNewsletterEnabled={ true }
+			/>
 		);
-	} );
-}
+	}
 
-/**
- * Build a `NewsletterSettings`-shaped object with newsletter categories enabled.
- *
- * @param overrides - Subset of settings to merge over the defaults.
- * @return Settings object ready to pass to `<NewsletterCategoriesSection data />`.
- */
-function buildData( overrides: Partial< NewsletterSettings > = {} ): NewsletterSettings {
-	return {
-		wpcom_newsletter_categories_enabled: true,
-		wpcom_newsletter_categories: [],
-		...overrides,
-	} as NewsletterSettings;
-}
-
-/**
- * Render `<NewsletterCategoriesSection>` with sensible defaults so each test only
- * has to override the props it cares about.
- *
- * @param props - Prop overrides to apply on top of the defaults.
- * @return RTL render helpers plus the `onChange` spy.
- */
-function renderSection(
-	props: Partial< React.ComponentProps< typeof NewsletterCategoriesSection > > = {}
-) {
-	const onChange = ( props.onChange as jest.Mock ) ?? jest.fn();
-	const utils = render(
-		<NewsletterCategoriesSection
-			data={ ( props.data as NewsletterSettings ) ?? buildData() }
-			onChange={ onChange }
-			onSave={ jest.fn() }
-			isSaving={ false }
-			hasChanges={ false }
-			changedKeys={ [] }
-			isNewsletterEnabled={ true }
-			{ ...props }
-		/>
-	);
+	const utils = render( <Wrapper /> );
 	return { ...utils, onChange };
 }
 
-describe( 'NewsletterCategoriesSection — inline add category (NL-785)', () => {
+describe( 'NewsletterCategoriesSection — combined search + create (NL-785)', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockedFetchCategories.mockResolvedValue( [ { id: 1, name: 'News' } ] );
@@ -245,36 +267,47 @@ describe( 'NewsletterCategoriesSection — inline add category (NL-785)', () => 
 
 	it( 'does not link out to wp-admin to add a category', async () => {
 		renderSection();
-		// Wait for the initial category fetch to settle.
 		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
 
 		const links = screen.queryAllByRole( 'link' ) as HTMLAnchorElement[];
 		expect( links.some( link => link.getAttribute( 'href' )?.includes( 'edit-tags.php' ) ) ).toBe(
 			false
 		);
-		// The affordance is now an in-page action, not a navigation link.
-		expect( screen.getByRole( 'button', { name: 'Add new category' } ) ).toBeInTheDocument();
+		// The old standalone "Add new category" affordance is gone.
+		expect( screen.queryByRole( 'button', { name: 'Add new category' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'creates a category inline, shows it without a refresh, and auto-selects it', async () => {
+	it( 'shows a "Create" row only for a name that does not already exist', async () => {
+		renderSection();
+		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
+
+		typeSearch( 'Weekly Digest' );
+		expect( screen.getByRole( 'button', { name: 'Create “Weekly Digest”' } ) ).toBeInTheDocument();
+
+		// Typing an existing name (case-insensitively) offers no create row.
+		typeSearch( 'news' );
+		expect( screen.queryByRole( 'button', { name: 'Create “news”' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'creates a category from the Create row, shows it without a refresh, and selects it', async () => {
 		mockedCreateCategory.mockResolvedValue( { id: 42, name: 'Weekly Digest' } );
 		const { onChange } = renderSection();
 		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
 
-		clickButton( 'Add new category' );
-		typeInto( 'New category name', 'Weekly Digest' );
-		clickButton( 'Add category' );
+		typeSearch( 'Weekly Digest' );
+		clickButton( 'Create “Weekly Digest”' );
 
 		expect( mockedCreateCategory ).toHaveBeenCalledWith( 'Weekly Digest' );
 
-		// The new category appears in the list without a page reload...
-		await expect( screen.findByText( 'Weekly Digest' ) ).resolves.toBeInTheDocument();
-		// ...and is auto-selected (staged for save) alongside any existing selection.
+		// Selected (staged for save)...
 		await waitFor( () =>
-			expect( onChange ).toHaveBeenCalledWith( {
-				wpcom_newsletter_categories: [ '42' ],
-			} )
+			expect( onChange ).toHaveBeenCalledWith( { wpcom_newsletter_categories: [ '42' ] } )
 		);
+		// ...and rendered as a selected token without a page reload.
+		await waitFor( () => {
+			const selected = screen.getByRole( 'list', { name: 'Selected categories' } );
+			expect( within( selected ).getByText( 'Weekly Digest' ) ).toBeInTheDocument();
+		} );
 	} );
 
 	it( 'records a tracking event when a category is created', async () => {
@@ -282,9 +315,8 @@ describe( 'NewsletterCategoriesSection — inline add category (NL-785)', () => 
 		renderSection();
 		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
 
-		clickButton( 'Add new category' );
-		typeInto( 'New category name', 'Weekly Digest' );
-		clickButton( 'Add category' );
+		typeSearch( 'Weekly Digest' );
+		clickButton( 'Create “Weekly Digest”' );
 
 		await waitFor( () =>
 			expect( mockedRecordEvent ).toHaveBeenCalledWith(
@@ -294,206 +326,38 @@ describe( 'NewsletterCategoriesSection — inline add category (NL-785)', () => 
 		);
 	} );
 
-	it( 'does not record a creation event when the create request fails', async () => {
-		mockedCreateCategory.mockRejectedValue(
-			Object.assign( new Error( 'nope' ), { code: 'term_exists' } )
-		);
-		renderSection();
+	it( 'selects an existing category without creating anything', async () => {
+		const { onChange } = renderSection();
 		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
 
-		clickButton( 'Add new category' );
-		typeInto( 'New category name', 'News' );
-		clickButton( 'Add category' );
+		clickButton( 'News' );
 
-		await expect( screen.findByRole( 'alert' ) ).resolves.toBeInTheDocument();
+		expect( onChange ).toHaveBeenCalledWith( { wpcom_newsletter_categories: [ '1' ] } );
+		expect( mockedCreateCategory ).not.toHaveBeenCalled();
+	} );
+
+	it( 'surfaces the friendly duplicate message for the WordPress.com envelope shape', async () => {
+		mockedCreateCategory.mockRejectedValue(
+			Object.assign( new Error( 'A taxonomy with that name already exists' ), {
+				code: 409,
+				body: { error: 'duplicate' },
+			} )
+		);
+		const { onChange } = renderSection();
+		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
+
+		typeSearch( 'News Two' );
+		clickButton( 'Create “News Two”' );
+
+		const alert = await screen.findByRole( 'alert' );
+		expect( alert ).toHaveTextContent( 'This category already exists.' );
+		expect( alert ).not.toHaveTextContent( 'A taxonomy with that name already exists' );
+		// Nothing was recorded or selected.
+		expect( onChange ).not.toHaveBeenCalled();
 		expect( mockedRecordEvent ).not.toHaveBeenCalledWith(
 			'jetpack_newsletter_category_created',
 			expect.anything()
 		);
-	} );
-
-	it( 'creates the category when Enter is pressed in the name field', async () => {
-		mockedCreateCategory.mockResolvedValue( { id: 55, name: 'Weekly Digest' } );
-		renderSection();
-		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
-
-		clickButton( 'Add new category' );
-		typeInto( 'New category name', 'Weekly Digest' );
-		// Enter submits the single-field form without reaching for the button.
-		pressEnter( 'New category name' );
-
-		await waitFor( () => expect( mockedCreateCategory ).toHaveBeenCalledWith( 'Weekly Digest' ) );
-	} );
-
-	it( 'does not create anything when Enter is pressed with an empty name', async () => {
-		renderSection();
-		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
-
-		clickButton( 'Add new category' );
-		pressEnter( 'New category name' );
-
-		expect( mockedCreateCategory ).not.toHaveBeenCalled();
-	} );
-
-	it( 'auto-selects using the latest selection when it changes mid-request', async () => {
-		// Hold the create promise open so we can change the selection while the
-		// request is "in flight".
-		let resolveCreate: ( category: { id: number; name: string } ) => void = () => {};
-		mockedCreateCategory.mockReturnValue(
-			new Promise< { id: number; name: string } >( resolve => {
-				resolveCreate = resolve;
-			} )
-		);
-
-		const onChange = jest.fn();
-		const sharedProps = {
-			onChange,
-			onSave: jest.fn(),
-			isSaving: false,
-			hasChanges: false,
-			changedKeys: [],
-			isNewsletterEnabled: true,
-		};
-		const { rerender } = render(
-			<NewsletterCategoriesSection
-				data={ buildData( { wpcom_newsletter_categories: [] } ) }
-				{ ...sharedProps }
-			/>
-		);
-		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
-
-		clickButton( 'Add new category' );
-		typeInto( 'New category name', 'Weekly Digest' );
-		clickButton( 'Add category' );
-
-		// The user selects an existing category while the request is pending; the
-		// parent re-renders with the updated selection.
-		rerender(
-			<NewsletterCategoriesSection
-				data={ buildData( { wpcom_newsletter_categories: [ '1' ] } ) }
-				{ ...sharedProps }
-			/>
-		);
-
-		await act( async () => {
-			resolveCreate( { id: 42, name: 'Weekly Digest' } );
-		} );
-
-		// The new id is appended to the latest selection, not the stale empty one.
-		await waitFor( () =>
-			expect( onChange ).toHaveBeenCalledWith( {
-				wpcom_newsletter_categories: [ '1', '42' ],
-			} )
-		);
-	} );
-
-	it( 'moves focus to the name field when the add-category form opens', async () => {
-		renderSection();
-		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
-
-		clickButton( 'Add new category' );
-
-		expect( screen.getByLabelText( 'New category name' ) ).toHaveFocus();
-	} );
-
-	it( 'returns focus to the trigger when the form is cancelled', async () => {
-		renderSection();
-		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
-
-		clickButton( 'Add new category' );
-		clickButton( 'Cancel' );
-
-		expect( screen.getByRole( 'button', { name: 'Add new category' } ) ).toHaveFocus();
-	} );
-
-	it( 'trims the name and does not create a whitespace-only category', async () => {
-		mockedCreateCategory.mockResolvedValue( { id: 7, name: 'Trimmed' } );
-		renderSection();
-		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
-
-		clickButton( 'Add new category' );
-		typeInto( 'New category name', '   ' );
-
-		// The submit button is disabled while the name is only whitespace.
-		expect( screen.getByRole( 'button', { name: 'Add category' } ) ).toBeDisabled();
-
-		typeInto( 'New category name', '  Trimmed  ' );
-		clickButton( 'Add category' );
-
-		await waitFor( () => expect( mockedCreateCategory ).toHaveBeenCalledWith( 'Trimmed' ) );
-	} );
-
-	it( 'surfaces a friendly error when the category already exists', async () => {
-		mockedCreateCategory.mockRejectedValue(
-			Object.assign(
-				new Error( 'A term with the name provided already exists with this parent.' ),
-				{ code: 'term_exists' }
-			)
-		);
-		const { onChange } = renderSection();
-		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
-
-		clickButton( 'Add new category' );
-		typeInto( 'New category name', 'News' );
-		clickButton( 'Add category' );
-
-		const alert = await screen.findByRole( 'alert' );
-		expect( alert ).toHaveTextContent( 'This category already exists.' );
-		// The long parent-aware core message is not shown to the user.
-		expect( alert ).not.toHaveTextContent( 'already exists with this parent' );
-		// Nothing was selected, and the form stays open for a retry.
-		expect( onChange ).not.toHaveBeenCalled();
-		expect( screen.getByLabelText( 'New category name' ) ).toBeInTheDocument();
-	} );
-
-	it( 'surfaces the friendly duplicate error for the WordPress.com Simple-site error shape', async () => {
-		// WordPress.com's `/rest/v1.1` terms/new endpoint rejects duplicates with
-		// `error: 'duplicate'`, not the self-hosted WP REST `code: 'term_exists'`.
-		mockedCreateCategory.mockRejectedValue(
-			Object.assign( new Error( 'A taxonomy with that name already exists' ), {
-				error: 'duplicate',
-			} )
-		);
-		const { onChange } = renderSection();
-		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
-
-		clickButton( 'Add new category' );
-		typeInto( 'New category name', 'News' );
-		clickButton( 'Add category' );
-
-		const alert = await screen.findByRole( 'alert' );
-		expect( alert ).toHaveTextContent( 'This category already exists.' );
-		// The raw server message is not shown to the user.
-		expect( alert ).not.toHaveTextContent( 'A taxonomy with that name already exists' );
-		// Nothing was selected, and the form stays open for a retry.
-		expect( onChange ).not.toHaveBeenCalled();
-		expect( screen.getByLabelText( 'New category name' ) ).toBeInTheDocument();
-	} );
-
-	it( 'surfaces the friendly duplicate error for the WordPress.com proxy envelope shape', async () => {
-		// On Simple sites the v1.1 endpoint can reject inside a proxy envelope where
-		// the top-level `code` is the HTTP status (409) and the real slug lives in
-		// `body.error`.
-		mockedCreateCategory.mockRejectedValue(
-			Object.assign( new Error( 'A taxonomy with that name already exists' ), {
-				code: 409,
-				body: { error: 'duplicate', message: 'A taxonomy with that name already exists' },
-			} )
-		);
-		const { onChange } = renderSection();
-		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
-
-		clickButton( 'Add new category' );
-		typeInto( 'New category name', 'News' );
-		clickButton( 'Add category' );
-
-		const alert = await screen.findByRole( 'alert' );
-		expect( alert ).toHaveTextContent( 'This category already exists.' );
-		// The raw server message is not shown to the user.
-		expect( alert ).not.toHaveTextContent( 'A taxonomy with that name already exists' );
-		// Nothing was selected, and the form stays open for a retry.
-		expect( onChange ).not.toHaveBeenCalled();
-		expect( screen.getByLabelText( 'New category name' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows a generic message for non-duplicate errors and never leaks the raw server text', async () => {
@@ -502,34 +366,14 @@ describe( 'NewsletterCategoriesSection — inline add category (NL-785)', () => 
 				code: 'rest_cannot_create',
 			} )
 		);
-		const { onChange } = renderSection();
-		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
-
-		clickButton( 'Add new category' );
-		typeInto( 'New category name', 'Announcements' );
-		clickButton( 'Add category' );
-
-		const alert = await screen.findByRole( 'alert' );
-		expect( alert ).toHaveTextContent( 'Could not create the category. Please try again.' );
-		// The raw, English-only server message is not surfaced to the user.
-		expect( alert ).not.toHaveTextContent( 'not allowed to create terms' );
-		// Nothing was selected, and the form stays open for a retry.
-		expect( onChange ).not.toHaveBeenCalled();
-		expect( screen.getByLabelText( 'New category name' ) ).toBeInTheDocument();
-	} );
-
-	it( 'closes the inline form and clears input when cancelled', async () => {
 		renderSection();
 		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
 
-		clickButton( 'Add new category' );
-		typeInto( 'New category name', 'Discarded' );
-		clickButton( 'Cancel' );
+		typeSearch( 'Announcements' );
+		clickButton( 'Create “Announcements”' );
 
-		expect( screen.queryByLabelText( 'New category name' ) ).not.toBeInTheDocument();
-		expect( mockedCreateCategory ).not.toHaveBeenCalled();
-		// Reopening starts from an empty field, not the discarded value.
-		clickButton( 'Add new category' );
-		expect( screen.getByLabelText( 'New category name' ) ).toHaveValue( '' );
+		const alert = await screen.findByRole( 'alert' );
+		expect( alert ).toHaveTextContent( 'Could not create the category. Please try again.' );
+		expect( alert ).not.toHaveTextContent( 'not allowed to create terms' );
 	} );
 } );

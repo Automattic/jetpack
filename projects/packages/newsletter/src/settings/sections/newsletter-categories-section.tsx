@@ -4,23 +4,26 @@
 import analytics from '@automattic/jetpack-analytics';
 import { getSiteData, getSiteType, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components/wpcom-support-link';
-import { TextControl } from '@wordpress/components';
 import { DataForm, type Field, useFormValidity } from '@wordpress/dataviews';
 import {
 	createInterpolateElement,
 	useCallback,
 	useEffect,
-	useRef,
+	useMemo,
 	useState,
 } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Card, Fieldset, Link, Notice, Stack, Text } from '@wordpress/ui';
+import { Button, Card, Fieldset, Link, Notice, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
-import { createCategory, fetchCategories } from '../api';
+import { fetchCategories } from '../api';
+import {
+	CreatableCategoriesControl,
+	CreatableCategoryContext,
+} from './creatable-categories-control';
 import type { NewsletterSettings, WordPressCategory } from '../types';
-import type { KeyboardEvent } from 'react';
+import type { CreatableCategoryContextValue } from './creatable-categories-control';
 
 interface NewsletterCategoriesSectionProps {
 	data: NewsletterSettings;
@@ -52,38 +55,8 @@ export function NewsletterCategoriesSection( {
 	const [ categories, setCategories ] = useState< WordPressCategory[] >( [] );
 	const [ isFetchingCategories, setIsFetchingCategories ] = useState( true );
 	const [ categoriesError, setCategoriesError ] = useState< string | null >( null );
-
-	// Inline "add new category" flow. Replaces the old wp-admin link so the new
-	// category is created in place and shows up in the list without a refresh.
-	const [ isAddingCategory, setIsAddingCategory ] = useState( false );
-	const [ newCategoryName, setNewCategoryName ] = useState( '' );
-	const [ isCreatingCategory, setIsCreatingCategory ] = useState( false );
+	// Error surfaced by the combined create/search control when a creation fails.
 	const [ createCategoryError, setCreateCategoryError ] = useState< string | null >( null );
-
-	// Focus targets for the disclosure pattern: move focus into the form on open,
-	// return it to the trigger on close.
-	const newCategoryInputRef = useRef< HTMLInputElement >( null );
-	const addCategoryTriggerRef = useRef< HTMLButtonElement >( null );
-	const wasAddingCategoryRef = useRef( false );
-
-	// Latest saved selection, read inside the async create handler so a category
-	// the user toggles while the request is in flight isn't clobbered by a stale
-	// closure over `data.wpcom_newsletter_categories`.
-	const selectedCategoriesRef = useRef( data.wpcom_newsletter_categories );
-	useEffect( () => {
-		selectedCategoriesRef.current = data.wpcom_newsletter_categories;
-	}, [ data.wpcom_newsletter_categories ] );
-
-	// Move focus into the form when it opens; return it to the trigger on close
-	// (but not on the initial render, when the form was never open).
-	useEffect( () => {
-		if ( isAddingCategory ) {
-			newCategoryInputRef.current?.focus();
-		} else if ( wasAddingCategoryRef.current ) {
-			addCategoryTriggerRef.current?.focus();
-		}
-		wasAddingCategoryRef.current = isAddingCategory;
-	}, [ isAddingCategory ] );
 
 	// Track section save with the keys that changed since the last save.
 	const handleSave = useCallback( () => {
@@ -96,113 +69,29 @@ export function NewsletterCategoriesSection( {
 		onSave();
 	}, [ changedKeys, onSave, siteType ] );
 
-	const trimmedNewCategoryName = newCategoryName.trim();
-
-	// Open the inline add-category form.
-	const startAddCategory = useCallback( () => {
-		setIsAddingCategory( true );
+	// Append a freshly created category to the list so it renders as a token
+	// without a page refresh (deduped in case it already slipped in).
+	const appendCategory = useCallback( ( category: WordPressCategory ) => {
+		setCategories( prev =>
+			prev.some( cat => cat.id === category.id ) ? prev : [ ...prev, category ]
+		);
 	}, [] );
 
-	// Reset and close the inline add-category form.
-	const cancelAddCategory = useCallback( () => {
-		setIsAddingCategory( false );
-		setNewCategoryName( '' );
-		setCreateCategoryError( null );
-	}, [] );
+	// Fired by the control when a category is successfully created.
+	const handleCategoryCreated = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_newsletter_category_created', {
+			site_type: siteType,
+		} );
+	}, [ siteType ] );
 
-	// Create the category, append it to the list, and auto-select it.
-	const handleCreateCategory = useCallback( () => {
-		if ( ! trimmedNewCategoryName || isCreatingCategory ) {
-			return;
-		}
-
-		setIsCreatingCategory( true );
-		setCreateCategoryError( null );
-
-		createCategory( trimmedNewCategoryName )
-			.then( created => {
-				analytics.tracks.recordEvent( 'jetpack_newsletter_category_created', {
-					site_type: siteType,
-				} );
-
-				const newCategory: WordPressCategory = {
-					id: String( created.id ),
-					name: created.name,
-				};
-
-				// Add to the local list so it appears in the DataForm without a
-				// page refresh, avoiding duplicates if it somehow already exists.
-				setCategories( prev =>
-					prev.some( cat => cat.id === newCategory.id ) ? prev : [ ...prev, newCategory ]
-				);
-
-				// Auto-select the newly created category (staged for save). Read the
-				// latest selection from the ref so a concurrent toggle isn't lost.
-				const selected = selectedCategoriesRef.current ?? [];
-				if ( ! selected.includes( newCategory.id ) ) {
-					onChange( { wpcom_newsletter_categories: [ ...selected, newCategory.id ] } );
-				}
-
-				setIsAddingCategory( false );
-				setNewCategoryName( '' );
-			} )
-			.catch( ( err: Error ) => {
-				// Duplicate-name detection differs by platform and error envelope:
-				// - self-hosted WP REST (`/wp/v2/categories`) rejects with
-				//   `code: 'term_exists'`.
-				// - the WordPress.com v1.1 endpoint used on Simple sites rejects with
-				//   `error: 'duplicate'`, sometimes wrapped in a proxy envelope
-				//   (`{ code: 409, body: { error: 'duplicate' } }`) where the top-level
-				//   `code` is the HTTP status, not the error slug.
-				// Both carry a long, English-only server message (and the inline form
-				// has no parent picker), so map either one to a short, translated
-				// string. Everything else (permissions, expired nonce, network failure)
-				// gets a friendly generic message rather than the raw server text.
-				const errorLike = err as Error & {
-					code?: string | number;
-					error?: string;
-					body?: { code?: string | number; error?: string };
-				};
-				const signals = [
-					errorLike.code,
-					errorLike.error,
-					errorLike.body?.code,
-					errorLike.body?.error,
-				];
-				const isDuplicate =
-					signals.includes( 'term_exists' ) ||
-					signals.includes( 'duplicate' ) ||
-					// A 409 Conflict when creating a term always means a name clash.
-					errorLike.code === 409 ||
-					errorLike.body?.code === 409;
-				// Assign each translated string to its own variable rather than
-				// branching a single ternary between two `__()` calls: production
-				// minification hoists the shared `__( …, 'jetpack-newsletter' )`
-				// wrapper out of the conditional, leaving a non-literal msgid that
-				// fails the i18n string check.
-				const duplicateMessage = __( 'This category already exists.', 'jetpack-newsletter' );
-				const genericMessage = __(
-					'Could not create the category. Please try again.',
-					'jetpack-newsletter'
-				);
-				setCreateCategoryError( isDuplicate ? duplicateMessage : genericMessage );
-			} )
-			.finally( () => {
-				setIsCreatingCategory( false );
-			} );
-	}, [ trimmedNewCategoryName, isCreatingCategory, onChange, siteType ] );
-
-	// Submit the inline form on Enter, matching the category token field above
-	// it. `handleCreateCategory` already no-ops on an empty name or while a
-	// create is in flight, so no extra guard is needed here.
-	const handleNewCategoryKeyDown = useCallback(
-		( event: KeyboardEvent< HTMLInputElement > ) => {
-			if ( event.key === 'Enter' ) {
-				event.preventDefault();
-				handleCreateCategory();
-			}
-		},
-		[ handleCreateCategory ]
+	// Stable wiring handed to the combined control via context.
+	const creatableContext = useMemo< CreatableCategoryContextValue >(
+		() => ( {
+			appendCategory,
+			onError: setCreateCategoryError,
+			onCreated: handleCategoryCreated,
+		} ),
+		[ appendCategory, handleCategoryCreated ]
 	);
 
 	// Fetch WordPress categories on mount
@@ -242,6 +131,10 @@ export function NewsletterCategoriesSection( {
 				'jetpack-newsletter'
 			),
 			type: 'array' as const,
+			// Custom control: one field that both searches existing categories and
+			// creates new ones (via a "Create ‘…’" suggestion row), replacing the
+			// separate "Add new category" link.
+			Edit: CreatableCategoriesControl as unknown as Field< NewsletterSettings >[ 'Edit' ],
 			elements: categories.map( cat => ( {
 				value: cat.id,
 				label: cat.name,
@@ -329,63 +222,21 @@ export function NewsletterCategoriesSection( {
 					</Notice.Root>
 				) }
 				<Fieldset.Root disabled={ ! isNewsletterEnabled || !! categoriesError }>
-					<DataForm
-						data={ data }
-						fields={ newsletterCategoriesFields }
-						form={ newsletterCategoriesForm }
-						onChange={ onChange }
-						validity={ validity }
-					/>
+					<CreatableCategoryContext.Provider value={ creatableContext }>
+						<DataForm
+							data={ data }
+							fields={ newsletterCategoriesFields }
+							form={ newsletterCategoriesForm }
+							onChange={ onChange }
+							validity={ validity }
+						/>
+					</CreatableCategoryContext.Provider>
 
-					{ data.wpcom_newsletter_categories_enabled &&
-						( isAddingCategory ? (
-							<Stack direction="column" gap="sm" className="newsletter-add-category-form">
-								{ createCategoryError && (
-									<Notice.Root intent="error">
-										<Notice.Description>{ createCategoryError }</Notice.Description>
-									</Notice.Root>
-								) }
-								<TextControl
-									ref={ newCategoryInputRef }
-									__next40pxDefaultSize
-									__nextHasNoMarginBottom
-									label={ __( 'New category name', 'jetpack-newsletter' ) }
-									value={ newCategoryName }
-									onChange={ setNewCategoryName }
-									onKeyDown={ handleNewCategoryKeyDown }
-									disabled={ isCreatingCategory }
-								/>
-								<Stack direction="row" gap="sm" align="center" justify="flex-start">
-									<Button
-										variant="solid"
-										onClick={ handleCreateCategory }
-										disabled={ ! trimmedNewCategoryName || isCreatingCategory }
-										loading={ isCreatingCategory }
-										loadingAnnouncement={ __( 'Adding…', 'jetpack-newsletter' ) }
-									>
-										{ __( 'Add category', 'jetpack-newsletter' ) }
-									</Button>
-									<Button
-										variant="minimal"
-										onClick={ cancelAddCategory }
-										disabled={ isCreatingCategory }
-									>
-										{ __( 'Cancel', 'jetpack-newsletter' ) }
-									</Button>
-								</Stack>
-							</Stack>
-						) : (
-							<p>
-								<Button
-									ref={ addCategoryTriggerRef }
-									variant="unstyled"
-									className="newsletter-add-category-trigger"
-									onClick={ startAddCategory }
-								>
-									{ __( 'Add new category', 'jetpack-newsletter' ) }
-								</Button>
-							</p>
-						) ) }
+					{ data.wpcom_newsletter_categories_enabled && createCategoryError && (
+						<Notice.Root intent="error">
+							<Notice.Description>{ createCategoryError }</Notice.Description>
+						</Notice.Root>
+					) }
 				</Fieldset.Root>
 				<div className="newsletter-card-footer">
 					<Button
