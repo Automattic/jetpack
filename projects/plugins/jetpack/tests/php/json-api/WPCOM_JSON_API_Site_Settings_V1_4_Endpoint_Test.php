@@ -324,6 +324,48 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Once any sub-key has been saved, the option row exists without the untouched
+	 * defaults — the `default_option_subscription_options` filter only fires for a
+	 * missing row. The GET response must still expose those defaults so the form
+	 * renders the translated welcome/invitation/comment_follow text rather than
+	 * blanks.
+	 */
+	public function test_get_settings_populates_defaults_after_partial_row_saved() {
+		$defaults = $this->register_subscription_options_default();
+
+		// A prior save of a non-default sub-key leaves the row partial.
+		update_option( 'subscription_options', array( 'subscribe_modal_heading' => 'My heading' ) );
+
+		$response = $this->make_get_request();
+		$settings = $response['settings'];
+
+		$this->assertSame( $defaults['invitation'], $settings['subscription_options']['invitation'] );
+		$this->assertSame( $defaults['welcome'], $settings['subscription_options']['welcome'] );
+		$this->assertSame( $defaults['comment_follow'], $settings['subscription_options']['comment_follow'] );
+		$this->assertSame( 'My heading', $settings['subscription_options']['subscribe_modal_heading'] );
+	}
+
+	/**
+	 * The same partial-row state must not break change detection on save: re-posting
+	 * the untouched defaults alongside the stored sub-key is still a no-op, so the
+	 * translated defaults aren't frozen into the row on the next save.
+	 */
+	public function test_post_subscription_options_ignores_defaults_after_partial_row_saved() {
+		$defaults = $this->register_subscription_options_default();
+
+		update_option( 'subscription_options', array( 'subscribe_modal_heading' => 'My heading' ) );
+
+		$setting  = wp_json_encode(
+			array( 'subscription_options' => $defaults ),
+			JSON_UNESCAPED_SLASHES
+		);
+		$response = $this->make_post_request( $setting );
+
+		$this->assertArrayNotHasKey( 'subscription_options', $response['updated'] );
+		$this->assertSame( array( 'subscribe_modal_heading' => 'My heading' ), get_option( 'subscription_options' ) );
+	}
+
+	/**
 	 * Data provider of falsy `hide_free_tier` representations.
 	 *
 	 * @return array<string,array{mixed}> [ $posted_value ]
