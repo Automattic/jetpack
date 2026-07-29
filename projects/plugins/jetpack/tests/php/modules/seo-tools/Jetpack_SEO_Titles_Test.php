@@ -98,6 +98,43 @@ class Jetpack_SEO_Titles_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * On a latest-posts homepage the site-wide Front Page title format should still be
+	 * applied. This proves the front page falls through to the format lookup rather than
+	 * returning early, which asserting on the default title alone cannot show.
+	 */
+	public function test_front_page_uses_configured_format_when_showing_latest_posts() {
+		// Create a post with a custom SEO title. It will be the first post in the loop.
+		$post_id = self::factory()->post->create();
+		update_post_meta( $post_id, Jetpack_SEO_Posts::HTML_TITLE_META_KEY, 'Newest Post SEO Title' );
+
+		// The site lists the latest posts on the front page.
+		update_option( 'show_on_front', 'posts' );
+
+		// A site-wide Front Page title format is configured.
+		update_option(
+			Jetpack_SEO_Titles::TITLE_FORMATS_OPTION,
+			array(
+				'front_page' => array(
+					array(
+						'type'  => 'string',
+						'value' => 'Site Home Page',
+					),
+				),
+			)
+		);
+
+		// Navigate to the front page so WordPress conditional tags work correctly.
+		$this->go_to( home_url( '/' ) );
+
+		$title = Jetpack_SEO_Titles::get_custom_title( 'Default Title' );
+
+		$this->assertSame( 'Site Home Page', $title );
+
+		// Clean up.
+		delete_option( Jetpack_SEO_Titles::TITLE_FORMATS_OPTION );
+	}
+
+	/**
 	 * Test for expected output after sanitizing the custom SEO page title structures.
 	 */
 	public function test_sanitize_title_formats() {
