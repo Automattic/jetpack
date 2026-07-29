@@ -1,12 +1,13 @@
 import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel, SectionTabPanel } from '@jetpack-premium-analytics/ui';
+import { DateFiltersPanel, SectionTabPanel, safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
+import { Button } from '@wordpress/ui';
 import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
 import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { PostDetailTabs, PostSummaryCard } from './components';
@@ -45,6 +46,8 @@ function PostDetail(): JSX.Element {
 	const { tabs, activeTab, setActiveTab, layout } = usePostDetailTabs( postId );
 
 	const summary = usePostSummary( postId );
+
+	const publicUrl = safeHttpUrl( summary.url );
 
 	const widgetModules = useSelect(
 		select =>
@@ -115,6 +118,21 @@ function PostDetail(): JSX.Element {
 								...( summary.title ? [ { label: summary.title } ] : [] ),
 							] }
 						/>
+					}
+					actions={
+						publicUrl ? (
+							<Button
+								variant="solid"
+								tone="neutral"
+								size="compact"
+								className={ styles.viewPost }
+								render={ <a href={ publicUrl } target="_blank" rel="noopener noreferrer" /> }
+							>
+								{ summary.type === 'page'
+									? __( 'View page', 'jetpack-premium-analytics-pkg' )
+									: __( 'View post', 'jetpack-premium-analytics-pkg' ) }
+							</Button>
+						) : undefined
 					}
 					className={ styles.page }
 				>
