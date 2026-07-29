@@ -208,7 +208,13 @@ class Analytics {
 	}
 
 	/**
-	 * Load the dashboard components every platform renders with.
+	 * Load the dashboard components every platform renders with: the widget
+	 * import map, the default layout seeding, the sections, and the CSV export
+	 * script data.
+	 *
+	 * Admin-only, via load_dashboard_surface(). The REST routes that read the
+	 * same files require them themselves on rest_api_init, in
+	 * Dashboard_Support_Routes::boot_routes().
 	 *
 	 * @return void
 	 */

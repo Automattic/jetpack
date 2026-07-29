@@ -43,6 +43,13 @@ class Dashboard_Support_Routes {
 	 * widget-modules.php hydrates the widget type registry itself, lazily,
 	 * only when its REST callback or the boot-deps filter actually runs.
 	 *
+	 * The three require_once calls below are load-bearing, not defensive
+	 * duplication: since WOOA7S-1804, Analytics::init() loads these files only
+	 * in wp-admin, so on a REST request this method is the only thing that
+	 * loads them. Drop them as redundant and every dashboard REST route dies
+	 * with "Call to undefined function register_widget_modules_rest_route()",
+	 * because nothing else on this path defines it.
+	 *
 	 * @return void
 	 */
 	public static function boot_routes() {
