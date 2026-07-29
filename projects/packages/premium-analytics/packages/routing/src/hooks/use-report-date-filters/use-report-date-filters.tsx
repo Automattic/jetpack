@@ -30,6 +30,7 @@ export type ReportDateFilters = {
 	appliedPresetId?: PrimaryPresetId;
 	appliedRange: PickerRange;
 	comparisonPresetId?: ComparisonPresetId;
+	appliedComparisonPresetId?: ComparisonPresetId;
 	onChange: ( range?: DateRange, presetId?: PrimaryPresetId ) => void;
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 	onApply: () => void;
@@ -111,6 +112,21 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		[ effective.compare_preset ]
 	);
 
+	/*
+	 * The applied comparison, for surfaces that describe what the widgets are
+	 * actually showing rather than what the picker is drafting. A comparison
+	 * change normally commits on its own, but it rides along uncommitted when a
+	 * primary edit is already staged, so this cannot read `effective`. Mirrors
+	 * `hasComparisonEnabled`: a preset alone does not make a comparison active.
+	 */
+	const appliedComparisonPresetId = useMemo(
+		() =>
+			committed.comp === '1' && committed.compare_from && committed.compare_to
+				? committed.compare_preset ?? undefined
+				: undefined,
+		[ committed.comp, committed.compare_from, committed.compare_to, committed.compare_preset ]
+	);
+
 	/**
 	 * Comparison changes commit immediately — but only when the primary date
 	 * isn't mid-edit. If a primary edit is staged but not yet applied, the
@@ -162,6 +178,7 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		appliedPresetId,
 		appliedRange,
 		comparisonPresetId,
+		appliedComparisonPresetId,
 		onChange,
 		onComparisonChange,
 		onApply,
