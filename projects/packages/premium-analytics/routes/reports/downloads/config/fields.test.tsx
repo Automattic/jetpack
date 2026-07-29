@@ -6,13 +6,14 @@ import { render, screen } from '@testing-library/react';
  * Internal dependencies
  */
 import { getDownloadsFields } from './fields';
-import type { StatsFileDownloadsItem } from '@jetpack-premium-analytics/data';
+import type { StatsFileDownloadsComparisonItem } from '@jetpack-premium-analytics/data';
 
-const download: StatsFileDownloadsItem = {
+const download: StatsFileDownloadsComparisonItem = {
 	label: '/files/report.pdf',
 	shortLabel: 'report.pdf',
 	link: 'https://example.com/files/report.pdf',
 	downloads: 1234,
+	previousDownloads: 1000,
 	linkTitle: '/files/report.pdf',
 	labelIcon: 'external',
 	children: null,
@@ -21,12 +22,13 @@ const download: StatsFileDownloadsItem = {
 /**
  * Render one table field for a file-download row.
  *
- * @param id   - Field identifier.
- * @param item - File-download row.
+ * @param id             - Field identifier.
+ * @param item           - File-download row.
+ * @param withComparison - Whether comparison deltas are enabled.
  * @return The Testing Library render result.
  */
-function renderField( id: string, item: StatsFileDownloadsItem ) {
-	const field = getDownloadsFields().find( candidate => candidate.id === id );
+function renderField( id: string, item: StatsFileDownloadsComparisonItem, withComparison = false ) {
+	const field = getDownloadsFields( withComparison ).find( candidate => candidate.id === id );
 	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` is the DataViews field component.
 	const FieldComponent = field?.render;
 
@@ -62,5 +64,12 @@ describe( 'downloads fields', () => {
 		expect(
 			screen.getByText( content => content.replace( /\D/g, '' ) === '1234' )
 		).toBeInTheDocument();
+		expect( screen.queryByText( /%/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders the download delta when comparison is enabled', () => {
+		renderField( 'downloads', download, true );
+
+		expect( screen.getByText( '+23%' ) ).toBeInTheDocument();
 	} );
 } );
