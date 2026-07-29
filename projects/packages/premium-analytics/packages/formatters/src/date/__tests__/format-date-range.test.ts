@@ -13,6 +13,24 @@ import {
 } from '../__fixtures__/wp-date-settings';
 import { formatDateRange } from '../format-date-range';
 
+// The en dash between thin spaces that CLDR puts between the ends of a range.
+const SEP = '\u2009\u2013\u2009';
+
+const JA_MONTHS = [
+	'1\u6708',
+	'2\u6708',
+	'3\u6708',
+	'4\u6708',
+	'5\u6708',
+	'6\u6708',
+	'7\u6708',
+	'8\u6708',
+	'9\u6708',
+	'10\u6708',
+	'11\u6708',
+	'12\u6708',
+];
+
 describe( 'formatDateRange', () => {
 	describe( 'edge cases', () => {
 		beforeEach( () => setSettings( EN_US_SETTINGS ) );
@@ -38,26 +56,40 @@ describe( 'formatDateRange', () => {
 			expect( formatDateRange( { from: date, to: date } ) ).toBe( 'June 21, 2025' );
 		} );
 
-		it( 'spells out both ends of a range within one month', () => {
+		it( 'elides the month and year shared within one month', () => {
 			expect(
 				formatDateRange( { from: utcDate( 2025, 6, 21 ), to: utcDate( 2025, 6, 25 ) } )
-			).toBe( 'June 21, 2025 – June 25, 2025' );
+			).toBe( `June 21${ SEP }25, 2025` );
 		} );
 
-		it( 'spells out both ends of a range spanning years', () => {
+		it( 'elides only the year across months of the same year', () => {
+			expect(
+				formatDateRange( { from: utcDate( 2025, 6, 21 ), to: utcDate( 2025, 7, 25 ) } )
+			).toBe( `June 21${ SEP }July 25, 2025` );
+		} );
+
+		it( 'elides nothing across years', () => {
 			expect(
 				formatDateRange( { from: utcDate( 2024, 6, 21 ), to: utcDate( 2025, 7, 25 ) } )
-			).toBe( 'June 21, 2024 – July 25, 2025' );
+			).toBe( `June 21, 2024${ SEP }July 25, 2025` );
 		} );
 	} );
 
 	describe( 'es_ES site', () => {
 		beforeEach( () => setSettings( ES_ES_SETTINGS ) );
 
-		it( 'follows the site date format on both ends', () => {
+		// The elision rule is Spanish, not a translated English one: the day
+		// range leads and the shared "de junio de 2025" trails it once.
+		it( 'elides the way Spanish does, not the way English does', () => {
 			expect(
 				formatDateRange( { from: utcDate( 2025, 6, 21 ), to: utcDate( 2025, 6, 25 ) } )
-			).toBe( '21 de junio de 2025 – 25 de junio de 2025' );
+			).toBe( '21–25 de junio de 2025' );
+		} );
+
+		it( 'elides nothing across years', () => {
+			expect(
+				formatDateRange( { from: utcDate( 2024, 6, 21 ), to: utcDate( 2025, 7, 25 ) } )
+			).toBe( `21 de junio de 2024${ SEP }25 de julio de 2025` );
 		} );
 
 		it( 'collapses a single-day range to one date', () => {
@@ -75,12 +107,36 @@ describe( 'formatDateRange', () => {
 		it( 'still spells out both ends of a range spanning years', () => {
 			expect(
 				formatDateRange( { from: utcDate( 2024, 6, 21 ), to: utcDate( 2025, 6, 21 ) } )
-			).toBe( 'June 21 – June 21' );
+			).toBe( `June 21${ SEP }June 21` );
 		} );
 
 		it( 'collapses a genuine single-day range', () => {
 			const date = utcDate( 2025, 6, 21 );
 			expect( formatDateRange( { from: date, to: date } ) ).toBe( 'June 21' );
+		} );
+	} );
+
+	describe( 'falling back where no elision rule can be trusted', () => {
+		// A custom `date_format` is the site telling us how it wants dates
+		// written. CLDR's rules describe a different format, so borrowing its
+		// elision would quietly overrule the setting.
+		it( 'keeps a custom date format and spells both ends out', () => {
+			setSettings( settingsFor( 'en-custom-test', 'd/m/Y' ) );
+
+			expect(
+				formatDateRange( { from: utcDate( 2025, 6, 21 ), to: utcDate( 2025, 6, 25 ) } )
+			).toBe( `21/06/2025${ SEP }25/06/2025` );
+		} );
+
+		// `ja` renders a single date as 2025年6月21日 but switches its ranges to
+		// 2025/06/21～2025/06/25, so its elision cannot be mixed with the rest
+		// of the dashboard's dates.
+		it( 'spells both ends out where the locale restyles its ranges', () => {
+			setSettings( settingsFor( 'ja-JP', 'Y年n月j日', JA_MONTHS ) );
+
+			expect(
+				formatDateRange( { from: utcDate( 2025, 6, 21 ), to: utcDate( 2025, 6, 25 ) } )
+			).toBe( `2025年6月21日${ SEP }2025年6月25日` );
 		} );
 	} );
 } );
