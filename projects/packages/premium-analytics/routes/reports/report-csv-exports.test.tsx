@@ -482,13 +482,20 @@ describe( 'report CSV exports', () => {
 		);
 	} );
 
-	it( 'configures the active UTM tab export', () => {
+	it( 'configures the active UTM tab export in hierarchy order', () => {
 		useSectionTabMock.mockReturnValue( [ 'source-medium', jest.fn() ] as ReturnType<
 			typeof useSectionTab
 		> );
 		const rows = [
-			{ id: 'first', label: 'First source', views: 2 },
-			{ id: 'second', label: 'Second source', views: 5 },
+			{ id: 'first', label: 'First source', views: 2, isGroup: true },
+			{
+				id: 'first-post',
+				parentId: 'first',
+				label: 'First post',
+				groupLabel: 'First source',
+				views: 10,
+			},
+			{ id: 'second', label: 'Second source', views: 5, isGroup: true },
 		];
 		useUtmReportRecordsMock.mockReturnValue( {
 			...reportStatus,
@@ -498,8 +505,13 @@ describe( 'report CSV exports', () => {
 		expectCsvExport(
 			UtmReportPage,
 			'utm-source-medium',
-			[ rows[ 1 ], rows[ 0 ] ],
-			[ 'Second source', 5 ]
+			rows,
+			[ 'First source', 2 ]
 		);
+
+		const actionProps = reportCsvActionMock.mock.calls.at( -1 )?.[ 0 ] as ExportActionProps;
+		expect(
+			actionProps.columns.map( column => column.getValue( actionProps.rows[ 1 ] ) )
+		).toEqual( [ 'First source > First post', 10 ] );
 	} );
 } );
