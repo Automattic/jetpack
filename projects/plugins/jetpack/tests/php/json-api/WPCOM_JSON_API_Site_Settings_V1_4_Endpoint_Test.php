@@ -455,6 +455,11 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 			)
 		);
 
+		// The API object is a shared singleton, so a preceding POST test can leave the
+		// method set to 'POST'. Set it explicitly so the GET path is exercised regardless
+		// of test order.
+		$endpoint->api->method = 'GET';
+
 		return $endpoint->callback( '/sites/%s/settings', $blog_id );
 	}
 
