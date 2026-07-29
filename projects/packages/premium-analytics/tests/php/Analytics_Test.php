@@ -220,6 +220,64 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
+	 * A REST request still gets the full widget manifest.
+	 *
+	 * is_admin() is false on REST, so the gate skips the build there. That is
+	 * safe because Dashboard_Support_Routes::boot_routes() requires the route
+	 * files on rest_api_init, and widget-modules.php's
+	 * ensure_widget_registry_ready() requires build/widgets.php itself. Loading
+	 * the build at boot for REST's sake was what PR #49961 added, and it is no
+	 * longer what keeps this working.
+	 *
+	 * Asserts a uniquely named sentinel rather than "the response is not empty":
+	 * the widget type registry is process-wide, so a non-empty response could be
+	 * another test's leftovers. Isolation keeps the registry and
+	 * ensure_widget_registry_ready()'s static memo clean.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_rest_request_still_serves_the_widget_manifest() {
+		require_once __DIR__ . '/fixtures/widget-modules-manifest.php';
+
+		$GLOBALS['jpa_test_widget_manifest'] = array(
+			array(
+				'name'          => 'test/rest-gate-sentinel',
+				'render_module' => 'test/rest-gate/render',
+				'widget_module' => 'test/rest-gate/widget',
+			),
+		);
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'rest_gate_admin',
+				'user_pass'  => 'rest_gate_pass',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( is_wp_error( $user_id ) ? 1 : $user_id );
+
+		try {
+			Analytics::init();
+			do_action( 'init' );
+
+			global $wp_rest_server;
+			$wp_rest_server = new \WP_REST_Server();
+			do_action( 'rest_api_init' );
+
+			$response = $wp_rest_server->dispatch( new \WP_REST_Request( 'GET', '/wpcom/v2/widget-modules' ) );
+			$names    = array_column( (array) $response->get_data(), 'name' );
+
+			$this->assertContains( 'test/rest-gate-sentinel', $names );
+		} finally {
+			Widget_Type_Registry::get_instance()->unregister( 'test/rest-gate-sentinel' );
+			unset( $GLOBALS['jpa_test_widget_manifest'] );
+		}
+	}
+
+	/**
 	 * The full-page dashboard slug in admin is recognized as a dashboard request.
 	 */
 	public function test_is_dashboard_request_true_for_full_page_slug() {
