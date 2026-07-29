@@ -3,6 +3,7 @@
  */
 import {
 	normalizeReportParams,
+	type StatsVideoPlaysItem,
 	type StatsVideoPlaysComparisonItem,
 } from '@jetpack-premium-analytics/data';
 import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
@@ -12,7 +13,10 @@ import {
 	ReportPageLayout,
 	ReportPageShell,
 	ReportRecordsTable,
+	ReportCsvAction,
+	useReportCsvExport,
 	useReportRetry,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useMemo, useState } from '@wordpress/element';
@@ -59,6 +63,8 @@ const RECORDS_VIEW = {
 	},
 };
 
+const sortVideoCsvRows = ( a: StatsVideoPlaysItem, b: StatsVideoPlaysItem ) => b.plays - a.plays;
+
 /**
  * Premium Analytics Videos report page.
  *
@@ -76,6 +82,35 @@ function VideosReport(): JSX.Element {
 		() => getVideosFields( records.hasComparison ),
 		[ records.hasComparison ]
 	);
+	const csvColumns = useMemo< CsvColumn< StatsVideoPlaysItem >[] >(
+		() => [
+			{
+				label: __( 'Video', 'jetpack-premium-analytics-pkg' ),
+				getValue: row =>
+					typeof row.label === 'string' && row.label
+						? row.label
+						: __( 'Untitled video', 'jetpack-premium-analytics-pkg' ),
+			},
+			{ label: __( 'Plays', 'jetpack-premium-analytics-pkg' ), getValue: row => row.plays },
+			{
+				label: __( 'Impressions', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.impressions,
+			},
+			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
+		],
+		[]
+	);
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport( {
+		rows: records.rows,
+		filenamePrefix: 'videos',
+		range: reportParams,
+		status: records,
+		sort: sortVideoCsvRows,
+	} );
 	const isTableLoading = records.isLoading || records.isFetching;
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
@@ -96,6 +131,11 @@ function VideosReport(): JSX.Element {
 				/>
 			}
 			subTitle={ __( 'See how your videos perform.', 'jetpack-premium-analytics-pkg' ) }
+			actions={
+				canExport ? (
+					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
+				) : undefined
+			}
 		>
 			<ReportPageLayout
 				filters={

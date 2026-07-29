@@ -21,7 +21,7 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 // a matched route the real hook warns and throws.
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
-const mockGetScriptData = getScriptData as jest.Mock;
+const mockGetScriptData = jest.mocked( getScriptData );
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
 function DashboardWidgetChromeFixture( { children }: { children: ReactNode } ) {
@@ -74,9 +74,7 @@ describe( 'TopPostsWidget', () => {
 		// The data package's query client is a module-level singleton; drop its
 		// cache so each test starts from a fresh fetch.
 		queryClient.clear();
-		mockGetScriptData.mockReturnValue( {
-			premium_analytics: { csv_exports_enabled: true },
-		} );
+		mockGetScriptData.mockReturnValue( undefined );
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( TOP_POSTS_RESPONSE );
 	} );
@@ -261,11 +259,14 @@ describe( 'TopPostsWidget', () => {
 		// eslint-disable-next-line testing-library/no-node-access
 		expect( downloadButton.parentElement ).toBe( reportLink.parentElement );
 	} );
-
 	it( 'hides the CSV export when the server flag is disabled', async () => {
 		mockGetScriptData.mockReturnValue( {
-			premium_analytics: { csv_exports_enabled: false },
-		} );
+			premium_analytics: {
+				initial_full_sync_finished: 1,
+				has_store_data: false,
+				csv_exports_enabled: false,
+			},
+		} as ReturnType< typeof getScriptData > );
 
 		render( <TopPostsWidget attributes={ { max: 10 } } /> );
 

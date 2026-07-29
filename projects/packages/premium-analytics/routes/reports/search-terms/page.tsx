@@ -9,7 +9,10 @@ import {
 	ReportPageLayout,
 	ReportPageShell,
 	ReportRecordsTable,
+	ReportCsvAction,
+	useReportCsvExport,
 	useReportRetry,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useMemo, useState } from '@wordpress/element';
@@ -43,6 +46,8 @@ const RECORDS_VIEW = {
 	},
 };
 
+const sortSearchTermCsvRows = ( a: SearchTermRow, b: SearchTermRow ) => b.views - a.views;
+
 /**
  * Premium Analytics Search terms report page.
  *
@@ -60,6 +65,24 @@ export default function SearchTermsReportPage(): JSX.Element {
 		() => getSearchTermsFields( records.table.hasComparison ),
 		[ records.table.hasComparison ]
 	);
+	const csvColumns = useMemo< CsvColumn< SearchTermRow >[] >(
+		() => [
+			{ label: __( 'Search term', 'jetpack-premium-analytics-pkg' ), getValue: row => row.term },
+			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
+		],
+		[]
+	);
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport( {
+		rows: records.table.rows,
+		filenamePrefix: 'search-terms',
+		range: reportParams,
+		status: records.table,
+		sort: sortSearchTermCsvRows,
+	} );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dashboardLink = useDashboardLink();
 	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
@@ -74,6 +97,11 @@ export default function SearchTermsReportPage(): JSX.Element {
 						{ label: __( 'Search terms', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
+			}
+			actions={
+				canExport ? (
+					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
+				) : undefined
 			}
 		>
 			<ReportPageLayout
