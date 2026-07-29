@@ -2,7 +2,7 @@ import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
 import { Text } from '@wordpress/ui';
-import { HEADLINE_STATS } from './placeholder-data';
+import { HEADLINE_STATS_PLACEHOLDERS } from './placeholder-data';
 
 type Stat = {
 	label: string;
@@ -11,30 +11,37 @@ type Stat = {
 	hint?: string;
 };
 
+type Props = {
+	totalSubscribers: number | null;
+};
+
+const formatCount = ( value: number | null ): string => value?.toLocaleString() ?? '—';
+
 /**
  * The four headline figures.
  *
  * A function rather than a module constant so each `__()` runs at render time —
  * at module scope they would resolve before the locale data is in place.
  *
+ * @param totalSubscribers - Total subscriber count, or null when unavailable.
  * @return The stats, in display order.
  */
-const getStats = (): Stat[] => [
+const getStats = ( totalSubscribers: number | null ): Stat[] => [
 	{
 		label: __( 'Total subscribers', 'jetpack-newsletter' ),
-		value: HEADLINE_STATS.subscribers,
+		value: formatCount( totalSubscribers ),
 	},
 	{
 		label: __( 'Open rate', 'jetpack-newsletter' ),
-		value: HEADLINE_STATS.openRate,
+		value: HEADLINE_STATS_PLACEHOLDERS.openRate,
 	},
 	{
 		label: __( 'Click rate', 'jetpack-newsletter' ),
-		value: HEADLINE_STATS.clickRate,
+		value: HEADLINE_STATS_PLACEHOLDERS.clickRate,
 	},
 	{
 		label: __( 'CTOR', 'jetpack-newsletter' ),
-		value: HEADLINE_STATS.ctor,
+		value: HEADLINE_STATS_PLACEHOLDERS.ctor,
 		hint: __(
 			'Click-to-open rate: the share of people who opened an email and then clicked a link in it.',
 			'jetpack-newsletter'
@@ -49,15 +56,17 @@ const getStats = (): Stat[] => [
  * the figures read as one row — the dividers between them come from the
  * stylesheet.
  *
+ * @param props                  - Component props.
+ * @param props.totalSubscribers - Total subscriber count, or null when unavailable.
  * @return The stat bar.
  */
-export const StatBar = (): JSX.Element => (
+export const StatBar = ( { totalSubscribers }: Props ): JSX.Element => (
 	<div
 		className="jetpack-newsletter-home__stat-bar"
 		role="group"
 		aria-label={ __( 'Newsletter performance', 'jetpack-newsletter' ) }
 	>
-		{ getStats().map( stat => (
+		{ getStats( totalSubscribers ).map( stat => (
 			<div className="jetpack-newsletter-home__stat" key={ stat.label }>
 				<Text variant="body-sm" className="jetpack-newsletter-home__stat-label">
 					{ stat.label }

@@ -5,13 +5,16 @@ import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { arrowLeft, arrowRight } from '@wordpress/icons';
 import { Button, Text } from '@wordpress/ui';
-import { getSubscriberSeries, type ChartGranularity } from './placeholder-data';
+import { type ChartGranularity } from './placeholder-data';
+import type { SubscriberSeriesPoint } from './use-subscriber-stats';
 
 const CHART_HEIGHT = 300;
 
 type Props = {
 	granularity: ChartGranularity;
 	onChangeGranularity: ( next: ChartGranularity ) => void;
+	series: SubscriberSeriesPoint[];
+	isLoading: boolean;
 };
 
 /**
@@ -31,17 +34,23 @@ const getGranularities = (): Array< { value: ChartGranularity; label: string } >
 /**
  * Subscribers over time.
  *
- * The cadence control is live — it redraws the sample series — so the shape of
- * the interaction can be judged. The prev/next arrows are deliberately inert:
- * there is no history to page through until the series is real, and an arrow
- * that silently does nothing is worse than one that says it cannot.
+ * The period picker lives in `StatsView`; the cadence control here redraws the
+ * same range with a different bucket size. The prev/next arrows are deliberately
+ * inert until the Dashboard has a paging model for older ranges.
  *
  * @param props                     - Component props.
  * @param props.granularity         - Cadence currently drawn.
  * @param props.onChangeGranularity - Called when a cadence is picked.
+ * @param props.series              - Subscriber totals over time.
+ * @param props.isLoading           - Whether the initial series request is still pending.
  * @return The subscribers card.
  */
-export const SubscribersChart = ( { granularity, onChangeGranularity }: Props ): JSX.Element => {
+export const SubscribersChart = ( {
+	granularity,
+	onChangeGranularity,
+	series,
+	isLoading,
+}: Props ): JSX.Element => {
 	// Memoized deliberately. `LineChart` feeds these back into its own hooks, so
 	// a fresh array identity on every render visibly breaks the y-axis — the same
 	// trap called out in VideoPress's views-trends-card.
@@ -49,11 +58,11 @@ export const SubscribersChart = ( { granularity, onChangeGranularity }: Props ):
 		() => [
 			{
 				label: __( 'Subscribers', 'jetpack-newsletter' ),
-				data: getSubscriberSeries( granularity ),
+				data: series,
 				options: {},
 			},
 		],
-		[ granularity ]
+		[ series ]
 	);
 
 	const options = useMemo(
@@ -78,8 +87,8 @@ export const SubscribersChart = ( { granularity, onChangeGranularity }: Props ):
 					{ __( 'Subscribers', 'jetpack-newsletter' ) }
 				</Text>
 				<div className="jetpack-newsletter-home__chart-controls">
-					{ /* TODO: page through the series once it is real. Disabled rather
-					     than hidden so the control is in the design being reviewed. */ }
+					{ /* TODO: page through older ranges once the Dashboard has a paging model.
+					     Disabled rather than hidden so the control is in the design being reviewed. */ }
 					<Button
 						variant="unstyled"
 						disabled
@@ -120,14 +129,20 @@ export const SubscribersChart = ( { granularity, onChangeGranularity }: Props ):
 				</div>
 			</div>
 			<div className="jetpack-newsletter-home__chart">
-				<LineChart
-					data={ data }
-					options={ options }
-					height={ CHART_HEIGHT }
-					withGradientFill
-					curveType="linear"
-					showLegend={ false }
-				/>
+				{ ! isLoading && series.length === 0 ? (
+					<Text variant="body-md" className="jetpack-newsletter-home__muted">
+						{ __( 'No subscriber data available yet.', 'jetpack-newsletter' ) }
+					</Text>
+				) : (
+					<LineChart
+						data={ data }
+						options={ options }
+						height={ CHART_HEIGHT }
+						withGradientFill
+						curveType="linear"
+						showLegend={ false }
+					/>
+				) }
 			</div>
 		</div>
 	);

@@ -13,12 +13,11 @@
 // The URL wins over the remembered choice, and the choice is remembered across
 // loads so that clicking into Settings and back does not reset a review.
 //
-// The headline figures and the chart are still placeholders, and the assertions
-// below pin the mockup's numbers so they fail loudly when real data arrives.
-// The Recent Posts table is NOT a placeholder: it joins core `wp/v2/posts`
-// against the Stats module's per-post email summary. That second request is
-// optional by design — no connection, Stats switched off, or simply nothing
-// emailed yet all land on the same empty-cell path, which is covered here.
+// Total subscribers and the chart are backed by the Stats proxy. Open rate,
+// click rate, and CTOR are still placeholders. The Recent Posts table joins core
+// `wp/v2/posts` against the Stats module's per-post email summary. That second
+// request is optional by design — no connection, Stats switched off, or simply
+// nothing emailed yet all land on the same empty-cell path, which is covered here.
 
 const mockGetNewsletterScriptData = jest.fn< Record< string, unknown > | undefined, [] >();
 const mockConnection = jest.fn< Record< string, unknown >, [] >();
@@ -92,7 +91,7 @@ jest.mock( '@wordpress/compose', () => ( {
 	},
 } ) );
 
-import { act, render, screen, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import { queryClient } from '../_inc/subscribers/lib/query-client';
 import { stage as Stage } from '../routes/home/stage';
 
@@ -159,6 +158,54 @@ const EMAIL_STATS_RESPONSE = {
 	posts: [ { id: 11, total_sends: 122, opens_rate: 58, clicks_rate: 21 } ],
 };
 
+const SUBSCRIBER_COUNTS_RESPONSE = {
+	counts: {
+		total_subscribers: 418,
+		email_subscribers: 300,
+		paid_subscribers: 12,
+		social_followers: 118,
+	},
+};
+
+/**
+ * A WCOM `stats/subscribers` matrix response matching the requested bucket
+ * count. Values are deterministic so tests can assert that the chart receives
+ * normalized real-response points, not placeholder data.
+ *
+ * @param path - The requested REST path, including query args.
+ * @return Stats subscribers response.
+ */
+function buildSubscriberSeriesResponse( path: string ) {
+	const query = new URLSearchParams( path.split( '?' )[ 1 ] ?? '' );
+	const quantity = Math.max( 1, Number( query.get( 'quantity' ) ?? 1 ) );
+	const unit = query.get( 'unit' ) ?? 'day';
+
+	const rows = Array.from( { length: quantity }, ( _, index ) => {
+		const day = String( index + 1 ).padStart( 2, '0' );
+
+		if ( unit === 'week' ) {
+			return [ `2026W07W${ day }`, String( 400 + index ), String( 10 + index ) ];
+		}
+
+		if ( unit === 'month' ) {
+			return [ `2026-${ day }`, String( 400 + index ), String( 10 + index ) ];
+		}
+
+		if ( unit === 'year' ) {
+			return [ String( 2020 + index ), String( 400 + index ), String( 10 + index ) ];
+		}
+
+		return [ `2026-07-${ day }`, String( 400 + index ), String( 10 + index ) ];
+	} );
+
+	return {
+		date: query.get( 'date' ) ?? '2026-07-29',
+		unit,
+		fields: [ 'period', 'subscribers', 'subscribers_paid' ],
+		data: rows,
+	};
+}
+
 /**
  * Answer each request the stats view makes.
  *
@@ -168,6 +215,12 @@ function respondWith( emailStats: unknown = EMAIL_STATS_RESPONSE ) {
 	mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
 		if ( path.startsWith( '/wp/v2/posts' ) ) {
 			return Promise.resolve( POSTS_RESPONSE );
+		}
+		if ( path.includes( '/subscribers/counts' ) ) {
+			return Promise.resolve( SUBSCRIBER_COUNTS_RESPONSE );
+		}
+		if ( path.includes( '/stats/subscribers' ) ) {
+			return Promise.resolve( buildSubscriberSeriesResponse( path ) );
 		}
 		if ( path.includes( '/stats/emails/summary' ) ) {
 			return Promise.resolve( emailStats );
@@ -277,14 +330,13 @@ describe( 'Newsletter Mode Dashboard stats view', () => {
 		visitDashboard( 'stats' );
 	} );
 
-	it( 'shows the four headline figures', () => {
+	it( 'shows real total subscribers and leaves the email-rate figures as placeholders', async () => {
 		render( <Stage /> );
 
-		// Scoped to the bar: 122 is also a recipient count in the table below.
 		const bar = within( screen.getByRole( 'group', { name: 'Newsletter performance' } ) );
 
 		expect( bar.getByText( 'Total subscribers' ) ).toBeInTheDocument();
-		expect( bar.getByText( '122' ) ).toBeInTheDocument();
+		await expect( bar.findByText( '418' ) ).resolves.toBeInTheDocument();
 		expect( bar.getByText( 'Open rate' ) ).toBeInTheDocument();
 		expect( bar.getByText( '62%' ) ).toBeInTheDocument();
 		expect( bar.getByText( 'Click rate' ) ).toBeInTheDocument();
@@ -313,7 +365,40 @@ describe( 'Newsletter Mode Dashboard stats view', () => {
 		);
 	} );
 
-	it( 'redraws the series when the cadence changes', () => {
+	it( 'requests subscriber counts through the Stats proxy', async () => {
+		render( <Stage /> );
+
+		await expect( screen.findByText( '418' ) ).resolves.toBeInTheDocument();
+
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				path: expect.stringContaining( '/jetpack/v4/stats-app/sites/4242/subscribers/counts' ),
+			} )
+		);
+	} );
+
+	it( 'requests the subscribers series for the selected period and cadence', async () => {
+		render( <Stage /> );
+
+		await waitFor( () => {
+			expect( mockApiFetch ).toHaveBeenCalledWith(
+				expect.objectContaining( {
+					path: expect.stringContaining( '/jetpack/v4/stats-app/sites/4242/stats/subscribers' ),
+				} )
+			);
+		} );
+
+		const path = mockApiFetch.mock.calls
+			.map( call => call[ 0 ].path )
+			.find( ( requestedPath: string ) => requestedPath.includes( '/stats/subscribers' ) );
+		const query = new URLSearchParams( path.split( '?' )[ 1 ] );
+
+		expect( query.get( 'unit' ) ).toBe( 'day' );
+		expect( query.get( 'quantity' ) ).toBe( '30' );
+		expect( query.get( 'stat_fields' ) ).toBe( 'subscribers,subscribers_paid' );
+	} );
+
+	it( 'redraws the series when the cadence changes', async () => {
 		render( <Stage /> );
 
 		const pointsFor = () => {
@@ -321,13 +406,43 @@ describe( 'Newsletter Mode Dashboard stats view', () => {
 			return props.data[ 0 ].data.length;
 		};
 
-		// 30 daily points is the default; weeks covers more ground in fewer.
-		expect( pointsFor() ).toBe( 30 );
+		await waitFor( () => expect( pointsFor() ).toBe( 30 ) );
 
 		const weeks = screen.getByRole( 'button', { name: 'Weeks' } );
 		act( () => weeks.click() );
 
-		expect( pointsFor() ).toBe( 26 );
+		await waitFor( () => expect( pointsFor() ).toBe( 5 ) );
+	} );
+
+	it( 'redraws the series when the period changes', async () => {
+		render( <Stage /> );
+
+		const period = screen.getByLabelText( 'Period' ) as HTMLSelectElement;
+
+		await waitFor( () => {
+			const latestSubscriberRequest = mockApiFetch.mock.calls
+				.map( call => call[ 0 ].path )
+				.filter( ( requestedPath: string ) => requestedPath.includes( '/stats/subscribers' ) )
+				.at( -1 );
+			const query = new URLSearchParams( latestSubscriberRequest?.split( '?' )[ 1 ] );
+
+			expect( query.get( 'quantity' ) ).toBe( '30' );
+		} );
+
+		act( () => {
+			period.value = '90d';
+			period.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+		} );
+
+		await waitFor( () => {
+			const latestSubscriberRequest = mockApiFetch.mock.calls
+				.map( call => call[ 0 ].path )
+				.filter( ( requestedPath: string ) => requestedPath.includes( '/stats/subscribers' ) )
+				.at( -1 );
+			const query = new URLSearchParams( latestSubscriberRequest?.split( '?' )[ 1 ] );
+
+			expect( query.get( 'quantity' ) ).toBe( '90' );
+		} );
 	} );
 
 	it( 'leaves the period arrows inert, since there is no history to page through', () => {

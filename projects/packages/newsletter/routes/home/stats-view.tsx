@@ -7,6 +7,7 @@ import { type ChartGranularity, type StatsPeriod } from './stats/placeholder-dat
 import { RecentPosts } from './stats/recent-posts';
 import { StatBar } from './stats/stat-bar';
 import { SubscribersChart } from './stats/subscribers-chart';
+import { useSubscriberStats } from './stats/use-subscriber-stats';
 
 /**
  * How far back the page is looking.
@@ -27,17 +28,16 @@ const getPeriods = (): Array< { value: StatsPeriod; label: string } > => [
  * headline figures, subscribers over time, and recent posts with how each one
  * performed.
  *
- * Every figure on this page is a placeholder; see `stats/placeholder-data.ts`
- * for what each one should eventually be read from.
+ * Subscriber totals are real; open / click / CTOR are still placeholders until
+ * aggregate newsletter-wide email rates are available.
  *
  * @return The stats content.
  */
 export const StatsView = (): JSX.Element => {
 	const [ period, setPeriod ] = useState< StatsPeriod >( '30d' );
 	const [ granularity, setGranularity ] = useState< ChartGranularity >( 'days' );
+	const subscriberStats = useSubscriberStats( period, granularity );
 
-	// TODO: the period should scope every figure on the page. Nothing reads it
-	// yet because the data is fixed — it is here so the control is in the design.
 	const handlePeriod = useCallback( ( next: string ) => setPeriod( next as StatsPeriod ), [] );
 
 	return (
@@ -62,9 +62,14 @@ export const StatsView = (): JSX.Element => {
 				/>
 			</div>
 
-			<StatBar />
+			<StatBar totalSubscribers={ subscriberStats.totalSubscribers } />
 
-			<SubscribersChart granularity={ granularity } onChangeGranularity={ setGranularity } />
+			<SubscribersChart
+				granularity={ granularity }
+				onChangeGranularity={ setGranularity }
+				series={ subscriberStats.series }
+				isLoading={ subscriberStats.isLoading }
+			/>
 
 			<RecentPosts />
 		</Stack>
