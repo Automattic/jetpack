@@ -932,7 +932,7 @@ class Agents_Manager {
 	/**
 	 * Returns true when Gutenberg's "admin bar in editor" (omnibar) experiment is active.
 	 *
-	 * Mirrors Gutenberg core's gate in `lib/experimental/omnibar/load.php`, and fails safe when
+	 * Mirrors Gutenberg core's gate in `lib/experimental/omnibar/load.php`, and returns false when
 	 * `gutenberg_is_experiment_enabled()` is unavailable. Gutenberg 23.5 renamed the experiment
 	 * slug from `gutenberg-admin-bar-in-editor` to `gutenberg-omnibar`; both are checked since
 	 * pre-rename builds are still deployed (e.g. wpcom's bundled gutenberg-core).
