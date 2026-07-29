@@ -319,7 +319,7 @@ const EpisodesTab = () => {
 				</h2>
 				<p>
 					{ __(
-						'Set a podcast category in your podcasting settings to start showing episodes here.',
+						'Set a post category in your podcasting settings to start showing episodes here.',
 						'jetpack-podcast'
 					) }
 				</p>

@@ -1,9 +1,9 @@
 {
 	"name": "jpa/traffic-chart",
-	"title": "Traffic",
+	"title": "Summary",
 	"description": "Compare views, visitors, likes, and comments over the selected period, with the previous period overlaid for comparison.",
 	"help": {
-		"content": "A summary of your site's views, visitors, likes, and comments, with the previous period overlaid for comparison."
+		"content": "A summary of your site's views, visitors, likes, and comments."
 	},
 	"category": "traffic",
 	"presentation": "framed"

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { getVideosFields } from './fields';
-import type { StatsVideoPlaysItem } from '@jetpack-premium-analytics/data';
+import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
 import type { ReactNode } from 'react';
 
 // The router is built dynamically at runtime, so a field-level test has no
@@ -31,7 +31,7 @@ jest.mock( '@wordpress/route', () => ( {
 	} ),
 } ) );
 
-const video: StatsVideoPlaysItem = {
+const video: StatsVideoPlaysComparisonItem = {
 	id: 12,
 	label: 'Launch video',
 	plays: 11,
@@ -48,7 +48,7 @@ const video: StatsVideoPlaysItem = {
  * @param item - The video row to render.
  * @return The RTL render result.
  */
-function renderTitleField( item: StatsVideoPlaysItem ) {
+function renderTitleField( item: StatsVideoPlaysComparisonItem ) {
 	const field = getVideosFields().find( candidate => candidate.id === 'label' );
 	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
 	const TitleField = field?.render;
@@ -58,6 +58,30 @@ function renderTitleField( item: StatsVideoPlaysItem ) {
 	}
 
 	return render( <TitleField item={ item } field={ field as never } /> );
+}
+
+/**
+ * Render one metric field for a video row.
+ *
+ * @param fieldId        - The metric field to render.
+ * @param item           - The video row.
+ * @param withComparison - Whether comparison deltas are enabled.
+ * @return The RTL render result.
+ */
+function renderMetricField(
+	fieldId: 'plays' | 'impressions',
+	item: StatsVideoPlaysComparisonItem,
+	withComparison = false
+) {
+	const field = getVideosFields( withComparison ).find( candidate => candidate.id === fieldId );
+	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
+	const MetricField = field?.render;
+
+	if ( ! field || ! MetricField ) {
+		throw new Error( `Videos ${ fieldId } field render callback is unavailable` );
+	}
+
+	return render( <MetricField item={ item } field={ field as never } /> );
 }
 
 describe( 'videos fields', () => {
@@ -120,5 +144,34 @@ describe( 'videos fields', () => {
 		expect(
 			fields.find( field => field.id === 'impressions' )?.getValue?.( { item: video } )
 		).toBe( 42 );
+	} );
+
+	it( 'shows plays and impressions deltas when comparison is enabled', () => {
+		const comparedVideo: StatsVideoPlaysComparisonItem = {
+			...video,
+			plays: 20,
+			previousPlays: 10,
+			impressions: 42,
+			previousImpressions: 28,
+		};
+
+		renderMetricField( 'plays', comparedVideo, true );
+		renderMetricField( 'impressions', comparedVideo, true );
+
+		expect( screen.getByText( '20' ) ).toBeInTheDocument();
+		expect( screen.getByText( '+100%' ) ).toBeInTheDocument();
+		expect( screen.getByText( '42' ) ).toBeInTheDocument();
+		expect( screen.getByText( '+50%' ) ).toBeInTheDocument();
+	} );
+
+	it( 'hides comparison deltas when comparison is disabled', () => {
+		renderMetricField( 'plays', {
+			...video,
+			plays: 20,
+			previousPlays: 10,
+		} );
+
+		expect( screen.getByText( '20' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '+100%' ) ).not.toBeInTheDocument();
 	} );
 } );
