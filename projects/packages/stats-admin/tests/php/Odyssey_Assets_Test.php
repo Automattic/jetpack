@@ -12,16 +12,20 @@ use WP_Error;
 class Odyssey_Assets_Test extends Stats_TestCase {
 
 	/**
-	 * load_admin_scripts() must guarantee core's `wp-components` style is enqueued, independent of
-	 * whatever else on the page might otherwise pull it in (some other plugin's own admin notice,
-	 * a WP admin feature, etc.) — Odyssey's own component styling shouldn't depend on that.
+	 * Odyssey's stylesheet must declare `wp-components` as a dependency rather than relying on
+	 * another admin feature (e.g. WP 7.0's command palette) enqueuing it as a side effect.
+	 * Asserted as a registered dependency, not just "is enqueued", because the dependency edge is
+	 * what also guarantees WP emits wp-components *before* Odyssey's own overrides of its classes.
 	 */
-	public function test_load_admin_scripts_enqueues_wp_components_style() {
+	public function test_odyssey_style_declares_wp_components_dependency() {
 		wp_register_style( 'wp-components', false );
 		$this->assertFalse( wp_style_is( 'wp-components', 'enqueued' ) );
 
 		( new Odyssey_Assets() )->load_admin_scripts( 'jp-stats-dashboard', 'build.min' );
 
+		$registered = wp_styles()->query( 'jp-stats-dashboard', 'registered' );
+		$this->assertNotFalse( $registered, 'Odyssey should register a stylesheet handle.' );
+		$this->assertContains( 'wp-components', $registered->deps );
 		$this->assertTrue( wp_style_is( 'wp-components', 'enqueued' ) );
 	}
 
