@@ -51,6 +51,19 @@ class Analytics {
 	private static $resolved_menu_title = null;
 
 	/**
+	 * Path to the wp-build entry point. Null uses the generated build shipped
+	 * with the package.
+	 *
+	 * This is a test seam and nothing else: `build/` is gitignored and the
+	 * `test-php` script runs no build step, so without a redirectable path no
+	 * test can observe whether the build was loaded. Do not hang production
+	 * behaviour off it.
+	 *
+	 * @var string|null
+	 */
+	private static $build_entry = null;
+
+	/**
 	 * Initialize the Analytics app on a connected Jetpack site.
 	 *
 	 * Registers the full local surface: the site serves the WPCOM data proxy,
@@ -79,6 +92,35 @@ class Analytics {
 
 		self::boot_shared_services();
 		self::register_dashboard_support_routes();
+		self::load_dashboard_surface();
+	}
+
+	/**
+	 * Load the dashboard render surface, on the requests that can render it.
+	 *
+	 * With the rollout flag on this package boots on every request, and on
+	 * WordPress.com Simple that means every request across WPCOM's public-api
+	 * process. Everything below is admin render machinery — the wp-build output,
+	 * the widget import map, the CSV export script data — so a visitor's page
+	 * view pays for PHP it can never use.
+	 *
+	 * REST requests are deliberately not covered here even though they serve the
+	 * dashboard: they load what they need themselves, on rest_api_init. See
+	 * load_build()'s docblock.
+	 *
+	 * admin-ajax.php sets is_admin() true, but it renders no dashboard, never
+	 * fires admin_init (so the full-page interceptor cannot run), and this
+	 * package registers no wp_ajax handlers. Much of that traffic originates on
+	 * the front end, so it is excluded too.
+	 *
+	 * @return void
+	 */
+	private static function load_dashboard_surface() {
+		if ( ! is_admin() || wp_doing_ajax() ) {
+			return;
+		}
+
+		self::load_dashboard_components();
 		self::load_build();
 		self::register_admin_page();
 	}
@@ -106,8 +148,7 @@ class Analytics {
 		self::apply_options( $options );
 
 		self::boot_shared_services();
-		self::load_build();
-		self::register_admin_page();
+		self::load_dashboard_surface();
 	}
 
 	/**
@@ -136,8 +177,6 @@ class Analytics {
 		// CSV report export pipeline (WOOA7S-1581): hooks rest_api_init, so it must
 		// register on all requests. Self-gates on WooCommerce + Jetpack connection.
 		Export::configure();
-
-		self::load_dashboard_components();
 	}
 
 	/**
@@ -208,7 +247,7 @@ class Analytics {
 	 * @return void
 	 */
 	private static function load_build() {
-		$build_entry = __DIR__ . '/../build/build.php';
+		$build_entry = self::$build_entry ?? __DIR__ . '/../build/build.php';
 		if ( file_exists( $build_entry ) ) {
 			require_once $build_entry;
 		}
@@ -220,10 +259,6 @@ class Analytics {
 	 * @return void
 	 */
 	private static function register_admin_page() {
-		if ( ! is_admin() ) {
-			return;
-		}
-
 		// Polyfills force-replace core handles (wp-private-apis) on wp_default_scripts;
 		// scope to the dashboard page so no other admin page (e.g. block editor) is hit.
 		if ( self::is_dashboard_request() ) {

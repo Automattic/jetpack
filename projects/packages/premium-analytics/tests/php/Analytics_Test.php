@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -28,6 +30,16 @@ class Analytics_Test extends TestCase {
 	 * @var string[]
 	 */
 	private $doing_it_wrong = array();
+
+	/**
+	 * Clear the fixture build's marker. Process isolation should make this
+	 * unnecessary, but if isolation ever stops working this turns a silent
+	 * wrong-answer into a plain assertion failure.
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+		unset( $GLOBALS['jpa_test_build_loaded'] );
+	}
 
 	/**
 	 * Reset request and screen globals touched by the dashboard-request tests.
@@ -60,6 +72,7 @@ class Analytics_Test extends TestCase {
 		$this->set_analytics_property( 'initialized', false );
 		$this->set_analytics_property( 'menu_title', null );
 		$this->set_analytics_property( 'resolved_menu_title', null );
+		$this->set_analytics_property( 'build_entry', null );
 	}
 
 	/**
@@ -140,6 +153,70 @@ class Analytics_Test extends TestCase {
 		$this->assertFalse(
 			has_action( 'rest_api_init', array( Dashboard_Support_Routes::class, 'boot_routes' ) )
 		);
+	}
+
+	/**
+	 * A plain front-end page view never reaches the wp-build output.
+	 *
+	 * This is the regression the gate exists for: with the rollout flag on,
+	 * Analytics::init() runs on every request, and the build is admin render
+	 * machinery — 170 files and 74 widgets' worth of script-module registration
+	 * that a visitor never uses.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_front_end_request_does_not_load_the_build() {
+		$this->use_fixture_build();
+
+		Analytics::init();
+		do_action( 'init' );
+
+		$this->assertArrayNotHasKey( 'jpa_test_build_loaded', $GLOBALS );
+	}
+
+	/**
+	 * A wp-admin request still loads the build, which is what renders the page.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_request_loads_the_build() {
+		$this->use_fixture_build();
+		set_current_screen( 'toplevel_page_jetpack-premium-analytics-wp-admin' );
+
+		Analytics::init();
+		do_action( 'init' );
+
+		$this->assertArrayHasKey( 'jpa_test_build_loaded', $GLOBALS );
+	}
+
+	/**
+	 * admin-ajax.php sets is_admin() true, but that traffic is mostly front-end
+	 * in origin — WooCommerce stores especially. It renders no dashboard, and the
+	 * package registers no wp_ajax handlers, so it does not need the build.
+	 *
+	 * Defining DOING_AJAX is safe here only because the test runs in its own
+	 * process; a constant cannot be unset.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_ajax_request_does_not_load_the_build() {
+		$this->use_fixture_build();
+		set_current_screen( 'admin-ajax' );
+		define( 'DOING_AJAX', true );
+
+		Analytics::init();
+		do_action( 'init' );
+
+		$this->assertArrayNotHasKey( 'jpa_test_build_loaded', $GLOBALS );
 	}
 
 	/**
@@ -339,6 +416,13 @@ class Analytics_Test extends TestCase {
 
 		$this->assertStringContainsString( '<h1>Store Analytics</h1>', $output );
 		$this->assertStringContainsString( 'The package build did not run for this deploy.', $output );
+	}
+
+	/**
+	 * Point the build loader at the fixture build, which records that it ran.
+	 */
+	private function use_fixture_build() {
+		$this->set_analytics_property( 'build_entry', __DIR__ . '/fixtures/build/build.php' );
 	}
 
 	/**
