@@ -54,6 +54,16 @@ class Mode {
 	const META_CHECKLIST_COMPLETED = 'jetpack_newsletter_checklist_completed';
 
 	/**
+	 * Per-user meta recording that this user has seen the Newsletter Mode intro.
+	 *
+	 * Per user rather than per site, like the rest of the mode's onboarding
+	 * state: the introduction is for the person, so a second admin still gets it.
+	 *
+	 * @var string
+	 */
+	const META_INTRO_SEEN = 'jetpack_newsletter_intro_seen';
+
+	/**
 	 * The checklist tasks that can be completed, by stable id.
 	 *
 	 * Ids rather than titles because the titles are translated and still being
@@ -227,6 +237,13 @@ class Mode {
 			// the Dashboard can render without it rather than flashing it and
 			// then removing it once a fetch resolves.
 			'checklistDismissed' => self::is_checklist_dismissed(),
+			// Whether the one-time intro has already been shown to this user, so a
+			// returning visitor never sees it flash before a fetch resolves.
+			'introSeen'          => self::is_intro_seen(),
+			// The intro artwork. Served from the package rather than bundled: the
+			// routes are built by wp-build, whose esbuild pass has no image loader
+			// and no way to configure one, so an `import` of it cannot compile.
+			'introArtUrl'        => self::get_intro_art_url(),
 			// Which checklist tasks this user has ticked off, so the Dashboard
 			// renders their progress rather than an empty list they have to
 			// re-derive.
@@ -247,6 +264,27 @@ class Mode {
 	 */
 	public static function is_checklist_dismissed() {
 		return (bool) get_user_meta( get_current_user_id(), self::META_CHECKLIST_DISMISSED, true );
+	}
+
+	/**
+	 * URL of the intro artwork inside this package.
+	 *
+	 * `__DIR__` is `<package>/src`, so `plugins_url()` resolves against the
+	 * package root — which works wherever the package is vendored.
+	 *
+	 * @return string
+	 */
+	public static function get_intro_art_url() {
+		return plugins_url( 'images/newsletter-intro.png', __DIR__ );
+	}
+
+	/**
+	 * Whether this user has already seen the Newsletter Mode intro.
+	 *
+	 * @return bool
+	 */
+	public static function is_intro_seen() {
+		return (bool) get_user_meta( get_current_user_id(), self::META_INTRO_SEEN, true );
 	}
 
 	/**
@@ -1452,6 +1490,29 @@ class Mode {
 
 		register_rest_route(
 			self::REST_NAMESPACE,
+			'/intro-seen',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( self::class, 'rest_get_intro_seen' ),
+					'permission_callback' => array( self::class, 'rest_permission_check' ),
+				),
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( self::class, 'rest_update_intro_seen' ),
+					'permission_callback' => array( self::class, 'rest_permission_check' ),
+					'args'                => array(
+						'seen' => array(
+							'type'     => 'boolean',
+							'required' => true,
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
 			'/checklist-completed',
 			array(
 				array(
@@ -1569,5 +1630,35 @@ class Mode {
 		}
 
 		return rest_ensure_response( array( 'completed' => self::get_completed_checklist_tasks() ) );
+	}
+
+	/**
+	 * GET handler: whether this user has seen the intro.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function rest_get_intro_seen() {
+		return rest_ensure_response( array( 'seen' => self::is_intro_seen() ) );
+	}
+
+	/**
+	 * POST handler: record that this user has seen the intro.
+	 *
+	 * Deletes rather than storing a falsey value when unset, so the meta row only
+	 * exists for users who have actually seen it.
+	 *
+	 * @param \WP_REST_Request $request The REST request.
+	 * @return \WP_REST_Response
+	 */
+	public static function rest_update_intro_seen( \WP_REST_Request $request ) {
+		$user_id = get_current_user_id();
+
+		if ( $request->get_param( 'seen' ) ) {
+			update_user_meta( $user_id, self::META_INTRO_SEEN, 1 );
+		} else {
+			delete_user_meta( $user_id, self::META_INTRO_SEEN );
+		}
+
+		return rest_ensure_response( array( 'seen' => self::is_intro_seen() ) );
 	}
 }

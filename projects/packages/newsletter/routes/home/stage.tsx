@@ -5,6 +5,7 @@ import { useKeyboardShortcut } from '@wordpress/compose';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { queryClient } from '../../_inc/subscribers/lib/query-client';
+import { IntroModal } from './intro-modal';
 import { OnboardingView } from './onboarding-view';
 import { StatsView } from './stats-view';
 import './route.scss';
@@ -111,6 +112,8 @@ const Stage = (): JSX.Element => {
 			{ /* Both views can show the Recent Posts table, which fetches. */ }
 			<QueryClientProvider client={ queryClient }>
 				<div className="jetpack-newsletter-mode-page">
+					{ /* Shown over whichever view is up — it introduces the mode, not a view. */ }
+					<IntroModal />
 					{ view === 'stats' ? <StatsView /> : <OnboardingView /> }
 				</div>
 			</QueryClientProvider>

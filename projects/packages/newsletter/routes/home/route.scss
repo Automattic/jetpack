@@ -323,3 +323,62 @@ body.admin_page_jetpack-newsletter-home {
 		}
 	}
 }
+
+// One-time introduction to Newsletter Mode. Outside the
+// `.jetpack-newsletter-home` block because `Dialog.Popup` portals to the end
+// of the document, so it is not a descendant of the page.
+.jetpack-newsletter-intro {
+	display: grid;
+	gap: var(--wpds-dimension-gap-2xl);
+	// Copy takes the space it needs; the artwork takes a fixed slice.
+	grid-template-columns: 1fr 260px;
+	max-width: 640px;
+	overflow: clip;
+	// On the container rather than the columns, so the artwork is inset from the
+	// panel edge by the same amount as the copy instead of bleeding off it.
+	padding: var(--wpds-dimension-padding-2xl);
+
+	// One column on a narrow viewport: the artwork is decorative, so it goes
+	// rather than squeezing the copy.
+	@media ( max-width: 600px ) {
+		grid-template-columns: 1fr;
+	}
+}
+
+.jetpack-newsletter-intro__body {
+	display: flex;
+	flex-direction: column;
+	// The container owns the outer padding now.
+	gap: var(--wpds-dimension-gap-md);
+}
+
+.jetpack-newsletter-intro__logo {
+	margin-block-end: var(--wpds-dimension-gap-lg);
+}
+
+.jetpack-newsletter-intro__title {
+	font-size: 20px;
+	line-height: 1.3;
+	margin: 0;
+}
+
+.jetpack-newsletter-intro__lede {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.jetpack-newsletter-intro__cta {
+	margin-block-start: var(--wpds-dimension-gap-lg);
+	width: 100%;
+}
+
+// Fills its column and crops rather than distorting, whatever the panel height
+// settles at.
+.jetpack-newsletter-intro__art {
+	block-size: 100%;
+	inline-size: 100%;
+	object-fit: cover;
+
+	@media ( max-width: 600px ) {
+		display: none;
+	}
+}

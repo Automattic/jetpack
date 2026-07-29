@@ -112,6 +112,17 @@ export interface NewsletterModeScriptData {
 	 */
 	checklistDismissed: boolean;
 	/**
+	 * Whether this user has already seen the one-time Newsletter Mode intro.
+	 * Bootstrapped from Mode::is_intro_seen().
+	 */
+	introSeen: boolean;
+	/**
+	 * URL of the intro artwork, resolved server side by
+	 * Mode::get_intro_art_url(). Served from the package rather than bundled
+	 * because wp-build cannot load images.
+	 */
+	introArtUrl: string;
+	/**
 	 * This site's Earn screen on WordPress.com — the same destination the nav's
 	 * Monetize item opens. Both come from Mode::get_monetize_url().
 	 */

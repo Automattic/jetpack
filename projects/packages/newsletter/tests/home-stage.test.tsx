@@ -70,6 +70,13 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 	default: ( ...args: unknown[] ) => mockApiFetch( ...args ),
 } ) );
 
+// The one-time intro is modal, so leaving it up would make the page behind it
+// inert and unreachable. These suites are about that page; the intro has its
+// own coverage in intro-modal.test.tsx.
+jest.mock( '../routes/home/intro-modal', () => ( {
+	IntroModal: () => null,
+} ) );
+
 jest.mock( '../src/settings/script-data', () => ( {
 	getNewsletterModeScriptData: () => mockGetNewsletterScriptData(),
 } ) );
