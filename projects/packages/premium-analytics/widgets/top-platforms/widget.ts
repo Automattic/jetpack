@@ -33,21 +33,21 @@ export default {
 	attributes: [
 		{
 			id: 'max',
-			label: __( 'Max rows', 'jetpack-premium-analytics' ),
-			type: 'number',
+			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
+			type: 'integer',
 		},
 		{
 			id: 'platformDimension',
-			label: __( 'View by', 'jetpack-premium-analytics' ),
+			label: __( 'View by', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
 			Edit: SelectField,
 			elements: [
 				{
-					label: __( 'Browser', 'jetpack-premium-analytics' ),
+					label: __( 'Browser', 'jetpack-premium-analytics-pkg' ),
 					value: 'browser',
 				},
 				{
-					label: __( 'OS', 'jetpack-premium-analytics' ),
+					label: __( 'OS', 'jetpack-premium-analytics-pkg' ),
 					value: 'platform',
 				},
 			],

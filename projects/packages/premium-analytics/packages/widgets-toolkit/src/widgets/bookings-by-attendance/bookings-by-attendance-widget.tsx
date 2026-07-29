@@ -57,13 +57,13 @@ export function BookingsByAttendanceWidget() {
 			error={ {
 				description: __(
 					"We couldn't load bookings data. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: calendar,
-				description: __( 'No bookings in this period.', 'jetpack-premium-analytics' ),
+				description: __( 'No bookings in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			<Stack className={ styles.container } direction="column" align="center" justify="center">

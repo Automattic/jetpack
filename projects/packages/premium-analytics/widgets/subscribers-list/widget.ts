@@ -14,7 +14,7 @@ export type SubscribersListAttributes = {
 	/**
 	 * Number of subscribers to show. Maps to the WPCOM stats `max` param.
 	 */
-	num?: number;
+	max?: number;
 };
 
 /**
@@ -27,14 +27,14 @@ export default {
 	icon: people,
 	attributes: [
 		{
-			id: 'num',
-			label: __( 'Number of results', 'jetpack-premium-analytics' ),
+			id: 'max',
+			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
 			type: 'integer',
 		},
 	] as WidgetAttributeField< SubscribersListAttributes >[],
 	example: {
 		attributes: {
-			num: 6,
+			max: 6,
 		},
 	},
 };

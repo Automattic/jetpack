@@ -11,7 +11,7 @@ const job = ( overrides: Partial< ImportJob > ): ImportJob => ( {
 } );
 
 describe( 'isJobInProgress', () => {
-	it.each( [ 'pending', 'importing' ] as const )( 'is true for %s jobs', status => {
+	it.each( [ 'pending', 'awaiting', 'importing' ] as const )( 'is true for %s jobs', status => {
 		expect( isJobInProgress( job( { status } ) ) ).toBe( true );
 	} );
 

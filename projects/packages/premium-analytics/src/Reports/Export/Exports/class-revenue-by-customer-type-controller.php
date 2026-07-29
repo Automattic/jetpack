@@ -39,7 +39,7 @@ class Revenue_By_Customer_Type_Controller extends Abstract_Csv_Report_Controller
 	 * @return string The report label.
 	 */
 	public function get_report_label(): string {
-		return __( 'Revenue by customer type', 'jetpack-premium-analytics' );
+		return __( 'Revenue by customer type', 'jetpack-premium-analytics-pkg' );
 	}
 
 	/**
@@ -59,9 +59,9 @@ class Revenue_By_Customer_Type_Controller extends Abstract_Csv_Report_Controller
 	 */
 	public function get_column_headers( ?string $interval = null ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Signature required by the report controller interface.
 		return array(
-			'customer_type' => __( 'Customer Type', 'jetpack-premium-analytics' ),
-			'net_sales'     => __( 'Net sales', 'jetpack-premium-analytics' ),
-			'orders_count'  => __( 'Orders', 'jetpack-premium-analytics' ),
+			'customer_type' => __( 'Customer Type', 'jetpack-premium-analytics-pkg' ),
+			'net_sales'     => __( 'Net sales', 'jetpack-premium-analytics-pkg' ),
+			'orders_count'  => __( 'Orders', 'jetpack-premium-analytics-pkg' ),
 		);
 	}
 
@@ -91,9 +91,9 @@ class Revenue_By_Customer_Type_Controller extends Abstract_Csv_Report_Controller
 		$customer_type       = $item['customer_type'] ?? $defaults['customer_type'];
 		$customer_type_label = (string) $customer_type;
 		if ( 'new' === $customer_type ) {
-			$customer_type_label = __( 'New Customer', 'jetpack-premium-analytics' );
+			$customer_type_label = __( 'New Customer', 'jetpack-premium-analytics-pkg' );
 		} elseif ( 'returning' === $customer_type ) {
-			$customer_type_label = __( 'Returning Customer', 'jetpack-premium-analytics' );
+			$customer_type_label = __( 'Returning Customer', 'jetpack-premium-analytics-pkg' );
 		} elseif ( '' === $customer_type ) {
 			$customer_type_label = $this->get_empty_row_label();
 		}

@@ -104,13 +104,26 @@ export type AddSubscribersResponse = {
 	[ key: string ]: unknown;
 };
 
-export type ImportJobStatus = 'pending' | 'importing' | 'imported' | 'failed' | 'cancelled';
+export type ImportJobStatus =
+	| 'pending'
+	| 'awaiting'
+	| 'importing'
+	| 'imported'
+	| 'failed'
+	| 'cancelled';
 
 export type ImportJob = {
 	id: number;
 	status: ImportJobStatus;
 	// WP.com sends counts as numeric strings (e.g. `"1"`).
 	email_count?: number | string;
+	// Per-outcome counts, populated once the job reaches a terminal state. Same numeric-string
+	// quirk as email_count. WP.com does not return a human-readable failure reason on the job — the
+	// per-email reasons only go to the import confirmation email — so these counts are all the
+	// dashboard has to describe the outcome.
+	subscribed_count?: number | string;
+	already_subscribed_count?: number | string;
+	failed_subscribed_count?: number | string;
 	scheduled_at?: string;
 	[ key: string ]: unknown;
 };
@@ -124,6 +137,31 @@ export type SubscriberDetails = Subscriber & {
 	country?: SubscriberCountry | null;
 	url?: string | null;
 	open_rate?: number;
+
+	// The individual endpoint names the subscription date differently from the list: one
+	// `date_subscribed`, already a full ISO string with an offset, rather than the `wpcom_`/`email_`
+	// pair of naive UTC timestamps.
+	date_subscribed?: string;
+};
+
+export type NewsletterCategory = {
+	id: number;
+	name: string;
+	slug?: string;
+	description?: string;
+	parent?: number;
+	subscription_count?: number;
+	// Only present on the per-subscriber response: false when the subscriber opted out of this
+	// category. WP.com stores opt-outs, so every site category comes back and `subscribed` is the
+	// discriminator — not the presence of the entry.
+	subscribed?: boolean;
+};
+
+export type SubscribedNewsletterCategories = {
+	// Whether the site has Newsletter categories turned on. When false the categories are
+	// meaningless and the UI hides the field entirely (mirrors Calypso).
+	enabled: boolean;
+	newsletter_categories: NewsletterCategory[];
 };
 
 export type SubscriberStats = {

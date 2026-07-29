@@ -60,15 +60,17 @@ function SharesInner( { max = 10 }: SharesAttributes ) {
 					error={ {
 						description: __(
 							"We couldn't load shares. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
-						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
 					} }
 					empty={ {
 						icon: megaphone,
 						description: __(
 							'Learn where your content has been shared the most.',
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
 					} }
 				>

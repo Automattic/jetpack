@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a stamp-textdomains post-build tool and a shared loadI18nCatalogs helper for translating wp-build dashboard JavaScript. strip-unminified-prod now replaces string-bearing unminified bundles with i18n reference stubs instead of deleting them, so string extraction keeps working on production builds.

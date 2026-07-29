@@ -2,9 +2,10 @@
 
 import { Button as WPButton, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Button, Stack } from '@wordpress/ui';
+import { Button, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { normalizeProfileUrl } from '../../../data/schema-settings-utils';
+import styles from './style.module.scss';
 import type { FC } from 'react';
 
 interface Props {
@@ -49,15 +50,19 @@ const ProfileUrlList: FC< Props > = ( { label, help, urls, onChange, disabled } 
 
 	return (
 		<Stack direction="column" gap="sm">
-			<span className="jetpack-seo-settings__schema-field-label">{ label }</span>
-			<span className="jetpack-seo-settings__title-tokens-label">{ help }</span>
+			<Text variant="heading-sm" className={ styles.fieldLabel }>
+				{ label }
+			</Text>
+			<Text variant="body-sm" className={ styles.muted }>
+				{ help }
+			</Text>
 			{ urls.map( ( profile, index ) => {
 				const profileError = profileErrors[ index ];
 				return (
 					<Stack key={ index } direction="row" gap="sm" align="flex-start" wrap="wrap">
 						<div
-							className={ clsx( 'jetpack-seo-settings__schema-profile-input', {
-								'jetpack-seo-settings__schema-profile-input--error': profileError,
+							className={ clsx( styles.profileInput, {
+								[ styles.profileError ]: profileError,
 							} ) }
 						>
 							<TextControl
@@ -86,11 +91,11 @@ const ProfileUrlList: FC< Props > = ( { label, help, urls, onChange, disabled } 
 					</Stack>
 				);
 			} ) }
-			<div>
+			<Stack direction="row">
 				<Button variant="outline" tone="neutral" onClick={ addProfile } disabled={ disabled }>
 					{ __( 'Add profile', 'jetpack-seo' ) }
 				</Button>
-			</div>
+			</Stack>
 		</Stack>
 	);
 };

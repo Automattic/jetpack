@@ -1,8 +1,9 @@
 import {
+	getSubscribedAt,
 	hasNoSubscribersOtherThanOwner,
 	isOpenSubscriberRemoved,
 } from '../_inc/subscribers/lib/subscriber-helpers';
-import type { Subscriber } from '../_inc/subscribers/data/types';
+import type { Subscriber, SubscriberDetails } from '../_inc/subscribers/data/types';
 
 /**
  * Build a minimal subscriber row for the matcher tests.
@@ -84,5 +85,67 @@ describe( 'hasNoSubscribersOtherThanOwner', () => {
 	it( 'is false once there is more than one subscriber, owner included', () => {
 		expect( hasNoSubscribersOtherThanOwner( 2, true ) ).toBe( false );
 		expect( hasNoSubscribersOtherThanOwner( 5, false ) ).toBe( false );
+	} );
+} );
+
+describe( 'getSubscribedAt', () => {
+	it( 'prefers the wpcom date and pins the naive list timestamp to UTC', () => {
+		const subscriber = makeSubscriber( {
+			wpcom_date_subscribed: '2026-07-28 19:02:09',
+			email_date_subscribed: '2020-01-01 00:00:00',
+		} );
+		expect( getSubscribedAt( subscriber ) ).toBe( '2026-07-28 19:02:09+00:00' );
+	} );
+
+	it( 'falls back to the email date for email-only subscribers', () => {
+		const subscriber = makeSubscriber( { email_date_subscribed: '2026-06-12 08:30:00' } );
+		expect( getSubscribedAt( subscriber ) ).toBe( '2026-06-12 08:30:00+00:00' );
+	} );
+
+	it( 'reads `date_subscribed` from the individual-subscriber payload', () => {
+		// The detail panel rendered a blank date before this shape was handled: the individual
+		// endpoint sends one `date_subscribed` rather than the list's wpcom_/email_ pair.
+		const details: SubscriberDetails = {
+			...makeSubscriber( {} ),
+			date_subscribed: '2026-07-28T19:02:09+00:00',
+		};
+		expect( getSubscribedAt( details ) ).toBe( '2026-07-28T19:02:09+00:00' );
+	} );
+
+	it( 'does not append a second offset to an already-zoned date', () => {
+		const zoned: SubscriberDetails = {
+			...makeSubscriber( {} ),
+			date_subscribed: '2026-07-28T16:02:09-03:00',
+		};
+		expect( getSubscribedAt( zoned ) ).toBe( '2026-07-28T16:02:09-03:00' );
+		expect( Number.isNaN( new Date( getSubscribedAt( zoned ) ).getTime() ) ).toBe( false );
+	} );
+
+	it( 'treats a `Z` suffix as already zoned', () => {
+		const utc: SubscriberDetails = {
+			...makeSubscriber( {} ),
+			date_subscribed: '2026-07-28T19:02:09Z',
+		};
+		expect( getSubscribedAt( utc ) ).toBe( '2026-07-28T19:02:09Z' );
+	} );
+
+	it( 'is empty when no date is present', () => {
+		expect( getSubscribedAt( makeSubscriber( {} ) ) ).toBe( '' );
+	} );
+} );
+
+describe( 'getSubscribedAt zero dates', () => {
+	it( 'treats WP.com’s zero date as absent rather than rendering year 0000', () => {
+		const zero: SubscriberDetails = {
+			...makeSubscriber( {} ),
+			date_subscribed: '0000-00-00T00:00:00+00:00',
+		};
+		expect( getSubscribedAt( zero ) ).toBe( '' );
+	} );
+
+	it( 'treats a naive zero date from a list row as absent too', () => {
+		expect(
+			getSubscribedAt( makeSubscriber( { wpcom_date_subscribed: '0000-00-00 00:00:00' } ) )
+		).toBe( '' );
 	} );
 } );

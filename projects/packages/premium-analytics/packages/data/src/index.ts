@@ -36,10 +36,7 @@ export { useStatsTopAuthors } from './hooks/use-stats-top-authors';
 export { useStatsLocations } from './hooks/use-stats-locations';
 export { useStatsCountryViews } from './hooks/use-stats-country-views';
 export { useStatsVideoPlays } from './hooks/use-stats-video-plays';
-export {
-	useStatsVideoPlaysSummary,
-	type StatsVideoPlaysSummaryParams,
-} from './hooks/use-stats-video-plays-summary';
+export { type StatsVideoPlaysSummaryParams } from './queries/stats-video-plays-summary-query';
 export {
 	useStatsAppCommercialClassificationMutation,
 	type StatsAppCommercialClassificationParams,
@@ -80,8 +77,6 @@ export {
 } from './hooks/use-stats-comment-followers';
 export { useStatsFollowers } from './hooks/use-stats-followers';
 export type { StatsFollowersParams, StatsFollowersResponse } from './hooks/use-stats-followers';
-export { useStatsPublicize } from './hooks/use-stats-publicize';
-export type { StatsPublicizeParams, StatsPublicizeResponse } from './hooks/use-stats-publicize';
 export {
 	useStatsComments,
 	type StatsCommentsParams,
@@ -118,7 +113,13 @@ export {
 	sliceWordAdsStatsReport,
 } from './processing/stats';
 export type { FlattenStatsLeavesContext, FlattenStatsLeavesOptions } from './processing/stats';
-export type { StatsDrilldownRow, StatsDrilldownSourceItem } from './processing/stats';
+export type {
+	AggregateStatsDrilldownRowsOptions,
+	StatsDrilldownItemContext,
+	StatsDrilldownRow,
+	StatsDrilldownRowContext,
+	StatsDrilldownSourceReport,
+} from './processing/stats';
 export {
 	useStatsSummary,
 	type StatsSummaryParams,
@@ -219,8 +220,8 @@ export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
 	normalizeReportParams,
+	needsReportDateParamsSeed,
 	hasComparisonEnabled,
-	type IntervalType,
 	type PresetType,
 	type ReportParams,
 } from './utils/search';
@@ -235,19 +236,22 @@ export {
 	computeDateRangeFromPreset,
 	getApiErrorCode,
 	getApiErrorStatus,
-	getStatsPlanErrorReason,
 	saveBlob,
 	shouldRetryApiError,
 	toPostId,
 	useSiteHomeUrl,
 } from './utils';
-export type { StatsPlanErrorReason } from './utils';
 export type { ReportDataMap } from './types';
 export type { ReportQueryParams } from './api';
 export type { FilterCondition } from './types/filter-condition';
 export type { ProductType } from './types/product-type';
 export { ORDER_ATTRIBUTION_VIEWS } from './api/report-order-attribution-summary-fetch';
-export { getDefaultIntervalForPeriod, getDateFormatFromInterval } from './utils/interval';
+export {
+	getDateFormatFromInterval,
+	getDefaultIntervalForPeriod,
+	resolveIntervalForRange,
+} from './utils/interval';
+export type { IntervalType } from './utils/interval';
 export { getDefaultPreset, getDefaultQueryParams } from './defaults';
 export { downloadReport, exportReport, fetchStatsProxy, getStatsProxyPath } from './api';
 export type {
@@ -300,9 +304,6 @@ export type {
 	StatsPostWeek,
 	StatsPostWeekDay,
 	StatsPostYear,
-	StatsPublicizeApiResponse,
-	StatsPublicizeItem,
-	StatsPublicizeService,
 	StatsReferrersComparisonItem,
 	StatsReferrersItem,
 	StatsSearchTermsComparisonItem,

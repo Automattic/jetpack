@@ -16,7 +16,8 @@ const DevServer = require( './webpack/dev-server' );
 const FileRule = require( './webpack/file-rule' );
 const loadTextDomainFromComposerJson = require( './webpack/load-textdomain-from-composer-json.js' );
 const MiniCSSWithRTLWebpackPlugin = require( './webpack/mini-css-with-rtl' );
-const PnpmDeterministicModuleIdsWebpackPlugin = require( './webpack/pnpm-deterministic-ids.js' );
+const PnpmDeterministicChunkIdsWebpackPlugin = require( './webpack/pnpm-deterministic-chunk-ids.js' );
+const PnpmDeterministicModuleIdsWebpackPlugin = require( './webpack/pnpm-deterministic-module-ids.js' );
 const TerserPlugin = require( './webpack/terser' );
 const TranspileRule = require( './webpack/transpile-rule' );
 
@@ -79,6 +80,7 @@ const optimization = {
 	minimizer: [ TerserPlugin(), CssMinimizerPlugin() ],
 	mangleExports: false,
 	concatenateModules: false,
+	chunkIds: isProduction ? false : 'named',
 	moduleIds: isProduction ? false : 'named',
 	emitOnErrors: true,
 };
@@ -223,6 +225,10 @@ const MomentLocaleIgnorePlugin = () => [
 	} ),
 ];
 
+const PnpmDeterministicChunkIdsPlugin = options => [
+	new PnpmDeterministicChunkIdsWebpackPlugin( options ),
+];
+
 const PnpmDeterministicModuleIdsPlugin = options => [
 	new PnpmDeterministicModuleIdsWebpackPlugin( options ),
 ];
@@ -235,6 +241,9 @@ const StandardPlugins = ( options = {} ) => {
 	}
 	if ( typeof options.I18nSafeMangleExportsPlugin === 'undefined' && isDevelopment ) {
 		options.I18nSafeMangleExportsPlugin = false;
+	}
+	if ( typeof options.PnpmDeterministicChunkIdsPlugin === 'undefined' && isDevelopment ) {
+		options.PnpmDeterministicChunkIdsPlugin = false;
 	}
 	if ( typeof options.PnpmDeterministicModuleIdsPlugin === 'undefined' && isDevelopment ) {
 		options.PnpmDeterministicModuleIdsPlugin = false;
@@ -262,6 +271,9 @@ const StandardPlugins = ( options = {} ) => {
 		...( options.MomentLocaleIgnorePlugin === false
 			? []
 			: MomentLocaleIgnorePlugin( options.MomentLocaleIgnorePlugin ) ),
+		...( options.PnpmDeterministicChunkIdsPlugin === false
+			? []
+			: PnpmDeterministicChunkIdsPlugin( options.PnpmDeterministicChunkIdsPlugin ) ),
 		...( options.PnpmDeterministicModuleIdsPlugin === false
 			? []
 			: PnpmDeterministicModuleIdsPlugin( options.PnpmDeterministicModuleIdsPlugin ) ),
@@ -305,6 +317,7 @@ module.exports = {
 	MiniCssExtractPlugin,
 	MiniCssWithRtlPlugin,
 	MomentLocaleIgnorePlugin,
+	PnpmDeterministicChunkIdsPlugin,
 	PnpmDeterministicModuleIdsPlugin,
 	WebpackRtlPlugin,
 	ReactRefreshWebpackPlugin,

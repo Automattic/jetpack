@@ -10,10 +10,10 @@ import {
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
 	ReportErrorState,
+	ReportDrilldownTable,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportPageTabs,
-	ReportRecordsTable,
 	useReportRetry,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs } from '@wordpress/admin-ui';
@@ -34,8 +34,11 @@ import {
 
 const ROUTE_FROM = route.path;
 
+/*
+ * No default sort: rows arrive as UTM parents followed by their posts. The
+ * unsorted view preserves that hierarchy; user sorting stays within levels.
+ */
 const RECORDS_VIEW = {
-	sort: { field: 'views', direction: 'desc' as const },
 	layout: {
 		styles: {
 			utmValue: { width: '100%' },
@@ -52,6 +55,16 @@ const RECORDS_VIEW = {
  */
 function getUtmRowId( item: UtmReportRow ): string {
 	return item.id;
+}
+
+/**
+ * Resolve the UTM parent row id for nested post rows.
+ *
+ * @param item - The UTM or post row.
+ * @return The parent row id, if any.
+ */
+function getUtmRowParentId( item: UtmReportRow ): string | undefined {
+	return item.parentId;
 }
 
 /**
@@ -80,8 +93,8 @@ function UtmReport(): JSX.Element {
 			breadcrumbs={
 				<Breadcrumbs
 					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'UTM', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
+						{ label: __( 'UTM', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
 			}
@@ -96,18 +109,20 @@ function UtmReport(): JSX.Element {
 			>
 				{ records.isError ? (
 					<ReportErrorState
-						title={ __( 'Unable to load UTM data', 'jetpack-premium-analytics' ) }
+						title={ __( 'Unable to load UTM data', 'jetpack-premium-analytics-pkg' ) }
 						onRetry={ retry }
 					/>
 				) : (
-					<ReportRecordsTable< UtmReportRow >
+					<ReportDrilldownTable< UtmReportRow >
 						key={ activeTab }
 						data={ records.rows }
 						fields={ fields }
 						getItemId={ getUtmRowId }
+						getItemParentId={ getUtmRowParentId }
 						isLoading={ records.isLoading }
 						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search UTM values', 'jetpack-premium-analytics' ) }
+						searchLabel={ __( 'Search UTM values', 'jetpack-premium-analytics-pkg' ) }
+						hideLevelMarkers
 					/>
 				) }
 			</ReportPageLayout>

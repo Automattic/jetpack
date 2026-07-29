@@ -82,6 +82,7 @@ The simplest leaderboard chart requires only a `data` prop with pre-processed le
 
 **State & Styling:**
 - **`loading`**: Whether the chart is in loading state - `false` by default
+- **`fitRows`**: Show only complete rows that fit a height-constrained container instead of scrolling - `false` by default
 - **`className`**: Additional CSS class name for the chart container
 - **`style`**: Custom styling including CSS custom properties for border radius
 - **`width` / `height`**: Optional fixed chart container dimensions
@@ -285,15 +286,26 @@ The LeaderboardChart expects pre-processed data. You'll need to transform your r
 	function transformRawData(rawData) {
 		const maxValue = Math.max(...rawData.map(item => item.current_period.value));
 
-		return rawData.map(item => ({
-			id: item.id,
-			label: item.name,
-			currentValue: item.current_period.value,
-			previousValue: item.previous_period.value,
-			currentShare: (item.current_period.value / maxValue) * 100,
-			previousShare: (item.previous_period.value / maxValue) * 100,
-			delta: ((item.current_period.value - item.previous_period.value) / item.previous_period.value) * 100,
-		}));
+		return rawData.map(item => {
+			// A row absent from the comparison period has an unknown previous
+			// value; leave the comparison fields undefined so the chart shows
+			// its missing-data placeholder.
+			const previousValue = item.previous_period?.value;
+
+			return {
+				id: item.id,
+				label: item.name,
+				currentValue: item.current_period.value,
+				previousValue,
+				currentShare: (item.current_period.value / maxValue) * 100,
+				previousShare: previousValue !== undefined ? (previousValue / maxValue) * 100 : undefined,
+				// Omit delta when the percentage change cannot be calculated,
+				// such as from a previous value of 0.
+				delta: previousValue
+					? ((item.current_period.value - previousValue) / previousValue) * 100
+					: undefined,
+			};
+		});
 	}
 
 	function ProcessedDataChart() {
@@ -441,7 +453,7 @@ Combine overlay labels with custom styling and transparent colors:
 		withOverlayLabel={true}
 		primaryColor="rgba(56, 88, 233, 0.08)" // Semi-transparent
 		style={{
-			'--a8c--charts--leaderboard--bar--border-radius': '4px',
+			'--a8c-charts-border-radius-leaderboard-bar': '4px',
 		}}
 	/>` }
 />
@@ -455,7 +467,7 @@ The component supports CSS custom properties for advanced styling:
 	code={ `<LeaderboardChart
 		data={data}
 		style={{
-			'--a8c--charts--leaderboard--bar--border-radius': '8px',
+			'--a8c-charts-border-radius-leaderboard-bar': '8px',
 		}}
 		className="myCustomChart"
 	/>` }
@@ -464,7 +476,7 @@ The component supports CSS custom properties for advanced styling:
 <Source
 	language="css"
 	code={ `.myCustomChart {
-		--a8c--charts--leaderboard--bar--border-radius: 8px;
+		--a8c-charts-border-radius-leaderboard-bar: 8px;
 	}` }
 />
 
@@ -510,7 +522,22 @@ By default, leaderboard charts **fill their parent container's dimensions**. The
 		/>` }
 />
 
-When content is taller than the available area, the content region scrolls and the legend remains visible without overlap.
+By default, when content is taller than the available area, the content region scrolls and the legend remains visible without overlap. Set `fitRows` inside a height-constrained container to hide rows that do not fit instead. The example below uses `LeaderboardChartUnresponsive` because refits are debounced with the parent resize on the responsive export, which lags a live drag:
+
+<Canvas of={ LeaderboardChartStories.FitRows } />
+
+<Source
+	language="tsx"
+	code={ `import { LeaderboardChartUnresponsive } from '@automattic/charts';
+
+	<div style={{ height: '180px' }}>
+		<LeaderboardChartUnresponsive data={ data } fitRows />
+	</div>` }
+/>
+
+Hidden rows also leave the tab order and the accessibility tree, so keyboard focus only ever lands on a fully visible row — tab through the example below to verify:
+
+<Canvas of={ LeaderboardChartStories.FitRowsInteractive } />
 
 For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
@@ -582,4 +609,4 @@ The Leaderboard Chart component supports an optional entry animation that create
 ### Focus Management
 
 - Interactive legend items use standard focus behavior and visible focus indicators from the shared legend component.
-- The chart content area scrolls in constrained layouts, keeping focused legend controls visible and non-overlapping.
+- By default, the chart content area scrolls in constrained layouts, keeping focused legend controls visible and non-overlapping. With `fitRows`, rows that do not fit are removed from the focus order and accessibility tree.

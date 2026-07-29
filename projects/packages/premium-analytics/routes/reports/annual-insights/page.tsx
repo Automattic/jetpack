@@ -60,14 +60,14 @@ function AnnualInsightsReport(): JSX.Element {
 			breadcrumbs={
 				<Breadcrumbs
 					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'Annual insights', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
+						{ label: __( 'Annual insights', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
 			}
 			subTitle={ __(
 				'Year-by-year publishing and engagement totals.',
-				'jetpack-premium-analytics'
+				'jetpack-premium-analytics-pkg'
 			) }
 			className={ styles.page }
 		>
@@ -80,7 +80,7 @@ function AnnualInsightsReport(): JSX.Element {
 					 */ }
 					{ records.isError ? (
 						<ReportErrorState
-							title={ __( 'Unable to load annual insights', 'jetpack-premium-analytics' ) }
+							title={ __( 'Unable to load annual insights', 'jetpack-premium-analytics-pkg' ) }
 							onRetry={ retry }
 						/>
 					) : (
@@ -90,7 +90,7 @@ function AnnualInsightsReport(): JSX.Element {
 							getItemId={ getAnnualInsightRowId }
 							isLoading={ records.isLoading }
 							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search annual insights', 'jetpack-premium-analytics' ) }
+							searchLabel={ __( 'Search annual insights', 'jetpack-premium-analytics-pkg' ) }
 						/>
 					) }
 				</ReportPageLayout>

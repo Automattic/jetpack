@@ -53,7 +53,7 @@ function getErrorMessage( error: unknown ): string {
 		return error.message;
 	}
 
-	return __( 'Could not download report.', 'jetpack-premium-analytics' );
+	return __( 'Could not download report.', 'jetpack-premium-analytics-pkg' );
 }
 
 /**
@@ -69,7 +69,7 @@ function getErrorMessage( error: unknown ): string {
  */
 export function CsvDownloadButton( {
 	onDownload,
-	label = __( 'Download CSV', 'jetpack-premium-analytics' ),
+	label = __( 'Download CSV', 'jetpack-premium-analytics-pkg' ),
 	className,
 	variant = 'minimal',
 	showIcon = true,

@@ -364,7 +364,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 							{ subtopicHints.length > 0 && (
 								<Notice status="warning" isDismissible={ false }>
 									{ __(
-										'These categories have subcategories. Picking one helps Apple Podcasts and other directories place your show accurately:',
+										'These topics have subtopics. Picking one helps Apple Podcasts and other directories place your show accurately:',
 										'jetpack-podcast'
 									) }
 									<ul className="podcast__settings-issues">

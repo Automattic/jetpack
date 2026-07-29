@@ -1,4 +1,6 @@
 let mockSelectMethods;
+let mockFetchSearchPlanInfo;
+const mockCheckoutWorkflow = jest.fn();
 
 jest.mock( '@automattic/jetpack-components', () => ( {
 	AdminPage: ( { children } ) => <div>{ children }</div>,
@@ -47,7 +49,7 @@ jest.mock( '@wordpress/components', () => ( {
 } ) );
 
 jest.mock( '@wordpress/data', () => ( {
-	useDispatch: () => ( { fetchSearchPlanInfo: jest.fn( () => Promise.resolve( {} ) ) } ),
+	useDispatch: () => ( { fetchSearchPlanInfo: mockFetchSearchPlanInfo } ),
 	useSelect: callback => callback( () => mockSelectMethods ),
 } ) );
 
@@ -59,10 +61,10 @@ jest.mock( 'store', () => ( { STORE_ID: 'jetpack-search-plugin' } ) );
 jest.mock( 'components/loading', () => () => <div data-testid="loading" /> );
 jest.mock( 'components/price', () => () => <span data-testid="price" /> );
 jest.mock( 'components/search-promotion', () => () => <div data-testid="search-promotion" /> );
-jest.mock( 'hooks/use-product-checkout-workflow', () => () => ( {
-	run: jest.fn(),
-	hasCheckoutStarted: false,
-} ) );
+jest.mock( 'hooks/use-product-checkout-workflow', () => ( ...args ) => {
+	mockCheckoutWorkflow( ...args );
+	return { run: jest.fn(), hasCheckoutStarted: false };
+} );
 
 import { render, screen } from '@testing-library/react';
 import UpsellPage from '../index';
@@ -88,6 +90,11 @@ const createSelectMethods = ( { isSearchBlocksEnabled = false } = {} ) => ( {
 	isSearchBlocksEnabled: jest.fn( () => isSearchBlocksEnabled ),
 } );
 
+beforeEach( () => {
+	mockCheckoutWorkflow.mockClear();
+	mockFetchSearchPlanInfo = jest.fn( () => Promise.resolve( {} ) );
+} );
+
 describe( 'UpsellPage pricing grid — Search blocks gating', () => {
 	test( 'hides the Search blocks rows when the flag is disabled', () => {
 		mockSelectMethods = createSelectMethods( { isSearchBlocksEnabled: false } );
@@ -107,6 +114,24 @@ describe( 'UpsellPage pricing grid — Search blocks gating', () => {
 
 		expect( screen.getByText( 'Jetpack Search blocks' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Embedded search page' ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'UpsellPage — checkout site-product-availability check', () => {
+	test( 'resolves from supports_instant_search, not the Atomic-unreliable supports_search', async () => {
+		mockSelectMethods = createSelectMethods();
+		// Atomic sites with a bundled classic-search entitlement report supports_search: true
+		// even when no Jetpack Search product has been purchased -- only supports_instant_search
+		// reflects an actual subscription.
+		mockFetchSearchPlanInfo.mockResolvedValue( {
+			supports_search: true,
+			supports_instant_search: false,
+		} );
+
+		render( <UpsellPage /> );
+
+		const { siteProductAvailabilityHandler } = mockCheckoutWorkflow.mock.calls[ 0 ][ 0 ];
+		await expect( siteProductAvailabilityHandler() ).resolves.toBe( false );
 	} );
 } );
 

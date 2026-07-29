@@ -241,6 +241,14 @@ class Jetpack_Backup {
 		// This callback is registered via `load-{$page_suffix}` in `add_wp_admin_submenu()`,
 		// so it only fires on the Backup admin page — no need to re-check the page here.
 		if ( self::is_modernized() ) {
+			// The i18n loader is registered on every admin page by jetpack-assets but
+			// only enqueued when depended on; the esbuild bundles don't pull it in.
+			// Enqueue it here, before the early return, so the wp-build dashboard's
+			// init module can download its JS translation catalogs.
+			if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+				wp_enqueue_script( 'wp-jp-i18n-loader' );
+			}
+
 			// wp-build manages its own enqueue pipeline. The legacy script,
 			// initial state, and tracking are intentionally skipped for the
 			// wp-build dashboard.
@@ -952,6 +960,14 @@ class Jetpack_Backup {
 		}
 
 		self::load_wp_build();
+
+		// wp-build registers standalone modules (e.g. the init module) on
+		// wp_default_scripts, which has already fired by admin_menu. Register them
+		// directly so the init module makes it into the import map.
+		if ( function_exists( 'jetpack_backup_register_script_modules' ) ) {
+			jetpack_backup_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
+
 		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 	}
 

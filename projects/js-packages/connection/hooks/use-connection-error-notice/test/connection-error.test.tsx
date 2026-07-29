@@ -70,4 +70,27 @@ describe( 'ConnectionError', () => {
 		expect( props.actions ).toHaveLength( 1 );
 		expect( props.actions[ 0 ].label ).toBe( 'Restore Connection' );
 	} );
+
+	it( "renders an informational notice with no CTA when the error action is 'none'", () => {
+		mockConnection( {
+			connectionErrors: {
+				owner_error: {
+					'123': {
+						error_message: 'The connection owner needs to reconnect their account.',
+						error_type: 'xmlrpc',
+						error_data: { action: 'none' },
+					},
+				},
+			},
+		} );
+
+		render( <ConnectionError /> );
+
+		expect( ConnectionErrorNotice ).toHaveBeenCalled();
+		const props = ConnectionErrorNotice.mock.calls[ 0 ][ 0 ];
+		expect( props.message ).toBe( 'The connection owner needs to reconnect their account.' );
+		expect( props.actions ).toHaveLength( 0 );
+		// The default "Restore Connection" fallback must also be suppressed.
+		expect( props.restoreConnectionCallback ).toBeNull();
+	} );
 } );

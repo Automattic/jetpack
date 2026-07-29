@@ -1,12 +1,42 @@
 /**
  * External dependencies
  */
+import {
+	PRESET_LAST_12_MONTHS,
+	PRESET_LAST_24_HOURS,
+	PRESET_LAST_30_DAYS,
+	PRESET_LAST_365_DAYS,
+	PRESET_LAST_7_DAYS,
+	PRESET_LAST_90_DAYS,
+	PRESET_LAST_MONTH,
+	PRESET_LAST_YEAR,
+	PRESET_TODAY,
+	PRESET_YESTERDAY,
+	type PrimaryPresetId,
+} from '@jetpack-premium-analytics/datetime';
 import { differenceInCalendarDays, differenceInHours } from 'date-fns';
 /**
  * Internal dependencies
  */
 import { localTZDate } from './date';
-import type { IntervalType } from './search';
+
+const INTERVAL_TYPES = [ 'hour', 'day', 'week', 'month', 'quarter', 'year' ] as const;
+
+/**
+ * Report time-series bucket sizes, derived from the runtime tuple so both
+ * stay in sync.
+ */
+export type IntervalType = ( typeof INTERVAL_TYPES )[ number ];
+
+/**
+ * Whether a value is a known `IntervalType`.
+ *
+ * @param value - Untyped candidate.
+ * @return Whether `value` is an `IntervalType`.
+ */
+function isIntervalType( value: unknown ): value is IntervalType {
+	return typeof value === 'string' && ( INTERVAL_TYPES as readonly string[] ).includes( value );
+}
 
 export function getDaysBetweenInclusive( from: string, to: string ): number {
 	// Anchor both dates in UTC before diffing: `differenceInCalendarDays` reads
@@ -52,50 +82,91 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 }
 
 /**
- * Returns the allowed selectable intervals for a specific period.
+ * Allowed intervals for a preset, ordered finest-first.
  *
- * @return {Array} Array containing allowed intervals.
+ * Unknown / custom / year-surface presets derive the list from `from`–`to`
+ * length.
+ *
+ * @param preset - Primary date-range preset, when known.
+ * @param from   - Range start.
+ * @param to     - Range end.
+ * @return Allowed intervals, finest first.
  */
-function getAllowedIntervalsForPeriod(
-	period: string | undefined,
+function getAllowedIntervalsForPreset(
+	preset: PrimaryPresetId | undefined,
 	from: string,
 	to: string
 ): IntervalType[] {
-	switch ( period ) {
-		case 'today':
-		case 'yesterday':
-		case 'last-24-hours':
+	switch ( preset ) {
+		case PRESET_TODAY:
+		case PRESET_YESTERDAY:
+		case PRESET_LAST_24_HOURS:
 			return [ 'hour', 'day' ];
-		case 'last-7-days':
+		case PRESET_LAST_7_DAYS:
 			return [ 'day' ];
-		case 'last-30-days':
-		case 'last-month':
+		case PRESET_LAST_30_DAYS:
+		case PRESET_LAST_MONTH:
 			return [ 'day', 'week' ];
-		case 'last-90-days':
+		case PRESET_LAST_90_DAYS:
 			return [ 'week', 'month' ];
-		case 'last-12-months':
-		case 'last-365-days':
-		case 'last-year':
+		case PRESET_LAST_12_MONTHS:
+		case PRESET_LAST_365_DAYS:
+		case PRESET_LAST_YEAR:
 			return [ 'month', 'quarter' ];
 		default:
 			return getAllowedIntervalsByRange( from, to );
 	}
 }
 
+/**
+ * Resolve a valid interval for a date range.
+ *
+ * Returns `current` when it is allowed for the range; otherwise the range
+ * default (finest allowed).
+ *
+ * @param preset  - Primary date-range preset, when known.
+ * @param from    - Range start.
+ * @param to      - Range end.
+ * @param current - Candidate interval to keep when still allowed.
+ * @return An interval allowed for the range.
+ */
+export function resolveIntervalForRange(
+	preset: PrimaryPresetId | undefined,
+	from: string,
+	to: string,
+	current?: string
+): IntervalType {
+	const allowed = getAllowedIntervalsForPreset( preset, from, to );
+
+	if ( isIntervalType( current ) && allowed.includes( current ) ) {
+		return current;
+	}
+
+	return allowed[ 0 ] ?? 'day';
+}
+
+/**
+ * Default (finest) interval for a preset / date range.
+ *
+ * @param preset - Primary date-range preset, when known.
+ * @param from   - Range start.
+ * @param to     - Range end.
+ * @return The default interval.
+ */
 export function getDefaultIntervalForPeriod(
-	period: string | undefined,
+	preset: PrimaryPresetId | undefined,
 	from: string,
 	to: string
 ): IntervalType {
-	return getAllowedIntervalsForPeriod( period, from, to )?.[ 0 ] ?? 'day';
+	return resolveIntervalForRange( preset, from, to );
 }
 
 export function getDateFormatFromInterval(
-	period: string | undefined, // Pass in undefined to use the default interval.
+	preset: PrimaryPresetId | undefined,
 	from: string,
 	to: string
 ): string {
-	const interval = getDefaultIntervalForPeriod( period, from, to );
+	const interval = getDefaultIntervalForPeriod( preset, from, to );
 
 	switch ( interval ) {
 		case 'hour':

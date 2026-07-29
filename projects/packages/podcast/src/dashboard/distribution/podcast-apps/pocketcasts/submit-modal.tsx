@@ -118,7 +118,7 @@ const PocketCastsSubmitModal = ( { app, feedUrl, onClose, onFirstSave }: Podcast
 								'jetpack-podcast'
 						  )
 						: __(
-								'Set your podcast category in the Settings tab to generate your RSS feed before submitting.',
+								'Set your post category in the Settings tab to generate your RSS feed before submitting.',
 								'jetpack-podcast'
 						  ) }
 				</Text>

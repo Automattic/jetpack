@@ -287,6 +287,10 @@ class Jetpack_Likes_Settings {
 			return false;
 		}
 
+		if ( ! empty( $post->post_password ) ) {
+			return false;
+		}
+
 		$sitewide_likes_enabled = (bool) $this->is_enabled_sitewide();
 		$post_likes_switched    = get_post_meta( $post->ID, 'switch_like_status', true );
 

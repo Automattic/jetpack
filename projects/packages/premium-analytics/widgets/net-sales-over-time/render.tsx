@@ -41,10 +41,10 @@ export default function NetSalesOverTimeRender( {
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<OrderMetricWidget
 				metricKey="orders_value_net"
-				emptyStateText={ __( 'No sales in this period.', 'jetpack-premium-analytics' ) }
+				emptyStateText={ __( 'No sales in this period.', 'jetpack-premium-analytics-pkg' ) }
 				errorText={ __(
 					"We couldn't load net sales. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				) }
 			/>
 		</WidgetRoot>

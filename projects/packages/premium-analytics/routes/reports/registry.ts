@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -56,6 +57,13 @@ export type ReportDefinition = {
 	resolveSection?: ( value: string | undefined ) => string;
 
 	/**
+	 * Whether the report is available on this site, resolved at lookup time.
+	 * An unavailable report is treated like an unknown one — the route guard
+	 * redirects it to the dashboard. Omit for reports available everywhere.
+	 */
+	isAvailable?: () => boolean;
+
+	/**
 	 * Dynamic import of the report's page component (default export). Kept as a
 	 * thunk so React/UI is only pulled in when the report actually renders, and
 	 * so this module stays importable from `route.ts` guards.
@@ -73,78 +81,89 @@ export type ReportDefinition = {
 export const REPORTS: Record< string, ReportDefinition > = {
 	'annual-insights': {
 		id: 'annual-insights',
-		getTitle: () => __( 'Annual insights', 'jetpack-premium-analytics' ),
+		getTitle: () => __( 'Annual insights', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () =>
-			__( 'Year-by-year publishing and engagement totals.', 'jetpack-premium-analytics' ),
+			__( 'Year-by-year publishing and engagement totals.', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './annual-insights/page' ),
+	},
+	authors: {
+		id: 'authors',
+		getTitle: () => __( 'Top authors', 'jetpack-premium-analytics-pkg' ),
+		load: () => import( './authors/page' ),
 	},
 	'comment-followers': {
 		id: 'comment-followers',
-		getTitle: () => __( 'Comments Subscribers', 'jetpack-premium-analytics' ),
+		getTitle: () => __( 'Comments Subscribers', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './comment-followers/page' ),
 	},
 	clicks: {
 		id: 'clicks',
-		getTitle: () => __( 'Clicks', 'jetpack-premium-analytics' ),
+		getTitle: () => __( 'Clicks', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './clicks/page' ),
 	},
 	comments: {
 		id: 'comments',
-		getTitle: () => __( 'Comments', 'jetpack-premium-analytics' ),
+		getTitle: () => __( 'Comments', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () =>
 			__(
 				'Learn about the comments your site receives by authors, posts, and pages.',
-				'jetpack-premium-analytics'
+				'jetpack-premium-analytics-pkg'
 			),
 		resolveSection: resolveCommentsTabId,
 		load: () => import( './comments/page' ),
 	},
 	downloads: {
 		id: 'downloads',
-		getTitle: () => __( 'File downloads', 'jetpack-premium-analytics' ),
+		getTitle: () => __( 'File downloads', 'jetpack-premium-analytics-pkg' ),
+		// File download tracking happens on WPCOM infrastructure; Calypso only
+		// shows the module on Simple sites ("not yet supported in Jetpack
+		// environment") and we mirror that boundary. Mirrors the widget-level
+		// gate in `src/widget-type-support.php`.
+		isAvailable: isSimpleSite,
 		load: () => import( './downloads/page' ),
 	},
 	emails: {
 		id: 'emails',
-		getTitle: () => __( 'Emails', 'jetpack-premium-analytics' ),
+		getTitle: () => __( 'Emails', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () =>
-			__( 'Open and click performance of your latest emails.', 'jetpack-premium-analytics' ),
+			__( 'Open and click performance of your latest emails.', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './emails/page' ),
 	},
 	posts: {
 		id: 'posts',
-		getTitle: () => __( 'Posts & Pages', 'jetpack-premium-analytics' ),
-		getDescription: () => __( 'All your posts and archive pages.', 'jetpack-premium-analytics' ),
+		getTitle: () => __( 'Posts & Pages', 'jetpack-premium-analytics-pkg' ),
+		getDescription: () =>
+			__( 'All your posts and archive pages.', 'jetpack-premium-analytics-pkg' ),
 		resolveSection: resolveTabId,
 		load: () => import( './posts/page' ),
 	},
 	'search-terms': {
 		id: 'search-terms',
-		getTitle: () => __( 'Search terms', 'jetpack-premium-analytics' ),
+		getTitle: () => __( 'Search terms', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './search-terms/page' ),
 	},
 	tags: {
 		id: 'tags',
-		getTitle: () => __( 'Tags & categories', 'jetpack-premium-analytics' ),
+		getTitle: () => __( 'Tags & categories', 'jetpack-premium-analytics-pkg' ),
 		getDescription: () =>
-			__( 'Your most visited tags and categories.', 'jetpack-premium-analytics' ),
+			__( 'Your most visited tags and categories.', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './tags/page' ),
 	},
 	videos: {
 		id: 'videos',
-		getTitle: () => __( 'Videos', 'jetpack-premium-analytics' ),
-		getDescription: () => __( 'See how your videos perform.', 'jetpack-premium-analytics' ),
+		getTitle: () => __( 'Videos', 'jetpack-premium-analytics-pkg' ),
+		getDescription: () => __( 'See how your videos perform.', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './videos/page' ),
 	},
 	utm: {
 		id: 'utm',
-		getTitle: () => __( 'UTM', 'jetpack-premium-analytics' ),
+		getTitle: () => __( 'UTM', 'jetpack-premium-analytics-pkg' ),
 		resolveSection: resolveUtmSection,
 		load: () => import( './utm/page' ),
 	},
 	referrers: {
 		id: 'referrers',
-		getTitle: () => __( 'Referrers', 'jetpack-premium-analytics' ),
+		getTitle: () => __( 'Referrers', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './referrers/page' ),
 	},
 };
@@ -156,5 +175,11 @@ export const REPORTS: Record< string, ReportDefinition > = {
  * @return The matching definition, or `undefined` when the id is missing or unknown.
  */
 export function getReportDefinition( id: string | undefined ): ReportDefinition | undefined {
-	return id ? REPORTS[ id ] : undefined;
+	const definition = id ? REPORTS[ id ] : undefined;
+
+	if ( definition?.isAvailable && ! definition.isAvailable() ) {
+		return undefined;
+	}
+
+	return definition;
 }

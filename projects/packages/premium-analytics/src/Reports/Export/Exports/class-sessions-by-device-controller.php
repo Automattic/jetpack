@@ -39,7 +39,7 @@ class Sessions_By_Device_Controller extends Abstract_Csv_Report_Controller {
 	 * @return string The report label.
 	 */
 	public function get_report_label(): string {
-		return __( 'Sessions by Device', 'jetpack-premium-analytics' );
+		return __( 'Sessions by Device', 'jetpack-premium-analytics-pkg' );
 	}
 
 	/**
@@ -59,8 +59,8 @@ class Sessions_By_Device_Controller extends Abstract_Csv_Report_Controller {
 	 */
 	public function get_column_headers( ?string $interval = null ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Signature required by the report controller interface.
 		return array(
-			'device_type'     => __( 'Device type', 'jetpack-premium-analytics' ),
-			'active_sessions' => __( 'Sessions', 'jetpack-premium-analytics' ),
+			'device_type'     => __( 'Device type', 'jetpack-premium-analytics-pkg' ),
+			'active_sessions' => __( 'Sessions', 'jetpack-premium-analytics-pkg' ),
 		);
 	}
 

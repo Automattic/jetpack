@@ -6,8 +6,18 @@ import { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
+import { registerApiErrorStatusMiddleware } from '../api/error-status-middleware';
 import { getApiErrorStatus, shouldRetryApiError } from '../utils';
 import { globalErrorManager } from './global-error-manager';
+
+// Both the retry policy and the global error detection below read the HTTP
+// status, which apiFetch drops unless this middleware is installed. Registering
+// it here, next to the policy that needs it, rather than from the app's `init()`
+// module: WP 7.0's Core `boot` module ignores the `initModules` argument to
+// `initSinglePage()`, so on those sites `init()` never runs and the status was
+// lost again (Core-side fix in #50309). Every widget and route mounts this
+// provider, so loading the data package is enough to install the middleware.
+registerApiErrorStatusMiddleware();
 
 const DEFAULT_STALE_TIME = 5 * 60 * 1000;
 const DEFAULT_GC_TIME = 10 * 60 * 1000;

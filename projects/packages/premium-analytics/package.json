@@ -4,13 +4,16 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"build": "pnpm run build:wp-build && pnpm run build:boot-asset",
+		"build": "pnpm run clean && pnpm run build:wp-build && pnpm run build:stamp-textdomains && pnpm run build:boot-asset",
 		"build:boot-asset": "provide-boot-asset-file",
+		"build:stamp-textdomains": "stamp-textdomains",
 		"build:strip-unminified-prod": "strip-unminified-prod",
 		"build:wp-build": "wp-build",
-		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build:wp-build && pnpm run build:strip-unminified-prod && pnpm run build:boot-asset && pnpm run validate",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run build:strip-unminified-prod && pnpm run validate",
+		"clean": "rm -rf build/",
 		"storybook": "cd ../../js-packages/storybook && pnpm run storybook:dev",
 		"test": "jest --config=tests/jest.config.cjs",
+		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsgo --noEmit",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
 		"watch": "wp-build --watch"

@@ -131,7 +131,7 @@ class Csv_Export_Scheduler implements Registrable_Interface {
 		if ( ! \is_email( $user_email ) ) {
 			return new \WP_Error(
 				'invalid_email',
-				__( 'Invalid email address provided.', 'jetpack-premium-analytics' ),
+				__( 'Invalid email address provided.', 'jetpack-premium-analytics-pkg' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -140,7 +140,7 @@ class Csv_Export_Scheduler implements Registrable_Interface {
 			$this->logger->log_error( 'Action Scheduler is not available', __METHOD__ );
 			return new \WP_Error(
 				'action_scheduler_unavailable',
-				__( 'Action Scheduler is not available. Cannot schedule export.', 'jetpack-premium-analytics' ),
+				__( 'Action Scheduler is not available. Cannot schedule export.', 'jetpack-premium-analytics-pkg' ),
 				array( 'status' => 503 )
 			);
 		}
@@ -149,7 +149,7 @@ class Csv_Export_Scheduler implements Registrable_Interface {
 		if ( ! $this->registry->is_registered( $report_type ) ) {
 			return new \WP_Error(
 				'invalid_report_type',
-				__( 'Invalid report type.', 'jetpack-premium-analytics' ),
+				__( 'Invalid report type.', 'jetpack-premium-analytics-pkg' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -171,7 +171,7 @@ class Csv_Export_Scheduler implements Registrable_Interface {
 			$this->logger->log_exception( $e, __METHOD__ );
 			return new \WP_Error(
 				'schedule_failed',
-				__( 'Failed to schedule export job.', 'jetpack-premium-analytics' ),
+				__( 'Failed to schedule export job.', 'jetpack-premium-analytics-pkg' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -180,7 +180,7 @@ class Csv_Export_Scheduler implements Registrable_Interface {
 			$this->logger->log_error( 'Failed to schedule CSV export action', __METHOD__ );
 			return new \WP_Error(
 				'schedule_failed',
-				__( 'Failed to schedule export job.', 'jetpack-premium-analytics' ),
+				__( 'Failed to schedule export job.', 'jetpack-premium-analytics-pkg' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -314,13 +314,13 @@ class Csv_Export_Scheduler implements Registrable_Interface {
 
 		$subject = sprintf(
 			/* translators: %s: Report label */
-			__( 'Export Failed: %s', 'jetpack-premium-analytics' ),
+			__( 'Export Failed: %s', 'jetpack-premium-analytics-pkg' ),
 			$report_label
 		);
 
 		$message = sprintf(
 			/* translators: %s: Report label */
-			__( 'Your export for "%s" could not be completed. Please try again later.', 'jetpack-premium-analytics' ),
+			__( 'Your export for "%s" could not be completed. Please try again later.', 'jetpack-premium-analytics-pkg' ),
 			$report_label
 		);
 

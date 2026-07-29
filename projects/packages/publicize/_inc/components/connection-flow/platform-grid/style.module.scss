@@ -1,0 +1,63 @@
+.grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: var(--wpds-dimension-gap-lg);
+	inline-size: 100%;
+	margin: 0;
+	list-style: none;
+
+	// The design only specifies a desktop 3-column layout. Below `small` a
+	// 3-up grid of 132px cards overflows, so drop to a single column rather
+	// than invent an undesigned mobile layout.
+	@media (max-width: 600px) {
+		grid-template-columns: 1fr;
+	}
+}
+
+// Each card is a real button so it is tab-navigable and activates on
+// Enter/Space out of the box.
+.card {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: var(--wpds-dimension-gap-sm);
+	width: 100%;
+	// Fixed height so every card is uniform, matching the design, regardless of
+	// whether a label wraps.
+	height: 132px;
+	padding: var(--wpds-dimension-padding-lg);
+	background: var(--wpds-color-background-surface-neutral);
+	border: 1px solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-lg);
+	cursor: var(--wpds-cursor-control);
+	text-align: center;
+
+	@media not (prefers-reduced-motion) {
+		transition: border-color var(--wpds-motion-duration-md) var(--wpds-motion-easing-balanced);
+	}
+
+	&:hover {
+		border-color: var(--wpds-color-stroke-surface-neutral-strong);
+	}
+
+	&:focus-visible {
+		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+		outline-offset: calc(var(--wpds-border-width-focus) * -1);
+	}
+}
+
+.details {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs);
+}
+
+.title {
+	color: var(--wpds-color-foreground-content-neutral);
+	font-weight: var(--wpds-typography-font-weight-medium);
+}
+
+.account-type {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}

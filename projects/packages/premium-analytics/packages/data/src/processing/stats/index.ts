@@ -15,8 +15,10 @@ export { bucketStatsTimeSeries, getStatsChartBucketKey } from './chart-buckets';
 export type { StatsChartBucketPeriod } from './chart-buckets';
 export { aggregateStatsDrilldownRows } from './drilldown-rows';
 export type {
+	AggregateStatsDrilldownRowsOptions,
+	StatsDrilldownItemContext,
 	StatsDrilldownRow,
-	StatsDrilldownSourceItem,
+	StatsDrilldownRowContext,
 	StatsDrilldownSourceReport,
 } from './drilldown-rows';
 export { mergeStatsTopPostsComparisonRows, sanitizeStatsTopPostsResponse } from './top-posts';
@@ -58,7 +60,6 @@ export {
 export { sanitizeStatsStreakResponse } from './streak';
 export { sanitizeStatsTagsResponse } from './tags';
 export { mergeStatsDevicesComparisonRows, sanitizeStatsDevicesResponse } from './devices';
-export { sanitizeStatsPublicizeResponse } from './publicize';
 export {
 	sanitizeStatsWordAdsStatsResponse,
 	sanitizeStatsWordAdsEarningsResponse,
@@ -127,11 +128,6 @@ export type {
 	StatsCommentFollowersRawResponse,
 } from './comment-followers';
 export type { StatsDevicesComparisonItem, StatsDevicesItem } from './devices';
-export type {
-	StatsPublicizeApiResponse,
-	StatsPublicizeItem,
-	StatsPublicizeService,
-} from './publicize';
 export type {
 	StatsFollowersItem,
 	StatsFollowersRawItem,

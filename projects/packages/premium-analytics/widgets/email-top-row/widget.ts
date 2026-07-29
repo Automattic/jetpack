@@ -61,16 +61,16 @@ export default {
 	attributes: [
 		{
 			id: 'metric',
-			label: __( 'View by', 'jetpack-premium-analytics' ),
+			label: __( 'View by', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
 			Edit: SelectField,
 			elements: [
 				{
-					label: __( 'Opens', 'jetpack-premium-analytics' ),
+					label: __( 'Opens', 'jetpack-premium-analytics-pkg' ),
 					value: 'opens',
 				},
 				{
-					label: __( 'Clicks', 'jetpack-premium-analytics' ),
+					label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ),
 					value: 'clicks',
 				},
 			],

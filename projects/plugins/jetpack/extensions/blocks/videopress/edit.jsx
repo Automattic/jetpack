@@ -34,7 +34,7 @@ import {
 	createRef,
 	Fragment,
 	useEffect,
-	useCallback,
+	useMemo,
 } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, _x, sprintf } from '@wordpress/i18n';
@@ -45,6 +45,7 @@ import { VideoPressBlockProvider } from './components';
 import { VIDEO_PRIVACY } from './constants';
 import Loading from './loading';
 import ResumableUpload from './resumable-upload';
+import { getVideoPressSandboxScripts } from './sandbox-scripts';
 import SeekbarColorSettings from './seekbar-color-settings';
 import TracksEditor from './tracks-editor';
 import { UploadingEditor } from './uploading-editor';
@@ -1063,26 +1064,9 @@ export const VpBlock = props => {
 		} ),
 	} );
 
-	const getSandboxScripts = useCallback( () => {
-		const sandboxScripts = Array.isArray( scripts ) ? scripts : [];
-
-		if ( window.videopressAjax ) {
-			const videopresAjaxURLBlob = new Blob(
-				[ `var videopressAjax = ${ JSON.stringify( window.videopressAjax ) };` ],
-				{
-					type: 'text/javascript',
-				}
-			);
-
-			return [
-				...sandboxScripts,
-				URL.createObjectURL( videopresAjaxURLBlob ),
-				window.videopressAjax.bridgeUrl,
-			];
-		}
-
-		return sandboxScripts;
-	}, [ scripts ] );
+	// Memoized so loading-state re-renders don't mint a new (never-revoked)
+	// blob URL each time — getVideoPressSandboxScripts calls URL.createObjectURL.
+	const sandboxScripts = useMemo( () => getVideoPressSandboxScripts( scripts ), [ scripts ] );
 
 	if ( shouldRenderLoadingBlock ) {
 		return (
@@ -1120,7 +1104,12 @@ export const VpBlock = props => {
 					style={ { margin: 'auto' } }
 					onResizeStop={ onBlockResize }
 				>
-					<SandBox html={ html } scripts={ getSandboxScripts() } type={ videoPressClassNames } />
+					<SandBox
+						html={ html }
+						scripts={ sandboxScripts }
+						type={ videoPressClassNames }
+						allowSameOrigin
+					/>
 				</ResizableBox>
 			</div>
 

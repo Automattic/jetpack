@@ -23,6 +23,7 @@ export const setup = ( {
 	getDeletingConnections = [],
 	getUpdatingConnections = [],
 	canUserManageConnection = true,
+	socialSettings = { messageTemplate: '' },
 } = {} ) => {
 	let storeSelect;
 	renderHook( () => useSelect( select => ( storeSelect = select( store ) ) ) );
@@ -44,6 +45,7 @@ export const setup = ( {
 		.spyOn( storeSelect, 'canUserManageConnection' )
 		.mockReset()
 		.mockReturnValue( canUserManageConnection );
+	jest.spyOn( storeSelect, 'getSocialSettings' ).mockReset().mockReturnValue( socialSettings );
 
 	const { result: dispatch } = renderHook( () => useDispatch( store ) );
 	const stubDeleteConnectionById = jest
