@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { formatDateRange } from '@jetpack-premium-analytics/formatters';
+import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
+import { formatDateRange, siteTimeZone } from '@jetpack-premium-analytics/formatters';
 import { __ } from '@wordpress/i18n';
 import type { LegendLabels } from '../components/chart-leaderboard';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
@@ -29,20 +30,25 @@ import type { ReportParams } from '@jetpack-premium-analytics/data';
  *   compare_to: '2023-12-31',
  *   interval: 'day'
  * });
- * // Returns: { primary: 'Jan 1 - 31, 2024', comparison: 'Dec 1 - 31, 2023' }
+ * // Returns: { primary: 'January 1, 2024 – January 31, 2024', … }
  * ```
  */
 export function formatLegendLabels( reportParams: ReportParams ): LegendLabels {
+	// Params may be date-only, which `new Date()` would read as UTC and render a
+	// day early for any site west of Greenwich.
+	const timeZone = siteTimeZone();
+	const toDate = ( value: string ) => parseSiteDateTime( value, timeZone );
+
 	const primaryLabel = formatDateRange( {
-		from: new Date( reportParams.from ),
-		to: new Date( reportParams.to ),
+		from: toDate( reportParams.from ),
+		to: toDate( reportParams.to ),
 	} );
 
 	const comparisonLabel =
 		reportParams.compare_from && reportParams.compare_to
 			? formatDateRange( {
-					from: new Date( reportParams.compare_from ),
-					to: new Date( reportParams.compare_to ),
+					from: toDate( reportParams.compare_from ),
+					to: toDate( reportParams.compare_to ),
 			  } )
 			: __( 'Previous period', 'jetpack-premium-analytics-pkg' );
 

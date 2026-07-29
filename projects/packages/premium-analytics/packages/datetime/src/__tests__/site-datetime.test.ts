@@ -33,6 +33,35 @@ describe( 'parseSiteDateTime', () => {
 		expect( date?.toISOString() ).toBe( '2026-07-09T09:42:57.000Z' );
 	} );
 
+	// Report params travel through the URL as full ISO strings that already
+	// state their offset. Re-anchoring those to the site would move the instant.
+	it( 'trusts an explicit offset instead of re-anchoring', () => {
+		const date = parseSiteDateTime( '2026-06-29T00:00:00.000+02:00', 'America/New_York' );
+
+		expect( date?.toISOString() ).toBe( '2026-06-28T22:00:00.000Z' );
+	} );
+
+	it( 'trusts a "Z" suffix', () => {
+		const date = parseSiteDateTime( '2026-06-29T00:00:00.000Z', 'America/New_York' );
+
+		expect( date?.toISOString() ).toBe( '2026-06-29T00:00:00.000Z' );
+	} );
+
+	it( 'accepts a Date instance unchanged', () => {
+		const source = new Date( '2026-06-29T12:00:00.000Z' );
+
+		expect( parseSiteDateTime( source, 'America/New_York' )?.toISOString() ).toBe(
+			'2026-06-29T12:00:00.000Z'
+		);
+	} );
+
+	it( 'anchors a date-only value to the site, not to UTC', () => {
+		// UTC midnight would be the previous day for a site west of Greenwich.
+		const date = parseSiteDateTime( '2026-01-01', 'America/New_York' );
+
+		expect( date?.toISOString() ).toBe( '2026-01-01T05:00:00.000Z' );
+	} );
+
 	it( 'returns undefined for a malformed value', () => {
 		expect( parseSiteDateTime( 'not a date', 'UTC' ) ).toBeUndefined();
 	} );

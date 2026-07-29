@@ -3,6 +3,7 @@
  */
 jest.mock( '@jetpack-premium-analytics/formatters', () => ( {
 	formatDateRange: () => 'Jan 1 – 31, 2024',
+	siteTimeZone: () => 'UTC',
 } ) );
 /**
  * Internal dependencies

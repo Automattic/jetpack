@@ -2,7 +2,8 @@
  * External dependencies
  */
 import { useStatsSite } from '@jetpack-premium-analytics/data';
-import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
+import { formatDate, formatMetricValue, siteTimeZone } from '@jetpack-premium-analytics/formatters';
 import { calendar } from '@jetpack-premium-analytics/icons';
 import {
 	summaryCount,
@@ -12,7 +13,6 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
-import { isValid, parseISO } from 'date-fns';
 /**
  * Internal dependencies
  */
@@ -98,23 +98,22 @@ export const MostPopularDayHighlight = ( {
 );
 
 /**
- * Parses the best-day field (`YYYY-MM-DD`) into a date. `parseISO` validates the
- * calendar date, so `isValid` rejects the "-" / empty sentinels low-traffic
- * sites send and impossible days like `2020-02-31`, falling through to the empty
- * state. Parsed and formatted in local time, so the calendar day is stable.
+ * Parses the best-day field (`YYYY-MM-DD`) into a date.
+ *
+ * The field is a calendar day in site time with no offset of its own, and it is
+ * rendered in the site's timezone, so it has to be anchored there when parsed —
+ * reading it as browser-local or as UTC moves the day for anyone whose zone
+ * differs from the site's. `parseSiteDateTime` also validates the calendar,
+ * rejecting the "-" / empty sentinels low-traffic sites send and impossible days
+ * like `2020-02-31`, which fall through to the empty state.
+ *
+ * Exported for tests.
  *
  * @param {Record< string, unknown > | undefined} summary - The site summary.
  * @return The best day, or undefined when unavailable.
  */
-function readBestDay( summary: Record< string, unknown > | undefined ) {
-	const value = summary?.views_best_day;
-	if ( typeof value !== 'string' || value === '' ) {
-		return undefined;
-	}
-
-	const date = parseISO( value );
-
-	return isValid( date ) ? date : undefined;
+export function readBestDay( summary: Record< string, unknown > | undefined ) {
+	return parseSiteDateTime( summary?.views_best_day, siteTimeZone() );
 }
 
 /**
