@@ -7,6 +7,7 @@ import { type ChartGranularity, type StatsPeriod } from './stats/placeholder-dat
 import { RecentPosts } from './stats/recent-posts';
 import { StatBar } from './stats/stat-bar';
 import { SubscribersChart } from './stats/subscribers-chart';
+import { useEmailPerformanceStats } from './stats/use-email-performance-stats';
 import { useSubscriberStats } from './stats/use-subscriber-stats';
 
 /**
@@ -28,8 +29,7 @@ const getPeriods = (): Array< { value: StatsPeriod; label: string } > => [
  * headline figures, subscribers over time, and recent posts with how each one
  * performed.
  *
- * Subscriber totals are real; open / click / CTOR are still placeholders until
- * aggregate newsletter-wide email rates are available.
+ * Subscriber totals and email performance are real Stats data.
  *
  * @return The stats content.
  */
@@ -37,6 +37,7 @@ export const StatsView = (): JSX.Element => {
 	const [ period, setPeriod ] = useState< StatsPeriod >( '30d' );
 	const [ granularity, setGranularity ] = useState< ChartGranularity >( 'days' );
 	const subscriberStats = useSubscriberStats( period, granularity );
+	const emailPerformanceStats = useEmailPerformanceStats( period );
 
 	const handlePeriod = useCallback( ( next: string ) => setPeriod( next as StatsPeriod ), [] );
 
@@ -62,7 +63,12 @@ export const StatsView = (): JSX.Element => {
 				/>
 			</div>
 
-			<StatBar totalSubscribers={ subscriberStats.totalSubscribers } />
+			<StatBar
+				totalSubscribers={ subscriberStats.totalSubscribers }
+				openRate={ emailPerformanceStats.openRate }
+				clickRate={ emailPerformanceStats.clickRate }
+				ctor={ emailPerformanceStats.ctor }
+			/>
 
 			<SubscribersChart
 				granularity={ granularity }

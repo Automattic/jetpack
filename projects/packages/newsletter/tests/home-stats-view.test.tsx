@@ -13,11 +13,11 @@
 // The URL wins over the remembered choice, and the choice is remembered across
 // loads so that clicking into Settings and back does not reset a review.
 //
-// Total subscribers and the chart are backed by the Stats proxy. Open rate,
-// click rate, and CTOR are still placeholders. The Recent Posts table joins core
-// `wp/v2/posts` against the Stats module's per-post email summary. That second
-// request is optional by design — no connection, Stats switched off, or simply
-// nothing emailed yet all land on the same empty-cell path, which is covered here.
+// Total subscribers, the chart, and headline email rates are backed by the Stats
+// proxy. The Recent Posts table joins core `wp/v2/posts` against the Stats
+// module's per-post email summary. That second request is optional by design —
+// no connection, Stats switched off, or simply nothing emailed yet all land on
+// the same empty-cell path, which is covered here.
 
 const mockGetNewsletterScriptData = jest.fn< Record< string, unknown > | undefined, [] >();
 const mockConnection = jest.fn< Record< string, unknown >, [] >();
@@ -158,6 +158,14 @@ const EMAIL_STATS_RESPONSE = {
 	posts: [ { id: 11, total_sends: 122, opens_rate: 58, clicks_rate: 21 } ],
 };
 
+const EMAIL_OVERVIEW_RESPONSE = {
+	totals: {
+		total_sends: '1000',
+		opens: '420',
+		clicks: '84',
+	},
+};
+
 const SUBSCRIBER_COUNTS_RESPONSE = {
 	counts: {
 		total_subscribers: 418,
@@ -209,9 +217,13 @@ function buildSubscriberSeriesResponse( path: string ) {
 /**
  * Answer each request the stats view makes.
  *
- * @param emailStats - What the Stats route should resolve to.
+ * @param emailStats    - What the Stats route should resolve to.
+ * @param emailOverview - What the email overview route should resolve to.
  */
-function respondWith( emailStats: unknown = EMAIL_STATS_RESPONSE ) {
+function respondWith(
+	emailStats: unknown = EMAIL_STATS_RESPONSE,
+	emailOverview: unknown = EMAIL_OVERVIEW_RESPONSE
+) {
 	mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
 		if ( path.startsWith( '/wp/v2/posts' ) ) {
 			return Promise.resolve( POSTS_RESPONSE );
@@ -222,6 +234,9 @@ function respondWith( emailStats: unknown = EMAIL_STATS_RESPONSE ) {
 		if ( path.includes( '/stats/subscribers' ) ) {
 			return Promise.resolve( buildSubscriberSeriesResponse( path ) );
 		}
+		if ( path.includes( '/stats/emails/overview' ) ) {
+			return Promise.resolve( emailOverview );
+		}
 		if ( path.includes( '/stats/emails/summary' ) ) {
 			return Promise.resolve( emailStats );
 		}
@@ -231,6 +246,32 @@ function respondWith( emailStats: unknown = EMAIL_STATS_RESPONSE ) {
 
 const isOnboarding = () => screen.queryByText( 'Reach your first 3 subscribers' ) !== null;
 const isStats = () => screen.queryByText( 'Recent Posts' ) !== null;
+
+/**
+ * Requests matching a path fragment.
+ *
+ * @param fragment - URL fragment to match.
+ * @return Request paths.
+ */
+function requestsContaining( fragment: string ): string[] {
+	return mockApiFetch.mock.calls
+		.map( call => call[ 0 ].path )
+		.filter( ( requestedPath: string ) => requestedPath.includes( fragment ) );
+}
+
+/**
+ * Count inclusive days covered by start_date / end_date query params.
+ *
+ * @param path - Requested REST path.
+ * @return Number of calendar days covered by the request.
+ */
+function requestedDays( path: string ): number {
+	const query = new URLSearchParams( path.split( '?' )[ 1 ] );
+	const start = Date.parse( `${ query.get( 'start_date' ) }T00:00:00Z` );
+	const end = Date.parse( `${ query.get( 'end_date' ) }T00:00:00Z` );
+
+	return Math.round( ( end - start ) / 86_400_000 ) + 1;
+}
 
 beforeEach( () => {
 	mockGetNewsletterScriptData.mockReset();
@@ -330,7 +371,7 @@ describe( 'Newsletter Mode Dashboard stats view', () => {
 		visitDashboard( 'stats' );
 	} );
 
-	it( 'shows real total subscribers and leaves the email-rate figures as placeholders', async () => {
+	it( 'shows real headline figures', async () => {
 		render( <Stage /> );
 
 		const bar = within( screen.getByRole( 'group', { name: 'Newsletter performance' } ) );
@@ -338,11 +379,11 @@ describe( 'Newsletter Mode Dashboard stats view', () => {
 		expect( bar.getByText( 'Total subscribers' ) ).toBeInTheDocument();
 		await expect( bar.findByText( '418' ) ).resolves.toBeInTheDocument();
 		expect( bar.getByText( 'Open rate' ) ).toBeInTheDocument();
-		expect( bar.getByText( '62%' ) ).toBeInTheDocument();
+		await expect( bar.findByText( '42%' ) ).resolves.toBeInTheDocument();
 		expect( bar.getByText( 'Click rate' ) ).toBeInTheDocument();
-		expect( bar.getByText( '14%' ) ).toBeInTheDocument();
+		expect( bar.getByText( '8%' ) ).toBeInTheDocument();
 		expect( bar.getByText( 'CTOR' ) ).toBeInTheDocument();
-		expect( bar.getByText( '23%' ) ).toBeInTheDocument();
+		expect( bar.getByText( '20%' ) ).toBeInTheDocument();
 	} );
 
 	it( 'explains CTOR, which the label alone does not', () => {
@@ -398,6 +439,22 @@ describe( 'Newsletter Mode Dashboard stats view', () => {
 		expect( query.get( 'stat_fields' ) ).toBe( 'subscribers,subscribers_paid' );
 	} );
 
+	it( 'requests email performance for the selected period', async () => {
+		render( <Stage /> );
+
+		await waitFor( () => {
+			expect( requestsContaining( '/stats/emails/overview' ) ).toHaveLength( 1 );
+		} );
+
+		const [ path ] = requestsContaining( '/stats/emails/overview' );
+		const query = new URLSearchParams( path.split( '?' )[ 1 ] );
+
+		expect( path ).toContain( '/jetpack/v4/stats-app/sites/4242/stats/emails/overview' );
+		expect( query.get( 'start_date' ) ).toMatch( /^\d{4}-\d{2}-\d{2}$/ );
+		expect( query.get( 'end_date' ) ).toMatch( /^\d{4}-\d{2}-\d{2}$/ );
+		expect( requestedDays( path ) ).toBe( 30 );
+	} );
+
 	it( 'redraws the series when the cadence changes', async () => {
 		render( <Stage /> );
 
@@ -442,6 +499,37 @@ describe( 'Newsletter Mode Dashboard stats view', () => {
 			const query = new URLSearchParams( latestSubscriberRequest?.split( '?' )[ 1 ] );
 
 			expect( query.get( 'quantity' ) ).toBe( '90' );
+		} );
+	} );
+
+	it( 'refetches email performance when the period changes, not when cadence changes', async () => {
+		render( <Stage /> );
+
+		await waitFor( () => {
+			expect( requestsContaining( '/stats/emails/overview' ) ).toHaveLength( 1 );
+		} );
+
+		const initialOverviewPath = requestsContaining( '/stats/emails/overview' )[ 0 ];
+		expect( requestedDays( initialOverviewPath ) ).toBe( 30 );
+
+		const weeks = screen.getByRole( 'button', { name: 'Weeks' } );
+		act( () => weeks.click() );
+
+		await waitFor( () => {
+			expect( requestsContaining( '/stats/subscribers' ) ).toHaveLength( 2 );
+		} );
+		expect( requestsContaining( '/stats/emails/overview' ) ).toHaveLength( 1 );
+
+		const period = screen.getByLabelText( 'Period' ) as HTMLSelectElement;
+		act( () => {
+			period.value = '90d';
+			period.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+		} );
+
+		await waitFor( () => {
+			const overviewRequests = requestsContaining( '/stats/emails/overview' );
+			expect( overviewRequests ).toHaveLength( 2 );
+			expect( requestedDays( overviewRequests.at( -1 ) ?? '' ) ).toBe( 90 );
 		} );
 	} );
 

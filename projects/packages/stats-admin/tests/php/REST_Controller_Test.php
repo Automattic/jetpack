@@ -36,6 +36,7 @@ class REST_Controller_Test extends Stats_TestCase {
 		'/jetpack/v4/stats-app/sites/999/stats/comments',
 		'/jetpack/v4/stats-app/sites/999/stats/comment-followers',
 		'/jetpack/v4/stats-app/sites/999/stats/subscribers',
+		'/jetpack/v4/stats-app/sites/999/stats/emails/overview',
 		'/jetpack/v4/stats-app/sites/999/stats/post/1',
 		'/jetpack/v4/stats-app/sites/999/stats/video/1',
 		'/jetpack/v4/stats-app/sites/999/site-has-never-published-post',

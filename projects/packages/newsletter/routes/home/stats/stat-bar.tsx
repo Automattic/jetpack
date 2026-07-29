@@ -2,7 +2,6 @@ import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
 import { Text } from '@wordpress/ui';
-import { HEADLINE_STATS_PLACEHOLDERS } from './placeholder-data';
 
 type Stat = {
 	label: string;
@@ -13,9 +12,18 @@ type Stat = {
 
 type Props = {
 	totalSubscribers: number | null;
+	openRate: number | null;
+	clickRate: number | null;
+	ctor: number | null;
 };
 
 const formatCount = ( value: number | null ): string => value?.toLocaleString() ?? '—';
+
+const formatRate = ( value: number | null ): string =>
+	value?.toLocaleString( undefined, {
+		style: 'percent',
+		maximumFractionDigits: 0,
+	} ) ?? '—';
 
 /**
  * The four headline figures.
@@ -24,24 +32,32 @@ const formatCount = ( value: number | null ): string => value?.toLocaleString() 
  * at module scope they would resolve before the locale data is in place.
  *
  * @param totalSubscribers - Total subscriber count, or null when unavailable.
+ * @param openRate         - Open rate as a fraction, or null when unavailable.
+ * @param clickRate        - Click rate as a fraction, or null when unavailable.
+ * @param ctor             - Click-to-open rate as a fraction, or null when unavailable.
  * @return The stats, in display order.
  */
-const getStats = ( totalSubscribers: number | null ): Stat[] => [
+const getStats = (
+	totalSubscribers: number | null,
+	openRate: number | null,
+	clickRate: number | null,
+	ctor: number | null
+): Stat[] => [
 	{
 		label: __( 'Total subscribers', 'jetpack-newsletter' ),
 		value: formatCount( totalSubscribers ),
 	},
 	{
 		label: __( 'Open rate', 'jetpack-newsletter' ),
-		value: HEADLINE_STATS_PLACEHOLDERS.openRate,
+		value: formatRate( openRate ),
 	},
 	{
 		label: __( 'Click rate', 'jetpack-newsletter' ),
-		value: HEADLINE_STATS_PLACEHOLDERS.clickRate,
+		value: formatRate( clickRate ),
 	},
 	{
 		label: __( 'CTOR', 'jetpack-newsletter' ),
-		value: HEADLINE_STATS_PLACEHOLDERS.ctor,
+		value: formatRate( ctor ),
 		hint: __(
 			'Click-to-open rate: the share of people who opened an email and then clicked a link in it.',
 			'jetpack-newsletter'
@@ -58,15 +74,18 @@ const getStats = ( totalSubscribers: number | null ): Stat[] => [
  *
  * @param props                  - Component props.
  * @param props.totalSubscribers - Total subscriber count, or null when unavailable.
+ * @param props.openRate         - Open rate as a fraction, or null when unavailable.
+ * @param props.clickRate        - Click rate as a fraction, or null when unavailable.
+ * @param props.ctor             - Click-to-open rate as a fraction, or null when unavailable.
  * @return The stat bar.
  */
-export const StatBar = ( { totalSubscribers }: Props ): JSX.Element => (
+export const StatBar = ( { totalSubscribers, openRate, clickRate, ctor }: Props ): JSX.Element => (
 	<div
 		className="jetpack-newsletter-home__stat-bar"
 		role="group"
 		aria-label={ __( 'Newsletter performance', 'jetpack-newsletter' ) }
 	>
-		{ getStats( totalSubscribers ).map( stat => (
+		{ getStats( totalSubscribers, openRate, clickRate, ctor ).map( stat => (
 			<div className="jetpack-newsletter-home__stat" key={ stat.label }>
 				<Text variant="body-sm" className="jetpack-newsletter-home__stat-label">
 					{ stat.label }
