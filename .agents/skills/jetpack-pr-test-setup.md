@@ -420,15 +420,19 @@ Concise final report:
   sticker **awaiting your confirmation** / not needed).
 - Any **out-of-v1-scope precondition** left for the user (a required connection, or sandbox
   pointing), clearly labelled as manual.
-- **How to reach the site — always include all three, testing happens in wp-admin:**
+- **How to reach the site — always include all three, testing happens in wp-admin. Put access
+  BEFORE the where-to-click steps:** the reader has to be logged in before any "click here"
+  instruction means anything, so ordering them the other way makes them backtrack.
   - Autologin link: `https://<domain>/?auto_login` (one-shot; may not work in a browser other
     than the one that opened it).
   - **wp-admin credentials** so the user can log in directly regardless:
     `https://<domain>/wp-admin/` — user **`demo`** (confirm via `wp user list
     --role=administrator`), password **`<JN_PASSWORD>`** (the site password from `list-sites`
     in step 1 — there is no separate `admin_pass` field; it's the same credential). Print them;
-    without wp-admin access the whole setup is useless.
-  - The exact page/route the PR surfaces.
+    without wp-admin access the whole setup is useless. Add a one-line caveat that this is a
+    throwaway site credential and must not be pasted into the PR body, commits, or any other
+    public place.
+  - **Then** the exact page/route the PR surfaces, and what should be visible there.
 - JN sites expire after 7 days of inactivity.
 
 ## Notes
