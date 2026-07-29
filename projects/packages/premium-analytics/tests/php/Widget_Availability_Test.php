@@ -104,12 +104,12 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Candidate set spanning every category the `analytics` prefix serves, plus
-	 * one served by another prefix.
+	 * Candidate set spanning every store-report category, plus one served from
+	 * elsewhere.
 	 *
 	 * @return array[] List of widget candidates.
 	 */
-	private function analytics_prefix_widget_candidates() {
+	private function store_report_widget_candidates() {
 		return array_merge(
 			$this->commerce_widget_candidates(),
 			array(
@@ -281,15 +281,15 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Every category the `analytics` prefix serves — the commerce ones and
-	 * `visitors` — is dropped for a reader who can't read that prefix, since all
-	 * they could collect from those widgets is 403s.
+	 * Every store-report category — the commerce ones and `visitors` — is dropped
+	 * for a reader without that access, since all they could collect from those
+	 * widgets is 403s.
 	 */
-	public function test_analytics_prefix_widgets_removed_from_a_reader_without_access() {
+	public function test_store_report_widgets_removed_from_a_reader_without_access() {
 		$this->assertSame(
 			array( 'jpa/traffic-chart' ),
 			array_column(
-				remove_capability_gated_widget_types( $this->analytics_prefix_widget_candidates(), false ),
+				remove_capability_gated_widget_types( $this->store_report_widget_candidates(), false ),
 				'name'
 			),
 			'Only the category served by another prefix survives.'
@@ -299,10 +299,10 @@ class Widget_Availability_Test extends BaseTestCase {
 	/**
 	 * Administrators keep every category.
 	 */
-	public function test_analytics_prefix_widgets_kept_for_a_user_with_access() {
+	public function test_store_report_widgets_kept_for_a_user_with_access() {
 		$this->assertSame(
-			$this->analytics_prefix_widget_candidates(),
-			remove_capability_gated_widget_types( $this->analytics_prefix_widget_candidates(), true ),
+			$this->store_report_widget_candidates(),
+			remove_capability_gated_widget_types( $this->store_report_widget_candidates(), true ),
 			'With prefix access no candidate is dropped.'
 		);
 	}

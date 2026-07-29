@@ -94,19 +94,21 @@ function current_user_can_view_analytics() {
 }
 
 /**
- * Whether the current user may read data served by the proxy's `analytics` prefix.
+ * Whether the current user may read the store reports.
  *
- * The store section and every widget backed by that prefix are hidden from
- * readers who fail this, since all they could collect is 403s. The capability
- * restated here is the one {@see \Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller}
- * enforces for the prefix; Capabilities_Test pins the two together so loosening
- * the proxy can't silently leave these surfaces hidden.
+ * "Store reports" is everything the proxy serves from its `analytics` prefix —
+ * WooCommerce's own reporting data. The Store section and the widgets backed by
+ * that prefix are hidden from readers who fail this, since all they could
+ * collect is 403s. The capability restated here is the one
+ * {@see \Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller} enforces
+ * for the prefix; Capabilities_Test pins the two together so loosening the proxy
+ * can't silently leave these surfaces hidden.
  *
  * @since $$next-version$$
  *
  * @return bool
  */
-function current_user_can_read_analytics_prefix() {
+function current_user_can_view_store_reports() {
 	// The proxy accepts manage_options for every prefix, so administrators pass
 	// even where WooCommerce never registered its capabilities.
 	return current_user_can( 'manage_options' ) || current_user_can( 'view_woocommerce_reports' );

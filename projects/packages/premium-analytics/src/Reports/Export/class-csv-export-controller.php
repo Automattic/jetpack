@@ -20,7 +20,7 @@ use WC_REST_Controller;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
-use function Automattic\Jetpack\PremiumAnalytics\current_user_can_read_analytics_prefix;
+use function Automattic\Jetpack\PremiumAnalytics\current_user_can_view_store_reports;
 
 require_once __DIR__ . '/../../capabilities.php';
 
@@ -145,7 +145,7 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 	 * @return bool True if user has permission.
 	 */
 	public function check_permission(): bool {
-		return current_user_can_read_analytics_prefix();
+		return current_user_can_view_store_reports();
 	}
 
 	/**

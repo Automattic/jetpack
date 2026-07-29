@@ -19,12 +19,12 @@ require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\map_analytics_meta_caps
  * @covers ::Automattic\Jetpack\PremiumAnalytics\register_capabilities
  * @covers ::Automattic\Jetpack\PremiumAnalytics\current_user_can_view_analytics
- * @covers ::Automattic\Jetpack\PremiumAnalytics\current_user_can_read_analytics_prefix
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\current_user_can_view_store_reports
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\map_analytics_meta_caps' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\register_capabilities' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\current_user_can_view_analytics' )]
-#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\current_user_can_read_analytics_prefix' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\current_user_can_view_store_reports' )]
 class Capabilities_Test extends BaseTestCase {
 
 	use Analytics_Capabilities_Trait;
@@ -95,24 +95,24 @@ class Capabilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Surfaces backed by the `analytics` prefix stay administrator-only: reaching
-	 * the dashboard through view_stats is not enough to read that prefix.
+	 * The store reports are a separate grant: reaching the dashboard through
+	 * view_stats says nothing about who may read WooCommerce's data.
 	 */
-	public function test_view_stats_reader_cannot_read_the_analytics_prefix() {
+	public function test_view_stats_reader_cannot_view_store_reports() {
 		$user_id = $this->login_as( 'editor' );
 		$this->grant_view_stats_to( $user_id );
 
 		$this->assertTrue( current_user_can_view_analytics() );
-		$this->assertFalse( current_user_can_read_analytics_prefix() );
+		$this->assertFalse( current_user_can_view_store_reports() );
 	}
 
 	/**
 	 * Administrators keep them.
 	 */
-	public function test_administrator_can_read_the_analytics_prefix() {
+	public function test_administrator_can_view_store_reports() {
 		$this->login_as( 'administrator' );
 
-		$this->assertTrue( current_user_can_read_analytics_prefix() );
+		$this->assertTrue( current_user_can_view_store_reports() );
 	}
 
 	/**
@@ -127,7 +127,7 @@ class Capabilities_Test extends BaseTestCase {
 	 * reaches for the same user. Api_Proxy_Controller_Test pins the proxy's own
 	 * capability to `view_woocommerce_reports` in its endpoint matrix.
 	 */
-	public function test_analytics_prefix_helper_matches_the_proxy_capability() {
+	public function test_store_report_helper_matches_the_proxy_capability() {
 		$controller = new Api_Proxy_Controller();
 		$request    = new WP_REST_Request( 'GET', '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports/orders' );
 		$request->set_param( 'endpoint', 'analytics/reports/orders' );
@@ -137,7 +137,7 @@ class Capabilities_Test extends BaseTestCase {
 
 		$this->assertSame(
 			$controller->check_data_permission( $request ),
-			current_user_can_read_analytics_prefix(),
+			current_user_can_view_store_reports(),
 			'A view_stats reader must be refused by the proxy and by the helper that hides its surfaces.'
 		);
 
@@ -145,7 +145,7 @@ class Capabilities_Test extends BaseTestCase {
 
 		$this->assertSame(
 			$controller->check_data_permission( $request ),
-			current_user_can_read_analytics_prefix(),
+			current_user_can_view_store_reports(),
 			'An administrator must be admitted by both.'
 		);
 
@@ -155,10 +155,10 @@ class Capabilities_Test extends BaseTestCase {
 		$shop_manager = $this->login_as( 'subscriber' );
 		$this->grant_capability_to( $shop_manager, 'view_woocommerce_reports' );
 
-		$this->assertTrue( current_user_can_read_analytics_prefix() );
+		$this->assertTrue( current_user_can_view_store_reports() );
 		$this->assertSame(
 			$controller->check_data_permission( $request ),
-			current_user_can_read_analytics_prefix(),
+			current_user_can_view_store_reports(),
 			'A WooCommerce report viewer must be admitted by both.'
 		);
 	}
@@ -171,7 +171,7 @@ class Capabilities_Test extends BaseTestCase {
 		$shop_manager = $this->login_as( 'subscriber' );
 		$this->grant_capability_to( $shop_manager, 'view_woocommerce_reports' );
 
-		$this->assertTrue( current_user_can_read_analytics_prefix() );
+		$this->assertTrue( current_user_can_view_store_reports() );
 		$this->assertFalse( current_user_can_view_analytics() );
 	}
 }
