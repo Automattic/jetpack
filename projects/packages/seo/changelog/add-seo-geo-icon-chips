@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Add an icon chip to each GEO module title and give the module headers heading semantics.

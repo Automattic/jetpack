@@ -1,17 +1,34 @@
 import { Button, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { commentContent, details, key, page } from '@wordpress/icons';
 import { Badge, Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui';
+import CardTitleIcon from '../../components/card-title-icon';
 import './style.scss';
 import type { AiCrawler } from '../../data/ai-types';
 import type { AiForm } from '../../data/use-ai';
-import type { FC, ReactNode } from 'react';
+import type { ComponentProps, FC, ReactNode } from 'react';
 
 interface Props {
 	form: AiForm;
 	searchEnginesVisible: boolean;
 	onManageVisibility: () => void;
 }
+
+// Jetpack's AI mark (three sparks), mirroring `AiIcon` in
+// `@automattic/jetpack-components`. Restated here as an element with svg props
+// because `@wordpress/ui`'s `Icon` spreads `icon.props` onto its own `SVG`
+// rather than rendering what it is given — so a component like `AiIcon`, whose
+// props are `size`/`color`, would spread those and produce an empty icon.
+// `@wordpress/icons` has no AI or sparkle glyph to use instead. Kept in sync by
+// hand; if Jetpack's AI mark changes, this needs the same paths.
+const aiSparks = (
+	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor">
+		<path d="M9.33301 5.33325L10.4644 8.20188L13.333 9.33325L10.4644 10.4646L9.33301 13.3333L8.20164 10.4646L5.33301 9.33325L8.20164 8.20188L9.33301 5.33325Z" />
+		<path d="M21.3333 5.33333L22.8418 9.15817L26.6667 10.6667L22.8418 12.1752L21.3333 16L19.8248 12.1752L16 10.6667L19.8248 9.15817L21.3333 5.33333Z" />
+		<path d="M14.6667 13.3333L16.5523 18.1144L21.3333 20L16.5523 21.8856L14.6667 26.6667L12.781 21.8856L8 20L12.781 18.1144L14.6667 13.3333Z" />
+	</svg>
+);
 
 const llmsTxtHelp = __(
 	'Publishes a curated, AI-readable map at /llms.txt to help AI assistants find and understand your supported content.',
@@ -77,6 +94,8 @@ const CrawlerToggle: FC< CrawlerToggleProps > = ( { crawler, blocked, disabled, 
 
 interface CrawlerSectionProps {
 	title: string;
+	/** The chip glyph for this group's title. */
+	icon: ComponentProps< typeof CardTitleIcon >[ 'icon' ];
 	intro: string;
 	crawlers: AiCrawler[];
 	type: AiCrawler[ 'type' ];
@@ -98,6 +117,7 @@ interface CrawlerSectionProps {
  *
  * @param props              - Component props.
  * @param props.title        - Section title.
+ * @param props.icon         - The chip glyph shown before the title.
  * @param props.intro        - One-line description of the group's purpose.
  * @param props.crawlers     - The crawlers in this group.
  * @param props.type         - The crawler group's type.
@@ -111,6 +131,7 @@ interface CrawlerSectionProps {
  */
 const CrawlerSection: FC< CrawlerSectionProps > = ( {
 	title,
+	icon,
 	intro,
 	crawlers,
 	type,
@@ -153,9 +174,13 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 		// controls are disabled) sits between the header and the collapsible content,
 		// so it stays visible while the module is closed; only Content collapses.
 		<CollapsibleCard.Root>
-			<CollapsibleCard.Header>
+			{ /* The heading wraps the trigger, per the W3C APG accordion pattern the
+			   component's own docblock points at. */ }
+			<CollapsibleCard.Header render={ <h2 /> }>
 				<Stack direction="row" justify="space-between" align="center" gap="sm">
-					<Card.Title>{ title }</Card.Title>
+					<Card.Title>
+						<CardTitleIcon icon={ icon } title={ title } />
+					</Card.Title>
 					{ /* The status tag reflects the toggle state; hide it when the toggles
 					   are governed elsewhere (the notice explains the state instead). */ }
 					{ ! notice && <Badge intent={ statusIntent }>{ statusLabel }</Badge> }
@@ -258,8 +283,10 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 		if ( crawlers.pathBasedMultisite ) {
 			return (
 				<CollapsibleCard.Root defaultOpen>
-					<CollapsibleCard.Header>
-						<Card.Title>{ __( 'AI crawler access', 'jetpack-seo' ) }</Card.Title>
+					<CollapsibleCard.Header render={ <h2 /> }>
+						<Card.Title>
+							<CardTitleIcon icon={ key } title={ __( 'AI crawler access', 'jetpack-seo' ) } />
+						</Card.Title>
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>
 						<Notice.Root intent="info">
@@ -280,8 +307,10 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 		if ( crawlers.restrictedSubdomain ) {
 			return (
 				<CollapsibleCard.Root defaultOpen>
-					<CollapsibleCard.Header>
-						<Card.Title>{ __( 'AI crawler access', 'jetpack-seo' ) }</Card.Title>
+					<CollapsibleCard.Header render={ <h2 /> }>
+						<Card.Title>
+							<CardTitleIcon icon={ key } title={ __( 'AI crawler access', 'jetpack-seo' ) } />
+						</Card.Title>
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>
 						<Notice.Root intent="info">
@@ -302,8 +331,10 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 		if ( ! searchEnginesVisible ) {
 			return (
 				<CollapsibleCard.Root defaultOpen>
-					<CollapsibleCard.Header>
-						<Card.Title>{ __( 'AI crawler access', 'jetpack-seo' ) }</Card.Title>
+					<CollapsibleCard.Header render={ <h2 /> }>
+						<Card.Title>
+							<CardTitleIcon icon={ key } title={ __( 'AI crawler access', 'jetpack-seo' ) } />
+						</Card.Title>
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>
 						<Stack direction="column" gap="md">
@@ -329,8 +360,10 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 		if ( crawlers.staticRobotsTxt ) {
 			return (
 				<CollapsibleCard.Root defaultOpen>
-					<CollapsibleCard.Header>
-						<Card.Title>{ __( 'AI crawler access', 'jetpack-seo' ) }</Card.Title>
+					<CollapsibleCard.Header render={ <h2 /> }>
+						<Card.Title>
+							<CardTitleIcon icon={ key } title={ __( 'AI crawler access', 'jetpack-seo' ) } />
+						</Card.Title>
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>
 						<Notice.Root intent="warning">
@@ -374,6 +407,7 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 			<>
 				<CrawlerSection
 					title={ __( 'Answer engines', 'jetpack-seo' ) }
+					icon={ commentContent }
 					intro={ __(
 						'These crawlers fetch your pages so AI assistants can cite you in their answers. Keep them allowed to stay visible in tools like ChatGPT, Perplexity, and Claude.',
 						'jetpack-seo'
@@ -389,6 +423,7 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 				/>
 				<CrawlerSection
 					title={ __( 'Training crawlers', 'jetpack-seo' ) }
+					icon={ details }
 					intro={ __(
 						'These crawlers use your content to train AI models. Some — like Google Gemini — also power the AI answers shown above search results, so blocking them protects privacy but can cost you that visibility.',
 						'jetpack-seo'
@@ -413,9 +448,11 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 		<div className="jetpack-seo-ai">
 			{ llmsTxt && (
 				<CollapsibleCard.Root defaultOpen>
-					<CollapsibleCard.Header>
+					<CollapsibleCard.Header render={ <h2 /> }>
 						<Stack direction="row" justify="space-between" align="center" gap="sm">
-							<Card.Title>{ __( 'llms.txt', 'jetpack-seo' ) }</Card.Title>
+							<Card.Title>
+								<CardTitleIcon icon={ page } title={ __( 'llms.txt', 'jetpack-seo' ) } />
+							</Card.Title>
 							<Badge intent={ llmsTxtEffectivelyOn ? 'stable' : 'draft' }>
 								{ llmsTxtStatusLabel }
 							</Badge>
@@ -475,8 +512,10 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 
 			{ enhancer.available && (
 				<CollapsibleCard.Root defaultOpen>
-					<CollapsibleCard.Header>
-						<Card.Title>{ __( 'AI SEO Enhancer', 'jetpack-seo' ) }</Card.Title>
+					<CollapsibleCard.Header render={ <h2 /> }>
+						<Card.Title>
+							<CardTitleIcon icon={ aiSparks } title={ __( 'AI SEO Enhancer', 'jetpack-seo' ) } />
+						</Card.Title>
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>
 						<ToggleControl

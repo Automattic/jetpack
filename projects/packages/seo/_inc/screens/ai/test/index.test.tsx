@@ -222,3 +222,88 @@ describe( 'AiScreen (GEO tab) — crawler policy state', () => {
 		expect( screen.queryByText( /can't reach.*robots\.txt/i ) ).not.toBeInTheDocument();
 	} );
 } );
+
+/**
+ * A form with every module visible at once, so the title treatment can be checked
+ * across all four. The other fixtures deliberately switch modules off.
+ *
+ * @return A form controller with crawlers, llms.txt and the enhancer all present.
+ */
+const allModulesForm = (): AiForm => ( {
+	...crawlerForm(),
+	enhancer: { available: true, enabled: false },
+	llmsTxt: { enabled: true, url: 'https://example.com/llms.txt', canServe: true },
+} );
+
+describe( 'AiScreen (GEO tab) — module titles', () => {
+	// The chip must not swallow the title text, which is how these modules are found
+	// by assistive tech and by every other test in this file.
+	it( 'leads every module title with an icon chip, keeping the title readable', () => {
+		render(
+			<AiScreen form={ allModulesForm() } searchEnginesVisible onManageVisibility={ noop } />
+		);
+
+		for ( const title of [
+			'Answer engines',
+			'Training crawlers',
+			'llms.txt',
+			'AI SEO Enhancer',
+		] ) {
+			// `getByText` resolves to the chip wrapper, whose text is the title alone —
+			// the glyph beside it is a decorative SVG with no role of its own.
+			const heading = screen.getByText( title );
+			expect( heading ).toBeInTheDocument();
+			// eslint-disable-next-line testing-library/no-node-access -- asserting the decorative glyph rendered.
+			expect( heading.querySelector( 'svg' ) ).toBeInTheDocument();
+		}
+	} );
+
+	// The two crawler groups are opposite decisions about the same content, so a
+	// shared glyph would hide the only distinction on the tab that needs acting on.
+	it( 'gives the two crawler groups different glyphs', () => {
+		render(
+			<AiScreen form={ allModulesForm() } searchEnginesVisible onManageVisibility={ noop } />
+		);
+
+		const glyphOf = ( title: string ) =>
+			// eslint-disable-next-line testing-library/no-node-access -- comparing the two decorative glyphs.
+			screen.getByText( title ).querySelector( 'svg' )?.innerHTML;
+
+		expect( glyphOf( 'Answer engines' ) ).toBeTruthy();
+		expect( glyphOf( 'Answer engines' ) ).not.toBe( glyphOf( 'Training crawlers' ) );
+	} );
+
+	// `Card.Title` and `CollapsibleCard.Header` both default to a div, so without
+	// opting in the tab has no heading structure to navigate at all. Names are
+	// matched loosely because the existing state badge sits inside the trigger and
+	// so forms part of its accessible name.
+	it( 'renders each module header as a heading that wraps its trigger', () => {
+		render(
+			<AiScreen form={ allModulesForm() } searchEnginesVisible onManageVisibility={ noop } />
+		);
+
+		for ( const title of [ /^Answer engines/, /^Training crawlers/, /^llms\.txt/ ] ) {
+			const trigger = screen.getByRole( 'button', { name: title } );
+			// eslint-disable-next-line testing-library/no-node-access -- the heading/trigger nesting is the contract.
+			expect( trigger.closest( 'h2' ) ).toBeInTheDocument();
+		}
+	} );
+
+	// Only one blocked state renders at a time, and it stands for both crawler
+	// groups — so it carries the combined glyph rather than either group's.
+	it( 'still titles and chips the blocked state', () => {
+		render(
+			<AiScreen
+				form={ crawlerForm( { pathBasedMultisite: true } ) }
+				searchEnginesVisible
+				onManageVisibility={ noop }
+			/>
+		);
+
+		const heading = screen.getByText( 'AI crawler access' );
+		// eslint-disable-next-line testing-library/no-node-access -- asserting the decorative glyph rendered.
+		expect( heading.querySelector( 'svg' ) ).toBeInTheDocument();
+		// eslint-disable-next-line testing-library/no-node-access -- the heading/trigger nesting is the contract.
+		expect( screen.getByText( 'AI crawler access' ).closest( 'h2' ) ).toBeInTheDocument();
+	} );
+} );
