@@ -1,8 +1,9 @@
 /**
  * External dependencies
  */
+import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { __, sprintf } from '@wordpress/i18n';
-import { page as pageIcon, post as postIcon } from '@wordpress/icons';
+import { external, page as pageIcon, post as postIcon } from '@wordpress/icons';
 import { Icon, Text } from '@wordpress/ui';
 import { format, isValid } from 'date-fns';
 /**
@@ -46,7 +47,7 @@ function getTypeLabel( type?: string ): string {
  * @return The summary header element.
  */
 export function PostSummaryCard( { summary, performanceRange }: PostSummaryCardProps ) {
-	const { title, type, publishedDate, imageUrl } = summary;
+	const { title, type, publishedDate, imageUrl, url } = summary;
 
 	const publishedDateObject = publishedDate ? new Date( publishedDate ) : undefined;
 	const publishedSentence =
@@ -71,6 +72,15 @@ export function PostSummaryCard( { summary, performanceRange }: PostSummaryCardP
 			: undefined;
 	const subtitle = [ publishedSentence, performanceSentence ].filter( Boolean ).join( ' ' );
 
+	// This is the only way out to the live post from the analytics dashboard.
+	// The lists that link here deliberately carry no outbound link of their own:
+	// a row title either opens the detail page or the site, never both.
+	const publicUrl = safeHttpUrl( url );
+	const viewLabel =
+		type === 'page'
+			? __( 'View page', 'jetpack-premium-analytics-pkg' )
+			: __( 'View post', 'jetpack-premium-analytics-pkg' );
+
 	return (
 		<div className={ styles.card }>
 			{ imageUrl ? (
@@ -88,11 +98,24 @@ export function PostSummaryCard( { summary, performanceRange }: PostSummaryCardP
 				<Text variant="heading-xl" render={ <h1 title={ title } /> } className={ styles.title }>
 					{ title }
 				</Text>
-				{ subtitle ? (
-					<Text variant="body-sm" className={ styles.subtitle }>
-						{ subtitle }
-					</Text>
-				) : null }
+				<div className={ styles.meta }>
+					{ subtitle ? (
+						<Text variant="body-sm" className={ styles.subtitle }>
+							{ subtitle }
+						</Text>
+					) : null }
+					{ publicUrl ? (
+						<a
+							className={ styles.viewLink }
+							href={ publicUrl }
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{ viewLabel }
+							<Icon icon={ external } size={ 16 } />
+						</a>
+					) : null }
+				</div>
 			</div>
 		</div>
 	);

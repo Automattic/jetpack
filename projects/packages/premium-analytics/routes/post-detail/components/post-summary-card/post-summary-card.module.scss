@@ -27,12 +27,38 @@
 	white-space: nowrap;
 }
 
+// Subtitle and outbound link share the bottom line; the subtitle absorbs the
+// spare width so the link keeps its full label.
+.meta {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	min-inline-size: 0;
+}
+
 .subtitle {
 	color: var(--wpds-color-foreground-content-neutral-weak);
 	font-size: 13px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+}
+
+.viewLink {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	flex: none;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-size: 13px;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.viewLink:hover,
+.viewLink:focus-visible {
+	color: inherit;
+	text-decoration: underline;
 }
 
 .image,

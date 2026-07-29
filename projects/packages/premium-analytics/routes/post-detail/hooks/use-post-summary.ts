@@ -19,6 +19,8 @@ export type PostSummary = {
 	publishedDate?: string;
 	/** Featured image URL, when available. */
 	imageUrl?: string;
+	/** Public URL of the post/page, when available. */
+	url?: string;
 	/** Whether the underlying stats request is still resolving. */
 	isLoading: boolean;
 };
@@ -67,11 +69,35 @@ export function usePostSummary( postId: number ): PostSummary {
 		[ postId, type ]
 	);
 
+	// The public URL is not part of the Stats payload, so it comes from the same
+	// post entity the featured image is read from — already resolved, so this
+	// adds no request. Kept as its own selector so the mapped value stays a
+	// primitive and cannot re-render the header on every store change.
+	const url = useSelect(
+		select => {
+			if ( ! type || ! Number.isInteger( postId ) || postId <= 0 ) {
+				return undefined;
+			}
+
+			const core = select( coreStore ) as unknown as {
+				getEntityRecord: ( kind: string, name: string, key: number ) => unknown;
+			};
+
+			const entity = core.getEntityRecord( 'postType', type, postId ) as
+				| { link?: string }
+				| undefined;
+
+			return entity?.link;
+		},
+		[ postId, type ]
+	);
+
 	return {
 		title: post?.post_title,
 		type,
 		publishedDate: post?.post_date_gmt ?? post?.post_date,
 		imageUrl,
+		url,
 		isLoading,
 	};
 }
