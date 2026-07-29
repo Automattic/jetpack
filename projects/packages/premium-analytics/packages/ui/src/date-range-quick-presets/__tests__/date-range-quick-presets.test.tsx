@@ -57,7 +57,12 @@ describe( 'DateRangeQuickPresets', () => {
 
 	it( 'renders every preset in a select when compact', () => {
 		render(
-			<DateRangeQuickPresets isCompact value="today" onSelect={ jest.fn() } timeZone="UTC" />
+			<DateRangeQuickPresets
+				labelMode="select"
+				value="today"
+				onSelect={ jest.fn() }
+				timeZone="UTC"
+			/>
 		);
 
 		expect( screen.queryAllByRole( 'button' ) ).toHaveLength( 0 );
