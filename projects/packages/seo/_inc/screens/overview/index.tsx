@@ -14,7 +14,7 @@ import getOverview from '../../data/get-overview';
 import { isGated } from '../../data/is-gated';
 import { settingsStore } from '../../data/settings-store';
 import AiCrawlerCard from './ai-crawler-card';
-import ContentCoverageCard from './content-coverage-card';
+import ContentCoverageCard, { type ContentNeed } from './content-coverage-card';
 import DisableSeoTools from './disable-seo-tools';
 import SiteVerificationCard from './site-verification-card';
 import SiteVisibilityCard from './site-visibility-card';
@@ -50,6 +50,14 @@ const OverviewScreen: FC = () => {
 
 	// Deep-link to the Content route.
 	const goToContent = useCallback( () => navigate( { href: '/content' } ), [ navigate ] );
+
+	// Deep-link to the Content route filtered to the rows still missing a field
+	// (`?needs=`, read by the Content screen). Clicking a coverage ring lands the
+	// user on exactly the content there's an action to take on.
+	const goToContentNeeds = useCallback(
+		( need: ContentNeed ) => navigate( { href: `/content?needs=${ encodeURIComponent( need ) }` } ),
+		[ navigate ]
+	);
 
 	// Deep-link to the GEO route (AI crawler management).
 	const goToAi = useCallback( () => navigate( { href: '/ai' } ), [ navigate ] );
@@ -140,7 +148,11 @@ const OverviewScreen: FC = () => {
 				) }
 			</div>
 			<div className={ styles.contentCard }>
-				<ContentCoverageCard data={ coverage ?? data.content_coverage } onManage={ goToContent } />
+				<ContentCoverageCard
+					data={ coverage ?? data.content_coverage }
+					onManage={ goToContent }
+					onFilter={ goToContentNeeds }
+				/>
 			</div>
 			{ /* Hidden on WordPress.com Simple, where `Modules::is_active()` reports
 			     every module active regardless of stored state, so SEO tools can't
