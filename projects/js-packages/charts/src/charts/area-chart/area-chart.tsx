@@ -70,7 +70,8 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 			onPointerMove,
 			onPointerOut,
 			zoomable = false,
-			rescaleYOnLegendToggle = true,
+			rescaleYOnVisibilityChange,
+			rescaleYOnLegendToggle,
 			children,
 			gridVisibility,
 			gap = 'md',
@@ -80,6 +81,9 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 		const legendInteractive = legend.interactive ?? false;
 		const legendShape = legend.shape ?? 'rect';
 		const legendPosition = legend.position ?? 'bottom';
+
+		// New prop wins; fall back to the deprecated `rescaleYOnLegendToggle`; default to rescaling.
+		const rescaleYOnVisibility = rescaleYOnVisibilityChange ?? rescaleYOnLegendToggle ?? true;
 
 		const providerTheme = useGlobalChartsTheme();
 		const theme = useXYChartTheme( data );
@@ -147,12 +151,12 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 		// Computed from the full data set (ignoring legend visibility) so the y-axis stays
 		// fixed when series are toggled off - otherwise visx auto-fits to the remaining
 		// data and the chart's baseline appears to move. Opt-in via
-		// `rescaleYOnLegendToggle={ false }`. Skipped for non-default stack offsets,
+		// `rescaleYOnVisibilityChange={ false }`. Skipped for non-default stack offsets,
 		// which reshape the y-extent (`expand` -> [0,1], `wiggle`/`silhouette` -> centred
 		// around zero); letting visx derive the domain is correct there.
 		const fixedYDomain = useMemo< [ number, number ] | undefined >( () => {
 			if (
-				rescaleYOnLegendToggle ||
+				rescaleYOnVisibility ||
 				! legendInteractive ||
 				! dataSorted.length ||
 				! dataSorted[ 0 ].data.length ||
@@ -195,7 +199,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 			}
 			if ( max === -Infinity ) return undefined;
 			return [ Math.min( 0, min ), max ];
-		}, [ dataSorted, stacked, stackOffset, legendInteractive, rescaleYOnLegendToggle ] );
+		}, [ dataSorted, stacked, stackOffset, legendInteractive, rescaleYOnVisibility ] );
 
 		const chartOptions = useMemo( () => {
 			const formatter = options?.axis?.x?.tickFormat || getFormatter( dataSorted );

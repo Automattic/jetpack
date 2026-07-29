@@ -1402,13 +1402,13 @@ describe( 'LineChart', () => {
 		// and the empty-state message is text-only.
 		const numericTick = /^[\d,]+$/;
 
-		it( 'pins the value axis when rescaleYOnLegendToggle is false', async () => {
+		it( 'pins the value axis when rescaleYOnVisibilityChange is false', async () => {
 			const user = userEvent.setup();
 
 			renderWithTheme( {
 				showLegend: true,
 				legend: { interactive: true },
-				rescaleYOnLegendToggle: false,
+				rescaleYOnVisibilityChange: false,
 				chartId: 'line-stable-axis',
 				data: twoSeries,
 			} );

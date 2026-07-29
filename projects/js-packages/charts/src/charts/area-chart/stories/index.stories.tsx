@@ -211,17 +211,17 @@ Animation.args = {
 	legendInteractive: true,
 };
 
-export const RescaleYOnLegendToggle: StoryObj< StoryArgs > = {
-	name: 'Y-axis rescales when legends toggle (default)',
+export const RescaleYOnVisibilityChange: StoryObj< StoryArgs > = {
+	name: 'Y-axis rescales when visible series change (default)',
 	render: args => (
 		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
 			<div>
-				<h4>rescaleYOnLegendToggle: true (default)</h4>
-				<AreaChart { ...args } rescaleYOnLegendToggle />
+				<h4>rescaleYOnVisibilityChange: true (default)</h4>
+				<AreaChart { ...args } rescaleYOnVisibilityChange />
 			</div>
 			<div>
-				<h4>rescaleYOnLegendToggle: false (pinned)</h4>
-				<AreaChart { ...args } rescaleYOnLegendToggle={ false } />
+				<h4>rescaleYOnVisibilityChange: false (pinned)</h4>
+				<AreaChart { ...args } rescaleYOnVisibilityChange={ false } />
 			</div>
 		</div>
 	),

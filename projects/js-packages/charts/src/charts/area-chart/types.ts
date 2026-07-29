@@ -63,12 +63,17 @@ export interface AreaChartProps extends BaseChartProps< SeriesData[] > {
 	 */
 	zoomable?: boolean;
 	/**
-	 * When using an interactive legend, controls whether the Y axis rescales
-	 * to fit only the visible series. Defaults to `true`, matching the
-	 * intuitive default for LineChart and BarChart. Set to `false` to pin
-	 * the Y axis to the full data extent so toggling legend items off does
-	 * not move the chart's baseline.
+	 * Whether the Y axis rescales to fit only the visible series whenever the set
+	 * of visible series changes (via the interactive legend or otherwise).
+	 * Defaults to `true`, matching LineChart. Set to `false` to pin the Y axis to
+	 * the full data extent so hiding series does not move the chart's baseline.
 	 * @default true
+	 */
+	rescaleYOnVisibilityChange?: boolean;
+	/**
+	 * @deprecated Use `rescaleYOnVisibilityChange`. The behaviour keys off series
+	 * visibility changing, not specifically a legend toggle. Still honoured when
+	 * `rescaleYOnVisibilityChange` is not set.
 	 */
 	rescaleYOnLegendToggle?: boolean;
 	children?: ReactNode;

@@ -333,6 +333,35 @@ describe( 'AreaChart', () => {
 			expect( afterToggleDomain ).toEqual( initialDomain );
 		} );
 
+		test( 'y-axis stays pinned when rescaleYOnVisibilityChange is false', async () => {
+			const user = userEvent.setup();
+			const ref = createRef< SingleChartRef >();
+			render(
+				<GlobalChartsProvider>
+					<AreaChartUnresponsive
+						{ ...defaultProps }
+						showLegend
+						chartId="test-interactive-domain-pin-new"
+						legend={ { interactive: true } }
+						rescaleYOnVisibilityChange={ false }
+						ref={ ref }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const initialDomain = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( initialDomain ).toBeDefined();
+
+			await user.click( screen.getByText( 'Series A' ) );
+
+			const afterToggleDomain = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+			expect( afterToggleDomain ).toEqual( initialDomain );
+		} );
+
 		test( 'supports negative stacked values without clipping (with pinned Y)', () => {
 			// The mixed-sign full-extent pin only kicks in when the consumer
 			// opts into pinned-Y behavior; visx's natural domain derivation for
