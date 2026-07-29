@@ -12,9 +12,12 @@ require JETPACK__PLUGIN_DIR . '/modules/module-info.php';
 abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	/**
-	 * Needed capabilities.
+	 * Needed capabilities. Either a single capability, a list of capabilities, or a
+	 * `array( 'capabilities' => array( … ), 'must_pass' => int )` wrapper. An empty
+	 * value means the endpoint is reachable only with a Jetpack site (blog) token;
+	 * every user token is denied. See check_capability().
 	 *
-	 * @var string
+	 * @var string|array|null
 	 */
 	protected $needed_capabilities;
 
@@ -146,21 +149,35 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 		if ( $this->accepts_site_based_authentication() ) {
 			return true;
 		}
+
+		// the idea is that the we can pass in an array of capabilitie that the user needs to have before we allowing them to do something
+		$capabilities = is_array( $capability ) ? ( $capability['capabilities'] ?? $capability ) : $capability;
+
+		// Deny by default: a request that names no capability must never be authorized here.
+		// Endpoints that declare none (e.g. the Backup helper-script endpoints) are reachable only
+		// with a Jetpack site (blog) token, which the site-based authentication short-circuit above
+		// handles. Without this guard an empty set makes `$must_pass` 0 below, so any connected user
+		// token would pass. The check sits above the is_array() split so that scalar declarations
+		// that mean "nothing required" -- null, '', 0, '0' -- deny too rather than resolving to a
+		// capability every role holds.
+		//
+		// Note that the short-circuit is the only way past this deny, and that `allow_jetpack_site_auth`
+		// (not `allow_fallback_to_jetpack_blog_token`) is what enables it. Its
+		// `is_jetpack_authorized_for_site()` half is overridden by a child class on WordPress.com, so
+		// what satisfies this deny there is defined outside this repository.
+		if ( empty( $capabilities ) ) {
+			return new WP_Error( 'unauthorized_site_token_required', __( 'This endpoint is only accessible using a Jetpack site token.', 'jetpack' ), 403 );
+		}
+
 		if ( is_array( $capability ) ) {
-			// the idea is that the we can pass in an array of capabilitie that the user needs to have before we allowing them to do something
-			$capabilities = ( $capability['capabilities'] ?? $capability );
-
-			// Deny by default: an empty capability set must never authorize a request that is not
-			// site-based (blog token) authenticated. Endpoints that declare no capabilities (e.g. the
-			// Backup helper-script endpoints) are intended to be reachable only with a Jetpack blog
-			// token, which is handled by the site-based authentication short-circuit above. Without
-			// this guard an empty list makes `$must_pass` 0, so any connected user token would pass.
-			if ( empty( $capabilities ) ) {
-				return new WP_Error( 'unauthorized', __( 'This endpoint is only accessible using a Jetpack site token.', 'jetpack' ), 403 );
-			}
-
 			// We can pass in the number of conditions we must pass by default it is all.
 			$must_pass = ( isset( $capability['must_pass'] ) && is_int( $capability['must_pass'] ) ? $capability['must_pass'] : count( $capabilities ) );
+
+			// A threshold below 1 authorizes unconditionally no matter what the capability list holds,
+			// which is the same fail-open the empty set produced. `is_int()` above admits negatives too.
+			if ( $must_pass < 1 ) {
+				return new WP_Error( 'unauthorized_capability_threshold', __( 'This endpoint requires at least one capability check to pass.', 'jetpack' ), 403 );
+			}
 
 			$failed = array(); // store the failed capabilities
 			$passed = 0;

@@ -220,12 +220,171 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 
 	/**
 	 * Data provider for test_empty_capabilities_requires_site_auth.
+	 *
+	 * Note the 'blog token is accepted' row short-circuits at accepts_site_based_authentication()
+	 * before reaching the guard, so it passes with or without the guard. It is here to prove
+	 * legitimate access still works, not as evidence that the guard denies anything.
 	 */
 	public static function data_provider_test_empty_capabilities_requires_site_auth() {
 		return array(
 			'blog token is accepted'          => array( true, 'success' ),
-			'low-priv user token is rejected' => array( false, new WP_Error( 'unauthorized', 'This endpoint is only accessible using a Jetpack site token.', 403 ) ),
+			'low-priv user token is rejected' => array( false, new WP_Error( 'unauthorized_site_token_required', 'This endpoint is only accessible using a Jetpack site token.', 403 ) ),
 		);
+	}
+
+	/**
+	 * The deny is privilege-independent by design: a capability-less endpoint is a site-token
+	 * endpoint, so an administrator's user token is rejected exactly like a subscriber's.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_empty_capabilities_rejects_administrator_token() {
+		$endpoint = new Jetpack_JSON_API_Empty_Capabilities_Dummy_Endpoint(
+			array(
+				'stat'                    => 'dummy',
+				'allow_jetpack_site_auth' => true,
+			)
+		);
+
+		wp_set_current_user( self::$admin_user_id );
+
+		$this->assertEquals(
+			new WP_Error( 'unauthorized_site_token_required', 'This endpoint is only accessible using a Jetpack site token.', 403 ),
+			$endpoint->api->process_request( $endpoint, array() )
+		);
+	}
+
+	/**
+	 * Capability declarations that resolve to "authorize unconditionally" must be denied, not just
+	 * the literal empty array. Two shapes reach the same fail-open as the original bug: a resolved
+	 * capability set that is empty (including scalar forms that skip the is_array() branch), and a
+	 * `must_pass` threshold below 1, which makes `$passed < $must_pass` false for every user.
+	 *
+	 * @group json-api
+	 * @dataProvider data_provider_test_zero_threshold_declarations_are_denied
+	 *
+	 * @param mixed    $needed_capabilities The capability declaration to install on the endpoint.
+	 * @param WP_Error $result              The expected result.
+	 */
+	#[Group( 'json-api' )]
+	#[DataProvider( 'data_provider_test_zero_threshold_declarations_are_denied' )]
+	public function test_zero_threshold_declarations_are_denied( $needed_capabilities, $result ) {
+		$endpoint = new Jetpack_JSON_API_Empty_Capabilities_Dummy_Endpoint(
+			array(
+				'stat'                    => 'dummy',
+				'allow_jetpack_site_auth' => true,
+			)
+		);
+
+		$property = ( new ReflectionClass( $endpoint ) )->getProperty( 'needed_capabilities' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $endpoint, $needed_capabilities );
+
+		wp_set_current_user( self::$subscriber_user_id );
+
+		$this->assertEquals( $result, $endpoint->api->process_request( $endpoint, array() ) );
+	}
+
+	/**
+	 * Data provider for test_zero_threshold_declarations_are_denied.
+	 */
+	public static function data_provider_test_zero_threshold_declarations_are_denied() {
+		$site_token_required = new WP_Error( 'unauthorized_site_token_required', 'This endpoint is only accessible using a Jetpack site token.', 403 );
+		$threshold           = new WP_Error( 'unauthorized_capability_threshold', 'This endpoint requires at least one capability check to pass.', 403 );
+
+		return array(
+			// Resolved-empty capability sets.
+			'structured wrapper with an empty list'     => array( array( 'capabilities' => array() ), $site_token_required ),
+			'null (the base class default)'             => array( null, $site_token_required ),
+			'empty string'                              => array( '', $site_token_required ),
+			// Numeric zero would otherwise resolve to level_0, which every role holds.
+			'integer zero'                              => array( 0, $site_token_required ),
+			'string zero'                               => array( '0', $site_token_required ),
+			// Zero thresholds over a non-empty list.
+			'must_pass of 0 over a real list'           => array(
+				array(
+					'capabilities' => array( 'manage_options' ),
+					'must_pass'    => 0,
+				),
+				$threshold,
+			),
+			'must_pass of 0 with no capabilities key'   => array( array( 'must_pass' => 0 ), $threshold ),
+			'negative must_pass'                        => array(
+				array(
+					'capabilities' => array( 'manage_options' ),
+					'must_pass'    => -1,
+				),
+				$threshold,
+			),
+			// Sanity: a real declaration still fails on the capability itself, not the new guards.
+			'real capability still denies a subscriber' => array(
+				array( 'manage_options' ),
+				new WP_Error( 'unauthorized', 'This user is not authorized to manage_options on this blog.', 403 ),
+			),
+		);
+	}
+
+	/**
+	 * Every production endpoint that declares no capabilities is now unreachable without site-based
+	 * authentication, so each one must be registered with `allow_jetpack_site_auth => true` or it is
+	 * permanently 403. Nothing links the declaration to the registration, so assert the pairing.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_capability_less_endpoints_register_site_auth() {
+		$json_endpoints_dir = JETPACK__PLUGIN_DIR . 'json-endpoints/';
+		$checked            = 0;
+
+		foreach ( WPCOM_JSON_API::init()->endpoints as $endpoints_by_method ) {
+			if ( ! is_array( $endpoints_by_method ) ) {
+				continue;
+			}
+			foreach ( $endpoints_by_method as $endpoint ) {
+				if ( ! $endpoint instanceof Jetpack_JSON_API_Endpoint ) {
+					continue;
+				}
+
+				$class = new ReflectionClass( $endpoint );
+
+				// Skip the dummy endpoints defined in this test file; the endpoint constructor
+				// registers every instance, so they would otherwise leak in by test order.
+				if ( strpos( (string) $class->getFileName(), $json_endpoints_dir ) !== 0 ) {
+					continue;
+				}
+
+				// The pairing only binds for endpoints that reach check_capability() through the base
+				// callback(). A class that overrides callback() defines its own authorization path --
+				// Jetpack_JSON_API_Check_Capabilities_Endpoint hand-passes 'read' and never consults
+				// $needed_capabilities at all, so its unset default is not a site-token declaration.
+				if ( $class->getMethod( 'callback' )->getDeclaringClass()->getName() !== Jetpack_JSON_API_Endpoint::class ) {
+					continue;
+				}
+
+				$property = $class->getProperty( 'needed_capabilities' );
+				if ( PHP_VERSION_ID < 80100 ) {
+					$property->setAccessible( true );
+				}
+				$capabilities = $property->getValue( $endpoint );
+				if ( is_array( $capabilities ) ) {
+					$capabilities = $capabilities['capabilities'] ?? $capabilities;
+				}
+				if ( ! empty( $capabilities ) ) {
+					continue;
+				}
+
+				++$checked;
+				$this->assertTrue(
+					$endpoint->allow_jetpack_site_auth,
+					$class->getName() . ' declares no capabilities, so it is only reachable with a site token and must be registered with allow_jetpack_site_auth => true.'
+				);
+			}
+		}
+
+		$this->assertGreaterThan( 0, $checked, 'Expected at least one capability-less endpoint in the registry; the assertion loop above ran on nothing.' );
 	}
 
 	/**

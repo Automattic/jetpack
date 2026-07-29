@@ -20,11 +20,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Jetpack_JSON_API_Install_Backup_Helper_Script_Endpoint extends Jetpack_JSON_API_Endpoint {
 	/**
-	 * This endpoint is only accessible from Jetpack Backup; it requires no further capabilities.
+	 * An empty capability set means this endpoint is only accessible using a site token: it is
+	 * reachable with a Jetpack site (blog) token and denied for every user token, however
+	 * privileged. See Jetpack_JSON_API_Endpoint::check_capability().
 	 *
 	 * @var array
 	 */
-	protected $needed_capabilities = array();
+	protected $needed_capabilities = array(); // This endpoint is only accessible using a site token
 
 	/**
 	 * Method to call when running this endpoint (install)
