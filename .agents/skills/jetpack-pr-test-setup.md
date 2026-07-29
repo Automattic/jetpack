@@ -110,9 +110,24 @@ essentials:
 - `jurassic-ninja / provision-site` with the **Jetpack Beta feature enabled**, so the site
   comes up with the Jetpack Beta Tester plugin already installed — no installing it from a
   GitHub zip later (it isn't on WP.org). Pass `features: {"jetpack": "true", "jetpack-beta":
-  "true"}`. (`jetpack-beta` is the JN "Jetpack Beta" advanced option; confirm the exact key
-  against the provider's `provision-site` schema if it errors. `jetpack-social` is available
-  the same way when a PR wants the Social plugin specifically.)
+  "true"}`.
+- **Don't guess feature slugs — call `jurassic-ninja / list-features` first.** It's the
+  authoritative registry (~77 features; `group` filters it, e.g. `group: "jetpack"`) and each
+  entry carries the `slug` to pass, its `default`, its `access_tier`, `requires`/`enables`/
+  `conflicts`, and an `available` flag saying whether *you* can enable it. Enable whatever the
+  PR actually needs rather than the two slugs named here; the public jurassic.ninja form shows
+  only the public tier, so it under-reports what's available to an Automattician.
+- **Match the feature to the plugin the PR touches** — the standalone Jetpack plugins each
+  have one, so a PR under `projects/plugins/<slug>/` usually wants its plugin present:
+  `jetpack-boost`, `jetpack-social`, `jetpack-protect`, `jetpack-search`, `jetpack-videopress`,
+  `jetpack-backup`, `jpcrm` (CRM). Others worth knowing: `jetpack-debug-helper`, `my-jetpack`,
+  `jetpack-beta-blocks`, `content` (pregenerated posts, for UI that needs something to act on),
+  `gutenberg`/`gutenberg-nightly` (block-editor changes; mutually exclusive), and `php_version`
+  when a PR is about PHP compatibility.
+- Note `jetpack` itself defaults to **true**, as do `wp-debug-log` and `cache-drop-in` — pass
+  `"false"` to turn a default off. Two features take parameters that matter here: `jetpack-beta`
+  accepts `branches`, and `jetpack-products` takes a multi-select of Jetpack product licenses
+  (see step 5a before reaching for a plan override).
 - Poll `list-sites` (`include_config:false`) until `status == 2` (cap ~3 min).
 - `connect-jetpack` (domain). **Capture the `blog_id`** and the **admin credentials** — the
   report in step 7 must hand these back so the user can reach `/wp-admin`. Note what
