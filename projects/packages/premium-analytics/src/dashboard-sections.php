@@ -70,9 +70,8 @@ function is_woocommerce_dashboard_section_available() {
 /**
  * Whether the current user should be shown the WooCommerce dashboard section.
  *
- * Kept apart from is_woocommerce_dashboard_section_available(), which answers
- * "is WooCommerce here" and is also the signal the widget registry reads. This
- * one adds "and may this reader see store data".
+ * The sibling is_woocommerce_dashboard_section_available() answers "is
+ * WooCommerce here"; this adds "and may this reader see store data".
  *
  * @since $$next-version$$
  *

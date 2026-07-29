@@ -116,16 +116,11 @@ class Capabilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The helper restates the capability the proxy enforces for the `analytics`
-	 * prefix, so the two are pinned to each other rather than to a literal: a
-	 * proxy that loosens without the helper following would leave these surfaces
-	 * hidden from readers whose data they could now serve, and the reverse would
-	 * offer widgets that answer 403.
-	 *
+	 * Pins the helper to the capability the proxy enforces for the `analytics`
+	 * prefix, so the two can't drift apart and leave widgets that answer 403.
 	 * Asserted through check_data_permission() rather than by reading
 	 * PREFIX_CONFIG, so what's compared is the decision each side actually
-	 * reaches for the same user. Api_Proxy_Controller_Test pins the proxy's own
-	 * capability to `view_woocommerce_reports` in its endpoint matrix.
+	 * reaches for the same user.
 	 */
 	public function test_store_report_helper_matches_the_proxy_capability() {
 		$controller = new Api_Proxy_Controller();

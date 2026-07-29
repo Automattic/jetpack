@@ -119,10 +119,8 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 * @var array<string, array<string, mixed>>
 	 */
 	private const PREFIX_CONFIG = array(
-		// Store reports, gated as WooCommerce gates its own Analytics screens, which
-		// shop managers can read. woocommerce-analytics made the same move away from
-		// manage_options (WOOA7S-551); requiring it here would lock those users out of
-		// reports they already have elsewhere.
+		// Gated like WooCommerce's own Analytics screens, which shop managers can read;
+		// woocommerce-analytics made the same move away from manage_options (WOOA7S-551).
 		'analytics'                     => array( 'capability' => 'view_woocommerce_reports' ),
 		'stats'                         => array(
 			'capability' => 'view_stats',

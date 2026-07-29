@@ -138,9 +138,9 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 	/**
 	 * Check if user has permission to export reports.
 	 *
-	 * Every report exported here is fetched through the proxy's `analytics` prefix, so
-	 * this defers to the same check rather than restating a capability: advertising
-	 * access the async fetch cannot honor would schedule a job that then fails.
+	 * Must match the capability the analytics proxy enforces (the `analytics` prefix
+	 * in Api_Proxy_Controller); otherwise the route would advertise access the async
+	 * data fetch cannot honor, scheduling a job that then fails.
 	 *
 	 * @return bool True if user has permission.
 	 */

@@ -22,12 +22,8 @@ const VIEW_ANALYTICS_CAPABILITY = 'jetpack_view_analytics';
  * Hooks the dashboard's meta capability mapping.
  *
  * Deliberately not called at file scope: this file is included while the
- * Analytics class is autoloaded, which happens in contexts where WordPress
- * itself isn't loaded, and add_filter() would be undefined there. Callers hook
- * it from their own WordPress-aware entry points instead — both
- * Analytics::init() paths, and Dashboard_Support_Routes, which WPCOM Simple
- * boots standalone without ever reaching Analytics::init(). Idempotent, so
- * overlapping callers are free to call it.
+ * Analytics class is autoloaded, which happens in contexts where WordPress —
+ * and add_filter() — isn't loaded. WordPress-aware entry points call it instead.
  *
  * @since $$next-version$$
  *
@@ -40,11 +36,8 @@ function register_capabilities() {
 /**
  * Unhooks the mapping registered by register_capabilities().
  *
- * The counterpart exists so a caller — a test tearing down between cases, or a
- * host unwinding the package — can drop this one filter by name instead of
- * reaching for remove_all_filters( 'map_meta_cap' ), which would also take out
- * whatever else is hooked there (the Stats package maps `view_stats` on that
- * same filter).
+ * Test tear-down needs this to drop the one filter: remove_all_filters(
+ * 'map_meta_cap' ) would also take out Stats' own `view_stats` mapping.
  *
  * @since $$next-version$$
  *
@@ -97,19 +90,16 @@ function current_user_can_view_analytics() {
  * Whether the current user may read the store reports.
  *
  * "Store reports" is everything the proxy serves from its `analytics` prefix —
- * WooCommerce's own reporting data. The Store section and the widgets backed by
- * that prefix are hidden from readers who fail this, since all they could
- * collect is 403s. The capability restated here is the one
+ * WooCommerce's own reporting data. Mirrors the capability
  * {@see \Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller} enforces
- * for the prefix; Capabilities_Test pins the two together so loosening the proxy
- * can't silently leave these surfaces hidden.
+ * there (Capabilities_Test pins the two together); surfaces backed by the prefix
+ * are hidden from readers who fail it, since all they could collect is 403s.
  *
  * @since $$next-version$$
  *
  * @return bool
  */
 function current_user_can_view_store_reports() {
-	// The proxy accepts manage_options for every prefix, so administrators pass
-	// even where WooCommerce never registered its capabilities.
+	// The proxy accepts manage_options for every prefix.
 	return current_user_can( 'manage_options' ) || current_user_can( 'view_woocommerce_reports' );
 }

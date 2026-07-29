@@ -38,7 +38,6 @@
 				<element value="jetpack_reconnect" />
 				<element value="jetpack_view_analytics" />
 				<element value="view_stats" />
-				<!-- Registered by WooCommerce, read by Premium Analytics to gate store reports. -->
 				<element value="view_woocommerce_reports" />
 			</property>
 		</properties>

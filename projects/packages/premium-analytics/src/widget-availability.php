@@ -36,12 +36,10 @@ const WOOCOMMERCE_BOOKINGS_WIDGET_CATEGORIES = array( 'bookings' );
  * Widget categories whose data counts as a store report.
  *
  * The membership rule is the data source, not the subject matter: every
- * category here reaches WPCOM through `analytics/reports/…`, which
- * {@see \Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller}
- * gates on `view_woocommerce_reports`. That covers the commerce categories,
- * and `visitors`, whose two widgets read `sessions/…` from the same prefix
- * without a plugin gate of their own — which is why the list is longer than
- * the name suggests.
+ * category here reaches WPCOM through the proxy's `analytics` prefix, which
+ * {@see \Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller} gates
+ * on `view_woocommerce_reports`. That is why `visitors` is in the list: its
+ * widgets read `sessions/…` from the same prefix.
  */
 const STORE_REPORT_WIDGET_CATEGORIES = array( 'store', 'orders', 'coupons', 'bookings', 'visitors' );
 
