@@ -117,7 +117,6 @@ interface NormalizedCategoryField {
 /** Subset of DataViews' `FieldValidity` this control renders. */
 interface CategoryFieldValidity {
 	custom?: { type?: string; message?: string };
-	elements?: { type?: string; message?: string };
 }
 
 export interface CreatableCategoriesControlProps {
@@ -277,9 +276,8 @@ export function CreatableCategoriesControl( {
 	);
 
 	// DataViews delegates validity display to the control. Surface the field's
-	// custom rule ("select at least one category") — and any element error —
-	// beneath the token field.
-	const validationMessage = validity?.custom?.message ?? validity?.elements?.message;
+	// custom rule ("select at least one category") beneath the token field.
+	const validationMessage = validity?.custom?.message;
 
 	return (
 		<div className="newsletter-categories-control">

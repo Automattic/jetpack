@@ -140,7 +140,9 @@ export function NewsletterCategoriesSection( {
 				label: cat.name,
 			} ) ),
 			isValid: {
-				elements: true,
+				// No `elements: true` — the custom control creates categories and
+				// appends them to `elements` before selecting, so a selected value is
+				// never out of range. Only the "select at least one" rule applies.
 				custom: ( item: NewsletterSettings ) => {
 					if (
 						item.wpcom_newsletter_categories_enabled &&
