@@ -5,7 +5,7 @@ import { setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
-import { EN_US_SETTINGS, ES_ES_SETTINGS } from '../__fixtures__/wp-date-settings';
+import { EN_US_SETTINGS, ES_ES_SETTINGS, settingsFor } from '../__fixtures__/wp-date-settings';
 import { formatDate } from '../format-date';
 
 // Midnight UTC, matching the fixtures' timezone, so no day shift is in play.
@@ -54,5 +54,11 @@ describe( 'formatDate', () => {
 		it( 'keeps "iso" untranslated so it stays machine-readable', () => {
 			expect( formatDate( JUNE_21, 'iso' ) ).toBe( '2025-06-21' );
 		} );
+	} );
+
+	it( 'falls back to the site format when removing the year leaves nothing', () => {
+		setSettings( settingsFor( 'year-only-test', 'Y' ) );
+
+		expect( formatDate( JUNE_21, 'short' ) ).toBe( '2025' );
 	} );
 } );

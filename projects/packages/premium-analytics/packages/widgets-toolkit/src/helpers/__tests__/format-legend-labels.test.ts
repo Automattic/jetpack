@@ -80,4 +80,19 @@ describe( 'formatLegendLabels', () => {
 
 		expect( labels.comparison ).toBe( 'Previous period' );
 	} );
+
+	it( 'falls back to readable labels when date params are invalid', () => {
+		siteIn( 'UTC', 0, 'en-invalid-date-test' );
+
+		const labels = formatLegendLabels( {
+			from: 'garbage',
+			to: '2026-01-31',
+			compare_from: 'junk',
+			compare_to: '2025-12-31',
+			interval: 'day',
+		} as ReportParams );
+
+		expect( labels.primary ).toBe( 'Current period' );
+		expect( labels.comparison ).toBe( 'Previous period' );
+	} );
 } );

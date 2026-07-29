@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { __, sprintf } from '@wordpress/i18n';
+/**
  * Internal dependencies
  */
 import { formatDate } from './format-date';
@@ -12,9 +16,6 @@ import { formatDate } from './format-date';
  * `link:` wiring is settled.
  */
 type DateRange = { from?: Date; to?: Date };
-
-/** En dash, the conventional range separator. */
-const RANGE_SEPARATOR = ' – ';
 
 /**
  * Format a date range into a human-readable string.
@@ -43,5 +44,10 @@ export const formatDateRange = ( range?: DateRange ): string => {
 		return formatDate( from );
 	}
 
-	return `${ formatDate( from ) }${ RANGE_SEPARATOR }${ formatDate( to ) }`;
+	return sprintf(
+		/* translators: 1: Start date. 2: End date. */
+		__( '%1$s – %2$s', 'jetpack-premium-analytics-pkg' ),
+		formatDate( from ),
+		formatDate( to )
+	);
 };

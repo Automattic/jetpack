@@ -34,17 +34,18 @@ import type { ReportParams } from '@jetpack-premium-analytics/data';
  * ```
  */
 export function formatLegendLabels( reportParams: ReportParams ): LegendLabels {
-	const primaryLabel = formatDateRange( {
-		from: parseSiteDateTime( reportParams.from ),
-		to: parseSiteDateTime( reportParams.to ),
-	} );
+	const primaryLabel =
+		formatDateRange( {
+			from: parseSiteDateTime( reportParams.from ),
+			to: parseSiteDateTime( reportParams.to ),
+		} ) || __( 'Current period', 'jetpack-premium-analytics-pkg' );
 
 	const comparisonLabel =
 		reportParams.compare_from && reportParams.compare_to
 			? formatDateRange( {
 					from: parseSiteDateTime( reportParams.compare_from ),
 					to: parseSiteDateTime( reportParams.compare_to ),
-			  } )
+			  } ) || __( 'Previous period', 'jetpack-premium-analytics-pkg' )
 			: __( 'Previous period', 'jetpack-premium-analytics-pkg' );
 
 	return {

@@ -21,7 +21,7 @@ export type DateFormatName = 'medium' | 'short' | 'year' | 'iso';
  * Pass an instant, such as a `TZDate`, timestamp, or offset-bearing string.
  * Parse site-local strings with `parseSiteDateTime` first.
  */
-type DateInput = Parameters< typeof dateI18n >[ 1 ];
+type DateInput = NonNullable< Parameters< typeof dateI18n >[ 1 ] >;
 
 /**
  * Resolve a named format to the PHP format string for the current site.
@@ -40,7 +40,11 @@ function formatFor( name: DateFormatName ): string {
 
 	const siteFormat = getSettings().formats.date;
 
-	return name === 'short' ? withoutYear( siteFormat ) : siteFormat;
+	if ( name === 'short' ) {
+		return withoutYear( siteFormat ) || siteFormat;
+	}
+
+	return siteFormat;
 }
 
 /**

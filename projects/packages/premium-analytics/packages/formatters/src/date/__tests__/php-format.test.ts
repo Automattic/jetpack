@@ -56,4 +56,9 @@ describe( 'withoutYear', () => {
 	it( 'returns an empty string when the format is only a year', () => {
 		expect( withoutYear( 'Y' ) ).toBe( '' );
 	} );
+
+	it( 'keeps the month ordinal dot in Finnish and Czech formats', () => {
+		expect( withoutYear( 'j.n.Y' ) ).toBe( 'j.n.' );
+		expect( withoutYear( 'j. n. Y' ) ).toBe( 'j. n.' );
+	} );
 } );

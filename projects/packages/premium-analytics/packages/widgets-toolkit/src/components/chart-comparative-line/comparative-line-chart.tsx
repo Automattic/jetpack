@@ -138,7 +138,7 @@ export type ComparativeLineChartProps = {
 	 */
 	dataFormat: DataFormat;
 
-	/** Named date format for the X-axis ticks. Defaults to `'short'`. */
+	/** Named date format for the X-axis ticks. Uses the chart default when omitted. */
 	tickFormat?: DateFormatName;
 
 	/**
@@ -299,7 +299,7 @@ export function ComparativeLineChart( {
 	}, [ percentageDomain, createDomainMargin ] );
 
 	const xTickFormat = useCallback(
-		( date: number ) => formatDate( date, xTickFormatType ?? 'short' ),
+		( date: number ) => formatDate( date, xTickFormatType ),
 		[ xTickFormatType ]
 	);
 

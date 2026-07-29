@@ -13,6 +13,7 @@ import {
 	formatMetricValue,
 	formatDate,
 	formatDateRange,
+	type DateFormatName,
 } from '@jetpack-premium-analytics/formatters';
 ```
 
@@ -64,12 +65,12 @@ formatDate( date ); // '21 de junio de 2025'
 formatDate( date, 'short' ); // '21 de junio'
 ```
 
-| Name     | Purpose                                                       |
-| -------- | ------------------------------------------------------------- |
-| `medium` | Default. The site's `date_format` verbatim.                   |
-| `short`  | The site format minus its year.                               |
-| `year`   | Year alone.                                                   |
-| `iso`    | Machine-readable `YYYY-MM-DD`. Never localized.               |
+| Name     | Purpose                                         |
+| -------- | ----------------------------------------------- |
+| `medium` | Default. The site's `date_format` verbatim.     |
+| `short`  | The site format minus its year.                 |
+| `year`   | Year alone.                                     |
+| `iso`    | Machine-readable `YYYY-MM-DD`. Never localized. |
 
 There is no custom-pattern escape hatch: a hand-written pattern fixes the
 day/month order to whatever the author happened to type, which is the problem

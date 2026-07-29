@@ -56,7 +56,9 @@ function toSegments( phpFormat: string ): Segment[] {
  * it — the run on the side facing the rest of the format, which is the side
  * the punctuation belongs to (`F j, Y` → `F j`, but `Y-m-d` → `m-d`). Where
  * the year is the last token, any literal trailing it goes too, since it was
- * qualifying the year (`j F Y г.` → `j F`).
+ * qualifying the year (`j F Y г.` → `j F`). A dot immediately before a
+ * trailing year is retained because dot-separated locales use it to terminate
+ * the preceding ordinal (`j.n.Y` → `j.n.`).
  *
  * @param phpFormat - PHP `date()` format string.
  * @return The format without its year, or unchanged when it has none.
@@ -86,6 +88,12 @@ export function withoutYear( phpFormat: string ): string {
 
 	if ( precedingToken >= 0 ) {
 		start = precedingToken + 1;
+		// In dot-separated formats the dot also marks the preceding numeric
+		// day or month as ordinal (`j.n.Y` → `j.n.`). Keep it while dropping
+		// any whitespace before the year.
+		if ( segments[ start ]?.source === '.' ) {
+			start++;
+		}
 	}
 
 	if ( followingToken === segments.length ) {
