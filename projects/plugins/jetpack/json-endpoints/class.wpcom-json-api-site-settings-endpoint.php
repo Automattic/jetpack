@@ -645,6 +645,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		if ( function_exists( 'wpcom_switch_to_user_locale' ) ) {
 			// Compare the locales before/after switch to decide if we should switch back
 			$locale_before = determine_locale();
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Checked above. See also https://github.com/phan/phan/issues/1204.
 			wpcom_switch_to_user_locale();
 			$switched_locale = determine_locale() !== $locale_before;
 		}
@@ -652,7 +653,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$subscription_options = (array) get_option( 'subscription_options' );
 
 		if ( $switched_locale ) {
-			wpcom_restore_current_locale();
+			restore_previous_locale();
 		}
 
 		return $subscription_options;
