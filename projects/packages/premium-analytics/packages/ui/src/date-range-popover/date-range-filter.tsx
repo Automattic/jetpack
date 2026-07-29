@@ -323,7 +323,8 @@ export function DateRangePopover( {
 						id="date-range-popover-button"
 						data-state={ triggerState }
 					>
-						{ triggerLabel }
+						{ /* Own element so a label too wide for the trigger can ellipsize. */ }
+						<span className="date-filters-panel-button__label">{ triggerLabel }</span>
 						<Icon className="date-filters-panel-button__caret" icon={ chevronDown } size={ 18 } />
 					</Button>
 				);

@@ -223,24 +223,14 @@ export function DateFiltersPanel( {
 
 	const setObserverRef = useResizeObserver< HTMLElement >( handleResize );
 
-	/*
-	 * Measure this panel's own root. Consumers used to wrap the panel in a div
-	 * and hand it back through `containerElement`, which put the mechanism in
-	 * every caller's hands for no gain: all ten of them passed their immediate
-	 * wrapper, so the number was the panel's own width either way. The prop
-	 * stays as an override for a caller that genuinely needs to size against a
-	 * different element, and falls back to the root when absent.
-	 */
+	// Measure this panel's own root; `containerElement` is an override for a
+	// caller that needs to size against something else.
 	useEffect( () => {
 		setObserverRef( containerElement ?? rootElement ?? document.body );
 	}, [ containerElement, rootElement, setObserverRef ] );
 
-	/*
-	 * The exact string the custom trigger is showing, derived through the same
-	 * helpers the trigger itself uses. The probe measures the trigger alongside
-	 * the pills because they share one group, and "Custom" versus a formatted
-	 * range differs by enough width to move the boundary.
-	 */
+	// Derived through the same helpers the trigger uses, so the probe measures
+	// the string the trigger is actually showing.
 	const customTriggerLabel = useMemo( () => {
 		const committedRange = appliedRange ?? range;
 
@@ -266,8 +256,8 @@ export function DateFiltersPanel( {
 		validatedPresetId,
 	] );
 
-	// Labels only, for the probe. The ranges are recomputed at selection time by
-	// the pills themselves, so the memo going stale here costs nothing.
+	// Labels only. The pills recompute their own ranges at selection time, so a
+	// stale memo here costs nothing.
 	const surfacePresets = useMemo( () => getQuickSurfacePresets( timeZone ), [ timeZone ] );
 
 	const [ rowWidths, setRowWidths ] = useState< PresetRowWidths | null >( null );
@@ -276,12 +266,9 @@ export function DateFiltersPanel( {
 	}, [] );
 
 	/*
-	 * Pick the longest labels that still fit. Both candidate widths come from the
-	 * probe, so the answer follows the active locale's own strings instead of a
-	 * breakpoint chosen for English.
-	 *
-	 * Before the first measurement, hold `full`: it is what the panel rendered
-	 * before this existed, and a wrong guess corrects itself on the next frame.
+	 * The longest labels that still fit. Both candidates come from the probe, so
+	 * the boundary follows the active locale rather than a breakpoint picked for
+	 * English. Holds `full` until measured; a wrong guess corrects next frame.
 	 */
 	const labelMode: PresetLabelMode = useMemo( () => {
 		if ( containerWidth === null || rowWidths === null ) {

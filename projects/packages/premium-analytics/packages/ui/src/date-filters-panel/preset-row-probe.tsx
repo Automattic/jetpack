@@ -18,44 +18,29 @@ export type PresetRowWidths = {
 };
 
 export type PresetRowProbeProps = {
-	/**
-	 * Labels for the pills, in display order. Both forms are measured, so a
-	 * preset without a short form contributes its full label to both rows.
-	 */
+	/** Pill labels in display order. A preset with no short form reuses its full label. */
 	presets: ReadonlyArray< { id: string; label: string; shortLabel?: string } >;
 
 	/**
-	 * The custom-range trigger's current label. It sits in the same group as the
-	 * pills and is unaffected by the label mode, but it still competes for the
-	 * row, so it has to be measured. Pass the label the real trigger is showing:
-	 * "Custom" is much narrower than a formatted range like "Jul 13-26, 2026",
-	 * and measuring the wrong one moves the boundary by ~40px.
+	 * The label the real trigger is showing. It shares the group with the pills,
+	 * and "Custom" versus a formatted range differs by ~40px.
 	 */
 	customTriggerLabel: string;
 
-	/**
-	 * Reports both natural widths whenever they change.
-	 */
+	/** Reports both natural widths whenever they change. */
 	onMeasure: ( widths: PresetRowWidths ) => void;
 };
 
 /**
- * Measures what the preset row would need at each label length.
+ * Measures what the preset row needs at each label length.
  *
- * Rendered off-screen rather than derived arithmetically, because the answer
- * depends on the font actually resolved for the active locale's script, the
- * button padding tokens, and the group's own borders. Reproducing that in JS
- * would be a second implementation of the same layout, free to drift from the
- * first.
+ * Measured in the DOM rather than computed: the width depends on the font
+ * resolved for the locale's script, the button padding tokens, and the group's
+ * borders.
  *
- * Two properties make this safe to feed back into the layout it measures:
- *
- * 1. It renders both forms unconditionally, so its widths never depend on which
- *    mode is currently active. Measuring the live row instead would oscillate:
- *    shortening the labels shrinks the row, which makes the full labels look
- *    like they fit, which restores them, which overflows again.
- * 2. It is `position: absolute` and `inert`, so it contributes no layout of its
- *    own and cannot be reached by pointer, focus, or assistive tech.
+ * Renders both forms unconditionally, so its widths never depend on the active
+ * mode. Measuring the live row would oscillate instead: shortening the labels
+ * shrinks the row, the full labels then look like they fit, and back again.
  *
  * @param props                    - Component props.
  * @param props.presets            - Pill labels in display order.
@@ -66,10 +51,7 @@ export function PresetRowProbe( { presets, customTriggerLabel, onMeasure }: Pres
 	const fullRef = useRef< HTMLDivElement >( null );
 	const abbreviatedRef = useRef< HTMLDivElement >( null );
 
-	/*
-	 * Keep the last reported pair so a re-render with identical widths does not
-	 * push a new object at the consumer and restart its effects.
-	 */
+	// Last reported pair, so identical widths don't push a new object downstream.
 	const [ reported, setReported ] = useState< PresetRowWidths | null >( null );
 
 	const measure = useCallback( () => {
@@ -91,20 +73,14 @@ export function PresetRowProbe( { presets, customTriggerLabel, onMeasure }: Pres
 		onMeasure( next );
 	}, [ onMeasure, reported ] );
 
-	/*
-	 * Measure after layout rather than on an interval or a resize: the probe is
-	 * `max-content`, so its width only moves when the labels or the typography
-	 * do, and both arrive as a render.
-	 */
+	// The probe is `max-content`, so its width only moves when the labels or the
+	// typography do, and both arrive as a render.
 	useLayoutEffect( () => {
 		measure();
 	}, [ measure, presets, customTriggerLabel ] );
 
-	/*
-	 * Web fonts land after first paint and change the metrics under us. Nothing
-	 * in the dashboard ships a web font today, so this is insurance rather than
-	 * a fix, and it is cheap: one promise, one remeasure.
-	 */
+	// Web fonts land after first paint and shift the metrics. Insurance: nothing
+	// in the dashboard ships one today.
 	useLayoutEffect( () => {
 		if ( ! document.fonts?.ready ) {
 			return;
@@ -142,7 +118,8 @@ export function PresetRowProbe( { presets, customTriggerLabel, onMeasure }: Pres
 				tone="neutral"
 				tabIndex={ -1 }
 			>
-				{ customTriggerLabel }
+				{ /* Mirrors the real trigger's markup so both measure the same box. */ }
+				<span className="date-filters-panel-button__label">{ customTriggerLabel }</span>
 				<Icon className="date-filters-panel-button__caret" icon={ chevronDown } size={ 18 } />
 			</Button>
 		</>

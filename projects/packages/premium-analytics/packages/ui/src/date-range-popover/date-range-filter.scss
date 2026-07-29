@@ -53,6 +53,20 @@
 	flex: 0 0 auto;
 }
 
+// Below the select threshold the trigger shares a narrow row with the preset
+// select, and a long label has nowhere to go. Without this it wrapped mid-word
+// over three lines ("Прои / зволь / но") and stretched the control vertically.
+// Truncating is the interim answer; the label is still readable from the
+// popover it opens.
+.date-filters-panel-button__label {
+	overflow: hidden;
+	// Needed for the ellipsis: a flex item will not shrink past its content
+	// otherwise, so `overflow` would never engage.
+	min-width: 0;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 .date-range-calendar-wrapper {
 	--wca-calendar-button-width: 32px;
 	--wca-calendar-button-height: 32px;

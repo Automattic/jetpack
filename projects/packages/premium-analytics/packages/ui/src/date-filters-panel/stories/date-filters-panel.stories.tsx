@@ -300,10 +300,9 @@ const GERMAN: LocaleFixture = {
 /**
  * Install a fixture's translations for the duration of one story.
  *
- * `setLocaleData` writes to the global i18n singleton, so the returned cleanup
- * matters: without it the locale would leak into whichever story is opened
- * next. These stories are also kept off the autodocs page, which renders every
- * sibling at once and would otherwise show them all in the last locale set.
+ * `setLocaleData` writes to the global i18n singleton, hence the cleanup: the
+ * locale would otherwise leak into the next story opened. Same reason these are
+ * off the autodocs page, which renders every sibling at once.
  *
  * @param fixture - The locale to install.
  * @return Storybook `beforeEach` handler.
@@ -324,22 +323,19 @@ function withLocale( fixture: LocaleFixture ) {
 }
 
 /*
- * Container widths worth reviewing. 600 is the panel's own compact threshold
- * (`MOBILE_CONTAINER_WIDTH_THRESHOLD`), and 782 is wp-admin's mobile
- * breakpoint. The English bar already needs about 635px once the design's
- * arrows and interval control are added, so 600 is under-budget before any
- * translation is involved.
+ * Widths worth reviewing: 782 is wp-admin's mobile breakpoint, 600 was the old
+ * fixed compact threshold, and 280 is narrow enough to squeeze the custom
+ * trigger's own label.
  */
-const LADDER_WIDTHS = [ 960, 782, 600, 360 ];
+const LADDER_WIDTHS = [ 960, 782, 600, 360, 280 ];
 
 /**
- * One locale's bar rendered at each reference width, so the point where it stops
- * fitting is visible rather than asserted.
+ * One locale's bar at each reference width, so the point where it stops fitting
+ * is visible rather than asserted.
  *
- * Each rung is annotated with whether the four preset pills alone clear the
- * container. That is a floor, not the whole bar: the custom trigger, comparison
- * control, and the arrows and interval button the design adds all come out of
- * the same line.
+ * Rungs are annotated against the four preset pills alone. That is a floor: the
+ * custom trigger, the comparison control, and the arrows and interval button the
+ * design adds all come out of the same line.
  *
  * @param props         - Component props.
  * @param props.fixture - The locale to render.
