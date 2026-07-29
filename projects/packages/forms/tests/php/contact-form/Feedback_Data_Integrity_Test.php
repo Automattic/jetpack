@@ -23,6 +23,14 @@ use WorDBless\BaseTestCase;
 class Feedback_Data_Integrity_Test extends BaseTestCase {
 
 	/**
+	 * The JSON escape sequence JSON_HEX_TAG writes for a `<`. Kept as a constant
+	 * so the literal backslash-u form is spelled out in exactly one place.
+	 *
+	 * @var string
+	 */
+	const HEX_ESCAPED_LT = '\\u003C';
+
+	/**
 	 *
 	 * Test file uploads in feedback
 	 */
@@ -940,9 +948,21 @@ class Feedback_Data_Integrity_Test extends BaseTestCase {
 		// that is what KSES rewrites. Comparing two in-memory serializations
 		// would pass even on a mangled payload, because both sides would be
 		// re-encoded from the same parsed data.
-		$stored = get_post( $post_id )->post_content;
-		$this->assertStringNotContainsString( '<', $stored, 'A bare `<` in the stored payload is what KSES latches onto.' );
+		//
+		// Note that an `assertStringNotContainsString( '<', ... )` check would be
+		// vacuous here: KSES escapes the bare `<` to `&lt;`, so it passes on the
+		// corrupted payload too. What distinguishes the two is that KSES also
+		// esc_html()s every quote from that `<` onwards, which is what breaks
+		// json_decode().
+		//
+		// post_content is stored slashed, so mirror what parse_content_v3() does
+		// before decoding rather than calling json_decode() on the raw bytes.
+		$stored    = get_post( $post_id )->post_content;
+		$unslashed = stripslashes( trim( $stored ) );
+
+		$this->assertStringContainsString( self::HEX_ESCAPED_LT, $unslashed, 'Angle brackets must reach the database hex-escaped.' );
 		$this->assertStringNotContainsString( '&quot;', $stored, 'Escaped quotes are the signature of KSES having rewritten the payload.' );
+		$this->assertNotNull( json_decode( $unslashed, true ), 'The stored payload must still decode after KSES has run.' );
 
 		$saved_response = Feedback::get( $post_id );
 		$saved_fields   = $saved_response->get_fields();
@@ -976,7 +996,18 @@ class Feedback_Data_Integrity_Test extends BaseTestCase {
 		$form       = new Contact_Form( array(), "[contact-field id='name' label='Name' type='name' required='1'/]" );
 
 		$response = Feedback::from_submission( $_post_data, $form, $current_post );
-		$saved    = Feedback::get( $response->save() );
+		$post_id  = $response->save();
+
+		// post_content is stored slashed, so mirror what parse_content_v3() does
+		// before decoding rather than calling json_decode() on the raw bytes.
+		$stored    = get_post( $post_id )->post_content;
+		$unslashed = stripslashes( trim( $stored ) );
+
+		$this->assertStringContainsString( self::HEX_ESCAPED_LT, $unslashed, 'Angle brackets must reach the database hex-escaped.' );
+		$this->assertStringNotContainsString( '&quot;', $stored, 'Escaped quotes are the signature of KSES having rewritten the payload.' );
+		$this->assertNotNull( json_decode( $unslashed, true ), 'The stored payload must still decode after KSES has run.' );
+
+		$saved = Feedback::get( $post_id );
 
 		$this->assertSame( 'RSVP < 2026', $saved->get_entry_title(), 'The source title should round-trip unchanged.' );
 		$this->assertCount( 1, $saved->get_fields(), 'The saved response should still hold the submitted field.' );
