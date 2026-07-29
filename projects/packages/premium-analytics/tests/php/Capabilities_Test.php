@@ -7,8 +7,10 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use WorDBless\BaseTestCase;
+use WP_REST_Request;
 
 require_once __DIR__ . '/../../src/capabilities.php';
 require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
@@ -115,16 +117,36 @@ class Capabilities_Test extends BaseTestCase {
 
 	/**
 	 * The helper restates the capability the proxy enforces for the `analytics`
-	 * prefix. Pinned here so loosening the proxy can't quietly leave the surfaces
-	 * this hides stranded behind a stricter check than their own data needs.
+	 * prefix, so the two are pinned to each other rather than to a literal: a
+	 * proxy that loosens without the helper following would leave these surfaces
+	 * hidden from readers whose data they could now serve, and the reverse would
+	 * offer widgets that answer 403.
+	 *
+	 * Asserted through check_data_permission() rather than by reading
+	 * PREFIX_CONFIG, so what's compared is the decision each side actually
+	 * reaches for the same user. Api_Proxy_Controller_Test pins the proxy's own
+	 * capability to `manage_options` in its endpoint matrix.
 	 */
 	public function test_analytics_prefix_helper_matches_the_proxy_capability() {
-		// getValue() reads a private constant without any accessibility dance.
-		$prefixes = ( new \ReflectionClassConstant(
-			\Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller::class,
-			'PREFIX_CONFIG'
-		) )->getValue();
+		$controller = new Api_Proxy_Controller();
+		$request    = new WP_REST_Request( 'GET', '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports/orders' );
+		$request->set_param( 'endpoint', 'analytics/reports/orders' );
 
-		$this->assertSame( 'manage_options', $prefixes['analytics']['capability'] );
+		$reader = $this->login_as( 'editor' );
+		$this->grant_view_stats_to( $reader );
+
+		$this->assertSame(
+			$controller->check_data_permission( $request ),
+			current_user_can_read_analytics_prefix(),
+			'A view_stats reader must be refused by the proxy and by the helper that hides its surfaces.'
+		);
+
+		$this->login_as( 'administrator' );
+
+		$this->assertSame(
+			$controller->check_data_permission( $request ),
+			current_user_can_read_analytics_prefix(),
+			'An administrator must be admitted by both.'
+		);
 	}
 }
