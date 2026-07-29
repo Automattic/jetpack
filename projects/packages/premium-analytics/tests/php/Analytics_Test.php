@@ -196,9 +196,9 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * admin-ajax.php sets is_admin() true, but that traffic is mostly front-end
-	 * in origin — WooCommerce stores especially. It renders no dashboard, and the
-	 * package registers no wp_ajax handlers, so it does not need the build.
+	 * The admin-ajax.php endpoint sets is_admin() true, but that traffic is mostly
+	 * front-end in origin — WooCommerce stores especially. It renders no dashboard,
+	 * and the package registers no wp_ajax handlers, so it does not need the build.
 	 *
 	 * Defining DOING_AJAX is safe here only because the test runs in its own
 	 * process; a constant cannot be unset.
@@ -222,12 +222,16 @@ class Analytics_Test extends TestCase {
 	/**
 	 * A REST request still gets the full widget manifest.
 	 *
-	 * is_admin() is false on REST, so the gate skips the build there. That is
-	 * safe because Dashboard_Support_Routes::boot_routes() requires the route
-	 * files on rest_api_init, and widget-modules.php's
-	 * ensure_widget_registry_ready() requires build/widgets.php itself. Loading
-	 * the build at boot for REST's sake was what PR #49961 added, and it is no
-	 * longer what keeps this working.
+	 * Because is_admin() is false on REST, the gate skips the build there. This
+	 * test pins the half a unit test can reach: the route is still registered and
+	 * the lazy hydration path still runs, both via
+	 * Dashboard_Support_Routes::boot_routes() on rest_api_init.
+	 *
+	 * It does not prove the generated build manifest is reachable on REST. The
+	 * fixture staged below declares jpa_get_registered_widget_modules() itself and
+	 * CI never has a build/ directory, so ensure_widget_registry_ready()'s require
+	 * of build/widgets.php is shadowed here — deleting that require would not
+	 * redden this test. Only verification against a real site covers it.
 	 *
 	 * Asserts a uniquely named sentinel rather than "the response is not empty":
 	 * the widget type registry is process-wide, so a non-empty response could be
