@@ -228,6 +228,13 @@ export const CompactLayout: Story = {
  * by a wide margin, and CJK is narrower than English.
  */
 
+/*
+ * Everything from here down quotes translated strings, so a spell checker has
+ * nothing useful to say about it.
+ *
+ * cspell:disable
+ */
+
 type LocaleFixture = {
 	/** Human-facing name for the story description. */
 	name: string;
@@ -367,6 +374,35 @@ function WidthLadder( { fixture }: { fixture: LocaleFixture } ) {
 					<DateFiltersPanelStory containerWidth={ width } />
 				</div>
 			) ) }
+
+			{ /*
+			 * Dragging across a boundary is the part the fixed rungs cannot show:
+			 * whether the mode settles in one state or flickers between two. Both
+			 * transitions are in reach here, full to abbreviated first and the
+			 * select further down, and where they land differs per locale.
+			 */ }
+			<div
+				style={ {
+					width: '90%',
+					resize: 'horizontal',
+					overflow: 'auto',
+					border: '1px dotted violet',
+					padding: '24px 0',
+				} }
+			>
+				<div
+					style={ {
+						fontSize: '12px',
+						letterSpacing: '0.05em',
+						textTransform: 'uppercase',
+						opacity: 0.6,
+						marginBottom: '16px',
+					} }
+				>
+					Resize the container to see the effect on the layout
+				</div>
+				<DateFiltersPanelStory />
+			</div>
 		</div>
 	);
 }
