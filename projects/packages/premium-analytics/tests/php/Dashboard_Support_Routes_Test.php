@@ -23,7 +23,7 @@ class Dashboard_Support_Routes_Test extends TestCase {
 		$wp_rest_server = null;
 		remove_all_actions( 'rest_api_init' );
 		remove_all_actions( 'init' );
-		unregister_capabilities();
+		Capabilities::unregister();
 		parent::tearDown();
 	}
 
@@ -82,7 +82,7 @@ class Dashboard_Support_Routes_Test extends TestCase {
 		do_action( 'rest_api_init' );
 
 		$this->assertNotFalse(
-			has_filter( 'map_meta_cap', __NAMESPACE__ . '\\map_analytics_meta_caps' )
+			has_filter( 'map_meta_cap', array( Capabilities::class, 'map_meta_caps' ) )
 		);
 	}
 }

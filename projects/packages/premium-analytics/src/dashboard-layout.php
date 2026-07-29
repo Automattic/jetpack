@@ -16,7 +16,6 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 require_once __DIR__ . '/dashboard-grammar.php';
 require_once __DIR__ . '/rest-namespace.php';
-require_once __DIR__ . '/capabilities.php';
 // Availability policy for default layout instances: defaults are read outside
 // the widget registry bootstrap, so the policy must be loaded here explicitly.
 require_once __DIR__ . '/widget-type-support.php';
@@ -95,7 +94,7 @@ function register_dashboard_default_layout_route() {
 		array(
 			'methods'             => \WP_REST_Server::READABLE,
 			'callback'            => __NAMESPACE__ . '\\get_dashboard_default_layout_response',
-			'permission_callback' => __NAMESPACE__ . '\\current_user_can_view_analytics',
+			'permission_callback' => array( Capabilities::class, 'current_user_can_view_analytics' ),
 			'args'                => array(
 				'name' => array(
 					'description' => __( 'Dashboard identifier as produced by the build pipeline.', 'jetpack-premium-analytics-pkg' ),

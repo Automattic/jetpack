@@ -84,7 +84,7 @@ trait Analytics_Capabilities_Trait {
 	 * @return void
 	 */
 	protected function reset_analytics_capabilities() {
-		unregister_capabilities();
+		Capabilities::unregister();
 
 		if ( null !== $this->granted_view_stats_filter ) {
 			remove_filter( 'map_meta_cap', $this->granted_view_stats_filter, 10 );

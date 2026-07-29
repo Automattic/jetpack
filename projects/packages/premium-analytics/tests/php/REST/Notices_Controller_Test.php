@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\REST;
 
+use Automattic\Jetpack\PremiumAnalytics\Capabilities;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WP_REST_Server;
@@ -35,7 +36,7 @@ class Notices_Controller_Test extends BaseTestCase {
 
 		// Hooked alongside this controller by Analytics::init() in production; the
 		// route's permission check reads the capability it maps.
-		\Automattic\Jetpack\PremiumAnalytics\register_capabilities();
+		Capabilities::register();
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
@@ -47,7 +48,7 @@ class Notices_Controller_Test extends BaseTestCase {
 	 * Drop the capability mapping this test hooked.
 	 */
 	public function tear_down() {
-		\Automattic\Jetpack\PremiumAnalytics\unregister_capabilities();
+		Capabilities::unregister();
 
 		parent::tear_down();
 	}

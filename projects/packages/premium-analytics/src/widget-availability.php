@@ -17,7 +17,6 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 require_once __DIR__ . '/widget-types.php';
 require_once __DIR__ . '/widget-type-support.php';
-require_once __DIR__ . '/capabilities.php';
 
 /**
  * Widget categories that are only meaningful with WooCommerce active.
@@ -208,7 +207,7 @@ function remove_capability_gated_widget_types( $widget_candidates, $can_view_sto
 function filter_registrable_widget_types_by_capability( $widget_candidates ) {
 	return remove_capability_gated_widget_types(
 		$widget_candidates,
-		current_user_can_view_store_reports()
+		Capabilities::current_user_can_view_store_reports()
 	);
 }
 

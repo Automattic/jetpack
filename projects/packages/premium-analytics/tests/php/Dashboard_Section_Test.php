@@ -47,7 +47,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		// Hooked by the package's entry points in production; the routes under test
 		// are gated on the capability it maps.
-		register_capabilities();
+		Capabilities::register();
 	}
 
 	/**

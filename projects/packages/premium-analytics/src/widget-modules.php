@@ -13,7 +13,6 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 require_once __DIR__ . '/rest-namespace.php';
-require_once __DIR__ . '/capabilities.php';
 
 /**
  * Register the `/wpcom/v2/widget-modules` REST route.
@@ -27,7 +26,7 @@ function register_widget_modules_rest_route() {
 		array(
 			'methods'             => \WP_REST_Server::READABLE,
 			'callback'            => __NAMESPACE__ . '\\get_widget_modules_response',
-			'permission_callback' => __NAMESPACE__ . '\\current_user_can_view_analytics',
+			'permission_callback' => array( Capabilities::class, 'current_user_can_view_analytics' ),
 		)
 	);
 }

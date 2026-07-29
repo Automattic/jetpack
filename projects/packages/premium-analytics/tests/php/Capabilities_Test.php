@@ -8,23 +8,16 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
-use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WP_REST_Request;
 
-require_once __DIR__ . '/../../src/capabilities.php';
 require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
 
 /**
- * @covers ::Automattic\Jetpack\PremiumAnalytics\map_analytics_meta_caps
- * @covers ::Automattic\Jetpack\PremiumAnalytics\register_capabilities
- * @covers ::Automattic\Jetpack\PremiumAnalytics\current_user_can_view_analytics
- * @covers ::Automattic\Jetpack\PremiumAnalytics\current_user_can_view_store_reports
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Capabilities
  */
-#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\map_analytics_meta_caps' )]
-#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\register_capabilities' )]
-#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\current_user_can_view_analytics' )]
-#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\current_user_can_view_store_reports' )]
+#[CoversClass( Capabilities::class )]
 class Capabilities_Test extends BaseTestCase {
 
 	use Analytics_Capabilities_Trait;
@@ -33,7 +26,7 @@ class Capabilities_Test extends BaseTestCase {
 	 * Hook the mapping under test, the way a WordPress-aware entry point would.
 	 */
 	public function set_up() {
-		register_capabilities();
+		Capabilities::register();
 	}
 
 	/**
@@ -53,7 +46,7 @@ class Capabilities_Test extends BaseTestCase {
 	public function test_administrator_can_view_analytics_without_the_stats_mapping() {
 		$this->login_as( 'administrator' );
 
-		$this->assertTrue( current_user_can_view_analytics() );
+		$this->assertTrue( Capabilities::current_user_can_view_analytics() );
 	}
 
 	/**
@@ -63,7 +56,7 @@ class Capabilities_Test extends BaseTestCase {
 		$user_id = $this->login_as( 'editor' );
 		$this->grant_view_stats_to( $user_id );
 
-		$this->assertTrue( current_user_can_view_analytics() );
+		$this->assertTrue( Capabilities::current_user_can_view_analytics() );
 	}
 
 	/**
@@ -72,7 +65,7 @@ class Capabilities_Test extends BaseTestCase {
 	public function test_plain_editor_cannot_view_analytics() {
 		$this->login_as( 'editor' );
 
-		$this->assertFalse( current_user_can_view_analytics() );
+		$this->assertFalse( Capabilities::current_user_can_view_analytics() );
 	}
 
 	/**
@@ -81,7 +74,7 @@ class Capabilities_Test extends BaseTestCase {
 	public function test_logged_out_user_cannot_view_analytics() {
 		wp_set_current_user( 0 );
 
-		$this->assertFalse( current_user_can_view_analytics() );
+		$this->assertFalse( Capabilities::current_user_can_view_analytics() );
 	}
 
 	/**
@@ -90,7 +83,7 @@ class Capabilities_Test extends BaseTestCase {
 	public function test_mapping_leaves_other_capabilities_alone() {
 		$this->assertSame(
 			array( 'edit_posts' ),
-			map_analytics_meta_caps( array( 'edit_posts' ), 'edit_posts', 1 )
+			Capabilities::map_meta_caps( array( 'edit_posts' ), 'edit_posts', 1 )
 		);
 	}
 
@@ -102,8 +95,8 @@ class Capabilities_Test extends BaseTestCase {
 		$user_id = $this->login_as( 'editor' );
 		$this->grant_view_stats_to( $user_id );
 
-		$this->assertTrue( current_user_can_view_analytics() );
-		$this->assertFalse( current_user_can_view_store_reports() );
+		$this->assertTrue( Capabilities::current_user_can_view_analytics() );
+		$this->assertFalse( Capabilities::current_user_can_view_store_reports() );
 	}
 
 	/**
@@ -112,7 +105,7 @@ class Capabilities_Test extends BaseTestCase {
 	public function test_administrator_can_view_store_reports() {
 		$this->login_as( 'administrator' );
 
-		$this->assertTrue( current_user_can_view_store_reports() );
+		$this->assertTrue( Capabilities::current_user_can_view_store_reports() );
 	}
 
 	/**
@@ -132,7 +125,7 @@ class Capabilities_Test extends BaseTestCase {
 
 		$this->assertSame(
 			$controller->check_data_permission( $request ),
-			current_user_can_view_store_reports(),
+			Capabilities::current_user_can_view_store_reports(),
 			'A view_stats reader must be refused by the proxy and by the helper that hides its surfaces.'
 		);
 
@@ -140,7 +133,7 @@ class Capabilities_Test extends BaseTestCase {
 
 		$this->assertSame(
 			$controller->check_data_permission( $request ),
-			current_user_can_view_store_reports(),
+			Capabilities::current_user_can_view_store_reports(),
 			'An administrator must be admitted by both.'
 		);
 
@@ -150,10 +143,10 @@ class Capabilities_Test extends BaseTestCase {
 		$shop_manager = $this->login_as( 'subscriber' );
 		$this->grant_capability_to( $shop_manager, 'view_woocommerce_reports' );
 
-		$this->assertTrue( current_user_can_view_store_reports() );
+		$this->assertTrue( Capabilities::current_user_can_view_store_reports() );
 		$this->assertSame(
 			$controller->check_data_permission( $request ),
-			current_user_can_view_store_reports(),
+			Capabilities::current_user_can_view_store_reports(),
 			'A WooCommerce report viewer must be admitted by both.'
 		);
 	}
@@ -166,7 +159,7 @@ class Capabilities_Test extends BaseTestCase {
 		$shop_manager = $this->login_as( 'subscriber' );
 		$this->grant_capability_to( $shop_manager, 'view_woocommerce_reports' );
 
-		$this->assertTrue( current_user_can_view_store_reports() );
-		$this->assertFalse( current_user_can_view_analytics() );
+		$this->assertTrue( Capabilities::current_user_can_view_store_reports() );
+		$this->assertFalse( Capabilities::current_user_can_view_analytics() );
 	}
 }

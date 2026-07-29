@@ -308,6 +308,47 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The registry-time callback reads the current user, so the same manifest
+	 * yields different types depending on who is asking.
+	 */
+	public function test_registry_callback_follows_the_current_user() {
+		$reader = wp_insert_user(
+			array(
+				'user_login' => 'jpa_widget_reader',
+				'user_pass'  => 'password',
+				'role'       => 'editor',
+			)
+		);
+		wp_set_current_user( $reader );
+
+		$this->assertSame(
+			array( 'jpa/traffic-chart' ),
+			array_column(
+				filter_registrable_widget_types_by_capability( $this->store_report_widget_candidates() ),
+				'name'
+			),
+			'An editor cannot read the store reports, so their categories are dropped.'
+		);
+
+		$admin = wp_insert_user(
+			array(
+				'user_login' => 'jpa_widget_admin',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $admin );
+
+		$this->assertSame(
+			$this->store_report_widget_candidates(),
+			filter_registrable_widget_types_by_capability( $this->store_report_widget_candidates() ),
+			'An administrator keeps every category.'
+		);
+
+		wp_set_current_user( 0 );
+	}
+
+	/**
 	 * Candidates without a category are never capability-gated.
 	 */
 	public function test_uncategorized_widgets_are_not_capability_gated() {

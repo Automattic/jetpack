@@ -61,7 +61,7 @@ class Widget_Modules_Test extends TestCase {
 		$routes = rest_get_server()->get_routes();
 
 		$this->assertSame(
-			__NAMESPACE__ . '\\current_user_can_view_analytics',
+			array( Capabilities::class, 'current_user_can_view_analytics' ),
 			$routes[ self::ROUTE ][0]['permission_callback']
 		);
 	}

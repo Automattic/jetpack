@@ -49,7 +49,7 @@ class Analytics_Test extends TestCase {
 		remove_all_filters( 'jetpack_admin_js_script_data' );
 		remove_all_filters( 'rest_post_dispatch' );
 		remove_all_filters( 'jetpack_stats_transient_cleanup_prefixes' );
-		unregister_capabilities();
+		Capabilities::unregister();
 		$this->reset_analytics_init_state();
 		parent::tearDown();
 	}
@@ -114,7 +114,7 @@ class Analytics_Test extends TestCase {
 		}
 
 		$this->assertNotFalse(
-			has_filter( 'map_meta_cap', __NAMESPACE__ . '\\map_analytics_meta_caps' )
+			has_filter( 'map_meta_cap', array( Capabilities::class, 'map_meta_caps' ) )
 		);
 	}
 
@@ -235,7 +235,7 @@ class Analytics_Test extends TestCase {
 	public function test_register_admin_menu_uses_the_dashboard_capability() {
 		$menu_item = $this->register_admin_menu_without_build();
 
-		$this->assertSame( VIEW_ANALYTICS_CAPABILITY, $menu_item[1] ?? null );
+		$this->assertSame( Capabilities::VIEW_ANALYTICS, $menu_item[1] ?? null );
 	}
 
 	/**
@@ -401,7 +401,7 @@ class Analytics_Test extends TestCase {
 
 		// Hooked by boot_shared_services() in production; add_menu_page() resolves the
 		// dashboard capability, and an unmapped one would skip the page's render hook.
-		register_capabilities();
+		Capabilities::register();
 
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 		$this->capture_doing_it_wrong();

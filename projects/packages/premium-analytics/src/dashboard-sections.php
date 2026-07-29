@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 require_once __DIR__ . '/dashboard-layout.php';
 require_once __DIR__ . '/dashboard-grammar.php';
-require_once __DIR__ . '/capabilities.php';
 require_once __DIR__ . '/class-dashboard-section.php';
 require_once __DIR__ . '/class-dashboard-section-registry.php';
 
@@ -78,7 +77,7 @@ function is_woocommerce_dashboard_section_available() {
  * @return bool
  */
 function is_woocommerce_dashboard_section_available_to_current_user() {
-	return is_woocommerce_dashboard_section_available() && current_user_can_view_store_reports();
+	return is_woocommerce_dashboard_section_available() && Capabilities::current_user_can_view_store_reports();
 }
 
 /**
@@ -154,7 +153,7 @@ function bootstrap_dashboard_sections() {
  * @return bool
  */
 function check_dashboard_sections_permission() {
-	return current_user_can_view_analytics();
+	return Capabilities::current_user_can_view_analytics();
 }
 
 /**

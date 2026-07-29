@@ -13,6 +13,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
 defined( 'ABSPATH' ) || exit;
 
+use Automattic\Jetpack\PremiumAnalytics\Capabilities;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\Logger_Interface;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Logger_Trait;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Utilities;
@@ -20,9 +21,6 @@ use WC_REST_Controller;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
-use function Automattic\Jetpack\PremiumAnalytics\current_user_can_view_store_reports;
-
-require_once __DIR__ . '/../../capabilities.php';
 
 /**
  * CSV Export Controller class.
@@ -145,7 +143,7 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 	 * @return bool True if user has permission.
 	 */
 	public function check_permission(): bool {
-		return current_user_can_view_store_reports();
+		return Capabilities::current_user_can_view_store_reports();
 	}
 
 	/**
