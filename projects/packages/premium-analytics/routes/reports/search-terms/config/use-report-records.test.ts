@@ -280,13 +280,12 @@ describe( 'useSearchTermsReportRecords', () => {
 		);
 	} );
 
-	it( 'surfaces error and refetch from the report', () => {
+	it( 'sets isError when the primary query fails', () => {
 		const refetch = jest.fn();
 		mockUseStatsSearchTerms.mockReturnValue( {
-			primary: { data: report, isLoading: false, isFetching: false },
-			comparison: { data: undefined, isLoading: false, isFetching: false },
+			primary: { data: undefined, isLoading: false, isFetching: false, isError: true },
+			comparison: { data: undefined, isLoading: false, isFetching: false, isError: false },
 			hasComparison: false,
-			isError: true,
 			refetch,
 		} as unknown as ReturnType< typeof useStatsSearchTerms > );
 		const params: ReportParams = {
@@ -298,6 +297,47 @@ describe( 'useSearchTermsReportRecords', () => {
 		const { result } = renderHook( () => useSearchTermsReportRecords( params ) );
 
 		expect( result.current.isError ).toBe( true );
+		expect( result.current.refetch ).toBe( refetch );
+	} );
+
+	it( 'does not set isError for a comparison-only failure, and still returns primary rows', () => {
+		const refetch = jest.fn();
+		mockUseStatsSearchTerms.mockReturnValue( {
+			primary: {
+				data: report,
+				isLoading: false,
+				isFetching: false,
+				isError: false,
+				isSuccess: true,
+			},
+			comparison: {
+				data: undefined,
+				isLoading: false,
+				isFetching: false,
+				isSuccess: false,
+				isPlaceholderData: false,
+				isError: true,
+			},
+			hasComparison: true,
+			refetch,
+		} as unknown as ReturnType< typeof useStatsSearchTerms > );
+		const params: ReportParams = {
+			from: '2026-06-03',
+			to: '2026-06-04',
+			interval: 'day',
+			comp: '1',
+			compare_from: '2026-05-27',
+			compare_to: '2026-05-28',
+		};
+
+		const { result } = renderHook( () => useSearchTermsReportRecords( params ) );
+
+		expect( result.current.isError ).toBe( false );
+		expect( result.current.table.rows ).toEqual( [
+			{ id: 'term:jetpack stats', term: 'jetpack stats', views: 12 },
+			{ id: 'unknown-search-terms', term: 'Unknown search terms', views: 10 },
+		] );
+		expect( result.current.table.hasComparison ).toBe( false );
 		expect( result.current.refetch ).toBe( refetch );
 	} );
 } );

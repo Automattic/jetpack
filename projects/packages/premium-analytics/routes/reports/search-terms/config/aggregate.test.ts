@@ -224,4 +224,75 @@ describe( 'report search terms aggregate', () => {
 			hasComparison: true,
 		} );
 	} );
+
+	it( 'leaves previousViews undefined for a term missing from a truncated comparison', () => {
+		// other_search_terms > 0 means the comparison list does not include
+		// every term, so "wordpress analytics" stays a real zero while
+		// "jetpack stats" is simply absent from the truncated list.
+		const truncatedComparisonReport: StatsNormalizedReport< StatsSearchTermsItem > = {
+			summary: { other_search_terms: 5 },
+			data: [
+				{
+					...report.data[ 0 ],
+					items: [
+						{
+							label: 'wordpress analytics',
+							views: 0,
+							className: 'user-selectable',
+							children: null,
+						},
+					],
+					encrypted_search_terms: 0,
+				},
+				{ ...report.data[ 1 ], items: [], encrypted_search_terms: 0 },
+			],
+		};
+
+		const result = aggregateSearchTermRows(
+			report,
+			'Unknown search terms',
+			truncatedComparisonReport
+		);
+		const wordpressAnalyticsRow = result.rows.find( row => row.id === 'term:wordpress analytics' );
+		const jetpackStatsRow = result.rows.find( row => row.id === 'term:jetpack stats' );
+
+		expect( wordpressAnalyticsRow?.previousViews ).toBe( 0 );
+		expect( jetpackStatsRow?.previousViews ).toBeUndefined();
+		expect( result.hasComparison ).toBe( true );
+	} );
+
+	it( 'treats a missing term as zero when the comparison is not truncated', () => {
+		// other_search_terms absent or <= 0 means the comparison list is
+		// complete, so a missing term keeps the legacy explicit-zero behavior.
+		const untruncatedComparisonReport: StatsNormalizedReport< StatsSearchTermsItem > = {
+			summary: { other_search_terms: -34 },
+			data: [
+				{
+					...report.data[ 0 ],
+					items: [
+						{
+							label: 'wordpress analytics',
+							views: 0,
+							className: 'user-selectable',
+							children: null,
+						},
+					],
+					encrypted_search_terms: 0,
+				},
+				{ ...report.data[ 1 ], items: [], encrypted_search_terms: 0 },
+			],
+		};
+
+		const result = aggregateSearchTermRows(
+			report,
+			'Unknown search terms',
+			untruncatedComparisonReport
+		);
+		const wordpressAnalyticsRow = result.rows.find( row => row.id === 'term:wordpress analytics' );
+		const jetpackStatsRow = result.rows.find( row => row.id === 'term:jetpack stats' );
+
+		expect( wordpressAnalyticsRow?.previousViews ).toBe( 0 );
+		expect( jetpackStatsRow?.previousViews ).toBe( 0 );
+		expect( result.hasComparison ).toBe( true );
+	} );
 } );

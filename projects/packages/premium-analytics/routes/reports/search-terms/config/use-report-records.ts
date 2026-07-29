@@ -59,7 +59,9 @@ export function useSearchTermsReportRecords( reportParams: ReportParams ) {
 	);
 
 	return {
-		isError: report.isError,
+		// A comparison-only failure still renders the table with primary rows
+		// and no deltas, via the comparisonSettled guard above.
+		isError: report.primary.isError,
 		refetch: report.refetch,
 		table: {
 			...table,

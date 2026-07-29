@@ -133,13 +133,25 @@ export function aggregateSearchTermRows(
 		] )
 	);
 
+	// The Stats payload reports truncation via `other_search_terms`: a positive
+	// count means the comparison response does not list every term, so a term
+	// missing from it may have simply fallen off the list rather than dropped
+	// to zero. Only an untruncated comparison list can treat a missing term as
+	// an explicit zero.
+	const comparisonOtherSearchTerms = getCount( comparisonReport.summary.other_search_terms );
+	const comparisonTruncated =
+		comparisonOtherSearchTerms !== undefined && comparisonOtherSearchTerms > 0;
+
 	return {
-		rows: primaryRows.map( row => ( {
-			...row,
-			// For the legacy `max=0` request, absence from a successfully
-			// settled comparison response is an explicit zero.
-			previousViews: comparisonById.get( row.id ) ?? 0,
-		} ) ),
+		rows: primaryRows.map( row => {
+			const previousViews = comparisonById.get( row.id );
+
+			if ( previousViews !== undefined ) {
+				return { ...row, previousViews };
+			}
+
+			return { ...row, previousViews: comparisonTruncated ? undefined : 0 };
+		} ),
 		hasComparison: true,
 	};
 }
