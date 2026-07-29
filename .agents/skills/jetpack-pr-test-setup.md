@@ -83,6 +83,17 @@ gh pr view <PR> --repo Automattic/jetpack \
 
 - Keep `headRefName` — that's the branch Beta Tester activates.
 - Keep `.files[].path` — that drives plugin detection in step 2.
+- **Stop here if no changed path is under `projects/`.** A PR that only touches `tools/`,
+  `docs/`, `.github/`, or `.agents/` ships no plugin or package code, so there is nothing to
+  install on a site and nothing for steps 2–6 to do. Say exactly that in one line, name the PR
+  you resolved, and ask for a PR number that touches `projects/`. Do **not** provision a site
+  first — step 1 costs a JN site and ~3 minutes of polling before step 2 would surface the
+  problem — and do not offer to "dry-run the skill" or cite these step numbers at the user;
+  neither means anything to someone who wants a testable site.
+- This case is easy to hit by accident: with no PR argument the default is the *current
+  branch's* PR, which is the skill's own PR whenever you're developing this skill. Whenever the
+  PR came from that default rather than an explicit argument, name the PR number and title you
+  resolved before acting on it, so a wrong guess is visible immediately.
 - Pull the **Testing Instructions** section out of `.body`. Extract every precondition it
   states — phrases like "Requires…", "add_filter(…)", "Enable…", "Upgrade … to Pro", "with the
   X feature", "at least one … connection", "add the blog sticker …". This list is the setup
@@ -169,6 +180,9 @@ browser-driven Beta Tester UI exists to cover.
   PRs.
 - More than one plugin affected, or a package that plausibly belongs to a non-`jetpack`
   plugin → **ask** which to activate.
+- **Nothing under `projects/` → there is no target.** Step 0 should have caught this; if you
+  reach here, stop and report it plainly rather than inventing a target or asking the user to
+  reinterpret their request.
 
 **Ensure the Beta plugin is present, then activate** — every call via the `jnwp` transport
 from step 1b. If step 1 provisioned with `jetpack-beta`, the plugin is already installed and
