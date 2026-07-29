@@ -289,6 +289,14 @@ class Connections_Controller extends Base_Controller {
 			return $connections;
 		}
 
+		/*
+		 * The Jetpack site path proxies to WPCOM instead of going through Connections::get_all(),
+		 * so the filter is applied here too to keep both paths consistent.
+		 *
+		 * This filter is documented in projects/packages/publicize/src/class-connections.php
+		 */
+		$connections = (array) apply_filters( 'jetpack_publicize_connections', $connections );
+
 		$items = array();
 
 		foreach ( $connections as $item ) {
