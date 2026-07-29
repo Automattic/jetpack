@@ -182,8 +182,16 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 						<CardTitleIcon icon={ icon } title={ title } />
 					</Card.Title>
 					{ /* The status tag reflects the toggle state; hide it when the toggles
-					   are governed elsewhere (the notice explains the state instead). */ }
-					{ ! notice && <Badge intent={ statusIntent }>{ statusLabel }</Badge> }
+					   are governed elsewhere (the notice explains the state instead).
+					   `HeaderDescription` renders it visibly but marks it `aria-hidden` and
+					   wires `aria-describedby` on the trigger, so the state is announced as
+					   a description instead of becoming part of the button's name — the
+					   header wraps all its children in the trigger. */ }
+					{ ! notice && (
+						<CollapsibleCard.HeaderDescription>
+							<Badge intent={ statusIntent }>{ statusLabel }</Badge>
+						</CollapsibleCard.HeaderDescription>
+					) }
 				</Stack>
 			</CollapsibleCard.Header>
 			{ notice }
@@ -453,9 +461,13 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 							<Card.Title>
 								<CardTitleIcon icon={ page } title={ __( 'llms.txt', 'jetpack-seo' ) } />
 							</Card.Title>
-							<Badge intent={ llmsTxtEffectivelyOn ? 'stable' : 'draft' }>
-								{ llmsTxtStatusLabel }
-							</Badge>
+							{ /* Announced via `aria-describedby` rather than as part of the
+							   trigger's name — see the crawler section above. */ }
+							<CollapsibleCard.HeaderDescription>
+								<Badge intent={ llmsTxtEffectivelyOn ? 'stable' : 'draft' }>
+									{ llmsTxtStatusLabel }
+								</Badge>
+							</CollapsibleCard.HeaderDescription>
 						</Stack>
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>

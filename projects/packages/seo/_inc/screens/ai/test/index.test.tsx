@@ -274,18 +274,55 @@ describe( 'AiScreen (GEO tab) — module titles', () => {
 	} );
 
 	// `Card.Title` and `CollapsibleCard.Header` both default to a div, so without
-	// opting in the tab has no heading structure to navigate at all. Names are
-	// matched loosely because the existing state badge sits inside the trigger and
-	// so forms part of its accessible name.
-	it( 'renders each module header as a heading that wraps its trigger', () => {
+	// opting in the tab has no heading structure to navigate at all.
+	//
+	// The names are matched EXACTLY on purpose: the header wraps all its children in
+	// the trigger, so a state badge left beside the title would land in the button's
+	// accessible name ("Answer enginesAllowed"). These assertions only pass while the
+	// badges stay in `HeaderDescription`, which is `aria-hidden` and surfaced through
+	// `aria-describedby` instead.
+	it( 'renders each module header as a heading, named by its title alone', () => {
 		render(
 			<AiScreen form={ allModulesForm() } searchEnginesVisible onManageVisibility={ noop } />
 		);
 
-		for ( const title of [ /^Answer engines/, /^Training crawlers/, /^llms\.txt/ ] ) {
+		for ( const title of [
+			'Answer engines',
+			'Training crawlers',
+			'llms.txt',
+			'AI SEO Enhancer',
+		] ) {
 			const trigger = screen.getByRole( 'button', { name: title } );
 			// eslint-disable-next-line testing-library/no-node-access -- the heading/trigger nesting is the contract.
 			expect( trigger.closest( 'h2' ) ).toBeInTheDocument();
+		}
+	} );
+
+	// The badge must stay visible — this is an accessibility relocation, not a
+	// removal. Asserting it through the trigger's `aria-describedby` target proves
+	// both halves at once: the badge still renders, and it now reaches assistive
+	// tech as the trigger's description instead of part of its name. (A bare text
+	// query would be ambiguous — the toggles inside the expanded content say
+	// "Allowed" too.)
+	it( 'keeps each state badge on screen, wired as the trigger description', () => {
+		render(
+			<AiScreen form={ allModulesForm() } searchEnginesVisible onManageVisibility={ noop } />
+		);
+
+		for ( const [ title, state ] of [
+			[ 'Answer engines', 'Allowed' ],
+			[ 'Training crawlers', 'Blocked' ],
+			[ 'llms.txt', 'Enabled' ],
+		] ) {
+			const describedBy = screen
+				.getByRole( 'button', { name: title } )
+				.getAttribute( 'aria-describedby' );
+			expect( describedBy ).toBeTruthy();
+
+			// eslint-disable-next-line testing-library/no-node-access -- resolving an id reference is the point.
+			const description = document.getElementById( describedBy as string );
+			expect( description ).toBeVisible();
+			expect( description ).toHaveTextContent( state );
 		}
 	} );
 
