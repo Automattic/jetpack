@@ -93,7 +93,16 @@ export default function useSocialLogin() {
 
 	const login = ( service: SocialServiceName ) => {
 		const { connectURL } = VerbumComments;
-		const broadcastChannel = new BroadcastChannel( 'verbum_post_message' );
+
+		// BroadcastChannel needs storage access, which a cookie-blocked iframe doesn't have — Firefox
+		// throws SecurityError. It's a secondary channel: the popup also posts back via
+		// window.postMessage, picked up by the listener below, so carry on without it.
+		let broadcastChannel: BroadcastChannel | null = null;
+		try {
+			broadcastChannel = new BroadcastChannel( 'verbum_post_message' );
+		} catch {
+			// No channel available.
+		}
 
 		const loginWindow = window.open(
 			`${ connectURL }&blog_id=${ VerbumComments.siteId }&post_id=${ VerbumComments.postId }&service=${ service }`,
@@ -136,7 +145,7 @@ export default function useSocialLogin() {
 
 		// Listen for login data
 		window.addEventListener( 'message', waitForLogin );
-		broadcastChannel.addEventListener( 'message', waitForLogin );
+		broadcastChannel?.addEventListener( 'message', waitForLogin );
 
 		// Clean up loginWindow to reset activeService
 		const loginClosed = setInterval( () => {
@@ -144,8 +153,8 @@ export default function useSocialLogin() {
 				clearInterval( loginClosed );
 				setLoginWindowRef( undefined );
 				window.removeEventListener( 'message', waitForLogin );
-				broadcastChannel.removeEventListener( 'message', waitForLogin );
-				broadcastChannel.close();
+				broadcastChannel?.removeEventListener( 'message', waitForLogin );
+				broadcastChannel?.close();
 			}
 		}, 100 );
 
