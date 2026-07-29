@@ -422,7 +422,7 @@ class Analytics_Test extends TestCase {
 	 * Point the build loader at the fixture build, which records that it ran.
 	 */
 	private function use_fixture_build() {
-		$this->set_analytics_property( 'build_entry', __DIR__ . '/fixtures/build/build.php' );
+		$this->set_analytics_property( 'build_entry', __DIR__ . '/fixtures/build-entry/build.php' );
 	}
 
 	/**
