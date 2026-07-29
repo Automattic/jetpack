@@ -399,6 +399,22 @@ describe( 'Newsletter Mode Dashboard stats view', () => {
 		expect( sources ).toContain( 'https://example.com/in-body.jpg' );
 	} );
 
+	it( 'offers a way to start writing when there are no posts', async () => {
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			Promise.resolve( path.startsWith( '/wp/v2/posts' ) ? [] : {} )
+		);
+
+		render( <Stage /> );
+
+		await expect( screen.findByText( 'No posts yet' ) ).resolves.toBeInTheDocument();
+		// The table itself gives way — an empty grid says nothing useful.
+		expect( screen.queryByRole( 'table' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Write your first post' } ) ).toHaveAttribute(
+			'href',
+			SCRIPT_DATA.writeUrl
+		);
+	} );
+
 	it( '"View all" stays inside Newsletter Mode', async () => {
 		render( <Stage /> );
 

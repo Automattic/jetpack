@@ -390,6 +390,17 @@ describe( 'Newsletter Mode dashboard checklist dismissal', () => {
 		expect( screen.queryByText( 'Make it yours' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'puts Recent Posts where the checklist was, once dismissed', () => {
+		render( <Stage /> );
+
+		expect( screen.queryByText( 'Recent Posts' ) ).not.toBeInTheDocument();
+
+		clickButton( 'Dismiss' );
+
+		// Dismissing should not leave a hole in the page.
+		expect( screen.getByText( 'Recent Posts' ) ).toBeInTheDocument();
+	} );
+
 	it( 'hides the checklist and persists the dismissal when Dismiss is clicked', () => {
 		render( <Stage /> );
 

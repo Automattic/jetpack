@@ -22,6 +22,7 @@ import ShareNewsletterModal from '../../_inc/share/share-newsletter-modal';
 import { getAddSubscribersUrl } from '../../_inc/subscribers/lib/add-subscribers-link';
 import { getNewsletterModeScriptData } from '../../src/settings/script-data';
 import { getGreeting } from './greeting';
+import { RecentPosts } from './stats/recent-posts';
 import type { ReactNode } from 'react';
 
 /**
@@ -468,7 +469,11 @@ export const OnboardingView = (): JSX.Element => {
 				</Card.Content>
 			</Card.Root>
 
-			{ ! isChecklistDismissed && (
+			{ /* Dismissing the checklist does not leave a gap: Recent Posts takes its
+			     place, which is the thing worth looking at once onboarding is done. */ }
+			{ isChecklistDismissed ? (
+				<RecentPosts />
+			) : (
 				<div className="jetpack-newsletter-home__checklist-card">
 					<div className="jetpack-newsletter-home__checklist-header">
 						<Text variant="heading-lg" render={ <h2 /> }>

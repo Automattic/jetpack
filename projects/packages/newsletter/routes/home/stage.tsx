@@ -1,8 +1,10 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import { getSiteData } from '@automattic/jetpack-script-data';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { useKeyboardShortcut } from '@wordpress/compose';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { queryClient } from '../../_inc/subscribers/lib/query-client';
 import { OnboardingView } from './onboarding-view';
 import { StatsView } from './stats-view';
 import './route.scss';
@@ -106,9 +108,12 @@ const Stage = (): JSX.Element => {
 			// no condition — unlike the Newsletter page, which is shared.
 			showFooter={ false }
 		>
-			<div className="jetpack-newsletter-mode-page">
-				{ view === 'stats' ? <StatsView /> : <OnboardingView /> }
-			</div>
+			{ /* Both views can show the Recent Posts table, which fetches. */ }
+			<QueryClientProvider client={ queryClient }>
+				<div className="jetpack-newsletter-mode-page">
+					{ view === 'stats' ? <StatsView /> : <OnboardingView /> }
+				</div>
+			</QueryClientProvider>
 		</AdminPage>
 	);
 };

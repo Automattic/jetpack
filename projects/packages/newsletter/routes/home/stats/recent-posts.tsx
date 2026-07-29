@@ -1,7 +1,7 @@
 import { DataViews, type Field, type View } from '@wordpress/dataviews';
 import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Badge, Text } from '@wordpress/ui';
+import { Badge, Stack, Text } from '@wordpress/ui';
 import { getNewsletterModeScriptData } from '../../../src/settings/script-data';
 import { useRecentPosts, type RecentPost } from './use-recent-posts';
 
@@ -34,6 +34,42 @@ const getPostId = ( post: RecentPost ): string => String( post.id );
  *
  * @return The recent posts card.
  */
+/**
+ * What the table shows before anything has been written.
+ *
+ * The one thing worth doing from here is writing a post, so that is the only
+ * thing offered — pointing at the same destination as the nav's Write button.
+ *
+ * @return The empty state.
+ */
+const NoPosts = (): JSX.Element => (
+	<Stack direction="column" align="center" gap="sm" className="jetpack-newsletter-home__no-posts">
+		<Text variant="heading-md" render={ <p /> }>
+			{ __( 'No posts yet', 'jetpack-newsletter' ) }
+		</Text>
+		<Text
+			variant="body-md"
+			render={ <p /> }
+			className="jetpack-newsletter-home__muted jetpack-newsletter-home__no-posts-lede"
+		>
+			{ __(
+				'Every newsletter starts with a first post. Publish yours to start growing your audience.',
+				'jetpack-newsletter'
+			) }
+		</Text>
+		{ /* A link, not a `Button`. It navigates to the editor, and `Button`
+		     rendered as an anchor stamps `role="button"` on it (Base UI
+		     `useButton`), which would announce it as a button to a screen reader
+		     while it actually takes you somewhere. Styled to match instead. */ }
+		<a
+			className="jetpack-newsletter-home__no-posts-cta"
+			href={ getNewsletterModeScriptData()?.writeUrl ?? 'post-new.php' }
+		>
+			{ __( 'Write your first post', 'jetpack-newsletter' ) }
+		</a>
+	</Stack>
+);
+
 export const RecentPosts = (): JSX.Element => {
 	const { posts, isLoading } = useRecentPosts();
 
@@ -149,24 +185,28 @@ export const RecentPosts = (): JSX.Element => {
 				</a>
 			</div>
 			<div className="jetpack-newsletter-home__posts">
-				<DataViews< RecentPost >
-					data={ posts }
-					fields={ fields }
-					view={ view }
-					onChangeView={ setView }
-					getItemId={ getPostId }
-					isLoading={ isLoading }
-					paginationInfo={ { totalItems: posts.length, totalPages: 1 } }
-					defaultLayouts={ { table: {} } }
-					search={ false }
-				>
-					{ /* Composing the children replaces the default layout wholesale,
+				{ ! isLoading && posts.length === 0 ? (
+					<NoPosts />
+				) : (
+					<DataViews< RecentPost >
+						data={ posts }
+						fields={ fields }
+						view={ view }
+						onChangeView={ setView }
+						getItemId={ getPostId }
+						isLoading={ isLoading }
+						paginationInfo={ { totalItems: posts.length, totalPages: 1 } }
+						defaultLayouts={ { table: {} } }
+						search={ false }
+					>
+						{ /* Composing the children replaces the default layout wholesale,
 					     which is how `DataViews` is meant to be stripped back: no search
 					     bar, no view-config cog, no pagination footer. This is a fixed
 					     five-row preview with "View all" for the rest — none of that
 					     chrome has anything to act on. */ }
-					<DataViews.Layout />
-				</DataViews>
+						<DataViews.Layout />
+					</DataViews>
+				) }
 			</div>
 		</div>
 	);

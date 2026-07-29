@@ -1,9 +1,7 @@
-import { QueryClientProvider } from '@tanstack/react-query';
 import { SelectControl } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
-import { queryClient } from '../../_inc/subscribers/lib/query-client';
 import { getGreeting } from './greeting';
 import { type ChartGranularity, type StatsPeriod } from './stats/placeholder-data';
 import { RecentPosts } from './stats/recent-posts';
@@ -68,9 +66,7 @@ export const StatsView = (): JSX.Element => {
 
 			<SubscribersChart granularity={ granularity } onChangeGranularity={ setGranularity } />
 
-			<QueryClientProvider client={ queryClient }>
-				<RecentPosts />
-			</QueryClientProvider>
+			<RecentPosts />
 		</Stack>
 	);
 };
