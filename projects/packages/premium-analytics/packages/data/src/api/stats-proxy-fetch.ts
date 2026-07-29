@@ -220,7 +220,7 @@ async function normalizeErrorResponse( response: Response ): Promise< unknown > 
  * @param options - apiFetch request options.
  * @return The parsed response body.
  */
-async function fetchPreservingStatus< TResponse >(
+export async function fetchPreservingStatus< TResponse >(
 	options: Record< string, unknown >
 ): Promise< TResponse > {
 	let result: unknown;
