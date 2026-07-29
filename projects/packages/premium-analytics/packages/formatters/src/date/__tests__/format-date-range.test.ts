@@ -5,7 +5,12 @@ import { setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
-import { EN_US_SETTINGS, ES_ES_SETTINGS, utcDate } from '../__fixtures__/wp-date-settings';
+import {
+	EN_US_SETTINGS,
+	ES_ES_SETTINGS,
+	settingsFor,
+	utcDate,
+} from '../__fixtures__/wp-date-settings';
 import { formatDateRange } from '../format-date-range';
 
 describe( 'formatDateRange', () => {
@@ -58,6 +63,24 @@ describe( 'formatDateRange', () => {
 		it( 'collapses a single-day range to one date', () => {
 			const date = utcDate( 2025, 6, 21 );
 			expect( formatDateRange( { from: date, to: date } ) ).toBe( '21 de junio de 2025' );
+		} );
+	} );
+
+	describe( 'site whose date format carries no year', () => {
+		// `date_format` is a free-text field, so a format without a year is
+		// reachable. Collapsing on the rendered strings would fold a whole year
+		// apart into a single date.
+		beforeEach( () => setSettings( settingsFor( 'en-no-year-test', 'F j' ) ) );
+
+		it( 'still spells out both ends of a range spanning years', () => {
+			expect(
+				formatDateRange( { from: utcDate( 2024, 6, 21 ), to: utcDate( 2025, 6, 21 ) } )
+			).toBe( 'June 21 – June 21' );
+		} );
+
+		it( 'collapses a genuine single-day range', () => {
+			const date = utcDate( 2025, 6, 21 );
+			expect( formatDateRange( { from: date, to: date } ) ).toBe( 'June 21' );
 		} );
 	} );
 } );

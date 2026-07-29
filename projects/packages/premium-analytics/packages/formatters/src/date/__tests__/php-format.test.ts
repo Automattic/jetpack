@@ -27,6 +27,12 @@ describe( 'withoutYear', () => {
 		expect( withoutYear( 'j בF Y' ) ).toBe( 'j בF' );
 	} );
 
+	it( 'drops a literal that trails the year', () => {
+		// A Russian-style format: "г." abbreviates "year", so it has nothing
+		// left to qualify once the year is gone.
+		expect( withoutYear( 'j F Y г.' ) ).toBe( 'j F' );
+	} );
+
 	it( 'removes the year from an all-numeric format', () => {
 		expect( withoutYear( 'd/m/Y' ) ).toBe( 'd/m' );
 	} );

@@ -1,63 +1,28 @@
 /**
  * External dependencies
  */
-import { setSettings } from '@wordpress/date';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
 import { readBestDay } from '../render';
+
+// Captured before any test installs settings over them, so the fixtures vary
+// only the timezone and inherit what `@wordpress/date` actually ships.
+const DEFAULTS = getSettings();
 
 /**
  * Install date settings for a site in a given timezone.
  *
  * @param timeZone - IANA zone name.
  * @param offset   - Offset in hours, as WordPress reports it.
- * @param locale   - Unique moment locale name for the fixture.
+ * @param locale   - Unique moment locale name for the fixture, since
+ *                 `setSettings` skips redefining a locale it already knows.
  */
 const siteIn = ( timeZone: string, offset: number, locale: string ) =>
 	setSettings( {
-		l10n: {
-			locale,
-			months: [
-				'January',
-				'February',
-				'March',
-				'April',
-				'May',
-				'June',
-				'July',
-				'August',
-				'September',
-				'October',
-				'November',
-				'December',
-			],
-			monthsShort: [
-				'Jan',
-				'Feb',
-				'Mar',
-				'Apr',
-				'May',
-				'Jun',
-				'Jul',
-				'Aug',
-				'Sep',
-				'Oct',
-				'Nov',
-				'Dec',
-			],
-			weekdays: [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ],
-			weekdaysShort: [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ],
-			meridiem: { am: 'am', AM: 'AM', pm: 'pm', PM: 'PM' },
-			relative: { future: 'in %s', past: '%s ago' },
-			startOfWeek: 0 as const,
-		},
-		formats: {
-			time: 'g:i a',
-			date: 'F j, Y',
-			datetime: 'F j, Y g:i a',
-			datetimeAbbreviated: 'M j, Y g:i a',
-		},
+		...DEFAULTS,
+		l10n: { ...DEFAULTS.l10n, locale },
 		timezone: { offset, offsetFormatted: String( offset ), string: timeZone, abbr: '' },
 	} );
 

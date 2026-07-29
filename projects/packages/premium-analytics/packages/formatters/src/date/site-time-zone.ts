@@ -11,6 +11,14 @@ import { getSettings } from '@wordpress/date';
  * zone in `offset` alone. Anchoring a date to `''` yields an invalid date, so
  * the offset is rendered as a fixed `±HH:MM` identifier instead.
  *
+ * This reads the same settings `formatDate` renders in, so a date anchored here
+ * and formatted there agree on the calendar day. Note that
+ * `getSiteTimezone()` in `@jetpack-premium-analytics/data` answers the same
+ * question from a different source — the core-data `root/site` entity, falling
+ * back to the *browser* zone before it loads — and its `formatGmtOffset()`
+ * duplicates the `±HH:MM` formatting below, already disagreeing on a zero
+ * offset. Keep the two in step until they are collapsed into one accessor.
+ *
  * @return An IANA zone name, or a `±HH:MM` offset.
  */
 export function siteTimeZone(): string {

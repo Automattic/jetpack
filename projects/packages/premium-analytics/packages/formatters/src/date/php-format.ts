@@ -54,7 +54,9 @@ function toSegments( phpFormat: string ): Segment[] {
  * WordPress only publishes whole date formats, so a month-and-day format has
  * to be derived from one. The separator run adjoining the year is taken with
  * it — the run on the side facing the rest of the format, which is the side
- * the punctuation belongs to (`F j, Y` → `F j`, but `Y-m-d` → `m-d`).
+ * the punctuation belongs to (`F j, Y` → `F j`, but `Y-m-d` → `m-d`). Where
+ * the year is the last token, any literal trailing it goes too, since it was
+ * qualifying the year (`j F Y г.` → `j F`).
  *
  * @param phpFormat - PHP `date()` format string.
  * @return The format without its year, or unchanged when it has none.
@@ -69,20 +71,29 @@ export function withoutYear( phpFormat: string ): string {
 		return phpFormat;
 	}
 
-	let start = yearAt;
-	let end = yearAt + 1;
-
 	let precedingToken = yearAt - 1;
 	while ( precedingToken >= 0 && ! segments[ precedingToken ].isToken ) {
 		precedingToken--;
 	}
 
+	let followingToken = yearAt + 1;
+	while ( followingToken < segments.length && ! segments[ followingToken ].isToken ) {
+		followingToken++;
+	}
+
+	let start = yearAt;
+	let end = yearAt + 1;
+
 	if ( precedingToken >= 0 ) {
 		start = precedingToken + 1;
-	} else {
-		while ( end < segments.length && ! segments[ end ].isToken ) {
-			end++;
-		}
+	}
+
+	if ( followingToken === segments.length ) {
+		// Only literals follow the year, and with the token they qualified gone
+		// they have nothing left to say: `j F Y г.` → `j F`, not `j F г.`.
+		end = segments.length;
+	} else if ( precedingToken < 0 ) {
+		end = followingToken;
 	}
 
 	return [ ...segments.slice( 0, start ), ...segments.slice( end ) ]

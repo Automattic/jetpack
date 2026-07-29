@@ -6,20 +6,24 @@
  * mocking the formatter.
  */
 
-const EN_MONTHS = [
-	'January',
-	'February',
-	'March',
-	'April',
-	'May',
-	'June',
-	'July',
-	'August',
-	'September',
-	'October',
-	'November',
-	'December',
-];
+/**
+ * External dependencies
+ */
+import { getSettings, type DateSettings } from '@wordpress/date';
+
+/**
+ * The package's own defaults, captured before any test installs settings over
+ * them. Fixtures vary only the fields under test and inherit the rest, so they
+ * cannot drift from what `@wordpress/date` actually ships.
+ */
+const DEFAULTS = getSettings();
+
+/**
+ * `DateSettings['l10n']['months']` is moment's wider `LocaleSpecification`
+ * shape, which also admits a standalone/format object and a callback. The
+ * package ships a plain array, so narrow it once here rather than at each use.
+ */
+const DEFAULT_MONTHS = DEFAULTS.l10n.months as string[];
 
 const ES_MONTHS = [
 	'enero',
@@ -39,38 +43,35 @@ const ES_MONTHS = [
 /**
  * Build a settings object for a locale.
  *
- * Only the fields the formatter reads vary; the rest mirror what WordPress
- * core sends to the page. The timezone is fixed to UTC so assertions do not
- * depend on the machine running the suite.
+ * The timezone is fixed to UTC so assertions do not depend on the machine
+ * running the suite. Tests that vary the zone spread the result and replace
+ * the `timezone` block.
  *
  * @param locale     - Moment locale name. Must be unique per fixture, since
  *                   `setSettings` skips redefining a locale it already knows.
  * @param dateFormat - The site's `date_format` option, in PHP tokens.
- * @param months     - Translated month names, January first.
+ * @param months     - Translated month names, January first. Defaults to the
+ *                   package's English names.
  * @return Settings ready for `setSettings`.
  */
-const settingsFor = ( locale: string, dateFormat: string, months: string[] ) => ( {
+export const settingsFor = (
+	locale: string,
+	dateFormat: string,
+	months: string[] = DEFAULT_MONTHS
+): DateSettings => ( {
+	...DEFAULTS,
 	l10n: {
+		...DEFAULTS.l10n,
 		locale,
 		months,
 		monthsShort: months.map( month => month.slice( 0, 3 ) ),
-		weekdays: [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ],
-		weekdaysShort: [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ],
-		meridiem: { am: 'am', AM: 'AM', pm: 'pm', PM: 'PM' },
-		relative: { future: 'in %s', past: '%s ago' },
-		startOfWeek: 0 as const,
 	},
-	formats: {
-		time: 'g:i a',
-		date: dateFormat,
-		datetime: `${ dateFormat } g:i a`,
-		datetimeAbbreviated: `${ dateFormat } g:i a`,
-	},
+	formats: { ...DEFAULTS.formats, date: dateFormat },
 	timezone: { offset: 0, offsetFormatted: '0', string: 'UTC', abbr: 'UTC' },
 } );
 
 /** A site left on the US English default. */
-export const EN_US_SETTINGS = settingsFor( 'en-us-test', 'F j, Y', EN_MONTHS );
+export const EN_US_SETTINGS = settingsFor( 'en-us-test', 'F j, Y' );
 
 /**
  * A Spanish site. Its `date_format` puts the day first and spells "de" with

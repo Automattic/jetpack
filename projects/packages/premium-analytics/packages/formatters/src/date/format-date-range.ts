@@ -42,8 +42,14 @@ export const formatDateRange = ( range?: DateRange ): string => {
 		return '';
 	}
 
-	const start = formatDate( from );
-	const end = formatDate( to );
+	// Collapse on the calendar day rather than on the rendered strings: a site
+	// whose `date_format` carries no year would otherwise fold
+	// "June 21, 2024 – June 21, 2025" into a single date. `iso` is fixed and
+	// resolves in the site's timezone, the same zone the display format renders
+	// in, so the two agree on where the day boundary falls.
+	if ( formatDate( from, 'iso' ) === formatDate( to, 'iso' ) ) {
+		return formatDate( from );
+	}
 
-	return start === end ? start : `${ start }${ RANGE_SEPARATOR }${ end }`;
+	return `${ formatDate( from ) }${ RANGE_SEPARATOR }${ formatDate( to ) }`;
 };
