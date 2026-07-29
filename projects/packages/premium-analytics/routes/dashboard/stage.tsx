@@ -1,11 +1,16 @@
 import { GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel, SectionHeader, SectionTabPanel } from '@jetpack-premium-analytics/ui';
+import {
+	DateFiltersPanel,
+	SectionHeader,
+	SectionTabPanel,
+	getSectionSubtitle,
+} from '@jetpack-premium-analytics/ui';
 import { Page, Breadcrumbs } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
@@ -59,6 +64,20 @@ function Dashboard(): JSX.Element {
 	 */
 	const dateFilters = useReportDateFilters( '/' );
 
+	/*
+	 * The subtitle states what the widgets are currently showing, so it follows
+	 * the applied range and comparison rather than the picker's staged draft:
+	 * it must not move while an edit is open, only once Apply commits it.
+	 */
+	const sectionSubtitle = useMemo(
+		() =>
+			getSectionSubtitle( {
+				range: dateFilters.appliedRange,
+				comparisonPresetId: dateFilters.appliedComparisonPresetId,
+			} ),
+		[ dateFilters.appliedRange, dateFilters.appliedComparisonPresetId ]
+	);
+
 	// Container element for the date filters panel responsive layout.
 	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
 
@@ -107,7 +126,7 @@ function Dashboard(): JSX.Element {
 								className={ styles.content }
 							>
 								<div ref={ setContainerElement } className={ styles.sectionHeader }>
-									<SectionHeader title={ section.label }>
+									<SectionHeader title={ section.label } subtitle={ sectionSubtitle }>
 										<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
 									</SectionHeader>
 								</div>
