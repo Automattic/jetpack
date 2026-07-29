@@ -329,7 +329,6 @@ class Mode {
 		// interceptors. This admin_menu hook runs before admin_init, so removing
 		// them here prevents the takeover.
 		remove_action( 'admin_init', 'jetpack_newsletter_jetpack_newsletter_home_intercept_render' );
-		remove_action( 'admin_init', 'jetpack_newsletter_jetpack_newsletter_paid_intercept_render' );
 
 		\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
 			'jetpack-newsletter',

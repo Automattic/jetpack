@@ -3401,6 +3401,9 @@ importers:
 
   projects/packages/newsletter:
     dependencies:
+      '@automattic/charts':
+        specifier: workspace:*
+        version: link:../../js-packages/charts
       '@automattic/format-currency':
         specifier: 1.0.1
         version: 1.0.1
