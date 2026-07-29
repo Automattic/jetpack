@@ -60,6 +60,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 
 		mkdir( $this->build_dir . '/scripts/notices', 0755, true );
 		mkdir( $this->build_dir . '/scripts/private-apis', 0755, true );
+		mkdir( $this->build_dir . '/scripts/rich-text', 0755, true );
 		mkdir( $this->build_dir . '/scripts/theme', 0755, true );
 		mkdir( $this->build_dir . '/modules/boot', 0755, true );
 		mkdir( $this->build_dir . '/modules/route', 0755, true );
@@ -137,6 +138,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		$scripts = new \WP_Scripts();
 		$scripts->remove( 'wp-notices' );
 		$scripts->remove( 'wp-private-apis' );
+		$scripts->remove( 'wp-rich-text' );
 		$scripts->remove( 'wp-theme' );
 		return $scripts;
 	}
@@ -261,6 +263,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	public function test_register_scripts_registers_all_when_asset_files_exist() {
 		$this->create_asset_file( 'scripts/notices/index.asset.php' );
 		$this->create_asset_file( 'scripts/private-apis/index.asset.php' );
+		$this->create_asset_file( 'scripts/rich-text/index.asset.php' );
 		$this->create_asset_file( 'scripts/theme/index.asset.php' );
 
 		$scripts = $this->create_clean_scripts();
@@ -268,6 +271,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 
 		$this->assertNotFalse( $scripts->query( 'wp-notices', 'registered' ) );
 		$this->assertNotFalse( $scripts->query( 'wp-private-apis', 'registered' ) );
+		$this->assertNotFalse( $scripts->query( 'wp-rich-text', 'registered' ) );
 		$this->assertNotFalse( $scripts->query( 'wp-theme', 'registered' ) );
 	}
 
@@ -463,6 +467,82 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 
 		$notices = $scripts->query( 'wp-notices', 'registered' );
 		$this->assertSame( '1.0.0-gutenberg', $notices->ver );
+	}
+
+	/**
+	 * Test that wp-rich-text is force-replaced on WP 6.9 (core ships no rich-text private APIs).
+	 */
+	public function test_register_scripts_force_replaces_wp_rich_text_on_old_wp() {
+		$GLOBALS['wp_version'] = '6.9';
+		$this->create_asset_file( 'scripts/rich-text/index.asset.php', array(), '9.9.9' );
+
+		$scripts = $this->create_clean_scripts();
+		$scripts->add( 'wp-rich-text', 'https://example.com/core-rich-text.js', array(), '1.0.0-core' );
+
+		$this->invoke_register_scripts( $scripts );
+
+		$rich_text = $scripts->query( 'wp-rich-text', 'registered' );
+		$this->assertNotFalse( $rich_text );
+		$this->assertSame( '9.9.9', $rich_text->ver );
+	}
+
+	/**
+	 * Test that wp-rich-text is still force-replaced on WP 7.0.
+	 */
+	public function test_register_scripts_force_replaces_wp_rich_text_on_wp_7() {
+		$GLOBALS['wp_version'] = '7.0';
+		$this->create_asset_file( 'scripts/rich-text/index.asset.php', array(), '9.9.9' );
+
+		$scripts = $this->create_clean_scripts();
+		$scripts->add( 'wp-rich-text', 'https://example.com/core-rich-text.js', array(), '1.0.0-core' );
+
+		$this->invoke_register_scripts( $scripts );
+
+		$rich_text = $scripts->query( 'wp-rich-text', 'registered' );
+		$this->assertSame( '9.9.9', $rich_text->ver );
+	}
+
+	/**
+	 * Test that wp-rich-text is not force-replaced on WP >= 7.1.
+	 */
+	public function test_register_scripts_does_not_force_replace_wp_rich_text_on_wp_7_1() {
+		$GLOBALS['wp_version'] = '7.1';
+		$this->create_asset_file( 'scripts/rich-text/index.asset.php', array(), '9.9.9' );
+
+		$scripts = $this->create_clean_scripts();
+		$scripts->add( 'wp-rich-text', 'https://example.com/core-rich-text.js', array(), '1.0.0-core' );
+
+		$this->invoke_register_scripts( $scripts );
+
+		$rich_text = $scripts->query( 'wp-rich-text', 'registered' );
+		$this->assertSame( '1.0.0-core', $rich_text->ver );
+	}
+
+	/**
+	 * Test that active Gutenberg does not suppress the wp-rich-text replacement.
+	 *
+	 * Unlike wp-notices (any Gutenberg) and wp-private-apis (Gutenberg >= 23.5),
+	 * no released Gutenberg version is verified to ship the rich-text private
+	 * APIs the dashboard packages need, so Gutenberg is never a safe substitute.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_register_scripts_force_replaces_wp_rich_text_with_active_gutenberg() {
+		define( 'GUTENBERG_VERSION', '23.5.0' );
+
+		$GLOBALS['wp_version'] = '7.0';
+		$this->create_asset_file( 'scripts/rich-text/index.asset.php', array(), '9.9.9' );
+
+		$scripts = $this->create_clean_scripts();
+		$scripts->add( 'wp-rich-text', 'https://example.com/gutenberg-rich-text.js', array(), '1.0.0-gutenberg' );
+
+		$this->invoke_register_scripts( $scripts );
+
+		$rich_text = $scripts->query( 'wp-rich-text', 'registered' );
+		$this->assertSame( '9.9.9', $rich_text->ver );
 	}
 
 	/**

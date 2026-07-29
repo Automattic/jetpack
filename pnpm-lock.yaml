@@ -5145,6 +5145,9 @@ importers:
       '@wordpress/private-apis':
         specifier: 1.51.0
         version: 1.51.0
+      '@wordpress/rich-text':
+        specifier: 7.51.0
+        version: 7.51.0(@types/react@18.3.28)(react@18.3.1)
       '@wordpress/route':
         specifier: ^0.17.0
         version: 0.17.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

@@ -134,6 +134,7 @@
 				'@wordpress/boot',
 				'@wordpress/notices',
 				'@wordpress/private-apis',
+				'@wordpress/rich-text',
 				'@wordpress/route',
 				'@wordpress/theme',
 				// @wordpress/build is still heavily developed; its dashboards share the same bundled

@@ -19,7 +19,7 @@ class WP_Build_Polyfills {
 	/**
 	 * Available polyfill handles for classic scripts.
 	 */
-	const SCRIPT_HANDLES = array( 'wp-notices', 'wp-private-apis', 'wp-theme', 'wp-views' );
+	const SCRIPT_HANDLES = array( 'wp-notices', 'wp-private-apis', 'wp-rich-text', 'wp-theme', 'wp-views' );
 
 	/**
 	 * Available polyfill module IDs.
@@ -161,6 +161,19 @@ class WP_Build_Polyfills {
 				// substitute once its private-apis allowlist includes those
 				// dashboard packages too.
 			),
+			'wp-rich-text'    => array(
+				'path'                  => 'rich-text',
+				'force_threshold'       => '7.1',
+				'gutenberg_min_version' => false,
+				// WP 7.0 and older ship rich-text without the `privateApis`
+				// export that current dashboard dependencies unlock at module
+				// scope (e.g. @wordpress/dataviews >= 17.2 dataform controls),
+				// which throws "Cannot unlock an undefined object" and blanks
+				// the page. Gutenberg trunk ships the export, but no released
+				// Gutenberg version has been verified to, so active Gutenberg
+				// is not accepted as a substitute (`false`) — set a minimum
+				// version here once a release is verified.
+			),
 			'wp-theme'        => array(
 				'path' => 'theme',
 			),
@@ -212,12 +225,12 @@ class WP_Build_Polyfills {
 	/**
 	 * Check whether the active Gutenberg plugin can satisfy a forced script.
 	 *
-	 * @param string|null $minimum_version   Minimum Gutenberg version required for the script, or null when any active Gutenberg is sufficient.
-	 * @param string|null $gutenberg_version Active Gutenberg version, or null when Gutenberg is inactive.
+	 * @param string|false|null $minimum_version   Minimum Gutenberg version required for the script, null when any active Gutenberg is sufficient, or false when no Gutenberg version is known to be sufficient.
+	 * @param string|null       $gutenberg_version Active Gutenberg version, or null when Gutenberg is inactive.
 	 * @return bool True when Gutenberg is active and new enough.
 	 */
 	private static function is_gutenberg_version_safe( $minimum_version, $gutenberg_version ) {
-		if ( null === $gutenberg_version ) {
+		if ( null === $gutenberg_version || false === $minimum_version ) {
 			return false;
 		}
 
