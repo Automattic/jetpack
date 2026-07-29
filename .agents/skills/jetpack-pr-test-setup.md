@@ -91,10 +91,10 @@ gh pr view <PR> --repo Automattic/jetpack \
   first — step 1 costs a JN site and ~3 minutes of polling before step 2 would surface the
   problem — and do not offer to "dry-run the skill" or cite these step numbers at the user;
   neither means anything to someone who wants a testable site.
-- This case is easy to hit by accident: with no PR argument the default is the *current
-  branch's* PR, which is the skill's own PR whenever you're developing this skill. Whenever the
-  PR came from that default rather than an explicit argument, name the PR number and title you
-  resolved before acting on it, so a wrong guess is visible immediately.
+- Easy to hit by accident, because with no PR argument the default is whatever the *current
+  branch* has open — which may be a branch with no plugin code in it at all. Whenever the PR
+  came from that default rather than an explicit argument, name the PR number and title you
+  resolved before acting on it, so a wrong guess is visible before it costs a site.
 - Pull the **Testing Instructions** section out of `.body`. Extract every precondition it
   states — phrases like "Requires…", "add_filter(…)", "Enable…", "Upgrade … to Pro", "with the
   X feature", "at least one … connection", "add the blog sticker …". This list is the setup
