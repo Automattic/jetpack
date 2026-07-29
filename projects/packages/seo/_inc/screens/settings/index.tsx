@@ -4,7 +4,7 @@ import { TextareaControl, ToggleControl } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
-import { Badge, Button, Card, CollapsibleCard, Link, Notice, Stack, Text } from '@wordpress/ui';
+import { Badge, Button, Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui';
 import UpsellBanner from '../../components/upsell-banner';
 import { isGated } from '../../data/is-gated';
 import AuthorProfileCard from './author-profile-card';
@@ -34,9 +34,6 @@ const sitemapBlockedHelp = __(
 	'jetpack-seo'
 );
 const sitemapViewLabel = __( 'View sitemap', 'jetpack-seo' );
-// Shown while the sitemap is enabled but Jetpack's cron hasn't built the file
-// yet, so there's no reachable URL to link to (avoids a 404 link).
-const sitemapGeneratingLabel = __( 'Generating…', 'jetpack-seo' );
 
 interface Props {
 	form: SettingsForm;
@@ -195,21 +192,16 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 									disabled={ isSaving || ! local.search_engines_visible }
 									__nextHasNoMarginBottom
 								/>
-								{ sitemapEffectivelyOn &&
-									( local.sitemap_url ? (
-										<Link
-											className={ styles.sitemapLink }
-											href={ local.sitemap_url }
-											openInNewTab
-											rel="noopener noreferrer"
-										>
-											{ sitemapViewLabel }
-										</Link>
-									) : (
-										<Text variant="body-sm" className={ styles.sitemapHint }>
-											{ sitemapGeneratingLabel }
-										</Text>
-									) ) }
+								{ sitemapEffectivelyOn && local.sitemap_url && (
+									<Link
+										className={ styles.sitemapLink }
+										href={ local.sitemap_url }
+										openInNewTab
+										rel="noopener noreferrer"
+									>
+										{ sitemapViewLabel }
+									</Link>
+								) }
 							</Stack>
 						</Stack>
 					</CollapsibleCard.Content>

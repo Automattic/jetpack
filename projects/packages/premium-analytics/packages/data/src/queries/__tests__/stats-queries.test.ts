@@ -32,6 +32,7 @@ import {
 } from '../stats-app-referrers-spam-query';
 import { statsAppSiteHasNeverPublishedPostQuery } from '../stats-app-site-has-never-published-post-query';
 import { statsArchivesQuery } from '../stats-archives-query';
+import { statsClicksQuery } from '../stats-clicks-query';
 import { statsCommentFollowersQuery } from '../stats-comment-followers-query';
 import { statsCommentsQuery } from '../stats-comments-query';
 import { statsDevicesQuery } from '../stats-devices-query';
@@ -50,7 +51,6 @@ import { statsInsightsQuery } from '../stats-insights-query';
 import { statsLocationsQuery } from '../stats-locations-query';
 import { statsPostCommentsQuery } from '../stats-post-comments-query';
 import { statsPostQuery } from '../stats-post-query';
-import { statsPublicizeQuery } from '../stats-publicize-query';
 import { statsReferrersQuery } from '../stats-referrers-query';
 import { statsSearchTermsQuery } from '../stats-search-terms-query';
 import { statsSingleVideoQuery } from '../stats-single-video-query';
@@ -375,6 +375,34 @@ describe( 'Stats query factories', () => {
 			},
 			undefined,
 			'searchTerms',
+		] );
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
+	} );
+
+	it( 'matches the legacy Clicks custom-range request without a days parameter', () => {
+		const query = statsClicksQuery( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'month',
+			max: 0,
+			summarize: 1,
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'clicks',
+			'1.1',
+			'stats/clicks',
+			'GET',
+			{
+				period: 'day',
+				start_date: '2026-06-01',
+				date: '2026-06-07',
+				max: 0,
+				summarize: 1,
+			},
+			undefined,
+			'clicks',
 		] );
 		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
 	} );
@@ -791,22 +819,6 @@ describe( 'Stats query factories', () => {
 			{},
 			undefined,
 			'comments',
-		] );
-	} );
-
-	it( 'builds publicize query keys without date-gating or report param coercion', () => {
-		const query = statsPublicizeQuery();
-
-		expect( query.enabled ).toBe( true );
-		expect( query.queryKey ).toEqual( [
-			'stats',
-			'publicize',
-			'1.1',
-			'stats/publicize',
-			'GET',
-			{},
-			undefined,
-			'publicize',
 		] );
 	} );
 
