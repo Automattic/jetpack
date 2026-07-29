@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { getSiteTimezone, localTZDate } from '@jetpack-premium-analytics/data';
+import {
+	getSiteTimezone,
+	hasComparisonEnabled,
+	localTZDate,
+} from '@jetpack-premium-analytics/data';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { isValid } from 'date-fns';
@@ -116,15 +120,14 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 	 * The applied comparison, for surfaces that describe what the widgets are
 	 * actually showing rather than what the picker is drafting. A comparison
 	 * change normally commits on its own, but it rides along uncommitted when a
-	 * primary edit is already staged, so this cannot read `effective`. Mirrors
-	 * `hasComparisonEnabled`: a preset alone does not make a comparison active.
+	 * primary edit is already staged, so this cannot read `effective`.
+	 *
+	 * Gated on the same predicate the report params run through, so a surface
+	 * can never announce a comparison the widgets did not request.
 	 */
 	const appliedComparisonPresetId = useMemo(
-		() =>
-			committed.comp === '1' && committed.compare_from && committed.compare_to
-				? committed.compare_preset ?? undefined
-				: undefined,
-		[ committed.comp, committed.compare_from, committed.compare_to, committed.compare_preset ]
+		() => ( hasComparisonEnabled( committed ) ? committed.compare_preset ?? undefined : undefined ),
+		[ committed ]
 	);
 
 	/**
