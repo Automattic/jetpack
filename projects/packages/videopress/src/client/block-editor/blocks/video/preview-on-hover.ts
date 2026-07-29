@@ -1,4 +1,9 @@
 /**
+ * Types
+ */
+import type { PlayerCustomizationOptions } from './types';
+
+/**
  * Player UI customization payload for the given mode.
  *
  * While the preview is active, the player shows only the poster and the big
@@ -6,9 +11,9 @@
  * payloads derive from here so they stay exact opposites.
  *
  * @param {string} mode - 'preview' or 'playback'.
- * @return {object} Payload for iframeApi.customize.set().
+ * @return {PlayerCustomizationOptions} Payload for iframeApi.customize.set().
  */
-function getModeCustomization( mode: 'preview' | 'playback' ) {
+function getModeCustomization( mode: 'preview' | 'playback' ): PlayerCustomizationOptions {
 	const isPreview = mode === 'preview';
 	return {
 		bigPlayButton: isPreview,
@@ -19,12 +24,6 @@ function getModeCustomization( mode: 'preview' | 'playback' ) {
 		title: ! isPreview,
 	};
 }
-
-// Customization keys shared by the hover handlers; only showPoster varies.
-const HOVER_CUSTOMIZATION = {
-	playPauseAnimation: false,
-	title: false,
-};
 
 /**
  * Preview on Hover effect for VideoPress videos.
@@ -129,13 +128,14 @@ export function previewOnHoverEffect(): void {
 			} );
 		}
 
+		// The preview stays chrome-free while hovering; only the poster toggles.
 		overlay.addEventListener( 'mouseenter', () => {
-			iframeApi.customize?.set( { ...HOVER_CUSTOMIZATION, showPoster: false } );
+			iframeApi.customize?.set( { playPauseAnimation: false, showPoster: false, title: false } );
 			iframeApi.controls.play();
 		} );
 
 		overlay.addEventListener( 'mouseleave', () => {
-			iframeApi.customize?.set( { ...HOVER_CUSTOMIZATION, showPoster: true } );
+			iframeApi.customize?.set( { playPauseAnimation: false, showPoster: true, title: false } );
 			iframeApi.controls.pause();
 		} );
 	} );

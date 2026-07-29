@@ -6,6 +6,7 @@ describe( 'previewOnHoverEffect', () => {
 	const pause = jest.fn();
 	const seek = jest.fn();
 	let onPlayerStatusChanged: ( oldStatus: string, newStatus: string ) => void;
+	let overlay: Element;
 
 	beforeEach( () => {
 		jest.clearAllMocks();
@@ -21,6 +22,7 @@ describe( 'previewOnHoverEffect', () => {
 				<button class="jetpack-videopress-player__overlay"></button>
 			</div>
 		`;
+		overlay = document.querySelector( '.jetpack-videopress-player__overlay' );
 
 		const iframeApi = {
 			status: {
@@ -58,7 +60,6 @@ describe( 'previewOnHoverEffect', () => {
 		} );
 		expect( seek ).toHaveBeenCalledWith( 15 );
 
-		const overlay = document.querySelector( '.jetpack-videopress-player__overlay' );
 		overlay.dispatchEvent( new MouseEvent( 'mouseenter' ) );
 		expect( customizeSet ).toHaveBeenLastCalledWith( {
 			playPauseAnimation: false,
@@ -77,7 +78,6 @@ describe( 'previewOnHoverEffect', () => {
 	} );
 
 	it( 'restores the normal title and poster behavior after activation', () => {
-		const overlay = document.querySelector( '.jetpack-videopress-player__overlay' );
 		overlay.dispatchEvent( new MouseEvent( 'click' ) );
 
 		expect( customizeSet ).toHaveBeenLastCalledWith( {
