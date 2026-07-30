@@ -153,13 +153,20 @@ export default function useTrafficChart(
 
 	// Depend on the underlying refetch callbacks (each a stable `useReport`
 	// `useCallback`), not the fresh result objects, so this stays stable across
-	// renders.
+	// renders. `enabled: false` only stops a query's automatic fetch — calling
+	// its `refetch()` still runs it — so Retry must skip whichever pair was
+	// intentionally disabled for hourly, or it would fire (and could error on)
+	// a request for metrics the UI already shows as unavailable.
 	const { refetch: refetchViewsVisitors } = viewsVisitors;
 	const { refetch: refetchLikesComments } = likesComments;
 	const refetch = useCallback( () => {
-		refetchViewsVisitors();
-		refetchLikesComments();
-	}, [ refetchViewsVisitors, refetchLikesComments ] );
+		if ( needsViewsVisitors ) {
+			refetchViewsVisitors();
+		}
+		if ( needsLikesComments ) {
+			refetchLikesComments();
+		}
+	}, [ needsViewsVisitors, needsLikesComments, refetchViewsVisitors, refetchLikesComments ] );
 
 	// Gate the error per query — the two independent queries back separate tabs, so
 	// one failing on first load must surface an error rather than render as empty
