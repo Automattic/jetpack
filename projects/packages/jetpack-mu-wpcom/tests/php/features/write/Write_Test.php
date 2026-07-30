@@ -103,6 +103,60 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that a filtered destination is resolvable.
+	 *
+	 * The filter is the supported way to register a back destination: an
+	 * arbitrary return URL passed through the query string is deliberately not
+	 * honoured, so callers outside this package have no other route in.
+	 */
+	public function test_resolve_back_url_honours_filtered_destination() {
+		$destination = 'https://example.org/wp-admin/admin.php?page=jetpack-newsletter';
+
+		$add_destination = function ( $destinations ) use ( $destination ) {
+			$destinations['newsletter'] = $destination;
+			return $destinations;
+		};
+
+		// Unregistered before the filter is added — this is what makes the
+		// assertion below evidence that the filter did the work.
+		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( 'newsletter' ) );
+
+		add_filter( 'wpcom_write_back_destinations', $add_destination );
+		$filtered = wpcom_write_resolve_back_url( 'newsletter' );
+		remove_filter( 'wpcom_write_back_destinations', $add_destination );
+
+		$this->assertSame( $destination, $filtered );
+
+		// And the map is not mutated for later calls once the filter is gone.
+		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( 'newsletter' ) );
+	}
+
+	/**
+	 * Test that the filter is passed the built-in destinations.
+	 *
+	 * Consumers are expected to add an entry to the map rather than build one,
+	 * so receiving the populated map is the contract they rely on. Note this is
+	 * not a guarantee that built-ins survive: a filter is free to replace the
+	 * array wholesale, and nothing prevents that.
+	 */
+	public function test_resolve_back_url_filter_receives_built_in_destinations() {
+		$received = null;
+
+		$capture = function ( $destinations ) use ( &$received ) {
+			$received = $destinations;
+			return $destinations;
+		};
+
+		add_filter( 'wpcom_write_back_destinations', $capture );
+		wpcom_write_resolve_back_url( 'reader' );
+		remove_filter( 'wpcom_write_back_destinations', $capture );
+
+		$this->assertIsArray( $received );
+		$this->assertArrayHasKey( 'reader', $received );
+		$this->assertSame( 'https://wordpress.com/reader', $received['reader'] );
+	}
+
+	/**
 	 * Test that the back button href reflects the resolved destination, defaulting to the dashboard.
 	 */
 	public function test_template_back_button_defaults_to_dashboard() {
