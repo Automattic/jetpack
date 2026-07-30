@@ -1210,9 +1210,13 @@ class Search_Blocks {
 	 * theme paints on the browser canvas) or when bg equals ink (vintage
 	 * frame-themes like Twenty Sixteen use body as a colored border around a
 	 * lighter `.site` content wrapper). See AGENTS.md § Theme tokens.
+	 *
+	 * The `wp_body_open` hook registers unconditionally in `init()`, before
+	 * the module-active check in `Initializer::init_search_blocks()` — so the
+	 * module gate lives here instead, front-end only.
 	 */
 	public static function print_theme_token_sampler(): void {
-		if ( is_admin() ) {
+		if ( is_admin() || ! ( new Module_Control() )->is_active() ) {
 			return;
 		}
 		echo "<script id='jetpack-search-theme-token-sampler'>(function(){try{var c=getComputedStyle(document.body),r=document.documentElement,ink=c.color,bg=c.backgroundColor;if(ink){r.style.setProperty('--jp-search-page-ink',ink);}if(bg&&bg!==ink&&bg!=='rgba(0, 0, 0, 0)'&&bg!=='transparent'){r.style.setProperty('--jp-search-page-surface',bg);}}catch(e){}})();</script>";
