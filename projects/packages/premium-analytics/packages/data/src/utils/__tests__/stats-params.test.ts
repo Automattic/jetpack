@@ -49,8 +49,25 @@ describe( 'reportParamsToStatsQueryParams', () => {
 		).toEqual(
 			expect.objectContaining( {
 				period: 'day',
-				end_date: '2026-06-07',
-				start_date: '2026-06-01',
+				end_date: '2026-06-07T23:59:59',
+				start_date: '2026-06-01T00:00:00',
+				days: 7,
+			} )
+		);
+	} );
+
+	it( 'passes the offset-bearing date through untrimmed, still counting days correctly', () => {
+		expect(
+			reportParamsToStatsQueryParams( {
+				from: '2026-06-01T00:00:00.000-07:00',
+				to: '2026-06-07T23:59:59.000-07:00',
+				interval: 'day',
+			} )
+		).toEqual(
+			expect.objectContaining( {
+				period: 'day',
+				end_date: '2026-06-07T23:59:59.000-07:00',
+				start_date: '2026-06-01T00:00:00.000-07:00',
 				days: 7,
 			} )
 		);

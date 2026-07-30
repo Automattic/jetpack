@@ -1148,6 +1148,57 @@ describe( 'Stats query factories', () => {
 		expect( statsWordAdsStatsQuery( {} as StatsReportParams ).enabled ).toBe( false );
 	} );
 
+	it( 'sends the unclamped WordAds window end with its offset intact', () => {
+		jest.useFakeTimers().setSystemTime( new Date( '2026-07-15T12:00:00Z' ) );
+
+		try {
+			expect(
+				statsWordAdsStatsQuery( {
+					from: '2026-06-01T00:00:00.000-07:00',
+					to: '2026-06-07T23:59:59.000-07:00',
+					interval: 'day',
+				} ).queryKey
+			).toEqual(
+				expect.arrayContaining( [
+					expect.objectContaining( {
+						unit: 'day',
+						date: '2026-06-07T23:59:59.000-07:00',
+						quantity: 7,
+					} ),
+				] )
+			);
+		} finally {
+			jest.useRealTimers();
+		}
+	} );
+
+	it( 'clamps an offset-bearing WordAds window end to yesterday, keyed off its calendar day', () => {
+		// start_date/date now carry the full offset-bearing ISO datetime
+		// (reportParamsToStatsQueryParams no longer trims it); the clamp
+		// comparison and bucket count must still key off the calendar day.
+		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00Z' ) );
+
+		try {
+			expect(
+				statsWordAdsStatsQuery( {
+					from: '2026-06-09T00:00:00.000-07:00',
+					to: '2026-06-15T23:59:59.000-07:00',
+					interval: 'day',
+				} ).queryKey
+			).toEqual(
+				expect.arrayContaining( [
+					expect.objectContaining( {
+						unit: 'day',
+						date: '2026-06-14',
+						quantity: 6,
+					} ),
+				] )
+			);
+		} finally {
+			jest.useRealTimers();
+		}
+	} );
+
 	it( 'builds WordAds earnings query keys without request params', () => {
 		expect( statsWordAdsEarningsQuery().queryKey ).toEqual( [
 			'stats',
