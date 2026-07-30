@@ -194,6 +194,36 @@ class REST_Controller_Test extends Stats_TestCase {
 	}
 
 	/**
+	 * Test that the email stats `overview` resource is proxied rather than refused.
+	 *
+	 * The route list above only asserts a route is not a 404, and this one always
+	 * matched: `resource` is a dynamic path segment, so before `overview` was an
+	 * allowed value the request still reached the controller and came back 403
+	 * from the `default` branch. Asserting 200 is what distinguishes proxying the
+	 * resource from forbidding it.
+	 */
+	public function test_email_stats_overview_resource_is_proxied() {
+		wp_set_current_user( $this->admin_id );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/stats-app/sites/999/stats/emails/overview' );
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+	}
+
+	/**
+	 * Test that an unknown email stats resource is still refused.
+	 */
+	public function test_email_stats_unknown_resource_is_forbidden() {
+		wp_set_current_user( $this->admin_id );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/stats-app/sites/999/stats/emails/not-a-resource' );
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 403, $response->get_status() );
+	}
+
+	/**
 	 * Test '/jetpack/v4/stats-app/stats/notices' failed
 	 */
 	public function test_stats_notices_illegal_params() {
