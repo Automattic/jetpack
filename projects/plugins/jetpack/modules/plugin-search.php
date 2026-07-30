@@ -368,11 +368,13 @@ class Jetpack_Plugin_Search {
 			}
 
 			/*
-			 * Only surface the SEO Tools hint once the new Jetpack SEO admin page is
-			 * available, so the hint follows both the legacy filter and the per-site
-			 * WordPress.com feature flag used by the package itself.
+			 * Only surface the SEO Tools hint when the new Jetpack SEO admin page is
+			 * available and registered, so its CTA never points to a missing page.
 			 */
-			if ( \Automattic\Jetpack\SEO\Initializer::is_available() ) {
+			if (
+				\Automattic\Jetpack\SEO\Initializer::is_available()
+				&& \Automattic\Jetpack\SEO\Initializer::is_seo_surface_visible()
+			) {
 				$searchable_modules[] = 'seo-tools';
 			}
 
