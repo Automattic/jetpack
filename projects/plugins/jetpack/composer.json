@@ -111,7 +111,9 @@
 			"src"
 		],
 		"exclude-from-classmap": [
-			"vendor/wp-php-toolkit/data-liberation/vendor-patched/psr/log/"
+			"vendor/wp-php-toolkit/data-liberation/vendor-patched/psr/log/",
+			"vendor/wp-php-toolkit/data-liberation/vendor-patched/rowbot/",
+			"vendor/wp-php-toolkit/data-liberation/vendor-patched/brick/"
 		]
 	},
 	"minimum-stability": "dev",

@@ -64,10 +64,6 @@
 /tools/**                                                production-exclude
 /wp-cli-templates/**                                     production-exclude
 
-# rowbot/idna lookup tables: underscored base names the wpcom mirror rejects, and
-# only loaded by the IDNA host parser the Reprint export path never invokes.
-/vendor/wp-php-toolkit/*/**/disallowed_STD3_*.php        production-exclude
-
 # Cruft from poorly-cleaned wp-php-toolkit vendor packages (reprint exporter).
 /vendor/wp-php-toolkit/*/Tests/**                        production-exclude
 /vendor/wp-php-toolkit/*/*.sh                            production-exclude
@@ -75,3 +71,11 @@
 /vendor/wp-php-toolkit/*/**/phpstan.neon                 production-exclude
 /vendor/wp-php-toolkit/*/**/phpunit.xml                  production-exclude
 /vendor/wp-php-toolkit/*/**/tests/**                     production-exclude
+
+# rowbot (URL/IDNA parser) + brick/math + psr/log add ~1.25 MB but are only
+# reached through data-liberation's URL rewriting, which the Reprint export path
+# (raw DB dump + file tree) never invokes. Also removed from the class map via
+# composer.json's exclude-from-classmap, so the autoloader never references them.
+/vendor/wp-php-toolkit/data-liberation/vendor-patched/rowbot/**   production-exclude
+/vendor/wp-php-toolkit/data-liberation/vendor-patched/brick/**    production-exclude
+/vendor/wp-php-toolkit/data-liberation/vendor-patched/psr/log/**  production-exclude
