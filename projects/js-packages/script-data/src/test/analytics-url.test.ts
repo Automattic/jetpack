@@ -1,34 +1,24 @@
-import { getAnalyticsUrl } from '../analytics-url.ts';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '../analytics-url.ts';
 import type { AnalyticsScriptData, JetpackScriptData } from '../types.ts';
 
 const ADMIN_URL = 'https://example.com/wp-admin/';
-const PA_PAGE = 'jetpack-premium-analytics-wp-admin';
+const PAGE_SLUG = 'jetpack-premium-analytics-wp-admin';
 
 /**
- * Seeds `window.JetpackScriptData` with the site fields `getAnalyticsUrl()`
- * reads, plus an optional `analytics` payload. Omitting `analytics` is the
- * legacy-Stats site.
+ * Seeds `window.JetpackScriptData` with an optional `analytics` payload.
+ * Omitting it is a site where the dashboard is not the analytics UI.
  *
- * @param analytics - The analytics payload, or undefined for a Stats site.
- * @param site      - Site fields to override.
+ * @param analytics - The analytics payload, or undefined to omit the key.
  */
-function seedScriptData(
-	analytics?: Partial< AnalyticsScriptData >,
-	site: Record< string, unknown > = {}
-) {
+function seedScriptData( analytics?: Partial< AnalyticsScriptData > ) {
 	window.JetpackScriptData = {
-		site: {
-			admin_url: ADMIN_URL,
-			suffix: 'example.com',
-			wpcom: { blog_id: 12345 },
-			...site,
-		},
+		site: { admin_url: ADMIN_URL },
 		user: { current_user: { capabilities: {} } },
 		...( analytics
 			? {
 					analytics: {
 						enabled: true,
-						page_slug: PA_PAGE,
+						page_slug: PAGE_SLUG,
 						can_view: true,
 						timezone: 'UTC',
 						...analytics,
@@ -39,11 +29,10 @@ function seedScriptData(
 }
 
 /**
- * Resolves a Premium Analytics URL to the path and search the router ends up
- * with, so assertions read the values the route receives rather than an encoded
- * URL string.
+ * Resolves a dashboard URL to the path and search the router ends up with, so
+ * assertions read the values the route receives rather than an encoded string.
  *
- * The dashboard keeps its whole path-and-search inside the single `p` query
+ * The dashboard keeps its whole path-and-search inside a single `p` query
  * param, so the router decodes twice: once pulling `p` off the page URL, and
  * once parsing `p`'s own search. This mirrors both steps.
  *
@@ -78,14 +67,40 @@ afterEach( () => {
 	delete window.JetpackScriptData;
 } );
 
-describe( 'getAnalyticsUrl on a Premium Analytics site', () => {
-	it( 'points at the Premium Analytics page, not the Stats page', () => {
+describe( 'hasAnalyticsDashboard', () => {
+	it( 'is true when the package announces itself', () => {
+		seedScriptData( {} );
+
+		expect( hasAnalyticsDashboard() ).toBe( true );
+	} );
+
+	// Callers read this to decide whether to replace their existing Stats link.
+	// It must stay true regardless of capability: a user who cannot open the
+	// dashboard must not be sent to the Stats page, which is no longer
+	// registered once the dashboard replaces it.
+	it( 'stays true for a user who cannot open the dashboard', () => {
+		seedScriptData( { can_view: false } );
+
+		expect( hasAnalyticsDashboard() ).toBe( true );
+	} );
+
+	it.each( [
+		[ 'the key is absent', undefined ],
+		[ 'the key is present but disabled', { enabled: false } ],
+	] )( 'is false when %s', ( _label, analytics ) => {
+		seedScriptData( analytics );
+
+		expect( hasAnalyticsDashboard() ).toBe( false );
+	} );
+} );
+
+describe( 'getAnalyticsUrl', () => {
+	it( 'points at the dashboard page', () => {
 		seedScriptData( {} );
 
 		const url = getAnalyticsUrl( { view: 'dashboard' } );
 
-		expect( url ).toBe( `${ ADMIN_URL }admin.php?page=${ PA_PAGE }&p=%2F` );
-		expect( url ).not.toContain( 'page=stats' );
+		expect( url ).toBe( `${ ADMIN_URL }admin.php?page=${ PAGE_SLUG }&p=%2F` );
 	} );
 
 	it( 'omits an empty search rather than trailing a bare "?"', () => {
@@ -110,25 +125,25 @@ describe( 'getAnalyticsUrl on a Premium Analytics site', () => {
 	} );
 
 	describe( 'view routing', () => {
-		it.each( [
-			[ 'dashboard', { view: 'dashboard' as const }, '/' ],
-			[ 'report', { view: 'report' as const, report: 'emails' as const }, '/reports/emails' ],
-			[ 'post', { view: 'post' as const, id: 42 }, '/post/42' ],
-			[ 'video', { view: 'video' as const, id: 7 }, '/video/7' ],
-		] )( 'routes the %s view to %s', ( _label, view, expected ) => {
+		it( 'routes the dashboard view to the root', () => {
 			seedScriptData( {} );
 
-			expect( routerPath( getAnalyticsUrl( view ) ) ).toBe( expected );
+			expect( routerPath( getAnalyticsUrl( { view: 'dashboard' } ) ) ).toBe( '/' );
+		} );
+
+		it( 'routes the post view to that post', () => {
+			seedScriptData( {} );
+
+			expect( routerPath( getAnalyticsUrl( { view: 'post', id: 42 } ) ) ).toBe( '/post/42' );
 		} );
 
 		it.each( [
-			[ 'a zero post id', { view: 'post' as const, id: 0 } ],
-			[ 'a negative post id', { view: 'post' as const, id: -1 } ],
-			[ 'a zero video id', { view: 'video' as const, id: 0 } ],
-		] )( 'returns null for %s', ( _label, view ) => {
+			[ 'a zero post id', 0 ],
+			[ 'a negative post id', -1 ],
+		] )( 'returns null for %s', ( _label, id ) => {
 			seedScriptData( {} );
 
-			expect( getAnalyticsUrl( view ) ).toBeNull();
+			expect( getAnalyticsUrl( { view: 'post', id } ) ).toBeNull();
 		} );
 	} );
 
@@ -165,15 +180,7 @@ describe( 'getAnalyticsUrl on a Premium Analytics site', () => {
 			}
 		);
 
-		it( 'passes a report section through, since reports own their vocabulary', () => {
-			seedScriptData( {} );
-
-			expect(
-				routerPath( getAnalyticsUrl( { view: 'report', report: 'utm', section: 'campaigns' } ) )
-			).toBe( '/reports/utm?section=campaigns' );
-		} );
-
-		it( 'drops an unrecognized dashboard section instead of putting a dead value in the URL', () => {
+		it( 'drops an unrecognized section instead of putting a dead value in the URL', () => {
 			seedScriptData( {} );
 
 			const view = { view: 'dashboard', section: 'nope' } as unknown as Parameters<
@@ -218,16 +225,6 @@ describe( 'getAnalyticsUrl on a Premium Analytics site', () => {
 			).toBe( '/?from=2026-07-04T00:00:00.000+05:30&to=2026-07-04T23:59:59.999+05:30' );
 		} );
 
-		it( 'pads a single-digit fixed offset', () => {
-			seedScriptData( { timezone: '-8:00' } );
-
-			expect(
-				routerPath(
-					getAnalyticsUrl( { view: 'dashboard', range: { from: '2026-07-04', to: '2026-07-04' } } )
-				)
-			).toContain( 'from=2026-07-04T00:00:00.000-08:00' );
-		} );
-
 		it( 'uses the offset in effect at each boundary across a DST transition', () => {
 			seedScriptData( { timezone: 'America/New_York' } );
 
@@ -240,20 +237,8 @@ describe( 'getAnalyticsUrl on a Premium Analytics site', () => {
 			).toBe( '/?from=2026-03-08T00:00:00.000-05:00&to=2026-03-08T23:59:59.999-04:00' );
 		} );
 
-		it( 'carries a range on reports and post detail too, not just the dashboard', () => {
+		it( 'carries a range on the post view too, not just the dashboard', () => {
 			seedScriptData( { timezone: 'UTC' } );
-
-			expect(
-				routerPath(
-					getAnalyticsUrl( {
-						view: 'report',
-						report: 'posts',
-						range: { from: '2026-01-01', to: '2026-01-31' },
-					} )
-				)
-			).toBe(
-				'/reports/posts?from=2026-01-01T00:00:00.000+00:00&to=2026-01-31T23:59:59.999+00:00'
-			);
 
 			expect(
 				routerPath(
@@ -285,9 +270,7 @@ describe( 'getAnalyticsUrl on a Premium Analytics site', () => {
 		] )( 'drops the whole range for %s rather than half-applying it', ( _label, range ) => {
 			seedScriptData( {} );
 
-			const path = routerPath( getAnalyticsUrl( { view: 'dashboard', range } ) );
-
-			expect( path ).toBe( '/' );
+			expect( routerPath( getAnalyticsUrl( { view: 'dashboard', range } ) ) ).toBe( '/' );
 		} );
 
 		it( 'drops the range when the timezone is unusable', () => {
@@ -315,96 +298,23 @@ describe( 'getAnalyticsUrl on a Premium Analytics site', () => {
 		} );
 	} );
 
-	describe( 'capability', () => {
-		it( 'returns null when the user cannot open the dashboard', () => {
+	describe( 'when there is nowhere to send the user', () => {
+		it( 'returns null for a user who cannot open the dashboard', () => {
 			seedScriptData( { can_view: false } );
 
 			expect( getAnalyticsUrl( { view: 'dashboard' } ) ).toBeNull();
-		} );
-
-		it( 'returns null for every view when the user cannot view', () => {
-			seedScriptData( { can_view: false } );
-
-			expect( getAnalyticsUrl( { view: 'report', report: 'emails' } ) ).toBeNull();
 			expect( getAnalyticsUrl( { view: 'post', id: 1, section: 'email-opens' } ) ).toBeNull();
-			expect( getAnalyticsUrl( { view: 'video', id: 1 } ) ).toBeNull();
 		} );
-	} );
 
-	it( 'falls back to the Stats grammar when the payload is present but disabled', () => {
-		seedScriptData( { enabled: false } );
+		// Callers gate on hasAnalyticsDashboard() and keep their existing link,
+		// so the helper never builds a legacy Stats URL of its own.
+		it.each( [
+			[ 'the key is absent', undefined ],
+			[ 'the key is present but disabled', { enabled: false } ],
+		] )( 'returns null when %s', ( _label, analytics ) => {
+			seedScriptData( analytics );
 
-		expect( getAnalyticsUrl( { view: 'dashboard' } ) ).toBe( `${ ADMIN_URL }admin.php?page=stats` );
-	} );
-} );
-
-describe( 'getAnalyticsUrl on a legacy Stats site', () => {
-	it( 'links to the Stats page root for the plain dashboard', () => {
-		seedScriptData();
-
-		expect( getAnalyticsUrl( { view: 'dashboard' } ) ).toBe( `${ ADMIN_URL }admin.php?page=stats` );
-	} );
-
-	it( 'builds the subscribers deep link', () => {
-		seedScriptData();
-
-		expect( getAnalyticsUrl( { view: 'dashboard', section: 'subscribers' } ) ).toBe(
-			`${ ADMIN_URL }admin.php?page=stats#!/stats/subscribers/example.com`
-		);
-	} );
-
-	it( 'builds the traffic deep link with the day encoded as UTC midnight', () => {
-		seedScriptData();
-
-		expect(
-			getAnalyticsUrl( {
-				view: 'dashboard',
-				section: 'traffic',
-				range: { from: '2026-07-29', to: '2026-08-04' },
-			} )
-		).toBe(
-			`${ ADMIN_URL }admin.php?page=stats#!/stats/day/example.com?startDate=2026-07-29T00:00:00.000Z`
-		);
-	} );
-
-	it( 'builds the email-opens deep link from the post and blog ids', () => {
-		seedScriptData();
-
-		expect( getAnalyticsUrl( { view: 'post', id: 99, section: 'email-opens' } ) ).toBe(
-			`${ ADMIN_URL }admin.php?page=stats#!/stats/email/opens/day/99/12345`
-		);
-	} );
-
-	it.each( [
-		[ 'a report', { view: 'report' as const, report: 'utm' as const } ],
-		[ 'a video', { view: 'video' as const, id: 3 } ],
-		[ 'an insights section', { view: 'dashboard' as const, section: 'insights' as const } ],
-		[ 'a post traffic tab', { view: 'post' as const, id: 3, section: 'traffic' as const } ],
-	] )( 'falls back to the Stats root for %s, which it cannot deep-link', ( _label, view ) => {
-		seedScriptData();
-
-		expect( getAnalyticsUrl( view ) ).toBe( `${ ADMIN_URL }admin.php?page=stats` );
-	} );
-
-	it( 'falls back to the root when the site suffix is missing', () => {
-		seedScriptData( undefined, { suffix: undefined } );
-
-		expect( getAnalyticsUrl( { view: 'dashboard', section: 'subscribers' } ) ).toBe(
-			`${ ADMIN_URL }admin.php?page=stats`
-		);
-	} );
-
-	it( 'falls back to the root when the blog id is missing', () => {
-		seedScriptData( undefined, { wpcom: { blog_id: 0 } } );
-
-		expect( getAnalyticsUrl( { view: 'post', id: 99, section: 'email-opens' } ) ).toBe(
-			`${ ADMIN_URL }admin.php?page=stats`
-		);
-	} );
-
-	it( 'never gates on capability, since the Stats page has its own', () => {
-		seedScriptData();
-
-		expect( getAnalyticsUrl( { view: 'dashboard' } ) ).not.toBeNull();
+			expect( getAnalyticsUrl( { view: 'dashboard' } ) ).toBeNull();
+		} );
 	} );
 } );

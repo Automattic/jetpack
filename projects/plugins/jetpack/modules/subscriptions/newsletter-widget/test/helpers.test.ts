@@ -1,4 +1,4 @@
-import { getAnalyticsUrl } from '@automattic/jetpack-script-data';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '@automattic/jetpack-script-data';
 import {
 	formatAxisTickDate,
 	formatDate,
@@ -13,6 +13,7 @@ import type { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from '../src/
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getAnalyticsUrl: jest.fn( () => 'https://example.com/wp-admin/analytics' ),
+	hasAnalyticsDashboard: jest.fn( () => true ),
 } ) );
 
 describe( 'helpers', () => {
@@ -138,15 +139,19 @@ describe( 'helpers', () => {
 		} );
 	} );
 
-	// The helper owns the URL grammar for whichever analytics dashboard the site
-	// runs, so these assert delegation rather than re-testing the URL here.
 	describe( 'getSubscriberStatsUrl', () => {
+		const testSite = 'example.com';
+		const testAdminUrl = 'https://example.com/wp-admin/';
+
 		beforeEach( () => {
 			jest.mocked( getAnalyticsUrl ).mockClear();
+			jest.mocked( hasAnalyticsDashboard ).mockReturnValue( true );
 		} );
 
+		// Where the dashboard has replaced Stats, delegate to the shared helper —
+		// it owns that URL grammar, so this asserts the request, not the URL.
 		it( 'asks for the subscribers view of the analytics dashboard', () => {
-			const url = getSubscriberStatsUrl();
+			const url = getSubscriberStatsUrl( testSite, testAdminUrl );
 
 			expect( getAnalyticsUrl ).toHaveBeenCalledWith( {
 				view: 'dashboard',
@@ -155,10 +160,20 @@ describe( 'helpers', () => {
 			expect( url ).toBe( 'https://example.com/wp-admin/analytics' );
 		} );
 
-		it( 'passes through null when there is nowhere to link', () => {
+		it( 'passes through null when the user cannot open the dashboard', () => {
 			jest.mocked( getAnalyticsUrl ).mockReturnValueOnce( null );
 
-			expect( getSubscriberStatsUrl() ).toBeNull();
+			expect( getSubscriberStatsUrl( testSite, testAdminUrl ) ).toBeNull();
+		} );
+
+		// Everywhere else the existing Stats deep link is untouched.
+		it( 'returns the Stats deep link when the dashboard has not replaced it', () => {
+			jest.mocked( hasAnalyticsDashboard ).mockReturnValue( false );
+
+			expect( getSubscriberStatsUrl( testSite, testAdminUrl ) ).toBe(
+				`${ testAdminUrl }admin.php?page=stats#!/stats/subscribers/${ testSite }`
+			);
+			expect( getAnalyticsUrl ).not.toHaveBeenCalled();
 		} );
 	} );
 

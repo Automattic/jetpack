@@ -1,4 +1,8 @@
-import { getAdminUrl, getAnalyticsUrl } from '@automattic/jetpack-script-data';
+import {
+	getAdminUrl,
+	getAnalyticsUrl,
+	hasAnalyticsDashboard,
+} from '@automattic/jetpack-script-data';
 import { isComingSoon } from '@automattic/jetpack-shared-extension-utils';
 import { Animate } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -489,10 +493,10 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		} );
 	}
 
-	// Without the capability to open analytics there is nowhere to link, and an
-	// anchor with no href renders styled but non-actionable — keep the wording as
-	// plain text instead.
-	const emailStatsLink = getJetpackEmailStatsLink( postId );
+	// Null only where the dashboard has replaced Stats and this user cannot open
+	// it. An anchor with no href renders styled but non-actionable, so keep the
+	// wording as plain text instead.
+	const emailStatsLink = getJetpackEmailStatsLink( blogId, postId );
 
 	return (
 		<>
@@ -519,17 +523,22 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 }
 
 /**
- * Get the email-opens analytics link for the given post.
+ * Get the email stats link for the given post.
  *
- * The blog id is no longer a parameter: `getAnalyticsUrl()` resolves it from
- * script data, along with which analytics dashboard the site runs.
+ * Points at the Premium Analytics dashboard where that has replaced the Stats
+ * page, and at the existing Stats deep link everywhere else.
  *
+ * @param {number} blogId - The ID of the blog.
  * @param {number} postId - The ID of the post.
  *
- * @return {?string} - The link, or null when the user cannot open analytics.
+ * @return {?string} - The link, or null when the dashboard has replaced Stats but this user cannot open it.
  */
-export function getJetpackEmailStatsLink( postId ) {
-	return getAnalyticsUrl( { view: 'post', id: postId, section: 'email-opens' } );
+export function getJetpackEmailStatsLink( blogId, postId ) {
+	if ( hasAnalyticsDashboard() ) {
+		return getAnalyticsUrl( { view: 'post', id: postId, section: 'email-opens' } );
+	}
+
+	return getAdminUrl( `admin.php?page=stats#!/stats/email/opens/day/${ postId }/${ blogId }` );
 }
 
 /**

@@ -1,5 +1,5 @@
 import { getRedirectUrl, JetpackLogo } from '@automattic/jetpack-components';
-import { getAnalyticsUrl } from '@automattic/jetpack-script-data';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '@automattic/jetpack-script-data';
 import { formatNumber } from '@automattic/number-formatters';
 import { Spinner } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
@@ -33,6 +33,7 @@ export class DashStats extends Component {
 	static propTypes = {
 		isOfflineMode: PropTypes.bool.isRequired,
 		siteRawUrl: PropTypes.string.isRequired,
+		siteAdminUrl: PropTypes.string.isRequired,
 		statsData: PropTypes.any.isRequired,
 		isModuleAvailable: PropTypes.bool.isRequired,
 	};
@@ -56,8 +57,42 @@ export class DashStats extends Component {
 		}
 	};
 
+	/**
+	 * Where clicking a chart bar goes.
+	 *
+	 * Off-site to WordPress.com when Odyssey is disabled, otherwise into the
+	 * site's own analytics UI. Where the Premium Analytics dashboard has replaced
+	 * the Stats page, the link carries the period the bar stands for; the Stats
+	 * deep link it replaces only ever pointed at a single day.
+	 *
+	 * @param {string} date         - The bar's date, as a UTC-midnight ISO string.
+	 * @param {string} unit         - The active chart tab: 'day', 'week', or 'month'.
+	 * @param {string} siteAdminUrl - The site's wp-admin URL.
+	 * @param {string} siteRawUrl   - The site's identifier.
+	 *
+	 * @return {?string} The bar's link, or null when there is nowhere to send the user.
+	 */
+	barLink( date, unit, siteAdminUrl, siteRawUrl ) {
+		if ( this.shouldLinkToWpcomStats() ) {
+			return getRedirectUrl( `calypso-stats-${ unit }`, {
+				site: siteRawUrl,
+				query: `startDate=${ date }`,
+			} );
+		}
+
+		if ( hasAnalyticsDashboard() ) {
+			return getAnalyticsUrl( {
+				view: 'dashboard',
+				section: 'traffic',
+				range: chartBarRange( date, unit ),
+			} );
+		}
+
+		return `${ siteAdminUrl }admin.php?page=stats#!/stats/day/${ siteRawUrl }?startDate=${ date }`;
+	}
+
 	statsChart( unit ) {
-		const { siteRawUrl, statsData } = this.props,
+		const { siteAdminUrl, siteRawUrl, statsData } = this.props,
 			s = [];
 
 		if ( 'object' !== typeof statsData[ unit ] ) {
@@ -109,19 +144,7 @@ export class DashStats extends Component {
 				nestedValue: null,
 				className: 'statsChartbar',
 				data: {
-					// Linking off to WordPress.com is a separate destination from the
-					// site's own analytics dashboard, so it stays here; the in-admin
-					// branch goes through the shared helper.
-					link: ! this.shouldLinkToWpcomStats()
-						? getAnalyticsUrl( {
-								view: 'dashboard',
-								section: 'traffic',
-								range: chartBarRange( date, unit ),
-						  } )
-						: getRedirectUrl( `calypso-stats-${ unit }`, {
-								site: siteRawUrl,
-								query: `startDate=${ date }`,
-						  } ),
+					link: this.barLink( date, unit, siteAdminUrl, siteRawUrl ),
 				},
 				tooltipData: [
 					{
@@ -160,6 +183,7 @@ export class DashStats extends Component {
 					<DashStatsBottom
 						statsData={ this.props.statsData }
 						siteRawUrl={ this.props.siteRawUrl }
+						siteAdminUrl={ this.props.siteAdminUrl }
 						isLinked={ this.props.isLinked }
 						connectUrl={ this.props.connectUrl }
 						dateFormat={ this.props.dateFormat }

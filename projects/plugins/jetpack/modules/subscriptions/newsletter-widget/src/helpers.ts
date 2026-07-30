@@ -1,5 +1,5 @@
 import analytics from '@automattic/jetpack-analytics';
-import { getAnalyticsUrl } from '@automattic/jetpack-script-data';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '@automattic/jetpack-script-data';
 import { dateI18n } from '@wordpress/date';
 import { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from './types';
 
@@ -43,17 +43,22 @@ export const buildJPRedirectSource = ( url: string, isWpcomSite: boolean = true 
 };
 
 /**
- * Generates the URL for the subscribers view of the site's analytics dashboard.
+ * Generates the URL for subscriber statistics based on site context.
  *
- * Takes no arguments: `getAnalyticsUrl()` resolves the admin URL, the site
- * identifier, and which analytics dashboard this site runs, so none of it has to
- * be threaded in.
+ * Points at the Premium Analytics dashboard where that has replaced the Stats
+ * page, and at the existing Stats deep link everywhere else.
  *
- * @returns {?string} The subscriber stats URL, or null when the current user
- *                   cannot open analytics.
+ * @param {string} site     - The site identifier
+ * @param {string} adminUrl - The admin URL for self-hosted sites
+ * @returns {?string} The appropriate subscriber stats URL, or null when the
+ *                   dashboard has replaced Stats but this user cannot open it.
  */
-export const getSubscriberStatsUrl = (): string | null => {
-	return getAnalyticsUrl( { view: 'dashboard', section: 'subscribers' } );
+export const getSubscriberStatsUrl = ( site: string, adminUrl: string ): string | null => {
+	if ( hasAnalyticsDashboard() ) {
+		return getAnalyticsUrl( { view: 'dashboard', section: 'subscribers' } );
+	}
+
+	return `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`;
 };
 
 /**

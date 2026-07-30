@@ -1,5 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getAnalyticsUrl } from '@automattic/jetpack-script-data';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '@automattic/jetpack-script-data';
 import { render, screen } from '@testing-library/react';
 import { NewsletterWidget, NewsletterWidgetProps } from '../src/components/newsletter-widget';
 
@@ -11,6 +11,7 @@ const ANALYTICS_URL =
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getAnalyticsUrl: jest.fn(),
+	hasAnalyticsDashboard: jest.fn( () => true ),
 } ) );
 
 jest.mock( '@wordpress/components', () => {
@@ -54,6 +55,7 @@ describe( 'NewsletterWidget', () => {
 	};
 
 	beforeEach( () => {
+		jest.mocked( hasAnalyticsDashboard ).mockReturnValue( true );
 		jest.mocked( getAnalyticsUrl ).mockReturnValue( ANALYTICS_URL );
 	} );
 
@@ -220,8 +222,9 @@ describe( 'NewsletterWidget', () => {
 		} );
 	} );
 
-	// The helper returns null when the current user cannot open the analytics
-	// dashboard. The widget must not render dead links for them.
+	// The helper returns null where the dashboard has replaced Stats and the
+	// current user cannot open it. The widget must not render dead links for
+	// them, and must not fall back to the Stats page, which is gone by then.
 	describe( 'without access to analytics', () => {
 		beforeEach( () => {
 			jest.mocked( getAnalyticsUrl ).mockReturnValue( null );

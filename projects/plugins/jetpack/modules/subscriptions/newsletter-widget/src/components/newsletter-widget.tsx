@@ -49,9 +49,10 @@ export const NewsletterWidget = ( {
 		tracks.recordEvent( `${ TRACKS_EVENT_NAME_PREFIX }_view` );
 	}, [ tracks ] );
 
-	// Null when the current user cannot open the analytics dashboard: the counts
-	// still render, just not as links, and the quick link is dropped.
-	const subscriberStatsUrl = getSubscriberStatsUrl();
+	// Null only where the Premium Analytics dashboard has replaced the Stats page
+	// and this user cannot open it: the counts still render, just not as links,
+	// and the quick link is dropped.
+	const subscriberStatsUrl = getSubscriberStatsUrl( site, adminUrl );
 
 	const subscribersText = sprintf(
 		//translators: %1$s is the total number of subscribers, %2$s is the number of email subscribers

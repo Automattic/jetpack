@@ -103,31 +103,16 @@ export type AnalyticsDashboardSection = 'traffic' | 'insights' | 'subscribers' |
 export type AnalyticsPostSection = 'traffic' | 'email-opens' | 'email-clicks';
 
 /**
- * A standalone analytics report.
- */
-export type AnalyticsReportId =
-	| 'annual-insights'
-	| 'authors'
-	| 'clicks'
-	| 'comment-followers'
-	| 'comments'
-	| 'downloads'
-	| 'emails'
-	| 'posts'
-	| 'referrers'
-	| 'search-terms'
-	| 'tags'
-	| 'utm'
-	| 'videos';
-
-/**
  * An analytics destination, described in terms of what the user should see
  * rather than how the URL is spelled.
  *
- * A discriminated union rather than a property bag, so that a report id can't
- * be passed alongside a post id, and each view only accepts the modifiers that
- * apply to it. `range` is accepted on every view because the dashboard, the
- * reports and the post detail page all read the same date-window params.
+ * A discriminated union rather than a property bag, so each view only accepts
+ * the modifiers that apply to it. `range` is accepted on both because the
+ * dashboard and the post detail page read the same date-window params.
+ *
+ * Only the two views Jetpack actually links to are modelled. The dashboard also
+ * serves `/reports/$report` and `/video/$videoId`; add them here when something
+ * needs to link there, rather than ahead of a caller.
  *
  * Deliberately absent: the site and blog identifiers (resolved from script
  * data, so callers need not thread them through props) and product checkout,
@@ -135,9 +120,7 @@ export type AnalyticsReportId =
  */
 export type AnalyticsView =
 	| { view: 'dashboard'; section?: AnalyticsDashboardSection; range?: AnalyticsDateRange }
-	| { view: 'report'; report: AnalyticsReportId; section?: string; range?: AnalyticsDateRange }
-	| { view: 'post'; id: number; section?: AnalyticsPostSection; range?: AnalyticsDateRange }
-	| { view: 'video'; id: number; range?: AnalyticsDateRange };
+	| { view: 'post'; id: number; section?: AnalyticsPostSection; range?: AnalyticsDateRange };
 
 export interface JetpackScriptData {
 	site: SiteData;

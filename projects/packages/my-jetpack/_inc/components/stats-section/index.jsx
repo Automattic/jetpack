@@ -1,4 +1,4 @@
-import { getAnalyticsUrl } from '@automattic/jetpack-script-data';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
@@ -147,10 +147,14 @@ const StatsSection = () => {
 
 	const { counts, previousCounts, chartData } = processedData;
 
-	// The site's analytics dashboard, or null when there is nowhere to send the
-	// user — the current user cannot open it. Both the card's own button and the
-	// chart inside it lead here.
-	const analyticsUrl = useMemo( () => getAnalyticsUrl( { view: 'dashboard' } ), [] );
+	// Where the Premium Analytics dashboard has replaced the Stats page, both the
+	// card's button and the chart inside it lead there instead. Null only when
+	// that dashboard is the analytics UI and this user cannot open it.
+	const statsUrl = useMemo(
+		() =>
+			hasAnalyticsDashboard() ? getAnalyticsUrl( { view: 'dashboard' } ) : 'admin.php?page=stats',
+		[]
+	);
 
 	/**
 	 * Called when "See detailed stats" button is clicked.
@@ -160,18 +164,22 @@ const StatsSection = () => {
 			product: slug,
 		} );
 
-		if ( analyticsUrl ) {
-			window.location.href = analyticsUrl;
+		if ( ! statsUrl ) {
+			return;
 		}
-	}, [ recordEvent, analyticsUrl ] );
+
+		// The Stats page caches its report, so the legacy link asks it to refresh.
+		// The dashboard fetches on load, so it needs no such hint.
+		window.location.href = hasAnalyticsDashboard() ? statsUrl : `${ statsUrl }&force_refresh=1`;
+	}, [ recordEvent, statsUrl ] );
 
 	const shouldShowSecondaryButton = useCallback(
-		() => !! ( status === PRODUCT_STATUSES.CAN_UPGRADE && analyticsUrl ),
-		[ status, analyticsUrl ]
+		() => !! ( status === PRODUCT_STATUSES.CAN_UPGRADE && statsUrl ),
+		[ status, statsUrl ]
 	);
 
 	const viewStatsButton = {
-		href: analyticsUrl,
+		href: statsUrl,
 		label: __( 'View detailed stats', 'jetpack-my-jetpack' ),
 		onClick: onDetailedStatsClick,
 		shouldShowButton: shouldShowSecondaryButton,

@@ -1390,6 +1390,13 @@ importers:
         version: 6.0.3
 
   projects/js-packages/script-data:
+    dependencies:
+      '@date-fns/tz':
+        specifier: 1.4.1
+        version: 1.4.1
+      date-fns:
+        specifier: 4.1.0
+        version: 4.1.0
     devDependencies:
       '@babel/core':
         specifier: 7.29.7

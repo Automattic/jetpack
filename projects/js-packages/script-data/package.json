@@ -21,6 +21,10 @@
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsgo --noEmit"
 	},
+	"dependencies": {
+		"@date-fns/tz": "1.4.1",
+		"date-fns": "4.1.0"
+	},
 	"devDependencies": {
 		"@babel/core": "7.29.7",
 		"@jest/globals": "30.4.1",

@@ -1,5 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getAnalyticsUrl } from '@automattic/jetpack-script-data';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '@automattic/jetpack-script-data';
 import { formatNumber } from '@automattic/number-formatters';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
@@ -48,9 +48,12 @@ class DashStatsBottom extends Component {
 
 	render() {
 		const s = this.statsBottom()[ 0 ];
-		// Null when the current user cannot open the analytics dashboard — the
-		// summary figures still render, just without the button.
-		const analyticsUrl = getAnalyticsUrl( { view: 'dashboard' } );
+		// Null only where the Premium Analytics dashboard has replaced the Stats
+		// page and this user cannot open it — the summary figures still render,
+		// just without the button.
+		const analyticsUrl = hasAnalyticsDashboard()
+			? getAnalyticsUrl( { view: 'dashboard' } )
+			: this.props.siteAdminUrl + 'admin.php?page=stats';
 
 		return (
 			<div>
@@ -137,6 +140,7 @@ class DashStatsBottom extends Component {
 
 DashStatsBottom.propTypes = {
 	siteRawUrl: PropTypes.string.isRequired,
+	siteAdminUrl: PropTypes.string.isRequired,
 	statsData: PropTypes.object.isRequired,
 	isLinked: PropTypes.bool.isRequired,
 	dateFormat: PropTypes.string.isRequired,
@@ -144,6 +148,7 @@ DashStatsBottom.propTypes = {
 
 DashStatsBottom.defaultProps = {
 	siteRawUrl: '',
+	siteAdminUrl: '',
 	statsData: {},
 	isLinked: false,
 	dateFormat: 'F j, Y',
