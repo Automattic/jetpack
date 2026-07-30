@@ -201,22 +201,22 @@ async function fetchCategoriesViaWpApi(): Promise< Category[] > {
 }
 
 /**
- * Create a new category.
- * On Simple sites, uses the WordPress.com REST API; otherwise the WordPress REST API.
+ * Create a new category via the WordPress REST API (`/wp/v2/categories`).
  *
- * Mirrors the Simple-vs-self-hosted split used by `fetchCategories` — the plain
- * `/wp/v2/categories` endpoint isn't directly reachable on WordPress.com Simple
- * sites, so we can't rely on `@wordpress/core-data` here.
+ * This endpoint works on both self-hosted and WordPress.com Simple sites — in the
+ * wp-admin context the request is proxied to WordPress.com — and, crucially, it
+ * returns errors in the standard WP-REST shape (`{ code: 'term_exists', … }`)
+ * that `@wordpress/api-fetch` parses natively. The older
+ * `/rest/v1.1/…/taxonomies/category/terms/new` endpoint returns wpcom-format
+ * errors (`{ error: 'duplicate' }`) that apiFetch can't parse, so it collapses
+ * them to a generic `unknown_error` and the duplicate signal is lost before we
+ * can read it — hence we use `/wp/v2/categories` everywhere here.
  *
  * @param {string} name - The name of the category to create.
  * @return {Promise<Category>} The created category.
  */
 export async function createCategory( name: string ): Promise< Category > {
-	const blogId = getBlogId();
-	const category =
-		isSimpleSite() && blogId
-			? await createCategoryViaWpcomApi( name, blogId )
-			: await createCategoryViaWpApi( name );
+	const category = await createCategoryViaWpApi( name );
 
 	// Guard against an unexpected success payload: without a numeric id the caller
 	// would select a bogus token (e.g. `String( undefined )`). Surface it as a
@@ -226,45 +226,6 @@ export async function createCategory( name: string ): Promise< Category > {
 	}
 
 	return category;
-}
-
-/**
- * Create a category via the WordPress.com REST API.
- *
- * @param {string} name   - The name of the category to create.
- * @param {number} blogId - The blog ID.
- * @return {Promise<Category>} The created category.
- */
-async function createCategoryViaWpcomApi( name: string, blogId: number ): Promise< Category > {
-	const term = ( await apiFetch( {
-		path: `/rest/v1.1/sites/${ blogId }/taxonomies/category/terms/new`,
-		method: 'POST',
-		data: { name },
-	} ) ) as {
-		ID?: number;
-		name?: string;
-		code?: number;
-		error?: string;
-		message?: string;
-		body?: { code?: number; error?: string; message?: string };
-	};
-
-	// The WordPress.com proxy can *resolve* (not reject) with an error envelope —
-	// e.g. a duplicate comes back as `{ code: 409, body: { error: 'duplicate' } }`.
-	// Re-throw it carrying the error signals so the caller maps it (to the
-	// "already exists" message) instead of treating the missing ID as a generic
-	// failure.
-	const error = term.error ?? term.body?.error;
-	const code = term.code ?? term.body?.code;
-	if ( error || code ) {
-		throw Object.assign(
-			new Error( term.message ?? term.body?.message ?? 'Category creation failed.' ),
-			{ code, error, body: term.body }
-		);
-	}
-
-	// WordPress.com API returns ID (uppercase), normalize to id (lowercase).
-	return { id: term.ID as number, name: term.name as string };
 }
 
 /**

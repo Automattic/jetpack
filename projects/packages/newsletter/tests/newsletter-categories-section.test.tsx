@@ -358,12 +358,12 @@ describe( 'NewsletterCategoriesSection — combined search + create (NL-785)', (
 		expect( mockedCreateCategory ).not.toHaveBeenCalled();
 	} );
 
-	it( 'surfaces the friendly duplicate message for the WordPress.com envelope shape', async () => {
+	it( 'surfaces the friendly duplicate message for a term_exists rejection', async () => {
 		mockedCreateCategory.mockRejectedValue(
-			Object.assign( new Error( 'A taxonomy with that name already exists' ), {
-				code: 409,
-				body: { error: 'duplicate' },
-			} )
+			Object.assign(
+				new Error( 'A term with the name provided already exists with this parent.' ),
+				{ code: 'term_exists' }
+			)
 		);
 		const { onChange } = renderSection();
 		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
@@ -373,7 +373,7 @@ describe( 'NewsletterCategoriesSection — combined search + create (NL-785)', (
 
 		const alert = await screen.findByRole( 'alert' );
 		expect( alert ).toHaveTextContent( 'This category already exists.' );
-		expect( alert ).not.toHaveTextContent( 'A taxonomy with that name already exists' );
+		expect( alert ).not.toHaveTextContent( 'already exists with this parent' );
 		// Nothing was recorded or selected.
 		expect( onChange ).not.toHaveBeenCalled();
 		expect( mockedRecordEvent ).not.toHaveBeenCalledWith(
