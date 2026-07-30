@@ -28,8 +28,6 @@ const OrganizationSection: FC< Props > = ( { form } ) => {
 
 	return (
 		<Stack direction="column" gap="lg">
-			{ /* The module description above already frames what schema is for, so this
-			     only orients the section and states the one non-obvious fact. */ }
 			<Text variant="body-sm" className={ styles.muted } render={ <p /> }>
 				{ __(
 					'About the organization behind this site. Your Site Logo or Site Icon is used as the logo.',
@@ -37,8 +35,12 @@ const OrganizationSection: FC< Props > = ( { form } ) => {
 				) }
 			</Text>
 
+			{ /* The visible label stays one word (WPDS renders control labels as 11px
+			     all-caps), but the Author profile card on this same tab also has a
+			     "Name" field — so the accessible name says which one this is. */ }
 			<TextControl
 				label={ __( 'Name', 'jetpack-seo' ) }
+				aria-label={ __( 'Organization name', 'jetpack-seo' ) }
 				help={ __(
 					'The organization’s name, as you want it to appear in search results. Leave blank to use your Site Title.',
 					'jetpack-seo'

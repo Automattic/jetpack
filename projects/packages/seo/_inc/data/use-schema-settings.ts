@@ -82,33 +82,26 @@ export function useSchemaSettings(
 		JSON.stringify( cleanLocalBusiness( sections.localBusiness ) ) !==
 		JSON.stringify( baselineRef.current.localBusiness );
 
-	const commitBreadcrumbList = useCallback(
-		( patch: Partial< BreadcrumbListSettings > ) => {
-			if ( isSaving ) {
-				return;
-			}
-			// Update local for immediate UI feedback, but persist only this section
-			// so pending Organization / LocalBusiness edits stay local until their
-			// own Save — matching the toggle sections of the main Settings form.
-			const next = { ...sections.breadcrumbList, ...patch };
-			setSections( current => ( { ...current, breadcrumbList: next } ) );
+	// The one POST path: in-flight guard, the "Saving…" → result snackbar, and error
+	// handling, all in one place. `onSuccess` re-seeds only the sections the caller
+	// actually sent, so pending edits elsewhere in the form survive the round trip.
+	// `onError` lets an optimistic caller (the auto-saving toggle) roll back.
+	const persist = useCallback(
+		(
+			data: Partial< EditableSchemaSections >,
+			savingNotice: string,
+			onSuccess: ( settings: SchemaSettings ) => void,
+			onError?: () => void
+		) => {
 			setIsSaving( true );
-			createInfoNotice( __( 'Saving breadcrumbs…', 'jetpack-seo' ), {
+			createInfoNotice( savingNotice, {
 				id: NOTICE_ID,
 				type: 'snackbar',
 				isDismissible: false,
 			} );
-			apiFetch< SchemaSettings >( {
-				path: ENDPOINT,
-				method: 'POST',
-				data: { breadcrumbList: next },
-			} )
+			apiFetch< SchemaSettings >( { path: ENDPOINT, method: 'POST', data } )
 				.then( settings => {
-					baselineRef.current = {
-						...baselineRef.current,
-						breadcrumbList: { ...settings.breadcrumbList },
-					};
-					setSections( current => ( { ...current, breadcrumbList: settings.breadcrumbList } ) );
+					onSuccess( settings );
 					onSave?.( settings );
 					createSuccessNotice( __( 'Schema settings saved.', 'jetpack-seo' ), {
 						id: NOTICE_ID,
@@ -116,13 +109,7 @@ export function useSchemaSettings(
 					} );
 				} )
 				.catch( ( error: { message?: string } ) => {
-					// The optimistic update above is unpersisted, so roll it back to the
-					// last-saved value rather than leaving the UI asserting a state the
-					// server rejected.
-					setSections( current => ( {
-						...current,
-						breadcrumbList: baselineRef.current.breadcrumbList,
-					} ) );
+					onError?.();
 					createErrorNotice(
 						error?.message ??
 							__( 'Could not save schema settings. Please try again.', 'jetpack-seo' ),
@@ -131,7 +118,42 @@ export function useSchemaSettings(
 				} )
 				.finally( () => setIsSaving( false ) );
 		},
-		[ isSaving, sections, onSave, createInfoNotice, createSuccessNotice, createErrorNotice ]
+		[ onSave, createInfoNotice, createSuccessNotice, createErrorNotice ]
+	);
+
+	const commitBreadcrumbList = useCallback(
+		( patch: Partial< BreadcrumbListSettings > ) => {
+			// Guard before the optimistic update, not just before the request, so a
+			// toggle during an in-flight save doesn't move the switch either.
+			if ( isSaving ) {
+				return;
+			}
+			// Update local for immediate UI feedback, but persist only this section so
+			// pending Organization / LocalBusiness edits stay local until the module's
+			// Save — matching the toggle sections of the main Settings form.
+			const next = { ...sections.breadcrumbList, ...patch };
+			setSections( current => ( { ...current, breadcrumbList: next } ) );
+			persist(
+				{ breadcrumbList: next },
+				__( 'Saving breadcrumbs…', 'jetpack-seo' ),
+				settings => {
+					baselineRef.current = {
+						...baselineRef.current,
+						breadcrumbList: { ...settings.breadcrumbList },
+					};
+					setSections( current => ( { ...current, breadcrumbList: settings.breadcrumbList } ) );
+				},
+				// The optimistic update above is unpersisted, so roll it back to the
+				// last-saved value rather than leaving the UI asserting a state the
+				// server rejected.
+				() =>
+					setSections( current => ( {
+						...current,
+						breadcrumbList: baselineRef.current.breadcrumbList,
+					} ) )
+			);
+		},
+		[ isSaving, sections, persist ]
 	);
 
 	const setOrganizationField = useCallback( ( patch: Partial< OrganizationSettings > ) => {
@@ -148,53 +170,18 @@ export function useSchemaSettings(
 		} ) );
 	}, [] );
 
-	// Shared persist path for the explicit "Save" button: POST the given section
-	// payload, then let `onSuccess` re-seed the saved sections from the server
-	// response (reflecting sanitization) without disturbing pending edits in the
-	// sections it doesn't touch. Error handling and the saving flag live here once.
-	const persist = useCallback(
-		(
-			data: Partial< EditableSchemaSections >,
-			onSuccess: ( settings: SchemaSettings ) => void
-		) => {
-			if ( isSaving ) {
-				return;
-			}
-			setIsSaving( true );
-			createInfoNotice( __( 'Saving…', 'jetpack-seo' ), {
-				id: NOTICE_ID,
-				type: 'snackbar',
-				isDismissible: false,
-			} );
-			apiFetch< SchemaSettings >( { path: ENDPOINT, method: 'POST', data } )
-				.then( settings => {
-					onSuccess( settings );
-					onSave?.( settings );
-					createSuccessNotice( __( 'Schema settings saved.', 'jetpack-seo' ), {
-						id: NOTICE_ID,
-						type: 'snackbar',
-					} );
-				} )
-				.catch( ( error: { message?: string } ) => {
-					createErrorNotice(
-						error?.message ??
-							__( 'Could not save schema settings. Please try again.', 'jetpack-seo' ),
-						{ id: NOTICE_ID, type: 'snackbar' }
-					);
-				} )
-				.finally( () => setIsSaving( false ) );
-		},
-		[ isSaving, onSave, createInfoNotice, createSuccessNotice, createErrorNotice ]
-	);
-
 	// The Organization entity and its LocalBusiness refinement share one Save, so a
 	// single click persists both (the backend merges partial section payloads).
 	const saveOrganizationEntity = useCallback( () => {
+		if ( isSaving ) {
+			return;
+		}
 		persist(
 			{
 				organization: cleanOrganization( sections.organization ),
 				localBusiness: cleanLocalBusiness( sections.localBusiness ),
 			},
+			__( 'Saving schema settings…', 'jetpack-seo' ),
 			settings => {
 				baselineRef.current = {
 					...baselineRef.current,
@@ -208,7 +195,7 @@ export function useSchemaSettings(
 				} ) );
 			}
 		);
-	}, [ persist, sections ] );
+	}, [ isSaving, persist, sections ] );
 
 	return {
 		breadcrumbList: sections.breadcrumbList,

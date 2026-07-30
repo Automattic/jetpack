@@ -1,7 +1,7 @@
 import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { code } from '@wordpress/icons';
-import { Button, Card, CollapsibleCard, Stack, Text } from '@wordpress/ui';
+import { Button, Card, CollapsibleCard, Fieldset, Stack, Text } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
 import StatusIndicator from '../../components/status-indicator';
 import { useSchemaSettings } from '../../data/use-schema-settings';
@@ -12,6 +12,10 @@ import { hasProfileUrlErrors } from './schema-settings/profile-url-list';
 import styles from './schema-settings/style.module.scss';
 import type { SettingStatus } from '../../components/status-indicator';
 import type { SchemaSettings } from '../../data/schema-settings-types';
+
+// Points the Save button at its blocking-error message. Static, matching the
+// `jetpack-seo-settings-*` ids used for the field-level errors in this folder.
+const SAVE_ERROR_ID = 'jetpack-seo-settings-schema-save-error';
 
 interface Props {
 	initialSettings: SchemaSettings;
@@ -25,7 +29,7 @@ interface Props {
  * toggle, then the Organization details behind the site. Local-business details
  * are a refinement of the Organization (a sub-toggle under it), not a peer
  * choice — schema.org models LocalBusiness as a kind of Organization. The
- * per-user Author profile (Person / ProfilePage for each writer) is a distinct
+ * Author profile (Person / ProfilePage for the signed-in user) is a distinct
  * concern and lives in its own card.
  *
  * Collapsed by default and built from the shared `CollapsibleCard` compound,
@@ -39,27 +43,46 @@ interface Props {
  */
 function SchemaCard( { initialSettings, onSave }: Props ) {
 	const form = useSchemaSettings( initialSettings, onSave );
-	const { organization, defaults, localBusiness, breadcrumbList, isSaving, commitBreadcrumbList } =
-		form;
+	const {
+		organization,
+		defaults,
+		localBusiness,
+		breadcrumbList,
+		isSaving,
+		isOrganizationDirty,
+		isLocalBusinessDirty,
+		commitBreadcrumbList,
+		saveOrganizationEntity,
+	} = form;
 
-	// Completion status for the module header. A field counts as configured when it
-	// has a value — its smart default counts, because the defaults (Site Title →
-	// name, Tagline → description) are the preferred state: they keep the schema in
-	// sync with the site's own settings. The core fields are name, description, and
-	// social/profile links; name and description are almost always covered by their
-	// defaults, so in practice adding social links (which have no default) is what
-	// completes the module. Email is an optional extra and doesn't affect the status.
-	const configuredCount = [
-		Boolean( organization.name || defaults.name ),
-		Boolean( organization.description || defaults.description ),
-		organization.sameAs.length > 0,
-	].filter( Boolean ).length;
+	// A field counts as configured when it has a value — including its smart
+	// default (Site Title → name, Tagline → description), because tracking the
+	// site's own settings is the preferred state. Only profile links have no
+	// default, so in practice they are what completes the module. Email is
+	// optional and deliberately excluded. The two toggles are excluded too: a
+	// completion status on an on/off preference would grade a deliberate choice.
+	// `sameAs` counts only non-blank entries — "Add profile" seeds an empty row,
+	// which is not yet a configured link and can never be persisted.
+	const configuredFields = [
+		organization.name || defaults.name,
+		organization.description || defaults.description,
+		organization.sameAs.some( url => url.trim() !== '' ),
+	];
+	const configuredCount = configuredFields.filter( Boolean ).length;
 	let schemaStatus: SettingStatus = 'not-started';
-	if ( configuredCount === 3 ) {
+	if ( configuredCount === configuredFields.length ) {
 		schemaStatus = 'complete';
 	} else if ( configuredCount > 0 ) {
 		schemaStatus = 'in-progress';
 	}
+
+	// One Save covers both sections, so an error in either blocks it. Say which
+	// way out there is: the button is focusable while disabled (`@wordpress/ui`
+	// sets `aria-disabled` rather than the native attribute), and the offending
+	// field can be well off screen.
+	const hasBlockingErrors =
+		hasProfileUrlErrors( organization.sameAs ) ||
+		( localBusiness.enabled && hasLocalBusinessErrors( form ) );
 
 	return (
 		<CollapsibleCard.Root defaultOpen={ false }>
@@ -77,7 +100,7 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 				<Stack direction="column" gap="lg">
 					<Text variant="body-sm" className={ styles.muted } render={ <p /> }>
 						{ __(
-							'Structured data that tells search engines and AI what your site is and who’s behind it. Fill in the details below and Jetpack adds the right markup automatically.',
+							'Structured data that tells search engines and AI assistants what your site is and who runs it. Add the details below and Jetpack adds the right markup automatically.',
 							'jetpack-seo'
 						) }
 					</Text>
@@ -95,26 +118,43 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 						__nextHasNoMarginBottom
 					/>
 
-					<hr className={ styles.sectionDivider } />
+					{ /* A real fieldset, so the Organization details and their local-business
+					   refinement stay one named group now that they no longer have a card
+					   header each. The legend is hidden — the group is obvious on screen from
+					   the hairline rule this wrapper draws — but it keeps the grouping in the
+					   accessibility tree, which a bare `Stack` (a plain div) would not. */ }
+					<Fieldset.Root className={ styles.entityGroup }>
+						<Fieldset.Legend hideFromVision>
+							{ __( 'Organization details', 'jetpack-seo' ) }
+						</Fieldset.Legend>
+						<Stack direction="column" gap="lg">
+							<OrganizationSection form={ form } />
+							<LocalBusinessSection form={ form } />
 
-					<OrganizationSection form={ form } />
-					<LocalBusinessSection form={ form } />
-
-					{ /* One Save for the whole entity — persists the Organization fields and
-					   the LocalBusiness refinement together. */ }
-					<Stack direction="row" justify="flex-end">
-						<Button
-							onClick={ form.saveOrganizationEntity }
-							disabled={
-								isSaving ||
-								! ( form.isOrganizationDirty || form.isLocalBusinessDirty ) ||
-								hasProfileUrlErrors( organization.sameAs ) ||
-								( localBusiness.enabled && hasLocalBusinessErrors( form ) )
-							}
-						>
-							{ __( 'Save', 'jetpack-seo' ) }
-						</Button>
-					</Stack>
+							{ /* The visible label stays "Save" to match the other modules, but the
+							   accessible name names the module: this tab renders several "Save"
+							   buttons, so a bare one is ambiguous in a screen reader's button list. */ }
+							<Stack direction="row" justify="flex-end" align="center" gap="sm">
+								{ hasBlockingErrors && (
+									<Text variant="body-sm" id={ SAVE_ERROR_ID } className={ styles.saveError }>
+										{ __( 'Fix the highlighted fields to save.', 'jetpack-seo' ) }
+									</Text>
+								) }
+								<Button
+									onClick={ saveOrganizationEntity }
+									disabled={
+										isSaving ||
+										! ( isOrganizationDirty || isLocalBusinessDirty ) ||
+										hasBlockingErrors
+									}
+									aria-label={ __( 'Save schema settings', 'jetpack-seo' ) }
+									aria-describedby={ hasBlockingErrors ? SAVE_ERROR_ID : undefined }
+								>
+									{ __( 'Save', 'jetpack-seo' ) }
+								</Button>
+							</Stack>
+						</Stack>
+					</Fieldset.Root>
 				</Stack>
 			</CollapsibleCard.Content>
 		</CollapsibleCard.Root>

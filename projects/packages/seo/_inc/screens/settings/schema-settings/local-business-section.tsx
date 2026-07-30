@@ -29,7 +29,7 @@ const LocalBusinessSection: FC< Props > = ( { form } ) => {
 			<ToggleControl
 				label={ __( 'This is a local business', 'jetpack-seo' ) }
 				help={ __(
-					'Turn on if customers visit you in person (a shop, studio, restaurant, clinic). Adds your address, phone, and hours so you can appear in local and map results.',
+					'Turn on if customers visit you in person (a shop, studio, restaurant, clinic). Adds your address, phone, and hours so search engines can show your local details.',
 					'jetpack-seo'
 				) }
 				checked={ localBusiness.enabled }
