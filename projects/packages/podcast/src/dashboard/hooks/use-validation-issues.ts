@@ -24,7 +24,7 @@ export const getValidationIssues = ( settings: PodcastSettings | undefined ): st
 	}
 	const issues: string[] = [];
 	if ( ! settings.podcasting_category_id ) {
-		issues.push( __( 'Choose a category to use as your podcast feed.', 'jetpack-podcast' ) );
+		issues.push( __( 'Choose a post category to use as your podcast feed.', 'jetpack-podcast' ) );
 	}
 	if ( ! settings.podcasting_title ) {
 		issues.push( __( 'Add a podcast title.', 'jetpack-podcast' ) );
@@ -43,7 +43,7 @@ export const getValidationIssues = ( settings: PodcastSettings | undefined ): st
 		);
 	}
 	if ( ! settings.podcasting_category_1 ) {
-		issues.push( __( 'Pick at least one Apple Podcasts category.', 'jetpack-podcast' ) );
+		issues.push( __( 'Pick at least one podcast topic.', 'jetpack-podcast' ) );
 	}
 	if ( ! settings.podcasting_image ) {
 		issues.push( __( 'Upload a cover image at least 1400×1400 pixels.', 'jetpack-podcast' ) );

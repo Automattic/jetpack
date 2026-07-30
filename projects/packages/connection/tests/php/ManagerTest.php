@@ -443,6 +443,84 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
+	 * Test that `get_connected_user_data` caches XML-RPC failures so a failing
+	 * request is not repeated on every call.
+	 */
+	public function test_get_connected_user_data_caches_error_responses() {
+		Constants::set_constant( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/' );
+		Jetpack_Options::update_option( 'blog_token', 'blogtoken.secret' );
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'user_tokens', array( $this->user_id => 'usertoken.secret.' . $this->user_id ) );
+
+		$http_request_count = 0;
+		$intercept          = function () use ( &$http_request_count ) {
+			++$http_request_count;
+			return new WP_Error( 'http_request_failed', 'Request blocked in test.' );
+		};
+		add_filter( 'pre_http_request', $intercept );
+
+		try {
+			$manager = new Manager();
+
+			$this->assertFalse( $manager->get_connected_user_data( $this->user_id ) );
+			$this->assertSame( 1, $http_request_count );
+			$this->assertSame( 'error', get_transient( 'jetpack_connected_user_data_' . $this->user_id ) );
+
+			// A repeated call must not trigger another remote request.
+			$this->assertFalse( $manager->get_connected_user_data( $this->user_id ) );
+			$this->assertSame( 1, $http_request_count );
+		} finally {
+			remove_filter( 'pre_http_request', $intercept );
+		}
+	}
+
+	/**
+	 * Test that `get_connected_user_data` returns and caches the user data on success.
+	 */
+	public function test_get_connected_user_data_returns_and_caches_user_data() {
+		Constants::set_constant( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/' );
+		Jetpack_Options::update_option( 'blog_token', 'blogtoken.secret' );
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'user_tokens', array( $this->user_id => 'usertoken.secret.' . $this->user_id ) );
+
+		$body = '<?xml version="1.0"?><methodResponse><params><param><value><struct>'
+			. '<member><name>ID</name><value><int>7</int></value></member>'
+			. '<member><name>email</name><value><string>user@example.com</string></value></member>'
+			. '</struct></value></param></params></methodResponse>';
+
+		$http_request_count = 0;
+		$intercept          = function () use ( &$http_request_count, $body ) {
+			++$http_request_count;
+			return array(
+				'headers'  => array(),
+				'body'     => $body,
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+		add_filter( 'pre_http_request', $intercept );
+
+		try {
+			$manager   = new Manager();
+			$user_data = $manager->get_connected_user_data( $this->user_id );
+
+			$this->assertSame( 7, $user_data['ID'] );
+			$this->assertSame( 'user@example.com', $user_data['email'] );
+			$this->assertSame( $user_data, get_transient( 'jetpack_connected_user_data_' . $this->user_id ) );
+
+			// A repeated call must be served from the cache.
+			$this->assertSame( $user_data, $manager->get_connected_user_data( $this->user_id ) );
+			$this->assertSame( 1, $http_request_count );
+		} finally {
+			remove_filter( 'pre_http_request', $intercept );
+		}
+	}
+
+	/**
 	 * Unit test for the "Delete all tokens" functionality.
 	 */
 	public function test_delete_all_connection_tokens() {

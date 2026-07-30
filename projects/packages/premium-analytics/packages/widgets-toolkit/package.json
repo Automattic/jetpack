@@ -36,6 +36,7 @@
 	},
 	"devDependencies": {
 		"@storybook/react": "10.4.6",
-		"@testing-library/react": "16.3.2"
+		"@testing-library/react": "16.3.2",
+		"@wordpress/date": "5.51.0"
 	}
 }

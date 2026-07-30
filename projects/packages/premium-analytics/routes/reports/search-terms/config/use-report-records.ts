@@ -67,6 +67,7 @@ export function useSearchTermsReportRecords( reportParams: ReportParams ) {
 			...table,
 			isLoading,
 			isFetching,
+			isError: report.primary.isError,
 		},
 	};
 }

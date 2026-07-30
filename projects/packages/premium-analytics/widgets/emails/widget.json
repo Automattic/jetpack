@@ -1,6 +1,6 @@
 {
 	"name": "jpa/stats-emails",
-	"title": "Emails",
+	"title": "Latest emails sent",
 	"description": "Open and click rates for your latest emails.",
 	"help": {
 		"content": "Your most recently sent emails, including their open and click rates."

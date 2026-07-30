@@ -36,10 +36,7 @@ export { useStatsTopAuthors } from './hooks/use-stats-top-authors';
 export { useStatsLocations } from './hooks/use-stats-locations';
 export { useStatsCountryViews } from './hooks/use-stats-country-views';
 export { useStatsVideoPlays } from './hooks/use-stats-video-plays';
-export {
-	useStatsVideoPlaysSummary,
-	type StatsVideoPlaysSummaryParams,
-} from './hooks/use-stats-video-plays-summary';
+export { type StatsVideoPlaysSummaryParams } from './queries/stats-video-plays-summary-query';
 export {
 	useStatsAppCommercialClassificationMutation,
 	type StatsAppCommercialClassificationParams,
