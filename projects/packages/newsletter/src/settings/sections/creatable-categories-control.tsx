@@ -23,7 +23,9 @@
 import { FormTokenField, Icon } from '@wordpress/components';
 import { createContext, useCallback, useContext, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { caution } from '@wordpress/icons';
+// `error` is the triangle-exclamation the design system (and @wordpress/components'
+// own validity indicator) uses for form-validation errors.
+import { error as errorIcon } from '@wordpress/icons';
 import { createCategory } from '../api';
 import type { NewsletterSettings, WordPressCategory } from '../types';
 
@@ -323,7 +325,7 @@ export function CreatableCategoriesControl( {
 			) }
 			{ validationMessage && (
 				<p className="newsletter-categories-control__error">
-					<Icon icon={ caution } size={ 20 } />
+					<Icon icon={ errorIcon } size={ 20 } />
 					<span>{ validationMessage }</span>
 				</p>
 			) }
