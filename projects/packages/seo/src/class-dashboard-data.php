@@ -192,6 +192,11 @@ class Dashboard_Data {
 			'canonical_active'           => self::is_canonical_enabled( $modules ),
 			// Cast to object so an empty format set serializes as `{}`, not `[]`.
 			'title_formats'              => (object) $title_formats,
+			// Separator WordPress joins default document-title parts with. A page type
+			// with no stored format keeps the default title: `get_custom_title()` returns
+			// the incoming value untouched, so core composes the title itself and the
+			// Settings tab replays that composition to preview it.
+			'title_separator'            => self::get_default_title_separator(),
 			'front_page_description'     => (string) $front_page_desc,
 			'has_legacy_front_page_meta' => $has_legacy_front_page_meta,
 			'verification'               => array(
@@ -355,6 +360,38 @@ class Dashboard_Data {
 		}
 
 		return (bool) $enabled;
+	}
+
+	/**
+	 * The separator, as rendered, that WordPress joins default document-title parts
+	 * with — for previewing the title a page type with no stored format produces.
+	 *
+	 * `document_title_separator` alone is not what a visitor sees. `wp_get_document_title()`
+	 * composes the parts, then passes the whole title through the `document_title`
+	 * filter, which WordPress texturizes by default — turning the default spaced
+	 * hyphen into an en dash. Previewing the raw filter value would show `-` on a site
+	 * that renders `–`, which is every site running core's defaults.
+	 *
+	 * This applies only to the default title. A stored format short-circuits
+	 * `pre_get_document_title`, which returns before the `document_title` filter, so a
+	 * custom format keeps the separator the user typed verbatim — the front end renders
+	 * `Site - MARKER - Page` for a custom format while producing `Page – Site` for the
+	 * default one.
+	 *
+	 * @return string The rendered separator.
+	 */
+	private static function get_default_title_separator() {
+		$separator = (string) apply_filters( 'document_title_separator', '-' );
+
+		// Only texturize when the title itself would be: a site that unhooks
+		// `wptexturize` renders the raw separator, and the preview should match.
+		if ( has_filter( 'document_title', 'wptexturize' ) ) {
+			$separator = trim(
+				html_entity_decode( wptexturize( ' ' . $separator . ' ' ), ENT_QUOTES, 'UTF-8' )
+			);
+		}
+
+		return $separator;
 	}
 
 	/**

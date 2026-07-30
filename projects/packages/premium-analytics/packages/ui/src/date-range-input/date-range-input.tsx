@@ -1,8 +1,11 @@
 /**
  * External dependencies
  */
-import { createTZDateFromParts } from '@jetpack-premium-analytics/datetime';
-import { formatDate } from '@jetpack-premium-analytics/formatters';
+import {
+	createTZDateFromParts,
+	formatToTimezoneNaiveString,
+	getDatePart,
+} from '@jetpack-premium-analytics/datetime';
 import { __ } from '@wordpress/i18n';
 import { Field, Input, Stack } from '@wordpress/ui';
 import { useCallback, useEffect, useState } from 'react';
@@ -25,7 +28,8 @@ type DateInputProps = Pick< DateRangeInputProps, 'timeZone' > & {
 	onChange: ( date?: Date ) => void;
 };
 
-const formatToString = ( date?: Date ) => ( date ? formatDate( date, 'iso' ) : '' );
+const formatToString = ( date: Date | undefined, timeZone: string ) =>
+	date ? getDatePart( formatToTimezoneNaiveString( date, timeZone ) ) ?? '' : '';
 
 function parseFromString( dateString: string, timeZone: string ) {
 	const [ year, month, day ] = dateString.split( '-' ).map( x => Number( x ) );
@@ -36,11 +40,11 @@ function parseFromString( dateString: string, timeZone: string ) {
 }
 
 function DateInput( { label, date, onChange, timeZone }: DateInputProps ) {
-	const [ value, setValue ] = useState( formatToString( date ) );
+	const [ value, setValue ] = useState( formatToString( date, timeZone ) );
 
 	useEffect( () => {
-		setValue( formatToString( date ) );
-	}, [ date ] );
+		setValue( formatToString( date, timeZone ) );
+	}, [ date, timeZone ] );
 
 	const onInputChange = useCallback(
 		( event: React.ChangeEvent< HTMLInputElement > ) => {

@@ -144,7 +144,7 @@ describe( 'SchemaCard', () => {
 		expandLocalBusiness();
 
 		expect( screen.getByRole( 'textbox', { name: /Street address/ } ) ).toBeInTheDocument();
-		expect( screen.getByText( /Google requires it/ ) ).toBeInTheDocument();
+		expect( screen.getByText( /Google requires an address/ ) ).toBeInTheDocument();
 	} );
 
 	it( 'updates the LocalBusiness toggle through the hook', () => {

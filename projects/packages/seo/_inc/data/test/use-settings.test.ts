@@ -16,6 +16,7 @@ const SEED: SettingsResponse = {
 	front_page_description: 'Old description.',
 	has_legacy_front_page_meta: false,
 	title_formats: { posts: [ { type: 'token', value: 'site_name' } ] },
+	title_separator: '-',
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	search_engines_visible: true,
 	sitemap_active: false,

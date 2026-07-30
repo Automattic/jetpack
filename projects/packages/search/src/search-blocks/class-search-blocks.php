@@ -2107,7 +2107,8 @@ HTML;
 			return array();
 		}
 		// Bail if any helper is missing — half-loaded feature would ship inconsistent filterConfigs.
-		foreach ( static::filter_block_helpers() as $helper ) {
+		$helpers = static::filter_block_helpers();
+		foreach ( $helpers as $helper ) {
 			if ( ! class_exists( $helper ) ) {
 				return array();
 			}
@@ -2116,9 +2117,29 @@ HTML;
 		if ( ! $post || empty( $post->post_content ) ) {
 			return array();
 		}
+		if ( ! static::post_content_has_filter_block( $post, array_keys( $helpers ) ) ) {
+			return array();
+		}
 		$configs = array();
 		static::walk_blocks_for_filter_configs( parse_blocks( $post->post_content ), $configs );
 		return $configs;
+	}
+
+	/**
+	 * Does the post contain any of the given block names? SEARCH-295: a
+	 * has_block() scan to gate parse_blocks() on large, filter-less posts.
+	 *
+	 * @param \WP_Post $post        Post to scan.
+	 * @param string[] $block_names Block names to scan for.
+	 * @return bool
+	 */
+	protected static function post_content_has_filter_block( \WP_Post $post, array $block_names ): bool {
+		foreach ( $block_names as $block_name ) {
+			if ( has_block( $block_name, $post ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

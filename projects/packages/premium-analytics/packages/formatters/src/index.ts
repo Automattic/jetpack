@@ -3,6 +3,7 @@ export {
 	formatDateRange,
 	formatDateRangeLong,
 	getDateRangeSpan,
+	type DateFormatName,
 	type DateRangeSpan,
 	type DateRangeSpanUnit,
 } from './date';

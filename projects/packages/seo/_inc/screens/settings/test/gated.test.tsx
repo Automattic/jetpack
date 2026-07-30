@@ -37,7 +37,7 @@ jest.unstable_mockModule( '../verification-card', () => ( {
 
 const { default: SettingsScreen } = await import( '../index' );
 
-const FRONT_PAGE_LABEL = 'Meta description shown on the home page';
+const FRONT_PAGE_LABEL = 'Home page description';
 
 /**
  * Build a minimal Settings form whose `local` snapshot varies only the legacy
@@ -52,6 +52,7 @@ const buildForm = ( hasLegacy: boolean ): SettingsForm => {
 		front_page_description: 'Live description.',
 		has_legacy_front_page_meta: hasLegacy,
 		title_formats: {},
+		title_separator: '-',
 		verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 		search_engines_visible: true,
 		sitemap_active: false,

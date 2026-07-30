@@ -83,7 +83,7 @@ export const formatDateRangeLong = (
 	const span = getDateRangeSpan( { from, to } );
 
 	if ( span?.unit === 'month' || span?.unit === 'year' ) {
-		return `${ formatDate( from, 'long' ) }${ RANGE_SEPARATOR }${ formatDate( to, 'long' ) }`;
+		return `${ formatDate( from, 'medium' ) }${ RANGE_SEPARATOR }${ formatDate( to, 'medium' ) }`;
 	}
 
 	const referenceYear = options.referenceYear ?? new Date().getFullYear();
