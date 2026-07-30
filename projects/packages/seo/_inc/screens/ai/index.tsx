@@ -39,6 +39,30 @@ const llmsTxtHelp = __(
 const allowedLabel = __( 'Allowed', 'jetpack-seo' );
 const blockedLabel = __( 'Blocked', 'jetpack-seo' );
 const partlyBlockedLabel = __( 'Partly blocked', 'jetpack-seo' );
+const crawlerAccessTitle = __( 'AI crawler access', 'jetpack-seo' );
+
+/**
+ * The card that stands in for the crawler groups when site-level controls can't
+ * take effect, wrapping the notice that explains why.
+ *
+ * The four blocked states are mutually exclusive and shared this header
+ * verbatim, so it lives here once — which also keeps the chip and heading on all
+ * four from drifting apart.
+ *
+ * @param props          - Component props.
+ * @param props.children - The notice, and any action, explaining the state.
+ * @return The crawler-access card.
+ */
+const CrawlerAccessCard: FC< { children: ReactNode } > = ( { children } ) => (
+	<CollapsibleCard.Root defaultOpen>
+		<CollapsibleCard.Header render={ <h2 /> }>
+			<Card.Title>
+				<CardTitleIcon icon={ key } title={ crawlerAccessTitle } />
+			</Card.Title>
+		</CollapsibleCard.Header>
+		<CollapsibleCard.Content>{ children }</CollapsibleCard.Content>
+	</CollapsibleCard.Root>
+);
 
 /**
  * Whether a crawler is currently blocked: an explicit override wins, otherwise
@@ -294,23 +318,16 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 		// site-level setting cannot safely represent its scope.
 		if ( crawlers.pathBasedMultisite ) {
 			return (
-				<CollapsibleCard.Root defaultOpen>
-					<CollapsibleCard.Header render={ <h2 /> }>
-						<Card.Title>
-							<CardTitleIcon icon={ key } title={ __( 'AI crawler access', 'jetpack-seo' ) } />
-						</Card.Title>
-					</CollapsibleCard.Header>
-					<CollapsibleCard.Content>
-						<Notice.Root intent="info">
-							<Notice.Description>
-								{ __(
-									'Per-site AI crawler controls are unavailable on this path-based multisite network because every site shares one robots.txt. Manage crawler access at the network level instead.',
-									'jetpack-seo'
-								) }
-							</Notice.Description>
-						</Notice.Root>
-					</CollapsibleCard.Content>
-				</CollapsibleCard.Root>
+				<CrawlerAccessCard>
+					<Notice.Root intent="info">
+						<Notice.Description>
+							{ __(
+								'Per-site AI crawler controls are unavailable on this path-based multisite network because every site shares one robots.txt. Manage crawler access at the network level instead.',
+								'jetpack-seo'
+							) }
+						</Notice.Description>
+					</Notice.Root>
+				</CrawlerAccessCard>
 			);
 		}
 
@@ -318,23 +335,16 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 		// indexable site can't apply these — explain and stop.
 		if ( crawlers.restrictedSubdomain ) {
 			return (
-				<CollapsibleCard.Root defaultOpen>
-					<CollapsibleCard.Header render={ <h2 /> }>
-						<Card.Title>
-							<CardTitleIcon icon={ key } title={ __( 'AI crawler access', 'jetpack-seo' ) } />
-						</Card.Title>
-					</CollapsibleCard.Header>
-					<CollapsibleCard.Content>
-						<Notice.Root intent="info">
-							<Notice.Description>
-								{ __(
-									'This site uses a temporary staging address (a .wpcomstaging.com subdomain), where search engines and AI crawlers are blocked. These settings will take effect once the site is on its own domain.',
-									'jetpack-seo'
-								) }
-							</Notice.Description>
-						</Notice.Root>
-					</CollapsibleCard.Content>
-				</CollapsibleCard.Root>
+				<CrawlerAccessCard>
+					<Notice.Root intent="info">
+						<Notice.Description>
+							{ __(
+								'This site uses a temporary staging address (a .wpcomstaging.com subdomain), where search engines and AI crawlers are blocked. These settings will take effect once the site is on its own domain.',
+								'jetpack-seo'
+							) }
+						</Notice.Description>
+					</Notice.Root>
+				</CrawlerAccessCard>
 			);
 		}
 
@@ -342,28 +352,21 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 		// the user at the setting that turns indexing back on.
 		if ( ! searchEnginesVisible ) {
 			return (
-				<CollapsibleCard.Root defaultOpen>
-					<CollapsibleCard.Header render={ <h2 /> }>
-						<Card.Title>
-							<CardTitleIcon icon={ key } title={ __( 'AI crawler access', 'jetpack-seo' ) } />
-						</Card.Title>
-					</CollapsibleCard.Header>
-					<CollapsibleCard.Content>
-						<Stack direction="column" gap="md">
-							<Notice.Root intent="info">
-								<Notice.Description>
-									{ __(
-										"Search engines and AI crawlers are all blocked because this site isn't set to be indexed. To choose which AI crawlers can access your site, allow search engines to index it first.",
-										'jetpack-seo'
-									) }
-								</Notice.Description>
-							</Notice.Root>
-							<Button variant="link" onClick={ onManageVisibility }>
-								{ __( 'Open site visibility settings', 'jetpack-seo' ) }
-							</Button>
-						</Stack>
-					</CollapsibleCard.Content>
-				</CollapsibleCard.Root>
+				<CrawlerAccessCard>
+					<Stack direction="column" gap="md">
+						<Notice.Root intent="info">
+							<Notice.Description>
+								{ __(
+									"Search engines and AI crawlers are all blocked because this site isn't set to be indexed. To choose which AI crawlers can access your site, allow search engines to index it first.",
+									'jetpack-seo'
+								) }
+							</Notice.Description>
+						</Notice.Root>
+						<Button variant="link" onClick={ onManageVisibility }>
+							{ __( 'Open site visibility settings', 'jetpack-seo' ) }
+						</Button>
+					</Stack>
+				</CrawlerAccessCard>
 			);
 		}
 
@@ -371,23 +374,16 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 		// the virtual output these settings change.
 		if ( crawlers.staticRobotsTxt ) {
 			return (
-				<CollapsibleCard.Root defaultOpen>
-					<CollapsibleCard.Header render={ <h2 /> }>
-						<Card.Title>
-							<CardTitleIcon icon={ key } title={ __( 'AI crawler access', 'jetpack-seo' ) } />
-						</Card.Title>
-					</CollapsibleCard.Header>
-					<CollapsibleCard.Content>
-						<Notice.Root intent="warning">
-							<Notice.Description>
-								{ __(
-									"Jetpack detected a static robots.txt file in the WordPress installation directory. These settings only change WordPress's virtual robots.txt; edit or remove the static file to manage AI crawler access here.",
-									'jetpack-seo'
-								) }
-							</Notice.Description>
-						</Notice.Root>
-					</CollapsibleCard.Content>
-				</CollapsibleCard.Root>
+				<CrawlerAccessCard>
+					<Notice.Root intent="warning">
+						<Notice.Description>
+							{ __(
+								"Jetpack detected a static robots.txt file in the WordPress installation directory. These settings only change WordPress's virtual robots.txt; edit or remove the static file to manage AI crawler access here.",
+								'jetpack-seo'
+							) }
+						</Notice.Description>
+					</Notice.Root>
+				</CrawlerAccessCard>
 			);
 		}
 

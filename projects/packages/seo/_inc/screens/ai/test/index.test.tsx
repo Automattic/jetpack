@@ -34,7 +34,11 @@ const crawlerForm = (
 	flags: Partial<
 		Pick<
 			NonNullable< AiState[ 'crawlers' ] >,
-			'staticRobotsTxt' | 'dataSharingOptOut' | 'pathBasedMultisite' | 'overrides'
+			| 'staticRobotsTxt'
+			| 'dataSharingOptOut'
+			| 'pathBasedMultisite'
+			| 'restrictedSubdomain'
+			| 'overrides'
 		>
 	> = {}
 ): AiForm => ( {
@@ -203,6 +207,23 @@ describe( 'AiScreen (GEO tab) — crawler policy state', () => {
 
 		expect( screen.getAllByText( /shares one robots\.txt/i ).length ).toBeGreaterThan( 0 );
 		expect( screen.queryByText( 'Google Gemini (Google-Extended)' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'explains a staging subdomain instead of offering controls', () => {
+		render(
+			<AiScreen
+				form={ crawlerForm( { restrictedSubdomain: true } ) }
+				searchEnginesVisible
+				onManageVisibility={ noop }
+			/>
+		);
+
+		expect( screen.getAllByText( /temporary staging address/i ).length ).toBeGreaterThan( 0 );
+		expect( screen.queryByText( 'Google Gemini (Google-Extended)' ) ).not.toBeInTheDocument();
+		// Shares `CrawlerAccessCard` with the other blocked states, so it gets the same
+		// chipped heading.
+		// eslint-disable-next-line testing-library/no-node-access -- the heading/trigger nesting is the contract.
+		expect( screen.getByText( 'AI crawler access' ).closest( 'h2' ) ).toBeInTheDocument();
 	} );
 
 	it( 'accurately describes a detected static robots.txt file', () => {
