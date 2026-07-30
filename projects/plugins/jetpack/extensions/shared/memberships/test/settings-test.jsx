@@ -1,9 +1,14 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import apiFetch from '@wordpress/api-fetch';
 import { store as coreDataStore } from '@wordpress/core-data';
 import * as wpData from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { store as membershipProductsStore } from '../../../store/membership-products';
+import { META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS } from '../constants';
 import { Link, getReachForAccessLevelKey, NewsletterEmailDocumentSettings } from '../settings';
+
+jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 const mockUseSelect = jest.fn();
 const mockUseEntityProp = jest.fn();
@@ -177,5 +182,71 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 
 		render( <NewsletterEmailDocumentSettings /> );
 		expect( screen.getByLabelText( /Send as email to subscribers/i ) ).toBeInTheDocument();
+	} );
+
+	describe( 'toggling', () => {
+		beforeEach( () => {
+			mockUseSelect.mockImplementation( selector =>
+				selector( createMockSelect( { email_sent_at: null, stats_on_send: null } ) )
+			);
+		} );
+
+		test( 'writes only the flag and hands the response back to the store', async () => {
+			const updatedPost = { id: 1, meta: { [ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: true } };
+			apiFetch.mockResolvedValue( updatedPost );
+
+			render( <NewsletterEmailDocumentSettings /> );
+			await userEvent.click( screen.getByRole( 'radio', { name: 'Post only' } ) );
+
+			expect( apiFetch ).toHaveBeenCalledWith( {
+				path: '/wp/v2/posts/1',
+				method: 'POST',
+				data: { meta: { [ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: true } },
+			} );
+			await waitFor( () =>
+				expect( mockReceiveEntityRecords ).toHaveBeenCalledWith(
+					'postType',
+					'post',
+					updatedPost,
+					undefined,
+					true
+				)
+			);
+		} );
+
+		test( 'notices a failed write instead of failing silently', async () => {
+			apiFetch.mockRejectedValue( new Error( 'nope' ) );
+
+			render( <NewsletterEmailDocumentSettings /> );
+			await userEvent.click( screen.getByRole( 'radio', { name: 'Post only' } ) );
+
+			await waitFor( () => expect( mockCreateErrorNotice ).toHaveBeenCalled() );
+			expect( mockReceiveEntityRecords ).not.toHaveBeenCalled();
+		} );
+
+		test( 'does not write before the post has an id', async () => {
+			mockUseEntityId.mockReturnValue( undefined );
+
+			render( <NewsletterEmailDocumentSettings /> );
+			await userEvent.click( screen.getByRole( 'radio', { name: 'Post only' } ) );
+
+			expect( apiFetch ).not.toHaveBeenCalled();
+		} );
+
+		test( 'locks the options while the write is in flight', async () => {
+			let resolveWrite;
+			apiFetch.mockReturnValue( new Promise( resolve => ( resolveWrite = resolve ) ) );
+
+			render( <NewsletterEmailDocumentSettings /> );
+			await userEvent.click( screen.getByRole( 'radio', { name: 'Post only' } ) );
+
+			expect( screen.getByRole( 'radio', { name: 'Post only' } ) ).toBeDisabled();
+			expect( screen.getByRole( 'radio', { name: 'Post & email' } ) ).toBeDisabled();
+
+			resolveWrite( { id: 1, meta: {} } );
+			await waitFor( () =>
+				expect( screen.getByRole( 'radio', { name: 'Post only' } ) ).toBeEnabled()
+			);
+		} );
 	} );
 } );
