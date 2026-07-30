@@ -4,7 +4,7 @@ import { Badge } from '@wordpress/ui';
 import { useCallback } from 'react';
 
 const READER_CHAT_DESCRIPTION = __(
-	'Let readers ask your blog questions and get answers from your content.',
+	'Let visitors ask your site questions and get answers from your content.',
 	'jetpack-search-pkg'
 );
 
