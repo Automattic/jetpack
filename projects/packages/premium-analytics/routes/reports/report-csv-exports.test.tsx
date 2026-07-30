@@ -502,16 +502,11 @@ describe( 'report CSV exports', () => {
 			rows,
 		} as ReturnType< typeof useUtmReportRecords > );
 
-		expectCsvExport(
-			UtmReportPage,
-			'utm-source-medium',
-			rows,
-			[ 'First source', 2 ]
-		);
+		expectCsvExport( UtmReportPage, 'utm-source-medium', rows, [ 'First source', 2 ] );
 
 		const actionProps = reportCsvActionMock.mock.calls.at( -1 )?.[ 0 ] as ExportActionProps;
-		expect(
-			actionProps.columns.map( column => column.getValue( actionProps.rows[ 1 ] ) )
-		).toEqual( [ 'First source > First post', 10 ] );
+		expect( actionProps.columns.map( column => column.getValue( actionProps.rows[ 1 ] ) ) ).toEqual(
+			[ 'First source > First post', 10 ]
+		);
 	} );
 } );
