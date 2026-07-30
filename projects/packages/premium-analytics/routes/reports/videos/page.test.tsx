@@ -144,9 +144,12 @@ describe( 'VideosReportPage', () => {
 
 		const { columns } = reportCsvActionMock.mock.calls[ 0 ][ 0 ];
 		expect( columns.map( column => column.getValue( rows[ 0 ] ) ) ).toEqual( [
+			441,
 			'Demo',
 			13,
 			22,
+			0.04,
+			64.5,
 			'https://example.com/video/441',
 		] );
 		expect( reportCsvActionMock.mock.calls[ 0 ][ 0 ] ).toEqual(
