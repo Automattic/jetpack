@@ -149,7 +149,11 @@ function MetricChart( {
 	// would draw a flat line that reads as "no activity" instead of "not
 	// available". Skip the chart and surface the same explanation as the tab.
 	if ( metric.disabled ) {
-		return <div className={ styles.disabledChart }>{ metric.description }</div>;
+		return (
+			<div className={ styles.disabledChart }>
+				{ metric.description ?? __( 'Not available', 'jetpack-premium-analytics-pkg' ) }
+			</div>
+		);
 	}
 
 	return (
