@@ -297,7 +297,7 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 			'reader_chat should not be exposed through the core REST settings endpoint.'
 		);
 		$this->assertSame(
-			'Whether Site Chat is enabled on this site.',
+			__( 'Whether Site Chat is enabled on this site.', 'jetpack' ),
 			$registered_settings['reader_chat']['description'] ?? '',
 			'reader_chat description should use the Site Chat name.'
 		);
