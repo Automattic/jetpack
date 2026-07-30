@@ -128,12 +128,7 @@ export function reportParamsToStatsQueryParams(
 	const startDate = params.start_date ?? params.from;
 	const days =
 		params.days ??
-		( startDate && endDate
-			? getDaysBetweenInclusive(
-					getDatePart( startDate ) ?? startDate,
-					getDatePart( endDate ) ?? endDate
-			  )
-			: undefined );
+		( startDate && endDate ? getDaysBetweenInclusive( startDate, endDate ) : undefined );
 
 	return {
 		...statsParams,

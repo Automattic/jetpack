@@ -1037,6 +1037,25 @@ describe( 'Stats query factories', () => {
 		} );
 	} );
 
+	it( 'maps an offset-bearing daily dashboard range onto subscribers unit/quantity/date', () => {
+		// start_date/end_date now carry the full offset-bearing ISO datetime
+		// (reportParamsToStatsQueryParams no longer trims it); the day-based
+		// quantity math must still resolve from the calendar day.
+		const query = statsSubscribersReportQuery( {
+			from: '2026-06-01T00:00:00.000-07:00',
+			to: '2026-06-30T23:59:59.000-07:00',
+			interval: 'day',
+		} as StatsReportParams );
+
+		expect( query.enabled ).toBe( true );
+		expect( query.queryKey[ 5 ] ).toEqual( {
+			unit: 'day',
+			quantity: 30,
+			date: '2026-06-30T23:59:59.000-07:00',
+			stat_fields: 'subscribers,subscribers_paid',
+		} );
+	} );
+
 	it( 'clamps unsupported intervals to a supported subscribers unit', () => {
 		const query = statsSubscribersReportQuery( {
 			from: '2026-01-01',

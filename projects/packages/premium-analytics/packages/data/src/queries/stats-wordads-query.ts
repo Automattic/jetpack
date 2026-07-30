@@ -57,11 +57,7 @@ export const statsWordAdsStatsQuery = (
 	const quantity =
 		params.quantity ??
 		( startDate && dateDay
-			? getPeriodsBetweenInclusive(
-					unit as StatsPeriod,
-					getDatePart( startDate ) ?? startDate,
-					dateDay
-			  )
+			? getPeriodsBetweenInclusive( unit as StatsPeriod, startDate, dateDay )
 			: defaultQuantity );
 	const wordAdsParams: StatsProxyParams = {
 		unit,
