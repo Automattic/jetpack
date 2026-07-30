@@ -85,12 +85,29 @@ function jetpack_matt_random_redirect() {
 	global $wpdb;
 
 	$where = implode( ' AND ', $where );
+
+	// Pick a post via COUNT plus a random OFFSET rather than ORDER BY RAND(), which randomizes and sorts every candidate row on each request.
 	if ( isset( $random_cat_id ) ) {
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
-		$random_id = $wpdb->get_var( $wpdb->prepare( "SELECT DISTINCT ID FROM $wpdb->posts AS p INNER JOIN $wpdb->term_relationships AS tr ON (p.ID = tr.object_id AND tr.term_taxonomy_id = %s) INNER JOIN  $wpdb->term_taxonomy AS tt ON(tr.term_taxonomy_id = tt.term_taxonomy_id AND taxonomy = 'category') WHERE $where ORDER BY RAND() LIMIT 1", $random_cat_id, ...$where_args ) );
+		$from_where = "FROM $wpdb->posts AS p INNER JOIN $wpdb->term_relationships AS tr ON (p.ID = tr.object_id AND tr.term_taxonomy_id = %s) INNER JOIN  $wpdb->term_taxonomy AS tt ON(tr.term_taxonomy_id = tt.term_taxonomy_id AND taxonomy = 'category') WHERE $where";
+		$query_args = array_merge( array( $random_cat_id ), $where_args );
 	} else {
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-		$random_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts AS p WHERE $where ORDER BY RAND() LIMIT 1", ...$where_args ) );
+		$from_where = "FROM $wpdb->posts AS p WHERE $where";
+		$query_args = $where_args;
+	}
+
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+	$post_count = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT( DISTINCT p.ID ) $from_where", ...$query_args ) );
+
+	if ( $post_count < 1 ) {
+		return;
+	}
+
+	$query_args[] = wp_rand( 0, $post_count - 1 );
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+	$random_id = $wpdb->get_var( $wpdb->prepare( "SELECT DISTINCT p.ID $from_where ORDER BY p.ID LIMIT 1 OFFSET %d", ...$query_args ) );
+
+	if ( ! $random_id ) {
+		return;
 	}
 
 	// @phan-suppress-next-line PhanTypeMismatchArgument
