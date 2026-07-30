@@ -79,11 +79,13 @@ export default function useTrafficChart(
 	metricIds: TrafficChartMetricId[] = DEFAULT_TRAFFIC_CHART_METRICS
 ): TrafficChartState {
 	const selected = useMemo( () => new Set( metricIds ), [ metricIds ] );
-	const needsViewsVisitors = selected.has( 'views' ) || selected.has( 'visitors' );
 	// The hourly bucket only returns real numbers for `views` (visitors/likes/comments come
-	// back null per row), so skip the likes/comments request entirely rather than fetch a
-	// response that's guaranteed to be empty for both its fields.
+	// back null per row), so skip a request entirely when it would only serve disabled
+	// metrics — fetching it anyway would waste a call and let a transient failure surface
+	// as the widget's error state instead of the metrics' own disabled placeholder.
 	const isHourly = period === 'hour';
+	const needsViewsVisitors =
+		selected.has( 'views' ) || ( selected.has( 'visitors' ) && ! isHourly );
 	const needsLikesComments =
 		! isHourly && ( selected.has( 'likes' ) || selected.has( 'comments' ) );
 
