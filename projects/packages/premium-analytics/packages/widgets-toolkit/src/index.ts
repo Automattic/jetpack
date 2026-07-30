@@ -53,6 +53,9 @@ export {
 	type WidgetFooterProps,
 	ReportLink,
 	type ReportLinkProps,
+	PostTitleLink,
+	POST_URL_SEARCH_PARAM,
+	type PostTitleLinkProps,
 	VideoTitleLink,
 	type VideoTitleLinkProps,
 	SubscriberList,
@@ -157,7 +160,6 @@ export {
 	useSegmentStyles,
 	useSeriesStyles,
 	useWidgetDrillDown,
-	usePostDetailHrefBuilder,
 } from './hooks';
 
 /**
