@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Stats v2: no longer replaces the legacy Stats menu, admin bar entries, post list column, or dashboard widget; both now coexist.
