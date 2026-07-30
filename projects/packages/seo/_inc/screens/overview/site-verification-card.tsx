@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { check } from '@wordpress/icons';
+import { globe } from '@wordpress/icons';
 import { Button, Card, Stack } from '@wordpress/ui';
 import { VERIFICATION_SERVICES } from '../../data/verification-services';
 import CardHeaderIcon from './card-header-icon';
@@ -20,7 +20,9 @@ const notSetLabel = __( 'Not set', 'jetpack-seo' );
 
 const SiteVerificationCard: FC< Props > = ( { data, onManage } ) => (
 	<Card.Root>
-		<CardHeaderIcon icon={ check } title={ __( 'Site verification', 'jetpack-seo' ) } />
+		{ /* `globe` rather than `check`: a checkmark reads as "done/complete", which is
+		     the state of an individual row here, not what the card is about. */ }
+		<CardHeaderIcon icon={ globe } title={ __( 'Site verification', 'jetpack-seo' ) } />
 		<Stack render={ <Card.Content /> } direction="column" className={ styles.cardContent }>
 			{ VERIFICATION_SERVICES.map( ( { key, label } ) => (
 				<Stack
