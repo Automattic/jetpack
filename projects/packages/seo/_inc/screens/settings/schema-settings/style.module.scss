@@ -57,3 +57,15 @@
 	min-inline-size: 84px;
 	min-block-size: 40px;
 }
+
+// Hairline break between the Breadcrumbs toggle and the Organization details.
+// The surrounding Stack owns the spacing, so the rule has no margin of its own.
+.sectionDivider {
+	inline-size: 100%;
+	block-size: 0;
+	margin: 0;
+	border: 0;
+	border-block-start:
+		var(--wpds-border-width-xs) solid
+		var(--wpds-color-stroke-surface-neutral-weak);
+}
