@@ -123,19 +123,14 @@ export function isOpenSubscriberRemoved(
 }
 
 /**
- * Whether the subscribers list is empty except for the site owner. The WP.com endpoint always
- * returns the owner in the list (it only flags `is_owner_subscribed` rather than filtering them
- * out), so a brand-new site reports a single row and DataViews' `empty` slot never fires. Mirrors
- * Calypso's `hasNoSubscriberOtherThanAdmin` launchpad condition so the caller can present the
- * cold-start empty state instead.
+ * Whether the viewer is the site's only subscriber, i.e. the single row in the list is their own
+ * subscription. WP.com derives `is_owner_subscribed` from the requesting user, so on a Jetpack site
+ * it flags the admin viewing this page rather than the blog owner per se.
  *
  * @param total             - Total subscriber count for the current (unfiltered) query.
- * @param isOwnerSubscribed - Whether the site owner is among the subscribers (`is_owner_subscribed`).
- * @return True when there are no subscribers, or the only subscriber is the owner.
+ * @param isOwnerSubscribed - Whether the viewer is among the subscribers (`is_owner_subscribed`).
+ * @return True when the only subscriber is the viewer.
  */
-export function hasNoSubscribersOtherThanOwner(
-	total: number,
-	isOwnerSubscribed: boolean
-): boolean {
-	return total === 0 || ( total === 1 && isOwnerSubscribed );
+export function isSelfOnlySubscriber( total: number, isOwnerSubscribed: boolean ): boolean {
+	return total === 1 && isOwnerSubscribed;
 }

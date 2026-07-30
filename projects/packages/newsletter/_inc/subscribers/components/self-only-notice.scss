@@ -1,0 +1,5 @@
+// The notice sits directly above `.dataviews-wrapper` in the tab panel's flex
+// column, which has no row gap — so it owns the space beneath itself.
+.jetpack-newsletter-self-only-notice {
+	margin-block-end: var(--wpds-dimension-padding-lg);
+}

@@ -8,7 +8,7 @@ import { useSubscribers } from '../data/use-subscribers';
 import {
 	getSubscribedAt,
 	getSubscriberRowId,
-	hasNoSubscribersOtherThanOwner,
+	isSelfOnlySubscriber,
 } from '../lib/subscriber-helpers';
 import { getSubscriptionType } from '../lib/subscription-plans';
 import { getSubscriptionStatusLabel } from '../lib/subscription-status';
@@ -21,12 +21,14 @@ import EmptyState from './empty-state';
 import CompModal from './modals/comp-modal';
 import RemoveCompModal from './modals/remove-comp-modal';
 import UnsubscribeModal from './modals/unsubscribe-modal';
+import SelfOnlyNotice from './self-only-notice';
 import type { Subscriber, SubscribersFilter, SubscribersSortField } from '../data/types';
 import type { Action, Field, View } from '@wordpress/dataviews';
 
 const DEFAULT_PER_PAGE = 20;
 
-// Stable reference so passing "no rows" to DataViews doesn't churn on every render.
+// Stable reference so the first render (before the query resolves) doesn't hand DataViews a fresh
+// array on every pass.
 const NO_SUBSCRIBERS: Subscriber[] = [];
 
 const defaultView: View = {
@@ -55,7 +57,7 @@ type Props = {
  * persistence, and per-row + bulk subscriber removal.
  *
  * @param props                      - Component props.
- * @param props.onAddSubscribers     - Open the Add Subscribers modal (used by the empty-state CTA).
+ * @param props.onAddSubscribers     - Open the Add Subscribers modal (used by the empty-state and self-only CTAs).
  * @param props.onViewSubscriber     - Callback fired when the View row action is invoked.
  * @param props.onSubscribersRemoved - Callback fired with the rows that were actually removed.
  * @return The DataViews component bound to the subscribers query.
@@ -317,7 +319,7 @@ export default function SubscribersDataViews( {
 	const handleCloseComp = useCallback( () => setCompTarget( null ), [] );
 	const handleCloseRemoveComp = useCallback( () => setRemoveCompTarget( null ), [] );
 
-	const subscribers = data?.subscribers ?? [];
+	const subscribers = data?.subscribers ?? NO_SUBSCRIBERS;
 	const totalItems = data?.total ?? 0;
 	const totalPages = data?.pages ?? 0;
 	const isOwnerSubscribed = data?.is_owner_subscribed ?? false;
@@ -326,22 +328,18 @@ export default function SubscribersDataViews( {
 		( view.filters && view.filters.length > 0 ) || ( view.search && view.search.length > 0 )
 	);
 
-	// The owner is always returned in the list, so when they're the only subscriber the table
-	// would render a single row and DataViews' `empty` slot would never fire. Mirror Calypso's
-	// launchpad condition and present the cold-start empty state ourselves. Gated on no active
-	// filter/search so a filtered-to-nothing result still shows the "no matching subscribers"
-	// message instead.
-	const showColdStartEmpty =
-		! hasActiveFiltersOrSearch && hasNoSubscribersOtherThanOwner( totalItems, isOwnerSubscribed );
-
-	const displayedSubscribers = showColdStartEmpty ? NO_SUBSCRIBERS : subscribers;
+	// Every row WP.com returns is a real subscription (email, Reader, or paid), the viewer's own
+	// included — so their row is rendered like any other rather than swapped for the cold-start
+	// empty state, which read as "no subscribers yet" on a site that had one (NL-772). The empty
+	// slot is left to a genuinely empty response, and the nudge to add more moves into a notice
+	// above the table. Gated on no active filter/search: a one-row filtered result says nothing
+	// about the size of the list.
+	const showSelfOnlyNotice =
+		! hasActiveFiltersOrSearch && isSelfOnlySubscriber( totalItems, isOwnerSubscribed );
 
 	const paginationInfo = useMemo(
-		() => ( {
-			totalItems: showColdStartEmpty ? 0 : totalItems,
-			totalPages: showColdStartEmpty ? 0 : totalPages,
-		} ),
-		[ showColdStartEmpty, totalItems, totalPages ]
+		() => ( { totalItems, totalPages } ),
+		[ totalItems, totalPages ]
 	);
 
 	if ( error ) {
@@ -355,8 +353,9 @@ export default function SubscribersDataViews( {
 
 	return (
 		<>
+			{ showSelfOnlyNotice && <SelfOnlyNotice onAddSubscribers={ onAddSubscribers } /> }
 			<DataViews< Subscriber >
-				data={ displayedSubscribers }
+				data={ subscribers }
 				fields={ fields }
 				view={ view }
 				onChangeView={ handleChangeView }
