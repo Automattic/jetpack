@@ -377,7 +377,7 @@ export default function FeaturedImage( {
 				placement === PLACEMENT_DOCUMENT_SETTINGS ) && (
 				<>
 					<p className="jetpack-ai-assistant__help-text">
-						{ __( 'Based on your post content.', 'jetpack-ai-client' ) }
+						{ __( 'Based on your content.', 'jetpack-ai-client' ) }
 					</p>
 					<Button
 						onClick={ handleModalOpen }

@@ -79,15 +79,12 @@ export default function TitleOptimization( {
 	busy: boolean;
 	disabled: boolean;
 } ) {
-	const currentModalTitle = __( 'Optimize post title', 'jetpack' );
+	const currentModalTitle = __( 'Optimize title', 'jetpack' );
 	const SEOModalTitle = __( 'Improve title for SEO', 'jetpack' );
 	const modalTitle = isKeywordsFeatureAvailable ? SEOModalTitle : currentModalTitle;
 
-	const currentSidebarDescription = __( 'Based on your post content.', 'jetpack' );
-	const SEOSidebarDescription = __(
-		'Based on your post content and SEO best practices.',
-		'jetpack'
-	);
+	const currentSidebarDescription = __( 'Based on your content.', 'jetpack' );
+	const SEOSidebarDescription = __( 'Based on your content and SEO best practices.', 'jetpack' );
 	const sidebarDescription = isKeywordsFeatureAvailable
 		? SEOSidebarDescription
 		: currentSidebarDescription;
@@ -252,7 +249,7 @@ export default function TitleOptimization( {
 									height: '50px',
 								} }
 							/>
-							{ __( 'Reading your post and generating suggestions…', 'jetpack' ) }
+							{ __( 'Reading your content and generating suggestions…', 'jetpack' ) }
 						</div>
 					) : (
 						<>

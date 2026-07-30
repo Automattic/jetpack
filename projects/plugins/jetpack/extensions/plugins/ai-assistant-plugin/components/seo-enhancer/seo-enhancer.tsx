@@ -109,7 +109,7 @@ export function SeoEnhancer( {
 							label={ __( 'Auto-generate metadata', 'jetpack' ) }
 							__nextHasNoMarginBottom={ true }
 							help={ __(
-								'When enabled, missing metadata will be automatically generated when you publish a post.',
+								'When enabled, missing metadata will be automatically generated when you publish your content.',
 								'jetpack'
 							) }
 						/>

@@ -111,7 +111,7 @@ export const MAKE_SHORTER_LABEL = __( 'Make shorter', 'jetpack-ai-client' );
 export const MAKE_LONGER_LABEL = __( 'Expand', 'jetpack-ai-client' );
 export const TURN_LIST_INTO_TABLE_LABEL = __( 'Turn list into a table', 'jetpack-ai-client' );
 export const WRITE_POST_FROM_LIST_LABEL = __( 'Write a post from this list', 'jetpack-ai-client' );
-export const GENERATE_TITLE_LABEL = __( 'Generate a post title', 'jetpack-ai-client' );
+export const GENERATE_TITLE_LABEL = __( 'Generate a title', 'jetpack-ai-client' );
 export const SUMMARY_BASED_ON_TITLE_LABEL = __( 'Summary based on title', 'jetpack-ai-client' );
 export const CONTINUE_LABEL = __( 'Continue writing', 'jetpack-ai-client' );
 
