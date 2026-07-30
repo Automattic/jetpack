@@ -420,7 +420,7 @@ class Agents_Manager {
 			return null;
 		}
 
-		// Apply wp-admin exclusions (WooCommerce, customizer, preview contexts).
+		// Apply wp-admin exclusions (customizer, asset, and preview contexts).
 		if ( ! self::passes_admin_checks() ) {
 			return null;
 		}
