@@ -6,48 +6,48 @@
 	white-space: nowrap;
 
 	&.is-active {
-		color: var(--wpds-color-foreground-content-success-weak, #008030);
+		color: var(--wpds-color-foreground-content-success-weak);
 
 		.indicator {
-			background-color: var(--wpds-color-foreground-content-success-weak, #008030);
+			background-color: var(--wpds-color-foreground-content-success-weak);
 		}
 	}
 
 	&.is-inactive {
-		color: var(--wpds-color-foreground-content-neutral-weak, #707070);
+		color: var(--wpds-color-foreground-content-neutral-weak);
 
 		.indicator {
-			background-color: var(--wpds-color-foreground-content-neutral-weak, #707070);
+			background-color: var(--wpds-color-foreground-content-neutral-weak);
 		}
 	}
 
 	&.is-error {
-		color: var(--wpds-color-foreground-content-error-weak, #cc1818);
+		color: var(--wpds-color-foreground-content-error-weak);
 
 		.indicator {
-			background-color: var(--wpds-color-foreground-content-error-weak, #cc1818);
+			background-color: var(--wpds-color-foreground-content-error-weak);
 		}
 	}
 
 	&.is-action {
-		color: var(--wpds-color-foreground-content-warning-weak, #926300);
+		color: var(--wpds-color-foreground-content-warning-weak);
 
 		.indicator {
-			background-color: var(--wpds-color-foreground-content-warning-weak, #926300);
+			background-color: var(--wpds-color-foreground-content-warning-weak);
 		}
 	}
 
 	&.is-initializing {
-		color: var(--wpds-color-foreground-content-info-weak, #006bd7);
+		color: var(--wpds-color-foreground-content-info-weak);
 
 		.indicator {
-			background-color: var(--wpds-color-foreground-content-info-weak, #006bd7);
+			background-color: var(--wpds-color-foreground-content-info-weak);
 		}
 	}
 }
 
 .indicator {
-	background-color: var(--wpds-color-foreground-content-neutral-weak, #707070);
+	background-color: var(--wpds-color-foreground-content-neutral-weak);
 	border-radius: 50%;
 	flex-shrink: 0;
 	height: 0.666em;

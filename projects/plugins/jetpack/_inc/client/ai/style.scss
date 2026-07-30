@@ -42,7 +42,7 @@ body.jetpack_page_jetpack-ai {
 		li + li::before {
 			content: "/";
 			margin: 0 8px;
-			color: var(--wpds-color-stroke-surface-neutral, #c3c4c7);
+			color: var(--wpds-color-stroke-surface-neutral);
 		}
 	}
 
@@ -52,10 +52,10 @@ body.jetpack_page_jetpack-ai {
 	// weight as the hub heading.
 	&__breadcrumb-link,
 	&__breadcrumb-current {
-		font-family: var(--wpds-typography-font-family-heading, inherit);
-		font-size: var(--wpds-typography-font-size-lg, 15px);
-		font-weight: var(--wpds-typography-font-weight-emphasis, 500);
-		line-height: var(--wpds-typography-line-height-sm, 20px);
+		font-family: var(--wpds-typography-font-family-heading);
+		font-size: var(--wpds-typography-font-size-lg);
+		font-weight: var(--wpds-typography-font-weight-emphasis);
+		line-height: var(--wpds-typography-line-height-sm);
 	}
 
 	&__breadcrumb-link {

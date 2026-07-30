@@ -7,9 +7,9 @@ $color__back-link: #787c82;
 
 .jetpack-about__main,
 .jetpack-about__plugin {
-	background-color: var(--wpds-color-background-surface-neutral-strong, #fff);
-	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e4e4e4);
-	border-radius: var(--wpds-border-radius-lg, 8px);
+	background-color: var(--wpds-color-background-surface-neutral-strong);
+	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-lg);
 }
 
 .jetpack-about__main,
