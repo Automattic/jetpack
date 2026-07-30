@@ -863,6 +863,7 @@ class REST_Controller {
 	 */
 	public function get_email_stats_list( $req ) {
 		switch ( $req->get_param( 'resource' ) ) {
+			case 'overview':
 			case 'summary':
 				return WPCOM_Client::request_as_blog_cached(
 					sprintf(
