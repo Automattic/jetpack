@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Widgets: link post and email titles to their detail pages instead of showing plain text.

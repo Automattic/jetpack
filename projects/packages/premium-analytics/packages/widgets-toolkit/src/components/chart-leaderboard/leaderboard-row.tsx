@@ -114,6 +114,10 @@ export function LeaderboardRow( { label, media, action }: LeaderboardRowProps ):
 /**
  * Build the label and chart-level interaction props for one leaderboard row.
  *
+ * Rows whose label is a post, page, or email use `LeaderboardPostLabel`
+ * instead: a chart row becomes a button and cannot nest an anchor, so a linked
+ * title cannot be expressed as an action here.
+ *
  * @param props - Leaderboard row content and action.
  * @return Props to spread onto a `LeaderboardEntry`.
  */

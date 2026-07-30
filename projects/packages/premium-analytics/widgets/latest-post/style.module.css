@@ -27,7 +27,10 @@
 	min-width: 0;
 }
 
-.titleLink {
+/* `:any-link` so this beats `PostTitleLink`'s own `color: inherit` default
+   deterministically — as plain classes the two would tie and the winner would
+   depend on compiled stylesheet order. Same idiom as the post detail header. */
+.titleLink:any-link {
 	color: var(--wpds-color-foreground-content-neutral);
 	text-decoration: none;
 }

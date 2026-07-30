@@ -4,6 +4,11 @@
 import { Link as UiLink } from '@jetpack-premium-analytics/externals';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { Link } from '@wordpress/route';
+import clsx from 'clsx';
+/**
+ * Internal dependencies
+ */
+import styles from './post-title-link.module.scss';
 
 /**
  * Route search param carrying a row's public URL to the post detail page.
@@ -39,8 +44,9 @@ export type PostTitleLinkProps = {
 	search?: Record< string, unknown >;
 
 	/**
-	 * Optional classes for each rendering branch. `text` applies to the label
-	 * span in every branch, so one rule can ellipsize the title everywhere.
+	 * Optional classes for each rendering branch, applied on top of the
+	 * component's own defaults. `text` applies to the label span in every
+	 * branch, so one rule can ellipsize the title everywhere.
 	 */
 	classNames?: {
 		internal?: string;
@@ -94,7 +100,7 @@ export function PostTitleLink( {
 	if ( Number.isInteger( postId ) && postId > 0 ) {
 		return (
 			<Link
-				className={ classNames?.internal }
+				className={ clsx( styles.link, classNames?.internal ) }
 				to="/post/$postId"
 				params={ { postId: String( postId ) } as unknown as never }
 				search={
@@ -112,7 +118,7 @@ export function PostTitleLink( {
 		// carries the same arrow as every other external link in the dashboard.
 		return (
 			<UiLink
-				className={ classNames?.external }
+				className={ clsx( styles.link, classNames?.external ) }
 				href={ href }
 				variant="unstyled"
 				openInNewTab

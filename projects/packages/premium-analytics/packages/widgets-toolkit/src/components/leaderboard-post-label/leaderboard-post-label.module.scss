@@ -1,0 +1,44 @@
+.row {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xs);
+	min-inline-size: 0;
+}
+
+/* Matches the shared `LeaderboardRow` chrome, so a post label sits at the same
+   height as the rows around it. */
+.compact {
+	min-block-size: 36px;
+	padding-inline: var(--wpds-dimension-padding-sm);
+}
+
+/* Block padding sets the overlay bar height, since these rows have no image to
+   size them. The inline-start inset keeps the text off the bar's rounded edge:
+   the chart applies it to its own `.label` in overlay mode, but a custom label
+   element bypasses that rule. */
+.overlay {
+	padding-block: var(--wpds-dimension-padding-md);
+	padding-inline-start: var(--wpds-dimension-padding-sm);
+}
+
+/* `flex: 1 1 auto` keeps the whole row clickable, matching the shared
+   `LeaderboardRow` link, which fills the row with `inline-size: 100%`.
+   `min-inline-size: 0` lets it shrink below its content width so the ellipsis
+   applies. */
+.title {
+	display: inline-flex;
+	flex: 1 1 auto;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xs);
+	min-inline-size: 0;
+}
+
+/* `text-overflow` needs an inline formatting context, which the flex containers
+   above do not give it, so the ellipsis lives on the text. */
+.text {
+	min-inline-size: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	font-size: var(--wpds-typography-font-size-sm);
+}
