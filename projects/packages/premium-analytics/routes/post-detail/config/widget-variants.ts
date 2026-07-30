@@ -4,7 +4,7 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * Page-local aliases of registered widget types for the fixed email
+ * Page-local aliases of registered widget types for the fixed post-detail
  * compositions. The widget host titles a card by its widget *type*, so one
  * type rendered several times would repeat one generic title; each alias
  * reuses the resolved base type's render module under a design title instead.
@@ -15,7 +15,7 @@ import { __ } from '@wordpress/i18n';
  * Labels are lazy getters so translations resolve after the i18n locale data
  * has loaded, mirroring the tab definitions.
  */
-export const EMAIL_WIDGET_TYPE_ALIASES: ReadonlyArray< {
+export const POST_DETAIL_WIDGET_TYPE_ALIASES: ReadonlyArray< {
 	baseType: `jpa/${ string }`;
 	variants: ReadonlyArray< {
 		name: `jpa/${ string }`;
@@ -40,31 +40,40 @@ export const EMAIL_WIDGET_TYPE_ALIASES: ReadonlyArray< {
 		variants: [
 			{
 				name: 'jpa/email-breakdown--location-opens',
-				getTitle: () => __( 'Location opens', 'jetpack-premium-analytics-pkg' ),
+				getTitle: () => __( 'Locations', 'jetpack-premium-analytics-pkg' ),
 			},
 			{
 				name: 'jpa/email-breakdown--platforms-opens',
-				getTitle: () => __( 'Platforms opens', 'jetpack-premium-analytics-pkg' ),
+				getTitle: () => __( 'Platforms', 'jetpack-premium-analytics-pkg' ),
 			},
 			{
 				name: 'jpa/email-breakdown--clients-opens',
-				getTitle: () => __( 'Clients opens', 'jetpack-premium-analytics-pkg' ),
+				getTitle: () => __( 'Clients', 'jetpack-premium-analytics-pkg' ),
 			},
 			{
 				name: 'jpa/email-breakdown--location-clicks',
-				getTitle: () => __( 'Location clicks', 'jetpack-premium-analytics-pkg' ),
+				getTitle: () => __( 'Locations', 'jetpack-premium-analytics-pkg' ),
 			},
 			{
 				name: 'jpa/email-breakdown--platforms-clicks',
-				getTitle: () => __( 'Platforms clicks', 'jetpack-premium-analytics-pkg' ),
+				getTitle: () => __( 'Platforms', 'jetpack-premium-analytics-pkg' ),
 			},
 			{
 				name: 'jpa/email-breakdown--clients-clicks',
-				getTitle: () => __( 'Clients clicks', 'jetpack-premium-analytics-pkg' ),
+				getTitle: () => __( 'Clients', 'jetpack-premium-analytics-pkg' ),
 			},
 			{
 				name: 'jpa/email-breakdown--top-links',
 				getTitle: () => __( 'Top links', 'jetpack-premium-analytics-pkg' ),
+			},
+		],
+	},
+	{
+		baseType: 'jpa/utm-insights',
+		variants: [
+			{
+				name: 'jpa/utm-insights--utm',
+				getTitle: () => __( 'UTM', 'jetpack-premium-analytics-pkg' ),
 			},
 		],
 	},

@@ -31,7 +31,7 @@ describe( 'post detail tab layouts', () => {
 			},
 			{
 				uuid: 'post-utm',
-				type: 'jpa/utm-insights',
+				type: 'jpa/utm-insights--utm',
 				attributes: { utmDimension: 'utm_source,utm_medium', max: 10, showReportLink: false },
 				placement: { width: 1, height: 2, order: 6 },
 			},
@@ -73,7 +73,7 @@ describe( 'post detail tab layouts', () => {
 		] );
 	} );
 
-	it( 'composes Email clicks as a trend chart beside Platforms and Clients, over the mapped Locations and links rows', () => {
+	it( 'composes Email clicks as a trend chart beside Platforms and Clients, over the Locations and links rows', () => {
 		expect( POST_DETAIL_TAB_LAYOUTS[ 'email-clicks' ] ).toMatchObject( [
 			{
 				uuid: 'email-clicks-highlights',
@@ -102,7 +102,7 @@ describe( 'post detail tab layouts', () => {
 			{
 				uuid: 'email-clicks-countries',
 				type: 'jpa/email-breakdown--location-clicks',
-				attributes: { view: 'countries', metric: 'clicks', max: 7, showMap: true },
+				attributes: { view: 'countries', metric: 'clicks', max: 7 },
 				placement: { width: 2, height: 2, order: 5 },
 			},
 			{
