@@ -86,7 +86,7 @@ class Jetpack_Reader_Chat {
 			'reader_chat',
 			array(
 				'type'              => 'boolean',
-				'description'       => __( 'Whether Reader Chat is enabled on this site.', 'jetpack' ),
+				'description'       => __( 'Whether Site Chat is enabled on this site.', 'jetpack' ),
 				'sanitize_callback' => 'rest_sanitize_boolean',
 				'default'           => false,
 			)
