@@ -103,7 +103,6 @@ class Agents_Manager {
 			);
 		} else {
 			$menu_args['meta'] = array(
-				'html'   => '<div id="agents-manager-masterbar"></div>',
 				'class'  => 'menupop',
 				'target' => '_blank',
 				'rel'    => 'noopener noreferrer',
@@ -210,6 +209,9 @@ class Agents_Manager {
 				'title'  => '<span title="' . esc_attr__( 'Ask AI', 'jetpack-agents-manager' ) . '"><svg class="ab-icon" role="img" aria-label="' . esc_attr__( 'Ask AI', 'jetpack-agents-manager' ) . '" width="24" height="24" viewBox="-45 -45 490 490" xmlns="http://www.w3.org/2000/svg">
 								<path fill="currentColor" d="M391.528 188.061L309.455 159.75C276.997 148.597 251.403 123.003 240.25 90.5451L211.939 8.47185C208.079 -2.82395 191.921 -2.82395 188.061 8.47185L159.75 90.5451C148.597 123.003 123.003 148.597 90.5451 159.75L8.47185 188.061C-2.82395 191.921 -2.82395 208.079 8.47185 211.939L90.5451 240.25C123.003 251.403 148.597 276.997 159.75 309.455L188.061 391.528C191.921 402.824 208.079 402.824 211.939 391.528L240.25 309.455C251.403 276.997 276.997 251.403 309.455 240.25L391.528 211.939C402.824 208.079 402.824 191.921 391.528 188.061ZM295.728 206.077L254.692 220.232C238.391 225.809 225.666 238.677 220.089 254.835L205.934 295.871C203.932 301.591 195.925 301.591 193.923 295.871L179.768 254.835C174.191 238.534 161.323 225.809 145.165 220.232L104.129 206.077C98.4093 204.075 98.4093 196.068 104.129 194.066L145.165 179.911C161.466 174.334 174.191 161.466 179.768 145.308L193.923 104.272C195.925 98.5523 203.932 98.5523 205.934 104.272L220.089 145.308C225.666 161.609 238.534 174.334 254.692 179.911L295.728 194.066C301.448 196.068 301.448 204.075 295.728 206.077Z" />
 							</svg></span>',
+				'meta'   => array(
+					'html' => '<div id="agents-manager-masterbar"></div>',
+				),
 			)
 		);
 	}
@@ -231,15 +233,16 @@ class Agents_Manager {
 		if ( null === $variant ) {
 			return;
 		}
-		$use_disconnected = str_contains( $variant, 'disconnected' );
-		$is_gutenberg     = $this->is_block_editor();
+		$use_disconnected       = str_contains( $variant, 'disconnected' );
+		$is_gutenberg           = $this->is_block_editor();
+		$use_unified_experience = self::is_unified_experience();
 
 		// In Gutenberg, dequeue Help Center so we don't end up with two buttons — but only
 		// in the full unified experience, where Agents Manager takes over the Help Center.
 		// In block-editor-only mode (e.g. ?flags=unified-big-sky) Agents Manager replaces
 		// Big Sky's native UI and Help Center should remain available.
 		// Agents Manager fires at priority 101, after Help Center at 100, so HC is already enqueued.
-		if ( $is_gutenberg && self::is_unified_experience() ) {
+		if ( $is_gutenberg && $use_unified_experience ) {
 			wp_dequeue_script( 'help-center' );
 			wp_dequeue_style( 'help-center-style' );
 		}
@@ -249,17 +252,21 @@ class Agents_Manager {
 		// handled below. CIAB hides the admin bar and uses its own Site Hub.
 		$is_ciab = $this->is_ciab_environment();
 		if ( ! $is_gutenberg && ! $is_ciab ) {
-			add_action(
-				'admin_bar_menu',
-				function ( $wp_admin_bar ) use ( $use_disconnected ) {
-					$this->add_help_menu( $wp_admin_bar, $use_disconnected );
-				},
-				// Add the agents manager icon to the admin bar after the help center is added, so we can remove it.
-				100
-			);
+			// Disconnected variants are Help-only. Full variants take over Help
+			// only when the unified experience is active.
+			if ( $use_disconnected || $use_unified_experience ) {
+				add_action(
+					'admin_bar_menu',
+					function ( $wp_admin_bar ) use ( $use_disconnected ) {
+						$this->add_help_menu( $wp_admin_bar, $use_disconnected );
+					},
+					// Add the agents manager icon after Help Center so it can replace that node.
+					100
+				);
+			}
 
-			// Initialize the agents manager menu panel (only for full variants, not disconnected)
-			if ( ! $use_disconnected ) {
+			// Initialize the Help menu panel only for the full unified experience.
+			if ( ! $use_disconnected && $use_unified_experience ) {
 				add_action( 'admin_bar_menu', array( $this, 'add_menu_panel' ), 100 );
 			}
 
@@ -275,7 +282,7 @@ class Agents_Manager {
 		// the Ask AI button shows whenever Agents Manager is enabled in this editor.
 		if ( ! $is_ciab && ! $use_disconnected && self::is_admin_bar_in_editor() ) {
 			// Help "?" node + dropdown panel first, matching the wp-admin admin bar order.
-			if ( self::is_unified_experience() ) {
+			if ( $use_unified_experience ) {
 				add_action(
 					'admin_bar_menu',
 					function ( $wp_admin_bar ) {
@@ -301,8 +308,6 @@ class Agents_Manager {
 		 * @param array $providers Array of provider script module IDs.
 		 */
 		$agent_providers = apply_filters( 'agents_manager_agent_providers', array() );
-
-		$use_unified_experience = self::is_unified_experience();
 
 		/**
 		 * Filter the default agent ID for the Agents Manager.

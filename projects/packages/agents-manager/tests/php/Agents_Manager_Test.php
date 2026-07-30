@@ -651,9 +651,35 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$this->assertNotFalse(
 			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
 		);
+		$this->assertFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_menu_panel' ) ),
+			'Requesting the shell must not take over the Help Center.'
+		);
 
 		remove_filter( 'agents_manager_should_load', '__return_true' );
 		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+	}
+
+	/**
+	 * Tests that the full UI mount target belongs to Ask AI rather than Help.
+	 */
+	public function test_ai_chat_button_owns_full_ui_mount_target() {
+		global $wp_admin_bar;
+
+		require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
+		$wp_admin_bar = new \WP_Admin_Bar();
+		$wp_admin_bar->initialize();
+
+		$this->agents_manager->add_help_menu( $wp_admin_bar, false );
+		$this->agents_manager->add_ai_chat_button( $wp_admin_bar );
+
+		$help_node = $wp_admin_bar->get_node( 'agents-manager' );
+		$ai_node   = $wp_admin_bar->get_node( 'agents-manager-ai-chat' );
+
+		$this->assertNotNull( $help_node );
+		$this->assertNotNull( $ai_node );
+		$this->assertStringNotContainsString( 'agents-manager-masterbar', $help_node->meta['html'] ?? '' );
+		$this->assertStringContainsString( 'agents-manager-masterbar', $ai_node->meta['html'] ?? '' );
 	}
 
 	/**
