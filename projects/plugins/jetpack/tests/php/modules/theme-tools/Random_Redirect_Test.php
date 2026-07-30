@@ -38,6 +38,7 @@ class Random_Redirect_Test extends WP_UnitTestCase {
 	 * Throws the redirect location so tests can observe it before the module calls exit.
 	 *
 	 * @param string $location Redirect target.
+	 * @return never
 	 * @throws Exception Always, carrying the redirect location.
 	 */
 	public function intercept_redirect( $location ) {
