@@ -38,7 +38,19 @@
 
 	$the_filters.on( 'click', '.button-group .button', { modules: modules }, function ( event ) {
 		event.preventDefault();
-		$( this ).addClass( 'active' ).siblings( '.active' ).removeClass( 'active' );
+		var $button = $( this );
+
+		// The "View" filter is split across two visual groups (State and Purpose)
+		// but still represents a single, mutually-exclusive selection. Clearing the
+		// active state across every `.filter-active` group keeps only one filter
+		// active at a time. Other groups (e.g. Sort) stay self-contained.
+		if ( $button.closest( '.button-group' ).hasClass( 'filter-active' ) ) {
+			$( '.button-group.filter-active .button.active' ).removeClass( 'active' );
+			$button.addClass( 'active' );
+		} else {
+			$button.addClass( 'active' ).siblings( '.active' ).removeClass( 'active' );
+		}
+
 		modules.trigger( 'change' );
 	} );
 

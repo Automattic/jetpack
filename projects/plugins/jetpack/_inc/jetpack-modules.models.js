@@ -16,8 +16,16 @@ window.jetpackModules.models = ( function ( window, $, Backbone ) {
 			var subsubsub = $( '.subsubsub .current a' ),
 				items = Object.values( this.get( 'raw' ) ),
 				m_filter = $( '.button-group.filter-active .active' ),
+				m_availability = $( '.button-group.availability-filter .active' ),
 				m_sort = $( '.button-group.sort .active' ),
 				m_search = $( '#srch-term-search-input' ).val().toLowerCase();
+
+			// Offline-mode top-level filter: when "Hide unavailable" is selected,
+			// drop every module that isn't available offline, regardless of the
+			// other filters below it.
+			if ( 'hide-unavailable' === m_availability.data( 'availability' ) ) {
+				items = items.filter( item => item.available );
+			}
 
 			// If a module filter has been selected, filter it!
 			if ( ! subsubsub.closest( 'li' ).hasClass( 'all' ) ) {
@@ -56,9 +64,21 @@ window.jetpackModules.models = ( function ( window, $, Backbone ) {
 				);
 			}
 
-			// Sort unavailable modules to the end if the user is running in local mode.
-			// JS sort is supposed to be stable since 2019, and is in browsers we care about, so this is safe.
-			items.sort( ( a, b ) => b.available - a.available );
+			// Group by product group (primary), then push unavailable modules to
+			// the end of their group. Any user-selected sort above is preserved
+			// within a group because Array.prototype.sort is stable in the
+			// browsers we support.
+			var groupOrder = { growth: 0, performance: 1, security: 2, other: 3 };
+			items.sort( function ( a, b ) {
+				var ga = groupOrder[ a.product_group ] !== undefined ? groupOrder[ a.product_group ] : 99;
+				var gb = groupOrder[ b.product_group ] !== undefined ? groupOrder[ b.product_group ] : 99;
+
+				if ( ga !== gb ) {
+					return ga - gb;
+				}
+
+				return ( b.available ? 1 : 0 ) - ( a.available ? 1 : 0 );
+			} );
 
 			// Now shove it back in.
 			this.set( 'items', items );

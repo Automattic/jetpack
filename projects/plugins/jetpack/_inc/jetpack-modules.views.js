@@ -20,11 +20,18 @@ window.jetpackModules.views = ( function ( window, $, Backbone, wp ) {
 			var url = window.location.href.split( '?' )[ 0 ] + '?page=jetpack_modules',
 				m_tag = $( '.subsubsub .current' ),
 				m_filter = $( '.button-group.filter-active .active' ),
+				m_availability = $( '.button-group.availability-filter .active' ),
 				m_sort = $( '.button-group.sort .active' ),
 				m_search = $( '#srch-term-search-input' ).val();
 
 			if ( m_search.length ) {
 				url += '&s=' + encodeURIComponent( m_search );
+			}
+
+			// "Hide unavailable" is the default in Offline Mode, so only the opt-out
+			// ("All") needs to be persisted in the URL.
+			if ( 'all' === m_availability.data( 'availability' ) ) {
+				url += '&offline_available=all';
 			}
 
 			if ( ! m_tag.hasClass( 'all' ) ) {
