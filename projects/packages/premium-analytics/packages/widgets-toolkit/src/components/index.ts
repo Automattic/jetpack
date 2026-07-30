@@ -68,6 +68,7 @@ export {
 	ReportPageTabs,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	ReportCsvAction,
 	useReportRetry,
 	buildReportMetricSeries,
 	type ReportChartMetric,
@@ -81,13 +82,16 @@ export {
 	type ReportPageTabsProps,
 	type ReportPerformanceChartProps,
 	type ReportRecordsTableProps,
+	type ReportCsvActionProps,
 } from './report-page';
 export {
-	isCsvExportEnabled,
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,
 	RowsCsvDownloadButton,
 	type RowsCsvDownloadButtonProps,
+	useReportCsvExport,
+	type UseReportCsvExportOptions,
+	type UseReportCsvExportResult,
 } from './download-csv';
 export { WidgetDataTable, type WidgetDataTableProps } from './widget-data-table';
 export {

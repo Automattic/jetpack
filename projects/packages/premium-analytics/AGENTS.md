@@ -11,7 +11,9 @@ Jetpack Premium Analytics is the unified analytics dashboard for Jetpack-connect
 
 - Composer package: `automattic/jetpack-premium-analytics`
 - PHP namespace: `Automattic\Jetpack\PremiumAnalytics`
-- Text domain / REST namespace: `jetpack-premium-analytics` / `jetpack-premium-analytics/v1`
+- Text domain / REST namespace: `jetpack-premium-analytics-pkg` / `jetpack-premium-analytics/v1`
+  (the `-pkg` suffix keeps the package's domain distinct from the plugin slug it ships under;
+  `Assets::alias_textdomain()` maps it back to the plugin's domain at runtime)
 
 ## How it works
 
@@ -465,12 +467,16 @@ module has a special failure mode. Prefer adding those shapes to the widget's ex
 over creating one-off state stories unless the state needs direct review.
 
 To review a widget's loading / error / empty state directly, force it with
-`setReportMockState( '<endpoint>', 'loading' | 'error' | 'empty' )` in the story's `beforeEach`,
-clearing it in the returned cleanup. Keep such stories off the shared autodocs page
-(`tags: [ '!autodocs' ]`, since the override is keyed by path and would otherwise force the
-sibling stories into the same state) and give each one a date preset distinct from the other
-stories so it hits the mock fresh instead of reading their cached success. See
+`setReportMockState( '<endpoint>', 'loading' | 'error' | 'error-retryable' | 'empty' )` in the
+story's `beforeEach`, clearing it in the returned cleanup. Keep such stories off the shared
+autodocs page (`tags: [ '!autodocs' ]`, since the override is keyed by path and would otherwise
+force the sibling stories into the same state) and give each one a date preset distinct from the
+other stories so it hits the mock fresh instead of reading their cached success. See
 `widgets/search-terms/stories/` for the reference.
+
+`error` mocks a permission-gated 403 and `error-retryable` the proxy's `no_connection` 403. A
+widget that maps its error through `describeError` renders a Retry action only for the latter, so
+give it a story for each; both mocks are 403s, so neither waits out the query's retry backoff.
 
 ### Widget pitfalls
 
@@ -531,14 +537,24 @@ the query factory — do not do it in the widget or the view hook.
 
 **`max` semantics**
 
-`max = 0` means "all rows". Use `slice( 0, max > 0 ? max : undefined )`, never
+`max = 0` means "all rows" — but only where the widget caps rows _after_ fetching,
+via `limitStatsRows()`. Use `slice( 0, max > 0 ? max : undefined )`, never
 `slice( 0, max )` (the latter returns an empty array when `max` is 0).
+
+Where `max` is instead passed straight to the endpoint as a request param, it is a
+page size and `0` carries no "all rows" meaning — clamp it to the widget's own
+default. `widgets/subscribers-list/render.tsx` is the current example: its
+`stats/followers` request is paginated, so it falls back to 6.
 
 **Loading / error / empty state**
 
 Render these states through `<WidgetState>` from `@jetpack-premium-analytics/widgets-toolkit`
 rather than hand-rolling `if ( isError )` / empty branches or a `WidgetLoadingOverlay`. Map the
-data/view hook's result to its four signals and pass generic descriptors:
+data/view hook's result to its four signals. For Stats API errors, pass the raw `error` to the
+shared `describeError()` mapper so 403 access failures have neutral copy and no retry action,
+while other failures — including the proxy's `no_connection` 403, which can heal after
+reconnecting — offer Retry. Pass the retryable copy as a full sentence (not a fragment
+interpolated into a shared frame) so translators see the whole sentence:
 
 ```tsx
 <WidgetState
@@ -547,11 +563,11 @@ data/view hook's result to its four signals and pass generic descriptors:
 	isEmpty={ data.length === 0 }
 	// isFetching is optional: a background refetch shows a non-blocking busy overlay
 	// over the existing rows instead of hiding them.
-	error={ {
-		description: __( "We couldn't load this data. Please try again in a moment.", 'jetpack-premium-analytics' ),
-		actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
-	} }
-	empty={ { icon: search, description: __( 'No search terms in this period.', 'jetpack-premium-analytics' ) } }
+	error={ describeError( error, {
+		retryDescription: __( "We couldn't load search terms. Please try again in a moment.", 'jetpack-premium-analytics-pkg' ),
+		onRetry: refetch,
+	} ) }
+	empty={ { icon: search, description: __( 'No search terms in this period.', 'jetpack-premium-analytics-pkg' ) } }
 >
 	<LeaderboardChart … />
 </WidgetState>
@@ -561,6 +577,9 @@ data/view hook's result to its four signals and pass generic descriptors:
 `isFetching` and data are shown) and swaps only the content area. Notes:
 
 - Expose `refetch` from the data/view hook so the error state's Retry can re-run the query.
+- When a view hook masks `isError` (e.g. `rows.length === 0 && isError` to keep placeholder
+  rows), gate `error` with the same predicate (`error: showError ? error : null`) so the two
+  fields can't disagree.
 - Give `empty.icon` a neutral glyph distinct from the error icon — the widget's own glyph from
   `@jetpack-premium-analytics/icons` (e.g. `search`, `customer`); omit it for no icon. Don't use
   a caution glyph: empty is not an error.
@@ -572,8 +591,8 @@ data/view hook's result to its four signals and pass generic descriptors:
 > Many Stats widgets predate this and still hand-roll loading/empty via `<WidgetLoadingOverlay>`,
 > `isLoading && data.length === 0`, and `LeaderboardChart`'s `emptyStateText`. They are being
 > migrated to `<WidgetState>` — follow the contract above, not those widgets.
-> `widgets/search-terms/render.tsx` is the reference. (A `describeError` mapper and a
-> `ReportWidget` wrapper that remove the per-widget error/retry boilerplate are planned follow-ups.)
+> `widgets/search-terms/render.tsx` is the reference. (A `ReportWidget` wrapper that removes the
+> remaining per-widget state boilerplate is a planned follow-up.)
 
 **Comparison data**
 
@@ -596,7 +615,14 @@ Widgets should consume `comparisonRows?.rows` and the hook-level `hasComparison`
 `mergeStats*ComparisonRows()` or duplicate the row-overlap guard from render/view code.
 Widget-level mapping may still add presentation-only fields such as labels, icons, links,
 shares, or chart colors. Leave missing `previousValue`/`previousShare`/`delta` values as
-`undefined` so charts suppress the row delta instead of rendering fake `0%` or `100%` changes.
+`undefined` so charts show the missing-data placeholder, instead of coercing them to `0` and
+implying a real zero previous period.
+
+For comparison leaderboards, calculate one denominator from the largest value represented in
+either period with `getCombinedPeriodMax()`. Use that denominator for both `currentShare` and
+`previousShare`; separate per-period maxima make equal-width bars represent different values and
+can contradict the displayed delta. Only include visible primary rows and their matched comparison
+values in the denominator. Missing comparison values remain `undefined` and are ignored.
 
 **Remote URLs in links**
 

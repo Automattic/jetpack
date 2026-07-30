@@ -3,7 +3,7 @@
 import { TextControl } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Badge, Button, Link, Stack } from '@wordpress/ui';
+import { Badge, Button, Link, Stack, Text } from '@wordpress/ui';
 import { useGoogleVerify } from '../../data/use-google-verify';
 import type { FC } from 'react';
 
@@ -16,8 +16,10 @@ interface Props {
 	disabled?: boolean;
 }
 
+// Matches the wording of the other services' hints in `verification-card`: both
+// a whole pasted meta tag and a bare code are accepted on save.
 const manualHelp = __(
-	'Paste the "content" attribute from the Google Search Console meta tag.',
+	'Paste the verification tag from Google Search Console, or just the code inside it.',
 	'jetpack-seo'
 );
 
@@ -35,7 +37,7 @@ const manualHelp = __(
  */
 const GoogleVerificationField: FC< Props > = ( { value, onChange, onCommit, disabled } ) => {
 	// `onCodeSaved` mirrors the auto-verified code into the form's local state so the
-	// card's "configured" badge stays in sync without a reload (the hook already
+	// card's completion status stays in sync without a reload (the hook already
 	// persisted it, so this only updates local state — no extra save).
 	const { state, isConnected, isOwner, searchConsoleUrl, isVerifying, autoVerify } =
 		useGoogleVerify( { onCodeSaved: onChange } );
@@ -68,25 +70,25 @@ const GoogleVerificationField: FC< Props > = ( { value, onChange, onCommit, disa
 	// `unavailable` (e.g. a `forbidden` response on an under-construction site).
 	if ( ! isConnected || state === 'unavailable' ) {
 		return (
-			<div className="jetpack-seo-settings__google-verification">
-				<TextControl
-					label={ __( 'Google', 'jetpack-seo' ) }
-					value={ value }
-					onChange={ onChange }
-					onBlur={ onCommit }
-					help={ manualHelp }
-					disabled={ disabled }
-					__next40pxDefaultSize
-					__nextHasNoMarginBottom
-				/>
-			</div>
+			<TextControl
+				label={ __( 'Google', 'jetpack-seo' ) }
+				value={ value }
+				onChange={ onChange }
+				onBlur={ onCommit }
+				help={ manualHelp }
+				disabled={ disabled }
+				__next40pxDefaultSize
+				__nextHasNoMarginBottom
+			/>
 		);
 	}
 
 	return (
-		<Stack direction="column" gap="md" className="jetpack-seo-settings__google-verification">
+		<Stack direction="column" gap="md">
 			<Stack direction="row" justify="space-between" align="center" gap="sm">
-				<strong>{ __( 'Google', 'jetpack-seo' ) }</strong>
+				<Text variant="heading-md" render={ <strong /> }>
+					{ __( 'Google', 'jetpack-seo' ) }
+				</Text>
 				{ state === 'verified' && (
 					<Badge intent="stable">{ __( 'Verified', 'jetpack-seo' ) }</Badge>
 				) }

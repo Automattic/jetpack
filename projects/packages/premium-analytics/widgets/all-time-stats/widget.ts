@@ -17,10 +17,10 @@ import { ArrayCheckboxField } from '@jetpack-premium-analytics/fields';
  * icons and summary fields.
  */
 export const ALL_TIME_STATS_METRICS = [
-	{ id: 'views', label: __( 'Views', 'jetpack-premium-analytics' ) },
-	{ id: 'visitors', label: __( 'Visitors', 'jetpack-premium-analytics' ) },
-	{ id: 'posts', label: __( 'Posts', 'jetpack-premium-analytics' ) },
-	{ id: 'comments', label: __( 'Comments', 'jetpack-premium-analytics' ) },
+	{ id: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'visitors', label: __( 'Visitors', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'posts', label: __( 'Posts', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'comments', label: __( 'Comments', 'jetpack-premium-analytics-pkg' ) },
 ] as const satisfies readonly { id: string; label: string }[];
 
 /**
@@ -62,7 +62,7 @@ export default {
 	attributes: [
 		{
 			id: 'metrics',
-			label: __( 'Metrics', 'jetpack-premium-analytics' ),
+			label: __( 'Metrics', 'jetpack-premium-analytics-pkg' ),
 			type: 'array',
 			relevance: 'high',
 			Edit: ArrayCheckboxField,

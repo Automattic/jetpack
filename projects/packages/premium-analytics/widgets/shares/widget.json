@@ -1,6 +1,6 @@
 {
 	"name": "jpa/shares",
-	"title": "Shares",
+	"title": "Top social media shares",
 	"description": "The number of times your content was shared to social networks.",
 	"help": {
 		"content": "The platforms where your content was shared most often, sorted by number of shares."

@@ -31,10 +31,10 @@ function BookingsByDeviceWidget() {
 	return (
 		<SalesByDeviceWidget
 			filter={ BOOKINGS_FILTER }
-			emptyStateText={ __( 'No booking data in this period.', 'jetpack-premium-analytics' ) }
+			emptyStateText={ __( 'No booking data in this period.', 'jetpack-premium-analytics-pkg' ) }
 			errorText={ __(
 				"We couldn't load booking data by device. Please try again in a moment.",
-				'jetpack-premium-analytics'
+				'jetpack-premium-analytics-pkg'
 			) }
 		/>
 	);

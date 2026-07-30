@@ -14,7 +14,9 @@ const setSettings = jest.fn();
 
 const SEED: SettingsResponse = {
 	front_page_description: 'Old description.',
+	has_legacy_front_page_meta: false,
 	title_formats: { posts: [ { type: 'token', value: 'site_name' } ] },
+	title_separator: '-',
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	search_engines_visible: true,
 	sitemap_active: false,
@@ -144,6 +146,44 @@ describe( 'useSettingsForm', () => {
 		act( () => result.current.commitTitleFormat( 'posts' ) );
 
 		expect( mockApiFetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'refreshes the sitemap URL after toggling the sitemap on', async () => {
+		const { result } = renderHook( () => useSettingsForm() );
+
+		// First call is the settings write; the second is the SEO-settings re-read
+		// that surfaces the freshly-reachable sitemap_url.
+		mockApiFetch.mockResolvedValueOnce( {} );
+		mockApiFetch.mockResolvedValueOnce( {
+			...SEED,
+			sitemap_active: true,
+			sitemap_url: 'https://example.com/sitemap.xml',
+		} );
+
+		act( () => result.current.commit( { sitemap_active: true } ) );
+
+		await waitFor( () =>
+			expect( result.current.local?.sitemap_url ).toBe( 'https://example.com/sitemap.xml' )
+		);
+		expect( result.current.local?.sitemap_active ).toBe( true );
+
+		const paths = mockApiFetch.mock.calls.map(
+			( [ options ] ) => ( options as { path: string } ).path
+		);
+		expect( paths ).toContain( '/jetpack/v4/settings' );
+		expect( paths ).toContain( '/jetpack/v4/seo/settings' );
+	} );
+
+	it( 'does not re-read the SEO settings for a non-sitemap toggle', async () => {
+		const { result } = renderHook( () => useSettingsForm() );
+
+		act( () => result.current.commit( { canonical_active: true } ) );
+
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 1 ) );
+		const paths = mockApiFetch.mock.calls.map(
+			( [ options ] ) => ( options as { path: string } ).path
+		);
+		expect( paths ).not.toContain( '/jetpack/v4/seo/settings' );
 	} );
 
 	it( 'updates the saved settings snapshot when schema saves separately', () => {

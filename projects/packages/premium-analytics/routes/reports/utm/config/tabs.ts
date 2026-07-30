@@ -21,15 +21,15 @@ const reportUtmTabs = defineReportTabs< UtmReportTabId >(
 	[
 		{
 			id: 'source-medium',
-			getLabel: () => __( 'Source / Medium', 'jetpack-premium-analytics' ),
+			getLabel: () => __( 'Source / Medium', 'jetpack-premium-analytics-pkg' ),
 		},
 		{
 			id: 'campaign-source-medium',
-			getLabel: () => __( 'Campaign / Source / Medium', 'jetpack-premium-analytics' ),
+			getLabel: () => __( 'Campaign / Source / Medium', 'jetpack-premium-analytics-pkg' ),
 		},
-		{ id: 'source', getLabel: () => __( 'Source', 'jetpack-premium-analytics' ) },
-		{ id: 'medium', getLabel: () => __( 'Medium', 'jetpack-premium-analytics' ) },
-		{ id: 'campaign', getLabel: () => __( 'Campaign', 'jetpack-premium-analytics' ) },
+		{ id: 'source', getLabel: () => __( 'Source', 'jetpack-premium-analytics-pkg' ) },
+		{ id: 'medium', getLabel: () => __( 'Medium', 'jetpack-premium-analytics-pkg' ) },
+		{ id: 'campaign', getLabel: () => __( 'Campaign', 'jetpack-premium-analytics-pkg' ) },
 	],
 	DEFAULT_TAB_ID
 );

@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Affects the modernized wp-build dashboard (rsm_jetpack_ui_modernization_videopress).
+
+Load JS translation catalogs and stamp the package text domain on the wp-build dashboard bundles.

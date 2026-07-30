@@ -55,7 +55,7 @@ function formatPublishDate( date: string ): string {
 
 	return sprintf(
 		/* translators: %s: the post's publish date, e.g. "Jun 5, 2026". */
-		__( 'Published %s', 'jetpack-premium-analytics' ),
+		__( 'Published %s', 'jetpack-premium-analytics-pkg' ),
 		formatted
 	);
 }
@@ -126,13 +126,16 @@ export const LatestPostCard = ( { post }: LatestPostCardProps ) => {
 					) }
 				</div>
 				<div className={ styles.metrics }>
-					<MetricTile label={ __( 'Views', 'jetpack-premium-analytics' ) } value={ post.views } />
 					<MetricTile
-						label={ __( 'Likes', 'jetpack-premium-analytics' ) }
+						label={ __( 'Views', 'jetpack-premium-analytics-pkg' ) }
+						value={ post.views }
+					/>
+					<MetricTile
+						label={ __( 'Likes', 'jetpack-premium-analytics-pkg' ) }
 						value={ post.likeCount }
 					/>
 					<MetricTile
-						label={ __( 'Comments', 'jetpack-premium-analytics' ) }
+						label={ __( 'Comments', 'jetpack-premium-analytics-pkg' ) }
 						value={ post.commentCount }
 					/>
 				</div>
@@ -165,13 +168,13 @@ function LatestPostReport() {
 			error={ {
 				description: __(
 					"We couldn't load your latest post. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: postList,
-				description: __( 'Publish a post to see its stats here.', 'jetpack-premium-analytics' ),
+				description: __( 'Publish a post to see its stats here.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			{ post && <LatestPostCard post={ post } /> }

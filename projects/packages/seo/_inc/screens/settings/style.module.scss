@@ -1,0 +1,35 @@
+// Centered fixed-width column. 660px is the established Jetpack settings-page
+// width (see Newsletter's settings/style.scss: "MSD and future JP settings
+// pages are 660px wide"); there is no design token for it.
+.root {
+	max-inline-size: 660px;
+	margin-inline: auto;
+}
+
+// Deep-link target wrapper. `scroll-margin-block-start` clears the fixed
+// header + sticky tabs strip so the scrolled-to section's title stays visible.
+.section {
+	scroll-margin-block-start: 64px;
+}
+
+// Align the View sitemap link with the toggle's label text (and its help text)
+// rather than the switch. 40px matches @wordpress/components ToggleControl's
+// help `margin-inline-start` (≈ 36px switch + gap).
+.sitemapLink {
+	margin-inline-start: 40px;
+}
+
+// Secondary copy. Paired with `variant="body-sm"`, this is the established
+// treatment for explanatory text across the tab (schema sections, social
+// previews, title structure).
+.muted {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+// Live character count in the front-page description footer, paired with that
+// section's Save button (the same footer shape the title-structure rows use).
+// Tabular figures so the width doesn't jitter while typing.
+.charCount {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-variant-numeric: tabular-nums;
+}

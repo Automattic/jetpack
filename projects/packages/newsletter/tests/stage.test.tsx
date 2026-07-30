@@ -53,14 +53,22 @@ jest.mock( '@wordpress/ui', () => ( {
 
 // SubscribersBody is a render-prop component; the Stage passes a function
 // that builds the panels. The mock invokes it with empty slot data so the
-// downstream render path is exercised without any data-views machinery.
+// downstream render path is exercised without any data-views machinery, and
+// records the `importRefreshEnabled` prop so we can assert the poll gating.
+let mockImportRefreshEnabled: boolean | undefined;
+
 jest.mock( '../_inc/subscribers/components/subscribers-body', () => ( {
 	__esModule: true,
 	default: ( {
+		importRefreshEnabled,
 		children,
 	}: {
+		importRefreshEnabled: boolean;
 		children: ( ctx: { body: React.ReactNode; actions: React.ReactNode } ) => React.ReactNode;
-	} ) => <>{ children( { body: <div data-testid="subscribers-body" />, actions: null } ) }</>,
+	} ) => {
+		mockImportRefreshEnabled = importRefreshEnabled;
+		return <>{ children( { body: <div data-testid="subscribers-body" />, actions: null } ) }</>;
+	},
 } ) );
 
 jest.mock( '../_inc/subscribers/components/connection-gate', () => ( {
@@ -116,7 +124,17 @@ beforeEach( () => {
 		userIsConnecting: false,
 		handleRegisterSite: jest.fn(),
 	} );
+	mockImportRefreshEnabled = undefined;
 } );
+
+const connected = {
+	isRegistered: true,
+	hasConnectedOwner: true,
+	isUserConnected: true,
+	siteIsRegistering: false,
+	userIsConnecting: false,
+	handleRegisterSite: jest.fn(),
+};
 
 describe( 'Newsletter dashboard Stage analytics', () => {
 	it( 'records jetpack_newsletter_tab_view once on initial mount with the landing tab', () => {
@@ -207,18 +225,40 @@ describe( 'Newsletter dashboard Stage connection gate', () => {
 	} );
 
 	it( 'shows the subscribers body on a fully connected non-Simple site', () => {
-		mockConnection.mockReturnValue( {
-			isRegistered: true,
-			hasConnectedOwner: true,
-			isUserConnected: true,
-			siteIsRegistering: false,
-			userIsConnecting: false,
-			handleRegisterSite: jest.fn(),
-		} );
+		mockConnection.mockReturnValue( connected );
 
 		render( <Stage /> );
 
 		expect( screen.getByTestId( 'subscribers-body' ) ).toBeInTheDocument();
 		expect( screen.queryByTestId( 'connection-gate' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'Newsletter dashboard Stage import-poll gating', () => {
+	// The import-completion poll lives in the always-mounted SubscribersBody. It must run only for a
+	// visitor who can actually import AND is on the Subscribers tab, so it doesn't hit the WP.com
+	// import endpoint on the Settings tab, for connection-gated users, or on Settings-only sites.
+	it( 'enables the poll for a connected visitor on the Subscribers tab', () => {
+		mockConnection.mockReturnValue( connected );
+
+		render( <Stage /> );
+
+		expect( mockImportRefreshEnabled ).toBe( true );
+	} );
+
+	it( 'disables the poll on the Settings tab, even when connected', () => {
+		mockConnection.mockReturnValue( connected );
+		mockSearch.mockReturnValue( { tab: 'settings' } );
+
+		render( <Stage /> );
+
+		expect( mockImportRefreshEnabled ).toBe( false );
+	} );
+
+	it( 'disables the poll for a connection-gated visitor', () => {
+		// Default mocks: disconnected non-Simple site → cannot manage subscribers.
+		render( <Stage /> );
+
+		expect( mockImportRefreshEnabled ).toBe( false );
 	} );
 } );

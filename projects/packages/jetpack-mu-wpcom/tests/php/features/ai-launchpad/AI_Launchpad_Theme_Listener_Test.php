@@ -6,7 +6,9 @@
  */
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
+require_once __DIR__ . '/fixtures/trait-seeds-ai-output.php';
 require_once __DIR__ . '/../../../../src/features/ai-launchpad/helpers.php';
 require_once __DIR__ . '/../../../../src/features/ai-launchpad/class-ai-launchpad-theme-listener.php';
 
@@ -17,6 +19,8 @@ require_once __DIR__ . '/../../../../src/features/ai-launchpad/class-ai-launchpa
  */
 #[CoversClass( AI_Launchpad_Theme_Listener::class )]
 class AI_Launchpad_Theme_Listener_Test extends \WorDBless\BaseTestCase {
+	use AI_Launchpad_Seeds_AI_Output;
+
 	/**
 	 * Set up.
 	 */
@@ -26,117 +30,47 @@ class AI_Launchpad_Theme_Listener_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Seeds the AI output option with the given task IDs.
+	 * The switch_theme listener completes site_theme_selected exactly when the AI Launchpad is
+	 * showing that task — either because the AI picked it, or because the site's goal is sell,
+	 * whose list always renders a Choose-a-theme task (see AI_Launchpad_REST::get_current_tasks),
+	 * including when a partial write left an inferred goal but no task list. Anything else must
+	 * leave the legacy launchpad's status option untouched.
 	 *
-	 * @param string[] $task_ids Task IDs for the payload.
+	 * @dataProvider provide_theme_outputs
+	 *
+	 * @param array|null $ai_output The persisted AI output, or null for no option at all.
+	 * @param bool       $expected  Whether site_theme_selected should be marked complete.
 	 */
-	private function seed_ai_output( $task_ids ) {
-		update_option(
-			'wpcom_ai_launchpad_ai_output',
-			array(
-				'version'      => 1,
-				'source'       => 'ai',
-				'generated_at' => 1717000000,
-				'payload'      => array(
-					'tasks' => array_map(
-						function ( $task_id ) {
-							return array(
-								'id'       => $task_id,
-								'subtitle' => 'Subtitle for ' . $task_id,
-							);
-						},
-						$task_ids
-					),
-				),
-			),
-			false
-		);
-	}
-
-	/**
-	 * When site_theme_selected is AI-selected, switch_theme marks it complete.
-	 */
-	public function test_switch_theme_marks_ai_selected_theme_task_complete() {
-		$this->seed_ai_output( array( 'site_theme_selected' ) );
+	#[DataProvider( 'provide_theme_outputs' )]
+	public function test_switch_theme_completion( $ai_output, $expected ) {
+		if ( null !== $ai_output ) {
+			update_option( 'wpcom_ai_launchpad_ai_output', $ai_output, false );
+		}
 
 		AI_Launchpad_Theme_Listener::mark_theme_selected_complete();
 
 		$statuses = get_option( 'launchpad_checklist_tasks_statuses' );
-		$this->assertIsArray( $statuses );
-		$this->assertTrue( $statuses['site_theme_selected'] );
+		if ( $expected ) {
+			$this->assertIsArray( $statuses );
+			$this->assertTrue( $statuses['site_theme_selected'] );
+		} else {
+			$this->assertFalse( $statuses );
+		}
 	}
 
 	/**
-	 * Without the AI output option, switch_theme writes nothing.
+	 * Data provider for test_switch_theme_completion.
+	 *
+	 * @return array
 	 */
-	public function test_no_ai_output_writes_nothing() {
-		AI_Launchpad_Theme_Listener::mark_theme_selected_complete();
-
-		$this->assertFalse( get_option( 'launchpad_checklist_tasks_statuses' ) );
-	}
-
-	/**
-	 * When site_theme_selected is not among the AI-selected tasks, nothing is written.
-	 */
-	public function test_theme_task_not_selected_writes_nothing() {
-		$this->seed_ai_output( array( 'first_post_published' ) );
-
-		AI_Launchpad_Theme_Listener::mark_theme_selected_complete();
-
-		$this->assertFalse( get_option( 'launchpad_checklist_tasks_statuses' ) );
-	}
-
-	/**
-	 * A sell list always shows a Choose-a-theme task, so switch_theme completes it
-	 * even when the AI did not explicitly pick site_theme_selected.
-	 */
-	public function test_switch_theme_completes_guaranteed_sell_theme() {
-		update_option(
-			'wpcom_ai_launchpad_ai_output',
-			array(
-				'version' => 1,
-				'payload' => array(
-					'tasks'    => array(
-						array(
-							'id'       => 'woo_products',
-							'subtitle' => 'Add products.',
-						),
-					),
-					'inferred' => array( 'goal' => 'sell' ),
-				),
-			),
-			false
+	public static function provide_theme_outputs() {
+		return array(
+			'ai-selected theme task completes'          => array( self::ai_output( array( 'site_theme_selected' ) ), true ),
+			'no ai output writes nothing'               => array( null, false ),
+			'theme task not selected writes nothing'    => array( self::ai_output( array( 'first_post_published' ) ), false ),
+			'sell goal completes the guaranteed task'   => array( self::ai_output( array( 'woo_products' ), 'sell' ), true ),
+			'sell goal completes it without a tasklist' => array( self::ai_output( array(), 'sell' ), true ),
 		);
-
-		AI_Launchpad_Theme_Listener::mark_theme_selected_complete();
-
-		$statuses = get_option( 'launchpad_checklist_tasks_statuses' );
-		$this->assertIsArray( $statuses );
-		$this->assertTrue( $statuses['site_theme_selected'] );
-	}
-
-	/**
-	 * A sell output can carry an inferred goal but no task list (a partial write). The
-	 * render side still shows the guaranteed Choose-a-theme task, so switch_theme must
-	 * complete it here too.
-	 */
-	public function test_switch_theme_completes_guaranteed_sell_theme_without_task_list() {
-		update_option(
-			'wpcom_ai_launchpad_ai_output',
-			array(
-				'version' => 1,
-				'payload' => array(
-					'inferred' => array( 'goal' => 'sell' ),
-				),
-			),
-			false
-		);
-
-		AI_Launchpad_Theme_Listener::mark_theme_selected_complete();
-
-		$statuses = get_option( 'launchpad_checklist_tasks_statuses' );
-		$this->assertIsArray( $statuses );
-		$this->assertTrue( $statuses['site_theme_selected'] );
 	}
 
 	/**

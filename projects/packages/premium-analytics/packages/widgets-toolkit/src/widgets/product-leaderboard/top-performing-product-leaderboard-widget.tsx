@@ -16,7 +16,12 @@ import { WidgetState } from '../../components/widget-state';
 /**
  * Internal dependencies
  */
-import { formatLegendLabels, calculateDelta, sharePercentage } from '../../helpers';
+import {
+	calculateDelta,
+	formatLegendLabels,
+	getCombinedPeriodMax,
+	sharePercentage,
+} from '../../helpers';
 
 export type TopPerformingProductLeaderboardWidgetProps = {
 	/**
@@ -126,65 +131,63 @@ export function TopPerformingProductLeaderboardWidget( {
 	} );
 
 	const chartData = useMemo( () => {
+		const primaryItems = data?.data || [];
 		const comparisonItems = comparisonData?.data || [];
 
 		// Create a map of product_id to comparison data for efficient lookup
 		const comparisonMap = new Map( comparisonItems.map( item => [ item.product_id, item ] ) );
 
-		// Calculate maxValue once outside the map
-		const maxCurrentValue = Math.max(
-			...( data?.data?.map( p => p.product_net_revenue ?? 0 ) || [] ),
-			1 // Prevent division by zero
+		const maxValue = getCombinedPeriodMax(
+			primaryItems.map( product => product.product_net_revenue ?? 0 ),
+			hasComparison
+				? primaryItems.map(
+						product => comparisonMap.get( product.product_id )?.product_net_revenue
+				  )
+				: []
 		);
 
-		// Calculate max previous value once outside the map
-		const maxPreviousValue = Math.max(
-			...comparisonItems.map( p => p.product_net_revenue ?? 0 ),
-			1 // Prevent division by zero
-		);
+		return primaryItems.map( ( product, index: number ) => {
+			const currentValue = product.product_net_revenue ?? 0;
 
-		return (
-			data?.data?.map( ( product, index: number ) => {
-				const currentValue = product.product_net_revenue ?? 0;
+			const productImage = productImages ? productImages[ product.product_id ] : undefined;
 
-				const productImage = productImages ? productImages[ product.product_id ] : undefined;
+			// Match by product_id instead of index.
+			const comparisonProduct = comparisonMap.get( product.product_id );
 
-				// Match by product_id instead of index.
-				const comparisonProduct = comparisonMap.get( product.product_id );
+			// A product ranked below the previous top-N cutoff is absent from
+			// the comparison list. That is an unknown previous value, not a
+			// real 0, so leave the comparison fields undefined and let the
+			// chart show a missing-data placeholder instead of implying the
+			// product earned nothing. A product present with 0 revenue keeps
+			// its known comparison value while its unavailable delta renders
+			// separately.
+			const previousValue = comparisonProduct?.product_net_revenue;
+			const hasComparisonValue = previousValue !== undefined;
 
-				// A product ranked below the previous top-N cutoff is absent from
-				// the comparison list. That is an unknown previous value, not a
-				// real 0, so leave the comparison fields undefined and let the
-				// chart show a placeholder instead of a fabricated +100% delta. A
-				// product present with 0 revenue has a known previous value and
-				// keeps its real delta.
-				const previousValue = comparisonProduct?.product_net_revenue;
-				const hasComparisonValue = previousValue !== undefined;
+			const label = product.product_name;
+			const imageUrl = productImage?.imageUrl || '';
+			const imageAlt = productImage?.imageAlt || label;
 
-				const label = product.product_name;
-				const imageUrl = productImage?.imageUrl || '';
-				const imageAlt = productImage?.imageAlt || label;
-
-				return {
-					id: String( product.product_id || index ),
-					...buildLeaderboardRow( {
-						label,
-						media: { kind: 'thumbnail', url: imageUrl, alt: imageAlt },
-						action: { kind: 'static' },
-					} ),
-					currentValue,
-					currentShare: sharePercentage( currentValue, maxCurrentValue ),
-					previousValue,
-					// Net revenue can be negative once refunds outweigh sales; a
-					// negative share would render an invalid bar width.
-					previousShare: hasComparisonValue
-						? sharePercentage( Math.max( previousValue, 0 ), maxPreviousValue )
-						: undefined,
-					delta: hasComparisonValue ? calculateDelta( currentValue, previousValue ) : undefined,
-				};
-			} ) || []
-		);
-	}, [ data?.data, comparisonData?.data, productImages ] );
+			return {
+				id: String( product.product_id || index ),
+				...buildLeaderboardRow( {
+					label,
+					media: { kind: 'thumbnail', url: imageUrl, alt: imageAlt },
+					action: { kind: 'static' },
+				} ),
+				currentValue,
+				// Net revenue can be negative once refunds outweigh sales; a
+				// negative share would render an invalid bar width, so clamp
+				// both periods' shares to zero-width bars.
+				currentShare: sharePercentage( Math.max( currentValue, 0 ), maxValue ),
+				previousValue,
+				previousShare: hasComparisonValue
+					? sharePercentage( Math.max( previousValue, 0 ), maxValue )
+					: undefined,
+				delta: hasComparisonValue ? calculateDelta( currentValue, previousValue ) : undefined,
+			};
+		} );
+	}, [ data?.data, comparisonData?.data, hasComparison, productImages ] );
 
 	// `hasComparison` only tracks the date range. When none of the visible
 	// products carry over from the comparison period, comparison mode would draw
@@ -210,14 +213,15 @@ export function TopPerformingProductLeaderboardWidget( {
 					errorText ??
 					__(
 						"We couldn't load product data. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: emptyStateIcon,
 				description:
-					emptyStateText ?? __( 'No product sales in this period.', 'jetpack-premium-analytics' ),
+					emptyStateText ??
+					__( 'No product sales in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			<LeaderboardChart

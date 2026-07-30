@@ -2,8 +2,9 @@
 
 import { TextControl, TextareaControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Button, Stack } from '@wordpress/ui';
+import { Button, Link, Stack, Text } from '@wordpress/ui';
 import ProfileUrlList, { hasProfileUrlErrors } from './profile-url-list';
+import styles from './style.module.scss';
 import type { AuthorProfileForm } from '../../../data/use-author-profile';
 import type { FC } from 'react';
 
@@ -21,7 +22,7 @@ interface Props {
  * are Jetpack SEO user meta.
  *
  * Presentational: the Author profile card owns the {@link useAuthorProfile}
- * controller (so the header badge and this form share one state) and passes it
+ * controller (so the header status and this form share one state) and passes it
  * in via `form`.
  *
  * @param props      - Component props.
@@ -38,12 +39,12 @@ const AuthorProfileSection: FC< Props > = ( { form } ) => {
 
 	return (
 		<Stack direction="column" gap="lg">
-			<span className="jetpack-seo-settings__title-tokens-label">
+			<Text variant="body-sm" className={ styles.muted }>
 				{ __(
-					'Shown as Person schema on your articles and author archive. Name, bio, and website update your WordPress profile.',
+					'Adds Person schema to your articles and author archive. Name, bio, and website also update your WordPress profile.',
 					'jetpack-seo'
 				) }
-			</span>
+			</Text>
 
 			<TextControl
 				label={ __( 'Name', 'jetpack-seo' ) }
@@ -76,17 +77,17 @@ const AuthorProfileSection: FC< Props > = ( { form } ) => {
 			/>
 
 			<Stack direction="column" gap="sm">
-				<span className="jetpack-seo-settings__schema-field-label">
+				<Text variant="heading-sm" className={ styles.fieldLabel }>
 					{ __( 'Avatar', 'jetpack-seo' ) }
-				</span>
-				<div className="jetpack-seo-settings__schema-avatar">
+				</Text>
+				<Stack direction="row" align="center" gap="sm" className={ styles.avatar }>
 					{ avatarUrl ? (
 						<img src={ avatarUrl } alt={ __( 'Author avatar', 'jetpack-seo' ) } />
 					) : null }
-					<a href="https://gravatar.com/profile" target="_blank" rel="noopener noreferrer">
+					<Link href="https://gravatar.com/profile" openInNewTab rel="noopener noreferrer">
 						{ __( 'Change your photo on Gravatar', 'jetpack-seo' ) }
-					</a>
-				</div>
+					</Link>
+				</Stack>
 			</Stack>
 
 			<TextControl
@@ -100,16 +101,13 @@ const AuthorProfileSection: FC< Props > = ( { form } ) => {
 
 			<ProfileUrlList
 				label={ __( 'Social profiles', 'jetpack-seo' ) }
-				help={ __(
-					'Links to your public profiles (for example Facebook, X, LinkedIn). Shown as sameAs.',
-					'jetpack-seo'
-				) }
+				help={ __( 'Links to your public profiles — Facebook, X, LinkedIn.', 'jetpack-seo' ) }
 				urls={ sameAs }
 				onChange={ next => setProfileField( { sameAs: next } ) }
 				disabled={ disabled }
 			/>
 
-			<div className="jetpack-seo-settings__save">
+			<Stack direction="row" justify="flex-end">
 				<Button
 					onClick={ save }
 					disabled={ disabled || ! isDirty || hasNameError || hasProfileErrors }
@@ -117,7 +115,7 @@ const AuthorProfileSection: FC< Props > = ( { form } ) => {
 				>
 					{ saveLabel }
 				</Button>
-			</div>
+			</Stack>
 		</Stack>
 	);
 };

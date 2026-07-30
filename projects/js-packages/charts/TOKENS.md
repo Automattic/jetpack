@@ -49,7 +49,18 @@ Instance styling knobs, on the same convention but not shared semantic roles:
 `--a8c-charts-border-radius-leaderboard-bar`,
 `--a8c-charts-dimension-leaderboard-bar-hover-inset`,
 `--a8c-charts-color-heatmap-*`, `--a8c-charts-dimension-heatmap-*`,
-`--a8c-charts-heatmap-cell-intensity`.
+`--a8c-charts-heatmap-cell-intensity`,
+`--a8c-charts-color-zoom-selection`, `--a8c-charts-color-zoom-selection-stroke`.
+
+| Role | Maps to `--wpds-*` | Fallback |
+|---|---|---|
+| `--a8c-charts-color-zoom-selection` | `--wpds-color-background-interactive-brand-strong` | `#3858e9` |
+| `--a8c-charts-color-zoom-selection-stroke` | `--wpds-color-stroke-interactive-brand` | `#3858e9` |
+
+The zoom selection roles carry the drag-to-zoom rectangle's fill and border. Their
+translucency is not part of the role: it lives in the `fill-opacity` /
+`stroke-opacity` properties, so overriding either role sets an opaque colour and
+keeps the intended transparency.
 
 `--a8c-charts-heatmap-cell-intensity` is the one variable without a `{category}`
 segment: it holds a unitless 0–1 scalar consumed inside `color-mix()`, not a colour.

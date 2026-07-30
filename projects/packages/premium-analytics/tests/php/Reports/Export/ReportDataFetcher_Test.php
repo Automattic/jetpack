@@ -141,6 +141,69 @@ class ReportDataFetcher_Test extends TestCase {
 		);
 	}
 
+	public function test_build_external_api_error_uses_already_normalized_data() {
+		$response = new WP_REST_Response(
+			array(
+				'code'    => 'unused_response_code',
+				'message' => 'Unused response message.',
+			),
+			200
+		);
+		$data     = array(
+			'code'    => 'normalized_error_code',
+			'message' => 'Normalized error message.',
+			'data'    => array(
+				'status' => 429,
+			),
+		);
+
+		$result = $this->invoke( 'build_external_api_error', array( $response, $data ) );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'external_api_error', $result->get_error_code() );
+		$this->assertSame(
+			array(
+				'status'        => 429,
+				'message'       => 'Normalized error message.',
+				'external_code' => 'normalized_error_code',
+			),
+			$result->get_error_data()
+		);
+	}
+
+	/**
+	 * Encoding failures retain the stable external API error contract.
+	 */
+	public function test_build_external_api_error_normalizes_encode_failure() {
+		foreach (
+			array(
+				502 => 502,
+				200 => 500,
+			) as $response_status => $expected_status
+		) {
+			$resource = fopen( 'php://temp', 'r' );
+
+			try {
+				$response = new WP_REST_Response(
+					array(
+						'data' => array(
+							'unencodable' => $resource,
+						),
+					),
+					$response_status
+				);
+				$result   = $this->invoke( 'build_external_api_error', array( $response ) );
+			} finally {
+				fclose( $resource );
+			}
+
+			$this->assertInstanceOf( WP_Error::class, $result );
+			$this->assertSame( 'external_api_error', $result->get_error_code() );
+			$this->assertSame( 'External API error', $result->get_error_message() );
+			$this->assertSame( array( 'status' => $expected_status ), $result->get_error_data() );
+		}
+	}
+
 	public function test_build_external_api_error_preserves_invalid_fields_metadata_for_retry() {
 		$response = new WP_REST_Response(
 			(object) array(

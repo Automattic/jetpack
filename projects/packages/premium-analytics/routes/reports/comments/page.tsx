@@ -7,7 +7,10 @@ import {
 	ReportPageLayout,
 	ReportPageTabs,
 	ReportRecordsTable,
+	ReportCsvAction,
+	useReportCsvExport,
 	useReportRetry,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { useMemo } from '@wordpress/element';
@@ -37,6 +40,8 @@ const RECORDS_VIEW = {
 	},
 };
 
+const sortCommentsCsvRows = ( a: CommentReportRow, b: CommentReportRow ) => b.value - a.value;
+
 /**
  * Get the DataViews row id for a Comments report row.
  *
@@ -57,6 +62,24 @@ function CommentsReport(): JSX.Element {
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveTabId );
 	const records = useCommentsReportRecords( activeTab );
 	const fields = useMemo( () => getCommentsFields(), [] );
+	const csvColumns = useMemo< CsvColumn< CommentReportRow >[] >(
+		() => [
+			{ label: __( 'Name', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
+			{ label: __( 'Comments', 'jetpack-premium-analytics-pkg' ), getValue: row => row.value },
+			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
+		],
+		[]
+	);
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport( {
+		rows: records.rows,
+		filenamePrefix: `comments-${ activeTab }`,
+		status: records,
+		sort: sortCommentsCsvRows,
+	} );
 	const retry = useReportRetry( records.refetch );
 	const dashboardLink = useDashboardLink();
 
@@ -65,15 +88,20 @@ function CommentsReport(): JSX.Element {
 			breadcrumbs={
 				<Breadcrumbs
 					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'Comments', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
+						{ label: __( 'Comments', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
 			}
 			subTitle={ __(
 				'Learn about the comments your site receives by authors, posts, and pages.',
-				'jetpack-premium-analytics'
+				'jetpack-premium-analytics-pkg'
 			) }
+			actions={
+				canExport ? (
+					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
+				) : undefined
+			}
 			className={ styles.page }
 		>
 			<div className={ styles.content }>
@@ -87,7 +115,7 @@ function CommentsReport(): JSX.Element {
 					 */ }
 					{ records.isError ? (
 						<ReportErrorState
-							title={ __( 'Unable to load comments', 'jetpack-premium-analytics' ) }
+							title={ __( 'Unable to load comments', 'jetpack-premium-analytics-pkg' ) }
 							onRetry={ retry }
 						/>
 					) : (
@@ -98,7 +126,7 @@ function CommentsReport(): JSX.Element {
 							getItemId={ getCommentRowId }
 							isLoading={ records.isLoading }
 							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search comments', 'jetpack-premium-analytics' ) }
+							searchLabel={ __( 'Search comments', 'jetpack-premium-analytics-pkg' ) }
 						/>
 					) }
 				</ReportPageLayout>

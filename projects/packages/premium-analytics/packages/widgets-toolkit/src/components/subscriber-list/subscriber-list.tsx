@@ -141,7 +141,7 @@ export function SubscriberList( {
 				<Text className={ styles.more }>
 					{ sprintf(
 						// translators: %d is the number of additional subscribers not shown.
-						_n( '%d more', '%d more', moreCount, 'jetpack-premium-analytics' ),
+						_n( '%d more', '%d more', moreCount, 'jetpack-premium-analytics-pkg' ),
 						moreCount
 					) }
 				</Text>

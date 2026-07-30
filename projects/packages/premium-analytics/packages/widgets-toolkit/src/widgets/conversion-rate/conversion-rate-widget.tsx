@@ -76,14 +76,15 @@ export function ConversionRateWidget( {
 			error={ {
 				description: __(
 					"We couldn't load conversion data. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: emptyStateIcon,
 				description:
-					emptyStateText ?? __( 'No conversion data in this period.', 'jetpack-premium-analytics' ),
+					emptyStateText ??
+					__( 'No conversion data in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			<Stack direction="column" gap="lg" className={ styles.container }>

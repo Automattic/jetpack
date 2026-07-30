@@ -94,4 +94,36 @@ class Likes_Test extends WP_UnitTestCase {
 		// Likes should be visible
 		$this->assertTrue( Jetpack_Likes::init()->settings->is_likes_visible() );
 	}
+
+	/**
+	 * Password-protected posts must never be likeable, even with likes enabled
+	 * sitewide and an explicit per-post enable. The gate keys off the post
+	 * having a password rather than post_password_required(), which is
+	 * request-scoped and would let the Like button leak once a viewer unlocked
+	 * the post.
+	 */
+	public function test_is_post_likeable_false_for_password_protected_post() {
+		$post_id = self::factory()->post->create( array( 'post_password' => 'hunter2' ) );
+		update_post_meta( $post_id, 'switch_like_status', 1 );
+
+		add_filter( 'wpl_is_enabled_sitewide', '__return_true' );
+		$likeable = Jetpack_Likes::init()->settings->is_post_likeable( $post_id );
+		remove_filter( 'wpl_is_enabled_sitewide', '__return_true' );
+
+		$this->assertFalse( $likeable );
+	}
+
+	/**
+	 * Control: a normal (non-password) post is likeable with likes enabled
+	 * sitewide, proving the guard is specific to password-protected posts.
+	 */
+	public function test_is_post_likeable_true_for_normal_post() {
+		$post_id = self::factory()->post->create();
+
+		add_filter( 'wpl_is_enabled_sitewide', '__return_true' );
+		$likeable = Jetpack_Likes::init()->settings->is_post_likeable( $post_id );
+		remove_filter( 'wpl_is_enabled_sitewide', '__return_true' );
+
+		$this->assertTrue( $likeable );
+	}
 }

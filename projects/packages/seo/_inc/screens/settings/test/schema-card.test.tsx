@@ -43,6 +43,11 @@ jest.unstable_mockModule( '../../../data/use-schema-settings', () => ( {
 	useSchemaSettings: () => mockForm,
 } ) );
 
+jest.unstable_mockModule( '../schema-settings/style.module.scss', () => ( {
+	default: { pairedFields: 'schema-paired-fields', pairError: 'schema-pair-error' },
+} ) );
+
+const { default: schemaStyles } = await import( '../schema-settings/style.module.scss' );
 const { default: SchemaCard } = await import( '../schema-card' );
 
 // The hook is mocked, so the bootstrap value is only here to satisfy the prop type.
@@ -139,7 +144,7 @@ describe( 'SchemaCard', () => {
 		expandLocalBusiness();
 
 		expect( screen.getByRole( 'textbox', { name: /Street address/ } ) ).toBeInTheDocument();
-		expect( screen.getByText( /Google requires it/ ) ).toBeInTheDocument();
+		expect( screen.getByText( /Google requires an address/ ) ).toBeInTheDocument();
 	} );
 
 	it( 'updates the LocalBusiness toggle through the hook', () => {
@@ -179,13 +184,13 @@ describe( 'SchemaCard', () => {
 
 		const expectPair = ( first: HTMLElement, second: HTMLElement ) => {
 			// eslint-disable-next-line testing-library/no-node-access -- the wrapper is the layout contract under test.
-			const pair = first.closest( '.jetpack-seo-settings__schema-paired-fields' );
+			const pair = first.closest( `.${ schemaStyles.pairedFields }` );
 			expect( pair ).not.toBeNull();
 			expect( pair ).toContainElement( second );
 		};
 		const streetAddress = screen.getByRole( 'textbox', { name: 'Street address' } );
 		// eslint-disable-next-line testing-library/no-node-access -- the absence of a paired wrapper is the layout contract.
-		expect( streetAddress.closest( '.jetpack-seo-settings__schema-paired-fields' ) ).toBeNull();
+		expect( streetAddress.closest( `.${ schemaStyles.pairedFields }` ) ).toBeNull();
 		expectPair(
 			screen.getByRole( 'textbox', { name: 'City' } ),
 			screen.getByRole( 'textbox', { name: 'State/Region' } )
@@ -218,7 +223,7 @@ describe( 'SchemaCard', () => {
 		expandLocalBusiness();
 
 		const error = screen.getByText( 'Enter both latitude and longitude, or leave both blank.' );
-		expect( error ).toHaveClass( 'jetpack-seo-settings__schema-pair-error' );
+		expect( error ).toHaveClass( schemaStyles.pairError );
 		expect( screen.getByRole( 'textbox', { name: 'Latitude' } ) ).toHaveAttribute(
 			'aria-describedby',
 			error.id
@@ -307,7 +312,7 @@ describe( 'SchemaCard', () => {
 
 		expect( screen.getByLabelText( missingField ) ).toHaveAttribute( 'aria-invalid', 'true' );
 		const error = screen.getByText( 'Enter both opening and closing times, or leave both blank.' );
-		expect( error ).toHaveClass( 'jetpack-seo-settings__schema-pair-error' );
+		expect( error ).toHaveClass( schemaStyles.pairError );
 		expect( screen.getByLabelText( 'Monday opens' ) ).toHaveAttribute(
 			'aria-describedby',
 			error.id

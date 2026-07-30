@@ -133,13 +133,19 @@ export const fromDisplay = ( display: string, allowedTokenIds?: string[] ): Titl
 
 /**
  * Render an ordered token list into a human-readable preview string. A placeholder
- * is swapped for its real value from `overrides` when one is supplied and non-empty
- * (e.g. the site's actual name/tagline), otherwise for representative sample text;
- * literal fragments pass through unchanged.
+ * is swapped for its real value from `overrides` when the site supplies one — even
+ * an empty one, since a site with no tagline genuinely renders nothing there — and
+ * for representative sample text when the site has no say (a post title varies per
+ * page). Literal fragments pass through unchanged.
+ *
+ * Nothing is dropped: `Jetpack_SEO_Titles::get_custom_title()` concatenates the
+ * format straight through, so an empty token leaves the surrounding separators
+ * dangling exactly as previewed here. That differs from
+ * {@link buildDefaultPreview}, where core filters empty parts out first.
  *
  * @param tokens    - The ordered token list.
- * @param overrides - Real values keyed by token id; an absent or empty value falls
- *                  back to the token's sample text.
+ * @param overrides - Real values keyed by token id. A key that is present but empty
+ *                  renders as empty; a key that is absent falls back to sample text.
  * @return The preview string.
  */
 export const buildPreview = (
@@ -147,12 +153,75 @@ export const buildPreview = (
 	overrides: Partial< Record< string, string > > = {}
 ): string =>
 	tokens
-		.map( token =>
-			token.type === 'string'
-				? token.value
-				: overrides[ token.value ] || TOKEN_PREVIEW_SAMPLES[ token.value ] || token.value
-		)
+		.map( token => {
+			if ( token.type === 'string' ) {
+				return token.value;
+			}
+			if ( token.value in overrides ) {
+				return overrides[ token.value ] ?? '';
+			}
+			return TOKEN_PREVIEW_SAMPLES[ token.value ] || token.value;
+		} )
 		.join( '' );
+
+// The token pair WordPress joins to build each page type's default title, in
+// order. A page type with no stored format keeps that default —
+// `Jetpack_SEO_Titles::get_custom_title()` is filtered onto `pre_get_document_title`
+// and returns the incoming value untouched, so `wp_get_document_title()` composes
+// the title itself. It uses the site title plus the tagline on the front page, and
+// the page's own title plus the site title everywhere else.
+const DEFAULT_TITLE_PARTS: Record< string, [ string, string ] > = {
+	front_page: [ 'site_name', 'tagline' ],
+	posts: [ 'post_title', 'site_name' ],
+	pages: [ 'page_title', 'site_name' ],
+	groups: [ 'group_title', 'site_name' ],
+	archives: [ 'archive_title', 'site_name' ],
+};
+
+/**
+ * Preview the title WordPress produces for a page type that has no stored format,
+ * replaying core's own composition: two parts joined by the site's document-title
+ * separator. Uses the same real values and sample text as {@link buildPreview}, so
+ * a defaulted row reads consistently beside a customized one.
+ *
+ * The separator comes from the site already rendered — core texturizes the composed
+ * default title, so its `-` reaches a visitor as an en dash (see
+ * `Dashboard_Data::get_default_title_separator()`). That is why this differs from
+ * {@link buildPreview}, whose separators are literal text the user typed: a stored
+ * format short-circuits `pre_get_document_title` before the filter that texturizes.
+ *
+ * A theme can also rewrite the parts through `document_title_parts`, which this
+ * can't account for — those filters usually test the query (`is_singular()` and
+ * friends), which has no meaning here.
+ *
+ * @param pageTypeId - The page type (`posts`, `pages`, …).
+ * @param separator  - The site's document-title separator.
+ * @param overrides  - Real values keyed by token id, as for `buildPreview`.
+ * @return The default title preview, or an empty string for an unknown page type.
+ */
+export const buildDefaultPreview = (
+	pageTypeId: string,
+	separator: string,
+	overrides: Partial< Record< string, string > > = {}
+): string => {
+	const parts = DEFAULT_TITLE_PARTS[ pageTypeId ];
+	if ( ! parts ) {
+		return '';
+	}
+	return (
+		parts
+			// Unlike `buildPreview`, a supplied-but-empty override means the part is
+			// genuinely absent, not unknown — so it is dropped rather than replaced with
+			// sample text. This preview claims to be the title WordPress produces, and a
+			// site with no tagline really does get just its name; showing "Your tagline"
+			// there would promise something the site doesn't have. Core does the same,
+			// running `array_filter()` over the parts before joining. Sample text still
+			// stands in for tokens with no override at all, such as the post title.
+			.map( token => ( token in overrides ? overrides[ token ] : TOKEN_PREVIEW_SAMPLES[ token ] ) )
+			.filter( Boolean )
+			.join( ` ${ separator } ` )
+	);
+};
 
 /**
  * Render an ordered token list into the single editable string shown in the

@@ -25,7 +25,9 @@ export const SEEDED_SCHEMA = makeSchemaSettings();
 
 export const SEEDED_SETTINGS: SettingsResponse = {
 	front_page_description: 'Welcome to the site.',
+	has_legacy_front_page_meta: false,
 	title_formats: {},
+	title_separator: '-',
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	search_engines_visible: true,
 	sitemap_active: false,
@@ -36,6 +38,37 @@ export const SEEDED_SETTINGS: SettingsResponse = {
 
 export const SEEDED_AI: AiState = {
 	enhancer: { available: true, enabled: false },
+	llmsTxt: { enabled: false, url: 'https://example.com/llms.txt', canServe: true },
+	crawlers: {
+		catalog: [
+			{
+				slug: 'perplexitybot',
+				label: 'Perplexity (PerplexityBot)',
+				userAgent: 'PerplexityBot',
+				type: 'answer',
+			},
+			{
+				slug: 'gptbot',
+				label: 'ChatGPT (GPTBot)',
+				userAgent: 'GPTBot',
+				type: 'training',
+			},
+			{
+				slug: 'google-extended',
+				label: 'Google Gemini (Google-Extended)',
+				userAgent: 'Google-Extended',
+				type: 'training',
+			},
+		],
+		overrides: {},
+		searchEnginesVisible: true,
+		restrictedSubdomain: false,
+		staticRobotsTxt: false,
+		dataSharingOptOut: false,
+		pathBasedMultisite: false,
+		privacySettingsUrl: 'http://example.com/wp-admin/options-reading.php',
+		robotsTxtUrl: 'http://example.com/robots.txt',
+	},
 };
 
 ( window as unknown as { JetpackScriptData: unknown } ).JetpackScriptData = {

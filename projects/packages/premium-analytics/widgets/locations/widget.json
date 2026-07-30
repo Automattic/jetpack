@@ -1,6 +1,6 @@
 {
 	"name": "jpa/locations",
-	"title": "Locations",
+	"title": "Top locations",
 	"description": "Where your visitors are viewing from — by country, region, or city.",
 	"help": {
 		"content": "The countries, regions, and cities where your visitors came from, sorted by views.",

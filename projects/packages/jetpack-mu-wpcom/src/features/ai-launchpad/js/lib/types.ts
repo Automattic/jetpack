@@ -61,6 +61,25 @@ export interface AboutPageDraft {
 }
 
 /**
+ * Task ids whose page is hand-authored markup with one AI-written opening line in it.
+ *
+ * The union is the contract's `page_intros` property list; adding a page task means adding its id
+ * here and in both copies of the schema.
+ */
+export type PageIntroTaskId =
+	| 'add_contact_page'
+	| 'add_events_page'
+	| 'add_video_page'
+	| 'add_gallery_page';
+
+/**
+ * Opening lines for the page tasks, keyed by the task id they belong to.
+ *
+ * Every key is optional: the model writes one only for a page task it actually selected.
+ */
+export type PageIntros = Partial< Record< PageIntroTaskId, string > >;
+
+/**
  * Mirrors contracts/agent-output-schema.json. Length and content constraints are
  * enforced by validation, not by the type system.
  */
@@ -70,6 +89,8 @@ export interface TailoredOutput {
 	first_post_draft: FirstPostDraft;
 	// Schema-required for new outputs; optional here because older persisted outputs lack it.
 	about_page_draft?: AboutPageDraft;
+	// Optional in the schema too: present only when a page task carrying an intro was selected.
+	page_intros?: PageIntros;
 }
 
 export type TailorSource = 'ai' | 'fallback';

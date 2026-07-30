@@ -46,8 +46,12 @@ function getUtmItemLabel( item: { label: unknown } ): string {
 	return getStatsLabel( item.label );
 }
 
-function getUtmTopPostKey( item: StatsUtmTopPostItem ): string {
-	return item.href ?? getUtmItemLabel( item );
+function getUtmItemKey( item: { label: unknown; paramValues?: string } ): string {
+	return item.paramValues ?? getUtmItemLabel( item );
+}
+
+function getUtmTopPostKey( item: StatsUtmTopPostItem ): number {
+	return item.id;
 }
 
 function parseUtmLabelParts( key: string ): string[] {
@@ -106,8 +110,8 @@ export function mergeStatsUtmComparisonRows(
 	return mergeStatsComparisonRows< StatsUtmItem, StatsUtmItem, StatsUtmComparisonItem >( {
 		primaryRows: limitStatsRows( getStatsReportItems( primaryReport ), maxRows ),
 		comparisonRows: getStatsReportItems( comparisonReport ),
-		getPrimaryKey: getUtmItemLabel,
-		getComparisonKey: getUtmItemLabel,
+		getPrimaryKey: getUtmItemKey,
+		getComparisonKey: getUtmItemKey,
 		getComparisonValue: item => item.value,
 		mapRow: ( item, { previousValue, comparisonItem } ) => {
 			const { rows: children, hasComparison: childrenHaveComparison } = mergeStatsComparisonRows<

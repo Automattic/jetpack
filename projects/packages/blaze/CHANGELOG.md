@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.28.1] - 2026-07-27
+### Changed
+- Update dependencies. [#50719]
+- Update package dependencies. [#50751]
+
 ## [0.28.0] - 2026-07-20
 ### Changed
 - Rename the Advertising menu to Blaze Ads, move it under the Jetpack (or WooCommerce Marketing) menu, and leave a temporary migration notice at the old Tools location. [#49584]
@@ -881,6 +886,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#27906]
 
+[0.28.1]: https://github.com/automattic/jetpack-blaze/compare/v0.28.0...v0.28.1
 [0.28.0]: https://github.com/automattic/jetpack-blaze/compare/v0.27.27...v0.28.0
 [0.27.27]: https://github.com/automattic/jetpack-blaze/compare/v0.27.26...v0.27.27
 [0.27.26]: https://github.com/automattic/jetpack-blaze/compare/v0.27.25...v0.27.26

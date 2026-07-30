@@ -4,6 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import { trendingUp } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
+
 /**
  * Internal dependencies
  */
@@ -13,12 +14,16 @@ import { SelectField } from '@jetpack-premium-analytics/fields';
 /**
  * Widget attributes shape.
  *
- * @property utmDimension - UTM dimension to break down by. Defaults to 'utm_source,utm_medium'.
- * @property max          - Maximum rows to display (0 = all). Defaults to 10.
+ * @property utmDimension   - UTM dimension to break down by. Defaults to 'utm_source,utm_medium'.
+ * @property max            - Maximum rows to display (0 = all). Defaults to 10.
+ * @property showReportLink - Whether to render the "See report" footer link. Defaults to true.
+ *                          Host compositions on terminal pages (post detail) set this to false;
+ *                          it is not a user-facing control.
  */
 export type UtmInsightsAttributes = {
 	utmDimension?: StatsUtmParam;
 	max?: number;
+	showReportLink?: boolean;
 };
 
 /**
@@ -35,28 +40,28 @@ export default {
 	attributes: [
 		{
 			id: 'utmDimension',
-			label: __( 'UTM parameter', 'jetpack-premium-analytics' ),
+			label: __( 'UTM parameter', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
 			Edit: SelectField,
 			elements: [
 				{
-					label: __( 'Source / Medium', 'jetpack-premium-analytics' ),
+					label: __( 'Source / Medium', 'jetpack-premium-analytics-pkg' ),
 					value: 'utm_source,utm_medium',
 				},
 				{
-					label: __( 'Campaign / Source / Medium', 'jetpack-premium-analytics' ),
+					label: __( 'Campaign / Source / Medium', 'jetpack-premium-analytics-pkg' ),
 					value: 'utm_campaign,utm_source,utm_medium',
 				},
 				{
-					label: __( 'Source', 'jetpack-premium-analytics' ),
+					label: __( 'Source', 'jetpack-premium-analytics-pkg' ),
 					value: 'utm_source',
 				},
 				{
-					label: __( 'Medium', 'jetpack-premium-analytics' ),
+					label: __( 'Medium', 'jetpack-premium-analytics-pkg' ),
 					value: 'utm_medium',
 				},
 				{
-					label: __( 'Campaign', 'jetpack-premium-analytics' ),
+					label: __( 'Campaign', 'jetpack-premium-analytics-pkg' ),
 					value: 'utm_campaign',
 				},
 			],
@@ -64,8 +69,8 @@ export default {
 		},
 		{
 			id: 'max',
-			label: __( 'Max rows', 'jetpack-premium-analytics' ),
-			type: 'number',
+			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
+			type: 'integer',
 		},
 	] as WidgetAttributeField< UtmInsightsAttributes >[],
 	example: {

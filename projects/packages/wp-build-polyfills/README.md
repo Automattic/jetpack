@@ -78,6 +78,19 @@ Consuming packages should add `@automattic/jetpack-wp-build-polyfills` as a devD
 "build:boot-proxy": "provide-boot-asset-file"
 ```
 
+## Safety checks
+
+Two checks run after `webpack` (see the `build` script) so version skew in the bundled `@wordpress/*`
+set fails the build instead of silently blanking a dashboard at runtime (as in Jetpack 16.0):
+
+- **`validate-boot-asset.js`** — every dependency handle in the boot module's `.asset.php` is a known
+  Core or polyfill handle (catches a script silently dropped for an unregistered dependency).
+- **`validate-export-contract.js`** — every symbol a consumer (`@wordpress/boot`, …) imports from a
+  polyfilled classic-script provider (`@wordpress/theme`, `@wordpress/notices`, `@wordpress/private-apis`, `@wordpress/views`) exists
+  in that provider's shipped public API (catches the 16.0 `wp.theme.ThemeProvider is undefined`
+  case). Run standalone with `pnpm run check-contracts`. The ESM module providers (`route`, `a11y`)
+  are a follow-up. Regression-tested in `tests/js/validate-export-contract.test.js`.
+
 ## Development
 
 ```bash

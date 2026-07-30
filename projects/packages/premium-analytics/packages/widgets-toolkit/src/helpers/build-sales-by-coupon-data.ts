@@ -64,7 +64,7 @@ export function buildSalesByCouponData(
 			.reduce( ( sum, item ) => sum + item.total_sales, 0 );
 
 		currentPeriodData.push( {
-			label: __( 'Other', 'jetpack-premium-analytics' ),
+			label: __( 'Other', 'jetpack-premium-analytics-pkg' ),
 			value: otherSales,
 		} );
 	}
@@ -91,7 +91,7 @@ export function buildSalesByCouponData(
 				.reduce( ( sum, item ) => sum + item.total_sales, 0 );
 
 			comparisonPeriodData.push( {
-				label: __( 'Other', 'jetpack-premium-analytics' ),
+				label: __( 'Other', 'jetpack-premium-analytics-pkg' ),
 				value: otherComparison,
 			} );
 		}

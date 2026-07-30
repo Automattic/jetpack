@@ -234,25 +234,50 @@ Normalizes and validates report parameters, providing defaults when needed.
 
 **Validation:** Ensures required fields are present for API calls
 
-### `getDefaultIntervalForPeriod( period, from, to )`
+### `getDefaultIntervalForPeriod( preset, from, to )`
 
-Returns the optimal default interval for a given time period.
+Returns the default (finest allowed) interval for a preset / date range.
 
 **Parameters:**
 
-- `period`: `string` - Period identifier (e.g., 'today', 'last-7-days', 'last-30-days')
+- `preset`: `PrimaryPresetId | undefined` - Primary date-range preset, when known
 - `from`: `string` - Start date
 - `to`: `string` - End date
 
-**Returns:** `IntervalType` - Optimal interval ('hour', 'day', 'week', 'month', 'quarter', 'year')
+**Returns:** `IntervalType` - `'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year'`
 
 **Example:**
 
 ```tsx
 import { getDefaultIntervalForPeriod } from '@jetpack-premium-analytics/data';
 
-const interval = getDefaultIntervalForPeriod( 'last-7-days', from, to ); // Returns 'day'
+const interval = getDefaultIntervalForPeriod( 'last-7-days', from, to ); // 'day'
 ```
+
+### `resolveIntervalForRange( preset, from, to, current? )`
+
+Returns a valid interval for a date range. Keeps `current` when it is still
+allowed; otherwise returns the range default.
+
+**Parameters:**
+
+- `preset`: `PrimaryPresetId | undefined`
+- `from`: `string`
+- `to`: `string`
+- `current`: `string | undefined` - Candidate interval to keep when still allowed
+
+**Returns:** `IntervalType`
+
+### `needsReportDateParamsSeed( search? )`
+
+Returns whether report date params are incomplete or the interval is invalid
+for the range (`from` / `to` / `interval` missing, or `interval` not allowed).
+
+**Parameters:**
+
+- `search`: date-window fields from unnormalized report params (`from`, `to`, `interval`, `preset`)
+
+**Returns:** `boolean`
 
 ### `ORDER_ATTRIBUTION_VIEWS`
 
@@ -430,7 +455,9 @@ This package exports the following public API:
 
 - `prefetchReport` - Prefetch data for routes
 - `normalizeReportParams` - Normalize and validate parameters
-- `getDefaultIntervalForPeriod` - Get optimal interval for time period
+- `getDefaultIntervalForPeriod` - Default (finest) interval for a preset / range
+- `resolveIntervalForRange` - Keep a still-valid candidate interval, else the range default
+- `needsReportDateParamsSeed` - Whether report date params are incomplete or the interval is invalid for the range
 
 ### Date Utilities
 

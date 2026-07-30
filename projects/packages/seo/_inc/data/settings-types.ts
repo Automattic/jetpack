@@ -1,5 +1,5 @@
 // Shape of the editable Settings state the server bootstraps onto
-// `window.JetpackScriptData.seo.settings` (see `Initializer::get_settings_data()`).
+// `window.JetpackScriptData.seo.settings` (see `Dashboard_Data::get_settings_data()`).
 // Most writes go through `/jetpack/v4/settings`; nested Schema writes use the
 // package-owned schema-settings route.
 
@@ -12,7 +12,15 @@ export interface TitleFormatToken {
 
 export interface SettingsResponse {
 	front_page_description: string;
+	// True when the site kept a front-page description from the era it was free for
+	// all WordPress.com Simple sites. Such sites keep editing that one field even
+	// when otherwise plan-gated (the value stays live). Read-only, never sent back.
+	has_legacy_front_page_meta: boolean;
 	title_formats: Record< string, TitleFormatToken[] >;
+	// Separator WordPress joins document-title parts with (`document_title_separator`,
+	// default `-`). Used to preview the default title of a page type that has no
+	// stored format. Read-only, never sent back.
+	title_separator: string;
 	verification: {
 		google: string;
 		bing: string;

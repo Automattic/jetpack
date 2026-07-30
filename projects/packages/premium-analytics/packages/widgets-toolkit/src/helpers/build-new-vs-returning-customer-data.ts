@@ -62,7 +62,7 @@ export function buildNewVsReturningCustomerData(
 	// Note: Returning customers first to match design (larger segment first)
 	const chartData: DonutChartData = [
 		{
-			label: __( 'Returning', 'jetpack-premium-analytics' ),
+			label: __( 'Returning', 'jetpack-premium-analytics-pkg' ),
 			value: returningCustomers,
 			valueDisplay: formatMetricValue( returningCustomers, 'number', {
 				useMultipliers: true,
@@ -70,7 +70,7 @@ export function buildNewVsReturningCustomerData(
 			} ),
 		},
 		{
-			label: __( 'New', 'jetpack-premium-analytics' ),
+			label: __( 'New', 'jetpack-premium-analytics-pkg' ),
 			value: newCustomers,
 			valueDisplay: formatMetricValue( newCustomers, 'number', {
 				useMultipliers: true,
@@ -82,7 +82,7 @@ export function buildNewVsReturningCustomerData(
 	// Build legend data (same order as chart)
 	const legendData: LegendItem[] = [
 		{
-			label: __( 'Returning', 'jetpack-premium-analytics' ),
+			label: __( 'Returning', 'jetpack-premium-analytics-pkg' ),
 			value: returningCustomers,
 			displayValue: formatMetricValue( returningCustomers, 'number', {
 				useMultipliers: true,
@@ -91,7 +91,7 @@ export function buildNewVsReturningCustomerData(
 			comparison: hasComparison ? comparisonReturningCustomers : undefined,
 		},
 		{
-			label: __( 'New', 'jetpack-premium-analytics' ),
+			label: __( 'New', 'jetpack-premium-analytics-pkg' ),
 			value: newCustomers,
 			displayValue: formatMetricValue( newCustomers, 'number', {
 				useMultipliers: true,

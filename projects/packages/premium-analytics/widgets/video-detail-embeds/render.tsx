@@ -90,10 +90,7 @@ function VideoDetailEmbedsReport() {
 	const { reportParams } = useWidgetRootContext();
 	const videoId = toPostId( reportParams.post_id );
 
-	const { data, isLoading, isFetching, isError, refetch } = useStatsSingleVideo(
-		videoId,
-		reportParams
-	);
+	const { data, isLoading, isFetching, isError, refetch } = useStatsSingleVideo( videoId );
 
 	let body;
 
@@ -103,7 +100,7 @@ function VideoDetailEmbedsReport() {
 				icon={ video }
 				text={ __(
 					'Select a video to see where it is embedded across your site.',
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				) }
 			/>
 		);
@@ -122,17 +119,20 @@ function VideoDetailEmbedsReport() {
 				error={ {
 					description: __(
 						"We couldn't load video embeds. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 					actions: [
-						{ label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: () => void refetch() },
+						{
+							label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
+							onClick: () => void refetch(),
+						},
 					],
 				} }
 				empty={ {
 					icon: video,
 					description: __(
 						'This video has not been embedded on any pages yet.',
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 				} }
 			>

@@ -67,7 +67,7 @@ export function buildTimeSeriesChartData< T extends TimeSeriesData >( {
 		if ( emptyDataFallback === 'no-data-series' ) {
 			return [
 				{
-					label: __( 'No data available', 'jetpack-premium-analytics' ),
+					label: __( 'No data available', 'jetpack-premium-analytics-pkg' ),
 					data: [],
 				},
 			];
