@@ -5,10 +5,17 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { LatestPostCard } from '../render';
-import type { LatestPostWithMetrics } from '../use-latest-post';
+import LatestPost, { LatestPostCard } from '../render';
+import { useLatestPost, type LatestPostWithMetrics } from '../use-latest-post';
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
+
+jest.mock( '../use-latest-post', () => ( {
+	...jest.requireActual( '../use-latest-post' ),
+	useLatestPost: jest.fn(),
+} ) );
+
+const mockUseLatestPost = useLatestPost as jest.MockedFunction< typeof useLatestPost >;
 
 const post = {
 	id: 12,
@@ -21,6 +28,39 @@ const post = {
 } as unknown as LatestPostWithMetrics;
 
 describe( 'LatestPostCard', () => {
+	beforeEach( () => {
+		mockUseLatestPost.mockReset();
+	} );
+
+	it( 'carries the widget report window into the detail link', () => {
+		mockUseLatestPost.mockReturnValue( {
+			post,
+			isLoading: false,
+			isFetching: false,
+			isError: false,
+			refetch: jest.fn(),
+		} );
+
+		render(
+			<LatestPost
+				attributes={ {
+					reportParams: {
+						from: '2026-06-01',
+						to: '2026-06-30',
+						interval: 'day',
+					},
+				} }
+			/>
+		);
+
+		const link = screen.getByRole( 'link', { name: 'Quarterly update' } );
+		const url = new URL( link.getAttribute( 'href' ) ?? '', 'https://example.com' );
+
+		expect( url.pathname ).toBe( '/post/12' );
+		expect( url.searchParams.get( 'from' ) ).toBe( '2026-06-01' );
+		expect( url.searchParams.get( 'to' ) ).toBe( '2026-06-30' );
+	} );
+
 	it( 'links the title to the post detail page and carries the report window', () => {
 		render( <LatestPostCard post={ post } detailSearch={ { from: '2026-06-01' } } /> );
 
