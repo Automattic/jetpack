@@ -315,20 +315,15 @@ export function NewsletterEmailDocumentSettings() {
 
 	const isAlreadySent = postEmailSentState?.email_sent_at != null;
 
-	// Write the flag straight to the post rather than staging a post-meta edit and saving it.
-	// A staged edit would leave the post dirty forever wherever real-time collaboration is on,
-	// because core folds the whole meta object — the volatile `_crdt_document` included — into
-	// every meta edit, and that never reconciles with what the server returns. Going through
-	// the entity save would not do either: it promotes an auto-draft and blanks its placeholder
-	// title, so a meta-only payload comes back rejected as an empty post. A plain request keeps
-	// the post's own state untouched; feed the response back so the store sees the new value.
+	// Bandaid: a staged meta edit sticks the post dirty under real-time collaboration, and the
+	// entity save rejects auto-drafts. Write the one key on its own instead.
 	const toggleSendEmail = async value => {
 		if ( ! postId || ! postTypeBaseUrl ) {
 			return;
 		}
 		setPendingValue( value );
 		try {
-			// The update response is always in the edit context, so no need to ask for it.
+			// Update responses already come back in the edit context.
 			const updatedPost = await apiFetch( {
 				path: `${ postTypeBaseUrl }/${ postId }`,
 				method: 'POST',
@@ -360,8 +355,7 @@ export function NewsletterEmailDocumentSettings() {
 	return (
 		<PostVisibilityCheck
 			render={ ( { canEdit } ) => {
-				// Also locked while a write is in flight, so a second click cannot land out of
-				// order. ToggleGroupControl itself takes no `disabled` prop — only its options do.
+				// ToggleGroupControl ignores `disabled`; only its options honour it.
 				const isLocked = isPostPublished || ! canEdit || pendingValue !== null;
 
 				return (
