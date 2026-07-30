@@ -1,4 +1,5 @@
 import { getRedirectUrl, JetpackLogo } from '@automattic/jetpack-components';
+import { getAnalyticsUrl } from '@automattic/jetpack-script-data';
 import { formatNumber } from '@automattic/number-formatters';
 import { Spinner } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
@@ -25,13 +26,13 @@ import {
 } from 'state/initial-state';
 import { isModuleAvailable, getModuleOverride } from 'state/modules';
 import { emptyStatsCardDismissed } from 'state/settings';
+import { chartBarRange } from './chart-bar-range';
 import DashStatsBottom from './dash-stats-bottom';
 
 export class DashStats extends Component {
 	static propTypes = {
 		isOfflineMode: PropTypes.bool.isRequired,
 		siteRawUrl: PropTypes.string.isRequired,
-		siteAdminUrl: PropTypes.string.isRequired,
 		statsData: PropTypes.any.isRequired,
 		isModuleAvailable: PropTypes.bool.isRequired,
 	};
@@ -56,7 +57,7 @@ export class DashStats extends Component {
 	};
 
 	statsChart( unit ) {
-		const { siteAdminUrl, siteRawUrl, statsData } = this.props,
+		const { siteRawUrl, statsData } = this.props,
 			s = [];
 
 		if ( 'object' !== typeof statsData[ unit ] ) {
@@ -108,8 +109,15 @@ export class DashStats extends Component {
 				nestedValue: null,
 				className: 'statsChartbar',
 				data: {
+					// Linking off to WordPress.com is a separate destination from the
+					// site's own analytics dashboard, so it stays here; the in-admin
+					// branch goes through the shared helper.
 					link: ! this.shouldLinkToWpcomStats()
-						? `${ siteAdminUrl }admin.php?page=stats#!/stats/day/${ siteRawUrl }?startDate=${ date }`
+						? getAnalyticsUrl( {
+								view: 'dashboard',
+								section: 'traffic',
+								range: chartBarRange( date, unit ),
+						  } )
 						: getRedirectUrl( `calypso-stats-${ unit }`, {
 								site: siteRawUrl,
 								query: `startDate=${ date }`,
@@ -152,7 +160,6 @@ export class DashStats extends Component {
 					<DashStatsBottom
 						statsData={ this.props.statsData }
 						siteRawUrl={ this.props.siteRawUrl }
-						siteAdminUrl={ this.props.siteAdminUrl }
 						isLinked={ this.props.isLinked }
 						connectUrl={ this.props.connectUrl }
 						dateFormat={ this.props.dateFormat }

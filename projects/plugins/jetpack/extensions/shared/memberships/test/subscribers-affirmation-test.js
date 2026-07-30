@@ -1,4 +1,4 @@
-import { getAdminUrl } from '@automattic/jetpack-script-data';
+import { getAdminUrl, getAnalyticsUrl } from '@automattic/jetpack-script-data';
 import { META_NAME_FOR_POST_TIER_ID_SETTINGS, accessOptions } from '../constants';
 import {
 	getFormattedCategories,
@@ -13,6 +13,7 @@ import {
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getAdminUrl: jest.fn( path => `https://admin.example.com/${ path }` ),
+	getAnalyticsUrl: jest.fn( () => 'https://admin.example.com/analytics' ),
 } ) );
 
 describe( 'getFormattedCategories', () => {
@@ -361,18 +362,26 @@ describe( 'getSentCopyLine', () => {
 
 describe( 'getJetpackEmailStatsLink', () => {
 	beforeEach( () => {
-		getAdminUrl.mockClear();
+		getAnalyticsUrl.mockClear();
 	} );
 
-	test( 'calls getAdminUrl with correct path and returns result', () => {
-		const result = getJetpackEmailStatsLink( 123, 456 );
+	// The helper owns the URL grammar for whichever analytics dashboard the site
+	// runs, so this asserts delegation rather than re-testing the URL here.
+	test( 'asks for the post email-opens view and returns what the helper builds', () => {
+		const result = getJetpackEmailStatsLink( 456 );
 
-		expect( getAdminUrl ).toHaveBeenCalledWith(
-			'admin.php?page=stats#!/stats/email/opens/day/456/123'
-		);
-		expect( result ).toBe(
-			'https://admin.example.com/admin.php?page=stats#!/stats/email/opens/day/456/123'
-		);
+		expect( getAnalyticsUrl ).toHaveBeenCalledWith( {
+			view: 'post',
+			id: 456,
+			section: 'email-opens',
+		} );
+		expect( result ).toBe( 'https://admin.example.com/analytics' );
+	} );
+
+	test( "passes through the helper's null when there is nowhere to link", () => {
+		getAnalyticsUrl.mockReturnValueOnce( null );
+
+		expect( getJetpackEmailStatsLink( 456 ) ).toBeNull();
 	} );
 } );
 

@@ -1,3 +1,4 @@
+import { getAnalyticsUrl } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
@@ -146,6 +147,11 @@ const StatsSection = () => {
 
 	const { counts, previousCounts, chartData } = processedData;
 
+	// The site's analytics dashboard, or null when there is nowhere to send the
+	// user — the current user cannot open it. Both the card's own button and the
+	// chart inside it lead here.
+	const analyticsUrl = useMemo( () => getAnalyticsUrl( { view: 'dashboard' } ), [] );
+
 	/**
 	 * Called when "See detailed stats" button is clicked.
 	 */
@@ -154,16 +160,18 @@ const StatsSection = () => {
 			product: slug,
 		} );
 
-		window.location.href = 'admin.php?page=stats&force_refresh=1';
-	}, [ recordEvent ] );
+		if ( analyticsUrl ) {
+			window.location.href = analyticsUrl;
+		}
+	}, [ recordEvent, analyticsUrl ] );
 
 	const shouldShowSecondaryButton = useCallback(
-		() => !! ( status === PRODUCT_STATUSES.CAN_UPGRADE ),
-		[ status ]
+		() => !! ( status === PRODUCT_STATUSES.CAN_UPGRADE && analyticsUrl ),
+		[ status, analyticsUrl ]
 	);
 
 	const viewStatsButton = {
-		href: 'admin.php?page=stats',
+		href: analyticsUrl,
 		label: __( 'View detailed stats', 'jetpack-my-jetpack' ),
 		onClick: onDetailedStatsClick,
 		shouldShowButton: shouldShowSecondaryButton,

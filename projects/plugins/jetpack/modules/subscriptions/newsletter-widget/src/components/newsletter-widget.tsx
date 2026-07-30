@@ -49,6 +49,10 @@ export const NewsletterWidget = ( {
 		tracks.recordEvent( `${ TRACKS_EVENT_NAME_PREFIX }_view` );
 	}, [ tracks ] );
 
+	// Null when the current user cannot open the analytics dashboard: the counts
+	// still render, just not as links, and the quick link is dropped.
+	const subscriberStatsUrl = getSubscriberStatsUrl();
+
 	const subscribersText = sprintf(
 		//translators: %1$s is the total number of subscribers, %2$s is the number of email subscribers
 		_n(
@@ -78,12 +82,14 @@ export const NewsletterWidget = ( {
 							</span>
 							<span className="newsletter-widget__stat-content">
 								<span className="newsletter-widget__stat-label">
-									{ DashboardLink(
-										true,
-										getSubscriberStatsUrl( site, adminUrl ),
-										'all_subscribers_click',
-										subscribersText
-									) }
+									{ subscriberStatsUrl
+										? DashboardLink(
+												true,
+												subscriberStatsUrl,
+												'all_subscribers_click',
+												subscribersText
+										  )
+										: subscribersText }
 								</span>
 							</span>
 						</span>
@@ -93,12 +99,14 @@ export const NewsletterWidget = ( {
 							</span>
 							<span className="newsletter-widget__stat-content">
 								<span className="newsletter-widget__stat-label">
-									{ DashboardLink(
-										true,
-										getSubscriberStatsUrl( site, adminUrl ),
-										'paid_subscribers_click',
-										paidSubscribersText
-									) }
+									{ subscriberStatsUrl
+										? DashboardLink(
+												true,
+												subscriberStatsUrl,
+												'paid_subscribers_click',
+												paidSubscribersText
+										  )
+										: paidSubscribersText }
 								</span>
 							</span>
 						</span>
@@ -140,11 +148,11 @@ export const NewsletterWidget = ( {
 								{ __( 'Publish your next post', 'jetpack' ) }
 							</a>
 						</li>
-						{ isStatsModuleActive && (
+						{ isStatsModuleActive && subscriberStatsUrl && (
 							<li>
 								{ DashboardLink(
 									true,
-									getSubscriberStatsUrl( site, adminUrl ),
+									subscriberStatsUrl,
 									'view_stats_click',
 									__( 'View subscriber stats', 'jetpack' )
 								) }

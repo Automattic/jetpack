@@ -17,9 +17,16 @@
 		".": "./src/index.ts"
 	},
 	"scripts": {
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
+		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsgo --noEmit"
 	},
 	"devDependencies": {
-		"@typescript/native-preview": "7.0.0-dev.20260707.2"
+		"@babel/core": "7.29.7",
+		"@jest/globals": "30.4.1",
+		"@types/jest": "30.0.0",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
+		"jest": "30.4.2",
+		"jetpack-js-tools": "workspace:*"
 	}
 }

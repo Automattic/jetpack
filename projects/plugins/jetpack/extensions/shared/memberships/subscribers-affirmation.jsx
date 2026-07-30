@@ -1,4 +1,4 @@
-import { getAdminUrl } from '@automattic/jetpack-script-data';
+import { getAdminUrl, getAnalyticsUrl } from '@automattic/jetpack-script-data';
 import { isComingSoon } from '@automattic/jetpack-shared-extension-utils';
 import { Animate } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -489,12 +489,17 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		} );
 	}
 
+	// Without the capability to open analytics there is nowhere to link, and an
+	// anchor with no href renders styled but non-actionable — keep the wording as
+	// plain text instead.
+	const emailStatsLink = getJetpackEmailStatsLink( postId );
+
 	return (
 		<>
 			<p>
 				{ createInterpolateElement( text, {
 					strong: <strong />,
-					link: <a href={ getJetpackEmailStatsLink( blogId, postId ) } />,
+					link: emailStatsLink ? <a href={ emailStatsLink } /> : <span />,
 					visibilityLink: <a href={ getSiteVisibilitySettingsLink() } />,
 				} ) }
 			</p>
@@ -514,15 +519,17 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 }
 
 /**
- * Get the Jetpack email stats link for the given post ID.
+ * Get the email-opens analytics link for the given post.
  *
- * @param {number} blogId - The ID of the blog.
+ * The blog id is no longer a parameter: `getAnalyticsUrl()` resolves it from
+ * script data, along with which analytics dashboard the site runs.
+ *
  * @param {number} postId - The ID of the post.
  *
- * @return {string} - The Jetpack email stats link for the given post.
+ * @return {?string} - The link, or null when the user cannot open analytics.
  */
-export function getJetpackEmailStatsLink( blogId, postId ) {
-	return getAdminUrl( `admin.php?page=stats#!/stats/email/opens/day/${ postId }/${ blogId }` );
+export function getJetpackEmailStatsLink( postId ) {
+	return getAnalyticsUrl( { view: 'post', id: postId, section: 'email-opens' } );
 }
 
 /**

@@ -298,11 +298,53 @@ class Stats extends Module_Product {
 	}
 
 	/**
+	 * The admin page slug of the Premium Analytics dashboard.
+	 *
+	 * Mirrors `Analytics::MENU_PAGE_SLUG`. Spelled out rather than referenced,
+	 * because My Jetpack does not depend on the premium-analytics package — it
+	 * ships in plugins that do not include it at all.
+	 *
+	 * @since $$next-version$$
+	 */
+	const PREMIUM_ANALYTICS_PAGE_SLUG = 'jetpack-premium-analytics-wp-admin';
+
+	/**
+	 * Whether the Premium Analytics dashboard has replaced the Stats page.
+	 *
+	 * Guarded the same way as the other `class_exists( 'Jetpack' )` checks in this
+	 * package: My Jetpack ships in plugins that do not include the Jetpack plugin,
+	 * and the flag only exists there.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private static function is_premium_analytics_enabled() {
+		return class_exists( 'Jetpack' )
+			&& method_exists( 'Jetpack', 'is_premium_analytics_enabled' )
+			&& \Jetpack::is_premium_analytics_enabled();
+	}
+
+	/**
 	 * Get the WordPress.com URL for purchasing Jetpack Stats for the current site.
+	 *
+	 * Returns null once Premium Analytics has replaced the Stats page. The tier
+	 * purchase screen was a Calypso route inside the CDN-served Odyssey bundle
+	 * rather than a page this repo hosts, so it left with the Stats dashboard and
+	 * has no replacement to point at.
+	 *
+	 * Null is also the default for the base class — "most Jetpack products use an
+	 * interstitial page within My Jetpack" — which makes the action button fall
+	 * back to the `#/add-stats` interstitial that already exists and is complete.
+	 * Stats was the outlier in overriding it.
 	 *
 	 * @return ?string
 	 */
 	public static function get_purchase_url() {
+		if ( self::is_premium_analytics_enabled() ) {
+			return null;
+		}
+
 		$status = static::get_status();
 		if ( $status === Products::STATUS_NEEDS_FIRST_SITE_CONNECTION ) {
 			return null;
@@ -323,6 +365,10 @@ class Stats extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
+		if ( self::is_premium_analytics_enabled() ) {
+			return admin_url( 'admin.php?page=' . self::PREMIUM_ANALYTICS_PAGE_SLUG );
+		}
+
 		return admin_url( 'admin.php?page=stats' );
 	}
 

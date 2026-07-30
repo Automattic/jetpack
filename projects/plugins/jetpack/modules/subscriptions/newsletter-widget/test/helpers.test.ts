@@ -1,3 +1,4 @@
+import { getAnalyticsUrl } from '@automattic/jetpack-script-data';
 import {
 	formatAxisTickDate,
 	formatDate,
@@ -9,6 +10,10 @@ import {
 	calcLeftAxisMargin,
 } from '../src/helpers';
 import type { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from '../src/types';
+
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getAnalyticsUrl: jest.fn( () => 'https://example.com/wp-admin/analytics' ),
+} ) );
 
 describe( 'helpers', () => {
 	describe( 'formatDate', () => {
@@ -133,15 +138,27 @@ describe( 'helpers', () => {
 		} );
 	} );
 
+	// The helper owns the URL grammar for whichever analytics dashboard the site
+	// runs, so these assert delegation rather than re-testing the URL here.
 	describe( 'getSubscriberStatsUrl', () => {
-		const testSite = 'example.com';
-		const testAdminUrl = 'https://example.com/wp-admin/';
+		beforeEach( () => {
+			jest.mocked( getAnalyticsUrl ).mockClear();
+		} );
 
-		it( 'returns WP-admin URL', () => {
-			const url = getSubscriberStatsUrl( testSite, testAdminUrl );
-			expect( url ).toBe(
-				`${ testAdminUrl }admin.php?page=stats#!/stats/subscribers/${ testSite }`
-			);
+		it( 'asks for the subscribers view of the analytics dashboard', () => {
+			const url = getSubscriberStatsUrl();
+
+			expect( getAnalyticsUrl ).toHaveBeenCalledWith( {
+				view: 'dashboard',
+				section: 'subscribers',
+			} );
+			expect( url ).toBe( 'https://example.com/wp-admin/analytics' );
+		} );
+
+		it( 'passes through null when there is nowhere to link', () => {
+			jest.mocked( getAnalyticsUrl ).mockReturnValueOnce( null );
+
+			expect( getSubscriberStatsUrl() ).toBeNull();
 		} );
 	} );
 

@@ -42,8 +42,8 @@ describe( 'PlanUsageWidget', () => {
 		queryClient.clear();
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( PLAN_USAGE_RESPONSE );
-		// The upgrade note builds its purchase URL from the script data wp-admin
-		// prints on the page.
+		// The widget reads the host guess from the script data wp-admin prints on
+		// the page, to suppress the over-limit warning on VIP sites.
 		window.JetpackScriptData = {
 			site: {
 				admin_url: 'https://example.com/wp-admin/',
@@ -70,17 +70,28 @@ describe( 'PlanUsageWidget', () => {
 		expect( meter.max ).toBe( 10000 );
 	} );
 
-	it( 'links the upgrade note to the Stats purchase screen for the connected site', async () => {
+	// The upgrade call to action pointed at the Stats tier-purchase screen, a
+	// Calypso route inside the CDN-served Odyssey bundle that this dashboard has
+	// no counterpart for. It was removed rather than left pointing at a route
+	// that no longer resolves.
+	it( 'renders no upgrade call to action', async () => {
 		render( <PlanUsageWidget attributes={ {} } /> );
 
-		const upgradeLink = await screen.findByRole( 'link', { name: 'Upgrade now' } );
-		expect( upgradeLink ).toHaveAttribute(
-			'href',
-			expect.stringContaining(
-				'https://example.com/wp-admin/admin.php?page=stats#!/stats/purchase/123456789'
-			)
-		);
-		expect( screen.getByText( /Do you want to increase your views limit\?/ ) ).toBeInTheDocument();
+		await expect( screen.findByText( '6,200 / 10,000 views' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Upgrade now' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /increase your views limit/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /page=stats/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders no upgrade call to action even when over the limit', async () => {
+		mockApiFetch.mockResolvedValue( { ...PLAN_USAGE_RESPONSE, over_limit_months: 2 } );
+
+		render( <PlanUsageWidget attributes={ {} } /> );
+
+		await expect(
+			screen.findByText( "You've surpassed your limit for two consecutive periods already." )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Upgrade now' } ) ).not.toBeInTheDocument();
 	} );
 
 	// The warning is driven solely by `over_limit_months`, independent of the
@@ -184,7 +195,6 @@ describe( 'PlanUsageWidget', () => {
 			screen.findByText( "Plan usage isn't available for your current plan." )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( /increase your views limit/ ) ).not.toBeInTheDocument();
 	} );
 
 	// A zero limit gives nothing to meter against (`max={0}` is degenerate), so
@@ -200,15 +210,15 @@ describe( 'PlanUsageWidget', () => {
 		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'omits the upgrade note when script data provides no purchase URL', async () => {
-		// Without wp-admin script data there is no purchase URL to link to.
+	// Storybook and any host that has not printed script data land here, so the
+	// meter must not depend on the global being present.
+	it( 'renders the meter when script data is absent', async () => {
 		window.JetpackScriptData = undefined as unknown as typeof window.JetpackScriptData;
 
 		render( <PlanUsageWidget attributes={ {} } /> );
 
 		await expect( screen.findByText( '6,200 / 10,000 views' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( /increase your views limit/ ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'link', { name: 'Upgrade now' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'progressbar' ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders the error state with a retry action when the request fails', async () => {

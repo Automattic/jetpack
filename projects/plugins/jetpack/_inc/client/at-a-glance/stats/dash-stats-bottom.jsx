@@ -1,4 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getAnalyticsUrl } from '@automattic/jetpack-script-data';
 import { formatNumber } from '@automattic/number-formatters';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
@@ -47,6 +48,9 @@ class DashStatsBottom extends Component {
 
 	render() {
 		const s = this.statsBottom()[ 0 ];
+		// Null when the current user cannot open the analytics dashboard — the
+		// summary figures still render, just without the button.
+		const analyticsUrl = getAnalyticsUrl( { view: 'dashboard' } );
 
 		return (
 			<div>
@@ -98,15 +102,12 @@ class DashStatsBottom extends Component {
 					<div className="jp-at-a-glance__stats-ctas">
 						{
 							// Only show link for non-atomic Jetpack sites.
-							createInterpolateElement( __( '<button>View detailed stats</button>', 'jetpack' ), {
-								button: (
-									<Button
-										href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
-										onClick={ this.trackViewDetailedStats }
-										primary
-									/>
-								),
-							} )
+							analyticsUrl &&
+								createInterpolateElement( __( '<button>View detailed stats</button>', 'jetpack' ), {
+									button: (
+										<Button href={ analyticsUrl } onClick={ this.trackViewDetailedStats } primary />
+									),
+								} )
 						}
 						{ this.props.isLinked &&
 							! this.props.isOdysseyStatsEnabled && // Only show if Odyssey Stats is disabled
@@ -136,7 +137,6 @@ class DashStatsBottom extends Component {
 
 DashStatsBottom.propTypes = {
 	siteRawUrl: PropTypes.string.isRequired,
-	siteAdminUrl: PropTypes.string.isRequired,
 	statsData: PropTypes.object.isRequired,
 	isLinked: PropTypes.bool.isRequired,
 	dateFormat: PropTypes.string.isRequired,
@@ -144,7 +144,6 @@ DashStatsBottom.propTypes = {
 
 DashStatsBottom.defaultProps = {
 	siteRawUrl: '',
-	siteAdminUrl: '',
 	statsData: {},
 	isLinked: false,
 	dateFormat: 'F j, Y',

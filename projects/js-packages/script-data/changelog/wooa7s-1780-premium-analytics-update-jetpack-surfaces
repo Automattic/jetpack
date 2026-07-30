@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add getAnalyticsUrl() for building links into the site's analytics dashboard.

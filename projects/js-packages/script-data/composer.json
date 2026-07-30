@@ -4,7 +4,10 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
-	"scripts": {},
+	"scripts": {
+		"test-js": "pnpm run test",
+		"test-js-coverage": "pnpm run test-coverage"
+	},
 	"repositories": [
 		{
 			"type": "path",
