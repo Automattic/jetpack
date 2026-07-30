@@ -56,7 +56,7 @@ class SearchResults extends Component {
 			this.props.staticFilters.group_id &&
 			this.props.staticFilters.group_id !== MULTISITE_NO_GROUP_VALUE;
 
-		if ( this.props.isLoading ) {
+		if ( this.props.isLoading || this.props.isQueryPending ) {
 			if ( ! hasQuery ) {
 				return __( 'Loading popular results…', 'jetpack-search-pkg' );
 			}
