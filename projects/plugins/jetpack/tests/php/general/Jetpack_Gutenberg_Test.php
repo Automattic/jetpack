@@ -121,6 +121,101 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 		$this->assertTrue( $availability['apple']['available'] );
 	}
 
+	/**
+	 * Run enqueue_block_editor_assets() against a fresh scripts registry and
+	 * return the saved globals for restoring.
+	 *
+	 * @return array Saved [ wp_scripts, wp_styles ] globals.
+	 */
+	private function run_editor_enqueue_with_fresh_registries() {
+		$saved = array( $GLOBALS['wp_scripts'] ?? null, $GLOBALS['wp_styles'] ?? null );
+
+		$GLOBALS['wp_scripts'] = new WP_Scripts();
+		$GLOBALS['wp_styles']  = new WP_Styles();
+
+		// Outside a real block-editor screen should_load() and core's
+		// editor-scripts predicate both say no; force them so the enqueue
+		// path under test actually runs.
+		add_filter( 'jetpack_gutenberg', '__return_true' );
+		add_filter( 'should_load_block_editor_scripts_and_styles', '__return_true' );
+
+		Jetpack_Gutenberg::enqueue_block_editor_assets();
+
+		remove_filter( 'jetpack_gutenberg', '__return_true' );
+		remove_filter( 'should_load_block_editor_scripts_and_styles', '__return_true' );
+
+		return $saved;
+	}
+
+	/**
+	 * Restore the scripts registries saved by run_editor_enqueue_with_fresh_registries().
+	 *
+	 * @param array $saved Saved globals.
+	 */
+	private function restore_script_registries( $saved ) {
+		$GLOBALS['wp_scripts'] = $saved[0];
+		$GLOBALS['wp_styles']  = $saved[1];
+	}
+
+	/**
+	 * The AI editor bundle is registered and enqueued alongside the main
+	 * editor bundle when AI is enabled (the default).
+	 */
+	public function test_editor_enqueue_ships_ai_bundle_when_ai_enabled() {
+		$saved = $this->run_editor_enqueue_with_fresh_registries();
+
+		$editor_enqueued = wp_script_is( 'jetpack-blocks-editor', 'enqueued' );
+		$ai_registered   = wp_script_is( 'jetpack-blocks-editor-ai', 'registered' );
+		$ai_enqueued     = wp_script_is( 'jetpack-blocks-editor-ai', 'enqueued' );
+
+		$this->restore_script_registries( $saved );
+
+		$this->assertTrue( $editor_enqueued, 'Precondition: the main editor bundle must be enqueued.' );
+		$this->assertTrue( $ai_registered, 'The AI editor bundle should be registered.' );
+		$this->assertTrue( $ai_enqueued, 'The AI editor bundle should be enqueued when AI is enabled.' );
+	}
+
+	/**
+	 * With the jetpack_ai_enabled filter off, the AI editor bundle must not be
+	 * enqueued — "off" stops the loading, not just the UI — while the main
+	 * editor bundle is unaffected.
+	 */
+	public function test_editor_enqueue_skips_ai_bundle_when_ai_disabled() {
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		$saved = $this->run_editor_enqueue_with_fresh_registries();
+
+		$editor_enqueued = wp_script_is( 'jetpack-blocks-editor', 'enqueued' );
+		$ai_enqueued     = wp_script_is( 'jetpack-blocks-editor-ai', 'enqueued' );
+
+		$this->restore_script_registries( $saved );
+		remove_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		$this->assertTrue( $editor_enqueued, 'The main editor bundle must be unaffected by the AI gate.' );
+		$this->assertFalse( $ai_enqueued, 'The AI editor bundle must not be enqueued when AI is disabled.' );
+	}
+
+	/**
+	 * The AI bundle follows the blocks variation, mirroring the main bundle's
+	 * editor{-variant}.js filename scheme.
+	 */
+	public function test_editor_enqueue_ai_bundle_follows_blocks_variation() {
+		$variation_filter = static function () {
+			return 'beta';
+		};
+		add_filter( 'jetpack_blocks_variation', $variation_filter );
+
+		$saved = $this->run_editor_enqueue_with_fresh_registries();
+
+		$registered = $GLOBALS['wp_scripts']->registered['jetpack-blocks-editor-ai'] ?? null;
+		$src        = $registered ? $registered->src : '';
+
+		$this->restore_script_registries( $saved );
+		remove_filter( 'jetpack_blocks_variation', $variation_filter );
+
+		$this->assertStringContainsString( 'editor-ai-beta.js', $src, 'The AI bundle should follow the beta variation.' );
+	}
+
 	public function test_registered_block_is_not_available() {
 		Jetpack_Gutenberg::set_extension_unavailable( 'banana', 'bar' );
 		$availability = Jetpack_Gutenberg::get_availability();

@@ -16,8 +16,49 @@ const StaticSiteGeneratorPlugin = require( './static-site-generator-webpack-plug
  * Internal variables
  */
 const editorSetup = path.join( __dirname, '../extensions', 'editor' );
+const aiEditorSetup = path.join( __dirname, '../extensions', 'editor-ai' );
 const viewSetup = path.join( __dirname, '../extensions', 'view' );
 const blockEditorDirectories = [ 'plugins', 'blocks' ];
+
+/**
+ * AI extensions ship in the editor-ai bundles instead of the main editor
+ * bundles, so the AI gate can stop them loading at all. Only preset names that
+ * resolve to editor scripts matter here — flag-only entries never contribute
+ * code. `extensions/index.json` itself is left untouched: it also drives PHP
+ * extension availability and the beta labeling in the editor.
+ *
+ * The `no-post-editor` bundle is NOT split: nothing in this repo enqueues it
+ * (WordPress.com consumes it out of tree), so removing AI from it would
+ * silently drop those extensions there until a wpcom-side change enqueues the
+ * split file.
+ */
+const aiExtensions = [
+	'ai-assistant',
+	'ai-chat',
+	'ai-assistant-plugin',
+	'ai-content-lens',
+	'voice-to-content',
+];
+
+/**
+ * Filter AI extensions out of a preset list.
+ *
+ * @param {Array} presetBlocks - preset blocks
+ * @return {Array} preset blocks without the AI extensions
+ */
+function withoutAiExtensions( presetBlocks ) {
+	return presetBlocks.filter( block => ! aiExtensions.includes( block ) );
+}
+
+/**
+ * Keep only the AI extensions from a preset list.
+ *
+ * @param {Array} presetBlocks - preset blocks
+ * @return {Array} the AI extensions present in the preset list
+ */
+function onlyAiExtensions( presetBlocks ) {
+	return presetBlocks.filter( block => aiExtensions.includes( block ) );
+}
 
 /**
  * Resolves a block script path to either a `.js` or `.jsx` file.
@@ -88,7 +129,7 @@ const editorScript = [
 	...presetProductionExtensions(
 		'editor',
 		path.join( __dirname, '../extensions' ),
-		presetProductionBlocks
+		withoutAiExtensions( presetProductionBlocks )
 	),
 ];
 
@@ -98,7 +139,7 @@ const editorExperimentalScript = [
 	...presetProductionExtensions(
 		'editor',
 		path.join( __dirname, '../extensions' ),
-		presetExperimentalBlocks
+		withoutAiExtensions( presetExperimentalBlocks )
 	),
 ];
 
@@ -108,7 +149,36 @@ const editorBetaScript = [
 	...presetProductionExtensions(
 		'editor',
 		path.join( __dirname, '../extensions' ),
-		presetBetaBlocks
+		withoutAiExtensions( presetBetaBlocks )
+	),
+];
+
+// The AI extensions, one editor-ai bundle per variation to mirror the
+// editor{-variant}.js filename scheme the PHP loader interpolates.
+const editorAiScript = [
+	aiEditorSetup,
+	...presetProductionExtensions(
+		'editor',
+		path.join( __dirname, '../extensions' ),
+		onlyAiExtensions( presetProductionBlocks )
+	),
+];
+
+const editorAiExperimentalScript = [
+	aiEditorSetup,
+	...presetProductionExtensions(
+		'editor',
+		path.join( __dirname, '../extensions' ),
+		onlyAiExtensions( presetExperimentalBlocks )
+	),
+];
+
+const editorAiBetaScript = [
+	aiEditorSetup,
+	...presetProductionExtensions(
+		'editor',
+		path.join( __dirname, '../extensions' ),
+		onlyAiExtensions( presetBetaBlocks )
 	),
 ];
 
@@ -226,6 +296,16 @@ module.exports = [
 			'editor-experimental': editorExperimentalScript,
 			'editor-beta': editorBetaScript,
 			'editor-no-post-editor': editorNoPostEditorScript,
+			// The AI bundles reuse modules already shipped by their matching
+			// editor bundle (dependOn) instead of duplicating them — the PHP
+			// loader registers editor-ai with a hard script dependency on the
+			// main bundle, so the required load order is guaranteed.
+			'editor-ai': { import: editorAiScript, dependOn: 'editor' },
+			'editor-ai-experimental': {
+				import: editorAiExperimentalScript,
+				dependOn: 'editor-experimental',
+			},
+			'editor-ai-beta': { import: editorAiBetaScript, dependOn: 'editor-beta' },
 			...viewBlocksScripts,
 			...adminBlocksScripts,
 		},
@@ -258,10 +338,12 @@ module.exports = [
 							// `editorScript` is required for block.json to be valid and WordPress.org to be able
 							// to parse it before building the page at https://wordpress.org/plugins/jetpack/.
 							// Don't add other scripts or styles while block assets are still enqueued manually
-							// in the backend.
+							// in the backend. AI blocks ship in the editor-ai bundle.
 							const result = {
 								...metadata,
-								editorScript: `jetpack-blocks-editor`,
+								editorScript: aiExtensions.includes( name )
+									? `jetpack-blocks-editor-ai`
+									: `jetpack-blocks-editor`,
 							};
 
 							return JSON.stringify( result, null, 4 );
