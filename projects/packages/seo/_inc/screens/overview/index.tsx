@@ -40,6 +40,8 @@ const OverviewScreen: FC = () => {
 	// crawler slice to the Overview payload.
 	const crawlers = useSelect( select => select( aiStore ).getCrawlers(), [] );
 
+	const llmsTxt = useSelect( select => select( aiStore ).getLlmsTxt(), [] );
+
 	// Deep-link to a Settings section: navigate to the Settings route with
 	// `?focus=`, which the Settings screen reads to scroll the section to top.
 	const goToSection = useCallback(
@@ -59,7 +61,7 @@ const OverviewScreen: FC = () => {
 		[ navigate ]
 	);
 
-	// Deep-link to the GEO route (AI crawler management).
+	// Deep-link to the GEO route.
 	const goToAi = useCallback( () => navigate( { href: '/ai' } ), [ navigate ] );
 
 	if ( ! data ) {
@@ -143,6 +145,7 @@ const OverviewScreen: FC = () => {
 						searchEnginesVisible={
 							settings?.search_engines_visible ?? crawlers.searchEnginesVisible
 						}
+						llmsTxt={ llmsTxt }
 						onManage={ goToAi }
 					/>
 				) }

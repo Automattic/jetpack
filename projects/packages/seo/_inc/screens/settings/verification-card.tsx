@@ -2,7 +2,7 @@
 
 import { TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { check } from '@wordpress/icons';
+import { globe } from '@wordpress/icons';
 import { Card, CollapsibleCard, Stack, Text } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
 import StatusIndicator from '../../components/status-indicator';
@@ -86,7 +86,9 @@ const VerificationCard: FC< Props > = ( {
 			<CollapsibleCard.Header render={ <h2 /> }>
 				<Stack direction="row" justify="space-between" align="center" gap="sm">
 					<Card.Title>
-						<CardTitleIcon icon={ check } title={ __( 'Site verification', 'jetpack-seo' ) } />
+						{ /* `globe`, matching the Overview card — and a checkmark would double up
+						     on the status indicator beside it. */ }
+						<CardTitleIcon icon={ globe } title={ __( 'Site verification', 'jetpack-seo' ) } />
 					</Card.Title>
 					<CollapsibleCard.HeaderDescription>
 						<StatusIndicator status={ verificationStatus } />
