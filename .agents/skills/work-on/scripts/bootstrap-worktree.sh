@@ -29,7 +29,9 @@ if [[ -e "$worktree" ]]; then
 fi
 
 git fetch origin trunk --quiet
-git worktree add "$worktree" -b "$branch" origin/trunk
+# Send git's progress chatter to stderr: this script's stdout contract is the worktree path
+# alone, and callers capture it with $(...). Without this they get git's messages too.
+git worktree add "$worktree" -b "$branch" origin/trunk >&2
 
 (
 	cd "$worktree"
@@ -38,8 +40,14 @@ git worktree add "$worktree" -b "$branch" origin/trunk
 		pnpm install --prefer-offline
 	fi
 	mkdir -p .work-on/screenshots
-	if ! grep -qxF '.work-on/' .git/info/exclude 2>/dev/null; then
-		echo '.work-on/' >> .git/info/exclude
+
+	# In a linked worktree `.git` is a FILE (a gitdir pointer), so a literal `.git/info/exclude`
+	# path fails with "Not a directory" — and under `set -e` that killed this script outright.
+	# `git rev-parse --git-path` resolves to the real exclude file in every layout.
+	exclude="$( git rev-parse --git-path info/exclude )"
+	mkdir -p "$( dirname "$exclude" )"
+	if ! grep -qxF '.work-on/' "$exclude" 2>/dev/null; then
+		echo '.work-on/' >> "$exclude"
 	fi
 )
 
