@@ -1021,14 +1021,9 @@ class Helper {
 	 * Read Instant Search query-customization options from a filtered options array.
 	 *
 	 * @param array $options Raw `jetpack_instant_search_options` value.
-	 * @return array{
-	 *     highlightPhraseOnly: bool,
-	 *     highlightFilterStopwords: array<int, string>,
-	 *     highlightFields: array<int, string>|null,
-	 *     additionalBlogIds: array<int, int|string>,
-	 *     adminQueryFilter: array<string, mixed>|null,
-	 *     customResults: array<int, array{pattern: string, ids: array<int, int|string>}>,
-	 * }
+	 * @return array Query options with keys:
+	 *               `highlightPhraseOnly`, `highlightFilterStopwords`, `highlightFields`,
+	 *               `additionalBlogIds`, `adminQueryFilter`, and `customResults`.
 	 */
 	public static function parse_instant_search_query_options( array $options ): array {
 		$stopwords = array();
@@ -1102,14 +1097,9 @@ class Helper {
 	 * Passing an empty array into the filter matches `Filter_Static::read_raw_entries()`
 	 * — callbacks only add keys.
 	 *
-	 * @return array{
-	 *     highlightPhraseOnly: bool,
-	 *     highlightFilterStopwords: array<int, string>,
-	 *     highlightFields: array<int, string>|null,
-	 *     additionalBlogIds: array<int, int|string>,
-	 *     adminQueryFilter: array<string, mixed>|null,
-	 *     customResults: array<int, array{pattern: string, ids: array<int, int|string>}>,
-	 * }
+	 * @return array Query options with keys:
+	 *               `highlightPhraseOnly`, `highlightFilterStopwords`, `highlightFields`,
+	 *               `additionalBlogIds`, `adminQueryFilter`, and `customResults`.
 	 */
 	public static function get_instant_search_query_options(): array {
 		$options = apply_filters( 'jetpack_instant_search_options', array() );

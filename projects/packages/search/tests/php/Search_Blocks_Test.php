@@ -3213,6 +3213,14 @@ class Search_Blocks_Test extends TestCase {
 			);
 			return $options;
 		};
+		$options  = array(
+			'highlightPhraseOnly'      => false,
+			'highlightFilterStopwords' => array(),
+			'highlightFields'          => null,
+			'additionalBlogIds'        => array(),
+			'adminQueryFilter'         => null,
+			'customResults'            => array(),
+		);
 		add_filter( 'jetpack_instant_search_options', $callback );
 		try {
 			$options = Search_Blocks::get_instant_search_query_options();
@@ -3260,6 +3268,14 @@ class Search_Blocks_Test extends TestCase {
 			);
 			return $options;
 		};
+		$state    = array(
+			'highlightPhraseOnly'      => false,
+			'highlightFilterStopwords' => array(),
+			'highlightFields'          => null,
+			'additionalBlogIds'        => array(),
+			'adminQueryFilter'         => null,
+			'customResults'            => array(),
+		);
 		add_filter( 'jetpack_instant_search_options', $callback );
 		try {
 			$state = Search_Blocks::build_initial_state();

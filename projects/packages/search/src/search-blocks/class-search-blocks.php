@@ -2313,14 +2313,9 @@ HTML;
 	/**
 	 * Read Instant Search query-customization options for the blocks store.
 	 *
-	 * @return array{
-	 *     highlightPhraseOnly: bool,
-	 *     highlightFilterStopwords: array<int, string>,
-	 *     highlightFields: array<int, string>|null,
-	 *     additionalBlogIds: array<int, int|string>,
-	 *     adminQueryFilter: array<string, mixed>|null,
-	 *     customResults: array<int, array{pattern: string, ids: array<int, int|string>}>,
-	 * }
+	 * @return array Query options with keys:
+	 *               `highlightPhraseOnly`, `highlightFilterStopwords`, `highlightFields`,
+	 *               `additionalBlogIds`, `adminQueryFilter`, and `customResults`.
 	 */
 	public static function get_instant_search_query_options(): array {
 		return Helper::get_instant_search_query_options();

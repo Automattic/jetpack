@@ -1902,6 +1902,10 @@ class Helpers_Test extends TestCase {
 		$callback = static function () {
 			return 'not-an-array';
 		};
+		$options  = array(
+			'highlightPhraseOnly' => false,
+			'customResults'       => array(),
+		);
 		add_filter( 'jetpack_instant_search_options', $callback );
 		try {
 			$options = Helper::get_instant_search_query_options();
