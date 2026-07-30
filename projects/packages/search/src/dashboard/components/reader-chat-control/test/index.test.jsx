@@ -1,19 +1,23 @@
-const mockPlan = { supportsSearch: true, isFreePlan: false };
-jest.mock( '@wordpress/data', () => ( {
-	useSelect: callback =>
-		callback( () => ( {
-			supportsSearch: () => mockPlan.supportsSearch,
-			isFreePlan: () => mockPlan.isFreePlan,
-		} ) ),
-} ) );
-jest.mock( 'store', () => ( { STORE_ID: 'search' } ) );
-
 // Mocks must precede module imports so Jest can hoist them above the
 // component file's own dependency chain (which would otherwise drag in
 // the full `@wordpress/components` + admin-ui stack at test time).
 /* eslint-disable testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package; fireEvent is intentional. */
 jest.mock( '@wordpress/components', () => ( {
 	__esModule: true,
+	Button: ( { children, disabled, onClick } ) => (
+		<button disabled={ disabled } onClick={ onClick }>
+			{ children }
+		</button>
+	),
+	ColorPalette: ( { 'aria-label': ariaLabel, colors, onChange, value } ) => (
+		<div aria-label={ ariaLabel } data-value={ value }>
+			{ colors.map( color => (
+				<button key={ color.slug } onClick={ () => onChange( color.color ) }>
+					{ color.name }
+				</button>
+			) ) }
+		</div>
+	),
 	ExternalLink: ( { children, className, href } ) => (
 		<a className={ className } href={ href }>
 			{ children }
@@ -40,6 +44,40 @@ jest.mock( '@wordpress/components', () => ( {
 			</>
 		);
 	},
+	TextControl: ( { disabled, label, maxLength, onBlur, onChange, placeholder, value } ) => {
+		const id = `reader-chat-${ label.toLowerCase().replaceAll( ' ', '-' ) }`;
+
+		return (
+			<>
+				<label htmlFor={ id }>{ label }</label>
+				<input
+					id={ id }
+					disabled={ disabled }
+					maxLength={ maxLength }
+					onBlur={ onBlur }
+					onChange={ event => onChange( event.target.value ) }
+					placeholder={ placeholder }
+					value={ value }
+				/>
+			</>
+		);
+	},
+} ) );
+
+const mockPlan = { supportsSearch: true, isFreePlan: false };
+let mockStoredBrand;
+let mockDerivedBrand;
+let mockThemePalette;
+
+jest.mock( '@wordpress/data', () => ( {
+	useSelect: callback =>
+		callback( () => ( {
+			supportsSearch: () => mockPlan.supportsSearch,
+			isFreePlan: () => mockPlan.isFreePlan,
+			getReaderChatBrand: () => mockStoredBrand,
+			getReaderChatBrandDefaults: () => mockDerivedBrand,
+			getReaderChatBrandPalette: () => mockThemePalette,
+		} ) ),
 } ) );
 
 jest.mock( '@wordpress/ui', () => ( {
@@ -57,6 +95,10 @@ jest.mock(
 	{ virtual: true }
 );
 
+jest.mock( 'store', () => ( {
+	STORE_ID: 'jetpack-search-plugin',
+} ) );
+
 import { render, screen, fireEvent } from '@testing-library/react';
 import ReaderChatControl from '../index.jsx';
 
@@ -73,6 +115,23 @@ describe( 'ReaderChatControl', () => {
 		jest.clearAllMocks();
 		mockPlan.supportsSearch = true;
 		mockPlan.isFreePlan = false;
+		mockStoredBrand = {
+			name: '',
+			accent: '',
+			greeting: '',
+		};
+		mockDerivedBrand = {
+			name: 'Example Site',
+			accent: '#2271b1',
+			greeting: 'Ask me anything about this blog.',
+		};
+		mockThemePalette = [
+			{
+				name: 'Primary',
+				slug: 'primary',
+				color: '#2271b1',
+			},
+		];
 	} );
 
 	test.each( [ 'free', 'no Search' ] )( 'blocks activation on a %s plan', plan => {
@@ -148,6 +207,102 @@ describe( 'ReaderChatControl', () => {
 				name: /Set guidelines/i,
 			} )
 		).not.toBeInTheDocument();
+		expect( screen.queryByLabelText( 'Assistant name' ) ).not.toBeInTheDocument();
+		expect( screen.queryByLabelText( 'Greeting' ) ).not.toBeInTheDocument();
+		expect( screen.queryByLabelText( 'Accent color' ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'shows derived brand values as placeholders when enabled', () => {
+		render( <ReaderChatControl { ...defaultProps } isEnabled /> );
+
+		expect( screen.getByLabelText( 'Assistant name' ) ).toHaveAttribute(
+			'placeholder',
+			'Example Site'
+		);
+		expect( screen.getByLabelText( 'Greeting' ) ).toHaveAttribute(
+			'placeholder',
+			'Ask me anything about this blog.'
+		);
+		expect( screen.getByLabelText( 'Accent color' ) ).toHaveAttribute( 'data-value', '#2271b1' );
+		expect( screen.getByRole( 'button', { name: 'Primary' } ) ).toBeInTheDocument();
+	} );
+
+	test( 'round-trips brand field changes through the settings update', () => {
+		const updateOptions = jest.fn();
+		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
+
+		const nameField = screen.getByLabelText( 'Assistant name' );
+		fireEvent.change( nameField, { target: { value: 'Ada' } } );
+		fireEvent.blur( nameField );
+		expect( updateOptions ).toHaveBeenLastCalledWith( {
+			reader_chat_brand: {
+				name: 'Ada',
+				accent: '',
+				greeting: '',
+			},
+		} );
+
+		const greetingField = screen.getByLabelText( 'Greeting' );
+		fireEvent.change( greetingField, { target: { value: 'How can I help?' } } );
+		fireEvent.blur( greetingField );
+		expect( updateOptions ).toHaveBeenLastCalledWith( {
+			reader_chat_brand: {
+				name: '',
+				accent: '',
+				greeting: 'How can I help?',
+			},
+		} );
+
+		fireEvent.click( screen.getByRole( 'button', { name: 'Primary' } ) );
+		expect( updateOptions ).toHaveBeenLastCalledWith( {
+			reader_chat_brand: {
+				name: '',
+				accent: '#2271b1',
+				greeting: '',
+			},
+		} );
+	} );
+
+	test( 'saves text fields once on blur, not on every keystroke', () => {
+		const updateOptions = jest.fn();
+		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
+
+		const nameField = screen.getByLabelText( 'Assistant name' );
+		fireEvent.change( nameField, { target: { value: 'A' } } );
+		fireEvent.change( nameField, { target: { value: 'Ad' } } );
+		fireEvent.change( nameField, { target: { value: 'Ada' } } );
+
+		// Each updateOptions call is a REST save, a re-fetch, and a notice.
+		expect( updateOptions ).not.toHaveBeenCalled();
+
+		fireEvent.blur( nameField );
+		expect( updateOptions ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	test( 'does not save on blur when the value is unchanged', () => {
+		const updateOptions = jest.fn();
+		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
+
+		fireEvent.blur( screen.getByLabelText( 'Assistant name' ) );
+
+		expect( updateOptions ).not.toHaveBeenCalled();
+	} );
+
+	test( 'resets an accent override to the derived theme value', () => {
+		mockStoredBrand.accent = '#ff0000';
+		const updateOptions = jest.fn();
+		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
+
+		expect( screen.getByLabelText( 'Accent color' ) ).toHaveAttribute( 'data-value', '#ff0000' );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Reset to theme' } ) );
+
+		expect( updateOptions ).toHaveBeenCalledWith( {
+			reader_chat_brand: {
+				name: '',
+				accent: '',
+				greeting: '',
+			},
+		} );
 	} );
 
 	test( 'dispatches a settings update when toggled', () => {
@@ -162,13 +317,24 @@ describe( 'ReaderChatControl', () => {
 		expect( updateOptions ).toHaveBeenCalledWith( { reader_chat: true } );
 	} );
 
-	test( 'disables the toggle while settings are saving', () => {
-		render( <ReaderChatControl { ...defaultProps } isSaving /> );
+	test( 'disables discrete controls while settings are saving', () => {
+		render( <ReaderChatControl { ...defaultProps } isEnabled isSaving /> );
 
 		expect(
 			screen.getByRole( 'checkbox', {
 				name: /Enable Site Chat/i,
 			} )
 		).toBeDisabled();
+		expect( screen.getByRole( 'button', { name: 'Reset to theme' } ) ).toBeDisabled();
+	} );
+
+	test( 'leaves text fields editable while settings are saving', () => {
+		render( <ReaderChatControl { ...defaultProps } isEnabled isSaving /> );
+
+		// Text fields save on blur, so a save is always in flight right after
+		// the user leaves one. Disabling them would steal focus and drop
+		// keystrokes when tabbing from one field straight into the next.
+		expect( screen.getByLabelText( 'Assistant name' ) ).toBeEnabled();
+		expect( screen.getByLabelText( 'Greeting' ) ).toBeEnabled();
 	} );
 } );

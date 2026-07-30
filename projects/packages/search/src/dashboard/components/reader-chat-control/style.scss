@@ -1,0 +1,17 @@
+.jp-reader-chat-control__brand {
+	display: grid;
+	gap: var(--wpds-dimension-gap-lg, 16px);
+	margin-block-start: var(--wpds-dimension-padding-lg, 16px);
+
+	fieldset {
+		min-inline-size: 0;
+		margin: 0;
+		padding: 0;
+		border: 0;
+	}
+
+	legend {
+		margin-block-end: var(--wpds-dimension-gap-sm, 8px);
+		font-weight: 500;
+	}
+}
