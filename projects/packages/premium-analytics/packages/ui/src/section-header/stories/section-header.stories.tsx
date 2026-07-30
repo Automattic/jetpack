@@ -1,5 +1,6 @@
 import {
 	computePrimaryRange,
+	PRESET_ALL_TIME,
 	type ComparisonPresetId,
 	type PrimaryPresetId,
 	type YearSurfacePresetId,
@@ -50,6 +51,7 @@ type PrimaryFilterState = {
 type AppliedDateState = {
 	range: DateRange;
 	comparisonPresetId?: ComparisonPresetId;
+	presetId?: PrimaryPresetId;
 };
 
 /**
@@ -64,6 +66,24 @@ function buildInitialPrimaryState(): PrimaryFilterState {
 		presetId: 'last-30-days',
 		range: { from: range?.from, to: range?.to },
 	};
+}
+
+/**
+ * Whether the primary picker is holding an un-applied edit.
+ *
+ * One predicate for two rules, the way `useReportDateFilters` has it: it gates
+ * Apply, and it decides whether a comparison change commits on its own.
+ *
+ * @param staged    - The staged primary state.
+ * @param committed - The applied primary state.
+ * @return Whether the two differ.
+ */
+function hasPrimaryDraft( staged: PrimaryFilterState, committed: PrimaryFilterState ): boolean {
+	return (
+		staged.range.from !== committed.range.from ||
+		staged.range.to !== committed.range.to ||
+		staged.presetId !== committed.presetId
+	);
 }
 
 /**
@@ -106,7 +126,11 @@ function RollingDateControls( {
 
 	const handleApply = useCallback( () => {
 		setCommitted( stagedRef.current );
-		onAppliedChange( { range: stagedRef.current.range, comparisonPresetId } );
+		onAppliedChange( {
+			range: stagedRef.current.range,
+			presetId: stagedRef.current.presetId,
+			comparisonPresetId,
+		} );
 	}, [ onAppliedChange, comparisonPresetId ] );
 
 	const handleCancel = useCallback( () => {
@@ -115,21 +139,27 @@ function RollingDateControls( {
 	}, [ committed ] );
 
 	/*
-	 * Mirrors `useReportDateFilters`: a comparison change commits on its own,
-	 * so it moves the subtitle immediately, unlike a staged primary edit.
+	 * Mirrors `useReportDateFilters`: a comparison change commits on its own, so
+	 * it moves the subtitle right away. Not while a primary edit is staged,
+	 * though — then it rides along and both land on Apply, so tweaking the
+	 * comparison never commits an un-applied primary draft.
 	 */
 	const handleComparisonChange = useCallback(
 		( _range: DateRange | undefined, nextPresetId?: ComparisonPresetId ) => {
 			setComparisonPresetId( nextPresetId );
-			onAppliedChange( { range: committed.range, comparisonPresetId: nextPresetId } );
+
+			if ( ! hasPrimaryDraft( stagedRef.current, committed ) ) {
+				onAppliedChange( {
+					range: committed.range,
+					presetId: committed.presetId,
+					comparisonPresetId: nextPresetId,
+				} );
+			}
 		},
-		[ onAppliedChange, committed.range ]
+		[ onAppliedChange, committed ]
 	);
 
-	const canApply =
-		staged.range.from !== committed.range.from ||
-		staged.range.to !== committed.range.to ||
-		staged.presetId !== committed.presetId;
+	const canApply = hasPrimaryDraft( staged, committed );
 
 	return (
 		<DateFiltersPanel
@@ -153,26 +183,26 @@ function RollingDateControls( {
  * Year-surface controls for the slot: all time plus calendar years, no
  * comparison, as the Insights instance specifies.
  *
- * @param props                  - Harness props.
- * @param props.containerElement - Measured row element for responsive layout.
- * @param props.onRangeChange    - Reports the selected range upward.
+ * @param props                   - Harness props.
+ * @param props.containerElement  - Measured row element for responsive layout.
+ * @param props.onSelectionChange - Reports the selected range and preset upward.
  * @return The wired year filter.
  */
 function YearDateControls( {
 	containerElement,
-	onRangeChange,
+	onSelectionChange,
 }: {
 	containerElement: HTMLElement | null;
-	onRangeChange: ( range: DateRange ) => void;
+	onSelectionChange: ( selection: AppliedDateState ) => void;
 } ) {
-	const [ presetId, setPresetId ] = useState< PrimaryPresetId >( 'all-time' as PrimaryPresetId );
+	const [ presetId, setPresetId ] = useState< YearSurfacePresetId >( PRESET_ALL_TIME );
 
 	return (
 		<DateYearFilter
 			value={ presetId }
 			onSelect={ ( range, nextPresetId: YearSurfacePresetId ) => {
 				setPresetId( nextPresetId );
-				onRangeChange( range );
+				onSelectionChange( { range, presetId: nextPresetId } );
 			} }
 			timeZone={ STORYBOOK_TIMEZONE }
 			containerElement={ containerElement }
@@ -187,9 +217,11 @@ type SectionHeaderStoryProps = {
 
 function RollingSectionHeaderStory( { title }: SectionHeaderStoryProps ) {
 	const [ container, setContainer ] = useState< HTMLDivElement | null >( null );
-	const [ applied, setApplied ] = useState< AppliedDateState >( () => ( {
-		range: buildInitialPrimaryState().range,
-	} ) );
+	const [ applied, setApplied ] = useState< AppliedDateState >( () => {
+		const initial = buildInitialPrimaryState();
+
+		return { range: initial.range, presetId: initial.presetId };
+	} );
 
 	return (
 		<div ref={ setContainer }>
@@ -202,16 +234,16 @@ function RollingSectionHeaderStory( { title }: SectionHeaderStoryProps ) {
 
 function YearSectionHeaderStory( { title }: SectionHeaderStoryProps ) {
 	const [ container, setContainer ] = useState< HTMLDivElement | null >( null );
-	const [ range, setRange ] = useState< DateRange >( () => {
-		const initial = computePrimaryRange( 'all-time', STORYBOOK_TIMEZONE );
+	const [ applied, setApplied ] = useState< AppliedDateState >( () => {
+		const initial = computePrimaryRange( PRESET_ALL_TIME, STORYBOOK_TIMEZONE );
 
-		return { from: initial?.from, to: initial?.to };
+		return { range: { from: initial?.from, to: initial?.to }, presetId: PRESET_ALL_TIME };
 	} );
 
 	return (
 		<div ref={ setContainer }>
-			<SectionHeader title={ title } subtitle={ getSectionSubtitle( { range } ) }>
-				<YearDateControls containerElement={ container } onRangeChange={ setRange } />
+			<SectionHeader title={ title } subtitle={ getSectionSubtitle( applied ) }>
+				<YearDateControls containerElement={ container } onSelectionChange={ setApplied } />
 			</SectionHeader>
 		</div>
 	);
