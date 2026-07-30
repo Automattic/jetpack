@@ -417,11 +417,37 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	 * @return array
 	 */
 	protected function test__wpcom_connection_test() {
+		$result = $this->run_wpcom_connection_test();
+
+		// Without a label, Site Health falls back to a machine-generated title
+		// ("Wpcom Connection Test"). Individual outcomes may set a more specific one.
+		if ( ! $result['label'] ) {
+			$result['label'] = __( 'WordPress.com Connection Test', 'jetpack-connection' );
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Performs the WP.com test-connection request and builds the result.
+	 *
+	 * Split out from test__wpcom_connection_test() so every exit point passes through
+	 * a single place that guarantees a Site Health label. The method name must not
+	 * contain "test__" or the constructor would register it as a separate test.
+	 *
+	 * @return array
+	 */
+	private function run_wpcom_connection_test() {
 		$name = 'test__wpcom_connection_test';
 
 		$status = new Status();
 		if ( ! ( new Manager() )->is_connected() || $status->is_offline_mode() || $status->in_safe_mode() || ! $this->pass ) {
-			return self::skipped_test( array( 'name' => $name ) );
+			return self::skipped_test(
+				array(
+					'name'              => $name,
+					'short_description' => __( 'Your site is not communicating with WordPress.com, so this test was skipped.', 'jetpack-connection' ),
+				)
+			);
 		}
 
 		add_filter( 'http_request_timeout', array( static::class, 'increase_timeout' ) );
@@ -536,6 +562,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 		return self::failing_test(
 			array(
 				'name'              => $name,
+				'label'             => __( 'Your site is blocking requests from WordPress.com', 'jetpack-connection' ),
 				'short_description' => $connection_error,
 				'long_description'  => self::helper_get_reconnect_long_description( $connection_error, $recommendation ),
 				'action_label'      => $this->helper_get_support_text(),
