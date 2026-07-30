@@ -380,6 +380,60 @@ describe( 'BarChart', () => {
 			} );
 		} );
 
+		describe( 'ARIA grid boundaries', () => {
+			const twoPointData = [
+				{
+					label: 'Series A',
+					data: [
+						{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+						{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+					],
+					options: {},
+				},
+			];
+
+			test( 'right arrow at the last point stays put and keeps the highlight (no escape, no wrap)', async () => {
+				const user = userEvent.setup();
+				renderWithTheme( { withTooltips: true, data: twoPointData } );
+
+				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				chart.focus();
+
+				// Move to the first, then the last (second) point.
+				await user.keyboard( '{ArrowRight}' );
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+				await user.keyboard( '{ArrowRight}' );
+				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveFocus();
+
+				// Right arrow at the last point must not move focus: the highlighted
+				// bar/tooltip stays visible and focused (ARIA grid: focus does not move).
+				await user.keyboard( '{ArrowRight}' );
+				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toBeInTheDocument();
+				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveFocus();
+				expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
+				// Focus did not escape back to the chart container.
+				expect( chart ).not.toHaveFocus();
+			} );
+
+			test( 'left arrow at the first point stays put (no wrap to last)', async () => {
+				const user = userEvent.setup();
+				renderWithTheme( { withTooltips: true, data: twoPointData } );
+
+				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				chart.focus();
+
+				// Move to the first point.
+				await user.keyboard( '{ArrowRight}' );
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+
+				// Left arrow at the first point must not wrap to the last point.
+				await user.keyboard( '{ArrowLeft}' );
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toBeInTheDocument();
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+				expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
+			} );
+		} );
+
 		describe( 'Comparison tooltip', () => {
 			test( 'tooltip shows both the primary and comparison values', async () => {
 				const user = userEvent.setup();
@@ -1193,6 +1247,115 @@ describe( 'BarChart', () => {
 			expect(
 				screen.getByText( /all series are hidden.*click legend items to show data/i )
 			).toBeInTheDocument();
+		} );
+
+		it( 'keeps keyboard nav aligned with the tooltip when a primary series is hidden (standard chart)', async () => {
+			const user = userEvent.setup();
+
+			renderWithTheme( {
+				withTooltips: true,
+				showLegend: true,
+				legend: { interactive: true },
+				chartId: 'test-hide-primary-standard',
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ label: 'Jan', value: 10 },
+							{ label: 'Feb', value: 20 },
+							{ label: 'Mar', value: 30 },
+						],
+						options: {},
+					},
+					{
+						label: 'Series B',
+						data: [
+							{ label: 'Jan', value: 15 },
+							{ label: 'Feb', value: 25 },
+							{ label: 'Mar', value: 35 },
+						],
+						options: {},
+					},
+				],
+			} );
+
+			// Hide Series B through the interactive legend.
+			await user.click( screen.getByRole( 'button', { name: /Series B: visible/i } ) );
+
+			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+			chart.focus();
+
+			// Only Series A remains, so there are 3 real slots (Jan, Feb, Mar). Pressing past
+			// the end must stop at the last real slot — never land on a blank slot that used to
+			// belong to the now-hidden Series B (which would show no tooltip/highlight).
+			for ( let i = 0; i < 5; i++ ) {
+				await user.keyboard( '{ArrowRight}' );
+			}
+
+			const tooltips = screen.queryAllByTestId( /^chart-tooltip-/ );
+			expect( tooltips ).toHaveLength( 1 );
+			expect( screen.getByTestId( 'chart-tooltip-2' ) ).toBeInTheDocument();
+			expect( tooltips[ 0 ] ).toHaveTextContent( 'Series A' );
+			expect( tooltips[ 0 ] ).not.toHaveTextContent( 'Series B' );
+			// No blank slots beyond the visible count are ever visited.
+			expect( screen.queryByTestId( 'chart-tooltip-3' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'keeps keyboard nav aligned with the tooltip when a primary series is hidden (comparison chart)', async () => {
+			const user = userEvent.setup();
+
+			renderWithTheme( {
+				withTooltips: true,
+				showLegend: true,
+				legend: { interactive: true },
+				chartId: 'test-hide-primary-comparison',
+				data: [
+					{
+						label: 'Series A',
+						group: 'views',
+						data: [
+							{ label: 'Jan', value: 10 },
+							{ label: 'Feb', value: 20 },
+						],
+					},
+					{
+						label: 'Series B',
+						group: 'clicks',
+						data: [
+							{ label: 'Jan', value: 15 },
+							{ label: 'Feb', value: 25 },
+						],
+					},
+					{
+						label: 'Previous A',
+						group: 'views',
+						options: { type: 'comparison' as const },
+						data: [
+							{ label: 'Jan', value: 8 },
+							{ label: 'Feb', value: 18 },
+						],
+					},
+				],
+			} );
+
+			// Hide the primary Series B through the interactive legend.
+			await user.click( screen.getByRole( 'button', { name: /Series B: visible/i } ) );
+
+			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+			chart.focus();
+
+			// Only primary Series A remains (2 slots). Navigation must stop at the last real
+			// slot instead of stepping into the hidden series' phantom slots.
+			for ( let i = 0; i < 4; i++ ) {
+				await user.keyboard( '{ArrowRight}' );
+			}
+
+			const tooltips = screen.queryAllByTestId( /^chart-tooltip-/ );
+			expect( tooltips ).toHaveLength( 1 );
+			expect( screen.getByTestId( 'chart-tooltip-1' ) ).toBeInTheDocument();
+			expect( tooltips[ 0 ] ).toHaveTextContent( 'Series A' );
+			expect( tooltips[ 0 ] ).not.toHaveTextContent( 'Series B' );
+			expect( screen.queryByTestId( 'chart-tooltip-2' ) ).not.toBeInTheDocument();
 		} );
 	} );
 } );
