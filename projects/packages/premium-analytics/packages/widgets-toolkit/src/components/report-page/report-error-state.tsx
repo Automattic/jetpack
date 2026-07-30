@@ -29,7 +29,7 @@ export function ReportErrorState( {
 	title,
 	description = __(
 		"We couldn't load this data. Please try again in a moment.",
-		'jetpack-premium-analytics'
+		'jetpack-premium-analytics-pkg'
 	),
 	onRetry,
 }: ReportErrorStateProps ) {
@@ -39,7 +39,7 @@ export function ReportErrorState( {
 				<EmptyState.Title>{ title }</EmptyState.Title>
 				<EmptyState.Description>{ description }</EmptyState.Description>
 				<EmptyState.Actions>
-					<Button onClick={ onRetry }>{ __( 'Retry', 'jetpack-premium-analytics' ) }</Button>
+					<Button onClick={ onRetry }>{ __( 'Retry', 'jetpack-premium-analytics-pkg' ) }</Button>
 				</EmptyState.Actions>
 			</EmptyState.Root>
 		</ReportPageSection>

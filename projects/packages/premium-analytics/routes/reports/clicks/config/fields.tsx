@@ -1,11 +1,16 @@
 /**
  * External dependencies
  */
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { DrilldownLeafCell, safeHttpUrl } from '@jetpack-premium-analytics/ui';
+import { MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import type { Field } from '@wordpress/dataviews';
+
+const CLICKS_DATA_FORMAT = {
+	type: 'number',
+	options: { decimals: 0, useMultipliers: false },
+} as const;
 
 export type ClickRow = {
 	id: string;
@@ -17,18 +22,21 @@ export type ClickRow = {
 	/** Group parent rows keep the title-field styling; leaf rows opt out. */
 	isGroup?: boolean;
 	clicks: number;
+	/** Click count for the matching row in the comparison period. */
+	previousClicks?: number;
 };
 
 /**
  * DataViews field config for the Clicks records table.
  *
+ * @param withComparison - Whether to render available period-over-period deltas.
  * @return The field config.
  */
-export function getClicksFields(): Field< ClickRow >[] {
+export function getClicksFields( withComparison = false ): Field< ClickRow >[] {
 	return [
 		{
 			id: 'clickedUrl',
-			label: __( 'Clicked URL', 'jetpack-premium-analytics' ),
+			label: __( 'Clicked URL', 'jetpack-premium-analytics-pkg' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => item.clickedUrl,
@@ -59,10 +67,15 @@ export function getClicksFields(): Field< ClickRow >[] {
 		},
 		{
 			id: 'clicks',
-			label: __( 'Clicks', 'jetpack-premium-analytics' ),
+			label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.clicks,
 			render: ( { item } ) => (
-				<>{ formatMetricValue( item.clicks, 'number', { decimals: 0, useMultipliers: false } ) }</>
+				<MetricWithComparison
+					value={ item.clicks }
+					previousValue={ withComparison ? item.previousClicks : undefined }
+					dataFormat={ CLICKS_DATA_FORMAT }
+					fontSize="md"
+				/>
 			),
 		},
 	];

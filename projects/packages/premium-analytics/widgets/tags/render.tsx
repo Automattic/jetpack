@@ -152,7 +152,7 @@ function TagsInner( { max = 10 }: TagsAttributes ) {
 					onClick: () => selectGroup( row.label ),
 					ariaLabel: sprintf(
 						/* translators: %s is the grouped tags and categories label */
-						__( 'View the tags and categories in %s', 'jetpack-premium-analytics' ),
+						__( 'View the tags and categories in %s', 'jetpack-premium-analytics-pkg' ),
 						row.label
 					),
 				} ),
@@ -165,7 +165,7 @@ function TagsInner( { max = 10 }: TagsAttributes ) {
 			<div className={ styles.content }>
 				{ selectedGroup && (
 					<WidgetBackLink
-						label={ __( 'All tags & categories', 'jetpack-premium-analytics' ) }
+						label={ __( 'All tags & categories', 'jetpack-premium-analytics-pkg' ) }
 						onClick={ clearSelection }
 					/>
 				) }
@@ -177,15 +177,17 @@ function TagsInner( { max = 10 }: TagsAttributes ) {
 					error={ {
 						description: __(
 							"We couldn't load tags & categories. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
-						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
 					} }
 					empty={ {
 						icon: tagIllustration,
 						description: __(
 							'Learn about your most visited tags & categories to track engaging topics.',
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
 					} }
 				>

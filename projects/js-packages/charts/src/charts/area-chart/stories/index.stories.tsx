@@ -112,7 +112,21 @@ export const Default: StoryObj< StoryArgs > = Template.bind( {} );
 Default.args = {
 	...areaChartStoryArgs,
 	showLegend: true,
+};
+
+export const Zoomable: StoryObj< StoryArgs > = Template.bind( {} );
+Zoomable.args = {
+	...areaChartStoryArgs,
+	showLegend: true,
 	zoomable: true,
+};
+Zoomable.parameters = {
+	docs: {
+		description: {
+			story:
+				'With `zoomable`, drag horizontally across the plot to zoom into a range. A reset button appears while zoomed to restore the full domain. Defaults to `false`.',
+		},
+	},
 };
 
 // Same series rendered as overlapping (non-stacked) filled areas.

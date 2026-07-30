@@ -126,13 +126,13 @@ function SubscribersReport( { attributes }: SubscribersReportProps ) {
 			error={ {
 				description: __(
 					"We couldn't load subscribers. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: customer,
-				description: __( 'No subscribers yet.', 'jetpack-premium-analytics' ),
+				description: __( 'No subscribers yet.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			<SubscribersRoster items={ items } moreCount={ moreCount } />

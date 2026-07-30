@@ -35,13 +35,13 @@ class WP_REST_Help_Center_Persisted_Open_State extends WP_REST_Help_Center_Contr
 				array(
 					'methods'             => \WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_state' ),
-					'permission_callback' => 'is_user_logged_in',
+					'permission_callback' => '__return_true',
 				),
 				// Set the open state
 				array(
 					'methods'             => \WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'set_state' ),
-					'permission_callback' => 'is_user_logged_in',
+					'permission_callback' => '__return_true',
 				),
 			)
 		);
@@ -52,7 +52,7 @@ class WP_REST_Help_Center_Persisted_Open_State extends WP_REST_Help_Center_Contr
 	 */
 	public function get_state() {
 		// Forward the request body to the support chat endpoint.
-		$body = $this->wpcom_request_client->request_as_user(
+		$body = $this->wpcom_request_client->request(
 			'/me/preferences',
 			'2',
 			array( 'method' => 'GET' )
@@ -103,7 +103,7 @@ class WP_REST_Help_Center_Persisted_Open_State extends WP_REST_Help_Center_Contr
 			$data['calypso_preferences']['help_center_minimized'] = $minimized;
 		}
 
-		$body = $this->wpcom_request_client->request_as_user(
+		$body = $this->wpcom_request_client->request(
 			'/me/preferences',
 			'2',
 			array( 'method' => 'POST' ),

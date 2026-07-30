@@ -54,7 +54,7 @@ export function getUtmFields( activeTab: UtmReportTabId ): Field< UtmReportRow >
 		},
 		{
 			id: 'views',
-			label: __( 'Views', 'jetpack-premium-analytics' ),
+			label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.views,
 			render: ( { item } ) => (
 				<MetricWithComparison

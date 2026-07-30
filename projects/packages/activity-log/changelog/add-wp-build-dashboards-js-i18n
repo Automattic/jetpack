@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Load JS translation catalogs and stamp the package text domain on the wp-build dashboard bundle.

@@ -10,8 +10,8 @@ const DEFAULT_TAB_ID: CommentsReportTabId = 'authors';
 
 const commentsReportTabs = defineReportTabs< CommentsReportTabId >(
 	[
-		{ id: 'authors', getLabel: () => __( 'Authors', 'jetpack-premium-analytics' ) },
-		{ id: 'posts', getLabel: () => __( 'Posts & Pages', 'jetpack-premium-analytics' ) },
+		{ id: 'authors', getLabel: () => __( 'Authors', 'jetpack-premium-analytics-pkg' ) },
+		{ id: 'posts', getLabel: () => __( 'Posts & Pages', 'jetpack-premium-analytics-pkg' ) },
 	],
 	DEFAULT_TAB_ID
 );

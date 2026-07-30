@@ -1,6 +1,6 @@
 import { GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel, SectionTabPanel } from '@jetpack-premium-analytics/ui';
+import { DateFiltersPanel, SectionHeader, SectionTabPanel } from '@jetpack-premium-analytics/ui';
 import { Page, Breadcrumbs } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
@@ -88,12 +88,10 @@ function Dashboard(): JSX.Element {
 			>
 				<Page
 					breadcrumbs={
-						<Breadcrumbs items={ [ { label: __( 'Analytics', 'jetpack-premium-analytics' ) } ] } />
+						<Breadcrumbs
+							items={ [ { label: __( 'Analytics', 'jetpack-premium-analytics-pkg' ) } ] }
+						/>
 					}
-					subTitle={ __(
-						'Track your site performance and visitor insights.',
-						'jetpack-premium-analytics'
-					) }
 					actions={ <WidgetDashboard.Actions /> }
 					className={ styles.dashboard }
 				>
@@ -102,24 +100,18 @@ function Dashboard(): JSX.Element {
 						value={ activeSection }
 						onChange={ setActiveSection }
 					>
-						{ /*
-						 * The date filters drive every section, so they render once
-						 * below the section tabs and above the widgets, sharing the
-						 * URL search state across all sections.
-						 *
-						 * The wrapper div is also the responsive-measurement target:
-						 * DateFiltersPanel reads its width to pick mobile/wide layouts
-						 * instead of relying on the viewport.
-						 */ }
-						<div ref={ setContainerElement } className={ styles.dateFilters }>
-							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-						</div>
 						{ sections.map( section => (
 							<SectionTabPanel
 								key={ section.slug }
 								value={ section.slug }
 								className={ styles.content }
 							>
+								<div ref={ setContainerElement } className={ styles.sectionHeader }>
+									<SectionHeader title={ section.label }>
+										<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
+									</SectionHeader>
+								</div>
+
 								{ activeSection === section.slug ? (
 									<>
 										<WidgetDashboard.NoWidgetsState />

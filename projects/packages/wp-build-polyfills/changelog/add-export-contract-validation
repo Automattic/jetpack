@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a build-time export-contract check that fails the build when a polyfilled package imports a symbol the shipped version of another polyfilled package does not export — the Jetpack 16.0 blank-dashboard failure mode.

@@ -38,7 +38,7 @@ class Booking_Status_Breakdown_Controller extends Abstract_Csv_Report_Controller
 	 * @return string The report label.
 	 */
 	public function get_report_label(): string {
-		return __( 'Booking Status Breakdown', 'jetpack-premium-analytics' );
+		return __( 'Booking Status Breakdown', 'jetpack-premium-analytics-pkg' );
 	}
 
 	/**
@@ -59,9 +59,9 @@ class Booking_Status_Breakdown_Controller extends Abstract_Csv_Report_Controller
 	public function get_column_headers( ?string $interval = null ): array {
 		return array(
 			'time_interval' => $this->get_interval_label( $interval ),
-			'completed'     => __( 'Completed', 'jetpack-premium-analytics' ),
-			'pending'       => __( 'Pending', 'jetpack-premium-analytics' ),
-			'cancelled'     => __( 'Cancelled', 'jetpack-premium-analytics' ),
+			'completed'     => __( 'Completed', 'jetpack-premium-analytics-pkg' ),
+			'pending'       => __( 'Pending', 'jetpack-premium-analytics-pkg' ),
+			'cancelled'     => __( 'Cancelled', 'jetpack-premium-analytics-pkg' ),
 		);
 	}
 

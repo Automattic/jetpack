@@ -59,3 +59,68 @@
 	margin-block-start: var(--wpds-dimension-gap-lg);
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
+
+// The card-title chip (`.cardTitle` / `.titleIcon`) lives in the shared
+// `components/card-title-icon.module.scss`, which the Settings modules use too.
+
+// Interactive coverage ring: the whole ring is a button that deep-links to the
+// Content tab filtered to the rows still missing this field. Reset the native
+// button chrome; the donut lifts on hover/focus to signal it's actionable.
+.ringTrigger {
+	display: block;
+	inline-size: 100%;
+	margin: 0;
+	padding: var(--wpds-dimension-gap-xs);
+	border: 0;
+	border-radius: 6px;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	cursor: pointer;
+}
+
+.ringTrigger:focus-visible {
+	outline: 2px solid var(--wpds-color-stroke-interactive-brand);
+	outline-offset: 2px;
+}
+
+.donutWrap {
+	position: relative;
+	display: inline-flex;
+	transition: transform 0.18s ease;
+}
+
+// Percentage centered in the donut hole. Visual summary only — the count and
+// label below carry the same value for assistive tech, so it's aria-hidden.
+.pct {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+// Bold (700): leads the medium-weight count, same heading-lg size.
+// Literal weight (WPDS has no lint-approved bold weight token). It only wins
+// over @wordpress/ui's layered variant weight because this module CSS is
+// unlayered; if it's ever moved into a cascade layer, make it win explicitly.
+.pctValue {
+	font-weight: 700;
+}
+
+.ringTrigger:hover .donutWrap,
+.ringTrigger:focus-visible .donutWrap {
+	transform: scale(1.06);
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+
+	.donutWrap {
+		transition: none;
+	}
+
+	.ringTrigger:hover .donutWrap,
+	.ringTrigger:focus-visible .donutWrap {
+		transform: none;
+	}
+}

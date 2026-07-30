@@ -9,7 +9,10 @@ import {
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
+	ReportCsvAction,
+	useReportCsvExport,
 	useReportRetry,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useMemo, useState } from '@wordpress/element';
@@ -71,6 +74,28 @@ function ReferrersReport(): JSX.Element {
 	const records = useReferrersReportRecords( reportParams );
 	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getReferrerFields(), [] );
+	const csvColumns = useMemo< CsvColumn< ReferrerRecord >[] >(
+		() => [
+			{ label: __( 'Referrer', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
+			{
+				label: __( 'Group', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.parentLabel ?? '',
+			},
+			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
+			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
+		],
+		[]
+	);
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport( {
+		rows: records.rows,
+		filenamePrefix: 'referrers',
+		range: reportParams,
+		status: records,
+	} );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dashboardLink = useDashboardLink();
@@ -82,12 +107,17 @@ function ReferrersReport(): JSX.Element {
 				<Breadcrumbs
 					items={ [
 						{
-							label: __( 'Stats', 'jetpack-premium-analytics' ),
+							label: __( 'Stats', 'jetpack-premium-analytics-pkg' ),
 							to: dashboardLink,
 						},
-						{ label: __( 'Referrers', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Referrers', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
+			}
+			actions={
+				canExport ? (
+					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
+				) : undefined
 			}
 		>
 			<ReportPageLayout
@@ -99,7 +129,7 @@ function ReferrersReport(): JSX.Element {
 			>
 				{ records.isError ? (
 					<ReportErrorState
-						title={ __( 'Unable to load referrers', 'jetpack-premium-analytics' ) }
+						title={ __( 'Unable to load referrers', 'jetpack-premium-analytics-pkg' ) }
 						onRetry={ retry }
 					/>
 				) : (
@@ -111,7 +141,7 @@ function ReferrersReport(): JSX.Element {
 						hideLevelMarkers
 						isLoading={ records.isLoading }
 						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search referrers', 'jetpack-premium-analytics' ) }
+						searchLabel={ __( 'Search referrers', 'jetpack-premium-analytics-pkg' ) }
 					/>
 				) }
 			</ReportPageLayout>

@@ -32,7 +32,7 @@ class WP_REST_Help_Center_Sibyl extends WP_REST_Help_Center_Controller {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_sibyl_questions' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => '__return_true',
 			)
 		);
 	}
@@ -46,7 +46,7 @@ class WP_REST_Help_Center_Sibyl extends WP_REST_Help_Center_Controller {
 		$query = $request['query'];
 		$site  = $request['site'];
 
-		$body = $this->wpcom_request_client->request_as_user(
+		$body = $this->wpcom_request_client->request(
 			'/help/sibyl?query=' . $query . '&site=' . $site
 		);
 

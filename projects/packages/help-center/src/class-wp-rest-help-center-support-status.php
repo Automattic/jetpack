@@ -32,7 +32,7 @@ class WP_REST_Help_Center_Support_Status extends WP_REST_Help_Center_Controller 
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_support_status' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => '__return_true',
 			)
 		);
 
@@ -42,7 +42,7 @@ class WP_REST_Help_Center_Support_Status extends WP_REST_Help_Center_Controller 
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_messaging_support_availability' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => '__return_true',
 				'args'                => array(
 					'group'       => array(
 						'type'     => 'string',
@@ -61,7 +61,7 @@ class WP_REST_Help_Center_Support_Status extends WP_REST_Help_Center_Controller 
 	 * Should return the support status for the user
 	 */
 	public function get_support_status() {
-		$body = $this->wpcom_request_client->request_as_user( 'help/support-status' );
+		$body = $this->wpcom_request_client->request( 'help/support-status' );
 		if ( is_wp_error( $body ) ) {
 			return $body;
 		}
@@ -80,7 +80,7 @@ class WP_REST_Help_Center_Support_Status extends WP_REST_Help_Center_Controller 
 			'group'       => $request['group'],
 			'environment' => $request['environment'],
 		);
-		$body             = $this->wpcom_request_client->request_as_user( 'help/support-status/messaging?' . http_build_query( $query_parameters ) );
+		$body             = $this->wpcom_request_client->request( 'help/support-status/messaging?' . http_build_query( $query_parameters ) );
 		if ( is_wp_error( $body ) ) {
 			return $body;
 		}

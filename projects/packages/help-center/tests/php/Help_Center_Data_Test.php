@@ -142,13 +142,64 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 		$this->assertInstanceOf( Help_Center::class, Help_Center::get_instance() );
 	}
 
+	public function test_consumer_can_load_logged_out_bundle_on_frontend() {
+		wp_set_current_user( 0 );
+		set_transient(
+			'help-center-asset-logged-out.asset.json',
+			array(
+				'dependencies' => array(),
+				'version'      => 'test-version',
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$should_load = static function () {
+			return true;
+		};
+		add_filter( 'jetpack_help_center_should_load_logged_out', $should_load );
+
+		try {
+			$this->help_center->enqueue_wp_admin_scripts();
+
+			$this->assertTrue( wp_script_is( 'help-center', 'enqueued' ) );
+			$this->assertStringContainsString(
+				'help-center-logged-out.min.js',
+				wp_scripts()->registered['help-center']->src
+			);
+			$this->assertTrue( wp_style_is( 'help-center-logged-out-style', 'enqueued' ) );
+		} finally {
+			remove_filter( 'jetpack_help_center_should_load_logged_out', $should_load );
+			delete_transient( 'help-center-asset-logged-out.asset.json' );
+			wp_dequeue_script( 'help-center' );
+			wp_deregister_script( 'help-center' );
+			wp_dequeue_style( 'help-center-logged-out-style' );
+			wp_deregister_style( 'help-center-logged-out-style' );
+		}
+	}
+
+	public function test_rest_proxy_routes_allow_logged_out_requests() {
+		wp_set_current_user( 0 );
+		$this->help_center->register_rest_api();
+
+		$routes = rest_get_server()->get_routes( 'help-center' );
+		$this->assertNotEmpty( $routes );
+
+		foreach ( $routes as $route_handlers ) {
+			foreach ( $route_handlers as $handler ) {
+				if ( isset( $handler['permission_callback'] ) ) {
+					$this->assertSame( '__return_true', $handler['permission_callback'] );
+				}
+			}
+		}
+	}
+
 	public function test_init_uses_filtered_wpcom_request_client() {
 		$wpcom_request_client = new class() implements Wpcom_Request_Client {
 			public function is_user_connected() {
 				return true;
 			}
 
-			public function request_as_user(
+			public function request(
 				$path,
 				$version = '2',
 				$args = array(),
@@ -192,7 +243,7 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 				return true;
 			}
 
-			public function request_as_user(
+			public function request(
 				$path,
 				$version = '2',
 				$args = array(),
@@ -227,7 +278,7 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 				return true;
 			}
 
-			public function request_as_user(
+			public function request(
 				$path,
 				$version = '2',
 				$args = array(),

@@ -51,23 +51,23 @@ export default {
 	attributes: [
 		{
 			id: 'metric',
-			label: __( 'Metric', 'jetpack-premium-analytics' ),
+			label: __( 'Metric', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
 			Edit: SelectField,
 			elements: [
-				{ label: __( 'Opens', 'jetpack-premium-analytics' ), value: 'opens' },
-				{ label: __( 'Clicks', 'jetpack-premium-analytics' ), value: 'clicks' },
+				{ label: __( 'Opens', 'jetpack-premium-analytics-pkg' ), value: 'opens' },
+				{ label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ), value: 'clicks' },
 			],
 		},
 		{
 			id: 'granularity',
-			label: __( 'Group by', 'jetpack-premium-analytics' ),
+			label: __( 'Group by', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
 			Edit: SelectField,
 			elements: [
-				{ label: __( 'By days', 'jetpack-premium-analytics' ), value: 'day' },
-				{ label: __( 'By weeks', 'jetpack-premium-analytics' ), value: 'week' },
-				{ label: __( 'By months', 'jetpack-premium-analytics' ), value: 'month' },
+				{ label: __( 'By days', 'jetpack-premium-analytics-pkg' ), value: 'day' },
+				{ label: __( 'By weeks', 'jetpack-premium-analytics-pkg' ), value: 'week' },
+				{ label: __( 'By months', 'jetpack-premium-analytics-pkg' ), value: 'month' },
 			],
 			relevance: 'high',
 		},

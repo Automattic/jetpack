@@ -14,7 +14,10 @@ import {
 	ReportPageLayout,
 	ReportPageShell,
 	ReportPageTabs,
+	ReportCsvAction,
+	useReportCsvExport,
 	useReportRetry,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useMemo, useState } from '@wordpress/element';
@@ -27,6 +30,7 @@ import { route } from '../package.json';
 import {
 	getReportUtmTabs,
 	getUtmFields,
+	getUtmTabLabel,
 	resolveSection,
 	useUtmReportRecords,
 	type UtmReportRow,
@@ -46,6 +50,8 @@ const RECORDS_VIEW = {
 		},
 	},
 };
+
+const sortUtmCsvRows = ( a: UtmReportRow, b: UtmReportRow ) => b.views - a.views;
 
 /**
  * Stable row id for the UTM records table.
@@ -83,6 +89,24 @@ function UtmReport(): JSX.Element {
 	const records = useUtmReportRecords( activeTab, reportParams );
 	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getUtmFields( activeTab ), [ activeTab ] );
+	const csvColumns = useMemo< CsvColumn< UtmReportRow >[] >(
+		() => [
+			{ label: getUtmTabLabel( activeTab ), getValue: row => row.label },
+			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
+		],
+		[ activeTab ]
+	);
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport( {
+		rows: records.rows,
+		filenamePrefix: `utm-${ activeTab }`,
+		range: reportParams,
+		status: records,
+		sort: sortUtmCsvRows,
+	} );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dashboardLink = useDashboardLink();
 	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
@@ -93,10 +117,15 @@ function UtmReport(): JSX.Element {
 			breadcrumbs={
 				<Breadcrumbs
 					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'UTM', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
+						{ label: __( 'UTM', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
+			}
+			actions={
+				canExport ? (
+					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
+				) : undefined
 			}
 		>
 			<ReportPageLayout
@@ -109,7 +138,7 @@ function UtmReport(): JSX.Element {
 			>
 				{ records.isError ? (
 					<ReportErrorState
-						title={ __( 'Unable to load UTM data', 'jetpack-premium-analytics' ) }
+						title={ __( 'Unable to load UTM data', 'jetpack-premium-analytics-pkg' ) }
 						onRetry={ retry }
 					/>
 				) : (
@@ -121,7 +150,7 @@ function UtmReport(): JSX.Element {
 						getItemParentId={ getUtmRowParentId }
 						isLoading={ records.isLoading }
 						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search UTM values', 'jetpack-premium-analytics' ) }
+						searchLabel={ __( 'Search UTM values', 'jetpack-premium-analytics-pkg' ) }
 						hideLevelMarkers
 					/>
 				) }

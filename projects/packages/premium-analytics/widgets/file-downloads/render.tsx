@@ -203,13 +203,15 @@ function FileDownloadsInner( { max }: FileDownloadsInnerProps ) {
 					error={ {
 						description: __(
 							"We couldn't load file downloads. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
-						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
 					} }
 					empty={ {
 						icon: download,
-						description: __( 'No file downloads in this period.', 'jetpack-premium-analytics' ),
+						description: __( 'No file downloads in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
 				>
 					<FileDownloadsLeaderboard rows={ rows } withComparison={ withComparison } />

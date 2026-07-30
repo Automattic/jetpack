@@ -25,10 +25,10 @@ export function VisitorMetricWidget() {
 				type: 'number',
 				options: { useMultipliers: true, decimals: 0 },
 			} }
-			emptyStateText={ __( 'No visitors in this period.', 'jetpack-premium-analytics' ) }
+			emptyStateText={ __( 'No visitors in this period.', 'jetpack-premium-analytics-pkg' ) }
 			errorText={ __(
 				"We couldn't load visitors. Please try again in a moment.",
-				'jetpack-premium-analytics'
+				'jetpack-premium-analytics-pkg'
 			) }
 		/>
 	);

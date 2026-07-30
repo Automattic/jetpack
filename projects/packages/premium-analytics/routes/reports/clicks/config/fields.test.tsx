@@ -9,6 +9,26 @@ const row: ClickRow = {
 	clicks: 42,
 };
 
+/**
+ * Mount a Clicks table field's render component.
+ *
+ * @param fieldId        - The field to render.
+ * @param item           - The Clicks row.
+ * @param withComparison - Whether comparison deltas are enabled.
+ * @return The Testing Library render result.
+ */
+function renderField( fieldId: 'clickedUrl' | 'clicks', item: ClickRow, withComparison = false ) {
+	const field = getClicksFields( withComparison ).find( candidate => candidate.id === fieldId );
+	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` is the DataViews field render component.
+	const FieldComponent = field?.render;
+
+	if ( ! field || ! FieldComponent ) {
+		throw new Error( `Clicks ${ fieldId } field render callback is unavailable` );
+	}
+
+	return render( <FieldComponent item={ item } field={ field as never } /> );
+}
+
 describe( 'clicks fields', () => {
 	it( 'renders clicked URLs as safe external links', () => {
 		const field = getClicksFields().find( candidate => candidate.id === 'clickedUrl' );
@@ -97,5 +117,19 @@ describe( 'clicks fields', () => {
 		const fields = getClicksFields();
 
 		expect( fields.find( field => field.id === 'clickedUrl' )?.enableGlobalSearch ).toBe( true );
+	} );
+
+	it( 'shows the clicks delta when a comparison row is available', () => {
+		renderField( 'clicks', { ...row, previousClicks: 28 }, true );
+
+		expect( screen.getByText( '42' ) ).toBeInTheDocument();
+		expect( screen.getByText( '+50%' ) ).toBeInTheDocument();
+	} );
+
+	it( 'hides the clicks delta when comparison is disabled', () => {
+		renderField( 'clicks', { ...row, previousClicks: 28 } );
+
+		expect( screen.getByText( '42' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '+50%' ) ).not.toBeInTheDocument();
 	} );
 } );

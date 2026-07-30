@@ -42,31 +42,31 @@ interface PlatformViewsState {
 }
 
 const BROWSER_LABELS: Record< string, string > = {
-	chrome: __( 'Chrome', 'jetpack-premium-analytics' ),
-	safari: __( 'Safari', 'jetpack-premium-analytics' ),
-	firefox: __( 'Firefox', 'jetpack-premium-analytics' ),
-	edge: __( 'Edge', 'jetpack-premium-analytics' ),
-	opera: __( 'Opera', 'jetpack-premium-analytics' ),
-	samsung: __( 'Samsung Internet', 'jetpack-premium-analytics' ),
-	ie: __( 'IE', 'jetpack-premium-analytics' ),
-	yandex: __( 'Yandex', 'jetpack-premium-analytics' ),
-	miui: __( 'Mi Browser', 'jetpack-premium-analytics' ),
-	other: __( 'Other', 'jetpack-premium-analytics' ),
+	chrome: __( 'Chrome', 'jetpack-premium-analytics-pkg' ),
+	safari: __( 'Safari', 'jetpack-premium-analytics-pkg' ),
+	firefox: __( 'Firefox', 'jetpack-premium-analytics-pkg' ),
+	edge: __( 'Edge', 'jetpack-premium-analytics-pkg' ),
+	opera: __( 'Opera', 'jetpack-premium-analytics-pkg' ),
+	samsung: __( 'Samsung Internet', 'jetpack-premium-analytics-pkg' ),
+	ie: __( 'IE', 'jetpack-premium-analytics-pkg' ),
+	yandex: __( 'Yandex', 'jetpack-premium-analytics-pkg' ),
+	miui: __( 'Mi Browser', 'jetpack-premium-analytics-pkg' ),
+	other: __( 'Other', 'jetpack-premium-analytics-pkg' ),
 };
 
 const PLATFORM_LABELS: Record< string, string > = {
-	windows: __( 'Windows', 'jetpack-premium-analytics' ),
-	mac: __( 'macOS', 'jetpack-premium-analytics' ),
-	android: __( 'Android', 'jetpack-premium-analytics' ),
-	linux: __( 'Linux', 'jetpack-premium-analytics' ),
-	ios: __( 'iOS', 'jetpack-premium-analytics' ),
-	ipad: __( 'iPad', 'jetpack-premium-analytics' ),
-	iphone: __( 'iPhone', 'jetpack-premium-analytics' ),
-	ipados: __( 'iPadOS', 'jetpack-premium-analytics' ),
-	macos: __( 'macOS', 'jetpack-premium-analytics' ),
-	chrome: __( 'Chrome OS', 'jetpack-premium-analytics' ),
-	android_tablet: __( 'Android Tablet', 'jetpack-premium-analytics' ),
-	other: __( 'Other', 'jetpack-premium-analytics' ),
+	windows: __( 'Windows', 'jetpack-premium-analytics-pkg' ),
+	mac: __( 'macOS', 'jetpack-premium-analytics-pkg' ),
+	android: __( 'Android', 'jetpack-premium-analytics-pkg' ),
+	linux: __( 'Linux', 'jetpack-premium-analytics-pkg' ),
+	ios: __( 'iOS', 'jetpack-premium-analytics-pkg' ),
+	ipad: __( 'iPad', 'jetpack-premium-analytics-pkg' ),
+	iphone: __( 'iPhone', 'jetpack-premium-analytics-pkg' ),
+	ipados: __( 'iPadOS', 'jetpack-premium-analytics-pkg' ),
+	macos: __( 'macOS', 'jetpack-premium-analytics-pkg' ),
+	chrome: __( 'Chrome OS', 'jetpack-premium-analytics-pkg' ),
+	android_tablet: __( 'Android Tablet', 'jetpack-premium-analytics-pkg' ),
+	other: __( 'Other', 'jetpack-premium-analytics-pkg' ),
 };
 
 function toPlatformView(

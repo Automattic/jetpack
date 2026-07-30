@@ -1,127 +1,86 @@
 /**
+ * External dependencies
+ */
+import { setSettings } from '@wordpress/date';
+/**
  * Internal dependencies
  */
-import { formatDate } from '../format-date';
+import {
+	EN_US_SETTINGS,
+	ES_ES_SETTINGS,
+	settingsFor,
+	utcDate,
+} from '../__fixtures__/wp-date-settings';
 import { formatDateRange } from '../format-date-range';
 
-jest.mock( '../format-date' );
-
 describe( 'formatDateRange', () => {
-	/**
-	 * Setup mock for formatDate function.
-	 */
-	const setupMocks = () => {
-		( formatDate as jest.Mock ).mockImplementation( ( date: Date, formatString?: string ) => {
-			const monthNames = [
-				'Jan',
-				'Feb',
-				'Mar',
-				'Apr',
-				'May',
-				'Jun',
-				'Jul',
-				'Aug',
-				'Sep',
-				'Oct',
-				'Nov',
-				'Dec',
-			];
-
-			const dateStr = date.toISOString().split( 'T' )[ 0 ];
-
-			if ( formatString === 'iso' ) {
-				return dateStr;
-			}
-
-			// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- allow unused vars before return for test mock
-			const [ year, month, day ] = dateStr.split( '-' );
-			const monthName = monthNames[ parseInt( month, 10 ) - 1 ];
-
-			if ( formatString === 'year' ) {
-				return year;
-			}
-
-			if ( formatString === 'monthYear' ) {
-				return `${ monthName } ${ year }`;
-			}
-
-			const dayNum = parseInt( day, 10 );
-			if ( formatString === 'short' ) {
-				return `${ monthName } ${ dayNum }`;
-			}
-
-			if ( formatString === 'd, yyyy' ) {
-				return `${ dayNum }, ${ year }`;
-			}
-
-			// Default: medium format
-			return `${ monthName } ${ dayNum }, ${ year }`;
-		} );
-	};
-
-	beforeEach( () => {
-		jest.clearAllMocks();
-		setupMocks();
-	} );
-
 	describe( 'edge cases', () => {
-		it( 'returns empty string when "from" is missing', () => {
-			const result = formatDateRange( {
-				from: undefined,
-				to: new Date( '2025-06-21' ),
-			} );
-			expect( result ).toBe( '' );
+		beforeEach( () => setSettings( EN_US_SETTINGS ) );
+
+		it( 'returns an empty string when "from" is missing', () => {
+			expect( formatDateRange( { from: undefined, to: utcDate( 2025, 6, 21 ) } ) ).toBe( '' );
 		} );
 
-		it( 'returns empty string when "to" is missing', () => {
-			const result = formatDateRange( {
-				from: new Date( '2025-06-21' ),
-				to: undefined,
-			} );
-			expect( result ).toBe( '' );
+		it( 'returns an empty string when "to" is missing', () => {
+			expect( formatDateRange( { from: utcDate( 2025, 6, 21 ), to: undefined } ) ).toBe( '' );
 		} );
 
-		it( 'returns empty string when both dates are missing', () => {
-			const result = formatDateRange( {
-				from: undefined,
-				to: undefined,
-			} );
-			expect( result ).toBe( '' );
+		it( 'returns an empty string when the range itself is missing', () => {
+			expect( formatDateRange() ).toBe( '' );
 		} );
 	} );
 
-	describe( 'same date', () => {
-		it( 'formats same date as single date', () => {
-			const date = new Date( '2025-06-21' );
-			const result = formatDateRange( { from: date, to: date } );
-			expect( result ).toBe( 'Jun 21, 2025' );
+	describe( 'en_US site', () => {
+		beforeEach( () => setSettings( EN_US_SETTINGS ) );
+
+		it( 'collapses a single-day range to one date', () => {
+			const date = utcDate( 2025, 6, 21 );
+			expect( formatDateRange( { from: date, to: date } ) ).toBe( 'June 21, 2025' );
+		} );
+
+		it( 'spells out both ends of a range within one month', () => {
+			expect(
+				formatDateRange( { from: utcDate( 2025, 6, 21 ), to: utcDate( 2025, 6, 25 ) } )
+			).toBe( 'June 21, 2025 – June 25, 2025' );
+		} );
+
+		it( 'spells out both ends of a range spanning years', () => {
+			expect(
+				formatDateRange( { from: utcDate( 2024, 6, 21 ), to: utcDate( 2025, 7, 25 ) } )
+			).toBe( 'June 21, 2024 – July 25, 2025' );
 		} );
 	} );
 
-	describe( 'same month and year', () => {
-		it( 'formats date range within same month', () => {
-			const from = new Date( '2025-06-21' );
-			const to = new Date( '2025-06-25' );
-			const result = formatDateRange( { from, to } );
-			expect( result ).toBe( 'Jun 21-25, 2025' );
+	describe( 'es_ES site', () => {
+		beforeEach( () => setSettings( ES_ES_SETTINGS ) );
+
+		it( 'follows the site date format on both ends', () => {
+			expect(
+				formatDateRange( { from: utcDate( 2025, 6, 21 ), to: utcDate( 2025, 6, 25 ) } )
+			).toBe( '21 de junio de 2025 – 25 de junio de 2025' );
+		} );
+
+		it( 'collapses a single-day range to one date', () => {
+			const date = utcDate( 2025, 6, 21 );
+			expect( formatDateRange( { from: date, to: date } ) ).toBe( '21 de junio de 2025' );
 		} );
 	} );
 
-	describe( 'same year, different months', () => {
-		it( 'formats date range across months in same year', () => {
-			const from = new Date( '2025-06-21' );
-			const to = new Date( '2025-07-25' );
-			const result = formatDateRange( { from, to } );
-			expect( result ).toBe( 'Jun 21-Jul 25, 2025' );
-		} );
-	} );
+	describe( 'site whose date format carries no year', () => {
+		// `date_format` is a free-text field, so a format without a year is
+		// reachable. Collapsing on the rendered strings would fold a whole year
+		// apart into a single date.
+		beforeEach( () => setSettings( settingsFor( 'en-no-year-test', 'F j' ) ) );
 
-	describe( 'different years', () => {
-		it( 'formats date range across different years', () => {
-			const from = new Date( '2024-06-21' );
-			const to = new Date( '2025-07-25' );
-			const result = formatDateRange( { from, to } );
-			expect( result ).toBe( 'Jun 21, 2024-Jul 25, 2025' );
+		it( 'still spells out both ends of a range spanning years', () => {
+			expect(
+				formatDateRange( { from: utcDate( 2024, 6, 21 ), to: utcDate( 2025, 6, 21 ) } )
+			).toBe( 'June 21 – June 21' );
+		} );
+
+		it( 'collapses a genuine single-day range', () => {
+			const date = utcDate( 2025, 6, 21 );
+			expect( formatDateRange( { from: date, to: date } ) ).toBe( 'June 21' );
 		} );
 	} );
 } );

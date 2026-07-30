@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connection: Fetch connected user data from WordPress.com over REST instead of XML-RPC.

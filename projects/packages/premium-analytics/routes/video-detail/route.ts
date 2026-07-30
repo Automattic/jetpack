@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { ensureCoreSettingsReady, normalizeReportParams } from '@jetpack-premium-analytics/data';
+import {
+	ensureCoreSettingsReady,
+	needsReportDateParamsSeed,
+	normalizeReportParams,
+} from '@jetpack-premium-analytics/data';
 import { store as coreStore } from '@wordpress/core-data';
 import { dispatch, select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -53,7 +57,7 @@ export const route = {
 		}
 
 		const currentSearch = ( search ?? {} ) as VideoDetailSearch;
-		const needsDateSeed = ! currentSearch.from || ! currentSearch.to || ! currentSearch.interval;
+		const needsDateSeed = needsReportDateParamsSeed( currentSearch );
 		const needsPostSeed = currentSearch.post_id !== videoId;
 
 		if ( needsDateSeed || needsPostSeed ) {
@@ -106,7 +110,7 @@ export const route = {
 				key: 'name',
 				baseURL: `/${ DASHBOARD_REST_NAMESPACE }/widget-modules`,
 				plural: 'widgetModules',
-				label: __( 'Widget modules', 'jetpack-premium-analytics' ),
+				label: __( 'Widget modules', 'jetpack-premium-analytics-pkg' ),
 				supportsPagination: false,
 			},
 		] );

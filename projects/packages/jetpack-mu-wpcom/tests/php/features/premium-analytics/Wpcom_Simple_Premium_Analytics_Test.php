@@ -64,8 +64,14 @@ class Wpcom_Simple_Premium_Analytics_Test extends \WorDBless\BaseTestCase {
 			->shouldReceive( 'init_wpcom_simple' )
 			->once()
 			->with(
-				array(
-					'menu_title' => 'Premium Analytics',
+				\Mockery::on(
+					function ( $options ) {
+						// The label has to arrive as a closure - a string would mean we
+						// translated it on plugins_loaded, before the textdomain loads.
+						$menu_title = $options['menu_title'] ?? null;
+
+						return $menu_title instanceof \Closure && 'Premium Analytics' === $menu_title();
+					}
 				)
 			);
 

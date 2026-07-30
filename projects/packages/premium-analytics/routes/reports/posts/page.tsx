@@ -18,7 +18,7 @@ import {
 	ReportPageTabs,
 	ReportDrilldownTable,
 	ReportRecordsTable,
-	RowsCsvDownloadButton,
+	ReportCsvAction,
 	useReportCsvExport,
 	useReportRetry,
 	type CsvColumn,
@@ -136,11 +136,11 @@ function PostsReport(): JSX.Element {
 	const csvColumns = useMemo< CsvColumn< ReportCsvRow >[] >(
 		() => [
 			{
-				label: __( 'Title', 'jetpack-premium-analytics' ),
+				label: __( 'Title', 'jetpack-premium-analytics-pkg' ),
 				getValue: row => String( row.label ?? '' ),
 			},
-			{ label: __( 'Views', 'jetpack-premium-analytics' ), getValue: row => row.views },
-			{ label: __( 'URL', 'jetpack-premium-analytics' ), getValue: row => row.link ?? '' },
+			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
+			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
 		],
 		[]
 	);
@@ -191,7 +191,7 @@ function PostsReport(): JSX.Element {
 				getItemId={ getPostRowId }
 				isLoading={ records.posts.isLoading || records.posts.isFetching }
 				initialView={ RECORDS_VIEW }
-				searchLabel={ __( 'Search posts', 'jetpack-premium-analytics' ) }
+				searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
 			/>
 		) : (
 			<ReportDrilldownTable< ArchiveRow >
@@ -202,7 +202,7 @@ function PostsReport(): JSX.Element {
 				getItemParentId={ getArchiveRowParentId }
 				isLoading={ records.archives.isLoading || records.archives.isFetching }
 				initialView={ RECORDS_VIEW }
-				searchLabel={ __( 'Search archives', 'jetpack-premium-analytics' ) }
+				searchLabel={ __( 'Search archives', 'jetpack-premium-analytics-pkg' ) }
 				hideLevelMarkers
 			/>
 		);
@@ -213,22 +213,15 @@ function PostsReport(): JSX.Element {
 			breadcrumbs={
 				<Breadcrumbs
 					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'Posts & Pages', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
+						{ label: __( 'Posts & Pages', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
 			}
-			subTitle={ __( 'All your posts and archive pages.', 'jetpack-premium-analytics' ) }
+			subTitle={ __( 'All your posts and archive pages.', 'jetpack-premium-analytics-pkg' ) }
 			actions={
 				canExport ? (
-					<RowsCsvDownloadButton
-						label={ __( 'Download', 'jetpack-premium-analytics' ) }
-						variant="solid"
-						showIcon={ false }
-						columns={ csvColumns }
-						rows={ csvRows }
-						filename={ csvFilename }
-					/>
+					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
 				) : undefined
 			}
 		>
@@ -242,7 +235,7 @@ function PostsReport(): JSX.Element {
 			>
 				{ records.isError ? (
 					<ReportErrorState
-						title={ __( 'Unable to load posts', 'jetpack-premium-analytics' ) }
+						title={ __( 'Unable to load posts', 'jetpack-premium-analytics-pkg' ) }
 						onRetry={ retry }
 					/>
 				) : (

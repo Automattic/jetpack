@@ -84,7 +84,7 @@ export function WidgetState( {
 					{ error?.description ??
 						__(
 							"We couldn't load this data. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						) }
 				</div>
 				{ !! error?.actions?.length && (

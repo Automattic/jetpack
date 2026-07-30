@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -9,16 +9,22 @@ import { __ } from '@wordpress/i18n';
 import type { SearchTermRow } from './aggregate';
 import type { Field } from '@wordpress/dataviews';
 
+const VIEWS_DATA_FORMAT = {
+	type: 'number',
+	options: { decimals: 0, useMultipliers: false },
+} as const;
+
 /**
  * DataViews field config for the Search terms records table.
  *
+ * @param withComparison - Whether to render available period-over-period deltas.
  * @return The field config.
  */
-export function getSearchTermsFields(): Field< SearchTermRow >[] {
+export function getSearchTermsFields( withComparison = false ): Field< SearchTermRow >[] {
 	return [
 		{
 			id: 'term',
-			label: __( 'Search term', 'jetpack-premium-analytics' ),
+			label: __( 'Search term', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
 			enableGlobalSearch: true,
 			enableSorting: true,
@@ -27,12 +33,17 @@ export function getSearchTermsFields(): Field< SearchTermRow >[] {
 		},
 		{
 			id: 'views',
-			label: __( 'Views', 'jetpack-premium-analytics' ),
+			label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
 			type: 'integer',
 			enableSorting: true,
 			getValue: ( { item } ) => item.views,
 			render: ( { item } ) => (
-				<>{ formatMetricValue( item.views, 'number', { decimals: 0, useMultipliers: false } ) }</>
+				<MetricWithComparison
+					value={ item.views }
+					previousValue={ withComparison ? item.previousViews : undefined }
+					dataFormat={ VIEWS_DATA_FORMAT }
+					fontSize="md"
+				/>
 			),
 		},
 	];

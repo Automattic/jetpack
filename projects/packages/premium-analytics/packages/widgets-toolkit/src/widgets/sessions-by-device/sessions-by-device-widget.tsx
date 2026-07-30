@@ -60,13 +60,13 @@ export function SessionsByDeviceWidget() {
 			error={ {
 				description: __(
 					"We couldn't load sessions data. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: device,
-				description: __( 'No session data in this period.', 'jetpack-premium-analytics' ),
+				description: __( 'No session data in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			{ /*

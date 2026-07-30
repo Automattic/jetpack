@@ -87,13 +87,13 @@ function SearchTermsInner( { max = 10 }: SearchTermsAttributes ) {
 					error={ describeError( error, {
 						retryDescription: __(
 							"We couldn't load search terms. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
 						onRetry: refetch,
 					} ) }
 					empty={ {
 						icon: search,
-						description: __( 'No search terms in this period.', 'jetpack-premium-analytics' ),
+						description: __( 'No search terms in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
 				>
 					<LeaderboardChart

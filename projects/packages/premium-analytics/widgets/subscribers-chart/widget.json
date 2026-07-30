@@ -1,9 +1,9 @@
 {
 	"name": "jpa/subscribers-chart",
-	"title": "Subscribers",
+	"title": "Subscribers summary",
 	"description": "Track subscriber growth over time, with paid subscribers and the previous period overlaid for comparison.",
 	"help": {
-		"content": "A summary of your subscriber growth over time, with paid subscribers and the previous period overlaid for comparison."
+		"content": "A summary of the new subscribers you gained over time."
 	},
 	"category": "subscribers",
 	"presentation": "framed"

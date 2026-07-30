@@ -94,19 +94,19 @@ function VideoDetailHighlightsInner() {
 	const tiles = [
 		{
 			key: 'views',
-			label: __( 'Views', 'jetpack-premium-analytics' ),
+			label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
 			icon: seen,
 			value: sumVideoMetric( views.data ),
 		},
 		{
 			key: 'impressions',
-			label: __( 'Impressions', 'jetpack-premium-analytics' ),
+			label: __( 'Impressions', 'jetpack-premium-analytics-pkg' ),
 			icon: video,
 			value: sumVideoMetric( impressions.data ),
 		},
 		{
 			key: 'watch-time',
-			label: __( 'Hours watched', 'jetpack-premium-analytics' ),
+			label: __( 'Hours watched', 'jetpack-premium-analytics-pkg' ),
 			icon: scheduled,
 			value: sumVideoMetric( watchTime.data ),
 			dataFormat: HOURS_FORMAT,
@@ -123,11 +123,11 @@ function VideoDetailHighlightsInner() {
 				error={ {
 					description: __(
 						"We couldn't load this video's highlights. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 					actions: [
 						{
-							label: __( 'Retry', 'jetpack-premium-analytics' ),
+							label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
 							onClick: () => {
 								void Promise.all( queries.map( query => query.refetch() ) );
 							},
@@ -137,8 +137,11 @@ function VideoDetailHighlightsInner() {
 				empty={ {
 					icon: video,
 					description: hasVideoScope
-						? __( 'No highlights are available for this video.', 'jetpack-premium-analytics' )
-						: __( 'Open a video report to see its highlights here.', 'jetpack-premium-analytics' ),
+						? __( 'No highlights are available for this video.', 'jetpack-premium-analytics-pkg' )
+						: __(
+								'Open a video report to see its highlights here.',
+								'jetpack-premium-analytics-pkg'
+						  ),
 				} }
 			>
 				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />

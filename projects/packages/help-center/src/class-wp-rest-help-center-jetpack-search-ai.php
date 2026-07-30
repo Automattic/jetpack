@@ -32,7 +32,7 @@ class WP_REST_Help_Center_Jetpack_Search_AI extends WP_REST_Help_Center_Controll
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_search_results' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => '__return_true',
 			)
 		);
 	}
@@ -47,7 +47,7 @@ class WP_REST_Help_Center_Jetpack_Search_AI extends WP_REST_Help_Center_Controll
 			'query'   => $request['query'],
 			'stop_at' => $request['stop_at'],
 		);
-		$body             = $this->wpcom_request_client->request_as_user(
+		$body             = $this->wpcom_request_client->request(
 			'sites/' . $request['site'] . '/jetpack-search/ai/search?' . http_build_query( $query_parameters ),
 			'2',
 			array(

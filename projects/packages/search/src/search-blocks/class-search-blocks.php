@@ -2107,7 +2107,8 @@ HTML;
 			return array();
 		}
 		// Bail if any helper is missing — half-loaded feature would ship inconsistent filterConfigs.
-		foreach ( static::filter_block_helpers() as $helper ) {
+		$helpers = static::filter_block_helpers();
+		foreach ( $helpers as $helper ) {
 			if ( ! class_exists( $helper ) ) {
 				return array();
 			}
@@ -2116,9 +2117,29 @@ HTML;
 		if ( ! $post || empty( $post->post_content ) ) {
 			return array();
 		}
+		if ( ! static::post_content_has_filter_block( $post, array_keys( $helpers ) ) ) {
+			return array();
+		}
 		$configs = array();
 		static::walk_blocks_for_filter_configs( parse_blocks( $post->post_content ), $configs );
 		return $configs;
+	}
+
+	/**
+	 * Does the post contain any of the given block names? SEARCH-295: a
+	 * has_block() scan to gate parse_blocks() on large, filter-less posts.
+	 *
+	 * @param \WP_Post $post        Post to scan.
+	 * @param string[] $block_names Block names to scan for.
+	 * @return bool
+	 */
+	protected static function post_content_has_filter_block( \WP_Post $post, array $block_names ): bool {
+		foreach ( $block_names as $block_name ) {
+			if ( has_block( $block_name, $post ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -2184,15 +2205,16 @@ HTML;
 	 * @return array<string, mixed>
 	 */
 	public static function build_initial_state() {
-		$is_private         = class_exists( Status::class ) ? ( new Status() )->is_private_site() : false;
-		$is_wpcom           = class_exists( Helper::class ) ? Helper::is_wpcom() : false;
-		$site_id            = class_exists( Helper::class ) ? Helper::get_wpcom_site_id() : 0;
-		$search_query       = static::parse_url_search_query();
-		$active_filters     = static::parse_url_filters();
-		$filter_logic       = static::parse_url_filter_logic( $active_filters );
-		$price_range        = static::parse_url_price_range();
-		$is_initial_loading = static::is_initial_loading();
-		$searching_text     = function_exists( '__' ) ? __( 'Searching…', 'jetpack-search-pkg' ) : 'Searching…';
+		$is_private                = class_exists( Status::class ) ? ( new Status() )->is_private_site() : false;
+		$is_wpcom                  = class_exists( Helper::class ) ? Helper::is_wpcom() : false;
+		$site_id                   = class_exists( Helper::class ) ? Helper::get_wpcom_site_id() : 0;
+		$is_jetpack_photon_enabled = method_exists( 'Jetpack', 'is_module_active' ) && \Jetpack::is_module_active( 'photon' );
+		$search_query              = static::parse_url_search_query();
+		$active_filters            = static::parse_url_filters();
+		$filter_logic              = static::parse_url_filter_logic( $active_filters );
+		$price_range               = static::parse_url_price_range();
+		$is_initial_loading        = static::is_initial_loading();
+		$searching_text            = function_exists( '__' ) ? __( 'Searching…', 'jetpack-search-pkg' ) : 'Searching…';
 
 		return array(
 			// Connection / routing config.
@@ -2201,6 +2223,7 @@ HTML;
 			'nonce'                      => function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'wp_rest' ) : '',
 			'isPrivateSite'              => $is_private,
 			'isWpcom'                    => $is_wpcom,
+			'isPhotonEnabled'            => ( $is_wpcom || $is_jetpack_photon_enabled ) && ! $is_private,
 			// TrainTracks gate, mirroring instant search's `disableTracking`
 			// (Helper::get_search_options): suppresses `_tkq` pushes for
 			// `?disable_tracking=1` crawlers/QA and the filter override.
