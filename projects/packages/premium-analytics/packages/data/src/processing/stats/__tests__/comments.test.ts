@@ -1,4 +1,4 @@
-import { sanitizeStatsCommentsResponse } from '..';
+import { sanitizeStatsCommentsResponse, selectStatsCommentsRows } from '..';
 import { commentsFixture } from '../__fixtures__/comments';
 
 describe( 'Stats comments normalizer', () => {
@@ -123,5 +123,85 @@ describe( 'Stats comments normalizer', () => {
 			summary: { total_comments: 0 },
 			data: [],
 		} );
+	} );
+} );
+
+describe( 'selectStatsCommentsRows', () => {
+	it( 'flattens the authors group into ranked rows keyed on the gravatar hash', () => {
+		const report = sanitizeStatsCommentsResponse( {
+			authors: [
+				{ name: 'Aggie', comments: 2, link: '?s=aggie@example.com', gravatar: 'g/aggie?s=48' },
+				{ name: 'Bo', comments: 7, link: '?user_id=1662656', gravatar: 'g/bo?s=48' },
+			],
+		} );
+
+		expect( selectStatsCommentsRows( report, 'authors' ) ).toEqual( [
+			{
+				id: 'g/bo?d=mm',
+				label: 'Bo',
+				value: 7,
+				avatarUrl: 'g/bo?d=mm',
+				// WPCOM-user rows have no wp-admin equivalent, so they stay unlinked.
+				link: undefined,
+			},
+			{
+				id: 'g/aggie?d=mm',
+				label: 'Aggie',
+				value: 2,
+				avatarUrl: 'g/aggie?d=mm',
+				link: 'edit-comments.php?s=aggie%40example.com',
+			},
+		] );
+	} );
+
+	it( 'flattens the posts group and keeps the post id for drill-through', () => {
+		const report = sanitizeStatsCommentsResponse( commentsFixture );
+
+		expect( selectStatsCommentsRows( report, 'posts' ) ).toEqual( [
+			{
+				id: '41',
+				label: 'Hello world',
+				value: 10,
+				link: 'https://example.com/hello/',
+				postId: '41',
+				avatarUrl: undefined,
+			},
+		] );
+	} );
+
+	// Consumers guard the permalink themselves, so the raw link has to survive
+	// here: a post with no id keys its row on it.
+	it( 'keeps the raw link as the row id when a post has no id', () => {
+		const report = sanitizeStatsCommentsResponse( {
+			posts: [ { name: 'Hello world', comments: 3, link: 'javascript:alert(1)' } ],
+		} );
+
+		expect( selectStatsCommentsRows( report, 'posts' ) ).toEqual( [
+			expect.objectContaining( { id: 'javascript:alert(1)', link: 'javascript:alert(1)' } ),
+		] );
+	} );
+
+	it( 'trims to maxRows, treating 0 and undefined as all rows', () => {
+		const report = sanitizeStatsCommentsResponse( {
+			authors: [
+				{ name: 'Aggie', comments: 2 },
+				{ name: 'Bo', comments: 7 },
+				{ name: 'Cy', comments: 5 },
+			],
+		} );
+
+		expect( selectStatsCommentsRows( report, 'authors', 2 ).map( row => row.label ) ).toEqual( [
+			'Bo',
+			'Cy',
+		] );
+		expect( selectStatsCommentsRows( report, 'authors', 0 ) ).toHaveLength( 3 );
+		expect( selectStatsCommentsRows( report, 'authors' ) ).toHaveLength( 3 );
+	} );
+
+	it( 'returns no rows for an unresolved or empty report', () => {
+		expect( selectStatsCommentsRows( undefined, 'authors' ) ).toEqual( [] );
+		expect(
+			selectStatsCommentsRows( sanitizeStatsCommentsResponse( { authors: [] } ), 'posts' )
+		).toEqual( [] );
 	} );
 } );

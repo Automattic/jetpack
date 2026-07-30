@@ -183,7 +183,26 @@ class Dashboard_Layout_Test extends TestCase {
 		$this->assertNotContains( 'jpa/videopress', $layout_types );
 		// Emails is not an Insights module — it lives on the Subscribers tab.
 		$this->assertNotContains( 'jpa/stats-emails', $layout_types );
+		// The Comments module ships as two focused widgets, not one toggled widget.
+		$this->assertContains( 'jpa/most-commented-authors', $layout_types );
+		$this->assertContains( 'jpa/most-commented-posts', $layout_types );
+		$this->assertNotContains( 'jpa/comments', $layout_types );
 		$this->assertContains( 'jpa/shares', $layout_types );
+		$this->assertSame(
+			array(
+				'uuid'       => 'default-most-commented-posts-widget-instance',
+				'type'       => 'jpa/most-commented-posts',
+				'attributes' => array(
+					'max' => 10,
+				),
+				'placement'  => array(
+					'width'  => 1,
+					'height' => 2,
+					'order'  => 7,
+				),
+			),
+			$layout_by_uuid['default-most-commented-posts-widget-instance']
+		);
 		$this->assertSame(
 			array(
 				'uuid'       => 'default-shares-widget-instance',
@@ -194,7 +213,7 @@ class Dashboard_Layout_Test extends TestCase {
 				'placement'  => array(
 					'width'  => 1,
 					'height' => 2,
-					'order'  => 8,
+					'order'  => 9,
 				),
 			),
 			$layout_by_uuid['default-shares-widget-instance']

@@ -1,5 +1,5 @@
 {
-	"name": "@automattic/jetpack-premium-analytics-widget-comments",
+	"name": "@automattic/jetpack-premium-analytics-widget-most-commented-authors",
 	"version": "0.1.0-alpha",
 	"private": true,
 	"type": "module",
