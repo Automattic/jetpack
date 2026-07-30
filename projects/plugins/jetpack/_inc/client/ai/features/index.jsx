@@ -95,8 +95,11 @@ const SECTIONS = [
 			{
 				key: 'seo_enhancer',
 				label: __( 'AI SEO', 'jetpack' ),
+				// The \u00a0 no-break space and \u2011 no-break hyphen keep
+				// "with AI-powered" together, so the description never wraps
+				// after a dangling "AI-".
 				description: __(
-					'Optimize post titles, meta descriptions, and on-page content for search engines with AI-powered recommendations.',
+					'Optimize post titles, meta descriptions, and on-page content for search engines with\u00a0AI\u2011powered recommendations.',
 					'jetpack'
 				),
 				enabledAction: {
