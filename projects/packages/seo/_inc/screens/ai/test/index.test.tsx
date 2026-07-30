@@ -318,6 +318,8 @@ describe( 'AiScreen (GEO tab) — module titles', () => {
 	// default, so their toggle — the same fact, in the control that changes it — is
 	// already on screen; a tag would state it twice. If one of them ever opens
 	// closed, it needs a tag, and this test should be the thing that says so.
+	// Collapsing one hides its state until reopened: an accepted trade-off, not an
+	// oversight — see the comment on the llms.txt header.
 	it( 'gives no state tag to the modules that open by default', () => {
 		render(
 			<AiScreen form={ allModulesForm() } searchEnginesVisible onManageVisibility={ noop } />

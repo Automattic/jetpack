@@ -458,7 +458,11 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 					<CollapsibleCard.Header render={ <h2 /> }>
 						{ /* No status tag here, unlike the crawler groups: this module opens by
 						   default, so its toggle — the same information, in the control that
-						   changes it — is on screen already. A tag would just say it twice. */ }
+						   changes it — is on screen already, and a tag would say it twice.
+						   Collapsing the card does hide the state until it is reopened (a reload
+						   reopens it). Accepted deliberately: collapsing is a choice to hide this
+						   module's detail. The crawler groups differ because they open *closed*,
+						   so a tag is the only state they would ever show. */ }
 						<Card.Title>
 							<CardTitleIcon icon={ page } title={ __( 'llms.txt', 'jetpack-seo' ) } />
 						</Card.Title>
