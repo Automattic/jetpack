@@ -1,5 +1,5 @@
 {
-	"name": "@jetpack-premium-analytics/externals",
+	"name": "@automattic/jetpack-premium-analytics-externals",
 	"version": "0.1.0",
 	"private": true,
 	"type": "module",
