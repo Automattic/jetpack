@@ -519,7 +519,6 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( '<', $brand['name'] );
 		$this->assertStringNotContainsString( "\n", $brand['name'] );
 		$this->assertStringNotContainsString( '<', $brand['greeting'] );
->>>>>>> 6231a3791c (Site Chat: add a brand kit for Reader Chat)
 	}
 
 	// ──────────────────────────────────────────────────
