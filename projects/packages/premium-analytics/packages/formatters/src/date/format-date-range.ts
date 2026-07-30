@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { __, sprintf } from '@wordpress/i18n';
+/**
  * Internal dependencies
  */
 import { elideRange } from './elide-range';
@@ -13,13 +17,6 @@ import { formatDate } from './format-date';
  * `link:` wiring is settled.
  */
 type DateRange = { from?: Date; to?: Date };
-
-/**
- * En dash between thin spaces, matching what CLDR puts between the ends of a
- * range. A legend can show an elided range beside a spelled-out one, so the two
- * paths have to space their separator the same way.
- */
-const RANGE_SEPARATOR = '\u2009\u2013\u2009';
 
 /**
  * Format a date range into a human-readable string.
@@ -55,6 +52,12 @@ export const formatDateRange = ( range?: DateRange ): string => {
 	}
 
 	return (
-		elideRange( from, to ) ?? `${ formatDate( from ) }${ RANGE_SEPARATOR }${ formatDate( to ) }`
+		elideRange( from, to ) ??
+		sprintf(
+			/* translators: 1: Start date. 2: End date. */
+			__( '%1$s – %2$s', 'jetpack-premium-analytics-pkg' ),
+			formatDate( from ),
+			formatDate( to )
+		)
 	);
 };

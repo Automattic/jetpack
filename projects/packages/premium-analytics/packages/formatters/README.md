@@ -104,17 +104,19 @@ A month or year shared by both ends is elided where the site's locale has a
 rule for it. Those rules are not written by hand — "Jun 21-25, 2025" is an
 English convention that, translated literally, gives the wrong result in
 Spanish. They are borrowed from CLDR via `Intl.DateTimeFormat.formatRange()`,
-which only holds where WordPress and CLDR agree on what a single date looks
-like. Two checks establish that per site, so no allowlist of trusted locales
-has to be maintained:
+which only holds where WordPress and CLDR agree on how dates look. Two checks
+establish that per site, so no allowlist of trusted locales has to be
+maintained:
 
-1. `Intl` renders a single date exactly as `formatDate` does. A site with a
-   custom `date_format` fails here and keeps the format it asked for.
+1. `Intl` renders representative dates exactly as `formatDate` does. A site
+   with a custom `date_format` or different month translations fails here and
+   keeps the format it asked for.
 2. `Intl` builds an un-elidable range out of that same rendering. `ja` and `zh`
-   fail here: their single dates read `2025年6月21日`, but their ranges switch
-   to `2025/06/21～2025/06/25`.
+   fail here because their range patterns switch to numeric dates and
+   locale-specific separators.
 
-Where neither holds, both ends are spelled out in full instead:
+Where either check fails, both ends are spelled out in full using the
+translated WordPress range pattern instead:
 
 ```typescript
 // Site with a custom `date_format` of 'd/m/Y':

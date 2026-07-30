@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { setSettings } from '@wordpress/date';
+import { resetLocaleData, setLocaleData } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -15,6 +16,9 @@ import { formatDateRange } from '../format-date-range';
 
 // The en dash between thin spaces that CLDR puts between the ends of a range.
 const SEP = '\u2009\u2013\u2009';
+
+// The package's translatable spelled-out range pattern.
+const FALLBACK_SEP = ' \u2013 ';
 
 const JA_MONTHS = [
 	'1\u6708',
@@ -45,6 +49,12 @@ describe( 'formatDateRange', () => {
 
 		it( 'returns an empty string when the range itself is missing', () => {
 			expect( formatDateRange() ).toBe( '' );
+		} );
+
+		it( 'falls back instead of throwing when one date is invalid', () => {
+			expect(
+				formatDateRange( { from: new Date( Number.NaN ), to: utcDate( 2025, 6, 21 ) } )
+			).toBe( `Invalid date${ FALLBACK_SEP }June 21, 2025` );
 		} );
 	} );
 
@@ -107,7 +117,7 @@ describe( 'formatDateRange', () => {
 		it( 'still spells out both ends of a range spanning years', () => {
 			expect(
 				formatDateRange( { from: utcDate( 2024, 6, 21 ), to: utcDate( 2025, 6, 21 ) } )
-			).toBe( `June 21${ SEP }June 21` );
+			).toBe( `June 21${ FALLBACK_SEP }June 21` );
 		} );
 
 		it( 'collapses a genuine single-day range', () => {
@@ -117,6 +127,10 @@ describe( 'formatDateRange', () => {
 	} );
 
 	describe( 'falling back where no elision rule can be trusted', () => {
+		afterEach( () => {
+			resetLocaleData( {}, 'jetpack-premium-analytics-pkg' );
+		} );
+
 		// A custom `date_format` is the site telling us how it wants dates
 		// written. CLDR's rules describe a different format, so borrowing its
 		// elision would quietly overrule the setting.
@@ -125,7 +139,24 @@ describe( 'formatDateRange', () => {
 
 			expect(
 				formatDateRange( { from: utcDate( 2025, 6, 21 ), to: utcDate( 2025, 6, 25 ) } )
-			).toBe( `21/06/2025${ SEP }25/06/2025` );
+			).toBe( `21/06/2025${ FALLBACK_SEP }25/06/2025` );
+		} );
+
+		it( 'rejects a custom format that only matches the first probe date', () => {
+			setSettings( settingsFor( 'en_literal_probe', '\\J\\a\\n\\u\\a\\r\\y j, Y' ) );
+
+			expect(
+				formatDateRange( { from: utcDate( 2025, 6, 21 ), to: utcDate( 2025, 6, 25 ) } )
+			).toBe( `January 21, 2025${ FALLBACK_SEP }January 25, 2025` );
+		} );
+
+		it( 'uses the translated range pattern when spelling both ends out', () => {
+			setSettings( settingsFor( 'en_translated_fallback', 'd/m/Y' ) );
+			setLocaleData( { '%1$s – %2$s': [ '%1$s - %2$s' ] }, 'jetpack-premium-analytics-pkg' );
+
+			expect(
+				formatDateRange( { from: utcDate( 2025, 6, 21 ), to: utcDate( 2025, 6, 25 ) } )
+			).toBe( '21/06/2025 - 25/06/2025' );
 		} );
 
 		// `ja` renders a single date as 2025年6月21日 but switches its ranges to
@@ -136,7 +167,7 @@ describe( 'formatDateRange', () => {
 
 			expect(
 				formatDateRange( { from: utcDate( 2025, 6, 21 ), to: utcDate( 2025, 6, 25 ) } )
-			).toBe( `2025年6月21日${ SEP }2025年6月25日` );
+			).toBe( `2025年6月21日${ FALLBACK_SEP }2025年6月25日` );
 		} );
 	} );
 } );

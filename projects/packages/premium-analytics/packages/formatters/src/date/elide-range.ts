@@ -8,7 +8,7 @@ import { getSettings } from '@wordpress/date';
 import { formatDate } from './format-date';
 import { siteTimeZone } from './site-time-zone';
 
-/** The parts a locale's default `date_format` renders. */
+/** The date parts requested from `Intl` when comparing it with WordPress. */
 const RANGE_PARTS: Intl.DateTimeFormatOptions = {
 	year: 'numeric',
 	month: 'long',
@@ -16,31 +16,57 @@ const RANGE_PARTS: Intl.DateTimeFormatOptions = {
 };
 
 /**
- * Two dates over a year apart, so no locale can elide anything from a range
- * between them. Noon UTC keeps them on the same calendar day in every zone.
+ * Dates spread across the calendar catch custom formats and translated month
+ * tables that happen to agree with `Intl` for only one date.
  */
-const PROBE_FROM = new Date( Date.UTC( 2020, 0, 2, 12 ) );
+const SINGLE_PROBES = [
+	...Array.from(
+		{ length: 12 },
+		( _, month ) => new Date( Date.UTC( 2020, month, month + 1, 12 ) )
+	),
+	new Date( Date.UTC( 2021, 0, 1, 12 ) ),
+];
+
+/**
+ * Two dates with no requested date part in common. The site timezone is
+ * applied by both formatters, so a probe crossing a UTC day boundary is safe.
+ */
+const PROBE_FROM = SINGLE_PROBES[ 0 ];
 const PROBE_TO = new Date( Date.UTC( 2021, 1, 3, 12 ) );
+
+/** Treat typographically different Unicode spaces as equivalent. */
+const normalizeSpaces = ( value: string ): string =>
+	value.replace( /[\u00a0\u1680\u2000-\u200a\u202f\u205f\u3000]/g, ' ' );
 
 /**
  * The site's locale as a tag `Intl` accepts.
  *
- * WordPress sends its own locale name (`es_ES`, `de_DE_formal`), which is close
- * to BCP 47 but not always a valid tag. Subtags are dropped from the right
- * until one parses, so `es_ES` becomes `es-ES` and a test fixture's
- * `en-us-test` still resolves to `en-US`.
+ * WordPress sends its own locale name (`es_ES`, `de_DE_formal`), which first
+ * needs underscores converted to BCP 47 separators. Some WordPress variants
+ * remain invalid after that conversion, so subtags are dropped from the right
+ * until a supported ancestor is found; for example, `pt_PT_ao90` resolves to
+ * `pt-PT`.
  *
- * @return The tag, or `undefined` when nothing parses.
+ * A structurally valid but unsupported tag is not usable: `Intl` would resolve
+ * it to the visitor's locale, making range output depend on who views the site.
+ *
+ * @return The supported tag, or `undefined` when no supported ancestor exists.
  */
-function intlLocale(): string | undefined {
+export function intlLocale(): string | undefined {
 	const parts = getSettings().l10n.locale.replace( /_/g, '-' ).split( '-' );
 
 	while ( parts.length ) {
 		try {
-			return Intl.getCanonicalLocales( parts.join( '-' ) )[ 0 ];
+			const locale = Intl.getCanonicalLocales( parts.join( '-' ) )[ 0 ];
+
+			if ( Intl.DateTimeFormat.supportedLocalesOf( locale ).length ) {
+				return locale;
+			}
 		} catch {
-			parts.pop();
+			// Keep removing variants until the remainder parses.
 		}
+
+		parts.pop();
 	}
 
 	return undefined;
@@ -52,15 +78,15 @@ function intlLocale(): string | undefined {
  * WordPress publishes whole date formats and no rules for eliding a month or
  * year shared by both ends of a range — but CLDR, which `Intl` is built on, has
  * them for every locale. They can only be borrowed where WordPress and `Intl`
- * agree on what a single date looks like, which holds while the site is on its
- * locale's default `date_format`. Two checks establish that, so no allowlist of
+ * agree on how dates look. Two checks establish that, so no allowlist of
  * trusted locales has to be kept in step with CLDR:
  *
- * 1. `Intl` renders a single date exactly as `formatDate` does. A site with a
- *    custom `date_format` fails here and keeps the format it asked for.
+ * 1. `Intl` renders representative dates exactly as `formatDate` does. A site
+ *    with a custom `date_format` or different month translations fails here
+ *    and keeps the format it asked for.
  * 2. `Intl` builds a range that cannot be elided out of that same rendering.
- *    `ja` and `zh` fail here: their single dates read `2025年6月21日`, but
- *    their ranges switch to `2025/06/21～2025/06/25`.
+ *    Japanese and Chinese fail here: their range patterns use numeric dates
+ *    and locale-specific separators instead of their single-date rendering.
  *
  * @return The formatter, or `undefined` when the two do not agree.
  */
@@ -84,9 +110,13 @@ function buildRangeFormatter(): Intl.DateTimeFormat | undefined {
 		return undefined;
 	}
 
+	const rendersLikeSite = SINGLE_PROBES.every(
+		probe => formatter.format( probe ) === formatDate( probe )
+	);
 	const single = formatter.format( PROBE_FROM );
-	const rendersLikeSite = single === formatDate( PROBE_FROM );
-	const rangeKeepsRendering = formatter.formatRange( PROBE_FROM, PROBE_TO ).includes( single );
+	const rangeKeepsRendering = normalizeSpaces(
+		formatter.formatRange( PROBE_FROM, PROBE_TO )
+	).startsWith( normalizeSpaces( single ) );
 
 	return rendersLikeSite && rangeKeepsRendering ? formatter : undefined;
 }
@@ -97,15 +127,19 @@ let cache: { key: string; formatter: Intl.DateTimeFormat | undefined } | undefin
  * Format a range with the shared month or year elided, where the site's own
  * date format allows it.
  *
- * The probes in `buildRangeFormatter` cost two formats, so the result is held
- * against the settings it was derived from; those only change when the page
- * reloads, or when a test installs new ones.
+ * The probes in `buildRangeFormatter` run once per settings combination, so
+ * the result is held against the locale, date format, and timezone it was
+ * derived from.
  *
  * @param from - Start of the range.
  * @param to   - End of the range.
  * @return The elided range, or `undefined` to fall back to spelling both ends out.
  */
 export function elideRange( from: Date, to: Date ): string | undefined {
+	if ( Number.isNaN( from.getTime() ) || Number.isNaN( to.getTime() ) ) {
+		return undefined;
+	}
+
 	const settings = getSettings();
 	const key = `${ settings.l10n.locale }|${ settings.formats.date }|${ siteTimeZone() }`;
 
