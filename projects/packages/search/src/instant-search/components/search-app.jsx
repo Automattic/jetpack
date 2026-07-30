@@ -110,7 +110,7 @@ class SearchApp extends Component {
 			( this.props.initialShowResults && this.props.initialIsVisible ) ||
 			this.props.isInCustomizer
 		) {
-			this.requestResults();
+			this.getResults();
 		}
 
 		if ( this.props.hasActiveQuery && this.props.overlayOptions.enableFilteringOpensOverlay ) {
@@ -141,7 +141,7 @@ class SearchApp extends Component {
 			stringify( prevState.overlayOptions.excludedPostTypes ) !==
 			stringify( this.state.overlayOptions.excludedPostTypes )
 		) {
-			this.requestResults();
+			this.getResults();
 		}
 	}
 
@@ -230,7 +230,14 @@ class SearchApp extends Component {
 	showResults = this.toggleResults.bind( this, true );
 
 	onChangeQueryString = isHistoryNav => {
-		this.requestResults();
+		// Only for a non-empty query: pending-tracking an empty-query change
+		// (e.g. a filter-link click that clears the query) clobbers the overlay's
+		// isVisible update, which is set directly by that same click handler.
+		if ( this.props.searchQuery ) {
+			this.requestResults();
+		} else {
+			this.getResults();
+		}
 
 		if ( this.props.hasActiveQuery && ! this.state.isVisible ) {
 			this.showResults();

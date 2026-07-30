@@ -154,17 +154,15 @@ describe( 'SearchApp — isQueryPending', () => {
 		expect( lastSearchResultsProps.isQueryPending ).toBe( false );
 	} );
 
-	it( 'becomes true on mount when isInCustomizer triggers an immediate request', () => {
-		render(
-			<SearchApp
-				{ ...defaultProps }
-				isInCustomizer={ true }
-				makeSearchRequest={ makeSearchRequest }
-			/>
+	it( 'does not mark a query pending when the query is cleared to empty (e.g. a filter-link click)', () => {
+		const utils = render(
+			<SearchApp { ...defaultProps } searchQuery="foo" makeSearchRequest={ makeSearchRequest } />
+		);
+		utils.rerender(
+			<SearchApp { ...defaultProps } searchQuery="" makeSearchRequest={ makeSearchRequest } />
 		);
 
-		expect( lastSearchResultsProps.isQueryPending ).toBe( true );
-		expect( makeSearchRequest ).not.toHaveBeenCalled();
+		expect( lastSearchResultsProps.isQueryPending ).toBe( false );
 
 		act( () => {
 			jest.advanceTimersByTime( 250 );
