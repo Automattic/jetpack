@@ -22,27 +22,6 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 	use WooCommerceTestTrait;
 
 	/**
-	 * WooCommerce option controlling Order Attribution.
-	 *
-	 * @var string
-	 */
-	private const ORDER_ATTRIBUTION_OPTION = 'woocommerce_feature_order_attribution_enabled';
-
-	/**
-	 * Original Order Attribution option value.
-	 *
-	 * @var mixed
-	 */
-	private $original_order_attribution_option;
-
-	/**
-	 * Whether the original Order Attribution option was captured.
-	 *
-	 * @var bool
-	 */
-	private $order_attribution_option_captured = false;
-
-	/**
 	 * Sync module instances initialized before this test.
 	 *
 	 * @var array|null
@@ -60,9 +39,7 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 
 		parent::set_up();
 
-		$this->original_order_attribution_option = get_option( self::ORDER_ATTRIBUTION_OPTION, null );
-		$this->order_attribution_option_captured = true;
-		$this->original_sync_modules             = Modules::get_modules();
+		$this->original_sync_modules = Modules::get_modules();
 	}
 
 	/**
@@ -73,26 +50,14 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 			$this->set_sync_modules( $this->original_sync_modules );
 		}
 
-		unset( $_GET['section'] );
-		unset( $_POST['woocommerce_feature_order_attribution_enabled'] );
-		unset( $_SERVER['REQUEST_METHOD'] );
-
-		if ( $this->order_attribution_option_captured ) {
-			delete_option( self::ORDER_ATTRIBUTION_OPTION );
-			if ( null !== $this->original_order_attribution_option ) {
-				update_option( self::ORDER_ATTRIBUTION_OPTION, $this->original_order_attribution_option );
-			}
-		}
-
 		parent::tear_down();
 	}
 
 	/**
-	 * Analytics checksum tables are available when the module and feature are enabled.
+	 * Analytics checksum tables are available when the module is active.
 	 */
-	public function test_analytics_checksum_tables_are_available_when_enabled() {
+	public function test_analytics_checksum_tables_are_available_when_module_is_active() {
 		$this->enable_analytics_module();
-		$this->set_order_attribution_form_state( true );
 
 		foreach ( array( 'wc_order_stats', 'wc_order_product_lookup', 'wc_order_coupon_lookup', 'wc_order_tax_lookup' ) as $table ) {
 			$this->assertInstanceOf( Table_Checksum::class, new Table_Checksum( $table ) );
@@ -100,32 +65,9 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 	}
 
 	/**
-	 * Analytics checksum tables use WooCommerce's stored feature state outside settings requests.
-	 */
-	public function test_analytics_checksum_tables_use_stored_order_attribution_state() {
-		$this->enable_analytics_module();
-		update_option( self::ORDER_ATTRIBUTION_OPTION, 'yes' );
-
-		$this->assertInstanceOf( Table_Checksum::class, new Table_Checksum( 'wc_order_stats' ) );
-	}
-
-	/**
 	 * Analytics checksum tables reject use when the module is absent.
 	 */
 	public function test_analytics_checksum_tables_require_module() {
-		$this->set_order_attribution_form_state( true );
-		$this->expectException( Exception::class );
-
-		// @phan-suppress-next-line PhanNoopNew -- Expecting the constructor to throw.
-		new Table_Checksum( 'wc_order_stats' );
-	}
-
-	/**
-	 * Analytics checksum tables reject use when order attribution is disabled.
-	 */
-	public function test_analytics_checksum_tables_require_order_attribution() {
-		$this->enable_analytics_module();
-		$this->set_order_attribution_form_state( false );
 		$this->expectException( Exception::class );
 
 		// @phan-suppress-next-line PhanNoopNew -- Expecting the constructor to throw.
@@ -305,22 +247,6 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 		$modules[] = new WooCommerce_Analytics();
 
 		$this->set_sync_modules( $modules );
-	}
-
-	/**
-	 * Make the order attribution settings request report an enabled or disabled value.
-	 *
-	 * @param bool $enabled Whether order attribution should be enabled.
-	 */
-	private function set_order_attribution_form_state( $enabled ) {
-		$_GET['section']           = 'features';
-		$_SERVER['REQUEST_METHOD'] = 'POST';
-
-		if ( $enabled ) {
-			$_POST['woocommerce_feature_order_attribution_enabled'] = 'yes';
-		} else {
-			unset( $_POST['woocommerce_feature_order_attribution_enabled'] );
-		}
 	}
 
 	/**

@@ -120,8 +120,8 @@ dependency and gives `Config` time to initialize Sync at its priority-2 callback
 Consumers must also register their `jetpack_full_sync_config` policy.
 
 Analytics checksum schemas are registered centrally by `Table_Checksum` and become
-usable when the module and WooCommerce Order Attribution are enabled. Consumers do
-not need to register the schemas themselves.
+usable when the `woocommerce_analytics` module is active. Consumers do not need to
+register the schemas themselves.
 
 ##### `jetpack_sync_options_whitelist` / `jetpack_sync_options_contentless`
 
