@@ -146,30 +146,29 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 *                       value here: validate_call() authorizes on anything that is not a WP_Error.
 	 */
 	protected function check_capability( $capability ) {
-		// If this endpoint accepts site based authentication, skip capabilities check.
+		// If this endpoint accepts site based authentication, skip capabilities check. Note that
+		// accepts_site_based_authentication() infers site authentication from a zero current user id;
+		// it does not verify that a blog token signed the request.
 		if ( $this->accepts_site_based_authentication() ) {
 			return true;
 		}
 
-		// the idea is that the we can pass in an array of capabilitie that the user needs to have before we allowing them to do something
+		// Resolve the scalar, list and structured wrapper declaration forms to a single value.
 		$capabilities = is_array( $capability ) ? ( $capability['capabilities'] ?? $capability ) : $capability;
 
-		// Deny by default: a request that names no capability must never be authorized here.
-		// Endpoints that declare none (e.g. the Backup helper-script endpoints) are reachable only
-		// with a Jetpack site (blog) token, which the site-based authentication short-circuit above
-		// handles. Without this guard an empty set makes `$must_pass` 0 below, so any connected user
-		// token would pass. The check runs on the resolved set, so scalar declarations meaning "nothing
-		// required" are covered by the same rule: `0` and `'0'` were fail-open because they resolve to
-		// `level_0`, which every default role holds, while `null` and `''` already denied and now do so
-		// with a code that distinguishes them from a failed capability.
+		// Deny by default: a declaration that names no capability must never authorize a user token.
+		// Endpoints that declare none (e.g. the Backup helper-script endpoints) are reachable only with
+		// a Jetpack site (blog) token, and the short-circuit above -- enabled by `allow_jetpack_site_auth`,
+		// not `allow_fallback_to_jetpack_blog_token` -- is the only way past this deny. Without the guard
+		// an empty set makes `$must_pass` 0 below, so any connected user token would pass. The check runs
+		// on the resolved set, so the scalar forms meaning "nothing required" are covered by the same
+		// rule: `0` and `'0'` were fail-open everywhere because they resolve to `level_0`, which every
+		// default role holds, and `null` and `''` denied on single-site but passed for a network super
+		// admin on multisite, where `WP_User::has_cap()` returns true whenever the mapped capabilities
+		// contain no `do_not_allow`.
 		//
-		// Note that the short-circuit is the only way past this deny, and that `allow_jetpack_site_auth`
-		// (not `allow_fallback_to_jetpack_blog_token`) is what enables it. Its
-		// `is_jetpack_authorized_for_site()` half is overridden by a child class on WordPress.com, so
-		// what satisfies this deny there is defined outside this repository. Note also that under
-		// `IS_WPCOM` this file is not the one that runs at all: json-endpoints.php resolves the
-		// endpoint directory to the WordPress.com tree, so this guard governs self-hosted and Atomic
-		// sites only.
+		// Scope: under `IS_WPCOM` this file does not run at all -- see the endpoint directory swap in
+		// json-endpoints.php -- so this guard governs self-hosted and Atomic sites only.
 		if ( empty( $capabilities ) ) {
 			return new WP_Error( 'unauthorized_site_token_required', __( 'This endpoint is only accessible using a Jetpack site token.', 'jetpack' ), 403 );
 		}
@@ -186,8 +185,8 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 		// empty set produced. The `is_numeric()` test mirrors the one in core that triggers the shim.
 		// This also catches a wrapper whose `capabilities` key is missing, where the resolved set is
 		// the wrapper's own metadata rather than a capability list.
-		foreach ( $required_capabilities as $declared_capability ) {
-			if ( ! is_string( $declared_capability ) || '' === $declared_capability || is_numeric( $declared_capability ) ) {
+		foreach ( $required_capabilities as $required_capability ) {
+			if ( ! is_string( $required_capability ) || '' === $required_capability || is_numeric( $required_capability ) ) {
 				return new WP_Error( 'unauthorized_capability_declaration', __( 'This endpoint does not declare a valid capability requirement.', 'jetpack' ), 403 );
 			}
 		}
@@ -203,11 +202,11 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		$failed = array(); // store the failed capabilities
 		$passed = 0;
-		foreach ( $required_capabilities as $cap ) {
-			if ( current_user_can( $cap ) ) {
+		foreach ( $required_capabilities as $required_capability ) {
+			if ( current_user_can( $required_capability ) ) {
 				++$passed;
 			} else {
-				$failed[] = $cap;
+				$failed[] = $required_capability;
 			}
 		}
 		// Check if all conditions have passed.

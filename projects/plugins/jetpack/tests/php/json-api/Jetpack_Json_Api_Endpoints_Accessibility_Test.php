@@ -298,8 +298,10 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 		$declaration         = new WP_Error( 'unauthorized_capability_declaration', 'This endpoint does not declare a valid capability requirement.', 403 );
 
 		return array(
-			// Resolved-empty capability sets. Only the numeric forms were fail-open before this fix;
-			// null and the empty string already denied, but with the generic 'unauthorized' code.
+			// Resolved-empty capability sets. The numeric forms were fail-open everywhere before this
+			// fix; null and the empty string denied on single-site (which is what this suite runs) but
+			// passed for a network super admin on multisite, because WP_User::has_cap() returns true for
+			// a super admin whenever the mapped capabilities contain no 'do_not_allow'.
 			'structured wrapper with an empty list'       => array( array( 'capabilities' => array() ), $site_token_required ),
 			'null (the base class default)'               => array( null, $site_token_required ),
 			'empty string'                                => array( '', $site_token_required ),
@@ -335,6 +337,16 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 			),
 			'scalar capability still denies a subscriber' => array(
 				'manage_options',
+				new WP_Error( 'unauthorized', 'This user is not authorized to manage_options on this blog.', 403 ),
+			),
+			// A scalar under the 'capabilities' key is the one shape this refactor makes less strict:
+			// on trunk it never reached a capability check at all (count() on a string warned to 1 and
+			// the foreach body never ran on PHP 7.x, and count() threw a TypeError on PHP 8+). It now
+			// normalizes to a one-element list and runs the real check, so it can authorize a user who
+			// holds the capability. No declaration in this repository uses the shape; this row pins it
+			// to an ordinary capability check rather than to either fail-open or a fatal.
+			'scalar under the capabilities key still denies a subscriber' => array(
+				array( 'capabilities' => 'manage_options' ),
 				new WP_Error( 'unauthorized', 'This user is not authorized to manage_options on this blog.', 403 ),
 			),
 		);
@@ -373,6 +385,90 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Sibling of test_zero_threshold_still_accepts_a_blog_token for the declaration guard, so all three
+	 * guards are pinned below the accepts_site_based_authentication() short-circuit. A refactor that
+	 * hoisted only this one above the short-circuit would 403 legitimate blog-token traffic to any
+	 * endpoint whose declaration is a numeric or blank literal, and nothing else in the suite would fail.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_capability_declaration_still_accepts_a_blog_token() {
+		$endpoint = new Jetpack_JSON_API_Empty_Capabilities_Dummy_Endpoint(
+			array(
+				'stat'                    => 'dummy',
+				'allow_jetpack_site_auth' => true,
+			)
+		);
+
+		$property = ( new ReflectionClass( $endpoint ) )->getProperty( 'needed_capabilities' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		// Non-empty, so it clears the emptiness guard and is caught only by the declaration guard.
+		$property->setValue( $endpoint, array( 0 ) );
+
+		// No current user, so is_jetpack_authorized_for_site() stands in for blog-token auth.
+		$this->assertEquals( 'success', $endpoint->api->process_request( $endpoint, array() ) );
+	}
+
+	/**
+	 * The supported N-of-M wrapper must keep working. The threshold rows above only cover the invalid
+	 * side (below 1), and this refactor rewrote the counting path that the valid side depends on, so
+	 * assert both outcomes directly. The subscriber fixture holds `read` and not `manage_options`.
+	 *
+	 * @group json-api
+	 * @dataProvider data_provider_test_positive_must_pass_thresholds
+	 *
+	 * @param array           $needed_capabilities The capability declaration to install on the endpoint.
+	 * @param WP_Error|string $result              The expected result.
+	 */
+	#[Group( 'json-api' )]
+	#[DataProvider( 'data_provider_test_positive_must_pass_thresholds' )]
+	public function test_positive_must_pass_thresholds( $needed_capabilities, $result ) {
+		$endpoint = new Jetpack_JSON_API_Empty_Capabilities_Dummy_Endpoint(
+			array(
+				'stat'                    => 'dummy',
+				'allow_jetpack_site_auth' => true,
+			)
+		);
+
+		$property = ( new ReflectionClass( $endpoint ) )->getProperty( 'needed_capabilities' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $endpoint, $needed_capabilities );
+
+		wp_set_current_user( self::$subscriber_user_id );
+
+		$this->assertEquals( $result, $endpoint->api->process_request( $endpoint, array() ) );
+	}
+
+	/**
+	 * Data provider for test_positive_must_pass_thresholds.
+	 */
+	public static function data_provider_test_positive_must_pass_thresholds() {
+		$capabilities = array( 'read', 'manage_options' );
+
+		return array(
+			'1 of 2 passes on the capability the user holds' => array(
+				array(
+					'capabilities' => $capabilities,
+					'must_pass'    => 1,
+				),
+				'success',
+			),
+			'2 of 2 denies and names only the failed capability' => array(
+				array(
+					'capabilities' => $capabilities,
+					'must_pass'    => 2,
+				),
+				new WP_Error( 'unauthorized', 'This user is not authorized to manage_options on this blog.', 403 ),
+			),
+		);
+	}
+
+	/**
 	 * Every production endpoint that declares no capabilities is now unreachable without site-based
 	 * authentication, so each one must be registered with `allow_jetpack_site_auth => true` or it is
 	 * permanently 403. Nothing links the declaration to the registration, so assert the pairing.
@@ -407,16 +503,23 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 					continue;
 				}
 
-				// The pairing only binds for endpoints that reach check_capability() with the property
-				// as declared. This carve-out is load-bearing for exactly one class:
-				// Jetpack_JSON_API_Check_Capabilities_Endpoint, which overrides callback() to hand-pass
-				// 'read', never consults $needed_capabilities, and is registered without the site-auth
-				// flag -- so its unset default is not a site-token declaration. It is expressed as a
-				// mechanism rather than a name so a future endpoint in the same shape is covered too;
-				// note that overriding callback() does not by itself mean bypassing this path, as
-				// Jetpack_JSON_API_Plugins_Modify_Endpoint assigns a real capability and then delegates
-				// to parent::callback().
-				if ( $class->getMethod( 'callback' )->getDeclaringClass()->getName() !== Jetpack_JSON_API_Endpoint::class ) {
+				// Exempt by name, not by structure. An earlier version of this test skipped every
+				// endpoint whose callback() is declared outside the base class, on the theory that such
+				// a class defines its own authorization path. That proxy is false: overriding callback()
+				// does not mean bypassing check_capability(), and
+				// Jetpack_JSON_API_Plugins_Modify_Endpoint overrides it, assigns a capability per action
+				// and then delegates to parent::callback(). A future endpoint in that shape that also
+				// declared no capabilities would have been skipped silently -- exactly the case this
+				// invariant exists to catch.
+				//
+				// Only one registered class genuinely needs the exemption:
+				// Jetpack_JSON_API_Check_Capabilities_Endpoint overrides callback() to hand-pass 'read'
+				// to validate_call(), never consults $needed_capabilities, and is registered without the
+				// site-auth flag, so its unset default is not a site-token declaration.
+				// Jetpack_JSON_API_Themes_Active_Endpoint is in the same "passes a literal" shape but
+				// does register the flag, so it is asserted rather than exempted: over-inclusion here
+				// costs a false alarm, while the structural proxy cost a silent miss.
+				if ( Jetpack_JSON_API_Check_Capabilities_Endpoint::class === $class->getName() ) {
 					continue;
 				}
 

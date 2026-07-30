@@ -26,7 +26,7 @@ class Jetpack_JSON_API_Delete_Backup_Helper_Script_Endpoint extends Jetpack_JSON
 	 *
 	 * @var array
 	 */
-	protected $needed_capabilities = array(); // This endpoint is only accessible using a site token
+	protected $needed_capabilities = array();
 
 	/**
 	 * Method to call when running this endpoint (delete)
