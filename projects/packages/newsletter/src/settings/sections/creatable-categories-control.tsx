@@ -192,23 +192,30 @@ export function CreatableCategoriesControl( {
 	);
 
 	const handleCreate = useCallback(
-		( name: string, keepIds: string[] ) => {
-			const trimmedName = name.trim();
-			if ( ! trimmedName || isCreating || ! context ) {
+		( names: string[], keepIds: string[] ) => {
+			// A single change can carry more than one new name (e.g. a
+			// comma-separated paste), so create them all rather than dropping the
+			// extras. Trim, drop blanks, and de-dupe first.
+			const toCreate = Array.from( new Set( names.map( name => name.trim() ).filter( Boolean ) ) );
+			if ( ! toCreate.length || isCreating || ! context ) {
 				return;
 			}
 
 			context.onError( null );
 			setIsCreating( true );
 
-			createCategory( trimmedName )
+			Promise.all( toCreate.map( name => createCategory( name ) ) )
 				.then( created => {
-					const id = String( created.id );
-					// Add to the section's list so it renders as a token without a
-					// page refresh, then select it alongside the existing choices.
-					context.appendCategory( { id, name: created.name } );
-					context.onCreated();
-					commit( [ ...keepIds, id ] );
+					const createdIds = created.map( category => {
+						const id = String( category.id );
+						// Add to the section's list so it renders as a token without a
+						// page refresh, and record the creation.
+						context.appendCategory( { id, name: category.name } );
+						context.onCreated();
+						return id;
+					} );
+					// Select the new categories alongside the existing choices.
+					commit( [ ...keepIds, ...createdIds ] );
 				} )
 				.catch( ( err: unknown ) => {
 					context.onError( mapCreateCategoryError( err ) );
@@ -245,13 +252,13 @@ export function CreatableCategoriesControl( {
 			// to create — otherwise touching the field would spawn a category named
 			// after the ID and drop the real selection.
 			const selectedIdSet = new Set( selectedIds );
-			let createName: string | null = null;
+			const createNames: string[] = [];
 			const keepIds: string[] = [];
 
 			for ( const token of names ) {
 				if ( token.startsWith( CREATE_PREFIX ) ) {
 					// The explicit "Create ‘…’" row.
-					createName = token.slice( CREATE_PREFIX.length );
+					createNames.push( token.slice( CREATE_PREFIX.length ) );
 					continue;
 				}
 				const id =
@@ -260,12 +267,12 @@ export function CreatableCategoriesControl( {
 					keepIds.push( id );
 				} else {
 					// A genuinely new, free-typed name (e.g. Enter without the Create row).
-					createName = token;
+					createNames.push( token );
 				}
 			}
 
-			if ( createName ) {
-				handleCreate( createName, keepIds );
+			if ( createNames.length ) {
+				handleCreate( createNames, keepIds );
 				return;
 			}
 
@@ -311,7 +318,7 @@ export function CreatableCategoriesControl( {
 				<p className="newsletter-categories-control__help">{ field.description }</p>
 			) }
 			{ validationMessage && (
-				<p className="newsletter-categories-control__error">
+				<p className="newsletter-categories-control__error" aria-live="polite">
 					<Icon icon={ errorIcon } size={ 20 } />
 					<span>{ validationMessage }</span>
 				</p>

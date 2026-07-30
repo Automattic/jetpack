@@ -23,6 +23,10 @@ interface TokenFieldProps {
 	onInputChange?: ( input: string ) => void;
 }
 
+// `mock`-prefixed so the jest.mock factory below may capture the field's latest
+// `onChange`, letting tests simulate a multi-token change (e.g. a paste).
+const mockTokenField: { onChange?: ( tokens: string[] ) => void } = {};
+
 jest.mock( '@wordpress/components', () => ( {
 	__esModule: true,
 	// Minimal FormTokenField: an input that drives `onInputChange`, the selected
@@ -36,6 +40,7 @@ jest.mock( '@wordpress/components', () => ( {
 		onChange,
 		onInputChange,
 	}: TokenFieldProps ) => {
+		mockTokenField.onChange = onChange;
 		const show = ( token: string ) => ( displayTransform ? displayTransform( token ) : token );
 		return (
 			<div>
@@ -356,6 +361,29 @@ describe( 'NewsletterCategoriesSection — combined search + create (NL-785)', (
 
 		expect( onChange ).toHaveBeenCalledWith( { wpcom_newsletter_categories: [ '1' ] } );
 		expect( mockedCreateCategory ).not.toHaveBeenCalled();
+	} );
+
+	it( 'creates every new name when a single change carries several (e.g. a paste)', async () => {
+		mockedCreateCategory.mockImplementation( ( name: string ) =>
+			Promise.resolve( { id: name === 'Alpha' ? 101 : 102, name } )
+		);
+		const { onChange } = renderSection();
+		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
+
+		// Simulate FormTokenField delivering two new names in one change.
+		await act( async () => {
+			mockTokenField.onChange?.( [ 'Alpha', 'Beta' ] );
+		} );
+
+		await waitFor( () => expect( mockedCreateCategory ).toHaveBeenCalledTimes( 2 ) );
+		expect( mockedCreateCategory ).toHaveBeenCalledWith( 'Alpha' );
+		expect( mockedCreateCategory ).toHaveBeenCalledWith( 'Beta' );
+		// Both are created and selected — neither is dropped.
+		await waitFor( () =>
+			expect( onChange ).toHaveBeenCalledWith( {
+				wpcom_newsletter_categories: [ '101', '102' ],
+			} )
+		);
 	} );
 
 	it( 'surfaces the friendly duplicate message for a term_exists rejection', async () => {
