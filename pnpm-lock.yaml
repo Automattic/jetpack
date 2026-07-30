@@ -5136,6 +5136,9 @@ importers:
       '@wordpress/build':
         specifier: 0.20.0
         version: 0.20.0(patch_hash=5101ca7f7d13e7288807e098a40232362baae7ffcb00d08f28e0642c373ae945)(@babel/core@7.29.7)(@wordpress/boot@0.19.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.52.0)(@wordpress/route@0.18.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@1.1.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.4)
+      '@wordpress/dataviews':
+        specifier: 17.3.0
+        version: 17.3.0(@types/react@18.3.28)(react@18.3.1)
       '@wordpress/icons':
         specifier: ^15.0.0
         version: 15.3.0(@types/react@18.3.28)(react@18.3.1)
@@ -5157,6 +5160,9 @@ importers:
       '@wordpress/ui':
         specifier: ^0.19.0
         version: 0.19.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/widget-primitives':
+        specifier: 0.4.0
+        version: 0.4.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       browserslist:
         specifier: ^4.24.0
         version: 4.28.4
@@ -33310,6 +33316,23 @@ snapshots:
   '@wordpress/widget-primitives@0.4.0(@date-fns/tz@1.4.1)(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@wordpress/dataviews': 17.3.0(@date-fns/tz@1.4.1)(@types/react@18.3.28)(react@18.3.1)
+      '@wordpress/element': 8.4.0
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 18.3.28
+    transitivePeerDependencies:
+      - '@date-fns/tz'
+      - '@emotion/is-prop-valid'
+      - esbuild
+      - postcss
+      - stylelint
+      - supports-color
+      - vite
+
+  '@wordpress/widget-primitives@0.4.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@wordpress/dataviews': 17.3.0(@types/react@18.3.28)(react@18.3.1)
       '@wordpress/element': 8.4.0
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)

@@ -217,6 +217,7 @@ const modulePolyfills = [
 		// a11y's wpScriptModuleExports points to a separate module entry.
 		subEntry: 'build-module/module/index.mjs',
 	},
+	{ name: 'widget-primitives', packageName: '@wordpress/widget-primitives' },
 ];
 
 // ── IIFE configs (classic scripts) ──────────────────────────────────────────
