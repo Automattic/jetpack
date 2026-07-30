@@ -1,5 +1,6 @@
 import { loadBundleI18nCatalog } from '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs';
 import { renderHook, waitFor } from '@testing-library/react';
+import { useWidgetTypes } from '@wordpress/widget-primitives';
 import {
 	preloadWidgetModuleCatalogs,
 	resolveWidgetModuleWithI18n,
@@ -14,11 +15,25 @@ jest.mock( '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs', (
 	loadBundleI18nCatalog: jest.fn( () => Promise.resolve() ),
 } ) );
 
+jest.mock( '@wordpress/widget-primitives', () => ( {
+	// Synchronous stand-in for the real hook, which resolves its metadata
+	// imports asynchronously and so reports `isResolving` on first render no
+	// matter what it was handed. Resolving immediately for any non-null
+	// argument leaves the gate as the only thing that can keep the hook
+	// resolving, which is what these tests are here to check.
+	useWidgetTypes: jest.fn( ( records: WidgetModuleRecord[] | null | undefined ) => [
+		[],
+		! records,
+	] ),
+} ) );
+
 const loadCatalogMock = loadBundleI18nCatalog as jest.Mock;
+const useWidgetTypesMock = useWidgetTypes as jest.Mock;
 
 beforeEach( () => {
 	loadCatalogMock.mockClear();
 	loadCatalogMock.mockImplementation( () => Promise.resolve() );
+	useWidgetTypesMock.mockClear();
 } );
 
 describe( 'widgetModuleBundlePath', () => {
@@ -117,27 +132,91 @@ describe( 'useWidgetTypesWithI18n', () => {
 		},
 	] as WidgetModuleRecord[];
 
-	it( 'stays resolving until the metadata catalogs are installed', async () => {
-		let releaseCatalog = () => {};
+	/**
+	 * The records argument of the most recent `useWidgetTypes` call — what the
+	 * gate has actually handed downstream on the latest render.
+	 *
+	 * @return The records the hook was last called with.
+	 */
+	function lastRecordsArg(): WidgetModuleRecord[] | null | undefined {
+		const { calls } = useWidgetTypesMock.mock;
+		if ( calls.length === 0 ) {
+			throw new Error( 'useWidgetTypes was never called' );
+		}
+		return calls[ calls.length - 1 ][ 0 ];
+	}
+
+	/**
+	 * Make catalog loads hang until the returned release function is called.
+	 *
+	 * @return Releases every pending catalog load.
+	 */
+	function holdCatalogs(): () => void {
+		let release = () => {};
 		loadCatalogMock.mockImplementation(
 			() =>
 				new Promise< void >( resolve => {
-					releaseCatalog = resolve;
+					release = resolve;
 				} )
 		);
+		return () => release();
+	}
+
+	it( 'withholds the records from useWidgetTypes until their catalogs are installed', async () => {
+		const releaseCatalogs = holdCatalogs();
 
 		const { result } = renderHook( () => useWidgetTypesWithI18n( RECORDS ) );
 
-		// Catalog pending: the records must not have been handed to
-		// useWidgetTypes yet, so the hook still reports resolving.
+		// Catalog pending: the records must not have reached useWidgetTypes,
+		// which would import their metadata modules and evaluate the
+		// module-scope `__()` calls against a catalog that is not installed
+		// yet. Until then the hook reports resolving.
+		expect( lastRecordsArg() ).toBeNull();
 		expect( result.current[ 1 ] ).toBe( true );
 
-		releaseCatalog();
-		await waitFor( () => expect( result.current[ 1 ] ).toBe( false ) );
+		releaseCatalogs();
+
+		// Handed over by identity, not by an equal copy.
+		await waitFor( () => expect( lastRecordsArg() ).toBe( RECORDS ) );
+		expect( result.current[ 1 ] ).toBe( false );
+	} );
+
+	it( 'closes the gate again when a new records array arrives', async () => {
+		const { result, rerender } = renderHook(
+			( { records }: { records: WidgetModuleRecord[] } ) => useWidgetTypesWithI18n( records ),
+			{ initialProps: { records: RECORDS } }
+		);
+		await waitFor( () => expect( lastRecordsArg() ).toBe( RECORDS ) );
+
+		// A refetch yields an equal-but-new array whose own catalogs have not
+		// been preloaded; it must not pass through on the strength of the
+		// previous array's preload.
+		const releaseCatalogs = holdCatalogs();
+		const nextRecords = [ ...RECORDS ];
+		rerender( { records: nextRecords } );
+
+		expect( lastRecordsArg() ).toBeNull();
+		expect( result.current[ 1 ] ).toBe( true );
+
+		releaseCatalogs();
+		await waitFor( () => expect( lastRecordsArg() ).toBe( nextRecords ) );
+	} );
+
+	it( 'opens the gate even when a catalog load rejects', async () => {
+		// The preload is not supposed to reject — each catalog load falls back
+		// to English on its own. If one ever escapes, the grid must still get
+		// its widgets rather than sitting on placeholders for the page.
+		loadCatalogMock.mockImplementation( () => Promise.reject( new Error( 'catalog exploded' ) ) );
+
+		const { result } = renderHook( () => useWidgetTypesWithI18n( RECORDS ) );
+
+		await waitFor( () => expect( lastRecordsArg() ).toBe( RECORDS ) );
+		expect( result.current[ 1 ] ).toBe( false );
 	} );
 
 	it( 'reports resolving while records are still loading', () => {
 		const { result } = renderHook( () => useWidgetTypesWithI18n( null ) );
+		expect( lastRecordsArg() ).toBeNull();
 		expect( result.current[ 1 ] ).toBe( true );
 		expect( loadCatalogMock ).not.toHaveBeenCalled();
 	} );
@@ -149,6 +228,7 @@ describe( 'useWidgetTypesWithI18n', () => {
 		const { result } = renderHook( () => useWidgetTypesWithI18n( emptyRecords ) );
 		// No async gate for zero records: nothing to translate, so the empty
 		// set must not wait on a preload round-trip.
+		expect( lastRecordsArg() ).toBe( emptyRecords );
 		expect( result.current ).toEqual( [ [], false ] );
 		expect( loadCatalogMock ).not.toHaveBeenCalled();
 	} );

@@ -64,6 +64,17 @@ const CATALOG_TIMEOUT_MS = 5000;
 const MAX_CONCURRENT_DOWNLOADS = 6;
 
 /**
+ * Bundles whose catalogs are left to on-demand loading: the widget tree, one
+ * directory below the build root (`build/widgets/…`). Anchored rather than a
+ * bare `/widgets/` substring so a route or module that happens to be *named*
+ * `widgets` (`build/routes/widgets/content.js`) is still downloaded at boot —
+ * nothing would load its catalog later, since the on-demand callers derive
+ * `build/widgets/<name>/<file>.js` paths of their own. The leading segment is
+ * matched loosely because it is the build directory's own name.
+ */
+const WIDGET_BUNDLE_PATH = /^[^/]+\/widgets\//;
+
+/**
  * State shared across every inlined copy of this module. wp-build bundles each
  * entry point separately, so the boot init module and a route bundle calling
  * `loadBundleI18nCatalog()` hold *different copies* of this file — plain
@@ -108,19 +119,12 @@ function sharedState(): SharedCatalogState {
  * @return Resolves/rejects with the task once it has run.
  */
 function throttled( state: SharedCatalogState, task: () => Promise< void > ): Promise< void > {
-	return new Promise( ( resolve, reject ) => {
+	return new Promise( resolve => {
 		const run = () => {
 			state.active++;
-			task().then(
-				value => {
-					releaseSlot( state );
-					resolve( value );
-				},
-				error => {
-					releaseSlot( state );
-					reject( error );
-				}
-			);
+			// `finally` frees the slot on both outcomes; `resolve()` adopts the
+			// task's promise, so a rejection still reaches the caller.
+			resolve( task().finally( () => releaseSlot( state ) ) );
 		};
 		if ( state.active < MAX_CONCURRENT_DOWNLOADS ) {
 			run();
@@ -250,7 +254,8 @@ async function fetchManifest( moduleUrl: string ): Promise< string[] > {
  * Resolves once the route/script/module catalogs are installed, when anything
  * fails (missing manifest or catalogs fall back to English), or after a
  * bounded wait — a stalled network must not wedge first render. Widget
- * catalogs are downloaded in the background and never awaited.
+ * catalogs (`<build>/widgets/**`) are not requested here at all; they load
+ * through `loadBundleI18nCatalog()` when a widget's module is imported.
  *
  * @param domain    - The package text domain the catalogs are registered under.
  * @param moduleUrl - `import.meta.url` of the calling init module; used to locate the build's i18n manifest.
@@ -280,24 +285,31 @@ export async function loadI18nCatalogs(
 	const state = sharedState();
 
 	const load = async () => {
-		// A missing manifest (dev watch build) 404s — expected, kept silent.
-		// Anything else is surfaced.
-		const manifest = fetchManifest( moduleUrl )
-			.catch( ( error: unknown ) => {
-				const message = errorMessage( error );
-				if ( ! isMissingCatalog( message ) ) {
-					warn( `Failed to load the i18n manifest for "${ domain }": ${ message }` );
-				}
-				return [] as string[];
-			} )
-			.then( bundles => new Set( bundles ) );
-		// Published for `loadBundleI18nCatalog()` before it resolves, so an
-		// on-demand request never races the manifest fetch.
-		state.manifests.set( domain, manifest );
+		// Fetched at most once per domain per page: the manifest is a static
+		// build artifact, and a repeat call must not be able to replace a good
+		// bundle set with the empty one a failed refetch yields — every widget
+		// loading after that would quietly skip its catalog.
+		let manifest = state.manifests.get( domain );
+		if ( ! manifest ) {
+			// A missing manifest (dev watch build) 404s — expected, kept silent.
+			// Anything else is surfaced.
+			manifest = fetchManifest( moduleUrl )
+				.catch( ( error: unknown ) => {
+					const message = errorMessage( error );
+					if ( ! isMissingCatalog( message ) ) {
+						warn( `Failed to load the i18n manifest for "${ domain }": ${ message }` );
+					}
+					return [] as string[];
+				} )
+				.then( bundles => new Set( bundles ) );
+			// Published for `loadBundleI18nCatalog()` before it resolves, so an
+			// on-demand request never races the manifest fetch.
+			state.manifests.set( domain, manifest );
+		}
 
 		const blocking: Promise< void >[] = [];
 		for ( const path of await manifest ) {
-			if ( path.includes( '/widgets/' ) ) {
+			if ( WIDGET_BUNDLE_PATH.test( path ) ) {
 				// Widget catalogs load on demand, when the widget's own module
 				// is imported — see `loadBundleI18nCatalog()`.
 				continue;

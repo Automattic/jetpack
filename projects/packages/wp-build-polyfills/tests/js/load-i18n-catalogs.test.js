@@ -15,6 +15,8 @@ const MODULE_URL =
 const MANIFEST_URL =
 	'https://example.org/wp-content/plugins/x/jetpack_vendor/automattic/jetpack-test/build/i18n-manifest.json?ver=abc123';
 
+const WIDGET_BUNDLE = 'build/widgets/latest-post/render.js';
+
 /* eslint-disable no-console -- capture the helper's console.warn diagnostics */
 const realWarn = console.warn;
 let warnings;
@@ -115,6 +117,29 @@ describe( 'loadI18nCatalogs', () => {
 		assert.deepEqual( warnings, [] );
 	} );
 
+	it( 'only defers the widget tree itself, not bundles that merely sit under a "widgets" name', async () => {
+		const calls = installLoader( () => Promise.resolve() );
+		installFetch( {
+			bundles: [
+				'build/routes/widgets/content.js',
+				'build/scripts/widgets/index.js',
+				WIDGET_BUNDLE,
+			],
+		} );
+		const { loadI18nCatalogs } = await import( HELPER );
+
+		await loadI18nCatalogs( 'jetpack-test', MODULE_URL );
+
+		// Only `<build>/widgets/**` loads on demand. A route or script called
+		// `widgets` has no on-demand caller to pick it up later — the widget
+		// resolvers build `build/widgets/<name>/<file>.js` paths of their own —
+		// so skipping it here would leave it untranslated for the whole page.
+		assert.deepEqual(
+			calls.map( ( [ path ] ) => path ),
+			[ 'build/routes/widgets/content.js', 'build/scripts/widgets/index.js' ]
+		);
+	} );
+
 	it( 'limits how many catalog downloads run concurrently', async () => {
 		const resolvers = [];
 		const calls = installLoader(
@@ -143,18 +168,48 @@ describe( 'loadI18nCatalogs', () => {
 		assert.deepEqual( warnings, [] );
 	} );
 
-	it( 'ignores non-string manifest entries and a malformed manifest shape', async () => {
+	it( 'ignores non-string manifest entries', async () => {
 		const calls = installLoader( () => Promise.resolve() );
 		installFetch( { bundles: [ 'build/a.js', 42, null, { path: 'build/b.js' } ] } );
 		const { loadI18nCatalogs } = await import( HELPER );
 
 		await loadI18nCatalogs( 'jetpack-test', MODULE_URL );
-		assert.deepEqual( calls, [ [ 'build/a.js', 'jetpack-test', 'plugin' ] ] );
 
-		calls.length = 0;
+		assert.deepEqual( calls, [ [ 'build/a.js', 'jetpack-test', 'plugin' ] ] );
+	} );
+
+	it( 'downloads nothing when the manifest has no bundles array', async () => {
+		const calls = installLoader( () => Promise.resolve() );
 		installFetch( { something: 'else' } );
+		const { loadI18nCatalogs } = await import( HELPER );
+
 		await loadI18nCatalogs( 'jetpack-test', MODULE_URL );
-		assert.deepEqual( calls, [], 'no downloads when the manifest has no bundles array' );
+
+		assert.deepEqual( calls, [] );
+	} );
+
+	it( 'fetches the manifest once per domain, keeping a good bundle set on a repeat call', async () => {
+		const calls = installLoader( () => Promise.resolve() );
+		const requests = installFetch( { bundles: [ WIDGET_BUNDLE ] } );
+		const api = await import( HELPER );
+		await api.loadI18nCatalogs( 'jetpack-test', MODULE_URL );
+
+		// A second boot whose manifest request fails must not replace the
+		// cached bundle set with the empty one — every widget loading after
+		// that would quietly skip its catalog.
+		const repeatRequests = installFetch( new Error( 'network down' ) );
+		await api.loadI18nCatalogs( 'jetpack-test', MODULE_URL );
+
+		assert.equal( requests.length, 1, 'the first call fetched the manifest' );
+		assert.deepEqual( repeatRequests, [], 'the repeat call reuses it, with no second request' );
+		assert.deepEqual( warnings, [], 'and so has no manifest failure to report' );
+
+		await api.loadBundleI18nCatalog( 'jetpack-test', WIDGET_BUNDLE );
+		assert.deepEqual(
+			calls,
+			[ [ WIDGET_BUNDLE, 'jetpack-test', 'plugin' ] ],
+			'the widget catalog is still known to the manifest'
+		);
 	} );
 
 	it( 'resolves and warns when the manifest request fails unexpectedly', async () => {
@@ -292,8 +347,6 @@ describe( 'loadI18nCatalogs', () => {
 } );
 
 describe( 'loadBundleI18nCatalog', () => {
-	const WIDGET_BUNDLE = 'build/widgets/latest-post/render.js';
-
 	/**
 	 * Run the boot helper so the manifest is cached for on-demand loads.
 	 *

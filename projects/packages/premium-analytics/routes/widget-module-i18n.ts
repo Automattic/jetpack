@@ -133,11 +133,17 @@ export function useWidgetTypesWithI18n(
 			return;
 		}
 		let cancelled = false;
-		preloadWidgetModuleCatalogs( records ).then( () => {
-			if ( ! cancelled ) {
-				setReadyRecords( records );
-			}
-		} );
+		preloadWidgetModuleCatalogs( records )
+			// Defensive: every failure path inside the preload already falls
+			// back to English on its own, so this should not fire. If one ever
+			// escapes, open the gate anyway — an untranslated grid beats one
+			// stranded on placeholders for the rest of the page.
+			.catch( () => undefined )
+			.then( () => {
+				if ( ! cancelled ) {
+					setReadyRecords( records );
+				}
+			} );
 		return () => {
 			cancelled = true;
 		};

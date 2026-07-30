@@ -11,14 +11,14 @@ import { Link, useParams, useSearch } from '@wordpress/route';
 import { Button, Stack, Text } from '@wordpress/ui';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
-import { useDashboardGridSettings } from '../dashboard/hooks/use-dashboard-grid-settings';
-import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 /**
  * Internal dependencies
  */
 // Grid settings are intentionally shared across analytics dashboards (see the
 // hook's own note), so the video-detail page reuses the dashboard's hook rather
 // than storing a separate copy.
+import { useDashboardGridSettings } from '../dashboard/hooks/use-dashboard-grid-settings';
+import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { VideoSummaryCard } from './components';
 import { VIDEO_DETAIL_LAYOUT } from './config';
 import { useVideoSummary } from './hooks';
