@@ -1,5 +1,6 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import { formatNumberCompact } from '@automattic/number-formatters';
+import apiFetch from '@wordpress/api-fetch';
 import {
 	Button,
 	Flex,
@@ -295,10 +296,14 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 export function NewsletterEmailDocumentSettings() {
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
-	const { saveEntityRecord } = useDispatch( coreDataStore );
+	const { receiveEntityRecords } = useDispatch( coreDataStore );
 	const { createErrorNotice } = useDispatch( noticesStore );
 	const postId = useEntityId( 'postType', postType );
 	const [ pendingValue, setPendingValue ] = useState( null );
+	const postTypeBaseUrl = useSelect(
+		select => select( coreDataStore ).getEntityConfig( 'postType', postType )?.baseURL,
+		[ postType ]
+	);
 
 	const postEmailSentState = useSelect(
 		select => {
@@ -310,26 +315,29 @@ export function NewsletterEmailDocumentSettings() {
 
 	const isAlreadySent = postEmailSentState?.email_sent_at != null;
 
-	// Write just this one meta key rather than staging a post-meta edit and saving it.
-	// A staged edit would leave the post dirty forever wherever real-time collaboration
-	// is on: core merges the whole meta object into every meta edit, including the
-	// volatile `_crdt_document`, which never reconciles with what the server returns.
+	// Write the flag straight to the post rather than staging a post-meta edit and saving it.
+	// A staged edit would leave the post dirty forever wherever real-time collaboration is on,
+	// because core folds the whole meta object — the volatile `_crdt_document` included — into
+	// every meta edit, and that never reconciles with what the server returns. Going through
+	// the entity save would not do either: it promotes an auto-draft and blanks its placeholder
+	// title, so a meta-only payload comes back rejected as an empty post. A plain request keeps
+	// the post's own state untouched; feed the response back so the store sees the new value.
 	const toggleSendEmail = async value => {
-		if ( ! postId ) {
+		if ( ! postId || ! postTypeBaseUrl ) {
 			return;
 		}
 		setPendingValue( value );
 		try {
-			await saveEntityRecord(
-				'postType',
-				postType,
-				{
-					id: postId,
+			// The update response is always in the edit context, so no need to ask for it.
+			const updatedPost = await apiFetch( {
+				path: `${ postTypeBaseUrl }/${ postId }`,
+				method: 'POST',
+				data: {
 					// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
 					meta: { [ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: value === 'post-only' },
 				},
-				{ throwOnError: true }
-			);
+			} );
+			receiveEntityRecords( 'postType', postType, updatedPost, undefined, true );
 		} catch {
 			createErrorNotice( __( 'The newsletter setting could not be saved.', 'jetpack' ), {
 				type: 'snackbar',
