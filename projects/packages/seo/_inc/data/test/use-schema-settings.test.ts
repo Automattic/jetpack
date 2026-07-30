@@ -65,7 +65,7 @@ describe( 'useSchemaSettings', () => {
 		await waitFor( () => expect( result.current.isOrganizationDirty ).toBe( false ) );
 		// One Save persists both sections, so neither stays dirty afterward.
 		expect( result.current.isLocalBusinessDirty ).toBe( false );
-		expect( createInfoNotice ).toHaveBeenCalledWith( 'Saving…', expect.anything() );
+		expect( createInfoNotice ).toHaveBeenCalledWith( 'Saving schema settings…', expect.anything() );
 
 		const post = mockApiFetch.mock.calls.find(
 			( [ options ] ) => ( options as { method?: string } ).method === 'POST'
