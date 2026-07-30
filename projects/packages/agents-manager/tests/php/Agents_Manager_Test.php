@@ -726,6 +726,30 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that a host-filtered full Gutenberg variant adds Ask AI to the editor
+	 * admin bar without requiring another Agents Manager enablement filter.
+	 */
+	public function test_ai_chat_button_registered_in_editor_omnibar_for_filtered_full_variant() {
+		$this->set_up_block_editor_request( false );
+
+		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
+		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( true );
+
+		$variant_filter = static function () {
+			return 'gutenberg';
+		};
+		add_filter( 'agents_manager_variant', $variant_filter );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
+		);
+
+		remove_filter( 'agents_manager_variant', $variant_filter );
+	}
+
+	/**
 	 * Tests that the omnibar experiment is recognized when only the renamed slug
 	 * (`gutenberg-omnibar`, Gutenberg 23.5+) is enabled.
 	 */
