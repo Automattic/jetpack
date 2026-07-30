@@ -12,20 +12,20 @@ return [
     // PhanTypeMismatchArgument : 420+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 220+ occurrences
     // PhanTypeMismatchReturn : 140+ occurrences
-    // PhanTypeMismatchReturnProbablyReal : 110+ occurrences
+    // PhanTypeMismatchReturnProbablyReal : 120+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 90+ occurrences
     // PhanTypeArraySuspiciousNullable : 70+ occurrences
     // PhanDeprecatedFunction : 60+ occurrences
     // PhanRedefineFunction : 45+ occurrences
-    // PhanTypeExpectedObjectPropAccess : 30+ occurrences
-    // PhanDeprecatedProperty : 25+ occurrences
+    // PhanDeprecatedProperty : 40+ occurrences
+    // PhanUndeclaredMethod : 30+ occurrences
     // PhanTypeMismatchDefault : 25+ occurrences
     // PhanTypeMismatchPropertyProbablyReal : 25+ occurrences
-    // PhanParamSignatureMismatch : 20+ occurrences
     // PhanTypeMismatchDimFetch : 20+ occurrences
-    // PhanUndeclaredMethod : 20+ occurrences
+    // PhanParamSignatureMismatch : 15+ occurrences
     // PhanSuspiciousMagicConstant : 15+ occurrences
     // PhanTypeArraySuspicious : 15+ occurrences
+    // PhanTypeExpectedObjectPropAccess : 15+ occurrences
     // PhanTypeMismatchArgumentNullable : 15+ occurrences
     // PhanTypeMismatchPropertyDefault : 15+ occurrences
     // PhanTypeSuspiciousNonTraversableForeach : 15+ occurrences
@@ -224,9 +224,8 @@ return [
         'json-endpoints/class.wpcom-json-api-upload-media-endpoint.php' => ['PhanTypeMismatchReturn'],
         'json-endpoints/jetpack/class-jetpack-json-api-delete-backup-helper-script-endpoint.php' => ['PhanParamSignatureMismatch'],
         'json-endpoints/jetpack/class-jetpack-json-api-install-backup-helper-script-endpoint.php' => ['PhanParamSignatureMismatch'],
-        'json-endpoints/jetpack/class.jetpack-json-api-check-capabilities-endpoint.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'json-endpoints/jetpack/class.jetpack-json-api-cron-endpoint.php' => ['PhanTypeComparisonToArray'],
-        'json-endpoints/jetpack/class.jetpack-json-api-endpoint.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
+        'json-endpoints/jetpack/class.jetpack-json-api-endpoint.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'json-endpoints/jetpack/class.jetpack-json-api-get-comment-backup-endpoint.php' => ['PhanParamSignatureMismatch'],
         'json-endpoints/jetpack/class.jetpack-json-api-get-database-object-backup-endpoint.php' => ['PhanTypeMismatchDimFetch'],
         'json-endpoints/jetpack/class.jetpack-json-api-get-post-backup-endpoint.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchReturnProbablyReal'],
@@ -238,12 +237,11 @@ return [
         'json-endpoints/jetpack/class.jetpack-json-api-plugins-install-endpoint.php' => ['PhanTypeMismatchDimAssignment'],
         'json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php' => ['PhanTypeInvalidLeftOperandOfBitwiseOp', 'PhanTypeInvalidRightOperandOfBitwiseOp', 'PhanTypeMismatchArgumentProbablyReal'],
         'json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-v1-2-endpoint.php' => ['PhanTypeInvalidLeftOperandOfBitwiseOp', 'PhanTypeInvalidRightOperandOfBitwiseOp'],
-        'json-endpoints/jetpack/class.jetpack-json-api-plugins-new-endpoint.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument', 'PhanTypeMissingReturn'],
-        'json-endpoints/jetpack/class.jetpack-json-api-sync-endpoint.php' => ['PhanParamSignatureMismatch', 'PhanParamTooManyCallable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypePossiblyInvalidDimOffset'],
-        'json-endpoints/jetpack/class.jetpack-json-api-themes-active-endpoint.php' => ['PhanTypeMismatchArgumentProbablyReal'],
+        'json-endpoints/jetpack/class.jetpack-json-api-plugins-new-endpoint.php' => ['PhanTypeMissingReturn'],
+        'json-endpoints/jetpack/class.jetpack-json-api-sync-endpoint.php' => ['PhanParamTooManyCallable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypePossiblyInvalidDimOffset'],
         'json-endpoints/jetpack/class.jetpack-json-api-themes-endpoint.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument', 'PhanTypeMismatchProperty'],
         'json-endpoints/jetpack/class.jetpack-json-api-themes-modify-endpoint.php' => ['PhanTypeMismatchArgumentProbablyReal'],
-        'json-endpoints/jetpack/class.jetpack-json-api-themes-new-endpoint.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn'],
+        'json-endpoints/jetpack/class.jetpack-json-api-themes-new-endpoint.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn'],
         'json-endpoints/jetpack/class.jetpack-json-api-updates-status-endpoint.php' => ['PhanCoalescingAlwaysNull', 'PhanUndeclaredVariable', 'UnusedPluginSuppression'],
         'json-endpoints/jetpack/class.jetpack-json-api-user-connect-endpoint.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument'],
         'json-endpoints/jetpack/class.jetpack-json-api-user-create-endpoint.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturnNullable'],

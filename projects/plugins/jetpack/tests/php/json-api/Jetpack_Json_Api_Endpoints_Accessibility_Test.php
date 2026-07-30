@@ -257,8 +257,9 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 
 	/**
 	 * Capability declarations that resolve to "authorize unconditionally" must be denied, not just
-	 * the literal empty array. Two shapes reach the same fail-open as the original bug: a resolved
-	 * capability set that is empty (including scalar forms that skip the is_array() branch), and a
+	 * the literal empty array. Three shapes reach the same fail-open as the original bug: a resolved
+	 * capability set that is empty (including scalar forms that skip the is_array() branch), an entry
+	 * that is not a capability name and so resolves to a legacy user level every role holds, and a
 	 * `must_pass` threshold below 1, which makes `$passed < $must_pass` false for every user.
 	 *
 	 * @group json-api
@@ -294,43 +295,93 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	public static function data_provider_test_zero_threshold_declarations_are_denied() {
 		$site_token_required = new WP_Error( 'unauthorized_site_token_required', 'This endpoint is only accessible using a Jetpack site token.', 403 );
 		$threshold           = new WP_Error( 'unauthorized_capability_threshold', 'This endpoint requires at least one capability check to pass.', 403 );
+		$declaration         = new WP_Error( 'unauthorized_capability_declaration', 'This endpoint does not declare a valid capability requirement.', 403 );
 
 		return array(
-			// Resolved-empty capability sets.
-			'structured wrapper with an empty list'     => array( array( 'capabilities' => array() ), $site_token_required ),
-			'null (the base class default)'             => array( null, $site_token_required ),
-			'empty string'                              => array( '', $site_token_required ),
-			// Numeric zero would otherwise resolve to level_0, which every role holds.
-			'integer zero'                              => array( 0, $site_token_required ),
-			'string zero'                               => array( '0', $site_token_required ),
+			// Resolved-empty capability sets. Only the numeric forms were fail-open before this fix;
+			// null and the empty string already denied, but with the generic 'unauthorized' code.
+			'structured wrapper with an empty list'       => array( array( 'capabilities' => array() ), $site_token_required ),
+			'null (the base class default)'               => array( null, $site_token_required ),
+			'empty string'                                => array( '', $site_token_required ),
+			'integer zero'                                => array( 0, $site_token_required ),
+			'string zero'                                 => array( '0', $site_token_required ),
+			// Non-string entries survive the emptiness check but resolve to legacy user levels:
+			// current_user_can( 0 ) checks level_0, which every default role holds.
+			'nested integer zero'                         => array( array( 0 ), $declaration ),
+			'nested string zero'                          => array( array( '0' ), $declaration ),
+			'nested empty string'                         => array( array( '' ), $declaration ),
+			// No 'capabilities' key, so the wrapper's own metadata is what gets capability-checked.
+			'wrapper with no capabilities key'            => array( array( 'must_pass' => 0 ), $declaration ),
 			// Zero thresholds over a non-empty list.
-			'must_pass of 0 over a real list'           => array(
+			'must_pass of 0 over a real list'             => array(
 				array(
 					'capabilities' => array( 'manage_options' ),
 					'must_pass'    => 0,
 				),
 				$threshold,
 			),
-			'must_pass of 0 with no capabilities key'   => array( array( 'must_pass' => 0 ), $threshold ),
-			'negative must_pass'                        => array(
+			'negative must_pass over a real list'         => array(
 				array(
 					'capabilities' => array( 'manage_options' ),
 					'must_pass'    => -1,
 				),
 				$threshold,
 			),
-			// Sanity: a real declaration still fails on the capability itself, not the new guards.
-			'real capability still denies a subscriber' => array(
+			// Sanity rows: these are GREEN on trunk too. They prove the new guards did not swallow the
+			// ordinary capability path, not that anything is newly denied.
+			'real capability still denies a subscriber'   => array(
 				array( 'manage_options' ),
+				new WP_Error( 'unauthorized', 'This user is not authorized to manage_options on this blog.', 403 ),
+			),
+			'scalar capability still denies a subscriber' => array(
+				'manage_options',
 				new WP_Error( 'unauthorized', 'This user is not authorized to manage_options on this blog.', 403 ),
 			),
 		);
 	}
 
 	/**
+	 * The threshold guard must sit below the accepts_site_based_authentication() short-circuit, exactly
+	 * like the emptiness guard. Without this row a refactor that hoisted both guards above the
+	 * short-circuit would 403 legitimate blog-token traffic with the rest of the suite still green.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_zero_threshold_still_accepts_a_blog_token() {
+		$endpoint = new Jetpack_JSON_API_Empty_Capabilities_Dummy_Endpoint(
+			array(
+				'stat'                    => 'dummy',
+				'allow_jetpack_site_auth' => true,
+			)
+		);
+
+		$property = ( new ReflectionClass( $endpoint ) )->getProperty( 'needed_capabilities' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue(
+			$endpoint,
+			array(
+				'capabilities' => array( 'manage_options' ),
+				'must_pass'    => 0,
+			)
+		);
+
+		// No current user, so is_jetpack_authorized_for_site() stands in for blog-token auth.
+		$this->assertEquals( 'success', $endpoint->api->process_request( $endpoint, array() ) );
+	}
+
+	/**
 	 * Every production endpoint that declares no capabilities is now unreachable without site-based
 	 * authentication, so each one must be registered with `allow_jetpack_site_auth => true` or it is
 	 * permanently 403. Nothing links the declaration to the registration, so assert the pairing.
+	 *
+	 * This test is GREEN on trunk as well -- all eight endpoints already carried the flag. It is a
+	 * forward-looking invariant for the newly mandatory pairing, not evidence of a fixed regression.
+	 * It only covers endpoints registered from this repository: under `IS_WPCOM` the endpoint
+	 * directory is loaded from the WordPress.com tree and neither those registrations nor that copy
+	 * of the guard are visible here.
 	 *
 	 * @group json-api
 	 */
@@ -356,10 +407,15 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 					continue;
 				}
 
-				// The pairing only binds for endpoints that reach check_capability() through the base
-				// callback(). A class that overrides callback() defines its own authorization path --
-				// Jetpack_JSON_API_Check_Capabilities_Endpoint hand-passes 'read' and never consults
-				// $needed_capabilities at all, so its unset default is not a site-token declaration.
+				// The pairing only binds for endpoints that reach check_capability() with the property
+				// as declared. This carve-out is load-bearing for exactly one class:
+				// Jetpack_JSON_API_Check_Capabilities_Endpoint, which overrides callback() to hand-pass
+				// 'read', never consults $needed_capabilities, and is registered without the site-auth
+				// flag -- so its unset default is not a site-token declaration. It is expressed as a
+				// mechanism rather than a name so a future endpoint in the same shape is covered too;
+				// note that overriding callback() does not by itself mean bypassing this path, as
+				// Jetpack_JSON_API_Plugins_Modify_Endpoint assigns a real capability and then delegates
+				// to parent::callback().
 				if ( $class->getMethod( 'callback' )->getDeclaringClass()->getName() !== Jetpack_JSON_API_Endpoint::class ) {
 					continue;
 				}

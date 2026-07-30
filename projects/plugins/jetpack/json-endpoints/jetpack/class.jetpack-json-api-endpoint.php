@@ -100,11 +100,11 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Switches to the blog and checks current user capabilities.
 	 *
-	 * @param int   $_blog_id - the blog ID.
-	 * @param array $capability - the capabilities of the user.
-	 * @param bool  $check_validation - if we're checking the validation.
+	 * @param int               $_blog_id - the blog ID.
+	 * @param string|array|null $capability - the capability declaration to enforce.
+	 * @param bool              $check_validation - if we're checking the validation.
 	 *
-	 * @return bool|WP_Error a WP_Error object or true if things are good.
+	 * @return true|WP_Error a WP_Error object or true if things are good.
 	 */
 	protected function validate_call( $_blog_id, $capability, $check_validation = true ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $_blog_id ) );
@@ -140,9 +140,10 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Check capability.
 	 *
-	 * @param array $capability - the compatability.
+	 * @param string|array|null $capability - the capability declaration to enforce.
 	 *
-	 * @return bool|WP_Error
+	 * @return true|WP_Error True when authorized; a WP_Error otherwise. Never return a bare falsey
+	 *                       value here: validate_call() authorizes on anything that is not a WP_Error.
 	 */
 	protected function check_capability( $capability ) {
 		// If this endpoint accepts site based authentication, skip capabilities check.
@@ -157,49 +158,66 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 		// Endpoints that declare none (e.g. the Backup helper-script endpoints) are reachable only
 		// with a Jetpack site (blog) token, which the site-based authentication short-circuit above
 		// handles. Without this guard an empty set makes `$must_pass` 0 below, so any connected user
-		// token would pass. The check sits above the is_array() split so that scalar declarations
-		// that mean "nothing required" -- null, '', 0, '0' -- deny too rather than resolving to a
-		// capability every role holds.
+		// token would pass. The check runs on the resolved set, so scalar declarations meaning "nothing
+		// required" are covered by the same rule: `0` and `'0'` were fail-open because they resolve to
+		// `level_0`, which every default role holds, while `null` and `''` already denied and now do so
+		// with a code that distinguishes them from a failed capability.
 		//
 		// Note that the short-circuit is the only way past this deny, and that `allow_jetpack_site_auth`
 		// (not `allow_fallback_to_jetpack_blog_token`) is what enables it. Its
 		// `is_jetpack_authorized_for_site()` half is overridden by a child class on WordPress.com, so
-		// what satisfies this deny there is defined outside this repository.
+		// what satisfies this deny there is defined outside this repository. Note also that under
+		// `IS_WPCOM` this file is not the one that runs at all: json-endpoints.php resolves the
+		// endpoint directory to the WordPress.com tree, so this guard governs self-hosted and Atomic
+		// sites only.
 		if ( empty( $capabilities ) ) {
 			return new WP_Error( 'unauthorized_site_token_required', __( 'This endpoint is only accessible using a Jetpack site token.', 'jetpack' ), 403 );
 		}
 
-		if ( is_array( $capability ) ) {
-			// We can pass in the number of conditions we must pass by default it is all.
-			$must_pass = ( isset( $capability['must_pass'] ) && is_int( $capability['must_pass'] ) ? $capability['must_pass'] : count( $capabilities ) );
+		// Normalize the scalar and list declaration forms to a single list, so that the validation and
+		// the capability loop below apply identically to both. A one-element list produces the same
+		// error message the scalar branch used to build directly.
+		$required_capabilities = is_array( $capabilities ) ? array_values( $capabilities ) : array( $capabilities );
 
-			// A threshold below 1 authorizes unconditionally no matter what the capability list holds,
-			// which is the same fail-open the empty set produced. `is_int()` above admits negatives too.
-			if ( $must_pass < 1 ) {
-				return new WP_Error( 'unauthorized_capability_threshold', __( 'This endpoint requires at least one capability check to pass.', 'jetpack' ), 403 );
+		// Every entry must name an actual capability. An entry nested inside a non-empty list survives
+		// the emptiness check above, and `WP_User::has_cap()` routes anything `is_numeric()` through
+		// its legacy user-level shim -- `0` and `'0'` become `level_0`, which every default role holds.
+		// So `array( 0 )` or `array( '0' )` would authorize any connected user, the same fail-open the
+		// empty set produced. The `is_numeric()` test mirrors the one in core that triggers the shim.
+		// This also catches a wrapper whose `capabilities` key is missing, where the resolved set is
+		// the wrapper's own metadata rather than a capability list.
+		foreach ( $required_capabilities as $declared_capability ) {
+			if ( ! is_string( $declared_capability ) || '' === $declared_capability || is_numeric( $declared_capability ) ) {
+				return new WP_Error( 'unauthorized_capability_declaration', __( 'This endpoint does not declare a valid capability requirement.', 'jetpack' ), 403 );
 			}
+		}
 
-			$failed = array(); // store the failed capabilities
-			$passed = 0;
-			foreach ( $capabilities as $cap ) {
-				if ( current_user_can( $cap ) ) {
-					++$passed;
-				} else {
-					$failed[] = $cap;
-				}
+		// We can pass in the number of conditions we must pass by default it is all.
+		$must_pass = ( is_array( $capability ) && isset( $capability['must_pass'] ) && is_int( $capability['must_pass'] ) ? $capability['must_pass'] : count( $required_capabilities ) );
+
+		// A threshold below 1 authorizes unconditionally no matter what the capability list holds,
+		// which is the same fail-open the empty set produced. `is_int()` above admits negatives too.
+		if ( $must_pass < 1 ) {
+			return new WP_Error( 'unauthorized_capability_threshold', __( 'This endpoint requires at least one capability check to pass.', 'jetpack' ), 403 );
+		}
+
+		$failed = array(); // store the failed capabilities
+		$passed = 0;
+		foreach ( $required_capabilities as $cap ) {
+			if ( current_user_can( $cap ) ) {
+				++$passed;
+			} else {
+				$failed[] = $cap;
 			}
-			// Check if all conditions have passed.
-			if ( $passed < $must_pass ) {
-				return new WP_Error(
-					'unauthorized',
-					/* translators: %s: comma-separated list of capabilities */
-					sprintf( __( 'This user is not authorized to %s on this blog.', 'jetpack' ), implode( ', ', $failed ) ),
-					403
-				);
-			}
-		} elseif ( ! current_user_can( $capability ) ) {
-			// Translators: the capability that the user is not authorized for.
-			return new WP_Error( 'unauthorized', sprintf( __( 'This user is not authorized to %s on this blog.', 'jetpack' ), $capability ), 403 );
+		}
+		// Check if all conditions have passed.
+		if ( $passed < $must_pass ) {
+			return new WP_Error(
+				'unauthorized',
+				/* translators: %s: comma-separated list of capabilities */
+				sprintf( __( 'This user is not authorized to %s on this blog.', 'jetpack' ), implode( ', ', $failed ) ),
+				403
+			);
 		}
 
 		return true;
