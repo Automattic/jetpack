@@ -85,7 +85,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	public static function get_module_product_group( $slug ) {
 		$map = self::get_module_product_groups_map();
 
-		return isset( $map[ $slug ] ) ? $map[ $slug ] : 'other';
+		return $map[ $slug ] ?? 'other';
 	}
 
 	/**
@@ -520,11 +520,8 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		} elseif ( ! empty( $item['unavailable_reason'] ) ) {
 			echo '<span class="jetpack-module__unavailable">' . wp_kses_post( $item['unavailable_reason'] ) . '</span>';
 		}
-		echo '</div>';
-
-		echo '</div>';
-
-		echo '</div>';
+		// Close .row-actions, .jetpack-module__meta, and .jetpack-module__body.
+		echo '</div></div></div>';
 		echo '</td>';
 		echo '</tr>';
 	}
