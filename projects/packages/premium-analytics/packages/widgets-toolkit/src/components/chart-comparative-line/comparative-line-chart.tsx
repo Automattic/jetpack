@@ -311,7 +311,9 @@ export function ComparativeLineChart( {
 		const baseOptions = {
 			axis: {
 				x: {
-					// Use the chart library's default behavior for 'custom' presets
+					// Must stay conditional: `formatDate` defaults to `medium`, so an
+					// unconditional `xTickFormat` would put full site-format dates on every
+					// tick. Without the prop, the chart library's own tick labels stay in use.
 					tickFormat: xTickFormatType ? xTickFormat : undefined,
 				},
 				y: {

@@ -42,8 +42,9 @@ export type ReportDateFilters = {
  * Parse search-param dates into a picker range, dropping unparseable values to
  * `undefined`. The picker reads these straight from the URL, so a malformed
  * `from`/`to` (e.g. a hand-edited or under-encoded deep link where the `+`
- * offset decoded to a space) must not become an invalid Date and leak an
- * "Invalid date" label into the picker.
+ * offset decoded to a space) must not become an invalid Date: the picker's
+ * `formatToTimezoneNaiveString` throws on one and would white-screen the page,
+ * and the trigger label would read "Invalid date".
  *
  * @param from     - The `from` search param.
  * @param to       - The `to` search param.

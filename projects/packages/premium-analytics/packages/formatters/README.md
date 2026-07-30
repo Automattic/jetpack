@@ -76,11 +76,12 @@ There is no custom-pattern escape hatch: a hand-written pattern fixes the
 day/month order to whatever the author happened to type, which is the problem
 this formatter exists to avoid.
 
-**Pass a date that carries its offset** — a `TZDate` from
-`@jetpack-premium-analytics/datetime`, a timestamp, or a string with an explicit
-offset. A bare `YYYY-MM-DD` is read as browser-local midnight and then shifted
-into the site's timezone, landing on the previous day for any visitor ahead of
-the site.
+**Pass an instant** — a `TZDate` from `@jetpack-premium-analytics/datetime`, or a
+timestamp. Strings are outside the parameter type on purpose, even though
+`dateI18n` accepts them: a bare `YYYY-MM-DD` is read as browser-local midnight
+and then shifted into the site's timezone, landing on the previous day for any
+visitor ahead of the site. Parse site-local strings with `parseSiteDateTime` from
+`@jetpack-premium-analytics/datetime` first.
 
 ## `formatDateRange( range? )`
 

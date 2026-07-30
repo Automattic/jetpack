@@ -9,7 +9,7 @@ import { EN_US_SETTINGS, ES_ES_SETTINGS, settingsFor } from '../__fixtures__/wp-
 import { formatDate } from '../format-date';
 
 // Midnight UTC, matching the fixtures' timezone, so no day shift is in play.
-const JUNE_21 = '2025-06-21T00:00:00+00:00';
+const JUNE_21 = new Date( '2025-06-21T00:00:00+00:00' );
 
 describe( 'formatDate', () => {
 	describe( 'en_US site', () => {
