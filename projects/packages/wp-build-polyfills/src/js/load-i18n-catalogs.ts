@@ -64,6 +64,19 @@ const CATALOG_TIMEOUT_MS = 5000;
 const MAX_CONCURRENT_DOWNLOADS = 6;
 
 /**
+ * How long a download may hold its concurrency slot before the slot is
+ * returned to the pool. `downloadI18n()` awaits a bare `fetch` with no timeout
+ * and takes no `AbortSignal`, so a stalled origin never settles it and the
+ * callers' own bounds unblock only themselves — without this, six stalled
+ * downloads wedge the queue for the rest of the page. Set well above both
+ * caller bounds (5s, and 15s for the metadata preload) so a merely slow origin
+ * never trips it: this bound exists for deadlock-immunity, not responsiveness.
+ * The orphaned request keeps running, so in-flight downloads can transiently
+ * exceed the cap — which only happens once the origin has stopped answering.
+ */
+const SLOT_TIMEOUT_MS = 30000;
+
+/**
  * Bundles whose catalogs are left to on-demand loading: the widget tree, one
  * directory below the build root (`build/widgets/…`). Anchored rather than a
  * bare `/widgets/` substring so a route or module that happens to be *named*
@@ -166,19 +179,48 @@ function sharedState(): SharedCatalogState {
 }
 
 /**
- * Run a download task once a concurrency slot is free.
+ * Run a download task once a concurrency slot is free, releasing the slot when
+ * the task settles or when it has held the slot past `SLOT_TIMEOUT_MS`.
  *
  * @param state - The shared catalog state.
+ * @param path  - Package-relative bundle path, for the watchdog's diagnostic.
  * @param task  - The task to run.
  * @return Resolves/rejects with the task once it has run.
  */
-function throttled( state: SharedCatalogState, task: () => Promise< void > ): Promise< void > {
+function throttled(
+	state: SharedCatalogState,
+	path: string,
+	task: () => Promise< void >
+): Promise< void > {
 	return new Promise( resolve => {
 		const run = () => {
 			state.active++;
-			// `finally` frees the slot on both outcomes; `resolve()` adopts the
-			// task's promise, so a rejection still reaches the caller.
-			resolve( task().finally( () => releaseSlot( state ) ) );
+			let released = false;
+			// Whichever of the two paths fires first frees the slot; the guard
+			// keeps the other from decrementing `active` a second time, which
+			// would let later bursts run over the concurrency cap.
+			const release = () => {
+				if ( released ) {
+					return;
+				}
+				released = true;
+				clearTimeout( watchdog );
+				releaseSlot( state );
+			};
+			const watchdog = setTimeout( () => {
+				warn(
+					`Catalog download for ${ path } has held a slot for ${ SLOT_TIMEOUT_MS }ms; releasing it so queued downloads can proceed.`
+				);
+				release();
+			}, SLOT_TIMEOUT_MS );
+			// Browsers return an opaque handle and stop timers at teardown, but
+			// this module is imported directly under `node --test`, where a
+			// pending timer keeps the process alive — a stalled download would
+			// hold a test run open for the whole timeout. Harmless where absent.
+			( watchdog as unknown as { unref?: () => void } ).unref?.();
+			// `resolve()` adopts the task's promise, so a rejection still
+			// reaches the caller.
+			resolve( task().finally( release ) );
 		};
 		if ( state.active < MAX_CONCURRENT_DOWNLOADS ) {
 			run();
@@ -223,7 +265,7 @@ function downloadOnce(
 	const key = `${ domain }|${ path }`;
 	let download = state.downloads.get( key );
 	if ( ! download ) {
-		download = throttled( state, () => loader.downloadI18n( path, domain, 'plugin' ) ).catch(
+		download = throttled( state, path, () => loader.downloadI18n( path, domain, 'plugin' ) ).catch(
 			( error: unknown ) => {
 				const message = errorMessage( error );
 				if ( ! isMissingCatalog( message ) ) {
