@@ -2,8 +2,7 @@
 // subscriber the component swapped that single row for the cold-start empty state, so a brand-new
 // creator read "No subscribers yet" on a site that already had one (NL-772). Every row WP.com
 // returns is a real subscription, so these tests pin the table to rendering exactly what the
-// endpoint sends, reserve the empty slot for a genuinely empty response, and cover the notice that
-// took over the empty state's "Add subscribers" nudge.
+// endpoint sends, and reserve the empty slot for a genuinely empty response.
 
 const mockUseSubscribers = jest.fn();
 
@@ -69,19 +68,6 @@ import SubscribersDataViews from '../_inc/subscribers/components/subscribers-dat
 import type { Subscriber } from '../_inc/subscribers/data/types';
 import type { ReactNode } from 'react';
 
-const SELF_ONLY_NOTICE = /You’re currently your only subscriber/;
-
-/**
- * Look for the self-only prompt. `Notice.Root` also mirrors its message into `@wordpress/a11y`'s
- * live region, which lives on `document.body` and outlives RTL's cleanup — so an unqualified text
- * query matches twice, and keeps matching in the next test.
- *
- * @return The notice's description element, or null.
- */
-function querySelfOnlyNotice(): HTMLElement | null {
-	return screen.queryByText( SELF_ONLY_NOTICE, { ignore: '.a11y-speak-region' } );
-}
-
 /**
  * Build a minimal subscriber row.
  *
@@ -123,13 +109,11 @@ function mockResponse( overrides: Record< string, unknown > = {} ) {
 
 /**
  * Render the table.
- *
- * @param onAddSubscribers - Add Subscribers handler, so the notice CTA can be asserted.
  */
-function renderTable( onAddSubscribers = jest.fn() ) {
+function renderTable() {
 	render(
 		<SubscribersDataViews
-			onAddSubscribers={ onAddSubscribers }
+			onAddSubscribers={ jest.fn() }
 			onViewSubscriber={ jest.fn() }
 			onSubscribersRemoved={ jest.fn() }
 		/>
@@ -139,8 +123,6 @@ function renderTable( onAddSubscribers = jest.fn() ) {
 describe( 'SubscribersDataViews', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		// The view hydrates from the URL, so reset it between tests that set filters/search.
-		window.history.replaceState( {}, '', '/' );
 	} );
 
 	it( 'renders the viewer as a row when they are the only subscriber', () => {
@@ -161,37 +143,15 @@ describe( 'SubscribersDataViews', () => {
 		expect( screen.getByTestId( 'total-pages' ) ).toHaveTextContent( '1' );
 	} );
 
-	it( 'prompts a self-only subscriber to add more, and the CTA opens the modal', () => {
-		const onAddSubscribers = jest.fn();
-		mockResponse();
-		renderTable( onAddSubscribers );
-
-		expect( querySelfOnlyNotice() ).toBeInTheDocument();
-
-		// The package favours the native `.click()` pattern over fireEvent / user-event.
-		const cta = screen.getByRole( 'button', { name: 'Add subscribers' } );
-		cta.click();
-		expect( onAddSubscribers ).toHaveBeenCalledTimes( 1 );
-	} );
-
 	it( 'still shows the empty state when the site genuinely has no subscribers', () => {
 		mockResponse( { total: 0, pages: 0, subscribers: [], is_owner_subscribed: false } );
 		renderTable();
 
 		expect( screen.getByTestId( 'row-count' ) ).toHaveTextContent( '0' );
 		expect( screen.getByTestId( 'empty-state' ) ).toBeInTheDocument();
-		expect( querySelfOnlyNotice() ).not.toBeInTheDocument();
 	} );
 
-	it( 'renders a single non-viewer subscriber without the prompt', () => {
-		mockResponse( { is_owner_subscribed: false } );
-		renderTable();
-
-		expect( screen.getByTestId( 'row-count' ) ).toHaveTextContent( '1' );
-		expect( querySelfOnlyNotice() ).not.toBeInTheDocument();
-	} );
-
-	it( 'drops the prompt once someone else subscribes', () => {
+	it( 'renders every row the endpoint returns', () => {
 		mockResponse( {
 			total: 2,
 			subscribers: [ makeSubscriber(), makeSubscriber( { user_id: 2 } ) ],
@@ -199,25 +159,5 @@ describe( 'SubscribersDataViews', () => {
 		renderTable();
 
 		expect( screen.getByTestId( 'row-count' ) ).toHaveTextContent( '2' );
-		expect( querySelfOnlyNotice() ).not.toBeInTheDocument();
-	} );
-
-	it( 'suppresses the prompt when a filter narrowed the list to one row', () => {
-		// A one-row filtered result says nothing about how many subscribers the site has.
-		window.history.replaceState( {}, '', '/?filters=email_subscriber' );
-		mockResponse();
-		renderTable();
-
-		expect( screen.getByTestId( 'row-count' ) ).toHaveTextContent( '1' );
-		expect( querySelfOnlyNotice() ).not.toBeInTheDocument();
-	} );
-
-	it( 'suppresses the prompt when a search narrowed the list to one row', () => {
-		window.history.replaceState( {}, '', '/?q=rob' );
-		mockResponse();
-		renderTable();
-
-		expect( screen.getByTestId( 'row-count' ) ).toHaveTextContent( '1' );
-		expect( querySelfOnlyNotice() ).not.toBeInTheDocument();
 	} );
 } );

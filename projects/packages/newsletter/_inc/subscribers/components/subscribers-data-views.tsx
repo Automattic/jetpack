@@ -5,11 +5,7 @@ import { Notice } from '@wordpress/ui';
 import { useMembershipsProducts } from '../data/use-memberships-products';
 import { useSubscriberRemoveMutation } from '../data/use-subscriber-remove-mutation';
 import { useSubscribers } from '../data/use-subscribers';
-import {
-	getSubscribedAt,
-	getSubscriberRowId,
-	isSelfOnlySubscriber,
-} from '../lib/subscriber-helpers';
+import { getSubscribedAt, getSubscriberRowId } from '../lib/subscriber-helpers';
 import { getSubscriptionType } from '../lib/subscription-plans';
 import { getSubscriptionStatusLabel } from '../lib/subscription-status';
 import { recordTracksEvent } from '../lib/tracks';
@@ -56,7 +52,7 @@ type Props = {
  * persistence, and per-row + bulk subscriber removal.
  *
  * @param props                      - Component props.
- * @param props.onAddSubscribers     - Open the Add Subscribers modal (used by the empty-state and self-only CTAs).
+ * @param props.onAddSubscribers     - Open the Add Subscribers modal (used by the empty-state CTA).
  * @param props.onViewSubscriber     - Callback fired when the View row action is invoked.
  * @param props.onSubscribersRemoved - Callback fired with the rows that were actually removed.
  * @return The DataViews component bound to the subscribers query.
@@ -318,27 +314,16 @@ export default function SubscribersDataViews( {
 	const handleCloseComp = useCallback( () => setCompTarget( null ), [] );
 	const handleCloseRemoveComp = useCallback( () => setRemoveCompTarget( null ), [] );
 
-	const subscribers = data?.subscribers ?? NO_SUBSCRIBERS;
-	const totalItems = data?.total ?? 0;
-	const totalPages = data?.pages ?? 0;
-	const isOwnerSubscribed = data?.is_owner_subscribed ?? false;
-
-	const hasActiveFiltersOrSearch = Boolean(
-		( view.filters && view.filters.length > 0 ) || ( view.search && view.search.length > 0 )
-	);
-
 	// Every row WP.com returns is a real subscription (email, Reader, or paid), the viewer's own
 	// included — so their row is rendered like any other rather than swapped for the cold-start
 	// empty state, which read as "no subscribers yet" on a site that had one (NL-772). The empty
-	// slot is left to a genuinely empty response, and the nudge to add more moves into a notice
-	// above the table. Gated on no active filter/search: a one-row filtered result says nothing
-	// about the size of the list.
-	const showSelfOnlyNotice =
-		! hasActiveFiltersOrSearch && isSelfOnlySubscriber( totalItems, isOwnerSubscribed );
+	// slot is left to a genuinely empty response.
+	const subscribers = data?.subscribers ?? NO_SUBSCRIBERS;
+	const totalItems = data?.total ?? 0;
+	const totalPages = data?.pages ?? 0;
 
-	const selfOnlyMessage = __(
-		'You’re currently your only subscriber. Invite readers by email to grow your newsletter.',
-		'jetpack-newsletter'
+	const hasActiveFiltersOrSearch = Boolean(
+		( view.filters && view.filters.length > 0 ) || ( view.search && view.search.length > 0 )
 	);
 
 	const paginationInfo = useMemo(
@@ -357,22 +342,6 @@ export default function SubscribersDataViews( {
 
 	return (
 		<>
-			{ showSelfOnlyNotice && (
-				// Explicit `spokenMessage` because Notice.Root otherwise renderToString()s its children
-				// mid-render, which corrupts hook order once those children include an action button.
-				<Notice.Root
-					className="jetpack-newsletter-self-only-notice"
-					intent="info"
-					spokenMessage={ selfOnlyMessage }
-				>
-					<Notice.Description>{ selfOnlyMessage }</Notice.Description>
-					<Notice.Actions>
-						<Notice.ActionButton onClick={ onAddSubscribers }>
-							{ __( 'Add subscribers', 'jetpack-newsletter' ) }
-						</Notice.ActionButton>
-					</Notice.Actions>
-				</Notice.Root>
-			) }
 			<DataViews< Subscriber >
 				data={ subscribers }
 				fields={ fields }

@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Subscribers: Show your own subscription in the list instead of an empty state when you are the only subscriber, alongside a prompt to add more.
+Subscribers: Show your own subscription in the list instead of an empty state when you are the only subscriber.

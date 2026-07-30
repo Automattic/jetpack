@@ -1,7 +1,6 @@
 import {
 	getSubscribedAt,
 	isOpenSubscriberRemoved,
-	isSelfOnlySubscriber,
 } from '../_inc/subscribers/lib/subscriber-helpers';
 import type { Subscriber, SubscriberDetails } from '../_inc/subscribers/data/types';
 
@@ -64,27 +63,6 @@ describe( 'isOpenSubscriberRemoved', () => {
 		// closed by removing an unrelated email-only subscriber.
 		const removed = [ makeSubscriber( { user_id: 0, email_subscription_id: 1 } ) ];
 		expect( isOpenSubscriberRemoved( { userId: 0 }, removed ) ).toBe( false );
-	} );
-} );
-
-describe( 'isSelfOnlySubscriber', () => {
-	it( 'is true when the only subscriber is the viewer', () => {
-		expect( isSelfOnlySubscriber( 1, true ) ).toBe( true );
-	} );
-
-	it( 'is false when the single subscriber is someone else', () => {
-		expect( isSelfOnlySubscriber( 1, false ) ).toBe( false );
-	} );
-
-	it( 'is false once there is more than one subscriber, viewer included', () => {
-		expect( isSelfOnlySubscriber( 2, true ) ).toBe( false );
-		expect( isSelfOnlySubscriber( 5, false ) ).toBe( false );
-	} );
-
-	it( 'is false on an empty list', () => {
-		// Nothing to prompt about — DataViews shows the cold-start empty state instead.
-		expect( isSelfOnlySubscriber( 0, false ) ).toBe( false );
-		expect( isSelfOnlySubscriber( 0, true ) ).toBe( false );
 	} );
 } );
 
