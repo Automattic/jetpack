@@ -2227,6 +2227,7 @@ HTML;
 		$price_range               = static::parse_url_price_range();
 		$is_initial_loading        = static::is_initial_loading();
 		$searching_text            = function_exists( '__' ) ? __( 'Searching…', 'jetpack-search-pkg' ) : 'Searching…';
+		$query_options             = static::get_instant_search_query_options();
 
 		return array(
 			// Connection / routing config.
@@ -2296,7 +2297,33 @@ HTML;
 			'aiExtendedLoadingHints'     => static::build_ai_extended_loading_hints(),
 
 			'wcStockStatusLabels'        => static::build_stock_status_labels(),
+
+			// Query customization from `jetpack_instant_search_options` — same
+			// keys Instant Search / Inline Search honor, so Embedded and the
+			// blocks Overlay stay compatible with those filters.
+			'highlightPhraseOnly'        => $query_options['highlightPhraseOnly'],
+			'highlightFilterStopwords'   => $query_options['highlightFilterStopwords'],
+			'highlightFields'            => $query_options['highlightFields'],
+			'additionalBlogIds'          => $query_options['additionalBlogIds'],
+			'adminQueryFilter'           => $query_options['adminQueryFilter'],
+			'customResults'              => $query_options['customResults'],
 		);
+	}
+
+	/**
+	 * Read Instant Search query-customization options for the blocks store.
+	 *
+	 * @return array{
+	 *     highlightPhraseOnly: bool,
+	 *     highlightFilterStopwords: array<int, string>,
+	 *     highlightFields: array<int, string>|null,
+	 *     additionalBlogIds: array<int, int|string>,
+	 *     adminQueryFilter: array<string, mixed>|null,
+	 *     customResults: array<int, array{pattern: string, ids: array<int, int|string>}>,
+	 * }
+	 */
+	public static function get_instant_search_query_options(): array {
+		return Helper::get_instant_search_query_options();
 	}
 
 	/**
