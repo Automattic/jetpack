@@ -17,6 +17,17 @@
  * Redirects to a random post on the site.
  */
 function jetpack_matt_random_redirect() {
+	/**
+	 * Allows disabling the random redirect feature.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $enabled Whether the random redirect feature is enabled. Default true.
+	 */
+	if ( ! apply_filters( 'jetpack_random_redirect_enabled', true ) ) {
+		return;
+	}
+
 	// Verify that the Random Redirect plugin this code is from is not active
 	// See https://plugins.trac.wordpress.org/ticket/1898
 	if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
