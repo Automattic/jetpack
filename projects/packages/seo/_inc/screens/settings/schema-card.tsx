@@ -4,6 +4,7 @@ import { code } from '@wordpress/icons';
 import { Button, Card, CollapsibleCard, Fieldset, Stack, Text } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
 import StatusIndicator from '../../components/status-indicator';
+import { cleanProfileUrls } from '../../data/schema-settings-utils';
 import { useSchemaSettings } from '../../data/use-schema-settings';
 import { hasLocalBusinessErrors } from './schema-settings/local-business-fields';
 import LocalBusinessSection from './schema-settings/local-business-section';
@@ -61,12 +62,17 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 	// default, so in practice they are what completes the module. Email is
 	// optional and deliberately excluded. The two toggles are excluded too: a
 	// completion status on an on/off preference would grade a deliberate choice.
-	// `sameAs` counts only non-blank entries — "Add profile" seeds an empty row,
-	// which is not yet a configured link and can never be persisted.
+	//
+	// Everything is measured against what would actually be *stored*, not what is
+	// typed: whitespace is trimmed, and profile links run through the same
+	// `cleanProfileUrls` the save path uses, which drops blank, malformed and
+	// duplicate rows. Otherwise the header could read "Complete" off a row that
+	// server sanitization is about to discard — while Save sits disabled on the
+	// very validation error that makes it uncounted.
 	const configuredFields = [
-		organization.name || defaults.name,
-		organization.description || defaults.description,
-		organization.sameAs.some( url => url.trim() !== '' ),
+		( organization.name || defaults.name ).trim(),
+		( organization.description || defaults.description ).trim(),
+		cleanProfileUrls( organization.sameAs ).length > 0,
 	];
 	const configuredCount = configuredFields.filter( Boolean ).length;
 	let schemaStatus: SettingStatus = 'not-started';
