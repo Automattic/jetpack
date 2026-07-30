@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { store as coreDataStore } from '@wordpress/core-data';
 import * as wpData from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { store as membershipProductsStore } from '../../../store/membership-products';
@@ -7,7 +8,8 @@ import { Link, getReachForAccessLevelKey, NewsletterEmailDocumentSettings } from
 const mockUseSelect = jest.fn();
 const mockUseEntityProp = jest.fn();
 const mockUseEntityId = jest.fn();
-const mockSaveEditedEntityRecord = jest.fn();
+const mockReceiveEntityRecords = jest.fn();
+const mockCreateErrorNotice = jest.fn();
 
 jest.mock( '@wordpress/core-data', () => {
 	const actual = jest.requireActual( '@wordpress/core-data' );
@@ -134,6 +136,11 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 				getPostEmailSentState: () => postEmailSentState,
 			};
 		}
+		if ( store === coreDataStore ) {
+			return {
+				getEntityConfig: () => ( { baseURL: '/wp/v2/posts' } ),
+			};
+		}
 		return {};
 	};
 
@@ -145,7 +152,8 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 			return mockUseSelect( selector );
 		} );
 		jest.spyOn( wpData, 'useDispatch' ).mockReturnValue( {
-			saveEditedEntityRecord: mockSaveEditedEntityRecord,
+			receiveEntityRecords: mockReceiveEntityRecords,
+			createErrorNotice: mockCreateErrorNotice,
 		} );
 	} );
 
