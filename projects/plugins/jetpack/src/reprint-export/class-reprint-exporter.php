@@ -8,7 +8,7 @@
  * endpoint backed by the wp-php-toolkit/reprint-exporter package.
  *
  * On Atomic this runs alongside the wpcomsh copy without colliding: it uses a
- * distinct query var (?reprint-api-v2) and REST namespace (jetpack/v4/*), so
+ * distinct query var (?reprint-api-jetpack) and REST namespace (jetpack/v4/*), so
  * clients can migrate off the old ?reprint-api / wpcomsh/v1 surface at their
  * own pace.
  *
@@ -22,7 +22,7 @@
  *    export window, and returns the secret.
  *
  * 2. Export streaming — the client (now holding the shared secret) talks
- *    directly to the site at ?reprint-api-v2 using HMAC-signed requests. This
+ *    directly to the site at ?reprint-api-jetpack using HMAC-signed requests. This
  *    bypasses the public API entirely because public-api does not support
  *    streaming and extra hops add latency and complexity.
  *
@@ -81,9 +81,9 @@ class Reprint_Exporter {
 	 * emergency kill switch.
 	 *
 	 * On Atomic this coexists with the copy shipped in wpcomsh: the two use
-	 * different query vars (?reprint-api-v2 here vs ?reprint-api there) and
+	 * different query vars (?reprint-api-jetpack here vs ?reprint-api there) and
 	 * REST namespaces (jetpack/v4 vs wpcomsh/v1), so both can run side by side
-	 * while clients migrate to the v2 surface. Atomic detection uses
+	 * while clients migrate to the Jetpack surface. Atomic detection uses
 	 * is_atomic_platform() rather than is_woa_site() so it keeps working once
 	 * wpcomsh (and its reprint copy) is removed.
 	 *
@@ -114,7 +114,7 @@ class Reprint_Exporter {
 	}
 
 	/**
-	 * Handles the ?reprint-api-v2 request.
+	 * Handles the ?reprint-api-jetpack request.
 	 *
 	 * Hooked on `parse_request` at priority 0 so we run before WordPress
 	 * resolves the query and long before any template output (important on
@@ -124,7 +124,7 @@ class Reprint_Exporter {
 	 */
 	public function handle_request( $wp ) {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! isset( $_GET['reprint-api-v2'] ) ) {
+		if ( ! isset( $_GET['reprint-api-jetpack'] ) ) {
 			return;
 		}
 

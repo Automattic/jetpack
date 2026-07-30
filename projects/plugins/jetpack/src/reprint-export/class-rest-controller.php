@@ -89,7 +89,7 @@ class REST_Controller extends WP_REST_Controller {
 	 *
 	 * Rotating the secret intentionally also opens the export window so the
 	 * Pressable client flow is a single round trip: rotate, then immediately
-	 * stream from ?reprint-api-v2 using HMAC.
+	 * stream from ?reprint-api-jetpack using HMAC.
 	 *
 	 * @return WP_REST_Response The new secret on success, or a 500 error.
 	 */

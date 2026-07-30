@@ -32,7 +32,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_reprint_export_available' );
 		delete_option( Reprint_Exporter::SECRET_OPTION );
 		delete_option( Reprint_Exporter::ENABLED_OPTION );
-		unset( $_GET['reprint-api-v2'], $_SERVER['REQUEST_METHOD'] );
+		unset( $_GET['reprint-api-jetpack'], $_SERVER['REQUEST_METHOD'] );
 		parent::tear_down();
 	}
 
@@ -208,13 +208,13 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	private function make_ready_stub() {
 		add_filter( 'jetpack_reprint_export_available', '__return_true' );
 		update_option( Reprint_Exporter::ENABLED_OPTION, time() );
-		$_GET['reprint-api-v2']    = '1';
-		$_SERVER['REQUEST_METHOD'] = 'GET';
+		$_GET['reprint-api-jetpack'] = '1';
+		$_SERVER['REQUEST_METHOD']   = 'GET';
 		return new Reprint_Exporter_Test_Stub();
 	}
 
 	/**
-	 * No reprint-api-v2 query param: the handler does nothing.
+	 * No reprint-api-jetpack query param: the handler does nothing.
 	 */
 	public function test_ignores_request_without_query_param() {
 		add_filter( 'jetpack_reprint_export_available', '__return_true' );
@@ -240,9 +240,9 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	 */
 	public function test_ignores_when_window_closed() {
 		add_filter( 'jetpack_reprint_export_available', '__return_true' );
-		$_GET['reprint-api-v2']    = '1';
-		$_SERVER['REQUEST_METHOD'] = 'GET';
-		$stub                      = new Reprint_Exporter_Test_Stub();
+		$_GET['reprint-api-jetpack'] = '1';
+		$_SERVER['REQUEST_METHOD']   = 'GET';
+		$stub                        = new Reprint_Exporter_Test_Stub();
 		$this->run_handler( $stub, $this->make_wp( '' ) );
 		$this->assertFalse( $stub->served );
 		$this->assertFalse( $stub->terminated );
@@ -253,9 +253,9 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	 */
 	public function test_ignores_when_not_available() {
 		update_option( Reprint_Exporter::ENABLED_OPTION, time() );
-		$_GET['reprint-api-v2']    = '1';
-		$_SERVER['REQUEST_METHOD'] = 'GET';
-		$stub                      = new Reprint_Exporter_Test_Stub();
+		$_GET['reprint-api-jetpack'] = '1';
+		$_SERVER['REQUEST_METHOD']   = 'GET';
+		$stub                        = new Reprint_Exporter_Test_Stub();
 		$this->run_handler( $stub, $this->make_wp( '' ) );
 		$this->assertFalse( $stub->served );
 		$this->assertFalse( $stub->terminated );
