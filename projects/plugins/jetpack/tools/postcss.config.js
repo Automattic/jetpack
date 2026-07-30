@@ -11,9 +11,7 @@ module.exports = () => ( {
 			],
 		} ),
 		require( 'postcss-custom-properties' )( {
-			// Keep `var()` chains so runtime/theme tokens resolve; postcss still emits
-			// a literal substitution alongside each `var()` as a static fallback.
-			preserve: true,
+			preserve: false,
 		} ),
 		require( 'autoprefixer' ),
 	],
