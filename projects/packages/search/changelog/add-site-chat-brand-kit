@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Reader Chat: add brand kit controls to the Search dashboard and expose them through the settings REST endpoint.
