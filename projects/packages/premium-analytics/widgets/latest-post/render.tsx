@@ -3,24 +3,20 @@
  */
 import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import {
-	MetricValue,
-	PostTitleLink,
+	PostHighlightCard,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
-	type DataFormat,
+	type PostHighlightCardMetric,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { postList } from '@wordpress/icons';
-import { Text } from '@jetpack-premium-analytics/externals';
-import { format, parseISO } from 'date-fns';
 /**
  * Internal dependencies
  */
-import styles from './style.module.css';
-import { useLatestPost, type LatestPostWithMetrics } from './use-latest-post';
+import { useLatestPost } from './use-latest-post';
 import type { LatestPostAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
@@ -29,141 +25,36 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type LatestPostRenderAttributes = LatestPostAttributes & Partial< ReportParamsFieldAttributes >;
 type LatestPostWidgetProps = WidgetRenderProps< LatestPostRenderAttributes >;
 
-const METRIC_FORMAT: DataFormat = {
-	type: 'number',
-	options: { useMultipliers: true, decimals: 0 },
-};
-
-type LatestPostCardProps = {
-	/**
-	 * The resolved latest post.
-	 */
-	post: LatestPostWithMetrics;
-	/**
-	 * Search parameters carried into the post detail route.
-	 */
-	detailSearch?: Record< string, unknown >;
-};
-
 /**
- * Formats an ISO date string as a "Published <date>" line, falling back to the
- * raw string when the date cannot be parsed.
+ * Fetches the site's latest post (with its metrics) through `useLatestPost` and
+ * hands it to the shared `PostHighlightCard`, with loading, error, and empty
+ * states handled by `<WidgetState>`.
  *
- * @param date - The post's ISO date string.
- * @return The formatted publish line, or an empty string when absent.
- */
-function formatPublishDate( date: string ): string {
-	if ( ! date ) {
-		return '';
-	}
-
-	const parsed = parseISO( date );
-	const formatted = Number.isNaN( parsed.getTime() ) ? date : format( parsed, 'PP' );
-
-	return sprintf(
-		/* translators: %s: the post's publish date, e.g. "Jun 5, 2026". */
-		__( 'Published %s', 'jetpack-premium-analytics-pkg' ),
-		formatted
-	);
-}
-
-type MetricTileProps = {
-	label: string;
-	value: number;
-};
-
-/**
- * A single labelled metric value. This module reports lifetime totals with no
- * comparison period, so it renders the value directly with `MetricValue`.
- *
- * @param {MetricTileProps} props - The tile props.
- * @return The rendered metric tile.
- */
-function MetricTile( { label, value }: MetricTileProps ) {
-	return (
-		<div className={ styles.metric }>
-			<Text className={ styles.metricLabel } variant="body-md">
-				{ label }
-			</Text>
-			<MetricValue className={ styles.metricValue } value={ value } dataFormat={ METRIC_FORMAT } />
-		</div>
-	);
-}
-
-/**
- * Presentational card for the "Latest post" widget: the post title (linking to
- * its analytics detail page), its publish date, three lifetime metric tiles
- * (views, likes, comments), and the post's featured image when present.
- *
- * Renders only the populated state; loading, error, and empty are handled by
- * `<WidgetState>` in `LatestPostReport`. Exported so Storybook can exercise the
- * card with fixtures.
- *
- * @param {LatestPostCardProps} props - The component props.
- * @return The rendered card.
- */
-export const LatestPostCard = ( { post, detailSearch = {} }: LatestPostCardProps ) => {
-	const publishDate = formatPublishDate( post.date );
-
-	return (
-		<div className={ styles.root }>
-			<div className={ styles.content }>
-				<div className={ styles.header }>
-					<Text className={ styles.title } variant="heading-2xl" render={ <h3 /> }>
-						<PostTitleLink
-							id={ post.id }
-							label={ post.title }
-							link={ post.url }
-							search={ detailSearch }
-							title={ post.title }
-							classNames={ {
-								internal: styles.titleLink,
-								external: styles.titleLink,
-							} }
-						/>
-					</Text>
-					{ publishDate && (
-						<Text className={ styles.date } variant="body-md">
-							{ publishDate }
-						</Text>
-					) }
-				</div>
-				<div className={ styles.metrics }>
-					<MetricTile
-						label={ __( 'Views', 'jetpack-premium-analytics-pkg' ) }
-						value={ post.views }
-					/>
-					<MetricTile
-						label={ __( 'Likes', 'jetpack-premium-analytics-pkg' ) }
-						value={ post.likeCount }
-					/>
-					<MetricTile
-						label={ __( 'Comments', 'jetpack-premium-analytics-pkg' ) }
-						value={ post.commentCount }
-					/>
-				</div>
-			</div>
-			{ post.imageUrl && (
-				<div className={ styles.media }>
-					<img className={ styles.image } src={ post.imageUrl } alt={ post.imageAlt } />
-				</div>
-			) }
-		</div>
-	);
-};
-
-/**
- * Fetches the site's latest post (with its metrics) through `useLatestPost`
- * and hands it to the presentational `LatestPostCard`, with loading, error,
- * and empty states handled by `<WidgetState>`.
+ * Every tile is a lifetime total, so no tile carries an aggregation note.
  *
  * @return The widget content.
  */
 function LatestPostReport() {
-	const { reportParams } = useWidgetRootContext();
 	const { post, isLoading, isFetching, isError, refetch } = useLatestPost();
-
+	const { reportParams } = useWidgetRootContext();
+	// The detail page opens on the dashboard's current window.
 	const detailSearch = useMemo( () => pickReportDateParams( reportParams ), [ reportParams ] );
+
+	const metrics: PostHighlightCardMetric[] = post
+		? [
+				{ key: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ), value: post.views },
+				{
+					key: 'likes',
+					label: __( 'Likes', 'jetpack-premium-analytics-pkg' ),
+					value: post.likeCount,
+				},
+				{
+					key: 'comments',
+					label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
+					value: post.commentCount,
+				},
+		  ]
+		: [];
 
 	return (
 		<WidgetState
@@ -183,7 +74,18 @@ function LatestPostReport() {
 				description: __( 'Publish a post to see its stats here.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
-			{ post && <LatestPostCard post={ post } detailSearch={ detailSearch } /> }
+			{ post && (
+				<PostHighlightCard
+					title={ post.title }
+					url={ post.url }
+					postId={ post.id }
+					detailSearch={ detailSearch }
+					date={ post.date }
+					imageUrl={ post.imageUrl }
+					imageAlt={ post.imageAlt }
+					metrics={ metrics }
+				/>
+			) }
 		</WidgetState>
 	);
 }
