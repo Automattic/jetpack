@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\WP_Build_Polyfills\Tests;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
@@ -573,6 +574,87 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that a force-replacement preserves the args of the registration it displaces.
+	 *
+	 * Core registers every wp-* package script with $args = 1 (footer). remove()
+	 * discards that, so a replacement that does not restore it silently moves the
+	 * script to the header.
+	 */
+	public function test_register_scripts_preserves_args_when_force_replacing() {
+		$GLOBALS['wp_version'] = '6.9';
+		$this->create_asset_file( 'scripts/rich-text/index.asset.php', array(), '9.9.9' );
+
+		$scripts = $this->create_clean_scripts();
+		$scripts->add( 'wp-rich-text', 'https://example.com/core-rich-text.js', array(), '1.0.0-core', 1 );
+
+		$this->invoke_register_scripts( $scripts );
+
+		$this->assertSame( 1, $scripts->registered['wp-rich-text']->args );
+	}
+
+	/**
+	 * Test that a freshly added polyfill defaults to the footer, as Core does.
+	 */
+	public function test_register_scripts_defaults_new_registrations_to_footer() {
+		$this->create_asset_file( 'scripts/rich-text/index.asset.php', array(), '9.9.9' );
+
+		$scripts = $this->create_clean_scripts();
+
+		$this->invoke_register_scripts( $scripts );
+
+		$this->assertSame( 1, $scripts->registered['wp-rich-text']->args );
+	}
+
+	/**
+	 * Test that a force-replacement re-registers the translations Core had set.
+	 *
+	 * Calling remove() drops the textdomain, and add() does not restore it, so
+	 * without this the bundle's translatable strings (e.g. `__( '%s applied.' )`
+	 * in rich-text) fall back to English on translated sites.
+	 */
+	public function test_register_scripts_preserves_translations_when_force_replacing() {
+		$GLOBALS['wp_version'] = '6.9';
+		$this->create_asset_file( 'scripts/rich-text/index.asset.php', array( 'wp-i18n' ), '9.9.9' );
+
+		$scripts = $this->create_clean_scripts();
+		$scripts->add( 'wp-rich-text', 'https://example.com/core-rich-text.js', array( 'wp-i18n' ), '1.0.0-core', 1 );
+		$scripts->set_translations( 'wp-rich-text', 'default', '/some/lang/path' );
+
+		$this->invoke_register_scripts( $scripts );
+
+		$rich_text = $scripts->registered['wp-rich-text'];
+		$this->assertSame( 'default', $rich_text->textdomain );
+		$this->assertSame( '/some/lang/path', $rich_text->translations_path );
+	}
+
+	/**
+	 * Test that a polyfill depending on wp-i18n gets translations registered even
+	 * when it replaces a registration that had none.
+	 */
+	public function test_register_scripts_sets_translations_for_i18n_dependent_polyfills() {
+		$this->create_asset_file( 'scripts/rich-text/index.asset.php', array( 'wp-i18n' ), '9.9.9' );
+
+		$scripts = $this->create_clean_scripts();
+
+		$this->invoke_register_scripts( $scripts );
+
+		$this->assertSame( 'default', $scripts->registered['wp-rich-text']->textdomain );
+	}
+
+	/**
+	 * Test that polyfills without a wp-i18n dependency get no translations.
+	 */
+	public function test_register_scripts_skips_translations_without_i18n_dependency() {
+		$this->create_asset_file( 'scripts/theme/index.asset.php', array(), '9.9.9' );
+
+		$scripts = $this->create_clean_scripts();
+
+		$this->invoke_register_scripts( $scripts );
+
+		$this->assertNull( $scripts->registered['wp-theme']->textdomain );
+	}
+
+	/**
 	 * Test that an explicit higher threshold still applies to all force-replaced scripts.
 	 */
 	public function test_register_scripts_honors_higher_consumer_force_threshold() {
@@ -714,7 +796,68 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		$this->assertSame( array( 'plugin-a', 'plugin-b' ), $consumers['wp-notices'] );
 		$this->assertSame( array( 'plugin-a' ), $consumers['@wordpress/boot'] );
 		$this->assertSame( array( 'plugin-b' ), $consumers['wp-theme'] );
-		$this->assertArrayNotHasKey( 'wp-private-apis', $consumers );
+
+		// wp-theme implies wp-private-apis, so it is attributed to plugin-b only.
+		$this->assertSame( array( 'plugin-b' ), $consumers['wp-private-apis'] );
+	}
+
+	/**
+	 * Test that polyfills which opt into private APIs pull in wp-private-apis.
+	 *
+	 * Their bundles call __dangerousOptInToUnstableAPIsOnlyForCoreModules() at
+	 * module scope under names Core's allowlist rejects, so registering one
+	 * without the private-apis polyfill throws at load time and blanks the page.
+	 *
+	 * @dataProvider provide_private_api_dependent_handles
+	 *
+	 * @param string $handle Polyfill handle that requires wp-private-apis.
+	 */
+	#[DataProvider( 'provide_private_api_dependent_handles' )]
+	public function test_register_pulls_in_wp_private_apis( $handle ) {
+		WP_Build_Polyfills::register( 'test-plugin', array( $handle ) );
+
+		$consumers = WP_Build_Polyfills::get_consumers();
+
+		$this->assertArrayHasKey( $handle, $consumers );
+		$this->assertSame(
+			array( 'test-plugin' ),
+			$consumers['wp-private-apis'] ?? array(),
+			"Requesting {$handle} must also request wp-private-apis."
+		);
+	}
+
+	/**
+	 * Handles that cannot run against Core's private-apis allowlist.
+	 *
+	 * @return array<string, string[]>
+	 */
+	public static function provide_private_api_dependent_handles() {
+		return array(
+			'rich-text' => array( 'wp-rich-text' ),
+			'theme'     => array( 'wp-theme' ),
+			'views'     => array( 'wp-views' ),
+		);
+	}
+
+	/**
+	 * Test that requesting an unrelated polyfill does not pull in wp-private-apis.
+	 */
+	public function test_register_does_not_pull_in_wp_private_apis_for_notices() {
+		WP_Build_Polyfills::register( 'test-plugin', array( 'wp-notices' ) );
+
+		$this->assertArrayNotHasKey( 'wp-private-apis', WP_Build_Polyfills::get_consumers() );
+	}
+
+	/**
+	 * Test that SCRIPT_DEPENDENCIES only references known handles.
+	 */
+	public function test_script_dependencies_reference_known_handles() {
+		foreach ( WP_Build_Polyfills::SCRIPT_DEPENDENCIES as $handle => $dependencies ) {
+			$this->assertContains( $handle, WP_Build_Polyfills::SCRIPT_HANDLES );
+			foreach ( $dependencies as $dependency ) {
+				$this->assertContains( $dependency, WP_Build_Polyfills::SCRIPT_HANDLES );
+			}
+		}
 	}
 
 	/**

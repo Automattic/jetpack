@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add a wp-rich-text polyfill: replace core's rich-text on WordPress 7.0 and older, where it lacks the private APIs newer dashboard dependencies unlock at load time.
+Add a wp-rich-text polyfill: replace core's rich-text on WordPress 7.0 and older, where it lacks the private APIs newer dashboard dependencies unlock at load time. Replaced core scripts now keep their footer placement and translations.
