@@ -288,13 +288,14 @@ class REST_Controller {
 			? sanitize_text_field( $request_body['experience'] )
 			: null;
 		$reader_chat                   = array_key_exists( 'reader_chat', $request_body ) ? (bool) $request_body['reader_chat'] : null;
+		$reader_chat_brand             = array_key_exists( 'reader_chat_brand', $request_body ) ? ( $request_body['reader_chat_brand'] ?? false ) : null;
 		$ai_answers_enabled            = isset( $request_body['ai_answers_enabled'] ) ? (bool) $request_body['ai_answers_enabled'] : null;
 
 		$search_suggestions_enabled = isset( $request_body['search_suggestions_enabled'] ) ? (bool) $request_body['search_suggestions_enabled'] : null;
 
 		$override_woocommerce_search_template = isset( $request_body['override_woocommerce_search_template'] ) ? (bool) $request_body['override_woocommerce_search_template'] : null;
 
-		$error = $this->validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience, $reader_chat, $ai_answers_enabled, $search_suggestions_enabled, $override_woocommerce_search_template );
+		$error = $this->validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience, $reader_chat, $reader_chat_brand, $ai_answers_enabled, $search_suggestions_enabled, $override_woocommerce_search_template );
 
 		if ( is_wp_error( $error ) ) {
 			return $error;
@@ -339,6 +340,10 @@ class REST_Controller {
 			update_option( 'reader_chat', $reader_chat );
 		}
 
+		if ( $reader_chat_brand !== null ) {
+			update_option( 'reader_chat_brand', self::sanitize_reader_chat_brand( $reader_chat_brand ) );
+		}
+
 		if ( $ai_answers_enabled !== null ) {
 			update_option( 'jetpack_search_ai_answers_enabled', $ai_answers_enabled );
 		}
@@ -375,12 +380,13 @@ class REST_Controller {
 	 * @param boolean     $swap_classic_to_inline_search - New inline search status.
 	 * @param string|null $experience - Experience value.
 	 * @param bool|null   $reader_chat - Reader Chat status.
+	 * @param array|null  $reader_chat_brand - Reader Chat brand overrides.
 	 * @param bool|null   $ai_answers_enabled - Whether Jetpack Search AI answers is enabled.
 	 * @param bool|null   $search_suggestions_enabled - New search suggestions status.
 	 * @param bool|null   $override_woocommerce_search_template - New WooCommerce search-template override status.
 	 */
-	protected function validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience = null, $reader_chat = null, $ai_answers_enabled = null, $search_suggestions_enabled = null, $override_woocommerce_search_template = null ) {
-		if ( $reader_chat !== null && ! $this->is_reader_chat_setting_registered() ) {
+	protected function validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search, $experience = null, $reader_chat = null, $reader_chat_brand = null, $ai_answers_enabled = null, $search_suggestions_enabled = null, $override_woocommerce_search_template = null ) {
+		if ( ( $reader_chat !== null || $reader_chat_brand !== null ) && ! $this->is_reader_chat_setting_registered() ) {
 			return new WP_Error(
 				'rest_invalid_arguments',
 				esc_html__( 'The arguments passed in are invalid.', 'jetpack-search-pkg' ),
@@ -388,15 +394,37 @@ class REST_Controller {
 			);
 		}
 
+		if ( $reader_chat_brand !== null ) {
+			if (
+				! is_array( $reader_chat_brand )
+				|| array_diff( array_keys( $reader_chat_brand ), array( 'name', 'accent', 'greeting' ) )
+				|| ( array_key_exists( 'name', $reader_chat_brand ) && ! is_string( $reader_chat_brand['name'] ) )
+				|| ( array_key_exists( 'greeting', $reader_chat_brand ) && ! is_string( $reader_chat_brand['greeting'] ) )
+				|| (
+					array_key_exists( 'accent', $reader_chat_brand )
+					&& (
+						! is_string( $reader_chat_brand['accent'] )
+						|| ( '' !== $reader_chat_brand['accent'] && ! sanitize_hex_color( $reader_chat_brand['accent'] ) )
+					)
+				)
+			) {
+				return new WP_Error(
+					'rest_invalid_arguments',
+					esc_html__( 'The arguments passed in are invalid.', 'jetpack-search-pkg' ),
+					array( 'status' => 400 )
+				);
+			}
+		}
+
 		// `experience` is the canonical source of truth and writes the legacy booleans in lockstep.
 		// Reject requests that mix it with any other settings field so callers don't silently
 		// lose those fields — the `experience` branch in update_settings() early-returns and
 		// would otherwise drop them.
 		if ( $experience !== null ) {
-			if ( $module_active !== null || $instant_search_enabled !== null || $swap_classic_to_inline_search !== null || $reader_chat !== null || $ai_answers_enabled !== null || $search_suggestions_enabled !== null || $override_woocommerce_search_template !== null ) {
+			if ( $module_active !== null || $instant_search_enabled !== null || $swap_classic_to_inline_search !== null || $reader_chat !== null || $reader_chat_brand !== null || $ai_answers_enabled !== null || $search_suggestions_enabled !== null || $override_woocommerce_search_template !== null ) {
 				return new WP_Error(
 					'rest_invalid_arguments',
-					esc_html__( 'The `experience` field cannot be combined with `module_active`, `instant_search_enabled`, `swap_classic_to_inline_search`, `reader_chat`, `ai_answers_enabled`, `search_suggestions_enabled`, or `override_woocommerce_search_template`.', 'jetpack-search-pkg' ),
+					esc_html__( 'The `experience` field cannot be combined with `module_active`, `instant_search_enabled`, `swap_classic_to_inline_search`, `reader_chat`, `reader_chat_brand`, `ai_answers_enabled`, `search_suggestions_enabled`, or `override_woocommerce_search_template`.', 'jetpack-search-pkg' ),
 					array( 'status' => 400 )
 				);
 			}
@@ -405,7 +433,7 @@ class REST_Controller {
 		if (
 			$module_active === null &&
 			$instant_search_enabled === null &&
-			( $swap_classic_to_inline_search !== null || $reader_chat !== null )
+			( $swap_classic_to_inline_search !== null || $reader_chat !== null || $reader_chat_brand !== null )
 		) {
 			// Allow updating auxiliary settings without updating/validating the module settings.
 			return true;
@@ -447,7 +475,8 @@ class REST_Controller {
 		);
 
 		if ( $this->is_reader_chat_setting_registered() ) {
-			$settings['reader_chat'] = (bool) get_option( 'reader_chat', false );
+			$settings['reader_chat']       = (bool) get_option( 'reader_chat', false );
+			$settings['reader_chat_brand'] = self::sanitize_reader_chat_brand( get_option( 'reader_chat_brand', array() ) );
 		}
 
 		return rest_ensure_response( $settings );
@@ -463,6 +492,44 @@ class REST_Controller {
 	 */
 	protected function is_reader_chat_setting_registered() {
 		return array_key_exists( 'reader_chat', get_registered_settings() );
+	}
+
+	/**
+	 * Sanitize Reader Chat brand overrides.
+	 *
+	 * @param mixed $brand Reader Chat brand option.
+	 * @return array Sanitized brand overrides.
+	 */
+	private static function sanitize_reader_chat_brand( $brand ) {
+		$brand  = is_array( $brand ) ? $brand : array();
+		$accent = isset( $brand['accent'] ) && is_string( $brand['accent'] )
+			? sanitize_hex_color( $brand['accent'] )
+			: '';
+
+		return array(
+			'name'     => self::sanitize_reader_chat_brand_text( $brand['name'] ?? '', 40 ),
+			'accent'   => $accent ?: '',
+			'greeting' => self::sanitize_reader_chat_brand_text( $brand['greeting'] ?? '', 120 ),
+		);
+	}
+
+	/**
+	 * Sanitize and truncate a Reader Chat brand text value.
+	 *
+	 * @param mixed $value      Brand field value.
+	 * @param int   $max_length Maximum character count.
+	 * @return string Sanitized field value.
+	 */
+	private static function sanitize_reader_chat_brand_text( $value, $max_length ) {
+		if ( ! is_string( $value ) ) {
+			return '';
+		}
+
+		$value = sanitize_text_field( $value );
+
+		return function_exists( 'mb_substr' )
+			? mb_substr( $value, 0, $max_length )
+			: substr( $value, 0, $max_length );
 	}
 
 	/**

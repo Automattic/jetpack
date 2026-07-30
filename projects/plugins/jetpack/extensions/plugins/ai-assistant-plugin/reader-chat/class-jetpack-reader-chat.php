@@ -74,7 +74,7 @@ class Jetpack_Reader_Chat {
 	}
 
 	/**
-	 * Register the reader_chat option so Search settings can read and write it.
+	 * Register the Reader Chat options so Search settings can read and write them.
 	 *
 	 * @since 15.9
 	 *
@@ -91,12 +91,143 @@ class Jetpack_Reader_Chat {
 				'default'           => false,
 			)
 		);
+
+		register_setting(
+			'general',
+			'reader_chat_brand',
+			array(
+				'type'              => 'array',
+				'description'       => __( 'Site Chat brand overrides for this site.', 'jetpack' ),
+				'sanitize_callback' => array( __CLASS__, 'sanitize_brand_option' ),
+				'default'           => array(
+					'name'     => '',
+					'accent'   => '',
+					'greeting' => '',
+				),
+			)
+		);
 	}
 
 	/**
-	 * Add Reader Chat's setting to Jetpack Sync's option whitelist.
+	 * Sanitize Reader Chat brand overrides before they are stored.
 	 *
-	 * Atomic and Jurassic Ninja sites write `reader_chat` locally via
+	 * @since $$next-version$$
+	 *
+	 * @param mixed $value Brand option value.
+	 * @return array Sanitized brand overrides.
+	 */
+	public static function sanitize_brand_option( $value ): array {
+		$value  = is_array( $value ) ? $value : array();
+		$accent = isset( $value['accent'] ) && is_string( $value['accent'] )
+			? sanitize_hex_color( $value['accent'] )
+			: '';
+
+		return array(
+			'name'     => self::sanitize_brand_text( $value['name'] ?? '', 40 ),
+			'accent'   => $accent ?: '',
+			'greeting' => self::sanitize_brand_text( $value['greeting'] ?? '', 120 ),
+		);
+	}
+
+	/**
+	 * Resolve Reader Chat's public brand configuration.
+	 *
+	 * Stored overrides win per field. Empty or invalid overrides fall back to
+	 * values derived from the current site and theme. Keys without a value are
+	 * omitted so the client can retain its existing fallback behavior.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array Resolved Reader Chat brand.
+	 */
+	public static function get_brand(): array {
+		$stored_brand = get_option( 'reader_chat_brand', array() );
+		$stored_brand = is_array( $stored_brand ) ? $stored_brand : array();
+		$brand        = array();
+
+		$name = self::sanitize_brand_text( $stored_brand['name'] ?? '', 40 );
+		if ( '' === $name ) {
+			$name = self::sanitize_brand_text( get_bloginfo( 'name' ), 40 );
+		}
+		if ( '' !== $name ) {
+			$brand['name'] = $name;
+		}
+
+		$accent = isset( $stored_brand['accent'] ) && is_string( $stored_brand['accent'] )
+			? sanitize_hex_color( $stored_brand['accent'] )
+			: null;
+		if ( ! $accent ) {
+			$accent = self::get_palette_accent( self::get_theme_palette_settings() );
+		}
+		if ( $accent ) {
+			$brand['accent']           = $accent;
+			$brand['accentForeground'] = self::get_accent_foreground( $accent );
+		}
+
+		$logo_url = get_site_icon_url( 96 );
+		$logo_url = is_string( $logo_url ) ? esc_url_raw( $logo_url ) : '';
+		if ( $logo_url ) {
+			$brand['logoUrl'] = $logo_url;
+		}
+
+		$greeting = self::sanitize_brand_text( $stored_brand['greeting'] ?? '', 120 );
+		if ( '' === $greeting ) {
+			$greeting = null !== self::get_current_post_context()
+				? 'Ask me anything about this post.'
+				: 'Ask me anything about this blog.';
+		}
+		$brand['greeting'] = $greeting;
+
+		return $brand;
+	}
+
+	/**
+	 * Get the theme and custom palette entries available to the settings UI.
+	 *
+	 * Core's default palette is intentionally excluded.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array Theme and custom color entries.
+	 */
+	public static function get_brand_palette(): array {
+		$palette_settings = self::get_theme_palette_settings();
+		$colors           = array();
+
+		foreach ( array( 'theme', 'custom' ) as $origin ) {
+			if ( empty( $palette_settings[ $origin ] ) || ! is_array( $palette_settings[ $origin ] ) ) {
+				continue;
+			}
+
+			foreach ( $palette_settings[ $origin ] as $color ) {
+				if ( ! is_array( $color ) || empty( $color['color'] ) || ! is_string( $color['color'] ) ) {
+					continue;
+				}
+
+				$hex = sanitize_hex_color( $color['color'] );
+				if ( ! $hex ) {
+					continue;
+				}
+
+				$slug     = isset( $color['slug'] ) && is_string( $color['slug'] )
+					? sanitize_key( $color['slug'] )
+					: '';
+				$name     = self::sanitize_brand_text( $color['name'] ?? '', 80 );
+				$colors[] = array(
+					'name'  => $name ?: ( $slug ?: $hex ),
+					'slug'  => $slug,
+					'color' => $hex,
+				);
+			}
+		}
+
+		return $colors;
+	}
+
+	/**
+	 * Add Reader Chat's settings to Jetpack Sync's option whitelist.
+	 *
+	 * Atomic and Jurassic Ninja sites write Reader Chat settings locally via
 	 * Search settings, while the wpcom-hosted agent reads the wpcom-side option
 	 * before serving public chat requests. Syncing the option keeps
 	 * the local toggle and agent permission gate aligned.
@@ -108,6 +239,7 @@ class Jetpack_Reader_Chat {
 	 */
 	public static function add_sync_options_whitelist( array $options ): array {
 		$options[] = 'reader_chat';
+		$options[] = 'reader_chat_brand';
 		return array_values( array_unique( $options ) );
 	}
 
@@ -228,6 +360,7 @@ class Jetpack_Reader_Chat {
 			'siteName'  => get_bloginfo( 'name' ),
 			'isDevMode' => self::is_dev_mode(),
 			'agentId'   => 'reader-chat',
+			'brand'     => self::get_brand(),
 		);
 
 		$current_post = self::get_current_post_context();
@@ -236,6 +369,112 @@ class Jetpack_Reader_Chat {
 		}
 
 		return $config;
+	}
+
+	/**
+	 * Sanitize and truncate a Reader Chat text field.
+	 *
+	 * @param mixed $value      Field value.
+	 * @param int   $max_length Maximum character count.
+	 * @return string Sanitized value.
+	 */
+	private static function sanitize_brand_text( $value, int $max_length ): string {
+		if ( ! is_string( $value ) ) {
+			return '';
+		}
+
+		$value = sanitize_text_field( $value );
+
+		if ( function_exists( 'mb_substr' ) ) {
+			return mb_substr( $value, 0, $max_length );
+		}
+
+		return substr( $value, 0, $max_length );
+	}
+
+	/**
+	 * Get the global theme palette settings used for brand derivation.
+	 *
+	 * @return array Palette settings grouped by origin.
+	 */
+	private static function get_theme_palette_settings(): array {
+		if ( ! function_exists( 'wp_get_global_settings' ) ) {
+			return array();
+		}
+
+		$palette_settings = wp_get_global_settings( array( 'color', 'palette' ) );
+
+		return is_array( $palette_settings ) ? $palette_settings : array();
+	}
+
+	/**
+	 * Resolve an accent from theme-authored palette origins.
+	 *
+	 * The primary slug takes precedence over accent across the theme and
+	 * custom origins. Core's default origin is deliberately ignored.
+	 *
+	 * @param array $palette_settings Palette settings grouped by origin.
+	 * @return string|null Resolved accent, or null when none is available.
+	 */
+	private static function get_palette_accent( array $palette_settings ): ?string {
+		foreach ( array( 'primary', 'accent' ) as $target_slug ) {
+			foreach ( array( 'theme', 'custom' ) as $origin ) {
+				if ( empty( $palette_settings[ $origin ] ) || ! is_array( $palette_settings[ $origin ] ) ) {
+					continue;
+				}
+
+				foreach ( $palette_settings[ $origin ] as $color ) {
+					if (
+						! is_array( $color )
+						|| ! isset( $color['slug'], $color['color'] )
+						|| $target_slug !== $color['slug']
+						|| ! is_string( $color['color'] )
+					) {
+						continue;
+					}
+
+					$accent = sanitize_hex_color( $color['color'] );
+					if ( $accent ) {
+						return $accent;
+					}
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Select the black or white foreground with the higher WCAG contrast.
+	 *
+	 * @param string $accent Sanitized hexadecimal accent color.
+	 * @return string Foreground hexadecimal color.
+	 */
+	private static function get_accent_foreground( string $accent ): string {
+		$hex = ltrim( $accent, '#' );
+		if ( 3 === strlen( $hex ) ) {
+			$hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+		}
+
+		$channels = array(
+			hexdec( substr( $hex, 0, 2 ) ) / 255,
+			hexdec( substr( $hex, 2, 2 ) ) / 255,
+			hexdec( substr( $hex, 4, 2 ) ) / 255,
+		);
+		$channels = array_map(
+			static function ( $channel ) {
+				return $channel <= 0.04045
+					? $channel / 12.92
+					: ( ( $channel + 0.055 ) / 1.055 ) ** 2.4;
+			},
+			$channels
+		);
+
+		$luminance      = 0.2126 * $channels[0] + 0.7152 * $channels[1] + 0.0722 * $channels[2];
+		$white_contrast = 1.05 / ( $luminance + 0.05 );
+		$black_contrast = ( $luminance + 0.05 ) / 0.05;
+
+		return $black_contrast > $white_contrast ? '#000000' : '#ffffff';
 	}
 
 	/**

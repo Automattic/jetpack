@@ -1,7 +1,16 @@
-import { ExternalLink, ToggleControl } from '@wordpress/components';
+import {
+	Button,
+	ColorPalette,
+	ExternalLink,
+	TextControl,
+	ToggleControl,
+} from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Badge } from '@wordpress/ui';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { STORE_ID } from 'store';
+import './style.scss';
 
 const READER_CHAT_DESCRIPTION = __(
 	'Let visitors ask your site questions and get answers from your content.',
@@ -27,12 +36,58 @@ export default function ReaderChatControl( {
 	guidelinesUrl,
 	updateOptions,
 } ) {
+	const storedBrand = useSelect( select => select( STORE_ID ).getReaderChatBrand() );
+	const derivedBrand = useSelect( select => select( STORE_ID ).getReaderChatBrandDefaults() );
+	const themePalette = useSelect( select => select( STORE_ID ).getReaderChatBrandPalette() );
+	const brand = {
+		name: typeof storedBrand?.name === 'string' ? storedBrand.name : '',
+		accent: typeof storedBrand?.accent === 'string' ? storedBrand.accent : '',
+		greeting: typeof storedBrand?.greeting === 'string' ? storedBrand.greeting : '',
+	};
+
 	const toggle = useCallback(
 		next => {
 			updateOptions( { reader_chat: next } );
 		},
 		[ updateOptions ]
 	);
+
+	const updateBrand = ( field, value ) => {
+		updateOptions( {
+			reader_chat_brand: {
+				...brand,
+				[ field ]: value ?? '',
+			},
+		} );
+	};
+
+	// Text fields keep a local draft and only save on blur. `updateOptions`
+	// issues a REST save, a re-fetch, and a success notice per call, so saving
+	// per keystroke would fire all three on every character. Every other
+	// control in this dashboard is a toggle, where that never mattered.
+	const [ draft, setDraft ] = useState( { name: brand.name, greeting: brand.greeting } );
+	const committedRef = useRef( { name: brand.name, greeting: brand.greeting } );
+
+	// Re-seed the draft when saved values change from outside this component —
+	// the initial settings fetch, or a save returning server-normalized values.
+	useEffect( () => {
+		if (
+			committedRef.current.name !== brand.name ||
+			committedRef.current.greeting !== brand.greeting
+		) {
+			committedRef.current = { name: brand.name, greeting: brand.greeting };
+			setDraft( { name: brand.name, greeting: brand.greeting } );
+		}
+	}, [ brand.name, brand.greeting ] );
+
+	const commitBrandText = field => {
+		const value = draft[ field ];
+		if ( value === committedRef.current[ field ] ) {
+			return;
+		}
+		committedRef.current = { ...committedRef.current, [ field ]: value };
+		updateBrand( field, value );
+	};
 
 	// Hide the control when this site should not expose Reader Chat settings.
 	if ( ! isAvailable ) {
@@ -63,6 +118,47 @@ export default function ReaderChatControl( {
 					<p className="jp-form-search-settings-group__toggle-explanation">
 						{ READER_CHAT_DESCRIPTION }
 					</p>
+					{ isEnabled && (
+						<div className="jp-reader-chat-control__brand">
+							<TextControl
+								__nextHasNoMarginBottom
+								__next40pxDefaultSize
+								label={ __( 'Assistant name', 'jetpack-search-pkg' ) }
+								maxLength={ 40 }
+								onBlur={ () => commitBrandText( 'name' ) }
+								onChange={ value => setDraft( prev => ( { ...prev, name: value } ) ) }
+								placeholder={ derivedBrand?.name ?? '' }
+								value={ draft.name }
+							/>
+							<TextControl
+								__nextHasNoMarginBottom
+								__next40pxDefaultSize
+								label={ __( 'Greeting', 'jetpack-search-pkg' ) }
+								maxLength={ 120 }
+								onBlur={ () => commitBrandText( 'greeting' ) }
+								onChange={ value => setDraft( prev => ( { ...prev, greeting: value } ) ) }
+								placeholder={ derivedBrand?.greeting ?? '' }
+								value={ draft.greeting }
+							/>
+							<fieldset disabled={ isSaving }>
+								<legend>{ __( 'Accent color', 'jetpack-search-pkg' ) }</legend>
+								<ColorPalette
+									aria-label={ __( 'Accent color', 'jetpack-search-pkg' ) }
+									clearable={ false }
+									colors={ themePalette }
+									onChange={ value => updateBrand( 'accent', value ) }
+									value={ brand.accent || derivedBrand?.accent }
+								/>
+								<Button
+									disabled={ isSaving || ! brand.accent }
+									onClick={ () => updateBrand( 'accent', '' ) }
+									variant="link"
+								>
+									{ __( 'Reset to theme', 'jetpack-search-pkg' ) }
+								</Button>
+							</fieldset>
+						</div>
+					) }
 					{ isEnabled && guidelinesUrl && (
 						<p className="jp-form-search-settings-group__toggle-explanation">
 							<ExternalLink href={ guidelinesUrl }>
