@@ -98,8 +98,20 @@ body.jetpack_page_jetpack-newsletter {
 	}
 
 	.newsletter-categories-control__error {
+		display: flex;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-xs);
 		margin-block: var(--wpds-dimension-gap-xs) 0;
-		color: var(--wpds-color-foreground-content-error);
+		// Matches the @wordpress/components form-validation red used on trunk (and
+		// across wp-admin form errors). There is no wpds token at this brightness —
+		// the wpds error-foreground tokens are a much darker maroon — so mirror the
+		// components literal to stay consistent with the platform's error styling.
+		color: #cc1818;
 		font-size: var(--wpds-typography-font-size-sm);
+
+		svg {
+			flex-shrink: 0;
+			fill: currentColor;
+		}
 	}
 }

@@ -20,9 +20,10 @@
  * "Create ‘…’" via `displayTransform`.
  */
 
-import { FormTokenField } from '@wordpress/components';
+import { FormTokenField, Icon } from '@wordpress/components';
 import { createContext, useCallback, useContext, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { caution } from '@wordpress/icons';
 import { createCategory } from '../api';
 import type { NewsletterSettings, WordPressCategory } from '../types';
 
@@ -285,6 +286,16 @@ export function CreatableCategoriesControl( {
 		[ nameToId, selectedIds, handleCreate, commit ]
 	);
 
+	// Clear a prior creation error (e.g. "This category already exists.") as soon
+	// as the user edits the name, rather than leaving it up until the next submit.
+	const handleInputChange = useCallback(
+		( value: string ) => {
+			setSearch( value );
+			context?.onError( null );
+		},
+		[ context ]
+	);
+
 	// DataViews delegates validity display to the control. Surface the field's
 	// custom rule ("select at least one category") beneath the token field.
 	const validationMessage = validity?.custom?.message;
@@ -299,7 +310,7 @@ export function CreatableCategoriesControl( {
 				suggestions={ suggestions }
 				displayTransform={ displayTransform }
 				onChange={ onChangeTokens }
-				onInputChange={ setSearch }
+				onInputChange={ handleInputChange }
 				placeholder={ __( 'Search or create a category', 'jetpack-newsletter' ) }
 				disabled={ disabled || isCreating }
 				__experimentalExpandOnFocus={ elements.length > 0 }
@@ -311,7 +322,10 @@ export function CreatableCategoriesControl( {
 				<p className="newsletter-categories-control__help">{ field.description }</p>
 			) }
 			{ validationMessage && (
-				<p className="newsletter-categories-control__error">{ validationMessage }</p>
+				<p className="newsletter-categories-control__error">
+					<Icon icon={ caution } size={ 20 } />
+					<span>{ validationMessage }</span>
+				</p>
 			) }
 		</div>
 	);

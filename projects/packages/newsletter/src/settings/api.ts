@@ -240,10 +240,31 @@ async function createCategoryViaWpcomApi( name: string, blogId: number ): Promis
 		path: `/rest/v1.1/sites/${ blogId }/taxonomies/category/terms/new`,
 		method: 'POST',
 		data: { name },
-	} ) ) as { ID: number; name: string };
+	} ) ) as {
+		ID?: number;
+		name?: string;
+		code?: number;
+		error?: string;
+		message?: string;
+		body?: { code?: number; error?: string; message?: string };
+	};
+
+	// The WordPress.com proxy can *resolve* (not reject) with an error envelope —
+	// e.g. a duplicate comes back as `{ code: 409, body: { error: 'duplicate' } }`.
+	// Re-throw it carrying the error signals so the caller maps it (to the
+	// "already exists" message) instead of treating the missing ID as a generic
+	// failure.
+	const error = term.error ?? term.body?.error;
+	const code = term.code ?? term.body?.code;
+	if ( error || code ) {
+		throw Object.assign(
+			new Error( term.message ?? term.body?.message ?? 'Category creation failed.' ),
+			{ code, error, body: term.body }
+		);
+	}
 
 	// WordPress.com API returns ID (uppercase), normalize to id (lowercase).
-	return { id: term.ID, name: term.name };
+	return { id: term.ID as number, name: term.name as string };
 }
 
 /**

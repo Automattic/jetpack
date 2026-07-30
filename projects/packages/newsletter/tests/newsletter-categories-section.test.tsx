@@ -62,6 +62,7 @@ jest.mock( '@wordpress/components', () => ( {
 			</div>
 		);
 	},
+	Icon: () => null,
 } ) );
 
 interface StubField {
@@ -396,5 +397,23 @@ describe( 'NewsletterCategoriesSection — combined search + create (NL-785)', (
 		const alert = await screen.findByRole( 'alert' );
 		expect( alert ).toHaveTextContent( 'Could not create the category. Please try again.' );
 		expect( alert ).not.toHaveTextContent( 'not allowed to create terms' );
+	} );
+
+	it( 'clears the creation error once the user edits the name', async () => {
+		mockedCreateCategory.mockRejectedValue(
+			Object.assign( new Error( 'exists' ), { code: 'term_exists' } )
+		);
+		renderSection();
+		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
+
+		typeSearch( 'News Two' );
+		clickButton( 'Create “News Two”' );
+		await expect( screen.findByRole( 'alert' ) ).resolves.toHaveTextContent(
+			'This category already exists.'
+		);
+
+		// Editing the name dismisses the error.
+		typeSearch( 'News Three' );
+		await waitFor( () => expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument() );
 	} );
 } );

@@ -96,4 +96,19 @@ describe( 'createCategory (NL-785)', () => {
 
 		await expect( createCategory( 'News' ) ).rejects.toThrow();
 	} );
+
+	it( 'throws a duplicate-signal error when the WPCOM proxy resolves with an error envelope', async () => {
+		mockIsSimpleSite.mockReturnValue( true );
+		mockGetSiteData.mockReturnValue( { wpcom: { blog_id: 123 } } );
+		// On Simple a duplicate can resolve (not reject) with an error envelope.
+		mockApiFetch.mockResolvedValue( {
+			code: 409,
+			body: { error: 'duplicate', message: 'A taxonomy with that name already exists' },
+		} );
+
+		await expect( createCategory( 'News' ) ).rejects.toMatchObject( {
+			code: 409,
+			error: 'duplicate',
+		} );
+	} );
 } );
