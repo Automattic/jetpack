@@ -3,6 +3,7 @@ import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import type { SettingsResponse } from '../../../data/settings-types';
 import type { SettingsForm } from '../../../data/use-settings';
+import type { ReactNode } from 'react';
 
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the components under test dynamically after the mocks are registered.
@@ -13,6 +14,7 @@ jest.unstable_mockModule( '../../../data/is-gated', () => ( {
 
 jest.unstable_mockModule( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
+	Link: ( { children }: { children?: ReactNode } ) => <a href="#">{ children }</a>,
 } ) );
 
 // Stub the cards that own their own header, so each assertion below is
