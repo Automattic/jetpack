@@ -13,6 +13,8 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 if [[ $# -lt 1 ]]; then
 	echo "Usage: $0 <slug> [worktree-parent-dir]" >&2
 	exit 1
@@ -48,6 +50,17 @@ git worktree add "$worktree" -b "$branch" origin/trunk >&2
 	mkdir -p "$( dirname "$exclude" )"
 	if ! grep -qxF '.work-on/' "$exclude" 2>/dev/null; then
 		echo '.work-on/' >> "$exclude"
+	fi
+
+	# Seed the progress checkpoint here rather than leaving it to the caller: a worktree cannot
+	# exist without this script having run, so a coordinator polling status.json can tell "the
+	# worker never started" from "the worker started and went quiet". Non-fatal — a missing jq
+	# should cost you the checkpoint, not the worktree you just built.
+	if ! "$SCRIPT_DIR/checkpoint.sh" \
+		--phase 3 --name "Worktree & Docker bring-up" --state running \
+		--action "worktree created on $branch; docker not yet up" >/dev/null
+	then
+		echo "Warning: could not write .work-on/status.json (is jq installed?). Worktree is fine; checkpoint it manually." >&2
 	fi
 )
 
