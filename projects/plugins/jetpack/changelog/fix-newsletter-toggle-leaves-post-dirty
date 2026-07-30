@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter: fix the editor warning about unsaved changes after switching a post between "Post & email" and "Post only".

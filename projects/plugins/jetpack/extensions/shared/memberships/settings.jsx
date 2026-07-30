@@ -17,6 +17,7 @@ import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
+import { store as noticesStore } from '@wordpress/notices';
 import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import './settings.scss';
@@ -294,9 +295,10 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 export function NewsletterEmailDocumentSettings() {
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
-	const { saveEditedEntityRecord } = useDispatch( coreDataStore );
-	const [ postMeta, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
+	const { saveEntityRecord } = useDispatch( coreDataStore );
+	const { createErrorNotice } = useDispatch( noticesStore );
 	const postId = useEntityId( 'postType', postType );
+	const [ pendingValue, setPendingValue ] = useState( null );
 
 	const postEmailSentState = useSelect(
 		select => {
@@ -308,14 +310,33 @@ export function NewsletterEmailDocumentSettings() {
 
 	const isAlreadySent = postEmailSentState?.email_sent_at != null;
 
-	const toggleSendEmail = value => {
-		const postMetaUpdate = {
-			...postMeta,
-			// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
-			[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: value === 'post-only',
-		};
-		setPostMeta( postMetaUpdate );
-		saveEditedEntityRecord( 'postType', postType, postId );
+	// Write just this one meta key rather than staging a post-meta edit and saving it.
+	// A staged edit would leave the post dirty forever wherever real-time collaboration
+	// is on: core merges the whole meta object into every meta edit, including the
+	// volatile `_crdt_document`, which never reconciles with what the server returns.
+	const toggleSendEmail = async value => {
+		if ( ! postId ) {
+			return;
+		}
+		setPendingValue( value );
+		try {
+			await saveEntityRecord(
+				'postType',
+				postType,
+				{
+					id: postId,
+					// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
+					meta: { [ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: value === 'post-only' },
+				},
+				{ throwOnError: true }
+			);
+		} catch {
+			createErrorNotice( __( 'The newsletter setting could not be saved.', 'jetpack' ), {
+				type: 'snackbar',
+			} );
+		} finally {
+			setPendingValue( null );
+		}
 	};
 
 	const isSendEmailEnabled = useSelect( select => {
@@ -333,7 +354,7 @@ export function NewsletterEmailDocumentSettings() {
 			render={ ( { canEdit } ) => {
 				return (
 					<ToggleGroupControl
-						value={ isSendEmailEnabled }
+						value={ pendingValue ?? isSendEmailEnabled }
 						disabled={ isPostPublished || ! canEdit }
 						onChange={ toggleSendEmail }
 						isBlock
