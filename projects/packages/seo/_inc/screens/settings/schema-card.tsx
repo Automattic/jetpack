@@ -69,9 +69,15 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 	// duplicate rows. Otherwise the header could read "Complete" off a row that
 	// server sanitization is about to discard — while Save sits disabled on the
 	// very validation error that makes it uncounted.
+	//
+	// Each override is trimmed *before* the fallback, mirroring the backend, where
+	// `Schema_Settings::text()` trims and the node then falls back to site identity.
+	// Trimming the result instead would let a whitespace-only override win the `||`
+	// and collapse to empty, dropping the module out of Complete over a value the
+	// server will discard in favour of the Site Title that was counting before.
 	const configuredFields = [
-		( organization.name || defaults.name ).trim(),
-		( organization.description || defaults.description ).trim(),
+		organization.name.trim() || defaults.name.trim(),
+		organization.description.trim() || defaults.description.trim(),
 		cleanProfileUrls( organization.sameAs ).length > 0,
 	];
 	const configuredCount = configuredFields.filter( Boolean ).length;
