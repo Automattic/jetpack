@@ -33,3 +33,18 @@
 	color: var(--wpds-color-foreground-content-neutral-weak);
 	font-variant-numeric: tabular-nums;
 }
+
+// The "while it's off" list in the Advanced module. Muted like the prose around
+// it, with the marker indent as the only structure — these are consequences to
+// scan, not a styled feature list.
+.effects {
+	margin: 0;
+	padding-inline-start: var(--wpds-dimension-gap-lg);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-size: var(--wpds-typography-font-size-sm);
+	line-height: var(--wpds-typography-line-height-sm);
+
+	li + li {
+		margin-block-start: var(--wpds-dimension-gap-xs);
+	}
+}

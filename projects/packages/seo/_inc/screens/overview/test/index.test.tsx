@@ -15,9 +15,8 @@ jest.unstable_mockModule( '@wordpress/route', () => ( {
 	useNavigate: () => jest.fn(),
 } ) );
 
-// The off-ramp's only non-presentational dependency; stubbed so the Overview can
-// render without the module-toggle REST plumbing (matches the sibling
-// `disable-seo-tools` test).
+// Still stubbed: the Overview renders `EnableSeoCard` when the module is off, and
+// that card uses the toggle. Keeps the Overview off the module-toggle REST plumbing.
 jest.unstable_mockModule( '../../../data/use-seo-tools-toggle', () => ( {
 	default: () => ( { isToggling: false, setActive: jest.fn() } ),
 } ) );
@@ -75,7 +74,7 @@ const buildOverview = (): OverviewResponse => ( {
 	},
 } );
 
-describe( 'OverviewScreen — disable-SEO off-ramp', () => {
+describe( 'OverviewScreen', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		getOverview.mockReturnValue( buildOverview() );
@@ -85,21 +84,18 @@ describe( 'OverviewScreen — disable-SEO off-ramp', () => {
 		unsetSimpleSite();
 	} );
 
-	it( 'renders the off-ramp when the site is not WordPress.com Simple', () => {
-		render( <OverviewScreen /> );
-
-		expect( screen.getByText( OFF_RAMP_TEXT ) ).toBeInTheDocument();
-	} );
-
-	it( 'hides the off-ramp on WordPress.com Simple, where SEO tools cannot be disabled', () => {
-		setSimpleSite();
-
+	it( 'no longer carries the disable-SEO off-ramp', () => {
+		// It moved to the Advanced module at the foot of Settings, where it can carry
+		// the context explaining what turning SEO tools off actually stops.
 		render( <OverviewScreen /> );
 
 		expect( screen.queryByText( OFF_RAMP_TEXT ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'button', { name: /Disable Jetpack SEO tools/ } )
+		).not.toBeInTheDocument();
 	} );
 
-	it( 'still renders the rest of the Overview on Simple', () => {
+	it( 'renders its cards on WordPress.com Simple', () => {
 		setSimpleSite();
 
 		render( <OverviewScreen /> );
