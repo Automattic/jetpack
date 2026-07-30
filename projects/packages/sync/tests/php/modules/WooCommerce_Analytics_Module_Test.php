@@ -46,6 +46,49 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Runs after every test in this class.
+	 */
+	protected function tearDown(): void {
+		remove_filter( 'jetpack_sync_options_whitelist', array( $this->module, 'add_woocommerce_analytics_options_whitelist' ), 10 );
+		remove_filter( 'jetpack_sync_post_meta_whitelist', array( $this->module, 'add_woocommerce_analytics_post_meta_whitelist' ), 10 );
+		parent::tearDown();
+	}
+
+	/**
+	 * The module registers its minimum data requirements.
+	 */
+	public function test_registers_minimum_data_requirements() {
+		$this->assertSame( 10, has_filter( 'jetpack_sync_options_whitelist', array( $this->module, 'add_woocommerce_analytics_options_whitelist' ) ) );
+		$this->assertSame( 10, has_filter( 'jetpack_sync_post_meta_whitelist', array( $this->module, 'add_woocommerce_analytics_post_meta_whitelist' ) ) );
+	}
+
+	/**
+	 * Consumers can add options without duplicating the module minimum.
+	 */
+	public function test_adds_options_whitelist_minimum() {
+		$options = $this->module->add_woocommerce_analytics_options_whitelist( array( 'consumer_option' ) );
+
+		$this->assertSame(
+			array( 'consumer_option', 'woocommerce_excluded_report_order_statuses' ),
+			$options
+		);
+		$this->assertSame( $options, $this->module->add_woocommerce_analytics_options_whitelist( $options ) );
+	}
+
+	/**
+	 * Consumers can add post meta without duplicating the module minimum.
+	 */
+	public function test_adds_post_meta_whitelist_minimum() {
+		$post_meta = $this->module->add_woocommerce_analytics_post_meta_whitelist( array( '_consumer_meta' ) );
+
+		$this->assertSame(
+			array( '_consumer_meta', '_stock', '_stock_quantity', '_cogs_total_value', '_global_unique_id' ),
+			$post_meta
+		);
+		$this->assertSame( $post_meta, $this->module->add_woocommerce_analytics_post_meta_whitelist( $post_meta ) );
+	}
+
+	/**
 	 * The module name is a cross-repo contract (WPCOM dispatcher, Premium Analytics
 	 * tracker and JS, Woo AI). It must never change.
 	 */

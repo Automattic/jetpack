@@ -10,7 +10,8 @@
  * (Premium Analytics, WooCommerce AI); treat them as a public contract.
  *
  * This module is NOT registered by default. Consumers own its registration,
- * WooCommerce runtime guard, and Sync data configuration.
+ * WooCommerce runtime guard, full-sync policy, and any additional Sync data
+ * configuration. The module provides the minimum option and post meta requirements.
  *
  * WooCommerce is a runtime (not composer) dependency. The WC classes/traits
  * referenced here resolve via WooCommerce's autoloader at runtime; registration is
@@ -46,6 +47,55 @@ class WooCommerce_Analytics extends Module {
 	use WooCommerce_Analytics_Utilities;
 	// @phan-suppress-next-line PhanUndeclaredTrait -- Provided by WooCommerce at runtime; absent from the older WooCommerce stubs used by the "old Woo" Phan job.
 	use OrderAttributionMeta;
+
+	/**
+	 * Options required by WooCommerce Analytics Sync.
+	 *
+	 * @var string[]
+	 */
+	private static $options_whitelist = array(
+		'woocommerce_excluded_report_order_statuses',
+	);
+
+	/**
+	 * Post meta required by WooCommerce Analytics Sync.
+	 *
+	 * @var string[]
+	 */
+	private static $post_meta_whitelist = array(
+		'_stock',
+		'_stock_quantity',
+		'_cogs_total_value',
+		'_global_unique_id',
+	);
+
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		add_filter( 'jetpack_sync_options_whitelist', array( $this, 'add_woocommerce_analytics_options_whitelist' ), 10 );
+		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_woocommerce_analytics_post_meta_whitelist' ), 10 );
+	}
+
+	/**
+	 * Add the options required by WooCommerce Analytics Sync.
+	 *
+	 * @param array $list Existing options whitelist.
+	 * @return array Updated options whitelist.
+	 */
+	public function add_woocommerce_analytics_options_whitelist( $list ) {
+		return array_values( array_unique( array_merge( $list, self::$options_whitelist ) ) );
+	}
+
+	/**
+	 * Add the post meta required by WooCommerce Analytics Sync.
+	 *
+	 * @param array $list Existing post meta whitelist.
+	 * @return array Updated post meta whitelist.
+	 */
+	public function add_woocommerce_analytics_post_meta_whitelist( $list ) {
+		return array_values( array_unique( array_merge( $list, self::$post_meta_whitelist ) ) );
+	}
 
 	/**
 	 * Get the module name.

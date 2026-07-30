@@ -74,8 +74,14 @@ the following modules will be enabled no matter the configuration:
 #### Configuring WooCommerce Analytics Sync
 
 The high-volume `woocommerce_analytics` module is not enabled by default. Consumers
-own its registration, full-sync policy, and data configuration. The Sync package
-provides the module implementation and suggested option and post meta whitelists:
+own its registration and full-sync policy. When active, the module adds the minimum
+option and post meta requirements. Consumers may contribute additional data
+requirements through `Config`:
+
+Generic WooCommerce Sync owns the `woocommerce_custom_orders_table_enabled` and
+`woocommerce_date_type` options. The Analytics module owns the excluded report
+statuses option and the `_stock`, `_stock_quantity`, `_cogs_total_value`, and
+`_global_unique_id` post meta requirements.
 
 ```php
 use Automattic\Jetpack\Config;
@@ -84,7 +90,6 @@ use Automattic\Jetpack\Sync\Modules\Posts;
 use Automattic\Jetpack\Sync\Modules\Term_Relationships;
 use Automattic\Jetpack\Sync\Modules\Terms;
 use Automattic\Jetpack\Sync\Modules\WooCommerce_Analytics;
-use Automattic\Jetpack\Sync\WooCommerce_Analytics_Defaults;
 
 add_action(
 	'plugins_loaded',
@@ -96,25 +101,19 @@ add_action(
 		( new Config() )->ensure(
 			'sync',
 			array(
-				'jetpack_sync_modules'             => array(
+				'jetpack_sync_modules' => array(
 					WooCommerce_Analytics::class,
 					Meta::class,
 					Posts::class,
 					Terms::class,
 					Term_Relationships::class,
 				),
-				'jetpack_sync_options_whitelist'   => WooCommerce_Analytics_Defaults::get_options_whitelist(),
-				'jetpack_sync_post_meta_whitelist' => WooCommerce_Analytics_Defaults::get_post_meta_whitelist(),
 			)
 		);
 	},
 	1
 );
 ```
-
-Consumers may extend the returned defaults or replace either list before calling
-`Config::ensure()`. A replacement affects only that consumer's contribution because
-Sync combines data requirements from all configured consumers.
 
 The priority-1 `plugins_loaded` callback above guards the WooCommerce runtime
 dependency and gives `Config` time to initialize Sync at its priority-2 callback.
