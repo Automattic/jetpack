@@ -41,12 +41,16 @@ const DATA_FORMAT = {
 const TRAFFIC_PERIODS = [ 'day', 'week', 'month' ] as const satisfies readonly TrafficPeriod[];
 
 /**
- * Resolves Auto down to hourly for narrow dashboard ranges. The shared
- * `defaultPeriodForInterval` helper's mapping table has no `hour` entry —
- * adding one there would flip its "unsupported" fallback toward the coarsest
- * end for every other widget that doesn't offer hourly (the helper's clamp
- * only handles "too coarse", not "too fine") — so hourly is resolved locally
- * before deferring to the shared helper for everything else.
+ * Default granularity for the dashboard interval: opens the control at the
+ * granularity the range implies (and, until the user picks one explicitly,
+ * keeps following the range). The dropdown only offers hour/day/week/month,
+ * so a coarser dashboard interval (quarter/year) collapses onto month.
+ *
+ * Hourly is resolved locally rather than via the shared
+ * `defaultPeriodForInterval` helper: its mapping table has no `hour` entry,
+ * and adding one there would flip its "unsupported" fallback toward the
+ * coarsest end for every other widget that doesn't offer hourly (the
+ * helper's clamp only handles "too coarse", not "too fine").
  *
  * @param interval - The dashboard-derived interval.
  * @return The matching selectable granularity.
@@ -105,6 +109,16 @@ function TrafficChartInner( { granularity, metrics }: TrafficChartInnerProps ) {
 		);
 	}
 
+	// Disabled tabs (hourly's unsupported metrics) render their own "not available"
+	// placeholder regardless of data, so they're excluded from the empty check —
+	// otherwise a widget configured with only those metrics would show the generic
+	// "no traffic data" message instead of the disabled tabs' explanation. When every
+	// selected metric is disabled there's nothing left to judge emptiness by, so the
+	// widget isn't considered empty and the disabled tabs render instead.
+	const enabledMetrics = metricTabs.filter( metric => ! metric.disabled );
+	const isEmpty =
+		enabledMetrics.length > 0 && enabledMetrics.every( metric => metric.current.length === 0 );
+
 	return (
 		<div className={ styles.root }>
 			<WidgetState
@@ -116,7 +130,7 @@ function TrafficChartInner( { granularity, metrics }: TrafficChartInnerProps ) {
 				// `useTrafficChart` already gates `isError` per query on that query
 				// having no rows, so a transient refetch failure keeps the chart.
 				isError={ isError }
-				isEmpty={ metricTabs.every( metric => metric.current.length === 0 ) }
+				isEmpty={ isEmpty }
 				error={ {
 					description: __(
 						"We couldn't load traffic data. Please try again in a moment.",

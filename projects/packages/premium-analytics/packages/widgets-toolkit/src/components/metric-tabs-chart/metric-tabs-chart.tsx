@@ -144,6 +144,14 @@ function MetricChart( {
 	// pattern on the previous-period series.
 	const seriesStyles = useSeriesStyles( series );
 
+	// A disabled metric's `current`/`previous` points are placeholders (e.g. a
+	// hourly bucket the API doesn't support), not real zeros — plotting them
+	// would draw a flat line that reads as "no activity" instead of "not
+	// available". Skip the chart and surface the same explanation as the tab.
+	if ( metric.disabled ) {
+		return <div className={ styles.disabledChart }>{ metric.description }</div>;
+	}
+
 	return (
 		<>
 			<ComparativeLineChart

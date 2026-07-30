@@ -114,3 +114,16 @@
 	min-width: 0;
 	min-height: 0;
 }
+
+/* Stands in for the chart when the active metric is disabled — its values are
+ * placeholders (see `tabLabel`'s "—"), so plotting them would draw a flat
+ * zero line that reads as real (empty) data instead of "not supported". */
+.disabledChart {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	min-height: 0;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	text-align: center;
+}
