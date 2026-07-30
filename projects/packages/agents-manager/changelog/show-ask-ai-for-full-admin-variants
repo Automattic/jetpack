@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Show the Ask AI button in the wp-admin bar whenever the full Agents Manager app is loaded.
+Allow integrations to request the Agents Manager shell without enabling the unified Help Center experience.

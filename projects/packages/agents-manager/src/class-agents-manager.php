@@ -263,8 +263,8 @@ class Agents_Manager {
 				add_action( 'admin_bar_menu', array( $this, 'add_menu_panel' ), 100 );
 			}
 
-			// Standalone AI chat button, shown whenever the full Agents Manager app is loaded.
-			if ( ! $use_disconnected ) {
+			// Standalone AI chat button, shown whenever the full Agents Manager app is enabled.
+			if ( ! $use_disconnected && self::is_enabled() ) {
 				add_action( 'admin_bar_menu', array( $this, 'add_ai_chat_button' ), 100 );
 			}
 		}
@@ -272,7 +272,7 @@ class Agents_Manager {
 		// When Gutenberg's "admin bar in editor" (omnibar) experiment is active, add the entry
 		// points to that editor admin bar. CIAB is excluded — it has its own Site Hub UI.
 		// Mirroring wp-admin: the Help "?" dropdown shows only in the full unified experience;
-		// the Ask AI button shows whenever a full Agents Manager variant is active.
+		// the Ask AI button shows whenever Agents Manager is enabled in this editor.
 		if ( ! $is_ciab && ! $use_disconnected && self::is_admin_bar_in_editor() ) {
 			// Help "?" node + dropdown panel first, matching the wp-admin admin bar order.
 			if ( self::is_unified_experience() ) {
@@ -286,7 +286,9 @@ class Agents_Manager {
 				add_action( 'admin_bar_menu', array( $this, 'add_menu_panel' ), 100 );
 			}
 
-			add_action( 'admin_bar_menu', array( $this, 'add_ai_chat_button' ), 100 );
+			if ( self::is_enabled() ) {
+				add_action( 'admin_bar_menu', array( $this, 'add_ai_chat_button' ), 100 );
+			}
 		}
 
 		/**
@@ -459,6 +461,8 @@ class Agents_Manager {
 	 * @return bool
 	 */
 	public static function is_enabled() {
+		$enabled = false;
+
 		// CIAB: Agents Manager is the default AI experience — enabled unless explicitly
 		// disabled via filter (e.g. for debugging or gradual rollout).
 		if ( self::is_ciab_environment() ) {
@@ -467,37 +471,39 @@ class Agents_Manager {
 			 *
 			 * @param bool $enabled Whether Agents Manager should load. Default true.
 			 */
-			return apply_filters( 'agents_manager_enabled_in_ciab', true );
+			$enabled = (bool) apply_filters( 'agents_manager_enabled_in_ciab', true );
+		} elseif ( self::is_unified_experience() ) {
+			// Full unified experience: Agents Manager with support guides, Help Center takeover, etc.
+			$enabled = true;
+		} elseif ( self::is_block_editor() && apply_filters( 'agents_manager_enabled_in_block_editor', false ) ) {
+			// Block editor only: Agents Manager replaces Big Sky's native UI. Hooked by Big Sky.
+			$enabled = true;
 		}
 
-		// Full unified experience: Agents Manager with support guides, Help Center takeover, etc.
-		if ( self::is_unified_experience() ) {
-			return true;
-		}
+		/**
+		 * Filters whether an integration requests the Agents Manager shell on this request.
+		 *
+		 * Providers should preserve an existing true value so multiple integrations can
+		 * request the shared shell independently.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $should_load Whether another integration already requested the shell.
+		 */
+		$should_load = (bool) apply_filters( 'agents_manager_should_load', false );
 
-		// Block editor only: Agents Manager replaces Big Sky's native UI. Hooked by Big Sky.
-		if ( self::is_block_editor() && apply_filters( 'agents_manager_enabled_in_block_editor', false ) ) {
-			return true;
-		}
-
-		return false;
+		return $enabled || $should_load;
 	}
 
 	/**
 	 * Returns true if the current wp-admin context passes all exclusion checks.
 	 *
-	 * Excludes WooCommerce Admin home, customizer preview, Gutenberg asset requests,
-	 * and preview query param contexts.
+	 * Excludes customizer previews, Gutenberg asset requests, and preview query
+	 * param contexts.
 	 *
 	 * @return bool
 	 */
 	private static function passes_admin_checks() {
-		// Don't load on WooCommerce Admin home page to avoid UI conflicts.
-		global $current_screen;
-		if ( $current_screen && $current_screen->id === 'woocommerce_page_wc-admin' ) {
-			return false;
-		}
-
 		// Don't load in customizer preview iframe.
 		if ( is_customize_preview() ) {
 			return false;

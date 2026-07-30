@@ -633,10 +633,10 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the standalone AI chat button is added for a full wp-admin variant
-	 * even when the unified experience is disabled.
+	 * Tests that the standalone AI chat button is added when an integration requests
+	 * Agents Manager without enabling the unified experience.
 	 */
-	public function test_ai_chat_button_registered_for_full_variant_without_unified_experience() {
+	public function test_ai_chat_button_registered_for_requested_shell_without_unified_experience() {
 		// Same admin context as the enabled case, so only the unified flag differs.
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'dashboard' );
@@ -644,10 +644,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		// Disable the unified experience (priority 20 runs after the class's own filter).
 		add_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
-		$variant_filter = static function () {
-			return 'wp-admin';
-		};
-		add_filter( 'agents_manager_variant', $variant_filter );
+		add_filter( 'agents_manager_should_load', '__return_true' );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -655,7 +652,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
 		);
 
-		remove_filter( 'agents_manager_variant', $variant_filter );
+		remove_filter( 'agents_manager_should_load', '__return_true' );
 		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
 	}
 
@@ -726,19 +723,16 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that a host-filtered full Gutenberg variant adds Ask AI to the editor
-	 * admin bar without requiring another Agents Manager enablement filter.
+	 * Tests that an integration-requested Gutenberg shell adds Ask AI to the editor
+	 * admin bar without taking over the Help Center.
 	 */
-	public function test_ai_chat_button_registered_in_editor_omnibar_for_filtered_full_variant() {
+	public function test_ai_chat_button_registered_in_editor_omnibar_for_requested_shell() {
 		$this->set_up_block_editor_request( false );
 
 		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
 		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( true );
 
-		$variant_filter = static function () {
-			return 'gutenberg';
-		};
-		add_filter( 'agents_manager_variant', $variant_filter );
+		add_filter( 'agents_manager_should_load', '__return_true' );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -746,7 +740,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
 		);
 
-		remove_filter( 'agents_manager_variant', $variant_filter );
+		remove_filter( 'agents_manager_should_load', '__return_true' );
 	}
 
 	/**
@@ -2462,6 +2456,19 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that is_enabled returns true when an integration requests the shell.
+	 */
+	public function test_is_enabled_returns_true_when_shell_is_requested() {
+		add_filter( 'agents_manager_should_load', '__return_true' );
+
+		$result = Agents_Manager::is_enabled();
+
+		remove_filter( 'agents_manager_should_load', '__return_true' );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
 	 * Tests that is_enabled returns true when in block editor and agents_manager_enabled_in_block_editor filter is true.
 	 */
 	public function test_is_enabled_returns_true_in_block_editor_when_block_editor_filter_enabled() {
@@ -2600,23 +2607,20 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that should_enqueue_script returns false on WooCommerce Admin home page.
-	 * This verifies the WooCommerce Admin exclusion to avoid UI conflicts,
-	 * matching the same exclusion in Help_Center::enqueue_wp_admin_scripts().
+	 * Tests that an integration can load Agents Manager on WooCommerce Admin.
 	 */
-	public function test_should_enqueue_script_returns_false_on_woocommerce_admin_home() {
+	public function test_should_enqueue_script_returns_true_on_woocommerce_admin_when_requested() {
 		// Set admin context first.
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'woocommerce_page_wc-admin' );
 
-		// Enable unified experience so that Agents Manager is active and the WooCommerce exclusion is exercised.
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'agents_manager_should_load', '__return_true' );
 
 		$result = $this->call_should_enqueue_script();
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_should_load', '__return_true' );
 
-		$this->assertFalse( $result, 'should_enqueue_script should return false on WooCommerce Admin home page' );
+		$this->assertTrue( $result, 'Agents Manager should load on WooCommerce Admin when requested.' );
 	}
 
 	/**
