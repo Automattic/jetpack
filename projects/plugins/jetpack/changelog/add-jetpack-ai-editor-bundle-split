@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Performance: ship the AI editor extensions in a separate bundle that only loads when Jetpack AI is enabled, trimming the main editor bundle for sites with AI switched off.
