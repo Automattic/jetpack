@@ -233,6 +233,11 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 	/**
 	 * The legacy Stats admin menu stays registered alongside Stats v2 instead of
 	 * being suppressed, on any site.
+	 *
+	 * Calling stats_load() also registers other hooks (pre_option_db_version,
+	 * the stats_array filter, the upgrade-nudges action) that this test
+	 * doesn't assert on and tear_down() doesn't remove — intentional, since
+	 * this test only cares about the admin menu.
 	 */
 	public function test_stats_admin_menu_kept_when_enabled() {
 		update_option( 'jetpack_premium_analytics_enabled', 1 );

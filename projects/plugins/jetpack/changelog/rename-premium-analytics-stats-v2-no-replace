@@ -1,4 +1,4 @@
 Significance: patch
-Type: bugfix
+Type: enhancement
 
 Stats v2: add it as a separate menu instead of replacing the existing Stats menu, on any site.
