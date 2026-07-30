@@ -22,8 +22,7 @@ import type { Action, Field, View } from '@wordpress/dataviews';
 
 const DEFAULT_PER_PAGE = 20;
 
-// Stable reference so the first render (before the query resolves) doesn't hand DataViews a fresh
-// array on every pass.
+// Stable reference so passing "no rows" to DataViews doesn't churn on every render.
 const NO_SUBSCRIBERS: Subscriber[] = [];
 
 const defaultView: View = {
@@ -314,10 +313,6 @@ export default function SubscribersDataViews( {
 	const handleCloseComp = useCallback( () => setCompTarget( null ), [] );
 	const handleCloseRemoveComp = useCallback( () => setRemoveCompTarget( null ), [] );
 
-	// Every row WP.com returns is a real subscription (email, Reader, or paid), the viewer's own
-	// included — so their row is rendered like any other rather than swapped for the cold-start
-	// empty state, which read as "no subscribers yet" on a site that had one (NL-772). The empty
-	// slot is left to a genuinely empty response.
 	const subscribers = data?.subscribers ?? NO_SUBSCRIBERS;
 	const totalItems = data?.total ?? 0;
 	const totalPages = data?.pages ?? 0;
