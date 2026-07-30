@@ -3995,6 +3995,9 @@ importers:
       '@wordpress/dataviews':
         specifier: 17.1.0
         version: 17.1.0(@date-fns/tz@1.4.1)(@types/react@18.3.28)(react@18.3.1)
+      '@wordpress/date':
+        specifier: 5.51.0
+        version: 5.51.0
       '@wordpress/element':
         specifier: 8.3.0
         version: 8.3.0
