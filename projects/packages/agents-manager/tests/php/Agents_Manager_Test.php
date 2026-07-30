@@ -633,10 +633,10 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the standalone AI chat button is not added to the admin bar when
-	 * the unified experience is disabled.
+	 * Tests that the standalone AI chat button is added for a full wp-admin variant
+	 * even when the unified experience is disabled.
 	 */
-	public function test_ai_chat_button_not_registered_without_unified_experience() {
+	public function test_ai_chat_button_registered_for_full_variant_without_unified_experience() {
 		// Same admin context as the enabled case, so only the unified flag differs.
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'dashboard' );
@@ -644,6 +644,34 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		// Disable the unified experience (priority 20 runs after the class's own filter).
 		add_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+		$variant_filter = static function () {
+			return 'wp-admin';
+		};
+		add_filter( 'agents_manager_variant', $variant_filter );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
+		);
+
+		remove_filter( 'agents_manager_variant', $variant_filter );
+		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+	}
+
+	/**
+	 * Tests that the standalone AI chat button is not added for a disconnected
+	 * Help-only variant.
+	 */
+	public function test_ai_chat_button_not_registered_for_disconnected_variant() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'dashboard' );
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		$variant_filter = static function () {
+			return 'wp-admin-disconnected';
+		};
+		add_filter( 'agents_manager_variant', $variant_filter );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -651,7 +679,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
 		);
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+		remove_filter( 'agents_manager_variant', $variant_filter );
 	}
 
 	/**

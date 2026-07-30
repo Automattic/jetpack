@@ -263,8 +263,8 @@ class Agents_Manager {
 				add_action( 'admin_bar_menu', array( $this, 'add_menu_panel' ), 100 );
 			}
 
-			// Standalone AI chat button, shown only in the unified experience.
-			if ( ! $use_disconnected && self::is_unified_experience() ) {
+			// Standalone AI chat button, shown whenever the full Agents Manager app is loaded.
+			if ( ! $use_disconnected ) {
 				add_action( 'admin_bar_menu', array( $this, 'add_ai_chat_button' ), 100 );
 			}
 		}
