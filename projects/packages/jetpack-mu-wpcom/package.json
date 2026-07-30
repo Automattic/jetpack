@@ -84,7 +84,7 @@
 		"@wordpress/i18n": "6.24.0",
 		"@wordpress/icons": "15.3.0",
 		"@wordpress/keycodes": "4.51.0",
-		"@wordpress/notices": "5.52.0",
+		"@wordpress/notices": "5.51.0",
 		"@wordpress/plugins": "7.51.0",
 		"@wordpress/primitives": "4.51.0",
 		"@wordpress/private-apis": "^1.8.1",
