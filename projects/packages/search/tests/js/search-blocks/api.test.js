@@ -1283,6 +1283,17 @@ describe( 'buildSearchUrl: Instant Search query options', () => {
 		expect( decodeURIComponent( url ) ).toContain( 'highlight_fields[1]=content' );
 	} );
 
+	it( 'falls back to default highlight fields when highlightFields is empty', () => {
+		const url = buildSearchUrl( { ...baseOpts, highlightFields: [] } );
+		expect( decodeURIComponent( url ) ).toContain( 'highlight_fields[0]=title' );
+		expect( decodeURIComponent( url ) ).toContain( 'highlight_fields[1]=content' );
+	} );
+
+	it( 'omits highlight_filter_stopwords when not an array', () => {
+		const url = buildSearchUrl( { ...baseOpts, highlightFilterStopwords: 'the' } );
+		expect( url ).not.toContain( 'highlight_filter_stopwords' );
+	} );
+
 	it( 'includes additional_blog_ids and multisite fields when additionalBlogIds is set', () => {
 		const url = buildSearchUrl( {
 			...baseOpts,
@@ -1294,6 +1305,11 @@ describe( 'buildSearchUrl: Instant Search query options', () => {
 		expect( decoded ).toContain( 'fields' );
 		expect( decoded ).toContain( 'blog_name' );
 		expect( decoded ).toContain( 'blog_id' );
+	} );
+
+	it( 'omits additional_blog_ids when not an array', () => {
+		const url = buildSearchUrl( { ...baseOpts, additionalBlogIds: 123 } );
+		expect( url ).not.toContain( 'additional_blog_ids' );
 	} );
 } );
 
@@ -1310,5 +1326,28 @@ describe( 'resolveCustomResults', () => {
 				{ pattern: 'hello', ids: [ 2 ] },
 			] )
 		).toEqual( [ 1 ] );
+	} );
+
+	it( 'skips invalid rules and treats a falsy query as empty string', () => {
+		expect(
+			resolveCustomResults( null, [
+				null,
+				{ pattern: 123, ids: [ 1 ] },
+				{ pattern: 'hello', ids: 'not-array' },
+				{ pattern: '', ids: [ 5 ] },
+			] )
+		).toEqual( [ 5 ] );
+	} );
+
+	it( 'returns null when regex rules do not match', () => {
+		expect(
+			resolveCustomResults( 'nope', [ { pattern: 'regex:^hello.*', ids: [ 9 ] } ] )
+		).toBeNull();
+	} );
+
+	it( 'matches regex: patterns', () => {
+		expect(
+			resolveCustomResults( 'hello world', [ { pattern: 'regex:hello.*', ids: [ 99 ] } ] )
+		).toEqual( [ 99 ] );
 	} );
 } );

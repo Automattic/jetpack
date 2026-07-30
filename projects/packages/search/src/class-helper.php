@@ -1112,9 +1112,7 @@ class Helper {
 	 * }
 	 */
 	public static function get_instant_search_query_options(): array {
-		$options = function_exists( 'apply_filters' )
-			? apply_filters( 'jetpack_instant_search_options', array() )
-			: array();
+		$options = apply_filters( 'jetpack_instant_search_options', array() );
 		if ( ! is_array( $options ) ) {
 			$options = array();
 		}
