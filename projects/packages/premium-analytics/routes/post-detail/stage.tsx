@@ -9,7 +9,8 @@ import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
 import { Button } from '@wordpress/ui';
 import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
-import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { PostDetailTabs, PostSummaryCard } from './components';
 import { EMAIL_WIDGET_TYPE_ALIASES } from './config';
 import { usePostDetailTabs, usePostSummary } from './hooks';
@@ -67,7 +68,7 @@ function PostDetail(): JSX.Element {
 		[]
 	);
 
-	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypes( widgetModules );
+	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
 	// The fixed email compositions reuse registered widget types under
 	// page-local aliases so each card carries its design title — the host
@@ -106,6 +107,7 @@ function PostDetail(): JSX.Element {
 			<WidgetDashboard
 				widgetTypes={ pageWidgetTypes }
 				isResolvingWidgetTypes={ isResolvingWidgetTypes }
+				resolveWidgetModule={ resolveWidgetModuleWithI18n }
 				layout={ layout }
 				onLayoutChange={ noopLayoutChange }
 				gridSettings={ POST_DETAIL_GRID }
