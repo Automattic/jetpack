@@ -185,11 +185,13 @@ export function NewsletterCategoriesSection( {
 	const savingText = __( 'Saving…', 'jetpack-newsletter' );
 	const saveText = __( 'Save', 'jetpack-newsletter' );
 
-	// Build subscribe block documentation URL and component
+	// Build subscribe block documentation URL and component. Deep-link to the
+	// "Subscribe to specific categories" section, since that's what this copy is
+	// about (the redirect service appends the fragment via its `anchor` param).
 	const isWpcom = isWpcomPlatformSite();
 	const subscribeBlockUrl = isWpcom
-		? 'https://wordpress.com/support/wordpress-editor/blocks/subscribe-block/'
-		: `https://jetpack.com/redirect/?source=jetpack-support-subscribe-block&site=${
+		? 'https://wordpress.com/support/wordpress-editor/blocks/subscribe-block/#subscribe-to-specific-categories'
+		: `https://jetpack.com/redirect/?source=jetpack-support-subscribe-block&anchor=subscribe-to-specific-categories&site=${
 				getSiteData()?.wpcom?.blog_id || ''
 		  }`;
 
