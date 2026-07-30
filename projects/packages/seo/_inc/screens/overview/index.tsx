@@ -40,8 +40,6 @@ const OverviewScreen: FC = () => {
 	// crawler slice to the Overview payload.
 	const crawlers = useSelect( select => select( aiStore ).getCrawlers(), [] );
 
-	// llms.txt lives in the same store, and the AI card reports it as a third row
-	// alongside the crawler groups.
 	const llmsTxt = useSelect( select => select( aiStore ).getLlmsTxt(), [] );
 
 	// Deep-link to a Settings section: navigate to the Settings route with
@@ -63,7 +61,7 @@ const OverviewScreen: FC = () => {
 		[ navigate ]
 	);
 
-	// Deep-link to the GEO route (AI crawler management).
+	// Deep-link to the GEO route.
 	const goToAi = useCallback( () => navigate( { href: '/ai' } ), [ navigate ] );
 
 	if ( ! data ) {

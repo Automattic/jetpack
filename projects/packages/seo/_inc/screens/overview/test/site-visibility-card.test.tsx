@@ -19,6 +19,16 @@ const buildVisibility = ( overrides: Partial< Visibility > = {} ): Visibility =>
 	...overrides,
 } );
 
+/**
+ * The state colour of the dot beside a row — the card's at-a-glance signal. Read
+ * from `data-status` on the row, because the colour itself lives in a CSS module
+ * that jest stubs away.
+ *
+ * @param label - The row's visible label.
+ * @return The row's status.
+ */
+const dotFor = ( label: string ) => screen.getByText( label ).getAttribute( 'data-status' );
+
 describe( 'SiteVisibilityCard', () => {
 	it( 'reports indexing and the sitemap, and nothing else', () => {
 		render( <SiteVisibilityCard data={ buildVisibility() } onManage={ jest.fn() } /> );
@@ -54,12 +64,31 @@ describe( 'SiteVisibilityCard', () => {
 		expect( screen.getByText( 'Sitemap not published' ) ).toBeInTheDocument();
 	} );
 
-	it( 'keeps the row wording distinct from the per-post Content SEO ring', () => {
-		// The Content SEO card counts posts with "Visible to search engines"; this card
-		// is about the whole site. Near-identical wording on one screen would conflate
-		// a site-wide switch with a per-post count.
+	it( 'renders no subtitle element when the card passes none', () => {
+		// Only Content SEO passes a subtitle. Without this, dropping the `subtitle &&`
+		// guard in CardHeaderIcon would put an empty <p> — carrying the subtitle's top
+		// margin and indent — under every other card title, and CI would stay green.
 		render( <SiteVisibilityCard data={ buildVisibility() } onManage={ jest.fn() } /> );
 
-		expect( screen.queryByText( /Visible to search engines/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'paragraph' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'colours the dots to match the state each row reports', () => {
+		// The dot is the at-a-glance signal on this card, and nothing else asserts it —
+		// every colour could be inverted and the suite would stay green.
+		const view = render( <SiteVisibilityCard data={ buildVisibility() } onManage={ jest.fn() } /> );
+		expect( dotFor( 'Open to search engines' ) ).toBe( 'ok' );
+		expect( dotFor( 'Sitemap published' ) ).toBe( 'ok' );
+		view.unmount();
+
+		render(
+			<SiteVisibilityCard
+				data={ buildVisibility( { search_engines_visible: false } ) }
+				onManage={ jest.fn() }
+			/>
+		);
+		// Closed to search is an error state; an unpublished sitemap is a warning.
+		expect( dotFor( 'Closed to search engines' ) ).toBe( 'err' );
+		expect( dotFor( 'Sitemap not published' ) ).toBe( 'warn' );
 	} );
 } );

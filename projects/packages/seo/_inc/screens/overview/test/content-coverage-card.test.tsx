@@ -82,7 +82,7 @@ describe( 'ContentCoverageCard', () => {
 			/>
 		);
 
-		expect( screen.getByText( 'No published posts or pages yet.' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'No published content yet.' ) ).toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'button', { name: /Add schema to content/ } )
 		).not.toBeInTheDocument();

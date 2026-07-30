@@ -86,9 +86,8 @@ const VerificationCard: FC< Props > = ( {
 			<CollapsibleCard.Header render={ <h2 /> }>
 				<Stack direction="row" justify="space-between" align="center" gap="sm">
 					<Card.Title>
-						{ /* `globe`, matching the Overview card for the same concept. A checkmark
-						     read as "done" — which this header already says properly, in the
-						     status indicator right beside it. */ }
+						{ /* `globe`, matching the Overview card — and a checkmark would double up
+						     on the status indicator beside it. */ }
 						<CardTitleIcon icon={ globe } title={ __( 'Site verification', 'jetpack-seo' ) } />
 					</Card.Title>
 					<CollapsibleCard.HeaderDescription>

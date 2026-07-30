@@ -28,7 +28,7 @@ const cantCrawlStagingLabel = __(
 	'jetpack-seo'
 );
 const cantCrawlIndexingLabel = __(
-	"AI crawlers can't reach this site while search engines are blocked.",
+	"AI crawlers can't reach this site while it's closed to search engines.",
 	'jetpack-seo'
 );
 const staticRobotsLabel = __(
@@ -47,7 +47,7 @@ const llmsPublishedLabel = __( 'llms.txt published', 'jetpack-seo' );
 const llmsNotPublishedLabel = __( 'llms.txt not published', 'jetpack-seo' );
 
 /**
- * Overview card summarizing AI crawler access. When the per-crawler settings
+ * Overview card summarizing AI access. When the per-crawler settings
  * can't take effect — search engines blocked, a `*.wpcomstaging.com` staging
  * address, a static robots.txt file, a data-sharing opt-out, or a path-based
  * multisite network — that reason is the card's headline state. Otherwise it
@@ -60,7 +60,7 @@ const llmsNotPublishedLabel = __( 'llms.txt not published', 'jetpack-seo' );
  * @param props.searchEnginesVisible - Whether search engines may index the site (overlaid from Settings).
  * @param props.llmsTxt              - The llms.txt slice, rendered as a third status row.
  * @param props.onManage             - Opens the GEO tab.
- * @return The AI crawler access card.
+ * @return The AI access card.
  */
 const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, llmsTxt, onManage } ) => {
 	const canBeCrawled = searchEnginesVisible && ! data.restrictedSubdomain;
@@ -126,17 +126,22 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, llmsTxt, onMa
 								trainingBots.length
 							) }
 						/>
-						{ llmsTxt && (
-							<StatusDot
-								status={ llmsPublished ? 'ok' : 'warn' }
-								label={ llmsPublished ? llmsPublishedLabel : llmsNotPublishedLabel }
-							/>
-						) }
 					</Stack>
 				) : (
 					// A full-sentence explanation, not a status — so no indicator dot
 					// (the vertically-centred dot next to wrapping text reads oddly).
 					<Text>{ blockedLabel }</Text>
+				) }
+				{ /* Outside the crawler branch on purpose. `Llms_Txt::maybe_serve()` gates
+				     only on the setting and `blog_public`, so a static robots.txt, the
+				     data-sharing opt-out and path-based multisite stop the *crawler*
+				     settings applying without touching llms.txt — reporting it inside that
+				     branch hid a working llms.txt on every one of those sites. */ }
+				{ llmsTxt && searchEnginesVisible && (
+					<StatusDot
+						status={ llmsPublished ? 'ok' : 'warn' }
+						label={ llmsPublished ? llmsPublishedLabel : llmsNotPublishedLabel }
+					/>
 				) }
 				<Stack direction="row" justify="flex-end" className={ styles.footer }>
 					<Button variant="solid" size="compact" onClick={ onManage }>

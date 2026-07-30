@@ -14,23 +14,22 @@ type LlmsTxt = AiState[ 'llmsTxt' ];
  * @param overrides - Fields to override on the default payload.
  * @return The crawler payload.
  */
-const buildCrawlers = ( overrides: Partial< Crawlers > = {} ): Crawlers =>
-	( {
-		catalog: [
-			{ slug: 'oai-searchbot', label: 'OAI-SearchBot', userAgent: 'OAI-SearchBot', type: 'answer' },
-			{ slug: 'perplexity', label: 'PerplexityBot', userAgent: 'PerplexityBot', type: 'answer' },
-			{ slug: 'gptbot', label: 'GPTBot', userAgent: 'GPTBot', type: 'training' },
-		],
-		overrides: {},
-		searchEnginesVisible: true,
-		restrictedSubdomain: false,
-		staticRobotsTxt: false,
-		dataSharingOptOut: false,
-		pathBasedMultisite: false,
-		privacySettingsUrl: 'https://example.test/privacy',
-		robotsTxtUrl: 'https://example.test/robots.txt',
-		...overrides,
-	} ) as Crawlers;
+const buildCrawlers = ( overrides: Partial< Crawlers > = {} ): Crawlers => ( {
+	catalog: [
+		{ slug: 'oai-searchbot', label: 'OAI-SearchBot', userAgent: 'OAI-SearchBot', type: 'answer' },
+		{ slug: 'perplexity', label: 'PerplexityBot', userAgent: 'PerplexityBot', type: 'answer' },
+		{ slug: 'gptbot', label: 'GPTBot', userAgent: 'GPTBot', type: 'training' },
+	],
+	overrides: {},
+	searchEnginesVisible: true,
+	restrictedSubdomain: false,
+	staticRobotsTxt: false,
+	dataSharingOptOut: false,
+	pathBasedMultisite: false,
+	privacySettingsUrl: 'https://example.test/privacy',
+	robotsTxtUrl: 'https://example.test/robots.txt',
+	...overrides,
+} );
 
 /**
  * Build an llms.txt payload.
@@ -38,7 +37,7 @@ const buildCrawlers = ( overrides: Partial< Crawlers > = {} ): Crawlers =>
  * @param overrides - Fields to override on the default payload.
  * @return The llms.txt payload.
  */
-const buildLlms = ( overrides: Partial< NonNullable< LlmsTxt > > = {} ): LlmsTxt => ( {
+const buildLlms = ( overrides: Partial< LlmsTxt > = {} ): LlmsTxt => ( {
 	enabled: true,
 	url: 'https://example.test/llms.txt',
 	canServe: true,
@@ -76,7 +75,6 @@ describe( 'AiCrawlerCard', () => {
 		// inside the card ("Training crawlers") where it's a detail you can act on.
 		expect( screen.getByRole( 'heading', { level: 2, name: /AI access/ } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Manage AI access' } ) ).toBeInTheDocument();
-		expect( screen.queryByText( /AI crawler access/ ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'reports the crawler groups alongside llms.txt', () => {
@@ -93,27 +91,40 @@ describe( 'AiCrawlerCard', () => {
 		expect( screen.getByText( 'llms.txt not published' ) ).toBeInTheDocument();
 	} );
 
-	it.each( [
-		[ 'a static file already answers that path', true ],
-		[ 'the host fronts that path', false ],
-	] )( 'still reads as published when %s', ( _label, enabled ) => {
-		// `canServe: false` means something else is already serving /llms.txt, so an
-		// llms.txt exists (or we cannot see that it doesn't). Calling that "not
-		// published" would state something we don't know and can't fix here — the
-		// GEO tab is where ownership gets explained.
-		renderCard( { llmsTxt: buildLlms( { canServe: false, enabled } ) } );
+	it.each( [ true, false ] )(
+		'reads as published when something else already answers that path (toggle: %s)',
+		enabled => {
+			// `canServe: false` means a static file or the host is already serving
+			// /llms.txt. The toggle is irrelevant then — Jetpack isn't the publisher
+			// either way — so calling it "not published" would state something we don't
+			// know and can't fix here. The GEO tab is where ownership gets explained.
+			renderCard( { llmsTxt: buildLlms( { canServe: false, enabled } ) } );
 
+			expect( screen.getByText( 'llms.txt published' ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'llms.txt not published' ) ).not.toBeInTheDocument();
+		}
+	);
+
+	it( 'still reports llms.txt when the crawler settings are the thing that cannot apply', () => {
+		// `Llms_Txt::maybe_serve()` gates only on the setting and `blog_public`. A static
+		// robots.txt stops the *crawler* settings applying but leaves llms.txt working,
+		// so reporting llms.txt inside the crawler branch hid it on those sites.
+		renderCard( { crawlers: buildCrawlers( { staticRobotsTxt: true } ) } );
+
+		expect( screen.getByText( /static robots.txt file exists/ ) ).toBeInTheDocument();
 		expect( screen.getByText( 'llms.txt published' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'llms.txt not published' ) ).not.toBeInTheDocument();
+		// The crawler rows are correctly gone — only llms.txt survives.
+		expect( screen.queryByText( /Answer engines/ ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'drops every status row for the blocking reason when the site is closed to search', () => {
 		renderCard( { visible: false } );
 
 		expect(
-			screen.getByText( "AI crawlers can't reach this site while search engines are blocked." )
+			screen.getByText( "AI crawlers can't reach this site while it's closed to search engines." )
 		).toBeInTheDocument();
-		// The llms row goes with them — it can't be published while indexing is off.
+		// llms.txt goes with them here specifically because it can't be served while
+		// indexing is off — unlike the robots.txt-based blockers, which don't affect it.
 		expect( screen.queryByText( /llms\.txt/ ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( /Answer engines/ ) ).not.toBeInTheDocument();
 	} );

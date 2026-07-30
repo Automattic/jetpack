@@ -153,7 +153,7 @@ const ContentCoverageCard: FC< Props > = ( { data, onManage, onFilter } ) => {
 			<Card.Content>
 				{ total === 0 ? (
 					<Text variant="body-md" render={ <p /> }>
-						{ __( 'No published posts or pages yet.', 'jetpack-seo' ) }
+						{ __( 'No published content yet.', 'jetpack-seo' ) }
 					</Text>
 				) : (
 					// One shared Tooltip.Provider for all rings so hovering between
