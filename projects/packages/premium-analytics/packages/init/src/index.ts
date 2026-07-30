@@ -47,7 +47,13 @@ export async function init(): Promise< void > {
 
 	setupApiFetch();
 
-	dispatch( bootStore ).updateMenuItem( 'dashboard', {
+	// boot 0.19 types its store against @wordpress/data 10.52 while the repo
+	// pins 10.51, so `dispatch( bootStore )` collapses to `never` until the
+	// data family moves to the same release train.
+	const bootActions = dispatch( bootStore ) as {
+		updateMenuItem: ( id: string, item: { icon: unknown } ) => void;
+	};
+	bootActions.updateMenuItem( 'dashboard', {
 		icon: chartBar,
 	} );
 
