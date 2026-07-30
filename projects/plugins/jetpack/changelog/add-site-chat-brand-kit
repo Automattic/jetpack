@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Reader Chat: let site owners set an assistant name, accent color, and greeting, with values derived from the site when unset.
