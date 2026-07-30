@@ -29,8 +29,10 @@ use Automattic\WooCommerce\Internal\Fulfillments\FulfillmentUtils;
 use Automattic\WooCommerce\Internal\Traits\OrderAttributionMeta;
 use Automattic\WooCommerce\Utilities\FeaturesUtil;
 use Automattic\WooCommerce\Utilities\OrderUtil;
+use DateTimeZone;
 use WC_Abstract_Order;
 use WC_Coupon;
+use WC_DateTime;
 use WC_Order;
 use WC_Order_Factory;
 use WC_Tax;
@@ -44,7 +46,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class WooCommerce_Analytics extends Module {
 
-	use WooCommerce_Analytics_Utilities;
 	// @phan-suppress-next-line PhanUndeclaredTrait -- Provided by WooCommerce at runtime; absent from the older WooCommerce stubs used by the "old Woo" Phan job.
 	use OrderAttributionMeta;
 
@@ -1182,5 +1183,55 @@ class WooCommerce_Analytics extends Module {
 			 */
 			do_action( 'woocommerce_analytics_incorrect_order_status_detected', $order_id );
 		}
+	}
+
+	/**
+	 * Maps an order status to the value used in the database.
+	 *
+	 * @param string $status Order status.
+	 * @return string
+	 */
+	protected static function normalize_order_status( $status ) {
+		return WooCommerce_HPOS_Orders::get_wc_order_status_with_prefix( str_replace( 'wc-', '', $status ) );
+	}
+
+	/**
+	 * Convert a WooCommerce datetime to an object for encoding.
+	 *
+	 * @param WC_DateTime|mixed $wc_datetime The datetime object.
+	 * @return object|null
+	 */
+	protected static function datetime_to_object( $wc_datetime ) {
+		if ( is_string( $wc_datetime ) ) {
+			$wc_datetime = new WC_DateTime( $wc_datetime, self::get_site_datetimezone() );
+		}
+
+		if ( is_a( $wc_datetime, 'WC_DateTime' ) ) {
+			$wc_datetime->setTimezone( self::get_site_datetimezone() );
+			return (object) (array) $wc_datetime;
+		}
+	}
+
+	/**
+	 * Convert seconds to an ISO 8601 timezone offset.
+	 *
+	 * @param int|float $offset_seconds The timezone offset in seconds.
+	 * @return string The ISO 8601 timezone offset.
+	 */
+	protected static function format_utc_offset( $offset_seconds ) {
+		$hours   = intval( abs( $offset_seconds ) / HOUR_IN_SECONDS );
+		$minutes = intval( ( abs( $offset_seconds ) % HOUR_IN_SECONDS ) / MINUTE_IN_SECONDS );
+		$sign    = $offset_seconds >= 0 ? '+' : '-';
+
+		return sprintf( '%s%02d:%02d', $sign, $hours, $minutes );
+	}
+
+	/**
+	 * Get the site timezone as a fixed offset.
+	 *
+	 * @return DateTimeZone The site timezone.
+	 */
+	protected static function get_site_datetimezone() {
+		return new DateTimeZone( self::format_utc_offset( wc_timezone_offset() ) );
 	}
 }

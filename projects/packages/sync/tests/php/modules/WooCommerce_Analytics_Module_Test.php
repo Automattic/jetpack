@@ -35,6 +35,8 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 	public static function setUpBeforeClass(): void {
 		parent::setUpBeforeClass();
 		require_once __DIR__ . '/../stubs/trait-order-attribution-meta.php';
+		require_once __DIR__ . '/../stubs/class-wc-datetime.php';
+		require_once __DIR__ . '/../stubs/woocommerce-analytics-functions.php';
 	}
 
 	/**
@@ -131,6 +133,41 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The public HPOS helper prefixes only registered statuses.
+	 */
+	public function test_hpos_status_helper() {
+		$this->assertSame( 'wc-pending', Modules\WooCommerce_HPOS_Orders::get_wc_order_status_with_prefix( 'pending' ) );
+		$this->assertSame( 'wc-checkout-draft', Modules\WooCommerce_HPOS_Orders::get_wc_order_status_with_prefix( 'checkout-draft' ) );
+		$this->assertSame( 'wc-custom', Modules\WooCommerce_HPOS_Orders::get_wc_order_status_with_prefix( 'custom' ) );
+		$this->assertSame( 'not-registered', Modules\WooCommerce_HPOS_Orders::get_wc_order_status_with_prefix( 'not-registered' ) );
+	}
+
+	/**
+	 * Analytics keeps its legacy normalization behavior while reusing the HPOS helper.
+	 */
+	public function test_analytics_status_normalization() {
+		$this->assertSame( 'wc-pending', $this->invoke_static_helper( 'normalize_order_status', 'pending' ) );
+		$this->assertSame( 'wc-pending', $this->invoke_static_helper( 'normalize_order_status', 'wc-pending' ) );
+		$this->assertSame( 'not-registered', $this->invoke_static_helper( 'normalize_order_status', 'wc-not-registered' ) );
+	}
+
+	/**
+	 * Analytics datetime conversion retains its fixed site-offset behavior.
+	 */
+	public function test_datetime_conversion() {
+		$this->assertNull( $this->invoke_static_helper( 'datetime_to_object', null ) );
+
+		$from_string = $this->invoke_static_helper( 'datetime_to_object', '2024-01-02 03:04:05' );
+		$this->assertSame( '2024-01-02 03:04:05.000000', $from_string->date );
+		$this->assertSame( '+05:30', $from_string->timezone );
+
+		$from_utc  = new \WC_DateTime( '2024-01-01 21:34:05', new \DateTimeZone( 'UTC' ) );
+		$converted = $this->invoke_static_helper( 'datetime_to_object', $from_utc );
+		$this->assertSame( '2024-01-02 03:04:05.000000', $converted->date );
+		$this->assertSame( '+05:30', $converted->timezone );
+	}
+
+	/**
 	 * The size filter always lets the first object through, then stops at the cap.
 	 */
 	public function test_filter_analytics_objects_by_size_always_allows_first_object() {
@@ -157,5 +194,21 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 
 		$this->assertSame( array( 1 ), $ids );
 		$this->assertSame( array( 1 => $half ), $filtered );
+	}
+
+	/**
+	 * Invoke a protected static helper on the Analytics module.
+	 *
+	 * @param string $method_name Helper method name.
+	 * @param mixed  $argument    Helper argument.
+	 * @return mixed
+	 */
+	private function invoke_static_helper( $method_name, $argument ) {
+		$method = new \ReflectionMethod( Modules\WooCommerce_Analytics::class, $method_name );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		return $method->invoke( null, $argument );
 	}
 }
