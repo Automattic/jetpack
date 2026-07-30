@@ -20,6 +20,12 @@ import type { ImportJob } from '../../data/types';
 type Props = {
 	isOpen: boolean;
 	onClose: () => void;
+	/**
+	 * Which tab to open on. Defaults to Manual. Read once, when the modal
+	 * mounts — callers that need a specific tab on every open (rather than only
+	 * the first) should mount the modal while it is open.
+	 */
+	initialTab?: AddSubscribersTab;
 };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -61,7 +67,7 @@ function isAcceptedCsvFile( file: File ): boolean {
 	return ACCEPTED_CSV_EXTENSIONS.includes( extension );
 }
 
-type TabValue = 'manual' | 'upload' | 'substack';
+export type AddSubscribersTab = 'manual' | 'upload' | 'substack';
 
 /**
  * Consent + large-import notice shown under both the manual and CSV entry forms, mirroring the copy
@@ -613,14 +619,19 @@ function SubstackTab(): JSX.Element {
  * dashboard yet because its `/me/sites` lookup needs an oauth token the Jetpack-as-user proxy
  * can't supply server-side. Tracked in #48365 — Phase 5b deferred.)
  *
- * @param props         - Component props.
- * @param props.isOpen  - Whether the modal is open.
- * @param props.onClose - Close handler.
+ * @param props            - Component props.
+ * @param props.isOpen     - Whether the modal is open.
+ * @param props.onClose    - Close handler.
+ * @param props.initialTab - Tab to open on; defaults to Manual.
  * @return Modal element or null when closed.
  */
-export default function AddSubscribersModal( { isOpen, onClose }: Props ): JSX.Element | null {
+export default function AddSubscribersModal( {
+	isOpen,
+	onClose,
+	initialTab = 'manual',
+}: Props ): JSX.Element | null {
 	const mutation = useAddSubscribersMutation();
-	const [ tab, setTab ] = useState< TabValue >( 'manual' );
+	const [ tab, setTab ] = useState< AddSubscribersTab >( initialTab );
 	const importJobsQuery = useImportJobs( isOpen );
 
 	const handleOpenChange = useCallback(
@@ -633,7 +644,7 @@ export default function AddSubscribersModal( { isOpen, onClose }: Props ): JSX.E
 	);
 
 	const handleTabChange = useCallback( ( next: string ) => {
-		setTab( next as TabValue );
+		setTab( next as AddSubscribersTab );
 		// Calypso fires `calypso_subscribers_add_question` per import-method tile click, with a
 		// `method` prop. We mirror it on every tab switch so reviewers can read tab-engagement
 		// stats the same way.
@@ -662,7 +673,7 @@ export default function AddSubscribersModal( { isOpen, onClose }: Props ): JSX.E
 							onValueChange={ handleTabChange }
 							render={ <Stack direction="column" gap="lg" /> }
 						>
-							<Tabs.List variant="minimal">
+							<Tabs.List variant="minimal" className="jetpack-newsletter__add-subscribers-tabs">
 								<Tabs.Tab value="manual">{ __( 'Manual', 'jetpack-newsletter' ) }</Tabs.Tab>
 								<Tabs.Tab value="upload">{ __( 'Upload CSV', 'jetpack-newsletter' ) }</Tabs.Tab>
 								<Tabs.Tab value="substack">{ __( 'Substack', 'jetpack-newsletter' ) }</Tabs.Tab>
