@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { globe } from '@wordpress/icons';
 import { Button, Card, Stack } from '@wordpress/ui';
-import { VERIFICATION_SERVICES } from '../../data/verification-services';
+import { PRIMARY_VERIFICATION_KEYS, VERIFICATION_SERVICES } from '../../data/verification-services';
 import CardHeaderIcon from './card-header-icon';
 import StatusDot from './status-dot';
 import styles from './style.module.scss';
@@ -18,31 +18,43 @@ interface Props {
 const setLabel = __( 'Set', 'jetpack-seo' );
 const notSetLabel = __( 'Not set', 'jetpack-seo' );
 
-const SiteVerificationCard: FC< Props > = ( { data, onManage } ) => (
-	<Card.Root>
-		{ /* `globe` rather than `check`: a checkmark reads as "done/complete", which is
-		     the state of an individual row here, not what the card is about. */ }
-		<CardHeaderIcon icon={ globe } title={ __( 'Site verification', 'jetpack-seo' ) } />
-		<Stack render={ <Card.Content /> } direction="column" className={ styles.cardContent }>
-			{ VERIFICATION_SERVICES.map( ( { key, label } ) => (
-				<Stack
-					key={ key }
-					direction="row"
-					align="center"
-					justify="space-between"
-					className={ styles.statRow }
-				>
-					<StatusDot status={ data[ key ] ? 'ok' : 'warn' } label={ label } />
-					<span>{ data[ key ] ? setLabel : notSetLabel }</span>
+const SiteVerificationCard: FC< Props > = ( { data, onManage } ) => {
+	// The globally-relevant services always get a row; the rest only when this site
+	// has actually verified with them. Listing all five padded the summary with
+	// services most sites will never use, but hiding a verified one outright would
+	// show a verified site as unverified — any single service completes the
+	// setting, so a Yandex-only site would otherwise read as three "Not set" rows
+	// while Settings reports it Complete. Order follows VERIFICATION_SERVICES.
+	const services = VERIFICATION_SERVICES.filter(
+		( { key } ) => PRIMARY_VERIFICATION_KEYS.includes( key ) || Boolean( data[ key ] )
+	);
+
+	return (
+		<Card.Root>
+			{ /* `globe` rather than `check`: a checkmark reads as "done/complete", which is
+			     the state of an individual row here, not what the card is about. */ }
+			<CardHeaderIcon icon={ globe } title={ __( 'Site verification', 'jetpack-seo' ) } />
+			<Stack render={ <Card.Content /> } direction="column" className={ styles.cardContent }>
+				{ services.map( ( { key, label } ) => (
+					<Stack
+						key={ key }
+						direction="row"
+						align="center"
+						justify="space-between"
+						className={ styles.statRow }
+					>
+						<StatusDot status={ data[ key ] ? 'ok' : 'warn' } label={ label } />
+						<span>{ data[ key ] ? setLabel : notSetLabel }</span>
+					</Stack>
+				) ) }
+				<Stack direction="row" justify="flex-end" className={ styles.footer }>
+					<Button variant="solid" size="compact" onClick={ onManage }>
+						{ __( 'Manage verification', 'jetpack-seo' ) }
+					</Button>
 				</Stack>
-			) ) }
-			<Stack direction="row" justify="flex-end" className={ styles.footer }>
-				<Button variant="solid" size="compact" onClick={ onManage }>
-					{ __( 'Manage verification', 'jetpack-seo' ) }
-				</Button>
 			</Stack>
-		</Stack>
-	</Card.Root>
-);
+		</Card.Root>
+	);
+};
 
 export default SiteVerificationCard;
