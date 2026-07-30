@@ -42,9 +42,9 @@
 
 .jp-masthead__title {
 	font-family: var(--wpds-typography-font-family-heading);
-	font-size: var(--_gcd-heading-font-size, var(--wpds-typography-font-size-lg));
-	font-weight: var(--_gcd-heading-font-weight, var(--wpds-typography-font-weight-emphasis));
-	line-height: var(--_gcd-heading-line-height, var(--wpds-typography-line-height-sm));
+	font-size: var(--wpds-typography-font-size-lg);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+	line-height: var(--wpds-typography-line-height-sm);
 	margin: 0;
 	color: var(--wpds-color-foreground-content-neutral);
 	overflow: hidden;
