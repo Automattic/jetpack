@@ -46,6 +46,28 @@ describe( 'mapCreateCategoryError', () => {
 		).toBe( GENERIC );
 	} );
 
+	it( 'detects a duplicate signal nested deep in the error object', () => {
+		expect( mapCreateCategoryError( { response: { body: { error: 'duplicate' } } } ) ).toBe(
+			DUPLICATE
+		);
+	} );
+
+	it( 'detects a 409 status nested in the error object', () => {
+		expect( mapCreateCategoryError( { data: { status: 409 } } ) ).toBe( DUPLICATE );
+	} );
+
+	it( 'falls back to matching the server message when no structured signal survives', () => {
+		expect(
+			mapCreateCategoryError( new Error( 'A taxonomy with that name already exists' ) )
+		).toBe( DUPLICATE );
+	} );
+
+	it( 'tolerates circular error objects without looping', () => {
+		const err: Record< string, unknown > = { message: 'boom' };
+		err.self = err;
+		expect( mapCreateCategoryError( err ) ).toBe( GENERIC );
+	} );
+
 	it( 'falls back to a generic message when there is no error shape', () => {
 		expect( mapCreateCategoryError( new Error( 'network down' ) ) ).toBe( GENERIC );
 	} );

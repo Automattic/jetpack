@@ -62,32 +62,59 @@ export const CreatableCategoryContext = createContext< CreatableCategoryContextV
 );
 
 /**
- * Map a category-creation error to a short, translated message.
+ * Whether a category-creation rejection is a duplicate-name clash.
  *
- * Duplicate-name detection differs by platform and error envelope: self-hosted
- * WP REST rejects with `code: 'term_exists'`; the WordPress.com v1.1 endpoint
- * rejects with `error: 'duplicate'`, sometimes wrapped in a proxy envelope
- * (`{ code: 409, body: { error: 'duplicate' } }`) where the top-level `code` is
- * the HTTP status. Anything else gets a friendly generic message rather than
- * the raw, English-only server text.
+ * The shape is unpredictable: it varies by platform (self-hosted WP REST vs. the
+ * WordPress.com `/rest/v1.1` endpoint) and by transport. On WordPress.com the
+ * `http_envelope` middleware wraps the real status/body in an envelope
+ * (`{ code: 409, body: { error: 'duplicate' } }`) and can surface it either as a
+ * resolved value we re-throw or as a rejection whose nesting we can't reliably
+ * predict. Rather than target one exact structure (which has bitten us
+ * repeatedly), scan the whole error object for a duplicate signal at any depth,
+ * then fall back to the server message as a last resort.
+ *
+ * @param err - The value `createCategory` rejected with.
+ * @return Whether it represents a duplicate-name error.
+ */
+function isDuplicateCreateError( err: unknown ): boolean {
+	const seen = new Set< unknown >();
+	const scan = ( value: unknown, depth: number ): boolean => {
+		if ( value == null || depth > 5 || seen.has( value ) ) {
+			return false;
+		}
+		if ( typeof value === 'string' ) {
+			return value === 'duplicate' || value === 'term_exists';
+		}
+		if ( typeof value === 'object' ) {
+			seen.add( value );
+			const record = value as Record< string, unknown >;
+			// A 409 Conflict on term creation is always a name clash.
+			if ( record.code === 409 || record.status === 409 ) {
+				return true;
+			}
+			return Object.values( record ).some( nested => scan( nested, depth + 1 ) );
+		}
+		return false;
+	};
+
+	if ( scan( err, 0 ) ) {
+		return true;
+	}
+
+	// Last resort when no structured signal survives the transport: match the
+	// (English) server message. Guarded behind the structured checks above so it
+	// only matters when nothing better is available.
+	const message = ( err as { message?: string } )?.message;
+	return typeof message === 'string' && /already exists/i.test( message );
+}
+
+/**
+ * Map a category-creation error to a short, translated message.
  *
  * @param err - The rejection thrown by `createCategory`.
  * @return A translated, user-facing error message.
  */
 export function mapCreateCategoryError( err: unknown ): string {
-	const errorLike = err as {
-		code?: string | number;
-		error?: string;
-		body?: { code?: string | number; error?: string };
-	};
-	const signals = [ errorLike.code, errorLike.error, errorLike.body?.code, errorLike.body?.error ];
-	const isDuplicate =
-		signals.includes( 'term_exists' ) ||
-		signals.includes( 'duplicate' ) ||
-		// A 409 Conflict when creating a term always means a name clash.
-		errorLike.code === 409 ||
-		errorLike.body?.code === 409;
-
 	// Assign each translated string to its own variable rather than branching a
 	// single ternary between two `__()` calls: production minification hoists the
 	// shared `__( …, 'jetpack-newsletter' )` wrapper out of the conditional,
@@ -97,7 +124,7 @@ export function mapCreateCategoryError( err: unknown ): string {
 		'Could not create the category. Please try again.',
 		'jetpack-newsletter'
 	);
-	return isDuplicate ? duplicateMessage : genericMessage;
+	return isDuplicateCreateError( err ) ? duplicateMessage : genericMessage;
 }
 
 /**
