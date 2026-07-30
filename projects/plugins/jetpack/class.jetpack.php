@@ -845,22 +845,15 @@ class Jetpack {
 	 * Whether the bundled Stats v2 dashboard is enabled.
 	 *
 	 * Stats v2 (formerly "Premium Analytics") ships with the plugin behind this
-	 * flag while it rolls out (WOOA7S-1595). When enabled it replaces the Stats
-	 * wp-admin UI (menu, admin-bar entries, post-list column, and WP dashboard
-	 * widget); the Stats module's tracking is unaffected — Stats v2 depends on
-	 * it. Atomic is the one exception: there the legacy Stats UI stays as an
-	 * added surface instead of being replaced (see modules/stats.php and
-	 * class-jetpack-stats-dashboard-widget.php, which both check
-	 * `Host::is_woa_site()` alongside this flag).
+	 * flag while it rolls out (WOOA7S-1595). When enabled it adds its own admin
+	 * menu alongside the existing Stats UI; it never replaces or hides the
+	 * legacy Stats menu, admin-bar entries, post-list column, or WP dashboard
+	 * widget. The Stats module's tracking is unaffected either way — Stats v2
+	 * depends on it.
 	 *
-	 * The package has to be loadable for this to be true. The same answer both
-	 * tears the Stats UI down (off Atomic) and brings the dashboard up, so if
-	 * the two could disagree a site missing the package would end up with
-	 * neither.
-	 *
-	 * Resolved once per request: `configure()` asks first, on `plugins_loaded`,
-	 * and the Stats module and dashboard widget ask much later. Without the
-	 * cache a filter registered in between would be seen by only some of them.
+	 * The package has to be loadable for this to be true, so a site with the
+	 * flag on but a missing package answers false here and never adds the
+	 * Stats v2 menu (a warning is logged instead).
 	 *
 	 * @since $$next-version$$
 	 *
@@ -1004,9 +997,9 @@ class Jetpack {
 		 * Stats v2 (WOOA7S-1595): bundled behind a flag while it rolls out.
 		 * Unlike Stats above it must initialize on every request when enabled:
 		 * its WooCommerce store-event tracker listens on the front end and its
-		 * REST surfaces self-gate on rest_api_init. When enabled it replaces
-		 * the Stats wp-admin UI (see modules/stats.php) — except on Atomic,
-		 * where the two coexist instead.
+		 * REST surfaces self-gate on rest_api_init. It adds its own admin menu
+		 * alongside the existing Stats UI (see modules/stats.php) rather than
+		 * replacing it.
 		 */
 		if ( self::is_premium_analytics_enabled() ) {
 			// No menu_title here: the package labels its own menu on admin_menu.
