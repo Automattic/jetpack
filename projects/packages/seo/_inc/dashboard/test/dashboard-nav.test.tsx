@@ -61,15 +61,10 @@ describe( 'DashboardNav', () => {
 	} );
 
 	describe( 'the GEO infotip', () => {
-		it( 'is a real button, so it works on touch and reaches assistive tech', () => {
-			render( <DashboardNav active="overview">content</DashboardNav> );
-
-			// A `Tooltip` would satisfy neither: its popup isn't exposed to assistive
-			// technologies and it's disabled on touch devices. The affordance being a
-			// button in the accessibility tree is the whole reason for using `Popover`.
-			expect( screen.getByRole( 'button', { name: 'What is GEO?' } ) ).toBeInTheDocument();
-		} );
-
+		// Queried by role and name throughout: a `Tooltip` would satisfy neither half of
+		// that, since its popup isn't exposed to assistive technologies and it's disabled
+		// on touch devices. The affordance being a real button in the accessibility tree
+		// is the whole reason for using `Popover`, so every test below leans on it.
 		it( 'reveals the definition of the acronym on click', () => {
 			render( <DashboardNav active="overview">content</DashboardNav> );
 
@@ -93,6 +88,16 @@ describe( 'DashboardNav', () => {
 			// break its arrow-key navigation. Both are ruled out by construction here.
 			expect( screen.getByRole( 'tablist' ) ).not.toContainElement( trigger );
 			expect( screen.getByRole( 'tab', { name: 'GEO' } ) ).not.toContainElement( trigger );
+		} );
+
+		// The trigger sits after `Tabs.List`, which only reads as belonging to GEO while
+		// GEO is the last tab. If one is ever appended after it, this fails and points at
+		// the docblock in `dashboard-nav.tsx` that says the infotip needs moving.
+		it( 'keeps GEO last, which is what makes the placement read correctly', () => {
+			render( <DashboardNav active="overview">content</DashboardNav> );
+
+			const labels = screen.getAllByRole( 'tab' ).map( tab => tab.textContent );
+			expect( labels[ labels.length - 1 ] ).toBe( 'GEO' );
 		} );
 
 		it( 'is hidden along with the tab it explains on gated sites', () => {

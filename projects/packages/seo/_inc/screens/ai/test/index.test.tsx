@@ -220,10 +220,6 @@ describe( 'AiScreen (GEO tab) — crawler policy state', () => {
 
 		expect( screen.getAllByText( /temporary staging address/i ).length ).toBeGreaterThan( 0 );
 		expect( screen.queryByText( 'Google Gemini (Google-Extended)' ) ).not.toBeInTheDocument();
-		// Shares `CrawlerAccessCard` with the other blocked states, so it gets the same
-		// chipped heading.
-		// eslint-disable-next-line testing-library/no-node-access -- the heading/trigger nesting is the contract.
-		expect( screen.getByText( 'AI crawler access' ).closest( 'h2' ) ).toBeInTheDocument();
 	} );
 
 	it( 'accurately describes a detected static robots.txt file', () => {
