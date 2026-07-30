@@ -2,48 +2,75 @@
  * chrome, so this only lays out the body: title, publish line, metric
  * tiles, and the featured image.
  *
- * Sizing follows the package's container-query convention — `WidgetRoot`
- * names the widget's container `widget`, so the ladder below tracks the
- * dashboard cell rather than the viewport. There is one breakpoint:
+ * # Sizing
  *
- *   >= 432px  width-2 and wider cells, including the default placement:
- *             two columns, text left with the metric row anchored to the
- *             bottom, and a rounded, near-square featured image filling
- *             the trailing column's full height.
- *   < 432px   width-1 cells: one column, the featured image is dropped —
- *             it would eat most of a small cell — and the metric row
- *             wraps with tighter gaps. The primary metric is first, so it
- *             stays on the first wrapped row.
+ * The card adapts on BOTH axes, because a dashboard cell can be short as
+ * well as narrow. The thresholds and the per-mode treatments come from
+ * the design prototype, whose card resolves `wide = inline-size >= 520px`
+ * and `tall = block-size >= 300px` and exposes them as `--wide-tall` /
+ * `--wide-short` / `--narrow-short` modifiers:
  *
- * The 432px threshold matches the Top locations widget: it sits just
- * below a width-2 cell at the minimum four-column dashboard width, so
- * every width-2 cell gets the two-column layout the design specifies.
+ *   wide + tall     featured image stretched to the body height at 44%
+ *                   inline size; 32/40 title and metric values.
+ *   wide + short    featured image becomes a 116px square, centred on the
+ *                   block axis; 20/24 title and metric values.
+ *   narrow (either) no featured image — it would eat most of a small
+ *                   cell; type follows the tall/short rule above.
+ *
+ * Rules are written short-first, so the compact treatment is the base and
+ * the roomier one is additive: a cell too small for any query to match
+ * still gets the treatment that needs the least space.
+ *
+ * # Why this element is a size container
+ *
+ * The shared `widget` container is `container-type: inline-size`, so it
+ * cannot answer block-axis queries. The card therefore declares its own
+ * named size container, the same way `widget-state.module.scss` does for
+ * its short-tile icon rule. Size containment means the card takes no
+ * block size from its content, so it must inherit one: `<WidgetState>`'s
+ * `.ready` wrapper is `block-size: 100%` and the dashboard body has a
+ * definite height, which satisfies that.
+ *
+ * # Structural guarantee: a metric label is never orphaned
+ *
+ * `.metrics` is `flex-shrink: 0` and `.header` is the flexible, clipping
+ * box. Under block-axis pressure the headline gives up space (it is line
+ * clamped) while the metric row keeps its full size, so a label can never
+ * be left visible with its value pushed outside the card. The clip on
+ * `.root` is only a backstop against spilling over a neighbouring widget
+ * — it is deliberately not what keeps the layout honest.
  */
 .root {
 	display: flex;
-	flex-direction: column;
 	gap: var(--wpds-dimension-gap-lg);
-	height: 100%;
+	block-size: 100%;
+	min-block-size: 0;
+
+	/* Backstop only — see the note above. */
 	overflow: hidden;
+	container-type: size;
+	container-name: post-highlight;
 }
 
 .content {
 	display: flex;
 	flex: 1;
 	flex-direction: column;
-
-	/* Title block at the top, metric row anchored to the bottom. */
-	justify-content: space-between;
-	gap: var(--wpds-dimension-gap-lg);
-	min-width: 0;
-	min-height: 0;
+	gap: var(--wpds-dimension-gap-sm);
+	min-inline-size: 0;
+	min-block-size: 0;
 }
 
+/* Takes the free space so the metric row sits at the bottom, and gives it
+ * back first when there is not enough: this is the box that shrinks. */
 .header {
 	display: flex;
+	flex: 1;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-xs);
-	min-width: 0;
+	min-inline-size: 0;
+	min-block-size: 0;
+	overflow: hidden;
 }
 
 .titleLink {
@@ -59,98 +86,145 @@
 	display: -webkit-box;
 	margin: 0;
 	overflow: hidden;
+	overflow-wrap: anywhere;
 	-webkit-box-orient: vertical;
-	-webkit-line-clamp: 3;
-	line-clamp: 3;
+}
+
+/* `Text`'s own variant class carries a font-size at the same specificity,
+ * so the size is pinned through `.header` to win deterministically. */
+.header .title {
+	font-size: var(--wpds-typography-font-size-xl);
+	line-height: var(--wpds-typography-line-height-md);
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
 }
 
 .date {
+	flex-shrink: 0;
+	overflow: hidden;
 	color: var(--wpds-color-foreground-content-neutral-weak);
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
+/* Never shrinks: label and value stay together, whatever the cell does. */
 .metrics {
 	display: flex;
-	flex-flow: row wrap;
+	flex-shrink: 0;
 	gap: var(--wpds-dimension-gap-lg);
 }
 
 .metric {
 	display: flex;
+	flex: 1;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-xs);
-	min-width: 0;
+	gap: 0;
+	min-inline-size: 0;
 }
 
 .metricLabel {
-	font-weight: var(--wpds-typography-font-weight-medium);
+	overflow: hidden;
 	color: var(--wpds-color-foreground-content-neutral);
+	font-weight: var(--wpds-typography-font-weight-medium);
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
+/* The design weights the compact value up to 600; the token scale tops out
+ * at `medium` (499), which is the closest on-token match. */
 .metric .metricValue {
-	font-size: var(--wpds-typography-font-size-lg);
+	font-size: var(--wpds-typography-font-size-xl);
+	font-weight: var(--wpds-typography-font-weight-medium);
+	line-height: var(--wpds-typography-line-height-md);
 }
 
-/* Featured image: inset with rounded corners, covering its box at any
- * aspect ratio. */
+/* Featured image. Hidden by default: only the wide modes below show it. */
 .media {
+	display: none;
+	flex-shrink: 0;
 	overflow: hidden;
 	border-radius: var(--wpds-border-radius-lg);
 }
 
 .image {
 	display: block;
-	width: 100%;
-	height: 100%;
+	inline-size: 100%;
+	block-size: 100%;
 	object-fit: cover;
 }
 
-/* Narrow cells: drop the featured image, scale the headline down, and
- * tighten the metric row so it wraps without overflowing. */
-@container widget (max-width: 431px) {
+/* Tall cells: the roomier type scale. */
+@container post-highlight (min-height: 300px) {
 
-	.root {
-		gap: var(--wpds-dimension-gap-md);
-	}
-
-	.content {
-		gap: var(--wpds-dimension-gap-md);
-	}
-
-	.media {
-		display: none;
-	}
-
-	/* `Text`'s own variant class carries a font-size at the same
-	 * specificity, so the override is scoped through `.header` to win
-	 * deterministically. */
 	.header .title {
-		font-size: var(--wpds-typography-font-size-xl);
-		line-height: var(--wpds-typography-line-height-md);
-		-webkit-line-clamp: 2;
-		line-clamp: 2;
+		font-size: var(--wpds-typography-font-size-2xl);
+		line-height: var(--wpds-typography-line-height-2xl);
 	}
 
-	.metrics {
-		gap: var(--wpds-dimension-gap-md);
+	.metric {
+		gap: var(--wpds-dimension-gap-xs);
+	}
+
+	.metric .metricValue {
+		font-size: var(--wpds-typography-font-size-2xl);
+		font-weight: var(--wpds-typography-font-weight-regular);
+		line-height: var(--wpds-typography-line-height-2xl);
 	}
 }
 
-/* Width-2 and wider cells: text left, featured image right at close to
- * the body's full height. 44% keeps it near-square at the default
- * placement, per the design. */
-@container widget (min-width: 432px) {
-
-	.root {
-		flex-direction: row;
-		align-items: stretch;
-		gap: var(--wpds-dimension-gap-xl);
-	}
+/* Wide cells: the featured image appears. On short cells it is a square
+ * thumbnail centred against the text column. */
+@container post-highlight (min-width: 520px) {
 
 	.media {
-		flex: 0 0 44%;
-	}
+		display: block;
+		align-self: center;
 
-	.metrics {
-		gap: var(--wpds-dimension-gap-2xl);
+		/* Square, but never taller than the card: on the shortest cells the
+		 * block size caps and `aspect-ratio` pulls the inline size in with
+		 * it, so the thumbnail shrinks instead of overflowing. */
+		inline-size: auto;
+		block-size: 116px;
+		max-block-size: 100%;
+		aspect-ratio: 1;
+	}
+}
+
+/* Wide and tall: the image becomes a full-height trailing panel. */
+@container post-highlight (min-width: 520px) and (min-height: 300px) {
+
+	.media {
+		align-self: stretch;
+		inline-size: 44%;
+		block-size: auto;
+		max-block-size: none;
+		aspect-ratio: auto;
+	}
+}
+
+/* Very short cells: one headline line, so the publish date survives
+ * alongside the metric row instead of being clipped out of the header.
+ *
+ * The switch sits at 130px because a two-line headline needs 124px of
+ * card: 2 x 24px of title, the 4px header gap, the 20px publish line, the
+ * 8px content gap, and the 44px metric row. The few pixels of slack keep
+ * the rule from depending on that sum exactly. */
+@container post-highlight (max-height: 130px) {
+
+	.header .title {
+		-webkit-line-clamp: 1;
+		line-clamp: 1;
+	}
+}
+
+/* Below the height where a one-line headline, the publish line, and the
+ * metric row all fit (24 + 4 + 20 + 8 + 44 = 100px), drop the publish
+ * line. The headline identifies the post better than its date, and the
+ * metric row must stay whole, so this is the piece that gives way —
+ * dropped outright rather than clipped to a sliver of text. */
+@container post-highlight (max-height: 100px) {
+
+	.date {
+		display: none;
 	}
 }

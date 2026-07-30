@@ -173,3 +173,41 @@ export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetContr
 		...widgetDashboardWithWidgetArgTypes,
 	},
 };
+
+/**
+ * A short cell at the default width. Height, not just width, drives the card:
+ * below 300px of body the type scale steps down and the featured image becomes a
+ * centred square instead of a full-height panel.
+ *
+ * This geometry regressed once — the metric row was pushed past the card's bottom
+ * edge and silently clipped, leaving labels with no values — so it is covered
+ * here to keep a height regression visible in review.
+ */
+export const ShortCell: StoryObj< WidgetDashboardWithWidgetControls > = {
+	render: args => <PopularPostDashboardStory { ...args } />,
+	args: {
+		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		widgetWidth: 2,
+		widgetHeight: 1,
+	},
+	argTypes: {
+		...widgetDashboardWithWidgetArgTypes,
+	},
+};
+
+/**
+ * The smallest cell the dashboard grid produces: narrow *and* short. The featured
+ * image drops out entirely and the headline clamps to one line, but the whole
+ * metric row — every label with its value — stays inside the card.
+ */
+export const ShortNarrowCell: StoryObj< WidgetDashboardWithWidgetControls > = {
+	render: args => <PopularPostDashboardStory { ...args } />,
+	args: {
+		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		widgetWidth: 1,
+		widgetHeight: 1,
+	},
+	argTypes: {
+		...widgetDashboardWithWidgetArgTypes,
+	},
+};
