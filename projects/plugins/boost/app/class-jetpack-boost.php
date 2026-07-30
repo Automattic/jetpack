@@ -362,10 +362,13 @@ class Jetpack_Boost {
 		$jetpack_config->ensure(
 			'sync',
 			array(
+				// Closures defer construction (and option reads) to Sync invocation time.
 				'jetpack_sync_callable_whitelist' => array(
-					'boost_modules'                => array( new Modules_Setup(), 'get_status' ),
-					'boost_sub_modules_state'      => array( new Modules_Setup(), 'get_all_sub_modules_state' ),
-					// Closures defer construction (and option reads) to Sync invocation time.
+					// boost_sub_modules_state was removed: it pointed at a method that never
+					// existed, so the callable never resolved and Sync never sent it.
+					'boost_modules'                => static function () {
+						return ( new Modules_Setup() )->get_status();
+					},
 					'boost_latest_scores'          => static function () {
 						return ( new Speed_Score_History( get_home_url() ) )->latest();
 					},

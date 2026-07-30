@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Sync: lazy-load speed score history, Critical CSS and LCP state callables to avoid reading their non-autoloaded options on every request
+Sync: lazy-load all callables to avoid object construction and non-autoloaded option reads on every request; remove the boost_sub_modules_state entry, which referenced a method that never existed and was never synced

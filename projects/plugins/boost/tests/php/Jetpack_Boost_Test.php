@@ -5,6 +5,7 @@ namespace Automattic\Jetpack_Boost\Tests;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack_Boost\Jetpack_Boost;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
+use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP_State;
 use WorDBless\BaseTestCase;
 
@@ -87,10 +88,13 @@ class Jetpack_Boost_Test extends BaseTestCase {
 
 		$whitelist = apply_filters( 'jetpack_sync_callable_whitelist', array() );
 
-		foreach ( array( 'boost_latest_scores', 'boost_latest_no_boost_scores', 'critical_css_state', 'lcp_state' ) as $key ) {
+		foreach ( array( 'boost_modules', 'boost_latest_scores', 'boost_latest_no_boost_scores', 'critical_css_state', 'lcp_state' ) as $key ) {
 			$this->assertArrayHasKey( $key, $whitelist );
 			$this->assertIsCallable( $whitelist[ $key ] );
 		}
+
+		// The module status callable returns the same data as direct access.
+		$this->assertEquals( ( new Modules_Setup() )->get_status(), call_user_func( $whitelist['boost_modules'] ) );
 
 		// History is read at invocation time: an entry pushed after registration is visible.
 		$this->assertNull( call_user_func( $whitelist['boost_latest_scores'] ) );
