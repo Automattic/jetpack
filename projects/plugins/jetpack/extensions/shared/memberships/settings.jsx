@@ -360,10 +360,13 @@ export function NewsletterEmailDocumentSettings() {
 	return (
 		<PostVisibilityCheck
 			render={ ( { canEdit } ) => {
+				// Also locked while a write is in flight, so a second click cannot land out of
+				// order. ToggleGroupControl itself takes no `disabled` prop — only its options do.
+				const isLocked = isPostPublished || ! canEdit || pendingValue !== null;
+
 				return (
 					<ToggleGroupControl
 						value={ pendingValue ?? isSendEmailEnabled }
-						disabled={ isPostPublished || ! canEdit }
 						onChange={ toggleSendEmail }
 						isBlock
 						label={ __( 'Send as email to subscribers?', 'jetpack' ) }
@@ -375,8 +378,13 @@ export function NewsletterEmailDocumentSettings() {
 						<ToggleGroupControlOption
 							label={ __( 'Post & email', 'jetpack' ) }
 							value="post-and-email"
+							disabled={ isLocked }
 						/>
-						<ToggleGroupControlOption label={ __( 'Post only', 'jetpack' ) } value="post-only" />
+						<ToggleGroupControlOption
+							label={ __( 'Post only', 'jetpack' ) }
+							value="post-only"
+							disabled={ isLocked }
+						/>
 					</ToggleGroupControl>
 				);
 			} }
