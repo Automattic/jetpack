@@ -8,6 +8,7 @@ export { EmailSenderSettingsSection } from './email-sender-settings-section';
 export { EmailReplyToSettingsSection } from './email-reply-to-settings-section';
 export { LegacySubscriptionsSection } from './legacy-subscriptions-section';
 export { NewsletterCategoriesSection } from './newsletter-categories-section';
+export { NewsletterIdentitySection } from './newsletter-identity-section';
 export { NewsletterSection } from './newsletter-section';
 export { PaidNewsletterSection } from './paid-newsletter-section';
 export { SubscribeModalSection } from './subscribe-modal-section';

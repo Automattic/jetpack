@@ -18,7 +18,7 @@ import { Notice, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
-import { fetchSettings, updateSettings } from './api';
+import { fetchSettings, fetchSiteIdentity, updateSettings, updateSiteIdentity } from './api';
 import { getNewsletterScriptData } from './script-data';
 import {
 	EmailContentSection,
@@ -28,12 +28,14 @@ import {
 	EmailReplyToSettingsSection,
 	LegacySubscriptionsSection,
 	NewsletterCategoriesSection,
+	NewsletterIdentitySection,
 	NewsletterSection,
 	PaidNewsletterSection,
 	SubscribeModalSection,
 	SubscriptionsSection,
 	WelcomeEmailSection,
 } from './sections';
+import type { SiteIdentity } from './api';
 import type { NewsletterSettings } from './types';
 
 /**
@@ -180,6 +182,12 @@ export function NewsletterSettingsBody( {
 	const [ isSavingWelcomeEmail, setIsSavingWelcomeEmail ] = useState( false );
 
 	// Subscribe modal heading state (for manual save).
+	// Site title and tagline. Null until the separate identity fetch resolves;
+	// the section stays out of the page until then.
+	const [ identity, setIdentity ] = useState< SiteIdentity | null >( null );
+	const [ identityChanges, setIdentityChanges ] = useState< Partial< SiteIdentity > >( {} );
+	const [ isSavingIdentity, setIsSavingIdentity ] = useState( false );
+
 	const [ subscribeModalChanges, setSubscribeModalChanges ] = useState<
 		Partial< NewsletterSettings >
 	>( {} );
@@ -235,6 +243,19 @@ export function NewsletterSettingsBody( {
 					setError( err.message || __( 'Failed to load settings', 'jetpack-newsletter' ) );
 				}
 				setIsLoading( false );
+			} );
+	}, [] );
+
+	// Load the site title and tagline. Separate from the settings fetch above
+	// because they're core options rather than Jetpack settings — see
+	// `fetchSiteIdentity()`. A failure here leaves the section hidden rather
+	// than blocking the rest of the page, which doesn't depend on it.
+	useEffect( () => {
+		fetchSiteIdentity()
+			.then( setIdentity )
+			.catch( ( err: Error ) => {
+				// eslint-disable-next-line no-console
+				console.error( 'Newsletter site identity load error:', err );
 			} );
 	}, [] );
 
@@ -318,6 +339,38 @@ export function NewsletterSettingsBody( {
 		},
 		[ createErrorNotice, createSuccessNotice, data, siteType ]
 	);
+
+	// Handle site identity changes (staged, not auto-saved).
+	const handleIdentityChange = useCallback( ( updates: Partial< SiteIdentity > ) => {
+		setIdentity( prev => ( prev ? { ...prev, ...updates } : prev ) );
+		setIdentityChanges( prev => ( { ...prev, ...updates } ) );
+	}, [] );
+
+	// Save the site title and tagline.
+	const saveIdentity = useCallback( () => {
+		setIsSavingIdentity( true );
+
+		updateSiteIdentity( identityChanges )
+			.then( saved => {
+				// Take the stored pair rather than the staged one: WordPress runs
+				// saves through `sanitize_option()`, so what it keeps can differ
+				// from what was typed. `updateSiteIdentity()` resolves to both
+				// fields as stored, so this replaces rather than reconciles.
+				setIdentity( saved );
+				setIdentityChanges( {} );
+				createSuccessNotice( __( 'Newsletter identity saved', 'jetpack-newsletter' ) );
+			} )
+			.catch( ( err: Error ) => {
+				// eslint-disable-next-line no-console
+				console.error( 'Newsletter identity save error:', err );
+				createErrorNotice(
+					err.message || __( 'Failed to save newsletter identity', 'jetpack-newsletter' )
+				);
+			} )
+			.finally( () => {
+				setIsSavingIdentity( false );
+			} );
+	}, [ createErrorNotice, createSuccessNotice, identityChanges ] );
 
 	// Handle sender name changes (staged, not auto-saved).
 	const handleSenderNameChange = useCallback( ( updates: Partial< NewsletterSettings > ) => {
@@ -563,6 +616,21 @@ export function NewsletterSettingsBody( {
 				className={ ! hasConnectedOwner ? 'newsletter-settings-disabled' : undefined }
 			>
 				<Stack gap="xl" direction="column" className="newsletter-settings">
+					{ /* Site title and tagline. Deliberately outside the
+					     `data.subscriptions` gate below — these belong to the site,
+					     not the newsletter — and rendered only once its own fetch
+					     resolves. */ }
+					{ identity && (
+						<NewsletterIdentitySection
+							data={ identity }
+							onChange={ handleIdentityChange }
+							onSave={ saveIdentity }
+							isSaving={ isSavingIdentity }
+							hasChanges={ Object.keys( identityChanges ).length > 0 }
+							changedKeys={ Object.keys( identityChanges ) }
+						/>
+					) }
+
 					{ isModernized ? (
 						<Disabled isDisabled={ ! data.subscriptions }>
 							<Stack gap="xl" direction="column">

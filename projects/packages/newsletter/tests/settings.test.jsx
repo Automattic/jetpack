@@ -18,6 +18,9 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 jest.mock( '../src/settings/api', () => ( {
 	fetchSettings: jest.fn(),
 	updateSettings: jest.fn(),
+	// Provide identity data for these unrelated settings suites.
+	fetchSiteIdentity: jest.fn( () => Promise.resolve( { title: '', description: '' } ) ),
+	updateSiteIdentity: jest.fn(),
 } ) );
 
 jest.mock( '@automattic/jetpack-analytics', () => ( {
@@ -47,6 +50,7 @@ const subscribeModalProps = { current: null };
 
 jest.mock( '../src/settings/sections', () => ( {
 	EmailBylineSection: () => <div data-testid="email-byline-section" />,
+	NewsletterIdentitySection: () => <div data-testid="newsletter-identity-section" />,
 	EmailContentSection: () => <div data-testid="email-content-section" />,
 	EmailDefaultsSection: () => <div data-testid="email-defaults-section" />,
 	EmailReplyToSettingsSection: () => <div data-testid="email-reply-to-settings-section" />,

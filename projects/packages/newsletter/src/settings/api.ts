@@ -9,6 +9,7 @@
 import restApi from '@automattic/jetpack-api';
 import { getSiteData, isSimpleSite } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
+import { decodeEntities } from '@wordpress/html-entities';
 
 let apiInitialized = false;
 
@@ -114,6 +115,117 @@ async function updateSettingsViaWpcomApi(
 	} ) ) as { updated?: Record< string, unknown > };
 
 	return result.updated || result;
+}
+
+/**
+ * The site's title and tagline — `blogname` and `blogdescription`, the same two
+ * options Settings → General edits.
+ */
+export interface SiteIdentity {
+	title: string;
+	description: string;
+}
+
+/**
+ * Normalize a title/tagline pair coming back from either API.
+ *
+ * WordPress stores both through `sanitize_option()`, which HTML-escapes them —
+ * so "Ben & Jerry's" comes back as `Ben &amp; Jerry&#039;s`. Left alone it
+ * renders as literal entities in the field, and re-saving would escape it
+ * again. (The AI Launchpad hit the same thing; see its `js/app.tsx`.)
+ *
+ * @param title       - Raw title from the API.
+ * @param description - Raw tagline from the API.
+ * @return The decoded pair.
+ */
+function normalizeIdentity( title: unknown, description: unknown ): SiteIdentity {
+	return {
+		title: decodeEntities( String( title ?? '' ) ),
+		description: decodeEntities( String( description ?? '' ) ),
+	};
+}
+
+/**
+ * Fetch the site title and tagline.
+ *
+ * These are core options rather than Jetpack settings, so they don't ride along
+ * with {@link fetchSettings}: `jetpack/v4/settings` only accepts the options on
+ * its own allowlist, and `blogname` isn't one of them. Simple sites read them
+ * from the WordPress.com site settings endpoint that already backs this page;
+ * everywhere else uses core's own settings route.
+ *
+ * @return The site's title and tagline.
+ */
+export async function fetchSiteIdentity(): Promise< SiteIdentity > {
+	const blogId = getBlogId();
+
+	if ( isSimpleSite() && blogId ) {
+		const settings = await fetchSettingsViaWpcomApi( blogId );
+
+		return normalizeIdentity( settings.blogname, settings.blogdescription );
+	}
+
+	const result = ( await apiFetch( { path: '/wp/v2/settings', method: 'GET' } ) ) as {
+		title?: string;
+		description?: string;
+	};
+
+	return normalizeIdentity( result.title, result.description );
+}
+
+/**
+ * Save the site title and tagline. Only the keys present are written, so a
+ * section that changed one field doesn't rewrite the other.
+ *
+ * Resolves to the full stored pair, so callers can replace their state with it
+ * rather than reconciling field by field.
+ *
+ * @param updates - The fields to write.
+ * @return The site's title and tagline as WordPress now stores them.
+ */
+export async function updateSiteIdentity(
+	updates: Partial< SiteIdentity >
+): Promise< SiteIdentity > {
+	const blogId = getBlogId();
+
+	if ( isSimpleSite() && blogId ) {
+		const data: Record< string, unknown > = {};
+		if ( updates.title !== undefined ) {
+			data.blogname = updates.title;
+		}
+		if ( updates.description !== undefined ) {
+			data.blogdescription = updates.description;
+		}
+
+		await updateSettingsViaWpcomApi( data, blogId );
+
+		// Read back rather than trusting what the write returned. That endpoint
+		// reports the value it was handed, not the one it stored, and it omits a
+		// key altogether when sanitizing produced what was already there — so its
+		// response is neither canonical nor complete. The extra GET only happens
+		// on a manual save of this one card.
+		const settings = await fetchSettingsViaWpcomApi( blogId );
+
+		return normalizeIdentity( settings.blogname, settings.blogdescription );
+	}
+
+	const data: Record< string, unknown > = {};
+	if ( updates.title !== undefined ) {
+		data.title = updates.title;
+	}
+	if ( updates.description !== undefined ) {
+		data.description = updates.description;
+	}
+
+	const result = ( await apiFetch( {
+		path: '/wp/v2/settings',
+		method: 'POST',
+		data,
+	} ) ) as { title?: string; description?: string };
+
+	// Core's settings route answers a write with the full, freshly-read settings
+	// object, so no follow-up read is needed here.
+	return normalizeIdentity( result.title, result.description );
 }
 
 /**
