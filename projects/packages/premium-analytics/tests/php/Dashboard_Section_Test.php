@@ -118,7 +118,93 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame( 'traffic', $section->slug );
 		$this->assertSame( 'Traffic', $section->label );
 		$this->assertSame( 15, $section->order );
+		$this->assertSame( Dashboard_Section::DATE_FILTER_RANGE, $section->date_filter );
 		$this->assertSame( $layout, $section->get_default_layout() );
+	}
+
+	/**
+	 * A section can opt into the year date filter.
+	 */
+	public function test_section_accepts_the_year_date_filter() {
+		$registry = new Dashboard_Section_Registry();
+
+		$section = $registry->register(
+			'example_dashboard',
+			'example/insights',
+			array( 'date_filter' => Dashboard_Section::DATE_FILTER_YEAR )
+		);
+
+		$this->assertInstanceOf( Dashboard_Section::class, $section );
+		$this->assertSame( Dashboard_Section::DATE_FILTER_YEAR, $section->date_filter );
+		$this->assertSame( Dashboard_Section::DATE_FILTER_YEAR, $section->to_array()['date_filter'] );
+	}
+
+	/**
+	 * An unrecognized date filter keeps the default instead of reaching the dashboard.
+	 */
+	public function test_section_ignores_unknown_date_filter() {
+		$section = new Dashboard_Section(
+			'example_dashboard',
+			'example/traffic',
+			array( 'date_filter' => 'fortnight' )
+		);
+
+		$this->assertSame( Dashboard_Section::DATE_FILTER_RANGE, $section->date_filter );
+	}
+
+	/**
+	 * Sections default to the date-range filter when the arg is omitted.
+	 */
+	public function test_section_defaults_to_the_range_date_filter() {
+		$section = new Dashboard_Section( 'example_dashboard', 'example/traffic' );
+
+		$this->assertSame( Dashboard_Section::DATE_FILTER_RANGE, $section->date_filter );
+		$this->assertSame( 'range', $section->to_array()['date_filter'] );
+	}
+
+	/**
+	 * The built-in Insights section offers the year date filter; the rest keep the range.
+	 */
+	public function test_built_in_sections_declare_their_date_filters() {
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+
+		register_default_dashboard_sections();
+
+		$this->assertSame(
+			array(
+				'traffic'     => Dashboard_Section::DATE_FILTER_RANGE,
+				'insights'    => Dashboard_Section::DATE_FILTER_YEAR,
+				'subscribers' => Dashboard_Section::DATE_FILTER_RANGE,
+				'store'       => Dashboard_Section::DATE_FILTER_RANGE,
+			),
+			array_column(
+				array_map(
+					static function ( Dashboard_Section $section ) {
+						return $section->to_array();
+					},
+					get_available_dashboard_sections( DASHBOARD_NAME )
+				),
+				'date_filter',
+				'slug'
+			)
+		);
+	}
+
+	/**
+	 * The sections schema documents the date-filter surfaces and their default.
+	 */
+	public function test_sections_schema_documents_the_date_filter() {
+		$schema = get_dashboard_section_schema();
+
+		$this->assertSame(
+			array( 'id', 'slug', 'label', 'order', 'date_filter', 'default_layout' ),
+			array_keys( $schema['properties'] )
+		);
+		$this->assertSame(
+			array( 'range', 'year' ),
+			$schema['properties']['date_filter']['enum']
+		);
+		$this->assertSame( 'range', $schema['properties']['date_filter']['default'] );
 	}
 
 	/**
@@ -280,6 +366,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'slug'           => 'traffic',
 					'label'          => 'Traffic',
 					'order'          => 10,
+					'date_filter'    => 'range',
 					'default_layout' => array(),
 				),
 			),
@@ -391,22 +478,25 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				array(
-					'id'    => 'analytics/traffic',
-					'slug'  => 'traffic',
-					'label' => 'Traffic',
-					'order' => 10,
+					'id'          => 'analytics/traffic',
+					'slug'        => 'traffic',
+					'label'       => 'Traffic',
+					'order'       => 10,
+					'date_filter' => 'range',
 				),
 				array(
-					'id'    => 'analytics/insights',
-					'slug'  => 'insights',
-					'label' => 'Insights',
-					'order' => 20,
+					'id'          => 'analytics/insights',
+					'slug'        => 'insights',
+					'label'       => 'Insights',
+					'order'       => 20,
+					'date_filter' => 'year',
 				),
 				array(
-					'id'    => 'analytics/subscribers',
-					'slug'  => 'subscribers',
-					'label' => 'Subscribers',
-					'order' => 30,
+					'id'          => 'analytics/subscribers',
+					'slug'        => 'subscribers',
+					'label'       => 'Subscribers',
+					'order'       => 30,
+					'date_filter' => 'range',
 				),
 			),
 			array_map(
@@ -599,6 +689,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'slug'           => 'first',
 					'label'          => 'First',
 					'order'          => 10,
+					'date_filter'    => 'range',
 					'default_layout' => array(),
 				),
 				array(
@@ -606,6 +697,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'slug'           => 'later',
 					'label'          => 'Later',
 					'order'          => 20,
+					'date_filter'    => 'range',
 					'default_layout' => array(),
 				),
 			),
@@ -680,6 +772,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'slug'           => 'traffic',
 					'label'          => 'Traffic',
 					'order'          => 10,
+					'date_filter'    => 'range',
 					'default_layout' => array(
 						array(
 							'uuid' => 'default-route-widget',

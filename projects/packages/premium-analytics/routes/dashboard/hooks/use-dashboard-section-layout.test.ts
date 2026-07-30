@@ -37,6 +37,7 @@ function section( slug: string, defaultLayout: DashboardWidget[] ): DashboardSec
 		slug,
 		label: slug,
 		order: 0,
+		date_filter: 'range',
 		default_layout: defaultLayout,
 	};
 }
