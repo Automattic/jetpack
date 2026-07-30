@@ -443,83 +443,45 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
-	 * Test that `get_connected_user_data` caches remote request failures so a
-	 * failing request is not repeated on every call.
+	 * Test that `authorize` deletes cached connected user data, so a cached
+	 * `error` sentinel from a previously broken token does not linger after
+	 * the user reconnects.
 	 */
-	public function test_get_connected_user_data_caches_error_responses() {
-		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
-		Jetpack_Options::update_option( 'blog_token', 'blogtoken.secret' );
-		Jetpack_Options::update_option( 'id', 1234 );
-		Jetpack_Options::update_option( 'user_tokens', array( $this->user_id => 'usertoken.secret.' . $this->user_id ) );
-
-		$http_request_count = 0;
-		$intercept          = function () use ( &$http_request_count ) {
-			++$http_request_count;
-			return new WP_Error( 'http_request_failed', 'Request blocked in test.' );
-		};
-		add_filter( 'pre_http_request', $intercept );
-
-		try {
-			$manager = new Manager();
-
-			$this->assertFalse( $manager->get_connected_user_data( $this->user_id ) );
-			$this->assertSame( 1, $http_request_count );
-			$this->assertSame( 'error', get_transient( 'jetpack_connected_user_data_' . $this->user_id ) );
-
-			// A repeated call must not trigger another remote request.
-			$this->assertFalse( $manager->get_connected_user_data( $this->user_id ) );
-			$this->assertSame( 1, $http_request_count );
-		} finally {
-			remove_filter( 'pre_http_request', $intercept );
-		}
-	}
-
-	/**
-	 * Test that `get_connected_user_data` returns and caches the user data on success.
-	 */
-	public function test_get_connected_user_data_returns_and_caches_user_data() {
-		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
-		Jetpack_Options::update_option( 'blog_token', 'blogtoken.secret' );
-		Jetpack_Options::update_option( 'id', 1234 );
-		Jetpack_Options::update_option( 'user_tokens', array( $this->user_id => 'usertoken.secret.' . $this->user_id ) );
-
-		$body = wp_json_encode(
+	public function test_authorize_deletes_cached_connected_user_data() {
+		$user_id = wp_insert_user(
 			array(
-				'ID'    => 7,
-				'email' => 'user@example.com',
+				'user_login' => 'test_authorize_deletes_cached_user_data',
+				'user_pass'  => '123',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		set_transient( "jetpack_connected_user_data_$user_id", 'error', 5 * MINUTE_IN_SECONDS );
+
+		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
+			->onlyMethods( array( 'get', 'update_user_token' ) )
+			->getMock();
+		$tokens->method( 'get' )->willReturn( 'usertoken.secret' );
+		$tokens->method( 'update_user_token' )->willReturn( true );
+
+		$manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
+			->onlyMethods( array( 'get_tokens', 'get_connection_owner_id' ) )
+			->getMock();
+		$manager->method( 'get_tokens' )->willReturn( $tokens );
+		$manager->method( 'get_connection_owner_id' )->willReturn( 123 );
+
+		$result = $manager->authorize(
+			array(
+				'state' => (string) $user_id,
+				'code'  => 'authorization_code',
 			)
 		);
 
-		$http_request_count = 0;
-		$intercept          = function () use ( &$http_request_count, $body ) {
-			++$http_request_count;
-			return array(
-				'headers'  => array(),
-				'body'     => $body,
-				'response' => array(
-					'code'    => 200,
-					'message' => 'OK',
-				),
-				'cookies'  => array(),
-				'filename' => null,
-			);
-		};
-		add_filter( 'pre_http_request', $intercept );
+		$cached = get_transient( "jetpack_connected_user_data_$user_id" );
 
-		try {
-			$manager   = new Manager();
-			$user_data = $manager->get_connected_user_data( $this->user_id );
-
-			$this->assertSame( 7, $user_data['ID'] );
-			$this->assertSame( 'user@example.com', $user_data['email'] );
-			$this->assertSame( $user_data, get_transient( 'jetpack_connected_user_data_' . $this->user_id ) );
-
-			// A repeated call must be served from the cache.
-			$this->assertSame( $user_data, $manager->get_connected_user_data( $this->user_id ) );
-			$this->assertSame( 1, $http_request_count );
-		} finally {
-			remove_filter( 'pre_http_request', $intercept );
-		}
+		$this->assertSame( 'linked', $result );
+		$this->assertFalse( $cached );
 	}
 
 	/**

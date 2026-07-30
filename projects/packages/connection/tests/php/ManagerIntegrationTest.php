@@ -44,7 +44,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	/**
 	 * The canned response the user-data endpoint filter returns for a matching request.
 	 *
-	 * @var array|null
+	 * @var array|\WP_Error|null
 	 */
 	private $http_response = null;
 
@@ -931,38 +931,79 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that a non-200 response returns false and is not cached.
+	 * Test that a failed fetch returns false and caches an `error` sentinel, so
+	 * the failing request is not repeated on every call.
+	 *
+	 * @dataProvider get_connected_user_data_error_responses
+	 *
+	 * @param array|\WP_Error $http_response The canned HTTP response for the request.
 	 */
-	public function test_get_connected_user_data_returns_false_on_error_response() {
+	#[DataProvider( 'get_connected_user_data_error_responses' )]
+	public function test_get_connected_user_data_returns_false_on_error_response( $http_response ) {
 		$user_id = $this->set_up_connected_user();
 
-		$this->http_response = array(
-			'body'     => wp_json_encode(
-				array(
-					'error'   => 'unknown_token',
-					'message' => 'Invalid token.',
-				),
-				JSON_UNESCAPED_SLASHES
-			),
-			'response' => array(
-				'code'    => 403,
-				'message' => 'Forbidden',
-			),
-			'headers'  => array(),
-		);
+		$this->http_response = $http_response;
 
 		add_filter( 'pre_http_request', array( $this, 'intercept_user_data_request' ), 10, 3 );
 
-		$result = $this->manager->get_connected_user_data( $user_id );
-		$cached = get_transient( "jetpack_connected_user_data_$user_id" );
+		$result        = $this->manager->get_connected_user_data( $user_id );
+		$cached        = get_transient( "jetpack_connected_user_data_$user_id" );
+		$requested_url = $this->intercepted_url;
+
+		// A repeated call must be served the cached failure without a new request.
+		$this->intercepted_url = null;
+		$repeat_result         = $this->manager->get_connected_user_data( $user_id );
+		$repeat_requested_url  = $this->intercepted_url;
 
 		remove_filter( 'pre_http_request', array( $this, 'intercept_user_data_request' ), 10 );
 		delete_transient( "jetpack_connected_user_data_$user_id" );
 
 		$this->assertFalse( $result );
+		$this->assertStringContainsString( 'jetpack-wpcom-user-data', (string) $requested_url );
 		// Failures are cached briefly with an 'error' sentinel so a failing
 		// request is not retried on every call.
 		$this->assertSame( 'error', $cached );
+		$this->assertFalse( $repeat_result );
+		$this->assertNull( $repeat_requested_url );
+	}
+
+	/**
+	 * Data provider for test_get_connected_user_data_returns_false_on_error_response.
+	 *
+	 * @return array
+	 */
+	public static function get_connected_user_data_error_responses() {
+		return array(
+			'transport error (WP_Error)' => array(
+				new \WP_Error( 'http_request_failed', 'Request blocked.' ),
+			),
+			'non-200 response'           => array(
+				array(
+					'body'     => wp_json_encode(
+						array(
+							'error'   => 'unknown_token',
+							'message' => 'Invalid token.',
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+					'response' => array(
+						'code'    => 403,
+						'message' => 'Forbidden',
+					),
+					'headers'  => array(),
+				),
+			),
+			'200 with malformed body'    => array(
+				array(
+					'body'     => 'not-json',
+					'response' => array(
+						'code'    => 200,
+						'message' => 'OK',
+					),
+					'headers'  => array(),
+				),
+			),
+		);
 	}
 
 	/**

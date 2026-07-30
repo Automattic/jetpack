@@ -2300,6 +2300,10 @@ class Manager {
 
 		$this->get_tokens()->update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_connection_owner );
 
+		// Delete cached connected user data, so a cached failure from the
+		// previous (broken) token doesn't linger after reconnecting.
+		delete_transient( "jetpack_connected_user_data_$current_user_id" );
+
 		/**
 		 * Fires after user has successfully received an auth token.
 		 *
