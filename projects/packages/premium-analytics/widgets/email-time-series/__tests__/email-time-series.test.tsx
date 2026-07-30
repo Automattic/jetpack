@@ -157,7 +157,9 @@ describe( 'EmailTimeSeriesWidget', () => {
 			new URLSearchParams( String( call[ 0 ].path ).split( '?' )[ 1 ] ).get( 'date' )
 		);
 		expect( requestedDates ).toHaveLength( 2 );
-		expect( requestedDates ).toEqual( expect.arrayContaining( [ '2026-07-01', '2026-06-24' ] ) );
+		expect( requestedDates ).toEqual(
+			expect.arrayContaining( [ '2026-07-01T00:00:00.000+08:00', '2026-06-24T00:00:00.000+08:00' ] )
+		);
 	} );
 
 	it( 'buckets the compare window relative to the primary layout across month boundaries', async () => {

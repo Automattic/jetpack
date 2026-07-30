@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getDatePart } from '@jetpack-premium-analytics/datetime';
 import { format, subDays } from 'date-fns';
 /**
  * Internal dependencies
@@ -34,11 +35,17 @@ export const statsWordAdsStatsQuery = (
 	const unit = String( apiParams.period ?? 'day' );
 	const { start_date: startDate } = statsParams;
 	const rangeEnd = typeof apiParams.date === 'string' ? apiParams.date : undefined;
+	// start_date/date may now carry the full offset-bearing ISO datetime (see
+	// reportParamsToStatsQueryParams); the clamp comparison and bucket count
+	// below need the calendar-day part regardless of what's sent to the API.
+	const rangeEndDay = getDatePart( rangeEnd ) ?? rangeEnd;
 	// WordAds stats are computed nightly for the previous day (the Calypso
 	// WordAds page never shows the current day), so a window ending today would
 	// close on an empty bucket — clamp the window end to yesterday.
 	const yesterday = format( subDays( localTZDate(), 1 ), 'yyyy-MM-dd' );
-	const date = rangeEnd && rangeEnd > yesterday ? yesterday : rangeEnd;
+	const clampToYesterday = rangeEndDay !== undefined && rangeEndDay > yesterday;
+	const date = clampToYesterday ? yesterday : rangeEnd;
+	const dateDay = clampToYesterday ? yesterday : rangeEndDay;
 	// The endpoint is quantity-based (`unit` buckets ending at `date`), not
 	// `from`/`to`-based, so the dashboard range is translated here: the number of
 	// buckets spanning the range becomes `quantity`. Derive it from the clamped
@@ -49,8 +56,12 @@ export const statsWordAdsStatsQuery = (
 	const defaultQuantity = unit === 'year' ? 10 : 30;
 	const quantity =
 		params.quantity ??
-		( startDate && date
-			? getPeriodsBetweenInclusive( unit as StatsPeriod, startDate, date )
+		( startDate && dateDay
+			? getPeriodsBetweenInclusive(
+					unit as StatsPeriod,
+					getDatePart( startDate ) ?? startDate,
+					dateDay
+			  )
 			: defaultQuantity );
 	const wordAdsParams: StatsProxyParams = {
 		unit,
