@@ -1,11 +1,10 @@
 /**
  * External dependencies
  */
-import { GlobalChartsProvider } from '@automattic/charts';
+import { GlobalChartsProvider, Text, type Field } from '@jetpack-premium-analytics/externals';
 import '@wordpress/dataviews/build-style/style.css';
 import { Button } from '@wordpress/components';
 import { Icon, external } from '@wordpress/icons';
-import { Text } from '@wordpress/ui';
 import { useState } from 'react';
 /**
  * Internal dependencies
@@ -17,7 +16,6 @@ import { ReportRecordsTable } from '../report-records-table';
 import styles from './report-page.stories.module.scss';
 import type { IntervalType, StatsTimeSeriesReport } from '@jetpack-premium-analytics/data';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
-import type { Field } from '@wordpress/dataviews';
 import type { ComponentProps, ReactNode } from 'react';
 
 /**

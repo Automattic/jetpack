@@ -3944,6 +3944,9 @@ importers:
       '@jetpack-premium-analytics/datetime':
         specifier: link:packages/datetime
         version: link:packages/datetime
+      '@jetpack-premium-analytics/externals':
+        specifier: link:packages/externals
+        version: link:packages/externals
       '@jetpack-premium-analytics/fields':
         specifier: link:packages/fields
         version: link:packages/fields

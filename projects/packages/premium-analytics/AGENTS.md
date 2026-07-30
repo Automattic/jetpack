@@ -32,6 +32,7 @@ src/REST/class-api-proxy-controller.php # the WPCOM data proxy (PREFIX_CONFIG)
 src/REST/class-notices-controller.php   # /notices route
 src/Sync/                               # interim woocommerce_analytics sync (WOOA7S-1550)
 packages/data/src/api/                  # frontend fetch helpers (apiFetch)
+packages/externals/                     # passthrough module for shared third-party libraries
 routes/                                 # lazy-loaded SPA pages; build/ is generated
 ```
 
@@ -169,6 +170,10 @@ See Automattic/jetpack#50266 for the PR that established this contract.
 - Don't edit dashboard React in Calypso — it lives here now.
 - Internal package names use `@jetpack-premium-analytics/*` aliases throughout the package —
   never `@automattic/jetpack-premium-analytics-*`.
+- Never import `@automattic/charts`, `@wordpress/ui`, or `@wordpress/dataviews` directly from a
+  package that compiles to a script module — go through `@jetpack-premium-analytics/externals`.
+  A direct import compiles the whole library into that module again; see
+  `packages/externals/README.md`.
 - All source code comments must be in English.
 
 ## Widgets
@@ -508,7 +513,8 @@ give it a story for each; both mocks are 403s, so neither waits out the query's 
 - Importing `@automattic/charts` directly from a widget — chart components must come through
   `@jetpack-premium-analytics/widgets-toolkit` (a shared script module). A direct import
   bundles the entire charting stack into that widget's render bundle; add a re-export to the
-  toolkit's "Charts passthrough" section instead.
+  toolkit's "Charts passthrough" section instead. The toolkit in turn takes charts from
+  `@jetpack-premium-analytics/externals`, so a passthrough export costs nothing.
 - Porting a Stats widget and forgetting to add its endpoint to `routeStatsReport()` in
   `register-report-mocks.ts` — stories will render an error state instead of mock data because
   the middleware only intercepts Woo analytics paths by default.

@@ -1,10 +1,9 @@
 /**
  * External dependencies
  */
-import { useGlobalChartsContext } from '@automattic/charts';
+import { useGlobalChartsContext, Icon } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
-import { Icon } from '@wordpress/ui';
 import { useMemo } from 'react';
 /**
  * Internal dependencies

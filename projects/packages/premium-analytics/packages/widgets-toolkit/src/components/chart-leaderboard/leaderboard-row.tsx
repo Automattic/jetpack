@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Link } from '@wordpress/ui';
+import { Link } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */

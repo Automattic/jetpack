@@ -1,14 +1,13 @@
 /**
  * External dependencies
  */
-import { LineChart } from '@automattic/charts';
+import { LineChart, Stack } from '@jetpack-premium-analytics/externals';
 import {
 	formatDate,
 	formatMetricValue,
 	type DateFormatName,
 } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
-import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useMemo, useState } from 'react';
 import { type ComponentProps } from 'react';
