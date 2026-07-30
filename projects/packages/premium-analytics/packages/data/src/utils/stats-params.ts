@@ -73,8 +73,8 @@ export function getStatsPeriodFromInterval( interval?: string ): StatsPeriod {
  * `unit`, mirroring how `days` is derived for day-based requests.
  *
  * @param period - The bucket granularity.
- * @param from   - Range start (`yyyy-MM-dd`).
- * @param to     - Range end (`yyyy-MM-dd`).
+ * @param from   - Range start (`yyyy-MM-dd`, or a full ISO datetime — only the calendar day is used).
+ * @param to     - Range end (`yyyy-MM-dd`, or a full ISO datetime — only the calendar day is used).
  * @return The bucket count, at least 1.
  */
 export function getPeriodsBetweenInclusive(
