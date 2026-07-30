@@ -775,7 +775,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$this->set_up_block_editor_request();
 
 		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
-		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( false );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -806,13 +805,12 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that the Ask AI button is not added to the editor admin bar when Agents Manager is
-	 * not enabled, even while the omnibar experiment is active.
+	 * not enabled, even while the admin bar is showing.
 	 */
 	public function test_ai_chat_button_not_registered_in_editor_when_not_enabled() {
 		$this->set_up_block_editor_request( false );
 
 		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
-		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( true );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -822,14 +820,13 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the Help "?" dropdown (its menu panel) is added to the editor admin bar when the
-	 * omnibar experiment is active in the unified experience.
+	 * Tests that the Help "?" dropdown (its menu panel) is added to the editor admin bar in the
+	 * unified experience.
 	 */
-	public function test_help_menu_registered_in_editor_omnibar_when_unified() {
+	public function test_help_menu_registered_in_editor_admin_bar_when_unified() {
 		$this->set_up_block_editor_request();
 
 		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
-		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( true );
 		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
 		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 
@@ -844,14 +841,13 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the Help "?" dropdown is not added to the editor admin bar when the omnibar
-	 * experiment is active but the unified experience is disabled (Ask AI only).
+	 * Tests that the Help "?" dropdown is not added to the editor admin bar when the unified
+	 * experience is disabled (Ask AI only).
 	 */
-	public function test_help_menu_not_registered_in_editor_omnibar_without_unified() {
+	public function test_help_menu_not_registered_in_editor_admin_bar_without_unified() {
 		$this->set_up_block_editor_request();
 
 		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
-		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( true );
 		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
 
 		$this->agents_manager->enqueue_scripts();

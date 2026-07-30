@@ -247,9 +247,9 @@ class Agents_Manager {
 			wp_dequeue_style( 'help-center-style' );
 		}
 
-		// For non-Gutenberg, non-CIAB environments, add to the admin bar. The fullscreen Gutenberg
-		// editor has no admin bar, so JS handles UI insertion — except under the omnibar, which is
-		// handled below. CIAB hides the admin bar and uses its own Site Hub.
+		// For non-Gutenberg, non-CIAB environments, add to the admin bar. Gutenberg uses JS when
+		// no admin bar is visible and the server-side branch below when one is available. CIAB
+		// hides the admin bar and uses its own Site Hub.
 		$is_ciab = $this->is_ciab_environment();
 		if ( ! $is_gutenberg && ! $is_ciab ) {
 			// Disconnected variants are Help-only. Full variants take over Help
@@ -276,8 +276,8 @@ class Agents_Manager {
 			}
 		}
 
-		// When Gutenberg's "admin bar in editor" (omnibar) experiment is active, add the entry
-		// points to that editor admin bar. CIAB is excluded — it has its own Site Hub UI.
+		// When the block editor exposes the WordPress admin bar, add the entry points there.
+		// CIAB is excluded — it has its own Site Hub UI.
 		// Mirroring wp-admin: the Help "?" dropdown shows only in the full unified experience;
 		// the Ask AI button shows whenever Agents Manager is enabled in this editor.
 		if ( ! $is_ciab && ! $use_disconnected && self::is_admin_bar_in_editor() ) {
