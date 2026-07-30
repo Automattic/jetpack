@@ -650,4 +650,121 @@ class SchemaSettingsTest extends TestCase {
 		$this->assertSame( array( 'https://twitter.com/acme' ), $organization['sameAs'] );
 		$this->assertSame( '', $organization['email'] );
 	}
+
+	/**
+	 * Person defaults seed `name` / `description` from the same site identity as the
+	 * Organization defaults (a personal site's title is typically the person's name).
+	 */
+	public function test_person_defaults_seed_from_site_identity() {
+		$this->set_site_identity( 'Jane Rivera', 'Product manager' );
+
+		$defaults = Schema_Settings::get_defaults();
+
+		$this->assertSame( 'Jane Rivera', $defaults['person']['name'] );
+		$this->assertSame( 'Product manager', $defaults['person']['description'] );
+	}
+
+	/**
+	 * The site-entity choice defaults to `organization` (preserving prior behavior)
+	 * and only `person` flips it; anything else normalizes back to `organization`.
+	 */
+	public function test_site_represents_defaults_to_organization() {
+		$this->assertSame( 'organization', Schema_Settings::get_site_represents() );
+		$this->assertSame( 'organization', Schema_Settings::sanitize( array() )['siteRepresents'] );
+		$this->assertSame(
+			'person',
+			Schema_Settings::sanitize( array( 'siteRepresents' => 'person' ) )['siteRepresents']
+		);
+		$this->assertSame(
+			'organization',
+			Schema_Settings::sanitize( array( 'siteRepresents' => 'nonsense' ) )['siteRepresents']
+		);
+	}
+
+	/**
+	 * Person sanitization trims/strips text and keeps only valid, deduped `sameAs`
+	 * URLs, mirroring the Organization rules.
+	 */
+	public function test_sanitize_normalizes_person() {
+		$clean = Schema_Settings::sanitize(
+			array(
+				'person' => array(
+					'name'        => "  Jane <b>Rivera</b>\n",
+					'description' => '  Product manager  ',
+					'sameAs'      => array(
+						'https://linkedin.com/in/jane',
+						'',
+						'/relative',
+						'not a url',
+						'https://linkedin.com/in/jane',
+						'https://github.com/jane',
+					),
+				),
+			)
+		);
+
+		$this->assertSame( 'Jane Rivera', $clean['person']['name'] );
+		$this->assertSame( 'Product manager', $clean['person']['description'] );
+		$this->assertSame(
+			array(
+				'https://linkedin.com/in/jane',
+				'https://github.com/jane',
+			),
+			$clean['person']['sameAs']
+		);
+	}
+
+	/**
+	 * Empty stored Person `name` / `description` fall back to live site identity,
+	 * while `sameAs` comes only from storage.
+	 */
+	public function test_get_person_falls_back_per_field() {
+		$this->set_site_identity( 'Jane Rivera', 'Product manager' );
+
+		Schema_Settings::update(
+			array(
+				'person' => array(
+					'sameAs' => array( 'https://linkedin.com/in/jane' ),
+				),
+			)
+		);
+
+		$person = Schema_Settings::get_person();
+
+		$this->assertSame( 'Jane Rivera', $person['name'] );
+		$this->assertSame( 'Product manager', $person['description'] );
+		$this->assertSame( array( 'https://linkedin.com/in/jane' ), $person['sameAs'] );
+	}
+
+	/**
+	 * `update()` persists the site-entity choice and Person overrides, and leaves the
+	 * stored Organization section untouched when only Person is submitted.
+	 */
+	public function test_update_persists_site_represents_and_person() {
+		Schema_Settings::update(
+			array(
+				'organization' => array( 'name' => 'Acme Corporation' ),
+			)
+		);
+
+		$effective = Schema_Settings::update(
+			array(
+				'siteRepresents' => 'person',
+				'person'         => array(
+					'name'   => 'Jane Rivera',
+					'sameAs' => array( 'https://linkedin.com/in/jane' ),
+				),
+			)
+		);
+
+		$this->assertSame( 'person', $effective['siteRepresents'] );
+		$this->assertSame( 'Jane Rivera', $effective['person']['name'] );
+		$this->assertSame( array( 'https://linkedin.com/in/jane' ), $effective['person']['sameAs'] );
+		// The Organization section the first update stored is preserved.
+		$this->assertSame( 'Acme Corporation', $effective['organization']['name'] );
+
+		// And it all persists across a fresh read.
+		$this->assertSame( 'person', Schema_Settings::get_site_represents() );
+		$this->assertSame( 'Jane Rivera', Schema_Settings::get_person()['name'] );
+	}
 }

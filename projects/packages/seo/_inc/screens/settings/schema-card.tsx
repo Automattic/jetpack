@@ -6,9 +6,11 @@ import CardTitleIcon from '../../components/card-title-icon';
 import StatusIndicator from '../../components/status-indicator';
 import { cleanProfileUrls } from '../../data/schema-settings-utils';
 import { useSchemaSettings } from '../../data/use-schema-settings';
+import EntitySelector from './schema-settings/entity-selector';
 import { hasLocalBusinessErrors } from './schema-settings/local-business-fields';
 import LocalBusinessSection from './schema-settings/local-business-section';
 import OrganizationSection from './schema-settings/organization-section';
+import PersonSection from './schema-settings/person-section';
 import { hasProfileUrlErrors } from './schema-settings/profile-url-list';
 import styles from './schema-settings/style.module.scss';
 import type { SettingStatus } from '../../components/status-indicator';
@@ -26,12 +28,12 @@ interface Props {
 /**
  * Site-level Schema settings module.
  *
- * One card for everything the site's own schema graph needs: a Breadcrumbs
- * toggle, then the Organization details behind the site. Local-business details
- * are a refinement of the Organization (a sub-toggle under it), not a peer
- * choice — schema.org models LocalBusiness as a kind of Organization. The
- * Author profile (Person / ProfilePage for the signed-in user) is a distinct
- * concern and lives in its own card.
+ * A single guided card: a Breadcrumbs toggle, then a "what does this site
+ * represent?" choice (Organization or Person) that reveals the matching fields.
+ * Local-business details are a refinement of the Organization branch (a
+ * sub-toggle under it), not a peer choice — schema.org models LocalBusiness as a
+ * kind of Organization. The Author profile (Person / ProfilePage for the
+ * signed-in user) is a distinct concern and lives in its own card.
  *
  * Collapsed by default and built from the shared `CollapsibleCard` compound,
  * matching the other Settings modules (Canonical URLs, Title structure, Site
@@ -45,16 +47,21 @@ interface Props {
 function SchemaCard( { initialSettings, onSave }: Props ) {
 	const form = useSchemaSettings( initialSettings, onSave );
 	const {
+		siteRepresents,
 		organization,
+		person,
 		defaults,
+		personDefaults,
 		localBusiness,
 		breadcrumbList,
 		isSaving,
 		isOrganizationDirty,
 		isLocalBusinessDirty,
 		commitBreadcrumbList,
+		commitSiteRepresents,
 		saveOrganizationEntity,
 	} = form;
+	const isPerson = siteRepresents === 'person';
 
 	// A field counts as configured when it has a value — including its smart
 	// default (Site Title → name, Tagline → description), because tracking the
@@ -69,10 +76,12 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 	// duplicate rows. Otherwise the header could read "Complete" off a row that
 	// server sanitization is about to discard — while Save sits disabled on the
 	// very validation error that makes it uncounted.
+	const entity = isPerson ? person : organization;
+	const entityDefaults = isPerson ? personDefaults : defaults;
 	const configuredFields = [
-		( organization.name || defaults.name ).trim(),
-		( organization.description || defaults.description ).trim(),
-		cleanProfileUrls( organization.sameAs ).length > 0,
+		( entity.name || entityDefaults.name ).trim(),
+		( entity.description || entityDefaults.description ).trim(),
+		cleanProfileUrls( entity.sameAs ).length > 0,
 	];
 	const configuredCount = configuredFields.filter( Boolean ).length;
 	let schemaStatus: SettingStatus = 'not-started';
@@ -82,10 +91,10 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 		schemaStatus = 'in-progress';
 	}
 
-	// One Save covers both sections, so an error in either blocks it. Say which
-	// way out there is: the button is focusable while disabled (`@wordpress/ui`
-	// sets `aria-disabled` rather than the native attribute), and the offending
-	// field can be well off screen.
+	// One Save covers the Organization and its local-business refinement, so an
+	// error in either blocks it. Say which way out there is: the button is
+	// focusable while disabled (`@wordpress/ui` sets `aria-disabled` rather than
+	// the native attribute), and the offending field can be well off screen.
 	const hasBlockingErrors =
 		hasProfileUrlErrors( organization.sameAs ) ||
 		( localBusiness.enabled && hasLocalBusinessErrors( form ) );
@@ -106,7 +115,7 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 				<Stack direction="column" gap="lg">
 					<Text variant="body-sm" className={ styles.muted } render={ <p /> }>
 						{ __(
-							'Structured data that tells search engines and AI assistants what your site is and who runs it. Add the details below and Jetpack adds the right markup automatically.',
+							'Structured data that tells search engines and AI assistants what your site is and who runs it. Answer a couple of questions and Jetpack adds the right markup automatically.',
 							'jetpack-seo'
 						) }
 					</Text>
@@ -124,43 +133,62 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 						__nextHasNoMarginBottom
 					/>
 
-					{ /* A real fieldset, so the Organization details and their local-business
-					   refinement stay one named group now that they no longer have a card
-					   header each. The legend is hidden — the group is obvious on screen from
-					   the hairline rule this wrapper draws — but it keeps the grouping in the
-					   accessibility tree, which a bare `Stack` (a plain div) would not. */ }
-					<Fieldset.Root className={ styles.entityGroup }>
-						<Fieldset.Legend hideFromVision>
-							{ __( 'Organization details', 'jetpack-seo' ) }
-						</Fieldset.Legend>
+					{ /* The site-entity group. Its top border is the hairline separating it
+					   from the Breadcrumbs toggle — a border rather than an `<hr>`, which
+					   would add an unnamed separator to the accessibility tree for what is
+					   a purely visual cue. */ }
+					<div className={ styles.entityGroup }>
 						<Stack direction="column" gap="lg">
-							<OrganizationSection form={ form } />
-							<LocalBusinessSection form={ form } />
+							<EntitySelector
+								value={ siteRepresents }
+								onChange={ commitSiteRepresents }
+								disabled={ isSaving }
+							/>
 
-							{ /* The visible label stays "Save" to match the other modules, but the
-							   accessible name names the module: this tab renders several "Save"
-							   buttons, so a bare one is ambiguous in a screen reader's button list. */ }
-							<Stack direction="row" justify="flex-end" align="center" gap="sm">
-								{ hasBlockingErrors && (
-									<Text variant="body-sm" id={ SAVE_ERROR_ID } className={ styles.saveError }>
-										{ __( 'Fix the highlighted fields to save.', 'jetpack-seo' ) }
-									</Text>
-								) }
-								<Button
-									onClick={ saveOrganizationEntity }
-									disabled={
-										isSaving ||
-										! ( isOrganizationDirty || isLocalBusinessDirty ) ||
-										hasBlockingErrors
-									}
-									aria-label={ __( 'Save schema settings', 'jetpack-seo' ) }
-									aria-describedby={ hasBlockingErrors ? SAVE_ERROR_ID : undefined }
-								>
-									{ __( 'Save', 'jetpack-seo' ) }
-								</Button>
-							</Stack>
+							{ isPerson ? (
+								<PersonSection form={ form } />
+							) : (
+								/* A real fieldset, so the Organization details and their
+								   local-business refinement stay one named group — they no
+								   longer have a card header each, and a `Stack` is a plain div
+								   that carries no semantics. The legend is hidden because the
+								   selector above already names the branch on screen. */
+								<Fieldset.Root className={ styles.entityFieldset }>
+									<Fieldset.Legend hideFromVision>
+										{ __( 'Organization details', 'jetpack-seo' ) }
+									</Fieldset.Legend>
+									<Stack direction="column" gap="lg">
+										<OrganizationSection form={ form } />
+										<LocalBusinessSection form={ form } />
+
+										{ /* One Save for the whole Organization branch. The visible label
+										   stays "Save" to match the other modules, but the accessible name
+										   names the module: this tab renders several "Save" buttons, so a
+										   bare one is ambiguous in a screen reader's button list. */ }
+										<Stack direction="row" justify="flex-end" align="center" gap="sm">
+											{ hasBlockingErrors && (
+												<Text variant="body-sm" id={ SAVE_ERROR_ID } className={ styles.saveError }>
+													{ __( 'Fix the highlighted fields to save.', 'jetpack-seo' ) }
+												</Text>
+											) }
+											<Button
+												onClick={ saveOrganizationEntity }
+												disabled={
+													isSaving ||
+													! ( isOrganizationDirty || isLocalBusinessDirty ) ||
+													hasBlockingErrors
+												}
+												aria-label={ __( 'Save schema settings', 'jetpack-seo' ) }
+												aria-describedby={ hasBlockingErrors ? SAVE_ERROR_ID : undefined }
+											>
+												{ __( 'Save', 'jetpack-seo' ) }
+											</Button>
+										</Stack>
+									</Stack>
+								</Fieldset.Root>
+							) }
 						</Stack>
-					</Fieldset.Root>
+					</div>
 				</Stack>
 			</CollapsibleCard.Content>
 		</CollapsibleCard.Root>
