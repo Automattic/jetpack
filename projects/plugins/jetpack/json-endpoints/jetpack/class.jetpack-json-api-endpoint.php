@@ -183,10 +183,15 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 		// its legacy user-level shim -- `0` and `'0'` become `level_0`, which every default role holds.
 		// So `array( 0 )` or `array( '0' )` would authorize any connected user, the same fail-open the
 		// empty set produced. The `is_numeric()` test mirrors the one in core that triggers the shim.
-		// This also catches a wrapper whose `capabilities` key is missing, where the resolved set is
-		// the wrapper's own metadata rather than a capability list.
+		// A whitespace-only entry names no capability either, and core grants a network super admin any
+		// capability that does not map to `do_not_allow`, so entries are rejected on their trimmed value.
+		//
+		// A wrapper with no `capabilities` key resolves to the wrapper's own metadata and lands here too,
+		// but only when that metadata is not capability-shaped: `array( 'must_pass' => 0 )` is rejected,
+		// while `array( 'must_pass' => 'read' )` is indistinguishable from the list `array( 'read' )` and
+		// gets an ordinary capability check. No declaration in this repository uses either shape.
 		foreach ( $required_capabilities as $required_capability ) {
-			if ( ! is_string( $required_capability ) || '' === $required_capability || is_numeric( $required_capability ) ) {
+			if ( ! is_string( $required_capability ) || '' === trim( $required_capability ) || is_numeric( $required_capability ) ) {
 				return new WP_Error( 'unauthorized_capability_declaration', __( 'This endpoint does not declare a valid capability requirement.', 'jetpack' ), 403 );
 			}
 		}
