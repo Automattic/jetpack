@@ -54,6 +54,7 @@ export {
 	ReportLink,
 	type ReportLinkProps,
 	PostTitleLink,
+	POST_URL_SEARCH_PARAM,
 	type PostTitleLinkProps,
 	VideoTitleLink,
 	type VideoTitleLinkProps,

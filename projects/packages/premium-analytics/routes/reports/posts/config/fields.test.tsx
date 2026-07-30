@@ -145,7 +145,7 @@ describe( 'posts title field', () => {
 		// The homepage has no post-detail page, so its title is the outbound link
 		// and carries the external-link marker.
 		const link = screen.getByRole( 'link', {
-			name: 'Open Homepage (Latest posts) in a new tab',
+			name: 'Homepage (Latest posts)(opens in a new tab)',
 		} );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
@@ -192,6 +192,7 @@ describe( 'posts title field', () => {
 		// reseed its own defaults.
 		expect( search.get( 'from' ) ).toBe( '2026-03-01' );
 		expect( search.get( 'to' ) ).toBe( '2026-03-10' );
+		expect( search.get( 'post_url' ) ).toBe( 'https://example.com/hello-world/' );
 		// A row with a detail page carries no link out to the live post.
 		expect( link ).not.toHaveAttribute( 'target' );
 	} );
@@ -212,7 +213,9 @@ describe( 'posts title field', () => {
 			type: 'post',
 		} );
 
-		const link = screen.getByRole( 'link', { name: 'Open Uncategorized in a new tab' } );
+		const link = screen.getByRole( 'link', {
+			name: 'Uncategorized(opens in a new tab)',
+		} );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/uncategorized/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );

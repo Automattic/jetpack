@@ -55,30 +55,26 @@ describe( 'PostTitleLink', () => {
 		expect( link ).toHaveAttribute( 'href', expect.stringContaining( '/post/41' ) );
 		expect( search.get( 'from' ) ).toBe( '2026-03-01' );
 		expect( search.get( 'to' ) ).toBe( '2026-03-10' );
+		expect( search.get( 'post_url' ) ).toBe( 'https://example.com/hello-world/' );
 	} );
 
-	it( 'gives an internal link no outbound target and no external icon', () => {
-		const { container } = render( <PostTitleLink id={ 41 } label="Hello world" /> );
+	it( 'gives an internal link no outbound target and no external marker', () => {
+		render( <PostTitleLink id={ 41 } label="Hello world" /> );
 
 		const link = screen.getByRole( 'link', { name: 'Hello world' } );
 		expect( link ).not.toHaveAttribute( 'target' );
 		expect( link ).not.toHaveAttribute( 'rel' );
-		// The icon marks a destination outside the app; an internal route is not one.
-		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the icon renders as an unlabelled SVG.
-		expect( container.querySelector( 'svg' ) ).toBeNull();
+		expect( screen.queryByRole( 'img', { name: '(opens in a new tab)' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'falls back to the public URL with an external icon when there is no post ID', () => {
-		const { container } = render(
-			<PostTitleLink label="Pricing" link="https://example.com/?s=pricing" />
-		);
+	it( 'falls back to the public URL with an external marker when there is no post ID', () => {
+		render( <PostTitleLink label="Pricing" link="https://example.com/?s=pricing" /> );
 
-		const link = screen.getByRole( 'link', { name: 'Open Pricing in a new tab' } );
+		const link = screen.getByRole( 'link', { name: 'Pricing(opens in a new tab)' } );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/?s=pricing' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
-		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the icon renders as an unlabelled SVG.
-		expect( container.querySelector( 'svg' ) ).not.toBeNull();
+		expect( screen.getByRole( 'img', { name: '(opens in a new tab)' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'treats the homepage entry (id 0) as having no detail page', () => {

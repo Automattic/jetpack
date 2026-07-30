@@ -52,7 +52,7 @@ export {
 export { WidgetBackLink, type WidgetBackLinkProps } from './widget-back-link';
 export { WidgetFooter, type WidgetFooterProps } from './widget-footer';
 export { ReportLink, type ReportLinkProps } from './report-link';
-export { PostTitleLink, type PostTitleLinkProps } from './post-title-link';
+export { PostTitleLink, POST_URL_SEARCH_PARAM, type PostTitleLinkProps } from './post-title-link';
 export { VideoTitleLink, type VideoTitleLinkProps } from './video-title-link';
 export {
 	SubscriberList,

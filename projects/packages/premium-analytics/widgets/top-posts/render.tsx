@@ -128,7 +128,7 @@ function buildLeaderboardData(
 					{ /* Rows inside a drill-down button cannot carry anchors. */ }
 					{ hasChildren ? (
 						<Text className={ styles.labelTitle } title={ row.label }>
-							{ row.label }
+							<span className={ styles.labelText }>{ row.label }</span>
 						</Text>
 					) : (
 						<PostTitleLink
@@ -140,7 +140,6 @@ function buildLeaderboardData(
 							classNames={ {
 								internal: styles.labelTitleLink,
 								external: styles.labelExternalLink,
-								icon: styles.externalIcon,
 								plain: styles.labelTitle,
 								text: styles.labelText,
 							} }

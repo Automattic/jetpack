@@ -117,6 +117,7 @@ describe( 'TopPostsWidget', () => {
 		expect( href ).toContain( '/post/1' );
 		expect( search.get( 'from' ) ).toBe( '2026-03-01' );
 		expect( search.get( 'to' ) ).toBe( '2026-03-10' );
+		expect( search.get( 'post_url' ) ).toBe( 'https://example.com/hello-world/' );
 	} );
 
 	it( 'requests the dashboard date range from report params', async () => {
@@ -669,7 +670,9 @@ describe( 'TopPostsWidget', () => {
 		// the trailing icon links out to the archive page.
 		await expect( screen.findByText( 'pricing' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /^pricing$/ } ) ).not.toBeInTheDocument();
-		const termLink = screen.getByRole( 'link', { name: /open pricing in a new tab/i } );
+		const termLink = screen.getByRole( 'link', {
+			name: /pricing.*opens in a new tab/i,
+		} );
 		expect( termLink ).toHaveAttribute( 'href', 'https://example.com/?s=pricing' );
 
 		const backLink = screen.getByRole( 'button', { name: /back to the previous archive list/i } );
@@ -706,7 +709,7 @@ describe( 'TopPostsWidget', () => {
 
 		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /^News$/ } ) ).not.toBeInTheDocument();
-		const termLink = screen.getByRole( 'link', { name: /open news in a new tab/i } );
+		const termLink = screen.getByRole( 'link', { name: /news.*opens in a new tab/i } );
 		expect( termLink ).toHaveAttribute( 'href', 'https://example.com/category/news/' );
 	} );
 } );

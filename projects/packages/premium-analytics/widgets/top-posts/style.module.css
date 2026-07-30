@@ -30,14 +30,14 @@
 }
 
 /* `min-width: 0` lets the flex item shrink below its content width so the
-   ellipsis applies; without it a long title pushes the trailing icon out. */
+   ellipsis applies; without it a long title pushes the trailing icon out. The
+   outbound marker brings its own inline spacing, so the box needs no gap. */
 .labelTitle,
 .labelTitleLink,
 .labelExternalLink {
 	min-width: 0;
 	display: inline-flex;
 	align-items: center;
-	gap: var(--wpds-dimension-gap-xs);
 }
 
 /* The label text carries the ellipsis in every branch: `text-overflow` needs
@@ -61,12 +61,4 @@
 .labelExternalLink:hover,
 .labelExternalLink:focus {
 	text-decoration: underline;
-}
-
-/* The external-link icon marks a destination outside the dashboard. It appears
-   only on rows with no post-detail page (the Archives view), whose title is
-   itself the outbound link. */
-.externalIcon {
-	flex: none;
-	color: var(--wpds-color-foreground-content-neutral-weak);
 }

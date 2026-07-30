@@ -2,9 +2,18 @@
  * External dependencies
  */
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
-import { __, sprintf } from '@wordpress/i18n';
-import { Icon, external } from '@wordpress/icons';
 import { Link } from '@wordpress/route';
+import { Link as UiLink } from '@wordpress/ui';
+
+/**
+ * Route search param carrying a row's public URL to the post detail page.
+ *
+ * A public post type that sets `show_in_rest: false` has no core-data entity,
+ * so the detail page cannot resolve its permalink. The report row does have a
+ * URL, so it travels with the link and the detail page validates it against the
+ * site before offering it.
+ */
+export const POST_URL_SEARCH_PARAM = 'post_url';
 
 export type PostTitleLinkProps = {
 	/**
@@ -18,7 +27,8 @@ export type PostTitleLinkProps = {
 	label: string;
 
 	/**
-	 * Public URL of the content. Used only when there is no post ID.
+	 * Public URL of the content. It becomes the link itself when there is no
+	 * post ID, and travels to the detail route as a fallback when there is one.
 	 */
 	link?: string | null;
 
@@ -35,7 +45,6 @@ export type PostTitleLinkProps = {
 	classNames?: {
 		internal?: string;
 		external?: string;
-		icon?: string;
 		plain?: string;
 		text?: string;
 	};
@@ -51,10 +60,13 @@ export type PostTitleLinkProps = {
  * link, or plain text.
  *
  * Rows with a post ID stay inside the app: they navigate to `/post/{postId}`
- * through the router, so the dashboard does not reload. They carry no
- * external-link icon — the icon marks a destination outside the app, and the
- * detail page holds the link out to the live post. Rows without a post ID have
- * no detail page, so the public URL becomes the fallback and takes the icon.
+ * through the router, so the dashboard does not reload. They carry no outbound
+ * marker — it marks a destination outside the app, and the detail page holds the
+ * link out to the live post. Such a row still passes its public URL along in
+ * `POST_URL_SEARCH_PARAM`, because the detail page cannot resolve a permalink
+ * for a post type that is absent from the REST API. Rows without a post ID have
+ * no detail page, so the public URL becomes the link itself and takes the
+ * marker.
  *
  * @param props            - Component props.
  * @param props.id         - Post or page ID.
@@ -75,6 +87,9 @@ export function PostTitleLink( {
 }: PostTitleLinkProps ): JSX.Element {
 	const postId = Number( id );
 	const text = <span className={ classNames?.text }>{ label }</span>;
+	// Callers pass `link` straight from report data, so the scheme is guarded
+	// here at the sink rather than in each consuming widget or route.
+	const href = safeHttpUrl( link );
 
 	if ( Number.isInteger( postId ) && postId > 0 ) {
 		return (
@@ -82,7 +97,9 @@ export function PostTitleLink( {
 				className={ classNames?.internal }
 				to="/post/$postId"
 				params={ { postId: String( postId ) } as unknown as never }
-				search={ search as unknown as never }
+				search={
+					( href ? { ...search, [ POST_URL_SEARCH_PARAM ]: href } : search ) as unknown as never
+				}
 				title={ title }
 			>
 				{ text }
@@ -90,27 +107,20 @@ export function PostTitleLink( {
 		);
 	}
 
-	// Callers pass `link` straight from report data, so the scheme is guarded
-	// here at the sink rather than in each consuming widget or route.
-	const href = safeHttpUrl( link );
-
 	if ( href ) {
+		// `openInNewTab` appends the design system's outbound marker, so the row
+		// carries the same arrow as every other external link in the dashboard.
 		return (
-			<a
+			<UiLink
 				className={ classNames?.external }
 				href={ href }
-				target="_blank"
+				variant="unstyled"
+				openInNewTab
 				rel="noopener noreferrer"
 				title={ title }
-				aria-label={ sprintf(
-					/* translators: %s is a post, page, or archive page title. */
-					__( 'Open %s in a new tab', 'jetpack-premium-analytics-pkg' ),
-					label
-				) }
 			>
 				{ text }
-				<Icon className={ classNames?.icon } icon={ external } size={ 16 } />
-			</a>
+			</UiLink>
 		);
 	}
 
