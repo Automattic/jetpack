@@ -56,11 +56,14 @@ add_action( 'jetpack_modules_loaded', 'stats_load' );
 function stats_load() {
 	Jetpack::enable_module_configurable( __FILE__ );
 
-	// When the bundled Premium Analytics dashboard is enabled it replaces the
-	// Stats wp-admin UI (WOOA7S-1595): skip the menu, the admin-bar entries, and
-	// the post-list column — they all link to the removed Stats page. Tracking
-	// and the module's non-UI filters below are unaffected.
-	$stats_ui_replaced = Jetpack::is_premium_analytics_enabled();
+	// When the bundled Stats v2 dashboard is enabled it replaces the Stats
+	// wp-admin UI (WOOA7S-1595): skip the menu, the admin-bar entries, and the
+	// post-list column — they all link to the removed Stats page. Tracking and
+	// the module's non-UI filters below are unaffected.
+	//
+	// Atomic is the exception: Stats v2 is still rolling out there, so the
+	// legacy Stats UI stays as an added menu instead of being replaced.
+	$stats_ui_replaced = Jetpack::is_premium_analytics_enabled() && ! ( new Host() )->is_woa_site();
 
 	// Only run the callback for those who can see the stats.
 	if ( ! $stats_ui_replaced && is_user_logged_in() && current_user_can( 'view_stats' ) ) {

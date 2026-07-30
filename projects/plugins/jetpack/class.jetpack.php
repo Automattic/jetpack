@@ -842,16 +842,21 @@ class Jetpack {
 	}
 
 	/**
-	 * Whether the bundled Premium Analytics dashboard is enabled.
+	 * Whether the bundled Stats v2 dashboard is enabled.
 	 *
-	 * Premium Analytics ships with the plugin behind this flag while it rolls
-	 * out (WOOA7S-1595). When enabled it replaces the Stats wp-admin UI (menu,
-	 * admin-bar entries, post-list column, and WP dashboard widget); the Stats
-	 * module's tracking is unaffected — Premium Analytics depends on it.
+	 * Stats v2 (formerly "Premium Analytics") ships with the plugin behind this
+	 * flag while it rolls out (WOOA7S-1595). When enabled it replaces the Stats
+	 * wp-admin UI (menu, admin-bar entries, post-list column, and WP dashboard
+	 * widget); the Stats module's tracking is unaffected — Stats v2 depends on
+	 * it. Atomic is the one exception: there the legacy Stats UI stays as an
+	 * added surface instead of being replaced (see modules/stats.php and
+	 * class-jetpack-stats-dashboard-widget.php, which both check
+	 * `Host::is_woa_site()` alongside this flag).
 	 *
 	 * The package has to be loadable for this to be true. The same answer both
-	 * tears the Stats UI down and brings the dashboard up, so if the two could
-	 * disagree a site missing the package would end up with neither.
+	 * tears the Stats UI down (off Atomic) and brings the dashboard up, so if
+	 * the two could disagree a site missing the package would end up with
+	 * neither.
 	 *
 	 * Resolved once per request: `configure()` asks first, on `plugins_loaded`,
 	 * and the Stats module and dashboard widget ask much later. Without the
@@ -996,11 +1001,12 @@ class Jetpack {
 		}
 
 		/*
-		 * Premium Analytics (WOOA7S-1595): bundled behind a flag while it rolls
-		 * out. Unlike Stats above it must initialize on every request when
-		 * enabled: its WooCommerce store-event tracker listens on the front end
-		 * and its REST surfaces self-gate on rest_api_init. When enabled it
-		 * replaces the Stats wp-admin UI (see modules/stats.php).
+		 * Stats v2 (WOOA7S-1595): bundled behind a flag while it rolls out.
+		 * Unlike Stats above it must initialize on every request when enabled:
+		 * its WooCommerce store-event tracker listens on the front end and its
+		 * REST surfaces self-gate on rest_api_init. When enabled it replaces
+		 * the Stats wp-admin UI (see modules/stats.php) — except on Atomic,
+		 * where the two coexist instead.
 		 */
 		if ( self::is_premium_analytics_enabled() ) {
 			// No menu_title here: the package labels its own menu on admin_menu.

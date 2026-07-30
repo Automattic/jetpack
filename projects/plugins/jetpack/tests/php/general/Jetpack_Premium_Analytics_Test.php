@@ -6,9 +6,11 @@
  */
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 require_once JETPACK__PLUGIN_DIR . 'class-jetpack-stats-dashboard-widget.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/stats.php';
 
 /**
  * Tests for Jetpack::is_premium_analytics_enabled() and the Stats UI it replaces.
@@ -33,7 +35,19 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 	public function tear_down() {
 		delete_option( 'jetpack_premium_analytics_enabled' );
 		self::reset_flag_cache();
+		remove_action( 'jetpack_admin_menu', 'stats_admin_menu' );
+		Constants::clear_constants();
+		Status_Cache::clear();
 		parent::tear_down();
+	}
+
+	/**
+	 * Sets the constants `Host::is_woa_site()` checks for, so tests can simulate Atomic.
+	 */
+	private static function mark_as_atomic() {
+		Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 123 );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', true );
 	}
 
 	/**
@@ -256,5 +270,54 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 		}
 
 		$this->assertTrue( $reached, 'wp_dashboard_setup() should not consult the flag on Simple sites.' );
+	}
+
+	/**
+	 * On Atomic the widget carries on regardless of the flag: Stats v2 adds a menu
+	 * there instead of replacing the legacy Stats UI.
+	 */
+	public function test_dashboard_widget_ignores_the_flag_on_atomic() {
+		update_option( 'jetpack_premium_analytics_enabled', 1 );
+		self::mark_as_atomic();
+
+		$reached = false;
+		$spy     = function () use ( &$reached ) {
+			$reached = true;
+			// Stop here: the rest of wp_dashboard_setup() is not what this test is about.
+			return false;
+		};
+		add_filter( 'jetpack_stats_dashboard_widget_show_to_user', $spy );
+
+		try {
+			Jetpack_Stats_Dashboard_Widget::wp_dashboard_setup();
+		} finally {
+			remove_filter( 'jetpack_stats_dashboard_widget_show_to_user', $spy );
+		}
+
+		$this->assertTrue( $reached, 'wp_dashboard_setup() should not consult the flag on Atomic.' );
+	}
+
+	/**
+	 * Off Atomic, the flag suppresses the legacy Stats admin menu as before.
+	 */
+	public function test_stats_admin_menu_suppressed_when_enabled_off_atomic() {
+		update_option( 'jetpack_premium_analytics_enabled', 1 );
+
+		stats_load();
+
+		$this->assertFalse( has_action( 'jetpack_admin_menu', 'stats_admin_menu' ) );
+	}
+
+	/**
+	 * On Atomic, the legacy Stats admin menu stays registered alongside Stats v2
+	 * instead of being suppressed.
+	 */
+	public function test_stats_admin_menu_kept_when_enabled_on_atomic() {
+		update_option( 'jetpack_premium_analytics_enabled', 1 );
+		self::mark_as_atomic();
+
+		stats_load();
+
+		$this->assertNotFalse( has_action( 'jetpack_admin_menu', 'stats_admin_menu' ) );
 	}
 }

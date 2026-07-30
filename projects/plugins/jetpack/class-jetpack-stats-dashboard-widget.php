@@ -43,16 +43,20 @@ class Jetpack_Stats_Dashboard_Widget {
 	 */
 	public static function wp_dashboard_setup() {
 		/*
-		 * The bundled Premium Analytics dashboard replaces the Stats widget when
-		 * enabled (WOOA7S-1595).
+		 * The bundled Stats v2 dashboard replaces the Stats widget when enabled
+		 * (WOOA7S-1595).
 		 *
 		 * Never on WordPress.com Simple. This file is required standalone there —
 		 * jetpack-mu-wpcom loads it on wp_dashboard_setup — into an environment where
 		 * `Jetpack` is wpcom's own class, not the plugin's, so the method below does
 		 * not exist and calling it fatals the whole dashboard. The plugin's bundled
 		 * package is not what Simple sites run anyway.
+		 *
+		 * Never on Atomic either: Stats v2 is still rolling out there, so the
+		 * legacy widget stays as an added surface instead of being replaced.
 		 */
-		if ( ! ( new Host() )->is_wpcom_simple() && Jetpack::is_premium_analytics_enabled() ) {
+		$host = new Host();
+		if ( ! $host->is_wpcom_simple() && ! $host->is_woa_site() && Jetpack::is_premium_analytics_enabled() ) {
 			return;
 		}
 
