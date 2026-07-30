@@ -264,6 +264,43 @@ describe( 'Stats time-series normalizer', () => {
 		);
 	} );
 
+	it( 'resolves visits hourly rows whose period packs date and hour into one string', () => {
+		// Unlike the email timeline (a separate `hour` column), the visits endpoint's
+		// hourly rows label each bucket with a single `YYYY-MM-DD HH:mm:ss` period —
+		// this must resolve to the same bucket, not fall through to the bare-date
+		// fallback (which would double-stamp a time suffix onto an already-timed
+		// string and produce an unparseable date).
+		const result = sanitizeStatsTimeSeriesResponse(
+			{
+				unit: 'hour',
+				fields: [ 'period', 'views', 'visitors' ],
+				data: [
+					[ '2026-06-30 00:00:00', 5, null ],
+					[ '2026-06-30 09:00:00', 12, null ],
+				],
+			},
+			{ period: 'hour' }
+		);
+
+		expect( result.data[ 0 ] ).toEqual(
+			expect.objectContaining( {
+				time_interval: '2026-06-30 00:00',
+				date_start: '2026-06-30T00:00:00+00:00',
+				date_end: '2026-06-30T00:59:59+00:00',
+				views: 5,
+				visitors: null,
+			} )
+		);
+		expect( result.data[ 1 ] ).toEqual(
+			expect.objectContaining( {
+				time_interval: '2026-06-30 09:00',
+				date_start: '2026-06-30T09:00:00+00:00',
+				date_end: '2026-06-30T09:59:59+00:00',
+				views: 12,
+			} )
+		);
+	} );
+
 	it( 'returns an empty email time series report when the timeline key is missing', () => {
 		const result = sanitizeStatsEmailTimeSeriesResponse( {} );
 

@@ -10,6 +10,7 @@ import {
 	type StatsVisitsStatFields,
 } from '@jetpack-premium-analytics/data';
 import { useCallback, useMemo } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -25,7 +26,7 @@ import { buildMetricTab, type MetricTab } from '@jetpack-premium-analytics/widge
  * its `period` (mapped to the visits endpoint's `unit`); the range and
  * comparison stay dashboard-driven.
  */
-export type TrafficPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
+export type TrafficPeriod = Extract< StatsPeriod, 'hour' | 'day' | 'week' | 'month' >;
 
 /**
  * Normalized traffic chart state: one metric tab per traffic field plus the
@@ -79,7 +80,12 @@ export default function useTrafficChart(
 ): TrafficChartState {
 	const selected = useMemo( () => new Set( metricIds ), [ metricIds ] );
 	const needsViewsVisitors = selected.has( 'views' ) || selected.has( 'visitors' );
-	const needsLikesComments = selected.has( 'likes' ) || selected.has( 'comments' );
+	// The hourly bucket only returns real numbers for `views` (visitors/likes/comments come
+	// back null per row), so skip the likes/comments request entirely rather than fetch a
+	// response that's guaranteed to be empty for both its fields.
+	const isHourly = period === 'hour';
+	const needsLikesComments =
+		! isHourly && ( selected.has( 'likes' ) || selected.has( 'comments' ) );
 
 	// Memoize each request's params (as sibling Stats widgets do) so the query key
 	// is stable across renders.
@@ -103,20 +109,44 @@ export default function useTrafficChart(
 	const lcHasComparison = likesComments.hasComparison;
 
 	// One tab per selected metric, in canonical definition order regardless of
-	// the order the ids were toggled in.
+	// the order the ids were toggled in. Hourly only has real data for `views`;
+	// the other tabs stay visible but disabled with an explanatory tooltip
+	// rather than rendering their (guaranteed-null) values as a misleading 0.
 	const metrics = useMemo(
 		() =>
 			TRAFFIC_CHART_METRICS.filter( metric => selected.has( metric.id ) ).map( metric => {
 				const isViewsVisitors = metric.id === 'views' || metric.id === 'visitors';
-				return buildMetricTab( {
+				const built = buildMetricTab( {
 					primary: isViewsVisitors ? vvPrimary : lcPrimary,
 					comparison: isViewsVisitors ? vvComparison : lcComparison,
 					hasComparison: isViewsVisitors ? vvHasComparison : lcHasComparison,
 					field: metric.id,
 					label: metric.label,
 				} );
+
+				if ( isHourly && metric.id !== 'views' ) {
+					return {
+						...built,
+						disabled: true,
+						description: __(
+							"Hourly data isn't available for this metric.",
+							'jetpack-premium-analytics-pkg'
+						),
+					};
+				}
+
+				return built;
 			} ),
-		[ selected, vvPrimary, vvComparison, vvHasComparison, lcPrimary, lcComparison, lcHasComparison ]
+		[
+			selected,
+			isHourly,
+			vvPrimary,
+			vvComparison,
+			vvHasComparison,
+			lcPrimary,
+			lcComparison,
+			lcHasComparison,
+		]
 	);
 
 	// Depend on the underlying refetch callbacks (each a stable `useReport`

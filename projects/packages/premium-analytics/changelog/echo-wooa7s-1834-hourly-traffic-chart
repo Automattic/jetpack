@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a "By hours" option to the Traffic widget's Group by dropdown, showing hourly Views (Visitors, Likes, and Comments aren't available hourly and show disabled).

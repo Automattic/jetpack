@@ -30,10 +30,18 @@ export const statsVisitsQuery = (
 ): StatsReportQueryOptions< 'visits' > => {
 	const statsParams = reportParamsToStatsQueryParams( params );
 	const apiParams = statsQueryParamsToApiParams( statsParams );
+	const isHourly = apiParams.period === 'hour';
+	// The hourly bucket endpoint reads `date`/`start_date` as full datetimes and derives the
+	// bucket count from their span; by this point they're bare calendar dates (yyyy-MM-dd),
+	// which the API resolves to 00:00:00 and silently truncates the last 23 hours of the range.
+	// Span the whole start/end day explicitly so a one-day range still returns 24 buckets.
 	const visitsParams: StatsProxyParams = {
 		unit: apiParams.period,
-		date: apiParams.date,
-		start_date: apiParams.start_date,
+		date: isHourly && apiParams.date ? `${ apiParams.date } 23:59:59` : apiParams.date,
+		start_date:
+			isHourly && apiParams.start_date
+				? `${ apiParams.start_date } 00:00:00`
+				: apiParams.start_date,
 		...( apiParams.period === 'day' ? { quantity: apiParams.days } : {} ),
 		stat_fields: params.stat_fields ?? 'views,visitors',
 	};

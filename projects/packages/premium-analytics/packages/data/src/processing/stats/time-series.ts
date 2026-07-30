@@ -210,9 +210,28 @@ function getHourIntervalFields( date: string, hour: unknown ) {
 	};
 }
 
+// The visits endpoint's hourly rows pack date and hour into one `period` string
+// (`YYYY-MM-DD HH:mm:ss`) instead of a separate `hour` field — unlike the email
+// timeline, which labels an explicit `hour` column. Parse that combined string
+// directly so a bare-date fallback doesn't get double-stamped with a time suffix
+// (`getStatsIntervalFields` appending `T00:00:00` to an already-timed string
+// produces an unparseable date, which crashes the chart's time scale).
+function getHourPeriodIntervalFields( period: string ) {
+	const match = period.match( /^(\d{4}-\d{2}-\d{2})[ T](\d{2}):/ );
+
+	return match ? getHourIntervalFields( match[ 1 ], match[ 2 ] ) : null;
+}
+
 function getRowIntervalFields( row: StatsRecord, rawPeriod: unknown, unit: string ) {
-	if ( unit === 'hour' && row.hour !== undefined && typeof rawPeriod === 'string' ) {
-		return getHourIntervalFields( rawPeriod, row.hour );
+	if ( unit === 'hour' && typeof rawPeriod === 'string' ) {
+		if ( row.hour !== undefined ) {
+			return getHourIntervalFields( rawPeriod, row.hour );
+		}
+
+		const hourPeriodFields = getHourPeriodIntervalFields( rawPeriod );
+		if ( hourPeriodFields ) {
+			return hourPeriodFields;
+		}
 	}
 
 	if ( typeof row.date_start === 'string' && typeof row.date_end === 'string' ) {

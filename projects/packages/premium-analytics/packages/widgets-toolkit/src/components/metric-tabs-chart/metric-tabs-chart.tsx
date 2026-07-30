@@ -52,6 +52,8 @@ export interface MetricTab {
 	dataFormat?: DataFormat;
 	/** Optional explanatory text, surfaced as the card's tooltip. */
 	description?: string;
+	/** Unselectable and shown with a placeholder instead of its (e.g. unsupported) value. */
+	disabled?: boolean;
 }
 
 export interface MetricTabsChartProps {
@@ -178,7 +180,9 @@ export function MetricTabsChart( {
 	loading = false,
 	groupLabel = __( 'Select metric', 'jetpack-premium-analytics-pkg' ),
 }: MetricTabsChartProps ) {
-	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
+	const [ selectedKey, setSelectedKey ] = useState(
+		defaultMetricKey ?? metrics.find( metric => ! metric.disabled )?.key ?? metrics[ 0 ]?.key
+	);
 
 	// Controlled open state: the dashboard's focusable drag-sortable wrapper
 	// closes the popup (reason 'none') right after it opens, so we open on
@@ -220,10 +224,28 @@ export function MetricTabsChart( {
 		[ onMetricChange ]
 	);
 
+	// A metric can flip from enabled to disabled after mount (e.g. the traffic
+	// chart's granularity changes to hourly while a now-unsupported metric was
+	// selected). A disabled tab can't be reselected by the user, so re-select
+	// the first enabled metric rather than leaving the chart stuck on one.
+	useEffect( () => {
+		if ( activeMetric?.disabled ) {
+			const fallback = metrics.find( metric => ! metric.disabled );
+			if ( fallback && fallback.key !== selectedKey ) {
+				handleValueChange( fallback.key );
+			}
+		}
+	}, [ activeMetric, metrics, selectedKey, handleValueChange ] );
+
 	// Memoised: an unstable `items` identity makes the select re-initialise and
 	// close its popup as it opens.
 	const metricItems = useMemo(
-		() => metrics.map( metric => ( { label: metric.label, value: metric.key } ) ),
+		() =>
+			metrics.map( metric => ( {
+				label: metric.label,
+				value: metric.key,
+				disabled: metric.disabled,
+			} ) ),
 		[ metrics ]
 	);
 
@@ -277,13 +299,17 @@ export function MetricTabsChart( {
 								activeMetric && (
 									<span className={ styles.tabContent }>
 										<Text className={ styles.tabLabel }>{ activeMetric.label }</Text>
-										<MetricWithComparison
-											value={ activeMetric.value }
-											previousValue={ activeMetric.previousValue }
-											dataFormat={ activeMetric.dataFormat ?? dataFormat }
-											direction="row"
-											align="flex-end"
-										/>
+										{ activeMetric.disabled ? (
+											<Text className={ styles.tabLabel }>{ '—' }</Text>
+										) : (
+											<MetricWithComparison
+												value={ activeMetric.value }
+												previousValue={ activeMetric.previousValue }
+												dataFormat={ activeMetric.dataFormat ?? dataFormat }
+												direction="row"
+												align="flex-end"
+											/>
+										) }
 									</span>
 								)
 							}
@@ -315,16 +341,21 @@ export function MetricTabsChart( {
 							value={ metric.key }
 							className={ styles.tab }
 							title={ metric.description }
+							disabled={ metric.disabled }
 						>
 							<span className={ styles.tabContent }>
 								<Text className={ styles.tabLabel }>{ metric.label }</Text>
-								<MetricWithComparison
-									value={ metric.value }
-									previousValue={ metric.previousValue }
-									dataFormat={ metric.dataFormat ?? dataFormat }
-									direction="row"
-									align="flex-end"
-								/>
+								{ metric.disabled ? (
+									<Text className={ styles.tabLabel }>{ '—' }</Text>
+								) : (
+									<MetricWithComparison
+										value={ metric.value }
+										previousValue={ metric.previousValue }
+										dataFormat={ metric.dataFormat ?? dataFormat }
+										direction="row"
+										align="flex-end"
+									/>
+								) }
 							</span>
 						</Tabs.Tab>
 					) ) }

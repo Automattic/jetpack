@@ -104,6 +104,23 @@ export const WithComparison: Story = {
 };
 
 /**
+ * "By hours" granularity: only Views has real hourly data, so Visitors, Likes,
+ * and Comments render disabled with a tooltip instead of a misleading `0`.
+ */
+export const Hourly: Story = {
+	render: () => (
+		<TrafficChartRender
+			attributes={ {
+				reportParams: getDefaultQueryParams( false ),
+				granularity: 'hour',
+				metrics: DEFAULT_TRAFFIC_CHART_METRICS,
+			} }
+		/>
+	),
+	decorators: [ withWidgetCanvas ],
+};
+
+/**
  * First load: both visits fetches are in flight, so the widget shows its loading
  * state (the metric tabs over the chart's loading overlay). The mock is forced
  * to never resolve for the duration of this story. Both of the widget's requests

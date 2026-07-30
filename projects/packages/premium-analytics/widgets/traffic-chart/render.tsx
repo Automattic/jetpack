@@ -40,6 +40,21 @@ const DATA_FORMAT = {
 // Ordered finest to coarsest, as `defaultPeriodForInterval` requires.
 const TRAFFIC_PERIODS = [ 'day', 'week', 'month' ] as const satisfies readonly TrafficPeriod[];
 
+/**
+ * Resolves Auto down to hourly for narrow dashboard ranges. The shared
+ * `defaultPeriodForInterval` helper's mapping table has no `hour` entry —
+ * adding one there would flip its "unsupported" fallback toward the coarsest
+ * end for every other widget that doesn't offer hourly (the helper's clamp
+ * only handles "too coarse", not "too fine") — so hourly is resolved locally
+ * before deferring to the shared helper for everything else.
+ *
+ * @param interval - The dashboard-derived interval.
+ * @return The matching selectable granularity.
+ */
+function resolveAutoPeriod( interval?: string ): TrafficPeriod {
+	return interval === 'hour' ? 'hour' : defaultPeriodForInterval( interval, TRAFFIC_PERIODS );
+}
+
 type TrafficChartInnerProps = {
 	/**
 	 * Selected granularity; `auto` follows the dashboard range.
@@ -68,9 +83,7 @@ function TrafficChartInner( { granularity, metrics }: TrafficChartInnerProps ) {
 	// granularity (and blow up the bucket count) while the user hasn't picked
 	// a granularity themselves.
 	const period: TrafficPeriod =
-		granularity === 'auto'
-			? defaultPeriodForInterval( reportParams.interval, TRAFFIC_PERIODS )
-			: granularity;
+		granularity === 'auto' ? resolveAutoPeriod( reportParams.interval ) : granularity;
 
 	const {
 		metrics: metricTabs,

@@ -1281,6 +1281,27 @@ describe( 'Stats query factories', () => {
 		expect( apiParams ).not.toHaveProperty( 'quantity' );
 	} );
 
+	it( 'expands visits date/start_date to full datetimes for hourly ranges', () => {
+		const query = statsVisitsQuery( {
+			from: '2026-06-01',
+			to: '2026-06-01',
+			interval: 'hour',
+		} );
+		const apiParams = query.queryKey[ 5 ] as Record< string, unknown >;
+
+		// A bare calendar date resolves to 00:00:00 on the API side, which would
+		// silently truncate the last 23 hours of the range — the widget must send
+		// the full day span instead of relying on `quantity`.
+		expect( apiParams ).toEqual(
+			expect.objectContaining( {
+				unit: 'hour',
+				date: '2026-06-01 23:59:59',
+				start_date: '2026-06-01 00:00:00',
+			} )
+		);
+		expect( apiParams ).not.toHaveProperty( 'quantity' );
+	} );
+
 	it( 'builds insights query keys without report params', () => {
 		expect( statsInsightsQuery().queryKey ).toEqual( [
 			'stats',

@@ -126,6 +126,7 @@ const STATS_API_BASE = '/jetpack-premium-analytics/v1/proxy/v1.1/stats';
  */
 const SPECTRUM_DAYS = 90;
 const DAY_MS = 24 * 60 * 60 * 1000;
+const HOUR_MS = 60 * 60 * 1000;
 
 /**
  * Parameters for dynamic mock data generation.
@@ -867,6 +868,51 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 const VISITS_STEP_DAYS: Record< string, number > = { day: 1, week: 7, month: 30, year: 365 };
 
 /**
+ * Builds the stats/visits hourly response. Mirrors the real `unit=hour`
+ * endpoint: only `views` gets real per-hour numbers, every other requested
+ * field comes back `null` (not zero) — so the traffic chart's disabled-tab
+ * handling has something real to render against in Storybook. The real
+ * endpoint packs date and hour into a single `period` string
+ * (`YYYY-MM-DD HH:mm:ss`) rather than a separate `hour` column — see
+ * `getHourPeriodIntervalFields` in `processing/stats/time-series.ts`.
+ *
+ * @param query - Parsed query params (`date`, `start_date`, `stat_fields`).
+ * @return Raw hourly visits response in the WPCOM matrix shape.
+ */
+function buildHourlyVisitsResponse( query: URLSearchParams ) {
+	const fields = ( query.get( 'stat_fields' ) || 'views,visitors' ).split( ',' );
+	const endDate = parseDateParam( query.get( 'date' ), new Date() );
+	const startDate = parseDateParam(
+		query.get( 'start_date' ),
+		new Date( endDate.getTime() - 23 * HOUR_MS )
+	);
+
+	const spanHours = Math.round( ( endDate.getTime() - startDate.getTime() ) / HOUR_MS );
+	// Bounded well below the API's 1440-hour cap — a story only needs enough
+	// buckets to read as a real hourly chart.
+	const count = Math.max( 1, Math.min( 48, spanHours + 1 ) );
+
+	const rows = Array.from( { length: count }, ( _, index ) => {
+		const bucket = new Date( endDate.getTime() - ( count - 1 - index ) * HOUR_MS );
+		const absHour = Math.floor( bucket.getTime() / HOUR_MS );
+		const wave = 40 * Math.sin( absHour / 4 ) + 20 * Math.cos( absHour / 7 );
+		const views = Math.max( 0, Math.round( 120 + wave ) );
+		const period = `${ bucket.toISOString().slice( 0, 10 ) } ${ String(
+			bucket.getUTCHours()
+		).padStart( 2, '0' ) }:00:00`;
+
+		return [ period, ...fields.map( field => ( field === 'views' ? views : null ) ) ];
+	} );
+
+	return {
+		date: endDate.toISOString().slice( 0, 10 ),
+		unit: 'hour',
+		fields: [ 'period', ...fields ],
+		data: rows,
+	};
+}
+
+/**
  * Builds the stats/visits time-series response for the traffic chart.
  *
  * Honours the `unit`, `date`, `start_date`, and `stat_fields` query params, and
@@ -875,13 +921,19 @@ const VISITS_STEP_DAYS: Record< string, number > = { day: 1, week: 7, month: 30,
  * bucket's absolute date so the current window trends above the comparison
  * window and each metric shows a positive period-over-period delta; the series
  * is wavy so the dashed previous-period overlay reads clearly against the solid
- * current line.
+ * current line. `unit=hour` delegates to `buildHourlyVisitsResponse`, which
+ * mocks the real endpoint's views-only hourly support instead.
  *
  * @param query - Parsed query params (`unit`, `date`, `start_date`, `stat_fields`).
  * @return Raw visits response in the WPCOM matrix shape.
  */
 function buildVisitsResponse( query: URLSearchParams ) {
 	const unit = query.get( 'unit' ) || 'day';
+
+	if ( unit === 'hour' ) {
+		return buildHourlyVisitsResponse( query );
+	}
+
 	const stepDays = VISITS_STEP_DAYS[ unit ] ?? 1;
 	const fields = ( query.get( 'stat_fields' ) || 'views,visitors' ).split( ',' );
 	const endDate = parseDateParam( query.get( 'date' ), new Date() );
