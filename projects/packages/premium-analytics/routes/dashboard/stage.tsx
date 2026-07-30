@@ -73,9 +73,10 @@ function Dashboard(): JSX.Element {
 		() =>
 			getSectionSubtitle( {
 				range: dateFilters.appliedRange,
+				presetId: dateFilters.appliedPresetId,
 				comparisonPresetId: dateFilters.appliedComparisonPresetId,
 			} ),
-		[ dateFilters.appliedRange, dateFilters.appliedComparisonPresetId ]
+		[ dateFilters.appliedRange, dateFilters.appliedPresetId, dateFilters.appliedComparisonPresetId ]
 	);
 
 	// Container element for the date filters panel responsive layout.

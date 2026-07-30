@@ -110,4 +110,32 @@ describe( 'getSectionSubtitle', () => {
 	it( 'omits the comparison when none is applied', () => {
 		expect( getSectionSubtitle( { range: currentYearRange( 7 ) } ) ).not.toContain( 'vs.' );
 	} );
+
+	describe( 'all-time', () => {
+		// Every case is the same selection, read on a different day: mid-month,
+		// on a month boundary, and on a year boundary. Measured, each lands in a
+		// different unit, because the range runs to the end of today.
+		const FROM = at( 2021, 1, 1 );
+		const READ_ON = [
+			[ 'mid-month', endOf( 2026, 7, 30 ) ],
+			[ 'on the last day of a month', endOf( 2026, 7, 31 ) ],
+			[ 'on the last day of a year', endOf( 2026, 12, 31 ) ],
+		] as const;
+
+		it.each( READ_ON )( 'carries no length when read %s', ( _label, to ) => {
+			const subtitle = getSectionSubtitle( { range: { from: FROM, to }, presetId: 'all-time' } );
+
+			expect( subtitle ).toContain( 'January 1, 2021' );
+			expect( subtitle ).not.toMatch( /\(\d/ );
+		} );
+
+		it( 'still measures the same range under any other preset', () => {
+			expect(
+				getSectionSubtitle( {
+					range: { from: FROM, to: endOf( 2026, 7, 30 ) },
+					presetId: 'custom',
+				} )
+			).toContain( '(2037 days)' );
+		} );
+	} );
 } );
