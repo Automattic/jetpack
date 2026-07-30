@@ -36,15 +36,19 @@ jetpack-test-jurassic-ninja (provision-only, +jetpack-beta)   → fresh connecte
       ↓
 this skill: wp jetpack-beta activate <plugin> <PR-branch>   (rsync fallback if no build)
       ↓
-this skill: prove the branch code actually loads (ReflectionClass, not grep)
+this skill: prove the branch code actually loads  — expect production to be shadowing it
+            · PHP change → ReflectionClass::getFileName() + assert an added symbol
+            · JS  change → resolve asset base, then grep the BUILT bundle
             ↳ production shadowing the branch? deactivate jetpack-production  [AUTONOMOUS]
       ↓
 this skill: apply feature-state setup from the Testing Instructions
             · flags / options  → mu-plugin                   [AUTONOMOUS — throwaway site]
-            · plan / product    → local jetpack_active_plan override  [AUTONOMOUS — default]
+            · plan / product    → override the option THAT GATE reads  [AUTONOMOUS — default]
+                                  (jetpack_active_plan is common, not universal)
                                   ↳ real WPCOM blog sticker   [CONFIRM-FIRST — only if server-enforced]
       ↓
-this skill: locate the UI entry point → hand off to jetpack-screenshot
+this skill: locate the UI entry point AND prove it renders → hand off to jetpack-screenshot
+            ↳ gates true but nothing renders? report that honestly; don't hand over a dead link
 ```
 
 **In scope:** feature flags/options and plan/product state (local override, or real sticker).
@@ -95,11 +99,37 @@ gh pr view <PR> --repo Automattic/jetpack \
   branch* has open — which may be a branch with no plugin code in it at all. Whenever the PR
   came from that default rather than an explicit argument, name the PR number and title you
   resolved before acting on it, so a wrong guess is visible before it costs a site.
+- **Check `state` before going further — don't just capture it.** `MERGED` and `CLOSED` PRs
+  change what the rest of this skill means, and a PR you picked off an "open" list minutes ago
+  can already be merged (observed 2026-07-30 with #50903):
+  - **`MERGED`** — say so, and confirm the user still wants a site. Two things invert. The
+    branch may be deleted, so `wp jetpack-beta list <plugin>` may not offer it at all (fall
+    straight to the rsync fallback from the merge commit if so). And once trunk has rebuilt,
+    `jetpack-production` *contains* the change — so step 2b resolving to `jetpack-production` is
+    no longer evidence of a problem, and deactivating it is pointless. Verify the change by
+    behavior, not by which plugin the class came from.
+  - **`CLOSED`** (unmerged) — stop and confirm. The code was rejected; setting up a site for it
+    is usually a mistake, and a beta build may not exist.
+  - **`OPEN` + `isDraft`** — proceed normally, but label it a draft in the step-7 report.
 - Pull the **Testing Instructions** section out of `.body`. Extract every precondition it
   states — phrases like "Requires…", "add_filter(…)", "Enable…", "Upgrade … to Pro", "with the
   X feature", "at least one … connection", "add the blog sticker …". This list is the setup
-  plan for steps 3–6. If the body has no testing section, say so and ask the user what state
-  the feature needs.
+  plan for steps 3–6.
+- **A section that exists but was never filled in counts as no instructions.** The PR template
+  ships with a "Testing instructions" heading followed by HTML comments and placeholder bullets,
+  and plenty of PRs are opened without touching it. Observed 2026-07-30 on PR #50419, whose
+  entire section was `<!-- … -->` comments plus `* Go to '..'` and a bare `*`. Parsed literally
+  that yields `Go to '..'` as a precondition, which is nonsense you can waste a lot of time on.
+  Treat the section as empty when what's left after stripping `<!-- … -->` comments is only
+  empty bullets or template stubs (`Go to '..'`, `Fixes #`, lone `*`).
+- **With no usable instructions, don't stall — infer, state, and proceed.** Read the diff and
+  say plainly which state you inferred and why, then continue. Only stop and ask if the diff
+  leaves genuine ambiguity about what has to be switched on. A missing testing section is common
+  and is not a reason to refuse a site.
+- **"No preconditions" is a legitimate outcome, not a gap.** Plenty of PRs — UI refactors,
+  copy changes, dependency bumps — need nothing beyond the branch being live. When that's the
+  case, say steps 3–5 were a no-op and go straight to step 6. Don't invent setup to fill the
+  section. PR #50419 was exactly this: a pure component migration with no feature state at all.
 
 ### 1. Provision a fresh JN site (delegate)
 
@@ -128,8 +158,43 @@ essentials:
   `"false"` to turn a default off. `jetpack-beta` takes a `branches` parameter; with none, JN
   provisions `wp jetpack-beta activate jetpack trunk`. Ignore `jetpack-products` however
   promising it looks — it can't be driven through this MCP and fails silently; see step 5.
-- Poll `list-sites` (`include_config:false`) until `status == 2` (cap ~3 min).
-- `connect-jetpack` (domain). **Capture the `blog_id`** and the **admin credentials** — the
+- **Readiness: wait for the *last* configuration command, not for the site to respond.** JN
+  provisions in two phases — it installs the `software` list first, then runs a `commands` list —
+  and almost every tempting signal fires during phase one, while the site is still half-built.
+  Two signals that look right and are not:
+  - **HTTP 200.** WordPress answers long before configuration runs. Observed 2026-07-30: `200`
+    at **15 seconds**, while JN had not yet swapped in `jetpack-production`, activated a beta
+    branch, or imported content.
+  - **`jetpack-beta` being installed.** It arrives in phase one. Observed 2026-07-30 at
+    **t=20s**: `jetpack-beta` and `jetpack-boost` present, but the plugin list still showed plain
+    `jetpack` (not yet uninstalled and replaced by `jetpack-production` + `jetpack-dev`) and no
+    `wordpress-importer`. Proceeding here runs step 2 against a site whose plugin set is about to
+    change underneath you.
+
+  **Use `blogname` as the sentinel.** `wp option update blogname "<Title>"` is the final command
+  in JN's list — verified across **all 7** site configs available 2026-07-30, spanning two days
+  and different feature sets. JN sets it to the domain in Title Case, so a fresh install still
+  reading `My WordPress Site` means configuration has not finished:
+
+  ```bash
+  jnwp 'wp option get blogname'      # "Freely Robust Skipper" → done; "My WordPress Site" → wait
+  ```
+
+  Measured on that run: plugins present at 20s, `blogname` still default at 30s, configuration
+  complete at **90s**.
+
+  **Fallback, because this is JN's script and not a contract:** if `blogname` hasn't flipped by
+  the ~6 min cap, don't fail outright — check the things the later steps actually need
+  (`wp plugin list` showing `jetpack-production` **and** `jetpack-dev`, plus `wordpress-importer`
+  if you asked for `content`). If those are all present, proceed and say you bypassed the
+  sentinel.
+- `status` is advisory in both directions and should never be the only gate: it lags *behind* a
+  working site (observed sitting at `1` for over 4.5 minutes on 2026-07-29, and still `1` on
+  2026-07-30 after the site was fully configured and serving).
+- `connect-jetpack` (domain). **Retry once on a transport-level error** before believing it —
+  this MCP call intermittently returns `MCP error -32603 … Premature close`, and a plain
+  immediate retry succeeds (observed 2026-07-29; the retry reported `already_connected`, so
+  the first call had in fact worked). **Capture the `blog_id`** and the **admin credentials** — the
   report in step 7 must hand these back so the user can reach `/wp-admin`. Note what
   `list-sites` actually returns: `include_config:true, include_passwords:true` gives you the
   site's `JN_PASSWORD` (the SSH/SFTP password), **not** a separate `admin_pass` field. The
@@ -151,8 +216,10 @@ with keys and the proxy switched off. Set the transport up once here and reuse i
 below.
 
 ```bash
-# 1) Host: prefer the one in provision-site's returned `ssh_command`; else ssh.atomicsites.net.
-JN_HOST='<domain>@ssh.atomicsites.net'
+# 1) Host: take it from provision-site's returned `ssh_command` — don't hardcode one.
+#    It is NOT always ssh.atomicsites.net: a site provisioned 2026-07-29 returned
+#    `ssh <domain>@sftp.wp.com`, and the atomicsites host would not have served it.
+JN_HOST='<domain>@<host from the returned ssh_command>'   # e.g. <domain>@sftp.wp.com
 
 # 2) Site password — JN MCP: list-sites (domain: <domain>, include_passwords: true).
 JN_PW='<password from list-sites>'
@@ -175,13 +242,47 @@ jnwp() {
 }
 
 # 5) Prove the transport end to end before doing anything else.
-jnwp 'wp --version'
+#    Use `wp cli version`, NOT `wp --version`: on JN's wp-cli the latter prints the whole
+#    help screen instead of a version string, which reads like a failure when it isn't.
+jnwp 'wp cli version'          # → WP-CLI 2.12.0
 ```
+
+**`jnwp` is written as a shell function, but a shell function will not survive between your
+tool calls** — each Bash invocation gets a fresh shell, so a function defined in one call is
+gone by the next. Materialize it as an executable script instead and call that script every
+time (the `ControlPersist` socket is what actually carries the "authenticate once" benefit
+across calls, and it works fine across separate processes):
+
+```bash
+D=<your scratchpad dir>
+printf '#!/bin/sh\necho "$JN_PW"\n' > "$D/askpass.sh"
+cat > "$D/jnwp.sh" <<'SH'
+#!/bin/bash
+D=<your scratchpad dir>
+JN_HOST='<domain>@<host from ssh_command>'
+JN_PW='<password from list-sites>'
+export JN_PW SSH_ASKPASS="$D/askpass.sh" SSH_ASKPASS_REQUIRE=force
+exec ssh -o PubkeyAuthentication=no -o PreferredAuthentications=password \
+    -o ProxyJump=none -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+    -o ControlMaster=auto -o ControlPath="$D/cm" -o ControlPersist=5m \
+    "$JN_HOST" "cd /srv/htdocs && $*"
+SH
+chmod +x "$D/askpass.sh" "$D/jnwp.sh"
+```
+
+Then read every `jnwp '<cmd>'` below as `"$D/jnwp.sh" '<cmd>'`. Keep `$D` short — `ControlPath`
+is a unix socket and dies past ~104 characters.
+
+**If auth suddenly starts failing mid-run with `ssh_askpass: exec(…): No such file or directory`
+followed by `Permission denied`, the askpass helper was cleaned up underneath you** — scratch
+and temp dirs get swept between turns. It is not a credential problem: just rewrite
+`askpass.sh`, `chmod +x` it, and carry on. (This is also why `mktemp` is the wrong home for it —
+prefer a path you control and can recreate.)
 
 Needs OpenSSH ≥ 8.4 (for `SSH_ASKPASS_REQUIRE=force`, which makes ssh read the password from
 the askpass helper even with a tty attached). If that's unavailable, swap the body for
 `sshpass -p "$JN_PW" ssh -o PubkeyAuthentication=no -o PreferredAuthentications=password
--o ProxyJump=none "$JN_HOST" "cd /srv/htdocs && $*"`. If `jnwp 'wp --version'` still fails
+-o ProxyJump=none "$JN_HOST" "cd /srv/htdocs && $*"`. If `jnwp 'wp cli version'` still fails
 (password rejected, host unreachable), stop and report it — that is the one case the
 browser-driven Beta Tester UI exists to cover.
 
@@ -189,13 +290,37 @@ browser-driven Beta Tester UI exists to cover.
 
 **Map the PR to a Beta Tester plugin target** (same logic as `jn-pr-review` step 3):
 
-- `projects/plugins/<slug>/…` changed → that plugin (`jetpack`, `jetpack-boost`, `social`,
-  `search`, `protect`, `videopress`, `crm`, …).
-- `projects/packages/<pkg>/…` **only** (no plugin path) → **`jetpack`** — the branch build
-  bundles the package via the autoloader. This is the common case for the SEO/`packages/seo`
-  PRs.
-- More than one plugin affected, or a package that plausibly belongs to a non-`jetpack`
-  plugin → **ask** which to activate.
+- `projects/plugins/<slug>/…` changed → that plugin. **Beta Tester's slug is not always the
+  monorepo directory name**, and a wrong slug fails with
+  `Error: Plugin 'search' is not known` (exit 1) — loud, but a wasted round trip, and easy to
+  misread as "no beta build exists" and bail to rsync for nothing. Get the authoritative list
+  from the site instead of guessing:
+
+  ```bash
+  jnwp 'wp jetpack-beta list'        # prints every valid <plugin> slug
+  ```
+
+  Most standalone plugins carry a `jetpack-` prefix that their monorepo directory lacks —
+  `jetpack-search`, `jetpack-social`, `jetpack-protect`, `jetpack-videopress`, `jetpack-boost`,
+  `jetpack-backup`. The list also includes non-Jetpack targets (`woocommerce`,
+  `woocommerce-payments`, `jetpack-mu-wpcom-plugin`, …), so check rather than assume.
+- `projects/packages/<pkg>/…` **only** (no plugin path) → usually **`jetpack`**, which bundles
+  the package via the autoloader. This is the common case (e.g. `packages/seo`). But a package
+  that also ships in a standalone plugin gets a branch build under **both** targets — verified
+  2026-07-30, `packages/search` on branch `fix/search-311-no-results-flash` appeared under
+  `jetpack` *and* `jetpack-search`. So `jetpack` is the default, not the answer: when the
+  package name maps to a standalone plugin (`search`, `publicize`→Social, `boost-*`, `protect`,
+  `videopress`, `backup`), check both with `wp jetpack-beta list <plugin>` and **ask which the
+  user wants**. They test different surfaces — the standalone plugin's UI, or the same package
+  as consumed by the Jetpack plugin.
+- **Discard plugins that can't run on a JN site before counting.** `wpcomsh` is the one you'll
+  actually hit: it's Atomic/WPCOM-only, isn't installable here, and a PR touching it usually
+  only adds a WPCOM feature-registry entry. Counting it makes the "more than one plugin" rule
+  below fire on PRs that have exactly one testable target, so you stop and ask a question with
+  only one possible answer. Drop it, note in the report that its changes aren't exercised on
+  JN, and carry on.
+- More than one *testable* plugin affected, or a package that plausibly belongs to a
+  non-`jetpack` plugin → **ask** which to activate.
 - **Nothing under `projects/` → there is no target.** Step 0 should have caught this; if you
   reach here, stop and report it plainly rather than inventing a target or asking the user to
   reinterpret their request.
@@ -237,31 +362,80 @@ code runs. Step 2b is what establishes that, and it is not optional.
 
 ### 2b. Prove the branch's code actually executes — REQUIRED
 
+**First: does shadowing even apply to this PR?** The elaborate proof below exists because two
+plugins can register the *same* package and the autoloader picks one. That situation is specific,
+and on a standalone plugin target it does not arise:
+
+| What you activated | Resulting plugins | Shadowing risk |
+|---|---|---|
+| `jetpack` (the JN default keeps `jetpack-production` active) | `jetpack-dev` **+** `jetpack-production`, both active | **Yes** — the main case below |
+| A standalone plugin (`jetpack-boost`, `jetpack-search`, …) | `<plugin>-dev` only; Beta Tester **replaces** the original, which goes inactive | **No** for that plugin's own code |
+
+Verified 2026-07-30 on PR #50419: after `wp jetpack-beta activate jetpack-boost <branch>`, the
+plugin list held `jetpack-boost-dev` and *no* `jetpack-boost` — the stock copy stayed on disk but
+inactive — and `JETPACK_BOOST_PATH`, the active-plugin entry, and the `Jetpack_Boost` class all
+resolved under `jetpack-boost-dev/`. There is no second registrant to lose to.
+
+So: for a PR changing a standalone plugin's **own** code (`projects/plugins/<slug>/…`), confirming
+the `-dev` plugin is the active one is sufficient — record it and move to step 3. Two caveats:
+
+- If `jetpack-dev`/`jetpack-production` are *also* active (they are, on a default JN site), any
+  **shared package** still competes across all registrants. A PR touching `projects/packages/…`
+  needs the full check below even when you activated a standalone plugin.
+- Everything else — the `jetpack` target, and every package PR — takes the full check.
+
 An active `jetpack-dev` does not mean the PR's code runs. `jetpack-dev` and
 `jetpack-production` **both** register every bundled package with the jetpack-autoloader, which
 loads the **highest version** of each package across all registrants. Beta builds are versioned
-`X.Y.Z-alpha<timestamp>` from the branch's own `composer.json`, so whenever the PR branch is
-based on a trunk older than the one `jetpack-production` was built from, **production wins and
-the branch's package sits on disk and never loads.** Everything looks healthy — site up, plugin
-list right, `jetpack-beta list` showing `*` — and the PR's change is simply absent. This is the
-single most likely reason a reviewer reports "I can't see the change."
+`X.Y.Z.0-alpha<timestamp>`, and **the `<timestamp>` is the tiebreak whenever the base version
+matches** — which it usually does, since the branch and trunk are normally on the same package
+version. So the comparison that decides which copy loads is, in the common case, simply *which
+build is newer*, and `jetpack-production` is rebuilt from trunk continuously. **Expect production
+to win by default.** A branch build only hours older than production's already loses.
+
+Worked example, observed 2026-07-29 on PR #50899: production carried `jetpack-seo`
+`0.8.0.0-alpha1785352583`, the branch build `0.8.0.0-alpha1785333373` — identical `0.8.0.0` base,
+production newer by ~19,000 seconds (~5.3 h). Production won; the PR's new
+`Initializer::is_available()` did not exist at runtime.
+
+Everything looks healthy while this happens — site up, plugin list right, `jetpack-beta list`
+showing `*` — and the PR's change is simply absent. This is the single most likely reason a
+reviewer reports "I can't see the change", and because the tiebreak is a timestamp rather than a
+version bump, **treat shadowing as the expected state and the check below as routine**, not as an
+edge case you might skip on a freshly-rebased branch.
 
 `JETPACK_AUTOLOAD_DEV` does **not** rescue this (it's what `jn-pr-review` sets for its rsync
 path). `Version_Selector::is_dev_version()` recognises only `dev-*` and `9999999-dev`; an
 `-alpha<timestamp>` build is neither, so selection falls through to `version_compare` either way.
 
-**Never verify this with a disk grep.** The PR's string is present in `jetpack-dev` whether or
-not that copy loads — grepping it proves nothing. Ask PHP where it resolved the class from,
-using a class the PR actually touches:
+Pick the check that matches what the PR actually changed — **PHP and JS need different proofs**,
+and using the PHP one on a JS PR proves nothing about the code under review:
+
+| PR changes | Verify with |
+|---|---|
+| PHP (`src/**.php`) | **2b-i** — `ReflectionClass::getFileName()` on a class the PR touches |
+| JS/CSS only (`**.jsx`, `**.tsx`, `**.scss`) | **2b-ii** — resolve the package's asset base, then grep the *built bundle* |
+| Both | Both — the PHP resolving to `jetpack-dev` does **not** imply the browser gets the branch's JS |
+
+#### 2b-i. PHP changes — ask PHP where it resolved the class from
+
+**Never verify a PHP change with a disk grep.** The PR's string is present in `jetpack-dev`
+whether or not that copy loads — grepping it proves nothing. Use a class the PR actually touches:
 
 ```bash
 jnwp 'cat > /tmp/whichfile.php <<'"'"'PHP'"'"'
 <?php
 $r = new ReflectionClass( "Fully\\Qualified\\Class\\From\\The\\PR" );
-echo $r->getFileName() . "\n";
+echo "file: " . $r->getFileName() . "\n";
+// Assert a symbol the PR ADDS. The path alone can mislead; a new method/constant
+// cannot be present unless the branch copy is the one that loaded.
+echo "has <new_method>: " . var_export( $r->hasMethod( "<new_method>" ), true ) . "\n";
 PHP
 wp eval-file /tmp/whichfile.php'
 ```
+
+Asserting an added symbol alongside the path is worth the extra line — it turns "probably the
+right file" into proof, and it reads unambiguously in the step-7 report.
 
 - Resolves under `wp-content/plugins/jetpack-dev/…` → branch code is live; go to step 3.
 - Resolves under `wp-content/plugins/jetpack-production/…` → production is shadowing the branch.
@@ -276,6 +450,72 @@ wp eval-file /tmp/whichfile.php'
   connection survived — `Manager::is_connected()` still true and the same blog ID — before
   moving on.
 
+#### 2b-ii. JS/CSS-only changes — find the live asset directory, then grep the built bundle
+
+A JS-only PR has no class to reflect on, and reflecting on some *neighbouring* PHP class proves
+only that the PHP loaded. Two steps, and you need both:
+
+1. **Find the directory the live assets are served from.** Which question you ask depends on who
+   owns the asset — get this wrong and you verify a file nobody loads:
+
+   **Package-owned** (`projects/packages/<pkg>/…`, built into `jetpack_vendor/…/build/`) — ask
+   PHP, because the enqueue URL is derived from wherever the autoloader resolved the package:
+
+   ```bash
+   jnwp 'cat > /tmp/assetbase.php <<'"'"'PHP'"'"'
+   <?php
+   echo Automattic\Jetpack\Search\Package::get_installed_path() . "\n";   // swap in the PR's package
+   PHP
+   wp eval-file /tmp/assetbase.php'
+   ```
+
+   Must print a path under `jetpack-dev/`. If it prints `jetpack-production/`, deactivate
+   production exactly as in 2b-i, then re-run.
+
+   **Plugin-owned** (`projects/plugins/<slug>/app/…`, built into the plugin's own `dist/`) —
+   there is no package to resolve and `get_installed_path()` does not apply. The active plugin
+   *is* the answer, and on a standalone target it's unambiguous (see the table at the top of 2b).
+   Confirm the `-dev` plugin is the active one:
+
+   ```bash
+   jnwp 'wp plugin list --status=active --field=name | grep <slug>'   # expect <slug>-dev
+   ```
+
+   Verified 2026-07-30 on PR #50419 (`plugins/boost/app/**.tsx`): assets live in
+   `wp-content/plugins/jetpack-boost-dev/app/assets/dist/`, and only `jetpack-boost-dev` was
+   active.
+
+2. **Grep the built bundle under that path** for a symbol the PR adds. **This is the one place a
+   disk grep is correct** — the built asset is what actually ships to the browser, and step 1
+   already pinned down which copy is live. Compare the branch build against the stock one so the
+   result is unambiguous:
+
+   ```bash
+   jnwp 'for p in <plugin>-dev <plugin>; do        # or jetpack-dev / jetpack-production
+     f=wp-content/plugins/$p/<path-to-bundle>.js
+     printf "%-22s %s\n" "$p" "$(grep -o -- "<symbol>" $f 2>/dev/null | wc -l)"
+   done'
+   ```
+
+   **Count occurrences, not lines.** Use `grep -o … | wc -l`. Plain **`grep -c` counts matching
+   *lines*, and a minified bundle is essentially one line — so it returns `1` no matter whether
+   the symbol appears once or five hundred times.** Verified locally: three matches on one line
+   give `grep -c` → `1`, `grep -o | wc -l` → `3`. (`grep -o -c` also returns `3` on GNU grep, but
+   that combination isn't portable — prefer the `wc -l` form.)
+
+   **Two result shapes, depending on the PR:**
+   - *Feature PR* — the symbol is **new**, so expect present vs absent. PR #50925:
+     `isQueryPending` 2× in `jetpack-dev`, **0×** in production.
+   - *Refactor/migration PR* — the symbol already exists in both and only the **quantity**
+     changes, so absent-vs-present will never appear and a naive check reads as "no difference".
+     PR #50419 migrating Boost to `@wordpress/ui`: `wp-ui-` **332×** in the stock plugin vs
+     **509×** in the branch build. Corroborate with file size (861376 → 993235 bytes).
+
+   **Choose a symbol that survives minification.** Terser mangles local variable names but leaves
+   **object/JSX prop names, CSS class names and string literals** intact — so prop names, action
+   types, generated class prefixes and user-facing strings work; a renamed local `const` does not.
+   If a grep returns 0 in *both* builds, suspect your symbol before concluding the build is wrong.
+
 To see the reason rather than infer it, compare what each plugin registers:
 
 Match on the **file path**, not the namespaced class name — the path has no backslashes to lose
@@ -288,12 +528,25 @@ jnwp 'for p in jetpack-production jetpack-dev; do echo "== $p"; \
 
 The `version` line above each `path` is what the autoloader compares.
 
-A branch whose package version is *behind* trunk's is a **stale branch**. Say so in the final
-report: a rebase is the durable fix, and until then the user is reviewing a build several
-minors old. Expect knock-on surprises — a class trunk has may not exist in the branch build at
-all (e.g. `SEO\Surface_Visibility` is absent from `jetpack-seo` 0.6.1), so a verification step
-copied from trunk can fatal with `Class "…" not found`. That's information about the branch,
-not a broken site.
+Read the two `version` lines carefully before drawing any conclusion about the branch — they
+mean different things depending on *where* they differ:
+
+- **Same base version, production's `-alpha<timestamp>` merely newer** (the common case, and the
+  example above). This says nothing about the branch: it is not stale, and **recommending a
+  rebase here is wrong** — a rebase would produce a fresh timestamp that goes stale again within
+  hours, and the branch was never behind on version to begin with. Deactivating
+  `jetpack-production` is the entire fix. Don't flag the branch in the report.
+- **Branch's base version genuinely lower than production's** (`0.6.1` vs `0.8.0`) — *this* is a
+  **stale branch**. Say so in the final report and recommend a rebase; until then the user is
+  reviewing a build several minors old. Expect knock-on surprises — a class trunk has may not
+  exist in the branch build at all (e.g. `SEO\Surface_Visibility` is absent from `jetpack-seo`
+  0.6.1), so a verification step copied from trunk can fatal with `Class "…" not found`. That's
+  information about the branch, not a broken site.
+
+Note the resolved file paths sit under `jetpack_vendor/automattic/<pkg>/…`, while the classmap
+you grep lives at `vendor/composer/jetpack_autoload_classmap.php` — two different `vendor`
+directories in the same plugin. Grepping the wrong one finds nothing and looks like the package
+isn't registered.
 
 **Quoting note (applies to every `wp` call in this skill):** anything with backslashes or
 nested quotes belongs in a heredoc'd file run with `wp eval-file`, never inline `wp eval`. A
@@ -370,20 +623,38 @@ blog would genuinely own the product; until then it is a silent no-op that waste
 
 #### 5a. Local plan override on the JN site — AUTONOMOUS (default)
 
-Plan gates resolve locally against the **`jetpack_active_plan` option**: `Current_Plan::get()`
-reads it, `Current_Plan::supports( $feature )` checks `$plan['features']['active']`, and the
-editor's `siteHasFeature( … )` reads the very same array (it's injected verbatim into script
-data). So adding the feature slug to that option's `features.active` on the site itself flips
-every client-side gate — no WPCOM sandbox, no sticker, no blog ID. Do it with a mu-plugin so a
-later plan refresh can't clobber it.
+Plan gates resolve locally against a **cached option**, so overriding that option on the site
+flips them — no WPCOM sandbox, no sticker, no blog ID. Do it with a mu-plugin so a later plan
+refresh can't clobber it.
 
-**Hook both `option_` *and* `default_option_`.** `Current_Plan::get()` reads the plan with
-`get_option( 'jetpack_active_plan', array() )`, and on a **fresh JN site that option row does
-not exist yet** — so `get_option()` returns through the `default_option_jetpack_active_plan`
-filter, and the `option_jetpack_active_plan` filter *never fires*. Hooking only `option_`
-(the obvious choice) silently no-ops: `supports()` keeps returning `false` with no error, and
-you waste time thinking the override "didn't work." Register the same closure on both filters
-so it applies whether or not the row exists:
+**First find the option the gate actually reads. There is no single plan option.**
+`jetpack_active_plan` is the common one, not the universal one — packages keep their own plan
+caches, and overriding the wrong option no-ops silently:
+
+| Gate | Reads |
+|---|---|
+| `Current_Plan::supports( $slug )` (My Jetpack, SEO, editor `siteHasFeature`) | `jetpack_active_plan` → `features.active[]` |
+| `Search\Plan::supports_search()` / `supports_instant_search()` | `jetpack_search_plan_info` → `supports_search`, `supports_instant_search` |
+| `Search\Plan::has_jetpack_search_product()` | `has_jetpack_search_product` |
+
+So: open the gate in the **branch** code, follow it to its `get_option()` call, and override
+*that* key. Verified 2026-07-30 — assuming `jetpack_active_plan` for PR #50925's Instant Search
+gate would have achieved nothing; the working override targeted `jetpack_search_plan_info` and
+`has_jetpack_search_product` instead. The **technique** below is what generalizes, not the key.
+
+For the `Current_Plan` case the payload is the feature slug appended to `features.active`; for
+others it is whatever shape that gate reads (e.g. Search wants
+`array( "supports_search" => true, "supports_instant_search" => true )`).
+
+**Hook both `option_<key>` *and* `default_option_<key>`** — whichever key you settled on above.
+`Current_Plan::get()` reads the plan with `get_option( 'jetpack_active_plan', array() )`, and on
+a **fresh JN site that option row does not exist yet** (confirmed: `wp option get
+jetpack_active_plan` → `Could not get … Does it exist?`) — so `get_option()` returns through the
+`default_option_jetpack_active_plan` filter, and the `option_jetpack_active_plan` filter *never
+fires*. Hooking only `option_` (the obvious choice) silently no-ops: `supports()` keeps returning
+`false` with no error, and you waste time thinking the override "didn't work." This applies to
+every plan option, not just this one — the Search keys are equally absent on a fresh site.
+Register the same closure on both filters so it applies whether or not the row exists:
 
 ```bash
 # The heredoc delimiter is single-quoted (<<'PHP'), so the REMOTE shell leaves every $
@@ -409,13 +680,49 @@ add_filter( "default_option_jetpack_active_plan", $jp_pr_plan_override );  // fr
 PHP'
 ```
 
-Verify: `jnwp 'wp eval "var_export( Automattic\\Jetpack\\Current_Plan::supports( \"<feature-slug>\" ) );"'`
-should print `true`. Find the exact slug from the PR (the gate reads `social-<feature>` in
+Verify with `eval-file`, **not** inline `wp eval` — the class name is namespaced, and this step
+is exactly the case the quoting note in step 2b warns about. Inline, the backslashes are eaten
+across local shell → ssh → remote shell and you get
+`Parse error: syntax error, unexpected token "\"` plus a scary "critical error on this website"
+banner, which looks like the override broke the site when nothing is wrong at all:
+
+```bash
+jnwp 'cat > /tmp/plancheck.php <<'"'"'PHP'"'"'
+<?php
+use Automattic\Jetpack\Current_Plan;
+echo var_export( Current_Plan::supports( "<feature-slug>" ), true ) . "\n";
+PHP
+wp eval-file /tmp/plancheck.php'
+```
+
+Should print `true`. Find the exact slug from the PR (the gate reads `social-<feature>` in
 places, e.g. `social-message-templates`).
 
-**Limit:** this only convinces *this site's client code* it has the feature. Actions that call
-WPCOM and are enforced server-side (actually rendering/sending a templated message) may still
-require the real sticker — use 5b for those.
+**Check whether 5a even applies before reaching for 5b.** "Needs a blog sticker" in the Testing
+Instructions does not mean the gate is server-enforced. Read the gate in the branch code first:
+if it resolves through `Current_Plan::supports( … )`, 5a covers it completely and no sticker is
+needed. PR #50899 read
+`apply_filters( 'rsm_jetpack_seo', false ) || Current_Plan::supports( 'seo-admin-ui' )` — so the
+sticker path was fully reproducible locally (verified 2026-07-29), even though its instructions
+asked for a real sticker *and* an undeployed WPCOM change.
+
+**Limit — and it is a real one, not a footnote.** This convinces *this site's client code* that
+it has the feature. It cannot conjure **server-side infrastructure** the feature depends on.
+Where the paid product *is* a backend service, flipping the local gate makes the code believe it
+is entitled while the service behind it still has nothing to serve.
+
+Jetpack Search is the clean example (verified 2026-07-30, PR #50925): the override flipped
+`supports_search`, `supports_instant_search` and `has_jetpack_search_product` all to `true`, and
+`Module_Control` reported the module active with Instant Search enabled — yet **no Instant Search
+assets ever enqueued on the front end**, because a real subscription is what gives the blog a
+WPCOM-side search index. The PR's own instructions conceded the point ("So far I'm only able to
+replicate on P2"). No amount of local overriding fixes that.
+
+So treat 5a as *necessary but not sufficient*, and let step 6 be the judge: if the surface still
+doesn't render after the gates read `true`, the feature needs infrastructure you can't fake.
+Say so and stop — do not keep escalating overrides, and do not hand over a link that shows
+nothing. If the Testing Instructions themselves name a specific environment (P2, Atomic, a
+sandbox), take that at face value early rather than discovering it at step 6.
 
 #### 5b. Real WPCOM blog sticker — CONFIRM-FIRST (only when 5a isn't enough)
 
@@ -442,6 +749,21 @@ Testing Instructions routinely end with a "where do I click?" the reviewer has t
 
 - From the PR's changed files / body, identify the admin route or front-end location the change
   surfaces (e.g. `admin.php?page=jetpack-seo`, a Settings toggle, a block in the editor).
+- **Prove it renders before you promise it — this step is a gate, not a lookup.** Gates reading
+  `true` is not the same as the surface existing. Check the actual output:
+  - Admin route → register the menu and assert the PR's page is on it:
+    `do_action( 'admin_menu' )` after `wp_set_current_user( <admin> )`, then search `$menu` /
+    `$submenu` for the PR's slug (via `eval-file`).
+  - Front-end → fetch the page and grep for the PR's asset or marker:
+    `curl -s '<url>' | grep -c '<bundle-or-class>'`.
+- **If it doesn't render, say so plainly in the report and do not hand over the link as if it
+  did.** A run that ends "everything is set up, but the surface does not appear on this site,
+  and here's the evidence and the likely reason" is a useful result. One that ends with a link
+  to a page showing nothing wastes the reviewer's time and looks like the setup silently failed.
+  Observed 2026-07-30 (PR #50925): every gate `true`, module active, branch code confirmed
+  live — and zero Instant Search assets on the front end, because the feature needs a
+  server-side index (see 5a's Limit). Budget one or two focused diagnostics, then stop; chasing
+  a framework's internal wiring is out of scope for this skill.
 - Report it as a concrete path plus the autologin link (step 7).
 - If the user wants before/after evidence, hand off to **`jetpack-screenshot`** for the PR,
   which captures and publishes to the screenshots ref.
@@ -455,10 +777,17 @@ Concise final report:
 - How the code was delivered: **Beta Tester `<plugin>@<branch>`** (or "rsync fallback — no beta
   build"), plus the step-2b evidence that it *loads* — the resolved file path, not a grep. If
   you had to deactivate `jetpack-production`, say so; it changes what's active on the site.
-- If step 2b showed the branch's package version behind trunk's, flag the branch as **stale**
-  and recommend a rebase — otherwise the user reviews an old build and reports phantom bugs.
+- Only if step 2b showed the branch's **base** version behind trunk's (not merely an older
+  `-alpha` timestamp) flag the branch as **stale** and recommend a rebase — otherwise the user
+  reviews an old build and reports phantom bugs. A timestamp-only difference is normal and
+  needs no mention beyond the deactivation note above.
 - Setup applied: each flag/option set (✓), and the plan state (local override applied / real
   sticker **awaiting your confirmation** / not needed).
+- **Whether the surface actually rendered (step 6) — state this separately from "setup
+  applied".** They are different claims and conflating them is the most misleading thing this
+  report can do. If gates read `true` but nothing renders, say exactly that, give the evidence
+  (no assets enqueued / menu absent), and name the likely blocker — commonly a server-side
+  dependency a local override can't fake. Recommend the environment the PR actually needs.
 - Any **out-of-scope precondition** left for the user (a required connection, or sandbox
   pointing), clearly labelled as manual.
 - **How to reach the site — always include all three, testing happens in wp-admin. Put access
@@ -486,10 +815,18 @@ Concise final report:
   don't paste it into anything external or shared.)
 - Prefer Beta Tester; reach for rsync only when no branch build exists.
 - **"Activated" ≠ "running."** `jetpack-dev` active alongside `jetpack-production` means the
-  autoloader picks the higher package version, which is production's whenever the branch is
-  behind trunk. Always confirm with `ReflectionClass::getFileName()` (step 2b) and deactivate
-  `jetpack-production` when it's shadowing. A disk grep for the PR's string cannot detect this
-  and will make you report success on a site that isn't running the PR.
+  autoloader picks the higher package version — and with matching base versions that reduces to
+  the newer `-alpha<timestamp>`, which is production's for all but a just-built branch. Assume
+  production is shadowing until proven otherwise. Always confirm with
+  `ReflectionClass::getFileName()` (step 2b-i) and deactivate `jetpack-production` when it is. A
+  disk grep **for a PHP symbol** cannot detect this and will make you report success on a site
+  that isn't running the PR. Shadowing on its own is **not** evidence of a stale branch — only a
+  lower base version is.
+- **Match the 2b proof to the language.** JS/CSS-only PRs have no class to reflect on: resolve
+  the package's asset base in PHP, then grep the *built bundle* under it (step 2b-ii). Grepping
+  is right there — the bundle is what reaches the browser — provided you pinned the live copy
+  first and picked a symbol that survives minification (prop names and string literals do,
+  local variables don't).
 - Don't set `jetpack_seo_surface_visible` (or any option) unconditionally — check the default
   first; fresh installs usually already satisfy the second gate, and branch builds older than
   `jetpack-seo` 0.7.0 don't have that gate at all.
