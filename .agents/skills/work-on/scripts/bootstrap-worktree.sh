@@ -4,8 +4,9 @@
 # Creates a new worktree on branch `change/<slug>` branched off origin/trunk,
 # runs pnpm install (frozen lockfile with a graceful fallback when the lock
 # has drifted), seeds `.work-on/screenshots/`, and locally-ignores the
-# `.work-on/` scratchpad. It does NOT write env.json — that belongs to the
-# caller, which knows which ports were allocated.
+# `.work-on/` scratchpad. It does NOT isolate Docker and does NOT write env.json:
+# the caller runs tools/docker/bin/seed-worktree-env.sh inside the new worktree,
+# then records the instance name and ports it seeded into env.json.
 #
 # Usage:   bootstrap-worktree.sh <slug> [worktree-parent-dir]
 # Output:  the worktree path on stdout
