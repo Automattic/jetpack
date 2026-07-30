@@ -11,6 +11,7 @@ use Automattic\Jetpack\Newsletter\Mode;
 use Automattic\Jetpack\Newsletter\Settings;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
+use WP_Screen;
 
 /**
  * The mode only takes over explicitly marked wp-admin requests.
@@ -246,7 +247,11 @@ class Mode_Request_Surface_Test extends BaseTestCase {
 	 * The Dashboard screen is aliased back to its wp-build page id.
 	 */
 	public function test_alias_screen_id_rewrites_dashboard_screen() {
-		$screen = (object) array( 'id' => 'admin_page_' . Mode::PAGE_DASHBOARD );
+		// A real screen, not a stand-in: `alias_screen_id()` is handed one by the
+		// `current_screen` action, and writing to `WP_Screen::$id` is the whole
+		// point of the method.
+		$screen     = WP_Screen::get( 'admin_page_' . Mode::PAGE_DASHBOARD );
+		$screen->id = 'admin_page_' . Mode::PAGE_DASHBOARD;
 
 		$this->visit_admin_page( Mode::PAGE_DASHBOARD );
 		Mode::alias_screen_id( $screen );

@@ -531,7 +531,13 @@ describe( 'Newsletter Mode dashboard checklist completion', () => {
 
 		clickTask( 'Grow your audience' );
 
-		await waitFor( () => expect( chevronOf( 'Grow your audience' ) ).not.toBeNull() );
+		// The untick only lands once the rejected write settles, so this polls for
+		// it. The generous timeout is for CI: under coverage instrumentation, with
+		// every project's suite running at once, the 1s default is not something a
+		// loaded runner can be held to.
+		await waitFor( () => expect( chevronOf( 'Grow your audience' ) ).not.toBeNull(), {
+			timeout: 15000,
+		} );
 	} );
 
 	it( 'does not re-record a task that is already complete', () => {
