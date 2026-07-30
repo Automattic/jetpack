@@ -106,7 +106,7 @@ export function ZoomSchedulerEdit( props ) {
 					value={ editedUrl }
 					className="components-placeholder__input"
 					aria-label={ __( 'Zoom Scheduler URL', 'jetpack' ) }
-					placeholder={ __( 'https://scheduler.zoom.us/your-name/discovery-call', 'jetpack' ) }
+					placeholder="https://scheduler.zoom.us/your-name/discovery-call"
 					onChange={ event => setEditedUrl( event.target.value ) }
 				/>
 				<Button variant="secondary" type="submit">
