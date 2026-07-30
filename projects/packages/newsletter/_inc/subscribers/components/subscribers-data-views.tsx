@@ -21,7 +21,6 @@ import EmptyState from './empty-state';
 import CompModal from './modals/comp-modal';
 import RemoveCompModal from './modals/remove-comp-modal';
 import UnsubscribeModal from './modals/unsubscribe-modal';
-import SelfOnlyNotice from './self-only-notice';
 import type { Subscriber, SubscribersFilter, SubscribersSortField } from '../data/types';
 import type { Action, Field, View } from '@wordpress/dataviews';
 
@@ -337,6 +336,11 @@ export default function SubscribersDataViews( {
 	const showSelfOnlyNotice =
 		! hasActiveFiltersOrSearch && isSelfOnlySubscriber( totalItems, isOwnerSubscribed );
 
+	const selfOnlyMessage = __(
+		'You’re currently your only subscriber. Invite readers by email to grow your newsletter.',
+		'jetpack-newsletter'
+	);
+
 	const paginationInfo = useMemo(
 		() => ( { totalItems, totalPages } ),
 		[ totalItems, totalPages ]
@@ -353,7 +357,22 @@ export default function SubscribersDataViews( {
 
 	return (
 		<>
-			{ showSelfOnlyNotice && <SelfOnlyNotice onAddSubscribers={ onAddSubscribers } /> }
+			{ showSelfOnlyNotice && (
+				// Explicit `spokenMessage` because Notice.Root otherwise renderToString()s its children
+				// mid-render, which corrupts hook order once those children include an action button.
+				<Notice.Root
+					className="jetpack-newsletter-self-only-notice"
+					intent="info"
+					spokenMessage={ selfOnlyMessage }
+				>
+					<Notice.Description>{ selfOnlyMessage }</Notice.Description>
+					<Notice.Actions>
+						<Notice.ActionButton onClick={ onAddSubscribers }>
+							{ __( 'Add subscribers', 'jetpack-newsletter' ) }
+						</Notice.ActionButton>
+					</Notice.Actions>
+				</Notice.Root>
+			) }
 			<DataViews< Subscriber >
 				data={ subscribers }
 				fields={ fields }
