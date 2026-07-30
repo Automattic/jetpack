@@ -53,7 +53,7 @@ const GeoInfotip = () => (
 			<VisuallyHidden render={ <Popover.Title /> }>{ geoInfotipLabel }</VisuallyHidden>
 			<Popover.Description>
 				{ __(
-					'GEO stands for generative engine optimization. These settings control how AI tools see and use your site.',
+					'GEO stands for generative engine optimization. These settings control how AI sees and uses your site.',
 					'jetpack-seo'
 				) }
 			</Popover.Description>
