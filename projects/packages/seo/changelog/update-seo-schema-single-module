@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Combine the Breadcrumbs, Organization, and Local business settings into one Schema module with an icon chip, a completion status, and a single Save button.
