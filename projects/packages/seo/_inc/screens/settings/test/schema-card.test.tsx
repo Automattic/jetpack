@@ -148,6 +148,40 @@ describe( 'SchemaCard', () => {
 		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'In progress' );
 	} );
 
+	it( 'does not count an invalid or duplicate profile link toward completion', () => {
+		// The status must reflect what would be *stored*. `cleanProfileUrls` drops
+		// malformed and duplicate rows on save, so counting them would let the header
+		// read "Complete" while Save is disabled on that very validation error.
+		mockForm = makeForm( {
+			organization: { name: '', description: '', sameAs: [ 'not a url' ], email: '' },
+		} );
+		const view = renderCard();
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'In progress' );
+		view.unmount();
+
+		// A duplicate collapses to one link, so it still counts — once.
+		mockForm = makeForm( {
+			organization: {
+				name: '',
+				description: '',
+				sameAs: [ 'https://x.com/acme', 'https://x.com/acme' ],
+				email: '',
+			},
+		} );
+		renderCard();
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Complete' );
+	} );
+
+	it( 'does not count a whitespace-only name or description', () => {
+		mockForm = makeForm( {
+			organization: { name: '   ', description: '\t', sameAs: [], email: '' },
+			defaults: { name: '', description: '' },
+		} );
+		renderCard();
+
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Not started' );
+	} );
+
 	it( 'counts an explicit value, not just its default', () => {
 		// The rule is "has a value OR its smart default". Every other status test
 		// leaves the overrides empty and varies only the defaults, so without this
