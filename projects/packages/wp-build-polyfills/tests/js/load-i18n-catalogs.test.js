@@ -344,6 +344,37 @@ describe( 'loadI18nCatalogs', () => {
 		await assert.doesNotReject( loadI18nCatalogs( 'jetpack-test', MODULE_URL ) );
 		assert.equal( warnings.length, 1 );
 	} );
+
+	// Keep this the only test that drives the unrecognized-shape path: the
+	// fallback state it installs is module-level (one per copy of the helper,
+	// by design — a page that hits this stays on it), and the helper module is
+	// cached across tests in this file, so a second test here would inherit
+	// this one's download map and see no warning.
+	it( 'keeps working when another build parked a foreign shape on the window slot', async () => {
+		const calls = installLoader( () => Promise.resolve() );
+		// A hypothetical other version of this module: same global name, plain
+		// objects where this copy expects Maps. Reading it blind would throw
+		// out of `manifests.get()`, and boot awaits this helper uncaught.
+		const foreign = { manifests: {}, downloads: {}, active: 0, queue: [] };
+		window.__jetpackWpBuildI18nCatalogs = foreign;
+		installFetch( { bundles: [ 'build/routes/a/content.js' ] } );
+		const { loadI18nCatalogs } = await import( HELPER );
+
+		await assert.doesNotReject( loadI18nCatalogs( 'jetpack-test', MODULE_URL ) );
+
+		assert.deepEqual(
+			calls,
+			[ [ 'build/routes/a/content.js', 'jetpack-test', 'plugin' ] ],
+			'catalogs still download, from state private to this copy'
+		);
+		assert.equal(
+			window.__jetpackWpBuildI18nCatalogs,
+			foreign,
+			'the other copy keeps the state it is using'
+		);
+		assert.equal( warnings.length, 1 );
+		assert.match( warnings[ 0 ], /unrecognized shape/ );
+	} );
 } );
 
 describe( 'loadBundleI18nCatalog', () => {

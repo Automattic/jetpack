@@ -87,9 +87,13 @@ export function resolveWidgetModuleWithI18n(
 	if ( ! bundlePath ) {
 		return importModule( moduleId );
 	}
-	// Never rejects: a missing catalog resolves and the widget renders in
-	// English, and a stalled download resolves after a bounded wait.
-	return loadBundleI18nCatalog( TEXT_DOMAIN, bundlePath ).then( () => importModule( moduleId ) );
+	// A missing catalog resolves and the widget renders in English, and a
+	// stalled download resolves after a bounded wait — so this should not
+	// reject. If one ever escapes, import the module anyway: a widget that
+	// never loads at all is worse than an untranslated one.
+	return loadBundleI18nCatalog( TEXT_DOMAIN, bundlePath )
+		.catch( () => undefined )
+		.then( () => importModule( moduleId ) );
 }
 
 /**

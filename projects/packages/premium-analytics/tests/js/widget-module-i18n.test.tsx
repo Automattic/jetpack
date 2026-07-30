@@ -91,6 +91,23 @@ describe( 'resolveWidgetModuleWithI18n', () => {
 		expect( result ).toBe( theModule );
 	} );
 
+	it( 'still imports the module when the catalog load rejects', async () => {
+		loadCatalogMock.mockImplementation( () => Promise.reject( new Error( 'boom' ) ) );
+		const theModule = { default: () => null } as unknown as WidgetModule;
+		const importModule = jest.fn( () => Promise.resolve( theModule ) );
+
+		// A widget that never loads at all is worse than an untranslated one.
+		await expect(
+			resolveWidgetModuleWithI18n(
+				'jetpack-premium-analytics/widgets/search-terms/render',
+				importModule
+			)
+		).resolves.toBe( theModule );
+		expect( importModule ).toHaveBeenCalledWith(
+			'jetpack-premium-analytics/widgets/search-terms/render'
+		);
+	} );
+
 	it( 'imports non-widget module ids without a catalog request', async () => {
 		const importModule = jest.fn( () =>
 			Promise.resolve( { default: () => null } as unknown as WidgetModule )

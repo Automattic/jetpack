@@ -94,21 +94,75 @@ interface SharedCatalogState {
 }
 
 /**
+ * State private to this copy of the module, used only when the window slot
+ * holds a shape this copy doesn't recognize.
+ */
+let unsharedState: SharedCatalogState | undefined;
+
+/**
+ * A fresh, empty shared state.
+ *
+ * @return The new state.
+ */
+function newCatalogState(): SharedCatalogState {
+	return { manifests: new Map(), downloads: new Map(), active: 0, queue: [] };
+}
+
+/**
+ * Whether a value parked on `window` is state this copy of the module can use.
+ *
+ * @param value - Whatever the window slot holds.
+ * @return Whether it matches `SharedCatalogState`.
+ */
+function isCatalogState( value: unknown ): value is SharedCatalogState {
+	const state = value as Partial< SharedCatalogState > | null;
+	return (
+		!! state &&
+		state.manifests instanceof Map &&
+		state.downloads instanceof Map &&
+		typeof state.active === 'number' &&
+		Array.isArray( state.queue )
+	);
+}
+
+/**
  * Fetch (lazily creating) the window-parked shared state.
+ *
+ * The window slot is one global name shared by every copy of this module on the
+ * page, including copies from other plugins built at other versions — so what
+ * it holds is not guaranteed to be a shape this copy understands. Using a
+ * foreign shape blind would throw out of `manifests.get()`, and since the init
+ * modules that call `loadI18nCatalogs()` are awaited by boot without a catch,
+ * that surfaces as a blank dashboard rather than an untranslated one.
  *
  * @return The shared catalog state.
  */
 function sharedState(): SharedCatalogState {
 	const host = window as typeof window & {
-		__jetpackWpBuildI18nCatalogs?: SharedCatalogState;
+		__jetpackWpBuildI18nCatalogs?: unknown;
 	};
-	host.__jetpackWpBuildI18nCatalogs ??= {
-		manifests: new Map(),
-		downloads: new Map(),
-		active: 0,
-		queue: [],
-	};
-	return host.__jetpackWpBuildI18nCatalogs;
+	const parked = host.__jetpackWpBuildI18nCatalogs;
+	if ( parked === undefined ) {
+		const state = newCatalogState();
+		host.__jetpackWpBuildI18nCatalogs = state;
+		return state;
+	}
+	if ( isCatalogState( parked ) ) {
+		return parked;
+	}
+	// Fall back to state private to this copy rather than replacing what's
+	// parked: the copy that put it there is still using it, and each copy
+	// overwriting the other's on every call would leave neither with a usable
+	// dedupe map. Unshared state costs a few repeat downloads per page and
+	// splits the concurrency budget between the copies; both are cheaper than
+	// the alternatives.
+	if ( ! unsharedState ) {
+		warn(
+			'Shared catalog state on window has an unrecognized shape; downloads will not be deduped across module copies.'
+		);
+		unsharedState = newCatalogState();
+	}
+	return unsharedState;
 }
 
 /**
@@ -330,6 +384,13 @@ export async function loadI18nCatalogs(
 				timer = setTimeout( resolve, timeoutMs );
 			} ),
 		] );
+	} catch ( error ) {
+		// Every failure path above resolves to English on its own, so this
+		// should not fire. Catch anyway so the "never rejects" contract holds
+		// structurally: boot awaits the init modules that call this without a
+		// catch of its own, and a rejection escaping here blanks the dashboard.
+		warn( `Unexpected failure loading "${ domain }" catalogs: ${ errorMessage( error ) }` );
+		return;
 	} finally {
 		clearTimeout( timer );
 	}
@@ -406,6 +467,16 @@ export async function loadBundleI18nCatalog(
 				timer = setTimeout( resolve, timeoutMs );
 			} ),
 		] );
+	} catch ( error ) {
+		// As in `loadI18nCatalogs()`: callers chain the bundle's own import off
+		// this promise, so a rejection would leave the bundle unimported rather
+		// than untranslated.
+		warn(
+			`Unexpected failure loading the "${ domain }" catalog for ${ bundlePath }: ${ errorMessage(
+				error
+			) }`
+		);
+		return;
 	} finally {
 		clearTimeout( timer );
 	}
