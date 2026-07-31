@@ -2259,9 +2259,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@csstools/postcss-global-data':
-        specifier: 4.0.0
-        version: 4.0.0(postcss@8.5.23)
       '@wordpress/browserslist-config':
         specifier: 6.51.0
         version: 6.51.0
@@ -3168,9 +3165,6 @@ importers:
       '@automattic/color-studio':
         specifier: 4.1.0
         version: 4.1.0
-      postcss-custom-properties:
-        specifier: 12.1.11
-        version: 12.1.11(postcss@8.5.23)
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -3181,9 +3175,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@csstools/postcss-global-data':
-        specifier: 4.0.0
-        version: 4.0.0(postcss@8.5.23)
       '@wordpress/browserslist-config':
         specifier: 6.51.0
         version: 6.51.0
@@ -8023,12 +8014,6 @@ packages:
     peerDependencies:
       '@csstools/css-parser-algorithms': ^4.0.0
       '@csstools/css-tokenizer': ^4.0.0
-
-  '@csstools/postcss-global-data@4.0.0':
-    resolution: {integrity: sha512-mPKrL3Tzt8k1V+hTkU8XTH6JKRekB97oKHv/MekC9nfmRa+gMf1swlHRt8YK722sYN4xOipl17FZst99jsScLA==, tarball: https://registry.npmjs.org/@csstools/postcss-global-data/-/postcss-global-data-4.0.0.tgz}
-    engines: {node: '>=20.19.0'}
-    peerDependencies:
-      postcss: ^8.4
 
   '@csstools/selector-resolve-nested@4.0.0':
     resolution: {integrity: sha512-9vAPxmp+Dx3wQBIUwc1v7Mdisw1kbbaGqXUM8QLTgWg7SoPGYtXBsMXvsFs/0Bn5yoFhcktzxNZGNaUt0VjgjA==, tarball: https://registry.npmjs.org/@csstools/selector-resolve-nested/-/selector-resolve-nested-4.0.0.tgz}
@@ -16105,12 +16090,6 @@ packages:
     peerDependencies:
       postcss: ^8.5.13
 
-  postcss-custom-properties@12.1.11:
-    resolution: {integrity: sha512-0IDJYhgU8xDv1KY6+VgUwuQkVtmYzRwu+dMjnmdMafXYv86SWqfxkc7qdDvWS38vsjaEtv8e0vGOUQrAiMBLpQ==, tarball: https://registry.npmjs.org/postcss-custom-properties/-/postcss-custom-properties-12.1.11.tgz}
-    engines: {node: ^12 || ^14 || >=16}
-    peerDependencies:
-      postcss: ^8.2
-
   postcss-discard-comments@7.0.8:
     resolution: {integrity: sha512-CvvS5S9WrXblFXCEJ9nVo+4z+eA7zSC7Z88V1HEJuwlQhlFnYTIjg1xJY+BCUiG2bvICap2tXii4mP22BD108Q==, tarball: https://registry.npmjs.org/postcss-discard-comments/-/postcss-discard-comments-7.0.8.tgz}
     engines: {node: ^18.12.0 || ^20.9.0 || >=22.0}
@@ -20374,10 +20353,6 @@ snapshots:
     dependencies:
       '@csstools/css-parser-algorithms': 4.0.0(@csstools/css-tokenizer@4.0.0)
       '@csstools/css-tokenizer': 4.0.0
-
-  '@csstools/postcss-global-data@4.0.0(postcss@8.5.23)':
-    dependencies:
-      postcss: 8.5.23
 
   '@csstools/selector-resolve-nested@4.0.0(postcss-selector-parser@7.1.4)':
     dependencies:
@@ -38714,11 +38689,6 @@ snapshots:
   postcss-convert-values@7.0.12(postcss@8.5.23):
     dependencies:
       browserslist: 4.28.4
-      postcss: 8.5.23
-      postcss-value-parser: 4.2.0
-
-  postcss-custom-properties@12.1.11(postcss@8.5.23):
-    dependencies:
       postcss: 8.5.23
       postcss-value-parser: 4.2.0
 
