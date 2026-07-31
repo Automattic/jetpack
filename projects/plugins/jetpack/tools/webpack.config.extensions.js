@@ -341,12 +341,13 @@ module.exports = [
 							// `editorScript` is required for block.json to be valid and WordPress.org to be able
 							// to parse it before building the page at https://wordpress.org/plugins/jetpack/.
 							// Don't add other scripts or styles while block assets are still enqueued manually
-							// in the backend. AI blocks ship in the editor-ai bundle.
+							// in the backend. AI blocks keep naming this shared handle too: their editor code
+							// ships in the editor-ai bundle via an explicit gated enqueue, and pointing
+							// metadata at a handle that is unregistered when AI is off (or on WordPress.com,
+							// which loads these block.json files with its own enqueue pipeline) would dangle.
 							const result = {
 								...metadata,
-								editorScript: aiExtensions.includes( name )
-									? `jetpack-blocks-editor-ai`
-									: `jetpack-blocks-editor`,
+								editorScript: `jetpack-blocks-editor`,
 							};
 
 							return JSON.stringify( result, null, 4 );
