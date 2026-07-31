@@ -440,12 +440,22 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	private function run_wpcom_connection_test() {
 		$name = 'test__wpcom_connection_test';
 
-		$status = new Status();
-		if ( ! ( new Manager() )->is_connected() || $status->is_offline_mode() || $status->in_safe_mode() || ! $this->pass ) {
+		$status      = new Status();
+		$skip_reason = '';
+
+		if ( $status->is_offline_mode() ) {
+			$skip_reason = __( 'Your site is in Offline Mode, so this test was skipped.', 'jetpack-connection' );
+		} elseif ( $status->in_safe_mode() ) {
+			$skip_reason = __( 'Your site is in Safe Mode, so this test was skipped.', 'jetpack-connection' );
+		} elseif ( ! ( new Manager() )->is_connected() || ! $this->pass ) {
+			$skip_reason = __( 'Your site is not communicating with WordPress.com, so this test was skipped.', 'jetpack-connection' );
+		}
+
+		if ( $skip_reason ) {
 			return self::skipped_test(
 				array(
 					'name'              => $name,
-					'short_description' => __( 'Your site is not communicating with WordPress.com, so this test was skipped.', 'jetpack-connection' ),
+					'short_description' => $skip_reason,
 				)
 			);
 		}
