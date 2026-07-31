@@ -49,7 +49,9 @@ class SearchResults extends Component {
 
 	getSearchTitle() {
 		const { total = 0, corrected_query = false } = this.props.response;
-		const hasQuery = this.props.searchQuery !== '';
+		// searchQuery is null before the query string is initialized (e.g. at
+		// first mount, before any `?s=` param is read), not ''.
+		const hasQuery = !! this.props.searchQuery;
 		const hasCorrectedQuery = corrected_query !== false;
 		const isMultiSite =
 			this.props.staticFilters &&
