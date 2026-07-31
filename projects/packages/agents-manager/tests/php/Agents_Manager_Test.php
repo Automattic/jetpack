@@ -38,6 +38,13 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	private $original_get_preview;
 
 	/**
+	 * Original $_GET['tab'] value to restore after tests.
+	 *
+	 * @var mixed
+	 */
+	private $original_get_tab;
+
+	/**
 	 * Original $_SERVER['REQUEST_URI'] value to restore after tests.
 	 *
 	 * @var mixed
@@ -96,6 +103,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		// Save original superglobal values that tests may modify.
 		$this->original_get_preview = $_GET['preview'] ?? null;
+		$this->original_get_tab     = $_GET['tab'] ?? null;
 		$this->original_request_uri = $_SERVER['REQUEST_URI'] ?? null;
 
 		// Save original $wp_customize global.
@@ -131,6 +139,12 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			unset( $_GET['preview'] );
 		} else {
 			$_GET['preview'] = $this->original_get_preview;
+		}
+
+		if ( $this->original_get_tab === null ) {
+			unset( $_GET['tab'] );
+		} else {
+			$_GET['tab'] = $this->original_get_tab;
 		}
 
 		if ( $this->original_request_uri === null ) {
@@ -175,6 +189,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// Clear the status cache and constants.
 		Cache::clear();
 		Constants::clear_constants();
+		remove_all_filters( 'agents_manager_variant' );
 
 		parent::tear_down();
 	}
@@ -1477,6 +1492,42 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	private function set_admin_context() {
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'dashboard' );
+	}
+
+	/**
+	 * Tests that the plugin information iframe cannot be enabled by a variant filter.
+	 */
+	public function test_get_active_variant_returns_null_in_plugin_information_iframe() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'plugin-install' );
+		$_GET['tab'] = 'plugin-information';
+
+		add_filter(
+			'agents_manager_variant',
+			static function () {
+				return 'wp-admin';
+			}
+		);
+
+		$this->assertNull( Agents_Manager::get_active_variant() );
+	}
+
+	/**
+	 * Tests that a variant filter still controls the parent plugin screen.
+	 */
+	public function test_get_active_variant_allows_parent_plugin_screen() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'plugin-install' );
+		unset( $_GET['tab'] );
+
+		add_filter(
+			'agents_manager_variant',
+			static function () {
+				return 'wp-admin';
+			}
+		);
+
+		$this->assertSame( 'wp-admin', Agents_Manager::get_active_variant() );
 	}
 
 	/**
