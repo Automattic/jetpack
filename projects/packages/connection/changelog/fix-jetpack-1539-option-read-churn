@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Terms of Service: avoid a per-request database query for the jetpack_tos_agreed option on sites without a persistent object cache by seeding it as an autoloaded default.
