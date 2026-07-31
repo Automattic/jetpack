@@ -18,9 +18,6 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 jest.mock( '../src/settings/api', () => ( {
 	fetchSettings: jest.fn(),
 	updateSettings: jest.fn(),
-	// Provide identity data for these unrelated settings suites.
-	fetchSiteIdentity: jest.fn( () => Promise.resolve( { title: '', description: '' } ) ),
-	updateSiteIdentity: jest.fn(),
 } ) );
 
 jest.mock( '@automattic/jetpack-analytics', () => ( {

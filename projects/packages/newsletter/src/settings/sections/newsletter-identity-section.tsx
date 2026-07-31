@@ -6,14 +6,17 @@ import { getSiteType } from '@automattic/jetpack-script-data';
 import { DataForm, type Field } from '@wordpress/dataviews';
 import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Card, Fieldset } from '@wordpress/ui';
-/**
- * Internal dependencies
- */
-import type { SiteIdentity } from '../api';
+import { Button, Card, Fieldset, Notice } from '@wordpress/ui';
+
+/** The core `site` entity fields edited by the Newsletter identity card. */
+export interface SiteIdentity {
+	title: string;
+	description: string;
+}
 
 interface NewsletterIdentitySectionProps {
-	data: SiteIdentity;
+	data: SiteIdentity | null;
+	canUpdate: boolean;
 	onChange: ( updates: Partial< SiteIdentity > ) => void;
 	onSave: () => void;
 	isSaving: boolean;
@@ -63,6 +66,7 @@ function addressAsksToFocus( field: string ): boolean {
  */
 export function NewsletterIdentitySection( {
 	data,
+	canUpdate,
 	onChange,
 	onSave,
 	isSaving,
@@ -75,19 +79,30 @@ export function NewsletterIdentitySection( {
 	// through the fields wrapper instead. The form declares `title` first, so it
 	// is the first input in the section.
 	const fieldsRef = useRef< HTMLDivElement >( null );
+	const hasAppliedRequestedFocus = useRef( false );
 
 	useEffect( () => {
-		if ( ! addressAsksToFocus( FOCUS_TITLE ) ) {
+		if (
+			hasAppliedRequestedFocus.current ||
+			! canUpdate ||
+			! data ||
+			! addressAsksToFocus( FOCUS_TITLE )
+		) {
 			return;
 		}
 
 		const input = fieldsRef.current?.querySelector< HTMLInputElement >( 'input' );
 
-		input?.focus();
+		if ( ! input ) {
+			return;
+		}
+
+		input.focus();
 		// Select the existing name so it can be typed straight over — arriving
 		// here means the intent was to change it.
-		input?.select();
-	}, [] );
+		input.select();
+		hasAppliedRequestedFocus.current = true;
+	}, [ canUpdate, data ] );
 
 	const handleSave = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_newsletter_section_save', {
@@ -122,37 +137,50 @@ export function NewsletterIdentitySection( {
 				<Card.Title>{ __( 'Newsletter identity', 'jetpack-newsletter' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
-				{ /* `display: contents` so this wrapper is only a handle for the
-				     focus lookup above and leaves the card layout untouched. */ }
-				{ /* Locked while a save is in flight: the response is merged back into
-				     state and the staged set is cleared, so an edit made mid-save
-				     would be silently discarded. */ }
-				<Fieldset.Root disabled={ isSaving }>
-					<div ref={ fieldsRef } style={ { display: 'contents' } }>
-						<DataForm
-							data={ data }
-							fields={ fields }
-							form={ {
-								layout: {
-									type: 'regular',
-									labelPosition: 'top',
-								},
-								fields: [ 'title', 'description' ],
-							} }
-							onChange={ onChange }
-						/>
-					</div>
-				</Fieldset.Root>
-				<div className="newsletter-card-footer">
-					<Button
-						onClick={ handleSave }
-						disabled={ isSaving || ! hasChanges }
-						loading={ isSaving }
-						loadingAnnouncement={ __( 'Saving…', 'jetpack-newsletter' ) }
-					>
-						{ __( 'Save', 'jetpack-newsletter' ) }
-					</Button>
-				</div>
+				{ ! canUpdate && (
+					<Notice.Root intent="info">
+						<Notice.Description>
+							{ __(
+								'You don’t have permission to update the newsletter title and tagline.',
+								'jetpack-newsletter'
+							) }
+						</Notice.Description>
+					</Notice.Root>
+				) }
+				{ canUpdate && data && (
+					<>
+						{ /* `display: contents` so this wrapper is only a handle for the
+						     focus lookup above and leaves the card layout untouched. */ }
+						{ /* Locked while a save is in flight: core-data replaces its edited
+						     record after saving, so a concurrent edit could be discarded. */ }
+						<Fieldset.Root disabled={ isSaving }>
+							<div ref={ fieldsRef } style={ { display: 'contents' } }>
+								<DataForm
+									data={ data }
+									fields={ fields }
+									form={ {
+										layout: {
+											type: 'regular',
+											labelPosition: 'top',
+										},
+										fields: [ 'title', 'description' ],
+									} }
+									onChange={ onChange }
+								/>
+							</div>
+						</Fieldset.Root>
+						<div className="newsletter-card-footer">
+							<Button
+								onClick={ handleSave }
+								disabled={ isSaving || ! hasChanges }
+								loading={ isSaving }
+								loadingAnnouncement={ __( 'Saving…', 'jetpack-newsletter' ) }
+							>
+								{ __( 'Save', 'jetpack-newsletter' ) }
+							</Button>
+						</div>
+					</>
+				) }
 			</Card.Content>
 		</Card.Root>
 	);

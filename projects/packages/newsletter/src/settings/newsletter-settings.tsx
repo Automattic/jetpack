@@ -4,7 +4,8 @@
 import analytics from '@automattic/jetpack-analytics';
 import { getSiteType } from '@automattic/jetpack-script-data';
 import { Disabled, Spinner } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
+import { store as coreStore, useEntityRecord } from '@wordpress/core-data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import {
 	createInterpolateElement,
 	useCallback,
@@ -12,13 +13,14 @@ import {
 	useMemo,
 	useState,
 } from '@wordpress/element';
+import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { Notice, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
-import { fetchSettings, fetchSiteIdentity, updateSettings, updateSiteIdentity } from './api';
+import { fetchSettings, updateSettings } from './api';
 import { getNewsletterScriptData } from './script-data';
 import {
 	EmailContentSection,
@@ -35,8 +37,10 @@ import {
 	SubscriptionsSection,
 	WelcomeEmailSection,
 } from './sections';
-import type { SiteIdentity } from './api';
+import type { SiteIdentity } from './sections/newsletter-identity-section';
 import type { NewsletterSettings } from './types';
+
+const SITE_IDENTITY_KEYS: Array< keyof SiteIdentity > = [ 'title', 'description' ];
 
 /**
  * Normalize settings from API response.
@@ -157,6 +161,41 @@ export function NewsletterSettingsBody( {
 	const [ isLoading, setIsLoading ] = useState( () => ! cachedSettings );
 	const [ error, setError ] = useState< string | null >( null );
 
+	// Site title and tagline are core site settings. Let core-data own their
+	// resolution, staged edits, and persistence rather than duplicating its REST
+	// handling here. The root `site` entity has no record id; `never` bridges the
+	// hook's generic record-id type to that established core-data convention.
+	const canUpdateIdentity = useSelect(
+		select => select( coreStore ).canUser( 'update', { kind: 'root', name: 'site' } ),
+		[]
+	);
+	const siteIdentity = useEntityRecord< SiteIdentity >( 'root', 'site', undefined as never, {
+		enabled: canUpdateIdentity === true,
+	} );
+	const editSiteIdentity = siteIdentity.edit;
+	const saveSiteIdentity = siteIdentity.save;
+	const isSavingIdentity = useSelect(
+		select => select( coreStore ).isSavingEntityRecord( 'root', 'site', undefined as never ),
+		[]
+	);
+	const identity = useMemo< SiteIdentity | null >( () => {
+		if ( ! siteIdentity.hasResolved ) {
+			return null;
+		}
+
+		return {
+			title: decodeEntities( String( siteIdentity.editedRecord.title ?? '' ) ),
+			description: decodeEntities( String( siteIdentity.editedRecord.description ?? '' ) ),
+		};
+	}, [
+		siteIdentity.editedRecord.description,
+		siteIdentity.editedRecord.title,
+		siteIdentity.hasResolved,
+	] );
+	const identityChangedKeys = SITE_IDENTITY_KEYS.filter(
+		key => siteIdentity.edits[ key ] !== undefined
+	);
+
 	// Subscription settings state (for manual save).
 	const [ subscriptionChanges, setSubscriptionChanges ] = useState< Partial< NewsletterSettings > >(
 		{}
@@ -182,12 +221,6 @@ export function NewsletterSettingsBody( {
 	const [ isSavingWelcomeEmail, setIsSavingWelcomeEmail ] = useState( false );
 
 	// Subscribe modal heading state (for manual save).
-	// Site title and tagline. Null until the separate identity fetch resolves;
-	// the section stays out of the page until then.
-	const [ identity, setIdentity ] = useState< SiteIdentity | null >( null );
-	const [ identityChanges, setIdentityChanges ] = useState< Partial< SiteIdentity > >( {} );
-	const [ isSavingIdentity, setIsSavingIdentity ] = useState( false );
-
 	const [ subscribeModalChanges, setSubscribeModalChanges ] = useState<
 		Partial< NewsletterSettings >
 	>( {} );
@@ -243,19 +276,6 @@ export function NewsletterSettingsBody( {
 					setError( err.message || __( 'Failed to load settings', 'jetpack-newsletter' ) );
 				}
 				setIsLoading( false );
-			} );
-	}, [] );
-
-	// Load the site title and tagline. Separate from the settings fetch above
-	// because they're core options rather than Jetpack settings — see
-	// `fetchSiteIdentity()`. A failure here leaves the section hidden rather
-	// than blocking the rest of the page, which doesn't depend on it.
-	useEffect( () => {
-		fetchSiteIdentity()
-			.then( setIdentity )
-			.catch( ( err: Error ) => {
-				// eslint-disable-next-line no-console
-				console.error( 'Newsletter site identity load error:', err );
 			} );
 	}, [] );
 
@@ -341,36 +361,29 @@ export function NewsletterSettingsBody( {
 	);
 
 	// Handle site identity changes (staged, not auto-saved).
-	const handleIdentityChange = useCallback( ( updates: Partial< SiteIdentity > ) => {
-		setIdentity( prev => ( prev ? { ...prev, ...updates } : prev ) );
-		setIdentityChanges( prev => ( { ...prev, ...updates } ) );
-	}, [] );
+	const handleIdentityChange = useCallback(
+		( updates: Partial< SiteIdentity > ) => editSiteIdentity( updates ),
+		[ editSiteIdentity ]
+	);
 
 	// Save the site title and tagline.
-	const saveIdentity = useCallback( () => {
-		setIsSavingIdentity( true );
+	const saveIdentity = useCallback( async () => {
+		if ( canUpdateIdentity !== true ) {
+			return;
+		}
 
-		updateSiteIdentity( identityChanges )
-			.then( saved => {
-				// Take the stored pair rather than the staged one: WordPress runs
-				// saves through `sanitize_option()`, so what it keeps can differ
-				// from what was typed. `updateSiteIdentity()` resolves to both
-				// fields as stored, so this replaces rather than reconciles.
-				setIdentity( saved );
-				setIdentityChanges( {} );
-				createSuccessNotice( __( 'Newsletter identity saved', 'jetpack-newsletter' ) );
-			} )
-			.catch( ( err: Error ) => {
-				// eslint-disable-next-line no-console
-				console.error( 'Newsletter identity save error:', err );
-				createErrorNotice(
-					err.message || __( 'Failed to save newsletter identity', 'jetpack-newsletter' )
-				);
-			} )
-			.finally( () => {
-				setIsSavingIdentity( false );
-			} );
-	}, [ createErrorNotice, createSuccessNotice, identityChanges ] );
+		try {
+			await saveSiteIdentity();
+			createSuccessNotice( __( 'Newsletter identity saved', 'jetpack-newsletter' ) );
+		} catch ( err ) {
+			const errorMessage = err instanceof Error ? err.message : '';
+			// eslint-disable-next-line no-console
+			console.error( 'Newsletter identity save error:', err );
+			createErrorNotice(
+				errorMessage || __( 'Failed to save newsletter identity', 'jetpack-newsletter' )
+			);
+		}
+	}, [ canUpdateIdentity, createErrorNotice, createSuccessNotice, saveSiteIdentity ] );
 
 	// Handle sender name changes (staged, not auto-saved).
 	const handleSenderNameChange = useCallback( ( updates: Partial< NewsletterSettings > ) => {
@@ -618,16 +631,17 @@ export function NewsletterSettingsBody( {
 				<Stack gap="xl" direction="column" className="newsletter-settings">
 					{ /* Site title and tagline. Deliberately outside the
 					     `data.subscriptions` gate below — these belong to the site,
-					     not the newsletter — and rendered only once its own fetch
-					     resolves. */ }
-					{ identity && (
+					     not the newsletter. Wait for the capability check; editors
+					     without permission get an explicit read-only notice. */ }
+					{ canUpdateIdentity !== undefined && ( canUpdateIdentity === false || identity ) && (
 						<NewsletterIdentitySection
-							data={ identity }
+							data={ canUpdateIdentity ? identity : null }
+							canUpdate={ canUpdateIdentity }
 							onChange={ handleIdentityChange }
 							onSave={ saveIdentity }
 							isSaving={ isSavingIdentity }
-							hasChanges={ Object.keys( identityChanges ).length > 0 }
-							changedKeys={ Object.keys( identityChanges ) }
+							hasChanges={ identityChangedKeys.length > 0 }
+							changedKeys={ identityChangedKeys }
 						/>
 					) }
 

@@ -23,6 +23,10 @@ jest.mock( '@wordpress/ui', () => ( {
 		Content: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
 	},
 	Button: ( { children }: { children: React.ReactNode } ) => <button>{ children }</button>,
+	Notice: {
+		Root: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
+		Description: ( { children }: { children: React.ReactNode } ) => <p>{ children }</p>,
+	},
 	// A real <fieldset> rather than a passthrough, so `disabled` genuinely
 	// disables the inputs inside it the way the component relies on.
 	Fieldset: {
@@ -70,10 +74,14 @@ function visitSettings( focus?: string ): void {
 	window.history.replaceState( {}, '', `${ NEWSLETTER_PAGE }&p=${ encodeURIComponent( path ) }` );
 }
 
-const renderSection = ( { isSaving = false }: { isSaving?: boolean } = {} ) =>
+const renderSection = ( {
+	isSaving = false,
+	canUpdate = true,
+}: { isSaving?: boolean; canUpdate?: boolean } = {} ) =>
 	render(
 		<NewsletterIdentitySection
 			data={ { title: 'My Newsletter', description: 'A tagline' } }
+			canUpdate={ canUpdate }
 			onChange={ jest.fn() }
 			onSave={ jest.fn() }
 			isSaving={ isSaving }
@@ -147,5 +155,17 @@ describe( 'Newsletter identity section while saving', () => {
 
 		expect( screen.getByLabelText( 'title' ) ).toBeEnabled();
 		expect( screen.getByLabelText( 'description' ) ).toBeEnabled();
+	} );
+} );
+
+describe( 'Newsletter identity section permissions', () => {
+	it( 'explains why the fields are unavailable when the user cannot update site settings', () => {
+		renderSection( { canUpdate: false } );
+
+		expect(
+			screen.getByText( 'You don’t have permission to update the newsletter title and tagline.' )
+		).toBeInTheDocument();
+		expect( screen.queryByLabelText( 'title' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Save' } ) ).not.toBeInTheDocument();
 	} );
 } );
