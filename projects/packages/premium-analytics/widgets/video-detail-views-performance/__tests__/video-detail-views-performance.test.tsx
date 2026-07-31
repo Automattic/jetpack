@@ -26,7 +26,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			data-series-count={ series.length }
 			data-series-label={ series[ 0 ]?.label }
 			data-values={ series[ 0 ]?.data.map( point => point.value ).join( ',' ) }
-			data-previous-values={ series[ 1 ]?.data.map( point => point.value ).join( ',' ) }
 			data-first-date={ series[ 0 ]?.data[ 0 ]?.date.toISOString() }
 		/>
 	),
@@ -165,22 +164,17 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 		expect( chart ).toHaveAttribute( 'data-values', '12,0' );
 	} );
 
-	it( 'fetches the comparison window as a second request and overlays it', async () => {
-		mockApiFetch.mockImplementation(
-			respondByWindow( {
-				'2026-07-01': PRIMARY_WINDOW_RESPONSE,
-				'2026-06-24': buildSingleVideoResponse( [ [ '2026-06-25', 9 ] ] ),
-			} )
-		);
+	it( 'ignores comparison report params: one request, single series', async () => {
+		mockApiFetch.mockImplementation( respondByWindow( { '2026-07-01': PRIMARY_WINDOW_RESPONSE } ) );
 
 		render(
 			<VideoDetailViewsPerformanceWidget
 				attributes={ {
 					reportParams: {
 						...WINDOW_PARAMS,
-						// `comp: '1'` switches the comparison on in the report params
-						// contract; the hook keys the second request off the compare
-						// window itself.
+						// The video detail route normalizes comparison params away, but
+						// a widget receiving them anyway must neither fetch a second
+						// window nor draw an overlay — the page has no comparison.
 						comp: '1',
 						compare_from: '2026-06-24T00:00:00.000+08:00',
 						compare_to: '2026-06-30T23:59:59.999+08:00',
@@ -190,57 +184,16 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 		);
 
 		const chart = await screen.findByTestId( 'comparative-line-chart' );
-		expect( chart ).toHaveAttribute( 'data-series-count', '2' );
-		// Both windows zero-fill to the same bucket count so the index-aligned
-		// overlay can't scrunch.
-		expect( chart ).toHaveAttribute( 'data-previous-values', '0,9,0,0,0,0,0' );
+		expect( chart ).toHaveAttribute( 'data-series-count', '1' );
+		expect( chart ).toHaveAttribute( 'data-series-label', 'Views' );
+		expect( chart ).toHaveAttribute( 'data-values', '0,5,0,7,0,0,0' );
 
-		// One window-scoped request per period.
 		const requestedPaths = mockApiFetch.mock.calls
 			.map( call => call[ 0 ].path as string )
 			.filter( path => path.includes( 'stats/video/105' ) );
-		expect( requestedPaths ).toHaveLength( 2 );
-		expect( requestedPaths.some( path => path.includes( 'start_date=2026-07-01' ) ) ).toBe( true );
-		expect( requestedPaths.some( path => path.includes( 'start_date=2026-06-24' ) ) ).toBe( true );
-	} );
-
-	it( 'uses primary month buckets for a previous period that crosses a month boundary', async () => {
-		mockApiFetch.mockImplementation(
-			respondByWindow( {
-				'2026-03-01': buildSingleVideoResponse( [
-					[ '2026-03-01', 4 ],
-					[ '2026-03-31', 5 ],
-				] ),
-				'2026-01-29': buildSingleVideoResponse( [
-					[ '2026-01-29', 1 ],
-					[ '2026-02-01', 2 ],
-					[ '2026-02-28', 3 ],
-				] ),
-			} )
-		);
-
-		render(
-			<VideoDetailViewsPerformanceWidget
-				attributes={ {
-					reportParams: {
-						...DEFAULT_PARAMS,
-						from: '2026-03-01T00:00:00.000+08:00',
-						to: '2026-03-31T23:59:59.999+08:00',
-						post_id: 105,
-						comp: '1',
-						compare_from: '2026-01-29T00:00:00.000+08:00',
-						compare_to: '2026-02-28T23:59:59.999+08:00',
-					},
-					granularity: 'month',
-				} }
-			/>
-		);
-
-		const chart = await screen.findByTestId( 'comparative-line-chart' );
-		expect( chart ).toHaveAttribute( 'data-values', '9' );
-		// The previous period is one relative monthly bucket, not separate January
-		// and February points that the comparative chart would collapse onto March.
-		expect( chart ).toHaveAttribute( 'data-previous-values', '6' );
+		expect( requestedPaths ).toHaveLength( 1 );
+		expect( requestedPaths[ 0 ] ).toContain( 'start_date=2026-07-01' );
+		expect( requestedPaths.some( path => path.includes( 'start_date=2026-06-24' ) ) ).toBe( false );
 	} );
 
 	it( 'renders the scopeless empty state and makes no request without a video scope', async () => {

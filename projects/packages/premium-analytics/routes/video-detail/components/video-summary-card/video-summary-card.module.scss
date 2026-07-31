@@ -15,6 +15,11 @@
 
 .image {
 	object-fit: cover;
+	// The boot shell resets `.boot-layout img { height: auto; max-width: 100% }`
+	// with higher specificity than this class, squashing the box to the
+	// poster's natural ratio. With that `height: auto` in force, a square
+	// aspect ratio restores the 72px box without a specificity contest.
+	aspect-ratio: 1;
 }
 
 .imagePlaceholder {

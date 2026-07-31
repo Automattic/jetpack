@@ -11,6 +11,7 @@
 		"@jetpack-premium-analytics/routing": "workspace:*",
 		"@jetpack-premium-analytics/ui": "workspace:*",
 		"@wordpress/admin-ui": "2.5.0",
+		"@wordpress/compose": "8.4.0",
 		"@wordpress/core-data": "7.51.0",
 		"@wordpress/data": "10.51.0",
 		"@wordpress/element": "8.2.0",
@@ -21,6 +22,7 @@
 		"@wordpress/ui": "0.17.0",
 		"@wordpress/widget-dashboard": "0.2.0",
 		"@wordpress/widget-primitives": "0.2.0",
+		"clsx": "2.1.1",
 		"date-fns": "4.1.0",
 		"fast-deep-equal": "^3.1.3"
 	},

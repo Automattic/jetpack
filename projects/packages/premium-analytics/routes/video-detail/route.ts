@@ -22,6 +22,11 @@ import {
 type VideoDetailParams = { videoId?: string };
 type VideoDetailSearch = Record< string, string | undefined >;
 
+// The video detail design has no period-over-period comparison, so these
+// params are normalized out of the URL — whether hand-edited in, carried over
+// from another report, or added by the default date seed.
+const COMPARISON_SEARCH_PARAMS = [ 'comp', 'compare_from', 'compare_to', 'compare_preset' ];
+
 /**
  * Whether a raw path parameter identifies a positive integer video attachment.
  *
@@ -59,8 +64,11 @@ export const route = {
 		const currentSearch = ( search ?? {} ) as VideoDetailSearch;
 		const needsDateSeed = needsReportDateParamsSeed( currentSearch );
 		const needsPostSeed = currentSearch.post_id !== videoId;
+		const hasComparisonParams = COMPARISON_SEARCH_PARAMS.some(
+			param => currentSearch[ param ] !== undefined
+		);
 
-		if ( needsDateSeed || needsPostSeed ) {
+		if ( needsDateSeed || needsPostSeed || hasComparisonParams ) {
 			/*
 			 * Seed dates in the site timezone, not the browser's, by waiting for
 			 * core `site` settings. A rejection here shouldn't error the whole
@@ -78,6 +86,13 @@ export const route = {
 				),
 				post_id: videoId,
 			};
+
+			// `normalizeReportParams` carries incoming comparison params through
+			// (and adds the default comparison on a fresh load); this page has no
+			// comparison, so drop them before they reach the URL and the widgets.
+			for ( const param of COMPARISON_SEARCH_PARAMS ) {
+				delete seeded[ param ];
+			}
 
 			throw redirect( {
 				to: '/video/$videoId',

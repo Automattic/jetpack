@@ -10,7 +10,6 @@ import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { useMemo } from '@wordpress/element';
 import {
 	addDays,
-	differenceInCalendarDays,
 	eachDayOfInterval,
 	eachMonthOfInterval,
 	eachWeekOfInterval,
@@ -31,13 +30,11 @@ export type VideoViewsPoint = {
 };
 
 /**
- * Normalized Views performance state: the primary (and optional comparison)
- * series plus the requests' load/error flags. `hasData` distinguishes the
- * first load from refetches.
+ * Normalized Views performance state: the view series plus the request's
+ * load/error flags. `hasData` distinguishes the first load from refetches.
  */
 export interface VideoViewsState {
 	current: VideoViewsPoint[];
-	previous?: VideoViewsPoint[];
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
@@ -143,48 +140,6 @@ function calendarBucketWindows(
 }
 
 /**
- * Map primary bucket boundaries onto the comparison range so both series
- * always chart the same bucket count, even when the comparison window crosses
- * a week/month boundary the primary one does not. Mirrors the Post views
- * widget: each comparison bucket starts at the same day offset from the
- * comparison start as its primary bucket does from the primary start, the
- * buckets partition the whole comparison range, and every end is clamped to
- * `comparisonWindow.to`.
- *
- * @param primaryWindow    - The selected primary range.
- * @param comparisonWindow - The previous-period range.
- * @param buckets          - Calendar buckets clipped to the primary range.
- * @return Comparison buckets with the primary range's relative boundaries.
- */
-function relativeBucketWindows(
-	primaryWindow: DayWindow,
-	comparisonWindow: DayWindow,
-	buckets: BucketWindow[]
-): BucketWindow[] {
-	const primaryStart = parseISO( primaryWindow.from );
-	const comparisonStart = parseISO( comparisonWindow.from );
-
-	const froms = buckets.map( bucket =>
-		format(
-			addDays( comparisonStart, differenceInCalendarDays( parseISO( bucket.from ), primaryStart ) ),
-			'yyyy-MM-dd'
-		)
-	);
-
-	return froms.map( ( from, index ) => {
-		// Each bucket runs up to the next bucket's start; the last one absorbs
-		// any remaining comparison days, clamped to the selected window.
-		const rawTo =
-			index < froms.length - 1
-				? format( addDays( parseISO( froms[ index + 1 ] ), -1 ), 'yyyy-MM-dd' )
-				: comparisonWindow.to;
-		const to = rawTo > comparisonWindow.to ? comparisonWindow.to : rawTo;
-
-		return { date: from, from, to };
-	} );
-}
-
-/**
  * Sum a single-video daily series into zero-filled buckets. The endpoint
  * returns a contiguous daily `{ period, value }` array for the requested
  * window, so unlike the Post views widget there is no sparse full history to
@@ -224,15 +179,14 @@ function bucketDays(
 /**
  * Fetch the scoped video's view trend for the dashboard's report params. The
  * `stats/video/{id}` endpoint takes its window from `period`/`start_date`/
- * `date` (wpcom #229903), so the comparison overlay needs its own request for
- * the comparison window — unlike `stats/post`, the endpoint has no
- * full-history response to slice both windows from. Both requests use
- * `statType=all` with the same params as the Video highlights widget, so the
- * primary request shares its cache entry instead of fetching a second time;
- * the chart consumes the leading `plays`/views series.
+ * `date` (wpcom #229903); the request uses `statType=all` with the same
+ * params as the Video highlights widget, so the two share one cache entry,
+ * and the chart consumes the leading `plays`/views series. The video detail
+ * design has no period-over-period comparison, so comparison report params
+ * are ignored (the route normalizes them out of the URL).
  *
- * @param videoId      - The scoped video ID (0 disables the requests).
- * @param reportParams - The dashboard date range + comparison state.
+ * @param videoId      - The scoped video ID (0 disables the request).
+ * @param reportParams - The dashboard date range.
  * @param period       - The selected bucket granularity (day/week/month).
  * @return The view series and load/error state.
  */
@@ -245,57 +199,24 @@ export default function useVideoViews(
 		() => toDayWindow( reportParams.from, reportParams.to ),
 		[ reportParams.from, reportParams.to ]
 	);
-	const compareWindow = useMemo(
-		() => toDayWindow( reportParams.compare_from, reportParams.compare_to ),
-		[ reportParams.compare_from, reportParams.compare_to ]
-	);
-	const primary = useStatsSingleVideo(
+	const { data, isLoading, isFetching, isError, refetch } = useStatsSingleVideo(
 		videoId,
 		{ from: primaryWindow?.from, to: primaryWindow?.to, period: 'day', statType: 'all' },
 		{ enabled: !! primaryWindow }
 	);
-	const comparison = useStatsSingleVideo(
-		videoId,
-		{ from: compareWindow?.from, to: compareWindow?.to, period: 'day', statType: 'all' },
-		{ enabled: !! compareWindow }
-	);
 
-	const { current, previous } = useMemo( () => {
+	const current = useMemo( () => {
 		const buckets = primaryWindow ? calendarBucketWindows( primaryWindow, period ) : [];
-		const currentPoints = bucketDays( primary.data?.data ?? [], buckets );
-		let comparisonBuckets: BucketWindow[] | undefined;
-		if ( primaryWindow && compareWindow ) {
-			// Day grouping must remain one point per actual calendar day. Relative
-			// bucketing is only needed for coarser periods, where matching the
-			// primary layout prevents partial week/month boundaries from scrunching
-			// the comparison overlay.
-			comparisonBuckets =
-				period === 'day'
-					? calendarBucketWindows( compareWindow, period )
-					: relativeBucketWindows( primaryWindow, compareWindow, buckets );
-		}
-		const previousPoints = comparisonBuckets
-			? bucketDays( comparison.data?.data ?? [], comparisonBuckets )
-			: undefined;
 
-		return {
-			current: currentPoints,
-			previous: previousPoints?.length ? previousPoints : undefined,
-		};
-	}, [ primary.data, comparison.data, period, primaryWindow, compareWindow ] );
+		return bucketDays( data?.data ?? [], buckets );
+	}, [ data, period, primaryWindow ] );
 
 	return {
 		current,
-		previous,
-		isLoading: primary.isLoading || comparison.isLoading,
-		isFetching: primary.isFetching || comparison.isFetching,
-		isError: primary.isError || comparison.isError,
-		hasData: !! primary.data,
-		refetch: () => {
-			void primary.refetch();
-			if ( compareWindow ) {
-				void comparison.refetch();
-			}
-		},
+		isLoading,
+		isFetching,
+		isError,
+		hasData: !! data,
+		refetch: () => void refetch(),
 	};
 }

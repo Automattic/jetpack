@@ -72,6 +72,7 @@ type DateFiltersPanelStoryProps = {
 	withComparison?: boolean;
 	initialComparisonPreset?: ComparisonPresetId;
 	containerWidth?: string | number;
+	showComparison?: boolean;
 };
 
 /**
@@ -83,6 +84,7 @@ function DateFiltersPanelStory( {
 	withComparison = true,
 	initialComparisonPreset = 'previous-period',
 	containerWidth = '100%',
+	showComparison = true,
 }: DateFiltersPanelStoryProps ) {
 	const initialPrimary = buildPrimaryState( initialPreset );
 
@@ -165,6 +167,7 @@ function DateFiltersPanelStory( {
 				canApply={ canApplyPrimary }
 				timeZone={ STORYBOOK_TIMEZONE }
 				containerElement={ containerElement }
+				showComparison={ showComparison }
 			/>
 		</div>
 	);
@@ -183,6 +186,14 @@ export const DashboardFilters: Story = {
  */
 export const WithoutComparison: Story = {
 	render: () => <DateFiltersPanelStory withComparison={ false } />,
+};
+
+/**
+ * No comparison control at all — pages whose design has no period-over-period
+ * comparison (e.g. video detail) opt out via `showComparison={ false }`.
+ */
+export const NoComparisonControl: Story = {
+	render: () => <DateFiltersPanelStory withComparison={ false } showComparison={ false } />,
 };
 
 /**

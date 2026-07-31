@@ -107,6 +107,23 @@ export type DateFiltersPanelProps = {
 	 * instead of its own wrapper to determine compact/wide layouts.
 	 */
 	containerElement?: HTMLElement | null;
+
+	/**
+	 * Whether to render the comparison control. Pages whose design has no
+	 * period-over-period comparison (e.g. video detail) opt out. Defaults to
+	 * true.
+	 */
+	showComparison?: boolean;
+
+	/**
+	 * Overrides the container-measured compact state. Layouts that give the
+	 * panel less room than the measured container implies (e.g. the panel
+	 * sharing a row with other content) compute the state themselves — from a
+	 * measurement independent of the panel's own rendered width, or the
+	 * compact choice can deadlock on itself. Omitted, the panel derives it
+	 * from the container width.
+	 */
+	isCompact?: boolean;
 };
 
 /**
@@ -137,6 +154,8 @@ export function DateFiltersPanel( {
 	canApply = true,
 	timeZone,
 	containerElement,
+	showComparison = true,
+	isCompact: isCompactProp,
 }: DateFiltersPanelProps ) {
 	/**
 	 * Validate and normalize the primary preset ID.
@@ -220,7 +239,9 @@ export function DateFiltersPanel( {
 		setObserverRef( containerElement ?? document.body );
 	}, [ containerElement, setObserverRef ] );
 
-	const isCompact = containerWidth !== null && containerWidth < MOBILE_CONTAINER_WIDTH_THRESHOLD;
+	const measuredCompact =
+		containerWidth !== null && containerWidth < MOBILE_CONTAINER_WIDTH_THRESHOLD;
+	const isCompact = isCompactProp ?? measuredCompact;
 	const isWideScreen =
 		containerWidth !== null && containerWidth >= WIDE_CALENDAR_CONTAINER_THRESHOLD;
 
@@ -253,20 +274,25 @@ export function DateFiltersPanel( {
 				/>
 			</BaseControl>
 
-			<BaseControl className="date-filters-panel__comparison" help={ comparisonControlProps.help }>
-				<DateComparisonDropdown
-					presets={ presets }
-					enabled={ comparisonEnabled }
-					presetId={ validatedComparisonPresetId }
-					label={
-						typeof comparisonControlProps.label === 'string'
-							? comparisonControlProps.label
-							: undefined
-					}
-					onPresetChange={ presetChange }
-					onClear={ clearComparison }
-				/>
-			</BaseControl>
+			{ showComparison && (
+				<BaseControl
+					className="date-filters-panel__comparison"
+					help={ comparisonControlProps.help }
+				>
+					<DateComparisonDropdown
+						presets={ presets }
+						enabled={ comparisonEnabled }
+						presetId={ validatedComparisonPresetId }
+						label={
+							typeof comparisonControlProps.label === 'string'
+								? comparisonControlProps.label
+								: undefined
+						}
+						onPresetChange={ presetChange }
+						onClear={ clearComparison }
+					/>
+				</BaseControl>
+			) }
 		</Stack>
 	);
 }

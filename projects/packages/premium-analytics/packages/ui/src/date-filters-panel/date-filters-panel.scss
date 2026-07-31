@@ -11,7 +11,6 @@
 	// class. Children carry no compact modifier of their own — the joint layout
 	// adjustments for every descendant live here.
 	&.is-compact {
-
 		// The preset select and custom trigger become two separate bordered
 		// controls, so drop the group's shared frame and flush hairline dividers
 		// and space them with a gap instead.
@@ -35,7 +34,8 @@
 					// sibling SelectControl trims its inline-end by 4px so the caret
 					// sits closer to the edge. Match that inset so both triggers'
 					// carets align. Start padding (12px) already matches.
-					padding-inline-end: calc(var(--wpds-dimension-padding-md) - var(--wpds-dimension-padding-xs));
+					padding-inline-end:
+ calc(var(--wpds-dimension-padding-md) - var(--wpds-dimension-padding-xs));
 				}
 			}
 		}

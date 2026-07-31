@@ -20,7 +20,9 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: () => <div>Date filters</div>,
+	DateFiltersPanel: ( { showComparison }: { showComparison?: boolean } ) => (
+		<div>{ showComparison === false ? 'Date filters without comparison' : 'Date filters' }</div>
+	),
 } ) );
 
 jest.mock( '@wordpress/core-data', () => ( {
@@ -190,6 +192,22 @@ describe( 'video detail stage', () => {
 		).toBeInTheDocument();
 	} );
 
+	it( 'keeps a long unbroken title single-line-ready: full text in markup plus the hover attr', () => {
+		// Layout is out of jsdom's reach; the single-line clip is CSS
+		// (`white-space: nowrap` + ellipsis on `.title`, with the breadcrumb
+		// slot's shrink fix in stage.module.scss keeping the page from
+		// horizontal scrolling). This guards the DOM contract the clip relies
+		// on: the heading carries the full untruncated text and mirrors it in
+		// `title`, so the ellipsized line stays reachable on hover.
+		const longTitle = `VID_20260731_${ 'a'.repeat( 120 ) }.mp4`;
+		mockSummary( { title: longTitle } );
+
+		render( stage() );
+
+		const heading = screen.getByRole( 'heading', { level: 1, name: longTitle } );
+		expect( heading ).toHaveAttribute( 'title', longTitle );
+	} );
+
 	it( 'adds the resolved title crumb', () => {
 		mockSummary( { title: 'Launch recap' } );
 
@@ -202,14 +220,23 @@ describe( 'video detail stage', () => {
 		expect( screen.getByText( 'Video widgets' ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders the date filters panel and the applied performance window', () => {
+	it( 'renders the date filters in the summary header row without the comparison control', () => {
 		mockSummary( { title: 'Launch recap' } );
 
 		render( stage() );
 
-		expect( screen.getByText( 'Date filters' ) ).toBeInTheDocument();
+		const filters = screen.getByText( 'Date filters without comparison' );
+		expect( filters ).toBeInTheDocument();
 		expect(
 			screen.getByText( /Performance from Jun 1, 2026 to Jun 16, 2026/ )
 		).toBeInTheDocument();
+
+		// The panel shares the header row with the summary (the row itself is
+		// the stub's grandparent: stub div → filters wrapper → header row).
+		// eslint-disable-next-line testing-library/no-node-access -- The row grouping has no accessible query target.
+		const headerRow = filters.parentElement?.parentElement;
+		expect(
+			headerRow?.contains( screen.getByRole( 'heading', { level: 1, name: 'Launch recap' } ) )
+		).toBe( true );
 	} );
 } );

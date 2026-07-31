@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { toPostId } from '@jetpack-premium-analytics/data';
-import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import {
 	ComparativeLineChart,
 	WidgetRoot,
@@ -19,7 +18,7 @@ import { video } from '@wordpress/icons';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import useVideoViews, { type VideoViewsPoint } from './use-video-views';
+import useVideoViews from './use-video-views';
 import type {
 	VideoDetailViewsPerformanceAttributes,
 	VideoDetailViewsPerformanceGranularity,
@@ -36,20 +35,6 @@ const DATA_FORMAT = {
 	options: { useMultipliers: true, decimals: 0 },
 };
 
-/**
- * A series' legend label as its date range (first to last point), consistent
- * with the other comparative charts — used only when a comparison overlay
- * makes the plain "Views" label ambiguous.
- *
- * @param points - The series points, oldest first.
- * @return The formatted date range, or '' when empty.
- */
-function rangeLabel( points: VideoViewsPoint[] ): string {
-	const first = points[ 0 ];
-	const last = points[ points.length - 1 ];
-	return first && last ? formatDateRange( { from: first.date, to: last.date } ) : '';
-}
-
 type VideoDetailViewsPerformanceInnerProps = {
 	/** The granularity attribute: the chart's bucket size. */
 	granularity: VideoDetailViewsPerformanceGranularity;
@@ -59,7 +44,7 @@ type VideoDetailViewsPerformanceInnerProps = {
  * Views performance inner component. Reads the video scope and report params
  * from WidgetRoot context and renders the view-trend line through
  * `<WidgetState>`; without a video scope (e.g. the widget added outside a
- * video detail page) the queries never enable and the empty state shows.
+ * video detail page) the query never enables and the empty state shows.
  *
  * @param {VideoDetailViewsPerformanceInnerProps} props - The component props.
  * @return The rendered widget content.
@@ -70,43 +55,27 @@ function VideoDetailViewsPerformanceInner( {
 	const { reportParams } = useWidgetRootContext();
 	const videoId = toPostId( reportParams.post_id );
 
-	const { current, previous, isLoading, isFetching, isError, hasData, refetch } = useVideoViews(
+	const { current, isLoading, isFetching, isError, hasData, refetch } = useVideoViews(
 		videoId,
 		reportParams,
 		granularity
 	);
 
+	// The video detail page has no comparison control, so the chart always
+	// draws the single "Views" series.
 	const series = useMemo< ComparativeLineChartSeries[] >( () => {
 		if ( ! current.length ) {
 			return [];
 		}
 
-		if ( ! previous?.length ) {
-			return [
-				{
-					label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
-					group: 'views',
-					data: current,
-				},
-			];
-		}
-
-		// With a comparison overlay both series are labelled by date range, so
-		// the legend distinguishes the periods; the previous period draws as a
-		// same-colour dashed line with no fill.
 		return [
-			{ label: rangeLabel( current ), group: 'views', data: current },
 			{
-				label: rangeLabel( previous ),
+				label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
 				group: 'views',
-				data: previous,
-				options: {
-					type: 'comparison',
-					gradient: { from: 'transparent', to: 'transparent', fromOpacity: 0, toOpacity: 0 },
-				},
+				data: current,
 			},
 		];
-	}, [ current, previous ] );
+	}, [ current ] );
 	const seriesStyles = useSeriesStyles( series );
 
 	return (
@@ -144,10 +113,9 @@ function VideoDetailViewsPerformanceInner( {
 
 /**
  * Views performance widget: the scoped video's view trend over the dashboard
- * date range as a comparative line chart. The view series comes from the
+ * date range as a line chart. The view series comes from the
  * `stats/video/{id}` daily history for the selected window, zero-filled and
- * bucketed client-side per the granularity attribute; the comparison overlay
- * is fetched with a second window-scoped request.
+ * bucketed client-side per the granularity attribute.
  *
  * @param {VideoDetailViewsPerformanceWidgetProps} props - The widget render props.
  * @return The rendered widget.

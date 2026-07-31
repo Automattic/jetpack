@@ -1,16 +1,18 @@
 /**
  * The Views performance widget is the video detail page's view-trend card:
- * the scoped video's views over the dashboard date range as a comparative
- * line chart. The video scope arrives through `reportParams.post_id` (seeded
- * from the detail page URL in product); the `hasVideoScope` control toggles
- * it to exercise the scopeless empty state.
+ * the scoped video's views over the dashboard date range as a line chart.
+ * The video scope arrives through `reportParams.post_id` (seeded from the
+ * detail page URL in product); the `hasVideoScope` control toggles it to
+ * exercise the scopeless empty state.
  *
  * Data comes from the proxied `stats/video/{id}` `statType=all` endpoint —
  * the same range request the Video highlights widget issues, so the two share
  * one cache entry — covered by the shared single-video report mock (a
  * deterministic daily series ending today, so relative date presets always
- * intersect it). The comparison overlay is fetched with a second
- * window-scoped request.
+ * intersect it). The video detail design has no period-over-period
+ * comparison, so the widget maps no comparison rows; the dashboard story
+ * still passes comparison params so the widget stays covered against
+ * crashing or inventing an overlay when a host supplies them.
  */
 /**
  * External dependencies
@@ -44,7 +46,6 @@ const MOCK_VIDEO_ID = 105;
 const VIDEO_DETAIL_VIEWS_PERFORMANCE_RENDER_MODULE = 'storybook/video-detail-views-performance';
 
 interface VideoDetailViewsPerformanceStoryControls {
-	withComparison: boolean;
 	hasVideoScope: boolean;
 	granularity: VideoDetailViewsPerformanceGranularity;
 }
@@ -52,18 +53,17 @@ interface VideoDetailViewsPerformanceStoryControls {
 /**
  * Builds the widget attributes: the granularity attribute plus report params
  * with the video scope the detail page seeds from its URL when
- * `hasVideoScope` is on.
+ * `hasVideoScope` is on. Comparison stays a parameter so the dashboard story
+ * can pass host comparison params without duplicating the scoping rule.
  *
- * @param {VideoDetailViewsPerformanceStoryControls} controls - The story controls.
+ * @param {VideoDetailViewsPerformanceStoryControls} controls       - The story controls.
+ * @param {boolean}                                  withComparison - Include previous-period comparison report params.
  * @return The widget attributes.
  */
-function getVideoDetailViewsPerformanceAttributes( {
-	withComparison,
-	hasVideoScope,
-	granularity,
-}: VideoDetailViewsPerformanceStoryControls ): ComponentProps<
-	typeof VideoDetailViewsPerformanceRender
->[ 'attributes' ] {
+function getVideoDetailViewsPerformanceAttributes(
+	{ hasVideoScope, granularity }: VideoDetailViewsPerformanceStoryControls,
+	withComparison = false
+): ComponentProps< typeof VideoDetailViewsPerformanceRender >[ 'attributes' ] {
 	return {
 		granularity,
 		reportParams: {
@@ -92,10 +92,6 @@ const meta = {
 	component: VideoDetailViewsPerformanceRender,
 	tags: [ 'autodocs' ],
 	argTypes: {
-		withComparison: {
-			control: 'boolean',
-			description: 'Include previous-period comparison report params.',
-		},
 		hasVideoScope: {
 			control: 'boolean',
 			description: 'Include the `post_id` report param the video detail page seeds from its URL.',
@@ -110,7 +106,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Views performance" widget: the scoped video\'s view trend over the dashboard date range as a comparative line chart. The series comes from the `stats/video/{id}` daily history for the selected window, zero-filled and bucketed client-side per the host-rendered "Group by" control, with the comparison overlay fetched as a second window-scoped request. Without a video scope the widget renders a scopeless empty state.',
+					'The "Views performance" widget: the scoped video\'s view trend over the dashboard date range as a line chart. The series comes from the `stats/video/{id}` `statType=all` daily history for the selected window (shared with the Video highlights widget\'s query), zero-filled and bucketed client-side per the host-rendered "Group by" control. The video detail page has no comparison control, so comparison report params are ignored. Without a video scope the widget renders a scopeless empty state.',
 			},
 		},
 	},
@@ -124,23 +120,12 @@ export default meta;
 type Story = StoryObj< VideoDetailViewsPerformanceStoryControls >;
 
 /**
- * Default — the scoped video's views for the primary period only: a single
- * "Views" line with no overlay.
+ * Default — the scoped video's views for the selected period: a single
+ * "Views" line.
  */
 export const Default: Story = {
 	render: renderVideoDetailViewsPerformance,
-	args: { withComparison: false, hasVideoScope: true, granularity: 'day' },
-	decorators: [ withWidgetCanvas ],
-};
-
-/**
- * WithComparison — the previous-period comparison from the date range picker;
- * the chart adds a dashed previous-period overlay and the legend switches to
- * date-range labels.
- */
-export const WithComparison: Story = {
-	render: renderVideoDetailViewsPerformance,
-	args: { withComparison: true, hasVideoScope: true, granularity: 'day' },
+	args: { hasVideoScope: true, granularity: 'day' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -151,7 +136,7 @@ export const WithComparison: Story = {
  */
 export const NoVideoScope: Story = {
 	render: renderVideoDetailViewsPerformance,
-	args: { withComparison: false, hasVideoScope: false, granularity: 'day' },
+	args: { hasVideoScope: false, granularity: 'day' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -162,13 +147,14 @@ interface VideoDetailViewsPerformanceDashboardStoryProps
 /**
  * Mounts the real `WidgetDashboard` with this single widget so it renders
  * exactly as it does in product (framed card, host "Group by" toolbar
- * control, sizing, edit mode).
+ * control, sizing, edit mode). It passes comparison params unconditionally,
+ * so the widget stays covered against crashing or inventing an overlay when
+ * a host supplies comparison dates.
  *
  * @param {VideoDetailViewsPerformanceDashboardStoryProps} props - The dashboard story controls.
  * @return The widget mounted inside the real dashboard.
  */
 function VideoDetailViewsPerformanceDashboardStory( {
-	withComparison,
 	hasVideoScope,
 	granularity,
 	...dashboardArgs
@@ -181,11 +167,10 @@ function VideoDetailViewsPerformanceDashboardStory( {
 			renderComponent={
 				VideoDetailViewsPerformanceRender as ComponentType< WidgetRenderProps< unknown > >
 			}
-			attributes={ getVideoDetailViewsPerformanceAttributes( {
-				withComparison,
-				hasVideoScope,
-				granularity,
-			} ) }
+			attributes={ getVideoDetailViewsPerformanceAttributes(
+				{ hasVideoScope, granularity },
+				true
+			) }
 		/>
 	);
 }
@@ -197,16 +182,11 @@ export const WidgetDashboardWithWidget: StoryObj< VideoDetailViewsPerformanceDas
 			...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 			widgetWidth: 2,
 			widgetHeight: 2,
-			withComparison: true,
 			hasVideoScope: true,
 			granularity: 'day',
 		},
 		argTypes: {
 			...widgetDashboardWithWidgetArgTypes,
-			withComparison: {
-				control: 'boolean',
-				description: 'Include previous-period comparison report params.',
-			},
 			hasVideoScope: {
 				control: 'boolean',
 				description: 'Include the `post_id` report param the video detail page seeds from its URL.',
