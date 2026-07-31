@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack\SEO;
 
+use Automattic\Jetpack\Current_Plan;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -37,25 +38,44 @@ class InitializerTest extends TestCase {
 	 * available; neither path is required when the other is enabled.
 	 */
 	public function test_is_available_uses_filter_or_site_feature() {
-		\Wpcom_Test_Features::reset();
-		$this->assertFalse( Initializer::is_available() );
+		$plan                       = Current_Plan::get();
+		$plan['features']['active'] = array();
+		update_option( Current_Plan::PLAN_OPTION, $plan );
+		self::reset_current_plan_cache();
 
-		add_filter( Initializer::FEATURE_FILTER, '__return_true' );
-		try {
-			$this->assertTrue( Initializer::is_available() );
-		} finally {
-			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
-		}
+		// The rollout feature deliberately uses the active feature list rather than
+		// WordPress.com's separate plan-entitlement check.
+		\Wpcom_Test_Features::$known    = array( Initializer::FEATURE_SLUG );
+		\Wpcom_Test_Features::$entitled = array();
 
-		\Wpcom_Test_Features::$known = array( Initializer::FEATURE_SLUG );
 		try {
 			$this->assertFalse( Initializer::is_available() );
 
-			\Wpcom_Test_Features::$entitled = array( Initializer::FEATURE_SLUG );
+			add_filter( Initializer::FEATURE_FILTER, '__return_true' );
+			$this->assertTrue( Initializer::is_available() );
+			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
+
+			$plan['features']['active'] = array( Initializer::FEATURE_SLUG );
+			update_option( Current_Plan::PLAN_OPTION, $plan );
+			self::reset_current_plan_cache();
 			$this->assertTrue( Initializer::is_available() );
 		} finally {
+			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
+			delete_option( Current_Plan::PLAN_OPTION );
+			self::reset_current_plan_cache();
 			\Wpcom_Test_Features::reset();
 		}
+	}
+
+	/**
+	 * Clear Current_Plan's request cache after changing its backing option.
+	 */
+	private static function reset_current_plan_cache() {
+		$property = ( new \ReflectionClass( Current_Plan::class ) )->getProperty( 'active_plan_cache' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, null );
 	}
 
 	/**

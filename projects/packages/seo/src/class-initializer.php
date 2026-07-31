@@ -43,10 +43,10 @@ class Initializer {
 	/**
 	 * Filter name that can enable the entire Jetpack SEO surface.
 	 *
-	 * The surface is available when this filter returns true or the current site
-	 * supports {@see self::FEATURE_SLUG}. When neither is enabled, the package
-	 * registers no admin menu or assets and changes nothing about the existing
-	 * Jetpack UI.
+	 * The surface is available when this filter returns true or the current site's
+	 * active features include {@see self::FEATURE_SLUG}. When neither is enabled,
+	 * the package registers no admin menu or assets and changes nothing about the
+	 * existing Jetpack UI.
 	 *
 	 * @var string
 	 */
@@ -263,8 +263,15 @@ class Initializer {
 	 * @return bool
 	 */
 	public static function is_available() {
-		return (bool) apply_filters( self::FEATURE_FILTER, false )
-			|| Current_Plan::supports( self::FEATURE_SLUG );
+		if ( (bool) apply_filters( self::FEATURE_FILTER, false ) ) {
+			return true;
+		}
+
+		$features = ( new Host() )->is_wpcom_simple()
+			? Current_Plan::get_simple_site_specific_features()
+			: Current_Plan::get()['features'];
+
+		return in_array( self::FEATURE_SLUG, $features['active'] ?? array(), true );
 	}
 
 	/**
