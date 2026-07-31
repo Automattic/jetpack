@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { ensureCoreSettingsReady, normalizeReportParams } from '@jetpack-premium-analytics/data';
+import {
+	ensureCoreSettingsReady,
+	needsReportDateParamsSeed,
+	normalizeReportParams,
+} from '@jetpack-premium-analytics/data';
 import { store as coreStore } from '@wordpress/core-data';
 import { dispatch, select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -27,11 +31,12 @@ type DashboardSearch = Record< string, string | undefined >;
  * Seed the default date range into the URL on first visit so the date picker
  * and the widgets share a populated search state. Defaults to the last 30 days
  * with a previous-period comparison, resolved from the shared analytics
- * defaults (`getDefaultQueryParams`). The seed runs after
+ * defaults (`getDefaultQueryParams`). Also re-seeds when `interval` is missing
+ * or not allowed for the active range. The seed runs after
  * `ensureCoreSettingsReady()` so the dates are encoded in the site timezone;
  * otherwise `getDefaultQueryParams` would fall back to the browser timezone
- * (core `site` settings not loaded yet) and the seeded `to` boundary would
- * land on a different instant than a later Apply writes.
+ * (core `site` settings not loaded yet) and the seeded `to` boundary would land
+ * on a different instant than a later Apply writes.
  *
  * Then register the widget-modules discovery entity before the stage renders,
  * so the stage's `getEntityRecords` read resolves and feeds the records to
@@ -57,7 +62,7 @@ export const route = {
 		}
 
 		const params = ( search ?? {} ) as DashboardSearch;
-		if ( ! params.from || ! params.to || ! params.interval ) {
+		if ( needsReportDateParamsSeed( params ) ) {
 			/*
 			 * Seed dates in the site timezone, not the browser's, by waiting for
 			 * core `site` settings. A rejection here (network/auth) shouldn't
@@ -118,7 +123,7 @@ export const route = {
 				key: 'name',
 				baseURL: `/${ DASHBOARD_REST_NAMESPACE }/widget-modules`,
 				plural: 'widgetModules',
-				label: __( 'Widget modules', 'jetpack-premium-analytics' ),
+				label: __( 'Widget modules', 'jetpack-premium-analytics-pkg' ),
 				supportsPagination: false,
 			},
 			{
@@ -127,7 +132,7 @@ export const route = {
 				key: 'slug',
 				baseURL: `/${ DASHBOARD_REST_NAMESPACE }/dashboards/${ DASHBOARD_NAME }/sections`,
 				plural: 'dashboardSections',
-				label: __( 'Dashboard sections', 'jetpack-premium-analytics' ),
+				label: __( 'Dashboard sections', 'jetpack-premium-analytics-pkg' ),
 				supportsPagination: false,
 			},
 		] );

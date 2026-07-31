@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Subscribers: show the newsletter categories a subscriber receives emails for, and restore the missing subscription date, in the subscriber details panel.

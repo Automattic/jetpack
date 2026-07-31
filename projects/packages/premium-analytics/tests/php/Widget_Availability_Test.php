@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use WorDBless\BaseTestCase;
 
@@ -16,22 +17,35 @@ require_once __DIR__ . '/../../src/widget-availability.php';
 
 /**
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_available_widget_types
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\get_widget_support_context
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\get_unsupported_widget_types
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\remove_unsupported_widget_items
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_availability
  * @covers ::Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_environment
  * @covers ::Automattic\Jetpack\PremiumAnalytics\remove_dev_only_widget_types
  * @covers ::Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_plugin
  * @covers ::Automattic\Jetpack\PremiumAnalytics\remove_plugin_gated_widget_types
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_capability
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\remove_capability_gated_widget_types
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_available_widget_types' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_widget_support_context' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_unsupported_widget_types' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\remove_unsupported_widget_items' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_availability' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_environment' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\remove_dev_only_widget_types' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_plugin' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\remove_plugin_gated_widget_types' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_capability' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\remove_capability_gated_widget_types' )]
 class Widget_Availability_Test extends BaseTestCase {
 
 	/**
-	 * Reset availability filters between tests.
+	 * Reset constants and availability filters between tests.
 	 */
 	public function tear_down() {
+		Constants::clear_constants();
 		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
 
 		parent::tear_down();
@@ -47,6 +61,10 @@ class Widget_Availability_Test extends BaseTestCase {
 			array(
 				'name'     => 'jpa/react-query-dev-tool',
 				'category' => 'developer',
+			),
+			array(
+				'name'     => 'jpa/file-downloads',
+				'category' => 'traffic',
 			),
 			array(
 				'name'     => 'jpa/hello-world',
@@ -83,6 +101,102 @@ class Widget_Availability_Test extends BaseTestCase {
 				'category' => 'bookings',
 			),
 		);
+	}
+
+	/**
+	 * Candidate set spanning every store-report category, plus one served from
+	 * elsewhere.
+	 *
+	 * @return array[] List of widget candidates.
+	 */
+	private function store_report_widget_candidates() {
+		return array_merge(
+			$this->commerce_widget_candidates(),
+			array(
+				array(
+					'name'     => 'jpa/visitors-over-time',
+					'category' => 'visitors',
+				),
+			)
+		);
+	}
+
+	/**
+	 * Filters the standard candidates with explicit host context.
+	 *
+	 * @param bool $is_wpcom_simple Whether the site is WPCOM Simple.
+	 * @return string[] Remaining type names.
+	 */
+	private function available_names( $is_wpcom_simple ) {
+		return array_column(
+			remove_unsupported_widget_items(
+				$this->widget_candidates(),
+				'name',
+				array( 'is_wpcom_simple' => $is_wpcom_simple )
+			),
+			'name'
+		);
+	}
+
+	/**
+	 * File downloads is unavailable outside WPCOM Simple.
+	 */
+	public function test_type_policy_removes_file_downloads_on_non_simple() {
+		$names = $this->available_names( false );
+
+		$this->assertNotContains( 'jpa/file-downloads', $names );
+		$this->assertContains( 'jpa/hello-world', $names );
+	}
+
+	/**
+	 * WPCOM Simple keeps File downloads.
+	 */
+	public function test_type_policy_keeps_file_downloads_on_simple() {
+		$this->assertContains( 'jpa/file-downloads', $this->available_names( true ) );
+	}
+
+	/**
+	 * Non-array records pass through unchanged.
+	 */
+	public function test_type_policy_keeps_non_array_records() {
+		$record = (object) array( 'name' => 'jpa/file-downloads' );
+
+		$this->assertSame(
+			array( $record ),
+			remove_unsupported_widget_items(
+				array(
+					$record,
+					array( 'name' => 'jpa/file-downloads' ),
+				),
+				'name',
+				array( 'is_wpcom_simple' => false )
+			)
+		);
+	}
+
+	/**
+	 * Records without the type key are not support-gated.
+	 */
+	public function test_type_policy_keeps_records_without_type_key() {
+		$items = array( array( 'uuid' => 'no-type' ) );
+
+		$this->assertSame(
+			$items,
+			remove_unsupported_widget_items( $items, 'type', array( 'is_wpcom_simple' => false ) )
+		);
+	}
+
+	/**
+	 * Filtered candidates are re-indexed so they stay a JSON list.
+	 */
+	public function test_type_policy_reindexes_filtered_records() {
+		$filtered = remove_unsupported_widget_items(
+			$this->widget_candidates(),
+			'name',
+			array( 'is_wpcom_simple' => false )
+		);
+
+		$this->assertSame( range( 0, count( $filtered ) - 1 ), array_keys( $filtered ), 'Filtered candidates must stay a JSON list.' );
 	}
 
 	/**
@@ -164,6 +278,116 @@ class Widget_Availability_Test extends BaseTestCase {
 			remove_plugin_gated_widget_types( $candidates, false, false ),
 			'A candidate without a category must not be plugin-gated.'
 		);
+	}
+
+	/**
+	 * Every store-report category — the commerce ones and `visitors` — is dropped
+	 * for a reader without that access, since all they could collect from those
+	 * widgets is 403s.
+	 */
+	public function test_store_report_widgets_removed_from_a_reader_without_access() {
+		$this->assertSame(
+			array( 'jpa/traffic-chart' ),
+			array_column(
+				remove_capability_gated_widget_types( $this->store_report_widget_candidates(), false ),
+				'name'
+			),
+			'Only the category served by another prefix survives.'
+		);
+	}
+
+	/**
+	 * Administrators keep every category.
+	 */
+	public function test_store_report_widgets_kept_for_a_user_with_access() {
+		$this->assertSame(
+			$this->store_report_widget_candidates(),
+			remove_capability_gated_widget_types( $this->store_report_widget_candidates(), true ),
+			'With prefix access no candidate is dropped.'
+		);
+	}
+
+	/**
+	 * The registry-time callback reads the current user, so the same manifest
+	 * yields different types depending on who is asking.
+	 */
+	public function test_registry_callback_follows_the_current_user() {
+		$reader = wp_insert_user(
+			array(
+				'user_login' => 'jpa_widget_reader',
+				'user_pass'  => 'password',
+				'role'       => 'editor',
+			)
+		);
+		wp_set_current_user( $reader );
+
+		$this->assertSame(
+			array( 'jpa/traffic-chart' ),
+			array_column(
+				filter_registrable_widget_types_by_capability( $this->store_report_widget_candidates() ),
+				'name'
+			),
+			'An editor cannot read the store reports, so their categories are dropped.'
+		);
+
+		$admin = wp_insert_user(
+			array(
+				'user_login' => 'jpa_widget_admin',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $admin );
+
+		$this->assertSame(
+			$this->store_report_widget_candidates(),
+			filter_registrable_widget_types_by_capability( $this->store_report_widget_candidates() ),
+			'An administrator keeps every category.'
+		);
+
+		wp_set_current_user( 0 );
+	}
+
+	/**
+	 * Candidates without a category are never capability-gated.
+	 */
+	public function test_uncategorized_widgets_are_not_capability_gated() {
+		$candidates = array( array( 'name' => 'jpa/no-category' ) );
+
+		$this->assertSame(
+			$candidates,
+			remove_capability_gated_widget_types( $candidates, false ),
+			'A candidate without a category must not be capability-gated.'
+		);
+	}
+
+	/**
+	 * The host callback removes File downloads on Atomic.
+	 */
+	public function test_registry_callback_removes_file_downloads_on_atomic() {
+		Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 456 );
+
+		$names = array_column(
+			filter_registrable_widget_types_by_availability( $this->widget_candidates() ),
+			'name'
+		);
+
+		$this->assertNotContains( 'jpa/file-downloads', $names );
+	}
+
+	/**
+	 * The host callback keeps File downloads on WPCOM Simple.
+	 */
+	public function test_registry_callback_keeps_file_downloads_on_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$names = array_column(
+			filter_registrable_widget_types_by_availability( $this->widget_candidates() ),
+			'name'
+		);
+
+		$this->assertContains( 'jpa/file-downloads', $names );
 	}
 
 	/**

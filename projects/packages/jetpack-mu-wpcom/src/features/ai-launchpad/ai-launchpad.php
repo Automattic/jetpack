@@ -12,6 +12,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 // helpers.php defines the shared option reader the listeners depend on, so it loads first.
 require_once __DIR__ . '/helpers.php';
+require_once __DIR__ . '/../../common/class-launchpad-personalization-experiment.php';
 require_once __DIR__ . '/eligibility.php';
 require_once __DIR__ . '/class-ai-launchpad-memberships.php';
 require_once __DIR__ . '/class-ai-launchpad-task-registry.php';
@@ -73,9 +74,8 @@ class AI_Launchpad {
 	/**
 	 * Whether the current site is eligible for the AI Launchpad.
 	 *
-	 * Gate: not already AI-onboarded, not dismissed (skipping the wizard dismisses it, reverting the site
-	 * to the regular launchpad), and explicitly enabled for the site via the `wpcom_ai_launchpad_enabled`
-	 * option. The paid-plan requirement is temporarily lifted (see below).
+	 * Gate: enabled for the site (see is_enabled_for_site()) and not dismissed (skipping the
+	 * wizard dismisses it, reverting the site to the regular launchpad).
 	 *
 	 * @return bool
 	 */
@@ -83,23 +83,11 @@ class AI_Launchpad {
 		static $eligible = null;
 
 		if ( null === $eligible ) {
-			// TEMPORARY: the paid-plan gate is lifted so the AI Launchpad is available on all plans, including free.
-			// Revert this commit to re-require a paid bundle (the removed has_paid_plan() check).
 			$eligible = self::is_enabled_for_site()
-				&& ! self::was_ai_onboarded()
 				&& ! get_option( \AI_Launchpad_REST::OPTION_DISMISSED );
 		}
 
 		return $eligible;
-	}
-
-	/**
-	 * Whether the site already went through an AI onboarding flow.
-	 *
-	 * @return bool
-	 */
-	private static function was_ai_onboarded() {
-		return get_option( 'site_intent' ) === 'ai-assembler' || get_option( 'site_creation_flow' ) === 'ai-site-builder';
 	}
 
 	/**
@@ -110,7 +98,13 @@ class AI_Launchpad {
 	 * @return bool
 	 */
 	private static function is_enabled_for_site() {
-		return (bool) get_option( 'wpcom_ai_launchpad_enabled' );
+		// Explicit per-site switch: set at site creation for the ai_launchpad onboarding
+		// cohort, by the ?enable-ai-launchpad=1 dev handler, or manually.
+		if ( (bool) get_option( 'wpcom_ai_launchpad_enabled' ) ) {
+			return true;
+		}
+
+		return 'ai_launchpad' === Launchpad_Personalization_Experiment::get_variation();
 	}
 
 	/**

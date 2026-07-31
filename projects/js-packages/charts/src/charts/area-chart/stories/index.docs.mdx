@@ -75,6 +75,30 @@ A single-series area chart is a useful way to emphasise a single trend with visu
 
 <Canvas of={ AreaChartStories.SingleSeries } />
 
+## Zooming
+
+Set `zoomable` to let users drag horizontally across the plot to zoom the X axis into that range:
+
+<Canvas of={ AreaChartStories.Zoomable } />
+
+<Source
+	language="jsx"
+	code={ `<AreaChart
+		data={ data }
+		zoomable={ true }
+	/>` }
+/>
+
+Zoom behaviour:
+
+- Disabled by default (`zoomable={ false }`).
+- Only the X axis rescales; the Y axis is unaffected.
+- A selection rectangle follows the pointer while dragging.
+- Drags shorter than 6px are ignored, so a click never zooms.
+- While zoomed, a "Reset zoom" button appears in the top-right to restore the full domain. It is reachable with Tab and activates with Enter or Space.
+- Areas are clipped to the plot area whenever `zoomable` is set, keeping the zoom-out animation within the axes.
+- `zoomable` chains with your own `onPointerDown`/`onPointerMove`/`onPointerUp` handlers rather than replacing them.
+
 ## Error Handling
 
 The chart gracefully handles common edge cases:

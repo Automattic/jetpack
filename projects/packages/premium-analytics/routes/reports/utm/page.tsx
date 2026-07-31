@@ -10,11 +10,14 @@ import {
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
 	ReportErrorState,
+	ReportDrilldownTable,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportPageTabs,
-	ReportRecordsTable,
+	ReportCsvAction,
+	useReportCsvExport,
 	useReportRetry,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useMemo, useState } from '@wordpress/element';
@@ -27,6 +30,7 @@ import { route } from '../package.json';
 import {
 	getReportUtmTabs,
 	getUtmFields,
+	getUtmTabLabel,
 	resolveSection,
 	useUtmReportRecords,
 	type UtmReportRow,
@@ -34,8 +38,11 @@ import {
 
 const ROUTE_FROM = route.path;
 
+/*
+ * No default sort: rows arrive as UTM parents followed by their posts. The
+ * unsorted view preserves that hierarchy; user sorting stays within levels.
+ */
 const RECORDS_VIEW = {
-	sort: { field: 'views', direction: 'desc' as const },
 	layout: {
 		styles: {
 			utmValue: { width: '100%' },
@@ -43,6 +50,8 @@ const RECORDS_VIEW = {
 		},
 	},
 };
+
+const sortUtmCsvRows = ( a: UtmReportRow, b: UtmReportRow ) => b.views - a.views;
 
 /**
  * Stable row id for the UTM records table.
@@ -52,6 +61,16 @@ const RECORDS_VIEW = {
  */
 function getUtmRowId( item: UtmReportRow ): string {
 	return item.id;
+}
+
+/**
+ * Resolve the UTM parent row id for nested post rows.
+ *
+ * @param item - The UTM or post row.
+ * @return The parent row id, if any.
+ */
+function getUtmRowParentId( item: UtmReportRow ): string | undefined {
+	return item.parentId;
 }
 
 /**
@@ -70,6 +89,24 @@ function UtmReport(): JSX.Element {
 	const records = useUtmReportRecords( activeTab, reportParams );
 	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getUtmFields( activeTab ), [ activeTab ] );
+	const csvColumns = useMemo< CsvColumn< UtmReportRow >[] >(
+		() => [
+			{ label: getUtmTabLabel( activeTab ), getValue: row => row.label },
+			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
+		],
+		[ activeTab ]
+	);
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport( {
+		rows: records.rows,
+		filenamePrefix: `utm-${ activeTab }`,
+		range: reportParams,
+		status: records,
+		sort: sortUtmCsvRows,
+	} );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dashboardLink = useDashboardLink();
 	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
@@ -80,10 +117,15 @@ function UtmReport(): JSX.Element {
 			breadcrumbs={
 				<Breadcrumbs
 					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'UTM', 'jetpack-premium-analytics' ) },
+						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
+						{ label: __( 'UTM', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
+			}
+			actions={
+				canExport ? (
+					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
+				) : undefined
 			}
 		>
 			<ReportPageLayout
@@ -96,18 +138,20 @@ function UtmReport(): JSX.Element {
 			>
 				{ records.isError ? (
 					<ReportErrorState
-						title={ __( 'Unable to load UTM data', 'jetpack-premium-analytics' ) }
+						title={ __( 'Unable to load UTM data', 'jetpack-premium-analytics-pkg' ) }
 						onRetry={ retry }
 					/>
 				) : (
-					<ReportRecordsTable< UtmReportRow >
+					<ReportDrilldownTable< UtmReportRow >
 						key={ activeTab }
 						data={ records.rows }
 						fields={ fields }
 						getItemId={ getUtmRowId }
+						getItemParentId={ getUtmRowParentId }
 						isLoading={ records.isLoading }
 						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search UTM values', 'jetpack-premium-analytics' ) }
+						searchLabel={ __( 'Search UTM values', 'jetpack-premium-analytics-pkg' ) }
+						hideLevelMarkers
 					/>
 				) }
 			</ReportPageLayout>

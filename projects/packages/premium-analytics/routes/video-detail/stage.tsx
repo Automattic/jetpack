@@ -10,7 +10,7 @@ import { __ } from '@wordpress/i18n';
 import { Link, useParams, useSearch } from '@wordpress/route';
 import { Button, Stack, Text } from '@wordpress/ui';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
-import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 /**
  * Internal dependencies
  */
@@ -18,6 +18,7 @@ import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primi
 // hook's own note), so the video-detail page reuses the dashboard's hook rather
 // than storing a separate copy.
 import { useDashboardGridSettings } from '../dashboard/hooks/use-dashboard-grid-settings';
+import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { VideoSummaryCard } from './components';
 import { VIDEO_DETAIL_LAYOUT } from './config';
 import { useVideoSummary } from './hooks';
@@ -58,7 +59,7 @@ function VideoDetail(): JSX.Element {
 		[]
 	);
 
-	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypes( widgetModules );
+	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
 	const dashboardLink = useDashboardLink();
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
@@ -69,7 +70,7 @@ function VideoDetail(): JSX.Element {
 	const title =
 		summary.isLoading || summary.isError || summary.isNotFound
 			? undefined
-			: summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics' );
+			: summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics-pkg' );
 	const resolvedSummary = { ...summary, title };
 	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
 	let summaryContent: JSX.Element | null;
@@ -82,24 +83,24 @@ function VideoDetail(): JSX.Element {
 				<Text>
 					{ __(
 						"We couldn't load this video. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					) }
 				</Text>
 				<Button variant="outline" onClick={ summary.refetch }>
-					{ __( 'Retry', 'jetpack-premium-analytics' ) }
+					{ __( 'Retry', 'jetpack-premium-analytics-pkg' ) }
 				</Button>
 			</Stack>
 		);
 	} else if ( summary.isNotFound ) {
 		summaryContent = (
 			<Stack direction="column" align="flex-start" gap="sm">
-				<Text>{ __( "We couldn't find this video.", 'jetpack-premium-analytics' ) }</Text>
+				<Text>{ __( "We couldn't find this video.", 'jetpack-premium-analytics-pkg' ) }</Text>
 				<Link
 					to="/reports/$report"
 					params={ { report: 'videos' } as unknown as never }
 					search={ reportSearch as unknown as never }
 				>
-					{ __( 'Back to Videos', 'jetpack-premium-analytics' ) }
+					{ __( 'Back to Videos', 'jetpack-premium-analytics-pkg' ) }
 				</Link>
 			</Stack>
 		);
@@ -111,6 +112,7 @@ function VideoDetail(): JSX.Element {
 		<WidgetDashboard
 			widgetTypes={ widgetTypes }
 			isResolvingWidgetTypes={ isResolvingWidgetTypes }
+			resolveWidgetModule={ resolveWidgetModuleWithI18n }
 			layout={ VIDEO_DETAIL_LAYOUT }
 			onLayoutChange={ noopLayoutChange }
 			gridSettings={ gridSettings }
@@ -119,7 +121,7 @@ function VideoDetail(): JSX.Element {
 				breadcrumbs={
 					<Breadcrumbs
 						items={ [
-							{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
+							{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
 							...( title ? [ { label: title } ] : [] ),
 						] }
 					/>

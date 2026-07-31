@@ -13,9 +13,9 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  * icons and earnings fields.
  */
 export const WORDADS_EARNINGS_METRICS = [
-	{ id: 'earnings', label: __( 'Earnings', 'jetpack-premium-analytics' ) },
-	{ id: 'paid', label: __( 'Paid', 'jetpack-premium-analytics' ) },
-	{ id: 'outstanding', label: __( 'Outstanding amount', 'jetpack-premium-analytics' ) },
+	{ id: 'earnings', label: __( 'Earnings', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'paid', label: __( 'Paid', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'outstanding', label: __( 'Outstanding amount', 'jetpack-premium-analytics-pkg' ) },
 ] as const satisfies readonly { id: string; label: string }[];
 
 /**
@@ -54,7 +54,7 @@ export default {
 	attributes: [
 		{
 			id: 'metrics',
-			label: __( 'Metrics', 'jetpack-premium-analytics' ),
+			label: __( 'Metrics', 'jetpack-premium-analytics-pkg' ),
 			type: 'array',
 			relevance: 'high',
 			Edit: ArrayCheckboxField,

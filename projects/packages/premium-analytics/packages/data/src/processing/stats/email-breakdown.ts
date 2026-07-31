@@ -48,22 +48,22 @@ function isEmailLinkType( value: unknown ): value is EmailLinkType {
 function emailLinkLabel( linkType: EmailLinkType ): string {
 	switch ( linkType ) {
 		case 'post-url':
-			return _x( 'Post URL', 'Email link type', 'jetpack-premium-analytics' );
+			return _x( 'Post URL', 'Email link type', 'jetpack-premium-analytics-pkg' );
 		case 'like-post':
-			return _x( 'Like', 'Email link type', 'jetpack-premium-analytics' );
+			return _x( 'Like', 'Email link type', 'jetpack-premium-analytics-pkg' );
 		case 'comment-post':
-			return _x( 'Comment', 'Email link type', 'jetpack-premium-analytics' );
+			return _x( 'Comment', 'Email link type', 'jetpack-premium-analytics-pkg' );
 		case 'remove-subscription':
-			return _x( 'Unsubscribe', 'Email link type', 'jetpack-premium-analytics' );
+			return _x( 'Unsubscribe', 'Email link type', 'jetpack-premium-analytics-pkg' );
 	}
 }
 
 function otherLabel(): string {
-	return __( 'Other', 'jetpack-premium-analytics' );
+	return __( 'Other', 'jetpack-premium-analytics-pkg' );
 }
 
 function otherEmailLinkLabel(): string {
-	return _x( 'Other', 'Email link type', 'jetpack-premium-analytics' );
+	return _x( 'Other', 'Email link type', 'jetpack-premium-analytics-pkg' );
 }
 
 function isEmailBreakdownSummaryValue( value: unknown ): boolean {
@@ -125,7 +125,7 @@ function parseFieldlessEmailCountryRows( response: StatsRecord ): StatsEmailBrea
 			const countryFull = country.country_full;
 
 			return {
-				label: countryFull ?? __( 'Unknown', 'jetpack-premium-analytics' ),
+				label: countryFull ?? __( 'Unknown', 'jetpack-premium-analytics-pkg' ),
 				value: safeParseFloat( row[ 1 ] ),
 				countryCode: countryFull ? countryCode : undefined,
 				countryFull,

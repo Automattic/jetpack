@@ -46,7 +46,7 @@ class Top_Performing_Products_Controller extends Abstract_Csv_Report_Controller 
 	 * @return string The report label.
 	 */
 	public function get_report_label(): string {
-		return __( 'Top Performing Products', 'jetpack-premium-analytics' );
+		return __( 'Top Performing Products', 'jetpack-premium-analytics-pkg' );
 	}
 
 	/**
@@ -66,15 +66,15 @@ class Top_Performing_Products_Controller extends Abstract_Csv_Report_Controller 
 	 */
 	public function get_column_headers( ?string $interval = null ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Signature required by the report controller interface.
 		return array(
-			'product'             => __( 'Product', 'jetpack-premium-analytics' ),
-			'gross_sales'         => __( 'Gross sales', 'jetpack-premium-analytics' ),
-			'discounts'           => __( 'Discounts', 'jetpack-premium-analytics' ),
-			'refunds'             => __( 'Refunds', 'jetpack-premium-analytics' ),
-			'net_sales'           => __( 'Net sales', 'jetpack-premium-analytics' ),
-			'new_customers'       => __( 'New customers', 'jetpack-premium-analytics' ),
-			'returning_customers' => __( 'Returning customers', 'jetpack-premium-analytics' ),
-			'profit'              => __( 'Profit', 'jetpack-premium-analytics' ),
-			'margin'              => __( 'Margin', 'jetpack-premium-analytics' ),
+			'product'             => __( 'Product', 'jetpack-premium-analytics-pkg' ),
+			'gross_sales'         => __( 'Gross sales', 'jetpack-premium-analytics-pkg' ),
+			'discounts'           => __( 'Discounts', 'jetpack-premium-analytics-pkg' ),
+			'refunds'             => __( 'Refunds', 'jetpack-premium-analytics-pkg' ),
+			'net_sales'           => __( 'Net sales', 'jetpack-premium-analytics-pkg' ),
+			'new_customers'       => __( 'New customers', 'jetpack-premium-analytics-pkg' ),
+			'returning_customers' => __( 'Returning customers', 'jetpack-premium-analytics-pkg' ),
+			'profit'              => __( 'Profit', 'jetpack-premium-analytics-pkg' ),
+			'margin'              => __( 'Margin', 'jetpack-premium-analytics-pkg' ),
 		);
 	}
 
@@ -91,7 +91,7 @@ class Top_Performing_Products_Controller extends Abstract_Csv_Report_Controller 
 		$product_name = ! empty( $item['product_name'] )
 			? $item['product_name']
 			/* translators: %s is the product ID */
-			: sprintf( __( 'Product #%s', 'jetpack-premium-analytics' ), $item['product_id'] ?? $defaults['product_id'] );
+			: sprintf( __( 'Product #%s', 'jetpack-premium-analytics-pkg' ), $item['product_id'] ?? $defaults['product_id'] );
 
 		$row = array(
 			'product'             => $product_name,

@@ -189,15 +189,17 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 					error={ {
 						description: __(
 							"We couldn't load email stats. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
-						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
 					} }
 					empty={ {
 						icon: envelope,
 						description: __(
 							'Your latest emails will appear here once you send a newsletter.',
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
 					} }
 				>

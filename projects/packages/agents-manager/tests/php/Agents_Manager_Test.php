@@ -683,6 +683,52 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that the omnibar experiment is recognized when only the renamed slug
+	 * (`gutenberg-omnibar`, Gutenberg 23.5+) is enabled.
+	 */
+	public function test_ai_chat_button_registered_in_editor_omnibar_with_renamed_slug() {
+		$this->set_up_block_editor_request();
+
+		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
+		Functions\when( 'gutenberg_is_experiment_enabled' )->alias(
+			function ( $experiment ) {
+				return 'gutenberg-omnibar' === $experiment;
+			}
+		);
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
+		);
+
+		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+	}
+
+	/**
+	 * Tests that the omnibar experiment is recognized when only the pre-rename slug
+	 * (`gutenberg-admin-bar-in-editor`, Gutenberg ≤ 23.4) is enabled.
+	 */
+	public function test_ai_chat_button_registered_in_editor_omnibar_with_legacy_slug() {
+		$this->set_up_block_editor_request();
+
+		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
+		Functions\when( 'gutenberg_is_experiment_enabled' )->alias(
+			function ( $experiment ) {
+				return 'gutenberg-admin-bar-in-editor' === $experiment;
+			}
+		);
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
+		);
+
+		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+	}
+
+	/**
 	 * Tests that the Ask AI button is not added to the editor admin bar when the omnibar
 	 * experiment is inactive, even though Agents Manager is enabled.
 	 */

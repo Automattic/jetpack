@@ -31,6 +31,9 @@ Plugin options are:
   The default function list handles the `__`, `_x`, `_n`, and `_nx` functions provided by [@wordpress/i18n]. This list may be accessed as `require( '@automattic/babel-plugin-replace-textdomain' ).defaultFunctions`.
 
 - `i18nModule`: Specify the module name used for resolving import aliases. When a function is imported from this module and called under an alias, the plugin will still recognize it. Defaults to `@wordpress/i18n`.
+- `requireI18nSource`: Skip calls whose callee provably resolves to something other than `i18nModule`. Defaults to false.
+
+  By default any call matching the function list is rewritten, including member calls like `cache.__( key )`. That is fine for hand-written source, but when the plugin runs over a whole bundle — where a dependency's own helpers sit in the same file as the real gettext calls — it rewrites calls that have nothing to do with i18n. With this option a callee is left alone once it can be traced to another module, while a callee whose origin can't be determined is still rewritten (so an unrecognized bundler shape doesn't silently leave a bundle untranslated).
 
 To report instances of the specified i18n functions called without a domain or with an improper value for the domain, set the `DEBUG` environment variable to include `@automattic/babel-plugin-replace-textdomain`.
 

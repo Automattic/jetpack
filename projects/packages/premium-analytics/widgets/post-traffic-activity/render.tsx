@@ -114,9 +114,11 @@ function PostTrafficActivityInner() {
 					error={ {
 						description: __(
 							"We couldn't load this traffic activity. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
-						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
 					} }
 					// A post with no traffic renders the all-blank grid (the sparse
 					// treatment), so the empty state only covers the missing scope.
@@ -124,7 +126,7 @@ function PostTrafficActivityInner() {
 						icon: reports,
 						description: __(
 							'Open a post or page report to see its traffic activity here.',
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
 					} }
 				>
@@ -141,7 +143,7 @@ function PostTrafficActivityInner() {
 									size="small"
 									onClick={ showOlder }
 									disabled={ ! canShowOlder }
-									aria-label={ __( 'Older activity', 'jetpack-premium-analytics' ) }
+									aria-label={ __( 'Older activity', 'jetpack-premium-analytics-pkg' ) }
 								>
 									<Button.Icon icon={ chevronLeft } size={ 16 } />
 								</Button>
@@ -152,7 +154,7 @@ function PostTrafficActivityInner() {
 									size="small"
 									onClick={ showNewer }
 									disabled={ ! canShowNewer }
-									aria-label={ __( 'Newer activity', 'jetpack-premium-analytics' ) }
+									aria-label={ __( 'Newer activity', 'jetpack-premium-analytics-pkg' ) }
 								>
 									<Button.Icon icon={ chevronRight } size={ 16 } />
 								</Button>

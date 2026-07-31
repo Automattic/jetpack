@@ -49,7 +49,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'analytics', $this->data_route_key() );
 	}
 
-	public function test_analytics_requires_manage_options() {
+	public function test_analytics_requires_the_woocommerce_reports_capability() {
 		$user_id = wp_insert_user(
 			array(
 				'user_login' => 'jpa_stats_only',
@@ -61,12 +61,33 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$user->add_cap( 'view_stats' );
 		wp_set_current_user( $user_id );
 
-		// view_stats reaches stats data but NOT the premium analytics surface.
+		// view_stats reaches stats data but NOT the store reports.
 		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'analytics/reports/totals' ) ) );
 		$this->assertTrue( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'stats/top-posts' ) ) );
 	}
 
-	public function test_permission_denied_without_manage_options() {
+	/**
+	 * Shop managers hold view_woocommerce_reports without manage_options, and read
+	 * these same reports on WooCommerce's own Analytics screens.
+	 */
+	public function test_analytics_is_served_to_a_woocommerce_report_viewer() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'jpa_shop_manager',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		$user    = new \WP_User( $user_id );
+		$user->add_cap( 'view_woocommerce_reports' );
+		wp_set_current_user( $user_id );
+
+		$this->assertTrue( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'analytics/reports/totals' ) ) );
+		// Store access is not stats access.
+		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'stats/top-posts' ) ) );
+	}
+
+	public function test_permission_denied_without_any_report_capability() {
 		wp_set_current_user( 0 );
 		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'analytics/reports/totals' ) ) );
 	}
@@ -247,7 +268,8 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$user->add_cap( 'view_stats' );
 		wp_set_current_user( $user_id );
 
-		// view_stats reaches stats, but not the WordAds (activate_wordads) or analytics (manage_options) tiers.
+		// view_stats reaches stats, but not the WordAds (activate_wordads) or store
+		// report (view_woocommerce_reports) tiers.
 		$this->assertTrue( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'stats/top-posts' ) ) );
 		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'wordads/earnings' ) ) );
 		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'analytics/reports/totals' ) ) );
@@ -684,11 +706,11 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	public static function data_endpoint_matrix(): array {
 		$stats   = 'view_stats';
 		$wordads = 'activate_wordads';
-		$admin   = 'manage_options';
+		$store   = 'view_woocommerce_reports';
 
 		return array(
-			// Analytics (manage_options).
-			'analytics report'     => array( 'analytics/reports/totals', $admin, false, '/sites/%d/analytics/reports/totals' ),
+			// Store reports (view_woocommerce_reports).
+			'analytics report'     => array( 'analytics/reports/totals', $store, false, '/sites/%d/analytics/reports/totals' ),
 
 			// Site stats + every /stats/* read family (v1.1, view_stats).
 			'site stats'           => array( 'stats', $stats, false, '/sites/%d/stats' ),
