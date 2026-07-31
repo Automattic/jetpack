@@ -25,16 +25,15 @@ import { useSearch } from '@wordpress/route';
  */
 import { route } from '../package.json';
 import {
-	getCountryFilterAllLabel,
 	getLocationFields,
 	getReportLocationsTabs,
-	LocationsCountryFilter,
 	resolveSection,
 	supportsCountryFilter,
 	useLocationsReportRecords,
 	type LocationRow,
 	type ReportLocationsTabId,
 } from './config';
+import type { View } from '@wordpress/dataviews';
 
 const ROUTE_FROM = route.path;
 
@@ -50,6 +49,9 @@ function getLocationRowId( item: LocationRow ): string {
 
 const RECORDS_VIEW = {
 	sort: { field: 'views', direction: 'desc' as const },
+	// The country field exists to filter, not to display, so it stays out of
+	// the columns. DataViews shows only what `fields` lists.
+	fields: [ 'location', 'views' ],
 	layout: {
 		styles: {
 			location: { width: '100%' },
@@ -57,6 +59,20 @@ const RECORDS_VIEW = {
 		},
 	},
 };
+
+const COUNTRY_FILTER_FIELD = 'country';
+
+/**
+ * Read the picked country out of a records-table view.
+ *
+ * @param view - The view the table just moved to.
+ * @return The ISO country code, or an empty string when unfiltered.
+ */
+function getCountryFilter( view: View ): string {
+	const value = view.filters?.find( filter => filter.field === COUNTRY_FILTER_FIELD )?.value;
+
+	return typeof value === 'string' ? value : '';
+}
 
 /**
  * Premium Analytics Locations report page.
@@ -74,10 +90,17 @@ export default function LocationsReportPage(): JSX.Element {
 	const [ countryFilter, setCountryFilter ] = useState( '' );
 	const records = useLocationsReportRecords( activeTab, reportParams, countryFilter || undefined );
 	const retry = useReportRetry( records.refetch );
-	const fields = useMemo( () => getLocationFields(), [] );
+	const fields = useMemo(
+		() =>
+			getLocationFields(
+				supportsCountryFilter( activeTab ) ? records.countries.options : undefined
+			),
+		[ activeTab, records.countries.options ]
+	);
 
 	// A country picked on one tab does not carry to the next: the Countries tab
 	// cannot be scoped at all, and a country with regions may have no cities.
+	// The table remounts per tab, so its own filter clears alongside this.
 	const handleTabChange = useCallback(
 		( tab: ReportLocationsTabId ) => {
 			setCountryFilter( '' );
@@ -85,6 +108,11 @@ export default function LocationsReportPage(): JSX.Element {
 		},
 		[ setActiveTab ]
 	);
+
+	// The API scopes the rows, so the picked country has to reach the request.
+	const handleChangeView = useCallback( ( view: View ) => {
+		setCountryFilter( getCountryFilter( view ) );
+	}, [] );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dashboardLink = useDashboardLink();
@@ -125,16 +153,7 @@ export default function LocationsReportPage(): JSX.Element {
 						isLoading={ tableIsLoading }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search locations', 'jetpack-premium-analytics-pkg' ) }
-						header={
-							supportsCountryFilter( activeTab ) ? (
-								<LocationsCountryFilter
-									countries={ records.countries.options }
-									value={ countryFilter }
-									allLabel={ getCountryFilterAllLabel( activeTab ) }
-									onChange={ setCountryFilter }
-								/>
-							) : undefined
-						}
+						onChangeView={ handleChangeView }
 					/>
 				) }
 			</ReportPageLayout>

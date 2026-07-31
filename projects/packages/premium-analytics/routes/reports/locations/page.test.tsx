@@ -16,6 +16,7 @@ import { useState } from 'react';
 import { useLocationsReportRecords } from './config';
 import LocationsReportPage from './page';
 import type { LocationRow, ReportLocationsTabId } from './config';
+import type { View } from '@wordpress/dataviews';
 import type { ReactNode } from 'react';
 
 jest.mock( './config', () => ( {
@@ -50,11 +51,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	),
 	ReportPageShell: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportPageTabs: jest.fn( () => null ),
-	// Render the toolbar slot so the country filter is assertable; the table
-	// itself is covered by its own tests.
-	ReportRecordsTable: jest.fn( ( { header }: { header?: ReactNode } ) => (
-		<div data-testid="records-table">{ header }</div>
-	) ),
+	// The table's own tests cover how it renders the field config and reports
+	// view changes; here only the props the page hands it matter.
+	ReportRecordsTable: jest.fn( () => <div data-testid="records-table" /> ),
 	useReportRetry: ( refetch: () => unknown ) => () => {
 		void refetch();
 	},
@@ -123,12 +122,30 @@ function mockTabState( initial: ReportLocationsTabId ) {
 }
 
 /**
- * Get the country filter, or null when the active tab renders none.
+ * Get the country filter field handed to the records table, if the tab has one.
  *
- * @return The country filter combobox.
+ * @return The country field config.
  */
-function queryCountryFilter() {
-	return screen.queryByRole( 'combobox', { name: 'Filter by country' } );
+function queryCountryField() {
+	const { fields } = reportRecordsTableMock.mock.calls[ 0 ][ 0 ];
+
+	return fields.find( field => field.id === 'country' );
+}
+
+/**
+ * Pick a country through the records table's own view change.
+ *
+ * @param countryCode - The ISO country code to filter by, or '' to clear.
+ */
+function pickCountry( countryCode: string ) {
+	const { onChangeView } = reportRecordsTableMock.mock.calls[ 0 ][ 0 ];
+
+	act( () => {
+		onChangeView?.( {
+			type: 'table',
+			filters: countryCode ? [ { field: 'country', operator: 'is', value: countryCode } ] : [],
+		} as View );
+	} );
 }
 
 /**
@@ -208,55 +225,76 @@ describe( 'LocationsReportPage', () => {
 
 	// The Countries tab is already the whole country list, so scoping it to one
 	// country would leave a single row.
-	it( 'renders no country filter on the Countries tab', () => {
+	it( 'offers no country filter on the Countries tab', () => {
 		mockRecords();
 
 		render( <LocationsReportPage /> );
 
-		expect( queryCountryFilter() ).not.toBeInTheDocument();
+		expect( queryCountryField() ).toBeUndefined();
 	} );
 
-	it.each( [
-		[ 'regions', 'All regions' ],
-		[ 'cities', 'All cities' ],
-	] as const )( 'offers the countries to filter %s by', ( tab, allLabel ) => {
+	// Unset by default, so the tab opens on every country until one is picked.
+	it.each( [ 'regions', 'cities' ] as const )( 'offers the countries to filter %s by', tab => {
 		mockTabState( tab );
 		mockRecords();
 
 		render( <LocationsReportPage /> );
 
-		expect( queryCountryFilter() ).toBeInTheDocument();
-		expect( screen.getAllByRole( 'option' ).map( option => option.textContent ) ).toEqual( [
-			allLabel,
-			'Australia',
-			'Germany',
+		const countryField = queryCountryField();
+		expect( countryField?.filterBy ).toEqual( { operators: [ 'is' ] } );
+		expect( countryField?.elements ).toEqual( [
+			{ value: 'AU', label: 'Australia' },
+			{ value: 'DE', label: 'Germany' },
 		] );
 	} );
 
-	it( 'scopes the records request to the picked country', async () => {
+	// The country is a filter, not a column.
+	it( 'keeps the country out of the table columns', () => {
 		mockTabState( 'regions' );
 		mockRecords();
 
 		render( <LocationsReportPage /> );
-		await userEvent.setup().selectOptions( queryCountryFilter() as HTMLElement, 'DE' );
+
+		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ].initialView?.fields ).toEqual( [
+			'location',
+			'views',
+		] );
+	} );
+
+	it( 'scopes the records request to the picked country', () => {
+		mockTabState( 'regions' );
+		mockRecords();
+
+		render( <LocationsReportPage /> );
+		pickCountry( 'DE' );
 
 		expect( useRecordsMock ).toHaveBeenLastCalledWith( 'regions', expect.anything(), 'DE' );
+	} );
+
+	it( 'returns to every country when the filter is cleared', () => {
+		mockTabState( 'regions' );
+		mockRecords();
+
+		render( <LocationsReportPage /> );
+		pickCountry( 'DE' );
+		pickCountry( '' );
+
+		expect( useRecordsMock ).toHaveBeenLastCalledWith( 'regions', expect.anything(), undefined );
 	} );
 
 	// A country picked on one tab does not carry to the next: a country with
 	// regions may have no cities, which would otherwise show an empty table
 	// under a country the user cannot see they still have selected.
-	it( 'clears the picked country when the tab changes', async () => {
+	it( 'clears the picked country when the tab changes', () => {
 		mockTabState( 'regions' );
 		mockRecords();
 
 		render( <LocationsReportPage /> );
-		await userEvent.setup().selectOptions( queryCountryFilter() as HTMLElement, 'DE' );
+		pickCountry( 'DE' );
 		expect( useRecordsMock ).toHaveBeenLastCalledWith( 'regions', expect.anything(), 'DE' );
 
 		selectTab( 'cities' );
 
 		expect( useRecordsMock ).toHaveBeenLastCalledWith( 'cities', expect.anything(), undefined );
-		expect( queryCountryFilter() ).toHaveValue( '' );
 	} );
 } );

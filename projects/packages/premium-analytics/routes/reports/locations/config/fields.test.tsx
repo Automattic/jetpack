@@ -46,6 +46,22 @@ describe( 'locations fields', () => {
 		expect( screen.getByText( ( 1234 ).toLocaleString() ) ).toBeInTheDocument();
 	} );
 
+	it( 'omits the country filter when no countries are given', () => {
+		expect( getLocationFields().map( field => field.id ) ).toEqual( [ 'location', 'views' ] );
+	} );
+
+	// An ordinary DataViews filter: unset by default, so every country shows
+	// until one is picked. It needs no "All countries" option of its own.
+	it( 'adds the country as a single-value filter', () => {
+		const countryField = getLocationFields( [ { code: 'IN', label: 'India' } ] ).find(
+			field => field.id === 'country'
+		);
+
+		expect( countryField?.filterBy ).toEqual( { operators: [ 'is' ] } );
+		expect( countryField?.elements ).toEqual( [ { value: 'IN', label: 'India' } ] );
+		expect( countryField?.getValue?.( { item: location } ) ).toBe( 'IN' );
+	} );
+
 	// DataViews sorts and searches on the raw field value, not the rendered
 	// cell, so views must stay a number and the location must stay its label.
 	it( 'sorts and searches on the raw row values', () => {

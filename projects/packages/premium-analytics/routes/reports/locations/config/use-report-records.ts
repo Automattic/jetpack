@@ -12,7 +12,7 @@ import { useMemo } from '@wordpress/element';
  * Internal dependencies
  */
 import { aggregateLocationRows } from './aggregate';
-import type { LocationRow } from './fields';
+import type { LocationRow, LocationsCountryOption } from './fields';
 import type { ReportLocationsTabId } from './tabs';
 
 const GEO_MODES = {
@@ -20,14 +20,6 @@ const GEO_MODES = {
 	regions: 'region',
 	cities: 'city',
 } as const;
-
-/**
- * One selectable country in the report's country filter.
- */
-export interface LocationsCountryOption {
-	code: string;
-	label: string;
-}
 
 /**
  * Fetch and derive map and table records for the active Locations tab.

@@ -18,12 +18,47 @@ export type LocationRow = {
 };
 
 /**
+ * One selectable country for the records table's country filter.
+ */
+export interface LocationsCountryOption {
+	code: string;
+	label: string;
+}
+
+/**
  * DataViews fields for the Locations records table.
  *
+ * `countries` adds the country filter offered on the Regions and Cities tabs.
+ * It is an ordinary DataViews filter: unset by default, added and removed from
+ * "Add filter" like any other, and every country shows until one is picked.
+ * Pass nothing on the Countries tab, which is already the whole country list.
+ *
+ * The country is not a column: the page's view lists only `location` and
+ * `views`. The API applies the filter server-side, because it returns at most
+ * 256 rows and the regions of a smaller country fall outside that global cut.
+ *
+ * @param countries - Selectable countries, ordered by views.
  * @return The field config.
  */
-export function getLocationFields(): Field< LocationRow >[] {
+export function getLocationFields( countries?: LocationsCountryOption[] ): Field< LocationRow >[] {
+	const countryField: Field< LocationRow >[] = countries
+		? [
+				{
+					id: 'country',
+					label: __( 'Country', 'jetpack-premium-analytics-pkg' ),
+					elements: countries.map( country => ( {
+						value: country.code,
+						label: country.label,
+					} ) ),
+					filterBy: { operators: [ 'is' ] },
+					enableSorting: false,
+					getValue: ( { item } ) => item.countryCode ?? '',
+				},
+		  ]
+		: [];
+
 	return [
+		...countryField,
 		{
 			id: 'location',
 			label: __( 'Location', 'jetpack-premium-analytics-pkg' ),

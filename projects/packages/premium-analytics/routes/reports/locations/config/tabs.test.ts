@@ -1,9 +1,4 @@
-import {
-	getCountryFilterAllLabel,
-	getReportLocationsTabs,
-	resolveSection,
-	supportsCountryFilter,
-} from './tabs';
+import { getReportLocationsTabs, resolveSection, supportsCountryFilter } from './tabs';
 import type { ReportLocationsTabId } from './tabs';
 
 describe( 'Locations report tabs', () => {
@@ -25,10 +20,5 @@ describe( 'Locations report tabs', () => {
 		[ 'cities', true ],
 	] as const )( 'reports country-filter support for %s as %s', ( tab, expected ) => {
 		expect( supportsCountryFilter( tab as ReportLocationsTabId ) ).toBe( expected );
-	} );
-
-	it( 'words the unscoped filter option for the tab it belongs to', () => {
-		expect( getCountryFilterAllLabel( 'regions' ) ).toBe( 'All regions' );
-		expect( getCountryFilterAllLabel( 'cities' ) ).toBe( 'All cities' );
 	} );
 } );
