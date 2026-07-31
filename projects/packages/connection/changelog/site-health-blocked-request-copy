@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Site Health: Clarify the guidance shown when a firewall blocks WordPress.com requests, and link to the Jetpack IP allowlist guide.
+Site Health: Clarify the descriptions shown by the connection tests, link to the Jetpack IP allowlist guide when a firewall blocks WordPress.com requests, and explain why a test was skipped.
