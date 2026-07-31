@@ -150,6 +150,17 @@ describe( 'AdvancedCard', () => {
 		expect( setActive ).toHaveBeenCalledWith( false );
 	} );
 
+	it( 'reports Settings as the screen the toggle was operated from', () => {
+		render( <AdvancedCard /> );
+
+		// The hook takes the screen because the *enable* card renders on every tab's
+		// module-off stage. This card only ever renders here, so a wrong value is the
+		// failure mode, not a missing one — and a wrong value typechecks fine, which
+		// is why it's pinned. Getting it wrong files `jetpack_seo_tools_toggled` under
+		// the wrong screen, and nothing about the page looks broken.
+		expect( useSeoToolsToggle ).toHaveBeenCalledWith( 'settings' );
+	} );
+
 	it( 'blocks a second click while the request is in flight', () => {
 		useSeoToolsToggle.mockReturnValue( { isToggling: true, setActive } );
 

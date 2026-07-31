@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-SEO: gate the dashboard to a free subset (Overview + Settings visibility/verification) with an upsell banner on below-Premium WordPress.com sites, and stop serving llms.txt and AI-crawler robots.txt directives there; self-hosted is never gated. Pre-launch, behind the rsm_jetpack_seo feature flag.
