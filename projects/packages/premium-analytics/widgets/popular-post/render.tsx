@@ -29,9 +29,10 @@ type PopularPostWidgetProps = WidgetRenderProps< PopularPostRenderAttributes >;
  * the shared `PostHighlightCard`, with loading, error, and empty states handled
  * by `<WidgetState>`.
  *
- * Views are scoped to the dashboard's date range; likes and comments are all-time
- * totals (the Stats post endpoint takes no date range), so those two tiles carry
- * an aggregation note the card surfaces as a tooltip and as visually hidden text.
+ * The dashboard's date range picks which post is shown; all three tiles are
+ * all-time totals from the Stats post endpoint, so they share one window and
+ * need no per-tile aggregation note — the same treatment as `Latest post`,
+ * which shares this card.
  *
  * @return The widget content.
  */
@@ -41,29 +42,16 @@ function PopularPostReport() {
 
 	const metrics: PostHighlightCardMetric[] = post
 		? [
-				{
-					key: 'views',
-					label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
-					value: post.views,
-					note: __( 'Views in the selected date range.', 'jetpack-premium-analytics-pkg' ),
-				},
+				{ key: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ), value: post.views },
 				{
 					key: 'likes',
 					label: __( 'Likes', 'jetpack-premium-analytics-pkg' ),
 					value: post.likeCount,
-					note: __(
-						'All-time likes. Stats does not report likes per date range.',
-						'jetpack-premium-analytics-pkg'
-					),
 				},
 				{
 					key: 'comments',
 					label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
 					value: post.commentCount,
-					note: __(
-						'All-time comments. Stats does not report comments per date range.',
-						'jetpack-premium-analytics-pkg'
-					),
 				},
 		  ]
 		: [];

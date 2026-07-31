@@ -19,6 +19,12 @@ const POPULAR_POST_TYPES = [ 'post' ];
 
 // The API caps the ranked rows it returns at `max`, so ask for a page of them:
 // filtering down to post-type rows still needs a winner to pick.
+//
+// Trade-off: on a page-heavy site the top 20 ranked rows can all be pages, and
+// the widget then shows its empty state even though a qualifying post ranks
+// lower. Raising this only moves the boundary rather than removing it; a
+// `post_type`-filtered top-posts endpoint would, and would also let the ranking
+// and the metrics come from one window.
 const POPULAR_POST_REQUEST_MAX = 20;
 
 export type PopularPostWithMetrics = {
@@ -32,17 +38,15 @@ export type PopularPostWithMetrics = {
 	imageUrl: string;
 	imageAlt: string;
 	/**
-	 * Views in the dashboard's selected date range.
+	 * All-time views, read from the Stats post endpoint.
 	 */
 	views: number;
 	/**
-	 * All-time likes. The Stats post endpoint takes no date range, so this is a
-	 * lifetime total even though `views` above is period-scoped.
+	 * All-time likes, read from the Stats post endpoint.
 	 */
 	likeCount: number;
 	/**
-	 * All-time comments, read from the post row on the Stats post endpoint — also
-	 * a lifetime total.
+	 * All-time comments, read from the post row on the Stats post endpoint.
 	 */
 	commentCount: number;
 };
@@ -62,26 +66,43 @@ export type UsePopularPostResult = {
  *
  * Three requests compose the card, mirroring `useLatestPost`'s split:
  *
- * 1. `stats/top-posts` for the period ranking — this is the widget's report, so
- *    its date range comes from `reportParams` and its `views` are period-scoped.
+ * 1. `stats/top-posts` for the period ranking. The date range's only job is to
+ *    pick the winner; the row's period views are not what the card displays.
  * 2. the local core posts endpoint for the winning post's content, because the
  *    report carries no featured image (and reading content on-site keeps it
  *    resolvable on private/unlaunched sites).
- * 3. `stats/post/{id}` for likes and comments. That endpoint has no date range,
- *    so both are **all-time** totals; the widget labels them as such.
+ * 3. `stats/post/{id}` for every displayed metric — views, likes and comments.
+ *
+ * All three tiles therefore share one window: **all-time**. The Stats post
+ * endpoint takes no date range, so likes and comments can only be lifetime
+ * totals; reading views from the same response keeps three tiles that sit side
+ * by side from silently measuring two different periods. It also matches the
+ * sibling `Latest post` widget, which shares this card and is already all-time.
  *
  * Only a report failure surfaces as an error — the ranking is the widget. A
- * failing content or metrics request degrades to no image and zeroed engagement
- * counts rather than blanking the card.
+ * failing content or metrics request degrades to no image and zeroed counts
+ * rather than blanking the card.
  *
  * @param reportParams - The dashboard's report params (date range, comparison).
  * @return The popular post with its metrics, plus combined loading/error state.
  */
 export function usePopularPost( reportParams: ReportParams ): UsePopularPostResult {
-	const statsParams = useMemo(
-		() => ( { ...reportParams, max: POPULAR_POST_REQUEST_MAX } ),
-		[ reportParams ]
-	);
+	const statsParams = useMemo( () => {
+		/*
+		 * The comparison window drives a second `stats/top-posts` request, but this
+		 * widget renders a single winner and no period-over-period delta anywhere,
+		 * so that response would be fetched and discarded. Drop the comparison
+		 * fields, the way `video-detail-highlights` does for params its endpoint
+		 * cannot use.
+		 */
+		const primaryParams = { ...reportParams, max: POPULAR_POST_REQUEST_MAX };
+		delete primaryParams.comp;
+		delete primaryParams.compare_from;
+		delete primaryParams.compare_to;
+		delete primaryParams.compare_preset;
+
+		return primaryParams;
+	}, [ reportParams ] );
 
 	// Ranking, post-type filtering, and the single-row cap all live in the data
 	// layer's merge helper (see AGENTS.md), so the widget just takes the winner.
@@ -93,13 +114,34 @@ export function usePopularPost( reportParams: ReportParams ): UsePopularPostResu
 	const postId = Number( topRow?.id ?? 0 ) || 0;
 
 	const contentResult = useStatsQuery< LatestPostResponse >( postContentQuery( postId ) );
-	const postStatsResult = useStatsPost( { postId, fields: [ 'like_count', 'post' ] } );
+	const postStatsResult = useStatsPost( { postId, fields: [ 'views', 'like_count', 'post' ] } );
+
+	/*
+	 * `statsProxyQuery` carries the previous key's payload over through
+	 * `placeholderData`, while the content query deliberately does not. On a
+	 * winner change that pairing would render the new post's title beside the
+	 * previous post's engagement until the dependent request resolves.
+	 *
+	 * So consume metrics only from a response that identifies the post we asked
+	 * for. When the endpoint omits the identifier there is nothing to match on,
+	 * and holding the card in a skeleton forever would be worse than trusting it.
+	 */
+	const statsPostData = postStatsResult.data;
+	const statsPostId = statsPostData?.post?.ID;
+	const metrics =
+		statsPostData && ( statsPostId === undefined || statsPostId === postId )
+			? statsPostData
+			: undefined;
+
+	// A failed metrics request degrades to zeroed counts, so it stops counting as
+	// pending — otherwise the card would skeleton indefinitely on a 403.
+	const isMetricsPending = postId > 0 && ! metrics && ! postStatsResult.isError;
 
 	// Both dependent queries are disabled until a post ID resolves, so they only
 	// count towards the widget's loading state once there is a post to load.
 	const isLoading =
 		topPostsResult.isLoading ||
-		( postId > 0 && ( contentResult.isLoading || postStatsResult.isLoading ) );
+		( postId > 0 && ( contentResult.isLoading || postStatsResult.isLoading || isMetricsPending ) );
 	const isFetching =
 		topPostsResult.isFetching || contentResult.isFetching || postStatsResult.isFetching;
 	// The Stats queries keep the previous range's rows via `placeholderData`, so a
@@ -128,9 +170,9 @@ export function usePopularPost( reportParams: ReportParams ): UsePopularPostResu
 				date: content?.date || ( typeof topRow.date === 'string' ? topRow.date : '' ),
 				imageUrl: content?.imageUrl ?? '',
 				imageAlt: content?.imageAlt ?? '',
-				views: topRow.views,
-				likeCount: postStatsResult.data?.like_count ?? 0,
-				commentCount: Number( postStatsResult.data?.post?.comment_count ) || 0,
+				views: metrics?.views ?? 0,
+				likeCount: metrics?.like_count ?? 0,
+				commentCount: Number( metrics?.post?.comment_count ) || 0,
 		  }
 		: null;
 
