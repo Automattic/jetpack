@@ -6,7 +6,12 @@ import { renderHook } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { DATE_FILTER_RANGE, DATE_FILTER_YEAR, type DashboardSection } from '../config';
+import {
+	DATE_FILTER_RANGE,
+	DATE_FILTER_YEAR,
+	type DashboardSection,
+	type DateFilterSurface,
+} from '../config';
 import { useSectionDateFilter } from './use-section-date-filter';
 import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 
@@ -16,7 +21,7 @@ import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
  * @param dateFilter - The section's `date_filter` value.
  * @return A dashboard section.
  */
-function section( dateFilter: DashboardSection[ 'date_filter' ] ): DashboardSection {
+function section( dateFilter: DateFilterSurface ): DashboardSection {
 	return {
 		id: `analytics/${ dateFilter }`,
 		slug: dateFilter,

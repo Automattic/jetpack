@@ -18,12 +18,13 @@ const SECTIONS: DashboardSection[] = [
 		date_filter: 'year',
 		default_layout: [],
 	},
+	// Registered without a date filter, the way a payload from a build that
+	// predates the field arrives.
 	{
 		id: 'analytics/subscribers',
 		slug: 'subscribers',
 		label: 'Subscribers',
 		order: 30,
-		date_filter: 'range',
 		default_layout: [],
 	},
 ];
@@ -48,13 +49,15 @@ describe( 'resolveSectionId', () => {
 } );
 
 describe( 'section date filters', () => {
-	it( 'resolves each section to the surface it was registered with', () => {
-		expect(
-			SECTIONS.map( section => [ section.slug, resolveDateFilterSurface( section.date_filter ) ] )
-		).toEqual( [
-			[ 'traffic', DATE_FILTER_RANGE ],
-			[ 'insights', DATE_FILTER_YEAR ],
-			[ 'subscribers', DATE_FILTER_RANGE ],
-		] );
+	const [ traffic, insights, subscribers ] = SECTIONS;
+
+	it( 'resolves a section to the surface it was registered with', () => {
+		expect( resolveDateFilterSurface( traffic.date_filter ) ).toBe( DATE_FILTER_RANGE );
+		expect( resolveDateFilterSurface( insights.date_filter ) ).toBe( DATE_FILTER_YEAR );
+	} );
+
+	it( 'falls back to the range surface for a section served without the field', () => {
+		expect( subscribers.date_filter ).toBeUndefined();
+		expect( resolveDateFilterSurface( subscribers.date_filter ) ).toBe( DATE_FILTER_RANGE );
 	} );
 } );

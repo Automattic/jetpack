@@ -3,7 +3,6 @@ import { Tabs } from '@jetpack-premium-analytics/externals';
 import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
 import { DashboardSections } from '../../../routes/dashboard/components';
 import styles from '../../../routes/dashboard/stage.module.scss';
-import type { DashboardSection } from '../../../routes/dashboard/config';
 import type { Meta, StoryObj } from '@storybook/react';
 import type {
 	ResolveWidgetModule,
@@ -94,39 +93,17 @@ const resolveWidgetModule: ResolveWidgetModule = moduleId =>
 
 // In product the section list is server-driven (the dashboardSection entity);
 // the story pins a static list mirroring that response shape.
-const storySections: DashboardSection[] = [
-	{
-		id: 'analytics/traffic',
-		slug: 'traffic',
-		label: 'Traffic',
-		order: 10,
-		date_filter: 'range',
-		default_layout: [],
-	},
-	{
-		id: 'analytics/insights',
-		slug: 'insights',
-		label: 'Insights',
-		order: 20,
-		date_filter: 'year',
-		default_layout: [],
-	},
+const storySections = [
+	{ id: 'analytics/traffic', slug: 'traffic', label: 'Traffic', order: 10, default_layout: [] },
+	{ id: 'analytics/insights', slug: 'insights', label: 'Insights', order: 20, default_layout: [] },
 	{
 		id: 'analytics/subscribers',
 		slug: 'subscribers',
 		label: 'Subscribers',
 		order: 30,
-		date_filter: 'range',
 		default_layout: [],
 	},
-	{
-		id: 'woocommerce/store',
-		slug: 'store',
-		label: 'Store',
-		order: 40,
-		date_filter: 'range',
-		default_layout: [],
-	},
+	{ id: 'woocommerce/store', slug: 'store', label: 'Store', order: 40, default_layout: [] },
 ];
 
 /**
