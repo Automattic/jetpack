@@ -38,3 +38,5 @@ require_once __DIR__ . '/stubs/class-woocommerce.php';
 require_once __DIR__ . '/stubs/woocommerce-functions.php';
 require_once __DIR__ . '/stubs/class-wpcom-test-features.php';
 require_once __DIR__ . '/stubs/wpcom-feature-functions.php';
+require_once __DIR__ . '/stubs/class-wpcom-test-user.php';
+require_once __DIR__ . '/stubs/wpcom-user-functions.php';

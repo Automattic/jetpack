@@ -111,7 +111,7 @@ const OverviewScreen: FC = () => {
 	if ( ! data.site_visibility.seo_tools_active ) {
 		return (
 			<div className={ styles.root }>
-				<EnableSeoCard />
+				<EnableSeoCard screen="overview" />
 			</div>
 		);
 	}

@@ -13,6 +13,11 @@
 namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 /**
@@ -82,7 +87,122 @@ class Admin_Page {
 
 		self::load_wp_build();
 		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_script_data' ) );
+	}
+
+	/**
+	 * Load the WordPress.com Tracks transport on the SEO admin page.
+	 *
+	 * `jetpack-analytics` (behind the client `recordSeoEvent()` wrapper) only queues
+	 * events into `window._tkq`. Without `jp-tracks` (`stats.wp.com/w.js`) loaded
+	 * nothing flushes that queue, so no event ever reaches Tracks and the queue just
+	 * grows for the life of the page. Mirrors the Newsletter and Search dashboards.
+	 *
+	 * Registered from {@see self::maybe_load_wp_build()}, which already ran the
+	 * SEO-admin-page check, so this only enqueues on our page. No-ops when the site
+	 * hasn't opted into tracking (see {@see self::can_use_analytics()}) — the client
+	 * wrapper keeps queueing into `_tkq`, but with no transport nothing is sent.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_tracks_transport() {
+		if ( ! self::can_use_analytics() ) {
+			return;
+		}
+
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+	}
+
+	/**
+	 * Whether this site has opted into the analytics Tracks depends on.
+	 *
+	 * Self-hosted Jetpack only sends Tracks once the site has agreed to the terms of
+	 * service or connected a user, and never in offline mode — the same gate the host
+	 * plugin applies in `Jetpack::initialize_tracking()`. The SEO dashboard is reachable
+	 * before any of that is true, so it has to run the check itself rather than assume
+	 * the host plugin already opened the door.
+	 *
+	 * The whole WordPress.com platform short-circuits — Simple *and* Atomic. Both are
+	 * covered by WordPress.com's own terms, and neither is a reliable read for
+	 * `should_enable_tracking()`: Simple has no Jetpack connection for it to inspect,
+	 * and on Atomic it turns on a per-user connection that an admin may not have. Since
+	 * paid Simple and Atomic sites *are* the population the launch metric counts, a
+	 * false negative there would silently undercount the thing this instrumentation
+	 * exists to measure. Self-hosted is the case the gate is actually for. Mirrors
+	 * `Contact_Form_Plugin::can_use_analytics()`, widened from `IS_WPCOM` to the
+	 * platform check.
+	 *
+	 * @return bool
+	 */
+	public static function can_use_analytics() {
+		if ( ( new Host() )->is_wpcom_platform() ) {
+			return true;
+		}
+
+		$tracking = new Tracking( 'jetpack', new Connection_Manager() );
+
+		return $tracking->should_enable_tracking( new Terms_Of_Service(), new Status() );
+	}
+
+	/**
+	 * Standard Tracks context for the SEO dashboard, per the Data team's unified
+	 * properties standard. Bootstrapped onto the page so the client
+	 * `recordSeoEvent()` wrapper attaches the same identifiers to every event.
+	 *
+	 * `blog_id` is the required join key for the distinct-site launch metric; it
+	 * uses the WordPress.com-connected id where available so Simple, Atomic, and
+	 * self-hosted rows join to the same site.
+	 *
+	 * @return array{blog_id:int, site_type:string, is_a11n:bool, is_test:bool, product_version:string}
+	 */
+	public static function get_tracks_context() {
+		$host = new Host();
+		if ( $host->is_wpcom_simple() ) {
+			$site_type = 'simple';
+		} elseif ( $host->is_atomic_platform() ) {
+			$site_type = 'atomic';
+		} else {
+			$site_type = 'jetpack';
+		}
+
+		// `Jetpack_Options` ships in the jetpack-connection package's classmap, which
+		// this package depends on transitively through jetpack-plans — so it's a real
+		// dependency, not a host-plugin class needing a guard. Falls back to the local
+		// blog id on a site that was never connected.
+		$blog_id = (int) \Jetpack_Options::get_option( 'id' );
+		if ( ! $blog_id ) {
+			$blog_id = get_current_blog_id();
+		}
+
+		// Whether the visitor is an Automattician. `is_automattician()` is defined on
+		// WordPress.com Simple only, so this reads false on Atomic and self-hosted even
+		// for an a8c user. Known limitation, not a complete signal: the Atomic analogue
+		// (`Status\Visitor::is_automattician_feature_flags_only()`) only detects proxied
+		// requests, so it would report a different thing under the same property name.
+		// Tracked with the rest of the Part 2 instrumentation on JETPACK-1728.
+		$is_a11n = false;
+		if ( function_exists( 'is_automattician' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- is_automattician() lives on WordPress.com, guarded by function_exists.
+			$is_a11n = (bool) is_automattician();
+		}
+
+		// Internal traffic to exclude from the metrics: WordPress.com staging sites,
+		// installs declaring a non-production environment, and local installs.
+		// `Status::is_staging_site()` covers the middle case but is deprecated since
+		// 3.3.0, and its suggested replacement (`in_safe_mode`) detects an Identity
+		// Crisis rather than a staging site.
+		$is_test = (bool) get_option( 'wpcom_is_staging_site' )
+			|| 'production' !== wp_get_environment_type()
+			|| ( new Status() )->is_local_site();
+
+		return array(
+			'blog_id'         => $blog_id,
+			'site_type'       => $site_type,
+			'is_a11n'         => $is_a11n,
+			'is_test'         => $is_test,
+			'product_version' => Initializer::PACKAGE_VERSION,
+		);
 	}
 
 	/**
@@ -168,6 +288,10 @@ class Admin_Page {
 			'is_gated'   => $is_gated,
 			'upsell_url' => $is_gated ? Initializer::get_upsell_url() : '',
 		);
+
+		// Standard Tracks identifiers, attached to every SEO event by the client
+		// `recordSeoEvent()` wrapper (see `_inc/data/record-seo-event.ts`).
+		$data[ Initializer::SCRIPT_DATA_KEY ]['tracks'] = self::get_tracks_context();
 
 		return $data;
 	}

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/el
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { buildCorePayload, buildJetpackPayload } from './build-payload';
+import { recordSeoEvent } from './record-seo-event';
 import { settingsStore } from './settings-store';
 import type { SchemaSettings } from './schema-settings-types';
 import type { SettingsResponse, VerificationKey } from './settings-types';
@@ -13,6 +14,83 @@ import type { SettingsResponse, VerificationKey } from './settings-types';
 // page's two-stage toast.
 const SAVE_NOTICE_ID = 'jetpack-seo-settings-save';
 
+const VERIFICATION_SERVICES: VerificationKey[] = [
+	'google',
+	'bing',
+	'pinterest',
+	'yandex',
+	'facebook',
+];
+
+/** Tracks props for a single changed setting (`none` stands in for N/A). */
+type SettingChange = {
+	setting: string;
+	verification_service: string;
+	setting_value: string | boolean;
+};
+
+/**
+ * The per-setting Tracks payloads for the fields that changed in this save —
+ * fired one event per *changed* key (not per field in the saved object), so the
+ * distinct-site metric isn't inflated by co-firing. `setting_value` carries the
+ * boolean for toggles and `none` for the text/format settings (whose content we
+ * don't send); site-verification reports the changed service and set/cleared.
+ *
+ * @param baseline - The last-saved values.
+ * @param values   - The values being saved.
+ * @return One entry per changed setting.
+ */
+function settingChanges( baseline: SettingsResponse, values: SettingsResponse ): SettingChange[] {
+	const changes: SettingChange[] = [];
+	const changed = ( key: keyof SettingsResponse ) =>
+		JSON.stringify( baseline[ key ] ) !== JSON.stringify( values[ key ] );
+
+	if ( changed( 'front_page_description' ) ) {
+		changes.push( {
+			setting: 'front_page_description',
+			verification_service: 'none',
+			setting_value: 'none',
+		} );
+	}
+	if ( changed( 'title_formats' ) ) {
+		changes.push( {
+			setting: 'title_formats',
+			verification_service: 'none',
+			setting_value: 'none',
+		} );
+	}
+	if ( changed( 'search_engines_visible' ) ) {
+		changes.push( {
+			setting: 'search_engines_visible',
+			verification_service: 'none',
+			setting_value: values.search_engines_visible,
+		} );
+	}
+	if ( changed( 'sitemap_active' ) ) {
+		changes.push( {
+			setting: 'sitemap',
+			verification_service: 'none',
+			setting_value: values.sitemap_active,
+		} );
+	}
+	if ( changed( 'canonical_active' ) ) {
+		changes.push( {
+			setting: 'canonical',
+			verification_service: 'none',
+			setting_value: values.canonical_active,
+		} );
+	}
+	VERIFICATION_SERVICES.forEach( service => {
+		if ( baseline.verification[ service ] !== values.verification[ service ] ) {
+			changes.push( {
+				setting: 'site_verification',
+				verification_service: service,
+				setting_value: values.verification[ service ] ? 'set' : 'cleared',
+			} );
+		}
+	} );
+	return changes;
+}
 // The package's own settings read, re-fetched after a sitemap toggle to pick up
 // the freshly-reachable `sitemap_url` (recomputed server-side once Jetpack has
 // (de)activated its sitemap module).
@@ -114,11 +192,15 @@ export function useSettingsForm(): SettingsForm {
 				type: 'snackbar',
 				isDismissible: false,
 			} );
+			const changes = settingChanges( baseline, values );
 			Promise.all( requests )
 				.then( () => {
 					baselineRef.current = values;
 					// Persist the saved snapshot so a return to the tab re-seeds from it.
 					setSettings( values );
+					changes.forEach( change =>
+						recordSeoEvent( 'jetpack_seo_setting_updated', 'settings', change )
+					);
 					createSuccessNotice( __( 'Settings saved.', 'jetpack-seo' ), {
 						id: SAVE_NOTICE_ID,
 						type: 'snackbar',
@@ -154,6 +236,10 @@ export function useSettingsForm(): SettingsForm {
 					}
 				} )
 				.catch( ( error: { message?: string } ) => {
+					// A save-failure signal so REST errors don't read as usage dips.
+					changes.forEach( change =>
+						recordSeoEvent( 'jetpack_seo_setting_update_failed', 'settings', change )
+					);
 					createErrorNotice(
 						error?.message ?? __( 'Could not save settings. Please try again.', 'jetpack-seo' ),
 						{ id: SAVE_NOTICE_ID, type: 'snackbar' }

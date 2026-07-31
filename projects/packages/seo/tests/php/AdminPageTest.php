@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\SEO;
 
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -148,5 +149,199 @@ class AdminPageTest extends TestCase {
 		} finally {
 			$this->reset_wpcom_site();
 		}
+	}
+
+	/**
+	 * The Tracks bootstrap exposes exactly the standard identifier set the client
+	 * `recordSeoEvent()` wrapper spreads onto every event, with the types the Data
+	 * team's schema expects. `blog_id` is the join key for the distinct-site launch
+	 * metric, so it must always be an int and never null.
+	 */
+	public function test_get_tracks_context_shape() {
+		$context = Admin_Page::get_tracks_context();
+
+		$this->assertSame(
+			array( 'blog_id', 'site_type', 'is_a11n', 'is_test', 'product_version' ),
+			array_keys( $context )
+		);
+		$this->assertIsInt( $context['blog_id'] );
+		$this->assertContains( $context['site_type'], array( 'simple', 'atomic', 'jetpack' ) );
+		$this->assertIsBool( $context['is_a11n'] );
+		$this->assertIsBool( $context['is_test'] );
+		$this->assertSame( Initializer::PACKAGE_VERSION, $context['product_version'] );
+	}
+
+	/**
+	 * The three `site_type` values are the axis the launch metric splits on — it
+	 * reports Simple and Atomic separately — so each branch is pinned rather than
+	 * left to the shape assertion above, which any single value satisfies.
+	 *
+	 * Atomic is identified by its two platform constants together; a site carrying
+	 * only one of them is not Atomic, so the pair is set as a pair.
+	 */
+	public function test_get_tracks_context_reports_the_site_type_per_platform() {
+		$this->assertSame( 'jetpack', Admin_Page::get_tracks_context()['site_type'] );
+
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+		try {
+			$this->assertSame( 'simple', Admin_Page::get_tracks_context()['site_type'] );
+		} finally {
+			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+		}
+
+		\Automattic\Jetpack\Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+		\Automattic\Jetpack\Constants::set_constant( 'ATOMIC_CLIENT_ID', 456 );
+		try {
+			$this->assertSame( 'atomic', Admin_Page::get_tracks_context()['site_type'] );
+		} finally {
+			\Automattic\Jetpack\Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
+			\Automattic\Jetpack\Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
+		}
+	}
+
+	/**
+	 * `is_a11n` reads the WordPress.com `is_automattician()` function when the
+	 * platform provides it, so internal traffic can be separated from customer
+	 * traffic in the launch metric.
+	 *
+	 * The false case is the one that holds off WordPress.com: the function doesn't
+	 * exist there, and the property still has to be a real boolean rather than null,
+	 * because the Data schema types it as one.
+	 */
+	public function test_get_tracks_context_reads_the_automattician_flag() {
+		$this->assertFalse( Admin_Page::get_tracks_context()['is_a11n'] );
+
+		\Wpcom_Test_User::$is_automattician = true;
+
+		try {
+			$this->assertTrue( Admin_Page::get_tracks_context()['is_a11n'] );
+		} finally {
+			\Wpcom_Test_User::reset();
+		}
+	}
+
+	/**
+	 * A WordPress.com staging site counts as internal traffic, so `is_test` is true
+	 * and the launch metric can filter it out. `wpcom_is_staging_site` is the signal
+	 * Dotcom sets, and it's the case the deprecated `Status::is_staging_site()`
+	 * wouldn't have caught on its own.
+	 */
+	public function test_get_tracks_context_flags_a_wpcom_staging_site_as_test() {
+		$this->assertFalse( Admin_Page::get_tracks_context()['is_test'] );
+
+		update_option( 'wpcom_is_staging_site', '1' );
+
+		try {
+			$this->assertTrue( Admin_Page::get_tracks_context()['is_test'] );
+		} finally {
+			delete_option( 'wpcom_is_staging_site' );
+		}
+	}
+
+	/**
+	 * The WordPress.com Tracks transport is enqueued on the SEO admin page once the
+	 * site has opted in. Without it `jetpack-analytics` only ever queues events into
+	 * `window._tkq` and nothing reaches Tracks, so every event this package fires
+	 * would be silently dropped.
+	 */
+	public function test_enqueue_tracks_transport_enqueues_the_tracks_script() {
+		$this->assertFalse( wp_script_is( 'jp-tracks', 'enqueued' ) );
+		$this->agree_to_terms_of_service();
+
+		try {
+			Admin_Page::enqueue_tracks_transport();
+
+			$this->assertTrue( wp_script_is( 'jp-tracks', 'enqueued' ) );
+		} finally {
+			wp_dequeue_script( 'jp-tracks' );
+			wp_deregister_script( 'jp-tracks' );
+			$this->revoke_terms_of_service();
+		}
+	}
+
+	/**
+	 * A self-hosted site that hasn't agreed to the terms of service (or connected a
+	 * user) gets no transport, so nothing it queues is ever sent. The host plugin
+	 * applies the same gate before starting its own tracking; the SEO dashboard is
+	 * reachable before that happens, so it has to check for itself.
+	 */
+	public function test_enqueue_tracks_transport_is_skipped_without_consent() {
+		$this->assertFalse( Admin_Page::can_use_analytics() );
+
+		Admin_Page::enqueue_tracks_transport();
+
+		$this->assertFalse( wp_script_is( 'jp-tracks', 'enqueued' ) );
+	}
+
+	/**
+	 * The whole WordPress.com platform is allowed to send without consulting the
+	 * terms-of-service gate — it's covered by WordPress.com's own terms, and the
+	 * gate can't read it reliably anyway (Simple has no connection to inspect).
+	 *
+	 * This is the case that matters most for the launch metric: paid Simple and
+	 * Atomic sites are the population it counts, so a false negative here would
+	 * undercount the exact thing the instrumentation exists to measure. Asserted
+	 * against the un-consented baseline so it's the platform doing the work.
+	 */
+	public function test_can_use_analytics_short_circuits_on_the_wordpress_com_platform() {
+		$this->assertFalse( Admin_Page::can_use_analytics() );
+
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+
+		try {
+			$this->assertTrue( Admin_Page::can_use_analytics() );
+		} finally {
+			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+		}
+	}
+
+	/**
+	 * The transport is only wired up on the SEO page itself, and only there. Without
+	 * this registration `enqueue_tracks_transport()` never runs, so every event the
+	 * dashboard fires would queue into `window._tkq` and stay there — the failure
+	 * mode that makes this the easiest part of the instrumentation to lose.
+	 */
+	public function test_maybe_load_wp_build_registers_the_tracks_transport_on_the_seo_page() {
+		$hook = array( Admin_Page::class, 'enqueue_tracks_transport' );
+
+		remove_action( 'admin_enqueue_scripts', $hook );
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', $hook ) );
+
+		// `is_seo_admin_request()` reads both an admin context and the page query arg,
+		// so a request to any other admin page must leave the hook unregistered.
+		set_current_screen( 'dashboard' );
+		$_GET['page'] = 'jetpack';
+
+		try {
+			Admin_Page::maybe_load_wp_build();
+			$this->assertFalse( has_action( 'admin_enqueue_scripts', $hook ) );
+
+			$_GET['page'] = Admin_Page::MENU_SLUG;
+			Admin_Page::maybe_load_wp_build();
+			$this->assertNotFalse( has_action( 'admin_enqueue_scripts', $hook ) );
+		} finally {
+			unset( $_GET['page'] );
+			remove_action( 'admin_enqueue_scripts', $hook );
+			remove_action( 'current_screen', array( Admin_Page::class, 'alias_screen_id_for_wp_build' ) );
+			remove_filter( 'jetpack_admin_js_script_data', array( Admin_Page::class, 'inject_script_data' ) );
+		}
+	}
+
+	/**
+	 * Mark the site as having agreed to the Jetpack terms of service, which is what
+	 * `Tracking::should_enable_tracking()` reads on a self-hosted site.
+	 */
+	private function agree_to_terms_of_service() {
+		\Jetpack_Options::update_option( 'tos_agreed', true );
+		Status_Cache::clear();
+	}
+
+	/**
+	 * Undo {@see self::agree_to_terms_of_service()} — the option store persists
+	 * between tests in this suite.
+	 */
+	private function revoke_terms_of_service() {
+		\Jetpack_Options::delete_option( 'tos_agreed' );
+		Status_Cache::clear();
 	}
 }
