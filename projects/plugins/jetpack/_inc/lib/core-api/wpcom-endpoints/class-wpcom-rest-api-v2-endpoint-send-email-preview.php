@@ -133,6 +133,11 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 		// email; a caller-supplied address is only honored after it clears the same
 		// gates as adding that person as a subscriber. Self-sends keep their
 		// historical behavior and skip the guard entirely.
+		//
+		// The self-send fast path relies on the caller's own address matching
+		// $current_user->user_email. That holds because this callback only runs on
+		// wpcom (is_wpcom_simple(); Atomic/Jetpack requests are proxied to run as the
+		// wpcom user) — revisit this comparison if it ever runs in another context.
 		$requested = $request->get_param( 'email' );
 		if ( is_string( $requested ) && '' !== trim( $requested ) ) {
 			$requested = sanitize_email( $requested );
@@ -141,7 +146,9 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 				return new WP_Error( 'invalid_email', __( 'Please enter a valid email address.', 'jetpack' ), array( 'status' => 400 ) );
 			}
 
-			if ( 0 !== strcasecmp( $requested, $self_email ) ) {
+			// Normalize both sides: comparing a sanitized address against the raw
+			// stored email could route a genuine self-send through the guard.
+			if ( 0 !== strcasecmp( $requested, sanitize_email( $self_email ) ) ) {
 				$guard = ABSPATH . 'wp-content/mu-plugins/email-subscriptions/email-preview-guard.php';
 				if ( ! class_exists( 'Email_Preview_Guard' ) && file_exists( $guard ) ) {
 					require_once $guard;
