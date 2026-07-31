@@ -34,6 +34,9 @@ jest.unstable_mockModule( '../title-structure-field', () => ( {
 jest.unstable_mockModule( '../google-verification-field', () => ( {
 	default: () => <div>google field</div>,
 } ) );
+jest.unstable_mockModule( '../advanced-card', () => ( {
+	default: () => <div>advanced</div>,
+} ) );
 
 const { default: SettingsScreen } = await import( '../index' );
 
@@ -223,4 +226,37 @@ describe( 'Settings module title chips', () => {
 			expect( title.querySelector( 'svg' ) ).toBeInTheDocument();
 		}
 	);
+} );
+
+describe( 'Advanced module — WordPress.com Simple', () => {
+	/**
+	 * Flip the dashboard into WordPress.com Simple mode by seeding the global
+	 * `isSimpleSite()` reads, rather than mocking the module — that keeps
+	 * `isSimpleSite()` itself in the code path under test.
+	 */
+	const setSimpleSite = () => {
+		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+			site: { host: 'wpcom' },
+		};
+	};
+
+	afterEach( () => {
+		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+	} );
+
+	it( 'renders the module on a self-hosted site', () => {
+		render( <SettingsScreen form={ buildForm() } /> );
+
+		expect( screen.getByText( 'advanced' ) ).toBeInTheDocument();
+	} );
+
+	it( 'hides it on Simple, where SEO tools cannot actually be turned off', () => {
+		// `Modules::is_active()` reports every module active there, so the control
+		// would appear to do nothing.
+		setSimpleSite();
+
+		render( <SettingsScreen form={ buildForm() } /> );
+
+		expect( screen.queryByText( 'advanced' ) ).not.toBeInTheDocument();
+	} );
 } );

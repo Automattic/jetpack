@@ -54,12 +54,6 @@
 	margin-block-start: var(--wpds-dimension-gap-lg);
 }
 
-// Low-emphasis "disable SEO tools" off-ramp at the foot of the Overview.
-.disable {
-	margin-block-start: var(--wpds-dimension-gap-lg);
-	color: var(--wpds-color-foreground-content-neutral-weak);
-}
-
 // The card-title chip (`.cardTitle` / `.titleIcon`) lives in the shared
 // `components/card-title-icon.module.scss`, which the Settings modules use too.
 
