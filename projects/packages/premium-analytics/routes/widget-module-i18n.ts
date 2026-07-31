@@ -264,5 +264,13 @@ export function useWidgetTypesWithI18n(
 		gatedRecords = readyRecords === scopedRecords ? scopedRecords : null;
 	}
 
-	return useWidgetTypes( gatedRecords );
+	const [ types, resolving ] = useWidgetTypes( gatedRecords );
+	// The gate closes during render — a render-phase `setNeededNames` widens the
+	// scope, which yields a new `scopedRecords` array the same pass — but
+	// `useWidgetTypes` only raises its own flag from an effect, one commit
+	// later. That commit in between reports the previous section's types as
+	// resolved, and the host renders every widget it cannot find in them as
+	// "Missing widget" rather than as loading. A closed gate is itself the
+	// answer: records are being withheld, so resolution has not finished.
+	return [ types, resolving || gatedRecords === null ] as const;
 }

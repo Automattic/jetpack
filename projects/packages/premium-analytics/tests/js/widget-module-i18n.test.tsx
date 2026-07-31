@@ -1,5 +1,6 @@
 import { loadBundleI18nCatalog } from '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs';
 import { renderHook, waitFor } from '@testing-library/react';
+import { useEffect, useState } from '@wordpress/element';
 import { useWidgetTypes } from '@wordpress/widget-primitives';
 import {
 	preloadWidgetModuleCatalogs,
@@ -16,24 +17,31 @@ jest.mock( '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs', (
 } ) );
 
 jest.mock( '@wordpress/widget-primitives', () => ( {
-	// Synchronous stand-in for the real hook, which resolves its metadata
-	// imports asynchronously and so reports `isResolving` on first render no
-	// matter what it was handed. Resolving immediately for any non-null
-	// argument leaves the gate as the only thing that can keep the hook
-	// resolving, which is what these tests are here to check.
-	useWidgetTypes: jest.fn( ( records: WidgetModuleRecord[] | null | undefined ) => [
-		[],
-		! records,
-	] ),
+	useWidgetTypes: jest.fn(),
 } ) );
 
 const loadCatalogMock = loadBundleI18nCatalog as jest.Mock;
 const useWidgetTypesMock = useWidgetTypes as jest.Mock;
 
+/**
+ * Synchronous stand-in for the real hook, which resolves its metadata imports
+ * asynchronously and so reports `isResolving` on first render no matter what
+ * it was handed. Resolving immediately for any non-null argument leaves the
+ * gate as the only thing that can keep the hook resolving, which is what most
+ * of these tests are here to check.
+ *
+ * @param records - The records handed to the hook.
+ * @return The resolved types and whether resolution is in progress.
+ */
+function useWidgetTypesSyncStandIn( records: WidgetModuleRecord[] | null | undefined ) {
+	return [ [], ! records ];
+}
+
 beforeEach( () => {
 	loadCatalogMock.mockClear();
 	loadCatalogMock.mockImplementation( () => Promise.resolve() );
 	useWidgetTypesMock.mockClear();
+	useWidgetTypesMock.mockImplementation( useWidgetTypesSyncStandIn );
 } );
 
 describe( 'widgetModuleBundlePath', () => {
@@ -397,5 +405,99 @@ describe( 'useWidgetTypesWithI18n', () => {
 
 		releaseCatalogs();
 		await waitFor( () => expect( lastRecordsArg() ).toEqual( [ SCOPED_RECORDS[ 1 ] ] ) );
+	} );
+
+	describe( 'with useWidgetTypes timed the way upstream times it', () => {
+		/**
+		 * A stand-in that flips its flags from an effect, exactly as the real
+		 * `useWidgetTypes` does. The synchronous stand-in above cannot see the
+		 * frame these tests cover: upstream keeps reporting the *previous*
+		 * records as resolved for one commit after the gate closes, because the
+		 * gate closes during render and the flag only moves an effect later.
+		 *
+		 * @param records - The records handed to the hook.
+		 * @return The resolved types and whether resolution is in progress.
+		 */
+		function useWidgetTypesLikeUpstream( records: WidgetModuleRecord[] | null | undefined ) {
+			const [ types, setTypes ] = useState< Array< { name: string } > >( [] );
+			const [ resolving, setResolving ] = useState( true );
+			useEffect( () => {
+				if ( ! records ) {
+					setResolving( true );
+					return;
+				}
+				let cancelled = false;
+				setResolving( true );
+				Promise.resolve().then( () => {
+					if ( ! cancelled ) {
+						setTypes( records.map( record => ( { name: record.name } ) ) );
+						setResolving( false );
+					}
+				} );
+				return () => {
+					cancelled = true;
+				};
+			}, [ records ] );
+			return [ types, resolving ];
+		}
+
+		/**
+		 * Render the hook, recording every committed `[ type names, resolving ]`
+		 * frame.
+		 *
+		 * @param names - The initial `visibleNames`.
+		 * @return The recorded frames and a rerender that changes `visibleNames`.
+		 */
+		function renderRecordingFrames( names: string[] ) {
+			useWidgetTypesMock.mockImplementation( useWidgetTypesLikeUpstream );
+			const frames: Array< [ string[], boolean ] > = [];
+			const { rerender } = renderHook(
+				( props: { names: string[] } ) => {
+					const value = useWidgetTypesWithI18n( SCOPED_RECORDS, {
+						visibleNames: props.names,
+					} );
+					// No dependency array, so this records every commit — and
+					// only commits: a render React discards over a render-phase
+					// state update never runs its effects.
+					useEffect( () => {
+						frames.push( [ value[ 0 ].map( type => type.name ), value[ 1 ] ] );
+					} );
+					return value;
+				},
+				{ initialProps: { names } }
+			);
+			return { frames, rerender };
+		}
+
+		it( 'never reports resolved with a stale type set while a section switch resolves', async () => {
+			const { frames, rerender } = renderRecordingFrames( [ 'jpa/a' ] );
+			await waitFor( () => expect( frames.at( -1 ) ).toEqual( [ [ 'jpa/a' ], false ] ) );
+
+			frames.length = 0;
+			rerender( { names: [ 'jpa/b' ] } );
+			await waitFor( () => expect( frames.at( -1 ) ).toEqual( [ [ 'jpa/a', 'jpa/b' ], false ] ) );
+
+			// The gate closes during the render that widens the scope, but
+			// `useWidgetTypes` only raises its own flag an effect later. A
+			// committed frame that claims "resolved" while the incoming
+			// section's type is still missing is the frame the dashboard
+			// renders as a "Missing widget" placeholder.
+			expect(
+				frames.filter( ( [ typeNames, resolving ] ) => {
+					return ! resolving && ! typeNames.includes( 'jpa/b' );
+				} )
+			).toEqual( [] );
+		} );
+
+		it( 'never reports resolved before the first scoped preload finishes', async () => {
+			const { frames } = renderRecordingFrames( [ 'jpa/b' ] );
+			await waitFor( () => expect( frames.at( -1 ) ).toEqual( [ [ 'jpa/b' ], false ] ) );
+
+			expect(
+				frames.filter( ( [ typeNames, resolving ] ) => {
+					return ! resolving && ! typeNames.includes( 'jpa/b' );
+				} )
+			).toEqual( [] );
+		} );
 	} );
 } );
