@@ -88,17 +88,17 @@ body.jetpack_page_jetpack-ai {
 
 // Feature rows: the design aligns the action link with the label's text
 // column. ToggleControl already indents its own help text; only the link
-// (rendered outside the control) needs the matching offset — toggle track
-// (36px) plus its 8px gap.
+// (rendered outside the control) needs the matching offset — 40px, same as
+// .components-toggle-control__help (32px toggle track plus its 8px gap).
 .jetpack-ai-features__action {
-	margin-inline-start: 44px;
+	margin-inline-start: 40px;
 }
 
 // Nested child rows (e.g. Feature Clip under Image Editor) indent to sit
 // visually beneath their parent's label column, so the parent/child grouping
 // reads at a glance.
 .jetpack-ai-features__row--child {
-	margin-inline-start: 44px;
+	margin-inline-start: 40px;
 }
 
 // A feature label with an inline badge (e.g. Feature Clip's "Experimental
