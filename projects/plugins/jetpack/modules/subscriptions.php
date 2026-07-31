@@ -1142,6 +1142,10 @@ class Jetpack_Subscriptions {
 
 Jetpack_Subscriptions::init();
 
+// Newsletter Mode belongs to the Subscriptions module. Initialize it here so
+// its hooks are only registered while the module is active.
+\Automattic\Jetpack\Newsletter\Mode::init();
+
 require __DIR__ . '/subscriptions/views.php';
 require __DIR__ . '/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.php';
 require __DIR__ . '/subscriptions/subscribe-overlay/class-jetpack-subscribe-overlay.php';
