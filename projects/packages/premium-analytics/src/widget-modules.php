@@ -26,9 +26,7 @@ function register_widget_modules_rest_route() {
 		array(
 			'methods'             => \WP_REST_Server::READABLE,
 			'callback'            => __NAMESPACE__ . '\\get_widget_modules_response',
-			'permission_callback' => static function () {
-				return current_user_can( 'manage_options' );
-			},
+			'permission_callback' => array( Capabilities::class, 'current_user_can_view_analytics' ),
 		)
 	);
 }

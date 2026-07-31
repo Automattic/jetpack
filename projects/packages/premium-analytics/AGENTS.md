@@ -68,16 +68,16 @@ Two local REST surfaces; almost all data comes from WordPress.com via one agnost
 - `<prefix>` must be allowlisted in `PREFIX_CONFIG` or the route 404s. This is the security
   boundary — the blog token is only forwarded for these.
 
-| Prefix                                                            | Capability         | Writes (POST)                   |
-| ----------------------------------------------------------------- | ------------------ | ------------------------------- |
-| `analytics` (Woo store reports)                                   | `manage_options`   | —                               |
-| `stats`                                                           | `view_stats`       | `stats/referrers/spam/`         |
-| `wordads`                                                         | `activate_wordads` | —                               |
-| `subscribers` / `site-has-never-published-post` / `jetpack-stats` | `view_stats`       | —                               |
-| `jetpack-stats-dashboard`                                         | `view_stats`       | whole prefix (busts read cache) |
-| `commercial-classification`                                       | `view_stats`       | exact path                      |
-| `upgrades` (not under `/sites/`)                                  | `view_stats`       | —                               |
-| `posts` (pattern-constrained: only `<id>/likes`)                  | `view_stats`       | —                               |
+| Prefix                                                            | Capability                 | Writes (POST)                   |
+| ----------------------------------------------------------------- | -------------------------- | ------------------------------- |
+| `analytics` (Woo store reports)                                   | `view_woocommerce_reports` | —                               |
+| `stats`                                                           | `view_stats`               | `stats/referrers/spam/`         |
+| `wordads`                                                         | `activate_wordads`         | —                               |
+| `subscribers` / `site-has-never-published-post` / `jetpack-stats` | `view_stats`               | —                               |
+| `jetpack-stats-dashboard`                                         | `view_stats`               | whole prefix (busts read cache) |
+| `commercial-classification`                                       | `view_stats`               | exact path                      |
+| `upgrades` (not under `/sites/`)                                  | `view_stats`               | —                               |
+| `posts` (pattern-constrained: only `<id>/likes`)                  | `view_stats`               | —                               |
 
 `manage_options` is always accepted too. `POST` is rejected (`405 rest_read_only`) outside the
 Writes column. Query params pass through except control params (`endpoint`, `version`,
