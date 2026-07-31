@@ -45,4 +45,15 @@ describe( 'locations fields', () => {
 
 		expect( screen.getByText( ( 1234 ).toLocaleString() ) ).toBeInTheDocument();
 	} );
+
+	// DataViews sorts and searches on the raw field value, not the rendered
+	// cell, so views must stay a number and the location must stay its label.
+	it( 'sorts and searches on the raw row values', () => {
+		const fields = getLocationFields();
+		const getValue = ( id: string ) =>
+			fields.find( field => field.id === id )?.getValue?.( { item: location } );
+
+		expect( getValue( 'location' ) ).toBe( 'Mumbai' );
+		expect( getValue( 'views' ) ).toBe( 1234 );
+	} );
 } );
