@@ -193,9 +193,11 @@ export const CustomRangeWithComparison: Story = {
 };
 
 /**
- * Narrow container — quick presets collapse to the compact select, like mobile layouts.
+ * Narrow container: the presets shorten to their abbreviated form rather than
+ * collapsing to the select, which only fires once even the abbreviated row stops
+ * fitting. In English that is well below this width.
  */
-export const CompactLayout: Story = {
+export const AbbreviatedLabels: Story = {
 	render: () => <DateFiltersPanelStory containerWidth={ 360 } />,
 };
 
