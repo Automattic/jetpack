@@ -58,13 +58,14 @@ class Mode {
 	/**
 	 * Wire up Newsletter Mode hooks (idempotent).
 	 *
-	 * Must be called on every request — including REST API requests, which are
-	 * NOT is_admin() — so the REST controller runs on `rest_api_init`.
+	 * The availability filter is a temporary feature sticker. Keep all mode hooks
+	 * behind it so this package remains inert until the sticker is explicitly
+	 * enabled.
 	 *
 	 * @return void
 	 */
 	public static function init() {
-		if ( self::$initialized ) {
+		if ( self::$initialized || ! self::is_available() ) {
 			return;
 		}
 		self::$initialized = true;

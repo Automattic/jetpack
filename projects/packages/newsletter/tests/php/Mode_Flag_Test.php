@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Newsletter\Tests;
 
 use Automattic\Jetpack\Newsletter\Mode;
+use Automattic\Jetpack\Newsletter\Mode_REST_Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
@@ -36,6 +37,8 @@ class Mode_Flag_Test extends BaseTestCase {
 
 		wp_set_current_user( $user_id );
 		delete_option( Mode::OPTION_NAME );
+		remove_action( 'rest_api_init', array( Mode_REST_Controller::class, 'register_routes' ) );
+		$this->reset_initialized_state();
 	}
 
 	/**
@@ -44,6 +47,8 @@ class Mode_Flag_Test extends BaseTestCase {
 	public function tear_down() {
 		remove_filter( 'jetpack_newsletter_mode_available', '__return_true' );
 		delete_option( Mode::OPTION_NAME );
+		remove_action( 'rest_api_init', array( Mode_REST_Controller::class, 'register_routes' ) );
+		$this->reset_initialized_state();
 
 		parent::tear_down();
 	}
@@ -70,5 +75,41 @@ class Mode_Flag_Test extends BaseTestCase {
 		update_option( Mode::OPTION_NAME, true );
 
 		$this->assertTrue( Mode::is_enabled() );
+	}
+
+	/**
+	 * Initialization remains inert while the temporary feature sticker is off.
+	 */
+	public function test_init_does_not_register_hooks_when_unavailable() {
+		Mode::init();
+
+		$this->assertFalse(
+			has_action( 'rest_api_init', array( Mode_REST_Controller::class, 'register_routes' ) )
+		);
+	}
+
+	/**
+	 * Initialization registers mode hooks once the feature sticker is on.
+	 */
+	public function test_init_registers_hooks_when_available() {
+		add_filter( 'jetpack_newsletter_mode_available', '__return_true' );
+
+		Mode::init();
+
+		$this->assertSame(
+			10,
+			has_action( 'rest_api_init', array( Mode_REST_Controller::class, 'register_routes' ) )
+		);
+	}
+
+	/**
+	 * Reset the idempotence guard between tests.
+	 *
+	 * @return void
+	 */
+	private function reset_initialized_state() {
+		$initialized = new \ReflectionProperty( Mode::class, 'initialized' );
+		$initialized->setAccessible( true );
+		$initialized->setValue( null, false );
 	}
 }
