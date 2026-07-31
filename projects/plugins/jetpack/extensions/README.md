@@ -353,9 +353,9 @@ See [Publicize](blocks/publicize/index.js) and [Shortlinks](blocks/shortlinks/in
 
 To stay consistent with Gutenberg, your extensions should follow [Gutenberg styles and visuals](https://wordpress.org/gutenberg/handbook/designers-developers/designers/block-design/).
 
-Use Gutenberg color variables where possible by using `@automattic/jetpack-base-styles/gutenberg-base-styles`, which in turn imports all variables and mixins published in [`@wordpress/base-styles`](https://github.com/WordPress/gutenberg/tree/983c60f25e4bdb7432fde7afdf2b4cc16640f01e/packages/base-styles) package.
+Prefer WordPress Design System tokens from [`@wordpress/theme`](https://github.com/WordPress/gutenberg/tree/trunk/packages/theme) (e.g. `var(--wpds-color-foreground-content-neutral)`). The build injects static fallbacks for `--wpds-*` custom properties via PostCSS.
 
-The build pipeline also supports [Color studio](https://github.com/Automattic/color-studio) via SASS variables (`$studio-pink-50`) and CSS custom properties (`var( --studio-pink-50 )`) without specifically importing them first. Prefer CSS custom properties when possible.
+The build pipeline also supports [Color studio](https://github.com/Automattic/color-studio) via SASS variables (`$studio-pink-50`) without specifically importing them first.
 
 ### Icons
 
