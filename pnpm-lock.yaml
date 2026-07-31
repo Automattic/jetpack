@@ -1390,32 +1390,10 @@ importers:
         version: 6.0.3
 
   projects/js-packages/script-data:
-    dependencies:
-      '@date-fns/tz':
-        specifier: 1.4.1
-        version: 1.4.1
-      date-fns:
-        specifier: 4.1.0
-        version: 4.1.0
     devDependencies:
-      '@babel/core':
-        specifier: 7.29.7
-        version: 7.29.7
-      '@jest/globals':
-        specifier: 30.4.1
-        version: 30.4.1
-      '@types/jest':
-        specifier: 30.0.0
-        version: 30.0.0
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260707.2
         version: 7.0.0-dev.20260707.2
-      jest:
-        specifier: 30.4.2
-        version: 30.4.2
-      jetpack-js-tools:
-        specifier: workspace:*
-        version: link:../../../tools/js-tools
 
   projects/js-packages/shared-extension-utils:
     dependencies:
@@ -5789,6 +5767,9 @@ importers:
       '@automattic/viewport':
         specifier: 1.0.0
         version: 1.0.0
+      '@date-fns/tz':
+        specifier: 1.4.1
+        version: 1.4.1
       '@react-spring/web':
         specifier: 10.1.1
         version: 10.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -5894,6 +5875,9 @@ importers:
       crypto-js:
         specifier: 4.2.0
         version: 4.2.0
+      date-fns:
+        specifier: 4.1.0
+        version: 4.1.0
       debounce:
         specifier: 2.2.0
         version: 2.2.0

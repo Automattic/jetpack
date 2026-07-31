@@ -1,6 +1,6 @@
 import analytics from '@automattic/jetpack-analytics';
-import { getAnalyticsUrl, hasAnalyticsDashboard } from '@automattic/jetpack-script-data';
 import { dateI18n } from '@wordpress/date';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '../../../../_inc/shared/analytics-url';
 import { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from './types';
 
 /**

@@ -1,4 +1,4 @@
-Significance: minor
+Significance: patch
 Type: added
 
-Add getAnalyticsUrl() for building links into the site's analytics dashboard.
+Add a type for the analytics dashboard data the Premium Analytics package publishes.

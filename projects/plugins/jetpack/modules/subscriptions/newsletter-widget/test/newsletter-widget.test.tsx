@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getAnalyticsUrl, hasAnalyticsDashboard } from '@automattic/jetpack-script-data';
 import { render, screen } from '@testing-library/react';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '../../../../_inc/shared/analytics-url';
 import { NewsletterWidget, NewsletterWidgetProps } from '../src/components/newsletter-widget';
 
 // The analytics destination is resolved from script data, which wp-admin prints
@@ -9,7 +9,7 @@ import { NewsletterWidget, NewsletterWidgetProps } from '../src/components/newsl
 const ANALYTICS_URL =
 	'https://example.com/wp-admin/admin.php?page=analytics&p=%2F%3Fsection%3Dsubscribers';
 
-jest.mock( '@automattic/jetpack-script-data', () => ( {
+jest.mock( '../../../../_inc/shared/analytics-url', () => ( {
 	getAnalyticsUrl: jest.fn(),
 	hasAnalyticsDashboard: jest.fn( () => true ),
 } ) );

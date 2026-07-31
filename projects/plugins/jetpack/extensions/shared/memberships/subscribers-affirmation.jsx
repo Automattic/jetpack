@@ -1,14 +1,11 @@
-import {
-	getAdminUrl,
-	getAnalyticsUrl,
-	hasAnalyticsDashboard,
-} from '@automattic/jetpack-script-data';
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { isComingSoon } from '@automattic/jetpack-shared-extension-utils';
 import { Animate } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '../../../_inc/shared/analytics-url';
 import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import {
 	accessOptions,

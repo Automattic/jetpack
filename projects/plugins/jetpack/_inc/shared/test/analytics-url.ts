@@ -1,5 +1,5 @@
-import { getAnalyticsUrl, hasAnalyticsDashboard } from '../analytics-url.ts';
-import type { AnalyticsScriptData, JetpackScriptData } from '../types.ts';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '../analytics-url';
+import type { AnalyticsScriptData, JetpackScriptData } from '@automattic/jetpack-script-data';
 
 const ADMIN_URL = 'https://example.com/wp-admin/';
 const PAGE_SLUG = 'jetpack-premium-analytics-wp-admin';

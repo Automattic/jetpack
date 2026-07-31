@@ -1,4 +1,3 @@
-import { getAnalyticsUrl, hasAnalyticsDashboard } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
@@ -147,14 +146,11 @@ const StatsSection = () => {
 
 	const { counts, previousCounts, chartData } = processedData;
 
-	// Where the Premium Analytics dashboard has replaced the Stats page, both the
-	// card's button and the chart inside it lead there instead. Null only when
-	// that dashboard is the analytics UI and this user cannot open it.
-	const statsUrl = useMemo(
-		() =>
-			hasAnalyticsDashboard() ? getAnalyticsUrl( { view: 'dashboard' } ) : 'admin.php?page=stats',
-		[]
-	);
+	// The product's own manage URL already points wherever this site's analytics
+	// live — the Stats page, or the Premium Analytics dashboard that replaces it.
+	// That decision belongs server-side, so it is not re-derived here.
+	const { manageUrl } = detail;
+	const { premiumAnalyticsEnabled = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 
 	/**
 	 * Called when "See detailed stats" button is clicked.
@@ -164,22 +160,22 @@ const StatsSection = () => {
 			product: slug,
 		} );
 
-		if ( ! statsUrl ) {
+		if ( ! manageUrl ) {
 			return;
 		}
 
 		// The Stats page caches its report, so the legacy link asks it to refresh.
-		// The dashboard fetches on load, so it needs no such hint.
-		window.location.href = hasAnalyticsDashboard() ? statsUrl : `${ statsUrl }&force_refresh=1`;
-	}, [ recordEvent, statsUrl ] );
+		// The dashboard fetches on load and has no such param.
+		window.location.href = premiumAnalyticsEnabled ? manageUrl : `${ manageUrl }&force_refresh=1`;
+	}, [ recordEvent, manageUrl, premiumAnalyticsEnabled ] );
 
 	const shouldShowSecondaryButton = useCallback(
-		() => !! ( status === PRODUCT_STATUSES.CAN_UPGRADE && statsUrl ),
-		[ status, statsUrl ]
+		() => !! ( status === PRODUCT_STATUSES.CAN_UPGRADE && manageUrl ),
+		[ status, manageUrl ]
 	);
 
 	const viewStatsButton = {
-		href: statsUrl,
+		href: manageUrl,
 		label: __( 'View detailed stats', 'jetpack-my-jetpack' ),
 		onClick: onDetailedStatsClick,
 		shouldShowButton: shouldShowSecondaryButton,

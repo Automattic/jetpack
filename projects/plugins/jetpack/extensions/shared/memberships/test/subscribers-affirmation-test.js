@@ -1,8 +1,5 @@
-import {
-	getAdminUrl,
-	getAnalyticsUrl,
-	hasAnalyticsDashboard,
-} from '@automattic/jetpack-script-data';
+import { getAdminUrl } from '@automattic/jetpack-script-data';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '../../../../_inc/shared/analytics-url';
 import { META_NAME_FOR_POST_TIER_ID_SETTINGS, accessOptions } from '../constants';
 import {
 	getFormattedCategories,
@@ -17,6 +14,9 @@ import {
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getAdminUrl: jest.fn( path => `https://admin.example.com/${ path }` ),
+} ) );
+
+jest.mock( '../../../../_inc/shared/analytics-url', () => ( {
 	getAnalyticsUrl: jest.fn( () => 'https://admin.example.com/analytics' ),
 	hasAnalyticsDashboard: jest.fn( () => true ),
 } ) );

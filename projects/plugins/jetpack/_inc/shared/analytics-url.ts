@@ -1,19 +1,66 @@
+/**
+ * Links into the site's analytics dashboard.
+ *
+ * Lives here rather than in a shared package because the Jetpack plugin is the
+ * only consumer: three of its bundles link to analytics (the admin dashboard's
+ * stats card, the Newsletter dashboard widget, and the block editor's delivery
+ * details link) and they are built by two different webpack configs, so this is
+ * imported by relative path from each.
+ *
+ * My Jetpack deliberately does not use this: its Stats card already receives the
+ * destination as the product's `manage_url`, resolved server-side.
+ */
+
+import { getAdminUrl, getScriptData } from '@automattic/jetpack-script-data';
 import { tz, TZDateMini } from '@date-fns/tz';
 import { endOfDay, format, startOfDay } from 'date-fns';
-import { getAdminUrl, getScriptData } from './utils.ts';
-import type {
-	AnalyticsDateRange,
-	AnalyticsPostSection,
-	AnalyticsScriptData,
-	AnalyticsView,
-} from './types.ts';
+import type { AnalyticsScriptData } from '@automattic/jetpack-script-data';
 
 /**
- * The timestamp format the analytics dashboard writes date-window params in:
- * an ISO string carrying the site's UTC offset. Matches the dashboard's own
+ * The timestamp format the analytics dashboard writes date-window params in: an
+ * ISO string carrying the site's UTC offset. Matches the dashboard's own
  * `dateToISOStringWithTZ`.
  */
 const ISO_WITH_OFFSET = "yyyy-MM-dd'T'HH:mm:ss.SSSxxx";
+
+/**
+ * A range of whole calendar days in the site's timezone, as `YYYY-MM-DD`.
+ * Callers pass plain calendar dates; the encoding is owned here.
+ */
+export interface AnalyticsDateRange {
+	from: string;
+	to: string;
+}
+
+/**
+ * A section of the analytics dashboard, in caller-facing vocabulary.
+ */
+export type AnalyticsDashboardSection = 'traffic' | 'insights' | 'subscribers' | 'store';
+
+/**
+ * A tab of the single-post analytics view, in caller-facing vocabulary.
+ */
+export type AnalyticsPostSection = 'traffic' | 'email-opens' | 'email-clicks';
+
+/**
+ * An analytics destination, described in terms of what the user should see
+ * rather than how the URL is spelled.
+ *
+ * A discriminated union rather than a property bag, so each view only accepts
+ * the modifiers that apply to it. `range` is accepted on both because the
+ * dashboard and the post detail page read the same date-window params.
+ *
+ * Only the two views Jetpack actually links to are modelled. The dashboard also
+ * serves `/reports/$report` and `/video/$videoId`; add them here when something
+ * needs to link there, rather than ahead of a caller.
+ *
+ * Deliberately absent: the site and blog identifiers (resolved from script data,
+ * so callers need not thread them through props) and product checkout, which
+ * shares no path grammar with the analytics views.
+ */
+export type AnalyticsView =
+	| { view: 'dashboard'; section?: AnalyticsDashboardSection; range?: AnalyticsDateRange }
+	| { view: 'post'; id: number; section?: AnalyticsPostSection; range?: AnalyticsDateRange };
 
 /**
  * The dashboard's sections, keyed by the neutral section name callers use. The
@@ -21,12 +68,12 @@ const ISO_WITH_OFFSET = "yyyy-MM-dd'T'HH:mm:ss.SSSxxx";
  * namespace in the server-side registry (`analytics/traffic` is registered,
  * `traffic` is what reaches the URL).
  */
-const DASHBOARD_SECTIONS = {
+const DASHBOARD_SECTIONS: Record< AnalyticsDashboardSection, string > = {
 	traffic: 'traffic',
 	insights: 'insights',
 	subscribers: 'subscribers',
 	store: 'store',
-} as const;
+};
 
 /**
  * The single-post view's tabs, keyed by the neutral section name. Callers say
@@ -59,9 +106,8 @@ function getAnalyticsScriptData(): AnalyticsScriptData | undefined {
  * decide whether to replace it. It answers a different question from
  * `getAnalyticsUrl()` returning null: false here means "keep your existing
  * link", whereas a null URL means the dashboard is the analytics UI but this
- * user cannot open it, and the control should be hidden — there is no Stats
- * page to fall back to, since it is not registered once the dashboard replaces
- * it.
+ * user cannot open it, and the control should be hidden — there is no Stats page
+ * to fall back to, since it is not registered once the dashboard replaces it.
  *
  * @return Whether to route analytics links to the dashboard.
  */
@@ -70,8 +116,8 @@ export function hasAnalyticsDashboard(): boolean {
 }
 
 /**
- * Encodes a calendar day as the offset-bearing timestamp the dashboard writes
- * to its own URL. The date picker parses `from`/`to` as instants, so a bare
+ * Encodes a calendar day as the offset-bearing timestamp the dashboard writes to
+ * its own URL. The date picker parses `from`/`to` as instants, so a bare
  * `YYYY-MM-DD` would be read as UTC midnight and land on the previous day for
  * any site west of UTC.
  *

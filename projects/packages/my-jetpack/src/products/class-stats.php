@@ -315,11 +315,14 @@ class Stats extends Module_Product {
 	 * package: My Jetpack ships in plugins that do not include the Jetpack plugin,
 	 * and the flag only exists there.
 	 *
+	 * Public so the UI flags can report the same answer the URLs are built from,
+	 * rather than repeating the guard.
+	 *
 	 * @since $$next-version$$
 	 *
 	 * @return bool
 	 */
-	private static function is_premium_analytics_enabled() {
+	public static function is_premium_analytics_enabled() {
 		return class_exists( 'Jetpack' )
 			&& method_exists( 'Jetpack', 'is_premium_analytics_enabled' )
 			&& \Jetpack::is_premium_analytics_enabled();

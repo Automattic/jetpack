@@ -1,5 +1,4 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getAnalyticsUrl, hasAnalyticsDashboard } from '@automattic/jetpack-script-data';
 import { formatNumber } from '@automattic/number-formatters';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
@@ -12,6 +11,7 @@ import { connect } from 'react-redux';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
 import { isOdysseyStatsEnabled } from 'state/initial-state';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '../../../shared/analytics-url';
 
 class DashStatsBottom extends Component {
 	statsBottom() {

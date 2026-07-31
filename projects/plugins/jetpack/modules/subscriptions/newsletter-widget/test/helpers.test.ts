@@ -1,4 +1,4 @@
-import { getAnalyticsUrl, hasAnalyticsDashboard } from '@automattic/jetpack-script-data';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '../../../../_inc/shared/analytics-url';
 import {
 	formatAxisTickDate,
 	formatDate,
@@ -11,7 +11,7 @@ import {
 } from '../src/helpers';
 import type { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from '../src/types';
 
-jest.mock( '@automattic/jetpack-script-data', () => ( {
+jest.mock( '../../../../_inc/shared/analytics-url', () => ( {
 	getAnalyticsUrl: jest.fn( () => 'https://example.com/wp-admin/analytics' ),
 	hasAnalyticsDashboard: jest.fn( () => true ),
 } ) );

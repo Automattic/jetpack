@@ -1,5 +1,4 @@
 import { getRedirectUrl, JetpackLogo } from '@automattic/jetpack-components';
-import { getAnalyticsUrl, hasAnalyticsDashboard } from '@automattic/jetpack-script-data';
 import { formatNumber } from '@automattic/number-formatters';
 import { Spinner } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
@@ -26,6 +25,7 @@ import {
 } from 'state/initial-state';
 import { isModuleAvailable, getModuleOverride } from 'state/modules';
 import { emptyStatsCardDismissed } from 'state/settings';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '../../../shared/analytics-url';
 import { chartBarRange } from './chart-bar-range';
 import DashStatsBottom from './dash-stats-bottom';
 
