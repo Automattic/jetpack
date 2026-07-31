@@ -166,11 +166,17 @@ export default function Edit( { attributes, setAttributes, clientId, isSelected 
 		renderAppender = InnerBlocks.ButtonBlockAppender;
 	}
 
-	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		template: getStepTemplate( hasPrevNavigation ),
-		allowedBlocks: ALLOWED_BLOCKS,
-		renderAppender,
-	} );
+	// The inner element mirrors the wrapper's classes, which the form layout CSS relies on to
+	// size the fields. It must not inherit the wrapper's inline styles though: those carry the
+	// block's own background, which would then be painted once per element.
+	const innerBlocksProps = useInnerBlocksProps(
+		{ className: blockProps.className },
+		{
+			template: getStepTemplate( hasPrevNavigation ),
+			allowedBlocks: ALLOWED_BLOCKS,
+			renderAppender,
+		}
+	);
 
 	useEffect( () => {
 		if (

@@ -45,6 +45,18 @@ class Contact_Form_Block {
 				'render_email_callback' => array( __CLASS__, 'render_email' ),
 				'render_callback'       => array( __CLASS__, 'gutenblock_render_form' ),
 				'supports'              => array(
+					/*
+					 * Background image styles are applied server-side by core's
+					 * `wp_render_background_support()` render_block filter, so the support has to
+					 * be declared here as well as in block.json for the front end to pick it up.
+					 */
+					'background'           => array(
+						'backgroundImage'               => true,
+						'backgroundSize'                => true,
+						'__experimentalDefaultControls' => array(
+							'backgroundImage' => true,
+						),
+					),
 					'layout'               => array(
 						'default'                => array(
 							'type'              => 'flex',
@@ -662,6 +674,17 @@ class Contact_Form_Block {
 			'jetpack/form-step',
 			array(
 				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_step' ),
+				// Mirrors the supports declared in the block's index.js, so that core can apply the
+				// background image styles to the rendered step on the front end.
+				'supports'        => array(
+					'background' => array(
+						'backgroundImage'               => true,
+						'backgroundSize'                => true,
+						'__experimentalDefaultControls' => array(
+							'backgroundImage' => true,
+						),
+					),
+				),
 			)
 		);
 
