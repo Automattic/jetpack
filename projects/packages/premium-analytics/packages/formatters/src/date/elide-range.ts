@@ -110,6 +110,14 @@ function buildRangeFormatter(): Intl.DateTimeFormat | undefined {
 		return undefined;
 	}
 
+	// `formatRange` was added to ECMA-402 later than `Intl.DateTimeFormat`
+	// itself. Refusing the formatter here is what keeps a runtime that has the
+	// class but not the method on the spelled-out path, since every later call
+	// goes through a formatter this function returned.
+	if ( typeof formatter.formatRange !== 'function' ) {
+		return undefined;
+	}
+
 	const rendersLikeSite = SINGLE_PROBES.every(
 		probe => formatter.format( probe ) === formatDate( probe )
 	);

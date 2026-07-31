@@ -85,4 +85,22 @@ describe( 'elideRange compatibility checks', () => {
 
 		expect( elideRange( utcDate( 2025, 6, 21 ), utcDate( 2025, 6, 25 ) ) ).toBeDefined();
 	} );
+
+	it( 'rejects a runtime whose formatter has no formatRange', () => {
+		// `formatRange` is optional here only so the method can be removed and
+		// put back; the runtimes this guards against never declared it.
+		const prototype = Intl.DateTimeFormat.prototype as { formatRange?: unknown };
+		const { formatRange } = prototype;
+		delete prototype.formatRange;
+
+		try {
+			// Settings no other test uses, so the memoized formatter cannot
+			// stand in for the one this test wants built.
+			setSettings( settingsFor( 'en_GB', 'j F Y' ) );
+
+			expect( elideRange( utcDate( 2025, 6, 21 ), utcDate( 2025, 6, 25 ) ) ).toBeUndefined();
+		} finally {
+			prototype.formatRange = formatRange;
+		}
+	} );
 } );
