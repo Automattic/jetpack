@@ -213,7 +213,11 @@ export function DateFiltersPanel( {
 	const handleResize = useCallback( ( entries: ResizeObserverEntry[] ) => {
 		const entry = entries[ 0 ];
 		if ( entry ) {
-			setContainerWidth( entry.contentRect.width );
+			// Floored, and floored rather than rounded to stay on the conservative
+			// side of the probe's `Math.ceil`. Both consumers are step functions, so
+			// the fractional part never changes the output while a raw float would
+			// re-render the panel on every frame of a drag.
+			setContainerWidth( Math.floor( entry.contentRect.width ) );
 		}
 	}, [] );
 

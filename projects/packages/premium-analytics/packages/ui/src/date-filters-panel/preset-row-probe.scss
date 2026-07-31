@@ -3,8 +3,8 @@
 // contributing nothing to the layout it informs.
 .preset-row-probe {
 	position: absolute;
-	// Out of view without `display: none` or `visibility: hidden`, either of
-	// which would stop the browser laying it out and leave every width at 0.
+	// Hidden with `visibility`, never `display: none`: the latter takes the rig
+	// out of layout entirely and every measured width comes back 0.
 	top: 0;
 	left: 0;
 	visibility: hidden;

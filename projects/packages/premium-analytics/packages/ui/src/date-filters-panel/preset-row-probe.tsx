@@ -3,7 +3,7 @@
  */
 import { chevronDown } from '@wordpress/icons';
 import { Button, Icon } from '@wordpress/ui';
-import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { memo, useCallback, useLayoutEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
@@ -35,17 +35,25 @@ export type PresetRowProbeProps = {
  * mode. Measuring the live row would oscillate instead: shortening the labels
  * shrinks the row, the full labels then look like they fit, and back again.
  *
- * @param props                    - Component props.
- * @param props.presets            - Pill labels in display order.
- * @param props.customTriggerLabel - The custom trigger's current label.
- * @param props.onMeasure          - Receives both natural widths.
+ * Exported memoized: the panel re-renders on every step of a resize, and this
+ * output only moves when the labels do.
+ *
+ * @param {PresetRowProbeProps} props - The props for the PresetRowProbe component.
+ * @return The preset row probe element.
  */
-export function PresetRowProbe( { presets, customTriggerLabel, onMeasure }: PresetRowProbeProps ) {
+function PresetRowProbeComponent( {
+	presets,
+	customTriggerLabel,
+	onMeasure,
+}: PresetRowProbeProps ) {
 	const fullRef = useRef< HTMLDivElement >( null );
 	const abbreviatedRef = useRef< HTMLDivElement >( null );
 
 	// Last reported pair, so identical widths don't push a new object downstream.
-	const [ reported, setReported ] = useState< PresetRowWidths | null >( null );
+	// A ref rather than state: holding it in state would change `measure`'s
+	// identity on every measurement, re-firing the effect below and costing a
+	// second pair of layout reads to reach the same answer.
+	const reportedRef = useRef< PresetRowWidths | null >( null );
 
 	const measure = useCallback( () => {
 		const full = fullRef.current?.getBoundingClientRect().width ?? 0;
@@ -57,14 +65,15 @@ export function PresetRowProbe( { presets, customTriggerLabel, onMeasure }: Pres
 
 		// Sub-pixel jitter from fractional layout would otherwise churn the mode.
 		const next = { full: Math.ceil( full ), abbreviated: Math.ceil( abbreviated ) };
+		const reported = reportedRef.current;
 
 		if ( reported?.full === next.full && reported?.abbreviated === next.abbreviated ) {
 			return;
 		}
 
-		setReported( next );
+		reportedRef.current = next;
 		onMeasure( next );
-	}, [ onMeasure, reported ] );
+	}, [ onMeasure ] );
 
 	// The probe is `max-content`, so its width only moves when the labels or the
 	// typography do, and both arrive as a render.
@@ -130,3 +139,5 @@ export function PresetRowProbe( { presets, customTriggerLabel, onMeasure }: Pres
 		</div>
 	);
 }
+
+export const PresetRowProbe = memo( PresetRowProbeComponent );
