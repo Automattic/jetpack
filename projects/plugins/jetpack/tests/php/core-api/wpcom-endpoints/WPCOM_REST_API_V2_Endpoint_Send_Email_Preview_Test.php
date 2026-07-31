@@ -4,30 +4,14 @@
  * To run this test by itself use the following command:
  * jetpack docker phpunit jetpack -- --filter=WPCOM_REST_API_V2_Endpoint_Send_Email_Preview_Test
  *
- * @phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+ * The wpcom-only Email_Verification class the endpoint calls is mocked from the
+ * test bootstrap (tests/php/lib/class-email-verification.php).
  */
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use WpOrg\Requests\Requests;
 
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
-
-if ( ! class_exists( 'Email_Verification' ) ) {
-	class Email_Verification {
-		/**
-		 * Stand-in for the wpcom-only Email_Verification class so the endpoint body
-		 * can be exercised in the Jetpack test environment, where the real class
-		 * (a wpcom mu-plugin) is not loaded. Treats the caller as verified.
-		 *
-		 * @param int|false $user_id     Unused.
-		 * @param string    $legacy_type Unused.
-		 * @return bool
-		 */
-		public static function is_email_unverified( $user_id = false, $legacy_type = 'NEWKEY' ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			return false;
-		}
-	}
-}
 
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview_Test

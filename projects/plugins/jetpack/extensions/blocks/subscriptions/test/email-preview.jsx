@@ -186,9 +186,7 @@ describe( 'Test email recipient', () => {
 		expect( apiFetch ).toHaveBeenCalledWith(
 			expect.objectContaining( { data: { id: 123, email: 'author@example.com' } } )
 		);
-		await expect(
-			screen.findByText( 'Email sent successfully' )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Email sent successfully' ) ).resolves.toBeInTheDocument();
 	} );
 
 	it( 'trims surrounding whitespace from the recipient before sending', async () => {
@@ -239,7 +237,7 @@ describe( 'Test email recipient', () => {
 
 		// Let the in-flight request settle so the final state update is flushed.
 		resolveSend();
-		await screen.findByText( 'Email sent successfully' );
+		await expect( screen.findByText( 'Email sent successfully' ) ).resolves.toBeInTheDocument();
 	} );
 
 	it( 'surfaces the guard message when a non-self recipient is rejected', async () => {
