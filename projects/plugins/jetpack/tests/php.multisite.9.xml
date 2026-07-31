@@ -30,6 +30,7 @@
 		<testsuite name="json-api">
 			<file>php/json-api/Jetpack_Json_Api_Endpoints_Test.php</file>
 			<file>php/json-api/Jetpack_Json_Api_Plugins_Endpoints_Test.php</file>
+			<file>php/json-api/Jetpack_Json_Api_Endpoints_Accessibility_Test.php</file>
 		</testsuite>
 		<testsuite name="infinite-scroll">
 			<directory suffix="Test.php">php/modules/infinite-scroll</directory>

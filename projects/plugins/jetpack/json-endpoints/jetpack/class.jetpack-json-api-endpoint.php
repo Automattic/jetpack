@@ -191,8 +191,11 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 		// Entries are therefore compared against their canonical form rather than repaired into it:
 		// leading or trailing whitespace is a malformed declaration, not something to strip and accept.
 		// The character class covers what PHP's byte-wise `trim()` leaves behind -- form feed, NBSP and
-		// the other Unicode separators, the BOM -- and comparing before the `is_numeric()` test keeps
-		// that test stable across the supported PHP matrix, where `is_numeric( '0 ' )` is false before
+		// the other Unicode separators, the BOM. `\pC` also matches whatever PCRE's own Unicode table
+		// still considers unassigned, so a name whose boundary character is newer than that table is
+		// rejected rather than accepted: an exotic false denial, deliberately preferred here over
+		// admitting a boundary character this guard cannot classify. Comparing before the `is_numeric()`
+		// test keeps that test stable across the supported PHP matrix, where `is_numeric( '0 ' )` is false before
 		// 8.0 and true from 8.0 on. `$canonical` is null for two distinct reasons -- `preg_replace()`
 		// cannot process invalid UTF-8, and a non-string entry is never passed to it -- and the null
 		// test is load-bearing for the second: `null !== null` is false, so the mismatch test does not

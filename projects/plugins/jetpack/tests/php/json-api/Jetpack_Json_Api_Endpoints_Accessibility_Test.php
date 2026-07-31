@@ -77,6 +77,20 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Clean up fixtures that the shared teardown does not reach.
+	 *
+	 * Granting super admin writes the user's login into the network's `site_admins` option, which lives
+	 * in sitemeta. The base class teardown truncates the users and usermeta tables but not sitemeta, so
+	 * without this the login of a deleted user stays in the network's super admin list for the rest of
+	 * the run.
+	 */
+	public static function wpTearDownAfterClass() {
+		if ( is_multisite() ) {
+			revoke_super_admin( self::$super_admin_user_id );
+		}
+	}
+
+	/**
 	 * Inserts globals needed to initialize the endpoint.
 	 */
 	private function set_globals() {
@@ -582,8 +596,10 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	 */
 	public static function data_provider_test_super_admin_is_denied_on_multisite() {
 		return array(
-			// One row per guard, since a hoisted or identity-aware short-circuit could bypass any of them
-			// individually.
+			// At least one row per guard, since a hoisted or identity-aware short-circuit could bypass any
+			// of them individually. Four rows for three guards: the declaration guard gets two, because
+			// its numeric and unmappable sub-conditions are what core treats as a super admin grant, and
+			// they reach that outcome by different routes.
 			'empty declaration' => array( array(), new WP_Error( 'unauthorized_site_token_required', 'This endpoint is only accessible using a Jetpack site token.', 403 ) ),
 			'numeric entry'     => array( array( 0 ), new WP_Error( 'unauthorized_capability_declaration', 'This endpoint does not declare a valid capability requirement.', 403 ) ),
 			'unmappable entry'  => array( array( ' ' ), new WP_Error( 'unauthorized_capability_declaration', 'This endpoint does not declare a valid capability requirement.', 403 ) ),
