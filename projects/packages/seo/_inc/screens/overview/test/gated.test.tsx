@@ -30,7 +30,6 @@ jest.unstable_mockModule( '../../../data/use-seo-tools-toggle', () => ( {
 const { default: OverviewScreen } = await import( '../index' );
 
 const UPSELL_TITLE = 'Boost your search engine ranking';
-const OFF_RAMP_TEXT = 'Using a different SEO solution?';
 
 /**
  * Build an Overview payload with SEO tools active.
@@ -84,8 +83,6 @@ describe( 'OverviewScreen — plan gating', () => {
 
 		render( <OverviewScreen /> );
 
-		// Content coverage and the disable off-ramp are paid surfaces.
-		expect( screen.queryByText( OFF_RAMP_TEXT ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Content SEO' ) ).not.toBeInTheDocument();
 	} );
 
@@ -96,6 +93,5 @@ describe( 'OverviewScreen — plan gating', () => {
 
 		expect( screen.queryByText( UPSELL_TITLE ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Content SEO' ) ).toBeInTheDocument();
-		expect( screen.getByText( OFF_RAMP_TEXT ) ).toBeInTheDocument();
 	} );
 } );

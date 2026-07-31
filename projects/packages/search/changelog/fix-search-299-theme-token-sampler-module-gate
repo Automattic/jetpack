@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search: Stop printing the theme-token-sampler script once the Search module is disabled.

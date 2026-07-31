@@ -70,7 +70,7 @@ class Wpcom_Simple_Premium_Analytics_Test extends \WorDBless\BaseTestCase {
 						// translated it on plugins_loaded, before the textdomain loads.
 						$menu_title = $options['menu_title'] ?? null;
 
-						return $menu_title instanceof \Closure && 'Premium Analytics' === $menu_title();
+						return $menu_title instanceof \Closure && 'Stats v2' === $menu_title();
 					}
 				)
 			);

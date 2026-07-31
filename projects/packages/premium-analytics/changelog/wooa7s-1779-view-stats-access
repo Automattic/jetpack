@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Allow users with the view_stats capability to open the Analytics dashboard, and shop managers to read the store reports.

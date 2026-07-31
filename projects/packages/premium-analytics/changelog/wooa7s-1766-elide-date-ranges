@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Shorten date ranges by eliding a month or year shared by both ends, where the site's language has a rule for it.

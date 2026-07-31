@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { TextareaControl, ToggleControl } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -10,6 +11,7 @@ import CardTitleIcon from '../../components/card-title-icon';
 import StatusIndicator from '../../components/status-indicator';
 import UpsellBanner from '../../components/upsell-banner';
 import { isGated } from '../../data/is-gated';
+import AdvancedCard from './advanced-card';
 import AuthorProfileCard from './author-profile-card';
 import SchemaCard from './schema-card';
 import SocialPreviewsCard from './social-previews-card';
@@ -335,6 +337,13 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					{ frontPageDescriptionCard }
 				</div>
 			) }
+			{ /* Higher-risk settings last, after everything routine. Hidden on
+			   WordPress.com Simple, where `Modules::is_active()` reports every module
+			   active regardless of stored state, so turning SEO tools off would appear
+			   to do nothing. Outside the `gated` branch: a gated site still has the
+			   module and can still switch it off. */ }
+			{ ! isSimpleSite() && <AdvancedCard /> }
+
 			{ /* Not dismissible, so it sits below the settings rather than pushing them
 			   down; the Stack's lg gap keeps space between it and the last section. */ }
 			{ gated && <UpsellBanner /> }

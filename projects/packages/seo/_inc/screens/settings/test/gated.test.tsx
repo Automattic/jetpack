@@ -103,4 +103,16 @@ describe( 'SettingsScreen — gated front-page description', () => {
 
 		expect( screen.getByLabelText( FRONT_PAGE_LABEL ) ).toBeInTheDocument();
 	} );
+
+	it( 'keeps the Advanced module on a gated site', () => {
+		isGated.mockReturnValue( true );
+
+		render( <SettingsScreen form={ buildForm( false ) } /> );
+
+		// Deliberately outside the `gated` branch in the screen: gating removes paid
+		// *settings*, but a gated site still has SEO tools and must keep the way to
+		// switch them off. Without this, tucking the card into the gated branch would
+		// go unnoticed.
+		expect( screen.getByRole( 'heading', { level: 2, name: /Advanced/ } ) ).toBeInTheDocument();
+	} );
 } );

@@ -2,13 +2,12 @@
 
 import { TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { check } from '@wordpress/icons';
+import { globe } from '@wordpress/icons';
 import { Card, CollapsibleCard, Stack, Text } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
 import StatusIndicator from '../../components/status-indicator';
 import { VERIFICATION_SERVICES } from '../../data/verification-services';
 import GoogleVerificationField from './google-verification-field';
-import styles from './style.module.scss';
 import type { SettingStatus } from '../../components/status-indicator';
 import type { SettingsResponse, VerificationKey } from '../../data/settings-types';
 import type { FC } from 'react';
@@ -86,7 +85,9 @@ const VerificationCard: FC< Props > = ( {
 			<CollapsibleCard.Header render={ <h2 /> }>
 				<Stack direction="row" justify="space-between" align="center" gap="sm">
 					<Card.Title>
-						<CardTitleIcon icon={ check } title={ __( 'Site verification', 'jetpack-seo' ) } />
+						{ /* `globe`, matching the Overview card — and a checkmark would double up
+						     on the status indicator beside it. */ }
+						<CardTitleIcon icon={ globe } title={ __( 'Site verification', 'jetpack-seo' ) } />
 					</Card.Title>
 					<CollapsibleCard.HeaderDescription>
 						<StatusIndicator status={ verificationStatus } />
@@ -95,9 +96,9 @@ const VerificationCard: FC< Props > = ( {
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
 				<Stack direction="column" gap="lg">
-					{ /* `body-sm` + muted matches every other explanatory paragraph on this
-					     tab (schema sections, social previews, title structure). */ }
-					<Text variant="body-sm" className={ styles.muted } render={ <p /> }>
+					{ /* Body copy: this is the module's own prose, not a hint attached to a
+					     field. The muted `body-sm` treatment is reserved for the latter. */ }
+					<Text variant="body-md" render={ <p /> }>
 						{ description }
 					</Text>
 					{ /* Google gets the keyring auto-verify flow; the rest are simple code fields. */ }

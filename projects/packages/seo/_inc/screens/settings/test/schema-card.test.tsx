@@ -192,6 +192,17 @@ describe( 'SchemaCard', () => {
 		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Not started' );
 	} );
 
+	it( 'falls back to the site defaults when the override is only whitespace', () => {
+		// The backend trims the override and then falls back to site identity, so a
+		// stray space must not drop the module below what the Site Title already earns.
+		mockForm = makeForm( {
+			organization: { name: '   ', description: ' ', sameAs: [], email: '' },
+		} );
+		renderCard();
+
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'In progress' );
+	} );
+
 	it( 'counts an explicit value, not just its default', () => {
 		// The rule is "has a value OR its smart default". Every other status test
 		// leaves the overrides empty and varies only the defaults, so without this

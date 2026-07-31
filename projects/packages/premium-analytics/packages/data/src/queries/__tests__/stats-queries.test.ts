@@ -827,6 +827,7 @@ describe( 'Stats query factories', () => {
 				status: 'postponed',
 				postponed_for: 300,
 			},
+			parse: false,
 		} );
 	} );
 
@@ -846,6 +847,30 @@ describe( 'Stats query factories', () => {
 				id: 'opt_in_new_stats',
 				status: 'dismissed',
 			},
+			parse: false,
+		} );
+	} );
+
+	it( 'preserves the HTTP status from a failed Simple notices request', async () => {
+		setSimpleScriptData();
+		mockApiFetch.mockRejectedValue( {
+			status: 403,
+			json: jest.fn().mockResolvedValue( {
+				error: 'unauthorized',
+				message: 'Nope.',
+			} ),
+		} as unknown as Response );
+
+		const queryFn = statsAppNoticesQuery().queryFn as () => Promise< unknown >;
+
+		await expect( queryFn() ).rejects.toEqual( {
+			error: 'unauthorized',
+			message: 'Nope.',
+			status: 403,
+		} );
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/wpcom/v2/jetpack-stats-dashboard/notices',
+			parse: false,
 		} );
 	} );
 

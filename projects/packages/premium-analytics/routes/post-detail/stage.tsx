@@ -1,16 +1,18 @@
 import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel, SectionTabPanel } from '@jetpack-premium-analytics/ui';
+import { DateFiltersPanel, SectionTabPanel, safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
+import { Button } from '@wordpress/ui';
 import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
-import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { PostDetailTabs, PostSummaryCard } from './components';
-import { EMAIL_WIDGET_TYPE_ALIASES } from './config';
+import { POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
 import { usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
 import styles from './stage.module.scss';
@@ -46,6 +48,8 @@ function PostDetail(): JSX.Element {
 
 	const summary = usePostSummary( postId );
 
+	const publicUrl = safeHttpUrl( summary.url );
+
 	const widgetModules = useSelect(
 		select =>
 			(
@@ -64,15 +68,15 @@ function PostDetail(): JSX.Element {
 		[]
 	);
 
-	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypes( widgetModules );
+	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
-	// The fixed email compositions reuse registered widget types under
-	// page-local aliases so each card carries its design title — the host
-	// titles a card by its widget *type*. Each alias clones the resolved base
-	// type (render module and all) under a variant name and title; see
-	// `config/email-widget-variants`.
+	// The fixed compositions reuse registered widget types under page-local
+	// aliases so each card carries its design title — the host titles a card
+	// by its widget *type*. Each alias clones the resolved base type (render
+	// module and all) under a variant name and title; see
+	// `config/widget-variants`.
 	const pageWidgetTypes = useMemo( () => {
-		const aliases = EMAIL_WIDGET_TYPE_ALIASES.flatMap( ( { baseType, variants } ) => {
+		const aliases = POST_DETAIL_WIDGET_TYPE_ALIASES.flatMap( ( { baseType, variants } ) => {
 			const base = widgetTypes.find( widgetType => widgetType.name === baseType );
 
 			return base
@@ -80,6 +84,7 @@ function PostDetail(): JSX.Element {
 						...base,
 						name: variant.name,
 						title: variant.getTitle(),
+						...( variant.icon ? { icon: variant.icon } : {} ),
 				  } ) )
 				: [];
 		} );
@@ -103,6 +108,7 @@ function PostDetail(): JSX.Element {
 			<WidgetDashboard
 				widgetTypes={ pageWidgetTypes }
 				isResolvingWidgetTypes={ isResolvingWidgetTypes }
+				resolveWidgetModule={ resolveWidgetModuleWithI18n }
 				layout={ layout }
 				onLayoutChange={ noopLayoutChange }
 				gridSettings={ POST_DETAIL_GRID }
@@ -115,6 +121,23 @@ function PostDetail(): JSX.Element {
 								...( summary.title ? [ { label: summary.title } ] : [] ),
 							] }
 						/>
+					}
+					actions={
+						publicUrl ? (
+							<Button
+								variant="solid"
+								tone="neutral"
+								size="compact"
+								nativeButton={ false }
+								role="link"
+								className={ styles.viewPost }
+								render={ <a href={ publicUrl } target="_blank" rel="noopener noreferrer" /> }
+							>
+								{ summary.type === 'page'
+									? __( 'View page', 'jetpack-premium-analytics-pkg' )
+									: __( 'View post', 'jetpack-premium-analytics-pkg' ) }
+							</Button>
+						) : undefined
 					}
 					className={ styles.page }
 				>

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Settings: Make text styles consistent across modules, so descriptions are easier to read and every field label looks the same.

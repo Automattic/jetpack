@@ -19,17 +19,45 @@
 	margin-inline-start: 40px;
 }
 
-// Secondary copy. Paired with `variant="body-sm"`, this is the established
-// treatment for explanatory text across the tab (schema sections, social
-// previews, title structure).
-.muted {
-	color: var(--wpds-color-foreground-content-neutral-weak);
-}
-
 // Live character count in the front-page description footer, paired with that
 // section's Save button (the same footer shape the title-structure rows use).
 // Tabular figures so the width doesn't jitter while typing.
 .charCount {
 	color: var(--wpds-color-foreground-content-neutral-weak);
 	font-variant-numeric: tabular-nums;
+}
+
+// The "while it's off" list in the Advanced module. Body text, not the muted
+// explainer style — these are consequences to read, not hints about a field.
+// wp-admin's `ul { list-style: none; }` (common.css) strips the markers. It's
+// a bare-element selector, so this class would out-specify it — but the
+// marker is drawn with a `::before` instead, because `::marker` accepts only a
+// short list of properties and positioning isn't among them. Drawing it gives
+// the bullet its own size, colour and optical offset against the first line.
+.effects {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+
+	li {
+		position: relative;
+		padding-inline-start: var(--wpds-dimension-gap-lg);
+	}
+
+	li + li {
+		margin-block-start: var(--wpds-dimension-gap-xs);
+	}
+
+	li::before {
+		content: "";
+		position: absolute;
+		inset-inline-start: var(--wpds-dimension-gap-xs);
+		// Optically centred on the first line rather than the whole item, so a
+		// wrapping bullet keeps its marker beside the first line.
+		inset-block-start: 0.55em;
+		inline-size: 5px;
+		block-size: 5px;
+		border-radius: 50%;
+		background: var(--wpds-color-foreground-content-neutral-weak);
+	}
 }

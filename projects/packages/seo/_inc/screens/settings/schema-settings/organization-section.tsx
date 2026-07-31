@@ -4,7 +4,6 @@ import { TextControl, TextareaControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import ProfileUrlList from './profile-url-list';
-import styles from './style.module.scss';
 import type { SchemaSettingsForm } from '../../../data/use-schema-settings';
 import type { FC } from 'react';
 
@@ -28,7 +27,7 @@ const OrganizationSection: FC< Props > = ( { form } ) => {
 
 	return (
 		<Stack direction="column" gap="lg">
-			<Text variant="body-sm" className={ styles.muted } render={ <p /> }>
+			<Text variant="body-md" render={ <p /> }>
 				{ __(
 					'About the organization behind this site. Your Site Logo or Site Icon is used as the logo.',
 					'jetpack-seo'

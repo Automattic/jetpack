@@ -236,31 +236,39 @@ export function useSchemaSettings(
 	}, [] );
 
 	// The Organization entity and its LocalBusiness refinement share one Save, so a
-	// single click persists both (the backend merges partial section payloads).
+	// single click persists both — but the request carries only the sections that
+	// actually changed. The route merges partial payloads, so an untouched section
+	// keeps whatever is stored. Sending both unconditionally would widen the
+	// lost-update window from one section to two: with the page open twice, saving
+	// Organization in one tab would overwrite a local-business edit saved from the
+	// other with this tab's stale copy.
 	const saveOrganizationEntity = useCallback( () => {
 		if ( isSaving ) {
 			return;
 		}
-		persist(
-			{
-				organization: cleanOrganization( sections.organization ),
-				localBusiness: cleanLocalBusiness( sections.localBusiness ),
-			},
-			__( 'Saving schema settings…', 'jetpack-seo' ),
-			settings => {
-				baselineRef.current = {
-					...baselineRef.current,
-					organization: cleanOrganization( settings.organization ),
-					localBusiness: cleanLocalBusiness( settings.localBusiness ),
-				};
-				setSections( current => ( {
-					...current,
-					organization: settings.organization,
-					localBusiness: settings.localBusiness,
-				} ) );
-			}
-		);
-	}, [ isSaving, persist, sections ] );
+		const data: Partial< EditableSchemaSections > = {};
+		if ( isOrganizationDirty ) {
+			data.organization = cleanOrganization( sections.organization );
+		}
+		if ( isLocalBusinessDirty ) {
+			data.localBusiness = cleanLocalBusiness( sections.localBusiness );
+		}
+		persist( data, __( 'Saving schema settings…', 'jetpack-seo' ), settings => {
+			// Re-seed both from the response regardless of what was sent: neither is
+			// dirty afterwards, so there are no pending edits to lose, and a section
+			// changed elsewhere is picked up instead of silently ignored.
+			baselineRef.current = {
+				...baselineRef.current,
+				organization: cleanOrganization( settings.organization ),
+				localBusiness: cleanLocalBusiness( settings.localBusiness ),
+			};
+			setSections( current => ( {
+				...current,
+				organization: settings.organization,
+				localBusiness: settings.localBusiness,
+			} ) );
+		} );
+	}, [ isSaving, isOrganizationDirty, isLocalBusinessDirty, persist, sections ] );
 
 	const savePerson = useCallback( () => {
 		if ( isSaving ) {

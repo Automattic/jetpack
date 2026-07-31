@@ -54,14 +54,25 @@
 	margin-block-start: var(--wpds-dimension-gap-lg);
 }
 
-// Low-emphasis "disable SEO tools" off-ramp at the foot of the Overview.
-.disable {
-	margin-block-start: var(--wpds-dimension-gap-lg);
-	color: var(--wpds-color-foreground-content-neutral-weak);
-}
-
 // The card-title chip (`.cardTitle` / `.titleIcon`) lives in the shared
 // `components/card-title-icon.module.scss`, which the Settings modules use too.
+
+// Optional scope line under a card title. Indented to start exactly where the
+// title text does: the chip's own width plus the chip-to-title gap. Both come
+// from the same two tokens `card-title-icon.module.scss` uses, so this stays
+// aligned if the chip is ever resized, rather than drifting off a hardcoded px.
+// The class is doubled to raise specificity to (0,2,0). `Text` renders this as
+// a `<p>` and also applies @wordpress/ui's global-CSS defense, whose `p.p`
+// selector is (0,1,1) — and, crucially, *unlayered*, since its job is to beat
+// wp-admin's bare-element rules. It sets the `margin` shorthand, so a
+// single-class rule silently loses both margins below. The defense offers a
+// `--_gcd-p-margin` bridge, but that takes the physical shorthand and would
+// keep the indent on the left in RTL; doubling the class keeps it logical.
+.cardSubtitle.cardSubtitle {
+	margin-block-start: var(--wpds-dimension-gap-xs);
+	margin-inline-start: calc(var(--wpds-dimension-size-md) + var(--wpds-dimension-gap-sm));
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
 
 // Interactive coverage ring: the whole ring is a button that deep-links to the
 // Content tab filtered to the rows still missing this field. Reset the native

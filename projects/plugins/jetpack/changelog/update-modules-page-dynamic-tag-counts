@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Modules: Update the tag filter counts on the modules page to reflect the currently-applied filters, and grey out tags with no matching modules.

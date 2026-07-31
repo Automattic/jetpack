@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f72ecf8586288800bf47ac20a2d474ae",
+    "content-hash": "77af86f7f65bcef7a218287fecb1efa6",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -4254,6 +4254,469 @@
                 "source": "https://github.com/wikimedia/AhoCorasick/tree/v1.0.1"
             },
             "time": "2018-05-01T18:13:32+00:00"
+        },
+        {
+            "name": "wp-php-toolkit/bytestream",
+            "version": "v0.8.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wp-php-toolkit/bytestream.git",
+                "reference": "38617382ea9cecd057202bed34739c53e804173b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wp-php-toolkit/bytestream/zipball/38617382ea9cecd057202bed34739c53e804173b",
+                "reference": "38617382ea9cecd057202bed34739c53e804173b",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "./"
+                ],
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Adam Zielinski",
+                    "email": "adam@adamziel.com"
+                },
+                {
+                    "name": "WordPress Team",
+                    "email": "wordpress@wordpress.org"
+                }
+            ],
+            "description": "ByteStream component for WordPress.",
+            "homepage": "https://wordpress.github.io/php-toolkit/reference/bytestream.html",
+            "keywords": [
+                "php-toolkit",
+                "wordpress"
+            ],
+            "support": {
+                "docs": "https://wordpress.github.io/php-toolkit/reference/bytestream.html",
+                "issues": "https://github.com/WordPress/php-toolkit/issues",
+                "source": "https://github.com/WordPress/php-toolkit"
+            },
+            "time": "2026-05-14T14:42:57+00:00"
+        },
+        {
+            "name": "wp-php-toolkit/data-liberation",
+            "version": "v0.8.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wp-php-toolkit/data-liberation.git",
+                "reference": "63e2035a5d9ef069d13b0285150e1cbc72fab407"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wp-php-toolkit/data-liberation/zipball/63e2035a5d9ef069d13b0285150e1cbc72fab407",
+                "reference": "63e2035a5d9ef069d13b0285150e1cbc72fab407",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2",
+                "wp-php-toolkit/bytestream": "^0.8.1",
+                "wp-php-toolkit/filesystem": "^0.8.1",
+                "wp-php-toolkit/html": "^0.8.1",
+                "wp-php-toolkit/http-client": "^0.8.1",
+                "wp-php-toolkit/xml": "^0.8.1"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "URL/functions.php"
+                ],
+                "classmap": [
+                    "./",
+                    "vendor-patched/"
+                ],
+                "exclude-from-classmap": [
+                    "/Tests/",
+                    "/bin/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Adam Zielinski",
+                    "email": "adam@adamziel.com"
+                },
+                {
+                    "name": "WordPress Team",
+                    "email": "wordpress@wordpress.org"
+                }
+            ],
+            "description": "Data Liberation component for WordPress.",
+            "homepage": "https://wordpress.github.io/php-toolkit/reference/dataliberation.html",
+            "keywords": [
+                "php-toolkit",
+                "wordpress"
+            ],
+            "support": {
+                "docs": "https://wordpress.github.io/php-toolkit/reference/dataliberation.html",
+                "issues": "https://github.com/WordPress/php-toolkit/issues",
+                "source": "https://github.com/WordPress/php-toolkit"
+            },
+            "time": "2026-05-27T22:01:51+00:00"
+        },
+        {
+            "name": "wp-php-toolkit/encoding",
+            "version": "v0.8.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wp-php-toolkit/encoding.git",
+                "reference": "0da853cd2ce08deee92dddaa0bd5c3fbf7507608"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wp-php-toolkit/encoding/zipball/0da853cd2ce08deee92dddaa0bd5c3fbf7507608",
+                "reference": "0da853cd2ce08deee92dddaa0bd5c3fbf7507608",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "utf8.php",
+                    "compat-utf8.php",
+                    "utf8-encoder.php"
+                ],
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Adam Zielinski",
+                    "email": "adam@adamziel.com"
+                },
+                {
+                    "name": "WordPress Team",
+                    "email": "wordpress@wordpress.org"
+                }
+            ],
+            "description": "Encoding component for WordPress.",
+            "homepage": "https://wordpress.github.io/php-toolkit/reference/encoding.html",
+            "keywords": [
+                "php-toolkit",
+                "wordpress"
+            ],
+            "support": {
+                "docs": "https://wordpress.github.io/php-toolkit/reference/encoding.html",
+                "issues": "https://github.com/WordPress/php-toolkit/issues",
+                "source": "https://github.com/WordPress/php-toolkit"
+            },
+            "time": "2026-05-14T14:42:57+00:00"
+        },
+        {
+            "name": "wp-php-toolkit/filesystem",
+            "version": "v0.8.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wp-php-toolkit/filesystem.git",
+                "reference": "a86e7a3916c48ac9d29bb13bdb15c1cf122800c1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wp-php-toolkit/filesystem/zipball/a86e7a3916c48ac9d29bb13bdb15c1cf122800c1",
+                "reference": "a86e7a3916c48ac9d29bb13bdb15c1cf122800c1",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2",
+                "wp-php-toolkit/bytestream": "^0.8.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "functions.php"
+                ],
+                "classmap": [
+                    "./"
+                ],
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Adam Zielinski",
+                    "email": "adam@adamziel.com"
+                },
+                {
+                    "name": "WordPress Team",
+                    "email": "wordpress@wordpress.org"
+                }
+            ],
+            "description": "Filesystem component for WordPress.",
+            "homepage": "https://wordpress.github.io/php-toolkit/reference/filesystem.html",
+            "keywords": [
+                "php-toolkit",
+                "wordpress"
+            ],
+            "support": {
+                "docs": "https://wordpress.github.io/php-toolkit/reference/filesystem.html",
+                "issues": "https://github.com/WordPress/php-toolkit/issues",
+                "source": "https://github.com/WordPress/php-toolkit"
+            },
+            "time": "2026-05-27T22:01:51+00:00"
+        },
+        {
+            "name": "wp-php-toolkit/html",
+            "version": "v0.8.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wp-php-toolkit/html.git",
+                "reference": "6c845f71340cec388fac1dfabe7694712b94190a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wp-php-toolkit/html/zipball/6c845f71340cec388fac1dfabe7694712b94190a",
+                "reference": "6c845f71340cec388fac1dfabe7694712b94190a",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "./"
+                ],
+                "exclude-from-classmap": [
+                    "/Tests/",
+                    "/html5-named-character-references.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Adam Zielinski",
+                    "email": "adam@adamziel.com"
+                },
+                {
+                    "name": "WordPress Team",
+                    "email": "wordpress@wordpress.org"
+                }
+            ],
+            "description": "HTML component for WordPress.",
+            "homepage": "https://wordpress.github.io/php-toolkit/reference/html.html",
+            "keywords": [
+                "php-toolkit",
+                "wordpress"
+            ],
+            "support": {
+                "docs": "https://wordpress.github.io/php-toolkit/reference/html.html",
+                "issues": "https://github.com/WordPress/php-toolkit/issues",
+                "source": "https://github.com/WordPress/php-toolkit"
+            },
+            "time": "2026-05-18T15:06:45+00:00"
+        },
+        {
+            "name": "wp-php-toolkit/http-client",
+            "version": "v0.8.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wp-php-toolkit/http-client.git",
+                "reference": "4574ed51c15882190b46aee5564910bf4429f3c0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wp-php-toolkit/http-client/zipball/4574ed51c15882190b46aee5564910bf4429f3c0",
+                "reference": "4574ed51c15882190b46aee5564910bf4429f3c0",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2",
+                "wp-php-toolkit/bytestream": "^0.8.1",
+                "wp-php-toolkit/data-liberation": "^0.8.1",
+                "wp-php-toolkit/filesystem": "^0.8.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "./"
+                ],
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Adam Zielinski",
+                    "email": "adam@adamziel.com"
+                },
+                {
+                    "name": "WordPress Team",
+                    "email": "wordpress@wordpress.org"
+                }
+            ],
+            "description": "HttpClient component for WordPress.",
+            "homepage": "https://wordpress.github.io/php-toolkit/reference/httpclient.html",
+            "keywords": [
+                "php-toolkit",
+                "wordpress"
+            ],
+            "support": {
+                "docs": "https://wordpress.github.io/php-toolkit/reference/httpclient.html",
+                "issues": "https://github.com/WordPress/php-toolkit/issues",
+                "source": "https://github.com/WordPress/php-toolkit"
+            },
+            "time": "2026-05-27T22:01:51+00:00"
+        },
+        {
+            "name": "wp-php-toolkit/reprint-exporter",
+            "version": "v0.9.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wp-php-toolkit/reprint-exporter.git",
+                "reference": "e302c68b7cd4125d0eed5078dcd015ce9cb1fcc7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wp-php-toolkit/reprint-exporter/zipball/e302c68b7cd4125d0eed5078dcd015ce9cb1fcc7",
+                "reference": "e302c68b7cd4125d0eed5078dcd015ce9cb1fcc7",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2",
+                "wp-php-toolkit/data-liberation": "^0.8.0",
+                "wp-php-toolkit/html": "^0.8.0"
+            },
+            "suggest": {
+                "ext-pdo": "Needed for the SQLite export path; recommended for MySQL exports (the wpdb fallback handles MySQL when absent).",
+                "ext-pdo_mysql": "Recommended for MySQL exports; falls back to wpdb when absent."
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/utils.php",
+                    "src/class-pdo-polyfill.php"
+                ],
+                "psr-4": {
+                    "WordPress\\DataLiberation\\": "src/"
+                },
+                "classmap": [
+                    "src/class-mysql-dump-producer.php",
+                    "src/class-file-tree-producer.php",
+                    "src/class-hmac-client.php",
+                    "src/class-hmac-server.php",
+                    "src/class-http-server.php",
+                    "src/class-staged-artifacts.php",
+                    "src/class-staged-push-stream-protocol.php",
+                    "src/class-staged-endpoints.php",
+                    "src/class-sqlite-driver-pdo.php",
+                    "src/class-wpdb-driver-pdo.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Streaming export engine used by the Reprint Exporter WordPress plugin",
+            "support": {
+                "issues": "https://github.com/wp-php-toolkit/reprint-exporter/issues",
+                "source": "https://github.com/wp-php-toolkit/reprint-exporter/tree/v0.9.1"
+            },
+            "time": "2026-07-11T19:04:58+00:00"
+        },
+        {
+            "name": "wp-php-toolkit/xml",
+            "version": "v0.8.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wp-php-toolkit/xml.git",
+                "reference": "a6b49175d5bab2e76816dd7bf514b81f51cc1109"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wp-php-toolkit/xml/zipball/a6b49175d5bab2e76816dd7bf514b81f51cc1109",
+                "reference": "a6b49175d5bab2e76816dd7bf514b81f51cc1109",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2",
+                "wp-php-toolkit/encoding": "^0.8.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "./"
+                ],
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Adam Zielinski",
+                    "email": "adam@adamziel.com"
+                },
+                {
+                    "name": "WordPress Team",
+                    "email": "wordpress@wordpress.org"
+                }
+            ],
+            "description": "XML component for WordPress.",
+            "homepage": "https://wordpress.github.io/php-toolkit/reference/xml.html",
+            "keywords": [
+                "php-toolkit",
+                "wordpress"
+            ],
+            "support": {
+                "docs": "https://wordpress.github.io/php-toolkit/reference/xml.html",
+                "issues": "https://github.com/WordPress/php-toolkit/issues",
+                "source": "https://github.com/WordPress/php-toolkit"
+            },
+            "time": "2026-05-27T22:01:51+00:00"
         }
     ],
     "packages-dev": [

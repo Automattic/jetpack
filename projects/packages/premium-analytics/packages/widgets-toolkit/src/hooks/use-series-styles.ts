@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useGlobalChartsContext } from '@automattic/charts';
+import { useGlobalChartsContext } from '@jetpack-premium-analytics/externals';
 import { useMemo } from 'react';
 /**
  * Internal dependencies

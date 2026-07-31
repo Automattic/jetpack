@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { GeoChart } from '@automattic/charts';
+import { GeoChart } from '@jetpack-premium-analytics/externals';
 import { location } from '@jetpack-premium-analytics/icons';
 import {
 	__experimentalToggleGroupControl as ToggleGroupControl,

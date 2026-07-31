@@ -85,6 +85,10 @@ function VideosReport(): JSX.Element {
 	const csvColumns = useMemo< CsvColumn< StatsVideoPlaysItem >[] >(
 		() => [
 			{
+				label: __( 'Video ID', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.id ?? '',
+			},
+			{
 				label: __( 'Video', 'jetpack-premium-analytics-pkg' ),
 				getValue: row =>
 					typeof row.label === 'string' && row.label
@@ -95,6 +99,14 @@ function VideosReport(): JSX.Element {
 			{
 				label: __( 'Impressions', 'jetpack-premium-analytics-pkg' ),
 				getValue: row => row.impressions,
+			},
+			{
+				label: __( 'Watch time (hours)', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.watch_time,
+			},
+			{
+				label: __( 'Retention rate (%)', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.retention_rate,
 			},
 			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
 		],

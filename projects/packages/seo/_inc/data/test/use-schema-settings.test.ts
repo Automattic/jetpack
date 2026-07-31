@@ -315,6 +315,41 @@ describe( 'useSchemaSettings', () => {
 			data: Pick< SchemaSettings, 'organization' | 'localBusiness' >;
 		};
 		expect( options.data.organization.sameAs ).toEqual( [ 'https://twitter.com/acme' ] );
-		expect( Object.keys( options.data ).sort() ).toEqual( [ 'localBusiness', 'organization' ] );
+		// Only the Organization was touched, so only the Organization is sent.
+		expect( Object.keys( options.data ) ).toEqual( [ 'organization' ] );
+	} );
+
+	it.each( [
+		[ 'the Organization alone', { organization: true, localBusiness: false }, [ 'organization' ] ],
+		[
+			'the local business alone',
+			{ organization: false, localBusiness: true },
+			[ 'localBusiness' ],
+		],
+		[ 'both', { organization: true, localBusiness: true }, [ 'localBusiness', 'organization' ] ],
+	] )( 'sends only what changed when %s is edited', async ( _label, edit, expected ) => {
+		// The route merges partial payloads, so an untouched section keeps whatever is
+		// stored. Sending both unconditionally would let a save here overwrite a
+		// local-business edit made in another tab with this tab's stale copy.
+		const { result } = renderHook( () => useSchemaSettings( RESPONSE ) );
+
+		act( () => {
+			if ( edit.organization ) {
+				result.current.setOrganizationField( { name: 'Acme Inc' } );
+			}
+			if ( edit.localBusiness ) {
+				result.current.setLocalBusinessField( { telephone: '+1 555 123 4567' } );
+			}
+		} );
+
+		mockApiFetch.mockResolvedValueOnce( RESPONSE );
+		act( () => result.current.saveOrganizationEntity() );
+		await waitFor( () => expect( createSuccessNotice ).toHaveBeenCalled() );
+
+		const post = mockApiFetch.mock.calls.find(
+			( [ options ] ) => ( options as { method?: string } ).method === 'POST'
+		);
+		const options = post![ 0 ] as { data: Partial< SchemaSettings > };
+		expect( Object.keys( options.data ).sort() ).toEqual( expected );
 	} );
 } );

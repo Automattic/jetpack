@@ -76,11 +76,21 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 	// duplicate rows. Otherwise the header could read "Complete" off a row that
 	// server sanitization is about to discard — while Save sits disabled on the
 	// very validation error that makes it uncounted.
+	//
+	// Each override is trimmed *before* the fallback, mirroring the backend, where
+	// `Schema_Settings::text()` trims and the node then falls back to site identity.
+	// Trimming the result instead would let a whitespace-only override win the `||`
+	// and collapse to empty, dropping the module out of Complete over a value the
+	// server will discard in favour of the Site Title that was counting before.
+	//
+	// Measured against whichever entity the site currently represents: the other
+	// branch's fields are stored but not in play, so counting them would report a
+	// completeness the visible form can't act on.
 	const entity = isPerson ? person : organization;
 	const entityDefaults = isPerson ? personDefaults : defaults;
 	const configuredFields = [
-		( entity.name || entityDefaults.name ).trim(),
-		( entity.description || entityDefaults.description ).trim(),
+		entity.name.trim() || entityDefaults.name.trim(),
+		entity.description.trim() || entityDefaults.description.trim(),
 		cleanProfileUrls( entity.sameAs ).length > 0,
 	];
 	const configuredCount = configuredFields.filter( Boolean ).length;
@@ -113,7 +123,7 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
 				<Stack direction="column" gap="lg">
-					<Text variant="body-sm" className={ styles.muted } render={ <p /> }>
+					<Text variant="body-md" render={ <p /> }>
 						{ __(
 							'Structured data that tells search engines and AI assistants what your site is and who runs it. Answer a couple of questions and Jetpack adds the right markup automatically.',
 							'jetpack-seo'

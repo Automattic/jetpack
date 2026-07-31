@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Modules: In Offline Mode, surface the Modules page as the first Jetpack menu item so it loads by default, add an Offline Mode breadcrumb and explanatory notice, and add an "Available in offline mode" filter.
