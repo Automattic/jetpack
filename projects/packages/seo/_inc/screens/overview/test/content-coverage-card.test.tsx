@@ -21,6 +21,16 @@ const buildCoverage = ( overrides: Partial< ContentCoverage > = {} ): ContentCov
 } );
 
 describe( 'ContentCoverageCard', () => {
+	it( 'states its scope, since the rings count more than posts and pages', () => {
+		render(
+			<ContentCoverageCard data={ buildCoverage() } onManage={ jest.fn() } onFilter={ jest.fn() } />
+		);
+
+		// The coverage query runs over every public, REST-enabled post type, so a Woo
+		// site's products are in these counts too.
+		expect( screen.getByText( 'Posts, pages, and more' ) ).toBeInTheDocument();
+	} );
+
 	it( 'renders an interactive ring that deep-links to the unconfigured rows', () => {
 		const onFilter = jest.fn();
 		render(
@@ -72,7 +82,7 @@ describe( 'ContentCoverageCard', () => {
 			/>
 		);
 
-		expect( screen.getByText( 'No published posts or pages yet.' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'No published content yet.' ) ).toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'button', { name: /Add schema to content/ } )
 		).not.toBeInTheDocument();

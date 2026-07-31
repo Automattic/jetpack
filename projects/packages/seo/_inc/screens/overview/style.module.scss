@@ -54,35 +54,24 @@
 	margin-block-start: var(--wpds-dimension-gap-lg);
 }
 
-// Low-emphasis "disable SEO tools" off-ramp at the foot of the Overview.
-.disable {
-	margin-block-start: var(--wpds-dimension-gap-lg);
+// The card-title chip (`.cardTitle` / `.titleIcon`) lives in the shared
+// `components/card-title-icon.module.scss`, which the Settings modules use too.
+
+// Optional scope line under a card title. Indented to start exactly where the
+// title text does: the chip's own width plus the chip-to-title gap. Both come
+// from the same two tokens `card-title-icon.module.scss` uses, so this stays
+// aligned if the chip is ever resized, rather than drifting off a hardcoded px.
+// The class is doubled to raise specificity to (0,2,0). `Text` renders this as
+// a `<p>` and also applies @wordpress/ui's global-CSS defense, whose `p.p`
+// selector is (0,1,1) — and, crucially, *unlayered*, since its job is to beat
+// wp-admin's bare-element rules. It sets the `margin` shorthand, so a
+// single-class rule silently loses both margins below. The defense offers a
+// `--_gcd-p-margin` bridge, but that takes the physical shorthand and would
+// keep the indent on the left in RTL; doubling the class keeps it logical.
+.cardSubtitle.cardSubtitle {
+	margin-block-start: var(--wpds-dimension-gap-xs);
+	margin-inline-start: calc(var(--wpds-dimension-size-md) + var(--wpds-dimension-gap-sm));
 	color: var(--wpds-color-foreground-content-neutral-weak);
-}
-
-// Card title with a leading accent icon, presented as a small tinted "chip"
-// badge before the title text (the placement Jetpack's other cards use).
-.cardTitle {
-	display: inline-flex;
-	align-items: center;
-	// `sm` (8px) matches the icon-to-label spacing used by StatusDot in these
-	// same cards, rather than the tighter `xs`.
-	gap: var(--wpds-dimension-gap-sm);
-}
-
-// A 24px icon (the @wordpress/ui default) in a `size-md` (32px) chip — both
-// from the WPDS size scale, so the glyph fills the badge instead of floating
-// in an oversized circle.
-.titleIcon {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	flex: none;
-	inline-size: var(--wpds-dimension-size-md);
-	block-size: var(--wpds-dimension-size-md);
-	border-radius: 50%;
-	color: var(--wpds-color-foreground-interactive-brand);
-	background: var(--wpds-color-background-surface-brand);
 }
 
 // Interactive coverage ring: the whole ring is a button that deep-links to the

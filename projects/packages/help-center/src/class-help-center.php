@@ -18,7 +18,7 @@ class Help_Center {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.2.0';
+	const PACKAGE_VERSION = '0.3.0';
 
 	/**
 	 * Class instance.
@@ -33,6 +33,20 @@ class Help_Center {
 	 * @var Wpcom_Request_Client
 	 */
 	private $wpcom_request_client;
+
+	/**
+	 * Bot slug for new interactions.
+	 *
+	 * @var string|null
+	 */
+	private $new_interactions_bot_slug;
+
+	/**
+	 * Bot slug for new logged-out interactions.
+	 *
+	 * @var string|null
+	 */
+	private $new_logged_out_interactions_bot_slug;
 
 	/**
 	 * Whether the current site is a support site.
@@ -58,10 +72,14 @@ class Help_Center {
 	/**
 	 * Help_Center constructor.
 	 *
-	 * @param Wpcom_Request_Client|null $wpcom_request_client WP.com request client.
+	 * @param Wpcom_Request_Client|null $wpcom_request_client                 WP.com request client.
+	 * @param string|null               $new_interactions_bot_slug            Bot slug for new interactions.
+	 * @param string|null               $new_logged_out_interactions_bot_slug Bot slug for new logged-out interactions.
 	 */
-	public function __construct( ?Wpcom_Request_Client $wpcom_request_client = null ) {
-		$this->wpcom_request_client = $wpcom_request_client ?? new Jetpack_Wpcom_Request_Client();
+	public function __construct( ?Wpcom_Request_Client $wpcom_request_client = null, ?string $new_interactions_bot_slug = null, ?string $new_logged_out_interactions_bot_slug = null ) {
+		$this->wpcom_request_client                 = $wpcom_request_client ?? new Jetpack_Wpcom_Request_Client();
+		$this->new_interactions_bot_slug            = $new_interactions_bot_slug;
+		$this->new_logged_out_interactions_bot_slug = $new_logged_out_interactions_bot_slug;
 
 		if ( function_exists( 'wpcom_get_site_purchases' ) ) {
 			$this->purchases = wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'bundle' ) );
@@ -177,10 +195,12 @@ class Help_Center {
 	/**
 	 * Creates instance.
 	 *
-	 * @param Wpcom_Request_Client|null $wpcom_request_client WP.com request client.
+	 * @param Wpcom_Request_Client|null $wpcom_request_client                 WP.com request client.
+	 * @param string|null               $new_interactions_bot_slug            Bot slug for new interactions.
+	 * @param string|null               $new_logged_out_interactions_bot_slug Bot slug for new logged-out interactions.
 	 * @return self|null
 	 */
-	public static function init( ?Wpcom_Request_Client $wpcom_request_client = null ) {
+	public static function init( ?Wpcom_Request_Client $wpcom_request_client = null, ?string $new_interactions_bot_slug = null, ?string $new_logged_out_interactions_bot_slug = null ) {
 		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 
 		if ( str_contains( $request_uri, 'wp-content/plugins/gutenberg-core' ) || str_contains( $request_uri, 'preview=true' ) ) {
@@ -208,7 +228,7 @@ class Help_Center {
 				}
 			}
 
-			self::$instance = new self( $wpcom_request_client );
+			self::$instance = new self( $wpcom_request_client, $new_interactions_bot_slug, $new_logged_out_interactions_bot_slug );
 		}
 
 		return self::$instance;
@@ -493,6 +513,14 @@ class Help_Center {
 			'site'             => $this->get_current_site(),
 			'locale'           => self::determine_iso_639_locale(),
 		);
+
+		if ( null !== $this->new_interactions_bot_slug ) {
+			$data['newInteractionsBotSlug'] = $this->new_interactions_bot_slug;
+		}
+
+		if ( null !== $this->new_logged_out_interactions_bot_slug ) {
+			$data['newLoggedOutInteractionsBotSlug'] = $this->new_logged_out_interactions_bot_slug;
+		}
 
 		return array_replace( $data, $overrides );
 	}

@@ -932,17 +932,26 @@ class Agents_Manager {
 	/**
 	 * Returns true when Gutenberg's "admin bar in editor" (omnibar) experiment is active.
 	 *
-	 * Mirrors Gutenberg core's gate in `lib/experimental/admin-bar-in-editor/load.php`, and fails
-	 * safe when `gutenberg_is_experiment_enabled()` is unavailable.
+	 * Mirrors Gutenberg core's gate in `lib/experimental/omnibar/load.php`, and returns false when
+	 * `gutenberg_is_experiment_enabled()` is unavailable. Gutenberg 23.5 renamed the experiment
+	 * slug from `gutenberg-admin-bar-in-editor` to `gutenberg-omnibar`; both are checked since
+	 * pre-rename builds are still deployed (e.g. wpcom's bundled gutenberg-core).
 	 *
 	 * @return bool
 	 */
 	private static function is_admin_bar_in_editor() {
-		return self::is_block_editor()
-			&& is_admin_bar_showing()
-			&& function_exists( 'gutenberg_is_experiment_enabled' )
+		if (
+			! self::is_block_editor()
+			|| ! is_admin_bar_showing()
+			|| ! function_exists( 'gutenberg_is_experiment_enabled' )
+		) {
+			return false;
+		}
+
+		// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by function_exists() above.
+		return \gutenberg_is_experiment_enabled( 'gutenberg-omnibar' )
 			// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by function_exists() above.
-			&& \gutenberg_is_experiment_enabled( 'gutenberg-admin-bar-in-editor' );
+			|| \gutenberg_is_experiment_enabled( 'gutenberg-admin-bar-in-editor' );
 	}
 
 	/**

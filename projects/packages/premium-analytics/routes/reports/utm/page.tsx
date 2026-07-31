@@ -14,7 +14,10 @@ import {
 	ReportPageLayout,
 	ReportPageShell,
 	ReportPageTabs,
+	ReportCsvAction,
+	useReportCsvExport,
 	useReportRetry,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useMemo } from '@wordpress/element';
@@ -27,6 +30,7 @@ import { route } from '../package.json';
 import {
 	getReportUtmTabs,
 	getUtmFields,
+	getUtmTabLabel,
 	resolveSection,
 	useUtmReportRecords,
 	type UtmReportRow,
@@ -46,6 +50,8 @@ const RECORDS_VIEW = {
 		},
 	},
 };
+
+const sortUtmCsvRows = ( a: UtmReportRow, b: UtmReportRow ) => b.views - a.views;
 
 /**
  * Stable row id for the UTM records table.
@@ -83,6 +89,24 @@ function UtmReport(): JSX.Element {
 	const records = useUtmReportRecords( activeTab, reportParams );
 	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getUtmFields( activeTab ), [ activeTab ] );
+	const csvColumns = useMemo< CsvColumn< UtmReportRow >[] >(
+		() => [
+			{ label: getUtmTabLabel( activeTab ), getValue: row => row.label },
+			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
+		],
+		[ activeTab ]
+	);
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport( {
+		rows: records.rows,
+		filenamePrefix: `utm-${ activeTab }`,
+		range: reportParams,
+		status: records,
+		sort: sortUtmCsvRows,
+	} );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dashboardLink = useDashboardLink();
 
@@ -96,6 +120,11 @@ function UtmReport(): JSX.Element {
 						{ label: __( 'UTM', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
+			}
+			actions={
+				canExport ? (
+					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
+				) : undefined
 			}
 		>
 			<ReportPageLayout

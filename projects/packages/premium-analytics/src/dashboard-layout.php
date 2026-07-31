@@ -75,11 +75,29 @@ function get_dashboard_default_layout_for( $dashboard_name ) {
 /**
  * REST callback returning the default layout for the requested dashboard.
  *
+ * The route admits every dashboard reader, but its name also resolves to a
+ * single tab, so the store tab is refused here the way the section route
+ * refuses it through {@see Dashboard_Section::is_available()}. The check keys
+ * on the resolved tab rather than the string because two spellings arrive: the
+ * bare `store` alias in the URL, and `?name=woocommerce/store`, which WordPress
+ * reads ahead of the URL capture.
+ *
  * @param \WP_REST_Request $request REST request carrying the dashboard name.
- * @return \WP_REST_Response Response wrapping the default layout array.
+ * @return \WP_REST_Response|\WP_Error Response wrapping the default layout array.
  */
 function get_dashboard_default_layout_response( $request ) {
-	return rest_ensure_response( get_dashboard_default_layout_for( $request['name'] ) );
+	$dashboard_name = $request['name'];
+
+	if ( DASHBOARD_STORE_SECTION_ID === get_dashboard_default_section_id_for( $dashboard_name )
+		&& ! Capabilities::current_user_can_view_store_reports() ) {
+		return new \WP_Error(
+			'dashboard_section_unavailable',
+			__( 'Dashboard section is not available.', 'jetpack-premium-analytics-pkg' ),
+			array( 'status' => 404 )
+		);
+	}
+
+	return rest_ensure_response( get_dashboard_default_layout_for( $dashboard_name ) );
 }
 
 /**
@@ -94,9 +112,7 @@ function register_dashboard_default_layout_route() {
 		array(
 			'methods'             => \WP_REST_Server::READABLE,
 			'callback'            => __NAMESPACE__ . '\\get_dashboard_default_layout_response',
-			'permission_callback' => static function () {
-				return current_user_can( 'manage_options' );
-			},
+			'permission_callback' => array( Capabilities::class, 'current_user_can_view_analytics' ),
 			'args'                => array(
 				'name' => array(
 					'description' => __( 'Dashboard identifier as produced by the build pipeline.', 'jetpack-premium-analytics-pkg' ),

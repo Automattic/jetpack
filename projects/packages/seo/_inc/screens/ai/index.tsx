@@ -1,11 +1,13 @@
 import { Button, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { commentContent, details, key, page } from '@wordpress/icons';
 import { Badge, Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui';
+import CardTitleIcon from '../../components/card-title-icon';
 import './style.scss';
 import type { AiCrawler } from '../../data/ai-types';
 import type { AiForm } from '../../data/use-ai';
-import type { FC, ReactNode } from 'react';
+import type { ComponentProps, FC, ReactNode } from 'react';
 
 interface Props {
 	form: AiForm;
@@ -13,17 +15,54 @@ interface Props {
 	onManageVisibility: () => void;
 }
 
+// Jetpack's AI mark (three sparks), mirroring `AiIcon` in
+// `@automattic/jetpack-components`. Restated here as an element with svg props
+// because `@wordpress/ui`'s `Icon` spreads `icon.props` onto its own `SVG`
+// rather than rendering what it is given — so a component like `AiIcon`, whose
+// props are `size`/`color`, would spread those and produce an empty icon.
+// `@wordpress/icons` has no AI or sparkle glyph to use instead. Kept in sync by
+// hand; if Jetpack's AI mark changes, this needs the same paths.
+const aiSparks = (
+	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor">
+		<path d="M9.33301 5.33325L10.4644 8.20188L13.333 9.33325L10.4644 10.4646L9.33301 13.3333L8.20164 10.4646L5.33301 9.33325L8.20164 8.20188L9.33301 5.33325Z" />
+		<path d="M21.3333 5.33333L22.8418 9.15817L26.6667 10.6667L22.8418 12.1752L21.3333 16L19.8248 12.1752L16 10.6667L19.8248 9.15817L21.3333 5.33333Z" />
+		<path d="M14.6667 13.3333L16.5523 18.1144L21.3333 20L16.5523 21.8856L14.6667 26.6667L12.781 21.8856L8 20L12.781 18.1144L14.6667 13.3333Z" />
+	</svg>
+);
+
 const llmsTxtHelp = __(
 	'Publishes a curated, AI-readable map at /llms.txt to help AI assistants find and understand your supported content.',
 	'jetpack-seo'
 );
-const enabledLabel = __( 'Enabled', 'jetpack-seo' );
-const disabledLabel = __( 'Disabled', 'jetpack-seo' );
 // Crawler-group status tags. Module-scope (not inline ternaries) so the
 // production minifier can't fold `cond ? __() : __()` and break i18n extraction.
 const allowedLabel = __( 'Allowed', 'jetpack-seo' );
 const blockedLabel = __( 'Blocked', 'jetpack-seo' );
 const partlyBlockedLabel = __( 'Partly blocked', 'jetpack-seo' );
+const crawlerAccessTitle = __( 'AI crawler access', 'jetpack-seo' );
+
+/**
+ * The card that stands in for the crawler groups when site-level controls can't
+ * take effect, wrapping the notice that explains why.
+ *
+ * The four blocked states are mutually exclusive and shared this header
+ * verbatim, so it lives here once — which also keeps the chip and heading on all
+ * four from drifting apart.
+ *
+ * @param props          - Component props.
+ * @param props.children - The notice, and any action, explaining the state.
+ * @return The crawler-access card.
+ */
+const CrawlerAccessCard: FC< { children: ReactNode } > = ( { children } ) => (
+	<CollapsibleCard.Root defaultOpen>
+		<CollapsibleCard.Header render={ <h2 /> }>
+			<Card.Title>
+				<CardTitleIcon icon={ key } title={ crawlerAccessTitle } />
+			</Card.Title>
+		</CollapsibleCard.Header>
+		<CollapsibleCard.Content>{ children }</CollapsibleCard.Content>
+	</CollapsibleCard.Root>
+);
 
 /**
  * Whether a crawler is currently blocked: an explicit override wins, otherwise
@@ -77,6 +116,8 @@ const CrawlerToggle: FC< CrawlerToggleProps > = ( { crawler, blocked, disabled, 
 
 interface CrawlerSectionProps {
 	title: string;
+	/** The chip glyph for this group's title. */
+	icon: ComponentProps< typeof CardTitleIcon >[ 'icon' ];
 	intro: string;
 	crawlers: AiCrawler[];
 	type: AiCrawler[ 'type' ];
@@ -98,6 +139,7 @@ interface CrawlerSectionProps {
  *
  * @param props              - Component props.
  * @param props.title        - Section title.
+ * @param props.icon         - The chip glyph shown before the title.
  * @param props.intro        - One-line description of the group's purpose.
  * @param props.crawlers     - The crawlers in this group.
  * @param props.type         - The crawler group's type.
@@ -111,6 +153,7 @@ interface CrawlerSectionProps {
  */
 const CrawlerSection: FC< CrawlerSectionProps > = ( {
 	title,
+	icon,
 	intro,
 	crawlers,
 	type,
@@ -127,11 +170,17 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 	const allAllowed = blockedCount === 0;
 	const allBlocked = crawlers.length > 0 && blockedCount === crawlers.length;
 
-	// Header status tag, matching the Enabled/Disabled tags on the other module
-	// headers: green when every crawler is allowed, red when every one is blocked,
-	// grey when it's a mix. `statusLabel` typed `string` (not the inferred branded
-	// `TransformedText` of the first label) so the branches can assign other literals.
-	let statusIntent: 'stable' | 'high' | 'draft' = 'draft';
+	// Header status tag: green when every crawler is allowed, red when every one is
+	// blocked, amber in between. Red is the "stop" reading rather than a severity
+	// claim — blocking training crawlers is a legitimate choice, and `intent` is a
+	// CSS class with no `role` or `aria-*`, so every tag is announced alike.
+	//
+	// Amber matters because the mixed state used to be grey, identical to a module
+	// that is simply switched off — the one state you couldn't read at a glance.
+	//
+	// `statusLabel` typed `string` (not the inferred branded `TransformedText` of the
+	// first label) so the branches can assign other literals.
+	let statusIntent: 'stable' | 'high' | 'medium' = 'medium';
 	let statusLabel: string = partlyBlockedLabel;
 	if ( allAllowed ) {
 		statusIntent = 'stable';
@@ -153,12 +202,24 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 		// controls are disabled) sits between the header and the collapsible content,
 		// so it stays visible while the module is closed; only Content collapses.
 		<CollapsibleCard.Root>
-			<CollapsibleCard.Header>
+			{ /* The heading wraps the trigger, per the W3C APG accordion pattern the
+			   component's own docblock points at. */ }
+			<CollapsibleCard.Header render={ <h2 /> }>
 				<Stack direction="row" justify="space-between" align="center" gap="sm">
-					<Card.Title>{ title }</Card.Title>
+					<Card.Title>
+						<CardTitleIcon icon={ icon } title={ title } />
+					</Card.Title>
 					{ /* The status tag reflects the toggle state; hide it when the toggles
-					   are governed elsewhere (the notice explains the state instead). */ }
-					{ ! notice && <Badge intent={ statusIntent }>{ statusLabel }</Badge> }
+					   are governed elsewhere (the notice explains the state instead).
+					   `HeaderDescription` renders it visibly but marks it `aria-hidden` and
+					   wires `aria-describedby` on the trigger, so the state is announced as
+					   a description instead of becoming part of the button's name — the
+					   header wraps all its children in the trigger. */ }
+					{ ! notice && (
+						<CollapsibleCard.HeaderDescription>
+							<Badge intent={ statusIntent }>{ statusLabel }</Badge>
+						</CollapsibleCard.HeaderDescription>
+					) }
 				</Stack>
 			</CollapsibleCard.Header>
 			{ notice }
@@ -257,21 +318,16 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 		// site-level setting cannot safely represent its scope.
 		if ( crawlers.pathBasedMultisite ) {
 			return (
-				<CollapsibleCard.Root defaultOpen>
-					<CollapsibleCard.Header>
-						<Card.Title>{ __( 'AI crawler access', 'jetpack-seo' ) }</Card.Title>
-					</CollapsibleCard.Header>
-					<CollapsibleCard.Content>
-						<Notice.Root intent="info">
-							<Notice.Description>
-								{ __(
-									'Per-site AI crawler controls are unavailable on this path-based multisite network because every site shares one robots.txt. Manage crawler access at the network level instead.',
-									'jetpack-seo'
-								) }
-							</Notice.Description>
-						</Notice.Root>
-					</CollapsibleCard.Content>
-				</CollapsibleCard.Root>
+				<CrawlerAccessCard>
+					<Notice.Root intent="info">
+						<Notice.Description>
+							{ __(
+								'Per-site AI crawler controls are unavailable on this path-based multisite network because every site shares one robots.txt. Manage crawler access at the network level instead.',
+								'jetpack-seo'
+							) }
+						</Notice.Description>
+					</Notice.Root>
+				</CrawlerAccessCard>
 			);
 		}
 
@@ -279,21 +335,16 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 		// indexable site can't apply these — explain and stop.
 		if ( crawlers.restrictedSubdomain ) {
 			return (
-				<CollapsibleCard.Root defaultOpen>
-					<CollapsibleCard.Header>
-						<Card.Title>{ __( 'AI crawler access', 'jetpack-seo' ) }</Card.Title>
-					</CollapsibleCard.Header>
-					<CollapsibleCard.Content>
-						<Notice.Root intent="info">
-							<Notice.Description>
-								{ __(
-									'This site uses a temporary staging address (a .wpcomstaging.com subdomain), where search engines and AI crawlers are blocked. These settings will take effect once the site is on its own domain.',
-									'jetpack-seo'
-								) }
-							</Notice.Description>
-						</Notice.Root>
-					</CollapsibleCard.Content>
-				</CollapsibleCard.Root>
+				<CrawlerAccessCard>
+					<Notice.Root intent="info">
+						<Notice.Description>
+							{ __(
+								'This site uses a temporary staging address (a .wpcomstaging.com subdomain), where search engines and AI crawlers are blocked. These settings will take effect once the site is on its own domain.',
+								'jetpack-seo'
+							) }
+						</Notice.Description>
+					</Notice.Root>
+				</CrawlerAccessCard>
 			);
 		}
 
@@ -301,26 +352,21 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 		// the user at the setting that turns indexing back on.
 		if ( ! searchEnginesVisible ) {
 			return (
-				<CollapsibleCard.Root defaultOpen>
-					<CollapsibleCard.Header>
-						<Card.Title>{ __( 'AI crawler access', 'jetpack-seo' ) }</Card.Title>
-					</CollapsibleCard.Header>
-					<CollapsibleCard.Content>
-						<Stack direction="column" gap="md">
-							<Notice.Root intent="info">
-								<Notice.Description>
-									{ __(
-										"Search engines and AI crawlers are all blocked because this site isn't set to be indexed. To choose which AI crawlers can access your site, allow search engines to index it first.",
-										'jetpack-seo'
-									) }
-								</Notice.Description>
-							</Notice.Root>
-							<Button variant="link" onClick={ onManageVisibility }>
-								{ __( 'Open site visibility settings', 'jetpack-seo' ) }
-							</Button>
-						</Stack>
-					</CollapsibleCard.Content>
-				</CollapsibleCard.Root>
+				<CrawlerAccessCard>
+					<Stack direction="column" gap="md">
+						<Notice.Root intent="info">
+							<Notice.Description>
+								{ __(
+									"Search engines and AI crawlers are all blocked because this site isn't set to be indexed. To choose which AI crawlers can access your site, allow search engines to index it first.",
+									'jetpack-seo'
+								) }
+							</Notice.Description>
+						</Notice.Root>
+						<Button variant="link" onClick={ onManageVisibility }>
+							{ __( 'Open site visibility settings', 'jetpack-seo' ) }
+						</Button>
+					</Stack>
+				</CrawlerAccessCard>
 			);
 		}
 
@@ -328,21 +374,16 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 		// the virtual output these settings change.
 		if ( crawlers.staticRobotsTxt ) {
 			return (
-				<CollapsibleCard.Root defaultOpen>
-					<CollapsibleCard.Header>
-						<Card.Title>{ __( 'AI crawler access', 'jetpack-seo' ) }</Card.Title>
-					</CollapsibleCard.Header>
-					<CollapsibleCard.Content>
-						<Notice.Root intent="warning">
-							<Notice.Description>
-								{ __(
-									"Jetpack detected a static robots.txt file in the WordPress installation directory. These settings only change WordPress's virtual robots.txt; edit or remove the static file to manage AI crawler access here.",
-									'jetpack-seo'
-								) }
-							</Notice.Description>
-						</Notice.Root>
-					</CollapsibleCard.Content>
-				</CollapsibleCard.Root>
+				<CrawlerAccessCard>
+					<Notice.Root intent="warning">
+						<Notice.Description>
+							{ __(
+								"Jetpack detected a static robots.txt file in the WordPress installation directory. These settings only change WordPress's virtual robots.txt; edit or remove the static file to manage AI crawler access here.",
+								'jetpack-seo'
+							) }
+						</Notice.Description>
+					</Notice.Root>
+				</CrawlerAccessCard>
 			);
 		}
 
@@ -374,6 +415,7 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 			<>
 				<CrawlerSection
 					title={ __( 'Answer engines', 'jetpack-seo' ) }
+					icon={ commentContent }
 					intro={ __(
 						'These crawlers fetch your pages so AI assistants can cite you in their answers. Keep them allowed to stay visible in tools like ChatGPT, Perplexity, and Claude.',
 						'jetpack-seo'
@@ -389,6 +431,7 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 				/>
 				<CrawlerSection
 					title={ __( 'Training crawlers', 'jetpack-seo' ) }
+					icon={ details }
 					intro={ __(
 						'These crawlers use your content to train AI models. Some — like Google Gemini — also power the AI answers shown above search results, so blocking them protects privacy but can cost you that visibility.',
 						'jetpack-seo'
@@ -407,19 +450,22 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 	};
 
 	const llmsTxtEffectivelyOn = Boolean( searchEnginesVisible && llmsTxt?.enabled );
-	const llmsTxtStatusLabel = llmsTxtEffectivelyOn ? enabledLabel : disabledLabel;
 
 	return (
 		<div className="jetpack-seo-ai">
 			{ llmsTxt && (
 				<CollapsibleCard.Root defaultOpen>
-					<CollapsibleCard.Header>
-						<Stack direction="row" justify="space-between" align="center" gap="sm">
-							<Card.Title>{ __( 'llms.txt', 'jetpack-seo' ) }</Card.Title>
-							<Badge intent={ llmsTxtEffectivelyOn ? 'stable' : 'draft' }>
-								{ llmsTxtStatusLabel }
-							</Badge>
-						</Stack>
+					<CollapsibleCard.Header render={ <h2 /> }>
+						{ /* No status tag here, unlike the crawler groups: this module opens by
+						   default, so its toggle — the same information, in the control that
+						   changes it — is on screen already, and a tag would say it twice.
+						   Collapsing the card does hide the state until it is reopened (a reload
+						   reopens it). Accepted deliberately: collapsing is a choice to hide this
+						   module's detail. The crawler groups differ because they open *closed*,
+						   so a tag is the only state they would ever show. */ }
+						<Card.Title>
+							<CardTitleIcon icon={ page } title={ __( 'llms.txt', 'jetpack-seo' ) } />
+						</Card.Title>
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>
 						<Stack direction="column" gap="md">
@@ -475,8 +521,10 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 
 			{ enhancer.available && (
 				<CollapsibleCard.Root defaultOpen>
-					<CollapsibleCard.Header>
-						<Card.Title>{ __( 'AI SEO Enhancer', 'jetpack-seo' ) }</Card.Title>
+					<CollapsibleCard.Header render={ <h2 /> }>
+						<Card.Title>
+							<CardTitleIcon icon={ aiSparks } title={ __( 'AI SEO Enhancer', 'jetpack-seo' ) } />
+						</Card.Title>
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>
 						<ToggleControl

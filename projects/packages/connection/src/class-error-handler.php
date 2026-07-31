@@ -1177,12 +1177,18 @@ class Error_Handler {
 		}
 
 		$body = json_decode( $body_raw, true );
-		if ( empty( $body['error'] ) || ( ! is_string( $body['error'] ) && ! is_int( $body['error'] ) ) ) {
+
+		// Support both error envelopes: the legacy v1 JSON-API shape (`error`) and the
+		// WP-API v2 shape (`code`), the latter used by `wpcom/v2` endpoints such as
+		// `jetpack-wpcom-user-data`. Prefer `error` for backwards compatibility.
+		$error_code = is_array( $body ) ? ( $body['error'] ?? $body['code'] ?? null ) : null;
+
+		if ( empty( $error_code ) || ( ! is_string( $error_code ) && ! is_int( $error_code ) ) ) {
 			return;
 		}
 
 		$error = new \WP_Error(
-			$body['error'],
+			$error_code,
 			empty( $body['message'] ) ? '' : $body['message'],
 			array(
 				'signature_details' => array(

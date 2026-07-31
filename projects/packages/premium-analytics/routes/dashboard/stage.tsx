@@ -1,6 +1,6 @@
 import { GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel, SectionTabPanel } from '@jetpack-premium-analytics/ui';
+import { DateFiltersPanel, SectionHeader, SectionTabPanel } from '@jetpack-premium-analytics/ui';
 import { Page, Breadcrumbs } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
@@ -9,7 +9,8 @@ import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
-import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { DashboardSections } from './components';
 import {
 	useActiveSection,
@@ -48,7 +49,7 @@ function Dashboard(): JSX.Element {
 		[]
 	);
 
-	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypes( widgetModules );
+	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
 	const [ editMode, setEditMode ] = useState( false );
 
@@ -76,6 +77,7 @@ function Dashboard(): JSX.Element {
 			<WidgetDashboard
 				widgetTypes={ widgetTypes }
 				isResolvingWidgetTypes={ isResolvingWidgetTypes }
+				resolveWidgetModule={ resolveWidgetModuleWithI18n }
 				layout={ layout }
 				onLayoutChange={ setLayout }
 				onLayoutReset={ resetLayout }
@@ -89,10 +91,6 @@ function Dashboard(): JSX.Element {
 							items={ [ { label: __( 'Analytics', 'jetpack-premium-analytics-pkg' ) } ] }
 						/>
 					}
-					subTitle={ __(
-						'Track your site performance and visitor insights.',
-						'jetpack-premium-analytics-pkg'
-					) }
 					actions={ <WidgetDashboard.Actions /> }
 					className={ styles.dashboard }
 				>
@@ -101,20 +99,18 @@ function Dashboard(): JSX.Element {
 						value={ activeSection }
 						onChange={ setActiveSection }
 					>
-						{ /*
-						 * The date filters drive every section, so they render once
-						 * below the section tabs and above the widgets, sharing the
-						 * URL search state across all sections.
-						 */ }
-						<div className={ styles.dateFilters }>
-							<DateFiltersPanel { ...dateFilters } />
-						</div>
 						{ sections.map( section => (
 							<SectionTabPanel
 								key={ section.slug }
 								value={ section.slug }
 								className={ styles.content }
 							>
+								<div className={ styles.sectionHeader }>
+									<SectionHeader title={ section.label }>
+										<DateFiltersPanel { ...dateFilters } />
+									</SectionHeader>
+								</div>
+
 								{ activeSection === section.slug ? (
 									<>
 										<WidgetDashboard.NoWidgetsState />

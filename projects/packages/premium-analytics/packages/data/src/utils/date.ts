@@ -28,7 +28,7 @@ try {
  * @return {string} The formatted GMT offset.
  */
 function formatGmtOffset( offset: number | undefined ): string {
-	if ( ! offset ) {
+	if ( offset === undefined ) {
 		return DEFAULT_TIME_ZONE;
 	}
 

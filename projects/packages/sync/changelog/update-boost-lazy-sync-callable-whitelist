@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Documentation only: document that callable whitelist values must be statically resolvable (no object instantiation at registration) and that is_callable failures are silently skipped.

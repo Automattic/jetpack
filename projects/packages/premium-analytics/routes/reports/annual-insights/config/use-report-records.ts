@@ -20,6 +20,7 @@ export function useAnnualInsightsReportRecords() {
 	return {
 		rows,
 		isLoading: report.isLoading,
+		isFetching: report.isFetching,
 		isError: report.isError,
 		refetch: report.refetch,
 	};

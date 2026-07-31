@@ -1160,7 +1160,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/help-center",
-                "reference": "d0694e7d9bd86f99017e4e9f42348d2bb83480e6"
+                "reference": "017c4230a4a324dcd0daab94d5e171dda6898441"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1181,7 +1181,7 @@
                 "autorelease": true,
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
+                    "dev-trunk": "0.3.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-help-center/compare/v${old}...v${new}"

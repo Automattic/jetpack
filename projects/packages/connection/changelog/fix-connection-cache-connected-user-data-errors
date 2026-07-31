@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Connection: cache wpcom.getUser XML-RPC failures briefly in get_connected_user_data().

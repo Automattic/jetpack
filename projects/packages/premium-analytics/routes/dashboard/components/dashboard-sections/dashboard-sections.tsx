@@ -35,11 +35,7 @@ type DashboardSectionsProps = {
  * Tabs are keyed by the section `slug` (the URL-facing identifier the active
  * section state uses), not the namespaced `id`.
  *
- * @param props          - Component props.
- * @param props.sections - The sections to render, in order.
- * @param props.value    - The currently active section ID.
- * @param props.onChange - Called with the new section ID when the user selects a different section.
- * @param props.children - Section panel content.
+ * @param {DashboardSectionsProps} props - The props for the DashboardSections component.
  * @return The section tab bar element.
  */
 export function DashboardSections( {

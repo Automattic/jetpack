@@ -18,7 +18,7 @@ import {
 	ReportPageTabs,
 	ReportDrilldownTable,
 	ReportRecordsTable,
-	RowsCsvDownloadButton,
+	ReportCsvAction,
 	useReportCsvExport,
 	useReportRetry,
 	type CsvColumn,
@@ -218,14 +218,7 @@ function PostsReport(): JSX.Element {
 			subTitle={ __( 'All your posts and archive pages.', 'jetpack-premium-analytics-pkg' ) }
 			actions={
 				canExport ? (
-					<RowsCsvDownloadButton
-						label={ __( 'Download', 'jetpack-premium-analytics-pkg' ) }
-						variant="solid"
-						showIcon={ false }
-						columns={ csvColumns }
-						rows={ csvRows }
-						filename={ csvFilename }
-					/>
+					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
 				) : undefined
 			}
 		>

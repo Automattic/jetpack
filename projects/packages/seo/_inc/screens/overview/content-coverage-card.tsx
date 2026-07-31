@@ -143,11 +143,17 @@ const ContentCoverageCard: FC< Props > = ( { data, onManage, onFilter } ) => {
 
 	return (
 		<Card.Root>
-			<CardHeaderIcon icon={ formatListBullets } title={ __( 'Content SEO', 'jetpack-seo' ) } />
+			{ /* The rings count every public, REST-enabled post type — not just posts and
+			     pages — so the scope is worth stating; "Content SEO" alone doesn't say it. */ }
+			<CardHeaderIcon
+				icon={ formatListBullets }
+				title={ __( 'Content SEO', 'jetpack-seo' ) }
+				subtitle={ __( 'Posts, pages, and more', 'jetpack-seo' ) }
+			/>
 			<Card.Content>
 				{ total === 0 ? (
 					<Text variant="body-md" render={ <p /> }>
-						{ __( 'No published posts or pages yet.', 'jetpack-seo' ) }
+						{ __( 'No published content yet.', 'jetpack-seo' ) }
 					</Text>
 				) : (
 					// One shared Tooltip.Provider for all rings so hovering between
