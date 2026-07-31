@@ -114,6 +114,23 @@ class Newsletter_Mode_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The package loader includes the feature bootstrap and initializes enrolled sites.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_package_loader_initializes_newsletter_mode() {
+		update_option( Newsletter_Mode::OPTION_ENABLED, 1 );
+		set_current_screen( 'dashboard' );
+
+		Jetpack_Mu_Wpcom::load_wpcom_sites_features();
+
+		$this->assertSame( 10, has_action( 'admin_menu', array( Newsletter_Mode::class, 'register_menu' ) ) );
+	}
+
+	/**
 	 * Subscribers do not receive the Newsletter Mode menu entry.
 	 */
 	public function test_register_menu_requires_shell_capability() {
