@@ -61,6 +61,43 @@ function wpcom_site_logo_edit_link() {
 }
 
 /**
+ * The description pointing at where the site logo can be set.
+ *
+ * Rendered whether or not a logo exists, so the empty state still offers a way
+ * to upload one. That is the case where someone is most likely looking for it.
+ * The wording says "set" so it reads correctly for both adding and replacing.
+ */
+function wpcom_site_logo_edit_description() {
+	$logo_edit_link = wpcom_site_logo_edit_link();
+
+	// Only promise an edit path when a known destination exists.
+	if ( ! $logo_edit_link['url'] ) {
+		return;
+	}
+	?>
+	<p class="description wpcom-site-logo-description">
+		<?php
+		if ( $logo_edit_link['is_block'] ) {
+			printf(
+				/* translators: %1$s: opening link tag to the Site Editor, %2$s: closing link tag. */
+				esc_html__( 'Displays in your site\'s layout via the Site Logo block. %1$sYou can set your site logo in the site editor%2$s.', 'jetpack-mu-wpcom' ),
+				'<a href="' . esc_url( $logo_edit_link['url'] ) . '">',
+				'</a>'
+			);
+		} else {
+			printf(
+				/* translators: %1$s: opening link tag to the Customizer, %2$s: closing link tag. */
+				esc_html__( '%1$sYou can set your site logo in the Customizer%2$s.', 'jetpack-mu-wpcom' ),
+				'<a href="' . esc_url( $logo_edit_link['url'] ) . '">',
+				'</a>'
+			);
+		}
+		?>
+	</p>
+	<?php
+}
+
+/**
  * The Fiverr logo-maker CTA button's DOM.
  */
 function wpcom_fiverr_cta_button() {
@@ -118,38 +155,12 @@ function wpcom_fiverr_cta() {
 				</div>
 				<?php wpcom_fiverr_cta_button(); ?>
 			</div>
-			<?php
-			$logo_edit_link = wpcom_site_logo_edit_link();
-			// Only promise an edit path when a known destination exists.
-			if ( $logo_edit_link['url'] ) :
-				?>
-				<p class="description">
-					<?php
-					if ( $logo_edit_link['is_block'] ) {
-						printf(
-							/* translators: %1$s: opening link tag to the Site Editor, %2$s: closing link tag. */
-							esc_html__( 'Displays in your site\'s layout via the Site Logo block. %1$sYou can change your site logo in the site editor%2$s.', 'jetpack-mu-wpcom' ),
-							'<a href="' . esc_url( $logo_edit_link['url'] ) . '">',
-							'</a>'
-						);
-					} else {
-						printf(
-							/* translators: %1$s: opening link tag to the Customizer, %2$s: closing link tag. */
-							esc_html__( '%1$sYou can change your site logo in the Customizer%2$s.', 'jetpack-mu-wpcom' ),
-							'<a href="' . esc_url( $logo_edit_link['url'] ) . '">',
-							'</a>'
-						);
-					}
-					?>
-				</p>
-				<?php
-			endif;
-			?>
 		<?php else : ?>
 			<p><b><?php esc_html_e( 'Make an incredible logo in minutes', 'jetpack-mu-wpcom' ); ?></b></p>
 			<p><?php esc_html_e( 'Pre-designed by top talent. Just add your touch.', 'jetpack-mu-wpcom' ); ?></p>
 			<?php wpcom_fiverr_cta_button(); ?>
 		<?php endif; ?>
+		<?php wpcom_site_logo_edit_description(); ?>
 	</div>
 	<?php
 }

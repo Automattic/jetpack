@@ -49,7 +49,9 @@
 		}
 	}
 
-	.wpcom-site-logo + .description {
+	.wpcom-site-logo-description {
+		// Sits on its own line below the preview or the CTA button, clear of the
+		// tighter spacing core gives paragraphs inside a form table cell.
 		margin-top: 8px;
 	}
 
