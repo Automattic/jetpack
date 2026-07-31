@@ -1057,16 +1057,60 @@ function getQueryParam( requestPath: string, key: string ): string | undefined {
 }
 
 /**
- * Builds a single-video response for the requested metric while preserving the
- * shared post and embed-page fixture.
+ * Builds a single-video response for the requested metric and window while
+ * preserving the shared embed-page and post fixtures. Requests carrying an
+ * explicit `start_date`/`date` window (the video detail widgets) get the
+ * fixture days inside that window; requests without one (the embeds widget's
+ * default `period=month` request) keep the endpoint's default trailing
+ * 31-day window. `statType=all` responses mirror wpcom #229903: four-metric
+ * tuples named by `fields` plus canonical range totals (retention
+ * play-weighted, not averaged).
  *
- * @param requestPath - The request path, used to read `statType`.
+ * @param requestPath - The request path, used to read `statType` and the window.
  * @return Raw single-video response.
  */
 function buildSingleVideoResponse( requestPath: string ) {
 	const statType = getQueryParam( requestPath, 'statType' );
-	let factor = 1;
+	const startDate = getQueryParam( requestPath, 'start_date' );
+	const endDate = getQueryParam( requestPath, 'date' ) ?? getQueryParam( requestPath, 'end_date' );
+	const windowDays =
+		startDate && endDate
+			? mockSingleVideoData.data.filter( ( [ day ] ) => day >= startDate && day <= endDate )
+			: mockSingleVideoData.data.slice( -31 );
 
+	if ( statType === 'all' ) {
+		const rows = windowDays.map( ( [ period, value ], index ) => {
+			const plays = Number( value );
+
+			return [
+				period,
+				plays,
+				Math.round( plays * 1.8 ),
+				Number( ( plays * 0.05 ).toFixed( 1 ) ),
+				Number( ( 52 + ( index % 7 ) * 2 ).toFixed( 1 ) ),
+			] as [ string, number, number, number, number ];
+		} );
+		const totalPlays = rows.reduce( ( sum, row ) => sum + row[ 1 ], 0 );
+		const total = {
+			plays: totalPlays,
+			impressions: rows.reduce( ( sum, row ) => sum + row[ 2 ], 0 ),
+			watch_time: Number( rows.reduce( ( sum, row ) => sum + row[ 3 ], 0 ).toFixed( 1 ) ),
+			retention_rate: Number(
+				(
+					rows.reduce( ( sum, row ) => sum + row[ 4 ] * row[ 1 ], 0 ) / ( totalPlays || 1 )
+				).toFixed( 1 )
+			),
+		};
+
+		return {
+			...mockSingleVideoData,
+			fields: [ 'period', 'plays', 'impressions', 'watch_time', 'retention_rate' ],
+			data: rows,
+			total,
+		};
+	}
+
+	let factor = 1;
 	if ( statType === 'impressions' ) {
 		factor = 2;
 	} else if ( statType === 'watch_time' ) {
@@ -1075,7 +1119,7 @@ function buildSingleVideoResponse( requestPath: string ) {
 
 	return {
 		...mockSingleVideoData,
-		data: mockSingleVideoData.data.map( ( [ period, value ] ) => [
+		data: windowDays.map( ( [ period, value ] ) => [
 			period,
 			Number( ( Number( value ) * factor ).toFixed( 1 ) ),
 		] ),

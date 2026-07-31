@@ -187,10 +187,12 @@ export type { StatsEmailSummaryItem } from './processing/stats';
 export {
 	useStatsSingleVideo,
 	type StatsSingleVideoDataPoint,
+	type StatsSingleVideoMetricRow,
 	type StatsSingleVideoPage,
 	type StatsSingleVideoPost,
 	type StatsSingleVideoParams,
 	type StatsSingleVideoResponse,
+	type StatsSingleVideoTotals,
 } from './hooks/use-stats-single-video';
 export {
 	useStatsEmailOpensTimeSeries,

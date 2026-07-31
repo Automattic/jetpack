@@ -176,9 +176,11 @@ export type {
 } from './wordads';
 export type {
 	StatsSingleVideoDataPoint,
+	StatsSingleVideoMetricRow,
 	StatsSingleVideoPage,
 	StatsSingleVideoPost,
 	StatsSingleVideoReport,
+	StatsSingleVideoTotals,
 } from './single-video';
 export type {
 	StatsItemAction,

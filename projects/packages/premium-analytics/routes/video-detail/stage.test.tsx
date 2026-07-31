@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { useVideoSummary } from './hooks';
 import { stage } from './stage';
 import type { ReactNode } from 'react';
@@ -14,6 +14,13 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 		to: search.to,
 	} ),
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
+	useReportDateFilters: () => ( {
+		appliedRange: { from: new Date( 2026, 5, 1 ), to: new Date( 2026, 5, 16 ) },
+	} ),
+} ) );
+
+jest.mock( '@jetpack-premium-analytics/ui', () => ( {
+	DateFiltersPanel: () => <div>Date filters</div>,
 } ) );
 
 jest.mock( '@wordpress/core-data', () => ( {
@@ -28,15 +35,11 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 	const WidgetDashboard = ( { children }: { children: ReactNode } ) => <>{ children }</>;
 	WidgetDashboard.Widgets = () => <div>Video widgets</div>;
 
-	return { WidgetDashboard };
+	return { WidgetDashboard, DEFAULT_GRID: {}, ROW_HEIGHT_PRESETS: { small: 200 } };
 } );
 
 jest.mock( '@wordpress/widget-primitives', () => ( {
 	useWidgetTypes: () => [ [], false ],
-} ) );
-
-jest.mock( '../dashboard/hooks/use-dashboard-grid-settings', () => ( {
-	useDashboardGridSettings: () => [ {} ],
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
@@ -146,6 +149,47 @@ describe( 'video detail stage', () => {
 		}
 	);
 
+	it( 'renders the poster thumbnail and swaps in the placeholder glyph when it fails', () => {
+		mockSummary( {
+			title: 'Launch recap',
+			posterUrl: 'https://i0.wp.com/videos.files.wordpress.com/abcd1234/launch-recap.jpg',
+		} );
+
+		// The placeholder is decorative (`aria-hidden`), so it has no role or
+		// text to query; find its glyph block structurally.
+		const placeholderGlyph = () =>
+			// eslint-disable-next-line testing-library/no-node-access -- The aria-hidden placeholder has no accessible query target.
+			document.querySelector( 'div[aria-hidden="true"] svg' );
+
+		render( stage() );
+
+		const poster = screen.getByRole( 'presentation' );
+		expect( poster ).toHaveAttribute(
+			'src',
+			'https://i0.wp.com/videos.files.wordpress.com/abcd1234/launch-recap.jpg'
+		);
+		expect( placeholderGlyph() ).not.toBeInTheDocument();
+
+		// A tokenless poster (private video) 404s; the broken image must swap
+		// itself for the video-glyph placeholder, keeping the image slot.
+		fireEvent.error( poster );
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( placeholderGlyph() ).toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { level: 1, name: 'Launch recap' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the placeholder glyph when the video has no poster', () => {
+		mockSummary( { title: 'Launch recap' } );
+
+		render( stage() );
+
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect(
+			// eslint-disable-next-line testing-library/no-node-access -- The aria-hidden placeholder has no accessible query target.
+			document.querySelector( 'div[aria-hidden="true"] svg' )
+		).toBeInTheDocument();
+	} );
+
 	it( 'adds the resolved title crumb', () => {
 		mockSummary( { title: 'Launch recap' } );
 
@@ -156,5 +200,16 @@ describe( 'video detail stage', () => {
 		expect( breadcrumbs.getByText( 'Launch recap' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'heading', { level: 1, name: 'Launch recap' } ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Video widgets' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the date filters panel and the applied performance window', () => {
+		mockSummary( { title: 'Launch recap' } );
+
+		render( stage() );
+
+		expect( screen.getByText( 'Date filters' ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( /Performance from Jun 1, 2026 to Jun 16, 2026/ )
+		).toBeInTheDocument();
 	} );
 } );

@@ -2,22 +2,24 @@
  * External dependencies
  */
 import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
-import { pickReportDateParams, useDashboardLink } from '@jetpack-premium-analytics/routing';
+import {
+	pickReportDateParams,
+	useDashboardLink,
+	useReportDateFilters,
+} from '@jetpack-premium-analytics/routing';
+import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, useParams, useSearch } from '@wordpress/route';
 import { Button, Stack, Text } from '@wordpress/ui';
-import { WidgetDashboard } from '@wordpress/widget-dashboard';
+import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 /**
  * Internal dependencies
  */
-// Grid settings are intentionally shared across analytics dashboards (see the
-// hook's own note), so the video-detail page reuses the dashboard's hook rather
-// than storing a separate copy.
-import { useDashboardGridSettings } from '../dashboard/hooks/use-dashboard-grid-settings';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { VideoSummaryCard } from './components';
 import { VIDEO_DETAIL_LAYOUT } from './config';
@@ -26,6 +28,12 @@ import { route } from './package.json';
 import styles from './stage.module.scss';
 
 const ROUTE_FROM = route.path;
+
+// The video-detail composition is fixed (WOOA7S-1625) and laid out against the
+// small (200px) row height used by the design, matching post detail. Keep its
+// grid independent from the customizable main-dashboard preference so a future
+// settings control cannot stretch these tiles out of proportion.
+const VIDEO_DETAIL_GRID = { ...DEFAULT_GRID, rowHeight: ROW_HEIGHT_PRESETS.small };
 
 // The layout is fixed, so the change callback never fires; the dashboard
 // still requires one because it owns a staging copy internally.
@@ -39,7 +47,6 @@ const noopLayoutChange = () => {};
 function VideoDetail(): JSX.Element {
 	const { videoId: videoIdParam } = useParams( { from: ROUTE_FROM } ) as { videoId?: string };
 	const summary = useVideoSummary( Number( videoIdParam ) );
-	const [ gridSettings ] = useDashboardGridSettings();
 
 	const widgetModules = useSelect(
 		select =>
@@ -61,9 +68,16 @@ function VideoDetail(): JSX.Element {
 
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
+	// The single resource, date range, and comparison all live in the URL search
+	// params, staged and committed by the shared date-filter controller.
+	const dateFilters = useReportDateFilters( ROUTE_FROM );
+
 	const dashboardLink = useDashboardLink();
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const reportSearch = pickReportDateParams( search );
+
+	// Container element for the date filters panel responsive layout.
+	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
 
 	// Error and not-found responses have no trustworthy title, so only resolved
 	// videos add the title crumb or render the heading.
@@ -105,7 +119,9 @@ function VideoDetail(): JSX.Element {
 			</Stack>
 		);
 	} else {
-		summaryContent = <VideoSummaryCard summary={ resolvedSummary } />;
+		summaryContent = (
+			<VideoSummaryCard summary={ resolvedSummary } performanceRange={ dateFilters.appliedRange } />
+		);
 	}
 
 	return (
@@ -115,7 +131,7 @@ function VideoDetail(): JSX.Element {
 			resolveWidgetModule={ resolveWidgetModuleWithI18n }
 			layout={ VIDEO_DETAIL_LAYOUT }
 			onLayoutChange={ noopLayoutChange }
-			gridSettings={ gridSettings }
+			gridSettings={ VIDEO_DETAIL_GRID }
 		>
 			<Page
 				breadcrumbs={
@@ -128,6 +144,16 @@ function VideoDetail(): JSX.Element {
 				}
 				className={ styles.page }
 			>
+				{ /*
+				 * The date filters stay fixed outside the scroll container, exactly
+				 * like post detail; the summary header scrolls away inside it with
+				 * the widgets. The filters wrapper is also the responsive-measurement
+				 * target: DateFiltersPanel reads its width to pick mobile/wide
+				 * layouts instead of relying on the viewport.
+				 */ }
+				<div ref={ setContainerElement } className={ styles.dateFilters }>
+					<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
+				</div>
 				<div className={ styles.scrollArea }>
 					{ summaryContent ? (
 						<div className={ styles.header }>
