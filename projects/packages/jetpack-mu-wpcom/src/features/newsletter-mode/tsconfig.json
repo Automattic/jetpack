@@ -1,0 +1,9 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig.json",
+	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"compilerOptions": {
+		"lib": [ "ES2022", "DOM", "DOM.Iterable" ],
+		"types": []
+	},
+	"include": [ "js/**/*" ]
+}
