@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useState } from 'react';
 /**
@@ -36,7 +36,7 @@ function getMediaDetails( media: Exclude< LeaderboardRowMedia, { kind: 'none' } 
 			return {
 				alt: sprintf(
 					/* translators: %s is a person's name. */
-					__( 'Avatar of %s', 'jetpack-premium-analytics' ),
+					__( 'Avatar of %s', 'jetpack-premium-analytics-pkg' ),
 					media.name
 				),
 				className: styles.avatar,
@@ -54,7 +54,7 @@ function getMediaDetails( media: Exclude< LeaderboardRowMedia, { kind: 'none' } 
 			return {
 				alt: sprintf(
 					/* translators: %s is a country name. */
-					__( 'Flag of %s', 'jetpack-premium-analytics' ),
+					__( 'Flag of %s', 'jetpack-premium-analytics-pkg' ),
 					media.country
 				),
 				className: styles.flag,

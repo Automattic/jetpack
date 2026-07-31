@@ -221,6 +221,205 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Registers a `subscription_options` default that stands in for the one
+	 * `modules/subscriptions/views.php` adds, so these tests exercise the
+	 * endpoint's contract without depending on that module being loaded.
+	 *
+	 * @return array The defaults that `get_option( 'subscription_options' )` now returns.
+	 */
+	private function register_subscription_options_default() {
+		$defaults = array(
+			// The real `invitation` default writes its anchor with single-quoted
+			// attributes. Mirrored here because wp_kses() may rewrite that quoting, so
+			// this is what exercises the endpoint normalizing both sides of the change
+			// detection rather than comparing a raw default against a sanitized echo.
+			'invitation'     => "Default invitation to <a href='https://example.org'>example.org</a>",
+			'comment_follow' => 'Default comment follow',
+			'welcome'        => 'Default welcome',
+		);
+
+		add_filter(
+			'default_option_subscription_options',
+			static function ( $default_value, $option, $passed_default ) use ( $defaults ) {
+				return $passed_default ? $default_value : $defaults;
+			},
+			10,
+			3
+		);
+
+		return $defaults;
+	}
+
+	/**
+	 * A default carrying markup must survive the round trip unchanged.
+	 *
+	 * The posted value reaches the comparison already sanitized, and wp_kses() is not
+	 * byte-preserving — it rewrites attribute quoting, and not identically across
+	 * WordPress versions. So the endpoint has to normalize the current value the same
+	 * way before comparing. Without that, `invitation` — the one default containing
+	 * markup, and so the sub-key this guard most needs to catch — never compares equal
+	 * and is persisted on every save.
+	 */
+	public function test_post_subscription_options_ignores_unchanged_default_containing_markup() {
+		$defaults = $this->register_subscription_options_default();
+
+		$setting  = wp_json_encode(
+			array( 'subscription_options' => array( 'invitation' => $defaults['invitation'] ) ),
+			JSON_UNESCAPED_SLASHES
+		);
+		$response = $this->make_post_request( $setting );
+
+		$this->assertArrayNotHasKey( 'subscription_options', $response['updated'] );
+		$this->assertFalse( get_option( 'subscription_options', false ) );
+	}
+
+	/**
+	 * Clients that render the settings form post the whole `subscription_options`
+	 * bag back, defaults included. Re-sending values the user never edited must
+	 * not create the option row: those defaults are translated at read time, so
+	 * persisting them would freeze whichever locale the form was rendered in.
+	 */
+	public function test_post_subscription_options_ignores_unchanged_defaults() {
+		$defaults = $this->register_subscription_options_default();
+
+		$setting  = wp_json_encode( array( 'subscription_options' => $defaults ), JSON_UNESCAPED_SLASHES );
+		$response = $this->make_post_request( $setting );
+
+		$this->assertArrayNotHasKey( 'subscription_options', $response['updated'] );
+		$this->assertFalse( get_option( 'subscription_options', false ) );
+	}
+
+	/**
+	 * Only the sub-key the user actually edited is persisted; the untouched
+	 * defaults posted alongside it stay out of the stored row.
+	 */
+	public function test_post_subscription_options_persists_only_changed_sub_keys() {
+		$defaults = $this->register_subscription_options_default();
+
+		$setting  = wp_json_encode(
+			array( 'subscription_options' => array_merge( $defaults, array( 'welcome' => 'My own welcome' ) ) ),
+			JSON_UNESCAPED_SLASHES
+		);
+		$response = $this->make_post_request( $setting );
+
+		$this->assertSame( array( 'welcome' => 'My own welcome' ), $response['updated']['subscription_options'] );
+		$this->assertSame( array( 'welcome' => 'My own welcome' ), get_option( 'subscription_options' ) );
+	}
+
+	/**
+	 * Re-posting the stored value unchanged is also a no-op, so a save that only
+	 * touches other settings doesn't rewrite this option.
+	 */
+	public function test_post_subscription_options_ignores_unchanged_stored_value() {
+		update_option( 'subscription_options', array( 'welcome' => 'Stored welcome' ) );
+
+		$setting  = wp_json_encode(
+			array( 'subscription_options' => array( 'welcome' => 'Stored welcome' ) ),
+			JSON_UNESCAPED_SLASHES
+		);
+		$response = $this->make_post_request( $setting );
+
+		$this->assertArrayNotHasKey( 'subscription_options', $response['updated'] );
+		$this->assertSame( array( 'welcome' => 'Stored welcome' ), get_option( 'subscription_options' ) );
+	}
+
+	/**
+	 * Once any sub-key has been saved, the option row exists without the untouched
+	 * defaults — the `default_option_subscription_options` filter only fires for a
+	 * missing row. The GET response must still expose those defaults so the form
+	 * renders the translated welcome/invitation/comment_follow text rather than
+	 * blanks.
+	 */
+	public function test_get_settings_populates_defaults_after_partial_row_saved() {
+		$defaults = $this->register_subscription_options_default();
+
+		// A prior save of a non-default sub-key leaves the row partial.
+		update_option( 'subscription_options', array( 'subscribe_modal_heading' => 'My heading' ) );
+
+		$response = $this->make_get_request();
+		$settings = $response['settings'];
+
+		$this->assertSame( $defaults['invitation'], $settings['subscription_options']['invitation'] );
+		$this->assertSame( $defaults['welcome'], $settings['subscription_options']['welcome'] );
+		$this->assertSame( $defaults['comment_follow'], $settings['subscription_options']['comment_follow'] );
+		$this->assertSame( 'My heading', $settings['subscription_options']['subscribe_modal_heading'] );
+	}
+
+	/**
+	 * The same partial-row state must not break change detection on save: re-posting
+	 * the untouched defaults alongside the stored sub-key is still a no-op, so the
+	 * translated defaults aren't frozen into the row on the next save.
+	 */
+	public function test_post_subscription_options_ignores_defaults_after_partial_row_saved() {
+		$defaults = $this->register_subscription_options_default();
+
+		update_option( 'subscription_options', array( 'subscribe_modal_heading' => 'My heading' ) );
+
+		$setting  = wp_json_encode(
+			array( 'subscription_options' => $defaults ),
+			JSON_UNESCAPED_SLASHES
+		);
+		$response = $this->make_post_request( $setting );
+
+		$this->assertArrayNotHasKey( 'subscription_options', $response['updated'] );
+		$this->assertSame( array( 'subscribe_modal_heading' => 'My heading' ), get_option( 'subscription_options' ) );
+	}
+
+	/**
+	 * Data provider of falsy `hide_free_tier` representations.
+	 *
+	 * @return array<string,array{mixed}> [ $posted_value ]
+	 */
+	public static function falsy_hide_free_tier_values() {
+		return array(
+			'boolean false' => array( false ),
+			'string false'  => array( 'false' ),
+			'string zero'   => array( '0' ),
+		);
+	}
+
+	/**
+	 * An unset `hide_free_tier` and a false one mean the same thing everywhere the
+	 * option is read, so posting a falsy flag against an unset option is a no-op
+	 * rather than a reason to create the row.
+	 *
+	 * @param mixed $posted_value The falsy value to post.
+	 * @dataProvider falsy_hide_free_tier_values
+	 */
+	#[DataProvider( 'falsy_hide_free_tier_values' )]
+	public function test_post_subscription_options_falsy_hide_free_tier_is_noop_when_unset( $posted_value ) {
+		$setting  = wp_json_encode(
+			array( 'subscription_options' => array( 'hide_free_tier' => $posted_value ) ),
+			JSON_UNESCAPED_SLASHES
+		);
+		$response = $this->make_post_request( $setting );
+
+		$this->assertArrayNotHasKey( 'subscription_options', $response['updated'] );
+		$this->assertFalse( get_option( 'subscription_options', false ) );
+	}
+
+	/**
+	 * The flag can still be turned off once it has been turned on — the no-op
+	 * above applies to "never set", not to "set to true".
+	 *
+	 * @param mixed $posted_value The falsy value to post.
+	 * @dataProvider falsy_hide_free_tier_values
+	 */
+	#[DataProvider( 'falsy_hide_free_tier_values' )]
+	public function test_post_subscription_options_falsy_hide_free_tier_clears_stored_true( $posted_value ) {
+		update_option( 'subscription_options', array( 'hide_free_tier' => true ) );
+
+		$setting  = wp_json_encode(
+			array( 'subscription_options' => array( 'hide_free_tier' => $posted_value ) ),
+			JSON_UNESCAPED_SLASHES
+		);
+		$response = $this->make_post_request( $setting );
+
+		$this->assertSame( array( 'hide_free_tier' => false ), $response['updated']['subscription_options'] );
+		$this->assertSame( array( 'hide_free_tier' => false ), get_option( 'subscription_options' ) );
+	}
+
+	/**
 	 * Returns the response of a successful GET request to `sites/%s/settings`.
 	 */
 	public function make_get_request() {
@@ -255,6 +454,11 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 				'example_request'  => 'https://public-api.wordpress.com/rest/v1.4/sites/en.blog.wordpress.com/settings?pretty=1',
 			)
 		);
+
+		// The API object is a shared singleton, so a preceding POST test can leave the
+		// method set to 'POST'. Set it explicitly so the GET path is exercised regardless
+		// of test order.
+		$endpoint->api->method = 'GET';
 
 		return $endpoint->callback( '/sites/%s/settings', $blog_id );
 	}
@@ -525,18 +729,12 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 					'hide_free_tier' => true,
 				),
 			),
-			'subscription_options hide free tier false' => array(
-				'subscription_options',
-				array(
-					'hide_free_tier' => false,
-				),
-				array(
-					'hide_free_tier' => false,
-				),
-			),
 			// Stringy booleans must be parsed by value via is_truthy(), not by
 			// truthiness — otherwise the non-empty string "false" would be stored
 			// as `true`. These guard the WPCOM JSON API write path against regressions.
+			// The falsy counterparts live in
+			// `test_post_subscription_options_falsy_hide_free_tier_*` below, because
+			// against an unset option they are a no-op rather than a write.
 			'subscription_options hide free tier string true' => array(
 				'subscription_options',
 				array(
@@ -546,15 +744,6 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 					'hide_free_tier' => true,
 				),
 			),
-			'subscription_options hide free tier string false' => array(
-				'subscription_options',
-				array(
-					'hide_free_tier' => 'false',
-				),
-				array(
-					'hide_free_tier' => false,
-				),
-			),
 			'subscription_options hide free tier string one' => array(
 				'subscription_options',
 				array(
@@ -562,15 +751,6 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 				),
 				array(
 					'hide_free_tier' => true,
-				),
-			),
-			'subscription_options hide free tier string zero' => array(
-				'subscription_options',
-				array(
-					'hide_free_tier' => '0',
-				),
-				array(
-					'hide_free_tier' => false,
 				),
 			),
 			// Add MCP settings POST tests

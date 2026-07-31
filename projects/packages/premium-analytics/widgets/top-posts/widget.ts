@@ -46,17 +46,17 @@ export default {
 	attributes: [
 		{
 			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics' ),
+			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
 			type: 'integer',
 		},
 		{
 			id: 'contentView',
-			label: __( 'View', 'jetpack-premium-analytics' ),
+			label: __( 'View', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
 			Edit: SelectField,
 			elements: [
-				{ label: __( 'Posts & pages', 'jetpack-premium-analytics' ), value: 'posts' },
-				{ label: __( 'Archives', 'jetpack-premium-analytics' ), value: 'archives' },
+				{ label: __( 'Posts & pages', 'jetpack-premium-analytics-pkg' ), value: 'posts' },
+				{ label: __( 'Archives', 'jetpack-premium-analytics-pkg' ), value: 'archives' },
 			],
 			relevance: 'high',
 		},

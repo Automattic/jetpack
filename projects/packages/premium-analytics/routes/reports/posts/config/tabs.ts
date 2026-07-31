@@ -27,8 +27,8 @@ const DEFAULT_TAB_ID: ReportPostsTabId = 'posts-pages';
  */
 const reportPostsTabs = defineReportTabs< ReportPostsTabId >(
 	[
-		{ id: 'posts-pages', getLabel: () => __( 'Posts & Pages', 'jetpack-premium-analytics' ) },
-		{ id: 'archives', getLabel: () => __( 'Archives', 'jetpack-premium-analytics' ) },
+		{ id: 'posts-pages', getLabel: () => __( 'Posts & Pages', 'jetpack-premium-analytics-pkg' ) },
+		{ id: 'archives', getLabel: () => __( 'Archives', 'jetpack-premium-analytics-pkg' ) },
 	],
 	DEFAULT_TAB_ID
 );

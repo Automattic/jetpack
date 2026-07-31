@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
+import { seen } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -36,24 +36,24 @@ export type PostViewsAttributes = {
  * `granularity` attribute (`relevance: 'high'`) chooses the bucket size.
  */
 export default {
-	icon: chartBar,
+	icon: seen,
 	attributes: [
 		{
 			id: 'granularity',
-			label: __( 'Group by', 'jetpack-premium-analytics' ),
+			label: __( 'Group by', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
 			Edit: SelectField,
 			elements: [
 				{
-					label: __( 'By days', 'jetpack-premium-analytics' ),
+					label: __( 'By days', 'jetpack-premium-analytics-pkg' ),
 					value: 'day',
 				},
 				{
-					label: __( 'By weeks', 'jetpack-premium-analytics' ),
+					label: __( 'By weeks', 'jetpack-premium-analytics-pkg' ),
 					value: 'week',
 				},
 				{
-					label: __( 'By months', 'jetpack-premium-analytics' ),
+					label: __( 'By months', 'jetpack-premium-analytics-pkg' ),
 					value: 'month',
 				},
 			],

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Record the tab-click analytics event only on a real tab change, and rewrite a stale or invalid section hash to the section shown.

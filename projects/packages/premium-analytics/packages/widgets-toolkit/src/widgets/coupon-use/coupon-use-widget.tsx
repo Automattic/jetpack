@@ -2,9 +2,9 @@
  * External dependencies
  */
 import { useReportCouponsByDate } from '@jetpack-premium-analytics/data';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { coupon } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
 import { useMemo } from 'react';
 import { DonutChart, WidgetState } from '../../components';
 /**
@@ -55,13 +55,13 @@ export function CouponUseWidget() {
 			error={ {
 				description: __(
 					"We couldn't load coupon data. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: coupon,
-				description: __( 'No coupon usage in this period.', 'jetpack-premium-analytics' ),
+				description: __( 'No coupon usage in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			<Stack className={ styles.container } direction="column" align="center" justify="center">

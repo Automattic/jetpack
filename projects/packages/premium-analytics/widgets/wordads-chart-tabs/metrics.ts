@@ -25,15 +25,15 @@ const CURRENCY_FORMAT: DataFormat = {
 
 // Single source for the settings checkboxes and the rendered tabs, in tab order.
 export const WORDADS_CHART_METRICS: WordAdsChartMetric[] = [
-	{ id: 'impressions', label: __( 'Ads Served', 'jetpack-premium-analytics' ) },
+	{ id: 'impressions', label: __( 'Ads Served', 'jetpack-premium-analytics-pkg' ) },
 	{
 		id: 'cpm',
-		label: __( 'Average CPM', 'jetpack-premium-analytics' ),
+		label: __( 'Average CPM', 'jetpack-premium-analytics-pkg' ),
 		dataFormat: CURRENCY_FORMAT,
 	},
 	{
 		id: 'revenue',
-		label: __( 'Revenue', 'jetpack-premium-analytics' ),
+		label: __( 'Revenue', 'jetpack-premium-analytics-pkg' ),
 		dataFormat: CURRENCY_FORMAT,
 	},
 ];

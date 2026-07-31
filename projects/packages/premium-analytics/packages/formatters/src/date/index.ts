@@ -1,2 +1,2 @@
-export { formatDate } from './format-date';
+export { formatDate, type DateFormatName } from './format-date';
 export { formatDateRange } from './format-date-range';

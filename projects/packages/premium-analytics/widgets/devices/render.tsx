@@ -9,6 +9,7 @@ import { device } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import {
 	Legend,
+	describeError,
 	SemiCircleChart,
 	WidgetRoot,
 	WidgetState,
@@ -56,12 +57,11 @@ type DevicesInnerProps = {
  */
 function DevicesInner( { max }: DevicesInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	const { data, hasComparison, isLoading, isFetching, isError, errorReason, refetch } =
-		useDeviceViews( {
-			reportParams,
-			max,
-			deviceProperty: 'screensize',
-		} );
+	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = useDeviceViews( {
+		reportParams,
+		max,
+		deviceProperty: 'screensize',
+	} );
 
 	const chartData: SemiCircleChartData = data.map( item => ( {
 		label: item.displayLabel,
@@ -88,10 +88,6 @@ function DevicesInner( { max }: DevicesInnerProps ) {
 		color: segmentStyles[ index ]?.color,
 	} ) );
 
-	// A plan error can't be fixed by retrying, so the Retry action is only
-	// offered for regular fetch failures.
-	const isPlanError = errorReason === 'upgrade-required';
-
 	return (
 		<div className={ styles.content }>
 			<WidgetState
@@ -99,23 +95,16 @@ function DevicesInner( { max }: DevicesInnerProps ) {
 				isFetching={ isFetching }
 				isError={ isError }
 				isEmpty={ data.length === 0 }
-				error={ {
-					description: isPlanError
-						? __(
-								'Device stats are not included in your current plan.',
-								'jetpack-premium-analytics'
-						  )
-						: __(
-								"We couldn't load device data. Please try again in a moment.",
-								'jetpack-premium-analytics'
-						  ),
-					actions: isPlanError
-						? undefined
-						: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
-				} }
+				error={ describeError( error, {
+					retryDescription: __(
+						"We couldn't load device data. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					onRetry: refetch,
+				} ) }
 				empty={ {
 					icon: device,
-					description: __( 'No device data in this period.', 'jetpack-premium-analytics' ),
+					description: __( 'No device data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				<div className={ styles.chartWrap }>

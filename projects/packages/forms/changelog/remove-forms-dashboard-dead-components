@@ -1,3 +1,0 @@
-Significance: patch
-Type: removed
-Comment: Dashboard: delete three unreferenced components (layout header, forms logo, actions dropdown menu). No functional change.

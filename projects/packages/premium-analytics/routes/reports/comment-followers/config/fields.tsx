@@ -25,7 +25,7 @@ export function getCommentFollowersFields(): Field< StatsCommentFollowersItem >[
 	return [
 		{
 			id: 'post',
-			label: __( 'Post', 'jetpack-premium-analytics' ),
+			label: __( 'Post', 'jetpack-premium-analytics-pkg' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => item.label,
@@ -59,7 +59,7 @@ export function getCommentFollowersFields(): Field< StatsCommentFollowersItem >[
 		},
 		{
 			id: 'subscribers',
-			label: __( 'Subscribers', 'jetpack-premium-analytics' ),
+			label: __( 'Subscribers', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.followers,
 			render: ( { item } ) => (
 				<>

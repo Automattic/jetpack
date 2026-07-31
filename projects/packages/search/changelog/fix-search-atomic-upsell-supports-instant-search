@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Check supports_instant_search, not the Atomic-unreliable supports_search, when deciding whether a site already has the Search product -- fixes Start for free/Get Search silently skipping checkout on Atomic sites that have a bundled classic-search entitlement.

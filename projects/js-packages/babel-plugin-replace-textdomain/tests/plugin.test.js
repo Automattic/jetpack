@@ -223,6 +223,87 @@ pluginTester( {
 			},
 		},
 
+		// `requireI18nSource`: provenance checking for bundled output.
+		{
+			title: 'requireI18nSource: ignores a member call on a non-i18n binding',
+			setup,
+			code: `const cache = new Map();\ncache.__( 'key' );`,
+			output: `const cache = new Map();\ncache.__('key');`,
+			snapshot: false,
+			pluginOptions: {
+				textdomain: 'new-domain',
+				requireI18nSource: true,
+			},
+		},
+		{
+			title: 'requireI18nSource: ignores a locally defined function',
+			setup,
+			code: `function __( s ) {\n\treturn s;\n}\n__( 'key' );`,
+			output: `function __(s) {\n\treturn s;\n}\n__('key');`,
+			snapshot: false,
+			pluginOptions: {
+				textdomain: 'new-domain',
+				requireI18nSource: true,
+			},
+		},
+		{
+			title: 'requireI18nSource: stamps esbuild externalized output',
+			setup,
+			// The shape esbuild emits for an externalized `@wordpress/i18n`.
+			code:
+				`var require_i18n = __commonJS( {\n` +
+				`\t"package-external:@wordpress/i18n"( exports, module ) {\n` +
+				`\t\tmodule.exports = window.wp.i18n;\n` +
+				`\t}\n` +
+				`} );\n` +
+				`var import_i18n3 = __toESM( require_i18n(), 1 );\n` +
+				`x = (0, import_i18n3.__)( 'Hello' );`,
+			pluginOptions: {
+				textdomain: 'new-domain',
+				requireI18nSource: true,
+			},
+		},
+		{
+			title: 'requireI18nSource: stamps the minified externalized shape',
+			setup,
+			// Same chain after minification: every name is mangled, only the
+			// `window.wp.i18n` read survives as a marker.
+			code: `var Te=Ht((a,b)=>{b.exports=window.wp.i18n;});var Ri=f(Te(),1);x=(0,Ri.__)("Hi");`,
+			pluginOptions: {
+				textdomain: 'new-domain',
+				requireI18nSource: true,
+			},
+		},
+		{
+			title: 'requireI18nSource: stamps a require() of the i18n module',
+			setup,
+			code: `const i18n = require( '@wordpress/i18n' );\ni18n.__( 'Hello' );`,
+			pluginOptions: {
+				textdomain: 'new-domain',
+				requireI18nSource: true,
+			},
+		},
+		{
+			title: 'requireI18nSource: stamps an import of the i18n module',
+			setup,
+			code: `import { __ } from '@wordpress/i18n';\n__( 'Hello' );`,
+			pluginOptions: {
+				textdomain: 'new-domain',
+				requireI18nSource: true,
+			},
+		},
+		{
+			title: 'requireI18nSource: stamps when the callee source is unknown',
+			setup,
+			// No binding for `e` — an unrecognised shape must keep stamping
+			// rather than silently leaving a bundle untranslated.
+			code: `x = (0, e.__)( 'Hello' );`,
+			pluginOptions: {
+				textdomain: 'new-domain',
+				requireI18nSource: true,
+			},
+		},
+
 		// Invalid option handling.
 		{
 			title: 'Bad options: missing textdomain',

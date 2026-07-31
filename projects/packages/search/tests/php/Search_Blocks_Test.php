@@ -59,6 +59,7 @@ class Search_Blocks_Test extends TestCase {
 			'nonce',
 			'isPrivateSite',
 			'isWpcom',
+			'isPhotonEnabled',
 			'isWooCommerceBlocksEnabled',
 			'homeUrl',
 			'locale',
@@ -1322,6 +1323,57 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * The `wp_body_open` registration itself stays unconditional (SEARCH-299)
+	 * — the module gate lives inside the callback instead.
+	 */
+	public function test_init_registers_theme_token_sampler_hook_regardless_of_module_state() {
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( false );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+
+		Search_Blocks::init();
+
+		$this->assertNotFalse(
+			has_action( 'wp_body_open', array( Search_Blocks::class, 'print_theme_token_sampler' ) ),
+			'print_theme_token_sampler must hook into wp_body_open even while the module is inactive'
+		);
+	}
+
+	/**
+	 * The sampler script prints on the front end while the Search module is active.
+	 */
+	public function test_print_theme_token_sampler_prints_when_module_active() {
+		$this->set_module_active( true );
+
+		ob_start();
+		Search_Blocks::print_theme_token_sampler();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString(
+			"id='jetpack-search-theme-token-sampler'",
+			$output,
+			'The sampler script must print on the front end while the Search module is active.'
+		);
+	}
+
+	/**
+	 * Disabling the Search module stops the sampler script from printing (SEARCH-299).
+	 */
+	public function test_print_theme_token_sampler_skipped_when_module_inactive() {
+		$this->set_module_active( false );
+
+		ob_start();
+		Search_Blocks::print_theme_token_sampler();
+		$output = ob_get_clean();
+
+		$this->assertSame(
+			'',
+			$output,
+			'The sampler script must not print once the Search module is disabled.'
+		);
+	}
+
+	/**
 	 * Read the private `registered` map off the WP_Script_Modules singleton.
 	 *
 	 * @return array<string,array> Registered script modules keyed by id.
@@ -2562,6 +2614,95 @@ class Search_Blocks_Test extends TestCase {
 		$this->assertArrayHasKey( 'jetpack-search/filter-wc-rating', $helpers );
 		$this->assertArrayHasKey( 'jetpack-search/filter-wc-attribute', $helpers );
 		$this->assertArrayHasKey( 'jetpack-search/filter-wc-stock-status', $helpers );
+	}
+
+	/**
+	 * Seed `$GLOBALS['post']` with a saved post; content is set in-memory
+	 * post-fetch to avoid wp_insert_post()'s KSES pass mangling block JSON.
+	 *
+	 * @param string $post_content Raw post content, block markup included.
+	 * @return callable Cleanup callback — call from `finally`.
+	 */
+	private function seed_current_post( string $post_content ): callable {
+		$original_post      = $GLOBALS['post'] ?? null;
+		$post_id            = wp_insert_post(
+			array(
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_title'  => 'collect_filter_configs_from_post fixture',
+			)
+		);
+		$post               = get_post( $post_id );
+		$post->post_content = $post_content;
+		$GLOBALS['post']    = $post;
+
+		return static function () use ( $original_post, $post_id ) {
+			$GLOBALS['post'] = $original_post;
+			wp_delete_post( $post_id, true );
+		};
+	}
+
+	/**
+	 * SEARCH-295: a large body with no filter blocks must skip parse_blocks().
+	 */
+	public function test_collect_filter_configs_from_post_returns_empty_for_large_body_without_filter_blocks() {
+		$paragraph     = "<!-- wp:paragraph -->\n<p>" . str_repeat( 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ', 20 ) . "</p>\n<!-- /wp:paragraph -->\n\n";
+		$large_content = str_repeat( $paragraph, 3000 );
+		$helper_names  = array_keys( $this->invoke_protected( 'filter_block_helpers' ) );
+
+		$cleanup = $this->seed_current_post( $large_content );
+		try {
+			$this->assertFalse( $this->invoke_protected( 'post_content_has_filter_block', $GLOBALS['post'], $helper_names ) );
+			$configs = $this->invoke_protected( 'collect_filter_configs_from_post' );
+			$this->assertSame( array(), $configs );
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
+	 * Posts that do contain a filter block must collect its config as before.
+	 */
+	public function test_collect_filter_configs_from_post_still_collects_configs_when_filter_block_present() {
+		$content      = '<!-- wp:paragraph --><p>Intro text.</p><!-- /wp:paragraph -->' .
+			'<!-- wp:jetpack-search/filter-checkbox {"filterType":"taxonomy","taxonomy":"category"} /-->';
+		$helper_names = array_keys( $this->invoke_protected( 'filter_block_helpers' ) );
+
+		$cleanup = $this->seed_current_post( $content );
+		try {
+			$this->assertTrue( $this->invoke_protected( 'post_content_has_filter_block', $GLOBALS['post'], $helper_names ) );
+			$configs  = $this->invoke_protected( 'collect_filter_configs_from_post' );
+			$expected = Filter_Checkbox::build_config(
+				array(
+					'filterType' => 'taxonomy',
+					'taxonomy'   => 'category',
+				),
+				'category'
+			);
+			$this->assertSame( array( 'category' => $expected ), $configs );
+		} finally {
+			$cleanup();
+		}
+	}
+
+	/**
+	 * A WC-only block name in a non-Woo post's body must not match — the
+	 * scan uses the helper-derived name list, not a blanket prefix.
+	 */
+	public function test_collect_filter_configs_from_post_ignores_wc_only_block_name_on_non_woo_site() {
+		Search_Blocks::set_woocommerce_blocks_enabled_for_testing( false );
+		$content = '<!-- wp:jetpack-search/filter-wc-stock-status /-->';
+
+		$cleanup = $this->seed_current_post( $content );
+		try {
+			$helper_names = array_keys( $this->invoke_protected( 'filter_block_helpers' ) );
+			$this->assertNotContains( 'jetpack-search/filter-wc-stock-status', $helper_names );
+			$this->assertFalse( $this->invoke_protected( 'post_content_has_filter_block', $GLOBALS['post'], $helper_names ) );
+			$configs = $this->invoke_protected( 'collect_filter_configs_from_post' );
+			$this->assertSame( array(), $configs );
+		} finally {
+			$cleanup();
+		}
 	}
 
 	/**

@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { useStatsSite } from '@jetpack-premium-analytics/data';
+import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { calendar } from '@jetpack-premium-analytics/icons';
 import {
@@ -12,7 +13,6 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
-import { isValid, parseISO } from 'date-fns';
 /**
  * Internal dependencies
  */
@@ -81,40 +81,24 @@ export const MostPopularDayHighlight = ( {
 }: MostPopularDayHighlightProps ) => (
 	<Stack className={ styles.highlight } direction="column" gap="xl" justify="center">
 		<MostPopularDayField
-			label={ __( 'Day', 'jetpack-premium-analytics' ) }
-			value={ formatDate( date, 'MMMM d' ) }
+			label={ __( 'Day', 'jetpack-premium-analytics-pkg' ) }
+			value={ formatDate( date, 'short' ) }
 			caption={ formatDate( date, 'year' ) }
 		/>
 		<MostPopularDayField
-			label={ __( 'Views', 'jetpack-premium-analytics' ) }
+			label={ __( 'Views', 'jetpack-premium-analytics-pkg' ) }
 			value={ formatMetricValue( views, 'number', { useMultipliers: true, decimals: 1 } ) }
 			caption={ sprintf(
 				/* translators: %s is a percentage, e.g. "0.32%". */
-				__( '%s of views', 'jetpack-premium-analytics' ),
+				__( '%s of views', 'jetpack-premium-analytics-pkg' ),
 				formatMetricValue( share, 'percentage', { decimals: 2, signDisplay: 'never' } )
 			) }
 		/>
 	</Stack>
 );
 
-/**
- * Parses the best-day field (`YYYY-MM-DD`) into a date. `parseISO` validates the
- * calendar date, so `isValid` rejects the "-" / empty sentinels low-traffic
- * sites send and impossible days like `2020-02-31`, falling through to the empty
- * state. Parsed and formatted in local time, so the calendar day is stable.
- *
- * @param {Record< string, unknown > | undefined} summary - The site summary.
- * @return The best day, or undefined when unavailable.
- */
 function readBestDay( summary: Record< string, unknown > | undefined ) {
-	const value = summary?.views_best_day;
-	if ( typeof value !== 'string' || value === '' ) {
-		return undefined;
-	}
-
-	const date = parseISO( value );
-
-	return isValid( date ) ? date : undefined;
+	return parseSiteDateTime( summary?.views_best_day );
 }
 
 /**
@@ -146,11 +130,11 @@ function MostPopularDayReport() {
 					error={ {
 						description: __(
 							"We couldn't load your most popular day. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
 						actions: [
 							{
-								label: __( 'Retry', 'jetpack-premium-analytics' ),
+								label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
 								onClick: () => void refetch(),
 							},
 						],
@@ -159,7 +143,7 @@ function MostPopularDayReport() {
 						icon: calendar,
 						description: __(
 							'Not enough views yet to pick a most popular day.',
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
 					} }
 				>

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { type BaseLegendItem, useGlobalChartsContext } from '@automattic/charts';
+import { type BaseLegendItem, useGlobalChartsContext } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */

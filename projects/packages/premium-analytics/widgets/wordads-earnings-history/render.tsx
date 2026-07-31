@@ -50,12 +50,12 @@ function WordAdsEarningsHistoryReport() {
 			error={ {
 				description: __(
 					"We couldn't load WordAds earnings. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
-				description: __( 'No earnings history to show yet.', 'jetpack-premium-analytics' ),
+				description: __( 'No earnings history to show yet.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			<WidgetDataTable< EarningsHistoryRow >

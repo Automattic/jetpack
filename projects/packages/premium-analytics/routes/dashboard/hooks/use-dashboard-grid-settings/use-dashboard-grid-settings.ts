@@ -9,7 +9,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
 import {
 	DEFAULT_GRID,
-	DEFAULT_ROW_HEIGHT,
+	ROW_HEIGHT_PRESETS,
 	normalizeGridSettings,
 } from '@wordpress/widget-dashboard';
 import fastDeepEqual from 'fast-deep-equal/es6/index.js';
@@ -18,6 +18,18 @@ import type { WidgetGridSettings } from '@wordpress/widget-dashboard';
 /**
  * Internal dependencies
  */
+
+/**
+ * The analytics dashboards are designed at the small (200px) row height, so it
+ * is the out-of-the-box default rather than the widget-dashboard package's
+ * medium default. Users can still switch row heights; their choice is stored,
+ * and only this small default is persisted as a cleared preference.
+ */
+const PA_DEFAULT_ROW_HEIGHT = ROW_HEIGHT_PRESETS.small;
+// DEFAULT_GRID is the 2D grid model, so it carries `rowHeight`; keep the spread
+// unannotated so the override type-checks against the grid variant rather than
+// the `rowHeight`-less masonry member of the settings union.
+const PA_DEFAULT_GRID = { ...DEFAULT_GRID, rowHeight: PA_DEFAULT_ROW_HEIGHT };
 
 /**
  * Hook for managing dashboard grid-settings preferences.
@@ -42,7 +54,7 @@ export function useDashboardGridSettings(): [
 				get: ( scope: string, name: string ) => WidgetGridSettings | undefined;
 			}
 		 ).get( DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_GRID_SETTINGS_KEY );
-		return normalizeGridSettings( stored ?? DEFAULT_GRID, DEFAULT_ROW_HEIGHT );
+		return normalizeGridSettings( stored ?? PA_DEFAULT_GRID, PA_DEFAULT_ROW_HEIGHT );
 	}, [] );
 
 	const { set } = useDispatch( preferencesStore ) as unknown as {
@@ -61,7 +73,7 @@ export function useDashboardGridSettings(): [
 		// default and the value can never drift. Reset routes through here (the
 		// drawer commit fires the setter with the default), so this is what makes
 		// Reset + Save truly clear the stored preference.
-		if ( fastDeepEqual( next, DEFAULT_GRID ) ) {
+		if ( fastDeepEqual( next, PA_DEFAULT_GRID ) ) {
 			void set( DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_GRID_SETTINGS_KEY, null );
 			return;
 		}

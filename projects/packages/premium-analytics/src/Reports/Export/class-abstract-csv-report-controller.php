@@ -289,7 +289,7 @@ abstract class Abstract_Csv_Report_Controller implements Csv_Report_Controller_I
 	 * @return string The label to use for empty rows.
 	 */
 	public function get_empty_row_label(): string {
-		return __( 'Unassigned', 'jetpack-premium-analytics' );
+		return __( 'Unassigned', 'jetpack-premium-analytics-pkg' );
 	}
 
 	/**
@@ -353,15 +353,15 @@ abstract class Abstract_Csv_Report_Controller implements Csv_Report_Controller_I
 	 */
 	protected function get_interval_label( ?string $interval = null ): string {
 		$labels = array(
-			'hour'    => __( 'Hour', 'jetpack-premium-analytics' ),
-			'day'     => __( 'Day', 'jetpack-premium-analytics' ),
-			'week'    => __( 'Week', 'jetpack-premium-analytics' ),
-			'month'   => __( 'Month', 'jetpack-premium-analytics' ),
-			'quarter' => __( 'Quarter', 'jetpack-premium-analytics' ),
-			'year'    => __( 'Year', 'jetpack-premium-analytics' ),
+			'hour'    => __( 'Hour', 'jetpack-premium-analytics-pkg' ),
+			'day'     => __( 'Day', 'jetpack-premium-analytics-pkg' ),
+			'week'    => __( 'Week', 'jetpack-premium-analytics-pkg' ),
+			'month'   => __( 'Month', 'jetpack-premium-analytics-pkg' ),
+			'quarter' => __( 'Quarter', 'jetpack-premium-analytics-pkg' ),
+			'year'    => __( 'Year', 'jetpack-premium-analytics-pkg' ),
 		);
 
-		return $labels[ $interval ?? '' ] ?? __( 'Date', 'jetpack-premium-analytics' );
+		return $labels[ $interval ?? '' ] ?? __( 'Date', 'jetpack-premium-analytics-pkg' );
 	}
 
 	/**

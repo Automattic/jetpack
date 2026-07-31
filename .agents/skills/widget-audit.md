@@ -20,7 +20,7 @@ assume: namespace, text domain, and the dependency versions the package resolves
 
 1. **Namespace + text domain**: take the `name` prefix from a sibling
    `widgets/*/widget.json` (e.g. `jpa`) and the text domain from the second
-   argument used in `__()` across the package (e.g. `jetpack-premium-analytics`).
+   argument used in `__()` across the package (e.g. `jetpack-premium-analytics-pkg`).
 2. **Resolved versions**: check tokens and props against what the package actually
    resolves, not against trunk or memory:
    - Tokens → `@wordpress/theme`'s `design-tokens.css` (resolve the package, see below).

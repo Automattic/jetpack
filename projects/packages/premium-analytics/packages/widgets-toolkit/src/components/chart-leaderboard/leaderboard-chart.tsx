@@ -7,9 +7,10 @@ import {
 	Legend,
 	lightenHexColor,
 	normalizeColorToHex,
-} from '@automattic/charts';
+	Icon,
+	Stack,
+} from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import { Icon, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useMemo } from 'react';
 /**

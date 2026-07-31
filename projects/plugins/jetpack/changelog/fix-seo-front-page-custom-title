@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+SEO: Fix custom per-page SEO title being ignored when the page is set as the site's homepage and the Front Page title format in Jetpack Settings is blank.

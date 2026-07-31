@@ -53,6 +53,9 @@ export {
 	type WidgetFooterProps,
 	ReportLink,
 	type ReportLinkProps,
+	PostTitleLink,
+	POST_URL_SEARCH_PARAM,
+	type PostTitleLinkProps,
 	VideoTitleLink,
 	type VideoTitleLinkProps,
 	SubscriberList,
@@ -82,11 +85,15 @@ export {
 	type ReportPageTabsProps,
 	type ReportPerformanceChartProps,
 	type ReportRecordsTableProps,
-	isCsvExportEnabled,
+	ReportCsvAction,
+	type ReportCsvActionProps,
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,
 	RowsCsvDownloadButton,
 	type RowsCsvDownloadButtonProps,
+	useReportCsvExport,
+	type UseReportCsvExportOptions,
+	type UseReportCsvExportResult,
 	WidgetDataTable,
 	type WidgetDataTableProps,
 	EARNINGS_HISTORY_VIEW,
@@ -129,10 +136,13 @@ export {
 	buildCsvDateRangeFilename,
 	saveCsv,
 	type CsvColumn,
+	type CsvDateRange,
+	getCombinedPeriodMax,
 	sharePercentage,
 	getVideoKey,
 	getVideoLabel,
 	toMaxRows,
+	describeError,
 	summaryCount,
 	toDay,
 	defaultPeriodForInterval,
@@ -150,7 +160,6 @@ export {
 	useSegmentStyles,
 	useSeriesStyles,
 	useWidgetDrillDown,
-	usePostDetailHrefBuilder,
 } from './hooks';
 
 /**
@@ -192,7 +201,9 @@ export type { MetricKey, OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat
  *
  * Widgets must import chart components from here, never from
  * `@automattic/charts` directly: the toolkit is a shared script module, so
- * charts is bundled once instead of once per widget.
+ * charts is bundled once instead of once per widget. The toolkit itself takes
+ * charts from `@jetpack-premium-analytics/externals`, which is where the
+ * library is actually compiled in.
  */
 export {
 	GeoChart,
@@ -205,7 +216,7 @@ export {
 	type GeoData,
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,
-} from '@automattic/charts';
+} from '@jetpack-premium-analytics/externals';
 
 /**
  * UI passthrough

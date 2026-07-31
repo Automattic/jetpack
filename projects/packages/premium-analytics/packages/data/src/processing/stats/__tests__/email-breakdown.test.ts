@@ -114,11 +114,11 @@ describe( 'Stats email breakdown localization', () => {
 	afterEach( () => {
 		// The i18n instance is a module-level singleton, so drop the locale data
 		// again or the sibling suites stop seeing the untranslated labels.
-		resetLocaleData( {}, 'jetpack-premium-analytics' );
+		resetLocaleData( {}, 'jetpack-premium-analytics-pkg' );
 	} );
 
 	it( 'translates the catch-all label and keeps it pinned last', () => {
-		setLocaleData( { Other: [ 'Sonstige' ] }, 'jetpack-premium-analytics' );
+		setLocaleData( { Other: [ 'Sonstige' ] }, 'jetpack-premium-analytics-pkg' );
 
 		const items = sanitizeStatsEmailBreakdownResponse( emailFieldlessClientsFixture ).data[ 0 ]
 			.items;
@@ -133,7 +133,7 @@ describe( 'Stats email breakdown localization', () => {
 				'Email link type\u0004Like': [ 'Gefällt mir' ],
 				'Email link type\u0004Other': [ 'Sonstige Links' ],
 			},
-			'jetpack-premium-analytics'
+			'jetpack-premium-analytics-pkg'
 		);
 
 		const items = sanitizeStatsEmailBreakdownResponse( emailFieldlessLinksFixture ).data[ 0 ].items;
@@ -144,7 +144,7 @@ describe( 'Stats email breakdown localization', () => {
 	} );
 
 	it( 'translates the unknown-country fallback label', () => {
-		setLocaleData( { Unknown: [ 'Unbekannt' ] }, 'jetpack-premium-analytics' );
+		setLocaleData( { Unknown: [ 'Unbekannt' ] }, 'jetpack-premium-analytics-pkg' );
 
 		const items = sanitizeStatsEmailBreakdownResponse( emailFieldlessCountriesFixture ).data[ 0 ]
 			.items;
