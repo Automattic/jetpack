@@ -174,9 +174,15 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 		// error message the scalar branch used to build directly.
 		$required_capabilities = is_array( $capabilities ) ? array_values( $capabilities ) : array( $capabilities );
 
-		// Every entry must name an actual capability, in the exact form it will be checked in. An entry
-		// nested inside a non-empty list survives the emptiness check above, and core then treats two
-		// classes of malformed name as a grant rather than a refusal: `WP_User::has_cap()` routes
+		// Every entry must be a capability name in the exact form it will be checked in, judged at its
+		// boundaries: this rejects entries that are blank, numeric, non-string or padded, not every
+		// string that fails to name a real capability. A name mangled in its interior still reaches
+		// `current_user_can()`, where it is unmappable and so denies every ordinary user and is granted
+		// only to a network super admin, who holds every capability already. No declaration is
+		// request-derived, so that residual is a hardening gap rather than a reachable one.
+		//
+		// An entry nested inside a non-empty list survives the emptiness check above, and core then
+		// treats two classes of malformed name as a grant rather than a refusal: `WP_User::has_cap()` routes
 		// anything `is_numeric()` through its legacy user-level shim, where `0` and `'0'` become
 		// `level_0` and every default role holds it, and a name core cannot map to `do_not_allow` is
 		// granted outright to a network super admin. Either way `array( 0 )` or `array( ' ' )` would
@@ -187,7 +193,10 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 		// The character class covers what PHP's byte-wise `trim()` leaves behind -- form feed, NBSP and
 		// the other Unicode separators, the BOM -- and comparing before the `is_numeric()` test keeps
 		// that test stable across the supported PHP matrix, where `is_numeric( '0 ' )` is false before
-		// 8.0 and true from 8.0 on. `preg_replace()` returns null on invalid UTF-8, rejected likewise.
+		// 8.0 and true from 8.0 on. `$canonical` is null for two distinct reasons -- `preg_replace()`
+		// cannot process invalid UTF-8, and a non-string entry is never passed to it -- and the null
+		// test is load-bearing for the second: `null !== null` is false, so the mismatch test does not
+		// catch a raw `null` entry and `is_numeric( null )` does not either.
 		//
 		// A wrapper with no `capabilities` key resolves to the wrapper's own metadata and lands here too,
 		// but only when that metadata is not capability-shaped: `array( 'must_pass' => 0 )` is rejected,

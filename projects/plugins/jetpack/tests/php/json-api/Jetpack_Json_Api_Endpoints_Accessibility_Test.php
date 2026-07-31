@@ -49,6 +49,12 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	 * @var int $subscriber_user_id.
 	 */
 	private static $subscriber_user_id;
+	/**
+	 * A network super admin user_id. Only actually a super admin on multisite.
+	 *
+	 * @var int $super_admin_user_id.
+	 */
+	private static $super_admin_user_id;
 
 	/**
 	 * Create fixtures once, before any tests in the class have run.
@@ -56,9 +62,15 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	 * @param object $factory A factory object needed for creating fixtures.
 	 */
 	public static function wpSetUpBeforeClass( $factory ) {
-		self::$admin_user_id      = $factory->user->create( array( 'role' => 'administrator' ) );
-		self::$no_read_user_id    = $factory->user->create();
-		self::$subscriber_user_id = $factory->user->create( array( 'role' => 'subscriber' ) );
+		self::$admin_user_id       = $factory->user->create( array( 'role' => 'administrator' ) );
+		self::$no_read_user_id     = $factory->user->create();
+		self::$subscriber_user_id  = $factory->user->create( array( 'role' => 'subscriber' ) );
+		self::$super_admin_user_id = $factory->user->create( array( 'role' => 'administrator' ) );
+
+		// grant_super_admin() lives in ms-functions.php, which only loads on multisite.
+		if ( is_multisite() ) {
+			grant_super_admin( self::$super_admin_user_id );
+		}
 
 		$no_read_user = get_user_by( 'id', self::$no_read_user_id );
 		$no_read_user->add_cap( 'read', false );
@@ -329,6 +341,11 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 			'nested integer zero'                         => array( array( 0 ), $declaration ),
 			'nested string zero'                          => array( array( '0' ), $declaration ),
 			'nested empty string'                         => array( array( '' ), $declaration ),
+			// The only shape the guard's null-canonical arm rejects on its own: a non-string leaves
+			// $canonical null, which the mismatch test cannot catch (null !== null is false) and which
+			// is_numeric() does not reject either. The numeric rows above stay green without that arm,
+			// so this row is what stops it being deleted as redundant.
+			'nested null'                                 => array( array( null ), $declaration ),
 			// Whitespace-only names no capability, and core grants a network super admin anything it
 			// cannot map to 'do_not_allow', so the guard rejects on the canonical value rather than on ''.
 			'nested whitespace-only string'               => array( array( ' ' ), $declaration ),
@@ -345,8 +362,10 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 			// 'read', and accepting it would make the declaration and the check disagree.
 			'nested trailing whitespace'                  => array( array( 'read ' ), $declaration ),
 			'nested leading whitespace'                   => array( array( ' read' ), $declaration ),
-			// Also what keeps the numeric rejection matrix-stable: is_numeric( '0 ' ) is false before
-			// PHP 8.0 and true from 8.0 on, so only the canonical comparison denies it on every version.
+			// The one row whose rejecting arm is version-dependent: is_numeric( '0 ' ) is false before
+			// PHP 8.0, where only the canonical comparison denies it, and true from 8.0 on, where the
+			// numeric test denies it too. So this row discriminates the canonical arm on the < 8.0 legs
+			// only; the two padded-name rows above are what discriminate it on every supported version.
 			'nested padded zero'                          => array( array( '0 ' ), $declaration ),
 			// No 'capabilities' key, so the wrapper's own metadata is what gets capability-checked. That
 			// only reaches this guard when the metadata is not capability-shaped; see the wrapper test
@@ -432,11 +451,11 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 			// indistinguishable from the list array( 'read' ), so it gets an ordinary capability check
 			// rather than the declaration deny. This predates the refactor; the rows state it plainly so
 			// the guard's contract is not read as "every wrapper missing 'capabilities' fails closed".
-			'string-valued wrapper metadata is capability-checked'  => array(
+			'string-valued wrapper metadata is capability-checked' => array(
 				array( 'must_pass' => 'read' ),
 				'success',
 			),
-			'string-valued wrapper metadata still denies'           => array(
+			'string-valued wrapper metadata still denies' => array(
 				array( 'must_pass' => 'manage_options' ),
 				new WP_Error( 'unauthorized', 'This user is not authorized to manage_options on this blog.', 403 ),
 			),
@@ -527,6 +546,58 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The guards' stated motivation is the network super admin, whom core grants any capability it
+	 * cannot map to `do_not_allow`. Every guard returns before `current_user_can()` runs and the only
+	 * identity-sensitive branch above them treats a subscriber and a super admin alike, so the
+	 * subscriber rows already exercise this code -- but by inspection, not by execution. Running the
+	 * scenario the guard comments name also pins it against a future identity shortcut inserted above
+	 * the guards, which the subscriber rows would not catch.
+	 *
+	 * @group json-api
+	 * @dataProvider data_provider_test_super_admin_is_denied_on_multisite
+	 *
+	 * @param mixed    $needed_capabilities The capability declaration to install on the endpoint.
+	 * @param WP_Error $result              The expected result.
+	 */
+	#[Group( 'json-api' )]
+	#[DataProvider( 'data_provider_test_super_admin_is_denied_on_multisite' )]
+	public function test_super_admin_is_denied_on_multisite( $needed_capabilities, $result ) {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Network super admins only exist on multisite.' );
+		}
+
+		$endpoint = $this->endpoint_declaring( $needed_capabilities );
+
+		wp_set_current_user( self::$super_admin_user_id );
+
+		// Without this the rows would still pass on a fixture that is merely an administrator, and the
+		// test would assert nothing about the privilege level it exists to cover.
+		$this->assertTrue( is_super_admin( self::$super_admin_user_id ), 'Fixture must be a network super admin for these rows to mean anything.' );
+
+		$this->assertEquals( $result, $endpoint->api->process_request( $endpoint, array() ) );
+	}
+
+	/**
+	 * Data provider for test_super_admin_is_denied_on_multisite.
+	 */
+	public static function data_provider_test_super_admin_is_denied_on_multisite() {
+		return array(
+			// One row per guard, since a hoisted or identity-aware short-circuit could bypass any of them
+			// individually.
+			'empty declaration' => array( array(), new WP_Error( 'unauthorized_site_token_required', 'This endpoint is only accessible using a Jetpack site token.', 403 ) ),
+			'numeric entry'     => array( array( 0 ), new WP_Error( 'unauthorized_capability_declaration', 'This endpoint does not declare a valid capability requirement.', 403 ) ),
+			'unmappable entry'  => array( array( ' ' ), new WP_Error( 'unauthorized_capability_declaration', 'This endpoint does not declare a valid capability requirement.', 403 ) ),
+			'zero must_pass'    => array(
+				array(
+					'capabilities' => array( 'manage_options' ),
+					'must_pass'    => 0,
+				),
+				new WP_Error( 'unauthorized_capability_threshold', 'This endpoint requires at least one capability check to pass.', 403 ),
+			),
+		);
+	}
+
+	/**
 	 * Every production endpoint that declares no capabilities is now unreachable without site-based
 	 * authentication, so each one must be registered with `allow_jetpack_site_auth => true` or it is
 	 * permanently 403. Nothing links the declaration to the registration, so assert the pairing.
@@ -605,6 +676,12 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 		// endpoints the loop actually reaches, so a directory-detection or autoload regression that
 		// dropped most of them would otherwise stay green. Registering more of them only raises this
 		// count, so the bound is the floor rather than the exact figure.
+		//
+		// 10 is the eight genuinely capability-less Backup endpoints plus both Themes_Active
+		// registrations (GET and POST), which are counted because that class hand-passes its capability
+		// and leaves the property unset -- the deliberate over-inclusion described above, not eight plus
+		// two more of the same kind. Exempting it by name is a legitimate future change; this floor has
+		// to drop to 8 in the same commit, which is why the number is spelled out here.
 		$this->assertGreaterThanOrEqual( 10, $checked, 'Expected every capability-less endpoint registration to be reached; the assertion loop above ran on fewer than there are.' );
 	}
 
