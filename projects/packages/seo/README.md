@@ -18,6 +18,40 @@ Built as a [`@wordpress/build`](https://www.npmjs.com/package/@wordpress/build) 
 - **Data:** the Overview, Settings, and GEO routes are backed by read-only REST routes `GET /jetpack/v4/seo/{overview,settings,ai}` (`Dashboard_Data::register_rest_reads()`, `manage_options`-gated), whose responses are **preloaded** into the page server-side via `rest_preload_api_request()` (`Admin_Page::inject_script_data()`, on the `jetpack_admin_js_script_data` filter — wp-build pages load as ES modules, so `wp_localize_script` can't bootstrap them and the script-data layer is the supported channel). On a normal load each route reads its slice from the preload synchronously through `@automattic/jetpack-script-data` (`_inc/data/get-preloaded.ts`) — instant, no request. When a slice is missing or stale (e.g. a mismatched bundle after an update), the route's stage fetches it from its REST route instead of dead-ending: `_inc/data/use-ensure-tab-data.ts` shows a loading skeleton, retries silently, and surfaces a recoverable "Try again" state only on genuine failure. `google_verify` and `site` stay synchronous on `window.JetpackScriptData.seo`. The Content route fetches posts and pages live from **core `/wp/v2/posts` and `/wp/v2/pages`** (no custom endpoint), with SEO meta returned via registered `show_in_rest` post meta; the inspector writes through the same core post endpoint. Most Settings writes reuse `/jetpack/v4/settings` (and core `/wp/v2/settings` for `blog_public`); nested site-level schema settings use the package-owned `GET/POST /jetpack/v4/seo/schema-settings` route so each schema section can be preserved across partial updates.
 - **Plan gating (WordPress.com):** on WordPress.com sites below Premium (lacking the `advanced-seo` entitlement after the March 2026 rebundling) the dashboard reduces to a free subset and surfaces an upsell. The gate is `Host::is_wpcom_platform() && ! Current_Plan::supports( 'advanced-seo' )` (`Initializer::is_gated()`): `advanced-seo` is in the free plan's supports list, so `supports()` returns true on self-hosted (**never gated**) and hijacks to `wpcom_site_has_feature()` on WordPress.com, false below Premium. It's surfaced to the client as the `seo.gating` script-data slice (`is_gated`, `upsell_url`), read via `_inc/data/is-gated.ts`, which **defaults to ungated** when the slice is absent so a stale snapshot never hides a paid feature. When gated: the Content and GEO tabs are removed and their route stages redirect to Overview; Overview and Settings drop their paid cards/sections and pin the upsell banner; and — importantly for anyone debugging a missing `/llms.txt` or absent AI-crawler robots.txt rules — `init()` skips `Llms_Txt::init()` and `Ai_Crawlers::init()`, so those services stop emitting, not just their UI. Gating is evaluated live per request (no cached option), so an upgrade restores everything on the next load and a downgrade takes effect immediately.
 
+## UI conventions
+
+### Text hierarchy
+
+`@wordpress/ui`'s `Text` variants are easy to pick wrong, because **the heading and body ramps don't share a scale** — `heading-sm` is *smaller* than `body-md`. Resolved from the WPDS tokens (`@wordpress/theme`):
+
+| Variant | Size | Weight | Transform | Use it for |
+| -- | -- | -- | -- | -- |
+| `heading-lg` | 15px | medium | — | card title |
+| `heading-md` | 13px | medium | — | sub-heading inside a module |
+| `heading-sm` | **11px** | medium | **UPPERCASE** | field label |
+| `body-md` | 13px | regular | — | body copy |
+| `body-sm` | 12px | regular | — | field explainer |
+
+"Small heading" is a **field label**, not a small sub-heading. Reach for `heading-md` when you want a sub-heading.
+
+The rule for prose, which the modules drifted away from once already:
+
+- **`body-md`** — a module's or section's own prose. Things the reader is meant to read.
+- **`body-sm` + `.muted`** — explainer text *attached to a field*: hints under an input, help under a group label. Not general copy.
+- **`body-md` + `.muted`** — the third case, and deliberately narrow: chrome inside the SERP and social preview mockups (`social-previews-card`, `serp-preview`). Those imitate how Google and Facebook render a link, so their type follows *someone else's* design, not ours. Don't extend this case to real UI.
+
+Field labels should be uppercase across the board. Where a `TextControl` renders the label, that's automatic; where a label is drawn by hand, use `heading-sm` so it matches (same size and casing — the control label is weight 600 against `heading-sm`'s medium, so they read alike without being pixel-identical).
+
+### Element rendering
+
+`Text` renders a `<span>` by default, which is rarely what you want:
+
+- Prose → `render={ <p /> }`.
+- A real sub-heading → `render={ <h3 /> }`. Card headers are `h2` (the page `<h1>` is in `Admin_Page`), so a module's own sub-headings are `h3`. Without this a screen-reader user navigating by heading finds the card title and nothing beneath it.
+- A hand-drawn field label heading a *group* of controls rather than one input → keep it a `span`, but give the wrapper `role="group"` and `aria-labelledby` pointing at it (see `google-verification-field`), or it announces as a label attached to nothing.
+
+Rendering as `<p>` or a heading is safe: `Text` always applies both of `@wordpress/ui`'s global-CSS defenses, and every variant defines `--_gcd-heading-*` alongside `--_gcd-p-*`, so the element change doesn't alter the type.
+
 ## Development
 
 ```bash
