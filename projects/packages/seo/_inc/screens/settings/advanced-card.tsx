@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { caution } from '@wordpress/icons';
 import { Button, Card, CollapsibleCard, Stack, Text } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
+import { isGated } from '../../data/is-gated';
 import useSeoToolsToggle from '../../data/use-seo-tools-toggle';
 import styles from './style.module.scss';
 import type { FC } from 'react';
@@ -56,9 +57,13 @@ const AdvancedCard: FC = () => {
 						{ /* Body copy, not the muted `body-sm` explainer style: the small light
 						     treatment is for hints attached to a field, and this is the module's
 						     own prose. Same for the list and the closing line below. */ }
+						{ /* Jetpack already sets `jetpack_disable_seo_tools` for the eight SEO
+						     plugins people actually mean — Yoast, Rank Math, AIOSEO, SEOPress and
+						     friends (see `modules/seo-tools.php`) — so "they're conflicting" named
+						     a problem the code prevents, and sent people here for nothing. */ }
 						<Text variant="body-md" render={ <p /> }>
 							{ __(
-								'Use this only if you don’t want Jetpack optimizing this site, or if another SEO plugin is managing the same things and they’re conflicting.',
+								'Use this only if you don’t want Jetpack optimizing this site. If you’re running another SEO plugin, Jetpack already steps aside for the major ones automatically — you’d only need this for one it doesn’t recognize.',
 								'jetpack-seo'
 							) }
 						</Text>
@@ -69,31 +74,61 @@ const AdvancedCard: FC = () => {
 						     uppercase, the field-label treatment, which would render this
 						     lead-in smaller than the list it introduces. */ }
 						<Text variant="heading-md">{ __( 'While it’s off:', 'jetpack-seo' ) }</Text>
-						{ /* The three things that actually stop, which the old Overview footer
-						     link never said. Structured data and llms.txt are front-end output,
-						     not just settings — see `Initializer::init()`, which skips
-						     `Schema_Builder`, `Author_Schema_Node`, `Llms_Txt` and `Ai_Crawlers`
-						     while the module is inactive. */ }
+						{ /* What actually stops, which the old Overview footer link never said.
+						     Most of this is front-end output rather than settings, and it's
+						     ordered by what costs the most: the first two change what search
+						     engines see immediately.
+
+						     The front-end effects come from the legacy module — deactivating
+						     `seo-tools` stops `Jetpack_SEO` from instantiating at all
+						     (`modules/seo-tools.php`), taking with it the `pre_get_document_title`
+						     and `wp_title` overrides, the `wp_head` meta output that carries both
+						     the description and the `noindex` robots tag, and the
+						     `jetpack_sitemap_skip_post` filter that keeps noindex'd posts out of
+						     the sitemap. That last one is the only consequence here that can
+						     surprise someone, so it gets its own line. The package side is
+						     `Initializer::init()`, which skips `Schema_Builder`,
+						     `Author_Schema_Node`, `Llms_Txt` and `Ai_Crawlers`. */ }
 						{ /* Each item goes through `Text` so it carries the same typography as
 						     the paragraphs around it, rather than inheriting whatever wp-admin
 						     gives a bare `li`. */ }
 						{ /* `role="list"` because `.effects` sets `list-style: none` to draw its
 						     own bullets, and Safari/VoiceOver drops list semantics from a list
-						     styled that way — losing the "3 items" cue that tells someone there's
-						     a finite set of consequences to hear out. */ }
+						     styled that way — losing the item-count cue that tells someone
+						     there's a finite set of consequences to hear out. */ }
 						<ul className={ styles.effects } role="list">
 							<Text variant="body-md" render={ <li /> }>
 								{ __(
-									'These settings become unavailable — titles, descriptions, sitemap, verification and schema.',
+									'Your saved titles and descriptions stop being used — search engines see your theme’s defaults again.',
+									'jetpack-seo'
+								) }
+							</Text>
+							<Text variant="body-md" render={ <li /> }>
+								{ __(
+									'Pages you hid from search stop being hidden, and go back into your sitemap.',
 									'jetpack-seo'
 								) }
 							</Text>
 							<Text variant="body-md" render={ <li /> }>
 								{ __( 'Jetpack stops adding structured data to your pages.', 'jetpack-seo' ) }
 							</Text>
+							{ /* Only where those services run. `Initializer::init()` registers
+							     `Llms_Txt` and `Ai_Crawlers` behind `! is_gated()`, and the AI tab
+							     is hidden from gated sites — so this would promise a gated site
+							     that something stops which it never had. Reachable because the
+							     card is hidden on Simple but not on Atomic, and an Atomic site on
+							     a plan below Premium is gated. */ }
+							{ ! isGated() && (
+								<Text variant="body-md" render={ <li /> }>
+									{ __(
+										'Your llms.txt file stops being served, and AI crawler rules are removed from robots.txt.',
+										'jetpack-seo'
+									) }
+								</Text>
+							) }
 							<Text variant="body-md" render={ <li /> }>
 								{ __(
-									'Your llms.txt file stops being served, and AI crawler rules are removed from robots.txt.',
+									'These settings become unavailable until you turn SEO tools back on.',
 									'jetpack-seo'
 								) }
 							</Text>

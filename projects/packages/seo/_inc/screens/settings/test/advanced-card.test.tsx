@@ -8,9 +8,15 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 // performs on success).
 const setActive = jest.fn();
 const useSeoToolsToggle = jest.fn( () => ( { isToggling: false, setActive } ) );
+const isGated = jest.fn< () => boolean >();
 
 jest.unstable_mockModule( '../../../data/use-seo-tools-toggle', () => ( {
 	default: useSeoToolsToggle,
+} ) );
+
+jest.unstable_mockModule( '../../../data/is-gated', () => ( {
+	isGated,
+	getUpsellUrl: () => 'https://wordpress.com/checkout/example.com/value_bundle',
 } ) );
 
 const { default: AdvancedCard } = await import( '../advanced-card' );
@@ -25,6 +31,7 @@ describe( 'AdvancedCard', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		useSeoToolsToggle.mockReturnValue( { isToggling: false, setActive } );
+		isGated.mockReturnValue( false );
 	} );
 
 	it( 'starts collapsed, with a heading and nothing else in the header', () => {
@@ -78,20 +85,42 @@ describe( 'AdvancedCard', () => {
 		// names to an empty string.)
 		const list = screen.getByRole( 'list' );
 		expect( list ).toHaveAttribute( 'role', 'list' );
-		expect( within( list ).getAllByRole( 'listitem' ) ).toHaveLength( 3 );
+		expect( within( list ).getAllByRole( 'listitem' ) ).toHaveLength( 5 );
 	} );
 
 	it( 'spells out what stops, including the front-end output', () => {
 		render( <AdvancedCard /> );
 		expandCard();
 
-		// Structured data and llms.txt are front-end output, not just settings — the
-		// old Overview footer link said neither, which is why this module exists.
-		expect( screen.getByText( /These settings become unavailable/ ) ).toBeInTheDocument();
+		// Most of this is front-end output rather than settings — the old Overview
+		// footer link said none of it, which is why this module exists. The first two
+		// are what a site actually loses: saved titles and descriptions stop being
+		// served, and deliberately hidden pages become findable again.
+		expect(
+			screen.getByText( /saved titles and descriptions stop being used/ )
+		).toBeInTheDocument();
+		expect( screen.getByText( /Pages you hid from search stop being hidden/ ) ).toBeInTheDocument();
 		expect( screen.getByText( /stops adding structured data/ ) ).toBeInTheDocument();
 		expect( screen.getByText( /llms\.txt file stops being served/ ) ).toBeInTheDocument();
+		expect( screen.getByText( /These settings become unavailable/ ) ).toBeInTheDocument();
 		// And that nothing is lost, since that's what makes it safe to try.
 		expect( screen.getByText( /is kept, so turning it back on/ ) ).toBeInTheDocument();
+	} );
+
+	it( 'drops the llms.txt consequence on a plan-gated site', () => {
+		isGated.mockReturnValue( true );
+
+		render( <AdvancedCard /> );
+		expandCard();
+
+		// `Initializer::init()` registers `Llms_Txt`/`Ai_Crawlers` behind `! is_gated()`
+		// and the AI tab is hidden from gated sites, so claiming these stop would
+		// promise the end of something the site never had. Everything else still applies.
+		expect( screen.queryByText( /llms\.txt file stops being served/ ) ).not.toBeInTheDocument();
+		expect(
+			screen.getByText( /saved titles and descriptions stop being used/ )
+		).toBeInTheDocument();
+		expect( screen.getByText( /stops adding structured data/ ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders its prose as body copy, not muted explainer text', () => {
