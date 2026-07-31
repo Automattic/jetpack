@@ -421,10 +421,12 @@ class Jetpack_Mu_Wpcom {
 		// load-jetpack.php, which Simple sites never run — leaving the mode's
 		// endpoint missing there while its settings toggle still rendered.
 		// Everything it registers is inert until the mode is switched on.
+		// @codeCoverageIgnoreStart -- Optional package integration is unavailable in this package's tests.
 		if ( class_exists( '\Automattic\Jetpack\Newsletter\Mode' ) ) {
 			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
 			\Automattic\Jetpack\Newsletter\Mode::init();
 		}
+		// @codeCoverageIgnoreEnd
 
 		// Register the Daily Writing Prompt dashboard widget, which now lives in
 		// the jetpack-newsletter package. Guarded with class_exists for the same

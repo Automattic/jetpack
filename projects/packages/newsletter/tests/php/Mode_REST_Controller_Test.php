@@ -44,6 +44,7 @@ class Mode_REST_Controller_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		remove_filter( 'jetpack_newsletter_mode_available', '__return_true' );
+		remove_action( 'rest_api_init', array( Mode_REST_Controller::class, 'register_routes' ) );
 		delete_option( Mode::OPTION_NAME );
 
 		parent::tear_down();
@@ -101,5 +102,44 @@ class Mode_REST_Controller_Test extends BaseTestCase {
 		wp_set_current_user( $subscriber_id );
 
 		$this->assertFalse( Mode_REST_Controller::permission_check() );
+	}
+
+	/**
+	 * The controller registers readable and writable mode endpoints.
+	 */
+	public function test_registers_mode_routes() {
+		add_action( 'rest_api_init', array( Mode_REST_Controller::class, 'register_routes' ) );
+		do_action( 'rest_api_init' );
+
+		$routes     = rest_get_server()->get_routes();
+		$route_name = '/' . Mode_REST_Controller::REST_NAMESPACE . '/mode';
+
+		$this->assertArrayHasKey( $route_name, $routes );
+		$callbacks = array_column( $routes[ $route_name ], 'callback' );
+		$this->assertContains(
+			array( Mode_REST_Controller::class, 'get_mode' ),
+			$callbacks
+		);
+		$this->assertContains(
+			array( Mode_REST_Controller::class, 'update_mode' ),
+			$callbacks
+		);
+
+		$update_endpoint = current(
+			array_filter(
+				$routes[ $route_name ],
+				function ( $endpoint ) {
+					return isset( $endpoint['callback'] )
+						&& array( Mode_REST_Controller::class, 'update_mode' ) === $endpoint['callback'];
+				}
+			)
+		);
+		$this->assertSame(
+			array(
+				'type'     => 'boolean',
+				'required' => true,
+			),
+			$update_endpoint['args']['enabled']
+		);
 	}
 }

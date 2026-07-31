@@ -1144,7 +1144,9 @@ Jetpack_Subscriptions::init();
 
 // Newsletter Mode belongs to the Subscriptions module. Initialize it here so
 // its hooks are only registered while the module is active.
+// @codeCoverageIgnoreStart -- Module bootstrap runs before PHPUnit starts coverage collection.
 \Automattic\Jetpack\Newsletter\Mode::init();
+// @codeCoverageIgnoreEnd
 
 require __DIR__ . '/subscriptions/views.php';
 require __DIR__ . '/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.php';
