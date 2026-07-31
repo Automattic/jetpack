@@ -435,9 +435,12 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	 * a single place that guarantees a Site Health label. The method name must not
 	 * contain "test__" or the constructor would register it as a separate test.
 	 *
+	 * Protected rather than private so tests can stub the outcome and assert how the
+	 * caller labels it.
+	 *
 	 * @return array
 	 */
-	private function run_wpcom_connection_test() {
+	protected function run_wpcom_connection_test() {
 		$name = 'test__wpcom_connection_test';
 
 		$status      = new Status();
@@ -513,7 +516,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	/**
 	 * Turns a decoded WP.com test-connection response into a test result.
 	 *
-	 * Split out from test__wpcom_connection_test() so the decision logic can be
+	 * Split out from run_wpcom_connection_test() so the decision logic can be
 	 * exercised without performing a signed remote request.
 	 *
 	 * @param string     $name        The test name.
@@ -563,16 +566,20 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	 * @return array Test results.
 	 */
 	protected function blocked_request_failing_test( $name, $site_http_status = 0 ) {
-		$connection_error = $site_http_status
+		// Only the first sentence varies with the status code. Keeping the explanation
+		// in its own string means it is written, translated, and edited once.
+		$blocked = $site_http_status
 			? sprintf(
 				/* translators: %d is the HTTP status code (e.g. 403) the site returned. */
-				__( 'WordPress.com reached your site but the request was blocked (HTTP %d). This is usually caused by a security plugin, firewall, or server rule rejecting requests from WordPress.com.', 'jetpack-connection' ),
+				__( 'WordPress.com reached your site but the request was blocked (HTTP %d).', 'jetpack-connection' ),
 				$site_http_status
 			)
-			: __( 'WordPress.com reached your site but the request was blocked. This is usually caused by a security plugin, firewall, or server rule rejecting requests from WordPress.com.', 'jetpack-connection' );
+			: __( 'WordPress.com reached your site but the request was blocked.', 'jetpack-connection' );
+
+		$connection_error = $blocked . ' ' . __( 'This is usually caused by a security plugin, firewall, or server rule rejecting requests from WordPress.com.', 'jetpack-connection' );
 
 		$recommendation = sprintf(
-			/* translators: %1$s is the opening tag of a link to Jetpack's IP allowlist documentation, %2$s is the closing tag. */
+			/* translators: %1$s opens a link to Jetpack's IP allowlist documentation, %2$s closes it (it also carries hidden text noting the link opens in a new tab). Place them around the phrase that should be linked. */
 			__( 'Jetpack uses your site\'s xmlrpc.php file to securely communicate with WordPress.com. Ask your host or security provider to %1$sallowlist Jetpack\'s IPs%2$s — reconnecting will not resolve this. If you need further help, contact Jetpack support.', 'jetpack-connection' ),
 			'<a href="' . esc_url( Redirect::get_url( 'https://jetpack.com/support/how-to-add-jetpack-ips-allowlist/' ) ) . '" target="_blank" rel="noopener noreferrer">',
 			sprintf(
