@@ -56,7 +56,11 @@ class SearchResults extends Component {
 			this.props.staticFilters.group_id &&
 			this.props.staticFilters.group_id !== MULTISITE_NO_GROUP_VALUE;
 
-		if ( this.props.isLoading || this.props.isQueryPending ) {
+		// An empty response object means no search has completed yet, which is distinct
+		// from a completed search that returned zero results.
+		const hasCompletedSearch = 'total' in this.props.response || this.props.hasError;
+
+		if ( this.props.isLoading || this.props.isQueryPending || ! hasCompletedSearch ) {
 			if ( ! hasQuery ) {
 				return __( 'Loading popular results…', 'jetpack-search-pkg' );
 			}

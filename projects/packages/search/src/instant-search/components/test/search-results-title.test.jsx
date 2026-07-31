@@ -32,8 +32,8 @@ const baseProps = {
 const titleFor = props => new SearchResults( { ...baseProps, ...props } ).getSearchTitle();
 
 describe( 'SearchResults#getSearchTitle — isQueryPending', () => {
-	it( 'shows "No results found" when nothing is loading or pending and total is 0', () => {
-		expect( titleFor( {} ) ).toBe( 'No results found' );
+	it( 'shows "No results found" when a search has actually completed with total 0', () => {
+		expect( titleFor( { response: { total: 0 } } ) ).toBe( 'No results found' );
 	} );
 
 	it( 'shows "Searching…" while isQueryPending is true, even with a stale empty response', () => {
@@ -50,9 +50,40 @@ describe( 'SearchResults#getSearchTitle — isQueryPending', () => {
 		expect( titleFor( { searchQuery: 'hello', isLoading: true } ) ).toBe( 'Searching…' );
 	} );
 
-	it( 'falls through to "No results found" once neither pending nor loading, with a stale empty response', () => {
-		expect( titleFor( { searchQuery: 'hello', isQueryPending: false, isLoading: false } ) ).toBe(
-			'No results found'
-		);
+	it( 'falls through to "No results found" once neither pending nor loading, with a completed empty response', () => {
+		expect(
+			titleFor( {
+				searchQuery: 'hello',
+				response: { total: 0 },
+				isQueryPending: false,
+				isLoading: false,
+			} )
+		).toBe( 'No results found' );
+	} );
+} );
+
+describe( 'SearchResults#getSearchTitle — no search has completed yet', () => {
+	it( 'shows "Loading popular results…" for the initial empty response, not "No results found"', () => {
+		expect(
+			titleFor( { searchQuery: '', response: {}, isQueryPending: false, isLoading: false } )
+		).toBe( 'Loading popular results…' );
+	} );
+
+	it( 'shows "Searching…" for the initial empty response with a query, not "No results found"', () => {
+		expect(
+			titleFor( { searchQuery: 'hello', response: {}, isQueryPending: false, isLoading: false } )
+		).toBe( 'Searching…' );
+	} );
+
+	it( 'still shows "No results found" for an empty response when hasError is true', () => {
+		expect(
+			titleFor( {
+				searchQuery: 'hello',
+				response: {},
+				hasError: true,
+				isQueryPending: false,
+				isLoading: false,
+			} )
+		).toBe( 'No results found' );
 	} );
 } );
