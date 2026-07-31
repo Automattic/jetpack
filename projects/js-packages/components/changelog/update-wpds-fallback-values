@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Don't embed WPDS tokens with footer component; they're enqueued separately. Remove WPDS token fallbacks.
