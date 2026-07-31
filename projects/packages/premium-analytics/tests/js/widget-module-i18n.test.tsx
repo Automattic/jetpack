@@ -149,6 +149,33 @@ describe( 'useWidgetTypesWithI18n', () => {
 		},
 	] as WidgetModuleRecord[];
 
+	const SCOPED_RECORDS = [
+		{
+			name: 'jpa/a',
+			widget_module: 'jetpack-premium-analytics/widgets/a/widget',
+			render_module: 'jetpack-premium-analytics/widgets/a/render',
+		},
+		{
+			name: 'jpa/b',
+			widget_module: 'jetpack-premium-analytics/widgets/b/widget',
+			render_module: 'jetpack-premium-analytics/widgets/b/render',
+		},
+		{
+			name: 'jpa/c',
+			widget_module: 'jetpack-premium-analytics/widgets/c/widget',
+			render_module: 'jetpack-premium-analytics/widgets/c/render',
+		},
+	] as WidgetModuleRecord[];
+
+	/**
+	 * Bundle paths passed to the catalog loader so far.
+	 *
+	 * @return The requested bundle paths.
+	 */
+	function requestedBundles(): string[] {
+		return loadCatalogMock.mock.calls.map( ( call: unknown[] ) => call[ 1 ] as string );
+	}
+
 	/**
 	 * The records argument of the most recent `useWidgetTypes` call — what the
 	 * gate has actually handed downstream on the latest render.
@@ -248,5 +275,127 @@ describe( 'useWidgetTypesWithI18n', () => {
 		expect( lastRecordsArg() ).toBe( emptyRecords );
 		expect( result.current ).toEqual( [ [], false ] );
 		expect( loadCatalogMock ).not.toHaveBeenCalled();
+	} );
+
+	it( 'loads catalogs only for the widgets the layout renders', async () => {
+		const { result } = renderHook( () =>
+			useWidgetTypesWithI18n( SCOPED_RECORDS, { visibleNames: [ 'jpa/b' ] } )
+		);
+
+		await waitFor( () => expect( result.current[ 1 ] ).toBe( false ) );
+
+		// A registered-but-not-laid-out widget's metadata catalog is what this
+		// change exists to stop requesting at boot.
+		expect( requestedBundles() ).toEqual( [ 'build/widgets/b/widget.js' ] );
+	} );
+
+	it( 'hands useWidgetTypes only the scoped subset', async () => {
+		renderHook( () => useWidgetTypesWithI18n( SCOPED_RECORDS, { visibleNames: [ 'jpa/b' ] } ) );
+
+		await waitFor( () => expect( lastRecordsArg() ).not.toBeNull() );
+		expect( lastRecordsArg() ).toEqual( [ SCOPED_RECORDS[ 1 ] ] );
+	} );
+
+	it( 'keeps the scoped array stable across renders with an equal visibleNames array', async () => {
+		const { rerender } = renderHook(
+			( { names }: { names: string[] } ) =>
+				useWidgetTypesWithI18n( SCOPED_RECORDS, { visibleNames: names } ),
+			{ initialProps: { names: [ 'jpa/b' ] } }
+		);
+		await waitFor( () => expect( lastRecordsArg() ).not.toBeNull() );
+		const firstScoped = lastRecordsArg();
+
+		// A caller building `visibleNames` inline re-creates the array every
+		// render; that must not restart resolution.
+		rerender( { names: [ 'jpa/b' ] } );
+
+		expect( lastRecordsArg() ).toBe( firstScoped );
+		expect( requestedBundles() ).toEqual( [ 'build/widgets/b/widget.js' ] );
+	} );
+
+	it( 'unions newly visible widgets rather than replacing the scope', async () => {
+		const { rerender } = renderHook(
+			( { names }: { names: string[] } ) =>
+				useWidgetTypesWithI18n( SCOPED_RECORDS, { visibleNames: names } ),
+			{ initialProps: { names: [ 'jpa/a' ] } }
+		);
+		await waitFor( () => expect( lastRecordsArg() ).not.toBeNull() );
+
+		// Switching sections must not drop the previous section's widgets back
+		// into a loading state when the user returns to it.
+		rerender( { names: [ 'jpa/c' ] } );
+
+		await waitFor( () =>
+			expect( lastRecordsArg() ).toEqual( [ SCOPED_RECORDS[ 0 ], SCOPED_RECORDS[ 2 ] ] )
+		);
+		// The second preload re-requests `a` alongside `c`; the real loader
+		// dedupes that, the mock records both. Assert on the distinct set — the
+		// point is that `b` is still never requested.
+		expect( new Set( requestedBundles() ) ).toEqual(
+			new Set( [ 'build/widgets/a/widget.js', 'build/widgets/c/widget.js' ] )
+		);
+	} );
+
+	it( 'expands to every record once includeAll turns on, and stays expanded', async () => {
+		const { rerender } = renderHook(
+			( { includeAll }: { includeAll: boolean } ) =>
+				useWidgetTypesWithI18n( SCOPED_RECORDS, { visibleNames: [ 'jpa/b' ], includeAll } ),
+			{ initialProps: { includeAll: false } }
+		);
+		await waitFor( () => expect( lastRecordsArg() ).not.toBeNull() );
+
+		// WidgetPicker lists the complete registry, so edit mode needs it all.
+		rerender( { includeAll: true } );
+		await waitFor( () => expect( lastRecordsArg() ).toBe( SCOPED_RECORDS ) );
+
+		// Latched: leaving edit mode must not shrink the registry and drop
+		// types the picker has already listed.
+		rerender( { includeAll: false } );
+		expect( lastRecordsArg() ).toBe( SCOPED_RECORDS );
+	} );
+
+	it( 'preloads nothing while the caller has not resolved its layout', async () => {
+		// Hooks cannot be skipped, so a caller that renders a spinner until its
+		// layout arrives still calls this hook meanwhile. Treating that as an
+		// empty layout would fall through to the every-record branch below and
+		// preload the whole registry before the layout could narrow it — which
+		// is what shipped and made the scoping a no-op on every real load.
+		const { rerender } = renderHook(
+			( { names }: { names: string[] | null } ) =>
+				useWidgetTypesWithI18n( SCOPED_RECORDS, { visibleNames: names } ),
+			{ initialProps: { names: null as string[] | null } }
+		);
+
+		expect( lastRecordsArg() ).toBeNull();
+		expect( loadCatalogMock ).not.toHaveBeenCalled();
+
+		rerender( { names: [ 'jpa/b' ] } );
+
+		await waitFor( () => expect( lastRecordsArg() ).toEqual( [ SCOPED_RECORDS[ 1 ] ] ) );
+		expect( requestedBundles() ).toEqual( [ 'build/widgets/b/widget.js' ] );
+	} );
+
+	it( 'falls back to every record when nothing is on screen', async () => {
+		// An empty layout means there is nothing to protect, and the dashboard
+		// force-opens edit mode in that state. Handing over an empty array
+		// instead would report "resolved, no types" and render any layout
+		// widget as missing rather than loading.
+		renderHook( () => useWidgetTypesWithI18n( SCOPED_RECORDS, { visibleNames: [] } ) );
+
+		await waitFor( () => expect( lastRecordsArg() ).toBe( SCOPED_RECORDS ) );
+	} );
+
+	it( 'keeps the gate closed until the scoped catalogs are installed', async () => {
+		const releaseCatalogs = holdCatalogs();
+
+		const { result } = renderHook( () =>
+			useWidgetTypesWithI18n( SCOPED_RECORDS, { visibleNames: [ 'jpa/b' ] } )
+		);
+
+		expect( lastRecordsArg() ).toBeNull();
+		expect( result.current[ 1 ] ).toBe( true );
+
+		releaseCatalogs();
+		await waitFor( () => expect( lastRecordsArg() ).toEqual( [ SCOPED_RECORDS[ 1 ] ] ) );
 	} );
 } );
