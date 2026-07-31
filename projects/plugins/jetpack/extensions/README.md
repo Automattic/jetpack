@@ -355,8 +355,6 @@ To stay consistent with Gutenberg, your extensions should follow [Gutenberg styl
 
 Prefer WordPress Design System tokens from [`@wordpress/theme`](https://github.com/WordPress/gutenberg/tree/trunk/packages/theme) (e.g. `var(--wpds-color-foreground-content-neutral)`). The build injects static fallbacks for `--wpds-*` custom properties via PostCSS.
 
-The build pipeline also supports [Color studio](https://github.com/Automattic/color-studio) via SASS variables (`$studio-pink-50`) without specifically importing them first.
-
 ### Icons
 
 Please use outline versions of [Material icons](https://material.io/tools/icons/?style=outline) to stay in line with Gutenberg. Don't rely on icons used in WordPress core to avoid visual mixing up with core blocks.
