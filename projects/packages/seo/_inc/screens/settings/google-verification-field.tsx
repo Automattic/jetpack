@@ -86,7 +86,13 @@ const GoogleVerificationField: FC< Props > = ( { value, onChange, onCommit, disa
 	return (
 		<Stack direction="column" gap="md">
 			<Stack direction="row" justify="space-between" align="center" gap="sm">
-				<Text variant="heading-md" render={ <strong /> }>
+				{ /* `heading-sm` is the field-label treatment (11px uppercase), matching
+				     the `TextControl` labels the other four services render — and
+				     matching this same field's own manual-entry branch above, which is a
+				     `TextControl` and so was already uppercase. It previously used
+				     `heading-md`, so "Google" changed typography depending on whether the
+				     site was Jetpack-connected. */ }
+				<Text variant="heading-sm" render={ <span /> }>
 					{ __( 'Google', 'jetpack-seo' ) }
 				</Text>
 				{ state === 'verified' && (

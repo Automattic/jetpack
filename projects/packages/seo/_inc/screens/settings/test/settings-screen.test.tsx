@@ -260,3 +260,19 @@ describe( 'Advanced module — WordPress.com Simple', () => {
 		expect( screen.queryByText( 'advanced' ) ).not.toBeInTheDocument();
 	} );
 } );
+
+describe( 'Settings module text hierarchy', () => {
+	// One rule: the small muted treatment (`body-sm`) is for explainer text attached
+	// to a field. A module's own prose is body copy (`body-md`). Pinned because the
+	// failure is silent — muted text still renders, it's just harder to read, which
+	// is how five modules drifted into it one copy-paste at a time.
+	it( 'renders a module description as body copy, not explainer text', () => {
+		// Site verification is the one module this suite leaves unmocked, so it's the
+		// one whose description actually renders here.
+		render( <SettingsScreen form={ buildForm() } /> );
+
+		const description = screen.getByText( /Confirm you own this site/ );
+		expect( description.className ).toMatch( /body-md/ );
+		expect( description.className ).not.toMatch( /body-sm/ );
+	} );
+} );
