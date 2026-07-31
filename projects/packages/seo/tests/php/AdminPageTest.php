@@ -172,6 +172,55 @@ class AdminPageTest extends TestCase {
 	}
 
 	/**
+	 * The three `site_type` values are the axis the launch metric splits on — it
+	 * reports Simple and Atomic separately — so each branch is pinned rather than
+	 * left to the shape assertion above, which any single value satisfies.
+	 *
+	 * Atomic is identified by its two platform constants together; a site carrying
+	 * only one of them is not Atomic, so the pair is set as a pair.
+	 */
+	public function test_get_tracks_context_reports_the_site_type_per_platform() {
+		$this->assertSame( 'jetpack', Admin_Page::get_tracks_context()['site_type'] );
+
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+		try {
+			$this->assertSame( 'simple', Admin_Page::get_tracks_context()['site_type'] );
+		} finally {
+			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+		}
+
+		\Automattic\Jetpack\Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+		\Automattic\Jetpack\Constants::set_constant( 'ATOMIC_CLIENT_ID', 456 );
+		try {
+			$this->assertSame( 'atomic', Admin_Page::get_tracks_context()['site_type'] );
+		} finally {
+			\Automattic\Jetpack\Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
+			\Automattic\Jetpack\Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
+		}
+	}
+
+	/**
+	 * `is_a11n` reads the WordPress.com `is_automattician()` function when the
+	 * platform provides it, so internal traffic can be separated from customer
+	 * traffic in the launch metric.
+	 *
+	 * The false case is the one that holds off WordPress.com: the function doesn't
+	 * exist there, and the property still has to be a real boolean rather than null,
+	 * because the Data schema types it as one.
+	 */
+	public function test_get_tracks_context_reads_the_automattician_flag() {
+		$this->assertFalse( Admin_Page::get_tracks_context()['is_a11n'] );
+
+		\Wpcom_Test_User::$is_automattician = true;
+
+		try {
+			$this->assertTrue( Admin_Page::get_tracks_context()['is_a11n'] );
+		} finally {
+			\Wpcom_Test_User::reset();
+		}
+	}
+
+	/**
 	 * A WordPress.com staging site counts as internal traffic, so `is_test` is true
 	 * and the launch metric can filter it out. `wpcom_is_staging_site` is the signal
 	 * Dotcom sets, and it's the case the deprecated `Status::is_staging_site()`
@@ -222,6 +271,60 @@ class AdminPageTest extends TestCase {
 		Admin_Page::enqueue_tracks_transport();
 
 		$this->assertFalse( wp_script_is( 'jp-tracks', 'enqueued' ) );
+	}
+
+	/**
+	 * The whole WordPress.com platform is allowed to send without consulting the
+	 * terms-of-service gate — it's covered by WordPress.com's own terms, and the
+	 * gate can't read it reliably anyway (Simple has no connection to inspect).
+	 *
+	 * This is the case that matters most for the launch metric: paid Simple and
+	 * Atomic sites are the population it counts, so a false negative here would
+	 * undercount the exact thing the instrumentation exists to measure. Asserted
+	 * against the un-consented baseline so it's the platform doing the work.
+	 */
+	public function test_can_use_analytics_short_circuits_on_the_wordpress_com_platform() {
+		$this->assertFalse( Admin_Page::can_use_analytics() );
+
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+
+		try {
+			$this->assertTrue( Admin_Page::can_use_analytics() );
+		} finally {
+			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+		}
+	}
+
+	/**
+	 * The transport is only wired up on the SEO page itself, and only there. Without
+	 * this registration `enqueue_tracks_transport()` never runs, so every event the
+	 * dashboard fires would queue into `window._tkq` and stay there — the failure
+	 * mode that makes this the easiest part of the instrumentation to lose.
+	 */
+	public function test_maybe_load_wp_build_registers_the_tracks_transport_on_the_seo_page() {
+		$hook = array( Admin_Page::class, 'enqueue_tracks_transport' );
+
+		remove_action( 'admin_enqueue_scripts', $hook );
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', $hook ) );
+
+		// `is_seo_admin_request()` reads both an admin context and the page query arg,
+		// so a request to any other admin page must leave the hook unregistered.
+		set_current_screen( 'dashboard' );
+		$_GET['page'] = 'jetpack';
+
+		try {
+			Admin_Page::maybe_load_wp_build();
+			$this->assertFalse( has_action( 'admin_enqueue_scripts', $hook ) );
+
+			$_GET['page'] = Admin_Page::MENU_SLUG;
+			Admin_Page::maybe_load_wp_build();
+			$this->assertNotFalse( has_action( 'admin_enqueue_scripts', $hook ) );
+		} finally {
+			unset( $_GET['page'] );
+			remove_action( 'admin_enqueue_scripts', $hook );
+			remove_action( 'current_screen', array( Admin_Page::class, 'alias_screen_id_for_wp_build' ) );
+			remove_filter( 'jetpack_admin_js_script_data', array( Admin_Page::class, 'inject_script_data' ) );
+		}
 	}
 
 	/**
