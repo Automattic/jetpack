@@ -53,6 +53,9 @@ export {
 	type WidgetFooterProps,
 	ReportLink,
 	type ReportLinkProps,
+	PostTitleLink,
+	POST_URL_SEARCH_PARAM,
+	type PostTitleLinkProps,
 	VideoTitleLink,
 	type VideoTitleLinkProps,
 	SubscriberList,
@@ -82,7 +85,8 @@ export {
 	type ReportPageTabsProps,
 	type ReportPerformanceChartProps,
 	type ReportRecordsTableProps,
-	isCsvExportEnabled,
+	ReportCsvAction,
+	type ReportCsvActionProps,
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,
 	RowsCsvDownloadButton,
@@ -156,7 +160,6 @@ export {
 	useSegmentStyles,
 	useSeriesStyles,
 	useWidgetDrillDown,
-	usePostDetailHrefBuilder,
 } from './hooks';
 
 /**

@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
+import { seen } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -36,7 +36,7 @@ export type PostViewsAttributes = {
  * `granularity` attribute (`relevance: 'high'`) chooses the bucket size.
  */
 export default {
-	icon: chartBar,
+	icon: seen,
 	attributes: [
 		{
 			id: 'granularity',

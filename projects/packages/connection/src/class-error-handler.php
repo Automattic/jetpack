@@ -433,7 +433,8 @@ class Error_Handler {
 	 *                   'action' => 'reconnect',
 	 *                   'data' => [
 	 *                     'api_error_code' => 'invalid_token',
-	 *                     'action' => 'reconnect'
+	 *                     'action' => 'reconnect',
+	 *                     'audience' => 'site' // Who the error is relevant to: 'site', 'owner', or 'user'.
 	 *                   ]
 	 *                 ]
 	 *               ]
@@ -477,6 +478,11 @@ class Error_Handler {
 				$dashboard_data[ $key ] = $value;
 			}
 		}
+
+		// Expose the error audience (site/owner/user) so the dashboard can render
+		// audience-aware copy. Falls back to site-wide for consumer-injected errors
+		// that predate the audience field.
+		$dashboard_data['audience'] = $first_error['audience'] ?? 'site';
 
 		$dashboard_error = array(
 			array(
@@ -1171,12 +1177,18 @@ class Error_Handler {
 		}
 
 		$body = json_decode( $body_raw, true );
-		if ( empty( $body['error'] ) || ( ! is_string( $body['error'] ) && ! is_int( $body['error'] ) ) ) {
+
+		// Support both error envelopes: the legacy v1 JSON-API shape (`error`) and the
+		// WP-API v2 shape (`code`), the latter used by `wpcom/v2` endpoints such as
+		// `jetpack-wpcom-user-data`. Prefer `error` for backwards compatibility.
+		$error_code = is_array( $body ) ? ( $body['error'] ?? $body['code'] ?? null ) : null;
+
+		if ( empty( $error_code ) || ( ! is_string( $error_code ) && ! is_int( $error_code ) ) ) {
 			return;
 		}
 
 		$error = new \WP_Error(
-			$body['error'],
+			$error_code,
 			empty( $body['message'] ) ? '' : $body['message'],
 			array(
 				'signature_details' => array(

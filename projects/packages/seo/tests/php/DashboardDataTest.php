@@ -260,4 +260,35 @@ class DashboardDataTest extends SeoTestCase {
 		$overview = Dashboard_Data::get_overview_data();
 		$this->assertArrayNotHasKey( 'sitemap_url', $overview['site_visibility'] );
 	}
+
+	/**
+	 * `title_separator` must be the separator as *rendered*, not the raw
+	 * `document_title_separator` value. `wp_get_document_title()` runs the composed
+	 * title through the `document_title` filter, which WordPress texturizes by
+	 * default — so core's `-` reaches a visitor as an en dash. Previewing the raw
+	 * value showed `-` on every site running core's defaults, which render `–`.
+	 */
+	public function test_get_settings_data_title_separator_is_rendered_not_raw() {
+		$settings = Dashboard_Data::get_settings_data();
+
+		$this->assertArrayHasKey( 'title_separator', $settings );
+		$this->assertIsString( $settings['title_separator'] );
+		$this->assertSame( "\u{2013}", $settings['title_separator'] );
+	}
+
+	/**
+	 * A theme's own separator still wins — it is texturized, not replaced.
+	 */
+	public function test_get_settings_data_title_separator_honors_the_filter() {
+		$filter = static function () {
+			return '|';
+		};
+		add_filter( 'document_title_separator', $filter );
+
+		$settings = Dashboard_Data::get_settings_data();
+
+		remove_filter( 'document_title_separator', $filter );
+
+		$this->assertSame( '|', $settings['title_separator'] );
+	}
 }

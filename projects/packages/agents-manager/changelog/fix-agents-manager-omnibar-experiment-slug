@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix missing AI entry points in the editor admin bar on sites running Gutenberg 23.5 or later.

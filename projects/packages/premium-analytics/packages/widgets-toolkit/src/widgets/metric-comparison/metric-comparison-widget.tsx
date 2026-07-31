@@ -12,6 +12,7 @@ import type {
 	SeriesStyle,
 } from '../../components/chart-comparative-line/types';
 import type { DataFormat } from '../../types';
+import type { DateFormatName } from '@jetpack-premium-analytics/formatters';
 
 export type MetricComparisonWidgetProps = {
 	/**
@@ -36,7 +37,8 @@ export type MetricComparisonWidgetProps = {
 	seriesStyles?: SeriesStyle[];
 
 	dataFormat: DataFormat;
-	tickFormat?: string;
+	/** Named date format for the X-axis ticks. */
+	tickFormat?: DateFormatName;
 };
 
 export function MetricComparisonWidget( {

@@ -6,10 +6,13 @@ import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analyti
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
+	ReportCsvAction,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
+	useReportCsvExport,
 	useReportRetry,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useMemo, useState } from '@wordpress/element';
@@ -19,7 +22,7 @@ import { useSearch } from '@wordpress/route';
  * Internal dependencies
  */
 import { route } from '../package.json';
-import { getAuthorsFields, useAuthorsReportRecords, type AuthorRow } from './config';
+import { getAuthorName, getAuthorsFields, useAuthorsReportRecords, type AuthorRow } from './config';
 
 const ROUTE_FROM = route.path;
 
@@ -54,6 +57,18 @@ const RECORDS_VIEW = {
 };
 
 /**
+ * Keep nested posts identifiable after the table hierarchy is flattened into CSV rows.
+ *
+ * @param item - The author or nested post row.
+ * @return The author name or author-qualified post title.
+ */
+function getAuthorCsvLabel( item: AuthorRow ): string {
+	return item.parentName
+		? `${ getAuthorName( item.parentName ) } > ${ item.label }`
+		: getAuthorName( item.label );
+}
+
+/**
  * Premium Analytics Authors report page component.
  *
  * @return The Authors report page.
@@ -71,6 +86,26 @@ function AuthorsReport(): JSX.Element {
 		() => getAuthorsFields( records.hasComparison ),
 		[ records.hasComparison ]
 	);
+	const csvColumns = useMemo< CsvColumn< AuthorRow >[] >(
+		() => [
+			{
+				label: __( 'Author / post', 'jetpack-premium-analytics-pkg' ),
+				getValue: getAuthorCsvLabel,
+			},
+			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
+		],
+		[]
+	);
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport( {
+		rows: records.rows,
+		filenamePrefix: 'top-authors',
+		range: reportParams,
+		status: records,
+	} );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dashboardLink = useDashboardLink();
@@ -85,6 +120,11 @@ function AuthorsReport(): JSX.Element {
 						{ label: __( 'Top authors', 'jetpack-premium-analytics-pkg' ) },
 					] }
 				/>
+			}
+			actions={
+				canExport ? (
+					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
+				) : undefined
 			}
 		>
 			<ReportPageLayout

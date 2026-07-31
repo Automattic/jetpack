@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Consolidate duplicated empty-responses and copy-to-clipboard helper logic behind shared hooks. No functional change.

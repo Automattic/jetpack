@@ -1,6 +1,5 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -14,8 +13,7 @@ import getOverview from '../../data/get-overview';
 import { isGated } from '../../data/is-gated';
 import { settingsStore } from '../../data/settings-store';
 import AiCrawlerCard from './ai-crawler-card';
-import ContentCoverageCard from './content-coverage-card';
-import DisableSeoTools from './disable-seo-tools';
+import ContentCoverageCard, { type ContentNeed } from './content-coverage-card';
 import SiteVerificationCard from './site-verification-card';
 import SiteVisibilityCard from './site-visibility-card';
 import styles from './style.module.scss';
@@ -40,6 +38,8 @@ const OverviewScreen: FC = () => {
 	// crawler slice to the Overview payload.
 	const crawlers = useSelect( select => select( aiStore ).getCrawlers(), [] );
 
+	const llmsTxt = useSelect( select => select( aiStore ).getLlmsTxt(), [] );
+
 	// Deep-link to a Settings section: navigate to the Settings route with
 	// `?focus=`, which the Settings screen reads to scroll the section to top.
 	const goToSection = useCallback(
@@ -51,7 +51,15 @@ const OverviewScreen: FC = () => {
 	// Deep-link to the Content route.
 	const goToContent = useCallback( () => navigate( { href: '/content' } ), [ navigate ] );
 
-	// Deep-link to the GEO route (AI crawler management).
+	// Deep-link to the Content route filtered to the rows still missing a field
+	// (`?needs=`, read by the Content screen). Clicking a coverage ring lands the
+	// user on exactly the content there's an action to take on.
+	const goToContentNeeds = useCallback(
+		( need: ContentNeed ) => navigate( { href: `/content?needs=${ encodeURIComponent( need ) }` } ),
+		[ navigate ]
+	);
+
+	// Deep-link to the GEO route.
 	const goToAi = useCallback( () => navigate( { href: '/ai' } ), [ navigate ] );
 
 	if ( ! data ) {
@@ -135,17 +143,18 @@ const OverviewScreen: FC = () => {
 						searchEnginesVisible={
 							settings?.search_engines_visible ?? crawlers.searchEnginesVisible
 						}
+						llmsTxt={ llmsTxt }
 						onManage={ goToAi }
 					/>
 				) }
 			</div>
 			<div className={ styles.contentCard }>
-				<ContentCoverageCard data={ coverage ?? data.content_coverage } onManage={ goToContent } />
+				<ContentCoverageCard
+					data={ coverage ?? data.content_coverage }
+					onManage={ goToContent }
+					onFilter={ goToContentNeeds }
+				/>
 			</div>
-			{ /* Hidden on WordPress.com Simple, where `Modules::is_active()` reports
-			     every module active regardless of stored state, so SEO tools can't
-			     actually be turned off — the off-ramp would appear to do nothing. */ }
-			{ ! isSimpleSite() && <DisableSeoTools /> }
 		</div>
 	);
 };

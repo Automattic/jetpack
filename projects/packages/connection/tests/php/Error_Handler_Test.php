@@ -370,6 +370,83 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that `check_api_response_for_errors()` captures the WP-API v2 error envelope,
+	 * which uses `code` (rather than the legacy v1 `error` key). This is the shape returned
+	 * by `wpcom/v2` endpoints such as `jetpack-wpcom-user-data`.
+	 */
+	public function test_check_api_response_for_errors_v2_code_envelope() {
+		// Keep the assertion order-independent regardless of the hourly reporting gate.
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_api_response_for_errors(
+			array(
+				'response' => array(
+					'code' => 500,
+				),
+				'body'     => '{"code":"unknown_token","message":"It looks like your Jetpack connection is broken.","data":{"status":403}}',
+			),
+			array( 'token' => 'broken:1:0' ),
+			'https://localhost/',
+			'GET',
+			'rest'
+		);
+
+		$stored_errors   = $this->error_handler->get_stored_errors();
+		$verified_errors = $this->error_handler->get_verified_errors();
+
+		$this->assertArrayHasKey( 'unknown_token', $stored_errors );
+		$this->assertEquals( 'rest', $stored_errors['unknown_token']['0']['error_type'] );
+		$this->assertArrayHasKey( 'unknown_token', $verified_errors );
+		$this->assertEquals( 'rest', $verified_errors['unknown_token']['0']['error_type'] );
+	}
+
+	/**
+	 * Test that a v2 `code` that is not in the `known_errors` allowlist is not stored.
+	 */
+	public function test_check_api_response_for_errors_v2_code_not_in_allowlist() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_api_response_for_errors(
+			array(
+				'response' => array(
+					'code' => 403,
+				),
+				'body'     => '{"code":"rest_forbidden","message":"The user is not a member of this site.","data":{"status":403}}',
+			),
+			array( 'token' => 'broken:1:0' ),
+			'https://localhost/',
+			'GET',
+			'rest'
+		);
+
+		$this->assertEmpty( $this->error_handler->get_stored_errors() );
+		$this->assertEmpty( $this->error_handler->get_verified_errors() );
+	}
+
+	/**
+	 * Test that a 200 response is never inspected for an error body, even if it carries a `code`.
+	 */
+	public function test_check_api_response_for_errors_ignores_200_with_code_body() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_api_response_for_errors(
+			array(
+				'response' => array(
+					'code' => 200,
+				),
+				'body'     => '{"code":"unknown_token","message":"Should be ignored on a 200 response."}',
+			),
+			array( 'token' => 'broken:1:0' ),
+			'https://localhost/',
+			'GET',
+			'rest'
+		);
+
+		$this->assertEmpty( $this->error_handler->get_stored_errors() );
+		$this->assertEmpty( $this->error_handler->get_verified_errors() );
+	}
+
+	/**
 	 * Test storing errors
 	 */
 	public function test_delete_all_api_errors() {
@@ -1423,6 +1500,87 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'broken', $result[0]['message'] );
 		$this->assertEquals( 'create_missing_account', $result[0]['action'] ); // Custom action
 		$this->assertEquals( 'invalid_connection_owner', $result[0]['data']['api_error_code'] );
+	}
+
+	/**
+	 * Test that jetpack_react_dashboard_error() exposes a site-scoped audience.
+	 *
+	 * The audience is a top-level field on the displayable error, so it must be
+	 * threaded through the reshape rather than being dropped with the other
+	 * non-error_data fields. A blog-token error (user_id 0) is site-scoped.
+	 */
+	public function test_jetpack_react_dashboard_error_includes_site_audience() {
+		$this->store_single_verified_error( 'invalid_token', '0' );
+
+		$result = $this->error_handler->jetpack_react_dashboard_error( array() );
+
+		$this->assertIsArray( $result );
+		$this->assertCount( 1, $result );
+		$this->assertArrayHasKey( 'audience', $result[0]['data'], 'The dashboard error data must expose the audience.' );
+		$this->assertSame( 'site', $result[0]['data']['audience'], 'A blog-token (user_id 0) error is site-scoped.' );
+	}
+
+	/**
+	 * Test that jetpack_react_dashboard_error() exposes an owner-scoped audience:
+	 * an error stored under the connection owner's (master_user) ID.
+	 */
+	public function test_jetpack_react_dashboard_error_includes_owner_audience() {
+		$owner_id = wp_insert_user(
+			array(
+				'user_login' => 'dashboard_owner',
+				'user_pass'  => 'password',
+				'user_email' => 'dashboard_owner@example.org',
+				'role'       => 'administrator',
+			)
+		);
+		$this->assertIsInt( $owner_id );
+		\Jetpack_Options::update_option( 'master_user', $owner_id );
+
+		$this->store_single_verified_error( 'no_valid_user_token', (string) $owner_id );
+
+		$result = $this->error_handler->jetpack_react_dashboard_error( array() );
+
+		$this->assertCount( 1, $result );
+		$this->assertSame( 'owner', $result[0]['data']['audience'], 'An error under the master_user ID is owner-scoped.' );
+	}
+
+	/**
+	 * Test that jetpack_react_dashboard_error() exposes a user-scoped audience: an
+	 * error tied to a specific (non-owner) user's token. With no connection owner on
+	 * record, a positive user ID is classified as that user's error.
+	 */
+	public function test_jetpack_react_dashboard_error_includes_user_audience() {
+		$this->store_single_verified_error( 'no_valid_user_token', '5' );
+
+		$result = $this->error_handler->jetpack_react_dashboard_error( array() );
+
+		$this->assertCount( 1, $result );
+		$this->assertSame( 'user', $result[0]['data']['audience'], "A non-owner user's token error is user-scoped." );
+	}
+
+	/**
+	 * Stores a single verified error under a given error code and user ID.
+	 *
+	 * @param string $error_code The (displayable) error code.
+	 * @param string $user_id    The user ID key the error is stored under.
+	 */
+	private function store_single_verified_error( $error_code, $user_id ) {
+		update_option(
+			Error_Handler::STORED_VERIFIED_ERRORS_OPTION,
+			array(
+				$error_code => array(
+					$user_id => array(
+						'error_code'    => $error_code,
+						'user_id'       => $user_id,
+						'error_message' => 'Test message',
+						'error_data'    => array(),
+						'timestamp'     => time(),
+						'nonce'         => 'test_nonce',
+						'error_type'    => 'xmlrpc',
+					),
+				),
+			)
+		);
 	}
 
 	/**

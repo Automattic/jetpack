@@ -16,6 +16,8 @@ export {
 
 export { formatRelativeSince } from './relative-since';
 
+export { parseSiteDateTime } from './site-datetime';
+
 export {
 	formatDatePartWithTime,
 	getDateIntervalDateParts,
