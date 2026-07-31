@@ -10,6 +10,8 @@ use Automattic\Jetpack\Help_Center\WP_REST_Help_Center_Odie;
 use Automattic\Jetpack\Help_Center\WP_REST_Help_Center_Search;
 use Automattic\Jetpack\Help_Center\Wpcom_Request_Client;
 
+require_once __DIR__ . '/class-logged-out-capturing-request-client.php';
+
 /**
  * Class Logged_Out_Request_Test
  */
@@ -188,39 +190,7 @@ class Logged_Out_Request_Test extends \WorDBless\BaseTestCase {
 		);
 	}
 
-	private function create_capturing_request_client(): Wpcom_Request_Client {
-		return new class() implements Wpcom_Request_Client {
-			/**
-			 * Captured requests.
-			 *
-			 * @var array
-			 */
-			public $requests = array();
-
-			public function is_user_connected() {
-				return false;
-			}
-
-			public function request(
-				$path,
-				$version = '2',
-				$args = array(),
-				$body = null,
-				$base_api_path = 'wpcom'
-			) {
-				$this->requests[] = compact( 'path', 'version', 'args', 'body', 'base_api_path' );
-
-				return array(
-					'headers'  => array(),
-					'body'     => '{"messages":[]}',
-					'response' => array(
-						'code'    => 200,
-						'message' => 'OK',
-					),
-					'cookies'  => array(),
-					'filename' => null,
-				);
-			}
-		};
+	private function create_capturing_request_client(): Logged_Out_Capturing_Request_Client {
+		return new Logged_Out_Capturing_Request_Client();
 	}
 }
