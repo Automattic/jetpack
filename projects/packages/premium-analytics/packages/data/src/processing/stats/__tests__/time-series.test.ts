@@ -271,6 +271,28 @@ describe( 'Stats time-series normalizer', () => {
 		expect( result.summary ).toEqual( { date_start: '', date_end: '' } );
 	} );
 
+	it( 'trims an offset-bearing query date to the calendar day when no rows are returned', () => {
+		const result = sanitizeStatsTimeSeriesResponse(
+			{},
+			{
+				start_date: '2026-06-15T00:00:00-07:00',
+				end_date: '2026-06-16T23:59:59-07:00',
+			}
+		);
+
+		expect( result.data ).toEqual( [] );
+		expect( result.summary ).toEqual( { date_start: '2026-06-15', date_end: '2026-06-16' } );
+	} );
+
+	it( 'falls back to the offset-bearing `date` param for date_end when end_date is absent', () => {
+		const result = sanitizeStatsTimeSeriesResponse(
+			{},
+			{ start_date: '2026-06-15T00:00:00-07:00', date: '2026-06-16T23:59:59-07:00' }
+		);
+
+		expect( result.summary ).toEqual( { date_start: '2026-06-15', date_end: '2026-06-16' } );
+	} );
+
 	it( 'detects supported time-series payload shapes', () => {
 		expect( isStatsTimeSeriesPayload( visitsFixture ) ).toBe( true );
 		expect( isStatsTimeSeriesPayload( scalarDaysTimeSeriesFixture ) ).toBe( true );

@@ -288,8 +288,8 @@ export function sanitizeStatsTimeSeriesResponse(
 		summary: {
 			...getTimeSeriesSummarySidecars( response ),
 			...summary,
-			date_start: firstRow?.date_start ?? query?.start_date ?? '',
-			date_end: lastRow?.date_end ?? query?.end_date ?? query?.date ?? '',
+			date_start: firstRow?.date_start ?? getDatePart( query?.start_date ) ?? '',
+			date_end: lastRow?.date_end ?? getDatePart( query?.end_date ?? query?.date ) ?? '',
 		},
 		data,
 	};
