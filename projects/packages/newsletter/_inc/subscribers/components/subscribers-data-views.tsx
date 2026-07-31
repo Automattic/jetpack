@@ -22,9 +22,6 @@ import type { Action, Field, View } from '@wordpress/dataviews';
 
 const DEFAULT_PER_PAGE = 20;
 
-// Stable reference so passing "no rows" to DataViews doesn't churn on every render.
-const NO_SUBSCRIBERS: Subscriber[] = [];
-
 const defaultView: View = {
 	type: 'table',
 	page: 1,
@@ -316,7 +313,7 @@ export default function SubscribersDataViews( {
 	const handleCloseComp = useCallback( () => setCompTarget( null ), [] );
 	const handleCloseRemoveComp = useCallback( () => setRemoveCompTarget( null ), [] );
 
-	const subscribers = data?.subscribers ?? NO_SUBSCRIBERS;
+	const subscribers = data?.subscribers ?? [];
 	const totalItems = data?.total ?? 0;
 	const totalPages = data?.pages ?? 0;
 
