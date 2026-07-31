@@ -34,17 +34,36 @@
 	font-variant-numeric: tabular-nums;
 }
 
-// The "while it's off" list in the Advanced module. Muted like the prose around
-// it, with the marker indent as the only structure — these are consequences to
-// scan, not a styled feature list.
+// The "while it's off" list in the Advanced module. Body text, not the muted
+// explainer style — these are consequences to read, not hints about a field.
+// The marker is drawn here rather than left to `list-style`: wp-admin strips
+// list markers inside the admin content area from a selector we can't see from
+// this repo, so there's no knowing what specificity we'd need to beat. Drawing
+// the bullet takes the question off the table and lets it align to the text.
 .effects {
 	margin: 0;
-	padding-inline-start: var(--wpds-dimension-gap-lg);
-	color: var(--wpds-color-foreground-content-neutral-weak);
-	font-size: var(--wpds-typography-font-size-sm);
-	line-height: var(--wpds-typography-line-height-sm);
+	padding: 0;
+	list-style: none;
+
+	li {
+		position: relative;
+		padding-inline-start: var(--wpds-dimension-gap-lg);
+	}
 
 	li + li {
 		margin-block-start: var(--wpds-dimension-gap-xs);
+	}
+
+	li::before {
+		content: "";
+		position: absolute;
+		inset-inline-start: var(--wpds-dimension-gap-xs);
+		// Optically centred on the first line rather than the whole item, so a
+		// wrapping bullet keeps its marker beside the first line.
+		inset-block-start: 0.55em;
+		inline-size: 5px;
+		block-size: 5px;
+		border-radius: 50%;
+		background: var(--wpds-color-foreground-content-neutral-weak);
 	}
 }

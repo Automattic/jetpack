@@ -59,6 +59,23 @@ describe( 'AdvancedCard', () => {
 		expect( screen.getByText( /is kept, so turning it back on/ ) ).toBeInTheDocument();
 	} );
 
+	it( 'renders its prose as body copy, not muted explainer text', () => {
+		render( <AdvancedCard /> );
+		expandCard();
+
+		// The small, light treatment is reserved for hints attached to a field. This
+		// module's prose and its consequence list are things to read, so they use the
+		// same body variant as ordinary paragraphs — pinned because the first version
+		// of this module used `body-sm` + muted throughout and was hard to read.
+		const intro = screen.getByText( /Use this only if you don’t want Jetpack optimizing/ );
+		expect( intro.className ).toMatch( /body-md/ );
+		expect( intro.className ).not.toMatch( /body-sm/ );
+
+		const item = screen.getByText( /stops adding structured data/ );
+		expect( item.tagName ).toBe( 'LI' );
+		expect( item.className ).toMatch( /body-md/ );
+	} );
+
 	it( 'turns SEO tools off through the toggle hook', () => {
 		render( <AdvancedCard /> );
 		expandCard();

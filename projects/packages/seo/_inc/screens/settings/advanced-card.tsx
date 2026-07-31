@@ -39,7 +39,10 @@ const AdvancedCard: FC = () => {
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
 				<Stack direction="column" gap="lg">
-					<Text variant="body-sm" className={ styles.muted } render={ <p /> }>
+					{ /* Body copy, not the muted `body-sm` explainer style: the small light
+					     treatment is for hints attached to a field, and this is the module's
+					     own prose. Same for the list and the closing line below. */ }
+					<Text variant="body-md" render={ <p /> }>
 						{ __(
 							'Turn off Jetpack’s SEO tools. Use this only if you don’t want Jetpack optimizing this site, or if another SEO plugin is managing the same things and they’re conflicting.',
 							'jetpack-seo'
@@ -47,34 +50,35 @@ const AdvancedCard: FC = () => {
 					</Text>
 
 					<Stack direction="column" gap="sm">
-						<Text variant="body-sm" className={ styles.muted } render={ <p /> }>
-							{ __( 'While it’s off:', 'jetpack-seo' ) }
-						</Text>
+						<Text variant="heading-sm">{ __( 'While it’s off:', 'jetpack-seo' ) }</Text>
 						{ /* The three things that actually stop, which the old Overview footer
 						     link never said. Structured data and llms.txt are front-end output,
 						     not just settings — see `Initializer::init()`, which skips
 						     `Schema_Builder`, `Author_Schema_Node`, `Llms_Txt` and `Ai_Crawlers`
 						     while the module is inactive. */ }
+						{ /* Each item goes through `Text` so it carries the same typography as
+						     the paragraphs around it, rather than inheriting whatever wp-admin
+						     gives a bare `li`. */ }
 						<ul className={ styles.effects }>
-							<li>
+							<Text variant="body-md" render={ <li /> }>
 								{ __(
 									'These settings become unavailable — titles, descriptions, sitemap, verification and schema.',
 									'jetpack-seo'
 								) }
-							</li>
-							<li>
+							</Text>
+							<Text variant="body-md" render={ <li /> }>
 								{ __( 'Jetpack stops adding structured data to your pages.', 'jetpack-seo' ) }
-							</li>
-							<li>
+							</Text>
+							<Text variant="body-md" render={ <li /> }>
 								{ __(
 									'Your llms.txt file stops being served, and AI crawler rules are removed from robots.txt.',
 									'jetpack-seo'
 								) }
-							</li>
+							</Text>
 						</ul>
 					</Stack>
 
-					<Text variant="body-sm" className={ styles.muted } render={ <p /> }>
+					<Text variant="body-md" render={ <p /> }>
 						{ __(
 							'Everything you’ve entered here is kept, so turning it back on restores your setup.',
 							'jetpack-seo'
