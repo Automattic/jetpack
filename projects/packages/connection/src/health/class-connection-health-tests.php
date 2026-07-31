@@ -111,7 +111,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 					'long_description' => sprintf(
 						'<p>%1$s</p>' .
 						'<p><span class="dashicons pass"><span class="screen-reader-text">%2$s</span></span> %3$s</p>',
-						__( 'A healthy Jetpack Connection allows connected plugins (such as Jetpack and WooCommerce) to provide features like Stats, Site Security, and Payments.', 'jetpack-connection' ),
+						__( 'A healthy Jetpack Connection allows connected plugins (such as Jetpack and WooCommerce) to provide Jetpack features to your site.', 'jetpack-connection' ),
 						/* translators: Screen reader text indicating a test has passed */
 						__( 'Passed', 'jetpack-connection' ),
 						__( 'Your site is connected to WordPress.com.', 'jetpack-connection' )
