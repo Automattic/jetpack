@@ -100,7 +100,8 @@ class Status_Test extends TestCase {
 	 * Test is_offline_mode when not using any filter
 	 */
 	public function test_is_offline_mode_default() {
-		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode' )->andReturn( false );
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode', null )->andReturn( null );
+		Functions\expect( 'add_option' )->once()->with( 'jetpack_offline_mode', false, '', true );
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( false );
 
 		$this->assertFalse( $this->status_obj->is_offline_mode() );
@@ -120,7 +121,8 @@ class Status_Test extends TestCase {
 	 * Test when using a bool value for the jetpack_offline_mode filter.
 	 */
 	public function test_is_offline_mode_filter_bool() {
-		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode' )->andReturn( false );
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode', null )->andReturn( null );
+		Functions\expect( 'add_option' )->once()->with( 'jetpack_offline_mode', false, '', true );
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( 0 );
 
 		$this->assertFalse( $this->status_obj->is_offline_mode() );
@@ -211,7 +213,7 @@ class Status_Test extends TestCase {
 	 * Test that `is_offline_mode()` returns true when the `jetpack_offline_mode` option is set.
 	 */
 	public function test_is_offline_mode_option() {
-		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode' )->andReturn( '1' );
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode', null )->andReturn( '1' );
 
 		$this->assertTrue( $this->status_obj->is_offline_mode() );
 	}
@@ -220,7 +222,7 @@ class Status_Test extends TestCase {
 	 * Test that `is_offline_mode()` returns false when the `jetpack_offline_mode` option exists, but set to '0'.
 	 */
 	public function test_is_offline_mode_option_inactive() {
-		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode' )->andReturn( '0' );
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode', null )->andReturn( '0' );
 
 		$this->assertFalse( $this->status_obj->is_offline_mode() );
 	}

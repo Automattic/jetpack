@@ -54,7 +54,18 @@ class Status {
 		$offline_mode = (bool) apply_filters( 'jetpack_offline_mode', $offline_mode );
 
 		if ( ! $offline_mode ) {
-			$offline_mode = (bool) get_option( 'jetpack_offline_mode' );
+			// Use null as the default so we can tell an unset option apart from a stored `false`.
+			$option = get_option( 'jetpack_offline_mode', null );
+
+			if ( null === $option ) {
+				// This escape-hatch option is never written by Jetpack, so on most sites it is
+				// missing and re-queried on every request when there is no persistent object
+				// cache. Persist the default as an autoloaded row so future reads are served
+				// from cache (JETPACK-1539).
+				add_option( 'jetpack_offline_mode', false, '', true );
+			} else {
+				$offline_mode = (bool) $option;
+			}
 		}
 
 		Cache::set( 'is_offline_mode', $offline_mode );
