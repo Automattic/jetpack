@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
+import { Button, Icon } from '@jetpack-premium-analytics/externals';
 import { chevronDown } from '@wordpress/icons';
-import { Button, Icon } from '@wordpress/ui';
 import { memo, useCallback, useLayoutEffect, useRef } from 'react';
 /**
  * Internal dependencies

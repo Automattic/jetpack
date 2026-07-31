@@ -1,6 +1,6 @@
 import { DataViewsDrilldownNative } from '../dataviews-drilldown-native';
+import type { DataViewRenderFieldProps, Field } from '@jetpack-premium-analytics/externals';
 import type { Meta, StoryObj } from '@storybook/react';
-import type { DataViewRenderFieldProps, Field } from '@wordpress/dataviews';
 
 type ReferrerRow = {
 	id: string;

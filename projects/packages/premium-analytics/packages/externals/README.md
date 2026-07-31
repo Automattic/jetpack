@@ -1,7 +1,7 @@
 # `@jetpack-premium-analytics/externals`
 
 A passthrough script module for the heavy third-party libraries the dashboard shares:
-`@automattic/charts`, `@wordpress/ui`, and `@wordpress/dataviews`.
+`@automattic/charts`, `@automattic/ui`, `@wordpress/ui`, and `@wordpress/dataviews`.
 
 ## Why this exists
 
@@ -26,12 +26,21 @@ change when the libraries themselves are upgraded. Feature work no longer rewrit
   invalidates the artifact for everyone, which is exactly what this package exists to avoid.
 - **Import from here, never from the library directly.** `import { LineChart } from
   '@automattic/charts'` inside another module bundles charts into that module again and silently
-  undoes the split. ESLint enforces this for `packages/widgets-toolkit` (`no-restricted-imports`
-  in `eslint.config.mjs`); stylesheet imports are exempt, since plain CSS carries none of the
-  bundling cost. The rule is scoped to the toolkit because that is the only module migrated so
-  far — widen it as `packages/ui`, `widgets/`, and `routes/` follow.
+  undoes the split. ESLint enforces this across `packages/**` (`no-restricted-imports` in
+  `eslint.config.mjs`), with `packages/externals` itself excluded — it *is* the passthrough, so it
+  has to import the libraries directly. Stylesheet imports are exempt everywhere, since plain CSS
+  carries none of the bundling cost. `widgets/` and `routes/` still import these directly and are
+  the remaining follow-up.
 - **Adding an export is cheap; adding a library is not.** A new library only belongs here if more
   than one module needs it, or if it is large enough that re-emitting it per module hurts.
+  `@automattic/ui` qualifies on the second count alone: `DateRangeCalendar` is its only consumer
+  in the package, but it reaches `react-day-picker` behind it, so leaving it in `packages/ui`
+  re-emitted ~55 KB of vendor code on every edit to that module.
+
+  `date-fns` deliberately stays out. It is imported directly by ~30 files across `data`,
+  `datetime`, `routing`, `widgets/`, and `routes/`, and it is tree-shaken per function — routing it
+  through here would mean a barrel that grows every time any consumer needs one more function,
+  which is exactly the churn this module exists to avoid.
 
 Libraries WordPress already registers as script modules or globals (`@wordpress/components`,
 `@wordpress/data`, `@wordpress/i18n`, `react`, …) are externalised by wp-build on their own and

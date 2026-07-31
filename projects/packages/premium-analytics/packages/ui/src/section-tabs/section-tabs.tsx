@@ -1,4 +1,4 @@
-import { Tabs } from '@wordpress/ui';
+import { Tabs } from '@jetpack-premium-analytics/externals';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import styles from './section-tabs.module.scss';
@@ -112,9 +112,10 @@ export interface SectionTabPanelProps< TabId extends string = string > {
  * A tab panel for `SectionTabs` children.
  *
  * Consumers must use this instead of `Tabs.Panel` from `@wordpress/ui`: routes
- * and shared packages can each bundle their own copy of `@wordpress/ui`, and
- * Base UI's tabs context does not cross bundle copies. Importing the panel and
- * root through the same package specifier guarantees both share one instance.
+ * and widgets still import `@wordpress/ui` directly, so they can each bundle
+ * their own copy, and Base UI's tabs context does not cross bundle copies.
+ * Importing the panel and root through the same package specifier guarantees
+ * both share one instance.
  *
  * @param props           - Component props.
  * @param props.value     - The tab this panel belongs to.
