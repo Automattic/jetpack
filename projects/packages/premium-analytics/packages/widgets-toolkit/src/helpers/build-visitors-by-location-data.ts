@@ -9,7 +9,7 @@ import { calculateDelta } from './calculate-delta';
 import { getCombinedPeriodMax } from './get-combined-period-max';
 import { sharePercentage } from './share-percentage';
 import type { LeaderboardChartData } from '../components/chart-leaderboard/leaderboard-chart';
-import type { GeoData } from '@automattic/charts';
+import type { GeoData } from '@jetpack-premium-analytics/externals';
 
 export type Region = 'US' | 'world';
 

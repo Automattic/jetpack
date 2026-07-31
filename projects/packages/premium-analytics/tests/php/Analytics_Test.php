@@ -49,6 +49,7 @@ class Analytics_Test extends TestCase {
 		remove_all_filters( 'jetpack_admin_js_script_data' );
 		remove_all_filters( 'rest_post_dispatch' );
 		remove_all_filters( 'jetpack_stats_transient_cleanup_prefixes' );
+		Capabilities::unregister();
 		$this->reset_analytics_init_state();
 		parent::tearDown();
 	}
@@ -92,6 +93,41 @@ class Analytics_Test extends TestCase {
 		Analytics::init();
 
 		$this->assertNotFalse( has_filter( 'jetpack_stats_transient_cleanup_prefixes' ) );
+	}
+
+	/**
+	 * Both init paths map the capability the admin menu and the dashboard routes
+	 * are gated on. Nothing else hooks it for them, so without this the menu is
+	 * registered with a capability nobody holds — including administrators.
+	 *
+	 * @param bool $wpcom_simple Whether to boot the WordPress.com Simple path.
+	 * @dataProvider provide_init_entry_points
+	 */
+	#[DataProvider( 'provide_init_entry_points' )]
+	public function test_init_maps_the_dashboard_capability( $wpcom_simple ) {
+		$this->reset_analytics_init_state();
+
+		if ( $wpcom_simple ) {
+			Analytics::init_wpcom_simple();
+		} else {
+			Analytics::init();
+		}
+
+		$this->assertNotFalse(
+			has_filter( 'map_meta_cap', array( Capabilities::class, 'map_meta_caps' ) )
+		);
+	}
+
+	/**
+	 * The two platform entry points.
+	 *
+	 * @return array<string, array{bool}>
+	 */
+	public static function provide_init_entry_points() {
+		return array(
+			'connected site' => array( false ),
+			'wpcom simple'   => array( true ),
+		);
 	}
 
 	/**
@@ -193,13 +229,23 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
+	 * The menu is gated on the dashboard capability rather than manage_options, so a
+	 * site that granted an editor view_stats keeps that editor's access to stats.
+	 */
+	public function test_register_admin_menu_uses_the_dashboard_capability() {
+		$menu_item = $this->register_admin_menu_without_build();
+
+		$this->assertSame( Capabilities::VIEW_ANALYTICS, $menu_item[1] ?? null );
+	}
+
+	/**
 	 * With no caller override the label comes from the package itself, so nobody has
 	 * to translate it before the textdomain can load.
 	 */
 	public function test_register_admin_menu_labels_the_page_from_the_package() {
 		$menu_item = $this->register_admin_menu_without_build();
 
-		$this->assertSame( 'Analytics', $menu_item[0] ?? null );
+		$this->assertSame( 'Stats v2', $menu_item[0] ?? null );
 	}
 
 	/**
@@ -269,7 +315,7 @@ class Analytics_Test extends TestCase {
 
 		$menu_item = $this->register_admin_menu_without_build();
 
-		$this->assertSame( 'Analytics', $menu_item[0] ?? null );
+		$this->assertSame( 'Stats v2', $menu_item[0] ?? null );
 	}
 
 	/**
@@ -353,6 +399,10 @@ class Analytics_Test extends TestCase {
 	private function register_admin_menu_without_build() {
 		$GLOBALS['menu'] = array();
 
+		// Hooked by boot_shared_services() in production; add_menu_page() resolves the
+		// dashboard capability, and an unmapped one would skip the page's render hook.
+		Capabilities::register();
+
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 		$this->capture_doing_it_wrong();
 		Analytics::register_admin_menu();
@@ -385,13 +435,15 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * Grant manage_options to the (logged-out) test user.
+	 * Give the (logged-out) test user what an administrator carries: manage_options,
+	 * and the read primitive the dashboard capability maps to.
 	 *
 	 * @param array $caps Capabilities.
 	 * @return array
 	 */
 	public function grant_manage_options( $caps ) {
 		$caps['manage_options'] = true;
+		$caps['read']           = true;
 
 		return $caps;
 	}

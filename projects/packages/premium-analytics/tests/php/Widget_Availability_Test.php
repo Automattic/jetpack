@@ -25,6 +25,8 @@ require_once __DIR__ . '/../../src/widget-availability.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\remove_dev_only_widget_types
  * @covers ::Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_plugin
  * @covers ::Automattic\Jetpack\PremiumAnalytics\remove_plugin_gated_widget_types
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_capability
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\remove_capability_gated_widget_types
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_available_widget_types' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_widget_support_context' )]
@@ -35,6 +37,8 @@ require_once __DIR__ . '/../../src/widget-availability.php';
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\remove_dev_only_widget_types' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_plugin' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\remove_plugin_gated_widget_types' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_capability' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\remove_capability_gated_widget_types' )]
 class Widget_Availability_Test extends BaseTestCase {
 
 	/**
@@ -96,6 +100,24 @@ class Widget_Availability_Test extends BaseTestCase {
 				'name'     => 'jpa/bookings-over-time',
 				'category' => 'bookings',
 			),
+		);
+	}
+
+	/**
+	 * Candidate set spanning every store-report category, plus one served from
+	 * elsewhere.
+	 *
+	 * @return array[] List of widget candidates.
+	 */
+	private function store_report_widget_candidates() {
+		return array_merge(
+			$this->commerce_widget_candidates(),
+			array(
+				array(
+					'name'     => 'jpa/visitors-over-time',
+					'category' => 'visitors',
+				),
+			)
 		);
 	}
 
@@ -255,6 +277,87 @@ class Widget_Availability_Test extends BaseTestCase {
 			$candidates,
 			remove_plugin_gated_widget_types( $candidates, false, false ),
 			'A candidate without a category must not be plugin-gated.'
+		);
+	}
+
+	/**
+	 * Every store-report category — the commerce ones and `visitors` — is dropped
+	 * for a reader without that access, since all they could collect from those
+	 * widgets is 403s.
+	 */
+	public function test_store_report_widgets_removed_from_a_reader_without_access() {
+		$this->assertSame(
+			array( 'jpa/traffic-chart' ),
+			array_column(
+				remove_capability_gated_widget_types( $this->store_report_widget_candidates(), false ),
+				'name'
+			),
+			'Only the category served by another prefix survives.'
+		);
+	}
+
+	/**
+	 * Administrators keep every category.
+	 */
+	public function test_store_report_widgets_kept_for_a_user_with_access() {
+		$this->assertSame(
+			$this->store_report_widget_candidates(),
+			remove_capability_gated_widget_types( $this->store_report_widget_candidates(), true ),
+			'With prefix access no candidate is dropped.'
+		);
+	}
+
+	/**
+	 * The registry-time callback reads the current user, so the same manifest
+	 * yields different types depending on who is asking.
+	 */
+	public function test_registry_callback_follows_the_current_user() {
+		$reader = wp_insert_user(
+			array(
+				'user_login' => 'jpa_widget_reader',
+				'user_pass'  => 'password',
+				'role'       => 'editor',
+			)
+		);
+		wp_set_current_user( $reader );
+
+		$this->assertSame(
+			array( 'jpa/traffic-chart' ),
+			array_column(
+				filter_registrable_widget_types_by_capability( $this->store_report_widget_candidates() ),
+				'name'
+			),
+			'An editor cannot read the store reports, so their categories are dropped.'
+		);
+
+		$admin = wp_insert_user(
+			array(
+				'user_login' => 'jpa_widget_admin',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $admin );
+
+		$this->assertSame(
+			$this->store_report_widget_candidates(),
+			filter_registrable_widget_types_by_capability( $this->store_report_widget_candidates() ),
+			'An administrator keeps every category.'
+		);
+
+		wp_set_current_user( 0 );
+	}
+
+	/**
+	 * Candidates without a category are never capability-gated.
+	 */
+	public function test_uncategorized_widgets_are_not_capability_gated() {
+		$candidates = array( array( 'name' => 'jpa/no-category' ) );
+
+		$this->assertSame(
+			$candidates,
+			remove_capability_gated_widget_types( $candidates, false ),
+			'A candidate without a category must not be capability-gated.'
 		);
 	}
 

@@ -236,7 +236,7 @@ const TitleStructureField: FC< Props > = ( {
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
 				<Stack direction="column" gap="lg">
-					<Text variant="body-sm" className={ styles.muted } render={ <p /> }>
+					<Text variant="body-md" render={ <p /> }>
 						{ moduleDescription }
 					</Text>
 					{ PAGE_TYPES.map( pt => (

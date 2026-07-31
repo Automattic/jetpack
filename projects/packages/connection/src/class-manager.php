@@ -855,7 +855,7 @@ class Manager {
 	 * Client::remote_request() (rather than the legacy `wpcom.getUser` XML-RPC method)
 	 * ensures any connection errors are captured by the Error_Handler.
 	 *
-	 * @since $$next-version$$ Fetch the data over REST instead of the `wpcom.getUser` XML-RPC method.
+	 * @since 8.8.1 Fetch the data over REST instead of the `wpcom.getUser` XML-RPC method.
 	 *
 	 * @param int|null $user_id the user identifier.
 	 * @return bool|array An array with the WPCOM user data on success, false otherwise.

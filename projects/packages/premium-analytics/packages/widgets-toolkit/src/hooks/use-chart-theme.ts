@@ -4,7 +4,7 @@
 import { useMemo } from 'react';
 import { WOO_COLORS } from '../constants';
 import { useColorPreference } from './use-color-preference';
-import type { ChartTheme } from '@automattic/charts';
+import type { ChartTheme } from '@jetpack-premium-analytics/externals';
 
 /**
  * Internal dependencies

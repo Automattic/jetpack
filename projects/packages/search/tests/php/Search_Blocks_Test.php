@@ -1323,6 +1323,57 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * The `wp_body_open` registration itself stays unconditional (SEARCH-299)
+	 * — the module gate lives inside the callback instead.
+	 */
+	public function test_init_registers_theme_token_sampler_hook_regardless_of_module_state() {
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( false );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+
+		Search_Blocks::init();
+
+		$this->assertNotFalse(
+			has_action( 'wp_body_open', array( Search_Blocks::class, 'print_theme_token_sampler' ) ),
+			'print_theme_token_sampler must hook into wp_body_open even while the module is inactive'
+		);
+	}
+
+	/**
+	 * The sampler script prints on the front end while the Search module is active.
+	 */
+	public function test_print_theme_token_sampler_prints_when_module_active() {
+		$this->set_module_active( true );
+
+		ob_start();
+		Search_Blocks::print_theme_token_sampler();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString(
+			"id='jetpack-search-theme-token-sampler'",
+			$output,
+			'The sampler script must print on the front end while the Search module is active.'
+		);
+	}
+
+	/**
+	 * Disabling the Search module stops the sampler script from printing (SEARCH-299).
+	 */
+	public function test_print_theme_token_sampler_skipped_when_module_inactive() {
+		$this->set_module_active( false );
+
+		ob_start();
+		Search_Blocks::print_theme_token_sampler();
+		$output = ob_get_clean();
+
+		$this->assertSame(
+			'',
+			$output,
+			'The sampler script must not print once the Search module is disabled.'
+		);
+	}
+
+	/**
 	 * Read the private `registered` map off the WP_Script_Modules singleton.
 	 *
 	 * @return array<string,array> Registered script modules keyed by id.

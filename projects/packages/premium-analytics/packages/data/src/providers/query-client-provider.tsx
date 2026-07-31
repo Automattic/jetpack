@@ -6,18 +6,16 @@ import { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
-import { registerApiErrorStatusMiddleware } from '../api/error-status-middleware';
 import { getApiErrorStatus, shouldRetryApiError } from '../utils';
 import { globalErrorManager } from './global-error-manager';
 
 // Both the retry policy and the global error detection below read the HTTP
-// status, which apiFetch drops unless this middleware is installed. Registering
-// it here, next to the policy that needs it, rather than from the app's `init()`
-// module: WP 7.0's Core `boot` module ignores the `initModules` argument to
-// `initSinglePage()`, so on those sites `init()` never runs and the status was
-// lost again (Core-side fix in #50309). Every widget and route mounts this
-// provider, so loading the data package is enough to install the middleware.
-registerApiErrorStatusMiddleware();
+// status, which apiFetch drops on its way to throwing the parsed body.
+// `fetchPreservingStatus()` restores it for every request that goes through the
+// stats transport or the notices route by parsing at its own call site — nothing
+// needs registering here, so neither depends on the app's boot path. The few
+// queries still on bare apiFetch (latest post, product images, site sync) hit
+// local WP REST routes, whose `WP_Error` bodies already carry `data.status`.
 
 const DEFAULT_STALE_TIME = 5 * 60 * 1000;
 const DEFAULT_GC_TIME = 10 * 60 * 1000;
