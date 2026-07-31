@@ -83,11 +83,11 @@ export default function SelfOnlyNudge( { anchor }: Props ): JSX.Element | null {
 			<Stack direction="row" align="top" gap="sm">
 				<Stack direction="column" gap="xs">
 					<Text variant="heading-sm">
-						{ __( 'Who’d want to hear from you?', 'jetpack-newsletter' ) }
+						{ __( 'Every newsletter starts at one', 'jetpack-newsletter' ) }
 					</Text>
 					<Text variant="body-sm">
 						{ __(
-							'Start with the people who already know you — friends, family, coworkers, or anyone who’s asked what you’re working on. Add their emails and they’ll get your next post.',
+							'Yours is no exception. Add a few people who already know you — friends, family, coworkers — and they’ll get your next post.',
 							'jetpack-newsletter'
 						) }
 					</Text>
