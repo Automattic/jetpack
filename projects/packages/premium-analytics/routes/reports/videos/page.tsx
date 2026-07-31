@@ -101,11 +101,11 @@ function VideosReport(): JSX.Element {
 				getValue: row => row.impressions,
 			},
 			{
-				label: __( 'Watch time', 'jetpack-premium-analytics-pkg' ),
+				label: __( 'Watch time (hours)', 'jetpack-premium-analytics-pkg' ),
 				getValue: row => row.watch_time,
 			},
 			{
-				label: __( 'Retention rate', 'jetpack-premium-analytics-pkg' ),
+				label: __( 'Retention rate (%)', 'jetpack-premium-analytics-pkg' ),
 				getValue: row => row.retention_rate,
 			},
 			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
