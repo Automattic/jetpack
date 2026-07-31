@@ -673,7 +673,7 @@ export default function AddSubscribersModal( {
 							onValueChange={ handleTabChange }
 							render={ <Stack direction="column" gap="lg" /> }
 						>
-							<Tabs.List variant="minimal" className="jetpack-newsletter__add-subscribers-tabs">
+							<Tabs.List variant="minimal">
 								<Tabs.Tab value="manual">{ __( 'Manual', 'jetpack-newsletter' ) }</Tabs.Tab>
 								<Tabs.Tab value="upload">{ __( 'Upload CSV', 'jetpack-newsletter' ) }</Tabs.Tab>
 								<Tabs.Tab value="substack">{ __( 'Substack', 'jetpack-newsletter' ) }</Tabs.Tab>

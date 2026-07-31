@@ -1,14 +1,3 @@
-// `Tabs.Tab` sizes its box to its label, so the focus ring lands hard against
-// the word with nothing between the two. A little inline padding gives the ring
-// room to breathe; the tabs keep their own spacing from the list's gap, so the
-// row reads the same.
-.jetpack-newsletter__add-subscribers-tabs {
-
-	[role="tab"] {
-		padding-inline: var(--wpds-dimension-padding-xs);
-	}
-}
-
 // CSV upload drop area for the Add Subscribers modal. Replaces the bare file
 // input with a clickable box (click to open the picker) and lets core's
 // `<DropZone>` own the drag-and-drop — the same primitive the modernized
