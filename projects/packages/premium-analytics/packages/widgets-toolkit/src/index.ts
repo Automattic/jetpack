@@ -100,14 +100,6 @@ export {
 	flattenEarningsBreakdown,
 	getWordAdsHistoryFields,
 	type EarningsHistoryRow,
-	buildLocationsMapView,
-	getGeoChartCountryId,
-	LocationsGeoChart,
-	type LocationsGeoChartProps,
-	type LocationsGeoChartRow,
-	type LocationsGeoCountry,
-	type LocationsGeoMode,
-	type LocationsMapView,
 } from './components';
 
 /**

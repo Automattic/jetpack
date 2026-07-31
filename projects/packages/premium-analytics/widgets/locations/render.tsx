@@ -2,8 +2,8 @@
  * External dependencies
  */
 import {
+	GeoChart,
 	LeaderboardChart,
-	LocationsGeoChart,
 	ReportLink,
 	WidgetBackLink,
 	WidgetFooter,
@@ -16,11 +16,15 @@ import {
 	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
+	type GeoChartError,
+	type GeoData,
+	type GoogleDataTableColumn,
+	type GoogleDataTableRow,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { location as locationIcon } from '@jetpack-premium-analytics/icons';
-import { useEffect, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 /**
@@ -41,6 +45,32 @@ type RenderLocationState = {
 	geoMode: GeoMode;
 	selectedCountry?: DrillDownCountry;
 };
+type GoogleChartsWindow = Window & {
+	google?: {
+		visualization?: {
+			errors?: {
+				removeError?: ( errorId: string ) => void;
+			};
+		};
+	};
+};
+
+const MISSING_MAP_ERROR_MESSAGE = 'Requested map does not exist';
+// Google GeoChart has no `provinces` map file for some countries (e.g. TW, SG).
+// There is no upstream list of them; each is learned at runtime when its
+// provinces draw fails, via the GeoChart `onError` callback. This module-level
+// cache carries what was learned across widget remounts, so within one page
+// load each country pays the failed draw (a brief error flash) at most once.
+const runtimeUnsupportedProvinceMapCountries = new Set< string >();
+
+function getGeoChartCountryId( countryCode: string ): string {
+	if ( countryCode.toUpperCase() === 'TW' ) {
+		return 'Taiwan';
+	}
+
+	return countryCode.toUpperCase();
+}
+
 type LocationsInnerProps = Required< Pick< LocationsAttributes, 'max' | 'geoGranularity' > >;
 
 /**
@@ -53,6 +83,9 @@ type LocationsInnerProps = Required< Pick< LocationsAttributes, 'max' | 'geoGran
  */
 function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
+	const [ unsupportedProvinceMapCountries, setUnsupportedProvinceMapCountries ] = useState<
+		Set< string >
+	>( () => new Set( runtimeUnsupportedProvinceMapCountries ) );
 
 	const {
 		drillDownItem: selectedCountry,
@@ -96,6 +129,133 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 	const renderSelectedCountry = isPlaceholderData
 		? renderLocationState.selectedCountry
 		: activeSelectedCountry;
+	const selectedCountryCode = renderSelectedCountry?.code.toUpperCase();
+	const useProvinceMap =
+		renderGeoMode === 'region' &&
+		!! selectedCountryCode &&
+		! unsupportedProvinceMapCountries.has( selectedCountryCode );
+	const useCountryFallbackMap =
+		renderGeoMode === 'region' && !! renderSelectedCountry && ! useProvinceMap;
+	const fallbackCountry = useCountryFallbackMap ? renderSelectedCountry : undefined;
+	const useCityCountryMap = renderGeoMode === 'city';
+	const cityCountryRows = useMemo( () => {
+		const countryRows = new Map< string, { countryFull: string; value: number } >();
+
+		if ( ! useCityCountryMap ) {
+			return [];
+		}
+
+		data.forEach( location => {
+			const countryCode = location.countryCode.toUpperCase();
+			const current = countryRows.get( countryCode );
+			countryRows.set( countryCode, {
+				countryFull: location.countryFull,
+				value: ( current?.value ?? 0 ) + location.value,
+			} );
+		} );
+
+		return Array.from( countryRows.entries() );
+	}, [ data, useCityCountryMap ] );
+	const handleGeoChartError = useCallback(
+		( error: GeoChartError ) => {
+			const message = `${ error.message ?? '' } ${ error.detailedMessage ?? '' }`;
+			// Any error during a provinces draw means this country's map is unusable —
+			// fall back regardless of the message text, which Google may localize.
+			// Stragglers from that failed draw keep arriving after the widget already
+			// switched to the fallback map (resize and drill-down layout shifts each
+			// redraw), so a selected country already learned as unsupported also
+			// qualifies without depending on the message. The English message match
+			// stays only as a last resort for errors arriving outside those states.
+			const isProvinceDrawError = !! selectedCountryCode && useProvinceMap;
+			const isKnownUnsupportedProvinceDraw =
+				!! selectedCountryCode && runtimeUnsupportedProvinceMapCountries.has( selectedCountryCode );
+
+			if (
+				! isProvinceDrawError &&
+				! isKnownUnsupportedProvinceDraw &&
+				! message.includes( MISSING_MAP_ERROR_MESSAGE )
+			) {
+				return;
+			}
+
+			// Clear the error element Google injected into the chart container; the
+			// fallback redraw replaces the failed map, but the error element would
+			// otherwise linger above it.
+			if ( error.id && typeof window !== 'undefined' ) {
+				( window as GoogleChartsWindow ).google?.visualization?.errors?.removeError?.( error.id );
+			}
+
+			if ( ! isProvinceDrawError ) {
+				return;
+			}
+
+			runtimeUnsupportedProvinceMapCountries.add( selectedCountryCode );
+			setUnsupportedProvinceMapCountries( previous => {
+				if ( previous.has( selectedCountryCode ) ) {
+					return previous;
+				}
+
+				const next = new Set( previous );
+				next.add( selectedCountryCode );
+				return next;
+			} );
+		},
+		[ selectedCountryCode, useProvinceMap ]
+	);
+
+	const geoData = useMemo( (): GeoData => {
+		const useLocationHeader = renderGeoMode === 'region' && ! useCountryFallbackMap;
+		const header: GoogleDataTableColumn[] = [
+			useLocationHeader
+				? __( 'Location', 'jetpack-premium-analytics-pkg' )
+				: __( 'Country', 'jetpack-premium-analytics-pkg' ),
+			__( 'Views', 'jetpack-premium-analytics-pkg' ),
+		];
+
+		if ( fallbackCountry ) {
+			const countryCode = fallbackCountry.code.toUpperCase();
+			const value = data
+				.filter( location => location.countryCode.toUpperCase() === countryCode )
+				.reduce( ( total, location ) => total + location.value, 0 );
+
+			return [
+				header,
+				[
+					{
+						v: getGeoChartCountryId( countryCode ),
+						f: fallbackCountry.name,
+					},
+					value,
+				],
+			];
+		}
+
+		if ( useCityCountryMap ) {
+			return [
+				header,
+				...cityCountryRows.map(
+					( [ countryCode, location ] ): GoogleDataTableRow => [
+						{
+							v: getGeoChartCountryId( countryCode ),
+							f: location.countryFull,
+						},
+						location.value,
+					]
+				),
+			];
+		}
+
+		const rows: GoogleDataTableRow[] = data.map( location => [ location.label, location.value ] );
+		return [ header, ...rows ];
+	}, [
+		cityCountryRows,
+		data,
+		fallbackCountry,
+		renderGeoMode,
+		useCityCountryMap,
+		useCountryFallbackMap,
+	] );
+
 	const leaderboardData = useMemo( () => {
 		const maxValue = getCombinedPeriodMax(
 			data.map( location => location.value ),
@@ -203,11 +363,12 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 							/>
 						</div>
 						<div className={ styles.geoChart }>
-							<LocationsGeoChart
-								rows={ data }
-								geoMode={ renderGeoMode }
-								selectedCountry={ renderSelectedCountry }
+							<GeoChart
+								data={ geoData }
 								resizeDebounceTime={ 100 }
+								region={ useProvinceMap ? renderSelectedCountry?.code ?? 'world' : 'world' }
+								resolution={ useProvinceMap ? 'provinces' : 'countries' }
+								onError={ handleGeoChartError }
 							/>
 						</div>
 					</div>
