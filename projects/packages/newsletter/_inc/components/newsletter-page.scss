@@ -15,8 +15,11 @@ $jetpack-newsletter-inset: var(--wpds-dimension-padding-2xl);
 // arrow; this only sizes the content.
 body.jetpack_page_jetpack-newsletter .jetpack-newsletter-self-only-nudge {
 
+	// A fixed width, not a max: the content otherwise collapses to its
+	// shrink-to-fit width and the copy ends up in a narrow column.
 	.components-popover__content {
-		max-inline-size: 280px;
+		inline-size: 280px;
+		max-inline-size: calc(100vw - #{$jetpack-newsletter-inset} * 2);
 		padding: var(--wpds-dimension-padding-lg);
 	}
 }

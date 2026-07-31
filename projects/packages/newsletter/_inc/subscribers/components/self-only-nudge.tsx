@@ -72,9 +72,18 @@ export default function SelfOnlyNudge( { anchor }: Props ): JSX.Element | null {
 	return (
 		<Popover
 			anchor={ anchor }
-			placement="left"
+			// `left-start` rather than `left`: the button sits ~50px from the top of the viewport,
+			// so a vertically-centred bubble runs up under the admin bar. Aligning its top edge to
+			// the button's drops it into the empty space below instead.
+			placement="left-start"
 			offset={ 8 }
 			noArrow={ false }
+			// Left to its own devices Floating UI shrinks the bubble to fit the room above the
+			// anchor — a 154px-wide scrolling sliver. Turn the resize/flip middlewares off and let
+			// it shift along the anchor instead, as IconTooltip does.
+			resize={ false }
+			flip={ false }
+			shift
 			// Nobody asked for this popover, so it must not take the caret on arrival.
 			focusOnMount={ false }
 			onClose={ handleClose }
@@ -82,7 +91,7 @@ export default function SelfOnlyNudge( { anchor }: Props ): JSX.Element | null {
 		>
 			<Stack direction="row" align="top" gap="sm">
 				<Stack direction="column" gap="xs">
-					<Text variant="heading-sm">
+					<Text variant="heading-md">
 						{ __( 'Every newsletter starts at one', 'jetpack-newsletter' ) }
 					</Text>
 					<Text variant="body-sm">
