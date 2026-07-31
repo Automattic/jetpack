@@ -15,6 +15,13 @@
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 
+.widgets {
+	// Tile gap for the @wordpress/grid surfaces (grid, masonry, edit overlay).
+	// `--wp-grid-gap` is the documented override hook; the package default is
+	// 24px and Analytics is designed on a 16px spacing system.
+	--wp-grid-gap: var(--wpds-dimension-gap-lg);
+}
+
 .header {
 	// Summary row above the widget grid. Inline padding matches the widget grid;
 	// the 40px block spacing is the design's breathing room around the header.

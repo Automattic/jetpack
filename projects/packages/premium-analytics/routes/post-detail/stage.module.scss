@@ -20,6 +20,13 @@
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 
+.widgets {
+	// Tile gap for the @wordpress/grid surfaces (grid, masonry, edit overlay).
+	// `--wp-grid-gap` is the documented override hook; the package default is
+	// 24px and Analytics is designed on a 16px spacing system.
+	--wp-grid-gap: var(--wpds-dimension-gap-lg);
+}
+
 .dateFilters {
 	// Sits directly below the tab bar, outside the scroll container, so it
 	// stays fixed exactly like the dashboard's filters. The tab list already

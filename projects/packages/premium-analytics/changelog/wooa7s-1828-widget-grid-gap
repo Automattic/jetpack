@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: tighten the widget grid gap to 16px.
