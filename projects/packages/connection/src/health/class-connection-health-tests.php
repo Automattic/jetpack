@@ -111,7 +111,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 					'long_description' => sprintf(
 						'<p>%1$s</p>' .
 						'<p><span class="dashicons pass"><span class="screen-reader-text">%2$s</span></span> %3$s</p>',
-						__( 'A healthy Jetpack Connection allows connected plugins (such as Jetpack and WooCommerce) to provide Jetpack features to your site.', 'jetpack-connection' ),
+						self::helper_get_healthy_connection_text(),
 						/* translators: Screen reader text indicating a test has passed */
 						__( 'Passed', 'jetpack-connection' ),
 						__( 'Your site is connected to WordPress.com.', 'jetpack-connection' )
@@ -477,7 +477,11 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 			return self::failing_test(
 				array(
 					'name'              => $name,
-					'short_description' => __( 'Connection test failed (empty response body)', 'jetpack-connection' ) . wp_remote_retrieve_response_code( $response ),
+					'short_description' => sprintf(
+						/* translators: %s is the HTTP status code returned by WordPress.com. */
+						__( 'Connection test failed: WordPress.com returned an empty response (status code: %s).', 'jetpack-connection' ),
+						wp_remote_retrieve_response_code( $response )
+					),
 					'action_label'      => $this->helper_get_support_text(),
 					'action'            => $this->helper_get_support_url(),
 				)
@@ -552,12 +556,21 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 		$connection_error = $site_http_status
 			? sprintf(
 				/* translators: %d is the HTTP status code (e.g. 403) the site returned. */
-				__( 'WordPress.com reached your site but the request was blocked (HTTP %d). This is usually caused by a firewall, security plugin, or server rule rejecting requests from WordPress.com.', 'jetpack-connection' ),
+				__( 'WordPress.com reached your site but the request was blocked (HTTP %d). This is usually caused by a security plugin, firewall, or server rule rejecting requests from WordPress.com.', 'jetpack-connection' ),
 				$site_http_status
 			)
-			: __( 'WordPress.com reached your site but the request was blocked. This is usually caused by a firewall, security plugin, or server rule rejecting requests from WordPress.com.', 'jetpack-connection' );
+			: __( 'WordPress.com reached your site but the request was blocked. This is usually caused by a security plugin, firewall, or server rule rejecting requests from WordPress.com.', 'jetpack-connection' );
 
-		$recommendation = __( 'Ask your host or security provider to allow requests from WordPress.com to your site\'s xmlrpc.php file. Reconnecting will not resolve this. If you need further help, contact Jetpack support.', 'jetpack-connection' );
+		$recommendation = sprintf(
+			/* translators: %1$s is the opening tag of a link to Jetpack's IP allowlist documentation, %2$s is the closing tag. */
+			__( 'Jetpack uses your site\'s xmlrpc.php file to securely communicate with WordPress.com. Ask your host or security provider to %1$sallowlist Jetpack\'s IPs%2$s — reconnecting will not resolve this. If you need further help, contact Jetpack support.', 'jetpack-connection' ),
+			'<a href="' . esc_url( Redirect::get_url( 'https://jetpack.com/support/how-to-add-jetpack-ips-allowlist/' ) ) . '" target="_blank" rel="noopener noreferrer">',
+			sprintf(
+				/* translators: accessibility text */
+				'<span class="screen-reader-text"> %s</span></a>',
+				esc_html__( '(opens in a new tab)', 'jetpack-connection' )
+			)
+		);
 
 		return self::failing_test(
 			array(
