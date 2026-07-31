@@ -1,5 +1,5 @@
 import { DropdownMenu } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { moreVertical } from '@wordpress/icons';
 import { Button } from '@wordpress/ui';
@@ -47,14 +47,21 @@ export default function HeaderActions( {
 	// Callback ref rather than useRef: the nudge needs a render once the button element exists.
 	const [ ctaAnchor, setCtaAnchor ] = useState< HTMLButtonElement | null >( null );
 
+	// The nudge has no CTA of its own — it points here — so this click is what tells us whether it
+	// worked.
+	const handleAddSubscribers = useCallback( () => {
+		recordTracksEvent( 'jetpack_subscribers_add_subscribers_clicked', {
+			nudge_visible: showSelfOnlyNudge,
+		} );
+		onAddSubscribers();
+	}, [ onAddSubscribers, showSelfOnlyNudge ] );
+
 	return (
 		<>
-			<Button size="compact" ref={ setCtaAnchor } onClick={ onAddSubscribers }>
+			<Button size="compact" ref={ setCtaAnchor } onClick={ handleAddSubscribers }>
 				{ __( 'Add subscribers', 'jetpack-newsletter' ) }
 			</Button>
-			{ showSelfOnlyNudge && (
-				<SelfOnlyNudge anchor={ ctaAnchor } onAddSubscribers={ onAddSubscribers } />
-			) }
+			{ showSelfOnlyNudge && <SelfOnlyNudge anchor={ ctaAnchor } /> }
 			<DropdownMenu
 				icon={ moreVertical }
 				label={ __( 'More options', 'jetpack-newsletter' ) }

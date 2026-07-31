@@ -1,6 +1,8 @@
-import { ActionPopover } from '@automattic/jetpack-components';
+import { Popover } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { close } from '@wordpress/icons';
+import { IconButton, Stack, Text } from '@wordpress/ui';
 import { getBlogId } from '../lib/site';
 import { recordTracksEvent } from '../lib/tracks';
 
@@ -29,23 +31,21 @@ function wasDismissed(): boolean {
 
 type Props = {
 	anchor: Element | null;
-	onAddSubscribers: () => void;
 };
 
 /**
  * Points a creator at the "Add subscribers" button when their own subscription is the only one on
- * the site. Anchored to the header button rather than rendered in the table, so it costs the list
- * no vertical space.
+ * the site. Anchored beside the button rather than rendered in the table, so it costs the list no
+ * vertical space, and it carries no CTA of its own — the button it points at is the CTA.
  *
  * The condition is self-limiting — it stops matching the moment anyone else subscribes — so the
  * stored dismissal only has to cover the viewer who genuinely stays at one subscriber.
  *
- * @param props                  - Component props.
- * @param props.anchor           - Element to attach the popover to (the header button).
- * @param props.onAddSubscribers - Opens the Add Subscribers modal.
+ * @param props        - Component props.
+ * @param props.anchor - Element to sit beside (the header button).
  * @return Popover, or null once dismissed / before the anchor mounts.
  */
-export default function SelfOnlyNudge( { anchor, onAddSubscribers }: Props ): JSX.Element | null {
+export default function SelfOnlyNudge( { anchor }: Props ): JSX.Element | null {
 	const [ dismissed, setDismissed ] = useState( wasDismissed );
 	const visible = !! anchor && ! dismissed;
 
@@ -55,41 +55,51 @@ export default function SelfOnlyNudge( { anchor, onAddSubscribers }: Props ): JS
 		}
 	}, [ visible ] );
 
-	const dismiss = useCallback( () => {
+	const handleClose = useCallback( () => {
 		try {
 			window.localStorage.setItem( dismissalKey(), '1' );
 		} catch {
 			// Dismissal just won't persist across reloads.
 		}
+		recordTracksEvent( 'jetpack_subscribers_self_only_nudge_dismissed' );
 		setDismissed( true );
 	}, [] );
-
-	const handleClick = useCallback( () => {
-		recordTracksEvent( 'jetpack_subscribers_self_only_nudge_clicked' );
-		dismiss();
-		onAddSubscribers();
-	}, [ dismiss, onAddSubscribers ] );
-
-	const handleClose = useCallback( () => {
-		recordTracksEvent( 'jetpack_subscribers_self_only_nudge_dismissed' );
-		dismiss();
-	}, [ dismiss ] );
 
 	if ( ! visible ) {
 		return null;
 	}
 
 	return (
-		<ActionPopover
+		<Popover
 			anchor={ anchor }
-			title={ __( 'You’re your only subscriber', 'jetpack-newsletter' ) }
-			buttonContent={ __( 'Add subscribers', 'jetpack-newsletter' ) }
-			onClick={ handleClick }
-			onClose={ handleClose }
+			placement="left"
+			offset={ 8 }
 			noArrow={ false }
-			position="bottom left"
+			// Nobody asked for this popover, so it must not take the caret on arrival.
+			focusOnMount={ false }
+			onClose={ handleClose }
+			className="jetpack-newsletter-self-only-nudge"
 		>
-			{ __( 'Invite readers by email to grow your newsletter.', 'jetpack-newsletter' ) }
-		</ActionPopover>
+			<Stack direction="row" align="top" gap="sm">
+				<Stack direction="column" gap="xs">
+					<Text variant="heading-sm">
+						{ __( 'Who’d want to hear from you?', 'jetpack-newsletter' ) }
+					</Text>
+					<Text variant="body-sm">
+						{ __(
+							'Start with the people who already know you — friends, family, coworkers, or anyone who’s asked what you’re working on. Add their emails and they’ll get your next post.',
+							'jetpack-newsletter'
+						) }
+					</Text>
+				</Stack>
+				<IconButton
+					icon={ close }
+					label={ __( 'Dismiss', 'jetpack-newsletter' ) }
+					size="small"
+					variant="minimal"
+					onClick={ handleClose }
+				/>
+			</Stack>
+		</Popover>
 	);
 }

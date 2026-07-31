@@ -10,6 +10,17 @@
 
 $jetpack-newsletter-inset: var(--wpds-dimension-padding-2xl);
 
+// The nudge portals onto `document.body`, so it is scoped from the body class
+// rather than nested with the page rules below. `Popover` paints the bubble and
+// arrow; this only sizes the content.
+body.jetpack_page_jetpack-newsletter .jetpack-newsletter-self-only-nudge {
+
+	.components-popover__content {
+		max-inline-size: 280px;
+		padding: var(--wpds-dimension-padding-lg);
+	}
+}
+
 body.jetpack_page_jetpack-newsletter {
 
 	// Off-white page surface so the white settings cards stand out against the
