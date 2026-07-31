@@ -525,6 +525,13 @@ tr.jetpack-module.unavailable {
 	font-size: $jp-font-ui;
 	font-weight: 600;
 	color: $jp-text;
+
+	// Rendered as a link to the module's support page when one is available.
+	&:hover,
+	&:focus {
+		color: $jp-primary;
+		text-decoration: underline;
+	}
 }
 
 .jetpack-module__description {

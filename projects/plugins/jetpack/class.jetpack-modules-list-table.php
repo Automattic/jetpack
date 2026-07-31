@@ -241,7 +241,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 					<td class="name column-name">
 						<div class="jetpack-module__body">
 							<div class="jetpack-module__info">
-								<span class="jetpack-module__name">{{{ item.name }}}</span>
+								<# if ( item.learn_more_button ) { #><a class="jetpack-module__name" href="{{{ item.learn_more_button }}}" target="_blank" rel="noopener noreferrer">{{{ item.name }}}</a><# } else { #><span class="jetpack-module__name">{{{ item.name }}}</span><# } #>
 								<# if ( item.description ) { #><span class="jetpack-module__description">{{ item.description }}</span><# } #>
 							</div>
 							<div class="jetpack-module__meta">
@@ -491,7 +491,15 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		echo '<div class="jetpack-module__body">';
 
 		echo '<div class="jetpack-module__info">';
-		echo '<span class="jetpack-module__name">' . wp_kses_post( wptexturize( $item['name'] ) ) . '</span>';
+		if ( ! empty( $item['learn_more_button'] ) ) {
+			printf(
+				'<a class="jetpack-module__name" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+				esc_url( $item['learn_more_button'] ),
+				wp_kses_post( wptexturize( $item['name'] ) )
+			);
+		} else {
+			echo '<span class="jetpack-module__name">' . wp_kses_post( wptexturize( $item['name'] ) ) . '</span>';
+		}
 		if ( ! empty( $item['description'] ) ) {
 			echo '<span class="jetpack-module__description">' . esc_html( wp_strip_all_tags( $item['description'] ) ) . '</span>';
 		}
