@@ -4,30 +4,7 @@ import { createInterpolateElement, useCallback, useEffect, useState } from '@wor
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { IconButton, Stack, Text } from '@wordpress/ui';
-import { getBlogId } from '../lib/site';
 import { recordTracksEvent } from '../lib/tracks';
-
-/**
- * localStorage key for the dismissal flag, scoped per blog.
- *
- * @return Storage key.
- */
-function dismissalKey(): string {
-	return `jetpack-newsletter-self-only-nudge-dismissed-${ getBlogId() ?? 'unknown' }`;
-}
-
-/**
- * Read the dismissal flag. localStorage throws in private-mode Safari and when disabled by policy.
- *
- * @return True when this viewer already dismissed the nudge on this site.
- */
-function wasDismissed(): boolean {
-	try {
-		return window.localStorage.getItem( dismissalKey() ) === '1';
-	} catch {
-		return false;
-	}
-}
 
 type Props = {
 	anchor: Element | null;
@@ -42,7 +19,7 @@ type Props = {
  * @return Popover, or null once dismissed / before the anchor mounts.
  */
 export default function SelfOnlyNudge( { anchor }: Props ): JSX.Element | null {
-	const [ dismissed, setDismissed ] = useState( wasDismissed );
+	const [ dismissed, setDismissed ] = useState( false );
 	// No room beside the button once wp-admin goes mobile, so drop it under the button instead.
 	const isNarrow = useViewportMatch( 'medium', '<' );
 	const visible = !! anchor && ! dismissed;
@@ -54,11 +31,6 @@ export default function SelfOnlyNudge( { anchor }: Props ): JSX.Element | null {
 	}, [ visible ] );
 
 	const handleClose = useCallback( () => {
-		try {
-			window.localStorage.setItem( dismissalKey(), '1' );
-		} catch {
-			// Storage unavailable.
-		}
 		recordTracksEvent( 'jetpack_subscribers_self_only_nudge_dismissed' );
 		setDismissed( true );
 	}, [] );
