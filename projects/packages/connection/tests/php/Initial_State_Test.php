@@ -13,6 +13,21 @@ use PHPUnit\Framework\TestCase;
 class Initial_State_Test extends TestCase {
 
 	/**
+	 * Invoke the private ownership-transferability compatibility helper.
+	 *
+	 * @param object $manager Connection manager instance.
+	 * @return bool
+	 */
+	private static function is_ownership_transferable( $manager ) {
+		$method = new \ReflectionMethod( Initial_State::class, 'is_ownership_transferable' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		return $method->invoke( null, $manager );
+	}
+
+	/**
 	 * Cleans up the test environment after each test.
 	 */
 	protected function tearDown(): void {
@@ -109,6 +124,31 @@ class Initial_State_Test extends TestCase {
 		unset( $_GET['calypso_env'] );
 
 		$this->assertEquals( $expected_value, $actual_value );
+	}
+
+	/**
+	 * Older Manager versions loaded by another plugin predate ownership locking.
+	 */
+	public function test_ownership_is_transferable_with_legacy_manager() {
+		$this->assertTrue( self::is_ownership_transferable( new class() {} ) );
+	}
+
+	/**
+	 * The compatibility guard must preserve the value returned by current managers.
+	 */
+	public function test_ownership_transferability_uses_manager_value() {
+		$manager = new class() {
+			/**
+			 * Report that ownership is locked.
+			 *
+			 * @return bool
+			 */
+			public function is_ownership_transferable() {
+				return false;
+			}
+		};
+
+		$this->assertFalse( self::is_ownership_transferable( $manager ) );
 	}
 
 	/**

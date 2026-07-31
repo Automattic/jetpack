@@ -15,6 +15,28 @@ use Automattic\Jetpack\Status;
 class Initial_State {
 
 	/**
+	 * Check whether connection ownership can be transferred.
+	 *
+	 * Older versions of Manager may already be loaded by another plugin before the
+	 * latest Connection package is registered. Ownership was always transferable
+	 * before this API was introduced, so preserve that behavior in mixed-version
+	 * requests.
+	 *
+	 * @since 8.8.2
+	 *
+	 * @param object $manager Connection manager instance.
+	 * @return bool
+	 */
+	private static function is_ownership_transferable( $manager ) {
+		$callback = array( $manager, 'is_ownership_transferable' );
+		if ( ! is_callable( $callback ) ) {
+			return true;
+		}
+
+		return (bool) call_user_func( $callback );
+	}
+
+	/**
 	 * Get the initial state data.
 	 *
 	 * @return array
@@ -58,7 +80,7 @@ class Initial_State {
 			'connectionErrors'        => Error_Handler::get_instance()->get_displayable_errors(),
 			'isOfflineMode'           => $status->is_offline_mode(),
 			'calypsoEnv'              => ( new Status\Host() )->get_calypso_env(),
-			'isOwnershipTransferable' => ( new Manager() )->is_ownership_transferable(),
+			'isOwnershipTransferable' => self::is_ownership_transferable( new Manager() ),
 			'connectionOwner'         => $connection_owner,
 		);
 	}
