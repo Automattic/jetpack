@@ -84,6 +84,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_disable_seo_tools' );
 		remove_all_filters( 'ai_seo_enhancer_enabled' );
 		Status_Cache::clear();
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		delete_option( 'jetpack_offline_mode' );
 		delete_option( 'big_sky_enable' );
@@ -1036,6 +1037,42 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		Jetpack_AI_Sidebar::maybe_patch_jetpack_ai_sidebar_preview_data();
 
 		$this->assertFalse( wp_script_is( 'agents-manager', 'enqueued' ) );
+	}
+
+	/**
+	 * Test that the preview data patch is a no-op for a disconnected variant.
+	 */
+	public function test_patch_jetpack_ai_sidebar_preview_data_skips_when_agents_manager_variant_is_disconnected() {
+		$this->set_block_editor_screen();
+		$this->cache_sidebar_asset_data();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter( 'agents_manager_variant', array( __CLASS__, 'return_gutenberg_disconnected_variant' ) );
+		wp_enqueue_script( 'agents-manager', 'https://example.com/am.js', array(), '1.0', true );
+
+		Jetpack_AI_Sidebar::maybe_patch_jetpack_ai_sidebar_preview_data();
+
+		$inline_script = $this->get_agents_manager_inline_script();
+
+		$this->assertStringNotContainsString( 'agentsManagerData.agentProviders', $inline_script );
+		$this->assertStringNotContainsString( 'agentsManagerData.jetpackAiSidebar', $inline_script );
+	}
+
+	/**
+	 * Test that the preview data patch still runs for a connected variant.
+	 */
+	public function test_patch_jetpack_ai_sidebar_preview_data_runs_when_agents_manager_variant_is_connected() {
+		$this->set_block_editor_screen();
+		$this->cache_sidebar_asset_data();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter( 'agents_manager_variant', array( __CLASS__, 'return_gutenberg_variant' ) );
+		wp_enqueue_script( 'agents-manager', 'https://example.com/am.js', array(), '1.0', true );
+
+		Jetpack_AI_Sidebar::maybe_patch_jetpack_ai_sidebar_preview_data();
+
+		$inline_script = $this->get_agents_manager_inline_script();
+
+		$this->assertStringContainsString( 'agentsManagerData.agentProviders', $inline_script );
+		$this->assertStringContainsString( 'agentsManagerData.jetpackAiSidebar', $inline_script );
 	}
 
 	/**

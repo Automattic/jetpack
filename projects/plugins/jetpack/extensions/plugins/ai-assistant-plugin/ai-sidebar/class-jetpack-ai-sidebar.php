@@ -569,6 +569,11 @@ class Jetpack_AI_Sidebar {
 			return;
 		}
 
+		// The second path the provider URL can reach agentsManagerData by.
+		if ( self::is_agents_manager_disconnected() ) {
+			return;
+		}
+
 		// Build the assignments from the same field source as the data filter so the
 		// two emit paths cannot drift. agentId is guarded client-side because the
 		// externally emitted payload may already define the active agent.
