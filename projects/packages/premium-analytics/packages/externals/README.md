@@ -26,7 +26,10 @@ change when the libraries themselves are upgraded. Feature work no longer rewrit
   invalidates the artifact for everyone, which is exactly what this package exists to avoid.
 - **Import from here, never from the library directly.** `import { LineChart } from
   '@automattic/charts'` inside another module bundles charts into that module again and silently
-  undoes the split.
+  undoes the split. ESLint enforces this for `packages/widgets-toolkit` (`no-restricted-imports`
+  in `eslint.config.mjs`); stylesheet imports are exempt, since plain CSS carries none of the
+  bundling cost. The rule is scoped to the toolkit because that is the only module migrated so
+  far — widen it as `packages/ui`, `widgets/`, and `routes/` follow.
 - **Adding an export is cheap; adding a library is not.** A new library only belongs here if more
   than one module needs it, or if it is large enough that re-emitting it per module hurts.
 
