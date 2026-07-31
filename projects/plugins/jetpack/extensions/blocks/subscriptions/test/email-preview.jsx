@@ -255,4 +255,43 @@ describe( 'Test email recipient', () => {
 			screen.findByText( /not allowed to send a test email/ )
 		).resolves.toBeInTheDocument();
 	} );
+
+	it( 'rejects a malformed address client-side without calling the API', async () => {
+		const user = userEvent.setup();
+		apiFetch.mockResolvedValue( undefined );
+
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		const field = screen.getByRole( 'textbox' );
+		await user.clear( field );
+		await user.type( field, 'not-an-email' );
+		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
+
+		await expect(
+			screen.findByText( /please enter a valid email address/i )
+		).resolves.toBeInTheDocument();
+		expect( apiFetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'shows a friendly fallback when the response has no error code', async () => {
+		const user = userEvent.setup();
+		apiFetch.mockRejectedValue( { message: 'The response is not a valid JSON response.' } );
+
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
+
+		await expect(
+			screen.findByText( /please try again in a little while/i )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByText( /not a valid JSON response/i ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'locks the recipient field for users who cannot send to others', () => {
+		window.Jetpack_Editor_Initial_State.jetpack = { can_send_test_email_to_others: false };
+
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		expect( screen.getByRole( 'textbox' ) ).toBeDisabled();
+	} );
 } );

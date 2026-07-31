@@ -46,6 +46,18 @@ import { SendIcon } from './icons';
 const MISSING_CONNECTION_ERROR_CODE = 'rest_cannot_send_email_preview';
 
 /**
+ * Lightweight client-side email format check, used to give instant feedback and
+ * skip the draft save + network round-trip on obviously malformed input. The
+ * server performs the authoritative validation.
+ *
+ * @param {string} email - Address to check.
+ * @return {boolean} Whether the address looks like a valid email.
+ */
+function isValidEmail( email ) {
+	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test( email );
+}
+
+/**
  * Actionable notice shown when a preview request fails because the user's
  * WordPress.com account isn't connected. Links to the connection flow so the
  * user can resolve it without leaving the editor guessing.
@@ -79,6 +91,13 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 	const { __unstableSaveForPreview } = useDispatch( editorStore );
 	const { tracks } = useAnalytics();
 
+	// Whether the user may send to an address other than their own. The server
+	// enforces this regardless; locking the field here just spares users who
+	// can't use it from an error they can't act on. Defaults to editable when the
+	// flag is absent so a permitted user is never blocked by a stale initial state.
+	const canEditRecipient =
+		window?.Jetpack_Editor_Initial_State?.jetpack?.can_send_test_email_to_others ?? true;
+
 	// The connection state is known client-side, so surface the requirement (and
 	// disable sending) as soon as the modal opens rather than after a failed send.
 	const { isUserConnected } = useConnection();
@@ -87,6 +106,19 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 		shouldPromptForConnection || error?.code === MISSING_CONNECTION_ERROR_CODE;
 
 	const sendTestEmail = async () => {
+		const email = recipientEmail?.trim() ?? '';
+
+		// Validate client-side first for instant feedback, skipping the draft save
+		// and the network round-trip on malformed input. An empty address is
+		// allowed: the server falls back to the current user.
+		if ( email && ! isValidEmail( email ) ) {
+			setError( {
+				code: 'invalid_email',
+				message: __( 'Please enter a valid email address.', 'jetpack' ),
+			} );
+			return;
+		}
+
 		tracks.recordEvent( 'jetpack_newsletter_test_email_send', { post_id: postId } );
 		setError( null );
 		setIsEmailSending( true );
@@ -95,7 +127,7 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 		apiFetch( {
 			path: '/wpcom/v2/send-email-preview/',
 			method: 'POST',
-			data: { id: postId, email: recipientEmail?.trim() },
+			data: { id: postId, email },
 		} )
 			.then( () => {
 				setIsEmailSending( false );
@@ -105,9 +137,17 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 				setIsEmailSending( false );
 				setError( {
 					code: e?.code,
-					message:
-						e?.message ||
-						__( 'Whoops, we have encountered an error. Please try again later.', 'jetpack' ),
+					// A structured WP_Error carries a code and a user-facing message.
+					// A rejection without a code (e.g. a non-JSON response from an
+					// upstream rate limiter) gets a friendly generic fallback rather
+					// than a raw parser message.
+					message: e?.code
+						? e.message ||
+						  __( 'Whoops, we have encountered an error. Please try again later.', 'jetpack' )
+						: __(
+								'Something went wrong sending the test email. Please try again in a little while.',
+								'jetpack'
+						  ),
 				} );
 			} );
 	};
@@ -136,17 +176,22 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 				) : (
 					<>
 						<p>
-							{ __(
-								'Send a test email to see exactly what your subscribers receive in their inboxes. It defaults to your address, but you can send it to any address you could add as a subscriber.',
-								'jetpack'
-							) }
+							{ canEditRecipient
+								? __(
+										'Send a test email to see exactly what your subscribers receive in their inboxes. It defaults to your address, but you can send it to any address you could add as a subscriber.',
+										'jetpack'
+								  )
+								: __(
+										'Send a test email to your address so you can see exactly what your subscribers receive in their inboxes.',
+										'jetpack'
+								  ) }
 						</p>
 						<Grid alignment="bottom" columns={ 2 } gap={ 2 } templateColumns="2fr auto;">
 							<InputControl
 								type="email"
 								value={ recipientEmail }
 								onChange={ value => setRecipientEmail( value ?? '' ) }
-								disabled={ isEmailSending }
+								disabled={ isEmailSending || ! canEditRecipient }
 								label={ __( 'Recipient email address', 'jetpack' ) }
 								hideLabelFromVision
 								__next40pxDefaultSize={ true }
