@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep the Schema module's completion status accurate when a name or description field contains only spaces.

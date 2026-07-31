@@ -1,10 +1,10 @@
 /**
  * External dependencies
  */
+import { Button } from '@jetpack-premium-analytics/externals';
 import { useRegistry } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
-import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useState, type ComponentProps } from 'react';
 /**

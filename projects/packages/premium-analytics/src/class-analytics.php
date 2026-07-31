@@ -130,6 +130,9 @@ class Analytics {
 	 * @return void
 	 */
 	private static function boot_shared_services() {
+		// Must be hooked before admin_menu and rest_api_init check the capability.
+		Capabilities::register();
+
 		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
 		WooCommerce_Analytics_Tracker::configure();
 
@@ -174,17 +177,39 @@ class Analytics {
 	 * @return void
 	 */
 	private static function load_dashboard_components() {
+		/*
+		 * Every include below is guarded on a symbol the target file declares.
+		 *
+		 * Two copies of this package can be loaded in one request — WPCOM Simple ships
+		 * one under jetpack-plugin and another under jetpack-mu-wpcom-plugin. The
+		 * autoloader dedupes classes by version, but these files declare functions and
+		 * constants at file scope, so they are absent from the classmap entirely and
+		 * reach us through `require_once`, which dedupes by path and not by symbol.
+		 * Once a class from one copy and a class from the other both run their
+		 * includes, PHP fatals on the redeclared functions. The guards make the second
+		 * copy's include a no-op, which also keeps the files' file-scope side effects
+		 * (add_filter() calls, registry bootstrapping) from running twice.
+		 */
+
 		// Widget modules for the client's dynamic import() map.
-		require_once __DIR__ . '/widget-modules.php';
+		if ( ! function_exists( __NAMESPACE__ . '\\register_widget_modules_rest_route' ) ) {
+			require_once __DIR__ . '/widget-modules.php';
+		}
 
 		// Default layout's first-load preference injection.
-		require_once __DIR__ . '/dashboard-layout.php';
+		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_default_layout_route' ) ) {
+			require_once __DIR__ . '/dashboard-layout.php';
+		}
 
 		// Dashboard sections and their default layout seeding.
-		require_once __DIR__ . '/dashboard-sections.php';
+		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_section' ) ) {
+			require_once __DIR__ . '/dashboard-sections.php';
+		}
 
-		// Opt-in CSV export settings.
-		require_once __DIR__ . '/csv-exports.php';
+		// Default-on CSV export settings and server-side disable filter.
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_csv_exports' ) ) {
+			require_once __DIR__ . '/csv-exports.php';
+		}
 		configure_csv_exports();
 	}
 
@@ -310,7 +335,7 @@ class Analytics {
 		add_menu_page(
 			esc_html( $menu_title ),
 			esc_html( $menu_title ),
-			'manage_options',
+			Capabilities::VIEW_ANALYTICS,
 			'jetpack-premium-analytics-wp-admin',
 			$render_callback,
 			'dashicons-chart-bar',
@@ -361,7 +386,7 @@ class Analytics {
 		// esc_html() as a broken label instead of falling back here.
 		self::$resolved_menu_title = is_string( $title ) && '' !== $title
 			? $title
-			: __( 'Analytics', 'jetpack-premium-analytics-pkg' );
+			: __( 'Stats v2', 'jetpack-premium-analytics-pkg' );
 
 		return self::$resolved_menu_title;
 	}

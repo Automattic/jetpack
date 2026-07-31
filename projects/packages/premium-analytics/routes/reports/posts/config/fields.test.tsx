@@ -20,18 +20,32 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 } ) );
 
 // The router is built dynamically at runtime, so a field-level test has no
-// router to mount. Render `Link` as the anchor it becomes, keeping `to`/
-// `params` assertable, matching the other report field tests.
+// router to mount. Render `Link` as the anchor it becomes, keeping `to`,
+// `params`, and `search` assertable, matching the other report field tests.
 jest.mock( '@wordpress/route', () => ( {
 	Link: ( {
 		to,
 		params,
+		search,
 		children,
 	}: {
 		to: string;
 		params: Record< string, string >;
+		search?: Record< string, unknown >;
 		children: ReactNode;
-	} ) => <a href={ to.replace( /\$(\w+)/g, ( _match, key ) => params[ key ] ) }>{ children }</a>,
+	} ) => {
+		const path = to.replace( /\$(\w+)/g, ( _match, key ) => params[ key ] );
+		const query = new URLSearchParams();
+		Object.entries( search ?? {} ).forEach( ( [ key, value ] ) => {
+			if ( value !== undefined && value !== null ) {
+				query.set( key, String( value ) );
+			}
+		} );
+		const queryString = query.toString();
+
+		return <a href={ queryString ? `${ path }?${ queryString }` : path }>{ children }</a>;
+	},
+	useSearch: () => ( { from: '2026-03-01', to: '2026-03-10', interval: 'day' } ),
 } ) );
 
 const mockUseSiteHomeUrl = useSiteHomeUrl as jest.MockedFunction< typeof useSiteHomeUrl >;
@@ -128,13 +142,14 @@ describe( 'posts title field', () => {
 
 		renderTitleField( homepage );
 
+		// The homepage has no post-detail page, so its title is the outbound link
+		// and carries the external-link marker.
 		const link = screen.getByRole( 'link', {
-			name: /Homepage \(Latest posts\).*opens in a new tab/i,
+			name: 'Homepage (Latest posts)(opens in a new tab)',
 		} );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
-		expect( screen.getByRole( 'img', { name: '(opens in a new tab)' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders plain text when the site home URL is unavailable', () => {
@@ -159,7 +174,7 @@ describe( 'posts title field', () => {
 		expect( screen.queryByText( '+61%' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'drills a row with a post ID into the post detail page', () => {
+	it( 'drills a row with a post ID into the post detail page, carrying the date range', () => {
 		renderTitleField( {
 			id: 42,
 			label: 'Hello world',
@@ -168,20 +183,41 @@ describe( 'posts title field', () => {
 			type: 'post',
 		} );
 
-		expect( screen.getByRole( 'link', { name: 'Hello world' } ) ).toHaveAttribute(
-			'href',
-			'/post/42'
-		);
+		const link = screen.getByRole( 'link', { name: 'Hello world' } );
+		const href = link.getAttribute( 'href' ) ?? '';
+		const search = new URL( href, 'https://example.com' ).searchParams;
+
+		expect( href ).toContain( '/post/42' );
+		// The detail page must open on the range the report is showing, not
+		// reseed its own defaults.
+		expect( search.get( 'from' ) ).toBe( '2026-03-01' );
+		expect( search.get( 'to' ) ).toBe( '2026-03-10' );
+		expect( search.get( 'post_url' ) ).toBe( 'https://example.com/hello-world/' );
+		// A row with a detail page carries no link out to the live post.
+		expect( link ).not.toHaveAttribute( 'target' );
 	} );
 
-	// Every row the API returns carries an ID, and the ID-less homepage row is
-	// caught by the branch above, so this only guards against a malformed row
-	// linking to `/post/undefined`.
-	it( 'renders a row with no post ID as plain text rather than a broken link', () => {
+	// Guards against a malformed row linking to `/post/undefined`.
+	it( 'renders a row with no post ID and no URL as plain text rather than a broken link', () => {
 		renderTitleField( { label: 'Uncategorized', views: 3, link: null, type: 'post' } );
 
 		expect( screen.getByText( 'Uncategorized' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'falls back to the public URL when a row has no post ID', () => {
+		renderTitleField( {
+			label: 'Uncategorized',
+			views: 3,
+			link: 'https://example.com/uncategorized/',
+			type: 'post',
+		} );
+
+		const link = screen.getByRole( 'link', {
+			name: 'Uncategorized(opens in a new tab)',
+		} );
+		expect( link ).toHaveAttribute( 'href', 'https://example.com/uncategorized/' );
+		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
 
 	it( 'shows the archives views delta when comparison is enabled', () => {

@@ -12,11 +12,14 @@ use WP_REST_Request;
 use WP_REST_Server;
 
 require_once __DIR__ . '/../../src/dashboard-sections.php';
+require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
 
 /**
  * Tests for Premium Analytics dashboard sections.
  */
 class Dashboard_Section_Test extends BaseTestCase {
+
+	use Analytics_Capabilities_Trait;
 
 	/**
 	 * Counter for unique test user logins.
@@ -41,6 +44,10 @@ class Dashboard_Section_Test extends BaseTestCase {
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
 		register_dashboard_sections_rest_routes();
+
+		// Hooked by the package's entry points in production; the routes under test
+		// are gated on the capability it maps.
+		Capabilities::register();
 	}
 
 	/**
@@ -56,6 +63,10 @@ class Dashboard_Section_Test extends BaseTestCase {
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'doing_it_wrong_run' );
 		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
+
+		// Drops the package's mapping along with any per-user view_stats grant a
+		// test added; set_up() hooks the mapping again.
+		$this->reset_analytics_capabilities();
 
 		wp_set_current_user( 0 );
 
@@ -417,6 +428,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 */
 	public function test_registers_woocommerce_dashboard_section_when_available() {
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+		$this->set_admin_user();
 
 		register_default_dashboard_sections();
 
@@ -471,6 +483,62 @@ class Dashboard_Section_Test extends BaseTestCase {
 				get_available_dashboard_sections( DASHBOARD_NAME )
 			)
 		);
+	}
+
+	/**
+	 * Store data is only served to administrators, so a reader who reached the
+	 * dashboard through view_stats is not offered the section at all.
+	 */
+	public function test_omits_woocommerce_dashboard_section_from_a_view_stats_reader() {
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+		$user_id = $this->set_editor_user();
+		$this->grant_view_stats_to( $user_id );
+
+		register_default_dashboard_sections();
+
+		$woocommerce = get_registered_dashboard_section( DASHBOARD_NAME, 'woocommerce/store' );
+
+		$this->assertFalse( $woocommerce->is_available() );
+		$this->assertNotContains(
+			'woocommerce/store',
+			array_map(
+				static function ( Dashboard_Section $section ) {
+					return $section->id;
+				},
+				get_available_dashboard_sections( DASHBOARD_NAME )
+			)
+		);
+	}
+
+	/**
+	 * That reader still gets the section routes: the dashboard itself is theirs.
+	 */
+	public function test_sections_route_serves_a_view_stats_reader() {
+		$user_id = $this->set_editor_user();
+		$this->grant_view_stats_to( $user_id );
+
+		register_default_dashboard_sections();
+
+		$response = rest_get_server()->dispatch(
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/' . DASHBOARD_NAME . '/sections' )
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+	}
+
+	/**
+	 * A user with neither capability gets nothing.
+	 */
+	public function test_sections_route_refuses_a_plain_editor() {
+		$this->set_editor_user();
+
+		register_default_dashboard_sections();
+
+		$response = rest_get_server()->dispatch(
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/' . DASHBOARD_NAME . '/sections' )
+		);
+
+		$this->assertSame( 403, $response->get_status() );
 	}
 
 	/**
@@ -763,5 +831,27 @@ class Dashboard_Section_Test extends BaseTestCase {
 		wp_set_current_user( $admin_id );
 
 		return $admin_id;
+	}
+
+	/**
+	 * Set current user to an editor: a dashboard reader once granted view_stats,
+	 * and never an administrator.
+	 *
+	 * @return int User ID.
+	 */
+	private function set_editor_user() {
+		++self::$user_count;
+
+		$editor_id = wp_insert_user(
+			array(
+				'user_login' => 'jpa_dashboard_sections_editor_' . self::$user_count,
+				'user_pass'  => 'password',
+				'role'       => 'editor',
+			)
+		);
+
+		wp_set_current_user( $editor_id );
+
+		return $editor_id;
 	}
 }

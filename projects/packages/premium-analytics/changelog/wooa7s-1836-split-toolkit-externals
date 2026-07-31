@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Compile shared third-party libraries into a dedicated externals script module so they are no longer duplicated across widget bundles.

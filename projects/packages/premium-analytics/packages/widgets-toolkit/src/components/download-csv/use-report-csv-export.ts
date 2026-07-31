@@ -21,8 +21,8 @@ export type UseReportCsvExportOptions< Row > = {
 	/** Report-specific prefix for the date-stamped filename. */
 	filenamePrefix: string;
 
-	/** Active report date range. */
-	range: CsvDateRange;
+	/** Active report date range. Omit for reports that cover all time. */
+	range?: CsvDateRange;
 
 	/** Active report request state. */
 	status: ReportCsvExportStatus;
@@ -64,7 +64,7 @@ export function useReportCsvExport< Row >( {
 	sort,
 }: UseReportCsvExportOptions< Row > ): UseReportCsvExportResult< Row > {
 	const exportRows = useMemo( () => ( sort ? [ ...rows ].sort( sort ) : rows ), [ rows, sort ] );
-	const filename = buildCsvDateRangeFilename( filenamePrefix, range );
+	const filename = range ? buildCsvDateRangeFilename( filenamePrefix, range ) : filenamePrefix;
 	const canExport =
 		isCsvExportEnabled() &&
 		exportRows.length > 0 &&

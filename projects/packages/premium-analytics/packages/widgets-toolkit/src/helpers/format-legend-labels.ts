@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { __ } from '@wordpress/i18n';
 import type { LegendLabels } from '../components/chart-leaderboard';
@@ -29,21 +30,22 @@ import type { ReportParams } from '@jetpack-premium-analytics/data';
  *   compare_to: '2023-12-31',
  *   interval: 'day'
  * });
- * // Returns: { primary: 'Jan 1 - 31, 2024', comparison: 'Dec 1 - 31, 2023' }
+ * // Returns: { primary: 'January 1 – 31, 2024', … }
  * ```
  */
 export function formatLegendLabels( reportParams: ReportParams ): LegendLabels {
-	const primaryLabel = formatDateRange( {
-		from: new Date( reportParams.from ),
-		to: new Date( reportParams.to ),
-	} );
+	const primaryLabel =
+		formatDateRange( {
+			from: parseSiteDateTime( reportParams.from ),
+			to: parseSiteDateTime( reportParams.to ),
+		} ) || __( 'Current period', 'jetpack-premium-analytics-pkg' );
 
 	const comparisonLabel =
 		reportParams.compare_from && reportParams.compare_to
 			? formatDateRange( {
-					from: new Date( reportParams.compare_from ),
-					to: new Date( reportParams.compare_to ),
-			  } )
+					from: parseSiteDateTime( reportParams.compare_from ),
+					to: parseSiteDateTime( reportParams.compare_to ),
+			  } ) || __( 'Previous period', 'jetpack-premium-analytics-pkg' )
 			: __( 'Previous period', 'jetpack-premium-analytics-pkg' );
 
 	return {

@@ -30,51 +30,35 @@
 }
 
 /* `min-width: 0` lets the flex item shrink below its content width so the
-   ellipsis applies; without it a long title pushes the trailing icon out. */
+   ellipsis applies; without it a long title pushes the trailing icon out. The
+   outbound marker brings its own inline spacing, so the box needs no gap. */
 .labelTitle,
-.labelTitleLink {
+.labelTitleLink,
+.labelExternalLink {
+	min-width: 0;
+	display: inline-flex;
+	align-items: center;
+}
+
+/* The label text carries the ellipsis in every branch: `text-overflow` needs
+   an inline formatting context, which the flex containers above do not give
+   it. */
+.labelText {
 	min-width: 0;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
-.labelTitleLink {
+.labelTitleLink,
+.labelExternalLink {
 	color: inherit;
 	text-decoration: none;
 }
 
 .labelTitleLink:hover,
-.labelTitleLink:focus {
+.labelTitleLink:focus,
+.labelExternalLink:hover,
+.labelExternalLink:focus {
 	text-decoration: underline;
-}
-
-/* Trailing external-link icon: opens the public page in a new tab. Hidden
-   until the row is hovered (or holds keyboard focus) so the resting rows read
-   as plain titles; opacity keeps the slot in the layout and the target
-   tappable, so nothing shifts on reveal. */
-.externalLink {
-	display: inline-flex;
-	flex: none;
-	color: var(--wpds-color-foreground-content-neutral-weak);
-	opacity: 0;
-	transition: opacity 120ms ease-in-out;
-}
-
-.labelRow:hover .externalLink,
-.labelRow:focus-within .externalLink {
-	opacity: 1;
-}
-
-.externalLink:hover,
-.externalLink:focus-visible {
-	color: inherit;
-}
-
-/* Touch-capable devices: keep the icon visible so the affordance isn't lost. */
-@media (hover: none), (any-pointer: coarse) {
-
-	.externalLink {
-		opacity: 1;
-	}
 }

@@ -18,19 +18,13 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	downloadReport: jest.fn(),
 } ) );
 
-const mockGetScriptData = getScriptData as jest.Mock;
 const mockDownloadReport = jest.mocked( downloadReport );
+const mockGetScriptData = jest.mocked( getScriptData );
 
 describe( 'ReportCsvDownloadButton', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		mockGetScriptData.mockReturnValue( {
-			premium_analytics: {
-				initial_full_sync_finished: 1,
-				has_store_data: false,
-				csv_exports_enabled: true,
-			},
-		} );
+		mockGetScriptData.mockReturnValue( undefined );
 		mockDownloadReport.mockResolvedValue( { filename: 'orders-over-time.csv' } );
 	} );
 
@@ -88,14 +82,14 @@ describe( 'ReportCsvDownloadButton', () => {
 		await waitFor( () => expect( mockDownloadReport ).toHaveBeenCalledTimes( 1 ) );
 	} );
 
-	it( 'stays hidden while the feature flag is disabled', () => {
+	it( 'stays hidden when the server disables CSV exports', () => {
 		mockGetScriptData.mockReturnValue( {
 			premium_analytics: {
 				initial_full_sync_finished: 1,
 				has_store_data: false,
 				csv_exports_enabled: false,
 			},
-		} );
+		} as ReturnType< typeof getScriptData > );
 
 		render(
 			<ReportCsvDownloadButton

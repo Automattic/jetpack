@@ -3,8 +3,8 @@
  */
 import { __ } from '@wordpress/i18n';
 import { formatLegendLabels } from './format-legend-labels';
-import type { SeriesData } from '@automattic/charts';
 import type { ReportDataMap, ReportParams } from '@jetpack-premium-analytics/data';
+import type { SeriesData } from '@jetpack-premium-analytics/externals';
 
 /**
  * Internal dependencies

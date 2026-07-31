@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
+import { EmptyState, Icon } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import { cautionFilled } from '@wordpress/icons';
-import { EmptyState, Icon } from '@wordpress/ui';
 /**
  * Internal dependencies
  */

@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
 import { Spinner, withNotices, Button } from '@wordpress/components';
@@ -14,6 +15,7 @@ import { Link } from '@wordpress/ui';
 import useResumableUploader from '../../../../../hooks/use-resumable-uploader';
 import { uploadFromLibrary } from '../../../../../hooks/use-uploader';
 import { isSiteConnected } from '../../../../../lib/connection';
+import { promoteOnSimple } from '../../../../../lib/promote-on-simple';
 import {
 	buildVideoPressURL,
 	buildVideoPressVideoByFileName,
@@ -216,6 +218,30 @@ const VideoPressUploader = ( {
 
 		// Handle selection of Media Library regular attachment
 		if ( media.id ) {
+			// Store the selection so the error screen's Retry can re-dispatch
+			// this flow — the library path has no File to hand to startUpload.
+			setFile( media );
+
+			// On WordPress.com Simple the videopress/v1 upload routes never
+			// reach the REST dispatcher (the public-api router 404s them).
+			// The file is already on WordPress.com storage, so promote the
+			// attachment in place with a single wpcom/v2 POST instead of
+			// probing and walking the chunked upload endpoint.
+			if ( isSimpleSite() ) {
+				setUploadingProgress( 1, 1 );
+				setIsUploadingInProgress( true );
+				promoteOnSimple( media.id )
+					.then( ( { guid, mediaId } ) => {
+						setUploadedVideoData( { guid, id: mediaId, src: media.url } );
+					} )
+					.catch( error => {
+						setUploadErrorDataState( {
+							data: { message: error?.message },
+						} );
+					} );
+				return;
+			}
+
 			const path = `videopress/v1/upload/${ media.id }`;
 
 			setIsVerifyingLocalMedia( true );
@@ -291,15 +317,26 @@ const VideoPressUploader = ( {
 
 	// Showing error if upload fails
 	if ( uploadErrorData ) {
-		const onRetry = () => {
-			startUpload( uploadFile );
-		};
-
 		const onCancel = () => {
 			setFile( null );
 			setUploadingProgress( [] );
 			setUploadErrorData( null );
 			setIsUploadingInProgress( false );
+		};
+
+		const onRetry = () => {
+			if ( ! uploadFile ) {
+				// Nothing stored to retry (e.g. the failure came from the URL
+				// path) — startUpload( null ) would crash reading file.size,
+				// so reset back to the picker instead.
+				onCancel();
+				return;
+			}
+			// Re-dispatch by shape: a File restarts the resumable upload; a
+			// media-library attachment re-runs the library flow (probe/walker,
+			// or the one-shot promote on WordPress.com Simple).
+			setUploadErrorData( null );
+			onSelectVideo( uploadFile );
 		};
 
 		return <UploadError onRetry={ onRetry } onCancel={ onCancel } errorData={ uploadErrorData } />;

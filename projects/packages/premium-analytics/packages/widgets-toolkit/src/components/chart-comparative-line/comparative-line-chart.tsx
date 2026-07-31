@@ -1,10 +1,13 @@
 /**
  * External dependencies
  */
-import { LineChart } from '@automattic/charts';
-import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { LineChart, Stack } from '@jetpack-premium-analytics/externals';
+import {
+	formatDate,
+	formatMetricValue,
+	type DateFormatName,
+} from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
-import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useMemo, useState } from 'react';
 import { type ComponentProps } from 'react';
@@ -134,7 +137,8 @@ export type ComparativeLineChartProps = {
 	 */
 	dataFormat: DataFormat;
 
-	tickFormat?: string;
+	/** Named date format for the X-axis ticks. Uses the chart default when omitted. */
+	tickFormat?: DateFormatName;
 
 	/**
 	 * Degrade to a sparkline (no y-axis, grid, or legend) when the chart area
@@ -294,7 +298,7 @@ export function ComparativeLineChart( {
 	}, [ percentageDomain, createDomainMargin ] );
 
 	const xTickFormat = useCallback(
-		( date: number ) => formatDate( date, xTickFormatType ?? 'short' ),
+		( date: number ) => formatDate( date, xTickFormatType ),
 		[ xTickFormatType ]
 	);
 
@@ -306,7 +310,9 @@ export function ComparativeLineChart( {
 		const baseOptions = {
 			axis: {
 				x: {
-					// Use the chart library's default behavior for 'custom' presets
+					// Must stay conditional: `formatDate` defaults to `medium`, so an
+					// unconditional `xTickFormat` would put full site-format dates on every
+					// tick. Without the prop, the chart library's own tick labels stay in use.
 					tickFormat: xTickFormatType ? xTickFormat : undefined,
 				},
 				y: {

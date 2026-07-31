@@ -109,7 +109,7 @@ class Jetpack_Mu_Wpcom {
 		add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_classic_block_deprecation_experiment' ) );
 		add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_classic_block_deprecation_experiment' ) );
 
-		// Enable the `gutenberg-react-19` Gutenberg experiment for sites with the `gutenberg-react-19` blog sticker.
+		// Enable the `gutenberg-react-19` Gutenberg experiment on selected sites.
 		add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_react_19_experiment' ) );
 		add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_react_19_experiment' ) );
 
@@ -808,7 +808,7 @@ class Jetpack_Mu_Wpcom {
 			array(
 				// A closure, not a string: we run on plugins_loaded, too early to translate.
 				// The package calls this back on admin_menu.
-				'menu_title' => fn () => __( 'Premium Analytics', 'jetpack-mu-wpcom' ),
+				'menu_title' => fn () => __( 'Stats v2', 'jetpack-mu-wpcom' ),
 			)
 		);
 	}
@@ -873,13 +873,44 @@ class Jetpack_Mu_Wpcom {
 
 	/**
 	 * Add `gutenberg-react-19` to the list of enabled Gutenberg experiments.
-	 * Only sites with the `gutenberg-react-19` blog sticker are opted in.
+	 *
+	 * The `disable-gutenberg-react-19` blog sticker force-disables the experiment,
+	 * the `gutenberg-react-19` sticker opts the site in. With neither sticker,
+	 * the experiment is enabled on 1% of Atomic sites.
 	 *
 	 * @param mixed $experiments The current value of the gutenberg-experiments option.
 	 * @return mixed Original option value or the filtered experiments.
 	 */
 	public static function enable_gutenberg_react_19_experiment( $experiments ) {
-		if ( ! wpcom_has_blog_sticker( 'gutenberg-react-19', get_wpcom_blog_id() ) ) {
+		$blog_id = get_wpcom_blog_id();
+
+		if ( wpcom_has_blog_sticker( 'disable-gutenberg-react-19', $blog_id ) ) {
+			return $experiments;
+		}
+
+		$is_enabled = wpcom_has_blog_sticker( 'gutenberg-react-19', $blog_id );
+
+		if ( ! $is_enabled && function_exists( 'wpcomsh_get_atomic_site_id' ) ) {
+			$site_id = wpcomsh_get_atomic_site_id();
+
+			// Don't enable if the site ID is unknown (zero).
+			if ( ! $site_id ) {
+				$is_enabled = false;
+			} else {
+				$current_segment = 1; // Segment of Atomic sites in the experiment, in %.
+				$site_segment    = $site_id % 100;
+
+				/*
+				 * Sites whose Atomic site ID ends in digits < $current_segment are in the segment.
+				 * Must stay in sync with the error reporting rollout in wpcomsh
+				 * (wpcomsh_enable_error_reporting_for_react_19), so that every site in
+				 * the experiment also reports JS errors.
+				 */
+				$is_enabled = $site_segment < $current_segment;
+			}
+		}
+
+		if ( ! $is_enabled ) {
 			return $experiments;
 		}
 
