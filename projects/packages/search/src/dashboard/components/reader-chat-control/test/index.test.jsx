@@ -11,6 +11,14 @@ jest.mock( '@wordpress/components', () => ( {
 	),
 	ColorPalette: ( { 'aria-label': ariaLabel, colors, onChange, value } ) => (
 		<div aria-label={ ariaLabel } data-value={ value }>
+			<label htmlFor="reader-chat-custom-accent">
+				Custom accent color
+				<input
+					id="reader-chat-custom-accent"
+					value={ value }
+					onChange={ event => onChange( event.target.value ) }
+				/>
+			</label>
 			{ colors.map( color => (
 				<button key={ color.slug } onClick={ () => onChange( color.color ) }>
 					{ color.name }
@@ -129,6 +137,10 @@ describe( 'ReaderChatControl', () => {
 		];
 	} );
 
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	test( 'renders nothing when the setting is not available', () => {
 		const { container } = render( <ReaderChatControl { ...defaultProps } isAvailable={ false } /> );
 
@@ -199,6 +211,7 @@ describe( 'ReaderChatControl', () => {
 	} );
 
 	test( 'round-trips brand field changes through the settings update', () => {
+		jest.useFakeTimers();
 		const updateOptions = jest.fn();
 		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
 
@@ -218,17 +231,127 @@ describe( 'ReaderChatControl', () => {
 		fireEvent.blur( greetingField );
 		expect( updateOptions ).toHaveBeenLastCalledWith( {
 			reader_chat_brand: {
-				name: '',
+				name: 'Ada',
 				accent: '',
 				greeting: 'How can I help?',
 			},
 		} );
 
 		fireEvent.click( screen.getByRole( 'button', { name: 'Primary' } ) );
+		expect( screen.getByRole( 'button', { name: 'Reset to theme' } ) ).toBeEnabled();
+		jest.advanceTimersByTime( 500 );
 		expect( updateOptions ).toHaveBeenLastCalledWith( {
 			reader_chat_brand: {
-				name: '',
+				name: 'Ada',
 				accent: '#2271b1',
+				greeting: 'How can I help?',
+			},
+		} );
+	} );
+
+	test( 'saves only the final custom accent after the picker settles', () => {
+		jest.useFakeTimers();
+		const updateOptions = jest.fn();
+		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
+
+		const picker = screen.getByLabelText( 'Custom accent color' );
+		fireEvent.change( picker, { target: { value: '#111111' } } );
+		fireEvent.change( picker, { target: { value: '#222222' } } );
+		fireEvent.change( picker, { target: { value: '#333333' } } );
+
+		expect( screen.getByLabelText( 'Accent color' ) ).toHaveAttribute( 'data-value', '#333333' );
+		expect( screen.getByRole( 'button', { name: 'Reset to theme' } ) ).toBeEnabled();
+		expect( updateOptions ).not.toHaveBeenCalled();
+
+		jest.advanceTimersByTime( 499 );
+		expect( updateOptions ).not.toHaveBeenCalled();
+
+		jest.advanceTimersByTime( 1 );
+		expect( updateOptions ).toHaveBeenCalledTimes( 1 );
+		expect( updateOptions ).toHaveBeenCalledWith( {
+			reader_chat_brand: {
+				name: '',
+				accent: '#333333',
+				greeting: '',
+			},
+		} );
+	} );
+
+	test( 'keeps a pending accent save across an update callback change', () => {
+		jest.useFakeTimers();
+		const firstUpdateOptions = jest.fn();
+		const finalUpdateOptions = jest.fn();
+		const { rerender } = render(
+			<ReaderChatControl { ...defaultProps } isEnabled updateOptions={ firstUpdateOptions } />
+		);
+
+		fireEvent.change( screen.getByLabelText( 'Custom accent color' ), {
+			target: { value: '#333333' },
+		} );
+		mockDerivedBrand = { ...mockDerivedBrand, accent: '#444444' };
+		rerender(
+			<ReaderChatControl { ...defaultProps } isEnabled updateOptions={ finalUpdateOptions } />
+		);
+		expect( screen.getByLabelText( 'Accent color' ) ).toHaveAttribute( 'data-value', '#333333' );
+		jest.advanceTimersByTime( 500 );
+
+		expect( firstUpdateOptions ).not.toHaveBeenCalled();
+		expect( finalUpdateOptions ).toHaveBeenCalledWith( {
+			reader_chat_brand: {
+				name: '',
+				accent: '#333333',
+				greeting: '',
+			},
+		} );
+	} );
+
+	test( 'includes a pending accent when a text field saves first', () => {
+		jest.useFakeTimers();
+		const updateOptions = jest.fn();
+		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
+
+		fireEvent.change( screen.getByLabelText( 'Custom accent color' ), {
+			target: { value: '#333333' },
+		} );
+		const nameField = screen.getByLabelText( 'Assistant name' );
+		fireEvent.change( nameField, { target: { value: 'Ada' } } );
+		fireEvent.blur( nameField );
+
+		expect( updateOptions ).toHaveBeenLastCalledWith( {
+			reader_chat_brand: {
+				name: 'Ada',
+				accent: '#333333',
+				greeting: '',
+			},
+		} );
+
+		jest.advanceTimersByTime( 500 );
+		expect( updateOptions ).toHaveBeenLastCalledWith( {
+			reader_chat_brand: {
+				name: 'Ada',
+				accent: '#333333',
+				greeting: '',
+			},
+		} );
+	} );
+
+	test( 'flushes the final accent when the control unmounts', () => {
+		jest.useFakeTimers();
+		const updateOptions = jest.fn();
+		const { unmount } = render(
+			<ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } />
+		);
+
+		fireEvent.change( screen.getByLabelText( 'Custom accent color' ), {
+			target: { value: '#333333' },
+		} );
+		unmount();
+
+		expect( updateOptions ).toHaveBeenCalledTimes( 1 );
+		expect( updateOptions ).toHaveBeenCalledWith( {
+			reader_chat_brand: {
+				name: '',
+				accent: '#333333',
 				greeting: '',
 			},
 		} );
@@ -260,13 +383,20 @@ describe( 'ReaderChatControl', () => {
 	} );
 
 	test( 'resets an accent override to the derived theme value', () => {
+		jest.useFakeTimers();
 		mockStoredBrand.accent = '#ff0000';
 		const updateOptions = jest.fn();
 		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
 
 		expect( screen.getByLabelText( 'Accent color' ) ).toHaveAttribute( 'data-value', '#ff0000' );
+		fireEvent.change( screen.getByLabelText( 'Custom accent color' ), {
+			target: { value: '#00ff00' },
+		} );
 		fireEvent.click( screen.getByRole( 'button', { name: 'Reset to theme' } ) );
+		jest.advanceTimersByTime( 500 );
 
+		expect( updateOptions ).toHaveBeenCalledTimes( 1 );
+		expect( screen.getByRole( 'button', { name: 'Reset to theme' } ) ).toBeDisabled();
 		expect( updateOptions ).toHaveBeenCalledWith( {
 			reader_chat_brand: {
 				name: '',

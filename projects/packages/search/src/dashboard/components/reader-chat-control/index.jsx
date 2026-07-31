@@ -8,7 +8,8 @@ import {
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Badge } from '@wordpress/ui';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import debounce from 'debounce';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { STORE_ID } from 'store';
 import './style.scss';
 
@@ -16,6 +17,7 @@ const READER_CHAT_DESCRIPTION = __(
 	'Let visitors ask your site questions and get answers from your content.',
 	'jetpack-search-pkg'
 );
+const ACCENT_SAVE_DELAY_MS = 500;
 
 /**
  * Reader Chat opt-in control. Reads and writes the reader_chat option
@@ -44,6 +46,16 @@ export default function ReaderChatControl( {
 		accent: typeof storedBrand?.accent === 'string' ? storedBrand.accent : '',
 		greeting: typeof storedBrand?.greeting === 'string' ? storedBrand.greeting : '',
 	};
+	const brandRef = useRef( brand );
+	const pendingAccentRef = useRef( null );
+
+	useEffect( () => {
+		brandRef.current = {
+			name: brand.name,
+			accent: pendingAccentRef.current ?? brand.accent,
+			greeting: brand.greeting,
+		};
+	}, [ brand.name, brand.accent, brand.greeting ] );
 
 	const toggle = useCallback(
 		next => {
@@ -52,14 +64,25 @@ export default function ReaderChatControl( {
 		[ updateOptions ]
 	);
 
-	const updateBrand = ( field, value ) => {
-		updateOptions( {
-			reader_chat_brand: {
-				...brand,
+	const updateBrand = useCallback(
+		( field, value ) => {
+			const nextBrand = {
+				...brandRef.current,
 				[ field ]: value ?? '',
-			},
-		} );
-	};
+			};
+			brandRef.current = nextBrand;
+			updateOptions( {
+				reader_chat_brand: nextBrand,
+			} );
+		},
+		[ updateOptions ]
+	);
+	// The debounced save outlives renders, so read the latest update callback
+	// through a ref instead of stranding a changed updateOptions prop.
+	const updateBrandRef = useRef( updateBrand );
+	useEffect( () => {
+		updateBrandRef.current = updateBrand;
+	}, [ updateBrand ] );
 
 	// Text fields keep a local draft and only save on blur. `updateOptions`
 	// issues a REST save, a re-fetch, and a success notice per call, so saving
@@ -67,6 +90,19 @@ export default function ReaderChatControl( {
 	// control in this dashboard is a toggle, where that never mattered.
 	const [ draft, setDraft ] = useState( { name: brand.name, greeting: brand.greeting } );
 	const committedRef = useRef( { name: brand.name, greeting: brand.greeting } );
+	const resolvedAccent = brand.accent || derivedBrand?.accent || '';
+	const [ accentDraft, setAccentDraft ] = useState( resolvedAccent );
+	const [ hasAccentOverride, setHasAccentOverride ] = useState( Boolean( brand.accent ) );
+	// ColorPalette fires continuously while its custom picker is dragged. Keep
+	// that interaction local, then issue one REST save after the color settles.
+	const saveAccent = useMemo(
+		() =>
+			debounce( value => {
+				pendingAccentRef.current = null;
+				updateBrandRef.current( 'accent', value );
+			}, ACCENT_SAVE_DELAY_MS ),
+		[]
+	);
 
 	// Re-seed the draft when saved values change from outside this component —
 	// the initial settings fetch, or a save returning server-normalized values.
@@ -80,6 +116,16 @@ export default function ReaderChatControl( {
 		}
 	}, [ brand.name, brand.greeting ] );
 
+	// Re-seed the displayed accent after an external or normalized store update.
+	useEffect( () => {
+		if ( null === pendingAccentRef.current ) {
+			setAccentDraft( resolvedAccent );
+			setHasAccentOverride( Boolean( brand.accent ) );
+		}
+	}, [ brand.accent, resolvedAccent ] );
+
+	useEffect( () => () => saveAccent.flush(), [ saveAccent ] );
+
 	const commitBrandText = field => {
 		const value = draft[ field ];
 		if ( value === committedRef.current[ field ] ) {
@@ -87,6 +133,23 @@ export default function ReaderChatControl( {
 		}
 		committedRef.current = { ...committedRef.current, [ field ]: value };
 		updateBrand( field, value );
+	};
+
+	const updateAccent = value => {
+		const nextAccent = value ?? '';
+		pendingAccentRef.current = nextAccent;
+		brandRef.current = { ...brandRef.current, accent: nextAccent };
+		setAccentDraft( nextAccent || derivedBrand?.accent || '' );
+		setHasAccentOverride( true );
+		saveAccent( nextAccent );
+	};
+
+	const resetAccent = () => {
+		saveAccent.clear();
+		pendingAccentRef.current = null;
+		setAccentDraft( derivedBrand?.accent || '' );
+		setHasAccentOverride( false );
+		updateBrand( 'accent', '' );
 	};
 
 	// Hide the control when this site should not expose Reader Chat settings.
@@ -146,12 +209,12 @@ export default function ReaderChatControl( {
 									aria-label={ __( 'Accent color', 'jetpack-search-pkg' ) }
 									clearable={ false }
 									colors={ themePalette }
-									onChange={ value => updateBrand( 'accent', value ) }
-									value={ brand.accent || derivedBrand?.accent }
+									onChange={ updateAccent }
+									value={ accentDraft }
 								/>
 								<Button
-									disabled={ isSaving || ! brand.accent }
-									onClick={ () => updateBrand( 'accent', '' ) }
+									disabled={ isSaving || ! hasAccentOverride }
+									onClick={ resetAccent }
 									variant="link"
 								>
 									{ __( 'Reset to theme', 'jetpack-search-pkg' ) }
