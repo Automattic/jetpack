@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
@@ -16,9 +17,20 @@ use PHPUnit\Framework\TestCase;
 /**
  * Tests for the Analytics class.
  *
+ * The two widget-modules functions are listed alongside the class because
+ * test_rest_request_still_serves_the_widget_manifest exercises them on purpose.
+ * Covers metadata is also what code coverage is attributed to — php-code-coverage
+ * discards every executed line outside the declared units — so leaving them off
+ * reports the manifest require and its path seam as dead code while a green test
+ * runs them.
+ *
  * @covers \Automattic\Jetpack\PremiumAnalytics\Analytics
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\ensure_widget_registry_ready
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\widgets_manifest_path
  */
 #[CoversClass( Analytics::class )]
+#[CoversFunction( 'Automattic\\Jetpack\\PremiumAnalytics\\ensure_widget_registry_ready' )]
+#[CoversFunction( 'Automattic\\Jetpack\\PremiumAnalytics\\widgets_manifest_path' )]
 class Analytics_Test extends TestCase {
 
 	const MENU_SLUG     = 'jetpack-premium-analytics-wp-admin';
