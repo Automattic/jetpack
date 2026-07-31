@@ -50,7 +50,10 @@ const AdvancedCard: FC = () => {
 					</Text>
 
 					<Stack direction="column" gap="sm">
-						<Text variant="heading-sm">{ __( 'While it’s off:', 'jetpack-seo' ) }</Text>
+						{ /* `heading-md` (13px medium), not `heading-sm` — that one is 11px
+						     uppercase, the field-label treatment, which would render this
+						     lead-in smaller than the list it introduces. */ }
+						<Text variant="heading-md">{ __( 'While it’s off:', 'jetpack-seo' ) }</Text>
 						{ /* The three things that actually stop, which the old Overview footer
 						     link never said. Structured data and llms.txt are front-end output,
 						     not just settings — see `Initializer::init()`, which skips
