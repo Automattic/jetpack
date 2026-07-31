@@ -161,11 +161,7 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 		// a Jetpack site (blog) token, and the short-circuit above -- enabled by `allow_jetpack_site_auth`,
 		// not `allow_fallback_to_jetpack_blog_token` -- is the only way past this deny. Without the guard
 		// an empty set makes `$must_pass` 0 below, so any connected user token would pass. The check runs
-		// on the resolved set, so the scalar forms meaning "nothing required" are covered by the same
-		// rule: `0` and `'0'` were fail-open everywhere because they resolve to `level_0`, which every
-		// default role holds, and `null` and `''` denied on single-site but passed for a network super
-		// admin on multisite, where `WP_User::has_cap()` returns true whenever the mapped capabilities
-		// contain no `do_not_allow`.
+		// on the resolved set, so the scalar forms meaning "nothing required" are covered by the same rule.
 		//
 		// Scope: under `IS_WPCOM` this file does not run at all -- see the endpoint directory swap in
 		// json-endpoints.php -- so this guard governs self-hosted and Atomic sites only.
@@ -178,20 +174,31 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 		// error message the scalar branch used to build directly.
 		$required_capabilities = is_array( $capabilities ) ? array_values( $capabilities ) : array( $capabilities );
 
-		// Every entry must name an actual capability. An entry nested inside a non-empty list survives
-		// the emptiness check above, and `WP_User::has_cap()` routes anything `is_numeric()` through
-		// its legacy user-level shim -- `0` and `'0'` become `level_0`, which every default role holds.
-		// So `array( 0 )` or `array( '0' )` would authorize any connected user, the same fail-open the
-		// empty set produced. The `is_numeric()` test mirrors the one in core that triggers the shim.
-		// A whitespace-only entry names no capability either, and core grants a network super admin any
-		// capability that does not map to `do_not_allow`, so entries are rejected on their trimmed value.
+		// Every entry must name an actual capability, in the exact form it will be checked in. An entry
+		// nested inside a non-empty list survives the emptiness check above, and core then treats two
+		// classes of malformed name as a grant rather than a refusal: `WP_User::has_cap()` routes
+		// anything `is_numeric()` through its legacy user-level shim, where `0` and `'0'` become
+		// `level_0` and every default role holds it, and a name core cannot map to `do_not_allow` is
+		// granted outright to a network super admin. Either way `array( 0 )` or `array( ' ' )` would
+		// authorize a user token, the same fail-open the empty set produced.
+		//
+		// Entries are therefore compared against their canonical form rather than repaired into it:
+		// leading or trailing whitespace is a malformed declaration, not something to strip and accept.
+		// The character class covers what PHP's byte-wise `trim()` leaves behind -- form feed, NBSP and
+		// the other Unicode separators, the BOM -- and comparing before the `is_numeric()` test keeps
+		// that test stable across the supported PHP matrix, where `is_numeric( '0 ' )` is false before
+		// 8.0 and true from 8.0 on. `preg_replace()` returns null on invalid UTF-8, rejected likewise.
 		//
 		// A wrapper with no `capabilities` key resolves to the wrapper's own metadata and lands here too,
 		// but only when that metadata is not capability-shaped: `array( 'must_pass' => 0 )` is rejected,
 		// while `array( 'must_pass' => 'read' )` is indistinguishable from the list `array( 'read' )` and
-		// gets an ordinary capability check. No declaration in this repository uses either shape.
+		// gets an ordinary capability check.
 		foreach ( $required_capabilities as $required_capability ) {
-			if ( ! is_string( $required_capability ) || '' === trim( $required_capability ) || is_numeric( $required_capability ) ) {
+			$canonical = is_string( $required_capability )
+				? preg_replace( '/^[\pZ\pC]+|[\pZ\pC]+$/u', '', $required_capability )
+				: null;
+
+			if ( null === $canonical || '' === $canonical || $canonical !== $required_capability || is_numeric( $required_capability ) ) {
 				return new WP_Error( 'unauthorized_capability_declaration', __( 'This endpoint does not declare a valid capability requirement.', 'jetpack' ), 403 );
 			}
 		}

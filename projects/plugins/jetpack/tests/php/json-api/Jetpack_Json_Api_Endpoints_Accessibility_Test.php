@@ -74,6 +74,34 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Builds a capability-less dummy endpoint and installs a declaration on it.
+	 *
+	 * `$needed_capabilities` is protected, and these tests need to install shapes no production
+	 * endpoint declares, so reflection is the only way in. Kept in one place so the
+	 * `PHP_VERSION_ID` branch (setAccessible() became a no-op in 8.1) has a single call site.
+	 *
+	 * @param mixed $needed_capabilities The capability declaration to install.
+	 *
+	 * @return Jetpack_JSON_API_Empty_Capabilities_Dummy_Endpoint
+	 */
+	private function endpoint_declaring( $needed_capabilities ) {
+		$endpoint = new Jetpack_JSON_API_Empty_Capabilities_Dummy_Endpoint(
+			array(
+				'stat'                    => 'dummy',
+				'allow_jetpack_site_auth' => true,
+			)
+		);
+
+		$property = ( new ReflectionClass( $endpoint ) )->getProperty( 'needed_capabilities' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $endpoint, $needed_capabilities );
+
+		return $endpoint;
+	}
+
+	/**
 	 *  Called before every test.
 	 */
 	public function set_up() {
@@ -271,18 +299,7 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	#[Group( 'json-api' )]
 	#[DataProvider( 'data_provider_test_zero_threshold_declarations_are_denied' )]
 	public function test_zero_threshold_declarations_are_denied( $needed_capabilities, $result ) {
-		$endpoint = new Jetpack_JSON_API_Empty_Capabilities_Dummy_Endpoint(
-			array(
-				'stat'                    => 'dummy',
-				'allow_jetpack_site_auth' => true,
-			)
-		);
-
-		$property = ( new ReflectionClass( $endpoint ) )->getProperty( 'needed_capabilities' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
-		}
-		$property->setValue( $endpoint, $needed_capabilities );
+		$endpoint = $this->endpoint_declaring( $needed_capabilities );
 
 		wp_set_current_user( self::$subscriber_user_id );
 
@@ -313,9 +330,24 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 			'nested string zero'                          => array( array( '0' ), $declaration ),
 			'nested empty string'                         => array( array( '' ), $declaration ),
 			// Whitespace-only names no capability, and core grants a network super admin anything it
-			// cannot map to 'do_not_allow', so the guard rejects on the trimmed value rather than on ''.
+			// cannot map to 'do_not_allow', so the guard rejects on the canonical value rather than on ''.
 			'nested whitespace-only string'               => array( array( ' ' ), $declaration ),
 			'scalar whitespace-only string'               => array( ' ', $declaration ),
+			// PHP's byte-wise trim() strips neither the form feed nor any multibyte separator, so a
+			// declaration made only of those would otherwise reach current_user_can() as an unmappable
+			// name -- granted outright to a network super admin.
+			'nested form feed only'                       => array( array( "\x0C" ), $declaration ),
+			'nested no-break space only'                  => array( array( "\xC2\xA0" ), $declaration ),
+			'nested ideographic space only'               => array( array( "\xE3\x80\x80" ), $declaration ),
+			'nested byte order mark only'                 => array( array( "\xEF\xBB\xBF" ), $declaration ),
+			'nested invalid UTF-8'                        => array( array( "\xC3\x28" ), $declaration ),
+			// Padding around a real name is rejected rather than stripped: 'read ' is not the capability
+			// 'read', and accepting it would make the declaration and the check disagree.
+			'nested trailing whitespace'                  => array( array( 'read ' ), $declaration ),
+			'nested leading whitespace'                   => array( array( ' read' ), $declaration ),
+			// Also what keeps the numeric rejection matrix-stable: is_numeric( '0 ' ) is false before
+			// PHP 8.0 and true from 8.0 on, so only the canonical comparison denies it on every version.
+			'nested padded zero'                          => array( array( '0 ' ), $declaration ),
 			// No 'capabilities' key, so the wrapper's own metadata is what gets capability-checked. That
 			// only reaches this guard when the metadata is not capability-shaped; see the wrapper test
 			// below for the string-valued case, which is indistinguishable from an ordinary list.
@@ -359,33 +391,24 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The deny-side rows above cover the wrapper shapes that must be rejected. These two are the
-	 * wrapper shapes that reach a real capability check, so pin the authorized direction as well: a
-	 * regression that denied every wrapper declaration would otherwise leave the suite green. Neither
-	 * shape is used by any declaration in this repository; these rows fix the contract rather than
-	 * endorse the shapes. The subscriber fixture holds `read`.
+	 * The deny-side rows above cover the wrapper shapes that must be rejected. These are the wrapper
+	 * shapes that instead reach a real capability check, pinned in both directions: authorized for a
+	 * capability the subscriber fixture holds (`read`), denied for one it does not (`manage_options`).
+	 * Without the authorized rows a regression that denied every wrapper declaration would leave the
+	 * suite green; without the deny row, one that authorized every wrapper unconditionally would.
+	 * Neither shape is used by any declaration in this repository; these rows fix the contract rather
+	 * than endorse the shapes.
 	 *
 	 * @group json-api
-	 * @dataProvider data_provider_test_wrapper_shapes_authorize_a_capability_holder
+	 * @dataProvider data_provider_test_wrapper_shapes_reach_an_ordinary_capability_check
 	 *
 	 * @param array           $needed_capabilities The capability declaration to install on the endpoint.
 	 * @param WP_Error|string $result              The expected result.
 	 */
 	#[Group( 'json-api' )]
-	#[DataProvider( 'data_provider_test_wrapper_shapes_authorize_a_capability_holder' )]
-	public function test_wrapper_shapes_authorize_a_capability_holder( $needed_capabilities, $result ) {
-		$endpoint = new Jetpack_JSON_API_Empty_Capabilities_Dummy_Endpoint(
-			array(
-				'stat'                    => 'dummy',
-				'allow_jetpack_site_auth' => true,
-			)
-		);
-
-		$property = ( new ReflectionClass( $endpoint ) )->getProperty( 'needed_capabilities' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
-		}
-		$property->setValue( $endpoint, $needed_capabilities );
+	#[DataProvider( 'data_provider_test_wrapper_shapes_reach_an_ordinary_capability_check' )]
+	public function test_wrapper_shapes_reach_an_ordinary_capability_check( $needed_capabilities, $result ) {
+		$endpoint = $this->endpoint_declaring( $needed_capabilities );
 
 		wp_set_current_user( self::$subscriber_user_id );
 
@@ -393,9 +416,9 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Data provider for test_wrapper_shapes_authorize_a_capability_holder.
+	 * Data provider for test_wrapper_shapes_reach_an_ordinary_capability_check.
 	 */
-	public static function data_provider_test_wrapper_shapes_authorize_a_capability_holder() {
+	public static function data_provider_test_wrapper_shapes_reach_an_ordinary_capability_check() {
 		return array(
 			// The scalar-under-'capabilities' shape is the one this refactor makes less strict: on trunk
 			// it never reached a capability check at all. It now normalizes to a one-element list, so it
@@ -407,11 +430,15 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 			),
 			// A wrapper with no 'capabilities' key resolves to its own metadata. A string value there is
 			// indistinguishable from the list array( 'read' ), so it gets an ordinary capability check
-			// rather than the declaration deny. This predates the refactor; the row states it plainly so
+			// rather than the declaration deny. This predates the refactor; the rows state it plainly so
 			// the guard's contract is not read as "every wrapper missing 'capabilities' fails closed".
 			'string-valued wrapper metadata is capability-checked'  => array(
 				array( 'must_pass' => 'read' ),
 				'success',
+			),
+			'string-valued wrapper metadata still denies'           => array(
+				array( 'must_pass' => 'manage_options' ),
+				new WP_Error( 'unauthorized', 'This user is not authorized to manage_options on this blog.', 403 ),
 			),
 		);
 	}
@@ -425,19 +452,7 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	 */
 	#[Group( 'json-api' )]
 	public function test_zero_threshold_still_accepts_a_blog_token() {
-		$endpoint = new Jetpack_JSON_API_Empty_Capabilities_Dummy_Endpoint(
-			array(
-				'stat'                    => 'dummy',
-				'allow_jetpack_site_auth' => true,
-			)
-		);
-
-		$property = ( new ReflectionClass( $endpoint ) )->getProperty( 'needed_capabilities' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
-		}
-		$property->setValue(
-			$endpoint,
+		$endpoint = $this->endpoint_declaring(
 			array(
 				'capabilities' => array( 'manage_options' ),
 				'must_pass'    => 0,
@@ -458,20 +473,9 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	 */
 	#[Group( 'json-api' )]
 	public function test_capability_declaration_still_accepts_a_blog_token() {
-		$endpoint = new Jetpack_JSON_API_Empty_Capabilities_Dummy_Endpoint(
-			array(
-				'stat'                    => 'dummy',
-				'allow_jetpack_site_auth' => true,
-			)
-		);
-
-		$property = ( new ReflectionClass( $endpoint ) )->getProperty( 'needed_capabilities' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
-		}
 		// Non-empty, so it clears the emptiness guard and would be caught by the declaration guard if the
 		// short-circuit above it did not fire first -- which is exactly what this test pins.
-		$property->setValue( $endpoint, array( 0 ) );
+		$endpoint = $this->endpoint_declaring( array( 0 ) );
 
 		// No current user, so is_jetpack_authorized_for_site() stands in for blog-token auth.
 		$this->assertEquals( 'success', $endpoint->api->process_request( $endpoint, array() ) );
@@ -491,18 +495,7 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	#[Group( 'json-api' )]
 	#[DataProvider( 'data_provider_test_positive_must_pass_thresholds' )]
 	public function test_positive_must_pass_thresholds( $needed_capabilities, $result ) {
-		$endpoint = new Jetpack_JSON_API_Empty_Capabilities_Dummy_Endpoint(
-			array(
-				'stat'                    => 'dummy',
-				'allow_jetpack_site_auth' => true,
-			)
-		);
-
-		$property = ( new ReflectionClass( $endpoint ) )->getProperty( 'needed_capabilities' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
-		}
-		$property->setValue( $endpoint, $needed_capabilities );
+		$endpoint = $this->endpoint_declaring( $needed_capabilities );
 
 		wp_set_current_user( self::$subscriber_user_id );
 
@@ -608,7 +601,11 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 			}
 		}
 
-		$this->assertGreaterThan( 0, $checked, 'Expected at least one capability-less endpoint in the registry; the assertion loop above ran on nothing.' );
+		// Pin the population, not just "more than none": the per-endpoint assertion above only fires for
+		// endpoints the loop actually reaches, so a directory-detection or autoload regression that
+		// dropped most of them would otherwise stay green. Registering more of them only raises this
+		// count, so the bound is the floor rather than the exact figure.
+		$this->assertGreaterThanOrEqual( 10, $checked, 'Expected every capability-less endpoint registration to be reached; the assertion loop above ran on fewer than there are.' );
 	}
 
 	/**
