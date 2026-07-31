@@ -4,6 +4,7 @@
 import { useDashboardLink } from '@jetpack-premium-analytics/routing';
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { __ } from '@wordpress/i18n';
+import styles from './stats-breadcrumbs.module.scss';
 import type { ComponentProps } from 'react';
 
 export interface StatsBreadcrumbsProps {
@@ -30,16 +31,19 @@ export function StatsBreadcrumbs( { items = [] }: StatsBreadcrumbsProps ) {
 	const dashboardLink = useDashboardLink();
 
 	return (
-		<Breadcrumbs
-			items={ [
-				{
-					label: __( 'Stats', 'jetpack-premium-analytics-pkg' ),
-					// On the dashboard this crumb is the page's own `h1`, and
-					// `Breadcrumbs` only renders the heading for a crumb with no `to`.
-					...( items.length > 0 ? { to: dashboardLink } : {} ),
-				},
-				...items,
-			] }
-		/>
+		// The wrapper only carries a wp-admin reset; see the stylesheet.
+		<div className={ styles.trail }>
+			<Breadcrumbs
+				items={ [
+					{
+						label: __( 'Stats', 'jetpack-premium-analytics-pkg' ),
+						// On the dashboard this crumb is the page's own `h1`, and
+						// `Breadcrumbs` only renders the heading for a crumb with no `to`.
+						...( items.length > 0 ? { to: dashboardLink } : {} ),
+					},
+					...items,
+				] }
+			/>
+		</div>
 	);
 }
