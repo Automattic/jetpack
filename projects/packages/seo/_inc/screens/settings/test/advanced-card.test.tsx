@@ -15,7 +15,7 @@ jest.unstable_mockModule( '../../../data/use-seo-tools-toggle', () => ( {
 
 const { default: AdvancedCard } = await import( '../advanced-card' );
 
-const toggleName = 'Turn off SEO tools';
+const toggleName = 'Disable Jetpack SEO';
 
 const expandCard = () =>
 	// eslint-disable-next-line testing-library/prefer-user-event -- single click; fireEvent avoids the user-event devDep (lockfile churn).
@@ -44,6 +44,15 @@ describe( 'AdvancedCard', () => {
 		render( <AdvancedCard /> );
 
 		expect( screen.queryByRole( 'button', { name: toggleName } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'names the setting inside the module', () => {
+		render( <AdvancedCard /> );
+		expandCard();
+
+		// "Advanced" names the group, not what's in it, so the setting says what it is.
+		const subtitle = screen.getByText( 'Disable Jetpack’s SEO tools' );
+		expect( subtitle.className ).toMatch( /heading-md/ );
 	} );
 
 	it( 'spells out what stops, including the front-end output', () => {

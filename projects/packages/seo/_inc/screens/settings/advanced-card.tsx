@@ -39,15 +39,21 @@ const AdvancedCard: FC = () => {
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
 				<Stack direction="column" gap="lg">
-					{ /* Body copy, not the muted `body-sm` explainer style: the small light
-					     treatment is for hints attached to a field, and this is the module's
-					     own prose. Same for the list and the closing line below. */ }
-					<Text variant="body-md" render={ <p /> }>
-						{ __(
-							'Turn off Jetpack’s SEO tools. Use this only if you don’t want Jetpack optimizing this site, or if another SEO plugin is managing the same things and they’re conflicting.',
-							'jetpack-seo'
-						) }
-					</Text>
+					<Stack direction="column" gap="sm">
+						{ /* Names the setting, since "Advanced" names the group rather than what
+						     is in it. `heading-md` is the sub-heading treatment — `heading-sm`
+						     would be 11px uppercase, which is the field-label role. */ }
+						<Text variant="heading-md">{ __( 'Disable Jetpack’s SEO tools', 'jetpack-seo' ) }</Text>
+						{ /* Body copy, not the muted `body-sm` explainer style: the small light
+						     treatment is for hints attached to a field, and this is the module's
+						     own prose. Same for the list and the closing line below. */ }
+						<Text variant="body-md" render={ <p /> }>
+							{ __(
+								'Use this only if you don’t want Jetpack optimizing this site, or if another SEO plugin is managing the same things and they’re conflicting.',
+								'jetpack-seo'
+							) }
+						</Text>
+					</Stack>
 
 					<Stack direction="column" gap="sm">
 						{ /* `heading-md` (13px medium), not `heading-sm` — that one is 11px
@@ -97,7 +103,7 @@ const AdvancedCard: FC = () => {
 							loading={ isToggling }
 							disabled={ isToggling }
 						>
-							{ __( 'Turn off SEO tools', 'jetpack-seo' ) }
+							{ __( 'Disable Jetpack SEO', 'jetpack-seo' ) }
 						</Button>
 					</Stack>
 				</Stack>
