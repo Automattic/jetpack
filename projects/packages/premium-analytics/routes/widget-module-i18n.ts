@@ -259,13 +259,14 @@ export function useWidgetTypesWithI18n(
 			// spinner.
 			return null;
 		}
-		const subset = records.filter( record => neededNames.has( record.name ) );
-		// A settled but empty layout means nothing is on screen to protect —
-		// and the dashboard force-opens edit mode in that state, where the full
-		// registry is needed anyway. Handing over an empty array instead would
-		// report "resolved, no types" and render every layout widget as missing
-		// rather than loading.
-		return subset.length > 0 ? subset : records;
+		// An empty scope resolves nothing, which is what `[]` means. Falling
+		// back to the full record set here — on the theory that an empty
+		// dashboard force-opens edit mode and needs the registry anyway — made
+		// the scoping collapse whenever a layout was empty for a single render,
+		// putting every catalog back on the boot critical path
+		// non-deterministically. `includeAll` already covers the genuinely
+		// empty dashboard, one render later and without the boot cost.
+		return records.filter( record => neededNames.has( record.name ) );
 		// No `visibleKey` dependency: the names live in `neededNames`, whose
 		// identity changes exactly when the set grew. A layout that only loses
 		// names leaves the scope alone, which is the cumulative behaviour.

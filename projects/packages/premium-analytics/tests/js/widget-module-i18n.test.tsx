@@ -416,14 +416,42 @@ describe( 'useWidgetTypesWithI18n', () => {
 		expect( requestedBundles() ).toEqual( [ 'build/widgets/b/widget.js' ] );
 	} );
 
-	it( 'falls back to every record when nothing is on screen', async () => {
-		// An empty layout means there is nothing to protect, and the dashboard
-		// force-opens edit mode in that state. Handing over an empty array
-		// instead would report "resolved, no types" and render any layout
-		// widget as missing rather than loading.
-		renderHook( () => useWidgetTypesWithI18n( SCOPED_RECORDS, { visibleNames: [] } ) );
+	it( 'resolves nothing when nothing is on screen, leaving the registry to includeAll', async () => {
+		// A genuinely empty dashboard force-opens edit mode, which turns
+		// `includeAll` on and takes the full registry a render later. Falling
+		// back to every record here instead would put that registry on the boot
+		// critical path for anyone whose layout is empty for even one render.
+		const { rerender } = renderHook(
+			( { includeAll }: { includeAll: boolean } ) =>
+				useWidgetTypesWithI18n( SCOPED_RECORDS, { visibleNames: [], includeAll } ),
+			{ initialProps: { includeAll: false } }
+		);
 
+		await waitFor( () => expect( lastRecordsArg() ).toEqual( [] ) );
+		expect( loadCatalogMock ).not.toHaveBeenCalled();
+
+		rerender( { includeAll: true } );
 		await waitFor( () => expect( lastRecordsArg() ).toBe( SCOPED_RECORDS ) );
+	} );
+
+	it( 'does not preload the whole registry over a layout that is briefly empty', async () => {
+		// The scoping is only worth anything if it holds on every load. A
+		// layout that arrives a render late used to collapse the scope to the
+		// full record set, which is both the boot cost this exists to avoid and
+		// enough queue traffic to push later per-widget catalogs past their own
+		// timeout.
+		const { rerender } = renderHook(
+			( { names }: { names: string[] } ) =>
+				useWidgetTypesWithI18n( SCOPED_RECORDS, { visibleNames: names } ),
+			{ initialProps: { names: [] as string[] } }
+		);
+
+		expect( loadCatalogMock ).not.toHaveBeenCalled();
+
+		rerender( { names: [ 'jpa/b' ] } );
+
+		await waitFor( () => expect( lastRecordsArg() ).toEqual( [ SCOPED_RECORDS[ 1 ] ] ) );
+		expect( requestedBundles() ).toEqual( [ 'build/widgets/b/widget.js' ] );
 	} );
 
 	it( 'keeps the gate closed until the scoped catalogs are installed', async () => {
