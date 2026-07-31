@@ -161,7 +161,7 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 				// Email_Preview_Guard ships from wpcom and reaches the Phan stubs via the
 				// separate stub-regeneration job, so it is not yet declared at analysis time.
 				// @phan-suppress-next-line PhanUndeclaredClassMethod
-				$guarded = Email_Preview_Guard::check( $requested, get_current_blog_id() );
+				$guarded = Email_Preview_Guard::check( $requested );
 				if ( is_wp_error( $guarded ) ) {
 					return $guarded;
 				}
