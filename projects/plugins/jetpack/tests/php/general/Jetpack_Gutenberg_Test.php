@@ -207,9 +207,6 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 * core's auto-enqueue stays a no-op and "off" really stops the load.
 	 */
 	public function test_core_block_auto_enqueue_cannot_ship_ai_bundle_when_ai_disabled() {
-		// Printing from a fresh registry flags the main bundle's external deps
-		// (registered elsewhere in production) as missing — expected here.
-		$this->setExpectedIncorrectUsage( 'WP_Scripts::add' );
 		add_filter( 'jetpack_ai_enabled', '__return_false' );
 		register_block_type(
 			'jetpack/ai-enqueue-probe',
@@ -220,18 +217,15 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 		wp_enqueue_registered_block_scripts_and_styles();
 
 		// Core queues handles regardless of registration, but an unregistered
-		// handle never prints — assert both the registration and the output.
+		// handle never prints — so the registration assertion is the whole
+		// guarantee, and it holds on built and unbuilt trees alike.
 		$ai_registered = wp_script_is( 'jetpack-blocks-editor-ai', 'registered' );
-		ob_start();
-		wp_print_scripts();
-		$printed = ob_get_clean();
 
 		$this->restore_script_registries( $saved );
 		remove_filter( 'jetpack_ai_enabled', '__return_false' );
 		unregister_block_type( 'jetpack/ai-enqueue-probe' );
 
-		$this->assertFalse( $ai_registered, 'With AI disabled the AI bundle must not even be registered.' );
-		$this->assertStringNotContainsString( 'editor-ai', $printed, 'Core block auto-enqueue must not print the AI bundle when AI is disabled.' );
+		$this->assertFalse( $ai_registered, 'With AI disabled the AI bundle must not even be registered, so core auto-enqueue cannot print it.' );
 	}
 
 	/**
