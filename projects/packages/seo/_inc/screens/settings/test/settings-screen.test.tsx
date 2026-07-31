@@ -274,5 +274,8 @@ describe( 'Settings module text hierarchy', () => {
 		const description = screen.getByText( /Confirm you own this site/ );
 		expect( description.className ).toMatch( /body-md/ );
 		expect( description.className ).not.toMatch( /body-sm/ );
+		// `body-md` is also `Text`'s default, so the class alone would still pass if the
+		// `variant` prop were deleted outright. The `<p>` pins that it's a real paragraph.
+		expect( description.tagName ).toBe( 'P' );
 	} );
 } );

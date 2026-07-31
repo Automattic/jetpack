@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Settings: use consistent text styles across modules, so descriptions read as body copy and every field label is styled the same.
+Settings: Make text styles consistent across modules, so descriptions are easier to read and every field label looks the same.
