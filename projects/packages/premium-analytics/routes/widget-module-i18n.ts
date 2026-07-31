@@ -49,6 +49,41 @@ const TEXT_DOMAIN = 'jetpack-premium-analytics-pkg';
 const METADATA_CATALOG_TIMEOUT_MS = 15000;
 
 /**
+ * How long the registry warm-up will wait for an idle moment before running
+ * anyway. Long enough for the dashboard's own data requests to get away first,
+ * short enough that the registry is warm well before anyone opens the widget
+ * picker.
+ */
+const REGISTRY_WARM_TIMEOUT_MS = 5000;
+
+/**
+ * Delay used to approximate an idle moment where `requestIdleCallback` is
+ * unavailable (Safari before 16.4, jsdom).
+ */
+const REGISTRY_WARM_FALLBACK_MS = 2000;
+
+/**
+ * Run a callback once the page goes idle.
+ *
+ * @param callback - Work to run.
+ * @return Cancels the scheduled callback.
+ */
+function onIdle( callback: () => void ): () => void {
+	const scheduler = globalThis as typeof globalThis & {
+		requestIdleCallback?: ( cb: () => void, options?: { timeout: number } ) => number;
+		cancelIdleCallback?: ( handle: number ) => void;
+	};
+	if ( typeof scheduler.requestIdleCallback === 'function' ) {
+		const handle = scheduler.requestIdleCallback( callback, {
+			timeout: REGISTRY_WARM_TIMEOUT_MS,
+		} );
+		return () => scheduler.cancelIdleCallback?.( handle );
+	}
+	const handle = setTimeout( callback, REGISTRY_WARM_FALLBACK_MS );
+	return () => clearTimeout( handle );
+}
+
+/**
  * Widget script-module ids as registered by `build/widgets.php`:
  * `jetpack-premium-analytics/widgets/{widget-dir-name}/render` and
  * `…/widget`. The corresponding bundles land at
@@ -160,6 +195,12 @@ export interface UseWidgetTypesWithI18nOptions {
  * `useWidgetTypes` keeps its previous types while re-resolving, and the host
  * consults `isResolving` only for widgets whose type it cannot find.
  *
+ * Scoping defers those requests rather than dropping them: once the widgets on
+ * screen have resolved, the rest of the registry's catalogs are downloaded on
+ * the next idle callback. The widget picker renders the registry it is given
+ * with no loading state of its own, so it must never be the thing waiting on a
+ * download — but nothing it lists needs to be on the boot critical path.
+ *
  * Once `@wordpress/widget-primitives` resolves widget metadata lazily per
  * rendered widget (JETPACK-2095), this scoping and the gate can both go.
  *
@@ -253,6 +294,36 @@ export function useWidgetTypesWithI18n(
 			cancelled = true;
 		};
 	}, [ scopedRecords ] );
+
+	// The widget picker lists the complete registry and has no loading state of
+	// its own — it renders whatever types the dashboard hands it, with a count
+	// to match — so a registry still widening when edit mode opens briefly
+	// shows a silently incomplete gallery. Warming the rest of the catalogs
+	// once the page is idle keeps them off the boot critical path while leaving
+	// `includeAll` a microtask of already-downloaded catalogs: the loader keys
+	// its downloads by bundle path, so the gated preload adopts the promise
+	// this one started rather than re-requesting.
+	useEffect( () => {
+		if ( ! isScoped || resolveAll || ! records || records.length === 0 ) {
+			return;
+		}
+		// Nothing was scoped away, so there is nothing left to warm.
+		if ( scopedRecords === records ) {
+			return;
+		}
+		// Wait for the widgets on screen to finish. Warming earlier would queue
+		// the whole registry into the same concurrency-limited download queue
+		// they are draining, putting the visible grid behind the invisible
+		// registry — the inversion this scoping exists to prevent.
+		if ( readyRecords !== scopedRecords ) {
+			return;
+		}
+		return onIdle( () => {
+			// Failures already fall back to English inside the preload; nothing
+			// here waits on the result, so a rejection has nowhere to go.
+			preloadWidgetModuleCatalogs( records ).catch( () => undefined );
+		} );
+	}, [ isScoped, resolveAll, records, scopedRecords, readyRecords ] );
 
 	// Gate by identity: only the exact records array whose preload finished is
 	// handed over, so a records update closes the gate until its own preload

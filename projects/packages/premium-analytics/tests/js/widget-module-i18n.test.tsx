@@ -37,11 +37,44 @@ function useWidgetTypesSyncStandIn( records: WidgetModuleRecord[] | null | undef
 	return [ [], ! records ];
 }
 
+/**
+ * Idle callbacks the registry warm-up has scheduled, in order. jsdom has no
+ * `requestIdleCallback`, so without this stub the warm-up would fall back to a
+ * real timer and fire after the test that scheduled it had ended.
+ */
+let idleCallbacks: Array< () => void > = [];
+
+const realRequestIdleCallback = globalThis.requestIdleCallback;
+const realCancelIdleCallback = globalThis.cancelIdleCallback;
+
+/**
+ * Run every idle callback scheduled so far.
+ */
+function runIdleCallbacks(): void {
+	const pending = idleCallbacks;
+	idleCallbacks = [];
+	pending.forEach( callback => callback() );
+}
+
 beforeEach( () => {
 	loadCatalogMock.mockClear();
 	loadCatalogMock.mockImplementation( () => Promise.resolve() );
 	useWidgetTypesMock.mockClear();
 	useWidgetTypesMock.mockImplementation( useWidgetTypesSyncStandIn );
+
+	idleCallbacks = [];
+	globalThis.requestIdleCallback = ( ( callback: () => void ) => {
+		idleCallbacks.push( callback );
+		return idleCallbacks.length;
+	} ) as typeof globalThis.requestIdleCallback;
+	globalThis.cancelIdleCallback = ( ( handle: number ) => {
+		idleCallbacks[ handle - 1 ] = () => {};
+	} ) as typeof globalThis.cancelIdleCallback;
+} );
+
+afterEach( () => {
+	globalThis.requestIdleCallback = realRequestIdleCallback;
+	globalThis.cancelIdleCallback = realCancelIdleCallback;
 } );
 
 describe( 'widgetModuleBundlePath', () => {
@@ -405,6 +438,72 @@ describe( 'useWidgetTypesWithI18n', () => {
 
 		releaseCatalogs();
 		await waitFor( () => expect( lastRecordsArg() ).toEqual( [ SCOPED_RECORDS[ 1 ] ] ) );
+	} );
+
+	describe( 'registry warm-up', () => {
+		it( 'warms the rest of the registry once the widgets on screen have resolved', async () => {
+			renderHook( () => useWidgetTypesWithI18n( SCOPED_RECORDS, { visibleNames: [ 'jpa/b' ] } ) );
+			await waitFor( () => expect( lastRecordsArg() ).not.toBeNull() );
+
+			// Boot pays for the widget on screen and nothing else.
+			expect( requestedBundles() ).toEqual( [ 'build/widgets/b/widget.js' ] );
+
+			// The widget picker lists the complete registry with no loading
+			// state of its own, so the catalogs it needs are downloaded before
+			// edit mode can ask for them — just not on the boot critical path.
+			runIdleCallbacks();
+
+			expect( new Set( requestedBundles() ) ).toEqual(
+				new Set( [
+					'build/widgets/a/widget.js',
+					'build/widgets/b/widget.js',
+					'build/widgets/c/widget.js',
+				] )
+			);
+		} );
+
+		it( 'schedules no warm-up until the widgets on screen have resolved', async () => {
+			const releaseCatalogs = holdCatalogs();
+
+			renderHook( () => useWidgetTypesWithI18n( SCOPED_RECORDS, { visibleNames: [ 'jpa/b' ] } ) );
+			await waitFor( () =>
+				expect( requestedBundles() ).toEqual( [ 'build/widgets/b/widget.js' ] )
+			);
+
+			// Warming early would queue the whole registry into the same
+			// concurrency-limited queue the visible widget is draining.
+			expect( idleCallbacks ).toEqual( [] );
+
+			releaseCatalogs();
+			await waitFor( () => expect( idleCallbacks ).toHaveLength( 1 ) );
+		} );
+
+		it( 'schedules no warm-up for a caller that does not scope', async () => {
+			renderHook( () => useWidgetTypesWithI18n( RECORDS ) );
+
+			await waitFor( () => expect( lastRecordsArg() ).toBe( RECORDS ) );
+			// Nothing was held back, so there is nothing left to warm.
+			expect( idleCallbacks ).toEqual( [] );
+		} );
+
+		it( 'cancels a pending warm-up when includeAll takes over', async () => {
+			const { rerender } = renderHook(
+				( { includeAll }: { includeAll: boolean } ) =>
+					useWidgetTypesWithI18n( SCOPED_RECORDS, { visibleNames: [ 'jpa/b' ], includeAll } ),
+				{ initialProps: { includeAll: false } }
+			);
+			await waitFor( () => expect( idleCallbacks ).toHaveLength( 1 ) );
+
+			rerender( { includeAll: true } );
+			await waitFor( () => expect( lastRecordsArg() ).toBe( SCOPED_RECORDS ) );
+			runIdleCallbacks();
+
+			// `includeAll` preloads the full registry itself; the warm-up must
+			// not fire a second, redundant pass behind it.
+			expect(
+				loadCatalogMock.mock.calls.filter( call => call[ 1 ] === 'build/widgets/a/widget.js' )
+			).toHaveLength( 1 );
+		} );
 	} );
 
 	describe( 'with useWidgetTypes timed the way upstream times it', () => {
