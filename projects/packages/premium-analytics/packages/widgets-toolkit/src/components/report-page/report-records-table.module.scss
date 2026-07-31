@@ -10,6 +10,26 @@
 :global {
 
 	@include meta.load-css( "@wordpress/dataviews/build-style/style" );
+
+	/* WordPress core's editor stylesheet (`wp-includes/css/dist/editor/style.css`)
+	 * is enqueued on this admin page and carries an older copy of the DataViews
+	 * styles, which draws a hovered filter option as a solid accent fill with
+	 * `color: #fff`. The version loaded above redesigned that state as a 12% tint
+	 * and deliberately leaves the foreground alone. Both rules have the same
+	 * specificity, so ours wins the background while core's white text survives on
+	 * the pale tint — an unreadable row. Restate the foreground these states are
+	 * meant to keep, so the stale rule cannot leak through. */
+	.dataviews-filters__search-widget-listitem:hover,
+	.dataviews-filters__search-widget-listitem:focus,
+	.dataviews-filters__search-widget-listitem[data-active-item] {
+		color: inherit;
+	}
+
+	.dataviews-filters__search-widget-listitem:hover .dataviews-filters__search-widget-listitem-description,
+	.dataviews-filters__search-widget-listitem:focus .dataviews-filters__search-widget-listitem-description,
+	.dataviews-filters__search-widget-listitem[data-active-item] .dataviews-filters__search-widget-listitem-description {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
 }
 
 /* DataViews pads its own chrome — the toolbar, the table's first/last cells,
