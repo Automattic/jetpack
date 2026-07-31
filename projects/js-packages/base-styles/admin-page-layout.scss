@@ -32,20 +32,12 @@
 //                                                   "Tabs strip" section
 //                                                   below)
 
-// Implementation note — `postcss-custom-properties` with `preserve: false`:
-// several consumer packages in this monorepo (publicize, videopress, search,
-// jetpack plugin) resolve `var()` to its fallback at build time. That rules
-// out *runtime-toggled* custom properties (you can't use a CSS var to flip
-// `<AdminPage>`'s margin between the legacy and the new layout, because the
-// fallback wins before the override can reach it). It does NOT rule out
-// `var(--name, <fallback>)` used purely for readability and forward-
-// compatibility on size values — the compiled output is identical to
-// inlining the fallback. This mixin uses `var(--wp-admin-bar-height, …)`
-// (mirroring `projects/packages/forms/src/dashboard/inbox/style.scss`) so
-// the intent stays legible, and so packages that don't run the `preserve:
-// false` plugin can override the var at runtime. Immutable sizes (sidebar
-// widths, viewport breakpoints) use SCSS variables — they can't change at
-// runtime and there's no need to pay the custom-property indirection.
+// Implementation note — custom properties:
+// Consumer PostCSS setups inject fallbacks for design tokens (`--wpds-*`,
+// `--color-*`, `--studio-*`) but leave other `var()` calls alone. This mixin
+// uses `var(--wp-admin-bar-height, …)` so the height can still be overridden
+// at runtime. Immutable sizes (sidebar widths, breakpoints) stay as SCSS
+// variables.
 
 // wp-admin chrome constants (see wp-admin.css).
 $jp-sidebar-width-expanded: 160px;             // default sidebar
