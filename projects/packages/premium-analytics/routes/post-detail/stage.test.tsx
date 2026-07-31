@@ -13,9 +13,14 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	useReportDateFilters: () => ( {} ),
 } ) );
 
+// The barrel pulls in DataViews, which does not survive this environment, so the
+// mock reaches past it for the one real component whose output is asserted below.
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => <div>Date filters</div>,
 	SectionTabPanel: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+	StatsBreadcrumbs: jest.requireActual( '../../packages/ui/src/stats-breadcrumbs' )
+		.StatsBreadcrumbs,
+	StatsPageIcon: () => null,
 	// The real guard is covered in the ui package; keep the scheme check here so
 	// the header still refuses a non-http URL.
 	safeHttpUrl: ( value?: string | null ) =>
