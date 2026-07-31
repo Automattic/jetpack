@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -173,6 +173,73 @@ describe( 'Test email recipient', () => {
 				data: { id: 123, email: 'friend@example.com' },
 			} )
 		);
+	} );
+
+	it( 'sends to the prefilled address unchanged and confirms success', async () => {
+		const user = userEvent.setup();
+		apiFetch.mockResolvedValue( undefined );
+
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
+
+		expect( apiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( { data: { id: 123, email: 'author@example.com' } } )
+		);
+		await expect(
+			screen.findByText( 'Email sent successfully' )
+		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'trims surrounding whitespace from the recipient before sending', async () => {
+		const user = userEvent.setup();
+		apiFetch.mockResolvedValue( undefined );
+
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		const field = screen.getByRole( 'textbox' );
+		await user.clear( field );
+		await user.type( field, '  spaced@example.com  ' );
+		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
+
+		expect( apiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( { data: { id: 123, email: 'spaced@example.com' } } )
+		);
+	} );
+
+	it( 'sends an empty recipient when the field is cleared, letting the server fall back to self', async () => {
+		const user = userEvent.setup();
+		apiFetch.mockResolvedValue( undefined );
+
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		await user.clear( screen.getByRole( 'textbox' ) );
+		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
+
+		expect( apiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( { data: { id: 123, email: '' } } )
+		);
+	} );
+
+	it( 'disables the recipient field while a send is in flight', async () => {
+		const user = userEvent.setup();
+		let resolveSend;
+		apiFetch.mockReturnValue(
+			new Promise( resolve => {
+				resolveSend = resolve;
+			} )
+		);
+
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		const field = screen.getByRole( 'textbox' );
+		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
+
+		await waitFor( () => expect( field ).toBeDisabled() );
+
+		// Let the in-flight request settle so the final state update is flushed.
+		resolveSend();
+		await screen.findByText( 'Email sent successfully' );
 	} );
 
 	it( 'surfaces the guard message when a non-self recipient is rejected', async () => {
