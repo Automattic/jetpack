@@ -63,6 +63,18 @@ const REGISTRY_WARM_TIMEOUT_MS = 5000;
 const REGISTRY_WARM_FALLBACK_MS = 2000;
 
 /**
+ * How many catalog downloads the background registry warm-up keeps in flight.
+ *
+ * Deliberately below the loader's six-slot concurrency cap. The queue is shared
+ * and FIFO, so anything the warm-up has queued delays a download requested
+ * after it — including a widget's own `render.js` catalog, which blocks that
+ * widget's import and carries a bound that counts its queue wait. Holding at
+ * most this many slots leaves the rest free, so such a download starts
+ * immediately rather than waiting out the registry.
+ */
+const WARM_BATCH_SIZE = 3;
+
+/**
  * Run a callback once the page goes idle.
  *
  * @param callback - Work to run.
@@ -132,22 +144,67 @@ export function resolveWidgetModuleWithI18n(
 }
 
 /**
+ * Metadata (`widget.js`) bundle paths for a set of widget records, skipping
+ * records with no widget module and ids that are not widget modules.
+ *
+ * @param records - Widget module records from the `/widget-modules` REST route.
+ * @return The package-relative bundle paths, in record order.
+ */
+function metadataBundlePaths( records: WidgetModuleRecord[] ): string[] {
+	return records
+		.map( record =>
+			record.widget_module ? widgetModuleBundlePath( record.widget_module ) : null
+		)
+		.filter( ( bundlePath ): bundlePath is string => bundlePath !== null );
+}
+
+/**
  * Install the metadata (`widget.js`) catalogs for a set of widget records.
+ *
+ * Requests everything at once: every caller of this has someone waiting on it —
+ * the registry gate, or the widget picker behind `includeAll` — so it takes the
+ * download queue at full width. Background work goes through
+ * `warmWidgetModuleCatalogs` instead.
  *
  * @param records - Widget module records from the `/widget-modules` REST route.
  * @return Resolves once every catalog is installed (or has fallen back to English).
  */
 export function preloadWidgetModuleCatalogs( records: WidgetModuleRecord[] ): Promise< void > {
 	return Promise.all(
-		records.map( record => {
-			const bundlePath = record.widget_module
-				? widgetModuleBundlePath( record.widget_module )
-				: null;
-			return bundlePath
-				? loadBundleI18nCatalog( TEXT_DOMAIN, bundlePath, METADATA_CATALOG_TIMEOUT_MS )
-				: Promise.resolve();
-		} )
+		metadataBundlePaths( records ).map( bundlePath =>
+			loadBundleI18nCatalog( TEXT_DOMAIN, bundlePath, METADATA_CATALOG_TIMEOUT_MS )
+		)
 	).then( () => undefined );
+}
+
+/**
+ * Install the metadata catalogs for a set of widget records as background work,
+ * keeping at most `WARM_BATCH_SIZE` downloads in flight.
+ *
+ * Nothing awaits this, so it must not cost anything that is awaited. The
+ * loader's queue is shared and FIFO: submitting the whole registry at once
+ * would leave a widget's own `render.js` catalog — requested when the widget
+ * mounts, with a caller blocked on it — queued behind dozens of downloads
+ * nobody is waiting for, tripping its own bound and rendering the widget in
+ * English. Batching below the queue's width keeps free slots, so those
+ * downloads start immediately instead of queueing.
+ *
+ * @param records - Widget module records from the `/widget-modules` REST route.
+ * @return Resolves once every catalog is installed (or has fallen back to English).
+ */
+export async function warmWidgetModuleCatalogs( records: WidgetModuleRecord[] ): Promise< void > {
+	const bundlePaths = metadataBundlePaths( records );
+	for ( let index = 0; index < bundlePaths.length; index += WARM_BATCH_SIZE ) {
+		// Sequential on purpose — the whole point is to not have the next batch
+		// sitting in the queue while this one drains.
+		await Promise.all(
+			bundlePaths
+				.slice( index, index + WARM_BATCH_SIZE )
+				.map( bundlePath =>
+					loadBundleI18nCatalog( TEXT_DOMAIN, bundlePath, METADATA_CATALOG_TIMEOUT_MS )
+				)
+		);
+	}
 }
 
 /**
@@ -197,9 +254,11 @@ export interface UseWidgetTypesWithI18nOptions {
  *
  * Scoping defers those requests rather than dropping them: once the widgets on
  * screen have resolved, the rest of the registry's catalogs are downloaded on
- * the next idle callback. The widget picker renders the registry it is given
- * with no loading state of its own, so it must never be the thing waiting on a
- * download — but nothing it lists needs to be on the boot critical path.
+ * the next idle callback, a few at a time so the shared download queue keeps
+ * free slots for anything a caller is actually blocked on. The widget picker
+ * renders the registry it is given with no loading state of its own, so it must
+ * never be the thing waiting on a download — but nothing it lists needs to be
+ * on the boot critical path.
  *
  * Once `@wordpress/widget-primitives` resolves widget metadata lazily per
  * rendered widget (JETPACK-2095), this scoping and the gate can both go.
@@ -322,7 +381,7 @@ export function useWidgetTypesWithI18n(
 		return onIdle( () => {
 			// Failures already fall back to English inside the preload; nothing
 			// here waits on the result, so a rejection has nowhere to go.
-			preloadWidgetModuleCatalogs( records ).catch( () => undefined );
+			warmWidgetModuleCatalogs( records ).catch( () => undefined );
 		} );
 	}, [ isScoped, resolveAll, records, scopedRecords, readyRecords ] );
 

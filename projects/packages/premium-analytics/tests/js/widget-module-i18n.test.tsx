@@ -469,6 +469,95 @@ describe( 'useWidgetTypesWithI18n', () => {
 	} );
 
 	describe( 'registry warm-up', () => {
+		// Enough records that a batched warm-up is distinguishable from an
+		// all-at-once one.
+		const MANY_RECORDS = Array.from( { length: 7 }, ( _, index ) => ( {
+			name: `jpa/w${ index }`,
+			widget_module: `jetpack-premium-analytics/widgets/w${ index }/widget`,
+			render_module: `jetpack-premium-analytics/widgets/w${ index }/render`,
+		} ) ) as WidgetModuleRecord[];
+
+		/**
+		 * Let pending promise chains and timers run.
+		 *
+		 * @return Resolves on the next macrotask.
+		 */
+		function flush(): Promise< void > {
+			return new Promise( resolve => {
+				setTimeout( resolve, 0 );
+			} );
+		}
+
+		/**
+		 * Make catalog loads hang, recording how many are in flight at once.
+		 *
+		 * @return The in-flight tracker and a release for the pending loads.
+		 */
+		function trackInFlight() {
+			let inFlight = 0;
+			const tracker = { max: 0 };
+			let pending: Array< () => void > = [];
+			loadCatalogMock.mockImplementation(
+				() =>
+					new Promise< void >( resolve => {
+						inFlight++;
+						tracker.max = Math.max( tracker.max, inFlight );
+						pending.push( () => {
+							inFlight--;
+							resolve();
+						} );
+					} )
+			);
+			return {
+				tracker,
+				releaseAll: () => {
+					const settling = pending;
+					pending = [];
+					settling.forEach( release => release() );
+				},
+			};
+		}
+
+		it( 'never holds more than half the download slots while warming', async () => {
+			// The loader's queue is shared and FIFO, so a warm-up that submits
+			// the whole registry at once leaves a widget's own render catalog —
+			// which blocks that widget's import — queued behind downloads
+			// nobody is waiting for, past its own bound. Staying under the
+			// six-slot cap keeps slots free for it.
+			renderHook( () => useWidgetTypesWithI18n( MANY_RECORDS, { visibleNames: [ 'jpa/w0' ] } ) );
+			await waitFor( () => expect( idleCallbacks ).toHaveLength( 1 ) );
+
+			const { tracker, releaseAll } = trackInFlight();
+			const before = requestedBundles().length;
+			runIdleCallbacks();
+
+			for ( let pass = 0; pass < 10 && requestedBundles().length - before < 7; pass++ ) {
+				await flush();
+				releaseAll();
+			}
+			await flush();
+
+			expect( tracker.max ).toBeLessThanOrEqual( 3 );
+			expect( requestedBundles().length - before ).toBe( 7 );
+		} );
+
+		it( 'does not batch the gated preload, which has the picker waiting on it', async () => {
+			const { rerender } = renderHook(
+				( { includeAll }: { includeAll: boolean } ) =>
+					useWidgetTypesWithI18n( MANY_RECORDS, { visibleNames: [ 'jpa/w0' ], includeAll } ),
+				{ initialProps: { includeAll: false } }
+			);
+			await waitFor( () => expect( idleCallbacks ).toHaveLength( 1 ) );
+
+			const { tracker } = trackInFlight();
+			rerender( { includeAll: true } );
+			await flush();
+
+			// Someone is blocked on this one, so it takes the queue at full
+			// width rather than trickling.
+			expect( tracker.max ).toBe( 7 );
+		} );
+
 		it( 'warms the rest of the registry once the widgets on screen have resolved', async () => {
 			renderHook( () => useWidgetTypesWithI18n( SCOPED_RECORDS, { visibleNames: [ 'jpa/b' ] } ) );
 			await waitFor( () => expect( lastRecordsArg() ).not.toBeNull() );
