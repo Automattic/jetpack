@@ -1,6 +1,3 @@
-@use "sass:meta";
-@include meta.load-css("pkg:@wordpress/theme/design-tokens.css");
-
 .jetpack-footer {
 	border-top: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 	box-sizing: border-box;
