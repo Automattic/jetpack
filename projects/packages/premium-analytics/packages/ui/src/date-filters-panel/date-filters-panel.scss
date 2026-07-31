@@ -34,8 +34,7 @@
 					// sibling SelectControl trims its inline-end by 4px so the caret
 					// sits closer to the edge. Match that inset so both triggers'
 					// carets align. Start padding (12px) already matches.
-					padding-inline-end:
- calc(var(--wpds-dimension-padding-md) - var(--wpds-dimension-padding-xs));
+					padding-inline-end: calc(var(--wpds-dimension-padding-md) - var(--wpds-dimension-padding-xs));
 				}
 			}
 		}
