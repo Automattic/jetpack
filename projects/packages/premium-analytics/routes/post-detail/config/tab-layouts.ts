@@ -111,7 +111,7 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			uuid: 'email-clicks-countries',
 			// Plain leaderboard per the design mocks — no map beside it.
 			type: 'jpa/email-breakdown--location-clicks',
-			attributes: { view: 'countries', metric: 'clicks', max: 7 },
+			attributes: { view: 'countries', metric: 'clicks', max: 8 },
 			placement: { width: 2, height: 2, order: 5 },
 		},
 		{
