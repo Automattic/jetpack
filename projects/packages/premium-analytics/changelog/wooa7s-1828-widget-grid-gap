@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Dashboard: tighten the widget grid gap to 16px.
+Widgets: tighten the grid gap between cards to 16px.

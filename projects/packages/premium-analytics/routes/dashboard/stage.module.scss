@@ -22,9 +22,8 @@
 }
 
 .widgets {
-	// Tile gap for the @wordpress/grid surfaces (grid, masonry, edit overlay).
-	// `--wp-grid-gap` is the documented override hook; the package default is
-	// 24px and Analytics is designed on a 16px spacing system.
+	// Inherited by the @wordpress/grid surfaces (grid, masonry, edit overlay),
+	// which otherwise fall back to the wider `--wpds-dimension-gap-xl`.
 	--wp-grid-gap: var(--wpds-dimension-gap-lg);
 }
 
