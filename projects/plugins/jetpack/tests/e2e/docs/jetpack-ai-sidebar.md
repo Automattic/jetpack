@@ -42,8 +42,10 @@ names, console error count, and final editor state are attached to the Playwrigh
 Request URLs, request payloads, response bodies, and console messages are deliberately
 excluded from public CI artifacts.
 
-CI runs the post and page scenarios as separate jobs. The lane is informational while its
-shared external-service quota is provisioned independently from developer accounts.
+Normal pull request, push, and repository-dispatch matrices do not include this suite. To
+run it, open the **E2E Tests** workflow in GitHub Actions, choose **Run workflow**, and select
+one of the Jetpack AI Sidebar suite choices. The combined choice runs the post and page
+scenarios as separate jobs; the post-only and page-only choices run one job.
 Jetpack's Playwright configuration runs one Chromium worker by default; do not increase
 `PLAYWRIGHT_WORKERS` for this suite because its tests share one Docker site.
 

@@ -9,14 +9,24 @@ on:
     types: [ 'e2e tests**' ]
   workflow_dispatch:
     inputs:
+      suite:
+        description: 'Suite to run. The combined Jetpack AI choice starts both editor jobs.'
+        required: true
+        default: 'standard-suites'
+        type: choice
+        options:
+          - 'standard-suites'
+          - 'jetpack-ai-sidebar'
+          - 'jetpack-ai-sidebar-post'
+          - 'jetpack-ai-sidebar-page'
       wp_version:
         description: 'Single WordPress version to run against, e.g. 6.9 or 7.1-RC1. Defaults to MIN_WP_VERSION from .github/versions.sh.'
         required: false
         type: string
 
 concurrency:
-  # wp_version keeps concurrent dispatches for different WordPress versions from cancelling each other.
-  group: e2e-tests-${{ github.event_name }}-${{ github.ref }}-${{ case( github.event_name == 'repository_dispatch', github.event.action, '' ) }}-${{ inputs.wp_version }}
+  # suite and wp_version keep distinct manual dispatches from cancelling each other.
+  group: e2e-tests-${{ github.event_name }}-${{ github.ref }}-${{ case( github.event_name == 'repository_dispatch', github.event.action, '' ) }}-${{ inputs.suite }}-${{ inputs.wp_version }}
   cancel-in-progress: true
 
 permissions:
@@ -61,6 +71,7 @@ jobs:
           DISPATCH_REPO: ${{ github.event.client_payload.repository }}
           REF_NAME: ${{ github.event.client_payload.ref_name }}
           REF_TYPE: ${{ github.event.client_payload.ref_type }}
+          MANUAL_SUITE: ${{ inputs.suite }}
           WP_VERSION: ${{ inputs.wp_version }}
         run: |
           MATRIX="$(node .github/files/e2e-tests/e2e-matrix.js)"
@@ -162,9 +173,6 @@ jobs:
       always() && ! cancelled() && ! failure() &&
       needs.create-test-matrix.result == 'success' && needs.create-test-matrix.outputs.matrix != '[]'
     timeout-minutes: ${{ matrix.timeoutMinutes || 25 }} # AI suites can take longer; most suites finish in 3-10 minutes.
-    # Connected AI suites depend on a shared external service and remain informational until their
-    # quota is provisioned independently from developer accounts.
-    continue-on-error: ${{ matrix.experimental || false }}
     env:
       WP_DEBUG_PATH: '${{ github.workspace }}/tools/docker/wordpress/wp-content/debug.log'
       # Used in tests for enhanced reporting of global projects. The WordPress version is part of the
@@ -416,4 +424,3 @@ jobs:
           playwright_report_path: test-output/**/summary.json
           playwright_output_dir: test-output/**/results
           rules_configuration_path: .github/files/e2e-tests/notification-rules.json
-
