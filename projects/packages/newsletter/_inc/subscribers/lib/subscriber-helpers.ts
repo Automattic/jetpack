@@ -121,14 +121,3 @@ export function isOpenSubscriberRemoved(
 		);
 	} );
 }
-
-/**
- * Whether the viewer's own subscription is the only one on the site.
- *
- * @param total             - Total subscriber count for the current query.
- * @param isOwnerSubscribed - Whether the viewer is among the subscribers (`is_owner_subscribed`).
- * @return True when the only subscriber is the viewer.
- */
-export function isSelfOnlySubscriber( total: number, isOwnerSubscribed: boolean ): boolean {
-	return total === 1 && isOwnerSubscribed;
-}

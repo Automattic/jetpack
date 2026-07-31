@@ -1,4 +1,5 @@
 import { Popover } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { createInterpolateElement, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
@@ -42,6 +43,8 @@ type Props = {
  */
 export default function SelfOnlyNudge( { anchor }: Props ): JSX.Element | null {
 	const [ dismissed, setDismissed ] = useState( wasDismissed );
+	// No room beside the button once wp-admin goes mobile, so drop it under the button instead.
+	const isNarrow = useViewportMatch( 'medium', '<' );
 	const visible = !! anchor && ! dismissed;
 
 	useEffect( () => {
@@ -67,12 +70,11 @@ export default function SelfOnlyNudge( { anchor }: Props ): JSX.Element | null {
 	return (
 		<Popover
 			anchor={ anchor }
-			placement="left-start"
+			placement={ isNarrow ? 'bottom-end' : 'left-start' }
 			offset={ 8 }
 			noArrow={ false }
+			// Default `resize` shrinks the bubble to the room above the anchor, down to a scrolling sliver.
 			resize={ false }
-			flip={ false }
-			shift
 			focusOnMount={ false }
 			onClose={ handleClose }
 			className="jetpack-newsletter-self-only-nudge"

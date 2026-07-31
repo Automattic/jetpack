@@ -5,11 +5,7 @@ import { Notice } from '@wordpress/ui';
 import { useMembershipsProducts } from '../data/use-memberships-products';
 import { useSubscriberRemoveMutation } from '../data/use-subscriber-remove-mutation';
 import { useSubscribers } from '../data/use-subscribers';
-import {
-	getSubscribedAt,
-	getSubscriberRowId,
-	isSelfOnlySubscriber,
-} from '../lib/subscriber-helpers';
+import { getSubscribedAt, getSubscriberRowId } from '../lib/subscriber-helpers';
 import { getSubscriptionType } from '../lib/subscription-plans';
 import { getSubscriptionStatusLabel } from '../lib/subscription-status';
 import { recordTracksEvent } from '../lib/tracks';
@@ -328,9 +324,7 @@ export default function SubscribersDataViews( {
 		( view.filters && view.filters.length > 0 ) || ( view.search && view.search.length > 0 )
 	);
 
-	const isSelfOnly =
-		! hasActiveFiltersOrSearch &&
-		isSelfOnlySubscriber( totalItems, data?.is_owner_subscribed ?? false );
+	const isSelfOnly = ! hasActiveFiltersOrSearch && totalItems === 1 && !! data?.is_owner_subscribed;
 
 	useEffect( () => {
 		onSelfOnlyChange?.( isSelfOnly );
