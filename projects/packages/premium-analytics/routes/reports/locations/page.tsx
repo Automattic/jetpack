@@ -89,6 +89,7 @@ export default function LocationsReportPage(): JSX.Element {
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dashboardLink = useDashboardLink();
 	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
+	const tableIsLoading = records.table.isLoading || records.table.isFetching;
 
 	return (
 		<ReportPageShell
@@ -121,7 +122,7 @@ export default function LocationsReportPage(): JSX.Element {
 						data={ records.table.rows }
 						fields={ fields }
 						getItemId={ getLocationRowId }
-						isLoading={ records.table.isLoading }
+						isLoading={ tableIsLoading }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search locations', 'jetpack-premium-analytics-pkg' ) }
 						header={

@@ -129,6 +129,25 @@ describe( 'useLocationsReportRecords', () => {
 		] );
 	} );
 
+	it( 'reports the active tab fetch state, not the country options query', () => {
+		mockUseStatsLocations.mockImplementation(
+			( requestParams, options ) =>
+				( {
+					primary: { data: report },
+					comparison: { data: undefined },
+					hasComparison: false,
+					isLoading: false,
+					// Only the enabled per-tab query refetches; the always-on
+					// countries query is already settled.
+					isFetching: options?.enabled === true,
+				} ) as ReturnType< typeof useStatsLocations >
+		);
+
+		const { result } = renderHook( () => useLocationsReportRecords( 'cities', params ) );
+
+		expect( result.current.table.isFetching ).toBe( true );
+	} );
+
 	it( 'reports the active tab error and retry, not the country options query', () => {
 		mockUseStatsLocations.mockImplementation(
 			( requestParams, options ) =>

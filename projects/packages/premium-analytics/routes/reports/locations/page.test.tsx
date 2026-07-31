@@ -94,7 +94,7 @@ const row: LocationRow = {
  */
 function mockRecords( overrides: Record< string, unknown > = {} ) {
 	const records = {
-		table: { rows: [ row ], isLoading: false },
+		table: { rows: [ row ], isLoading: false, isFetching: false },
 		countries: {
 			options: [
 				{ code: 'AU', label: 'Australia' },
@@ -166,12 +166,22 @@ describe( 'LocationsReportPage', () => {
 	} );
 
 	it( 'reports the loading state while the active tab is loading', () => {
-		mockRecords( { table: { rows: [], isLoading: true } } );
+		mockRecords( { table: { rows: [], isLoading: true, isFetching: true } } );
 
 		render( <LocationsReportPage /> );
 
 		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
 			expect.objectContaining( { data: [], isLoading: true } )
+		);
+	} );
+
+	it( 'reports the loading state while the active tab refetches over cached rows', () => {
+		mockRecords( { table: { rows: [ row ], isLoading: false, isFetching: true } } );
+
+		render( <LocationsReportPage /> );
+
+		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
+			expect.objectContaining( { isLoading: true } )
 		);
 	} );
 

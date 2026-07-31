@@ -102,6 +102,7 @@ export function useLocationsReportRecords(
 		table: {
 			rows,
 			isLoading: activeReport.isLoading,
+			isFetching: activeReport.isFetching,
 		},
 		countries: {
 			options: countryOptions,
