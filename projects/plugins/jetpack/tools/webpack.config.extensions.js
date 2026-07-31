@@ -184,6 +184,9 @@ const editorAiBetaScript = [
 
 const editorNoPostEditorScript = [
 	editorSetup,
+	// This bundle is not split (see the aiExtensions note), and its setup no
+	// longer pulls in core-site-logo — keep shipping it here explicitly.
+	path.join( __dirname, '../extensions/extended-blocks/core-site-logo/index.tsx' ),
 	...presetProductionExtensions(
 		'editor',
 		path.join( __dirname, '../extensions' ),

@@ -135,14 +135,19 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 
 		// Outside a real block-editor screen should_load() and core's
 		// editor-scripts predicate both say no; force them so the enqueue
-		// path under test actually runs.
+		// path under test actually runs. The stub style satisfies the
+		// incomplete-installation wp_die() check on trees where _inc/blocks
+		// is not built (CI runs PHP tests without a JS build).
 		add_filter( 'jetpack_gutenberg', '__return_true' );
 		add_filter( 'should_load_block_editor_scripts_and_styles', '__return_true' );
+		wp_register_style( 'jetpack-blocks-editor', false );
 
-		Jetpack_Gutenberg::enqueue_block_editor_assets();
-
-		remove_filter( 'jetpack_gutenberg', '__return_true' );
-		remove_filter( 'should_load_block_editor_scripts_and_styles', '__return_true' );
+		try {
+			Jetpack_Gutenberg::enqueue_block_editor_assets();
+		} finally {
+			remove_filter( 'jetpack_gutenberg', '__return_true' );
+			remove_filter( 'should_load_block_editor_scripts_and_styles', '__return_true' );
+		}
 
 		return $saved;
 	}
@@ -193,6 +198,40 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 
 		$this->assertTrue( $editor_enqueued, 'The main editor bundle must be unaffected by the AI gate.' );
 		$this->assertFalse( $ai_enqueued, 'The AI editor bundle must not be enqueued when AI is disabled.' );
+	}
+
+	/**
+	 * Core auto-enqueues every registered block's editorScript handle — and the
+	 * built ai-chat block.json names the AI bundle while its registration is not
+	 * AI-gated. With AI disabled the handle must not be registered at all, so
+	 * core's auto-enqueue stays a no-op and "off" really stops the load.
+	 */
+	public function test_core_block_auto_enqueue_cannot_ship_ai_bundle_when_ai_disabled() {
+		// Printing from a fresh registry flags the main bundle's external deps
+		// (registered elsewhere in production) as missing — expected here.
+		$this->setExpectedIncorrectUsage( 'WP_Scripts::add' );
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+		register_block_type(
+			'jetpack/ai-enqueue-probe',
+			array( 'editor_script_handles' => array( 'jetpack-blocks-editor-ai' ) )
+		);
+
+		$saved = $this->run_editor_enqueue_with_fresh_registries();
+		wp_enqueue_registered_block_scripts_and_styles();
+
+		// Core queues handles regardless of registration, but an unregistered
+		// handle never prints — assert both the registration and the output.
+		$ai_registered = wp_script_is( 'jetpack-blocks-editor-ai', 'registered' );
+		ob_start();
+		wp_print_scripts();
+		$printed = ob_get_clean();
+
+		$this->restore_script_registries( $saved );
+		remove_filter( 'jetpack_ai_enabled', '__return_false' );
+		unregister_block_type( 'jetpack/ai-enqueue-probe' );
+
+		$this->assertFalse( $ai_registered, 'With AI disabled the AI bundle must not even be registered.' );
+		$this->assertStringNotContainsString( 'editor-ai', $printed, 'Core block auto-enqueue must not print the AI bundle when AI is disabled.' );
 	}
 
 	/**
