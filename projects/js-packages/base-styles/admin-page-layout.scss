@@ -316,7 +316,7 @@ $jp-breakpoint-mobile: 782px;
 		// lg` (16px). Add the `sm` (8px) difference here on the wrapper so
 		// `lg + sm = 2xl` at the button's content edge — without touching
 		// the tab button's own padding.
-		padding-inline: var(--wpds-dimension-padding-sm, 8px);
+		padding-inline: var(--wpds-dimension-padding-sm);
 	}
 
 	// Opt-in modifier for hosts that render `<Tabs.List variant="minimal">`.
@@ -324,7 +324,7 @@ $jp-breakpoint-mobile: 782px;
 	// provide the full 2xl itself to keep the first tab flush with the
 	// header start.
 	.jp-admin-page-tabs--minimal {
-		padding-inline: var(--wpds-dimension-padding-2xl, 24px);
+		padding-inline: var(--wpds-dimension-padding-2xl);
 	}
 
 	// Re-apply `--wpds-typography-font-size-md` from an unlayered selector.
@@ -333,7 +333,7 @@ $jp-breakpoint-mobile: 782px;
 	// reset that always wins layered rules. Remove once upstream wires
 	// `Tabs.Tab` into `@wordpress/ui`'s `global-css-defense` module.
 	.jp-admin-page-tabs [role="tab"] {
-		font-size: var(--wpds-typography-font-size-md, 13px);
+		font-size: var(--wpds-typography-font-size-md);
 	}
 
 	// ── Mobile: admin bar grows to 46px; sidebar goes off-canvas ─────
