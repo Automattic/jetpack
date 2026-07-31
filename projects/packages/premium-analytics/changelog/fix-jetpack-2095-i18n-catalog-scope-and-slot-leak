@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep widget translation catalog downloads off the dashboard's initial render, loading the widgets on screen first and the rest of the registry once the page is idle.
