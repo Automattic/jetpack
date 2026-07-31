@@ -94,10 +94,12 @@ class Terms_Of_Service {
 		$has_agreed = \Jetpack_Options::get_option( self::OPTION_NAME, null );
 
 		if ( null === $has_agreed ) {
-			// The option has never been stored. Persist the default so it becomes an autoloaded
-			// row and isn't re-queried on every request on sites without a persistent object
-			// cache (JETPACK-1539). This option is not synced, so seeding has no side effects.
-			\Jetpack_Options::update_option( self::OPTION_NAME, false );
+			// The option has never been stored. Persist the default as an autoloaded row so it
+			// isn't re-queried on every request on sites without a persistent object cache
+			// (JETPACK-1539). add_option (not update_option) is required because update_option
+			// short-circuits when the new value equals the current default `false`, which would
+			// leave the option unset. This option is not synced, so seeding has no side effects.
+			add_option( 'jetpack_' . self::OPTION_NAME, false, '', true );
 			return false;
 		}
 

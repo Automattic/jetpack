@@ -228,6 +228,16 @@ class Status_Test extends TestCase {
 	}
 
 	/**
+	 * Test that a stored (previously-seeded) empty value is not re-seeded.
+	 */
+	public function test_is_offline_mode_option_present_not_reseeded() {
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode', null )->andReturn( '' );
+		Functions\expect( 'add_option' )->never();
+
+		$this->assertFalse( $this->status_obj->is_offline_mode() );
+	}
+
+	/**
 	 * Test for is_multi_network with a single site
 	 */
 	public function test_is_multi_network_not_multisite() {
@@ -458,6 +468,9 @@ class Status_Test extends TestCase {
 		if ( $one_call ) {
 			Functions\expect( $one_call )->once();
 		}
+
+		// is_offline_mode() seeds the jetpack_offline_mode option when it is absent.
+		Functions\when( 'add_option' )->justReturn( false );
 
 		$ret = $this->status_obj->$func();
 		$this->assertSame( $ret, $this->status_obj->$func() );
