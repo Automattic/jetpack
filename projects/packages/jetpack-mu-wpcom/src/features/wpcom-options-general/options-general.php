@@ -156,13 +156,17 @@ function wpcom_fiverr_cta() {
 				<?php wpcom_fiverr_cta_button(); ?>
 			</div>
 		<?php else : ?>
-			<p><b><?php esc_html_e( 'Make an incredible logo in minutes', 'jetpack-mu-wpcom' ); ?></b></p>
-			<p><?php esc_html_e( 'Pre-designed by top talent. Just add your touch.', 'jetpack-mu-wpcom' ); ?></p>
+			<div class="wpcom-fiverr-cta-copy">
+				<p><b><?php esc_html_e( 'Make an incredible logo in minutes', 'jetpack-mu-wpcom' ); ?></b></p>
+				<p><?php esc_html_e( 'Pre-designed by top talent. Just add your touch.', 'jetpack-mu-wpcom' ); ?></p>
+			</div>
 			<?php wpcom_fiverr_cta_button(); ?>
 		<?php endif; ?>
-		<?php wpcom_site_logo_edit_description(); ?>
 	</div>
 	<?php
+	// Sits outside the Fiverr CTA: it describes the Site Logo setting itself,
+	// not the upsell.
+	wpcom_site_logo_edit_description();
 }
 
 /**
