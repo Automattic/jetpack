@@ -49,10 +49,37 @@
 		}
 	}
 
+	.wpcom-fiverr-cta-box {
+		display: flex;
+		align-items: flex-start;
+		gap: 10px;
+		max-inline-size: 30em;
+		padding: 12px;
+		border: 1px solid #dcdcde;
+		border-radius: 4px;
+		background-color: #fff;
+
+		.wpcom-fiverr-cta-logo {
+			// Keep the mark circular at any text length, and align it with the
+			// first line rather than the middle of the block.
+			flex-shrink: 0;
+			margin-block-start: 2px;
+		}
+
+		p {
+			margin: 0;
+		}
+
+		p + p {
+			margin-block-start: 4px;
+			color: #646970;
+		}
+	}
+
 	.wpcom-site-logo-description {
 		// Sits on its own line below the CTA, clear of the tighter spacing core
 		// gives paragraphs inside a form table cell.
-		margin-top: 8px;
+		margin-block-start: 8px;
 	}
 
 	.button.wpcom-add-custom-address-button {
