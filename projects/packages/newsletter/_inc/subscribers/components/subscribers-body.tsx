@@ -124,8 +124,6 @@ export default function SubscribersBody( {
 		[ navigate, search ]
 	);
 
-	// Raised out of the table so the header CTA can carry the nudge — the list query lives down
-	// there, and duplicating it up here would cost a second request.
 	const [ isSelfOnly, setIsSelfOnly ] = useState( false );
 
 	const body = (

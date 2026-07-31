@@ -328,7 +328,6 @@ export default function SubscribersDataViews( {
 		( view.filters && view.filters.length > 0 ) || ( view.search && view.search.length > 0 )
 	);
 
-	// Gated on no active filter/search: a one-row filtered result says nothing about the list size.
 	const isSelfOnly =
 		! hasActiveFiltersOrSearch &&
 		isSelfOnlySubscriber( totalItems, data?.is_owner_subscribed ?? false );

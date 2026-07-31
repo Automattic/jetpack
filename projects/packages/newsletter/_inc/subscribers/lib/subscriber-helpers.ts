@@ -123,9 +123,7 @@ export function isOpenSubscriberRemoved(
 }
 
 /**
- * Whether the viewer's own subscription is the only one on the site. WP.com derives
- * `is_owner_subscribed` from the requesting user, so on a Jetpack site it flags the admin viewing
- * this page rather than the blog owner per se.
+ * Whether the viewer's own subscription is the only one on the site.
  *
  * @param total             - Total subscriber count for the current query.
  * @param isOwnerSubscribed - Whether the viewer is among the subscribers (`is_owner_subscribed`).

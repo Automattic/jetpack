@@ -1,5 +1,5 @@
 import { Popover } from '@wordpress/components';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { createInterpolateElement, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { IconButton, Stack, Text } from '@wordpress/ui';
@@ -7,17 +7,16 @@ import { getBlogId } from '../lib/site';
 import { recordTracksEvent } from '../lib/tracks';
 
 /**
- * Per-blog so dismissing on one site doesn't silence the nudge on another.
+ * localStorage key for the dismissal flag, scoped per blog.
  *
- * @return localStorage key for the dismissal flag.
+ * @return Storage key.
  */
 function dismissalKey(): string {
 	return `jetpack-newsletter-self-only-nudge-dismissed-${ getBlogId() ?? 'unknown' }`;
 }
 
 /**
- * Read the dismissal flag. Wrapped because localStorage throws outright in private-mode Safari and
- * when storage is disabled by policy — a nudge is never worth breaking the page over.
+ * Read the dismissal flag. localStorage throws in private-mode Safari and when disabled by policy.
  *
  * @return True when this viewer already dismissed the nudge on this site.
  */
@@ -35,11 +34,7 @@ type Props = {
 
 /**
  * Points a creator at the "Add subscribers" button when their own subscription is the only one on
- * the site. Anchored beside the button rather than rendered in the table, so it costs the list no
- * vertical space, and it carries no CTA of its own — the button it points at is the CTA.
- *
- * The condition is self-limiting — it stops matching the moment anyone else subscribes — so the
- * stored dismissal only has to cover the viewer who genuinely stays at one subscriber.
+ * the site.
  *
  * @param props        - Component props.
  * @param props.anchor - Element to sit beside (the header button).
@@ -59,7 +54,7 @@ export default function SelfOnlyNudge( { anchor }: Props ): JSX.Element | null {
 		try {
 			window.localStorage.setItem( dismissalKey(), '1' );
 		} catch {
-			// Dismissal just won't persist across reloads.
+			// Storage unavailable.
 		}
 		recordTracksEvent( 'jetpack_subscribers_self_only_nudge_dismissed' );
 		setDismissed( true );
@@ -72,34 +67,28 @@ export default function SelfOnlyNudge( { anchor }: Props ): JSX.Element | null {
 	return (
 		<Popover
 			anchor={ anchor }
-			// `left-start` rather than `left`: the button sits ~50px from the top of the viewport,
-			// so a vertically-centred bubble runs up under the admin bar. Aligning its top edge to
-			// the button's drops it into the empty space below instead.
 			placement="left-start"
 			offset={ 8 }
 			noArrow={ false }
-			// Left to its own devices Floating UI shrinks the bubble to fit the room above the
-			// anchor — a 154px-wide scrolling sliver. Turn the resize/flip middlewares off and let
-			// it shift along the anchor instead, as IconTooltip does.
 			resize={ false }
 			flip={ false }
 			shift
-			// Nobody asked for this popover, so it must not take the caret on arrival.
 			focusOnMount={ false }
 			onClose={ handleClose }
 			className="jetpack-newsletter-self-only-nudge"
 		>
-			{ /* `align` maps straight onto `align-items`, so it needs a real CSS value — "top" is
-			     silently dropped and the close button stretches to full height. */ }
 			<Stack direction="row" align="flex-start" justify="space-between" gap="sm">
 				<Stack direction="column" gap="sm">
 					<Text variant="heading-lg">
 						{ __( 'Every newsletter starts at one', 'jetpack-newsletter' ) }
 					</Text>
 					<Text variant="body-sm">
-						{ __(
-							'Yours is no exception. Add a few people who already know you: friends, family, coworkers. They’ll get your next post.',
-							'jetpack-newsletter'
+						{ createInterpolateElement(
+							__(
+								'Yours is no exception. Add a few people who already know you: <who>friends, family, coworkers</who>.',
+								'jetpack-newsletter'
+							),
+							{ who: <em /> }
 						) }
 					</Text>
 				</Stack>

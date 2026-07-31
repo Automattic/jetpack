@@ -44,11 +44,8 @@ export default function HeaderActions( {
 	onAddSubscribers,
 	showSelfOnlyNudge = false,
 }: Props ): JSX.Element {
-	// Callback ref rather than useRef: the nudge needs a render once the button element exists.
 	const [ ctaAnchor, setCtaAnchor ] = useState< HTMLButtonElement | null >( null );
 
-	// The nudge has no CTA of its own — it points here — so this click is what tells us whether it
-	// worked.
 	const handleAddSubscribers = useCallback( () => {
 		recordTracksEvent( 'jetpack_subscribers_add_subscribers_clicked', {
 			nudge_visible: showSelfOnlyNudge,

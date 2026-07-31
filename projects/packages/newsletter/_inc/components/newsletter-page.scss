@@ -10,13 +10,9 @@
 
 $jetpack-newsletter-inset: var(--wpds-dimension-padding-2xl);
 
-// The nudge portals onto `document.body`, so it is scoped from the body class
-// rather than nested with the page rules below. `Popover` paints the bubble and
-// arrow; this only sizes the content.
+// Scoped from the body class because the nudge portals onto `document.body`.
 body.jetpack_page_jetpack-newsletter .jetpack-newsletter-self-only-nudge {
 
-	// A fixed width, not a max: the content otherwise collapses to its
-	// shrink-to-fit width and the copy ends up in a narrow column.
 	.components-popover__content {
 		inline-size: 280px;
 		max-inline-size: calc(100vw - #{$jetpack-newsletter-inset} * 2);
