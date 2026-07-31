@@ -164,10 +164,10 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 								</span>
 							<?php endif; ?>
 							<p><?php esc_html_e( 'State', 'jetpack' ); ?></p>
-							<span class="dops-button-group button-group filter-active">
+							<span class="dops-button-group button-group module-filter filter-state">
 								<button type="button" class="dops-button is-compact button
 								<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
-								if ( empty( $_GET['activated'] ) && '' === $current_group ) {
+								if ( empty( $_GET['activated'] ) ) {
 									echo 'active';
 								}
 								?>
@@ -189,43 +189,20 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 								" data-filter-by="activated" data-filter-value="false"><?php esc_html_e( 'Inactive', 'jetpack' ); ?></button>
 							</span>
 							<p><?php esc_html_e( 'Purpose', 'jetpack' ); ?></p>
-							<span class="dops-button-group button-group filter-active">
+							<ul class="purpose-filter">
+								<li class="all<?php echo '' === $current_group ? ' current' : ''; ?>"><a href="#" data-group=""><?php esc_html_e( 'All', 'jetpack' ); ?></a> <span class="count"></span></li>
 								<?php
 								foreach ( Jetpack_Modules_List_Table::PRODUCT_GROUP_ORDER as $group_slug ) {
 									printf(
-										'<button type="button" class="dops-button button %1$s" data-filter-by="product_group" data-filter-value="%2$s">%3$s</button>',
-										esc_attr( $group_slug === $current_group ? 'active' : '' ),
+										'<li class="%1$s%2$s"><a href="#" data-group="%1$s">%3$s</a> <span class="count"></span></li>',
 										esc_attr( $group_slug ),
+										$group_slug === $current_group ? ' current' : '',
 										esc_html( Jetpack_Modules_List_Table::get_product_group_name( $group_slug ) )
 									);
 								}
 								?>
-							</span>
-							<p><?php esc_html_e( 'Sort by', 'jetpack' ); ?></p>
-							<span class="dops-button-group button-group sort">
-								<button type="button" class="dops-button button
-								<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
-								if ( empty( $_GET['sort_by'] ) ) {
-									echo 'active';
-								}
-								?>
-								" data-sort-by="name"><?php esc_html_e( 'Alphabetical', 'jetpack' ); ?></button>
-								<button type="button" class="dops-button button
-								<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
-								if ( ! empty( $_GET['sort_by'] ) && 'introduced' === $_GET['sort_by'] ) {
-									echo 'active';
-								}
-								?>
-								" data-sort-by="introduced" data-sort-order="reverse"><?php esc_html_e( 'Newest', 'jetpack' ); ?></button>
-								<button type="button" class="dops-button button
-								<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
-								if ( ! empty( $_GET['sort_by'] ) && 'sort' === $_GET['sort_by'] ) {
-									echo 'active';
-								}
-								?>
-								" data-sort-by="sort"><?php esc_html_e( 'Popular', 'jetpack' ); ?></button>
-							</span>
-							<p><?php esc_html_e( 'Show', 'jetpack' ); ?></p>
+							</ul>
+							<p><?php esc_html_e( 'Tags', 'jetpack' ); ?></p>
 							<?php $list_table->views(); ?>
 						</form>
 					</div>

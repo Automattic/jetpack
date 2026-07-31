@@ -140,7 +140,7 @@ $jp-font-ui: var(--wpds-typography-font-size-md, 13px);
 
 .jetpack-offline-notice__text {
 	margin: 0;
-	font-size: $jp-font-ui;
+	font-size: typography.$font-body-small;
 	line-height: 1.5;
 	color: $jp-text-muted;
 
@@ -173,7 +173,7 @@ $jp-font-ui: var(--wpds-typography-font-size-md, 13px);
 	// bulk-actions bar (12px padding + 36px controls) in the main column.
 	p.search-box {
 		width: 100%;
-		margin-block: 10px 0;
+		margin-block: 0;
 		margin-inline: 0;
 		float: none;
 		display: block;
@@ -207,8 +207,10 @@ $jp-font-ui: var(--wpds-typography-font-size-md, 13px);
 		}
 	}
 
-	// Module tag filters (subsubsub) as a vertical list.
-	.subsubsub {
+	// Module tag filters (subsubsub) and the "Purpose" facet share the same
+	// vertical text-link list styling.
+	.subsubsub,
+	.purpose-filter {
 		margin: 0;
 		padding: 0;
 
@@ -244,6 +246,17 @@ $jp-font-ui: var(--wpds-typography-font-size-md, 13px);
 				.count {
 					color: colors.$white;
 					font-weight: 700;
+				}
+			}
+
+			// Tags with no matches under the current filters: greyed out and
+			// non-interactive, but kept in place so the list doesn't reflow.
+			&.is-empty {
+				opacity: 0.4;
+
+				a {
+					pointer-events: none;
+					cursor: default;
 				}
 			}
 		}
