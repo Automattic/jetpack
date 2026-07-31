@@ -238,7 +238,6 @@ class WooCommerce_Analytics extends Module {
 		foreach ( $orders as $order ) {
 			$order_id                 = $order->get_id();
 			$found_order_ids[]        = $order_id;
-			$orders_data[ $order_id ] = $this->build_woocommerce_analytics_reports_data( $order );
 			if ( 'order' === $object_type ) {
 				// Sync everything if the object type is order.
 				$orders_data[ $order_id ] = $this->build_woocommerce_analytics_reports_data( $order );
