@@ -25,7 +25,7 @@ import {
 	postList,
 	starEmpty,
 } from '@wordpress/icons';
-import { Button, Stack, Text } from '@wordpress/ui';
+import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
 import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies

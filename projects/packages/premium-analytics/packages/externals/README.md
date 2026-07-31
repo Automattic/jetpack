@@ -26,11 +26,16 @@ change when the libraries themselves are upgraded. Feature work no longer rewrit
   invalidates the artifact for everyone, which is exactly what this package exists to avoid.
 - **Import from here, never from the library directly.** `import { LineChart } from
   '@automattic/charts'` inside another module bundles charts into that module again and silently
-  undoes the split. ESLint enforces this across `packages/**` (`no-restricted-imports` in
-  `eslint.config.mjs`), with `packages/externals` itself excluded — it *is* the passthrough, so it
-  has to import the libraries directly. Stylesheet imports are exempt everywhere, since plain CSS
-  carries none of the bundling cost. `widgets/` and `routes/` still import these directly and are
-  the remaining follow-up.
+  undoes the split. ESLint enforces this across `packages/**`, `widgets/**` and `routes/**`
+  (`no-restricted-imports` in `eslint.config.mjs`), with `packages/externals` itself excluded — it
+  *is* the passthrough, so it has to import the libraries directly. Stylesheet imports are exempt
+  everywhere, since plain CSS carries none of the bundling cost.
+
+  Under `widgets/` and `routes/` the rule splits in two: `@automattic/charts` must come from
+  `@jetpack-premium-analytics/widgets-toolkit`, which themes the chart components and takes charts
+  from here itself, so a toolkit passthrough costs nothing; everything else comes straight from
+  here. Both patterns live in one ESLint block on purpose — a second `files` entry naming
+  `no-restricted-imports` again would *replace* the rule for those paths rather than add to it.
 - **Adding an export is cheap; adding a library is not.** A new library only belongs here if more
   than one module needs it, or if it is large enough that re-emitting it per module hurts.
   `@automattic/ui` qualifies on the second count alone: `DateRangeCalendar` is its only consumer

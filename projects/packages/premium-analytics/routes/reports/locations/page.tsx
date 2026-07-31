@@ -36,7 +36,7 @@ import {
 	type LocationRow,
 	type ReportLocationsTabId,
 } from './config';
-import type { View } from '@wordpress/dataviews';
+import type { View } from '@jetpack-premium-analytics/externals';
 
 const ROUTE_FROM = route.path;
 

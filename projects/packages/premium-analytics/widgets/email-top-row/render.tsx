@@ -18,7 +18,7 @@ import {
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { envelope, link, people, percent, seen, send } from '@wordpress/icons';
-import { Icon, Stack } from '@wordpress/ui';
+import { Icon, Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */

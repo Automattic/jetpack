@@ -170,10 +170,12 @@ See Automattic/jetpack#50266 for the PR that established this contract.
 - Don't edit dashboard React in Calypso — it lives here now.
 - Internal package names use `@jetpack-premium-analytics/*` aliases throughout the package —
   never `@automattic/jetpack-premium-analytics-*`.
-- Never import `@automattic/charts`, `@automattic/ui`, `@wordpress/ui`, or `@wordpress/dataviews`
-  directly from anything under `packages/` — go through `@jetpack-premium-analytics/externals`.
-  A direct import compiles the whole library into that module again; ESLint enforces this. See
-  `packages/externals/README.md`.
+- Never import `@automattic/ui`, `@wordpress/ui`, or `@wordpress/dataviews` directly from
+  anything under `packages/`, `widgets/`, or `routes/` — go through
+  `@jetpack-premium-analytics/externals`. A direct import compiles the whole library into that
+  bundle again; ESLint enforces this. `@automattic/charts` follows the same rule under
+  `packages/`, but under `widgets/` and `routes/` it must come from
+  `@jetpack-premium-analytics/widgets-toolkit` instead. See `packages/externals/README.md`.
 - All source code comments must be in English.
 
 ## Widgets

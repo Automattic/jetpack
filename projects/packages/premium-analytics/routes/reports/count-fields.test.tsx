@@ -18,7 +18,7 @@ import { getSearchTermsFields } from './search-terms/config/fields';
 import { getTagsFields } from './tags/config/fields';
 import { getUtmFields } from './utm/config/fields';
 import { getVideosFields } from './videos/config/fields';
-import type { Field } from '@wordpress/dataviews';
+import type { Field } from '@jetpack-premium-analytics/externals';
 
 /**
  * Render a report table's numeric field for one row.

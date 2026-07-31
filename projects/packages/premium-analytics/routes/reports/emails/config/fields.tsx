@@ -10,7 +10,7 @@ import { Link } from '@wordpress/route';
  */
 import styles from './fields.module.css';
 import type { StatsEmailSummaryItem } from '@jetpack-premium-analytics/data';
-import type { Field } from '@wordpress/dataviews';
+import type { Field } from '@jetpack-premium-analytics/externals';
 
 /**
  * Format a count for display.

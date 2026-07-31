@@ -10,7 +10,7 @@ import { Link } from '@wordpress/route';
  */
 import { getUtmTabLabel, type UtmReportTabId } from './tabs';
 import type { UtmReportRow } from './aggregate';
-import type { Field } from '@wordpress/dataviews';
+import type { Field } from '@jetpack-premium-analytics/externals';
 
 const VIEWS_DATA_FORMAT = {
 	type: 'number' as const,
