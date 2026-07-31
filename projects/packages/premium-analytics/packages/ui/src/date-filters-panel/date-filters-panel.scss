@@ -1,5 +1,15 @@
 .date-filters-panel {
 
+	/*
+	 * The responsive layout comes from this element's own measured width, so it
+	 * has to be sized by its container and never by its content. As a flex item
+	 * that means filling the slot: a shrink-to-fit panel measures the width it
+	 * wants, concludes that everything fits, and never steps down from the full
+	 * labels. Inert in a block parent, where it already spans its container.
+	 */
+	flex: 1 1 0%;
+	min-inline-size: 0;
+
 	&__primary,
 	&__comparison {
 		flex: 0 1 auto;
