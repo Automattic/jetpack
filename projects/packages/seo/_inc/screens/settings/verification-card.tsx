@@ -8,7 +8,6 @@ import CardTitleIcon from '../../components/card-title-icon';
 import StatusIndicator from '../../components/status-indicator';
 import { VERIFICATION_SERVICES } from '../../data/verification-services';
 import GoogleVerificationField from './google-verification-field';
-import styles from './style.module.scss';
 import type { SettingStatus } from '../../components/status-indicator';
 import type { SettingsResponse, VerificationKey } from '../../data/settings-types';
 import type { FC } from 'react';
@@ -97,9 +96,9 @@ const VerificationCard: FC< Props > = ( {
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
 				<Stack direction="column" gap="lg">
-					{ /* `body-sm` + muted matches every other explanatory paragraph on this
-					     tab (schema sections, social previews, title structure). */ }
-					<Text variant="body-sm" className={ styles.muted } render={ <p /> }>
+					{ /* Body copy: this is the module's own prose, not a hint attached to a
+					     field. The muted `body-sm` treatment is reserved for the latter. */ }
+					<Text variant="body-md" render={ <p /> }>
 						{ description }
 					</Text>
 					{ /* Google gets the keyring auto-verify flow; the rest are simple code fields. */ }

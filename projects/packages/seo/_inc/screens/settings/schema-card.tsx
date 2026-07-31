@@ -110,7 +110,7 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
 				<Stack direction="column" gap="lg">
-					<Text variant="body-sm" className={ styles.muted } render={ <p /> }>
+					<Text variant="body-md" render={ <p /> }>
 						{ __(
 							'Structured data that tells search engines and AI assistants what your site is and who runs it. Add the details below and Jetpack adds the right markup automatically.',
 							'jetpack-seo'

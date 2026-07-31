@@ -27,6 +27,17 @@ describe( 'GoogleVerificationField', () => {
 		mockUseGoogleVerify.mockReturnValue( googleVerifyDefaults );
 	} );
 
+	it( 'names its controls as a group', () => {
+		renderField();
+
+		// "Google" is styled as a field label (`heading-sm`, 11px uppercase) to match the
+		// other four services, but here it heads several controls rather than labelling
+		// one input. Without the group it would read as a label attached to nothing.
+		const group = screen.getByRole( 'group', { name: 'Google' } );
+		expect( group ).toBeInTheDocument();
+		expect( screen.getByText( 'Google' ).className ).toMatch( /heading-sm/ );
+	} );
+
 	it( 'shows the manual field, but not the manual button, when a value exists', () => {
 		renderField( 'google-code' );
 
