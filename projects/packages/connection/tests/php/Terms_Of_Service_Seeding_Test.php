@@ -3,7 +3,7 @@
  * Tests that reading the Terms of Service option seeds an autoloaded default when absent.
  *
  * @package automattic/jetpack-connection
- * @see \Automattic\Jetpack\Connection\Terms_Of_Service
+ * @see \Automattic\Jetpack\Terms_Of_Service
  */
 
 namespace Automattic\Jetpack;
@@ -13,19 +13,13 @@ use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 
 /**
- * @see \Automattic\Jetpack\Connection\Terms_Of_Service
+ * @package Automattic\Jetpack
+ * @covers \Automattic\Jetpack\Terms_Of_Service
  */
 #[CoversClass( Terms_Of_Service::class )]
 class Terms_Of_Service_Seeding_Test extends TestCase {
 
 	const OPTION = 'jetpack_tos_agreed';
-
-	/**
-	 * Set up.
-	 */
-	public function setUp(): void {
-		parent::setUp();
-	}
 
 	/**
 	 * Tear down.
@@ -42,7 +36,10 @@ class Terms_Of_Service_Seeding_Test extends TestCase {
 	 */
 	private function read() {
 		$method = new \ReflectionMethod( Terms_Of_Service::class, 'get_raw_has_agreed' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP < 8.1 (no-op since 8.1, deprecated in 8.5).
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		return $method->invoke( new Terms_Of_Service() );
 	}
 
