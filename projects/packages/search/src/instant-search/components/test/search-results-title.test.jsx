@@ -101,4 +101,38 @@ describe( 'SearchResults#getSearchTitle — no search has completed yet', () => 
 			} )
 		).toBe( 'No results found' );
 	} );
+
+	it( 'a completed response with a `requestId` but no `total` key does not get mistaken for "never searched"', () => {
+		// Every response the API layer produces carries a `requestId`
+		// (see lib/api.js's responseHandlerFactory); a shape that happens to
+		// omit `total` must still be treated as a completed search, falling
+		// through to the total===0 default rather than sticking on a loading
+		// message forever.
+		expect(
+			titleFor( {
+				searchQuery: 'hello',
+				response: { requestId: 1, results: [ {} ] },
+				isQueryPending: false,
+				isLoading: false,
+			} )
+		).toBe( 'No results found' );
+	} );
+} );
+
+describe( 'SearchResults#getSearchTitle — hasQuery must not be affected by the null/"" distinction', () => {
+	it( 'still shows "Found N results", not "Showing popular results", for searchQuery: null with a completed non-empty response', () => {
+		// searchQuery is null (not '') e.g. for a URL/filter-driven search with
+		// no typed keyword, or the Customberg/Customizer preview default. hasQuery
+		// (searchQuery !== '') is deliberately untouched by the loading-branch's
+		// null-vs-'' fix, so this pre-existing "Found N results" behavior for a
+		// null searchQuery must not change.
+		expect(
+			titleFor( {
+				searchQuery: null,
+				response: { total: 12 },
+				isQueryPending: false,
+				isLoading: false,
+			} )
+		).toBe( 'Found 12 results' );
+	} );
 } );

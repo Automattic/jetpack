@@ -49,21 +49,27 @@ class SearchResults extends Component {
 
 	getSearchTitle() {
 		const { total = 0, corrected_query = false } = this.props.response;
-		// searchQuery is null before the query string is initialized (e.g. at
-		// first mount, before any `?s=` param is read), not ''.
-		const hasQuery = !! this.props.searchQuery;
+		const hasQuery = this.props.searchQuery !== '';
 		const hasCorrectedQuery = corrected_query !== false;
 		const isMultiSite =
 			this.props.staticFilters &&
 			this.props.staticFilters.group_id &&
 			this.props.staticFilters.group_id !== MULTISITE_NO_GROUP_VALUE;
 
-		// An empty response object means no search has completed yet, which is distinct
-		// from a completed search that returned zero results.
-		const hasCompletedSearch = 'total' in this.props.response || this.props.hasError;
+		// A response with neither a `requestId` nor a `total` means no search has
+		// completed yet (the reducer's initial state is `{}`), which is distinct
+		// from a completed search that returned zero results. `requestId` is
+		// checked too so a response shape that omits `total` doesn't get
+		// mistaken for "never searched" and stick the title on a loading state
+		// forever; every response the API layer produces carries a `requestId`.
+		const hasCompletedSearch =
+			'requestId' in this.props.response || 'total' in this.props.response || this.props.hasError;
 
 		if ( this.props.isLoading || this.props.isQueryPending || ! hasCompletedSearch ) {
-			if ( ! hasQuery ) {
+			// searchQuery is null before the query string is initialized (e.g. at
+			// first mount, before any `?s=` param is read), not ''; treat that the
+			// same as an empty query here.
+			if ( ! this.props.searchQuery ) {
 				return __( 'Loading popular results…', 'jetpack-search-pkg' );
 			}
 
