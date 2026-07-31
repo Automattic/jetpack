@@ -169,15 +169,73 @@ describe( 'selectStatsCommentsRows', () => {
 		] );
 	} );
 
+	// An author with no gravatar falls back to a label-derived key, and carries no
+	// avatar. Guards the first step of the authors id fallback chain.
+	it( 'keys an author with no gravatar on the label and leaves the avatar unset', () => {
+		const report = sanitizeStatsCommentsResponse( {
+			authors: [ { name: 'Aggie', comments: 2, link: '?s=aggie@example.com' } ],
+		} );
+
+		expect( selectStatsCommentsRows( report, 'authors' ) ).toEqual( [
+			{
+				id: 'author-Aggie',
+				label: 'Aggie',
+				value: 2,
+				avatarUrl: undefined,
+				link: 'edit-comments.php?s=aggie%40example.com',
+			},
+		] );
+	} );
+
 	// Consumers guard the permalink themselves, so the raw link has to survive
-	// here: a post with no id keys its row on it.
+	// here: a post with no id keys its row on it. Guards the second step of the
+	// posts id fallback chain, and that `postId` stays unset without a post id.
 	it( 'keeps the raw link as the row id when a post has no id', () => {
 		const report = sanitizeStatsCommentsResponse( {
 			posts: [ { name: 'Hello world', comments: 3, link: 'javascript:alert(1)' } ],
 		} );
 
 		expect( selectStatsCommentsRows( report, 'posts' ) ).toEqual( [
-			expect.objectContaining( { id: 'javascript:alert(1)', link: 'javascript:alert(1)' } ),
+			{
+				id: 'javascript:alert(1)',
+				label: 'Hello world',
+				value: 3,
+				link: 'javascript:alert(1)',
+				postId: undefined,
+				avatarUrl: undefined,
+			},
+		] );
+	} );
+
+	// Guards the third step of the posts id fallback chain: neither an id nor a
+	// link to key on.
+	it( 'keys a post with neither an id nor a link on the label', () => {
+		const report = sanitizeStatsCommentsResponse( {
+			posts: [ { name: 'Hello world', comments: 3 } ],
+		} );
+
+		expect( selectStatsCommentsRows( report, 'posts' ) ).toEqual( [
+			{
+				id: 'post-Hello world',
+				label: 'Hello world',
+				value: 3,
+				link: undefined,
+				postId: undefined,
+				avatarUrl: undefined,
+			},
+		] );
+	} );
+
+	// Post id 0 is falsy but present, so the null check must be `!= null` rather
+	// than a truthiness test — otherwise the row silently falls through to the
+	// link/label key and loses its `postId`.
+	it( 'treats post id 0 as a real id rather than a missing one', () => {
+		const report = sanitizeStatsCommentsResponse( {
+			posts: [ { id: 0, name: 'Hello world', comments: 3, link: 'https://example.com/hello/' } ],
+		} );
+
+		expect( selectStatsCommentsRows( report, 'posts' ) ).toEqual( [
+			expect.objectContaining( { id: '0', postId: '0' } ),
 		] );
 	} );
 

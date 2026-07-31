@@ -159,7 +159,7 @@ export type StatsCommentsGroup = 'authors' | 'posts';
 
 /**
  * A flat Comments report row, shared by every consumer of the report: the
- * "Top commented authors" and "Top commented posts" widgets and the Comments
+ * "Most commented authors" and "Most commented posts" widgets and the Comments
  * report page.
  *
  * `link` is the value the report carries: a locally built, root-relative
@@ -202,30 +202,46 @@ function toCommentsRowLabel( value: unknown ): string {
 	return typeof value === 'string' ? value : String( value );
 }
 
-function toCommentsAuthorRow( author: StatsCommentsAuthorItem ): StatsCommentsRow {
-	const label = toCommentsRowLabel( author.label );
+/**
+ * Map one group child to a flat row.
+ *
+ * `label`, `value` and `link` are derived identically for both groups; only the
+ * row key and the group-specific extras (`avatarUrl`, `postId`) differ, so the
+ * group discriminator selects just those.
+ *
+ * @param item  - The group child to map.
+ * @param group - The group the child belongs to.
+ * @return The flat row.
+ */
+function toCommentsRow(
+	item: StatsCommentsAuthorItem | StatsCommentsPostItem,
+	group: StatsCommentsGroup
+): StatsCommentsRow {
+	const label = toCommentsRowLabel( item.label );
+	const shared = { label, value: item.value, link: item.link ?? undefined };
+
+	if ( group === 'authors' ) {
+		const { icon } = item as StatsCommentsAuthorItem;
+
+		return {
+			...shared,
+			// Authors key on their gravatar hash, falling back to the label.
+			id: icon ?? `author-${ label }`,
+			avatarUrl: icon ?? undefined,
+		};
+	}
+
+	// `!= null` rather than a truthiness test: post id 0 is a real id.
+	const { id } = item as StatsCommentsPostItem;
+	const postId = id != null ? String( id ) : undefined;
 
 	return {
-		// Authors key on their gravatar hash, falling back to the label.
-		id: author.icon ?? `author-${ label }`,
-		label,
-		value: author.value,
-		avatarUrl: author.icon ?? undefined,
-		link: author.link ?? undefined,
-	};
-}
-
-function toCommentsPostRow( post: StatsCommentsPostItem ): StatsCommentsRow {
-	const label = toCommentsRowLabel( post.label );
-
-	return {
+		...shared,
 		// Posts key on their post id, falling back to the raw link so row
-		// identity holds even when a consumer rejects that URL.
-		id: post.id != null ? String( post.id ) : post.link ?? `post-${ label }`,
-		label,
-		value: post.value,
-		link: post.link ?? undefined,
-		postId: post.id != null ? String( post.id ) : undefined,
+		// identity holds even when a consumer rejects that URL, and finally on
+		// the label.
+		id: postId ?? shared.link ?? `post-${ label }`,
+		postId,
 	};
 }
 
@@ -253,11 +269,7 @@ export function selectStatsCommentsRows(
 		| undefined;
 
 	const rows = ( groupItem?.children ?? [] )
-		.map( child =>
-			group === 'authors'
-				? toCommentsAuthorRow( child as StatsCommentsAuthorItem )
-				: toCommentsPostRow( child as StatsCommentsPostItem )
-		)
+		.map( child => toCommentsRow( child, group ) )
 		.sort( ( a, b ) => b.value - a.value );
 
 	return limitStatsRows( rows, maxRows );
