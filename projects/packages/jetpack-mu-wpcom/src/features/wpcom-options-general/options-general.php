@@ -156,7 +156,7 @@ function wpcom_fiverr_cta() {
 				<?php wpcom_fiverr_cta_button(); ?>
 			</div>
 		<?php else : ?>
-			<div class="wpcom-fiverr-cta-copy">
+			<div class="wpcom-fiverr-cta-description">
 				<p><b><?php esc_html_e( 'Make an incredible logo in minutes', 'jetpack-mu-wpcom' ); ?></b></p>
 				<p><?php esc_html_e( 'Pre-designed by top talent. Just add your touch.', 'jetpack-mu-wpcom' ); ?></p>
 			</div>
