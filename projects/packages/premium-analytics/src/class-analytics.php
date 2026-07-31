@@ -269,7 +269,7 @@ class Analytics {
 		$sign     = $offset < 0 ? '-' : '+';
 		$absolute = abs( $offset );
 		$hours    = (int) floor( $absolute );
-		$minutes  = (int) floor( ( $absolute - $hours ) * 60 + 1e-6 );
+		$minutes  = (int) round( ( $absolute - $hours ) * 60 );
 
 		return sprintf( '%s%02d:%02d', $sign, $hours, $minutes );
 	}

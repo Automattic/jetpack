@@ -1,40 +1,39 @@
 import { getAnalyticsUrl, hasAnalyticsDashboard } from '../analytics-url';
-import type { AnalyticsScriptData, JetpackScriptData } from '@automattic/jetpack-script-data';
+import type { AnalyticsView } from '../analytics-url';
 
 const ADMIN_URL = 'https://example.com/wp-admin/';
 const PAGE_SLUG = 'jetpack-premium-analytics-wp-admin';
 
 /**
- * Seeds `window.JetpackScriptData` with an optional `analytics` payload.
- * Omitting it is a site where the dashboard is not the analytics UI.
+ * Seeds `window.JetpackScriptData`. Omitting `analytics` is a site where the
+ * dashboard has not replaced the Stats page.
  *
- * @param analytics - The analytics payload, or undefined to omit the key.
+ * Every case here pins an explicit timezone and explicit calendar dates, so no
+ * assertion depends on the clock or on the machine's timezone.
+ *
+ * @param analytics - Overrides for the analytics payload, or undefined to omit it.
  */
-function seedScriptData( analytics?: Partial< AnalyticsScriptData > ) {
+function seed( analytics?: Record< string, unknown > ) {
 	window.JetpackScriptData = {
 		site: { admin_url: ADMIN_URL },
-		user: { current_user: { capabilities: {} } },
-		...( analytics
-			? {
-					analytics: {
-						enabled: true,
-						page_slug: PAGE_SLUG,
-						can_view: true,
-						timezone: 'UTC',
-						...analytics,
-					},
-			  }
-			: {} ),
-	} as unknown as JetpackScriptData;
+		...( analytics && {
+			analytics: {
+				enabled: true,
+				page_slug: PAGE_SLUG,
+				can_view: true,
+				timezone: 'UTC',
+				...analytics,
+			},
+		} ),
+	} as unknown as typeof window.JetpackScriptData;
 }
 
 /**
- * Resolves a dashboard URL to the path and search the router ends up with, so
- * assertions read the values the route receives rather than an encoded string.
+ * The path and search the router ends up with.
  *
- * The dashboard keeps its whole path-and-search inside a single `p` query
- * param, so the router decodes twice: once pulling `p` off the page URL, and
- * once parsing `p`'s own search. This mirrors both steps.
+ * The dashboard keeps its whole path-and-search inside a single `p` param, so
+ * the router decodes twice: once pulling `p` off the page URL, once parsing
+ * `p`'s own search. This mirrors both steps.
  *
  * @param url - The URL to parse.
  * @return The decoded path and search, e.g. `/?section=traffic`.
@@ -44,23 +43,10 @@ function routerPath( url: string | null ): string | null {
 		return null;
 	}
 
-	// Step one: the browser decodes `p` off the page URL.
-	const path = new URL( url ).searchParams.get( 'p' );
-	if ( ! path ) {
-		return null;
-	}
+	const [ path, search ] = ( new URL( url ).searchParams.get( 'p' ) ?? '' ).split( '?' );
+	const params = [ ...new URLSearchParams( search ) ].map( ( [ k, v ] ) => `${ k }=${ v }` );
 
-	// Step two: the router parses `p`'s search the same way.
-	const [ pathname, search ] = path.split( '?' );
-	if ( ! search ) {
-		return pathname;
-	}
-
-	const params = [ ...new URLSearchParams( search ) ]
-		.map( ( [ key, value ] ) => `${ key }=${ value }` )
-		.join( '&' );
-
-	return `${ pathname }?${ params }`;
+	return params.length ? `${ path }?${ params.join( '&' ) }` : path;
 }
 
 afterEach( () => {
@@ -68,178 +54,82 @@ afterEach( () => {
 } );
 
 describe( 'hasAnalyticsDashboard', () => {
-	it( 'is true when the package announces itself', () => {
-		seedScriptData( {} );
-
-		expect( hasAnalyticsDashboard() ).toBe( true );
-	} );
-
-	// Callers read this to decide whether to replace their existing Stats link.
-	// It must stay true regardless of capability: a user who cannot open the
-	// dashboard must not be sent to the Stats page, which is no longer
+	// Stays true without the capability: callers must not fall back to the Stats
+	// page for a user who cannot open the dashboard, because it is no longer
 	// registered once the dashboard replaces it.
-	it( 'stays true for a user who cannot open the dashboard', () => {
-		seedScriptData( { can_view: false } );
-
-		expect( hasAnalyticsDashboard() ).toBe( true );
-	} );
-
 	it.each( [
-		[ 'the key is absent', undefined ],
-		[ 'the key is present but disabled', { enabled: false } ],
-	] )( 'is false when %s', ( _label, analytics ) => {
-		seedScriptData( analytics );
+		[ 'the package announces itself', {}, true ],
+		[ 'the user cannot open it', { can_view: false }, true ],
+		[ 'the key is disabled', { enabled: false }, false ],
+		[ 'the key is absent', undefined, false ],
+	] )( 'is %s -> %s', ( _label, analytics, expected ) => {
+		seed( analytics as Record< string, unknown > | undefined );
 
-		expect( hasAnalyticsDashboard() ).toBe( false );
+		expect( hasAnalyticsDashboard() ).toBe( expected );
 	} );
 } );
 
 describe( 'getAnalyticsUrl', () => {
-	it( 'points at the dashboard page', () => {
-		seedScriptData( {} );
+	beforeEach( () => seed( {} ) );
 
-		const url = getAnalyticsUrl( { view: 'dashboard' } );
-
-		expect( url ).toBe( `${ ADMIN_URL }admin.php?page=${ PAGE_SLUG }&p=%2F` );
-	} );
-
-	it( 'omits an empty search rather than trailing a bare "?"', () => {
-		seedScriptData( {} );
-
-		expect( routerPath( getAnalyticsUrl( { view: 'dashboard' } ) ) ).toBe( '/' );
-	} );
-
-	it( 'encodes the inner search twice, matching the two decodes the router does', () => {
-		seedScriptData( { timezone: 'UTC' } );
-
-		const raw = getAnalyticsUrl( {
-			view: 'dashboard',
-			range: { from: '2026-07-01', to: '2026-07-01' },
-		} ) as string;
-
-		// The `+` of the UTC offset must survive as `%252B` in the page URL: one
-		// layer for `p`'s own search, one for `p` itself. A single layer would
-		// decode to a space and the date picker would reject the range.
-		expect( raw ).toContain( '%252B00%253A00' );
-		expect( new URL( raw ).searchParams.get( 'p' ) ).toContain( '%2B00%3A00' );
-	} );
-
-	describe( 'view routing', () => {
-		it( 'routes the dashboard view to the root', () => {
-			seedScriptData( {} );
-
-			expect( routerPath( getAnalyticsUrl( { view: 'dashboard' } ) ) ).toBe( '/' );
-		} );
-
-		it( 'routes the post view to that post', () => {
-			seedScriptData( {} );
-
-			expect( routerPath( getAnalyticsUrl( { view: 'post', id: 42 } ) ) ).toBe( '/post/42' );
-		} );
-
-		it.each( [
-			[ 'a zero post id', 0 ],
-			[ 'a negative post id', -1 ],
-		] )( 'returns null for %s', ( _label, id ) => {
-			seedScriptData( {} );
-
-			expect( getAnalyticsUrl( { view: 'post', id } ) ).toBeNull();
-		} );
-	} );
-
-	describe( 'section translation', () => {
-		it.each( [
-			[ 'traffic', 'traffic' ],
-			[ 'insights', 'insights' ],
-			[ 'subscribers', 'subscribers' ],
-			[ 'store', 'store' ],
-		] as const )( 'maps the dashboard %s section to ?section=%s', ( section, expected ) => {
-			seedScriptData( {} );
-
-			expect( routerPath( getAnalyticsUrl( { view: 'dashboard', section } ) ) ).toBe(
-				`/?section=${ expected }`
-			);
-		} );
-
-		it( 'translates the neutral post "traffic" section to the route\'s own slug', () => {
-			seedScriptData( {} );
-
-			expect( routerPath( getAnalyticsUrl( { view: 'post', id: 9, section: 'traffic' } ) ) ).toBe(
-				'/post/9?section=post-traffic'
-			);
-		} );
-
-		it.each( [ 'email-opens', 'email-clicks' ] as const )(
-			'passes the post %s section through',
-			section => {
-				seedScriptData( {} );
-
-				expect( routerPath( getAnalyticsUrl( { view: 'post', id: 9, section } ) ) ).toBe(
-					`/post/9?section=${ section }`
-				);
-			}
+	it( 'builds a dashboard URL on the dashboard page', () => {
+		expect( getAnalyticsUrl( { view: 'dashboard' } ) ).toBe(
+			`${ ADMIN_URL }admin.php?page=${ PAGE_SLUG }&p=%2F`
 		);
-
-		it( 'drops an unrecognized section instead of putting a dead value in the URL', () => {
-			seedScriptData( {} );
-
-			const view = { view: 'dashboard', section: 'nope' } as unknown as Parameters<
-				typeof getAnalyticsUrl
-			>[ 0 ];
-
-			expect( routerPath( getAnalyticsUrl( view ) ) ).toBe( '/' );
-		} );
 	} );
 
-	describe( 'date range encoding', () => {
-		it( 'encodes whole days as the offset-bearing timestamps the dashboard writes itself', () => {
-			seedScriptData( { timezone: 'UTC' } );
+	it.each( [
+		[ { view: 'dashboard' }, '/' ],
+		[ { view: 'post', id: 42 }, '/post/42' ],
+		[ { view: 'dashboard', section: 'traffic' }, '/?section=traffic' ],
+		[ { view: 'dashboard', section: 'insights' }, '/?section=insights' ],
+		[ { view: 'dashboard', section: 'subscribers' }, '/?section=subscribers' ],
+		[ { view: 'dashboard', section: 'store' }, '/?section=store' ],
+		// The caller's neutral `traffic` is the route's `post-traffic`.
+		[ { view: 'post', id: 9, section: 'traffic' }, '/post/9?section=post-traffic' ],
+		[ { view: 'post', id: 9, section: 'email-opens' }, '/post/9?section=email-opens' ],
+		[ { view: 'post', id: 9, section: 'email-clicks' }, '/post/9?section=email-clicks' ],
+		// An unknown section resolves to the default tab anyway, so it is dropped
+		// rather than left dead in a shareable URL.
+		[ { view: 'dashboard', section: 'nope' }, '/' ],
+	] as [ AnalyticsView, string ][] )( 'routes %j to %s', ( view, expected ) => {
+		expect( routerPath( getAnalyticsUrl( view ) ) ).toBe( expected );
+	} );
+
+	it.each( [ 0, -1 ] )( 'returns null for post id %i', id => {
+		expect( getAnalyticsUrl( { view: 'post', id } ) ).toBeNull();
+	} );
+
+	describe( 'date ranges', () => {
+		it.each( [
+			[ 'UTC', '+00:00' ],
+			[ 'America/New_York', '-04:00' ],
+			[ '+05:30', '+05:30' ],
+		] )( 'encodes both boundaries in %s', ( timezone, offset ) => {
+			seed( { timezone } );
 
 			expect(
 				routerPath(
-					getAnalyticsUrl( {
-						view: 'dashboard',
-						range: { from: '2026-07-01', to: '2026-07-31' },
-					} )
+					getAnalyticsUrl( { view: 'dashboard', range: { from: '2026-07-01', to: '2026-07-31' } } )
 				)
-			).toBe( '/?from=2026-07-01T00:00:00.000+00:00&to=2026-07-31T23:59:59.999+00:00' );
+			).toBe( `/?from=2026-07-01T00:00:00.000${ offset }&to=2026-07-31T23:59:59.999${ offset }` );
 		} );
 
-		it( 'uses the site timezone offset, not UTC', () => {
-			seedScriptData( { timezone: 'America/New_York' } );
+		// A day whose offset changes partway through gets a different offset at
+		// each boundary. Both US transitions are covered: one day is 23 hours
+		// long, the other 25.
+		it.each( [
+			[ 'spring forward', '2026-03-08', '-05:00', '-04:00' ],
+			[ 'fall back', '2026-11-01', '-04:00', '-05:00' ],
+		] )( 'uses the offset in effect at each boundary across %s', ( _label, day, opens, closes ) => {
+			seed( { timezone: 'America/New_York' } );
 
 			expect(
-				routerPath(
-					getAnalyticsUrl( { view: 'dashboard', range: { from: '2026-07-04', to: '2026-07-04' } } )
-				)
-			).toBe( '/?from=2026-07-04T00:00:00.000-04:00&to=2026-07-04T23:59:59.999-04:00' );
+				routerPath( getAnalyticsUrl( { view: 'dashboard', range: { from: day, to: day } } ) )
+			).toBe( `/?from=${ day }T00:00:00.000${ opens }&to=${ day }T23:59:59.999${ closes }` );
 		} );
 
-		it( 'accepts a fixed UTC offset timezone', () => {
-			seedScriptData( { timezone: '+05:30' } );
-
-			expect(
-				routerPath(
-					getAnalyticsUrl( { view: 'dashboard', range: { from: '2026-07-04', to: '2026-07-04' } } )
-				)
-			).toBe( '/?from=2026-07-04T00:00:00.000+05:30&to=2026-07-04T23:59:59.999+05:30' );
-		} );
-
-		it( 'uses the offset in effect at each boundary across a DST transition', () => {
-			seedScriptData( { timezone: 'America/New_York' } );
-
-			// 2026-03-08 is the US spring-forward date: the range opens on EST
-			// and closes on EDT.
-			expect(
-				routerPath(
-					getAnalyticsUrl( { view: 'dashboard', range: { from: '2026-03-08', to: '2026-03-08' } } )
-				)
-			).toBe( '/?from=2026-03-08T00:00:00.000-05:00&to=2026-03-08T23:59:59.999-04:00' );
-		} );
-
-		it( 'carries a range on the post view too, not just the dashboard', () => {
-			seedScriptData( { timezone: 'UTC' } );
-
+		it( 'carries a range on the post view too', () => {
 			expect(
 				routerPath(
 					getAnalyticsUrl( {
@@ -251,70 +141,53 @@ describe( 'getAnalyticsUrl', () => {
 			).toBe( '/post/5?from=2026-01-01T00:00:00.000+00:00&to=2026-01-01T23:59:59.999+00:00' );
 		} );
 
-		it( 'never sets interval, preset or comparison params', () => {
-			seedScriptData( {} );
-
+		// The route seeds an interval itself, and omitting `preset` keeps the
+		// range custom rather than forcing a comparison nobody asked for.
+		it( 'sets neither interval, preset nor comparison params', () => {
 			const path = routerPath(
 				getAnalyticsUrl( { view: 'dashboard', range: { from: '2026-07-01', to: '2026-07-31' } } )
 			);
 
-			expect( path ).not.toContain( 'interval=' );
-			expect( path ).not.toContain( 'preset=' );
-			expect( path ).not.toContain( 'comp=' );
+			expect( path ).not.toMatch( /interval=|preset=|comp=/ );
 		} );
 
+		// Half a range would silently widen the window, so an unusable one is
+		// dropped whole — but the section survives.
 		it.each( [
-			[ 'a malformed from', { from: '07/01/2026', to: '2026-07-31' } ],
-			[ 'a malformed to', { from: '2026-07-01', to: 'yesterday' } ],
-			[ 'an empty range', { from: '', to: '' } ],
-		] )( 'drops the whole range for %s rather than half-applying it', ( _label, range ) => {
-			seedScriptData( {} );
-
-			expect( routerPath( getAnalyticsUrl( { view: 'dashboard', range } ) ) ).toBe( '/' );
-		} );
-
-		it( 'drops the range when the timezone is unusable', () => {
-			seedScriptData( { timezone: 'Not/AZone' } );
+			[ 'a malformed from', { from: '07/01/2026', to: '2026-07-31' }, 'UTC' ],
+			[ 'a malformed to', { from: '2026-07-01', to: 'yesterday' }, 'UTC' ],
+			[ 'an empty range', { from: '', to: '' }, 'UTC' ],
+			[ 'an unusable timezone', { from: '2026-07-01', to: '2026-07-31' }, 'Not/AZone' ],
+		] )( 'drops the range for %s', ( _label, range, timezone ) => {
+			seed( { timezone } );
 
 			expect(
-				routerPath(
-					getAnalyticsUrl( { view: 'dashboard', range: { from: '2026-07-01', to: '2026-07-31' } } )
-				)
-			).toBe( '/' );
-		} );
-
-		it( 'keeps the section when the range is dropped', () => {
-			seedScriptData( {} );
-
-			expect(
-				routerPath(
-					getAnalyticsUrl( {
-						view: 'dashboard',
-						section: 'traffic',
-						range: { from: 'nope', to: 'nope' },
-					} )
-				)
+				routerPath( getAnalyticsUrl( { view: 'dashboard', section: 'traffic', range } ) )
 			).toBe( '/?section=traffic' );
+		} );
+
+		// The `+` of the offset must survive as `%252B`: one layer for `p`'s own
+		// search, one for `p` itself. A single layer would decode to a space and
+		// the date picker would reject the range.
+		it( 'encodes the inner search twice, matching the two decodes the router does', () => {
+			const raw = getAnalyticsUrl( {
+				view: 'dashboard',
+				range: { from: '2026-07-01', to: '2026-07-01' },
+			} ) as string;
+
+			expect( raw ).toContain( '%252B00%253A00' );
+			expect( new URL( raw ).searchParams.get( 'p' ) ).toContain( '%2B00%3A00' );
 		} );
 	} );
 
-	describe( 'when there is nowhere to send the user', () => {
-		it( 'returns null for a user who cannot open the dashboard', () => {
-			seedScriptData( { can_view: false } );
+	it.each( [
+		[ 'the user cannot open the dashboard', { can_view: false } ],
+		[ 'the dashboard is disabled', { enabled: false } ],
+		[ 'the dashboard is not the analytics UI', undefined ],
+	] )( 'returns null when %s', ( _label, analytics ) => {
+		seed( analytics as Record< string, unknown > | undefined );
 
-			expect( getAnalyticsUrl( { view: 'dashboard' } ) ).toBeNull();
-			expect( getAnalyticsUrl( { view: 'post', id: 1, section: 'email-opens' } ) ).toBeNull();
-		} );
-
-		// Callers gate on hasAnalyticsDashboard() and keep their existing link,
-		// so the helper never builds a legacy Stats URL of its own.
-		it.each( [
-			[ 'the key is absent', undefined ],
-			[ 'the key is present but disabled', { enabled: false } ],
-		] )( 'returns null when %s', ( _label, analytics ) => {
-			seedScriptData( analytics );
-
-			expect( getAnalyticsUrl( { view: 'dashboard' } ) ).toBeNull();
-		} );
+		expect( getAnalyticsUrl( { view: 'dashboard' } ) ).toBeNull();
+		expect( getAnalyticsUrl( { view: 'post', id: 1, section: 'email-opens' } ) ).toBeNull();
 	} );
 } );

@@ -14,7 +14,39 @@
 import { getAdminUrl, getScriptData } from '@automattic/jetpack-script-data';
 import { tz, TZDateMini } from '@date-fns/tz';
 import { endOfDay, format, startOfDay } from 'date-fns';
-import type { AnalyticsScriptData } from '@automattic/jetpack-script-data';
+
+/**
+ * Analytics dashboard data, published by the Premium Analytics package only on
+ * sites where it *is* the analytics UI. Its absence means the site still runs
+ * the legacy Stats dashboard, which is what `hasAnalyticsDashboard()` reports.
+ */
+interface AnalyticsScriptData {
+	enabled: boolean;
+	page_slug: string;
+
+	/**
+	 * Whether the current user can open the dashboard. False means every
+	 * analytics link should be hidden rather than leading to a capability error.
+	 */
+	can_view: boolean;
+
+	/**
+	 * The site's timezone — an IANA name (`America/New_York`) when one is set,
+	 * otherwise a fixed UTC offset (`+05:30`).
+	 */
+	timezone: string;
+}
+
+/*
+ * Declared here rather than in the script-data package: the key is published by
+ * Premium Analytics and read only by this file, so the package that types the
+ * global does not need to know about it.
+ */
+declare module '@automattic/jetpack-script-data' {
+	interface JetpackScriptData {
+		analytics?: AnalyticsScriptData;
+	}
+}
 
 /**
  * The timestamp format the analytics dashboard writes date-window params in: an
@@ -27,7 +59,7 @@ const ISO_WITH_OFFSET = "yyyy-MM-dd'T'HH:mm:ss.SSSxxx";
  * A range of whole calendar days in the site's timezone, as `YYYY-MM-DD`.
  * Callers pass plain calendar dates; the encoding is owned here.
  */
-export interface AnalyticsDateRange {
+interface AnalyticsDateRange {
 	from: string;
 	to: string;
 }
@@ -35,12 +67,12 @@ export interface AnalyticsDateRange {
 /**
  * A section of the analytics dashboard, in caller-facing vocabulary.
  */
-export type AnalyticsDashboardSection = 'traffic' | 'insights' | 'subscribers' | 'store';
+type AnalyticsDashboardSection = 'traffic' | 'insights' | 'subscribers' | 'store';
 
 /**
  * A tab of the single-post analytics view, in caller-facing vocabulary.
  */
-export type AnalyticsPostSection = 'traffic' | 'email-opens' | 'email-clicks';
+type AnalyticsPostSection = 'traffic' | 'email-opens' | 'email-clicks';
 
 /**
  * An analytics destination, described in terms of what the user should see
@@ -63,17 +95,13 @@ export type AnalyticsView =
 	| { view: 'post'; id: number; section?: AnalyticsPostSection; range?: AnalyticsDateRange };
 
 /**
- * The dashboard's sections, keyed by the neutral section name callers use. The
- * dashboard reads `?section=` as a section *slug* — the segment after the
- * namespace in the server-side registry (`analytics/traffic` is registered,
- * `traffic` is what reaches the URL).
+ * The sections the dashboard accepts. `?section=` takes the *slug* — the segment
+ * after the namespace in the server-side registry, so `analytics/traffic` is
+ * registered and `traffic` is what reaches the URL. Listed rather than mapped
+ * because the two happen to coincide; the list is what rejects an unknown value
+ * arriving from an untyped JS caller.
  */
-const DASHBOARD_SECTIONS: Record< AnalyticsDashboardSection, string > = {
-	traffic: 'traffic',
-	insights: 'insights',
-	subscribers: 'subscribers',
-	store: 'store',
-};
+const DASHBOARD_SECTIONS: readonly string[] = [ 'traffic', 'insights', 'subscribers', 'store' ];
 
 /**
  * The single-post view's tabs, keyed by the neutral section name. Callers say
@@ -86,12 +114,7 @@ const POST_SECTIONS: Record< AnalyticsPostSection, string > = {
 };
 
 /**
- * Reads the `analytics` script data published by the Premium Analytics package.
- *
- * The package only publishes this on sites where it *is* the analytics UI, so
- * its presence is the branch signal.
- *
- * @return The analytics script data, or undefined where it is not the analytics UI.
+ * @return The analytics script data, or undefined where the dashboard is not the analytics UI.
  */
 function getAnalyticsScriptData(): AnalyticsScriptData | undefined {
 	const analytics = getScriptData()?.analytics;
@@ -146,9 +169,8 @@ function encodeDay( day: string, boundary: 'start' | 'end', timezone: string ): 
 			timezone
 		);
 		const at = boundary === 'start' ? startOfDay( midnight ) : endOfDay( midnight );
-		const encoded = format( at, ISO_WITH_OFFSET, { in: tz( timezone ) } );
 
-		return encoded.includes( 'Invalid' ) ? undefined : encoded;
+		return format( at, ISO_WITH_OFFSET, { in: tz( timezone ) } );
 	} catch {
 		// An unusable zone name throws a RangeError out of Intl.
 		return undefined;
@@ -177,21 +199,6 @@ function rangeParams( range: AnalyticsDateRange, timezone: string ): Record< str
 }
 
 /**
- * Builds the internal router path for a view, or undefined when the view has no
- * route.
- *
- * @param view - The requested view.
- * @return The internal path, e.g. `/post/42`.
- */
-function analyticsPath( view: AnalyticsView ): string | undefined {
-	if ( view.view === 'dashboard' ) {
-		return '/';
-	}
-
-	return view.id > 0 ? `/post/${ view.id }` : undefined;
-}
-
-/**
  * Builds the `?section=` param for a view, translating the caller's neutral
  * section name into the slug the matching route reads.
  *
@@ -205,7 +212,7 @@ function analyticsPath( view: AnalyticsView ): string | undefined {
 function analyticsSection( view: AnalyticsView ): Record< string, string > {
 	const section =
 		view.view === 'dashboard'
-			? view.section && DASHBOARD_SECTIONS[ view.section ]
+			? view.section && DASHBOARD_SECTIONS.includes( view.section ) && view.section
 			: view.section && POST_SECTIONS[ view.section ];
 
 	return section ? { section } : {};
@@ -242,7 +249,7 @@ export function getAnalyticsUrl( view: AnalyticsView ): string | null {
 		return null;
 	}
 
-	const path = analyticsPath( view );
+	const path = view.view === 'dashboard' ? '/' : view.id > 0 && `/post/${ view.id }`;
 	if ( ! path ) {
 		return null;
 	}

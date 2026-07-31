@@ -65,14 +65,14 @@ export class DashStats extends Component {
 	 * the Stats page, the link carries the period the bar stands for; the Stats
 	 * deep link it replaces only ever pointed at a single day.
 	 *
-	 * @param {string} date         - The bar's date, as a UTC-midnight ISO string.
-	 * @param {string} unit         - The active chart tab: 'day', 'week', or 'month'.
-	 * @param {string} siteAdminUrl - The site's wp-admin URL.
-	 * @param {string} siteRawUrl   - The site's identifier.
+	 * @param {string} date - The bar's date, as a UTC-midnight ISO string.
+	 * @param {string} unit - The active chart tab: 'day', 'week', or 'month'.
 	 *
 	 * @return {?string} The bar's link, or null when there is nowhere to send the user.
 	 */
-	barLink( date, unit, siteAdminUrl, siteRawUrl ) {
+	barLink( date, unit ) {
+		const { siteAdminUrl, siteRawUrl } = this.props;
+
 		if ( this.shouldLinkToWpcomStats() ) {
 			return getRedirectUrl( `calypso-stats-${ unit }`, {
 				site: siteRawUrl,
@@ -92,7 +92,7 @@ export class DashStats extends Component {
 	}
 
 	statsChart( unit ) {
-		const { siteAdminUrl, siteRawUrl, statsData } = this.props,
+		const { statsData } = this.props,
 			s = [];
 
 		if ( 'object' !== typeof statsData[ unit ] ) {
@@ -144,7 +144,7 @@ export class DashStats extends Component {
 				nestedValue: null,
 				className: 'statsChartbar',
 				data: {
-					link: this.barLink( date, unit, siteAdminUrl, siteRawUrl ),
+					link: this.barLink( date, unit ),
 				},
 				tooltipData: [
 					{

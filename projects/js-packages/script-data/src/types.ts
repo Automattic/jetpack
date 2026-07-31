@@ -51,44 +51,9 @@ export interface UserData {
 	current_user: CurrentUserData;
 }
 
-/**
- * Analytics dashboard data, published by the Premium Analytics package only on
- * sites where it *is* the analytics UI. Its absence means the site still runs
- * the legacy Stats dashboard, so consumers treat presence as the branch signal
- * rather than taking a flag from every caller.
- *
- * Only the shape of the global lives here, which is this package's job. Building
- * URLs from it is the Jetpack plugin's — see `_inc/shared/analytics-url.ts`.
- */
-export interface AnalyticsScriptData {
-	/**
-	 * Whether Premium Analytics is the analytics UI on this site.
-	 */
-	enabled: boolean;
-
-	/**
-	 * The admin page slug hosting the dashboard.
-	 */
-	page_slug: string;
-
-	/**
-	 * Whether the current user can open the dashboard. False means every
-	 * analytics link should be hidden rather than leading to a capability error.
-	 */
-	can_view: boolean;
-
-	/**
-	 * The site's timezone — an IANA name (`America/New_York`) when one is set,
-	 * otherwise a fixed UTC offset (`+05:30`). Used to encode date ranges the way
-	 * the dashboard writes them to its own URL.
-	 */
-	timezone: string;
-}
-
 export interface JetpackScriptData {
 	site: SiteData;
 	user: UserData;
-	analytics?: AnalyticsScriptData;
 }
 
 declare global {
