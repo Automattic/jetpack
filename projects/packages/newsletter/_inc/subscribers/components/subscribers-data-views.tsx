@@ -1,11 +1,15 @@
 import { DataViews } from '@wordpress/dataviews';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import { useMembershipsProducts } from '../data/use-memberships-products';
 import { useSubscriberRemoveMutation } from '../data/use-subscriber-remove-mutation';
 import { useSubscribers } from '../data/use-subscribers';
-import { getSubscribedAt, getSubscriberRowId } from '../lib/subscriber-helpers';
+import {
+	getSubscribedAt,
+	getSubscriberRowId,
+	isSelfOnlySubscriber,
+} from '../lib/subscriber-helpers';
 import { getSubscriptionType } from '../lib/subscription-plans';
 import { getSubscriptionStatusLabel } from '../lib/subscription-status';
 import { recordTracksEvent } from '../lib/tracks';
@@ -44,6 +48,7 @@ type Props = {
 	onAddSubscribers: () => void;
 	onViewSubscriber: ( subscriber: Subscriber ) => void;
 	onSubscribersRemoved: ( removed: Subscriber[] ) => void;
+	onSelfOnlyChange?: ( isSelfOnly: boolean ) => void;
 };
 
 /**
@@ -54,12 +59,14 @@ type Props = {
  * @param props.onAddSubscribers     - Open the Add Subscribers modal (used by the empty-state CTA).
  * @param props.onViewSubscriber     - Callback fired when the View row action is invoked.
  * @param props.onSubscribersRemoved - Callback fired with the rows that were actually removed.
+ * @param props.onSelfOnlyChange     - Reports whether the viewer's own subscription is the only one, so the header can nudge them to add more. Lives here because this is where the list query already runs.
  * @return The DataViews component bound to the subscribers query.
  */
 export default function SubscribersDataViews( {
 	onAddSubscribers,
 	onViewSubscriber,
 	onSubscribersRemoved,
+	onSelfOnlyChange,
 }: Props ): JSX.Element {
 	const [ view, setView ] = useViewState( defaultView );
 	const [ pendingRemoval, setPendingRemoval ] = useState< Subscriber[] >( [] );
@@ -320,6 +327,15 @@ export default function SubscribersDataViews( {
 	const hasActiveFiltersOrSearch = Boolean(
 		( view.filters && view.filters.length > 0 ) || ( view.search && view.search.length > 0 )
 	);
+
+	// Gated on no active filter/search: a one-row filtered result says nothing about the list size.
+	const isSelfOnly =
+		! hasActiveFiltersOrSearch &&
+		isSelfOnlySubscriber( totalItems, data?.is_owner_subscribed ?? false );
+
+	useEffect( () => {
+		onSelfOnlyChange?.( isSelfOnly );
+	}, [ isSelfOnly, onSelfOnlyChange ] );
 
 	const paginationInfo = useMemo(
 		() => ( { totalItems, totalPages } ),

@@ -22,7 +22,11 @@ export type TracksEventName =
 	| 'jetpack_subscribers_remove_comp_confirm'
 	| 'jetpack_subscribers_export_downloaded'
 	| 'jetpack_subscribers_add_question'
-	| 'jetpack_subscribers_empty_view_displayed';
+	| 'jetpack_subscribers_empty_view_displayed'
+	// wp-admin only: the self-only nudge has no Calypso counterpart.
+	| 'jetpack_subscribers_self_only_nudge_displayed'
+	| 'jetpack_subscribers_self_only_nudge_clicked'
+	| 'jetpack_subscribers_self_only_nudge_dismissed';
 
 type Props = Record< string, unknown >;
 

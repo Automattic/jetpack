@@ -124,18 +124,29 @@ export default function SubscribersBody( {
 		[ navigate, search ]
 	);
 
+	// Raised out of the table so the header CTA can carry the nudge — the list query lives down
+	// there, and duplicating it up here would cost a second request.
+	const [ isSelfOnly, setIsSelfOnly ] = useState( false );
+
 	const body = (
 		<>
 			<SubscribersDataViews
 				onAddSubscribers={ openAdd }
 				onViewSubscriber={ handleViewSubscriber }
 				onSubscribersRemoved={ handleSubscribersRemoved }
+				onSelfOnlyChange={ setIsSelfOnly }
 			/>
 			<AddSubscribersModal isOpen={ isAddOpen } onClose={ closeAdd } />
 		</>
 	);
 
-	const actions = <HeaderActions blogId={ blogId } onAddSubscribers={ openAdd } />;
+	const actions = (
+		<HeaderActions
+			blogId={ blogId }
+			onAddSubscribers={ openAdd }
+			showSelfOnlyNudge={ isSelfOnly }
+		/>
+	);
 
 	return <>{ children( { body, actions } ) }</>;
 }

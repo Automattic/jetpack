@@ -1,13 +1,16 @@
 import { DropdownMenu } from '@wordpress/components';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { moreVertical } from '@wordpress/icons';
 import { Button } from '@wordpress/ui';
 import { recordTracksEvent } from '../lib/tracks';
+import SelfOnlyNudge from './self-only-nudge';
 import type { JetpackBlogId } from '../lib/site';
 
 type Props = {
 	blogId: JetpackBlogId | null;
 	onAddSubscribers: () => void;
+	showSelfOnlyNudge?: boolean;
 };
 
 /**
@@ -30,17 +33,28 @@ function getCsvDownloadUrl( blogId: JetpackBlogId ): string | null {
  * Page-header action row — primary "Add subscribers" CTA and a More menu (Download CSV).
  * Page already wraps actions in a Stack with `gap="sm"`, so we don't add an extra wrapper here.
  *
- * @param props                  - Component props.
- * @param props.blogId           - WP.com blog id, used to build the CSV download URL.
- * @param props.onAddSubscribers - Callback to open the Add Subscribers modal (owned by the parent so the empty state can trigger it too).
+ * @param props                   - Component props.
+ * @param props.blogId            - WP.com blog id, used to build the CSV download URL.
+ * @param props.onAddSubscribers  - Callback to open the Add Subscribers modal (owned by the parent so the empty state can trigger it too).
+ * @param props.showSelfOnlyNudge - Whether to point the self-only nudge at the CTA.
  * @return Action row.
  */
-export default function HeaderActions( { blogId, onAddSubscribers }: Props ): JSX.Element {
+export default function HeaderActions( {
+	blogId,
+	onAddSubscribers,
+	showSelfOnlyNudge = false,
+}: Props ): JSX.Element {
+	// Callback ref rather than useRef: the nudge needs a render once the button element exists.
+	const [ ctaAnchor, setCtaAnchor ] = useState< HTMLButtonElement | null >( null );
+
 	return (
 		<>
-			<Button size="compact" onClick={ onAddSubscribers }>
+			<Button size="compact" ref={ setCtaAnchor } onClick={ onAddSubscribers }>
 				{ __( 'Add subscribers', 'jetpack-newsletter' ) }
 			</Button>
+			{ showSelfOnlyNudge && (
+				<SelfOnlyNudge anchor={ ctaAnchor } onAddSubscribers={ onAddSubscribers } />
+			) }
 			<DropdownMenu
 				icon={ moreVertical }
 				label={ __( 'More options', 'jetpack-newsletter' ) }
