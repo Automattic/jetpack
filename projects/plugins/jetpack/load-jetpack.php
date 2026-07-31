@@ -61,6 +61,10 @@ Jetpack_Application_Password_Extras::init();
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-recommendations.php';
 
+// Register Newsletter Mode's REST route on every request. REST API requests are
+// not is_admin(), so this must live outside the admin-only block below.
+\Automattic\Jetpack\Newsletter\Mode::init();
+
 if ( is_admin() ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
 	require_once JETPACK__PLUGIN_DIR . '_inc/lib/debugger.php';

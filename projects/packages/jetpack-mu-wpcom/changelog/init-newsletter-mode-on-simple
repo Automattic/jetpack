@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Newsletter Mode: Initialize the mode on WordPress.com Simple sites, where the Jetpack plugin bootstrap does not run.

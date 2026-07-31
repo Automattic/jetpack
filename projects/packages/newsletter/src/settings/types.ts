@@ -57,6 +57,17 @@ export interface NewsletterScriptData {
 				username: string;
 		  }
 		| false;
+	/**
+	 * Whether Newsletter Mode is available on this site at all (the spike-stage
+	 * feature gate). Bootstrapped from Mode::is_available(). The opt-in toggle is
+	 * only surfaced when this is true.
+	 */
+	modeAvailable: boolean;
+	/**
+	 * Whether Newsletter Mode is switched on for this site. Bootstrapped from
+	 * Mode::is_enabled() in class-settings.php.
+	 */
+	modeEnabled: boolean;
 }
 
 /**

@@ -416,6 +416,16 @@ class Jetpack_Mu_Wpcom {
 			\Automattic\Jetpack\Newsletter\Settings::init();
 		}
 
+		// Initialize Newsletter Mode for the same reason as Settings above: its
+		// REST route and admin hooks are otherwise registered only from
+		// load-jetpack.php, which Simple sites never run — leaving the mode's
+		// endpoint missing there while its settings toggle still rendered.
+		// Everything it registers is inert until the mode is switched on.
+		if ( class_exists( '\Automattic\Jetpack\Newsletter\Mode' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+			\Automattic\Jetpack\Newsletter\Mode::init();
+		}
+
 		// Register the Daily Writing Prompt dashboard widget, which now lives in
 		// the jetpack-newsletter package. Guarded with class_exists for the same
 		// reason as Settings above: mu-wpcom doesn't composer-require the package.
