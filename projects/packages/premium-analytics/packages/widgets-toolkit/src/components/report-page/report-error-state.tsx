@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
+import { Button, EmptyState } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
-import { Button, EmptyState } from '@wordpress/ui';
 /**
  * Internal dependencies
  */

@@ -6,7 +6,7 @@
 /**
  * External dependencies
  */
-import type { DataPointPercentage } from '@automattic/charts';
+import type { DataPointPercentage } from '@jetpack-premium-analytics/externals';
 
 /**
  * Series data shape for bar and line charts (nested array format).

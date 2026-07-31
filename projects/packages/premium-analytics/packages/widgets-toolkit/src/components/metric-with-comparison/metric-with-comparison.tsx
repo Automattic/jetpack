@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Stack } from '@wordpress/ui';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { ComponentProps } from 'react';
 /**
  * Internal dependencies

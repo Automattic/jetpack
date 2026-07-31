@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
+import { Link as UiLink } from '@jetpack-premium-analytics/externals';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { Link } from '@wordpress/route';
-import { Link as UiLink } from '@wordpress/ui';
 
 /**
  * Route search param carrying a row's public URL to the post detail page.
