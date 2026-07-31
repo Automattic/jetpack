@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useStatsSingleVideo } from '@jetpack-premium-analytics/data';
+import { toPostId, useStatsSingleVideo } from '@jetpack-premium-analytics/data';
 import {
 	MetricTileGrid,
 	WidgetRoot,
@@ -40,19 +40,6 @@ const RATE_FORMAT: DataFormat = {
 };
 
 /**
- * Resolve the routed VideoPress attachment ID. Invalid or missing values keep
- * the data query disabled and show the widget's scope-empty descriptor.
- *
- * @param postId - The host-composed `reportParams.post_id` value.
- * @return A positive video ID, or `NaN` when no valid video is selected.
- */
-function toVideoId( postId: string | number | undefined ): number {
-	const parsed = typeof postId === 'number' ? postId : Number.parseInt( postId ?? '', 10 );
-
-	return Number.isInteger( parsed ) && parsed > 0 ? parsed : NaN;
-}
-
-/**
  * Read the selected video scope from WidgetRoot, fetch one `statType=all`
  * range report, and render its server-computed window totals through the
  * shared tile grid.
@@ -61,8 +48,10 @@ function toVideoId( postId: string | number | undefined ): number {
  */
 function VideoDetailHighlightsInner() {
 	const { reportParams } = useWidgetRootContext();
-	const videoId = toVideoId( reportParams.post_id );
-	const hasVideoScope = Number.isInteger( videoId );
+	// The shared resolver returns 0 for an invalid or missing scope, which also
+	// keeps the query's own `enabled` guard off.
+	const videoId = toPostId( reportParams.post_id );
+	const hasVideoScope = videoId > 0;
 	// One `statType=all` request scoped to the page's range (wpcom #229903):
 	// the response carries every metric series plus canonical `total`s over the
 	// requested window, including the play-weighted retention rate the
