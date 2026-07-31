@@ -72,6 +72,9 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 	const [ isEmailSent, setIsEmailSent ] = useState( false );
 	const [ isEmailSending, setIsEmailSending ] = useState( false );
 	const [ error, setError ] = useState( null );
+	const [ recipientEmail, setRecipientEmail ] = useState(
+		() => window?.Jetpack_Editor_Initial_State?.tracksUserData?.email ?? ''
+	);
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 	const { __unstableSaveForPreview } = useDispatch( editorStore );
 	const { tracks } = useAnalytics();
@@ -92,7 +95,7 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 		apiFetch( {
 			path: '/wpcom/v2/send-email-preview/',
 			method: 'POST',
-			data: { id: postId },
+			data: { id: postId, email: recipientEmail?.trim() },
 		} )
 			.then( () => {
 				setIsEmailSending( false );
@@ -134,14 +137,18 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 					<>
 						<p>
 							{ __(
-								'This will send you an email, allowing you to see exactly what your subscribers receive in their inboxes.',
+								'Send a test email to see exactly what your subscribers receive in their inboxes. It defaults to your address, but you can send it to any address you could add as a subscriber.',
 								'jetpack'
 							) }
 						</p>
 						<Grid alignment="bottom" columns={ 2 } gap={ 2 } templateColumns="2fr auto;">
 							<InputControl
-								value={ window?.Jetpack_Editor_Initial_State?.tracksUserData?.email }
-								disabled
+								type="email"
+								value={ recipientEmail }
+								onChange={ value => setRecipientEmail( value ?? '' ) }
+								disabled={ isEmailSending }
+								label={ __( 'Recipient email address', 'jetpack' ) }
+								hideLabelFromVision
 								__next40pxDefaultSize={ true }
 							/>
 							<Button

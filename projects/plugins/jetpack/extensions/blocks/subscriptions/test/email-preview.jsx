@@ -133,3 +133,61 @@ describe( 'Email preview connection errors', () => {
 		).not.toBeInTheDocument();
 	} );
 } );
+
+describe( 'Test email recipient', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		mockIsUserConnected = true;
+		useSelect.mockImplementation( () => 123 );
+		useDispatch.mockReturnValue( {
+			__unstableSaveForPreview: jest.fn().mockResolvedValue( undefined ),
+		} );
+		window.Jetpack_Editor_Initial_State = { tracksUserData: { email: 'author@example.com' } };
+	} );
+
+	afterEach( () => {
+		delete window.Jetpack_Editor_Initial_State;
+	} );
+
+	it( 'prefills the recipient field with the current user email', () => {
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		expect( screen.getByRole( 'textbox' ) ).toHaveValue( 'author@example.com' );
+	} );
+
+	it( 'sends to an edited recipient address', async () => {
+		const user = userEvent.setup();
+		apiFetch.mockResolvedValue( undefined );
+
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		const field = screen.getByRole( 'textbox' );
+		await user.clear( field );
+		await user.type( field, 'friend@example.com' );
+		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
+
+		expect( apiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				path: '/wpcom/v2/send-email-preview/',
+				method: 'POST',
+				data: { id: 123, email: 'friend@example.com' },
+			} )
+		);
+	} );
+
+	it( 'surfaces the guard message when a non-self recipient is rejected', async () => {
+		const user = userEvent.setup();
+		apiFetch.mockRejectedValue( {
+			code: 'send_email_preview_forbidden_recipient',
+			message: 'You are not allowed to send a test email to another address on this site.',
+		} );
+
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
+
+		await expect(
+			screen.findByText( /not allowed to send a test email/ )
+		).resolves.toBeInTheDocument();
+	} );
+} );
