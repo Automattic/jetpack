@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Post detail: align card titles with the design mocks (Locations, Platforms, Clients, UTM) and drop the map from the Email clicks Locations card.
+Post detail: align cards with the design mocks — plain Locations/Platforms/Clients/UTM titles, per-card icons, a three-column highlights row, and no map on the Email clicks Locations card.

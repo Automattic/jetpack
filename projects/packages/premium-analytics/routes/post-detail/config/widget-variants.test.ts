@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { link, mapMarker, megaphone, desktop, seen } from '@wordpress/icons';
+/**
  * Internal dependencies
  */
 import { POST_DETAIL_WIDGET_TYPE_ALIASES } from './widget-variants';
@@ -22,6 +26,27 @@ describe( 'post detail widget type aliases', () => {
 			'jpa/email-breakdown--clients-clicks': 'Clients',
 			'jpa/email-breakdown--top-links': 'Top links',
 			'jpa/utm-insights--utm': 'UTM',
+		} );
+	} );
+
+	it( 'gives every variant its design-mock icon, inheriting the base icon when unset', () => {
+		const icons = Object.fromEntries(
+			POST_DETAIL_WIDGET_TYPE_ALIASES.flatMap( ( { variants } ) =>
+				variants.map( variant => [ variant.name, variant.icon ] )
+			)
+		);
+
+		expect( icons ).toEqual( {
+			'jpa/email-time-series--total-opens': seen,
+			'jpa/email-time-series--total-clicks': link,
+			'jpa/email-breakdown--location-opens': mapMarker,
+			'jpa/email-breakdown--platforms-opens': desktop,
+			'jpa/email-breakdown--clients-opens': undefined,
+			'jpa/email-breakdown--location-clicks': mapMarker,
+			'jpa/email-breakdown--platforms-clicks': desktop,
+			'jpa/email-breakdown--clients-clicks': undefined,
+			'jpa/email-breakdown--top-links': link,
+			'jpa/utm-insights--utm': megaphone,
 		} );
 	} );
 

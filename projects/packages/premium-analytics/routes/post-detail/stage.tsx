@@ -83,6 +83,7 @@ function PostDetail(): JSX.Element {
 						...base,
 						name: variant.name,
 						title: variant.getTitle(),
+						...( variant.icon ? { icon: variant.icon } : {} ),
 				  } ) )
 				: [];
 		} );
