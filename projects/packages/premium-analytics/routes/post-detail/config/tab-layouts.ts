@@ -13,8 +13,10 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 	'post-traffic': [
 		{
 			uuid: 'post-detail-highlights',
+			// Three quarter-width tiles with the last column left empty, per the
+			// design mocks — unlike the email highlights rows, which span all four.
 			type: 'jpa/post-detail-highlights',
-			placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
+			placement: { width: 3, height: 1, order: 1 },
 		},
 		{
 			uuid: 'post-views',
@@ -38,7 +40,9 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 		},
 		{
 			uuid: 'post-utm',
-			type: 'jpa/utm-insights',
+			// The alias carries the mock's "UTM" card title; the registry's
+			// global "UTM Insights" title is owned by the copy spreadsheet work.
+			type: 'jpa/utm-insights--utm',
 			// Detail-page widgets carry no "See report" action per the design
 			// mocks — the post detail page is itself the terminal page, and the
 			// site-wide UTM report would silently drop this post's scope.
@@ -105,8 +109,9 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 		},
 		{
 			uuid: 'email-clicks-countries',
+			// Plain leaderboard per the design mocks — no map beside it.
 			type: 'jpa/email-breakdown--location-clicks',
-			attributes: { view: 'countries', metric: 'clicks', max: 7, showMap: true },
+			attributes: { view: 'countries', metric: 'clicks', max: 8 },
 			placement: { width: 2, height: 2, order: 5 },
 		},
 		{
