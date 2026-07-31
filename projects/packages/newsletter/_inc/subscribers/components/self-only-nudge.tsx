@@ -89,14 +89,16 @@ export default function SelfOnlyNudge( { anchor }: Props ): JSX.Element | null {
 			onClose={ handleClose }
 			className="jetpack-newsletter-self-only-nudge"
 		>
-			<Stack direction="row" align="top" gap="sm">
-				<Stack direction="column" gap="xs">
-					<Text variant="heading-md">
+			{ /* `align` maps straight onto `align-items`, so it needs a real CSS value — "top" is
+			     silently dropped and the close button stretches to full height. */ }
+			<Stack direction="row" align="flex-start" justify="space-between" gap="sm">
+				<Stack direction="column" gap="sm">
+					<Text variant="heading-lg">
 						{ __( 'Every newsletter starts at one', 'jetpack-newsletter' ) }
 					</Text>
 					<Text variant="body-sm">
 						{ __(
-							'Yours is no exception. Add a few people who already know you — friends, family, coworkers — and they’ll get your next post.',
+							'Yours is no exception. Add a few people who already know you: friends, family, coworkers. They’ll get your next post.',
 							'jetpack-newsletter'
 						) }
 					</Text>
