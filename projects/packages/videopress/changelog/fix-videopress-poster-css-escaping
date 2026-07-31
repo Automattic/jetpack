@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: improve escaping of block attributes rendered into inline styles.

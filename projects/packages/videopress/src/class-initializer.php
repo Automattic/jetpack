@@ -244,9 +244,17 @@ class Initializer {
 
 		// Inline style.
 		$style     = '';
-		$max_width = $block_attributes['maxWidth'] ?? null;
+		$max_width = isset( $block_attributes['maxWidth'] ) && is_string( $block_attributes['maxWidth'] )
+			? trim( $block_attributes['maxWidth'] )
+			: '';
 
-		if ( $max_width && $max_width !== '100%' ) {
+		// maxWidth is rendered into an inline style. Accept only a plain CSS length
+		// or percentage so the value stays a single, well-formed declaration;
+		// anything else is dropped and the block renders at full width (as with the
+		// "100%" default).
+		if ( '' !== $max_width && '100%' !== $max_width
+			&& preg_match( '/^\d+(\.\d+)?(px|%|em|rem|vw|vh|vmin|vmax|ch|ex|cm|mm|in|pt|pc|q)$/i', $max_width )
+		) {
 			$style    = sprintf( 'max-width: %s;', $max_width );
 			$classes .= ' wp-block-jetpack-videopress--has-max-width';
 		}
@@ -309,10 +317,18 @@ class Initializer {
 			// Create inline style in case video has a custom poster.
 			$inline_style = '';
 			if ( $poster ) {
-				$inline_style = sprintf(
-					'style="background-image: url(%s); background-size: cover; background-position: center center;"',
-					esc_attr( $poster )
-				);
+				// Emit the poster URL as a double-quoted CSS string so it stays
+				// contained within url(). esc_url() does not escape every character
+				// that is significant in a CSS url() context, so quoting keeps the
+				// value from affecting the surrounding style. esc_url() has already
+				// removed " and \, so the quoted string cannot be closed early.
+				$poster_url = esc_url( $poster );
+				if ( $poster_url ) {
+					$inline_style = sprintf(
+						'style="background-image: url(&quot;%s&quot;); background-size: cover; background-position: center center;"',
+						$poster_url
+					);
+				}
 			}
 
 			// Expose the preview on hover data to the client.

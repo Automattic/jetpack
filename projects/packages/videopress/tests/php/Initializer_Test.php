@@ -269,4 +269,46 @@ class Initializer_Test extends BaseTestCase {
 			'Active-module VideoPress route should register on rest_api_init via the active_initialization deferral block.'
 		);
 	}
+
+	/**
+	 * The preview-on-hover overlay renders the poster URL into a CSS url(). It is
+	 * emitted as a double-quoted CSS string so an arbitrary URL stays contained
+	 * within url() and does not affect the surrounding style.
+	 */
+	public function test_preview_on_hover_poster_url_is_quoted_in_css() {
+		// A value with characters esc_url() leaves intact but that are significant
+		// in a CSS url() context.
+		$value = 'https://example.test/a);b:c';
+
+		$html = $this->render(
+			array(
+				'posterData' => array(
+					'url'                 => $value,
+					'previewOnHover'      => true,
+					'previewAtTime'       => 0,
+					'previewLoopDuration' => 5000,
+				),
+			)
+		);
+
+		// The value is emitted inside a single double-quoted CSS string...
+		$this->assertStringContainsString( 'url(&quot;' . esc_url( $value ) . '&quot;)', $html );
+		// ...and never as a bare, unquoted url() argument.
+		$this->assertStringNotContainsString( 'background-image: url(https', $html );
+	}
+
+	/**
+	 * The maxWidth block attribute is rendered into an inline style, so only a
+	 * plain CSS length or percentage is applied; any other value is dropped.
+	 */
+	public function test_max_width_only_accepts_css_lengths() {
+		// A value that is not a plain length/percentage is dropped, not rendered.
+		$other = $this->render( array( 'maxWidth' => '10px;color:red' ) );
+		$this->assertStringNotContainsString( 'color:red', $other );
+		$this->assertStringNotContainsString( 'max-width: 10px;color', $other );
+
+		// A well-formed length still applies.
+		$valid = $this->render( array( 'maxWidth' => '400px' ) );
+		$this->assertStringContainsString( 'max-width: 400px;', $valid );
+	}
 }
