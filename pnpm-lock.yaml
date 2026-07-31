@@ -5860,6 +5860,9 @@ importers:
 
   projects/plugins/jetpack:
     dependencies:
+      '@automattic/calypso-color-schemes':
+        specifier: 4.0.0
+        version: 4.0.0
       '@automattic/format-currency':
         specifier: 1.0.1
         version: 1.0.1
