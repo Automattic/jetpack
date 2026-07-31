@@ -109,7 +109,9 @@ class Mode_Flag_Test extends BaseTestCase {
 	 */
 	private function reset_initialized_state() {
 		$initialized = new \ReflectionProperty( Mode::class, 'initialized' );
-		$initialized->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$initialized->setAccessible( true );
+		}
 		$initialized->setValue( null, false );
 	}
 }
