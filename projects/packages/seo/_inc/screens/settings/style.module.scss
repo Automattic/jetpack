@@ -36,10 +36,11 @@
 
 // The "while it's off" list in the Advanced module. Body text, not the muted
 // explainer style — these are consequences to read, not hints about a field.
-// The marker is drawn here rather than left to `list-style`: wp-admin strips
-// list markers inside the admin content area from a selector we can't see from
-// this repo, so there's no knowing what specificity we'd need to beat. Drawing
-// the bullet takes the question off the table and lets it align to the text.
+// wp-admin's `ul { list-style: none; }` (common.css) strips the markers. It's
+// a bare-element selector, so this class would out-specify it — but the
+// marker is drawn with a `::before` instead, because `::marker` accepts only a
+// short list of properties and positioning isn't among them. Drawing it gives
+// the bullet its own size, colour and optical offset against the first line.
 .effects {
 	margin: 0;
 	padding: 0;

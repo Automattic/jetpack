@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 
 // True-ESM Jest (`--experimental-vm-modules`): register the mock with
 // `jest.unstable_mockModule`, then import the card dynamically. Stubbing the
@@ -46,13 +46,39 @@ describe( 'AdvancedCard', () => {
 		expect( screen.queryByRole( 'button', { name: toggleName } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'names the setting inside the module', () => {
+	it( 'names the setting inside the module, in the heading outline', () => {
 		render( <AdvancedCard /> );
 		expandCard();
 
 		// "Advanced" names the group, not what's in it, so the setting says what it is.
 		const subtitle = screen.getByText( 'Disable Jetpack’s SEO tools' );
 		expect( subtitle.className ).toMatch( /heading-md/ );
+		// A real `h3` under the card's `h2`: `Text` renders a `<span>` by default, which
+		// would leave heading navigation with "Advanced" and nothing beneath it.
+		expect( subtitle.tagName ).toBe( 'H3' );
+		expect(
+			screen.getByRole( 'heading', { level: 3, name: /Disable Jetpack’s SEO tools/ } )
+		).toBeInTheDocument();
+	} );
+
+	it( 'introduces the consequence list as a list', () => {
+		render( <AdvancedCard /> );
+		expandCard();
+
+		// The lead-in shares the sub-heading treatment, so it doesn't render smaller
+		// than the list it introduces (`heading-sm` is the 11px uppercase field label).
+		expect( screen.getByText( 'While it’s off:' ).className ).toMatch( /heading-md/ );
+
+		// The explicit `role="list"` is asserted as an attribute, not via `getByRole`:
+		// a `<ul>` carries the role implicitly in jsdom, so a role query passes either
+		// way. It's there because `.effects` sets `list-style: none` to draw its own
+		// bullets, and Safari/VoiceOver drops list semantics from a list styled that
+		// way — a browser behaviour jsdom doesn't model, so the attribute is all we can
+		// pin here. (The class name isn't assertable at all: jest stubs CSS-module
+		// names to an empty string.)
+		const list = screen.getByRole( 'list' );
+		expect( list ).toHaveAttribute( 'role', 'list' );
+		expect( within( list ).getAllByRole( 'listitem' ) ).toHaveLength( 3 );
 	} );
 
 	it( 'spells out what stops, including the front-end output', () => {
@@ -103,9 +129,15 @@ describe( 'AdvancedCard', () => {
 
 		// `@wordpress/ui`'s Button stays focusable when disabled, so it reports
 		// `aria-disabled` rather than the native attribute.
-		expect( screen.getByRole( 'button', { name: toggleName } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
+		const button = screen.getByRole( 'button', { name: toggleName } );
+		expect( button ).toHaveAttribute( 'aria-disabled', 'true' );
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
+		fireEvent.click( button );
+		expect( setActive ).not.toHaveBeenCalled();
+
+		// Asserted separately from `disabled`: Button falls back to `disabled ?? loading`,
+		// so `aria-disabled` alone would still pass with the busy affordance dropped.
+		expect( button.className ).toMatch( /is-loading/ );
 	} );
 } );

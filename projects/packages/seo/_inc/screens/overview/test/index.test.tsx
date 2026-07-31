@@ -26,25 +26,6 @@ const { default: OverviewScreen } = await import( '../index' );
 const OFF_RAMP_TEXT = 'Using a different SEO solution?';
 
 /**
- * Flip the dashboard into WordPress.com Simple mode by seeding the
- * `JetpackScriptData` global that `isSimpleSite()` reads. Mirrors VideoPress's
- * `setSimpleSite()` test util — seeding the real global rather than mocking the
- * module keeps `isSimpleSite()` itself in the code path under test.
- */
-const setSimpleSite = () => {
-	( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
-		site: { host: 'wpcom' },
-	};
-};
-
-/**
- * Remove the script-data global so the test runs in self-hosted mode.
- */
-const unsetSimpleSite = () => {
-	delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
-};
-
-/**
  * Build an Overview payload with SEO tools active.
  *
  * @return The Overview payload.
@@ -80,24 +61,22 @@ describe( 'OverviewScreen', () => {
 		getOverview.mockReturnValue( buildOverview() );
 	} );
 
-	afterEach( () => {
-		unsetSimpleSite();
-	} );
-
 	it( 'no longer carries the disable-SEO off-ramp', () => {
 		// It moved to the Advanced module at the foot of Settings, where it can carry
 		// the context explaining what turning SEO tools off actually stops.
 		render( <OverviewScreen /> );
 
 		expect( screen.queryByText( OFF_RAMP_TEXT ) ).not.toBeInTheDocument();
+		// Queried against the strings the Advanced module actually uses, so putting the
+		// control back on this screen fails here. The old wording no longer exists
+		// anywhere, which would have made this assertion unfalsifiable.
 		expect(
-			screen.queryByRole( 'button', { name: /Disable Jetpack SEO tools/ } )
+			screen.queryByRole( 'button', { name: 'Disable Jetpack SEO' } )
 		).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Disable Jetpack’s SEO tools' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'renders its cards on WordPress.com Simple', () => {
-		setSimpleSite();
-
+	it( 'renders its cards', () => {
 		render( <OverviewScreen /> );
 
 		expect( screen.getByText( 'Site visibility' ) ).toBeInTheDocument();

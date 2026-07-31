@@ -42,8 +42,17 @@ const AdvancedCard: FC = () => {
 					<Stack direction="column" gap="sm">
 						{ /* Names the setting, since "Advanced" names the group rather than what
 						     is in it. `heading-md` is the sub-heading treatment — `heading-sm`
-						     would be 11px uppercase, which is the field-label role. */ }
-						<Text variant="heading-md">{ __( 'Disable Jetpack’s SEO tools', 'jetpack-seo' ) }</Text>
+						     would be 11px uppercase, which is the field-label role.
+
+						     A real `h3` under the card's `h2`, so the setting has a name in the
+						     heading outline: `Text` defaults to a `<span>`, which would leave a
+						     screen-reader user navigating by heading with "Advanced" and nothing
+						     under it. Renders identically — `Text` always applies both the `p` and
+						     the heading global-CSS defenses, and every variant defines
+						     `--_gcd-heading-font-size` next to `--_gcd-p-font-size`. */ }
+						<Text variant="heading-md" render={ <h3 /> }>
+							{ __( 'Disable Jetpack’s SEO tools', 'jetpack-seo' ) }
+						</Text>
 						{ /* Body copy, not the muted `body-sm` explainer style: the small light
 						     treatment is for hints attached to a field, and this is the module's
 						     own prose. Same for the list and the closing line below. */ }
@@ -68,7 +77,11 @@ const AdvancedCard: FC = () => {
 						{ /* Each item goes through `Text` so it carries the same typography as
 						     the paragraphs around it, rather than inheriting whatever wp-admin
 						     gives a bare `li`. */ }
-						<ul className={ styles.effects }>
+						{ /* `role="list"` because `.effects` sets `list-style: none` to draw its
+						     own bullets, and Safari/VoiceOver drops list semantics from a list
+						     styled that way — losing the "3 items" cue that tells someone there's
+						     a finite set of consequences to hear out. */ }
+						<ul className={ styles.effects } role="list">
 							<Text variant="body-md" render={ <li /> }>
 								{ __(
 									'These settings become unavailable — titles, descriptions, sitemap, verification and schema.',
@@ -101,6 +114,7 @@ const AdvancedCard: FC = () => {
 						<Button
 							onClick={ () => setActive( false ) }
 							loading={ isToggling }
+							loadingAnnouncement={ __( 'Disabling SEO tools…', 'jetpack-seo' ) }
 							disabled={ isToggling }
 						>
 							{ __( 'Disable Jetpack SEO', 'jetpack-seo' ) }
