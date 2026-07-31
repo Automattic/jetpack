@@ -513,7 +513,7 @@ describe( 'download slot watchdog', () => {
 		}
 	} );
 
-	it( 'releases each slot exactly once when downloads settle normally', async () => {
+	it( 'cancels the watchdog when a download settles normally', async () => {
 		mock.timers.enable( { apis: [ 'setTimeout' ] } );
 		try {
 			installLoader( () => Promise.resolve() );
@@ -526,15 +526,49 @@ describe( 'download slot watchdog', () => {
 			await flush();
 			await boot;
 
-			// Every watchdog now fires against an already-released slot. A
-			// second release would drive `active` negative and let the next
-			// burst exceed the concurrency cap.
+			// `clearTimeout` is mocked alongside `setTimeout`, so this tick
+			// proves the watchdogs were cancelled rather than merely silent:
+			// an uncancelled one would warn about a download that finished.
 			mock.timers.tick( 30000 );
 			await flush();
 
-			assert.equal( parkedState().active, 0, 'no slot is released twice' );
+			assert.equal( parkedState().active, 0, 'every slot is handed back' );
 			assert.equal( parkedState().queue.length, 0, 'nothing is left queued' );
 			assert.deepEqual( warnings, [], 'a normal download trips no warning' );
+		} finally {
+			mock.timers.reset();
+		}
+	} );
+
+	it( 'ignores a stalled download that settles after its watchdog freed the slot', async () => {
+		mock.timers.enable( { apis: [ 'setTimeout' ] } );
+		try {
+			const resolvers = [];
+			const calls = installLoader( () => new Promise( resolve => resolvers.push( resolve ) ) );
+			installFetch( {
+				bundles: Array.from( { length: 7 }, ( _, i ) => `build/routes/r${ i }/content.js` ),
+			} );
+			const { loadI18nCatalogs } = await import( HELPER );
+
+			loadI18nCatalogs( 'jetpack-test', MODULE_URL );
+			await flush();
+			assert.equal( calls.length, 6, 'the queue starts at the concurrency cap' );
+
+			// The six watchdogs fire and hand their slots back; the seventh
+			// download takes one of them.
+			mock.timers.tick( 30000 );
+			await flush();
+			assert.equal( calls.length, 7, 'the queued download runs once a slot is freed' );
+			assert.equal( parkedState().active, 1, 'only the seventh download still holds a slot' );
+
+			// The stalled origin finally answers. Each of those six downloads
+			// now runs its `finally` against a slot the watchdog already
+			// released — releasing a second time would drive `active` negative
+			// and let the next burst run over the concurrency cap.
+			resolvers.slice( 0, 6 ).forEach( resolve => resolve() );
+			await flush();
+
+			assert.equal( parkedState().active, 1, 'a late settle does not release the slot twice' );
 		} finally {
 			mock.timers.reset();
 		}
