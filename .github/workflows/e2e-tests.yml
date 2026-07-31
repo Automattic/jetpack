@@ -161,7 +161,10 @@ jobs:
     if: >
       always() && ! cancelled() && ! failure() &&
       needs.create-test-matrix.result == 'success' && needs.create-test-matrix.outputs.matrix != '[]'
-    timeout-minutes: 25 # 2025-11-20: These can vary dramatically, but most runs are 3-10 minutes.
+    timeout-minutes: ${{ matrix.timeoutMinutes || 25 }} # AI suites can take longer; most suites finish in 3-10 minutes.
+    # Connected AI suites depend on a shared external service and remain informational until their
+    # quota is provisioned independently from developer accounts.
+    continue-on-error: ${{ matrix.experimental || false }}
     env:
       WP_DEBUG_PATH: '${{ github.workspace }}/tools/docker/wordpress/wp-content/debug.log'
       # Used in tests for enhanced reporting of global projects. The WordPress version is part of the
@@ -413,5 +416,4 @@ jobs:
           playwright_report_path: test-output/**/summary.json
           playwright_output_dir: test-output/**/results
           rules_configuration_path: .github/files/e2e-tests/notification-rules.json
-
 
