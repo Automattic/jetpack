@@ -31,6 +31,10 @@ const READER_CHAT_ASSET_FAILURE_CACHE_TTL = 5 * MINUTE_IN_SECONDS;
  * Handles loading the reader chat UI on the frontend.
  */
 class Jetpack_Reader_Chat {
+	// Keep these limits in sync with Search\REST_Controller.
+	private const BRAND_FONT_FAMILIES = array( 'site', 'rounded', 'serif' );
+	private const BRAND_FONT_SIZE_MIN = 13;
+	private const BRAND_FONT_SIZE_MAX = 18;
 
 	/**
 	 * Initialize hooks.
@@ -100,9 +104,15 @@ class Jetpack_Reader_Chat {
 				'description'       => __( 'Site Chat brand overrides for this site.', 'jetpack' ),
 				'sanitize_callback' => array( __CLASS__, 'sanitize_brand_option' ),
 				'default'           => array(
-					'name'     => '',
-					'accent'   => '',
-					'greeting' => '',
+					'name'       => '',
+					'accent'     => '',
+					'greeting'   => '',
+					'help'       => '',
+					'background' => '',
+					'text'       => '',
+					'outline'    => '',
+					'fontFamily' => '',
+					'fontSize'   => 0,
 				),
 			)
 		);
@@ -117,15 +127,18 @@ class Jetpack_Reader_Chat {
 	 * @return array Sanitized brand overrides.
 	 */
 	public static function sanitize_brand_option( $value ): array {
-		$value  = is_array( $value ) ? $value : array();
-		$accent = isset( $value['accent'] ) && is_string( $value['accent'] )
-			? sanitize_hex_color( $value['accent'] )
-			: '';
+		$value = is_array( $value ) ? $value : array();
 
 		return array(
-			'name'     => self::sanitize_brand_text( $value['name'] ?? '', 40 ),
-			'accent'   => $accent ?: '',
-			'greeting' => self::sanitize_brand_text( $value['greeting'] ?? '', 120 ),
+			'name'       => self::sanitize_brand_text( $value['name'] ?? '', 40 ),
+			'accent'     => self::sanitize_brand_color( $value['accent'] ?? '' ),
+			'greeting'   => self::sanitize_brand_text( $value['greeting'] ?? '', 120 ),
+			'help'       => self::sanitize_brand_text( $value['help'] ?? '', 160 ),
+			'background' => self::sanitize_brand_color( $value['background'] ?? '' ),
+			'text'       => self::sanitize_brand_color( $value['text'] ?? '' ),
+			'outline'    => self::sanitize_brand_color( $value['outline'] ?? '' ),
+			'fontFamily' => self::sanitize_brand_font_family( $value['fontFamily'] ?? '' ),
+			'fontSize'   => self::sanitize_brand_font_size( $value['fontSize'] ?? 0 ),
 		);
 	}
 
@@ -134,7 +147,8 @@ class Jetpack_Reader_Chat {
 	 *
 	 * Stored overrides win per field. Empty or invalid overrides fall back to
 	 * values derived from the current site and theme. Keys without a value are
-	 * omitted so the client can retain its existing fallback behavior.
+	 * omitted so the client can retain its existing fallback behavior. The
+	 * Calypso Reader Chat bootstrap consumes these keys as readerBrand.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -178,6 +192,28 @@ class Jetpack_Reader_Chat {
 		}
 		$brand['greeting'] = $greeting;
 
+		$help = self::sanitize_brand_text( $stored_brand['help'] ?? '', 160 );
+		if ( '' !== $help ) {
+			$brand['help'] = $help;
+		}
+
+		foreach ( array( 'background', 'text', 'outline' ) as $color_field ) {
+			$color = self::sanitize_brand_color( $stored_brand[ $color_field ] ?? '' );
+			if ( '' !== $color ) {
+				$brand[ $color_field ] = $color;
+			}
+		}
+
+		$font_family = self::sanitize_brand_font_family( $stored_brand['fontFamily'] ?? '' );
+		if ( '' !== $font_family ) {
+			$brand['fontFamily'] = $font_family;
+		}
+
+		$font_size = self::sanitize_brand_font_size( $stored_brand['fontSize'] ?? 0 );
+		if ( 0 !== $font_size ) {
+			$brand['fontSize'] = $font_size;
+		}
+
 		return $brand;
 	}
 
@@ -209,12 +245,15 @@ class Jetpack_Reader_Chat {
 					continue;
 				}
 
-				$slug     = isset( $color['slug'] ) && is_string( $color['slug'] )
+				$slug = isset( $color['slug'] ) && is_string( $color['slug'] )
 					? sanitize_key( $color['slug'] )
 					: '';
-				$name     = self::sanitize_brand_text( $color['name'] ?? '', 80 );
+				$name = self::sanitize_brand_text( $color['name'] ?? '', 80 );
+				if ( '' === $name ) {
+					$name = '' !== $slug ? $slug : $hex;
+				}
 				$colors[] = array(
-					'name'  => $name ?: ( $slug ?: $hex ),
+					'name'  => $name,
 					'slug'  => $slug,
 					'color' => $hex,
 				);
@@ -393,6 +432,48 @@ class Jetpack_Reader_Chat {
 	}
 
 	/**
+	 * Sanitize a Reader Chat color override.
+	 *
+	 * @param mixed $value Color value.
+	 * @return string Sanitized hex color, or an empty string.
+	 */
+	private static function sanitize_brand_color( $value ): string {
+		if ( ! is_string( $value ) ) {
+			return '';
+		}
+
+		$color = sanitize_hex_color( $value );
+
+		return $color ? $color : '';
+	}
+
+	/**
+	 * Sanitize a Reader Chat font-family preset.
+	 *
+	 * @param mixed $value Font-family preset.
+	 * @return string Sanitized preset, or an empty string for the default.
+	 */
+	private static function sanitize_brand_font_family( $value ): string {
+		return is_string( $value ) && in_array( $value, self::BRAND_FONT_FAMILIES, true )
+			? $value
+			: '';
+	}
+
+	/**
+	 * Sanitize a Reader Chat base font size.
+	 *
+	 * @param mixed $value Font size in pixels.
+	 * @return int Sanitized size, or zero for the default.
+	 */
+	private static function sanitize_brand_font_size( $value ): int {
+		$value = is_numeric( $value ) ? (int) $value : 0;
+
+		return $value >= self::BRAND_FONT_SIZE_MIN && $value <= self::BRAND_FONT_SIZE_MAX
+			? $value
+			: 0;
+	}
+
+	/**
 	 * Get the global theme palette settings used for brand derivation.
 	 *
 	 * @return array Palette settings grouped by origin.
@@ -426,7 +507,8 @@ class Jetpack_Reader_Chat {
 				foreach ( $palette_settings[ $origin ] as $color ) {
 					if (
 						! is_array( $color )
-						|| ! isset( $color['slug'], $color['color'] )
+						|| ! isset( $color['slug'] )
+						|| ! isset( $color['color'] )
 						|| $target_slug !== $color['slug']
 						|| ! is_string( $color['color'] )
 					) {

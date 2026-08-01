@@ -4,26 +4,33 @@
 /* eslint-disable testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package; fireEvent is intentional. */
 jest.mock( '@wordpress/components', () => ( {
 	__esModule: true,
-	Button: ( { children, disabled, onClick } ) => (
-		<button disabled={ disabled } onClick={ onClick }>
+	Button: ( { 'aria-label': ariaLabel, children, disabled, onClick } ) => (
+		<button aria-label={ ariaLabel } disabled={ disabled } onClick={ onClick }>
 			{ children }
 		</button>
 	),
-	ColorPalette: ( { 'aria-label': ariaLabel, colors, onChange, value } ) => (
-		<div aria-label={ ariaLabel } data-value={ value }>
-			<label htmlFor="reader-chat-custom-accent">
-				Custom accent color
-				<input
-					id="reader-chat-custom-accent"
-					value={ value }
-					onChange={ event => onChange( event.target.value ) }
-				/>
-			</label>
-			{ colors.map( color => (
-				<button key={ color.slug } onClick={ () => onChange( color.color ) }>
-					{ color.name }
-				</button>
-			) ) }
+	ColorIndicator: ( { colorValue } ) => <span data-color={ colorValue } />,
+	ColorPalette: ( { 'aria-label': ariaLabel, colors, onChange, value } ) => {
+		const id = `reader-chat-custom-${ ariaLabel.toLowerCase() }`;
+
+		return (
+			<div aria-label={ ariaLabel } data-value={ value }>
+				<label htmlFor={ id }>
+					{ `Custom ${ ariaLabel.toLowerCase() } color` }
+					<input id={ id } value={ value } onChange={ event => onChange( event.target.value ) } />
+				</label>
+				{ colors.map( color => (
+					<button key={ color.slug } onClick={ () => onChange( color.color ) }>
+						{ color.name }
+					</button>
+				) ) }
+			</div>
+		);
+	},
+	Dropdown: ( { renderContent, renderToggle } ) => (
+		<div>
+			{ renderToggle( { isOpen: true, onToggle: jest.fn() } ) }
+			{ renderContent() }
 		</div>
 	),
 	ExternalLink: ( { children, className, href } ) => (
@@ -52,7 +59,48 @@ jest.mock( '@wordpress/components', () => ( {
 			</>
 		);
 	},
-	TextControl: ( { disabled, label, maxLength, onBlur, onChange, placeholder, value } ) => {
+	RangeControl: ( { disabled, help, label, max, min, onChange, value } ) => {
+		const id = `reader-chat-${ label.toLowerCase().replaceAll( ' ', '-' ) }`;
+
+		return (
+			<>
+				<label htmlFor={ id }>{ label }</label>
+				<input
+					id={ id }
+					type="range"
+					disabled={ disabled }
+					max={ max }
+					min={ min }
+					onChange={ event => onChange( Number( event.target.value ) ) }
+					value={ value }
+				/>
+				{ help && <p>{ help }</p> }
+			</>
+		);
+	},
+	SelectControl: ( { disabled, help, label, onChange, options, value } ) => {
+		const id = `reader-chat-${ label.toLowerCase().replaceAll( ' ', '-' ) }`;
+
+		return (
+			<>
+				<label htmlFor={ id }>{ label }</label>
+				<select
+					id={ id }
+					disabled={ disabled }
+					onChange={ event => onChange( event.target.value ) }
+					value={ value }
+				>
+					{ options.map( option => (
+						<option key={ option.value } value={ option.value }>
+							{ option.label }
+						</option>
+					) ) }
+				</select>
+				{ help && <p>{ help }</p> }
+			</>
+		);
+	},
+	TextControl: ( { disabled, help, label, maxLength, onBlur, onChange, placeholder, value } ) => {
 		const id = `reader-chat-${ label.toLowerCase().replaceAll( ' ', '-' ) }`;
 
 		return (
@@ -67,6 +115,7 @@ jest.mock( '@wordpress/components', () => ( {
 					placeholder={ placeholder }
 					value={ value }
 				/>
+				{ help && <p>{ help }</p> }
 			</>
 		);
 	},
@@ -104,7 +153,7 @@ jest.mock( 'store', () => ( {
 	STORE_ID: 'jetpack-search-plugin',
 } ) );
 
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import ReaderChatControl from '../index.jsx';
 
 const defaultProps = {
@@ -114,15 +163,22 @@ const defaultProps = {
 	guidelinesUrl: 'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin',
 	updateOptions: jest.fn(),
 };
+const emptyBrand = {
+	name: '',
+	accent: '',
+	greeting: '',
+	help: '',
+	background: '',
+	text: '',
+	outline: '',
+	fontFamily: '',
+	fontSize: 0,
+};
 
 describe( 'ReaderChatControl', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		mockStoredBrand = {
-			name: '',
-			accent: '',
-			greeting: '',
-		};
+		mockStoredBrand = { ...emptyBrand };
 		mockDerivedBrand = {
 			name: 'Example Site',
 			accent: '#2271b1',
@@ -192,12 +248,16 @@ describe( 'ReaderChatControl', () => {
 		).not.toBeInTheDocument();
 		expect( screen.queryByLabelText( 'Assistant name' ) ).not.toBeInTheDocument();
 		expect( screen.queryByLabelText( 'Greeting' ) ).not.toBeInTheDocument();
-		expect( screen.queryByLabelText( 'Accent color' ) ).not.toBeInTheDocument();
+		expect( screen.queryByLabelText( 'Help text' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /Accent:/ } ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'shows derived brand values as placeholders when enabled', () => {
+	test( 'shows the grouped identity, welcome, and appearance controls when enabled', () => {
 		render( <ReaderChatControl { ...defaultProps } isEnabled /> );
 
+		expect( screen.getByRole( 'heading', { name: 'Identity' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: 'Welcome message' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: 'Appearance' } ) ).toBeInTheDocument();
 		expect( screen.getByLabelText( 'Assistant name' ) ).toHaveAttribute(
 			'placeholder',
 			'Example Site'
@@ -206,8 +266,19 @@ describe( 'ReaderChatControl', () => {
 			'placeholder',
 			'Ask me anything about this blog.'
 		);
-		expect( screen.getByLabelText( 'Accent color' ) ).toHaveAttribute( 'data-value', '#2271b1' );
-		expect( screen.getByRole( 'button', { name: 'Primary' } ) ).toBeInTheDocument();
+		expect( screen.getByLabelText( 'Help text' ) ).toHaveAttribute(
+			'placeholder',
+			'Or type your own question below.'
+		);
+		expect( screen.getByLabelText( 'Accent' ) ).toHaveAttribute( 'data-value', '#2271b1' );
+		expect( screen.getByLabelText( 'Background' ) ).toHaveAttribute( 'data-value', '#fcfcfc' );
+		expect( screen.getByLabelText( 'Text' ) ).toHaveAttribute( 'data-value', '#1f1f1f' );
+		expect( screen.getByLabelText( 'Outline' ) ).toHaveAttribute( 'data-value', '#e9e9e9' );
+		expect( screen.getByLabelText( 'Text size' ) ).toHaveValue( '16' );
+		expect( screen.getByLabelText( 'Font' ) ).toHaveValue( 'system' );
+		expect(
+			within( screen.getByLabelText( 'Accent' ) ).getByRole( 'button', { name: 'Primary' } )
+		).toBeInTheDocument();
 	} );
 
 	test( 'round-trips brand field changes through the settings update', () => {
@@ -220,9 +291,8 @@ describe( 'ReaderChatControl', () => {
 		fireEvent.blur( nameField );
 		expect( updateOptions ).toHaveBeenLastCalledWith( {
 			reader_chat_brand: {
+				...emptyBrand,
 				name: 'Ada',
-				accent: '',
-				greeting: '',
 			},
 		} );
 
@@ -231,20 +301,77 @@ describe( 'ReaderChatControl', () => {
 		fireEvent.blur( greetingField );
 		expect( updateOptions ).toHaveBeenLastCalledWith( {
 			reader_chat_brand: {
+				...emptyBrand,
 				name: 'Ada',
-				accent: '',
 				greeting: 'How can I help?',
 			},
 		} );
 
-		fireEvent.click( screen.getByRole( 'button', { name: 'Primary' } ) );
-		expect( screen.getByRole( 'button', { name: 'Reset to theme' } ) ).toBeEnabled();
+		const helpField = screen.getByLabelText( 'Help text' );
+		fireEvent.change( helpField, { target: { value: 'Choose a prompt or ask below.' } } );
+		fireEvent.blur( helpField );
+		expect( updateOptions ).toHaveBeenLastCalledWith( {
+			reader_chat_brand: {
+				...emptyBrand,
+				name: 'Ada',
+				greeting: 'How can I help?',
+				help: 'Choose a prompt or ask below.',
+			},
+		} );
+
+		fireEvent.click(
+			within( screen.getByLabelText( 'Accent' ) ).getByRole( 'button', { name: 'Primary' } )
+		);
+		expect( screen.getByRole( 'button', { name: 'Reset Accent to default' } ) ).toBeEnabled();
 		jest.advanceTimersByTime( 500 );
 		expect( updateOptions ).toHaveBeenLastCalledWith( {
 			reader_chat_brand: {
+				...emptyBrand,
 				name: 'Ada',
 				accent: '#2271b1',
 				greeting: 'How can I help?',
+				help: 'Choose a prompt or ask below.',
+			},
+		} );
+	} );
+
+	test( 'coalesces color and text-size changes into one appearance save', () => {
+		jest.useFakeTimers();
+		const updateOptions = jest.fn();
+		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
+
+		fireEvent.change( screen.getByLabelText( 'Custom background color' ), {
+			target: { value: '#112233' },
+		} );
+		fireEvent.change( screen.getByLabelText( 'Custom text color' ), {
+			target: { value: '#f2eff6' },
+		} );
+		fireEvent.change( screen.getByLabelText( 'Text size' ), { target: { value: '15' } } );
+
+		expect( updateOptions ).not.toHaveBeenCalled();
+		jest.advanceTimersByTime( 500 );
+
+		expect( updateOptions ).toHaveBeenCalledTimes( 1 );
+		expect( updateOptions ).toHaveBeenCalledWith( {
+			reader_chat_brand: {
+				...emptyBrand,
+				background: '#112233',
+				text: '#f2eff6',
+				fontSize: 15,
+			},
+		} );
+	} );
+
+	test( 'saves a font preset as a discrete appearance change', () => {
+		const updateOptions = jest.fn();
+		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
+
+		fireEvent.change( screen.getByLabelText( 'Font' ), { target: { value: 'rounded' } } );
+
+		expect( updateOptions ).toHaveBeenCalledWith( {
+			reader_chat_brand: {
+				...emptyBrand,
+				fontFamily: 'rounded',
 			},
 		} );
 	} );
@@ -259,8 +386,8 @@ describe( 'ReaderChatControl', () => {
 		fireEvent.change( picker, { target: { value: '#222222' } } );
 		fireEvent.change( picker, { target: { value: '#333333' } } );
 
-		expect( screen.getByLabelText( 'Accent color' ) ).toHaveAttribute( 'data-value', '#333333' );
-		expect( screen.getByRole( 'button', { name: 'Reset to theme' } ) ).toBeEnabled();
+		expect( screen.getByLabelText( 'Accent' ) ).toHaveAttribute( 'data-value', '#333333' );
+		expect( screen.getByRole( 'button', { name: 'Reset Accent to default' } ) ).toBeEnabled();
 		expect( updateOptions ).not.toHaveBeenCalled();
 
 		jest.advanceTimersByTime( 499 );
@@ -270,9 +397,8 @@ describe( 'ReaderChatControl', () => {
 		expect( updateOptions ).toHaveBeenCalledTimes( 1 );
 		expect( updateOptions ).toHaveBeenCalledWith( {
 			reader_chat_brand: {
-				name: '',
+				...emptyBrand,
 				accent: '#333333',
-				greeting: '',
 			},
 		} );
 	} );
@@ -292,15 +418,14 @@ describe( 'ReaderChatControl', () => {
 		rerender(
 			<ReaderChatControl { ...defaultProps } isEnabled updateOptions={ finalUpdateOptions } />
 		);
-		expect( screen.getByLabelText( 'Accent color' ) ).toHaveAttribute( 'data-value', '#333333' );
+		expect( screen.getByLabelText( 'Accent' ) ).toHaveAttribute( 'data-value', '#333333' );
 		jest.advanceTimersByTime( 500 );
 
 		expect( firstUpdateOptions ).not.toHaveBeenCalled();
 		expect( finalUpdateOptions ).toHaveBeenCalledWith( {
 			reader_chat_brand: {
-				name: '',
+				...emptyBrand,
 				accent: '#333333',
-				greeting: '',
 			},
 		} );
 	} );
@@ -319,18 +444,44 @@ describe( 'ReaderChatControl', () => {
 
 		expect( updateOptions ).toHaveBeenLastCalledWith( {
 			reader_chat_brand: {
+				...emptyBrand,
 				name: 'Ada',
 				accent: '#333333',
-				greeting: '',
 			},
 		} );
 
 		jest.advanceTimersByTime( 500 );
 		expect( updateOptions ).toHaveBeenLastCalledWith( {
 			reader_chat_brand: {
+				...emptyBrand,
 				name: 'Ada',
 				accent: '#333333',
-				greeting: '',
+			},
+		} );
+	} );
+
+	test( 'keeps committed text across a referential-only store update', () => {
+		jest.useFakeTimers();
+		const updateOptions = jest.fn();
+		const { rerender } = render(
+			<ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } />
+		);
+
+		const nameField = screen.getByLabelText( 'Assistant name' );
+		fireEvent.change( nameField, { target: { value: 'Ada' } } );
+		fireEvent.blur( nameField );
+		mockStoredBrand = { ...mockStoredBrand };
+		rerender( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
+		fireEvent.change( screen.getByLabelText( 'Custom accent color' ), {
+			target: { value: '#333333' },
+		} );
+		jest.advanceTimersByTime( 500 );
+
+		expect( updateOptions ).toHaveBeenLastCalledWith( {
+			reader_chat_brand: {
+				...emptyBrand,
+				name: 'Ada',
+				accent: '#333333',
 			},
 		} );
 	} );
@@ -350,9 +501,8 @@ describe( 'ReaderChatControl', () => {
 		expect( updateOptions ).toHaveBeenCalledTimes( 1 );
 		expect( updateOptions ).toHaveBeenCalledWith( {
 			reader_chat_brand: {
-				name: '',
+				...emptyBrand,
 				accent: '#333333',
-				greeting: '',
 			},
 		} );
 	} );
@@ -388,21 +538,17 @@ describe( 'ReaderChatControl', () => {
 		const updateOptions = jest.fn();
 		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
 
-		expect( screen.getByLabelText( 'Accent color' ) ).toHaveAttribute( 'data-value', '#ff0000' );
+		expect( screen.getByLabelText( 'Accent' ) ).toHaveAttribute( 'data-value', '#ff0000' );
 		fireEvent.change( screen.getByLabelText( 'Custom accent color' ), {
 			target: { value: '#00ff00' },
 		} );
-		fireEvent.click( screen.getByRole( 'button', { name: 'Reset to theme' } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Reset Accent to default' } ) );
 		jest.advanceTimersByTime( 500 );
 
 		expect( updateOptions ).toHaveBeenCalledTimes( 1 );
-		expect( screen.getByRole( 'button', { name: 'Reset to theme' } ) ).toBeDisabled();
+		expect( screen.getByRole( 'button', { name: 'Reset Accent to default' } ) ).toBeDisabled();
 		expect( updateOptions ).toHaveBeenCalledWith( {
-			reader_chat_brand: {
-				name: '',
-				accent: '',
-				greeting: '',
-			},
+			reader_chat_brand: emptyBrand,
 		} );
 	} );
 
@@ -419,14 +565,26 @@ describe( 'ReaderChatControl', () => {
 	} );
 
 	test( 'disables discrete controls while settings are saving', () => {
-		render( <ReaderChatControl { ...defaultProps } isEnabled isSaving /> );
+		jest.useFakeTimers();
+		mockStoredBrand.accent = '#ff0000';
+		const updateOptions = jest.fn();
+		render(
+			<ReaderChatControl { ...defaultProps } isEnabled isSaving updateOptions={ updateOptions } />
+		);
 
 		expect(
 			screen.getByRole( 'checkbox', {
 				name: /Enable Site Chat/i,
 			} )
 		).toBeDisabled();
-		expect( screen.getByRole( 'button', { name: 'Reset to theme' } ) ).toBeDisabled();
+		expect( screen.getByRole( 'button', { name: 'Reset Accent to default' } ) ).toBeDisabled();
+		expect( screen.getByLabelText( 'Text size' ) ).toBeDisabled();
+		expect( screen.getByLabelText( 'Font' ) ).toBeDisabled();
+		fireEvent.change( screen.getByLabelText( 'Custom accent color' ), {
+			target: { value: '#00ff00' },
+		} );
+		jest.advanceTimersByTime( 500 );
+		expect( updateOptions ).not.toHaveBeenCalled();
 	} );
 
 	test( 'leaves text fields editable while settings are saving', () => {
@@ -437,5 +595,6 @@ describe( 'ReaderChatControl', () => {
 		// keystrokes when tabbing from one field straight into the next.
 		expect( screen.getByLabelText( 'Assistant name' ) ).toBeEnabled();
 		expect( screen.getByLabelText( 'Greeting' ) ).toBeEnabled();
+		expect( screen.getByLabelText( 'Help text' ) ).toBeEnabled();
 	} );
 } );

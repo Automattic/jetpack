@@ -366,9 +366,15 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		update_option(
 			'reader_chat_brand',
 			array(
-				'name'     => 'Ada',
-				'accent'   => '#2271b1',
-				'greeting' => 'How can I help?',
+				'name'       => 'Ada',
+				'accent'     => '#2271b1',
+				'greeting'   => 'How can I help?',
+				'help'       => 'Choose a prompt or ask below.',
+				'background' => '#112233',
+				'text'       => '#f2eff6',
+				'outline'    => '#445566',
+				'fontFamily' => 'rounded',
+				'fontSize'   => 15,
 			)
 		);
 
@@ -379,13 +385,25 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		$this->assertSame( '#ffffff', $brand['accentForeground'] );
 		$this->assertSame( 'https://example.com/site-icon-96.png', $brand['logoUrl'] );
 		$this->assertSame( 'How can I help?', $brand['greeting'] );
+		$this->assertSame( 'Choose a prompt or ask below.', $brand['help'] );
+		$this->assertSame( '#112233', $brand['background'] );
+		$this->assertSame( '#f2eff6', $brand['text'] );
+		$this->assertSame( '#445566', $brand['outline'] );
+		$this->assertSame( 'rounded', $brand['fontFamily'] );
+		$this->assertSame( 15, $brand['fontSize'] );
 
 		update_option(
 			'reader_chat_brand',
 			array(
-				'name'     => '',
-				'accent'   => '',
-				'greeting' => '',
+				'name'       => '',
+				'accent'     => '',
+				'greeting'   => '',
+				'help'       => '',
+				'background' => '',
+				'text'       => '',
+				'outline'    => '',
+				'fontFamily' => '',
+				'fontSize'   => 0,
 			)
 		);
 		$derived_brand = Jetpack_Reader_Chat::get_brand();
@@ -393,6 +411,10 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		$this->assertSame( 'Derived Site Name', $derived_brand['name'] );
 		$this->assertSame( 'Ask me anything about this blog.', $derived_brand['greeting'] );
 		$this->assertSame( 'https://example.com/site-icon-96.png', $derived_brand['logoUrl'] );
+		$this->assertArrayNotHasKey( 'help', $derived_brand );
+		$this->assertArrayNotHasKey( 'background', $derived_brand );
+		$this->assertArrayNotHasKey( 'fontFamily', $derived_brand );
+		$this->assertArrayNotHasKey( 'fontSize', $derived_brand );
 	}
 
 	/**
@@ -448,7 +470,7 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 				),
 			),
 		);
-		$accent_only = array(
+		$accent_only  = array(
 			'theme' => array(
 				array(
 					'slug'  => 'accent',
@@ -482,6 +504,12 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 				'name'       => array( 'not a string' ),
 				'accent'     => 'not-a-color',
 				'greeting'   => false,
+				'help'       => array( 'not a string' ),
+				'background' => 'not-a-color',
+				'text'       => false,
+				'outline'    => '#abcd',
+				'fontFamily' => 'comic-sans',
+				'fontSize'   => 100,
 				'unexpected' => '<script>alert(1)</script>',
 			)
 		);
@@ -491,6 +519,12 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		$this->assertSame( 'Fallback Site Name', $brand['name'] );
 		$this->assertSame( 'Ask me anything about this blog.', $brand['greeting'] );
 		$this->assertArrayNotHasKey( 'unexpected', $brand );
+		$this->assertArrayNotHasKey( 'help', $brand );
+		$this->assertArrayNotHasKey( 'background', $brand );
+		$this->assertArrayNotHasKey( 'text', $brand );
+		$this->assertArrayNotHasKey( 'outline', $brand );
+		$this->assertArrayNotHasKey( 'fontFamily', $brand );
+		$this->assertArrayNotHasKey( 'fontSize', $brand );
 		if ( isset( $brand['accent'] ) ) {
 			$this->assertMatchesRegularExpression( '/^#[0-9a-f]{3}([0-9a-f]{3})?$/i', $brand['accent'] );
 		}
@@ -506,9 +540,15 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 	public function test_get_brand_sanitizes_stored_values_on_read() {
 		$this->set_raw_brand_option(
 			array(
-				'name'     => '<b>' . str_repeat( 'n', 50 ) . "</b>\n",
-				'accent'   => '#123456',
-				'greeting' => '<em>' . str_repeat( 'g', 130 ) . '</em>',
+				'name'       => '<b>' . str_repeat( 'n', 50 ) . "</b>\n",
+				'accent'     => '#123456',
+				'greeting'   => '<em>' . str_repeat( 'g', 130 ) . '</em>',
+				'help'       => '<strong>' . str_repeat( 'h', 170 ) . '</strong>',
+				'background' => '#112233',
+				'text'       => '#f2eff6',
+				'outline'    => '#445566',
+				'fontFamily' => 'serif',
+				'fontSize'   => 17,
 			)
 		);
 
@@ -516,9 +556,16 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 
 		$this->assertSame( 40, strlen( $brand['name'] ) );
 		$this->assertSame( 120, strlen( $brand['greeting'] ) );
+		$this->assertSame( 160, strlen( $brand['help'] ) );
 		$this->assertStringNotContainsString( '<', $brand['name'] );
 		$this->assertStringNotContainsString( "\n", $brand['name'] );
 		$this->assertStringNotContainsString( '<', $brand['greeting'] );
+		$this->assertStringNotContainsString( '<', $brand['help'] );
+		$this->assertSame( '#112233', $brand['background'] );
+		$this->assertSame( '#f2eff6', $brand['text'] );
+		$this->assertSame( '#445566', $brand['outline'] );
+		$this->assertSame( 'serif', $brand['fontFamily'] );
+		$this->assertSame( 17, $brand['fontSize'] );
 	}
 
 	// ──────────────────────────────────────────────────

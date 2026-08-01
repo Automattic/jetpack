@@ -88,9 +88,15 @@ class REST_Controller_Test extends Search_TestCase {
 			array(
 				'type'    => 'array',
 				'default' => array(
-					'name'     => '',
-					'accent'   => '',
-					'greeting' => '',
+					'name'       => '',
+					'accent'     => '',
+					'greeting'   => '',
+					'help'       => '',
+					'background' => '',
+					'text'       => '',
+					'outline'    => '',
+					'fontFamily' => '',
+					'fontSize'   => 0,
 				),
 			)
 		);
@@ -376,9 +382,15 @@ class REST_Controller_Test extends Search_TestCase {
 		update_option(
 			'reader_chat_brand',
 			array(
-				'name'     => 'Ada',
-				'accent'   => '#2271b1',
-				'greeting' => 'How can I help?',
+				'name'       => 'Ada',
+				'accent'     => '#2271b1',
+				'greeting'   => 'How can I help?',
+				'help'       => 'Choose a prompt or ask below.',
+				'background' => '#112233',
+				'text'       => '#f2eff6',
+				'outline'    => '#445566',
+				'fontFamily' => 'rounded',
+				'fontSize'   => 15,
 			)
 		);
 
@@ -391,9 +403,15 @@ class REST_Controller_Test extends Search_TestCase {
 		$this->assertTrue( $response->get_data()['reader_chat'] );
 		$this->assertSame(
 			array(
-				'name'     => 'Ada',
-				'accent'   => '#2271b1',
-				'greeting' => 'How can I help?',
+				'name'       => 'Ada',
+				'accent'     => '#2271b1',
+				'greeting'   => 'How can I help?',
+				'help'       => 'Choose a prompt or ask below.',
+				'background' => '#112233',
+				'text'       => '#f2eff6',
+				'outline'    => '#445566',
+				'fontFamily' => 'rounded',
+				'fontSize'   => 15,
 			),
 			$response->get_data()['reader_chat_brand']
 		);
@@ -429,9 +447,15 @@ class REST_Controller_Test extends Search_TestCase {
 			wp_json_encode(
 				array(
 					'reader_chat_brand' => array(
-						'name'     => '<b>' . str_repeat( 'n', 50 ) . '</b>',
-						'accent'   => '#2271b1',
-						'greeting' => '<em>Hello readers.</em>',
+						'name'       => '<b>' . str_repeat( 'n', 50 ) . '</b>',
+						'accent'     => '#2271b1',
+						'greeting'   => '<em>Hello readers.</em>',
+						'help'       => '<strong>Choose a prompt or ask below.</strong>',
+						'background' => '#112233',
+						'text'       => '#f2eff6',
+						'outline'    => '#445566',
+						'fontFamily' => 'serif',
+						'fontSize'   => 17,
 					),
 				),
 				JSON_UNESCAPED_SLASHES
@@ -440,9 +464,15 @@ class REST_Controller_Test extends Search_TestCase {
 		$response = $this->server->dispatch( $request );
 
 		$expected = array(
-			'name'     => str_repeat( 'n', 40 ),
-			'accent'   => '#2271b1',
-			'greeting' => 'Hello readers.',
+			'name'       => str_repeat( 'n', 40 ),
+			'accent'     => '#2271b1',
+			'greeting'   => 'Hello readers.',
+			'help'       => 'Choose a prompt or ask below.',
+			'background' => '#112233',
+			'text'       => '#f2eff6',
+			'outline'    => '#445566',
+			'fontFamily' => 'serif',
+			'fontSize'   => 17,
 		);
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertSame( $expected, get_option( 'reader_chat_brand' ) );
@@ -458,8 +488,17 @@ class REST_Controller_Test extends Search_TestCase {
 
 		$invalid_brands = array(
 			array( 'accent' => 'not-a-color' ),
+			array( 'background' => 'not-a-color' ),
+			array( 'text' => array( 'not-a-string' ) ),
+			array( 'outline' => '#abcd' ),
 			array( 'name' => array( 'not-a-string' ) ),
 			array( 'greeting' => array( 'not-a-string' ) ),
+			array( 'help' => array( 'not-a-string' ) ),
+			array( 'fontFamily' => 'comic-sans' ),
+			array( 'fontFamily' => 'system' ),
+			array( 'fontSize' => 12 ),
+			array( 'fontSize' => 19 ),
+			array( 'fontSize' => '15' ),
 			array( 'name' => null ),
 			array( 'unexpected' => 'value' ),
 		);
@@ -476,9 +515,15 @@ class REST_Controller_Test extends Search_TestCase {
 			$this->assertEquals( 400, $response->get_status() );
 			$this->assertSame(
 				array(
-					'name'     => '',
-					'accent'   => '',
-					'greeting' => '',
+					'name'       => '',
+					'accent'     => '',
+					'greeting'   => '',
+					'help'       => '',
+					'background' => '',
+					'text'       => '',
+					'outline'    => '',
+					'fontFamily' => '',
+					'fontSize'   => 0,
 				),
 				get_option( 'reader_chat_brand' )
 			);

@@ -1,12 +1,16 @@
 import {
 	Button,
+	ColorIndicator,
 	ColorPalette,
+	Dropdown,
 	ExternalLink,
+	RangeControl,
+	SelectControl,
 	TextControl,
 	ToggleControl,
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Badge } from '@wordpress/ui';
 import debounce from 'debounce';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -18,6 +22,98 @@ const READER_CHAT_DESCRIPTION = __(
 	'jetpack-search-pkg'
 );
 const ACCENT_SAVE_DELAY_MS = 500;
+const DEFAULT_HELP = __( 'Or type your own question below.', 'jetpack-search-pkg' );
+const FONT_SIZE_MIN = 13;
+const FONT_SIZE_MAX = 18;
+// Keep these defaults aligned with @automattic/agenttic-ui's light theme.
+const DEFAULT_APPEARANCE = {
+	accent: '#2d5af2',
+	background: '#fcfcfc',
+	text: '#1f1f1f',
+	outline: '#e9e9e9',
+	fontFamily: 'system',
+	fontSize: 16,
+};
+const APPEARANCE_COLOR_FIELDS = [ 'accent', 'background', 'text', 'outline' ];
+const hasOwn = ( object, key ) => Object.prototype.hasOwnProperty.call( object, key );
+
+/**
+ * Compact color-picker control for one Site Chat appearance value.
+ *
+ * @param {object}   props              - Component properties.
+ * @param {Array}    props.colors       - Available theme colors.
+ * @param {string}   props.defaultValue - Resolved default color.
+ * @param {boolean}  props.hasOverride  - Whether the color has a saved override.
+ * @param {boolean}  props.isSaving     - Whether settings are currently being saved.
+ * @param {string}   props.label        - Color field label.
+ * @param {Function} props.onChange     - Called while the selected color changes.
+ * @param {Function} props.onReset      - Called when the override is reset.
+ * @param {string}   props.value        - Current color value.
+ * @return {import('react').Component} Color-picker control.
+ */
+function AppearanceColorControl( {
+	colors,
+	defaultValue,
+	hasOverride,
+	isSaving,
+	label,
+	onChange,
+	onReset,
+	value,
+} ) {
+	const displayValue = value || defaultValue;
+
+	return (
+		<Dropdown
+			className="jp-reader-chat-control__color"
+			popoverProps={ { placement: 'bottom-start' } }
+			renderToggle={ ( { isOpen, onToggle } ) => (
+				<Button
+					aria-expanded={ isOpen }
+					aria-label={ sprintf(
+						/* translators: %1$s: localized color name (Accent, Background, Text, or Outline). %2$s: hex color value. */
+						__( '%1$s color: %2$s', 'jetpack-search-pkg' ),
+						label,
+						displayValue.toUpperCase()
+					) }
+					className="jp-reader-chat-control__color-toggle"
+					disabled={ isSaving }
+					onClick={ onToggle }
+				>
+					<ColorIndicator colorValue={ displayValue } />
+					<span className="jp-reader-chat-control__color-copy">
+						<span>{ label }</span>
+						<code>{ displayValue.toUpperCase() }</code>
+					</span>
+				</Button>
+			) }
+			renderContent={ () => (
+				<div className="jp-reader-chat-control__color-popover">
+					{ /* The custom picker is portalled outside the disabled fieldset. */ }
+					<ColorPalette
+						aria-label={ label }
+						clearable={ false }
+						colors={ colors }
+						onChange={ nextColor => ! isSaving && onChange( nextColor ) }
+						value={ displayValue }
+					/>
+					<Button
+						aria-label={ sprintf(
+							/* translators: %s: localized color name (Accent, Background, Text, or Outline). */
+							__( 'Reset %s to default', 'jetpack-search-pkg' ),
+							label
+						) }
+						disabled={ isSaving || ! hasOverride }
+						onClick={ onReset }
+						variant="link"
+					>
+						{ __( 'Reset to default', 'jetpack-search-pkg' ) }
+					</Button>
+				</div>
+			) }
+		/>
+	);
+}
 
 /**
  * Reader Chat opt-in control. Reads and writes the reader_chat option
@@ -41,21 +137,39 @@ export default function ReaderChatControl( {
 	const storedBrand = useSelect( select => select( STORE_ID ).getReaderChatBrand() );
 	const derivedBrand = useSelect( select => select( STORE_ID ).getReaderChatBrandDefaults() );
 	const themePalette = useSelect( select => select( STORE_ID ).getReaderChatBrandPalette() );
-	const brand = {
-		name: typeof storedBrand?.name === 'string' ? storedBrand.name : '',
-		accent: typeof storedBrand?.accent === 'string' ? storedBrand.accent : '',
-		greeting: typeof storedBrand?.greeting === 'string' ? storedBrand.greeting : '',
-	};
+	const brand = useMemo(
+		() => ( {
+			name: typeof storedBrand?.name === 'string' ? storedBrand.name : '',
+			accent: typeof storedBrand?.accent === 'string' ? storedBrand.accent : '',
+			greeting: typeof storedBrand?.greeting === 'string' ? storedBrand.greeting : '',
+			help: typeof storedBrand?.help === 'string' ? storedBrand.help : '',
+			background: typeof storedBrand?.background === 'string' ? storedBrand.background : '',
+			text: typeof storedBrand?.text === 'string' ? storedBrand.text : '',
+			outline: typeof storedBrand?.outline === 'string' ? storedBrand.outline : '',
+			fontFamily: typeof storedBrand?.fontFamily === 'string' ? storedBrand.fontFamily : '',
+			fontSize: Number.isInteger( storedBrand?.fontSize ) ? storedBrand.fontSize : 0,
+		} ),
+		[
+			storedBrand?.name,
+			storedBrand?.accent,
+			storedBrand?.greeting,
+			storedBrand?.help,
+			storedBrand?.background,
+			storedBrand?.text,
+			storedBrand?.outline,
+			storedBrand?.fontFamily,
+			storedBrand?.fontSize,
+		]
+	);
 	const brandRef = useRef( brand );
-	const pendingAccentRef = useRef( null );
+	const pendingAppearanceRef = useRef( {} );
 
 	useEffect( () => {
 		brandRef.current = {
-			name: brand.name,
-			accent: pendingAccentRef.current ?? brand.accent,
-			greeting: brand.greeting,
+			...brand,
+			...pendingAppearanceRef.current,
 		};
-	}, [ brand.name, brand.accent, brand.greeting ] );
+	}, [ brand ] );
 
 	const toggle = useCallback(
 		next => {
@@ -64,12 +178,8 @@ export default function ReaderChatControl( {
 		[ updateOptions ]
 	);
 
-	const updateBrand = useCallback(
-		( field, value ) => {
-			const nextBrand = {
-				...brandRef.current,
-				[ field ]: value ?? '',
-			};
+	const persistBrand = useCallback(
+		nextBrand => {
 			brandRef.current = nextBrand;
 			updateOptions( {
 				reader_chat_brand: nextBrand,
@@ -77,29 +187,52 @@ export default function ReaderChatControl( {
 		},
 		[ updateOptions ]
 	);
-	// The debounced save outlives renders, so read the latest update callback
+	// The debounced save outlives renders, so read the latest persistence callback
 	// through a ref instead of stranding a changed updateOptions prop.
-	const updateBrandRef = useRef( updateBrand );
+	const persistBrandRef = useRef( persistBrand );
 	useEffect( () => {
-		updateBrandRef.current = updateBrand;
-	}, [ updateBrand ] );
+		persistBrandRef.current = persistBrand;
+	}, [ persistBrand ] );
 
 	// Text fields keep a local draft and only save on blur. `updateOptions`
 	// issues a REST save, a re-fetch, and a success notice per call, so saving
 	// per keystroke would fire all three on every character. Every other
 	// control in this dashboard is a toggle, where that never mattered.
-	const [ draft, setDraft ] = useState( { name: brand.name, greeting: brand.greeting } );
-	const committedRef = useRef( { name: brand.name, greeting: brand.greeting } );
-	const resolvedAccent = brand.accent || derivedBrand?.accent || '';
-	const [ accentDraft, setAccentDraft ] = useState( resolvedAccent );
-	const [ hasAccentOverride, setHasAccentOverride ] = useState( Boolean( brand.accent ) );
-	// ColorPalette fires continuously while its custom picker is dragged. Keep
-	// that interaction local, then issue one REST save after the color settles.
-	const saveAccent = useMemo(
+	const [ draft, setDraft ] = useState( {
+		name: brand.name,
+		greeting: brand.greeting,
+		help: brand.help,
+	} );
+	const committedRef = useRef( {
+		name: brand.name,
+		greeting: brand.greeting,
+		help: brand.help,
+	} );
+	const resolvedAppearance = useMemo(
+		() => ( {
+			accent: brand.accent || derivedBrand?.accent || DEFAULT_APPEARANCE.accent,
+			background: brand.background || DEFAULT_APPEARANCE.background,
+			text: brand.text || DEFAULT_APPEARANCE.text,
+			outline: brand.outline || DEFAULT_APPEARANCE.outline,
+			fontFamily: brand.fontFamily || DEFAULT_APPEARANCE.fontFamily,
+			fontSize: brand.fontSize || DEFAULT_APPEARANCE.fontSize,
+		} ),
+		[ brand, derivedBrand?.accent ]
+	);
+	const [ appearanceDraft, setAppearanceDraft ] = useState( resolvedAppearance );
+	const [ appearanceOverrides, setAppearanceOverrides ] = useState( {
+		accent: Boolean( brand.accent ),
+		background: Boolean( brand.background ),
+		text: Boolean( brand.text ),
+		outline: Boolean( brand.outline ),
+	} );
+	// ColorPalette and RangeControl fire continuously while dragged. Keep that
+	// interaction local, then issue one REST save after the controls settle.
+	const saveAppearance = useMemo(
 		() =>
-			debounce( value => {
-				pendingAccentRef.current = null;
-				updateBrandRef.current( 'accent', value );
+			debounce( () => {
+				pendingAppearanceRef.current = {};
+				persistBrandRef.current( brandRef.current );
 			}, ACCENT_SAVE_DELAY_MS ),
 		[]
 	);
@@ -109,22 +242,45 @@ export default function ReaderChatControl( {
 	useEffect( () => {
 		if (
 			committedRef.current.name !== brand.name ||
-			committedRef.current.greeting !== brand.greeting
+			committedRef.current.greeting !== brand.greeting ||
+			committedRef.current.help !== brand.help
 		) {
-			committedRef.current = { name: brand.name, greeting: brand.greeting };
-			setDraft( { name: brand.name, greeting: brand.greeting } );
+			committedRef.current = {
+				name: brand.name,
+				greeting: brand.greeting,
+				help: brand.help,
+			};
+			setDraft( { name: brand.name, greeting: brand.greeting, help: brand.help } );
 		}
-	}, [ brand.name, brand.greeting ] );
+	}, [ brand.name, brand.greeting, brand.help ] );
 
-	// Re-seed the displayed accent after an external or normalized store update.
+	// Re-seed appearance fields after an external or normalized store update,
+	// without replacing fields that still have a local pending change.
 	useEffect( () => {
-		if ( null === pendingAccentRef.current ) {
-			setAccentDraft( resolvedAccent );
-			setHasAccentOverride( Boolean( brand.accent ) );
-		}
-	}, [ brand.accent, resolvedAccent ] );
+		const pending = pendingAppearanceRef.current;
+		setAppearanceDraft( current => ( {
+			accent: hasOwn( pending, 'accent' ) ? current.accent : resolvedAppearance.accent,
+			background: hasOwn( pending, 'background' )
+				? current.background
+				: resolvedAppearance.background,
+			text: hasOwn( pending, 'text' ) ? current.text : resolvedAppearance.text,
+			outline: hasOwn( pending, 'outline' ) ? current.outline : resolvedAppearance.outline,
+			fontFamily: hasOwn( pending, 'fontFamily' )
+				? current.fontFamily
+				: resolvedAppearance.fontFamily,
+			fontSize: hasOwn( pending, 'fontSize' ) ? current.fontSize : resolvedAppearance.fontSize,
+		} ) );
+		setAppearanceOverrides( current => ( {
+			accent: hasOwn( pending, 'accent' ) ? current.accent : Boolean( brand.accent ),
+			background: hasOwn( pending, 'background' )
+				? current.background
+				: Boolean( brand.background ),
+			text: hasOwn( pending, 'text' ) ? current.text : Boolean( brand.text ),
+			outline: hasOwn( pending, 'outline' ) ? current.outline : Boolean( brand.outline ),
+		} ) );
+	}, [ brand.accent, brand.background, brand.text, brand.outline, resolvedAppearance ] );
 
-	useEffect( () => () => saveAccent.flush(), [ saveAccent ] );
+	useEffect( () => () => saveAppearance.flush(), [ saveAppearance ] );
 
 	const commitBrandText = field => {
 		const value = draft[ field ];
@@ -132,24 +288,29 @@ export default function ReaderChatControl( {
 			return;
 		}
 		committedRef.current = { ...committedRef.current, [ field ]: value };
-		updateBrand( field, value );
+		saveAppearance.clear();
+		pendingAppearanceRef.current = {};
+		persistBrand( { ...brandRef.current, [ field ]: value } );
 	};
 
-	const updateAccent = value => {
-		const nextAccent = value ?? '';
-		pendingAccentRef.current = nextAccent;
-		brandRef.current = { ...brandRef.current, accent: nextAccent };
-		setAccentDraft( nextAccent || derivedBrand?.accent || '' );
-		setHasAccentOverride( true );
-		saveAccent( nextAccent );
+	const queueAppearance = ( field, value, displayValue = value, hasOverride = true ) => {
+		pendingAppearanceRef.current = { ...pendingAppearanceRef.current, [ field ]: value };
+		brandRef.current = { ...brandRef.current, [ field ]: value };
+		setAppearanceDraft( current => ( { ...current, [ field ]: displayValue } ) );
+		if ( APPEARANCE_COLOR_FIELDS.includes( field ) ) {
+			setAppearanceOverrides( current => ( { ...current, [ field ]: hasOverride } ) );
+		}
+		saveAppearance();
 	};
 
-	const resetAccent = () => {
-		saveAccent.clear();
-		pendingAccentRef.current = null;
-		setAccentDraft( derivedBrand?.accent || '' );
-		setHasAccentOverride( false );
-		updateBrand( 'accent', '' );
+	const commitAppearance = ( field, value, displayValue = value, hasOverride = true ) => {
+		saveAppearance.clear();
+		pendingAppearanceRef.current = {};
+		setAppearanceDraft( current => ( { ...current, [ field ]: displayValue } ) );
+		if ( APPEARANCE_COLOR_FIELDS.includes( field ) ) {
+			setAppearanceOverrides( current => ( { ...current, [ field ]: hasOverride } ) );
+		}
+		persistBrand( { ...brandRef.current, [ field ]: value } );
 	};
 
 	// Hide the control when this site should not expose Reader Chat settings.
@@ -183,43 +344,170 @@ export default function ReaderChatControl( {
 					</p>
 					{ isEnabled && (
 						<div className="jp-reader-chat-control__brand">
-							<TextControl
-								__nextHasNoMarginBottom
-								__next40pxDefaultSize
-								label={ __( 'Assistant name', 'jetpack-search-pkg' ) }
-								maxLength={ 40 }
-								onBlur={ () => commitBrandText( 'name' ) }
-								onChange={ value => setDraft( prev => ( { ...prev, name: value } ) ) }
-								placeholder={ derivedBrand?.name ?? '' }
-								value={ draft.name }
-							/>
-							<TextControl
-								__nextHasNoMarginBottom
-								__next40pxDefaultSize
-								label={ __( 'Greeting', 'jetpack-search-pkg' ) }
-								maxLength={ 120 }
-								onBlur={ () => commitBrandText( 'greeting' ) }
-								onChange={ value => setDraft( prev => ( { ...prev, greeting: value } ) ) }
-								placeholder={ derivedBrand?.greeting ?? '' }
-								value={ draft.greeting }
-							/>
-							<fieldset disabled={ isSaving }>
-								<legend>{ __( 'Accent color', 'jetpack-search-pkg' ) }</legend>
-								<ColorPalette
-									aria-label={ __( 'Accent color', 'jetpack-search-pkg' ) }
-									clearable={ false }
-									colors={ themePalette }
-									onChange={ updateAccent }
-									value={ accentDraft }
+							<section aria-labelledby="jp-reader-chat-identity-heading">
+								<h3 id="jp-reader-chat-identity-heading">
+									{ __( 'Identity', 'jetpack-search-pkg' ) }
+								</h3>
+								<TextControl
+									__nextHasNoMarginBottom
+									__next40pxDefaultSize
+									help={ __(
+										'Shown beside your Site Icon when visitors open Site Chat.',
+										'jetpack-search-pkg'
+									) }
+									label={ __( 'Assistant name', 'jetpack-search-pkg' ) }
+									maxLength={ 40 }
+									onBlur={ () => commitBrandText( 'name' ) }
+									onChange={ value => setDraft( prev => ( { ...prev, name: value } ) ) }
+									placeholder={ derivedBrand?.name ?? '' }
+									value={ draft.name }
 								/>
-								<Button
-									disabled={ isSaving || ! hasAccentOverride }
-									onClick={ resetAccent }
-									variant="link"
-								>
-									{ __( 'Reset to theme', 'jetpack-search-pkg' ) }
-								</Button>
-							</fieldset>
+							</section>
+							<section aria-labelledby="jp-reader-chat-welcome-heading">
+								<h3 id="jp-reader-chat-welcome-heading">
+									{ __( 'Welcome message', 'jetpack-search-pkg' ) }
+								</h3>
+								<p>
+									{ __(
+										'Shown with starter prompts before a visitor begins chatting.',
+										'jetpack-search-pkg'
+									) }
+								</p>
+								<TextControl
+									__nextHasNoMarginBottom
+									__next40pxDefaultSize
+									help={ __(
+										'The first line visitors see in an empty chat.',
+										'jetpack-search-pkg'
+									) }
+									label={ __( 'Greeting', 'jetpack-search-pkg' ) }
+									maxLength={ 120 }
+									onBlur={ () => commitBrandText( 'greeting' ) }
+									onChange={ value => setDraft( prev => ( { ...prev, greeting: value } ) ) }
+									placeholder={ derivedBrand?.greeting ?? '' }
+									value={ draft.greeting }
+								/>
+								<TextControl
+									__nextHasNoMarginBottom
+									__next40pxDefaultSize
+									help={ __(
+										'Guides visitors toward the composer or starter prompts.',
+										'jetpack-search-pkg'
+									) }
+									label={ __( 'Help text', 'jetpack-search-pkg' ) }
+									maxLength={ 160 }
+									onBlur={ () => commitBrandText( 'help' ) }
+									onChange={ value => setDraft( prev => ( { ...prev, help: value } ) ) }
+									placeholder={ DEFAULT_HELP }
+									value={ draft.help }
+								/>
+							</section>
+							<section aria-labelledby="jp-reader-chat-appearance-heading">
+								<h3 id="jp-reader-chat-appearance-heading">
+									{ __( 'Appearance', 'jetpack-search-pkg' ) }
+								</h3>
+								<p>{ __( "Match Site Chat to your site's look.", 'jetpack-search-pkg' ) }</p>
+								<fieldset disabled={ isSaving }>
+									<legend>{ __( 'Colors', 'jetpack-search-pkg' ) }</legend>
+									<div className="jp-reader-chat-control__colors">
+										<AppearanceColorControl
+											colors={ themePalette }
+											defaultValue={ derivedBrand?.accent || DEFAULT_APPEARANCE.accent }
+											hasOverride={ appearanceOverrides.accent }
+											isSaving={ isSaving }
+											label={ __( 'Accent', 'jetpack-search-pkg' ) }
+											onChange={ value => queueAppearance( 'accent', value ?? '' ) }
+											onReset={ () =>
+												commitAppearance(
+													'accent',
+													'',
+													derivedBrand?.accent || DEFAULT_APPEARANCE.accent,
+													false
+												)
+											}
+											value={ appearanceDraft.accent }
+										/>
+										<AppearanceColorControl
+											colors={ themePalette }
+											defaultValue={ DEFAULT_APPEARANCE.background }
+											hasOverride={ appearanceOverrides.background }
+											isSaving={ isSaving }
+											label={ __( 'Background', 'jetpack-search-pkg' ) }
+											onChange={ value => queueAppearance( 'background', value ?? '' ) }
+											onReset={ () =>
+												commitAppearance( 'background', '', DEFAULT_APPEARANCE.background, false )
+											}
+											value={ appearanceDraft.background }
+										/>
+										<AppearanceColorControl
+											colors={ themePalette }
+											defaultValue={ DEFAULT_APPEARANCE.text }
+											hasOverride={ appearanceOverrides.text }
+											isSaving={ isSaving }
+											label={ __( 'Text', 'jetpack-search-pkg' ) }
+											onChange={ value => queueAppearance( 'text', value ?? '' ) }
+											onReset={ () =>
+												commitAppearance( 'text', '', DEFAULT_APPEARANCE.text, false )
+											}
+											value={ appearanceDraft.text }
+										/>
+										<AppearanceColorControl
+											colors={ themePalette }
+											defaultValue={ DEFAULT_APPEARANCE.outline }
+											hasOverride={ appearanceOverrides.outline }
+											isSaving={ isSaving }
+											label={ __( 'Outline', 'jetpack-search-pkg' ) }
+											onChange={ value => queueAppearance( 'outline', value ?? '' ) }
+											onReset={ () =>
+												commitAppearance( 'outline', '', DEFAULT_APPEARANCE.outline, false )
+											}
+											value={ appearanceDraft.outline }
+										/>
+									</div>
+								</fieldset>
+								<RangeControl
+									__nextHasNoMarginBottom
+									disabled={ isSaving }
+									help={ __( 'Adjust the type throughout the chat widget.', 'jetpack-search-pkg' ) }
+									label={ __( 'Text size', 'jetpack-search-pkg' ) }
+									max={ FONT_SIZE_MAX }
+									min={ FONT_SIZE_MIN }
+									onChange={ value => {
+										const nextValue = value ?? DEFAULT_APPEARANCE.fontSize;
+										queueAppearance(
+											'fontSize',
+											nextValue === DEFAULT_APPEARANCE.fontSize ? 0 : nextValue,
+											nextValue
+										);
+									} }
+									renderTooltipContent={ value => `${ value } px` }
+									value={ appearanceDraft.fontSize }
+								/>
+								<SelectControl
+									__next40pxDefaultSize
+									__nextHasNoMarginBottom
+									disabled={ isSaving }
+									help={ __(
+										'Uses fonts already available in the visitor’s browser or theme.',
+										'jetpack-search-pkg'
+									) }
+									label={ __( 'Font', 'jetpack-search-pkg' ) }
+									onChange={ value =>
+										commitAppearance(
+											'fontFamily',
+											value === DEFAULT_APPEARANCE.fontFamily ? '' : value,
+											value
+										)
+									}
+									options={ [
+										{ label: __( 'System default', 'jetpack-search-pkg' ), value: 'system' },
+										{ label: __( 'Site font', 'jetpack-search-pkg' ), value: 'site' },
+										{ label: __( 'Rounded', 'jetpack-search-pkg' ), value: 'rounded' },
+										{ label: __( 'Serif', 'jetpack-search-pkg' ), value: 'serif' },
+									] }
+									value={ appearanceDraft.fontFamily }
+								/>
+							</section>
 						</div>
 					) }
 					{ isEnabled && guidelinesUrl && (
