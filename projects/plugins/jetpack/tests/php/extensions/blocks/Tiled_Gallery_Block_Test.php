@@ -55,13 +55,12 @@ class Tiled_Gallery_Block_Test extends WP_UnitTestCase {
 			return array();
 		}
 
-		$widths = array();
-		foreach ( explode( ',', html_entity_decode( $srcset[1] ) ) as $candidate ) {
-			if ( preg_match( '/\s(\d+)w$/', trim( $candidate ), $width ) ) {
-				$widths[] = (int) $width[1];
-			}
-		}
-		return $widths;
+		// Match the width descriptors directly rather than splitting on the comma
+		// separator: the candidate URLs are escaped, and a squareish layout puts a
+		// comma inside them via the resize argument. URLs never contain a space,
+		// so a space followed by digits and a "w" is unambiguously a descriptor.
+		preg_match_all( '/\s(\d+)w/', $srcset[1], $widths );
+		return array_map( 'intval', $widths[1] );
 	}
 
 	/**
