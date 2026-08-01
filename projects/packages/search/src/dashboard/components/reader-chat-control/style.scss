@@ -137,6 +137,10 @@
 	font-family: Georgia, Cambria, "Times New Roman", Times, serif;
 }
 
+.jp-reader-chat-control__preview-widget[data-font="site"] {
+	font-family: var(--jp-reader-chat-preview-site-font-family, inherit);
+}
+
 .jp-reader-chat-control__preview-header {
 	display: flex;
 	align-items: center;
