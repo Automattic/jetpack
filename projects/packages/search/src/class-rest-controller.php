@@ -31,7 +31,7 @@ class REST_Controller {
 	 *
 	 * Keep in sync with Jetpack_Reader_Chat.
 	 */
-	private const READER_CHAT_BRAND_FONT_FAMILIES = array( 'site', 'rounded', 'serif' );
+	private const READER_CHAT_BRAND_FONT_FAMILIES = array( 'site', 'serif' );
 
 	/**
 	 * Namespace for the REST API.

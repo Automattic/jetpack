@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Site Chat: add identity, welcome message, and appearance controls to the Search dashboard and expose them through the settings REST endpoint.
+Site Chat: add identity, welcome message, appearance controls, and a live preview to the Search dashboard, with system, site, and serif font choices.
