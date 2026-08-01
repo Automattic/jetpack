@@ -11,7 +11,6 @@ import {
 import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { Badge } from '@wordpress/ui';
-import debounce from 'debounce';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { STORE_ID } from 'store';
 import './style.scss';
@@ -20,7 +19,6 @@ const READER_CHAT_DESCRIPTION = __(
 	'Let visitors ask your site questions and get answers from your content.',
 	'jetpack-search-pkg'
 );
-const ACCENT_SAVE_DELAY_MS = 500;
 const DEFAULT_HELP = __( 'Or type your own question below.', 'jetpack-search-pkg' );
 // Keep these defaults aligned with @automattic/agenttic-ui's light theme.
 const DEFAULT_APPEARANCE = {
@@ -34,6 +32,16 @@ const hasOwn = ( object, key ) => Object.prototype.hasOwnProperty.call( object, 
 const normalizeHexColor = value =>
 	typeof value === 'string' && /^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test( value )
 		? value.toLowerCase()
+		: '';
+// Font stacks are resolved by WordPress. Apply a stricter browser-side guard
+// before placing the value in a custom property. The PHP resolver and
+// wp-calypso's normalizeFontFamily() provide the other validation layers.
+const normalizeFontFamily = value =>
+	typeof value === 'string' &&
+	value.trim() &&
+	value.trim().length <= 200 &&
+	! /[/\\;{}()\r\n\f]/.test( value )
+		? value.trim()
 		: '';
 // Keep this WCAG contrast calculation aligned with Site Chat's runtime
 // getAccessibleColor() helper in wp-calypso/apps/agents-manager/reader-chat.js.
@@ -67,6 +75,7 @@ const getAccessibleTextColor = background => {
  * @param {boolean}  props.isSaving     - Whether settings are currently being saved.
  * @param {string}   props.label        - Color field label.
  * @param {Function} props.onChange     - Called while the selected color changes.
+ * @param {Function} props.onCommit     - Called when the color picker closes.
  * @param {Function} props.onReset      - Called when the override is reset.
  * @param {string}   props.value        - Current color value.
  * @return {import('react').Component} Color-picker control.
@@ -78,6 +87,7 @@ function AppearanceColorControl( {
 	isSaving,
 	label,
 	onChange,
+	onCommit,
 	onReset,
 	value,
 } ) {
@@ -86,6 +96,7 @@ function AppearanceColorControl( {
 	return (
 		<Dropdown
 			className="jp-reader-chat-control__color"
+			onToggle={ willOpen => ! willOpen && onCommit?.() }
 			popoverProps={ { placement: 'bottom-start' } }
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<Button
@@ -203,8 +214,8 @@ export default function ReaderChatControl( {
 		},
 		[ updateOptions ]
 	);
-	// The debounced save outlives renders, so read the latest persistence callback
-	// through a ref instead of stranding a changed updateOptions prop.
+	// An unsaved color may still be active when this component unmounts, so keep
+	// the latest persistence callback available to the cleanup effect.
 	const persistBrandRef = useRef( persistBrand );
 	useEffect( () => {
 		persistBrandRef.current = persistBrand;
@@ -239,17 +250,6 @@ export default function ReaderChatControl( {
 		background: Boolean( brand.background ),
 		outline: Boolean( brand.outline ),
 	} );
-	// ColorPalette fires continuously while dragged. Keep that interaction local,
-	// then issue one REST save after the controls settle.
-	const saveAppearance = useMemo(
-		() =>
-			debounce( () => {
-				pendingAppearanceRef.current = {};
-				persistBrandRef.current( brandRef.current );
-			}, ACCENT_SAVE_DELAY_MS ),
-		[]
-	);
-
 	// Re-seed the draft when saved values change from outside this component —
 	// the initial settings fetch, or a save returning server-normalized values.
 	useEffect( () => {
@@ -290,7 +290,15 @@ export default function ReaderChatControl( {
 		} ) );
 	}, [ brand.accent, brand.background, brand.outline, resolvedAppearance ] );
 
-	useEffect( () => () => saveAppearance.flush(), [ saveAppearance ] );
+	useEffect(
+		() => () => {
+			if ( Object.keys( pendingAppearanceRef.current ).length > 0 ) {
+				pendingAppearanceRef.current = {};
+				persistBrandRef.current( brandRef.current );
+			}
+		},
+		[]
+	);
 
 	const commitBrandText = field => {
 		const value = draft[ field ];
@@ -298,7 +306,6 @@ export default function ReaderChatControl( {
 			return;
 		}
 		committedRef.current = { ...committedRef.current, [ field ]: value };
-		saveAppearance.clear();
 		pendingAppearanceRef.current = {};
 		persistBrand( { ...brandRef.current, [ field ]: value } );
 	};
@@ -310,11 +317,16 @@ export default function ReaderChatControl( {
 		if ( APPEARANCE_COLOR_FIELDS.includes( field ) ) {
 			setAppearanceOverrides( current => ( { ...current, [ field ]: hasOverride } ) );
 		}
-		saveAppearance();
+	};
+	const commitPendingAppearance = () => {
+		if ( Object.keys( pendingAppearanceRef.current ).length === 0 ) {
+			return;
+		}
+		pendingAppearanceRef.current = {};
+		persistBrand( brandRef.current );
 	};
 
 	const commitAppearance = ( field, value, displayValue = value, hasOverride = true ) => {
-		saveAppearance.clear();
 		pendingAppearanceRef.current = {};
 		setAppearanceDraft( current => ( { ...current, [ field ]: displayValue } ) );
 		if ( APPEARANCE_COLOR_FIELDS.includes( field ) ) {
@@ -327,7 +339,6 @@ export default function ReaderChatControl( {
 		Object.values( appearanceOverrides ).some( Boolean ) ||
 		appearanceDraft.fontFamily !== DEFAULT_APPEARANCE.fontFamily;
 	const resetAppearance = () => {
-		saveAppearance.clear();
 		pendingAppearanceRef.current = {};
 		setAppearanceDraft( {
 			accent: derivedBrand?.accent || DEFAULT_APPEARANCE.accent,
@@ -355,6 +366,7 @@ export default function ReaderChatControl( {
 	const previewBackground =
 		normalizeHexColor( appearanceDraft.background ) || DEFAULT_APPEARANCE.background;
 	const previewOutline = normalizeHexColor( appearanceDraft.outline ) || DEFAULT_APPEARANCE.outline;
+	const previewSiteFontFamily = normalizeFontFamily( derivedBrand?.siteFontFamily );
 	const previewName = draft.name.trim() || derivedBrand?.name || '';
 	// Keep the no-integration fallback aligned with Site Chat's empty view in
 	// wp-calypso/packages/agents-manager/src/components/agent-chat/index.tsx.
@@ -369,6 +381,9 @@ export default function ReaderChatControl( {
 		'--jp-reader-chat-preview-background': previewBackground,
 		'--jp-reader-chat-preview-foreground': getAccessibleTextColor( previewBackground ),
 		'--jp-reader-chat-preview-outline': previewOutline,
+		...( previewSiteFontFamily && {
+			'--jp-reader-chat-preview-site-font-family': previewSiteFontFamily,
+		} ),
 	};
 
 	// Hide the control when this site should not expose Reader Chat settings.
@@ -411,7 +426,7 @@ export default function ReaderChatControl( {
 										__nextHasNoMarginBottom
 										__next40pxDefaultSize
 										help={ __(
-											'Shown beside your Site Icon when visitors open Site Chat.',
+											'Shown beside your Site Logo or Site Icon when visitors open Site Chat.',
 											'jetpack-search-pkg'
 										) }
 										label={ __( 'Assistant name', 'jetpack-search-pkg' ) }
@@ -476,6 +491,7 @@ export default function ReaderChatControl( {
 												isSaving={ isSaving }
 												label={ __( 'Accent', 'jetpack-search-pkg' ) }
 												onChange={ value => queueAppearance( 'accent', value ?? '' ) }
+												onCommit={ commitPendingAppearance }
 												onReset={ () =>
 													commitAppearance(
 														'accent',
@@ -493,6 +509,7 @@ export default function ReaderChatControl( {
 												isSaving={ isSaving }
 												label={ __( 'Background', 'jetpack-search-pkg' ) }
 												onChange={ value => queueAppearance( 'background', value ?? '' ) }
+												onCommit={ commitPendingAppearance }
 												onReset={ () =>
 													commitAppearance( 'background', '', DEFAULT_APPEARANCE.background, false )
 												}
@@ -505,6 +522,7 @@ export default function ReaderChatControl( {
 												isSaving={ isSaving }
 												label={ __( 'Outline', 'jetpack-search-pkg' ) }
 												onChange={ value => queueAppearance( 'outline', value ?? '' ) }
+												onCommit={ commitPendingAppearance }
 												onReset={ () =>
 													commitAppearance( 'outline', '', DEFAULT_APPEARANCE.outline, false )
 												}
@@ -523,7 +541,7 @@ export default function ReaderChatControl( {
 										__nextHasNoMarginBottom
 										disabled={ isSaving }
 										help={ __(
-											'Uses fonts already available in the visitor’s browser or theme. Site font is applied on your site; this preview uses the dashboard font.',
+											'Uses fonts already available in the visitor’s browser or theme. Site font matches your theme when it provides a global font family.',
 											'jetpack-search-pkg'
 										) }
 										label={ __( 'Font', 'jetpack-search-pkg' ) }

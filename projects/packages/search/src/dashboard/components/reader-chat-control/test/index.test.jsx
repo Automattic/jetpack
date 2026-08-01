@@ -27,9 +27,12 @@ jest.mock( '@wordpress/components', () => ( {
 			</div>
 		);
 	},
-	Dropdown: ( { renderContent, renderToggle } ) => (
+	Dropdown: ( { onToggle, renderContent, renderToggle } ) => (
 		<div>
-			{ renderToggle( { isOpen: true, onToggle: jest.fn() } ) }
+			{ renderToggle( { isOpen: true, onToggle: () => onToggle?.( false ) } ) }
+			<button data-testid="open-color-picker" onClick={ () => onToggle?.( true ) }>
+				Open picker
+			</button>
 			{ renderContent() }
 		</div>
 	),
@@ -162,6 +165,8 @@ describe( 'ReaderChatControl', () => {
 			name: 'Example Site',
 			accent: '#2271b1',
 			greeting: 'Ask me anything about this blog.',
+			logoUrl: 'https://example.com/site-logo.png',
+			siteFontFamily: 'Manrope, sans-serif',
 		};
 		mockThemePalette = [
 			{
@@ -275,6 +280,10 @@ describe( 'ReaderChatControl', () => {
 
 		const preview = screen.getByRole( 'img', { name: 'Site Chat preview for Example Site' } );
 		expect( within( preview ).getByText( 'Example Site' ) ).toBeInTheDocument();
+		expect( within( preview ).getByRole( 'presentation' ) ).toHaveAttribute(
+			'src',
+			'https://example.com/site-logo.png'
+		);
 		expect( within( preview ).getByText( 'Ask me anything about this blog.' ) ).toBeInTheDocument();
 		expect( within( preview ).getByText( 'Or type your own question below.' ) ).toBeInTheDocument();
 		expect( preview.style.getPropertyValue( '--jp-reader-chat-preview-background' ) ).toBe(
@@ -313,7 +322,10 @@ describe( 'ReaderChatControl', () => {
 		);
 		expect( updateOptions ).not.toHaveBeenCalled();
 
+		// The picker no longer saves on a timer; closing it is the commit boundary.
 		jest.advanceTimersByTime( 500 );
+		expect( updateOptions ).not.toHaveBeenCalled();
+		fireEvent.click( screen.getByRole( 'button', { name: /Accent color:/ } ) );
 		expect( updateOptions ).toHaveBeenCalledTimes( 1 );
 		expect( updateOptions ).toHaveBeenCalledWith( {
 			reader_chat_brand: {
@@ -325,7 +337,6 @@ describe( 'ReaderChatControl', () => {
 	} );
 
 	test( 'round-trips brand field changes through the settings update', () => {
-		jest.useFakeTimers();
 		const updateOptions = jest.fn();
 		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
 
@@ -366,7 +377,7 @@ describe( 'ReaderChatControl', () => {
 			within( screen.getByLabelText( 'Accent' ) ).getByRole( 'button', { name: 'Primary' } )
 		);
 		expect( screen.getByRole( 'button', { name: 'Reset Accent to default' } ) ).toBeEnabled();
-		jest.advanceTimersByTime( 500 );
+		fireEvent.click( screen.getByRole( 'button', { name: /Accent color:/ } ) );
 		expect( updateOptions ).toHaveBeenLastCalledWith( {
 			reader_chat_brand: {
 				...emptyBrand,
@@ -378,8 +389,7 @@ describe( 'ReaderChatControl', () => {
 		} );
 	} );
 
-	test( 'coalesces multiple color changes into one appearance save', () => {
-		jest.useFakeTimers();
+	test( 'saves all pending color changes when the picker closes', () => {
 		const updateOptions = jest.fn();
 		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
 
@@ -391,7 +401,7 @@ describe( 'ReaderChatControl', () => {
 		} );
 
 		expect( updateOptions ).not.toHaveBeenCalled();
-		jest.advanceTimersByTime( 500 );
+		fireEvent.click( screen.getByRole( 'button', { name: /Outline color:/ } ) );
 
 		expect( updateOptions ).toHaveBeenCalledTimes( 1 );
 		expect( updateOptions ).toHaveBeenCalledWith( {
@@ -401,6 +411,16 @@ describe( 'ReaderChatControl', () => {
 				outline: '#f2eff6',
 			},
 		} );
+	} );
+
+	test( 'does not save when a picker opens or closes without a pending color', () => {
+		const updateOptions = jest.fn();
+		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
+
+		fireEvent.click( screen.getAllByTestId( 'open-color-picker' )[ 0 ] );
+		fireEvent.click( screen.getByRole( 'button', { name: /Accent color:/ } ) );
+
+		expect( updateOptions ).not.toHaveBeenCalled();
 	} );
 
 	test( 'saves a font preset as a discrete appearance change', () => {
@@ -421,8 +441,39 @@ describe( 'ReaderChatControl', () => {
 		} );
 	} );
 
-	test( 'saves only the final custom accent after the picker settles', () => {
-		jest.useFakeTimers();
+	test( 'saves and previews the resolved site font family', () => {
+		const updateOptions = jest.fn();
+		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
+
+		fireEvent.change( screen.getByLabelText( 'Font' ), { target: { value: 'site' } } );
+
+		const preview = screen.getByRole( 'img', { name: /Site Chat preview/ } );
+		expect( preview ).toHaveAttribute( 'data-font', 'site' );
+		expect( preview.style.getPropertyValue( '--jp-reader-chat-preview-site-font-family' ) ).toBe(
+			'Manrope, sans-serif'
+		);
+		expect( updateOptions ).toHaveBeenCalledWith( {
+			reader_chat_brand: {
+				...emptyBrand,
+				fontFamily: 'site',
+			},
+		} );
+	} );
+
+	test( 'does not preview an unsafe resolved site font family', () => {
+		mockDerivedBrand.siteFontFamily = 'Arial; color: red';
+		render( <ReaderChatControl { ...defaultProps } isEnabled /> );
+
+		fireEvent.change( screen.getByLabelText( 'Font' ), { target: { value: 'site' } } );
+
+		expect(
+			screen
+				.getByRole( 'img', { name: /Site Chat preview/ } )
+				.style.getPropertyValue( '--jp-reader-chat-preview-site-font-family' )
+		).toBe( '' );
+	} );
+
+	test( 'saves only the final custom accent when the picker closes', () => {
 		const updateOptions = jest.fn();
 		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
 
@@ -435,10 +486,7 @@ describe( 'ReaderChatControl', () => {
 		expect( screen.getByRole( 'button', { name: 'Reset Accent to default' } ) ).toBeEnabled();
 		expect( updateOptions ).not.toHaveBeenCalled();
 
-		jest.advanceTimersByTime( 499 );
-		expect( updateOptions ).not.toHaveBeenCalled();
-
-		jest.advanceTimersByTime( 1 );
+		fireEvent.click( screen.getByRole( 'button', { name: /Accent color:/ } ) );
 		expect( updateOptions ).toHaveBeenCalledTimes( 1 );
 		expect( updateOptions ).toHaveBeenCalledWith( {
 			reader_chat_brand: {
@@ -449,7 +497,6 @@ describe( 'ReaderChatControl', () => {
 	} );
 
 	test( 'keeps a pending accent save across an update callback change', () => {
-		jest.useFakeTimers();
 		const firstUpdateOptions = jest.fn();
 		const finalUpdateOptions = jest.fn();
 		const { rerender } = render(
@@ -464,7 +511,8 @@ describe( 'ReaderChatControl', () => {
 			<ReaderChatControl { ...defaultProps } isEnabled updateOptions={ finalUpdateOptions } />
 		);
 		expect( screen.getByLabelText( 'Accent' ) ).toHaveAttribute( 'data-value', '#333333' );
-		jest.advanceTimersByTime( 500 );
+		expect( finalUpdateOptions ).not.toHaveBeenCalled();
+		fireEvent.click( screen.getByRole( 'button', { name: /Accent color:/ } ) );
 
 		expect( firstUpdateOptions ).not.toHaveBeenCalled();
 		expect( finalUpdateOptions ).toHaveBeenCalledWith( {
@@ -476,7 +524,6 @@ describe( 'ReaderChatControl', () => {
 	} );
 
 	test( 'includes a pending accent when a text field saves first', () => {
-		jest.useFakeTimers();
 		const updateOptions = jest.fn();
 		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
 
@@ -494,19 +541,9 @@ describe( 'ReaderChatControl', () => {
 				accent: '#333333',
 			},
 		} );
-
-		jest.advanceTimersByTime( 500 );
-		expect( updateOptions ).toHaveBeenLastCalledWith( {
-			reader_chat_brand: {
-				...emptyBrand,
-				name: 'Ada',
-				accent: '#333333',
-			},
-		} );
 	} );
 
 	test( 'keeps committed text across a referential-only store update', () => {
-		jest.useFakeTimers();
 		const updateOptions = jest.fn();
 		const { rerender } = render(
 			<ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } />
@@ -520,7 +557,7 @@ describe( 'ReaderChatControl', () => {
 		fireEvent.change( screen.getByLabelText( 'Custom accent color' ), {
 			target: { value: '#333333' },
 		} );
-		jest.advanceTimersByTime( 500 );
+		fireEvent.click( screen.getByRole( 'button', { name: /Accent color:/ } ) );
 
 		expect( updateOptions ).toHaveBeenLastCalledWith( {
 			reader_chat_brand: {
@@ -532,7 +569,6 @@ describe( 'ReaderChatControl', () => {
 	} );
 
 	test( 'flushes the final accent when the control unmounts', () => {
-		jest.useFakeTimers();
 		const updateOptions = jest.fn();
 		const { unmount } = render(
 			<ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } />
@@ -550,6 +586,17 @@ describe( 'ReaderChatControl', () => {
 				accent: '#333333',
 			},
 		} );
+	} );
+
+	test( 'does not save when the control unmounts without pending colors', () => {
+		const updateOptions = jest.fn();
+		const { unmount } = render(
+			<ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } />
+		);
+
+		unmount();
+
+		expect( updateOptions ).not.toHaveBeenCalled();
 	} );
 
 	test( 'saves text fields once on blur, not on every keystroke', () => {
@@ -578,7 +625,6 @@ describe( 'ReaderChatControl', () => {
 	} );
 
 	test( 'resets an accent override to the derived theme value', () => {
-		jest.useFakeTimers();
 		mockStoredBrand.accent = '#ff0000';
 		const updateOptions = jest.fn();
 		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
@@ -588,7 +634,6 @@ describe( 'ReaderChatControl', () => {
 			target: { value: '#00ff00' },
 		} );
 		fireEvent.click( screen.getByRole( 'button', { name: 'Reset Accent to default' } ) );
-		jest.advanceTimersByTime( 500 );
 
 		expect( updateOptions ).toHaveBeenCalledTimes( 1 );
 		expect( screen.getByRole( 'button', { name: 'Reset Accent to default' } ) ).toBeDisabled();
@@ -628,8 +673,22 @@ describe( 'ReaderChatControl', () => {
 		expect( screen.getByRole( 'button', { name: 'Reset appearance to defaults' } ) ).toBeDisabled();
 	} );
 
-	test( 'cancels a pending appearance save when all appearance values are reset', () => {
-		jest.useFakeTimers();
+	test( 'resets appearance after committing a picker close', () => {
+		const updateOptions = jest.fn();
+		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
+
+		fireEvent.change( screen.getByLabelText( 'Custom background color' ), {
+			target: { value: '#112233' },
+		} );
+		const resetButton = screen.getByRole( 'button', { name: 'Reset appearance to defaults' } );
+		fireEvent.click( screen.getByRole( 'button', { name: /Background color:/ } ) );
+		fireEvent.click( resetButton );
+
+		expect( updateOptions ).toHaveBeenCalledTimes( 2 );
+		expect( updateOptions ).toHaveBeenLastCalledWith( { reader_chat_brand: emptyBrand } );
+	} );
+
+	test( 'resets a pending appearance without persisting the draft color first', () => {
 		const updateOptions = jest.fn();
 		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
 
@@ -637,7 +696,6 @@ describe( 'ReaderChatControl', () => {
 			target: { value: '#112233' },
 		} );
 		fireEvent.click( screen.getByRole( 'button', { name: 'Reset appearance to defaults' } ) );
-		jest.advanceTimersByTime( 500 );
 
 		expect( updateOptions ).toHaveBeenCalledTimes( 1 );
 		expect( updateOptions ).toHaveBeenCalledWith( { reader_chat_brand: emptyBrand } );
@@ -663,7 +721,6 @@ describe( 'ReaderChatControl', () => {
 	} );
 
 	test( 'disables discrete controls while settings are saving', () => {
-		jest.useFakeTimers();
 		mockStoredBrand.accent = '#ff0000';
 		const updateOptions = jest.fn();
 		render(
@@ -681,7 +738,7 @@ describe( 'ReaderChatControl', () => {
 		fireEvent.change( screen.getByLabelText( 'Custom accent color' ), {
 			target: { value: '#00ff00' },
 		} );
-		jest.advanceTimersByTime( 500 );
+		fireEvent.click( screen.getByRole( 'button', { name: /Accent color:/ } ) );
 		expect( updateOptions ).not.toHaveBeenCalled();
 	} );
 

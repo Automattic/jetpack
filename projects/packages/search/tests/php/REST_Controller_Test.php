@@ -447,7 +447,7 @@ class REST_Controller_Test extends Search_TestCase {
 						'help'       => '<strong>Choose a prompt or ask below.</strong>',
 						'background' => '#112233',
 						'outline'    => '#445566',
-						'fontFamily' => 'serif',
+						'fontFamily' => 'site',
 					),
 				),
 				JSON_UNESCAPED_SLASHES
@@ -462,7 +462,7 @@ class REST_Controller_Test extends Search_TestCase {
 			'help'       => 'Choose a prompt or ask below.',
 			'background' => '#112233',
 			'outline'    => '#445566',
-			'fontFamily' => 'serif',
+			'fontFamily' => 'site',
 		);
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertSame( $expected, get_option( 'reader_chat_brand' ) );

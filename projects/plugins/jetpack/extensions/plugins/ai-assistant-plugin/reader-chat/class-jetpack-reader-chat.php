@@ -172,10 +172,14 @@ class Jetpack_Reader_Chat {
 			$brand['accentForeground'] = self::get_accent_foreground( $accent );
 		}
 
-		$logo_url = get_site_icon_url( 96 );
-		$logo_url = is_string( $logo_url ) ? esc_url_raw( $logo_url ) : '';
+		$logo_url = self::get_brand_logo_url();
 		if ( $logo_url ) {
 			$brand['logoUrl'] = $logo_url;
+		}
+
+		$site_font_family = self::get_site_font_family();
+		if ( '' !== $site_font_family ) {
+			$brand['siteFontFamily'] = $site_font_family;
 		}
 
 		$greeting = self::sanitize_brand_text( $stored_brand['greeting'] ?? '', 120 );
@@ -446,6 +450,69 @@ class Jetpack_Reader_Chat {
 		return is_string( $value ) && in_array( $value, self::BRAND_FONT_FAMILIES, true )
 			? $value
 			: '';
+	}
+
+	/**
+	 * Resolve the Site Chat logo from the WordPress Site Logo or Site Icon.
+	 *
+	 * @return string Resolved logo URL, or an empty string when unavailable.
+	 */
+	private static function get_brand_logo_url(): string {
+		// The Site Logo block uses this option, including an older array shape
+		// still present on some sites. Customizer themes use the theme mod below.
+		$logo_id = get_option( 'site_logo' );
+		if ( is_array( $logo_id ) && isset( $logo_id['id'] ) ) {
+			$logo_id = $logo_id['id'];
+		}
+		$logo_id = is_scalar( $logo_id ) ? (int) $logo_id : 0;
+		if ( $logo_id <= 0 ) {
+			$custom_logo = get_theme_mod( 'custom_logo' );
+			$logo_id     = is_scalar( $custom_logo ) ? (int) $custom_logo : 0;
+		}
+
+		$logo_url = $logo_id > 0 ? wp_get_attachment_image_url( $logo_id, 'medium' ) : '';
+		if ( ! $logo_url && $logo_id > 0 && wp_attachment_is_image( $logo_id ) ) {
+			$logo_url = wp_get_attachment_url( $logo_id );
+		}
+		if ( ! $logo_url ) {
+			$logo_url = get_site_icon_url( 96 );
+		}
+
+		return is_string( $logo_url ) ? esc_url_raw( $logo_url ) : '';
+	}
+
+	/**
+	 * Resolve the site's global font-family stack for the settings preview and widget.
+	 *
+	 * @return string Safe CSS font-family value, or an empty string when unavailable.
+	 */
+	private static function get_site_font_family(): string {
+		if ( ! function_exists( 'wp_get_global_styles' ) ) {
+			return '';
+		}
+
+		// Keep these guards aligned with both settings-preview and public-widget
+		// normalizeFontFamily() helpers.
+		$font_family = wp_get_global_styles(
+			array( 'typography', 'fontFamily' ),
+			array( 'transforms' => array( 'resolve-variables' ) )
+		);
+		if (
+			! is_string( $font_family )
+			|| '' === trim( $font_family )
+			|| strlen( trim( $font_family ) ) > 200
+			|| false !== strpos( $font_family, 'var(' )
+			|| false !== strpos( $font_family, 'var:' )
+			|| false !== strpos( $font_family, '\\' )
+			|| preg_match( '/[;{}\r\n\f]/', $font_family )
+		) {
+			return '';
+		}
+
+		$safe_style = safecss_filter_attr( 'font-family:' . $font_family );
+		$prefix     = 'font-family:';
+
+		return 0 === strpos( $safe_style, $prefix ) ? trim( substr( $safe_style, strlen( $prefix ) ) ) : '';
 	}
 
 	/**

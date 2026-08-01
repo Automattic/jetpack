@@ -65,6 +65,7 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'wp_doing_ajax' );
 		remove_all_filters( 'get_site_icon_url' );
+		remove_all_filters( 'wp_theme_json_data_theme' );
 		// Remove any wp_enqueue_scripts / wp_footer hooks the class may have added.
 		remove_all_actions( 'wp_enqueue_scripts' );
 		remove_all_actions( 'wp_footer' );
@@ -73,6 +74,11 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
 		delete_option( 'launch-status' );
 		delete_option( 'reader_chat_brand' );
+		delete_option( 'site_logo' );
+		remove_theme_mod( 'custom_logo' );
+		if ( class_exists( 'WP_Theme_JSON_Resolver' ) ) {
+			WP_Theme_JSON_Resolver::clean_cached_data();
+		}
 		unregister_setting( 'general', 'reader_chat' );
 		unregister_setting( 'general', 'reader_chat_brand' );
 		$GLOBALS['wp_scripts'] = $this->saved_wp_scripts;
@@ -408,6 +414,139 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		$this->assertArrayNotHasKey( 'help', $derived_brand );
 		$this->assertArrayNotHasKey( 'background', $derived_brand );
 		$this->assertArrayNotHasKey( 'fontFamily', $derived_brand );
+	}
+
+	/**
+	 * Test that the WordPress Site Logo takes precedence over the Site Icon.
+	 */
+	public function test_get_brand_prefers_site_logo_over_site_icon() {
+		$logo_id = self::factory()->attachment->create_upload_object(
+			dirname( __DIR__, 4 ) . '/jetpack-icon.jpg'
+		);
+		update_option( 'site_logo', $logo_id );
+		add_filter(
+			'get_site_icon_url',
+			static function () {
+				return 'https://example.com/site-icon.png';
+			}
+		);
+
+		$brand = Jetpack_Reader_Chat::get_brand();
+
+		$expected_url = wp_get_attachment_image_url( $logo_id, 'medium' );
+		if ( ! $expected_url ) {
+			$expected_url = wp_get_attachment_url( $logo_id );
+		}
+		$this->assertSame( $expected_url, $brand['logoUrl'] );
+		wp_delete_attachment( $logo_id, true );
+	}
+
+	/**
+	 * Test that Customizer Site Logos are used when the Site Logo option is empty.
+	 */
+	public function test_get_brand_uses_custom_logo_theme_mod() {
+		$logo_id = self::factory()->attachment->create_upload_object(
+			dirname( __DIR__, 4 ) . '/jetpack-icon.jpg'
+		);
+		set_theme_mod( 'custom_logo', $logo_id );
+
+		$brand = Jetpack_Reader_Chat::get_brand();
+
+		$expected_url = wp_get_attachment_image_url( $logo_id, 'medium' );
+		if ( ! $expected_url ) {
+			$expected_url = wp_get_attachment_url( $logo_id );
+		}
+		$this->assertSame( $expected_url, $brand['logoUrl'] );
+		wp_delete_attachment( $logo_id, true );
+	}
+
+	/**
+	 * Test that Site Chat exposes the resolved theme font stack.
+	 */
+	public function test_get_brand_exposes_resolved_site_font_family() {
+		add_filter(
+			'wp_theme_json_data_theme',
+			static function ( $theme_json ) {
+				return $theme_json->update_with(
+					array(
+						'version'  => 3,
+						'settings' => array(
+							'typography' => array(
+								'fontFamilies' => array(
+									array(
+										'name'       => 'Chat Sans',
+										'slug'       => 'chat-sans',
+										'fontFamily' => '"Chat Sans", sans-serif',
+									),
+								),
+							),
+						),
+						'styles'   => array(
+							'typography' => array(
+								'fontFamily' => 'var:preset|font-family|chat-sans',
+							),
+						),
+					)
+				);
+			}
+		);
+		WP_Theme_JSON_Resolver::clean_cached_data();
+
+		$brand = Jetpack_Reader_Chat::get_brand();
+
+		$this->assertSame( '"Chat Sans", sans-serif', $brand['siteFontFamily'] );
+	}
+
+	/**
+	 * Test that unsafe theme font values are not exposed to Site Chat CSS.
+	 */
+	public function test_get_brand_rejects_unsafe_site_font_family() {
+		add_filter(
+			'wp_theme_json_data_theme',
+			static function ( $theme_json ) {
+				return $theme_json->update_with(
+					array(
+						'version' => 3,
+						'styles'  => array(
+							'typography' => array(
+								'fontFamily' => 'Arial; color: red',
+							),
+						),
+					)
+				);
+			}
+		);
+		WP_Theme_JSON_Resolver::clean_cached_data();
+
+		$brand = Jetpack_Reader_Chat::get_brand();
+
+		$this->assertArrayNotHasKey( 'siteFontFamily', $brand );
+	}
+
+	/**
+	 * Test that unresolved CSS variables are not exposed to Site Chat CSS.
+	 */
+	public function test_get_brand_rejects_unresolved_site_font_family() {
+		add_filter(
+			'wp_theme_json_data_theme',
+			static function ( $theme_json ) {
+				return $theme_json->update_with(
+					array(
+						'version' => 3,
+						'styles'  => array(
+							'typography' => array(
+								'fontFamily' => 'var(--wp--preset--font-family--body)',
+							),
+						),
+					)
+				);
+			}
+		);
+		WP_Theme_JSON_Resolver::clean_cached_data();
+
+		$brand = Jetpack_Reader_Chat::get_brand();
+
+		$this->assertArrayNotHasKey( 'siteFontFamily', $brand );
 	}
 
 	/**
