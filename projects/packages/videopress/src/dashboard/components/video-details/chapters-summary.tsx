@@ -29,18 +29,27 @@ type Props = {
 	video: Pick< LibraryItem, 'id' >;
 	description: string;
 	onOpenHelp: () => void;
+	confirmNavigation?: () => boolean;
 };
 
 /**
  * The chapters summary row for the Details card.
  *
- * @param props             - Component props.
- * @param props.video       - The video (id for the Chapters tab deep link).
- * @param props.description - The form's current description value.
- * @param props.onOpenHelp  - Opens the chapters help modal.
+ * @param props                   - Component props.
+ * @param props.video             - The video (id for the Chapters tab deep link).
+ * @param props.description       - The form's current description value.
+ * @param props.onOpenHelp        - Opens the chapters help modal.
+ * @param props.confirmNavigation - Same guard the sub-nav uses: invoked before
+ *                                the deep link navigates away from a dirty
+ *                                Details form; return false to stay put.
  * @return The summary element.
  */
-export default function ChaptersSummary( { video, description, onOpenHelp }: Props ): ReactElement {
+export default function ChaptersSummary( {
+	video,
+	description,
+	onOpenHelp,
+	confirmNavigation,
+}: Props ): ReactElement {
 	const { rows } = useMemo( () => parseDescription( description ), [ description ] );
 	const linkProps = useLinkProps( { to: videoTabPath( video.id, 'chapters' ) } );
 
@@ -60,7 +69,21 @@ export default function ChaptersSummary( { video, description, onOpenHelp }: Pro
 						rows.length
 					) }
 				</Text>
-				<Link { ...linkProps }>{ __( 'Edit chapters', 'jetpack-videopress-pkg' ) }</Link>
+				<Link
+					{ ...linkProps }
+					onClick={ event => {
+						// Same exit as the Chapters sub-nav tab — it must honor the
+						// same dirty-form guard, or this link becomes a silent-discard
+						// path sitting right under the description textarea.
+						if ( confirmNavigation && ! confirmNavigation() ) {
+							event.preventDefault();
+							return;
+						}
+						linkProps.onClick?.( event );
+					} }
+				>
+					{ __( 'Edit chapters', 'jetpack-videopress-pkg' ) }
+				</Link>
 			</Stack>
 			<Link
 				href="#"

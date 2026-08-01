@@ -38,6 +38,12 @@ export interface ChaptersPreviewPlayerHandle {
 type Props = {
 	/** The video being previewed (guid, playback URLs, privacy, duration). */
 	video: LibraryItem;
+	/**
+	 * H.264 rendition URL used when the item itself carries no playbackUrl —
+	 * on WordPress.com Simple the media response omits the rendition data,
+	 * so the stage derives one from the v1.1 item it fetches for the probe.
+	 */
+	fallbackPlaybackUrl?: string;
 	/** Playhead position in ms, once per change. */
 	onTimeUpdate?: ( currentMs: number ) => void;
 	/** Media duration in ms, reported when known (metadata or fallback). */
@@ -58,13 +64,13 @@ type Props = {
  */
 const ChaptersPreviewPlayer = forwardRef< ChaptersPreviewPlayerHandle, Props >(
 	function ChaptersPreviewPlayerInner(
-		{ video, onTimeUpdate, onDurationChange, onPlayingChange },
+		{ video, fallbackPlaybackUrl, onTimeUpdate, onDurationChange, onPlayingChange },
 		ref
 	): ReactElement {
 		// Prefer the transcoded H.264 rendition: the original upload may be an
 		// HEVC .mov the browser can't decode (playbackUrl falls back upstream).
 		const { isPrivate, guid, durationSeconds } = video;
-		const sourceUrl = video.playbackUrl ?? video.sourceUrl;
+		const sourceUrl = video.playbackUrl ?? fallbackPlaybackUrl ?? video.sourceUrl;
 		const token = usePlaybackToken( guid, isPrivate );
 		const {
 			currentMs,

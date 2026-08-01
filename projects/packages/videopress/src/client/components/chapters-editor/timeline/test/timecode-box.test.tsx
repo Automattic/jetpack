@@ -43,6 +43,18 @@ describe( 'TimecodeBox', () => {
 		expect( input ).toHaveValue( '0:00:00.0' );
 	} );
 
+	it( 'marks Escape handled so modal hosts do not also close on it', () => {
+		const { input } = renderBox();
+		input.focus();
+		const escape = new KeyboardEvent( 'keydown', {
+			key: 'Escape',
+			bubbles: true,
+			cancelable: true,
+		} );
+		input.dispatchEvent( escape );
+		expect( escape.defaultPrevented ).toBe( true );
+	} );
+
 	it( 'ignores input that does not parse as a timecode', async () => {
 		const { onSeek, input } = renderBox();
 		await userEvent.clear( input );

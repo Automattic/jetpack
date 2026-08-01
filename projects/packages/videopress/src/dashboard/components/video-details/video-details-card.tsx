@@ -11,6 +11,7 @@ type Props = {
 	description: string;
 	onChange: ( partial: { title?: string; description?: string } ) => void;
 	onOpenChapters: () => void;
+	confirmNavigation?: () => boolean;
 };
 
 /**
@@ -19,12 +20,14 @@ type Props = {
  * into the Chapters tab, and the Chapters help modal link — see
  * chapters-summary.tsx).
  *
- * @param props                - Component props.
- * @param props.video          - The video (id for the Chapters tab deep link).
- * @param props.title          - Current title value.
- * @param props.description    - Current description value.
- * @param props.onChange       - Partial-update handler from the form hook.
- * @param props.onOpenChapters - Opens the chapters help modal.
+ * @param props                   - Component props.
+ * @param props.video             - The video (id for the Chapters tab deep link).
+ * @param props.title             - Current title value.
+ * @param props.description       - Current description value.
+ * @param props.onChange          - Partial-update handler from the form hook.
+ * @param props.onOpenChapters    - Opens the chapters help modal.
+ * @param props.confirmNavigation - Dirty-form guard forwarded to the chapters
+ *                                deep link (same guard the sub-nav uses).
  * @return The card element.
  */
 export default function VideoDetailsCard( {
@@ -33,6 +36,7 @@ export default function VideoDetailsCard( {
 	description,
 	onChange,
 	onOpenChapters,
+	confirmNavigation,
 }: Props ): ReactElement {
 	return (
 		<Card.Root>
@@ -57,6 +61,7 @@ export default function VideoDetailsCard( {
 						video={ video }
 						description={ description }
 						onOpenHelp={ onOpenChapters }
+						confirmNavigation={ confirmNavigation }
 					/>
 				</Stack>
 			</Card.Content>

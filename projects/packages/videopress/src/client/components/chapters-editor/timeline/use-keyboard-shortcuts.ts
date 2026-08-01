@@ -2,8 +2,8 @@
  * Document-level keyboard shortcuts for the chapters editor.
  *
  * Space play/pause, ←/→ nudge the playhead ±100ms (±1s with Shift), Home/End
- * jump to the trim in/out points, Delete/Backspace removes the selected cut,
- * and mod+Z / shift+mod+Z undo/redo.
+ * jump to the start/end of the video, Delete/Backspace removes the selected
+ * chapter, and mod+Z / shift+mod+Z undo/redo.
  *
  * The listener bails on editable targets (inputs, textareas, selects,
  * contenteditable) so typing in the timecode box never toggles playback, on
@@ -34,12 +34,12 @@ export interface KeyboardShortcuts {
 	onTogglePlay: () => void;
 	/** ←/→, with the signed delta (±100 or ±1000). */
 	onNudge: ( deltaMs: number ) => void;
-	/** Home — jump to the trim in point. */
+	/** Home — jump to the start of the video. */
 	onHome: () => void;
-	/** End — jump to the trim out point. */
+	/** End — jump to the end of the video. */
 	onEnd: () => void;
-	/** Delete/Backspace. */
-	onRemoveSelectedCut: () => void;
+	/** Delete/Backspace — remove the selected chapter. */
+	onRemoveSelected: () => void;
 	/** mod+Z. */
 	onUndo: () => void;
 	/** shift+mod+Z. */
@@ -147,7 +147,7 @@ export function useKeyboardShortcuts( shortcuts: KeyboardShortcuts ): void {
 				case 'Delete':
 				case 'Backspace':
 					event.preventDefault();
-					current.onRemoveSelectedCut();
+					current.onRemoveSelected();
 					break;
 			}
 		};

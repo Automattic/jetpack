@@ -89,11 +89,14 @@
 }
 
 // The reused caption preview player is a bordered sidebar in its home modal;
-// here it is a full-width row above the timeline.
+// here it is a full-width row above the timeline. border-block-start is reset
+// too: the caption modal's own mobile rule adds a top divider that would
+// otherwise double up under this modal's action-bar border at ≤960px.
 .videopress-chapter-manager__workspace .videopress-caption-manager__preview {
 	flex: none;
 	padding: 0;
 	border-inline-start: 0;
+	border-block-start: 0;
 	background: transparent;
 	overflow: visible;
 }

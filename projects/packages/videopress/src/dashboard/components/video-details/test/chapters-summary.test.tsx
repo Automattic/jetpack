@@ -21,13 +21,16 @@ const DESCRIPTION = [
 	'Thanks for watching!',
 ].join( '\n' );
 
-const renderSummary = ( overrides: { description?: string } = {} ) => {
+const renderSummary = (
+	overrides: { description?: string; confirmNavigation?: () => boolean } = {}
+) => {
 	const onOpenHelp = jest.fn();
 	const utils = render(
 		<ChaptersSummary
 			video={ { id: '42' } }
 			description={ overrides.description ?? DESCRIPTION }
 			onOpenHelp={ onOpenHelp }
+			confirmNavigation={ overrides.confirmNavigation }
 		/>
 	);
 	return { ...utils, onOpenHelp };
@@ -65,5 +68,26 @@ describe( 'ChaptersSummary', () => {
 		await user.click( screen.getByRole( 'link', { name: 'Learn how chapters work' } ) );
 
 		expect( onOpenHelp ).toHaveBeenCalled();
+	} );
+
+	// The deep link is the same exit as the Chapters sub-nav tab, so it must
+	// honor the same dirty-form guard — otherwise it is a silent-discard path
+	// sitting right under the description textarea.
+	it( 'blocks the deep link when confirmNavigation returns false', () => {
+		const confirmNavigation = jest.fn( () => false );
+		renderSummary( { confirmNavigation } );
+
+		const link = screen.getByRole( 'link', { name: 'Edit chapters' } );
+		const clickEvent = new MouseEvent( 'click', { bubbles: true, cancelable: true } );
+		link.dispatchEvent( clickEvent );
+
+		expect( confirmNavigation ).toHaveBeenCalled();
+		expect( clickEvent.defaultPrevented ).toBe( true );
+
+		// And when the guard allows it, the click proceeds unprevented.
+		confirmNavigation.mockReturnValue( true );
+		const allowedClick = new MouseEvent( 'click', { bubbles: true, cancelable: true } );
+		link.dispatchEvent( allowedClick );
+		expect( allowedClick.defaultPrevented ).toBe( false );
 	} );
 } );

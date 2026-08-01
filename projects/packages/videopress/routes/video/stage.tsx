@@ -180,6 +180,7 @@ const Editor = ( {
 					description={ values.description }
 					onChange={ update }
 					onOpenChapters={ openChapters }
+					confirmNavigation={ confirmNavigation }
 				/>
 				<PrivacySharingCard
 					privacy={ values.privacy }
@@ -246,19 +247,22 @@ const StageReady = ( { video }: StageReadyProps ) => {
 				// against the attachment being removed.
 				isSaving={ isSaving || isDeleting }
 				onSave={ ( values, reset ) => {
-					// The description is the single source of truth for the
-					// player's chapters VTT, so a description change must
-					// regenerate that track (the legacy dashboard did; without it
-					// the player's chapter menu silently de-syncs). Fire-and-notice:
-					// syncChapters never rejects — failures surface as a warning
-					// notice from the hook — so it can't block or fail the save.
-					if ( values.description !== video.description ) {
-						void syncChapters( video, values.description );
-					}
 					updateMeta(
 						{ id: video.id, patch: values },
 						{
 							onSuccess: () => {
+								// The description is the single source of truth for the
+								// player's chapters VTT, so a description change must
+								// regenerate that track (the legacy dashboard did; without
+								// it the player's chapter menu silently de-syncs). Only
+								// after the meta save succeeds — syncing first would bake
+								// a never-persisted description into the VTT when the
+								// save fails. Fire-and-notice: syncChapters never rejects
+								// (failures surface as a warning notice from the hook),
+								// so it can't block the save result either way.
+								if ( values.description !== video.description ) {
+									void syncChapters( video, values.description );
+								}
 								createSuccessNotice( __( 'Video details saved.', 'jetpack-videopress-pkg' ) );
 								reset( values );
 							},

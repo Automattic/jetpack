@@ -64,6 +64,12 @@ export default function TimecodeBox( { valueMs, onSeek }: Props ): ReactElement 
 					skipBlurCommitRef.current = true;
 					event.currentTarget.blur();
 				} else if ( event.key === 'Escape' ) {
+					// Consuming Escape must mark the event handled: modal hosts
+					// (the chapter manager) close on any unhandled Escape, and
+					// "cancel this timecode edit" must not double as "close the
+					// modal" — same contract the caption manager's inner
+					// controls follow.
+					event.preventDefault();
 					setDraft( null );
 					skipBlurCommitRef.current = true;
 					event.currentTarget.blur();

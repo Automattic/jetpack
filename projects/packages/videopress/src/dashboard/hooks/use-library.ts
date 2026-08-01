@@ -208,13 +208,16 @@ export function viewToQueryArgs( view: View ): Record< string, string | number >
  * decode; VideoPress always transcodes an H.264 ladder, so prefer hd → dvd →
  * std under the HTTPS file URL base.
  *
- * @param vp                     - The `media_details.videopress` block from the REST response.
+ * @param vp                     - The `media_details.videopress` block from the REST response, or
+ *                               a v1.1 `videos/{guid}` item (same `file_url_base`/`files` shape) —
+ *                               the Chapters tab derives a fallback from the latter on
+ *                               WordPress.com Simple, where `media_details.videopress` is absent.
  * @param vp.file_url_base       - Per-scheme base URLs for the video's files.
  * @param vp.file_url_base.https - The HTTPS base URL.
  * @param vp.files               - Rendition descriptors keyed by size (std/dvd/hd/…).
  * @return The rendition URL, or undefined when none is available yet.
  */
-function pickPlaybackUrl( vp?: {
+export function pickPlaybackUrl( vp?: {
 	file_url_base?: { https?: string };
 	files?: Record< string, { mp4?: string } >;
 } ): string | undefined {

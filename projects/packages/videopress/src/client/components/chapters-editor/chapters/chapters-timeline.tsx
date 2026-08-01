@@ -137,7 +137,7 @@ export default function ChaptersTimeline( {
 		onNudge: delta => seekClamped( currentMs + delta ),
 		onHome: () => onSeek( 0 ),
 		onEnd: () => onSeek( durationMs ),
-		onRemoveSelectedCut: () => {
+		onRemoveSelected: () => {
 			// The reducer floors removal at one chapter; readOnly drops edits.
 			if ( ! readOnly && session.selectedId !== null ) {
 				dispatch( { type: 'REMOVE', id: session.selectedId } );

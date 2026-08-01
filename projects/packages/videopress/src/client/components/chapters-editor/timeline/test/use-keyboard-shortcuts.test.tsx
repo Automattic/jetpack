@@ -15,7 +15,7 @@ function mountShortcuts( overrides: Partial< KeyboardShortcuts > = {} ) {
 		onNudge: jest.fn(),
 		onHome: jest.fn(),
 		onEnd: jest.fn(),
-		onRemoveSelectedCut: jest.fn(),
+		onRemoveSelected: jest.fn(),
 		onUndo: jest.fn(),
 		onRedo: jest.fn(),
 	};
@@ -48,10 +48,10 @@ describe( 'useKeyboardShortcuts', () => {
 	} );
 
 	it( 'removes the selected cut on Delete and Backspace', () => {
-		const { onRemoveSelectedCut } = mountShortcuts();
+		const { onRemoveSelected } = mountShortcuts();
 		fireEvent.keyDown( document.body, { key: 'Delete' } );
 		fireEvent.keyDown( document.body, { key: 'Backspace' } );
-		expect( onRemoveSelectedCut ).toHaveBeenCalledTimes( 2 );
+		expect( onRemoveSelected ).toHaveBeenCalledTimes( 2 );
 	} );
 
 	it( 'undoes on mod+Z and redoes on shift+mod+Z', () => {
@@ -89,14 +89,14 @@ describe( 'useKeyboardShortcuts', () => {
 		link.setAttribute( 'href', '/library' );
 		document.body.append( button, link );
 
-		const { onTogglePlay, onRemoveSelectedCut, onNudge } = mountShortcuts();
+		const { onTogglePlay, onRemoveSelected, onNudge } = mountShortcuts();
 		fireEvent.keyDown( button, { key: ' ' } );
 		fireEvent.keyDown( icon, { key: ' ' } );
 		fireEvent.keyDown( button, { key: 'Delete' } );
 		fireEvent.keyDown( link, { key: 'ArrowRight' } );
 
 		expect( onTogglePlay ).not.toHaveBeenCalled();
-		expect( onRemoveSelectedCut ).not.toHaveBeenCalled();
+		expect( onRemoveSelected ).not.toHaveBeenCalled();
 		expect( onNudge ).not.toHaveBeenCalled();
 		button.remove();
 		link.remove();

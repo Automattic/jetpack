@@ -36,12 +36,14 @@ import {
 	canUndo as canUndoHistory,
 } from '../../src/client/components/chapters-editor/state/history';
 import { useChaptersStore } from '../../src/client/components/chapters-editor/use-chapters-store';
+import { fetchVideoItem } from '../../src/client/lib/fetch-video-item';
 import { serializeDescription } from '../../src/client/utils/video-chapters/description';
 import { probeManualTrack } from '../../src/client/utils/video-chapters/probe-manual-track';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import ChaptersPreviewPlayer from '../../src/dashboard/components/video-chapters/preview-player';
 import VideoLayout from '../../src/dashboard/components/video-layout';
 import { videoTabPath } from '../../src/dashboard/components/video-nav';
+import { pickPlaybackUrl } from '../../src/dashboard/hooks/use-library';
 import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useVideo } from '../../src/dashboard/hooks/use-video';
@@ -266,10 +268,27 @@ function ChaptersReady( { video }: ReadyProps ): ReactElement {
 	const [ chaptersProbe, setChaptersProbe ] = useState< 'unprobed' | 'manual' | 'editable' >(
 		'unprobed'
 	);
+	// On WordPress.com Simple the media response omits `media_details.videopress`,
+	// so `video.playbackUrl` is never populated there — but the v1.1 item the
+	// probe needs anyway carries the same `file_url_base`/`files` shape, so one
+	// fetch feeds both the probe and an H.264 rendition fallback for the player.
+	const [ playbackFallbackUrl, setPlaybackFallbackUrl ] = useState< string | undefined >(
+		undefined
+	);
 	useEffect( () => {
 		// No cancellation: setState after unmount is a safe no-op, and the
 		// result must survive re-renders during the probe.
-		probeManualTrack( videoRef.current ).then( setChaptersProbe );
+		const { guid, isPrivate } = videoRef.current;
+		fetchVideoItem( { guid, isPrivate } )
+			.then( item => {
+				setPlaybackFallbackUrl( pickPlaybackUrl( item ) );
+				return probeManualTrack( videoRef.current, { item } );
+			} )
+			// The item fetch failing is exactly the probe's own fail-open case:
+			// without the item there is nothing to guard against, and the
+			// save-time sync re-checks authoritatively.
+			.catch( () => 'editable' as const )
+			.then( setChaptersProbe );
 	}, [] );
 
 	// While the manual-VTT probe is unresolved the tool is LOCKED (busy),
@@ -463,6 +482,7 @@ function ChaptersReady( { video }: ReadyProps ): ReactElement {
 					<ChaptersPreviewPlayer
 						ref={ playerRef }
 						video={ video }
+						fallbackPlaybackUrl={ playbackFallbackUrl }
 						onTimeUpdate={ onTimeUpdate }
 						onPlayingChange={ setPlaying }
 					/>

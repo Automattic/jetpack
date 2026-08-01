@@ -92,6 +92,13 @@ jest.mock( '../../../src/client/utils/video-chapters/probe-manual-track', () => 
 	probeManualTrack: ( ...args: unknown[] ) => mockProbeManualTrack( ...args ),
 } ) );
 
+// The stage fetches the v1.1 item once, feeding both the probe and the
+// Simple-site playback fallback; stub the fetch so no request escapes jsdom.
+const mockFetchVideoItem = jest.fn();
+jest.mock( '../../../src/client/lib/fetch-video-item', () => ( {
+	fetchVideoItem: ( ...args: unknown[] ) => mockFetchVideoItem( ...args ),
+} ) );
+
 // The chapters VTT sync drives the tracks endpoints through its own
 // pipeline (covered by the shared sync core's tests); here only the calls
 // matter. It never rejects by contract.
@@ -244,6 +251,7 @@ describe( 'video-chapters stage', () => {
 		navigate = jest.fn();
 		mockUseNavigate.mockReturnValue( navigate );
 		mockProbeManualTrack.mockResolvedValue( 'editable' );
+		mockFetchVideoItem.mockResolvedValue( {} );
 		mockSyncChapters.mockResolvedValue( 'uploaded' );
 	} );
 
@@ -382,8 +390,11 @@ describe( 'video-chapters stage', () => {
 		expect( screen.queryAllByTestId( /^chapters-marker-/ ) ).toHaveLength( 0 );
 		expect( mockProbeManualTrack ).toHaveBeenCalledTimes( 1 );
 		expect( mockProbeManualTrack ).toHaveBeenCalledWith(
-			expect.objectContaining( { guid: GUID, isPrivate: false } )
+			expect.objectContaining( { guid: GUID, isPrivate: false } ),
+			{ item: expect.anything() }
 		);
+		// One fetch feeds both the probe and the playback fallback.
+		expect( mockFetchVideoItem ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'keeps the session inert when the probe lands manual after edit attempts in the window', async () => {
