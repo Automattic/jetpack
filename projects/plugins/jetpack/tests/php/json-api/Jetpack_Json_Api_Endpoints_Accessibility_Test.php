@@ -313,8 +313,10 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	 * Capability declarations that resolve to "authorize unconditionally" must be denied, not just
 	 * the literal empty array. Three shapes reach the same fail-open as the original bug: a resolved
 	 * capability set that is empty (including scalar forms that skip the is_array() branch), an entry
-	 * that is not a capability name and so resolves to a legacy user level every role holds, and a
-	 * `must_pass` threshold below 1, which makes `$passed < $must_pass` false for every user.
+	 * that is not a capability name, and a `must_pass` threshold below 1, which makes
+	 * `$passed < $must_pass` false for every user. The middle shape authorizes by two different
+	 * routes: a numeric entry resolves to a legacy user level every role holds, on any site, while a
+	 * name core cannot map is granted only to a network super admin, so only that one is multisite-only.
 	 *
 	 * @group json-api
 	 * @dataProvider data_provider_test_zero_threshold_declarations_are_denied
@@ -598,8 +600,9 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 		return array(
 			// At least one row per guard, since a hoisted or identity-aware short-circuit could bypass any
 			// of them individually. Four rows for three guards: the declaration guard gets two, because
-			// its numeric and unmappable sub-conditions are what core treats as a super admin grant, and
-			// they reach that outcome by different routes.
+			// its two sub-conditions authorize by different routes. Only the unmappable one is specific
+			// to this fixture -- core grants a network super admin any capability it cannot map -- while
+			// a numeric entry resolves to a legacy user level that every default role already holds.
 			'empty declaration' => array( array(), new WP_Error( 'unauthorized_site_token_required', 'This endpoint is only accessible using a Jetpack site token.', 403 ) ),
 			'numeric entry'     => array( array( 0 ), new WP_Error( 'unauthorized_capability_declaration', 'This endpoint does not declare a valid capability requirement.', 403 ) ),
 			'unmappable entry'  => array( array( ' ' ), new WP_Error( 'unauthorized_capability_declaration', 'This endpoint does not declare a valid capability requirement.', 403 ) ),
