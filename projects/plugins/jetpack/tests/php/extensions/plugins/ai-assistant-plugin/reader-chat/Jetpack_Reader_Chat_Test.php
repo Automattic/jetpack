@@ -371,10 +371,8 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 				'greeting'   => 'How can I help?',
 				'help'       => 'Choose a prompt or ask below.',
 				'background' => '#112233',
-				'text'       => '#f2eff6',
 				'outline'    => '#445566',
 				'fontFamily' => 'rounded',
-				'fontSize'   => 15,
 			)
 		);
 
@@ -387,10 +385,8 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		$this->assertSame( 'How can I help?', $brand['greeting'] );
 		$this->assertSame( 'Choose a prompt or ask below.', $brand['help'] );
 		$this->assertSame( '#112233', $brand['background'] );
-		$this->assertSame( '#f2eff6', $brand['text'] );
 		$this->assertSame( '#445566', $brand['outline'] );
 		$this->assertSame( 'rounded', $brand['fontFamily'] );
-		$this->assertSame( 15, $brand['fontSize'] );
 
 		update_option(
 			'reader_chat_brand',
@@ -400,10 +396,8 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 				'greeting'   => '',
 				'help'       => '',
 				'background' => '',
-				'text'       => '',
 				'outline'    => '',
 				'fontFamily' => '',
-				'fontSize'   => 0,
 			)
 		);
 		$derived_brand = Jetpack_Reader_Chat::get_brand();
@@ -414,7 +408,6 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		$this->assertArrayNotHasKey( 'help', $derived_brand );
 		$this->assertArrayNotHasKey( 'background', $derived_brand );
 		$this->assertArrayNotHasKey( 'fontFamily', $derived_brand );
-		$this->assertArrayNotHasKey( 'fontSize', $derived_brand );
 	}
 
 	/**
@@ -506,10 +499,10 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 				'greeting'   => false,
 				'help'       => array( 'not a string' ),
 				'background' => 'not-a-color',
-				'text'       => false,
+				'text'       => '#ffffff',
 				'outline'    => '#abcd',
 				'fontFamily' => 'comic-sans',
-				'fontSize'   => 100,
+				'fontSize'   => 15,
 				'unexpected' => '<script>alert(1)</script>',
 			)
 		);
@@ -545,10 +538,8 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 				'greeting'   => '<em>' . str_repeat( 'g', 130 ) . '</em>',
 				'help'       => '<strong>' . str_repeat( 'h', 170 ) . '</strong>',
 				'background' => '#112233',
-				'text'       => '#f2eff6',
 				'outline'    => '#445566',
 				'fontFamily' => 'serif',
-				'fontSize'   => 17,
 			)
 		);
 
@@ -562,10 +553,8 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( '<', $brand['greeting'] );
 		$this->assertStringNotContainsString( '<', $brand['help'] );
 		$this->assertSame( '#112233', $brand['background'] );
-		$this->assertSame( '#f2eff6', $brand['text'] );
 		$this->assertSame( '#445566', $brand['outline'] );
 		$this->assertSame( 'serif', $brand['fontFamily'] );
-		$this->assertSame( 17, $brand['fontSize'] );
 	}
 
 	// ──────────────────────────────────────────────────

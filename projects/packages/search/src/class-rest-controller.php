@@ -27,13 +27,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class REST_Controller {
 	/**
-	 * Reader Chat appearance limits.
+	 * Reader Chat font presets.
 	 *
 	 * Keep in sync with Jetpack_Reader_Chat.
 	 */
 	private const READER_CHAT_BRAND_FONT_FAMILIES = array( 'site', 'rounded', 'serif' );
-	private const READER_CHAT_BRAND_FONT_SIZE_MIN = 13;
-	private const READER_CHAT_BRAND_FONT_SIZE_MAX = 18;
 
 	/**
 	 * Namespace for the REST API.
@@ -406,26 +404,18 @@ class REST_Controller {
 		if ( $reader_chat_brand !== null ) {
 			if (
 				! is_array( $reader_chat_brand )
-				|| array_diff( array_keys( $reader_chat_brand ), array( 'name', 'accent', 'greeting', 'help', 'background', 'text', 'outline', 'fontFamily', 'fontSize' ) )
+				|| array_diff( array_keys( $reader_chat_brand ), array( 'name', 'accent', 'greeting', 'help', 'background', 'outline', 'fontFamily' ) )
 				|| ( array_key_exists( 'name', $reader_chat_brand ) && ! is_string( $reader_chat_brand['name'] ) )
 				|| ( array_key_exists( 'greeting', $reader_chat_brand ) && ! is_string( $reader_chat_brand['greeting'] ) )
 				|| ( array_key_exists( 'help', $reader_chat_brand ) && ! is_string( $reader_chat_brand['help'] ) )
 				|| self::is_invalid_reader_chat_brand_color( $reader_chat_brand, 'accent' )
 				|| self::is_invalid_reader_chat_brand_color( $reader_chat_brand, 'background' )
-				|| self::is_invalid_reader_chat_brand_color( $reader_chat_brand, 'text' )
 				|| self::is_invalid_reader_chat_brand_color( $reader_chat_brand, 'outline' )
 				|| (
 					array_key_exists( 'fontFamily', $reader_chat_brand )
 					&& (
 						! is_string( $reader_chat_brand['fontFamily'] )
 						|| ( '' !== $reader_chat_brand['fontFamily'] && ! in_array( $reader_chat_brand['fontFamily'], self::READER_CHAT_BRAND_FONT_FAMILIES, true ) )
-					)
-				)
-				|| (
-					array_key_exists( 'fontSize', $reader_chat_brand )
-					&& (
-						! is_int( $reader_chat_brand['fontSize'] )
-						|| ( 0 !== $reader_chat_brand['fontSize'] && ( $reader_chat_brand['fontSize'] < self::READER_CHAT_BRAND_FONT_SIZE_MIN || $reader_chat_brand['fontSize'] > self::READER_CHAT_BRAND_FONT_SIZE_MAX ) )
 					)
 				)
 			) {
@@ -530,10 +520,8 @@ class REST_Controller {
 			'greeting'   => self::sanitize_reader_chat_brand_text( $brand['greeting'] ?? '', 120 ),
 			'help'       => self::sanitize_reader_chat_brand_text( $brand['help'] ?? '', 160 ),
 			'background' => self::sanitize_reader_chat_brand_color( $brand['background'] ?? '' ),
-			'text'       => self::sanitize_reader_chat_brand_color( $brand['text'] ?? '' ),
 			'outline'    => self::sanitize_reader_chat_brand_color( $brand['outline'] ?? '' ),
 			'fontFamily' => self::sanitize_reader_chat_brand_font_family( $brand['fontFamily'] ?? '' ),
-			'fontSize'   => self::sanitize_reader_chat_brand_font_size( $brand['fontSize'] ?? 0 ),
 		);
 	}
 
@@ -578,18 +566,6 @@ class REST_Controller {
 		return is_string( $value ) && in_array( $value, self::READER_CHAT_BRAND_FONT_FAMILIES, true )
 			? $value
 			: '';
-	}
-
-	/**
-	 * Sanitize a Reader Chat base font size.
-	 *
-	 * @param mixed $value Font size in pixels.
-	 * @return int Sanitized size, or zero for the default.
-	 */
-	private static function sanitize_reader_chat_brand_font_size( $value ) {
-		$value = is_numeric( $value ) ? (int) $value : 0;
-
-		return $value >= self::READER_CHAT_BRAND_FONT_SIZE_MIN && $value <= self::READER_CHAT_BRAND_FONT_SIZE_MAX ? $value : 0;
 	}
 
 	/**

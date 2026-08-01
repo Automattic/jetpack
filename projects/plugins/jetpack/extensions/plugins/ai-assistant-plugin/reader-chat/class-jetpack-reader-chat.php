@@ -31,10 +31,8 @@ const READER_CHAT_ASSET_FAILURE_CACHE_TTL = 5 * MINUTE_IN_SECONDS;
  * Handles loading the reader chat UI on the frontend.
  */
 class Jetpack_Reader_Chat {
-	// Keep these limits in sync with Search\REST_Controller.
+	// Keep these font presets in sync with Search\REST_Controller.
 	private const BRAND_FONT_FAMILIES = array( 'site', 'rounded', 'serif' );
-	private const BRAND_FONT_SIZE_MIN = 13;
-	private const BRAND_FONT_SIZE_MAX = 18;
 
 	/**
 	 * Initialize hooks.
@@ -109,10 +107,8 @@ class Jetpack_Reader_Chat {
 					'greeting'   => '',
 					'help'       => '',
 					'background' => '',
-					'text'       => '',
 					'outline'    => '',
 					'fontFamily' => '',
-					'fontSize'   => 0,
 				),
 			)
 		);
@@ -135,10 +131,8 @@ class Jetpack_Reader_Chat {
 			'greeting'   => self::sanitize_brand_text( $value['greeting'] ?? '', 120 ),
 			'help'       => self::sanitize_brand_text( $value['help'] ?? '', 160 ),
 			'background' => self::sanitize_brand_color( $value['background'] ?? '' ),
-			'text'       => self::sanitize_brand_color( $value['text'] ?? '' ),
 			'outline'    => self::sanitize_brand_color( $value['outline'] ?? '' ),
 			'fontFamily' => self::sanitize_brand_font_family( $value['fontFamily'] ?? '' ),
-			'fontSize'   => self::sanitize_brand_font_size( $value['fontSize'] ?? 0 ),
 		);
 	}
 
@@ -197,7 +191,7 @@ class Jetpack_Reader_Chat {
 			$brand['help'] = $help;
 		}
 
-		foreach ( array( 'background', 'text', 'outline' ) as $color_field ) {
+		foreach ( array( 'background', 'outline' ) as $color_field ) {
 			$color = self::sanitize_brand_color( $stored_brand[ $color_field ] ?? '' );
 			if ( '' !== $color ) {
 				$brand[ $color_field ] = $color;
@@ -207,11 +201,6 @@ class Jetpack_Reader_Chat {
 		$font_family = self::sanitize_brand_font_family( $stored_brand['fontFamily'] ?? '' );
 		if ( '' !== $font_family ) {
 			$brand['fontFamily'] = $font_family;
-		}
-
-		$font_size = self::sanitize_brand_font_size( $stored_brand['fontSize'] ?? 0 );
-		if ( 0 !== $font_size ) {
-			$brand['fontSize'] = $font_size;
 		}
 
 		return $brand;
@@ -457,20 +446,6 @@ class Jetpack_Reader_Chat {
 		return is_string( $value ) && in_array( $value, self::BRAND_FONT_FAMILIES, true )
 			? $value
 			: '';
-	}
-
-	/**
-	 * Sanitize a Reader Chat base font size.
-	 *
-	 * @param mixed $value Font size in pixels.
-	 * @return int Sanitized size, or zero for the default.
-	 */
-	private static function sanitize_brand_font_size( $value ): int {
-		$value = is_numeric( $value ) ? (int) $value : 0;
-
-		return $value >= self::BRAND_FONT_SIZE_MIN && $value <= self::BRAND_FONT_SIZE_MAX
-			? $value
-			: 0;
 	}
 
 	/**

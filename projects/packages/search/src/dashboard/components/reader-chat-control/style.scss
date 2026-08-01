@@ -94,7 +94,18 @@
 	padding: var(--wpds-dimension-padding-md);
 }
 
-@media (max-width: 480px) {
+.jp-reader-chat-control__contrast-help {
+	margin-block-start: var(--wpds-dimension-gap-sm);
+	color: #646970;
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.jp-reader-chat-control__reset-appearance {
+	justify-self: start;
+}
+
+@media ( max-width: 480px ) {
 
 	.jp-reader-chat-control__colors {
 		grid-template-columns: 1fr;

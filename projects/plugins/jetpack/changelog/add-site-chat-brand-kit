@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Site Chat: let site owners set assistant identity, welcome text, colors, font, and text size, with values derived from the site when unset.
+Site Chat: let site owners set assistant identity, welcome text, colors, and font, with accessible text contrast and resettable defaults.

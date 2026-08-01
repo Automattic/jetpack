@@ -59,25 +59,6 @@ jest.mock( '@wordpress/components', () => ( {
 			</>
 		);
 	},
-	RangeControl: ( { disabled, help, label, max, min, onChange, value } ) => {
-		const id = `reader-chat-${ label.toLowerCase().replaceAll( ' ', '-' ) }`;
-
-		return (
-			<>
-				<label htmlFor={ id }>{ label }</label>
-				<input
-					id={ id }
-					type="range"
-					disabled={ disabled }
-					max={ max }
-					min={ min }
-					onChange={ event => onChange( Number( event.target.value ) ) }
-					value={ value }
-				/>
-				{ help && <p>{ help }</p> }
-			</>
-		);
-	},
 	SelectControl: ( { disabled, help, label, onChange, options, value } ) => {
 		const id = `reader-chat-${ label.toLowerCase().replaceAll( ' ', '-' ) }`;
 
@@ -169,10 +150,8 @@ const emptyBrand = {
 	greeting: '',
 	help: '',
 	background: '',
-	text: '',
 	outline: '',
 	fontFamily: '',
-	fontSize: 0,
 };
 
 describe( 'ReaderChatControl', () => {
@@ -272,10 +251,14 @@ describe( 'ReaderChatControl', () => {
 		);
 		expect( screen.getByLabelText( 'Accent' ) ).toHaveAttribute( 'data-value', '#2271b1' );
 		expect( screen.getByLabelText( 'Background' ) ).toHaveAttribute( 'data-value', '#fcfcfc' );
-		expect( screen.getByLabelText( 'Text' ) ).toHaveAttribute( 'data-value', '#1f1f1f' );
 		expect( screen.getByLabelText( 'Outline' ) ).toHaveAttribute( 'data-value', '#e9e9e9' );
-		expect( screen.getByLabelText( 'Text size' ) ).toHaveValue( '16' );
+		expect( screen.queryByLabelText( 'Text' ) ).not.toBeInTheDocument();
+		expect( screen.queryByLabelText( 'Text size' ) ).not.toBeInTheDocument();
+		expect(
+			screen.getByText( 'Text color is selected automatically for readable contrast.' )
+		).toBeInTheDocument();
 		expect( screen.getByLabelText( 'Font' ) ).toHaveValue( 'system' );
+		expect( screen.getByRole( 'button', { name: 'Reset appearance to defaults' } ) ).toBeDisabled();
 		expect(
 			within( screen.getByLabelText( 'Accent' ) ).getByRole( 'button', { name: 'Primary' } )
 		).toBeInTheDocument();
@@ -335,7 +318,7 @@ describe( 'ReaderChatControl', () => {
 		} );
 	} );
 
-	test( 'coalesces color and text-size changes into one appearance save', () => {
+	test( 'coalesces multiple color changes into one appearance save', () => {
 		jest.useFakeTimers();
 		const updateOptions = jest.fn();
 		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
@@ -343,10 +326,9 @@ describe( 'ReaderChatControl', () => {
 		fireEvent.change( screen.getByLabelText( 'Custom background color' ), {
 			target: { value: '#112233' },
 		} );
-		fireEvent.change( screen.getByLabelText( 'Custom text color' ), {
+		fireEvent.change( screen.getByLabelText( 'Custom outline color' ), {
 			target: { value: '#f2eff6' },
 		} );
-		fireEvent.change( screen.getByLabelText( 'Text size' ), { target: { value: '15' } } );
 
 		expect( updateOptions ).not.toHaveBeenCalled();
 		jest.advanceTimersByTime( 500 );
@@ -356,8 +338,7 @@ describe( 'ReaderChatControl', () => {
 			reader_chat_brand: {
 				...emptyBrand,
 				background: '#112233',
-				text: '#f2eff6',
-				fontSize: 15,
+				outline: '#f2eff6',
 			},
 		} );
 	} );
@@ -552,6 +533,59 @@ describe( 'ReaderChatControl', () => {
 		} );
 	} );
 
+	test( 'resets all appearance overrides without changing welcome or identity fields', () => {
+		mockStoredBrand = {
+			...emptyBrand,
+			name: 'Ada',
+			greeting: 'How can I help?',
+			help: 'Choose a prompt or ask below.',
+			accent: '#ff0000',
+			background: '#112233',
+			outline: '#f2eff6',
+			fontFamily: 'serif',
+		};
+		const updateOptions = jest.fn();
+		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
+
+		fireEvent.click( screen.getByRole( 'button', { name: 'Reset appearance to defaults' } ) );
+
+		expect( updateOptions ).toHaveBeenCalledWith( {
+			reader_chat_brand: {
+				...emptyBrand,
+				name: 'Ada',
+				greeting: 'How can I help?',
+				help: 'Choose a prompt or ask below.',
+			},
+		} );
+		expect( screen.getByLabelText( 'Accent' ) ).toHaveAttribute( 'data-value', '#2271b1' );
+		expect( screen.getByLabelText( 'Background' ) ).toHaveAttribute( 'data-value', '#fcfcfc' );
+		expect( screen.getByLabelText( 'Outline' ) ).toHaveAttribute( 'data-value', '#e9e9e9' );
+		expect( screen.getByLabelText( 'Font' ) ).toHaveValue( 'system' );
+		expect( screen.getByRole( 'button', { name: 'Reset appearance to defaults' } ) ).toBeDisabled();
+	} );
+
+	test( 'cancels a pending appearance save when all appearance values are reset', () => {
+		jest.useFakeTimers();
+		const updateOptions = jest.fn();
+		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
+
+		fireEvent.change( screen.getByLabelText( 'Custom background color' ), {
+			target: { value: '#112233' },
+		} );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Reset appearance to defaults' } ) );
+		jest.advanceTimersByTime( 500 );
+
+		expect( updateOptions ).toHaveBeenCalledTimes( 1 );
+		expect( updateOptions ).toHaveBeenCalledWith( { reader_chat_brand: emptyBrand } );
+	} );
+
+	test( 'enables the appearance reset for a font-only override', () => {
+		mockStoredBrand = { ...emptyBrand, fontFamily: 'serif' };
+		render( <ReaderChatControl { ...defaultProps } isEnabled /> );
+
+		expect( screen.getByRole( 'button', { name: 'Reset appearance to defaults' } ) ).toBeEnabled();
+	} );
+
 	test( 'dispatches a settings update when toggled', () => {
 		const updateOptions = jest.fn();
 		render( <ReaderChatControl { ...defaultProps } updateOptions={ updateOptions } /> );
@@ -578,8 +612,8 @@ describe( 'ReaderChatControl', () => {
 			} )
 		).toBeDisabled();
 		expect( screen.getByRole( 'button', { name: 'Reset Accent to default' } ) ).toBeDisabled();
-		expect( screen.getByLabelText( 'Text size' ) ).toBeDisabled();
 		expect( screen.getByLabelText( 'Font' ) ).toBeDisabled();
+		expect( screen.getByRole( 'button', { name: 'Reset appearance to defaults' } ) ).toBeDisabled();
 		fireEvent.change( screen.getByLabelText( 'Custom accent color' ), {
 			target: { value: '#00ff00' },
 		} );
