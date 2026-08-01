@@ -99,6 +99,15 @@
 	border-block-start: 0;
 	background: transparent;
 	overflow: visible;
+
+	// The player is the playhead source here, not the star: cap its height so
+	// the timeline and rows stay above the fold (the caption modal's own
+	// inline-size bound assumes a 60vh sidebar, far too tall for this stacked
+	// layout). Width follows from the aspect ratio; keep it centered.
+	.videopress-caption-manager__video {
+		inline-size: min(100%, calc(min(300px, 34vh) * ( var(--preview-ar) )));
+		margin-inline: auto;
+	}
 }
 
 .videopress-chapter-manager__editor {
