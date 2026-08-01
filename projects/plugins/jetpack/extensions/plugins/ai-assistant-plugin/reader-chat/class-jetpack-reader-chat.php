@@ -32,7 +32,7 @@ const READER_CHAT_ASSET_FAILURE_CACHE_TTL = 5 * MINUTE_IN_SECONDS;
  */
 class Jetpack_Reader_Chat {
 	// Keep these font presets in sync with Search\REST_Controller.
-	private const BRAND_FONT_FAMILIES = array( 'site', 'rounded', 'serif' );
+	private const BRAND_FONT_FAMILIES = array( 'site', 'serif' );
 
 	/**
 	 * Initialize hooks.

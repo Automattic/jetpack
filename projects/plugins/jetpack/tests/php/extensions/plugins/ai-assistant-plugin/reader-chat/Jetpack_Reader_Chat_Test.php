@@ -372,7 +372,7 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 				'help'       => 'Choose a prompt or ask below.',
 				'background' => '#112233',
 				'outline'    => '#445566',
-				'fontFamily' => 'rounded',
+				'fontFamily' => 'serif',
 			)
 		);
 
@@ -386,7 +386,7 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		$this->assertSame( 'Choose a prompt or ask below.', $brand['help'] );
 		$this->assertSame( '#112233', $brand['background'] );
 		$this->assertSame( '#445566', $brand['outline'] );
-		$this->assertSame( 'rounded', $brand['fontFamily'] );
+		$this->assertSame( 'serif', $brand['fontFamily'] );
 
 		update_option(
 			'reader_chat_brand',
@@ -501,7 +501,7 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 				'background' => 'not-a-color',
 				'text'       => '#ffffff',
 				'outline'    => '#abcd',
-				'fontFamily' => 'comic-sans',
+				'fontFamily' => 'rounded',
 				'fontSize'   => 15,
 				'unexpected' => '<script>alert(1)</script>',
 			)

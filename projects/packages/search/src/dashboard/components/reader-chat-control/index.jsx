@@ -31,6 +31,31 @@ const DEFAULT_APPEARANCE = {
 };
 const APPEARANCE_COLOR_FIELDS = [ 'accent', 'background', 'outline' ];
 const hasOwn = ( object, key ) => Object.prototype.hasOwnProperty.call( object, key );
+const normalizeHexColor = value =>
+	typeof value === 'string' && /^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test( value )
+		? value.toLowerCase()
+		: '';
+// Keep this WCAG contrast calculation aligned with Site Chat's runtime
+// getAccessibleColor() helper in wp-calypso/apps/agents-manager/reader-chat.js.
+const getAccessibleTextColor = background => {
+	const expanded =
+		background.length === 4
+			? `#${ background[ 1 ] }${ background[ 1 ] }${ background[ 2 ] }${ background[ 2 ] }${ background[ 3 ] }${ background[ 3 ] }`
+			: background;
+	const channels = [ 1, 3, 5 ].map(
+		offset => parseInt( expanded.slice( offset, offset + 2 ), 16 ) / 255
+	);
+	const luminance = channels
+		.map( channel =>
+			channel <= 0.04045 ? channel / 12.92 : ( ( channel + 0.055 ) / 1.055 ) ** 2.4
+		)
+		.reduce(
+			( total, channel, index ) => total + channel * [ 0.2126, 0.7152, 0.0722 ][ index ],
+			0
+		);
+
+	return ( luminance + 0.05 ) / 0.05 >= 4.5 ? '#000000' : '#ffffff';
+};
 
 /**
  * Compact color-picker control for one Site Chat appearance value.
@@ -323,6 +348,28 @@ export default function ReaderChatControl( {
 			fontFamily: '',
 		} );
 	};
+	const previewAccent =
+		normalizeHexColor( appearanceDraft.accent ) ||
+		normalizeHexColor( derivedBrand?.accent ) ||
+		DEFAULT_APPEARANCE.accent;
+	const previewBackground =
+		normalizeHexColor( appearanceDraft.background ) || DEFAULT_APPEARANCE.background;
+	const previewOutline = normalizeHexColor( appearanceDraft.outline ) || DEFAULT_APPEARANCE.outline;
+	const previewName = draft.name.trim() || derivedBrand?.name || '';
+	// Keep the no-integration fallback aligned with Site Chat's empty view in
+	// wp-calypso/packages/agents-manager/src/components/agent-chat/index.tsx.
+	const previewGreeting =
+		draft.greeting.trim() ||
+		derivedBrand?.greeting ||
+		__( 'Ask me anything about this blog.', 'jetpack-search-pkg' );
+	const previewHelp = draft.help.trim() || DEFAULT_HELP;
+	const previewStyle = {
+		'--jp-reader-chat-preview-accent': previewAccent,
+		'--jp-reader-chat-preview-accent-foreground': getAccessibleTextColor( previewAccent ),
+		'--jp-reader-chat-preview-background': previewBackground,
+		'--jp-reader-chat-preview-foreground': getAccessibleTextColor( previewBackground ),
+		'--jp-reader-chat-preview-outline': previewOutline,
+	};
 
 	// Hide the control when this site should not expose Reader Chat settings.
 	if ( ! isAvailable ) {
@@ -355,155 +402,212 @@ export default function ReaderChatControl( {
 					</p>
 					{ isEnabled && (
 						<div className="jp-reader-chat-control__brand">
-							<section aria-labelledby="jp-reader-chat-identity-heading">
-								<h3 id="jp-reader-chat-identity-heading">
-									{ __( 'Identity', 'jetpack-search-pkg' ) }
-								</h3>
-								<TextControl
-									__nextHasNoMarginBottom
-									__next40pxDefaultSize
-									help={ __(
-										'Shown beside your Site Icon when visitors open Site Chat.',
-										'jetpack-search-pkg'
-									) }
-									label={ __( 'Assistant name', 'jetpack-search-pkg' ) }
-									maxLength={ 40 }
-									onBlur={ () => commitBrandText( 'name' ) }
-									onChange={ value => setDraft( prev => ( { ...prev, name: value } ) ) }
-									placeholder={ derivedBrand?.name ?? '' }
-									value={ draft.name }
-								/>
-							</section>
-							<section aria-labelledby="jp-reader-chat-welcome-heading">
-								<h3 id="jp-reader-chat-welcome-heading">
-									{ __( 'Welcome message', 'jetpack-search-pkg' ) }
-								</h3>
-								<p>
-									{ __(
-										'Shown with starter prompts before a visitor begins chatting.',
-										'jetpack-search-pkg'
-									) }
-								</p>
-								<TextControl
-									__nextHasNoMarginBottom
-									__next40pxDefaultSize
-									help={ __(
-										'The first line visitors see in an empty chat.',
-										'jetpack-search-pkg'
-									) }
-									label={ __( 'Greeting', 'jetpack-search-pkg' ) }
-									maxLength={ 120 }
-									onBlur={ () => commitBrandText( 'greeting' ) }
-									onChange={ value => setDraft( prev => ( { ...prev, greeting: value } ) ) }
-									placeholder={ derivedBrand?.greeting ?? '' }
-									value={ draft.greeting }
-								/>
-								<TextControl
-									__nextHasNoMarginBottom
-									__next40pxDefaultSize
-									help={ __(
-										'Guides visitors toward the composer or starter prompts.',
-										'jetpack-search-pkg'
-									) }
-									label={ __( 'Help text', 'jetpack-search-pkg' ) }
-									maxLength={ 160 }
-									onBlur={ () => commitBrandText( 'help' ) }
-									onChange={ value => setDraft( prev => ( { ...prev, help: value } ) ) }
-									placeholder={ DEFAULT_HELP }
-									value={ draft.help }
-								/>
-							</section>
-							<section aria-labelledby="jp-reader-chat-appearance-heading">
-								<h3 id="jp-reader-chat-appearance-heading">
-									{ __( 'Appearance', 'jetpack-search-pkg' ) }
-								</h3>
-								<p>{ __( "Match Site Chat to your site's look.", 'jetpack-search-pkg' ) }</p>
-								<fieldset disabled={ isSaving }>
-									<legend>{ __( 'Colors', 'jetpack-search-pkg' ) }</legend>
-									<div className="jp-reader-chat-control__colors">
-										<AppearanceColorControl
-											colors={ themePalette }
-											defaultValue={ derivedBrand?.accent || DEFAULT_APPEARANCE.accent }
-											hasOverride={ appearanceOverrides.accent }
-											isSaving={ isSaving }
-											label={ __( 'Accent', 'jetpack-search-pkg' ) }
-											onChange={ value => queueAppearance( 'accent', value ?? '' ) }
-											onReset={ () =>
-												commitAppearance(
-													'accent',
-													'',
-													derivedBrand?.accent || DEFAULT_APPEARANCE.accent,
-													false
-												)
-											}
-											value={ appearanceDraft.accent }
-										/>
-										<AppearanceColorControl
-											colors={ themePalette }
-											defaultValue={ DEFAULT_APPEARANCE.background }
-											hasOverride={ appearanceOverrides.background }
-											isSaving={ isSaving }
-											label={ __( 'Background', 'jetpack-search-pkg' ) }
-											onChange={ value => queueAppearance( 'background', value ?? '' ) }
-											onReset={ () =>
-												commitAppearance( 'background', '', DEFAULT_APPEARANCE.background, false )
-											}
-											value={ appearanceDraft.background }
-										/>
-										<AppearanceColorControl
-											colors={ themePalette }
-											defaultValue={ DEFAULT_APPEARANCE.outline }
-											hasOverride={ appearanceOverrides.outline }
-											isSaving={ isSaving }
-											label={ __( 'Outline', 'jetpack-search-pkg' ) }
-											onChange={ value => queueAppearance( 'outline', value ?? '' ) }
-											onReset={ () =>
-												commitAppearance( 'outline', '', DEFAULT_APPEARANCE.outline, false )
-											}
-											value={ appearanceDraft.outline }
-										/>
-									</div>
-									<p className="jp-reader-chat-control__contrast-help">
+							<div className="jp-reader-chat-control__brand-fields">
+								<section aria-labelledby="jp-reader-chat-identity-heading">
+									<h3 id="jp-reader-chat-identity-heading">
+										{ __( 'Identity', 'jetpack-search-pkg' ) }
+									</h3>
+									<TextControl
+										__nextHasNoMarginBottom
+										__next40pxDefaultSize
+										help={ __(
+											'Shown beside your Site Icon when visitors open Site Chat.',
+											'jetpack-search-pkg'
+										) }
+										label={ __( 'Assistant name', 'jetpack-search-pkg' ) }
+										maxLength={ 40 }
+										onBlur={ () => commitBrandText( 'name' ) }
+										onChange={ value => setDraft( prev => ( { ...prev, name: value } ) ) }
+										placeholder={ derivedBrand?.name ?? '' }
+										value={ draft.name }
+									/>
+								</section>
+								<section aria-labelledby="jp-reader-chat-welcome-heading">
+									<h3 id="jp-reader-chat-welcome-heading">
+										{ __( 'Welcome message', 'jetpack-search-pkg' ) }
+									</h3>
+									<p>
 										{ __(
-											'Text color is selected automatically for readable contrast.',
+											'Shown with starter prompts before a visitor begins chatting.',
 											'jetpack-search-pkg'
 										) }
 									</p>
-								</fieldset>
-								<SelectControl
-									__next40pxDefaultSize
-									__nextHasNoMarginBottom
-									disabled={ isSaving }
-									help={ __(
-										'Uses fonts already available in the visitor’s browser or theme.',
-										'jetpack-search-pkg'
+									<TextControl
+										__nextHasNoMarginBottom
+										__next40pxDefaultSize
+										help={ __(
+											'The first line visitors see in an empty chat.',
+											'jetpack-search-pkg'
+										) }
+										label={ __( 'Greeting', 'jetpack-search-pkg' ) }
+										maxLength={ 120 }
+										onBlur={ () => commitBrandText( 'greeting' ) }
+										onChange={ value => setDraft( prev => ( { ...prev, greeting: value } ) ) }
+										placeholder={ derivedBrand?.greeting ?? '' }
+										value={ draft.greeting }
+									/>
+									<TextControl
+										__nextHasNoMarginBottom
+										__next40pxDefaultSize
+										help={ __(
+											'Guides visitors toward the composer or starter prompts.',
+											'jetpack-search-pkg'
+										) }
+										label={ __( 'Help text', 'jetpack-search-pkg' ) }
+										maxLength={ 160 }
+										onBlur={ () => commitBrandText( 'help' ) }
+										onChange={ value => setDraft( prev => ( { ...prev, help: value } ) ) }
+										placeholder={ DEFAULT_HELP }
+										value={ draft.help }
+									/>
+								</section>
+								<section aria-labelledby="jp-reader-chat-appearance-heading">
+									<h3 id="jp-reader-chat-appearance-heading">
+										{ __( 'Appearance', 'jetpack-search-pkg' ) }
+									</h3>
+									<p>{ __( "Match Site Chat to your site's look.", 'jetpack-search-pkg' ) }</p>
+									<fieldset disabled={ isSaving }>
+										<legend>{ __( 'Colors', 'jetpack-search-pkg' ) }</legend>
+										<div className="jp-reader-chat-control__colors">
+											<AppearanceColorControl
+												colors={ themePalette }
+												defaultValue={ derivedBrand?.accent || DEFAULT_APPEARANCE.accent }
+												hasOverride={ appearanceOverrides.accent }
+												isSaving={ isSaving }
+												label={ __( 'Accent', 'jetpack-search-pkg' ) }
+												onChange={ value => queueAppearance( 'accent', value ?? '' ) }
+												onReset={ () =>
+													commitAppearance(
+														'accent',
+														'',
+														derivedBrand?.accent || DEFAULT_APPEARANCE.accent,
+														false
+													)
+												}
+												value={ appearanceDraft.accent }
+											/>
+											<AppearanceColorControl
+												colors={ themePalette }
+												defaultValue={ DEFAULT_APPEARANCE.background }
+												hasOverride={ appearanceOverrides.background }
+												isSaving={ isSaving }
+												label={ __( 'Background', 'jetpack-search-pkg' ) }
+												onChange={ value => queueAppearance( 'background', value ?? '' ) }
+												onReset={ () =>
+													commitAppearance( 'background', '', DEFAULT_APPEARANCE.background, false )
+												}
+												value={ appearanceDraft.background }
+											/>
+											<AppearanceColorControl
+												colors={ themePalette }
+												defaultValue={ DEFAULT_APPEARANCE.outline }
+												hasOverride={ appearanceOverrides.outline }
+												isSaving={ isSaving }
+												label={ __( 'Outline', 'jetpack-search-pkg' ) }
+												onChange={ value => queueAppearance( 'outline', value ?? '' ) }
+												onReset={ () =>
+													commitAppearance( 'outline', '', DEFAULT_APPEARANCE.outline, false )
+												}
+												value={ appearanceDraft.outline }
+											/>
+										</div>
+										<p className="jp-reader-chat-control__contrast-help">
+											{ __(
+												'Text color is selected automatically for readable contrast.',
+												'jetpack-search-pkg'
+											) }
+										</p>
+									</fieldset>
+									<SelectControl
+										__next40pxDefaultSize
+										__nextHasNoMarginBottom
+										disabled={ isSaving }
+										help={ __(
+											'Uses fonts already available in the visitor’s browser or theme. Site font is applied on your site; this preview uses the dashboard font.',
+											'jetpack-search-pkg'
+										) }
+										label={ __( 'Font', 'jetpack-search-pkg' ) }
+										onChange={ value =>
+											commitAppearance(
+												'fontFamily',
+												value === DEFAULT_APPEARANCE.fontFamily ? '' : value,
+												value
+											)
+										}
+										options={ [
+											{ label: __( 'System default', 'jetpack-search-pkg' ), value: 'system' },
+											{ label: __( 'Site font', 'jetpack-search-pkg' ), value: 'site' },
+											{ label: __( 'Serif', 'jetpack-search-pkg' ), value: 'serif' },
+										] }
+										value={ appearanceDraft.fontFamily }
+									/>
+									<Button
+										accessibleWhenDisabled
+										className="jp-reader-chat-control__reset-appearance"
+										disabled={ isSaving || ! hasAppearanceOverrides }
+										onClick={ resetAppearance }
+										variant="secondary"
+									>
+										{ __( 'Reset appearance to defaults', 'jetpack-search-pkg' ) }
+									</Button>
+								</section>
+							</div>
+							<aside
+								aria-labelledby="jp-reader-chat-preview-heading"
+								className="jp-reader-chat-control__preview"
+							>
+								<h3 id="jp-reader-chat-preview-heading">
+									{ __( 'Preview', 'jetpack-search-pkg' ) }
+								</h3>
+								{ /* Collapse this decorative mock into one accessible preview label. */ }
+								<div
+									aria-label={ sprintf(
+										/* translators: %s: resolved Site Chat assistant or site name. */
+										__( 'Site Chat preview for %s', 'jetpack-search-pkg' ),
+										previewName || __( 'this site', 'jetpack-search-pkg' )
 									) }
-									label={ __( 'Font', 'jetpack-search-pkg' ) }
-									onChange={ value =>
-										commitAppearance(
-											'fontFamily',
-											value === DEFAULT_APPEARANCE.fontFamily ? '' : value,
-											value
-										)
-									}
-									options={ [
-										{ label: __( 'System default', 'jetpack-search-pkg' ), value: 'system' },
-										{ label: __( 'Site font', 'jetpack-search-pkg' ), value: 'site' },
-										{ label: __( 'Rounded', 'jetpack-search-pkg' ), value: 'rounded' },
-										{ label: __( 'Serif', 'jetpack-search-pkg' ), value: 'serif' },
-									] }
-									value={ appearanceDraft.fontFamily }
-								/>
-								<Button
-									accessibleWhenDisabled
-									className="jp-reader-chat-control__reset-appearance"
-									disabled={ isSaving || ! hasAppearanceOverrides }
-									onClick={ resetAppearance }
-									variant="secondary"
+									className="jp-reader-chat-control__preview-widget"
+									data-font={ appearanceDraft.fontFamily }
+									role="img"
+									style={ previewStyle }
 								>
-									{ __( 'Reset appearance to defaults', 'jetpack-search-pkg' ) }
-								</Button>
-							</section>
+									<div className="jp-reader-chat-control__preview-header">
+										<span aria-hidden="true" className="jp-reader-chat-control__preview-actions">
+											<span>⋮</span>
+											<span>×</span>
+										</span>
+									</div>
+									<div className="jp-reader-chat-control__preview-body">
+										<div className="jp-reader-chat-control__preview-identity">
+											<span className="jp-reader-chat-control__preview-logo">
+												{ derivedBrand?.logoUrl ? (
+													<img alt="" src={ derivedBrand.logoUrl } />
+												) : (
+													<span aria-hidden="true">✦</span>
+												) }
+											</span>
+											{ previewName && <strong>{ previewName }</strong> }
+										</div>
+										<p className="jp-reader-chat-control__preview-greeting">{ previewGreeting }</p>
+										{ /* Keep these examples aligned with getFallbackSuggestions() in wp-calypso/apps/agents-manager/reader-chat.js. */ }
+										<div className="jp-reader-chat-control__preview-prompts">
+											<span>{ __( 'Explore recent posts', 'jetpack-search-pkg' ) }</span>
+											<span>{ __( 'Learn about this site', 'jetpack-search-pkg' ) }</span>
+											<span>{ __( 'Recommend a post', 'jetpack-search-pkg' ) }</span>
+										</div>
+										<p className="jp-reader-chat-control__preview-help">{ previewHelp }</p>
+										<div className="jp-reader-chat-control__preview-composer">
+											<span>{ __( 'Ask anything…', 'jetpack-search-pkg' ) }</span>
+											<span aria-hidden="true" className="jp-reader-chat-control__preview-send">
+												↑
+											</span>
+										</div>
+									</div>
+									<p className="jp-reader-chat-control__preview-footer">
+										{ __( 'You’re chatting with AI.', 'jetpack-search-pkg' ) }
+									</p>
+								</div>
+							</aside>
 						</div>
 					) }
 					{ isEnabled && guidelinesUrl && (

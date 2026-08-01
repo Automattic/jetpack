@@ -190,7 +190,7 @@ describe( 'ReaderChatControl', () => {
 		} );
 
 		expect( toggle ).toBeChecked();
-		expect( screen.getByText( 'Preview' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: 'Preview' } ) ).toBeInTheDocument();
 		expect(
 			screen.getByRole( 'link', {
 				name: /Set guidelines/i,
@@ -229,6 +229,7 @@ describe( 'ReaderChatControl', () => {
 		expect( screen.queryByLabelText( 'Greeting' ) ).not.toBeInTheDocument();
 		expect( screen.queryByLabelText( 'Help text' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: /Accent:/ } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'img', { name: /Site Chat preview/ } ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'shows the grouped identity, welcome, and appearance controls when enabled', () => {
@@ -258,10 +259,69 @@ describe( 'ReaderChatControl', () => {
 			screen.getByText( 'Text color is selected automatically for readable contrast.' )
 		).toBeInTheDocument();
 		expect( screen.getByLabelText( 'Font' ) ).toHaveValue( 'system' );
+		expect(
+			within( screen.getByLabelText( 'Font' ) ).queryByText( 'Rounded' )
+		).not.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Reset appearance to defaults' } ) ).toBeDisabled();
 		expect(
 			within( screen.getByLabelText( 'Accent' ) ).getByRole( 'button', { name: 'Primary' } )
 		).toBeInTheDocument();
+	} );
+
+	test( 'previews resolved defaults and updates local drafts before they are saved', () => {
+		jest.useFakeTimers();
+		const updateOptions = jest.fn();
+		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
+
+		const preview = screen.getByRole( 'img', { name: 'Site Chat preview for Example Site' } );
+		expect( within( preview ).getByText( 'Example Site' ) ).toBeInTheDocument();
+		expect( within( preview ).getByText( 'Ask me anything about this blog.' ) ).toBeInTheDocument();
+		expect( within( preview ).getByText( 'Or type your own question below.' ) ).toBeInTheDocument();
+		expect( preview.style.getPropertyValue( '--jp-reader-chat-preview-background' ) ).toBe(
+			'#fcfcfc'
+		);
+		expect( preview.style.getPropertyValue( '--jp-reader-chat-preview-foreground' ) ).toBe(
+			'#000000'
+		);
+		expect( preview.style.getPropertyValue( '--jp-reader-chat-preview-accent-foreground' ) ).toBe(
+			'#ffffff'
+		);
+
+		fireEvent.change( screen.getByLabelText( 'Assistant name' ), {
+			target: { value: 'Ada' },
+		} );
+		fireEvent.change( screen.getByLabelText( 'Greeting' ), {
+			target: { value: 'How can I help?' },
+		} );
+		fireEvent.change( screen.getByLabelText( 'Custom background color' ), {
+			target: { value: '#112233' },
+		} );
+		fireEvent.change( screen.getByLabelText( 'Custom accent color' ), {
+			target: { value: '#fea' },
+		} );
+
+		expect( within( preview ).getByText( 'Ada' ) ).toBeInTheDocument();
+		expect( within( preview ).getByText( 'How can I help?' ) ).toBeInTheDocument();
+		expect( preview.style.getPropertyValue( '--jp-reader-chat-preview-background' ) ).toBe(
+			'#112233'
+		);
+		expect( preview.style.getPropertyValue( '--jp-reader-chat-preview-foreground' ) ).toBe(
+			'#ffffff'
+		);
+		expect( preview.style.getPropertyValue( '--jp-reader-chat-preview-accent-foreground' ) ).toBe(
+			'#000000'
+		);
+		expect( updateOptions ).not.toHaveBeenCalled();
+
+		jest.advanceTimersByTime( 500 );
+		expect( updateOptions ).toHaveBeenCalledTimes( 1 );
+		expect( updateOptions ).toHaveBeenCalledWith( {
+			reader_chat_brand: {
+				...emptyBrand,
+				accent: '#fea',
+				background: '#112233',
+			},
+		} );
 	} );
 
 	test( 'round-trips brand field changes through the settings update', () => {
@@ -347,12 +407,16 @@ describe( 'ReaderChatControl', () => {
 		const updateOptions = jest.fn();
 		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
 
-		fireEvent.change( screen.getByLabelText( 'Font' ), { target: { value: 'rounded' } } );
+		fireEvent.change( screen.getByLabelText( 'Font' ), { target: { value: 'serif' } } );
 
+		expect( screen.getByRole( 'img', { name: /Site Chat preview/ } ) ).toHaveAttribute(
+			'data-font',
+			'serif'
+		);
 		expect( updateOptions ).toHaveBeenCalledWith( {
 			reader_chat_brand: {
 				...emptyBrand,
-				fontFamily: 'rounded',
+				fontFamily: 'serif',
 			},
 		} );
 	} );

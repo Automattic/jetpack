@@ -386,7 +386,7 @@ class REST_Controller_Test extends Search_TestCase {
 				'help'       => 'Choose a prompt or ask below.',
 				'background' => '#112233',
 				'outline'    => '#445566',
-				'fontFamily' => 'rounded',
+				'fontFamily' => 'serif',
 			)
 		);
 
@@ -405,7 +405,7 @@ class REST_Controller_Test extends Search_TestCase {
 				'help'       => 'Choose a prompt or ask below.',
 				'background' => '#112233',
 				'outline'    => '#445566',
-				'fontFamily' => 'rounded',
+				'fontFamily' => 'serif',
 			),
 			$response->get_data()['reader_chat_brand']
 		);
@@ -484,6 +484,7 @@ class REST_Controller_Test extends Search_TestCase {
 			array( 'greeting' => array( 'not-a-string' ) ),
 			array( 'help' => array( 'not-a-string' ) ),
 			array( 'fontFamily' => 'comic-sans' ),
+			array( 'fontFamily' => 'rounded' ),
 			array( 'fontFamily' => 'system' ),
 			array( 'name' => null ),
 			array( 'text' => '#ffffff' ),
