@@ -21,6 +21,7 @@ const mockUseMediaDataUpdate = jest.fn();
 const mockUseVideoPosterData = jest.fn();
 const mockUploadTrackForGuid = jest.fn();
 const mockValidateChapters = jest.fn();
+const mockGenerateChaptersFile = jest.fn();
 
 const invalidateResolution = jest.fn();
 
@@ -64,7 +65,7 @@ jest.mock( '../../../../utils/video-chapters/extract-video-chapters', () => ( {
 
 jest.mock( '../../../../utils/video-chapters/generate-chapters-file', () => ( {
 	__esModule: true,
-	default: () => ( {} ),
+	default: ( ...args: unknown[] ) => mockGenerateChaptersFile( ...args ),
 } ) );
 
 jest.mock( '../../../../utils/video-chapters/validate-chapters', () => ( {
@@ -133,6 +134,7 @@ beforeEach( () => {
 	mockUseMediaDataUpdate.mockReturnValue( updateMediaHandler );
 	mockUseVideoPosterData.mockReturnValue( { isGeneratingPoster: false } );
 	mockValidateChapters.mockReturnValue( true );
+	mockGenerateChaptersFile.mockReturnValue( {} );
 } );
 
 describe( 'useSyncMedia auto-generated chapter upload', () => {
@@ -184,6 +186,40 @@ describe( 'useSyncMedia auto-generated chapter upload', () => {
 		await waitFor( () => expect( result.current.error ).toBeInstanceOf( Error ) );
 		expect( result.current.error?.message ).toBe( 'network down' );
 		expect( findTracksCall( setAttributes ) ).toBeUndefined();
+	} );
+
+	it( 'passes the real video duration (ms) to the chapters file generator', async () => {
+		mockUseVideoData.mockReturnValue( {
+			videoData: { duration: 90000 },
+			isRequestingVideoData: false,
+			videoBelongToSite: true,
+		} );
+		mockUploadTrackForGuid.mockResolvedValue(
+			'https://videos.files.wordpress.com/guid123/track.vtt'
+		);
+
+		renderThroughSave();
+
+		await waitFor( () => expect( mockGenerateChaptersFile ).toHaveBeenCalled() );
+
+		// The regenerated VTT's last cue must end at the real video end, not
+		// the generator's 999:59:59 sentinel — matching the syncChapters output.
+		expect( mockGenerateChaptersFile ).toHaveBeenCalledWith( baseAttributes.description, 90000 );
+	} );
+
+	it( 'falls back to the generator sentinel when the video duration is unknown', async () => {
+		mockUploadTrackForGuid.mockResolvedValue(
+			'https://videos.files.wordpress.com/guid123/track.vtt'
+		);
+
+		renderThroughSave();
+
+		await waitFor( () => expect( mockGenerateChaptersFile ).toHaveBeenCalled() );
+
+		expect( mockGenerateChaptersFile ).toHaveBeenCalledWith(
+			baseAttributes.description,
+			undefined
+		);
 	} );
 
 	it( 'stores the uploaded track and invalidates the embed when the upload resolves to a string', async () => {

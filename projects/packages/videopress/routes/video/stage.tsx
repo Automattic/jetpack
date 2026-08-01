@@ -18,7 +18,9 @@ import RatingCard from '../../src/dashboard/components/video-details/rating-card
 import ThumbnailCard from '../../src/dashboard/components/video-details/thumbnail-card';
 import { useVideoDetailsForm } from '../../src/dashboard/components/video-details/use-video-details-form';
 import VideoDetailsCard from '../../src/dashboard/components/video-details/video-details-card';
+import VideoNav from '../../src/dashboard/components/video-nav';
 import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
+import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useInvalidateVideo, useVideo } from '../../src/dashboard/hooks/use-video';
 import './style.scss';
@@ -129,6 +131,21 @@ const Editor = ( {
 		onSave( values, reset );
 	}, [ onSave, values, reset ] );
 
+	// Guard the sub-nav against losing unsaved form edits: the Chapters tab
+	// is a sibling route, so switching tabs unmounts this form entirely.
+	const confirmNavigation = useCallback( () => {
+		return (
+			! isDirty ||
+			// eslint-disable-next-line no-alert -- deliberate synchronous guard; the sub-nav navigation can't await a custom dialog.
+			window.confirm(
+				__(
+					'You have unsaved changes. Leave this page and discard them?',
+					'jetpack-videopress-pkg'
+				)
+			)
+		);
+	}, [ isDirty ] );
+
 	return (
 		<AdminPage
 			breadcrumbs={
@@ -149,6 +166,7 @@ const Editor = ( {
 				/>
 			}
 		>
+			<VideoNav videoId={ video.id } activeTab="details" confirmNavigation={ confirmNavigation } />
 			<div className="vp-video-details">
 				<PreviewPlayer video={ video } />
 				<ThumbnailCard
@@ -157,6 +175,7 @@ const Editor = ( {
 					onManageSubtitles={ onManageCaptions }
 				/>
 				<VideoDetailsCard
+					video={ video }
 					title={ values.title }
 					description={ values.description }
 					onChange={ update }
@@ -188,6 +207,7 @@ const StageReady = ( { video }: StageReadyProps ) => {
 	const navigate = useNavigate();
 	const invalidateVideo = useInvalidateVideo();
 	const { mutate: updateMeta, isPending: isSaving } = useUpdateVideoMeta();
+	const { syncChapters } = useUpdateChapters();
 	const { mutateAsync: deleteVideo, isPending: isDeleting } = useDeleteVideo();
 	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useGlobalNotices();
 	const [ chaptersOpen, setChaptersOpen ] = useState( false );
@@ -226,6 +246,15 @@ const StageReady = ( { video }: StageReadyProps ) => {
 				// against the attachment being removed.
 				isSaving={ isSaving || isDeleting }
 				onSave={ ( values, reset ) => {
+					// The description is the single source of truth for the
+					// player's chapters VTT, so a description change must
+					// regenerate that track (the legacy dashboard did; without it
+					// the player's chapter menu silently de-syncs). Fire-and-notice:
+					// syncChapters never rejects — failures surface as a warning
+					// notice from the hook — so it can't block or fail the save.
+					if ( values.description !== video.description ) {
+						void syncChapters( video, values.description );
+					}
 					updateMeta(
 						{ id: video.id, patch: values },
 						{

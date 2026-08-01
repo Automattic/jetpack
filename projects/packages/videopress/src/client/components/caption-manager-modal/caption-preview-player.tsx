@@ -18,6 +18,7 @@ import debugFactory from 'debug';
  */
 import getMediaToken from '../../lib/get-media-token';
 import { isAllowedOrigin } from '../../lib/videopress-allowed-origins';
+import './caption-preview-player.scss';
 /**
  * Types
  */
@@ -57,12 +58,16 @@ export type CueRange = {
 
 /**
  * Imperative controls the caption editor uses to drive the preview from its
- * keyboard shortcuts and typing handlers.
+ * keyboard shortcuts and typing handlers, plus the explicit play/pause
+ * surface the chapter editor's transport and scrub handlers need.
  */
 export type CaptionPreviewPlayerHandle = {
 	seekTo: ( seconds: number ) => void;
 	seekBy: ( seconds: number ) => void;
 	togglePlayback: () => void;
+	play: () => void;
+	pause: () => void;
+	isPlaying: () => boolean;
 	getCurrentTime: () => number;
 	pauseWhileTypingNow: () => void;
 };
@@ -83,6 +88,13 @@ const NO_CUE_RANGES: CueRange[] = [];
 
 type CaptionPreviewPlayerProps = CaptionPreviewProps & {
 	cueRanges?: CueRange[];
+	/**
+	 * Reports playback time from both backends in MILLISECONDS (the chapters
+	 * editor contract; the native element and the embed both track seconds).
+	 */
+	onTimeUpdate?: ( milliseconds: number ) => void;
+	/** Reports play/pause transitions from both backends. */
+	onPlayingChange?: ( playing: boolean ) => void;
 };
 
 /**
@@ -102,6 +114,8 @@ type CaptionPreviewPlayerProps = CaptionPreviewProps & {
  * @param props.isPrivate          - Whether the video is private, so the embed needs a playback token.
  * @param props.previewAspectRatio - Aspect ratio (`W / H`) to size the frame.
  * @param props.cueRanges          - Pre-parsed cue ranges for the active-cue overlay.
+ * @param props.onTimeUpdate       - Reports playback time in milliseconds, from both backends.
+ * @param props.onPlayingChange    - Reports play/pause transitions, from both backends.
  * @param ref                      - Imperative playback controls.
  * @return The preview panel.
  */
@@ -113,6 +127,8 @@ function CaptionPreviewPlayer(
 		isPrivate,
 		previewAspectRatio,
 		cueRanges = NO_CUE_RANGES,
+		onTimeUpdate,
+		onPlayingChange,
 	}: CaptionPreviewPlayerProps,
 	ref: ForwardedRef< CaptionPreviewPlayerHandle >
 ): ReactElement {
@@ -123,6 +139,12 @@ function CaptionPreviewPlayer(
 	const currentTimeRef = useRef( 0 );
 	const cueRangesRef = useRef( cueRanges );
 	cueRangesRef.current = cueRanges;
+	// Callback props are read through refs so the time/playing plumbing stays
+	// referentially stable regardless of how hosts memoize their callbacks.
+	const onTimeUpdateRef = useRef( onTimeUpdate );
+	onTimeUpdateRef.current = onTimeUpdate;
+	const onPlayingChangeRef = useRef( onPlayingChange );
+	onPlayingChangeRef.current = onPlayingChange;
 	const [ activeCueText, setActiveCueText ] = useState< string | undefined >( undefined );
 	const [ isPreviewPlaying, setIsPreviewPlaying ] = useState( false );
 	const [ pauseWhileTyping, setPauseWhileTyping ] = useState( true );
@@ -136,6 +158,16 @@ function CaptionPreviewPlayer(
 			( { start, end } ) => start !== null && end !== null && seconds >= start && seconds < end
 		);
 		setActiveCueText( activeCue?.text );
+		// Playback time is tracked in seconds (both backends' unit); the
+		// chapters contract reports milliseconds.
+		onTimeUpdateRef.current?.( seconds * 1000 );
+	}, [] );
+
+	// Single funnel for play-state transitions from both backends, so state
+	// and the host's onPlayingChange can never disagree.
+	const markPlaying = useCallback( ( playing: boolean ) => {
+		setIsPreviewPlaying( playing );
+		onPlayingChangeRef.current?.( playing );
 	}, [] );
 
 	// Refresh the overlay when the cues themselves change, e.g. edits while paused.
@@ -203,9 +235,9 @@ function CaptionPreviewPlayer(
 			video.play().catch( error => debug( 'resume preview after typing error', error ) );
 		} else if ( playerIframeRef.current ) {
 			postPreviewPlayerMessage( { event: 'videopress_action_play' } );
-			setIsPreviewPlaying( true );
+			markPlaying( true );
 		}
-	}, [ postPreviewPlayerMessage ] );
+	}, [ markPlaying, postPreviewPlayerMessage ] );
 
 	useEffect( () => clearPreviewResumeTimer, [ clearPreviewResumeTimer ] );
 
@@ -238,18 +270,18 @@ function CaptionPreviewPlayer(
 					break;
 				}
 				case 'videopress_playing':
-					setIsPreviewPlaying( true );
+					markPlaying( true );
 					break;
 				case 'videopress_pause':
 				case 'videopress_ended':
-					setIsPreviewPlaying( false );
+					markPlaying( false );
 					break;
 			}
 		};
 
 		window.addEventListener( 'message', onPreviewPlayerMessage );
 		return () => window.removeEventListener( 'message', onPreviewPlayerMessage );
-	}, [ updateCurrentTime ] );
+	}, [ markPlaying, updateCurrentTime ] );
 
 	useEffect( () => {
 		if ( pauseWhileTyping ) {
@@ -294,7 +326,7 @@ function CaptionPreviewPlayer(
 			postPreviewPlayerMessage( {
 				event: isPreviewPlaying ? 'videopress_action_pause' : 'videopress_action_play',
 			} );
-			setIsPreviewPlaying( ! isPreviewPlaying );
+			markPlaying( ! isPreviewPlaying );
 			return;
 		}
 
@@ -304,7 +336,45 @@ function CaptionPreviewPlayer(
 		}
 
 		video.pause();
-	}, [ isPreviewPlaying, postPreviewPlayerMessage ] );
+	}, [ isPreviewPlaying, markPlaying, postPreviewPlayerMessage ] );
+
+	/*
+	 * Explicit play/pause for hosts that manage playback state themselves
+	 * (the chapter editor's transport and scrub handlers), mirroring
+	 * togglePlayback's per-backend branches.
+	 */
+	const play = useCallback( () => {
+		const video = videoRef.current;
+		if ( video ) {
+			video.play().catch( error => debug( 'preview play error', error ) );
+			return;
+		}
+		if ( ! playerIframeRef.current ) {
+			return;
+		}
+		postPreviewPlayerMessage( { event: 'videopress_action_play' } );
+		markPlaying( true );
+	}, [ markPlaying, postPreviewPlayerMessage ] );
+
+	const pause = useCallback( () => {
+		const video = videoRef.current;
+		if ( video ) {
+			video.pause();
+			return;
+		}
+		if ( ! playerIframeRef.current ) {
+			return;
+		}
+		postPreviewPlayerMessage( { event: 'videopress_action_pause' } );
+		markPlaying( false );
+	}, [ markPlaying, postPreviewPlayerMessage ] );
+
+	// The native element is the source of truth when present; the embed's
+	// state is mirrored into isPreviewPlaying by the postMessage listener.
+	const isPlaying = useCallback( () => {
+		const video = videoRef.current;
+		return video ? ! video.paused : isPreviewPlaying;
+	}, [ isPreviewPlaying ] );
 
 	const schedulePreviewResume = useCallback( () => {
 		clearPreviewResumeTimer();
@@ -326,13 +396,19 @@ function CaptionPreviewPlayer(
 		} else if ( playerIframeRef.current && isPreviewPlaying ) {
 			shouldResumePreviewAfterTypingRef.current = true;
 			postPreviewPlayerMessage( { event: 'videopress_action_pause' } );
-			setIsPreviewPlaying( false );
+			markPlaying( false );
 		}
 
 		if ( shouldResumePreviewAfterTypingRef.current ) {
 			schedulePreviewResume();
 		}
-	}, [ isPreviewPlaying, pauseWhileTyping, postPreviewPlayerMessage, schedulePreviewResume ] );
+	}, [
+		isPreviewPlaying,
+		markPlaying,
+		pauseWhileTyping,
+		postPreviewPlayerMessage,
+		schedulePreviewResume,
+	] );
 
 	useImperativeHandle(
 		ref,
@@ -340,10 +416,13 @@ function CaptionPreviewPlayer(
 			seekTo,
 			seekBy,
 			togglePlayback,
+			play,
+			pause,
+			isPlaying,
 			getCurrentTime: () => videoRef.current?.currentTime ?? currentTimeRef.current,
 			pauseWhileTypingNow,
 		} ),
-		[ seekTo, seekBy, togglePlayback, pauseWhileTypingNow ]
+		[ seekTo, seekBy, togglePlayback, play, pause, isPlaying, pauseWhileTypingNow ]
 	);
 
 	const nativePreviewSrc = isDirectVideoSource( videoSrc ) ? videoSrc : '';
@@ -368,8 +447,8 @@ function CaptionPreviewPlayer(
 				poster={ poster }
 				controls
 				onTimeUpdate={ event => updateCurrentTime( event.currentTarget.currentTime ) }
-				onPlay={ () => setIsPreviewPlaying( true ) }
-				onPause={ () => setIsPreviewPlaying( false ) }
+				onPlay={ () => markPlaying( true ) }
+				onPause={ () => markPlaying( false ) }
 			/>
 		);
 	} else if ( videoPressPreviewUrl ) {
