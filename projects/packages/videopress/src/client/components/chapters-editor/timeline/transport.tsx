@@ -4,7 +4,7 @@
  * timecode box. Purely presentational — playback state and seeking are
  * owned by the host screen's preview player.
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { formatTimecode } from '../state/time-utils';
 import TimecodeBox from './timecode-box';
 import type { ReactElement } from 'react';
@@ -73,7 +73,11 @@ export default function TimelineTransport( {
 				className="vp-chapters-timeline__transport"
 				data-testid="chapters-timeline-transport-play"
 				aria-label={
-					playing ? __( 'Pause', 'jetpack-videopress-pkg' ) : __( 'Play', 'jetpack-videopress-pkg' )
+					// The context also keeps the branches distinct so minification
+					// can't merge the two calls, which would break string extraction.
+					playing
+						? _x( 'Pause', 'button: pause timeline preview playback', 'jetpack-videopress-pkg' )
+						: __( 'Play', 'jetpack-videopress-pkg' )
 				}
 				onClick={ onTogglePlay }
 			>
