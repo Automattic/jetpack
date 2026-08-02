@@ -29,6 +29,7 @@ import { Button, Dialog, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import ChaptersTimeline from '../../src/client/components/chapters-editor/chapters/chapters-timeline';
 import ChaptersPreviewPlayer from '../../src/client/components/chapters-editor/preview/preview-player';
+import { usePreviewTransport } from '../../src/client/components/chapters-editor/preview/use-preview-transport';
 import {
 	chaptersEditsEqual,
 	chaptersToRows,
@@ -40,17 +41,16 @@ import {
 import { useChaptersStore } from '../../src/client/components/chapters-editor/use-chapters-store';
 import { fetchVideoItem } from '../../src/client/lib/fetch-video-item';
 import { serializeDescription } from '../../src/client/utils/video-chapters/description';
+import { pickPlaybackUrl } from '../../src/client/utils/video-chapters/pick-playback-url';
 import { probeManualTrack } from '../../src/client/utils/video-chapters/probe-manual-track';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import VideoLayout from '../../src/dashboard/components/video-layout';
 import { videoTabPath } from '../../src/dashboard/components/video-nav';
-import { pickPlaybackUrl } from '../../src/dashboard/hooks/use-library';
 import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useVideo } from '../../src/dashboard/hooks/use-video';
 import EditorOperationsPanel from './operations-panel';
 import './style.scss';
-import type { ChaptersPreviewPlayerHandle } from '../../src/client/components/chapters-editor/preview/preview-player';
 import type { LibraryItem } from '../../src/dashboard/types/library';
 import type { MouseEvent as ReactMouseEvent, ReactElement, ReactNode } from 'react';
 
@@ -268,13 +268,22 @@ function EditorReady( { video }: ReadyProps ): ReactElement {
 	const { mutateAsync: saveVideoMeta, isPending: metaSavePending } = useUpdateVideoMeta();
 	const { syncChapters } = useUpdateChapters();
 
-	const [ currentMs, setCurrentMs ] = useState( 0 );
-	// Mirrored from the preview player for the timeline toolbar's transport
-	// button (the transport lives in the timeline toolbar).
-	const [ playing, setPlaying ] = useState( false );
+	// The preview player ↔ timeline wiring (playhead, play state, scrub
+	// pause/resume), shared with the block editor's chapter manager modal.
+	const {
+		playerRef,
+		currentMs,
+		playing,
+		onTimeUpdate,
+		onPlayingChange,
+		onSeek,
+		onTogglePlay,
+		onScrubStart,
+		onScrubEnd,
+	} = usePreviewTransport();
+
 	const [ confirmDiscardOpen, setConfirmDiscardOpen ] = useState( false );
 
-	const playerRef = useRef< ChaptersPreviewPlayerHandle >( null );
 	const videoRef = useRef( video );
 	videoRef.current = video;
 
@@ -319,23 +328,22 @@ function EditorReady( { video }: ReadyProps ): ReactElement {
 
 	// The chapters store: a history-wrapped reducer. Chapters live on the
 	// OUTPUT video, so its duration is the attachment's.
-	const chapters = useChaptersStore( {
+	const { history, session, dispatch, chaptersDirty, markSaved, discard } = useChaptersStore( {
 		description: video.description,
 		durationMs: Math.round( video.durationSeconds * 1000 ),
 		locked: chaptersLocked,
 	} );
-	const { markSaved: markChaptersSaved, discard: discardChapters } = chapters;
 
 	// Chapters dirt participates in Save and the navigation guards only once
 	// the probe has landed 'editable': the pending-probe lock means user dirt
 	// cannot arise earlier, and a 'manual' session must stay inert —
 	// defense-in-depth for the description rewrite, which the write-time
 	// guard does not cover.
-	const effectiveDirty = chapters.chaptersDirty && chaptersProbe === 'editable';
+	const effectiveDirty = chaptersDirty && chaptersProbe === 'editable';
 	const effectiveDirtyRef = useRef( effectiveDirty );
 	effectiveDirtyRef.current = effectiveDirty;
-	const chaptersSessionRef = useRef( chapters.session );
-	chaptersSessionRef.current = chapters.session;
+	const sessionRef = useRef( session );
+	sessionRef.current = session;
 
 	// Dirty guard, half one: warn on tab close / full navigation.
 	useEffect( () => {
@@ -398,49 +406,23 @@ function EditorReady( { video }: ReadyProps ): ReactElement {
 		[ confirmNavigation ]
 	);
 
-	// Dirty guard, half four: browser back/forward. The router has already
-	// processed the popstate by the time this listener runs, so a decline
-	// re-navigates to the Editor tab synchronously — both location updates
-	// land in the same render batch, keeping this component (and the dirty
-	// session) mounted throughout.
+	// Dirty guard, half four: browser back/forward, prompting through the same
+	// guard as the sub-nav. The router has already processed the popstate by
+	// the time this listener runs, so a decline re-navigates to the Editor tab
+	// synchronously — both location updates land in the same render batch,
+	// keeping this component (and the dirty session) mounted throughout.
 	useEffect( () => {
 		if ( ! effectiveDirty ) {
 			return;
 		}
 		const onPopState = () => {
-			// eslint-disable-next-line no-alert -- deliberate synchronous guard; popstate can't await a custom dialog.
-			const leave = window.confirm(
-				__(
-					'You have unsaved chapter changes. Leave this page and discard them?',
-					'jetpack-videopress-pkg'
-				)
-			);
-			if ( ! leave ) {
+			if ( ! confirmNavigation() ) {
 				navigate( { href: videoTabPath( video.id, 'editor' ) } );
 			}
 		};
 		window.addEventListener( 'popstate', onPopState );
 		return () => window.removeEventListener( 'popstate', onPopState );
-	}, [ effectiveDirty, navigate, video.id ] );
-
-	const onTimeUpdate = useCallback( ( ms: number ) => setCurrentMs( ms ), [] );
-	const onSeek = useCallback( ( ms: number ) => playerRef.current?.seekTo( ms ), [] );
-	const onTogglePlay = useCallback( () => playerRef.current?.togglePlay(), [] );
-
-	// Scrubbing pauses playback for the duration of the drag (resuming
-	// after, YouTube-style, when it was running), so every pointer-move seek
-	// lands on a paused element instead of fighting ongoing playback.
-	const scrubWasPlayingRef = useRef( false );
-	const onScrubStart = useCallback( () => {
-		scrubWasPlayingRef.current = playerRef.current?.isPlaying() ?? false;
-		playerRef.current?.pause();
-	}, [] );
-	const onScrubEnd = useCallback( () => {
-		if ( scrubWasPlayingRef.current ) {
-			scrubWasPlayingRef.current = false;
-			playerRef.current?.play();
-		}
-	}, [] );
+	}, [ effectiveDirty, confirmNavigation, navigate, video.id ] );
 
 	// Save: rewrite the description's chapter lines (byte-preserving the
 	// prose) and POST the meta update. Only after that succeeds does the VTT
@@ -452,7 +434,7 @@ function EditorReady( { video }: ReadyProps ): ReactElement {
 		const item = videoRef.current;
 		const nextDescription = serializeDescription(
 			item.description,
-			chaptersToRows( chaptersSessionRef.current )
+			chaptersToRows( sessionRef.current )
 		);
 		try {
 			await saveVideoMeta( { id: item.id, patch: { description: nextDescription } } );
@@ -461,17 +443,17 @@ function EditorReady( { video }: ReadyProps ): ReactElement {
 			return;
 		}
 		void syncChapters( item, nextDescription );
-		markChaptersSaved( nextDescription );
+		markSaved( nextDescription );
 		createSuccessNotice( __( 'Chapters saved.', 'jetpack-videopress-pkg' ) );
-	}, [ saveVideoMeta, syncChapters, markChaptersSaved, createSuccessNotice, createErrorNotice ] );
+	}, [ saveVideoMeta, syncChapters, markSaved, createSuccessNotice, createErrorNotice ] );
 
 	// Discard returns the session to its last loaded baseline via a confirm
 	// dialog; the dialog only opens while effectively dirty (LOAD clears the
 	// tool's history and must not run on a clean store).
 	const onConfirmDiscard = useCallback( () => {
-		discardChapters();
+		discard();
 		setConfirmDiscardOpen( false );
-	}, [ discardChapters ] );
+	}, [ discard ] );
 
 	return (
 		// display:contents keeps the wrapper out of layout; it exists only to
@@ -485,10 +467,10 @@ function EditorReady( { video }: ReadyProps ): ReactElement {
 				confirmNavigation={ confirmNavigation }
 				actions={
 					<ChaptersHeaderActions
-						canUndo={ ! chaptersLocked && canUndoHistory( chapters.history, chaptersEditsEqual ) }
-						canRedo={ ! chaptersLocked && canRedoHistory( chapters.history ) }
-						onUndo={ () => chapters.dispatch( { type: 'UNDO' } ) }
-						onRedo={ () => chapters.dispatch( { type: 'REDO' } ) }
+						canUndo={ ! chaptersLocked && canUndoHistory( history, chaptersEditsEqual ) }
+						canRedo={ ! chaptersLocked && canRedoHistory( history ) }
+						onUndo={ () => dispatch( { type: 'UNDO' } ) }
+						onRedo={ () => dispatch( { type: 'REDO' } ) }
 						canDiscard={ effectiveDirty && ! metaSavePending }
 						onDiscard={ () => setConfirmDiscardOpen( true ) }
 						canSave={ effectiveDirty && ! metaSavePending }
@@ -506,7 +488,7 @@ function EditorReady( { video }: ReadyProps ): ReactElement {
 									video={ video }
 									fallbackPlaybackUrl={ playbackFallbackUrl }
 									onTimeUpdate={ onTimeUpdate }
-									onPlayingChange={ setPlaying }
+									onPlayingChange={ onPlayingChange }
 								/>
 							</div>
 							<div
@@ -521,8 +503,8 @@ function EditorReady( { video }: ReadyProps ): ReactElement {
 								     (space, arrows, Delete, mod+Z); it detaches while the
 								     discard confirm dialog is open. */ }
 								<ChaptersTimeline
-									session={ chapters.session }
-									dispatch={ chapters.dispatch }
+									session={ session }
+									dispatch={ dispatch }
 									currentMs={ currentMs }
 									onSeek={ onSeek }
 									onTogglePlay={ onTogglePlay }

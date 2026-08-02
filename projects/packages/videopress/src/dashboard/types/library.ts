@@ -35,7 +35,7 @@ export interface LibraryItem {
 	allowDownloads: boolean;
 	shortcode: string;
 	sourceUrl?: string;
-	// The best browser-playable MP4 rendition (hd → dvd → std). Preferred over
+	// The best browser-playable MP4 rendition (dvd → std → hd). Preferred over
 	// `sourceUrl` for playback: the original upload may be an HEVC .mov most
 	// browsers can't decode. Undefined until the transcode ladder is ready.
 	playbackUrl?: string;

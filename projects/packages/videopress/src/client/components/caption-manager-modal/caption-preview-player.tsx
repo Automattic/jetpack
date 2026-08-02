@@ -18,7 +18,6 @@ import debugFactory from 'debug';
  */
 import getMediaToken from '../../lib/get-media-token';
 import { isAllowedOrigin } from '../../lib/videopress-allowed-origins';
-import './caption-preview-player.scss';
 /**
  * Types
  */

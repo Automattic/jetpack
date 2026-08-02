@@ -67,10 +67,15 @@ const INTERACTIVE_CONTROL_SELECTOR = [
  * Whether a keyboard event targets an element the shortcuts must leave alone:
  * anything editable (typing) or an interactive control (activation).
  *
+ * Exported for hosts that map the same shortcuts themselves instead of using
+ * this document-level listener — the block editor's chapter manager modal
+ * handles them on its own body, since document-level listeners fight
+ * Gutenberg's shortcut handling — so both bail on the same targets.
+ *
  * @param target - The event target.
  * @return True when the shortcuts should ignore the event.
  */
-function isExemptTarget( target: EventTarget | null ): boolean {
+export function isExemptTarget( target: EventTarget | null ): boolean {
 	if ( ! ( target instanceof Element ) ) {
 		return false;
 	}

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Button, Modal, SnackbarList } from '@wordpress/components';
-import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { close, redo as redoIcon, undo as undoIcon } from '@wordpress/icons';
 /**
@@ -18,15 +18,16 @@ import ConfirmationOverlay from '../caption-manager-modal/confirmation-overlay';
 import { useCaptionSnackbars } from '../caption-manager-modal/use-caption-snackbars';
 import ChaptersTimeline from '../chapters-editor/chapters/chapters-timeline';
 import ChaptersPreviewPlayer from '../chapters-editor/preview/preview-player';
+import { usePreviewTransport } from '../chapters-editor/preview/use-preview-transport';
 import { chaptersEditsEqual, chaptersToRows } from '../chapters-editor/state/chapters-session';
 import { canRedo, canUndo } from '../chapters-editor/state/history';
+import { isExemptTarget } from '../chapters-editor/timeline/use-keyboard-shortcuts';
 import { useChaptersStore } from '../chapters-editor/use-chapters-store';
 import './style.scss';
 /**
  * Types
  */
 import type { ChapterManagerModalProps } from './types';
-import type { ChaptersPreviewPlayerHandle } from '../chapters-editor/preview/preview-player';
 import type { KeyboardEvent, ReactElement } from 'react';
 
 type ConfirmationState = {
@@ -41,51 +42,6 @@ type ConfirmationState = {
  * reports no duration yet — most likely still processing).
  */
 type ItemState = 'loading' | 'ready' | 'unavailable';
-
-/**
- * Selector for focused controls the modal-body shortcuts must never talk
- * over: keyboard activation (Space/Enter) belongs to the control. Matched
- * via `closest` so a focus target inside a control (an icon, say) is
- * covered too.
- *
- * Keep in sync with the chapters editor's document-level shortcuts hook
- * (`../chapters-editor/timeline/use-keyboard-shortcuts.ts`), which owns the
- * same bail rules for the dashboard host.
- */
-const INTERACTIVE_CONTROL_SELECTOR = [
-	'button',
-	'a[href]',
-	'summary',
-	'[role="button"]',
-	'[role="link"]',
-	'[role="menuitem"]',
-	'[role="menuitemcheckbox"]',
-	'[role="menuitemradio"]',
-].join( ', ' );
-
-/**
- * Whether a keyboard event targets an element the shortcuts must leave
- * alone: anything editable (typing in the chapter-title inputs) or an
- * interactive control (activation).
- *
- * @param target - The event target.
- * @return True when the shortcuts should ignore the event.
- */
-function isExemptTarget( target: EventTarget | null ): boolean {
-	if ( ! ( target instanceof Element ) ) {
-		return false;
-	}
-	if (
-		target instanceof HTMLElement &&
-		( target.tagName === 'INPUT' ||
-			target.tagName === 'TEXTAREA' ||
-			target.tagName === 'SELECT' ||
-			target.isContentEditable )
-	) {
-		return true;
-	}
-	return target.closest( INTERACTIVE_CONTROL_SELECTOR ) !== null;
-}
 
 /**
  * Shared VideoPress chapter manager modal.
@@ -134,7 +90,20 @@ export default function ChapterManagerModal( {
 	onClose,
 	onSaved,
 }: ChapterManagerModalProps ): ReactElement | null {
-	const playerRef = useRef< ChaptersPreviewPlayerHandle >( null );
+	// The preview player ↔ timeline wiring (playhead, play state, scrub
+	// pause/resume), shared with the dashboard's Editor tab.
+	const {
+		playerRef,
+		currentMs,
+		playing,
+		onTimeUpdate,
+		onPlayingChange,
+		onSeek,
+		onTogglePlay,
+		onScrubStart,
+		onScrubEnd,
+		reset: resetPlayback,
+	} = usePreviewTransport();
 
 	const [ itemState, setItemState ] = useState< ItemState >( 'loading' );
 	const [ itemDurationMs, setItemDurationMs ] = useState< number | null >( null );
@@ -156,10 +125,6 @@ export default function ChapterManagerModal( {
 	const [ confirmation, setConfirmation ] = useState< ConfirmationState | null >( null );
 	// Transient snackbars for outcomes and async failures; see use-caption-snackbars.ts.
 	const { snackbars, notify, removeSnackbar, clearSnackbars } = useCaptionSnackbars();
-
-	// Live playhead position (ms) and play state, reported by the player.
-	const [ currentMs, setCurrentMs ] = useState( 0 );
-	const [ playing, setPlaying ] = useState( false );
 
 	const chaptersLocked = metaSavePending || probe === 'unprobed' || itemState !== 'ready';
 	const readOnly = probe === 'manual';
@@ -191,8 +156,7 @@ export default function ChapterManagerModal( {
 
 		setConfirmation( null );
 		clearSnackbars();
-		setCurrentMs( 0 );
-		setPlaying( false );
+		resetPlayback();
 		setItemState( 'loading' );
 		setItemDurationMs( null );
 		setPlaybackUrl( undefined );
@@ -238,7 +202,7 @@ export default function ChapterManagerModal( {
 		return () => {
 			isCurrent = false;
 		};
-	}, [ isOpen, guid, isPrivate, clearSnackbars ] );
+	}, [ isOpen, guid, isPrivate, clearSnackbars, resetPlayback ] );
 
 	/*
 	 * The discard confirmation only guards in-modal closing; this guards the
@@ -259,26 +223,6 @@ export default function ChapterManagerModal( {
 		window.addEventListener( 'beforeunload', warnBeforeUnload );
 		return () => window.removeEventListener( 'beforeunload', warnBeforeUnload );
 	}, [ isOpen, effectiveDirty ] );
-
-	// Playhead plumbing: the timeline and the shared player's imperative
-	// surface both speak master-timeline ms.
-	const onTimeUpdate = useCallback( ( ms: number ) => setCurrentMs( ms ), [] );
-	const onSeek = useCallback( ( ms: number ) => playerRef.current?.seekTo( ms ), [] );
-	const onTogglePlay = useCallback( () => playerRef.current?.togglePlay(), [] );
-
-	// Scrubbing pauses playback for the duration of the drag, resuming after
-	// (YouTube-style) when it was running.
-	const scrubWasPlayingRef = useRef( false );
-	const onScrubStart = useCallback( () => {
-		scrubWasPlayingRef.current = playerRef.current?.isPlaying() ?? false;
-		playerRef.current?.pause();
-	}, [] );
-	const onScrubEnd = useCallback( () => {
-		if ( scrubWasPlayingRef.current ) {
-			scrubWasPlayingRef.current = false;
-			playerRef.current?.play();
-		}
-	}, [] );
 
 	const updateMediaItem = useMediaDataUpdate( attachmentId );
 
@@ -329,13 +273,21 @@ export default function ChapterManagerModal( {
 		updateMediaItem,
 	] );
 
-	const requestDiscard = useCallback( () => {
+	// Raise the discard confirmation; `onConfirm` is what the unsaved edits are
+	// being dropped FOR — resetting the session (Discard changes) or closing
+	// the modal outright.
+	const confirmDiscard = useCallback( ( onConfirm: () => void ) => {
 		setConfirmation( {
 			message: __( 'Discard unsaved chapter changes?', 'jetpack-videopress-pkg' ),
 			confirmLabel: __( 'Discard', 'jetpack-videopress-pkg' ),
-			onConfirm: discard,
+			onConfirm,
 		} );
-	}, [ discard ] );
+	}, [] );
+
+	const requestDiscard = useCallback(
+		() => confirmDiscard( discard ),
+		[ confirmDiscard, discard ]
+	);
 
 	const handleRequestClose = useCallback( () => {
 		// A save in flight must not be raced by a close: an accepted discard
@@ -343,16 +295,12 @@ export default function ChapterManagerModal( {
 		if ( metaSavePending ) {
 			return;
 		}
-		if ( ! effectiveDirty ) {
-			onClose();
+		if ( effectiveDirty ) {
+			confirmDiscard( onClose );
 			return;
 		}
-		setConfirmation( {
-			message: __( 'Discard unsaved chapter changes?', 'jetpack-videopress-pkg' ),
-			confirmLabel: __( 'Discard', 'jetpack-videopress-pkg' ),
-			onConfirm: onClose,
-		} );
-	}, [ effectiveDirty, metaSavePending, onClose ] );
+		onClose();
+	}, [ confirmDiscard, effectiveDirty, metaSavePending, onClose ] );
 
 	/*
 	 * Keyboard shortcuts live HERE, as a React handler on the modal body,
@@ -520,7 +468,7 @@ export default function ChapterManagerModal( {
 									sourceUrl: undefined,
 								} }
 								onTimeUpdate={ onTimeUpdate }
-								onPlayingChange={ setPlaying }
+								onPlayingChange={ onPlayingChange }
 							/>
 							<div
 								className={

@@ -94,8 +94,6 @@ export interface ChaptersStore {
 	dispatch: ( action: HistoryAction< ChaptersSessionAction > ) => void;
 	/** Whether saving would change the description's chapter lines. */
 	chaptersDirty: boolean;
-	/** The normalized rows of the loaded baseline. */
-	baselineRows: ChapterRow[];
 	/** Re-baseline on a just-saved description: LOAD it and clear history. */
 	markSaved: ( description: string ) => void;
 	/** Reset the session to the loaded baseline (unsaved edits are dropped). */
@@ -197,7 +195,6 @@ export function useChaptersStore( options: ChaptersStoreOptions ): ChaptersStore
 		session,
 		dispatch,
 		chaptersDirty,
-		baselineRows: baseline.rows,
 		markSaved: rebaseline,
 		discard,
 	};

@@ -31,7 +31,7 @@ type Props = {
 
 /**
  * Shared chrome for per-video screens: `AdminPage` with breadcrumbs and an
- * actions slot, plus the Details / Chapters sub-nav. Extracted from
+ * actions slot, plus the Details / Editor sub-nav. Extracted from
  * the structure routes/video/stage.tsx builds inline — that stage still builds
  * its own chrome and should migrate here eventually.
  *

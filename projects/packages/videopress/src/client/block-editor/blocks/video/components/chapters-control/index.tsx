@@ -67,7 +67,7 @@ export default function ChaptersControl( {
 			/>
 			{ isAvailable && isModalOpen && (
 				<ChapterManagerModal
-					isOpen={ isModalOpen }
+					isOpen
 					guid={ guid }
 					attachmentId={ id }
 					description={ description ?? '' }

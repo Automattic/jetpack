@@ -202,11 +202,6 @@ export function viewToQueryArgs( view: View ): Record< string, string | number >
 	return args;
 }
 
-// pickPlaybackUrl moved to the client tree (the chapter manager modal needs
-// it, and src/client must not import from src/dashboard); re-exported here so
-// dashboard call sites keep one import path for the library item helpers.
-export { pickPlaybackUrl };
-
 /**
  * Transform a raw /wp/v2/media API item into a LibraryItem.
  *

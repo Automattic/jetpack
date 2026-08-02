@@ -5,10 +5,10 @@
  * Renders a plain <video> stage on the video's best playable URL (signed
  * with a `metadata_token` playback JWT for private videos). The transport
  * controls live in the chapters timeline toolbar; this component owns only
- * the stage and reports playback state upward
- * (onTimeUpdate/onDurationChange/onPlayingChange) while exposing an
- * imperative handle for the timeline to drive. Playback state lives in
- * `usePreviewPlayback` (identity playback — the video plays as-is).
+ * the stage and reports playback state upward (onTimeUpdate/onPlayingChange)
+ * while exposing an imperative handle for the timeline to drive. Playback
+ * state lives in `usePreviewPlayback` (identity playback — the video plays
+ * as-is).
  */
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -65,8 +65,6 @@ type Props = {
 	fallbackPlaybackUrl?: string;
 	/** Playhead position in ms, once per change. */
 	onTimeUpdate?: ( currentMs: number ) => void;
-	/** Media duration in ms, reported when known (metadata or fallback). */
-	onDurationChange?: ( durationMs: number ) => void;
 	/**
 	 * Whether playback is running, once per change. Hosts mirror this into
 	 * state for the timeline toolbar's transport button.
@@ -121,7 +119,7 @@ function usePlaybackToken( guid: string, enabled: boolean ): string | null {
  */
 const ChaptersPreviewPlayer = forwardRef< ChaptersPreviewPlayerHandle, Props >(
 	function ChaptersPreviewPlayerInner(
-		{ video, fallbackPlaybackUrl, onTimeUpdate, onDurationChange, onPlayingChange },
+		{ video, fallbackPlaybackUrl, onTimeUpdate, onPlayingChange },
 		ref
 	): ReactElement {
 		// Prefer the transcoded H.264 rendition: the original upload may be an
@@ -129,19 +127,10 @@ const ChaptersPreviewPlayer = forwardRef< ChaptersPreviewPlayerHandle, Props >(
 		const { isPrivate, guid, durationSeconds } = video;
 		const sourceUrl = video.playbackUrl ?? fallbackPlaybackUrl ?? video.sourceUrl;
 		const token = usePlaybackToken( guid, isPrivate );
-		const {
-			currentMs,
-			playing,
-			durationMs,
-			attachVideo,
-			play,
-			pause,
-			togglePlay,
-			seekTo,
-			playbackError,
-		} = usePreviewPlayback( {
-			fallbackDurationMs: durationSeconds * 1000,
-		} );
+		const { currentMs, playing, attachVideo, play, pause, togglePlay, seekTo, playbackError } =
+			usePreviewPlayback( {
+				fallbackDurationMs: durationSeconds * 1000,
+			} );
 
 		useImperativeHandle(
 			ref,
@@ -152,12 +141,6 @@ const ChaptersPreviewPlayer = forwardRef< ChaptersPreviewPlayerHandle, Props >(
 		useEffect( () => {
 			onTimeUpdate?.( currentMs );
 		}, [ currentMs, onTimeUpdate ] );
-
-		useEffect( () => {
-			if ( durationMs > 0 ) {
-				onDurationChange?.( durationMs );
-			}
-		}, [ durationMs, onDurationChange ] );
 
 		useEffect( () => {
 			onPlayingChange?.( playing );
