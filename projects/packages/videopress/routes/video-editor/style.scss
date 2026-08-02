@@ -128,6 +128,15 @@
 	opacity: 0.6;
 }
 
+// The wpds Button draws its focus ring on plain :focus (not :focus-visible)
+// and keeps disabled buttons focusable via aria-disabled, so clicking Save
+// leaves a stale blue ring on the — by then grayed — button. Drop the ring
+// for pointer-originated focus only; keyboard focus (:focus-visible) keeps
+// it, including on the aria-disabled buttons keyboard users can still reach.
+.vp-video-editor__header-actions button:focus:not(:focus-visible) {
+	outline: none;
+}
+
 // Separates undo/redo from Discard/Save in the header actions.
 .vp-video-editor__header-divider {
 	inline-size: 1px;
