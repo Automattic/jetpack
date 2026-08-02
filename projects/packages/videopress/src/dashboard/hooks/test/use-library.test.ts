@@ -378,9 +378,12 @@ describe( 'on WordPress.com Simple', () => {
 			expect( withDimensions( 1920, undefined ).orientation ).toBeNull();
 		} );
 
-		it( 'picks the best MP4 rendition for playbackUrl (hd → dvd → std)', () => {
+		it( 'picks the best MP4 rendition for playbackUrl (dvd → std → hd)', () => {
 			// The original upload (`source_url`) may be an HEVC .mov most
-			// browsers can't decode; playbackUrl prefers the H.264 ladder.
+			// browsers can't decode; playbackUrl prefers the H.264 ladder,
+			// smallest useful rendition first — the editors' preview stage is
+			// far below 1080p and a progressive hd stream can outrun slow
+			// connections (see pickPlaybackUrl's docblock).
 			const withFiles = ( files?: Record< string, { mp4?: string } > ) =>
 				toLibraryItem(
 					{
@@ -402,13 +405,13 @@ describe( 'on WordPress.com Simple', () => {
 				);
 
 			expect(
-				withFiles( { hd: { mp4: 'clip_hd.mp4' }, std: { mp4: 'clip_std.mp4' } } ).playbackUrl
-			).toBe( 'https://videos.files.wordpress.com/guid11/clip_hd.mp4' );
-			expect(
-				withFiles( { dvd: { mp4: 'clip_dvd.mp4' }, std: { mp4: 'clip_std.mp4' } } ).playbackUrl
+				withFiles( { hd: { mp4: 'clip_hd.mp4' }, dvd: { mp4: 'clip_dvd.mp4' } } ).playbackUrl
 			).toBe( 'https://videos.files.wordpress.com/guid11/clip_dvd.mp4' );
-			expect( withFiles( { std: { mp4: 'clip_std.mp4' } } ).playbackUrl ).toBe(
-				'https://videos.files.wordpress.com/guid11/clip_std.mp4'
+			expect(
+				withFiles( { hd: { mp4: 'clip_hd.mp4' }, std: { mp4: 'clip_std.mp4' } } ).playbackUrl
+			).toBe( 'https://videos.files.wordpress.com/guid11/clip_std.mp4' );
+			expect( withFiles( { hd: { mp4: 'clip_hd.mp4' } } ).playbackUrl ).toBe(
+				'https://videos.files.wordpress.com/guid11/clip_hd.mp4'
 			);
 			// No renditions yet (still transcoding): no playback URL.
 			expect( withFiles( undefined ).playbackUrl ).toBeUndefined();

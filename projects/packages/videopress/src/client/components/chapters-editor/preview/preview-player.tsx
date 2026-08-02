@@ -183,7 +183,10 @@ const ChaptersPreviewPlayer = forwardRef< ChaptersPreviewPlayerHandle, Props >(
 							className="vp-chapters-preview__video"
 							data-testid="chapters-preview-video"
 							src={ src }
-							preload="metadata"
+							// "auto": buffer ahead from mount so pressing play doesn't
+							// start a cold fetch — the editor's whole purpose is
+							// scrubbing around the file.
+							preload="auto"
 							playsInline
 						/>
 					) : (

@@ -154,6 +154,7 @@ function ChaptersHeaderActions( {
 			<IconButton
 				icon={ undoIcon }
 				label={ __( 'Undo', 'jetpack-videopress-pkg' ) }
+				size="compact"
 				disabled={ ! canUndo }
 				accessibleWhenDisabled
 				onClick={ onUndo }
@@ -161,6 +162,7 @@ function ChaptersHeaderActions( {
 			<IconButton
 				icon={ redoIcon }
 				label={ __( 'Redo', 'jetpack-videopress-pkg' ) }
+				size="compact"
 				disabled={ ! canRedo }
 				accessibleWhenDisabled
 				onClick={ onRedo }
@@ -172,12 +174,13 @@ function ChaptersHeaderActions( {
 			<Button
 				className="vp-video-editor__header-discard"
 				variant="outline"
+				size="compact"
 				disabled={ ! canDiscard }
 				onClick={ onDiscard }
 			>
 				{ __( 'Discard changes', 'jetpack-videopress-pkg' ) }
 			</Button>
-			<Button disabled={ ! canSave } onClick={ onSave }>
+			<Button size="compact" disabled={ ! canSave } onClick={ onSave }>
 				{ __( 'Save', 'jetpack-videopress-pkg' ) }
 			</Button>
 		</Stack>

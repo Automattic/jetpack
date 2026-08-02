@@ -8,8 +8,13 @@
  * Pick the best browser-playable MP4 rendition for an item.
  *
  * The original upload (`source_url`) may be an HEVC .mov most browsers can't
- * decode; VideoPress always transcodes an H.264 ladder, so prefer hd → dvd →
- * std under the HTTPS file URL base.
+ * decode; VideoPress always transcodes an H.264 ladder. Preference is
+ * dvd → std → hd: the editors render the preview on a stage capped well
+ * below 1080p, and a progressive (non-adaptive) hd stream can outrun slower
+ * connections — Chromium then plays on through the audio clock with a frozen
+ * frame and periodically snaps back to the video's last sync point, which
+ * reads as the playhead "tripping" on one second. The 480p rendition is
+ * visually identical at stage size and a fraction of the bandwidth.
  *
  * @param vp                     - The `media_details.videopress` block from the REST response, or
  *                               a v1.1 `videos/{guid}` item (same `file_url_base`/`files` shape) —
@@ -29,7 +34,7 @@ export function pickPlaybackUrl( vp?: {
 	if ( ! base || ! vp?.files ) {
 		return undefined;
 	}
-	for ( const rendition of [ 'hd', 'dvd', 'std' ] ) {
+	for ( const rendition of [ 'dvd', 'std', 'hd' ] ) {
 		const mp4 = vp.files[ rendition ]?.mp4;
 		if ( mp4 ) {
 			return base + mp4;
