@@ -11,13 +11,10 @@ const mockUpdateMediaItem = jest.fn();
 let mockPlayerProps: Record< string, unknown > = {};
 const mockPlayerHandle = {
 	seekTo: jest.fn(),
-	seekBy: jest.fn(),
-	togglePlayback: jest.fn(),
 	play: jest.fn(),
 	pause: jest.fn(),
+	togglePlay: jest.fn(),
 	isPlaying: jest.fn( () => false ),
-	getCurrentTime: jest.fn( () => 0 ),
-	pauseWhileTypingNow: jest.fn(),
 };
 
 jest.mock( '@wordpress/components', () => ( {
@@ -66,10 +63,11 @@ jest.mock( '../../../block-editor/hooks/use-video-data-update', () => ( {
 } ) );
 
 /*
- * The preview player is exercised by its own test file; here a stub records
- * the props it receives and exposes the imperative handle the modal drives.
+ * The shared chapters preview player is exercised by its own test file; here
+ * a stub records the props it receives and exposes the imperative handle the
+ * modal drives.
  */
-jest.mock( '../../caption-manager-modal/caption-preview-player', () => {
+jest.mock( '../../chapters-editor/preview/preview-player', () => {
 	const { forwardRef, useImperativeHandle } = jest.requireActual( '@wordpress/element' );
 	return {
 		__esModule: true,
@@ -112,7 +110,13 @@ jest.mock( '../../chapters-editor/chapters/chapters-timeline', () => ( {
 	),
 } ) );
 
-const videoItem = { duration: 120000, width: 1920, height: 1080 };
+const videoItem = {
+	duration: 120000,
+	width: 1920,
+	height: 1080,
+	file_url_base: { https: 'https://videos.files.wordpress.com/abc123/' },
+	files: { hd: { mp4: 'clip_hd.mp4' } },
+};
 
 const BASE_DESCRIPTION = 'Intro prose.\n\n0:00 Start\n0:30 Middle\n1:00 End';
 
@@ -122,7 +126,6 @@ const defaultProps = {
 	attachmentId: 42,
 	description: BASE_DESCRIPTION,
 	title: 'Test video',
-	poster: 'poster.jpg',
 	isPrivate: false,
 	onClose: jest.fn(),
 	onSaved: jest.fn(),
@@ -173,7 +176,15 @@ describe( 'ChapterManagerModal', () => {
 		expect( timeline ).toHaveAttribute( 'data-readonly', 'false' );
 		// Document-level shortcuts stay off; the modal body maps the keys itself.
 		expect( timeline ).toHaveAttribute( 'data-shortcuts', 'false' );
-		expect( mockPlayerProps.previewAspectRatio ).toBe( '1920 / 1080' );
+		// The shared player receives the item-derived video: the best H.264
+		// rendition, the duration in seconds, and no original-upload fallback.
+		expect( mockPlayerProps.video ).toEqual( {
+			guid: 'abc123',
+			isPrivate: false,
+			durationSeconds: 120,
+			playbackUrl: 'https://videos.files.wordpress.com/abc123/clip_hd.mp4',
+			sourceUrl: undefined,
+		} );
 	} );
 
 	it( 'stays locked until the probe settles, dropping edits made meanwhile', async () => {
@@ -335,10 +346,10 @@ describe( 'ChapterManagerModal', () => {
 
 		// Space toggles playback…
 		fireEvent.keyDown( timeline, { key: ' ' } );
-		expect( mockPlayerHandle.togglePlayback ).toHaveBeenCalledTimes( 1 );
+		expect( mockPlayerHandle.togglePlay ).toHaveBeenCalledTimes( 1 );
 		// …but never from inside a text field.
 		fireEvent.keyDown( screen.getByLabelText( 'Chapter title input' ), { key: ' ' } );
-		expect( mockPlayerHandle.togglePlayback ).toHaveBeenCalledTimes( 1 );
+		expect( mockPlayerHandle.togglePlay ).toHaveBeenCalledTimes( 1 );
 
 		// mod+Z / shift+mod+Z drive the store's history.
 		await user.click( screen.getByText( 'Add test chapter' ) );

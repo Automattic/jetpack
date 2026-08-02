@@ -5,6 +5,7 @@ import { useRef } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { addQueryArgs } from '@wordpress/url';
 import { flattenVideoTracks } from '../../client/lib/video-tracks';
+import { pickPlaybackUrl } from '../../client/utils/video-chapters/pick-playback-url';
 import { buildShortcode } from '../utils/format';
 import type { VideoTracksResponseBodyProps } from '../../client/types';
 import type { LibraryItem, LibraryItemPrivacy } from '../types/library';
@@ -201,38 +202,10 @@ export function viewToQueryArgs( view: View ): Record< string, string | number >
 	return args;
 }
 
-/**
- * Pick the best browser-playable MP4 rendition for an item.
- *
- * The original upload (`source_url`) may be an HEVC .mov most browsers can't
- * decode; VideoPress always transcodes an H.264 ladder, so prefer hd → dvd →
- * std under the HTTPS file URL base.
- *
- * @param vp                     - The `media_details.videopress` block from the REST response, or
- *                               a v1.1 `videos/{guid}` item (same `file_url_base`/`files` shape) —
- *                               the Editor tab derives a fallback from the latter on
- *                               WordPress.com Simple, where `media_details.videopress` is absent.
- * @param vp.file_url_base       - Per-scheme base URLs for the video's files.
- * @param vp.file_url_base.https - The HTTPS base URL.
- * @param vp.files               - Rendition descriptors keyed by size (std/dvd/hd/…).
- * @return The rendition URL, or undefined when none is available yet.
- */
-export function pickPlaybackUrl( vp?: {
-	file_url_base?: { https?: string };
-	files?: Record< string, { mp4?: string } >;
-} ): string | undefined {
-	const base = vp?.file_url_base?.https;
-	if ( ! base || ! vp?.files ) {
-		return undefined;
-	}
-	for ( const rendition of [ 'hd', 'dvd', 'std' ] ) {
-		const mp4 = vp.files[ rendition ]?.mp4;
-		if ( mp4 ) {
-			return base + mp4;
-		}
-	}
-	return undefined;
-}
+// pickPlaybackUrl moved to the client tree (the chapter manager modal needs
+// it, and src/client must not import from src/dashboard); re-exported here so
+// dashboard call sites keep one import path for the library item helpers.
+export { pickPlaybackUrl };
 
 /**
  * Transform a raw /wp/v2/media API item into a LibraryItem.

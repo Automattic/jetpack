@@ -12,7 +12,6 @@ export type ChapterManagerModalProps = {
 	 */
 	description: string;
 	title?: string;
-	poster?: string;
 	isPrivate?: boolean;
 	onClose: () => void;
 	/**

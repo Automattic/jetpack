@@ -1,5 +1,5 @@
 /**
- * Playback state for the Editor tab's preview player.
+ * Playback state for the chapters editors' preview player.
  *
  * Owns { currentMs, playing, durationMs } for a <video> element. While
  * playing, a requestAnimationFrame loop reads `currentTime` directly (smooth
@@ -12,7 +12,7 @@
  *
  * All millisecond values are integers on the video's timeline.
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 /**
@@ -307,10 +307,17 @@ export function usePreviewPlayback( options: UsePreviewPlaybackOptions = {} ): P
 			} )
 			.catch( ( error: unknown ) => {
 				const name = error instanceof Error ? error.name : '';
+				// _x (not __) for the second branch: Terser merges a ternary of
+				// two identical calls into one call with a ternary argument,
+				// which the i18n extractor can't see through.
 				setPlaybackError(
 					name === 'NotSupportedError'
 						? __( 'This video format is not supported by the browser.', 'jetpack-videopress-pkg' )
-						: __( 'Playback could not be started.', 'jetpack-videopress-pkg' )
+						: _x(
+								'Playback could not be started.',
+								'chapters preview player error',
+								'jetpack-videopress-pkg'
+						  )
 				);
 			} );
 	}, [ readDuration, startLoop ] );

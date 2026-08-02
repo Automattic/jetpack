@@ -29,7 +29,7 @@ export default function ChaptersControl( {
 	attributes,
 	setAttributes,
 }: VideoControlProps ): ReactElement | null {
-	const { guid, id, description, isPrivate, poster, title } = attributes;
+	const { guid, id, description, isPrivate, title } = attributes;
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
 	/*
@@ -72,7 +72,6 @@ export default function ChaptersControl( {
 					attachmentId={ id }
 					description={ description ?? '' }
 					title={ title }
-					poster={ poster }
 					isPrivate={ isPrivate }
 					onClose={ () => setIsModalOpen( false ) }
 					onSaved={ onSaved }

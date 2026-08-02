@@ -28,6 +28,7 @@ import { Link, useNavigate, useParams } from '@wordpress/route';
 import { Button, Dialog, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import ChaptersTimeline from '../../src/client/components/chapters-editor/chapters/chapters-timeline';
+import ChaptersPreviewPlayer from '../../src/client/components/chapters-editor/preview/preview-player';
 import {
 	chaptersEditsEqual,
 	chaptersToRows,
@@ -41,7 +42,6 @@ import { fetchVideoItem } from '../../src/client/lib/fetch-video-item';
 import { serializeDescription } from '../../src/client/utils/video-chapters/description';
 import { probeManualTrack } from '../../src/client/utils/video-chapters/probe-manual-track';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
-import ChaptersPreviewPlayer from '../../src/dashboard/components/video-chapters/preview-player';
 import VideoLayout from '../../src/dashboard/components/video-layout';
 import { videoTabPath } from '../../src/dashboard/components/video-nav';
 import { pickPlaybackUrl } from '../../src/dashboard/hooks/use-library';
@@ -50,7 +50,7 @@ import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-m
 import { useVideo } from '../../src/dashboard/hooks/use-video';
 import EditorOperationsPanel from './operations-panel';
 import './style.scss';
-import type { ChaptersPreviewPlayerHandle } from '../../src/dashboard/components/video-chapters/preview-player';
+import type { ChaptersPreviewPlayerHandle } from '../../src/client/components/chapters-editor/preview/preview-player';
 import type { LibraryItem } from '../../src/dashboard/types/library';
 import type { MouseEvent as ReactMouseEvent, ReactElement, ReactNode } from 'react';
 

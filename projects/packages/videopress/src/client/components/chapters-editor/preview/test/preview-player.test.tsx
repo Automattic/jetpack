@@ -1,18 +1,23 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
 import { createRef } from 'react';
-import { makeLibraryItem } from '../../../test-utils/library-item';
-import { mockApiFetch } from '../../../test-utils/mock-api-fetch';
-import { createTestWrapper } from '../../../test-utils/query-client-wrapper';
 import ChaptersPreviewPlayer from '../preview-player';
-import type { ChaptersPreviewPlayerHandle } from '../preview-player';
+import type { ChaptersPreviewPlayerHandle, ChaptersPreviewVideo } from '../preview-player';
 import type { ComponentProps } from 'react';
 
 const VIDEO_TESTID = 'chapters-preview-video';
 
+// The playback JWT is minted through getMediaToken (admin-ajax + localStorage
+// cache); stub it so no request escapes jsdom and tests control the token.
+const mockGetMediaToken = jest.fn();
+jest.mock( '../../../../lib/get-media-token', () => ( {
+	__esModule: true,
+	default: ( ...args: unknown[] ) => mockGetMediaToken( ...args ),
+} ) );
+
 // jsdom's media element implements neither play() nor pause(); stub them to
 // fire the events a real element would so the hook's state machine runs.
 beforeEach( () => {
-	mockApiFetch( () => ( {} ) );
+	mockGetMediaToken.mockResolvedValue( { token: null } );
 	jest.spyOn( window.HTMLMediaElement.prototype, 'play' ).mockImplementation( function (
 		this: HTMLMediaElement
 	) {
@@ -32,23 +37,39 @@ beforeEach( () => {
 
 afterEach( () => {
 	jest.restoreAllMocks();
+	mockGetMediaToken.mockReset();
 } );
 
+/**
+ * Build a ChaptersPreviewVideo test fixture. Defaults model a public video
+ * with a playable original; pass overrides for the fields under test.
+ *
+ * @param overrides - Fields to override on the base fixture.
+ * @return A complete ChaptersPreviewVideo.
+ */
+function makeVideo( overrides: Partial< ChaptersPreviewVideo > = {} ): ChaptersPreviewVideo {
+	return {
+		guid: 'abc123',
+		isPrivate: false,
+		durationSeconds: 60,
+		sourceUrl: 'https://example.com/clip.mp4',
+		...overrides,
+	};
+}
+
 const defaultProps = {
-	video: makeLibraryItem( { sourceUrl: 'https://example.com/clip.mp4', durationSeconds: 60 } ),
+	video: makeVideo(),
 };
 
 /**
- * Render the player inside a QueryClient wrapper.
+ * Render the player.
  *
  * @param overrides - Prop overrides for this test.
  * @return The render result plus the imperative handle.
  */
 function renderPlayer( overrides: Partial< ComponentProps< typeof ChaptersPreviewPlayer > > = {} ) {
 	const ref = createRef< ChaptersPreviewPlayerHandle >();
-	const view = render( <ChaptersPreviewPlayer { ...defaultProps } { ...overrides } ref={ ref } />, {
-		wrapper: createTestWrapper(),
-	} );
+	const view = render( <ChaptersPreviewPlayer { ...defaultProps } { ...overrides } ref={ ref } /> );
 	return { ...view, ref };
 }
 
@@ -65,11 +86,13 @@ describe( 'ChaptersPreviewPlayer', () => {
 	it( 'plays a public video straight from sourceUrl', () => {
 		renderPlayer();
 		expect( getVideo() ).toHaveAttribute( 'src', 'https://example.com/clip.mp4' );
+		// Public videos never mint a playback token.
+		expect( mockGetMediaToken ).not.toHaveBeenCalled();
 	} );
 
 	it( 'prefers the transcoded rendition when playbackUrl is present', () => {
 		renderPlayer( {
-			video: makeLibraryItem( {
+			video: makeVideo( {
 				sourceUrl: 'https://example.com/original.mov',
 				playbackUrl: 'https://videos.files.wordpress.com/abc123/clip_hd.mp4',
 			} ),
@@ -81,12 +104,11 @@ describe( 'ChaptersPreviewPlayer', () => {
 	} );
 
 	it( 'signs a private video with the playback token', async () => {
-		mockApiFetch( () => ( { playback_token: 'tok123' } ) );
+		mockGetMediaToken.mockResolvedValue( { token: 'tok123' } );
 		renderPlayer( {
-			video: makeLibraryItem( {
+			video: makeVideo( {
 				sourceUrl: 'https://example.com/clip.mp4',
 				isPrivate: true,
-				privacy: 'private',
 			} ),
 		} );
 		// No unsigned request while the token is in flight.
@@ -97,10 +119,11 @@ describe( 'ChaptersPreviewPlayer', () => {
 				'https://example.com/clip.mp4?metadata_token=tok123'
 			)
 		);
+		expect( mockGetMediaToken ).toHaveBeenCalledWith( 'playback', { guid: 'abc123' } );
 	} );
 
 	it( 'explains when the item has no playable source', () => {
-		renderPlayer( { video: makeLibraryItem( { sourceUrl: undefined } ) } );
+		renderPlayer( { video: makeVideo( { sourceUrl: undefined } ) } );
 		expect( screen.queryByTestId( VIDEO_TESTID ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'This video has no playable source.' ) ).toBeInTheDocument();
 	} );

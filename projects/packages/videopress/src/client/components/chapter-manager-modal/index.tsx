@@ -11,12 +11,13 @@ import { close, redo as redoIcon, undo as undoIcon } from '@wordpress/icons';
 import useMediaDataUpdate from '../../block-editor/hooks/use-video-data-update';
 import { fetchVideoItem } from '../../lib/fetch-video-item';
 import { serializeDescription } from '../../utils/video-chapters/description';
+import { pickPlaybackUrl } from '../../utils/video-chapters/pick-playback-url';
 import { probeManualTrack } from '../../utils/video-chapters/probe-manual-track';
 import { syncChapters } from '../../utils/video-chapters/sync-chapters';
-import CaptionPreviewPlayer from '../caption-manager-modal/caption-preview-player';
 import ConfirmationOverlay from '../caption-manager-modal/confirmation-overlay';
 import { useCaptionSnackbars } from '../caption-manager-modal/use-caption-snackbars';
 import ChaptersTimeline from '../chapters-editor/chapters/chapters-timeline';
+import ChaptersPreviewPlayer from '../chapters-editor/preview/preview-player';
 import { chaptersEditsEqual, chaptersToRows } from '../chapters-editor/state/chapters-session';
 import { canRedo, canUndo } from '../chapters-editor/state/history';
 import { useChaptersStore } from '../chapters-editor/use-chapters-store';
@@ -25,7 +26,7 @@ import './style.scss';
  * Types
  */
 import type { ChapterManagerModalProps } from './types';
-import type { CaptionPreviewPlayerHandle } from '../caption-manager-modal/caption-preview-player';
+import type { ChaptersPreviewPlayerHandle } from '../chapters-editor/preview/preview-player';
 import type { KeyboardEvent, ReactElement } from 'react';
 
 type ConfirmationState = {
@@ -98,11 +99,12 @@ function isExemptTarget( target: EventTarget | null ): boolean {
  *
  * On open the modal makes ONE `fetchVideoItem` request: it supplies the
  * duration the timeline needs (the timeline isn't mounted until the
- * duration is known) plus the preview aspect ratio, and is reused by the
- * manual-VTT probe. The editor stays LOCKED until the probe settles —
- * edits made in the probe window could otherwise arm a Save against a
- * manually-managed description — and a 'manual' result turns the editor
- * read-only (the timeline renders its own explanatory notice).
+ * duration is known) plus the H.264 rendition URL the shared preview player
+ * plays, and is reused by the manual-VTT probe. The editor stays LOCKED
+ * until the probe settles — edits made in the probe window could otherwise
+ * arm a Save against a manually-managed description — and a 'manual' result
+ * turns the editor read-only (the timeline renders its own explanatory
+ * notice).
  *
  * Close discipline follows the caption manager: WordPress's Modal plays its
  * exit animation before consulting `onRequestClose`, so a vetoed close
@@ -117,7 +119,6 @@ function isExemptTarget( target: EventTarget | null ): boolean {
  * @param props.attachmentId - Attachment id of the video, for the description meta POST.
  * @param props.description  - The video description (the chapters source of truth).
  * @param props.title        - Optional video title.
- * @param props.poster       - Optional preview poster image.
  * @param props.isPrivate    - Whether the video is private, so previews and fetches need a playback token.
  * @param props.onClose      - Close handler.
  * @param props.onSaved      - Called with the just-saved description after the meta POST succeeds.
@@ -129,16 +130,17 @@ export default function ChapterManagerModal( {
 	attachmentId,
 	description,
 	title,
-	poster,
 	isPrivate = false,
 	onClose,
 	onSaved,
 }: ChapterManagerModalProps ): ReactElement | null {
-	const playerRef = useRef< CaptionPreviewPlayerHandle >( null );
+	const playerRef = useRef< ChaptersPreviewPlayerHandle >( null );
 
 	const [ itemState, setItemState ] = useState< ItemState >( 'loading' );
 	const [ itemDurationMs, setItemDurationMs ] = useState< number | null >( null );
-	const [ previewAspectRatio, setPreviewAspectRatio ] = useState< string | undefined >( undefined );
+	// The best H.264 rendition from the on-open item fetch — what the shared
+	// preview player plays (the original upload may not decode in browsers).
+	const [ playbackUrl, setPlaybackUrl ] = useState< string | undefined >( undefined );
 	/*
 	 * Manual-VTT probe, once per open: a manually uploaded chapters track
 	 * must never be edited here, so 'manual' turns the editor read-only.
@@ -180,8 +182,8 @@ export default function ChapterManagerModal( {
 	// guard does not cover.
 	const effectiveDirty = chaptersDirty && probe === 'editable' && itemState === 'ready';
 
-	// On-open reset + the single item fetch feeding duration, aspect ratio,
-	// and the manual-VTT probe.
+	// On-open reset + the single item fetch feeding duration, the playback
+	// URL, and the manual-VTT probe.
 	useEffect( () => {
 		if ( ! isOpen ) {
 			return;
@@ -193,7 +195,7 @@ export default function ChapterManagerModal( {
 		setPlaying( false );
 		setItemState( 'loading' );
 		setItemDurationMs( null );
-		setPreviewAspectRatio( undefined );
+		setPlaybackUrl( undefined );
 		setProbe( 'unprobed' );
 
 		let isCurrent = true;
@@ -211,9 +213,9 @@ export default function ChapterManagerModal( {
 				return;
 			}
 
-			const width = Number( item?.width );
-			const height = Number( item?.height );
-			setPreviewAspectRatio( width > 0 && height > 0 ? `${ width } / ${ height }` : undefined );
+			// The v1.1 item carries the same `file_url_base`/`files` shape as
+			// `media_details.videopress`, so it feeds the rendition picker too.
+			setPlaybackUrl( pickPlaybackUrl( item ) );
 
 			// The v1.1 videos endpoint reports the duration in MILLISECONDS.
 			const durationMs = Math.round( Number( item?.duration ) );
@@ -258,11 +260,11 @@ export default function ChapterManagerModal( {
 		return () => window.removeEventListener( 'beforeunload', warnBeforeUnload );
 	}, [ isOpen, effectiveDirty ] );
 
-	// Playhead plumbing: the timeline works in master-timeline ms, the
-	// player's imperative surface in seconds.
+	// Playhead plumbing: the timeline and the shared player's imperative
+	// surface both speak master-timeline ms.
 	const onTimeUpdate = useCallback( ( ms: number ) => setCurrentMs( ms ), [] );
-	const onSeek = useCallback( ( ms: number ) => playerRef.current?.seekTo( ms / 1000 ), [] );
-	const onTogglePlay = useCallback( () => playerRef.current?.togglePlayback(), [] );
+	const onSeek = useCallback( ( ms: number ) => playerRef.current?.seekTo( ms ), [] );
+	const onTogglePlay = useCallback( () => playerRef.current?.togglePlay(), [] );
 
 	// Scrubbing pauses playback for the duration of the drag, resuming after
 	// (YouTube-style) when it was running.
@@ -482,21 +484,6 @@ export default function ChapterManagerModal( {
 				</div>
 
 				<div className="videopress-chapter-manager__workspace vp-chapters-tokens">
-					{ /*
-					 * No videoSrc: the embed backend handles private videos and
-					 * playback tokens itself; the native path is token-blind.
-					 * The player stays mounted at every viewport width — it is
-					 * the playhead source for the timeline below.
-					 */ }
-					<CaptionPreviewPlayer
-						ref={ playerRef }
-						guid={ guid }
-						poster={ poster }
-						isPrivate={ isPrivate }
-						previewAspectRatio={ previewAspectRatio }
-						onTimeUpdate={ onTimeUpdate }
-						onPlayingChange={ setPlaying }
-					/>
 					{ itemState === 'loading' && (
 						<p className="videopress-chapter-manager__status" role="status">
 							{ __( 'Loading video information…', 'jetpack-videopress-pkg' ) }
@@ -511,28 +498,53 @@ export default function ChapterManagerModal( {
 						</p>
 					) }
 					{ itemState === 'ready' && (
-						<div
-							className={
-								'videopress-chapter-manager__editor' +
-								( chaptersLocked ? ' videopress-chapter-manager__editor--locked' : '' )
-							}
-							aria-busy={ chaptersLocked || undefined }
-						>
-							<ChaptersTimeline
-								session={ session }
-								dispatch={ dispatch }
-								currentMs={ currentMs }
-								onSeek={ onSeek }
-								onTogglePlay={ onTogglePlay }
-								playing={ playing }
-								locked={ chaptersLocked }
-								onScrubStart={ onScrubStart }
-								onScrubEnd={ onScrubEnd }
-								// The body's onKeyDown above maps the same keys instead.
-								shortcutsEnabled={ false }
-								readOnly={ readOnly }
+						<>
+							{ /*
+							 * The same minimal player as the dashboard's Editor tab:
+							 * a bare <video> stage on the H.264 rendition derived
+							 * from the on-open item fetch (private videos are signed
+							 * with a playback JWT inside the player). It is the
+							 * playhead source for the timeline below and stays
+							 * mounted at every viewport width. The item's original
+							 * upload URL is deliberately not offered as a fallback —
+							 * without a ready rendition the player explains that the
+							 * video has no playable source yet.
+							 */ }
+							<ChaptersPreviewPlayer
+								ref={ playerRef }
+								video={ {
+									guid,
+									isPrivate,
+									durationSeconds: ( itemDurationMs ?? 0 ) / 1000,
+									playbackUrl,
+									sourceUrl: undefined,
+								} }
+								onTimeUpdate={ onTimeUpdate }
+								onPlayingChange={ setPlaying }
 							/>
-						</div>
+							<div
+								className={
+									'videopress-chapter-manager__editor' +
+									( chaptersLocked ? ' videopress-chapter-manager__editor--locked' : '' )
+								}
+								aria-busy={ chaptersLocked || undefined }
+							>
+								<ChaptersTimeline
+									session={ session }
+									dispatch={ dispatch }
+									currentMs={ currentMs }
+									onSeek={ onSeek }
+									onTogglePlay={ onTogglePlay }
+									playing={ playing }
+									locked={ chaptersLocked }
+									onScrubStart={ onScrubStart }
+									onScrubEnd={ onScrubEnd }
+									// The body's onKeyDown above maps the same keys instead.
+									shortcutsEnabled={ false }
+									readOnly={ readOnly }
+								/>
+							</div>
+						</>
 					) }
 				</div>
 

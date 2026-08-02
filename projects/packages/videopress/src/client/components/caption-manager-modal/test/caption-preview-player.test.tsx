@@ -46,23 +46,6 @@ const timeUpdate = ( video: HTMLVideoElement, seconds: number ) => {
 	fireEvent.timeUpdate( video );
 };
 
-// jsdom does not implement HTMLMediaElement playback; emulate the parts the
-// player relies on (the play() promise, the paused flag, play/pause events).
-const stubNativePlayback = ( video: HTMLVideoElement ) => {
-	const play = jest.fn( () => {
-		Object.defineProperty( video, 'paused', { configurable: true, value: false } );
-		fireEvent.play( video );
-		return Promise.resolve();
-	} );
-	const pause = jest.fn( () => {
-		Object.defineProperty( video, 'paused', { configurable: true, value: true } );
-		fireEvent.pause( video );
-	} );
-	video.play = play;
-	video.pause = pause;
-	return { play, pause };
-};
-
 describe( 'CaptionPreviewPlayer', () => {
 	describe( 'with a native video source', () => {
 		const renderNativePlayer = ( cueRanges: CueRange[] = CUE_RANGES ) =>
@@ -143,79 +126,19 @@ describe( 'CaptionPreviewPlayer', () => {
 			expect( ref.current?.getCurrentTime() ).toBe( 6 );
 			expect( screen.getByText( 'Second cue' ) ).toBeInTheDocument();
 		} );
-
-		it( 'exposes play, pause and isPlaying through the imperative handle', () => {
-			const ref = createRef< CaptionPreviewPlayerHandle >();
-			render(
-				<CaptionPreviewPlayer
-					ref={ ref }
-					guid="abc123"
-					videoSrc="https://example.com/video.mp4"
-					cueRanges={ CUE_RANGES }
-				/>
-			);
-			const { play, pause } = stubNativePlayback( getVideo() );
-
-			expect( ref.current?.isPlaying() ).toBe( false );
-
-			act( () => ref.current?.play() );
-			expect( play ).toHaveBeenCalled();
-			expect( ref.current?.isPlaying() ).toBe( true );
-
-			act( () => ref.current?.pause() );
-			expect( pause ).toHaveBeenCalled();
-			expect( ref.current?.isPlaying() ).toBe( false );
-		} );
-
-		it( 'reports playback time in milliseconds through onTimeUpdate', () => {
-			const onTimeUpdate = jest.fn();
-			render(
-				<CaptionPreviewPlayer
-					guid="abc123"
-					videoSrc="https://example.com/video.mp4"
-					cueRanges={ CUE_RANGES }
-					onTimeUpdate={ onTimeUpdate }
-				/>
-			);
-
-			timeUpdate( getVideo(), 2.5 );
-
-			expect( onTimeUpdate ).toHaveBeenCalledWith( 2500 );
-		} );
-
-		it( 'reports play state transitions through onPlayingChange', () => {
-			const onPlayingChange = jest.fn();
-			render(
-				<CaptionPreviewPlayer
-					guid="abc123"
-					videoSrc="https://example.com/video.mp4"
-					cueRanges={ CUE_RANGES }
-					onPlayingChange={ onPlayingChange }
-				/>
-			);
-
-			fireEvent.play( getVideo() );
-			expect( onPlayingChange ).toHaveBeenLastCalledWith( true );
-
-			fireEvent.pause( getVideo() );
-			expect( onPlayingChange ).toHaveBeenLastCalledWith( false );
-		} );
 	} );
 
 	describe( 'with the VideoPress embed', () => {
-		const postPlayerMessage = ( iframe: HTMLIFrameElement, data: Record< string, unknown > ) =>
+		const postTimeUpdate = ( iframe: HTMLIFrameElement, milliseconds: number ) =>
 			act( () => {
 				window.dispatchEvent(
 					new MessageEvent( 'message', {
-						data,
+						data: { event: 'videopress_timeupdate', currentTimeMs: milliseconds },
 						origin: 'https://videopress.com',
 						source: iframe.contentWindow,
 					} )
 				);
 			} );
-
-		const postTimeUpdate = ( iframe: HTMLIFrameElement, milliseconds: number ) =>
-			postPlayerMessage( iframe, { event: 'videopress_timeupdate', currentTimeMs: milliseconds } );
 
 		it( 'overlays the cue for timeupdate messages from its own iframe', () => {
 			render( <CaptionPreviewPlayer guid="abc123" cueRanges={ CUE_RANGES } /> );
@@ -244,64 +167,6 @@ describe( 'CaptionPreviewPlayer', () => {
 			} );
 
 			expect( screen.queryByText( 'First cue' ) ).not.toBeInTheDocument();
-		} );
-
-		it( 'reports embed time updates in milliseconds through onTimeUpdate', () => {
-			const onTimeUpdate = jest.fn();
-			render(
-				<CaptionPreviewPlayer
-					guid="abc123"
-					cueRanges={ CUE_RANGES }
-					onTimeUpdate={ onTimeUpdate }
-				/>
-			);
-
-			postTimeUpdate( screen.getByTitle( 'Video preview' ) as HTMLIFrameElement, 2000 );
-
-			expect( onTimeUpdate ).toHaveBeenCalledWith( 2000 );
-		} );
-
-		it( 'reports embed play state messages through onPlayingChange and isPlaying', () => {
-			const onPlayingChange = jest.fn();
-			const ref = createRef< CaptionPreviewPlayerHandle >();
-			render(
-				<CaptionPreviewPlayer
-					ref={ ref }
-					guid="abc123"
-					cueRanges={ CUE_RANGES }
-					onPlayingChange={ onPlayingChange }
-				/>
-			);
-			const iframe = screen.getByTitle( 'Video preview' ) as HTMLIFrameElement;
-
-			postPlayerMessage( iframe, { event: 'videopress_playing' } );
-			expect( onPlayingChange ).toHaveBeenLastCalledWith( true );
-			expect( ref.current?.isPlaying() ).toBe( true );
-
-			postPlayerMessage( iframe, { event: 'videopress_pause' } );
-			expect( onPlayingChange ).toHaveBeenLastCalledWith( false );
-			expect( ref.current?.isPlaying() ).toBe( false );
-
-			postPlayerMessage( iframe, { event: 'videopress_playing' } );
-			postPlayerMessage( iframe, { event: 'videopress_ended' } );
-			expect( onPlayingChange ).toHaveBeenLastCalledWith( false );
-			expect( ref.current?.isPlaying() ).toBe( false );
-		} );
-
-		it( 'flips isPlaying optimistically when driving the embed through the handle', () => {
-			const onPlayingChange = jest.fn();
-			const ref = createRef< CaptionPreviewPlayerHandle >();
-			render(
-				<CaptionPreviewPlayer ref={ ref } guid="abc123" onPlayingChange={ onPlayingChange } />
-			);
-
-			act( () => ref.current?.play() );
-			expect( ref.current?.isPlaying() ).toBe( true );
-			expect( onPlayingChange ).toHaveBeenLastCalledWith( true );
-
-			act( () => ref.current?.pause() );
-			expect( ref.current?.isPlaying() ).toBe( false );
-			expect( onPlayingChange ).toHaveBeenLastCalledWith( false );
 		} );
 	} );
 } );

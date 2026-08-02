@@ -1,10 +1,11 @@
 /**
- * Preview player for the Editor tab.
+ * Preview player for the chapters editing surfaces: the dashboard's Editor
+ * tab and the chapter manager modal.
  *
- * Renders a plain <video> stage on the attachment's best playable URL
- * (signed with a `metadata_token` playback JWT for private videos). The
- * transport controls live in the chapters timeline toolbar; this component
- * owns only the stage and reports playback state upward
+ * Renders a plain <video> stage on the video's best playable URL (signed
+ * with a `metadata_token` playback JWT for private videos). The transport
+ * controls live in the chapters timeline toolbar; this component owns only
+ * the stage and reports playback state upward
  * (onTimeUpdate/onDurationChange/onPlayingChange) while exposing an
  * imperative handle for the timeline to drive. Playback state lives in
  * `usePreviewPlayback` (identity playback — the video plays as-is).
@@ -12,12 +13,29 @@
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Text } from '@wordpress/ui';
-import { forwardRef, useEffect, useImperativeHandle } from 'react';
-import { usePlaybackToken } from '../../hooks/use-poster-url';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import getMediaToken from '../../../lib/get-media-token';
 import { usePreviewPlayback } from './use-preview-playback';
 import './preview-player.scss';
-import type { LibraryItem } from '../../types/library';
 import type { ReactElement } from 'react';
+
+/**
+ * The fields the player reads from a video. The dashboard's Editor tab
+ * passes its full LibraryItem (structurally compatible); the chapter manager
+ * modal assembles one from the v1.1 item it fetches on open.
+ */
+export type ChaptersPreviewVideo = {
+	/** The VideoPress guid, which keys the playback JWT for private videos. */
+	guid: string;
+	/** Whether the video is private: stream URLs 403 without a playback JWT. */
+	isPrivate: boolean;
+	/** Duration in seconds, reported until the element's metadata loads. */
+	durationSeconds: number;
+	/** The best H.264 rendition URL, once the transcode ladder is ready. */
+	playbackUrl?: string;
+	/** The original upload URL — last resort; may not decode in the browser. */
+	sourceUrl?: string;
+};
 
 /**
  * Imperative surface exposed via ref, for the timeline to drive the player.
@@ -37,11 +55,12 @@ export interface ChaptersPreviewPlayerHandle {
 
 type Props = {
 	/** The video being previewed (guid, playback URLs, privacy, duration). */
-	video: LibraryItem;
+	video: ChaptersPreviewVideo;
 	/**
 	 * H.264 rendition URL used when the item itself carries no playbackUrl —
 	 * on WordPress.com Simple the media response omits the rendition data,
-	 * so the stage derives one from the v1.1 item it fetches for the probe.
+	 * so the Editor tab derives one from the v1.1 item it fetches for the
+	 * probe.
 	 */
 	fallbackPlaybackUrl?: string;
 	/** Playhead position in ms, once per change. */
@@ -49,14 +68,52 @@ type Props = {
 	/** Media duration in ms, reported when known (metadata or fallback). */
 	onDurationChange?: ( durationMs: number ) => void;
 	/**
-	 * Whether playback is running, once per change. The stage mirrors
-	 * this into state for the timeline toolbar's transport button.
+	 * Whether playback is running, once per change. Hosts mirror this into
+	 * state for the timeline toolbar's transport button.
 	 */
 	onPlayingChange?: ( playing: boolean ) => void;
 };
 
 /**
- * The Editor tab's preview player: a bare <video> stage.
+ * Mint a playback JWT for a private video's stream URLs.
+ *
+ * Equivalent of the dashboard's react-query-backed usePlaybackToken, without
+ * the QueryClient requirement (this component also mounts in the block
+ * editor): getMediaToken caches minted playback tokens in localStorage for
+ * ~24h, so repeated mounts share one request.
+ *
+ * @param guid    - VideoPress GUID.
+ * @param enabled - Skip the request when false (public videos).
+ * @return The token, or null while loading / disabled / unmintable.
+ */
+function usePlaybackToken( guid: string, enabled: boolean ): string | null {
+	const [ token, setToken ] = useState< string | null >( null );
+
+	useEffect( () => {
+		if ( ! enabled || ! guid ) {
+			return;
+		}
+		let isCurrent = true;
+		getMediaToken( 'playback', { guid } )
+			.then( tokenData => {
+				if ( isCurrent && tokenData?.token ) {
+					setToken( tokenData.token );
+				}
+			} )
+			.catch( () => {
+				// A failed mint keeps the element held back — same outcome as
+				// the request never resolving: no doomed unsigned request.
+			} );
+		return () => {
+			isCurrent = false;
+		};
+	}, [ guid, enabled ] );
+
+	return token;
+}
+
+/**
+ * The chapters editors' preview player: a bare <video> stage.
  *
  * @param props - Component props (see {@link Props}).
  * @param ref   - Imperative handle with seekTo/play/pause.
