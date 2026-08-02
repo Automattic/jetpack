@@ -24,7 +24,7 @@ describe( 'VideoNav', () => {
 
 		expect( screen.getAllByRole( 'tab' ).map( tab => tab.textContent ) ).toEqual( [
 			'Details',
-			'Chapters',
+			'Editor',
 		] );
 	} );
 
@@ -32,13 +32,13 @@ describe( 'VideoNav', () => {
 		const user = userEvent.setup();
 		render( <VideoNav videoId="42" activeTab="details" /> );
 
-		await user.click( screen.getByRole( 'tab', { name: 'Chapters' } ) );
-		expect( navigate ).toHaveBeenCalledWith( { href: '/video/42/chapters' } );
+		await user.click( screen.getByRole( 'tab', { name: 'Editor' } ) );
+		expect( navigate ).toHaveBeenCalledWith( { href: '/video/42/editor' } );
 	} );
 
 	it( 'navigates back to the details path from another tab', async () => {
 		const user = userEvent.setup();
-		render( <VideoNav videoId="42" activeTab="chapters" /> );
+		render( <VideoNav videoId="42" activeTab="editor" /> );
 
 		await user.click( screen.getByRole( 'tab', { name: 'Details' } ) );
 		expect( navigate ).toHaveBeenCalledWith( { href: '/video/42' } );
@@ -49,12 +49,12 @@ describe( 'VideoNav', () => {
 		const confirmNavigation = jest.fn( () => false );
 		render( <VideoNav videoId="42" activeTab="details" confirmNavigation={ confirmNavigation } /> );
 
-		await user.click( screen.getByRole( 'tab', { name: 'Chapters' } ) );
+		await user.click( screen.getByRole( 'tab', { name: 'Editor' } ) );
 		expect( confirmNavigation ).toHaveBeenCalled();
 		expect( navigate ).not.toHaveBeenCalled();
 
 		confirmNavigation.mockReturnValue( true );
-		await user.click( screen.getByRole( 'tab', { name: 'Chapters' } ) );
-		expect( navigate ).toHaveBeenCalledWith( { href: '/video/42/chapters' } );
+		await user.click( screen.getByRole( 'tab', { name: 'Editor' } ) );
+		expect( navigate ).toHaveBeenCalledWith( { href: '/video/42/editor' } );
 	} );
 } );

@@ -79,7 +79,7 @@ describe( 'viewToQueryArgs', () => {
 
 // The hd → dvd → std ladder preference is covered through toLibraryItem below;
 // these direct cases pin the degenerate inputs the exported helper must absorb
-// (it is also called from routes/video-chapters/stage.tsx with a raw v1.1 item).
+// (it is also called from routes/video-editor/stage.tsx with a raw v1.1 item).
 describe( 'pickPlaybackUrl', () => {
 	const BASE = 'https://videos.files.wordpress.com/guid11/';
 

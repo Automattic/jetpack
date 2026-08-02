@@ -210,7 +210,7 @@ export function viewToQueryArgs( view: View ): Record< string, string | number >
  *
  * @param vp                     - The `media_details.videopress` block from the REST response, or
  *                               a v1.1 `videos/{guid}` item (same `file_url_base`/`files` shape) —
- *                               the Chapters tab derives a fallback from the latter on
+ *                               the Editor tab derives a fallback from the latter on
  *                               WordPress.com Simple, where `media_details.videopress` is absent.
  * @param vp.file_url_base       - Per-scheme base URLs for the video's files.
  * @param vp.file_url_base.https - The HTTPS base URL.

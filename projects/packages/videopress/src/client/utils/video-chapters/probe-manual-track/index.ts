@@ -1,7 +1,7 @@
 /**
  * Manual-chapters-track probe, shared by every chapters editing surface
- * (the dashboard Chapters tab and the block editor's chapter manager
- * modal).
+ * (the dashboard editor's Chapters tool and the block editor's chapter
+ * manager modal).
  *
  * A chapters VTT uploaded by the user must never be regenerated from the
  * description, so editors probe before offering edits. The probe fails OPEN:

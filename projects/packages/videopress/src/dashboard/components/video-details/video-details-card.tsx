@@ -17,11 +17,11 @@ type Props = {
 /**
  * Form card for the editable text fields: title and description, plus the
  * compact chapters summary (count derived from the description, a deep link
- * into the Chapters tab, and the Chapters help modal link — see
+ * into the Editor tab, and the Chapters help modal link — see
  * chapters-summary.tsx).
  *
  * @param props                   - Component props.
- * @param props.video             - The video (id for the Chapters tab deep link).
+ * @param props.video             - The video (id for the editor deep link).
  * @param props.title             - Current title value.
  * @param props.description       - Current description value.
  * @param props.onChange          - Partial-update handler from the form hook.

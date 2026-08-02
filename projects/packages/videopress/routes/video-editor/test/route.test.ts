@@ -5,7 +5,7 @@ import { route } from '../route';
 // options. There is no behavior to exercise — this exists to pin that the
 // module keeps exporting an options object (intentionally empty today), since
 // removing or reshaping the export would silently unregister the route.
-describe( 'video-chapters route', () => {
+describe( 'video-editor route', () => {
 	it( 'exports an empty route options object', () => {
 		expect( route ).toEqual( {} );
 	} );

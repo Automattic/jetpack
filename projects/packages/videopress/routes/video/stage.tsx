@@ -131,7 +131,7 @@ const Editor = ( {
 		onSave( values, reset );
 	}, [ onSave, values, reset ] );
 
-	// Guard the sub-nav against losing unsaved form edits: the Chapters tab
+	// Guard the sub-nav against losing unsaved form edits: the Editor tab
 	// is a sibling route, so switching tabs unmounts this form entirely.
 	const confirmNavigation = useCallback( () => {
 		return (

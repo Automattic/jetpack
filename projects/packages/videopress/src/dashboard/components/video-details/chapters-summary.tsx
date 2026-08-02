@@ -1,20 +1,20 @@
 /**
  * Compact "Chapters (N)" summary for the Details tab. Replaces the inline
- * footer hint: chapter editing now lives in the Chapters tab, and this row
- * deep-links there (`/video/{id}/chapters`).
+ * footer hint: chapter editing now lives in the editor's Chapters tool, and
+ * this row deep-links there (`/video/{id}/editor`).
  *
  * The count stays a pure lens over the description string (parseDescription
  * on the form's CURRENT value), so it live-updates while the user types
  * chapter lines into the description textarea above.
  *
  * Accepted last-write-wins risk: the description textarea here and the
- * Chapters tab both save the WHOLE description meta — there is no
+ * editor's Chapters tool both save the WHOLE description meta — there is no
  * merge. Unsaved edits held on one surface are overwritten when the other
  * saves (e.g. Details open in one tab while chapters are saved from the
- * Chapters tab in another). Accepted as a single-user, same-session flow:
- * both writers serialize through the same meta field, and each save
- * re-syncs the player's chapters VTT, so the persisted state stays
- * internally consistent.
+ * editor in another). Accepted as a single-user, same-session flow: both
+ * writers serialize through the same meta field, and each save re-syncs the
+ * player's chapters VTT, so the persisted state stays internally
+ * consistent.
  */
 import { useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -36,7 +36,7 @@ type Props = {
  * The chapters summary row for the Details card.
  *
  * @param props                   - Component props.
- * @param props.video             - The video (id for the Chapters tab deep link).
+ * @param props.video             - The video (id for the editor deep link).
  * @param props.description       - The form's current description value.
  * @param props.onOpenHelp        - Opens the chapters help modal.
  * @param props.confirmNavigation - Same guard the sub-nav uses: invoked before
@@ -51,7 +51,7 @@ export default function ChaptersSummary( {
 	confirmNavigation,
 }: Props ): ReactElement {
 	const { rows } = useMemo( () => parseDescription( description ), [ description ] );
-	const linkProps = useLinkProps( { to: videoTabPath( video.id, 'chapters' ) } );
+	const linkProps = useLinkProps( { to: videoTabPath( video.id, 'editor' ) } );
 
 	return (
 		<Stack
@@ -72,7 +72,7 @@ export default function ChaptersSummary( {
 				<Link
 					{ ...linkProps }
 					onClick={ event => {
-						// Same exit as the Chapters sub-nav tab — it must honor the
+						// Same exit as the Editor sub-nav tab — it must honor the
 						// same dirty-form guard, or this link becomes a silent-discard
 						// path sitting right under the description textarea.
 						if ( confirmNavigation && ! confirmNavigation() ) {
@@ -82,7 +82,7 @@ export default function ChaptersSummary( {
 						linkProps.onClick?.( event );
 					} }
 				>
-					{ __( 'Edit chapters', 'jetpack-videopress-pkg' ) }
+					{ __( 'Edit chapters in the editor', 'jetpack-videopress-pkg' ) }
 				</Link>
 			</Stack>
 			<Link

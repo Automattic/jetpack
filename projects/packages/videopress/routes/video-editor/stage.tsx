@@ -1,6 +1,7 @@
 /**
- * The Chapters tab for a single video: the shared chapters editor (preview
- * player over the chapters timeline) hosted standalone, saving through the
+ * The Editor tab for a single video: the studio-style tools rail beside the
+ * shared chapters editor (preview player over the chapters timeline) —
+ * Chapters is the only extracted tool today — saving through the
  * description meta POST + fire-and-notice VTT sync.
  *
  * State model: one history-wrapped chapters store (use-chapters-store) backs
@@ -47,20 +48,20 @@ import { pickPlaybackUrl } from '../../src/dashboard/hooks/use-library';
 import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useVideo } from '../../src/dashboard/hooks/use-video';
+import EditorOperationsPanel from './operations-panel';
 import './style.scss';
 import type { ChaptersPreviewPlayerHandle } from '../../src/dashboard/components/video-chapters/preview-player';
 import type { LibraryItem } from '../../src/dashboard/types/library';
 import type { MouseEvent as ReactMouseEvent, ReactElement, ReactNode } from 'react';
 
 /**
- * Whether the Chapters tab can operate on this attachment: a VideoPress
- * video with a guid (the tracks API is keyed by guid) whose upload didn't
- * fail.
+ * Whether the editor can operate on this attachment: a VideoPress video
+ * with a guid (the tracks API is keyed by guid) whose upload didn't fail.
  *
  * @param video - The library item.
- * @return Whether the Chapters tab applies.
+ * @return Whether the Editor tab applies.
  */
-function isChaptersEligible( video: LibraryItem ): boolean {
+function isEditorEligible( video: LibraryItem ): boolean {
 	return video.type === 'videopress' && Boolean( video.guid ) && video.upload.status !== 'failed';
 }
 
@@ -73,7 +74,7 @@ type ChromeProps = {
 };
 
 /**
- * The tab's page chrome: VideoLayout pinned to the Chapters tab.
+ * The tab's page chrome: VideoLayout pinned to the Editor tab.
  *
  * @param props                   - Component props.
  * @param props.videoId           - The video's attachment id.
@@ -81,11 +82,11 @@ type ChromeProps = {
  * @param props.actions           - Optional header actions.
  * @param props.breadcrumbLabel   - Breadcrumb leaf; the ready screen passes
  *                                the video title, states without one fall
- *                                back to "Chapters".
+ *                                back to "Editor".
  * @param props.children          - Body content.
  * @return The wrapped page element.
  */
-function ChaptersChrome( {
+function EditorChrome( {
 	videoId,
 	confirmNavigation,
 	actions,
@@ -95,8 +96,8 @@ function ChaptersChrome( {
 	return (
 		<VideoLayout
 			videoId={ videoId }
-			activeTab="chapters"
-			breadcrumbLabel={ breadcrumbLabel ?? __( 'Chapters', 'jetpack-videopress-pkg' ) }
+			activeTab="editor"
+			breadcrumbLabel={ breadcrumbLabel ?? __( 'Editor', 'jetpack-videopress-pkg' ) }
 			actions={ actions }
 			confirmNavigation={ confirmNavigation }
 		>
@@ -117,7 +118,7 @@ type HeaderActionsProps = {
 };
 
 /**
- * Actions slot for the AdminPage header on the Chapters tab: Undo / Redo
+ * Actions slot for the AdminPage header on the Editor tab: Undo / Redo
  * icon buttons, the outline Discard button, and the primary Save button.
  * All enable/disable logic lives in the screen; this component is purely
  * presentational.
@@ -159,7 +160,7 @@ function ChaptersHeaderActions( {
 				accessibleWhenDisabled
 				onClick={ onRedo }
 			/>
-			<span className="vp-video-chapters__header-divider" aria-hidden="true" />
+			<span className="vp-video-editor__header-divider" aria-hidden="true" />
 			<Button variant="outline" disabled={ ! canDiscard } onClick={ onDiscard }>
 				{ __( 'Discard changes', 'jetpack-videopress-pkg' ) }
 			</Button>
@@ -235,14 +236,15 @@ type ReadyProps = {
 };
 
 /**
- * The Chapters tab once the video is known to be eligible: owns the
- * chapters store, the manual-VTT probe, and the save/discard flows.
+ * The Editor tab once the video is known to be eligible: the tools rail
+ * beside the chapters tool; owns the chapters store, the manual-VTT probe,
+ * and the save/discard flows.
  *
  * @param props       - Component props.
  * @param props.video - The video whose chapters are edited.
  * @return The screen element.
  */
-function ChaptersReady( { video }: ReadyProps ): ReactElement {
+function EditorReady( { video }: ReadyProps ): ReactElement {
 	const navigate = useNavigate();
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 	// The two halves of Save: the description meta POST, then the
@@ -382,7 +384,7 @@ function ChaptersReady( { video }: ReadyProps ): ReactElement {
 
 	// Dirty guard, half four: browser back/forward. The router has already
 	// processed the popstate by the time this listener runs, so a decline
-	// re-navigates to the Chapters tab synchronously — both location updates
+	// re-navigates to the Editor tab synchronously — both location updates
 	// land in the same render batch, keeping this component (and the dirty
 	// session) mounted throughout.
 	useEffect( () => {
@@ -398,7 +400,7 @@ function ChaptersReady( { video }: ReadyProps ): ReactElement {
 				)
 			);
 			if ( ! leave ) {
-				navigate( { href: videoTabPath( video.id, 'chapters' ) } );
+				navigate( { href: videoTabPath( video.id, 'editor' ) } );
 			}
 		};
 		window.addEventListener( 'popstate', onPopState );
@@ -461,7 +463,7 @@ function ChaptersReady( { video }: ReadyProps ): ReactElement {
 		// (breadcrumbs included).
 
 		<div style={ { display: 'contents' } } onClickCapture={ guardLinkClick }>
-			<ChaptersChrome
+			<EditorChrome
 				videoId={ video.id }
 				breadcrumbLabel={ video.title }
 				confirmNavigation={ confirmNavigation }
@@ -478,38 +480,45 @@ function ChaptersReady( { video }: ReadyProps ): ReactElement {
 					/>
 				}
 			>
-				<div className="vp-video-chapters vp-chapters-tokens">
-					<ChaptersPreviewPlayer
-						ref={ playerRef }
-						video={ video }
-						fallbackPlaybackUrl={ playbackFallbackUrl }
-						onTimeUpdate={ onTimeUpdate }
-						onPlayingChange={ setPlaying }
-					/>
-					<div
-						className={
-							'vp-video-chapters__timeline' +
-							( chaptersLocked ? ' vp-video-chapters__timeline--locked' : '' )
-						}
-						data-testid="chapters-timeline-lock"
-						aria-busy={ chaptersLocked || undefined }
-					>
-						{ /* The timeline owns the document-level shortcuts instance
-						     (space, arrows, Delete, mod+Z); it detaches while the
-						     discard confirm dialog is open. */ }
-						<ChaptersTimeline
-							session={ chapters.session }
-							dispatch={ chapters.dispatch }
-							currentMs={ currentMs }
-							onSeek={ onSeek }
-							onTogglePlay={ onTogglePlay }
-							playing={ playing }
-							locked={ chaptersLocked }
-							onScrubStart={ onScrubStart }
-							onScrubEnd={ onScrubEnd }
-							shortcutsEnabled={ ! confirmDiscardOpen }
-							readOnly={ chaptersProbe === 'manual' }
-						/>
+				<div className="vp-video-editor vp-chapters-tokens">
+					<div className="vp-video-editor__body">
+						<EditorOperationsPanel />
+						<div className="vp-video-editor__main">
+							<div className="vp-video-editor__canvas">
+								<ChaptersPreviewPlayer
+									ref={ playerRef }
+									video={ video }
+									fallbackPlaybackUrl={ playbackFallbackUrl }
+									onTimeUpdate={ onTimeUpdate }
+									onPlayingChange={ setPlaying }
+								/>
+							</div>
+							<div
+								className={
+									'vp-video-editor__timeline-section vp-video-editor__timeline' +
+									( chaptersLocked ? ' vp-video-editor__timeline--locked' : '' )
+								}
+								data-testid="chapters-timeline-lock"
+								aria-busy={ chaptersLocked || undefined }
+							>
+								{ /* The timeline owns the document-level shortcuts instance
+								     (space, arrows, Delete, mod+Z); it detaches while the
+								     discard confirm dialog is open. */ }
+								<ChaptersTimeline
+									session={ chapters.session }
+									dispatch={ chapters.dispatch }
+									currentMs={ currentMs }
+									onSeek={ onSeek }
+									onTogglePlay={ onTogglePlay }
+									playing={ playing }
+									locked={ chaptersLocked }
+									onScrubStart={ onScrubStart }
+									onScrubEnd={ onScrubEnd }
+									shortcutsEnabled={ ! confirmDiscardOpen }
+									readOnly={ chaptersProbe === 'manual' }
+								/>
+							</div>
+						</div>
 					</div>
 				</div>
 				{ confirmDiscardOpen && (
@@ -519,46 +528,46 @@ function ChaptersReady( { video }: ReadyProps ): ReactElement {
 						onCancel={ () => setConfirmDiscardOpen( false ) }
 					/>
 				) }
-			</ChaptersChrome>
+			</EditorChrome>
 		</div>
 	);
 }
 
 /**
- * The Chapters tab screen. Resolves the video first: loading and edge
+ * The Editor tab screen. Resolves the video first: loading and edge
  * states (missing, not a VideoPress video, still processing) render inside
- * the same Chapters-tab chrome; the editor mounts once the video is
+ * the same Editor-tab chrome; the editor mounts once the video is
  * eligible.
  *
  * @param props    - Component props.
  * @param props.id - The video's attachment id from the route.
  * @return The screen element.
  */
-function ChaptersRoute( { id }: { id: string } ): ReactElement {
+function EditorRoute( { id }: { id: string } ): ReactElement {
 	const { video, isLoading } = useVideo( id );
 
 	if ( isLoading ) {
 		return (
-			<ChaptersChrome videoId={ id }>
+			<EditorChrome videoId={ id }>
 				<div
-					className="vp-video-chapters vp-video-chapters__loading"
+					className="vp-video-editor vp-video-editor__loading"
 					data-testid="chapters-loading"
 					aria-busy="true"
 				/>
-			</ChaptersChrome>
+			</EditorChrome>
 		);
 	}
 
-	if ( ! video || ! isChaptersEligible( video ) ) {
+	if ( ! video || ! isEditorEligible( video ) ) {
 		return (
-			<ChaptersChrome videoId={ id }>
-				<div className="vp-video-chapters vp-video-chapters__not-found">
+			<EditorChrome videoId={ id }>
+				<div className="vp-video-editor vp-video-editor__not-found">
 					<Stack direction="column" gap="md" align="center">
 						<Text>{ __( "We couldn't find that video.", 'jetpack-videopress-pkg' ) }</Text>
 						<Link to="/">{ __( 'Back to Library', 'jetpack-videopress-pkg' ) }</Link>
 					</Stack>
 				</div>
-			</ChaptersChrome>
+			</EditorChrome>
 		);
 	}
 
@@ -567,8 +576,8 @@ function ChaptersRoute( { id }: { id: string } ): ReactElement {
 		// keeps polling while processing, so the editor appears on its own
 		// once the backend finishes.
 		return (
-			<ChaptersChrome videoId={ id } breadcrumbLabel={ video.title || undefined }>
-				<div className="vp-video-chapters vp-video-chapters__processing">
+			<EditorChrome videoId={ id } breadcrumbLabel={ video.title || undefined }>
+				<div className="vp-video-editor vp-video-editor__processing">
 					<Text>
 						{ __(
 							'This video is still processing. Chapters will be available once it finishes.',
@@ -576,17 +585,17 @@ function ChaptersRoute( { id }: { id: string } ): ReactElement {
 						) }
 					</Text>
 				</div>
-			</ChaptersChrome>
+			</EditorChrome>
 		);
 	}
 
-	return <ChaptersReady video={ video } />;
+	return <EditorReady video={ video } />;
 }
 
 const StageInner = () => {
-	const { id } = useParams( { from: '/video/$id/chapters' } );
+	const { id } = useParams( { from: '/video/$id/editor' } );
 
-	return <ChaptersRoute id={ id } />;
+	return <EditorRoute id={ id } />;
 };
 
 const Stage = () => (

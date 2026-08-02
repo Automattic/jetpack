@@ -205,22 +205,22 @@ describe( 'video stage', () => {
 		installApi();
 	} );
 
-	it( 'renders the Details / Chapters sub-nav with Details active', async () => {
+	it( 'renders the Details / Editor sub-nav with Details active', async () => {
 		await renderReadyStage();
 
 		expect( screen.getByRole( 'tab', { name: 'Details', selected: true } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'tab', { name: 'Chapters', selected: false } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'tab', { name: 'Editor', selected: false } ) ).toBeInTheDocument();
 	} );
 
-	it( 'navigates to the Chapters tab without prompting while the form is clean', async () => {
+	it( 'navigates to the Editor tab without prompting while the form is clean', async () => {
 		const user = userEvent.setup();
 		const confirmSpy = jest.spyOn( window, 'confirm' );
 
 		await renderReadyStage();
-		await user.click( screen.getByRole( 'tab', { name: 'Chapters' } ) );
+		await user.click( screen.getByRole( 'tab', { name: 'Editor' } ) );
 
 		expect( confirmSpy ).not.toHaveBeenCalled();
-		expect( navigate ).toHaveBeenCalledWith( { href: '/video/42/chapters' } );
+		expect( navigate ).toHaveBeenCalledWith( { href: '/video/42/editor' } );
 
 		confirmSpy.mockRestore();
 	} );
@@ -232,15 +232,15 @@ describe( 'video stage', () => {
 		await renderReadyStage();
 		await user.type( screen.getByLabelText( 'Title' ), '!' );
 
-		await user.click( screen.getByRole( 'tab', { name: 'Chapters' } ) );
+		await user.click( screen.getByRole( 'tab', { name: 'Editor' } ) );
 		expect( confirmSpy ).toHaveBeenCalledWith(
 			'You have unsaved changes. Leave this page and discard them?'
 		);
 		expect( navigate ).not.toHaveBeenCalled();
 
 		confirmSpy.mockReturnValue( true );
-		await user.click( screen.getByRole( 'tab', { name: 'Chapters' } ) );
-		expect( navigate ).toHaveBeenCalledWith( { href: '/video/42/chapters' } );
+		await user.click( screen.getByRole( 'tab', { name: 'Editor' } ) );
+		expect( navigate ).toHaveBeenCalledWith( { href: '/video/42/editor' } );
 
 		confirmSpy.mockRestore();
 	} );

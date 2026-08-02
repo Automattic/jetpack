@@ -1,5 +1,5 @@
 /**
- * Preview player for the Chapters tab.
+ * Preview player for the Editor tab.
  *
  * Renders a plain <video> stage on the attachment's best playable URL
  * (signed with a `metadata_token` playback JWT for private videos). The
@@ -56,7 +56,7 @@ type Props = {
 };
 
 /**
- * The Chapters tab's preview player: a bare <video> stage.
+ * The Editor tab's preview player: a bare <video> stage.
  *
  * @param props - Component props (see {@link Props}).
  * @param ref   - Imperative handle with seekTo/play/pause.

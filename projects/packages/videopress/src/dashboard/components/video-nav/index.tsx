@@ -6,9 +6,9 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 
-export type VideoNavTab = 'details' | 'chapters';
+export type VideoNavTab = 'details' | 'editor';
 
-const TAB_VALUES: VideoNavTab[] = [ 'details', 'chapters' ];
+const TAB_VALUES: VideoNavTab[] = [ 'details', 'editor' ];
 
 /**
  * Build the dashboard path for a per-video tab.
@@ -28,7 +28,7 @@ type Props = {
 };
 
 /**
- * The Details / Chapters sub-nav for a single video. Same visual
+ * The Details / Editor sub-nav for a single video. Same visual
  * pattern as DashboardTabs, but self-contained: unlike the dashboard strip
  * (whose `Tabs.Root` lives in DashboardLayout next to the content panels),
  * each of these tabs is a sibling route, so this component owns its own
@@ -63,7 +63,7 @@ export default function VideoNav( { videoId, activeTab, confirmNavigation }: Pro
 			<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
 				<Tabs.List variant="minimal">
 					<Tabs.Tab value="details">{ __( 'Details', 'jetpack-videopress-pkg' ) }</Tabs.Tab>
-					<Tabs.Tab value="chapters">{ __( 'Chapters', 'jetpack-videopress-pkg' ) }</Tabs.Tab>
+					<Tabs.Tab value="editor">{ __( 'Editor', 'jetpack-videopress-pkg' ) }</Tabs.Tab>
 				</Tabs.List>
 			</div>
 			{ /* Each tab's real content is a sibling route, not a panel; these

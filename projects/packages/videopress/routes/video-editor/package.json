@@ -20,7 +20,7 @@
 		"@testing-library/user-event": "^14.5.2"
 	},
 	"route": {
-		"path": "/video/$id/chapters",
+		"path": "/video/$id/editor",
 		"page": "jetpack-videopress-dashboard"
 	}
 }

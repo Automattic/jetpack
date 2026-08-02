@@ -242,7 +242,7 @@ function isButtonDisabled( name: string ): boolean {
 	return screen.getByRole( 'button', { name } ).getAttribute( 'aria-disabled' ) === 'true';
 }
 
-describe( 'video-chapters stage', () => {
+describe( 'video-editor stage', () => {
 	let navigate: jest.Mock;
 
 	beforeEach( () => {
@@ -620,7 +620,7 @@ describe( 'video-chapters stage', () => {
 		// Dirty + declined: re-navigate to the tab to cancel the traversal.
 		window.dispatchEvent( new PopStateEvent( 'popstate' ) );
 		expect( confirmSpy ).toHaveBeenCalledTimes( 1 );
-		expect( navigate ).toHaveBeenCalledWith( { href: '/video/42/chapters' } );
+		expect( navigate ).toHaveBeenCalledWith( { href: '/video/42/editor' } );
 
 		// Dirty + confirmed: let the router's own navigation stand.
 		confirmSpy.mockReturnValue( true );

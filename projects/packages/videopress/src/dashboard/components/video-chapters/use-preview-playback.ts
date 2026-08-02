@@ -1,5 +1,5 @@
 /**
- * Playback state for the Chapters tab's preview player.
+ * Playback state for the Editor tab's preview player.
  *
  * Owns { currentMs, playing, durationMs } for a <video> element. While
  * playing, a requestAnimationFrame loop reads `currentTime` directly (smooth

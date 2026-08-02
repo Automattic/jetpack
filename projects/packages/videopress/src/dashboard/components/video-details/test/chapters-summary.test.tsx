@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import ChaptersSummary from '../chapters-summary';
 
 // Capture the ToOptions the summary hands the router so the deep-link
-// contract (the Chapters tab path) is asserted, not just the label.
+// contract (the Editor tab path) is asserted, not just the label.
 const mockUseLinkProps = jest.fn( ( options: { to: string } ) => ( { href: options.to } ) );
 jest.mock( '@wordpress/route', () => ( {
 	__esModule: true,
@@ -53,12 +53,12 @@ describe( 'ChaptersSummary', () => {
 		expect( screen.getByText( 'Chapters (0)' ) ).toBeInTheDocument();
 	} );
 
-	it( 'deep-links to the Chapters tab', () => {
+	it( 'deep-links to the Editor tab', () => {
 		renderSummary();
 
-		const link = screen.getByRole( 'link', { name: 'Edit chapters' } );
-		expect( link ).toHaveAttribute( 'href', '/video/42/chapters' );
-		expect( mockUseLinkProps ).toHaveBeenCalledWith( { to: '/video/42/chapters' } );
+		const link = screen.getByRole( 'link', { name: 'Edit chapters in the editor' } );
+		expect( link ).toHaveAttribute( 'href', '/video/42/editor' );
+		expect( mockUseLinkProps ).toHaveBeenCalledWith( { to: '/video/42/editor' } );
 	} );
 
 	it( 'opens the help modal from the help link', async () => {
@@ -70,14 +70,14 @@ describe( 'ChaptersSummary', () => {
 		expect( onOpenHelp ).toHaveBeenCalled();
 	} );
 
-	// The deep link is the same exit as the Chapters sub-nav tab, so it must
+	// The deep link is the same exit as the Editor sub-nav tab, so it must
 	// honor the same dirty-form guard — otherwise it is a silent-discard path
 	// sitting right under the description textarea.
 	it( 'blocks the deep link when confirmNavigation returns false', () => {
 		const confirmNavigation = jest.fn( () => false );
 		renderSummary( { confirmNavigation } );
 
-		const link = screen.getByRole( 'link', { name: 'Edit chapters' } );
+		const link = screen.getByRole( 'link', { name: 'Edit chapters in the editor' } );
 		const clickEvent = new MouseEvent( 'click', { bubbles: true, cancelable: true } );
 		link.dispatchEvent( clickEvent );
 
