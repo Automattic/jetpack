@@ -54,14 +54,11 @@
 }
 
 .header {
-	// Summary + date filters row above the widget grid. Inline padding matches
-	// the widget grid; the 40px block spacing is the design's breathing room
-	// around the header. Wrapping keeps a squeezed filters panel below the
-	// title block instead of crushing it.
-	display: flex;
-	align-items: center;
-	flex-wrap: wrap;
-	gap: var(--wpds-dimension-gap-lg);
+	// Summary + date filters row above the widget grid, rendered as a
+	// `<Stack direction="row" wrap="wrap" gap="lg">` — the flex container
+	// props live on the component; only the page spacing stays here. Inline
+	// padding matches the widget grid; the 40px block spacing is the design's
+	// breathing room around the header.
 	padding-block: 40px;
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }

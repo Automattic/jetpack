@@ -201,8 +201,12 @@ function VideoDetail(): JSX.Element {
 					 * comparison on this page, so the Compare control is opted out
 					 * (the route also normalizes comparison params away).
 					 */ }
-					<div
+					<Stack
 						ref={ setHeaderRowElement }
+						direction="row"
+						align="center"
+						wrap="wrap"
+						gap="lg"
 						className={ clsx( styles.header, { [ styles.headerStacked ]: filtersStacked } ) }
 					>
 						{ summaryContent ? <div className={ styles.summary }>{ summaryContent }</div> : null }
@@ -214,7 +218,7 @@ function VideoDetail(): JSX.Element {
 								containerElement={ containerElement }
 							/>
 						</div>
-					</div>
+					</Stack>
 					{ canRenderWidgets ? (
 						<div className={ styles.content }>
 							<WidgetDashboard.Widgets />
