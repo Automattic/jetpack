@@ -27,7 +27,8 @@ Stacked-by-default area chart component with responsive behaviour.
 | `renderTooltip` | `(params: RenderTooltipParams) => ReactNode?` | - | Custom tooltip render function |
 | `animation` | `boolean` | `false` | Enable entry animation. Respects `prefers-reduced-motion` |
 | `showLegend` | `boolean` | `false` | Display chart legend |
-| `legend` | `ChartLegendConfig` | - | Legend configuration object. See [ChartLegendConfig](#chartlegendconfig-type) |
+| `legend` | `SeriesChartLegendConfig` | - | Legend configuration object. See [SeriesChartLegendConfig](#serieschartlegendconfig-type) |
+| `rescaleYOnVisibilityChange` | `boolean?` | `true` | Whether the value axis rescales to the visible series when the visible set changes. Set `false` to pin it to the full data range so the baseline doesn't move as series are hidden |
 | `gridVisibility` | `'x' \| 'y' \| 'xy' \| 'none'?` | grid shown | Control grid visibility |
 | `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }?` | calculated | Chart margins |
 | `options` | `ChartOptions?` | `{}` | Advanced axis and scale configuration |
@@ -64,10 +65,10 @@ When `withTooltips` is `true`, a circular glyph is rendered at each visible seri
 | `wiggle` | Streamgraph: minimises the weighted change in slope, producing a flowing layout around a central baseline. |
 | `silhouette` | Stack centred around zero — symmetric layout without the wiggle minimisation. |
 
-## ChartLegendConfig Type
+## SeriesChartLegendConfig Type
 
 ```typescript
-type ChartLegendConfig = {
+type SeriesChartLegendConfig = {
 	orientation?: 'horizontal' | 'vertical';
 	position?: 'top' | 'bottom';
 	alignment?: 'start' | 'center' | 'end';
