@@ -3,12 +3,12 @@
 // centered preview, timeline docked below).
 @use "../../src/client/components/chapters-editor/tokens";
 
+// No page padding of its own — the bordered card runs flush inside the admin
+// page chrome, exactly like the original Studio editor layout.
 .vp-video-editor {
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
-	padding-block: 24px;
-	padding-inline: 24px;
 }
 
 .vp-video-editor__loading,
@@ -133,4 +133,59 @@
 	inline-size: 1px;
 	block-size: 24px;
 	background: var(--vp-gray-300, #ddd);
+}
+
+// Narrow viewports (wp-admin's mobile breakpoint): the rail collapses to
+// icon-only — the tool buttons keep their accessible names via aria-label —
+// leaving the width to the chapters editor, and the widest single-line rows
+// (timeline toolbar, header actions) wrap instead of forcing the page to
+// pan sideways.
+@media ( max-width: 782px ) {
+
+	.vp-video-editor__operations {
+		inline-size: auto;
+		padding-inline: 8px;
+	}
+
+	.vp-video-editor__operations-heading {
+		display: none;
+	}
+
+	.vp-video-editor__operation {
+		justify-content: center;
+		padding-inline: 8px;
+	}
+
+	.vp-video-editor__operation-label {
+		display: none;
+	}
+
+	.vp-video-editor__canvas {
+		padding: 16px;
+	}
+
+	.vp-video-editor__timeline-section {
+		padding-inline: 16px;
+	}
+
+	// Page-scoped override of the shared timeline toolbar: its single line
+	// (transport, add-at-playhead, now-indicator, zoom) is wider than a phone
+	// viewport; wrapping keeps every control reachable without side-scroll.
+	.vp-chapters-timeline__toolbar {
+		flex-wrap: wrap;
+		row-gap: 8px;
+	}
+
+	.vp-video-editor__header-actions {
+		flex-wrap: wrap;
+		justify-content: flex-end;
+	}
+
+	// The header can't fit five actions beside the breadcrumb on a phone;
+	// keep the essentials (undo/redo/Save). Discarding stays reachable via
+	// undo and the dirty-navigation guards.
+	.vp-video-editor__header-divider,
+	.vp-video-editor__header-discard {
+		display: none;
+	}
 }

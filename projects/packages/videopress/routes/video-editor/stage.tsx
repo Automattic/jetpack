@@ -145,7 +145,12 @@ function ChaptersHeaderActions( {
 	onSave,
 }: HeaderActionsProps ): ReactElement {
 	return (
-		<Stack direction="row" gap="sm" align="center" className="vp-chapters-tokens">
+		<Stack
+			direction="row"
+			gap="sm"
+			align="center"
+			className="vp-chapters-tokens vp-video-editor__header-actions"
+		>
 			<IconButton
 				icon={ undoIcon }
 				label={ __( 'Undo', 'jetpack-videopress-pkg' ) }
@@ -161,7 +166,15 @@ function ChaptersHeaderActions( {
 				onClick={ onRedo }
 			/>
 			<span className="vp-video-editor__header-divider" aria-hidden="true" />
-			<Button variant="outline" disabled={ ! canDiscard } onClick={ onDiscard }>
+			{ /* Hidden on narrow viewports (with the divider) so the essential
+			     actions — undo/redo/Save — fit beside the breadcrumb; discarding
+			     stays reachable through undo and the navigation guards. */ }
+			<Button
+				className="vp-video-editor__header-discard"
+				variant="outline"
+				disabled={ ! canDiscard }
+				onClick={ onDiscard }
+			>
 				{ __( 'Discard changes', 'jetpack-videopress-pkg' ) }
 			</Button>
 			<Button disabled={ ! canSave } onClick={ onSave }>

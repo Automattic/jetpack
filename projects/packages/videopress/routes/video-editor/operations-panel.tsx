@@ -29,11 +29,17 @@ export default function EditorOperationsPanel(): ReactElement {
 					<button
 						type="button"
 						className="vp-video-editor__operation vp-video-editor__operation--active"
+						// The label span is visually hidden when the rail collapses to
+						// icons on narrow viewports; the aria-label keeps the
+						// accessible name constant across both presentations.
+						aria-label={ __( 'Chapters', 'jetpack-videopress-pkg' ) }
 						aria-current="true"
 						data-testid="video-editor-tool-chapters"
 					>
 						<Icon icon={ listView } size={ 24 } />
-						{ __( 'Chapters', 'jetpack-videopress-pkg' ) }
+						<span className="vp-video-editor__operation-label">
+							{ __( 'Chapters', 'jetpack-videopress-pkg' ) }
+						</span>
 					</button>
 				</li>
 			</ul>

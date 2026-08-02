@@ -4,6 +4,7 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import VideoNav, { type VideoNavTab } from '../video-nav';
+import './style.scss';
 import type { ReactNode } from 'react';
 
 /**
@@ -56,7 +57,9 @@ export default function VideoLayout( {
 	return (
 		<AdminPage
 			breadcrumbs={
-				<Breadcrumbs items={ [ getParentBreadcrumbItem(), { label: breadcrumbLabel } ] } />
+				<div className="vp-video-layout__breadcrumbs">
+					<Breadcrumbs items={ [ getParentBreadcrumbItem(), { label: breadcrumbLabel } ] } />
+				</div>
 			}
 			actions={ actions }
 		>
