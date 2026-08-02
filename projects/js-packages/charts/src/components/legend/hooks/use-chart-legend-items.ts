@@ -105,7 +105,8 @@ type SeriesGroupMember = { series: SeriesData; index: number };
 /**
  * Buckets series by their `group`, preserving first-appearance order. Series with no group — or a
  * group value unique to them — end up in a bucket of their own. Whether a multi-series bucket then
- * collapses to a single legend item is decided by the caller (only the comparison pattern does).
+ * collapses to a single legend item is decided by the caller: with `collapseGroups` on, every
+ * multi-member bucket collapses, and the comparison pattern only decides which member represents it.
  * @param seriesData - The series data to group
  * @return Ordered groups, each holding its member series with their original indices
  */
