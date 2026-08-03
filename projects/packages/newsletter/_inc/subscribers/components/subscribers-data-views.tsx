@@ -41,7 +41,7 @@ type Props = {
 	onAddSubscribers: () => void;
 	onViewSubscriber: ( subscriber: Subscriber ) => void;
 	onSubscribersRemoved: ( removed: Subscriber[] ) => void;
-	onSelfOnlyChange?: ( isSelfOnly: boolean ) => void;
+	onSelfOnlyChange: ( isSelfOnly: boolean ) => void;
 };
 
 /**
@@ -52,7 +52,7 @@ type Props = {
  * @param props.onAddSubscribers     - Open the Add Subscribers modal (used by the empty-state CTA).
  * @param props.onViewSubscriber     - Callback fired when the View row action is invoked.
  * @param props.onSubscribersRemoved - Callback fired with the rows that were actually removed.
- * @param props.onSelfOnlyChange     - Reports whether the viewer's own subscription is the only one, so the header can nudge them to add more. Lives here because this is where the list query already runs.
+ * @param props.onSelfOnlyChange     - Reports whether the viewer is the only subscriber, for the header's nudge.
  * @return The DataViews component bound to the subscribers query.
  */
 export default function SubscribersDataViews( {
@@ -89,7 +89,7 @@ export default function SubscribersDataViews( {
 		[ view.page, view.perPage, view.sort?.field, view.sort?.direction, view.search, apiFilters ]
 	);
 
-	const { data, isLoading, isPlaceholderData, error } = useSubscribers( queryParams );
+	const { data, isLoading, error } = useSubscribers( queryParams );
 	const removeMutation = useSubscriberRemoveMutation();
 
 	// Fetch the site's paid products once for the whole table (not per row) so the "Comp a
@@ -321,18 +321,10 @@ export default function SubscribersDataViews( {
 		( view.filters && view.filters.length > 0 ) || ( view.search && view.search.length > 0 )
 	);
 
-	// `isPlaceholderData` keeps a filtered response from being read as an answer about the
-	// unfiltered list: clearing a search flips `hasActiveFiltersOrSearch` immediately, but `data`
-	// stays on the search result until the unfiltered query resolves (it has no cache entry to fall
-	// back on once the default 5-minute `gcTime` has collected it).
-	const isSelfOnly =
-		! hasActiveFiltersOrSearch &&
-		! isPlaceholderData &&
-		totalItems === 1 &&
-		!! data?.is_owner_subscribed;
+	const isSelfOnly = ! hasActiveFiltersOrSearch && totalItems === 1 && !! data?.is_owner_subscribed;
 
 	useEffect( () => {
-		onSelfOnlyChange?.( isSelfOnly );
+		onSelfOnlyChange( isSelfOnly );
 	}, [ isSelfOnly, onSelfOnlyChange ] );
 
 	const paginationInfo = useMemo(

@@ -1,5 +1,5 @@
 import { DropdownMenu } from '@wordpress/components';
-import { useCallback, useState } from '@wordpress/element';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { moreVertical } from '@wordpress/icons';
 import { Button } from '@wordpress/ui';
@@ -10,8 +10,7 @@ import type { JetpackBlogId } from '../lib/site';
 type Props = {
 	blogId: JetpackBlogId | null;
 	onAddSubscribers: () => void;
-	showSelfOnlyNudge?: boolean;
-	onDismissSelfOnlyNudge?: ( reason: string ) => void;
+	showSelfOnlyNudge: boolean;
 };
 
 /**
@@ -34,42 +33,25 @@ function getCsvDownloadUrl( blogId: JetpackBlogId ): string | null {
  * Page-header action row — primary "Add subscribers" CTA and a More menu (Download CSV).
  * Page already wraps actions in a Stack with `gap="sm"`, so we don't add an extra wrapper here.
  *
- * @param props                        - Component props.
- * @param props.blogId                 - WP.com blog id, used to build the CSV download URL.
- * @param props.onAddSubscribers       - Callback to open the Add Subscribers modal (owned by the parent so the empty state can trigger it too).
- * @param props.showSelfOnlyNudge      - Whether to point the self-only nudge at the CTA.
- * @param props.onDismissSelfOnlyNudge - Callback fired with the reason the nudge closed (owned by the parent so a dismissal outlives this row).
+ * @param props                   - Component props.
+ * @param props.blogId            - WP.com blog id, used to build the CSV download URL.
+ * @param props.onAddSubscribers  - Callback to open the Add Subscribers modal (owned by the parent so the empty state can trigger it too).
+ * @param props.showSelfOnlyNudge - Whether to point the self-only nudge at the CTA.
  * @return Action row.
  */
 export default function HeaderActions( {
 	blogId,
 	onAddSubscribers,
-	showSelfOnlyNudge = false,
-	onDismissSelfOnlyNudge,
+	showSelfOnlyNudge,
 }: Props ): JSX.Element {
 	const [ ctaAnchor, setCtaAnchor ] = useState< HTMLButtonElement | null >( null );
 
-	const handleAddSubscribers = useCallback( () => {
-		recordTracksEvent( 'jetpack_subscribers_add_subscribers_clicked', {
-			source: 'header',
-			nudge_visible: showSelfOnlyNudge,
-		} );
-		onAddSubscribers();
-	}, [ onAddSubscribers, showSelfOnlyNudge ] );
-
-	const handleDismissNudge = useCallback(
-		( reason: string ) => onDismissSelfOnlyNudge?.( reason ),
-		[ onDismissSelfOnlyNudge ]
-	);
-
 	return (
 		<>
-			<Button size="compact" ref={ setCtaAnchor } onClick={ handleAddSubscribers }>
+			<Button size="compact" ref={ setCtaAnchor } onClick={ onAddSubscribers }>
 				{ __( 'Add subscribers', 'jetpack-newsletter' ) }
 			</Button>
-			{ showSelfOnlyNudge && (
-				<SelfOnlyNudge anchor={ ctaAnchor } onDismiss={ handleDismissNudge } />
-			) }
+			{ showSelfOnlyNudge && <SelfOnlyNudge anchor={ ctaAnchor } /> }
 			<DropdownMenu
 				icon={ moreVertical }
 				label={ __( 'More options', 'jetpack-newsletter' ) }

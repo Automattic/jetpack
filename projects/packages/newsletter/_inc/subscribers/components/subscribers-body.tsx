@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { useImportCompletionRefresh } from '../data/use-import-completion-refresh';
 import { useNewsletterCategories } from '../data/use-newsletter-categories';
 import { installDataViewsFooterI18n } from '../lib/dataviews-i18n';
 import { getBlogId } from '../lib/site';
 import { isOpenSubscriberRemoved, toFiniteNumber } from '../lib/subscriber-helpers';
-import { recordTracksEvent } from '../lib/tracks';
 import HeaderActions from './header-actions';
 import AddSubscribersModal from './modals/add-subscribers-modal';
 import SubscribersDataViews from './subscribers-data-views';
@@ -125,27 +124,7 @@ export default function SubscribersBody( {
 		[ navigate, search ]
 	);
 
-	// The self-only nudge's lifecycle lives in this always-mounted shell rather than in the nudge
-	// itself. The nudge unmounts whenever a search hides it, as does `HeaderActions` when the
-	// Settings tab takes over the header, so per-component state would resurrect a dismissed nudge
-	// and re-fire its display event on the way back — inflating the very counts it exists to measure.
 	const [ isSelfOnly, setIsSelfOnly ] = useState( false );
-	const [ isNudgeDismissed, setNudgeDismissed ] = useState( false );
-	const showSelfOnlyNudge = isSelfOnly && ! isNudgeDismissed;
-
-	const nudgeDisplayRecorded = useRef( false );
-	useEffect( () => {
-		if ( ! showSelfOnlyNudge || nudgeDisplayRecorded.current ) {
-			return;
-		}
-		nudgeDisplayRecorded.current = true;
-		recordTracksEvent( 'jetpack_subscribers_self_only_nudge_displayed' );
-	}, [ showSelfOnlyNudge ] );
-
-	const handleDismissNudge = useCallback( ( reason: string ) => {
-		recordTracksEvent( 'jetpack_subscribers_self_only_nudge_dismissed', { reason } );
-		setNudgeDismissed( true );
-	}, [] );
 
 	const body = (
 		<>
@@ -163,8 +142,7 @@ export default function SubscribersBody( {
 		<HeaderActions
 			blogId={ blogId }
 			onAddSubscribers={ openAdd }
-			showSelfOnlyNudge={ showSelfOnlyNudge }
-			onDismissSelfOnlyNudge={ handleDismissNudge }
+			showSelfOnlyNudge={ isSelfOnly }
 		/>
 	);
 

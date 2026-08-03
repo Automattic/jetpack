@@ -1,4 +1,4 @@
-import { createInterpolateElement, useCallback, useEffect } from '@wordpress/element';
+import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { envelope, search as searchIcon } from '@wordpress/icons';
 import { Button, EmptyState } from '@wordpress/ui';
@@ -31,16 +31,6 @@ export default function SubscribersEmptyState( {
 			has_filters_or_search: hasFiltersOrSearch,
 		} );
 	}, [ hasFiltersOrSearch ] );
-
-	// Same event as the header CTA, tagged by `source`, so the two entry points into the Add
-	// Subscribers modal can be compared rather than one of them going unmeasured.
-	const handleAddSubscribers = useCallback( () => {
-		recordTracksEvent( 'jetpack_subscribers_add_subscribers_clicked', {
-			source: 'empty_state',
-			nudge_visible: false,
-		} );
-		onAddSubscribers();
-	}, [ onAddSubscribers ] );
 
 	if ( hasFiltersOrSearch ) {
 		return (
@@ -79,7 +69,7 @@ export default function SubscribersEmptyState( {
 				) }
 			</EmptyState.Description>
 			<EmptyState.Actions>
-				<Button onClick={ handleAddSubscribers }>
+				<Button onClick={ onAddSubscribers }>
 					{ __( 'Add subscribers', 'jetpack-newsletter' ) }
 				</Button>
 			</EmptyState.Actions>
