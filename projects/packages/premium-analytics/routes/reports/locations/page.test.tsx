@@ -3,9 +3,11 @@
  */
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import {
+	ReportCsvAction,
 	ReportErrorState,
 	ReportPageTabs,
 	ReportRecordsTable,
+	useReportCsvExport,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -13,16 +15,21 @@ import { useState } from 'react';
 /**
  * Internal dependencies
  */
-import { useLocationsReportRecords } from './config';
+import { getLocationFields, useLocationsReportRecords } from './config';
 import LocationsReportPage from './page';
 import type { LocationRow, ReportLocationsTabId } from './config';
 import type { View } from '@wordpress/dataviews';
 import type { ReactNode } from 'react';
 
-jest.mock( './config', () => ( {
-	...jest.requireActual( './config' ),
-	useLocationsReportRecords: jest.fn(),
-} ) );
+jest.mock( './config', () => {
+	const actual = jest.requireActual( './config' );
+
+	return {
+		...actual,
+		getLocationFields: jest.fn( actual.getLocationFields ),
+		useLocationsReportRecords: jest.fn(),
+	};
+} );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
@@ -49,11 +56,18 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			{ children }
 		</>
 	),
-	ReportPageShell: ( { children }: { children: ReactNode } ) => <>{ children }</>,
+	ReportCsvAction: jest.fn( () => <button>Download</button> ),
+	ReportPageShell: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
+		<>
+			{ actions }
+			{ children }
+		</>
+	),
 	ReportPageTabs: jest.fn( () => null ),
 	// The table's own tests cover how it renders the field config and reports
 	// view changes; here only the props the page hands it matter.
 	ReportRecordsTable: jest.fn( () => <div data-testid="records-table" /> ),
+	useReportCsvExport: jest.fn(),
 	useReportRetry: ( refetch: () => unknown ) => () => {
 		void refetch();
 	},
@@ -76,6 +90,8 @@ const useSectionTabMock = jest.mocked( useSectionTab );
 const reportErrorStateMock = jest.mocked( ReportErrorState );
 const reportPageTabsMock = jest.mocked( ReportPageTabs );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
+const reportCsvActionMock = jest.mocked( ReportCsvAction );
+const useReportCsvExportMock = jest.mocked( useReportCsvExport );
 
 const row: LocationRow = {
 	id: 'AU',
@@ -166,6 +182,46 @@ describe( 'LocationsReportPage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockTabState( 'countries' );
+		useReportCsvExportMock.mockReturnValue( {
+			canExport: false,
+			rows: [],
+			filename: 'locations-countries',
+		} );
+	} );
+
+	// Each tab exports a different list, so the filename has to carry the tab.
+	it( 'offers a CSV export of the active tab', () => {
+		mockTabState( 'regions' );
+		const records = mockRecords();
+		useReportCsvExportMock.mockReturnValue( {
+			canExport: true,
+			rows: [ row ],
+			filename: 'locations-regions-2026-06-01_2026-06-30',
+		} );
+
+		render( <LocationsReportPage /> );
+
+		expect( screen.getByRole( 'button', { name: 'Download' } ) ).toBeInTheDocument();
+		expect( useReportCsvExportMock ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				rows: records.table.rows,
+				filenamePrefix: 'locations-regions',
+				status: records.table,
+			} )
+		);
+
+		const { columns, rows: exportRows } = reportCsvActionMock.mock.calls[ 0 ][ 0 ];
+		expect( exportRows.map( item => columns.map( column => column.getValue( item ) ) ) ).toEqual( [
+			[ 'Australia', 15 ],
+		] );
+	} );
+
+	it( 'hides the CSV export until the rows are settled', () => {
+		mockRecords();
+
+		render( <LocationsReportPage /> );
+
+		expect( screen.queryByRole( 'button', { name: 'Download' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'hands the active tab rows to the records table', () => {
@@ -246,6 +302,17 @@ describe( 'LocationsReportPage', () => {
 			{ value: 'AU', label: 'Australia' },
 			{ value: 'DE', label: 'Germany' },
 		] );
+	} );
+
+	// The hook knows whether the comparison period returned anything, and the
+	// fields render deltas only when it says so. The fields' own tests cover the
+	// rendering; this covers the hand-off.
+	it.each( [ true, false ] )( 'passes hasComparison=%s to the field config', hasComparison => {
+		mockRecords( { hasComparison } );
+
+		render( <LocationsReportPage /> );
+
+		expect( getLocationFields ).toHaveBeenCalledWith( undefined, hasComparison );
 	} );
 
 	// The country is a filter, not a column.

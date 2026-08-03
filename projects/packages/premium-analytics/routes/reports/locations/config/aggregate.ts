@@ -2,51 +2,32 @@
  * External dependencies
  */
 import type { LocationRow } from './fields';
-import type { StatsLocationsItem, StatsNormalizedReport } from '@jetpack-premium-analytics/data';
+import type { StatsLocationsComparisonItem } from '@jetpack-premium-analytics/data';
 
 /**
- * Build a stable identity for a location within its country.
+ * Build the records table's rows from the shared comparison rows.
  *
- * Region and city names are not globally unique, so the country code remains
- * part of the key on every tab.
+ * The request is summarized, so the API returns one row per location for the
+ * whole window and the shared merge helper has already aligned each row with
+ * its previous-period value. Region and city names are not globally unique, so
+ * the country code stays part of the row identity on every tab.
  *
- * @param item - A normalized location item.
- * @return The stable location identity.
+ * @param items - Merged location rows for the active tab.
+ * @return One row per location.
  */
-function getLocationId( item: StatsLocationsItem ): string {
-	return `${ item.countryCode ?? '' }:${ String( item.label ?? '' ) }`;
-}
-
-/**
- * Aggregate location rows across report buckets for the records table.
- *
- * @param report - The bucketed locations report.
- * @return One row per location with views summed across buckets.
- */
-export function aggregateLocationRows(
-	report: StatsNormalizedReport< StatsLocationsItem > | undefined
+export function buildLocationRows(
+	items: StatsLocationsComparisonItem[] | undefined
 ): LocationRow[] {
-	const rowsById = new Map< string, LocationRow >();
+	return ( items ?? [] ).map( item => {
+		const label = String( item.label ?? '' );
 
-	for ( const point of report?.data ?? [] ) {
-		for ( const item of point.items ) {
-			const id = getLocationId( item );
-			const existing = rowsById.get( id );
-
-			if ( existing ) {
-				existing.views += item.views;
-				continue;
-			}
-
-			rowsById.set( id, {
-				id,
-				label: String( item.label ?? '' ),
-				countryCode: item.countryCode,
-				countryFull: item.countryFull ?? item.countryCode ?? '',
-				views: item.views,
-			} );
-		}
-	}
-
-	return [ ...rowsById.values() ];
+		return {
+			id: `${ item.countryCode ?? '' }:${ label }`,
+			label,
+			countryCode: item.countryCode,
+			countryFull: item.countryFull ?? item.countryCode ?? '',
+			views: item.views,
+			previousViews: item.previousViews,
+		};
+	} );
 }
