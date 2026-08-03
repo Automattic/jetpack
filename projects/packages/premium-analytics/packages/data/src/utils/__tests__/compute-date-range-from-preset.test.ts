@@ -5,8 +5,6 @@ import { tz } from '@date-fns/tz';
 import {
 	startOfDay,
 	endOfDay,
-	startOfHour,
-	endOfHour,
 	subDays,
 	subHours,
 	subMonths,
@@ -83,12 +81,12 @@ describe( 'computeDateRangeFromPreset', () => {
 		expect( range!.to ).toBe( toZ( YESTERDAY_END ) );
 	} );
 
-	it( 'returns rolling 24-hour range snapped to the hour for "last-24-hours"', () => {
+	it( 'returns rolling 24-hour range for "last-24-hours"', () => {
 		const range = computeDateRangeFromPreset( 'last-24-hours' );
 
 		expect( range ).toBeDefined();
-		expect( range!.from ).toBe( toZ( subHours( startOfHour( NOW, { in: UTC } ), 23 ) ) );
-		expect( range!.to ).toBe( toZ( endOfHour( NOW, { in: UTC } ) ) );
+		expect( range!.from ).toBe( toZ( subHours( NOW, 24 ) ) );
+		expect( range!.to ).toBe( toZ( NOW ) );
 	} );
 
 	it( 'returns 7-day range ending yesterday for "last-7-days"', () => {

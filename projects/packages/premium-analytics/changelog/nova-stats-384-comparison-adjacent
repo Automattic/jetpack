@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Stats: stop the period-over-period comparison window from overlapping the range it is compared against.

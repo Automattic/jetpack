@@ -165,55 +165,9 @@ describe( 'computePrimaryRange for the year surface', () => {
 		);
 	} );
 
-	it( 'still computes the rolling presets, snapped to whole hours', () => {
+	it( 'still computes the rolling presets', () => {
 		const range = rangeOf( 'last-24-hours', TIME_ZONE );
 
-		// 24 hourly buckets, the last one open-ended at :59:59.999.
-		expect( dateToISOStringWithTZ( range.from, TIME_ZONE ) ).toBe(
-			'2026-06-14T09:00:00.000-04:00'
-		);
-		expect( dateToISOStringWithTZ( range.to, TIME_ZONE ) ).toBe( '2026-06-15T08:59:59.999-04:00' );
-	} );
-
-	it.each( [
-		// Spring forward: 2026-03-08 02:00 EST -> 03:00 EDT, so the local clock
-		// reads 25 hour labels across the window but only 24 hours elapse.
-		[
-			'spring forward',
-			'2026-03-08T14:00:00.000Z',
-			'2026-03-07T10:00:00.000-05:00',
-			'2026-03-08T10:59:59.999-04:00',
-		],
-		// Fall back: 2026-11-01 02:00 EDT -> 01:00 EST, so 23 labels cover 24 hours.
-		[
-			'fall back',
-			'2026-11-01T14:00:00.000Z',
-			'2026-10-31T11:00:00.000-04:00',
-			'2026-11-01T09:59:59.999-05:00',
-		],
-	] )( 'covers 24 elapsed hours across %s', ( _label, systemTime, expectedFrom, expectedTo ) => {
-		jest.setSystemTime( new Date( systemTime ) );
-		const range = rangeOf( 'last-24-hours', TIME_ZONE );
-		jest.setSystemTime( NOW );
-
-		// The window is 24 real hours even where the wall clock disagrees:
-		// `subHours` counts elapsed time, so the bucket count survives DST.
-		expect( range.to.getTime() - range.from.getTime() ).toBe( 24 * 60 * 60 * 1000 - 1 );
-		expect( dateToISOStringWithTZ( range.from, TIME_ZONE ) ).toBe( expectedFrom );
-		expect( dateToISOStringWithTZ( range.to, TIME_ZONE ) ).toBe( expectedTo );
-	} );
-
-	it( 'holds the last-24-hours range steady as the clock moves within the hour', () => {
-		// The range lands in start_date/end_date, which are sent verbatim and key
-		// the request cache. Off a raw `now` these drift by milliseconds between
-		// callers, so identical requests never dedupe and never hit the cache.
-		const before = rangeOf( 'last-24-hours', TIME_ZONE );
-
-		jest.setSystemTime( new Date( NOW.getTime() + 20 * 60 * 1000 ) );
-		const after = rangeOf( 'last-24-hours', TIME_ZONE );
-		jest.setSystemTime( NOW );
-
-		expect( after.from.getTime() ).toBe( before.from.getTime() );
-		expect( after.to.getTime() ).toBe( before.to.getTime() );
+		expect( range.to.getTime() - range.from.getTime() ).toBe( 24 * 60 * 60 * 1000 );
 	} );
 } );

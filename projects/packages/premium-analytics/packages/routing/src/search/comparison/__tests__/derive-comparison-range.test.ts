@@ -42,19 +42,16 @@ describe( 'deriveComparisonRange', () => {
 	} );
 
 	it( 'mirrors the exact window for rolling ranges like last-24-hours', () => {
-		// The inclusive, hour-aligned shape the last-24-hours preset produces.
-		// The comparison ends 1ms before the primary begins rather than sharing
-		// that instant, so the two windows stay adjacent and never overlap.
 		expect(
 			deriveComparisonRange( {
-				from: '2026-07-09T14:00:00.000Z',
-				to: '2026-07-10T13:59:59.999Z',
+				from: '2026-07-09T14:30:00.000Z',
+				to: '2026-07-10T14:30:00.000Z',
 				comp: '1',
 				compare_preset: 'previous-period',
 			} )
 		).toEqual( {
-			compare_from: '2026-07-08T14:00:00.000Z',
-			compare_to: '2026-07-09T13:59:59.999Z',
+			compare_from: '2026-07-08T14:30:00.000Z',
+			compare_to: '2026-07-09T14:30:00.000Z',
 		} );
 	} );
 

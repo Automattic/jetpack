@@ -52,8 +52,7 @@ describe( 'DateRangeQuickPresets', () => {
 		expect( onSelect ).toHaveBeenCalledTimes( 1 );
 		const [ range, id ] = onSelect.mock.calls[ 0 ];
 		expect( id ).toBe( 'last-24-hours' );
-		// 24 hourly buckets, the last one open-ended at :59:59.999.
-		expect( range.to.getTime() - range.from.getTime() ).toBe( 24 * 60 * 60 * 1000 - 1 );
+		expect( range.to.getTime() - range.from.getTime() ).toBe( 24 * 60 * 60 * 1000 );
 	} );
 
 	// However narrow the surface gets, the presets stay a row of pills: there is

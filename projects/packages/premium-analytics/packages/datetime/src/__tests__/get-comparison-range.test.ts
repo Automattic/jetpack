@@ -39,10 +39,10 @@ describe( 'getComparisonRangeFromPreset', () => {
 			to: new Date( 2026, 6, 10, 14, 30, 0, 0 ),
 		};
 
-		it( 'ends the previous-period window just before the reference begins', () => {
+		it( 'mirrors the exact previous window for previous-period', () => {
 			expect( getComparisonRangeFromPreset( reference, 'previous-period' ) ).toEqual( {
-				from: new Date( 2026, 6, 8, 14, 29, 59, 999 ),
-				to: new Date( 2026, 6, 9, 14, 29, 59, 999 ),
+				from: new Date( 2026, 6, 8, 14, 30, 0, 0 ),
+				to: new Date( 2026, 6, 9, 14, 30, 0, 0 ),
 			} );
 		} );
 
@@ -57,40 +57,6 @@ describe( 'getComparisonRangeFromPreset', () => {
 			expect( getComparisonRangeFromPreset( reference, 'previous-year' ) ).toEqual( {
 				from: new Date( 2025, 6, 9, 14, 30, 0, 0 ),
 				to: new Date( 2025, 6, 10, 14, 30, 0, 0 ),
-			} );
-		} );
-	} );
-
-	describe( 'inclusive rolling references, as the last-24-hours preset builds them', () => {
-		// The shape computePrimaryRange( 'last-24-hours' ) actually produces:
-		// hour-aligned start, open-ended `:59:59.999` end. The half-open
-		// reference above is not a shape the dashboard generates.
-		const reference = {
-			from: new Date( 2026, 5, 14, 9, 0, 0, 0 ),
-			to: new Date( 2026, 5, 15, 8, 59, 59, 999 ),
-		};
-
-		it( 'keeps the comparison adjacent to the primary, on the same hour boundary', () => {
-			expect( getComparisonRangeFromPreset( reference, 'previous-period' ) ).toEqual( {
-				from: new Date( 2026, 5, 13, 9, 0, 0, 0 ),
-				to: new Date( 2026, 5, 14, 8, 59, 59, 999 ),
-			} );
-		} );
-
-		it.each( COMPARISON_PRESETS )( 'lands on hour boundaries for %s', presetId => {
-			const comparison = getComparisonRangeFromPreset( reference, presetId );
-
-			expect( comparison?.from?.getMinutes() ).toBe( 0 );
-			expect( comparison?.from?.getMilliseconds() ).toBe( 0 );
-			expect( comparison?.to?.getMinutes() ).toBe( 59 );
-			expect( comparison?.to?.getMilliseconds() ).toBe( 999 );
-		} );
-
-		it( 'never overlaps the primary window', () => {
-			COMPARISON_PRESETS.forEach( presetId => {
-				const comparison = getComparisonRangeFromPreset( reference, presetId );
-
-				expect( comparison!.to!.getTime() ).toBeLessThan( reference.from.getTime() );
 			} );
 		} );
 	} );

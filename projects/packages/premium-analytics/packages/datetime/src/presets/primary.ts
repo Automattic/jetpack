@@ -5,8 +5,6 @@ import { __, _x } from '@wordpress/i18n';
 import {
 	startOfDay,
 	endOfDay,
-	startOfHour,
-	endOfHour,
 	subDays,
 	subHours,
 	subMonths,
@@ -105,21 +103,9 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 		getShortLabel: () =>
 			/* translators: abbreviation for "Last 24 hours". Shown in a segmented control too narrow for the full label, so keep it as short as the language allows. */
 			_x( '24H', 'short date range preset', 'jetpack-premium-analytics-pkg' ),
-		// Snapped to the hour rather than taken from the raw instant. The range
-		// ends up in `start_date`/`end_date`, which are sent verbatim and form
-		// part of the request's React Query key: off a raw `now` every widget
-		// (and every remount) resolves a different millisecond, so identical
-		// requests never dedupe and never hit the cache. The hour is the natural
-		// granularity — this is the only preset that buckets hourly — and the
-		// open-ended `endOfHour` keeps the in-progress hour visible, matching how
-		// `today` runs to `endOfToday`.
-		//
-		// `subHours` counts elapsed time, so the window spans 24 real hours even
-		// across a DST transition, where the local clock reads 23 or 25 hour
-		// labels over the same span.
 		getRange: ( { now } ) => ( {
-			from: subHours( startOfHour( now ), 23 ),
-			to: endOfHour( now ),
+			from: subHours( now, 24 ),
+			to: now,
 		} ),
 	},
 	{

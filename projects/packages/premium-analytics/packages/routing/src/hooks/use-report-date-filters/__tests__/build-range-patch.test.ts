@@ -148,11 +148,9 @@ describe( 'buildRangePatch', () => {
 			effective: { comp: '1', compare_preset: 'previous-period' },
 		} );
 
-		// The comparison window ends 1ms before the primary begins, so the two
-		// stay adjacent instead of sharing the boundary instant.
 		expect( patch ).toMatchObject( {
-			compare_from: '2026-07-08T14:29:59.999Z',
-			compare_to: '2026-07-09T14:29:59.999Z',
+			compare_from: '2026-07-08T14:30:00.000Z',
+			compare_to: '2026-07-09T14:30:00.000Z',
 		} );
 	} );
 
