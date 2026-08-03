@@ -74,8 +74,11 @@ export { useStatsFollowers } from './use-stats-followers';
 export type { StatsFollowersParams, StatsFollowersResponse } from './use-stats-followers';
 export {
 	useStatsComments,
+	useStatsCommentsRows,
 	type StatsCommentsParams,
 	type StatsCommentsResponse,
+	type UseStatsCommentsRowsArgs,
+	type UseStatsCommentsRowsResult,
 } from './use-stats-comments';
 export {
 	useStatsSubscribersCounts,
