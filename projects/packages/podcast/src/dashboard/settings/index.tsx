@@ -16,7 +16,7 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import CategoryPicker from '../category-picker';
 import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
@@ -117,6 +117,28 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 			setDraft( settings );
 		}
 	}, [ settings, draft ] );
+
+	// Disabling a control blurs it, and the browser has already moved focus to
+	// <body> by the time effects run — so record focus on the way in instead.
+	const lastFocused = useRef< HTMLElement | null >( null );
+	const rememberFocus = useCallback( ( event: FocusEvent< HTMLDivElement > ) => {
+		lastFocused.current = event.target;
+	}, [] );
+
+	useEffect( () => {
+		if ( isSaving ) {
+			return;
+		}
+		const target = lastFocused.current;
+		lastFocused.current = null;
+		if ( ! target?.isConnected ) {
+			return;
+		}
+		// Only reclaim focus the disable dropped, not focus the user moved on purpose.
+		if ( target.ownerDocument.activeElement === target.ownerDocument.body ) {
+			target.focus();
+		}
+	}, [ isSaving ] );
 
 	// Save a partial update, then resync draft from the server-merged record so
 	// `isDirty` and reference checks fall back to false on the saved keys.
@@ -252,7 +274,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 	}
 
 	return (
-		<VStack spacing={ 5 } className="podcast__settings">
+		<VStack spacing={ 5 } className="podcast__settings" onFocus={ rememberFocus }>
 			{ issues.length > 0 && (
 				<Notice status="warning" isDismissible={ false }>
 					<strong>{ __( 'Finish setting up your podcast', 'jetpack-podcast' ) }</strong>
@@ -428,6 +450,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 							isDestructive
 							onClick={ openConfirmDisable }
 							disabled={ isSaving }
+							accessibleWhenDisabled
 						>
 							{ __( 'Disable', 'jetpack-podcast' ) }
 						</Button>
