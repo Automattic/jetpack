@@ -277,6 +277,7 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'wpcom_ai_launchpad_completed'                 => true,
 			'wpcom_ai_site_prompt'                         => '',
 			'reader_chat'                                  => false,
+			'reader_chat_brand'                            => array( 'name' => 'Pineapple' ),
 			'jetpack_ai_agents_enabled'                    => false,
 			'wpcom_classic_early_release'                  => true,
 			'jetpack_newsletters_publishing_default_frequency' => 'weekly',

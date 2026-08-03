@@ -31,6 +31,8 @@ const READER_CHAT_ASSET_FAILURE_CACHE_TTL = 5 * MINUTE_IN_SECONDS;
  * Handles loading the reader chat UI on the frontend.
  */
 class Jetpack_Reader_Chat {
+	// Keep these font presets in sync with Search\REST_Controller.
+	private const BRAND_FONT_FAMILIES = array( 'site', 'serif' );
 
 	/**
 	 * Initialize hooks.
@@ -74,7 +76,7 @@ class Jetpack_Reader_Chat {
 	}
 
 	/**
-	 * Register the reader_chat option so Search settings can read and write it.
+	 * Register the Reader Chat options so Search settings can read and write them.
 	 *
 	 * @since 15.9
 	 *
@@ -91,12 +93,173 @@ class Jetpack_Reader_Chat {
 				'default'           => false,
 			)
 		);
+
+		register_setting(
+			'general',
+			'reader_chat_brand',
+			array(
+				'type'              => 'array',
+				'description'       => __( 'Site Chat brand overrides for this site.', 'jetpack' ),
+				'sanitize_callback' => array( __CLASS__, 'sanitize_brand_option' ),
+				'default'           => array(
+					'name'       => '',
+					'accent'     => '',
+					'greeting'   => '',
+					'help'       => '',
+					'background' => '',
+					'outline'    => '',
+					'fontFamily' => '',
+				),
+			)
+		);
 	}
 
 	/**
-	 * Add Reader Chat's setting to Jetpack Sync's option whitelist.
+	 * Sanitize Reader Chat brand overrides before they are stored.
 	 *
-	 * Atomic and Jurassic Ninja sites write `reader_chat` locally via
+	 * @since $$next-version$$
+	 *
+	 * @param mixed $value Brand option value.
+	 * @return array Sanitized brand overrides.
+	 */
+	public static function sanitize_brand_option( $value ): array {
+		$value = is_array( $value ) ? $value : array();
+
+		return array(
+			'name'       => self::sanitize_brand_text( $value['name'] ?? '', 40 ),
+			'accent'     => self::sanitize_brand_color( $value['accent'] ?? '' ),
+			'greeting'   => self::sanitize_brand_text( $value['greeting'] ?? '', 120 ),
+			'help'       => self::sanitize_brand_text( $value['help'] ?? '', 160 ),
+			'background' => self::sanitize_brand_color( $value['background'] ?? '' ),
+			'outline'    => self::sanitize_brand_color( $value['outline'] ?? '' ),
+			'fontFamily' => self::sanitize_brand_font_family( $value['fontFamily'] ?? '' ),
+		);
+	}
+
+	/**
+	 * Resolve Reader Chat's public brand configuration.
+	 *
+	 * Stored overrides win per field. Empty or invalid overrides fall back to
+	 * values derived from the current site and theme. Keys without a value are
+	 * omitted so the client can retain its existing fallback behavior. The
+	 * Calypso Reader Chat bootstrap consumes these keys as readerBrand.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array Resolved Reader Chat brand.
+	 */
+	public static function get_brand(): array {
+		$stored_brand = get_option( 'reader_chat_brand', array() );
+		$stored_brand = is_array( $stored_brand ) ? $stored_brand : array();
+		$brand        = array();
+
+		$name = self::sanitize_brand_text( $stored_brand['name'] ?? '', 40 );
+		if ( '' === $name ) {
+			$name = self::sanitize_brand_text( get_bloginfo( 'name' ), 40 );
+		}
+		if ( '' !== $name ) {
+			$brand['name'] = $name;
+		}
+
+		$accent = isset( $stored_brand['accent'] ) && is_string( $stored_brand['accent'] )
+			? sanitize_hex_color( $stored_brand['accent'] )
+			: null;
+		if ( ! $accent ) {
+			$accent = self::get_palette_accent( self::get_theme_palette_settings() );
+		}
+		if ( $accent ) {
+			$brand['accent']           = $accent;
+			$brand['accentForeground'] = self::get_accent_foreground( $accent );
+		}
+
+		$logo_url = self::get_brand_logo_url();
+		if ( $logo_url ) {
+			$brand['logoUrl'] = $logo_url;
+		}
+
+		$site_font_family = self::get_site_font_family();
+		if ( '' !== $site_font_family ) {
+			$brand['siteFontFamily'] = $site_font_family;
+		}
+
+		$greeting = self::sanitize_brand_text( $stored_brand['greeting'] ?? '', 120 );
+		if ( '' === $greeting ) {
+			$greeting = null !== self::get_current_post_context()
+				? 'Ask me anything about this post.'
+				: 'Ask me anything about this blog.';
+		}
+		$brand['greeting'] = $greeting;
+
+		$help = self::sanitize_brand_text( $stored_brand['help'] ?? '', 160 );
+		if ( '' !== $help ) {
+			$brand['help'] = $help;
+		}
+
+		foreach ( array( 'background', 'outline' ) as $color_field ) {
+			$color = self::sanitize_brand_color( $stored_brand[ $color_field ] ?? '' );
+			if ( '' !== $color ) {
+				$brand[ $color_field ] = $color;
+			}
+		}
+
+		$font_family = self::sanitize_brand_font_family( $stored_brand['fontFamily'] ?? '' );
+		if ( '' !== $font_family ) {
+			$brand['fontFamily'] = $font_family;
+		}
+
+		return $brand;
+	}
+
+	/**
+	 * Get the theme and custom palette entries available to the settings UI.
+	 *
+	 * Core's default palette is intentionally excluded.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array Theme and custom color entries.
+	 */
+	public static function get_brand_palette(): array {
+		$palette_settings = self::get_theme_palette_settings();
+		$colors           = array();
+
+		foreach ( array( 'theme', 'custom' ) as $origin ) {
+			if ( empty( $palette_settings[ $origin ] ) || ! is_array( $palette_settings[ $origin ] ) ) {
+				continue;
+			}
+
+			foreach ( $palette_settings[ $origin ] as $color ) {
+				if ( ! is_array( $color ) || empty( $color['color'] ) || ! is_string( $color['color'] ) ) {
+					continue;
+				}
+
+				$hex = sanitize_hex_color( $color['color'] );
+				if ( ! $hex ) {
+					continue;
+				}
+
+				$slug = isset( $color['slug'] ) && is_string( $color['slug'] )
+					? sanitize_key( $color['slug'] )
+					: '';
+				$name = self::sanitize_brand_text( $color['name'] ?? '', 80 );
+				if ( '' === $name ) {
+					$name = '' !== $slug ? $slug : $hex;
+				}
+				$colors[] = array(
+					'name'  => $name,
+					'slug'  => $slug,
+					'color' => $hex,
+				);
+			}
+		}
+
+		return $colors;
+	}
+
+	/**
+	 * Add Reader Chat's settings to Jetpack Sync's option whitelist.
+	 *
+	 * Atomic and Jurassic Ninja sites write Reader Chat settings locally via
 	 * Search settings, while the wpcom-hosted agent reads the wpcom-side option
 	 * before serving public chat requests. Syncing the option keeps
 	 * the local toggle and agent permission gate aligned.
@@ -108,6 +271,7 @@ class Jetpack_Reader_Chat {
 	 */
 	public static function add_sync_options_whitelist( array $options ): array {
 		$options[] = 'reader_chat';
+		$options[] = 'reader_chat_brand';
 		return array_values( array_unique( $options ) );
 	}
 
@@ -228,6 +392,7 @@ class Jetpack_Reader_Chat {
 			'siteName'  => get_bloginfo( 'name' ),
 			'isDevMode' => self::is_dev_mode(),
 			'agentId'   => 'reader-chat',
+			'brand'     => self::get_brand(),
 		);
 
 		$current_post = self::get_current_post_context();
@@ -236,6 +401,204 @@ class Jetpack_Reader_Chat {
 		}
 
 		return $config;
+	}
+
+	/**
+	 * Sanitize and truncate a Reader Chat text field.
+	 *
+	 * @param mixed $value      Field value.
+	 * @param int   $max_length Maximum character count.
+	 * @return string Sanitized value.
+	 */
+	private static function sanitize_brand_text( $value, int $max_length ): string {
+		if ( ! is_string( $value ) ) {
+			return '';
+		}
+
+		$value = sanitize_text_field( $value );
+
+		if ( function_exists( 'mb_substr' ) ) {
+			return mb_substr( $value, 0, $max_length );
+		}
+
+		return substr( $value, 0, $max_length );
+	}
+
+	/**
+	 * Sanitize a Reader Chat color override.
+	 *
+	 * @param mixed $value Color value.
+	 * @return string Sanitized hex color, or an empty string.
+	 */
+	private static function sanitize_brand_color( $value ): string {
+		if ( ! is_string( $value ) ) {
+			return '';
+		}
+
+		$color = sanitize_hex_color( $value );
+
+		return $color ? $color : '';
+	}
+
+	/**
+	 * Sanitize a Reader Chat font-family preset.
+	 *
+	 * @param mixed $value Font-family preset.
+	 * @return string Sanitized preset, or an empty string for the default.
+	 */
+	private static function sanitize_brand_font_family( $value ): string {
+		return is_string( $value ) && in_array( $value, self::BRAND_FONT_FAMILIES, true )
+			? $value
+			: '';
+	}
+
+	/**
+	 * Resolve the Site Chat logo from the WordPress Site Logo or Site Icon.
+	 *
+	 * @return string Resolved logo URL, or an empty string when unavailable.
+	 */
+	private static function get_brand_logo_url(): string {
+		// The Site Logo block uses this option, including an older array shape
+		// still present on some sites. Customizer themes use the theme mod below.
+		$logo_id = get_option( 'site_logo' );
+		if ( is_array( $logo_id ) && isset( $logo_id['id'] ) ) {
+			$logo_id = $logo_id['id'];
+		}
+		$logo_id = is_scalar( $logo_id ) ? (int) $logo_id : 0;
+		if ( $logo_id <= 0 ) {
+			$custom_logo = get_theme_mod( 'custom_logo' );
+			$logo_id     = is_scalar( $custom_logo ) ? (int) $custom_logo : 0;
+		}
+
+		$logo_url = $logo_id > 0 ? wp_get_attachment_image_url( $logo_id, 'medium' ) : '';
+		if ( ! $logo_url && $logo_id > 0 && wp_attachment_is_image( $logo_id ) ) {
+			$logo_url = wp_get_attachment_url( $logo_id );
+		}
+		if ( ! $logo_url ) {
+			$logo_url = get_site_icon_url( 96 );
+		}
+
+		return is_string( $logo_url ) ? esc_url_raw( $logo_url ) : '';
+	}
+
+	/**
+	 * Resolve the site's global font-family stack for the settings preview and widget.
+	 *
+	 * @return string Safe CSS font-family value, or an empty string when unavailable.
+	 */
+	private static function get_site_font_family(): string {
+		if ( ! function_exists( 'wp_get_global_styles' ) ) {
+			return '';
+		}
+
+		// Keep these guards aligned with both settings-preview and public-widget
+		// normalizeFontFamily() helpers.
+		$font_family = wp_get_global_styles(
+			array( 'typography', 'fontFamily' ),
+			array( 'transforms' => array( 'resolve-variables' ) )
+		);
+		if (
+			! is_string( $font_family )
+			|| '' === trim( $font_family )
+			|| strlen( trim( $font_family ) ) > 200
+			|| false !== strpos( $font_family, 'var(' )
+			|| false !== strpos( $font_family, 'var:' )
+			|| false !== strpos( $font_family, '\\' )
+			|| preg_match( '/[;{}\r\n\f]/', $font_family )
+		) {
+			return '';
+		}
+
+		$safe_style = safecss_filter_attr( 'font-family:' . $font_family );
+		$prefix     = 'font-family:';
+
+		return 0 === strpos( $safe_style, $prefix ) ? trim( substr( $safe_style, strlen( $prefix ) ) ) : '';
+	}
+
+	/**
+	 * Get the global theme palette settings used for brand derivation.
+	 *
+	 * @return array Palette settings grouped by origin.
+	 */
+	private static function get_theme_palette_settings(): array {
+		if ( ! function_exists( 'wp_get_global_settings' ) ) {
+			return array();
+		}
+
+		$palette_settings = wp_get_global_settings( array( 'color', 'palette' ) );
+
+		return is_array( $palette_settings ) ? $palette_settings : array();
+	}
+
+	/**
+	 * Resolve an accent from theme-authored palette origins.
+	 *
+	 * The primary slug takes precedence over accent across the theme and
+	 * custom origins. Core's default origin is deliberately ignored.
+	 *
+	 * @param array $palette_settings Palette settings grouped by origin.
+	 * @return string|null Resolved accent, or null when none is available.
+	 */
+	private static function get_palette_accent( array $palette_settings ): ?string {
+		foreach ( array( 'primary', 'accent' ) as $target_slug ) {
+			foreach ( array( 'theme', 'custom' ) as $origin ) {
+				if ( empty( $palette_settings[ $origin ] ) || ! is_array( $palette_settings[ $origin ] ) ) {
+					continue;
+				}
+
+				foreach ( $palette_settings[ $origin ] as $color ) {
+					if (
+						! is_array( $color )
+						|| ! isset( $color['slug'] )
+						|| ! isset( $color['color'] )
+						|| $target_slug !== $color['slug']
+						|| ! is_string( $color['color'] )
+					) {
+						continue;
+					}
+
+					$accent = sanitize_hex_color( $color['color'] );
+					if ( $accent ) {
+						return $accent;
+					}
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Select the black or white foreground with the higher WCAG contrast.
+	 *
+	 * @param string $accent Sanitized hexadecimal accent color.
+	 * @return string Foreground hexadecimal color.
+	 */
+	private static function get_accent_foreground( string $accent ): string {
+		$hex = ltrim( $accent, '#' );
+		if ( 3 === strlen( $hex ) ) {
+			$hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+		}
+
+		$channels = array(
+			hexdec( substr( $hex, 0, 2 ) ) / 255,
+			hexdec( substr( $hex, 2, 2 ) ) / 255,
+			hexdec( substr( $hex, 4, 2 ) ) / 255,
+		);
+		$channels = array_map(
+			static function ( $channel ) {
+				return $channel <= 0.04045
+					? $channel / 12.92
+					: ( ( $channel + 0.055 ) / 1.055 ) ** 2.4;
+			},
+			$channels
+		);
+
+		$luminance      = 0.2126 * $channels[0] + 0.7152 * $channels[1] + 0.0722 * $channels[2];
+		$white_contrast = 1.05 / ( $luminance + 0.05 );
+		$black_contrast = ( $luminance + 0.05 ) / 0.05;
+
+		return $black_contrast > $white_contrast ? '#000000' : '#ffffff';
 	}
 
 	/**

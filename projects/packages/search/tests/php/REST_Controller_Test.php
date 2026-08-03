@@ -61,7 +61,11 @@ class REST_Controller_Test extends Search_TestCase {
 		if ( array_key_exists( 'reader_chat', get_registered_settings() ) ) {
 			unregister_setting( 'general', 'reader_chat' );
 		}
+		if ( array_key_exists( 'reader_chat_brand', get_registered_settings() ) ) {
+			unregister_setting( 'general', 'reader_chat_brand' );
+		}
 		delete_option( 'reader_chat' );
+		delete_option( 'reader_chat_brand' );
 		parent::tearDown();
 	}
 
@@ -76,6 +80,22 @@ class REST_Controller_Test extends Search_TestCase {
 				'type'              => 'boolean',
 				'sanitize_callback' => 'rest_sanitize_boolean',
 				'default'           => false,
+			)
+		);
+		register_setting(
+			'general',
+			'reader_chat_brand',
+			array(
+				'type'    => 'array',
+				'default' => array(
+					'name'       => '',
+					'accent'     => '',
+					'greeting'   => '',
+					'help'       => '',
+					'background' => '',
+					'outline'    => '',
+					'fontFamily' => '',
+				),
 			)
 		);
 	}
@@ -347,6 +367,7 @@ class REST_Controller_Test extends Search_TestCase {
 		$this->assertArrayHasKey( 'instant_search_enabled', $response->get_data() );
 		$this->assertArrayHasKey( 'experience', $response->get_data() );
 		$this->assertArrayNotHasKey( 'reader_chat', $response->get_data() );
+		$this->assertArrayNotHasKey( 'reader_chat_brand', $response->get_data() );
 	}
 
 	/**
@@ -356,6 +377,18 @@ class REST_Controller_Test extends Search_TestCase {
 		wp_set_current_user( $this->admin_id );
 		$this->register_reader_chat_setting();
 		update_option( 'reader_chat', true );
+		update_option(
+			'reader_chat_brand',
+			array(
+				'name'       => 'Ada',
+				'accent'     => '#2271b1',
+				'greeting'   => 'How can I help?',
+				'help'       => 'Choose a prompt or ask below.',
+				'background' => '#112233',
+				'outline'    => '#445566',
+				'fontFamily' => 'serif',
+			)
+		);
 
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/search/settings' );
 		$request->set_header( 'content-type', 'application/json' );
@@ -364,6 +397,18 @@ class REST_Controller_Test extends Search_TestCase {
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertArrayHasKey( 'reader_chat', $response->get_data() );
 		$this->assertTrue( $response->get_data()['reader_chat'] );
+		$this->assertSame(
+			array(
+				'name'       => 'Ada',
+				'accent'     => '#2271b1',
+				'greeting'   => 'How can I help?',
+				'help'       => 'Choose a prompt or ask below.',
+				'background' => '#112233',
+				'outline'    => '#445566',
+				'fontFamily' => 'serif',
+			),
+			$response->get_data()['reader_chat_brand']
+		);
 	}
 
 	/**
@@ -384,6 +429,95 @@ class REST_Controller_Test extends Search_TestCase {
 	}
 
 	/**
+	 * Testing the settings endpoint validates, sanitizes, and persists Reader Chat branding.
+	 */
+	public function test_update_search_settings_reader_chat_brand_success() {
+		wp_set_current_user( $this->admin_id );
+		$this->register_reader_chat_setting();
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'reader_chat_brand' => array(
+						'name'       => '<b>' . str_repeat( 'n', 50 ) . '</b>',
+						'accent'     => '#2271b1',
+						'greeting'   => '<em>Hello readers.</em>',
+						'help'       => '<strong>Choose a prompt or ask below.</strong>',
+						'background' => '#112233',
+						'outline'    => '#445566',
+						'fontFamily' => 'site',
+					),
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+		$response = $this->server->dispatch( $request );
+
+		$expected = array(
+			'name'       => str_repeat( 'n', 40 ),
+			'accent'     => '#2271b1',
+			'greeting'   => 'Hello readers.',
+			'help'       => 'Choose a prompt or ask below.',
+			'background' => '#112233',
+			'outline'    => '#445566',
+			'fontFamily' => 'site',
+		);
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame( $expected, get_option( 'reader_chat_brand' ) );
+		$this->assertSame( $expected, $response->get_data()['reader_chat_brand'] );
+	}
+
+	/**
+	 * Testing malformed Reader Chat brand fields are rejected without persisting.
+	 */
+	public function test_update_search_settings_reader_chat_brand_rejects_invalid_fields() {
+		wp_set_current_user( $this->admin_id );
+		$this->register_reader_chat_setting();
+
+		$invalid_brands = array(
+			array( 'accent' => 'not-a-color' ),
+			array( 'background' => 'not-a-color' ),
+			array( 'outline' => '#abcd' ),
+			array( 'name' => array( 'not-a-string' ) ),
+			array( 'greeting' => array( 'not-a-string' ) ),
+			array( 'help' => array( 'not-a-string' ) ),
+			array( 'fontFamily' => 'comic-sans' ),
+			array( 'fontFamily' => 'rounded' ),
+			array( 'fontFamily' => 'system' ),
+			array( 'name' => null ),
+			array( 'text' => '#ffffff' ),
+			array( 'fontSize' => 15 ),
+			array( 'unexpected' => 'value' ),
+		);
+
+		foreach ( $invalid_brands as $brand ) {
+			delete_option( 'reader_chat_brand' );
+			$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+			$request->set_header( 'content-type', 'application/json' );
+			$request->set_body(
+				wp_json_encode( array( 'reader_chat_brand' => $brand ), JSON_UNESCAPED_SLASHES )
+			);
+			$response = $this->server->dispatch( $request );
+
+			$this->assertEquals( 400, $response->get_status() );
+			$this->assertSame(
+				array(
+					'name'       => '',
+					'accent'     => '',
+					'greeting'   => '',
+					'help'       => '',
+					'background' => '',
+					'outline'    => '',
+					'fontFamily' => '',
+				),
+				get_option( 'reader_chat_brand' )
+			);
+		}
+	}
+
+	/**
 	 * Testing the `POST /jetpack/v4/search/settings` endpoint rejects Reader Chat when unregistered.
 	 */
 	public function test_update_search_settings_reader_chat_rejected_when_unregistered() {
@@ -396,6 +530,30 @@ class REST_Controller_Test extends Search_TestCase {
 
 		$this->assertEquals( 400, $response->get_status() );
 		$this->assertFalse( (bool) get_option( 'reader_chat' ) );
+	}
+
+	/**
+	 * Testing Reader Chat branding is rejected when Reader Chat is unregistered.
+	 */
+	public function test_update_search_settings_reader_chat_brand_rejected_when_unregistered() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'reader_chat_brand' => array(
+						'name' => 'Ada',
+					),
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertFalse( get_option( 'reader_chat_brand' ) );
 	}
 
 	/**

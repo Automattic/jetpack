@@ -64,6 +64,8 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_is_coming_soon' );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'wp_doing_ajax' );
+		remove_all_filters( 'get_site_icon_url' );
+		remove_all_filters( 'wp_theme_json_data_theme' );
 		// Remove any wp_enqueue_scripts / wp_footer hooks the class may have added.
 		remove_all_actions( 'wp_enqueue_scripts' );
 		remove_all_actions( 'wp_footer' );
@@ -71,7 +73,14 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
 		delete_option( 'launch-status' );
+		delete_option( 'reader_chat_brand' );
+		delete_option( 'site_logo' );
+		remove_theme_mod( 'custom_logo' );
+		if ( class_exists( 'WP_Theme_JSON_Resolver' ) ) {
+			WP_Theme_JSON_Resolver::clean_cached_data();
+		}
 		unregister_setting( 'general', 'reader_chat' );
+		unregister_setting( 'general', 'reader_chat_brand' );
 		$GLOBALS['wp_scripts'] = $this->saved_wp_scripts;
 		$GLOBALS['wp_styles']  = $this->saved_wp_styles;
 		\Automattic\Jetpack\Status\Cache::clear();
@@ -196,6 +205,27 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		return $method->invoke( null, ...$args );
 	}
 
+	/**
+	 * Store a raw Reader Chat brand option without invoking its write sanitizer.
+	 *
+	 * @param mixed $value Raw option value.
+	 */
+	private function set_raw_brand_option( $value ) {
+		global $wpdb;
+
+		delete_option( 'reader_chat_brand' );
+		$wpdb->insert(
+			$wpdb->options,
+			array(
+				'option_name'  => 'reader_chat_brand',
+				'option_value' => maybe_serialize( $value ),
+				'autoload'     => 'no',
+			)
+		);
+		wp_cache_delete( 'reader_chat_brand', 'options' );
+		wp_cache_delete( 'notoptions', 'options' );
+	}
+
 	// ──────────────────────────────────────────────────
 	// init() — filter-branch tests
 	// ──────────────────────────────────────────────────
@@ -278,6 +308,11 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 			apply_filters( 'jetpack_sync_options_whitelist', array() ),
 			'reader_chat should sync so the local toggle and wpcom agent gate stay aligned.'
 		);
+		$this->assertContains(
+			'reader_chat_brand',
+			apply_filters( 'jetpack_sync_options_whitelist', array() ),
+			'reader_chat_brand should sync so the wpcom agent can resolve the stored identity.'
+		);
 	}
 
 	/**
@@ -301,6 +336,364 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 			$registered_settings['reader_chat']['description'] ?? '',
 			'reader_chat description should use the Site Chat name.'
 		);
+		$this->assertArrayHasKey(
+			'reader_chat_brand',
+			$registered_settings,
+			'reader_chat_brand should be registered alongside reader_chat.'
+		);
+		$this->assertEmpty(
+			$registered_settings['reader_chat_brand']['show_in_rest'] ?? false,
+			'reader_chat_brand should not be exposed through the core REST settings endpoint.'
+		);
+		$this->assertSame(
+			__( 'Site Chat brand overrides for this site.', 'jetpack' ),
+			$registered_settings['reader_chat_brand']['description'] ?? '',
+			'reader_chat_brand description should use the Site Chat name.'
+		);
+	}
+
+	// ──────────────────────────────────────────────────
+	// Brand resolution
+	// ──────────────────────────────────────────────────
+
+	/**
+	 * Test that stored overrides win independently while empty values derive.
+	 */
+	public function test_get_brand_resolves_each_field_independently() {
+		update_option( 'blogname', 'Derived Site Name' );
+		add_filter(
+			'get_site_icon_url',
+			static function ( $url, $size ) {
+				return 96 === $size ? 'https://example.com/site-icon-96.png' : $url;
+			},
+			10,
+			2
+		);
+		update_option(
+			'reader_chat_brand',
+			array(
+				'name'       => 'Ada',
+				'accent'     => '#2271b1',
+				'greeting'   => 'How can I help?',
+				'help'       => 'Choose a prompt or ask below.',
+				'background' => '#112233',
+				'outline'    => '#445566',
+				'fontFamily' => 'serif',
+			)
+		);
+
+		$brand = Jetpack_Reader_Chat::get_brand();
+
+		$this->assertSame( 'Ada', $brand['name'] );
+		$this->assertSame( '#2271b1', $brand['accent'] );
+		$this->assertSame( '#ffffff', $brand['accentForeground'] );
+		$this->assertSame( 'https://example.com/site-icon-96.png', $brand['logoUrl'] );
+		$this->assertSame( 'How can I help?', $brand['greeting'] );
+		$this->assertSame( 'Choose a prompt or ask below.', $brand['help'] );
+		$this->assertSame( '#112233', $brand['background'] );
+		$this->assertSame( '#445566', $brand['outline'] );
+		$this->assertSame( 'serif', $brand['fontFamily'] );
+
+		update_option(
+			'reader_chat_brand',
+			array(
+				'name'       => '',
+				'accent'     => '',
+				'greeting'   => '',
+				'help'       => '',
+				'background' => '',
+				'outline'    => '',
+				'fontFamily' => '',
+			)
+		);
+		$derived_brand = Jetpack_Reader_Chat::get_brand();
+
+		$this->assertSame( 'Derived Site Name', $derived_brand['name'] );
+		$this->assertSame( 'Ask me anything about this blog.', $derived_brand['greeting'] );
+		$this->assertSame( 'https://example.com/site-icon-96.png', $derived_brand['logoUrl'] );
+		$this->assertArrayNotHasKey( 'help', $derived_brand );
+		$this->assertArrayNotHasKey( 'background', $derived_brand );
+		$this->assertArrayNotHasKey( 'fontFamily', $derived_brand );
+	}
+
+	/**
+	 * Test that the WordPress Site Logo takes precedence over the Site Icon.
+	 */
+	public function test_get_brand_prefers_site_logo_over_site_icon() {
+		$logo_id = self::factory()->attachment->create_upload_object(
+			dirname( __DIR__, 4 ) . '/jetpack-icon.jpg'
+		);
+		update_option( 'site_logo', $logo_id );
+		add_filter(
+			'get_site_icon_url',
+			static function () {
+				return 'https://example.com/site-icon.png';
+			}
+		);
+
+		$brand = Jetpack_Reader_Chat::get_brand();
+
+		$expected_url = wp_get_attachment_image_url( $logo_id, 'medium' );
+		if ( ! $expected_url ) {
+			$expected_url = wp_get_attachment_url( $logo_id );
+		}
+		$this->assertSame( $expected_url, $brand['logoUrl'] );
+		wp_delete_attachment( $logo_id, true );
+	}
+
+	/**
+	 * Test that Customizer Site Logos are used when the Site Logo option is empty.
+	 */
+	public function test_get_brand_uses_custom_logo_theme_mod() {
+		$logo_id = self::factory()->attachment->create_upload_object(
+			dirname( __DIR__, 4 ) . '/jetpack-icon.jpg'
+		);
+		set_theme_mod( 'custom_logo', $logo_id );
+
+		$brand = Jetpack_Reader_Chat::get_brand();
+
+		$expected_url = wp_get_attachment_image_url( $logo_id, 'medium' );
+		if ( ! $expected_url ) {
+			$expected_url = wp_get_attachment_url( $logo_id );
+		}
+		$this->assertSame( $expected_url, $brand['logoUrl'] );
+		wp_delete_attachment( $logo_id, true );
+	}
+
+	/**
+	 * Test that Site Chat exposes the resolved theme font stack.
+	 */
+	public function test_get_brand_exposes_resolved_site_font_family() {
+		add_filter(
+			'wp_theme_json_data_theme',
+			static function ( $theme_json ) {
+				return $theme_json->update_with(
+					array(
+						'version'  => 3,
+						'settings' => array(
+							'typography' => array(
+								'fontFamilies' => array(
+									array(
+										'name'       => 'Chat Sans',
+										'slug'       => 'chat-sans',
+										'fontFamily' => '"Chat Sans", sans-serif',
+									),
+								),
+							),
+						),
+						'styles'   => array(
+							'typography' => array(
+								'fontFamily' => 'var:preset|font-family|chat-sans',
+							),
+						),
+					)
+				);
+			}
+		);
+		WP_Theme_JSON_Resolver::clean_cached_data();
+
+		$brand = Jetpack_Reader_Chat::get_brand();
+
+		$this->assertSame( '"Chat Sans", sans-serif', $brand['siteFontFamily'] );
+	}
+
+	/**
+	 * Test that unsafe theme font values are not exposed to Site Chat CSS.
+	 */
+	public function test_get_brand_rejects_unsafe_site_font_family() {
+		add_filter(
+			'wp_theme_json_data_theme',
+			static function ( $theme_json ) {
+				return $theme_json->update_with(
+					array(
+						'version' => 3,
+						'styles'  => array(
+							'typography' => array(
+								'fontFamily' => 'Arial; color: red',
+							),
+						),
+					)
+				);
+			}
+		);
+		WP_Theme_JSON_Resolver::clean_cached_data();
+
+		$brand = Jetpack_Reader_Chat::get_brand();
+
+		$this->assertArrayNotHasKey( 'siteFontFamily', $brand );
+	}
+
+	/**
+	 * Test that unresolved CSS variables are not exposed to Site Chat CSS.
+	 */
+	public function test_get_brand_rejects_unresolved_site_font_family() {
+		add_filter(
+			'wp_theme_json_data_theme',
+			static function ( $theme_json ) {
+				return $theme_json->update_with(
+					array(
+						'version' => 3,
+						'styles'  => array(
+							'typography' => array(
+								'fontFamily' => 'var(--wp--preset--font-family--body)',
+							),
+						),
+					)
+				);
+			}
+		);
+		WP_Theme_JSON_Resolver::clean_cached_data();
+
+		$brand = Jetpack_Reader_Chat::get_brand();
+
+		$this->assertArrayNotHasKey( 'siteFontFamily', $brand );
+	}
+
+	/**
+	 * Test palette derivation reads theme/custom origins and ignores defaults.
+	 */
+	public function test_palette_derivation_uses_only_theme_and_custom_origins() {
+		$default_only = array(
+			'default' => array(
+				array(
+					'slug'  => 'primary',
+					'color' => '#111111',
+				),
+			),
+		);
+		$custom       = array(
+			'default' => $default_only['default'],
+			'custom'  => array(
+				array(
+					'slug'  => 'primary',
+					'color' => '#222222',
+				),
+			),
+		);
+		$theme        = array(
+			'theme' => array(
+				array(
+					'slug'  => 'primary',
+					'color' => '#333333',
+				),
+			),
+		);
+
+		$this->assertNull( $this->call_private_static( 'get_palette_accent', array( $default_only ) ) );
+		$this->assertSame( '#222222', $this->call_private_static( 'get_palette_accent', array( $custom ) ) );
+		$this->assertSame( '#333333', $this->call_private_static( 'get_palette_accent', array( $theme ) ) );
+	}
+
+	/**
+	 * Test primary wins over accent across the allowed palette origins.
+	 */
+	public function test_palette_derivation_prefers_primary_then_accent() {
+		$with_primary = array(
+			'theme'  => array(
+				array(
+					'slug'  => 'accent',
+					'color' => '#444444',
+				),
+			),
+			'custom' => array(
+				array(
+					'slug'  => 'primary',
+					'color' => '#555555',
+				),
+			),
+		);
+		$accent_only  = array(
+			'theme' => array(
+				array(
+					'slug'  => 'accent',
+					'color' => '#666666',
+				),
+			),
+		);
+
+		$this->assertSame( '#555555', $this->call_private_static( 'get_palette_accent', array( $with_primary ) ) );
+		$this->assertSame( '#666666', $this->call_private_static( 'get_palette_accent', array( $accent_only ) ) );
+		$this->assertNull( $this->call_private_static( 'get_palette_accent', array( array() ) ) );
+	}
+
+	/**
+	 * Test WCAG foreground selection on both sides of the crossover boundary.
+	 */
+	public function test_accent_foreground_selects_the_higher_contrast_color() {
+		$this->assertSame( '#ffffff', $this->call_private_static( 'get_accent_foreground', array( '#000000' ) ) );
+		$this->assertSame( '#000000', $this->call_private_static( 'get_accent_foreground', array( '#ffffff' ) ) );
+		$this->assertSame( '#ffffff', $this->call_private_static( 'get_accent_foreground', array( '#757575' ) ) );
+		$this->assertSame( '#000000', $this->call_private_static( 'get_accent_foreground', array( '#767676' ) ) );
+	}
+
+	/**
+	 * Test malformed option values fall back without exposing unexpected data.
+	 */
+	public function test_get_brand_handles_malformed_option_values() {
+		update_option( 'blogname', 'Fallback Site Name' );
+		$this->set_raw_brand_option(
+			array(
+				'name'       => array( 'not a string' ),
+				'accent'     => 'not-a-color',
+				'greeting'   => false,
+				'help'       => array( 'not a string' ),
+				'background' => 'not-a-color',
+				'text'       => '#ffffff',
+				'outline'    => '#abcd',
+				'fontFamily' => 'rounded',
+				'fontSize'   => 15,
+				'unexpected' => '<script>alert(1)</script>',
+			)
+		);
+
+		$brand = Jetpack_Reader_Chat::get_brand();
+
+		$this->assertSame( 'Fallback Site Name', $brand['name'] );
+		$this->assertSame( 'Ask me anything about this blog.', $brand['greeting'] );
+		$this->assertArrayNotHasKey( 'unexpected', $brand );
+		$this->assertArrayNotHasKey( 'help', $brand );
+		$this->assertArrayNotHasKey( 'background', $brand );
+		$this->assertArrayNotHasKey( 'text', $brand );
+		$this->assertArrayNotHasKey( 'outline', $brand );
+		$this->assertArrayNotHasKey( 'fontFamily', $brand );
+		$this->assertArrayNotHasKey( 'fontSize', $brand );
+		if ( isset( $brand['accent'] ) ) {
+			$this->assertMatchesRegularExpression( '/^#[0-9a-f]{3}([0-9a-f]{3})?$/i', $brand['accent'] );
+		}
+
+		$this->set_raw_brand_option( 'not-an-array' );
+		$brand = Jetpack_Reader_Chat::get_brand();
+		$this->assertSame( 'Fallback Site Name', $brand['name'] );
+	}
+
+	/**
+	 * Test stored text is sanitized and truncated again on read.
+	 */
+	public function test_get_brand_sanitizes_stored_values_on_read() {
+		$this->set_raw_brand_option(
+			array(
+				'name'       => '<b>' . str_repeat( 'n', 50 ) . "</b>\n",
+				'accent'     => '#123456',
+				'greeting'   => '<em>' . str_repeat( 'g', 130 ) . '</em>',
+				'help'       => '<strong>' . str_repeat( 'h', 170 ) . '</strong>',
+				'background' => '#112233',
+				'outline'    => '#445566',
+				'fontFamily' => 'serif',
+			)
+		);
+
+		$brand = Jetpack_Reader_Chat::get_brand();
+
+		$this->assertSame( 40, strlen( $brand['name'] ) );
+		$this->assertSame( 120, strlen( $brand['greeting'] ) );
+		$this->assertSame( 160, strlen( $brand['help'] ) );
+		$this->assertStringNotContainsString( '<', $brand['name'] );
+		$this->assertStringNotContainsString( "\n", $brand['name'] );
+		$this->assertStringNotContainsString( '<', $brand['greeting'] );
+		$this->assertStringNotContainsString( '<', $brand['help'] );
+		$this->assertSame( '#112233', $brand['background'] );
+		$this->assertSame( '#445566', $brand['outline'] );
+		$this->assertSame( 'serif', $brand['fontFamily'] );
 	}
 
 	// ──────────────────────────────────────────────────
@@ -664,7 +1057,31 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'siteName', $config, 'Config should include siteName.' );
 		$this->assertArrayHasKey( 'siteUrl', $config, 'Config should include siteUrl.' );
 		$this->assertArrayHasKey( 'agentId', $config, 'Config should include agentId.' );
+		$this->assertArrayHasKey( 'brand', $config, 'Config should include the resolved Reader Chat brand.' );
 		$this->assertSame( 'reader-chat', $config['agentId'], 'agentId should be "reader-chat".' );
+	}
+
+	/**
+	 * Test that brand keys resolving to no value are omitted from the config.
+	 */
+	public function test_config_omits_empty_brand_keys() {
+		update_option( 'blogname', '' );
+		add_filter( 'get_site_icon_url', '__return_empty_string' );
+		$this->set_raw_brand_option(
+			array(
+				'name'       => '',
+				'accent'     => 'invalid',
+				'greeting'   => '',
+				'unexpected' => 'not-public',
+			)
+		);
+
+		$config = $this->get_enqueued_config();
+
+		$this->assertArrayNotHasKey( 'name', $config['brand'] );
+		$this->assertArrayNotHasKey( 'logoUrl', $config['brand'] );
+		$this->assertArrayNotHasKey( 'unexpected', $config['brand'] );
+		$this->assertSame( 'Ask me anything about this blog.', $config['brand']['greeting'] );
 	}
 
 	/**
@@ -730,6 +1147,7 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		$this->assertContains( 'Tech', $post_ctx['categories'], 'categories should contain "Tech".' );
 		$this->assertArrayHasKey( 'tags', $post_ctx, 'currentPost should include tags when present.' );
 		$this->assertContains( 'AI', $post_ctx['tags'], 'tags should contain "AI".' );
+		$this->assertSame( 'Ask me anything about this post.', $config['brand']['greeting'] );
 	}
 
 	/**

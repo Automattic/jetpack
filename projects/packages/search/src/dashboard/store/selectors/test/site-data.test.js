@@ -16,6 +16,22 @@ describe( 'siteDataSelectors', () => {
 		expect( siteDataSelectors.getReaderChatGuidelinesUrl( {} ) ).toBe( '' );
 	} );
 
+	test( 'returns Reader Chat brand defaults and theme palette', () => {
+		const brand = { name: 'Example Site', accent: '#2271b1' };
+		const palette = [ { name: 'Primary', slug: 'primary', color: '#2271b1' } ];
+		const state = {
+			siteData: {
+				readerChatBrand: brand,
+				readerChatBrandPalette: palette,
+			},
+		};
+
+		expect( siteDataSelectors.getReaderChatBrandDefaults( state ) ).toEqual( brand );
+		expect( siteDataSelectors.getReaderChatBrandPalette( state ) ).toEqual( palette );
+		expect( siteDataSelectors.getReaderChatBrandDefaults( {} ) ).toEqual( {} );
+		expect( siteDataSelectors.getReaderChatBrandPalette( {} ) ).toEqual( [] );
+	} );
+
 	test( 'reports theme block support from siteData', () => {
 		expect( siteDataSelectors.isBlockTheme( { siteData: { themeSupportsBlocks: false } } ) ).toBe(
 			false

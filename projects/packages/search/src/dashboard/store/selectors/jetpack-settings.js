@@ -21,6 +21,7 @@ const jetpackSettingSelectors = {
 	isReaderChatAvailable: state =>
 		Object.prototype.hasOwnProperty.call( state.jetpackSettings, 'reader_chat' ),
 	isReaderChatEnabled: state => state.jetpackSettings.reader_chat,
+	getReaderChatBrand: state => state.jetpackSettings.reader_chat_brand ?? {},
 	isAiAnswersEnabled: state => !! state.jetpackSettings.ai_answers_enabled,
 	isSearchSuggestionsEnabled: state => !! state.jetpackSettings.search_suggestions_enabled,
 	isWooCommerceSearchTemplateOverrideEnabled: state =>
