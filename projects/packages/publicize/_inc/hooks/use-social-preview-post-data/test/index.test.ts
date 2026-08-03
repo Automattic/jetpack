@@ -125,7 +125,9 @@ describe( 'useSocialPreviewPostData', () => {
 
 		const { result } = renderHook( () => useSocialPreviewPostData() );
 
-		expect( result.current.hyperlinks ).toBeUndefined();
+		// Post data carries no hyperlinks at all — only the server knows which
+		// anchors survive into a rendered message (SOCIAL-557).
+		expect( result.current ).not.toHaveProperty( 'hyperlinks' );
 	} );
 
 	it( 'should use content before more tag when no excerpt', () => {

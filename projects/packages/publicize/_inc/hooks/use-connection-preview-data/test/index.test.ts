@@ -329,12 +329,12 @@ describe( 'useConnectionPreviewData', () => {
 		expect( result.current.hyperlinks ).toEqual( hyperlinks );
 	} );
 
-	it( 'does not apply post hyperlinks to a literal custom message', () => {
-		mockSelectCalls();
-		mockUseSocialPreviewPostData.mockReturnValue( {
-			...defaultPostData,
-			hyperlinks: [ { text: 'same phrase', href: 'https://example.com/unrelated' } ],
-		} );
+	it( 'never invents hyperlinks for a literal custom message', () => {
+		// A message with no {content}/{excerpt} output comes back with no
+		// hyperlinks, and the client must not fill them in from the post body —
+		// that whole-post matching is what SOCIAL-557 reported.
+		mockSelectCalls( { rendered: 'Global message', hyperlinks: [] } );
+		mockSiteHasFeature.mockReturnValue( true );
 
 		const { result } = renderHook( () => useConnectionPreviewData( createMockConnection() ) );
 

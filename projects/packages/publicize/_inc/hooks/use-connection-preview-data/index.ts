@@ -13,11 +13,25 @@ import useSocialMediaMessage from '../use-social-media-message';
 import { useSocialPreviewPostData } from '../use-social-preview-post-data';
 import type { Connection } from '../../social-store/types';
 import type { PostPreviewData } from '../use-social-preview-post-data/types';
+import type { Hyperlink } from '@automattic/social-previews';
 
 export type ConnectionPreviewData = PostPreviewData & {
 	message: string;
+	/**
+	 * Editor hyperlinks that the server resolved for this connection's rendered
+	 * message. Only the renderer knows which anchors survived into the message,
+	 * so these never come from the post body on the client.
+	 */
+	hyperlinks: Hyperlink[];
 	isLoading: boolean;
 };
+
+/**
+ * Shared empty array so the `useSelect` map keeps returning shallow-equal
+ * output when a connection has no hyperlinks — a fresh `[]` would re-render
+ * every preview on each social-store dispatch.
+ */
+const EMPTY_HYPERLINKS: Hyperlink[] = [];
 
 /**
  * Returns the post data needed for the preview of a specific connection.
@@ -111,7 +125,7 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 	const { rendered, renderedHyperlinks, isLoadingRendered } = useSelect(
 		select => {
 			if ( ! templatesEnabled || ! postId ) {
-				return { rendered: null, renderedHyperlinks: [], isLoadingRendered: false };
+				return { rendered: null, renderedHyperlinks: EMPTY_HYPERLINKS, isLoadingRendered: false };
 			}
 			// Read from the cache-only selector so this hook does not trigger requests.
 			// Fetches are driven centrally by `useDriveRenderedMessagesFetch`.
@@ -120,7 +134,7 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 
 			return {
 				rendered: batch?.[ connection.connection_id ]?.rendered_message ?? null,
-				renderedHyperlinks: batch?.[ connection.connection_id ]?.hyperlinks ?? [],
+				renderedHyperlinks: batch?.[ connection.connection_id ]?.hyperlinks ?? EMPTY_HYPERLINKS,
 				isLoadingRendered: social.isLoadingRenderedMessages( postId, items, postIntent ),
 			};
 		},
@@ -142,7 +156,7 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 	const lastRenderedRef = useRef< {
 		connectionId: string;
 		message: string;
-		hyperlinks: NonNullable< PostPreviewData[ 'hyperlinks' ] >;
+		hyperlinks: Hyperlink[];
 	} | null >( null );
 	if ( templatesEnabled && typeof rendered === 'string' ) {
 		lastRenderedRef.current = {
@@ -164,7 +178,7 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 		// disabled, or the request failed. While pending, fall back to the last
 		// rendered message, or to the skeleton (`isLoading`) when there is none.
 		let message = baseMessage;
-		let hyperlinks: PostPreviewData[ 'hyperlinks' ] = [];
+		let hyperlinks: Hyperlink[] = EMPTY_HYPERLINKS;
 		if ( templatesEnabled && typeof rendered === 'string' ) {
 			message = rendered;
 			hyperlinks = renderedHyperlinks;
