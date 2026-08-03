@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Zoom: Restore the accessible tooltip on the reset control, and stop bundling `@wordpress/ui` into the package output so each consumer's bundler resolves it.
