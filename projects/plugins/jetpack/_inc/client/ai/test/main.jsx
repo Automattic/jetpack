@@ -73,6 +73,9 @@ const mcpViewCount = () =>
 beforeEach( () => {
 	apiFetch.mockReset();
 	analytics.tracks.recordEvent.mockClear();
+	// The suite renders as an internal tester by default so the Features view
+	// is reachable; the a11n-gate tests below override this per test.
+	window.jetpackAiSettings = { showFeaturesView: true };
 	window.location.hash = '#/features';
 } );
 
@@ -151,6 +154,61 @@ describe( 'AI admin page (main.jsx)', () => {
 		} );
 
 		await waitFor( () => expect( mcpViewCount() ).toBe( 1 ) );
+	} );
+
+	test( 'a11n gate: without showFeaturesView the page is MCP-only with no tab bar', async () => {
+		window.jetpackAiSettings = {};
+		window.location.hash = '';
+		mockApiFetch();
+
+		render( <App /> );
+
+		// Lands on the MCP view: this suite injects no blogId, so the MCP
+		// not-connected notice is the view's settled state.
+		await expect(
+			screen.findByText(
+				'This site is not connected to WordPress.com. Please connect Jetpack to manage MCP settings.',
+				IGNORE_A11Y
+			)
+		).resolves.toBeInTheDocument();
+
+		// No Features UI and no tab bar (a single tab renders no tabs at all).
+		expect( screen.queryByText( 'Features' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'MCP Settings' ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'checkbox', { name: /Writing Assistant/ } )
+		).not.toBeInTheDocument();
+	} );
+
+	test( 'a11n gate: a #/features deep link falls back to the MCP view when gated', async () => {
+		window.jetpackAiSettings = {};
+		window.location.hash = '#/features';
+		mockApiFetch();
+
+		render( <App /> );
+
+		await expect(
+			screen.findByText(
+				'This site is not connected to WordPress.com. Please connect Jetpack to manage MCP settings.',
+				IGNORE_A11Y
+			)
+		).resolves.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'checkbox', { name: /Writing Assistant/ } )
+		).not.toBeInTheDocument();
+	} );
+
+	test( 'a11n gate: with showFeaturesView the tab bar shows and Features is the default view', async () => {
+		window.location.hash = '';
+		mockApiFetch();
+
+		render( <App /> );
+
+		await expect(
+			screen.findByRole( 'checkbox', { name: /Writing Assistant/ } )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Features' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'MCP Settings' ) ).toBeInTheDocument();
 	} );
 
 	test( 'MCP view tracking: does not fire on the Features tab', async () => {

@@ -4,6 +4,10 @@
  * Two top-level tabs (Features | MCP Settings) with hash-based routing.
  * The MCP tab owns the read | write | setup sub-views, which render with
  * breadcrumbs in place of the tab bar.
+ *
+ * The Features tab is limited to internal testing environments for now
+ * (jetpackAiSettings.showFeaturesView): without the flag the page keeps its
+ * original MCP-only shape, with the MCP hub as the landing view and no tab bar.
  */
 
 import { AdminPage } from '@automattic/jetpack-components';
@@ -23,14 +27,18 @@ import McpWrite from './mcp/write';
 
 const { blogId, activityLogUrl, apiRoot, apiNonce } = window?.jetpackAiSettings ?? {};
 
-const TAB_VIEWS = [ 'features', 'mcp' ];
 const MCP_SUB_VIEWS = [ 'read', 'write', 'setup' ];
-const VALID_VIEWS = [ ...TAB_VIEWS, ...MCP_SUB_VIEWS ];
 
-// Features is the default tab, matching the design.
+// Read at call time, not module scope, so the flag reflects the injected page data.
+const getTabViews = () =>
+	window?.jetpackAiSettings?.showFeaturesView ? [ 'features', 'mcp' ] : [ 'mcp' ];
+
+// The first tab is the default: Features when visible (matching the design),
+// otherwise the MCP hub. A hash pointing at a hidden view falls back too.
 const getViewFromHash = () => {
+	const tabViews = getTabViews();
 	const hash = window.location.hash.replace( /^#\//, '' );
-	return VALID_VIEWS.includes( hash ) ? hash : 'features';
+	return [ ...tabViews, ...MCP_SUB_VIEWS ].includes( hash ) ? hash : tabViews[ 0 ];
 };
 
 const VIEW_TITLES = {
@@ -127,6 +135,7 @@ export default function App() {
 		};
 	}, [] );
 
+	const tabViews = getTabViews();
 	const isSubView = MCP_SUB_VIEWS.includes( view );
 	const isMcpContext = view === 'mcp' || isSubView;
 
@@ -200,11 +209,11 @@ export default function App() {
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 		>
-			{ ! isSubView && (
+			{ ! isSubView && tabViews.length > 1 && (
 				<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
 					<Tabs.Root value={ view } onValueChange={ navigateToView }>
 						<Tabs.List variant="minimal" aria-label={ __( 'AI sections', 'jetpack' ) }>
-							{ TAB_VIEWS.map( tab => (
+							{ tabViews.map( tab => (
 								<Tabs.Tab key={ tab } value={ tab }>
 									{ VIEW_TITLES[ tab ] }
 								</Tabs.Tab>

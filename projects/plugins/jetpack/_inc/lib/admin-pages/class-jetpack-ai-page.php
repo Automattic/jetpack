@@ -124,17 +124,20 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 			'jetpack-ai-admin',
 			'var jetpackAiSettings = ' . wp_json_encode(
 				array(
-					'blogId'         => $blog_id ? (int) $blog_id : 0,
-					'activityLogUrl' => $activity_log_url,
-					'seoSettingsUrl' => $seo_settings_url,
-					'siteAdminUrl'   => admin_url(),
-					'apiRoot'        => esc_url_raw( rest_url() ),
-					'apiNonce'       => wp_create_nonce( 'wp_rest' ),
-					'pluginUrl'      => plugins_url( '', JETPACK__PLUGIN_FILE ),
+					'blogId'           => $blog_id ? (int) $blog_id : 0,
+					'activityLogUrl'   => $activity_log_url,
+					'seoSettingsUrl'   => $seo_settings_url,
+					'siteAdminUrl'     => admin_url(),
+					'apiRoot'          => esc_url_raw( rest_url() ),
+					'apiNonce'         => wp_create_nonce( 'wp_rest' ),
+					'pluginUrl'        => plugins_url( '', JETPACK__PLUGIN_FILE ),
 					// Route through the Jetpack redirect service so the upgrade
 					// destination for the MCP upsell can be retargeted without
 					// shipping a code change.
-					'upgradeUrl'     => Redirect::get_url( 'jetpack-ai-upgrade-url-for-jetpack-sites' ),
+					'upgradeUrl'       => Redirect::get_url( 'jetpack-ai-upgrade-url-for-jetpack-sites' ),
+					// Pre-release gate: only internal testing environments see
+					// the Features view. Remove when the view goes public.
+					'showFeaturesView' => jetpack_is_internal_testing_environment(),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
