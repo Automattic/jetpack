@@ -4,13 +4,13 @@ namespace Automattic\Jetpack_Boost\Tests\Modules;
 
 use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
+use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_Common;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Cache_Preload;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
-use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Tests\Base_TestCase;
 
 class Module_Test extends Base_TestCase {
