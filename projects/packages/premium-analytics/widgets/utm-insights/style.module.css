@@ -31,7 +31,10 @@
 	padding-inline-end: var(--wpds-dimension-padding-lg);
 }
 
-.itemLabelInset {
+/* Keeps post-row text short of the value column, like `.itemLabel`. Doubled to
+   outrank the shared row's own `padding-inline` on specificity, because the two
+   are single classes in different CSS modules and would tie on order. */
+.itemLabelInset.itemLabelInset {
 	padding-inline-end: var(--wpds-dimension-padding-lg);
 }
 

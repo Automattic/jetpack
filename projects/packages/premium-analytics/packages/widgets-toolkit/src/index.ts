@@ -36,6 +36,7 @@ export {
 	type LeaderboardRowChartProps,
 	type LeaderboardRowMedia,
 	type LeaderboardRowProps,
+	type LeaderboardRowVariant,
 	BarChart,
 	type BarChartProps,
 	type BarChartData,

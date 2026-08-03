@@ -4,11 +4,6 @@
 import { Link as UiLink } from '@jetpack-premium-analytics/externals';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { Link } from '@wordpress/route';
-import clsx from 'clsx';
-/**
- * Internal dependencies
- */
-import styles from './post-title-link.module.scss';
 
 /**
  * Route search param carrying a row's public URL to the post detail page.
@@ -44,9 +39,8 @@ export type PostTitleLinkProps = {
 	search?: Record< string, unknown >;
 
 	/**
-	 * Optional classes for each rendering branch, applied on top of the
-	 * component's own defaults. `text` applies to the label span in every
-	 * branch, so one rule can ellipsize the title everywhere.
+	 * Optional classes for each rendering branch. `text` applies to the label
+	 * span in every branch, so one rule can ellipsize the title everywhere.
 	 */
 	classNames?: {
 		internal?: string;
@@ -98,18 +92,25 @@ export function PostTitleLink( {
 	const href = safeHttpUrl( link );
 
 	if ( Number.isInteger( postId ) && postId > 0 ) {
+		// `UiLink` renders the router link so the anchor keeps the design
+		// system's unlayered guard, without which wp-admin repaints it blue.
 		return (
-			<Link
-				className={ clsx( styles.link, classNames?.internal ) }
-				to="/post/$postId"
-				params={ { postId: String( postId ) } as unknown as never }
-				search={
-					( href ? { ...search, [ POST_URL_SEARCH_PARAM ]: href } : search ) as unknown as never
-				}
+			<UiLink
+				className={ classNames?.internal }
+				variant="unstyled"
 				title={ title }
+				render={
+					<Link
+						to="/post/$postId"
+						params={ { postId: String( postId ) } as unknown as never }
+						search={
+							( href ? { ...search, [ POST_URL_SEARCH_PARAM ]: href } : search ) as unknown as never
+						}
+					/>
+				}
 			>
 				{ text }
-			</Link>
+			</UiLink>
 		);
 	}
 
@@ -118,7 +119,7 @@ export function PostTitleLink( {
 		// carries the same arrow as every other external link in the dashboard.
 		return (
 			<UiLink
-				className={ clsx( styles.link, classNames?.external ) }
+				className={ classNames?.external }
 				href={ href }
 				variant="unstyled"
 				openInNewTab

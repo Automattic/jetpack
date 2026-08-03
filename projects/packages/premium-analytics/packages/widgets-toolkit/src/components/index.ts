@@ -39,6 +39,7 @@ export {
 	type LeaderboardRowChartProps,
 	type LeaderboardRowMedia,
 	type LeaderboardRowProps,
+	type LeaderboardRowVariant,
 } from './chart-leaderboard';
 export { BarChart, type BarChartProps, type BarChartData, type BarChartStyle } from './chart-bar';
 export { ChartEmptyState, type ChartEmptyStateProps } from './chart-empty-state';
