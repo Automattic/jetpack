@@ -59,6 +59,8 @@ export function isComparisonPresetId( value: unknown ): value is ComparisonPrese
  *   comparison ranges. Sub-day references (rolling windows like the last 24
  *   hours) mirror the exact window instead, so the comparison always covers
  *   the same amount of time as the primary range.
+ * - Ranges are treated as inclusive of both endpoints, so `previous-period`
+ *   ends 1ms before the reference begins rather than overlapping it.
  *
  * @param reference - The reference range to compare against (must include both `from` and `to`).
  * @param presetId  - One of the supported preset identifiers.
@@ -87,7 +89,13 @@ export function getComparisonRangeFromPreset(
 		let to: Date;
 
 		if ( presetId === COMPARISON_PREVIOUS_PERIOD ) {
-			to = subMilliseconds( refTo, windowMs );
+			// End 1ms before the reference starts, not `refTo - windowMs`: the
+			// latter lands exactly on `refFrom`, so the comparison's last instant
+			// is the primary's first and an inclusive window (`…T09:00:00.000` →
+			// `…T08:59:59.999`) rebuilds `from` a millisecond off the boundary.
+			// The day-aligned branch below is already adjacent-and-inclusive via
+			// `differenceInDays + 1`; this keeps the two consistent.
+			to = subMilliseconds( refFrom, 1 );
 		} else if ( presetId === COMPARISON_PREVIOUS_WEEK ) {
 			to = subWeeks( refTo, 1 );
 		} else if ( presetId === COMPARISON_PREVIOUS_MONTH ) {

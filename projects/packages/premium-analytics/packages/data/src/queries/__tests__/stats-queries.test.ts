@@ -270,6 +270,30 @@ describe( 'Stats query factories', () => {
 		).toEqual( { period: 'hour', quantity: 48, date: '2026-06-14', stats_fields: 'timeline' } );
 	} );
 
+	it( 'anchors an offset-bearing hourly window on its own start, not on midnight', () => {
+		// The shape the last-24-hours preset produces: hour-aligned, mid-day, and
+		// spanning two calendar days. `date` is the window START for this endpoint
+		// and now carries the time, so the buckets it returns begin at 09:00
+		// rather than at midnight the way a trimmed bare date used to imply.
+		//
+		// `quantity` stays 24 per calendar day the window touches — a 24-hour
+		// window spanning two days still asks for 48 buckets. That over-fetch
+		// predates offset-bearing dates; pinned here so a fix to it is a
+		// deliberate change rather than an accident.
+		expect(
+			statsEmailClicksTimeSeriesQuery( 41, {
+				from: '2026-06-14T09:00:00.000-04:00',
+				to: '2026-06-15T08:59:59.999-04:00',
+				interval: 'hour',
+			} ).queryKey[ 5 ]
+		).toEqual( {
+			period: 'hour',
+			quantity: 48,
+			date: '2026-06-14T09:00:00.000-04:00',
+			stats_fields: 'timeline',
+		} );
+	} );
+
 	it( 'disables email time series queries without a positive integer post ID or a date', () => {
 		const range = { from: '2026-06-01', to: '2026-06-07', interval: 'day' } as const;
 
