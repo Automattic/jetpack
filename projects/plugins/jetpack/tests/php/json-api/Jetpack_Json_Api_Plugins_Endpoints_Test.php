@@ -277,6 +277,66 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Verify activating an active plugin returns a distinct error code.
+	 */
+	public function test_activate_returns_plugin_already_active_error_code() {
+		wp_set_current_user( self::$super_admin_user_id );
+		$this->install_the_plugin();
+		activate_plugin( 'the/the.php' );
+
+		$result = $this->invoke_plugin_modify_action( 'activate', 'the/the.php' );
+
+		deactivate_plugins( 'the/the.php' );
+		$this->remove_the_plugin();
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'plugin_already_active', $result->get_error_code() );
+		$this->assertSame( __( 'The Plugin is already active.', 'jetpack' ), $result->get_error_message() );
+		$this->assertNull( $result->get_error_data() );
+	}
+
+	/**
+	 * Verify deactivating an inactive plugin returns a distinct error code.
+	 */
+	public function test_deactivate_returns_plugin_already_inactive_error_code() {
+		wp_set_current_user( self::$super_admin_user_id );
+		$this->install_the_plugin();
+
+		$result = $this->invoke_plugin_modify_action( 'deactivate', 'the/the.php' );
+
+		$this->remove_the_plugin();
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'plugin_already_inactive', $result->get_error_code() );
+		$this->assertSame( __( 'The Plugin is already deactivated.', 'jetpack' ), $result->get_error_message() );
+		$this->assertNull( $result->get_error_data() );
+	}
+
+	/**
+	 * Verify a failed deactivation keeps the existing error code.
+	 */
+	public function test_deactivate_keeps_deactivation_error_code_for_failure() {
+		wp_set_current_user( self::$super_admin_user_id );
+		$this->install_the_plugin();
+		activate_plugin( 'the/the.php' );
+		$prevent_deactivation = function ( $_new_value, $old_value ) {
+			return $old_value;
+		};
+		add_filter( 'pre_update_option_active_plugins', $prevent_deactivation, 10, 2 );
+
+		$result = $this->invoke_plugin_modify_action( 'deactivate', 'the/the.php' );
+
+		remove_filter( 'pre_update_option_active_plugins', $prevent_deactivation, 10 );
+		deactivate_plugins( 'the/the.php' );
+		$this->remove_the_plugin();
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'deactivation_error', $result->get_error_code() );
+		$this->assertSame( __( 'There was an error deactivating your plugin', 'jetpack' ), $result->get_error_message() );
+		$this->assertNull( $result->get_error_data() );
+	}
+
+	/**
 	 * @author tonykova
 	 * @group external-http
 	 */
@@ -352,6 +412,34 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 
 	public function filesystem_method_direct() {
 		return 'direct';
+	}
+
+	/**
+	 * Invoke a plugin modification action for a non-bulk request.
+	 *
+	 * @param string $action The action method to invoke.
+	 * @param string $plugin The plugin file.
+	 * @return mixed
+	 */
+	private function invoke_plugin_modify_action( $action, $plugin ) {
+		$endpoint = new Jetpack_JSON_API_Plugins_Modify_Endpoint( array() );
+		$class    = new ReflectionClass( 'Jetpack_JSON_API_Plugins_Modify_Endpoint' );
+
+		$plugins_property = $class->getProperty( 'plugins' );
+		$bulk_property    = $class->getProperty( 'bulk' );
+		$action_method    = $class->getMethod( $action );
+
+		// @todo Remove these calls once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$plugins_property->setAccessible( true );
+			$bulk_property->setAccessible( true );
+			$action_method->setAccessible( true );
+		}
+
+		$plugins_property->setValue( $endpoint, array( $plugin ) );
+		$bulk_property->setValue( $endpoint, false );
+
+		return $action_method->invoke( $endpoint );
 	}
 
 	public function rmdir( $dir ) {
