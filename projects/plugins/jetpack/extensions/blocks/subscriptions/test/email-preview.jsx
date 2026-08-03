@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -131,5 +131,187 @@ describe( 'Email preview connection errors', () => {
 		expect(
 			screen.queryByRole( 'link', { name: 'Connect your account' } )
 		).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'Test email recipient', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		mockIsUserConnected = true;
+		useSelect.mockImplementation( () => 123 );
+		useDispatch.mockReturnValue( {
+			__unstableSaveForPreview: jest.fn().mockResolvedValue( undefined ),
+		} );
+		window.Jetpack_Editor_Initial_State = { tracksUserData: { email: 'author@example.com' } };
+	} );
+
+	afterEach( () => {
+		delete window.Jetpack_Editor_Initial_State;
+	} );
+
+	it( 'prefills the recipient field with the current user email', () => {
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		expect( screen.getByRole( 'textbox' ) ).toHaveValue( 'author@example.com' );
+	} );
+
+	it( 'sends to an edited recipient address', async () => {
+		const user = userEvent.setup();
+		apiFetch.mockResolvedValue( undefined );
+
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		const field = screen.getByRole( 'textbox' );
+		await user.clear( field );
+		await user.type( field, 'friend@example.com' );
+		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
+
+		expect( apiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				path: '/wpcom/v2/send-email-preview/',
+				method: 'POST',
+				data: { id: 123, email: 'friend@example.com' },
+			} )
+		);
+	} );
+
+	it( 'sends to the prefilled address unchanged and confirms success', async () => {
+		const user = userEvent.setup();
+		apiFetch.mockResolvedValue( undefined );
+
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
+
+		expect( apiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( { data: { id: 123, email: 'author@example.com' } } )
+		);
+		await expect( screen.findByText( 'Email sent successfully' ) ).resolves.toBeInTheDocument();
+	} );
+
+	it( 'trims surrounding whitespace from the recipient before sending', async () => {
+		const user = userEvent.setup();
+		apiFetch.mockResolvedValue( undefined );
+
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		const field = screen.getByRole( 'textbox' );
+		await user.clear( field );
+		await user.type( field, '  spaced@example.com  ' );
+		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
+
+		expect( apiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( { data: { id: 123, email: 'spaced@example.com' } } )
+		);
+	} );
+
+	it( 'sends an empty recipient when the field is cleared, letting the server fall back to self', async () => {
+		const user = userEvent.setup();
+		apiFetch.mockResolvedValue( undefined );
+
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		await user.clear( screen.getByRole( 'textbox' ) );
+		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
+
+		expect( apiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( { data: { id: 123, email: '' } } )
+		);
+	} );
+
+	it( 'disables the recipient field while a send is in flight', async () => {
+		const user = userEvent.setup();
+		let resolveSend;
+		apiFetch.mockReturnValue(
+			new Promise( resolve => {
+				resolveSend = resolve;
+			} )
+		);
+
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		const field = screen.getByRole( 'textbox' );
+		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
+
+		await waitFor( () => expect( field ).toBeDisabled() );
+
+		// Let the in-flight request settle so the final state update is flushed.
+		resolveSend();
+		await expect( screen.findByText( 'Email sent successfully' ) ).resolves.toBeInTheDocument();
+	} );
+
+	it( 'surfaces the guard message when a non-self recipient is rejected', async () => {
+		const user = userEvent.setup();
+		apiFetch.mockRejectedValue( {
+			code: 'send_email_preview_forbidden_recipient',
+			message: 'You are not allowed to send a test email to another address on this site.',
+		} );
+
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
+
+		await expect(
+			screen.findByText( /not allowed to send a test email/ )
+		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'rejects a malformed address client-side without calling the API', async () => {
+		const user = userEvent.setup();
+		apiFetch.mockResolvedValue( undefined );
+
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		const field = screen.getByRole( 'textbox' );
+		await user.clear( field );
+		await user.type( field, 'not-an-email' );
+		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
+
+		await expect(
+			screen.findByText( /please enter a valid email address/i )
+		).resolves.toBeInTheDocument();
+		expect( apiFetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'shows a friendly fallback when the response has no error code', async () => {
+		const user = userEvent.setup();
+		apiFetch.mockRejectedValue( { message: 'The response is not a valid JSON response.' } );
+
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
+
+		await expect(
+			screen.findByText( /please try again in a little while/i )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByText( /not a valid JSON response/i ) ).not.toBeInTheDocument();
+	} );
+
+	// The Atomic edge rate limiter returns a text/html 429 before WordPress runs,
+	// which apiFetch collapses to a non-actionable `invalid_json` code (the 429
+	// status is dropped). The raw parser message must not reach the user.
+	it( 'shows a friendly fallback for a non-actionable invalid_json rejection', async () => {
+		const user = userEvent.setup();
+		apiFetch.mockRejectedValue( {
+			code: 'invalid_json',
+			message: 'The response is not a valid JSON response.',
+		} );
+
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
+
+		await expect(
+			screen.findByText( /please try again in a little while/i )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByText( /not a valid JSON response/i ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'locks the recipient field for users who cannot send to others', () => {
+		window.Jetpack_Editor_Initial_State.jetpack = { can_send_test_email_to_others: false };
+
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		expect( screen.getByRole( 'textbox' ) ).toBeDisabled();
 	} );
 } );

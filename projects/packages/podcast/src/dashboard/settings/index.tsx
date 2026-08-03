@@ -472,7 +472,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 			<Card>
 				<CardHeader>
 					<h2 className="podcast__section-heading">
-						{ __( 'Disable podcasting', 'jetpack-podcast' ) }
+						{ __( 'Stop publishing your podcast', 'jetpack-podcast' ) }
 					</h2>
 				</CardHeader>
 				<CardBody>
@@ -490,7 +490,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 							disabled={ isLocked }
 							accessibleWhenDisabled
 						>
-							{ __( 'Disable', 'jetpack-podcast' ) }
+							{ __( 'Stop publishing', 'jetpack-podcast' ) }
 						</Button>
 					</VStack>
 				</CardBody>
@@ -498,13 +498,13 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 
 			{ confirmDisable && (
 				<Modal
-					title={ __( 'Disable podcasting?', 'jetpack-podcast' ) }
+					title={ __( 'Stop publishing your podcast?', 'jetpack-podcast' ) }
 					onRequestClose={ closeConfirmDisable }
 				>
 					<VStack spacing={ 4 }>
 						<p>
 							{ __(
-								'Your podcast feed will stop being generated. Existing episodes stay in the assigned category and you can turn podcasting back on at any time.',
+								'Your podcast feed will stop being generated. Existing episodes stay in the assigned category and you can start publishing again at any time.',
 								'jetpack-podcast'
 							) }
 						</p>
@@ -513,7 +513,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 								{ __( 'Cancel', 'jetpack-podcast' ) }
 							</Button>
 							<Button variant="primary" isDestructive onClick={ onDisablePodcasting }>
-								{ __( 'Disable podcasting', 'jetpack-podcast' ) }
+								{ __( 'Stop publishing', 'jetpack-podcast' ) }
 							</Button>
 						</HStack>
 					</VStack>

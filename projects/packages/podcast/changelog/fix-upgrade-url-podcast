@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the plan upgrade buttons linking to a checkout page the site owner cannot access.

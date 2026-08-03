@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search Blocks: Fix `is_search()` being called before the main query runs during block render, which caused a `_doing_it_wrong()` notice.
