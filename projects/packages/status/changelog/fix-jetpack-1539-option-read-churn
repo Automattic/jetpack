@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Offline mode: avoid a per-request database query for the jetpack_offline_mode option on sites without a persistent object cache by seeding it as an autoloaded default.
+Offline mode: Avoid a redundant per-request database query on sites without a persistent object cache.
