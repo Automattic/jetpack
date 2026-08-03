@@ -14,6 +14,11 @@
  * entries. Removal no-ops at one chapter — the trash button goes inert —
  * and removing the first chapter re-pins the new first to 0 (both enforced
  * by the reducer; the button state just mirrors it).
+ *
+ * `locked` (a processing job or an in-flight save) disables every control
+ * whose dispatch the host would drop anyway, so nothing looks accepted and
+ * is then silently discarded. The start-time button stays live: seeking is
+ * deliberately allowed while locked, like the toolbar transport.
  */
 import { Button } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
@@ -35,6 +40,14 @@ type RowsProps = {
 	dispatch: ( action: HistoryAction< ChaptersSessionAction > ) => void;
 	/** Seek the preview player to a master-timeline ms. */
 	onSeek: ( ms: number ) => void;
+	/** True while a processing job or save locks editing: edit controls go inert. */
+	locked?: boolean;
+	/**
+	 * Per-row validation message, indexed by ROW POSITION (the order
+	 * `chaptersToRows` produces, which is `session.chapters` order), not by
+	 * chapter id. Undefined entries are rows with nothing to flag.
+	 */
+	rowIssues?: ( string | undefined )[];
 };
 
 type RowProps = {
@@ -48,6 +61,10 @@ type RowProps = {
 	selected: boolean;
 	/** Whether removal is possible (false at one chapter: the trash is inert). */
 	canRemove: boolean;
+	/** Whether a processing job or save locks editing. */
+	locked: boolean;
+	/** Validation message for this row, when it has one. */
+	issue?: string;
 	/** Dispatch into the history-wrapped chapters reducer. */
 	dispatch: ( action: HistoryAction< ChaptersSessionAction > ) => void;
 	/** Seek the preview player to a master-timeline ms. */
@@ -63,6 +80,8 @@ type RowProps = {
  * @param props.endMs     - Start of the next chapter (or the video end), in ms.
  * @param props.selected  - Whether this row's chapter is selected.
  * @param props.canRemove - Whether removal is possible.
+ * @param props.locked    - Whether a processing job or save locks editing.
+ * @param props.issue     - Validation message for this row, when it has one.
  * @param props.dispatch  - Dispatch into the history-wrapped reducer.
  * @param props.onSeek    - Seek the preview player.
  * @return The row element.
@@ -73,16 +92,22 @@ function ChapterRow( {
 	endMs,
 	selected,
 	canRemove,
+	locked,
+	issue,
 	dispatch,
 	onSeek,
 }: RowProps ): ReactElement {
 	const [ titleDraft, setTitleDraft ] = useState( chapter.title );
 
 	// Re-baseline the draft when the committed title changes underneath us
-	// (undo/redo, a marker drag reloading state, another surface renaming).
+	// (undo/redo, a marker drag reloading state, another surface renaming) —
+	// and at both edges of the lock, because a rename typed just as the lock
+	// arrived is dropped by the host's guarded dispatch, which leaves
+	// `chapter.title` unchanged and would otherwise strand the phantom draft
+	// in the input for the rest of the session.
 	useEffect( () => {
 		setTitleDraft( chapter.title );
-	}, [ chapter.title ] );
+	}, [ chapter.title, locked ] );
 
 	const commitTitle = () => {
 		// Mirror the reducer's normalization so an unchanged commit is
@@ -100,9 +125,14 @@ function ChapterRow( {
 		}
 	};
 
-	const classes = [ 'vp-chapters__row', selected ? 'vp-chapters__row--selected' : '' ]
+	const classes = [
+		'vp-chapters__row',
+		selected ? 'vp-chapters__row--selected' : '',
+		issue ? 'vp-chapters__row--invalid' : '',
+	]
 		.filter( Boolean )
 		.join( ' ' );
+	const issueId = `vp-chapters-row-issue-${ chapter.id }`;
 
 	return (
 		<div
@@ -123,11 +153,24 @@ function ChapterRow( {
 					__( 'Chapter %d title', 'jetpack-videopress-pkg' ),
 					index + 1
 				) }
+				aria-describedby={ issue ? issueId : undefined }
+				disabled={ locked }
 				onChange={ event => setTitleDraft( event.target.value ) }
 				onBlur={ commitTitle }
 				onKeyDown={ event => {
 					if ( event.key === 'Enter' ) {
 						commitTitle();
+					} else if ( event.key === 'Escape' ) {
+						// Consuming Escape must mark the event handled: modal hosts
+						// (the chapter manager) close on any unhandled Escape, and
+						// "cancel this title edit" must not double as "close the
+						// modal" — the same contract TimecodeBox follows. Unlike
+						// TimecodeBox the field is NOT blurred afterwards: focus
+						// belongs in the row you were editing, and keeping it here
+						// also makes the later blur a no-op, since `commitTitle`
+						// returns early on an unchanged title.
+						event.preventDefault();
+						setTitleDraft( chapter.title );
 					}
 				} }
 			/>
@@ -145,11 +188,7 @@ function ChapterRow( {
 				{ formatTimecode( chapter.startMs ) }
 			</button>
 			<span className="vp-chapters__row-duration">
-				{ sprintf(
-					/* translators: %s: chapter duration in seconds, e.g. "26". */
-					__( '%ss', 'jetpack-videopress-pkg' ),
-					String( ( endMs - chapter.startMs ) / 1000 )
-				) }
+				{ formatTimecode( endMs - chapter.startMs ) }
 			</span>
 			<Button
 				className="vp-chapters__row-remove"
@@ -160,10 +199,19 @@ function ChapterRow( {
 					__( 'Remove chapter %d', 'jetpack-videopress-pkg' ),
 					index + 1
 				) }
-				disabled={ ! canRemove }
+				disabled={ locked || ! canRemove }
 				accessibleWhenDisabled
 				onClick={ () => dispatch( { type: 'REMOVE', id: chapter.id } ) }
 			/>
+			{ issue ? (
+				<span
+					className="vp-chapters__row-issue"
+					id={ issueId }
+					data-testid={ `chapters-row-issue-${ chapter.id }` }
+				>
+					{ issue }
+				</span>
+			) : null }
 		</div>
 	);
 }
@@ -171,13 +219,21 @@ function ChapterRow( {
 /**
  * The chapters rows list.
  *
- * @param props          - Component props.
- * @param props.session  - The chapters session.
- * @param props.dispatch - Dispatch into the history-wrapped reducer.
- * @param props.onSeek   - Seek the preview player.
+ * @param props           - Component props.
+ * @param props.session   - The chapters session.
+ * @param props.dispatch  - Dispatch into the history-wrapped reducer.
+ * @param props.onSeek    - Seek the preview player.
+ * @param props.locked    - Whether a processing job or save locks editing.
+ * @param props.rowIssues - Validation messages indexed by row position.
  * @return The rows-list element.
  */
-export default function ChapterRows( { session, dispatch, onSeek }: RowsProps ): ReactElement {
+export default function ChapterRows( {
+	session,
+	dispatch,
+	onSeek,
+	locked = false,
+	rowIssues,
+}: RowsProps ): ReactElement {
 	const { chapters, durationMs, selectedId } = session;
 
 	return (
@@ -190,6 +246,10 @@ export default function ChapterRows( { session, dispatch, onSeek }: RowsProps ):
 					endMs={ index === chapters.length - 1 ? durationMs : chapters[ index + 1 ].startMs }
 					selected={ chapter.id === selectedId }
 					canRemove={ chapters.length > 1 }
+					locked={ locked }
+					// `chaptersToRows` preserves `session.chapters` order, so the
+					// validator's rowIndex is this map's index.
+					issue={ rowIssues?.[ index ] }
 					dispatch={ dispatch }
 					onSeek={ onSeek }
 				/>

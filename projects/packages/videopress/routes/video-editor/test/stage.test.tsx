@@ -1,7 +1,10 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useNavigate } from '@wordpress/route';
-import { serializeDescription } from '../../../src/client/utils/video-chapters/description';
+import {
+	parseDescription,
+	serializeDescription,
+} from '../../../src/client/utils/video-chapters/description';
 import { mockApiFetch } from '../../../src/dashboard/test-utils/mock-api-fetch';
 import {
 	createTestQueryClient,
@@ -58,10 +61,12 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 // Variables referenced inside jest.mock() factories must be prefixed with
 // "mock" (case-insensitive) to satisfy Jest's babel-jest hoisting rules.
 const mockSuccessNotice = jest.fn();
+const mockWarningNotice = jest.fn();
 const mockErrorNotice = jest.fn();
 jest.mock( '@automattic/jetpack-components/global-notices', () => ( {
 	useGlobalNotices: () => ( {
 		createSuccessNotice: mockSuccessNotice,
+		createWarningNotice: mockWarningNotice,
 		createErrorNotice: mockErrorNotice,
 	} ),
 } ) );
@@ -122,6 +127,15 @@ beforeAll( () => {
 const GUID = 'abc123';
 const META_PATH = '/wpcom/v2/videopress/meta';
 
+/*
+ * The default fixture's chapters are VALID by the publish rules the VTT sync
+ * enforces (three titled chapters, first at 0:00, ≥10s apart), so the save
+ * tests exercise the success branch; the invalid branch gets its own fixture.
+ */
+const VALID_DESCRIPTION = '00:00 Intro\n00:30 Middle\n00:50 End';
+// Two chapters: below the three the player's chapter track requires.
+const INVALID_DESCRIPTION = '00:00 Intro\n00:30 Middle';
+
 /**
  * Build a raw /wp/v2/media item for useVideo.
  *
@@ -141,10 +155,27 @@ function makeRawMedia( overrides: Record< string, unknown > = {} ) {
 			guid: GUID,
 			privacy_setting: 0,
 			is_private: false,
-			description: '00:00 Intro\n00:30 Middle',
+			description: VALID_DESCRIPTION,
 		},
 		...overrides,
 	};
+}
+
+/**
+ * Build a raw media item whose chapters description is the given one.
+ *
+ * @param description - The video description to seed the chapters from.
+ * @return A raw media item.
+ */
+function makeRawMediaWithDescription( description: string ) {
+	return makeRawMedia( {
+		jetpack_videopress: {
+			guid: GUID,
+			privacy_setting: 0,
+			is_private: false,
+			description,
+		},
+	} );
 }
 
 type ApiState = {
@@ -219,15 +250,14 @@ async function renameFirstChapter( user: ReturnType< typeof userEvent.setup > ) 
 
 /**
  * The description a save of the renamed chaptered media must write:
- * computed through the same serializer the screen uses.
+ * computed through the same parser/serializer pair the screen uses.
  *
+ * @param source - The description the rename started from.
  * @return The expected description.
  */
-function renamedDescription(): string {
-	return serializeDescription( '00:00 Intro\n00:30 Middle', [
-		{ startAtSeconds: 0, title: 'Renamed' },
-		{ startAtSeconds: 30, title: 'Middle' },
-	] );
+function renamedDescription( source: string = VALID_DESCRIPTION ): string {
+	const { rows } = parseDescription( source );
+	return serializeDescription( source, [ { ...rows[ 0 ], title: 'Renamed' }, ...rows.slice( 1 ) ] );
 }
 
 /**
@@ -357,10 +387,13 @@ describe( 'video-editor stage', () => {
 		expect( screen.getByTestId( 'chapters-timeline-lock' ) ).toHaveAttribute( 'aria-busy', 'true' );
 		expect( isButtonDisabled( 'Undo' ) ).toBe( true );
 
-		// An edit attempted inside the probe window is dropped: Save stays
-		// disabled and the navigation guards stay unarmed — a late 'manual'
-		// result must not inherit an armed Save over its description.
-		await renameFirstChapter( user );
+		// No edit can even be attempted inside the probe window: the edit
+		// controls are inert, so Save stays disabled and the navigation guards
+		// stay unarmed — a late 'manual' result must not inherit an armed Save
+		// over its description.
+		expect( screen.getByLabelText( 'Chapter 1 title' ) ).toBeDisabled();
+		expect( isButtonDisabled( 'Remove chapter 1' ) ).toBe( true );
+		expect( isButtonDisabled( 'Add chapter at playhead' ) ).toBe( true );
 		expect( isButtonDisabled( 'Save' ) ).toBe( true );
 		const pendingEvent = new Event( 'beforeunload', { cancelable: true } );
 		window.dispatchEvent( pendingEvent );
@@ -407,15 +440,15 @@ describe( 'video-editor stage', () => {
 		);
 		const api: ApiState = { media: makeRawMedia(), metaPosts: [] };
 		installApi( api );
-		const user = userEvent.setup();
 
 		render( <Stage />, { wrapper: createTestWrapper( mockTestClient ) } );
 		await expect( screen.findByTestId( 'chapters-preview-video' ) ).resolves.toBeInTheDocument();
 		await waitFor( () => expect( mockProbeManualTrack ).toHaveBeenCalled() );
 
-		// The original race: an edit attempted while the probe is in
-		// flight, with 'manual' landing afterwards.
-		await renameFirstChapter( user );
+		// The original race: an edit reaching for the session while the probe
+		// is in flight, with 'manual' landing afterwards. The edit controls are
+		// inert for the whole window, so there is no edit to drop.
+		expect( screen.getByLabelText( 'Chapter 1 title' ) ).toBeDisabled();
 		await act( async () => {
 			resolveProbe( 'manual' );
 		} );
@@ -447,6 +480,8 @@ describe( 'video-editor stage', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 
 		await waitFor( () => expect( mockSuccessNotice ).toHaveBeenCalledWith( 'Chapters saved.' ) );
+		// A valid set announces success and nothing else.
+		expect( mockWarningNotice ).not.toHaveBeenCalled();
 		// The POSTed description is exactly the serializer's rewrite of the
 		// current description with the session's rows.
 		expect( api.metaPosts ).toHaveLength( 1 );
@@ -460,6 +495,39 @@ describe( 'video-editor stage', () => {
 		// Re-baselined: the rename survives, the session is clean again.
 		await waitFor( () => expect( isButtonDisabled( 'Save' ) ).toBe( true ) );
 		expect( screen.getByLabelText( 'Chapter 1 title' ) ).toHaveValue( 'Renamed' );
+	} );
+
+	it( 'warns instead of announcing success when the saved chapters are invalid', async () => {
+		const api: ApiState = {
+			media: makeRawMediaWithDescription( INVALID_DESCRIPTION ),
+			metaPosts: [],
+		};
+		installApi( api );
+		const user = userEvent.setup();
+
+		await renderReadyChapters();
+		await renameFirstChapter( user );
+
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+
+		// The description is still written — it is the source of truth and
+		// holds the user's prose — and the VTT sync still runs; it is that
+		// sync which drops the auto-generated track for an invalid set.
+		await waitFor( () => expect( api.metaPosts ).toHaveLength( 1 ) );
+		expect( api.metaPosts[ 0 ].data ).toEqual( {
+			id: 42,
+			description: renamedDescription( INVALID_DESCRIPTION ),
+		} );
+		expect( mockSyncChapters ).toHaveBeenCalledWith(
+			expect.objectContaining( { guid: GUID } ),
+			renamedDescription( INVALID_DESCRIPTION )
+		);
+
+		// …but the outcome notice must not read as an unqualified success.
+		expect( mockWarningNotice ).toHaveBeenCalledWith(
+			'Chapters saved to the description, but they won’t appear in the player until they meet the requirements.'
+		);
+		expect( mockSuccessNotice ).not.toHaveBeenCalled();
 	} );
 
 	it( 'keeps chapters dirty and skips the VTT sync when the meta save fails', async () => {

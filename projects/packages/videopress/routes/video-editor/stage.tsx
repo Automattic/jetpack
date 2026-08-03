@@ -22,7 +22,7 @@
  */
 import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { Button as IconButton } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { redo as redoIcon, undo as undoIcon } from '@wordpress/icons';
 import { Link, useNavigate, useParams } from '@wordpress/route';
 import { Button, Dialog, Stack, Text } from '@wordpress/ui';
@@ -40,7 +40,10 @@ import {
 } from '../../src/client/components/chapters-editor/state/history';
 import { useChaptersStore } from '../../src/client/components/chapters-editor/use-chapters-store';
 import { fetchVideoItem } from '../../src/client/lib/fetch-video-item';
-import { serializeDescription } from '../../src/client/utils/video-chapters/description';
+import {
+	serializeDescription,
+	validateRows,
+} from '../../src/client/utils/video-chapters/description';
 import { pickPlaybackUrl } from '../../src/client/utils/video-chapters/pick-playback-url';
 import { probeManualTrack } from '../../src/client/utils/video-chapters/probe-manual-track';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
@@ -262,7 +265,7 @@ type ReadyProps = {
  */
 function EditorReady( { video }: ReadyProps ): ReactElement {
 	const navigate = useNavigate();
-	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
+	const { createSuccessNotice, createWarningNotice, createErrorNotice } = useGlobalNotices();
 	// The two halves of Save: the description meta POST, then the
 	// fire-and-notice VTT sync (same pair the Details tab saves through).
 	const { mutateAsync: saveVideoMeta, isPending: metaSavePending } = useUpdateVideoMeta();
@@ -430,12 +433,19 @@ function EditorReady( { video }: ReadyProps ): ReactElement {
 	// raise a warning notice inside the hook) — and the store re-baselines
 	// on the description we just wrote, so the later media refetch is a
 	// no-op. On failure the session stays dirty for another attempt.
+	//
+	// The description is saved whatever the chapters look like — it is the
+	// source of truth and holds the user's prose — but the derived VTT is
+	// only (re)generated for a set that passes `validateRows`; an invalid one
+	// makes the sync delete the auto-generated track instead. That verdict is
+	// computed here, synchronously off the same rows, so the outcome notice
+	// can say which of the two just happened rather than claiming success
+	// while the player's chapter menu goes empty.
 	const doSaveChapters = useCallback( async () => {
 		const item = videoRef.current;
-		const nextDescription = serializeDescription(
-			item.description,
-			chaptersToRows( sessionRef.current )
-		);
+		const rows = chaptersToRows( sessionRef.current );
+		const nextDescription = serializeDescription( item.description, rows );
+		const chaptersValid = validateRows( rows, item.durationSeconds ).isValid;
 		try {
 			await saveVideoMeta( { id: item.id, patch: { description: nextDescription } } );
 		} catch {
@@ -444,8 +454,30 @@ function EditorReady( { video }: ReadyProps ): ReactElement {
 		}
 		void syncChapters( item, nextDescription );
 		markSaved( nextDescription );
-		createSuccessNotice( __( 'Chapters saved.', 'jetpack-videopress-pkg' ) );
-	}, [ saveVideoMeta, syncChapters, markSaved, createSuccessNotice, createErrorNotice ] );
+		// Distinct notice functions already stop production Terser folding the
+		// two `__()` calls into one with a ternary msgid (which the i18n build
+		// check rejects). `_x` is here to share the chapter manager's single
+		// catalog entry for this sentence — there the callee has to differ,
+		// because both branches go through the same `notify`.
+		if ( chaptersValid ) {
+			createSuccessNotice( __( 'Chapters saved.', 'jetpack-videopress-pkg' ) );
+		} else {
+			createWarningNotice(
+				_x(
+					'Chapters saved to the description, but they won’t appear in the player until they meet the requirements.',
+					'chapters save outcome',
+					'jetpack-videopress-pkg'
+				)
+			);
+		}
+	}, [
+		saveVideoMeta,
+		syncChapters,
+		markSaved,
+		createSuccessNotice,
+		createWarningNotice,
+		createErrorNotice,
+	] );
 
 	// Discard returns the session to its last loaded baseline via a confirm
 	// dialog; the dialog only opens while effectively dirty (LOAD clears the

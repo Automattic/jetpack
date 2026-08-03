@@ -16,6 +16,16 @@ import type { ChaptersSession, ChaptersSessionAction } from '../state/chapters-s
 import type { HistoryAction } from '../state/history';
 import type { ReactElement } from 'react';
 
+/**
+ * Floor for a segment's rendered width, matching the marker bar
+ * ($vp-chapters-marker-bar-width). Loaded descriptions can repeat a
+ * timestamp — LOAD reflects the description as-is — which spans a segment
+ * across zero time; at 0px it would be invisible AND unclickable while
+ * still occupying a row below. A 4px sliver reads as degenerate, which is
+ * the truth, and stays selectable so it can be fixed.
+ */
+const MIN_SEGMENT_WIDTH_PX = 4;
+
 type Props = {
 	/** The chapters session. */
 	session: ChaptersSession;
@@ -42,7 +52,7 @@ export default function ChapterTrack( { session, pxPerMs, dispatch }: Props ): R
 			{ chapters.map( ( chapter, index ) => {
 				const endMs = index === chapters.length - 1 ? durationMs : chapters[ index + 1 ].startMs;
 				const leftPx = msToPx( chapter.startMs, pxPerMs );
-				const widthPx = Math.max( 0, msToPx( endMs, pxPerMs ) - leftPx );
+				const widthPx = Math.max( MIN_SEGMENT_WIDTH_PX, msToPx( endMs, pxPerMs ) - leftPx );
 				const classes = [
 					'vp-chapters__segment',
 					index % 2 === 1 ? 'vp-chapters__segment--alt' : '',

@@ -121,6 +121,31 @@ function defaultTitle( n: number ): string {
 }
 
 /**
+ * The default title for a chapter landing at `index`: its 1-based POSITION,
+ * not the chapter count, so inserting into the middle does not read
+ * "Chapter 1, Chapter 2, Chapter 5, Chapter 3". The number then advances
+ * past any number already used as a title, so a new chapter never
+ * duplicates an existing name (removing a chapter drops the count and would
+ * otherwise let the next default reuse a live name).
+ *
+ * Existing chapters are never renumbered: their titles may have been typed
+ * deliberately, and matching a TRANSLATED "Chapter %d" back out of them is
+ * not something to build a rename on.
+ *
+ * @param chapters - Chapters the new one is joining.
+ * @param index    - 0-based position the new chapter lands at.
+ * @return The localized default title.
+ */
+function defaultTitleAt( chapters: ChapterEntry[], index: number ): string {
+	const taken = new Set( chapters.map( chapter => chapter.title ) );
+	let n = index + 1;
+	while ( taken.has( defaultTitle( n ) ) ) {
+		n++;
+	}
+	return defaultTitle( n );
+}
+
+/**
  * Round a millisecond value to the nearest whole second, in ms.
  *
  * @param ms - Raw milliseconds.
@@ -288,9 +313,10 @@ export function canAddChapterAt( session: ChaptersSession, atMs: number ): boole
 
 /**
  * Add a chapter at the playhead's whole second and select it. No-op when
- * {@link canAddChapterAt} says so. The default title numbers the chapter
- * after the current count; an explicit title is normalized to one line
- * (and falls back to the default when it normalizes to empty).
+ * {@link canAddChapterAt} says so. The default title numbers the chapter by
+ * its insertion position (see {@link defaultTitleAt}); an explicit title is
+ * normalized to one line (and falls back to the default when it normalizes
+ * to empty).
  *
  * @param state - Current session.
  * @param atMs  - Playhead position in ms.
@@ -308,10 +334,15 @@ function addAt(
 		return state;
 	}
 	const normalized = title === undefined ? '' : normalizeTitleText( title );
+	// Resolve the start first: the position it sorts into is what the default
+	// title numbers, and a taken second is already a no-op above, so counting
+	// the chapters that start earlier gives the final index.
+	const startMs = addTargetMs( state.durationMs, atMs );
+	const index = state.chapters.filter( chapter => chapter.startMs < startMs ).length;
 	const entry: ChapterEntry = {
 		id: id ?? nextChapterId(),
-		startMs: addTargetMs( state.durationMs, atMs ),
-		title: normalized === '' ? defaultTitle( state.chapters.length + 1 ) : normalized,
+		startMs,
+		title: normalized === '' ? defaultTitleAt( state.chapters, index ) : normalized,
 	};
 	// The first chapter sits at 0 and a taken second is a no-op above, so
 	// the new entry can never displace the pinned first chapter.

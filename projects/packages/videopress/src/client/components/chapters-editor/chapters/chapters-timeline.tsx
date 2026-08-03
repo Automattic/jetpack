@@ -18,11 +18,18 @@
  * visualization — segments render, the playhead scrubs — but removes every
  * edit affordance: no markers, the add button is disabled, and the rows list
  * is replaced by a notice.
+ *
+ * The publish rules live in `validateRows` and are what decides whether the
+ * player gets a chapters track at all, so this module reads them live and
+ * shows them where the problem is: row-scoped issues on the offending row,
+ * the rest next to the footer help line. It is a pure read of the session —
+ * nothing here gates saving, which stays a host decision.
  */
 import { Button } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
-import { useCallback } from 'react';
-import { canAddChapterAt } from '../state/chapters-session';
+import { useCallback, useMemo } from 'react';
+import { validateRows } from '../../../utils/video-chapters/description';
+import { canAddChapterAt, chaptersToRows } from '../state/chapters-session';
 import TimeRuler from '../timeline/time-ruler';
 import TimelineShell, { clampToDuration } from '../timeline/timeline-shell';
 import TimelineTransport from '../timeline/transport';
@@ -51,10 +58,12 @@ export type ChaptersTimelineProps = {
 	/** Whether preview playback is running (toolbar transport icon). */
 	playing: boolean;
 	/**
-	 * True while a processing job locks editing. Only the strip's scroller
-	 * region blocks pointer interaction (the toolbar's transport and zoom
-	 * stay usable); the parent's guarded dispatch drops edit dispatches
-	 * either way, and it also owns the aria-busy announcement.
+	 * True while a processing job or an in-flight save locks editing. Every
+	 * control whose dispatch the parent's guard would drop goes inert — the
+	 * add button here, the title inputs and trash buttons in the rows list —
+	 * so nothing looks accepted and is then silently discarded. Pointer
+	 * blocking stays scoped to the strip's scroller so the toolbar transport
+	 * and zoom remain usable, and the parent owns the aria-busy announcement.
 	 */
 	locked?: boolean;
 	/** A scrub gesture started (pointer-down on empty track area). */
@@ -126,6 +135,39 @@ export default function ChaptersTimeline( {
 }: ChaptersTimelineProps ): ReactElement {
 	const durationMs = session.durationMs;
 
+	// Live publish-rule check. Row-scoped issues are keyed by ROW POSITION —
+	// the same order `chaptersToRows` and the rows list walk — so they index
+	// straight into the rows array; the rest (no chapters, too few) have no
+	// row to sit on and go by the footer help line.
+	//
+	// The duration is passed UNROUNDED, matching what both hosts hand
+	// `validateRows` at save time: rounding here would let a chapter sitting
+	// on the rounded-up second (reachable through LOAD, which reflects the
+	// description as-is) read as fine in the editor and then warn on save,
+	// with no row flagged to explain it.
+	const { rowIssues, generalIssues } = useMemo( () => {
+		// A lone chapter is the "nothing authored yet" state: a description
+		// with no chapter lines loads as one seeded chapter at 0:00, and
+		// greeting that with "at least three chapters are required" scolds
+		// the user before they have done anything. Stay quiet until there is
+		// a set to judge; the save-time message still tells the truth if they
+		// save one anyway.
+		if ( session.chapters.length < 2 ) {
+			return { rowIssues: [], generalIssues: [] };
+		}
+		const { issues } = validateRows( chaptersToRows( session ), session.durationMs / 1000 );
+		const perRow: ( string | undefined )[] = [];
+		for ( const issue of issues ) {
+			if ( issue.rowIndex !== undefined && perRow[ issue.rowIndex ] === undefined ) {
+				perRow[ issue.rowIndex ] = issue.message;
+			}
+		}
+		return {
+			rowIssues: perRow,
+			generalIssues: issues.filter( issue => issue.rowIndex === undefined ),
+		};
+	}, [ session ] );
+
 	const seekClamped = useCallback(
 		( ms: number ) => onSeek( clampToDuration( ms, durationMs ) ),
 		[ onSeek, durationMs ]
@@ -171,7 +213,7 @@ export default function ChaptersTimeline( {
 						<Button
 							size="compact"
 							variant="secondary"
-							disabled={ readOnly || ! canAddChapterAt( session, currentMs ) }
+							disabled={ readOnly || locked || ! canAddChapterAt( session, currentMs ) }
 							onClick={ () => dispatch( { type: 'ADD_AT', atMs: currentMs } ) }
 							accessibleWhenDisabled
 						>
@@ -230,8 +272,23 @@ export default function ChaptersTimeline( {
 					) }
 				</p>
 			) : (
-				<ChapterRows session={ session } dispatch={ dispatch } onSeek={ seekClamped } />
+				<ChapterRows
+					session={ session }
+					dispatch={ dispatch }
+					onSeek={ seekClamped }
+					locked={ locked }
+					rowIssues={ rowIssues }
+				/>
 			) }
+			{ ! readOnly && generalIssues.length > 0 ? (
+				<div className="vp-chapters__validation" role="status" data-testid="chapters-validation">
+					{ generalIssues.map( issue => (
+						<p key={ issue.code } className="vp-chapters__validation-message">
+							{ issue.message }
+						</p>
+					) ) }
+				</div>
+			) : null }
 			<p className="vp-chapters__help">
 				{ __(
 					'Chapters appear in the player timeline and help viewers jump to a section. The first chapter always starts at 0:00:00.0.',

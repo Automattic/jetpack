@@ -165,7 +165,7 @@ describe( 'ADD_AT', () => {
 		assertInvariants( session );
 	} );
 
-	it( 'inserts sorted between existing chapters and numbers after the count', () => {
+	it( 'inserts sorted between existing chapters and numbers by insertion position', () => {
 		const base = threeChapters();
 		const session = reduce( base, { type: 'ADD_AT', atMs: 15600, id: 'new-chapter' } );
 		expect( session.chapters.map( chapter => chapter.startMs ) ).toEqual( [
@@ -173,9 +173,66 @@ describe( 'ADD_AT', () => {
 		] );
 		expect( session.chapters[ 1 ] ).toMatchObject( {
 			id: 'new-chapter',
-			title: 'Chapter 4',
+			title: 'Chapter 2',
 		} );
 		expect( session.selectedId ).toBe( 'new-chapter' );
+		assertInvariants( session );
+	} );
+
+	it( 'numbers a mid-list insertion by position, not by the chapter count', () => {
+		const base = load(
+			[
+				{ startAtSeconds: 0, title: 'Chapter 1' },
+				{ startAtSeconds: 60, title: 'Chapter 2' },
+				{ startAtSeconds: 120, title: 'Chapter 3' },
+				{ startAtSeconds: 180, title: 'Chapter 4' },
+			],
+			240000
+		);
+		const session = reduce( base, { type: 'ADD_AT', atMs: 90000 } );
+		// Position 3 is taken by the existing 'Chapter 3', so the number walks
+		// on rather than duplicating it — but it never lands on the old
+		// count+1 ('Chapter 5') by construction.
+		expect( session.chapters.map( chapter => chapter.title ) ).toEqual( [
+			'Chapter 1',
+			'Chapter 2',
+			'Chapter 5',
+			'Chapter 3',
+			'Chapter 4',
+		] );
+
+		// With titles of their own, the insertion reads in position order.
+		const titled = load(
+			[
+				{ startAtSeconds: 0, title: 'Intro' },
+				{ startAtSeconds: 60, title: 'Body' },
+				{ startAtSeconds: 120, title: 'Demo' },
+				{ startAtSeconds: 180, title: 'Outro' },
+			],
+			240000
+		);
+		expect(
+			reduce( titled, { type: 'ADD_AT', atMs: 90000 } ).chapters.map( chapter => chapter.title )
+		).toEqual( [ 'Intro', 'Body', 'Chapter 3', 'Demo', 'Outro' ] );
+	} );
+
+	it( 'never reuses a number already used as a title after a removal', () => {
+		let session = load( [ { startAtSeconds: 0, title: 'Chapter 1' } ], 240000 );
+		session = reduce( session, { type: 'ADD_AT', atMs: 60000 } );
+		session = reduce( session, { type: 'ADD_AT', atMs: 120000 } );
+		expect( session.chapters.map( chapter => chapter.title ) ).toEqual( [
+			'Chapter 1',
+			'Chapter 2',
+			'Chapter 3',
+		] );
+
+		// Removing the middle one drops the count; the next default must not
+		// fall back onto the surviving 'Chapter 3'.
+		session = reduce( session, { type: 'REMOVE', id: session.chapters[ 1 ].id } );
+		session = reduce( session, { type: 'ADD_AT', atMs: 180000 } );
+		const titles = session.chapters.map( chapter => chapter.title );
+		expect( new Set( titles ).size ).toBe( titles.length );
+		expect( titles ).toEqual( [ 'Chapter 1', 'Chapter 3', 'Chapter 4' ] );
 		assertInvariants( session );
 	} );
 
@@ -188,7 +245,7 @@ describe( 'ADD_AT', () => {
 	it( 'falls back to the default title when the explicit title is blank', () => {
 		const base = threeChapters();
 		const session = reduce( base, { type: 'ADD_AT', atMs: 45000, title: ' \n ' } );
-		expect( session.chapters[ 2 ].title ).toBe( 'Chapter 4' );
+		expect( session.chapters[ 2 ].title ).toBe( 'Chapter 3' );
 	} );
 
 	it( 'is a no-op (same reference) within the dedupe radius of an existing start', () => {

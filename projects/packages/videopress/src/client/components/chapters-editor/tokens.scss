@@ -11,6 +11,9 @@
 	--vp-gray-300: #ddd;
 	--vp-gray-200: #e0e0e0;
 	--vp-gray-100: #f0f0f0;
+	// Gutenberg's $alert-yellow (#f0b849) darkened to clear 4.5:1 on white,
+	// so it can carry warning TEXT and not just a border.
+	--vp-warning: #b26200;
 	--vp-radius-small: 2px;
 	--vp-radius-medium: 4px;
 	--vp-font-mono: Menlo, Consolas, monaco, monospace;

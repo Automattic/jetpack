@@ -2,15 +2,15 @@
  * External dependencies
  */
 import { Button, Modal, SnackbarList } from '@wordpress/components';
-import { useCallback, useEffect, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import { close, redo as redoIcon, undo as undoIcon } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
 import useMediaDataUpdate from '../../block-editor/hooks/use-video-data-update';
 import { fetchVideoItem } from '../../lib/fetch-video-item';
-import { serializeDescription } from '../../utils/video-chapters/description';
+import { serializeDescription, validateRows } from '../../utils/video-chapters/description';
 import { pickPlaybackUrl } from '../../utils/video-chapters/pick-playback-url';
 import { probeManualTrack } from '../../utils/video-chapters/probe-manual-track';
 import { syncChapters } from '../../utils/video-chapters/sync-chapters';
@@ -224,6 +224,33 @@ export default function ChapterManagerModal( {
 		return () => window.removeEventListener( 'beforeunload', warnBeforeUnload );
 	}, [ isOpen, effectiveDirty ] );
 
+	/*
+	 * Any edit that unmounts the focused control — removing a chapter,
+	 * Discard, Undo — drops focus onto <body>, which is OUTSIDE the Modal's
+	 * portal: the Escape intercept below (a React handler on this subtree)
+	 * never sees the keydown, so the modal's only remaining dismiss
+	 * affordance dies, and a screen reader loses its place entirely. Take
+	 * focus back to the workspace — the editing area the vanished control
+	 * lived in, and a descendant of the body, so the shortcut/Escape handler
+	 * still runs. (The body itself is `display: contents`, i.e. box-less and
+	 * therefore not focusable in a browser, so it can't be the target.)
+	 * Deliberately dependency-free: any render can be the one that unmounted
+	 * the focused element, and the guard is a no-op whenever focus is still
+	 * somewhere real. The confirmation overlay manages its own focus, so it
+	 * is left alone while it is up.
+	 */
+	const workspaceRef = useRef< HTMLDivElement >( null );
+	useEffect( () => {
+		const workspace = workspaceRef.current;
+		if ( ! isOpen || confirmation !== null || ! workspace ) {
+			return;
+		}
+		const { activeElement, body } = workspace.ownerDocument;
+		if ( activeElement === body ) {
+			workspace.focus();
+		}
+	} );
+
 	const updateMediaItem = useMediaDataUpdate( attachmentId );
 
 	/*
@@ -233,13 +260,24 @@ export default function ChapterManagerModal( {
 	 * through the warning snackbar) — then the store re-baselines on the
 	 * description just written. On failure the session stays dirty for
 	 * another attempt and the host is not notified.
+	 *
+	 * The description is saved whatever the chapters look like — it is the
+	 * source of truth and holds the user's prose — but the derived VTT is
+	 * only (re)generated for a set that passes `validateRows`; an invalid one
+	 * makes `syncChapters` delete the auto-generated track instead. That
+	 * verdict is computed here, synchronously off the same rows, so the
+	 * outcome message can say which of the two just happened rather than
+	 * claiming success while the player's chapter menu goes empty.
 	 */
 	const doSave = useCallback( async () => {
 		if ( itemDurationMs === null ) {
 			return;
 		}
 
-		const next = serializeDescription( description, chaptersToRows( session ) );
+		const rows = chaptersToRows( session );
+		const next = serializeDescription( description, rows );
+		// The v1.1 item reports the duration in ms; validateRows wants seconds.
+		const chaptersValid = validateRows( rows, itemDurationMs / 1000 ).isValid;
 		setMetaSavePending( true );
 		try {
 			await updateMediaItem( { description: next } );
@@ -260,7 +298,25 @@ export default function ChapterManagerModal( {
 		// Outside the try/catch: a host-callback error must not read as a
 		// save failure (which would provoke a pointless retry).
 		onSaved( next );
-		notify( __( 'Chapters saved.', 'jetpack-videopress-pkg' ) );
+		/*
+		 * An if/else is NOT enough on its own: both branches call `notify` with
+		 * a two-argument `__()`, so production Terser merges them into
+		 * `__( cond ? 'a' : 'b', domain )` and the i18n build check rejects the
+		 * non-literal msgid. The branches must differ in CALLEE, so the warning
+		 * goes through `_x()` — which is also why the same context is used in
+		 * the dashboard host, keeping this one catalog entry rather than two.
+		 */
+		if ( chaptersValid ) {
+			notify( __( 'Chapters saved.', 'jetpack-videopress-pkg' ) );
+		} else {
+			notify(
+				_x(
+					'Chapters saved to the description, but they won’t appear in the player until they meet the requirements.',
+					'chapters save outcome',
+					'jetpack-videopress-pkg'
+				)
+			);
+		}
 	}, [
 		description,
 		guid,
@@ -431,7 +487,12 @@ export default function ChapterManagerModal( {
 					</div>
 				</div>
 
-				<div className="videopress-chapter-manager__workspace vp-chapters-tokens">
+				<div
+					className="videopress-chapter-manager__workspace vp-chapters-tokens"
+					ref={ workspaceRef }
+					/* Programmatic focus target only (see the guard above); stays out of the tab order. */
+					tabIndex={ -1 }
+				>
 					{ itemState === 'loading' && (
 						<p className="videopress-chapter-manager__status" role="status">
 							{ __( 'Loading video information…', 'jetpack-videopress-pkg' ) }

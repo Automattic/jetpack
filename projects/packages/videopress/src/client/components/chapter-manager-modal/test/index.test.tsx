@@ -105,6 +105,14 @@ jest.mock( '../../chapters-editor/chapters/chapters-timeline', () => ( {
 			>
 				Select last chapter
 			</button>
+			{ /* Stand-ins for the real rows' remove buttons: focusable controls
+			     that unmount themselves when clicked, which is what strands
+			     focus on <body>. */ }
+			{ session.chapters.map( ( chapter: { id: string }, index: number ) => (
+				<button key={ chapter.id } onClick={ () => dispatch( { type: 'REMOVE', id: chapter.id } ) }>
+					{ `Remove chapter ${ index + 1 }` }
+				</button>
+			) ) }
 			<input aria-label="Chapter title input" />
 		</div>
 	),
@@ -271,9 +279,72 @@ describe( 'ChapterManagerModal', () => {
 			{ onWarning: expect.any( Function ) }
 		);
 		expect( defaultProps.onSaved ).toHaveBeenCalledWith( savedDescription );
+		// A valid set gets the plain success wording, not the warning one.
 		expect( screen.getByTestId( 'snackbar-list' ) ).toHaveTextContent( 'Chapters saved.' );
+		expect( screen.getByTestId( 'snackbar-list' ) ).not.toHaveTextContent(
+			'won’t appear in the player'
+		);
 		// The store re-baselined on the saved description.
 		expect( screen.getByRole( 'button', { name: 'Save' } ) ).toBeDisabled();
+	} );
+
+	it( 'warns instead of announcing success when the saved chapters are invalid', async () => {
+		const user = userEvent.setup();
+		await openReady();
+
+		// Two chapters is below the three the player's VTT requires, so the
+		// sync will delete the auto-generated track instead of rewriting it.
+		await user.click( screen.getByRole( 'button', { name: 'Remove chapter 3' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+
+		// The description is still written — it is the source of truth and
+		// holds the user's prose — and the sync still runs.
+		const twoChapterDescription = serializeDescription( BASE_DESCRIPTION, [
+			{ startAtSeconds: 0, title: 'Start' },
+			{ startAtSeconds: 30, title: 'Middle' },
+		] );
+		await waitFor( () =>
+			expect( mockUpdateMediaItem ).toHaveBeenCalledWith( { description: twoChapterDescription } )
+		);
+		expect( syncChapters ).toHaveBeenCalledWith(
+			{ guid: 'abc123', isPrivate: false, durationSeconds: 120 },
+			twoChapterDescription,
+			{ onWarning: expect.any( Function ) }
+		);
+		expect( defaultProps.onSaved ).toHaveBeenCalledWith( twoChapterDescription );
+
+		// …but the outcome message must not read as an unqualified success.
+		const snackbars = screen.getByTestId( 'snackbar-list' );
+		expect( snackbars ).toHaveTextContent(
+			'Chapters saved to the description, but they won’t appear in the player until they meet the requirements.'
+		);
+		expect( snackbars ).not.toHaveTextContent( 'Chapters saved.' );
+	} );
+
+	it( 'reclaims focus for the editor when an edit unmounts the focused control', async () => {
+		const user = userEvent.setup();
+		await openReady();
+
+		const removeThird = screen.getByRole( 'button', { name: 'Remove chapter 3' } );
+		removeThird.focus();
+		expect( removeThird ).toHaveFocus();
+
+		await user.click( removeThird );
+
+		// The row it lived in is gone. Focus must not be left on <body>: that
+		// is outside the Modal's portal, where the body's Escape intercept
+		// never fires — taking away the modal's only dismiss affordance.
+		expect( screen.queryByRole( 'button', { name: 'Remove chapter 3' } ) ).not.toBeInTheDocument();
+		expect( document.body ).not.toHaveFocus();
+
+		// Proof that focus landed somewhere the modal's key handling covers:
+		// Escape still reaches it, and (the session being dirty) raises the
+		// discard confirmation.
+		// eslint-disable-next-line @wordpress/no-global-active-element, testing-library/no-node-access -- the assertion IS about where document-level focus ended up.
+		fireEvent.keyDown( document.activeElement as Element, { key: 'Escape' } );
+		expect( screen.getByRole( 'alertdialog' ) ).toHaveTextContent(
+			'Discard unsaved chapter changes?'
+		);
 	} );
 
 	it( 'keeps the session dirty and withholds onSaved when the meta POST fails', async () => {
