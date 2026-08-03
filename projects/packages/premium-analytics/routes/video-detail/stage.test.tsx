@@ -19,12 +19,6 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	} ),
 } ) );
 
-jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: ( { showComparison }: { showComparison?: boolean } ) => (
-		<div>{ showComparison === false ? 'Date filters without comparison' : 'Date filters' }</div>
-	),
-} ) );
-
 jest.mock( '@wordpress/core-data', () => ( {
 	store: {},
 } ) );
@@ -220,23 +214,13 @@ describe( 'video detail stage', () => {
 		expect( screen.getByText( 'Video widgets' ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders the date filters in the summary header row without the comparison control', () => {
+	it( 'states the applied report range as the performance window in the summary', () => {
 		mockSummary( { title: 'Launch recap' } );
 
 		render( stage() );
 
-		const filters = screen.getByText( 'Date filters without comparison' );
-		expect( filters ).toBeInTheDocument();
 		expect(
 			screen.getByText( /Performance from Jun 1, 2026 to Jun 16, 2026/ )
 		).toBeInTheDocument();
-
-		// The panel shares the header row with the summary (the row itself is
-		// the stub's grandparent: stub div → filters wrapper → header row).
-		// eslint-disable-next-line testing-library/no-node-access -- The row grouping has no accessible query target.
-		const headerRow = filters.parentElement?.parentElement;
-		expect(
-			headerRow?.contains( screen.getByRole( 'heading', { level: 1, name: 'Launch recap' } ) )
-		).toBe( true );
 	} );
 } );

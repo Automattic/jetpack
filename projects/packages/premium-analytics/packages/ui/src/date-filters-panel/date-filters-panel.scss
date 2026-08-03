@@ -11,6 +11,7 @@
 	// class. Children carry no compact modifier of their own — the joint layout
 	// adjustments for every descendant live here.
 	&.is-compact {
+
 		// The preset select and custom trigger become two separate bordered
 		// controls, so drop the group's shared frame and flush hairline dividers
 		// and space them with a gap instead.
