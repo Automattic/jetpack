@@ -60,6 +60,7 @@ interface Window {
 		tracksUserData?: {
 			userid: string;
 			username: string;
+			email: string;
 		};
 		siteFragment?: string;
 	};

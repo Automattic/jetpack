@@ -36,6 +36,11 @@ import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
 import { SendIcon } from './icons';
 
+interface PreviewErrorInfo {
+	code?: string;
+	message: string;
+}
+
 /**
  * Error code returned by the email-preview REST endpoints when the current user
  * has no WordPress.com user connection. Both `send-email-preview` and
@@ -74,8 +79,7 @@ function isValidEmail( email ) {
  * Actionable notice shown when a preview request fails because the user's
  * WordPress.com account isn't connected. Links to the connection flow so the
  * user can resolve it without leaving the editor guessing.
- *
- * @return {Element} The connection prompt.
+ * @return {JSX.Element} The notice element.
  */
 function MissingConnectionNotice() {
 	return (
@@ -93,14 +97,19 @@ function MissingConnectionNotice() {
 	);
 }
 
-export function NewsletterTestEmailModal( { isOpen, onClose } ) {
+interface NewsletterTestEmailModalProps {
+	isOpen: boolean;
+	onClose: () => void;
+}
+
+export function NewsletterTestEmailModal( { isOpen, onClose }: NewsletterTestEmailModalProps ) {
 	const [ isEmailSent, setIsEmailSent ] = useState( false );
 	const [ isEmailSending, setIsEmailSending ] = useState( false );
-	const [ error, setError ] = useState( null );
 	const [ recipientEmail, setRecipientEmail ] = useState(
 		() => window?.Jetpack_Editor_Initial_State?.tracksUserData?.email ?? ''
 	);
-	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
+	const [ error, setError ] = useState< PreviewErrorInfo | null >( null );
+	const postId = useSelect( select => select( editorStore ).getCurrentPostId() );
 	const { __unstableSaveForPreview } = useDispatch( editorStore );
 	const { tracks } = useAnalytics();
 
@@ -146,7 +155,7 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 				setIsEmailSending( false );
 				setIsEmailSent( true );
 			} )
-			.catch( e => {
+			.catch( ( e: { code?: string; message?: string } ) => {
 				setIsEmailSending( false );
 				// A structured WP_Error carries a code and a user-facing message we
 				// can show verbatim. A rejection without an actionable code — no code
@@ -199,7 +208,8 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 								: __(
 										'Send a test email to your address so you can see exactly what your subscribers receive in their inboxes.',
 										'jetpack',
-										/* dummy arg to avoid bad minification */ 0
+										// @ts-expect-error Dummy arg to avoid bad minification; ignored at runtime.
+										0
 								  ) }
 						</p>
 						<Grid alignment="bottom" columns={ 2 } gap={ 2 } templateColumns="2fr auto;">
@@ -230,13 +240,31 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 	);
 }
 
-const previewDevices = [
+type PreviewDeviceName = 'desktop' | 'tablet' | 'mobile';
+
+interface PreviewDevice {
+	name: PreviewDeviceName;
+	icon: JSX.Element;
+	label: string;
+	width: string;
+	size: 'lg' | 'md' | 'sm';
+}
+
+const previewDevices: PreviewDevice[] = [
 	{ name: 'desktop', icon: desktop, label: __( 'Desktop', 'jetpack' ), width: '100%', size: 'lg' },
 	{ name: 'tablet', icon: tablet, label: __( 'Tablet', 'jetpack' ), width: '768px', size: 'md' },
 	{ name: 'mobile', icon: mobile, label: __( 'Mobile', 'jetpack' ), width: '360px', size: 'sm' },
 ];
 
-const PreviewDeviceSelector = ( { selectedDevice, setSelectedDevice } ) => {
+interface PreviewDeviceSelectorProps {
+	selectedDevice: PreviewDeviceName;
+	setSelectedDevice: ( device: PreviewDeviceName ) => void;
+}
+
+const PreviewDeviceSelector = ( {
+	selectedDevice,
+	setSelectedDevice,
+}: PreviewDeviceSelectorProps ) => {
 	// `md` in the old hook was the 600–959px band: at least small (>=600) AND below large (<960).
 	// Both hooks must be called unconditionally (rules-of-hooks), so avoid &&-short-circuiting them.
 	const isAtLeastSmall = useViewportMatch( 'small' );
@@ -245,7 +273,7 @@ const PreviewDeviceSelector = ( { selectedDevice, setSelectedDevice } ) => {
 	const isSmall = useViewportMatch( 'small', '<' );
 	const { tracks } = useAnalytics();
 
-	const handleDeviceChange = device => {
+	const handleDeviceChange = ( device: PreviewDeviceName ) => {
 		tracks.recordEvent( 'jetpack_newsletter_preview_device_change', { device } );
 		setSelectedDevice( device );
 	};
@@ -260,6 +288,8 @@ const PreviewDeviceSelector = ( { selectedDevice, setSelectedDevice } ) => {
 	return (
 		<ToggleGroupControl
 			__nextHasNoMarginBottom
+			label={ __( 'Preview device', 'jetpack' ) }
+			hideLabelFromVision
 			onChange={ handleDeviceChange }
 			value={ selectedDevice }
 			isBlock
@@ -277,7 +307,17 @@ const PreviewDeviceSelector = ( { selectedDevice, setSelectedDevice } ) => {
 	);
 };
 
-const PreviewAccessSelector = ( { selectedAccess, setSelectedAccess } ) => {
+type AccessLevelKey = 'subscribers' | 'paid_subscribers';
+
+interface PreviewAccessSelectorProps {
+	selectedAccess: AccessLevelKey;
+	setSelectedAccess: ( access: AccessLevelKey ) => void;
+}
+
+const PreviewAccessSelector = ( {
+	selectedAccess,
+	setSelectedAccess,
+}: PreviewAccessSelectorProps ) => {
 	const isSmall = useViewportMatch( 'small', '<' );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const accessLevel = useAccessLevel( postType );
@@ -298,7 +338,7 @@ const PreviewAccessSelector = ( { selectedAccess, setSelectedAccess } ) => {
 		},
 	];
 
-	const handleChange = value => {
+	const handleChange = ( value: AccessLevelKey ) => {
 		tracks.recordEvent( 'jetpack_newsletter_preview_access_change', { access: value } );
 		setSelectedAccess( value );
 	};
@@ -306,6 +346,8 @@ const PreviewAccessSelector = ( { selectedAccess, setSelectedAccess } ) => {
 	return (
 		<ToggleGroupControl
 			__nextHasNoMarginBottom
+			label={ __( 'Preview access level', 'jetpack' ) }
+			hideLabelFromVision
 			onChange={ handleChange }
 			value={ selectedAccess }
 			isBlock
@@ -332,12 +374,14 @@ const PreviewAccessSelector = ( { selectedAccess, setSelectedAccess } ) => {
 	);
 };
 
+interface PreviewControlsProps extends PreviewAccessSelectorProps, PreviewDeviceSelectorProps {}
+
 const PreviewControls = ( {
 	selectedAccess,
 	setSelectedAccess,
 	selectedDevice,
 	setSelectedDevice,
-} ) => {
+}: PreviewControlsProps ) => {
 	const isSmall = useViewportMatch( 'small', '<' );
 
 	return (
@@ -354,18 +398,26 @@ const PreviewControls = ( {
 	);
 };
 
-export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
+interface NewsletterPreviewModalProps {
+	isOpen: boolean;
+	onClose: () => void;
+	postId: number;
+}
+
+export function NewsletterPreviewModal( { isOpen, onClose, postId }: NewsletterPreviewModalProps ) {
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ isError, setError ] = useState( false );
-	const [ errorCode, setErrorCode ] = useState( null );
+	const [ errorCode, setErrorCode ] = useState< string | null >( null );
 	const [ refetchedOnError, setRefetchedOnError ] = useState( false );
-	const [ previewCache, setPreviewCache ] = useState( {} );
-	const [ selectedAccess, setSelectedAccess ] = useState( accessOptions.subscribers.key );
-	const [ selectedDevice, setSelectedDevice ] = useState( 'desktop' );
+	const [ previewCache, setPreviewCache ] = useState< Record< string, string > >( {} );
+	const [ selectedAccess, setSelectedAccess ] = useState< AccessLevelKey >(
+		accessOptions.subscribers.key as AccessLevelKey
+	);
+	const [ selectedDevice, setSelectedDevice ] = useState< PreviewDeviceName >( 'desktop' );
 	const { tracks } = useAnalytics();
 
 	const fetchPreview = useCallback(
-		async accessLevel => {
+		async ( accessLevel: AccessLevelKey ) => {
 			if ( ! postId ) {
 				return;
 			}
@@ -375,7 +427,7 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 			setErrorCode( null );
 
 			try {
-				const response = await apiFetch( {
+				const response = await apiFetch< { html?: string } >( {
 					path: `/wpcom/v2/email-preview/?post_id=${ postId }&access=${ accessLevel }`,
 					method: 'GET',
 				} );
@@ -391,7 +443,7 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 			} catch ( e ) {
 				tracks.recordEvent( 'jetpack_newsletter_preview_modal_error' );
 				setError( true );
-				setErrorCode( e?.code ?? null );
+				setErrorCode( ( e as { code?: string } )?.code ?? null );
 			} finally {
 				setIsLoading( false );
 			}

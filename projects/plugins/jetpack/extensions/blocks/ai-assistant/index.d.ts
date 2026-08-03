@@ -6,9 +6,13 @@ interface Window {
 		available_blocks: {
 			'jetpack/ai-assistant-support': boolean;
 		};
+		jetpack?: {
+			can_send_test_email_to_others?:boolean;
+		};
 		tracksUserData: {
 			userid: number;
 			username: string;
+			email: string;
 		};
 		wpcomBlogId: string;
 	};
