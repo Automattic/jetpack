@@ -34,7 +34,7 @@ describe( 'displayCorrectedQuery', () => {
 		expect( notice ).not.toBeNull();
 		expect( notice.querySelectorAll( 'img' ) ).toHaveLength( 0 );
 		expect( notice.children ).toHaveLength( 0 );
-		expect( notice ).toHaveTextContent( new RegExp( xssPayload ) );
+		expect( notice ).toHaveTextContent( xssPayload );
 		expect( notice.innerHTML ).toBe( 'No results for "&lt;img src=x onerror=alert(1)&gt;"' );
 	} );
 
