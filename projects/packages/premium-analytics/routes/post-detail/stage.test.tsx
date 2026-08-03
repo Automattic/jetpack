@@ -14,7 +14,9 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: () => <div>Date filters</div>,
+	DateFiltersPanel: ( { showComparison }: { showComparison?: boolean } ) => (
+		<div>{ showComparison === false ? 'Date filters without comparison' : 'Date filters' }</div>
+	),
 	SectionTabPanel: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
 	// The real guard is covered in the ui package; keep the scheme check here so
 	// the header still refuses a non-http URL.
@@ -148,6 +150,14 @@ describe( 'post detail stage', () => {
 		render( stage() );
 
 		expect( screen.queryByRole( 'link', { name: /^View (post|page)$/ } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders the date filters without the comparison control', () => {
+		mockSummary();
+
+		render( stage() );
+
+		expect( screen.getByText( 'Date filters without comparison' ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders the breadcrumb trail with the resolved title', () => {

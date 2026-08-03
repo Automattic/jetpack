@@ -155,7 +155,18 @@ function PostDetail(): JSX.Element {
 						 * layouts instead of relying on the viewport.
 						 */ }
 						<div ref={ setContainerElement } className={ styles.dateFilters }>
-							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
+							{ /*
+							 * The design has no period-over-period comparison on this
+							 * page, so the Compare control is opted out; the route also
+							 * normalizes comparison params away. Moving the panel onto
+							 * the summary's title row (per the mock) is deferred until
+							 * the preset measurement rework lands (WOOA7S-1816).
+							 */ }
+							<DateFiltersPanel
+								{ ...dateFilters }
+								containerElement={ containerElement }
+								showComparison={ false }
+							/>
 						</div>
 						<div className={ styles.scrollArea }>
 							<div className={ styles.header }>

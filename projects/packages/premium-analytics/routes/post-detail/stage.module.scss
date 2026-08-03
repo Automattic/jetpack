@@ -2,6 +2,21 @@
 	min-block-size: 0;
 }
 
+// A long unbroken post title in the breadcrumb refuses to shrink: admin-ui's
+// Page header renders the breadcrumbs slot inside a flex chain (inner header
+// Stack → the Breadcrumbs `nav`) whose items keep the flexbox default
+// `min-inline-size: auto`, so the crumb's nowrap min-content propagates and
+// drags the whole page into horizontal scrolling before the crumb's own
+// ellipsis can engage. Let both links shrink until admin-ui fixes the slot;
+// the `nav`'s parent has no stable class, hence the structural `:has()`.
+.page :has(> nav[aria-label]) {
+	min-inline-size: 0;
+}
+
+.page nav[aria-label] {
+	min-inline-size: 0;
+}
+
 // The scroll container below the fixed tab bar and date filters: the summary
 // header scrolls away with the widgets instead of permanently occupying the
 // viewport.
@@ -41,6 +56,14 @@
 	// the heading); gap-2xl below mirrors it symmetrically.
 	padding-block: var(--wpds-dimension-gap-lg) var(--wpds-dimension-gap-2xl);
 	padding-inline: var(--wpds-dimension-padding-2xl);
+	// The boot shell's surfaces element is a flex item with the default
+	// `min-inline-size: auto`, so it asks the page for its min-content width —
+	// and a specified min-inline-size can only raise an intrinsic
+	// contribution, never lower it, so the summary title's nowrap min-content
+	// would widen the whole page into horizontal scrolling before the title's
+	// own ellipsis could engage. Inline-size containment excludes the header's
+	// contents from intrinsic sizing.
+	contain: inline-size;
 }
 
 // The header action is a Button rendered as an anchor, so it can carry a real
