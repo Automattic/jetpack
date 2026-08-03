@@ -78,17 +78,12 @@ export function createSignals() {
 	} );
 
 	/*
-	 * Login is required, the visitor has no identity, and cookies aren't available to get one,
-	 * so there is no way for this comment to be accepted. Facebook is exempt: it is verified from
-	 * the `wpc_fbc` cookie, which still reaches the server when cookies are partitioned.
+	 * Login is required but the login options can't render, so there is no way for this comment to
+	 * be accepted. `mustLogIn` tracks the WordPress.com session, which is absent in the Jetpack
+	 * iframe even for visitors logged in to the site itself, hence the userLoggedIn check.
 	 */
 	const isCommentBlocked = computed( () => {
-		return (
-			Boolean( VerbumComments.mustLogIn ) &&
-			! userLoggedIn.value &&
-			userInfo.value?.service !== 'facebook' &&
-			! canWeAccessCookies()
-		);
+		return Boolean( VerbumComments.mustLogIn ) && ! userLoggedIn.value && ! canWeAccessCookies();
 	} );
 
 	/*

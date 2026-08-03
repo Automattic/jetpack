@@ -24,62 +24,19 @@ export const serviceData = {
 	},
 };
 
-const readCookieNames = () =>
-	document.cookie.split( ';' ).map( cookie => cookie.trim().split( '=' )[ 0 ] );
-
-const isCookieJarWritable = () => {
-	document.cookie = 'verbum_test=1; path=/; SameSite=None; Secure';
-
-	if ( ! readCookieNames().includes( 'verbum_test' ) ) {
-		return false;
-	}
-
-	document.cookie =
-		'verbum_test=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=None; Secure';
-
-	return true;
-};
-
-interface CookieAccess {
-	writable: boolean;
-	unpartitioned: boolean;
-}
-
-let cookieAccess: CookieAccess | undefined;
-
-export const resolveCookieAccess = async () => {
-	const { hasStorageAccess } = document as Document & {
-		hasStorageAccess?: () => Promise< boolean >;
-	};
-
-	let unpartitioned = true;
-
-	if ( typeof hasStorageAccess === 'function' ) {
-		try {
-			unpartitioned = await Promise.race( [
-				hasStorageAccess.call( document ),
-				new Promise< boolean >( resolve => setTimeout( () => resolve( true ), 1000 ) ),
-			] );
-		} catch {
-			unpartitioned = true;
-		}
-	}
-
-	cookieAccess = { writable: isCookieJarWritable(), unpartitioned };
-};
-
-const getCookieAccess = (): CookieAccess => {
-	if ( ! cookieAccess ) {
-		cookieAccess = { writable: isCookieJarWritable(), unpartitioned: true };
-	}
-
-	return cookieAccess;
-};
-
 export const canWeAccessCookies = () => {
-	const { writable, unpartitioned } = getCookieAccess();
+	// Is a WordPress cookie already set and can we read it?
+	if ( document.cookie.includes( 'wpc_' ) ) {
+		return true;
+	}
 
-	return writable && unpartitioned;
+	// Can we set a cookie and read our own cookie?
+	document.cookie = 'verbum_test=1; SameSite=None; Secure';
+	if ( document.cookie.includes( 'verbum_test' ) ) {
+		return true;
+	}
+
+	return false;
 };
 
 /**

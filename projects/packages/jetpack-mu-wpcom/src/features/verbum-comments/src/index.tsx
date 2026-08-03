@@ -17,7 +17,6 @@ import {
 	setUserInfoCookie,
 	addWordPressDomain,
 	hasSubscriptionOptionsVisible,
-	resolveCookieAccess,
 } from './utils';
 import type { VerbumAppProps } from './types';
 
@@ -253,13 +252,11 @@ const { siteId } = {
 	...VerbumComments,
 };
 
-resolveCookieAccess().then( () => {
-	document.querySelectorAll( '.comment-form__verbum' ).forEach( element => {
-		render(
-			<VerbumSignals.Provider value={ createSignals() }>
-				<Verbum siteId={ siteId } parentForm={ element.parentNode as HTMLFormElement } />
-			</VerbumSignals.Provider>,
-			element
-		);
-	} );
+document.querySelectorAll( '.comment-form__verbum' ).forEach( element => {
+	render(
+		<VerbumSignals.Provider value={ createSignals() }>
+			<Verbum siteId={ siteId } parentForm={ element.parentNode as HTMLFormElement } />
+		</VerbumSignals.Provider>,
+		element
+	);
 } );

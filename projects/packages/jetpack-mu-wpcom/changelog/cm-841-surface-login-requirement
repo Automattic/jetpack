@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Verbum Comments: detect blocked cookies accurately, explain to the visitor why login options are unavailable, and block submission when login is required but cannot be completed.
+Verbum Comments: explain why commenting is unavailable when login is required but the login options cannot be shown, instead of offering a form that will be rejected.
