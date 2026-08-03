@@ -165,9 +165,27 @@ describe( 'computePrimaryRange for the year surface', () => {
 		);
 	} );
 
-	it( 'still computes the rolling presets', () => {
+	it( 'still computes the rolling presets, snapped to whole hours', () => {
 		const range = rangeOf( 'last-24-hours', TIME_ZONE );
 
-		expect( range.to.getTime() - range.from.getTime() ).toBe( 24 * 60 * 60 * 1000 );
+		// 24 hourly buckets, the last one open-ended at :59:59.999.
+		expect( dateToISOStringWithTZ( range.from, TIME_ZONE ) ).toBe(
+			'2026-06-14T09:00:00.000-04:00'
+		);
+		expect( dateToISOStringWithTZ( range.to, TIME_ZONE ) ).toBe( '2026-06-15T08:59:59.999-04:00' );
+	} );
+
+	it( 'holds the last-24-hours range steady as the clock moves within the hour', () => {
+		// The range lands in start_date/end_date, which are sent verbatim and key
+		// the request cache. Off a raw `now` these drift by milliseconds between
+		// callers, so identical requests never dedupe and never hit the cache.
+		const before = rangeOf( 'last-24-hours', TIME_ZONE );
+
+		jest.setSystemTime( new Date( NOW.getTime() + 20 * 60 * 1000 ) );
+		const after = rangeOf( 'last-24-hours', TIME_ZONE );
+		jest.setSystemTime( NOW );
+
+		expect( after.from.getTime() ).toBe( before.from.getTime() );
+		expect( after.to.getTime() ).toBe( before.to.getTime() );
 	} );
 } );

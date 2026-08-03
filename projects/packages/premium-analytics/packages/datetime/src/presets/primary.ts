@@ -5,6 +5,8 @@ import { __ } from '@wordpress/i18n';
 import {
 	startOfDay,
 	endOfDay,
+	startOfHour,
+	endOfHour,
 	subDays,
 	subHours,
 	subMonths,
@@ -94,9 +96,17 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	{
 		id: PRESET_LAST_24_HOURS,
 		getLabel: () => __( 'Last 24 hours', 'jetpack-premium-analytics-pkg' ),
+		// Snapped to the hour rather than taken from the raw instant. The range
+		// ends up in `start_date`/`end_date`, which are sent verbatim and form
+		// part of the request's React Query key: off a raw `now` every widget
+		// (and every remount) resolves a different millisecond, so identical
+		// requests never dedupe and never hit the cache. The hour is the natural
+		// granularity — this is the only preset that buckets hourly — and the
+		// open-ended `endOfHour` keeps the in-progress hour visible, matching how
+		// `today` runs to `endOfToday`.
 		getRange: ( { now } ) => ( {
-			from: subHours( now, 24 ),
-			to: now,
+			from: subHours( startOfHour( now ), 23 ),
+			to: endOfHour( now ),
 		} ),
 	},
 	{

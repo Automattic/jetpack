@@ -271,7 +271,7 @@ describe( 'Stats time-series normalizer', () => {
 		expect( result.summary ).toEqual( { date_start: '', date_end: '' } );
 	} );
 
-	it( 'trims an offset-bearing query date to the calendar day when no rows are returned', () => {
+	it( 'restamps an offset-bearing query date as a bucket bound when no rows are returned', () => {
 		const result = sanitizeStatsTimeSeriesResponse(
 			{},
 			{
@@ -281,7 +281,10 @@ describe( 'Stats time-series normalizer', () => {
 		);
 
 		expect( result.data ).toEqual( [] );
-		expect( result.summary ).toEqual( { date_start: '2026-06-15', date_end: '2026-06-16' } );
+		expect( result.summary ).toEqual( {
+			date_start: '2026-06-15T00:00:00+00:00',
+			date_end: '2026-06-16T23:59:59+00:00',
+		} );
 	} );
 
 	it( 'falls back to the offset-bearing `date` param for date_end when end_date is absent', () => {
@@ -290,7 +293,25 @@ describe( 'Stats time-series normalizer', () => {
 			{ start_date: '2026-06-15T00:00:00-07:00', date: '2026-06-16T23:59:59-07:00' }
 		);
 
-		expect( result.summary ).toEqual( { date_start: '2026-06-15', date_end: '2026-06-16' } );
+		expect( result.summary ).toEqual( {
+			date_start: '2026-06-15T00:00:00+00:00',
+			date_end: '2026-06-16T23:59:59+00:00',
+		} );
+	} );
+
+	it( 'matches the row shape when rows are present and when they are not', () => {
+		const query = {
+			start_date: '2026-06-15T00:00:00-07:00',
+			end_date: '2026-06-15T23:59:59-07:00',
+		};
+		const withRows = sanitizeStatsTimeSeriesResponse(
+			{ unit: 'day', fields: [ 'period', 'views' ], data: [ [ '2026-06-15', 3 ] ] },
+			query
+		);
+		const withoutRows = sanitizeStatsTimeSeriesResponse( {}, query );
+
+		expect( withoutRows.summary.date_start ).toBe( withRows.summary.date_start );
+		expect( withoutRows.summary.date_end ).toBe( withRows.summary.date_end );
 	} );
 
 	it( 'detects supported time-series payload shapes', () => {

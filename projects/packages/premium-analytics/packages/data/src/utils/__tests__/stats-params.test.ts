@@ -73,6 +73,26 @@ describe( 'reportParamsToStatsQueryParams', () => {
 		);
 	} );
 
+	it( 'keeps the time of day on an hourly range, still counting whole days', () => {
+		// The `last-24-hours` shape: an hourly range whose ends are mid-day, not
+		// midnight. The time survives to the wire (the endpoint resolves it),
+		// while `days` stays a calendar-day count for the bucket math.
+		expect(
+			reportParamsToStatsQueryParams( {
+				from: '2026-06-14T09:00:00.000-04:00',
+				to: '2026-06-15T08:59:59.999-04:00',
+				interval: 'hour',
+			} )
+		).toEqual(
+			expect.objectContaining( {
+				period: 'hour',
+				start_date: '2026-06-14T09:00:00.000-04:00',
+				end_date: '2026-06-15T08:59:59.999-04:00',
+				days: 2,
+			} )
+		);
+	} );
+
 	it( 'maps the semantic end date to the Stats API date param', () => {
 		expect(
 			statsQueryParamsToApiParams( {
