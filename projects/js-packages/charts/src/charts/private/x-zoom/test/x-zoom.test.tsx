@@ -1,4 +1,4 @@
-import { act, render, renderHook, screen } from '@testing-library/react';
+import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useRef } from 'react';
 import { useXZoom, ZoomResetButton } from '../index';
@@ -147,17 +147,35 @@ const preventDefaultKeydown = ( event: ReactKeyboardEvent< HTMLDivElement > ) =>
 	event.preventDefault();
 
 describe( 'ZoomResetButton', () => {
-	test( 'renders a labelled button with a hover tooltip', () => {
+	test( 'renders a labelled button without a native title tooltip', () => {
 		const noop = jest.fn();
 		render( <ZoomResetButton onClick={ noop } /> );
 		const button = screen.getByTestId( 'chart-zoom-reset' );
 		expect( button.tagName ).toBe( 'BUTTON' );
 		expect( button ).toHaveClass( 'x-zoom__reset' );
 		expect( button ).toHaveAccessibleName( 'Reset zoom' );
-		// WPDS `IconButton` would supply a tooltip of its own, but it pulls in a
-		// CommonJS dependency that breaks Script Module consumers (see
-		// ZoomResetButton). `title` restores the hover hint on plain `Button`.
-		expect( button ).toHaveAttribute( 'title', 'Reset zoom' );
+		// IconButton renders a real tooltip, so the `title` fallback is gone —
+		// `title` is invisible to keyboard users and cannot be dismissed.
+		expect( button ).not.toHaveAttribute( 'title' );
+	} );
+
+	test( 'shows a tooltip on keyboard focus', async () => {
+		const noop = jest.fn();
+		render( <ZoomResetButton onClick={ noop } /> );
+		await userEvent.tab();
+		expect( screen.getByTestId( 'chart-zoom-reset' ) ).toHaveFocus();
+		// The button's only text is the tooltip's — its own label is an
+		// `aria-label` attribute, so this cannot match the trigger.
+		await expect( screen.findByText( 'Reset zoom' ) ).resolves.toBeVisible();
+	} );
+
+	test( 'dismisses the tooltip on Escape', async () => {
+		const noop = jest.fn();
+		render( <ZoomResetButton onClick={ noop } /> );
+		await userEvent.tab();
+		await expect( screen.findByText( 'Reset zoom' ) ).resolves.toBeVisible();
+		await userEvent.keyboard( '{Escape}' );
+		await waitFor( () => expect( screen.queryByText( 'Reset zoom' ) ).not.toBeInTheDocument() );
 	} );
 
 	test( 'fires onClick when activated', async () => {
