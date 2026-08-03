@@ -26,27 +26,13 @@ interface WelcomeProps {
 const CHECKOUT_SOURCE = 'jetpack-podcast-welcome';
 
 const getUpgradeCheckoutUrl = (): string => {
-	const data = getSiteData();
-	const adminUrl = data?.admin_url ?? '';
-
-	// Prefer `site.suffix` since it preserves the full Calypso site fragment
-	// (e.g. `example.com::path` for mapped subdirectory sites). Fall back to
-	// the admin_url host as a safety net in case suffix is unexpectedly absent.
-	let slug = data?.suffix ?? '';
-	if ( ! slug && adminUrl ) {
-		try {
-			slug = new URL( adminUrl ).host;
-		} catch {
-			// Leave slug empty; we'll fall back to the generic plan picker below.
-		}
-	}
-
 	// `tab=settings` bypasses the welcome gate so buyers continue configuring
 	// the podcast instead of re-seeing this pricing card after checkout.
-	const returnTo = adminUrl ? getAdminUrl( 'admin.php?page=jetpack-podcast&tab=settings' ) : '';
+	const returnTo = getSiteData()?.admin_url
+		? getAdminUrl( 'admin.php?page=jetpack-podcast&tab=settings' )
+		: '';
 
 	return buildUpgradeCheckoutUrl( {
-		siteSlug: slug,
 		returnUrl: returnTo,
 		// Calypso threads `source` through its downstream Tracks events.
 		params: { source: CHECKOUT_SOURCE },
