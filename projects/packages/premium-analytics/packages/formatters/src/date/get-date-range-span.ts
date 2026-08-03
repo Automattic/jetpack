@@ -105,11 +105,17 @@ function getWholeMonths( from: Date, to: Date ): number | null {
  * window stepped back from "Last 7 days" still reads as 7 days once the preset
  * has become a custom range.
  *
+ * A unit is only reported where the range divides evenly into it, so an
+ * open-ended range measures by the day it is read on: the same selection can
+ * land in days, months or years depending on whether today closes a month or a
+ * year. Callers describing a selection that grows day by day should say so from
+ * the selection rather than measure it.
+ *
  * @example
  * getDateRangeSpan( { from, to } ) // 7 days:     { unit: 'day', value: 7 }
  *                                  // 12 months:  { unit: 'month', value: 12 }
  *                                  // 24 hours:   { unit: 'hour', value: 24 }
- *                                  // all time:   { unit: 'year', value: 6 }
+ *                                  // 5 years:    { unit: 'year', value: 5 }
  *
  * @param range - The range to measure.
  * @return The span, or null when the range is missing an end.
