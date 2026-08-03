@@ -111,7 +111,9 @@ export const useChartMargin = (
 			yAxisOrientation === 'right' ? theme.axisStyles.y.right : theme.axisStyles.y.left;
 		const yTickWidth = getLongestTickWidth(
 			yTicks,
-			options.axis?.y?.tickFormat,
+			// Horizontal yTicks are already formatted strings; re-applying the
+			// tick formatter would date-parse them (e.g. "6 AM" -> Invalid Date).
+			horizontal ? ( tick: unknown ) => String( tick ) : options.axis?.y?.tickFormat,
 			yAxisStyles.axisLabel
 		);
 		// visx's default axis theme pushes y-axis tick labels a further 0.25em
@@ -147,5 +149,5 @@ export const useChartMargin = (
 		}
 
 		return defaultMargin;
-	}, [ options, theme, yTicks ] );
+	}, [ options, theme, yTicks, horizontal ] );
 };

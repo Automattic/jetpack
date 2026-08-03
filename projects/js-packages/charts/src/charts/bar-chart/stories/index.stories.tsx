@@ -165,55 +165,58 @@ export const TimeSeries: Story = {
 
 // Wall-clock dates in the browser frame — the library's parsing convention —
 // so the ticks read the same in any viewer timezone.
-const hourlyBarSeries = ( label: string, hours: number ): SeriesData => ( {
-	label,
-	data: Array.from( { length: hours }, ( _, i ) => ( {
-		date: new Date( 2026, 7, 2, i ),
-		value: Math.round( 60 + 40 * Math.sin( ( i % 24 ) / 3.5 ) ),
-	} ) ),
-	options: {},
-} );
+const timeAxisSeries = ( points: Array< [ Date, number ] > ): SeriesData[] => [
+	{
+		label: 'Views',
+		data: points.map( ( [ date, value ] ) => ( { date, value } ) ),
+		options: {},
+	},
+];
+
+const hourlyPoints: Array< [ Date, number ] > = Array.from( { length: 24 }, ( _, i ) => [
+	new Date( 2026, 7, 2, i ),
+	Math.round( 60 + 40 * Math.sin( i / 3.5 ) ),
+] );
+
+const dailyPoints: Array< [ Date, number ] > = Array.from( { length: 30 }, ( _, i ) => [
+	new Date( 2026, 6, 1 + i ),
+	Math.round( 60 + 40 * Math.sin( i / 4 ) ),
+] );
+
+const monthlyPoints: Array< [ Date, number ] > = Array.from( { length: 24 }, ( _, i ) => [
+	new Date( 2025, i, 1 ),
+	Math.round( 60 + 40 * Math.sin( i / 2 ) ),
+] );
+
+const yearlyPoints: Array< [ Date, number ] > = [ 72, 95, 58, 86 ].map( ( value, i ) => [
+	new Date( 2023 + i, 0, 1 ),
+	value,
+] );
 
 export const TimeAxisTickFormats: Story = {
 	render: () => (
-		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
+		<div
+			style={ {
+				display: 'grid',
+				gap: '2rem',
+				gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))',
+			} }
+		>
 			<div>
 				<h3>Hourly buckets, single day → hour ticks</h3>
-				<BarChart width={ 460 } height={ 220 } data={ [ hourlyBarSeries( 'Views', 24 ) ] } />
+				<BarChart width={ 460 } height={ 220 } data={ timeAxisSeries( hourlyPoints ) } />
 			</div>
 			<div>
 				<h3>Daily buckets → date ticks</h3>
-				<BarChart
-					width={ 460 }
-					height={ 220 }
-					data={ [
-						{
-							label: 'Views',
-							data: Array.from( { length: 30 }, ( _, i ) => ( {
-								date: new Date( 2026, 6, 1 + i ),
-								value: Math.round( 60 + 40 * Math.sin( i / 4 ) ),
-							} ) ),
-							options: {},
-						},
-					] }
-				/>
+				<BarChart width={ 460 } height={ 220 } data={ timeAxisSeries( dailyPoints ) } />
+			</div>
+			<div>
+				<h3>Monthly buckets over two years → year-level ticks</h3>
+				<BarChart width={ 460 } height={ 220 } data={ timeAxisSeries( monthlyPoints ) } />
 			</div>
 			<div>
 				<h3>Yearly span → year ticks</h3>
-				<BarChart
-					width={ 460 }
-					height={ 220 }
-					data={ [
-						{
-							label: 'Views',
-							data: [ 72, 95, 58, 86 ].map( ( value, i ) => ( {
-								date: new Date( 2023 + i, 0, 1 ),
-								value,
-							} ) ),
-							options: {},
-						},
-					] }
-				/>
+				<BarChart width={ 460 } height={ 220 } data={ timeAxisSeries( yearlyPoints ) } />
 			</div>
 		</div>
 	),
@@ -225,7 +228,7 @@ export const TimeAxisTickFormats: Story = {
 		docs: {
 			description: {
 				story:
-					'Date-based series share the time-axis tick formatter with the line and area charts: hour ticks within a day, calendar dates within a year, otherwise years. An explicit `options.axis.x.tickFormat` still overrides.',
+					'Date-based series share the time-axis tick formatter with the line and area charts: hour ticks for sub-daily buckets within a day, calendar dates within a year, otherwise years. Band-scale ticks are sampled by index, so span-level formats can repeat on adjacent ticks (see the monthly panel) — tooltips keep per-bar precision. An explicit `options.axis.x.tickFormat` still overrides.',
 			},
 		},
 	},

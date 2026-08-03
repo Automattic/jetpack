@@ -38,7 +38,7 @@ const formatYearTick = ( timestamp: number ) => {
 	return date.toLocaleDateString( undefined, { year: 'numeric' } );
 };
 
-const formatDateTick = ( timestamp: number ) => {
+export const formatDateTick = ( timestamp: number ) => {
 	const date = new Date( timestamp );
 	return date.toLocaleDateString( undefined, { month: 'short', day: 'numeric' } );
 };

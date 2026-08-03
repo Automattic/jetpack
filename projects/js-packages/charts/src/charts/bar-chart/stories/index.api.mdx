@@ -124,6 +124,12 @@ type ChartOptions = {
 };
 ```
 
+When `tickFormat` is not provided, categorical series render their labels as-is, and
+date-based series pick a default from the data's time span — hour ticks within a day,
+calendar dates within a year, otherwise years — shared with the line and area charts.
+Default tooltip labels for date-based series keep per-bar precision (the calendar date,
+plus the year across year boundaries and the hour for sub-daily buckets).
+
 ## SeriesChartLegendConfig Type
 
 ```typescript

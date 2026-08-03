@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Charts: adapt bar chart time-axis ticks to the data's time span — hours within a day, dates within a year, otherwise years — matching line and area charts.
+Charts: adapt bar chart time-axis tick labels to the data's time span — hours within a day, dates within a year, otherwise years — and keep per-bar tooltip dates precise.

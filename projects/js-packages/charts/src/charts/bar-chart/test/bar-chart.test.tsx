@@ -219,14 +219,17 @@ describe( 'BarChart', () => {
 	} );
 
 	describe( 'Time axis ticks', () => {
-		test( 'renders date ticks for daily buckets within a year', () => {
+		const distinctTexts = ( elements: HTMLElement[] ) =>
+			new Set( elements.map( el => el.textContent ) );
+
+		test( 'renders distinct date ticks for daily buckets within a year', () => {
 			renderWithTheme( {
 				width: 800,
 				data: [
 					{
 						label: 'Series A',
 						data: Array.from( { length: 14 }, ( _, i ) => ( {
-							date: new Date( Date.UTC( 2024, 0, 1 + i ) ),
+							date: new Date( 2024, 0, 1 + i ),
 							value: 10 + i,
 						} ) ),
 						options: {},
@@ -237,17 +240,17 @@ describe( 'BarChart', () => {
 			const ticks = screen.getAllByText(
 				/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d+$/
 			);
-			expect( ticks.length ).toBeGreaterThan( 1 );
+			expect( distinctTexts( ticks ).size ).toBeGreaterThan( 1 );
 		} );
 
-		test( 'renders hour ticks for series spanning a single day', () => {
+		test( 'renders distinct hour ticks for sub-daily buckets in a single day', () => {
 			renderWithTheme( {
 				width: 800,
 				data: [
 					{
 						label: 'Series A',
 						data: Array.from( { length: 12 }, ( _, i ) => ( {
-							date: new Date( Date.UTC( 2024, 0, 1, i ) ),
+							date: new Date( 2024, 0, 1, i ),
 							value: 10 + i,
 						} ) ),
 						options: {},
@@ -256,17 +259,37 @@ describe( 'BarChart', () => {
 			} );
 
 			const ticks = screen.getAllByText( /^\d{1,2}\s(AM|PM)$/ );
-			expect( ticks.length ).toBeGreaterThan( 1 );
+			expect( distinctTexts( ticks ).size ).toBeGreaterThan( 1 );
 		} );
 
-		test( 'renders year ticks for series spanning multiple years', () => {
+		test( 'renders date ticks, not hour ticks, for a two-point daily series', () => {
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( 2024, 0, 1 ), value: 10 },
+							{ date: new Date( 2024, 0, 2 ), value: 20 },
+						],
+						options: {},
+					},
+				],
+			} );
+
+			expect( screen.getByText( 'Jan 1' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Jan 2' ) ).toBeInTheDocument();
+			expect( screen.queryByText( /12\sAM/ ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'renders distinct year ticks for series spanning multiple years', () => {
 			renderWithTheme( {
 				width: 800,
 				data: [
 					{
 						label: 'Series A',
 						data: Array.from( { length: 4 }, ( _, i ) => ( {
-							date: new Date( Date.UTC( 2021 + i, 0, 1 ) ),
+							date: new Date( 2021 + i, 0, 1 ),
 							value: 10 + i,
 						} ) ),
 						options: {},
@@ -275,7 +298,61 @@ describe( 'BarChart', () => {
 			} );
 
 			const ticks = screen.getAllByText( /^\d{4}$/ );
-			expect( ticks.length ).toBeGreaterThan( 1 );
+			expect( distinctTexts( ticks ).size ).toBeGreaterThan( 1 );
+		} );
+	} );
+
+	describe( 'Time series tooltip labels', () => {
+		const optionsFor = ( data: Parameters< typeof useBarChartOptions >[ 0 ] ) =>
+			renderHook( () => useBarChartOptions( data, false ) ).result.current;
+
+		test( 'keeps the calendar date for daily buckets within a year', () => {
+			const { tooltip } = optionsFor( [
+				{
+					label: 'Series A',
+					data: Array.from( { length: 14 }, ( _, i ) => ( {
+						date: new Date( 2024, 0, 1 + i ),
+						value: 10 + i,
+					} ) ),
+					options: {},
+				},
+			] );
+
+			expect( tooltip.labelFormatter( new Date( 2024, 0, 3 ).getTime(), 0, [] ) ).toBe( 'Jan 3' );
+		} );
+
+		test( 'adds the year when the series crosses year boundaries', () => {
+			const { tooltip } = optionsFor( [
+				{
+					label: 'Series A',
+					data: Array.from( { length: 24 }, ( _, i ) => ( {
+						date: new Date( 2024, i, 1 ),
+						value: 10 + i,
+					} ) ),
+					options: {},
+				},
+			] );
+
+			expect( tooltip.labelFormatter( new Date( 2025, 2, 1 ).getTime(), 0, [] ) ).toBe(
+				'Mar 1, 2025'
+			);
+		} );
+
+		test( 'adds the hour for sub-daily buckets', () => {
+			const { tooltip } = optionsFor( [
+				{
+					label: 'Series A',
+					data: Array.from( { length: 12 }, ( _, i ) => ( {
+						date: new Date( 2024, 0, 1, i ),
+						value: 10 + i,
+					} ) ),
+					options: {},
+				},
+			] );
+
+			expect( tooltip.labelFormatter( new Date( 2024, 0, 1, 6 ).getTime(), 0, [] ) ).toMatch(
+				/^Jan 1, 6\sAM$/
+			);
 		} );
 	} );
 

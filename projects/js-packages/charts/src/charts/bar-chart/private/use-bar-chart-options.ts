@@ -1,6 +1,7 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
+import { differenceInHours } from 'date-fns';
 import { useMemo } from 'react';
-import { getFormatter } from '../../private/time-axis';
+import { formatDateTick, getFormatter } from '../../private/time-axis';
 import { TruncatedXTickComponent, TruncatedYTickComponent } from './truncated-tick-component';
 import type { EnhancedDataPoint } from '../../../hooks/use-zero-value-display';
 import type { DataPointDate, BaseChartProps, SeriesData } from '../../../types';
@@ -10,6 +11,51 @@ import type { TickFormatter } from '@visx/axis';
 export const BASE_BAND_PADDING = 0.2;
 /** Inner padding of the category band scale (the base gap between ticks). */
 export const BASE_BAND_PADDING_INNER = 0.1;
+
+/**
+ * Tick and tooltip formatters for date-based series. Ticks share the line/area
+ * charts' span-based time-axis formatter; tooltips identify one bar, so they
+ * keep the per-point precision the axis compresses away.
+ *
+ * @param data - Date-based series, already parsed and sorted by `useChartDataTransform`.
+ * @return Tick and tooltip label formatters.
+ */
+const getTimeSeriesFormatters = ( data: SeriesData[] ) => {
+	const seriesDates = data.map(
+		series =>
+			series.data.map( d => ( d as DataPointDate ).date ).filter( d => d instanceof Date ) as Date[]
+	);
+	const allTimes = seriesDates.flat().map( Number );
+	const min = Math.min( ...allTimes );
+	const max = Math.max( ...allTimes );
+	const hasSubDailySpacing = seriesDates.some(
+		( [ first, second ] ) =>
+			first !== undefined &&
+			second !== undefined &&
+			Math.abs( differenceInHours( second, first ) ) < 24
+	);
+	const crossesYears =
+		allTimes.length > 0 && new Date( min ).getFullYear() !== new Date( max ).getFullYear();
+
+	// A band scale renders one tick per bucket, so a two-point daily series —
+	// whose span is exactly 24h, which the span-based shared formatter reads
+	// as hourly — would label every bar "12 AM". Require sub-daily point
+	// spacing before hour ticks; this also keeps a single bar on its date.
+	const tickFormatter =
+		Math.abs( differenceInHours( max, min ) ) <= 24 && ! hasSubDailySpacing
+			? formatDateTick
+			: getFormatter( data );
+
+	const tooltipFormatter = ( timestamp: number ) =>
+		new Date( timestamp ).toLocaleString( undefined, {
+			month: 'short',
+			day: 'numeric',
+			...( crossesYears ? { year: 'numeric' } : {} ),
+			...( hasSubDailySpacing ? { hour: 'numeric', hour12: true } : {} ),
+		} );
+
+	return { tickFormatter, tooltipFormatter };
+};
 
 /**
  * Get the group padding of a scale.
@@ -46,12 +92,14 @@ export function useBarChartOptions(
 			zero: false,
 		};
 
-		// Date-based series share the line/area charts' time-axis formatter, so
-		// tick formats track the data's resolution and span the same way there.
-		// `data` is already date-parsed and sorted by `useChartDataTransform`.
-		const labelFormatter = data?.[ 0 ]?.data?.[ 0 ]?.label
-			? ( label: string ) => label
-			: getFormatter( data );
+		const hasLabels = Boolean( data?.[ 0 ]?.data?.[ 0 ]?.label );
+		const timeSeriesFormatters = hasLabels ? null : getTimeSeriesFormatters( data );
+		const labelFormatter = timeSeriesFormatters
+			? timeSeriesFormatters.tickFormatter
+			: ( label: string ) => label;
+		const tooltipDatumFormatter = timeSeriesFormatters
+			? timeSeriesFormatters.tooltipFormatter
+			: labelFormatter;
 		const valueFormatter = formatNumberCompact as TickFormatter< unknown >;
 
 		const labelAccessor = ( d: DataPointDate ) => d?.label || d?.date;
@@ -65,7 +113,7 @@ export function useBarChartOptions(
 			vertical: {
 				xTickFormat: labelFormatter,
 				yTickFormat: valueFormatter,
-				tooltipLabelFormatter: labelFormatter,
+				tooltipLabelFormatter: tooltipDatumFormatter,
 				xAccessor: labelAccessor,
 				yAccessor: valueAccessor,
 				gridVisibility: 'x',
@@ -75,7 +123,7 @@ export function useBarChartOptions(
 			horizontal: {
 				xTickFormat: valueFormatter,
 				yTickFormat: labelFormatter,
-				tooltipLabelFormatter: labelFormatter,
+				tooltipLabelFormatter: tooltipDatumFormatter,
 				xAccessor: valueAccessor,
 				yAccessor: labelAccessor,
 				gridVisibility: 'y',
