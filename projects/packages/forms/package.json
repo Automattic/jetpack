@@ -119,7 +119,7 @@
 		"glob": "13.0.6",
 		"jest": "30.4.2",
 		"jquery": "3.7.1",
-		"postcss": "8.5.21",
+		"postcss": "8.5.23",
 		"postcss-loader": "8.2.0",
 		"postcss-modules": "^6.0.0",
 		"sass-embedded": "1.97.3",
