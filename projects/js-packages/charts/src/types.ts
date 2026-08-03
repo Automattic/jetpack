@@ -609,6 +609,22 @@ export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry 
 };
 
 /**
+ * Legend config for charts built from `SeriesData` (line, bar, area). Adds `collapseGroups` on top
+ * of the shared config. It is intentionally absent from the base `ChartLegendConfig` so point-based
+ * charts (pie, semi-circle pie) — whose data points carry `group` only to coordinate colours — can't
+ * set it.
+ */
+export type SeriesChartLegendConfig = ChartLegendConfig< SeriesData[] > & {
+	/**
+	 * Collapse series that share a `group` into a single legend item, labelled by the group's
+	 * primary series (its first non-comparison member). Off by default, so every series keeps its
+	 * own item. Combines with `interactive`: a collapsed item toggles every series in its group, an
+	 * uncollapsed one toggles only its own.
+	 */
+	collapseGroups?: boolean;
+};
+
+/**
  * Base properties shared across all chart components
  */
 export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > = {

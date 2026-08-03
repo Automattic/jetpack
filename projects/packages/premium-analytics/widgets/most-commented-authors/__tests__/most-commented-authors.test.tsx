@@ -7,7 +7,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import CommentsWidget from '../render';
+import MostCommentedAuthorsWidget from '../render';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -15,7 +15,7 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
-describe( 'CommentsWidget', () => {
+describe( 'MostCommentedAuthorsWidget', () => {
 	beforeEach( () => {
 		queryClient.clear();
 		mockApiFetch.mockReset();
@@ -35,19 +35,25 @@ describe( 'CommentsWidget', () => {
 					gravatar: 'https://www.gravatar.com/avatar/member?s=96',
 				},
 			],
-			posts: [],
+			posts: [
+				{
+					id: 42,
+					name: 'Hello world',
+					comments: 20,
+					link: 'https://example.com/hello-world/',
+				},
+			],
 		} );
 	} );
 
-	it( 'links guest authors to the comments search with a decorative avatar', async () => {
-		render(
-			<CommentsWidget
-				attributes={ {
-					view: 'authors',
-					reportParams: getDefaultQueryParams( false ),
-				} }
-			/>
+	function renderWidget() {
+		return render(
+			<MostCommentedAuthorsWidget attributes={ { reportParams: getDefaultQueryParams( false ) } } />
 		);
+	}
+
+	it( 'links guest authors to the comments search with a decorative avatar', async () => {
+		renderWidget();
 
 		const link = await screen.findByRole( 'link', { name: /Guest Author/ } );
 		expect( link ).toHaveAttribute( 'href', 'edit-comments.php?s=guest%40example.com' );
@@ -56,17 +62,19 @@ describe( 'CommentsWidget', () => {
 	} );
 
 	it( 'keeps WordPress.com users unlinked and preserves their avatar alt text', async () => {
-		render(
-			<CommentsWidget
-				attributes={ {
-					view: 'authors',
-					reportParams: getDefaultQueryParams( false ),
-				} }
-			/>
-		);
+		renderWidget();
 
 		await expect( screen.findByText( 'Member Author' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /Member Author/ } ) ).not.toBeInTheDocument();
 		expect( screen.getByAltText( 'Avatar of Member Author' ) ).toBeInTheDocument();
+	} );
+
+	// Both comment widgets read the same response; this one must show only the
+	// authors group, never the posts rows the sibling widget renders.
+	it( 'shows only the authors group from the shared report', async () => {
+		renderWidget();
+
+		await expect( screen.findByText( 'Guest Author' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Hello world' ) ).not.toBeInTheDocument();
 	} );
 } );

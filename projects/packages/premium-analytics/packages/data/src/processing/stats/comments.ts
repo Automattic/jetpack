@@ -4,6 +4,7 @@ import {
 	coerceStatsRecord,
 	createStatsListDataPoint,
 	getStatsLabel,
+	limitStatsRows,
 	normalizeStatsSummary,
 } from './utils';
 import type { StatsItemAction, StatsNormalizedItemBase, StatsNormalizedReport } from './types';
@@ -149,4 +150,127 @@ export function sanitizeStatsCommentsResponse(
 		summary: normalizeStatsSummary( payload, [ 'authors', 'posts' ] ),
 		data: items.length ? [ createStatsListDataPoint( response, query, items ) ] : [],
 	};
+}
+
+/**
+ * The two groups the all-time Comments report is split into.
+ */
+export type StatsCommentsGroup = 'authors' | 'posts';
+
+/**
+ * A flat Comments report row, shared by every consumer of the report: the
+ * "Most commented authors" and "Most commented posts" widgets and the Comments
+ * report page.
+ *
+ * `link` is the value the report carries: a locally built, root-relative
+ * `edit-comments.php` search for authors, and a remote permalink for posts.
+ * Consumers that render the post link must pass it through `safeHttpUrl`
+ * first — the guard cannot live here, because the row id falls back to the raw
+ * link and must stay stable even when the URL is rejected.
+ */
+export type StatsCommentsRow = {
+	/**
+	 * Stable row key, derived from the item's own identity rather than its
+	 * position so it survives a refetch and cannot collide on a repeated label.
+	 */
+	id: string;
+	/**
+	 * Display label: the author name or the post title.
+	 */
+	label: string;
+	/**
+	 * Number of comments attributed to this author or post.
+	 */
+	value: number;
+	/**
+	 * Author avatar URL. Set for the `authors` group only.
+	 */
+	avatarUrl?: string;
+	/**
+	 * The link the report carries for this row, when it has one.
+	 */
+	link?: string;
+	/**
+	 * Numeric post id as a string. Set for the `posts` group only.
+	 */
+	postId?: string;
+};
+
+// The normalized item `label` is typed `unknown`; the comments endpoint always
+// yields strings, but coerce defensively so the row shape stays `string`.
+function toCommentsRowLabel( value: unknown ): string {
+	return typeof value === 'string' ? value : String( value );
+}
+
+/**
+ * Map one group child to a flat row.
+ *
+ * `label`, `value` and `link` are derived identically for both groups; only the
+ * row key and the group-specific extras (`avatarUrl`, `postId`) differ, so the
+ * group discriminator selects just those.
+ *
+ * @param item  - The group child to map.
+ * @param group - The group the child belongs to.
+ * @return The flat row.
+ */
+function toCommentsRow(
+	item: StatsCommentsAuthorItem | StatsCommentsPostItem,
+	group: StatsCommentsGroup
+): StatsCommentsRow {
+	const label = toCommentsRowLabel( item.label );
+	const shared = { label, value: item.value, link: item.link ?? undefined };
+
+	if ( group === 'authors' ) {
+		const { icon } = item as StatsCommentsAuthorItem;
+
+		return {
+			...shared,
+			// Authors key on their gravatar hash, falling back to the label.
+			id: icon ?? `author-${ label }`,
+			avatarUrl: icon ?? undefined,
+		};
+	}
+
+	// `!= null` rather than a truthiness test: post id 0 is a real id.
+	const { id } = item as StatsCommentsPostItem;
+	const postId = id != null ? String( id ) : undefined;
+
+	return {
+		...shared,
+		// Posts key on their post id, falling back to the raw link so row
+		// identity holds even when a consumer rejects that URL, and finally on
+		// the label.
+		id: postId ?? shared.link ?? `post-${ label }`,
+		postId,
+	};
+}
+
+/**
+ * Select one group's rows from a normalized Comments report.
+ *
+ * The endpoint returns a single all-time report whose `data[0].items` are two
+ * group rows — one keyed `authors`, one keyed `posts`. This picks the requested
+ * group, flattens its children to `StatsCommentsRow`, sorts them by comment
+ * count and trims the result to `maxRows` (`0` or omitted means all rows).
+ *
+ * @param report  - The normalized Comments report, if it has resolved.
+ * @param group   - The group to select.
+ * @param maxRows - Maximum rows to return; `0` or omitted means all.
+ * @return The group's rows, highest comment count first.
+ */
+export function selectStatsCommentsRows(
+	report: StatsCommentsResponse | undefined,
+	group: StatsCommentsGroup,
+	maxRows?: number
+): StatsCommentsRow[] {
+	const items = report?.data?.[ 0 ]?.items ?? [];
+	const groupItem = items.find( item => item.label === group ) as
+		| StatsCommentsGroupItem
+		| undefined;
+
+	const rows = ( groupItem?.children ?? [] )
+		.map( child => toCommentsRow( child, group ) )
+		.sort( ( a, b ) => b.value - a.value );
+
+	return limitStatsRows( rows, maxRows );
 }

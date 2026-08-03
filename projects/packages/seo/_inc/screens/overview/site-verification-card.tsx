@@ -10,6 +10,7 @@ import type { FC } from 'react';
 
 interface Props {
 	data: SiteVerification;
+	active: boolean;
 	onManage: () => void;
 }
 
@@ -17,8 +18,16 @@ interface Props {
 // `__()` into `__(cond ? A : B)`. See feedback_i18n_ternary_minifier_fold.
 const setLabel = __( 'Set', 'jetpack-seo' );
 const notSetLabel = __( 'Not set', 'jetpack-seo' );
+const disabledLabel = __( 'Disabled', 'jetpack-seo' );
 
-const SiteVerificationCard: FC< Props > = ( { data, onManage } ) => {
+const getStatusLabel = ( active: boolean, set: boolean ) => {
+	if ( ! active ) {
+		return disabledLabel;
+	}
+	return set ? setLabel : notSetLabel;
+};
+
+const SiteVerificationCard: FC< Props > = ( { data, active, onManage } ) => {
 	// The globally-relevant services always get a row; the rest only when this site
 	// has actually verified with them. Listing all five padded the summary with
 	// services most sites will never use, but hiding a verified one outright would
@@ -43,8 +52,8 @@ const SiteVerificationCard: FC< Props > = ( { data, onManage } ) => {
 						justify="space-between"
 						className={ styles.statRow }
 					>
-						<StatusDot status={ data[ key ] ? 'ok' : 'warn' } label={ label } />
-						<span>{ data[ key ] ? setLabel : notSetLabel }</span>
+						<StatusDot status={ active && data[ key ] ? 'ok' : 'warn' } label={ label } />
+						<span>{ getStatusLabel( active, data[ key ] ) }</span>
 					</Stack>
 				) ) }
 				<Stack direction="row" justify="flex-end" className={ styles.footer }>

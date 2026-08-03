@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add Host::is_pressable() to detect sites hosted on the Pressable platform via the IS_PRESSABLE constant.

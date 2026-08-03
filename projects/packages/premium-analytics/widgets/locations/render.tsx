@@ -4,7 +4,9 @@
 import {
 	GeoChart,
 	LeaderboardChart,
+	ReportLink,
 	WidgetBackLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
@@ -392,6 +394,12 @@ export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
 				<LocationsInner max={ max } geoGranularity={ geoGranularity } />
+				<WidgetFooter>
+					<ReportLink
+						report="locations"
+						section={ geoGranularity === 'city' ? 'cities' : 'countries' }
+					/>
+				</WidgetFooter>
 			</div>
 		</WidgetRoot>
 	);
