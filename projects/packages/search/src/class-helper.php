@@ -1032,8 +1032,13 @@ class Helper {
 	 *               `additionalBlogIds`, `adminQueryFilter`, and `customResults`.
 	 */
 	public static function parse_instant_search_query_options( array $options ): array {
+		$highlight_phrase_only = ! empty( $options['highlightPhraseOnly'] );
+
+		// The v1.3 API rejects requests combining `highlight_filter_stopwords` with
+		// `highlight_phrase_only` (phrase-only wins server-side) — drop the stopword
+		// list so requests stay valid when a filter sets both.
 		$stopwords = array();
-		if ( ! empty( $options['highlightFilterStopwords'] ) && is_array( $options['highlightFilterStopwords'] ) ) {
+		if ( ! $highlight_phrase_only && ! empty( $options['highlightFilterStopwords'] ) && is_array( $options['highlightFilterStopwords'] ) ) {
 			$stopwords = array_values(
 				array_filter(
 					$options['highlightFilterStopwords'],
@@ -1088,7 +1093,7 @@ class Helper {
 		}
 
 		return array(
-			'highlightPhraseOnly'      => ! empty( $options['highlightPhraseOnly'] ),
+			'highlightPhraseOnly'      => $highlight_phrase_only,
 			'highlightFilterStopwords' => $stopwords,
 			'highlightFields'          => $highlight_fields,
 			'additionalBlogIds'        => $additional_blog_ids,

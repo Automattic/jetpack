@@ -1896,6 +1896,31 @@ class Helpers_Test extends TestCase {
 	}
 
 	/**
+	 * Test that stopwords drop when combined with highlightPhraseOnly — the v1.3 API
+	 * rejects requests carrying both.
+	 */
+	public function test_parse_instant_search_query_options_phrase_only_wins_over_stopwords() {
+		$parsed = Helper::parse_instant_search_query_options(
+			array(
+				'highlightPhraseOnly'      => true,
+				'highlightFilterStopwords' => array( 'the', 'a' ),
+			)
+		);
+
+		$this->assertTrue( $parsed['highlightPhraseOnly'] );
+		$this->assertSame( array(), $parsed['highlightFilterStopwords'] );
+
+		$parsed = Helper::parse_instant_search_query_options(
+			array(
+				'highlightFilterStopwords' => array( 'the', 'a' ),
+			)
+		);
+
+		$this->assertFalse( $parsed['highlightPhraseOnly'] );
+		$this->assertSame( array( 'the', 'a' ), $parsed['highlightFilterStopwords'] );
+	}
+
+	/**
 	 * Test that get_instant_search_query_options ignores a non-array filter return.
 	 */
 	public function test_get_instant_search_query_options_non_array_filter() {

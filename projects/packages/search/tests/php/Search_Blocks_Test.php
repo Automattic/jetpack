@@ -3229,7 +3229,8 @@ class Search_Blocks_Test extends TestCase {
 		}
 
 		$this->assertTrue( $options['highlightPhraseOnly'] );
-		$this->assertSame( array( 'the', 'a' ), $options['highlightFilterStopwords'] );
+		// Stopwords drop when combined with phrase-only — the API rejects both together.
+		$this->assertSame( array(), $options['highlightFilterStopwords'] );
 		$this->assertSame( array( 'title' ), $options['highlightFields'] );
 		$this->assertSame( array( 123, 456 ), $options['additionalBlogIds'] );
 		$this->assertSame(
@@ -3253,7 +3254,7 @@ class Search_Blocks_Test extends TestCase {
 	 */
 	public function test_build_initial_state_seeds_instant_search_query_options() {
 		$callback = static function ( $options ) {
-			$options['highlightPhraseOnly']      = true;
+			// Stopwords only — combining with phrase-only would drop them (API constraint).
 			$options['highlightFilterStopwords'] = array( 'the' );
 			$options['highlightFields']          = array( 'title', 'content' );
 			$options['additionalBlogIds']        = array( 99 );
@@ -3283,7 +3284,7 @@ class Search_Blocks_Test extends TestCase {
 			remove_filter( 'jetpack_instant_search_options', $callback );
 		}
 
-		$this->assertTrue( $state['highlightPhraseOnly'] );
+		$this->assertFalse( $state['highlightPhraseOnly'] );
 		$this->assertSame( array( 'the' ), $state['highlightFilterStopwords'] );
 		$this->assertSame( array( 'title', 'content' ), $state['highlightFields'] );
 		$this->assertSame( array( 99 ), $state['additionalBlogIds'] );
