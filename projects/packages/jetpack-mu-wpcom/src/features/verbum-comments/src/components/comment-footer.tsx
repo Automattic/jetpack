@@ -10,7 +10,7 @@ interface CommentFooterProps {
 }
 
 export const CommentFooter = ( { toggleTray }: CommentFooterProps ) => {
-	const { commentParent, isReplyDisabled, isSavingComment, isTrayOpen, userLoggedIn } =
+	const { commentParent, isReplyDisabled, isSavingComment, isTrayOpen, userInfo, userLoggedIn } =
 		useContext( VerbumSignals );
 	return (
 		<div
@@ -33,7 +33,9 @@ export const CommentFooter = ( { toggleTray }: CommentFooterProps ) => {
 					} ) }
 					disabled={ isReplyDisabled.value }
 					aria-disabled={ isReplyDisabled.value }
-					aria-describedby={ isCommentBlockedByCookies() ? COOKIE_NOTICE_ID : undefined }
+					aria-describedby={
+						isCommentBlockedByCookies( userInfo.value?.service ) ? COOKIE_NOTICE_ID : undefined
+					}
 				>
 					{ commentParent.value ? translate( 'Reply' ) : translate( 'Comment' ) }
 				</button>

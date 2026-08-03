@@ -162,7 +162,7 @@ const Verbum = ( { siteId, parentForm }: VerbumAppProps ) => {
 	};
 
 	const handleCommentSubmit = async ( event: Event ) => {
-		if ( isCommentBlockedByCookies() ) {
+		if ( isCommentBlockedByCookies( userInfo.value?.service ) ) {
 			event.preventDefault();
 			return;
 		}

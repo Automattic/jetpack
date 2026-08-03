@@ -285,8 +285,11 @@ export const isAuthRequired = () =>
 export const COOKIE_NOTICE_ID = 'verbum-cookie-notice';
 
 // `mustLogIn` reflects the WordPress.com session, which is never present in the third-party
-// Jetpack iframe. The Jetpack identity travels in the POST, not a cookie, so it still posts.
-export const isCommentBlockedByCookies = () =>
+// Jetpack iframe. Two identities post fine without it: `jetpack` travels in the POST itself,
+// and `facebook` is verified server-side from `wpc_fbc`, which the frame can still read and
+// send when cookies are partitioned rather than blocked.
+export const isCommentBlockedByCookies = ( service: string | undefined ) =>
 	Boolean( VerbumComments.mustLogIn ) &&
 	! VerbumComments.isJetpackCommentsLoggedIn &&
+	service !== 'facebook' &&
 	! canWeAccessCookies();

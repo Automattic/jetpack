@@ -24,11 +24,13 @@ export function createSignals() {
 	/*
 	 * Calculate if user is logged in. For self-hosted sites this check is based only on VerbumComments.isJetpackCommentsLoggedIn.
 	 * Here we also check if cookies are accessible, userInfo is set and the service is different from 'guest' or 'jetpack'.
+	 * Facebook skips the cookie check: its identity is proven by the `wpc_fbc` cookie we just read,
+	 * so it holds up where cookies are partitioned but readable.
 	 */
 	const userLoggedIn = computed( () => {
 		return (
 			VerbumComments.isJetpackCommentsLoggedIn ||
-			( canWeAccessCookies() &&
+			( ( canWeAccessCookies() || userInfo.value?.service === 'facebook' ) &&
 				userInfo.value &&
 				userInfo.value?.service !== 'guest' &&
 				userInfo.value?.service !== 'jetpack' )
@@ -89,7 +91,7 @@ export function createSignals() {
 	 */
 	const isReplyDisabled = computed( () => {
 		return (
-			isCommentBlockedByCookies() ||
+			isCommentBlockedByCookies( userInfo.value?.service ) ||
 			( isAuthRequired() &&
 				! userLoggedIn.value &&
 				( isMailFormMissingInput.value || isMailFormInvalid.value ) ) ||
