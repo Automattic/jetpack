@@ -901,6 +901,11 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	 * `invalid_signature` WP_Error carrying its own signature_details but no type/direction.
 	 */
 	public function test_verify_xml_rpc_signature_normalizes_signature_errors() {
+		// Snapshot the superglobals: the test environment pre-populates some $_SERVER keys
+		// (e.g. HTTP_HOST) that later tests rely on, so they must be restored, not unset.
+		$original_server = $_SERVER;
+		$original_get    = $_GET;
+
 		Constants::set_constant( 'JETPACK__API_VERSION', 1 );
 		\Jetpack_Options::update_option( 'blog_token', 'blogkey.blogsecret' );
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
@@ -918,8 +923,8 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 		$stored_errors = Error_Handler::get_instance()->get_stored_errors();
 
 		// Clean up before asserting, so a failed assertion cannot leak state into other tests.
-		unset( $_GET['token'], $_GET['signature'], $_GET['timestamp'], $_GET['nonce'] );
-		unset( $_SERVER['REQUEST_METHOD'], $_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI'] );
+		$_SERVER = $original_server;
+		$_GET    = $original_get;
 		remove_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 		Error_Handler::get_instance()->delete_all_errors();
 		\Jetpack_Options::delete_option( 'blog_token' );
