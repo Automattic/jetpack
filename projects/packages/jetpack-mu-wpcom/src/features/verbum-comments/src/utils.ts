@@ -282,5 +282,11 @@ export const hasSubscriptionOptionsVisible = () =>
 export const isAuthRequired = () =>
 	VerbumComments.requireNameEmail || VerbumComments.commentRegistration;
 
+export const COOKIE_NOTICE_ID = 'verbum-cookie-notice';
+
+// `mustLogIn` reflects the WordPress.com session, which is never present in the third-party
+// Jetpack iframe. The Jetpack identity travels in the POST, not a cookie, so it still posts.
 export const isCommentBlockedByCookies = () =>
-	Boolean( VerbumComments.mustLogIn ) && ! canWeAccessCookies();
+	Boolean( VerbumComments.mustLogIn ) &&
+	! VerbumComments.isJetpackCommentsLoggedIn &&
+	! canWeAccessCookies();
