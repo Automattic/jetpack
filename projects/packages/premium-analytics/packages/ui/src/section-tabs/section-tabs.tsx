@@ -111,11 +111,11 @@ export interface SectionTabPanelProps< TabId extends string = string > {
 /**
  * A tab panel for `SectionTabs` children.
  *
- * Consumers must use this instead of `Tabs.Panel` from `@wordpress/ui`: routes
- * and widgets still import `@wordpress/ui` directly, so they can each bundle
- * their own copy, and Base UI's tabs context does not cross bundle copies.
- * Importing the panel and root through the same package specifier guarantees
- * both share one instance.
+ * Consumers must use this rather than reaching for `Tabs.Panel` themselves:
+ * Base UI's tabs context does not cross bundle copies, so a panel only finds
+ * its root when both come from the same `Tabs` instance. Importing `Tabs` from
+ * `@jetpack-premium-analytics/externals` is what makes that a single shared
+ * instance for every consumer.
  *
  * @param props           - Component props.
  * @param props.value     - The tab this panel belongs to.
