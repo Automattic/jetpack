@@ -59,16 +59,17 @@ export function getAutoRecipient( {
  * @return Translated sentence for the field's help text.
  */
 export function getAutoRecipientHelpText( source: AutoRecipientSource ): string {
-	if ( source === 'post_author' ) {
-		return __( 'Leave empty to send responses to the post author.', 'jetpack-forms' );
-	}
-
-	if ( source === 'embedding_post_author' ) {
-		return __(
+	// Keyed unconditionally rather than branched. Selecting a translated string inside a branch lets
+	// the minifier collapse the branches into a single __() call whose msgid is a ternary, which the
+	// gettext extractor cannot read — so every __() call here stays unconditional and literal.
+	const helpTexts: Record< AutoRecipientSource, string > = {
+		post_author: __( 'Leave empty to send responses to the post author.', 'jetpack-forms' ),
+		embedding_post_author: __(
 			'Leave empty to send responses to the author of the page where this form appears.',
 			'jetpack-forms'
-		);
-	}
+		),
+		site_admin: __( 'Leave empty to send responses to the site admin email.', 'jetpack-forms' ),
+	};
 
-	return __( 'Leave empty to send responses to the site admin email.', 'jetpack-forms' );
+	return helpTexts[ source ] || helpTexts.site_admin;
 }
