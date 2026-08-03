@@ -125,7 +125,7 @@ export function SubscribeModalSection( {
 				<p>
 					<Text>
 						{ __(
-							'Shown at the top of the subscribe popup that appears when a visitor clicks a Subscribe block. Only applies to blocks using the "Button only" style.',
+							'Shown at the top of the subscribe popup that appears when a visitor clicks a Subscribe block.',
 							'jetpack-newsletter'
 						) }
 					</Text>

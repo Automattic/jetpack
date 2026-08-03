@@ -1,56 +1,34 @@
-import { aggregateLocationRows } from './aggregate';
-import type { StatsLocationsItem, StatsNormalizedReport } from '@jetpack-premium-analytics/data';
+import { buildLocationRows } from './aggregate';
+import type { StatsLocationsComparisonItem } from '@jetpack-premium-analytics/data';
 
-const report: StatsNormalizedReport< StatsLocationsItem > = {
-	summary: {},
-	data: [
-		{
-			time_interval: '2026-07-09',
-			date_start: '2026-07-09T00:00:00+00:00',
-			date_end: '2026-07-09T23:59:59+00:00',
-			items: [
-				{
-					label: 'Springfield',
-					views: 8,
-					countryCode: 'US',
-					countryFull: 'United States',
-					children: null,
-				},
-				{
-					label: 'Springfield',
-					views: 3,
-					countryCode: 'CA',
-					countryFull: 'Canada',
-					children: null,
-				},
-			],
-		},
-		{
-			time_interval: '2026-07-10',
-			date_start: '2026-07-10T00:00:00+00:00',
-			date_end: '2026-07-10T23:59:59+00:00',
-			items: [
-				{
-					label: 'Springfield',
-					views: 5,
-					countryCode: 'US',
-					countryFull: 'United States',
-					children: null,
-				},
-			],
-		},
-	],
-};
+const items: StatsLocationsComparisonItem[] = [
+	{
+		label: 'Springfield',
+		views: 13,
+		countryCode: 'US',
+		countryFull: 'United States',
+		children: null,
+		previousViews: 9,
+	},
+	{
+		label: 'Springfield',
+		views: 3,
+		countryCode: 'CA',
+		countryFull: 'Canada',
+		children: null,
+	},
+];
 
 describe( 'report locations aggregate', () => {
-	it( 'aggregates matching locations without merging identical names in different countries', () => {
-		expect( aggregateLocationRows( report ) ).toEqual( [
+	it( 'keeps identical names in different countries apart', () => {
+		expect( buildLocationRows( items ) ).toEqual( [
 			{
 				id: 'US:Springfield',
 				label: 'Springfield',
 				countryCode: 'US',
 				countryFull: 'United States',
 				views: 13,
+				previousViews: 9,
 			},
 			{
 				id: 'CA:Springfield',
@@ -58,7 +36,16 @@ describe( 'report locations aggregate', () => {
 				countryCode: 'CA',
 				countryFull: 'Canada',
 				views: 3,
+				previousViews: undefined,
 			},
 		] );
+	} );
+
+	it( 'leaves a missing previous period undefined', () => {
+		expect( buildLocationRows( items )[ 1 ].previousViews ).toBeUndefined();
+	} );
+
+	it( 'returns no rows when the report has not arrived', () => {
+		expect( buildLocationRows( undefined ) ).toEqual( [] );
 	} );
 } );

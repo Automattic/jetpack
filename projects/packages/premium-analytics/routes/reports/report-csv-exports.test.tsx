@@ -23,6 +23,8 @@ import { useDownloadsReportRecords } from './downloads/config';
 import DownloadsReportPage from './downloads/page';
 import { useEmailsReportRecords } from './emails/config';
 import EmailsReportPage from './emails/page';
+import { useLocationsReportRecords } from './locations/config';
+import LocationsReportPage from './locations/page';
 import { useReferrersReportRecords } from './referrers/config';
 import ReferrersReportPage from './referrers/page';
 import { useSearchTermsReportRecords } from './search-terms/config';
@@ -149,6 +151,14 @@ jest.mock( './emails/config', () => ( {
 	useEmailsReportRecords: jest.fn(),
 } ) );
 
+jest.mock( './locations/config', () => ( {
+	getLocationFields: () => [],
+	getReportLocationsTabs: () => [ { id: 'countries', label: 'Countries' } ],
+	resolveSection: ( value: string | undefined ) => value ?? 'countries',
+	supportsCountryFilter: ( tab: string ) => tab !== 'countries',
+	useLocationsReportRecords: jest.fn(),
+} ) );
+
 jest.mock( './referrers/config', () => ( {
 	getReferrerFields: () => [],
 	useReferrersReportRecords: jest.fn(),
@@ -179,6 +189,7 @@ const useCommentFollowersReportRecordsMock = jest.mocked( useCommentFollowersRep
 const useCommentsReportRecordsMock = jest.mocked( useCommentsReportRecords );
 const useDownloadsReportRecordsMock = jest.mocked( useDownloadsReportRecords );
 const useEmailsReportRecordsMock = jest.mocked( useEmailsReportRecords );
+const useLocationsReportRecordsMock = jest.mocked( useLocationsReportRecords );
 const useReferrersReportRecordsMock = jest.mocked( useReferrersReportRecords );
 const useSearchTermsReportRecordsMock = jest.mocked( useSearchTermsReportRecords );
 const useTagsReportRecordsMock = jest.mocked( useTagsReportRecords );
@@ -440,6 +451,38 @@ describe( 'report CSV exports', () => {
 		} as ReturnType< typeof useReferrersReportRecords > );
 
 		expectCsvExport( ReferrersReportPage, 'referrers', rows, [ 'Search', '', 10, '' ] );
+	} );
+
+	it( 'configures the Locations export', () => {
+		const rows = [
+			{ id: 'IN:India', label: 'India', countryCode: 'IN', countryFull: 'India', views: 2 },
+			{
+				id: 'AU:Australia',
+				label: 'Australia',
+				countryCode: 'AU',
+				countryFull: 'Australia',
+				views: 5,
+			},
+		];
+		useSectionTabMock.mockReturnValue( [ 'countries', jest.fn() ] as unknown as ReturnType<
+			typeof useSectionTab
+		> );
+		useLocationsReportRecordsMock.mockReturnValue( {
+			...reportStatus,
+			hasComparison: false,
+			countries: { options: [] },
+			table: {
+				...reportStatus,
+				rows,
+			},
+		} as unknown as ReturnType< typeof useLocationsReportRecords > );
+
+		expectCsvExport(
+			LocationsReportPage,
+			'locations-countries',
+			[ rows[ 1 ], rows[ 0 ] ],
+			[ 'Australia', 5 ]
+		);
 	} );
 
 	it( 'configures the Search terms export', () => {

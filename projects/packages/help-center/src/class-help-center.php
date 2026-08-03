@@ -18,7 +18,7 @@ class Help_Center {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.3.1';
+	const PACKAGE_VERSION = '0.3.2';
 
 	/**
 	 * Class instance.
@@ -678,7 +678,7 @@ class Help_Center {
 	private static function get_assets_json( $filepath ) {
 		$accessible_directly = file_exists( ABSPATH . '/' . $filepath );
 		if ( $accessible_directly ) {
-			return json_decode( file_get_contents( ABSPATH . $filepath ), true );
+			return json_decode( file_get_contents( ABSPATH . '/' . $filepath ), true );
 		}
 		$request = wp_remote_get( 'https://' . $filepath );
 		if ( is_wp_error( $request ) ) {
@@ -700,9 +700,9 @@ class Help_Center {
 		$cache_key  = 'help-center-asset-' . $variant . '.asset.json';
 		$asset_file = get_transient( $cache_key );
 
-		if ( ! $asset_file ) {
+		if ( false === $asset_file ) {
 			$asset_file = self::get_assets_json( 'widgets.wp.com/help-center/help-center-' . $variant . '.asset.json' );
-			if ( ! $asset_file ) {
+			if ( null === $asset_file ) {
 				return;
 			}
 			set_transient( $cache_key, $asset_file, HOUR_IN_SECONDS );
@@ -782,9 +782,9 @@ class Help_Center {
 		$cache_key  = 'help-center-asset-' . $variant . '.asset.json';
 		$asset_file = get_transient( $cache_key );
 
-		if ( ! $asset_file ) {
+		if ( false === $asset_file ) {
 			$asset_file = self::get_assets_json( 'widgets.wp.com/help-center/help-center-' . $variant . '.asset.json' );
-			if ( ! $asset_file ) {
+			if ( null === $asset_file ) {
 				return;
 			}
 			set_transient( $cache_key, $asset_file, HOUR_IN_SECONDS );

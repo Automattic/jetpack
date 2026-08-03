@@ -1,0 +1,24 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/calendly",
+	"title": "Test: Calendly (gated)",
+	"description": "Fixture for the plan-gated block schema-preservation regression.",
+	"keywords": [],
+	"version": "",
+	"textdomain": "jetpack",
+	"category": "",
+	"icon": "",
+	"supports": {},
+	"attributes": {
+		"style": {
+			"type": "string",
+			"default": "inline",
+			"enum": [ "inline", "link" ]
+		},
+		"url": {
+			"type": "string"
+		}
+	},
+	"editorScript": ""
+}

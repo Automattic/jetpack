@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Locations report: correct the view counts to match the other reports, show period-over-period changes, and use the shared number format.

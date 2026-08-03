@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { flagUrl } from '@jetpack-premium-analytics/widgets-toolkit';
+import { flagUrl, MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -15,7 +15,13 @@ export type LocationRow = {
 	countryCode?: string;
 	countryFull: string;
 	views: number;
+	previousViews?: number;
 };
+
+const VIEWS_DATA_FORMAT = {
+	type: 'number',
+	options: { decimals: 0, useMultipliers: false },
+} as const;
 
 /**
  * One selectable country for the records table's country filter.
@@ -37,10 +43,14 @@ export interface LocationsCountryOption {
  * `views`. The API applies the filter server-side, because it returns at most
  * 256 rows and the regions of a smaller country fall outside that global cut.
  *
- * @param countries - Selectable countries, ordered by views.
+ * @param countries      - Selectable countries, ordered by views.
+ * @param withComparison - Whether to render available period-over-period deltas.
  * @return The field config.
  */
-export function getLocationFields( countries?: LocationsCountryOption[] ): Field< LocationRow >[] {
+export function getLocationFields(
+	countries?: LocationsCountryOption[],
+	withComparison = false
+): Field< LocationRow >[] {
 	const countryField: Field< LocationRow >[] = countries
 		? [
 				{
@@ -90,7 +100,14 @@ export function getLocationFields( countries?: LocationsCountryOption[] ): Field
 			id: 'views',
 			label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.views,
-			render: ( { item } ) => <>{ item.views.toLocaleString() }</>,
+			render: ( { item } ) => (
+				<MetricWithComparison
+					value={ item.views }
+					previousValue={ withComparison ? item.previousViews : undefined }
+					dataFormat={ VIEWS_DATA_FORMAT }
+					fontSize="md"
+				/>
+			),
 		},
 	];
 }
