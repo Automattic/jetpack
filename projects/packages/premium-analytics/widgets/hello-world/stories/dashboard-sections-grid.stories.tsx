@@ -155,7 +155,7 @@ function DashboardSectionsGridStory() {
 								editMode
 							>
 								<WidgetDashboard.NoWidgetsState />
-								<WidgetDashboard.Widgets />
+								<WidgetDashboard.Widgets className={ styles.widgets } />
 							</WidgetDashboard>
 						) : null }
 					</Tabs.Panel>
