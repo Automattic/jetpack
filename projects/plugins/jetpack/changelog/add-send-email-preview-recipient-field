@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Newsletter: Allow sending the test email to a chosen address, gated by the same abuse checks used when adding a subscriber.

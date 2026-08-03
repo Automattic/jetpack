@@ -875,6 +875,13 @@ class Jetpack_Gutenberg {
 				'is_coming_soon'                => $status->is_coming_soon(),
 				'is_offline_mode'               => $status->is_offline_mode(),
 				'is_newsletter_feature_enabled' => class_exists( '\Jetpack_Memberships' ),
+				// Whether the current user may send a newsletter test email to an
+				// address other than their own. The wpcom guard enforces this on send
+				// (also checking add_users and site stickers); this flag only controls
+				// whether the editor's recipient field is editable. Approximated with
+				// manage_options so editors, who can only test-send to themselves,
+				// aren't shown an editable field that would always be rejected.
+				'can_send_test_email_to_others' => current_user_can( 'manage_options' ),
 				// this is the equivalent of JP initial state siteData.showMyJetpack (class-jetpack-redux-state-helper)
 				// used to determine if we can link to My Jetpack from the block editor
 				'is_my_jetpack_available'       => My_Jetpack_Initializer::should_initialize(),
