@@ -123,4 +123,40 @@ describe( 'getFormatter', () => {
 
 		expect( yearly( new Date( '2023-01-01T00:00:00' ).getTime() ) ).toBe( '2023' );
 	} );
+
+	describe( 'with an explicit tickResolution', () => {
+		it( 'uses hour ticks for two hourly points a day apart, where spacing would read as daily', () => {
+			const formatter = getFormatter(
+				toSeries( [ new Date( '2026-08-01T00:00:00' ), new Date( '2026-08-02T00:00:00' ) ] ),
+				'hour'
+			);
+
+			expect( formatter( new Date( '2026-08-01T13:00:00' ).getTime() ) ).toMatch( /1\sPM/ );
+		} );
+
+		it( 'uses date ticks for a lone daily point, where spacing is unknowable', () => {
+			const formatter = getFormatter( toSeries( [ new Date( '2026-08-02T00:00:00' ) ] ), 'day' );
+
+			expect( formatter( new Date( '2026-08-02T00:00:00' ).getTime() ) ).toMatch( /Aug 2/ );
+		} );
+
+		it( 'uses month ticks for monthly buckets regardless of their measured gaps', () => {
+			const formatter = getFormatter(
+				toSeries( [ new Date( '2026-02-01T00:00:00' ), new Date( '2026-03-01T00:00:00' ) ] ),
+				'month'
+			);
+
+			expect( formatter( new Date( '2026-03-01T00:00:00' ).getTime() ) ).toBe( 'Mar' );
+		} );
+
+		it( 'uses date ticks for weekly buckets', () => {
+			const weeklyDates = Array.from(
+				{ length: 8 },
+				( _, i ) => new Date( Date.UTC( 2026, 0, 5 + i * 7 ) )
+			);
+			const formatter = getFormatter( toSeries( weeklyDates ), 'week' );
+
+			expect( formatter( new Date( '2026-01-12T00:00:00' ).getTime() ) ).toMatch( /Jan 12/ );
+		} );
+	} );
 } );

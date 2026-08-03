@@ -462,6 +462,12 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 		Pick< NonNullable< ChartTheme[ 'heatmapChart' ] >, 'primaryColor' >;
 };
 
+/**
+ * Bucket resolution of time-series data, as known by the caller (e.g. a
+ * granularity selector), for consumers that don't need to infer it.
+ */
+export type TickResolution = 'hour' | 'day' | 'week' | 'month';
+
 export type AxisOptions = {
 	orientation?: OrientationType;
 	numTicks?: number;
@@ -475,6 +481,13 @@ export type AxisOptions = {
 	labelClassName?: string;
 	tickClassName?: string;
 	tickFormat?: TickFormatter< ScaleInput< AxisScale > >;
+	/**
+	 * Bucket resolution of the data on a time x-axis. When set, the automatic
+	 * tick formatter derives tick formats from it directly instead of
+	 * inferring the resolution from point spacing. Ignored when `tickFormat`
+	 * is set.
+	 */
+	tickResolution?: TickResolution;
 	/**
 	 * Whether to display this axis. Defaults to true.
 	 */
