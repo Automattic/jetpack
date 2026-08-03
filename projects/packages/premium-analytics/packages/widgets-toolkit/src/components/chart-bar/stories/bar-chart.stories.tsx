@@ -329,6 +329,33 @@ export const ComparisonWithZeroValues: Story = {
 };
 
 /**
+ * TimeSeries: Bar chart over daily data points with locale-aware X-axis ticks
+ * Data points carry a `date` instead of a `label`; `tickFormat` renders the
+ * ticks and tooltip labels in the site's date format.
+ */
+export const TimeSeries: Story = {
+	args: {
+		chartData: [
+			{
+				label: 'Views',
+				data: [
+					{ date: new Date( 2026, 6, 27 ), value: 120 },
+					{ date: new Date( 2026, 6, 28 ), value: 95 },
+					{ date: new Date( 2026, 6, 29 ), value: 143 },
+					{ date: new Date( 2026, 6, 30 ), value: 88 },
+					{ date: new Date( 2026, 6, 31 ), value: 167 },
+					{ date: new Date( 2026, 7, 1 ), value: 52 },
+					{ date: new Date( 2026, 7, 2 ), value: 74 },
+				],
+			},
+		],
+		dataFormat: { type: 'number' },
+		styles: STYLES,
+		tickFormat: 'short',
+	},
+};
+
+/**
  * EmptyState: Bar chart with no data available
  * Demonstrates the empty state message when there's no data to display
  */

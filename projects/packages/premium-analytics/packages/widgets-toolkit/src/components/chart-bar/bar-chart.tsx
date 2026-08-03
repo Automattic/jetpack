@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { BarChart as BarChartBase, Icon } from '@jetpack-premium-analytics/externals';
+import { formatDate, type DateFormatName } from '@jetpack-premium-analytics/formatters';
 import clsx from 'clsx';
 import { useCallback, useMemo, useId } from 'react';
 /**
@@ -42,6 +43,9 @@ export type BarChartProps = {
 	 * Format configuration for chart values (tooltips)
 	 */
 	dataFormat: DataFormat;
+
+	/** Named date format for the X-axis ticks of time-series data. Uses the chart default when omitted. */
+	tickFormat?: DateFormatName;
 
 	/**
 	 * Explicit styles for bars. When provided, these take priority
@@ -139,6 +143,7 @@ function applyStylesToSeries(
 export function BarChart( {
 	chartData,
 	dataFormat,
+	tickFormat,
 	styles: stylesProp,
 	className,
 	emptyStateIcon,
@@ -174,6 +179,11 @@ export function BarChart( {
 	 */
 	const isEmptyData = useMemo( () => isEmptyChartData( styledChartData ), [ styledChartData ] );
 
+	const xTickFormat = useCallback(
+		( date: Date | number ) => formatDate( date, tickFormat ),
+		[ tickFormat ]
+	);
+
 	/**
 	 * Chart options for empty data state.
 	 * Sets a fixed Y-axis domain so the chart shows 0 at the bottom
@@ -186,6 +196,10 @@ export function BarChart( {
 				axis: {
 					x: {
 						labelOverflow: 'ellipsis' as const,
+						// Must stay conditional: an explicit `tickFormat: undefined` key
+						// would clobber the chart library's own tick labels when the
+						// axis options are spread over its defaults.
+						...( tickFormat ? { tickFormat: xTickFormat } : {} ),
 					},
 				},
 			};
@@ -195,17 +209,22 @@ export function BarChart( {
 		return {
 			yScale: { domain },
 		};
-	}, [ isEmptyData, dataFormat.type ] );
+	}, [ isEmptyData, dataFormat.type, tickFormat, xTickFormat ] );
 
 	const getTooltipLabel = useCallback(
-		( datum: { label: string }, _index: number, key: string ): string => {
+		( datum: { label?: string; date?: Date }, _index: number, key: string ): string => {
+			if ( ! datum.label && datum.date ) {
+				// Time-series points carry a date instead of a label; match the
+				// line chart's site-formatted tooltip dates.
+				return formatDate( datum.date );
+			}
 			if ( key ) {
 				// Show the key (typically the date range label) in the tooltip if available,
 				// since the bar's label is already shown on the x-axis. This helps distinguish
 				// between current period and comparison period bars in tooltips.
 				return key;
 			}
-			return datum.label;
+			return datum.label ?? '';
 		},
 		[]
 	);

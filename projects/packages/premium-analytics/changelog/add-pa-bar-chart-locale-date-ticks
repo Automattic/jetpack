@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Format bar chart time-series dates using the site's language and date format.
