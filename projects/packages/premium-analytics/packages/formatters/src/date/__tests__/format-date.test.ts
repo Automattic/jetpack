@@ -6,7 +6,7 @@ import { setSettings } from '@wordpress/date';
  * Internal dependencies
  */
 import { EN_US_SETTINGS, ES_ES_SETTINGS, settingsFor } from '../__fixtures__/wp-date-settings';
-import { formatDate } from '../format-date';
+import { formatDate, formatWallDate } from '../format-date';
 
 // Midnight UTC, matching the fixtures' timezone, so no day shift is in play.
 const JUNE_21 = new Date( '2025-06-21T00:00:00+00:00' );
@@ -44,6 +44,10 @@ describe( 'formatDate', () => {
 		it( 'leads "fullNoYear" with the weekday and drops the year', () => {
 			expect( formatDate( JUNE_21, 'fullNoYear' ) ).toBe( 'Saturday, June 21' );
 		} );
+
+		it( 'formats "datetime" with the site datetime format', () => {
+			expect( formatDate( JUNE_21, 'datetime' ) ).toBe( 'June 21, 2025 12:00 am' );
+		} );
 	} );
 
 	describe( 'es_ES site', () => {
@@ -74,5 +78,21 @@ describe( 'formatDate', () => {
 		setSettings( settingsFor( 'weekday-format-test', 'l, F j, Y' ) );
 
 		expect( formatDate( JUNE_21, 'full' ) ).toBe( 'Saturday, June 21, 2025' );
+	} );
+} );
+
+describe( 'formatWallDate', () => {
+	beforeEach( () => {
+		setSettings( EN_US_SETTINGS );
+	} );
+
+	it( 'reproduces the wall-clock reading regardless of the site timezone', () => {
+		// A browser-local wall-clock value, as chart points carry (see
+		// `buildMetricTab`). The local getters define the expected output, so the
+		// assertion holds in any runner timezone.
+		const wall = new Date( 2025, 5, 21, 15, 30 );
+
+		expect( formatWallDate( wall ) ).toBe( 'June 21, 2025' );
+		expect( formatWallDate( wall, 'datetime' ) ).toBe( 'June 21, 2025 3:30 pm' );
 	} );
 } );

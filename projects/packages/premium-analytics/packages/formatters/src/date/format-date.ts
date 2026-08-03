@@ -18,6 +18,7 @@ export type DateFormatName =
 	| 'compact'
 	| 'short'
 	| 'year'
+	| 'datetime'
 	| 'iso'
 	| 'full'
 	| 'fullNoYear';
@@ -47,7 +48,12 @@ function formatFor( name: DateFormatName ): string {
 		return YEAR_FORMAT;
 	}
 
-	const siteFormat = getSettings().formats.date;
+	const { date: siteFormat, datetime } = getSettings().formats;
+
+	if ( name === 'datetime' ) {
+		return datetime;
+	}
+
 	const withoutYearFormat = withoutYear( siteFormat ) || siteFormat;
 
 	if ( name === 'compact' ) {
@@ -88,3 +94,19 @@ function formatFor( name: DateFormatName ): string {
  */
 export const formatDate = ( date: DateInput, name: DateFormatName = 'medium' ): string =>
 	dateI18n( formatFor( name ), date );
+
+/**
+ * Format a wall-clock date in its own (browser-local) frame, in the site's
+ * locale.
+ *
+ * For `Date`s that carry a wall-clock reading in the browser frame — the chart
+ * library's convention for time-series points — rather than a real instant.
+ * `formatDate`'s site-timezone rendering would shift such a value by the
+ * browser-to-site offset; this reproduces exactly what the date reads as.
+ *
+ * @param date - The wall-clock date to render.
+ * @param name - Named format. Defaults to `'medium'`.
+ * @return The formatted date.
+ */
+export const formatWallDate = ( date: Date, name: DateFormatName = 'medium' ): string =>
+	dateI18n( formatFor( name ), date, -date.getTimezoneOffset() );

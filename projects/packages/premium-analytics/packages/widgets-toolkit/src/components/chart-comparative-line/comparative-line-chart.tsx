@@ -5,6 +5,7 @@ import { LineChart, Stack } from '@jetpack-premium-analytics/externals';
 import {
 	formatDate,
 	formatMetricValue,
+	formatWallDate,
 	type DateFormatName,
 } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
@@ -65,6 +66,8 @@ const DEFAULT_MARGIN = { right: 0 };
  * a sparkline (no y-axis, grid, or legend).
  */
 const COMPACT_CHART_HEIGHT = 140;
+
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
 /**
  * Applies resolved styles to series data for the internal LineChart.
@@ -193,13 +196,27 @@ export function ComparativeLineChart( {
 	 * @param datum - The data point with date information
 	 * @param index - Index of this entry in the tooltip
 	 */
+	// Sub-daily series (hourly buckets) label tooltip entries with date + time:
+	// a date alone cannot distinguish the 24 points of one day.
+	const isSubDaily = useMemo( () => {
+		const points = series[ 0 ]?.data;
+		return (
+			!! points &&
+			points.length > 1 &&
+			points[ 1 ].date.getTime() - points[ 0 ].date.getTime() < DAY_IN_MS
+		);
+	}, [ series ] );
+
 	const getTooltipLabel = useCallback(
 		( datum: { date: Date; realDate?: Date }, index: number ): string => {
 			const isComparison = index > 0;
 			const displayDate = isComparison ? datum.realDate ?? datum.date : datum.date;
-			return formatDate( displayDate );
+			// Chart dates are wall-clock in the browser frame (the chart library's
+			// convention — see `buildMetricTab`), so render in that same frame; the
+			// site-frame default would shift the label by the browser-to-site offset.
+			return formatWallDate( displayDate, isSubDaily ? 'datetime' : 'medium' );
 		},
-		[]
+		[ isSubDaily ]
 	);
 
 	const renderTooltip = useCallback(
@@ -310,10 +327,11 @@ export function ComparativeLineChart( {
 		const baseOptions = {
 			axis: {
 				x: {
-					// Must stay conditional: `formatDate` defaults to `medium`, so an
-					// unconditional `xTickFormat` would put full site-format dates on every
-					// tick. Without the prop, the chart library's own tick labels stay in use.
-					tickFormat: xTickFormatType ? xTickFormat : undefined,
+					// The key must be OMITTED (not set to undefined) when no format is
+					// requested: LineChart spreads these options over its own defaults,
+					// so an explicit `tickFormat: undefined` would wipe out the library's
+					// span-based formatter and fall through to d3's mixed-format ticks.
+					...( xTickFormatType ? { tickFormat: xTickFormat } : {} ),
 				},
 				y: {
 					tickFormat: yTickFormat,

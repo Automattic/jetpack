@@ -20,6 +20,29 @@ describe( 'buildMetricTab', () => {
 		expect( tab.value ).toBe( 999 );
 	} );
 
+	it( 'parses date_start as browser-local wall-clock, stripping the nominal +00:00 stamp', () => {
+		const tab = buildMetricTab( {
+			primary: {
+				summary: { views: 3 },
+				data: [
+					{ date_start: '2026-05-01T14:00:00.000+00:00', views: 1 },
+					{ date_start: '2026-05-01 15:00:00', views: 2 },
+				],
+			},
+			comparison: undefined,
+			hasComparison: false,
+			field: 'views',
+			label: 'Views',
+		} );
+
+		// Local getters read the intended wall time regardless of the runner's
+		// timezone — parsing the stamp as a real instant would shift these by
+		// the runner's UTC offset.
+		expect( tab.current[ 0 ].date.getHours() ).toBe( 14 );
+		expect( tab.current[ 0 ].date.getDate() ).toBe( 1 );
+		expect( tab.current[ 1 ].date.getHours() ).toBe( 15 );
+	} );
+
 	it( 'passes dataFormat through unchanged', () => {
 		const dataFormat = { type: 'currency' as const };
 		const tab = buildMetricTab( {

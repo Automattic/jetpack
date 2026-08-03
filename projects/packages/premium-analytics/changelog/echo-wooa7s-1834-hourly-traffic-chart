@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add a "By hours" option to the Traffic widget's Group by dropdown, showing hourly Views (Visitors, Likes, and Comments aren't available hourly and show disabled). Group by options the selected date range doesn't support are disabled, and a selection the range no longer allows resets to Auto.
+Add a "By hours" option to the Traffic widget's Group by dropdown, showing hourly Views (Visitors, Likes, and Comments aren't available hourly and show disabled). Group by options the selected date range doesn't support are disabled, and a selection the range no longer allows resets to Auto. The chart's time axis follows the grouping — hour markers for hourly, dates for days/weeks, months for monthly — and hourly tooltips include the hour.

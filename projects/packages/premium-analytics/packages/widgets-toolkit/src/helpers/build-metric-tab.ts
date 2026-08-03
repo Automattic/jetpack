@@ -1,8 +1,4 @@
 /**
- * External dependencies
- */
-import { localTZDate } from '@jetpack-premium-analytics/data';
-/**
  * Internal dependencies
  */
 import type { MetricTab } from '../components';
@@ -46,6 +42,27 @@ function total( report: MetricReport | undefined, field: string ): number {
 }
 
 /**
+ * Parse a bucket's `date_start` as a wall-clock date in the browser frame —
+ * the chart library's convention (its own parsing treats naive date strings
+ * as local, and its auto axis ticks and time scale operate browser-locally).
+ * Stats buckets label site-local wall-clock stamped with a nominal `+00:00`,
+ * so the stamp is stripped rather than honored: parsing it as a real instant
+ * would shift every bucket by the browser offset — an hourly chart's ticks
+ * and points would read hours (or, across midnight, a day) off.
+ *
+ * @param value - The bucket's `date_start`.
+ * @return The wall-clock date.
+ */
+function toWallClockDate( value: string ): Date {
+	const naive = value
+		.trim()
+		.replace( /(?:Z|[+-]00:?00)$/, '' )
+		.replace( ' ', 'T' );
+
+	return new Date( naive.includes( 'T' ) ? naive : `${ naive }T00:00:00` );
+}
+
+/**
  * Map a field of a normalized report into chart points.
  *
  * @param report - The normalized report, or undefined while loading.
@@ -54,7 +71,7 @@ function total( report: MetricReport | undefined, field: string ): number {
  */
 function toPoints( report: MetricReport | undefined, field: string ) {
 	return ( report?.data ?? [] ).map( point => ( {
-		date: localTZDate( point.date_start ),
+		date: toWallClockDate( point.date_start ),
 		value: Number( ( point as Record< string, unknown > )[ field ] ?? 0 ),
 	} ) );
 }

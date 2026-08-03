@@ -1,5 +1,6 @@
 export {
 	formatDate,
+	formatWallDate,
 	formatDateRange,
 	formatDateRangeCompact,
 	formatDateRangeLong,

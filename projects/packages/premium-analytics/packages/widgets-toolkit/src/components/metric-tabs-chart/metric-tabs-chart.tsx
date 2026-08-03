@@ -1,10 +1,12 @@
 /**
  * External dependencies
  */
+import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { SelectControl, Tabs, Text } from '@jetpack-premium-analytics/externals';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
+import { format } from 'date-fns';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
@@ -74,6 +76,19 @@ export interface MetricTabsChartProps {
 }
 
 /**
+ * Re-anchor a chart point's wall-clock date (browser frame, the chart
+ * library's convention — see `buildMetricTab`) into a site-frame instant, so
+ * `formatDateRange` — which renders in the site frame — reproduces the same
+ * wall-clock date.
+ *
+ * @param wall - The wall-clock date.
+ * @return The site-frame instant.
+ */
+function toSiteInstant( wall: Date ): Date {
+	return parseSiteDateTime( format( wall, "yyyy-MM-dd'T'HH:mm:ss" ) ) ?? wall;
+}
+
+/**
  * Format a series' legend label as its date range (first to last point), so the
  * legend reads as date ranges — consistent with the other comparative charts
  * (see `buildTimeSeriesChartData`). The selected card names the metric.
@@ -84,7 +99,9 @@ export interface MetricTabsChartProps {
 function rangeLabel( points: MetricTabDatum[] ): string {
 	const first = points[ 0 ];
 	const last = points[ points.length - 1 ];
-	return first && last ? formatDateRange( { from: first.date, to: last.date } ) : '';
+	return first && last
+		? formatDateRange( { from: toSiteInstant( first.date ), to: toSiteInstant( last.date ) } )
+		: '';
 }
 
 /**
