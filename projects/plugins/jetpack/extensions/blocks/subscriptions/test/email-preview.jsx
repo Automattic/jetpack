@@ -287,6 +287,26 @@ describe( 'Test email recipient', () => {
 		expect( screen.queryByText( /not a valid JSON response/i ) ).not.toBeInTheDocument();
 	} );
 
+	// The Atomic edge rate limiter returns a text/html 429 before WordPress runs,
+	// which apiFetch collapses to a non-actionable `invalid_json` code (the 429
+	// status is dropped). The raw parser message must not reach the user.
+	it( 'shows a friendly fallback for a non-actionable invalid_json rejection', async () => {
+		const user = userEvent.setup();
+		apiFetch.mockRejectedValue( {
+			code: 'invalid_json',
+			message: 'The response is not a valid JSON response.',
+		} );
+
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
+
+		await expect(
+			screen.findByText( /please try again in a little while/i )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByText( /not a valid JSON response/i ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'locks the recipient field for users who cannot send to others', () => {
 		window.Jetpack_Editor_Initial_State.jetpack = { can_send_test_email_to_others: false };
 

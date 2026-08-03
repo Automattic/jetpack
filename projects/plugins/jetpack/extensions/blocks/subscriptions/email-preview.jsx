@@ -46,6 +46,19 @@ import { SendIcon } from './icons';
 const MISSING_CONNECTION_ERROR_CODE = 'rest_cannot_send_email_preview';
 
 /**
+ * apiFetch surfaces transport and parse failures under codes that aren't
+ * user-actionable. The most common in the wild is an Atomic edge rate-limit:
+ * the web-server layer returns a `text/html` 429 page before WordPress runs, so
+ * there's no JSON envelope and apiFetch collapses the whole response to
+ * `invalid_json` with the 429 status dropped. Showing that raw parser message to
+ * the user is meaningless — surface the friendly generic fallback instead.
+ *
+ * The heavier `parse: false` pattern that recovers the exact HTTP status lives
+ * in projects/packages/podcast/src/admin-pages/create-ai-podcast/index.js.
+ */
+const NON_ACTIONABLE_ERROR_CODES = [ 'invalid_json', 'unknown_error' ];
+
+/**
  * Lightweight client-side email format check, used to give instant feedback and
  * skip the draft save + network round-trip on obviously malformed input. The
  * server performs the authoritative validation.
@@ -135,15 +148,17 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 			} )
 			.catch( e => {
 				setIsEmailSending( false );
+				// A structured WP_Error carries a code and a user-facing message we
+				// can show verbatim. A rejection without an actionable code — no code
+				// at all, or a transport/parse code like `invalid_json` from an
+				// upstream rate limiter (see NON_ACTIONABLE_ERROR_CODES) — gets a
+				// friendly generic fallback rather than a raw parser message.
+				const hasActionableMessage =
+					e?.code && ! NON_ACTIONABLE_ERROR_CODES.includes( e.code ) && e.message;
 				setError( {
 					code: e?.code,
-					// A structured WP_Error carries a code and a user-facing message.
-					// A rejection without a code (e.g. a non-JSON response from an
-					// upstream rate limiter) gets a friendly generic fallback rather
-					// than a raw parser message.
-					message: e?.code
-						? e.message ||
-						  __( 'Whoops, we have encountered an error. Please try again later.', 'jetpack' )
+					message: hasActionableMessage
+						? e.message
 						: __(
 								'Something went wrong sending the test email. Please try again in a little while.',
 								'jetpack'
