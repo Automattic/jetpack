@@ -507,7 +507,14 @@ export function resolveCustomResults( searchQuery, customResults ) {
 		let pattern = rule.pattern;
 		if ( pattern.startsWith( 'regex:' ) ) {
 			pattern = '^' + pattern.replace( 'regex:', '' ) + '$';
-			if ( query.match( pattern ) ) {
+			let matches;
+			try {
+				matches = query.match( pattern );
+			} catch {
+				// Invalid regex is skipped, not fatal — matches the PHP helper.
+				continue;
+			}
+			if ( matches ) {
 				return rule.ids;
 			}
 		} else if ( query === pattern ) {

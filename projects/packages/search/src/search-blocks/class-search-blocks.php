@@ -2313,6 +2313,8 @@ HTML;
 	/**
 	 * Read Instant Search query-customization options for the blocks store.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return array Query options with keys:
 	 *               `highlightPhraseOnly`, `highlightFilterStopwords`, `highlightFields`,
 	 *               `additionalBlogIds`, `adminQueryFilter`, and `customResults`.

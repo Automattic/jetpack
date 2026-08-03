@@ -1009,16 +1009,22 @@ class Helper {
 	/**
 	 * Default highlight fields when `highlightFields` is unset in
 	 * `jetpack_instant_search_options`. Matches instant search's JS default.
+	 *
+	 * @since $$next-version$$
 	 */
 	const DEFAULT_INSTANT_SEARCH_HIGHLIGHT_FIELDS = array( 'title', 'content', 'comments' );
 
 	/**
 	 * Fields added to API `fields` when searching additional blogs.
+	 *
+	 * @since $$next-version$$
 	 */
 	const MULTISITE_SEARCH_FIELD_NAMES = array( 'author', 'blog_name', 'blog_icon_url', 'blog_id' );
 
 	/**
 	 * Read Instant Search query-customization options from a filtered options array.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param array $options Raw `jetpack_instant_search_options` value.
 	 * @return array Query options with keys:
@@ -1097,6 +1103,8 @@ class Helper {
 	 * Passing an empty array into the filter matches `Filter_Static::read_raw_entries()`
 	 * — callbacks only add keys.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return array Query options with keys:
 	 *               `highlightPhraseOnly`, `highlightFilterStopwords`, `highlightFields`,
 	 *               `additionalBlogIds`, `adminQueryFilter`, and `customResults`.
@@ -1114,6 +1122,8 @@ class Helper {
 	 * Merge Instant Search query-customization options into v1.3 API args.
 	 *
 	 * Shared by Inline Search (Theme) and any server-side v1.3 callers.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param array      $api_query_args API query arguments.
 	 * @param array|null $options        Filtered `jetpack_instant_search_options` value. Defaults to `generate_initial_javascript_state()`.
@@ -1179,6 +1189,8 @@ class Helper {
 	 *
 	 * Mirrors instant search's exact / `regex:` pattern matching.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param string $query          Current search query.
 	 * @param array  $custom_results Normalized custom-results rules.
 	 * @return array<int, int|string>|null
@@ -1192,7 +1204,8 @@ class Helper {
 			$pattern = $rule['pattern'];
 			$ids     = $rule['ids'];
 			if ( 0 === strpos( $pattern, 'regex:' ) ) {
-				$regex = '/^' . substr( $pattern, strlen( 'regex:' ) ) . '$/';
+				// Escape the delimiter so patterns containing `/` (e.g. `regex:docs/.*`) stay valid PCRE.
+				$regex = '/^' . str_replace( '/', '\/', substr( $pattern, strlen( 'regex:' ) ) ) . '$/';
 				if ( @preg_match( $regex, $query ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Invalid user regex should be skipped, not fatal.
 					return $ids;
 				}

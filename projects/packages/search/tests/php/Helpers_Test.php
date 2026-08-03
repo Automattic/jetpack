@@ -2004,5 +2004,18 @@ class Helpers_Test extends TestCase {
 				)
 			)
 		);
+		$this->assertSame(
+			array( 4 ),
+			Helper::resolve_instant_search_custom_results(
+				'docs/getting-started',
+				array(
+					array(
+						'pattern' => 'regex:docs/.*',
+						'ids'     => array( 4 ),
+					),
+				)
+			),
+			'Patterns containing the PCRE delimiter should still match.'
+		);
 	}
 }

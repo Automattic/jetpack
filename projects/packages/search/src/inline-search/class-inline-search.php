@@ -352,11 +352,7 @@ class Inline_Search extends Classic_Search {
 			}
 		}
 
-		$highlight_fields = array(
-			'title',
-			'content',
-			'comments',
-		);
+		$highlight_fields = Helper::DEFAULT_INSTANT_SEARCH_HIGHLIGHT_FIELDS;
 
 		$fields = array(
 			'blog_id',

@@ -1350,4 +1350,13 @@ describe( 'resolveCustomResults', () => {
 			resolveCustomResults( 'hello world', [ { pattern: 'regex:hello.*', ids: [ 99 ] } ] )
 		).toEqual( [ 99 ] );
 	} );
+
+	it( 'skips invalid regex: patterns instead of throwing', () => {
+		expect(
+			resolveCustomResults( 'hello', [
+				{ pattern: 'regex:[invalid', ids: [ 1 ] },
+				{ pattern: 'hello', ids: [ 2 ] },
+			] )
+		).toEqual( [ 2 ] );
+	} );
 } );
