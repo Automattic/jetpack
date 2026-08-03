@@ -139,13 +139,15 @@ class Package_Provenance_Helper {
 				padding: 1px 8px 1px 0; text-align: start; white-space: nowrap; vertical-align: top;
 			}
 			#package-provenance-body th { color: #9cdcfe; position: sticky; inset-block-start: 0; background: #1e1e1e; }
-			.pkg-prov { padding: 0 5px; border-radius: 3px; color: #111; font-weight: 700; }
-			.pkg-prov-core { background: #569cd6; }
-			.pkg-prov-gutenberg { background: #c586c0; }
-			.pkg-prov-polyfill { background: #ce9178; }
-			.pkg-prov-app { background: #6a9955; }
-			.pkg-prov-other { background: #808080; }
-			.pkg-dim { opacity: .45; }
+			.pkg-prov { padding: 0 5px; border-radius: 3px; color: #0a0a0a; font-weight: 700; }
+			.pkg-prov-core { background: #6ab0f3; }
+			.pkg-prov-gutenberg { background: #d49bd0; }
+			.pkg-prov-polyfill { background: #e0a184; }
+			.pkg-prov-app { background: #7fb069; }
+			.pkg-prov-other { background: #9a9a9a; }
+			/* Dim by text color, not row opacity, so provider labels stay legible. */
+			.pkg-dim td { color: #8a8a8a; }
+			.pkg-dim .pkg-prov { filter: saturate( .55 ) brightness( .82 ); }
 			#package-provenance-note { color: #808080; margin-block-start: 6px; white-space: normal; }
 		</style>
 		<div id="package-provenance-panel" role="dialog" aria-label="Package provenance">
