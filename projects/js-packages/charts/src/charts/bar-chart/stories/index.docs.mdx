@@ -244,6 +244,12 @@ Bar charts support both categorical labels and time-series data:
 
 <Canvas of={ BarChartStories.TimeSeries } />
 
+Date-based series pick their default tick format from the data's time span, the same way
+line and area charts do: hour ticks within a day, calendar dates within a year, otherwise
+years. An explicit `options.axis.x.tickFormat` still overrides.
+
+<Canvas of={ BarChartStories.TimeAxisTickFormats } />
+
 <Source
 	language="jsx"
 	code={ `// Date objects

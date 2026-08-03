@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Charts: pick bar chart time-axis ticks with the shared line/area time-axis formatter.
+Charts: adapt bar chart time-axis ticks to the data's time span — hours within a day, dates within a year, otherwise years — matching line and area charts.
