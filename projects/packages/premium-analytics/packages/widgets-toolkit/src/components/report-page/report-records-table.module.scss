@@ -1,36 +1,5 @@
-@use "sass:meta";
-
-/* DataViews renders its filter and view-config popovers through a portal on
- * `<body>`, outside this component, so the stylesheet must not be nested under
- * `.root`: the portalled chrome would match none of its rules and fall back to
- * unstyled popover content — a filter list with no selected-item colours, for
- * one. Every selector DataViews ships is already namespaced under
- * `.dataviews-*`, so loading it unscoped adds no bleed. It goes through Sass
- * rather than a plain `@import` so Storybook does not emit a relative one. */
-:global {
-
-	@include meta.load-css( "@wordpress/dataviews/build-style/style" );
-
-	/* WordPress core's editor stylesheet (`wp-includes/css/dist/editor/style.css`)
-	 * is enqueued on this admin page and carries an older copy of the DataViews
-	 * styles, which draws a hovered filter option as a solid accent fill with
-	 * `color: #fff`. The version loaded above redesigned that state as a 12% tint
-	 * and deliberately leaves the foreground alone. Both rules have the same
-	 * specificity, so ours wins the background while core's white text survives on
-	 * the pale tint — an unreadable row. Restate the foreground these states are
-	 * meant to keep, so the stale rule cannot leak through. */
-	.dataviews-filters__search-widget-listitem:hover,
-	.dataviews-filters__search-widget-listitem:focus,
-	.dataviews-filters__search-widget-listitem[data-active-item] {
-		color: inherit;
-	}
-
-	.dataviews-filters__search-widget-listitem:hover .dataviews-filters__search-widget-listitem-description,
-	.dataviews-filters__search-widget-listitem:focus .dataviews-filters__search-widget-listitem-description,
-	.dataviews-filters__search-widget-listitem[data-active-item] .dataviews-filters__search-widget-listitem-description {
-		color: var(--wpds-color-foreground-content-neutral-weak);
-	}
-}
+/* The DataViews stylesheet and the popover rules that go with it live in the
+ * plain `report-records-table.scss`, because they must stay unscoped. */
 
 /* DataViews pads its own chrome — the toolbar, the table's first/last cells,
  * and the footer all carry the same 24px inline inset the section card would

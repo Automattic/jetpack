@@ -15,6 +15,7 @@ import { useCallback, useMemo, useState } from 'react';
  */
 import { ReportPageSection } from './report-page-layout';
 import styles from './report-records-table.module.scss';
+import './report-records-table.scss';
 import type { ComponentProps, ReactElement, ReactNode } from 'react';
 
 const DEFAULT_PER_PAGE_SIZES = [ 10, 25, 50, 100 ];
