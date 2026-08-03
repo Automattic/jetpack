@@ -57,6 +57,7 @@ export type {
 	LegendShapeStyles,
 	LegendPosition,
 	ChartLegendConfig,
+	SeriesChartLegendConfig,
 	BaseChartProps,
 	GridProps,
 	GoogleDataTableColumn,

@@ -1,9 +1,18 @@
-import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
+import type {
+	BaseChartProps,
+	DataPointDate,
+	SeriesData,
+	SeriesChartLegendConfig,
+} from '../../types';
 import type { RenderTooltipParams } from '../../visx/types';
 import type { CurveType } from '../line-chart/types';
 import type { ReactNode } from 'react';
 
 export interface AreaChartProps extends BaseChartProps< SeriesData[] > {
+	/**
+	 * Legend configuration. Supports `collapseGroups` on top of the shared options.
+	 */
+	legend?: SeriesChartLegendConfig;
 	/**
 	 * Whether series should be stacked on top of each other.
 	 * When false, series are rendered as overlapping filled areas.
@@ -54,12 +63,17 @@ export interface AreaChartProps extends BaseChartProps< SeriesData[] > {
 	 */
 	zoomable?: boolean;
 	/**
-	 * When using an interactive legend, controls whether the Y axis rescales
-	 * to fit only the visible series. Defaults to `true`, matching the
-	 * intuitive default for LineChart and BarChart. Set to `false` to pin
-	 * the Y axis to the full data extent so toggling legend items off does
-	 * not move the chart's baseline.
+	 * Whether the Y axis rescales to fit only the visible series when series are
+	 * hidden or shown through the interactive legend.
+	 * Defaults to `true`, matching LineChart. Set to `false` to pin the Y axis to
+	 * the full data extent so hiding series does not move the chart's baseline.
 	 * @default true
+	 */
+	rescaleYOnVisibilityChange?: boolean;
+	/**
+	 * @deprecated Use `rescaleYOnVisibilityChange`. The behaviour keys off series
+	 * visibility changing, not specifically a legend toggle. Still honoured when
+	 * `rescaleYOnVisibilityChange` is not set.
 	 */
 	rescaleYOnLegendToggle?: boolean;
 	children?: ReactNode;

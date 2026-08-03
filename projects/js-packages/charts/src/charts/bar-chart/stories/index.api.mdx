@@ -23,7 +23,7 @@ Main chart component with responsive behavior by default.
 | `animation` | `boolean` | `false` | Enable entry animation on initial render. Vertical bars rise from the bottom; horizontal bars stretch from the left. Automatically respects user's `prefers-reduced-motion` system setting |
 | `showZeroValues` | `boolean` | `false` | Display zero values with minimum visual height |
 | `showLegend` | `boolean` | `false` | Display chart legend |
-| `legend` | `ChartLegendConfig` | `undefined` | Legend configuration object. See [ChartLegendConfig](#chartlegendconfig-type) |
+| `legend` | `SeriesChartLegendConfig` | `undefined` | Legend configuration object. See [SeriesChartLegendConfig](#serieschartlegendconfig-type) |
 | `gridVisibility` | `'x' \| 'y' \| 'xy' \| 'none'` | orientation-based | Grid line visibility |
 | `renderTooltip` | `(params: RenderTooltipParams) => ReactNode` | - | Custom tooltip render function |
 | `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }` | calculated | Chart margins |
@@ -124,15 +124,17 @@ type ChartOptions = {
 };
 ```
 
-## ChartLegendConfig Type
+## SeriesChartLegendConfig Type
 
 ```typescript
-type ChartLegendConfig = {
+type SeriesChartLegendConfig = {
 	orientation?: 'horizontal' | 'vertical';
 	position?: 'top' | 'bottom';
 	alignment?: 'start' | 'center' | 'end';
 	shape?: LegendShape;
 	interactive?: boolean;
+	// Collapse series sharing a `group` into one item (line, bar, area charts only).
+	collapseGroups?: boolean;
 	itemClassName?: string;
 	itemStyles?: LegendItemStyles;
 	labelStyles?: LegendLabelStyles;
