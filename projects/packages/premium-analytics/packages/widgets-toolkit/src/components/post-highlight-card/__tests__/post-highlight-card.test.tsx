@@ -120,6 +120,27 @@ describe( 'PostHighlightCard', () => {
 		expect( screen.queryByText( /^Post published on/ ) ).not.toBeInTheDocument();
 	} );
 
+	// A metric whose request failed must not be shown as a real count: on a
+	// private site the Stats endpoint 403s, and "Likes 0" would be a wrong number
+	// rather than a missing one.
+	it( 'renders an unavailable metric as a dash, not as zero', () => {
+		render(
+			<PostHighlightCard
+				{ ...props }
+				metrics={ [
+					{ key: 'views', label: 'Views', value: undefined },
+					{ key: 'likes', label: 'Likes', value: 0 },
+				] }
+			/>
+		);
+
+		expect( screen.getByText( '—' ) ).toBeInTheDocument();
+		// Spelled out for assistive tech, which may skip the dash entirely.
+		expect( screen.getByText( 'Not available' ) ).toBeInTheDocument();
+		// A genuine zero still renders as a number.
+		expect( screen.getByText( '0' ) ).toBeInTheDocument();
+	} );
+
 	// A lifetime metric shown next to a period-scoped one must say so, and the
 	// `title` tooltip alone is invisible to assistive technology.
 	it( 'exposes a metric note as both a tooltip and visually hidden text', () => {

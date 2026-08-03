@@ -9,10 +9,26 @@ import {
 	type LatestPostResponse,
 } from '@jetpack-premium-analytics/data';
 
+/**
+ * The Stats post row reports `comment_count` as either a string or a number.
+ * An absent count stays absent, so it can render as "not available" instead of
+ * being flattened into a real zero.
+ *
+ * @param value - The raw `comment_count` from the Stats post row.
+ * @return The parsed count, or undefined when the row carries none.
+ */
+function toCommentCount( value: string | number | undefined ): number | undefined {
+	return value === undefined ? undefined : Number( value ) || 0;
+}
+
 export type LatestPostWithMetrics = LatestPost & {
-	views: number;
-	likeCount: number;
-	commentCount: number;
+	/**
+	 * All-time metrics from the Stats post endpoint. Undefined when that request
+	 * failed, so the card can distinguish "unknown" from a genuine zero.
+	 */
+	views: number | undefined;
+	likeCount: number | undefined;
+	commentCount: number | undefined;
 };
 
 export type UseLatestPostResult = {
@@ -32,7 +48,8 @@ export type UseLatestPostResult = {
  *
  * Only a content failure surfaces as an error — content is the widget. When the
  * Stats request fails (e.g. a private Simple site where stats/post 403s), the
- * post still renders with its metrics zeroed rather than blanking the widget.
+ * post still renders, with its metrics marked unavailable rather than zeroed and
+ * rather than blanking the widget.
  *
  * @return The latest post with its metrics, plus combined loading/error state.
  */
@@ -46,10 +63,13 @@ export function useLatestPost(): UseLatestPostResult {
 
 	const isLoading = latestPostResult.isLoading || ( postId > 0 && postStatsResult.isLoading );
 	const isFetching = latestPostResult.isFetching || postStatsResult.isFetching;
-	// The content query keeps prior data via `placeholderData`, so a transient
-	// refetch failure keeps the post visible; only surface the error when there
-	// is nothing to show.
-	const isError = latestPostResult.isError && ! latestPost;
+	/*
+	 * Surface a content failure even when a post is still on screen. `placeholderData`
+	 * only applies while a query is pending, so a post that survives an error is
+	 * React Query's last successful data — a failed background refetch. Gating the
+	 * error on `! latestPost` hid exactly that case: stale content, no error, no Retry.
+	 */
+	const isError = latestPostResult.isError;
 
 	const refetch = () => {
 		void latestPostResult.refetch();
@@ -63,9 +83,11 @@ export function useLatestPost(): UseLatestPostResult {
 	const post = latestPost
 		? {
 				...latestPost,
-				views: postStatsResult.data?.views ?? 0,
-				likeCount: postStatsResult.data?.like_count ?? 0,
-				commentCount: Number( postStatsResult.data?.post?.comment_count ) || 0,
+				// Left undefined rather than zeroed when the metrics request fails, so
+				// the card shows a dash instead of claiming zero likes.
+				views: postStatsResult.data?.views,
+				likeCount: postStatsResult.data?.like_count,
+				commentCount: toCommentCount( postStatsResult.data?.post?.comment_count ),
 		  }
 		: null;
 

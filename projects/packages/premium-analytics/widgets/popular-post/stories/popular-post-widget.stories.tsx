@@ -72,8 +72,8 @@ type Story = StoryObj< Partial< ComponentProps< typeof PopularPostRender > > >;
  * Default — the period's most-viewed post with its views, likes, and comments.
  *
  * The shared close-up canvas is the width of a width-1 dashboard cell, which is
- * below the card's 432px breakpoint: the featured image is dropped and the metric
- * row wraps. `WidgetDashboardWithWidget` below shows the default width-2
+ * below the card's 520px wide breakpoint: the featured image is dropped and the
+ * metric row wraps. `WidgetDashboardWithWidget` below shows the default width-2
  * placement, where the image sits in a trailing column.
  */
 export const Default: Story = {
@@ -140,8 +140,9 @@ export const Empty: Story = {
 /**
  * Mounts the real `WidgetDashboard` with this single widget so it renders exactly
  * as it does in product (framed card, sizing, edit mode). Drop `widgetWidth` to 1
- * to walk the card's size ladder: below 432px the featured image drops out and the
- * metric row wraps.
+ * to walk the card's size ladder: below 520px wide the featured image drops out and
+ * the metric row wraps. Shortening the cell below 300px also switches the card to
+ * its compact type scale.
  *
  * Comparison report params are passed unconditionally, so the widget stays covered
  * against crashing or inventing deltas when the host supplies comparison dates.

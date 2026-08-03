@@ -148,20 +148,22 @@ describe( 'usePopularPost', () => {
 		} );
 	} );
 
-	it( 'still renders the post with zeroed metrics when stats/post fails', async () => {
+	it( 'still renders the post, with metrics unknown, when stats/post fails', async () => {
 		mockEndpoints( { failPostStats: true } );
 
 		const { result } = renderHook( () => usePopularPost( reportParams ), { wrapper } );
 
-		// The ranking still resolved, so the card keeps its title and image; every
-		// metric now comes from the failed request, so all three read zero. The
-		// loading state must settle: a failed metrics request is the one case where
-		// the identity guard could otherwise hold the card in a skeleton forever.
+		// The ranking still resolved, so the card keeps its title and image. Every
+		// metric comes from the failed request, so all three are left unknown rather
+		// than zeroed — a 403 on a private site must not read as "0 likes". The
+		// loading state must also settle: a failed metrics request is the one case
+		// where the identity guard could otherwise skeleton the card forever.
 		await waitFor( () => expect( result.current.isLoading ).toBe( false ), { timeout: 5000 } );
 		expect( result.current.post?.title ).toBe( 'Winning & popular post' );
-		expect( result.current.post?.views ).toBe( 0 );
-		expect( result.current.post?.likeCount ).toBe( 0 );
-		expect( result.current.post?.commentCount ).toBe( 0 );
+		expect( result.current.post?.views ).toBeUndefined();
+		expect( result.current.post?.likeCount ).toBeUndefined();
+		expect( result.current.post?.commentCount ).toBeUndefined();
+		// The ranking request succeeded, so the widget itself is not in error.
 		expect( result.current.isError ).toBe( false );
 	} );
 

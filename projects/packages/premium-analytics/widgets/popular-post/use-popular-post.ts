@@ -27,6 +27,18 @@ const POPULAR_POST_TYPES = [ 'post' ];
 // and the metrics come from one window.
 const POPULAR_POST_REQUEST_MAX = 20;
 
+/**
+ * The Stats post row reports `comment_count` as either a string or a number.
+ * An absent count stays absent, so it can render as "not available" instead of
+ * being flattened into a real zero.
+ *
+ * @param value - The raw `comment_count` from the Stats post row.
+ * @return The parsed count, or undefined when the row carries none.
+ */
+function toCommentCount( value: string | number | undefined ): number | undefined {
+	return value === undefined ? undefined : Number( value ) || 0;
+}
+
 export type PopularPostWithMetrics = {
 	id: number;
 	title: string;
@@ -38,17 +50,19 @@ export type PopularPostWithMetrics = {
 	imageUrl: string;
 	imageAlt: string;
 	/**
-	 * All-time views, read from the Stats post endpoint.
+	 * All-time views, read from the Stats post endpoint. Undefined when that
+	 * request failed, so the card can distinguish "unknown" from zero.
 	 */
-	views: number;
+	views: number | undefined;
 	/**
-	 * All-time likes, read from the Stats post endpoint.
+	 * All-time likes, read from the Stats post endpoint. Undefined when unknown.
 	 */
-	likeCount: number;
+	likeCount: number | undefined;
 	/**
 	 * All-time comments, read from the post row on the Stats post endpoint.
+	 * Undefined when unknown.
 	 */
-	commentCount: number;
+	commentCount: number | undefined;
 };
 
 export type UsePopularPostResult = {
@@ -144,10 +158,14 @@ export function usePopularPost( reportParams: ReportParams ): UsePopularPostResu
 		( postId > 0 && ( contentResult.isLoading || postStatsResult.isLoading || isMetricsPending ) );
 	const isFetching =
 		topPostsResult.isFetching || contentResult.isFetching || postStatsResult.isFetching;
-	// The Stats queries keep the previous range's rows via `placeholderData`, so a
-	// failed range change keeps the post visible; only surface the error when there
-	// is nothing to show.
-	const isError = topPostsResult.isError && ! topRow;
+	/*
+	 * Surface a report failure even when rows are still on screen. `placeholderData`
+	 * only applies while a query is pending, so once a range has loaded the rows
+	 * that survive an error are React Query's last successful data — a failed
+	 * background refetch. Gating the error on `! topRow` therefore hid exactly the
+	 * case worth reporting: stale numbers with no error and no Retry.
+	 */
+	const isError = topPostsResult.isError;
 
 	const refetch = () => {
 		void topPostsResult.refetch();
@@ -170,9 +188,12 @@ export function usePopularPost( reportParams: ReportParams ): UsePopularPostResu
 				date: content?.date || ( typeof topRow.date === 'string' ? topRow.date : '' ),
 				imageUrl: content?.imageUrl ?? '',
 				imageAlt: content?.imageAlt ?? '',
-				views: metrics?.views ?? 0,
-				likeCount: metrics?.like_count ?? 0,
-				commentCount: Number( metrics?.post?.comment_count ) || 0,
+				// Left undefined rather than zeroed when the metrics request fails or
+				// is still unconfirmed: the card shows a dash, so a private site's
+				// 403 cannot render a post with 12 likes as "Likes 0".
+				views: metrics?.views,
+				likeCount: metrics?.like_count,
+				commentCount: toCommentCount( metrics?.post?.comment_count ),
 		  }
 		: null;
 
