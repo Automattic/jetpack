@@ -23,7 +23,11 @@ const posts = [
 		link: 'https://example.com/hello-world/',
 	},
 	{
-		id: 43,
+		name: 'Untracked page',
+		comments: 8,
+		link: 'https://example.com/untracked/',
+	},
+	{
 		name: 'Unsafe permalink',
 		comments: 5,
 		link: 'javascript:alert(1)',
@@ -54,11 +58,22 @@ describe( 'MostCommentedPostsWidget', () => {
 		);
 	}
 
-	it( 'links a post to its permalink in a new tab', async () => {
+	it( 'links a post to its detail page, carrying the permalink along', async () => {
 		renderWidget();
 
-		const link = await screen.findByRole( 'link', { name: /Hello world/ } );
-		expect( link ).toHaveAttribute( 'href', 'https://example.com/hello-world/' );
+		const link = await screen.findByRole( 'link', { name: 'Hello world' } );
+		const url = new URL( link.getAttribute( 'href' ) ?? '', 'https://example.com' );
+
+		expect( url.pathname ).toBe( '/post/42' );
+		expect( url.searchParams.get( 'post_url' ) ).toBe( 'https://example.com/hello-world/' );
+		expect( link ).not.toHaveAttribute( 'target', '_blank' );
+	} );
+
+	it( 'falls back to the permalink in a new tab when a post has no ID', async () => {
+		renderWidget();
+
+		const link = await screen.findByRole( 'link', { name: /Untracked page/ } );
+		expect( link ).toHaveAttribute( 'href', 'https://example.com/untracked/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
 
