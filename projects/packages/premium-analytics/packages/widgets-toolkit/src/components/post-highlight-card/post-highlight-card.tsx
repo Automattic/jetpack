@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
+import { Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { __, sprintf } from '@wordpress/i18n';
-import { Text, VisuallyHidden } from '@wordpress/ui';
 import { format, parseISO } from 'date-fns';
 /**
  * Internal dependencies
