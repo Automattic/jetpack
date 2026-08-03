@@ -27,6 +27,9 @@ const siteIn = ( timeZone: string, offset: number, locale: string ) =>
 		timezone: { offset, offsetFormatted: String( offset ), string: timeZone, abbr: '' },
 	} );
 
+// The en dash between thin spaces CLDR puts between the ends of a range.
+const SEP = '\u2009\u2013\u2009';
+
 describe( 'formatLegendLabels', () => {
 	// A date-only param has no offset of its own. Read as UTC it lands on the
 	// previous day for every site west of Greenwich.
@@ -41,8 +44,8 @@ describe( 'formatLegendLabels', () => {
 			interval: 'day',
 		} as ReportParams );
 
-		expect( labels.primary ).toBe( 'January 1, 2026 – January 31, 2026' );
-		expect( labels.comparison ).toBe( 'December 1, 2025 – December 31, 2025' );
+		expect( labels.primary ).toBe( `January 1${ SEP }31, 2026` );
+		expect( labels.comparison ).toBe( `December 1${ SEP }31, 2025` );
 	} );
 
 	it( 'keeps date-only params on their own calendar day for a site east of UTC', () => {
@@ -54,7 +57,7 @@ describe( 'formatLegendLabels', () => {
 			interval: 'day',
 		} as ReportParams );
 
-		expect( labels.primary ).toBe( 'January 1, 2026 – January 31, 2026' );
+		expect( labels.primary ).toBe( `January 1${ SEP }31, 2026` );
 	} );
 
 	it( 'honours the offset a full ISO param already carries', () => {
@@ -66,7 +69,7 @@ describe( 'formatLegendLabels', () => {
 			interval: 'day',
 		} as ReportParams );
 
-		expect( labels.primary ).toBe( 'June 29, 2026 – July 28, 2026' );
+		expect( labels.primary ).toBe( `June 29${ SEP }July 28, 2026` );
 	} );
 
 	it( 'falls back to the generic comparison label without comparison params', () => {

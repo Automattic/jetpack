@@ -49,6 +49,24 @@ class Widget_Modules_Test extends TestCase {
 	}
 
 	/**
+	 * The dashboard fetches this route on boot, so it has to admit every reader
+	 * the dashboard itself admits — not administrators only.
+	 */
+	public function test_widget_modules_route_is_gated_on_the_dashboard_capability() {
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
+
+		register_widget_modules_rest_route();
+
+		$routes = rest_get_server()->get_routes();
+
+		$this->assertSame(
+			array( Capabilities::class, 'current_user_can_view_analytics' ),
+			$routes[ self::ROUTE ][0]['permission_callback']
+		);
+	}
+
+	/**
 	 * The route's callback works standalone: it hydrates the widget type
 	 * registry itself (ensure_widget_registry_ready()) rather than assuming a
 	 * caller already did, so it returns valid data even when nothing else in

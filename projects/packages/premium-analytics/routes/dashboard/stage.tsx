@@ -14,7 +14,8 @@ import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
-import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { DashboardSections } from './components';
 import {
 	useActiveSection,
@@ -53,7 +54,7 @@ function Dashboard(): JSX.Element {
 		[]
 	);
 
-	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypes( widgetModules );
+	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
 	const [ editMode, setEditMode ] = useState( false );
 
@@ -99,6 +100,7 @@ function Dashboard(): JSX.Element {
 			<WidgetDashboard
 				widgetTypes={ widgetTypes }
 				isResolvingWidgetTypes={ isResolvingWidgetTypes }
+				resolveWidgetModule={ resolveWidgetModuleWithI18n }
 				layout={ layout }
 				onLayoutChange={ setLayout }
 				onLayoutReset={ resetLayout }
@@ -139,7 +141,7 @@ function Dashboard(): JSX.Element {
 								{ activeSection === section.slug ? (
 									<>
 										<WidgetDashboard.NoWidgetsState />
-										<WidgetDashboard.Widgets />
+										<WidgetDashboard.Widgets className={ styles.widgets } />
 									</>
 								) : null }
 							</SectionTabPanel>

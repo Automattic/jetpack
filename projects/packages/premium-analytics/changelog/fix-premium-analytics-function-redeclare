@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Guard the dashboard component includes so a second copy of the package on disk cannot fatal on redeclared functions.

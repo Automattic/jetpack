@@ -3944,6 +3944,9 @@ importers:
       '@jetpack-premium-analytics/datetime':
         specifier: link:packages/datetime
         version: link:packages/datetime
+      '@jetpack-premium-analytics/externals':
+        specifier: link:packages/externals
+        version: link:packages/externals
       '@jetpack-premium-analytics/fields':
         specifier: link:packages/fields
         version: link:packages/fields
@@ -5136,6 +5139,9 @@ importers:
       '@wordpress/build':
         specifier: 0.18.0
         version: 0.18.0(patch_hash=5101ca7f7d13e7288807e098a40232362baae7ffcb00d08f28e0642c373ae945)(@babel/core@7.29.7)(@wordpress/boot@0.18.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.51.0)(@wordpress/route@0.17.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.17.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.4)
+      '@wordpress/compose':
+        specifier: 8.4.0
+        version: 8.4.0(@types/react@18.3.28)(react@18.3.1)
       '@wordpress/icons':
         specifier: ^15.0.0
         version: 15.1.0(@types/react@18.3.28)(react@18.3.1)
@@ -5148,6 +5154,9 @@ importers:
       '@wordpress/private-apis':
         specifier: 1.51.0
         version: 1.51.0
+      '@wordpress/rich-text':
+        specifier: 7.51.0
+        version: 7.51.0(@types/react@18.3.28)(react@18.3.1)
       '@wordpress/route':
         specifier: ^0.17.0
         version: 0.17.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

@@ -132,8 +132,12 @@
 				// Additional packages polyfilled by wp-build-polyfills, which need to be kept in sync with each other.
 				'@wordpress/a11y',
 				'@wordpress/boot',
+				// Bundled into the rich-text polyfill (rich-text unlocks its private
+				// APIs at module scope), so it must move in lockstep with rich-text.
+				'@wordpress/compose',
 				'@wordpress/notices',
 				'@wordpress/private-apis',
+				'@wordpress/rich-text',
 				'@wordpress/route',
 				'@wordpress/theme',
 				// @wordpress/build is still heavily developed; its dashboards share the same bundled

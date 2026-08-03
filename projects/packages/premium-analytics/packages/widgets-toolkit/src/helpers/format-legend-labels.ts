@@ -30,7 +30,7 @@ import type { ReportParams } from '@jetpack-premium-analytics/data';
  *   compare_to: '2023-12-31',
  *   interval: 'day'
  * });
- * // Returns: { primary: 'January 1, 2024 – January 31, 2024', … }
+ * // Returns: { primary: 'January 1 – 31, 2024', … }
  * ```
  */
 export function formatLegendLabels( reportParams: ReportParams ): LegendLabels {

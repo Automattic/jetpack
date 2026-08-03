@@ -97,15 +97,39 @@ Format a date range into a human-readable string.
 Returns `''` when range or dates are missing.
 
 ```typescript
+// On a site left on its locale's default date format:
 formatDateRange( { from, to } );
-// same day: 'June 21, 2025'
-// range:    'June 21, 2025 – June 25, 2025'
+// same day:    'June 21, 2025'
+// same month:  'June 21 – 25, 2025'
+// same year:   'June 21 – July 25, 2025'
+// cross-year:  'June 21, 2024 – July 25, 2025'
+
+// The same-month range above on an es_ES site:
+// '21–25 de junio de 2025'
 ```
 
-Both ends are spelled out in full. Eliding the shared month or year
-("Jun 21-25, 2025") is an English typographic convention that does not carry
-over — on an es_ES site it yields "21 de junio-25 de junio de 2025" — and
-WordPress publishes no per-locale elision rules to draw on.
+A month or year shared by both ends is elided where the site's locale has a
+rule for it. Those rules are not written by hand — "Jun 21-25, 2025" is an
+English convention that, translated literally, gives the wrong result in
+Spanish. They are borrowed from CLDR via `Intl.DateTimeFormat.formatRange()`,
+which only holds where WordPress and CLDR agree on how dates look. Two checks
+establish that per site, so no allowlist of trusted locales has to be
+maintained:
+
+1. `Intl` renders representative dates exactly as `formatDate` does. A site
+   with a custom `date_format` or different month translations fails here and
+   keeps the format it asked for.
+2. `Intl` builds an un-elidable range out of that same rendering. `ja` and `zh`
+   fail here because their range patterns switch to numeric dates and
+   locale-specific separators.
+
+Where either check fails, both ends are spelled out in full using the
+translated WordPress range pattern instead:
+
+```typescript
+// Site with a custom `date_format` of 'd/m/Y':
+// '21/06/2025 – 25/06/2025'
+```
 
 | Parameter | Type                         | Description       |
 | --------- | ---------------------------- | ----------------- |

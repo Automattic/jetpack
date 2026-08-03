@@ -2,12 +2,12 @@ import { WIDGET_DASHBOARD_COLUMN_COUNT } from '@wordpress/widget-dashboard';
 import { POST_DETAIL_TAB_LAYOUTS } from './tab-layouts';
 
 describe( 'post detail tab layouts', () => {
-	it( 'composes Post traffic as a full-width highlights row, a Post views chart beside the interaction cards, then Traffic activity beside UTM', () => {
+	it( 'composes Post traffic as a three-column highlights row, a Post views chart beside the interaction cards, then Traffic activity beside UTM', () => {
 		expect( POST_DETAIL_TAB_LAYOUTS[ 'post-traffic' ] ).toEqual( [
 			{
 				uuid: 'post-detail-highlights',
 				type: 'jpa/post-detail-highlights',
-				placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
+				placement: { width: 3, height: 1, order: 1 },
 			},
 			{
 				uuid: 'post-views',
@@ -31,7 +31,7 @@ describe( 'post detail tab layouts', () => {
 			},
 			{
 				uuid: 'post-utm',
-				type: 'jpa/utm-insights',
+				type: 'jpa/utm-insights--utm',
 				attributes: { utmDimension: 'utm_source,utm_medium', max: 10, showReportLink: false },
 				placement: { width: 1, height: 2, order: 6 },
 			},
@@ -73,7 +73,7 @@ describe( 'post detail tab layouts', () => {
 		] );
 	} );
 
-	it( 'composes Email clicks as a trend chart beside Platforms and Clients, over the mapped Locations and links rows', () => {
+	it( 'composes Email clicks as a trend chart beside Platforms and Clients, over the Locations and links rows', () => {
 		expect( POST_DETAIL_TAB_LAYOUTS[ 'email-clicks' ] ).toMatchObject( [
 			{
 				uuid: 'email-clicks-highlights',
@@ -102,7 +102,7 @@ describe( 'post detail tab layouts', () => {
 			{
 				uuid: 'email-clicks-countries',
 				type: 'jpa/email-breakdown--location-clicks',
-				attributes: { view: 'countries', metric: 'clicks', max: 7, showMap: true },
+				attributes: { view: 'countries', metric: 'clicks', max: 8 },
 				placement: { width: 2, height: 2, order: 5 },
 			},
 			{

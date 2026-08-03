@@ -211,6 +211,33 @@ export function forceWordAdsEarningsState( state: ReportMockState ) {
 	};
 }
 
+/**
+ * Story `beforeEach` that forces the shared `stats/comments` request into a
+ * loading, error, or empty state and drops its cached query on both enter and
+ * cleanup. Shared by the Top commented authors and Top commented posts stories,
+ * which read the same response, so the cache-reset cannot drift between them.
+ *
+ * The comments endpoint is all-time, so its query key does not vary by date and
+ * every comment-widget story shares one cache entry (a distinct date preset
+ * can't separate them). Resetting on both edges gives each forced-state story a
+ * fresh fetch and clears a never-settling `loading` fetch before the next story
+ * reuses the key. Because the override is keyed by path, keep such stories off
+ * the shared autodocs page (`tags: [ '!autodocs' ]`).
+ *
+ * @param state - The forced mock state.
+ * @return A Storybook `beforeEach` implementation returning its cleanup.
+ */
+export function forceStatsCommentsState( state: ReportMockState ) {
+	return () => {
+		setReportMockState( 'stats/comments', state );
+		queryClient.removeQueries( { queryKey: [ 'stats', 'comments' ] } );
+		return () => {
+			setReportMockState( 'stats/comments', null );
+			queryClient.removeQueries( { queryKey: [ 'stats', 'comments' ] } );
+		};
+	};
+}
+
 const mockResponseOverrides = new Map< string, unknown >();
 
 /**

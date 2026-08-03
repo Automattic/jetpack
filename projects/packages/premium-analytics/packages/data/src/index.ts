@@ -79,8 +79,11 @@ export { useStatsFollowers } from './hooks/use-stats-followers';
 export type { StatsFollowersParams, StatsFollowersResponse } from './hooks/use-stats-followers';
 export {
 	useStatsComments,
+	useStatsCommentsRows,
 	type StatsCommentsParams,
 	type StatsCommentsResponse,
+	type UseStatsCommentsRowsArgs,
+	type UseStatsCommentsRowsResult,
 } from './hooks/use-stats-comments';
 export {
 	useStatsSubscribersCounts,
@@ -110,6 +113,7 @@ export {
 	flattenStatsLeaves,
 	getStatsChartBucketKey,
 	getStatsReportItems,
+	selectStatsCommentsRows,
 	sliceWordAdsStatsReport,
 } from './processing/stats';
 export type { FlattenStatsLeavesContext, FlattenStatsLeavesOptions } from './processing/stats';
@@ -274,6 +278,7 @@ export type {
 	StatsCommentFollowersRawPost,
 	StatsCommentFollowersRawResponse,
 	StatsCommentsAuthorItem,
+	StatsCommentsGroup,
 	StatsCommentsGroupItem,
 	StatsCommentsItem,
 	StatsCommentsPostItem,
@@ -281,6 +286,7 @@ export type {
 	StatsCommentsRawFollowData,
 	StatsCommentsRawPost,
 	StatsCommentsRawResponse,
+	StatsCommentsRow,
 	StatsEmailBreakdownItem,
 	StatsDevicesComparisonItem,
 	StatsDevicesItem,

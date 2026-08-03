@@ -71,13 +71,13 @@ export const settingsFor = (
 } );
 
 /** A site left on the US English default. */
-export const EN_US_SETTINGS = settingsFor( 'en-us-test', 'F j, Y' );
+export const EN_US_SETTINGS = settingsFor( 'en_US_test', 'F j, Y' );
 
 /**
  * A Spanish site. Its `date_format` puts the day first and spells "de" with
  * escaped literals (`\d\e`), which double as the day and timezone tokens.
  */
-export const ES_ES_SETTINGS = settingsFor( 'es-es-test', 'j \\d\\e F \\d\\e Y', ES_MONTHS );
+export const ES_ES_SETTINGS = settingsFor( 'es_ES_test', 'j \\d\\e F \\d\\e Y', ES_MONTHS );
 
 /**
  * Build a UTC date, matching the fixtures' timezone so no day shift is in play.

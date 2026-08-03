@@ -56,24 +56,16 @@ add_action( 'jetpack_modules_loaded', 'stats_load' );
 function stats_load() {
 	Jetpack::enable_module_configurable( __FILE__ );
 
-	// When the bundled Premium Analytics dashboard is enabled it replaces the
-	// Stats wp-admin UI (WOOA7S-1595): skip the menu, the admin-bar entries, and
-	// the post-list column — they all link to the removed Stats page. Tracking
-	// and the module's non-UI filters below are unaffected.
-	$stats_ui_replaced = Jetpack::is_premium_analytics_enabled();
-
 	// Only run the callback for those who can see the stats.
-	if ( ! $stats_ui_replaced && is_user_logged_in() && current_user_can( 'view_stats' ) ) {
+	if ( is_user_logged_in() && current_user_can( 'view_stats' ) ) {
 		add_action( 'admin_head', 'stats_admin_bar_head', 100 );
 		add_action( 'wp_head', 'stats_admin_bar_head', 100 );
 	}
 
-	if ( ! $stats_ui_replaced ) {
-		Admin_Post_List_Column::register();
+	Admin_Post_List_Column::register();
 
-		add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
-		add_action( 'wp_before_admin_bar_render', 'stats_add_link_to_admin_bar_site_menu' );
-	}
+	add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
+	add_action( 'wp_before_admin_bar_render', 'stats_add_link_to_admin_bar_site_menu' );
 
 	add_filter( 'pre_option_db_version', 'stats_ignore_db_version' );
 
