@@ -11,7 +11,7 @@ import {
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
-import { useEntityId, useEntityProp, store as coreDataStore } from '@wordpress/core-data';
+import { useEntityId, useEntityProp } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { useState } from '@wordpress/element';
@@ -294,7 +294,6 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 export function NewsletterEmailDocumentSettings() {
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
-	const { saveEditedEntityRecord } = useDispatch( coreDataStore );
 	const [ postMeta, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	const postId = useEntityId( 'postType', postType );
 
@@ -315,7 +314,6 @@ export function NewsletterEmailDocumentSettings() {
 			[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: value === 'post-only',
 		};
 		setPostMeta( postMetaUpdate );
-		saveEditedEntityRecord( 'postType', postType, postId );
 	};
 
 	const isSendEmailEnabled = useSelect( select => {
@@ -331,10 +329,12 @@ export function NewsletterEmailDocumentSettings() {
 	return (
 		<PostVisibilityCheck
 			render={ ( { canEdit } ) => {
+				// ToggleGroupControl ignores `disabled`; only its options honour it.
+				const isLocked = isPostPublished || ! canEdit;
+
 				return (
 					<ToggleGroupControl
 						value={ isSendEmailEnabled }
-						disabled={ isPostPublished || ! canEdit }
 						onChange={ toggleSendEmail }
 						isBlock
 						label={ __( 'Send as email to subscribers?', 'jetpack' ) }
@@ -346,8 +346,13 @@ export function NewsletterEmailDocumentSettings() {
 						<ToggleGroupControlOption
 							label={ __( 'Post & email', 'jetpack' ) }
 							value="post-and-email"
+							disabled={ isLocked }
 						/>
-						<ToggleGroupControlOption label={ __( 'Post only', 'jetpack' ) } value="post-only" />
+						<ToggleGroupControlOption
+							label={ __( 'Post only', 'jetpack' ) }
+							value="post-only"
+							disabled={ isLocked }
+						/>
 					</ToggleGroupControl>
 				);
 			} }

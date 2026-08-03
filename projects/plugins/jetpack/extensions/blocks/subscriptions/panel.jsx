@@ -27,6 +27,7 @@ import {
 	NewsletterEmailDocumentSettings,
 } from '../../shared/memberships/settings';
 import SubscribersAffirmation from '../../shared/memberships/subscribers-affirmation';
+import useClearPhantomMetaDirt from '../../shared/memberships/use-clear-phantom-meta-dirt';
 import {
 	getShowMisconfigurationWarning,
 	MisconfigurationWarning,
@@ -259,10 +260,13 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 
 export default function SubscribePanels() {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 
 	const { tracks } = useAnalytics();
 	const accessLevel = useAccessLevel( postType );
+
+	useClearPhantomMetaDirt( postType, postId );
 
 	// Subscriptions are only available for posts. Additionally, we will allow access level selector for pages.
 	// TODO: Make it available for pages later.

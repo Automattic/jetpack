@@ -265,6 +265,8 @@ describe( 'SubscribePanels', () => {
 	const createSubscribePanelsMockSelect = ( { postType = 'post' } = {} ) => {
 		const editorSelect = {
 			getCurrentPostType: () => postType,
+			getCurrentPostId: () => 1,
+			isSavingPost: () => false,
 		};
 		return store => {
 			if ( store === editorStore || store === 'core/editor' ) return editorSelect;
