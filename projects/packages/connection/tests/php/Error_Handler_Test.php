@@ -61,8 +61,10 @@ class Error_Handler_Test extends BaseTestCase {
 	 *
 	 * @param string $error_code The error code you want the error to have.
 	 * @param string $user_id The user id you want the token to have.
-	 * @param string $error_type The error type: 'xmlrpc' or 'rest'.
-	 * @param string $error_direction The error direction: 'incoming' or 'outgoing'.
+	 * @param string $error_type The error type: one of the Error_Handler::ERROR_TYPE_* constants
+	 *                           ('xmlrpc', 'rest', or 'local_state').
+	 * @param string $error_direction The error direction: 'incoming' or 'outgoing'. Ignored for
+	 *                                'local_state' errors, which the factory stores without a direction.
 	 *
 	 * @return \WP_Error
 	 */
