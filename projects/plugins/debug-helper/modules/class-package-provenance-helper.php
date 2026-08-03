@@ -41,6 +41,11 @@ class Package_Provenance_Helper {
 	public function register_admin_bar_menu() {
 		global $wp_admin_bar;
 
+		// The panel only renders on admin screens; skip the badge elsewhere.
+		if ( ! is_admin() ) {
+			return;
+		}
+
 		$gutenberg = $this->gutenberg_version();
 		$wp_admin_bar->add_menu(
 			array(
@@ -87,10 +92,7 @@ class Package_Provenance_Helper {
 					$property->setAccessible( true );
 				}
 				foreach ( (array) $property->getValue( wp_script_modules() ) as $id => $module ) {
-					if ( 0 !== strpos( (string) $id, '@' ) ) {
-						continue;
-					}
-					$modules[ $id ] = array(
+					$modules[ (string) $id ] = array(
 						'src' => (string) ( $module['src'] ?? '' ),
 						'ver' => (string) ( $module['version'] ?? '' ),
 					);
@@ -163,39 +165,48 @@ class Package_Provenance_Helper {
 
 			const provider = ( url ) =>
 				! url ? 'other'
-				: url.includes( '/wp-includes/' ) ? 'core'
+				: url.includes( '/wp-includes/' ) || url.includes( '/wp-admin/' ) ? 'core'
 				: url.includes( '/plugins/gutenberg/' ) ? 'gutenberg'
 				: url.includes( 'wp-build-polyfills' ) ? 'polyfill'
-				: url.includes( 'jetpack_vendor' ) || url.includes( '/plugins/' ) ? 'app'
+				: url.includes( 'jetpack_vendor' ) || url.includes( '/mu-plugins/' ) || url.includes( '/plugins/' ) ? 'app'
 				: 'other';
 
-			// Ground truth from the DOM: which classic handles actually printed,
-			// and what the import map really maps each module id to.
-			const importMapEl = document.querySelector( 'script[type="importmap"]' );
-			const importMap = importMapEl ? ( JSON.parse( importMapEl.textContent ).imports || {} ) : {};
+			const esc = ( value ) => {
+				const span = document.createElement( 'span' );
+				span.textContent = String( value );
+				return span.innerHTML;
+			};
 
-			const rows = [];
-			for ( const [ handle, info ] of Object.entries( data.scripts ) ) {
-				const inDom = !! document.getElementById( handle + '-js' );
-				rows.push( {
-					name: handle,
-					type: 'classic',
-					provider: provider( info.src ),
-					ver: info.ver,
-					loaded: inDom || info.printed,
-				} );
-			}
-			const moduleIds = new Set( [ ...Object.keys( data.modules ), ...Object.keys( importMap ) ] );
-			for ( const id of [ ...moduleIds ].sort() ) {
-				const src = importMap[ id ] || ( data.modules[ id ] || {} ).src || '';
-				rows.push( {
-					name: id,
-					type: 'module',
-					provider: provider( src ),
-					ver: ( src.match( /ver=([^&]+)/ ) || [ , ( data.modules[ id ] || {} ).ver || '' ] )[ 1 ],
-					loaded: id in importMap,
-				} );
-			}
+			// Rows are computed on every paint: script tags print after this
+			// inline script runs (admin_print_footer_scripts fires after
+			// admin_footer), so the DOM checks must happen as late as possible.
+			const compute = () => {
+				const importMapEl = document.querySelector( 'script[type="importmap"]' );
+				const importMap = importMapEl ? ( JSON.parse( importMapEl.textContent ).imports || {} ) : {};
+
+				const rows = [];
+				for ( const [ handle, info ] of Object.entries( data.scripts ) ) {
+					rows.push( {
+						name: handle,
+						type: 'classic',
+						provider: provider( info.src ),
+						ver: info.ver,
+						loaded: !! document.getElementById( handle + '-js' ) || info.printed,
+					} );
+				}
+				const moduleIds = new Set( [ ...Object.keys( data.modules ), ...Object.keys( importMap ) ] );
+				for ( const id of [ ...moduleIds ].sort() ) {
+					const src = importMap[ id ] || ( data.modules[ id ] || {} ).src || '';
+					rows.push( {
+						name: id,
+						type: 'module',
+						provider: provider( src ),
+						ver: ( src.match( /ver=([^&]+)/ ) || [ , ( data.modules[ id ] || {} ).ver || '' ] )[ 1 ],
+						loaded: id in importMap,
+					} );
+				}
+				return rows;
+			};
 
 			const panel = document.getElementById( 'package-provenance-panel' );
 			const body = document.getElementById( 'package-provenance-body' );
@@ -205,25 +216,34 @@ class Package_Provenance_Helper {
 
 			const paint = () => {
 				const needle = filter.value.toLowerCase();
-				const cells = rows
+				const cells = compute()
 					.filter( ( r ) => ! needle || r.name.toLowerCase().includes( needle ) || r.provider.includes( needle ) )
-					.map( ( r ) => '<tr class="' + ( r.loaded ? '' : 'pkg-dim' ) + '"><td>' + r.name +
+					.map( ( r ) => '<tr class="' + ( r.loaded ? '' : 'pkg-dim' ) + '"><td>' + esc( r.name ) +
 						'</td><td>' + r.type +
 						'</td><td><span class="pkg-prov pkg-prov-' + r.provider + '">' + r.provider.toUpperCase() + '</span>' +
-						'</td><td>' + ( r.ver || '' ) + '</td></tr>' )
+						'</td><td>' + esc( r.ver || '' ) + '</td></tr>' )
 					.join( '' );
 				body.innerHTML = '<table><tr><th>package</th><th>type</th><th>provider</th><th>ver</th></tr>' + cells + '</table>' +
-					'<p id="package-provenance-note">Dimmed rows are registered but not loaded on this screen. ' +
+					'<p id="package-provenance-note">Dimmed classic scripts are registered but not printed on this screen; ' +
+					'dimmed modules are registered but absent from this screen’s import map. ' +
 					'Packages compiled inline into an app bundle never appear here — only the externalized surface is visible at runtime.</p>';
 			};
 			filter.addEventListener( 'input', paint );
-			paint();
+			// First paint waits for the full document so footer script tags exist.
+			if ( 'complete' === document.readyState ) {
+				paint();
+			} else {
+				window.addEventListener( 'load', paint );
+			}
 
 			const badge = document.querySelector( '#wp-admin-bar-package-provenance a' );
 			if ( badge ) {
 				badge.addEventListener( 'click', ( event ) => {
 					event.preventDefault();
 					panel.classList.toggle( 'is-open' );
+					if ( panel.classList.contains( 'is-open' ) ) {
+						paint(); // Recompute: enqueue state may have changed since load.
+					}
 				} );
 			}
 		} )();
