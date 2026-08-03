@@ -147,8 +147,11 @@ class Package_Provenance_Helper {
 			.pkg-prov-polyfill { background: #e0a184; }
 			.pkg-prov-app { background: #7fb069; }
 			.pkg-prov-other { background: #9a9a9a; }
+			#package-provenance-body a { color: #9cdcfe; text-decoration: none; }
+			#package-provenance-body a:hover { text-decoration: underline; }
 			/* Dim by text color, not row opacity, so provider labels stay legible. */
 			.pkg-dim td { color: #8a8a8a; }
+			.pkg-dim td a { color: #6a8caf; }
 			.pkg-dim .pkg-prov { filter: saturate( .55 ) brightness( .82 ); }
 			#package-provenance-note { color: #808080; margin-block-start: 6px; white-space: normal; }
 		</style>
@@ -176,6 +179,7 @@ class Package_Provenance_Helper {
 				span.textContent = String( value );
 				return span.innerHTML;
 			};
+			const escAttr = ( value ) => esc( value ).replace( /"/g, '&quot;' );
 
 			// Rows are computed on every paint: script tags print after this
 			// inline script runs (admin_print_footer_scripts fires after
@@ -186,11 +190,15 @@ class Package_Provenance_Helper {
 
 				const rows = [];
 				for ( const [ handle, info ] of Object.entries( data.scripts ) ) {
+					const url = info.src
+						? info.src + ( info.ver ? ( info.src.includes( '?' ) ? '&' : '?' ) + 'ver=' + encodeURIComponent( info.ver ) : '' )
+						: '';
 					rows.push( {
 						name: handle,
 						type: 'classic',
 						provider: provider( info.src ),
 						ver: info.ver,
+						url,
 						loaded: !! document.getElementById( handle + '-js' ) || info.printed,
 					} );
 				}
@@ -202,6 +210,7 @@ class Package_Provenance_Helper {
 						type: 'module',
 						provider: provider( src ),
 						ver: ( src.match( /ver=([^&]+)/ ) || [ , ( data.modules[ id ] || {} ).ver || '' ] )[ 1 ],
+						url: src,
 						loaded: id in importMap,
 					} );
 				}
@@ -221,7 +230,9 @@ class Package_Provenance_Helper {
 					.map( ( r ) => '<tr class="' + ( r.loaded ? '' : 'pkg-dim' ) + '"><td>' + esc( r.name ) +
 						'</td><td>' + r.type +
 						'</td><td><span class="pkg-prov pkg-prov-' + r.provider + '">' + r.provider.toUpperCase() + '</span>' +
-						'</td><td>' + esc( r.ver || '' ) + '</td></tr>' )
+						'</td><td>' + ( r.url
+							? '<a href="' + escAttr( r.url ) + '" target="_blank" rel="noopener noreferrer">' + esc( r.ver || '↗' ) + '</a>'
+							: esc( r.ver || '' ) ) + '</td></tr>' )
 					.join( '' );
 				body.innerHTML = '<table><tr><th>package</th><th>type</th><th>provider</th><th>ver</th></tr>' + cells + '</table>' +
 					'<p id="package-provenance-note">Dimmed classic scripts are registered but not printed on this screen; ' +
