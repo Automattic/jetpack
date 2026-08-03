@@ -530,7 +530,7 @@ class Connection_Health_Tests_Test extends TestCase {
 	 */
 	public function test_wpcom_connection_test_skipped_when_not_connected() {
 		$result = $this->tests->run_test( 'test__wpcom_connection_test' );
-		$this->assertEquals( 'skipped', $result['pass'] );
+		$this->assertSame( 'skipped', $result['pass'] );
 	}
 
 	/**
@@ -554,7 +554,7 @@ class Connection_Health_Tests_Test extends TestCase {
 
 		$result = $this->tests->run_test( 'test__wpcom_connection_test' );
 
-		$this->assertEquals( 'skipped', $result['pass'] );
+		$this->assertSame( 'skipped', $result['pass'] );
 		$this->assertSame(
 			'Your site is not communicating with WordPress.com, so this test was skipped.',
 			$result['short_description']
@@ -570,7 +570,7 @@ class Connection_Health_Tests_Test extends TestCase {
 
 		$result = $this->tests->run_test( 'test__wpcom_connection_test' );
 
-		$this->assertEquals( 'skipped', $result['pass'] );
+		$this->assertSame( 'skipped', $result['pass'] );
 		$this->assertSame(
 			'Your site is in Offline Mode, so this test was skipped.',
 			$result['short_description']
@@ -587,7 +587,7 @@ class Connection_Health_Tests_Test extends TestCase {
 
 		$result = $this->tests->run_test( 'test__wpcom_connection_test' );
 
-		$this->assertEquals( 'skipped', $result['pass'] );
+		$this->assertSame( 'skipped', $result['pass'] );
 		$this->assertSame(
 			'Your site is in Safe Mode, so this test was skipped.',
 			$result['short_description']
