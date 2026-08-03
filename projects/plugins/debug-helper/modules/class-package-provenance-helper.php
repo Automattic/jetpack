@@ -121,8 +121,8 @@ class Package_Provenance_Helper {
 		<script type="application/json" id="package-provenance-data"><?php echo wp_json_encode( $data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP ); ?></script>
 		<style>
 			#package-provenance-panel {
-				position: fixed; inset-block-end: 12px; inset-inline-end: 5vw; z-index: 99999;
-				inline-size: 90vw; max-block-size: 65vh;
+				position: fixed; inset-block-end: 12px; inset-inline-end: 12px; z-index: 99999;
+				inline-size: 80vw; max-block-size: 65vh;
 				display: none; flex-direction: column; overflow: hidden;
 				background: #1e1e1e; color: #d4d4d4; border: 1px solid #444; border-radius: 6px;
 				font: 11px/1.5 Menlo, Consolas, monospace; box-shadow: 0 4px 16px rgba( 0, 0, 0, .4 );
