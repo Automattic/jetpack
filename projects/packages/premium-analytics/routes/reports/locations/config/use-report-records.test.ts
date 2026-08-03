@@ -42,6 +42,9 @@ const REQUEST_PARAMS = {
  */
 function reportResult( overrides: Record< string, unknown > = {} ) {
 	return {
+		isLoading: false,
+		isFetching: false,
+		isError: false,
 		primary: { isLoading: false, isFetching: false, isError: false },
 		comparison: { isLoading: false, isFetching: false, isError: false },
 		comparisonRows: { rows, hasComparison: true },
@@ -57,8 +60,6 @@ describe( 'useLocationsReportRecords', () => {
 		mockUseStatsLocations.mockReturnValue( reportResult() );
 	} );
 
-	// The API summarizes the window into one row per location, matching the
-	// Locations widget and the other list reports.
 	it( 'summarizes every location request', () => {
 		renderHook( () => useLocationsReportRecords( 'cities', params ) );
 
@@ -130,7 +131,7 @@ describe( 'useLocationsReportRecords', () => {
 			reportResult( {
 				// Only the enabled per-tab query refetches; the always-on
 				// countries query is already settled.
-				primary: { isLoading: false, isFetching: options?.enabled === true, isError: false },
+				isFetching: options?.enabled === true,
 			} )
 		);
 
@@ -153,8 +154,6 @@ describe( 'useLocationsReportRecords', () => {
 		expect( result.current.isError ).toBe( true );
 	} );
 
-	// The comparison period only adds deltas. Losing it must not cost the user
-	// the rows they came for.
 	it( 'keeps the primary rows when only the comparison period fails', () => {
 		mockUseStatsLocations.mockReturnValue(
 			reportResult( {

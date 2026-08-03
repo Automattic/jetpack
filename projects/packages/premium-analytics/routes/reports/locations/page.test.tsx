@@ -189,7 +189,6 @@ describe( 'LocationsReportPage', () => {
 		} );
 	} );
 
-	// Each tab exports a different list, so the filename has to carry the tab.
 	it( 'offers a CSV export of the active tab', () => {
 		mockTabState( 'regions' );
 		const records = mockRecords();
@@ -211,9 +210,24 @@ describe( 'LocationsReportPage', () => {
 		);
 
 		const { columns, rows: exportRows } = reportCsvActionMock.mock.calls[ 0 ][ 0 ];
+		expect( columns.map( column => column.label ) ).toEqual( [ 'Location', 'Country', 'Views' ] );
 		expect( exportRows.map( item => columns.map( column => column.getValue( item ) ) ) ).toEqual( [
-			[ 'Australia', 15 ],
+			[ 'Australia', 'Australia', 15 ],
 		] );
+	} );
+
+	it( 'omits the country column from the Countries export', () => {
+		mockRecords();
+		useReportCsvExportMock.mockReturnValue( {
+			canExport: true,
+			rows: [ row ],
+			filename: 'locations-countries-2026-06-01_2026-06-30',
+		} );
+
+		render( <LocationsReportPage /> );
+
+		const { columns } = reportCsvActionMock.mock.calls[ 0 ][ 0 ];
+		expect( columns.map( column => column.label ) ).toEqual( [ 'Location', 'Views' ] );
 	} );
 
 	it( 'hides the CSV export until the rows are settled', () => {
@@ -304,9 +318,6 @@ describe( 'LocationsReportPage', () => {
 		] );
 	} );
 
-	// The hook knows whether the comparison period returned anything, and the
-	// fields render deltas only when it says so. The fields' own tests cover the
-	// rendering; this covers the hand-off.
 	it.each( [ true, false ] )( 'passes hasComparison=%s to the field config', hasComparison => {
 		mockRecords( { hasComparison } );
 

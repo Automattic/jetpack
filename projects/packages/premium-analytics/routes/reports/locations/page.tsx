@@ -104,12 +104,22 @@ export default function LocationsReportPage(): JSX.Element {
 			),
 		[ activeTab, records.countries.options, records.hasComparison ]
 	);
+	// Region and city names repeat across countries. On screen the flag tells
+	// them apart; a CSV needs its own column.
 	const csvColumns = useMemo< CsvColumn< LocationRow >[] >(
 		() => [
 			{ label: __( 'Location', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
+			...( supportsCountryFilter( activeTab )
+				? [
+						{
+							label: __( 'Country', 'jetpack-premium-analytics-pkg' ),
+							getValue: ( row: LocationRow ) => row.countryFull,
+						},
+				  ]
+				: [] ),
 			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
 		],
-		[]
+		[ activeTab ]
 	);
 	const {
 		canExport,

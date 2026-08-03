@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	hasComparisonEnabled,
-	useStatsLocations,
-	type ReportParams,
-} from '@jetpack-premium-analytics/data';
+import { useStatsLocations, type ReportParams } from '@jetpack-premium-analytics/data';
 import { useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
@@ -34,11 +30,9 @@ export function useLocationsReportRecords(
 	countryFilter?: string
 ) {
 	/*
-	 * `summarize: 1` asks the API for one row per location across the whole
-	 * window, matching the Locations widget and the other list reports. The
-	 * day-bucketed alternative returns the same list once per day, which the
-	 * shared comparison merge cannot align. `max: 0` keeps the full list so the
-	 * table can search, sort, and page it client-side.
+	 * Without `summarize`, the API returns the whole list once per day, which
+	 * the shared comparison merge cannot align. `max: 0` keeps every row so the
+	 * table can search, sort, and page client-side.
 	 */
 	const recordsParams = useMemo(
 		() => ( {
@@ -92,20 +86,13 @@ export function useLocationsReportRecords(
 		[ countries.comparisonRows ]
 	);
 
-	// The table renders deltas, so it waits for the comparison period too. It
-	// must not fail with it: a comparison-only error still has valid primary
-	// rows to show, just without deltas.
-	const comparisonEnabled = hasComparisonEnabled( reportParams );
-	const isLoading =
-		activeReport.primary.isLoading || ( comparisonEnabled && activeReport.comparison.isLoading );
-	const isFetching =
-		activeReport.primary.isFetching || ( comparisonEnabled && activeReport.comparison.isFetching );
-
 	return {
 		table: {
 			rows,
-			isLoading,
-			isFetching,
+			isLoading: activeReport.isLoading,
+			isFetching: activeReport.isFetching,
+			// Not `activeReport.isError`: that folds in the comparison period,
+			// whose failure costs deltas but must not hide the primary rows.
 			isError: activeReport.primary.isError,
 		},
 		hasComparison: activeReport.hasComparison,

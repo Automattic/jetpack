@@ -7,10 +7,8 @@ import type { StatsLocationsComparisonItem } from '@jetpack-premium-analytics/da
 /**
  * Build the records table's rows from the shared comparison rows.
  *
- * The request is summarized, so the API returns one row per location for the
- * whole window and the shared merge helper has already aligned each row with
- * its previous-period value. Region and city names are not globally unique, so
- * the country code stays part of the row identity on every tab.
+ * Region and city names are not globally unique, so the country code stays part
+ * of the row identity on every tab.
  *
  * @param items - Merged location rows for the active tab.
  * @return One row per location.

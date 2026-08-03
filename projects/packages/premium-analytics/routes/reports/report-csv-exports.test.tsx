@@ -155,7 +155,7 @@ jest.mock( './locations/config', () => ( {
 	getLocationFields: () => [],
 	getReportLocationsTabs: () => [ { id: 'countries', label: 'Countries' } ],
 	resolveSection: ( value: string | undefined ) => value ?? 'countries',
-	supportsCountryFilter: () => false,
+	supportsCountryFilter: ( tab: string ) => tab !== 'countries',
 	useLocationsReportRecords: jest.fn(),
 } ) );
 
@@ -453,7 +453,6 @@ describe( 'report CSV exports', () => {
 		expectCsvExport( ReferrersReportPage, 'referrers', rows, [ 'Search', '', 10, '' ] );
 	} );
 
-	// The tabs export different lists, so the filename carries the active tab.
 	it( 'configures the Locations export', () => {
 		const rows = [
 			{ id: 'IN:India', label: 'India', countryCode: 'IN', countryFull: 'India', views: 2 },

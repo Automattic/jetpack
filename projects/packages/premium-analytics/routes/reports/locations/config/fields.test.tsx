@@ -44,16 +44,12 @@ describe( 'locations fields', () => {
 		);
 	} );
 
-	// The shared formatter, not the browser locale, so every report table reads
-	// the same way whatever locale the browser reports.
 	it( 'formats views with the shared formatter', () => {
 		renderField( 'views' );
 
 		expect( screen.getByText( '1,234' ) ).toBeInTheDocument();
 	} );
 
-	// The page only asks for deltas once the comparison period has data, so an
-	// unwanted comparison never reaches the cell.
 	it( 'shows the period-over-period delta only when comparison is on', () => {
 		const { unmount } = renderField( 'views' );
 

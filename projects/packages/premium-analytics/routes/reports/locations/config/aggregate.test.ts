@@ -20,8 +20,6 @@ const items: StatsLocationsComparisonItem[] = [
 ];
 
 describe( 'report locations aggregate', () => {
-	// Region and city names repeat across countries, so the country code has to
-	// stay part of the row identity.
 	it( 'keeps identical names in different countries apart', () => {
 		expect( buildLocationRows( items ) ).toEqual( [
 			{
@@ -43,8 +41,6 @@ describe( 'report locations aggregate', () => {
 		] );
 	} );
 
-	// A location with no match in the previous period must stay undefined, not
-	// collapse to 0, so the table shows no delta rather than a false one.
 	it( 'leaves a missing previous period undefined', () => {
 		expect( buildLocationRows( items )[ 1 ].previousViews ).toBeUndefined();
 	} );
