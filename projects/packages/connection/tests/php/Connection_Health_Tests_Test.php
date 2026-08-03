@@ -51,6 +51,7 @@ class Connection_Health_Tests_Test extends TestCase {
 		unset( $_SERVER['SERVER_PORT'], $_SERVER['HTTP_X_FORWARDED_PORT'], $_SERVER['HTTPS'] );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'jetpack_offline_mode' );
+		remove_all_filters( 'jetpack_is_in_safe_mode' );
 		remove_all_filters( 'jetpack_debugger_run_self_test' );
 		remove_all_filters( 'jetpack_connection_reconnect_url' );
 		remove_all_filters( 'jetpack_connection_support_url' );
@@ -530,6 +531,67 @@ class Connection_Health_Tests_Test extends TestCase {
 	public function test_wpcom_connection_test_skipped_when_not_connected() {
 		$result = $this->tests->run_test( 'test__wpcom_connection_test' );
 		$this->assertEquals( 'skipped', $result['pass'] );
+	}
+
+	/**
+	 * Force the two deliberate-state checks off so a skip can only come from the
+	 * connection itself.
+	 *
+	 * Both are checked before the connection, and Status caches each result, so a test
+	 * that does not pin them can pass through a branch it did not mean to exercise.
+	 */
+	private function disable_offline_and_safe_mode() {
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		add_filter( 'jetpack_is_in_safe_mode', '__return_false' );
+	}
+
+	/**
+	 * Test the skip explains that the site is not talking to WordPress.com, rather
+	 * than blaming a deliberate state such as offline mode.
+	 */
+	public function test_wpcom_connection_test_skip_reports_missing_connection() {
+		$this->disable_offline_and_safe_mode();
+
+		$result = $this->tests->run_test( 'test__wpcom_connection_test' );
+
+		$this->assertEquals( 'skipped', $result['pass'] );
+		$this->assertSame(
+			'Your site is not communicating with WordPress.com, so this test was skipped.',
+			$result['short_description']
+		);
+	}
+
+	/**
+	 * Test the skip names offline mode, which is a deliberate state rather than a
+	 * communication failure.
+	 */
+	public function test_wpcom_connection_test_skip_reports_offline_mode() {
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		$result = $this->tests->run_test( 'test__wpcom_connection_test' );
+
+		$this->assertEquals( 'skipped', $result['pass'] );
+		$this->assertSame(
+			'Your site is in Offline Mode, so this test was skipped.',
+			$result['short_description']
+		);
+	}
+
+	/**
+	 * Test the skip names safe mode. Offline mode is checked first, so it has to be
+	 * ruled out for this branch to be reached.
+	 */
+	public function test_wpcom_connection_test_skip_reports_safe_mode() {
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		add_filter( 'jetpack_is_in_safe_mode', '__return_true' );
+
+		$result = $this->tests->run_test( 'test__wpcom_connection_test' );
+
+		$this->assertEquals( 'skipped', $result['pass'] );
+		$this->assertSame(
+			'Your site is in Safe Mode, so this test was skipped.',
+			$result['short_description']
+		);
 	}
 
 	/**
