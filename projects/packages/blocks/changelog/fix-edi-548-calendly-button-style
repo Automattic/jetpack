@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Calendly: preserve block.json attribute schema for plan-gated block.

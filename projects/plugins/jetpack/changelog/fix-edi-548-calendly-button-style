@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Calendly: fix Button style rendering as inline calendar on Premium+ plans.
