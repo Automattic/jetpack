@@ -17,12 +17,21 @@ const NO_CATEGORIES: NewsletterCategoriesData = {
  * `useNewsletterCategories`). On error it resolves to a disabled, empty result so the picker simply
  * stays hidden rather than surfacing an error in the import flow.
  *
+ * The dashboard shell warms this query on mount (gated to import-capable visitors) so the picker is
+ * already cached — and renders instantly — by the time the modal opens, instead of the user
+ * watching it pop in after a round trip. The 5-minute `staleTime` keeps that prefetch fresh across
+ * the shared cache key.
+ *
+ * @param options         - Query options.
+ * @param options.enabled - Whether to run the query. Defaults to true; the shell passes its
+ *                        import-capable gate so it doesn't fetch off the Subscribers surface.
  * @return React-Query result for the site's newsletter categories.
  */
-export function useNewsletterCategories() {
+export function useNewsletterCategories( { enabled = true }: { enabled?: boolean } = {} ) {
 	return useQuery< NewsletterCategoriesData, Error >( {
 		queryKey: [ 'newsletter-categories' ],
 		queryFn: () => fetchNewsletterCategories().catch( () => NO_CATEGORIES ),
 		staleTime: STALE_TIME,
+		enabled,
 	} );
 }
