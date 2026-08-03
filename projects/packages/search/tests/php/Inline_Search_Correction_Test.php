@@ -38,11 +38,17 @@ class Inline_Search_Correction_Test extends BaseTestCase {
 		// Inline_Search::instance() is a process-wide singleton; clear it so later
 		// tests don't see this fixture's search_result / pre_get_posts hooks.
 		$instance_prop = new \ReflectionProperty( Inline_Search::class, 'instance' );
-		$instance_prop->setAccessible( true );
+		// setAccessible() became a no-op in PHP 8.1 and was deprecated in 8.5;
+		// only call it on older versions where it is still required.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$instance_prop->setAccessible( true );
+		}
 		$instance = $instance_prop->getValue();
 		if ( $instance ) {
 			$correction_prop = new \ReflectionProperty( Inline_Search::class, 'correction' );
-			$correction_prop->setAccessible( true );
+			if ( PHP_VERSION_ID < 80100 ) {
+				$correction_prop->setAccessible( true );
+			}
 			$correction = $correction_prop->getValue( $instance );
 			if ( $correction ) {
 				remove_action( 'pre_get_posts', array( $correction, 'setup_corrected_query_hooks' ) );
@@ -67,7 +73,11 @@ class Inline_Search_Correction_Test extends BaseTestCase {
 
 		$search     = Inline_Search::instance( 1 );
 		$reflection = new \ReflectionProperty( Classic_Search::class, 'search_result' );
-		$reflection->setAccessible( true );
+		// setAccessible() became a no-op in PHP 8.1 and was deprecated in 8.5;
+		// only call it on older versions where it is still required.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$reflection->setAccessible( true );
+		}
 		$reflection->setValue( $search, $search_result );
 	}
 
