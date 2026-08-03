@@ -54,9 +54,17 @@ function Dashboard(): JSX.Element {
 		[]
 	);
 
-	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
-
 	const [ editMode, setEditMode ] = useState( false );
+
+	// Only the widgets this section renders need their metadata resolved at
+	// boot; the complete registry is what the widget picker lists, so it can
+	// wait for edit mode. `null` until the sections resolve — the layout is
+	// empty until then, and this hook runs on those renders too, below the
+	// spinner returned further down. See `useWidgetTypesWithI18n`.
+	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules, {
+		visibleNames: hasResolvedSections ? layout.map( widget => widget.type ) : null,
+		includeAll: editMode,
+	} );
 
 	/*
 	 * Date-range state lives in the URL search params. The shared controller
