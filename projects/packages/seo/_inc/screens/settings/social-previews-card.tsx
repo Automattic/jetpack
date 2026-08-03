@@ -129,6 +129,7 @@ const SocialPreviewsCard: FC< Props > = ( { description } ) => {
 	if ( ! site ) {
 		return null;
 	}
+	const previewDescription = description || site.tagline;
 
 	return (
 		<CollapsibleCard.Root defaultOpen={ false }>
@@ -158,7 +159,7 @@ const SocialPreviewsCard: FC< Props > = ( { description } ) => {
 									{ __( 'Google search result', 'jetpack-seo' ) }
 								</Stack>
 							</Text>
-							<GooglePreview site={ site } description={ description } />
+							<GooglePreview site={ site } description={ previewDescription } />
 						</Stack>
 						<Stack direction="column" gap="md">
 							<Text variant="heading-lg" render={ <h3 /> }>
@@ -167,7 +168,7 @@ const SocialPreviewsCard: FC< Props > = ( { description } ) => {
 									{ __( 'Facebook', 'jetpack-seo' ) }
 								</Stack>
 							</Text>
-							<LinkCardPreview site={ site } description={ description } />
+							<LinkCardPreview site={ site } description={ previewDescription } />
 						</Stack>
 						<Stack direction="column" gap="md">
 							<Text variant="heading-lg" render={ <h3 /> }>
@@ -176,7 +177,7 @@ const SocialPreviewsCard: FC< Props > = ( { description } ) => {
 									{ __( 'X (Twitter)', 'jetpack-seo' ) }
 								</Stack>
 							</Text>
-							<LinkCardPreview site={ site } description={ description } />
+							<LinkCardPreview site={ site } description={ previewDescription } />
 						</Stack>
 					</Stack>
 				</Stack>
