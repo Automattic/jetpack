@@ -120,7 +120,7 @@ class Package_Provenance_Helper {
 		<style>
 			#package-provenance-panel {
 				position: fixed; inset-block-end: 12px; inset-inline-end: 12px; z-index: 99999;
-				inline-size: 560px; max-inline-size: calc( 100vw - 24px ); max-block-size: 65vh;
+				inline-size: 640px; max-inline-size: calc( 100vw - 24px ); max-block-size: 65vh;
 				display: none; flex-direction: column; overflow: hidden;
 				background: #1e1e1e; color: #d4d4d4; border: 1px solid #444; border-radius: 6px;
 				font: 11px/1.5 Menlo, Consolas, monospace; box-shadow: 0 4px 16px rgba( 0, 0, 0, .4 );
