@@ -19,8 +19,7 @@ module.exports = {
 		'!<rootDir>/**/?(*.)+(spec|test).[jt]s?(x)',
 		'!<rootDir>/**/test/*.[jt]s?(x)',
 
-		// Exclude storybook stories too, including support files nested under
-		// a stories dir (mocks, fixtures, decorators).
-		'!<rootDir>/**/stories/**/*.[jt]s?(x)',
+		// Exclude storybook stories too.
+		'!<rootDir>/**/stories/*.[jt]s?(x)',
 	],
 };
