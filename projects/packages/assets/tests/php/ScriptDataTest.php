@@ -42,6 +42,11 @@ class ScriptDataTest extends TestCase {
 				return 'Test Blog';
 			}
 		);
+		Functions\when( 'wp_specialchars_decode' )->alias(
+			function ( $string, $flags = ENT_QUOTES ) {
+				return htmlspecialchars_decode( $string, $flags );
+			}
+		);
 		Functions\when( 'get_site_url' )->alias(
 			function () {
 				return 'http://example.com/';
