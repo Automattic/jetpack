@@ -38,10 +38,11 @@ namespace Automattic\Jetpack\Connection;
  * Stored errors carry two orthogonal classification fields:
  *
  * - `error_type` — the transport/source of the failed request: 'xmlrpc', 'rest',
- *   'connection' (local connection-state errors involving no request at all, e.g.
- *   `invalid_connection_owner`), or '' for entries stored by older package versions.
+ *   'local_state' (local connection-state errors involving no request at all, e.g.
+ *   `invalid_connection_owner`; stored as 'connection' by package versions <= 8.8),
+ *   or '' for entries stored by older package versions.
  * - `error_direction` — 'incoming', 'outgoing', or '' (legacy entries and
- *   'connection'-type errors, which have no direction).
+ *   'local_state'-type errors, which have no direction).
  *
  * Note on naming: both option names below contain "xmlrpc" because they predate REST
  * support. They are intentionally kept as-is to avoid a data migration and breaking
@@ -132,13 +133,16 @@ class Error_Handler {
 
 	/**
 	 * `error_type` value for local connection-state errors that involve no request,
-	 * e.g. `invalid_connection_owner`.
+	 * e.g. `invalid_connection_owner`. The evidence for these errors is the site's own
+	 * database, which is also why they carry no `error_direction`.
+	 *
+	 * Note: package versions <= 8.8 stored these errors with the type 'connection'.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @var string
 	 */
-	const ERROR_TYPE_CONNECTION = 'connection';
+	const ERROR_TYPE_LOCAL_STATE = 'local_state';
 
 	/**
 	 * `error_direction` value for errors triggered by incoming requests (WP.com to this site).
@@ -808,7 +812,9 @@ class Error_Handler {
 	 *   The token is also what WP.com checks when verifying incoming-flow errors, so its
 	 *   key and position in the payload must not change.
 	 * - `error_type` and `error_direction` are validated against the class constants and
-	 *   stored as '' when the given value is not recognized.
+	 *   stored as '' when the given value is not recognized. For 'local_state' errors the
+	 *   direction is always forced to '' — they describe the site's own database, not a
+	 *   request, so a direction would be meaningless and is ignored if passed.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -816,23 +822,31 @@ class Error_Handler {
 	 *                                  and typically `timestamp`, `nonce`, `body_hash`,
 	 *                                  `method`, `url`.
 	 * @param string $error_type        One of the `ERROR_TYPE_*` constants.
-	 * @param string $error_direction   One of the `DIRECTION_*` constants, or '' for
-	 *                                  errors with no direction ('connection' type).
+	 * @param string $error_direction   One of the `DIRECTION_*` constants. Ignored for
+	 *                                  'local_state' errors, which have no direction.
 	 * @param array  $extra             Optional additional data, e.g. a `user_id` fallback for
 	 *                                  errors whose token cannot be attributed to a user, or
 	 *                                  `has_user_token` for `invalid_connection_owner`.
 	 * @return array The error data array to pass as the third argument of `WP_Error`.
 	 */
 	public static function build_connection_error_data( array $signature_details, string $error_type, string $error_direction, array $extra = array() ) {
-		$valid_types      = array( self::ERROR_TYPE_XMLRPC, self::ERROR_TYPE_REST, self::ERROR_TYPE_CONNECTION );
+		$valid_types      = array( self::ERROR_TYPE_XMLRPC, self::ERROR_TYPE_REST, self::ERROR_TYPE_LOCAL_STATE );
 		$valid_directions = array( self::DIRECTION_INCOMING, self::DIRECTION_OUTGOING );
+
+		$error_type = in_array( $error_type, $valid_types, true ) ? $error_type : '';
+
+		if ( self::ERROR_TYPE_LOCAL_STATE === $error_type ) {
+			$error_direction = '';
+		} else {
+			$error_direction = in_array( $error_direction, $valid_directions, true ) ? $error_direction : '';
+		}
 
 		return array_merge(
 			$extra,
 			array(
 				'signature_details' => array_merge( array( 'token' => '' ), $signature_details ),
-				'error_type'        => in_array( $error_type, $valid_types, true ) ? $error_type : '',
-				'error_direction'   => in_array( $error_direction, $valid_directions, true ) ? $error_direction : '',
+				'error_type'        => $error_type,
+				'error_direction'   => $error_direction,
 			)
 		);
 	}
@@ -1086,7 +1100,7 @@ class Error_Handler {
 	/**
 	 * Delete all stored and verified API errors from the database, leave the non-API errors intact.
 	 *
-	 * Only 'xmlrpc' and 'rest' type errors are deleted. 'connection' type errors are
+	 * Only 'xmlrpc' and 'rest' type errors are deleted. 'local_state' type errors are
 	 * deliberately kept: they describe local connection state (e.g. a missing owner token),
 	 * which a successful API request does not disprove.
 	 *

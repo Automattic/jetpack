@@ -25,7 +25,7 @@ Note: XML-RPC faults arrive as HTTP 200 responses with an XML body, so they are 
 
 ### Connection-state errors
 
-Some errors describe broken local state rather than a failed request — for example `invalid_connection_owner`, reported by `Manager::get_connection_owner()` when the connection owner cannot be resolved (missing owner token, or the owner's WP user was deleted). These are reported with `report_error()` and skip the WordPress.com round-trip, since the evidence is local.
+Some errors describe broken local state rather than a failed request — for example `invalid_connection_owner`, reported by `Manager::get_connection_owner()` when the connection owner cannot be resolved (missing owner token, or the owner's WP user was deleted). These are stored with `error_type` set to `local_state` and are reported with `report_error()` skipping the WordPress.com round-trip: the evidence is the site's own database, so there is nothing for WordPress.com to confirm.
 
 ## Error classification
 
@@ -33,8 +33,8 @@ Each stored error carries two orthogonal classification fields:
 
 | Field | Values | Meaning |
 |---|---|---|
-| `error_type` | `xmlrpc`, `rest`, `connection`, `''` | The transport of the failed request; `connection` marks local connection-state errors that involve no request; `''` appears on entries stored by older package versions. |
-| `error_direction` | `incoming`, `outgoing`, `''` | Whether the failed request was made to the site or by the site; `''` appears on legacy entries and `connection`-type errors, which have no direction. |
+| `error_type` | `xmlrpc`, `rest`, `local_state`, `''` | The transport of the failed request; `local_state` marks connection-state errors that involve no request (stored as `connection` by package versions ≤ 8.8); `''` appears on entries stored by older package versions. |
+| `error_direction` | `incoming`, `outgoing`, `''` | Whether the failed request was made to the site or by the site; `''` appears on legacy entries and `local_state`-type errors, which have no direction — the error factory discards any direction passed for them. |
 
 ## Supported error codes
 
@@ -185,7 +185,7 @@ Check [the class file](../src/class-error-handler.php) for further documentation
 
 ## When errors are cleared
 
-Stored errors are deleted automatically when the connection is restored or torn down — on site registration, reconnection, disconnection, token deletion, user unlink, and user-token update. Additionally, a successful API request (`jetpack_get_site_data_success`) clears all `xmlrpc` and `rest` type errors via `delete_all_api_errors()`; `connection`-type errors are deliberately kept there, because a successful API round-trip refutes token/signature problems but says nothing about local state such as a missing connection owner.
+Stored errors are deleted automatically when the connection is restored or torn down — on site registration, reconnection, disconnection, token deletion, user unlink, and user-token update. Additionally, a successful API request (`jetpack_get_site_data_success`) clears all `xmlrpc` and `rest` type errors via `delete_all_api_errors()`; `local_state`-type errors are deliberately kept there, because a successful API round-trip refutes token/signature problems but says nothing about local state such as a missing connection owner.
 
 ## Debugging
 

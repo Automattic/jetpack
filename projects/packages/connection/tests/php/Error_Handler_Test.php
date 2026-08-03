@@ -121,7 +121,7 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$error  = $this->get_sample_error( 'invalid_token', 1, 'xmlrpc' );
 		$error2 = $this->get_sample_error( 'unknown_user', 1, 'rest' );
-		$error3 = $this->get_sample_error( 'invalid_connection_owner', 'invalid', 'connection' );
+		$error3 = $this->get_sample_error( 'invalid_connection_owner', 'invalid', Error_Handler::ERROR_TYPE_LOCAL_STATE );
 
 		$this->error_handler->report_error( $error );
 		$this->error_handler->report_error( $error2 );
@@ -466,7 +466,7 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$error  = $this->get_sample_error( 'invalid_token', 1, 'xmlrpc' );
 		$error2 = $this->get_sample_error( 'unknown_user', 1, 'rest' );
-		$error3 = $this->get_sample_error( 'invalid_connection_owner', 'invalid', 'connection' );
+		$error3 = $this->get_sample_error( 'invalid_connection_owner', 'invalid', Error_Handler::ERROR_TYPE_LOCAL_STATE );
 
 		$this->error_handler->report_error( $error );
 		$this->error_handler->report_error( $error2 );
@@ -547,7 +547,7 @@ class Error_Handler_Test extends BaseTestCase {
 			array(
 				'user_id'           => 42,
 				'has_user_token'    => false,
-				'error_type'        => 'connection',
+				'error_type'        => Error_Handler::ERROR_TYPE_LOCAL_STATE,
 				'signature_details' => array( 'token' => '' ),
 			)
 		);
@@ -1205,6 +1205,21 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertSame( '', $result['error_type'], 'An unrecognized error_type must be stored as an empty string, and extra data must not override it.' );
 		$this->assertSame( '', $result['error_direction'], 'An unrecognized error_direction must be stored as an empty string, and extra data must not override it.' );
 		$this->assertSame( 'abc:1:2', $result['signature_details']['token'] );
+	}
+
+	/**
+	 * Test that local-state errors never carry a direction, even if a caller passes one:
+	 * they describe the site's own database, not a request.
+	 */
+	public function test_build_connection_error_data_forces_empty_direction_for_local_state() {
+		$result = Error_Handler::build_connection_error_data(
+			array( 'token' => '' ),
+			Error_Handler::ERROR_TYPE_LOCAL_STATE,
+			Error_Handler::DIRECTION_INCOMING
+		);
+
+		$this->assertSame( 'local_state', $result['error_type'] );
+		$this->assertSame( '', $result['error_direction'], 'A direction passed for a local_state error must be discarded.' );
 	}
 
 	/**
@@ -2098,16 +2113,15 @@ class Error_Handler_Test extends BaseTestCase {
 		// Report the error exactly the way Manager::get_connection_owner() does:
 		// empty token, explicit user_id in the error data, locally verified.
 		$this->error_handler->report_error(
-			new \WP_Error(
+			Error_Handler::build_connection_wp_error(
 				'invalid_connection_owner',
 				'Invalid connection owner',
+				array( 'token' => '' ),
+				Error_Handler::ERROR_TYPE_LOCAL_STATE,
+				'',
 				array(
-					'user_id'           => $owner_id,
-					'has_user_token'    => false,
-					'error_type'        => 'connection',
-					'signature_details' => array(
-						'token' => '',
-					),
+					'user_id'        => $owner_id,
+					'has_user_token' => false,
 				)
 			),
 			false,
@@ -2190,7 +2204,7 @@ class Error_Handler_Test extends BaseTestCase {
 			'error_data'    => array( 'token' => '' ),
 			'timestamp'     => time(),
 			'nonce'         => 'nonce_invalid_owner',
-			'error_type'    => 'connection',
+			'error_type'    => 'connection', // The legacy type value stored by package versions <= 8.8, deliberately kept.
 		);
 		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, array( 'invalid_connection_owner' => array( 'invalid' => $error ) ) );
 

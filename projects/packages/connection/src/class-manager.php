@@ -981,8 +981,8 @@ class Manager {
 					'invalid_connection_owner',
 					'Invalid connection owner',
 					array( 'token' => '' ),
-					Error_Handler::ERROR_TYPE_CONNECTION,
-					'', // Connection-state errors describe local state, not a request, so they have no direction.
+					Error_Handler::ERROR_TYPE_LOCAL_STATE,
+					'', // Local-state errors describe the site's database, not a request, so they have no direction.
 					array(
 						'user_id'        => $user_id,
 						'has_user_token' => (bool) $user_token,
