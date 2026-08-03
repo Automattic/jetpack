@@ -99,6 +99,19 @@ const useFieldEditor = (
 	};
 };
 
+// Leaving a text field starts its save on mousedown, and the click that caused
+// it only lands ~100ms later. Locking the instant the save starts would disable
+// the control mid-press and swallow that click, so wait out a press first. Long
+// enough for the click, short enough that a second deliberate edit still meets a
+// locked form — and a save that beats the delay never flashes the tab grey.
+const LOCK_DELAY_MS = 250;
+
+// `disabled` covers the native controls; `aria-disabled` the buttons that stay
+// focusable while locked.
+const isControlDisabled = ( element: HTMLElement ): boolean =>
+	( element as HTMLInputElement ).disabled === true ||
+	element.getAttribute( 'aria-disabled' ) === 'true';
+
 interface SettingsTabProps {
 	onAfterDisable?: () => void;
 }
@@ -118,6 +131,16 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 		}
 	}, [ settings, draft ] );
 
+	const [ isLocked, setIsLocked ] = useState( false );
+	useEffect( () => {
+		if ( ! isSaving ) {
+			setIsLocked( false );
+			return;
+		}
+		const timer = setTimeout( () => setIsLocked( true ), LOCK_DELAY_MS );
+		return () => clearTimeout( timer );
+	}, [ isSaving ] );
+
 	// Disabling a control blurs it, and the browser has already moved focus to
 	// <body> by the time effects run — so record focus on the way in instead.
 	const lastFocused = useRef< HTMLElement | null >( null );
@@ -125,8 +148,18 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 		lastFocused.current = event.target;
 	}, [] );
 
+	// Focus leaving a control that is still enabled is the user's own move —
+	// clicking into blank space, say — and there's nothing to hand back. Only the
+	// lock taking focus away is worth undoing, and that control is already
+	// disabled by the time it fires this.
+	const forgetFocus = useCallback( ( event: FocusEvent< HTMLDivElement > ) => {
+		if ( ! isControlDisabled( event.target ) ) {
+			lastFocused.current = null;
+		}
+	}, [] );
+
 	useEffect( () => {
-		if ( isSaving ) {
+		if ( isLocked ) {
 			return;
 		}
 		const target = lastFocused.current;
@@ -134,11 +167,11 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 		if ( ! target?.isConnected ) {
 			return;
 		}
-		// Only reclaim focus the disable dropped, not focus the user moved on purpose.
+		// Don't pull focus back from wherever the user has since moved it.
 		if ( target.ownerDocument.activeElement === target.ownerDocument.body ) {
 			target.focus();
 		}
-	}, [ isSaving ] );
+	}, [ isLocked ] );
 
 	// Save a partial update, then resync draft from the server-merged record so
 	// `isDirty` and reference checks fall back to false on the saved keys.
@@ -274,7 +307,12 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 	}
 
 	return (
-		<VStack spacing={ 5 } className="podcast__settings" onFocus={ rememberFocus }>
+		<VStack
+			spacing={ 5 }
+			className="podcast__settings"
+			onFocus={ rememberFocus }
+			onBlur={ forgetFocus }
+		>
 			{ issues.length > 0 && (
 				<Notice status="warning" isDismissible={ false }>
 					<strong>{ __( 'Finish setting up your podcast', 'jetpack-podcast' ) }</strong>
@@ -301,7 +339,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 						<CategoryPicker
 							selectedId={ draft.podcasting_category_id }
 							onSelect={ handleCategorySelect }
-							disabled={ isSaving }
+							disabled={ isLocked }
 						/>
 					</VStack>
 				</CardBody>
@@ -324,34 +362,34 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 							imageId={ draft.podcasting_image_id }
 							onSelect={ handleCoverSelect }
 							onRemove={ handleCoverRemove }
-							disabled={ isSaving }
+							disabled={ isLocked }
 						/>
 						<TextControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
 							label={ __( 'Title', 'jetpack-podcast' ) }
-							disabled={ isSaving }
+							disabled={ isLocked }
 							{ ...titleField }
 						/>
 						<TextareaControl
 							__nextHasNoMarginBottom
 							label={ __( 'Summary/Description', 'jetpack-podcast' ) }
 							rows={ 4 }
-							disabled={ isSaving }
+							disabled={ isLocked }
 							{ ...summaryField }
 						/>
 						<TextControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
 							label={ __( 'Hosts/Artist/Producer', 'jetpack-podcast' ) }
-							disabled={ isSaving }
+							disabled={ isLocked }
 							{ ...talentNameField }
 						/>
 						<TextControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
 							label={ __( 'Copyright', 'jetpack-podcast' ) }
-							disabled={ isSaving }
+							disabled={ isLocked }
 							{ ...copyrightField }
 						/>
 					</VStack>
@@ -383,7 +421,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 									suggestions={ TOPIC_SUGGESTIONS }
 									onChange={ handleTopicsChange }
 									maxLength={ 3 }
-									disabled={ isSaving }
+									disabled={ isLocked }
 								/>
 							</div>
 							<Text variant="muted">
@@ -413,7 +451,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 							value={ draft.podcasting_explicit ? 'yes' : 'no' }
 							onChange={ handleExplicitChange }
 							options={ EXPLICIT_OPTIONS }
-							disabled={ isSaving }
+							disabled={ isLocked }
 						/>
 						<TextControl
 							__next40pxDefaultSize
@@ -424,7 +462,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 								'Included in your feed so podcast directories can verify ownership. Most require it for submission.',
 								'jetpack-podcast'
 							) }
-							disabled={ isSaving }
+							disabled={ isLocked }
 							{ ...emailField }
 						/>
 					</VStack>
@@ -449,7 +487,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 							variant="secondary"
 							isDestructive
 							onClick={ openConfirmDisable }
-							disabled={ isSaving }
+							disabled={ isLocked }
 							accessibleWhenDisabled
 						>
 							{ __( 'Disable', 'jetpack-podcast' ) }
