@@ -183,7 +183,8 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 								  )
 								: __(
 										'Send a test email to your address so you can see exactly what your subscribers receive in their inboxes.',
-										'jetpack'
+										'jetpack',
+										/* dummy arg to avoid bad minification */ 0
 								  ) }
 						</p>
 						<Grid alignment="bottom" columns={ 2 } gap={ 2 } templateColumns="2fr auto;">
