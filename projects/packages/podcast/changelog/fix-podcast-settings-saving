@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Settings: lock controls while a save is in progress so quick edits aren't lost.
