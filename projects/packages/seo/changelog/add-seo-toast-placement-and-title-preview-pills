@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-SEO: show save toasts in the top-right, matching the rest of Jetpack, and render the title-structure preview with its parts as chips so the shape of the title is legible.
+Show save toasts in the top-right, matching the rest of Jetpack, and render the title-structure preview with its parts as chips so the shape of the title is legible.
