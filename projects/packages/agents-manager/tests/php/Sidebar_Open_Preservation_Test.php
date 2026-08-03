@@ -230,7 +230,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	public function test_constructor_registers_docking_gate_script_hook() {
 		$this->assertNotFalse(
 			has_action( 'in_admin_header', array( $this->preservation, 'print_sidebar_docking_gate_script' ) ),
-			'The docking gate script must be hooked into the admin body.'
+			'The docking gate script must be hooked into the admin header.'
 		);
 	}
 
