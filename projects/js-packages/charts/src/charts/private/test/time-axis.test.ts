@@ -36,6 +36,14 @@ describe( 'getFormatter', () => {
 		expect( formatter( new Date( '2026-08-02T13:00:00' ).getTime() ) ).toMatch( /1\sPM/ );
 	} );
 
+	it( 'keeps hour ticks up to a full week of sub-daily data', () => {
+		const formatter = getFormatter(
+			toSeries( hourlyDates( new Date( '2026-08-02T00:00:00' ), 24 * 7 + 1 ) )
+		);
+
+		expect( formatter( new Date( '2026-08-05T13:00:00' ).getTime() ) ).toMatch( /1\sPM/ );
+	} );
+
 	it( 'keeps date ticks for daily data over the same multi-day span', () => {
 		const formatter = getFormatter(
 			toSeries( dailyDates( new Date( '2026-08-01T00:00:00' ), 3 ) )
@@ -43,6 +51,40 @@ describe( 'getFormatter', () => {
 
 		expect( formatter( new Date( '2026-08-02T00:00:00' ).getTime() ) ).toMatch( /Aug 2/ );
 		expect( formatter( new Date( '2026-08-02T13:00:00' ).getTime() ) ).not.toMatch( /PM/ );
+	} );
+
+	it( 'keeps date ticks for daily buckets across a spring-forward transition', () => {
+		// A 23-hour first gap, as a daily series straddling spring-forward
+		// produces, must not demote the series to the sub-daily regime.
+		const start = new Date( '2026-03-08T00:00:00' );
+		const dstDates = [ 0, 23, 47, 71 ].map(
+			offsetHours => new Date( start.getTime() + offsetHours * 60 * 60 * 1000 )
+		);
+		const formatter = getFormatter( toSeries( dstDates ) );
+
+		expect( formatter( dstDates[ 2 ].getTime() ) ).not.toMatch( /AM|PM/ );
+		expect( formatter( dstDates[ 2 ].getTime() ) ).toMatch( /Mar/ );
+	} );
+
+	it( 'keeps date ticks when no series has two points', () => {
+		const formatter = getFormatter( [
+			...toSeries( [ new Date( '2026-03-01T00:00:00' ) ] ),
+			...toSeries( [ new Date( '2026-03-04T00:00:00' ) ] ),
+		] );
+
+		expect( formatter( new Date( '2026-03-02T00:00:00' ).getTime() ) ).toMatch( /Mar 2/ );
+	} );
+
+	it( 'uses month ticks for buckets exactly a shortest-month apart', () => {
+		const formatter = getFormatter(
+			toSeries( [
+				new Date( '2026-02-01T00:00:00' ),
+				new Date( '2026-03-01T00:00:00' ),
+				new Date( '2026-04-01T00:00:00' ),
+			] )
+		);
+
+		expect( formatter( new Date( '2026-03-01T00:00:00' ).getTime() ) ).toBe( 'Mar' );
 	} );
 
 	it( 'uses month ticks with the year at January for monthly buckets', () => {

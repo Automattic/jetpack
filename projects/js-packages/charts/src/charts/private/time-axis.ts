@@ -65,16 +65,23 @@ const formatMonthOrYearTick = ( timestamp: number ) => {
 		: date.toLocaleDateString( undefined, { month: 'short' } );
 };
 
-// Interval between the first two points of the densest series, in hours.
+// Smallest interval between consecutive points across all series, in hours.
 // Infinity when no series has two points.
 const getPointSpacingInHours = ( sortedData: ReturnType< typeof useChartDataTransform > ) => {
-	return sortedData.reduce( ( spacing, datom ) => {
-		const [ first, second ] = datom.data;
-		if ( first?.date === undefined || second?.date === undefined ) {
-			return spacing;
-		}
-		return Math.min( spacing, Math.abs( differenceInHours( second.date, first.date ) ) );
-	}, Number.POSITIVE_INFINITY );
+	return sortedData.reduce(
+		( spacing, datom ) =>
+			datom.data.reduce( ( seriesSpacing, point, index ) => {
+				const previous = datom.data[ index - 1 ];
+				if ( previous?.date === undefined || point?.date === undefined ) {
+					return seriesSpacing;
+				}
+				return Math.min(
+					seriesSpacing,
+					Math.abs( differenceInHours( point.date, previous.date ) )
+				);
+			}, spacing ),
+		Number.POSITIVE_INFINITY
+	);
 };
 
 // Pick the most informative tick formatter for the data's resolution and time
@@ -92,14 +99,20 @@ export const getFormatter = ( sortedData: ReturnType< typeof useChartDataTransfo
 	}
 
 	const spacingInHours = getPointSpacingInHours( sortedData );
-	if ( diffInHours <= 24 * 7 && spacingInHours < 24 ) {
+	// 23, not 24: a daily gap shrinks to 23 wall-clock hours across a
+	// spring-forward DST transition.
+	if ( diffInHours <= 24 * 7 && spacingInHours < 23 ) {
 		return formatDateOrHourTick;
 	}
 
 	const diffInYears = Math.abs( differenceInYears( maxX, minX ) );
 	if ( diffInYears <= 1 ) {
-		// 28 days: the shortest month, so monthly buckets qualify but weekly don't.
-		return spacingInHours >= 28 * 24 ? formatMonthOrYearTick : formatDateTick;
+		// 28 days: the shortest month, so monthly buckets qualify but weekly
+		// don't. The finiteness check keeps all-single-point series — whose
+		// resolution is unknowable — on date ticks.
+		return Number.isFinite( spacingInHours ) && spacingInHours >= 28 * 24
+			? formatMonthOrYearTick
+			: formatDateTick;
 	}
 
 	return formatYearTick;
