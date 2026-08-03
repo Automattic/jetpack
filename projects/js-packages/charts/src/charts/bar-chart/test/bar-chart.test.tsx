@@ -218,6 +218,67 @@ describe( 'BarChart', () => {
 		} );
 	} );
 
+	describe( 'Time axis ticks', () => {
+		test( 'renders date ticks for daily buckets within a year', () => {
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						data: Array.from( { length: 14 }, ( _, i ) => ( {
+							date: new Date( Date.UTC( 2024, 0, 1 + i ) ),
+							value: 10 + i,
+						} ) ),
+						options: {},
+					},
+				],
+			} );
+
+			const ticks = screen.getAllByText(
+				/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d+$/
+			);
+			expect( ticks.length ).toBeGreaterThan( 1 );
+		} );
+
+		test( 'renders hour ticks for series spanning a single day', () => {
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						data: Array.from( { length: 12 }, ( _, i ) => ( {
+							date: new Date( Date.UTC( 2024, 0, 1, i ) ),
+							value: 10 + i,
+						} ) ),
+						options: {},
+					},
+				],
+			} );
+
+			const ticks = screen.getAllByText( /^\d{1,2}\s(AM|PM)$/ );
+			expect( ticks.length ).toBeGreaterThan( 1 );
+		} );
+
+		test( 'renders year ticks for series spanning multiple years', () => {
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						data: Array.from( { length: 4 }, ( _, i ) => ( {
+							date: new Date( Date.UTC( 2021 + i, 0, 1 ) ),
+							value: 10 + i,
+						} ) ),
+						options: {},
+					},
+				],
+			} );
+
+			const ticks = screen.getAllByText( /^\d{4}$/ );
+			expect( ticks.length ).toBeGreaterThan( 1 );
+		} );
+	} );
+
 	describe( 'Pattern', () => {
 		test( 'renders with patterns', () => {
 			renderWithTheme( { withPatterns: true } );

@@ -163,6 +163,74 @@ export const TimeSeries: Story = {
 	},
 };
 
+// Wall-clock dates in the browser frame — the library's parsing convention —
+// so the ticks read the same in any viewer timezone.
+const hourlyBarSeries = ( label: string, hours: number ): SeriesData => ( {
+	label,
+	data: Array.from( { length: hours }, ( _, i ) => ( {
+		date: new Date( 2026, 7, 2, i ),
+		value: Math.round( 60 + 40 * Math.sin( ( i % 24 ) / 3.5 ) ),
+	} ) ),
+	options: {},
+} );
+
+export const TimeAxisTickFormats: Story = {
+	render: () => (
+		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
+			<div>
+				<h3>Hourly buckets, single day → hour ticks</h3>
+				<BarChart width={ 460 } height={ 220 } data={ [ hourlyBarSeries( 'Views', 24 ) ] } />
+			</div>
+			<div>
+				<h3>Daily buckets → date ticks</h3>
+				<BarChart
+					width={ 460 }
+					height={ 220 }
+					data={ [
+						{
+							label: 'Views',
+							data: Array.from( { length: 30 }, ( _, i ) => ( {
+								date: new Date( 2026, 6, 1 + i ),
+								value: Math.round( 60 + 40 * Math.sin( i / 4 ) ),
+							} ) ),
+							options: {},
+						},
+					] }
+				/>
+			</div>
+			<div>
+				<h3>Yearly span → year ticks</h3>
+				<BarChart
+					width={ 460 }
+					height={ 220 }
+					data={ [
+						{
+							label: 'Views',
+							data: Array.from( { length: 4 }, ( _, i ) => ( {
+								date: new Date( 2023 + i, 0, 1 ),
+								value: Math.round( 60 + 40 * Math.sin( i / 2 ) ),
+							} ) ),
+							options: {},
+						},
+					] }
+				/>
+			</div>
+		</div>
+	),
+	args: {
+		containerWidth: '1020px',
+		containerHeight: '700px',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Date-based series share the time-axis tick formatter with the line and area charts: hour ticks within a day, calendar dates within a year, otherwise years. An explicit `options.axis.x.tickFormat` still overrides.',
+			},
+		},
+	},
+};
+
 export const WithPatterns: Story = {
 	args: {
 		...Default.args,

@@ -1,5 +1,6 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { useMemo } from 'react';
+import { getFormatter } from '../../private/time-axis';
 import { TruncatedXTickComponent, TruncatedYTickComponent } from './truncated-tick-component';
 import type { EnhancedDataPoint } from '../../../hooks/use-zero-value-display';
 import type { DataPointDate, BaseChartProps, SeriesData } from '../../../types';
@@ -9,14 +10,6 @@ import type { TickFormatter } from '@visx/axis';
 export const BASE_BAND_PADDING = 0.2;
 /** Inner padding of the category band scale (the base gap between ticks). */
 export const BASE_BAND_PADDING_INNER = 0.1;
-
-const formatDateTick = ( timestamp: number ) => {
-	const date = new Date( timestamp );
-	return date.toLocaleDateString( undefined, {
-		month: 'short',
-		day: 'numeric',
-	} );
-};
 
 /**
  * Get the group padding of a scale.
@@ -53,9 +46,12 @@ export function useBarChartOptions(
 			zero: false,
 		};
 
+		// Date-based series share the line/area charts' time-axis formatter, so
+		// tick formats track the data's resolution and span the same way there.
+		// `data` is already date-parsed and sorted by `useChartDataTransform`.
 		const labelFormatter = data?.[ 0 ]?.data?.[ 0 ]?.label
 			? ( label: string ) => label
-			: formatDateTick;
+			: getFormatter( data );
 		const valueFormatter = formatNumberCompact as TickFormatter< unknown >;
 
 		const labelAccessor = ( d: DataPointDate ) => d?.label || d?.date;

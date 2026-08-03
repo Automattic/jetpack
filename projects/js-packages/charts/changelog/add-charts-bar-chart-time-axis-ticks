@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Charts: pick bar chart time-axis ticks with the shared line/area time-axis formatter.
