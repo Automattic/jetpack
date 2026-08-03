@@ -183,8 +183,8 @@ const dailyPoints: Array< [ Date, number ] > = Array.from( { length: 30 }, ( _, 
 	Math.round( 60 + 40 * Math.sin( i / 4 ) ),
 ] );
 
-const monthlyPoints: Array< [ Date, number ] > = Array.from( { length: 24 }, ( _, i ) => [
-	new Date( 2025, i, 1 ),
+const monthlyPoints: Array< [ Date, number ] > = Array.from( { length: 36 }, ( _, i ) => [
+	new Date( 2024, i, 1 ),
 	Math.round( 60 + 40 * Math.sin( i / 2 ) ),
 ] );
 
@@ -211,7 +211,7 @@ export const TimeAxisTickFormats: Story = {
 				<BarChart width={ 460 } height={ 220 } data={ timeAxisSeries( dailyPoints ) } />
 			</div>
 			<div>
-				<h3>Monthly buckets over two years → year-level ticks</h3>
+				<h3>Monthly buckets over three years → year ticks (band sampling can repeat)</h3>
 				<BarChart width={ 460 } height={ 220 } data={ timeAxisSeries( monthlyPoints ) } />
 			</div>
 			<div>
