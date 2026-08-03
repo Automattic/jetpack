@@ -23,34 +23,13 @@ export const getUpgradePlanName = (): string =>
 export const getUpgradeProductCheckoutUrl = (): string =>
 	`https://wordpress.com/checkout/${ getUpgradeProductSlug() }`;
 
-// The Calypso slug, with the admin host as a safety net in case `site.suffix`
-// is unexpectedly absent.
-const getSiteSlug = (): string => {
-	const site = getSiteData();
+const getSiteSlug = (): string => getSiteData()?.suffix ?? '';
 
-	if ( site?.suffix ) {
-		return site.suffix;
-	}
-
-	try {
-		return new URL( site?.admin_url ?? '' ).host;
-	} catch {
-		return '';
-	}
-};
-
-/**
- * Identify the site to Calypso for checkout.
- *
- * Prefer the WordPress.com blog ID: `site.suffix` is derived from `home_url()`,
- * which doesn't match the site WordPress.com knows whenever the two disagree
- * (WordPress in its own directory, mapped domains, multi-URL setups), and
- * checkout answers "You don't have access to this site". The slug stands in
- * when no blog ID was injected.
- *
- * @return {string} Blog ID or site slug; empty when neither resolves.
- */
-export const getUpgradeSiteFragment = (): string => {
+// Prefer the blog ID: `site.suffix` is derived from `home_url()`, which isn't
+// the site WordPress.com knows whenever `home` and `siteurl` disagree
+// (WordPress in its own directory, mapped domains, multi-URL setups) — checkout
+// then answers "You don't have access to this site".
+const getUpgradeSiteFragment = (): string => {
 	const blogId = getSiteData()?.wpcom?.blog_id;
 
 	return blogId ? String( blogId ) : getSiteSlug();
