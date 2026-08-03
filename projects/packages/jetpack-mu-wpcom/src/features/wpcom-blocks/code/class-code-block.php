@@ -240,14 +240,15 @@ abstract class Code_Block {
 	/**
 	 * Filter for block registration to modify the core/code block.
 	 *
-	 * @param array  $args The block type arguments.
-	 * @param string $block_type The block type name.
+	 * @param array|false $args The block type arguments, or false to cancel block registration.
+	 * @param string      $block_type The block type name.
 	 *
-	 * @return array The modified block type arguments.
+	 * @return array|false The modified block type arguments, or false if $args was false.
 	 */
-	public static function register_block_type_args( array $args, string $block_type ): array {
+	public static function register_block_type_args( array|false $args, string $block_type ): array|false {
 		if (
-			'core/code' !== $block_type
+			! \is_array( $args )
+			|| 'core/code' !== $block_type
 
 			// In some cases the block may not include the content attribute.
 			// Only perform enhancement on the _full_, expected block.

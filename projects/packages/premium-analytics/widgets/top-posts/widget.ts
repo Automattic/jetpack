@@ -2,8 +2,13 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
+import { postList } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
+
+/**
+ * Internal dependencies
+ */
+import { SelectField } from '@jetpack-premium-analytics/fields';
 
 /**
  * Configurable attributes for the Most viewed widget. Mirrors the
@@ -15,7 +20,8 @@ export type TopPostsAttributes = {
 	/**
 	 * Maximum number of rows to display.
 	 */
-	num?: number;
+	max?: number;
+
 	/**
 	 * Which report the widget shows: published posts and pages (including the
 	 * homepage entry, via `skip_archives=1`), or archive pages (taxonomy,
@@ -36,35 +42,28 @@ export type TopPostsAttributes = {
  * rows, Posts & pages view. The date range comes from the dashboard picker.
  */
 export default {
-	name: 'jpa/stats-top-posts',
-	title: __( 'Most viewed', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Most viewed posts, pages and archive. Learn about what content resonates the most.',
-			'jetpack-premium-analytics'
-		),
-	},
-	icon: chartBar,
+	icon: postList,
 	attributes: [
 		{
-			id: 'num',
-			label: __( 'Number of results', 'jetpack-premium-analytics' ),
+			id: 'max',
+			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
 			type: 'integer',
 		},
 		{
 			id: 'contentView',
-			label: __( 'View', 'jetpack-premium-analytics' ),
+			label: __( 'View', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
+			Edit: SelectField,
 			elements: [
-				{ label: __( 'Posts & pages', 'jetpack-premium-analytics' ), value: 'posts' },
-				{ label: __( 'Archives', 'jetpack-premium-analytics' ), value: 'archives' },
+				{ label: __( 'Posts & pages', 'jetpack-premium-analytics-pkg' ), value: 'posts' },
+				{ label: __( 'Archives', 'jetpack-premium-analytics-pkg' ), value: 'archives' },
 			],
 			relevance: 'high',
 		},
 	] as WidgetAttributeField< TopPostsAttributes >[],
 	example: {
 		attributes: {
-			num: 10,
+			max: 10,
 			contentView: 'posts',
 		},
 	},

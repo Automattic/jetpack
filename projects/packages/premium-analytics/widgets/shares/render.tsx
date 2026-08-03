@@ -5,6 +5,7 @@ import {
 	LeaderboardChart,
 	WidgetRoot,
 	WidgetState,
+	sharePercentage,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -44,7 +45,7 @@ function SharesInner( { max = 10 }: SharesAttributes ) {
 				</Stack>
 			),
 			currentValue: service.value,
-			currentShare: maxValue > 0 ? ( service.value / maxValue ) * 100 : 0,
+			currentShare: sharePercentage( service.value, maxValue ),
 		} ) );
 	}, [ data ] );
 
@@ -59,15 +60,17 @@ function SharesInner( { max = 10 }: SharesAttributes ) {
 					error={ {
 						description: __(
 							"We couldn't load shares. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
-						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
 					} }
 					empty={ {
 						icon: megaphone,
 						description: __(
 							'Learn where your content has been shared the most.',
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
 					} }
 				>

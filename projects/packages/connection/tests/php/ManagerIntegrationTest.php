@@ -28,6 +28,27 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	private $manager;
 
 	/**
+	 * The URL of the last HTTP request intercepted by the user-data endpoint filter.
+	 *
+	 * @var string|null
+	 */
+	private $intercepted_url = null;
+
+	/**
+	 * The arguments of the last HTTP request intercepted by the user-data endpoint filter.
+	 *
+	 * @var array|null
+	 */
+	private $intercepted_args = null;
+
+	/**
+	 * The canned response the user-data endpoint filter returns for a matching request.
+	 *
+	 * @var array|\WP_Error|null
+	 */
+	private $http_response = null;
+
+	/**
 	 * Initialize the hooks to reset memoized connection properties.
 	 *
 	 * @beforeClass
@@ -799,5 +820,205 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 
 			$this->reset_connection_status();
 		}
+	}
+
+	/**
+	 * Set up a connected blog and user so a signed request can be built as $user_id.
+	 *
+	 * @param int $user_id The local user id to connect.
+	 * @return int The connected user id.
+	 */
+	private function set_up_connected_user( $user_id = 2 ) {
+		// A fully-qualified API base is required for the request URL to be signable.
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'blog_token', 'blogkey.blogsecret' );
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => "userkey.usersecret.$user_id" ) );
+		\Jetpack_Options::update_option( 'master_user', $user_id );
+
+		return $user_id;
+	}
+
+	/**
+	 * Intercept the outgoing request to the jetpack-wpcom-user-data endpoint and
+	 * return the canned response, recording the request URL and args.
+	 *
+	 * @param false|array $response The preempted response.
+	 * @param array       $args     The request arguments.
+	 * @param string      $url      The request URL.
+	 * @return false|array
+	 */
+	public function intercept_user_data_request( $response, $args, $url ) {
+		if ( false !== strpos( $url, 'jetpack-wpcom-user-data' ) ) {
+			$this->intercepted_url  = $url;
+			$this->intercepted_args = $args;
+			return $this->http_response;
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Test that `get_connected_user_data()` fetches the connected user data from the
+	 * WordPress.com REST endpoint and caches the decoded payload.
+	 */
+	public function test_get_connected_user_data_fetches_from_rest_endpoint() {
+		$user_id = $this->set_up_connected_user();
+
+		$payload = array(
+			'ID'                => 99,
+			'login'             => 'wpcom_user',
+			'email'             => 'wpcom@example.com',
+			'display_name'      => 'WPCOM User',
+			'text_direction'    => 'ltr',
+			'site_count'        => 3,
+			'jetpack_connect'   => '',
+			'color_scheme'      => 'classic-dark',
+			'sidebar_collapsed' => false,
+			'user_locale'       => 'en_US',
+			'user_currency'     => 'USD',
+		);
+
+		$this->http_response = array(
+			'body'     => wp_json_encode( $payload, JSON_UNESCAPED_SLASHES ),
+			'response' => array(
+				'code'    => 200,
+				'message' => 'OK',
+			),
+			'headers'  => array(),
+		);
+
+		add_filter( 'pre_http_request', array( $this, 'intercept_user_data_request' ), 10, 3 );
+
+		$result = $this->manager->get_connected_user_data( $user_id );
+
+		$cached           = get_transient( "jetpack_connected_user_data_$user_id" );
+		$requested_url    = $this->intercepted_url;
+		$requested_method = $this->intercepted_args['method'] ?? null;
+
+		remove_filter( 'pre_http_request', array( $this, 'intercept_user_data_request' ), 10 );
+		delete_transient( "jetpack_connected_user_data_$user_id" );
+
+		$this->assertSame( $payload, $result );
+		$this->assertSame( $payload, $cached );
+		$this->assertStringContainsString( '/wpcom/v2/sites/1234/jetpack-wpcom-user-data', (string) $requested_url );
+		$this->assertSame( 'GET', $requested_method );
+	}
+
+	/**
+	 * Test that a cached transient is returned without making an HTTP request.
+	 */
+	public function test_get_connected_user_data_returns_cached_value() {
+		$user_id = $this->set_up_connected_user();
+
+		$cached = array(
+			'ID'    => 5,
+			'login' => 'cached_user',
+		);
+		set_transient( "jetpack_connected_user_data_$user_id", $cached, DAY_IN_SECONDS );
+
+		add_filter( 'pre_http_request', array( $this, 'intercept_user_data_request' ), 10, 3 );
+
+		$result        = $this->manager->get_connected_user_data( $user_id );
+		$requested_url = $this->intercepted_url;
+
+		remove_filter( 'pre_http_request', array( $this, 'intercept_user_data_request' ), 10 );
+		delete_transient( "jetpack_connected_user_data_$user_id" );
+
+		$this->assertSame( $cached, $result );
+		// No HTTP request should have been attempted.
+		$this->assertNull( $requested_url );
+	}
+
+	/**
+	 * Test that a failed fetch returns false and caches an `error` sentinel, so
+	 * the failing request is not repeated on every call.
+	 *
+	 * @dataProvider get_connected_user_data_error_responses
+	 *
+	 * @param array|\WP_Error $http_response The canned HTTP response for the request.
+	 */
+	#[DataProvider( 'get_connected_user_data_error_responses' )]
+	public function test_get_connected_user_data_returns_false_on_error_response( $http_response ) {
+		$user_id = $this->set_up_connected_user();
+
+		$this->http_response = $http_response;
+
+		add_filter( 'pre_http_request', array( $this, 'intercept_user_data_request' ), 10, 3 );
+
+		$result        = $this->manager->get_connected_user_data( $user_id );
+		$cached        = get_transient( "jetpack_connected_user_data_$user_id" );
+		$requested_url = $this->intercepted_url;
+
+		// A repeated call must be served the cached failure without a new request.
+		$this->intercepted_url = null;
+		$repeat_result         = $this->manager->get_connected_user_data( $user_id );
+		$repeat_requested_url  = $this->intercepted_url;
+
+		remove_filter( 'pre_http_request', array( $this, 'intercept_user_data_request' ), 10 );
+		delete_transient( "jetpack_connected_user_data_$user_id" );
+
+		$this->assertFalse( $result );
+		$this->assertStringContainsString( 'jetpack-wpcom-user-data', (string) $requested_url );
+		// Failures are cached briefly with an 'error' sentinel so a failing
+		// request is not retried on every call.
+		$this->assertSame( 'error', $cached );
+		$this->assertFalse( $repeat_result );
+		$this->assertNull( $repeat_requested_url );
+	}
+
+	/**
+	 * Data provider for test_get_connected_user_data_returns_false_on_error_response.
+	 *
+	 * @return array
+	 */
+	public static function get_connected_user_data_error_responses() {
+		return array(
+			'transport error (WP_Error)' => array(
+				new \WP_Error( 'http_request_failed', 'Request blocked.' ),
+			),
+			'non-200 response'           => array(
+				array(
+					'body'     => wp_json_encode(
+						array(
+							'error'   => 'unknown_token',
+							'message' => 'Invalid token.',
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+					'response' => array(
+						'code'    => 403,
+						'message' => 'Forbidden',
+					),
+					'headers'  => array(),
+				),
+			),
+			'200 with malformed body'    => array(
+				array(
+					'body'     => 'not-json',
+					'response' => array(
+						'code'    => 200,
+						'message' => 'OK',
+					),
+					'headers'  => array(),
+				),
+			),
+		);
+	}
+
+	/**
+	 * Test that no request is made and false is returned when the user is not connected.
+	 */
+	public function test_get_connected_user_data_returns_false_when_user_not_connected() {
+		add_filter( 'pre_http_request', array( $this, 'intercept_user_data_request' ), 10, 3 );
+
+		$result        = $this->manager->get_connected_user_data( 999 );
+		$requested_url = $this->intercepted_url;
+
+		remove_filter( 'pre_http_request', array( $this, 'intercept_user_data_request' ), 10 );
+
+		$this->assertFalse( $result );
+		// No HTTP request should have been attempted for an unconnected user.
+		$this->assertNull( $requested_url );
 	}
 }

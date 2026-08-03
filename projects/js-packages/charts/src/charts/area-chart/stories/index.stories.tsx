@@ -112,7 +112,21 @@ export const Default: StoryObj< StoryArgs > = Template.bind( {} );
 Default.args = {
 	...areaChartStoryArgs,
 	showLegend: true,
+};
+
+export const Zoomable: StoryObj< StoryArgs > = Template.bind( {} );
+Zoomable.args = {
+	...areaChartStoryArgs,
+	showLegend: true,
 	zoomable: true,
+};
+Zoomable.parameters = {
+	docs: {
+		description: {
+			story:
+				'With `zoomable`, drag horizontally across the plot to zoom into a range. A reset button appears while zoomed to restore the full domain. Defaults to `false`.',
+		},
+	},
 };
 
 // Same series rendered as overlapping (non-stacked) filled areas.
@@ -211,17 +225,17 @@ Animation.args = {
 	legendInteractive: true,
 };
 
-export const RescaleYOnLegendToggle: StoryObj< StoryArgs > = {
-	name: 'Y-axis rescales when legends toggle (default)',
+export const RescaleYOnVisibilityChange: StoryObj< StoryArgs > = {
+	name: 'Y-axis rescales when visible series change (default)',
 	render: args => (
 		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
 			<div>
-				<h4>rescaleYOnLegendToggle: true (default)</h4>
-				<AreaChart { ...args } rescaleYOnLegendToggle />
+				<h4>rescaleYOnVisibilityChange: true (default)</h4>
+				<AreaChart { ...args } rescaleYOnVisibilityChange />
 			</div>
 			<div>
-				<h4>rescaleYOnLegendToggle: false (pinned)</h4>
-				<AreaChart { ...args } rescaleYOnLegendToggle={ false } />
+				<h4>rescaleYOnVisibilityChange: false (pinned)</h4>
+				<AreaChart { ...args } rescaleYOnVisibilityChange={ false } />
 			</div>
 		</div>
 	),

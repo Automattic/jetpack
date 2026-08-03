@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Parse Stats API responses at the data layer's own fetch boundary instead of a global apiFetch middleware. No user-facing change.
+
+

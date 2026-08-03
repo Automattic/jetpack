@@ -2,6 +2,29 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [2.2.1] - 2026-07-31
+### Changed
+- Connection UI: Make the disconnect survey a real radio group, drop the decorative arrow the options no longer need, and build the option cards on the shared Card component.
+
+## [2.2.0] - 2026-07-27
+### Added
+- Add a `./state/store-id` subpath export so `CONNECTION_STORE_ID` can be imported without pulling the package barrel. [#50714]
+- Render connection error notices without a reconnect button when the error's action is `none`. [#50662]
+
+## [2.1.0] - 2026-07-22
+### Removed
+- Connection UI: Unify error handling across Basic and Required Plan screens, modernize components, and remove the unused `ConnectUser` component. [#50663]
+
+## [2.0.2] - 2026-07-20
+### Changed
+- UI: Convert component files to TSX and update components. [#50370] [#50543]
+- UI: Convert remaining component files to TS / TSX. [#50620]
+- Update package dependencies. [#50510] [#50529]
+
+## [2.0.1] - 2026-07-13
+### Fixed
+- Disconnect UI: Fix owner disconnect dialog heading labeling and improve disconnect survey reliability. [#50284]
+
 ## [2.0.0] - 2026-07-09
 ### Added
 - Add a connection health-check thunk that surfaces broken-connection errors through the shared connection-error notice. [#50169]
@@ -1421,6 +1444,11 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[2.2.1]: https://github.com/Automattic/jetpack-connection-js/compare/v2.2.0...v2.2.1
+[2.2.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.1.0...v2.2.0
+[2.1.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.0.2...v2.1.0
+[2.0.2]: https://github.com/Automattic/jetpack-connection-js/compare/v2.0.1...v2.0.2
+[2.0.1]: https://github.com/Automattic/jetpack-connection-js/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/Automattic/jetpack-connection-js/compare/v1.5.0...v2.0.0
 [1.5.0]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.66...v1.5.0
 [1.4.66]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.65...v1.4.66

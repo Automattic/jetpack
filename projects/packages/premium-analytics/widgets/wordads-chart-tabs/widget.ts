@@ -8,7 +8,7 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 /**
  * Internal dependencies
  */
-import { ArrayCheckboxField } from '@jetpack-premium-analytics/fields';
+import { ArrayCheckboxField, SelectField } from '@jetpack-premium-analytics/fields';
 import {
 	DEFAULT_WORDADS_CHART_METRICS,
 	WORDADS_CHART_METRICS,
@@ -51,39 +51,32 @@ export type WordAdsChartTabsAttributes = {
  * site.
  */
 export default {
-	name: 'jpa/wordads-chart-tabs',
-	title: __( 'WordAds', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Compare ads served, average CPM, and revenue over the selected period, with the previous period overlaid for comparison.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: chartBar,
 	attributes: [
 		{
 			id: 'granularity',
-			label: __( 'Group by', 'jetpack-premium-analytics' ),
+			label: __( 'Group by', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
+			Edit: SelectField,
 			elements: [
 				{
-					label: __( 'Auto', 'jetpack-premium-analytics' ),
+					label: __( 'Auto', 'jetpack-premium-analytics-pkg' ),
 					value: 'auto',
 				},
 				{
-					label: __( 'By days', 'jetpack-premium-analytics' ),
+					label: __( 'By days', 'jetpack-premium-analytics-pkg' ),
 					value: 'day',
 				},
 				{
-					label: __( 'By weeks', 'jetpack-premium-analytics' ),
+					label: __( 'By weeks', 'jetpack-premium-analytics-pkg' ),
 					value: 'week',
 				},
 				{
-					label: __( 'By months', 'jetpack-premium-analytics' ),
+					label: __( 'By months', 'jetpack-premium-analytics-pkg' ),
 					value: 'month',
 				},
 				{
-					label: __( 'By years', 'jetpack-premium-analytics' ),
+					label: __( 'By years', 'jetpack-premium-analytics-pkg' ),
 					value: 'year',
 				},
 			],
@@ -91,7 +84,7 @@ export default {
 		},
 		{
 			id: 'metrics',
-			label: __( 'Metrics', 'jetpack-premium-analytics' ),
+			label: __( 'Metrics', 'jetpack-premium-analytics-pkg' ),
 			type: 'array',
 			relevance: 'high',
 			Edit: ArrayCheckboxField,

@@ -9,3 +9,5 @@ export {
 } from './tabs';
 
 export { POST_DETAIL_TAB_LAYOUTS } from './tab-layouts';
+
+export { POST_DETAIL_WIDGET_TYPE_ALIASES } from './widget-variants';

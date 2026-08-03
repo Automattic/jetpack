@@ -105,7 +105,21 @@ const Template: StoryFn< StoryArgs > = args => {
 export const Default: StoryObj< StoryArgs > = Template.bind( {} );
 Default.args = {
 	...lineChartStoryArgs,
+};
+
+export const Zoomable: StoryObj< StoryArgs > = Template.bind( {} );
+Zoomable.args = {
+	...lineChartStoryArgs,
 	zoomable: true,
+};
+
+Zoomable.parameters = {
+	docs: {
+		description: {
+			story:
+				'With `zoomable`, drag horizontally across the plot to zoom into a range. A reset button appears while zoomed to restore the full domain. Defaults to `false`.',
+		},
+	},
 };
 
 export const FixedDimensions: StoryObj< StoryArgs > = Template.bind( {} );
@@ -525,35 +539,84 @@ DateStringFormats.parameters = {
 	},
 };
 
-export const Comparison: StoryObj< StoryArgs > = Template.bind( {} );
-Comparison.args = {
+// One metric paired with its previous-period comparison overlay, sharing a `group`. Left
+// uncollapsed so the legend keeps an item per series — the default.
+export const ComparisonSingle: StoryObj< StoryArgs > = Template.bind( {} );
+ComparisonSingle.args = {
 	...lineChartStoryArgs,
 	showLegend: true,
+	legendCollapseGroups: false,
 	smoothing: false,
 	data: [
 		{
 			...sampleData[ 0 ],
-			label: 'New York',
+			label: 'Views',
+			group: 'views',
 		},
 		{
 			...sampleData[ 1 ],
-			label: 'New York last year',
-			group: 'new-york',
+			label: 'Views — previous',
+			group: 'views',
+			options: {
+				type: 'comparison' as const,
+			},
+		},
+	],
+};
+ComparisonSingle.parameters = {
+	docs: {
+		description: {
+			story:
+				'A primary series paired with a `type: "comparison"` previous-period series sharing the same `group`. `legend.collapseGroups` is off here, the default, so each series keeps its own legend item; turn the `legendCollapseGroups` control on to fold the pair into a single **Views** item.',
+		},
+	},
+};
+
+// Two metrics side by side, each with its own previous-period comparison overlay. With
+// `legendCollapseGroups` the legend shows one item per group (Views, Visitors); because it is also
+// interactive, clicking one toggles both of that metric's series at once.
+export const ComparisonMulti: StoryObj< StoryArgs > = Template.bind( {} );
+ComparisonMulti.args = {
+	...lineChartStoryArgs,
+	showLegend: true,
+	legendInteractive: true,
+	legendCollapseGroups: true,
+	rescaleYOnVisibilityChange: false,
+	smoothing: false,
+	data: [
+		{
+			...sampleData[ 0 ],
+			label: 'Views',
+			group: 'views',
+		},
+		{
+			...sampleData[ 1 ],
+			label: 'Views — previous',
+			group: 'views',
 			options: {
 				type: 'comparison' as const,
 			},
 		},
 		{
 			...sampleData[ 2 ],
-			label: 'Tokyo',
+			label: 'Visitors',
+			group: 'visitors',
 		},
 		{
 			...sampleData[ 3 ],
-			label: 'Tokyo last year',
-			group: 'tokyo',
+			label: 'Visitors — previous',
+			group: 'visitors',
 			options: {
 				type: 'comparison' as const,
 			},
 		},
 	],
+};
+ComparisonMulti.parameters = {
+	docs: {
+		description: {
+			story:
+				'Two groups (`views` and `visitors`), each a primary series plus its `type: "comparison"` overlay. With `legend.collapseGroups` each group is a single legend item, and because `legend.interactive` is also on, clicking one toggles both its current and previous-period series at once. The value axis stays fixed as series are toggled. Turn the `legendCollapseGroups` control off to get one item per series, each toggling alone.',
+		},
+	},
 };

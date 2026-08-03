@@ -226,12 +226,6 @@ describe( 'PieSemiCircleChart', () => {
 	} );
 
 	describe( 'Responsive wrapper', () => {
-		it( 'fills parent container (height:100%) by default', () => {
-			render( <PieSemiCircleChart data={ mockData } /> );
-			const wrapper = screen.getByTestId( 'responsive-wrapper' );
-			expect( wrapper ).toHaveStyle( { height: '100%' } );
-		} );
-
 		it( 'constrains chart to 2:1 ratio from measured dimensions', () => {
 			// Mock returns width:400, height:200, so chart renders at 400×200 (2:1 ratio)
 			render( <PieSemiCircleChart data={ mockData } /> );

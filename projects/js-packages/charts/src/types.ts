@@ -208,8 +208,8 @@ export type LeaderboardEntry = {
 	previousShare?: number;
 
 	/**
-	 * Delta of the entry. Omit when this row has no matching comparison-period
-	 * value.
+	 * Delta of the entry. Omit when the percentage change is unavailable, such
+	 * as when the row has no comparison value or its previous value is zero.
 	 */
 	delta?: number;
 
@@ -606,6 +606,22 @@ export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry 
 	 * Styles for legend shapes (width, height, margin).
 	 */
 	shapeStyles?: LegendShapeStyles;
+};
+
+/**
+ * Legend config for charts built from `SeriesData` (line, bar, area). Adds `collapseGroups` on top
+ * of the shared config. It is intentionally absent from the base `ChartLegendConfig` so point-based
+ * charts (pie, semi-circle pie) — whose data points carry `group` only to coordinate colours — can't
+ * set it.
+ */
+export type SeriesChartLegendConfig = ChartLegendConfig< SeriesData[] > & {
+	/**
+	 * Collapse series that share a `group` into a single legend item, labelled by the group's
+	 * primary series (its first non-comparison member). Off by default, so every series keeps its
+	 * own item. Combines with `interactive`: a collapsed item toggles every series in its group, an
+	 * uncollapsed one toggles only its own.
+	 */
+	collapseGroups?: boolean;
 };
 
 /**

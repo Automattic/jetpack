@@ -1,13 +1,13 @@
 .root {
 	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-lg, 16px);
+	gap: var(--wpds-dimension-gap-lg);
 	height: 100%;
 	overflow: hidden;
 
 	/* Offset the host card's body padding so the featured image can bleed to the
 	 * card edges. Tuned to the framed widget padding. */
-	--latest-post-frame-pad: var(--wpds-dimension-padding-2xl, 24px);
+	--latest-post-frame-pad: var(--wpds-dimension-padding-2xl);
 }
 
 .content {
@@ -15,7 +15,7 @@
 	flex: 1;
 	flex-direction: column;
 	justify-content: space-between;
-	gap: var(--wpds-dimension-gap-lg, 16px);
+	gap: var(--wpds-dimension-gap-lg);
 	min-width: 0;
 	min-height: 0;
 }
@@ -23,11 +23,14 @@
 .header {
 	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-xs, 4px);
+	gap: var(--wpds-dimension-gap-xs);
 	min-width: 0;
 }
 
-.titleLink {
+/* `:any-link` so this beats `PostTitleLink`'s own `color: inherit` default
+   deterministically — as plain classes the two would tie and the winner would
+   depend on compiled stylesheet order. Same idiom as the post detail header. */
+.titleLink:any-link {
 	color: var(--wpds-color-foreground-content-neutral);
 	text-decoration: none;
 }
@@ -52,23 +55,23 @@
 .metrics {
 	display: flex;
 	flex-flow: row wrap;
-	gap: var(--wpds-dimension-gap-2xl, 32px);
+	gap: var(--wpds-dimension-gap-2xl);
 }
 
 .metric {
 	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-xs, 4px);
+	gap: var(--wpds-dimension-gap-xs);
 	min-width: 0;
 }
 
 .metricLabel {
-	font-weight: var(--wpds-typography-font-weight-medium, 500);
+	font-weight: var(--wpds-typography-font-weight-medium);
 	color: var(--wpds-color-foreground-content-neutral);
 }
 
 .metric .metricValue {
-	font-size: var(--wpds-typography-font-size-lg, 15px);
+	font-size: var(--wpds-typography-font-size-lg);
 }
 
 /* Featured image. Full-bleeds to the top and sides of the card by offsetting
@@ -84,23 +87,17 @@
 	object-fit: cover;
 }
 
-.placeholder {
-	margin: auto;
-	color: var(--wpds-color-foreground-content-neutral-weak);
-	text-align: center;
-}
-
 /* Narrow tiles (single-column grid cells): stack the image as a top banner and
  * scale the headline, metrics, and spacing down so the content fits without
  * overflowing a small tile. */
 @container widget (max-width: 599px) {
 
 	.root {
-		gap: var(--wpds-dimension-gap-md, 12px);
+		gap: var(--wpds-dimension-gap-md);
 	}
 
 	.content {
-		gap: var(--wpds-dimension-gap-md, 12px);
+		gap: var(--wpds-dimension-gap-md);
 	}
 
 	.media {
@@ -110,14 +107,14 @@
 	}
 
 	.header .title {
-		font-size: var(--wpds-typography-font-size-xl, 20px);
-		line-height: var(--wpds-typography-line-height-md, 24px);
+		font-size: var(--wpds-typography-font-size-xl);
+		line-height: var(--wpds-typography-line-height-md);
 		-webkit-line-clamp: 2;
 		line-clamp: 2;
 	}
 
 	.metrics {
-		gap: var(--wpds-dimension-gap-lg, 16px);
+		gap: var(--wpds-dimension-gap-lg);
 	}
 }
 

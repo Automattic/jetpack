@@ -6,6 +6,11 @@ import { envelope } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
+ * Internal dependencies
+ */
+import { SelectField } from '@jetpack-premium-analytics/fields';
+
+/**
  * Which breakdown dimension the widget lists for the selected email.
  *
  * `countries`, `devices`, and `clients` read the opens or clicks breakdown per
@@ -38,6 +43,11 @@ export type EmailBreakdownAttributes = {
 	 * Number of rows to show. `0` means as many as the endpoint returns.
 	 */
 	max?: number;
+	/**
+	 * Whether the countries view also renders a world map. Used by the wide
+	 * Location clicks card in the fixed post-detail composition.
+	 */
+	showMap?: boolean;
 };
 
 /**
@@ -46,59 +56,54 @@ export type EmailBreakdownAttributes = {
  * Ported from the Jetpack Stats email detail "breakdown" modules
  * (`stats-email-module`). That family is one module rendered four times — by
  * country, device, email client, and clicked link — so this ships as a single
- * widget with a `view` selector (`relevance: 'high'`, rendered as a control by
- * the widget host) instead of four near-identical widgets. The breakdown is
+ * widget with a `view` selector instead of four near-identical widgets. The
+ * attributes stay at the default (low) relevance: the post detail page pins
+ * each view as its own fixed, page-titled card, so a header control would
+ * fight the composition. The breakdown is
  * scoped to a single email by the host through `reportParams.post_id` (the
  * shared single-resource "detail page" param), not by an attribute; the
  * endpoints report over the whole lifetime of the email, so there is no date
  * range or comparison period.
  */
 export default {
-	name: 'jpa/email-breakdown',
-	title: __( 'Email breakdown', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Breaks a sent email down by countries, devices, email clients, or clicked links.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: envelope,
 	attributes: [
 		{
 			id: 'view',
-			label: __( 'Break down by', 'jetpack-premium-analytics' ),
+			label: __( 'Break down by', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
+			Edit: SelectField,
 			elements: [
 				{
-					label: __( 'Countries', 'jetpack-premium-analytics' ),
+					label: __( 'Countries', 'jetpack-premium-analytics-pkg' ),
 					value: 'countries',
 				},
 				{
-					label: __( 'Devices', 'jetpack-premium-analytics' ),
+					label: __( 'Devices', 'jetpack-premium-analytics-pkg' ),
 					value: 'devices',
 				},
 				{
-					label: __( 'Email clients', 'jetpack-premium-analytics' ),
+					label: __( 'Email clients', 'jetpack-premium-analytics-pkg' ),
 					value: 'clients',
 				},
 				{
-					label: __( 'Links', 'jetpack-premium-analytics' ),
+					label: __( 'Links', 'jetpack-premium-analytics-pkg' ),
 					value: 'links',
 				},
 			],
-			relevance: 'high',
 		},
 		{
 			id: 'metric',
-			label: __( 'Metric', 'jetpack-premium-analytics' ),
+			label: __( 'Metric', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
+			Edit: SelectField,
 			elements: [
 				{
-					label: __( 'Opens', 'jetpack-premium-analytics' ),
+					label: __( 'Opens', 'jetpack-premium-analytics-pkg' ),
 					value: 'opens',
 				},
 				{
-					label: __( 'Clicks', 'jetpack-premium-analytics' ),
+					label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ),
 					value: 'clicks',
 				},
 			],
@@ -108,7 +113,7 @@ export default {
 		},
 		{
 			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics' ),
+			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
 			type: 'integer',
 		},
 	] as WidgetAttributeField< EmailBreakdownAttributes >[],

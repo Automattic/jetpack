@@ -1,15 +1,20 @@
 /**
  * External dependencies
  */
+import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import {
 	MetricValue,
-	WidgetLoadingOverlay,
+	PostTitleLink,
 	WidgetRoot,
+	WidgetState,
+	useWidgetRootContext,
 	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Link, Text } from '@wordpress/ui';
+import { postList } from '@wordpress/icons';
+import { Text } from '@wordpress/ui';
 import { format, parseISO } from 'date-fns';
 /**
  * Internal dependencies
@@ -31,17 +36,13 @@ const METRIC_FORMAT: DataFormat = {
 
 type LatestPostCardProps = {
 	/**
-	 * The resolved latest post, or null to render the empty state.
+	 * The resolved latest post.
 	 */
-	post?: LatestPostWithMetrics | null;
+	post: LatestPostWithMetrics;
 	/**
-	 * When `true` and there is no post yet, the full loading overlay is shown.
+	 * Search parameters carried into the post detail route.
 	 */
-	isLoading?: boolean;
-	/**
-	 * When `true`, an error message is rendered in place of the post.
-	 */
-	isError?: boolean;
+	detailSearch?: Record< string, unknown >;
 };
 
 /**
@@ -61,7 +62,7 @@ function formatPublishDate( date: string ): string {
 
 	return sprintf(
 		/* translators: %s: the post's publish date, e.g. "Jun 5, 2026". */
-		__( 'Published %s', 'jetpack-premium-analytics' ),
+		__( 'Published %s', 'jetpack-premium-analytics-pkg' ),
 		formatted
 	);
 }
@@ -91,49 +92,17 @@ function MetricTile( { label, value }: MetricTileProps ) {
 
 /**
  * Presentational card for the "Latest post" widget: the post title (linking to
- * the published post), its publish date, three lifetime metric tiles (views,
- * likes, comments), and the post's featured image when present.
+ * its analytics detail page), its publish date, three lifetime metric tiles
+ * (views, likes, comments), and the post's featured image when present.
  *
- * Takes the already-fetched post via props and owns only the loading, error,
- * empty, and populated states. Exported so Storybook can exercise those states
- * with fixtures.
+ * Renders only the populated state; loading, error, and empty are handled by
+ * `<WidgetState>` in `LatestPostReport`. Exported so Storybook can exercise the
+ * card with fixtures.
  *
  * @param {LatestPostCardProps} props - The component props.
  * @return The rendered card.
  */
-export const LatestPostCard = ( {
-	post = null,
-	isLoading = false,
-	isError = false,
-}: LatestPostCardProps ) => {
-	if ( isError ) {
-		return (
-			<div className={ styles.root }>
-				<Text className={ styles.placeholder }>
-					{ __( 'Unable to load your latest post.', 'jetpack-premium-analytics' ) }
-				</Text>
-			</div>
-		);
-	}
-
-	if ( isLoading && ! post ) {
-		return (
-			<div className={ styles.root }>
-				<WidgetLoadingOverlay />
-			</div>
-		);
-	}
-
-	if ( ! post ) {
-		return (
-			<div className={ styles.root }>
-				<Text className={ styles.placeholder }>
-					{ __( 'Publish a post to see its stats here.', 'jetpack-premium-analytics' ) }
-				</Text>
-			</div>
-		);
-	}
-
+export const LatestPostCard = ( { post, detailSearch = {} }: LatestPostCardProps ) => {
 	const publishDate = formatPublishDate( post.date );
 
 	return (
@@ -141,15 +110,17 @@ export const LatestPostCard = ( {
 			<div className={ styles.content }>
 				<div className={ styles.header }>
 					<Text className={ styles.title } variant="heading-2xl" render={ <h3 /> }>
-						<Link
-							className={ styles.titleLink }
-							href={ post.url }
-							variant="unstyled"
-							openInNewTab
+						<PostTitleLink
+							id={ post.id }
+							label={ post.title }
+							link={ post.url }
+							search={ detailSearch }
 							title={ post.title }
-						>
-							{ post.title }
-						</Link>
+							classNames={ {
+								internal: styles.titleLink,
+								external: styles.titleLink,
+							} }
+						/>
 					</Text>
 					{ publishDate && (
 						<Text className={ styles.date } variant="body-md">
@@ -158,13 +129,16 @@ export const LatestPostCard = ( {
 					) }
 				</div>
 				<div className={ styles.metrics }>
-					<MetricTile label={ __( 'Views', 'jetpack-premium-analytics' ) } value={ post.views } />
 					<MetricTile
-						label={ __( 'Likes', 'jetpack-premium-analytics' ) }
+						label={ __( 'Views', 'jetpack-premium-analytics-pkg' ) }
+						value={ post.views }
+					/>
+					<MetricTile
+						label={ __( 'Likes', 'jetpack-premium-analytics-pkg' ) }
 						value={ post.likeCount }
 					/>
 					<MetricTile
-						label={ __( 'Comments', 'jetpack-premium-analytics' ) }
+						label={ __( 'Comments', 'jetpack-premium-analytics-pkg' ) }
 						value={ post.commentCount }
 					/>
 				</div>
@@ -180,14 +154,38 @@ export const LatestPostCard = ( {
 
 /**
  * Fetches the site's latest post (with its metrics) through `useLatestPost`
- * and hands it to the presentational `LatestPostCard`.
+ * and hands it to the presentational `LatestPostCard`, with loading, error,
+ * and empty states handled by `<WidgetState>`.
  *
  * @return The widget content.
  */
 function LatestPostReport() {
-	const { post, isLoading, isError } = useLatestPost();
+	const { reportParams } = useWidgetRootContext();
+	const { post, isLoading, isFetching, isError, refetch } = useLatestPost();
 
-	return <LatestPostCard post={ post } isLoading={ isLoading } isError={ isError } />;
+	const detailSearch = useMemo( () => pickReportDateParams( reportParams ), [ reportParams ] );
+
+	return (
+		<WidgetState
+			isLoading={ isLoading }
+			isFetching={ isFetching }
+			isError={ isError }
+			isEmpty={ ! post }
+			error={ {
+				description: __(
+					"We couldn't load your latest post. Please try again in a moment.",
+					'jetpack-premium-analytics-pkg'
+				),
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
+			} }
+			empty={ {
+				icon: postList,
+				description: __( 'Publish a post to see its stats here.', 'jetpack-premium-analytics-pkg' ),
+			} }
+		>
+			{ post && <LatestPostCard post={ post } detailSearch={ detailSearch } /> }
+		</WidgetState>
+	);
 }
 
 /**

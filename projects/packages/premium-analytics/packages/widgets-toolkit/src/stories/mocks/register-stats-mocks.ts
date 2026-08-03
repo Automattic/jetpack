@@ -494,6 +494,9 @@ const MOCK_REFERRERS = {
 	},
 };
 
+// The Search Engines comparison total exceeds every current-period value so the
+// combined-scale contract is visible: the widest current bar stays below 100%
+// and its width agrees with the negative delta (see getCombinedPeriodMax).
 const MOCK_REFERRERS_COMPARISON = {
 	date: '2026-05-30',
 	period: 'day',
@@ -504,22 +507,22 @@ const MOCK_REFERRERS_COMPARISON = {
 				group: 'Search Engines',
 				name: 'Search Engines',
 				icon: 'https://www.google.com/s2/favicons?domain=google.com&sz=32',
-				total: 4160,
+				total: 6400,
 				results: [
 					{
 						name: 'Google Search',
 						icon: 'https://www.google.com/s2/favicons?domain=google.com&sz=32',
-						views: 3410,
+						views: 5650,
 						children: [
 							{
 								name: 'google.com',
 								url: 'https://www.google.com/',
-								views: 3280,
+								views: 5500,
 							},
 							{
 								name: 'google.co.uk',
 								url: 'https://www.google.co.uk/',
-								views: 130,
+								views: 150,
 							},
 						],
 					},
@@ -1134,14 +1137,14 @@ function buildStatsLocationViewsResponse(
 	};
 }
 
-function getStatsMock( path: string ): unknown | null {
+export function getStatsMock( path: string ): unknown | null {
 	const withoutBase = path.slice( STATS_BASE.length );
 	const queryIndex = withoutBase.indexOf( '?' );
 	const subPath = queryIndex === -1 ? withoutBase : withoutBase.slice( 0, queryIndex );
 	const query = new URLSearchParams( queryIndex === -1 ? '' : withoutBase.slice( queryIndex + 1 ) );
 	const isComparison = isComparisonRequest( path );
 
-	if ( subPath.startsWith( '/clicks' ) ) {
+	if ( subPath === '/clicks' ) {
 		return isComparison ? MOCK_CLICKS_COMPARISON : MOCK_CLICKS;
 	}
 

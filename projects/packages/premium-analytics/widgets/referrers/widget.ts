@@ -3,6 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { globe } from '@wordpress/icons';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Configurable attributes for the Referrers widget.
@@ -21,22 +22,14 @@ export type ReferrersAttributes = {
  * dashboard date range via the PA proxy at `stats/referrers`.
  */
 export default {
-	name: 'jpa/referrers',
-	title: __( 'Referrers', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Websites referring visitors sorted by most clicked. Learn about where your audience comes from.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: globe,
 	attributes: [
 		{
 			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics' ),
-			type: 'integer' as const,
+			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
+			type: 'integer',
 		},
-	],
+	] as WidgetAttributeField< ReferrersAttributes >[],
 	example: {
 		attributes: {
 			max: 10,

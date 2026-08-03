@@ -1,12 +1,30 @@
 export {
 	combineStatsNormalizedReports,
+	flattenStatsLeaves,
+	getStatsReportItems,
 	mergeStatsComparisonRows,
 	sanitizeStatsPassthroughResponse,
 	sanitizeStatsSiteResponse,
 } from './utils';
-export type { StatsComparisonRowContext } from './utils';
+export type {
+	FlattenStatsLeavesContext,
+	FlattenStatsLeavesOptions,
+	StatsComparisonRowContext,
+} from './utils';
+export { bucketStatsTimeSeries, getStatsChartBucketKey } from './chart-buckets';
+export type { StatsChartBucketPeriod } from './chart-buckets';
+export { aggregateStatsDrilldownRows } from './drilldown-rows';
+export type {
+	AggregateStatsDrilldownRowsOptions,
+	StatsDrilldownItemContext,
+	StatsDrilldownRow,
+	StatsDrilldownRowContext,
+	StatsDrilldownSourceReport,
+} from './drilldown-rows';
 export { mergeStatsTopPostsComparisonRows, sanitizeStatsTopPostsResponse } from './top-posts';
 export { sanitizeStatsPostResponse } from './post';
+export { sanitizeStatsPostCommentsResponse } from './post-comments';
+export { sanitizeStatsPostLikesResponse } from './post-likes';
 export { mergeStatsReferrersComparisonRows, sanitizeStatsReferrersResponse } from './referrers';
 export { mergeStatsClicksComparisonRows, sanitizeStatsClicksResponse } from './clicks';
 export {
@@ -34,7 +52,7 @@ export { compareEmailBreakdownItems, sanitizeStatsEmailBreakdownResponse } from 
 export { mergeStatsArchivesComparisonRows, sanitizeStatsArchivesResponse } from './archives';
 export { sanitizeStatsCommentFollowersResponse } from './comment-followers';
 export { sanitizeStatsFollowersResponse } from './followers';
-export { sanitizeStatsCommentsResponse } from './comments';
+export { sanitizeStatsCommentsResponse, selectStatsCommentsRows } from './comments';
 export {
 	sanitizeStatsSubscribersResponse,
 	sanitizeStatsSubscribersCountsResponse,
@@ -42,7 +60,6 @@ export {
 export { sanitizeStatsStreakResponse } from './streak';
 export { sanitizeStatsTagsResponse } from './tags';
 export { mergeStatsDevicesComparisonRows, sanitizeStatsDevicesResponse } from './devices';
-export { sanitizeStatsPublicizeResponse } from './publicize';
 export {
 	sanitizeStatsWordAdsStatsResponse,
 	sanitizeStatsWordAdsEarningsResponse,
@@ -62,6 +79,8 @@ export type {
 	StatsPostWeekDay,
 	StatsPostYear,
 } from './post';
+export type { StatsPostComment, StatsPostCommentsResponse } from './post-comments';
+export type { StatsPostLike, StatsPostLikesResponse } from './post-likes';
 export type { StatsReferrersComparisonItem, StatsReferrersItem } from './referrers';
 export type { StatsClicksComparisonItem, StatsClicksItem } from './clicks';
 export type { StatsSearchTermsComparisonItem, StatsSearchTermsItem } from './search-terms';
@@ -110,17 +129,13 @@ export type {
 } from './comment-followers';
 export type { StatsDevicesComparisonItem, StatsDevicesItem } from './devices';
 export type {
-	StatsPublicizeApiResponse,
-	StatsPublicizeItem,
-	StatsPublicizeService,
-} from './publicize';
-export type {
 	StatsFollowersItem,
 	StatsFollowersRawItem,
 	StatsFollowersRawResponse,
 } from './followers';
 export type {
 	StatsCommentsAuthorItem,
+	StatsCommentsGroup,
 	StatsCommentsGroupItem,
 	StatsCommentsItem,
 	StatsCommentsPostItem,
@@ -129,6 +144,7 @@ export type {
 	StatsCommentsRawPost,
 	StatsCommentsRawResponse,
 	StatsCommentsResponse,
+	StatsCommentsRow,
 } from './comments';
 export type {
 	StatsSubscribersCounts,
@@ -163,6 +179,7 @@ export type {
 export type {
 	StatsSingleVideoDataPoint,
 	StatsSingleVideoPage,
+	StatsSingleVideoPost,
 	StatsSingleVideoReport,
 } from './single-video';
 export type {

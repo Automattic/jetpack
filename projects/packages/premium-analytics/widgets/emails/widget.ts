@@ -6,6 +6,11 @@ import { envelope } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
+ * Internal dependencies
+ */
+import { SelectField } from '@jetpack-premium-analytics/fields';
+
+/**
  * Which rate the leaderboard displays. Rows stay in newest-first order
  * regardless; this only changes the value shown and the overlay bar width.
  */
@@ -37,29 +42,25 @@ export type EmailsAttributes = {
  * there is no date range or comparison period.
  */
 export default {
-	name: 'jpa/stats-emails',
-	title: __( 'Emails', 'jetpack-premium-analytics' ),
-	help: {
-		content: __( 'Latest emails sent and their performance.', 'jetpack-premium-analytics' ),
-	},
 	icon: envelope,
 	attributes: [
 		{
 			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics' ),
+			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
 			type: 'integer',
 		},
 		{
 			id: 'metric',
-			label: __( 'View by', 'jetpack-premium-analytics' ),
+			label: __( 'View by', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
+			Edit: SelectField,
 			elements: [
 				{
-					label: __( 'Open rate', 'jetpack-premium-analytics' ),
+					label: __( 'Open rate', 'jetpack-premium-analytics-pkg' ),
 					value: 'opens',
 				},
 				{
-					label: __( 'Click rate', 'jetpack-premium-analytics' ),
+					label: __( 'Click rate', 'jetpack-premium-analytics-pkg' ),
 					value: 'clicks',
 				},
 			],

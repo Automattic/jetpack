@@ -1,7 +1,7 @@
 .root {
 	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-md, 16px);
+	gap: var(--wpds-dimension-gap-md);
 }
 
 .header {
@@ -9,14 +9,14 @@
 	flex-direction: row;
 	justify-content: space-between;
 	align-items: center;
-	gap: var(--wpds-dimension-gap-md, 16px);
+	gap: var(--wpds-dimension-gap-md);
 }
 
 .controls {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	gap: var(--wpds-dimension-gap-sm, 8px);
+	gap: var(--wpds-dimension-gap-sm);
 }
 
 /* Anchors the absolutely positioned loading overlay. The height must be fixed:

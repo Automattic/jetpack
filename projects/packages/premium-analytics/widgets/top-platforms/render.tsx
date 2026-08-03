@@ -1,14 +1,20 @@
 /**
+ * External dependencies
+ */
+import { device } from '@jetpack-premium-analytics/icons';
+/**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import {
 	calculateDelta,
+	describeError,
+	getCombinedPeriodMax,
 	LeaderboardChart,
-	WidgetLoadingOverlay,
-	WidgetRoot,
 	sharePercentage,
+	WidgetRoot,
+	WidgetState,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
@@ -51,34 +57,18 @@ type TopPlatformsInnerProps = {
 function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 
-	const { data, hasComparison, isLoading, isError, errorReason } = usePlatformViews( {
-		reportParams,
-		max,
-		deviceProperty: platformDimension,
-	} );
+	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = usePlatformViews(
+		{
+			reportParams,
+			max,
+			deviceProperty: platformDimension,
+		}
+	);
 
-	if ( isError ) {
-		return (
-			<Stack align="center" justify="center" className={ styles.placeholder }>
-				<Text>
-					{ errorReason === 'upgrade-required'
-						? __(
-								'Platform stats are not included in your current plan.',
-								'jetpack-premium-analytics'
-						  )
-						: __( 'Could not load platform data.', 'jetpack-premium-analytics' ) }
-				</Text>
-			</Stack>
-		);
-	}
-
-	if ( isLoading && data.length === 0 ) {
-		return <WidgetLoadingOverlay />;
-	}
-
-	const maxViews = Math.max( ...data.map( d => d.views ), 0 );
-	const maxComparisonViews = Math.max( ...data.map( d => d.previousViews ?? 0 ), 0 );
-	const withComparison = hasComparison;
+	const maxViews = getCombinedPeriodMax(
+		data.map( item => item.views ),
+		hasComparison ? data.map( item => item.previousViews ) : []
+	);
 	const leaderboardData: LeaderboardChartData = data.map( ( item, index ) => {
 		const previousValue = item.previousViews;
 
@@ -90,29 +80,47 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
 				</Stack>
 			),
 			currentValue: item.views,
-			currentShare: maxViews > 0 ? ( item.views / maxViews ) * 100 : 0,
+			currentShare: sharePercentage( item.views, maxViews ),
 			previousValue,
 			previousShare:
-				withComparison && previousValue !== undefined
-					? sharePercentage( previousValue, maxComparisonViews )
+				hasComparison && previousValue !== undefined
+					? sharePercentage( previousValue, maxViews )
 					: undefined,
 			delta:
-				withComparison && previousValue !== undefined
+				hasComparison && previousValue !== undefined
 					? calculateDelta( item.views, previousValue )
 					: undefined,
 		};
 	} );
 
 	return (
-		<LeaderboardChart
-			data={ leaderboardData }
-			loading={ isLoading }
-			withComparison={ hasComparison }
-			withOverlayLabel
-			showLegend={ false }
-			emptyStateText={ __( 'No platform data in this period.', 'jetpack-premium-analytics' ) }
-			dataFormat={ DATA_FORMAT }
-		/>
+		<div className={ styles.content }>
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				isError={ isError }
+				isEmpty={ data.length === 0 }
+				error={ describeError( error, {
+					retryDescription: __(
+						"We couldn't load platform data. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					onRetry: refetch,
+				} ) }
+				empty={ {
+					icon: device,
+					description: __( 'No platform data in this period.', 'jetpack-premium-analytics-pkg' ),
+				} }
+			>
+				<LeaderboardChart
+					data={ leaderboardData }
+					withComparison={ hasComparison }
+					withOverlayLabel
+					showLegend={ false }
+					dataFormat={ DATA_FORMAT }
+				/>
+			</WidgetState>
+		</div>
 	);
 }
 

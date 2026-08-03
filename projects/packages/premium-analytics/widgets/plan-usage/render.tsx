@@ -60,11 +60,11 @@ function overLimitMessage( overLimitMonths: number ): string {
 	if ( overLimitMonths >= 2 ) {
 		return __(
 			"You've surpassed your limit for two consecutive periods already.",
-			'jetpack-premium-analytics'
+			'jetpack-premium-analytics-pkg'
 		);
 	}
 
-	return __( "You've surpassed your limit the past month.", 'jetpack-premium-analytics' );
+	return __( "You've surpassed your limit the past month.", 'jetpack-premium-analytics-pkg' );
 }
 
 /**
@@ -117,12 +117,12 @@ function PlanUsageBar( { limit, usage, daysToReset, overLimitMonths }: PlanUsage
 					className={ styles.progressMeter }
 					value={ Math.min( usageValue, limit ) }
 					max={ limit }
-					aria-label={ __( 'Plan usage', 'jetpack-premium-analytics' ) }
+					aria-label={ __( 'Plan usage', 'jetpack-premium-analytics-pkg' ) }
 				/>
 				<Text className={ styles.progressLabel } variant="body-sm">
 					{ sprintf(
 						/* translators: 1: views used in the current cycle, 2: the plan's views limit. */
-						__( '%1$s / %2$s views', 'jetpack-premium-analytics' ),
+						__( '%1$s / %2$s views', 'jetpack-premium-analytics-pkg' ),
 						formatMetricValue( usageValue, 'number', { decimals: 0 } ),
 						formatMetricValue( limit, 'number', { decimals: 0 } )
 					) }
@@ -135,7 +135,7 @@ function PlanUsageBar( { limit, usage, daysToReset, overLimitMonths }: PlanUsage
 								'Restarts in %d day',
 								'Restarts in %d days',
 								daysToReset,
-								'jetpack-premium-analytics'
+								'jetpack-premium-analytics-pkg'
 							),
 							daysToReset
 						) }
@@ -155,7 +155,7 @@ function PlanUsageBar( { limit, usage, daysToReset, overLimitMonths }: PlanUsage
 						createInterpolateElement(
 							__(
 								'Do you want to increase your views limit? <a>Upgrade now</a>',
-								'jetpack-premium-analytics'
+								'jetpack-premium-analytics-pkg'
 							),
 							{ a: <Link href={ upgradeHref } /> }
 						) }
@@ -192,20 +192,23 @@ function PlanUsageReport() {
 		<WidgetState
 			isLoading={ isLoading }
 			isFetching={ isFetching }
-			isError={ isError }
+			// The query keeps prior data via `placeholderData`, so a transient refetch
+			// failure keeps the usage bar visible; only surface the error when there is
+			// nothing to show.
+			isError={ ! data && isError }
 			isEmpty={ ! hasLimit }
 			error={ {
 				description: __(
 					"We couldn't load plan usage. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: percent,
 				description: __(
 					"Plan usage isn't available for your current plan.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
 			} }
 		>

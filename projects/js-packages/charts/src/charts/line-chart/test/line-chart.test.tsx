@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlyphDiamond } from '@visx/glyph';
 import { createElement, createRef } from 'react';
@@ -1293,5 +1293,194 @@ describe( 'LineChart', () => {
 			'clip-path',
 			'url(#chart-zoom-clip-zoomtest)'
 		);
+	} );
+
+	describe( 'Legend group collapsing', () => {
+		const comparisonPair = [
+			{
+				label: 'Views',
+				group: 'views',
+				data: [
+					{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+					{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+				],
+			},
+			{
+				label: 'Views — previous',
+				group: 'views',
+				options: { type: 'comparison' as const },
+				data: [
+					{ date: new Date( '2024-01-01' ), value: 8, label: 'Jan 1' },
+					{ date: new Date( '2024-01-02' ), value: 16, label: 'Jan 2' },
+				],
+			},
+		];
+
+		it( 'renders one legend item per series by default', () => {
+			renderWithTheme( {
+				showLegend: true,
+				chartId: 'legend-groups-default',
+				data: comparisonPair,
+			} );
+
+			expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Views — previous' ) ).toBeInTheDocument();
+		} );
+
+		it( 'collapses a group to one item when legend.collapseGroups is set', () => {
+			renderWithTheme( {
+				showLegend: true,
+				legend: { collapseGroups: true },
+				chartId: 'legend-groups-collapsed',
+				data: comparisonPair,
+			} );
+
+			expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Views — previous' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'toggles only the clicked series when interactive without collapseGroups', async () => {
+			const user = userEvent.setup();
+
+			renderWithTheme( {
+				showLegend: true,
+				legend: { interactive: true },
+				chartId: 'legend-groups-interactive',
+				data: comparisonPair,
+			} );
+
+			const buttons = screen.getAllByRole( 'button' );
+			await user.click( buttons[ 0 ] );
+
+			expect( buttons[ 0 ] ).toHaveAttribute( 'aria-pressed', 'false' );
+			expect( buttons[ 1 ] ).toHaveAttribute( 'aria-pressed', 'true' );
+		} );
+
+		it( 'toggles the whole group when interactive with collapseGroups', async () => {
+			const user = userEvent.setup();
+
+			renderWithTheme( {
+				showLegend: true,
+				legend: { interactive: true, collapseGroups: true },
+				chartId: 'legend-groups-interactive-collapsed',
+				data: comparisonPair,
+			} );
+
+			const buttons = screen.getAllByRole( 'button' );
+			expect( buttons ).toHaveLength( 1 );
+
+			await user.click( buttons[ 0 ] );
+
+			expect( buttons[ 0 ] ).toHaveAttribute( 'aria-pressed', 'false' );
+			expect(
+				screen.getByText( /all series are hidden.*click legend items to show data/i )
+			).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Interactive Legend — value axis', () => {
+		const twoSeries = [
+			{
+				label: 'Views',
+				data: [
+					{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+					{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+				],
+				options: {},
+			},
+			{
+				label: 'Visitors',
+				data: [
+					{ date: new Date( '2024-01-01' ), value: 100, label: 'Jan 1' },
+					{ date: new Date( '2024-01-02' ), value: 200, label: 'Jan 2' },
+				],
+				options: {},
+			},
+		];
+		// Bare numbers inside the plot (scoped via the chart's grid role, away from visx's
+		// off-screen text-measurement SVGs) are value-axis ticks: the series labels carry no digits
+		// and the empty-state message is text-only.
+		const numericTick = /^[\d,]+$/;
+
+		it( 'pins the value axis when rescaleYOnVisibilityChange is false', async () => {
+			const user = userEvent.setup();
+
+			renderWithTheme( {
+				showLegend: true,
+				legend: { interactive: true },
+				rescaleYOnVisibilityChange: false,
+				chartId: 'line-stable-axis',
+				data: twoSeries,
+			} );
+
+			const chart = screen.getByRole( 'grid' );
+			const ticksBefore = within( chart )
+				.getAllByText( numericTick )
+				.map( el => el.textContent )
+				.sort();
+			expect( ticksBefore.length ).toBeGreaterThan( 0 );
+
+			// Hide the high-range Visitors series; with a pinned domain the axis keeps its ticks.
+			await user.click( screen.getAllByRole( 'button' )[ 1 ] );
+
+			const ticksAfter = within( chart )
+				.getAllByText( numericTick )
+				.map( el => el.textContent )
+				.sort();
+			expect( ticksAfter ).toEqual( ticksBefore );
+		} );
+
+		it( 'rescales the value axis by default when a series is toggled off', async () => {
+			const user = userEvent.setup();
+
+			renderWithTheme( {
+				showLegend: true,
+				legend: { interactive: true },
+				chartId: 'line-rescale-axis',
+				data: twoSeries,
+			} );
+
+			const chart = screen.getByRole( 'grid' );
+			const ticksBefore = within( chart )
+				.getAllByText( numericTick )
+				.map( el => el.textContent )
+				.sort();
+			expect( ticksBefore.length ).toBeGreaterThan( 0 );
+
+			// Default preserves the pre-existing behaviour: hiding the high-range Visitors series
+			// lets the axis rescale to the remaining Views range, so its ticks change.
+			await user.click( screen.getAllByRole( 'button' )[ 1 ] );
+
+			const ticksAfter = within( chart )
+				.getAllByText( numericTick )
+				.map( el => el.textContent )
+				.sort();
+			expect( ticksAfter ).not.toEqual( ticksBefore );
+		} );
+
+		it( 'drops the axes when all series are hidden so they do not collapse', async () => {
+			const user = userEvent.setup();
+
+			renderWithTheme( {
+				showLegend: true,
+				legend: { interactive: true },
+				chartId: 'line-hidden-axes',
+				data: twoSeries,
+			} );
+
+			const chart = screen.getByRole( 'grid' );
+			expect( within( chart ).getAllByText( numericTick ).length ).toBeGreaterThan( 0 );
+
+			const buttons = screen.getAllByRole( 'button' );
+			await user.click( buttons[ 0 ] );
+			await user.click( buttons[ 1 ] );
+
+			// With no visible data the value scale would collapse, so the axes are removed rather
+			// than rendered squished at the top — no tick labels remain.
+			expect( within( chart ).queryAllByText( numericTick ) ).toHaveLength( 0 );
+			expect(
+				screen.getByText( /all series are hidden.*click legend items to show data/i )
+			).toBeInTheDocument();
+		} );
 	} );
 } );

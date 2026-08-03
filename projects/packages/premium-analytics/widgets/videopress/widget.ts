@@ -28,19 +28,11 @@ export type VideoPressAttributes = {
  * Widget type definition.
  */
 export default {
-	name: 'jpa/videopress',
-	title: __( 'VideoPress', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Most popular videos uploaded to your site. Learn more about their performance.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: video,
 	attributes: [
 		{
 			id: 'max',
-			label: __( 'Maximum videos', 'jetpack-premium-analytics' ),
+			label: __( 'Maximum videos', 'jetpack-premium-analytics-pkg' ),
 			type: 'integer',
 		},
 	] as WidgetAttributeField< VideoPressAttributes >[],

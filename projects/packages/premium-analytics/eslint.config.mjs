@@ -124,6 +124,41 @@ export default defineConfig(
 		},
 	},
 	{
+		// The toolkit is a shared script module, so a direct import of one of
+		// these libraries compiles it *into* the toolkit instead of resolving
+		// to the externals module — which is what made an unrelated one-line
+		// change rewrite megabytes of build output (WOOA7S-1836).
+		//
+		// Scoped to the toolkit because that is the only module migrated so
+		// far; `packages/ui`, `widgets/`, and `routes/` still import these
+		// directly and are the follow-ups tracked in the PR description.
+		// `packages/externals` is deliberately not covered: it *is* the
+		// passthrough, so it has to import them directly.
+		files: [
+			'packages/widgets-toolkit/**',
+			'projects/packages/premium-analytics/packages/widgets-toolkit/**',
+		],
+		rules: {
+			'no-restricted-imports': [
+				'error',
+				{
+					patterns: [
+						{
+							// Matches the libraries and their subpath entries
+							// (e.g. `@automattic/charts/visx/legend`) but not
+							// stylesheet side-effect imports: those are plain
+							// CSS, not the library, so they carry none of the
+							// bundling cost.
+							regex: '^(@automattic/charts|@wordpress/ui|@wordpress/dataviews)(/(?!.*\\.css$).*)?$',
+							message:
+								'Import these from @jetpack-premium-analytics/externals instead: it compiles them once into a shared script module rather than into every module that imports them. Missing an export? Add it to packages/externals/src/index.ts.',
+						},
+					],
+				},
+			],
+		},
+	},
+	{
 		// Widgets must reach chart components through the widgets-toolkit
 		// shared script module: a direct `@automattic/charts` import gets
 		// silently inlined into that widget's render bundle, dragging the

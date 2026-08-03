@@ -23,6 +23,10 @@ export { statsTopAuthorsQuery } from './stats-top-authors-query';
 export { statsLocationsQuery } from './stats-locations-query';
 export { statsCountryViewsQuery } from './stats-country-views-query';
 export { statsVideoPlaysQuery } from './stats-video-plays-query';
+export {
+	statsVideoPlaysSummaryQuery,
+	type StatsVideoPlaysSummaryParams,
+} from './stats-video-plays-summary-query';
 export { statsAppDashboardModuleSettingsQuery } from './stats-app-dashboard-module-settings-query';
 export { statsAppPlanUsageQuery } from './stats-app-plan-usage-query';
 export {
@@ -50,7 +54,6 @@ export type {
 } from './stats-comment-followers-query';
 export { statsFollowersQuery } from './stats-followers-query';
 export type { StatsFollowersParams, StatsFollowersResponse } from './stats-followers-query';
-export { statsPublicizeQuery } from './stats-publicize-query';
 export { statsCommentsQuery, type StatsCommentsParams } from './stats-comments-query';
 export {
 	statsSubscribersCountsQuery,

@@ -21,19 +21,11 @@ export type AuthorsAttributes = {
  * Widget type definition.
  */
 export default {
-	name: 'jpa/authors',
-	title: __( 'Authors', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Learn about your most popular authors to better understand how they contribute to grow your site.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: postAuthor,
 	attributes: [
 		{
 			id: 'max',
-			label: __( 'Maximum authors', 'jetpack-premium-analytics' ),
+			label: __( 'Maximum authors', 'jetpack-premium-analytics-pkg' ),
 			type: 'integer',
 		},
 	] as WidgetAttributeField< AuthorsAttributes >[],

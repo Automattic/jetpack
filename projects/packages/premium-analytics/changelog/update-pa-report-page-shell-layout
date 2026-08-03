@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Reports: consolidate shared page-shell layout styles and align report bottom padding with the design token.

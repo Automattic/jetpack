@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.8.1] - 2026-07-31
+### Added
+- Connection: Expose the connection-error audience (site/owner/user) to the Jetpack dashboard so error notices can be tailored to the viewer.
+
+### Changed
+- Connection: Fetch connected user data from WordPress.com over REST instead of XML-RPC.
+
+### Fixed
+- Connection: cache wpcom.getUser XML-RPC failures briefly in get_connected_user_data().
+
+## [8.8.0] - 2026-07-27
+### Added
+- Show non-owner admins who needs to reconnect instead of a reconnect button when connection ownership is locked. [#50662]
+
+### Changed
+- Update package dependencies. [#50751]
+
+## [8.7.10] - 2026-07-22
+### Changed
+- Update dependencies. [#50674]
+
+## [8.7.9] - 2026-07-20
+### Changed
+- Heartbeat: Report the site environment stats (WordPress/PHP versions, site configuration, etc.) for all connected sites. [#50006]
+- Update dependencies. [#50551]
+- Update package dependencies. [#50529]
+
+## [8.7.8] - 2026-07-13
+### Changed
+- Internal updates.
+
 ## [8.7.7] - 2026-07-09
 ### Changed
 - Route the is_usable_domain() IP check through Utils::ip_is_public(), so reserved and special-use ranges (CGNAT, link-local/cloud-metadata, multicast, and similar) are rejected consistently with the rest of the codebase. [#50175]
@@ -1939,6 +1970,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[8.8.1]: https://github.com/Automattic/jetpack-connection/compare/v8.8.0...v8.8.1
+[8.8.0]: https://github.com/Automattic/jetpack-connection/compare/v8.7.10...v8.8.0
+[8.7.10]: https://github.com/Automattic/jetpack-connection/compare/v8.7.9...v8.7.10
+[8.7.9]: https://github.com/Automattic/jetpack-connection/compare/v8.7.8...v8.7.9
+[8.7.8]: https://github.com/Automattic/jetpack-connection/compare/v8.7.7...v8.7.8
 [8.7.7]: https://github.com/Automattic/jetpack-connection/compare/v8.7.6...v8.7.7
 [8.7.6]: https://github.com/Automattic/jetpack-connection/compare/v8.7.5...v8.7.6
 [8.7.5]: https://github.com/Automattic/jetpack-connection/compare/v8.7.4...v8.7.5

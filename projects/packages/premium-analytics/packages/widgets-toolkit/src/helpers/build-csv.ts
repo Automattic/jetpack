@@ -9,18 +9,32 @@
  */
 
 /**
- * A single CSV column: which row key to read and the header label to print.
+ * External dependencies
+ */
+import { saveBlob } from '@jetpack-premium-analytics/data';
+import { getDatePart } from '@jetpack-premium-analytics/datetime';
+
+/**
+ * A single CSV column: how to read a row value and the header label to print.
  */
 export type CsvColumn< Row > = {
 	/**
-	 * Row property to serialize for this column.
+	 * Read the raw value to serialize for this column.
 	 */
-	key: keyof Row & string;
+	getValue: ( row: Row ) => unknown;
 
 	/**
 	 * Header label printed on the first line.
 	 */
 	label: string;
+};
+
+/**
+ * Date range used to label a CSV export.
+ */
+export type CsvDateRange = {
+	from: string | number;
+	to: string | number;
 };
 
 /**
@@ -56,19 +70,34 @@ function escapeField( value: unknown ): string {
  * Serialize already-loaded rows into a CSV string.
  *
  * @param columns - Column definitions (order preserved, drives the header).
- * @param rows    - The rows to serialize; each is read by column `key`.
+ * @param rows    - The rows to serialize; each is read by column `getValue`.
  * @return The CSV text (header row followed by one line per row).
  */
-export function buildCsv< Row extends Record< string, unknown > >(
-	columns: CsvColumn< Row >[],
-	rows: Row[]
-): string {
+export function buildCsv< Row >( columns: CsvColumn< Row >[], rows: Row[] ): string {
 	const header = columns.map( column => escapeField( column.label ) ).join( ',' );
 	const body = rows.map( row =>
-		columns.map( column => escapeField( row[ column.key ] ) ).join( ',' )
+		columns.map( column => escapeField( column.getValue( row ) ) ).join( ',' )
 	);
 
 	return [ header, ...body ].join( '\n' );
+}
+
+/**
+ * Build a date-stamped filename for a CSV export.
+ *
+ * The dates are coerced to strings because the router JSON-parses search
+ * parameters, so a hand-edited numeric value must not throw on `.slice()`.
+ *
+ * @param prefix     - Report-specific filename prefix.
+ * @param range      - Report date range.
+ * @param range.from - Start of the report date range.
+ * @param range.to   - End of the report date range.
+ * @return The filename without its `.csv` extension.
+ */
+export function buildCsvDateRangeFilename( prefix: string, range: CsvDateRange ): string {
+	const from = getDatePart( range.from ) ?? String( range.from );
+	const to = getDatePart( range.to ) ?? String( range.to );
+	return `${ prefix }-${ from }_${ to }`;
 }
 
 /**
@@ -84,19 +113,5 @@ export function buildCsv< Row extends Record< string, unknown > >(
  */
 export function saveCsv( filename: string, csv: string ): void {
 	const blob = new Blob( [ '\ufeff', csv ], { type: 'text/csv;charset=utf-8' } );
-	const url = window.URL.createObjectURL( blob );
-	const link = document.createElement( 'a' );
-	// Replace path separators, control characters, and Windows-reserved characters.
-	// Fall back to a generic name so an empty (or fully-stripped) input can't
-	// produce a hidden `.csv` dotfile.
-	// eslint-disable-next-line no-control-regex
-	const safeName = filename.replace( /[\x00-\x1f/\\:*?"<>|]/g, '-' ) || 'export';
-
-	link.href = url;
-	link.download = safeName.toLowerCase().endsWith( '.csv' ) ? safeName : `${ safeName }.csv`;
-
-	document.body.appendChild( link );
-	link.click();
-	document.body.removeChild( link );
-	setTimeout( () => window.URL.revokeObjectURL( url ), 0 );
+	saveBlob( blob, filename );
 }

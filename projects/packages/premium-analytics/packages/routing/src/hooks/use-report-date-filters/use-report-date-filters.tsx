@@ -3,32 +3,24 @@
  */
 import {
 	getSiteTimezone,
+	hasComparisonEnabled,
 	localTZDate,
-	type ReportQueryParams,
 } from '@jetpack-premium-analytics/data';
-import {
-	type ComparisonPresetId,
-	type DateRange,
-	type PrimaryPresetId,
-} from '@jetpack-premium-analytics/datetime';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { endOfDay, isValid } from 'date-fns';
+import { isValid } from 'date-fns';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { deriveComparisonRange } from '../../search/comparison';
 import { encodeDateToSearchParam } from '../../search/date-range';
 import { useStagedSearch } from '../use-staged-search';
-
-type ReportQuerySearchParams = Partial<
-	ReportQueryParams & {
-		preset?: PrimaryPresetId;
-		compare_preset?: ComparisonPresetId;
-		comp?: '1';
-	}
->;
+import { buildRangePatch, type ReportQuerySearchParams } from './build-range-patch';
+import type {
+	ComparisonPresetId,
+	DateRange,
+	PrimaryPresetId,
+} from '@jetpack-premium-analytics/datetime';
 
 /**
  * The values and callbacks that drive `DateFiltersPanel`, minus the
@@ -42,6 +34,7 @@ export type ReportDateFilters = {
 	appliedPresetId?: PrimaryPresetId;
 	appliedRange: PickerRange;
 	comparisonPresetId?: ComparisonPresetId;
+	appliedComparisonPresetId?: ComparisonPresetId;
 	onChange: ( range?: DateRange, presetId?: PrimaryPresetId ) => void;
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 	onApply: () => void;
@@ -54,19 +47,21 @@ export type ReportDateFilters = {
  * Parse search-param dates into a picker range, dropping unparseable values to
  * `undefined`. The picker reads these straight from the URL, so a malformed
  * `from`/`to` (e.g. a hand-edited or under-encoded deep link where the `+`
- * offset decoded to a space) must not become an invalid Date — `formatDate`
- * throws "Invalid time value" on one and would white-screen the page.
+ * offset decoded to a space) must not become an invalid Date: the picker's
+ * `formatToTimezoneNaiveString` throws on one and would white-screen the page,
+ * and the trigger label would read "Invalid date".
  *
- * @param from - The `from` search param.
- * @param to   - The `to` search param.
+ * @param from     - The `from` search param.
+ * @param to       - The `to` search param.
+ * @param timeZone - The timezone used by the picker.
  * @return The parsed range, with invalid endpoints as `undefined`.
  */
-function toPickerRange( from?: string, to?: string ) {
+function toPickerRange( from: string | undefined, to: string | undefined, timeZone: string ) {
 	const parse = ( value?: string ) => {
 		if ( ! value ) {
 			return undefined;
 		}
-		const date = localTZDate( value );
+		const date = localTZDate( value, timeZone );
 		return isValid( date ) ? date : undefined;
 	};
 
@@ -95,52 +90,39 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		TFrom
 	>( { from } );
 
+	/*
+	 * Read the site timezone reactively. A fully-specified deep link skips the
+	 * seed's `ensureCoreSettingsReady()` await, so core `site` settings may not
+	 * be loaded on first paint. Rebuild picker dates when the real timezone
+	 * resolves instead of leaving them anchored to the browser fallback.
+	 */
+	const timeZone = useSelect( select => {
+		void (
+			select( coreStore ) as unknown as {
+				getEntityRecord: ( kind: string, name: string ) => unknown;
+			}
+		 ).getEntityRecord( 'root', 'site' );
+		return getSiteTimezone();
+	}, [] );
+
 	const presetId = useMemo( () => effective.preset ?? undefined, [ effective.preset ] );
 	const range = useMemo(
-		() => toPickerRange( effective.from, effective.to ),
-		[ effective.from, effective.to ]
+		() => toPickerRange( effective.from, effective.to, timeZone ),
+		[ effective.from, effective.to, timeZone ]
 	);
 
 	const appliedPresetId = useMemo( () => committed.preset ?? undefined, [ committed.preset ] );
 	const appliedRange = useMemo(
-		() => toPickerRange( committed.from, committed.to ),
-		[ committed.from, committed.to ]
+		() => toPickerRange( committed.from, committed.to, timeZone ),
+		[ committed.from, committed.to, timeZone ]
 	);
 
 	const onChange = useCallback(
 		( nextRange?: DateRange, nextPresetId?: PrimaryPresetId ) => {
-			if ( ! nextRange && ! nextPresetId ) {
-				return;
-			}
+			const patch = buildRangePatch( { nextRange, nextPresetId, effective } );
 
-			if ( nextRange && nextRange.from && nextRange.to ) {
-				/*
-				 * Stage `from` and `to` as ISO strings. The `to` date is adjusted
-				 * to the end of the day, since the date picker core component sets
-				 * the time to 00:00:00.
-				 */
-				const rangeFrom = encodeDateToSearchParam( nextRange.from );
-				const rangeTo = encodeDateToSearchParam( endOfDay( nextRange.to ) );
-				const patch: ReportQuerySearchParams = { from: rangeFrom, to: rangeTo };
-
-				/*
-				 * When comparison is enabled, re-derive the comparison window from
-				 * the new primary range so widgets compare against the matching
-				 * previous period instead of the stale dates.
-				 */
-				if ( effective.comp === '1' ) {
-					const derived = deriveComparisonRange( { ...effective, from: rangeFrom, to: rangeTo } );
-					if ( derived ) {
-						patch.compare_from = derived.compare_from;
-						patch.compare_to = derived.compare_to;
-					}
-				}
-
+			if ( patch ) {
 				stage( patch );
-			}
-
-			if ( nextPresetId ) {
-				stage( { preset: nextPresetId } );
 			}
 		},
 		[ stage, effective ]
@@ -149,6 +131,20 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 	const comparisonPresetId = useMemo(
 		() => effective.compare_preset ?? undefined,
 		[ effective.compare_preset ]
+	);
+
+	/*
+	 * The applied comparison, for surfaces that describe what the widgets are
+	 * actually showing rather than what the picker is drafting. A comparison
+	 * change normally commits on its own, but it rides along uncommitted when a
+	 * primary edit is already staged, so this cannot read `effective`.
+	 *
+	 * Gated on the same predicate the report params run through, so a surface
+	 * can never announce a comparison the widgets did not request.
+	 */
+	const appliedComparisonPresetId = useMemo(
+		() => ( hasComparisonEnabled( committed ) ? committed.compare_preset ?? undefined : undefined ),
+		[ committed ]
 	);
 
 	/**
@@ -181,27 +177,13 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 	const onApply = useCallback( () => commit(), [ commit ] );
 	const onCancel = useCallback( () => revert(), [ revert ] );
 
-	/*
-	 * Read the site timezone reactively. A fully-specified deep link skips the
-	 * seed's `ensureCoreSettingsReady()` await, so core `site` settings may not
-	 * be loaded on first paint; subscribing here re-renders with the real site
-	 * timezone once they resolve, instead of sticking with the browser fallback.
-	 */
-	const timeZone = useSelect( select => {
-		void (
-			select( coreStore ) as unknown as {
-				getEntityRecord: ( kind: string, name: string ) => unknown;
-			}
-		 ).getEntityRecord( 'root', 'site' );
-		return getSiteTimezone();
-	}, [] );
-
 	return {
 		presetId,
 		range,
 		appliedPresetId,
 		appliedRange,
 		comparisonPresetId,
+		appliedComparisonPresetId,
 		onChange,
 		onComparisonChange,
 		onApply,

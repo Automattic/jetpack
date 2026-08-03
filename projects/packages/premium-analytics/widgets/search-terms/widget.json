@@ -1,7 +1,16 @@
 {
 	"name": "jpa/search-terms",
-	"title": "Search Terms",
+	"title": "Top searched terms",
 	"description": "The search terms visitors use to find your site.",
+	"help": {
+		"content": "The most popular search terms visitors used to find your site.",
+		"links": [
+			{
+				"label": "Learn more",
+				"href": "https://jetpack.com/support/jetpack-stats/"
+			}
+		]
+	},
 	"category": "stats",
 	"presentation": "framed"
 }

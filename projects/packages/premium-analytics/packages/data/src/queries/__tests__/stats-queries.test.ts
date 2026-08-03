@@ -1,4 +1,21 @@
 /**
+ * Mock WordPress dependencies so date.ts can load. The select mock returns
+ * site settings with timezone: 'UTC' so getSiteTimezone() returns UTC,
+ * making localTZDate's default (site-timezone) calls deterministic
+ * regardless of the machine running the test (e.g. the WordAds "yesterday"
+ * clamp in stats-wordads-query.ts).
+ */
+jest.mock( '@wordpress/core-data', () => ( {
+	store: 'core',
+} ) );
+
+jest.mock( '@wordpress/data', () => ( {
+	select: jest.fn( () => ( {
+		getEntityRecord: jest.fn( () => ( { timezone: 'UTC' } ) ),
+	} ) ),
+} ) );
+
+/**
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
@@ -15,6 +32,7 @@ import {
 } from '../stats-app-referrers-spam-query';
 import { statsAppSiteHasNeverPublishedPostQuery } from '../stats-app-site-has-never-published-post-query';
 import { statsArchivesQuery } from '../stats-archives-query';
+import { statsClicksQuery } from '../stats-clicks-query';
 import { statsCommentFollowersQuery } from '../stats-comment-followers-query';
 import { statsCommentsQuery } from '../stats-comments-query';
 import { statsDevicesQuery } from '../stats-devices-query';
@@ -27,12 +45,15 @@ import {
 	statsEmailClicksTimeSeriesQuery,
 	statsEmailOpensTimeSeriesQuery,
 } from '../stats-email-time-series-query';
+import { statsFileDownloadsQuery } from '../stats-file-downloads-query';
 import { statsFollowersQuery } from '../stats-followers-query';
 import { STATS_HIGHLIGHTS_STALE_TIME, statsHighlightsQuery } from '../stats-highlights-query';
 import { statsInsightsQuery } from '../stats-insights-query';
 import { statsLocationsQuery } from '../stats-locations-query';
+import { statsPostCommentsQuery } from '../stats-post-comments-query';
 import { statsPostQuery } from '../stats-post-query';
-import { statsPublicizeQuery } from '../stats-publicize-query';
+import { statsReferrersQuery } from '../stats-referrers-query';
+import { statsSearchTermsQuery } from '../stats-search-terms-query';
 import { statsSingleVideoQuery } from '../stats-single-video-query';
 import { statsStreakQuery } from '../stats-streak-query';
 import {
@@ -43,6 +64,7 @@ import {
 import { statsTagsQuery } from '../stats-tags-query';
 import { statsTopPostsQuery } from '../stats-top-posts-query';
 import { statsUtmQuery } from '../stats-utm-query';
+import { statsVideoPlaysSummaryQuery } from '../stats-video-plays-summary-query';
 import { statsVisitsQuery } from '../stats-visits-query';
 import { statsWordAdsEarningsQuery, statsWordAdsStatsQuery } from '../stats-wordads-query';
 import type { StatsReportParams } from '../stats-query';
@@ -51,13 +73,56 @@ jest.mock( '@wordpress/api-fetch' );
 
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
 
+function setSimpleScriptData() {
+	Object.defineProperty( window, 'JetpackScriptData', {
+		configurable: true,
+		value: {
+			site: {
+				host: 'wpcom',
+			},
+		},
+	} );
+}
+
 describe( 'Stats query factories', () => {
 	beforeEach( () => {
 		mockApiFetch.mockReset();
 	} );
 
+	afterEach( () => {
+		delete window.JetpackScriptData;
+	} );
+
 	it( 'disables report queries until a date range is available', () => {
 		expect( statsTopPostsQuery( {} as StatsReportParams ).enabled ).toBe( false );
+	} );
+
+	it( 'matches the Calypso referrers range request', () => {
+		const query = statsReferrersQuery( {
+			from: '2026-07-01',
+			to: '2026-07-07',
+			interval: 'day',
+			period: 'day',
+			max: 0,
+			summarize: 1,
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'referrers',
+			'1.1',
+			'stats/referrers',
+			'GET',
+			{
+				period: 'day',
+				max: 0,
+				summarize: 1,
+				date: '2026-07-07',
+				start_date: '2026-07-01',
+			},
+			undefined,
+			'referrers',
+		] );
 	} );
 
 	it( 'builds post stats query keys with fields', () => {
@@ -97,6 +162,28 @@ describe( 'Stats query factories', () => {
 	it( 'disables post stats queries until a positive post ID is available', () => {
 		expect( statsPostQuery( { postId: -1 } ).enabled ).toBe( false );
 		expect( statsPostQuery( { postId: 0 } ).enabled ).toBe( false );
+	} );
+
+	it( 'builds latest post comments query keys', () => {
+		const query = statsPostCommentsQuery( { postId: 41, number: 10 } );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'post-comments',
+			'1.1',
+			'posts/41/replies',
+			'GET',
+			{ number: 10, type: 'comment', status: 'approved', order: 'DESC' },
+			undefined,
+			'postComments',
+		] );
+		expect( query.enabled ).toBe( true );
+	} );
+
+	it( 'disables post comments queries until a positive integer post ID is available', () => {
+		expect( statsPostCommentsQuery( { postId: 0 } ).enabled ).toBe( false );
+		expect( statsPostCommentsQuery( { postId: -1 } ).enabled ).toBe( false );
+		expect( statsPostCommentsQuery( { postId: 1.5 } ).enabled ).toBe( false );
 	} );
 
 	it( 'builds all-time email opens breakdown query keys without query params', () => {
@@ -149,7 +236,7 @@ describe( 'Stats query factories', () => {
 			'1.1',
 			'stats/opens/emails/41',
 			'GET',
-			{ period: 'day', quantity: 7, date: '2026-06-07', stats_fields: 'timeline' },
+			{ period: 'day', quantity: 7, date: '2026-06-01', stats_fields: 'timeline' },
 			undefined,
 			'emailTimeSeries',
 		] );
@@ -162,7 +249,7 @@ describe( 'Stats query factories', () => {
 				to: '2026-06-30',
 				interval: 'month',
 			} ).queryKey[ 5 ]
-		).toEqual( { period: 'day', quantity: 30, date: '2026-06-30', stats_fields: 'timeline' } );
+		).toEqual( { period: 'day', quantity: 30, date: '2026-06-01', stats_fields: 'timeline' } );
 	} );
 
 	it( 'requests 24 hourly buckets per day so multi-day hourly ranges are not truncated', () => {
@@ -180,7 +267,7 @@ describe( 'Stats query factories', () => {
 				to: '2026-06-15',
 				interval: 'hour',
 			} ).queryKey[ 5 ]
-		).toEqual( { period: 'hour', quantity: 48, date: '2026-06-15', stats_fields: 'timeline' } );
+		).toEqual( { period: 'hour', quantity: 48, date: '2026-06-14', stats_fields: 'timeline' } );
 	} );
 
 	it( 'disables email time series queries without a positive integer post ID or a date', () => {
@@ -262,6 +349,148 @@ describe( 'Stats query factories', () => {
 				} ),
 			] )
 		);
+	} );
+
+	it( 'matches the legacy file-downloads custom-range request without days', () => {
+		const query = statsFileDownloadsQuery( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'day',
+			period: 'day',
+			max: 0,
+			summarize: 1,
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'file-downloads',
+			'1.1',
+			'stats/file-downloads',
+			'GET',
+			{
+				period: 'day',
+				max: 0,
+				summarize: 1,
+				start_date: '2026-06-01',
+				date: '2026-06-07',
+			},
+			undefined,
+			'fileDownloads',
+		] );
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
+	} );
+
+	it( 'keeps file-downloads day-bucketed and summarized when the caller only passes a range', () => {
+		// The File downloads widget passes the dashboard params through untouched,
+		// so a long range arrives with a coarse chart interval and no summarize.
+		// The interval must not become the period, or the endpoint would count
+		// the range in weeks and stop returning one row per file.
+		const query = statsFileDownloadsQuery( {
+			from: '2026-04-01',
+			to: '2026-06-29',
+			interval: 'week',
+		} );
+
+		expect( query.queryKey[ 5 ] ).toMatchObject( {
+			period: 'day',
+			summarize: 1,
+			start_date: '2026-04-01',
+			date: '2026-06-29',
+		} );
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
+	} );
+
+	it( 'matches the legacy summarized Search Terms range request without days', () => {
+		const query = statsSearchTermsQuery( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'week',
+			period: 'day',
+			max: 0,
+			summarize: 1,
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'search-terms',
+			'1.1',
+			'stats/search-terms',
+			'GET',
+			{
+				period: 'day',
+				max: 0,
+				summarize: 1,
+				start_date: '2026-06-01',
+				date: '2026-06-07',
+			},
+			undefined,
+			'searchTerms',
+		] );
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
+	} );
+
+	it( 'matches the legacy Clicks custom-range request without a days parameter', () => {
+		const query = statsClicksQuery( {
+			from: '2026-06-01',
+			to: '2026-06-07',
+			interval: 'month',
+			max: 0,
+			summarize: 1,
+		} );
+
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'clicks',
+			'1.1',
+			'stats/clicks',
+			'GET',
+			{
+				period: 'day',
+				start_date: '2026-06-01',
+				date: '2026-06-07',
+				max: 0,
+				summarize: 1,
+			},
+			undefined,
+			'clicks',
+		] );
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
+	} );
+
+	it( 'matches the legacy complete video summary request params exactly', () => {
+		const query = statsVideoPlaysSummaryQuery( {
+			from: '2026-07-09',
+			to: '2026-07-14',
+			interval: 'week',
+			summarize: 1,
+		} );
+
+		expect( query.queryKey[ 5 ] ).toEqual( {
+			period: 'day',
+			start_date: '2026-07-09',
+			date: '2026-07-14',
+			max: 0,
+			summarize: 1,
+			complete_stats: 1,
+		} );
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
+		expect( query.queryKey ).toEqual( [
+			'stats',
+			'video-plays-summary',
+			'1.1',
+			'stats/video-plays',
+			'GET',
+			{
+				period: 'day',
+				start_date: '2026-07-09',
+				date: '2026-07-14',
+				max: 0,
+				summarize: 1,
+				complete_stats: 1,
+			},
+			undefined,
+			'videoPlays',
+		] );
 	} );
 
 	it( 'requests summarized archives data for multi-day ranges', () => {
@@ -513,10 +742,22 @@ describe( 'Stats query factories', () => {
 			'1.1',
 			'stats/video/31533',
 			'GET',
-			{ period: 'day' },
+			{ period: 'month' },
 			undefined,
 			'singleVideo',
 		] );
+	} );
+
+	it( 'forwards a supported single-video metric type', () => {
+		const query = statsSingleVideoQuery( 31533, {
+			period: 'month',
+			statType: 'watch_time',
+		} );
+
+		expect( query.queryKey[ 5 ] ).toEqual( {
+			period: 'month',
+			statType: 'watch_time',
+		} );
 	} );
 
 	it( 'converts the report date range for the single video request', () => {
@@ -556,6 +797,7 @@ describe( 'Stats query factories', () => {
 			'GET',
 			{ date: '2026-06-16' },
 			{},
+			false,
 		] );
 	} );
 
@@ -585,6 +827,50 @@ describe( 'Stats query factories', () => {
 				status: 'postponed',
 				postponed_for: 300,
 			},
+			parse: false,
+		} );
+	} );
+
+	it( 'updates app notices through the WPCOM Stats endpoint on Simple', async () => {
+		setSimpleScriptData();
+		mockApiFetch.mockResolvedValue( { opt_in_new_stats: false } );
+
+		await updateStatsAppNotice( {
+			id: 'opt_in_new_stats',
+			status: 'dismissed',
+		} );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/wpcom/v2/jetpack-stats-dashboard/notices',
+			method: 'POST',
+			data: {
+				id: 'opt_in_new_stats',
+				status: 'dismissed',
+			},
+			parse: false,
+		} );
+	} );
+
+	it( 'preserves the HTTP status from a failed Simple notices request', async () => {
+		setSimpleScriptData();
+		mockApiFetch.mockRejectedValue( {
+			status: 403,
+			json: jest.fn().mockResolvedValue( {
+				error: 'unauthorized',
+				message: 'Nope.',
+			} ),
+		} as unknown as Response );
+
+		const queryFn = statsAppNoticesQuery().queryFn as () => Promise< unknown >;
+
+		await expect( queryFn() ).rejects.toEqual( {
+			error: 'unauthorized',
+			message: 'Nope.',
+			status: 403,
+		} );
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/wpcom/v2/jetpack-stats-dashboard/notices',
+			parse: false,
 		} );
 	} );
 
@@ -619,22 +905,6 @@ describe( 'Stats query factories', () => {
 		] );
 	} );
 
-	it( 'builds publicize query keys without date-gating or report param coercion', () => {
-		const query = statsPublicizeQuery();
-
-		expect( query.enabled ).toBe( true );
-		expect( query.queryKey ).toEqual( [
-			'stats',
-			'publicize',
-			'1.1',
-			'stats/publicize',
-			'GET',
-			{},
-			undefined,
-			'publicize',
-		] );
-	} );
-
 	it( 'shares app query keys for empty and omitted params', () => {
 		expect(
 			statsAppProxyQuery( {
@@ -661,6 +931,7 @@ describe( 'Stats query factories', () => {
 			'GET',
 			{ site: 41 },
 			{},
+			true,
 		] );
 	} );
 
@@ -673,6 +944,7 @@ describe( 'Stats query factories', () => {
 			'GET',
 			{ type: 'transferred' },
 			{},
+			true,
 		] );
 	} );
 
@@ -1046,6 +1318,7 @@ describe( 'Stats query factories', () => {
 				'GET',
 				{ 'include-pages': true },
 				{},
+				false,
 			]
 		);
 	} );
@@ -1059,6 +1332,7 @@ describe( 'Stats query factories', () => {
 			'GET',
 			{},
 			{},
+			false,
 		] );
 	} );
 

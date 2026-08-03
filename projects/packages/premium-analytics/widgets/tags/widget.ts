@@ -23,19 +23,11 @@ export type TagsAttributes = {
  * archive URL and drill down to their individual members instead.
  */
 export default {
-	name: 'jpa/tags',
-	title: __( 'Tags & categories', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Most visited tags & categories. Learn about the most engaging topics.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: tag,
 	attributes: [
 		{
 			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics' ),
+			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
 			type: 'integer',
 		},
 	] as WidgetAttributeField< TagsAttributes >[],

@@ -1,11 +1,16 @@
 /**
  * External dependencies
  */
-import { useStatsSingleVideo, type StatsSingleVideoPage } from '@jetpack-premium-analytics/data';
+import {
+	useStatsSingleVideo,
+	toPostId,
+	type StatsSingleVideoPage,
+} from '@jetpack-premium-analytics/data';
 import {
 	ChartEmptyState,
 	WidgetRoot,
 	WidgetState,
+	safeHttpUrl,
 	useWidgetRootContext,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -25,21 +30,6 @@ type VideoDetailEmbedsRenderAttributes = VideoDetailEmbedsAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type VideoDetailEmbedsWidgetProps = WidgetRenderProps< VideoDetailEmbedsRenderAttributes >;
 
-/**
- * Resolves the VideoPress post ID from the host-composed report params. The
- * `post_id` report param is typed `string | number`, so it is defensively
- * coerced to a positive integer; anything else yields `NaN`, which signals
- * "no video selected".
- *
- * @param postId - The `post_id` report param.
- * @return The video's post ID, or `NaN` when none is set.
- */
-function toVideoId( postId: string | number | undefined ): number {
-	const parsed = typeof postId === 'number' ? postId : Number.parseInt( postId ?? '', 10 );
-
-	return Number.isInteger( parsed ) && parsed > 0 ? parsed : NaN;
-}
-
 type VideoEmbedsListProps = {
 	/**
 	 * Pages where the video is embedded, each rendered as an external link.
@@ -58,19 +48,32 @@ type VideoEmbedsListProps = {
 function VideoEmbedsList( { pages }: VideoEmbedsListProps ) {
 	return (
 		<ul className={ styles.list }>
-			{ pages.map( ( page, index ) => (
-				<li key={ `${ index }-${ page.link }` } className={ styles.item }>
-					<Link
-						className={ styles.link }
-						href={ page.link }
-						variant="unstyled"
-						openInNewTab
-						title={ page.label }
-					>
-						{ page.label }
-					</Link>
-				</li>
-			) ) }
+			{ pages.map( ( page, index ) => {
+				// The report returns each embed location as a bare string used verbatim
+				// as the href, so a page that is not a safe http(s) URL still lists as
+				// plain text rather than becoming a clickable link.
+				const href = safeHttpUrl( page.link );
+
+				return (
+					<li key={ `${ index }-${ page.link }` } className={ styles.item }>
+						{ href ? (
+							<Link
+								className={ styles.link }
+								href={ href }
+								variant="unstyled"
+								openInNewTab
+								title={ page.label }
+							>
+								{ page.label }
+							</Link>
+						) : (
+							<span className={ styles.link } title={ page.label }>
+								{ page.label }
+							</span>
+						) }
+					</li>
+				);
+			} ) }
 		</ul>
 	);
 }
@@ -85,22 +88,19 @@ function VideoEmbedsList( { pages }: VideoEmbedsListProps ) {
  */
 function VideoDetailEmbedsReport() {
 	const { reportParams } = useWidgetRootContext();
-	const videoId = toVideoId( reportParams.post_id );
+	const videoId = toPostId( reportParams.post_id );
 
-	const { data, isLoading, isFetching, isError, refetch } = useStatsSingleVideo(
-		videoId,
-		reportParams
-	);
+	const { data, isLoading, isFetching, isError, refetch } = useStatsSingleVideo( videoId );
 
 	let body;
 
-	if ( ! Number.isInteger( videoId ) ) {
+	if ( videoId <= 0 ) {
 		body = (
 			<ChartEmptyState
 				icon={ video }
 				text={ __(
 					'Select a video to see where it is embedded across your site.',
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				) }
 			/>
 		);
@@ -111,22 +111,28 @@ function VideoDetailEmbedsReport() {
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }
-				isError={ isError }
+				// The query keeps prior data via `placeholderData`, so a transient
+				// refetch failure keeps the pages visible; only surface the error
+				// when there is nothing to show.
+				isError={ pages.length === 0 && isError }
 				isEmpty={ pages.length === 0 }
 				error={ {
 					description: __(
 						"We couldn't load video embeds. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 					actions: [
-						{ label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: () => void refetch() },
+						{
+							label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
+							onClick: () => void refetch(),
+						},
 					],
 				} }
 				empty={ {
 					icon: video,
 					description: __(
 						'This video has not been embedded on any pages yet.',
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 				} }
 			>

@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 
 /**
@@ -22,13 +21,5 @@ export type ConversionRateAttributes = Record< never, never >;
  * dashboards can opt in.
  */
 export default {
-	name: 'jpa/conversion-rate',
-	title: __( 'Store conversion rate', 'jetpack-premium-analytics' ),
-	help: {
-		content: __(
-			'Conversion funnel from visitors to completed purchases over the selected time period.',
-			'jetpack-premium-analytics'
-		),
-	},
 	icon: chartBar,
 };

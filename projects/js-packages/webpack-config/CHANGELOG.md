@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 4.1.1 - 2026-07-31
+### Changed
+- Update dependencies.
+
+## 4.1.0 - 2026-07-27
+### Added
+- Add `PnpmDeterministicChunkIds` plugin. [#50758]
+
+### Changed
+- Update package dependencies. [#50751]
+
+## 4.0.1 - 2026-07-22
+### Changed
+- Update package dependencies. [#50683]
+
+## 4.0.0 - 2026-07-20
+### Changed
+- Update package dependencies. [#50529]
+
+### Removed
+- Remove ForkTSCheckerPlugin and the fork-ts-checker-webpack-plugin dependency. Use tsgo or tsdown to build TypeScript packages instead. [#50526]
+
+## 3.11.4 - 2026-07-15
+### Changed
+- Update package dependencies. [#50510]
+
+## 3.11.3 - 2026-07-13
+### Changed
+- Internal updates.
+
 ## 3.11.2 - 2026-07-09
 ### Changed
 - Update package dependencies. [#50236]

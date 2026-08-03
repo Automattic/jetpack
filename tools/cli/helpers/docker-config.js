@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import path from 'path';
 import chalk from 'chalk';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 
 export const dockerFolder = `tools/docker`;
 const overrideConfigFile = `${ dockerFolder }/jetpack-docker-config.yml`;

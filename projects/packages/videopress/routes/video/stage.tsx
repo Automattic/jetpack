@@ -12,6 +12,7 @@ import { getVideoInfoQueryKeyPrefix } from '../../src/client/components/caption-
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import ChaptersHelpModal from '../../src/dashboard/components/video-details/chapters-help-modal';
 import HeaderActions from '../../src/dashboard/components/video-details/header-actions';
+import PreviewPlayer from '../../src/dashboard/components/video-details/preview-player';
 import PrivacySharingCard from '../../src/dashboard/components/video-details/privacy-sharing-card';
 import RatingCard from '../../src/dashboard/components/video-details/rating-card';
 import ThumbnailCard from '../../src/dashboard/components/video-details/thumbnail-card';
@@ -29,7 +30,7 @@ const isEditable = ( item: LibraryItem ): boolean =>
 /**
  * Parent breadcrumb item — labelled "VideoPress" in every case, but the
  * link target depends on where the user arrived from. Overview's ranking
- * links tag their navigation with `state: { from: 'overview' }`; we read
+ * links tag their navigation with `state: { from: 'stats' }`; we read
  * that here so the breadcrumb routes back to the Overview tab instead of
  * defaulting to Library. TanStack stores user state on `window.history.state`,
  * so reading it directly avoids needing `useLocation` (which `@wordpress/route`
@@ -40,7 +41,7 @@ const isEditable = ( item: LibraryItem ): boolean =>
  */
 const getParentBreadcrumbItem = (): { label: string; to: string } => {
 	const from = ( window.history.state as { from?: string } | null )?.from;
-	return { label: 'VideoPress', to: from === 'overview' ? '/' : '/library' };
+	return { label: 'VideoPress', to: from === 'stats' ? '/stats' : '/' };
 };
 
 const NotFound = () => (
@@ -57,7 +58,7 @@ const NotFound = () => (
 		<div className="vp-video-details vp-video-details__not-found">
 			<Stack direction="column" gap="md" align="center">
 				<Text>{ __( "We couldn't find that video.", 'jetpack-videopress-pkg' ) }</Text>
-				<Link to="/library">{ __( 'Back to Library', 'jetpack-videopress-pkg' ) }</Link>
+				<Link to="/">{ __( 'Back to Library', 'jetpack-videopress-pkg' ) }</Link>
 			</Stack>
 		</div>
 	</AdminPage>
@@ -149,6 +150,7 @@ const Editor = ( {
 			}
 		>
 			<div className="vp-video-details">
+				<PreviewPlayer video={ video } />
 				<ThumbnailCard
 					video={ video }
 					onAddToNewPost={ onAddToNewPost }
@@ -260,7 +262,7 @@ const StageReady = ( { video }: StageReadyProps ) => {
 								id: deletingNoticeId( video.id ),
 							} );
 							if ( isMountedRef.current ) {
-								navigate( { href: '/library' } );
+								navigate( { href: '/' } );
 							}
 						} )
 						.catch( () => {

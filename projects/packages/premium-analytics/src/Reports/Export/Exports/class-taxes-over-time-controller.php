@@ -38,7 +38,7 @@ class Taxes_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 	 * @return string The report label.
 	 */
 	public function get_report_label(): string {
-		return __( 'Taxes Over Time', 'jetpack-premium-analytics' );
+		return __( 'Taxes Over Time', 'jetpack-premium-analytics-pkg' );
 	}
 
 	/**
@@ -59,10 +59,10 @@ class Taxes_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 	public function get_column_headers( ?string $interval = null ): array {
 		return array(
 			'time_interval' => $this->get_interval_label( $interval ),
-			'orders_count'  => __( 'Orders', 'jetpack-premium-analytics' ),
-			'order_tax'     => __( 'Order tax', 'jetpack-premium-analytics' ),
-			'shipping_tax'  => __( 'Shipping tax', 'jetpack-premium-analytics' ),
-			'total_tax'     => __( 'Total tax', 'jetpack-premium-analytics' ),
+			'orders_count'  => __( 'Orders', 'jetpack-premium-analytics-pkg' ),
+			'order_tax'     => __( 'Order tax', 'jetpack-premium-analytics-pkg' ),
+			'shipping_tax'  => __( 'Shipping tax', 'jetpack-premium-analytics-pkg' ),
+			'total_tax'     => __( 'Total tax', 'jetpack-premium-analytics-pkg' ),
 		);
 	}
 

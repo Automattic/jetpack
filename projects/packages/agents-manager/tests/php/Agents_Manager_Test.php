@@ -38,6 +38,13 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	private $original_get_preview;
 
 	/**
+	 * Original $_GET['tab'] value to restore after tests.
+	 *
+	 * @var mixed
+	 */
+	private $original_get_tab;
+
+	/**
 	 * Original $_SERVER['REQUEST_URI'] value to restore after tests.
 	 *
 	 * @var mixed
@@ -96,6 +103,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		// Save original superglobal values that tests may modify.
 		$this->original_get_preview = $_GET['preview'] ?? null;
+		$this->original_get_tab     = $_GET['tab'] ?? null;
 		$this->original_request_uri = $_SERVER['REQUEST_URI'] ?? null;
 
 		// Save original $wp_customize global.
@@ -131,6 +139,12 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			unset( $_GET['preview'] );
 		} else {
 			$_GET['preview'] = $this->original_get_preview;
+		}
+
+		if ( $this->original_get_tab === null ) {
+			unset( $_GET['tab'] );
+		} else {
+			$_GET['tab'] = $this->original_get_tab;
 		}
 
 		if ( $this->original_request_uri === null ) {
@@ -175,6 +189,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// Clear the status cache and constants.
 		Cache::clear();
 		Constants::clear_constants();
+		remove_all_filters( 'agents_manager_variant' );
 
 		parent::tear_down();
 	}
@@ -672,6 +687,52 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
 		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( true );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
+		);
+
+		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+	}
+
+	/**
+	 * Tests that the omnibar experiment is recognized when only the renamed slug
+	 * (`gutenberg-omnibar`, Gutenberg 23.5+) is enabled.
+	 */
+	public function test_ai_chat_button_registered_in_editor_omnibar_with_renamed_slug() {
+		$this->set_up_block_editor_request();
+
+		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
+		Functions\when( 'gutenberg_is_experiment_enabled' )->alias(
+			function ( $experiment ) {
+				return 'gutenberg-omnibar' === $experiment;
+			}
+		);
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
+		);
+
+		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+	}
+
+	/**
+	 * Tests that the omnibar experiment is recognized when only the pre-rename slug
+	 * (`gutenberg-admin-bar-in-editor`, Gutenberg ≤ 23.4) is enabled.
+	 */
+	public function test_ai_chat_button_registered_in_editor_omnibar_with_legacy_slug() {
+		$this->set_up_block_editor_request();
+
+		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
+		Functions\when( 'gutenberg_is_experiment_enabled' )->alias(
+			function ( $experiment ) {
+				return 'gutenberg-admin-bar-in-editor' === $experiment;
+			}
+		);
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -1434,6 +1495,42 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that the plugin information iframe cannot be enabled by a variant filter.
+	 */
+	public function test_get_active_variant_returns_null_in_plugin_information_iframe() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'plugin-install' );
+		$_GET['tab'] = 'plugin-information';
+
+		add_filter(
+			'agents_manager_variant',
+			static function () {
+				return 'wp-admin';
+			}
+		);
+
+		$this->assertNull( Agents_Manager::get_active_variant() );
+	}
+
+	/**
+	 * Tests that a variant filter still controls the parent plugin screen.
+	 */
+	public function test_get_active_variant_allows_parent_plugin_screen() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'plugin-install' );
+		unset( $_GET['tab'] );
+
+		add_filter(
+			'agents_manager_variant',
+			static function () {
+				return 'wp-admin';
+			}
+		);
+
+		$this->assertSame( 'wp-admin', Agents_Manager::get_active_variant() );
+	}
+
+	/**
 	 * Tests that should_enqueue_script returns false on site frontend.
 	 */
 	public function test_should_enqueue_script_returns_false_on_frontend() {
@@ -1728,7 +1825,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		add_filter(
 			'jetpack_ai_sidebar_agents_manager_data',
 			function ( $data ) {
-				$data['reviewMediatorEnabled'] = true;
+				$data['customFeatureEnabled'] = true;
 				return $data;
 			}
 		);
@@ -1739,7 +1836,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
 		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
 
-		$this->assertStringContainsString( '"reviewMediatorEnabled":true', $inline_script );
+		$this->assertStringContainsString( '"customFeatureEnabled":true', $inline_script );
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 	}

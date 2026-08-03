@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.84.2] - 2026-07-27
+### Security
+- REST API: Require the `edit_others_posts` capability to create a shared connection, matching the update check. [#50722]
+
+### Added
+- Add a connection-flow state machine to the social store. [#50772]
+- Add the admin UI v2 feature flag. [#50733]
+- Add the connection-flow modal and open it from the Social dashboard behind the admin UI v2 flag. [#50775]
+- Add the platform picker step for the new connection flow. [#50773]
+
+### Changed
+- Update package dependencies. [#50683] [#50751] [#50753]
+- Use the same connection management UI in the block editor sidebar as on the Social admin page. [#50731]
+
+## [0.84.1] - 2026-07-20
+### Changed
+- Update package dependencies. [#50510] [#50529] [#50582]
+
+### Fixed
+- Prevent previews from showing raw message-template placeholders while rendering is pending. [#50164]
+
+## [0.84.0] - 2026-07-13
+### Changed
+- Social: Enable or disable the Social module directly from the Social dashboard, so it can be turned back on where Jetpack Settings is unreachable (e.g. WordPress.com Atomic sites). [#50376]
+- Social: Enable the modernized wp-admin dashboard for all sites by default. [#50092]
+- Update package dependencies. [#49272]
+- Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names (see https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/CHANGELOG.md#0160-2026-06-24 ). [#49272]
+
+### Fixed
+- Post-publish sharing panel: Add missing space between sentence and link. [#50399]
+- Social: Render message-template placeholders in the manual sharing buttons instead of leaking raw {title}/{excerpt}/{url}/{author} tokens. [#50290]
+
 ## [0.83.5] - 2026-07-06
 ### Added
 - Social Image Generator: Add new filter to allow disabling the text overlay in the feature. [#50029]
@@ -1558,6 +1590,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.84.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.1...v0.84.2
+[0.84.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.0...v0.84.1
+[0.84.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.5...v0.84.0
 [0.83.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.4...v0.83.5
 [0.83.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.3...v0.83.4
 [0.83.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.2...v0.83.3

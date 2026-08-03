@@ -146,6 +146,22 @@ class SchemaSettingsTest extends TestCase {
 	}
 
 	/**
+	 * Missing BreadcrumbList settings, including legacy option data, default to enabled.
+	 */
+	public function test_breadcrumb_list_defaults_to_enabled_for_legacy_data() {
+		$this->assertTrue( Schema_Settings::get_breadcrumb_list()['enabled'] );
+
+		update_option(
+			Schema_Settings::OPTION_NAME,
+			array(
+				'organization' => array( 'name' => 'Legacy organization' ),
+			)
+		);
+
+		$this->assertTrue( Schema_Settings::get_editable()['breadcrumbList']['enabled'] );
+	}
+
+	/**
 	 * Sanitization trims/strips text, keeps only valid absolute http(s) `sameAs`
 	 * URLs (dropping empty/relative/scheme-less/single-word
 	 * junk/`mailto:`/`javascript:` and duplicates — mirroring Organization_Schema_Node
@@ -189,6 +205,13 @@ class SchemaSettingsTest extends TestCase {
 			$clean['organization']['sameAs']
 		);
 		$this->assertSame( 'hello@acme.test', $clean['organization']['email'] );
+		$this->assertTrue( $clean['breadcrumbList']['enabled'] );
+		$this->assertFalse(
+			Schema_Settings::sanitize( array( 'breadcrumbList' => array( 'enabled' => false ) ) )['breadcrumbList']['enabled']
+		);
+		$this->assertFalse(
+			Schema_Settings::sanitize( array( 'breadcrumbList' => array( 'enabled' => 'false' ) ) )['breadcrumbList']['enabled']
+		);
 	}
 
 	/**
@@ -493,16 +516,17 @@ class SchemaSettingsTest extends TestCase {
 	public function test_update_replaces_only_present_sections() {
 		Schema_Settings::update(
 			array(
-				'organization'  => array(
+				'organization'   => array(
 					'name'   => 'Acme Corporation',
 					'sameAs' => array( 'https://twitter.com/acme' ),
 				),
-				'localBusiness' => array(
+				'localBusiness'  => array(
 					'enabled' => true,
 					'address' => array(
 						'streetAddress' => '123 Main St',
 					),
 				),
+				'breadcrumbList' => array( 'enabled' => false ),
 			)
 		);
 
@@ -516,6 +540,7 @@ class SchemaSettingsTest extends TestCase {
 		$editable = Schema_Settings::get_editable();
 		$this->assertSame( 'Acme Labs', $editable['organization']['name'] );
 		$this->assertSame( '123 Main St', $editable['localBusiness']['address']['streetAddress'] );
+		$this->assertFalse( $editable['breadcrumbList']['enabled'] );
 
 		Schema_Settings::update(
 			array(
@@ -530,6 +555,13 @@ class SchemaSettingsTest extends TestCase {
 		$editable = Schema_Settings::get_editable();
 		$this->assertSame( 'Acme Labs', $editable['organization']['name'] );
 		$this->assertSame( '456 Oak Ave', $editable['localBusiness']['address']['streetAddress'] );
+		$this->assertFalse( $editable['breadcrumbList']['enabled'] );
+
+		Schema_Settings::update( array( 'breadcrumbList' => array( 'enabled' => true ) ) );
+		$editable = Schema_Settings::get_editable();
+		$this->assertSame( 'Acme Labs', $editable['organization']['name'] );
+		$this->assertSame( '456 Oak Ave', $editable['localBusiness']['address']['streetAddress'] );
+		$this->assertTrue( $editable['breadcrumbList']['enabled'] );
 	}
 
 	/**

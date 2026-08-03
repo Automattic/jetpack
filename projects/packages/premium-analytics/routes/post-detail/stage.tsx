@@ -1,24 +1,29 @@
 import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel, SectionTabPanel } from '@jetpack-premium-analytics/ui';
+import { DateFiltersPanel, SectionTabPanel, safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
-import { WidgetDashboard } from '@wordpress/widget-dashboard';
-import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
-// Grid settings are intentionally shared across analytics dashboards (see the
-// hook's own note), so the post-detail page reuses the dashboard's hook rather
-// than storing a separate copy.
-import { useDashboardGridSettings } from '../dashboard/hooks/use-dashboard-grid-settings';
+import { Button } from '@wordpress/ui';
+import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
+import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { PostDetailTabs, PostSummaryCard } from './components';
+import { POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
 import { usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
 import styles from './stage.module.scss';
 
 const ROUTE_FROM = route.path;
+
+// The post-detail composition is fixed (WOOA7S-1622) and laid out against the
+// small (200px) row height used by the design. Keep its grid independent from
+// the customizable main-dashboard preference so a future settings control
+// cannot stretch these tiles out of proportion.
+const POST_DETAIL_GRID = { ...DEFAULT_GRID, rowHeight: ROW_HEIGHT_PRESETS.small };
 
 // The layout is fixed, so the change callback never fires; the dashboard
 // still requires one because it owns a staging copy internally.
@@ -39,10 +44,11 @@ function PostDetail(): JSX.Element {
 	const { postId: postIdParam } = useParams( { from: ROUTE_FROM } ) as { postId?: string };
 	const postId = Number( postIdParam );
 
-	const { tabs, activeTab, setActiveTab, layout } = usePostDetailTabs();
-	const [ gridSettings ] = useDashboardGridSettings();
+	const { tabs, activeTab, setActiveTab, layout } = usePostDetailTabs( postId );
 
 	const summary = usePostSummary( postId );
+
+	const publicUrl = safeHttpUrl( summary.url );
 
 	const widgetModules = useSelect(
 		select =>
@@ -62,7 +68,29 @@ function PostDetail(): JSX.Element {
 		[]
 	);
 
-	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypes( widgetModules );
+	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
+
+	// The fixed compositions reuse registered widget types under page-local
+	// aliases so each card carries its design title — the host titles a card
+	// by its widget *type*. Each alias clones the resolved base type (render
+	// module and all) under a variant name and title; see
+	// `config/widget-variants`.
+	const pageWidgetTypes = useMemo( () => {
+		const aliases = POST_DETAIL_WIDGET_TYPE_ALIASES.flatMap( ( { baseType, variants } ) => {
+			const base = widgetTypes.find( widgetType => widgetType.name === baseType );
+
+			return base
+				? variants.map( variant => ( {
+						...base,
+						name: variant.name,
+						title: variant.getTitle(),
+						...( variant.icon ? { icon: variant.icon } : {} ),
+				  } ) )
+				: [];
+		} );
+
+		return aliases.length ? [ ...widgetTypes, ...aliases ] : widgetTypes;
+	}, [ widgetTypes ] );
 
 	// The single resource, date range, and comparison all live in the URL search
 	// params, staged and committed by the shared date-filter controller.
@@ -78,44 +106,72 @@ function PostDetail(): JSX.Element {
 	return (
 		<GlobalErrorProvider>
 			<WidgetDashboard
-				widgetTypes={ widgetTypes }
+				widgetTypes={ pageWidgetTypes }
 				isResolvingWidgetTypes={ isResolvingWidgetTypes }
+				resolveWidgetModule={ resolveWidgetModuleWithI18n }
 				layout={ layout }
 				onLayoutChange={ noopLayoutChange }
-				gridSettings={ gridSettings }
+				gridSettings={ POST_DETAIL_GRID }
 			>
 				<Page
 					breadcrumbs={
 						<Breadcrumbs
 							items={ [
-								{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
+								{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
 								...( summary.title ? [ { label: summary.title } ] : [] ),
 							] }
 						/>
+					}
+					actions={
+						publicUrl ? (
+							<Button
+								variant="solid"
+								tone="neutral"
+								size="compact"
+								nativeButton={ false }
+								role="link"
+								className={ styles.viewPost }
+								render={ <a href={ publicUrl } target="_blank" rel="noopener noreferrer" /> }
+							>
+								{ summary.type === 'page'
+									? __( 'View page', 'jetpack-premium-analytics-pkg' )
+									: __( 'View post', 'jetpack-premium-analytics-pkg' ) }
+							</Button>
+						) : undefined
 					}
 					className={ styles.page }
 				>
 					<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab }>
 						{ /*
-						 * The summary card and date filters are shared by every tab
+						 * The date filters and the summary card are shared by every tab
 						 * (same post, same date range), so they render once below the
-						 * tab bar and above the per-tab widget grid.
+						 * tab bar and above the per-tab widget grid. The tab bar and the
+						 * filters stay fixed outside the scroll container, exactly like
+						 * the dashboard's section tabs; the summary header scrolls away
+						 * inside it with the widgets, giving them the vertical room.
 						 *
-						 * The date-filters wrapper is also the responsive-measurement
+						 * The filters wrapper is also the responsive-measurement
 						 * target: DateFiltersPanel reads its width to pick mobile/wide
 						 * layouts instead of relying on the viewport.
 						 */ }
-						<div className={ styles.summary }>
-							<PostSummaryCard summary={ summary } />
-						</div>
 						<div ref={ setContainerElement } className={ styles.dateFilters }>
 							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
 						</div>
-						{ tabs.map( tab => (
-							<SectionTabPanel key={ tab.id } value={ tab.id } className={ styles.content }>
-								{ activeTab === tab.id ? <WidgetDashboard.Widgets /> : null }
-							</SectionTabPanel>
-						) ) }
+						<div className={ styles.scrollArea }>
+							<div className={ styles.header }>
+								<PostSummaryCard
+									summary={ summary }
+									performanceRange={ dateFilters.appliedRange }
+								/>
+							</div>
+							{ tabs.map( tab => (
+								<SectionTabPanel key={ tab.id } value={ tab.id } className={ styles.content }>
+									{ activeTab === tab.id ? (
+										<WidgetDashboard.Widgets className={ styles.widgets } />
+									) : null }
+								</SectionTabPanel>
+							) ) }
+						</div>
 					</PostDetailTabs>
 				</Page>
 			</WidgetDashboard>

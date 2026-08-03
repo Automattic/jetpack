@@ -169,6 +169,9 @@ const disabledPlugins = {
 };
 
 // ── Polyfill definitions ────────────────────────────────────────────────────
+//
+// If adding or removing something here, you'll probably also want to add or remove it
+// from the "Bundled @wordpress/* monorepo" group in `.github/renovate.json5`.
 
 const classicPolyfills = [
 	{
@@ -180,6 +183,18 @@ const classicPolyfills = [
 		name: 'private-apis',
 		packageName: '@wordpress/private-apis',
 		library: [ 'wp', 'privateApis' ],
+	},
+	{
+		name: 'rich-text',
+		packageName: '@wordpress/rich-text',
+		library: [ 'wp', 'richText' ],
+		// rich-text unlocks `privateApis` from @wordpress/compose at module
+		// scope, and Core versions this polyfill targets ship compose without
+		// that export — externalizing compose would make the polyfill throw
+		// the very "Cannot unlock an undefined object" it exists to fix.
+		// Core's compose does not opt into private-apis at all, so the
+		// bundled copy's opt-in cannot collide with it.
+		bundlePackages: [ '@wordpress/compose' ],
 	},
 	{
 		name: 'theme',
@@ -227,9 +242,12 @@ const iifeConfigs = classicPolyfills.map( polyfill => ( {
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
 			DependencyExtractionPlugin: {
-				requestMap: {
-					[ polyfill.packageName ]: { external: false },
-				},
+				requestMap: Object.fromEntries(
+					[ polyfill.packageName, ...( polyfill.bundlePackages ?? [] ) ].map( pkg => [
+						pkg,
+						{ external: false },
+					] )
+				),
 			},
 			...disabledPlugins,
 		} ),

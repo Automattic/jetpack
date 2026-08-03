@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.3.2] - 2026-07-27
+### Added
+- Add highlightPhraseOnly and highlightFilterStopwords Instant Search options for highlight API params. [#50738]
+
+### Changed
+- Update package dependencies. [#50751] [#50753]
+
+### Fixed
+- Blocks: Resize result images through Photon in the Embedded search layout to improve performance. [#50710]
+- Fix uncaught error when a malformed query string parameter (invalid percent-encoding) crashed Instant Search initialization. [#50806]
+
+## [7.3.1] - 2026-07-22
+### Changed
+- Internal updates.
+
+## [7.3.0] - 2026-07-20
+### Added
+- Add a results-per-page setting to the Search Results block, falling back to the site's Reading setting when unset. [#50652]
+
+### Changed
+- Update package dependencies. [#50529]
+
+### Fixed
+- Fix checkout for unregistered sites getting stuck or redirected to the site selector instead of completing the purchase. [#50474]
+- Fix the Search upsell page's product-availability check not returning its promise, which caused checkout to always run even when the site already had the Search product. [#50474]
+- Overlay/embedded templates: Keep the Collapsible Filters panel in sync with the sidebar Filters block, locking it read-only in the editor when both coexist. [#50653]
+- Overlay/embedded templates: Mark where a new filter belongs when adding it to the Filters (or Product Filters) block in the editor. [#50655]
+
+## [7.2.8] - 2026-07-13
+### Changed
+- Update package dependencies. [#49272]
+- Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names (see https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/CHANGELOG.md#0160-2026-06-24 ). [#49272]
+
 ## [7.2.7] - 2026-07-06
 ### Changed
 - Update package dependencies. [#50097] [#50183] [#50212]
@@ -1821,6 +1854,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[7.3.2]: https://github.com/Automattic/jetpack-search/compare/v7.3.1...v7.3.2
+[7.3.1]: https://github.com/Automattic/jetpack-search/compare/v7.3.0...v7.3.1
+[7.3.0]: https://github.com/Automattic/jetpack-search/compare/v7.2.8...v7.3.0
+[7.2.8]: https://github.com/Automattic/jetpack-search/compare/v7.2.7...v7.2.8
 [7.2.7]: https://github.com/Automattic/jetpack-search/compare/v7.2.6...v7.2.7
 [7.2.6]: https://github.com/Automattic/jetpack-search/compare/v7.2.5...v7.2.6
 [7.2.5]: https://github.com/Automattic/jetpack-search/compare/v7.2.4...v7.2.5

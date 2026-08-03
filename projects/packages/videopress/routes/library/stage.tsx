@@ -7,6 +7,7 @@ import { useNavigate } from '@wordpress/route';
 import { Button } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
+import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
 import { buildLibraryActions } from '../../src/dashboard/components/library/actions';
 import { libraryFields } from '../../src/dashboard/components/library/fields';
 import { UploadActionsProvider } from '../../src/dashboard/components/library/upload-actions-context';
@@ -19,6 +20,7 @@ import { useSetPrivacy } from '../../src/dashboard/hooks/use-set-privacy';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
 import { useVideoPressUpgrade } from '../../src/dashboard/hooks/use-videopress-upgrade';
+import { createPromoteLocal } from './promote-local';
 import { planVideoDrop } from './upload-drop';
 import './style.scss';
 import type { LibraryItem, LibraryItemPrivacy } from '../../src/dashboard/types/library';
@@ -34,13 +36,14 @@ const PRIVACY_LABELS: Record< LibraryItemPrivacy, string > = {
 // Grid tiles already lead with the thumbnail + title; the filename
 // below repeats information the title implies and clutters the tile.
 // Keep it hidden by default — users who want it can still toggle it
-// on via the DataViews field-visibility control.
-const GRID_VISIBLE_FIELDS: string[] = [];
+// on via the DataViews field-visibility control. The orientation
+// indicator is icon-only, so it earns its spot on the tile.
+const GRID_VISIBLE_FIELDS: string[] = [ 'orientation' ];
 // `fileSize` is intentionally omitted: it's only populated for local
 // (non-VideoPress) uploads today, so it's blank for most rows. Users
 // who want the column can still toggle it on via the DataViews column-
 // visibility control.
-const TABLE_VISIBLE_FIELDS = [ 'filename', 'duration', 'uploadDate', 'privacy' ];
+const TABLE_VISIBLE_FIELDS = [ 'filename', 'duration', 'orientation', 'uploadDate', 'privacy' ];
 
 const DEFAULT_VIEW: View = {
 	type: 'grid',
@@ -65,20 +68,30 @@ const StageInner = () => {
 	const [ view, setView ] = useState< View >( initialView );
 	const [ selection, setSelection ] = useState< string[] >( [] );
 	const [ captionVideo, setCaptionVideo ] = useState< LibraryItem | null >( null );
-	// Local IDs currently being promoted from local-storage to VideoPress.
-	// The upload-from-library endpoint doesn't report progress, so we just
-	// need to know which rows to overlay with an "Uploading…" state.
-	const [ promotingIds, setPromotingIds ] = useState< Set< string > >( () => new Set() );
-	// IDs currently being deleted. Same overlay technique as promotingIds:
+	// Local IDs currently being promoted from local-storage to VideoPress,
+	// mapped to the last upload percentage (0–100) reported by the chunked
+	// upload-from-library endpoint, so their rows can show the same live
+	// progress as a regular upload.
+	const [ promotingProgress, setPromotingProgress ] = useState< Map< string, number > >(
+		() => new Map()
+	);
+	// IDs currently being deleted. Same overlay technique as promotingProgress:
 	// rows get a "Deleting…" state (thumbnail overlay in grid, title pill in
 	// table) until the post-delete refetch removes them from the listing.
 	const [ deletingIds, setDeletingIds ] = useState< Set< string > >( () => new Set() );
 
-	const { items, isLoading, paginationInfo, refetch } = useLibrary( view );
+	const {
+		items,
+		isLoading,
+		paginationInfo,
+		isError,
+		error: libraryError,
+		refetch,
+	} = useLibrary( view );
 	const { uploadQueue, startUpload, retryUpload } = useUpload();
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
-	const { mutate: uploadFromLibrary } = useUploadFromLibrary();
+	const { mutateAsync: uploadFromLibrary } = useUploadFromLibrary();
 	const { isAtLimit, isFree, isUnlimited, videoCount, limit } = useFreeTier();
 	const runUpgrade = useVideoPressUpgrade();
 
@@ -106,16 +119,6 @@ const StageInner = () => {
 		}
 		filePickerRef.current?.click();
 	}, [ isAtLimit ] );
-	const onFilePicked = useCallback(
-		( event: ChangeEvent< HTMLInputElement > ) => {
-			const file = event.target.files?.[ 0 ];
-			if ( file ) {
-				startUpload( file );
-			}
-			event.target.value = '';
-		},
-		[ startUpload ]
-	);
 
 	const navigate = useNavigate();
 
@@ -128,10 +131,10 @@ const StageInner = () => {
 
 	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useGlobalNotices();
 
-	// Drag-and-drop entry point. Mirrors the file-picker's `startUpload`
-	// path but accepts multiple files and enforces the free-tier cap up
-	// front so a drop can't sneak past the limit the picker button guards.
-	const handleFilesDrop = useCallback(
+	// Shared multi-file entry point for both the DropZone and the header
+	// "Upload video" file picker. Enforces the free-tier cap up front so
+	// neither path can sneak past the limit the picker button guards.
+	const handleFilesSelected = useCallback(
 		( files: File[] ) => {
 			const decision = planVideoDrop( files, {
 				isFree,
@@ -178,42 +181,33 @@ const StageInner = () => {
 		[ isFree, isUnlimited, limit, videoCount, startUpload, createErrorNotice, runUpgrade ]
 	);
 
-	const promoteLocal = useCallback(
-		( id: string ) => {
-			setPromotingIds( prev => {
-				const next = new Set( prev );
-				next.add( id );
-				return next;
-			} );
-			uploadFromLibrary( id, {
-				onSuccess: () => {
-					createSuccessNotice( __( 'Video uploaded to VideoPress.', 'jetpack-videopress-pkg' ) );
-				},
-				onError: ( error: Error ) => {
-					const reason = error?.message?.trim();
-					createErrorNotice(
-						reason
-							? sprintf(
-									/* translators: %s: reason returned by the upload endpoint, e.g. "403: Invalid Mime". */
-									__( 'Failed to upload video to VideoPress: %s', 'jetpack-videopress-pkg' ),
-									reason
-							  )
-							: __( 'Failed to upload video to VideoPress.', 'jetpack-videopress-pkg' )
-					);
-				},
-				onSettled: () => {
-					setPromotingIds( prev => {
-						if ( ! prev.has( id ) ) {
-							return prev;
-						}
-						const next = new Set( prev );
-						next.delete( id );
-						return next;
-					} );
-				},
-			} );
+	const onFilePicked = useCallback(
+		( event: ChangeEvent< HTMLInputElement > ) => {
+			const files = Array.from( event.target.files ?? [] );
+			if ( files.length > 0 ) {
+				handleFilesSelected( files );
+			}
+			event.target.value = '';
 		},
-		[ uploadFromLibrary, createSuccessNotice, createErrorNotice ]
+		[ handleFilesSelected ]
+	);
+
+	// The factory owns the in-flight progress map (re-entry guard + overlay
+	// snapshots, chunk progress folded in) and reacts via the mutateAsync
+	// promise; see promote-local.ts for why.
+	// Deliberately created ONCE per stage instance: useGlobalNotices() returns
+	// fresh wrapper closures every render, so a dep-keyed useMemo would rebuild
+	// the factory (emptying its in-flight state) on each render — including the
+	// renders its own publishes trigger. All captured deps are stable: the
+	// notice wrappers forward to registry-bound dispatchers, mutateAsync is
+	// referentially stable in TanStack v5, and state setters never change.
+	const [ promoteLocal ] = useState( () =>
+		createPromoteLocal( {
+			promote: uploadFromLibrary,
+			createSuccessNotice,
+			createErrorNotice,
+			onPromotingChange: setPromotingProgress,
+		} )
 	);
 
 	const actions = useMemo(
@@ -391,6 +385,7 @@ const StageInner = () => {
 				allowDownloads: false,
 				shortcode: '',
 				isProcessing: false,
+				orientation: null,
 				tracks: [],
 			} ) );
 		// Overlay an in-flight state on items currently being promoted from
@@ -398,8 +393,9 @@ const StageInner = () => {
 		// pill and the thumbnail overlay reflect the operation without
 		// needing a parallel signal at every render site.
 		const overlaid = items.map( item => {
-			if ( promotingIds.has( item.id ) ) {
-				return { ...item, upload: { status: 'promoting' as const, progress: 0 } };
+			const promoting = promotingProgress.get( item.id );
+			if ( promoting !== undefined ) {
+				return { ...item, upload: { status: 'promoting' as const, progress: promoting } };
 			}
 			if ( deletingIds.has( item.id ) ) {
 				return { ...item, upload: { status: 'deleting' as const, progress: 0 } };
@@ -407,7 +403,7 @@ const StageInner = () => {
 			return item;
 		} );
 		return [ ...inFlight, ...overlaid ];
-	}, [ uploadQueue, items, promotingIds, deletingIds ] );
+	}, [ uploadQueue, items, promotingProgress, deletingIds ] );
 
 	const getItemId = useCallback( ( item: LibraryItem ) => item.id, [] );
 
@@ -425,6 +421,10 @@ const StageInner = () => {
 						ref={ filePickerRef }
 						type="file"
 						accept="video/*"
+						// The capped free tier can only ever host `limit` videos, so
+						// multi-select there would only produce skipped-file notices;
+						// paid and grandfathered-unlimited plans get bulk selection.
+						multiple={ ! isFree || isUnlimited }
 						style={ { display: 'none' } }
 						onChange={ onFilePicked }
 					/>
@@ -453,22 +453,41 @@ const StageInner = () => {
 			<UploadActionsProvider value={ { promoteLocal, retryUpload, openVideoDetails } }>
 				<div className={ `vp-library__viewport vp-library__viewport--${ view.type }` }>
 					<DropZone
-						label={ __( 'Drop a video to upload', 'jetpack-videopress-pkg' ) }
-						onFilesDrop={ handleFilesDrop }
+						label={ __( 'Drop videos to upload', 'jetpack-videopress-pkg' ) }
+						onFilesDrop={ handleFilesSelected }
 					/>
-					<DataViews< LibraryItem >
-						data={ renderedItems }
-						fields={ libraryFields }
-						actions={ actions }
-						view={ view }
-						onChangeView={ onChangeView }
-						selection={ selection }
-						onChangeSelection={ setSelection }
-						getItemId={ getItemId }
-						paginationInfo={ paginationInfo }
-						isLoading={ isLoading }
-						defaultLayouts={ defaultLayouts }
-					/>
+					{ isError && items.length === 0 ? (
+						// A failed listing request would otherwise render as DataViews'
+						// "No results" — indistinguishable from an empty library. Surface
+						// the error explicitly with a Retry that refetches. Only when the
+						// QUERY has nothing valid to show: a failed *background* refresh
+						// keeps its cached rows (grid stays, self-heals on the next
+						// poll), while a failed view change / first load leaves data
+						// undefined (react-query drops keepPreviousData placeholders on
+						// error), so it lands here. Deliberately `items`, not
+						// `renderedItems` — the latter splices in in-flight upload rows,
+						// which must not mask a failed listing.
+						<FetchErrorNotice
+							className="vp-library__error"
+							message={ __( 'We couldn’t load your video library.', 'jetpack-videopress-pkg' ) }
+							error={ libraryError }
+							onRetry={ () => void refetch() }
+						/>
+					) : (
+						<DataViews< LibraryItem >
+							data={ renderedItems }
+							fields={ libraryFields }
+							actions={ actions }
+							view={ view }
+							onChangeView={ onChangeView }
+							selection={ selection }
+							onChangeSelection={ setSelection }
+							getItemId={ getItemId }
+							paginationInfo={ paginationInfo }
+							isLoading={ isLoading }
+							defaultLayouts={ defaultLayouts }
+						/>
+					) }
 				</div>
 			</UploadActionsProvider>
 			{ captionVideo && (

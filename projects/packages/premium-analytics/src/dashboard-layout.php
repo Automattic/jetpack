@@ -4,15 +4,10 @@
  *
  * Premium Analytics owns its dashboard, so it ships its own default layout
  * rather than relying on the core dashboard endpoint (which is Gutenberg-only
- * and returns the core dashboard's widgets). Mirrors the two mechanisms the
- * core experiment uses:
- *   1. a `get_user_metadata` injection that surfaces the default through the
- *      `@wordpress/preferences` store on first load, and
- *   2. a REST route the client's "reset to default" action reads.
- *
- * The scope, key, dashboard name, and REST namespace are constants so they can
- * be renamed in one place — e.g. to fully isolate the stored preference from
- * the core dashboard's. These must match `routes/dashboard/hooks/constants.ts`.
+ * and returns the core dashboard's widgets). The default is served on the
+ * `dashboardSection` REST shape and a per-dashboard `default-layout` route; the
+ * frontend reads it from the section entity, so there is no server-seeded
+ * preference.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -20,34 +15,17 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 require_once __DIR__ . '/dashboard-grammar.php';
-
-/**
- * Preferences scope under which the dashboard layout is stored. Mirrors the
- * scope read by the dashboard's JS hooks.
- */
-const DASHBOARD_LAYOUT_SCOPE = 'jetpack-premium-analytics/dashboard';
-
-/**
- * Preferences key under DASHBOARD_LAYOUT_SCOPE that holds the layout array.
- */
-const DASHBOARD_LAYOUT_KEY = 'dashboardLayout';
-
-/**
- * Preferences key under DASHBOARD_LAYOUT_SCOPE that holds per-section layouts.
- */
-const DASHBOARD_SECTION_LAYOUTS_KEY = 'dashboardSectionLayouts';
+require_once __DIR__ . '/rest-namespace.php';
+// Availability policy for default layout instances: defaults are read outside
+// the widget registry bootstrap, so the policy must be loaded here explicitly.
+require_once __DIR__ . '/widget-type-support.php';
 
 /**
  * Identifier of the Premium Analytics dashboard, formatted as `<plugin>_<page>`
  * to match the underscore form produced by the wp-build pipeline. Used as the
- * `{name}` segment of the REST route and as the seed filter's target.
+ * `{name}` segment of the REST route.
  */
 const DASHBOARD_NAME = 'jetpack-premium-analytics_dashboard';
-
-/**
- * REST namespace that exposes the dashboard's default layout.
- */
-const DASHBOARD_REST_NAMESPACE = 'jetpack/v4';
 
 /**
  * Filter through which the default layout for a dashboard is resolved.
@@ -61,86 +39,6 @@ const DASHBOARD_TRAFFIC_SECTION_ID     = 'traffic';
 const DASHBOARD_INSIGHTS_SECTION_ID    = 'insights';
 const DASHBOARD_SUBSCRIBERS_SECTION_ID = 'subscribers';
 const DASHBOARD_STORE_SECTION_ID       = 'store';
-
-/**
- * Injects the registered default dashboard layout into the user's
- * `persisted_preferences` read when the stored layout is empty.
- *
- * Hooks into `get_user_metadata` so the default propagates through the same
- * persistence layer the dashboard's JS layer reads from. The JS side stays
- * oblivious: a default and a user-saved layout look identical at the
- * preferences-store boundary.
- *
- * @global \wpdb $wpdb WordPress database abstraction object.
- *
- * @param mixed  $value    The pre-fetched value, or null to let the meta API
- *                         resolve normally.
- * @param int    $user_id  User ID.
- * @param string $meta_key Meta key being read.
- * @return mixed The original value, or a single-element array containing the
- *               extended persisted preferences.
- */
-function inject_dashboard_default_layout( $value, $user_id, $meta_key ) {
-	global $wpdb;
-
-	$expected_key = $wpdb->get_blog_prefix() . 'persisted_preferences';
-	if ( $meta_key !== $expected_key ) {
-		return $value;
-	}
-
-	// Avoid recursion when reading the user meta.
-	remove_filter( 'get_user_metadata', __FUNCTION__, 99 );
-	$base = get_user_meta( $user_id, $meta_key, true );
-	add_filter( 'get_user_metadata', __FUNCTION__, 99, 3 );
-
-	if ( ! is_array( $base ) ) {
-		$base = array();
-	}
-
-	$committed = $base[ DASHBOARD_LAYOUT_SCOPE ][ DASHBOARD_LAYOUT_KEY ] ?? array();
-	$updated   = false;
-
-	if ( ! isset( $base[ DASHBOARD_LAYOUT_SCOPE ] ) || ! is_array( $base[ DASHBOARD_LAYOUT_SCOPE ] ) ) {
-		$base[ DASHBOARD_LAYOUT_SCOPE ] = array();
-	}
-
-	if ( empty( $committed ) ) {
-		$default = get_dashboard_default_layout_for( DASHBOARD_NAME );
-
-		if ( ! empty( $default ) ) {
-			$base[ DASHBOARD_LAYOUT_SCOPE ][ DASHBOARD_LAYOUT_KEY ] = $default;
-			$updated = true;
-		}
-	}
-
-	$section_layouts = $base[ DASHBOARD_LAYOUT_SCOPE ][ DASHBOARD_SECTION_LAYOUTS_KEY ] ?? array();
-
-	if ( ! is_array( $section_layouts ) ) {
-		$section_layouts = array();
-	}
-
-	foreach ( array_keys( get_dashboard_default_section_layouts() ) as $section_id ) {
-		if ( array_key_exists( $section_id, $section_layouts ) ) {
-			continue;
-		}
-
-		$section_default = get_dashboard_default_layout_for( $section_id );
-
-		if ( ! empty( $section_default ) ) {
-			$section_layouts[ $section_id ] = $section_default;
-			$updated                        = true;
-		}
-	}
-
-	if ( $updated ) {
-		$base[ DASHBOARD_LAYOUT_SCOPE ][ DASHBOARD_SECTION_LAYOUTS_KEY ] = $section_layouts;
-
-		return array( $base );
-	}
-
-	return $value;
-}
-add_filter( 'get_user_metadata', __NAMESPACE__ . '\\inject_dashboard_default_layout', 99, 3 );
 
 /**
  * Resolves the default layout registered for a dashboard.
@@ -167,17 +65,39 @@ function get_dashboard_default_layout_for( $dashboard_name ) {
 	 */
 	$default = apply_filters( DASHBOARD_DEFAULT_LAYOUT_FILTER, array(), $dashboard_name );
 
-	return is_array( $default ) ? array_values( $default ) : array();
+	return remove_unsupported_widget_items(
+		is_array( $default ) ? array_values( $default ) : array(),
+		'type',
+		get_widget_support_context()
+	);
 }
 
 /**
  * REST callback returning the default layout for the requested dashboard.
  *
+ * The route admits every dashboard reader, but its name also resolves to a
+ * single tab, so the store tab is refused here the way the section route
+ * refuses it through {@see Dashboard_Section::is_available()}. The check keys
+ * on the resolved tab rather than the string because two spellings arrive: the
+ * bare `store` alias in the URL, and `?name=woocommerce/store`, which WordPress
+ * reads ahead of the URL capture.
+ *
  * @param \WP_REST_Request $request REST request carrying the dashboard name.
- * @return \WP_REST_Response Response wrapping the default layout array.
+ * @return \WP_REST_Response|\WP_Error Response wrapping the default layout array.
  */
 function get_dashboard_default_layout_response( $request ) {
-	return rest_ensure_response( get_dashboard_default_layout_for( $request['name'] ) );
+	$dashboard_name = $request['name'];
+
+	if ( DASHBOARD_STORE_SECTION_ID === get_dashboard_default_section_id_for( $dashboard_name )
+		&& ! Capabilities::current_user_can_view_store_reports() ) {
+		return new \WP_Error(
+			'dashboard_section_unavailable',
+			__( 'Dashboard section is not available.', 'jetpack-premium-analytics-pkg' ),
+			array( 'status' => 404 )
+		);
+	}
+
+	return rest_ensure_response( get_dashboard_default_layout_for( $dashboard_name ) );
 }
 
 /**
@@ -192,19 +112,16 @@ function register_dashboard_default_layout_route() {
 		array(
 			'methods'             => \WP_REST_Server::READABLE,
 			'callback'            => __NAMESPACE__ . '\\get_dashboard_default_layout_response',
-			'permission_callback' => static function () {
-				return current_user_can( 'manage_options' );
-			},
+			'permission_callback' => array( Capabilities::class, 'current_user_can_view_analytics' ),
 			'args'                => array(
 				'name' => array(
-					'description' => __( 'Dashboard identifier as produced by the build pipeline.', 'jetpack-premium-analytics' ),
+					'description' => __( 'Dashboard identifier as produced by the build pipeline.', 'jetpack-premium-analytics-pkg' ),
 					'type'        => 'string',
 				),
 			),
 		)
 	);
 }
-add_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_default_layout_route' );
 
 /**
  * Builds a widget instance for bundled dashboard defaults.
@@ -251,11 +168,12 @@ function get_dashboard_default_widget_instance(
 function get_dashboard_default_section_layouts() {
 	return array(
 		DASHBOARD_TRAFFIC_SECTION_ID     => array(
+			// Row 1: traffic chart + most-viewed posts.
 			get_dashboard_default_widget_instance(
 				'default-traffic-chart-widget-instance',
 				'jpa/traffic-chart',
 				0,
-				2,
+				3,
 				2,
 				array(
 					'granularity' => 'auto',
@@ -268,9 +186,10 @@ function get_dashboard_default_section_layouts() {
 				1,
 				2,
 				array(
-					'num' => 10,
+					'max' => 10,
 				)
 			),
+			// Row 2: referrers + locations map + devices.
 			get_dashboard_default_widget_instance(
 				'default-referrers-widget-instance',
 				'jpa/referrers',
@@ -301,6 +220,7 @@ function get_dashboard_default_section_layouts() {
 					'max' => 5,
 				)
 			),
+			// Row 3: top platforms + VideoPress + authors + UTM insights.
 			get_dashboard_default_widget_instance(
 				'default-top-platforms-widget-instance',
 				'jpa/top-platforms',
@@ -312,19 +232,29 @@ function get_dashboard_default_section_layouts() {
 				)
 			),
 			get_dashboard_default_widget_instance(
-				'default-search-terms-widget-instance',
-				'jpa/search-terms',
+				'default-videopress-widget-instance',
+				'jpa/videopress',
 				6,
 				1,
 				2,
 				array(
-					'max' => 10,
+					'max' => 7,
+				)
+			),
+			get_dashboard_default_widget_instance(
+				'default-authors-widget-instance',
+				'jpa/authors',
+				7,
+				1,
+				2,
+				array(
+					'max' => 7,
 				)
 			),
 			get_dashboard_default_widget_instance(
 				'default-utm-insights-widget-instance',
 				'jpa/utm-insights',
-				7,
+				8,
 				1,
 				2,
 				array(
@@ -332,16 +262,7 @@ function get_dashboard_default_section_layouts() {
 					'max'          => 10,
 				)
 			),
-			get_dashboard_default_widget_instance(
-				'default-file-downloads-widget-instance',
-				'jpa/file-downloads',
-				8,
-				1,
-				2,
-				array(
-					'max' => 10,
-				)
-			),
+			// Row 4: clicks + search terms + file downloads + plan usage.
 			get_dashboard_default_widget_instance(
 				'default-clicks-widget-instance',
 				'jpa/clicks',
@@ -353,77 +274,9 @@ function get_dashboard_default_section_layouts() {
 				)
 			),
 			get_dashboard_default_widget_instance(
-				'default-authors-widget-instance',
-				'jpa/authors',
+				'default-search-terms-widget-instance',
+				'jpa/search-terms',
 				10,
-				1,
-				2,
-				array(
-					'max' => 7,
-				)
-			),
-			get_dashboard_default_widget_instance(
-				'default-videopress-widget-instance',
-				'jpa/videopress',
-				11,
-				1,
-				2,
-				array(
-					'max' => 7,
-				)
-			),
-			get_dashboard_default_widget_instance(
-				'default-plan-usage-widget-instance',
-				'jpa/plan-usage',
-				12,
-				2,
-				1
-			),
-		),
-		DASHBOARD_INSIGHTS_SECTION_ID    => array(
-			get_dashboard_default_widget_instance(
-				'default-annual-highlights-widget-instance',
-				'jpa/annual-highlights',
-				0,
-				2,
-				1
-			),
-			get_dashboard_default_widget_instance(
-				'default-all-time-stats-widget-instance',
-				'jpa/all-time-stats',
-				1,
-				2,
-				1
-			),
-			get_dashboard_default_widget_instance(
-				'default-latest-post-widget-instance',
-				'jpa/latest-post',
-				2,
-				1,
-				1
-			),
-			get_dashboard_default_widget_instance(
-				'default-posting-activity-widget-instance',
-				'jpa/posting-activity',
-				3,
-				2,
-				2
-			),
-			get_dashboard_default_widget_instance(
-				'default-emails-widget-instance',
-				'jpa/stats-emails',
-				4,
-				1,
-				2,
-				array(
-					'max'    => 10,
-					'metric' => 'opens',
-				)
-			),
-			get_dashboard_default_widget_instance(
-				'default-shares-widget-instance',
-				'jpa/shares',
-				5,
 				1,
 				2,
 				array(
@@ -431,18 +284,114 @@ function get_dashboard_default_section_layouts() {
 				)
 			),
 			get_dashboard_default_widget_instance(
-				'default-most-popular-day-widget-instance',
-				'jpa/most-popular-day',
-				6,
+				'default-file-downloads-widget-instance',
+				'jpa/file-downloads',
+				11,
 				1,
-				1
+				2,
+				array(
+					'max' => 10,
+				)
+			),
+			get_dashboard_default_widget_instance(
+				'default-plan-usage-widget-instance',
+				'jpa/plan-usage',
+				12,
+				1,
+				2
+			),
+		),
+		DASHBOARD_INSIGHTS_SECTION_ID    => array(
+			// Mirrors the legacy Calypso Stats Insights page (WOOA7S-1616).
+			// Emails is not an Insights module (it lives on the Subscribers
+			// tab). Two canonical modules are not ported yet — All-time total
+			// views (WOOA7S-1512) and Most popular post (part of WOOA7S-1510).
+			// Row 1: annual highlights + all-time stats.
+			get_dashboard_default_widget_instance(
+				'default-annual-highlights-widget-instance',
+				'jpa/annual-highlights',
+				0,
+				2,
+				2
+			),
+			get_dashboard_default_widget_instance(
+				'default-all-time-stats-widget-instance',
+				'jpa/all-time-stats',
+				1,
+				2,
+				2
+			),
+			// Row 2: latest post + the two most-popular cards + tags.
+			get_dashboard_default_widget_instance(
+				'default-latest-post-widget-instance',
+				'jpa/latest-post',
+				2,
+				1,
+				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-most-popular-time-widget-instance',
 				'jpa/most-popular-time',
+				3,
+				1,
+				2
+			),
+			get_dashboard_default_widget_instance(
+				'default-most-popular-day-widget-instance',
+				'jpa/most-popular-day',
+				4,
+				1,
+				2
+			),
+			get_dashboard_default_widget_instance(
+				'default-tags-widget-instance',
+				'jpa/tags',
+				5,
+				1,
+				2,
+				array(
+					'max' => 10,
+				)
+			),
+			// Row 3: posting-activity heatmap + the two comment leaderboards.
+			get_dashboard_default_widget_instance(
+				'default-posting-activity-widget-instance',
+				'jpa/posting-activity',
+				6,
+				2,
+				2
+			),
+			// Posts before authors, matching the design's Insights bottom row.
+			get_dashboard_default_widget_instance(
+				'default-most-commented-posts-widget-instance',
+				'jpa/most-commented-posts',
 				7,
 				1,
-				1
+				2,
+				array(
+					'max' => 10,
+				)
+			),
+			get_dashboard_default_widget_instance(
+				'default-most-commented-authors-widget-instance',
+				'jpa/most-commented-authors',
+				8,
+				1,
+				2,
+				array(
+					'max' => 10,
+				)
+			),
+			// Row 4: shares, joined by the two unported modules noted above.
+			get_dashboard_default_widget_instance(
+				'default-shares-widget-instance',
+				'jpa/shares',
+				9,
+				1,
+				2,
+				array(
+					'max' => 10,
+				)
 			),
 		),
 		DASHBOARD_SUBSCRIBERS_SECTION_ID => array(
@@ -450,7 +399,7 @@ function get_dashboard_default_section_layouts() {
 				'default-subscriber-highlights-widget-instance',
 				'jpa/subscriber-highlights',
 				0,
-				2,
+				4,
 				1,
 				array(
 					'showTotal'  => true,
@@ -463,7 +412,7 @@ function get_dashboard_default_section_layouts() {
 				'default-subscribers-chart-widget-instance',
 				'jpa/subscribers-chart',
 				1,
-				2,
+				4,
 				2,
 				array(
 					'granularity' => 'auto',
@@ -473,10 +422,21 @@ function get_dashboard_default_section_layouts() {
 				'default-subscribers-list-widget-instance',
 				'jpa/subscribers-list',
 				2,
-				1,
+				2,
 				2,
 				array(
-					'num' => 6,
+					'max' => 6,
+				)
+			),
+			get_dashboard_default_widget_instance(
+				'default-subscribers-emails-widget-instance',
+				'jpa/stats-emails',
+				3,
+				2,
+				2,
+				array(
+					'max'    => 10,
+					'metric' => 'opens',
 				)
 			),
 		),

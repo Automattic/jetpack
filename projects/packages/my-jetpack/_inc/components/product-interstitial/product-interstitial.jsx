@@ -20,6 +20,7 @@ import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../go-back-link';
 import ProductDetailCard from '../product-detail-card';
 import ProductDetailTable from '../product-detail-table';
+import { reloadIfActivationChangesAdminMenu } from './reload-after-activation';
 import styles from './style.module.scss';
 
 /**
@@ -166,7 +167,10 @@ export default function ProductInterstitial( {
 						if ( ! needsPurchase ) {
 							// for free products, we still initiate the site connection
 							handleRegisterSite().then( postRegisterRedirectUri => {
-								if ( ! postRegisterRedirectUri ) {
+								if (
+									! postRegisterRedirectUri &&
+									! reloadIfActivationChangesAdminMenu( slug, productName )
+								) {
 									// Fall back to the My Jetpack overview page.
 									return navigateToMyJetpackOverviewPage();
 								}
@@ -190,6 +194,7 @@ export default function ProductInterstitial( {
 			activate,
 			handleRegisterSite,
 			navigateToMyJetpackOverviewPage,
+			productName,
 		]
 	);
 

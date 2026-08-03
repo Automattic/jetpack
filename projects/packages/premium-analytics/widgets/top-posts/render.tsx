@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { getScriptData } from '@automattic/jetpack-script-data';
 import {
 	useStatsArchives,
 	useStatsTopPosts,
@@ -9,17 +8,21 @@ import {
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
-import { Icon, external } from '@wordpress/icons';
+import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import {
-	DownloadCsvButton,
 	LeaderboardChart,
+	PostTitleLink,
 	ReportLink,
+	RowsCsvDownloadButton,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	calculateDelta,
-	usePostDetailHrefBuilder,
+	getCombinedPeriodMax,
+	safeHttpUrl,
+	sharePercentage,
+	useReportCsvExport,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type CsvColumn,
@@ -27,7 +30,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
-import { Link, Text } from '@wordpress/ui';
+import { Text } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo } from 'react';
 /**
  * Internal dependencies
@@ -56,15 +59,14 @@ export type TopPostRow = {
 	 */
 	previousValue?: number;
 	/**
-	 * Public URL of the content (post, page, or archive page). Rows with one
-	 * get a trailing external-link icon that opens it in a new tab.
+	 * Public URL of the content (post, page, or archive page). Only used when
+	 * the row has no post ID, as the fallback link out to the site.
 	 */
 	href?: string;
 	/**
-	 * Internal analytics post-detail href. Only post/page rows with a real
-	 * post ID get one; their title links here (same tab).
+	 * Post or page ID. Rows carrying one link to the internal detail page.
 	 */
-	detailHref?: string;
+	postId?: number;
 	/**
 	 * Post type, e.g. `post` or `page`.
 	 */
@@ -81,12 +83,8 @@ export type TopPostRow = {
 type TopPostsRenderAttributes = TopPostsAttributes & Partial< ReportParamsFieldAttributes >;
 type TopPostsWidgetProps = WidgetRenderProps< TopPostsRenderAttributes >;
 
-type TopPostsReportProps = { num: number };
+type TopPostsReportProps = { max: number };
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
-
-function areClientSideCsvExportsEnabled(): boolean {
-	return getScriptData()?.premium_analytics?.client_side_csv_exports_enabled === true;
-}
 
 /**
  * Maps normalized top-posts rows onto the shape `LeaderboardChart` expects.
@@ -95,78 +93,68 @@ function areClientSideCsvExportsEnabled(): boolean {
  * and per-row deltas are derived from each row's `previousValue`; otherwise
  * the comparison fields are zeroed.
  *
- * Post/page titles link to the internal analytics post-detail page (same
- * tab); rows with a public URL also get a trailing external-link icon that
- * opens the site in a new tab. Rows with children instead become drill-down
- * rows (per the widget drill-down convention they carry no anchors), and
- * rows with neither (e.g. the homepage entry) render plain text. The label
- * fills its row so the leaderboard overlay bar gets its height from it.
+ * Titles route through `PostTitleLink`: post/page rows navigate to the
+ * internal detail page through the router, and rows without a post ID (the
+ * Archives view) fall back to the public URL and take the external-link icon.
+ * Rows with children instead become drill-down rows (per the widget
+ * drill-down convention they carry no anchors). The label fills its row so
+ * the leaderboard overlay bar gets its height from it.
  *
  * @param rows           - The normalized top-posts rows.
  * @param withComparison - Whether to derive previous-period shares and deltas.
+ * @param detailSearch   - Shared report-window parameters for the detail route.
  * @param onDrillDown    - Callback fired when a row with children is selected.
  * @return The leaderboard chart data.
  */
 function buildLeaderboardData(
 	rows: TopPostRow[],
 	withComparison: boolean,
+	detailSearch: Record< string, unknown >,
 	onDrillDown?: ( row: TopPostRow ) => void
 ): LeaderboardChartData {
-	// `1` guards against division by zero when every value is 0.
-	const maxCurrentViews = Math.max( ...rows.map( row => row.value ), 1 );
-	const maxPreviousViews = Math.max( ...rows.map( row => row.previousValue ?? 0 ), 1 );
+	const maxViews = getCombinedPeriodMax(
+		rows.map( row => row.value ),
+		withComparison ? rows.map( row => row.previousValue ) : []
+	);
 
 	return rows.map( ( row, index ) => {
 		const previousValue = row.previousValue;
 		const hasChildren = !! row.children?.length;
-		// Rows inside a drill-down button cannot carry anchors, and only rows
-		// with a real post ID have an internal detail page to link to.
-		const titleLink = ! hasChildren && row.detailHref;
-		const externalLink = ! hasChildren && row.href;
 
 		return {
 			id: `${ index }-${ row.href ?? row.label }`,
 			label: (
 				<span className={ styles.labelRow }>
-					{ titleLink ? (
-						<Link
-							className={ styles.labelTitleLink }
-							href={ row.detailHref }
-							variant="unstyled"
-							title={ row.label }
-						>
-							{ row.label }
-						</Link>
-					) : (
+					{ /* Rows inside a drill-down button cannot carry anchors. */ }
+					{ hasChildren ? (
 						<Text className={ styles.labelTitle } title={ row.label }>
-							{ row.label }
+							<span className={ styles.labelText }>{ row.label }</span>
 						</Text>
-					) }
-					{ externalLink && (
-						<Link
-							className={ styles.externalLink }
-							href={ row.href }
-							variant="unstyled"
-							openInNewTab
-							aria-label={ sprintf(
-								/* translators: %s is a post, page, or archive page title. */
-								__( 'Open %s in a new tab', 'jetpack-premium-analytics' ),
-								row.label
-							) }
-						>
-							<Icon icon={ external } size={ 16 } />
-						</Link>
+					) : (
+						<PostTitleLink
+							id={ row.postId }
+							label={ row.label }
+							link={ row.href }
+							search={ detailSearch }
+							title={ row.label }
+							classNames={ {
+								internal: styles.labelTitleLink,
+								external: styles.labelExternalLink,
+								plain: styles.labelTitle,
+								text: styles.labelText,
+							} }
+						/>
 					) }
 				</span>
 			),
 			currentValue: row.value,
-			currentShare: ( row.value / maxCurrentViews ) * 100,
+			currentShare: sharePercentage( row.value, maxViews ),
 			// Rows without a comparison-period match keep `undefined` so the chart
 			// renders a placeholder instead of a fabricated delta (see AGENTS.md).
 			previousValue,
 			previousShare:
 				withComparison && previousValue !== undefined
-					? ( previousValue / maxPreviousViews ) * 100
+					? sharePercentage( previousValue, maxViews )
 					: undefined,
 			delta:
 				withComparison && previousValue !== undefined
@@ -177,7 +165,7 @@ function buildLeaderboardData(
 					onClick: () => onDrillDown( row ),
 					ariaLabel: sprintf(
 						/* translators: %s is an archive category label, e.g. "Searches". */
-						__( 'View %s archive pages', 'jetpack-premium-analytics' ),
+						__( 'View %s archive pages', 'jetpack-premium-analytics-pkg' ),
 						row.label
 					),
 				} ),
@@ -201,6 +189,11 @@ type TopPostsLeaderboardProps = {
 	 * interactive when this is provided.
 	 */
 	onDrillDown?: ( row: TopPostRow ) => void;
+	/**
+	 * Shared report-window parameters carried into the post-detail route, so
+	 * the detail page opens on the date range the widget is showing.
+	 */
+	detailSearch?: Record< string, unknown >;
 };
 
 /**
@@ -215,10 +208,11 @@ export const TopPostsLeaderboard = ( {
 	rows = [],
 	withComparison = false,
 	onDrillDown,
+	detailSearch = {},
 }: TopPostsLeaderboardProps ) => {
 	return (
 		<LeaderboardChart
-			data={ buildLeaderboardData( rows, withComparison, onDrillDown ) }
+			data={ buildLeaderboardData( rows, withComparison, detailSearch, onDrillDown ) }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
@@ -234,27 +228,22 @@ export const TopPostsLeaderboard = ( {
  * entry, which has no URL or post ID. Missing comparison matches stay
  * `undefined`.
  *
- * @param items           - The merged comparison rows from `useStatsTopPosts`.
- * @param buildDetailHref - Maps a post ID to the internal post-detail href.
+ * @param items - The merged comparison rows from `useStatsTopPosts`.
  * @return The normalized top-posts rows.
  */
-function toTopPostRows(
-	items: StatsTopPostsComparisonItem[],
-	buildDetailHref: ( postId: number | string ) => string
-): TopPostRow[] {
+function toTopPostRows( items: StatsTopPostsComparisonItem[] ): TopPostRow[] {
 	return items.map( item => {
 		const postId = Number( item.id );
+		const href = safeHttpUrl( item.link );
 
 		return {
 			// A row without a title still needs a visible, clickable label.
-			label: String( item.label ?? '' ) || __( 'Untitled', 'jetpack-premium-analytics' ),
+			label: String( item.label ?? '' ) || __( 'Untitled', 'jetpack-premium-analytics-pkg' ),
 			value: item.views,
 			...( item.previousViews !== undefined ? { previousValue: item.previousViews } : {} ),
-			...( typeof item.link === 'string' && item.link !== '' ? { href: item.link } : {} ),
+			...( href ? { href } : {} ),
 			// The homepage entry (id 0) has no post-detail page.
-			...( Number.isFinite( postId ) && postId > 0
-				? { detailHref: buildDetailHref( postId ) }
-				: {} ),
+			...( Number.isFinite( postId ) && postId > 0 ? { postId } : {} ),
 			type: String( item.type ?? '' ),
 		};
 	} );
@@ -274,85 +263,94 @@ function toTopPostRows(
  * @param {TopPostsReportProps} props - The component props.
  * @return The widget content.
  */
-function TopPostsReport( { num }: TopPostsReportProps ) {
+function TopPostsReport( { max }: TopPostsReportProps ) {
 	const { reportParams } = useWidgetRootContext();
 
 	// The widget's "Number of results" maps to the WPCOM stats API's `max`; the
 	// date range is owned by the dashboard picker and carried in `reportParams`.
-	const statsParams = useMemo( () => ( { ...reportParams, max: num } ), [ reportParams, num ] );
+	const statsParams = useMemo( () => ( { ...reportParams, max } ), [ reportParams, max ] );
 
 	// Row matching, ranked capping (the API caps `postviews` at `max` but
 	// appends the homepage entry on top of it), and comparison-overlap gating
 	// all live in the data layer's merge helper (see AGENTS.md).
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
-		useStatsTopPosts( statsParams, { maxRows: num } );
+		useStatsTopPosts( statsParams, { maxRows: max } );
 
-	const buildDetailHref = usePostDetailHrefBuilder();
-	const rows = useMemo(
-		() => toTopPostRows( comparisonRows?.rows ?? [], buildDetailHref ),
-		[ comparisonRows, buildDetailHref ]
-	);
+	const rows = useMemo( () => toTopPostRows( comparisonRows?.rows ?? [] ), [ comparisonRows ] );
+	const detailSearch = useMemo( () => pickReportDateParams( reportParams ), [ reportParams ] );
 	const withComparison = hasComparison;
 
 	// Serialize whatever the leaderboard has loaded, mirroring the Jetpack Stats
 	// client-side "Download CSV" (bounded to the rows already in the browser).
 	const csvColumns = useMemo< CsvColumn< TopPostRow >[] >( () => {
 		const base: CsvColumn< TopPostRow >[] = [
-			{ key: 'label', label: __( 'Title', 'jetpack-premium-analytics' ) },
-			{ key: 'value', label: __( 'Views', 'jetpack-premium-analytics' ) },
-			{ key: 'type', label: __( 'Type', 'jetpack-premium-analytics' ) },
-			{ key: 'href', label: __( 'URL', 'jetpack-premium-analytics' ) },
+			{ label: __( 'Title', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
+			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.value },
+			{ label: __( 'Type', 'jetpack-premium-analytics-pkg' ), getValue: row => row.type },
+			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.href },
 		];
 		if ( withComparison ) {
 			base.splice( 2, 0, {
-				key: 'previousValue',
-				label: __( 'Previous views', 'jetpack-premium-analytics' ),
+				label: __( 'Previous views', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.previousValue,
 			} );
 		}
 		return base;
 	}, [ withComparison ] );
 
-	// Date-stamp the download so exports of different periods don't collide.
-	// `from`/`to` are coerced because the router JSON-parses search params, so a
-	// hand-edited numeric `?from=123` would otherwise throw on `.slice`.
-	const csvFilename = `top-posts-${ String( reportParams.from ).slice( 0, 10 ) }_${ String(
-		reportParams.to
-	).slice( 0, 10 ) }`;
-
-	// Only expose the export once the query has settled on data for the current
-	// params. Stats queries keep the previous period's rows as placeholder data
-	// while a refetch is in flight, so exporting mid-fetch (or after an error)
-	// could hand the user stale rows under the new-period `csvFilename`.
-	const canExport =
-		areClientSideCsvExportsEnabled() && rows.length > 0 && ! isFetching && ! isError;
+	// Stats queries keep the previous period's rows as placeholder data while a
+	// refetch is in flight. The shared hook keeps the export hidden until those
+	// rows belong to the active date range.
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport( {
+		rows,
+		filenamePrefix: 'top-posts',
+		range: reportParams,
+		status: { isLoading, isFetching, isError },
+	} );
 
 	return (
-		<div className={ styles.content }>
-			<WidgetState
-				isLoading={ isLoading }
-				isFetching={ isFetching }
-				isError={ isError }
-				isEmpty={ rows.length === 0 }
-				error={ {
-					description: __(
-						"We couldn't load posts and pages. Please try again in a moment.",
-						'jetpack-premium-analytics'
-					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
-				} }
-				empty={ {
-					icon: reports,
-					description: __( 'No views in this period.', 'jetpack-premium-analytics' ),
-				} }
-			>
-				<TopPostsLeaderboard rows={ rows } withComparison={ withComparison } />
-			</WidgetState>
-			{ canExport && (
-				<div className={ styles.contentExport }>
-					<DownloadCsvButton columns={ csvColumns } rows={ rows } filename={ csvFilename } />
-				</div>
-			) }
-		</div>
+		<>
+			<div className={ styles.content }>
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					// The Stats queries carry `placeholderData`, so a failed range change
+					// keeps the prior period's rows visible; only surface the error when
+					// there is nothing to show.
+					isError={ rows.length === 0 && isError }
+					isEmpty={ rows.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load posts and pages. Please try again in a moment.",
+							'jetpack-premium-analytics-pkg'
+						),
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
+					} }
+					empty={ {
+						icon: reports,
+						description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
+					} }
+				>
+					<TopPostsLeaderboard
+						rows={ rows }
+						withComparison={ withComparison }
+						detailSearch={ detailSearch }
+					/>
+				</WidgetState>
+			</div>
+			<WidgetFooter>
+				<ReportLink report="posts" section="posts-pages" />
+				{ canExport && (
+					<RowsCsvDownloadButton columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
+				) }
+			</WidgetFooter>
+		</>
 	);
 }
 
@@ -370,31 +368,31 @@ function archiveTypeLabel( archiveType: string ): string {
 	// addition — Calypso falls through to capitalization for it.
 	switch ( archiveType ) {
 		case 'author':
-			return __( 'Authors', 'jetpack-premium-analytics' );
+			return __( 'Authors', 'jetpack-premium-analytics-pkg' );
 		case 'cat':
-			return __( 'Categories', 'jetpack-premium-analytics' );
+			return __( 'Categories', 'jetpack-premium-analytics-pkg' );
 		case 'err':
-			return __( 'Error', 'jetpack-premium-analytics' );
+			return __( 'Error', 'jetpack-premium-analytics-pkg' );
 		case 'home':
 			// Defensive only: with `skip_archives=1` the API surfaces the homepage
 			// entry inside the Posts & pages list (server-titled) and drops it
 			// from this report, and the Archives view filters any residual `home`
 			// entry out. This label matches the server title if one slips through.
-			return __( 'Homepage (Latest posts)', 'jetpack-premium-analytics' );
+			return __( 'Homepage (Latest posts)', 'jetpack-premium-analytics-pkg' );
 		case 'search':
-			return __( 'Searches', 'jetpack-premium-analytics' );
+			return __( 'Searches', 'jetpack-premium-analytics-pkg' );
 		case 'tag':
-			return __( 'Tags', 'jetpack-premium-analytics' );
+			return __( 'Tags', 'jetpack-premium-analytics-pkg' );
 		case 'tax':
-			return __( 'Taxonomies', 'jetpack-premium-analytics' );
+			return __( 'Taxonomies', 'jetpack-premium-analytics-pkg' );
 		case 'date':
-			return __( 'Dates', 'jetpack-premium-analytics' );
+			return __( 'Dates', 'jetpack-premium-analytics-pkg' );
 		case 'multiple':
-			return __( 'Aggregated', 'jetpack-premium-analytics' );
+			return __( 'Aggregated', 'jetpack-premium-analytics-pkg' );
 		case 'other':
-			return __( 'Others', 'jetpack-premium-analytics' );
+			return __( 'Others', 'jetpack-premium-analytics-pkg' );
 		case 'post_type':
-			return __( 'Post types', 'jetpack-premium-analytics' );
+			return __( 'Post types', 'jetpack-premium-analytics-pkg' );
 		default:
 			return archiveType.charAt( 0 ).toUpperCase() + archiveType.slice( 1 ).toLowerCase();
 	}
@@ -429,6 +427,7 @@ function toArchiveRows( items: StatsArchivesComparisonItem[], isTopLevel = true 
 	return items.map( item => {
 		const rawLabel = String( item.label ?? '' );
 		const children = item.children?.length ? toArchiveRows( item.children, false ) : undefined;
+		const href = safeHttpUrl( item.link );
 
 		let label = rawLabel;
 		if ( isTopLevel ) {
@@ -438,11 +437,11 @@ function toArchiveRows( items: StatsArchivesComparisonItem[], isTopLevel = true 
 		}
 
 		return {
-			label: label || __( 'Untitled', 'jetpack-premium-analytics' ),
+			label: label || __( 'Untitled', 'jetpack-premium-analytics-pkg' ),
 			value: item.value,
 			type: 'archive',
 			...( item.previousValue !== undefined ? { previousValue: item.previousValue } : {} ),
-			...( typeof item.link === 'string' && item.link !== '' ? { href: item.link } : {} ),
+			...( href ? { href } : {} ),
 			...( children ? { children } : {} ),
 		};
 	} );
@@ -459,10 +458,10 @@ function toArchiveRows( items: StatsArchivesComparisonItem[], isTopLevel = true 
  * comparison UI is gated on real row overlap between the two periods.
  *
  * @param props     - The component props.
- * @param props.num - Maximum number of top-level rows to display.
+ * @param props.max - Maximum number of top-level rows to display.
  * @return The widget content.
  */
-function ArchivesReport( { num }: { num: number } ) {
+function ArchivesReport( { max }: { max: number } ) {
 	const { reportParams } = useWidgetRootContext();
 	const { drillDownItem: drillPath, drillDown, resetDrillDown } = useWidgetDrillDown< string[] >();
 
@@ -470,7 +469,7 @@ function ArchivesReport( { num }: { num: number } ) {
 	// cannot cross-match), the visible-row cap, and the comparison-overlap
 	// gate all live in the data layer's merge helper (see AGENTS.md).
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
-		useStatsArchives( reportParams, { maxRows: num } );
+		useStatsArchives( reportParams, { maxRows: max } );
 
 	const rows = useMemo(
 		() =>
@@ -498,7 +497,7 @@ function ArchivesReport( { num }: { num: number } ) {
 				resolved = false;
 				break;
 			}
-			label = previousStep ?? __( 'All Archives', 'jetpack-premium-analytics' );
+			label = previousStep ?? __( 'All Archives', 'jetpack-premium-analytics-pkg' );
 			list = parent.children;
 			previousStep = step;
 		}
@@ -535,8 +534,8 @@ function ArchivesReport( { num }: { num: number } ) {
 	const backLink =
 		activeRows === rows ? null : (
 			<WidgetBackLink
-				label={ backLabel ?? __( 'All Archives', 'jetpack-premium-analytics' ) }
-				ariaLabel={ __( 'Back to the previous archive list', 'jetpack-premium-analytics' ) }
+				label={ backLabel ?? __( 'All Archives', 'jetpack-premium-analytics-pkg' ) }
+				ariaLabel={ __( 'Back to the previous archive list', 'jetpack-premium-analytics-pkg' ) }
 				onClick={ handleBack }
 			/>
 		);
@@ -547,18 +546,20 @@ function ArchivesReport( { num }: { num: number } ) {
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }
-				isError={ isError }
+				// As above: keep the drilled rows visible through a transient refetch
+				// failure and only surface the error when there is nothing to show.
+				isError={ rows.length === 0 && isError }
 				isEmpty={ activeRows.length === 0 }
 				error={ {
 					description: __(
 						"We couldn't load archives. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
 					icon: reports,
-					description: __( 'No views in this period.', 'jetpack-premium-analytics' ),
+					description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				<TopPostsLeaderboard
@@ -587,23 +588,22 @@ function ArchivesReport( { num }: { num: number } ) {
  * @return The rendered widget.
  */
 export default function TopPosts( { attributes = {} }: TopPostsWidgetProps ) {
-	const num = attributes.num ?? 10;
+	const max = attributes.max ?? 10;
 	const contentView = attributes.contentView ?? 'posts';
 
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
 				{ contentView === 'archives' ? (
-					<ArchivesReport num={ num } />
+					<>
+						<ArchivesReport max={ max } />
+						<WidgetFooter>
+							<ReportLink report="posts" section="archives" />
+						</WidgetFooter>
+					</>
 				) : (
-					<TopPostsReport num={ num } />
+					<TopPostsReport max={ max } />
 				) }
-				<WidgetFooter>
-					<ReportLink
-						report="posts"
-						section={ contentView === 'archives' ? 'archives' : 'posts-pages' }
-					/>
-				</WidgetFooter>
 			</div>
 		</WidgetRoot>
 	);

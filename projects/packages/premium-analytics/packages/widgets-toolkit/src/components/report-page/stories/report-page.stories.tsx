@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
-import { GlobalChartsProvider } from '@automattic/charts';
+import { GlobalChartsProvider, Text, type Field } from '@jetpack-premium-analytics/externals';
+import '@wordpress/dataviews/build-style/style.css';
 import { Button } from '@wordpress/components';
-import { Text } from '@wordpress/ui';
+import { Icon, external } from '@wordpress/icons';
 import { useState } from 'react';
 /**
  * Internal dependencies
@@ -12,9 +13,9 @@ import { useChartTheme } from '../../../hooks';
 import { ReportPageLayout } from '../report-page-layout';
 import { ReportPerformanceChart } from '../report-performance-chart';
 import { ReportRecordsTable } from '../report-records-table';
+import styles from './report-page.stories.module.scss';
 import type { IntervalType, StatsTimeSeriesReport } from '@jetpack-premium-analytics/data';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
-import type { Field } from '@wordpress/dataviews';
 import type { ComponentProps, ReactNode } from 'react';
 
 /**
@@ -73,12 +74,20 @@ const COMPARISON_REPORT = buildVisitsReport( 30, 0.8 );
 type PostRow = {
 	id: string;
 	title: string;
+	link?: string;
+	isExternal?: boolean;
 	views: number;
 };
 
 const POSTS: PostRow[] = [
-	{ id: '1', title: 'Hello world!', views: 172 },
-	{ id: '2', title: 'The Ultimate Guide to SEO in 2025', views: 127 },
+	{ id: '1', title: 'Hello world!', link: '#/post/1', views: 172 },
+	{
+		id: '2',
+		title: 'The Ultimate Guide to SEO in 2025',
+		link: 'https://example.com/seo-guide',
+		isExternal: true,
+		views: 127,
+	},
 	{ id: '3', title: '10 Tips for Better Product Photography', views: 97 },
 	{ id: '4', title: 'Why Remote Work Is Here to Stay', views: 74 },
 	{ id: '5', title: "A Beginner's Guide to Email Marketing", views: 55 },
@@ -183,8 +192,29 @@ function ComposedReportPage( { withComparison, isLoading }: ReportPageStoryContr
 				fields={ POST_FIELDS }
 				getItemId={ ( item: PostRow ) => item.id }
 				isLoading={ isLoading }
-				initialView={ { sort: { field: 'views', direction: 'desc' } } }
+				initialView={ {
+					sort: { field: 'views', direction: 'desc' },
+					titleField: 'title',
+					fields: [ 'views' ],
+				} }
 				searchLabel="Search posts"
+				isItemClickable={ ( item: PostRow ) => Boolean( item.link ) }
+				renderItemLink={ ( { item, className, children, ...linkProps } ) => (
+					<a
+						{ ...linkProps }
+						className={ [ className, item.isExternal ? styles.externalLink : '' ]
+							.filter( Boolean )
+							.join( ' ' ) }
+						href={ item.link }
+						target={ item.isExternal ? '_blank' : undefined }
+						rel={ item.isExternal ? 'noopener noreferrer' : undefined }
+					>
+						{ children }
+						{ item.isExternal ? (
+							<Icon className={ styles.externalIcon } icon={ external } size={ 16 } />
+						) : null }
+					</a>
+				) }
 			/>
 		</ReportPageLayout>
 	);

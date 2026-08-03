@@ -1,14 +1,21 @@
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams, type PresetType } from '@jetpack-premium-analytics/data';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { withStoryRouter } from '../../stories/with-story-router';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import AuthorsRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import widgetManifest from '../widget.json';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -16,12 +23,7 @@ registerReportMocks();
 
 const AUTHORS_RENDER_MODULE = 'storybook/authors';
 
-const storyWidgetType = {
-	name: widgetDefinition.name,
-	title: widgetDefinition.title,
-	icon: widgetDefinition.icon,
-	presentation: 'framed' as const,
-};
+const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
 interface AuthorsStoryControls {
 	withComparison: boolean;
@@ -35,15 +37,18 @@ function renderAuthors( { withComparison }: AuthorsStoryControls ) {
 	);
 }
 
+// Distinct preset → own query-cache entry; see forceStatsMockState.
+function renderAuthorsOnPreset( preset: PresetType ) {
+	return (
+		<AuthorsRender
+			attributes={ { max: 7, reportParams: getDefaultQueryParams( false, preset ) } }
+		/>
+	);
+}
+
 function AuthorsDashboardRender( props: WidgetRenderProps< unknown > ) {
 	return <AuthorsRender { ...( props as ComponentProps< typeof AuthorsRender > ) } />;
 }
-
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '360px' } }>
-		<Story />
-	</div>
-);
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/Authors',
@@ -72,13 +77,56 @@ type Story = StoryObj< AuthorsStoryControls >;
 export const Default: Story = {
 	render: renderAuthors,
 	args: { withComparison: false },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 export const WithComparison: Story = {
 	render: renderAuthors,
 	args: { withComparison: true },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ */
+export const Loading: Story = {
+	render: () => renderAuthorsOnPreset( 'last-90-days' ),
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+	beforeEach: () => {
+		setReportMockState( 'stats/top-authors', 'loading' );
+		return () => setReportMockState( 'stats/top-authors', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => renderAuthorsOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+	beforeEach: () => {
+		setReportMockState( 'stats/top-authors', 'error' );
+		return () => setReportMockState( 'stats/top-authors', null );
+	},
+};
+
+/**
+ * Resolved with no rows: the widget shows its empty state (the neutral author
+ * glyph and the introductory description).
+ */
+export const Empty: Story = {
+	render: () => renderAuthorsOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+	beforeEach: () => {
+		setReportMockState( 'stats/top-authors', 'empty' );
+		return () => setReportMockState( 'stats/top-authors', null );
+	},
 };
 
 interface AuthorsDashboardStoryProps

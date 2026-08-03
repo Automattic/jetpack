@@ -11,12 +11,18 @@ import {
  */
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Link, Stack, Text } from '@wordpress/ui';
+import { download } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import {
 	calculateDelta,
+	getCombinedPeriodMax,
+	safeHttpUrl,
 	LeaderboardChart,
-	WidgetLoadingOverlay,
+	ReportLink,
+	sharePercentage,
+	WidgetFooter,
 	WidgetRoot,
+	WidgetState,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
@@ -36,93 +42,6 @@ type FileDownloadsRenderAttributes = FileDownloadsAttributes &
 type FileDownloadsWidgetProps = WidgetRenderProps< FileDownloadsRenderAttributes >;
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
-const FILE_DOWNLOADS_UNAVAILABLE_STATUS = 404;
-
-function toStatusNumber( value: unknown ): number | null {
-	if ( typeof value === 'number' ) {
-		return value;
-	}
-
-	if ( typeof value === 'string' ) {
-		const status = Number.parseInt( value, 10 );
-		return Number.isNaN( status ) ? null : status;
-	}
-
-	return null;
-}
-
-function getErrorStatus( error: unknown ): number | null {
-	if ( ! error || typeof error !== 'object' ) {
-		return null;
-	}
-
-	const err = error as Record< string, unknown >;
-
-	const status = toStatusNumber( err.status );
-	if ( status !== null ) {
-		return status;
-	}
-
-	if ( err.data && typeof err.data === 'object' ) {
-		const data = err.data as Record< string, unknown >;
-		const dataStatus = toStatusNumber( data.status );
-		if ( dataStatus !== null ) {
-			return dataStatus;
-		}
-	}
-
-	if ( err.response && typeof err.response === 'object' ) {
-		const response = err.response as Record< string, unknown >;
-		const responseStatus = toStatusNumber( response.status );
-		if ( responseStatus !== null ) {
-			return responseStatus;
-		}
-	}
-
-	return null;
-}
-
-function getErrorText( error: unknown ): string {
-	if ( ! error || typeof error !== 'object' ) {
-		return '';
-	}
-
-	const err = error as Record< string, unknown >;
-	const candidates = [
-		err.message,
-		err.error,
-		err.code,
-		err.data && typeof err.data === 'object'
-			? ( err.data as Record< string, unknown > ).message
-			: undefined,
-		err.data && typeof err.data === 'object'
-			? ( err.data as Record< string, unknown > ).error
-			: undefined,
-		err.response && typeof err.response === 'object'
-			? ( err.response as Record< string, unknown > ).message
-			: undefined,
-	];
-
-	return candidates
-		.filter( ( candidate ): candidate is string => typeof candidate === 'string' )
-		.join( ' ' );
-}
-
-function getFileDownloadsErrorMessage( error: unknown ) {
-	const errorText = getErrorText( error ).toLowerCase();
-	const isUnavailableMessage =
-		errorText.includes( 'file download' ) &&
-		( errorText.includes( 'not available' ) || errorText.includes( 'jetpack site' ) );
-
-	if ( getErrorStatus( error ) === FILE_DOWNLOADS_UNAVAILABLE_STATUS || isUnavailableMessage ) {
-		return __(
-			'File download stats are not available for Jetpack sites.',
-			'jetpack-premium-analytics'
-		);
-	}
-
-	return undefined;
-}
 
 /**
  * A single normalized file-downloads row, ready for the leaderboard.
@@ -150,8 +69,10 @@ function buildLeaderboardData(
 	rows: FileDownloadRow[],
 	withComparison: boolean
 ): LeaderboardChartData {
-	const maxValue = Math.max( ...rows.map( r => r.value ), 1 );
-	const maxPreviousValue = Math.max( ...rows.map( r => r.previousValue ?? 0 ), 1 );
+	const maxValue = getCombinedPeriodMax(
+		rows.map( row => row.value ),
+		withComparison ? rows.map( row => row.previousValue ) : []
+	);
 
 	return rows.map( ( row, index ) => {
 		const previousValue = row.previousValue;
@@ -174,11 +95,11 @@ function buildLeaderboardData(
 				</span>
 			),
 			currentValue: row.value,
-			currentShare: ( row.value / maxValue ) * 100,
+			currentShare: sharePercentage( row.value, maxValue ),
 			previousValue,
 			previousShare:
 				withComparison && previousValue !== undefined
-					? ( previousValue / maxPreviousValue ) * 100
+					? sharePercentage( previousValue, maxValue )
 					: undefined,
 			delta:
 				withComparison && previousValue !== undefined
@@ -199,7 +120,8 @@ function toFileDownloadRows( items: StatsFileDownloadsComparisonItem[] ): FileDo
 		label: item.shortLabel ?? String( item.label ?? '' ),
 		value: item.downloads,
 		previousValue: item.previousDownloads,
-		href: item.link,
+		// The endpoint falls back to a root-relative `relative_url` here.
+		href: safeHttpUrl( item.link, { allowRelative: true } ) ?? undefined,
 	} ) );
 }
 
@@ -212,63 +134,32 @@ export type FileDownloadsLeaderboardProps = {
 	 */
 	rows?: FileDownloadRow[];
 	/**
-	 * When true, show a loading overlay.
-	 */
-	isLoading?: boolean;
-	/**
-	 * When true, show an error message.
-	 */
-	isError?: boolean;
-	/**
 	 * When true, render previous-period deltas.
 	 */
 	withComparison?: boolean;
-	/**
-	 * Custom error message to show when `isError` is true.
-	 */
-	errorMessage?: string;
 };
 
 /**
  * Presentational leaderboard for the "File downloads" widget.
  *
- * Accepts already-fetched rows and handles loading, error, empty, and
- * populated states. Exported so Storybook can exercise those states with
- * fixture rows without needing a live WordPress backend.
+ * Accepts already-fetched rows and renders only the populated (ready) state —
+ * loading, error, and empty are handled by `<WidgetState>` in the
+ * data-connected inner component. Exported so Storybook can render fixture
+ * rows without needing a live WordPress backend.
  *
  * @param {FileDownloadsLeaderboardProps} props - The component props.
  * @return The rendered leaderboard.
  */
 export function FileDownloadsLeaderboard( {
 	rows = [],
-	isLoading = false,
-	isError = false,
 	withComparison = false,
-	errorMessage,
 }: FileDownloadsLeaderboardProps ) {
-	if ( isError ) {
-		return (
-			<Stack align="center" justify="center" className={ styles.placeholder }>
-				<Text>
-					{ errorMessage ??
-						__( 'Could not load file download data.', 'jetpack-premium-analytics' ) }
-				</Text>
-			</Stack>
-		);
-	}
-
-	if ( isLoading && rows.length === 0 ) {
-		return <WidgetLoadingOverlay />;
-	}
-
 	return (
 		<LeaderboardChart
 			data={ buildLeaderboardData( rows, withComparison ) }
-			loading={ isLoading }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
-			emptyStateText={ __( 'No file downloads in this period.', 'jetpack-premium-analytics' ) }
 			dataFormat={ DATA_FORMAT }
 		/>
 	);
@@ -289,10 +180,8 @@ type FileDownloadsInnerProps = {
  */
 function FileDownloadsInner( { max }: FileDownloadsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	const { comparisonRows, hasComparison, isLoading, isFetching, hasData, isError, error } =
+	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsFileDownloads( reportParams as StatsReportParams, { maxRows: max } );
-	const showLoading = isLoading || ( isFetching && hasData );
-	const errorMessage = getFileDownloadsErrorMessage( error );
 
 	const rows = useMemo(
 		() => toFileDownloadRows( comparisonRows?.rows ?? [] ),
@@ -301,15 +190,37 @@ function FileDownloadsInner( { max }: FileDownloadsInnerProps ) {
 	const withComparison = hasComparison;
 
 	return (
-		<div className={ styles.content }>
-			<FileDownloadsLeaderboard
-				rows={ rows }
-				isLoading={ showLoading }
-				isError={ isError }
-				withComparison={ withComparison }
-				errorMessage={ errorMessage }
-			/>
-		</div>
+		<>
+			<div className={ styles.content }>
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					// The Stats queries carry `placeholderData`, so a failed range change
+					// keeps the prior period's rows visible; only surface the error when
+					// there is nothing to show.
+					isError={ rows.length === 0 && isError }
+					isEmpty={ rows.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load file downloads. Please try again in a moment.",
+							'jetpack-premium-analytics-pkg'
+						),
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
+					} }
+					empty={ {
+						icon: download,
+						description: __( 'No file downloads in this period.', 'jetpack-premium-analytics-pkg' ),
+					} }
+				>
+					<FileDownloadsLeaderboard rows={ rows } withComparison={ withComparison } />
+				</WidgetState>
+			</div>
+			<WidgetFooter>
+				<ReportLink report="downloads" />
+			</WidgetFooter>
+		</>
 	);
 }
 

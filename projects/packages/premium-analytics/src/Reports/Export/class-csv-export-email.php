@@ -63,8 +63,8 @@ class Csv_Export_Email extends \WC_Email implements Registrable_Interface {
 	 */
 	public function __construct( ?Logger_Interface $logger = null ) {
 		$this->id             = 'csv_export_ready';
-		$this->title          = __( 'CSV Export Ready', 'jetpack-premium-analytics' );
-		$this->description    = __( 'Email sent, with the CSV attached, when a report export is ready.', 'jetpack-premium-analytics' );
+		$this->title          = __( 'CSV Export Ready', 'jetpack-premium-analytics-pkg' );
+		$this->description    = __( 'Email sent, with the CSV attached, when a report export is ready.', 'jetpack-premium-analytics-pkg' );
 		$this->template_html  = 'csv-export-email.php';
 		$this->template_plain = 'csv-export-email-plain.php';
 		$this->template_base  = __DIR__ . '/templates/';
@@ -98,7 +98,7 @@ class Csv_Export_Email extends \WC_Email implements Registrable_Interface {
 	 * @return string
 	 */
 	public function get_default_subject(): string {
-		return __( 'Your export is ready!', 'jetpack-premium-analytics' );
+		return __( 'Your export is ready!', 'jetpack-premium-analytics-pkg' );
 	}
 
 	/**
@@ -107,7 +107,7 @@ class Csv_Export_Email extends \WC_Email implements Registrable_Interface {
 	 * @return string
 	 */
 	public function get_default_heading(): string {
-		return __( 'Your export is ready!', 'jetpack-premium-analytics' );
+		return __( 'Your export is ready!', 'jetpack-premium-analytics-pkg' );
 	}
 
 	/**
@@ -119,7 +119,7 @@ class Csv_Export_Email extends \WC_Email implements Registrable_Interface {
 		if ( ! empty( $this->report_label ) ) {
 			return sprintf(
 				/* translators: %s: Report name */
-				__( 'Your %s export is ready!', 'jetpack-premium-analytics' ),
+				__( 'Your %s export is ready!', 'jetpack-premium-analytics-pkg' ),
 				$this->report_label
 			);
 		}
@@ -135,7 +135,7 @@ class Csv_Export_Email extends \WC_Email implements Registrable_Interface {
 		if ( ! empty( $this->report_label ) ) {
 			return sprintf(
 				/* translators: %s: Report name */
-				__( 'Your %s export is ready!', 'jetpack-premium-analytics' ),
+				__( 'Your %s export is ready!', 'jetpack-premium-analytics-pkg' ),
 				$this->report_label
 			);
 		}

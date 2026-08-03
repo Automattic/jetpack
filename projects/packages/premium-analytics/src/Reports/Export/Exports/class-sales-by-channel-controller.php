@@ -39,7 +39,7 @@ class Sales_By_Channel_Controller extends Abstract_Csv_Report_Controller {
 	 * @return string The report label.
 	 */
 	public function get_report_label(): string {
-		return __( 'Sales by Channel', 'jetpack-premium-analytics' );
+		return __( 'Sales by Channel', 'jetpack-premium-analytics-pkg' );
 	}
 
 	/**
@@ -59,15 +59,15 @@ class Sales_By_Channel_Controller extends Abstract_Csv_Report_Controller {
 	 */
 	public function get_column_headers( ?string $interval = null ): array { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Signature required by the report controller interface.
 		return array(
-			'channel'             => __( 'Channel', 'jetpack-premium-analytics' ),
-			'gross_sales'         => __( 'Gross sales', 'jetpack-premium-analytics' ),
-			'coupons'             => __( 'Coupons', 'jetpack-premium-analytics' ),
-			'refunds'             => __( 'Refunds', 'jetpack-premium-analytics' ),
-			'net_sales'           => __( 'Net sales', 'jetpack-premium-analytics' ),
-			'new_customers'       => __( 'New customers', 'jetpack-premium-analytics' ),
-			'returning_customers' => __( 'Returning customers', 'jetpack-premium-analytics' ),
-			'avg_order_value'     => __( 'Average Order Value', 'jetpack-premium-analytics' ),
-			'avg_items_per_order' => __( 'Avg Items per order', 'jetpack-premium-analytics' ),
+			'channel'             => __( 'Channel', 'jetpack-premium-analytics-pkg' ),
+			'gross_sales'         => __( 'Gross sales', 'jetpack-premium-analytics-pkg' ),
+			'coupons'             => __( 'Coupons', 'jetpack-premium-analytics-pkg' ),
+			'refunds'             => __( 'Refunds', 'jetpack-premium-analytics-pkg' ),
+			'net_sales'           => __( 'Net sales', 'jetpack-premium-analytics-pkg' ),
+			'new_customers'       => __( 'New customers', 'jetpack-premium-analytics-pkg' ),
+			'returning_customers' => __( 'Returning customers', 'jetpack-premium-analytics-pkg' ),
+			'avg_order_value'     => __( 'Average Order Value', 'jetpack-premium-analytics-pkg' ),
+			'avg_items_per_order' => __( 'Avg Items per order', 'jetpack-premium-analytics-pkg' ),
 		);
 	}
 

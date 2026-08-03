@@ -1,0 +1,24 @@
+/*
+ * The slot, not the image, carries the favicon's size, so a row keeps the
+ * same label indent whether or not it ends up showing an icon.
+ */
+.faviconSlot {
+	display: flex;
+	flex-shrink: 0;
+	align-items: center;
+	justify-content: center;
+	inline-size: var(--wpds-dimension-size-2xs);
+	block-size: var(--wpds-dimension-size-2xs);
+}
+
+/*
+ * Keep in step with the `width`/`height` attributes on the image. Those carry
+ * the intrinsic size so the box is reserved before the favicon loads; this
+ * rule is what actually sizes it once it has.
+ */
+.favicon {
+	inline-size: var(--wpds-dimension-size-2xs);
+	block-size: var(--wpds-dimension-size-2xs);
+	border-radius: var(--wpds-border-radius-sm);
+	object-fit: cover;
+}

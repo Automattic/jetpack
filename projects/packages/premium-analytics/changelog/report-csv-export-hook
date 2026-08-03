@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Reports: Reuse consistent CSV export behavior across full report pages.

@@ -608,7 +608,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "ce362d9d8bf97228d5267f8d4a9b05379ff98aa2"
+                "reference": "b73cc2a68522658c6693f035e7a8c0d5b6984688"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -645,7 +645,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "8.7.x-dev"
+                    "dev-trunk": "8.8.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -803,7 +803,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/explat",
-                "reference": "452b5f580baa9c5efc133ec57eee4fc8a113c62a"
+                "reference": "99f2996bbbebf82f41575664aa47d5847ec1c5a8"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -820,7 +820,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.4.x-dev"
+                    "dev-trunk": "0.5.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-explat/compare/v${old}...v${new}"
@@ -855,16 +855,6 @@
                 ],
                 "test-php-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-                ],
-                "build-development": [
-                    "pnpm run build"
-                ],
-                "build-production": [
-                    "NODE_ENV=production pnpm run build"
-                ],
-                "watch": [
-                    "Composer\\Config::disableProcessTimeout",
-                    "pnpm run watch"
                 ]
             },
             "license": [
@@ -1182,7 +1172,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "c1600e21082d85771a93662fb7dd4f610785edf1"
+                "reference": "5d4eb48bddb87779e6b1a8a5909b2d8770b7d854"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1223,7 +1213,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.40.x-dev"
+                    "dev-trunk": "5.41.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1842,7 +1832,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "e8e2b20fdd6ea5e8fb69037dffe069950579e635"
+                "reference": "0239e5e1c14562aeb11036a920c7498c791ed9dc"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1871,7 +1861,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-videopress/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.40.x-dev"
+                    "dev-trunk": "0.43.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-package-version.php"

@@ -25,7 +25,12 @@ class Jetpack_Premium_Analytics {
 	 * Constructor.
 	 */
 	public function __construct() {
-		Analytics::init( array( 'menu_title' => 'Analytics' ) );
-		Cookie_Consent::init();
+		// No menu_title: the package supplies its own translated label. Passing one here would
+		// mean translating it on plugins_loaded, too early for the textdomain to be loaded.
+		Analytics::init();
+
+		// Ships disabled: the banner is planned for a later release. The package stays wired up
+		// so the `jetpack_cookie_consent_config` filter can switch it back on for development.
+		Cookie_Consent::init( array( 'enabled' => false ) );
 	}
 }

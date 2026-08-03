@@ -41,7 +41,7 @@ export function useVisitorsByLocation( reportParams: ReportParams, region: Regio
 	} );
 
 	const activeReport = region === 'US' ? usReport : worldReport;
-	const hasComparison = activeReport.hasComparison;
+	const comparisonEnabled = activeReport.hasComparison;
 
 	const rawData: LocationRawData = useMemo( () => {
 		const primaryItems = activeReport.primary.data?.data ?? [];
@@ -77,21 +77,24 @@ export function useVisitorsByLocation( reportParams: ReportParams, region: Regio
 		};
 	}, [ region, activeReport.primary.data, activeReport.comparison.data ] );
 
-	const chartDataResult = useMemo(
+	const { geoData, leaderboardData, hasRowComparison } = useMemo(
 		() =>
 			buildVisitorsByLocationData( {
 				primaryData: rawData.primary,
-				comparisonData: hasComparison ? rawData.comparison : undefined,
+				comparisonData: comparisonEnabled ? rawData.comparison : undefined,
 				region,
 			} ),
-		[ rawData.primary, rawData.comparison, region, hasComparison ]
+		[ rawData.primary, rawData.comparison, region, comparisonEnabled ]
 	);
 
 	const { isLoading, isFetching, hasData, isError, error, refetch } = activeReport;
 
 	return {
-		...chartDataResult,
-		hasComparison,
+		geoData,
+		leaderboardData,
+		// Combine date-range state with row overlap here so consumers get a single
+		// comparison flag, as the Stats hooks do.
+		hasComparison: comparisonEnabled && hasRowComparison,
 		isLoading,
 		isFetching,
 		hasData,

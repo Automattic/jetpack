@@ -13,6 +13,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
 defined( 'ABSPATH' ) || exit;
 
+use Automattic\Jetpack\PremiumAnalytics\Capabilities;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\Logger_Interface;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Logger_Trait;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Utilities;
@@ -135,14 +136,14 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 	/**
 	 * Check if user has permission to export reports.
 	 *
-	 * Must match the capability the analytics proxy enforces (`manage_options` for the
-	 * `analytics` prefix in Api_Proxy_Controller); otherwise the route would advertise
-	 * access the async data fetch cannot honor, scheduling a job that then fails.
+	 * Must match the capability the analytics proxy enforces (the `analytics` prefix
+	 * in Api_Proxy_Controller); otherwise the route would advertise access the async
+	 * data fetch cannot honor, scheduling a job that then fails.
 	 *
 	 * @return bool True if user has permission.
 	 */
 	public function check_permission(): bool {
-		return current_user_can( 'manage_options' );
+		return Capabilities::current_user_can_view_store_reports();
 	}
 
 	/**
@@ -153,46 +154,51 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 	private function get_endpoint_args(): array {
 		return array(
 			'report_type'     => array(
-				'description'       => __( 'The type of report to export.', 'jetpack-premium-analytics' ),
+				'description'       => __( 'The type of report to export.', 'jetpack-premium-analytics-pkg' ),
 				'type'              => 'string',
 				'required'          => true,
 				'validate_callback' => array( $this, 'validate_report_type' ),
 			),
 			'from'            => array(
-				'description'       => __( 'Start date for the report period (ISO 8601 format).', 'jetpack-premium-analytics' ),
+				'description'       => __( 'Start date for the report period (ISO 8601 format).', 'jetpack-premium-analytics-pkg' ),
 				'type'              => 'string',
 				'format'            => 'date-time',
 				'required'          => true,
 				'validate_callback' => array( $this, 'validate_from_date' ),
 			),
 			'to'              => array(
-				'description'       => __( 'End date for the report period (ISO 8601 format).', 'jetpack-premium-analytics' ),
+				'description'       => __( 'End date for the report period (ISO 8601 format).', 'jetpack-premium-analytics-pkg' ),
 				'type'              => 'string',
 				'format'            => 'date-time',
 				'required'          => true,
 				'validate_callback' => array( $this, 'validate_to_date' ),
 			),
 			'interval'        => array(
-				'description'       => __( 'Time interval for grouping data.', 'jetpack-premium-analytics' ),
+				'description'       => __( 'Time interval for grouping data.', 'jetpack-premium-analytics-pkg' ),
 				'type'              => 'string',
 				'default'           => 'day',
 				'enum'              => array( 'hour', 'day', 'week', 'month', 'quarter', 'year' ),
 				'validate_callback' => 'rest_validate_request_arg',
 			),
+			'date_type'       => array(
+				'description' => __( 'Date field used to filter orders.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'string',
+				'enum'        => array( 'created', 'paid', 'completed' ),
+			),
 			'compare_from'    => array(
-				'description'       => __( 'Start date for comparison period (ISO 8601 format).', 'jetpack-premium-analytics' ),
+				'description'       => __( 'Start date for comparison period (ISO 8601 format).', 'jetpack-premium-analytics-pkg' ),
 				'type'              => 'string',
 				'format'            => 'date-time',
 				'validate_callback' => array( $this, 'validate_compare_from_date' ),
 			),
 			'compare_to'      => array(
-				'description'       => __( 'End date for comparison period (ISO 8601 format).', 'jetpack-premium-analytics' ),
+				'description'       => __( 'End date for comparison period (ISO 8601 format).', 'jetpack-premium-analytics-pkg' ),
 				'type'              => 'string',
 				'format'            => 'date-time',
 				'validate_callback' => array( $this, 'validate_compare_to_date' ),
 			),
 			'delivery_method' => array(
-				'description' => __( 'Delivery method for the export.', 'jetpack-premium-analytics' ),
+				'description' => __( 'Delivery method for the export.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'string',
 				'default'     => 'download',
 				'enum'        => array( 'download', 'email' ),
@@ -212,7 +218,7 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 				'invalid_report_type',
 				sprintf(
 					/* translators: %s: Report type */
-					__( 'Invalid report type: %s', 'jetpack-premium-analytics' ),
+					__( 'Invalid report type: %s', 'jetpack-premium-analytics-pkg' ),
 					is_string( $value ) ? $value : wp_json_encode( $value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
 				),
 				array( 'status' => 400 )
@@ -245,7 +251,7 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 			if ( false !== $from_timestamp && false !== $to_timestamp && $from_timestamp >= $to_timestamp ) {
 				return new WP_Error(
 					'invalid_date_range',
-					__( 'The "from" date must be before the "to" date.', 'jetpack-premium-analytics' ),
+					__( 'The "from" date must be before the "to" date.', 'jetpack-premium-analytics-pkg' ),
 					array( 'status' => 400 )
 				);
 			}
@@ -278,7 +284,7 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 		if ( $to_date_only > $today_date_only ) {
 			return new WP_Error(
 				'future_date',
-				__( 'The "to" date cannot be later than today.', 'jetpack-premium-analytics' ),
+				__( 'The "to" date cannot be later than today.', 'jetpack-premium-analytics-pkg' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -291,7 +297,7 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 			if ( false !== $from_timestamp && false !== $to_timestamp && $from_timestamp >= $to_timestamp ) {
 				return new WP_Error(
 					'invalid_date_range',
-					__( 'The "from" date must be before the "to" date.', 'jetpack-premium-analytics' ),
+					__( 'The "from" date must be before the "to" date.', 'jetpack-premium-analytics-pkg' ),
 					array( 'status' => 400 )
 				);
 			}
@@ -324,7 +330,7 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 		// If compare_from is provided but compare_to is not, return error.
 		return new WP_Error(
 			'missing_compare_to',
-			__( 'The "compare_to" parameter is required when "compare_from" is provided.', 'jetpack-premium-analytics' ),
+			__( 'The "compare_to" parameter is required when "compare_from" is provided.', 'jetpack-premium-analytics-pkg' ),
 			array( 'status' => 400 )
 		);
 	}
@@ -352,7 +358,7 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 		if ( $compare_to_date_only > $today_date_only ) {
 			return new WP_Error(
 				'future_date',
-				__( 'The "compare_to" date cannot be later than today.', 'jetpack-premium-analytics' ),
+				__( 'The "compare_to" date cannot be later than today.', 'jetpack-premium-analytics-pkg' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -366,7 +372,7 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 		// If compare_to is provided but compare_from is not, return error.
 		return new WP_Error(
 			'missing_compare_from',
-			__( 'The "compare_from" parameter is required when "compare_to" is provided.', 'jetpack-premium-analytics' ),
+			__( 'The "compare_from" parameter is required when "compare_to" is provided.', 'jetpack-premium-analytics-pkg' ),
 			array( 'status' => 400 )
 		);
 	}
@@ -390,7 +396,7 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 		if ( false !== $compare_from_timestamp && false !== $compare_to_timestamp && $compare_from_timestamp >= $compare_to_timestamp ) {
 			return new WP_Error(
 				'invalid_compare_date_range',
-				__( 'The "compare_from" date must be before the "compare_to" date.', 'jetpack-premium-analytics' ),
+				__( 'The "compare_from" date must be before the "compare_to" date.', 'jetpack-premium-analytics-pkg' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -424,6 +430,9 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 			'compare_from' => $request->get_param( 'compare_from' ),
 			'compare_to'   => $request->get_param( 'compare_to' ),
 		);
+		if ( $request->has_param( 'date_type' ) ) {
+			$params['date_type'] = $request->get_param( 'date_type' );
+		}
 
 		// Handle delivery method.
 		if ( 'email' === $delivery_method ) {
@@ -487,7 +496,7 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 			$this->csv_generator->delete_file( $file_path );
 			return new WP_Error(
 				'csv_stream_failed',
-				__( 'Failed to stream the export file.', 'jetpack-premium-analytics' ),
+				__( 'Failed to stream the export file.', 'jetpack-premium-analytics-pkg' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -524,7 +533,7 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 		return new WP_REST_Response(
 			array(
 				'success' => true,
-				'message' => __( 'Export has been scheduled. You will receive an email when it is ready.', 'jetpack-premium-analytics' ),
+				'message' => __( 'Export has been scheduled. You will receive an email when it is ready.', 'jetpack-premium-analytics-pkg' ),
 				'job_id'  => $job_id,
 			),
 			202
@@ -543,17 +552,17 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 			'type'       => 'object',
 			'properties' => array(
 				'success' => array(
-					'description' => __( 'Whether the export was successful.', 'jetpack-premium-analytics' ),
+					'description' => __( 'Whether the export was successful.', 'jetpack-premium-analytics-pkg' ),
 					'type'        => 'boolean',
 					'context'     => array( 'view' ),
 				),
 				'message' => array(
-					'description' => __( 'Status message.', 'jetpack-premium-analytics' ),
+					'description' => __( 'Status message.', 'jetpack-premium-analytics-pkg' ),
 					'type'        => 'string',
 					'context'     => array( 'view' ),
 				),
 				'job_id'  => array(
-					'description' => __( 'Action Scheduler job ID (for email exports).', 'jetpack-premium-analytics' ),
+					'description' => __( 'Action Scheduler job ID (for email exports).', 'jetpack-premium-analytics-pkg' ),
 					'type'        => 'integer',
 					'context'     => array( 'view' ),
 				),

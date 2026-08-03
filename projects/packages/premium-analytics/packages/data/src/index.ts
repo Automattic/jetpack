@@ -17,6 +17,13 @@ export { useReportSessionsByDevice } from './hooks/use-report-sessions-by-device
 export { useStatsSite } from './hooks/use-stats-site';
 export { useStatsPost } from './hooks/use-stats-post';
 export type { StatsPostField, StatsPostParams, StatsPostResponse } from './hooks/use-stats-post';
+export { useStatsPostComments } from './hooks/use-stats-post-comments';
+export type {
+	StatsPostCommentsParams,
+	StatsPostCommentsResponse,
+} from './hooks/use-stats-post-comments';
+export { useStatsPostLikes } from './hooks/use-stats-post-likes';
+export type { StatsPostLikesParams, StatsPostLikesResponse } from './hooks/use-stats-post-likes';
 export { useStatsQuery } from './hooks/use-stats-query';
 export { latestPostQuery } from './queries/latest-post-query';
 export type { LatestPost, LatestPostResponse } from './processing/latest-post';
@@ -29,6 +36,7 @@ export { useStatsTopAuthors } from './hooks/use-stats-top-authors';
 export { useStatsLocations } from './hooks/use-stats-locations';
 export { useStatsCountryViews } from './hooks/use-stats-country-views';
 export { useStatsVideoPlays } from './hooks/use-stats-video-plays';
+export { type StatsVideoPlaysSummaryParams } from './queries/stats-video-plays-summary-query';
 export {
 	useStatsAppCommercialClassificationMutation,
 	type StatsAppCommercialClassificationParams,
@@ -64,16 +72,18 @@ export {
 export { useStatsArchives, type StatsArchivesResponse } from './hooks/use-stats-archives';
 export {
 	useStatsCommentFollowers,
+	useStatsCommentFollowersAllPages,
 	type StatsCommentFollowersResponse,
 } from './hooks/use-stats-comment-followers';
 export { useStatsFollowers } from './hooks/use-stats-followers';
 export type { StatsFollowersParams, StatsFollowersResponse } from './hooks/use-stats-followers';
-export { useStatsPublicize } from './hooks/use-stats-publicize';
-export type { StatsPublicizeParams, StatsPublicizeResponse } from './hooks/use-stats-publicize';
 export {
 	useStatsComments,
+	useStatsCommentsRows,
 	type StatsCommentsParams,
 	type StatsCommentsResponse,
+	type UseStatsCommentsRowsArgs,
+	type UseStatsCommentsRowsResult,
 } from './hooks/use-stats-comments';
 export {
 	useStatsSubscribersCounts,
@@ -97,7 +107,23 @@ export {
 	type StatsVisitsStatField,
 	type StatsVisitsStatFields,
 } from './hooks/use-stats-visits';
-export { sliceWordAdsStatsReport } from './processing/stats';
+export {
+	aggregateStatsDrilldownRows,
+	bucketStatsTimeSeries,
+	flattenStatsLeaves,
+	getStatsChartBucketKey,
+	getStatsReportItems,
+	selectStatsCommentsRows,
+	sliceWordAdsStatsReport,
+} from './processing/stats';
+export type { FlattenStatsLeavesContext, FlattenStatsLeavesOptions } from './processing/stats';
+export type {
+	AggregateStatsDrilldownRowsOptions,
+	StatsDrilldownItemContext,
+	StatsDrilldownRow,
+	StatsDrilldownRowContext,
+	StatsDrilldownSourceReport,
+} from './processing/stats';
 export {
 	useStatsSummary,
 	type StatsSummaryParams,
@@ -161,10 +187,12 @@ export {
 	type StatsEmailSummaryParams,
 	type StatsEmailSummarySortField,
 } from './hooks/use-stats-email-summary';
+export type { StatsEmailSummaryItem } from './processing/stats';
 export {
 	useStatsSingleVideo,
 	type StatsSingleVideoDataPoint,
 	type StatsSingleVideoPage,
+	type StatsSingleVideoPost,
 	type StatsSingleVideoParams,
 	type StatsSingleVideoResponse,
 } from './hooks/use-stats-single-video';
@@ -196,8 +224,8 @@ export type { UseStatsOptions } from './hooks/use-stats-report';
 export { prefetchReport } from './prefetch';
 export {
 	normalizeReportParams,
+	needsReportDateParamsSeed,
 	hasComparisonEnabled,
-	type IntervalType,
 	type PresetType,
 	type ReportParams,
 } from './utils/search';
@@ -212,20 +240,27 @@ export {
 	computeDateRangeFromPreset,
 	getApiErrorCode,
 	getApiErrorStatus,
-	getStatsPlanErrorReason,
+	saveBlob,
 	shouldRetryApiError,
+	toPostId,
 	useSiteHomeUrl,
 } from './utils';
-export type { StatsPlanErrorReason } from './utils';
 export type { ReportDataMap } from './types';
 export type { ReportQueryParams } from './api';
 export type { FilterCondition } from './types/filter-condition';
 export type { ProductType } from './types/product-type';
 export { ORDER_ATTRIBUTION_VIEWS } from './api/report-order-attribution-summary-fetch';
-export { getDefaultIntervalForPeriod, getDateFormatFromInterval } from './utils/interval';
+export {
+	getDateFormatFromInterval,
+	getDefaultIntervalForPeriod,
+	resolveIntervalForRange,
+} from './utils/interval';
+export type { IntervalType } from './utils/interval';
 export { getDefaultPreset, getDefaultQueryParams } from './defaults';
-export { exportReport, fetchStatsProxy, getStatsProxyPath } from './api';
+export { downloadReport, exportReport, fetchStatsProxy, getStatsProxyPath } from './api';
 export type {
+	DownloadReportParams,
+	DownloadReportResponse,
 	ExportReportParams,
 	ExportReportResponse,
 	StatsProxyFetchParams,
@@ -236,12 +271,14 @@ export type {
 export type {
 	StatsArchivesComparisonItem,
 	StatsArchivesItem,
+	StatsChartBucketPeriod,
 	StatsClicksComparisonItem,
 	StatsClicksItem,
 	StatsCommentFollowersItem,
 	StatsCommentFollowersRawPost,
 	StatsCommentFollowersRawResponse,
 	StatsCommentsAuthorItem,
+	StatsCommentsGroup,
 	StatsCommentsGroupItem,
 	StatsCommentsItem,
 	StatsCommentsPostItem,
@@ -249,6 +286,7 @@ export type {
 	StatsCommentsRawFollowData,
 	StatsCommentsRawPost,
 	StatsCommentsRawResponse,
+	StatsCommentsRow,
 	StatsEmailBreakdownItem,
 	StatsDevicesComparisonItem,
 	StatsDevicesItem,
@@ -272,9 +310,6 @@ export type {
 	StatsPostWeek,
 	StatsPostWeekDay,
 	StatsPostYear,
-	StatsPublicizeApiResponse,
-	StatsPublicizeItem,
-	StatsPublicizeService,
 	StatsReferrersComparisonItem,
 	StatsReferrersItem,
 	StatsSearchTermsComparisonItem,

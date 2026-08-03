@@ -739,6 +739,26 @@ class Helper {
 	}
 
 	/**
+	 * Resolves the effective results-per-page value for the Search 3.0 blocks.
+	 *
+	 * `$override` is the author-set `resultsPerPage` block attribute; `0` (or
+	 * any non-positive value) means "use the site's `posts_per_page` Reading
+	 * setting." A non-positive Reading setting (e.g. `-1`, "show all") falls
+	 * back to 10 rather than clamping down to a single result. Either way the
+	 * result is capped at `get_max_posts_per_page()`.
+	 *
+	 * @param int $override Author override, or 0 to use the site default.
+	 * @return int Clamped, always-positive results-per-page value.
+	 */
+	public static function resolve_results_per_page( $override = 0 ) {
+		$value = $override > 0 ? (int) $override : (int) get_option( 'posts_per_page' );
+		if ( $value <= 0 ) {
+			$value = 10;
+		}
+		return min( $value, self::get_max_posts_per_page() );
+	}
+
+	/**
 	 * Returns the maximum offset for a search query.
 	 *
 	 * @since 5.8.0

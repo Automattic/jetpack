@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { toPostId } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTileGrid,
@@ -31,7 +32,7 @@ const COUNT_FORMAT: DataFormat = {
 };
 
 const ALL_TIME_NOTE = () =>
-	__( 'All-time total — this metric has no per-post history.', 'jetpack-premium-analytics' );
+	__( 'All-time total — this metric has no per-post history.', 'jetpack-premium-analytics-pkg' );
 
 /**
  * Post highlights inner component. Reads the post scope and report params
@@ -49,7 +50,7 @@ const ALL_TIME_NOTE = () =>
  */
 function PostDetailHighlightsInner() {
 	const { reportParams } = useWidgetRootContext();
-	const postId = Number( reportParams.post_id ) || 0;
+	const postId = toPostId( reportParams.post_id );
 
 	const {
 		views,
@@ -68,25 +69,25 @@ function PostDetailHighlightsInner() {
 		() => [
 			{
 				key: 'views',
-				label: __( 'Views', 'jetpack-premium-analytics' ),
+				label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
 				icon: seen,
 				value: views,
 				previousValue: viewsPrevious,
-				note: __( 'Views in the selected date range.', 'jetpack-premium-analytics' ),
+				note: __( 'Views in the selected date range.', 'jetpack-premium-analytics-pkg' ),
 			},
 			{
-				key: 'comments',
-				label: __( 'Comments', 'jetpack-premium-analytics' ),
-				icon: comment,
-				value: comments,
+				key: 'likes',
+				label: __( 'Likes', 'jetpack-premium-analytics-pkg' ),
+				icon: starEmpty,
+				value: likes,
 				previousValue: hasComparison ? null : undefined,
 				note: ALL_TIME_NOTE(),
 			},
 			{
-				key: 'likes',
-				label: __( 'Likes', 'jetpack-premium-analytics' ),
-				icon: starEmpty,
-				value: likes,
+				key: 'comments',
+				label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
+				icon: comment,
+				value: comments,
 				previousValue: hasComparison ? null : undefined,
 				note: ALL_TIME_NOTE(),
 			},
@@ -99,20 +100,23 @@ function PostDetailHighlightsInner() {
 			<WidgetState
 				isLoading={ isLoading && ! hasData }
 				isFetching={ isFetching }
-				isError={ isError }
+				// As with `isLoading` above: the highlights stay on screen through a
+				// transient refetch failure, so only surface the error when there is
+				// nothing to show.
+				isError={ ! hasData && isError }
 				isEmpty={ postId <= 0 }
 				error={ {
 					description: __(
 						"We couldn't load this post's highlights. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
 					icon: reports,
 					description: __(
 						'Open a post or page report to see its highlights here.',
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 				} }
 			>

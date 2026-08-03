@@ -20,10 +20,10 @@ assume: namespace, text domain, and the dependency versions the package resolves
 
 1. **Namespace + text domain**: take the `name` prefix from a sibling
    `widgets/*/widget.json` (e.g. `jpa`) and the text domain from the second
-   argument used in `__()` across the package (e.g. `jetpack-premium-analytics`).
+   argument used in `__()` across the package (e.g. `jetpack-premium-analytics-pkg`).
 2. **Resolved versions**: check tokens and props against what the package actually
    resolves, not against trunk or memory:
-   - Tokens → `@wordpress/theme`'s `design-tokens.css` in `node_modules/.pnpm`.
+   - Tokens → `@wordpress/theme`'s `design-tokens.css` (resolve the package, see below).
    - UI props → the resolved `@wordpress/ui` `build-types`.
    - Contract types → `@wordpress/widget-primitives` `build-types`.
 
@@ -97,7 +97,7 @@ assume: namespace, text domain, and the dependency versions the package resolves
 ## How to verify tokens
 
 ```bash
-TOK=$(find node_modules/.pnpm -path '*@wordpress+theme*/css/design-tokens.css' | head -1)
+TOK=$(find "$(node -e 'console.log(require("path").dirname(require.resolve("@wordpress/theme/package.json")))')" -name design-tokens.css | head -1)
 grep -rhoE '\-\-wpds-[a-z0-9-]+' widgets/<slug>/*.css | sort -u | while read -r t; do
   grep -qE -- "$t\b" "$TOK" || echo "MISSING from resolved theme: $t"
 done

@@ -46,8 +46,12 @@ function getUtmItemLabel( item: { label: unknown } ): string {
 	return getStatsLabel( item.label );
 }
 
-function getUtmTopPostKey( item: StatsUtmTopPostItem ): string {
-	return item.href ?? getUtmItemLabel( item );
+function getUtmItemKey( item: { label: unknown; paramValues?: string } ): string {
+	return item.paramValues ?? getUtmItemLabel( item );
+}
+
+function getUtmTopPostKey( item: StatsUtmTopPostItem ): number {
+	return item.id;
 }
 
 function parseUtmLabelParts( key: string ): string[] {
@@ -106,8 +110,8 @@ export function mergeStatsUtmComparisonRows(
 	return mergeStatsComparisonRows< StatsUtmItem, StatsUtmItem, StatsUtmComparisonItem >( {
 		primaryRows: limitStatsRows( getStatsReportItems( primaryReport ), maxRows ),
 		comparisonRows: getStatsReportItems( comparisonReport ),
-		getPrimaryKey: getUtmItemLabel,
-		getComparisonKey: getUtmItemLabel,
+		getPrimaryKey: getUtmItemKey,
+		getComparisonKey: getUtmItemKey,
 		getComparisonValue: item => item.value,
 		mapRow: ( item, { previousValue, comparisonItem } ) => {
 			const { rows: children, hasComparison: childrenHaveComparison } = mergeStatsComparisonRows<
@@ -143,9 +147,6 @@ export function sanitizeStatsUtmResponse(
 	const payload = coerceStatsRecord( response );
 	const topUtmValues = coerceStatsRecord( payload.top_utm_values );
 	const topPosts = coerceStatsRecord( payload.top_posts );
-	// Calypso treats the presence of top_posts, even an empty object, or an explicit
-	// top-post opt-out as the signal that top-post fetching has already been resolved.
-	const hasResolvedTopPosts = payload.top_posts != null || query?.query_top_posts === false;
 	const utmParam = query?.utm_param;
 	const items = Object.entries( topUtmValues )
 		.sort( ( [ , valueA ], [ , valueB ] ) => safeParseFloat( valueB ) - safeParseFloat( valueA ) )
@@ -158,7 +159,7 @@ export function sanitizeStatsUtmResponse(
 			return {
 				label: labelParts.join( ' / ' ),
 				value: safeParseFloat( value ),
-				...( hasResolvedTopPosts ? {} : { paramValues } ),
+				paramValues,
 				children: children.length ? children : null,
 			};
 		} );

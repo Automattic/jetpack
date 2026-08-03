@@ -8,10 +8,14 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import TopPerformingProductsRender from '../render';
 import widgetDefinition from '../widget';
+import widgetManifest from '../widget.json';
 import type { APIFetchMiddleware } from '@wordpress/api-fetch';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -151,12 +155,6 @@ interface TopPerformingProductsDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		TopPerformingProductsStoryControls {}
 
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
-
 function getTopPerformingProductsAttributes(
 	withComparison = false,
 	preset: SelectablePresetId = DEFAULT_PRESET
@@ -207,6 +205,16 @@ function renderTopPerformingProducts( {
 	);
 }
 
+// Distinct preset → own query-cache entry; see forceStatsMockState.
+function renderTopPerformingProductsOnPreset( preset: SelectablePresetId ) {
+	return (
+		<TopPerformingProductsRender
+			attributes={ getTopPerformingProductsAttributes( false, preset ) }
+			setError={ noopSetError }
+		/>
+	);
+}
+
 function TopPerformingProductsDashboardStory( {
 	withComparison,
 	preset,
@@ -215,7 +223,7 @@ function TopPerformingProductsDashboardStory( {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardStoryArgs }
-			widgetType={ widgetDefinition }
+			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ TOP_PERFORMING_PRODUCTS_RENDER_MODULE }
 			renderComponent={
 				TopPerformingProductsRender as ComponentType< WidgetRenderProps< unknown > >
@@ -296,6 +304,56 @@ export const WithComparison: Story = {
 				) => getTopPerformingProductsSource( storyContext.args ),
 			},
 		},
+	},
+};
+
+/**
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
+ *
+ * The story's own product/image mock middleware (registered above) would
+ * otherwise shadow `setReportMockState` — it always answers `reports/products`
+ * with canned data and never falls through. `forceStatsMockState` re-registers
+ * its shared override when this story sets a forced state, keeping it ahead of
+ * story-local middleware even if Storybook lazy-loads another story module
+ * later.
+ */
+export const Loading: Story = {
+	render: () => renderTopPerformingProductsOnPreset( 'last-90-days' ),
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'reports/products', 'loading' );
+		return () => forceStatsMockState( 'reports/products', null );
+	},
+};
+
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: () => renderTopPerformingProductsOnPreset( 'last-7-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'reports/products', 'error' );
+		return () => forceStatsMockState( 'reports/products', null );
+	},
+};
+
+/**
+ * Resolved with no rows: the widget shows its empty state ("No product sales in
+ * this period.").
+ */
+export const Empty: Story = {
+	render: () => renderTopPerformingProductsOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'reports/products', 'empty' );
+		return () => forceStatsMockState( 'reports/products', null );
 	},
 };
 

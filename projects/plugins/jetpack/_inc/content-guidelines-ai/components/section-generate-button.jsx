@@ -5,8 +5,9 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { STORE_NAME } from '../constants';
+import { useSectionHasDraft } from '../hooks/use-drafts';
 import { suggestGuidelines } from '../lib/api';
+import { readSectionDraft } from '../lib/drafts';
 import { recordGuidelinesEvent } from '../lib/tracks';
 import { AI_STORE_NAME } from '../store';
 
@@ -16,21 +17,11 @@ export default function SectionGenerateButton( { slug } ) {
 		useDispatch( AI_STORE_NAME );
 	const { hasFeature } = useAiFeature();
 
-	// The plans store defaults hasFeature to true until its fetch resolves, so
-	// rendering before resolution would flash the unlocked state on no-plan
-	// sites. Wait for the real answer instead.
-	const featureResolved = useSelect(
-		select => select( 'wordpress-com/plans' ).hasFinishedResolution( 'getAiAssistantFeature' ),
-		[]
-	);
-
 	const sectionLoading = useSelect(
 		select => select( AI_STORE_NAME ).isSectionLoading( slug ),
 		[ slug ]
 	);
-	const draft = useSelect( select => select( STORE_NAME ).getGuideline( slug ), [ slug ] );
-
-	const isEmpty = ! draft;
+	const isEmpty = ! useSectionHasDraft( slug );
 	const generateLabel = __( 'Generate guidelines', 'jetpack' );
 	const improveLabel = __( 'Improve guidelines', 'jetpack' );
 	const label = isEmpty ? generateLabel : improveLabel;
@@ -45,12 +36,15 @@ export default function SectionGenerateButton( { slug } ) {
 			return;
 		}
 
-		const action = isEmpty ? 'generate' : 'improve';
+		// Snapshot the draft at click time — the render-time hook value could
+		// be stale if a page-driven change slipped past the notifications.
+		const currentDraft = readSectionDraft( slug );
+		const action = currentDraft ? 'improve' : 'generate';
 		recordGuidelinesEvent( 'generate', { type: 'section', slug, action } );
 
 		startSectionLoading( slug );
 		try {
-			const existingContent = draft ? { [ slug ]: draft } : {};
+			const existingContent = currentDraft ? { [ slug ]: currentDraft } : {};
 			const response = await suggestGuidelines( [ slug ], existingContent );
 			const suggestion = response?.suggestions?.[ slug ];
 			if ( ! suggestion ) {
@@ -66,8 +60,6 @@ export default function SectionGenerateButton( { slug } ) {
 		}
 	}, [
 		slug,
-		draft,
-		isEmpty,
 		hasFeature,
 		startSectionLoading,
 		stopSectionLoading,
@@ -75,10 +67,6 @@ export default function SectionGenerateButton( { slug } ) {
 		showUpgradeNotice,
 		createErrorNotice,
 	] );
-
-	if ( ! featureResolved ) {
-		return null;
-	}
 
 	const button = (
 		<Button

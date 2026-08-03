@@ -16,19 +16,17 @@ export type HelloWorldAttributes = {
  * Widget type definition.
  */
 export default {
-	name: 'jpa/hello-world',
-	title: __( 'Hello World', 'jetpack-premium-analytics' ),
 	icon: wordpress,
 	attributes: [
 		{
 			id: 'message',
-			label: __( 'Message', 'jetpack-premium-analytics' ),
+			label: __( 'Message', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
 		},
 	] as WidgetAttributeField< HelloWorldAttributes >[],
 	example: {
 		attributes: {
-			message: __( 'Hello World', 'jetpack-premium-analytics' ),
+			message: __( 'Hello World', 'jetpack-premium-analytics-pkg' ),
 		},
 	},
 };

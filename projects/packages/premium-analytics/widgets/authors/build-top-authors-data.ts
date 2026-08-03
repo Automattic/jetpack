@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { calculateDelta } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	calculateDelta,
+	getCombinedPeriodMax,
+	sharePercentage,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import type {
 	StatsTopAuthorsComparisonItem,
@@ -21,6 +25,7 @@ const UNTRACKED_AUTHORS_SENTINEL = 'Untracked Authors';
  */
 export interface AuthorPost {
 	id: string;
+	postId?: string | number;
 	title: string;
 	link: string | null;
 	currentValue: number;
@@ -32,7 +37,7 @@ export interface AuthorPost {
 
 /**
  * A normalized author row for the leaderboard. Carries the display name and
- * avatar so the render layer can compose the `LeaderboardLabel`, plus the
+ * avatar so the render layer can compose the `LeaderboardRow`, plus the
  * author's `posts` so a row click can drill down without another fetch.
  * Comparison fields are `undefined` when the author has no match in the
  * comparison period.
@@ -60,7 +65,7 @@ function getAuthorLabel( author: StatsTopAuthorsComparisonItem ) {
 	const label = typeof author.label === 'string' ? author.label : '';
 
 	if ( ! label || label === UNTRACKED_AUTHORS_SENTINEL ) {
-		return __( 'Untracked authors', 'jetpack-premium-analytics' );
+		return __( 'Untracked authors', 'jetpack-premium-analytics-pkg' );
 	}
 
 	return label;
@@ -75,11 +80,9 @@ function getAuthorLabel( author: StatsTopAuthorsComparisonItem ) {
  * @return The author's drill-down rows.
  */
 function toAuthorPostRows( posts: StatsTopAuthorsPostComparisonItem[] ): AuthorPost[] {
-	// Share each value against the largest of either period so the overlay bars
-	// stay proportional; `1` guards against division by zero.
-	const maxValue = Math.max(
-		...posts.map( post => Math.max( post.views, post.previousViews ?? 0 ) ),
-		1
+	const maxValue = getCombinedPeriodMax(
+		posts.map( post => post.views ),
+		posts.map( post => post.previousViews )
 	);
 
 	return posts.map( ( post, index ) => {
@@ -87,12 +90,14 @@ function toAuthorPostRows( posts: StatsTopAuthorsPostComparisonItem[] ): AuthorP
 
 		return {
 			id: post.id != null ? String( post.id ) : post.link ?? `post-${ index }`,
+			postId: post.id ?? undefined,
 			title: typeof post.label === 'string' ? post.label : String( post.label ?? '' ),
 			link: post.link ?? null,
 			currentValue: post.views,
 			previousValue,
-			currentShare: ( post.views / maxValue ) * 100,
-			previousShare: previousValue !== undefined ? ( previousValue / maxValue ) * 100 : undefined,
+			currentShare: sharePercentage( post.views, maxValue ),
+			previousShare:
+				previousValue !== undefined ? sharePercentage( previousValue, maxValue ) : undefined,
 			delta: previousValue !== undefined ? calculateDelta( post.views, previousValue ) : undefined,
 		};
 	} );
@@ -118,11 +123,9 @@ export function buildTopAuthorsData(
 		return [];
 	}
 
-	// Share each value against the largest of either period so the overlay bars
-	// stay proportional; `1` guards against division by zero.
-	const maxValue = Math.max(
-		...authors.map( author => Math.max( author.views, author.previousViews ?? 0 ) ),
-		1
+	const maxValue = getCombinedPeriodMax(
+		authors.map( author => author.views ),
+		authors.map( author => author.previousViews )
 	);
 
 	return authors.map( author => {
@@ -134,8 +137,9 @@ export function buildTopAuthorsData(
 			avatarUrl: author.icon ?? null,
 			currentValue: author.views,
 			previousValue,
-			currentShare: ( author.views / maxValue ) * 100,
-			previousShare: previousValue !== undefined ? ( previousValue / maxValue ) * 100 : undefined,
+			currentShare: sharePercentage( author.views, maxValue ),
+			previousShare:
+				previousValue !== undefined ? sharePercentage( previousValue, maxValue ) : undefined,
 			delta:
 				previousValue !== undefined ? calculateDelta( author.views, previousValue ) : undefined,
 			posts: toAuthorPostRows( author.children ?? [] ),

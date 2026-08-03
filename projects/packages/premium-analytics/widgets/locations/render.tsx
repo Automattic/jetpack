@@ -4,12 +4,15 @@
 import {
 	GeoChart,
 	LeaderboardChart,
-	LeaderboardLabel,
+	ReportLink,
 	WidgetBackLink,
-	WidgetLoadingOverlay,
+	WidgetFooter,
 	WidgetRoot,
+	WidgetState,
+	buildLeaderboardRow,
 	calculateDelta,
 	flagUrl,
+	getCombinedPeriodMax,
 	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -20,9 +23,10 @@ import {
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { location as locationIcon } from '@jetpack-premium-analytics/icons';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -101,14 +105,13 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 	const geoMode: GeoMode =
 		geoGranularity === 'country' && activeSelectedCountry ? 'region' : geoGranularity;
 
-	const { data, hasComparison, isLoading, isFetching, hasData, isError, isPlaceholderData } =
+	const { data, hasComparison, isLoading, isFetching, isError, isPlaceholderData, refetch } =
 		useLocationViews( {
 			reportParams,
 			max,
 			geoMode,
 			countryFilter: geoMode === 'region' ? activeSelectedCountry?.code : undefined,
 		} );
-	const showLoading = isLoading || ( isFetching && hasData );
 	const [ renderLocationState, setRenderLocationState ] = useState< RenderLocationState >( {
 		geoMode,
 		selectedCountry: activeSelectedCountry,
@@ -204,9 +207,9 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 		const useLocationHeader = renderGeoMode === 'region' && ! useCountryFallbackMap;
 		const header: GoogleDataTableColumn[] = [
 			useLocationHeader
-				? __( 'Location', 'jetpack-premium-analytics' )
-				: __( 'Country', 'jetpack-premium-analytics' ),
-			__( 'Views', 'jetpack-premium-analytics' ),
+				? __( 'Location', 'jetpack-premium-analytics-pkg' )
+				: __( 'Country', 'jetpack-premium-analytics-pkg' ),
+			__( 'Views', 'jetpack-premium-analytics-pkg' ),
 		];
 
 		if ( fallbackCountry ) {
@@ -254,67 +257,61 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 	] );
 
 	const leaderboardData = useMemo( () => {
-		const maxValue = Math.max( ...data.map( l => l.value ), 0 );
-		const maxComparisonValue = Math.max( ...data.map( l => l.previousValue ?? 0 ), 0 );
+		const maxValue = getCombinedPeriodMax(
+			data.map( location => location.value ),
+			hasComparison ? data.map( location => location.previousValue ) : []
+		);
 
 		return data.map( location => {
 			const imageUrl = flagUrl( location.countryCode );
 			const previousValue = location.previousValue;
+			const countryCode = location.countryCode;
 
 			return {
 				id: location.key,
-				label: (
-					<div className={ styles.leaderboardLabel }>
-						<LeaderboardLabel
-							label={ location.label }
-							imageUrl={ imageUrl ?? undefined }
-							imageAlt={ sprintf(
-								/* translators: %s is the country name */
-								__( 'Flag of %s', 'jetpack-premium-analytics' ),
-								location.countryFull
-							) }
-							imageClassName={ styles.leaderboardImage }
-						/>
-					</div>
-				),
+				...buildLeaderboardRow( {
+					label: location.label,
+					media: {
+						kind: 'flag',
+						url: imageUrl ?? undefined,
+						country: location.countryFull,
+					},
+					action:
+						renderGeoMode === 'country' && countryCode
+							? {
+									kind: 'drillDown',
+									onClick: () =>
+										selectCountry( {
+											code: countryCode,
+											name: location.countryFull,
+										} ),
+									ariaLabel: sprintf(
+										/* translators: %s is the country name */
+										__( 'View regions in %s', 'jetpack-premium-analytics-pkg' ),
+										location.countryFull
+									),
+							  }
+							: { kind: 'static' },
+				} ),
 				currentValue: location.value,
 				previousValue,
-				currentShare: maxValue > 0 ? ( location.value / maxValue ) * 100 : 0,
+				currentShare: sharePercentage( location.value, maxValue ),
 				previousShare:
 					hasComparison && previousValue !== undefined
-						? sharePercentage( previousValue, maxComparisonValue )
+						? sharePercentage( previousValue, maxValue )
 						: undefined,
 				delta:
 					hasComparison && previousValue !== undefined
 						? calculateDelta( location.value, previousValue )
 						: undefined,
-				// Country mode: click to drill into regions.
-				// Region/city mode: rows are not interactive.
-				...( renderGeoMode === 'country' &&
-					location.countryCode && {
-						onClick: () =>
-							selectCountry( {
-								code: location.countryCode,
-								name: location.countryFull,
-							} ),
-						// Without ariaLabel the button's accessible name is computed from
-						// its children: "Flag of X" (image alt) + "X" (visible label) ->
-						// screen readers announce the country name twice. Provide a concise
-						// action label that replaces the computed name.
-						ariaLabel: sprintf(
-							/* translators: %s is the country name */
-							__( 'View regions in %s', 'jetpack-premium-analytics' ),
-							location.countryFull
-						),
-					} ),
 			};
 		} ) as LeaderboardChartData;
 	}, [ data, renderGeoMode, hasComparison, selectCountry ] );
 
 	const backLink = renderSelectedCountry ? (
 		<WidgetBackLink
-			label={ __( 'All Locations', 'jetpack-premium-analytics' ) }
-			ariaLabel={ __( 'View all locations', 'jetpack-premium-analytics' ) }
+			label={ __( 'All Locations', 'jetpack-premium-analytics-pkg' ) }
+			ariaLabel={ __( 'View all locations', 'jetpack-premium-analytics-pkg' ) }
 			onClick={ clearSelectedCountry }
 			className={ styles.backLink }
 		/>
@@ -326,71 +323,56 @@ function LocationsInner( { max, geoGranularity }: LocationsInnerProps ) {
 		</Stack>
 	) : null;
 
-	if ( isLoading && data.length === 0 ) {
-		return (
-			<div className={ styles.content }>
-				{ bodyHeader }
-				<WidgetLoadingOverlay />
-			</div>
-		);
-	}
-
-	if ( isError ) {
-		return (
-			<div className={ styles.content }>
-				{ bodyHeader }
-				<Stack align="center" justify="center" className={ styles.placeholder }>
-					<Text>{ __( 'Could not load location data.', 'jetpack-premium-analytics' ) }</Text>
-				</Stack>
-			</div>
-		);
-	}
-
-	// Explicit empty branch (rather than emptyStateText on LeaderboardChart) keeps the
-	// back link visible so users can drill back up from an empty region view.
-	if ( ! data.length ) {
-		return (
-			<div className={ styles.content }>
-				{ bodyHeader }
-				<Stack align="center" justify="center" className={ styles.placeholder }>
-					<Text>
-						{ __(
-							'Stats on where your visitors are viewing from will appear here.',
-							'jetpack-premium-analytics'
-						) }
-					</Text>
-				</Stack>
-			</div>
-		);
-	}
-
+	// The back link stays a sibling of <WidgetState> so users can drill back up
+	// from an empty or failed region view.
 	return (
 		<div className={ styles.content }>
-			{ showLoading && <WidgetLoadingOverlay /> }
-			<div className={ styles.chartArea }>
-				<div className={ styles.leaderboardPanel }>
-					{ bodyHeader }
-					<LeaderboardChart
-						data={ leaderboardData }
-						withOverlayLabel
-						withComparison={ hasComparison }
-						showLegend={ false }
-						dataFormat={ {
-							type: 'number',
-							options: { useMultipliers: true, decimals: 0 },
-						} }
-						className={ styles.leaderboard }
-					/>
-				</div>
-				<div className={ styles.geoChart }>
-					<GeoChart
-						data={ geoData }
-						resizeDebounceTime={ 100 }
-						region={ useProvinceMap ? renderSelectedCountry?.code ?? 'world' : 'world' }
-						resolution={ useProvinceMap ? 'provinces' : 'countries' }
-						onError={ handleGeoChartError }
-					/>
-				</div>
+			{ bodyHeader }
+			<div className={ styles.stateArea }>
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					isError={ isError }
+					isEmpty={ data.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load location data. Please try again in a moment.",
+							'jetpack-premium-analytics-pkg'
+						),
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
+					} }
+					empty={ {
+						icon: locationIcon,
+						description: __( 'No location data in this period.', 'jetpack-premium-analytics-pkg' ),
+					} }
+				>
+					<div className={ styles.chartArea }>
+						<div className={ styles.leaderboardPanel }>
+							<LeaderboardChart
+								data={ leaderboardData }
+								withOverlayLabel
+								withComparison={ hasComparison }
+								showLegend={ false }
+								dataFormat={ {
+									type: 'number',
+									options: { useMultipliers: true, decimals: 0 },
+								} }
+								className={ styles.leaderboard }
+							/>
+						</div>
+						<div className={ styles.geoChart }>
+							<GeoChart
+								data={ geoData }
+								resizeDebounceTime={ 100 }
+								region={ useProvinceMap ? renderSelectedCountry?.code ?? 'world' : 'world' }
+								resolution={ useProvinceMap ? 'provinces' : 'countries' }
+								onError={ handleGeoChartError }
+							/>
+						</div>
+					</div>
+				</WidgetState>
 			</div>
 		</div>
 	);
@@ -412,6 +394,12 @@ export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
 				<LocationsInner max={ max } geoGranularity={ geoGranularity } />
+				<WidgetFooter>
+					<ReportLink
+						report="locations"
+						section={ geoGranularity === 'city' ? 'cities' : 'countries' }
+					/>
+				</WidgetFooter>
 			</div>
 		</WidgetRoot>
 	);

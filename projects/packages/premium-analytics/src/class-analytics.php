@@ -32,88 +32,219 @@ class Analytics {
 	private static $initialized = false;
 
 	/**
-	 * Menu title for the admin page.
+	 * Menu title override for the admin page. Null falls back to the package's
+	 * own translated label, resolved on admin_menu — callers init far too early
+	 * to translate anything themselves. A closure is resolved there too, which is
+	 * how a caller supplies a label in its own textdomain.
 	 *
-	 * @var string
+	 * @var string|\Closure|null
 	 */
-	private static $menu_title = 'Analytics';
+	private static $menu_title = null;
 
 	/**
-	 * Initialize the Analytics app.
+	 * The menu label once resolved, so the menu and the missing-build notice can't
+	 * disagree if a caller hands us a closure that returns something different
+	 * each call. Reset whenever $menu_title is assigned.
+	 *
+	 * @var string|null
+	 */
+	private static $resolved_menu_title = null;
+
+	/**
+	 * Initialize the Analytics app on a connected Jetpack site.
+	 *
+	 * Registers the full local surface: the site serves the WPCOM data proxy,
+	 * notices, sync bootstrap, and the dashboard support routes itself.
 	 *
 	 * @param array $options Optional configuration options.
 	 *                       Supported keys:
-	 *                       - menu_title (string): Admin menu label.
+	 *                       - menu_title (string|\Closure): Admin menu label. Defaults to
+	 *                         the package's own translated label. Pass a closure to supply
+	 *                         a translated label of your own: it runs on admin_menu, where
+	 *                         a textdomain can load, unlike init time.
 	 * @return void
 	 */
 	public static function init( $options = array() ) {
 		if ( self::$initialized ) {
 			return;
 		}
-
 		self::$initialized = true;
+		self::apply_options( $options );
 
-		if ( ! empty( $options['menu_title'] ) ) {
-			self::$menu_title = $options['menu_title'];
+		self::register_sync_bootstrap();
+		self::register_local_api();
+
+		// Piggybacks on the Jetpack Stats module; checks Jetpack connection state.
+		Jetpack_Stats_Tracker::configure();
+
+		self::boot_shared_services();
+		self::register_dashboard_support_routes();
+		self::load_build();
+		self::register_admin_page();
+	}
+
+	/**
+	 * Initialize the Analytics app on WordPress.com Simple.
+	 *
+	 * Simple reaches public-api.wordpress.com directly via WPCOM's apiFetch
+	 * bridge, so it registers no local REST surface: no proxy, notices, sync
+	 * bootstrap, or dashboard support routes. WPCOM registers those separately.
+	 *
+	 * @param array $options Optional configuration options.
+	 *                       Supported keys:
+	 *                       - menu_title (string|\Closure): Admin menu label. Defaults to
+	 *                         the package's own translated label. Pass a closure to supply
+	 *                         a translated label of your own: it runs on admin_menu, where
+	 *                         a textdomain can load, unlike init time.
+	 * @return void
+	 */
+	public static function init_wpcom_simple( $options = array() ) {
+		if ( self::$initialized ) {
+			return;
 		}
+		self::$initialized = true;
+		self::apply_options( $options );
 
-		// Always on: sync runs in cron; REST routes + registry serve REST requests
-		// (is_admin() false). REST_REQUEST isn't defined this early, so they
-		// self-gate on their own rest_api_init / init hooks.
+		self::boot_shared_services();
+		self::load_build();
+		self::register_admin_page();
+	}
+
+	/**
+	 * Apply init-time configuration options.
+	 *
+	 * @param array $options Options passed to the init entry points.
+	 * @return void
+	 */
+	private static function apply_options( $options ) {
+		if ( ! empty( $options['menu_title'] ) ) {
+			self::$menu_title          = $options['menu_title'];
+			self::$resolved_menu_title = null;
+		}
+	}
+
+	/**
+	 * Boot the services and registries every platform needs, regardless of
+	 * whether the site serves the dashboard support routes itself.
+	 *
+	 * @return void
+	 */
+	private static function boot_shared_services() {
+		// Must be hooked before admin_menu and rest_api_init check the capability.
+		Capabilities::register();
+
+		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
+		WooCommerce_Analytics_Tracker::configure();
+
+		// CSV report export pipeline (WOOA7S-1581): hooks rest_api_init, so it must
+		// register on all requests. Self-gates on WooCommerce + Jetpack connection.
+		Export::configure();
+
+		self::load_dashboard_components();
+	}
+
+	/**
+	 * Register the sync services that feed the local data pipeline.
+	 *
+	 * @return void
+	 */
+	private static function register_sync_bootstrap() {
+		// Keep the shared connection available when another connection-owning plugin is deactivated.
+		Connection_Configuration::configure();
+
 		Sync_Status_Tracker::configure();
 
 		// TEMPORARY (WOOA7S-1550): register the interim woocommerce_analytics sync module so
 		// Sync_Status_Tracker has a full sync to observe. Remove when the shared sync-modules package lands.
 		Sync_Configuration::register();
+	}
+
+	/**
+	 * Register the site-served REST API: the WPCOM data proxy and notices.
+	 *
+	 * Both self-gate on their own rest_api_init hooks.
+	 *
+	 * @return void
+	 */
+	private static function register_local_api() {
 		Api_Proxy_Controller::register();
 		Notices_Controller::register();
+	}
 
-		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
-		WooCommerce_Analytics_Tracker::configure();
+	/**
+	 * Load the dashboard components every platform renders with.
+	 *
+	 * @return void
+	 */
+	private static function load_dashboard_components() {
+		/*
+		 * Every include below is guarded on a symbol the target file declares.
+		 *
+		 * Two copies of this package can be loaded in one request — WPCOM Simple ships
+		 * one under jetpack-plugin and another under jetpack-mu-wpcom-plugin. The
+		 * autoloader dedupes classes by version, but these files declare functions and
+		 * constants at file scope, so they are absent from the classmap entirely and
+		 * reach us through `require_once`, which dedupes by path and not by symbol.
+		 * Once a class from one copy and a class from the other both run their
+		 * includes, PHP fatals on the redeclared functions. The guards make the second
+		 * copy's include a no-op, which also keeps the files' file-scope side effects
+		 * (add_filter() calls, registry bootstrapping) from running twice.
+		 */
 
-		// CSV report export pipeline (WOOA7S-1581). Must register above the is_admin() gate so its
-		// REST route hooks rest_api_init (is_admin() is false during REST requests). Self-gates on
-		// WooCommerce being active + Jetpack connected.
-		Export::configure();
+		// Widget modules for the client's dynamic import() map.
+		if ( ! function_exists( __NAMESPACE__ . '\\register_widget_modules_rest_route' ) ) {
+			require_once __DIR__ . '/widget-modules.php';
+		}
 
-		// Load the widget type registry: hydration routine, registry-time and
-		// runtime filters, and the registry accessors.
-		require_once __DIR__ . '/widget-types.php';
+		// Default layout's first-load preference injection.
+		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_default_layout_route' ) ) {
+			require_once __DIR__ . '/dashboard-layout.php';
+		}
 
-		// Apply Premium Analytics' availability policy: hooks the registry-time
-		// filter to keep developer-only types out of production.
-		require_once __DIR__ . '/widget-availability.php';
+		// Dashboard sections and their default layout seeding.
+		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_section' ) ) {
+			require_once __DIR__ . '/dashboard-sections.php';
+		}
 
-		// Hydrate the registry with the availability filter in place.
-		bootstrap_widget_types();
+		// Default-on CSV export settings and server-side disable filter.
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_csv_exports' ) ) {
+			require_once __DIR__ . '/csv-exports.php';
+		}
+		configure_csv_exports();
+	}
 
-		// Expose dashboard widget modules over REST and wire them into the
-		// page import map for dynamic import() on the client.
-		require_once __DIR__ . '/widget-modules.php';
+	/**
+	 * Serve the dashboard support routes from the site. Simple skips this —
+	 * WPCOM calls Dashboard_Support_Routes::register() itself instead.
+	 *
+	 * @return void
+	 */
+	private static function register_dashboard_support_routes() {
+		Dashboard_Support_Routes::register();
+	}
 
-		// Register the dashboard's default layout: the first-load preference
-		// injection and the REST route the "reset to default" action reads.
-		require_once __DIR__ . '/dashboard-layout.php';
-
-		// Register dashboard sections and expose section metadata/defaults over REST.
-		require_once __DIR__ . '/dashboard-sections.php';
-
-		// Expose opt-in client-side CSV export settings to the dashboard.
-		require_once __DIR__ . '/client-side-csv-exports.php';
-		configure_client_side_csv_exports();
-
-		// Load wp-build output (interceptor, modules, routes, page render).
-		// Must stay above the is_admin() gate: build/widgets.php defines the
-		// manifest the widget registry reads, and the registry serves REST
-		// requests (e.g. /jetpack/v4/widget-modules) where is_admin() is false. The render
-		// pieces here self-gate on admin_init, so loading them globally is inert
-		// off the dashboard. Only the polyfill registration below is admin-scoped.
+	/**
+	 * Load the wp-build output (interceptor, modules, routes, page render).
+	 *
+	 * Must run before the is_admin() gate: the registry serves REST requests
+	 * too (is_admin() false there). Render pieces self-gate on admin_init, so
+	 * this is inert off the dashboard.
+	 *
+	 * @return void
+	 */
+	private static function load_build() {
 		$build_entry = __DIR__ . '/../build/build.php';
 		if ( file_exists( $build_entry ) ) {
 			require_once $build_entry;
 		}
+	}
 
-		// Below: admin-only render path (assets, menu).
+	/**
+	 * Register the admin-only render path: polyfills, menu, and page hooks.
+	 *
+	 * @return void
+	 */
+	private static function register_admin_page() {
 		if ( ! is_admin() ) {
 			return;
 		}
@@ -128,6 +259,13 @@ class Analytics {
 					WP_Build_Polyfills::MODULE_IDS
 				)
 			);
+
+			// Enqueue the i18n loader so the init module can download its JS
+			// translation catalogs. admin_enqueue_scripts covers the wp-admin
+			// integrated variant; the full-page interceptor variant does not fire
+			// it (see ensure_script_data()), so also hook the page init action.
+			add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_i18n_loader' ) );
+			add_action( 'jetpack-premium-analytics_init', array( static::class, 'enqueue_i18n_loader' ) );
 		}
 
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );
@@ -170,24 +308,87 @@ class Analytics {
 	 * Uses the wp-build "wp-admin integrated" variant (`-wp-admin` slug) so the
 	 * dashboard renders inside the native wp-admin shell, not the full-page
 	 * variant that takes over the screen via admin_init. The render callback
-	 * comes from the generated build, with a no-op fallback when it is absent.
+	 * comes from the generated build; when that is missing we say so rather
+	 * than render an empty page, since the two look identical from the outside.
 	 *
 	 * @return void
 	 */
 	public static function register_admin_menu() {
-		$render_callback = function_exists( 'jpa_jetpack_premium_analytics_wp_admin_render_page' )
+		$has_build = function_exists( 'jpa_jetpack_premium_analytics_wp_admin_render_page' );
+
+		if ( ! $has_build ) {
+			// Surfaced here rather than only on the page itself, so a partial deploy shows up on
+			// the first admin request instead of waiting for someone to open the dashboard.
+			_doing_it_wrong(
+				__METHOD__,
+				'The Premium Analytics build output is missing, so the dashboard cannot render. The package build did not run for this deploy.',
+				''
+			);
+		}
+
+		$render_callback = $has_build
 			? 'jpa_jetpack_premium_analytics_wp_admin_render_page'
-			: '__return_null';
+			: array( __CLASS__, 'render_missing_build_notice' );
+
+		$menu_title = self::menu_title();
 
 		add_menu_page(
-			esc_html( self::$menu_title ),
-			esc_html( self::$menu_title ),
-			'manage_options',
+			esc_html( $menu_title ),
+			esc_html( $menu_title ),
+			Capabilities::VIEW_ANALYTICS,
 			'jetpack-premium-analytics-wp-admin',
 			$render_callback,
 			'dashicons-chart-bar',
 			2
 		);
+	}
+
+	/**
+	 * Stand-in for the generated render callback when the build output is absent.
+	 *
+	 * The PHP classes come from Composer and the build output from pnpm, so a
+	 * partial deploy can leave the class loadable with nothing to render.
+	 *
+	 * @return void
+	 */
+	public static function render_missing_build_notice() {
+		printf(
+			'<div class="wrap"><h1>%s</h1><p>%s</p></div>',
+			esc_html( self::menu_title() ),
+			esc_html__( 'The Premium Analytics assets are missing. The package build did not run for this deploy.', 'jetpack-premium-analytics-pkg' )
+		);
+	}
+
+	/**
+	 * The caller's menu label override, or the package's own translated label.
+	 *
+	 * Only call once translations can load — admin_menu or later. Memoized, so every
+	 * call site in a request shows the same label.
+	 *
+	 * Closures are resolved here rather than at init time, so a caller can hand us
+	 * `__()` in its own textdomain without translating too early. Deliberately not
+	 * is_callable(): PHP function names are case-insensitive, so a plain label like
+	 * "Analytics" would match a stray analytics() function and get called.
+	 *
+	 * @return string
+	 */
+	private static function menu_title() {
+		if ( null !== self::$resolved_menu_title ) {
+			return self::$resolved_menu_title;
+		}
+
+		$title = self::$menu_title instanceof \Closure
+			? ( self::$menu_title )()
+			: self::$menu_title;
+
+		// A positive check rather than a null coalesce: a closure is free to return an
+		// empty string, or something that isn't a string at all, and either would reach
+		// esc_html() as a broken label instead of falling back here.
+		self::$resolved_menu_title = is_string( $title ) && '' !== $title
+			? $title
+			: __( 'Stats v2', 'jetpack-premium-analytics-pkg' );
+
+		return self::$resolved_menu_title;
 	}
 
 	/**
@@ -203,7 +404,7 @@ class Analytics {
 		// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by function_exists() above.
 		jpa_register_jetpack_premium_analytics_menu_item(
 			'dashboard',
-			__( 'Dashboard', 'jetpack-premium-analytics' ),
+			__( 'Dashboard', 'jetpack-premium-analytics-pkg' ),
 			'/'
 		);
 	}
@@ -228,6 +429,19 @@ class Analytics {
 		$script_data = 'Automattic\Jetpack\Assets\Script_Data';
 		if ( is_callable( array( $script_data, 'render_script_data' ) ) ) {
 			$script_data::render_script_data();
+		}
+	}
+
+	/**
+	 * Enqueue the i18n loader so the wp-build init module can download its JS
+	 * translation catalogs. It's registered on every admin page by jetpack-assets
+	 * but only enqueued when depended on; the esbuild bundles don't pull it in.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_i18n_loader() {
+		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+			wp_enqueue_script( 'wp-jp-i18n-loader' );
 		}
 	}
 }

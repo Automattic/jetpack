@@ -39,16 +39,11 @@ export type StorePerformanceAttributes = {
  * instances: every metric enabled.
  */
 export default {
-	name: 'jpa/store-performance',
-	title: __( 'Store performance', 'jetpack-premium-analytics' ),
-	help: {
-		content: __( 'Shows key store performance metrics at a glance.', 'jetpack-premium-analytics' ),
-	},
 	icon: store,
 	attributes: [
 		{
 			id: 'metrics',
-			label: __( 'Metrics', 'jetpack-premium-analytics' ),
+			label: __( 'Metrics', 'jetpack-premium-analytics-pkg' ),
 			type: 'array',
 			relevance: 'high',
 			Edit: ArrayCheckboxField,

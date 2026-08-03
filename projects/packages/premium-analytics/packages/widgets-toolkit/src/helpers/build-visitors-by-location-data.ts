@@ -5,14 +5,26 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { calculateDelta } from './calculate-delta';
+import { getCombinedPeriodMax } from './get-combined-period-max';
+import { sharePercentage } from './share-percentage';
 import type { LeaderboardChartData } from '../components/chart-leaderboard/leaderboard-chart';
-import type { GeoData } from '@automattic/charts';
+import type { GeoData } from '@jetpack-premium-analytics/externals';
 
 export type Region = 'US' | 'world';
 
 export type VisitorsByLocationData = {
 	geoData: GeoData;
 	leaderboardData: LeaderboardChartData;
+
+	/**
+	 * Whether any visible leaderboard row has a matching comparison-period row.
+	 *
+	 * Callers combine this with the date-range comparison state so a period with
+	 * no overlapping rows hides comparison mode instead of rendering a column of
+	 * placeholders.
+	 */
+	hasRowComparison: boolean;
 };
 
 export type LocationDataEntry = {
@@ -36,7 +48,7 @@ type BuildVisitorsByLocationDataParams = {
  * @param params.comparisonData - Comparison period data (optional)
  * @param params.region         - The region ('US' or 'world')
  * @param params.limit          - Maximum number of items for leaderboard (default: 5)
- * @return Geo chart data and leaderboard data
+ * @return Geo chart data, leaderboard data, and whether any row has a comparison
  */
 export function buildVisitorsByLocationData( {
 	primaryData,
@@ -46,8 +58,8 @@ export function buildVisitorsByLocationData( {
 }: BuildVisitorsByLocationDataParams ): VisitorsByLocationData {
 	const headerLabel =
 		region === 'US'
-			? __( 'State', 'jetpack-premium-analytics' )
-			: __( 'Country', 'jetpack-premium-analytics' );
+			? __( 'State', 'jetpack-premium-analytics-pkg' )
+			: __( 'Country', 'jetpack-premium-analytics-pkg' );
 
 	// Build geo chart data
 	const geoData: GeoData = [
@@ -55,30 +67,38 @@ export function buildVisitorsByLocationData( {
 		...primaryData.map( item => [ item.label, item.value ] as [ string, number ] ),
 	];
 
-	// Find max values for bar width scaling (largest value = 100% width)
-	const maxPrimaryValue = Math.max( ...primaryData.map( d => d.value ), 0 );
-	const maxComparisonValue = comparisonData
-		? Math.max( ...comparisonData.map( d => d.value ), 0 )
-		: 0;
+	let hasRowComparison = false;
+	const comparisonValues = new Map( comparisonData?.map( item => [ item.id, item.value ] ) );
+	const visiblePrimaryData = primaryData.slice( 0, limit );
+	const maxValue = getCombinedPeriodMax(
+		visiblePrimaryData.map( item => item.value ),
+		visiblePrimaryData.map( item => comparisonValues.get( item.id ) )
+	);
 
 	// Build leaderboard data (top N items)
-	const leaderboardData: LeaderboardChartData = primaryData.slice( 0, limit ).map( item => {
-		const comparisonItem = comparisonData?.find( c => c.id === item.id );
-		const previousValue = comparisonItem?.value ?? 0;
-		const currentShare = maxPrimaryValue > 0 ? ( item.value / maxPrimaryValue ) * 100 : 0;
-		const previousShare = maxComparisonValue > 0 ? ( previousValue / maxComparisonValue ) * 100 : 0;
-		const delta = previousValue > 0 ? ( ( item.value - previousValue ) / previousValue ) * 100 : 0;
+	const leaderboardData: LeaderboardChartData = visiblePrimaryData.map( item => {
+		// A location absent from the comparison period has an unknown previous
+		// value, not a real 0, so leave the comparison fields undefined and let
+		// the chart show a missing-data placeholder instead of a fabricated delta.
+		// A location present with 0 visitors keeps its known comparison value while
+		// its unavailable delta renders separately.
+		const previousValue = comparisonValues.get( item.id );
+		const hasComparisonValue = previousValue !== undefined;
+
+		if ( hasComparisonValue ) {
+			hasRowComparison = true;
+		}
 
 		return {
 			id: item.id,
 			label: item.label,
 			currentValue: item.value,
 			previousValue,
-			currentShare,
-			previousShare,
-			delta,
+			currentShare: sharePercentage( item.value, maxValue ),
+			previousShare: hasComparisonValue ? sharePercentage( previousValue, maxValue ) : undefined,
+			delta: hasComparisonValue ? calculateDelta( item.value, previousValue ) : undefined,
 		};
 	} );
 
-	return { geoData, leaderboardData };
+	return { geoData, leaderboardData, hasRowComparison };
 }

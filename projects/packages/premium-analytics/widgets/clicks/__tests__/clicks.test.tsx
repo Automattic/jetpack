@@ -12,9 +12,7 @@ import type { StatsClicksItem, StatsNormalizedReport } from '@jetpack-premium-an
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
-jest.mock( '@wordpress/route', () => ( {
-	useSearch: () => ( {} ),
-} ) );
+jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
@@ -89,6 +87,15 @@ describe( 'ClicksWidget', () => {
 
 		const link = await screen.findByRole( 'link', { name: /jetpack\.com/i } );
 		expect( link ).toHaveAttribute( 'href', 'https://jetpack.com/' );
+	} );
+
+	it( 'links to the Clicks report', () => {
+		render( <ClicksWidget attributes={ { max: 10 } } /> );
+
+		expect( screen.getByRole( 'link', { name: 'See report' } ) ).toHaveAttribute(
+			'href',
+			expect.stringContaining( '/reports/clicks' )
+		);
 	} );
 
 	it( 'clears the stored drill-down when the selected link leaves the data', async () => {
@@ -326,5 +333,36 @@ describe( 'toClickRows', () => {
 				},
 			],
 		} );
+	} );
+
+	// The guard replaced a `typeof item.link === 'string'` check, which reads like a validity
+	// check — a revert to plain truthiness would reopen the sink with nothing else failing.
+	it( 'omits href for a row whose link is not a safe http(s) URL', () => {
+		const primary = {
+			summary: {},
+			data: [
+				{
+					time_interval: '2026-06-29',
+					date_start: '2026-06-29 00:00:00',
+					date_end: '2026-06-29 23:59:59',
+					items: [
+						{
+							label: 'evil.example',
+							views: 12,
+							link: 'javascript:alert(document.cookie)',
+							icon: null,
+							labelIcon: 'external',
+							children: null,
+						},
+					] satisfies StatsClicksItem[],
+				},
+			],
+		} satisfies StatsNormalizedReport< StatsClicksItem >;
+
+		const [ row ] = toClickRows( primary, undefined, 10 );
+
+		// The row still lists — rejecting the URL must not drop the data.
+		expect( row.label ).toBe( 'evil.example' );
+		expect( row.href ).toBeUndefined();
 	} );
 } );

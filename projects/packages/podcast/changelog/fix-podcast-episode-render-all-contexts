@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Podcast Episode: render the full player in all contexts (including the RSS feed) so it shows in the WPCOM Reader on Atomic and Jetpack sites, with a linked title and a native media fallback link for clients that strip the player.

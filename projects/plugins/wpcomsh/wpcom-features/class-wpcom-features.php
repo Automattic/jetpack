@@ -487,12 +487,14 @@ class WPCOM_Features {
 	public const SCAN_SELF_SERVE                   = 'scan-self-serve';
 	public const SCHEDULED_UPDATES                 = 'scheduled-updates';
 	public const SECURITY_SETTINGS                 = 'security-settings';
+	public const SEO_ADMIN_UI                      = 'seo-admin-ui';
 	public const SEO_PREVIEW_TOOLS                 = 'seo-preview-tools';
 	public const SEND_A_MESSAGE                    = 'send-a-message';
 	public const SET_PRIMARY_CUSTOM_DOMAIN         = 'set-primary-custom-domain';
 	public const SFTP                              = 'sftp';
 	public const SIMPLE_PAYMENTS                   = 'simple-payments';
 	public const SITE_PREVIEW_LINKS                = 'site-preview-links';
+	public const SOCIAL_ADMIN_UI_V2                = 'social-admin-ui-v2';
 	public const SOCIAL_IMAGE_FOCAL_POINT          = 'social-image-focal-point';
 	public const SOCIAL_IMAGE_GENERATOR            = 'social-image-generator';
 	public const SOCIAL_MESSAGE_TEMPLATES          = 'social-message-templates';
@@ -1209,10 +1211,7 @@ class WPCOM_Features {
 		),
 
 		self::RECURRING_PAYMENTS                => array(
-			array(
-				'sticker_not_present' => 'gating-business-q1',
-				self::WPCOM_ALL_SITES,
-			),
+			self::WPCOM_ALL_SITES,
 			self::WPCOM_STARTER_PLANS,
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
@@ -1296,6 +1295,13 @@ class WPCOM_Features {
 			self::JETPACK_ALL_SITES,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
+		self::SEO_ADMIN_UI                      => array(
+			// For now, this is controlled via a blog sticker in Store_Product_List.
+			array(
+				'before' => '2004-12-12',
+				self::WPCOM_ALL_SITES,
+			),
+		),
 		self::SEO_PREVIEW_TOOLS                 => array(
 			array(
 				'required_sticker' => 'gating-business-q1',
@@ -1368,6 +1374,13 @@ class WPCOM_Features {
 			self::JETPACK_SOCIAL_PLANS,
 			self::JETPACK_GROWTH_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+		),
+		self::SOCIAL_ADMIN_UI_V2                => array(
+			// For now, this is controlled via a blog sticker in Store_Product_List.
+			array(
+				'before' => '2004-12-12',
+				self::WPCOM_ALL_SITES,
+			),
 		),
 		self::SOCIAL_IMAGE_FOCAL_POINT          => array(
 			// For now, this is controlled via a blog sticker in Store_Product_List.

@@ -3,9 +3,13 @@
  */
 import {
 	LeaderboardChart,
+	ReportLink,
 	WidgetBackLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	safeHttpUrl,
+	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
@@ -51,13 +55,15 @@ interface TagGroupMembersProps {
  * @return The rendered label.
  */
 function TagLabel( { labelIcon, label, link }: TagLabelProps ) {
+	const href = safeHttpUrl( link );
+
 	return (
 		<>
 			<Icon icon={ rowGlyph( labelIcon ) } size={ 20 } className={ styles.itemIcon } />
-			{ link ? (
+			{ href ? (
 				<Link
 					className={ styles.itemLabelText }
-					href={ link }
+					href={ href }
 					variant="unstyled"
 					openInNewTab
 					title={ label }
@@ -139,14 +145,14 @@ function TagsInner( { max = 10 }: TagsAttributes ) {
 					</Stack>
 				),
 				currentValue: row.value,
-				currentShare: maxValue > 0 ? ( row.value / maxValue ) * 100 : 0,
+				currentShare: sharePercentage( row.value, maxValue ),
 				// Grouped rows have no single archive URL, so a click drills into
 				// their members instead. Single tag/category rows link out directly.
 				...( isGroup && {
 					onClick: () => selectGroup( row.label ),
 					ariaLabel: sprintf(
 						/* translators: %s is the grouped tags and categories label */
-						__( 'View the tags and categories in %s', 'jetpack-premium-analytics' ),
+						__( 'View the tags and categories in %s', 'jetpack-premium-analytics-pkg' ),
 						row.label
 					),
 				} ),
@@ -159,7 +165,7 @@ function TagsInner( { max = 10 }: TagsAttributes ) {
 			<div className={ styles.content }>
 				{ selectedGroup && (
 					<WidgetBackLink
-						label={ __( 'All tags & categories', 'jetpack-premium-analytics' ) }
+						label={ __( 'All tags & categories', 'jetpack-premium-analytics-pkg' ) }
 						onClick={ clearSelection }
 					/>
 				) }
@@ -171,15 +177,17 @@ function TagsInner( { max = 10 }: TagsAttributes ) {
 					error={ {
 						description: __(
 							"We couldn't load tags & categories. Please try again in a moment.",
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
-						actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
 					} }
 					empty={ {
 						icon: tagIllustration,
 						description: __(
 							'Learn about your most visited tags & categories to track engaging topics.',
-							'jetpack-premium-analytics'
+							'jetpack-premium-analytics-pkg'
 						),
 					} }
 				>
@@ -198,6 +206,9 @@ function TagsInner( { max = 10 }: TagsAttributes ) {
 					) }
 				</WidgetState>
 			</div>
+			<WidgetFooter>
+				<ReportLink report="tags" />
+			</WidgetFooter>
 		</Stack>
 	);
 }

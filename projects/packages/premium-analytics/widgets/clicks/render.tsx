@@ -11,11 +11,17 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
-	LeaderboardLabel,
+	ReportLink,
 	WidgetBackLink,
-	WidgetLoadingOverlay,
+	WidgetFooter,
 	WidgetRoot,
+	WidgetState,
+	buildLeaderboardRow,
 	calculateDelta,
+	getCombinedPeriodMax,
+	resolveLeaderboardRowAction,
+	safeHttpUrl,
+	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
@@ -23,7 +29,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Link, Stack, Text } from '@wordpress/ui';
+import { link } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -79,11 +85,13 @@ function getItemLabel( item: StatsClicksComparisonItem | StatsClicksItem ): stri
 }
 
 function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
+	const href = safeHttpUrl( item.link );
+
 	return {
 		label: getItemLabel( item ),
 		value: item.views,
 		previousValue: item.previousValue,
-		...( item.link ? { href: item.link } : {} ),
+		...( href ? { href } : {} ),
 		icon: item.icon,
 		children: item.children?.map( toClickRow ),
 		...( item.childrenHaveComparison ? { childrenHaveComparison: true } : {} ),
@@ -143,60 +151,46 @@ function buildLeaderboardData(
 	withComparison: boolean,
 	onDrillDown?: ( row: ClickRow ) => void
 ): LeaderboardChartData {
-	const maxCurrentClicks = Math.max( ...rows.map( row => row.value ), 1 );
-	const maxPreviousClicks = Math.max( ...rows.map( row => row.previousValue ?? 0 ), 1 );
+	const maxClicks = getCombinedPeriodMax(
+		rows.map( row => row.value ),
+		withComparison ? rows.map( row => row.previousValue ) : []
+	);
 
 	return rows.map( ( row, index ) => {
 		const previousValue = row.previousValue;
 		const hasChildren = !! row.children?.length;
-		const shouldRenderLink = !! row.href && ! hasChildren;
-		const label = (
-			<LeaderboardLabel
-				label={ row.label }
-				imageUrl={ row.icon ?? undefined }
-				imageAlt=""
-				imageFallback="hidden"
-				imageClassName={ styles.labelIcon }
-			/>
-		);
 
 		return {
 			id: `${ index }-${ row.href ?? row.label }`,
-			label: shouldRenderLink ? (
-				<Link
-					className={ styles.labelLink }
-					href={ row.href }
-					variant="unstyled"
-					openInNewTab
-					title={ row.label }
-				>
-					{ label }
-				</Link>
-			) : (
-				<span className={ styles.labelText } title={ row.label }>
-					{ label }
-				</span>
-			),
+			...buildLeaderboardRow( {
+				label: row.label,
+				media: { kind: 'favicon', url: row.icon ?? undefined },
+				action: resolveLeaderboardRowAction( {
+					href: row.href,
+					hasChildren,
+					drillDown: onDrillDown
+						? {
+								onClick: () => onDrillDown( row ),
+								ariaLabel: sprintf(
+									/* translators: %s is the clicked link or domain label. */
+									__( 'View clicked links for %s', 'jetpack-premium-analytics-pkg' ),
+									row.label
+								),
+						  }
+						: undefined,
+				} ),
+			} ),
 			currentValue: row.value,
-			currentShare: ( row.value / maxCurrentClicks ) * 100,
+			currentShare: sharePercentage( row.value, maxClicks ),
 			previousValue,
 			previousShare:
 				withComparison && previousValue !== undefined
-					? ( previousValue / maxPreviousClicks ) * 100
+					? sharePercentage( previousValue, maxClicks )
 					: undefined,
 			delta:
 				withComparison && previousValue !== undefined
 					? calculateDelta( row.value, previousValue )
 					: undefined,
-			...( hasChildren &&
-				onDrillDown && {
-					onClick: () => onDrillDown( row ),
-					ariaLabel: sprintf(
-						/* translators: %s is the clicked link or domain label. */
-						__( 'View clicked links for %s', 'jetpack-premium-analytics' ),
-						row.label
-					),
-				} ),
 		};
 	} );
 }
@@ -206,14 +200,6 @@ export type ClicksLeaderboardProps = {
 	 * Normalized click rows.
 	 */
 	rows?: ClickRow[];
-	/**
-	 * When true, show a loading overlay.
-	 */
-	isLoading?: boolean;
-	/**
-	 * When true, show an error message.
-	 */
-	isError?: boolean;
 	/**
 	 * When true, render comparison deltas.
 	 */
@@ -232,31 +218,15 @@ export type ClicksLeaderboardProps = {
  */
 export function ClicksLeaderboard( {
 	rows = [],
-	isLoading = false,
-	isError = false,
 	withComparison = false,
 	onDrillDown,
 }: ClicksLeaderboardProps ) {
-	if ( isError ) {
-		return (
-			<Stack align="center" justify="center" className={ styles.placeholder }>
-				<Text>{ __( 'Could not load clicks data.', 'jetpack-premium-analytics' ) }</Text>
-			</Stack>
-		);
-	}
-
-	if ( isLoading && rows.length === 0 ) {
-		return <WidgetLoadingOverlay />;
-	}
-
 	return (
 		<LeaderboardChart
 			data={ buildLeaderboardData( rows, withComparison, onDrillDown ) }
-			loading={ isLoading }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
-			emptyStateText={ __( 'No clicks in this period.', 'jetpack-premium-analytics' ) }
 			dataFormat={ DATA_FORMAT }
 		/>
 	);
@@ -287,11 +257,10 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 		...reportParams,
 		max,
 	} as StatsReportParams;
-	const { comparisonRows, hasComparison, isLoading, isFetching, hasData, isError } = useStatsClicks(
+	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } = useStatsClicks(
 		statsParams,
 		{ maxRows: max }
 	);
-	const showLoading = isLoading || ( isFetching && hasData );
 
 	const rows = useMemo(
 		() => ( comparisonRows?.rows ?? [] ).map( toClickRow ),
@@ -326,8 +295,8 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 
 	const backLink = isDrillDown ? (
 		<WidgetBackLink
-			label={ __( 'All Clicks', 'jetpack-premium-analytics' ) }
-			ariaLabel={ __( 'View all clicks', 'jetpack-premium-analytics' ) }
+			label={ __( 'All Clicks', 'jetpack-premium-analytics-pkg' ) }
+			ariaLabel={ __( 'View all clicks', 'jetpack-premium-analytics-pkg' ) }
 			onClick={ clearSelectedClick }
 		/>
 	) : null;
@@ -335,13 +304,33 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 	return (
 		<div className={ styles.content }>
 			{ backLink }
-			<ClicksLeaderboard
-				rows={ activeRows }
-				isLoading={ showLoading }
-				isError={ isError }
-				withComparison={ withComparison }
-				onDrillDown={ isDrillDown ? undefined : handleDrillDown }
-			/>
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				// The Stats queries carry `placeholderData: previousData => previousData`, so a
+				// failed range change keeps the prior period's rows while `isError` flips true.
+				// Only surface the error when there's nothing to show, so a transient refetch
+				// failure doesn't replace populated rows with the error state.
+				isError={ rows.length === 0 && isError }
+				isEmpty={ activeRows.length === 0 }
+				error={ {
+					description: __(
+						"We couldn't load clicks. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
+				} }
+				empty={ {
+					icon: link,
+					description: __( 'No clicks in this period.', 'jetpack-premium-analytics-pkg' ),
+				} }
+			>
+				<ClicksLeaderboard
+					rows={ activeRows }
+					withComparison={ withComparison }
+					onDrillDown={ isDrillDown ? undefined : handleDrillDown }
+				/>
+			</WidgetState>
 		</div>
 	);
 }
@@ -362,6 +351,9 @@ export default function ClicksWidget( { attributes = {} }: ClicksWidgetProps ) {
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
 				<ClicksInner max={ max } />
+				<WidgetFooter>
+					<ReportLink report="clicks" />
+				</WidgetFooter>
 			</div>
 		</WidgetRoot>
 	);

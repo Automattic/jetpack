@@ -3,18 +3,25 @@
  */
 import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Text } from '@wordpress/ui';
 import {
 	calculateDelta,
+	describeError,
+	getCombinedPeriodMax,
 	LeaderboardChart,
+	LeaderboardPostLabel,
+	ReportLink,
 	WidgetBackLink,
-	WidgetLoadingOverlay,
+	WidgetFooter,
 	WidgetRoot,
+	WidgetState,
+	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { megaphone } from '@jetpack-premium-analytics/icons';
 /**
  * Internal dependencies
  */
@@ -30,6 +37,13 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type UtmInsightsRenderAttributes = UtmInsightsAttributes & Partial< ReportParamsFieldAttributes >;
 type UtmInsightsWidgetProps = WidgetRenderProps< UtmInsightsRenderAttributes >;
 
+type UtmReportSection =
+	| 'source-medium'
+	| 'campaign-source-medium'
+	| 'source'
+	| 'medium'
+	| 'campaign';
+
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
 const DEFAULT_UTM_DIMENSION: StatsUtmParam = 'utm_source,utm_medium';
@@ -43,7 +57,27 @@ type UtmInsightsInnerProps = {
 	 * Max rows to display.
 	 */
 	max: number;
+	/**
+	 * Whether to render the "See report" footer link.
+	 */
+	showReportLink: boolean;
 };
+
+/** Map a widget dimension to a section supported by the UTM report. */
+function getUtmReportSection( utmDimension: StatsUtmParam ): UtmReportSection {
+	switch ( utmDimension ) {
+		case 'utm_source,utm_medium':
+			return 'source-medium';
+		case 'utm_campaign,utm_source,utm_medium':
+			return 'campaign-source-medium';
+		case 'utm_source':
+			return 'source';
+		case 'utm_medium':
+			return 'medium';
+		case 'utm_campaign':
+			return 'campaign';
+	}
+}
 
 /**
  * Inner component — rendered inside WidgetRoot.
@@ -51,7 +85,7 @@ type UtmInsightsInnerProps = {
  * @param {UtmInsightsInnerProps} props - The component props.
  * @return The rendered leaderboard or state placeholder.
  */
-function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
+function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const {
 		drillDownItem: selectedUtmLabel,
@@ -65,13 +99,12 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 		clearSelectedUtm();
 	}, [ clearSelectedUtm, utmDimension ] );
 
-	const { data, hasComparison, isLoading, isFetching, hasData, isError } = useUtmInsights( {
+	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = useUtmInsights( {
 		reportParams,
 		utmParam: utmDimension,
 		max,
 	} );
 
-	const showLoading = isLoading || ( isFetching && hasData );
 	const selectedUtm = useMemo(
 		() => data.find( item => item.label === selectedUtmLabel ) ?? null,
 		[ data, selectedUtmLabel ]
@@ -96,25 +129,36 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 	}, [ selectedUtmLabel, isDrillDown, isLoading, isFetching, isError, clearSelectedUtm ] );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
-		const maxValue = Math.max( ...activeData.map( d => d.value ), 1 );
-		const maxPreviousValue = Math.max( ...activeData.map( d => d.previousValue ?? 0 ), 1 );
+		const maxValue = getCombinedPeriodMax(
+			activeData.map( item => item.value ),
+			withComparison ? activeData.map( item => item.previousValue ) : []
+		);
 
 		return activeData.map( ( item, index ) => {
 			const previousValue = item.previousValue;
+			const postRow = 'postId' in item ? item : null;
 
 			return {
 				id: `${ index }-${ item.label }`,
-				label: (
-					<Stack align="center" className={ styles.itemLabel }>
+				label: postRow ? (
+					<LeaderboardPostLabel
+						id={ postRow.postId }
+						label={ postRow.label }
+						link={ postRow.href }
+						variant="overlay"
+						className={ styles.itemLabelInset }
+					/>
+				) : (
+					<span className={ styles.itemLabel }>
 						<Text className={ styles.itemLabelText }>{ item.label }</Text>
-					</Stack>
+					</span>
 				),
 				currentValue: item.value,
-				currentShare: ( item.value / maxValue ) * 100,
+				currentShare: sharePercentage( item.value, maxValue ),
 				previousValue,
 				previousShare:
 					withComparison && previousValue !== undefined
-						? ( previousValue / maxPreviousValue ) * 100
+						? sharePercentage( previousValue, maxValue )
 						: undefined,
 				delta:
 					withComparison && previousValue !== undefined
@@ -126,7 +170,7 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 						onClick: () => selectUtmLabel( item.label ),
 						ariaLabel: sprintf(
 							/* translators: %s is the UTM value label. */
-							__( 'View posts for %s', 'jetpack-premium-analytics' ),
+							__( 'View posts for %s', 'jetpack-premium-analytics-pkg' ),
 							item.label
 						),
 					} ),
@@ -136,46 +180,47 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 
 	const backLink = isDrillDown ? (
 		<WidgetBackLink
-			label={ __( 'All UTM Insights', 'jetpack-premium-analytics' ) }
-			ariaLabel={ __( 'View all UTM insights', 'jetpack-premium-analytics' ) }
+			label={ __( 'All UTM Insights', 'jetpack-premium-analytics-pkg' ) }
+			ariaLabel={ __( 'View all UTM insights', 'jetpack-premium-analytics-pkg' ) }
 			onClick={ clearSelectedUtm }
 			className={ styles.backLink }
 		/>
 	) : null;
-
-	if ( isError ) {
-		return (
-			<>
-				{ backLink }
-				<Stack align="center" justify="center" className={ styles.placeholder }>
-					<Text>{ __( 'Could not load UTM data.', 'jetpack-premium-analytics' ) }</Text>
-				</Stack>
-			</>
-		);
-	}
-
-	if ( isLoading && data.length === 0 ) {
-		return (
-			<>
-				{ backLink }
-				<WidgetLoadingOverlay />
-			</>
-		);
-	}
-
 	return (
 		<>
 			{ backLink }
-			<LeaderboardChart
-				data={ leaderboardData }
-				loading={ showLoading }
-				withComparison={ withComparison }
-				withOverlayLabel
-				showLegend={ false }
-				emptyStateText={ __( 'No UTM data in this period.', 'jetpack-premium-analytics' ) }
-				dataFormat={ DATA_FORMAT }
-				className={ styles.leaderboard }
-			/>
+			<div className={ styles.content }>
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					isError={ isError }
+					isEmpty={ data.length === 0 }
+					error={ describeError( error, {
+						retryDescription: __(
+							"We couldn't load UTM data. Please try again in a moment.",
+							'jetpack-premium-analytics-pkg'
+						),
+						onRetry: refetch,
+					} ) }
+					empty={ {
+						icon: megaphone,
+						description: __( 'No UTM data in this period.', 'jetpack-premium-analytics-pkg' ),
+					} }
+				>
+					<LeaderboardChart
+						data={ leaderboardData }
+						withComparison={ withComparison }
+						withOverlayLabel
+						showLegend={ false }
+						dataFormat={ DATA_FORMAT }
+					/>
+				</WidgetState>
+			</div>
+			{ showReportLink && (
+				<WidgetFooter>
+					<ReportLink report="utm" section={ getUtmReportSection( utmDimension ) } />
+				</WidgetFooter>
+			) }
 		</>
 	);
 }
@@ -193,11 +238,16 @@ function UtmInsightsInner( { utmDimension, max }: UtmInsightsInnerProps ) {
 export default function UtmInsightsWidget( { attributes = {} }: UtmInsightsWidgetProps ) {
 	const utmDimension = attributes.utmDimension ?? DEFAULT_UTM_DIMENSION;
 	const max = attributes.max ?? 10;
+	const showReportLink = attributes.showReportLink ?? true;
 
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<UtmInsightsInner utmDimension={ utmDimension } max={ max } />
+				<UtmInsightsInner
+					utmDimension={ utmDimension }
+					max={ max }
+					showReportLink={ showReportLink }
+				/>
 			</div>
 		</WidgetRoot>
 	);

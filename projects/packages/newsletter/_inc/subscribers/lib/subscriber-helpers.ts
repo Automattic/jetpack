@@ -1,4 +1,11 @@
-import type { RemoveSubscriberPayload, Subscriber } from '../data/types';
+import type { RemoveSubscriberPayload, Subscriber, SubscriberDetails } from '../data/types';
+
+// Trailing `Z` or `±HH:MM` / `±HHMM` offset.
+const HAS_TIMEZONE = /(?:Z|[+-]\d{2}:?\d{2})$/i;
+
+// WP.com passes through a zero date when the record carries no subscription timestamp, rather
+// than omitting the field. Rendering it would print a year-0000 date, so treat it as absent.
+const ZERO_DATE = /^0000-00-00/;
 
 /**
  * Coerce a URL search-param value into a positive finite number.
@@ -15,20 +22,31 @@ export function toFiniteNumber( value: unknown ): number | undefined {
 }
 
 /**
- * Best-effort subscription date — Calypso prefers `wpcom_date_subscribed`, falling back to the
- * email subscription date for email-only subscribers. Returns the value with a `+00:00` suffix
- * appended (matching Calypso's `getFormattedSubscriptionDate` helper) so the date renders in the
- * caller's locale rather than UTC.
+ * Best-effort subscription date, accepting either payload shape.
  *
- * @param subscriber - Subscriber.
+ * List rows carry the `wpcom_`/`email_` pair — Calypso prefers `wpcom_date_subscribed`, falling
+ * back to the email subscription date for email-only subscribers. The individual-subscriber
+ * endpoint instead sends a single `date_subscribed`, which is why the detail panel showed nothing
+ * before it was handled here.
+ *
+ * The two shapes also differ in format: list dates are naive UTC (`2026-07-28 19:02:09`) and need
+ * pinning to UTC so they render in the caller's locale rather than being read as local time
+ * (matching Calypso's `getFormattedSubscriptionDate`), while the individual date already carries an
+ * offset — appending a second one would make it unparseable.
+ *
+ * @param subscriber - Subscriber row or detail payload.
  * @return ISO-ish date string or empty.
  */
-export function getSubscribedAt( subscriber: Subscriber ): string {
-	const raw = subscriber.wpcom_date_subscribed || subscriber.email_date_subscribed || '';
-	if ( ! raw ) {
+export function getSubscribedAt( subscriber: Subscriber | SubscriberDetails ): string {
+	const raw =
+		subscriber.wpcom_date_subscribed ||
+		subscriber.email_date_subscribed ||
+		( subscriber as SubscriberDetails ).date_subscribed ||
+		'';
+	if ( ! raw || ZERO_DATE.test( raw ) ) {
 		return '';
 	}
-	return `${ raw }+00:00`;
+	return HAS_TIMEZONE.test( raw ) ? raw : `${ raw }+00:00`;
 }
 
 /**
