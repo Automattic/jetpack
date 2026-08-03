@@ -1,5 +1,6 @@
 import { ConnectionService } from '../types';
 import { AttachedMedia, MediaSourceValue, SHARING_ACTIVITY_TABS } from '../utils';
+import type { Hyperlink } from '@automattic/social-previews';
 
 export type ConnectionStatus = 'ok' | 'broken' | 'must_reauth';
 
@@ -141,6 +142,7 @@ export type RenderCount = { [ Key in 'social-preview' | 'edit-template' ]?: numb
 export type RenderedMessageBatch = {
 	[ ConnectionId: string ]: {
 		rendered_message?: string;
+		hyperlinks?: Hyperlink[];
 		error?: { code: string; message: string };
 	};
 };

@@ -108,10 +108,10 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 	).trim();
 	const currentRenderItem = items.find( item => item.connection_id === connection.connection_id );
 
-	const { rendered, isLoadingRendered } = useSelect(
+	const { rendered, renderedHyperlinks, isLoadingRendered } = useSelect(
 		select => {
 			if ( ! templatesEnabled || ! postId ) {
-				return { rendered: null, isLoadingRendered: false };
+				return { rendered: null, renderedHyperlinks: [], isLoadingRendered: false };
 			}
 			// Read from the cache-only selector so this hook does not trigger requests.
 			// Fetches are driven centrally by `useDriveRenderedMessagesFetch`.
@@ -120,6 +120,7 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 
 			return {
 				rendered: batch?.[ connection.connection_id ]?.rendered_message ?? null,
+				renderedHyperlinks: batch?.[ connection.connection_id ]?.hyperlinks ?? [],
 				isLoadingRendered: social.isLoadingRenderedMessages( postId, items, postIntent ),
 			};
 		},
@@ -138,13 +139,21 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 	// Last rendered message for this connection, kept across cache-key changes
 	// (e.g. title/excerpt edits) so a pending re-render keeps showing rendered
 	// text instead of flashing the raw template or a skeleton.
-	const lastRenderedRef = useRef< { connectionId: string; message: string } | null >( null );
+	const lastRenderedRef = useRef< {
+		connectionId: string;
+		message: string;
+		hyperlinks: NonNullable< PostPreviewData[ 'hyperlinks' ] >;
+	} | null >( null );
 	if ( templatesEnabled && typeof rendered === 'string' ) {
-		lastRenderedRef.current = { connectionId: connection.connection_id, message: rendered };
+		lastRenderedRef.current = {
+			connectionId: connection.connection_id,
+			message: rendered,
+			hyperlinks: renderedHyperlinks,
+		};
 	}
 	const lastRendered =
 		lastRenderedRef.current?.connectionId === connection.connection_id
-			? lastRenderedRef.current.message
+			? lastRenderedRef.current
 			: null;
 
 	return useMemo( () => {
@@ -155,10 +164,13 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 		// disabled, or the request failed. While pending, fall back to the last
 		// rendered message, or to the skeleton (`isLoading`) when there is none.
 		let message = baseMessage;
+		let hyperlinks: PostPreviewData[ 'hyperlinks' ] = [];
 		if ( templatesEnabled && typeof rendered === 'string' ) {
 			message = rendered;
+			hyperlinks = renderedHyperlinks;
 		} else if ( lastRendered !== null ) {
-			message = lastRendered;
+			message = lastRendered.message;
+			hyperlinks = lastRendered.hyperlinks;
 		} else if ( isPending ) {
 			message = '';
 		}
@@ -166,6 +178,7 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 		return {
 			...postData,
 			message,
+			hyperlinks,
 			media,
 			isLoading: isPending && message === '',
 		};
@@ -177,6 +190,7 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 		media,
 		postData,
 		rendered,
+		renderedHyperlinks,
 		templatesEnabled,
 	] );
 }

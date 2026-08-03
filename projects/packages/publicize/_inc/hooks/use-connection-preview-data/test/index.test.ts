@@ -121,6 +121,7 @@ const defaultPostData = {
  * @param opts.postId            - Post id returned to the editor-store useSelect.
  * @param opts.messageTemplate   - Saved site message template.
  * @param opts.rendered          - String returned for the rendered slice, or null to signal "no slice yet".
+ * @param opts.hyperlinks        - Source-aware hyperlinks returned with the rendered message.
  * @param opts.isLoadingRendered - Whether the rendered-messages cache slot is currently in-flight.
  */
 function mockSelectCalls(
@@ -128,15 +129,22 @@ function mockSelectCalls(
 		postId?: number;
 		messageTemplate?: string;
 		rendered?: string | null;
+		hyperlinks?: Array< { text: string; href: string; occurrence?: number } >;
 		isLoadingRendered?: boolean;
 	} = {}
 ) {
-	const { postId = 42, messageTemplate = '', rendered = null, isLoadingRendered = false } = opts;
+	const {
+		postId = 42,
+		messageTemplate = '',
+		rendered = null,
+		hyperlinks = [],
+		isLoadingRendered = false,
+	} = opts;
 	mockUseSelect
 		.mockReturnValueOnce( postId )
 		.mockReturnValueOnce( 0 )
 		.mockReturnValueOnce( messageTemplate )
-		.mockReturnValueOnce( { rendered, isLoadingRendered } );
+		.mockReturnValueOnce( { rendered, renderedHyperlinks: hyperlinks, isLoadingRendered } );
 }
 
 describe( 'useConnectionPreviewData', () => {
@@ -171,6 +179,7 @@ describe( 'useConnectionPreviewData', () => {
 
 		expect( result.current ).toEqual( {
 			...defaultPostData,
+			hyperlinks: [],
 			isLoading: false,
 			message: 'Global message',
 		} );
@@ -305,6 +314,32 @@ describe( 'useConnectionPreviewData', () => {
 		const { result } = renderHook( () => useConnectionPreviewData( connection ) );
 
 		expect( result.current.message ).toBe( 'Hello World\n\nExcerpt\n\nhttps://example.com/post' );
+	} );
+
+	it( 'uses source-aware hyperlinks returned with the rendered message', () => {
+		const hyperlinks = [ { text: 'same phrase', href: 'https://example.com/real', occurrence: 2 } ];
+		mockSelectCalls( {
+			rendered: 'same phrase | same phrase first, then same phrase',
+			hyperlinks,
+		} );
+		mockSiteHasFeature.mockReturnValue( true );
+
+		const { result } = renderHook( () => useConnectionPreviewData( createMockConnection() ) );
+
+		expect( result.current.hyperlinks ).toEqual( hyperlinks );
+	} );
+
+	it( 'does not apply post hyperlinks to a literal custom message', () => {
+		mockSelectCalls();
+		mockUseSocialPreviewPostData.mockReturnValue( {
+			...defaultPostData,
+			hyperlinks: [ { text: 'same phrase', href: 'https://example.com/unrelated' } ],
+		} );
+
+		const { result } = renderHook( () => useConnectionPreviewData( createMockConnection() ) );
+
+		expect( result.current.message ).toBe( 'Global message' );
+		expect( result.current.hyperlinks ).toEqual( [] );
 	} );
 
 	it( 'falls back to raw message when no rendered slice is available', () => {

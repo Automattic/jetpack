@@ -118,6 +118,16 @@ describe( 'useSocialPreviewPostData', () => {
 		expect( result.current.excerpt ).toBe( 'Test excerpt' );
 	} );
 
+	it( 'does not infer preview hyperlinks from the whole post', () => {
+		mockGetEditedPostContent.mockReturnValue(
+			'<p><a href="https://example.com/unrelated">Test excerpt</a></p>'
+		);
+
+		const { result } = renderHook( () => useSocialPreviewPostData() );
+
+		expect( result.current.hyperlinks ).toBeUndefined();
+	} );
+
 	it( 'should use content before more tag when no excerpt', () => {
 		mockGetEditedPostAttribute.mockImplementation( ( attr: string ) => {
 			const attributes: Record< string, unknown > = {
