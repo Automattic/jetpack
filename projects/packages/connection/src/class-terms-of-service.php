@@ -90,10 +90,12 @@ class Terms_Of_Service {
 	 * @return bool
 	 */
 	protected function get_raw_has_agreed() {
-		// Use null as the default so we can tell an unset option apart from a stored `false`.
-		$has_agreed = \Jetpack_Options::get_option( self::OPTION_NAME, null );
+		// Use a unique sentinel as the default so an absent option can't be confused with a
+		// stored value (a legitimately stored null/false would otherwise be treated as absent).
+		$sentinel   = new \stdClass();
+		$has_agreed = \Jetpack_Options::get_option( self::OPTION_NAME, $sentinel );
 
-		if ( null === $has_agreed ) {
+		if ( $sentinel === $has_agreed ) {
 			// The option has never been stored. Persist the default as an autoloaded row so it
 			// isn't re-queried on every request on sites without a persistent object cache
 			// (JETPACK-1539). add_option (not update_option) is required because update_option
