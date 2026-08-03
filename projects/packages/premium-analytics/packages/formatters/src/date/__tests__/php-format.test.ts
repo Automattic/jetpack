@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { withoutYear } from '../php-format';
+import { withWeekday, withoutYear } from '../php-format';
 
 describe( 'withoutYear', () => {
 	// Real `date_format` defaults taken from the WordPress core language packs,
@@ -60,5 +60,36 @@ describe( 'withoutYear', () => {
 	it( 'keeps the month ordinal dot in Finnish and Czech formats', () => {
 		expect( withoutYear( 'j.n.Y' ) ).toBe( 'j.n.' );
 		expect( withoutYear( 'j. n. Y' ) ).toBe( 'j. n.' );
+	} );
+} );
+
+describe( 'withWeekday', () => {
+	it( 'leads the site format with the full weekday', () => {
+		expect( withWeekday( 'F j, Y' ) ).toBe( 'l, F j, Y' );
+	} );
+
+	it( 'leads a day-first format the same way', () => {
+		expect( withWeekday( 'j F Y' ) ).toBe( 'l, j F Y' );
+	} );
+
+	it( 'leads a year-stripped format, the shape `fullNoYear` is built from', () => {
+		expect( withWeekday( withoutYear( 'F j, Y' ) ) ).toBe( 'l, F j' );
+	} );
+
+	it( 'leaves a format that already names the weekday alone', () => {
+		expect( withWeekday( 'l, F j, Y' ) ).toBe( 'l, F j, Y' );
+		expect( withWeekday( 'D, d M Y' ) ).toBe( 'D, d M Y' );
+	} );
+
+	it( 'recognises the numeric weekday tokens too', () => {
+		expect( withWeekday( 'N j.n.Y' ) ).toBe( 'N j.n.Y' );
+		expect( withWeekday( 'w j.n.Y' ) ).toBe( 'w j.n.Y' );
+	} );
+
+	it( 'reads escaped literals as text, not as weekday tokens', () => {
+		// `es_ES` spells "de" with `\d\e`, and `\l` is a literal "l" rather than
+		// the weekday token, so both formats still need a weekday put in front.
+		expect( withWeekday( 'j \\d\\e F \\d\\e Y' ) ).toBe( 'l, j \\d\\e F \\d\\e Y' );
+		expect( withWeekday( '\\l\\a j F' ) ).toBe( 'l, \\l\\a j F' );
 	} );
 } );
