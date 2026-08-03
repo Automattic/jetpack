@@ -66,15 +66,23 @@ const chartData = [
 
 Data points may carry a `date` instead of a `label`. Pass `tickFormat` to render the X-axis
 ticks in the site's language and date format; without it, the chart library's own tick labels
-(browser locale) are used. Tooltip labels for date points always use the site format.
+(browser locale) are used. Tooltip labels for date points always use the full site date format
+(`medium`), independent of `tickFormat`.
+
+Build dates from date-only strings with `parseSiteDateTime` from
+`@jetpack-premium-analytics/datetime` so the calendar day is anchored to the site timezone —
+`new Date( 2026, 6, 1 )` is browser-local midnight and can render as the previous day for
+viewers in a different timezone than the site.
 
 ```tsx
+import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
+
 const chartData = [
 	{
 		label: 'Views',
 		data: [
-			{ date: new Date( '2026-07-01' ), value: 120 },
-			{ date: new Date( '2026-07-02' ), value: 90 },
+			{ date: parseSiteDateTime( '2026-07-01' ), value: 120 },
+			{ date: parseSiteDateTime( '2026-07-02' ), value: 90 },
 		],
 	},
 ];

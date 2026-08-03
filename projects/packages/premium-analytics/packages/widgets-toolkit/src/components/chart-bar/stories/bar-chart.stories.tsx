@@ -330,8 +330,9 @@ export const ComparisonWithZeroValues: Story = {
 
 /**
  * TimeSeries: Bar chart over daily data points with locale-aware X-axis ticks
- * Data points carry a `date` instead of a `label`; `tickFormat` renders the
- * ticks and tooltip labels in the site's date format.
+ * Data points carry a `date` instead of a `label`; `tickFormat` controls only
+ * the X-axis ticks. Tooltips always show the full site-formatted date
+ * (`medium`), independent of `tickFormat`.
  */
 export const TimeSeries: Story = {
 	args: {
