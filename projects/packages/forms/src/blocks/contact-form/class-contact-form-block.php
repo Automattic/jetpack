@@ -977,9 +977,12 @@ class Contact_Form_Block {
 		$akismet_active_with_key = Jetpack::is_akismet_active();
 		$akismet_key_url         = admin_url( 'admin.php?page=akismet-key-config' );
 
+		$default_recipient = Contact_Form::get_default_to_with_source( $post );
+
 		$data = array(
 			'defaults' => array(
-				'to'                   => Contact_Form::get_default_to_for_editor( $post ),
+				'to'                   => $default_recipient['to'],
+				'toSource'             => $default_recipient['source'],
 				'subject'              => Contact_Form::get_default_subject( array() ),
 				'formsResponsesUrl'    => $form_responses_url,
 				'akismetActiveWithKey' => $akismet_active_with_key,
