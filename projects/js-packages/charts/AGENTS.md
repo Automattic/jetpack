@@ -33,6 +33,21 @@ The package is migrating to WordPress UI and Theme as its defaults. When adding 
   `--wpds-*` mappings). Charts reference `--a8c-charts-*` roles with the mapped
   `var(--wpds-*, <spec-fallback>)` as the inline fallback; there is no runtime
   emission yet (that is CHARTS-203).
+- **Two consumption paths — this changes what a charts change can break.**
+  `@wordpress/build` apps (premium-analytics, publicize, podcast, videopress)
+  consume the Rolldown output in `dist/` and load it as a **WordPress Script
+  Module** — native browser ESM, where `require` does not exist. Webpack apps
+  (My Jetpack and friends) resolve source through the `jetpack:src` export
+  condition instead. A change that only affects `dist/` can therefore break
+  four packages this one does not import.
+- **Do not add packages to `deps.alwaysBundle` in `tsdown.config.ts`.**
+  Pre-bundling a dependency with `react` external forces Rolldown to emit a
+  dynamic-`require` shim for any transitive CommonJS module, and that shim
+  throws during module evaluation in Script Module consumers — taking down
+  every widget on the page, not just the feature that pulled it in. Leave
+  dependencies external and let each consumer's bundler resolve them.
+  `tools/assert-no-dynamic-require.ts` fails the build if a shim reaches the
+  ESM output; never suppress it.
 
 ## Documentation Workflow
 
