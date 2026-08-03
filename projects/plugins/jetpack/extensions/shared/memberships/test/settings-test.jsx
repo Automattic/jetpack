@@ -11,7 +11,6 @@ import { Link, getReachForAccessLevelKey, NewsletterEmailDocumentSettings } from
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 const mockUseSelect = jest.fn();
-const mockUseEntityProp = jest.fn();
 const mockUseEntityId = jest.fn();
 const mockReceiveEntityRecords = jest.fn();
 const mockEditEntityRecord = jest.fn();
@@ -22,7 +21,6 @@ jest.mock( '@wordpress/core-data', () => {
 	const actual = jest.requireActual( '@wordpress/core-data' );
 	return {
 		...actual,
-		useEntityProp: jest.fn( ( ...args ) => mockUseEntityProp( ...args ) ),
 		useEntityId: jest.fn( ( ...args ) => mockUseEntityId( ...args ) ),
 	};
 } );
@@ -154,7 +152,6 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 
 	beforeEach( () => {
 		jest.clearAllMocks();
-		mockUseEntityProp.mockReturnValue( [ {}, jest.fn() ] );
 		mockUseEntityId.mockReturnValue( 1 );
 		mockGetEntityRecordEdits.mockReturnValue( undefined );
 		jest.spyOn( wpData, 'useSelect' ).mockImplementation( selector => {
@@ -169,7 +166,12 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 	} );
 
 	afterEach( () => {
-		jest.restoreAllMocks();
+		// Not `restoreAllMocks()`: @wordpress/jest-console installs its console spies in a
+		// `beforeAll`, so restoring everything kills the unexpected-output guard for the rest
+		// of the suite.
+		wpData.useSelect.mockRestore();
+		wpData.useDispatch.mockRestore();
+		wpData.useRegistry.mockRestore();
 	} );
 
 	test( 'returns null when post is already sent (postEmailSentState has email_sent_at)', () => {
@@ -218,6 +220,8 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 					true
 				)
 			);
+			// Staging an edit is what dirties the post, so there must not be one to stage against.
+			expect( mockEditEntityRecord ).not.toHaveBeenCalled();
 		} );
 
 		test( 'notices a failed write instead of failing silently', async () => {
@@ -228,6 +232,7 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 
 			await waitFor( () => expect( mockCreateErrorNotice ).toHaveBeenCalled() );
 			expect( mockReceiveEntityRecords ).not.toHaveBeenCalled();
+			expect( console ).toHaveErrored();
 		} );
 
 		test( 'does not write before the post has an id', async () => {
@@ -263,7 +268,10 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 			);
 		} );
 
-		test( 'stages nothing when no meta edit is pending', async () => {
+		test( 'leaves a staged meta edit alone when it already matches the write', async () => {
+			mockGetEntityRecordEdits.mockReturnValue( {
+				meta: { [ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: true },
+			} );
 			apiFetch.mockResolvedValue( { id: 1, meta: {} } );
 
 			render( <NewsletterEmailDocumentSettings /> );
@@ -273,9 +281,11 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 			expect( mockEditEntityRecord ).not.toHaveBeenCalled();
 		} );
 
-		test( 'ignores a second toggle while the write is in flight, without disabling the options', async () => {
-			let resolveWrite;
-			apiFetch.mockReturnValue( new Promise( resolve => ( resolveWrite = resolve ) ) );
+		test( 'applies a toggle made mid-write once the first one settles, without disabling the options', async () => {
+			let resolveFirstWrite;
+			apiFetch
+				.mockReturnValueOnce( new Promise( resolve => ( resolveFirstWrite = resolve ) ) )
+				.mockResolvedValue( { id: 1, meta: {} } );
 
 			render( <NewsletterEmailDocumentSettings /> );
 			await userEvent.click( screen.getByRole( 'radio', { name: 'Post only' } ) );
@@ -287,8 +297,13 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 			await userEvent.click( screen.getByRole( 'radio', { name: 'Post & email' } ) );
 			expect( apiFetch ).toHaveBeenCalledTimes( 1 );
 
-			resolveWrite( { id: 1, meta: {} } );
-			await waitFor( () => expect( mockReceiveEntityRecords ).toHaveBeenCalled() );
+			resolveFirstWrite( { id: 1, meta: {} } );
+			await waitFor( () => expect( apiFetch ).toHaveBeenCalledTimes( 2 ) );
+			expect( apiFetch ).toHaveBeenLastCalledWith( {
+				path: '/wp/v2/posts/1',
+				method: 'POST',
+				data: { meta: { [ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: false } },
+			} );
 		} );
 	} );
 } );

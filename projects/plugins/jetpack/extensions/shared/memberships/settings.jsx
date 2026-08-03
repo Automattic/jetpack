@@ -15,7 +15,7 @@ import { useViewportMatch } from '@wordpress/compose';
 import { useEntityId, useEntityProp, store as coreDataStore } from '@wordpress/core-data';
 import { useDispatch, useRegistry, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
-import { useState } from '@wordpress/element';
+import { useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
@@ -32,6 +32,9 @@ import {
 import { getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
 
 const paywallIcon = getBlockIconComponent( paywallBlockMetadata );
+
+// Keeps repeated failures from stacking duplicate snackbars.
+const WRITE_FAILED_NOTICE_ID = 'jetpack-newsletter-email-setting-write-failed';
 
 export function Link( { href, children } ) {
 	return (
@@ -301,6 +304,8 @@ export function NewsletterEmailDocumentSettings() {
 	const registry = useRegistry();
 	const postId = useEntityId( 'postType', postType );
 	const [ pendingValue, setPendingValue ] = useState( null );
+	const requestedValueRef = useRef( null );
+	const isWritingRef = useRef( false );
 	const postTypeBaseUrl = useSelect(
 		select => select( coreDataStore ).getEntityConfig( 'postType', postType )?.baseURL,
 		[ postType ]
@@ -323,6 +328,7 @@ export function NewsletterEmailDocumentSettings() {
 		}
 		createErrorNotice( __( 'The newsletter setting could not be saved.', 'jetpack' ), {
 			type: 'snackbar',
+			id: WRITE_FAILED_NOTICE_ID,
 		} );
 	};
 
@@ -349,30 +355,42 @@ export function NewsletterEmailDocumentSettings() {
 
 	// Bandaid: a staged meta edit sticks the post dirty under real-time collaboration, and the
 	// entity save rejects auto-drafts. Write the one key on its own instead.
-	const toggleSendEmail = async value => {
-		if ( pendingValue !== null ) {
-			return;
+	const writeRequestedValue = async () => {
+		isWritingRef.current = true;
+		try {
+			// One write at a time, but loop so a click made mid-write is applied, not dropped.
+			let written;
+			while ( requestedValueRef.current !== written ) {
+				written = requestedValueRef.current;
+				// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
+				const dontEmail = written === 'post-only';
+				// Update responses already come back in the edit context.
+				const updatedPost = await apiFetch( {
+					path: `${ postTypeBaseUrl }/${ postId }`,
+					method: 'POST',
+					data: { meta: { [ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: dontEmail } },
+				} );
+				receiveEntityRecords( 'postType', postType, updatedPost, undefined, true );
+				realignStagedMeta( dontEmail );
+			}
+		} catch ( error ) {
+			noticeWriteFailed( error );
+		} finally {
+			isWritingRef.current = false;
+			requestedValueRef.current = null;
+			setPendingValue( null );
 		}
+	};
+
+	const toggleSendEmail = value => {
 		if ( ! postId || ! postTypeBaseUrl ) {
 			noticeWriteFailed();
 			return;
 		}
-		// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
-		const dontEmail = value === 'post-only';
+		requestedValueRef.current = value;
 		setPendingValue( value );
-		try {
-			// Update responses already come back in the edit context.
-			const updatedPost = await apiFetch( {
-				path: `${ postTypeBaseUrl }/${ postId }`,
-				method: 'POST',
-				data: { meta: { [ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: dontEmail } },
-			} );
-			receiveEntityRecords( 'postType', postType, updatedPost, undefined, true );
-			realignStagedMeta( dontEmail );
-		} catch ( error ) {
-			noticeWriteFailed( error );
-		} finally {
-			setPendingValue( null );
+		if ( ! isWritingRef.current ) {
+			writeRequestedValue();
 		}
 	};
 
@@ -389,8 +407,8 @@ export function NewsletterEmailDocumentSettings() {
 	return (
 		<PostVisibilityCheck
 			render={ ( { canEdit } ) => {
-				// ToggleGroupControl ignores `disabled`; only its options honour it. In-flight writes
-				// are guarded in the handler instead — disabling the option the user just activated
+				// ToggleGroupControl ignores `disabled`; only its options honour it. Writes are
+				// serialised in the handler instead — disabling the option the user just activated
 				// would drop their focus for the length of the request.
 				const isLocked = isPostPublished || ! canEdit;
 
