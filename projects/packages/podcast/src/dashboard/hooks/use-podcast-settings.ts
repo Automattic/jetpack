@@ -130,15 +130,13 @@ export const refreshPodcastSettings = (): void => {
 	dataDispatch( coreStore ).invalidateResolution( 'getEntityRecord', [ ENTITY_KIND, ENTITY_NAME ] );
 };
 
-// This entity has no record id, so core-data locks each save under a fresh uuid
-// instead of serialising them. Two saves started close together would race, and
-// the server applies whichever lands last — so a slower earlier request can undo
-// a newer edit. Chain them here so edits persist in the order they were made.
+// The entity has no record id, so core-data locks each save under a fresh uuid
+// and never serialises them — concurrent saves land in arbitrary order.
 let saveQueue: Promise< unknown > = Promise.resolve();
 
 const enqueueSave = < T >( run: () => Promise< T > ): Promise< T > => {
 	const result = saveQueue.then( run, run );
-	// Swallow rejections on the queue only; `result` keeps them for the caller.
+	// Keep the chain alive after a failure; `result` still rejects for the caller.
 	saveQueue = result.catch( () => {} );
 	return result;
 };

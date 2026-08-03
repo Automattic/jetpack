@@ -85,8 +85,7 @@ const useFieldEditor = (
 	onCommit: ( value: string ) => void
 ): { value: string; onChange: ( v: string ) => void; onBlur: () => void } => {
 	const [ local, setLocal ] = useState( stored );
-	// The `stored` value this editor last synced from. Anything the user typed
-	// since then is an unsaved edit that an incoming save response must not eat.
+	// Typing since the last sync is an unsaved edit a save response must not eat.
 	const syncedRef = useRef( stored );
 	useEffect( () => {
 		if ( stored === syncedRef.current ) {
@@ -109,8 +108,7 @@ const useFieldEditor = (
 	};
 };
 
-// Show urls/states are patch-shaped in an update but whole maps on the record,
-// so they merge a level deeper than the scalar keys.
+// Show urls/states are patches in an update but whole maps on the record.
 const mergeSettings = (
 	base: PodcastSettings,
 	updates: PodcastSettingsUpdate
@@ -132,11 +130,10 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 	const [ draft, setDraft ] = useState< PodcastSettings | null >( null );
 	const [ confirmDisable, setConfirmDisable ] = useState( false );
 
-	// Bumped on every commit. A response only owns the draft if no newer edit has
-	// been made since it was sent, otherwise a slow save resurrects a value the
-	// user already changed.
+	// Only the newest save owns the draft; older responses would resurrect values
+	// the user has already changed.
 	const saveSeq = useRef( 0 );
-	// Last server-authoritative record, used to roll back a failed save.
+	// Last server-authoritative record, for rolling back a failed save.
 	const settingsRef = useRef( settings );
 
 	useEffect( () => {
@@ -146,18 +143,14 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 		}
 	}, [ settings, draft ] );
 
-	// Save a partial update, echoing it into the draft first so the next edit
-	// compares against what the user just did rather than the value the in-flight
-	// request hasn't returned yet — that stale comparison was dropping an edit
-	// made while a save was still running.
+	// Echo the update into the draft first, so the next edit compares against what
+	// the user just did rather than a value the in-flight request hasn't returned.
 	const commit = useCallback(
 		( updates: PodcastSettingsUpdate ) => {
 			const seq = ++saveSeq.current;
 			const isCurrent = () => seq === saveSeq.current;
 			setDraft( prev => ( prev ? mergeSettings( prev, updates ) : prev ) );
 			saveSettings( updates, {
-				// Resync from the server-merged record so reference checks fall back
-				// to false on the saved keys.
 				onSuccess: record => {
 					if ( isCurrent() ) {
 						setDraft( record );
