@@ -17,7 +17,6 @@ import {
 	setUserInfoCookie,
 	addWordPressDomain,
 	hasSubscriptionOptionsVisible,
-	isCommentBlockedByCookies,
 	resolveCookieAccess,
 } from './utils';
 import type { VerbumAppProps } from './types';
@@ -27,6 +26,7 @@ import './style.scss';
 const Verbum = ( { siteId, parentForm }: VerbumAppProps ) => {
 	const {
 		hasOpenedTrayOnce,
+		isCommentBlocked,
 		isEmptyComment,
 		isSavingComment,
 		isTrayOpen,
@@ -162,7 +162,7 @@ const Verbum = ( { siteId, parentForm }: VerbumAppProps ) => {
 	};
 
 	const handleCommentSubmit = async ( event: Event ) => {
-		if ( isCommentBlockedByCookies( userInfo.value?.service ) ) {
+		if ( isCommentBlocked.value ) {
 			event.preventDefault();
 			return;
 		}

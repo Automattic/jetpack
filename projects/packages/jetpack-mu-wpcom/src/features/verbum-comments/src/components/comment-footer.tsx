@@ -2,7 +2,6 @@ import clsx from 'clsx';
 import { useContext } from 'preact/hooks';
 import { translate } from '../i18n';
 import { VerbumSignals } from '../state';
-import { COOKIE_NOTICE_ID, isCommentBlockedByCookies } from '../utils';
 import { SettingsButton } from './settings-button';
 
 interface CommentFooterProps {
@@ -10,7 +9,7 @@ interface CommentFooterProps {
 }
 
 export const CommentFooter = ( { toggleTray }: CommentFooterProps ) => {
-	const { commentParent, isReplyDisabled, isSavingComment, isTrayOpen, userInfo, userLoggedIn } =
+	const { commentParent, isReplyDisabled, isSavingComment, isTrayOpen, userLoggedIn } =
 		useContext( VerbumSignals );
 	return (
 		<div
@@ -33,9 +32,6 @@ export const CommentFooter = ( { toggleTray }: CommentFooterProps ) => {
 					} ) }
 					disabled={ isReplyDisabled.value }
 					aria-disabled={ isReplyDisabled.value }
-					aria-describedby={
-						isCommentBlockedByCookies( userInfo.value?.service ) ? COOKIE_NOTICE_ID : undefined
-					}
 				>
 					{ commentParent.value ? translate( 'Reply' ) : translate( 'Comment' ) }
 				</button>

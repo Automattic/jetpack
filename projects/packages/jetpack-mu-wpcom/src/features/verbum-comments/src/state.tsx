@@ -1,12 +1,6 @@
 import { signal, computed } from '@preact/signals';
 import { createContext } from 'preact';
-import {
-	canWeAccessCookies,
-	getUserInfoCookie,
-	isAuthRequired,
-	isCommentBlockedByCookies,
-	isEmptyEditor,
-} from './utils';
+import { canWeAccessCookies, getUserInfoCookie, isAuthRequired, isEmptyEditor } from './utils';
 import type { UserInfo, SubscriptionDetails } from './types';
 import type { Signal } from '@preact/signals';
 
@@ -24,13 +18,11 @@ export function createSignals() {
 	/*
 	 * Calculate if user is logged in. For self-hosted sites this check is based only on VerbumComments.isJetpackCommentsLoggedIn.
 	 * Here we also check if cookies are accessible, userInfo is set and the service is different from 'guest' or 'jetpack'.
-	 * Facebook skips the cookie check: its identity is proven by the `wpc_fbc` cookie we just read,
-	 * so it holds up where cookies are partitioned but readable.
 	 */
 	const userLoggedIn = computed( () => {
 		return (
 			VerbumComments.isJetpackCommentsLoggedIn ||
-			( ( canWeAccessCookies() || userInfo.value?.service === 'facebook' ) &&
+			( canWeAccessCookies() &&
 				userInfo.value &&
 				userInfo.value?.service !== 'guest' &&
 				userInfo.value?.service !== 'jetpack' )
@@ -86,12 +78,26 @@ export function createSignals() {
 	} );
 
 	/*
+	 * Login is required, the visitor has no identity, and cookies aren't available to get one,
+	 * so there is no way for this comment to be accepted. Facebook is exempt: it is verified from
+	 * the `wpc_fbc` cookie, which still reaches the server when cookies are partitioned.
+	 */
+	const isCommentBlocked = computed( () => {
+		return (
+			Boolean( VerbumComments.mustLogIn ) &&
+			! userLoggedIn.value &&
+			userInfo.value?.service !== 'facebook' &&
+			! canWeAccessCookies()
+		);
+	} );
+
+	/*
 	 * Calculate if the reply button should be disabled. When we have no user data we check the shouldDisableReply value,
 	 * otherwise we check if the comment is empty or saving.
 	 */
 	const isReplyDisabled = computed( () => {
 		return (
-			isCommentBlockedByCookies( userInfo.value?.service ) ||
+			isCommentBlocked.value ||
 			( isAuthRequired() &&
 				! userLoggedIn.value &&
 				( isMailFormMissingInput.value || isMailFormInvalid.value ) ) ||
@@ -132,6 +138,7 @@ export function createSignals() {
 		isTrayOpen,
 		hasOpenedTrayOnce,
 		commentValue,
+		isCommentBlocked,
 		isEmptyComment,
 		isSavingComment,
 		isMailFormInvalid,

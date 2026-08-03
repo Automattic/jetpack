@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { useContext, useEffect, useState } from 'preact/hooks';
 import { translate } from '../i18n';
 import { VerbumSignals } from '../state';
-import { COOKIE_NOTICE_ID, serviceData } from '../utils';
+import { serviceData } from '../utils';
 import { EmailForm } from './EmailForm';
 import type { SocialServiceName } from '../hooks/useSocialLogin';
 import type { ComponentChildren } from 'preact';
@@ -100,7 +100,7 @@ export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOut
 					<div className="verbum-subscriptions__login-header">
 						{ getLoginCommentText( commentParent ) }
 					</div>
-					<p className="verbum-subscriptions__cookie-notice" id={ COOKIE_NOTICE_ID }>
+					<p className="verbum-subscriptions__cookie-notice">
 						{ translate(
 							'Commenting here requires cookie access. Allow cookies for this site, then reload the page.'
 						) }
