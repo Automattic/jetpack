@@ -267,6 +267,7 @@ describe( 'SubscribePanels', () => {
 			getCurrentPostType: () => postType,
 			getCurrentPostId: () => 1,
 			isSavingPost: () => false,
+			isAutosavingPost: () => false,
 		};
 		return store => {
 			if ( store === editorStore || store === 'core/editor' ) return editorSelect;
