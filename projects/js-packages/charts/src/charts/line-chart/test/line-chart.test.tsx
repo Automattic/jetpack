@@ -436,6 +436,26 @@ describe( 'LineChart', () => {
 			expect( ticks.length ).toBeGreaterThan( 1 );
 		} );
 
+		test( 'renders hour ticks when tickResolution declares the buckets sub-daily.', () => {
+			renderWithTheme( {
+				width: 800,
+				options: { axis: { x: { tickResolution: 'hour' } } },
+				data: [
+					{
+						label: 'Series A',
+						// A day apart: spacing inference would read this as daily buckets.
+						data: [
+							{ date: new Date( '2024-01-01T00:00:00' ), value: 10 },
+							{ date: new Date( '2024-01-02T00:00:00' ), value: 20 },
+						],
+					},
+				],
+			} );
+
+			const ticks = screen.getAllByText( /\d+\s(AM|PM)/ );
+			expect( ticks.length ).toBeGreaterThan( 1 );
+		} );
+
 		test( 'renders ticks in short date format.', () => {
 			renderWithTheme( {
 				width: 800,
