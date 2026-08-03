@@ -116,7 +116,6 @@ export default function LocationsReportPage(): JSX.Element {
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dashboardLink = useDashboardLink();
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
 	const tableIsLoading = records.table.isLoading || records.table.isFetching;
 
 	return (
@@ -133,11 +132,7 @@ export default function LocationsReportPage(): JSX.Element {
 		>
 			<ReportPageLayout
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ handleTabChange } /> }
-				filters={
-					<div ref={ setContainerElement }>
-						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-					</div>
-				}
+				filters={ <DateFiltersPanel { ...dateFilters } /> }
 			>
 				{ records.isError ? (
 					<ReportErrorState
