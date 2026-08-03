@@ -2467,6 +2467,75 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests get_default_to_with_source reports the post author branch.
+	 */
+	public function test_get_default_to_with_source_reports_post_author() {
+		$email     = 'source_author@example.com';
+		$author_id = wp_insert_user(
+			array(
+				'user_email' => $email,
+				'user_login' => 'test_source_author',
+				'user_pass'  => 'password123',
+				'role'       => 'editor',
+			)
+		);
+		$post_id   = wp_insert_post(
+			array(
+				'post_title'  => 'Test Post',
+				'post_status' => 'publish',
+				'post_author' => $author_id,
+			)
+		);
+
+		$result = Contact_Form::get_default_to_with_source( get_post( $post_id ) );
+
+		$this->assertSame( $email, $result['to'] );
+		$this->assertSame( 'post_author', $result['source'] );
+
+		wp_delete_user( $author_id );
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * Tests get_default_to_with_source falls back to the site admin when there is no post.
+	 */
+	public function test_get_default_to_with_source_reports_site_admin_without_post() {
+		$result = Contact_Form::get_default_to_with_source( null );
+
+		$this->assertSame( get_option( 'admin_email' ), $result['to'] );
+		$this->assertSame( 'site_admin', $result['source'] );
+	}
+
+	/**
+	 * Tests get_default_to_with_source falls back to the site admin when the author cannot edit the post.
+	 */
+	public function test_get_default_to_with_source_reports_site_admin_for_subscriber_author() {
+		$author_id = wp_insert_user(
+			array(
+				'user_email' => 'source_subscriber@example.com',
+				'user_login' => 'test_source_subscriber',
+				'user_pass'  => 'password123',
+				'role'       => 'subscriber',
+			)
+		);
+		$post_id   = wp_insert_post(
+			array(
+				'post_title'  => 'Test Post',
+				'post_status' => 'publish',
+				'post_author' => $author_id,
+			)
+		);
+
+		$result = Contact_Form::get_default_to_with_source( get_post( $post_id ) );
+
+		$this->assertSame( get_option( 'admin_email' ), $result['to'] );
+		$this->assertSame( 'site_admin', $result['source'] );
+
+		wp_delete_user( $author_id );
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
 	 * Tests get_default_to method with valid post author.
 	 */
 	public function test_get_default_to_with_valid_post_author() {
