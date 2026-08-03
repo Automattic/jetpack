@@ -1,5 +1,5 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
-import { differenceInHours } from 'date-fns';
+import { differenceInCalendarDays, differenceInHours } from 'date-fns';
 import { useMemo } from 'react';
 import { formatDateTick, getFormatter } from '../../private/time-axis';
 import { TruncatedXTickComponent, TruncatedYTickComponent } from './truncated-tick-component';
@@ -28,11 +28,14 @@ const getTimeSeriesFormatters = ( data: SeriesData[] ) => {
 	const allTimes = seriesDates.flat().map( Number );
 	const min = Math.min( ...allTimes );
 	const max = Math.max( ...allTimes );
-	const hasSubDailySpacing = seriesDates.some(
-		( [ first, second ] ) =>
-			first !== undefined &&
-			second !== undefined &&
-			Math.abs( differenceInHours( second, first ) ) < 24
+	// Two consecutive points on the same calendar day mean sub-daily buckets.
+	// Calendar comparison is DST-stable (a spring-forward day is only 23
+	// elapsed hours), and scanning every pair keeps a leading gap from
+	// masking the series' real resolution.
+	const hasSubDailySpacing = seriesDates.some( dates =>
+		dates.some(
+			( date, index ) => index > 0 && differenceInCalendarDays( date, dates[ index - 1 ] ) === 0
+		)
 	);
 	const crossesYears =
 		allTimes.length > 0 && new Date( min ).getFullYear() !== new Date( max ).getFullYear();

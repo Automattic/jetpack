@@ -184,4 +184,36 @@ describe( 'useChartMargin', () => {
 		// This is larger than the 20px default bottom margin, so it should be used.
 		expect( result.current.bottom ).toBe( 25 );
 	} );
+
+	it( 'measures pre-formatted horizontal tick labels without re-formatting them', () => {
+		const formatHour = ( timestamp: number ) =>
+			new Date( timestamp ).toLocaleTimeString( undefined, { hour: 'numeric', hour12: true } );
+		const hourlyData = [
+			{
+				label: 'Series 1',
+				data: [
+					{ date: new Date( 2024, 0, 1, 6 ), value: 10 },
+					{ date: new Date( 2024, 0, 1, 7 ), value: 20 },
+				],
+			},
+		];
+		const options = {
+			...optionsBase,
+			axis: {
+				...optionsBase.axis,
+				y: { ...optionsBase.axis.y, orientation: Orientation.left, tickFormat: formatHour },
+			},
+		};
+
+		renderHook( () => useChartMargin( 300, options, hourlyData, baseTheme, true ) );
+
+		const [ ticks, measureFormatter ] = mockGetLongestTickWidth.mock.calls[ 0 ];
+		// yTicks are already formatted hour strings; re-applying the hour
+		// formatter would date-parse them into "Invalid Date".
+		expect( ticks ).toEqual( [
+			formatHour( new Date( 2024, 0, 1, 6 ).getTime() ),
+			formatHour( new Date( 2024, 0, 1, 7 ).getTime() ),
+		] );
+		expect( measureFormatter( ticks[ 0 ], 0, [] ) ).toBe( ticks[ 0 ] );
+	} );
 } );

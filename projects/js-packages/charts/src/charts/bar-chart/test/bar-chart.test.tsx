@@ -338,6 +338,42 @@ describe( 'BarChart', () => {
 			);
 		} );
 
+		test( 'keeps date ticks for a daily pair across a DST spring-forward boundary', () => {
+			// 2026-03-08 is the US spring-forward date; in a DST timezone the
+			// elapsed gap is 23h, which an hours-based check would misread as
+			// sub-daily. Calendar-day comparison keeps these on date ticks.
+			const { axis } = optionsFor( [
+				{
+					label: 'Series A',
+					data: [
+						{ date: new Date( 2026, 2, 8 ), value: 10 },
+						{ date: new Date( 2026, 2, 9 ), value: 20 },
+					],
+					options: {},
+				},
+			] );
+
+			expect( axis.x.tickFormat( new Date( 2026, 2, 8 ).getTime(), 0, [] ) ).toBe( 'Mar 8' );
+		} );
+
+		test( 'detects sub-daily resolution past a leading gap', () => {
+			const { tooltip } = optionsFor( [
+				{
+					label: 'Series A',
+					data: [
+						{ date: new Date( 2024, 0, 1 ), value: 10 },
+						{ date: new Date( 2024, 0, 3 ), value: 20 },
+						{ date: new Date( 2024, 0, 3, 6 ), value: 30 },
+					],
+					options: {},
+				},
+			] );
+
+			expect( tooltip.labelFormatter( new Date( 2024, 0, 3, 6 ).getTime(), 0, [] ) ).toMatch(
+				/^Jan 3, 6\sAM$/
+			);
+		} );
+
 		test( 'adds the hour for sub-daily buckets', () => {
 			const { tooltip } = optionsFor( [
 				{
