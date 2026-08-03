@@ -111,31 +111,80 @@ describe( 'getSectionSubtitle', () => {
 		expect( getSectionSubtitle( { range: currentYearRange( 7 ) } ) ).not.toContain( 'vs.' );
 	} );
 
-	describe( 'all-time', () => {
-		// Every case is the same selection, read on a different day: mid-month,
-		// on a month boundary, and on a year boundary. Measured, each lands in a
-		// different unit, because the range runs to the end of today.
-		const FROM = at( 2021, 1, 1 );
+	describe( 'the year surface', () => {
+		/*
+		 * `all-time` and the running year both start on a calendar boundary and
+		 * end at the end of today, so the day they are read on decides the unit.
+		 * These are one selection each, read on three days: mid-month, on a month
+		 * boundary, and on a year boundary.
+		 */
 		const READ_ON = [
 			[ 'mid-month', endOf( 2026, 7, 30 ) ],
 			[ 'on the last day of a month', endOf( 2026, 7, 31 ) ],
 			[ 'on the last day of a year', endOf( 2026, 12, 31 ) ],
 		] as const;
 
-		it.each( READ_ON )( 'carries no length when read %s', ( _label, to ) => {
-			const subtitle = getSectionSubtitle( { range: { from: FROM, to }, presetId: 'all-time' } );
+		const ALL_TIME_FROM = at( 2021, 1, 1 );
+		const RUNNING_YEAR_FROM = at( 2026, 1, 1 );
+
+		it.each( READ_ON )( 'all-time carries no length when read %s', ( _label, to ) => {
+			const subtitle = getSectionSubtitle( {
+				range: { from: ALL_TIME_FROM, to },
+				presetId: 'all-time',
+			} );
 
 			expect( subtitle ).toContain( 'January 1, 2021' );
 			expect( subtitle ).not.toMatch( /\(\d/ );
 		} );
 
+		it.each( READ_ON )( 'the running year carries no length when read %s', ( _label, to ) => {
+			const subtitle = getSectionSubtitle( {
+				range: { from: RUNNING_YEAR_FROM, to },
+				presetId: 'year-2026',
+			} );
+
+			// Both halves hold still: no length, and the calendar shape rather
+			// than the weekday-led one a day-scale measurement would pick.
+			expect( subtitle ).toContain( 'January 1, 2026' );
+			expect( subtitle ).not.toMatch( /\(\d/ );
+			expect( subtitle ).not.toMatch( /day/i );
+		} );
+
+		it( 'a past year carries no length either, since its label names it', () => {
+			expect(
+				getSectionSubtitle( {
+					range: { from: at( 2025, 1, 1 ), to: endOf( 2025, 12, 31 ) },
+					presetId: 'year-2025',
+				} )
+			).not.toMatch( /\(\d/ );
+		} );
+
 		it( 'still measures the same range under any other preset', () => {
 			expect(
 				getSectionSubtitle( {
-					range: { from: FROM, to: endOf( 2026, 7, 30 ) },
+					range: { from: ALL_TIME_FROM, to: endOf( 2026, 7, 30 ) },
 					presetId: 'custom',
 				} )
 			).toContain( '(2037 days)' );
+		} );
+
+		it( 'measures the running year under a non-year preset, unit and all', () => {
+			// The regression this guards: read mid-month the same dates measure in
+			// days and lead with the weekday, and on a month boundary they measure
+			// in months and carry the year instead.
+			expect(
+				getSectionSubtitle( {
+					range: { from: RUNNING_YEAR_FROM, to: endOf( 2026, 7, 30 ) },
+					presetId: 'custom',
+				} )
+			).toBe( 'Thursday, January 1 – Thursday, July 30 (211 days)' );
+
+			expect(
+				getSectionSubtitle( {
+					range: { from: RUNNING_YEAR_FROM, to: endOf( 2026, 7, 31 ) },
+					presetId: 'custom',
+				} )
+			).toBe( 'January 1, 2026 – July 31, 2026 (7 months)' );
 		} );
 	} );
 } );

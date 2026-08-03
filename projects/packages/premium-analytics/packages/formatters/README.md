@@ -154,10 +154,23 @@ formatDateRangeLong( { from, to } );
 // 12 months:   'July 1, 2025 – June 30, 2026'
 ```
 
-| Parameter               | Type                         | Default      | Description                              |
-| ----------------------- | ---------------------------- | ------------ | ---------------------------------------- |
-| `range`                 | `{ from?: Date; to?: Date }` |              | Date range object                        |
-| `options.referenceYear` | `number`                     | current year | Year against which the year is redundant |
+Pass `calendarScale` for a selection whose scale is a property of the selection
+rather than of the dates. A calendar year still running ends at the end of
+today, so its measured unit, and with it the shape, would otherwise change from
+one day to the next:
+
+```typescript
+formatDateRangeLong( { from, to }, { calendarScale: true } );
+// read mid-month:      'January 1, 2026 – July 30, 2026'
+// read on a month end: 'January 1, 2026 – July 31, 2026'
+// without the flag, the first of those reads 'Thursday, January 1 – Thursday, July 30'
+```
+
+| Parameter               | Type                         | Default      | Description                                    |
+| ----------------------- | ---------------------------- | ------------ | ---------------------------------------------- |
+| `range`                 | `{ from?: Date; to?: Date }` |              | Date range object                              |
+| `options.referenceYear` | `number`                     | current year | Year against which the year is redundant       |
+| `options.calendarScale` | `boolean`                    | `false`      | Force the calendar shape whatever it measures  |
 
 ## `getDateRangeSpan( range? )`
 
