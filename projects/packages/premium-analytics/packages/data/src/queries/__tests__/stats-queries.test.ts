@@ -375,6 +375,27 @@ describe( 'Stats query factories', () => {
 		);
 	} );
 
+	it( 'trims top-posts date params to bare calendar days', () => {
+		// This endpoint resolves its date params in UTC rather than the site's
+		// timezone, and reads `start_date` without normalizing it — the offset is
+		// read and then discarded, resolving the wrong day on non-UTC sites.
+		const query = statsTopPostsQuery( {
+			from: '2026-06-01T00:00:00.000-07:00',
+			to: '2026-06-07T23:59:59.999-07:00',
+			interval: 'day',
+		} );
+
+		expect( query.queryKey ).toEqual(
+			expect.arrayContaining( [
+				expect.objectContaining( {
+					date: '2026-06-07',
+					start_date: '2026-06-01',
+					days: 7,
+				} ),
+			] )
+		);
+	} );
+
 	it( 'matches the legacy file-downloads custom-range request without days', () => {
 		const query = statsFileDownloadsQuery( {
 			from: '2026-06-01',
@@ -1149,7 +1170,10 @@ describe( 'Stats query factories', () => {
 		expect( statsWordAdsStatsQuery( {} as StatsReportParams ).enabled ).toBe( false );
 	} );
 
-	it( 'sends the unclamped WordAds window end with its offset intact', () => {
+	it( 'trims the unclamped WordAds window end to a bare calendar day', () => {
+		// This endpoint resolves the window end in UTC and decides whether to
+		// honor it via a raw string comparison, so an offset-bearing datetime
+		// makes it resolve the wrong day. Strip the offset before the wire.
 		jest.useFakeTimers().setSystemTime( new Date( '2026-07-15T12:00:00Z' ) );
 
 		try {
@@ -1163,7 +1187,35 @@ describe( 'Stats query factories', () => {
 				expect.arrayContaining( [
 					expect.objectContaining( {
 						unit: 'day',
-						date: '2026-06-07T23:59:59.000-07:00',
+						date: '2026-06-07',
+						quantity: 7,
+					} ),
+				] )
+			);
+		} finally {
+			jest.useRealTimers();
+		}
+	} );
+
+	it( 'leaves a WordAds window ending exactly yesterday unclamped', () => {
+		// The last-7-days / last-30-days shape: the range already ends on
+		// yesterday's calendar day, so the clamp must not fire. Comparing the
+		// raw offset-bearing string against `yesterday` would clamp it by string
+		// ordering and silently shorten the window by a bucket.
+		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00Z' ) );
+
+		try {
+			expect(
+				statsWordAdsStatsQuery( {
+					from: '2026-06-08T00:00:00.000-07:00',
+					to: '2026-06-14T23:59:59.999-07:00',
+					interval: 'day',
+				} ).queryKey
+			).toEqual(
+				expect.arrayContaining( [
+					expect.objectContaining( {
+						unit: 'day',
+						date: '2026-06-14',
 						quantity: 7,
 					} ),
 				] )
