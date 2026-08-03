@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Tiled Gallery: fix rows rendering at partial width after an alignment change, and correct the srcset on published galleries.
