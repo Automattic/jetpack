@@ -643,21 +643,16 @@ class Manager {
 	 * @return string Error_Handler::ERROR_TYPE_XMLRPC or Error_Handler::ERROR_TYPE_REST.
 	 */
 	private function get_current_request_transport() {
-		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
-			return Error_Handler::ERROR_TYPE_XMLRPC;
-		}
+		$is_xmlrpc = defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST;
 
-		$is_rest = function_exists( 'wp_is_rest_endpoint' )
-			? wp_is_rest_endpoint()
-			: ( defined( 'REST_REQUEST' ) && REST_REQUEST );
+		// XMLRPC_REQUEST covers both /xmlrpc.php and the alternate XML-RPC endpoint, which
+		// defines the constant itself (see setup_xmlrpc_handlers). Outside those, signed REST
+		// requests are detected via the REST dispatch state. Anything else (e.g. signed
+		// requests verified on the 'authenticate' filter for regular URLs) keeps the historic
+		// XML-RPC label rather than guessing at a transport.
+		$is_rest = ! $is_xmlrpc && ( function_exists( 'wp_is_rest_endpoint' ) ? wp_is_rest_endpoint() : ( defined( 'REST_REQUEST' ) && REST_REQUEST ) );
 
-		if ( $is_rest ) {
-			return Error_Handler::ERROR_TYPE_REST;
-		}
-
-		// Signed requests can also arrive outside the XML-RPC and REST endpoints (e.g. the
-		// alternate XML-RPC endpoint). Keep the historic label for those.
-		return Error_Handler::ERROR_TYPE_XMLRPC;
+		return $is_rest ? Error_Handler::ERROR_TYPE_REST : Error_Handler::ERROR_TYPE_XMLRPC;
 	}
 
 	/**

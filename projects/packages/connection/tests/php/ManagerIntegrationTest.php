@@ -895,6 +895,48 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that a `Jetpack_Signature` error surfaced during incoming signature verification
+	 * is normalized into the standard error data shape and stored with the incoming
+	 * direction. Uses a stale timestamp, which makes `sign_current_request()` return an
+	 * `invalid_signature` WP_Error carrying its own signature_details but no type/direction.
+	 */
+	public function test_verify_xml_rpc_signature_normalizes_signature_errors() {
+		Constants::set_constant( 'JETPACK__API_VERSION', 1 );
+		\Jetpack_Options::update_option( 'blog_token', 'blogkey.blogsecret' );
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$_GET['token']     = 'blogkey:1:0';
+		$_GET['signature'] = 'irrelevant';
+		$_GET['timestamp'] = (string) ( time() - DAY_IN_SECONDS );
+		$_GET['nonce']     = 'testnonce1';
+
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+		$_SERVER['HTTP_HOST']      = 'example.org';
+		$_SERVER['REQUEST_URI']    = '/';
+
+		$result        = $this->manager->verify_xml_rpc_signature();
+		$stored_errors = Error_Handler::get_instance()->get_stored_errors();
+
+		// Clean up before asserting, so a failed assertion cannot leak state into other tests.
+		unset( $_GET['token'], $_GET['signature'], $_GET['timestamp'], $_GET['nonce'] );
+		unset( $_SERVER['REQUEST_METHOD'], $_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI'] );
+		remove_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+		Error_Handler::get_instance()->delete_all_errors();
+		\Jetpack_Options::delete_option( 'blog_token' );
+
+		$this->assertFalse( $result );
+		$this->assertArrayHasKey( 'invalid_signature', $stored_errors );
+		$error = $stored_errors['invalid_signature']['0'];
+		$this->assertSame( Error_Handler::ERROR_TYPE_XMLRPC, $error['error_type'] );
+		$this->assertSame( Error_Handler::DIRECTION_INCOMING, $error['error_direction'] );
+		$this->assertSame( 'blogkey:1:0', $error['error_data']['token'] );
+		// The URL normalized by Jetpack_Signature (scheme://host:port form, port empty for
+		// defaults) must win the merge, proving the signature error's own signature_details
+		// were preserved over the Manager-built ones.
+		$this->assertSame( 'http://example.org:/', $error['error_data']['url'] );
+	}
+
+	/**
 	 * Data provider for test_remote_request_labels_outgoing_errors.
 	 *
 	 * @return array
