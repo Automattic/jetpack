@@ -1,5 +1,4 @@
 /* eslint-disable react/jsx-no-bind */
-/* eslint-disable testing-library/prefer-user-event */
 
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
@@ -178,7 +177,7 @@ describe( 'TitleStructureField', () => {
 				editable={ false }
 			/>
 		);
-		fireEvent.click( screen.getByRole( 'button', { name: /Title structure/ } ) );
+		expand();
 
 		expect(
 			screen.getAllByText( /Another SEO plugin is controlling title output/ )
