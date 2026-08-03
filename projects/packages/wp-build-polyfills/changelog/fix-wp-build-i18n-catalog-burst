@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Throttle translation catalog downloads and stop requesting widget catalogs at boot — they now load on demand via loadBundleI18nCatalog().

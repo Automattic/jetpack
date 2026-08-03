@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.0] - 2026-08-03
+### Added
+- New `legend.collapseGroups` option folds series that share a `group` into a single legend item, labelled by the group's primary series; with `legend.interactive` that item toggles the whole group in one click. Off by default, so legends keep one item per series unless you opt in. Available on the bar, line and area charts. The line chart gains a `rescaleYOnVisibilityChange` prop (matching the area chart) to pin the value axis to the full data range while series are hidden; and when every series is hidden, the grid and axes are dropped so the empty state stands on its own. The area chart's `rescaleYOnLegendToggle` prop is deprecated in favour of `rescaleYOnVisibilityChange` (still honoured as an alias). [#50194]
+
+### Changed
+- Zoom: Render the reset control with the WordPress UI Button, fix keyboard activation, expose the selection rectangle's colors as `--a8c-charts-color-zoom-selection` and `--a8c-charts-color-zoom-selection-stroke`, and document the `zoomable` prop for the line and area charts. [#50796]
+
 ## [1.11.0] - 2026-07-27
 ### Added
 - Add a `fitRows` prop to LeaderboardChart so a chart in a fixed-height container shows only the rows that fit instead of scrolling. [#50688]
@@ -945,6 +952,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[1.12.0]: https://github.com/Automattic/charts/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/Automattic/charts/compare/v1.10.3...v1.11.0
 [1.10.3]: https://github.com/Automattic/charts/compare/v1.10.2...v1.10.3
 [1.10.2]: https://github.com/Automattic/charts/compare/v1.10.1...v1.10.2

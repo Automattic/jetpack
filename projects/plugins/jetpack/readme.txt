@@ -326,30 +326,34 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 16.1-a.5 - 2026-07-27
+### 16.1-beta - 2026-08-03
 #### Enhancements
-- Add aria-label to hidden Carousel download link for better accessibility.
-- Change empty h2 and h3 tags in Carousel to div tags to fix SEO and accessibility warnings.
-- Content Guidelines AI: Make AI guideline suggestions available on WordPress.com Simple and Atomic sites, with a paid Jetpack AI or Complete plan required to generate guidelines.
-- Memberships: Add support for the Malaysian ringgit (MYR) currency.
-- REST API: Defer loading of WPCOM REST endpoint files to REST requests, saving execution time on every non-REST page load.
-- SEO: Add AI crawler management — free per-bot allow/block toggles (answer and mixed-use crawlers allowed, training crawlers blocked by default) that write robots.txt directives.
-- SEO: Add custom post type support and llms.txt generation.
-- Social: The block editor sidebar now uses the same connection management UI as the Social admin page.
-- VideoPress: Keep the VideoPress item under the Jetpack menu when the module is not active, linking to the My Jetpack page to activate it.
-- VideoPress: Upload videos added via the classic media-new.php uploader directly to VideoPress, matching the Media Library behavior.
-
-#### Improved compatibility
-- Content Guidelines AI: Restore compatibility with the Gutenberg 23.6 Guidelines page by reading section drafts from the page DOM instead of the removed core/guidelines store.
-- Notifications: Show the notification bell in the admin bar on the Post editor and Site editor.
+- AI Sidebar: Align Editorial Review enablement with the other writing-assistance features.
+- AI Sidebar: Enable writing and SEO suggestions, the block toolbar button, and page and site editor support for all eligible users.
+- Modules: Debounce the modules page search so results update smoothly while typing.
+- Modules: Hide the legacy VaultPress module row from the modules page, as it is permanently unavailable and superseded by the VaultPress Backup product.
+- Modules: In Offline Mode, surface the Modules page as the first Jetpack menu item so it loads by default, add an Offline Mode breadcrumb and explanatory notice, and add an "Available in offline mode" filter.
+- Modules: Refresh the modules page with a modern, core-UI look.
+- Modules: Update the tag filter counts on the modules page to reflect the currently-applied filters, and grey out tags with no matching modules.
+- Newsletter: Allow sending the test email to a chosen address, gated by the same abuse checks used when adding a subscriber.
+- Random Redirect: Restore module previously removed in Jetpack 13.6.
+- Reprint: Add full-site export support for Pressable and WordPress.com (Atomic) sites, so an authenticated client can pull a complete copy of a site.
+- SEO: Honor the per-site WordPress.com feature flag in plugin search suggestions.
+- Site Chat: Rename the public feature text from Reader Chat to Site Chat.
+- Social: Surface a visible error when fetching the keyring result fails during a connection, instead of failing silently.
+- Stats v2: Add a separate menu instead of replacing the existing Stats menu.
 
 #### Bug fixes
-- Carousel: Show the already-loaded thumbnail while the full-size image downloads, so slides are no longer blank when moving quickly through a gallery.
-- Change EXIF data rendering to be dynamic via JavaScript to resolve empty list accessibility warning.
-- Likes: Do not show the Like button on password-protected posts, even for viewers who can read the post (owners, admins, or after unlocking).
-- Newsletter: Show a connect prompt when a WordPress.com user connection is required for email preview and test emails, and disable the "Send" button until connected.
-- SEO: Preserve Sitemaps and Canonical URLs settings when runtime filters temporarily suppress their modules.
-- Tiled Gallery: Fix images collapsing to ~105px in the editor when the canvas is not iframed.
+- Calendly: Fix Button style rendering as inline calendar on Premium+ plans.
+- Carousel: Stop adding a duplicate set of image data attributes to galleries.
+- Jetpack AI: Fix content guidelines generation failing on private sites.
+- Jetpack AI: Skip the AI sidebar bundle, provider registration, and toolbar button for users without a connected WordPress.com account.
+- Newsletter: Show which newsletter categories a subscriber receives emails for in the subscriber details panel.
+- SEO: Fix custom per-page SEO title being ignored when the page is set as the site's homepage and the Front Page title format in Jetpack Settings is blank.
+- SEO: Preserve legacy homepage description storage and length limits when saving dashboard settings.
+- Subscriptions: Stop the site settings endpoint from saving unchanged subscription message defaults; translate the default subscription options using the user locale.
+- Tiled Gallery: Fix rows rendering at partial width after an alignment change, and correct the srcset on published galleries.
+- VideoPress: Fix legacy video block previews in the editor.
 
 --------
 

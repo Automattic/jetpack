@@ -25,7 +25,7 @@ use WP_REST_Response;
 /**
  * CSV Export Controller class.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Csv_Export_Controller extends WC_REST_Controller implements Registrable_Interface {
 

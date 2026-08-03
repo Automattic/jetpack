@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Carousel: stop adding a duplicate set of image data attributes to galleries.

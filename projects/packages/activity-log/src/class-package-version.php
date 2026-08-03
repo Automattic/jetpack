@@ -16,7 +16,7 @@ namespace Automattic\Jetpack\Activity_Log;
  */
 class Package_Version {
 
-	const PACKAGE_VERSION = '0.2.0';
+	const PACKAGE_VERSION = '0.2.1';
 
 	const PACKAGE_SLUG = 'activity-log';
 

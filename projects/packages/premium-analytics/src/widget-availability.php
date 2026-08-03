@@ -171,7 +171,7 @@ add_filter( REGISTRABLE_WIDGET_TYPES_FILTER, __NAMESPACE__ . '\\filter_registrab
  *
  * Split from the hook callback so both branches are testable without a user.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  *
  * @param array $widget_candidates      Manifest candidates, each with a `category`.
  * @param bool  $can_view_store_reports Whether the reader may see the store reports.
@@ -199,7 +199,7 @@ function remove_capability_gated_widget_types( $widget_candidates, $can_view_sto
  * proxy's `analytics` prefix, so the types are never registered for them. The
  * registry is request-scoped, so filtering on the current user is safe here.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  *
  * @param array $widget_candidates Manifest candidates.
  * @return array The candidates, minus the store-report categories for readers who can't see them.

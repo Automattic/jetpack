@@ -20,7 +20,7 @@ function jetpack_matt_random_redirect() {
 	/**
 	 * Allows disabling the random redirect feature.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.1
 	 *
 	 * @param bool $enabled Whether the random redirect feature is enabled. Default true.
 	 */
