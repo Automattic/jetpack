@@ -983,7 +983,9 @@ class Contact_Form_Block {
 			'defaults' => array(
 				'to'                   => $default_recipient['to'],
 				'toSource'             => $default_recipient['source'],
-				'subject'              => Contact_Form::get_default_subject( array() ),
+				// Decoded for display only: get_option( 'blogname' ) stores the site title HTML-encoded,
+				// which would otherwise surface raw entities such as &#039; in the editor's placeholder.
+				'subject'              => wp_specialchars_decode( Contact_Form::get_default_subject( array() ), ENT_QUOTES ),
 				'formsResponsesUrl'    => $form_responses_url,
 				'akismetActiveWithKey' => $akismet_active_with_key,
 				'akismetUrl'           => $akismet_key_url,
