@@ -24,6 +24,7 @@ export function getSubscribersQueryKey( params: SubscribersQueryParams ): readon
 type State = {
 	data: SubscribersResponse | undefined;
 	isLoading: boolean;
+	isPlaceholderData: boolean;
 	error: string | null;
 };
 
@@ -32,7 +33,7 @@ type State = {
  * and lets mutations invalidate the cache.
  *
  * @param params - List query params.
- * @return Loading state, response, and error string.
+ * @return Loading state, response, whether the response is still the previous query's, and error string.
  */
 export function useSubscribers( params: SubscribersQueryParams ): State {
 	const query = useQuery< SubscribersResponse, Error >( {
@@ -44,6 +45,9 @@ export function useSubscribers( params: SubscribersQueryParams ): State {
 	return {
 		data: query.data,
 		isLoading: query.isLoading,
+		// True while `placeholderData` is standing in the previous query's response for a key that
+		// hasn't resolved yet, so callers can avoid reading it as an answer about the current one.
+		isPlaceholderData: query.isPlaceholderData,
 		error: query.error?.message ?? null,
 	};
 }
