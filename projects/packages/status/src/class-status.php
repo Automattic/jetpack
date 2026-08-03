@@ -54,10 +54,12 @@ class Status {
 		$offline_mode = (bool) apply_filters( 'jetpack_offline_mode', $offline_mode );
 
 		if ( ! $offline_mode ) {
-			// Use null as the default so we can tell an unset option apart from a stored `false`.
-			$option = get_option( 'jetpack_offline_mode', null );
+			// Use a unique sentinel as the default so an absent option can't be confused with a
+			// stored value (a legitimately stored null/false would otherwise be treated as absent).
+			$sentinel = new \stdClass();
+			$option   = get_option( 'jetpack_offline_mode', $sentinel );
 
-			if ( null === $option ) {
+			if ( $sentinel === $option ) {
 				// This escape-hatch option is never written by Jetpack, so on most sites it is
 				// missing and re-queried on every request when there is no persistent object
 				// cache. Persist the default as an autoloaded row so future reads are served
