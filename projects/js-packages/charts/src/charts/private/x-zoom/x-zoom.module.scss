@@ -11,8 +11,8 @@
 		pointer-events: none;
 	}
 
-	// Overlay placement and icon-only geometry — the visual treatment (border,
-	// hover/focus, sizing) comes from the WPDS Button. The elevation shadow is
+	// Overlay placement only — border, hover/focus, sizing and icon-only
+	// geometry all come from the WPDS IconButton. The elevation shadow is
 	// deliberately kept for separation from chart content (CHARTS-237
 	// design call, carrying over CHARTS-200's tokenization). `@wordpress/theme`
 	// 1.0.0 dropped the `--wpds-elevation-*` group, so this role carries the
@@ -23,16 +23,6 @@
 		right: var(--wpds-dimension-gap-sm, 8px);
 		z-index: 2;
 		box-shadow: var(--a8c-charts-elevation-xs, 0 1px 1px 0 #00000008, 0 1px 2px 0 #00000005, 0 3px 3px 0 #00000005, 0 4px 4px 0 #00000003);
-
-		// `Button` is sized for a text label. These are the same three custom
-		// properties @wordpress/ui's own IconButton composition sets to make a
-		// square icon-only control; we set them directly because IconButton
-		// itself cannot be used here — it renders a Base UI tooltip, whose
-		// CommonJS `use-sync-external-store` dependency makes Rolldown emit a
-		// dynamic `require()` that throws in Script Module consumers.
-		--wp-ui-button-aspect-ratio: 1;
-		--wp-ui-button-padding-inline: 0;
-		--wp-ui-button-min-width: unset;
 
 		// WPDS outline-neutral is transparent-bodied at rest; give this
 		// floating control an opaque body so chart content doesn't show
