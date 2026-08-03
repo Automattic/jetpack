@@ -206,9 +206,9 @@ export const TimeAxisTickFormats: Story = {
 					data={ [
 						{
 							label: 'Views',
-							data: Array.from( { length: 4 }, ( _, i ) => ( {
+							data: [ 72, 95, 58, 86 ].map( ( value, i ) => ( {
 								date: new Date( 2023 + i, 0, 1 ),
-								value: Math.round( 60 + 40 * Math.sin( i / 2 ) ),
+								value,
 							} ) ),
 							options: {},
 						},
