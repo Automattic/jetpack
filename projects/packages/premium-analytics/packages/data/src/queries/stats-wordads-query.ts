@@ -42,6 +42,13 @@ export const statsWordAdsStatsQuery = (
 	// WordAds stats are computed nightly for the previous day (the Calypso
 	// WordAds page never shows the current day), so a window ending today would
 	// close on an empty bucket — clamp the window end to yesterday.
+	//
+	// The clamped end stays a bare `yyyy-MM-dd` while the unclamped path sends
+	// the offset-bearing datetime through. That asymmetry is deliberate: the
+	// offset exists to pin down which local day a *time* belongs to, and this
+	// value is already resolved to a site-local calendar day by localTZDate().
+	// There is nothing left for the server to mis-truncate, so re-stamping it
+	// with an offset would add exposure without adding meaning.
 	const yesterday = format( subDays( localTZDate(), 1 ), 'yyyy-MM-dd' );
 	const clampToYesterday = rangeEndDay !== undefined && rangeEndDay > yesterday;
 	const date = clampToYesterday ? yesterday : rangeEnd;

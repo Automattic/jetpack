@@ -29,8 +29,8 @@ export function getDaysBetweenInclusive( from: string, to: string ): number {
 	// Extract the calendar day first: callers may now pass a full offset-bearing
 	// ISO datetime (Stats endpoints resolve those correctly, so request params
 	// aren't pre-trimmed anymore) rather than a bare `yyyy-MM-dd`.
-	const fromDay = getDatePart( from ) ?? from;
-	const toDay = getDatePart( to ) ?? to;
+	const fromDay = getDatePart( from );
+	const toDay = getDatePart( to );
 
 	// Anchor both dates in UTC before diffing: `differenceInCalendarDays` reads
 	// its arguments' local calendar getters, and a plain UTC-tagged `Date`'s
