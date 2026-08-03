@@ -73,8 +73,8 @@ const chartData = [
 	{
 		label: 'Views',
 		data: [
-			{ date: new Date( 2026, 6, 1 ), value: 120 },
-			{ date: new Date( 2026, 6, 2 ), value: 90 },
+			{ date: new Date( '2026-07-01' ), value: 120 },
+			{ date: new Date( '2026-07-02' ), value: 90 },
 		],
 	},
 ];

@@ -180,7 +180,8 @@ export function BarChart( {
 	const isEmptyData = useMemo( () => isEmptyChartData( styledChartData ), [ styledChartData ] );
 
 	const xTickFormat = useCallback(
-		( date: Date | number ) => formatDate( date, tickFormat ),
+		( value: Date | number | string ) =>
+			typeof value === 'string' ? value : formatDate( value, tickFormat ),
 		[ tickFormat ]
 	);
 
@@ -212,11 +213,16 @@ export function BarChart( {
 	}, [ isEmptyData, dataFormat.type, tickFormat, xTickFormat ] );
 
 	const getTooltipLabel = useCallback(
-		( datum: { label?: string; date?: Date }, _index: number, key: string ): string => {
+		(
+			datum: { label?: string; date?: Date; realDate?: Date },
+			_index: number,
+			key: string
+		): string => {
 			if ( ! datum.label && datum.date ) {
 				// Time-series points carry a date instead of a label; match the
-				// line chart's site-formatted tooltip dates.
-				return formatDate( datum.date );
+				// line chart's site-formatted tooltip dates, preferring the
+				// comparison series' real date when present.
+				return formatDate( datum.realDate ?? datum.date );
 			}
 			if ( key ) {
 				// Show the key (typically the date range label) in the tooltip if available,
