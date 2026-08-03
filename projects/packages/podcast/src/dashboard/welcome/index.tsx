@@ -202,7 +202,7 @@ const Welcome = ( { onEnable, hasAccess }: WelcomeProps ) => {
 					) }
 					<HStack justify="flex-start" expanded={ false }>
 						<Button variant="primary" onClick={ onEnable }>
-							{ __( 'Enable podcasting', 'jetpack-podcast' ) }
+							{ __( 'Set up podcasting', 'jetpack-podcast' ) }
 						</Button>
 					</HStack>
 				</VStack>
