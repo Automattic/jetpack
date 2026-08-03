@@ -2,9 +2,9 @@
  * External dependencies
  */
 import { useReportCustomersByDate } from '@jetpack-premium-analytics/data';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { customer } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
 import { useMemo } from 'react';
 import { DonutChart, WidgetState } from '../../components';
 /**

@@ -18,7 +18,7 @@ class Help_Center {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.3.0';
+	const PACKAGE_VERSION = '0.3.1';
 
 	/**
 	 * Class instance.

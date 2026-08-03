@@ -12,13 +12,12 @@ import {
 	isPrimaryPreset,
 	type DateRange,
 } from '@jetpack-premium-analytics/datetime';
+import { Stack, type DataFormControlProps } from '@jetpack-premium-analytics/externals';
 import { deriveComparisonRange, encodeDateToSearchParam } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
-import { Stack } from '@wordpress/ui';
 import { endOfDay } from 'date-fns';
 import { useCallback, useMemo, useState } from 'react';
 import { getStoreInfo } from '../../helpers/store-info';
-import type { DataFormControlProps } from '@wordpress/dataviews';
 
 /**
  * Inferred types

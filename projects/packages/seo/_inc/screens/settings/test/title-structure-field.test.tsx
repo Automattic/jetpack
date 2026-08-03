@@ -40,6 +40,7 @@ const renderField = ( formats: Record< string, TitleFormatToken[] > = {} ) =>
 			onSaveFormat={ jest.fn() }
 			isFormatDirty={ () => false }
 			titleSeparator="-"
+			editable
 		/>
 	);
 
@@ -155,5 +156,40 @@ describe( 'TitleStructureField', () => {
 		renderField();
 		expand();
 		expect( screen.getByText( /Hello World - Your site/ ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows all saved formats read-only while title output is conflicted', () => {
+		const formats: Record< string, TitleFormatToken[] > = {
+			front_page: [ { type: 'string', value: 'Front value' } ],
+			posts: [ { type: 'string', value: 'Post value' } ],
+			pages: [ { type: 'string', value: 'Page value' } ],
+			groups: [ { type: 'string', value: 'Tag value' } ],
+			archives: [ { type: 'string', value: 'Archive value' } ],
+		};
+
+		render(
+			<TitleStructureField
+				formats={ formats }
+				onChange={ jest.fn() }
+				onSaveFormat={ jest.fn() }
+				isFormatDirty={ () => true }
+				titleSeparator="-"
+				editable={ false }
+			/>
+		);
+		expand();
+
+		expect(
+			screen.getAllByText( /Another SEO plugin is controlling title output/ )
+		).not.toHaveLength( 0 );
+		expect( screen.getByRole( 'textbox', { name: 'Front page' } ) ).toHaveValue( 'Front value' );
+		expect( screen.getByRole( 'textbox', { name: 'Posts' } ) ).toHaveValue( 'Post value' );
+		expect( screen.getByRole( 'textbox', { name: 'Pages' } ) ).toHaveValue( 'Page value' );
+		expect( screen.getByRole( 'textbox', { name: 'Tags' } ) ).toHaveValue( 'Tag value' );
+		expect( screen.getByRole( 'textbox', { name: 'Archives' } ) ).toHaveValue( 'Archive value' );
+		screen.getAllByRole( 'textbox' ).forEach( input => expect( input ).toBeDisabled() );
+		screen
+			.getAllByRole( 'button', { name: 'Save' } )
+			.forEach( button => expect( button ).toHaveAttribute( 'aria-disabled', 'true' ) );
 	} );
 } );

@@ -207,6 +207,17 @@ class WP_REST_Help_Center_Odie extends WP_REST_Help_Center_Controller {
 	public function send_chat_message( \WP_REST_Request $request ) {
 		$bot_name_slug = $request->get_param( 'bot_id' );
 		$chat_id       = $request->get_param( 'chat_id' );
+		$request_body  = array(
+			'message' => $request->get_param( 'message' ),
+			'context' => $request->get_param( 'context' ) ?? array(),
+		);
+
+		foreach ( array( 'version', 'session_id', 'external_chat_provider', 'external_chat_id' ) as $optional_param ) {
+			$value = $request->get_param( $optional_param );
+			if ( null !== $value ) {
+				$request_body[ $optional_param ] = $value;
+			}
+		}
 
 		// Forward the request body to the support chat endpoint.
 		$body = $this->wpcom_request_client->request(
@@ -216,11 +227,7 @@ class WP_REST_Help_Center_Odie extends WP_REST_Help_Center_Controller {
 				'method'  => 'POST',
 				'timeout' => 60,
 			),
-			array(
-				'message' => $request->get_param( 'message' ),
-				'context' => $request->get_param( 'context' ) ?? array(),
-				'version' => $request->get_param( 'version' ),
-			)
+			$request_body
 		);
 
 		if ( is_wp_error( $body ) ) {
@@ -249,6 +256,8 @@ class WP_REST_Help_Center_Odie extends WP_REST_Help_Center_Controller {
 				'page_number'      => $page_number,
 				'items_per_page'   => $items_per_page,
 				'include_feedback' => $include_feedback,
+				'version'          => $request->get_param( 'version' ),
+				'session_id'       => $request->get_param( 'session_id' ),
 			)
 		);
 

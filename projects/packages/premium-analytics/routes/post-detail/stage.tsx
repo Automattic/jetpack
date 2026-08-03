@@ -159,7 +159,9 @@ function PostDetail(): JSX.Element {
 							</div>
 							{ tabs.map( tab => (
 								<SectionTabPanel key={ tab.id } value={ tab.id } className={ styles.content }>
-									{ activeTab === tab.id ? <WidgetDashboard.Widgets /> : null }
+									{ activeTab === tab.id ? (
+										<WidgetDashboard.Widgets className={ styles.widgets } />
+									) : null }
 								</SectionTabPanel>
 							) ) }
 						</div>

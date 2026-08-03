@@ -2,9 +2,9 @@
  * External dependencies
  */
 import { useReportSessionsByDevice } from '@jetpack-premium-analytics/data';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { device } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
 import { useMemo } from 'react';
 import { SemiCircleChart, WidgetState } from '../../components';
 /**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Widgets: tighten the grid gap between cards to 16px.

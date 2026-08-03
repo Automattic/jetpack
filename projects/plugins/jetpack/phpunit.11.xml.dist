@@ -42,6 +42,9 @@
 		<testsuite name="infinite-scroll">
 			<directory suffix="Test.php">tests/php/modules/infinite-scroll</directory>
 		</testsuite>
+		<testsuite name="theme-tools">
+			<directory suffix="Test.php">tests/php/modules/theme-tools</directory>
+		</testsuite>
 		<testsuite name="comment-likes">
 			<directory suffix="Test.php">tests/php/modules/comment-likes</directory>
 		</testsuite>

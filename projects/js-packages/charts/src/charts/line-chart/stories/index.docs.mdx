@@ -200,29 +200,33 @@ Use semantic line types to distinguish between different data categories with au
 
 ### Comparison type
 
-The `comparison` type can be used to differentiate comparison data from primary data series:
+The `comparison` type can be used to differentiate comparison data from primary data series. Give the primary series and its comparison overlay the same `group` so they pair up. By default each still gets its own legend item; set `legend.collapseGroups` to fold them into one:
 
-<Canvas of={ LineChartStories.Comparison } />
+<Canvas of={ LineChartStories.ComparisonSingle } />
 
 <Source
 	language="jsx"
 	code={ `<LineChart
 		data={[
 			{
-				label: 'This Year',
-				data: currentYearData,
-				options: {}
+				label: 'Views',
+				group: 'views',
+				data: currentPeriodData,
 			},
 			{
-				label: 'Last Year',
-				data: lastYearData,
-				options: {
-					type: 'comparison'
-				}
-			}
+				label: 'Views — previous',
+				group: 'views',
+				options: { type: 'comparison' },
+				data: previousPeriodData,
+			},
 		]}
+		showLegend={true}
 	/>` }
 />
+
+Pair several metrics side by side, each with its own comparison overlay. With `legend.collapseGroups`, each group renders as a single item labelled by its primary series. Add `legend.interactive` and clicking that item toggles the metric's current and previous-period lines together — without `collapseGroups`, each line keeps its own item and toggles alone. By default the value axis rescales to the visible series as they are toggled; this story sets `rescaleYOnVisibilityChange={ false }` to pin it to the full data range so the baseline doesn't jump. When every series is hidden the axes are dropped and only the empty state is shown.
+
+<Canvas of={ LineChartStories.ComparisonMulti } />
 
 ### Theme Integration
 

@@ -164,7 +164,7 @@ The component handles large numbers of series gracefully with automatic color cy
 
 Add a comparison series — for example "this period vs. previous period" — by giving a series `options.type: 'comparison'`. It renders as a translucent "shadow" bar centered **behind** the primary series that shares its `group`. The shadow is wider than the primary bar (the primary is narrowed) so it peeks on each side and above, while a small gap is kept between series and a larger gap between ticks.
 
-<Canvas of={ BarChartStories.Comparison } />
+<Canvas of={ BarChartStories.ComparisonSingle } />
 
 <Source
 	language="jsx"
@@ -188,7 +188,7 @@ Add a comparison series — for example "this period vs. previous period" — by
 
 It composes with grouped bars: pair each primary series with its own `type: 'comparison'` series of the same `group`, and the groups render side by side, each with its own shadow.
 
-<Canvas of={ BarChartStories.ComparisonGroups } />
+<Canvas of={ BarChartStories.ComparisonMulti } />
 
 **Notes:**
 
@@ -196,6 +196,8 @@ It composes with grouped bars: pair each primary series with its own `type: 'com
 - Comparison values are included in the value-axis domain, so a previous period taller than the current one is never clipped.
 - Comparison series must reuse the primary series' category keys (the `label`/`date` of each point) so each shadow lines up with its primary bar.
 - The comparison shadow isn't a separate hover/keyboard target (the primary bar drives interaction), but the tooltip shows both the current and previous period values for the hovered category.
+- Each series gets its own legend item by default. Set `legend.collapseGroups` to render one item per group, labelled by its primary series; combined with `legend.interactive`, clicking that item toggles the primary and its previous-period series together. When every series is hidden, the axes are dropped and only the empty state is shown.
+- Collapsing the legend requires the primary and its comparison series to share a `group`. This is stricter than the bars themselves: rendering pairs a comparison with the sole primary even when `group` is omitted, but the legend has no single-primary fallback, so without a shared `group` the pair keeps separate legend items.
 - With pattern fills enabled (`withPatterns`), the comparison shadow reuses its primary bar's pattern at the same reduced opacity, so the pair reads as one series.
 - Styling comes from the theme at `barChart.barStyles.comparison`. `widthFactor` (default `1.5`) controls how much wider the comparison bar is than the primary — the primary is narrowed to `1 / widthFactor` of the slot — and `opacity` (default `0.5`) sets the shadow translucency.
 

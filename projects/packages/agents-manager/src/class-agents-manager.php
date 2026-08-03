@@ -361,6 +361,10 @@ class Agents_Manager {
 	 * @return string|null The variant name, or null if scripts should not be loaded.
 	 */
 	public static function get_active_variant() {
+		if ( self::is_plugin_information_iframe() ) {
+			return null;
+		}
+
 		/**
 		 * Filter the script variant the Agents Manager loads for this request.
 		 *
@@ -369,6 +373,25 @@ class Agents_Manager {
 		 * @param string|null $variant The resolved variant, or null to not load.
 		 */
 		return apply_filters( 'agents_manager_variant', self::get_variant() );
+	}
+
+	/**
+	 * Whether the current request renders the plugin information iframe.
+	 *
+	 * The parent plugin screen may load Agents Manager, but the iframe must not
+	 * bootstrap a second copy of the app.
+	 *
+	 * @return bool
+	 */
+	private static function is_plugin_information_iframe() {
+		global $current_screen;
+
+		if ( ! $current_screen || 'plugin-install' !== $current_screen->id ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a request context check, not a form submission.
+		return isset( $_GET['tab'] ) && 'plugin-information' === sanitize_text_field( wp_unslash( $_GET['tab'] ) );
 	}
 
 	/**

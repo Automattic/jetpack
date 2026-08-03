@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: fix cramped spacing in the Chapters help modal and let long dialog content scroll.

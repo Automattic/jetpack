@@ -353,7 +353,7 @@ function get_dashboard_default_section_layouts() {
 					'max' => 10,
 				)
 			),
-			// Row 3: posting-activity heatmap + comments + shares.
+			// Row 3: posting-activity heatmap + the two comment leaderboards.
 			get_dashboard_default_widget_instance(
 				'default-posting-activity-widget-instance',
 				'jpa/posting-activity',
@@ -361,9 +361,10 @@ function get_dashboard_default_section_layouts() {
 				2,
 				2
 			),
+			// Posts before authors, matching the design's Insights bottom row.
 			get_dashboard_default_widget_instance(
-				'default-comments-widget-instance',
-				'jpa/comments',
+				'default-most-commented-posts-widget-instance',
+				'jpa/most-commented-posts',
 				7,
 				1,
 				2,
@@ -372,9 +373,20 @@ function get_dashboard_default_section_layouts() {
 				)
 			),
 			get_dashboard_default_widget_instance(
+				'default-most-commented-authors-widget-instance',
+				'jpa/most-commented-authors',
+				8,
+				1,
+				2,
+				array(
+					'max' => 10,
+				)
+			),
+			// Row 4: shares, joined by the two unported modules noted above.
+			get_dashboard_default_widget_instance(
 				'default-shares-widget-instance',
 				'jpa/shares',
-				8,
+				9,
 				1,
 				2,
 				array(

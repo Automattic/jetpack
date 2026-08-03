@@ -45,7 +45,7 @@ jobs:
         run: |
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Get token
         id: get_token
@@ -85,7 +85,7 @@ jobs:
     if: github.event.workflow_run.conclusion != 'success'
     timeout-minutes: 2  # 2025-11-20: Seems like it should be fast.
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Get token
         id: get_token
@@ -129,7 +129,7 @@ jobs:
       artifact_filename: ${{ steps.run.outputs.artifact_filename }}
       any_plugins: ${{ steps.run.outputs.any_plugins }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Find artifact
         id: run
@@ -214,7 +214,7 @@ jobs:
     if: needs.find_artifact.outputs.any_plugins == 'false'
     timeout-minutes: 2  # 2025-11-20: Takes a few seconds.
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Get token
         id: get_token
@@ -257,7 +257,7 @@ jobs:
     timeout-minutes: 5  # 2025-11-20: Takes a few seconds.
 
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Get token
         id: get_token
@@ -282,7 +282,7 @@ jobs:
           token: ${{ steps.get_token.outputs.token }}
 
       - name: Download build artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: ${{ needs.find_artifact.outputs.artifact_name }}
           github-token: ${{ github.token }}
@@ -341,10 +341,10 @@ jobs:
         - 80:80
 
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           path: trunk
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ github.event.workflow_run.head_commit.id }}
           path: commit
@@ -355,7 +355,7 @@ jobs:
             ${{ env.PLUGIN_SRC }}/composer.json
 
       - name: Download build artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: ${{ needs.find_artifact.outputs.artifact_name }}
           github-token: ${{ github.token }}
@@ -385,7 +385,7 @@ jobs:
     timeout-minutes: 5  # 2025-11-20: Takes a few seconds.
 
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Get token
         id: get_token
@@ -416,10 +416,10 @@ jobs:
     if: needs.find_artifact.outputs.any_plugins == 'true'
     timeout-minutes: 15  # 2025-11-20: Less than a minute, but leave time for the downloads.
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           path: trunk
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ github.event.workflow_run.head_commit.id }}
           path: commit
@@ -451,7 +451,7 @@ jobs:
           token: ${{ steps.get_token.outputs.token }}
 
       - name: Download build artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: ${{ needs.find_artifact.outputs.artifact_name }}
           github-token: ${{ github.token }}
