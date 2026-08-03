@@ -141,8 +141,7 @@
 }
 
 .bw-back {
-	font-size: 22px;
-	color: #999;
+	color: #2d2d2d;
 	text-decoration: none;
 	width: 36px;
 	height: 36px;
@@ -155,7 +154,7 @@
 
 .bw-back:hover {
 	background: #f5f5f5;
-	color: #333;
+	color: #1e1e1e;
 }
 
 .bw-status {
@@ -266,7 +265,7 @@
 	border-radius: 50%;
 	border: 1px solid transparent;
 	background: transparent;
-	color: #666;
+	color: #757575;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
@@ -279,12 +278,11 @@
 .bw-more-toggle:hover,
 .bw-more-toggle[aria-expanded="true"] {
 	background: #f5f5f5;
-	color: #333;
+	color: #1e1e1e;
 }
 
 .bw-more-dots {
-	font-size: 22px;
-	line-height: 1;
+	display: flex;
 }
 
 .bw-more-menu {
@@ -453,14 +451,29 @@
 	}
 }
 
+/*
+ * Inline SVG icons (see icons.php). Every path draws with `currentColor`, so
+ * an icon picks up the `color` of its button and follows that button's hover,
+ * active and disabled states without needing rules of its own. Explicit
+ * dimensions guard against wp-admin's global `svg` sizing; `pointer-events`
+ * keeps the button — never the icon — as the event target for the click and
+ * focus handling in view.js.
+ */
+.bw-icon {
+	display: block;
+	width: 24px;
+	height: 24px;
+	flex-shrink: 0;
+	pointer-events: none;
+}
+
 .bw-tool {
 	width: 34px;
 	height: 34px;
 	border: none;
 	border-radius: 6px;
 	background: transparent;
-	color: #555;
-	font-size: 15px;
+	color: #1e1e1e;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
@@ -469,21 +482,12 @@
 	flex-shrink: 0;
 }
 
-.bw-tool .dashicons {
-	font-size: 18px;
-	width: 18px;
-	height: 18px;
-	line-height: 18px;
-}
-
 .bw-tool:hover {
 	background: #f0f0f0;
-	color: #1a1a1a;
 }
 
 .bw-tool-active {
 	background: #e8e8e8;
-	color: #1a1a1a;
 }
 
 .bw-tool:disabled {
@@ -514,9 +518,10 @@
 	font-weight: 500;
 }
 
+/* Wraps the chevron so it sits on the label's baseline row, not stretched. */
 .bw-tool-caret {
-	font-size: 12px;
-	color: #999;
+	display: flex;
+	align-items: center;
 }
 
 /* Dropdown wrapper (for heading and color menus) */
