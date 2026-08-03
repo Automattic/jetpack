@@ -151,18 +151,62 @@ export const fromDisplay = ( display: string, allowedTokenIds?: string[] ): Titl
 export const buildPreview = (
 	tokens: TitleFormatToken[],
 	overrides: Partial< Record< string, string > > = {}
-): string =>
-	tokens
-		.map( token => {
-			if ( token.type === 'string' ) {
-				return token.value;
-			}
-			if ( token.value in overrides ) {
-				return overrides[ token.value ] ?? '';
-			}
-			return TOKEN_PREVIEW_SAMPLES[ token.value ] || token.value;
-		} )
-		.join( '' );
+): string => partsToString( buildPreviewParts( tokens, overrides ) );
+
+/**
+ * One piece of a rendered preview.
+ *
+ * `value` is what a placeholder resolved to — the part of the title that came
+ * from the site. `literal` is text the format carries verbatim, which is to say
+ * the separators the admin typed between placeholders.
+ *
+ * The split exists so the preview can *show* that structure (values as chips,
+ * separators as the plain text they are) without changing what it claims: the
+ * concatenation of every part is byte-for-byte the title that gets emitted.
+ */
+export type PreviewPart = {
+	kind: 'value' | 'literal';
+	text: string;
+};
+
+/**
+ * Concatenate preview parts back into the title they represent.
+ *
+ * @param parts - The ordered preview parts.
+ * @return The title the parts spell out.
+ */
+const partsToString = ( parts: PreviewPart[] ): string => parts.map( part => part.text ).join( '' );
+
+/**
+ * Render an ordered token list into preview parts. Same resolution rules as
+ * {@link buildPreview} — which is implemented on top of this, so the string and
+ * the rendered form can never disagree.
+ *
+ * A placeholder that resolves to nothing is kept as an empty `value` part rather
+ * than dropped, so callers can reproduce the dangling separators the real title
+ * would have. Rendering can skip empty parts; the string form must not.
+ *
+ * @param tokens    - The ordered token list.
+ * @param overrides - Real values keyed by token id. A key that is present but empty
+ *                  renders as empty; a key that is absent falls back to sample text.
+ * @return The ordered preview parts.
+ */
+export const buildPreviewParts = (
+	tokens: TitleFormatToken[],
+	overrides: Partial< Record< string, string > > = {}
+): PreviewPart[] =>
+	tokens.map( token => {
+		if ( token.type === 'string' ) {
+			return { kind: 'literal' as const, text: token.value };
+		}
+		if ( token.value in overrides ) {
+			return { kind: 'value' as const, text: overrides[ token.value ] ?? '' };
+		}
+		return {
+			kind: 'value' as const,
+			text: TOKEN_PREVIEW_SAMPLES[ token.value ] || token.value,
+		};
+	} );
 
 // The token pair WordPress joins to build each page type's default title, in
 // order. A page type with no stored format keeps that default —
@@ -203,23 +247,51 @@ export const buildDefaultPreview = (
 	pageTypeId: string,
 	separator: string,
 	overrides: Partial< Record< string, string > > = {}
-): string => {
-	const parts = DEFAULT_TITLE_PARTS[ pageTypeId ];
-	if ( ! parts ) {
-		return '';
+): string => partsToString( buildDefaultPreviewParts( pageTypeId, separator, overrides ) );
+
+/**
+ * The default-title preview as parts, so a defaulted row renders with the same
+ * treatment as a customized one. {@link buildDefaultPreview} is implemented on
+ * top of this.
+ *
+ * The separator lands as a `literal` part between the values — which is exactly
+ * what it is here: core joins the parts with it, and the admin never typed it.
+ *
+ * @param pageTypeId - The page type (`posts`, `pages`, …).
+ * @param separator  - The site's document-title separator.
+ * @param overrides  - Real values keyed by token id, as for `buildPreviewParts`.
+ * @return The ordered preview parts, empty for an unknown page type.
+ */
+export const buildDefaultPreviewParts = (
+	pageTypeId: string,
+	separator: string,
+	overrides: Partial< Record< string, string > > = {}
+): PreviewPart[] => {
+	const tokens = DEFAULT_TITLE_PARTS[ pageTypeId ];
+	if ( ! tokens ) {
+		return [];
 	}
-	return (
-		parts
-			// Unlike `buildPreview`, a supplied-but-empty override means the part is
-			// genuinely absent, not unknown — so it is dropped rather than replaced with
-			// sample text. This preview claims to be the title WordPress produces, and a
-			// site with no tagline really does get just its name; showing "Your tagline"
-			// there would promise something the site doesn't have. Core does the same,
-			// running `array_filter()` over the parts before joining. Sample text still
-			// stands in for tokens with no override at all, such as the post title.
-			.map( token => ( token in overrides ? overrides[ token ] : TOKEN_PREVIEW_SAMPLES[ token ] ) )
-			.filter( Boolean )
-			.join( ` ${ separator } ` )
+
+	const values = tokens
+		// Unlike `buildPreviewParts`, a supplied-but-empty override means the part is
+		// genuinely absent, not unknown — so it is dropped rather than replaced with
+		// sample text. This preview claims to be the title WordPress produces, and a
+		// site with no tagline really does get just its name; showing "Your tagline"
+		// there would promise something the site doesn't have. Core does the same,
+		// running `array_filter()` over the parts before joining. Sample text still
+		// stands in for tokens with no override at all, such as the post title.
+		.map( token => ( token in overrides ? overrides[ token ] : TOKEN_PREVIEW_SAMPLES[ token ] ) )
+		.filter( Boolean ) as string[];
+
+	// Separators go *between* values only, so a single surviving part (a site with
+	// no tagline, say) doesn't render a trailing separator core wouldn't emit.
+	return values.flatMap( ( text, index ) =>
+		index === 0
+			? [ { kind: 'value' as const, text } ]
+			: [
+					{ kind: 'literal' as const, text: ` ${ separator } ` },
+					{ kind: 'value' as const, text },
+			  ]
 	);
 };
 
