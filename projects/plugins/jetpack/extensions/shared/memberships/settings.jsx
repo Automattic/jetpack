@@ -13,7 +13,7 @@ import {
 } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useEntityId, useEntityProp, store as coreDataStore } from '@wordpress/core-data';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch, useRegistry, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -296,8 +296,9 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 export function NewsletterEmailDocumentSettings() {
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
-	const { receiveEntityRecords } = useDispatch( coreDataStore );
+	const { receiveEntityRecords, editEntityRecord } = useDispatch( coreDataStore );
 	const { createErrorNotice } = useDispatch( noticesStore );
+	const registry = useRegistry();
 	const postId = useEntityId( 'postType', postType );
 	const [ pendingValue, setPendingValue ] = useState( null );
 	const postTypeBaseUrl = useSelect(
@@ -315,28 +316,61 @@ export function NewsletterEmailDocumentSettings() {
 
 	const isAlreadySent = postEmailSentState?.email_sent_at != null;
 
+	const noticeWriteFailed = error => {
+		if ( error ) {
+			// eslint-disable-next-line no-console
+			console.error( 'Could not save the newsletter email setting', error );
+		}
+		createErrorNotice( __( 'The newsletter setting could not be saved.', 'jetpack' ), {
+			type: 'snackbar',
+		} );
+	};
+
+	// `getEditedPostAttribute` merges staged meta over the persisted record, so an edit staged by
+	// another panel keeps shadowing the key we just wrote. Retarget it, but never stage one that
+	// isn't already there — that is what dirties the post in the first place.
+	const realignStagedMeta = dontEmail => {
+		const stagedMeta = registry
+			.select( coreDataStore )
+			.getEntityRecordEdits( 'postType', postType, postId )?.meta;
+
+		if ( ! stagedMeta || stagedMeta[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ] === dontEmail ) {
+			return;
+		}
+
+		editEntityRecord(
+			'postType',
+			postType,
+			postId,
+			{ meta: { [ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: dontEmail } },
+			{ undoIgnore: true }
+		);
+	};
+
 	// Bandaid: a staged meta edit sticks the post dirty under real-time collaboration, and the
 	// entity save rejects auto-drafts. Write the one key on its own instead.
 	const toggleSendEmail = async value => {
-		if ( ! postId || ! postTypeBaseUrl ) {
+		if ( pendingValue !== null ) {
 			return;
 		}
+		if ( ! postId || ! postTypeBaseUrl ) {
+			noticeWriteFailed();
+			return;
+		}
+		// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
+		const dontEmail = value === 'post-only';
 		setPendingValue( value );
 		try {
 			// Update responses already come back in the edit context.
 			const updatedPost = await apiFetch( {
 				path: `${ postTypeBaseUrl }/${ postId }`,
 				method: 'POST',
-				data: {
-					// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
-					meta: { [ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: value === 'post-only' },
-				},
+				data: { meta: { [ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: dontEmail } },
 			} );
 			receiveEntityRecords( 'postType', postType, updatedPost, undefined, true );
-		} catch {
-			createErrorNotice( __( 'The newsletter setting could not be saved.', 'jetpack' ), {
-				type: 'snackbar',
-			} );
+			realignStagedMeta( dontEmail );
+		} catch ( error ) {
+			noticeWriteFailed( error );
 		} finally {
 			setPendingValue( null );
 		}
@@ -355,8 +389,10 @@ export function NewsletterEmailDocumentSettings() {
 	return (
 		<PostVisibilityCheck
 			render={ ( { canEdit } ) => {
-				// ToggleGroupControl ignores `disabled`; only its options honour it.
-				const isLocked = isPostPublished || ! canEdit || pendingValue !== null;
+				// ToggleGroupControl ignores `disabled`; only its options honour it. In-flight writes
+				// are guarded in the handler instead — disabling the option the user just activated
+				// would drop their focus for the length of the request.
+				const isLocked = isPostPublished || ! canEdit;
 
 				return (
 					<ToggleGroupControl

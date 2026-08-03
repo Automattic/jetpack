@@ -14,6 +14,8 @@ const mockUseSelect = jest.fn();
 const mockUseEntityProp = jest.fn();
 const mockUseEntityId = jest.fn();
 const mockReceiveEntityRecords = jest.fn();
+const mockEditEntityRecord = jest.fn();
+const mockGetEntityRecordEdits = jest.fn();
 const mockCreateErrorNotice = jest.fn();
 
 jest.mock( '@wordpress/core-data', () => {
@@ -144,6 +146,7 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 		if ( store === coreDataStore ) {
 			return {
 				getEntityConfig: () => ( { baseURL: '/wp/v2/posts' } ),
+				getEntityRecordEdits: mockGetEntityRecordEdits,
 			};
 		}
 		return {};
@@ -153,13 +156,16 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 		jest.clearAllMocks();
 		mockUseEntityProp.mockReturnValue( [ {}, jest.fn() ] );
 		mockUseEntityId.mockReturnValue( 1 );
+		mockGetEntityRecordEdits.mockReturnValue( undefined );
 		jest.spyOn( wpData, 'useSelect' ).mockImplementation( selector => {
 			return mockUseSelect( selector );
 		} );
 		jest.spyOn( wpData, 'useDispatch' ).mockReturnValue( {
 			receiveEntityRecords: mockReceiveEntityRecords,
+			editEntityRecord: mockEditEntityRecord,
 			createErrorNotice: mockCreateErrorNotice,
 		} );
+		jest.spyOn( wpData, 'useRegistry' ).mockReturnValue( { select: createMockSelect( null ) } );
 	} );
 
 	afterEach( () => {
@@ -231,22 +237,58 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 			await userEvent.click( screen.getByRole( 'radio', { name: 'Post only' } ) );
 
 			expect( apiFetch ).not.toHaveBeenCalled();
+			expect( mockCreateErrorNotice ).toHaveBeenCalled();
 		} );
 
-		test( 'locks the options while the write is in flight', async () => {
+		test( 'realigns a staged meta edit that would shadow the write', async () => {
+			mockGetEntityRecordEdits.mockReturnValue( {
+				meta: {
+					[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: false,
+					_jetpack_newsletter_access: 'subscribers',
+				},
+			} );
+			apiFetch.mockResolvedValue( { id: 1, meta: {} } );
+
+			render( <NewsletterEmailDocumentSettings /> );
+			await userEvent.click( screen.getByRole( 'radio', { name: 'Post only' } ) );
+
+			await waitFor( () =>
+				expect( mockEditEntityRecord ).toHaveBeenCalledWith(
+					'postType',
+					'post',
+					1,
+					{ meta: { [ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: true } },
+					{ undoIgnore: true }
+				)
+			);
+		} );
+
+		test( 'stages nothing when no meta edit is pending', async () => {
+			apiFetch.mockResolvedValue( { id: 1, meta: {} } );
+
+			render( <NewsletterEmailDocumentSettings /> );
+			await userEvent.click( screen.getByRole( 'radio', { name: 'Post only' } ) );
+
+			await waitFor( () => expect( mockReceiveEntityRecords ).toHaveBeenCalled() );
+			expect( mockEditEntityRecord ).not.toHaveBeenCalled();
+		} );
+
+		test( 'ignores a second toggle while the write is in flight, without disabling the options', async () => {
 			let resolveWrite;
 			apiFetch.mockReturnValue( new Promise( resolve => ( resolveWrite = resolve ) ) );
 
 			render( <NewsletterEmailDocumentSettings /> );
 			await userEvent.click( screen.getByRole( 'radio', { name: 'Post only' } ) );
 
-			expect( screen.getByRole( 'radio', { name: 'Post only' } ) ).toBeDisabled();
-			expect( screen.getByRole( 'radio', { name: 'Post & email' } ) ).toBeDisabled();
+			// Disabling would pull focus off the option the user just activated.
+			expect( screen.getByRole( 'radio', { name: 'Post only' } ) ).toBeEnabled();
+			expect( screen.getByRole( 'radio', { name: 'Post & email' } ) ).toBeEnabled();
+
+			await userEvent.click( screen.getByRole( 'radio', { name: 'Post & email' } ) );
+			expect( apiFetch ).toHaveBeenCalledTimes( 1 );
 
 			resolveWrite( { id: 1, meta: {} } );
-			await waitFor( () =>
-				expect( screen.getByRole( 'radio', { name: 'Post only' } ) ).toBeEnabled()
-			);
+			await waitFor( () => expect( mockReceiveEntityRecords ).toHaveBeenCalled() );
 		} );
 	} );
 } );
