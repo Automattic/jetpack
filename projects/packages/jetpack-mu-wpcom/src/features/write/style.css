@@ -1559,11 +1559,10 @@
 	z-index: 5;
 }
 
-.bw-img-edit .dashicons {
-	font-size: 16px;
-	width: 16px;
-	height: 16px;
-	line-height: 16px;
+/* Smaller than the 24px default — this button is only 28x24. */
+.bw-img-edit .bw-icon {
+	width: 12px;
+	height: 12px;
 }
 
 .bw-img-controls:hover .bw-img-edit,

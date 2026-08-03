@@ -214,10 +214,12 @@ add_action(
 			'window.wpcomWriteStrings = ' . wp_json_encode( wpcom_write_get_editor_strings(), JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
 		);
 
+		// No style dependencies: every icon is an inline SVG (see icons.php),
+		// so the editor no longer pulls in the dashicons font.
 		wp_enqueue_style(
 			'wpcom-write',
 			wpcom_write_asset_url( 'style.css' ),
-			array( 'dashicons' ),
+			array(),
 			WPCOM_WRITE_VERSION
 		);
 
