@@ -16,7 +16,7 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import CategoryPicker from '../category-picker';
 import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
@@ -85,9 +85,19 @@ const useFieldEditor = (
 	onCommit: ( value: string ) => void
 ): { value: string; onChange: ( v: string ) => void; onBlur: () => void } => {
 	const [ local, setLocal ] = useState( stored );
+	// The `stored` value this editor last synced from. Anything the user typed
+	// since then is an unsaved edit that an incoming save response must not eat.
+	const syncedRef = useRef( stored );
 	useEffect( () => {
-		setLocal( stored );
-	}, [ stored ] );
+		if ( stored === syncedRef.current ) {
+			return;
+		}
+		const isDirty = local !== syncedRef.current;
+		syncedRef.current = stored;
+		if ( ! isDirty ) {
+			setLocal( stored );
+		}
+	}, [ stored, local ] );
 	return {
 		value: local,
 		onChange: setLocal,
@@ -98,6 +108,18 @@ const useFieldEditor = (
 		},
 	};
 };
+
+// Show urls/states are patch-shaped in an update but whole maps on the record,
+// so they merge a level deeper than the scalar keys.
+const mergeSettings = (
+	base: PodcastSettings,
+	updates: PodcastSettingsUpdate
+): PodcastSettings => ( {
+	...base,
+	...updates,
+	podcasting_show_urls: { ...base.podcasting_show_urls, ...updates.podcasting_show_urls },
+	podcasting_show_states: { ...base.podcasting_show_states, ...updates.podcasting_show_states },
+} );
 
 interface SettingsTabProps {
 	onAfterDisable?: () => void;
@@ -110,17 +132,43 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 	const [ draft, setDraft ] = useState< PodcastSettings | null >( null );
 	const [ confirmDisable, setConfirmDisable ] = useState( false );
 
+	// Bumped on every commit. A response only owns the draft if no newer edit has
+	// been made since it was sent, otherwise a slow save resurrects a value the
+	// user already changed.
+	const saveSeq = useRef( 0 );
+	// Last server-authoritative record, used to roll back a failed save.
+	const settingsRef = useRef( settings );
+
 	useEffect( () => {
+		settingsRef.current = settings;
 		if ( settings && ! draft ) {
 			setDraft( settings );
 		}
 	}, [ settings, draft ] );
 
-	// Save a partial update, then resync draft from the server-merged record so
-	// `isDirty` and reference checks fall back to false on the saved keys.
+	// Save a partial update, echoing it into the draft first so the next edit
+	// compares against what the user just did rather than the value the in-flight
+	// request hasn't returned yet — that stale comparison was dropping an edit
+	// made while a save was still running.
 	const commit = useCallback(
 		( updates: PodcastSettingsUpdate ) => {
-			saveSettings( updates, { onSuccess: setDraft } );
+			const seq = ++saveSeq.current;
+			const isCurrent = () => seq === saveSeq.current;
+			setDraft( prev => ( prev ? mergeSettings( prev, updates ) : prev ) );
+			saveSettings( updates, {
+				// Resync from the server-merged record so reference checks fall back
+				// to false on the saved keys.
+				onSuccess: record => {
+					if ( isCurrent() ) {
+						setDraft( record );
+					}
+				},
+				onError: () => {
+					if ( isCurrent() && settingsRef.current ) {
+						setDraft( settingsRef.current );
+					}
+				},
+			} );
 		},
 		[ saveSettings ]
 	);
