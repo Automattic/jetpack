@@ -1,11 +1,16 @@
 import { GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel, SectionHeader, SectionTabPanel } from '@jetpack-premium-analytics/ui';
+import {
+	DateFiltersPanel,
+	SectionHeader,
+	SectionTabPanel,
+	getSectionSubtitle,
+} from '@jetpack-premium-analytics/ui';
 import { Page, Breadcrumbs } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
@@ -60,6 +65,21 @@ function Dashboard(): JSX.Element {
 	 */
 	const dateFilters = useReportDateFilters( '/' );
 
+	/*
+	 * The subtitle states what the widgets are currently showing, so it follows
+	 * the applied range and comparison rather than the picker's staged draft:
+	 * it must not move while an edit is open, only once Apply commits it.
+	 */
+	const sectionSubtitle = useMemo(
+		() =>
+			getSectionSubtitle( {
+				range: dateFilters.appliedRange,
+				presetId: dateFilters.appliedPresetId,
+				comparisonPresetId: dateFilters.appliedComparisonPresetId,
+			} ),
+		[ dateFilters.appliedRange, dateFilters.appliedPresetId, dateFilters.appliedComparisonPresetId ]
+	);
+
 	// The sections carry each section's default layout, so until the entity
 	// resolves the layout above is transiently empty. WidgetDashboard treats an
 	// empty layout as "no widgets" and force-opens edit mode, so it must not
@@ -91,6 +111,10 @@ function Dashboard(): JSX.Element {
 							items={ [ { label: __( 'Analytics', 'jetpack-premium-analytics-pkg' ) } ] }
 						/>
 					}
+					subTitle={ __(
+						'Track your site performance and visitor insights.',
+						'jetpack-premium-analytics-pkg'
+					) }
 					actions={ <WidgetDashboard.Actions /> }
 					className={ styles.dashboard }
 				>
@@ -105,11 +129,9 @@ function Dashboard(): JSX.Element {
 								value={ section.slug }
 								className={ styles.content }
 							>
-								<div className={ styles.sectionHeader }>
-									<SectionHeader title={ section.label }>
-										<DateFiltersPanel { ...dateFilters } />
-									</SectionHeader>
-								</div>
+								<SectionHeader title={ section.label } subtitle={ sectionSubtitle }>
+									<DateFiltersPanel { ...dateFilters } />
+								</SectionHeader>
 
 								{ activeSection === section.slug ? (
 									<>

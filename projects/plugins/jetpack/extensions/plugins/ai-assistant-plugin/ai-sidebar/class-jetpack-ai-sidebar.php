@@ -100,6 +100,10 @@ class Jetpack_AI_Sidebar {
 			return;
 		}
 
+		if ( self::is_agents_manager_disconnected() ) {
+			return;
+		}
+
 		// Guard against double-enqueue (e.g. hooked multiple times).
 		if ( wp_script_is( 'jetpack-ai-provider' ) ) {
 			return;
@@ -211,6 +215,11 @@ class Jetpack_AI_Sidebar {
 		// wrapper is registered. Avoid registering the wrapper when AM may
 		// import it before window.__JetpackAIProvider exists.
 		if ( ! self::should_expose_provider() ) {
+			return $providers;
+		}
+
+		// The providers filter still runs for disconnected variants.
+		if ( self::is_agents_manager_disconnected() ) {
 			return $providers;
 		}
 
@@ -378,6 +387,19 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
+	 * Whether the Agents Manager is loading a disconnected build, which it does
+	 * when the current user has no linked WordPress.com account.
+	 *
+	 * @return bool
+	 */
+	private static function is_agents_manager_disconnected(): bool {
+		$variant = Agents_Manager::get_active_variant();
+
+		// Null means the Agents Manager is not loading at all, which is not a disconnection.
+		return is_string( $variant ) && str_contains( $variant, 'disconnected' );
+	}
+
+	/**
 	 * Preview configuration consumed by the Agents Manager and Jetpack AI provider bundles.
 	 *
 	 * @return array Preview mode and feature availability.
@@ -431,6 +453,7 @@ class Jetpack_AI_Sidebar {
 		$preview_config = self::get_jetpack_ai_sidebar_preview_config();
 
 		return self::should_expose_provider()
+			&& ! self::is_agents_manager_disconnected()
 			&& true === ( $preview_config['features']['blockToolbarButton'] ?? false );
 	}
 
@@ -543,6 +566,11 @@ class Jetpack_AI_Sidebar {
 		// The fields getter carries the provider exposure gate.
 		$fields = self::get_agents_manager_data_fields();
 		if ( ! $fields ) {
+			return;
+		}
+
+		// The second path the provider URL can reach agentsManagerData by.
+		if ( self::is_agents_manager_disconnected() ) {
 			return;
 		}
 
