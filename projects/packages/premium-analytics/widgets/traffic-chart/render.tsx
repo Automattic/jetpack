@@ -131,6 +131,7 @@ function TrafficChartInner( { granularity, metrics, setAttributes }: TrafficChar
 						dataFormat={ DATA_FORMAT }
 						loading
 						groupLabel={ groupLabel }
+						tickResolution={ period }
 					/>
 				}
 			>
@@ -141,6 +142,7 @@ function TrafficChartInner( { granularity, metrics, setAttributes }: TrafficChar
 					dataFormat={ DATA_FORMAT }
 					loading={ isFetching }
 					groupLabel={ groupLabel }
+					tickResolution={ period }
 				/>
 			</WidgetState>
 		</div>

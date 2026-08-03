@@ -17,6 +17,7 @@ import { MetricWithComparison } from '../metric-with-comparison';
 import { WidgetLoadingOverlay } from '../widget-loading-overlay';
 import styles from './metric-tabs-chart.module.scss';
 import type { DataFormat } from '../../types';
+import type { TickResolution } from '../chart-comparative-line';
 import type { ComparativeLineChartSeries } from '../chart-comparative-line/types';
 import type { ReactNode } from 'react';
 
@@ -73,6 +74,8 @@ export interface MetricTabsChartProps {
 	loading?: boolean;
 	/** Accessible label for the metric tab list. */
 	groupLabel?: string;
+	/** Known bucket resolution of the series; see `ComparativeLineChartProps`. */
+	tickResolution?: TickResolution;
 }
 
 /**
@@ -139,20 +142,23 @@ function buildSeries( metric: MetricTab ): ComparativeLineChartSeries[] {
  * sparkline (dropping its axis, grid, and legend) on short tiles instead of
  * squashing its labels on top of each other.
  *
- * @param {object}     props            - The component props.
- * @param {MetricTab}  props.metric     - The metric to chart.
- * @param {DataFormat} props.dataFormat - Fallback value/axis format.
- * @param {boolean}    props.loading    - Whether to overlay the loading state.
+ * @param {object}         props                - The component props.
+ * @param {MetricTab}      props.metric         - The metric to chart.
+ * @param {DataFormat}     props.dataFormat     - Fallback value/axis format.
+ * @param {boolean}        props.loading        - Whether to overlay the loading state.
+ * @param {TickResolution} props.tickResolution - Known bucket resolution of the series.
  * @return The chart for the metric.
  */
 function MetricChart( {
 	metric,
 	dataFormat,
 	loading,
+	tickResolution,
 }: {
 	metric: MetricTab;
 	dataFormat: DataFormat;
 	loading: boolean;
+	tickResolution?: TickResolution;
 } ) {
 	const series = useMemo( () => buildSeries( metric ), [ metric ] );
 
@@ -179,6 +185,7 @@ function MetricChart( {
 				series={ series }
 				styles={ seriesStyles }
 				dataFormat={ metric.dataFormat ?? dataFormat }
+				tickResolution={ tickResolution }
 				compactWhenShort
 			/>
 			{ loading && <WidgetLoadingOverlay /> }
@@ -208,6 +215,7 @@ export function MetricTabsChart( {
 	controls,
 	loading = false,
 	groupLabel = __( 'Select metric', 'jetpack-premium-analytics-pkg' ),
+	tickResolution,
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState(
 		defaultMetricKey ?? metrics.find( metric => ! metric.disabled )?.key ?? metrics[ 0 ]?.key
@@ -348,7 +356,12 @@ export function MetricTabsChart( {
 				</div>
 				<div className={ styles.chart }>
 					{ activeMetric && (
-						<MetricChart metric={ activeMetric } dataFormat={ dataFormat } loading={ loading } />
+						<MetricChart
+							metric={ activeMetric }
+							dataFormat={ dataFormat }
+							loading={ loading }
+							tickResolution={ tickResolution }
+						/>
 					) }
 				</div>
 			</div>
@@ -395,7 +408,12 @@ export function MetricTabsChart( {
 			     metric's panel renders its chart; the rest stay empty. */ }
 			{ metrics.map( metric => (
 				<Tabs.Panel key={ metric.key } value={ metric.key } className={ styles.chart }>
-					<MetricChart metric={ metric } dataFormat={ dataFormat } loading={ loading } />
+					<MetricChart
+						metric={ metric }
+						dataFormat={ dataFormat }
+						loading={ loading }
+						tickResolution={ tickResolution }
+					/>
 				</Tabs.Panel>
 			) ) }
 		</Tabs.Root>

@@ -106,6 +106,8 @@ function applyStylesToSeries(
  */
 type LineChartProps = ComponentProps< typeof LineChart >;
 type RenderTooltipParams = Parameters< NonNullable< LineChartProps[ 'renderTooltip' ] > >[ 0 ];
+type XAxisOptions = NonNullable< NonNullable< LineChartProps[ 'options' ] >[ 'axis' ] >[ 'x' ];
+export type TickResolution = NonNullable< NonNullable< XAxisOptions >[ 'tickResolution' ] >;
 
 /**
  * Props for the ComparativeLineChart component.
@@ -144,6 +146,13 @@ export type ComparativeLineChartProps = {
 	tickFormat?: DateFormatName;
 
 	/**
+	 * Known bucket resolution of the series, passed to the chart's automatic
+	 * tick formatter so it doesn't have to infer it from point spacing.
+	 * Ignored when `tickFormat` is set.
+	 */
+	tickResolution?: TickResolution;
+
+	/**
 	 * Degrade to a sparkline (no y-axis, grid, or legend) when the chart area
 	 * is too short for readable axis labels. Defaults to false.
 	 */
@@ -167,6 +176,7 @@ export function ComparativeLineChart( {
 	className,
 	dataFormat,
 	tickFormat: xTickFormatType,
+	tickResolution,
 	maxWidth = Infinity,
 	compactWhenShort = false,
 }: ComparativeLineChartProps ) {
@@ -332,6 +342,7 @@ export function ComparativeLineChart( {
 					// so an explicit `tickFormat: undefined` would wipe out the library's
 					// span-based formatter and fall through to d3's mixed-format ticks.
 					...( xTickFormatType ? { tickFormat: xTickFormat } : {} ),
+					...( tickResolution ? { tickResolution } : {} ),
 				},
 				y: {
 					tickFormat: yTickFormat,
@@ -361,6 +372,7 @@ export function ComparativeLineChart( {
 	}, [
 		xTickFormat,
 		xTickFormatType,
+		tickResolution,
 		yTickFormat,
 		percentageDomain,
 		isEmptyData,
