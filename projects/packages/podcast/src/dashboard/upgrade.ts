@@ -23,23 +23,10 @@ export const getUpgradePlanName = (): string =>
 export const getUpgradeProductCheckoutUrl = (): string =>
 	`https://wordpress.com/checkout/${ getUpgradeProductSlug() }`;
 
-/**
- * Identify the site to Calypso for checkout.
- *
- * Prefer the WordPress.com blog ID: `site.suffix` is derived from `home_url()`,
- * which doesn't match the site WordPress.com knows whenever the two disagree
- * (WordPress in its own directory, mapped domains, multi-URL setups), and
- * checkout answers "You don't have access to this site". The slug and the
- * admin host are fallbacks for when no blog ID was injected.
- *
- * @return {string} Blog ID, site slug, or admin host; empty when none resolve.
- */
-export const getUpgradeSiteFragment = (): string => {
+// The Calypso slug, with the admin host as a safety net in case `site.suffix`
+// is unexpectedly absent.
+const getSiteSlug = (): string => {
 	const site = getSiteData();
-
-	if ( site?.wpcom?.blog_id ) {
-		return String( site.wpcom.blog_id );
-	}
 
 	if ( site?.suffix ) {
 		return site.suffix;
@@ -50,6 +37,23 @@ export const getUpgradeSiteFragment = (): string => {
 	} catch {
 		return '';
 	}
+};
+
+/**
+ * Identify the site to Calypso for checkout.
+ *
+ * Prefer the WordPress.com blog ID: `site.suffix` is derived from `home_url()`,
+ * which doesn't match the site WordPress.com knows whenever the two disagree
+ * (WordPress in its own directory, mapped domains, multi-URL setups), and
+ * checkout answers "You don't have access to this site". The slug stands in
+ * when no blog ID was injected.
+ *
+ * @return {string} Blog ID or site slug; empty when neither resolves.
+ */
+export const getUpgradeSiteFragment = (): string => {
+	const blogId = getSiteData()?.wpcom?.blog_id;
+
+	return blogId ? String( blogId ) : getSiteSlug();
 };
 
 interface UpgradeCheckoutUrlArgs {
@@ -84,6 +88,15 @@ export const buildUpgradeCheckoutUrl = ( {
 	const url = new URL(
 		getProductCheckoutUrl( getUpgradeProductSlug(), siteFragment, returnUrl, true )
 	);
+
+	// `getProductCheckoutUrl` derives `site` from the path fragment; Boost and
+	// `useProductCheckoutWorkflow` keep the slug there and take the blog ID for
+	// the path alone, so match that shape.
+	const slug = getSiteSlug();
+	if ( slug ) {
+		url.searchParams.set( 'site', slug );
+	}
+
 	if ( params ) {
 		for ( const [ key, value ] of Object.entries( params ) ) {
 			url.searchParams.set( key, value );
