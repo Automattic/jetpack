@@ -35,24 +35,26 @@ export const statsWordAdsStatsQuery = (
 	const unit = String( apiParams.period ?? 'day' );
 	const { start_date: startDate } = statsParams;
 	const rangeEnd = typeof apiParams.date === 'string' ? apiParams.date : undefined;
-	// start_date/date may now carry the full offset-bearing ISO datetime (see
-	// reportParamsToStatsQueryParams); the clamp comparison and bucket count
-	// below need the calendar-day part regardless of what's sent to the API.
+	// `start_date`/`date` may now carry the full offset-bearing ISO datetime (see
+	// reportParamsToStatsQueryParams), but this endpoint must not receive one.
+	//
+	// It resolves the window end in UTC rather than the site's timezone, and
+	// decides whether to honor the requested end at all by comparing it as a
+	// raw *string* against today. Both halves break on an ISO datetime, and the
+	// comparison is the dangerous one: a bare day sorts before the longer
+	// datetime that starts with it, so the check fails and the request falls
+	// back to the endpoint's own "yesterday" default. A request that is correct
+	// today with a bare day would start resolving a day early. Trim on every
+	// path here — including the unclamped one — until WOOA7S-1842 lands. That
+	// ticket explains why we are not fixing the endpoint yet; do not drop this
+	// trim before reading it.
 	const rangeEndDay = getDatePart( rangeEnd ) ?? rangeEnd;
 	// WordAds stats are computed nightly for the previous day (the Calypso
 	// WordAds page never shows the current day), so a window ending today would
 	// close on an empty bucket — clamp the window end to yesterday.
-	//
-	// The clamped end stays a bare `yyyy-MM-dd` while the unclamped path sends
-	// the offset-bearing datetime through. That asymmetry is deliberate: the
-	// offset exists to pin down which local day a *time* belongs to, and this
-	// value is already resolved to a site-local calendar day by localTZDate().
-	// There is nothing left for the server to mis-truncate, so re-stamping it
-	// with an offset would add exposure without adding meaning.
 	const yesterday = format( subDays( localTZDate(), 1 ), 'yyyy-MM-dd' );
 	const clampToYesterday = rangeEndDay !== undefined && rangeEndDay > yesterday;
-	const date = clampToYesterday ? yesterday : rangeEnd;
-	const dateDay = clampToYesterday ? yesterday : rangeEndDay;
+	const date = clampToYesterday ? yesterday : rangeEndDay;
 	// The endpoint is quantity-based (`unit` buckets ending at `date`), not
 	// `from`/`to`-based, so the dashboard range is translated here: the number of
 	// buckets spanning the range becomes `quantity`. Derive it from the clamped
@@ -63,8 +65,8 @@ export const statsWordAdsStatsQuery = (
 	const defaultQuantity = unit === 'year' ? 10 : 30;
 	const quantity =
 		params.quantity ??
-		( startDate && dateDay
-			? getPeriodsBetweenInclusive( unit as StatsPeriod, startDate, dateDay )
+		( startDate && date
+			? getPeriodsBetweenInclusive( unit as StatsPeriod, startDate, date )
 			: defaultQuantity );
 	const wordAdsParams: StatsProxyParams = {
 		unit,
