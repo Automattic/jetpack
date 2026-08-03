@@ -66,19 +66,13 @@ type GetCustomTriggerLabelArgs = {
 	triggerState: CustomTriggerState;
 	range: TriggerDateRange;
 	committedRange: TriggerDateRange;
+	rememberedCustomRange?: TriggerDateRange | null;
 	customLabel: string;
 	formatRange: ( range: TriggerDateRange ) => string;
 };
 
 /**
- * Derives the custom trigger label from the trigger's visual state.
- *
- * Idle means a preset is driving the range, so the trigger names itself instead
- * of echoing a range that is not in effect. The last custom range is still
- * restored when the popover reopens.
- *
- * Every argument is derived from props, which is what keeps the measuring probe
- * and the trigger on the same string.
+ * Derives the custom trigger label from visual state and remembered ranges.
  *
  * @param {GetCustomTriggerLabelArgs} args - Trigger state, staged/applied ranges, and formatters.
  * @return The trigger button label.
@@ -87,6 +81,7 @@ export function getCustomTriggerLabel( {
 	triggerState,
 	range,
 	committedRange,
+	rememberedCustomRange,
 	customLabel,
 	formatRange,
 }: GetCustomTriggerLabelArgs ): string {
@@ -96,6 +91,10 @@ export function getCustomTriggerLabel( {
 
 	if ( triggerState === 'applied' ) {
 		return formatRange( committedRange );
+	}
+
+	if ( rememberedCustomRange?.from && rememberedCustomRange.to ) {
+		return formatRange( rememberedCustomRange );
 	}
 
 	return customLabel;

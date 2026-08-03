@@ -25,7 +25,11 @@ import {
 	WIDE_CALENDAR_CONTAINER_THRESHOLD,
 	type PresetRowWidths,
 } from '../date-range-layout';
-import { getCustomTriggerLabel, getCustomTriggerState } from '../date-range-popover';
+import {
+	getCommittedCustomRange,
+	getCustomTriggerLabel,
+	getCustomTriggerState,
+} from '../date-range-popover';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
 import { PresetRowProbe } from './preset-row-probe';
 
@@ -242,6 +246,7 @@ export function DateFiltersPanel( {
 			} ),
 			range,
 			committedRange,
+			rememberedCustomRange: getCommittedCustomRange( validatedAppliedPresetId, appliedRange ),
 			customLabel: __( 'Custom', 'jetpack-premium-analytics-pkg' ),
 			formatRange: formatDateRange,
 		} );

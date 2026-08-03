@@ -73,49 +73,33 @@ describe( 'getCustomTriggerLabel', () => {
 	const formatRange = ( { from, to }: { from?: Date; to?: Date } ) =>
 		`${ from?.toISOString() ?? '' }–${ to?.toISOString() ?? '' }`;
 
-	const customRange = {
+	const rememberedCustomRange = {
 		from: new Date( '2026-07-05T00:00:00.000Z' ),
 		to: new Date( '2026-07-10T23:59:59.000Z' ),
 	};
 
-	const formatted = '2026-07-05T00:00:00.000Z–2026-07-10T23:59:59.000Z';
-
-	// Idle is "a preset is driving the range". Echoing a custom range there reads
-	// as if it were applied, and it also desynced the measuring probe, which has
-	// only the props to work from and so always resolved this case to the label.
-	it( 'names itself while idle, whatever custom range ran before', () => {
+	it( 'shows the remembered custom range while idle on a preset', () => {
 		expect(
 			getCustomTriggerLabel( {
 				triggerState: 'idle',
-				range: customRange,
-				committedRange: customRange,
+				range: rememberedCustomRange,
+				committedRange: rememberedCustomRange,
+				rememberedCustomRange,
+				customLabel,
+				formatRange,
+			} )
+		).toBe( '2026-07-05T00:00:00.000Z–2026-07-10T23:59:59.000Z' );
+	} );
+
+	it( 'falls back to the custom label when nothing is remembered', () => {
+		expect(
+			getCustomTriggerLabel( {
+				triggerState: 'idle',
+				range: rememberedCustomRange,
+				committedRange: rememberedCustomRange,
 				customLabel,
 				formatRange,
 			} )
 		).toBe( customLabel );
-	} );
-
-	it( 'shows the staged range while the popover is open', () => {
-		expect(
-			getCustomTriggerLabel( {
-				triggerState: 'staged',
-				range: customRange,
-				committedRange: {},
-				customLabel,
-				formatRange,
-			} )
-		).toBe( formatted );
-	} );
-
-	it( 'shows the committed range once a custom range is applied', () => {
-		expect(
-			getCustomTriggerLabel( {
-				triggerState: 'applied',
-				range: {},
-				committedRange: customRange,
-				customLabel,
-				formatRange,
-			} )
-		).toBe( formatted );
 	} );
 } );

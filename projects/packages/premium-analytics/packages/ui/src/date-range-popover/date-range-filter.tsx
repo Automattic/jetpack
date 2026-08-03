@@ -302,6 +302,7 @@ export function DateRangePopover( {
 		triggerState,
 		range,
 		committedRange,
+		rememberedCustomRange,
 		customLabel: __( 'Custom', 'jetpack-premium-analytics-pkg' ),
 		formatRange: formatDateRange,
 	} );
