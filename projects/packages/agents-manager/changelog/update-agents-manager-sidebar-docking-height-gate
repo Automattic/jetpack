@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Sidebar docking: remove the viewport-height gate. The simplified wp-admin layout keeps the admin menu in normal flow, so a tall menu no longer prevents docking.
