@@ -375,10 +375,11 @@ describe( 'Stats query factories', () => {
 		);
 	} );
 
-	it( 'trims top-posts date params to bare calendar days', () => {
-		// This endpoint resolves its date params in UTC rather than the site's
-		// timezone, and reads `start_date` without normalizing it — the offset is
-		// read and then discarded, resolving the wrong day on non-UTC sites.
+	it( 'sends offset-bearing top-posts date params through untrimmed', () => {
+		// This endpoint used to resolve its date params in UTC rather than the
+		// site's timezone, so the client trimmed them to a bare day. The server
+		// now resolves the embedded offset, so the full datetime goes through
+		// like every other Stats request.
 		const query = statsTopPostsQuery( {
 			from: '2026-06-01T00:00:00.000-07:00',
 			to: '2026-06-07T23:59:59.999-07:00',
@@ -388,8 +389,8 @@ describe( 'Stats query factories', () => {
 		expect( query.queryKey ).toEqual(
 			expect.arrayContaining( [
 				expect.objectContaining( {
-					date: '2026-06-07',
-					start_date: '2026-06-01',
+					date: '2026-06-07T23:59:59.999-07:00',
+					start_date: '2026-06-01T00:00:00.000-07:00',
 					days: 7,
 				} ),
 			] )

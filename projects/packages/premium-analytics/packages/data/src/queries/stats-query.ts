@@ -70,7 +70,7 @@ type StatsReportQuerySettings = {
 	 * anyway, so trimming loses nothing.
 	 *
 	 * A stopgap, not the fix. Remove each opt-in as its server-side ticket
-	 * lands: WOOA7S-1842, WOOA7S-1843.
+	 * lands; WOOA7S-1842 is the last one outstanding.
 	 */
 	bareDateParams?: boolean;
 };
