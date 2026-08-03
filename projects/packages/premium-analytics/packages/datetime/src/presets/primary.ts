@@ -113,6 +113,10 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 		// granularity — this is the only preset that buckets hourly — and the
 		// open-ended `endOfHour` keeps the in-progress hour visible, matching how
 		// `today` runs to `endOfToday`.
+		//
+		// `subHours` counts elapsed time, so the window spans 24 real hours even
+		// across a DST transition, where the local clock reads 23 or 25 hour
+		// labels over the same span.
 		getRange: ( { now } ) => ( {
 			from: subHours( startOfHour( now ), 23 ),
 			to: endOfHour( now ),
