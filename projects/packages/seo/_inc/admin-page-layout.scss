@@ -136,16 +136,14 @@ body.toplevel_page_jetpack-seo {
 // (nothing is pinned over the content on a narrow viewport), and the top offset
 // steps down at 782px where the wp-admin bar shrinks.
 
-// Scoped to the SEO page's body class, like the layout rules at the top of this
-// file. Every other rule here is namespaced by a `jetpack-seo-*` class, but
-// this
-// one targets a class we don't own — so without the scope it would move
-// the snackbars on any other wp-build screen this stylesheet ever loaded on.
+// Scoped to the SEO page's body class, like the layout rules at the top of
+// this file. Every other rule here is namespaced by a `jetpack-seo-*` class,
+// but this one targets a class we don't own — so without the scope it would
+// move the snackbars on any other wp-build screen this stylesheet loaded on.
 
-// It also settles specificity. Boot injects its rule as a runtime `<style>` in
-// `<head>` at `.boot-layout .boot-notices__snackbar` (0,2,0); the body class
-// puts this at (0,3,1), so it wins outright rather than depending on load
-// order.
+// It also settles specificity. Boot injects its rule at runtime as
+// `.boot-layout .boot-notices__snackbar` (0,2,0); the body class puts this at
+// (0,3,1), so it wins outright rather than depending on load order.
 body.jetpack_page_jetpack-seo,
 body.toplevel_page_jetpack-seo {
 
