@@ -29,6 +29,7 @@ import {
 	getCommittedCustomRange,
 	getCustomTriggerLabel,
 	getCustomTriggerState,
+	type RememberedCustomRange,
 } from '../date-range-popover';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
 import { PresetRowProbe } from './preset-row-probe';
@@ -232,6 +233,30 @@ export function DateFiltersPanel( {
 		setObserverRef( rootElement ?? document.body );
 	}, [ rootElement, setObserverRef ] );
 
+	/*
+	 * The last applied custom range, remembered so the trigger can offer the way
+	 * back to it while a preset is driving the range.
+	 *
+	 * Owned here rather than inside the popover because it is an input to the
+	 * trigger's label, and the probe below has to reproduce that label exactly.
+	 * Held downstream it would be invisible to the probe, which would measure
+	 * "Custom" against a trigger showing a formatted range and under-measure the
+	 * row by the difference between the two.
+	 *
+	 * Only ever set: a preset selection clears the committed custom range, and
+	 * the point of remembering is to survive exactly that.
+	 */
+	const [ rememberedCustomRange, setRememberedCustomRange ] =
+		useState< RememberedCustomRange | null >( null );
+
+	useEffect( () => {
+		const committedCustomRange = getCommittedCustomRange( validatedAppliedPresetId, appliedRange );
+
+		if ( committedCustomRange ) {
+			setRememberedCustomRange( committedCustomRange );
+		}
+	}, [ validatedAppliedPresetId, appliedRange ] );
+
 	// Derived through the same helpers the trigger uses, so the probe measures
 	// the string the trigger is actually showing.
 	const customTriggerLabel = useMemo( () => {
@@ -246,7 +271,7 @@ export function DateFiltersPanel( {
 			} ),
 			range,
 			committedRange,
-			rememberedCustomRange: getCommittedCustomRange( validatedAppliedPresetId, appliedRange ),
+			rememberedCustomRange,
 			customLabel: __( 'Custom', 'jetpack-premium-analytics-pkg' ),
 			formatRange: formatDateRange,
 		} );
@@ -255,6 +280,7 @@ export function DateFiltersPanel( {
 		canApply,
 		isPrimaryPickerOpen,
 		range,
+		rememberedCustomRange,
 		validatedAppliedPresetId,
 		validatedPresetId,
 	] );
@@ -311,6 +337,7 @@ export function DateFiltersPanel( {
 					timeZone={ timeZone }
 					labelMode={ labelMode }
 					isWideScreen={ isWideScreen }
+					rememberedCustomRange={ rememberedCustomRange }
 					onOpenChange={ setIsPrimaryPickerOpen }
 				/>
 			</BaseControl>

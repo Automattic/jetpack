@@ -51,6 +51,7 @@ export function DateRangeFilter( {
 	canApply,
 	timeZone,
 	onOpenChange,
+	rememberedCustomRange,
 	labelMode = 'full',
 	isWideScreen = false,
 }: DateRangeFilterProps ) {
@@ -92,6 +93,7 @@ export function DateRangeFilter( {
 			timeZone={ timeZone }
 			isWideScreen={ isWideScreen }
 			onOpenChange={ onOpenChange }
+			rememberedCustomRange={ rememberedCustomRange }
 			triggerAsCompositeItem={ ! isCompact }
 			isCompact={ isCompact }
 		/>
