@@ -32,10 +32,8 @@ export type PostHighlightCardMetric = {
 	label: string;
 
 	/**
-	 * The metric value, or `undefined` when it could not be read. An unavailable
-	 * metric renders as a dash rather than as `0`: the endpoint that supplies
-	 * these counts can fail on its own (a private site 403s it), and a zero there
-	 * is indistinguishable from a post that genuinely has no likes.
+	 * The metric value, or `undefined` when unavailable — rendered as a dash, so a
+	 * failed request is not shown as a real count of zero.
 	 */
 	value: number | undefined;
 
@@ -144,8 +142,7 @@ function PostHighlightMetric( {
 			{ metric.note && <VisuallyHidden>{ metric.note }</VisuallyHidden> }
 			{ metric.value === undefined ? (
 				<Text className={ styles.metricValue } variant="body-md">
-					{ /* An em dash reads as "—" to a screen reader, or is skipped
-					     entirely, so the state is also spelled out for assistive tech. */ }
+					{ /* Spelled out below, since a screen reader may skip the dash. */ }
 					<span aria-hidden="true">&mdash;</span>
 					<VisuallyHidden>
 						{ __( 'Not available', 'jetpack-premium-analytics-pkg' ) }
