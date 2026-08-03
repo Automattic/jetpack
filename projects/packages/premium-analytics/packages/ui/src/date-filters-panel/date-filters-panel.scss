@@ -22,6 +22,15 @@
 	// adjustments for every descendant live here.
 	&.is-compact {
 
+		// Collapsed, the trigger shares the row with the preset select rather
+		// than with the pills, so it takes the select's size. Keyed to the
+		// collapsed state and not to a 600px viewport: the abbreviated tier lets
+		// pills survive below that width, which left a 16px trigger sitting next
+		// to 13px pills.
+		.date-filters-panel-button {
+			font-size: max(var(--wpds-typography-font-size-md), 16px);
+		}
+
 		// The preset select and custom trigger become two separate bordered
 		// controls, so drop the group's shared frame and flush hairline dividers
 		// and space them with a gap instead.
