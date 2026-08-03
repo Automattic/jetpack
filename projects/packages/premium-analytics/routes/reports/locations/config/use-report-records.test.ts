@@ -1,11 +1,7 @@
 import { useStatsLocations } from '@jetpack-premium-analytics/data';
 import { renderHook } from '@testing-library/react';
 import { useLocationsReportRecords } from './use-report-records';
-import type {
-	ReportParams,
-	StatsLocationsItem,
-	StatsNormalizedReport,
-} from '@jetpack-premium-analytics/data';
+import type { ReportParams, StatsLocationsComparisonItem } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
@@ -14,39 +10,16 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 
 const mockUseStatsLocations = useStatsLocations as jest.MockedFunction< typeof useStatsLocations >;
 
-const report: StatsNormalizedReport< StatsLocationsItem > = {
-	summary: {},
-	data: [
-		{
-			time_interval: '2026-07-09',
-			date_start: '2026-07-09T00:00:00+00:00',
-			date_end: '2026-07-09T23:59:59+00:00',
-			items: [
-				{
-					label: 'India',
-					views: 7,
-					countryCode: 'IN',
-					countryFull: 'India',
-					children: null,
-				},
-			],
-		},
-		{
-			time_interval: '2026-07-10',
-			date_start: '2026-07-10T00:00:00+00:00',
-			date_end: '2026-07-10T23:59:59+00:00',
-			items: [
-				{
-					label: 'India',
-					views: 6,
-					countryCode: 'IN',
-					countryFull: 'India',
-					children: null,
-				},
-			],
-		},
-	],
-};
+const rows: StatsLocationsComparisonItem[] = [
+	{
+		label: 'India',
+		views: 13,
+		countryCode: 'IN',
+		countryFull: 'India',
+		children: null,
+		previousViews: 9,
+	},
+];
 
 const params: ReportParams = {
 	from: '2026-07-09',
@@ -54,23 +27,45 @@ const params: ReportParams = {
 	interval: 'day',
 };
 
+const REQUEST_PARAMS = {
+	...params,
+	max: 0,
+	summarize: 1,
+	period: 'day',
+};
+
+/**
+ * Build a settled report result for the mocked hook.
+ *
+ * @param overrides - Fields to override for the case under test.
+ * @return The mocked report result.
+ */
+function reportResult( overrides: Record< string, unknown > = {} ) {
+	return {
+		isLoading: false,
+		isFetching: false,
+		isError: false,
+		primary: { isLoading: false, isFetching: false, isError: false },
+		comparison: { isLoading: false, isFetching: false, isError: false },
+		comparisonRows: { rows, hasComparison: true },
+		hasComparison: true,
+		refetch: jest.fn(),
+		...overrides,
+	} as unknown as ReturnType< typeof useStatsLocations >;
+}
+
 describe( 'useLocationsReportRecords', () => {
 	beforeEach( () => {
 		mockUseStatsLocations.mockReset();
-		mockUseStatsLocations.mockReturnValue( {
-			primary: { data: report },
-			comparison: { data: undefined },
-			hasComparison: false,
-			isLoading: false,
-		} as ReturnType< typeof useStatsLocations > );
+		mockUseStatsLocations.mockReturnValue( reportResult() );
 	} );
 
-	it( 'keeps every location request day-bucketed', () => {
+	it( 'summarizes every location request', () => {
 		renderHook( () => useLocationsReportRecords( 'cities', params ) );
 
 		expect(
 			mockUseStatsLocations.mock.calls.every(
-				( [ requestParams ] ) => requestParams.period === 'day'
+				( [ requestParams ] ) => requestParams.summarize === 1 && requestParams.period === 'day'
 			)
 		).toBe( true );
 	} );
@@ -81,10 +76,7 @@ describe( 'useLocationsReportRecords', () => {
 		// No `enabled` gate and no `filter_by_country`: this call backs the
 		// country filter's options as well as the Countries tab.
 		expect( mockUseStatsLocations ).toHaveBeenCalledWith( {
-			...params,
-			max: 0,
-			summarize: 0,
-			period: 'day',
+			...REQUEST_PARAMS,
 			geoMode: 'country',
 		} );
 	} );
@@ -94,10 +86,7 @@ describe( 'useLocationsReportRecords', () => {
 
 		expect( mockUseStatsLocations ).toHaveBeenCalledWith(
 			{
-				...params,
-				max: 0,
-				summarize: 0,
-				period: 'day',
+				...REQUEST_PARAMS,
 				geoMode: 'region',
 				filter_by_country: 'IN',
 			},
@@ -121,26 +110,29 @@ describe( 'useLocationsReportRecords', () => {
 		expect( result.current.countries.options ).toEqual( [ { code: 'IN', label: 'India' } ] );
 	} );
 
-	it( 'sums each location across the range for the table', () => {
+	it( 'carries the previous period through to the table rows', () => {
 		const { result } = renderHook( () => useLocationsReportRecords( 'countries', params ) );
 
 		expect( result.current.table.rows ).toEqual( [
-			{ id: 'IN:India', label: 'India', countryCode: 'IN', countryFull: 'India', views: 13 },
+			{
+				id: 'IN:India',
+				label: 'India',
+				countryCode: 'IN',
+				countryFull: 'India',
+				views: 13,
+				previousViews: 9,
+			},
 		] );
+		expect( result.current.hasComparison ).toBe( true );
 	} );
 
 	it( 'reports the active tab fetch state, not the country options query', () => {
-		mockUseStatsLocations.mockImplementation(
-			( requestParams, options ) =>
-				( {
-					primary: { data: report },
-					comparison: { data: undefined },
-					hasComparison: false,
-					isLoading: false,
-					// Only the enabled per-tab query refetches; the always-on
-					// countries query is already settled.
-					isFetching: options?.enabled === true,
-				} ) as ReturnType< typeof useStatsLocations >
+		mockUseStatsLocations.mockImplementation( ( requestParams, options ) =>
+			reportResult( {
+				// Only the enabled per-tab query refetches; the always-on
+				// countries query is already settled.
+				isFetching: options?.enabled === true,
+			} )
 		);
 
 		const { result } = renderHook( () => useLocationsReportRecords( 'cities', params ) );
@@ -149,21 +141,29 @@ describe( 'useLocationsReportRecords', () => {
 	} );
 
 	it( 'reports the active tab error and retry, not the country options query', () => {
-		mockUseStatsLocations.mockImplementation(
-			( requestParams, options ) =>
-				( {
-					primary: { data: report },
-					comparison: { data: undefined },
-					hasComparison: false,
-					isLoading: false,
-					// Only the enabled per-tab query fails; the always-on countries
-					// query stays healthy, so the page must not read its state.
-					isError: options?.enabled === true,
-				} ) as ReturnType< typeof useStatsLocations >
+		mockUseStatsLocations.mockImplementation( ( requestParams, options ) =>
+			reportResult( {
+				// Only the enabled per-tab query fails; the always-on countries
+				// query stays healthy, so the page must not read its state.
+				primary: { isLoading: false, isFetching: false, isError: options?.enabled === true },
+			} )
 		);
 
 		const { result } = renderHook( () => useLocationsReportRecords( 'regions', params ) );
 
 		expect( result.current.isError ).toBe( true );
+	} );
+
+	it( 'keeps the primary rows when only the comparison period fails', () => {
+		mockUseStatsLocations.mockReturnValue(
+			reportResult( {
+				comparison: { isLoading: false, isFetching: false, isError: true },
+			} )
+		);
+
+		const { result } = renderHook( () => useLocationsReportRecords( 'countries', params ) );
+
+		expect( result.current.isError ).toBe( false );
+		expect( result.current.table.rows ).toHaveLength( 1 );
 	} );
 } );
