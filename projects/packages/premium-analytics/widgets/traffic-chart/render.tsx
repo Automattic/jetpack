@@ -6,7 +6,6 @@ import {
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
-	defaultPeriodForInterval,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { reports } from '@jetpack-premium-analytics/icons';
@@ -14,8 +13,9 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { useTrafficPeriod } from './granularity';
 import styles from './style.module.css';
-import useTrafficChart, { type TrafficPeriod } from './use-traffic-chart';
+import useTrafficChart from './use-traffic-chart';
 import type {
 	TrafficChartAttributes,
 	TrafficChartGranularity,
@@ -37,28 +37,6 @@ const DATA_FORMAT = {
 	options: { useMultipliers: true, decimals: 0 },
 };
 
-// Ordered finest to coarsest, as `defaultPeriodForInterval` requires.
-const TRAFFIC_PERIODS = [ 'day', 'week', 'month' ] as const satisfies readonly TrafficPeriod[];
-
-/**
- * Default granularity for the dashboard interval: opens the control at the
- * granularity the range implies (and, until the user picks one explicitly,
- * keeps following the range). The dropdown only offers hour/day/week/month,
- * so a coarser dashboard interval (quarter/year) collapses onto month.
- *
- * Hourly is resolved locally rather than via the shared
- * `defaultPeriodForInterval` helper: its mapping table has no `hour` entry,
- * and adding one there would flip its "unsupported" fallback toward the
- * coarsest end for every other widget that doesn't offer hourly (the
- * helper's clamp only handles "too coarse", not "too fine").
- *
- * @param interval - The dashboard-derived interval.
- * @return The matching selectable granularity.
- */
-function resolveAutoPeriod( interval?: string ): TrafficPeriod {
-	return interval === 'hour' ? 'hour' : defaultPeriodForInterval( interval, TRAFFIC_PERIODS );
-}
-
 type TrafficChartInnerProps = {
 	/**
 	 * Selected granularity; `auto` follows the dashboard range.
@@ -68,6 +46,10 @@ type TrafficChartInnerProps = {
 	 * Selected metric tab ids; defaults to every metric.
 	 */
 	metrics?: TrafficChartMetricId[];
+	/**
+	 * Host attribute writer; used to reset a range-disallowed granularity.
+	 */
+	setAttributes?: ( next: Partial< TrafficChartAttributes > ) => void;
 };
 
 /**
@@ -80,14 +62,13 @@ type TrafficChartInnerProps = {
  * @param {TrafficChartInnerProps} props - The component props.
  * @return The widget body.
  */
-function TrafficChartInner( { granularity, metrics }: TrafficChartInnerProps ) {
+function TrafficChartInner( { granularity, metrics, setAttributes }: TrafficChartInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	// `auto` means "follow the dashboard range"; an explicit value sticks
-	// across range changes, so a wide range doesn't stay stuck on `day`
-	// granularity (and blow up the bucket count) while the user hasn't picked
-	// a granularity themselves.
-	const period: TrafficPeriod =
-		granularity === 'auto' ? resolveAutoPeriod( reportParams.interval ) : granularity;
+	// `auto` follows the dashboard range; an explicit value sticks while the
+	// range still allows it and resets to `auto` once it doesn't (see
+	// `useTrafficPeriod`), so a range change can never leave the chart
+	// fetching a bucket size the range disallows.
+	const period = useTrafficPeriod( granularity, reportParams, setAttributes );
 
 	const {
 		metrics: metricTabs,
@@ -177,12 +158,20 @@ function TrafficChartInner( { granularity, metrics }: TrafficChartInnerProps ) {
  * @param {TrafficChartWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
-export default function TrafficChart( { attributes = {}, setError }: TrafficChartWidgetProps ) {
+export default function TrafficChart( {
+	attributes = {},
+	setAttributes,
+	setError,
+}: TrafficChartWidgetProps ) {
 	const granularity = attributes.granularity ?? 'auto';
 
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<TrafficChartInner granularity={ granularity } metrics={ attributes.metrics } />
+			<TrafficChartInner
+				granularity={ granularity }
+				metrics={ attributes.metrics }
+				setAttributes={ setAttributes }
+			/>
 		</WidgetRoot>
 	);
 }

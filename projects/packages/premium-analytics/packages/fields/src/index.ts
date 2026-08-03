@@ -5,4 +5,4 @@ export {
 
 export { ArrayCheckboxField } from './field-array-checkbox';
 
-export { SelectField } from './field-select';
+export { SelectField, type SelectOption } from './field-select';

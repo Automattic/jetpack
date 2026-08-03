@@ -8,12 +8,14 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 /**
  * Internal dependencies
  */
-import { ArrayCheckboxField, SelectField } from '@jetpack-premium-analytics/fields';
+import { ArrayCheckboxField } from '@jetpack-premium-analytics/fields';
+import GranularityField from './granularity-field';
 
 /**
  * Granularity the chart can be grouped by. `auto` follows the dashboard date
  * range (a wide range buckets by month, a narrow one by day); an explicit
- * value sticks across range changes.
+ * value sticks across range changes while the range still allows it, and
+ * resets to `auto` once it doesn't.
  */
 export type TrafficChartGranularity = 'auto' | 'hour' | 'day' | 'week' | 'month';
 
@@ -74,7 +76,7 @@ export default {
 			id: 'granularity',
 			label: __( 'Group by', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
-			Edit: SelectField,
+			Edit: GranularityField,
 			elements: [
 				{
 					label: __( 'Auto', 'jetpack-premium-analytics-pkg' ),

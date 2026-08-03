@@ -12,6 +12,7 @@ export {
 	WidgetRoot,
 	WidgetRootContext,
 	useWidgetRootContext,
+	useResolvedReportParams,
 	type WidgetRootContextValue,
 } from './widget-root';
 

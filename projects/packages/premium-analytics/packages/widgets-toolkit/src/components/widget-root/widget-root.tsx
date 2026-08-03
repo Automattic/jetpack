@@ -82,6 +82,28 @@ function useResolveReportParams( attributes?: Partial< ReportParamsFieldAttribut
 }
 
 /**
+ * Resolved, normalized report params for a widget or its settings fields:
+ * host-provided `attributes.reportParams` when present, the matched route's
+ * search params otherwise. Shared by `WidgetRoot` and attribute Edit controls
+ * that need the dashboard range outside the widget body (e.g. to disable
+ * options the range disallows).
+ *
+ * @param attributes - The widget attributes, possibly carrying `reportParams`.
+ * @return The normalized report params.
+ */
+export function useResolvedReportParams( attributes?: Partial< ReportParamsFieldAttributes > ) {
+	const rawReportParams = useResolveReportParams( attributes );
+
+	const { launchedDate } = getStoreInfo();
+	const defaultPreset = getDefaultPreset( launchedDate );
+
+	return useMemo(
+		() => normalizeReportParams( rawReportParams, defaultPreset ),
+		[ rawReportParams, defaultPreset ]
+	);
+}
+
+/**
  * WidgetRoot
  *
  * A wrapper component that encapsulates all the infrastructure a lazy-loaded
@@ -107,15 +129,7 @@ function useResolveReportParams( attributes?: Partial< ReportParamsFieldAttribut
  */
 export function WidgetRoot( { attributes, children, setError }: WidgetRootProps ) {
 	const chartTheme = useChartTheme();
-	const rawReportParams = useResolveReportParams( attributes );
-
-	const { launchedDate } = getStoreInfo();
-	const defaultPreset = getDefaultPreset( launchedDate );
-
-	const reportParams = useMemo(
-		() => normalizeReportParams( rawReportParams, defaultPreset ),
-		[ rawReportParams, defaultPreset ]
-	);
+	const reportParams = useResolvedReportParams( attributes );
 
 	const contextValue = useMemo( () => ( { reportParams, setError } ), [ reportParams, setError ] );
 

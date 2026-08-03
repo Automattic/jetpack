@@ -18,6 +18,7 @@ export {
 	WidgetRoot,
 	WidgetRootContext,
 	useWidgetRootContext,
+	useResolvedReportParams,
 	type DonutChartData,
 	type WidgetRootContextValue,
 	type LegendItem,

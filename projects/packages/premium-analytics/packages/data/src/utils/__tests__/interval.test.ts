@@ -1,8 +1,59 @@
 /**
  * Internal dependencies
  */
-import { getDefaultIntervalForPeriod, resolveIntervalForRange } from '../interval';
+import {
+	getAllowedIntervalsForPreset,
+	getDefaultIntervalForPeriod,
+	resolveIntervalForRange,
+} from '../interval';
 import { needsReportDateParamsSeed } from '../search';
+
+describe( 'getAllowedIntervalsForPreset', () => {
+	it( 'maps known presets to their allowed intervals, finest first', () => {
+		expect( getAllowedIntervalsForPreset( 'today', 'a', 'b' ) ).toEqual( [ 'hour', 'day' ] );
+		expect( getAllowedIntervalsForPreset( 'last-7-days', 'a', 'b' ) ).toEqual( [ 'day' ] );
+		expect( getAllowedIntervalsForPreset( 'last-30-days', 'a', 'b' ) ).toEqual( [ 'day', 'week' ] );
+		expect( getAllowedIntervalsForPreset( 'last-90-days', 'a', 'b' ) ).toEqual( [
+			'week',
+			'month',
+		] );
+		expect( getAllowedIntervalsForPreset( 'last-12-months', 'a', 'b' ) ).toEqual( [
+			'month',
+			'quarter',
+		] );
+	} );
+
+	it( 'derives the list from range length for custom presets', () => {
+		expect(
+			getAllowedIntervalsForPreset(
+				'custom',
+				'2026-06-01T00:00:00.000Z',
+				'2026-06-01T23:59:59.999Z'
+			)
+		).toEqual( [ 'hour', 'day' ] );
+		expect(
+			getAllowedIntervalsForPreset(
+				'custom',
+				'2026-06-01T00:00:00.000Z',
+				'2026-06-02T23:59:59.999Z'
+			)
+		).toEqual( [ 'hour', 'day' ] );
+		expect(
+			getAllowedIntervalsForPreset(
+				'custom',
+				'2026-06-01T00:00:00.000Z',
+				'2026-06-07T23:59:59.999Z'
+			)
+		).toEqual( [ 'day' ] );
+		expect(
+			getAllowedIntervalsForPreset(
+				'custom',
+				'2020-01-01T00:00:00.000Z',
+				'2026-06-30T23:59:59.999Z'
+			)
+		).toEqual( [ 'quarter', 'year' ] );
+	} );
+} );
 
 describe( 'resolveIntervalForRange', () => {
 	it( 'keeps the current interval when it is still allowed', () => {

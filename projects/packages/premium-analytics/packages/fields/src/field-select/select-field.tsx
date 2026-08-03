@@ -10,10 +10,17 @@ import { useCallback, useMemo } from '@wordpress/element';
 import useElements from '../helpers/use-elements';
 import type { DataFormControlProps, Option } from '@jetpack-premium-analytics/externals';
 
-export function toSelectItems( elements: Option[] ) {
+/**
+ * `Option` plus the per-item `disabled` flag `SelectControl` items support,
+ * so an Edit control can gray out choices the current context disallows.
+ */
+export type SelectOption = Option & { disabled?: boolean };
+
+export function toSelectItems( elements: SelectOption[] ) {
 	return elements.map( element => ( {
 		label: element.label,
 		value: String( element.value ),
+		disabled: element.disabled,
 	} ) );
 }
 
