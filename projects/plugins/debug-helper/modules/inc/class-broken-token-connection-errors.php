@@ -289,10 +289,11 @@ class Broken_Token_Connection_Errors {
 	 * @param string $error_code The error code you want the error to have.
 	 * @param string $user_id The user id you want the token to have.
 	 * @param string $error_type The error type: 'xmlrpc' or 'rest'.
+	 * @param string $error_direction The error direction: 'incoming' or 'outgoing'.
 	 *
 	 * @return \WP_Error
 	 */
-	public function get_sample_error( $error_code, $user_id, $error_type = 'xmlrpc' ) {
+	public function get_sample_error( $error_code, $user_id, $error_type = 'xmlrpc', $error_direction = 'incoming' ) {
 		$signature_details = array(
 			'token'     => 'dhj938djh938d:1:' . $user_id,
 			'timestamp' => time(),
@@ -303,10 +304,12 @@ class Broken_Token_Connection_Errors {
 			'signature' => 'sdf234fe',
 		);
 
-		return new \WP_Error(
+		return Error_Handler::build_connection_wp_error(
 			$error_code,
 			'An error was triggered',
-			compact( 'signature_details', 'error_type' )
+			$signature_details,
+			$error_type,
+			$error_direction
 		);
 	}
 

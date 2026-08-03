@@ -62,10 +62,11 @@ class Error_Handler_Test extends BaseTestCase {
 	 * @param string $error_code The error code you want the error to have.
 	 * @param string $user_id The user id you want the token to have.
 	 * @param string $error_type The error type: 'xmlrpc' or 'rest'.
+	 * @param string $error_direction The error direction: 'incoming' or 'outgoing'.
 	 *
 	 * @return \WP_Error
 	 */
-	public function get_sample_error( $error_code, $user_id, $error_type = 'xmlrpc' ) {
+	public function get_sample_error( $error_code, $user_id, $error_type = 'xmlrpc', $error_direction = 'incoming' ) {
 
 		$signature_details = array(
 			'token'     => 'dhj938djh938d:1:' . $user_id,
@@ -77,10 +78,12 @@ class Error_Handler_Test extends BaseTestCase {
 			'signature' => 'sdf234fe',
 		);
 
-		return new \WP_Error(
+		return Error_Handler::build_connection_wp_error(
 			$error_code,
 			'An error was triggered',
-			compact( 'signature_details', 'error_type' )
+			$signature_details,
+			$error_type,
+			$error_direction
 		);
 	}
 
@@ -104,6 +107,7 @@ class Error_Handler_Test extends BaseTestCase {
 		$error_data = $stored_errors['invalid_token']['1'];
 		$this->assertEquals( 'invalid_token', $error_data['error_code'] );
 		$this->assertEquals( 'xmlrpc', $error_data['error_type'] );
+		$this->assertEquals( 'incoming', $error_data['error_direction'] );
 		$this->assertArrayHasKey( 'nonce', $error_data );
 		$this->assertArrayHasKey( 'timestamp', $error_data );
 	}
@@ -297,7 +301,13 @@ class Error_Handler_Test extends BaseTestCase {
 		$encrypted = $this->error_handler->encrypt_data_to_wpcom( $stored_errors['unknown_user']['3'] );
 
 		$this->assertIsString( $encrypted );
-		$this->assertEquals( 500, strlen( $encrypted ) );
+
+		// The sealed box is the JSON payload plus a constant sodium overhead. Deriving the
+		// expected length keeps this from breaking every time a field is added to the payload.
+		$decoded = base64_decode( $encrypted, true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+		$this->assertNotFalse( $decoded );
+		$expected_length = strlen( (string) wp_json_encode( $stored_errors['unknown_user']['3'], JSON_UNESCAPED_SLASHES ) ) + SODIUM_CRYPTO_BOX_SEALBYTES;
+		$this->assertSame( $expected_length, strlen( $decoded ) );
 	}
 
 	/**
@@ -360,6 +370,7 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'error_code', $stored_errors['unknown_token']['0'] );
 		$this->assertArrayHasKey( 'error_type', $stored_errors['unknown_token']['0'] );
 		$this->assertEquals( 'rest', $stored_errors['unknown_token']['0']['error_type'] );
+		$this->assertEquals( 'outgoing', $stored_errors['unknown_token']['0']['error_direction'] );
 
 		$this->assertCount( 1, $verified_errors );
 		$this->assertArrayHasKey( 'unknown_token', $verified_errors );
@@ -367,6 +378,7 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 0, $verified_errors['unknown_token'] );
 		$this->assertArrayHasKey( 'error_code', $verified_errors['unknown_token']['0'] );
 		$this->assertEquals( 'rest', $verified_errors['unknown_token']['0']['error_type'] );
+		$this->assertEquals( 'outgoing', $verified_errors['unknown_token']['0']['error_direction'] );
 	}
 
 	/**
@@ -1152,6 +1164,122 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertEquals( $error_code, $result['error_code'] );
 		$this->assertEquals( $error_message, $result['error_message'] );
 		$this->assertSame( '0', $result['user_id'] );
+		$this->assertSame( '', $result['error_type'] );
+		$this->assertSame( '', $result['error_direction'] );
+	}
+
+	/**
+	 * Test that build_connection_error_data produces the standardized data shape.
+	 */
+	public function test_build_connection_error_data() {
+		$result = Error_Handler::build_connection_error_data(
+			array( 'timestamp' => 123 ),
+			Error_Handler::ERROR_TYPE_REST,
+			Error_Handler::DIRECTION_OUTGOING,
+			array( 'user_id' => 42 )
+		);
+
+		// A token key is always guaranteed, even when the caller did not provide one.
+		$this->assertSame( '', $result['signature_details']['token'] );
+		$this->assertSame( 123, $result['signature_details']['timestamp'] );
+		$this->assertSame( 'rest', $result['error_type'] );
+		$this->assertSame( 'outgoing', $result['error_direction'] );
+		$this->assertSame( 42, $result['user_id'] );
+	}
+
+	/**
+	 * Test that build_connection_error_data replaces unrecognized type/direction values
+	 * with an empty string, and that extra data cannot override the reserved keys.
+	 */
+	public function test_build_connection_error_data_validates_values() {
+		$result = Error_Handler::build_connection_error_data(
+			array( 'token' => 'abc:1:2' ),
+			'carrier-pigeon',
+			'sideways',
+			array(
+				'error_type'      => 'rest',
+				'error_direction' => 'incoming',
+			)
+		);
+
+		$this->assertSame( '', $result['error_type'], 'An unrecognized error_type must be stored as an empty string, and extra data must not override it.' );
+		$this->assertSame( '', $result['error_direction'], 'An unrecognized error_direction must be stored as an empty string, and extra data must not override it.' );
+		$this->assertSame( 'abc:1:2', $result['signature_details']['token'] );
+	}
+
+	/**
+	 * Test that a WP_Error built by build_connection_wp_error round-trips through
+	 * wp_error_to_array with its type and direction intact.
+	 */
+	public function test_build_connection_wp_error_round_trip() {
+		$error = Error_Handler::build_connection_wp_error(
+			'invalid_token',
+			'The token is invalid',
+			array( 'token' => 'dhj938djh938d:1:7' ),
+			Error_Handler::ERROR_TYPE_XMLRPC,
+			Error_Handler::DIRECTION_INCOMING
+		);
+
+		$this->assertInstanceOf( \WP_Error::class, $error );
+
+		$result = $this->error_handler->wp_error_to_array( $error );
+
+		$this->assertSame( 'invalid_token', $result['error_code'] );
+		$this->assertSame( '7', $result['user_id'] );
+		$this->assertSame( 'xmlrpc', $result['error_type'] );
+		$this->assertSame( 'incoming', $result['error_direction'] );
+	}
+
+	/**
+	 * Test that errors reported the pre-error_direction way (no direction in the WP_Error
+	 * data) are still stored, with an empty error_direction.
+	 */
+	public function test_report_error_without_direction_is_stored_with_empty_direction() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$error = new \WP_Error(
+			'invalid_token',
+			'An error was triggered',
+			array(
+				'signature_details' => array( 'token' => 'dhj938djh938d:1:1' ),
+				'error_type'        => 'xmlrpc',
+			)
+		);
+
+		$this->error_handler->report_error( $error );
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+
+		$this->assertArrayHasKey( 'invalid_token', $stored_errors );
+		$this->assertSame( 'xmlrpc', $stored_errors['invalid_token']['1']['error_type'] );
+		$this->assertSame( '', $stored_errors['invalid_token']['1']['error_direction'] );
+	}
+
+	/**
+	 * Test that stored entries written by older package versions (no error_direction key
+	 * at all) are still read and deleted correctly.
+	 */
+	public function test_legacy_stored_errors_without_direction_key() {
+		$legacy_error = array(
+			'error_code'    => 'invalid_token',
+			'user_id'       => '1',
+			'error_message' => 'Legacy error',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'legacy_nonce',
+			'error_type'    => 'xmlrpc',
+		);
+
+		update_option( Error_Handler::STORED_ERRORS_OPTION, array( 'invalid_token' => array( '1' => $legacy_error ) ) );
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, array( 'invalid_token' => array( '1' => $legacy_error ) ) );
+
+		$this->assertArrayHasKey( 'invalid_token', $this->error_handler->get_stored_errors() );
+		$this->assertArrayHasKey( 'invalid_token', $this->error_handler->get_displayable_errors() );
+
+		$this->error_handler->delete_all_api_errors();
+
+		$this->assertEmpty( $this->error_handler->get_stored_errors() );
+		$this->assertEmpty( $this->error_handler->get_verified_errors() );
 	}
 
 	/**

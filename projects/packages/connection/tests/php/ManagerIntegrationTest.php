@@ -823,6 +823,96 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that the transport of the incoming request being verified defaults to XML-RPC
+	 * and is detected as REST for REST endpoint requests.
+	 */
+	public function test_get_current_request_transport() {
+		$reflection = new \ReflectionClass( $this->manager );
+		$method     = $reflection->getMethod( 'get_current_request_transport' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$default_transport = $method->invoke( $this->manager );
+
+		// Simulate a REST API request. In a real REST request the REST_REQUEST constant
+		// is set instead; the filter is the only way to toggle the state in-process.
+		add_filter( 'wp_is_rest_endpoint', '__return_true' );
+		$rest_transport = $method->invoke( $this->manager );
+		remove_filter( 'wp_is_rest_endpoint', '__return_true' );
+
+		$this->assertSame( Error_Handler::ERROR_TYPE_XMLRPC, $default_transport );
+		$this->assertSame( Error_Handler::ERROR_TYPE_REST, $rest_transport );
+	}
+
+	/**
+	 * Test that errors from outgoing requests through `Client::remote_request()` are stored
+	 * with the transport derived from the target endpoint and the 'outgoing' direction.
+	 *
+	 * @dataProvider outgoing_request_transport_provider
+	 *
+	 * @param string $url                The request URL.
+	 * @param string $expected_type      The expected stored error_type.
+	 */
+	#[DataProvider( 'outgoing_request_transport_provider' )]
+	public function test_remote_request_labels_outgoing_errors( $url, $expected_type ) {
+		$this->set_up_connected_user();
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$error_response = function () {
+			return array(
+				'body'     => '{"error":"unknown_token","message":"It looks like your Jetpack connection is broken."}',
+				'response' => array(
+					'code'    => 403,
+					'message' => 'Forbidden',
+				),
+				'headers'  => array(),
+			);
+		};
+		add_filter( 'pre_http_request', $error_response );
+
+		Client::remote_request(
+			array(
+				'url'     => $url,
+				'method'  => 'POST',
+				'user_id' => 0,
+			),
+			'request-body'
+		);
+
+		$verified_errors = Error_Handler::get_instance()->get_verified_errors();
+
+		// Clean up before asserting, so a failed assertion cannot leak state into other tests.
+		remove_filter( 'pre_http_request', $error_response );
+		remove_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+		Error_Handler::get_instance()->delete_all_errors();
+
+		$this->assertArrayHasKey( 'unknown_token', $verified_errors );
+		$error = reset( $verified_errors['unknown_token'] );
+		$this->assertSame( $expected_type, $error['error_type'] );
+		$this->assertSame( Error_Handler::DIRECTION_OUTGOING, $error['error_direction'] );
+	}
+
+	/**
+	 * Data provider for test_remote_request_labels_outgoing_errors.
+	 *
+	 * @return array
+	 */
+	public static function outgoing_request_transport_provider() {
+		return array(
+			'xmlrpc endpoint' => array(
+				'https://jetpack.wordpress.com/xmlrpc.php',
+				Error_Handler::ERROR_TYPE_XMLRPC,
+			),
+			'rest endpoint'   => array(
+				'https://public-api.wordpress.com/wpcom/v2/sites/1234/jetpack-wpcom-user-data',
+				Error_Handler::ERROR_TYPE_REST,
+			),
+		);
+	}
+
+	/**
 	 * Set up a connected blog and user so a signed request can be built as $user_id.
 	 *
 	 * @param int $user_id The local user id to connect.

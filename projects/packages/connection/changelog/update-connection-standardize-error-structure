@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Error Handler: Standardize the stored connection error structure, record whether errors come from incoming or outgoing requests, and label errors with the actual transport (XML-RPC or REST) of the failed request.

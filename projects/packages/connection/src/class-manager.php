@@ -477,7 +477,12 @@ class Manager {
 			'signature' => isset( $_GET['signature'] ) ? wp_unslash( $_GET['signature'] ) : '',
 		);
 
-		$error_type = 'xmlrpc';
+		// Transport of the incoming request being verified. This signature-verification path
+		// serves both XML-RPC requests and signed REST requests (REST_Authentication funnels
+		// REST authentication into verify_xml_rpc_signature()), so the stored error type is
+		// derived from the actual request context rather than hardcoded.
+		$error_type      = $this->get_current_request_transport();
+		$error_direction = Error_Handler::DIRECTION_INCOMING;
 
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		@list( $token_key, $version, $user_id ) = explode( ':', wp_unslash( $_GET['token'] ) );
@@ -490,7 +495,7 @@ class Manager {
 				|| empty( $version )
 				|| (string) $jetpack_api_version !== $version
 		) {
-			return new \WP_Error( 'malformed_token', 'Malformed token in request', compact( 'signature_details', 'error_type' ) );
+			return new \WP_Error( 'malformed_token', 'Malformed token in request', Error_Handler::build_connection_error_data( $signature_details, $error_type, $error_direction ) );
 		}
 
 		if ( '0' === $user_id ) {
@@ -502,7 +507,7 @@ class Manager {
 				return new \WP_Error(
 					'malformed_user_id',
 					'Malformed user_id in request',
-					compact( 'signature_details', 'error_type' )
+					Error_Handler::build_connection_error_data( $signature_details, $error_type, $error_direction )
 				);
 			}
 			$user_id = (int) $user_id;
@@ -512,20 +517,20 @@ class Manager {
 				return new \WP_Error(
 					'unknown_user',
 					sprintf( 'User %d does not exist', $user_id ),
-					compact( 'signature_details', 'error_type' )
+					Error_Handler::build_connection_error_data( $signature_details, $error_type, $error_direction )
 				);
 			}
 		}
 
 		$token = $this->get_tokens()->get_access_token( $user_id, $token_key, false );
 		if ( is_wp_error( $token ) ) {
-			$token->add_data( compact( 'signature_details', 'error_type' ) );
+			$token->add_data( Error_Handler::build_connection_error_data( $signature_details, $error_type, $error_direction ) );
 			return $token;
 		} elseif ( ! $token ) {
 			return new \WP_Error(
 				'unknown_token',
 				sprintf( 'Token %s:%s:%d does not exist', $token_key, $version, $user_id ),
-				compact( 'signature_details', 'error_type' )
+				Error_Handler::build_connection_error_data( $signature_details, $error_type, $error_direction )
 			);
 		}
 
@@ -567,9 +572,17 @@ class Manager {
 			return new \WP_Error(
 				'could_not_sign',
 				'Unknown signature error',
-				compact( 'signature_details', 'error_type' )
+				Error_Handler::build_connection_error_data( $signature_details, $error_type, $error_direction )
 			);
 		} elseif ( is_wp_error( $signature ) ) {
+			// Jetpack_Signature errors carry their own signature_details (or, for some codes,
+			// no data at all) but never a type or direction; normalize them into the standard
+			// error data shape so Error_Handler can attribute and store them.
+			$signature_error_data = $signature->get_error_data();
+			if ( isset( $signature_error_data['signature_details'] ) && is_array( $signature_error_data['signature_details'] ) ) {
+				$signature_details = array_merge( $signature_details, $signature_error_data['signature_details'] );
+			}
+			$signature->add_data( Error_Handler::build_connection_error_data( $signature_details, $error_type, $error_direction ) );
 			return $signature;
 		}
 
@@ -583,7 +596,7 @@ class Manager {
 			return new \WP_Error(
 				'invalid_nonce',
 				'Could not add nonce',
-				compact( 'signature_details', 'error_type' )
+				Error_Handler::build_connection_error_data( $signature_details, $error_type, $error_direction )
 			);
 		}
 
@@ -597,7 +610,7 @@ class Manager {
 			return new \WP_Error(
 				'signature_mismatch',
 				'Signature mismatch',
-				compact( 'signature_details', 'error_type' )
+				Error_Handler::build_connection_error_data( $signature_details, $error_type, $error_direction )
 			);
 		}
 
@@ -620,6 +633,31 @@ class Manager {
 			$token,
 			$this->raw_post_data
 		);
+	}
+
+	/**
+	 * Determines the transport of the incoming request currently being verified.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string Error_Handler::ERROR_TYPE_XMLRPC or Error_Handler::ERROR_TYPE_REST.
+	 */
+	private function get_current_request_transport() {
+		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
+			return Error_Handler::ERROR_TYPE_XMLRPC;
+		}
+
+		$is_rest = function_exists( 'wp_is_rest_endpoint' )
+			? wp_is_rest_endpoint()
+			: ( defined( 'REST_REQUEST' ) && REST_REQUEST );
+
+		if ( $is_rest ) {
+			return Error_Handler::ERROR_TYPE_REST;
+		}
+
+		// Signed requests can also arrive outside the XML-RPC and REST endpoints (e.g. the
+		// alternate XML-RPC endpoint). Keep the historic label for those.
+		return Error_Handler::ERROR_TYPE_XMLRPC;
 	}
 
 	/**
@@ -939,16 +977,15 @@ class Manager {
 
 		if ( $connection_owner === false ) {
 			Error_Handler::get_instance()->report_error(
-				new WP_Error(
+				Error_Handler::build_connection_wp_error(
 					'invalid_connection_owner',
 					'Invalid connection owner',
+					array( 'token' => '' ),
+					Error_Handler::ERROR_TYPE_CONNECTION,
+					'', // Connection-state errors describe local state, not a request, so they have no direction.
 					array(
-						'user_id'           => $user_id,
-						'has_user_token'    => (bool) $user_token,
-						'error_type'        => 'connection',
-						'signature_details' => array(
-							'token' => '',
-						),
+						'user_id'        => $user_id,
+						'has_user_token' => (bool) $user_token,
 					)
 				),
 				false,
