@@ -6,7 +6,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
  * Internal dependencies
  */
 import { ReportRecordsTable } from '../report-records-table';
-import type { Field, View } from '@wordpress/dataviews';
+import type { Field, View } from '@jetpack-premium-analytics/externals';
 
 interface Row {
 	id: string;
