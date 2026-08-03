@@ -10,7 +10,7 @@
 	flex: 0 0 auto;
 	inline-size: 72px;
 	block-size: 72px;
-	border-radius: 8px;
+	border-radius: var(--wpds-border-radius-lg);
 }
 
 .image {

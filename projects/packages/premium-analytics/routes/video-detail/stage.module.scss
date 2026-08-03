@@ -7,37 +7,18 @@
 // Stack → the Breadcrumbs `nav`) whose items keep the flexbox default
 // `min-inline-size: auto`, so the crumb's nowrap min-content propagates and
 // drags the whole page into horizontal scrolling before the crumb's own
-// ellipsis can engage. Let both links shrink until admin-ui fixes the slot;
-// the `nav`'s parent has no stable class, hence the structural `:has()`.
+// ellipsis can engage. No dedicated upstream issue exists for this exact
+// propagation; the slot is set to be reworked under the Breadcrumb component
+// extraction (https://github.com/WordPress/gutenberg/issues/77039) and the
+// admin-ui 2.0 proposal (https://github.com/WordPress/gutenberg/issues/77628).
+// Let both links shrink until then; the `nav`'s parent has no stable class,
+// hence the structural `:has()`.
 .page :has(> nav[aria-label]) {
 	min-inline-size: 0;
 }
 
 .page nav[aria-label] {
 	min-inline-size: 0;
-}
-
-.dateFilters {
-	// Shares the header row with the summary (unlike post detail's fixed bar
-	// above the scroll area — this panel scrolls with the page, matching the
-	// mock). The panel keeps its natural width — the growing summary must not
-	// starve it — while the auto margin pins it to the row's end, on the
-	// shared row and when it drops below the title block. The compact/stacked
-	// switching itself is decided in the stage from the row width (see
-	// stage.tsx); `flex-shrink` stays on only as a safety net so the panel
-	// folds its own rows rather than overflowing at odd widths.
-	display: flex;
-	justify-content: flex-end;
-	flex: 0 1 auto;
-	min-inline-size: 0;
-	margin-inline-start: auto;
-}
-
-// Stage three of the degradation order: even the compact controls no longer
-// fit beside the summary's minimum, so the filters take their own line below
-// the title block.
-.headerStacked .dateFilters {
-	flex-basis: 100%;
 }
 
 .scrollArea {
@@ -54,11 +35,10 @@
 }
 
 .header {
-	// Summary + date filters row above the widget grid, rendered as a
-	// `<Stack direction="row" wrap="wrap" gap="lg">` — the flex container
-	// props live on the component; only the page spacing stays here. Inline
-	// padding matches the widget grid; the 40px block spacing is the design's
-	// breathing room around the header.
+	// Summary row above the widget grid. Inline padding matches the widget grid;
+	// the 40px block spacing is the design's breathing room around the header.
+	display: flex;
+	align-items: center;
 	padding-block: 40px;
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }

@@ -7,6 +7,7 @@ import {
 	type StatsSingleVideoDataPoint,
 } from '@jetpack-premium-analytics/data';
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
+import { toDay } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import {
 	addDays,
@@ -38,6 +39,8 @@ export interface VideoViewsState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	/** The raw request error, for `describeError()` to classify. */
+	error: unknown;
 	hasData: boolean;
 	refetch: () => void;
 }
@@ -61,42 +64,25 @@ type BucketWindow = {
 };
 
 /**
- * Extract a validated `YYYY-MM-DD` day from an ISO report param. The report
- * params originate from URL search params, so the shape and calendar validity
- * are both checked — `bucketDays()` feeds these to `parseISO()`/
- * `each*OfInterval()`, which throw on invalid dates.
- *
- * @param value - The ISO date-time string.
- * @return The date-only day, or undefined when missing/malformed.
- */
-function toValidDay( value?: string ): string | undefined {
-	const day = value?.slice( 0, 10 );
-
-	if ( ! day || ! /^\d{4}-\d{2}-\d{2}$/.test( day ) || Number.isNaN( parseISO( day ).getTime() ) ) {
-		return undefined;
-	}
-
-	return day;
-}
-
-/**
  * Extract a `YYYY-MM-DD` window from ISO report params, or undefined when
- * either bound is missing/malformed. The endpoint's day keys are date-only,
- * so comparing date prefixes keeps the slice timezone-stable.
+ * either bound is missing/malformed (`toDay` also rejects calendar-invalid
+ * days before they reach `parseISO()`/`each*OfInterval()`, which throw on
+ * them). The endpoint's day keys are date-only, so comparing date prefixes
+ * keeps the slice timezone-stable.
  *
  * @param from - The window's ISO start.
  * @param to   - The window's ISO end.
  * @return The date-only window.
  */
 function toDayWindow( from?: string, to?: string ): DayWindow | undefined {
-	const fromDay = toValidDay( from );
-	const toDay = toValidDay( to );
+	const fromDay = toDay( from );
+	const toDayBound = toDay( to );
 
-	if ( ! fromDay || ! toDay ) {
+	if ( ! fromDay || ! toDayBound ) {
 		return undefined;
 	}
 
-	return { from: fromDay, to: toDay };
+	return { from: fromDay, to: toDayBound };
 }
 
 /**
@@ -199,7 +185,7 @@ export default function useVideoViews(
 		() => toDayWindow( reportParams.from, reportParams.to ),
 		[ reportParams.from, reportParams.to ]
 	);
-	const { data, isLoading, isFetching, isError, refetch } = useStatsSingleVideo(
+	const { data, isLoading, isFetching, isError, error, refetch } = useStatsSingleVideo(
 		videoId,
 		{ from: primaryWindow?.from, to: primaryWindow?.to, period: 'day', statType: 'all' },
 		{ enabled: !! primaryWindow }
@@ -216,6 +202,7 @@ export default function useVideoViews(
 		isLoading,
 		isFetching,
 		isError,
+		error,
 		hasData: !! data,
 		refetch: () => void refetch(),
 	};

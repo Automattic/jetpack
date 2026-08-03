@@ -6,6 +6,7 @@ import {
 	ComparativeLineChart,
 	WidgetRoot,
 	WidgetState,
+	describeError,
 	useSeriesStyles,
 	useWidgetRootContext,
 	type ComparativeLineChartSeries,
@@ -55,7 +56,7 @@ function VideoDetailViewsPerformanceInner( {
 	const { reportParams } = useWidgetRootContext();
 	const videoId = toPostId( reportParams.post_id );
 
-	const { current, isLoading, isFetching, isError, hasData, refetch } = useVideoViews(
+	const { current, isLoading, isFetching, isError, error, hasData, refetch } = useVideoViews(
 		videoId,
 		reportParams,
 		granularity
@@ -85,13 +86,13 @@ function VideoDetailViewsPerformanceInner( {
 				isFetching={ isFetching }
 				isError={ isError }
 				isEmpty={ videoId <= 0 }
-				error={ {
-					description: __(
+				error={ describeError( error, {
+					retryDescription: __(
 						"We couldn't load this video's views. Please try again in a moment.",
 						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
-				} }
+					onRetry: refetch,
+				} ) }
 				empty={ {
 					icon: video,
 					description: __(

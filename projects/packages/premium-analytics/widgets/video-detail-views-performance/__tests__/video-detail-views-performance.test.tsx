@@ -210,9 +210,10 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 	} );
 
 	it( 'shows the error state with a Retry action when the fetch fails', async () => {
-		// A non-retryable 403 so React Query surfaces the error immediately
-		// instead of after the retry backoff.
-		mockApiFetch.mockRejectedValue( { status: 403, message: 'Forbidden' } );
+		// A 403 skips React Query's retry backoff so the error surfaces
+		// immediately; the `no_connection` code keeps `describeError` on the
+		// retryable branch (a broken Jetpack connection can heal).
+		mockApiFetch.mockRejectedValue( { status: 403, code: 'no_connection', message: 'Forbidden' } );
 
 		render( <VideoDetailViewsPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
 
@@ -220,5 +221,16 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 			screen.findByText( /couldn't load this video's views/ )
 		).resolves.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows the permission error without a Retry action on a plain 403', async () => {
+		mockApiFetch.mockRejectedValue( { status: 403, message: 'Forbidden' } );
+
+		render( <VideoDetailViewsPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
+
+		await expect(
+			screen.findByText( "You don't have access to this data." )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 } );
