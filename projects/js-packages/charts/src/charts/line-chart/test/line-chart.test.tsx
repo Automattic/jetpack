@@ -442,6 +442,27 @@ describe( 'LineChart', () => {
 				data: [
 					{
 						label: 'Series A',
+						// Weekly resolution: fine enough to keep full dates on the ticks.
+						data: Array.from( { length: 16 }, ( _, i ) => ( {
+							date: new Date( Date.UTC( 2024, 0, 1 + i * 7 ) ),
+							value: 10 + i,
+						} ) ),
+					},
+				],
+			} );
+
+			const ticks = screen.getAllByText(
+				/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d+$/
+			);
+			expect( ticks.length ).toBeGreaterThan( 1 );
+		} );
+
+		test( 'renders month ticks for month-or-coarser buckets within a year.', () => {
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
 						data: [
 							{ date: new Date( '2024-01-01' ), value: 10 },
 							{ date: new Date( '2024-04-01' ), value: 20 },
@@ -453,9 +474,7 @@ describe( 'LineChart', () => {
 				],
 			} );
 
-			const ticks = screen.getAllByText(
-				/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d+$/
-			);
+			const ticks = screen.getAllByText( /^(Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/ );
 			expect( ticks.length ).toBeGreaterThan( 1 );
 		} );
 
@@ -502,7 +521,8 @@ describe( 'LineChart', () => {
 				],
 			} );
 
-			const ticks = screen.getAllByText( /(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct) \d+/ );
+			// Roughly monthly buckets render month ticks under the resolution-aware formatter.
+			const ticks = screen.getAllByText( /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct)$/ );
 			expect( ticks.length ).toBeLessThan( 6 ); // Not much space
 		} );
 

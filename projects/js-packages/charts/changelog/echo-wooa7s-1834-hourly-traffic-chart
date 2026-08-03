@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Time axis: show hour ticks (with the date at midnight boundaries) for sub-daily series spanning up to a week.

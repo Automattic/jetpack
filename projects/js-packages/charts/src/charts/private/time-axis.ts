@@ -47,8 +47,41 @@ const formatHourTick = ( timestamp: number ) => {
 	return date.toLocaleTimeString( undefined, { hour: 'numeric', hour12: true } );
 };
 
-// Pick the most informative tick formatter for the data's time span: hours
-// within a day, calendar dates within a year, otherwise just years.
+// Hour ticks with the date at midnight boundaries, so multi-day spans of
+// sub-daily data keep their days identifiable.
+const formatDateOrHourTick = ( timestamp: number ) => {
+	const date = new Date( timestamp );
+	return date.getHours() === 0 && date.getMinutes() === 0
+		? formatDateTick( timestamp )
+		: formatHourTick( timestamp );
+};
+
+// Month ticks with the year at January boundaries, for month-or-coarser
+// buckets where a full "Sep 1" date would misread as a daily point.
+const formatMonthOrYearTick = ( timestamp: number ) => {
+	const date = new Date( timestamp );
+	return date.getMonth() === 0
+		? formatYearTick( timestamp )
+		: date.toLocaleDateString( undefined, { month: 'short' } );
+};
+
+// Interval between the first two points of the densest series, in hours.
+// Infinity when no series has two points.
+const getPointSpacingInHours = ( sortedData: ReturnType< typeof useChartDataTransform > ) => {
+	return sortedData.reduce( ( spacing, datom ) => {
+		const [ first, second ] = datom.data;
+		if ( first?.date === undefined || second?.date === undefined ) {
+			return spacing;
+		}
+		return Math.min( spacing, Math.abs( differenceInHours( second.date, first.date ) ) );
+	}, Number.POSITIVE_INFINITY );
+};
+
+// Pick the most informative tick formatter for the data's resolution and time
+// span: hours within a day, hours with day boundaries for sub-daily data
+// spanning up to a week, calendar dates for daily-or-finer buckets within a
+// year, months (with the year at January) for month-or-coarser buckets,
+// otherwise just years.
 export const getFormatter = ( sortedData: ReturnType< typeof useChartDataTransform > ) => {
 	const minX = Math.min( ...sortedData.map( datom => datom.data.at( 0 )?.date ) );
 	const maxX = Math.max( ...sortedData.map( datom => datom.data.at( -1 )?.date ) );
@@ -58,9 +91,15 @@ export const getFormatter = ( sortedData: ReturnType< typeof useChartDataTransfo
 		return formatHourTick;
 	}
 
+	const spacingInHours = getPointSpacingInHours( sortedData );
+	if ( diffInHours <= 24 * 7 && spacingInHours < 24 ) {
+		return formatDateOrHourTick;
+	}
+
 	const diffInYears = Math.abs( differenceInYears( maxX, minX ) );
 	if ( diffInYears <= 1 ) {
-		return formatDateTick;
+		// 28 days: the shortest month, so monthly buckets qualify but weekly don't.
+		return spacingInHours >= 28 * 24 ? formatMonthOrYearTick : formatDateTick;
 	}
 
 	return formatYearTick;
