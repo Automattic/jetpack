@@ -130,17 +130,6 @@ export const refreshPodcastSettings = (): void => {
 	dataDispatch( coreStore ).invalidateResolution( 'getEntityRecord', [ ENTITY_KIND, ENTITY_NAME ] );
 };
 
-// The entity has no record id, so core-data locks each save under a fresh uuid
-// and never serialises them — concurrent saves land in arbitrary order.
-let saveQueue: Promise< unknown > = Promise.resolve();
-
-const enqueueSave = < T >( run: () => Promise< T > ): Promise< T > => {
-	const result = saveQueue.then( run, run );
-	// Keep the chain alive after a failure; `result` still rejects for the caller.
-	saveQueue = result.catch( () => {} );
-	return result;
-};
-
 interface MutateCallbacks {
 	onSuccess?: ( result: PodcastSettings ) => void;
 	onError?: ( error: unknown ) => void;
@@ -199,8 +188,10 @@ export function useUpdatePodcastSettings(): {
 			{ silent = false }: { silent?: boolean } = {}
 		): Promise< PodcastSettings > => {
 			try {
-				const record = await enqueueSave( () =>
-					saveEntityRecord( ENTITY_KIND, ENTITY_NAME, updates as Record< string, unknown > )
+				const record = await saveEntityRecord(
+					ENTITY_KIND,
+					ENTITY_NAME,
+					updates as Record< string, unknown >
 				);
 				if ( ! record ) {
 					throw new Error( 'save returned no record' );

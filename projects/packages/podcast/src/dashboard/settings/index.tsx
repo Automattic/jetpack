@@ -16,7 +16,7 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
-import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import CategoryPicker from '../category-picker';
 import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
@@ -85,18 +85,9 @@ const useFieldEditor = (
 	onCommit: ( value: string ) => void
 ): { value: string; onChange: ( v: string ) => void; onBlur: () => void } => {
 	const [ local, setLocal ] = useState( stored );
-	// Typing since the last sync is an unsaved edit a save response must not eat.
-	const syncedRef = useRef( stored );
 	useEffect( () => {
-		if ( stored === syncedRef.current ) {
-			return;
-		}
-		const isDirty = local !== syncedRef.current;
-		syncedRef.current = stored;
-		if ( ! isDirty ) {
-			setLocal( stored );
-		}
-	}, [ stored, local ] );
+		setLocal( stored );
+	}, [ stored ] );
 	return {
 		value: local,
 		onChange: setLocal,
@@ -108,60 +99,30 @@ const useFieldEditor = (
 	};
 };
 
-// Show urls/states are patches in an update but whole maps on the record.
-const mergeSettings = (
-	base: PodcastSettings,
-	updates: PodcastSettingsUpdate
-): PodcastSettings => ( {
-	...base,
-	...updates,
-	podcasting_show_urls: { ...base.podcasting_show_urls, ...updates.podcasting_show_urls },
-	podcasting_show_states: { ...base.podcasting_show_states, ...updates.podcasting_show_states },
-} );
-
 interface SettingsTabProps {
 	onAfterDisable?: () => void;
 }
 
 const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 	const { data: settings, isLoading } = usePodcastSettings();
-	const { mutate: saveSettings } = useUpdatePodcastSettings();
+	// Controls lock while a save is in flight: they autosave as you leave each
+	// one, so a second edit landing mid-request would race it and be lost.
+	const { mutate: saveSettings, isPending: isSaving } = useUpdatePodcastSettings();
 
 	const [ draft, setDraft ] = useState< PodcastSettings | null >( null );
 	const [ confirmDisable, setConfirmDisable ] = useState( false );
 
-	// Only the newest save owns the draft; older responses would resurrect values
-	// the user has already changed.
-	const saveSeq = useRef( 0 );
-	// Last server-authoritative record, for rolling back a failed save.
-	const settingsRef = useRef( settings );
-
 	useEffect( () => {
-		settingsRef.current = settings;
 		if ( settings && ! draft ) {
 			setDraft( settings );
 		}
 	}, [ settings, draft ] );
 
-	// Echo the update into the draft first, so the next edit compares against what
-	// the user just did rather than a value the in-flight request hasn't returned.
+	// Save a partial update, then resync draft from the server-merged record so
+	// `isDirty` and reference checks fall back to false on the saved keys.
 	const commit = useCallback(
 		( updates: PodcastSettingsUpdate ) => {
-			const seq = ++saveSeq.current;
-			const isCurrent = () => seq === saveSeq.current;
-			setDraft( prev => ( prev ? mergeSettings( prev, updates ) : prev ) );
-			saveSettings( updates, {
-				onSuccess: record => {
-					if ( isCurrent() ) {
-						setDraft( record );
-					}
-				},
-				onError: () => {
-					if ( isCurrent() && settingsRef.current ) {
-						setDraft( settingsRef.current );
-					}
-				},
-			} );
+			saveSettings( updates, { onSuccess: setDraft } );
 		},
 		[ saveSettings ]
 	);
@@ -318,6 +279,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 						<CategoryPicker
 							selectedId={ draft.podcasting_category_id }
 							onSelect={ handleCategorySelect }
+							disabled={ isSaving }
 						/>
 					</VStack>
 				</CardBody>
@@ -340,29 +302,34 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 							imageId={ draft.podcasting_image_id }
 							onSelect={ handleCoverSelect }
 							onRemove={ handleCoverRemove }
+							disabled={ isSaving }
 						/>
 						<TextControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
 							label={ __( 'Title', 'jetpack-podcast' ) }
+							disabled={ isSaving }
 							{ ...titleField }
 						/>
 						<TextareaControl
 							__nextHasNoMarginBottom
 							label={ __( 'Summary/Description', 'jetpack-podcast' ) }
 							rows={ 4 }
+							disabled={ isSaving }
 							{ ...summaryField }
 						/>
 						<TextControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
 							label={ __( 'Hosts/Artist/Producer', 'jetpack-podcast' ) }
+							disabled={ isSaving }
 							{ ...talentNameField }
 						/>
 						<TextControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
 							label={ __( 'Copyright', 'jetpack-podcast' ) }
+							disabled={ isSaving }
 							{ ...copyrightField }
 						/>
 					</VStack>
@@ -394,6 +361,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 									suggestions={ TOPIC_SUGGESTIONS }
 									onChange={ handleTopicsChange }
 									maxLength={ 3 }
+									disabled={ isSaving }
 								/>
 							</div>
 							<Text variant="muted">
@@ -423,6 +391,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 							value={ draft.podcasting_explicit ? 'yes' : 'no' }
 							onChange={ handleExplicitChange }
 							options={ EXPLICIT_OPTIONS }
+							disabled={ isSaving }
 						/>
 						<TextControl
 							__next40pxDefaultSize
@@ -433,6 +402,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 								'Included in your feed so podcast directories can verify ownership. Most require it for submission.',
 								'jetpack-podcast'
 							) }
+							disabled={ isSaving }
 							{ ...emailField }
 						/>
 					</VStack>
@@ -453,7 +423,12 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 								'jetpack-podcast'
 							) }
 						</Text>
-						<Button variant="secondary" isDestructive onClick={ openConfirmDisable }>
+						<Button
+							variant="secondary"
+							isDestructive
+							onClick={ openConfirmDisable }
+							disabled={ isSaving }
+						>
 							{ __( 'Disable', 'jetpack-podcast' ) }
 						</Button>
 					</VStack>

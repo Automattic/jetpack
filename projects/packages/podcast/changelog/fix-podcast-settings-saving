@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Settings: keep edits made while an earlier save is still in flight.
+Settings: lock controls while a save is in progress so quick edits aren't lost.
