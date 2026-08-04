@@ -187,8 +187,9 @@ function CategoriesField( {
 				<FormTokenField
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
-					__experimentalExpandOnFocus
+					__experimentalShowHowTo={ false }
 					label={ __( 'Categories', 'jetpack-newsletter' ) }
+					placeholder={ __( 'Type to add categories', 'jetpack-newsletter' ) }
 					value={ selectedNames }
 					suggestions={ Array.from( idByName.keys() ) }
 					onChange={ handleTokensChange }
