@@ -99,6 +99,13 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Bar extends WP_REST_Controller {
 		set_current_screen( 'dashboard' );
 
 		add_filter( 'show_admin_bar', '__return_true', 999 );
+
+		// Core only adds the command palette node when its assets are enqueued,
+		// which normally happens on admin_enqueue_scripts.
+		if ( function_exists( 'wp_enqueue_command_palette_assets' ) ) {
+			wp_enqueue_command_palette_assets();
+		}
+
 		_wp_admin_bar_init();
 
 		ob_start();
