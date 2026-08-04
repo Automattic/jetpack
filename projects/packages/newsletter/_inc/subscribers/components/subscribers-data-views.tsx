@@ -1,5 +1,5 @@
 import { DataViews } from '@wordpress/dataviews';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import { useMembershipsProducts } from '../data/use-memberships-products';
@@ -321,8 +321,14 @@ export default function SubscribersDataViews( {
 		( view.filters && view.filters.length > 0 ) || ( view.search && view.search.length > 0 )
 	);
 
+	const filterKey = `${ queryParams.search }|${ [ ...apiFilters ].sort().join( ',' ) }`;
+	const settledFilterKey = useRef( filterKey );
+	if ( ! isPlaceholderData ) {
+		settledFilterKey.current = filterKey;
+	}
+
 	const isSelfOnly =
-		! isPlaceholderData &&
+		settledFilterKey.current === filterKey &&
 		! hasActiveFiltersOrSearch &&
 		totalItems === 1 &&
 		!! data?.is_owner_subscribed;

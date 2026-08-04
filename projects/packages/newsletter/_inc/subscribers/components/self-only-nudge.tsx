@@ -1,7 +1,7 @@
 import { Popover } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
-import { __, isRTL } from '@wordpress/i18n';
+import { __, _x, isRTL } from '@wordpress/i18n';
 import { Button, Stack, Text } from '@wordpress/ui';
 import './self-only-nudge.scss';
 
@@ -67,7 +67,7 @@ export default function SelfOnlyNudge( { anchor, onDismiss }: Props ): JSX.Eleme
 					) }
 				</Text>
 				<Button size="compact" variant="minimal" tone="neutral" onClick={ handleDismiss }>
-					{ __( 'Got it', 'jetpack-newsletter' ) }
+					{ _x( 'Got it', 'dismiss button', 'jetpack-newsletter' ) }
 				</Button>
 			</Stack>
 		</Popover>

@@ -80,11 +80,11 @@ export default function SubscribersBody( {
 		if ( window.location.hash !== ADD_SUBSCRIBERS_HASH ) {
 			return;
 		}
-		setAddOpen( true );
+		openAdd();
 		const url = new URL( window.location.href );
 		url.hash = '';
 		window.history.replaceState( window.history.state, '', url.toString() );
-	}, [] );
+	}, [ openAdd ] );
 
 	const navigate = useNavigate();
 	const search = useSearch( {
