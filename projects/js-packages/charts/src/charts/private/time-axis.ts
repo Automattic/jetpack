@@ -85,13 +85,16 @@ const getPointSpacingInHours = ( sortedData: ReturnType< typeof useChartDataTran
 	);
 };
 
-// Nominal point spacing for a caller-declared bucket resolution. A month maps
-// to the shortest month so month-or-coarser regimes engage (see getFormatter).
+// Nominal point spacing for a caller-declared bucket resolution. Month and
+// coarser map to their shortest calendar length so the month-or-coarser
+// regimes engage (see getFormatter).
 const SPACING_BY_RESOLUTION: Record< TickResolution, number > = {
 	hour: 1,
 	day: 24,
 	week: 24 * 7,
 	month: 28 * 24,
+	quarter: 90 * 24,
+	year: 365 * 24,
 };
 
 // Pick the most informative tick formatter for the data's resolution and time

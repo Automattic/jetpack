@@ -51,6 +51,7 @@ export type {
 	ChartTheme,
 	CompleteChartTheme,
 	AxisOptions,
+	TickResolution,
 	ScaleOptions,
 	LegendItemStyles,
 	LegendLabelStyles,

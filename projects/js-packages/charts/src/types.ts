@@ -466,7 +466,7 @@ export type CompleteChartTheme = Required< ChartTheme > & {
  * Bucket resolution of time-series data, as known by the caller (e.g. a
  * granularity selector), for consumers that don't need to infer it.
  */
-export type TickResolution = 'hour' | 'day' | 'week' | 'month';
+export type TickResolution = 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year';
 
 export type AxisOptions = {
 	orientation?: OrientationType;
