@@ -14,7 +14,7 @@ import { AdminPage } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Notice, Stack, Tabs } from '@wordpress/ui';
+import { Badge, Notice, Stack, Tabs } from '@wordpress/ui';
 import analytics from 'lib/analytics';
 import AiFeatures from './features/index';
 import { useFeatureSettings } from './features/use-feature-settings';
@@ -216,6 +216,15 @@ export default function App() {
 							{ tabViews.map( tab => (
 								<Tabs.Tab key={ tab } value={ tab }>
 									{ VIEW_TITLES[ tab ] }
+									{ /* The Features view ships behind the internal-testing gate
+									     (showFeaturesView); while gated, label it so Automatticians
+									     don't mistake it for public UI. Read at render time so the
+									     flag reflects the injected page data. Remove with the gate. */ }
+									{ tab === 'features' && !! window?.jetpackAiSettings?.showFeaturesView && (
+										<Badge intent="medium" className="jetpack-ai-admin__tab-badge">
+											{ __( 'A12s only', 'jetpack' ) }
+										</Badge>
+									) }
 								</Tabs.Tab>
 							) ) }
 						</Tabs.List>

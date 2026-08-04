@@ -79,6 +79,11 @@ beforeEach( () => {
 	window.location.hash = '#/features';
 } );
 
+afterEach( () => {
+	// Tests that exercise the internal-testing flag set this global.
+	delete window.jetpackAiSettings;
+} );
+
 describe( 'AI admin page (main.jsx)', () => {
 	test( 'host-off: shows the host-off notice and does not mount AiFeatures', async () => {
 		mockApiFetch( {
@@ -132,6 +137,35 @@ describe( 'AI admin page (main.jsx)', () => {
 		expect(
 			screen.queryByText( 'Your AI settings have been saved.', IGNORE_A11Y )
 		).not.toBeInTheDocument();
+	} );
+
+	test( 'internal-testing flag: the Features tab carries an A12s only badge', async () => {
+		// The Features view is gated to internal testing environments; when the
+		// injected flag says we are in one, the tab must say so — Automatticians
+		// should not mistake the view for public UI.
+		window.jetpackAiSettings = { showFeaturesView: true };
+		mockApiFetch();
+
+		render( <App /> );
+
+		await expect( screen.findByText( 'A12s only' ) ).resolves.toBeInTheDocument();
+	} );
+
+	test( 'no internal-testing flag: no A12s only badge renders', async () => {
+		// Without the flag the gate hides the Features view entirely (MCP-only
+		// shape), so the internal-testing label must not appear anywhere.
+		window.jetpackAiSettings = {};
+		mockApiFetch();
+
+		render( <App /> );
+
+		await expect(
+			screen.findByText(
+				'This site is not connected to WordPress.com. Please connect Jetpack to manage MCP settings.',
+				IGNORE_A11Y
+			)
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'A12s only' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'MCP view tracking: fires once on the MCP tab, never on Features, and latches per mount', async () => {
