@@ -1,8 +1,9 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { preparePreviewText } from '../src/helpers';
 
-// Payloads captured verbatim from Publicize\Template_Parser::parse_with_hyperlinks()
-// running on the wpcom sandbox at commit cd3ea246b0e.
+// Representative payloads from Publicize\Template_Parser::parse_with_hyperlinks().
+// The original cases were captured on the wpcom sandbox at commit cd3ea246b0e;
+// regression cases below follow the same final-message occurrence contract.
 const PHP_OUTPUT = {
 	reported_figcaption: {
 		message: 'Today we commemorate Blessed John Soreth. Pray with us.',
@@ -19,6 +20,10 @@ const PHP_OUTPUT = {
 	self_overlapping: {
 		message: 'ha ha ha ha ha',
 		hyperlinks: [ { text: 'ha ha', href: 'https://example.com/real', occurrence: 3 } ],
+	},
+	tokens_before_content: {
+		message: 'https://example.com/post #post post later post',
+		hyperlinks: [ { text: 'post', href: 'https://example.com/real', occurrence: 2 } ],
 	},
 };
 
@@ -52,6 +57,12 @@ describe( 'PHP -> JS hyperlink contract', () => {
 		// If JS counted non-overlapping it would land on index 2 -> byte 6.
 		expect( markupFor( 'self_overlapping' ) ).toBe(
 			'ha ha ha <a href="https://example.com/real" rel="noopener noreferrer" target="_blank">ha ha</a>'
+		);
+	} );
+
+	it( 'keeps occurrences aligned when URLs and hashtags contain the anchor text', () => {
+		expect( markupFor( 'tokens_before_content' ) ).toBe(
+			'<a href="https://example.com/post" rel="noopener noreferrer" target="_blank">https://example.com/post</a> <a href="https://bsky.app/hashtag/post" rel="noopener noreferrer" target="_blank">#post</a> <a href="https://example.com/real" rel="noopener noreferrer" target="_blank">post</a> later post'
 		);
 	} );
 } );

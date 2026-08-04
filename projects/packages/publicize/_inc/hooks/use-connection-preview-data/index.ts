@@ -36,6 +36,25 @@ const EMPTY_HYPERLINKS: Hyperlink[] = [];
 const WORD_CHARACTER = /[\p{L}\p{M}\p{N}_]/u;
 
 /**
+ * Count text occurrences, including overlapping matches.
+ *
+ * @param message - Text to search.
+ * @param text    - Phrase to find.
+ * @return Number of occurrences.
+ */
+function countTextOccurrences( message: string, text: string ): number {
+	let count = 0;
+	let offset = 0;
+
+	while ( text && ( offset = message.indexOf( text, offset ) ) >= 0 ) {
+		count++;
+		offset++;
+	}
+
+	return count;
+}
+
+/**
  * Whether text appears as a standalone phrase, rather than inside a larger word.
  *
  * @param message - Text to search.
@@ -172,9 +191,14 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 		() =>
 			baseMessage || ! legacyHyperlinkSource
 				? EMPTY_HYPERLINKS
-				: parseHyperlinks( legacyHyperlinkSource ).filter(
-						( { text } ) => ! containsStandaloneText( postData.title, text )
-				  ),
+				: parseHyperlinks( legacyHyperlinkSource )
+						.filter( ( { text } ) => ! containsStandaloneText( postData.title, text ) )
+						.map( hyperlink => ( {
+							...hyperlink,
+							occurrence:
+								( hyperlink.occurrence ?? 0 ) +
+								countTextOccurrences( postData.title, hyperlink.text ),
+						} ) ),
 		[ baseMessage, legacyHyperlinkSource, postData.title ]
 	);
 	const currentRenderItem = items.find( item => item.connection_id === connection.connection_id );

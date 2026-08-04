@@ -254,9 +254,9 @@ describe( 'useConnectionPreviewData', () => {
 		expect( result.current.hyperlinks ).toEqual( [] );
 	} );
 
-	it( 'keeps legacy body hyperlinks that only occur inside a larger title word', () => {
+	it( 'keeps legacy body hyperlinks aligned after a larger title word', () => {
 		mockSelectCalls( {
-			legacySource: '<p>Read the <a href="https://example.com/real">post</a>.</p>',
+			legacySource: '<p>First post, then <a href="https://example.com/real">post</a>.</p>',
 		} );
 		mockUseSocialMediaMessage.mockReturnValue( {
 			message: '',
@@ -273,7 +273,7 @@ describe( 'useConnectionPreviewData', () => {
 		);
 
 		expect( result.current.hyperlinks ).toEqual( [
-			{ text: 'post', href: 'https://example.com/real', occurrence: 0 },
+			{ text: 'post', href: 'https://example.com/real', occurrence: 2 },
 		] );
 	} );
 
