@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import {
 	PostHighlightCard,
 	WidgetRoot,
@@ -10,6 +11,7 @@ import {
 	type PostHighlightCardMetric,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { trendingUp } from '@wordpress/icons';
 /**
@@ -39,6 +41,8 @@ type PopularPostWidgetProps = WidgetRenderProps< PopularPostRenderAttributes >;
 function PopularPostReport() {
 	const { reportParams } = useWidgetRootContext();
 	const { post, isLoading, isFetching, isError, error, refetch } = usePopularPost( reportParams );
+	// The detail page opens on the dashboard's current window.
+	const detailSearch = useMemo( () => pickReportDateParams( reportParams ), [ reportParams ] );
 
 	const metrics: PostHighlightCardMetric[] = post
 		? [
@@ -78,6 +82,8 @@ function PopularPostReport() {
 				<PostHighlightCard
 					title={ post.title }
 					url={ post.url }
+					postId={ post.id }
+					detailSearch={ detailSearch }
 					date={ post.date }
 					imageUrl={ post.imageUrl }
 					imageAlt={ post.imageAlt }
