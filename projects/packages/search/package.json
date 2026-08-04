@@ -101,7 +101,7 @@
 		"concurrently": "10.0.3",
 		"core-js": "3.38.1",
 		"jest": "30.4.2",
-		"postcss": "8.5.21",
+		"postcss": "8.5.23",
 		"postcss-loader": "8.2.0",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
