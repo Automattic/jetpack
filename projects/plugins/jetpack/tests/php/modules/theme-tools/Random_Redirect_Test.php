@@ -53,6 +53,7 @@ class Random_Redirect_Test extends WP_UnitTestCase {
 	public function tear_down() {
 		remove_filter( 'wp_redirect', array( $this, 'intercept_redirect' ) );
 		unset( $_GET['random'], $_GET['random_post_type'], $_GET['random_cat_id'] );
+		unset( $_POST['random_redirect_test'] );
 		parent::tear_down();
 	}
 
@@ -97,6 +98,55 @@ class Random_Redirect_Test extends WP_UnitTestCase {
 		$post_ids                 = self::factory()->post->create_many( 3, array( 'post_status' => 'publish' ) );
 		$_GET['random']           = '1';
 		$_GET['random_post_type'] = 'post';
+
+		$this->assertContains( $this->get_redirect_location(), array_map( 'get_permalink', $post_ids ) );
+	}
+
+	/**
+	 * A bare random request uses the post type from the main query.
+	 */
+	public function test_bare_random_request_uses_contextual_post_type() {
+		$post_ids        = self::factory()->post->create_many( 3, array( 'post_status' => 'publish' ) );
+		$_GET['random']  = '1';
+		$GLOBALS['post'] = get_post( $post_ids[0] );
+
+		$this->assertContains( $this->get_redirect_location(), array_map( 'get_permalink', $post_ids ) );
+	}
+
+	/**
+	 * Non-GET requests must not redirect.
+	 */
+	public function test_post_request_does_not_redirect() {
+		self::factory()->post->create( array( 'post_status' => 'publish' ) );
+		$_GET['random']                = '1';
+		$_GET['random_post_type']      = 'post';
+		$_POST['random_redirect_test'] = '1';
+
+		$this->assertNull( $this->get_redirect_location() );
+	}
+
+	/**
+	 * Only published posts are eligible redirect targets.
+	 */
+	public function test_excludes_unpublished_posts() {
+		$public_id = self::factory()->post->create( array( 'post_status' => 'publish' ) );
+		foreach ( array( 'draft', 'future', 'pending', 'private', 'trash' ) as $post_status ) {
+			self::factory()->post->create( array( 'post_status' => $post_status ) );
+		}
+		$_GET['random']           = '1';
+		$_GET['random_post_type'] = 'post';
+
+		$this->assertSame( get_permalink( $public_id ), $this->get_redirect_location() );
+	}
+
+	/**
+	 * An invalid post type falls back to the type from the main query.
+	 */
+	public function test_invalid_post_type_uses_contextual_post_type() {
+		$post_ids                 = self::factory()->post->create_many( 3, array( 'post_status' => 'publish' ) );
+		$_GET['random']           = '1';
+		$_GET['random_post_type'] = 'not-a-post-type';
+		$GLOBALS['post']          = get_post( $post_ids[0] );
 
 		$this->assertContains( $this->get_redirect_location(), array_map( 'get_permalink', $post_ids ) );
 	}

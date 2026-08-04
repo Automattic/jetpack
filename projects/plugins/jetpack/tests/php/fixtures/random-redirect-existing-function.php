@@ -33,6 +33,7 @@ add_action( 'template_redirect', 'jetpack_matt_random_redirect' );
 
 $plugin_dir = dirname( __DIR__, 3 );
 require $plugin_dir . '/modules/theme-tools/random-redirect.php';
+require $plugin_dir . '/modules/theme-tools/random-redirect.php';
 
 if ( 'existing implementation' !== jetpack_matt_random_redirect() ) {
 	throw new RuntimeException( 'Jetpack did not preserve the existing Random Redirect implementation.' );
