@@ -18,6 +18,28 @@ class Random_Redirect_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
+	 * An existing Random Redirect implementation must not make Jetpack fatal.
+	 *
+	 * The fixture runs in a separate process because this test file has already
+	 * loaded Jetpack's implementation and PHP functions cannot be unloaded.
+	 */
+	public function test_loads_with_existing_random_redirect_function() {
+		$script = dirname( __DIR__, 2 ) . '/fixtures/random-redirect-existing-function.php';
+
+		$output    = array();
+		$exit_code = 0;
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_exec -- A separate process is required to preload the legacy function before Jetpack's module.
+		exec( escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( $script ) . ' 2>&1', $output, $exit_code );
+
+		$this->assertSame(
+			0,
+			$exit_code,
+			"Compatibility process failed:\n" . implode( "\n", $output )
+		);
+		$this->assertSame( array( 'OK' ), $output );
+	}
+
+	/**
 	 * Set up.
 	 */
 	public function set_up() {
