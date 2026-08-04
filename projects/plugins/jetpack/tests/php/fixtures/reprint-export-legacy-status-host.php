@@ -23,7 +23,7 @@ function apply_filters( $hook_name, $value ) {
 
 $plugin_dir = dirname( __DIR__, 3 );
 
-// Simulate a third-party plugin defining the older class before Jetpack loads.
+// Simulate a third-party plugin defining the Status 6.1.5 class before Jetpack loads.
 require __DIR__ . '/legacy-status/class-host.php';
 require $plugin_dir . '/vendor/autoload.php';
 require $plugin_dir . '/src/reprint-export/class-reprint-exporter.php';
