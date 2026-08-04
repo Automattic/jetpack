@@ -31,7 +31,7 @@ const SECTIONS = [
 				key: 'writing_assistant',
 				label: __( 'Writing Assistant', 'jetpack' ),
 				description: __(
-					'Generate, edit, and transform content in the block editor. Draft posts, rewrite paragraphs, translate, and adjust tone with a single click.',
+					'Draft, rewrite, translate, and adjust tone for your content right in the block editor.',
 					'jetpack'
 				),
 				enabledAction: {
