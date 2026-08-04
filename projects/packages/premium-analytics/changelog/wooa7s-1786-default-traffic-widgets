@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Traffic: Reorder and resize the default widgets so each row fills the grid, and drop Plan usage from the defaults.
