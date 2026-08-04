@@ -10,7 +10,7 @@
  * original MCP-only shape, with the MCP hub as the landing view and no tab bar.
  */
 
-import { AdminPage } from '@automattic/jetpack-components';
+import { AdminPage, GlobalNotices, useGlobalNotices } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -108,10 +108,10 @@ function Breadcrumbs( { view, onNavigate } ) {
  */
 export default function App() {
 	const [ view, setView ] = useState( getViewFromHash );
-	const [ saveError, setSaveError ] = useState( null );
-	// A single slot, not a stack: the save queue can fire a burst of toggles,
-	// and each success replaces the last notice rather than piling them up.
-	const [ saveSuccess, setSaveSuccess ] = useState( null );
+	// Save feedback goes through the shared GlobalNotices snackbars (the
+	// design-system SnackbarList behind @wordpress/notices): transient,
+	// auto-dismissing, no page-level styling needed.
+	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 	const mcpViewedRecorded = useRef( false );
 	const { isLoading, savingToolIds, mcpAbilities, hasMcpAccess, error, updateMcpAbilities } =
 		useMcpSettings();
@@ -148,39 +148,44 @@ export default function App() {
 
 	const handleUpdate = useCallback(
 		update => {
-			setSaveError( null );
 			return updateMcpAbilities( update ).catch( () => {
-				setSaveError( __( 'Failed to save MCP settings. Please try again.', 'jetpack' ) );
+				// Errors must not auto-vanish before they're read. The fixed id
+				// makes the store replace the previous outcome for this surface,
+				// so retries never show stale results alongside fresh ones.
+				createErrorNotice( __( 'Failed to save MCP settings. Please try again.', 'jetpack' ), {
+					id: 'jetpack-mcp-save-status',
+					explicitDismiss: true,
+				} );
 			} );
 		},
-		[ updateMcpAbilities ]
+		[ updateMcpAbilities, createErrorNotice ]
 	);
 
 	const handleAiSettingsUpdate = useCallback(
 		update => {
-			// Clear both notices on each attempt so only the latest outcome shows —
-			// one slot, never a stack, even under a burst of queued saves.
-			setSaveError( null );
-			setSaveSuccess( null );
 			// Resolve a boolean rather than letting the rejection escape: the
 			// Features view records analytics only for saves that landed.
 			return updateAiSettings( update ).then(
 				() => {
-					setSaveSuccess( __( 'Your AI settings have been saved.', 'jetpack' ) );
+					// The shared id keeps this surface last-outcome-wins: a
+					// success replaces a sticky error from an earlier attempt.
+					createSuccessNotice( __( 'Your AI settings have been saved.', 'jetpack' ), {
+						id: 'jetpack-ai-save-status',
+					} );
 					return true;
 				},
 				() => {
-					setSaveError( __( 'Failed to save AI settings. Please try again.', 'jetpack' ) );
+					// Errors must not auto-vanish before they're read.
+					createErrorNotice( __( 'Failed to save AI settings. Please try again.', 'jetpack' ), {
+						id: 'jetpack-ai-save-status',
+						explicitDismiss: true,
+					} );
 					return false;
 				}
 			);
 		},
-		[ updateAiSettings ]
+		[ updateAiSettings, createSuccessNotice, createErrorNotice ]
 	);
-
-	const dismissSaveError = useCallback( () => setSaveError( null ), [] );
-
-	const dismissSaveSuccess = useCallback( () => setSaveSuccess( null ), [] );
 
 	const navigateToView = useCallback( newView => {
 		window.history.pushState( null, '', '#/' + newView );
@@ -232,20 +237,7 @@ export default function App() {
 				</div>
 			) }
 			<div className="jetpack-ai-admin__content">
-				{ saveError && (
-					<Notice.Root intent="error">
-						<Notice.Description>{ saveError }</Notice.Description>
-						<Notice.CloseIcon label={ __( 'Dismiss', 'jetpack' ) } onClick={ dismissSaveError } />
-					</Notice.Root>
-				) }
-
-				{ /* Success is scoped to the Features tab: it only ever comes from an AI-settings save. */ }
-				{ view === 'features' && saveSuccess && (
-					<Notice.Root intent="success">
-						<Notice.Description>{ saveSuccess }</Notice.Description>
-						<Notice.CloseIcon label={ __( 'Dismiss', 'jetpack' ) } onClick={ dismissSaveSuccess } />
-					</Notice.Root>
-				) }
+				<GlobalNotices />
 
 				{ isMcpContext && (
 					<>

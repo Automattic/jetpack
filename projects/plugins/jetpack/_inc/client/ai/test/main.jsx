@@ -1,6 +1,8 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
+import { dispatch, select } from '@wordpress/data';
+import { store as noticesStore } from '@wordpress/notices';
 import analytics from 'lib/analytics';
 import App from '../main';
 
@@ -71,6 +73,9 @@ const mcpViewCount = () =>
 	).length;
 
 beforeEach( () => {
+	// GlobalNotices renders SnackbarList, whose framer-motion animations
+	// measure keyframes via window.scrollTo — not implemented in jsdom.
+	jest.spyOn( window, 'scrollTo' ).mockImplementation();
 	apiFetch.mockReset();
 	analytics.tracks.recordEvent.mockClear();
 	// The suite renders as an internal tester by default so the Features view
@@ -82,6 +87,11 @@ beforeEach( () => {
 afterEach( () => {
 	// Tests that exercise the internal-testing flag set this global.
 	delete window.jetpackAiSettings;
+	// The @wordpress/notices store is module-global: drain it so a snackbar
+	// created in one test cannot re-animate into the next test's render.
+	select( noticesStore )
+		.getNotices()
+		.forEach( notice => dispatch( noticesStore ).removeNotice( notice.id ) );
 } );
 
 describe( 'AI admin page (main.jsx)', () => {
@@ -106,7 +116,7 @@ describe( 'AI admin page (main.jsx)', () => {
 		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'save-confirmation: a successful AI-settings save shows the success notice', async () => {
+	test( 'save-confirmation: a successful AI-settings save shows a success snackbar', async () => {
 		mockApiFetch( { featurePost: () => Promise.resolve( enabledSettings() ) } );
 
 		render( <App /> );
@@ -114,16 +124,19 @@ describe( 'AI admin page (main.jsx)', () => {
 		const toggle = await screen.findByRole( 'checkbox', { name: /Writing Assistant/ } );
 		await userEvent.click( toggle );
 
-		await expect(
-			screen.findByText( 'Your AI settings have been saved.', IGNORE_A11Y )
-		).resolves.toBeInTheDocument();
-		// The error notice must not be showing on a success.
+		// Save feedback is transient, so it renders through the shared
+		// GlobalNotices snackbars (the design-system SnackbarList), not a
+		// persistent Notice banner. The snackbar's signature is its
+		// click-to-dismiss button wrapper.
+		const snackbar = await screen.findByRole( 'button', { name: 'Dismiss this notice' } );
+		expect( snackbar ).toHaveTextContent( 'Your AI settings have been saved.' );
+		// The error feedback must not be showing on a success.
 		expect(
 			screen.queryByText( 'Failed to save AI settings. Please try again.', IGNORE_A11Y )
 		).not.toBeInTheDocument();
 	} );
 
-	test( 'save-confirmation: a failed AI-settings save shows the error notice, not the success notice', async () => {
+	test( 'save-confirmation: a failed AI-settings save shows an explicit-dismiss error snackbar', async () => {
 		mockApiFetch( { featurePost: () => Promise.reject( new Error( 'nope' ) ) } );
 
 		render( <App /> );
@@ -134,8 +147,46 @@ describe( 'AI admin page (main.jsx)', () => {
 		await expect(
 			screen.findByText( 'Failed to save AI settings. Please try again.', IGNORE_A11Y )
 		).resolves.toBeInTheDocument();
+		// Errors must not auto-vanish before they're read: the error snackbar
+		// uses explicitDismiss, so the pill itself is not click-to-dismiss —
+		// a dedicated ✕ button (which carries no message text) dismisses it.
+		const dismiss = screen.getByRole( 'button', { name: 'Dismiss this notice' } );
+		expect( dismiss ).not.toHaveTextContent( 'Failed to save AI settings. Please try again.' );
 		expect(
 			screen.queryByText( 'Your AI settings have been saved.', IGNORE_A11Y )
+		).not.toBeInTheDocument();
+	} );
+
+	test( 'save-confirmation: a successful retry replaces the sticky error snackbar', async () => {
+		// The error pill persists until dismissed (explicitDismiss) — but a
+		// retry that succeeds must not leave the screen asserting failure and
+		// success at once. Sharing one notice id makes the store replace the
+		// previous outcome: last outcome wins.
+		let calls = 0;
+		mockApiFetch( {
+			featurePost: () => {
+				calls++;
+				return calls === 1
+					? Promise.reject( new Error( 'nope' ) )
+					: Promise.resolve( enabledSettings() );
+			},
+		} );
+
+		render( <App /> );
+
+		const toggle = await screen.findByRole( 'checkbox', { name: /Writing Assistant/ } );
+		await userEvent.click( toggle );
+		await expect(
+			screen.findByText( 'Failed to save AI settings. Please try again.', IGNORE_A11Y )
+		).resolves.toBeInTheDocument();
+
+		await userEvent.click( toggle );
+
+		await expect(
+			screen.findByText( 'Your AI settings have been saved.', IGNORE_A11Y )
+		).resolves.toBeInTheDocument();
+		expect(
+			screen.queryByText( 'Failed to save AI settings. Please try again.', IGNORE_A11Y )
 		).not.toBeInTheDocument();
 	} );
 
