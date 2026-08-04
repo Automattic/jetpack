@@ -624,8 +624,7 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	 * This test is GREEN on trunk as well -- all eight endpoints already carried the flag. It is a
 	 * forward-looking invariant for the newly mandatory pairing, not evidence of a fixed regression.
 	 * It only covers endpoints registered from this repository: under `IS_WPCOM` the endpoint
-	 * directory is loaded from the WordPress.com tree and neither those registrations nor that copy
-	 * of the guard are visible here.
+	 * directory is loaded from the WordPress.com tree, so those registrations are not visible here.
 	 *
 	 * @group json-api
 	 */
