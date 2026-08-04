@@ -10,16 +10,6 @@
 
 $jetpack-newsletter-inset: var(--wpds-dimension-padding-2xl);
 
-// Scoped from the body class because the nudge portals onto `document.body`.
-body.jetpack_page_jetpack-newsletter .jetpack-newsletter-self-only-nudge {
-
-	.components-popover__content {
-		inline-size: 280px;
-		max-inline-size: calc(100vw - #{$jetpack-newsletter-inset} * 2);
-		padding: var(--wpds-dimension-padding-lg);
-	}
-}
-
 body.jetpack_page_jetpack-newsletter {
 
 	// Off-white page surface so the white settings cards stand out against the
