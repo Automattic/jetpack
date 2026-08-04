@@ -189,4 +189,4 @@ Stored errors are deleted automatically when the connection is restored or torn 
 
 ## Debugging
 
-The [Jetpack Debug Tools](https://github.com/Automattic/jetpack/tree/trunk/projects/plugins/debug-helper) plugin's **Broken Token** module is the main tool for exercising this system on a test site: it can corrupt the blog or user token, generate sample errors of any type and direction, and display the raw contents of the stored and verified error options.
+The [Jetpack Debug Tools](https://github.com/Automattic/jetpack/tree/trunk/projects/plugins/debug-helper) plugin's **Broken Token** module is the main tool for exercising this system on a test site: it can corrupt the blog or user token, generate sample errors of any type and direction, and display the raw contents of the stored and verified error options. The easiest way to install it is via the [Jetpack Beta Tester](https://jetpack.com/download-jetpack-beta/) plugin — activate the Bleeding Edge version of Jetpack Debug Tools from its plugin list; alternatively, build it from the monorepo and upload it manually.
