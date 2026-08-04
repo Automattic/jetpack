@@ -277,6 +277,91 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Verify activating an active plugin adds a reason to the existing error.
+	 */
+	public function test_activate_keeps_error_code_and_adds_already_active_reason() {
+		wp_set_current_user( self::$super_admin_user_id );
+		$this->install_the_plugin();
+		$active_filter = $this->pretend_plugin_is_active( 'the/the.php' );
+
+		$result = $this->invoke_plugin_modify_action( 'activate', 'the/the.php' );
+
+		remove_filter( 'option_active_plugins', $active_filter );
+		$this->remove_the_plugin();
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'activation_error', $result->get_error_code() );
+		$this->assertSame( __( 'The Plugin is already active.', 'jetpack' ), $result->get_error_message() );
+		$this->assertSame( array( 'reason' => 'already_active' ), $result->get_error_data( 'additional_data' ) );
+		$this->assertSame( 400, WPCOM_JSON_API::serializable_error( $result )['status_code'] );
+	}
+
+	/**
+	 * Verify deactivating an inactive plugin adds a reason to the existing error.
+	 */
+	public function test_deactivate_keeps_error_code_and_adds_already_inactive_reason() {
+		wp_set_current_user( self::$super_admin_user_id );
+		$this->install_the_plugin();
+
+		$result = $this->invoke_plugin_modify_action( 'deactivate', 'the/the.php' );
+
+		$this->remove_the_plugin();
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'deactivation_error', $result->get_error_code() );
+		$this->assertSame( __( 'The Plugin is already deactivated.', 'jetpack' ), $result->get_error_message() );
+		$this->assertSame( array( 'reason' => 'already_inactive' ), $result->get_error_data( 'additional_data' ) );
+		$this->assertSame( 400, WPCOM_JSON_API::serializable_error( $result )['status_code'] );
+	}
+
+	/**
+	 * Verify a failed deactivation keeps the existing error code.
+	 */
+	public function test_deactivate_keeps_deactivation_error_code_for_failure() {
+		wp_set_current_user( self::$super_admin_user_id );
+		$this->install_the_plugin();
+		$active_filter        = $this->pretend_plugin_is_active( 'the/the.php' );
+		$prevent_deactivation = function ( $_new_value, $old_value ) {
+			return $old_value;
+		};
+		add_filter( 'pre_update_option_active_plugins', $prevent_deactivation, 10, 2 );
+
+		$result = $this->invoke_plugin_modify_action( 'deactivate', 'the/the.php' );
+
+		remove_filter( 'pre_update_option_active_plugins', $prevent_deactivation, 10 );
+		remove_filter( 'option_active_plugins', $active_filter );
+		$this->remove_the_plugin();
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'deactivation_error', $result->get_error_code() );
+		$this->assertSame( __( 'There was an error deactivating your plugin', 'jetpack' ), $result->get_error_message() );
+		$this->assertNull( $result->get_error_data() );
+		$this->assertEmpty( $result->get_error_data( 'additional_data' ) );
+	}
+
+	/**
+	 * Verify a failed activation keeps the existing error code.
+	 */
+	public function test_activate_keeps_activation_error_code_for_failure() {
+		wp_set_current_user( self::$super_admin_user_id );
+		$this->install_the_plugin();
+		$prevent_activation = function ( $_new_value, $old_value ) {
+			return $old_value;
+		};
+		add_filter( 'pre_update_option_active_plugins', $prevent_activation, 10, 2 );
+
+		$result = $this->invoke_plugin_modify_action( 'activate', 'the/the.php' );
+
+		remove_filter( 'pre_update_option_active_plugins', $prevent_activation, 10 );
+		$this->remove_the_plugin();
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'activation_error', $result->get_error_code() );
+		$this->assertSame( __( 'There was an error activating your plugin', 'jetpack' ), $result->get_error_message() );
+		$this->assertEmpty( $result->get_error_data( 'additional_data' ) );
+	}
+
+	/**
 	 * @author tonykova
 	 * @group external-http
 	 */
@@ -352,6 +437,55 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 
 	public function filesystem_method_direct() {
 		return 'direct';
+	}
+
+	/**
+	 * Report a plugin as active without writing the `active_plugins` option.
+	 *
+	 * Anything hooked to `pre_update_option_active_plugins` sees every write to
+	 * that option, and wpcomsh appends its always-active plugins to the value.
+	 * Those plugins are not installed in the test environment, so a real
+	 * activation leaves the option pointing at files that don't exist, and any
+	 * later test that reads plugin headers for the active plugins warns.
+	 *
+	 * @param string $plugin The plugin file to report as active.
+	 * @return callable The filter callback, for `remove_filter()`.
+	 */
+	private function pretend_plugin_is_active( $plugin ) {
+		$callback = function () use ( $plugin ) {
+			return array( $plugin );
+		};
+		add_filter( 'option_active_plugins', $callback );
+
+		return $callback;
+	}
+
+	/**
+	 * Invoke a plugin modification action for a non-bulk request.
+	 *
+	 * @param string $action The action method to invoke.
+	 * @param string $plugin The plugin file.
+	 * @return mixed
+	 */
+	private function invoke_plugin_modify_action( $action, $plugin ) {
+		$endpoint = new Jetpack_JSON_API_Plugins_Modify_Endpoint( array() );
+		$class    = new ReflectionClass( 'Jetpack_JSON_API_Plugins_Modify_Endpoint' );
+
+		$plugins_property = $class->getProperty( 'plugins' );
+		$bulk_property    = $class->getProperty( 'bulk' );
+		$action_method    = $class->getMethod( $action );
+
+		// @todo Remove these calls once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$plugins_property->setAccessible( true );
+			$bulk_property->setAccessible( true );
+			$action_method->setAccessible( true );
+		}
+
+		$plugins_property->setValue( $endpoint, array( $plugin ) );
+		$bulk_property->setValue( $endpoint, false );
+
+		return $action_method->invoke( $endpoint );
 	}
 
 	public function rmdir( $dir ) {
