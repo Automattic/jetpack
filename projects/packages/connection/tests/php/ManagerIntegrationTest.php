@@ -942,6 +942,49 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that a `Jetpack_Signature` error carrying NO error data at all is normalized and
+	 * stored. A blog token with an empty secret chunk passes token retrieval but makes
+	 * `Jetpack_Signature::sign_request()` return `invalid_secret` with no data — before the
+	 * normalization, such errors were silently unstorable by `wp_error_to_array()`.
+	 */
+	public function test_verify_xml_rpc_signature_stores_dataless_signature_errors() {
+		$original_server = $_SERVER;
+		$original_get    = $_GET;
+
+		Constants::set_constant( 'JETPACK__API_VERSION', 1 );
+		\Jetpack_Options::update_option( 'blog_token', 'blogkey.' );
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$_GET['token']     = 'blogkey:1:0';
+		$_GET['signature'] = 'irrelevant';
+		$_GET['timestamp'] = (string) time();
+		$_GET['nonce']     = 'testnonce2';
+
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+		$_SERVER['HTTP_HOST']      = 'example.org';
+		$_SERVER['REQUEST_URI']    = '/';
+
+		$result        = $this->manager->verify_xml_rpc_signature();
+		$stored_errors = Error_Handler::get_instance()->get_stored_errors();
+
+		// Clean up before asserting, so a failed assertion cannot leak state into other tests.
+		$_SERVER = $original_server;
+		$_GET    = $original_get;
+		remove_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+		Error_Handler::get_instance()->delete_all_errors();
+		\Jetpack_Options::delete_option( 'blog_token' );
+
+		$this->assertFalse( $result );
+		$this->assertArrayHasKey( 'invalid_secret', $stored_errors );
+		$error = $stored_errors['invalid_secret']['0'];
+		$this->assertSame( Error_Handler::ERROR_TYPE_XMLRPC, $error['error_type'] );
+		$this->assertSame( Error_Handler::DIRECTION_INCOMING, $error['error_direction'] );
+		// With no signature_details of its own, the error is attributed via the
+		// Manager-built details from the request superglobals.
+		$this->assertSame( 'blogkey:1:0', $error['error_data']['token'] );
+	}
+
+	/**
 	 * Data provider for test_remote_request_labels_outgoing_errors.
 	 *
 	 * @return array

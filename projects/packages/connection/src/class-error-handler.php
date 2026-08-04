@@ -810,11 +810,13 @@ class Error_Handler {
 	 * - `signature_details` is guaranteed to contain a `token` key (empty string when
 	 *   the error is not tied to a specific token), which `wp_error_to_array()` requires.
 	 *   The token is also what WP.com checks when verifying incoming-flow errors, so its
-	 *   key and position in the payload must not change.
+	 *   key must not be renamed.
 	 * - `error_type` and `error_direction` are validated against the class constants and
 	 *   stored as '' when the given value is not recognized. For 'local_state' errors the
 	 *   direction is always forced to '' — they describe the site's own database, not a
 	 *   request, so a direction would be meaningless and is ignored if passed.
+	 * - `$extra` cannot override the reserved keys: `signature_details`, `error_type`,
+	 *   and `error_direction` always win the merge.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -1352,7 +1354,7 @@ class Error_Handler {
 	 * @param array           $auth_data Auth data, allowed keys: `token`, `timestamp`, `nonce`, `body-hash`.
 	 * @param string          $url Request URL.
 	 * @param string          $method Request method.
-	 * @param string          $error_type The transport of the outgoing request: 'xmlrpc' or 'rest'.
+	 * @param string          $error_type The transport of the outgoing request: `ERROR_TYPE_XMLRPC` or `ERROR_TYPE_REST`.
 	 *
 	 * @return void
 	 */
