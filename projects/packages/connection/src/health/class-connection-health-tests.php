@@ -450,8 +450,10 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 			$skip_reason = __( 'Your site is in Offline Mode, so this test was skipped.', 'jetpack-connection' );
 		} elseif ( $status->in_safe_mode() ) {
 			$skip_reason = __( 'Your site is in Safe Mode, so this test was skipped.', 'jetpack-connection' );
-		} elseif ( ! ( new Manager() )->is_connected() || ! $this->pass ) {
+		} elseif ( ! ( new Manager() )->is_connected() ) {
 			$skip_reason = __( 'Your site is not communicating with WordPress.com, so this test was skipped.', 'jetpack-connection' );
+		} elseif ( ! $this->pass ) {
+			$skip_reason = __( 'A previous connection health test failed, so this test was skipped.', 'jetpack-connection' );
 		}
 
 		if ( $skip_reason ) {
