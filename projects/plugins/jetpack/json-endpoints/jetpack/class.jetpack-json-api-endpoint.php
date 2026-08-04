@@ -174,37 +174,28 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 		// error message the scalar branch used to build directly.
 		$required_capabilities = is_array( $capabilities ) ? array_values( $capabilities ) : array( $capabilities );
 
-		// Every entry must be a capability name in the exact form it will be checked in, judged at its
-		// boundaries: this rejects entries that are blank, numeric, non-string or padded, not every
-		// string that fails to name a real capability. A name mangled in its interior still reaches
-		// `current_user_can()`, where it is unmappable and so denies every ordinary user and is granted
-		// only to a network super admin, who holds every capability already. No declaration is
-		// request-derived, so that residual is a hardening gap rather than a reachable one.
+		// An entry nested inside a non-empty list survives the emptiness check above, and core treats two
+		// classes of malformed name as a grant rather than a refusal: `WP_User::has_cap()` routes anything
+		// `is_numeric()` through its legacy user-level shim, where `0` and `'0'` become `level_0` that every
+		// default role holds, and a name core cannot map to `do_not_allow` is granted outright to a network
+		// super admin. Either way `array( 0 )` or `array( ' ' )` reproduces the empty set's fail-open.
 		//
-		// An entry nested inside a non-empty list survives the emptiness check above, and core then
-		// treats two classes of malformed name as a grant rather than a refusal: `WP_User::has_cap()` routes
-		// anything `is_numeric()` through its legacy user-level shim, where `0` and `'0'` become
-		// `level_0` and every default role holds it, and a name core cannot map to `do_not_allow` is
-		// granted outright to a network super admin. Either way `array( 0 )` or `array( ' ' )` would
-		// authorize a user token, the same fail-open the empty set produced.
+		// Entries are therefore compared against their canonical form rather than repaired into it: padding
+		// is a malformed declaration, not something to strip and accept. The character class covers what
+		// PHP's byte-wise `trim()` leaves behind (form feed, NBSP, the other Unicode separators, the BOM)
+		// and also whatever PCRE's table still considers unassigned, so a boundary character newer than
+		// that table is denied rather than admitted, which is the safer direction for a guard that cannot
+		// classify it. Comparing before `is_numeric()` keeps that test stable across the supported PHP
+		// matrix, where `is_numeric( '0 ' )` is false before 8.0 and true from 8.0 on. `$canonical` is null
+		// either because `preg_replace()` cannot process invalid UTF-8 or because a non-string never
+		// reached it, and the null test is load-bearing for the second: `null !== null` is false, and
+		// `is_numeric( null )` is false too.
 		//
-		// Entries are therefore compared against their canonical form rather than repaired into it:
-		// leading or trailing whitespace is a malformed declaration, not something to strip and accept.
-		// The character class covers what PHP's byte-wise `trim()` leaves behind -- form feed, NBSP and
-		// the other Unicode separators, the BOM. `\pC` also matches whatever PCRE's own Unicode table
-		// still considers unassigned, so a name whose boundary character is newer than that table is
-		// rejected rather than accepted: an exotic false denial, deliberately preferred here over
-		// admitting a boundary character this guard cannot classify. Comparing before the `is_numeric()`
-		// test keeps that test stable across the supported PHP matrix, where `is_numeric( '0 ' )` is false before
-		// 8.0 and true from 8.0 on. `$canonical` is null for two distinct reasons -- `preg_replace()`
-		// cannot process invalid UTF-8, and a non-string entry is never passed to it -- and the null
-		// test is load-bearing for the second: `null !== null` is false, so the mismatch test does not
-		// catch a raw `null` entry and `is_numeric( null )` does not either.
-		//
-		// A wrapper with no `capabilities` key resolves to the wrapper's own metadata and lands here too,
-		// but only when that metadata is not capability-shaped: `array( 'must_pass' => 0 )` is rejected,
-		// while `array( 'must_pass' => 'read' )` is indistinguishable from the list `array( 'read' )` and
-		// gets an ordinary capability check.
+		// The check is anchored, so a name mangled in its interior still reaches `current_user_can()` by
+		// the unmappable path above. No declaration is request-derived, so that residual is a hardening
+		// gap. A wrapper with no `capabilities` key lands here too, but only when its metadata is not
+		// capability-shaped: `array( 'must_pass' => 0 )` is rejected, while `array( 'must_pass' => 'read' )`
+		// is indistinguishable from the list `array( 'read' )` and gets an ordinary capability check.
 		foreach ( $required_capabilities as $required_capability ) {
 			$canonical = is_string( $required_capability )
 				? preg_replace( '/^[\pZ\pC]+|[\pZ\pC]+$/u', '', $required_capability )

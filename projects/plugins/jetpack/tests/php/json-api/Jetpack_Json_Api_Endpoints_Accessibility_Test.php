@@ -241,13 +241,10 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * An endpoint that declares no required capabilities (like the Backup helper-script
-	 * endpoints) must only be reachable with a Jetpack blog token (site-based auth). A
-	 * low-privileged connected user token must be rejected with a 403.
-	 *
-	 * Regression test for the empty-capabilities authorization bypass: an empty
-	 * `$needed_capabilities` array previously made `check_capability()` pass for any
-	 * connected user token, letting a low-privileged user reach site-token-only endpoints.
+	 * Regression test for the empty-capabilities authorization bypass. An endpoint declaring no
+	 * required capabilities (like the Backup helper-script endpoints) must be reachable only with a
+	 * Jetpack blog token; an empty `$needed_capabilities` array previously made `check_capability()`
+	 * pass for any connected user token.
 	 *
 	 * @group json-api
 	 * @dataProvider data_provider_test_empty_capabilities_requires_site_auth
@@ -426,13 +423,11 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The deny-side rows above cover the wrapper shapes that must be rejected. These are the wrapper
-	 * shapes that instead reach a real capability check, pinned in both directions: authorized for a
-	 * capability the subscriber fixture holds (`read`), denied for one it does not (`manage_options`).
-	 * Without the authorized rows a regression that denied every wrapper declaration would leave the
-	 * suite green; without the deny row, one that authorized every wrapper unconditionally would.
-	 * Neither shape is used by any declaration in this repository; these rows fix the contract rather
-	 * than endorse the shapes.
+	 * The wrapper shapes that reach a real capability check, pinned in both directions: authorized for
+	 * a capability the subscriber fixture holds (`read`), denied for one it does not (`manage_options`).
+	 * One direction alone would stay green against a regression that denied every wrapper declaration,
+	 * or against one that authorized them all. No declaration in this repository uses either shape, so
+	 * these rows fix the contract rather than endorse it.
 	 *
 	 * @group json-api
 	 * @dataProvider data_provider_test_wrapper_shapes_reach_an_ordinary_capability_check
@@ -562,12 +557,10 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The guards' stated motivation is the network super admin, whom core grants any capability it
-	 * cannot map to `do_not_allow`. Every guard returns before `current_user_can()` runs and the only
-	 * identity-sensitive branch above them treats a subscriber and a super admin alike, so the
-	 * subscriber rows already exercise this code -- but by inspection, not by execution. Running the
-	 * scenario the guard comments name also pins it against a future identity shortcut inserted above
-	 * the guards, which the subscriber rows would not catch.
+	 * Core grants a network super admin any capability it cannot map to `do_not_allow`, which is the
+	 * fail-open these guards close. Every guard returns before `current_user_can()` runs, so the
+	 * subscriber rows already cover this path by inspection. Executing it also pins the guards against
+	 * a future identity shortcut inserted above them, which those rows would not catch.
 	 *
 	 * @group json-api
 	 * @dataProvider data_provider_test_super_admin_is_denied_on_multisite
@@ -650,22 +643,17 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 					continue;
 				}
 
-				// Exempt by name, not by structure. An earlier version of this test skipped every
-				// endpoint whose callback() is declared outside the base class, on the theory that such
-				// a class defines its own authorization path. That proxy is false: overriding callback()
-				// does not mean bypassing check_capability(), and
-				// Jetpack_JSON_API_Plugins_Modify_Endpoint overrides it, assigns a capability per action
-				// and then delegates to parent::callback(). A future endpoint in that shape that also
-				// declared no capabilities would have been skipped silently -- exactly the case this
-				// invariant exists to catch.
+				// Exempt by name, not by structure. Overriding callback() does not imply bypassing
+				// check_capability() -- Jetpack_JSON_API_Plugins_Modify_Endpoint overrides it, assigns a
+				// capability per action and delegates to parent::callback() -- so exempting every override
+				// would silently skip the endpoints this invariant exists to catch.
 				//
-				// Only one registered class genuinely needs the exemption:
-				// Jetpack_JSON_API_Check_Capabilities_Endpoint overrides callback() to hand-pass 'read'
-				// to validate_call(), never consults $needed_capabilities, and is registered without the
-				// site-auth flag, so its unset default is not a site-token declaration.
-				// Jetpack_JSON_API_Themes_Active_Endpoint is in the same "passes a literal" shape but
-				// does register the flag, so it is asserted rather than exempted: over-inclusion here
-				// costs a false alarm, while the structural proxy cost a silent miss.
+				// Only Jetpack_JSON_API_Check_Capabilities_Endpoint needs it: it hand-passes 'read' to
+				// validate_call(), never consults $needed_capabilities, and registers without the site-auth
+				// flag, so its unset default is not a site-token declaration.
+				// Jetpack_JSON_API_Themes_Active_Endpoint is the same shape but does register the flag, so
+				// it is asserted rather than exempted. Over-inclusion costs a false alarm; the structural
+				// proxy cost a silent miss.
 				if ( Jetpack_JSON_API_Check_Capabilities_Endpoint::class === $class->getName() ) {
 					continue;
 				}
