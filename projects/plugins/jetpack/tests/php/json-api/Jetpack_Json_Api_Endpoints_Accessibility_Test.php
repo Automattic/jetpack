@@ -141,6 +141,12 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 
 		$this->set_globals();
 
+		// Several tests here assert against a site (blog) token, which `is_jetpack_authorized_for_site()`
+		// recognizes only while no user is logged in. The base class clears the current user in tear_down(),
+		// but `wpSetUpBeforeClass()` and the previous class's `wpTearDownAfterClass()` both run after that,
+		// so the first test in the class would otherwise inherit whatever they left behind.
+		wp_set_current_user( 0 );
+
 		// Initialize some missing stuff for the API.
 		WPCOM_JSON_API::init()->token_details = array( 'blog_id' => $blog_id );
 	}
@@ -171,18 +177,7 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 			wp_set_current_user( self::$admin_user_id );
 		}
 
-		$this->assertEquals(
-			$result,
-			$endpoint->accepts_site_based_authentication(),
-			sprintf(
-				'DIAGNOSTIC multisite=%s global_blog_id=%s current_blog_id=%s current_user=%s token_details=%s',
-				var_export( is_multisite(), true ),
-				var_export( $GLOBALS['blog_id'] ?? null, true ),
-				var_export( get_current_blog_id(), true ),
-				var_export( get_current_user_id(), true ),
-				str_replace( "\n", ' ', var_export( WPCOM_JSON_API::init()->token_details, true ) )
-			)
-		);
+		$this->assertEquals( $result, $endpoint->accepts_site_based_authentication() );
 	}
 
 	/**
