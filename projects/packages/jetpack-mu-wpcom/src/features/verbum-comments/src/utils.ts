@@ -1,4 +1,3 @@
-import { signal } from '@preact/signals';
 import { translate } from './i18n';
 import { Facebook, Mail, WordPress } from './images';
 import type { UserInfo } from './types';
@@ -25,28 +24,7 @@ export const serviceData = {
 	},
 };
 
-/*
- * Firefox and Safari can partition this frame's cookies instead of blocking them, so the checks
- * below write and read back fine while the WordPress.com session stays out of reach. Resolves
- * after first render, so start optimistic and let the signal re-render what depends on it.
- */
-const hasUnpartitionedCookies = signal( true );
-
-document
-	.hasStorageAccess?.()
-	.then( granted => {
-		hasUnpartitionedCookies.value = granted;
-	} )
-	.catch( () => {
-		// Assume cookies are usable if the browser won't say.
-	} );
-
 export const canWeAccessCookies = () => {
-	// Our cookies are readable here, but they aren't the ones login needs.
-	if ( ! hasUnpartitionedCookies.value ) {
-		return false;
-	}
-
 	// Is a WordPress cookie already set and can we read it?
 	if ( document.cookie.includes( 'wpc_' ) ) {
 		return true;

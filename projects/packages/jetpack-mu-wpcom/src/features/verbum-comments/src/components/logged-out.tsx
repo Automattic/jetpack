@@ -82,10 +82,7 @@ export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOut
 		setActiveService( service );
 	};
 
-	const { commentParent } = useContext( VerbumSignals );
-
-	// Login is required but the login options can't render, so there is no way to comment here.
-	const isLoginBlocked = ! canWeAccessCookies && mustLogIn;
+	const { commentParent, isCommentBlocked } = useContext( VerbumSignals );
 
 	return (
 		<div className="verbum-subscriptions logged-out">
@@ -96,7 +93,7 @@ export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOut
 							{ getLoginCommentText( commentParent ) }
 						</div>
 					) }
-					{ isLoginBlocked && (
+					{ isCommentBlocked.value && (
 						<p className="verbum-subscriptions__cookie-notice">
 							{ translate(
 								'Commenting here requires cookie access. Allow cookies for this site, then reload the page.'
