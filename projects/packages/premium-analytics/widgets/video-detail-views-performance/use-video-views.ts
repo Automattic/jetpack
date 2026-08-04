@@ -169,7 +169,8 @@ function bucketDays(
  * params as the Video highlights widget, so the two share one cache entry,
  * and the chart consumes the leading `plays`/views series. The video detail
  * design has no period-over-period comparison, so comparison report params
- * are ignored (the route normalizes them out of the URL).
+ * are ignored — they ride along in the URL untouched so dashboard state
+ * survives the round trip, and every widget on this page disregards them.
  *
  * @param videoId      - The scoped video ID (0 disables the request).
  * @param reportParams - The dashboard date range.
