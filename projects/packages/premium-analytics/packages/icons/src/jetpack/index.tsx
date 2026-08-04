@@ -3,11 +3,7 @@
  */
 import { SVG, Path } from '@wordpress/primitives';
 
-/**
- * The Jetpack mark, in brand green. Unlike the neutral glyphs in this package it
- * keeps its own colors, because it identifies the product rather than decorating
- * a state.
- */
+// Keep the Jetpack brand colors instead of inheriting the package's neutral icon colors.
 export const jetpack = (
 	<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
 		<Path

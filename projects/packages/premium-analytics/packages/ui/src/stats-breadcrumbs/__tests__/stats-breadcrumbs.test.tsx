@@ -9,9 +9,7 @@ import { Breadcrumbs } from '@wordpress/admin-ui';
  */
 import { StatsBreadcrumbs } from '../stats-breadcrumbs';
 
-// `Breadcrumbs` renders through the router, which has no provider here. The
-// trail's own rendering is `@wordpress/admin-ui`'s contract; what this component
-// owns is the list of crumbs it hands over.
+// Test the items this component owns without requiring a router for `Breadcrumbs`.
 jest.mock( '@wordpress/admin-ui', () => ( {
 	Breadcrumbs: jest.fn( () => null ),
 } ) );

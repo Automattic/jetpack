@@ -16,8 +16,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
 } ) );
 
-// The barrel pulls in DataViews, which does not survive this environment, so the
-// mock reaches past it for the one real component whose output is asserted below.
+// Avoid loading DataViews while keeping the real breadcrumbs for these assertions.
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	StatsBreadcrumbs: jest.requireActual( '../../packages/ui/src/stats-breadcrumbs' )
 		.StatsBreadcrumbs,

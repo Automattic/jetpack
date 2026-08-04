@@ -1,14 +1,6 @@
-/*
- * wp-admin's `dd, li { margin-bottom: 6px }` (common.css) reaches the trail's
- * list items, so the list measures 6px taller than the text inside it. The
- * header row centres that taller box, which leaves the title sitting 3px above
- * the Jetpack mark beside it. `Breadcrumbs` resets the list's own margin but
- * not its items', so the reset lands here until it can move upstream.
- *
- * The wrapper is `display: contents` so it carries the reset without becoming a
- * box in the header row — the trail stays the flex item it already was, and the
- * current crumb keeps the shrink behaviour its truncation depends on.
- */
+/* wp-admin adds a bottom margin to list items, which misaligns the trail and
+ * page icon. `display: contents` lets the wrapper reset it without affecting
+ * breadcrumb layout. */
 .trail {
 	display: contents;
 }
