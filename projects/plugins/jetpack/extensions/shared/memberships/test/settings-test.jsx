@@ -12,7 +12,7 @@ import {
 const mockUseSelect = jest.fn();
 const mockUseEntityProp = jest.fn();
 const mockUseEntityId = jest.fn();
-const mockSaveEditedEntityRecord = jest.fn();
+let mockCanEdit = true;
 
 jest.mock( '@wordpress/core-data', () => {
 	const actual = jest.requireActual( '@wordpress/core-data' );
@@ -28,7 +28,7 @@ jest.mock( '@wordpress/editor', () => {
 	return {
 		...actual,
 		PostVisibilityCheck: ( { render: renderProp } ) =>
-			renderProp ? renderProp( { canEdit: true } ) : null,
+			renderProp ? renderProp( { canEdit: mockCanEdit } ) : null,
 	};
 } );
 
@@ -144,13 +144,11 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 
 	beforeEach( () => {
 		jest.clearAllMocks();
+		mockCanEdit = true;
 		mockUseEntityProp.mockReturnValue( [ {}, jest.fn() ] );
 		mockUseEntityId.mockReturnValue( 1 );
 		jest.spyOn( wpData, 'useSelect' ).mockImplementation( selector => {
 			return mockUseSelect( selector );
-		} );
-		jest.spyOn( wpData, 'useDispatch' ).mockReturnValue( {
-			saveEditedEntityRecord: mockSaveEditedEntityRecord,
 		} );
 	} );
 
@@ -174,6 +172,17 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 
 		render( <NewsletterEmailDocumentSettings /> );
 		expect( screen.getByLabelText( /Send as email to subscribers/i ) ).toBeInTheDocument();
+	} );
+
+	test( 'renders the setting as text, not a dead control, when the user cannot edit', () => {
+		mockCanEdit = false;
+		mockUseSelect.mockImplementation( selector =>
+			selector( createMockSelect( { email_sent_at: null, stats_on_send: null } ) )
+		);
+
+		render( <NewsletterEmailDocumentSettings /> );
+		expect( screen.queryByRole( 'radio', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Post & email' ) ).toBeInTheDocument();
 	} );
 } );
 

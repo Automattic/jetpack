@@ -327,11 +327,24 @@ export function NewsletterEmailDocumentSettings() {
 		return null;
 	}
 
+	const emailOptions = [
+		{ value: 'post-and-email', label: __( 'Post & email', 'jetpack' ) },
+		{ value: 'post-only', label: __( 'Post only', 'jetpack' ) },
+	];
+
 	return (
 		<PostVisibilityCheck
 			render={ ( { canEdit } ) => {
-				// ToggleGroupControl ignores `disabled`; only its options honour it.
-				const isLocked = isPostPublished || ! canEdit;
+				// Show the value as text rather than a control nobody can reach, matching the access
+				// panel. `disabled` on ToggleGroupControl itself does nothing, and on its options it
+				// drops the whole group out of the tab order.
+				if ( isPostPublished || ! canEdit ) {
+					return (
+						<span>
+							{ emailOptions.find( ( { value } ) => value === isSendEmailEnabled )?.label }
+						</span>
+					);
+				}
 
 				return (
 					<ToggleGroupControl
@@ -344,16 +357,9 @@ export function NewsletterEmailDocumentSettings() {
 						__nextHasNoMarginBottom={ true }
 						__next40pxDefaultSize={ true }
 					>
-						<ToggleGroupControlOption
-							label={ __( 'Post & email', 'jetpack' ) }
-							value="post-and-email"
-							disabled={ isLocked }
-						/>
-						<ToggleGroupControlOption
-							label={ __( 'Post only', 'jetpack' ) }
-							value="post-only"
-							disabled={ isLocked }
-						/>
+						{ emailOptions.map( ( { value, label } ) => (
+							<ToggleGroupControlOption key={ value } label={ label } value={ value } />
+						) ) }
 					</ToggleGroupControl>
 				);
 			} }
