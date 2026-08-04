@@ -35,6 +35,7 @@
 
 namespace Automattic\Jetpack\Reprint_Export;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -90,8 +91,16 @@ class Reprint_Exporter {
 	 * @return bool
 	 */
 	public static function is_available() {
-		$host      = new Host();
-		$available = $host->is_pressable() || $host->is_atomic_platform();
+		$host = new Host();
+
+		// Host::is_pressable() was added in jetpack-status 6.2.0. Another plugin on the
+		// site can ship an older copy of the package that wins autoloading, in which case
+		// calling the method is fatal, so fall back to the constant it reads.
+		$is_pressable = method_exists( $host, 'is_pressable' )
+			? $host->is_pressable()
+			: Constants::is_true( 'IS_PRESSABLE' );
+
+		$available = $is_pressable || $host->is_atomic_platform();
 
 		/**
 		 * Filters whether Jetpack Reprint export support is available on the
