@@ -326,6 +326,10 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
+### 16.1-beta.2 - 2026-08-04
+#### Bug fixes
+- Reprint: Avoid a fatal error when another plugin loads an older version of the Status package.
+
 ### 16.1-beta - 2026-08-03
 #### Enhancements
 - Account Protection: Add additional context to Verify your identity page to reduce user confusion.

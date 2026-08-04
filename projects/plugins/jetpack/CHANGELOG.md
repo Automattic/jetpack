@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 16.1-beta.2 - 2026-08-04
+### Bug fixes
+- Reprint: Avoid a fatal error when another plugin loads an older version of the Status package. [#51028]
+
 ## 16.1-beta - 2026-08-03
 ### Enhancements
 - AI Sidebar: Align Editorial Review enablement with the other writing-assistance features. [#50901]
