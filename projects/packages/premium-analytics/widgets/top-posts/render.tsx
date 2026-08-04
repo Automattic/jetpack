@@ -30,7 +30,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
-import { Text } from '@wordpress/ui';
+import { Text } from '@jetpack-premium-analytics/externals';
 import { useCallback, useEffect, useMemo } from 'react';
 /**
  * Internal dependencies

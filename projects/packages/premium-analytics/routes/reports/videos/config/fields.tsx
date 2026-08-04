@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
 import { useMemo } from 'react';
 import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
-import type { Field } from '@wordpress/dataviews';
+import type { Field } from '@jetpack-premium-analytics/externals';
 
 const METRIC_DATA_FORMAT = {
 	type: 'number',

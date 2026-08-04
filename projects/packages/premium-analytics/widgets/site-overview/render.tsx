@@ -13,7 +13,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { comment, globe, people, seen, starEmpty } from '@wordpress/icons';
-import { Text } from '@wordpress/ui';
+import { Text } from '@jetpack-premium-analytics/externals';
 import { useMemo } from 'react';
 /**
  * Internal dependencies

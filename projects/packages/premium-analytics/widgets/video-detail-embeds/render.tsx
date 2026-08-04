@@ -16,7 +16,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { video } from '@wordpress/icons';
-import { Link, Stack } from '@wordpress/ui';
+import { Link, Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */

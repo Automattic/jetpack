@@ -1,4 +1,4 @@
-import { Stack, Text } from '@wordpress/ui';
+import { Stack, Text } from '@jetpack-premium-analytics/externals';
 import { ReactNode } from 'react';
 import styles from './section-header.module.scss';
 

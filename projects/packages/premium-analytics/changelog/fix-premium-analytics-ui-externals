@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Route the ui, fields, and icons packages through the externals script module so shared third-party libraries are no longer duplicated across their bundles.
