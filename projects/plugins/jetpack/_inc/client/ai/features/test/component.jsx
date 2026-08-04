@@ -147,54 +147,58 @@ describe( 'AiFeatures rendering', () => {
 		).not.toBeInTheDocument();
 	} );
 
-	test( 'plan unsupported: plan notice shown, rows keep saved values but disable, links hidden', () => {
+	// A plan without paid Jetpack AI still has the free tier (every connected
+	// site gets free requests), so the paid-plan signal must not lock the page:
+	// no site-wide notice, and the free-tier features stay usable.
+	test( 'free plan: no plan notice, toggles stay usable, action links kept', () => {
 		renderFeatures( { is_connected: true, plan: { supports_ai: false } } );
 
-		expect(
-			screen.getByText( "This site's plan doesn't include Jetpack AI." )
-		).toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'Upgrade to get Jetpack AI' } ) ).toBeInTheDocument();
-
-		// Rows still render with their saved values — they are not hidden.
-		const toggle = screen.getByRole( 'checkbox', { name: /Writing Assistant/ } );
-		expect( toggle ).toBeChecked();
-		expect( toggle ).toBeDisabled();
-
-		expect( screen.queryByText( 'Try it out in the editor' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
-	} );
-
-	test( 'disconnected AND plan unsupported: the connection notice wins, no upgrade nudge', () => {
-		renderFeatures( { is_connected: false, plan: { supports_ai: false } } );
-
-		// The connection ask comes before any upgrade messaging.
-		expect( screen.getByText( 'Jetpack is not connected to WordPress.com.' ) ).toBeInTheDocument();
 		expect(
 			screen.queryByText( "This site's plan doesn't include Jetpack AI." )
 		).not.toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'link', { name: 'Upgrade to get Jetpack AI' } )
 		).not.toBeInTheDocument();
+
+		const toggle = screen.getByRole( 'checkbox', { name: /Writing Assistant/ } );
+		expect( toggle ).toBeChecked();
+		expect( toggle ).toBeEnabled();
+		expect( screen.getByText( 'Try it out in the editor' ) ).toBeInTheDocument();
 	} );
 
-	test( 'plan unsupported AND master off: the plan notice wins (it is the outer gate)', () => {
-		renderFeatures( { is_connected: true, plan: { supports_ai: false }, master_enabled: false } );
+	test( 'free plan: toggling a feature still saves', async () => {
+		const onUpdate = jest.fn().mockResolvedValue( true );
+		render(
+			<AiFeatures
+				settings={ {
+					master_enabled: true,
+					is_connected: true,
+					plan: { supports_ai: false },
+					features: { writing_assistant: { enabled: true } },
+				} }
+				savingKeys={ new Set() }
+				onUpdate={ onUpdate }
+			/>
+		);
 
-		expect(
-			screen.getByText( "This site's plan doesn't include Jetpack AI." )
-		).toBeInTheDocument();
-		expect(
-			screen.queryByText( 'Jetpack AI is turned off for this site.' )
-		).not.toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) );
+
+		expect( onUpdate ).toHaveBeenCalledWith( { features: { writing_assistant: false } } );
 	} );
 
-	test( 'plan unsupported: the "Requires upgrade" badge is not shown, even on ai_search', () => {
+	test( 'free plan: paid-only features keep their per-feature upgrade badge', () => {
 		renderFeatures( { is_connected: true, plan: { supports_ai: false } } );
 
-		// A site-level "no AI plan" notice plus a per-feature upgrade badge would
-		// be two competing upsells — the badge is suppressed.
-		expect( screen.queryByText( 'Requires upgrade' ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'checkbox', { name: /AI Search/ } ) ).toBeInTheDocument();
+		// The per-feature requires_upgrade path is the only upgrade surface —
+		// AI Search stays gated while the free-tier rows work.
+		expect( screen.getByText( 'Requires upgrade' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'checkbox', { name: /AI Search/ } ) ).toBeDisabled();
+	} );
+
+	test( 'free plan AND master off: the master-off notice shows', () => {
+		renderFeatures( { is_connected: true, plan: { supports_ai: false }, master_enabled: false } );
+
+		expect( screen.getByText( 'Jetpack AI is turned off for this site.' ) ).toBeInTheDocument();
 	} );
 
 	// Gated toggles must be inert, not merely styled disabled.
