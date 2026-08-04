@@ -17,9 +17,15 @@ import {
 	Spinner,
 } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { select, useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useState, useCallback, useEffect, createInterpolateElement } from '@wordpress/element';
+import {
+	useState,
+	useCallback,
+	useEffect,
+	useRef,
+	createInterpolateElement,
+} from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import {
 	desktop,
@@ -109,7 +115,7 @@ export function NewsletterTestEmailModal( { isOpen, onClose }: NewsletterTestEma
 		() => window?.Jetpack_Editor_Initial_State?.tracksUserData?.email ?? ''
 	);
 	const [ error, setError ] = useState< PreviewErrorInfo | null >( null );
-	const postId = useSelect( select => select( editorStore ).getCurrentPostId() );
+	const postId = useSelect( selectFn => selectFn( editorStore ).getCurrentPostId() );
 	const { __unstableSaveForPreview } = useDispatch( editorStore );
 	const { tracks } = useAnalytics();
 
@@ -319,7 +325,7 @@ const PreviewAccessSelector = ( {
 	setSelectedAccess,
 }: PreviewAccessSelectorProps ) => {
 	const isSmall = useViewportMatch( 'small', '<' );
-	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+	const postType = useSelect( selectFn => selectFn( editorStore ).getCurrentPostType(), [] );
 	const accessLevel = useAccessLevel( postType );
 	const { tracks } = useAnalytics();
 
@@ -415,12 +421,15 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId }: NewsletterP
 	);
 	const [ selectedDevice, setSelectedDevice ] = useState< PreviewDeviceName >( 'desktop' );
 	const { tracks } = useAnalytics();
+	const { __unstableSaveForPreview } = useDispatch( editorStore );
+	const fetchingAccessLevelsRef = useRef< Set< AccessLevelKey > >( new Set() );
 
 	const fetchPreview = useCallback(
 		async ( accessLevel: AccessLevelKey ) => {
-			if ( ! postId ) {
+			if ( ! postId || fetchingAccessLevelsRef.current.has( accessLevel ) ) {
 				return;
 			}
+			fetchingAccessLevelsRef.current.add( accessLevel );
 
 			setIsLoading( true );
 			setError( false );
@@ -446,18 +455,51 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId }: NewsletterP
 				setErrorCode( ( e as { code?: string } )?.code ?? null );
 			} finally {
 				setIsLoading( false );
+				fetchingAccessLevelsRef.current.delete( accessLevel );
 			}
 		},
 		[ postId, tracks ]
 	);
 
+	const saveForPreviewPromiseRef = useRef< Promise< void | Awaited<
+		ReturnType< typeof __unstableSaveForPreview >
+	> > | null >( null );
+
 	useEffect( () => {
-		if ( isOpen && ! Object.hasOwn( previewCache, selectedAccess ) ) {
-			fetchPreview( selectedAccess );
-		} else if ( isOpen ) {
-			setIsLoading( false );
+		// If the modal is closed, clear the ref so a subsequent open will trigger a save if needed.
+		if ( ! isOpen ) {
+			saveForPreviewPromiseRef.current = null;
+			return;
 		}
-	}, [ isOpen, selectedAccess, fetchPreview, previewCache ] );
+
+		// If the preview for the selected access level is already cached, don't fetch it again.
+		if ( Object.hasOwn( previewCache, selectedAccess ) ) {
+			return;
+		}
+
+		let cancelled = false;
+		if ( ! saveForPreviewPromiseRef.current ) {
+			const isPostDirty = select( editorStore ).isEditedPostDirty();
+			saveForPreviewPromiseRef.current = isPostDirty
+				? __unstableSaveForPreview().catch( () => {
+						// Best-effort: still show a preview even if the save failed (e.g.
+						// post lock) — that's at worst the pre-fix behavior, not a new failure.
+				  } )
+				: Promise.resolve();
+		}
+
+		saveForPreviewPromiseRef.current.then( () => {
+			if ( cancelled ) {
+				return;
+			}
+
+			fetchPreview( selectedAccess );
+		} );
+
+		return (): void => {
+			cancelled = true;
+		};
+	}, [ isOpen, selectedAccess, previewCache, fetchPreview, __unstableSaveForPreview ] );
 
 	useEffect( () => {
 		if ( isOpen ) {

@@ -57,8 +57,8 @@ describe( 'Email preview connection errors', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockIsUserConnected = true;
-		useSelect.mockImplementation( () => 123 );
-		useDispatch.mockReturnValue( {
+		jest.mocked( useSelect ).mockImplementation( () => 123 );
+		jest.mocked( useDispatch ).mockReturnValue( {
 			__unstableSaveForPreview: jest.fn().mockResolvedValue( undefined ),
 		} );
 	} );
@@ -87,7 +87,7 @@ describe( 'Email preview connection errors', () => {
 
 	it( 'prompts the user to connect when sending a test email fails with a missing connection', async () => {
 		const user = userEvent.setup();
-		apiFetch.mockRejectedValue( MISSING_CONNECTION_ERROR );
+		jest.mocked( apiFetch ).mockRejectedValue( MISSING_CONNECTION_ERROR );
 
 		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
 
@@ -99,7 +99,7 @@ describe( 'Email preview connection errors', () => {
 
 	it( 'surfaces the raw message for non-connection send errors', async () => {
 		const user = userEvent.setup();
-		apiFetch.mockRejectedValue( { code: 'rest_something_else', message: 'Boom' } );
+		jest.mocked( apiFetch ).mockRejectedValue( { code: 'rest_something_else', message: 'Boom' } );
 
 		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
 
@@ -112,7 +112,7 @@ describe( 'Email preview connection errors', () => {
 	} );
 
 	it( 'prompts the user to connect when the HTML preview fails with a missing connection', async () => {
-		apiFetch.mockRejectedValue( MISSING_CONNECTION_ERROR );
+		jest.mocked( apiFetch ).mockRejectedValue( MISSING_CONNECTION_ERROR );
 
 		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
 
@@ -121,7 +121,7 @@ describe( 'Email preview connection errors', () => {
 	} );
 
 	it( 'shows the generic error (with retry) for non-connection preview errors', async () => {
-		apiFetch.mockRejectedValue( { code: 'rest_something_else', message: 'Boom' } );
+		jest.mocked( apiFetch ).mockRejectedValue( { code: 'rest_something_else', message: 'Boom' } );
 
 		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
 
