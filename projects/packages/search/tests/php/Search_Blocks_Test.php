@@ -3175,6 +3175,135 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * Instant Search query-customization options seed into the blocks store
+	 * so Embedded / Overlay Blocks honor the same `jetpack_instant_search_options`
+	 * filter as Instant Search and Inline Search.
+	 */
+	public function test_get_instant_search_query_options_defaults() {
+		$options = Search_Blocks::get_instant_search_query_options();
+		$this->assertFalse( $options['highlightPhraseOnly'] );
+		$this->assertSame( array(), $options['highlightFilterStopwords'] );
+		$this->assertNull( $options['highlightFields'] );
+		$this->assertSame( array(), $options['additionalBlogIds'] );
+		$this->assertNull( $options['adminQueryFilter'] );
+		$this->assertSame( array(), $options['customResults'] );
+	}
+
+	/**
+	 * Highlight + admin filter + customResults keys from the Instant Search
+	 * options filter round-trip into the helper used by the seed.
+	 */
+	public function test_get_instant_search_query_options_reads_filter() {
+		$callback = static function ( $options ) {
+			$options['highlightPhraseOnly']      = true;
+			$options['highlightFilterStopwords'] = array( 'the', 'a', '' );
+			$options['highlightFields']          = array( 'title', '' );
+			$options['additionalBlogIds']        = array( 123, 456 );
+			$options['adminQueryFilter']         = array(
+				'term' => array( 'post_type' => 'post' ),
+			);
+			$options['customResults']            = array(
+				array(
+					'pattern' => 'hello',
+					'ids'     => array( 11, 22 ),
+				),
+				array(
+					'pattern' => 'missing-ids',
+				),
+			);
+			return $options;
+		};
+		$options  = array(
+			'highlightPhraseOnly'      => false,
+			'highlightFilterStopwords' => array(),
+			'highlightFields'          => null,
+			'additionalBlogIds'        => array(),
+			'adminQueryFilter'         => null,
+			'customResults'            => array(),
+		);
+		add_filter( 'jetpack_instant_search_options', $callback );
+		try {
+			$options = Search_Blocks::get_instant_search_query_options();
+		} finally {
+			remove_filter( 'jetpack_instant_search_options', $callback );
+		}
+
+		$this->assertTrue( $options['highlightPhraseOnly'] );
+		// Stopwords drop when combined with phrase-only — the API rejects both together.
+		$this->assertSame( array(), $options['highlightFilterStopwords'] );
+		$this->assertSame( array( 'title' ), $options['highlightFields'] );
+		$this->assertSame( array( 123, 456 ), $options['additionalBlogIds'] );
+		$this->assertSame(
+			array( 'term' => array( 'post_type' => 'post' ) ),
+			$options['adminQueryFilter']
+		);
+		$this->assertSame(
+			array(
+				array(
+					'pattern' => 'hello',
+					'ids'     => array( 11, 22 ),
+				),
+			),
+			$options['customResults']
+		);
+	}
+
+	/**
+	 * `build_initial_state()` surfaces the Instant Search query options so
+	 * the Interactivity API store can forward them on every fetch.
+	 */
+	public function test_build_initial_state_seeds_instant_search_query_options() {
+		$callback = static function ( $options ) {
+			// Stopwords only — combining with phrase-only would drop them (API constraint).
+			$options['highlightFilterStopwords'] = array( 'the' );
+			$options['highlightFields']          = array( 'title', 'content' );
+			$options['additionalBlogIds']        = array( 99 );
+			$options['adminQueryFilter']         = array(
+				'term' => array( 'post_type' => 'page' ),
+			);
+			$options['customResults']            = array(
+				array(
+					'pattern' => 'promo',
+					'ids'     => array( 5 ),
+				),
+			);
+			return $options;
+		};
+		$state    = array(
+			'highlightPhraseOnly'      => false,
+			'highlightFilterStopwords' => array(),
+			'highlightFields'          => null,
+			'additionalBlogIds'        => array(),
+			'adminQueryFilter'         => null,
+			'customResults'            => array(),
+		);
+		add_filter( 'jetpack_instant_search_options', $callback );
+		try {
+			$state = Search_Blocks::build_initial_state();
+		} finally {
+			remove_filter( 'jetpack_instant_search_options', $callback );
+		}
+
+		$this->assertFalse( $state['highlightPhraseOnly'] );
+		$this->assertSame( array( 'the' ), $state['highlightFilterStopwords'] );
+		$this->assertSame( array( 'title', 'content' ), $state['highlightFields'] );
+		$this->assertSame( array( 99 ), $state['additionalBlogIds'] );
+		$this->assertSame(
+			array( 'term' => array( 'post_type' => 'page' ) ),
+			$state['adminQueryFilter']
+		);
+		$this->assertSame(
+			array(
+				array(
+					'pattern' => 'promo',
+					'ids'     => array( 5 ),
+				),
+			),
+			$state['customResults']
+		);
+	}
+
+	/**
 	 * The resolver routes mapped slugs to their slot and unmapped slugs to
 	 * Themselves. Built-in slugs (covered by their own filter variations)
 	 * Always return verbatim regardless of map content, so a stray entry
