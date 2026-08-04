@@ -1,7 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { store as coreDataStore } from '@wordpress/core-data';
 import * as wpData from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
 import useClearPhantomMetaDirt from '../use-clear-phantom-meta-dirt';
 
 const CRDT = '_crdt_document';
@@ -10,16 +9,14 @@ const mockEditEntityRecord = jest.fn();
 let state;
 
 const setup = ( stagedMeta, persistedMeta ) => {
-	state = { isSaving: false, isAutosaving: false, saveSucceeded: true, stagedMeta, persistedMeta };
+	state = { isSaving: false, isAutosaving: false, saveError: undefined, stagedMeta, persistedMeta };
 };
 
-// Renders the hook and drives it through save-start and save-finish. `duringSave` lets a test
-// simulate the writer editing meta while the request is in flight.
-const runSave = duringSave => {
+// Renders the hook and drives it through the start and end of an entity save request.
+const runSave = () => {
 	const { rerender } = renderHook( () => useClearPhantomMetaDirt( 'post', 1 ) );
 	state.isSaving = true;
 	rerender();
-	duringSave?.();
 	state.isSaving = false;
 	state.isAutosaving = false;
 	rerender();
@@ -35,28 +32,26 @@ describe( 'useClearPhantomMetaDirt', () => {
 		jest.spyOn( wpData, 'useDispatch' ).mockReturnValue( {
 			editEntityRecord: mockEditEntityRecord,
 		} );
-		jest
-			.spyOn( wpData, 'useSelect' )
-			.mockImplementation( selector =>
-				selector( store =>
-					store === editorStore
-						? { isSavingPost: () => state.isSaving, isAutosavingPost: () => state.isAutosaving }
-						: {}
-				)
-			);
+		jest.spyOn( wpData, 'useSelect' ).mockImplementation( selector =>
+			selector( store =>
+				store === coreDataStore
+					? {
+							isSavingEntityRecord: () => state.isSaving,
+							isAutosavingEntityRecord: () => state.isAutosaving,
+					  }
+					: {}
+			)
+		);
 		jest.spyOn( wpData, 'useRegistry' ).mockReturnValue( {
-			select: store => {
-				if ( store === coreDataStore ) {
-					return {
-						getEntityRecordEdits: () =>
-							state.stagedMeta ? { meta: state.stagedMeta } : undefined,
-						getRawEntityRecord: () => ( { meta: state.persistedMeta } ),
-					};
-				}
-				return store === editorStore
-					? { didPostSaveRequestSucceed: () => state.saveSucceeded }
-					: {};
-			},
+			select: store =>
+				store === coreDataStore
+					? {
+							getEntityRecordEdits: () =>
+								state.stagedMeta ? { meta: state.stagedMeta } : undefined,
+							getLastEntitySaveError: () => state.saveError,
+							getRawEntityRecord: () => ( { meta: state.persistedMeta } ),
+					  }
+					: {},
 		} );
 	} );
 
@@ -66,14 +61,12 @@ describe( 'useClearPhantomMetaDirt', () => {
 		wpData.useRegistry.mockRestore();
 	} );
 
-	test( 'realigns the stale CRDT snapshot and any value the server altered', () => {
-		setup( { [ CRDT ]: 'blob-A', paywalled: false }, { [ CRDT ]: 'blob-B', paywalled: true } );
+	test( 'realigns the stale CRDT snapshot', () => {
+		setup( { [ CRDT ]: 'blob-A', paywalled: false }, { [ CRDT ]: 'blob-B', paywalled: false } );
 
 		runSave();
 
-		expect( mockEditEntityRecord ).toHaveBeenCalledWith(
-			...realignCall( { [ CRDT ]: 'blob-B', paywalled: true } )
-		);
+		expect( mockEditEntityRecord ).toHaveBeenCalledWith( ...realignCall( { [ CRDT ]: 'blob-B' } ) );
 	} );
 
 	test( 'restores a key the staged meta dropped, which alone keeps the post dirty', () => {
@@ -84,35 +77,38 @@ describe( 'useClearPhantomMetaDirt', () => {
 		expect( mockEditEntityRecord ).toHaveBeenCalledWith( ...realignCall( { tier_id: 42 } ) );
 	} );
 
-	test( 'leaves a key the writer changed while the save was in flight', () => {
+	test( 'leaves a diverged value alone, since it may be an edit that was never sent', () => {
 		setup(
-			{ [ CRDT ]: 'blob-A', access: 'everybody' },
+			{ [ CRDT ]: 'blob-A', access: 'subscribers' },
 			{ [ CRDT ]: 'blob-B', access: 'everybody' }
 		);
 
-		runSave( () => {
-			state.stagedMeta = { [ CRDT ]: 'blob-A', access: 'subscribers' };
-		} );
+		runSave();
 
 		expect( mockEditEntityRecord ).toHaveBeenCalledWith( ...realignCall( { [ CRDT ]: 'blob-B' } ) );
 	} );
 
-	test( 'no-op after an autosave, which never carries meta', () => {
+	test( 'no-op when the editor saves but no entity request runs, as when preSavePost rejects', () => {
 		setup( { [ CRDT ]: 'blob-A' }, { [ CRDT ]: 'blob-B' } );
 
 		const { rerender } = renderHook( () => useClearPhantomMetaDirt( 'post', 1 ) );
-		state.isSaving = true;
+		rerender();
+
+		expect( mockEditEntityRecord ).not.toHaveBeenCalled();
+	} );
+
+	test( 'no-op after an autosave, which mints no CRDT snapshot', () => {
+		setup( { [ CRDT ]: 'blob-A' }, { [ CRDT ]: 'blob-B' } );
 		state.isAutosaving = true;
-		rerender();
-		state.isSaving = false;
-		rerender();
+
+		runSave();
 
 		expect( mockEditEntityRecord ).not.toHaveBeenCalled();
 	} );
 
 	test( 'no-op when the save failed', () => {
 		setup( { [ CRDT ]: 'blob-A' }, { [ CRDT ]: 'blob-B' } );
-		state.saveSucceeded = false;
+		state.saveError = { message: 'nope' };
 
 		runSave();
 

@@ -266,6 +266,8 @@ export default function SubscribePanels() {
 	const { tracks } = useAnalytics();
 	const accessLevel = useAccessLevel( postType );
 
+	// Must stay above the early returns below: the paywall block and the command palette set
+	// access meta on post types this panel doesn't render for.
 	useClearPhantomMetaDirt( postType, postId );
 
 	// Subscriptions are only available for posts. Additionally, we will allow access level selector for pages.

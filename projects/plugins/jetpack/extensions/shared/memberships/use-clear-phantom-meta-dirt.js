@@ -1,15 +1,15 @@
 import { store as coreDataStore } from '@wordpress/core-data';
 import { useDispatch, useRegistry, useSelect } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useRef } from '@wordpress/element';
 
-const isSame = ( a, b ) => JSON.stringify( a ) === JSON.stringify( b );
+// Not exported by @wordpress/core-data; see its utils/crdt.
+const CRDT_META_KEY = '_crdt_document';
 
 /**
  * Clears the phantom "unsaved changes" state a post meta edit leaves behind under real-time
  * collaboration. A fresh `_crdt_document` is serialized into the save payload after the edit was
  * staged, so core-data's whole-object `meta` comparison never matches and the post reads
- * "Save draft" forever. After a successful save, realign the keys that save round-tripped.
+ * "Save draft" forever. After a successful save, realign that key against the persisted record.
  * No-op when collaboration is off, and once this is fixed upstream.
  *
  * @param {string} postType - Post type being edited.
@@ -18,40 +18,35 @@ const isSame = ( a, b ) => JSON.stringify( a ) === JSON.stringify( b );
 export default function useClearPhantomMetaDirt( postType, postId ) {
 	const { editEntityRecord } = useDispatch( coreDataStore );
 	const registry = useRegistry();
-	const { isSaving, isAutosaving } = useSelect( select => {
-		const { isSavingPost, isAutosavingPost } = select( editorStore );
-		return { isSaving: isSavingPost(), isAutosaving: isAutosavingPost() };
-	}, [] );
+	// Tracks the entity request, not the editor's save cycle: that cycle also completes when
+	// `editor.preSavePost` rejects and no request was ever made. Autosaves skip `prePersist`,
+	// so they mint no snapshot to reconcile.
+	const isSaving = useSelect(
+		select => {
+			const { isSavingEntityRecord, isAutosavingEntityRecord } = select( coreDataStore );
+			return (
+				!! postType &&
+				!! postId &&
+				isSavingEntityRecord( 'postType', postType, postId ) &&
+				! isAutosavingEntityRecord( 'postType', postType, postId )
+			);
+		},
+		[ postType, postId ]
+	);
 	const wasSavingRef = useRef( false );
-	const sentMetaRef = useRef( null );
 
 	useEffect( () => {
-		const started = ! wasSavingRef.current && isSaving;
 		const finished = wasSavingRef.current && ! isSaving;
 		wasSavingRef.current = isSaving;
-
-		if ( ! postId || ! postType ) {
-			return;
-		}
-
-		const { getEntityRecordEdits, getRawEntityRecord } = registry.select( coreDataStore );
-
-		if ( started ) {
-			// Autosaves carry no meta, so reconciling against one would revert unsaved edits.
-			sentMetaRef.current = isAutosaving
-				? null
-				: getEntityRecordEdits( 'postType', postType, postId )?.meta ?? null;
-			return;
-		}
 
 		if ( ! finished ) {
 			return;
 		}
 
-		const sentMeta = sentMetaRef.current;
-		sentMetaRef.current = null;
+		const { getEntityRecordEdits, getLastEntitySaveError, getRawEntityRecord } =
+			registry.select( coreDataStore );
 
-		if ( ! sentMeta || ! registry.select( editorStore ).didPostSaveRequestSucceed() ) {
+		if ( getLastEntitySaveError( 'postType', postType, postId ) ) {
 			return;
 		}
 
@@ -63,14 +58,12 @@ export default function useClearPhantomMetaDirt( postType, postId ) {
 		}
 
 		const realigned = {};
-		for ( const key of Object.keys( sentMeta ) ) {
-			// Changed again mid-save: a real pending edit, not save residue.
-			if ( ! isSame( staged[ key ], sentMeta[ key ] ) ) {
-				continue;
-			}
-			if ( ! isSame( staged[ key ], persisted[ key ] ) ) {
-				realigned[ key ] = persisted[ key ];
-			}
+		// Only the CRDT blob: nothing in the editor edits it, so adopting the persisted copy cannot
+		// discard a pending change. Other diverged keys stay dirty, because the payload is
+		// snapshotted before the request starts and never becomes observable -- a value the server
+		// altered is indistinguishable from an edit that was never sent.
+		if ( staged[ CRDT_META_KEY ] !== persisted[ CRDT_META_KEY ] ) {
+			realigned[ CRDT_META_KEY ] = persisted[ CRDT_META_KEY ];
 		}
 		// A key the staged copy dropped fails the whole-object comparison on its own.
 		for ( const key of Object.keys( persisted ) ) {
@@ -82,5 +75,5 @@ export default function useClearPhantomMetaDirt( postType, postId ) {
 		if ( Object.keys( realigned ).length ) {
 			editEntityRecord( 'postType', postType, postId, { meta: realigned }, { undoIgnore: true } );
 		}
-	}, [ isSaving, isAutosaving, postId, postType, registry, editEntityRecord ] );
+	}, [ isSaving, postId, postType, registry, editEntityRecord ] );
 }
