@@ -157,7 +157,6 @@ function Dashboard(): JSX.Element {
 			<DateFiltersPanel { ...dateFilters } />
 		);
 
-
 	return (
 		<GlobalErrorProvider>
 			<WidgetDashboard

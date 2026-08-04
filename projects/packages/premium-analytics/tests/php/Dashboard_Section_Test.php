@@ -166,6 +166,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * The built-in Insights section offers the year date filter; the rest keep the range.
 	 */
 	public function test_built_in_sections_declare_their_date_filters() {
+		// The Store section is also gated on the current user's capabilities, so
+		// the availability filter alone no longer surfaces it.
+		$this->set_admin_user();
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
 
 		register_default_dashboard_sections();
