@@ -282,11 +282,11 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 	public function test_activate_keeps_error_code_and_adds_already_active_reason() {
 		wp_set_current_user( self::$super_admin_user_id );
 		$this->install_the_plugin();
-		activate_plugin( 'the/the.php' );
+		$active_filter = $this->pretend_plugin_is_active( 'the/the.php' );
 
 		$result = $this->invoke_plugin_modify_action( 'activate', 'the/the.php' );
 
-		deactivate_plugins( 'the/the.php' );
+		remove_filter( 'option_active_plugins', $active_filter );
 		$this->remove_the_plugin();
 
 		$this->assertWPError( $result );
@@ -320,7 +320,7 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 	public function test_deactivate_keeps_deactivation_error_code_for_failure() {
 		wp_set_current_user( self::$super_admin_user_id );
 		$this->install_the_plugin();
-		activate_plugin( 'the/the.php' );
+		$active_filter        = $this->pretend_plugin_is_active( 'the/the.php' );
 		$prevent_deactivation = function ( $_new_value, $old_value ) {
 			return $old_value;
 		};
@@ -329,7 +329,7 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 		$result = $this->invoke_plugin_modify_action( 'deactivate', 'the/the.php' );
 
 		remove_filter( 'pre_update_option_active_plugins', $prevent_deactivation, 10 );
-		deactivate_plugins( 'the/the.php' );
+		remove_filter( 'option_active_plugins', $active_filter );
 		$this->remove_the_plugin();
 
 		$this->assertWPError( $result );
@@ -353,7 +353,6 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 		$result = $this->invoke_plugin_modify_action( 'activate', 'the/the.php' );
 
 		remove_filter( 'pre_update_option_active_plugins', $prevent_activation, 10 );
-		deactivate_plugins( 'the/the.php' );
 		$this->remove_the_plugin();
 
 		$this->assertWPError( $result );
@@ -438,6 +437,27 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 
 	public function filesystem_method_direct() {
 		return 'direct';
+	}
+
+	/**
+	 * Report a plugin as active without writing the `active_plugins` option.
+	 *
+	 * Anything hooked to `pre_update_option_active_plugins` sees every write to
+	 * that option, and wpcomsh appends its always-active plugins to the value.
+	 * Those plugins are not installed in the test environment, so a real
+	 * activation leaves the option pointing at files that don't exist, and any
+	 * later test that reads plugin headers for the active plugins warns.
+	 *
+	 * @param string $plugin The plugin file to report as active.
+	 * @return callable The filter callback, for `remove_filter()`.
+	 */
+	private function pretend_plugin_is_active( $plugin ) {
+		$callback = function () use ( $plugin ) {
+			return array( $plugin );
+		};
+		add_filter( 'option_active_plugins', $callback );
+
+		return $callback;
 	}
 
 	/**
