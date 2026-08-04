@@ -84,7 +84,11 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * An older Status package loaded by another plugin must not make Jetpack fatal.
+	 * Status 6.1.5 loaded by another plugin must not make Jetpack fatal.
+	 *
+	 * The fixture includes every public Host method from 6.1.5. This lets
+	 * longstanding method calls work normally while ensuring calls to methods
+	 * added in later Status versions are guarded for compatibility.
 	 */
 	public function test_available_with_legacy_status_host() {
 		$script = dirname( __DIR__ ) . '/fixtures/reprint-export-legacy-status-host.php';
