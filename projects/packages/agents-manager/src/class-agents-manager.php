@@ -322,6 +322,7 @@ class Agents_Manager {
 			'agentProviders'       => $agent_providers,
 			'useUnifiedExperience' => $use_unified_experience,
 			'isDevMode'            => self::is_dev_mode(),
+			'isDotcomSite'         => ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_platform(),
 			'sectionName'          => apply_filters( 'agents_manager_section_name', $variant ),
 			'currentUser'          => $this->get_current_user_data(),
 			'site'                 => $this->get_current_site(),
