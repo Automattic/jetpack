@@ -21,6 +21,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withStoryRouter } from '../../stories/with-story-router';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import PopularPostRender from '../render';
 import widgetDefinition from '../widget';
@@ -78,7 +79,7 @@ type Story = StoryObj< Partial< ComponentProps< typeof PopularPostRender > > >;
  */
 export const Default: Story = {
 	render: renderPopularPost,
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 /**
@@ -89,7 +90,7 @@ export const Loading: Story = {
 	render: () => renderPopularPostOnPreset( 'last-90-days' ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		forceStatsMockState( 'stats/top-posts', 'loading' );
 		return () => forceStatsMockState( 'stats/top-posts', null );
@@ -103,7 +104,7 @@ export const Loading: Story = {
 export const Error: Story = {
 	render: () => renderPopularPostOnPreset( 'last-7-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		forceStatsMockState( 'stats/top-posts', 'error' );
 		return () => forceStatsMockState( 'stats/top-posts', null );
@@ -117,7 +118,7 @@ export const Error: Story = {
 export const ErrorRetryable: Story = {
 	render: () => renderPopularPostOnPreset( 'last-12-months' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		forceStatsMockState( 'stats/top-posts', 'error-retryable' );
 		return () => forceStatsMockState( 'stats/top-posts', null );
@@ -133,7 +134,7 @@ export const Empty: Story = {
 	// query key and serve this story's cached empty result there instead.
 	render: () => renderPopularPostOnPreset( 'last-year' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		forceStatsMockState( 'stats/top-posts', 'empty' );
 		return () => forceStatsMockState( 'stats/top-posts', null );
