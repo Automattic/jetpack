@@ -323,9 +323,6 @@ export default function SubscribersDataViews( {
 
 	const isSelfOnly = ! hasActiveFiltersOrSearch && totalItems === 1 && !! data?.is_owner_subscribed;
 
-	// Reported up rather than re-derived by the header, which would have to repeat the query: the
-	// params come from this component's `view` state, so the parent has no key to read the cache
-	// with. Costs one extra render pass per change of the flag, which only a data refetch can do.
 	useEffect( () => {
 		onSelfOnlyChange( isSelfOnly );
 	}, [ isSelfOnly, onSelfOnlyChange ] );

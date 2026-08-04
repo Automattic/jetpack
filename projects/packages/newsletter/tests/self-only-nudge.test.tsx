@@ -1,11 +1,4 @@
-// The nudge arrives on its own once the subscribers query resolves and portals to the end of
-// `<body>`, so it carries a live-region role to be announced where it stands rather than taking
-// focus off whatever the viewer is doing. "Got it" is the only thing that closes it.
-// `@wordpress/ui` is stubbed to plain elements; the real `Popover` renders so the assertions run
-// against the focus and attribute behaviour it actually emits.
 jest.mock( '@wordpress/ui', () => {
-	// Button forwards its ref like the real one, so `HeaderActions` can hand the DOM node to the
-	// nudge as its anchor.
 	const { forwardRef } = jest.requireActual( 'react' );
 
 	return {
@@ -30,7 +23,6 @@ jest.mock( '../_inc/subscribers/lib/tracks', () => ( {
 	recordTracksEvent: jest.fn(),
 } ) );
 
-// Imports must come after the jest.mock factories above.
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useCallback, useState } from '@wordpress/element';
 import HeaderActions from '../_inc/subscribers/components/header-actions';
@@ -60,9 +52,6 @@ function Harness( { onDismiss, show = true }: { onDismiss: () => void; show?: bo
 }
 
 describe( 'SelfOnlyNudge', () => {
-	// `Popover` positions itself asynchronously, so let that settle before asserting — otherwise
-	// the pending state update lands outside `act()`. It also leaves the bubble at `opacity: 0`
-	// until floating-ui measures, which jsdom never does, so assert presence, not visibility.
 	it( 'announces itself through a live region, since it appears unprompted', async () => {
 		render( <Harness onDismiss={ jest.fn() } /> );
 
@@ -76,7 +65,6 @@ describe( 'SelfOnlyNudge', () => {
 		const search = screen.getByRole( 'textbox', { name: 'Search subscribers' } );
 		search.focus();
 
-		// The query resolves and the nudge mounts underneath the viewer.
 		rerender( <Harness onDismiss={ jest.fn() } show /> );
 		await expect( screen.findByRole( 'status' ) ).resolves.toBeInTheDocument();
 
@@ -88,12 +76,10 @@ describe( 'SelfOnlyNudge', () => {
 		render( <Harness onDismiss={ onDismiss } /> );
 		await expect( screen.findByRole( 'status' ) ).resolves.toBeInTheDocument();
 
-		// The package doesn't pull in @testing-library/user-event, so dispatch events directly.
 		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.click( screen.getByRole( 'button', { name: 'Got it' } ) );
 
 		expect( onDismiss ).toHaveBeenCalled();
-		// "Got it" is about to unmount, so focus has to be handed somewhere deliberate.
 		expect( screen.getByRole( 'button', { name: 'Add subscribers' } ) ).toHaveFocus();
 	} );
 
@@ -158,7 +144,6 @@ describe( 'self-only nudge dismissal', () => {
 		const { rerender } = render( <BodyHarness isSelfOnly isMounted /> );
 		await dismiss();
 
-		// A search drops the self-only state; clearing it brings the state back, but not the nudge.
 		rerender( <BodyHarness isSelfOnly={ false } isMounted /> );
 		rerender( <BodyHarness isSelfOnly isMounted /> );
 

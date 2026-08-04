@@ -21,12 +21,8 @@ type Props = {
  * @return Popover, or null before the anchor mounts.
  */
 export default function SelfOnlyNudge( { anchor, onDismiss }: Props ): JSX.Element | null {
-	// No room beside the button once wp-admin goes mobile, so drop it under the button instead.
 	const isNarrow = useViewportMatch( 'medium', '<' );
 
-	// Dismissing unmounts the bubble, which would strand focus on `document.body` when it was the
-	// "Got it" button that just went away. Hand it to the anchor instead. `focusOnMount={ false }`
-	// also switches off `Popover`'s own focus return, so this is the only thing moving focus here.
 	const handleDismiss = useCallback( () => {
 		onDismiss();
 		anchor?.focus();
@@ -36,7 +32,6 @@ export default function SelfOnlyNudge( { anchor, onDismiss }: Props ): JSX.Eleme
 		return null;
 	}
 
-	// `left`/`right` are physical, so mirror them to keep the bubble on the inline-start side.
 	const inlineStartPlacement = isRTL() ? 'right-start' : 'left-start';
 
 	return (
@@ -45,11 +40,7 @@ export default function SelfOnlyNudge( { anchor, onDismiss }: Props ): JSX.Eleme
 			placement={ isNarrow ? 'bottom-end' : inlineStartPlacement }
 			offset={ 8 }
 			noArrow={ false }
-			// Default `resize` shrinks the bubble to the room above the anchor, down to a scrolling sliver.
 			resize={ false }
-			// The bubble arrives on its own whenever the subscribers query resolves, so it must not
-			// pull focus off whatever the viewer is already doing. `role="status"` announces it
-			// where it stands instead, and "Got it" is how it goes away.
 			focusOnMount={ false }
 			onClose={ handleDismiss }
 			role="status"
