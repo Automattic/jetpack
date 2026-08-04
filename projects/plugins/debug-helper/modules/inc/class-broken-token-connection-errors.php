@@ -306,12 +306,18 @@ class Broken_Token_Connection_Errors {
 			'signature' => 'sdf234fe',
 		);
 
-		return Error_Handler::build_connection_wp_error(
+		// Build the error data array by hand rather than through
+		// Error_Handler::build_connection_wp_error(): this plugin runs against whatever
+		// connection package the site ships, and the factory may not exist there yet.
+		// Older packages simply ignore the error_direction key.
+		return new \WP_Error(
 			$error_code,
 			'An error was triggered',
-			$signature_details,
-			$error_type,
-			$error_direction
+			array(
+				'signature_details' => $signature_details,
+				'error_type'        => $error_type,
+				'error_direction'   => $error_direction,
+			)
 		);
 	}
 
