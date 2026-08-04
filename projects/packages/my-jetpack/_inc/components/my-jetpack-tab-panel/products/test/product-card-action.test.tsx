@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router';
 import { ProductCamelCase } from '../../../../data/types';
 import { MyJetpackModule } from '../../../../types';
 import { setPendingSuccessNotice } from '../pending-notice';
@@ -48,6 +49,11 @@ const formsModule = { available: true, activated: true } as unknown as MyJetpack
 describe( 'ProductCardAction', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		// The suite renders as an internal tester by default so the AI toggle is
+		// visible; the pre-release gate tests below override this per test.
+		window.myJetpackInitialState = {
+			myJetpackFlags: { showAiModuleToggle: true },
+		} as unknown as Window[ 'myJetpackInitialState' ];
 	} );
 
 	it( 'renders the activation toggle for the Forms product instead of a Learn more link', () => {
@@ -88,6 +94,35 @@ describe( 'ProductCardAction', () => {
 		);
 
 		expect( screen.getByRole( 'checkbox' ) ).toBeChecked();
+	} );
+
+	it( 'pre-release gate: hides the AI toggle without the showAiModuleToggle flag', () => {
+		// Outside internal testing environments the AI card keeps its standard
+		// action: an inactive free product falls through to "Learn more".
+		window.myJetpackInitialState = {
+			myJetpackFlags: {},
+		} as unknown as Window[ 'myJetpackInitialState' ];
+		// UpgradeAction navigates to the interstitial, so it needs a router.
+		render(
+			<MemoryRouter>
+				<ProductCardAction
+					product={ buildProduct( { slug: 'jetpack-ai', name: 'AI', status: 'inactive' } ) }
+					module={ formsModule }
+				/>
+			</MemoryRouter>
+		);
+
+		expect( screen.getByRole( 'button', { name: /learn more/i } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'pre-release gate: the Forms toggle is unaffected by the flag', () => {
+		window.myJetpackInitialState = {
+			myJetpackFlags: {},
+		} as unknown as Window[ 'myJetpackInitialState' ];
+		render( <ProductCardAction product={ buildProduct() } module={ formsModule } /> );
+
+		expect( screen.getByRole( 'checkbox' ) ).toBeInTheDocument();
 	} );
 
 	it( 'disables the toggle when the Forms module is unavailable', () => {
