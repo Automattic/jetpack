@@ -23,11 +23,6 @@ import { resolveTabId } from './config';
 type PostDetailParams = { postId?: string };
 type PostDetailSearch = Record< string, string | undefined >;
 
-// The post detail design has no period-over-period comparison, so these
-// params are normalized out of the URL — whether hand-edited in, carried over
-// from another report, or added by the default date seed.
-const COMPARISON_SEARCH_PARAMS = [ 'comp', 'compare_from', 'compare_to', 'compare_preset' ];
-
 /**
  * Whether a raw path param is a valid single-post scope (a positive integer).
  *
@@ -82,11 +77,8 @@ export const route = {
 		const needsDateSeed = needsReportDateParamsSeed( currentSearch );
 		const needsPostSeed = currentSearch.post_id !== postId;
 		const needsSectionSeed = !! currentSearch.section && resolvedSection !== currentSearch.section;
-		const hasComparisonParams = COMPARISON_SEARCH_PARAMS.some(
-			param => currentSearch[ param ] !== undefined
-		);
 
-		if ( needsDateSeed || needsPostSeed || needsSectionSeed || hasComparisonParams ) {
+		if ( needsDateSeed || needsPostSeed || needsSectionSeed ) {
 			/*
 			 * Seed dates in the site timezone, not the browser's, by waiting for
 			 * core `site` settings. A rejection here shouldn't error the whole
@@ -111,12 +103,13 @@ export const route = {
 				post_id: postId,
 			};
 
-			// `normalizeReportParams` carries incoming comparison params through
-			// (and adds the default comparison on a fresh load); this page has no
-			// comparison, so drop them before they reach the URL and the widgets.
-			for ( const param of COMPARISON_SEARCH_PARAMS ) {
-				delete seeded[ param ];
-			}
+			/*
+			 * Comparison params ride along untouched: this page renders no
+			 * comparison (its widgets ignore them), but the breadcrumb's
+			 * dashboard link carries the URL state back out, so stripping them
+			 * here would silently lose the user's comparison settings on a
+			 * Dashboard → Post → Dashboard round trip.
+			 */
 
 			throw redirect( {
 				to: '/post/$postId',

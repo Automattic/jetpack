@@ -111,8 +111,8 @@ export type DateFiltersPanelProps = {
 	/**
 	 * Whether to render the period-over-period Compare control. Pages whose
 	 * design has no comparison (the post/email detail page) opt out; their
-	 * routes also normalize comparison params away, so hiding the control keeps
-	 * the UI honest about it.
+	 * widgets ignore comparison params, and hiding the control keeps the UI
+	 * honest about it.
 	 */
 	showComparison?: boolean;
 };
