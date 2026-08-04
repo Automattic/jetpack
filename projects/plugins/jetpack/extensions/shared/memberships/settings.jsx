@@ -64,10 +64,11 @@ export function useSetAccess() {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const [ metas, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	return value => {
-		// We are removing the tier ID meta
-		delete metas[ META_NAME_FOR_POST_TIER_ID_SETTINGS ];
 		setPostMeta( {
 			...metas,
+			// Clearing the tier. Deleting the key instead mutated the store in place and was a
+			// no-op over REST, which omits absent keys.
+			[ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: 0,
 			[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: value,
 		} );
 	};

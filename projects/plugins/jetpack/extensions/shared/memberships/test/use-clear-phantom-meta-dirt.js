@@ -69,12 +69,12 @@ describe( 'useClearPhantomMetaDirt', () => {
 		expect( mockEditEntityRecord ).toHaveBeenCalledWith( ...realignCall( { [ CRDT ]: 'blob-B' } ) );
 	} );
 
-	test( 'restores a key the staged meta dropped, which alone keeps the post dirty', () => {
+	test( 'leaves a key the staged meta dropped, which may be a pending deletion', () => {
 		setup( { [ CRDT ]: 'blob-B' }, { [ CRDT ]: 'blob-B', tier_id: 42 } );
 
 		runSave();
 
-		expect( mockEditEntityRecord ).toHaveBeenCalledWith( ...realignCall( { tier_id: 42 } ) );
+		expect( mockEditEntityRecord ).not.toHaveBeenCalled();
 	} );
 
 	test( 'leaves a diverged value alone, since it may be an edit that was never sent', () => {

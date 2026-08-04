@@ -1,8 +1,13 @@
-import { render, screen } from '@testing-library/react';
+import { render, renderHook, screen } from '@testing-library/react';
 import * as wpData from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { store as membershipProductsStore } from '../../../store/membership-products';
-import { Link, getReachForAccessLevelKey, NewsletterEmailDocumentSettings } from '../settings';
+import {
+	Link,
+	getReachForAccessLevelKey,
+	NewsletterEmailDocumentSettings,
+	useSetAccess,
+} from '../settings';
 
 const mockUseSelect = jest.fn();
 const mockUseEntityProp = jest.fn();
@@ -169,5 +174,38 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 
 		render( <NewsletterEmailDocumentSettings /> );
 		expect( screen.getByLabelText( /Send as email to subscribers/i ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'useSetAccess', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		mockUseEntityId.mockReturnValue( 1 );
+		jest
+			.spyOn( wpData, 'useSelect' )
+			.mockImplementation( selector =>
+				selector( store => ( store === editorStore ? { getCurrentPostType: () => 'post' } : {} ) )
+			);
+	} );
+
+	afterEach( () => {
+		jest.restoreAllMocks();
+	} );
+
+	// The phantom-dirt fix relies on staged meta keeping every key the record has.
+	test( 'clears the tier without dropping the key or mutating the record', () => {
+		const metas = { _jetpack_newsletter_tier_id: 42, other: 'keep' };
+		const setPostMeta = jest.fn();
+		mockUseEntityProp.mockReturnValue( [ metas, setPostMeta ] );
+
+		const { result } = renderHook( () => useSetAccess() );
+		result.current( 'subscribers' );
+
+		expect( setPostMeta ).toHaveBeenCalledWith( {
+			_jetpack_newsletter_tier_id: 0,
+			_jetpack_newsletter_access: 'subscribers',
+			other: 'keep',
+		} );
+		expect( metas ).toEqual( { _jetpack_newsletter_tier_id: 42, other: 'keep' } );
 	} );
 } );

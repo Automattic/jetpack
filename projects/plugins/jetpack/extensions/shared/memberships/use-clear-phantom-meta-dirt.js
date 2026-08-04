@@ -57,23 +57,20 @@ export default function useClearPhantomMetaDirt( postType, postId ) {
 			return;
 		}
 
-		const realigned = {};
 		// Only the CRDT blob: nothing in the editor edits it, so adopting the persisted copy cannot
-		// discard a pending change. Other diverged keys stay dirty, because the payload is
-		// snapshotted before the request starts and never becomes observable -- a value the server
-		// altered is indistinguishable from an edit that was never sent.
-		if ( staged[ CRDT_META_KEY ] !== persisted[ CRDT_META_KEY ] ) {
-			realigned[ CRDT_META_KEY ] = persisted[ CRDT_META_KEY ];
-		}
-		// A key the staged copy dropped fails the whole-object comparison on its own.
-		for ( const key of Object.keys( persisted ) ) {
-			if ( ! ( key in staged ) ) {
-				realigned[ key ] = persisted[ key ];
-			}
+		// discard a pending change. Every other difference is left alone, because the payload is
+		// snapshotted before the request starts and never becomes observable -- a key the server
+		// altered is indistinguishable from one the writer edited or dropped mid-save.
+		if ( staged[ CRDT_META_KEY ] === persisted[ CRDT_META_KEY ] ) {
+			return;
 		}
 
-		if ( Object.keys( realigned ).length ) {
-			editEntityRecord( 'postType', postType, postId, { meta: realigned }, { undoIgnore: true } );
-		}
+		editEntityRecord(
+			'postType',
+			postType,
+			postId,
+			{ meta: { [ CRDT_META_KEY ]: persisted[ CRDT_META_KEY ] } },
+			{ undoIgnore: true }
+		);
 	}, [ isSaving, postId, postType, registry, editEntityRecord ] );
 }
