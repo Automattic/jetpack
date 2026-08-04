@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-AI Assistant: Enforce the host and master AI gates after the jetpack_ai_enabled filter so they cannot be overridden.

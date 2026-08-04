@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Jetpack AI: gate Feature Clip generation and availability on the image editor toggle, and report feature_clip.available from the settings endpoint.
