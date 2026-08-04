@@ -593,6 +593,86 @@ export const TimeAxisTickFormats: StoryObj< StoryArgs > = {
 	},
 };
 
+// Single-bucket series: the shape where point-spacing inference can't recover
+// the resolution — there is no spacing to measure — so only the declared
+// `tickResolution` can pick the right tick format.
+const loneHourlyBucket: SeriesData[] = [
+	{
+		label: 'Views',
+		data: [ { date: new Date( 2026, 7, 2, 13 ), value: 42 } ],
+		options: {},
+	},
+];
+
+const loneYearlyBucket: SeriesData[] = [
+	{
+		label: 'Views',
+		data: [ { date: new Date( 2026, 5, 1 ), value: 640 } ],
+		options: {},
+	},
+];
+
+export const TimeAxisTickResolution: StoryObj< StoryArgs > = {
+	render: () => (
+		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
+			<div>
+				<h3>Lone hourly bucket, resolution inferred → date tick</h3>
+				<LineChart
+					width={ 460 }
+					height={ 220 }
+					data={ loneHourlyBucket }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
+			</div>
+			<div>
+				<h3>Same point, tickResolution: &apos;hour&apos; → hour tick</h3>
+				<LineChart
+					width={ 460 }
+					height={ 220 }
+					data={ loneHourlyBucket }
+					options={ { axis: { x: { tickResolution: 'hour' } } } }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
+			</div>
+			<div>
+				<h3>Lone yearly bucket, resolution inferred → date tick</h3>
+				<LineChart
+					width={ 460 }
+					height={ 220 }
+					data={ loneYearlyBucket }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
+			</div>
+			<div>
+				<h3>Same point, tickResolution: &apos;year&apos; → year tick</h3>
+				<LineChart
+					width={ 460 }
+					height={ 220 }
+					data={ loneYearlyBucket }
+					options={ { axis: { x: { tickResolution: 'year' } } } }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
+			</div>
+		</div>
+	),
+	args: {
+		containerWidth: '1020px',
+		containerHeight: '700px',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"When the caller already knows the data's bucket resolution — e.g. from a granularity selector — `options.axis.x.tickResolution` declares it and the automatic formatter derives tick formats from it directly, instead of inferring the resolution from point spacing. Inference needs at least two points, so a single-bucket series always falls back to date ticks; the declared resolution picks the right format. The overall time span still constrains the choice, and an explicit `tickFormat` takes precedence over the hint.",
+			},
+		},
+	},
+};
+
 export const DateStringFormats: StoryObj< StoryArgs > = Template.bind( {} );
 DateStringFormats.args = {
 	...lineChartStoryArgs,

@@ -2,6 +2,7 @@ import { curveCatmullRom, curveLinear, curveMonotoneX } from '@visx/curve';
 import { scaleTime } from '@visx/scale';
 import { differenceInHours, differenceInYears } from 'date-fns';
 import type { useChartDataTransform } from '../../hooks';
+import type { TickResolution } from '../../types';
 import type { CurveType } from '../line-chart/types';
 
 // Approximate min pixel width for an x-axis tick label.
@@ -84,16 +85,40 @@ const getPointSpacingInHours = ( sortedData: ReturnType< typeof useChartDataTran
 	);
 };
 
+// Nominal point spacing for a caller-declared bucket resolution. A month maps
+// to the shortest month so the month-or-coarser regime engages (see
+// getFormatter). Year is absent: it short-circuits to year ticks before the
+// spacing regimes run.
+const SPACING_BY_RESOLUTION: Record< Exclude< TickResolution, 'year' >, number > = {
+	hour: 1,
+	day: 24,
+	week: 24 * 7,
+	month: 28 * 24,
+};
+
 // Pick the most informative tick formatter for the data's resolution and time
 // span: hours within a day, hours with day boundaries for sub-daily data
 // spanning up to a week, calendar dates for daily-or-finer buckets within a
 // year, months (with the year at January) for month-or-coarser buckets,
-// otherwise just years.
-export const getFormatter = ( sortedData: ReturnType< typeof useChartDataTransform > ) => {
+// otherwise just years. The resolution comes from `tickResolution` when the
+// caller knows it, and is inferred from point spacing otherwise.
+export const getFormatter = (
+	sortedData: ReturnType< typeof useChartDataTransform >,
+	tickResolution?: TickResolution
+) => {
+	// The month regime only prints the year at January boundaries, so yearly
+	// buckets starting mid-year would render as month names; year ticks are
+	// correct for yearly buckets at any span.
+	if ( tickResolution === 'year' ) {
+		return formatYearTick;
+	}
+
 	const minX = Math.min( ...sortedData.map( datom => datom.data.at( 0 )?.date ) );
 	const maxX = Math.max( ...sortedData.map( datom => datom.data.at( -1 )?.date ) );
 
-	const spacingInHours = getPointSpacingInHours( sortedData );
+	const spacingInHours = tickResolution
+		? SPACING_BY_RESOLUTION[ tickResolution ]
+		: getPointSpacingInHours( sortedData );
 	// 23, not 24: a daily gap shrinks to 23 wall-clock hours across a
 	// spring-forward DST transition.
 	const isSubDaily = spacingInHours < 23;
