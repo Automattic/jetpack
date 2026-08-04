@@ -2,9 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchNewsletterCategories } from './api';
 import type { NewsletterCategoriesData } from './types';
 
-// Site-level newsletter categories are shared across the dashboard and change rarely, so keep the
-// result fresh for a while to avoid refetching every time the Add Subscribers modal opens.
-const STALE_TIME = 5 * 60 * 1000;
+// Treat the cached result as immediately stale so every consumer mount refetches. The Add
+// Subscribers modal remounts on open, so this picks up a categories feature toggle flipped on the
+// Settings tab — which lives on a separate surface that never invalidates this key — the next time
+// the picker opens, without a full page reload. The prefetched cache still paints the picker
+// instantly; the refetch just reconciles it in the background (stale-while-revalidate).
+const STALE_TIME = 0;
 
 const NO_CATEGORIES: NewsletterCategoriesData = {
 	enabled: false,
@@ -19,8 +22,9 @@ const NO_CATEGORIES: NewsletterCategoriesData = {
  *
  * The dashboard shell warms this query on mount (gated to import-capable visitors) so the picker is
  * already cached — and renders instantly — by the time the modal opens, instead of the user
- * watching it pop in after a round trip. The 5-minute `staleTime` keeps that prefetch fresh across
- * the shared cache key.
+ * watching it pop in after a round trip. Opening the modal remounts this hook and refetches in the
+ * background, so a categories feature toggle flipped on the Settings tab is reflected without a full
+ * page reload while the cached value keeps the picker from popping in.
  *
  * @param options         - Query options.
  * @param options.enabled - Whether to run the query. Defaults to true; the shell passes its
