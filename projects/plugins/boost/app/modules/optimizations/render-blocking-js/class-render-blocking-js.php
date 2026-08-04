@@ -439,13 +439,53 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 		// Reset tags in case there's another buffer after this one.
 		$this->buffered_script_tags = array();
 
-		if ( str_contains( $buffer, '</body>' ) ) {
-			$buffer = str_replace( '</body>', $script_tags . '</body>', $buffer );
-		} else {
-			$buffer .= $script_tags;
+		$position = $this->find_body_close_position( $buffer );
+		if ( null === $position ) {
+			return $buffer . $script_tags;
 		}
 
-		return $buffer;
+		return substr_replace( $buffer, $script_tags, $position, 0 );
+	}
+
+	/**
+	 * Locate the document's real closing </body> tag in the buffer.
+	 *
+	 * A literal '</body>' can legitimately appear in places that are not markup:
+	 * inside a script's source (e.g. an HTML string a document.write() call
+	 * later emits), inside a <textarea> (RCDATA), inside an HTML comment, or
+	 * inside a quoted attribute value. Inserting the moved <script> tags at such
+	 * an occurrence corrupts the page — the injected '</script>' closes the
+	 * surrounding script early and the remaining JavaScript renders as visible
+	 * text.
+	 *
+	 * Script/textarea bodies and comments are therefore blanked out before the
+	 * search. The mask replaces each region with the same number of spaces so
+	 * offsets remain valid for the original buffer, and the search takes the
+	 * last remaining occurrence, which is the document's real closing tag.
+	 *
+	 * @param string $buffer String buffer.
+	 *
+	 * @return int|null Byte offset of the closing tag, or null when the buffer has none.
+	 */
+	private function find_body_close_position( $buffer ) {
+		$masked = preg_replace_callback(
+			'~<script\b[^>]*>[\s\S]*?</script\s*>|<textarea\b[^>]*>[\s\S]*?</textarea\s*>|<!--[\s\S]*?-->~i',
+			static function ( $region_match ) {
+				return str_repeat( ' ', strlen( $region_match[0] ) );
+			},
+			$buffer
+		);
+
+		// preg_replace_callback() returns null on PCRE failure (e.g. backtrack limit
+		// on a pathological buffer); search the unmasked buffer in that case rather
+		// than propagating null. Mirrors the guard in is_opened_script().
+		if ( null === $masked ) {
+			$masked = $buffer;
+		}
+
+		$position = strrpos( $masked, '</body>' );
+
+		return false === $position ? null : $position;
 	}
 
 	/**

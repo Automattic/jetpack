@@ -810,6 +810,119 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	}
 
 	/**
+	 * Regression guard: a pinned document.write script whose source contains a
+	 * literal '</body>' must not receive the moved scripts inside that string.
+	 *
+	 * Before the fix, append_script_tags() replaced every textual '</body>' in
+	 * the buffer, so the injected '</script>' closed the pinned script early and
+	 * the rest of its JavaScript rendered as visible page text.
+	 */
+	public function test_pinned_document_write_script_with_literal_body_close_is_not_corrupted() {
+		$pinned = '<script>' .
+			"const popupHtml = '<!doctype html><html><body><p>Popup content</p></body></html>';" .
+			'function writePopup( popout ) { popout.document.write( popupHtml ); popout.document.close(); }' .
+			'</script>';
+
+		$html = '<html><body><p>Before</p>' . $pinned .
+			'<script>console.log("movable sibling");</script>' .
+			'<p>After</p></body></html>';
+
+		$output = $this->filter_output( $html );
+
+		// The JavaScript string survives verbatim.
+		$this->assertStringContainsString( "<p>Popup content</p></body></html>';", $output );
+
+		// The movable sibling was inserted exactly once, before the real </body>.
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString( 'console.log("movable sibling");</script></body>', $output );
+	}
+
+	/**
+	 * A script the author marked with the ignore attribute is left in the buffer
+	 * too, so a literal '</body>' in its source must not be an insertion point.
+	 * This case predates the document.write pinning.
+	 */
+	public function test_ignored_script_with_literal_body_close_is_not_corrupted() {
+		$html = '<html><body><p>Before</p>' .
+			'<script data-jetpack-boost="ignore">var markup = \'<body>x</body>\';</script>' .
+			'<script>console.log("movable sibling");</script>' .
+			'<p>After</p></body></html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertStringContainsString( "var markup = '<body>x</body>';", $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString( 'console.log("movable sibling");</script></body>', $output );
+	}
+
+	/**
+	 * <textarea> content is RCDATA, so a literal '</body>' inside it is text
+	 * rather than markup and must be left alone.
+	 */
+	public function test_literal_body_close_in_textarea_is_not_corrupted() {
+		$html = '<html><body><textarea>raw </body> text</textarea>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body></html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertStringContainsString( '<textarea>raw </body> text</textarea>', $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString( 'console.log("movable sibling");</script></body>', $output );
+	}
+
+	/**
+	 * A literal '</body>' inside an HTML comment is not the document's closing
+	 * tag and must not be used as the insertion point.
+	 */
+	public function test_literal_body_close_in_html_comment_is_not_corrupted() {
+		$html = '<html><body><!-- </body> -->' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body></html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertStringContainsString( '<!-- </body> -->', $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString( 'console.log("movable sibling");</script></body>', $output );
+	}
+
+	/**
+	 * A quoted attribute value may legally contain a literal '</body>'.
+	 */
+	public function test_literal_body_close_in_attribute_value_is_not_corrupted() {
+		$html = '<html><body><div data-x="</body>">z</div>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body></html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertStringContainsString( '<div data-x="</body>">z</div>', $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString( 'console.log("movable sibling");</script></body>', $output );
+	}
+
+	/**
+	 * Hosts and plugins sometimes emit markup after the closing body tag. A
+	 * literal '</body>' in such a trailing script sits after the document's real
+	 * closing tag, so picking the last occurrence in the raw buffer would still
+	 * corrupt it — the insertion point must ignore script sources entirely.
+	 */
+	public function test_literal_body_close_in_script_after_closing_body_is_not_corrupted() {
+		$html = '<html><body><p>Before</p>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body>' .
+			'<script data-jetpack-boost="ignore">var trailing = \'</body>\';</script>' .
+			'</html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertStringContainsString( "var trailing = '</body>';", $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString( 'console.log("movable sibling");</script></body>', $output );
+	}
+
+	/**
 	 * Invoke the private is_current_request_excluded() method under test.
 	 *
 	 * @return bool
