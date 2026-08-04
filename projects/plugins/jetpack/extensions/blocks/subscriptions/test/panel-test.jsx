@@ -271,10 +271,7 @@ describe( 'SubscribePanels', () => {
 		return store => {
 			if ( store === editorStore || store === 'core/editor' ) return editorSelect;
 			if ( store === coreDataStore ) {
-				return {
-					isSavingEntityRecord: () => false,
-					isAutosavingEntityRecord: () => false,
-				};
+				return { getRawEntityRecord: () => undefined };
 			}
 			return {};
 		};

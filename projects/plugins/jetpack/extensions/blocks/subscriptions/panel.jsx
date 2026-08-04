@@ -27,11 +27,11 @@ import {
 	NewsletterEmailDocumentSettings,
 } from '../../shared/memberships/settings';
 import SubscribersAffirmation from '../../shared/memberships/subscribers-affirmation';
-import useClearPhantomMetaDirt from '../../shared/memberships/use-clear-phantom-meta-dirt';
 import {
 	getShowMisconfigurationWarning,
 	MisconfigurationWarning,
 } from '../../shared/memberships/utils';
+import useClearPhantomMetaDirt from '../../shared/use-clear-phantom-meta-dirt';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import { NewsletterTestEmailModal } from './email-preview';
 
