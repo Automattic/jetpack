@@ -652,6 +652,18 @@ class Manager {
 		// XML-RPC label rather than guessing at a transport.
 		$is_rest = ! $is_xmlrpc && ( function_exists( 'wp_is_rest_endpoint' ) ? wp_is_rest_endpoint() : ( defined( 'REST_REQUEST' ) && REST_REQUEST ) );
 
+		// Signature verification can run before REST dispatch is set up: REST_Authentication
+		// hooks `determine_current_user`, which any plugin can trigger early (e.g. by calling
+		// wp_get_current_user() on plugins_loaded), before the REST_REQUEST constant exists.
+		// In that window, recognize REST requests by their URL: the REST prefix in the path,
+		// or the rest_route query argument used by sites without pretty permalinks.
+		if ( ! $is_xmlrpc && ! $is_rest ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only used to classify the request transport.
+			$has_rest_route_arg = isset( $_GET['rest_route'] );
+			$request_path       = (string) wp_parse_url( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '', PHP_URL_PATH ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Parsed for path comparison only.
+			$is_rest            = $has_rest_route_arg || false !== strpos( $request_path, '/' . rest_get_url_prefix() . '/' );
+		}
+
 		return $is_rest ? Error_Handler::ERROR_TYPE_REST : Error_Handler::ERROR_TYPE_XMLRPC;
 	}
 

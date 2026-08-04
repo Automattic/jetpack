@@ -836,14 +836,30 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 
 		$default_transport = $method->invoke( $this->manager );
 
-		// Simulate a REST API request. In a real REST request the REST_REQUEST constant
-		// is set instead; the filter is the only way to toggle the state in-process.
+		// Simulate a dispatched REST API request. In a real REST request the REST_REQUEST
+		// constant is set instead; the filter is the only way to toggle the state in-process.
 		add_filter( 'wp_is_rest_endpoint', '__return_true' );
 		$rest_transport = $method->invoke( $this->manager );
 		remove_filter( 'wp_is_rest_endpoint', '__return_true' );
 
+		// Before REST dispatch (e.g. signature verification triggered by an early
+		// determine_current_user call), REST requests are recognized by their URL.
+		$original_server        = $_SERVER;
+		$original_get           = $_GET;
+		$_SERVER['REQUEST_URI'] = '/wp-json/jetpack/v4/connection/status?token=abc';
+		$early_rest_transport   = $method->invoke( $this->manager );
+
+		$_SERVER['REQUEST_URI']          = '/index.php';
+		$_GET['rest_route']              = '/jetpack/v4/connection/status';
+		$plain_permalinks_rest_transport = $method->invoke( $this->manager );
+
+		$_SERVER = $original_server;
+		$_GET    = $original_get;
+
 		$this->assertSame( Error_Handler::ERROR_TYPE_XMLRPC, $default_transport );
 		$this->assertSame( Error_Handler::ERROR_TYPE_REST, $rest_transport );
+		$this->assertSame( Error_Handler::ERROR_TYPE_REST, $early_rest_transport, 'A REST-prefixed request path must be labeled rest even before REST dispatch state exists.' );
+		$this->assertSame( Error_Handler::ERROR_TYPE_REST, $plain_permalinks_rest_transport, 'A rest_route query argument must be labeled rest even before REST dispatch state exists.' );
 	}
 
 	/**
