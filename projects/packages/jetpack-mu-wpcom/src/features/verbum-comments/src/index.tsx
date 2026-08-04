@@ -12,12 +12,7 @@ import useFormMutations from './hooks/useFormMutations';
 import useSocialLogin from './hooks/useSocialLogin';
 import { translate } from './i18n';
 import { createSignals, VerbumSignals } from './state';
-import {
-	canWeAccessCookies,
-	setUserInfoCookie,
-	addWordPressDomain,
-	hasSubscriptionOptionsVisible,
-} from './utils';
+import { setUserInfoCookie, addWordPressDomain, hasSubscriptionOptionsVisible } from './utils';
 import type { VerbumAppProps } from './types';
 
 import './style.scss';
@@ -232,11 +227,7 @@ const Verbum = ( { siteId, parentForm }: VerbumAppProps ) => {
 				{ userLoggedIn.value ? (
 					<LoggedIn siteId={ siteId } toggleTray={ handleTrayToggle } logout={ logout! } />
 				) : (
-					<LoggedOut
-						login={ login! }
-						canWeAccessCookies={ canWeAccessCookies() }
-						loginWindow={ loginWindowRef ?? null }
-					/>
+					<LoggedOut login={ login! } loginWindow={ loginWindowRef ?? null } />
 				) }
 			</div>
 			<CommentFooter toggleTray={ handleTrayToggle } />

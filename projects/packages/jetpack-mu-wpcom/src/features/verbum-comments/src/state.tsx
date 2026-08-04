@@ -11,6 +11,11 @@ import type { Signal } from '@preact/signals';
  */
 export function createSignals() {
 	/*
+	 * Cookie access can't change without a page reload, so probe once and share the answer.
+	 */
+	const canAccessCookies = canWeAccessCookies();
+
+	/*
 	 * In userInfo we store the user data for logged-in users.
 	 */
 	const userInfo: Signal< UserInfo > = signal( getUserInfoCookie() );
@@ -22,7 +27,7 @@ export function createSignals() {
 	const userLoggedIn = computed( () => {
 		return (
 			VerbumComments.isJetpackCommentsLoggedIn ||
-			( canWeAccessCookies() &&
+			( canAccessCookies &&
 				userInfo.value &&
 				userInfo.value?.service !== 'guest' &&
 				userInfo.value?.service !== 'jetpack' )
@@ -83,7 +88,7 @@ export function createSignals() {
 	 * iframe even for visitors logged in to the site itself, hence the userLoggedIn check.
 	 */
 	const isCommentBlocked = computed( () => {
-		return Boolean( VerbumComments.mustLogIn ) && ! userLoggedIn.value && ! canWeAccessCookies();
+		return Boolean( VerbumComments.mustLogIn ) && ! userLoggedIn.value && ! canAccessCookies;
 	} );
 
 	/*
@@ -127,6 +132,7 @@ export function createSignals() {
 	const subscribeModalStatus: Signal< string | undefined > = signal( undefined );
 
 	return {
+		canAccessCookies,
 		userInfo,
 		userLoggedIn,
 		mailLoginData,

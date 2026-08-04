@@ -10,7 +10,6 @@ import type { SocialServiceName } from '../hooks/useSocialLogin';
 const { mustLogIn, requireNameEmail, commentRegistration } = VerbumComments;
 interface LoggedOutProps {
 	login: ( service: SocialServiceName ) => void;
-	canWeAccessCookies: boolean;
 	loginWindow: Window | null;
 }
 
@@ -40,7 +39,7 @@ const getLoginCommentText = ( commentParent: Signal ) => {
 	return <span>{ defaultText }</span>;
 };
 
-export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOutProps ) => {
+export const LoggedOut = ( { login, loginWindow }: LoggedOutProps ) => {
 	const [ activeService, setActiveService ] = useState( '' );
 	const closeLoginPopupService = requireNameEmail && ! mustLogIn ? 'mail' : '';
 
@@ -82,25 +81,25 @@ export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOut
 		setActiveService( service );
 	};
 
-	const { commentParent, isCommentBlocked } = useContext( VerbumSignals );
+	const { canAccessCookies, commentParent, isCommentBlocked } = useContext( VerbumSignals );
 
 	return (
 		<div className="verbum-subscriptions logged-out">
 			<div className="verbum-subscriptions__wrapper">
 				<div className="verbum-subscriptions__login">
-					{ ( canWeAccessCookies || mustLogIn ) && (
+					{ ( canAccessCookies || mustLogIn ) && (
 						<div className="verbum-subscriptions__login-header">
 							{ getLoginCommentText( commentParent ) }
 						</div>
 					) }
 					{ isCommentBlocked.value && (
-						<p className="verbum-subscriptions__cookie-notice">
+						<p className="verbum-subscriptions__cookie-notice" role="status">
 							{ translate(
-								'Commenting here requires cookie access. Allow cookies for this site, then reload the page.'
+								'Your browser is blocking the cookies needed to log in and comment here. Allow cookies in your privacy settings, then reload the page.'
 							) }
 						</p>
 					) }
-					{ canWeAccessCookies && (
+					{ canAccessCookies && (
 						<div
 							className={ clsx( 'verbum-logins', {
 								'logging-in': activeService,
@@ -156,7 +155,7 @@ export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOut
 					) }
 					<EmailForm
 						shouldShowEmailForm={
-							activeService === 'mail' || ( ! canWeAccessCookies && ! mustLogIn )
+							activeService === 'mail' || ( ! canAccessCookies && ! mustLogIn )
 						}
 					/>
 				</div>
