@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Form: keep a step's padding inside its width so its content no longer overflows the step.
+Form: Keep a step's padding inside its width so its content no longer overflows the step.

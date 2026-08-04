@@ -174,7 +174,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 	 */
 	public static function data_provider_test_register_child_blocks() {
 		return array(
-			'jetpack/input'   => array(
+			'jetpack/input'     => array(
 				'jetpack/input',
 				array(
 					'__experimentalBorder' => array(
@@ -201,7 +201,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 					'visibility'           => false,
 				),
 			),
-			'jetpack/label'   => array(
+			'jetpack/label'     => array(
 				'jetpack/label',
 				array(
 					'color'      => array(
@@ -222,7 +222,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 					'visibility' => true,
 				),
 			),
-			'jetpack/options' => array(
+			'jetpack/options'   => array(
 				'jetpack/options',
 				array(
 					'__experimentalBorder' => array(
@@ -241,7 +241,23 @@ class Contact_Form_Block_Test extends BaseTestCase {
 					'visibility'           => false,
 				),
 			),
-			'jetpack/option'  => array(
+			'jetpack/form-step' => array(
+				'jetpack/form-step',
+				array(
+					'background' => array(
+						'backgroundImage'                 => true,
+						'backgroundSize'                  => true,
+						// Serialization is skipped so that Contact_Form_Block::apply_background_support()
+						// can put the image on the step's own div rather than core putting it on the
+						// interactivity wrapper, where a background color would paint over it.
+						'__experimentalSkipSerialization' => true,
+						'__experimentalDefaultControls'   => array(
+							'backgroundImage' => true,
+						),
+					),
+				),
+			),
+			'jetpack/option'    => array(
 				'jetpack/option',
 				array(
 					'color'      => array(
@@ -502,6 +518,77 @@ class Contact_Form_Block_Test extends BaseTestCase {
 		Contact_Form_Block::register_block();
 
 		$this->assertTrue( $registry->is_registered( 'jetpack/contact-form' ) );
+
+		$supports = $registry->get_registered( 'jetpack/contact-form' )->supports ?? array();
+
+		// The front end styles come from PHP, so the background support has to be declared here
+		// and not only in block.json.
+		$this->assertSame(
+			array(
+				'backgroundImage'                 => true,
+				'backgroundSize'                  => true,
+				'__experimentalSkipSerialization' => true,
+				'__experimentalDefaultControls'   => array(
+					'backgroundImage' => true,
+				),
+			),
+			$supports['background'],
+			'Background support does not match the expected values'
+		);
+	}
+
+	/**
+	 * Test that ::apply_background_support puts the background on the block's own element.
+	 *
+	 * @dataProvider data_provider_test_apply_background_support
+	 */
+	#[DataProvider( 'data_provider_test_apply_background_support' )]
+	public function test_apply_background_support( $atts, $expected_style, $expected_class ) {
+		$html   = '<div class="wp-block-jetpack-form-step"><p>Field</p></div>';
+		$result = Contact_Form_Block::apply_background_support( $html, $atts );
+
+		if ( null === $expected_style ) {
+			$this->assertSame( $html, $result, 'HTML should be returned untouched' );
+			return;
+		}
+
+		$this->assertStringContainsString( $expected_style, $result );
+		$this->assertSame( $expected_class, str_contains( $result, 'has-background' ) );
+	}
+
+	/**
+	 * Data provider for test_apply_background_support.
+	 */
+	public static function data_provider_test_apply_background_support() {
+		$image = array(
+			'backgroundImage' => array(
+				'url'    => 'https://example.com/bg.jpg',
+				'source' => 'file',
+			),
+		);
+
+		return array(
+			'no style attribute'      => array( array(), null, false ),
+			'no background image'     => array(
+				array( 'style' => array( 'background' => array( 'backgroundSize' => 'cover' ) ) ),
+				null,
+				false,
+			),
+			'image defaults to cover' => array(
+				array( 'style' => array( 'background' => $image ) ),
+				'background-size:cover',
+				true,
+			),
+			'contain gets centered'   => array(
+				array(
+					'style' => array(
+						'background' => array_merge( $image, array( 'backgroundSize' => 'contain' ) ),
+					),
+				),
+				'background-position:50% 50%',
+				true,
+			),
+		);
 	}
 
 	/**

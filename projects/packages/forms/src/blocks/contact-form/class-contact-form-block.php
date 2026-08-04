@@ -45,15 +45,17 @@ class Contact_Form_Block {
 				'render_email_callback' => array( __CLASS__, 'render_email' ),
 				'render_callback'       => array( __CLASS__, 'gutenblock_render_form' ),
 				'supports'              => array(
+
 					/*
-					 * Background image styles are applied server-side by core's
-					 * `wp_render_background_support()` render_block filter, so the support has to
-					 * be declared here as well as in block.json for the front end to pick it up.
+					 * Declared here as well as in block.json because the front end styles come from
+					 * PHP. Serialization is skipped because core targets the first tag of the
+					 * rendered output — see self::apply_background_support().
 					 */
 					'background'           => array(
-						'backgroundImage'               => true,
-						'backgroundSize'                => true,
-						'__experimentalDefaultControls' => array(
+						'backgroundImage'                 => true,
+						'backgroundSize'                  => true,
+						'__experimentalSkipSerialization' => true,
+						'__experimentalDefaultControls'   => array(
 							'backgroundImage' => true,
 						),
 					),
@@ -674,13 +676,15 @@ class Contact_Form_Block {
 			'jetpack/form-step',
 			array(
 				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_step' ),
-				// Mirrors the supports declared in the block's index.js, so that core can apply the
-				// background image styles to the rendered step on the front end.
+				// Mirrors the supports declared in the block's index.js, so the front end gets the
+				// background image too. Serialization is skipped because core targets the first tag
+				// of the rendered output — see Contact_Form_Block::apply_background_support().
 				'supports'        => array(
 					'background' => array(
-						'backgroundImage'               => true,
-						'backgroundSize'                => true,
-						'__experimentalDefaultControls' => array(
+						'backgroundImage'                 => true,
+						'backgroundSize'                  => true,
+						'__experimentalSkipSerialization' => true,
+						'__experimentalDefaultControls'   => array(
 							'backgroundImage' => true,
 						),
 					),
@@ -983,13 +987,81 @@ class Contact_Form_Block {
 		if ( isset( $atts['ref'] ) ) {
 			$ref_id = absint( $atts['ref'] );
 			if ( $ref_id > 0 ) {
-				return Contact_Form::render_synced_form( $ref_id );
+				// A synced form has no markup of its own, so the outer wrapper of the rendered
+				// form is the only element the ref block's background can go on.
+				return self::apply_background_support( Contact_Form::render_synced_form( $ref_id ), $atts );
 			} else {
 				return ''; // Invalid ref ID.
 			}
 		}
 
-		return Contact_Form::parse( $atts, do_blocks( $content ) );
+		// The block's own div opens $content, and is what carries the color, padding and radius
+		// supports, so the background image belongs there rather than on Contact_Form::parse()'s
+		// outer container.
+		return Contact_Form::parse( $atts, self::apply_background_support( do_blocks( $content ), $atts ) );
+	}
+
+	/**
+	 * Apply a block's background image styles to the first tag of the given HTML.
+	 *
+	 * Core's `wp_render_background_support()` puts these styles on the first tag of a block's
+	 * rendered output. For both form blocks that tag is a wrapper added at render time — the
+	 * interactivity wrapper for a step, the container div for a form — and not the block's own
+	 * element, which is where the color, padding and border radius supports end up. Leaving the
+	 * two apart means an opaque background color paints over the image on the front end while
+	 * the editor shows both on one element. Serialization is therefore skipped in the block
+	 * registration and the styles are applied here instead, against the same element that
+	 * carries the rest of the block's styles.
+	 *
+	 * @param string $html       Rendered HTML whose first tag should carry the background.
+	 * @param array  $atts       Block attributes.
+	 *
+	 * @return string The HTML, with background styles applied when the block has an image.
+	 */
+	public static function apply_background_support( $html, $atts ) {
+		$background = $atts['style']['background'] ?? null;
+
+		if ( ! is_array( $background ) || empty( $background['backgroundImage'] ) ) {
+			return $html;
+		}
+
+		// Mirrors the defaults in core's wp_render_background_support().
+		$background_styles = array(
+			'backgroundImage'      => $background['backgroundImage'],
+			'backgroundSize'       => $background['backgroundSize'] ?? 'cover',
+			'backgroundPosition'   => $background['backgroundPosition'] ?? null,
+			'backgroundRepeat'     => $background['backgroundRepeat'] ?? null,
+			'backgroundAttachment' => $background['backgroundAttachment'] ?? null,
+		);
+
+		if ( 'contain' === $background_styles['backgroundSize'] && ! $background_styles['backgroundPosition'] ) {
+			$background_styles['backgroundPosition'] = '50% 50%';
+		}
+
+		$styles = wp_style_engine_get_styles( array( 'background' => $background_styles ) );
+
+		if ( empty( $styles['css'] ) ) {
+			return $html;
+		}
+
+		$tags = new \WP_HTML_Tag_Processor( $html );
+
+		if ( ! $tags->next_tag() ) {
+			return $html;
+		}
+
+		$existing_style = $tags->get_attribute( 'style' );
+
+		if ( is_string( $existing_style ) && '' !== $existing_style ) {
+			$separator = str_ends_with( $existing_style, ';' ) ? '' : ';';
+			$tags->set_attribute( 'style', $existing_style . $separator . $styles['css'] );
+		} else {
+			$tags->set_attribute( 'style', $styles['css'] );
+		}
+
+		$tags->add_class( 'has-background' );
+
+		return $tags->get_updated_html();
 	}
 
 	/**
