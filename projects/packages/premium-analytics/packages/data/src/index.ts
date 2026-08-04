@@ -187,7 +187,6 @@ export type { StatsEmailSummaryItem } from './processing/stats';
 export {
 	useStatsSingleVideo,
 	type StatsSingleVideoDataPoint,
-	type StatsSingleVideoMetricRow,
 	type StatsSingleVideoPage,
 	type StatsSingleVideoPost,
 	type StatsSingleVideoParams,

@@ -176,7 +176,6 @@ export type {
 } from './wordads';
 export type {
 	StatsSingleVideoDataPoint,
-	StatsSingleVideoMetricRow,
 	StatsSingleVideoPage,
 	StatsSingleVideoPost,
 	StatsSingleVideoReport,

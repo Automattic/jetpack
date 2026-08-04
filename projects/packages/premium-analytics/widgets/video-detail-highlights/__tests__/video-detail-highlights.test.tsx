@@ -107,6 +107,25 @@ describe( 'VideoDetailHighlightsWidget', () => {
 		expect( requestedPaths[ 0 ] ).not.toContain( 'date=2026-06-30' );
 	} );
 
+	it( 'renders placeholders, not zeros, for metrics missing from the totals', async () => {
+		mockApiFetch.mockResolvedValue( {
+			...ALL_METRICS_RESPONSE,
+			fields: [ 'period', 'plays' ],
+			data: [ [ '2026-07-01', 64 ] ],
+			total: { plays: 128 },
+		} );
+		renderWidget( 105 );
+
+		const tiles = await screen.findAllByRole( 'listitem' );
+		expect( tiles ).toHaveLength( 3 );
+		expect( tiles[ 0 ] ).toHaveTextContent( 'Impressions—' );
+		expect( tiles[ 1 ] ).toHaveTextContent( 'Hours watched—' );
+		expect( tiles[ 2 ] ).toHaveTextContent( 'Retention rate—' );
+		expect( screen.queryByText( '0' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( '0.0' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( '0.0%' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'renders the scope-empty state and skips fetching without a post_id', () => {
 		renderWidget();
 

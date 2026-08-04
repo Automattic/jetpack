@@ -16,7 +16,6 @@ describe( 'Stats single video normalizer', () => {
 				{ period: '2026-06-14', value: 0 },
 			],
 			metrics: null,
-			rows: null,
 			total: null,
 			pages: [
 				{
@@ -38,7 +37,7 @@ describe( 'Stats single video normalizer', () => {
 		} );
 	} );
 
-	it( 'keys statType=all rows by the metric names in fields and keeps the range totals', () => {
+	it( 'lists the statType=all metric names from fields and keeps the range totals', () => {
 		expect( sanitizeStatsSingleVideoResponse( singleVideoAllMetricsFixture ) ).toEqual( {
 			// The leading metric column still backs the plain views series.
 			data: [
@@ -46,16 +45,6 @@ describe( 'Stats single video normalizer', () => {
 				{ period: '2026-07-02', value: 0 },
 			],
 			metrics: [ 'plays', 'impressions', 'watch_time', 'retention_rate' ],
-			rows: [
-				{
-					period: '2026-07-01',
-					values: { plays: 3, impressions: 10, watch_time: 0.5, retention_rate: 25.5 },
-				},
-				{
-					period: '2026-07-02',
-					values: { plays: 0, impressions: 4, watch_time: 0, retention_rate: 0 },
-				},
-			],
 			total: { plays: 3, impressions: 14, watch_time: 0.5, retention_rate: 25.5 },
 			pages: [],
 			post: null,
@@ -70,14 +59,13 @@ describe( 'Stats single video normalizer', () => {
 				data: { date: '7-10', p: '0' },
 				pages: [],
 			} )
-		).toEqual( { data: [], metrics: null, rows: null, total: null, pages: [], post: null } );
+		).toEqual( { data: [], metrics: null, total: null, pages: [], post: null } );
 	} );
 
 	it( 'returns empty collections for an empty payload', () => {
 		expect( sanitizeStatsSingleVideoResponse( singleVideoEmptyFixture ) ).toEqual( {
 			data: [],
 			metrics: null,
-			rows: null,
 			total: null,
 			pages: [],
 			post: null,
@@ -88,7 +76,6 @@ describe( 'Stats single video normalizer', () => {
 		expect( sanitizeStatsSingleVideoResponse( undefined ) ).toEqual( {
 			data: [],
 			metrics: null,
-			rows: null,
 			total: null,
 			pages: [],
 			post: null,
@@ -102,7 +89,6 @@ describe( 'Stats single video normalizer', () => {
 		).toEqual( {
 			data: [ { period: '2026-06-12', value: 2 } ],
 			metrics: null,
-			rows: null,
 			total: null,
 			pages: [],
 			post: null,

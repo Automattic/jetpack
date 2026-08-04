@@ -74,25 +74,27 @@ function VideoDetailHighlightsInner() {
 		{ enabled: hasVideoScope }
 	);
 	const total = data?.total;
+	// A metric missing from the response's `fields` is unknown, not a measured
+	// zero — `null` lets the tile render its placeholder instead of fake data.
 	const tiles = [
 		{
 			key: 'impressions',
 			label: __( 'Impressions', 'jetpack-premium-analytics-pkg' ),
 			icon: seen,
-			value: total?.impressions ?? 0,
+			value: total?.impressions ?? null,
 		},
 		{
 			key: 'watch-time',
 			label: __( 'Hours watched', 'jetpack-premium-analytics-pkg' ),
 			icon: scheduled,
-			value: total?.watch_time ?? 0,
+			value: total?.watch_time ?? null,
 			dataFormat: HOURS_FORMAT,
 		},
 		{
 			key: 'retention-rate',
 			label: __( 'Retention rate', 'jetpack-premium-analytics-pkg' ),
 			icon: trendingUp,
-			value: ( total?.retention_rate ?? 0 ) / 100,
+			value: total?.retention_rate === undefined ? null : total.retention_rate / 100,
 			dataFormat: RATE_FORMAT,
 		},
 	];

@@ -9,7 +9,6 @@ import type { StatsSingleVideoParams } from '../queries/stats-single-video-query
 
 export type {
 	StatsSingleVideoDataPoint,
-	StatsSingleVideoMetricRow,
 	StatsSingleVideoPage,
 	StatsSingleVideoPost,
 	StatsSingleVideoTotals,

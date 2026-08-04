@@ -20,16 +20,6 @@ export type StatsSingleVideoPost = {
 	poster?: string;
 };
 
-/**
- * One range-mode series row: the period start plus one value per metric named
- * in the response's `fields`. Calypso keys the metrics directly on the row;
- * they nest under `values` here so `period` keeps its own type.
- */
-export type StatsSingleVideoMetricRow = {
-	period: string;
-	values: Record< string, number >;
-};
-
 /** Canonical whole-range totals keyed by metric name (`plays`, `impressions`, `watch_time`, `retention_rate`). */
 export type StatsSingleVideoTotals = Record< string, number >;
 
@@ -38,8 +28,6 @@ export type StatsSingleVideoReport = {
 	data: StatsSingleVideoDataPoint[];
 	/** Metric names from `fields` (minus the leading `period`), or null outside range mode. */
 	metrics: string[] | null;
-	/** Per-period rows keyed by metric name, or null outside range mode. */
-	rows: StatsSingleVideoMetricRow[] | null;
 	/** Server-computed totals over the requested window, or null when absent. */
 	total: StatsSingleVideoTotals | null;
 	pages: StatsSingleVideoPage[];
@@ -81,23 +69,11 @@ export function sanitizeStatsSingleVideoResponse( response: unknown ): StatsSing
 	} ) );
 
 	// `fields` names the tuple columns after the leading period (one metric for
-	// a single statType, four for statType=all). Rows keyed by metric name let
-	// consumers pick series without caring about column order.
+	// a single statType, four for statType=all).
 	const fields = coerceStatsArray< unknown >( payload.fields ).filter(
 		( field ): field is string => typeof field === 'string'
 	);
-	let metrics: string[] | null = null;
-	let rows: StatsSingleVideoMetricRow[] | null = null;
-	if ( fields.length >= 2 && Array.isArray( payload.data ) ) {
-		const metricNames = fields.slice( 1 );
-		metrics = metricNames;
-		rows = tuples.map( ( [ period, ...cells ] ) => ( {
-			period,
-			values: Object.fromEntries(
-				metricNames.map( ( name, index ) => [ name, safeParseFloat( cells[ index ] ) ] )
-			),
-		} ) );
-	}
+	const metrics = fields.length >= 2 && Array.isArray( payload.data ) ? fields.slice( 1 ) : null;
 
 	// Range queries also return canonical totals over the window, keyed by
 	// metric name.
@@ -115,5 +91,5 @@ export function sanitizeStatsSingleVideoResponse( response: unknown ): StatsSing
 		.map( page => ( { label: page, link: page } ) );
 	const post = sanitizeSingleVideoPost( payload.post );
 
-	return { data, metrics, rows, total, pages, post };
+	return { data, metrics, total, pages, post };
 }

@@ -98,22 +98,37 @@ describe( 'video detail route.beforeLoad', () => {
 		} );
 	} );
 
-	it( 'strips comparison params — both incoming and normalizer-added — from the seeded URL', async () => {
+	// The page renders no comparison, but the dashboard link carries the URL
+	// state back out — stripping the params would lose the user's comparison
+	// settings on a Dashboard → Video → Dashboard round trip.
+	it( 'passes through comparison params without redirecting on a settled URL', async () => {
+		await expect(
+			beforeLoad( { videoId: '42' }, { ...settledSearch, comp: 'previous_period' } )
+		).resolves.toBeUndefined();
+	} );
+
+	it( 'carries comparison params through the seeded URL untouched', async () => {
 		let thrown: { search?: Record< string, unknown > } | undefined;
 		try {
 			await beforeLoad(
 				{ videoId: '42' },
-				{ ...settledSearch, comp: 'previous_period', compare_from: '2026-05-01T00:00:00' }
+				{
+					...settledSearch,
+					post_id: '7',
+					comp: 'previous_period',
+					compare_from: '2026-05-01T00:00:00',
+				}
 			);
 		} catch ( error ) {
 			thrown = error as { search?: Record< string, unknown > };
 		}
 
 		expect( thrown ).toMatchObject( { to: '/video/$videoId' } );
-		for ( const param of [ 'comp', 'compare_from', 'compare_to', 'compare_preset' ] ) {
-			expect( thrown?.search ).not.toHaveProperty( param );
-		}
-		expect( thrown?.search ).toMatchObject( { post_id: '42' } );
+		expect( thrown?.search ).toMatchObject( {
+			post_id: '42',
+			comp: 'previous_period',
+			compare_from: '2026-05-01T00:00:00',
+		} );
 	} );
 
 	it( 'registers the widget-module entity exactly once', async () => {
