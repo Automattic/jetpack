@@ -3,10 +3,16 @@
 // WPDS tokens, the properties where wp-components' Button and the input layout
 // behind a `SelectControl` trigger disagree.
 
-// Left alone, because the two already agree: the transparent background, the
-// 4px gap between label and caret, the 12px/8px inline padding of the labelled
-// state (the caret sits closer to the edge than the label), and the focus ring,
-// which both draw from `outset-ring__focus` and the same tokens.
+// The two do not come from the same place: `@wordpress/ui` is bundled with this
+// package at the version we pin, while `@wordpress/components` is externalized
+// to WordPress's own `wp-components` handle. The Button these rules override is
+// therefore whatever the running WordPress ships, which trails the copy in
+// `node_modules`. Check the site's stylesheet, not the package source, before
+// assuming a base rule is there to build on.
+
+// Left alone, because both sides agree: the transparent background, the 4px gap
+// between label and caret, and the 12px/8px inline padding of the labelled
+// state (the caret sits closer to the edge than the label).
 .date-comparison-dropdown {
 	// The toggle is an inline-flex button. In a block wrapper it would sit on a
 	// text baseline and add a descender's worth of height to the row.
@@ -14,9 +20,10 @@
 
 	.date-comparison-dropdown__toggle {
 		height: var(--wpds-dimension-size-lg);
-		// The Button reserves a transparent 1px border of its own, so painting it
-		// leaves the box at the input layout's 40px.
-		border-color: var(--wpds-color-stroke-interactive-neutral);
+		// Declared whole rather than just recolored: the shipped Button carries
+		// `border: 0`, so a bare `border-color` paints nothing. The button is
+		// already `border-box`, so the stroke does not grow the control.
+		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-interactive-neutral);
 		// Follows the theme's radius setting, which the Button's fixed 2px does not.
 		border-radius: var(--wpds-border-radius-sm);
 		color: var(--wpds-color-foreground-interactive-neutral);
@@ -45,6 +52,14 @@
 		&[aria-expanded="true"] {
 			border-color: var(--wpds-color-stroke-interactive-neutral-active);
 			color: var(--wpds-color-foreground-interactive-neutral);
+		}
+
+		// The shipped Button draws focus as an accent-colored shadow. Every
+		// other control on this surface draws the outset ring instead.
+		&:focus:not(:active) {
+			outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+			outline-offset: var(--wpds-border-width-focus);
+			box-shadow: none;
 		}
 	}
 }
