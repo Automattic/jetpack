@@ -1,4 +1,5 @@
 import { siteHasFeature } from '@automattic/jetpack-script-data';
+import { parseHyperlinks, type Hyperlink } from '@automattic/social-previews';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useMemo, useRef } from 'react';
@@ -13,14 +14,13 @@ import useSocialMediaMessage from '../use-social-media-message';
 import { useSocialPreviewPostData } from '../use-social-preview-post-data';
 import type { Connection } from '../../social-store/types';
 import type { PostPreviewData } from '../use-social-preview-post-data/types';
-import type { Hyperlink } from '@automattic/social-previews';
 
 export type ConnectionPreviewData = PostPreviewData & {
 	message: string;
 	/**
-	 * Editor hyperlinks that the server resolved for this connection's rendered
-	 * message. Only the renderer knows which anchors survived into the message,
-	 * so these never come from the post body on the client.
+	 * Source-aware editor hyperlinks for this connection's rendered message.
+	 * Paid previews use the server result; legacy Bluesky previews mirror the
+	 * default title + excerpt assembly locally.
 	 */
 	hyperlinks: Hyperlink[];
 	isLoading: boolean;
@@ -32,6 +32,41 @@ export type ConnectionPreviewData = PostPreviewData & {
  * every preview on each social-store dispatch.
  */
 const EMPTY_HYPERLINKS: Hyperlink[] = [];
+
+const WORD_CHARACTER = /[\p{L}\p{M}\p{N}_]/u;
+
+/**
+ * Whether text appears as a standalone phrase, rather than inside a larger word.
+ *
+ * @param message - Text to search.
+ * @param text    - Phrase to find.
+ * @return Whether the phrase has a standalone occurrence.
+ */
+function containsStandaloneText( message: string, text: string ): boolean {
+	const first = text.match( /^./u )?.[ 0 ] ?? '';
+	const last = text.match( /.$/u )?.[ 0 ] ?? '';
+	let offset = 0;
+
+	while ( offset < message.length ) {
+		const index = message.indexOf( text, offset );
+		if ( index < 0 ) {
+			return false;
+		}
+
+		const before = message.slice( 0, index ).match( /.$/u )?.[ 0 ] ?? '';
+		const after = message.slice( index + text.length ).match( /^./u )?.[ 0 ] ?? '';
+		if (
+			( ! WORD_CHARACTER.test( first ) || ! WORD_CHARACTER.test( before ) ) &&
+			( ! WORD_CHARACTER.test( last ) || ! WORD_CHARACTER.test( after ) )
+		) {
+			return true;
+		}
+
+		offset = index + 1;
+	}
+
+	return false;
+}
 
 /**
  * Returns the post data needed for the preview of a specific connection.
@@ -120,6 +155,28 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 	const baseMessage = (
 		isPerNetworkMode ? connection.message ?? siteMessageTemplate : globalMessage
 	).trim();
+	const legacyHyperlinkSource = useSelect(
+		select => {
+			if ( templatesEnabled || connection.service_name !== 'bluesky' ) {
+				return '';
+			}
+
+			const { getEditedPostAttribute } = select( editorStore );
+			const content = ( getEditedPostAttribute( 'content' ) || '' ).split( '<!--more' )[ 0 ];
+
+			return getEditedPostAttribute( 'excerpt' ) || content;
+		},
+		[ templatesEnabled, connection.service_name ]
+	);
+	const legacyHyperlinks = useMemo(
+		() =>
+			baseMessage || ! legacyHyperlinkSource
+				? EMPTY_HYPERLINKS
+				: parseHyperlinks( legacyHyperlinkSource ).filter(
+						( { text } ) => ! containsStandaloneText( postData.title, text )
+				  ),
+		[ baseMessage, legacyHyperlinkSource, postData.title ]
+	);
 	const currentRenderItem = items.find( item => item.connection_id === connection.connection_id );
 
 	const { rendered, renderedHyperlinks, isLoadingRendered } = useSelect(
@@ -178,7 +235,7 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 		// disabled, or the request failed. While pending, fall back to the last
 		// rendered message, or to the skeleton (`isLoading`) when there is none.
 		let message = baseMessage;
-		let hyperlinks: Hyperlink[] = EMPTY_HYPERLINKS;
+		let hyperlinks: Hyperlink[] = legacyHyperlinks;
 		if ( templatesEnabled && typeof rendered === 'string' ) {
 			message = rendered;
 			hyperlinks = renderedHyperlinks;
@@ -201,6 +258,7 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 		isDebouncingRenderedMessage,
 		isLoadingRendered,
 		lastRendered,
+		legacyHyperlinks,
 		media,
 		postData,
 		rendered,

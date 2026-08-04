@@ -120,6 +120,7 @@ const defaultPostData = {
  * @param opts                   - Per-test overrides.
  * @param opts.postId            - Post id returned to the editor-store useSelect.
  * @param opts.messageTemplate   - Saved site message template.
+ * @param opts.legacySource      - Exact fallback body source for feature-off previews.
  * @param opts.rendered          - String returned for the rendered slice, or null to signal "no slice yet".
  * @param opts.hyperlinks        - Source-aware hyperlinks returned with the rendered message.
  * @param opts.isLoadingRendered - Whether the rendered-messages cache slot is currently in-flight.
@@ -128,6 +129,7 @@ function mockSelectCalls(
 	opts: {
 		postId?: number;
 		messageTemplate?: string;
+		legacySource?: string;
 		rendered?: string | null;
 		hyperlinks?: Array< { text: string; href: string; occurrence?: number } >;
 		isLoadingRendered?: boolean;
@@ -136,6 +138,7 @@ function mockSelectCalls(
 	const {
 		postId = 42,
 		messageTemplate = '',
+		legacySource = '',
 		rendered = null,
 		hyperlinks = [],
 		isLoadingRendered = false,
@@ -144,6 +147,7 @@ function mockSelectCalls(
 		.mockReturnValueOnce( postId )
 		.mockReturnValueOnce( 0 )
 		.mockReturnValueOnce( messageTemplate )
+		.mockReturnValueOnce( legacySource )
 		.mockReturnValueOnce( { rendered, renderedHyperlinks: hyperlinks, isLoadingRendered } );
 }
 
@@ -195,6 +199,82 @@ describe( 'useConnectionPreviewData', () => {
 		const { result } = renderHook( () => useConnectionPreviewData( connection ) );
 
 		expect( result.current.message ).toBe( 'Global message' );
+	} );
+
+	it( 'keeps hyperlinks from the legacy default body without paid features', () => {
+		mockSelectCalls( {
+			legacySource: '<p>Read the <a href="https://example.com/real">launch post</a> today.</p>',
+		} );
+		mockUseSocialMediaMessage.mockReturnValue( {
+			message: '',
+			updateMessage: jest.fn(),
+			maxLength: 280,
+		} );
+
+		const { result } = renderHook( () =>
+			useConnectionPreviewData( createMockConnection( { service_name: 'bluesky' } ) )
+		);
+
+		expect( result.current.hyperlinks ).toEqual( [
+			{ text: 'launch post', href: 'https://example.com/real', occurrence: 0 },
+		] );
+	} );
+
+	it( 'does not leak legacy body hyperlinks into a literal custom message', () => {
+		mockSelectCalls( {
+			legacySource: '<p>Later: <a href="https://example.com/unrelated">same phrase</a>.</p>',
+		} );
+
+		const { result } = renderHook( () =>
+			useConnectionPreviewData( createMockConnection( { service_name: 'bluesky' } ) )
+		);
+
+		expect( result.current.message ).toBe( 'Global message' );
+		expect( result.current.hyperlinks ).toEqual( [] );
+	} );
+
+	it( 'does not apply a legacy body hyperlink to matching title text', () => {
+		mockSelectCalls( {
+			legacySource: '<p>Read the <a href="https://example.com/real">launch post</a>.</p>',
+		} );
+		mockUseSocialMediaMessage.mockReturnValue( {
+			message: '',
+			updateMessage: jest.fn(),
+			maxLength: 280,
+		} );
+		mockUseSocialPreviewPostData.mockReturnValue( {
+			...defaultPostData,
+			title: 'launch post',
+		} );
+
+		const { result } = renderHook( () =>
+			useConnectionPreviewData( createMockConnection( { service_name: 'bluesky' } ) )
+		);
+
+		expect( result.current.hyperlinks ).toEqual( [] );
+	} );
+
+	it( 'keeps legacy body hyperlinks that only occur inside a larger title word', () => {
+		mockSelectCalls( {
+			legacySource: '<p>Read the <a href="https://example.com/real">post</a>.</p>',
+		} );
+		mockUseSocialMediaMessage.mockReturnValue( {
+			message: '',
+			updateMessage: jest.fn(),
+			maxLength: 280,
+		} );
+		mockUseSocialPreviewPostData.mockReturnValue( {
+			...defaultPostData,
+			title: 'Composted',
+		} );
+
+		const { result } = renderHook( () =>
+			useConnectionPreviewData( createMockConnection( { service_name: 'bluesky' } ) )
+		);
+
+		expect( result.current.hyperlinks ).toEqual( [
+			{ text: 'post', href: 'https://example.com/real', occurrence: 0 },
+		] );
 	} );
 
 	it( 'should trim the global message', () => {
