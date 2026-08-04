@@ -20,7 +20,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Utilities;
 /**
  * CSV Export Scheduler class.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Csv_Export_Scheduler implements Registrable_Interface {
 

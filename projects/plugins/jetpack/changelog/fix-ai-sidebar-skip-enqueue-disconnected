@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Jetpack AI: Skip the AI sidebar bundle, provider registration, and toolbar button for users without a connected WordPress.com account.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Stats: report the same date format in a time-series summary whether or not the response contained rows.

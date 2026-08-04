@@ -72,7 +72,7 @@ function is_woocommerce_dashboard_section_available() {
  * The sibling is_woocommerce_dashboard_section_available() answers "is
  * WooCommerce here"; this adds "and may this reader see store data".
  *
- * @since $$next-version$$
+ * @since 0.1.0
  *
  * @return bool
  */
