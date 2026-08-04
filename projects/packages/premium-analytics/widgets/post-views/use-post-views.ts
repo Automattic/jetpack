@@ -177,8 +177,9 @@ function bucketDays( days: StatsPostDay[], buckets: BucketWindow[] ): PostViewsP
  * Fetch the scoped post's view trend for the dashboard's report params. One
  * `stats/post` request carries the full daily view history; the selected
  * window is sliced from it client-side. The post detail design has no
- * period-over-period comparison, so comparison report params are ignored (the
- * route normalizes them out of the URL).
+ * period-over-period comparison, so comparison report params are ignored —
+ * they ride along in the URL untouched so dashboard state survives the round
+ * trip, and every widget on this page disregards them.
  *
  * @param postId       - The scoped post ID (0 disables the request).
  * @param reportParams - The dashboard date range.

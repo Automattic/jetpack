@@ -118,9 +118,10 @@ describe( 'EmailTimeSeriesWidget', () => {
 						preset: undefined,
 						from: '2026-07-01T00:00:00.000+08:00',
 						to: '2026-07-07T23:59:59.999+08:00',
-						// The post detail route normalizes comparison params away, but
-						// a widget receiving them anyway must neither fetch a second
-						// window nor draw an overlay — the page has no comparison.
+						// Comparison params pass through the post detail URL untouched
+						// (dashboard state survives the round trip), so a widget
+						// receiving them must neither fetch a second window nor draw
+						// an overlay — the page renders no comparison.
 						comp: '1',
 						compare_from: '2026-06-24T00:00:00.000+08:00',
 						compare_to: '2026-06-30T23:59:59.999+08:00',

@@ -68,8 +68,9 @@ type EmailTimeSeriesReportProps = {
  * date range and draws it as a line chart. The endpoint reports daily
  * buckets; weekly/monthly granularities aggregate them client-side. Only the
  * active metric's query runs. The post detail design has no period-over-period
- * comparison, so comparison report params are ignored (the route normalizes
- * them out of the URL).
+ * comparison, so comparison report params are ignored — they ride along in
+ * the URL untouched so dashboard state survives the round trip, and every
+ * widget on this page disregards them.
  *
  * @param {EmailTimeSeriesReportProps} props - The component props.
  * @return The widget content.
