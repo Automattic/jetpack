@@ -20,9 +20,25 @@ jest.mock( '@wordpress/core-data', () => ( {
 	store: {},
 } ) );
 
-jest.mock( '@wordpress/data', () => ( {
-	useSelect: () => [],
-} ) );
+// Falls through to the real module for everything but `useSelect`. Reaching the
+// externals passthrough pulls `@wordpress/components` -> `@wordpress/rich-text`
+// into the graph, whose store calls `combineReducers` at import time; a
+// `useSelect`-only mock leaves that undefined and the suite fails to load.
+// `requireActual` has to stay lazy — calling it in the factory body re-enters
+// the module while it is still initialising.
+jest.mock(
+	'@wordpress/data',
+	() =>
+		new Proxy(
+			{ useSelect: () => [] },
+			{
+				get: ( overrides, prop ) =>
+					prop in overrides
+						? overrides[ prop as keyof typeof overrides ]
+						: jest.requireActual( '@wordpress/data' )[ prop ],
+			}
+		)
+);
 
 jest.mock( '@wordpress/widget-dashboard', () => {
 	const WidgetDashboard = ( { children }: { children: ReactNode } ) => <>{ children }</>;

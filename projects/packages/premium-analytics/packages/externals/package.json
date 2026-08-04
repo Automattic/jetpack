@@ -14,6 +14,7 @@
 	],
 	"dependencies": {
 		"@automattic/charts": "workspace:*",
+		"@automattic/ui": "1.0.2",
 		"@wordpress/dataviews": "17.1.0",
 		"@wordpress/ui": "0.17.0",
 		"react": "18.3.1"

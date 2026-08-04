@@ -2,13 +2,13 @@
  * External dependencies
  */
 import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
+import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
 import { pickReportDateParams, useDashboardLink } from '@jetpack-premium-analytics/routing';
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Link, useParams, useSearch } from '@wordpress/route';
-import { Button, Stack, Text } from '@wordpress/ui';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 /**

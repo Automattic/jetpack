@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Blocks: Avoid parsing post content for filter blocks when none are present, preventing out-of-memory errors on large posts.

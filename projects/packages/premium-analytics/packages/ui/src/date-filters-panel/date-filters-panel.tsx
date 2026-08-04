@@ -8,11 +8,11 @@ import {
 	type ComparisonPresetId,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { BaseControl } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useMemo, useCallback, useState, useEffect } from 'react';
 /**

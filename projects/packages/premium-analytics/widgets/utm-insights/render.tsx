@@ -3,7 +3,7 @@
  */
 import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Text } from '@wordpress/ui';
+import { Text } from '@jetpack-premium-analytics/externals';
 import {
 	calculateDelta,
 	describeError,

@@ -1,5 +1,5 @@
 import { useState } from '@wordpress/element';
-import { Tabs } from '@wordpress/ui';
+import { Tabs } from '@jetpack-premium-analytics/externals';
 import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
 import { DashboardSections } from '../../../routes/dashboard/components';
 import styles from '../../../routes/dashboard/stage.module.scss';

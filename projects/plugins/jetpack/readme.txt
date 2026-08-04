@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, dlocc, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jennywp, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryanc413, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 16.1-a.5
+Stable tag: 16.1-beta
 Requires at least: 6.9
 Requires PHP: 7.2
 Tested up to: 7.0
@@ -326,16 +326,43 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 16.1-a.5 - 2026-07-27
+### 16.1-beta - 2026-08-03
 #### Enhancements
+- Account Protection: Add additional context to Verify your identity page to reduce user confusion.
 - Add aria-label to hidden Carousel download link for better accessibility.
+- Admin menu: Surface notification counts from the central menu-badges registry in the admin-menu REST endpoint.
+- AI Sidebar: Add Jetpack AI abilities in the page and site editors.
+- AI Sidebar: Align Editorial Review enablement with the other writing-assistance features.
+- AI Sidebar: Enable writing and SEO suggestions, the block toolbar button, and page and site editor support for all eligible users.
 - Change empty h2 and h3 tags in Carousel to div tags to fix SEO and accessibility warnings.
+- Content Guidelines: Add a Read more support link to the page description.
 - Content Guidelines AI: Make AI guideline suggestions available on WordPress.com Simple and Atomic sites, with a paid Jetpack AI or Complete plan required to generate guidelines.
+- Content Guidelines AI: Show AI buttons in the correct locked/unlocked state on first paint, omitting the AI UI for that load when the plan lookup fails.
+- Content Guidelines AI: Show the Generate/Improve buttons in a locked state for sites without an AI plan, and open the upgrade notice when clicked (even after dismissal). Prevent the AI buttons from briefly appearing unlocked while the feature check resolves.
+- Expose the AI Launchpad state options (enabled, dismissed, completed) in the /sites endpoint options.
 - Memberships: Add support for the Malaysian ringgit (MYR) currency.
+- Modules: Debounce the modules page search so results update smoothly while typing.
+- Modules: Hide the legacy VaultPress module row from the modules page, as it is permanently unavailable and superseded by the VaultPress Backup product.
+- Modules: In Offline Mode, surface the Modules page as the first Jetpack menu item so it loads by default, add an Offline Mode breadcrumb and explanatory notice, and add an "Available in offline mode" filter.
+- Modules: Refresh the modules page with a modern, core-UI look.
+- Modules: Update the tag filter counts on the modules page to reflect the currently-applied filters, and grey out tags with no matching modules.
+- Newsletter: Allow sending the test email to a chosen address, gated by the same abuse checks used when adding a subscriber.
+- Newsletter: Enable the modernized wp-admin dashboard and subscriber management for all sites by default.
+- Podcast: Release Podcast to self-hosted sites, enabled by default on new installations and available but disabled on existing installations.
+- Random Redirect: Restore module previously removed in Jetpack 13.6.
+- Reprint: Add full-site export support for Pressable and WordPress.com (Atomic) sites, so an authenticated client can pull a complete copy of a site.
 - REST API: Defer loading of WPCOM REST endpoint files to REST requests, saving execution time on every non-REST page load.
 - SEO: Add AI crawler management — free per-bot allow/block toggles (answer and mixed-use crawlers allowed, training crawlers blocked by default) that write robots.txt directives.
 - SEO: Add custom post type support and llms.txt generation.
+- SEO: Honor the per-site WordPress.com feature flag in plugin search suggestions.
+- Site Chat: Rename the public feature text from Reader Chat to Site Chat.
+- Site endpoint: Return `hosting_provider_guess` and `environment_type` from the single-site endpoint when explicitly requested via the `fields` parameter, matching `/me/sites`.
+- Social: Enable or disable the Social module directly from the Social dashboard, so it can be turned back on in environments where Jetpack Settings is unreachable.
+- Social: Surface a visible error when fetching the keyring result fails during a connection, instead of failing silently.
 - Social: The block editor sidebar now uses the same connection management UI as the Social admin page.
+- Stats: Add a link to the site-name admin bar menu.
+- Stats v2: Add a separate menu instead of replacing the existing Stats menu.
+- Update the license activation screen to use @wordpress/ui components.
 - VideoPress: Keep the VideoPress item under the Jetpack menu when the module is not active, linking to the My Jetpack page to activate it.
 - VideoPress: Upload videos added via the classic media-new.php uploader directly to VideoPress, matching the Media Library behavior.
 
@@ -344,12 +371,34 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Notifications: Show the notification bell in the admin bar on the Post editor and Site editor.
 
 #### Bug fixes
+- Bundle @wordpress/theme and @wordpress/private-apis into the admin build so the Jetpack dashboard script still loads on WordPress versions that do not register those script handles.
+- Calendly: Fix Button style rendering as inline calendar on Premium+ plans.
+- Carousel: Fix images not rendering in portrait orientation on mobile when a gallery image has no data-large-file attribute.
+- Carousel: Fix inconsistent behavior between keyboard and mouse for images linked to an attachment page.
 - Carousel: Show the already-loaded thumbnail while the full-size image downloads, so slides are no longer blank when moving quickly through a gallery.
+- Carousel: Stop adding a duplicate set of image data attributes to galleries.
 - Change EXIF data rendering to be dynamic via JavaScript to resolve empty list accessibility warning.
+- Content Guidelines AI: Read the banner-dismissed flag from user meta directly when preloading, so the empty-state banner and upgrade notice are no longer permanently suppressed on WordPress.com Simple sites.
+- Forms: Prevent duplicate field Name/IDs (from duplicating or copy/pasting a field) from collapsing into one another, which dropped fields from stored responses and email notifications.
+- Jetpack AI: Fix content guidelines generation failing on private sites.
+- Jetpack AI: Skip the AI sidebar bundle, provider registration, and toolbar button for users without a connected WordPress.com account.
 - Likes: Do not show the Like button on password-protected posts, even for viewers who can read the post (owners, admins, or after unlocking).
+- Likes: Restore the per-post Likes toggle in the block editor, which failed to register when withSelect returned a memo object.
 - Newsletter: Show a connect prompt when a WordPress.com user connection is required for email preview and test emails, and disable the "Send" button until connected.
+- Newsletter: Show which newsletter categories a subscriber receives emails for in the subscriber details panel.
+- Normalize the size, weight, centering, and alignment of block inserter icons across Jetpack monetize blocks (Donations, Tips, Payment Button, Paid Content, Tock, WhatsApp Button, and others) so they render consistently.
+- Paid Content: Expire subscription access at the end of the `end_date` day (UTC) rather than the exact purchase timestamp, so a same-day auto-renewal completes before access is cut.
+- Paid content: Preserve non-ASCII characters (emoji, Chinese, etc.) in the post URL when a subscriber logs in via "Already a paid subscriber?", so they are redirected back to the correct post instead of a 404.
+- Related Posts: Enqueue the block stylesheet whenever the block renders, so it is styled on pages and classic themes where the module's front-end asset gate does not run.
+- SEO: Fix custom per-page SEO title being ignored when the page is set as the site's homepage and the Front Page title format in Jetpack Settings is blank.
+- SEO: Preserve legacy homepage description storage and length limits when saving dashboard settings.
 - SEO: Preserve Sitemaps and Canonical URLs settings when runtime filters temporarily suppress their modules.
+- Sharing: Guide block-theme users from legacy sharing buttons to the Sharing Buttons block.
+- Subscriptions: Fix `wp_maybe_inline_styles` notice for the `jetpack-subscriptions` stylesheet by registering a filesystem path instead of a URL.
+- Subscriptions: Stop the site settings endpoint from saving unchanged subscription message defaults; translate the default subscription options using the user locale.
 - Tiled Gallery: Fix images collapsing to ~105px in the editor when the canvas is not iframed.
+- Tiled Gallery: Fix rows rendering at partial width after an alignment change, and correct the srcset on published galleries.
+- VideoPress: Fix legacy video block previews in the editor.
 
 --------
 

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Plugins: Return a meaningful message when plugin activation fails.

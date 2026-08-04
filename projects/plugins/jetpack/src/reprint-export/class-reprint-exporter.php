@@ -108,7 +108,7 @@ class Reprint_Exporter {
 		 *
 		 * Default: true on Pressable and WordPress.com (Atomic), false elsewhere.
 		 *
-		 * @since $$next-version$$
+		 * @since 16.1
 		 *
 		 * @param bool $available Whether Reprint export support is available.
 		 */

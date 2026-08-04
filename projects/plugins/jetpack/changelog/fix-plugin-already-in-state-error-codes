@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Plugins: Add a reason to activation and deactivation errors when the plugin is already in the requested state.

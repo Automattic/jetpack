@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Remove redundant workaround for a page loading edge case now fixed in bundled dependencies. No functional change.
