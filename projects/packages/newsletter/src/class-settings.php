@@ -338,13 +338,16 @@ class Settings {
 		// other caller — runs on the modernized path alone. Without this,
 		// WordPress silently drops the script over the unregistered dependency
 		// and the page renders blank. Request only the handles this bundle needs:
-		// `wp-theme` (Core never registers it) and `wp-private-apis` (so the
-		// polyfill can replace Core's incomplete allowlist on older WP). We leave
-		// out `wp-notices` so the polyfill's force-replacement never touches it.
+		// `wp-theme` (Core never registers it), `wp-private-apis` (so the polyfill
+		// can replace Core's incomplete allowlist on older WP) and `wp-rich-text`
+		// (`@wordpress/ui` also reaches `@wordpress/dataviews`, whose dataform
+		// controls unlock rich-text's `privateApis` at module scope; WP 6.9 exports
+		// none, which throws "Cannot unlock an undefined object"). We leave out
+		// `wp-notices` so the polyfill's force-replacement never touches it.
 		if ( class_exists( \Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::class ) ) {
 			\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
 				'jetpack-newsletter',
-				array( 'wp-theme', 'wp-private-apis' )
+				array( 'wp-theme', 'wp-private-apis', 'wp-rich-text' )
 			);
 		}
 
