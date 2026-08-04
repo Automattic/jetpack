@@ -1016,10 +1016,15 @@ function buildEmailBreakdownResponse( requestPath: string ): unknown {
  * @return The mock response body, or `null` if no specific handler matched.
  */
 function routeStatsReport( subPath: string, requestPath: string ): unknown {
-	// Single-post detail — `stats/post/{id}`. Any post ID resolves to the
-	// shared fixture so post-scoped widgets render real values.
-	if ( subPath.startsWith( '/post/' ) ) {
-		return mockStatsPostData;
+	// Single-post detail — `stats/post/{id}`. Any post ID resolves to the shared
+	// fixture, but the fixture must report the ID that was asked for: widgets
+	// attribute metrics to the current post and skeleton on a mismatch.
+	const statsPost = subPath.match( /^\/post\/(\d+)/ );
+	if ( statsPost ) {
+		return {
+			...mockStatsPostData,
+			post: { ...mockStatsPostData.post, ID: Number( statsPost[ 1 ] ) },
+		};
 	}
 
 	// Single-video detail: `/video/{postId}` (drives video detail widgets).

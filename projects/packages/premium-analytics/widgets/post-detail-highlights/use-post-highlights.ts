@@ -100,7 +100,7 @@ export default function usePostHighlights(
 		return {
 			views,
 			viewsPrevious,
-			comments: Number( data?.post?.comment_count ) || 0,
+			comments: data?.post?.comment_count ?? 0,
 			likes: data?.like_count ?? 0,
 			hasComparison,
 		};

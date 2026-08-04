@@ -9,17 +9,6 @@ import {
 	type LatestPostResponse,
 } from '@jetpack-premium-analytics/data';
 
-/**
- * Parses the Stats row's string-or-number `comment_count`, keeping an absent
- * count absent so it can render as unknown rather than as a real zero.
- *
- * @param value - The raw `comment_count`.
- * @return The count, or undefined when absent.
- */
-function toCommentCount( value: string | number | undefined ): number | undefined {
-	return value === undefined ? undefined : Number( value ) || 0;
-}
-
 export type LatestPostWithMetrics = LatestPost & {
 	/** All-time totals from the Stats post endpoint; undefined when unknown. */
 	views: number | undefined;
@@ -76,7 +65,7 @@ export function useLatestPost(): UseLatestPostResult {
 				// Undefined rather than zeroed, so a 403 cannot read as "Likes 0".
 				views: postStatsResult.data?.views,
 				likeCount: postStatsResult.data?.like_count,
-				commentCount: toCommentCount( postStatsResult.data?.post?.comment_count ),
+				commentCount: postStatsResult.data?.post?.comment_count,
 		  }
 		: null;
 

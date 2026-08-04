@@ -22,17 +22,6 @@ const POPULAR_POST_TYPES = [ 'post' ];
 // while a qualifying post ranks lower; only a `post_type`-filtered endpoint fixes that.
 const POPULAR_POST_REQUEST_MAX = 20;
 
-/**
- * Parses the Stats row's string-or-number `comment_count`, keeping an absent
- * count absent so it can render as unknown rather than as a real zero.
- *
- * @param value - The raw `comment_count`.
- * @return The count, or undefined when absent.
- */
-function toCommentCount( value: string | number | undefined ): number | undefined {
-	return value === undefined ? undefined : Number( value ) || 0;
-}
-
 export type PopularPostWithMetrics = {
 	id: number;
 	title: string;
@@ -145,7 +134,7 @@ export function usePopularPost( reportParams: ReportParams ): UsePopularPostResu
 				// Undefined rather than zeroed, so a 403 cannot read as "Likes 0".
 				views: metrics?.views,
 				likeCount: metrics?.like_count,
-				commentCount: toCommentCount( metrics?.post?.comment_count ),
+				commentCount: metrics?.post?.comment_count,
 		  }
 		: null;
 
