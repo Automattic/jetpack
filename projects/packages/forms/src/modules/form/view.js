@@ -633,6 +633,16 @@ const { state, actions } = store( NAMESPACE, {
 			// filling the form in again would report a duration that also covers the first
 			// submission and the time spent reading the confirmation.
 			context.formFirstInteractionTime = null;
+			// Clear the hidden input too. The timer alone is not enough: the write on submit is
+			// conditional, so a leftover value from the previous submission could otherwise be
+			// sent again as if it were a fresh measurement.
+			const durationField = getForm( context.formHash )?.querySelector(
+				`input[name="${ FORM_FILL_DURATION_FIELD }"]`
+			);
+
+			if ( durationField ) {
+				durationField.value = '';
+			}
 
 			// Dispatch custom events to reset all fields
 			const formElement = document.getElementById( context.elementId );
