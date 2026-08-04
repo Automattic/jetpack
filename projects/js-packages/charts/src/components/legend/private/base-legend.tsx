@@ -116,9 +116,17 @@ export const BaseLegend: ForwardRefExoticComponent<
 
 		// Handle legend item clicks for interactive mode
 		const handleLegendClick = useCallback(
-			( seriesLabel: string ) => {
+			( seriesLabels: string[] ) => {
 				if ( interactive && chartId && context ) {
-					context.toggleSeriesVisibility( chartId, seriesLabel );
+					// Converge the whole group on the representative's next state: only toggle series that
+					// currently match it, so a desynced group (e.g. one member hidden programmatically)
+					// ends up uniformly hidden/shown after one click.
+					const representativeVisible = context.isSeriesVisible( chartId, seriesLabels[ 0 ] );
+					seriesLabels.forEach( label => {
+						if ( context.isSeriesVisible( chartId, label ) === representativeVisible ) {
+							context.toggleSeriesVisibility( chartId, label );
+						}
+					} );
 				}
 			},
 			[ interactive, chartId, context ]
@@ -137,24 +145,24 @@ export const BaseLegend: ForwardRefExoticComponent<
 
 		// Create event handlers to avoid inline arrow functions
 		const createClickHandler = useCallback(
-			( labelText: string ) => {
+			( seriesLabels: string[] ) => {
 				if ( ! interactive ) {
 					return undefined;
 				}
-				return () => handleLegendClick( labelText );
+				return () => handleLegendClick( seriesLabels );
 			},
 			[ interactive, handleLegendClick ]
 		);
 
 		const createKeyDownHandler = useCallback(
-			( labelText: string ) => {
+			( seriesLabels: string[] ) => {
 				if ( ! interactive ) {
 					return undefined;
 				}
 				return ( event: KeyboardEvent ) => {
 					if ( event.key === 'Enter' || event.key === ' ' ) {
 						event.preventDefault();
-						handleLegendClick( labelText );
+						handleLegendClick( seriesLabels );
 					}
 				};
 			},
@@ -185,10 +193,14 @@ export const BaseLegend: ForwardRefExoticComponent<
 						style={ theme.legend?.containerStyles }
 					>
 						{ labels.map( ( label, i ) => {
-							const visible = isSeriesVisible( label.text );
-							const handleClick = createClickHandler( label.text );
-							const handleKeyDown = createKeyDownHandler( label.text );
 							const matchedItem = items[ i ];
+							// A grouped item toggles/reads every series it controls; a plain item just its own.
+							const seriesLabels = matchedItem?.seriesLabels?.length
+								? matchedItem.seriesLabels
+								: [ label.text ];
+							const visible = isSeriesVisible( seriesLabels[ 0 ] );
+							const handleClick = createClickHandler( seriesLabels );
+							const handleKeyDown = createKeyDownHandler( seriesLabels );
 
 							return (
 								<LegendItem

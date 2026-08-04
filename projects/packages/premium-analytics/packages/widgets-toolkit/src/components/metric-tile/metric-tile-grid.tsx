@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Icon, Text, VisuallyHidden } from '@wordpress/ui';
+import { Icon, Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import clsx from 'clsx';
 /**
  * Internal dependencies

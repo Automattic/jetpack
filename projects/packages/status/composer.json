@@ -48,7 +48,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "6.1.x-dev"
+			"dev-trunk": "6.2.x-dev"
 		},
 		"dependencies": {
 			"test-only": [

@@ -4,6 +4,7 @@
 import { useStatsEmailSummary, type StatsEmailSummary } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardPostLabel,
 	ReportLink,
 	WidgetFooter,
 	WidgetRoot,
@@ -35,6 +36,14 @@ export type EmailRow = {
 	 * Stable identifier for the email (post ID or, as a fallback, the array index).
 	 */
 	id: string | number;
+	/**
+	 * Post ID of the newsletter, when the report carries one.
+	 */
+	postId?: string | number;
+	/**
+	 * Public URL of the newsletter.
+	 */
+	link?: string | null;
 	/**
 	 * Email subject line.
 	 */
@@ -71,9 +80,13 @@ function buildLeaderboardData( rows: EmailRow[], metric: EmailMetric ): Leaderbo
 		return {
 			id: String( row.id ),
 			label: (
-				<span className={ styles.label } title={ row.label }>
-					{ row.label }
-				</span>
+				<LeaderboardPostLabel
+					id={ row.postId }
+					label={ row.label }
+					link={ row.link }
+					section={ metric === 'clicks' ? 'email-clicks' : 'email-opens' }
+					variant="overlay"
+				/>
 			),
 			// `LeaderboardChart` formats the value as a percentage, so the rate
 			// is expressed as a fraction here.
@@ -146,6 +159,8 @@ function toEmailRows( report: StatsEmailSummary | undefined, max: number ): Emai
 	// `max = 0 → all rows` convention and a guard against an over-long response.
 	return items.slice( 0, max > 0 ? max : undefined ).map( ( item, index ) => ( {
 		id: item.id ?? index,
+		postId: item.id,
+		link: typeof item.link === 'string' ? item.link : null,
 		label: String( item.label ?? '' ),
 		opensRate: item.opens_rate,
 		clicksRate: item.clicks_rate,

@@ -52,7 +52,7 @@ export { compareEmailBreakdownItems, sanitizeStatsEmailBreakdownResponse } from 
 export { mergeStatsArchivesComparisonRows, sanitizeStatsArchivesResponse } from './archives';
 export { sanitizeStatsCommentFollowersResponse } from './comment-followers';
 export { sanitizeStatsFollowersResponse } from './followers';
-export { sanitizeStatsCommentsResponse } from './comments';
+export { sanitizeStatsCommentsResponse, selectStatsCommentsRows } from './comments';
 export {
 	sanitizeStatsSubscribersResponse,
 	sanitizeStatsSubscribersCountsResponse,
@@ -135,6 +135,7 @@ export type {
 } from './followers';
 export type {
 	StatsCommentsAuthorItem,
+	StatsCommentsGroup,
 	StatsCommentsGroupItem,
 	StatsCommentsItem,
 	StatsCommentsPostItem,
@@ -143,6 +144,7 @@ export type {
 	StatsCommentsRawPost,
 	StatsCommentsRawResponse,
 	StatsCommentsResponse,
+	StatsCommentsRow,
 } from './comments';
 export type {
 	StatsSubscribersCounts,

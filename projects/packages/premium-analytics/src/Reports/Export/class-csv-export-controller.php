@@ -13,6 +13,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
 defined( 'ABSPATH' ) || exit;
 
+use Automattic\Jetpack\PremiumAnalytics\Capabilities;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Logging\Logger_Interface;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Logger_Trait;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Utilities;
@@ -24,7 +25,7 @@ use WP_REST_Response;
 /**
  * CSV Export Controller class.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Csv_Export_Controller extends WC_REST_Controller implements Registrable_Interface {
 
@@ -135,14 +136,14 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 	/**
 	 * Check if user has permission to export reports.
 	 *
-	 * Must match the capability the analytics proxy enforces (`manage_options` for the
-	 * `analytics` prefix in Api_Proxy_Controller); otherwise the route would advertise
-	 * access the async data fetch cannot honor, scheduling a job that then fails.
+	 * Must match the capability the analytics proxy enforces (the `analytics` prefix
+	 * in Api_Proxy_Controller); otherwise the route would advertise access the async
+	 * data fetch cannot honor, scheduling a job that then fails.
 	 *
 	 * @return bool True if user has permission.
 	 */
 	public function check_permission(): bool {
-		return current_user_can( 'manage_options' );
+		return Capabilities::current_user_can_view_store_reports();
 	}
 
 	/**

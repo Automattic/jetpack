@@ -28,15 +28,25 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.7.0';
+	const PACKAGE_VERSION = '0.8.0';
 
 	/**
-	 * Filter name that gates the entire Jetpack SEO surface.
+	 * WordPress.com site feature that enables the Jetpack SEO surface.
 	 *
-	 * When this filter returns true, the package registers its admin menu and
-	 * loads the wp-build dashboard. Default false before release - when the
-	 * filter is off the package registers no admin menu and no assets, and
-	 * changes nothing about the existing Jetpack UI.
+	 * Kept separate from `advanced-seo`, which gates the paid parts of the
+	 * dashboard after this product-level availability check has passed.
+	 *
+	 * @var string
+	 */
+	const FEATURE_SLUG = 'seo-admin-ui';
+
+	/**
+	 * Filter name that can enable the entire Jetpack SEO surface.
+	 *
+	 * The surface is available when this filter returns true or the current site's
+	 * active features include {@see self::FEATURE_SLUG}. When neither is enabled,
+	 * the package registers no admin menu or assets and changes nothing about the
+	 * existing Jetpack UI.
 	 *
 	 * @var string
 	 */
@@ -127,8 +137,8 @@ class Initializer {
 		}
 		self::$initialized = true;
 
-		// Gate the entire SEO surface behind the feature flag.
-		if ( ! (bool) apply_filters( self::FEATURE_FILTER, false ) ) {
+		// Gate the entire SEO surface behind its legacy filter or per-site feature.
+		if ( ! self::is_available() ) {
 			return;
 		}
 
@@ -242,6 +252,26 @@ class Initializer {
 		 * @since 0.1.0
 		 */
 		do_action( 'jetpack_seo_init' );
+	}
+
+	/**
+	 * Whether the Jetpack SEO product is available on this site.
+	 *
+	 * Keep the existing filter as an override while allowing WordPress.com to
+	 * enable the product for individual sites through its feature registry.
+	 *
+	 * @return bool
+	 */
+	public static function is_available() {
+		if ( (bool) apply_filters( self::FEATURE_FILTER, false ) ) {
+			return true;
+		}
+
+		$features = ( new Host() )->is_wpcom_simple()
+			? Current_Plan::get_simple_site_specific_features()
+			: Current_Plan::get()['features'];
+
+		return in_array( self::FEATURE_SLUG, $features['active'] ?? array(), true );
 	}
 
 	/**

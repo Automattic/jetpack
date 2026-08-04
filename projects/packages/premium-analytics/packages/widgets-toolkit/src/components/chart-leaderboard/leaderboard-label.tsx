@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useState } from 'react';
 /**

@@ -8,27 +8,65 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Constants;
-use PHPUnit\Framework\TestCase;
+use WorDBless\BaseTestCase;
+use WP_REST_Request;
 use WP_REST_Server;
 
 require_once __DIR__ . '/../../src/dashboard-layout.php';
+require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
 
 /**
  * Tests for Premium Analytics dashboard layout defaults.
  */
-class Dashboard_Layout_Test extends TestCase {
+class Dashboard_Layout_Test extends BaseTestCase {
+
+	use Analytics_Capabilities_Trait;
 
 	const ROUTE        = '/wpcom/v2/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)*)/default-layout';
 	const LEGACY_ROUTE = '/jetpack/v4/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)*)/default-layout';
 
 	/**
-	 * Reset REST globals and constants between tests.
+	 * Reset REST globals, capabilities, and constants between tests.
 	 */
-	protected function tearDown(): void {
+	public function tear_down() {
 		global $wp_rest_server;
 		$wp_rest_server = null;
+		$this->reset_analytics_capabilities();
+		wp_set_current_user( 0 );
 		Constants::clear_constants();
-		parent::tearDown();
+		parent::tear_down();
+	}
+
+	/**
+	 * Boots the route with the capability mapping its permission callback needs.
+	 *
+	 * @return void
+	 */
+	private function register_route_with_capabilities() {
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
+
+		register_dashboard_default_layout_route();
+		Capabilities::register();
+	}
+
+	/**
+	 * Requests a dashboard's default layout and returns the widget types served.
+	 *
+	 * @param string $url_name   Dashboard name in the URL path.
+	 * @param string $query_name Optional dashboard name sent as a query param.
+	 * @return array{0:int,1:string[]} Response status and widget types.
+	 */
+	private function request_default_layout( $url_name, $query_name = null ) {
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/' . $url_name . '/default-layout' );
+
+		if ( null !== $query_name ) {
+			$request->set_query_params( array( 'name' => $query_name ) );
+		}
+
+		$response = rest_get_server()->dispatch( $request );
+
+		return array( $response->get_status(), array_column( (array) $response->get_data(), 'type' ) );
 	}
 
 	/**
@@ -48,6 +86,78 @@ class Dashboard_Layout_Test extends TestCase {
 
 		$this->assertArrayHasKey( self::ROUTE, $routes );
 		$this->assertArrayNotHasKey( self::LEGACY_ROUTE, $routes );
+	}
+
+	/**
+	 * The dashboard fetches this route on boot, so it has to admit every reader
+	 * the dashboard itself admits — not administrators only.
+	 */
+	public function test_default_layout_route_is_gated_on_the_dashboard_capability() {
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
+
+		register_dashboard_default_layout_route();
+
+		$routes = rest_get_server()->get_routes();
+
+		$this->assertSame(
+			array( Capabilities::class, 'current_user_can_view_analytics' ),
+			$routes[ self::ROUTE ][0]['permission_callback']
+		);
+	}
+
+	/**
+	 * `store` is one of the tab aliases the name resolves through and matches the
+	 * route's own name pattern, so the store tab is reachable straight from the
+	 * URL — a reader admitted by view_stats alone must not be served its layout.
+	 */
+	public function test_default_layout_route_refuses_the_store_tab_for_a_view_stats_reader() {
+		$this->register_route_with_capabilities();
+		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
+
+		list( $status ) = $this->request_default_layout( DASHBOARD_STORE_SECTION_ID );
+
+		$this->assertSame( 404, $status );
+	}
+
+	/**
+	 * WordPress reads query params ahead of the URL capture, so `?name=` reaches
+	 * the callback with a value the route pattern would never have matched.
+	 */
+	public function test_default_layout_route_refuses_a_name_shadowed_store_tab() {
+		$this->register_route_with_capabilities();
+		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
+
+		list( $status ) = $this->request_default_layout( DASHBOARD_NAME, 'woocommerce/store' );
+
+		$this->assertSame( 404, $status );
+	}
+
+	/**
+	 * The refusal is the reader's, not the tab's: an administrator still gets it.
+	 */
+	public function test_default_layout_route_serves_the_store_tab_to_an_administrator() {
+		$this->register_route_with_capabilities();
+		$this->login_as( 'administrator' );
+
+		list( $status, $types ) = $this->request_default_layout( DASHBOARD_STORE_SECTION_ID );
+
+		$this->assertSame( 200, $status );
+		$this->assertContains( 'jpa/store-performance', $types );
+	}
+
+	/**
+	 * Only the store tab is gated: the reader's own tabs are served as before.
+	 */
+	public function test_default_layout_route_serves_the_traffic_tab_to_a_view_stats_reader() {
+		$this->register_route_with_capabilities();
+		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
+
+		list( $status, $types ) = $this->request_default_layout( DASHBOARD_NAME );
+
+		$this->assertSame( 200, $status );
+		$this->assertContains( 'jpa/traffic-chart', $types );
+		$this->assertNotContains( 'jpa/store-performance', $types );
 	}
 
 	/**
@@ -183,7 +293,26 @@ class Dashboard_Layout_Test extends TestCase {
 		$this->assertNotContains( 'jpa/videopress', $layout_types );
 		// Emails is not an Insights module — it lives on the Subscribers tab.
 		$this->assertNotContains( 'jpa/stats-emails', $layout_types );
+		// The Comments module ships as two focused widgets, not one toggled widget.
+		$this->assertContains( 'jpa/most-commented-authors', $layout_types );
+		$this->assertContains( 'jpa/most-commented-posts', $layout_types );
+		$this->assertNotContains( 'jpa/comments', $layout_types );
 		$this->assertContains( 'jpa/shares', $layout_types );
+		$this->assertSame(
+			array(
+				'uuid'       => 'default-most-commented-posts-widget-instance',
+				'type'       => 'jpa/most-commented-posts',
+				'attributes' => array(
+					'max' => 10,
+				),
+				'placement'  => array(
+					'width'  => 1,
+					'height' => 2,
+					'order'  => 7,
+				),
+			),
+			$layout_by_uuid['default-most-commented-posts-widget-instance']
+		);
 		$this->assertSame(
 			array(
 				'uuid'       => 'default-shares-widget-instance',
@@ -194,7 +323,7 @@ class Dashboard_Layout_Test extends TestCase {
 				'placement'  => array(
 					'width'  => 1,
 					'height' => 2,
-					'order'  => 8,
+					'order'  => 9,
 				),
 			),
 			$layout_by_uuid['default-shares-widget-instance']

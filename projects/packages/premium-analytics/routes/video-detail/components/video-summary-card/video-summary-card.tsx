@@ -1,10 +1,10 @@
 /**
  * External dependencies
  */
+import { Icon, Text } from '@jetpack-premium-analytics/externals';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { video } from '@wordpress/icons';
-import { Icon, Text } from '@wordpress/ui';
 import { format, isValid } from 'date-fns';
 /**
  * Internal dependencies

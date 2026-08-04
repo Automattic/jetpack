@@ -1,7 +1,14 @@
 import { GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { Page } from '@wordpress/admin-ui';
 import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
-import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from 'react';
+import {
+	useEffect,
+	useMemo,
+	useState,
+	type CSSProperties,
+	type ComponentType,
+	type ReactNode,
+} from 'react';
 import type { ArgTypes } from '@storybook/react';
 import type {
 	ResolveWidgetModule,
@@ -14,7 +21,10 @@ import type {
 import { StoryRouterProvider } from './with-story-router';
 
 const DASHBOARD_ROW_HEIGHT = 300;
-const DASHBOARD_GRID_GAP = 24;
+// Mirrors the route stages' `--wp-grid-gap` override, so edit-mode track guides and the
+// four-column canvas width below match production. Keep the two forms in sync.
+const DASHBOARD_GRID_GAP_TOKEN = 'var(--wpds-dimension-gap-lg)';
+const DASHBOARD_GRID_GAP = 16;
 const DASHBOARD_ONE_COLUMN_WIDTH = 381;
 const DASHBOARD_PAGE_INLINE_PADDING = 48;
 
@@ -213,13 +223,16 @@ export function WidgetDashboardWithWidget( {
 						} }
 					>
 						<div
-							style={ {
-								display: 'flex',
-								flex: '1 1 auto',
-								flexDirection: 'column',
-								inlineSize: dashboardWidth,
-								minBlockSize: 0,
-							} }
+							style={
+								{
+									display: 'flex',
+									flex: '1 1 auto',
+									flexDirection: 'column',
+									inlineSize: dashboardWidth,
+									minBlockSize: 0,
+									'--wp-grid-gap': DASHBOARD_GRID_GAP_TOKEN,
+								} as CSSProperties
+							}
 						>
 							<WidgetDashboard
 								layout={ layout }

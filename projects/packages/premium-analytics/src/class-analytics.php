@@ -22,7 +22,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -130,6 +130,9 @@ class Analytics {
 	 * @return void
 	 */
 	private static function boot_shared_services() {
+		// Must be hooked before admin_menu and rest_api_init check the capability.
+		Capabilities::register();
+
 		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
 		WooCommerce_Analytics_Tracker::configure();
 
@@ -332,7 +335,7 @@ class Analytics {
 		add_menu_page(
 			esc_html( $menu_title ),
 			esc_html( $menu_title ),
-			'manage_options',
+			Capabilities::VIEW_ANALYTICS,
 			'jetpack-premium-analytics-wp-admin',
 			$render_callback,
 			'dashicons-chart-bar',

@@ -1,13 +1,18 @@
 import { GlobalErrorProvider } from '@jetpack-premium-analytics/data';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel, SectionHeader, SectionTabPanel } from '@jetpack-premium-analytics/ui';
+import {
+	DateFiltersPanel,
+	SectionHeader,
+	SectionTabPanel,
+	getSectionSubtitle,
+} from '@jetpack-premium-analytics/ui';
 import { Page, Breadcrumbs } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
@@ -49,9 +54,17 @@ function Dashboard(): JSX.Element {
 		[]
 	);
 
-	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
-
 	const [ editMode, setEditMode ] = useState( false );
+
+	// Only the widgets this section renders need their metadata resolved at
+	// boot; the complete registry is what the widget picker lists, so it can
+	// wait for edit mode. `null` until the sections resolve — the layout is
+	// empty until then, and this hook runs on those renders too, below the
+	// spinner returned further down. See `useWidgetTypesWithI18n`.
+	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules, {
+		visibleNames: hasResolvedSections ? layout.map( widget => widget.type ) : null,
+		includeAll: editMode,
+	} );
 
 	/*
 	 * Date-range state lives in the URL search params. The shared controller
@@ -60,8 +73,20 @@ function Dashboard(): JSX.Element {
 	 */
 	const dateFilters = useReportDateFilters( '/' );
 
-	// Container element for the date filters panel responsive layout.
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
+	/*
+	 * The subtitle states what the widgets are currently showing, so it follows
+	 * the applied range and comparison rather than the picker's staged draft:
+	 * it must not move while an edit is open, only once Apply commits it.
+	 */
+	const sectionSubtitle = useMemo(
+		() =>
+			getSectionSubtitle( {
+				range: dateFilters.appliedRange,
+				presetId: dateFilters.appliedPresetId,
+				comparisonPresetId: dateFilters.appliedComparisonPresetId,
+			} ),
+		[ dateFilters.appliedRange, dateFilters.appliedPresetId, dateFilters.appliedComparisonPresetId ]
+	);
 
 	// The sections carry each section's default layout, so until the entity
 	// resolves the layout above is transiently empty. WidgetDashboard treats an
@@ -94,6 +119,10 @@ function Dashboard(): JSX.Element {
 							items={ [ { label: __( 'Analytics', 'jetpack-premium-analytics-pkg' ) } ] }
 						/>
 					}
+					subTitle={ __(
+						'Track your site performance and visitor insights.',
+						'jetpack-premium-analytics-pkg'
+					) }
 					actions={ <WidgetDashboard.Actions /> }
 					className={ styles.dashboard }
 				>
@@ -108,16 +137,14 @@ function Dashboard(): JSX.Element {
 								value={ section.slug }
 								className={ styles.content }
 							>
-								<div ref={ setContainerElement } className={ styles.sectionHeader }>
-									<SectionHeader title={ section.label }>
-										<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-									</SectionHeader>
-								</div>
+								<SectionHeader title={ section.label } subtitle={ sectionSubtitle }>
+									<DateFiltersPanel { ...dateFilters } />
+								</SectionHeader>
 
 								{ activeSection === section.slug ? (
 									<>
 										<WidgetDashboard.NoWidgetsState />
-										<WidgetDashboard.Widgets />
+										<WidgetDashboard.Widgets className={ styles.widgets } />
 									</>
 								) : null }
 							</SectionTabPanel>

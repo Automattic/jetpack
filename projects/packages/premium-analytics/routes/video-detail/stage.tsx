@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
+import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
 import {
 	pickReportDateParams,
 	useDashboardLink,
@@ -12,7 +13,6 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Link, useParams, useSearch } from '@wordpress/route';
-import { Button, Stack, Text } from '@wordpress/ui';
 import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 /**
@@ -149,7 +149,7 @@ function VideoDetail(): JSX.Element {
 					) : null }
 					{ canRenderWidgets ? (
 						<div className={ styles.content }>
-							<WidgetDashboard.Widgets />
+							<WidgetDashboard.Widgets className={ styles.widgets } />
 						</div>
 					) : null }
 				</div>

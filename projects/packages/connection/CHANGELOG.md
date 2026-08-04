@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.8.2] - 2026-08-03
+### Changed
+- Update dependencies. [#50674]
+
+## [8.8.1] - 2026-07-31
+### Added
+- Connection: Expose the connection-error audience (site/owner/user) to the Jetpack dashboard so error notices can be tailored to the viewer.
+
+### Changed
+- Connection: Fetch connected user data from WordPress.com over REST instead of XML-RPC.
+
+### Fixed
+- Connection: cache wpcom.getUser XML-RPC failures briefly in get_connected_user_data().
+
 ## [8.8.0] - 2026-07-27
 ### Added
 - Show non-owner admins who needs to reconnect instead of a reconnect button when connection ownership is locked. [#50662]
@@ -1960,6 +1974,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[8.8.2]: https://github.com/Automattic/jetpack-connection/compare/v8.8.1...v8.8.2
+[8.8.1]: https://github.com/Automattic/jetpack-connection/compare/v8.8.0...v8.8.1
 [8.8.0]: https://github.com/Automattic/jetpack-connection/compare/v8.7.10...v8.8.0
 [8.7.10]: https://github.com/Automattic/jetpack-connection/compare/v8.7.9...v8.7.10
 [8.7.9]: https://github.com/Automattic/jetpack-connection/compare/v8.7.8...v8.7.9

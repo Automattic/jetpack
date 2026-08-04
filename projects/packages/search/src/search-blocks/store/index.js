@@ -492,6 +492,14 @@ function* fetchResults( pageHandle ) {
 		// so a same-keyed default in the `store()` state object would be applied
 		// *after* and clobber the seeded value back down every time.
 		size: state.resultsPerPage ?? 10,
+		// Instant Search options seeded by Search_Blocks — no client defaults
+		// so a missing seed stays unset rather than overriding PHP.
+		highlightPhraseOnly: state.highlightPhraseOnly ?? false,
+		highlightFilterStopwords: state.highlightFilterStopwords ?? [],
+		highlightFields: state.highlightFields ?? null,
+		additionalBlogIds: state.additionalBlogIds ?? [],
+		adminQueryFilter: state.adminQueryFilter ?? null,
+		customResults: state.customResults ?? [],
 	} );
 	const response = yield fetch( url, {
 		headers: state.isPrivateSite ? { 'X-WP-Nonce': state.nonce } : {},

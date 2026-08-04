@@ -1,10 +1,9 @@
 /**
  * External dependencies
  */
-import { useGlobalChartsContext } from '@automattic/charts';
+import { useGlobalChartsContext, type SeriesData } from '@jetpack-premium-analytics/externals';
 import { useMemo } from 'react';
 import type { BarChartStyle } from '../../components';
-import type { SeriesData } from '@automattic/charts';
 
 /**
  * Internal dependencies

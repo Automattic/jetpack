@@ -11,22 +11,22 @@
 		"*.scss"
 	],
 	"dependencies": {
-		"@automattic/ui": "1.0.2",
 		"@jetpack-premium-analytics/datetime": "workspace:*",
+		"@jetpack-premium-analytics/externals": "workspace:*",
 		"@jetpack-premium-analytics/formatters": "workspace:*",
 		"@wordpress/components": "37.0.0",
 		"@wordpress/compose": "8.4.0",
-		"@wordpress/dataviews": "17.1.0",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^15.0.0",
-		"@wordpress/ui": "0.17.0",
 		"clsx": "2.1.1",
 		"react": "18.3.1"
 	},
 	"devDependencies": {
+		"@date-fns/tz": "1.4.1",
 		"@storybook/react": "10.4.6",
 		"@testing-library/react": "16.3.2",
 		"@testing-library/user-event": "14.6.1",
+		"@wordpress/date": "5.51.0",
 		"date-fns": "4.1.0"
 	}
 }

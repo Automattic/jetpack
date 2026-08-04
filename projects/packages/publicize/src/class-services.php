@@ -95,7 +95,7 @@ class Services {
 		/**
 		 * Filters the list of Publicize services available to the site.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.84.3
 		 *
 		 * @param array $services List of services.
 		 */

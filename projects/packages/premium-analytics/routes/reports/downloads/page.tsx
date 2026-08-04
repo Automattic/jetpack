@@ -19,7 +19,7 @@ import {
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs } from '@wordpress/admin-ui';
-import { useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
 /**
@@ -99,7 +99,6 @@ function DownloadsReport(): JSX.Element {
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dashboardLink = useDashboardLink();
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
 
 	return (
 		<ReportPageShell
@@ -117,13 +116,7 @@ function DownloadsReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout
-				filters={
-					<div ref={ setContainerElement }>
-						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-					</div>
-				}
-			>
+			<ReportPageLayout filters={ <DateFiltersPanel { ...dateFilters } /> }>
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load file downloads', 'jetpack-premium-analytics-pkg' ) }

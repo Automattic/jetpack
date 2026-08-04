@@ -84,6 +84,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_disable_seo_tools' );
 		remove_all_filters( 'ai_seo_enhancer_enabled' );
 		Status_Cache::clear();
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		delete_option( 'jetpack_offline_mode' );
 		delete_option( 'big_sky_enable' );
@@ -107,6 +108,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
 		remove_all_filters( 'agents_manager_agent_providers' );
 		remove_all_filters( 'agents_manager_enabled_in_block_editor' );
+		remove_all_filters( 'agents_manager_variant' );
 		remove_all_filters( 'jetpack_ai_sidebar_preview_enabled' );
 		remove_all_filters( 'jetpack_ai_sidebar_preview_features' );
 		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
@@ -561,6 +563,28 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that the toolbar button is disabled for a disconnected variant.
+	 */
+	public function test_toolbar_button_disabled_when_agents_manager_variant_is_disconnected() {
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter( 'agents_manager_variant', array( __CLASS__, 'return_gutenberg_disconnected_variant' ) );
+
+		$this->assertFalse( Jetpack_AI_Sidebar::is_toolbar_button_enabled() );
+	}
+
+	/**
+	 * Test that the toolbar button stays enabled for a connected variant.
+	 */
+	public function test_toolbar_button_enabled_when_agents_manager_variant_is_connected() {
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter( 'agents_manager_variant', array( __CLASS__, 'return_gutenberg_variant' ) );
+
+		$this->assertTrue( Jetpack_AI_Sidebar::is_toolbar_button_enabled() );
+	}
+
+	/**
 	 * Test that the active sidebar registers the toolbar button feature.
 	 */
 	public function test_register_toolbar_button_extension_marks_feature_available() {
@@ -742,20 +766,49 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 	/**
 	 * Released suggestions are exposed to eligible users. The test plan supports
-	 * advanced-seo, and the seo-tools module is activated so the SEO suggestions
-	 * gate is satisfied.
+	 * advanced-seo, the seo-tools module is activated, and the SEO enhancer
+	 * toggle from the AI settings page is switched on (it defaults off) so the
+	 * SEO suggestions gate is satisfied.
 	 */
 	public function test_add_agents_manager_data_exposes_released_features() {
 		$this->set_block_editor_screen();
 		$this->activate_seo_tools_module();
+		update_option( 'ai_seo_enhancer_enabled', 1 );
 
 		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		delete_option( 'ai_seo_enhancer_enabled' );
 
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['generateFeedback'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['proofreadContent'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['excerptSuggestion'] );
+	}
+
+	/**
+	 * The per-feature toggles from the AI settings page stay final over the
+	 * release defaults: a switched-off feature must not surface suggestions
+	 * even when an external host draws the sidebar. Writing assistant off kills
+	 * every writing suggestion (Proofreader, Optimize Title, Generate Feedback,
+	 * AI Editorial Review, and Generate Excerpt); the SEO suggestions follow the
+	 * SEO enhancer toggle, which defaults off.
+	 */
+	public function test_add_agents_manager_data_honors_feature_toggles() {
+		$this->set_block_editor_screen();
+		$this->activate_seo_tools_module();
+		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		delete_option( 'jetpack_ai_writing_assistant_enabled' );
+
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['proofreadContent'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['generateFeedback'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['aiEditorialReview'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['excerptSuggestion'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
 	}
 
 	/**
@@ -1016,6 +1069,42 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that the preview data patch is a no-op for a disconnected variant.
+	 */
+	public function test_patch_jetpack_ai_sidebar_preview_data_skips_when_agents_manager_variant_is_disconnected() {
+		$this->set_block_editor_screen();
+		$this->cache_sidebar_asset_data();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter( 'agents_manager_variant', array( __CLASS__, 'return_gutenberg_disconnected_variant' ) );
+		wp_enqueue_script( 'agents-manager', 'https://example.com/am.js', array(), '1.0', true );
+
+		Jetpack_AI_Sidebar::maybe_patch_jetpack_ai_sidebar_preview_data();
+
+		$inline_script = $this->get_agents_manager_inline_script();
+
+		$this->assertStringNotContainsString( 'agentsManagerData.agentProviders', $inline_script );
+		$this->assertStringNotContainsString( 'agentsManagerData.jetpackAiSidebar', $inline_script );
+	}
+
+	/**
+	 * Test that the preview data patch still runs for a connected variant.
+	 */
+	public function test_patch_jetpack_ai_sidebar_preview_data_runs_when_agents_manager_variant_is_connected() {
+		$this->set_block_editor_screen();
+		$this->cache_sidebar_asset_data();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter( 'agents_manager_variant', array( __CLASS__, 'return_gutenberg_variant' ) );
+		wp_enqueue_script( 'agents-manager', 'https://example.com/am.js', array(), '1.0', true );
+
+		Jetpack_AI_Sidebar::maybe_patch_jetpack_ai_sidebar_preview_data();
+
+		$inline_script = $this->get_agents_manager_inline_script();
+
+		$this->assertStringContainsString( 'agentsManagerData.agentProviders', $inline_script );
+		$this->assertStringContainsString( 'agentsManagerData.jetpackAiSidebar', $inline_script );
+	}
+
+	/**
 	 * The external AM payload patch adds provider config in the page editor and guards the default agent assignment.
 	 */
 	public function test_patch_jetpack_ai_sidebar_preview_data_adds_provider_config_in_page_editor() {
@@ -1184,6 +1273,52 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertFalse( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
 	}
 
+	/**
+	 * Test that the abilities script is skipped for a disconnected variant.
+	 */
+	public function test_abilities_script_skips_when_agents_manager_variant_is_disconnected() {
+		$this->set_block_editor_screen();
+		$this->cache_sidebar_asset_data();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter( 'agents_manager_variant', array( __CLASS__, 'return_gutenberg_disconnected_variant' ) );
+
+		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
+
+		$this->assertFalse( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
+	}
+
+	/**
+	 * Test that the abilities script is still enqueued for a connected variant.
+	 */
+	public function test_abilities_script_enqueues_when_agents_manager_variant_is_connected() {
+		$this->set_block_editor_screen();
+		$this->cache_sidebar_asset_data();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter( 'agents_manager_variant', array( __CLASS__, 'return_gutenberg_variant' ) );
+
+		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
+
+		$this->assertTrue( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
+	}
+
+	/**
+	 * Agents Manager variant for a block editor request by a disconnected user.
+	 *
+	 * @return string
+	 */
+	public static function return_gutenberg_disconnected_variant() {
+		return 'gutenberg-disconnected';
+	}
+
+	/**
+	 * Agents Manager variant for a block editor request by a connected user.
+	 *
+	 * @return string
+	 */
+	public static function return_gutenberg_variant() {
+		return 'gutenberg';
+	}
+
 	// ──────────────────────────────────────────────────
 	// register_provider() tests
 	// ──────────────────────────────────────────────────
@@ -1225,6 +1360,35 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		// No hardcoded fallback — skip registration when asset manifest is unavailable.
 		$this->assertCount( 1, $providers );
 		$this->assertSame( 'https://example.com/other-provider.mjs', $providers[0] );
+	}
+
+	/**
+	 * Test that register_provider adds nothing for a disconnected variant.
+	 */
+	public function test_register_provider_skips_when_agents_manager_variant_is_disconnected() {
+		$this->set_block_editor_screen();
+		$this->cache_sidebar_asset_data();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter( 'agents_manager_variant', array( __CLASS__, 'return_gutenberg_disconnected_variant' ) );
+
+		$existing  = array( 'https://example.com/other-provider.mjs' );
+		$providers = Jetpack_AI_Sidebar::register_provider( $existing );
+
+		$this->assertSame( $existing, $providers );
+	}
+
+	/**
+	 * Test that register_provider still registers for a connected variant.
+	 */
+	public function test_register_provider_registers_when_agents_manager_variant_is_connected() {
+		$this->set_block_editor_screen();
+		$this->cache_sidebar_asset_data();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter( 'agents_manager_variant', array( __CLASS__, 'return_gutenberg_variant' ) );
+
+		$providers = Jetpack_AI_Sidebar::register_provider( array( 'https://example.com/other-provider.mjs' ) );
+
+		$this->assertContains( AiAssistantPlugin\AI_SIDEBAR_PROVIDER_URL, $providers );
 	}
 
 	/**

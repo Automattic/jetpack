@@ -49,8 +49,40 @@
 		}
 	}
 
-	.wpcom-site-logo + .description {
-		margin-top: 8px;
+	.wpcom-fiverr-cta-box {
+		display: flex;
+		align-items: flex-start;
+		gap: 8px;
+		// Shrink to the width of the copy rather than filling the settings
+		// cell, while still giving way on narrow screens.
+		inline-size: fit-content;
+		max-inline-size: 100%;
+		padding: 12px;
+		border: 1px solid #ccc;
+		border-radius: 2px;
+		background-color: #fafafa;
+
+		.wpcom-fiverr-cta-logo {
+			// Keep the mark circular at any text length, and align it with the
+			// first line rather than the middle of the block.
+			flex-shrink: 0;
+			margin-block-start: 2px;
+		}
+
+		p {
+			margin: 0;
+		}
+
+		p + p {
+			margin-block-start: 4px;
+			color: #646970;
+		}
+	}
+
+	.wpcom-site-logo-description {
+		// Sits on its own line below the CTA, clear of the tighter spacing core
+		// gives paragraphs inside a form table cell.
+		margin-block-start: 8px;
 	}
 
 	.button.wpcom-add-custom-address-button {

@@ -23,6 +23,12 @@ class AI_Assistant_Plugin_Test extends WP_UnitTestCase {
 		unregister_setting( 'general', 'jetpack_ai_agents_enabled' );
 		Constants::clear_single_constant( 'IS_WPCOM' );
 
+		remove_filter( 'jetpack_ai_enabled', '__return_false' );
+		delete_option( 'jetpack_ai_writing_assistant_enabled' );
+		delete_option( 'jetpack_ai_enabled' );
+		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
+		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
+
 		parent::tear_down();
 	}
 
@@ -89,5 +95,76 @@ class AI_Assistant_Plugin_Test extends WP_UnitTestCase {
 				array( 'jetpack_ai_agents_enabled', 'existing_option' )
 			)
 		);
+	}
+
+	/**
+	 * Reset Jetpack Gutenberg extension availability.
+	 */
+	private function reset_availability() {
+		$reflection = new ReflectionClass( 'Jetpack_Gutenberg' );
+		$property   = $reflection->getProperty( 'availability' );
+		@$property->setAccessible( true ); // @codingStandardsIgnoreLine — needed for PHP < 8.1, suppressed for PHP 8.5+ deprecation.
+		$property->setValue( null, array() );
+	}
+
+	/**
+	 * Simulate a connected Jetpack owner so the connection gate passes.
+	 */
+	private function simulate_connected_owner() {
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		\Jetpack_Options::update_option( 'master_user', $user_id );
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'token.secret.' . $user_id ) );
+		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
+	}
+
+	/**
+	 * Registered on a connected site with default settings.
+	 */
+	public function test_registers_when_connected_and_enabled() {
+		$this->reset_availability();
+		$this->simulate_connected_owner();
+
+		AiAssistantPlugin\register_plugin();
+
+		$this->assertTrue( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\FEATURE_NAME ) );
+	}
+
+	/**
+	 * The jetpack_ai_enabled master filter turns the legacy panel off.
+	 */
+	public function test_not_registered_when_ai_disabled() {
+		$this->reset_availability();
+		$this->simulate_connected_owner();
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		AiAssistantPlugin\register_plugin();
+
+		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\FEATURE_NAME ) );
+	}
+
+	/**
+	 * The AI master switch option turns the legacy panel off.
+	 */
+	public function test_not_registered_when_master_option_off() {
+		$this->reset_availability();
+		$this->simulate_connected_owner();
+		update_option( 'jetpack_ai_enabled', 0 );
+
+		AiAssistantPlugin\register_plugin();
+
+		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\FEATURE_NAME ) );
+	}
+
+	/**
+	 * The writing toggle from the AI settings page turns the legacy panel off.
+	 */
+	public function test_not_registered_when_writing_toggle_off() {
+		$this->reset_availability();
+		$this->simulate_connected_owner();
+		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
+
+		AiAssistantPlugin\register_plugin();
+
+		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\FEATURE_NAME ) );
 	}
 }

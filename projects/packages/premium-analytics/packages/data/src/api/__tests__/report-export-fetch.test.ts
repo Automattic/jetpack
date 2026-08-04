@@ -118,6 +118,21 @@ describe( 'report export downloads', () => {
 		).rejects.toThrow( 'The upstream report API is unavailable.' );
 	} );
 
+	it( 'rethrows a non-Response failure untouched (offline / abort)', async () => {
+		// The download button maps this through `getErrorMessage()`, so wrapping it
+		// in the response-shaped message would report "status undefined" instead.
+		const offline = { code: 'offline_error', message: 'Unable to connect.' };
+		mockApiFetch.mockRejectedValue( offline );
+
+		await expect(
+			downloadReport( {
+				reportType: 'ordersovertime',
+				from: '2026-06-01T00:00:00+02:00',
+				to: '2026-06-30T23:59:59+02:00',
+			} )
+		).rejects.toBe( offline );
+	} );
+
 	it( 'reads standard and UTF-8 response filenames', () => {
 		expect(
 			getFilenameFromContentDisposition( 'attachment; filename="orders-over-time.csv"' )

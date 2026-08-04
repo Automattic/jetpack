@@ -24,7 +24,7 @@ import {
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Breadcrumbs } from '@wordpress/admin-ui';
-import { useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
 /**
@@ -175,9 +175,6 @@ function PostsReport(): JSX.Element {
 	// current date range and comparison so returning restores the same view.
 	const dashboardLink = useDashboardLink();
 
-	// Container element for the date filters panel responsive layout.
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
-
 	/*
 	 * Keyed by tab so the table's internal view state (sort, search, page)
 	 * resets when the records set changes.
@@ -227,11 +224,7 @@ function PostsReport(): JSX.Element {
 		>
 			<ReportPageLayout
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
-				filters={
-					<div ref={ setContainerElement }>
-						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-					</div>
-				}
+				filters={ <DateFiltersPanel { ...dateFilters } /> }
 			>
 				{ records.isError ? (
 					<ReportErrorState
