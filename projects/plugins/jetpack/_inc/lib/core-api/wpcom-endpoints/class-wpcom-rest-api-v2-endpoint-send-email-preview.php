@@ -158,9 +158,6 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 					return new WP_Error( 'send_email_preview_guard_unavailable', __( 'Test emails to another address are temporarily unavailable.', 'jetpack' ), array( 'status' => 503 ) );
 				}
 
-				// Email_Preview_Guard ships from wpcom and reaches the Phan stubs via the
-				// separate stub-regeneration job, so it is not yet declared at analysis time.
-				// @phan-suppress-next-line PhanUndeclaredClassMethod
 				$guarded = Email_Preview_Guard::check( $requested );
 				if ( is_wp_error( $guarded ) ) {
 					return $guarded;
