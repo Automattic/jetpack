@@ -160,7 +160,7 @@ class Jetpack_JSON_API_Plugins_Modify_v1_2_Endpoint extends Jetpack_JSON_API_Plu
 			}
 
 			if ( ! $success ) {
-				$this->log[ $plugin ]['error'] = __( 'There was an error activating your plugin', 'jetpack' );
+				$this->log[ $plugin ]['error'] = $result->get_error_messages;
 
 				$has_errors = true;
 				continue;
