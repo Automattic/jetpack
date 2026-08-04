@@ -8,13 +8,17 @@
  * context.
  */
 /**
+ * External dependencies
+ */
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
+/**
  * Internal dependencies
  */
 import {
 	registerReportMocks,
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
-import { withChartTheme } from '../../../packages/widgets-toolkit/src/stories/with-chart-theme';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
@@ -47,7 +51,6 @@ const meta: Meta< typeof EmailsLeaderboard > = {
 			},
 		},
 	},
-	decorators: [ withChartTheme ],
 };
 
 export default meta;
@@ -57,36 +60,48 @@ type Story = StoryObj< typeof EmailsLeaderboard >;
 const mockRows: EmailRow[] = [
 	{
 		id: 1,
+		postId: 1,
+		link: 'https://example.com/stand-out/',
 		label: '4 Ways to Make Your Website Stand Out',
 		opensRate: 38.1,
 		clicksRate: 3.81,
 	},
 	{
 		id: 2,
+		postId: 2,
+		link: 'https://example.com/develop-locally/',
 		label: 'Develop Locally on Linux with WordPress.com',
 		opensRate: 41.2,
 		clicksRate: 5.98,
 	},
 	{
 		id: 3,
+		postId: 3,
+		link: 'https://example.com/new-themes/',
 		label: '10 Brand-New WordPress.com Themes for 2026',
 		opensRate: 35.7,
 		clicksRate: 7.12,
 	},
 	{
 		id: 4,
+		postId: 4,
+		link: 'https://example.com/languages/',
 		label: 'WordPress.com Is Now Available in More Languages',
 		opensRate: 52.4,
 		clicksRate: 8.93,
 	},
 	{
 		id: 5,
+		postId: 5,
+		link: 'https://example.com/wordcamp-europe/',
 		label: 'WordCamp Europe 2026: What to Expect',
 		opensRate: 47.9,
 		clicksRate: 10.25,
 	},
 	{
 		id: 6,
+		postId: 6,
+		link: 'https://example.com/collaborate/',
 		label: 'Click, Comment, Done: A Better Way to Collaborate',
 		opensRate: 44.3,
 		clicksRate: 10.38,
@@ -96,6 +111,8 @@ const mockRows: EmailRow[] = [
 const mockLongLabelRows: EmailRow[] = [
 	{
 		id: 1,
+		postId: 1,
+		link: 'https://example.com/long-subject/',
 		label:
 			'An exhaustively long, keyword-stuffed subject line that almost certainly needs to be truncated before it overflows the row',
 		opensRate: 22.5,
@@ -103,11 +120,19 @@ const mockLongLabelRows: EmailRow[] = [
 	},
 	{
 		id: 2,
+		postId: 2,
+		link: 'https://example.com/monthly-digest/',
 		label: 'Your monthly digest: billing, new features, and what is coming next',
 		opensRate: 33.8,
 		clicksRate: 6.7,
 	},
 ];
+
+const withEmailsWidgetRoot: Decorator = Story => (
+	<WidgetRoot attributes={ { reportParams: getDefaultQueryParams() } }>
+		<Story />
+	</WidgetRoot>
+);
 
 /**
  * Default populated state — latest emails (newest first) with their open rate.
@@ -116,7 +141,7 @@ export const Default: Story = {
 	args: {
 		rows: mockRows,
 	},
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withEmailsWidgetRoot, withStoryRouter ],
 };
 
 /**
@@ -127,7 +152,7 @@ export const ByClickRate: Story = {
 		rows: mockRows,
 		metric: 'clicks',
 	},
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withEmailsWidgetRoot, withStoryRouter ],
 };
 
 // Renders the data-connected widget with a `max` distinct from the other
@@ -189,7 +214,7 @@ export const LongLabels: Story = {
 	args: {
 		rows: mockLongLabelRows,
 	},
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withEmailsWidgetRoot, withStoryRouter ],
 };
 
 /**
@@ -224,7 +249,7 @@ export const SizeMedium: Story = {
 	args: {
 		rows: mockRows,
 	},
-	decorators: [ createSizeDecorator( '448px' ) ],
+	decorators: [ createSizeDecorator( '448px' ), withEmailsWidgetRoot, withStoryRouter ],
 };
 
 /**
@@ -234,7 +259,7 @@ export const SizeLarge: Story = {
 	args: {
 		rows: mockRows,
 	},
-	decorators: [ createSizeDecorator( '576px' ) ],
+	decorators: [ createSizeDecorator( '576px' ), withEmailsWidgetRoot, withStoryRouter ],
 };
 
 /**

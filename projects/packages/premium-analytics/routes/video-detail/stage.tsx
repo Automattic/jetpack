@@ -136,7 +136,7 @@ function VideoDetail(): JSX.Element {
 					) : null }
 					{ canRenderWidgets ? (
 						<div className={ styles.content }>
-							<WidgetDashboard.Widgets />
+							<WidgetDashboard.Widgets className={ styles.widgets } />
 						</div>
 					) : null }
 				</div>

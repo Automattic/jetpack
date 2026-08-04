@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Free a stalled translation-catalog download's concurrency slot so queued downloads still run.

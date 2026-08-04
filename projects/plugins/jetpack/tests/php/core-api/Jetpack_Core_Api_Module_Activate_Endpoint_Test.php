@@ -392,4 +392,51 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 			'string zero'  => array( '0', false ),
 		);
 	}
+
+	/**
+	 * Front-page descriptions use the SEO utility so grandfathered sites keep
+	 * writing the legacy option and retain its 300-character contract.
+	 */
+	public function test_update_data_front_page_description_uses_seo_utility() {
+		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
+		update_option( Jetpack_SEO_Utils::LEGACY_META_OPTION, 'Legacy description.' );
+		delete_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION );
+
+		try {
+			$description = str_repeat( 'a', 350 );
+			$request     = new WP_REST_Request();
+			$request->set_body_params(
+				array( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => $description )
+			);
+
+			$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+			$this->assertSame( 200, $result->get_status() );
+			$this->assertSame( str_repeat( 'a', 300 ), get_option( Jetpack_SEO_Utils::LEGACY_META_OPTION ) );
+			$this->assertSame( false, get_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION ) );
+			$this->assertSame(
+				str_repeat( 'a', 300 ),
+				$result->get_data()[ Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION ]
+			);
+
+			// Repeating the stored value and clearing it are both successful even
+			// though update_front_page_meta_description() returns '' for those cases.
+			foreach ( array( str_repeat( 'a', 300 ), '' ) as $value ) {
+				$request = new WP_REST_Request();
+				$request->set_body_params(
+					array( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => $value )
+				);
+				$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+				$this->assertSame( 200, $result->get_status() );
+				$this->assertSame( $value, $result->get_data()[ Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION ] );
+			}
+
+			$this->assertSame( '', get_option( Jetpack_SEO_Utils::LEGACY_META_OPTION ) );
+		} finally {
+			remove_filter( 'jetpack_disable_seo_tools', '__return_true' );
+			delete_option( Jetpack_SEO_Utils::LEGACY_META_OPTION );
+			delete_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION );
+		}
+	}
 }

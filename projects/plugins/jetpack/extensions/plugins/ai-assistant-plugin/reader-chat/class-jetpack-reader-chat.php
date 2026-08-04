@@ -408,7 +408,7 @@ class Jetpack_Reader_Chat {
 
 		return ( new Connection_Manager( 'jetpack' ) )->has_connected_owner()
 			&& ! ( new Status() )->is_offline_mode()
-			&& apply_filters( 'jetpack_ai_enabled', true );
+			&& \Jetpack_AI_Settings::is_ai_enabled();
 	}
 
 	/**

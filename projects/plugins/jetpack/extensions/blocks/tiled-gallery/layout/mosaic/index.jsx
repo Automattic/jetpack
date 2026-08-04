@@ -146,6 +146,14 @@ export default class Mosaic extends Component {
 			// Lay out against a stable width rather than the (possibly content-sized)
 			// observed width, so the result is deterministic across browsers/reloads.
 			const width = this.getLayoutWidth();
+			// A gallery that is not laid out yet, or that sits inside a hidden
+			// container, measures 0px. Percentages derived from that are meaningless
+			// — a single column row divides zero by zero and produces NaN — and the
+			// widths this pass reports are persisted, so wait for a real measurement
+			// rather than saving nonsense. See JETPACK-1990.
+			if ( width <= 0 ) {
+				return;
+			}
 			// Ignore sub-pixel width changes. When the block is a content-sized flex
 			// item (inside a Row/Stack), our own layout writes can feed back into the
 			// observed width; bailing here stops that feedback loop.

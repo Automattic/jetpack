@@ -1,11 +1,16 @@
 import { GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel, SectionHeader, SectionTabPanel } from '@jetpack-premium-analytics/ui';
+import {
+	DateFiltersPanel,
+	SectionHeader,
+	SectionTabPanel,
+	getSectionSubtitle,
+} from '@jetpack-premium-analytics/ui';
 import { Page, Breadcrumbs } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
@@ -49,9 +54,17 @@ function Dashboard(): JSX.Element {
 		[]
 	);
 
-	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
-
 	const [ editMode, setEditMode ] = useState( false );
+
+	// Only the widgets this section renders need their metadata resolved at
+	// boot; the complete registry is what the widget picker lists, so it can
+	// wait for edit mode. `null` until the sections resolve — the layout is
+	// empty until then, and this hook runs on those renders too, below the
+	// spinner returned further down. See `useWidgetTypesWithI18n`.
+	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules, {
+		visibleNames: hasResolvedSections ? layout.map( widget => widget.type ) : null,
+		includeAll: editMode,
+	} );
 
 	/*
 	 * Date-range state lives in the URL search params. The shared controller
@@ -59,6 +72,21 @@ function Dashboard(): JSX.Element {
 	 * comparison changes), so widgets re-fetch only on commit.
 	 */
 	const dateFilters = useReportDateFilters( '/' );
+
+	/*
+	 * The subtitle states what the widgets are currently showing, so it follows
+	 * the applied range and comparison rather than the picker's staged draft:
+	 * it must not move while an edit is open, only once Apply commits it.
+	 */
+	const sectionSubtitle = useMemo(
+		() =>
+			getSectionSubtitle( {
+				range: dateFilters.appliedRange,
+				presetId: dateFilters.appliedPresetId,
+				comparisonPresetId: dateFilters.appliedComparisonPresetId,
+			} ),
+		[ dateFilters.appliedRange, dateFilters.appliedPresetId, dateFilters.appliedComparisonPresetId ]
+	);
 
 	// Container element for the date filters panel responsive layout.
 	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
@@ -94,6 +122,10 @@ function Dashboard(): JSX.Element {
 							items={ [ { label: __( 'Analytics', 'jetpack-premium-analytics-pkg' ) } ] }
 						/>
 					}
+					subTitle={ __(
+						'Track your site performance and visitor insights.',
+						'jetpack-premium-analytics-pkg'
+					) }
 					actions={ <WidgetDashboard.Actions /> }
 					className={ styles.dashboard }
 				>
@@ -109,7 +141,7 @@ function Dashboard(): JSX.Element {
 								className={ styles.content }
 							>
 								<div ref={ setContainerElement } className={ styles.sectionHeader }>
-									<SectionHeader title={ section.label }>
+									<SectionHeader title={ section.label } subtitle={ sectionSubtitle }>
 										<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
 									</SectionHeader>
 								</div>
@@ -117,7 +149,7 @@ function Dashboard(): JSX.Element {
 								{ activeSection === section.slug ? (
 									<>
 										<WidgetDashboard.NoWidgetsState />
-										<WidgetDashboard.Widgets />
+										<WidgetDashboard.Widgets className={ styles.widgets } />
 									</>
 								) : null }
 							</SectionTabPanel>

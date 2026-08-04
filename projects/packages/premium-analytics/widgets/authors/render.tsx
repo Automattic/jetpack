@@ -4,6 +4,7 @@
 import { useStatsTopAuthors } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardPostLabel,
 	ReportLink,
 	WidgetBackLink,
 	WidgetFooter,
@@ -11,7 +12,6 @@ import {
 	WidgetState,
 	buildLeaderboardRow,
 	formatLegendLabels,
-	safeHttpUrl,
 	toMaxRows,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -127,25 +127,15 @@ export function AuthorsLeaderboard( {
 		// the data layer already aligned current/comparison values, including
 		// posts that only existed in the comparison period.
 		if ( selectedAuthor ) {
-			return selectedAuthor.posts.map( post => {
-				// Post permalinks come from report data, so validate the scheme
-				// before the row becomes a link.
-				const postHref = safeHttpUrl( post.link );
-
-				return {
-					id: post.id,
-					...buildLeaderboardRow( {
-						label: post.title,
-						media: { kind: 'none' },
-						action: postHref ? { kind: 'link', href: postHref } : { kind: 'static' },
-					} ),
-					currentValue: post.currentValue,
-					previousValue: post.previousValue,
-					currentShare: post.currentShare,
-					previousShare: post.previousShare,
-					delta: post.delta,
-				};
-			} );
+			return selectedAuthor.posts.map( post => ( {
+				id: post.id,
+				label: <LeaderboardPostLabel id={ post.postId } label={ post.title } link={ post.link } />,
+				currentValue: post.currentValue,
+				previousValue: post.previousValue,
+				currentShare: post.currentShare,
+				previousShare: post.previousShare,
+				delta: post.delta,
+			} ) );
 		}
 
 		// Top authors: name + avatar label, and a click drills into the author's

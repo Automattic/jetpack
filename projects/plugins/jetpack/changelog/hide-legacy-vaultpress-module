@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Modules: Hide the legacy VaultPress module row from the modules page, as it is permanently unavailable and superseded by the VaultPress Backup product.

@@ -36,6 +36,14 @@ describe( 'formatDate', () => {
 		it( 'formats "iso" as a machine-readable date', () => {
 			expect( formatDate( JUNE_21, 'iso' ) ).toBe( '2025-06-21' );
 		} );
+
+		it( 'leads "full" with the weekday', () => {
+			expect( formatDate( JUNE_21, 'full' ) ).toBe( 'Saturday, June 21, 2025' );
+		} );
+
+		it( 'leads "fullNoYear" with the weekday and drops the year', () => {
+			expect( formatDate( JUNE_21, 'fullNoYear' ) ).toBe( 'Saturday, June 21' );
+		} );
 	} );
 
 	describe( 'es_ES site', () => {
@@ -60,5 +68,11 @@ describe( 'formatDate', () => {
 		setSettings( settingsFor( 'year-only-test', 'Y' ) );
 
 		expect( formatDate( JUNE_21, 'short' ) ).toBe( '2025' );
+	} );
+
+	it( 'does not add a second weekday when the site format already names one', () => {
+		setSettings( settingsFor( 'weekday-format-test', 'l, F j, Y' ) );
+
+		expect( formatDate( JUNE_21, 'full' ) ).toBe( 'Saturday, June 21, 2025' );
 	} );
 } );

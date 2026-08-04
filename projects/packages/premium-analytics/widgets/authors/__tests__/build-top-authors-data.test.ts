@@ -214,6 +214,7 @@ describe( 'buildTopAuthorsData', () => {
 		expect( result[ 0 ].posts ).toEqual( [
 			{
 				id: '12',
+				postId: 12,
 				title: 'Hello world',
 				link: 'https://example.com/hello',
 				currentValue: 20,
@@ -224,6 +225,7 @@ describe( 'buildTopAuthorsData', () => {
 			},
 			{
 				id: 'post-1',
+				postId: undefined,
 				title: 'Second post',
 				link: null,
 				currentValue: 10,
@@ -312,6 +314,7 @@ describe( 'buildTopAuthorsData', () => {
 		expect( result[ 0 ].posts ).toEqual( [
 			{
 				id: '1',
+				postId: 1,
 				title: 'Still popular',
 				link: null,
 				currentValue: 20,
@@ -322,6 +325,7 @@ describe( 'buildTopAuthorsData', () => {
 			},
 			{
 				id: '2',
+				postId: 2,
 				title: 'New post',
 				link: null,
 				currentValue: 10,
@@ -332,6 +336,7 @@ describe( 'buildTopAuthorsData', () => {
 			},
 			{
 				id: '3',
+				postId: 3,
 				title: 'Dropped post',
 				link: null,
 				currentValue: 0,

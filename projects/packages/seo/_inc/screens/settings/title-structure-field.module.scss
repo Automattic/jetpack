@@ -22,6 +22,40 @@
 	overflow-wrap: anywhere;
 }
 
+// A resolved part of the title — what a placeholder evaluated to. Chipped so
+// the structure of the title reads at a glance; without it the preview is a
+// run of words and you have to work out where the site name ends and the
+// tagline begins.
+
+// Deliberately quieter than the insert buttons above it: those are controls,
+// this is a readout, and matching them would invite clicking. No border for
+// the same reason — the tint alone separates it from the card.
+.previewValue {
+	// `inline`, not `inline-block`, so a long title still wraps mid-chip rather
+	// than pushing an unbreakable box past the column and forcing a scrollbar.
+	// Box decorations then clone onto each line so both halves keep the tint.
+	display: inline;
+	padding-block: 1px;
+	padding-inline: var(--wpds-dimension-gap-xs);
+	border-radius: var(--wpds-border-radius-sm);
+	background: var(--wpds-color-background-surface-neutral-weak);
+	box-decoration-break: clone;
+	-webkit-box-decoration-break: clone;
+}
+
+// The separator between parts: literal text the admin typed, or for a
+// defaulted row the site's own document-title separator. Muted because it is
+// punctuation rather than content.
+
+// `white-space: pre` is load-bearing, not cosmetic. Separators routinely carry
+// leading and trailing spaces (" | "), which HTML would collapse against the
+// chips — so the preview would show tighter spacing than the emitted title
+// actually has. Preserving it keeps the preview honest about its own spacing.
+.previewSeparator {
+	white-space: pre;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
 .save {
 	flex-shrink: 0;
 	// Keep Save at the right edge even when there's no preview yet.

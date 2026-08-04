@@ -225,20 +225,20 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the constructor registers the early dock-sync script hook.
+	 * Tests that the constructor registers the early docking-gate script hook.
 	 */
-	public function test_constructor_registers_sync_script_hook() {
+	public function test_constructor_registers_docking_gate_script_hook() {
 		$this->assertNotFalse(
 			has_action( 'in_admin_header', array( $this->preservation, 'print_sidebar_docking_gate_script' ) ),
-			'The docking viewport height gate script must be hooked into the admin body.'
+			'The docking gate script must be hooked into the admin header.'
 		);
 	}
 
 	/**
-	 * Tests that the dock-height sync script is printed when the
+	 * Tests that the docking-gate script is printed when the
 	 * docked-open shell is pre-rendered.
 	 */
-	public function test_print_sync_script_outputs_when_pre_rendering() {
+	public function test_print_docking_gate_script_outputs_when_pre_rendering() {
 		$this->enable_preservation();
 		$this->cache_open_state( true );
 
@@ -260,9 +260,9 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the dock-sync script is not printed when nothing is pre-rendered.
+	 * Tests that the docking-gate script is not printed when nothing is pre-rendered.
 	 */
-	public function test_print_sync_script_noop_when_not_pre_rendering() {
+	public function test_print_docking_gate_script_noop_when_not_pre_rendering() {
 		$this->enable_preservation();
 		$this->cache_open_state( false );
 

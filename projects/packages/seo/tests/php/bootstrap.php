@@ -31,6 +31,7 @@ require_once __DIR__ . '/SeoTestCase.php';
 // and are not autoloaded in the package test context, so these let the tests
 // drive Schema_Builder's behavior. Tests set their public static properties.
 require_once __DIR__ . '/stubs/class-jetpack-seo-utils.php';
+require_once __DIR__ . '/stubs/class-jetpack-redux-state-helper.php';
 require_once __DIR__ . '/stubs/class-jetpack-seo-posts.php';
 require_once __DIR__ . '/stubs/class-jetpack-options.php';
 require_once __DIR__ . '/stubs/class-wc-structured-data.php';

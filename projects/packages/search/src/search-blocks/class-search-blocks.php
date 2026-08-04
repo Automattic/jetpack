@@ -631,10 +631,18 @@ class Search_Blocks {
 	 * URL param key the inline search experience uses for the current request.
 	 * On the WP search route `s`; elsewhere `q` (see `NON_SEARCH_QUERY_PARAM`).
 	 *
+	 * Uses direct property access on `$wp_query` rather than the `is_search()`
+	 * global function, because the function calls `_doing_it_wrong()` when
+	 * invoked before the query has finished running (e.g. during block render).
+	 *
 	 * @return string
 	 */
 	public static function get_search_param_name(): string {
-		return function_exists( 'is_search' ) && is_search() ? 's' : self::NON_SEARCH_QUERY_PARAM;
+		global $wp_query;
+		if ( isset( $wp_query ) && ! empty( $wp_query->is_search ) ) {
+			return 's';
+		}
+		return self::NON_SEARCH_QUERY_PARAM;
 	}
 
 	/**
