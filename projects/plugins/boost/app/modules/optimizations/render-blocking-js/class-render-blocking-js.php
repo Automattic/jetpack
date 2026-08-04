@@ -428,7 +428,7 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 
 	/**
 	 * Insert the buffered script tags just before the body tag if possible in the last buffer
-	 * otherwise at append it at the end.
+	 * otherwise append it at the end.
 	 *
 	 * @param string $buffer String buffer.
 	 *
@@ -438,6 +438,13 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 		$script_tags = implode( '', $this->buffered_script_tags );
 		// Reset tags in case there's another buffer after this one.
 		$this->buffered_script_tags = array();
+
+		// Nothing to insert: both branches below are identity operations, so skip
+		// the buffer scan entirely. This is the common case for the second call,
+		// because Lcp registers its own Output_Filter on the same global hook.
+		if ( '' === $script_tags ) {
+			return $buffer;
+		}
 
 		$position = $this->find_body_close_position( $buffer );
 		if ( null === $position ) {
@@ -451,25 +458,46 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	 * Locate the document's real closing </body> tag in the buffer.
 	 *
 	 * A literal '</body>' can legitimately appear in places that are not markup:
-	 * inside a script's source (e.g. an HTML string a document.write() call
-	 * later emits), inside a <textarea> (RCDATA), inside an HTML comment, or
-	 * inside a quoted attribute value. Inserting the moved <script> tags at such
-	 * an occurrence corrupts the page — the injected '</script>' closes the
-	 * surrounding script early and the remaining JavaScript renders as visible
-	 * text.
+	 * inside a script's source (e.g. an HTML string a document.write() call later
+	 * emits), inside a <textarea> (RCDATA), inside <style> or <title>, inside an
+	 * HTML comment, or inside a quoted attribute value. Inserting the moved
+	 * <script> tags at such an occurrence corrupts the page — the injected
+	 * '</script>' closes the surrounding script early and the remaining
+	 * JavaScript renders as visible text.
 	 *
-	 * Script/textarea bodies and comments are therefore blanked out before the
-	 * search. The mask replaces each region with the same number of spaces so
-	 * offsets remain valid for the original buffer, and the search takes the
-	 * last remaining occurrence, which is the document's real closing tag.
+	 * Those regions are therefore blanked out before the search. The mask replaces
+	 * each region with the same number of spaces so offsets remain valid for the
+	 * original buffer. The search is then bounded to the document itself (anything
+	 * a host or plugin emits after '</html>' can never be the closing tag) and
+	 * takes the last remaining occurrence.
+	 *
+	 * Best-effort, and deliberately biased towards not choosing a position at all:
+	 * this is a mask over a bounded output-buffer window, not an HTML parser. Every
+	 * case it cannot resolve returns null, which makes append_script_tags() append
+	 * after the buffer — the moved scripts still run, and no existing markup is
+	 * rewritten.
 	 *
 	 * @param string $buffer String buffer.
 	 *
 	 * @return int|null Byte offset of the closing tag, or null when the buffer has none.
 	 */
 	private function find_body_close_position( $buffer ) {
+		// Fast path: no closing tag to find, so skip masking a whole buffer copy.
+		if ( false === strpos( $buffer, '</body>' ) ) {
+			return null;
+		}
+
+		// One pass, so the buffer is copied once. The arms are, in order: the four
+		// element types whose contents are raw text or RCDATA rather than markup;
+		// the spec's comment forms, including the empty comments ('<!-->',
+		// '<!--->') and the end-bang close ('--!>') — without those a comment
+		// would be masked as running to the next '-->' further down the document;
+		// and quoted attribute values, which are the remaining place a literal
+		// '</body>' can sit inside otherwise ordinary markup. An attribute value
+		// belonging to one of the element arms is consumed by that arm first,
+		// because matching starts at the element's opening '<'.
 		$masked = preg_replace_callback(
-			'~<script\b[^>]*>[\s\S]*?</script\s*>|<textarea\b[^>]*>[\s\S]*?</textarea\s*>|<!--[\s\S]*?-->~i',
+			'~<script\b[^>]*>[\s\S]*?</script\s*>|<textarea\b[^>]*>[\s\S]*?</textarea\s*>|<style\b[^>]*>[\s\S]*?</style\s*>|<title\b[^>]*>[\s\S]*?</title\s*>|<!--(?:>|->|[\s\S]*?--!?>)|="[^"]*"|=\'[^\']*\'~i',
 			static function ( $region_match ) {
 				return str_repeat( ' ', strlen( $region_match[0] ) );
 			},
@@ -477,15 +505,53 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 		);
 
 		// preg_replace_callback() returns null on PCRE failure (e.g. backtrack limit
-		// on a pathological buffer); search the unmasked buffer in that case rather
-		// than propagating null. Mirrors the guard in is_opened_script().
+		// on a pathological buffer). Fail closed: without the mask there is no way to
+		// tell a real closing tag from a literal inside a script, so report no
+		// position and let the caller append after the buffer instead.
 		if ( null === $masked ) {
-			$masked = $buffer;
+			return null;
 		}
+
+		// Markup emitted after the document is not part of it. Bounding the search
+		// here keeps a literal '</body>' in trailing host or plugin output — in a
+		// <style> block, an attribute value or a plain text node, none of which the
+		// mask covers — from winning the search below.
+		$html_close = strpos( $masked, '</html>' );
+		if ( false !== $html_close ) {
+			$masked = substr( $masked, 0, $html_close );
+		}
+
+		$masked = $this->mask_unterminated_leading_region( $masked );
 
 		$position = strrpos( $masked, '</body>' );
 
 		return false === $position ? null : $position;
+	}
+
+	/**
+	 * Blank everything up to the first unmatched closing token in a masked buffer.
+	 *
+	 * Output_Filter hands this class a sliding window, so a <script>, <textarea> or
+	 * comment can begin in a chunk that was already flushed. Its opening tag is then
+	 * absent and the mask above cannot pair it, leaving the region's contents — and
+	 * any literal '</body>' in them — looking like markup.
+	 *
+	 * A closing token with no opening tag before it is exactly that situation: the
+	 * window starts inside the region, so everything up to and including that token
+	 * is region content and cannot hold the document's closing tag.
+	 *
+	 * @param string $masked Buffer with the paired regions already masked.
+	 *
+	 * @return string Buffer with the leading unterminated region masked as well.
+	 */
+	private function mask_unterminated_leading_region( $masked ) {
+		if ( ! preg_match( '~</script\s*>|</textarea\s*>|--!?>~i', $masked, $match, PREG_OFFSET_CAPTURE ) ) {
+			return $masked;
+		}
+
+		$region_end = $match[0][1] + strlen( $match[0][0] );
+
+		return str_repeat( ' ', $region_end ) . substr( $masked, $region_end );
 	}
 
 	/**

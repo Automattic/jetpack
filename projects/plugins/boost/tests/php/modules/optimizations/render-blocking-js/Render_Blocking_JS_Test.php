@@ -858,11 +858,15 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	/**
 	 * <textarea> content is RCDATA, so a literal '</body>' inside it is text
 	 * rather than markup and must be left alone.
+	 *
+	 * The decoy sits after the document's real closing tag on purpose: that is
+	 * the ordering the masking exists for. With a decoy before the real tag,
+	 * taking the last raw occurrence would pass this test on its own.
 	 */
 	public function test_literal_body_close_in_textarea_is_not_corrupted() {
-		$html = '<html><body><textarea>raw </body> text</textarea>' .
+		$html = '<html><body>' .
 			'<script>console.log("movable sibling");</script>' .
-			'</body></html>';
+			'</body><textarea>raw </body> text</textarea></html>';
 
 		$output = $this->filter_output( $html );
 
@@ -873,12 +877,13 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 
 	/**
 	 * A literal '</body>' inside an HTML comment is not the document's closing
-	 * tag and must not be used as the insertion point.
+	 * tag and must not be used as the insertion point. The decoy follows the real
+	 * closing tag so the masking, rather than the ordering, is what is tested.
 	 */
 	public function test_literal_body_close_in_html_comment_is_not_corrupted() {
-		$html = '<html><body><!-- </body> -->' .
+		$html = '<html><body>' .
 			'<script>console.log("movable sibling");</script>' .
-			'</body></html>';
+			'</body><!-- </body> --></html>';
 
 		$output = $this->filter_output( $html );
 
@@ -888,18 +893,118 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	}
 
 	/**
-	 * A quoted attribute value may legally contain a literal '</body>'.
+	 * A quoted attribute value may legally contain a literal '</body>'. Inserting
+	 * there is doubly damaging: the quote in the injected tag also terminates the
+	 * attribute it landed in. The decoy follows the real closing tag.
 	 */
 	public function test_literal_body_close_in_attribute_value_is_not_corrupted() {
-		$html = '<html><body><div data-x="</body>">z</div>' .
+		$html = '<html><body>' .
 			'<script>console.log("movable sibling");</script>' .
-			'</body></html>';
+			'</body><div data-x="</body>">z</div></html>';
 
 		$output = $this->filter_output( $html );
 
 		$this->assertStringContainsString( '<div data-x="</body>">z</div>', $output );
 		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
 		$this->assertStringContainsString( 'console.log("movable sibling");</script></body>', $output );
+	}
+
+	/**
+	 * <style> content is raw text. A literal '</body>' in a CSS comment is not
+	 * markup, and scripts inserted there would never execute.
+	 */
+	public function test_literal_body_close_in_style_block_is_not_corrupted() {
+		$html = '<html><body>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body><style>/* </body> */</style></html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertStringContainsString( '<style>/* </body> */</style>', $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString( 'console.log("movable sibling");</script></body>', $output );
+	}
+
+	/**
+	 * Nothing a host or plugin emits after '</html>' is part of the document, so
+	 * a literal '</body>' out there must never win the search — including in a
+	 * context the mask does not cover.
+	 */
+	public function test_literal_body_close_after_closing_html_is_not_used() {
+		$html = '<html><body>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body></html><p>injected by the host: </body></p>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertStringContainsString( '<p>injected by the host: </body></p>', $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString( 'console.log("movable sibling");</script></body>', $output );
+	}
+
+	/**
+	 * Output_Filter hands this class a sliding window, so a region can begin in a
+	 * chunk that has already been flushed. Its opening tag is then gone and the
+	 * mask cannot pair it, which used to leave the region's contents looking like
+	 * markup. A closing tag with no opening tag before it means the buffer starts
+	 * inside that region, so nothing up to it can hold the document's closing tag
+	 * and the scripts are appended instead.
+	 */
+	public function test_literal_body_close_in_region_opened_before_the_buffer_is_not_corrupted() {
+		// The buffer starts mid-<textarea>: its opening tag was flushed earlier.
+		$buffer = 'raw </body> text</textarea><p>After</p>' .
+			'<script>console.log("movable sibling");</script>';
+
+		list( $buffer_start, $buffer_end ) = $this->instance->handle_output_stream( $buffer, '' );
+
+		$output = $this->instance->append_script_tags( $buffer_start . $buffer_end );
+
+		$this->assertStringContainsString( 'raw </body> text</textarea>', $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringEndsWith( '<script>console.log("movable sibling");</script>', $output );
+	}
+
+	/**
+	 * When the mask itself fails, nothing about the buffer has been established,
+	 * so no position may be chosen. The scripts are appended after the buffer —
+	 * they still run and no existing markup is rewritten.
+	 *
+	 * A backtrack limit of 1 forces the failure deterministically; the real-world
+	 * trigger is a single inline region approaching a megabyte.
+	 */
+	public function test_scripts_are_appended_when_region_masking_fails() {
+		$html = '<html><body><p>Before</p>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body><script data-jetpack-boost="ignore">var trailing = \'</body>\';</script></html>';
+
+		// Collect the movable script before lowering the limit, so only the mask
+		// inside append_script_tags() is affected.
+		list( $buffer_start, $buffer_end ) = $this->instance->handle_output_stream( $html, '' );
+
+		$output         = '';
+		$original_limit = ini_get( 'pcre.backtrack_limit' );
+		ini_set( 'pcre.backtrack_limit', '1' ); // phpcs:ignore WordPress.PHP.IniSet.Risky -- Restored below; forces a PCRE failure deterministically.
+
+		try {
+			$output = $this->instance->append_script_tags( $buffer_start . $buffer_end );
+		} finally {
+			ini_set( 'pcre.backtrack_limit', false === $original_limit ? '1000000' : $original_limit ); // phpcs:ignore WordPress.PHP.IniSet.Risky -- Restore original limit.
+		}
+
+		$this->assertStringContainsString( "var trailing = '</body>';", $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringEndsWith( '<script>console.log("movable sibling");</script>', $output );
+	}
+
+	/**
+	 * With no buffered scripts there is nothing to insert and the buffer must come
+	 * back byte-identical. Lcp registers a second Output_Filter on the same global
+	 * hook, so this is the common case for the second call of every request.
+	 */
+	public function test_buffer_is_returned_untouched_when_there_is_nothing_to_insert() {
+		$html = '<html><body><p>Before</p><textarea>raw </body> text</textarea></body></html>';
+
+		$this->assertSame( $html, $this->instance->append_script_tags( $html ) );
 	}
 
 	/**
