@@ -66,7 +66,7 @@ export default function SelfOnlyNudge( { anchor, onDismiss }: Props ): JSX.Eleme
 						{ who: <em /> }
 					) }
 				</Text>
-				<Button size="compact" variant="minimal" tone="neutral" onClick={ handleDismiss }>
+				<Button size="compact" variant="outline" tone="neutral" onClick={ handleDismiss }>
 					{ _x( 'Got it', 'dismiss button', 'jetpack-newsletter' ) }
 				</Button>
 			</Stack>
