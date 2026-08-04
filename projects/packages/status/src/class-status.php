@@ -54,19 +54,19 @@ class Status {
 		$offline_mode = (bool) apply_filters( 'jetpack_offline_mode', $offline_mode );
 
 		if ( ! $offline_mode ) {
-			// Use a unique sentinel as the default so an absent option can't be confused with a
-			// stored value (a legitimately stored null/false would otherwise be treated as absent).
+			// Sentinel default so an absent option isn't confused with a stored null/false.
 			$sentinel = new \stdClass();
 			$option   = get_option( 'jetpack_offline_mode', $sentinel );
 
 			if ( $sentinel === $option ) {
-				// This escape-hatch option is never written by Jetpack, so on most sites it is
-				// missing and re-queried on every request when there is no persistent object
-				// cache. Persist the default as an autoloaded row so future reads are served
-				// from cache (JETPACK-1539).
-				add_option( 'jetpack_offline_mode', false, '', true );
+				// Seed an autoloaded default to stop per-request reads, but only where it helps
+				// (no persistent object cache) and writes are safe (keep front-end reads read-only).
+				if ( ! wp_using_ext_object_cache() && ( is_admin() || wp_doing_cron() || ( defined( 'WP_CLI' ) && WP_CLI ) ) ) {
+					add_option( 'jetpack_offline_mode', false, '', true );
+				}
 			} else {
-				$offline_mode = (bool) $option;
+				// A default_option filter could return a non-scalar; only a scalar is a real value.
+				$offline_mode = is_scalar( $option ) ? (bool) $option : false;
 			}
 		}
 
