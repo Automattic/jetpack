@@ -1,22 +1,5 @@
 import { PRESET_ALL_TIME, toYearPresetId } from '@jetpack-premium-analytics/datetime';
-import {
-	DATE_FILTER_RANGE,
-	DATE_FILTER_YEAR,
-	resolveDateFilterSurface,
-	resolvePresetForSurface,
-} from './date-filter';
-
-describe( 'resolveDateFilterSurface', () => {
-	it( 'resolves the year surface', () => {
-		expect( resolveDateFilterSurface( 'year' ) ).toBe( DATE_FILTER_YEAR );
-	} );
-
-	it( 'defaults to the date-range surface', () => {
-		expect( resolveDateFilterSurface( 'range' ) ).toBe( DATE_FILTER_RANGE );
-		expect( resolveDateFilterSurface( undefined ) ).toBe( DATE_FILTER_RANGE );
-		expect( resolveDateFilterSurface( 'something-newer' ) ).toBe( DATE_FILTER_RANGE );
-	} );
-} );
+import { DATE_FILTER_RANGE, DATE_FILTER_YEAR, resolvePresetForSurface } from './date-filter';
 
 describe( 'resolvePresetForSurface', () => {
 	describe( 'on the year surface', () => {

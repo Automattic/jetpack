@@ -278,13 +278,7 @@ function get_dashboard_section_default_layout_response( $request ) {
 /**
  * Registers dashboard section REST routes.
  *
- * The sections route passes a route-level `schema` alongside its numerically
- * keyed endpoint list — register_rest_route()'s own signature for "endpoints
- * plus a schema", which reads to Phan as an accidentally mixed array.
- *
  * @return void
- *
- * @phan-suppress PhanPluginMixedKeyNoKey
  */
 function register_dashboard_sections_rest_routes() {
 	register_rest_route(
@@ -292,6 +286,9 @@ function register_dashboard_sections_rest_routes() {
 		'/dashboards/(?P<name>' . get_dashboard_name_pattern() . ')/sections',
 		array(
 			array(
+				// A route-level `schema` beside the numerically keyed endpoint list is
+				// register_rest_route()'s own signature, reading to Phan as a mixed array.
+				// @phan-suppress-next-line PhanPluginMixedKeyNoKey
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => __NAMESPACE__ . '\\get_dashboard_sections_response',
 				'permission_callback' => __NAMESPACE__ . '\\check_dashboard_sections_permission',

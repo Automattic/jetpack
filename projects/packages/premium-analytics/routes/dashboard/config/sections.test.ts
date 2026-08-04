@@ -1,4 +1,3 @@
-import { DATE_FILTER_RANGE, DATE_FILTER_YEAR, resolveDateFilterSurface } from './date-filter';
 import { resolveSectionId, type DashboardSection } from './sections';
 
 const SECTIONS: DashboardSection[] = [
@@ -45,19 +44,5 @@ describe( 'resolveSectionId', () => {
 
 	it( 'returns an empty slug when no sections are available yet', () => {
 		expect( resolveSectionId( 'traffic', [] ) ).toBe( '' );
-	} );
-} );
-
-describe( 'section date filters', () => {
-	const [ traffic, insights, subscribers ] = SECTIONS;
-
-	it( 'resolves a section to the surface it was registered with', () => {
-		expect( resolveDateFilterSurface( traffic.date_filter ) ).toBe( DATE_FILTER_RANGE );
-		expect( resolveDateFilterSurface( insights.date_filter ) ).toBe( DATE_FILTER_YEAR );
-	} );
-
-	it( 'falls back to the range surface for a section served without the field', () => {
-		expect( subscribers.date_filter ).toBeUndefined();
-		expect( resolveDateFilterSurface( subscribers.date_filter ) ).toBe( DATE_FILTER_RANGE );
 	} );
 } );

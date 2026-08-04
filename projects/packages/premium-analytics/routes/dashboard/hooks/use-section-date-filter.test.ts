@@ -21,13 +21,15 @@ import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
  * @param dateFilter - The section's `date_filter` value.
  * @return A dashboard section.
  */
-function section( dateFilter: DateFilterSurface ): DashboardSection {
+function section( dateFilter?: DateFilterSurface | string ): DashboardSection {
+	const slug = dateFilter ?? 'unset';
+
 	return {
-		id: `analytics/${ dateFilter }`,
-		slug: dateFilter,
-		label: dateFilter,
+		id: `analytics/${ slug }`,
+		slug,
+		label: slug,
 		order: 10,
-		date_filter: dateFilter,
+		date_filter: dateFilter as DateFilterSurface | undefined,
 		default_layout: [],
 	};
 }
@@ -60,6 +62,20 @@ describe( 'useSectionDateFilter', () => {
 		).toBe( DATE_FILTER_YEAR );
 		expect(
 			renderHook( () => useSectionDateFilter( section( 'range' ), filters ) ).result.current
+		).toBe( DATE_FILTER_RANGE );
+	} );
+
+	// `year` is the only opt-in surface, so anything else lands on the range UI:
+	// a section served without the field, or with one added after this build.
+	it( 'falls back to the range surface for a missing or unknown filter', () => {
+		const { filters } = dateFilters( PRESET_ALL_TIME );
+
+		expect( renderHook( () => useSectionDateFilter( section(), filters ) ).result.current ).toBe(
+			DATE_FILTER_RANGE
+		);
+		expect(
+			renderHook( () => useSectionDateFilter( section( 'something-newer' ), filters ) ).result
+				.current
 		).toBe( DATE_FILTER_RANGE );
 	} );
 

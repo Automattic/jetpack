@@ -3,7 +3,6 @@ export { resolveSectionId, type DashboardSection, type DashboardSectionId } from
 export {
 	DATE_FILTER_RANGE,
 	DATE_FILTER_YEAR,
-	resolveDateFilterSurface,
 	resolvePresetForSurface,
 	type DateFilterSurface,
 } from './date-filter';

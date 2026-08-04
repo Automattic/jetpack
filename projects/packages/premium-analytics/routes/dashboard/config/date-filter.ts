@@ -28,19 +28,6 @@ export const DATE_FILTER_YEAR = 'year';
 export type DateFilterSurface = typeof DATE_FILTER_RANGE | typeof DATE_FILTER_YEAR;
 
 /**
- * Narrow a section's `date_filter` to a surface this dashboard can render,
- * falling back to the date-range picker. A miss means a section registered
- * with a surface added after this build, so the fallback keeps its header
- * usable instead of blank.
- *
- * @param value - The section's `date_filter` value.
- * @return The surface to render.
- */
-export function resolveDateFilterSurface( value: unknown ): DateFilterSurface {
-	return value === DATE_FILTER_YEAR ? DATE_FILTER_YEAR : DATE_FILTER_RANGE;
-}
-
-/**
  * The preset a surface should take over with when the URL carries one it cannot
  * represent, or `null` when the current preset is already coherent.
  *
