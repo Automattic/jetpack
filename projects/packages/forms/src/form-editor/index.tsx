@@ -47,6 +47,7 @@ import {
 } from './utils/category-utils';
 import { getAllowedBlocks } from './utils/get-allowed-blocks';
 import { shouldAutoOpenInserter } from './utils/inserter-utils';
+import { shouldRunSelectionEnforcement } from './utils/selection-utils';
 import type { WPPlugin } from '@wordpress/plugins';
 
 type PluginSettings = Omit< WPPlugin, 'name' >;
@@ -567,7 +568,12 @@ const setupFormEditorSubscription = () => {
 			// 6. React to selection changes
 			const { getSelectedBlockClientId } = select( 'core/block-editor' );
 			const currentSelectedBlockId = getSelectedBlockClientId();
-			if ( currentSelectedBlockId !== state.lastSelectedBlockId ) {
+			if (
+				shouldRunSelectionEnforcement( {
+					selectedBlockId: currentSelectedBlockId,
+					lastSelectedBlockId: state.lastSelectedBlockId,
+				} )
+			) {
 				state.lastSelectedBlockId = currentSelectedBlockId;
 				enforceBlockSelection();
 			}
