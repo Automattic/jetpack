@@ -89,7 +89,7 @@ export default function SubscribersDataViews( {
 		[ view.page, view.perPage, view.sort?.field, view.sort?.direction, view.search, apiFilters ]
 	);
 
-	const { data, isLoading, error } = useSubscribers( queryParams );
+	const { data, isLoading, isPlaceholderData, error } = useSubscribers( queryParams );
 	const removeMutation = useSubscriberRemoveMutation();
 
 	// Fetch the site's paid products once for the whole table (not per row) so the "Comp a
@@ -321,7 +321,11 @@ export default function SubscribersDataViews( {
 		( view.filters && view.filters.length > 0 ) || ( view.search && view.search.length > 0 )
 	);
 
-	const isSelfOnly = ! hasActiveFiltersOrSearch && totalItems === 1 && !! data?.is_owner_subscribed;
+	const isSelfOnly =
+		! isPlaceholderData &&
+		! hasActiveFiltersOrSearch &&
+		totalItems === 1 &&
+		!! data?.is_owner_subscribed;
 
 	useEffect( () => {
 		onSelfOnlyChange( isSelfOnly );

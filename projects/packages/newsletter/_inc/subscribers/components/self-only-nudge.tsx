@@ -3,6 +3,7 @@ import { useViewportMatch } from '@wordpress/compose';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, isRTL } from '@wordpress/i18n';
 import { Button, Stack, Text } from '@wordpress/ui';
+import './self-only-nudge.scss';
 
 type Props = {
 	anchor: HTMLElement | null;
@@ -43,10 +44,16 @@ export default function SelfOnlyNudge( { anchor, onDismiss }: Props ): JSX.Eleme
 			resize={ false }
 			focusOnMount={ false }
 			onClose={ handleDismiss }
+			onFocusOutside={ onDismiss }
 			role="status"
 			className="jetpack-newsletter-self-only-nudge"
 		>
-			<Stack direction="column" align="flex-start" gap="sm">
+			<Stack
+				className="jetpack-newsletter-self-only-nudge__body"
+				direction="column"
+				align="flex-start"
+				gap="sm"
+			>
 				<Text variant="heading-lg">
 					{ __( 'Every newsletter starts at one', 'jetpack-newsletter' ) }
 				</Text>
