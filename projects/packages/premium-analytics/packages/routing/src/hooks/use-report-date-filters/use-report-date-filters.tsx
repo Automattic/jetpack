@@ -23,8 +23,7 @@ import type {
 } from '@jetpack-premium-analytics/datetime';
 
 /**
- * The values and callbacks that drive `DateFiltersPanel`, minus the
- * `containerElement` ref which the consuming page owns.
+ * The values and callbacks that drive `DateFiltersPanel`.
  */
 type PickerRange = { from: Date | undefined; to: Date | undefined };
 
@@ -77,8 +76,7 @@ function toPickerRange( from: string | undefined, to: string | undefined, timeZo
  *
  * Edits are staged locally and committed atomically on Apply (or immediately
  * for comparison changes), so widgets re-fetch only on commit. The hook returns
- * everything `DateFiltersPanel` needs except the responsive-measurement
- * `containerElement`, which the page owns. Shared by every analytics page that
+ * everything `DateFiltersPanel` needs. Shared by every analytics page that
  * mounts the panel so the staged-search behavior stays identical across them.
  *
  * @param from - The route path the search params are bound to (e.g. `/`).

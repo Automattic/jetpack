@@ -1,5 +1,6 @@
 import { Stack, Text } from '@wordpress/ui';
 import { ReactNode } from 'react';
+import styles from './section-header.module.scss';
 
 type SectionHeaderProps = {
 	/**
@@ -36,7 +37,7 @@ export function SectionHeader( { title, subtitle, children }: SectionHeaderProps
 				{ subtitle ? <Text variant="body-md">{ subtitle }</Text> : null }
 			</Stack>
 
-			<Stack direction="row" align="center" justify="flex-end">
+			<Stack direction="row" align="center" justify="flex-end" className={ styles.controls }>
 				{ children }
 			</Stack>
 		</Stack>

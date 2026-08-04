@@ -4,7 +4,7 @@ import { DateFiltersPanel, SectionTabPanel, safeHttpUrl } from '@jetpack-premium
 import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
 import { Button } from '@wordpress/ui';
@@ -100,9 +100,6 @@ function PostDetail(): JSX.Element {
 	// current date range and comparison so returning restores the same view.
 	const dashboardLink = useDashboardLink();
 
-	// Container element for the date filters panel responsive layout.
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
-
 	return (
 		<GlobalErrorProvider>
 			<WidgetDashboard
@@ -149,13 +146,9 @@ function PostDetail(): JSX.Element {
 						 * filters stay fixed outside the scroll container, exactly like
 						 * the dashboard's section tabs; the summary header scrolls away
 						 * inside it with the widgets, giving them the vertical room.
-						 *
-						 * The filters wrapper is also the responsive-measurement
-						 * target: DateFiltersPanel reads its width to pick mobile/wide
-						 * layouts instead of relying on the viewport.
 						 */ }
-						<div ref={ setContainerElement } className={ styles.dateFilters }>
-							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
+						<div className={ styles.dateFilters }>
+							<DateFiltersPanel { ...dateFilters } />
 						</div>
 						<div className={ styles.scrollArea }>
 							<div className={ styles.header }>

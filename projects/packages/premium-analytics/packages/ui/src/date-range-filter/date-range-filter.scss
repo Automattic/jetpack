@@ -4,4 +4,16 @@
 .date-range-filter__group {
 
 	@include preset-surface.group;
+
+	// The label mode shortens the labels, then collapses them into a select,
+	// before the row runs out of room, so wrapping is no longer this group's
+	// fallback. Turning it off also retires an artifact it left behind: the
+	// mixin draws its hairline dividers with `> * + *`, which knows nothing
+	// about row breaks, so a wrapped row's first pill painted an inline-start
+	// border on top of the group's own frame.
+
+	// Scoped here rather than folded into the mixin: the year surface shares it
+	// and has no abbreviated form to fall back on yet, so wrapping is still its
+	// only escape from a row that overflows.
+	flex-wrap: nowrap;
 }

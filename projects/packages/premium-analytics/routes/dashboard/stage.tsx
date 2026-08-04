@@ -88,9 +88,6 @@ function Dashboard(): JSX.Element {
 		[ dateFilters.appliedRange, dateFilters.appliedPresetId, dateFilters.appliedComparisonPresetId ]
 	);
 
-	// Container element for the date filters panel responsive layout.
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
-
 	// The sections carry each section's default layout, so until the entity
 	// resolves the layout above is transiently empty. WidgetDashboard treats an
 	// empty layout as "no widgets" and force-opens edit mode, so it must not
@@ -140,11 +137,9 @@ function Dashboard(): JSX.Element {
 								value={ section.slug }
 								className={ styles.content }
 							>
-								<div ref={ setContainerElement } className={ styles.sectionHeader }>
-									<SectionHeader title={ section.label } subtitle={ sectionSubtitle }>
-										<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-									</SectionHeader>
-								</div>
+								<SectionHeader title={ section.label } subtitle={ sectionSubtitle }>
+									<DateFiltersPanel { ...dateFilters } />
+								</SectionHeader>
 
 								{ activeSection === section.slug ? (
 									<>
