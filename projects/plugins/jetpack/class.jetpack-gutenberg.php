@@ -21,6 +21,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+// Required directly so the AI master-gate helper is available regardless of
+// which loader pulled this class in.
+require_once __DIR__ . '/_inc/lib/class-jetpack-ai-settings.php';
+
 /**
  * General Gutenberg editor specific functionality
  */
@@ -846,7 +850,7 @@ class Jetpack_Gutenberg {
 		}
 		// AI Assistant
 		$ai_assistant_state = array(
-			'is-enabled' => apply_filters( 'jetpack_ai_enabled', true ),
+			'is-enabled' => Jetpack_AI_Settings::is_ai_enabled(),
 		);
 
 		$screen_base = null;

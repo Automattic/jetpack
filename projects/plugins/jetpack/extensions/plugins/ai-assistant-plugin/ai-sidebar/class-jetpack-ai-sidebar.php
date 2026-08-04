@@ -19,6 +19,11 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
+// Required directly rather than relying on the plugin bootstrap: on
+// WordPress.com Simple the extension files load through wpcom's own loader
+// and load-jetpack.php never runs.
+require_once __DIR__ . '/../../../../_inc/lib/class-jetpack-ai-settings.php';
+
 const AM_ASSET_BASE_PATH                  = 'widgets.wp.com/agents-manager/';
 const AI_SIDEBAR_ASSET_TRANSIENT          = 'jetpack_ai_sidebar_asset';
 const AI_SIDEBAR_JS_URL                   = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.min.js';
@@ -294,14 +299,16 @@ class Jetpack_AI_Sidebar {
 	 * of the Optimize Title suggestion: SEO suggestions target the SEO meta fields,
 	 * not the visible post title.
 	 *
-	 * The user-facing ai_seo_enhancer_enabled *option* is deliberately not consulted —
-	 * it only governs automatic generation on publish, while these suggestions are
-	 * user-initiated.
+	 * The user-facing ai_seo_enhancer_enabled *option* is consulted since the AI
+	 * settings page surfaced it as the SEO feature toggle: a switched-off feature
+	 * must not offer suggestions, even user-initiated ones, and even when an
+	 * external host (Big Sky, Woo) draws the sidebar.
 	 *
 	 * @return bool
 	 */
 	private static function is_seo_suggestions_enabled(): bool {
 		return (bool) apply_filters( 'ai_seo_enhancer_enabled', true )
+			&& \Jetpack_AI_Settings::is_feature_enabled( 'seo_enhancer' )
 			&& self::has_seo_feature()
 			&& self::is_seo_tools_usable();
 	}
@@ -406,16 +413,21 @@ class Jetpack_AI_Sidebar {
 	 */
 	private static function get_jetpack_ai_sidebar_preview_config(): array {
 		// Ability permission callbacks enforce server-side access for these
-		// features. SEO additionally requires the site-side gates below.
+		// features. The writing suggestions additionally follow the writing
+		// assistant toggle on the AI settings page — a switched-off feature
+		// must not surface suggestions even when an external host (Big Sky,
+		// Woo) draws the sidebar — and SEO requires the site-side gates below.
+		$writing_on = \Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' );
+
 		$features = array(
-			'aiEditorialReview'       => true,
-			'generateFeedback'        => true,
-			'proofreadContent'        => true,
+			'aiEditorialReview'       => (bool) apply_filters( 'jetpack_ai_editorial_review_enabled', true ) && $writing_on,
+			'generateFeedback'        => $writing_on,
+			'proofreadContent'        => $writing_on,
 			'blockTransformations'    => true,
 			'blockToolbarButton'      => true,
-			'optimizeTitleSuggestion' => true,
+			'optimizeTitleSuggestion' => $writing_on,
 			'seoSuggestions'          => self::is_seo_suggestions_enabled(),
-			'excerptSuggestion'       => true,
+			'excerptSuggestion'       => $writing_on,
 			'chatHistory'             => false,
 			'supportGuides'           => false,
 		);
@@ -429,14 +441,15 @@ class Jetpack_AI_Sidebar {
 		$features          = is_array( $filtered_features ) ? array_merge( $features, $filtered_features ) : $features;
 
 		// Normalize the flags released here while leaving host-added values
-		// untouched. Keep SEO's site-side requirements final.
-		$features['aiEditorialReview']       = (bool) $features['aiEditorialReview'];
-		$features['generateFeedback']        = (bool) $features['generateFeedback'];
-		$features['proofreadContent']        = (bool) $features['proofreadContent'];
+		// untouched. Keep the AI settings page toggles and SEO's site-side
+		// requirements final.
+		$features['aiEditorialReview']       = (bool) $features['aiEditorialReview'] && $writing_on;
+		$features['generateFeedback']        = (bool) $features['generateFeedback'] && $writing_on;
+		$features['proofreadContent']        = (bool) $features['proofreadContent'] && $writing_on;
 		$features['blockToolbarButton']      = (bool) $features['blockToolbarButton'];
-		$features['optimizeTitleSuggestion'] = (bool) $features['optimizeTitleSuggestion'];
+		$features['optimizeTitleSuggestion'] = (bool) $features['optimizeTitleSuggestion'] && $writing_on;
 		$features['seoSuggestions']          = (bool) $features['seoSuggestions'] && self::is_seo_suggestions_enabled();
-		$features['excerptSuggestion']       = (bool) $features['excerptSuggestion'];
+		$features['excerptSuggestion']       = (bool) $features['excerptSuggestion'] && $writing_on;
 
 		return array(
 			'enabled'  => self::is_jetpack_ai_sidebar_preview_enabled(),
@@ -655,7 +668,7 @@ class Jetpack_AI_Sidebar {
 	 * @return bool
 	 */
 	private static function has_ai_features(): bool {
-		if ( ! apply_filters( 'jetpack_ai_enabled', true ) ) {
+		if ( ! \Jetpack_AI_Settings::is_ai_enabled() ) {
 			return false;
 		}
 
