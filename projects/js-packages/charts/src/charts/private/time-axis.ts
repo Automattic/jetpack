@@ -93,7 +93,6 @@ const SPACING_BY_RESOLUTION: Record< TickResolution, number > = {
 	day: 24,
 	week: 24 * 7,
 	month: 28 * 24,
-	quarter: 90 * 24,
 	year: 365 * 24,
 };
 

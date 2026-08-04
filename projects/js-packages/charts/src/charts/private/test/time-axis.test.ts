@@ -159,17 +159,6 @@ describe( 'getFormatter', () => {
 			expect( formatter( new Date( '2026-01-12T00:00:00' ).getTime() ) ).toMatch( /Jan 12/ );
 		} );
 
-		it( 'uses month ticks (with the year at January) for quarterly buckets', () => {
-			const quarterlyDates = Array.from(
-				{ length: 4 },
-				( _, i ) => new Date( Date.UTC( 2026, i * 3, 1 ) )
-			);
-			const formatter = getFormatter( toSeries( quarterlyDates ), 'quarter' );
-
-			expect( formatter( new Date( '2026-04-01T00:00:00' ).getTime() ) ).toBe( 'Apr' );
-			expect( formatter( new Date( '2026-01-01T00:00:00' ).getTime() ) ).toBe( '2026' );
-		} );
-
 		it( 'uses year ticks for a pair of yearly buckets', () => {
 			const formatter = getFormatter(
 				toSeries( [ new Date( '2025-01-01T00:00:00' ), new Date( '2026-01-01T00:00:00' ) ] ),
