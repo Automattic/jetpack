@@ -26,16 +26,6 @@ body.jetpack_page_jetpack-newsletter {
 		padding: $jetpack-newsletter-inset;
 	}
 
-	// The self-only nudge portals onto `document.body`, which carries this
-	// class, so it lands outside the page markup. Size and pad our own element
-	// rather than the popover's internals — the popover's content box is
-	// `width: min-content`, so it takes this width.
-	.jetpack-newsletter-self-only-nudge__body {
-		inline-size: 280px;
-		max-inline-size: calc(100vw - #{$jetpack-newsletter-inset} * 2);
-		padding: var(--wpds-dimension-padding-lg);
-	}
-
 	// `AdminPage` wraps its children in `<Container><Col>`; the layout mixin
 	// flexes that pair but stops at `Col`. Continue the flex column through our
 	// `Tabs.Root`. The tab strip (`.jp-admin-page-tabs`) is `position: sticky`

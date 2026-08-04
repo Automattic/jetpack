@@ -64,7 +64,7 @@ export default function SelfOnlyNudge( { anchor, onDismiss }: Props ): JSX.Eleme
 			aria-describedby={ bodyId }
 			className="jetpack-newsletter-self-only-nudge"
 		>
-			<Stack className="jetpack-newsletter-self-only-nudge__body" direction="column" gap="sm">
+			<Stack direction="column" gap="sm">
 				<Text id={ titleId } variant="heading-lg">
 					{ __( 'Every newsletter starts at one', 'jetpack-newsletter' ) }
 				</Text>
