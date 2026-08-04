@@ -131,7 +131,11 @@ class Random_Redirect_Test extends WP_UnitTestCase {
 	public function test_excludes_unpublished_posts() {
 		$public_id = self::factory()->post->create( array( 'post_status' => 'publish' ) );
 		foreach ( array( 'draft', 'future', 'pending', 'private', 'trash' ) as $post_status ) {
-			self::factory()->post->create( array( 'post_status' => $post_status ) );
+			$post_data = array( 'post_status' => $post_status );
+			if ( 'future' === $post_status ) {
+				$post_data['post_date'] = '2037-01-01 00:00:00';
+			}
+			self::factory()->post->create( $post_data );
 		}
 		$_GET['random']           = '1';
 		$_GET['random_post_type'] = 'post';
