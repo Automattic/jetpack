@@ -49,9 +49,8 @@ export const NewsletterWidget = ( {
 		tracks.recordEvent( `${ TRACKS_EVENT_NAME_PREFIX }_view` );
 	}, [ tracks ] );
 
-	// Null only where the Premium Analytics dashboard has replaced the Stats page
-	// and this user cannot open it: the counts still render, just not as links,
-	// and the quick link is dropped.
+	// Null only where the dashboard replaced Stats and this user cannot open it:
+	// the counts still render, just not as links.
 	const subscriberStatsUrl = getSubscriberStatsUrl( site, adminUrl );
 
 	const subscribersText = sprintf(

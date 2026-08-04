@@ -58,12 +58,9 @@ export class DashStats extends Component {
 	};
 
 	/**
-	 * Where clicking a chart bar goes.
-	 *
 	 * Off-site to WordPress.com when Odyssey is disabled, otherwise into the
-	 * site's own analytics UI. Where the Premium Analytics dashboard has replaced
-	 * the Stats page, the link carries the period the bar stands for; the Stats
-	 * deep link it replaces only ever pointed at a single day.
+	 * site's own analytics UI. Only the dashboard link carries the bar's period;
+	 * the Stats deep link it replaces always pointed at a single day.
 	 *
 	 * @param {string} date - The bar's date, as a UTC-midnight ISO string.
 	 * @param {string} unit - The active chart tab: 'day', 'week', or 'month'.

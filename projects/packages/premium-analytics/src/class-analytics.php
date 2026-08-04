@@ -200,18 +200,11 @@ class Analytics {
 	}
 
 	/**
-	 * Announce, to every script on every admin page, that this dashboard is the
-	 * site's analytics UI.
-	 *
-	 * Jetpack surfaces outside this package link to analytics — the Jetpack
-	 * dashboard's stats card, the My Jetpack Stats card, the newsletter widget,
-	 * the block editor's email stats link. They build those URLs with
-	 * `getAnalyticsUrl()`, which needs to know which analytics UI the site runs.
-	 * Publishing the key here rather than having each caller ask Jetpack makes
-	 * the package that owns the dashboard the single source of that answer: the
-	 * key exists exactly where Premium Analytics is the dashboard.
-	 *
-	 * Registered from both init paths, so Simple gets it too.
+	 * Announce to Jetpack's other surfaces that this dashboard is the site's
+	 * analytics UI, so they link here instead of the Stats page. Publishing it
+	 * from the package that owns the dashboard means the key exists exactly
+	 * where the dashboard does. Registered from both init paths, so Simple gets
+	 * it too.
 	 *
 	 * @return void
 	 */
@@ -220,10 +213,8 @@ class Analytics {
 	}
 
 	/**
-	 * Add the `analytics` key to Jetpack's admin script data.
-	 *
-	 * This filter runs on nearly every admin page load, so the payload stays to
-	 * two strings, a bool, and one capability check.
+	 * Runs on nearly every admin page load, so the payload stays to two strings,
+	 * a bool, and one capability check.
 	 *
 	 * @param array $data The script data.
 	 * @return array The script data with the analytics key added.
@@ -240,12 +231,10 @@ class Analytics {
 	}
 
 	/**
-	 * The site's timezone, for encoding date ranges into dashboard URLs.
-	 *
 	 * Prefers `timezone_string` over `gmt_offset`, matching the dashboard's own
-	 * `getSiteTimezone()`. The distinction matters: analytics links always point
-	 * at past dates, so they cross daylight-saving boundaries routinely, and a
-	 * fixed offset applied to the far side of a transition shifts the day.
+	 * `getSiteTimezone()`: analytics links point at past dates, so they cross
+	 * daylight-saving boundaries routinely, and a fixed offset applied to the far
+	 * side of a transition shifts the day.
 	 *
 	 * @return string An IANA timezone name, or a `+HH:MM` UTC offset.
 	 */
@@ -403,11 +392,8 @@ class Analytics {
 	}
 
 	/**
-	 * The admin page slug the dashboard menu registers.
-	 *
-	 * The wp-build "wp-admin integrated" variant. Published in script data so
-	 * `getAnalyticsUrl()` can route to the dashboard without any caller
-	 * hard-coding the slug.
+	 * The admin page slug the dashboard menu registers. Published in script data
+	 * so no caller has to hard-code it.
 	 */
 	const MENU_PAGE_SLUG = 'jetpack-premium-analytics-wp-admin';
 

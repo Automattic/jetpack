@@ -146,9 +146,8 @@ const StatsSection = () => {
 
 	const { counts, previousCounts, chartData } = processedData;
 
-	// The product's own manage URL already points wherever this site's analytics
-	// live — the Stats page, or the Premium Analytics dashboard that replaces it.
-	// That decision belongs server-side, so it is not re-derived here.
+	// The product's manage URL already points at whichever analytics UI this site
+	// runs; that decision belongs server-side, so it is not re-derived here.
 	const { manageUrl } = detail;
 	const { premiumAnalyticsEnabled = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 

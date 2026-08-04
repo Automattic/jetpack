@@ -48,9 +48,7 @@ class DashStatsBottom extends Component {
 
 	render() {
 		const s = this.statsBottom()[ 0 ];
-		// Null only where the Premium Analytics dashboard has replaced the Stats
-		// page and this user cannot open it — the summary figures still render,
-		// just without the button.
+		// Null only where the dashboard replaced Stats and this user cannot open it.
 		const analyticsUrl = hasAnalyticsDashboard()
 			? getAnalyticsUrl( { view: 'dashboard' } )
 			: this.props.siteAdminUrl + 'admin.php?page=stats';

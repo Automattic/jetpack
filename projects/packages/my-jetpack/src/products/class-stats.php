@@ -298,11 +298,8 @@ class Stats extends Module_Product {
 	}
 
 	/**
-	 * The admin page slug of the Premium Analytics dashboard.
-	 *
-	 * Mirrors `Analytics::MENU_PAGE_SLUG`. Spelled out rather than referenced,
-	 * because My Jetpack does not depend on the premium-analytics package — it
-	 * ships in plugins that do not include it at all.
+	 * Mirrors `Analytics::MENU_PAGE_SLUG`, spelled out because My Jetpack does not
+	 * depend on the premium-analytics package.
 	 *
 	 * @since $$next-version$$
 	 */
@@ -311,12 +308,9 @@ class Stats extends Module_Product {
 	/**
 	 * Whether the Premium Analytics dashboard has replaced the Stats page.
 	 *
-	 * Guarded the same way as the other `class_exists( 'Jetpack' )` checks in this
-	 * package: My Jetpack ships in plugins that do not include the Jetpack plugin,
-	 * and the flag only exists there.
-	 *
-	 * Public so the UI flags can report the same answer the URLs are built from,
-	 * rather than repeating the guard.
+	 * Guarded like the other `class_exists( 'Jetpack' )` checks here: My Jetpack
+	 * also ships in plugins without the Jetpack plugin. Public so the UI flags
+	 * report the same answer the URLs are built from.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -331,15 +325,10 @@ class Stats extends Module_Product {
 	/**
 	 * Get the WordPress.com URL for purchasing Jetpack Stats for the current site.
 	 *
-	 * Returns null once Premium Analytics has replaced the Stats page. The tier
-	 * purchase screen was a Calypso route inside the CDN-served Odyssey bundle
-	 * rather than a page this repo hosts, so it left with the Stats dashboard and
-	 * has no replacement to point at.
-	 *
-	 * Null is also the default for the base class — "most Jetpack products use an
-	 * interstitial page within My Jetpack" — which makes the action button fall
-	 * back to the `#/add-stats` interstitial that already exists and is complete.
-	 * Stats was the outlier in overriding it.
+	 * Null once Premium Analytics has replaced the Stats page: the tier purchase
+	 * screen was a Calypso route inside the Odyssey bundle, so it left with that
+	 * dashboard. Null is also the base-class default, which falls the action
+	 * button back to the existing `#/add-stats` interstitial.
 	 *
 	 * @return ?string
 	 */

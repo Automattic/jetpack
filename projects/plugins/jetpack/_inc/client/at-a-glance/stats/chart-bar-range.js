@@ -1,16 +1,12 @@
 /**
  * The span of calendar days a stats chart bar stands for.
  *
- * The chart's Days / Weeks / Months tabs each plot bars keyed on the first day
- * of the period, so the bar's own date alone doesn't say how much time it
- * covers. Clicking a "Weeks" bar should open that whole week, not just its
- * Monday — the old Stats link ignored the tab and always deep-linked to a single
- * day, which is part of why it landed somewhere that didn't match the bar.
+ * Clicking a "Weeks" bar should open that whole week, not just its first day —
+ * the Stats link this replaces ignored the tab and always deep-linked one day.
  *
- * Bar dates arrive from the Stats API as calendar days and are encoded as UTC
- * midnight (see `statsChart`), so every boundary here is computed and read in
- * UTC. Reading local components instead would shift the day for any site west of
- * UTC.
+ * Bar dates arrive as calendar days encoded as UTC midnight (see `statsChart`),
+ * so every boundary here is computed and read in UTC; reading local components
+ * would shift the day west of UTC.
  *
  * @param {string} isoDate - The bar's date, as a UTC-midnight ISO string.
  * @param {string} unit    - The active chart tab: 'day', 'week', or 'month'.
@@ -46,11 +42,10 @@ export function chartBarRange( isoDate, unit ) {
 }
 
 /**
- * Render a UTC instant as its `YYYY-MM-DD` calendar day.
+ * Renders a UTC instant as its calendar day.
  *
  * @param {Date} date - The date to render.
- *
- * @return {string} The calendar day.
+ * @return {string} The `YYYY-MM-DD` calendar day.
  */
 function toCalendarDay( date ) {
 	return date.toISOString().slice( 0, 10 );

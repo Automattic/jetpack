@@ -490,9 +490,8 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		} );
 	}
 
-	// Null only where the dashboard has replaced Stats and this user cannot open
-	// it. An anchor with no href renders styled but non-actionable, so keep the
-	// wording as plain text instead.
+	// An anchor with no href renders styled but non-actionable, so fall back to
+	// plain text when there is nowhere to link.
 	const emailStatsLink = getJetpackEmailStatsLink( blogId, postId );
 
 	return (
