@@ -265,8 +265,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	 * @return null|WP_Error null if the activation was successful.
 	 */
 	protected function activate() {
-		$permission_error      = false;
-		$plugin_already_active = false;
+		$permission_error = false;
 		foreach ( $this->plugins as $plugin ) {
 
 			if ( ! $this->current_user_can( 'activate_plugin', $plugin ) ) {
@@ -279,7 +278,6 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			if ( ( ! $this->network_wide && Jetpack::is_plugin_active( $plugin ) ) || is_plugin_active_for_network( $plugin ) ) {
 				$this->log[ $plugin ]['error'] = __( 'The Plugin is already active.', 'jetpack' );
 				$has_errors                    = true;
-				$plugin_already_active         = true;
 				continue;
 			}
 
@@ -303,7 +301,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			}
 
 			if ( ! $success ) {
-				$this->log[ $plugin ]['error'] = __( 'There was an error activating your plugin', 'jetpack' );
+				$this->log[ $plugin ]['error'] = $result->get_error_messages;
 				$has_errors                    = true;
 				continue;
 			}
@@ -316,11 +314,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 				return new WP_Error( 'unauthorized_error', $this->log[ $plugin ]['error'], 403 );
 			}
 
-			$error = new WP_Error( 'activation_error', $this->log[ $plugin ]['error'] );
-			if ( $plugin_already_active ) {
-				$error->add_data( array( 'reason' => 'already_active' ), 'additional_data' );
-			}
-			return $error;
+			return new WP_Error( 'activation_error', $this->log[ $plugin ]['error'] );
 		}
 	}
 
@@ -350,8 +344,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	 * @return null|WP_Error null if the deactivation was successful
 	 */
 	protected function deactivate() {
-		$permission_error        = false;
-		$plugin_already_inactive = false;
+		$permission_error = false;
 		foreach ( $this->plugins as $plugin ) {
 			if ( ! $this->current_user_can( 'deactivate_plugin', $plugin ) ) {
 				$error                         = __( 'Sorry, you are not allowed to deactivate this plugin.', 'jetpack' );
@@ -363,7 +356,6 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			if ( ! Jetpack::is_plugin_active( $plugin ) ) {
 				$error                         = __( 'The Plugin is already deactivated.', 'jetpack' );
 				$this->log[ $plugin ]['error'] = $error;
-				$plugin_already_inactive       = true;
 				continue;
 			}
 
@@ -386,11 +378,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 				return new WP_Error( 'unauthorized_error', $error, 403 );
 			}
 
-			$error = new WP_Error( 'deactivation_error', $error );
-			if ( $plugin_already_inactive ) {
-				$error->add_data( array( 'reason' => 'already_inactive' ), 'additional_data' );
-			}
-			return $error;
+			return new WP_Error( 'deactivation_error', $error );
 		}
 	}
 

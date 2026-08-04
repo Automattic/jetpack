@@ -88,12 +88,6 @@ class Jetpack_Client_Server {
 			// If the plugin is not in the usual place, try looking through all active plugins.
 			$active_plugins = Jetpack::get_active_plugins();
 			foreach ( $active_plugins as $plugin ) {
-				// `active_plugins` can name a plugin whose files are no longer on
-				// disk, and reading headers from a missing file raises a warning.
-				if ( ! is_readable( WP_PLUGIN_DIR . '/' . $plugin ) ) {
-					continue;
-				}
-
 				$data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin );
 				if ( $data['Name'] === $probable_title ) {
 					deactivate_plugins( $plugin );
