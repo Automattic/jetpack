@@ -13,7 +13,8 @@ const meta: Meta< typeof DateComparisonDropdown > = {
 	parameters: {
 		docs: {
 			description: {
-				component: 'Comparison period select with a dynamic trigger label and preset options.',
+				component:
+					'Additive comparison control: a `+` button with no comparison active, a labelled trigger once a period is chosen. Both open the same menu.',
 			},
 		},
 	},
@@ -71,9 +72,9 @@ export const Default: Story = {
 };
 
 /**
- * Comparison disabled — select shows "No comparison".
+ * No comparison active: the control is a `+` button that opens the same menu.
  */
-export const Disabled: Story = {
+export const NoComparison: Story = {
 	render: () => <DateComparisonDropdownWithState initialEnabled={ false } />,
 };
 
@@ -85,9 +86,10 @@ export const PreviousMonthSelected: Story = {
 };
 
 /**
- * With a visible label rendered by the select itself; the trigger shows only
- * the comparison range, without the "Compare to:" prefix.
+ * With a caller-supplied name. It becomes the trigger's tooltip and accessible
+ * name, and the trigger drops the "Compare to:" prefix that name already
+ * carries.
  */
-export const WithVisibleLabel: Story = {
+export const WithCustomLabel: Story = {
 	render: () => <DateComparisonDropdownWithState label="Compare to" />,
 };

@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Date controls: make comparison an additive control. With none active it is a + button rather than a full-width picker reading "No comparison", and picking a period collapses it into a labelled trigger.

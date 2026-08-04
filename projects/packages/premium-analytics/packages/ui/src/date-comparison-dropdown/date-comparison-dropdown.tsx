@@ -2,8 +2,9 @@
  * External dependencies
  */
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
+import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
-import { SelectControl } from '@wordpress/ui';
+import { check, chevronDown, plus } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useCallback, useMemo } from 'react';
 /**
@@ -15,7 +16,7 @@ import './date-comparison-dropdown.scss';
 
 const NO_COMPARISON_VALUE = 'no-comparison';
 
-type ComparisonSelectItem = {
+type ComparisonMenuItem = {
 	value: string;
 	label: string;
 };
@@ -34,9 +35,9 @@ type DateComparisonDropdownProps = {
 	 */
 	presetId?: ComparisonPresetId;
 	/**
-	 * Visible label rendered by the select itself. When provided, the trigger
-	 * shows only the comparison range; otherwise the trigger carries the
-	 * "Compare to:" prefix and the label stays visually hidden.
+	 * Names the trigger, as both its tooltip and its accessible name. Defaults
+	 * to "Add comparison" / "Compare to" depending on the state. Passing it also
+	 * drops the "Compare to:" prefix from the trigger, which the name carries.
 	 */
 	label?: string;
 	/**
@@ -90,9 +91,8 @@ export function DateComparisonDropdown( {
 	onClear,
 }: DateComparisonDropdownProps ) {
 	const noComparisonLabel = __( 'No comparison', 'jetpack-premium-analytics-pkg' );
-	const selectComparisonLabel = __( 'Select comparison', 'jetpack-premium-analytics-pkg' );
 
-	const items = useMemo( (): ComparisonSelectItem[] => {
+	const items = useMemo( (): ComparisonMenuItem[] => {
 		return [
 			{
 				value: NO_COMPARISON_VALUE,
@@ -113,51 +113,78 @@ export function DateComparisonDropdown( {
 	const selectedValue = enabled && presetId ? presetId : NO_COMPARISON_VALUE;
 	const isComparisonActive = selectedValue !== NO_COMPARISON_VALUE;
 
-	const selectedItem = useMemo(
-		() => items.find( item => item.value === selectedValue ) ?? items[ 0 ] ?? null,
-		[ items, selectedValue ]
-	);
-
 	const triggerLabel = useMemo(
 		() =>
-			isComparisonActive
-				? getComparisonTriggerLabel( {
-						selectedPreset,
-						removeCompareToPrefix: !! label,
-						noComparisonLabel,
-				  } )
-				: noComparisonLabel,
-		[ isComparisonActive, label, noComparisonLabel, selectedPreset ]
+			getComparisonTriggerLabel( {
+				selectedPreset,
+				removeCompareToPrefix: !! label,
+				noComparisonLabel,
+			} ),
+		[ label, noComparisonLabel, selectedPreset ]
 	);
 
-	const handleValueChange = useCallback(
-		( item: ComparisonSelectItem | null ) => {
-			if ( ! item?.value ) {
-				return;
-			}
-
-			if ( item.value === NO_COMPARISON_VALUE ) {
+	const handleSelect = useCallback(
+		( value: string ) => {
+			if ( value === NO_COMPARISON_VALUE ) {
 				onClear();
 				return;
 			}
 
-			onPresetChange( item.value as ComparisonPresetId );
+			onPresetChange( value as ComparisonPresetId );
 		},
 		[ onClear, onPresetChange ]
 	);
 
+	/*
+	 * Comparison is additive: with none active the trigger is a `+` button, and
+	 * picking a preset collapses it into a labelled trigger. Both open the same
+	 * menu, so the way back to "No comparison" is the way in.
+	 */
 	return (
-		<SelectControl
-			className={ clsx( 'date-comparison-dropdown__select', {
-				'date-comparison-dropdown__select--active': isComparisonActive,
-			} ) }
-			items={ items }
-			value={ selectedItem }
-			onValueChange={ handleValueChange }
-			triggerContent={ () => triggerLabel }
-			label={ label ?? __( 'Compare to', 'jetpack-premium-analytics-pkg' ) }
-			hideLabelFromVision={ ! label }
-			placeholder={ selectComparisonLabel }
-		/>
+		<DropdownMenu
+			className="date-comparison-dropdown"
+			icon={ isComparisonActive ? chevronDown : plus }
+			text={ isComparisonActive ? triggerLabel : undefined }
+			label={
+				label ??
+				( isComparisonActive
+					? __( 'Compare to', 'jetpack-premium-analytics-pkg' )
+					: __( 'Add comparison', 'jetpack-premium-analytics-pkg' ) )
+			}
+			popoverProps={ { placement: 'bottom-start' } }
+			toggleProps={ {
+				className: clsx( 'date-comparison-dropdown__toggle', {
+					'date-comparison-dropdown__toggle--active': isComparisonActive,
+				} ),
+				iconPosition: 'right',
+				iconSize: isComparisonActive ? 18 : 24,
+				// The tooltip names the control, so the accessible name carries
+				// the value the trigger is showing instead of repeating it.
+				'aria-label': isComparisonActive ? triggerLabel : undefined,
+			} }
+		>
+			{ ( { onClose } ) => (
+				<MenuGroup>
+					{ items.map( item => {
+						const isSelected = item.value === selectedValue;
+
+						return (
+							<MenuItem
+								key={ item.value }
+								role="menuitemradio"
+								isSelected={ isSelected }
+								icon={ isSelected ? check : undefined }
+								onClick={ () => {
+									handleSelect( item.value );
+									onClose();
+								} }
+							>
+								{ item.label }
+							</MenuItem>
+						);
+					} ) }
+				</MenuGroup>
+			) }
+		</DropdownMenu>
 	);
 }
