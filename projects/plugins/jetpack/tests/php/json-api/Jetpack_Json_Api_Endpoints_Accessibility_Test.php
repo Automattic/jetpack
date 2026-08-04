@@ -171,7 +171,18 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 			wp_set_current_user( self::$admin_user_id );
 		}
 
-		$this->assertEquals( $result, $endpoint->accepts_site_based_authentication() );
+		$this->assertEquals(
+			$result,
+			$endpoint->accepts_site_based_authentication(),
+			sprintf(
+				'DIAGNOSTIC multisite=%s global_blog_id=%s current_blog_id=%s current_user=%s token_details=%s',
+				var_export( is_multisite(), true ),
+				var_export( $GLOBALS['blog_id'] ?? null, true ),
+				var_export( get_current_blog_id(), true ),
+				var_export( get_current_user_id(), true ),
+				str_replace( "\n", ' ', var_export( WPCOM_JSON_API::init()->token_details, true ) )
+			)
+		);
 	}
 
 	/**
