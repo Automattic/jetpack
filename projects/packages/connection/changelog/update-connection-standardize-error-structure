@@ -1,6 +1,4 @@
 Significance: minor
 Type: changed
 
-Error Handler: Standardize the stored connection error structure, record whether errors come from incoming or outgoing requests, and label errors with the actual transport (XML-RPC or REST) of the failed request. Local connection-state errors are now stored with error type 'local_state' instead of 'connection'.
-
-Error Handler: Signature verification errors that previously carried no error data (e.g. `invalid_secret`, `invalid_token` from Jetpack_Signature) are now normalized and stored. Sites with a corrupt stored token may start seeing connection error notices that were previously dropped. Signature errors that were stored untyped are now labeled with their transport, so a successful API request clears them.
+Error Handler: Standardize the stored connection error structure with explicit error type and direction fields, store local connection-state errors as 'local_state' instead of 'connection', and store previously dropped signature verification errors, which can now surface connection error notices.
