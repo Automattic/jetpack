@@ -11,6 +11,7 @@ type Props = {
 	blogId: JetpackBlogId | null;
 	onAddSubscribers: () => void;
 	showSelfOnlyNudge: boolean;
+	onDismissSelfOnlyNudge: () => void;
 };
 
 /**
@@ -33,16 +34,19 @@ function getCsvDownloadUrl( blogId: JetpackBlogId ): string | null {
  * Page-header action row — primary "Add subscribers" CTA and a More menu (Download CSV).
  * Page already wraps actions in a Stack with `gap="sm"`, so we don't add an extra wrapper here.
  *
- * @param props                   - Component props.
- * @param props.blogId            - WP.com blog id, used to build the CSV download URL.
- * @param props.onAddSubscribers  - Callback to open the Add Subscribers modal (owned by the parent so the empty state can trigger it too).
- * @param props.showSelfOnlyNudge - Whether to point the self-only nudge at the CTA.
+ * @param props                        - Component props.
+ * @param props.blogId                 - WP.com blog id, used to build the CSV download URL.
+ * @param props.onAddSubscribers       - Callback to open the Add Subscribers modal (owned by the parent so the empty state can trigger it too).
+ * @param props.showSelfOnlyNudge      - Whether to point the self-only nudge at the CTA.
+ * @param props.onDismissSelfOnlyNudge - Called when the viewer closes the nudge; the parent owns
+ *                                     the state because this row unmounts on a tab hop.
  * @return Action row.
  */
 export default function HeaderActions( {
 	blogId,
 	onAddSubscribers,
 	showSelfOnlyNudge,
+	onDismissSelfOnlyNudge,
 }: Props ): JSX.Element {
 	const [ ctaAnchor, setCtaAnchor ] = useState< HTMLButtonElement | null >( null );
 
@@ -51,7 +55,9 @@ export default function HeaderActions( {
 			<Button size="compact" ref={ setCtaAnchor } onClick={ onAddSubscribers }>
 				{ __( 'Add subscribers', 'jetpack-newsletter' ) }
 			</Button>
-			{ showSelfOnlyNudge && <SelfOnlyNudge anchor={ ctaAnchor } /> }
+			{ showSelfOnlyNudge && (
+				<SelfOnlyNudge anchor={ ctaAnchor } onDismiss={ onDismissSelfOnlyNudge } />
+			) }
 			<DropdownMenu
 				icon={ moreVertical }
 				label={ __( 'More options', 'jetpack-newsletter' ) }

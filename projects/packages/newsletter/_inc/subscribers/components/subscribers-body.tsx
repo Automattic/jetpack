@@ -69,6 +69,14 @@ export default function SubscribersBody( {
 	const openAdd = useCallback( () => setAddOpen( true ), [] );
 	const closeAdd = useCallback( () => setAddOpen( false ), [] );
 
+	// Reported up from the table so the header's nudge can point at the "Add subscribers" button.
+	const [ isSelfOnly, setIsSelfOnly ] = useState( false );
+	// Dismissal lives up here rather than in the nudge or the header row, because both of those
+	// unmount — on a search or filter, and on a hop to the Settings tab — and a nudge that came
+	// back afterwards was never really dismissed. This shell stays mounted for the whole visit.
+	const [ isNudgeDismissed, setNudgeDismissed ] = useState( false );
+	const dismissNudge = useCallback( () => setNudgeDismissed( true ), [] );
+
 	useEffect( () => {
 		if ( window.location.hash !== ADD_SUBSCRIBERS_HASH ) {
 			return;
@@ -124,8 +132,6 @@ export default function SubscribersBody( {
 		[ navigate, search ]
 	);
 
-	const [ isSelfOnly, setIsSelfOnly ] = useState( false );
-
 	const body = (
 		<>
 			<SubscribersDataViews
@@ -142,7 +148,10 @@ export default function SubscribersBody( {
 		<HeaderActions
 			blogId={ blogId }
 			onAddSubscribers={ openAdd }
-			showSelfOnlyNudge={ isSelfOnly }
+			// Never while the modal is up: the nudge takes focus as it mounts, and the
+			// `#add-subscribers` deep link opens the modal before the query it waits on resolves.
+			showSelfOnlyNudge={ isSelfOnly && ! isNudgeDismissed && ! isAddOpen }
+			onDismissSelfOnlyNudge={ dismissNudge }
 		/>
 	);
 
