@@ -277,9 +277,9 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Verify activating an active plugin returns a distinct error code.
+	 * Verify activating an active plugin adds a reason to the existing error.
 	 */
-	public function test_activate_returns_plugin_already_active_error_code() {
+	public function test_activate_keeps_error_code_and_adds_already_active_reason() {
 		wp_set_current_user( self::$super_admin_user_id );
 		$this->install_the_plugin();
 		activate_plugin( 'the/the.php' );
@@ -290,15 +290,16 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 		$this->remove_the_plugin();
 
 		$this->assertWPError( $result );
-		$this->assertSame( 'plugin_already_active', $result->get_error_code() );
+		$this->assertSame( 'activation_error', $result->get_error_code() );
 		$this->assertSame( __( 'The Plugin is already active.', 'jetpack' ), $result->get_error_message() );
-		$this->assertNull( $result->get_error_data() );
+		$this->assertSame( array( 'reason' => 'already_active' ), $result->get_error_data( 'additional_data' ) );
+		$this->assertSame( 400, WPCOM_JSON_API::serializable_error( $result )['status_code'] );
 	}
 
 	/**
-	 * Verify deactivating an inactive plugin returns a distinct error code.
+	 * Verify deactivating an inactive plugin adds a reason to the existing error.
 	 */
-	public function test_deactivate_returns_plugin_already_inactive_error_code() {
+	public function test_deactivate_keeps_error_code_and_adds_already_inactive_reason() {
 		wp_set_current_user( self::$super_admin_user_id );
 		$this->install_the_plugin();
 
@@ -307,9 +308,10 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 		$this->remove_the_plugin();
 
 		$this->assertWPError( $result );
-		$this->assertSame( 'plugin_already_inactive', $result->get_error_code() );
+		$this->assertSame( 'deactivation_error', $result->get_error_code() );
 		$this->assertSame( __( 'The Plugin is already deactivated.', 'jetpack' ), $result->get_error_message() );
-		$this->assertNull( $result->get_error_data() );
+		$this->assertSame( array( 'reason' => 'already_inactive' ), $result->get_error_data( 'additional_data' ) );
+		$this->assertSame( 400, WPCOM_JSON_API::serializable_error( $result )['status_code'] );
 	}
 
 	/**
@@ -334,6 +336,29 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 		$this->assertSame( 'deactivation_error', $result->get_error_code() );
 		$this->assertSame( __( 'There was an error deactivating your plugin', 'jetpack' ), $result->get_error_message() );
 		$this->assertNull( $result->get_error_data() );
+		$this->assertEmpty( $result->get_error_data( 'additional_data' ) );
+	}
+
+	/**
+	 * Verify a failed activation keeps the existing error code.
+	 */
+	public function test_activate_keeps_activation_error_code_for_failure() {
+		wp_set_current_user( self::$super_admin_user_id );
+		$this->install_the_plugin();
+		$prevent_activation = function ( $_new_value, $old_value ) {
+			return $old_value;
+		};
+		add_filter( 'pre_update_option_active_plugins', $prevent_activation, 10, 2 );
+
+		$result = $this->invoke_plugin_modify_action( 'activate', 'the/the.php' );
+
+		remove_filter( 'pre_update_option_active_plugins', $prevent_activation, 10 );
+		deactivate_plugins( 'the/the.php' );
+		$this->remove_the_plugin();
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'activation_error', $result->get_error_code() );
+		$this->assertEmpty( $result->get_error_data( 'additional_data' ) );
 	}
 
 	/**

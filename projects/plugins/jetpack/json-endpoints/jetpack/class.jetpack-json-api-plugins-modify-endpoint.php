@@ -316,8 +316,11 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 				return new WP_Error( 'unauthorized_error', $this->log[ $plugin ]['error'], 403 );
 			}
 
-			$error_code = $plugin_already_active ? 'plugin_already_active' : 'activation_error';
-			return new WP_Error( $error_code, $this->log[ $plugin ]['error'] );
+			$error = new WP_Error( 'activation_error', $this->log[ $plugin ]['error'] );
+			if ( $plugin_already_active ) {
+				$error->add_data( array( 'reason' => 'already_active' ), 'additional_data' );
+			}
+			return $error;
 		}
 	}
 
@@ -383,8 +386,11 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 				return new WP_Error( 'unauthorized_error', $error, 403 );
 			}
 
-			$error_code = $plugin_already_inactive ? 'plugin_already_inactive' : 'deactivation_error';
-			return new WP_Error( $error_code, $error );
+			$error = new WP_Error( 'deactivation_error', $error );
+			if ( $plugin_already_inactive ) {
+				$error->add_data( array( 'reason' => 'already_inactive' ), 'additional_data' );
+			}
+			return $error;
 		}
 	}
 

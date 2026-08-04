@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Plugins: Return distinct error codes when a plugin is already active or inactive.
+Plugins: Add a reason to activation and deactivation errors when the plugin is already in the requested state.
