@@ -310,7 +310,6 @@ export function DateFiltersPanel( {
 			ref={ setRootElement }
 			className={ clsx( 'date-filters-panel', { 'is-compact': isCompact } ) }
 			direction={ isCompact ? 'column' : 'row' }
-			wrap={ isCompact ? 'nowrap' : 'wrap' }
 			gap="sm"
 		>
 			<PresetRowProbe
