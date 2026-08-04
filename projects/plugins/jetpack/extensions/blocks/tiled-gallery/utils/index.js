@@ -1,5 +1,5 @@
-import { isWoASite, isSimpleSite } from '@automattic/jetpack-script-data';
-import { getJetpackData, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
+import { getScriptData, isWoASite, isSimpleSite } from '@automattic/jetpack-script-data';
+import { isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
 import { isBlobURL } from '@wordpress/blob';
 import photon from 'photon';
 import isOfflineMode from '../../../shared/is-offline-mode';
@@ -12,16 +12,24 @@ export function isSquareishLayout( layout ) {
 /**
  * Build src and srcSet properties which can be used on an <img />
  *
- * @param {object} img                     - Image
- * @param {number} img.height              - Image height
- * @param {string} img.url                 - Image URL
- * @param {number} img.width               - Image width
- * @param {object} galleryAtts             - Gallery attributes relevant for image optimization.
- * @param {string} galleryAtts.layoutStyle - Gallery layout. 'rectangular', 'circle', etc.
- * @param {number} galleryAtts.columns     - Gallery columns. Not applicable for all layouts.
+ * @param {object}  img                      - Image
+ * @param {number}  img.height               - Image height
+ * @param {string}  img.url                  - Image URL
+ * @param {number}  img.width                - Image width
+ * @param {object}  galleryAtts              - Gallery attributes relevant for image optimization.
+ * @param {string}  galleryAtts.layoutStyle  - Gallery layout. 'rectangular', 'circle', etc.
+ * @param {number}  galleryAtts.columns      - Gallery columns. Not applicable for all layouts.
+ * @param {object}  options                  - Options.
+ * @param {boolean} options.skipPhotonDomain - Whether to skip the external Photon domain. Defaults
+ *                                           to what the site asks for; deprecated block versions
+ *                                           pass `false` to keep emitting the URLs they saved.
  * @return {object} Returns an object. If possible, the object will include `src` and `srcSet` properties {string} for use on an image.
  */
-export function photonizedImgProps( img, galleryAtts = {} ) {
+export function photonizedImgProps(
+	img,
+	galleryAtts = {},
+	{ skipPhotonDomain: skipDomain = skipPhotonDomain() } = {}
+) {
 	if ( ! img.height || ! img.width ) {
 		return img.url ? { src: img.url } : {};
 	}
@@ -47,7 +55,7 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 	const { height, width } = img;
 	const { layoutStyle } = galleryAtts;
 
-	const photonImplementation = skipPhotonDomain() || isSimpleSite() ? photonWpcomImage : photon;
+	const photonImplementation = skipDomain || isSimpleSite() ? photonWpcomImage : photon;
 
 	/**
 	 * Build the `src`
@@ -110,8 +118,8 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
  * files.wordpress.com-style URLs via photonWpcomImage.
  *
  * The value is computed in PHP (true on VIP sites, overridable via the `jetpack_skip_photon_domain`
- * filter) and delivered in the editor initial state. It is deliberately read from that global rather
- * than from editor settings or any other store: this runs inside the blocks' save() output, which is
+ * filter) and delivered in the script data. It is deliberately read from that global rather than from
+ * editor settings or any other store: this runs inside the blocks' save() output, which is
  * regenerated during block validation while the post is parsed — before the editor stores hold any
  * settings. Reading store state there yields the default value on the first pass and marks saved
  * galleries as invalid.
@@ -119,7 +127,7 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
  * @return {boolean} True when the external Photon domain should be skipped.
  */
 export function skipPhotonDomain() {
-	return true === getJetpackData()?.jetpack?.skip_photon_domain;
+	return true === getScriptData()?.jetpack?.flags?.skipPhotonDomain;
 }
 
 /**

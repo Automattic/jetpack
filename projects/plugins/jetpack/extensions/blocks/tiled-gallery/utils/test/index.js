@@ -7,34 +7,33 @@ const IMAGE = {
 };
 
 /**
- * Set the editor initial state global, the way wp_localize_script() does on an editor page load.
+ * Set the script data global, the way the PHP inline script does on a page load.
  *
- * @param {object} jetpack - The `jetpack` section of the initial state.
+ * @param {object} jetpack - The `jetpack` section of the script data.
  */
-function setEditorInitialState( jetpack = {} ) {
-	window.Jetpack_Editor_Initial_State = { jetpack };
+function setScriptData( jetpack = {} ) {
+	window.JetpackScriptData = { jetpack };
 }
 
 describe( 'skipPhotonDomain', () => {
 	afterEach( () => {
-		delete window.Jetpack_Editor_Initial_State;
+		delete window.JetpackScriptData;
 	} );
 
-	it( 'is false when the editor initial state is missing', () => {
+	it( 'is false when the script data is missing', () => {
 		expect( skipPhotonDomain() ).toBe( false );
 	} );
 
-	it( 'is false when the initial state does not flag it', () => {
-		setEditorInitialState( { jetpack_plan: { data: 'jetpack_free' } } );
+	it( 'is false when the script data does not flag it', () => {
+		setScriptData( { flags: { showJetpackBranding: true } } );
 
 		expect( skipPhotonDomain() ).toBe( false );
 	} );
 
-	// The value has to come from the initial state global rather than an editor store: it feeds the
-	// blocks' save() output, which is regenerated during block validation before any store holds
-	// editor settings.
-	it( 'is true when the initial state flags it', () => {
-		setEditorInitialState( { skip_photon_domain: true } );
+	// The value has to come from this global rather than an editor store: it feeds the blocks' save()
+	// output, which is regenerated during block validation before any store holds editor settings.
+	it( 'is true when the script data flags it', () => {
+		setScriptData( { flags: { skipPhotonDomain: true } } );
 
 		expect( skipPhotonDomain() ).toBe( true );
 	} );
@@ -42,7 +41,7 @@ describe( 'skipPhotonDomain', () => {
 
 describe( 'photonizedImgProps', () => {
 	afterEach( () => {
-		delete window.Jetpack_Editor_Initial_State;
+		delete window.JetpackScriptData;
 	} );
 
 	it( 'routes images through the Photon domain by default', () => {
@@ -55,7 +54,7 @@ describe( 'photonizedImgProps', () => {
 	} );
 
 	it( 'keeps images on the site host when the Photon domain is skipped', () => {
-		setEditorInitialState( { skip_photon_domain: true } );
+		setScriptData( { flags: { skipPhotonDomain: true } } );
 
 		const { src, srcSet } = photonizedImgProps( IMAGE );
 
@@ -63,6 +62,18 @@ describe( 'photonizedImgProps', () => {
 		expect( srcSet ).not.toContain( 'i0.wp.com' );
 		expect( srcSet ).toContain(
 			'https://example.com/wp-content/uploads/2026/01/cat.jpg?strip=info&w=600'
+		);
+	} );
+
+	// Deprecated block versions pass this so they keep emitting the URLs they originally saved.
+	it( 'stays on the Photon domain when the caller overrides the site setting', () => {
+		setScriptData( { flags: { skipPhotonDomain: true } } );
+
+		const { src, srcSet } = photonizedImgProps( IMAGE, {}, { skipPhotonDomain: false } );
+
+		expect( src ).toBe( 'https://i0.wp.com/example.com/wp-content/uploads/2026/01/cat.jpg?ssl=1' );
+		expect( srcSet ).toContain(
+			'https://i0.wp.com/example.com/wp-content/uploads/2026/01/cat.jpg'
 		);
 	} );
 } );

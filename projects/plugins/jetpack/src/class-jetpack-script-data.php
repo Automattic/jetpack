@@ -9,6 +9,8 @@
 
 namespace Automattic\Jetpack\Plugin;
 
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+
 /**
  * Jetpack_Script_Data class.
  */
@@ -40,9 +42,47 @@ class Jetpack_Script_Data {
 		$data['jetpack'] = array(
 			'flags' => array(
 				'showJetpackBranding' => (bool) apply_filters( 'jetpack_show_editor_panel_branding', true ),
+				'skipPhotonDomain'    => self::should_skip_photon_domain(),
 			),
 		);
 
 		return $data;
+	}
+
+	/**
+	 * Whether image-serving blocks should skip the external Photon domain (i0.wp.com) and build
+	 * URLs on the site's own Photon-like host instead.
+	 *
+	 * VIP sites serve images from a host of their own, and images routed through the public Photon
+	 * domain are not reachable there.
+	 *
+	 * This is read by the Tiled Gallery block's skipPhotonDomain(), which runs inside the block's
+	 * save() output — including when the editor regenerates that output to validate saved content.
+	 * That regeneration happens while the post is being parsed, before any editor store holds
+	 * settings, so the value has to travel in the script data rather than in editor settings.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private static function should_skip_photon_domain() {
+		$jetpack_plan = Jetpack_Plan::get();
+
+		/**
+		 * Filter whether the Tiled Gallery and Image Compare blocks should skip the external
+		 * Photon (i0.wp.com) domain and build image URLs on the site's own host instead.
+		 *
+		 * Defaults to true on VIP sites only, and false everywhere else.
+		 *
+		 * Changing this changes the markup those blocks save, so existing galleries are re-serialized
+		 * the next time they are saved.
+		 *
+		 * @module tiled-gallery
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $skip_photon_domain Whether to skip the external Photon domain.
+		 */
+		return (bool) apply_filters( 'jetpack_skip_photon_domain', 'vip' === $jetpack_plan['product_slug'] );
 	}
 }
