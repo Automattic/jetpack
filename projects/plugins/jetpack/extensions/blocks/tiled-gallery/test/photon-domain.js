@@ -7,7 +7,6 @@
  */
 import {
 	createBlock,
-	getSaveContent,
 	parse,
 	registerBlockType,
 	serialize,
@@ -15,7 +14,6 @@ import {
 } from '@wordpress/blocks';
 import metadata from '../block.json';
 import deprecated from '../deprecated';
-import * as photonDomainDeprecation from '../deprecated/v9';
 import save from '../save';
 
 const IMAGES = [
@@ -91,7 +89,8 @@ describe( 'Tiled Gallery Photon domain changes', () => {
 		expect( block.name ).toBe( metadata.name );
 		expect( block.isValid ).toBe( true );
 		expect( block.attributes.images ).toHaveLength( 2 );
-		// Gutenberg informs when a deprecation matched, so this also pins down *how* it stayed valid.
+		// Gutenberg informs when a deprecation matched, so this also proves it was rescued rather than
+		// matching the current save() by accident.
 		expect( console ).toHaveInformed();
 	} );
 
@@ -113,18 +112,24 @@ describe( 'Tiled Gallery Photon domain changes', () => {
 		expect( block.isValid ).toBe( true );
 	} );
 
-	// The deprecation earns its keep by mirroring the current markup exactly, so that galleries saved
-	// by this version before the setting was honoured match it. The older v8 deprecation happens to
-	// match them too, but only because the validator forgives the stray whitespace node in its
-	// wrapper — so keep this in step with save.jsx rather than leaning on that.
-	it( 'has a deprecation mirroring the current markup, apart from the image host', () => {
+	// Galleries using custom links match the deprecation added for this change and nothing else — the
+	// much older v6 covers plain galleries by whitespace luck, but knows nothing about custom links.
+	// This case is what keeps that deprecation from being deleted as redundant.
+	it( 'keeps galleries with custom links valid too', () => {
 		setSkipPhotonDomain( false );
-		const attributes = {
-			...createBlock( metadata.name, { images: IMAGES, ids: [ 5, 6 ] } ).attributes,
-		};
-
-		expect( getSaveContent( { ...metadata, ...photonDomainDeprecation }, attributes ) ).toBe(
-			getSaveContent( { ...metadata, save }, attributes )
+		const markupSavedBefore = serialize(
+			createBlock( metadata.name, {
+				images: IMAGES.map( image => ( { ...image, customLink: `${ image.link }custom/` } ) ),
+				ids: [ 5, 6 ],
+				linkTo: 'custom',
+			} )
 		);
+
+		setSkipPhotonDomain( true );
+		const [ block ] = parse( markupSavedBefore );
+
+		expect( block.isValid ).toBe( true );
+		expect( block.attributes.images[ 0 ].customLink ).toBe( 'https://example.com/one/custom/' );
+		expect( console ).toHaveInformed();
 	} );
 } );

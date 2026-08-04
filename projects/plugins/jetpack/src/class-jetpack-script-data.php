@@ -61,6 +61,10 @@ class Jetpack_Script_Data {
 	 * That regeneration happens while the post is being parsed, before any editor store holds
 	 * settings, so the value has to travel in the script data rather than in editor settings.
 	 *
+	 * The signal is the plan slug rather than Host::is_vip_site(): it is what the block's previous
+	 * isVIP() check used, and switching to the WPCOM_IS_VIP_ENV constant would change which sites get
+	 * site-host URLs — and so which existing galleries need a deprecation to stay valid.
+	 *
 	 * @since $$next-version$$
 	 *
 	 * @return bool

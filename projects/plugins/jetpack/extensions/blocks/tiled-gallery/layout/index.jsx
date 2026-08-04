@@ -39,13 +39,9 @@ export default class Layout extends Component {
 		);
 		const Image = isSave ? GalleryImageSave : GalleryImageEdit;
 
-		// `skipPhotonDomain` is only passed by the deprecated version that has to keep emitting the
-		// external Photon domain; left undefined, the images follow whatever this site asks for.
-		const { src, srcSet } = photonizedImgProps(
-			img,
-			{ layoutStyle },
-			skipPhotonDomain === undefined ? undefined : { skipPhotonDomain }
-		);
+		// Only the deprecated version that has to keep emitting the external Photon domain passes this;
+		// left undefined, the images follow whatever this site asks for.
+		const { src, srcSet } = photonizedImgProps( img, { layoutStyle }, { skipPhotonDomain } );
 
 		return (
 			<Image

@@ -16,9 +16,13 @@ import Layout from '../../layout';
  * Attributes are unchanged, so there is nothing to migrate: matching here keeps the block valid, and
  * the next save re-serializes it with the URLs the site asks for.
  *
- * This is deliberately kept even though the v8 deprecation also matches that content today: v8 does
- * so only because block validation forgives the stray whitespace node in its wrapper, which is not
- * something to rely on. Keep this file in step with ../../save.jsx.
+ * This is the only deprecation that reproduces the current markup. The much older v6 happens to match
+ * it too for plain galleries — its wrapper differs only by whitespace, which validation forgives —
+ * but v6 knows nothing about custom links, so galleries using `linkTo: 'custom'` match here and
+ * nowhere else. Removing this file invalidates exactly those.
+ *
+ * Never edit this file to follow ../../save.jsx. It has to keep emitting the markup that is already
+ * in the database; when the current markup changes, add a new deprecation instead.
  *
  * @param {object} props            - Block props.
  * @param {object} props.attributes - Block attributes.
