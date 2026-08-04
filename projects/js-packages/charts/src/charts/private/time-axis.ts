@@ -85,15 +85,15 @@ const getPointSpacingInHours = ( sortedData: ReturnType< typeof useChartDataTran
 	);
 };
 
-// Nominal point spacing for a caller-declared bucket resolution. Month and
-// coarser map to their shortest calendar length so the month-or-coarser
-// regimes engage (see getFormatter).
-const SPACING_BY_RESOLUTION: Record< TickResolution, number > = {
+// Nominal point spacing for a caller-declared bucket resolution. A month maps
+// to the shortest month so the month-or-coarser regime engages (see
+// getFormatter). Year is absent: it short-circuits to year ticks before the
+// spacing regimes run.
+const SPACING_BY_RESOLUTION: Record< Exclude< TickResolution, 'year' >, number > = {
 	hour: 1,
 	day: 24,
 	week: 24 * 7,
 	month: 28 * 24,
-	year: 365 * 24,
 };
 
 // Pick the most informative tick formatter for the data's resolution and time
@@ -106,6 +106,13 @@ export const getFormatter = (
 	sortedData: ReturnType< typeof useChartDataTransform >,
 	tickResolution?: TickResolution
 ) => {
+	// The month regime only prints the year at January boundaries, so yearly
+	// buckets starting mid-year would render as month names; year ticks are
+	// correct for yearly buckets at any span.
+	if ( tickResolution === 'year' ) {
+		return formatYearTick;
+	}
+
 	const minX = Math.min( ...sortedData.map( datom => datom.data.at( 0 )?.date ) );
 	const maxX = Math.max( ...sortedData.map( datom => datom.data.at( -1 )?.date ) );
 

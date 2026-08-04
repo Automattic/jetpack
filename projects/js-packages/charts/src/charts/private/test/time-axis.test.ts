@@ -168,5 +168,15 @@ describe( 'getFormatter', () => {
 			expect( formatter( new Date( '2025-01-01T00:00:00' ).getTime() ) ).toBe( '2025' );
 			expect( formatter( new Date( '2026-01-01T00:00:00' ).getTime() ) ).toBe( '2026' );
 		} );
+
+		it( 'uses year ticks for yearly buckets that do not start in January', () => {
+			const formatter = getFormatter(
+				toSeries( [ new Date( '2025-06-01T00:00:00' ), new Date( '2026-06-01T00:00:00' ) ] ),
+				'year'
+			);
+
+			expect( formatter( new Date( '2025-06-01T00:00:00' ).getTime() ) ).toBe( '2025' );
+			expect( formatter( new Date( '2026-06-01T00:00:00' ).getTime() ) ).toBe( '2026' );
+		} );
 	} );
 } );
