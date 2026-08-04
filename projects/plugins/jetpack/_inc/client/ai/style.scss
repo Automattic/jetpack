@@ -94,37 +94,6 @@ body.jetpack_page_jetpack-ai {
 	margin-inline-start: 40px;
 }
 
-// Nested child rows (e.g. Feature Clip under Image Editor) indent to sit
-// visually beneath their parent's label column, so the parent/child grouping
-// reads at a glance.
-.jetpack-ai-features__row--child {
-	margin-inline-start: 40px;
-}
-
-// A feature label with an inline badge (e.g. Feature Clip's "Experimental
-// Preview" tag) keeps the tag on the same line as the label text.
-.jetpack-ai-features__label {
-	display: inline-flex;
-	align-items: center;
-	gap: 8px;
-}
-
-// The "Experimental Preview" tag, matching Image Studio's own ExperimentalBadge
-// (amber) so the tag reads the same on the settings row and in the clip modal.
-.jetpack-ai-features__experimental-badge {
-	display: inline-flex;
-	align-items: center;
-	padding: 2px 8px;
-	border-radius: 2px;
-	font-size: 11px;
-	font-weight: 500;
-	line-height: 1.4;
-	letter-spacing: 0.02em;
-	white-space: nowrap;
-	color: #7d4d00;
-	background: #fcf0d6;
-}
-
 // Section header: title left, optional "Requires upgrade" badge right,
 // matching the Search card in the design.
 .jetpack-ai-features__section-header {

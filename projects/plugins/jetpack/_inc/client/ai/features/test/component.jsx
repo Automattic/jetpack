@@ -283,7 +283,9 @@ describe( 'AiFeatures rendering', () => {
 		expect( analytics.tracks.recordEvent ).not.toHaveBeenCalled();
 	} );
 
-	test( 'Feature Clip renders as a nested child with an Experimental Preview badge', () => {
+	test( 'Feature Clip does not render even when the endpoint reports it', () => {
+		// The Clip row was dropped from the view; the backend key may still
+		// arrive from the endpoint and must not produce a row.
 		renderFeatures( {
 			features: {
 				image_editor: { enabled: true },
@@ -291,62 +293,8 @@ describe( 'AiFeatures rendering', () => {
 			},
 		} );
 
-		expect( screen.getByText( 'Experimental Preview' ) ).toBeInTheDocument();
-
-		const clip = screen.getByRole( 'checkbox', { name: /Feature Clip/ } );
-		expect( clip ).toBeEnabled();
-		expect( clip ).toBeChecked();
-		expect( screen.getByText( 'Generate videos for your posts.' ) ).toBeInTheDocument();
-	} );
-
-	test( 'Feature Clip greys out but stays visible when the Image Editor is off', () => {
-		// available:false is how the endpoint expresses "parent (Image Editor)
-		// is off". The child must grey, not disappear.
-		renderFeatures( {
-			features: {
-				image_editor: { enabled: false },
-				feature_clip: { enabled: true, available: false },
-			},
-		} );
-
-		const clip = screen.getByRole( 'checkbox', { name: /Feature Clip/ } );
-		expect( clip ).toBeInTheDocument();
-		expect( clip ).toBeDisabled();
-		// The saved value stays visible — the toggle must not misreport it as off.
-		expect( clip ).toBeChecked();
-		// The badge stays on the greyed row.
-		expect( screen.getByText( 'Experimental Preview' ) ).toBeInTheDocument();
-		// The "try it out" invite is withheld while the parent is off.
-		expect( screen.queryByText( 'Try it out in the editor' ) ).not.toBeInTheDocument();
-	} );
-
-	test( 'Feature Clip is omitted entirely when the endpoint does not report it', () => {
-		renderFeatures( { features: { image_editor: { enabled: true } } } );
-
 		expect( screen.queryByRole( 'checkbox', { name: /Feature Clip/ } ) ).not.toBeInTheDocument();
-		// The parent Image Editor row still renders.
 		expect( screen.getByRole( 'checkbox', { name: /Image Editor/ } ) ).toBeInTheDocument();
-	} );
-
-	test( 'toggling Feature Clip sends a partial update for just that key', async () => {
-		const onUpdate = jest.fn().mockResolvedValue( true );
-		render(
-			<AiFeatures
-				settings={ {
-					master_enabled: true,
-					features: {
-						image_editor: { enabled: true },
-						feature_clip: { enabled: false, available: true },
-					},
-				} }
-				savingKeys={ new Set() }
-				onUpdate={ onUpdate }
-			/>
-		);
-
-		await userEvent.click( screen.getByRole( 'checkbox', { name: /Feature Clip/ } ) );
-
-		expect( onUpdate ).toHaveBeenCalledWith( { features: { feature_clip: true } } );
 	} );
 
 	test( 'docs links open a new tab; wp-admin action links stay same-tab', () => {
