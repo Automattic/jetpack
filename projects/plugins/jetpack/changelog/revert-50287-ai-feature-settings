@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Revert the AI feature settings controls while the Jetpack 16.1 release window is open; the change will be restored afterwards.
