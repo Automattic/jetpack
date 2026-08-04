@@ -342,40 +342,39 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$layout_by_uuid = array_column( $layout, null, 'uuid' );
 		$layout_types   = array_column( $layout, 'type' );
 
-		$this->assertContains( 'jpa/subscriber-highlights', $layout_types );
-		$this->assertContains( 'jpa/subscribers-chart', $layout_types );
-		$this->assertContains( 'jpa/subscribers-list', $layout_types );
-		$this->assertContains( 'jpa/stats-emails', $layout_types );
-		$this->assertSame(
-			array(
-				'uuid'       => 'default-subscribers-list-widget-instance',
-				'type'       => 'jpa/subscribers-list',
-				'attributes' => array(
-					'max' => 6,
-				),
-				'placement'  => array(
-					'width'  => 2,
-					'height' => 2,
-					'order'  => 2,
-				),
-			),
-			$layout_by_uuid['default-subscribers-list-widget-instance']
+		// uuid => [ type, width, order ]; widths fill the four-column grid.
+		$expected = array(
+			'default-subscribers-chart-widget-instance'  => array( 'jpa/subscribers-chart', 4, 0 ),
+			'default-subscribers-list-widget-instance'   => array( 'jpa/subscribers-list', 2, 1 ),
+			'default-subscribers-emails-widget-instance' => array( 'jpa/stats-emails', 2, 2 ),
 		);
+
+		$this->assertSame( array_keys( $expected ), array_column( $layout, 'uuid' ) );
+
+		foreach ( $expected as $uuid => $instance ) {
+			list( $type, $width, $order ) = $instance;
+
+			$this->assertSame( $type, $layout_by_uuid[ $uuid ]['type'], $uuid );
+			$this->assertSame(
+				array(
+					'width'  => $width,
+					'height' => 2,
+					'order'  => $order,
+				),
+				$layout_by_uuid[ $uuid ]['placement'],
+				$uuid
+			);
+		}
+
+		// Subscriber highlights is intentionally not a default.
+		$this->assertNotContains( 'jpa/subscriber-highlights', $layout_types );
+
 		$this->assertSame(
 			array(
-				'uuid'       => 'default-subscribers-emails-widget-instance',
-				'type'       => 'jpa/stats-emails',
-				'attributes' => array(
-					'max'    => 10,
-					'metric' => 'opens',
-				),
-				'placement'  => array(
-					'width'  => 2,
-					'height' => 2,
-					'order'  => 3,
-				),
+				'max'    => 10,
+				'metric' => 'opens',
 			),
-			$layout_by_uuid['default-subscribers-emails-widget-instance']
+			$layout_by_uuid['default-subscribers-emails-widget-instance']['attributes']
 		);
 		$this->assertSame(
 			get_dashboard_default_layout_for( DASHBOARD_SUBSCRIBERS_SECTION_ID ),
