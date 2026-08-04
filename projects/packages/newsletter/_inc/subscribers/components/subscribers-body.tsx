@@ -65,10 +65,6 @@ export default function SubscribersBody( {
 	// the Settings tab or for connection-gated users. Shares the query key the modal reads.
 	useNewsletterCategories( { enabled: importRefreshEnabled } );
 
-	const [ isAddOpen, setAddOpen ] = useState( false );
-	const openAdd = useCallback( () => setAddOpen( true ), [] );
-	const closeAdd = useCallback( () => setAddOpen( false ), [] );
-
 	// Reported up from the table so the header's nudge can point at the "Add subscribers" button.
 	const [ isSelfOnly, setIsSelfOnly ] = useState( false );
 	// Dismissal lives up here rather than in the nudge or the header row, because both of those
@@ -76,6 +72,15 @@ export default function SubscribersBody( {
 	// back afterwards was never really dismissed. This shell stays mounted for the whole visit.
 	const [ isNudgeDismissed, setNudgeDismissed ] = useState( false );
 	const dismissNudge = useCallback( () => setNudgeDismissed( true ), [] );
+
+	const [ isAddOpen, setAddOpen ] = useState( false );
+	// Reaching this modal is the nudge's whole purpose, so opening it retires the nudge as surely
+	// as "Got it" does — otherwise it comes back when the modal closes.
+	const openAdd = useCallback( () => {
+		setAddOpen( true );
+		setNudgeDismissed( true );
+	}, [] );
+	const closeAdd = useCallback( () => setAddOpen( false ), [] );
 
 	useEffect( () => {
 		if ( window.location.hash !== ADD_SUBSCRIBERS_HASH ) {
@@ -148,8 +153,8 @@ export default function SubscribersBody( {
 		<HeaderActions
 			blogId={ blogId }
 			onAddSubscribers={ openAdd }
-			// Never while the modal is up: the nudge takes focus as it mounts, and the
-			// `#add-subscribers` deep link opens the modal before the query it waits on resolves.
+			// Never stacked behind the modal: the `#add-subscribers` deep link opens it directly,
+			// before the query the nudge waits on has resolved.
 			showSelfOnlyNudge={ isSelfOnly && ! isNudgeDismissed && ! isAddOpen }
 			onDismissSelfOnlyNudge={ dismissNudge }
 		/>

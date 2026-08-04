@@ -1,7 +1,8 @@
-// The nudge appears on its own and portals to the end of `<body>`, so it has to carry its own
-// role and name, and it takes focus in place of a dismiss button: whatever the viewer does next
-// closes it. `@wordpress/ui` is stubbed to plain elements; the real `Popover` renders so the
-// assertions run against the focus and attribute behaviour it actually emits.
+// The nudge arrives on its own once the subscribers query resolves and portals to the end of
+// `<body>`, so it carries a live-region role to be announced where it stands rather than taking
+// focus off whatever the viewer is doing. "Got it" is the only thing that closes it.
+// `@wordpress/ui` is stubbed to plain elements; the real `Popover` renders so the assertions run
+// against the focus and attribute behaviour it actually emits.
 jest.mock( '@wordpress/ui', () => {
 	// Button forwards its ref like the real one, so `HeaderActions` can hand the DOM node to the
 	// nudge as its anchor.
@@ -19,12 +20,8 @@ jest.mock( '@wordpress/ui', () => {
 				</button>
 			)
 		),
-		Stack: ( { children, className }: { children: React.ReactNode; className?: string } ) => (
-			<div className={ className }>{ children }</div>
-		),
-		Text: ( { children, id }: { children: React.ReactNode; id?: string } ) => (
-			<span id={ id }>{ children }</span>
-		),
+		Stack: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
+		Text: ( { children }: { children: React.ReactNode } ) => <span>{ children }</span>,
 	};
 } );
 
@@ -34,27 +31,30 @@ jest.mock( '../_inc/subscribers/lib/tracks', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factories above.
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useCallback, useState } from '@wordpress/element';
 import HeaderActions from '../_inc/subscribers/components/header-actions';
 import SelfOnlyNudge from '../_inc/subscribers/components/self-only-nudge';
 
 /**
- * Mounts the nudge against a real anchor button, mirroring how `HeaderActions` wires it up.
+ * Mounts the nudge against a real anchor button, mirroring how `HeaderActions` wires it up. The
+ * search box stands in for somewhere the viewer's focus may already be when the nudge shows up.
  *
  * @param props           - Props.
  * @param props.onDismiss - Dismissal callback under test.
+ * @param props.show      - Whether the self-only state has arrived yet.
  * @return Anchor button plus the nudge.
  */
-function Harness( { onDismiss }: { onDismiss: () => void } ) {
+function Harness( { onDismiss, show = true }: { onDismiss: () => void; show?: boolean } ) {
 	const [ anchor, setAnchor ] = useState< HTMLButtonElement | null >( null );
 
 	return (
 		<>
+			<input type="text" aria-label="Search subscribers" />
 			<button type="button" ref={ setAnchor }>
 				Add subscribers
 			</button>
-			<SelfOnlyNudge anchor={ anchor } onDismiss={ onDismiss } />
+			{ show && <SelfOnlyNudge anchor={ anchor } onDismiss={ onDismiss } /> }
 		</>
 	);
 }
@@ -63,40 +63,45 @@ describe( 'SelfOnlyNudge', () => {
 	// `Popover` positions itself asynchronously, so let that settle before asserting — otherwise
 	// the pending state update lands outside `act()`. It also leaves the bubble at `opacity: 0`
 	// until floating-ui measures, which jsdom never does, so assert presence, not visibility.
-	it( 'exposes a named role so assistive tech can reach content that appears unprompted', async () => {
+	it( 'announces itself through a live region, since it appears unprompted', async () => {
 		render( <Harness onDismiss={ jest.fn() } /> );
 
-		await expect(
-			screen.findByRole( 'note', { name: 'Every newsletter starts at one' } )
-		).resolves.toBeInTheDocument();
+		const note = await screen.findByRole( 'status' );
+
+		expect( note ).toHaveTextContent( 'Every newsletter starts at one' );
 	} );
 
-	it( 'takes focus as it appears, standing in for a dismiss control', async () => {
-		render( <Harness onDismiss={ jest.fn() } /> );
+	it( 'leaves focus where the viewer put it when it arrives mid-visit', async () => {
+		const { rerender } = render( <Harness onDismiss={ jest.fn() } show={ false } /> );
+		const search = screen.getByRole( 'textbox', { name: 'Search subscribers' } );
+		search.focus();
 
-		await expect( screen.findByRole( 'note' ) ).resolves.toHaveFocus();
+		// The query resolves and the nudge mounts underneath the viewer.
+		rerender( <Harness onDismiss={ jest.fn() } show /> );
+		await expect( screen.findByRole( 'status' ) ).resolves.toBeInTheDocument();
+
+		expect( search ).toHaveFocus();
 	} );
 
-	it( 'closes once focus lands anywhere else', async () => {
+	it( 'closes when the viewer acknowledges it', async () => {
 		const onDismiss = jest.fn();
 		render( <Harness onDismiss={ onDismiss } /> );
-		await expect( screen.findByRole( 'note' ) ).resolves.toHaveFocus();
+		await expect( screen.findByRole( 'status' ) ).resolves.toBeInTheDocument();
 
-		// `Popover` defers the focus-outside check by a tick, so wait it out rather than asserting
-		// straight after the blur.
-		act( () => {
-			screen.getByRole( 'button', { name: 'Add subscribers' } ).focus();
-		} );
+		// The package doesn't pull in @testing-library/user-event, so dispatch events directly.
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: 'Got it' } ) );
 
-		await waitFor( () => expect( onDismiss ).toHaveBeenCalled() );
+		expect( onDismiss ).toHaveBeenCalled();
+		// "Got it" is about to unmount, so focus has to be handed somewhere deliberate.
+		expect( screen.getByRole( 'button', { name: 'Add subscribers' } ) ).toHaveFocus();
 	} );
 
 	it( 'hands focus back to the anchor on Escape', async () => {
 		const onDismiss = jest.fn();
 		render( <Harness onDismiss={ onDismiss } /> );
-		const note = await screen.findByRole( 'note' );
+		const note = await screen.findByRole( 'status' );
 
-		// The package doesn't pull in @testing-library/user-event, so dispatch the key directly.
 		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.keyDown( note, { key: 'Escape' } );
 
@@ -107,7 +112,7 @@ describe( 'SelfOnlyNudge', () => {
 	it( 'renders nothing until the anchor mounts', () => {
 		render( <SelfOnlyNudge anchor={ null } onDismiss={ jest.fn() } /> );
 
-		expect( screen.queryByRole( 'note' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
 	} );
 } );
 
@@ -140,15 +145,13 @@ function BodyHarness( { isSelfOnly, isMounted }: { isSelfOnly: boolean; isMounte
 
 describe( 'self-only nudge dismissal', () => {
 	/**
-	 * Dismisses the nudge the way a viewer does — by putting focus somewhere else — having waited
-	 * for `Popover` to finish positioning it.
+	 * Dismisses the nudge the way a viewer does, having waited for `Popover` to position it.
 	 */
 	async function dismiss() {
-		await expect( screen.findByRole( 'note' ) ).resolves.toHaveFocus();
-		act( () => {
-			screen.getByRole( 'button', { name: 'Add subscribers' } ).focus();
-		} );
-		await waitFor( () => expect( screen.queryByRole( 'note' ) ).not.toBeInTheDocument() );
+		await expect( screen.findByRole( 'status' ) ).resolves.toBeInTheDocument();
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: 'Got it' } ) );
+		await waitFor( () => expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument() );
 	}
 
 	it( 'survives a search hiding and then re-showing the nudge', async () => {
@@ -159,7 +162,7 @@ describe( 'self-only nudge dismissal', () => {
 		rerender( <BodyHarness isSelfOnly={ false } isMounted /> );
 		rerender( <BodyHarness isSelfOnly isMounted /> );
 
-		expect( screen.queryByRole( 'note' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'survives a hop to the Settings tab and back, which unmounts the header row', async () => {
@@ -171,6 +174,6 @@ describe( 'self-only nudge dismissal', () => {
 		rerender( <BodyHarness isSelfOnly isMounted /> );
 
 		expect( screen.getByRole( 'button', { name: 'Add subscribers' } ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'note' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
 	} );
 } );
