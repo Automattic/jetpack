@@ -28,6 +28,7 @@ export default class Layout extends Component {
 			onSelectImage,
 			selectedImage,
 			setImageAttributes,
+			skipPhotonDomain,
 		} = this.props;
 
 		const ariaLabel = sprintf(
@@ -38,7 +39,13 @@ export default class Layout extends Component {
 		);
 		const Image = isSave ? GalleryImageSave : GalleryImageEdit;
 
-		const { src, srcSet } = photonizedImgProps( img, { layoutStyle } );
+		// `skipPhotonDomain` is only passed by the deprecated version that has to keep emitting the
+		// external Photon domain; left undefined, the images follow whatever this site asks for.
+		const { src, srcSet } = photonizedImgProps(
+			img,
+			{ layoutStyle },
+			skipPhotonDomain === undefined ? undefined : { skipPhotonDomain }
+		);
 
 		return (
 			<Image

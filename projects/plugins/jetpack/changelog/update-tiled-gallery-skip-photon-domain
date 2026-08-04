@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Tiled Gallery: fix images being routed through the external Photon domain on VIP sites, and add a `jetpack_skip_photon_domain` filter to control that decision.
+Tiled Gallery: fix images being routed through the external Photon domain on VIP sites, keep existing galleries valid when that changes, and add a `jetpack_skip_photon_domain` filter to control it.
