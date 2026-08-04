@@ -1544,7 +1544,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			id='contact-form-$id'
 			class='{$container_classes_string}'
 			data-wp-interactive='jetpack/form' " . wp_interactivity_data_wp_context( $context ) . "
-			data-wp-on--focusin=\"callbacks.trackFirstInteraction\"
+			data-wp-on--focusin=\"actions.trackFirstInteraction\"
 			data-wp-watch--scroll-to-wrapper=\"callbacks.scrollToWrapper\"
 		>\n";
 
@@ -1636,7 +1636,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			// Left empty on purpose: the view script fills this in on submit. An empty
 			// value is stored as null so "never interacted with" stays distinguishable
 			// from "filled out in under a second".
-			$r .= "<input type='hidden' name='form_fill_duration' value='' />\n";
+			$r .= "<input type='hidden' name='" . esc_attr( Feedback::FORM_FILL_DURATION_FIELD ) . "' value='' />\n";
 			$r .= $form->body;
 
 			if ( $is_multistep ) {

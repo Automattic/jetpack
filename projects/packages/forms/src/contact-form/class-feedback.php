@@ -53,6 +53,19 @@ class Feedback {
 	public const IS_TEST_META_KEY = '_feedback_is_test';
 
 	/**
+	 * Name of the hidden POST field carrying the form fill duration.
+	 *
+	 * Prefixed because submitted fields share one flat POST namespace with author-defined
+	 * fields, whose names a site owner can set by hand. An unprefixed `form_fill_duration`
+	 * field would silently overwrite this one.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var string
+	 */
+	public const FORM_FILL_DURATION_FIELD = 'jetpack_form_fill_duration';
+
+	/**
 	 * Cache key for the source post IDs list.
 	 *
 	 * @var string
@@ -2280,9 +2293,15 @@ class Feedback {
 	/**
 	 * Gets the computed form fill duration, in seconds.
 	 *
-	 * The value is supplied by the view script as a hidden field. It is left empty when the
-	 * submitter never interacted with the form (or ran without JavaScript), in which case the
-	 * duration is unknown and stored as null rather than as a misleading 0.
+	 * The value is supplied by the view script as a hidden field, so it is submitter-controlled
+	 * and cannot be trusted. Anything that is not a plain sequence of digits is treated as
+	 * unknown and stored as null, rather than being coerced into a number that would read as a
+	 * real measurement: `absint()` alone would turn "abc" into 0 (indistinguishable from a
+	 * genuine sub-second fill), "-1" into 1, and a value past PHP_INT_MAX into a float, which
+	 * would contradict the integer type the REST schema advertises.
+	 *
+	 * The value is left empty when the submitter never interacted with the form, or ran without
+	 * JavaScript, which is also an unknown duration.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -2290,11 +2309,19 @@ class Feedback {
 	 * @return int|null
 	 */
 	private function get_computed_form_fill_duration( $post_data ) {
-		if ( ! isset( $post_data['form_fill_duration'] ) || $post_data['form_fill_duration'] === '' ) {
+		if ( ! isset( $post_data[ self::FORM_FILL_DURATION_FIELD ] ) ) {
 			return null;
 		}
 
-		return absint( $post_data['form_fill_duration'] );
+		$raw = $post_data[ self::FORM_FILL_DURATION_FIELD ];
+
+		// is_scalar() has to come first so an array-shaped POST does not blow up on the cast.
+		if ( ! is_scalar( $raw ) || ! ctype_digit( (string) $raw ) ) {
+			return null;
+		}
+
+		// Clamp so an abandoned tab left open for days cannot skew aggregates.
+		return min( (int) $raw, DAY_IN_SECONDS );
 	}
 
 	/**

@@ -1307,6 +1307,31 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The rendered form must carry the hidden duration input and the focusin binding that
+	 * populates it. The storage-level tests build their POST data by hand, so without this
+	 * the whole feature could be removed from the markup and they would all still pass.
+	 */
+	public function test_rendered_form_carries_form_fill_duration_markup() {
+		$html = do_shortcode( "[contact-form][contact-field label='Name' type='name' required='1'/][/contact-form]" );
+
+		$this->assertStringContainsString(
+			"name='" . Feedback::FORM_FILL_DURATION_FIELD . "'",
+			$html,
+			'The rendered form should include the hidden duration input'
+		);
+		$this->assertStringContainsString(
+			"value=''",
+			$html,
+			'The duration input should render empty so an unrecorded duration stores as null'
+		);
+		$this->assertStringContainsString(
+			'data-wp-on--focusin="actions.trackFirstInteraction"',
+			$html,
+			'The form wrapper should bind focusin to start the fill timer'
+		);
+	}
+
+	/**
 	 * Tests that the field attributes remain the same when no escaping is necessary.
 	 *
 	 * @author tonykova

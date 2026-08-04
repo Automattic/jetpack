@@ -394,10 +394,10 @@ class Feedback_Author_Metadata_Test extends BaseTestCase {
 		// Create a form submission with form_fill_duration
 		$_post_data = Utility::get_post_request(
 			array(
-				'name'               => 'John Doe',
-				'email'              => 'john@example.com',
-				'message'            => 'Test message',
-				'form_fill_duration' => '45', // 45 seconds
+				'name'                             => 'John Doe',
+				'email'                            => 'john@example.com',
+				'message'                          => 'Test message',
+				Feedback::FORM_FILL_DURATION_FIELD => '45', // 45 seconds
 			),
 			'g' . $form_id
 		);
@@ -471,14 +471,102 @@ class Feedback_Author_Metadata_Test extends BaseTestCase {
 	public static function provide_unknown_form_fill_durations() {
 		return array(
 			'empty value (no interaction recorded)' => array(
-				array( 'form_fill_duration' => '' ),
+				array( Feedback::FORM_FILL_DURATION_FIELD => '' ),
 				'An empty duration should be stored as null, not 0',
 			),
 			'field absent entirely'                 => array(
 				array(),
 				'A missing duration should be stored as null',
 			),
+			'non-numeric text'                      => array(
+				array( Feedback::FORM_FILL_DURATION_FIELD => 'abc' ),
+				'Non-numeric input should be null, not absint()-ed to 0',
+			),
+			'whitespace only'                       => array(
+				array( Feedback::FORM_FILL_DURATION_FIELD => ' ' ),
+				'Whitespace should be null, not 0',
+			),
+			'negative value'                        => array(
+				array( Feedback::FORM_FILL_DURATION_FIELD => '-1' ),
+				'A negative duration is not meaningful and should be null, not flipped positive',
+			),
+			'scientific notation'                   => array(
+				array( Feedback::FORM_FILL_DURATION_FIELD => '1e10' ),
+				'Scientific notation should be null rather than expanded to 10000000000',
+			),
+			'decimal'                               => array(
+				array( Feedback::FORM_FILL_DURATION_FIELD => '1.5' ),
+				'A non-integer duration should be null',
+			),
+			'array-shaped POST'                     => array(
+				array( Feedback::FORM_FILL_DURATION_FIELD => array( '1' ) ),
+				'An array-shaped value should be null and must not fatal on the cast',
+			),
 		);
+	}
+
+	/**
+	 * Entries created before this feature existed have no duration recorded at all. This is the
+	 * case the null design exists for, and it goes through load_from_post() rather than
+	 * from_submission().
+	 */
+	public function test_form_fill_duration_is_null_for_legacy_entries() {
+		$feedback_id = Utility::create_legacy_feedback();
+		$response    = Feedback::get( $feedback_id );
+
+		$this->assertNull( $response->get_form_fill_duration(), 'An entry predating this feature should report a null duration' );
+	}
+
+	/**
+	 * A value past PHP_INT_MAX must not become a float — the REST schema advertises
+	 * array( 'integer', 'null' ), and a float would JSON-encode as 9.223372036854776e+18.
+	 */
+	public function test_form_fill_duration_rejects_overflow() {
+		$saved_response = $this->save_submission_with_duration( '-9223372036854775808' );
+
+		$this->assertNull( $saved_response->get_form_fill_duration(), 'An overflowing value should be null rather than a float' );
+	}
+
+	/**
+	 * An implausibly long duration is clamped so a tab left open for days cannot skew aggregates.
+	 */
+	public function test_form_fill_duration_is_clamped() {
+		$saved_response = $this->save_submission_with_duration( (string) ( DAY_IN_SECONDS * 30 ) );
+
+		$this->assertSame( DAY_IN_SECONDS, $saved_response->get_form_fill_duration(), 'A duration beyond a day should be clamped to DAY_IN_SECONDS' );
+		$this->assertIsInt( $saved_response->get_form_fill_duration(), 'The clamped duration should still be an integer' );
+	}
+
+	/**
+	 * Saves a submission carrying the given raw duration value and returns the reloaded entry.
+	 *
+	 * @param mixed $raw_duration The raw POST value for the duration field.
+	 * @return Feedback
+	 */
+	private function save_submission_with_duration( $raw_duration ) {
+		$form_id = Utility::get_form_id();
+
+		$_post_data = Utility::get_post_request(
+			array(
+				'name'                             => 'John Doe',
+				'email'                            => 'john@example.com',
+				'message'                          => 'Test message',
+				Feedback::FORM_FILL_DURATION_FIELD => $raw_duration,
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		$response = Feedback::from_submission( $_post_data, $form );
+
+		return Feedback::get( $response->save() );
 	}
 
 	/**
@@ -489,10 +577,10 @@ class Feedback_Author_Metadata_Test extends BaseTestCase {
 
 		$_post_data = Utility::get_post_request(
 			array(
-				'name'               => 'John Doe',
-				'email'              => 'john@example.com',
-				'message'            => 'Test message',
-				'form_fill_duration' => '0',
+				'name'                             => 'John Doe',
+				'email'                            => 'john@example.com',
+				'message'                          => 'Test message',
+				Feedback::FORM_FILL_DURATION_FIELD => '0',
 			),
 			'g' . $form_id
 		);

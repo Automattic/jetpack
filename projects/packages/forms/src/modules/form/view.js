@@ -28,6 +28,9 @@ const NAMESPACE = 'jetpack/form';
 const config = getConfig( NAMESPACE );
 let errorTimeout = null;
 
+// Must match Feedback::FORM_FILL_DURATION_FIELD in src/contact-form/class-feedback.php.
+const FORM_FILL_DURATION_FIELD = 'jetpack_form_fill_duration';
+
 const updateField = ( fieldId, value, showFieldError = false, validatorCallback = null ) => {
 	const context = getContext();
 	let field = context.fields[ fieldId ];
@@ -608,10 +611,28 @@ const { state, actions } = store( NAMESPACE, {
 			actions.updateField( context.fieldId, event.target.value, true );
 		},
 
+		/**
+		 * Start the fill timer on the submitter's first interaction with the form.
+		 *
+		 * Bound to `focusin` on the form wrapper, which covers every focusable control. File
+		 * drag-and-drop fires no focus event, so `jetpack/field-file` calls this directly.
+		 */
+		trackFirstInteraction: () => {
+			const context = getContext();
+
+			if ( ! context.formFirstInteractionTime ) {
+				context.formFirstInteractionTime = Date.now();
+			}
+		},
+
 		onFormReset: () => {
 			const context = getContext();
 			context.fields = [];
 			context.showErrors = false;
+			// Start the fill timer over. Without this, going back from the success panel and
+			// filling the form in again would report a duration that also covers the first
+			// submission and the time spent reading the confirmation.
+			context.formFirstInteractionTime = null;
 
 			// Dispatch custom events to reset all fields
 			const formElement = document.getElementById( context.elementId );
@@ -670,7 +691,7 @@ const { state, actions } = store( NAMESPACE, {
 			if ( context.formFirstInteractionTime ) {
 				const duration = Math.round( ( Date.now() - context.formFirstInteractionTime ) / 1000 ); // Duration in seconds.
 				const durationField = getForm( context.formHash )?.querySelector(
-					'input[name="form_fill_duration"]'
+					`input[name="${ FORM_FILL_DURATION_FIELD }"]`
 				);
 
 				if ( durationField ) {
@@ -779,14 +800,6 @@ const { state, actions } = store( NAMESPACE, {
 			const context = getContext();
 			const { fieldId, fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra } = context;
 			registerField( fieldId, fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra );
-		},
-
-		trackFirstInteraction() {
-			const context = getContext();
-			// Store the first interaction time when user focuses on any form field
-			if ( ! context.formFirstInteractionTime ) {
-				context.formFirstInteractionTime = Date.now();
-			}
 		},
 
 		scrollToWrapper() {
