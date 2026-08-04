@@ -84,6 +84,29 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Status 6.1.5 loaded by another plugin must not make Jetpack fatal.
+	 *
+	 * The fixture includes every public Host method from 6.1.5. This lets
+	 * longstanding method calls work normally while ensuring calls to methods
+	 * added in later Status versions are guarded for compatibility.
+	 */
+	public function test_available_with_legacy_status_host() {
+		$script = dirname( __DIR__ ) . '/fixtures/reprint-export-legacy-status-host.php';
+
+		$output    = array();
+		$exit_code = 0;
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_exec -- A separate process is required to preload the legacy class before Jetpack's autoloader.
+		exec( escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( $script ) . ' 2>&1', $output, $exit_code );
+
+		$this->assertSame(
+			0,
+			$exit_code,
+			"Compatibility process failed:\n" . implode( "\n", $output )
+		);
+		$this->assertSame( array( 'OK' ), $output );
+	}
+
+	/**
 	 * Available on WordPress.com (Atomic), so it can eventually replace the
 	 * wpcomsh copy. Uses the platform constants, not wpcomsh presence.
 	 */
