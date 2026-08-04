@@ -1818,6 +1818,16 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Get the state of any block on the site's outgoing email.
+	 *
+	 * @return array|null `status` (`blocked` or `at_risk`), `reason` and `expires_on`,
+	 *                    or null if the site has never been blocked.
+	 */
+	public function get_atomic_email_block() {
+		return null;
+	}
+
+	/**
 	 * Get Jetpack recovery mode status.
 	 *
 	 * @return array|null
