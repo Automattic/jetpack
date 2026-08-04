@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { useImportCompletionRefresh } from '../data/use-import-completion-refresh';
+import { useNewsletterCategories } from '../data/use-newsletter-categories';
 import { installDataViewsFooterI18n } from '../lib/dataviews-i18n';
 import { getBlogId } from '../lib/site';
 import { isOpenSubscriberRemoved, toFiniteNumber } from '../lib/subscriber-helpers';
@@ -57,6 +58,12 @@ export default function SubscribersBody( {
 	// this always-mounted shell doesn't poll the WP.com import endpoint on the Settings tab, for
 	// connection-gated users, or on Settings-only sites.
 	useImportCompletionRefresh( importRefreshEnabled );
+
+	// Warm the newsletter-categories cache while the list loads, so the Add Subscribers category
+	// picker renders immediately when the modal opens instead of popping in after its own round
+	// trip. Gated to the same import-capable audience as the completion poll so it never fetches on
+	// the Settings tab or for connection-gated users. Shares the query key the modal reads.
+	useNewsletterCategories( { enabled: importRefreshEnabled } );
 
 	const [ isAddOpen, setAddOpen ] = useState( false );
 	const openAdd = useCallback( () => setAddOpen( true ), [] );
