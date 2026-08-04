@@ -358,6 +358,7 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 
 		$this->assertWPError( $result );
 		$this->assertSame( 'activation_error', $result->get_error_code() );
+		$this->assertSame( __( 'There was an error activating your plugin', 'jetpack' ), $result->get_error_message() );
 		$this->assertEmpty( $result->get_error_data( 'additional_data' ) );
 	}
 
