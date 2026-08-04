@@ -1,0 +1,37 @@
+// Sizing mirrors the core block editor welcome guide
+// (.edit-post-welcome-guide) so the form guide sits at the same scale
+// as the modal it replaces.
+.jetpack-forms-welcome-guide {
+	inline-size: 312px;
+
+	.jetpack-forms-welcome-guide__image {
+		margin-block: 0 16px;
+	}
+
+	// Placeholder standing in for the slide artwork. Sized to the artwork
+	// region of the core guide so the modal keeps its final proportions
+	// while the illustrations are still being designed.
+	.jetpack-forms-welcome-guide__image-slot {
+		background: #f0f0f0;
+		block-size: 240px;
+		border: 1px dashed #c3c4c7;
+		inline-size: 100%;
+	}
+
+	.jetpack-forms-welcome-guide__heading {
+		font-size: 24px;
+		font-weight: 600;
+		line-height: 1.4;
+		margin-block: 16px;
+		margin-inline: 0;
+		padding-inline: 24px;
+	}
+
+	.jetpack-forms-welcome-guide__text {
+		font-size: 13px;
+		line-height: 1.4;
+		margin-block: 0 24px;
+		margin-inline: 0;
+		padding-inline: 24px;
+	}
+}
