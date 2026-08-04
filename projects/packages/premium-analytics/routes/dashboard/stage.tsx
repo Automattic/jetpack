@@ -117,7 +117,7 @@ function Dashboard(): JSX.Element {
 			>
 				<Page
 					visual={ <StatsPageIcon /> }
-					breadcrumbs={ <StatsBreadcrumbs /> }
+					breadcrumbs={ <StatsBreadcrumbs isRoot /> }
 					subTitle={ __(
 						'Track your site performance and visitor insights.',
 						'jetpack-premium-analytics-pkg'

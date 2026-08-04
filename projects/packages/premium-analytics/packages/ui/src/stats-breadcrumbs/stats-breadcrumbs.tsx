@@ -8,13 +8,15 @@ import styles from './stats-breadcrumbs.module.scss';
 import type { ComponentProps } from 'react';
 
 export interface StatsBreadcrumbsProps {
+	/** Whether the root crumb is the dashboard's page heading. */
+	isRoot?: boolean;
 	/**
 	 * Crumbs after the dashboard root; the last one becomes the page heading.
 	 */
 	items?: ComponentProps< typeof Breadcrumbs >[ 'items' ];
 }
 
-export function StatsBreadcrumbs( { items = [] }: StatsBreadcrumbsProps ) {
+export function StatsBreadcrumbs( { isRoot = false, items = [] }: StatsBreadcrumbsProps ) {
 	const dashboardLink = useDashboardLink();
 
 	return (
@@ -23,8 +25,9 @@ export function StatsBreadcrumbs( { items = [] }: StatsBreadcrumbsProps ) {
 				items={ [
 					{
 						label: __( 'Stats', 'jetpack-premium-analytics-pkg' ),
-						// An unlinked final crumb is the page heading.
-						...( items.length > 0 ? { to: dashboardLink } : {} ),
+						// An unlinked final crumb is the page heading, so only the
+						// dashboard drops the link.
+						...( isRoot ? {} : { to: dashboardLink } ),
 					},
 					...items,
 				] }

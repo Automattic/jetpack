@@ -32,9 +32,15 @@ describe( 'StatsBreadcrumbs', () => {
 	} );
 
 	it( 'leaves the dashboard crumb unlinked on the dashboard, so it renders as the page heading', () => {
-		render( <StatsBreadcrumbs /> );
+		render( <StatsBreadcrumbs isRoot /> );
 
 		expect( renderedItems() ).toEqual( [ { label: 'Stats' } ] );
+	} );
+
+	it( 'keeps the dashboard crumb linked while a child crumb is unresolved', () => {
+		render( <StatsBreadcrumbs /> );
+
+		expect( renderedItems() ).toEqual( [ { label: 'Stats', to: DASHBOARD_LINK } ] );
 	} );
 
 	it( 'links the dashboard crumb back to the dashboard from a report page', () => {
