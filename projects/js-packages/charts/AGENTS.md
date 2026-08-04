@@ -40,14 +40,29 @@ The package is migrating to WordPress UI and Theme as its defaults. When adding 
   (My Jetpack and friends) resolve source through the `jetpack:src` export
   condition instead. A change that only affects `dist/` can therefore break
   four packages this one does not import.
-- **Do not add packages to `deps.alwaysBundle` in `tsdown.config.ts`.**
-  Pre-bundling a dependency with `react` external forces Rolldown to emit a
-  dynamic-`require` shim for any transitive CommonJS module, and that shim
-  throws during module evaluation in Script Module consumers — taking down
-  every widget on the page, not just the feature that pulled it in. Leave
-  dependencies external and let each consumer's bundler resolve them.
-  `tools/assert-no-dynamic-require.ts` fails the build if a shim reaches the
-  ESM output; never suppress it.
+- **Never `deps.alwaysBundle` a package that transitively requires an external.**
+  Pre-bundling is safe only for dependencies that require nothing themselves —
+  `fast-deep-equal` qualifies, which is why `tsdown.config.ts` still lists it.
+  Pre-bundle anything that reaches a CommonJS module requiring an external
+  (`react`, above all) and Rolldown emits a dynamic-`require` shim, because it
+  cannot rewrite a runtime `require` into a static ESM import. That shim throws
+  during module evaluation in Script Module consumers, taking down every widget
+  on the page rather than just the feature that pulled it in.
+  `tools/assert-no-dynamic-require.ts` fails the build when such a shim reaches
+  the ESM output; never suppress it.
+- **`@wordpress/ui` is external in `dist`, and no build check can prove that is
+  safe.** Correctness depends on `@wordpress/build` *bundling* `@wordpress/ui`
+  rather than externalising it to `window.wp.ui`. It used to externalise it,
+  which is what CHARTS-163 worked around by pre-bundling; it now bundles any
+  `@wordpress/*` package that declares neither `wpScriptModuleExports` nor
+  `wpScript`, and `@wordpress/ui` declares `wpScript: false`. If a future
+  version reverts, `dist/index.js` keeps its clean `import … from
+  "@wordpress/ui"`, the guard passes, the build passes, and every Script Module
+  consumer breaks at runtime on `wp.ui` being undefined — the same blast radius
+  as CHARTS-237, with no build-time signal. Verified against `@wordpress/build`
+  0.18.0 (publicize, podcast, videopress) and 0.19.1-next (premium-analytics).
+  Check a major bump by loading a charts screen in wp-admin, not by trusting a
+  green build.
 
 ## Documentation Workflow
 

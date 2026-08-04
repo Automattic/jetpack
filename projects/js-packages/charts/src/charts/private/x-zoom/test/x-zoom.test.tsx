@@ -1,6 +1,6 @@
 import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useXZoom, ZoomResetButton } from '../index';
 import type { SingleChartRef } from '../../single-chart-context';
 import type { EventHandlerParams } from '@visx/xychart';
@@ -183,6 +183,33 @@ describe( 'ZoomResetButton', () => {
 		render( <ZoomResetButton onClick={ onClick } /> );
 		await userEvent.click( screen.getByTestId( 'chart-zoom-reset' ) );
 		expect( onClick ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	test( 'leaves no orphaned tooltip when activation unmounts the button', async () => {
+		// Resetting the zoom unmounts this control while its tooltip is open.
+		// The tooltip renders in a portal outside the container, so a missed
+		// cleanup would strand it on the page rather than remove it with the
+		// button.
+		/**
+		 * Mirrors the host charts: the reset control exists only while zoomed.
+		 *
+		 * @return JSX element or null.
+		 */
+		function Host() {
+			const [ zoomed, setZoomed ] = useState( true );
+			const unzoom = useCallback( () => setZoomed( false ), [] );
+			return zoomed ? <ZoomResetButton onClick={ unzoom } /> : null;
+		}
+		render( <Host /> );
+		await userEvent.tab();
+		await expect( screen.findByText( 'Reset zoom' ) ).resolves.toBeVisible();
+
+		await userEvent.keyboard( '{Enter}' );
+
+		await waitFor( () =>
+			expect( screen.queryByTestId( 'chart-zoom-reset' ) ).not.toBeInTheDocument()
+		);
+		expect( document.body ).not.toHaveTextContent( 'Reset zoom' );
 	} );
 
 	test( 'keyboard activation survives the chart wrapper keydown handler', async () => {
