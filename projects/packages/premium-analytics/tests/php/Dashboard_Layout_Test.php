@@ -281,49 +281,52 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$layout_by_uuid = array_column( $layout, null, 'uuid' );
 		$layout_types   = array_column( $layout, 'type' );
 
-		$this->assertContains( 'jpa/annual-highlights', $layout_types );
-		$this->assertContains( 'jpa/all-time-stats', $layout_types );
-		$this->assertContains( 'jpa/latest-post', $layout_types );
-		$this->assertContains( 'jpa/posting-activity', $layout_types );
+		// uuid => [ type, width, height, order ]; widths fill the four-column grid.
+		$expected = array(
+			'default-annual-highlights-widget-instance'    => array( 'jpa/annual-highlights', 2, 2, 0 ),
+			'default-posting-activity-widget-instance'     => array( 'jpa/posting-activity', 2, 2, 1 ),
+			'default-all-time-stats-widget-instance'       => array( 'jpa/all-time-stats', 4, 1, 2 ),
+			'default-latest-post-widget-instance'          => array( 'jpa/latest-post', 2, 2, 3 ),
+			'default-most-popular-time-widget-instance'    => array( 'jpa/most-popular-time', 1, 2, 4 ),
+			'default-most-popular-day-widget-instance'     => array( 'jpa/most-popular-day', 1, 2, 5 ),
+			'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 6 ),
+			'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 1, 2, 7 ),
+			'default-shares-widget-instance'               => array( 'jpa/shares', 1, 2, 8 ),
+			'default-tags-widget-instance'                 => array( 'jpa/tags', 1, 2, 9 ),
+		);
+
+		$this->assertSame( array_keys( $expected ), array_column( $layout, 'uuid' ) );
+
+		foreach ( $expected as $uuid => $instance ) {
+			list( $type, $width, $height, $order ) = $instance;
+
+			$this->assertSame( $type, $layout_by_uuid[ $uuid ]['type'], $uuid );
+			$this->assertSame(
+				array(
+					'width'  => $width,
+					'height' => $height,
+					'order'  => $order,
+				),
+				$layout_by_uuid[ $uuid ]['placement'],
+				$uuid
+			);
+		}
+
 		$this->assertNotContains( 'jpa/authors', $layout_types );
 		$this->assertNotContains( 'jpa/videopress', $layout_types );
 		// Emails is not an Insights module — it lives on the Subscribers tab.
 		$this->assertNotContains( 'jpa/stats-emails', $layout_types );
 		// The Comments module ships as two focused widgets, not one toggled widget.
-		$this->assertContains( 'jpa/most-commented-authors', $layout_types );
-		$this->assertContains( 'jpa/most-commented-posts', $layout_types );
 		$this->assertNotContains( 'jpa/comments', $layout_types );
-		$this->assertContains( 'jpa/shares', $layout_types );
+
+		// Highlights renders an empty prompt without an explicit metric list.
 		$this->assertSame(
 			array(
-				'uuid'       => 'default-most-commented-posts-widget-instance',
-				'type'       => 'jpa/most-commented-posts',
-				'attributes' => array(
-					'max' => 10,
-				),
-				'placement'  => array(
-					'width'  => 1,
-					'height' => 2,
-					'order'  => 7,
-				),
+				'metrics' => array( 'posts', 'words', 'likes', 'comments' ),
 			),
-			$layout_by_uuid['default-most-commented-posts-widget-instance']
+			$layout_by_uuid['default-annual-highlights-widget-instance']['attributes']
 		);
-		$this->assertSame(
-			array(
-				'uuid'       => 'default-shares-widget-instance',
-				'type'       => 'jpa/shares',
-				'attributes' => array(
-					'max' => 10,
-				),
-				'placement'  => array(
-					'width'  => 1,
-					'height' => 2,
-					'order'  => 9,
-				),
-			),
-			$layout_by_uuid['default-shares-widget-instance']
-		);
+
 		$this->assertSame(
 			get_dashboard_default_layout_for( DASHBOARD_INSIGHTS_SECTION_ID ),
 			get_dashboard_default_layout_for( 'analytics/insights' )
