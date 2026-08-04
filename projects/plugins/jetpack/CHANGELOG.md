@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 16.1-beta.3 - 2026-08-04
+### Bug fixes
+- Random Redirect: Avoid a fatal error when a theme or plugin already declares the module's redirect function. [#51037]
+
 ## 16.1-beta.2 - 2026-08-04
 ### Bug fixes
 - Reprint: Avoid a fatal error when another plugin loads an older version of the Status package. [#51028]
