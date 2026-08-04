@@ -44,6 +44,14 @@ describe( 'getFormatter', () => {
 		expect( formatter( new Date( '2026-08-05T13:00:00' ).getTime() ) ).toMatch( /1\sPM/ );
 	} );
 
+	it( 'keeps date ticks for a two-point daily series spanning exactly a day', () => {
+		const formatter = getFormatter(
+			toSeries( dailyDates( new Date( '2026-08-01T00:00:00' ), 2 ) )
+		);
+
+		expect( formatter( new Date( '2026-08-02T00:00:00' ).getTime() ) ).toMatch( /Aug 2/ );
+	} );
+
 	it( 'keeps date ticks for daily data over the same multi-day span', () => {
 		const formatter = getFormatter(
 			toSeries( dailyDates( new Date( '2026-08-01T00:00:00' ), 3 ) )

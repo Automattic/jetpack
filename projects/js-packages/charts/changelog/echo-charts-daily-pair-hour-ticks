@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Time axis: show date ticks rather than hour ticks for a daily-bucket pair spanning exactly one day.

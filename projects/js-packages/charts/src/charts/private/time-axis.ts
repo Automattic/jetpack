@@ -93,15 +93,17 @@ export const getFormatter = ( sortedData: ReturnType< typeof useChartDataTransfo
 	const minX = Math.min( ...sortedData.map( datom => datom.data.at( 0 )?.date ) );
 	const maxX = Math.max( ...sortedData.map( datom => datom.data.at( -1 )?.date ) );
 
-	const diffInHours = Math.abs( differenceInHours( maxX, minX ) );
-	if ( diffInHours <= 24 ) {
-		return formatHourTick;
-	}
-
 	const spacingInHours = getPointSpacingInHours( sortedData );
 	// 23, not 24: a daily gap shrinks to 23 wall-clock hours across a
 	// spring-forward DST transition.
-	if ( diffInHours <= 24 * 7 && spacingInHours < 23 ) {
+	const isSubDaily = spacingInHours < 23;
+
+	const diffInHours = Math.abs( differenceInHours( maxX, minX ) );
+	if ( diffInHours <= 24 && isSubDaily ) {
+		return formatHourTick;
+	}
+
+	if ( diffInHours <= 24 * 7 && isSubDaily ) {
 		return formatDateOrHourTick;
 	}
 
