@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Connection: Expose the connection owner's identity so consumers can name the owner when their token is broken.

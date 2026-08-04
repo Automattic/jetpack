@@ -259,6 +259,15 @@ class Error_Handler {
 						continue;
 					}
 
+					// An owner error attributed to someone who is no longer the connection
+					// owner describes a previous owner's token. Nobody can act on it.
+					// Only skip when there is a current owner to compare against.
+					if ( 'invalid_connection_owner' === $error_code
+						&& $owner_id > 0
+						&& (int) $user_id !== $owner_id ) {
+						continue;
+					}
+
 					$audience = $this->classify_error_audience( $user_id, $owner_id );
 
 					$message = __( "Your connection with WordPress.com seems to be broken. If you're experiencing issues, please try reconnecting.", 'jetpack-connection' );

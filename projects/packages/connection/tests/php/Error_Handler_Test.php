@@ -1825,6 +1825,83 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that an `invalid_connection_owner` error attributed to someone who is no
+	 * longer the connection owner is dropped.
+	 *
+	 * Ownership can move after the error was stored, leaving an owner-only error
+	 * code pointing at a previous owner. Nobody can act on it, and classifying it
+	 * by user ID alone would present an owner-only code as a plain user error.
+	 */
+	public function test_get_displayable_errors_skips_owner_errors_for_a_former_owner() {
+		\Jetpack_Options::update_option( 'master_user', 7 );
+
+		$make_error = function ( $user_id ) {
+			return array(
+				'error_code'    => 'invalid_connection_owner',
+				'user_id'       => (string) $user_id,
+				'error_message' => 'Test message',
+				'error_data'    => array(),
+				'timestamp'     => time(),
+				'nonce'         => 'nonce_' . $user_id,
+				'error_type'    => 'xmlrpc',
+			);
+		};
+
+		update_option(
+			Error_Handler::STORED_VERIFIED_ERRORS_OPTION,
+			array(
+				'invalid_connection_owner' => array(
+					'3' => $make_error( 3 ),
+					'7' => $make_error( 7 ),
+				),
+			)
+		);
+
+		$result = $this->error_handler->get_displayable_errors();
+
+		$this->assertArrayNotHasKey(
+			'3',
+			$result['invalid_connection_owner'],
+			"An owner error under a former owner's ID describes a token nobody can act on."
+		);
+		$this->assertArrayHasKey(
+			'7',
+			$result['invalid_connection_owner'],
+			"The current owner's error is still displayed."
+		);
+		$this->assertSame( 'owner', $result['invalid_connection_owner']['7']['audience'] );
+	}
+
+	/**
+	 * Test that an `invalid_connection_owner` error is kept when the site has no
+	 * recorded connection owner.
+	 *
+	 * With no `master_user` to compare against there is no basis for calling the
+	 * error stale, so dropping it would hide a real problem.
+	 */
+	public function test_get_displayable_errors_keeps_owner_errors_when_there_is_no_owner() {
+		\Jetpack_Options::delete_option( 'master_user' );
+
+		$error = array(
+			'error_code'    => 'invalid_connection_owner',
+			'user_id'       => '3',
+			'error_message' => 'Test message',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'nonce_3',
+			'error_type'    => 'xmlrpc',
+		);
+		update_option(
+			Error_Handler::STORED_VERIFIED_ERRORS_OPTION,
+			array( 'invalid_connection_owner' => array( '3' => $error ) )
+		);
+
+		$result = $this->error_handler->get_displayable_errors();
+
+		$this->assertArrayHasKey( '3', $result['invalid_connection_owner'] );
+	}
+
+	/**
 	 * Test that `no_user_tokens` is not displayable: with an empty user_tokens option the
 	 * site already presents as site-only connected and the connection UI prompts users to
 	 * connect, so the notice adds nothing actionable.

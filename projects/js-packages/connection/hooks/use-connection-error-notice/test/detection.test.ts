@@ -155,4 +155,153 @@ describe( 'useConnectionErrorNotice — error detection', () => {
 		);
 		expect( result.current.connectionErrorMessage ).toBe( 'Real WPCOM error' );
 	} );
+	// The owner of record comes from the `master_user` option server-side, so it
+	// stays resolvable when the owner's token is broken — the only state these
+	// errors appear in. `currentUser.isMaster` is derived from
+	// `Manager::get_connection_owner()` and is false for the owner themselves in
+	// exactly that state, so it must not decide ownership.
+	describe( 'connection owner', () => {
+		const ownerError = {
+			connectionErrors: {
+				invalid_connection_owner: {
+					3: { error_message: 'Owner token broken.', audience: 'owner' },
+				},
+			},
+		};
+
+		it( 'reports the viewer as owner when they match the owner of record', () => {
+			mockConnection( {
+				...ownerError,
+				connectionOwner: { id: 3, displayName: 'Site Owner' },
+				userConnectionData: { currentUser: { id: 3, isMaster: false } },
+			} );
+
+			const { result } = renderHook( () => useConnectionErrorNotice() );
+			expect( result.current.isCurrentUserConnectionOwner ).toBe( true );
+			expect( result.current.connectionOwner ).toEqual( { id: 3, displayName: 'Site Owner' } );
+		} );
+
+		it( 'reports a non-owner viewer as not the owner, while still naming the owner', () => {
+			mockConnection( {
+				...ownerError,
+				connectionOwner: { id: 3, displayName: 'Site Owner' },
+				userConnectionData: { currentUser: { id: 7, isMaster: false } },
+			} );
+
+			const { result } = renderHook( () => useConnectionErrorNotice() );
+			expect( result.current.isCurrentUserConnectionOwner ).toBe( false );
+			expect( result.current.connectionOwner?.displayName ).toBe( 'Site Owner' );
+		} );
+
+		it( 'claims no ownership when the owner identity is withheld from the viewer', () => {
+			mockConnection( {
+				...ownerError,
+				connectionOwner: null,
+				userConnectionData: { currentUser: { id: 3, isMaster: false } },
+			} );
+
+			const { result } = renderHook( () => useConnectionErrorNotice() );
+			expect( result.current.connectionOwner ).toBeNull();
+			expect( result.current.isCurrentUserConnectionOwner ).toBe( false );
+		} );
+	} );
+	// The CTA must come from an error the viewer can resolve. Storage order is
+	// arbitrary, so an informational error arriving first must not strip the CTA
+	// from a co-occurring error that is fixable.
+	describe( 'action selection across multiple errors', () => {
+		const informational = {
+			error_message: 'The connection owner must reconnect.',
+			audience: 'owner',
+			error_data: { action: 'none' },
+		};
+		const fixable = {
+			error_message: 'Your token is broken.',
+			audience: 'user',
+		};
+
+		it( 'takes the CTA from the fixable error when the informational one is first', () => {
+			mockConnection( {
+				connectionErrors: {
+					invalid_connection_owner: { 3: informational },
+					invalid_token: { 7: fixable },
+				},
+			} );
+
+			const { result } = renderHook( () => useConnectionErrorNotice() );
+			expect( result.current.actions ).toHaveLength( 1 );
+			expect( result.current.actions[ 0 ].label ).toBe( 'Restore Connection' );
+		} );
+
+		it( 'offers no CTA when every error is informational', () => {
+			mockConnection( {
+				connectionErrors: { invalid_connection_owner: { 3: informational } },
+			} );
+
+			const { result } = renderHook( () => useConnectionErrorNotice() );
+			expect( result.current.actions ).toEqual( [] );
+		} );
+
+		// Consumers that render a single message pair it with the CTA, so the two must
+		// describe the same error whichever order the errors were stored in.
+		it.each( [
+			[
+				'informational first',
+				{ invalid_connection_owner: { 3: informational }, invalid_token: { 7: fixable } },
+			],
+			[
+				'fixable first',
+				{ invalid_token: { 7: fixable }, invalid_connection_owner: { 3: informational } },
+			],
+		] )(
+			'reports the message of the error the CTA came from — %s',
+			( _label, connectionErrors ) => {
+				mockConnection( { connectionErrors } );
+
+				const { result } = renderHook( () => useConnectionErrorNotice() );
+				expect( result.current.connectionErrorMessage ).toBe( 'Your token is broken.' );
+				expect( result.current.connectionError ).toBe( fixable );
+				expect( result.current.actions[ 0 ].label ).toBe( 'Restore Connection' );
+			}
+		);
+
+		it( 'still reports the informational message when nothing is fixable', () => {
+			mockConnection( {
+				connectionErrors: { invalid_connection_owner: { 3: informational } },
+			} );
+
+			const { result } = renderHook( () => useConnectionErrorNotice() );
+			expect( result.current.hasConnectionError ).toBe( true );
+			expect( result.current.connectionErrorMessage ).toBe(
+				'The connection owner must reconnect.'
+			);
+			expect( result.current.actions ).toEqual( [] );
+		} );
+
+		it( 'skips a message-less error, which is never rendered, in favour of one that is', () => {
+			mockConnection( {
+				connectionErrors: {
+					unknown_token: { 3: { error_data: { action: 'test_action' } } },
+					invalid_token: { 7: fixable },
+				},
+			} );
+
+			const { result } = renderHook( () => useConnectionErrorNotice() );
+			expect( result.current.actions[ 0 ].label ).toBe( 'Restore Connection' );
+		} );
+
+		// The map is server JSON crossing an untyped store; a throw in the hook would
+		// take down the whole page rather than just the notice.
+		it( 'survives a malformed error map', () => {
+			mockConnection( {
+				connectionErrors: {
+					malformed_token: null,
+					no_valid_blog_token: { 3: null },
+					invalid_token: { 7: fixable },
+				},
+			} );
+
+			const { result } = renderHook( () => useConnectionErrorNotice() );
+			expect( result.current.actions[ 0 ].label ).toBe( 'Restore Connection' );
+		} );
+	} );
 } );

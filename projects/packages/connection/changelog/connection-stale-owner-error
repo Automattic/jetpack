@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Connection: Stop displaying connection owner errors that refer to a previous owner.
