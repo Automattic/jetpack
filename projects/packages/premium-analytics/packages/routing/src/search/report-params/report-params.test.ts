@@ -30,8 +30,32 @@ describe( 'buildDashboardLink', () => {
 	} );
 
 	it( 'serializes the shared report window into the querystring', () => {
+		// `comp: '1'` is JSON-quoted so the router's JSON-parsing search reader
+		// yields the string '1' back, not the number 1 — matching how the router
+		// itself writes ambiguous string values.
 		expect( buildDashboardLink( { from: '2026-01-01', to: '2026-01-31', comp: '1' } ) ).toBe(
-			'/?from=2026-01-01&to=2026-01-31&comp=1'
+			'/?from=2026-01-01&to=2026-01-31&comp=%221%22'
+		);
+	} );
+
+	it( 'round-trips search value types through the router-style JSON parse', () => {
+		const link = buildDashboardLink( {
+			from: '2026-07-05T00:00:00.000+08:00',
+			preset: 'last-30-days',
+			comp: '1',
+		} );
+		const query = new URLSearchParams( link.slice( link.indexOf( '?' ) + 1 ) );
+		const parseLikeRouter = ( value: string ) => {
+			try {
+				return JSON.parse( value );
+			} catch {
+				return value;
+			}
+		};
+		expect( parseLikeRouter( query.get( 'comp' ) as string ) ).toBe( '1' );
+		expect( parseLikeRouter( query.get( 'preset' ) as string ) ).toBe( 'last-30-days' );
+		expect( parseLikeRouter( query.get( 'from' ) as string ) ).toBe(
+			'2026-07-05T00:00:00.000+08:00'
 		);
 	} );
 

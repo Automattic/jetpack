@@ -45,6 +45,30 @@ export function pickReportDateParams(
 }
 
 /**
+ * Serialize one search value the way the router does.
+ *
+ * The router JSON-parses every search value on read, so a string that itself
+ * parses as JSON (e.g. `comp: '1'`) must be written JSON-quoted (`comp="1"`)
+ * or it comes back as a different type (`comp: 1`) and strict checks like
+ * `comp === '1'` silently fail. Strings that don't parse (dates, presets)
+ * stay raw, matching the router's own stringifier.
+ *
+ * @param value - The search value to serialize.
+ * @return The querystring-ready value.
+ */
+function stringifySearchValue( value: unknown ): string {
+	if ( typeof value === 'string' ) {
+		try {
+			JSON.parse( value );
+			return JSON.stringify( value );
+		} catch {
+			return value;
+		}
+	}
+	return String( value );
+}
+
+/**
  * Build the `to` link back to the dashboard, preserving the shared report window.
  *
  * Serializes the date range and comparison (via `pickReportDateParams`) into a
@@ -57,7 +81,7 @@ export function pickReportDateParams(
 export function buildDashboardLink( search: Record< string, unknown > | undefined ): string {
 	const params = pickReportDateParams( search );
 	const query = new URLSearchParams(
-		Object.entries( params ).map( ( [ key, value ] ) => [ key, String( value ) ] )
+		Object.entries( params ).map( ( [ key, value ] ) => [ key, stringifySearchValue( value ) ] )
 	).toString();
 	return query ? `/?${ query }` : '/';
 }

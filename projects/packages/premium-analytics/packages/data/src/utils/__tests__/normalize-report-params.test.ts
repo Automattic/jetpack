@@ -227,6 +227,32 @@ describe( 'normalizeReportParams', () => {
 	} );
 
 	/*
+	 * Scenario 5b – Comparison flag arrives as a number
+	 * The router JSON-parses search values, so a URL written without JSON
+	 * quoting (hand-edited or from an older link builder) delivers comp as the
+	 * number 1. It must still enable comparison, normalized back to '1'.
+	 */
+	it( 'accepts a numeric comp flag from an unquoted URL', () => {
+		const compFrom = '2025-12-20T00:00:00.000-05:00';
+		const compTo = '2026-01-18T23:59:59.999-05:00';
+
+		const result = normalizeReportParams( {
+			from: STALE_FROM,
+			to: STALE_TO,
+			preset: 'last-30-days',
+			interval: 'day',
+			comp: 1 as unknown as '1',
+			compare_from: compFrom,
+			compare_to: compTo,
+			compare_preset: 'previous-period',
+		} );
+
+		expect( result.comp ).toBe( '1' );
+		expect( result.compare_from ).toBe( compFrom );
+		expect( result.compare_to ).toBe( compTo );
+	} );
+
+	/*
 	 * Scenario 6 – Preset without comparison
 	 * The URL has a stale preset but comparison is disabled.
 	 * Primary is recalculated; comparison params are absent.
