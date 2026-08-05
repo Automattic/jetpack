@@ -27,6 +27,7 @@ export function Reconnect( { connection, service }: ReconnectProps ) {
 		openConnectionsModal,
 		setReconnectingAccount,
 		completeReconnect,
+		closeConnectionFlow,
 	} = useDispatch( socialStore );
 
 	const { createErrorNotice } = useGlobalNotices();
@@ -99,7 +100,7 @@ export function Reconnect( { connection, service }: ReconnectProps ) {
 		]
 	);
 
-	const requestAccess = useRequestAccess( { service, onConfirm } );
+	const requestAccess = useRequestAccess( { onConfirm } );
 
 	const onClickReconnect = useCallback( async () => {
 		setIsReconnecting( true );
@@ -121,18 +122,29 @@ export function Reconnect( { connection, service }: ReconnectProps ) {
 			formData.set( 'instance', connection.external_handle );
 		}
 
-		const opened = await requestAccess( formData, {
+		const opened = await requestAccess( service, formData, {
 			refresh: true,
 			// The user closed/dismissed the popup — drop the busy label (the reconnect itself
 			// is untouched, so a late result can still complete it).
-			onAbort: () => setIsReconnecting( false ),
+			onAbort: () => {
+				setIsReconnecting( false );
+				// The reconnect enters the redesigned flow here, so close it too.
+				closeConnectionFlow();
+			},
 		} );
 
 		if ( ! opened ) {
 			setIsReconnecting( false );
 			setReconnectingAccount( undefined );
 		}
-	}, [ connection, openConnectionsModal, requestAccess, service.id, setReconnectingAccount ] );
+	}, [
+		closeConnectionFlow,
+		connection,
+		openConnectionsModal,
+		requestAccess,
+		service,
+		setReconnectingAccount,
+	] );
 
 	const onClick = useCallback(
 		( event: React.MouseEvent ) => {

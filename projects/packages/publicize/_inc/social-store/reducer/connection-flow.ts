@@ -3,15 +3,20 @@ import {
 	goToNextStep,
 	goToPreviousStep,
 	selectPlatform,
+	setConnectionFlowError,
 	setConnectionFlowInput,
+	setConnectionFlowRequestId,
 	startConnectionFlow,
 } from '../actions/connection-flow';
 import {
 	CANCEL_CONNECTION_FLOW,
+	FAIL_CONNECTION_FLOW_AUTHORIZATION,
 	GO_TO_NEXT_CONNECTION_FLOW_STEP,
 	GO_TO_PREVIOUS_CONNECTION_FLOW_STEP,
 	SELECT_CONNECTION_FLOW_PLATFORM,
+	SET_CONNECTION_FLOW_ERROR,
 	SET_CONNECTION_FLOW_INPUT,
+	SET_CONNECTION_FLOW_REQUEST_ID,
 	SET_KEYRING_RESULT,
 	SET_RECONNECTING_ACCOUNT,
 	START_CONNECTION_FLOW,
@@ -43,8 +48,9 @@ function stepForService( serviceId?: string ): ConnectionFlowStep {
 }
 
 /**
- * The step to return to on back navigation, or `undefined` when there is no
- * back affordance (first step, or past the OAuth boundary).
+ * The step to fall back to: where back navigation goes, and where an abandoned
+ * authorization drops the user. `undefined` when the flow has no earlier step of
+ * its own: the first step, past the OAuth boundary, or a reconnect.
  *
  * @param state - Current connection-flow state.
  * @return The previous step, or `undefined`.
@@ -52,15 +58,35 @@ function stepForService( serviceId?: string ): ConnectionFlowStep {
 export function getPreviousStep( state: ConnectionFlowState ): ConnectionFlowStep | undefined {
 	switch ( state.step ) {
 		case 'platform-input':
-			return 'select-platform';
+			return state.isReconnect ? undefined : 'select-platform';
 		case 'authorizing':
 			// Input services pass through platform-input; the rest come from the picker.
-			return needsInput( state.selectedServiceId ) ? 'platform-input' : 'select-platform';
+			if ( needsInput( state.selectedServiceId ) ) {
+				return 'platform-input';
+			}
+			return state.isReconnect ? undefined : 'select-platform';
 		default:
 			// `select-platform` is the first step; `confirm`/`creating` sit past the
 			// OAuth boundary and cannot go back.
 			return undefined;
 	}
+}
+
+/**
+ * Drops a failure message so it does not outlive the step it was raised on.
+ *
+ * @param state - Current connection-flow state.
+ * @return The state without its error.
+ */
+function withoutError( state: ConnectionFlowState ): ConnectionFlowState {
+	if ( ! state.error ) {
+		return state;
+	}
+
+	const rest = { ...state };
+	delete rest.error;
+
+	return rest;
 }
 
 /**
@@ -91,6 +117,8 @@ type Action =
 			| typeof setKeyringResult
 			| typeof setReconnectingAccount
 	  >
+	| ReturnType< typeof setConnectionFlowError | typeof setConnectionFlowRequestId >
+	| { type: typeof FAIL_CONNECTION_FLOW_AUTHORIZATION; message?: string }
 	| { type: typeof CANCEL_CONNECTION_FLOW }
 	| { type: '@@UNKNOWN_ACTION@@' };
 
@@ -119,7 +147,7 @@ export function connectionFlow(
 
 		case SELECT_CONNECTION_FLOW_PLATFORM:
 			return {
-				...state,
+				...withoutError( state ),
 				selectedServiceId: action.serviceId,
 				step: stepForService( action.serviceId ),
 			};
@@ -127,19 +155,36 @@ export function connectionFlow(
 		case GO_TO_PREVIOUS_CONNECTION_FLOW_STEP: {
 			const previous = getPreviousStep( state );
 			// `inputs` is kept, so returning to the step does not mean retyping.
-			return previous ? { ...state, step: previous } : state;
+			return previous ? { ...withoutError( state ), step: previous } : state;
 		}
 
 		case GO_TO_NEXT_CONNECTION_FLOW_STEP: {
 			const next = getNextStep( state );
-			return next ? { ...state, step: next } : state;
+			return next ? { ...withoutError( state ), step: next } : state;
 		}
 
 		case SET_CONNECTION_FLOW_INPUT:
 			return {
-				...state,
+				...withoutError( state ),
 				inputs: { ...state.inputs, [ action.field ]: action.value },
 			};
+
+		case SET_CONNECTION_FLOW_REQUEST_ID:
+			return { ...state, requestId: action.requestId };
+
+		case SET_CONNECTION_FLOW_ERROR:
+			return { ...state, error: action.message };
+
+		case FAIL_CONNECTION_FLOW_AUTHORIZATION: {
+			// Never strand the user on `authorizing`.
+			const previous = getPreviousStep( state );
+
+			/* The attempt is over, so stop accepting its callbacks: the popup keeps
+			   listening past its first abort and fires again on the TTL. */
+			return previous
+				? { ...state, step: previous, error: action.message, requestId: undefined }
+				: state;
+		}
 
 		case SET_RECONNECTING_ACCOUNT:
 			// Reconnect is an entry point: jump past platform selection to the
@@ -149,9 +194,13 @@ export function connectionFlow(
 					...state,
 					selectedServiceId: action.reconnectingAccount.service_name,
 					step: stepForService( action.reconnectingAccount.service_name ),
+					isReconnect: true,
 				};
 			}
-			return state;
+
+			/* Clearing it ends a reconnect, in place or failed. A flow that exists
+			   only for that reconnect has nothing left to show. */
+			return state.isReconnect ? {} : state;
 
 		case SET_KEYRING_RESULT:
 			// The keyring result crossing back marks the OAuth boundary. Only

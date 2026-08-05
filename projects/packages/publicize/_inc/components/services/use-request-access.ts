@@ -9,7 +9,6 @@ import { SupportedService } from './types';
 import { useConnectInputValidation } from './use-connect-input-validation';
 
 export type RequestAccessOptions = {
-	service: SupportedService;
 	onConfirm: ( requestId: string ) => void | Promise< void >;
 };
 
@@ -22,9 +21,9 @@ export type RequestAccessArgs = {
 	 */
 	refresh?: boolean;
 	/**
-	 * Called when this auth_flow=v2 attempt looks abandoned (the user returned without a result, or the TTL elapsed).
+	 * Called with the request ID when this auth_flow=v2 attempt looks abandoned (the user returned without a result, or the TTL elapsed).
 	 */
-	onAbort?: VoidFunction;
+	onAbort?: ( requestId: string ) => void;
 	/**
 	 * Called with the failure message instead of the global error notice. The
 	 * connection flow passes this so the error renders inside its modal, where a
@@ -36,10 +35,13 @@ export type RequestAccessArgs = {
 /**
  * Hook to request access to a service.
  *
+ * The service is passed per call, so callers that only learn it from the
+ * interaction can still open the popup from the event handler.
+ *
  * @param {RequestAccessOptions} options - Options
  * @return - Function to request access
  */
-export function useRequestAccess( { service, onConfirm }: RequestAccessOptions ) {
+export function useRequestAccess( { onConfirm }: RequestAccessOptions ) {
 	const { createErrorNotice } = useGlobalNotices();
 
 	const validateInputs = useConnectInputValidation();
@@ -49,8 +51,13 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 	const { getService } = useSelect( select => select( store ), [] );
 
 	return useCallback(
-		// Resolves to true when the connect popup opened, false on any early failure.
-		async ( formData: FormData, options: RequestAccessArgs = {} ): Promise< boolean > => {
+		/* Resolves to the request ID once the connect popup is open, or null on any
+		   early failure. Callers correlate late callbacks against that ID. */
+		async (
+			service: SupportedService,
+			formData: FormData,
+			options: RequestAccessArgs = {}
+		): Promise< string | null > => {
 			const reportError = options.onError ?? createErrorNotice;
 
 			let connectUrl = service.url;
@@ -69,7 +76,7 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 						)
 					);
 
-					return false;
+					return null;
 				}
 			}
 
@@ -90,7 +97,7 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 			if ( error ) {
 				reportError( error.message );
 
-				return false;
+				return null;
 			}
 
 			for ( const [ key, value ] of Object.entries( values ) ) {
@@ -123,7 +130,7 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 			const opened = requestExternalAccess(
 				url.toString(),
 				() => onConfirm( requestId ),
-				options.onAbort
+				() => options.onAbort?.( requestId )
 			);
 
 			if ( ! opened ) {
@@ -133,10 +140,12 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 						'jetpack-publicize-pkg'
 					)
 				);
+
+				return null;
 			}
 
-			return opened;
+			return requestId;
 		},
-		[ createErrorNotice, getService, onConfirm, refreshServicesList, service, validateInputs ]
+		[ createErrorNotice, getService, onConfirm, refreshServicesList, validateInputs ]
 	);
 }
