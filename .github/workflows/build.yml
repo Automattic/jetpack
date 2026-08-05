@@ -119,7 +119,7 @@ jobs:
       # below this runner's core count (4), so the cap from
       # https://github.com/WordPress/gutenberg/pull/79889 actually constrains
       # something. At its default the cap equals the core count and is a no-op.
-      WP_BUILD_CONCURRENCY: 2
+      WP_BUILD_CONCURRENCY: 1
     # TEMPORARY, benchmark only: raised from 40. Halving concurrency is expected
     # to make this slower, and a timeout would waste the run.
     timeout-minutes: 90
