@@ -474,6 +474,7 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId }: NewsletterP
 
 		// If the preview for the selected access level is already cached, don't fetch it again.
 		if ( cachedPreviewHtml !== undefined ) {
+			setIsLoading( false );
 			return;
 		}
 
