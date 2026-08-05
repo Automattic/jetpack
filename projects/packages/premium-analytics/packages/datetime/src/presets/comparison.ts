@@ -7,7 +7,6 @@ import { __ } from '@wordpress/i18n';
  */
 import {
 	COMPARISON_PREVIOUS_PERIOD,
-	COMPARISON_PREVIOUS_WEEK,
 	COMPARISON_PREVIOUS_MONTH,
 	COMPARISON_PREVIOUS_YEAR,
 	type ComparisonPresetId,
@@ -23,10 +22,6 @@ const COMPARISON_PRESET_LABELS: {
 	{
 		id: COMPARISON_PREVIOUS_PERIOD,
 		getLabel: () => __( 'Previous period', 'jetpack-premium-analytics-pkg' ),
-	},
-	{
-		id: COMPARISON_PREVIOUS_WEEK,
-		getLabel: () => __( 'Previous week', 'jetpack-premium-analytics-pkg' ),
 	},
 	{
 		id: COMPARISON_PREVIOUS_MONTH,

@@ -87,7 +87,7 @@ const reference = {
 	from: new Date( '2024-01-15' ),
 	to: new Date( '2024-01-21' ),
 };
-const comparison = getComparisonRangeFromPreset( reference, 'previous-week' );
+const comparison = getComparisonRangeFromPreset( reference, 'previous-period' );
 // Returns dates for Jan 8-14, 2024
 ```
 
@@ -102,7 +102,6 @@ if inputs are invalid
 **Supported presets:**
 
 - `previous-period` - Same duration, immediately before reference
-- `previous-week` - One week before reference dates
 - `previous-month` - One month before reference dates
 - `previous-year` - One year before reference dates
 
@@ -120,7 +119,7 @@ type DateRange = {
 ### `ComparisonPresetId`
 
 ```typescript
-type ComparisonPresetId = 'previous-period' | 'previous-week' | 'previous-month' | 'previous-year';
+type ComparisonPresetId = 'previous-period' | 'previous-month' | 'previous-year';
 ```
 
 ## Dependencies
