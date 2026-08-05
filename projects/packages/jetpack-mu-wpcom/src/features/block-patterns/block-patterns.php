@@ -99,3 +99,35 @@ function wpcom_unregister_core_block_patterns() {
 }
 
 add_action( 'after_setup_theme', 'wpcom_unregister_core_block_patterns' );
+
+/**
+ * Re-register the Query Loop patterns bundled in core, which are excluded by
+ * wpcom_unregister_core_block_patterns() along with all other core patterns.
+ */
+function wpcom_register_core_query_block_patterns() {
+	$registry = \WP_Block_Patterns_Registry::get_instance();
+	$files    = glob( ABSPATH . WPINC . '/block-patterns/query-*.php' );
+	if ( ! $files ) {
+		return;
+	}
+	foreach ( $files as $file ) {
+		$name = 'core/' . basename( $file, '.php' );
+		if ( $registry->is_registered( $name ) ) {
+			continue;
+		}
+		$pattern = require $file;
+		if ( ! is_array( $pattern ) ) {
+			continue;
+		}
+		// Require a `core/query` root block, mirroring the filter in the Query
+		// Loop pattern picker: section-style patterns that merely contain a
+		// query (e.g. wrapped in a group) shouldn't surface elsewhere either.
+		$blocks = parse_blocks( trim( $pattern['content'] ?? '' ) );
+		if ( 'core/query' !== ( $blocks[0]['blockName'] ?? null ) ) {
+			continue;
+		}
+		$pattern['source'] = 'core';
+		register_block_pattern( $name, $pattern );
+	}
+}
+add_action( 'init', 'wpcom_register_core_query_block_patterns', 11 );
