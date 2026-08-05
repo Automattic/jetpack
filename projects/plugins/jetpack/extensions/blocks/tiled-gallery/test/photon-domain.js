@@ -7,6 +7,7 @@
  */
 import {
 	createBlock,
+	getSaveContent,
 	parse,
 	registerBlockType,
 	serialize,
@@ -125,6 +126,24 @@ describe( 'Tiled Gallery Photon domain changes', () => {
 		expect( block.isValid ).toBe( true );
 		expect( block.attributes.images ).toHaveLength( 2 );
 		expect( console ).toHaveInformed();
+	} );
+
+	// Only the current version may follow the site's setting. A deprecation that follows it stops
+	// reproducing the markup it was saved with, which is what invalidates existing galleries — and it is
+	// easy to reintroduce, since some deprecations borrow the current Layout.
+	it( 'pins every deprecation to one image host, whatever the site asks for', () => {
+		const attributes = createBlock( metadata.name, { images: IMAGES, ids: [ 5, 6 ] } ).attributes;
+
+		deprecated.forEach( ( deprecation, index ) => {
+			const blockType = { ...metadata, ...deprecation };
+
+			setSkipPhotonDomain( false );
+			const whenPhoton = getSaveContent( blockType, attributes );
+			setSkipPhotonDomain( true );
+			const whenSkipping = getSaveContent( blockType, attributes );
+
+			expect( { index, markup: whenSkipping } ).toEqual( { index, markup: whenPhoton } );
+		} );
 	} );
 
 	// Galleries using custom links match the deprecation added for this change and nothing else — the
