@@ -43,12 +43,7 @@ const useAutoScroll = (
 		debug( 'enabling auto scroll' );
 	}, [ userScrollHandler ] );
 
-	// Reports whether it was still following the content at the point it was stopped. Callers pair
-	// that with their own state to tell a target the content pushed away from one the user left.
 	const disableAutoScroll = useCallback( () => {
-		const wasFollowing =
-			autoScrollEnabled.current && startedAutoScroll.current && ! ignoreScroll.current;
-
 		autoScrollEnabled.current = false;
 		ignoreScroll.current = false;
 		startedAutoScroll.current = false;
@@ -65,8 +60,6 @@ const useAutoScroll = (
 
 		scrollElementRef.current = null;
 		debug( 'disabling auto scroll' );
-
-		return wasFollowing;
 	}, [ userScrollHandler ] );
 
 	// An explicit target overrides the configured one, for callers whose element to keep in
