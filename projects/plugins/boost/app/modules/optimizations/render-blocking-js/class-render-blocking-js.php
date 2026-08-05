@@ -491,7 +491,7 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	 * markup. Null is the intended outcome for anything unresolved, but it is not
 	 * a proof of correctness on either side. A shape the mask models wrongly can
 	 * still yield an offset that is not the document's closing tag — see
-	 * unmasked_regions() for the backstop covering the known such shapes — and
+	 * body_close_position() for the backstop covering the known such shapes — and
 	 * appending is only an executable fallback for a document whose tokenizer
 	 * state at the end of the buffer accepts markup. It is not one after an
 	 * unterminated <plaintext>, whose state runs to end of file by definition.
@@ -542,8 +542,8 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 			$this->non_markup_mask(),
 			static function ( $region_match ) {
 				// The opening-tag arm keeps its '<' and element name and blanks only
-				// what follows, so is_inside_unmasked_region() below can still tell
-				// which elements the surviving markup opened. Every other arm blanks
+				// what follows, so body_close_position() below can still tell which
+				// elements the surviving markup opened. Every other arm blanks
 				// wholesale, which is what keeps an element name inside a script, a
 				// comment or an attribute value from being read as markup.
 				if ( isset( $region_match[1] ) && '' !== $region_match[1] ) {
@@ -578,51 +578,39 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 		// list — from winning the search below. Matched with the same tolerance the
 		// mask's arms use: neither a single '</HTML>' nor a '</html >' may silently
 		// drop the bound.
+		//
+		// The bound is passed to the scan rather than cut out of the buffer: a
+		// '</html>' can itself sit inside a region whose opening tag was flushed,
+		// and truncating there would take with it the closing tag that is the only
+		// evidence the buffer carries of that region.
 		$bound = preg_match( '~</html' . $this->close_tag_tail() . '~i', $masked, $match, PREG_OFFSET_CAPTURE, $floor );
 		if ( false === $bound ) {
 			return null;
 		}
-		if ( 1 === $bound ) {
-			$masked = substr( $masked, 0, $match[0][1] );
-		}
 
-		// Spans of the element contents the mask cannot blank, collected once so the
-		// walk below can reject a candidate without rescanning the buffer per try.
-		$regions = $this->unmasked_regions( $masked );
-		if ( null === $regions ) {
-			return null;
-		}
-
-		// Take the last occurrence, then keep walking left past any that falls
-		// inside one of those spans. Rejecting one candidate says nothing about the
-		// one before it, and on trailing output holding a decoy — a closed <iframe>
-		// or <template> after the document's own closing tag — the next candidate
-		// left is the document's own. A retry can only move the answer towards the
-		// start of the buffer, and every candidate it reaches is checked the same
-		// way, so this cannot turn an append into a wrong offset.
-		$position = strrpos( $masked, '</body>' );
-		while ( false !== $position ) {
-			if ( ! $this->offset_in_regions( $regions, $position ) ) {
-				return $position;
-			}
-
-			if ( 0 === $position ) {
-				break;
-			}
-
-			$position = strrpos( $masked, '</body>', $position - 1 - strlen( $masked ) );
-		}
-
-		return null;
+		// Take the last closing tag that is not inside element contents the mask
+		// cannot blank. Rejecting a candidate says nothing about the one before it,
+		// and on trailing output holding a decoy — a closed <iframe> or <template>
+		// after the document's own closing tag — the one before it is the
+		// document's own.
+		return $this->body_close_position( $masked, 1 === $bound ? $match[0][1] : strlen( $masked ) );
 	}
 
 	/**
 	 * Count the raw-text opening tags in a buffer that have no closing tag.
 	 *
-	 * Both scans are literal alternations with no quantifier, so this is linear in
-	 * the buffer regardless of how the tags pair up. A window whose region opened
-	 * in an already-flushed chunk can report a negative count; only the positive
-	 * direction is of interest here.
+	 * Pairs the way the mask does, which is the only reason the count says anything
+	 * about what the mask will cost: per element type, in document order, and
+	 * against the same closing-tag grammar. A closer of another type, one that
+	 * arrives before any opener, and one spelled '</titlex>' all leave the opener
+	 * unpaired here because all three leave it unpaired there too. Subtracting one
+	 * unordered total from another instead reports zero for each of those, which
+	 * is the count with the cap taken out of the way.
+	 *
+	 * The scan itself is a literal alternation with no quantifier, so it is linear
+	 * in the buffer however the tags pair up. A window whose region opened in an
+	 * already-flushed chunk carries a closer with no opener; that is not an
+	 * unclosed opener and is not counted.
 	 *
 	 * @param string $buffer String buffer.
 	 *
@@ -631,15 +619,38 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	private function unclosed_raw_text_openers( $buffer ) {
 		$elements = implode( '|', $this->raw_text_elements() );
 
-		$openers = preg_match_all( '~<(?:' . $elements . ')(?![\w-])~i', $buffer );
-		$closers = preg_match_all( '~</(?:' . $elements . ')~i', $buffer );
+		$found = preg_match_all(
+			'~<(' . $elements . ')(?![\w-])|</(' . $elements . ')' . $this->close_tag_tail() . '~i',
+			$buffer,
+			$matches,
+			PREG_SET_ORDER
+		);
 
 		// Fail closed on PCRE failure by reporting a count over the cap.
-		if ( false === $openers || false === $closers ) {
+		if ( false === $found ) {
 			return self::MAX_UNCLOSED_RAW_TEXT_OPENERS + 1;
 		}
 
-		return max( 0, $openers - $closers );
+		$unclosed = array();
+
+		foreach ( $matches as $match ) {
+			// An opening tag leaves group 2 out of the match altogether on PCRE1,
+			// so the group count is what tells the two arms apart, not its value.
+			if ( count( $match ) < 3 ) {
+				$element = strtolower( $match[1] );
+
+				$unclosed[ $element ] = isset( $unclosed[ $element ] ) ? $unclosed[ $element ] + 1 : 1;
+				continue;
+			}
+
+			$element = strtolower( $match[2] );
+
+			if ( ! empty( $unclosed[ $element ] ) ) {
+				--$unclosed[ $element ];
+			}
+		}
+
+		return array_sum( $unclosed );
 	}
 
 	/**
@@ -707,6 +718,13 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	 * in this buffer. Everything up to and including that token is therefore region
 	 * content and cannot hold the document's closing tag.
 	 *
+	 * The elements the mask leaves alone are scanned for here as well, even though
+	 * this cannot mask them. Their contents are just as inert, and their closing
+	 * tag is the only evidence a window carries that one of them opened before it.
+	 * Without that the region walk below has nothing to go on: it sees the region's
+	 * contents as markup, and a literal '</body>' — even one followed by a literal
+	 * '</html>' — reads as the end of the document.
+	 *
 	 * Which region opened cannot be answered from the window alone, so the type of
 	 * the leftover tokens is all there is to go on. Tokens of a single type resolve
 	 * it: a region cannot contain its own closing token, so the first one ends it.
@@ -726,58 +744,101 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	 *                  such region, or null when the scan failed or was inconclusive.
 	 */
 	private function leading_region_end( $masked ) {
-		$pattern = '~</(?:' . implode( '|', $this->raw_text_elements() ) . ')' . $this->close_tag_tail() . '|--!?>~i';
-		$found   = preg_match_all( $pattern, $masked, $matches, PREG_OFFSET_CAPTURE );
+		$unmasked = implode( '|', $this->unmasked_raw_text_elements() ) . '|template';
+
+		$pattern = '~<(?:' . $unmasked . ')(?![\w-])'
+			. '|</(?:' . implode( '|', $this->inert_elements() ) . ')' . $this->close_tag_tail()
+			. '|--!?>~i';
+
+		$found = preg_match_all( $pattern, $masked, $matches, PREG_OFFSET_CAPTURE );
 
 		// preg_match_all() returns false on PCRE failure and 0 when there is simply
-		// no leftover closing token. Fail closed on the former, like the mask above:
-		// an unresolved buffer must not be searched as though it were all markup.
+		// no token to read. Fail closed on the former, like the mask above: an
+		// unresolved buffer must not be searched as though it were all markup.
 		if ( false === $found ) {
 			return null;
 		}
 
-		if ( 0 === $found ) {
-			return 0;
+		// Read the type off the matched text rather than off a capture group: how
+		// PCRE reports a group that did not take part differs by PHP version. An
+		// element the mask could not blank keeps both its tags, so its closing tag
+		// is only left over while nothing in the buffer opened it.
+		$types = array();
+		$open  = array();
+		$end   = null;
+
+		foreach ( $matches[0] as $token ) {
+			$type = $this->token_element_type( $token[0] );
+
+			if ( '<' === $token[0][0] && '/' !== $token[0][1] ) {
+				$open[ $type ] = isset( $open[ $type ] ) ? $open[ $type ] + 1 : 1;
+				continue;
+			}
+
+			if ( ! empty( $open[ $type ] ) ) {
+				--$open[ $type ];
+				continue;
+			}
+
+			$types[ $type ] = true;
+
+			if ( null === $end ) {
+				$end = $token[1] + strlen( $token[0] );
+			}
 		}
 
-		// Read the type off the matched text rather than off a capture group: how
-		// PCRE reports a group that did not take part differs by PHP version.
-		$types = array();
-		foreach ( $matches[0] as $token ) {
-			$types[ $this->closing_token_type( $token[0] ) ] = true;
+		if ( null === $end ) {
+			return 0;
 		}
 
 		if ( count( $types ) > 1 ) {
 			return null;
 		}
 
-		$region_end = $matches[0][0][1] + strlen( $matches[0][0][0] );
-
 		$body_close = strpos( $masked, '</body>' );
-		if ( false !== $body_close && $body_close < $region_end ) {
+		if ( false !== $body_close && $body_close < $end ) {
 			return null;
 		}
 
-		return $region_end;
+		return $end;
 	}
 
 	/**
-	 * Name the region a leftover closing token would end.
+	 * Name the region a token opens or closes.
 	 *
-	 * @param string $token Matched closing token.
+	 * The element names the scan above matches are exact — its opening arm is
+	 * followed by a negative lookahead and its closing arm by the closing-tag
+	 * grammar — so a prefix test on the name is not a loose one.
+	 *
+	 * @param string $token Matched opening or closing token.
 	 *
 	 * @return string Element name, or 'comment' for a comment close.
 	 */
-	private function closing_token_type( $token ) {
-		$token = strtolower( $token );
+	private function token_element_type( $token ) {
+		$name = ltrim( strtolower( $token ), '</' );
 
-		foreach ( $this->raw_text_elements() as $element ) {
-			if ( 0 === strpos( $token, '</' . $element ) ) {
+		foreach ( $this->inert_elements() as $element ) {
+			if ( 0 === strpos( $name, $element ) ) {
 				return $element;
 			}
 		}
 
 		return 'comment';
+	}
+
+	/**
+	 * Every element this locator treats as holding something other than markup,
+	 * whether or not the mask can pair it.
+	 *
+	 * <template> is here because its contents are inert to a browser in the sense
+	 * that matters — a script written into one does not run — even though the
+	 * markup in it is parsed. <plaintext> is absent: it has no closing tag, so a
+	 * leftover one can never point at it.
+	 *
+	 * @return string[]
+	 */
+	private function inert_elements() {
+		return array_merge( $this->raw_text_elements(), $this->unmasked_raw_text_elements(), array( 'template' ) );
 	}
 
 	/**
@@ -797,35 +858,45 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	}
 
 	/**
-	 * Collect the spans of element contents the mask cannot blank.
+	 * Find the last closing body tag that is outside the element contents the mask
+	 * cannot blank.
 	 *
-	 * One ordered pass over every opening and closing token of interest, walked
-	 * with the tokenizer's own rules rather than by pairing each opener with the
-	 * next closer that matches it:
+	 * One ordered pass over every token of interest, walked with the tokenizer's
+	 * own rules rather than by pairing each opener with the next closer that
+	 * matches it:
 	 *
 	 * - Inside a raw-text element nothing is markup, so only that element's own
 	 *   closing tag ends it and any tag nested in it is text.
 	 * - <template> is ordinary markup and does nest, so it is tracked by depth and
-	 *   the span runs from the outermost opener to the matching close.
+	 *   only its own closing tag pops that depth.
 	 * - A region still open when the buffer ends runs to the end of it, which is
 	 *   also what the '</html>' bound leaves behind when it cuts one short. This
 	 *   is how <plaintext> is handled: no closing token for it is collected at
 	 *   all, because the tokenizer state it opens has no exit before end of file.
 	 *
-	 * The previous shape of this check searched for a closing tag once per opener,
-	 * which both cost a scan per opener and answered the nesting cases wrongly.
+	 * The candidates are collected in the same pass as the regions that disqualify
+	 * them, so a candidate inside one costs nothing to skip and the search stays
+	 * linear in the buffer. Collecting the regions first and then walking the
+	 * candidates right to left answers the same, but rescans the region list per
+	 * candidate, which is quadratic on a document built out of many of them.
 	 *
-	 * @param string $masked Masked buffer, already bounded at '</html>'.
+	 * @param string $masked Masked buffer.
+	 * @param int    $limit  Offset the document ends at; nothing from here on is
+	 *                       part of it, so the scan stops rather than truncating.
 	 *
-	 * @return array[]|null List of array( start, end ) offsets, or null on failure.
+	 * @return int|null Offset of the closing tag, or null if the buffer holds none
+	 *                  outside those regions.
 	 */
-	private function unmasked_regions( $masked ) {
+	private function body_close_position( $masked, $limit ) {
 		$raw = implode( '|', $this->unmasked_raw_text_elements() );
 
+		// '</body>' is spelled case-sensitively because that is the only spelling
+		// the insertion this feeds has ever recognised; the rest keep the pattern's
+		// own tolerance, so no region is missed for being spelled unusually.
 		$found = preg_match_all(
 			'~<(?:' . $raw . '|template|plaintext)(?![\w-])'
 			. '|</(?:' . $raw . '|template)' . $this->close_tag_tail()
-			. '|<!\[CDATA\[|\]\]>~i',
+			. '|<!\[CDATA\[|\]\]>|(?-i:</body>)~i',
 			$masked,
 			$matches,
 			PREG_OFFSET_CAPTURE
@@ -836,23 +907,23 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 			return null;
 		}
 
-		$regions = array();
-		$length  = strlen( $masked );
-		$open    = null;
-		$start   = 0;
-		$depth   = 0;
-		$nested  = 0;
+		$position = null;
+		$open     = null;
+		$depth    = 0;
 
 		foreach ( $matches[0] as $token ) {
 			$text   = strtolower( $token[0] );
 			$offset = $token[1];
 
+			if ( $offset >= $limit ) {
+				break;
+			}
+
 			// Inside a raw-text element or a CDATA section, only its own closing
 			// token means anything; everything else is character data.
 			if ( null !== $open ) {
 				if ( 0 === strpos( $text, 'cdata' === $open ? ']]>' : '</' . $open ) ) {
-					$regions[] = array( $start, $offset );
-					$open      = null;
+					$open = null;
 				}
 				continue;
 			}
@@ -862,17 +933,26 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 			}
 
 			if ( '<![cdata[' === $text ) {
-				$open  = 'cdata';
-				$start = $offset;
+				$open = 'cdata';
+				continue;
+			}
+
+			if ( '</body>' === $text ) {
+				if ( 0 === $depth ) {
+					$position = $offset;
+				}
 				continue;
 			}
 
 			if ( '/' === $text[1] ) {
-				if ( $depth > 0 ) {
+				// Only a '</template>' pops the depth. Any other closing tag
+				// reaching here belongs to an element the template never opened,
+				// and ending the template on it would hand back an offset in
+				// content a browser never runs. A closing tag with no opener at
+				// all is not this scan's problem: leading_region_end() has already
+				// resolved or rejected the buffer on it.
+				if ( $depth > 0 && 0 === strpos( $text, '</template' ) ) {
 					--$depth;
-					if ( 0 === $depth ) {
-						$regions[] = array( $nested, $offset );
-					}
 				}
 				continue;
 			}
@@ -880,44 +960,14 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 			$name = substr( $text, 1 );
 
 			if ( 'template' === $name ) {
-				if ( 0 === $depth ) {
-					$nested = $offset;
-				}
 				++$depth;
 				continue;
 			}
 
-			$open  = $name;
-			$start = $offset;
+			$open = $name;
 		}
 
-		if ( null !== $open ) {
-			$regions[] = array( $start, $length );
-		}
-
-		if ( $depth > 0 ) {
-			$regions[] = array( $nested, $length );
-		}
-
-		return $regions;
-	}
-
-	/**
-	 * Report whether an offset falls inside one of the collected spans.
-	 *
-	 * @param array[] $regions  Spans from unmasked_regions().
-	 * @param int     $position Candidate offset.
-	 *
-	 * @return bool
-	 */
-	private function offset_in_regions( $regions, $position ) {
-		foreach ( $regions as $region ) {
-			if ( $position > $region[0] && $position <= $region[1] ) {
-				return true;
-			}
-		}
-
-		return false;
+		return $position;
 	}
 
 	/**

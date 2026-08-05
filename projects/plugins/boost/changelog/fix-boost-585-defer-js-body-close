@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Defer JS: insert the deferred scripts only at the document's real closing body tag, so a literal closing body tag inside a script, textarea, style block, title, comment, or attribute value is no longer corrupted. Where the insertion point cannot be established the scripts are appended after the page instead, leaving the existing markup untouched.
+Defer JS: insert the deferred scripts only at the document's real closing body tag, so a literal closing body tag inside a script, textarea, style block, title, comment, or attribute value is no longer corrupted. Where the insertion point cannot be established the scripts are appended after the page instead, leaving the existing markup untouched. Pages already cached with the broken output keep serving it until the cache is purged.

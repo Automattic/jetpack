@@ -997,6 +997,69 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	}
 
 	/**
+	 * The elements the mask cannot pair reach this the same way. Their closing tag
+	 * is the only evidence the window carries that one of them opened before it,
+	 * and without reading it the contents look like markup all the way down: the
+	 * literal '</body></html>' in them would be taken for the end of the document
+	 * and the deferred scripts written into content a browser never runs.
+	 *
+	 * @param string $element Element whose opening tag was flushed before the buffer.
+	 * @dataProvider provide_unmasked_leading_regions
+	 */
+	#[DataProvider( 'provide_unmasked_leading_regions' )]
+	public function test_literal_body_close_in_an_unmasked_region_opened_before_the_buffer_is_not_corrupted( $element ) {
+		// The buffer starts inside the element: its opening tag was flushed earlier.
+		$buffer = 'sample </body></html> markup</' . $element . '><p>After</p>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body></html>';
+
+		list( $buffer_start, $buffer_end ) = $this->instance->handle_output_stream( $buffer, '' );
+
+		$output = $this->instance->append_script_tags( $buffer_start . $buffer_end );
+
+		$this->assertStringContainsString( 'sample </body></html> markup</' . $element . '>', $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringEndsWith( '<script>console.log("movable sibling");</script>', $output );
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public static function provide_unmasked_leading_regions() {
+		return array(
+			'iframe'   => array( 'iframe' ),
+			'xmp'      => array( 'xmp' ),
+			'noembed'  => array( 'noembed' ),
+			'noframes' => array( 'noframes' ),
+			'noscript' => array( 'noscript' ),
+			'template' => array( 'template' ),
+		);
+	}
+
+	/**
+	 * A paired element of the same kind is not evidence of anything: both its tags
+	 * survive the mask, so counting the closing one as left over would fail the
+	 * buffer closed on ordinary markup and cost the page its insertion point.
+	 *
+	 * @param string $element Element opened and closed inside the buffer.
+	 * @dataProvider provide_unmasked_leading_regions
+	 */
+	#[DataProvider( 'provide_unmasked_leading_regions' )]
+	public function test_a_paired_unmasked_element_is_not_read_as_a_leading_region( $element ) {
+		$html = '<html><body><' . $element . '> </body> </' . $element . '><p>After</p>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body></html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertStringContainsString( '<' . $element . '> </body> </' . $element . '>', $output );
+		$this->assertStringContainsString(
+			'<script>console.log("movable sibling");</script></body></html>',
+			$output
+		);
+	}
+
+	/**
 	 * The same shape for a <style> block, which is the other region a theme or a
 	 * caching plugin routinely emits larger than one output chunk.
 	 */
@@ -1215,6 +1278,71 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	}
 
 	/**
+	 * A closing tag inside a <template> for an element the template never opened
+	 * is not that template's own close. Ending the region on it would offer the
+	 * closing body tag after it as an insertion point, which writes the deferred
+	 * scripts into template content, where a browser never runs them.
+	 *
+	 * @param string $stray Closing tag for an element the template never opened.
+	 * @dataProvider provide_stray_closing_tags
+	 */
+	#[DataProvider( 'provide_stray_closing_tags' )]
+	public function test_a_stray_closing_tag_does_not_end_a_template( $stray ) {
+		$html = '<html><body>' .
+			'<template>' . $stray . ' </body> still inside</template>' .
+			'<script>console.log("movable sibling");</script>' .
+			'<p>body text</p></body></html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString( '<template>' . $stray . ' </body> still inside</template>', $output );
+		$this->assertStringContainsString(
+			'<p>body text</p><script>console.log("movable sibling");</script></body></html>',
+			$output
+		);
+	}
+
+	/**
+	 * The same shape on a page with no closing body tag outside the template, so
+	 * the one in its contents is the only candidate the buffer holds. Ending the
+	 * template on a closing tag it never opened accepts that one, and there is no
+	 * later candidate to correct it: the scripts land in template content, where a
+	 * browser never runs them. Appending is the whole of what this page allows.
+	 *
+	 * @param string $stray Closing tag for an element the template never opened.
+	 * @dataProvider provide_stray_closing_tags
+	 */
+	#[DataProvider( 'provide_stray_closing_tags' )]
+	public function test_a_stray_closing_tag_does_not_expose_a_body_close_inside_a_template( $stray ) {
+		$html = '<html><body><p>body text</p>' .
+			'<script>console.log("movable sibling");</script>' .
+			'<template>' . $stray . ' </body> still inside</template></html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString( '<template>' . $stray . ' </body> still inside</template>', $output );
+		$this->assertStringEndsWith( '<script>console.log("movable sibling");</script>', $output );
+	}
+
+	/**
+	 * Every closing tag the region walk recognises, none of which closes a
+	 * <template>.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_stray_closing_tags() {
+		return array(
+			'iframe'   => array( '</iframe>' ),
+			'xmp'      => array( '</xmp>' ),
+			'noembed'  => array( '</noembed>' ),
+			'noframes' => array( '</noframes>' ),
+			'noscript' => array( '</noscript>' ),
+		);
+	}
+
+	/**
 	 * Inside a raw-text element nothing is markup, so an opening tag in its
 	 * contents does not start a region of its own and the element's own closing
 	 * tag still ends it. Treating that inner tag as a real opener would leave a
@@ -1346,6 +1474,97 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 
 		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
 		$this->assertStringEndsWith( '<script>console.log("movable sibling");</script>', $output );
+	}
+
+	/**
+	 * That budget counts the openers the mask will leave unpaired, which is not
+	 * the same as one total of opening tags less another of closing tags. A
+	 * closing tag for a different element, one that arrives before any opener, and
+	 * one whose name only starts the same all leave the opener unpaired, and each
+	 * of them cancels an opener in the totals. Counting that way reports nothing
+	 * to abandon on exactly the buffers the budget exists for.
+	 *
+	 * @param string $filler Repeated markup whose closing tags close nothing.
+	 * @dataProvider provide_uncancelled_raw_text_openers
+	 */
+	#[DataProvider( 'provide_uncancelled_raw_text_openers' )]
+	public function test_closing_tags_that_close_nothing_do_not_pay_for_openers( $filler ) {
+		$html = '<html><body>' .
+			'<script>console.log("movable sibling");</script>' .
+			$filler .
+			'</body></html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringEndsWith( '<script>console.log("movable sibling");</script>', $output );
+	}
+
+	/**
+	 * The other direction: pairing per element in document order must still pair
+	 * the ordinary case. A page holding many properly closed raw-text elements is
+	 * nowhere near the budget, and counting those pairs against it would abandon
+	 * the search on markup there is nothing wrong with.
+	 */
+	public function test_many_paired_raw_text_elements_do_not_reach_the_budget() {
+		$html = '<html><body>' .
+			str_repeat( '<textarea>x</textarea><title>y</title>', 32 ) .
+			'<script>console.log("movable sibling");</script>' .
+			'</body></html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertStringContainsString(
+			'<script>console.log("movable sibling");</script></body></html>',
+			$output
+		);
+	}
+
+	/**
+	 * Only the exact lowercase spelling is an insertion point. Every other legal
+	 * spelling of the tag takes the append path, as it did before this locator
+	 * existed: the replacement this feeds has never recognised them either, and
+	 * quietly widening what counts as the end of a document is not this fix.
+	 */
+	public function test_an_uppercase_closing_body_tag_is_not_an_insertion_point() {
+		$html = '<html><body><p>body text</p>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</BODY></html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertStringContainsString( '</BODY></html>', $output );
+		$this->assertStringEndsWith( '<script>console.log("movable sibling");</script>', $output );
+	}
+
+	/**
+	 * And a later one does not displace the real tag. The search takes the last
+	 * candidate it finds, so a spelling it does not insert at must not be a
+	 * candidate at all — reading it as one would move the scripts past the end of
+	 * the body on a document that has a perfectly good closing tag.
+	 */
+	public function test_a_later_uppercase_closing_body_tag_does_not_displace_the_real_one() {
+		$html = '<html><body><p>body text</p>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body><p>trailing</p></BODY></html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertStringContainsString(
+			'<p>body text</p><script>console.log("movable sibling");</script></body><p>trailing</p></BODY>',
+			$output
+		);
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public static function provide_uncancelled_raw_text_openers() {
+		return array(
+			'closing tag for another element' => array( str_repeat( '<title>x</textarea>', 64 ) ),
+			'closing tag before any opener'   => array( str_repeat( '</title>', 64 ) . str_repeat( '<title>x', 64 ) ),
+			'closing tag with a longer name'  => array( str_repeat( '<title>x</titlex>', 64 ) ),
+		);
 	}
 
 	/**
