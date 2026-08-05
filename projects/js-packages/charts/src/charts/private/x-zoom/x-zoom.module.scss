@@ -11,12 +11,12 @@
 		pointer-events: none;
 	}
 
-	// Overlay placement only — border, hover/focus, sizing and icon-only
-	// geometry all come from the WPDS IconButton. The elevation shadow is
-	// deliberately kept for separation from chart content (CHARTS-237
-	// design call, carrying over CHARTS-200's tokenization). `@wordpress/theme`
-	// 1.0.0 dropped the `--wpds-elevation-*` group, so this role carries the
-	// former token's spec value directly rather than nesting a `--wpds-*` var.
+	// The elevation shadow is deliberately kept for separation
+	// from chart content (CHARTS-237 design call, carrying
+	// over CHARTS-200's tokenization). `@wordpress/theme` 1.0.0
+	// dropped the `--wpds-elevation-*` group, so this role carries
+	// the former token's spec value directly rather than nesting
+	// a `--wpds-*` var.
 	&__reset {
 		position: absolute;
 		top: var(--wpds-dimension-gap-sm, 8px);
