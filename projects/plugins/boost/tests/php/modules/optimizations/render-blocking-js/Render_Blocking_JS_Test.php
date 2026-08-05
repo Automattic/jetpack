@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack_Boost\Tests\Modules\Optimizations\Render_Blocking_JS;
 
+use Automattic\Jetpack_Boost\Lib\Output_Filter;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Render_Blocking_JS\Render_Blocking_JS;
 use Brain\Monkey;
 use Brain\Monkey\Filters;
@@ -965,6 +966,196 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	}
 
 	/**
+	 * The contents of a region opened before the buffer are a pasted HTML sample
+	 * as often as not, so they hold '</html>' as well as '</body>'. Resolving the
+	 * region has to happen before the search is bounded at '</html>': bounding
+	 * first deletes the '</textarea>' that marks where the region ends, and the
+	 * region's own '</body>' then wins.
+	 */
+	public function test_closing_html_inside_a_region_opened_before_the_buffer_does_not_hide_it() {
+		// The buffer starts mid-<textarea>: its opening tag was flushed earlier.
+		$buffer = 'pasted </body></html> sample</textarea><p>After</p>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body></html>';
+
+		list( $buffer_start, $buffer_end ) = $this->instance->handle_output_stream( $buffer, '' );
+
+		$output = $this->instance->append_script_tags( $buffer_start . $buffer_end );
+
+		$this->assertStringContainsString( 'pasted </body></html> sample</textarea>', $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString( 'console.log("movable sibling");</script></body></html>', $output );
+	}
+
+	/**
+	 * The same shape for a <style> block, which is the other region a theme or a
+	 * caching plugin routinely emits larger than one output chunk.
+	 */
+	public function test_closing_html_inside_a_style_block_opened_before_the_buffer_does_not_hide_it() {
+		$buffer = '/* pasted </body></html> sample */</style><p>After</p>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body></html>';
+
+		list( $buffer_start, $buffer_end ) = $this->instance->handle_output_stream( $buffer, '' );
+
+		$output = $this->instance->append_script_tags( $buffer_start . $buffer_end );
+
+		$this->assertStringContainsString( '/* pasted </body></html> sample */</style>', $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString( 'console.log("movable sibling");</script></body></html>', $output );
+	}
+
+	/**
+	 * And for <title>, whose contents are RCDATA for the same reason.
+	 */
+	public function test_closing_html_inside_a_title_opened_before_the_buffer_does_not_hide_it() {
+		$buffer = 'pasted </body></html> sample</title><p>After</p>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body></html>';
+
+		list( $buffer_start, $buffer_end ) = $this->instance->handle_output_stream( $buffer, '' );
+
+		$output = $this->instance->append_script_tags( $buffer_start . $buffer_end );
+
+		$this->assertStringContainsString( 'pasted </body></html> sample</title>', $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString( 'console.log("movable sibling");</script></body></html>', $output );
+	}
+
+	/**
+	 * The scan for a region opened before the buffer can fail on its own, after
+	 * the mask succeeded. preg_match() reports that as false rather than 0, and
+	 * treating it as "no such region" would search the region's contents as
+	 * markup. Fail closed there too and append instead.
+	 *
+	 * A backtrack limit of 1 forces the failure deterministically: the mask finds
+	 * nothing to do, while the scan has to backtrack over '</textarea >'.
+	 */
+	public function test_scripts_are_appended_when_the_leading_region_scan_fails() {
+		// The buffer starts inside a <textarea> and the document's real closing
+		// tag is in a later chunk, so the only '</body>' here is the region's.
+		$buffer = 'raw </body> text</textarea >tail<p>After</p>' .
+			'<script>console.log("movable sibling");</script>';
+
+		list( $buffer_start, $buffer_end ) = $this->instance->handle_output_stream( $buffer, '' );
+
+		$output         = '';
+		$original_limit = ini_get( 'pcre.backtrack_limit' );
+		ini_set( 'pcre.backtrack_limit', '1' ); // phpcs:ignore WordPress.PHP.IniSet.Risky -- Restored below; forces a PCRE failure deterministically.
+
+		try {
+			$output = $this->instance->append_script_tags( $buffer_start . $buffer_end );
+		} finally {
+			ini_set( 'pcre.backtrack_limit', false === $original_limit ? '1000000' : $original_limit ); // phpcs:ignore WordPress.PHP.IniSet.Risky -- Restore original limit.
+		}
+
+		$this->assertStringContainsString( 'raw </body> text</textarea >', $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringEndsWith( '<script>console.log("movable sibling");</script>', $output );
+	}
+
+	/**
+	 * End-to-end through the real Output_Filter, so the sliding window is produced
+	 * by ob_start()'s chunking rather than by hand: the <textarea> opens several
+	 * chunks before the final window and only its tail is visible when the
+	 * insertion point is chosen.
+	 */
+	public function test_deferred_scripts_land_correctly_with_a_region_opened_in_an_earlier_chunk() {
+		Filters\expectApplied( 'jetpack_boost_output_filtering_last_buffer' )->andReturnUsing(
+			function ( $joint_buffer ) {
+				return $this->instance->append_script_tags( $joint_buffer );
+			}
+		);
+
+		$page = '<html><body><p>Before</p>' .
+			'<script>console.log("movable sibling");</script>' .
+			'<textarea>' . str_repeat( '<p>filler filler filler filler</p>', 400 ) .
+			'pasted </body></html> sample</textarea>' .
+			'<p>After</p></body></html>';
+
+		$output_filter = new Output_Filter();
+
+		ob_start();
+		$output_filter->add_callback( array( $this->instance, 'handle_output_stream' ) );
+		foreach ( str_split( $page, 512 ) as $piece ) {
+			echo $piece; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Test fixture markup.
+		}
+		ob_end_flush();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'pasted </body></html> sample</textarea>', $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString( 'console.log("movable sibling");</script></body></html>', $output );
+	}
+
+	/**
+	 * <title> content is RCDATA, so a literal '</body>' in it is text. The decoy
+	 * follows the document's real closing tag, where only the mask can rule it out.
+	 */
+	public function test_literal_body_close_in_title_is_not_corrupted() {
+		$html = '<html><body>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body><title>a </body> b</title></html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertStringContainsString( '<title>a </body> b</title>', $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString( 'console.log("movable sibling");</script></body>', $output );
+	}
+
+	/**
+	 * The spec's end-bang comment close, '--!>', terminates a comment. Treating
+	 * only '-->' as the close would leave this comment unmasked and its literal
+	 * '</body>' — the last one in the buffer — would win the search.
+	 */
+	public function test_literal_body_close_in_comment_closed_with_end_bang_is_not_corrupted() {
+		$html = '<html><body>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body><!-- </body> --!></html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertStringContainsString( '<!-- </body> --!>', $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString( 'console.log("movable sibling");</script></body>', $output );
+	}
+
+	/**
+	 * '<!-->' is a complete, empty comment. Requiring a '-->' to close it would
+	 * make the mask run on to the next comment's close instead, blanking the
+	 * document's real closing tag along the way.
+	 */
+	public function test_empty_comment_does_not_swallow_the_rest_of_the_document() {
+		$html = '<html><body>' .
+			'<script>console.log("movable sibling");</script>' .
+			'<!--><p>Before</p></body><!-- </body> --></html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertStringContainsString( '<!--><p>Before</p>', $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString( 'console.log("movable sibling");</script></body>', $output );
+	}
+
+	/**
+	 * Tag names are case-insensitive, so the bound that keeps trailing output out
+	 * of the search has to be too. A single '</HTML>' must not hand the search to
+	 * a literal '</body>' emitted after the document.
+	 */
+	public function test_uppercase_closing_html_still_bounds_the_search() {
+		$html = '<html><body>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body></HTML><p>injected by the host: </body></p>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertStringContainsString( '<p>injected by the host: </body></p>', $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString( 'console.log("movable sibling");</script></body></HTML>', $output );
+	}
+
+	/**
 	 * When the mask itself fails, nothing about the buffer has been established,
 	 * so no position may be chosen. The scripts are appended after the buffer —
 	 * they still run and no existing markup is rewritten.
@@ -998,8 +1189,9 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 
 	/**
 	 * With no buffered scripts there is nothing to insert and the buffer must come
-	 * back byte-identical. Lcp registers a second Output_Filter on the same global
-	 * hook, so this is the common case for the second call of every request.
+	 * back byte-identical. Both branches of append_script_tags() are identity
+	 * operations in that case, so this locks the contract rather than the early
+	 * return that implements it.
 	 */
 	public function test_buffer_is_returned_untouched_when_there_is_nothing_to_insert() {
 		$html = '<html><body><p>Before</p><textarea>raw </body> text</textarea></body></html>';
