@@ -83,7 +83,13 @@ export function StatsTotalMetricWidget( {
 						title={ formatMetricValue( total, 'number', { decimals: 0 } ) }
 					/>
 					<div className={ styles.chart }>
-						<Sparkline data={ points } withGradientFill />
+						{ /*
+						 * `withResponsive` caps the drawn width at its `maxWidth` default of
+						 * 1200px, which leaves dead space on a wider card. A sparkline is
+						 * card-width chrome, not a standalone chart, so it has no reason to
+						 * stop growing.
+						 */ }
+						<Sparkline data={ points } withGradientFill maxWidth={ Infinity } />
 					</div>
 				</div>
 			</WidgetState>
