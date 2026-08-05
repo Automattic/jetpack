@@ -47,7 +47,7 @@ import {
 } from './utils/category-utils';
 import { getAllowedBlocks } from './utils/get-allowed-blocks';
 import { shouldAutoOpenInserter } from './utils/inserter-utils';
-import { shouldRunSelectionEnforcement } from './utils/selection-utils';
+import { shouldRunSelectionEnforcement, shouldSelectFormBlock } from './utils/selection-utils';
 import type { WPPlugin } from '@wordpress/plugins';
 
 type PluginSettings = Omit< WPPlugin, 'name' >;
@@ -233,19 +233,12 @@ const enforceBlockSelection = () => {
 	}
 	const { getSelectedBlockClientId, hasMultiSelection } = select( 'core/block-editor' );
 
-	if ( hasMultiSelection() ) {
-		return;
-	}
-
-	// Don't force-select when the inserter is open — selecting a block
-	// can close the inserter or change its context.
-	const { isInserterOpened } = select( 'core/editor' );
-	if ( isInserterOpened() ) {
-		return;
-	}
-
-	const selectedBlockId = getSelectedBlockClientId();
-	if ( ! selectedBlockId ) {
+	if (
+		shouldSelectFormBlock( {
+			selectedBlockId: getSelectedBlockClientId(),
+			hasMultiSelection: hasMultiSelection(),
+		} )
+	) {
 		const { selectBlock } = dispatch( 'core/block-editor' ) as {
 			selectBlock: ( clientId: string ) => void;
 		};

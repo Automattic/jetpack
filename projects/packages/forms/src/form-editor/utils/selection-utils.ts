@@ -31,3 +31,32 @@ export function shouldRunSelectionEnforcement( context: SelectionEnforcementCont
 
 	return context.selectedBlockId !== context.lastSelectedBlockId;
 }
+
+export interface FormBlockSelectionContext {
+	/** The block currently selected in the editor, if any. */
+	selectedBlockId: string | null | undefined;
+	/** Whether the editor currently holds a multi-block selection. */
+	hasMultiSelection: boolean;
+}
+
+/**
+ * Determines whether the form block should be force-selected right now.
+ *
+ * Deliberately independent of whether the inserter is open. Selecting a block
+ * neither closes the inserter nor changes where it inserts, and the inserter is
+ * open by default in the form editor — so skipping enforcement while it is open
+ * leaves the form deselected and its settings unreachable for the common case.
+ *
+ * A multi-selection is still respected: getSelectedBlockClientId() is null while
+ * one is active, and force-selecting would discard the user's range.
+ *
+ * @param context - Current selection state
+ * @return Whether the form block should be selected
+ */
+export function shouldSelectFormBlock( context: FormBlockSelectionContext ): boolean {
+	if ( context.hasMultiSelection ) {
+		return false;
+	}
+
+	return ! context.selectedBlockId;
+}

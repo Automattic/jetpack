@@ -5,7 +5,10 @@
  * should run a selection-enforcement pass on the current subscribe tick.
  */
 
-import { shouldRunSelectionEnforcement } from '../../../../src/form-editor/utils/selection-utils';
+import {
+	shouldRunSelectionEnforcement,
+	shouldSelectFormBlock,
+} from '../../../../src/form-editor/utils/selection-utils';
 
 describe( 'selection-utils', () => {
 	describe( 'shouldRunSelectionEnforcement', () => {
@@ -54,6 +57,46 @@ describe( 'selection-utils', () => {
 				shouldRunSelectionEnforcement( {
 					selectedBlockId: undefined,
 					lastSelectedBlockId: null,
+				} )
+			).toBe( true );
+		} );
+	} );
+
+	describe( 'shouldSelectFormBlock', () => {
+		test( 'returns true when no block is selected', () => {
+			expect(
+				shouldSelectFormBlock( {
+					selectedBlockId: null,
+					hasMultiSelection: false,
+				} )
+			).toBe( true );
+		} );
+
+		test( 'returns false when a block is already selected', () => {
+			expect(
+				shouldSelectFormBlock( {
+					selectedBlockId: 'block-1',
+					hasMultiSelection: false,
+				} )
+			).toBe( false );
+		} );
+
+		// getSelectedBlockClientId() is null during a multi-selection, so without this
+		// guard the form block would be force-selected and the user's range destroyed.
+		test( 'returns false during a multi-selection', () => {
+			expect(
+				shouldSelectFormBlock( {
+					selectedBlockId: null,
+					hasMultiSelection: true,
+				} )
+			).toBe( false );
+		} );
+
+		test( 'returns true when the selection is undefined', () => {
+			expect(
+				shouldSelectFormBlock( {
+					selectedBlockId: undefined,
+					hasMultiSelection: false,
 				} )
 			).toBe( true );
 		} );
