@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Write: Update the editor's toolbar and top bar icons.
+Write: Refresh the editor's toolbar and top bar icons and restyle its buttons to match the WordPress Design System, dropping the dashicons font dependency.
