@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Script Data: decode HTML entities in the shared site title so consumers (e.g. the Newsletter Sender Settings panel) don't show literal entities like `&#039;` for site names containing an apostrophe or other special characters.
