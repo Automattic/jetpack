@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Metric tiles: fit the value inside the tile at the minimum widget height.
