@@ -1,0 +1,10 @@
+{
+	"name": "jpa/total-visitors",
+	"title": "Total visitors",
+	"description": "Total visitors for the selected period, with the trend over time.",
+	"help": {
+		"content": "Total visitors for the selected period, with the trend over time. Sum of daily visitors — a returning visitor is counted once per day, not once for the whole period."
+	},
+	"category": "stats",
+	"presentation": "framed"
+}
