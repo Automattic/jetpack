@@ -391,33 +391,24 @@ function get_dashboard_default_section_layouts() {
 			),
 		),
 		DASHBOARD_SUBSCRIBERS_SECTION_ID => array(
-			get_dashboard_default_widget_instance(
-				'default-subscriber-highlights-widget-instance',
-				'jpa/subscriber-highlights',
-				0,
-				4,
-				1,
-				array(
-					'showTotal'  => true,
-					'showPaid'   => true,
-					'showFree'   => true,
-					'showSocial' => true,
-				)
-			),
+			// Subscriber highlights is intentionally not a default: the design
+			// opens on the chart. It stays available from the widget picker.
+			// Row 1: subscribers chart.
 			get_dashboard_default_widget_instance(
 				'default-subscribers-chart-widget-instance',
 				'jpa/subscribers-chart',
-				1,
+				0,
 				4,
 				2,
 				array(
 					'granularity' => 'auto',
 				)
 			),
+			// Row 2: latest subscribers + latest emails sent.
 			get_dashboard_default_widget_instance(
 				'default-subscribers-list-widget-instance',
 				'jpa/subscribers-list',
-				2,
+				1,
 				2,
 				2,
 				array(
@@ -427,7 +418,7 @@ function get_dashboard_default_section_layouts() {
 			get_dashboard_default_widget_instance(
 				'default-subscribers-emails-widget-instance',
 				'jpa/stats-emails',
-				3,
+				2,
 				2,
 				2,
 				array(
