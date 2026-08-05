@@ -126,21 +126,27 @@ describe( 'Link', () => {
 } );
 
 describe( 'NewsletterEmailDocumentSettings', () => {
-	const createMockSelect = postEmailSentState => store => {
-		if ( store === editorStore ) {
-			return {
-				isCurrentPostPublished: () => false,
-				getCurrentPostType: () => 'post',
-				getEditedPostAttribute: attr => ( attr === 'meta' ? {} : undefined ),
-			};
-		}
-		if ( store === membershipProductsStore ) {
-			return {
-				getPostEmailSentState: () => postEmailSentState,
-			};
-		}
-		return {};
-	};
+	const createMockSelect =
+		( postEmailSentState, status = 'draft' ) =>
+		store => {
+			if ( store === editorStore ) {
+				return {
+					getCurrentPostType: () => 'post',
+					getEditedPostAttribute: attr => {
+						if ( attr === 'meta' ) {
+							return {};
+						}
+						return attr === 'status' ? status : undefined;
+					},
+				};
+			}
+			if ( store === membershipProductsStore ) {
+				return {
+					getPostEmailSentState: () => postEmailSentState,
+				};
+			}
+			return {};
+		};
 
 	beforeEach( () => {
 		jest.clearAllMocks();
@@ -183,6 +189,25 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 		render( <NewsletterEmailDocumentSettings /> );
 		expect( screen.queryByRole( 'radio', { hidden: true } ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Post & email' ) ).toBeInTheDocument();
+	} );
+
+	test( 'renders the setting as text once the post is published', () => {
+		mockUseSelect.mockImplementation( selector =>
+			selector( createMockSelect( { email_sent_at: null, stats_on_send: null }, 'publish' ) )
+		);
+
+		render( <NewsletterEmailDocumentSettings /> );
+		expect( screen.queryByRole( 'radio', { hidden: true } ) ).not.toBeInTheDocument();
+	} );
+
+	// A private post still emails subscribers when it goes public.
+	test( 'keeps the toggle editable on a private post', () => {
+		mockUseSelect.mockImplementation( selector =>
+			selector( createMockSelect( { email_sent_at: null, stats_on_send: null }, 'private' ) )
+		);
+
+		render( <NewsletterEmailDocumentSettings /> );
+		expect( screen.getByLabelText( /Send as email to subscribers/i ) ).toBeInTheDocument();
 	} );
 } );
 

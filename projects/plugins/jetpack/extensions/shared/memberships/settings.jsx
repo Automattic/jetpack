@@ -293,7 +293,12 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 }
 
 export function NewsletterEmailDocumentSettings() {
-	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+	// `private` counts as published, but a private post still emails subscribers when it goes
+	// public, so the setting has to stay editable until then.
+	const isPostPublished = useSelect(
+		select => select( editorStore ).getEditedPostAttribute( 'status' ) === 'publish',
+		[]
+	);
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const [ postMeta, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	const postId = useEntityId( 'postType', postType );
@@ -327,6 +332,7 @@ export function NewsletterEmailDocumentSettings() {
 		return null;
 	}
 
+	const controlLabel = __( 'Send as email to subscribers?', 'jetpack' );
 	const emailOptions = [
 		{ value: 'post-and-email', label: __( 'Post & email', 'jetpack' ) },
 		{ value: 'post-only', label: __( 'Post only', 'jetpack' ) },
@@ -340,9 +346,12 @@ export function NewsletterEmailDocumentSettings() {
 				// drops the whole group out of the tab order.
 				if ( isPostPublished || ! canEdit ) {
 					return (
-						<span>
-							{ emailOptions.find( ( { value } ) => value === isSendEmailEnabled )?.label }
-						</span>
+						<>
+							<VisuallyHidden as="span">{ controlLabel }</VisuallyHidden>
+							<span>
+								{ emailOptions.find( ( { value } ) => value === isSendEmailEnabled )?.label }
+							</span>
+						</>
 					);
 				}
 
@@ -351,7 +360,7 @@ export function NewsletterEmailDocumentSettings() {
 						value={ isSendEmailEnabled }
 						onChange={ toggleSendEmail }
 						isBlock
-						label={ __( 'Send as email to subscribers?', 'jetpack' ) }
+						label={ controlLabel }
 						hideLabelFromVision={ true }
 						className="jetpack-subscribe-email-document-setting"
 						__nextHasNoMarginBottom={ true }
