@@ -322,17 +322,24 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		// Called when an error is received.
 		const onError = useCallback(
 			error => {
-				const userTookOverScrolling = disableAutoScroll();
+				disableAutoScroll();
 				setAction( '' );
 
 				debug( 'Request error', error );
 
 				// The error panel grows the control, which can leave one in normal flow past the
-				// bottom of the viewport with its recovery action out of reach. Scroll rather than
-				// focus, as a quota error disables the input, and leave a user who scrolled off be.
-				if ( ! adjustPosition && ! userTookOverScrolling ) {
-					window.requestAnimationFrame(
-						() => controlRef.current?.scrollIntoView( { block: 'end', inline: 'nearest' } )
+				// bottom of the viewport with its recovery action out of reach. Measure now, before
+				// that panel renders: a control already off screen means the user is reading
+				// something else, and pulling them back would be the greater intrusion. Scroll
+				// rather than focus, as a quota error leaves the input disabled.
+				const control = controlRef.current;
+				const view = control?.ownerDocument?.defaultView;
+				const rect = view && control.getBoundingClientRect();
+				const isOnScreen = rect && rect.bottom > 0 && rect.top < view.innerHeight;
+
+				if ( ! adjustPosition && isOnScreen ) {
+					window.requestAnimationFrame( () =>
+						control.scrollIntoView( { block: 'end', inline: 'nearest' } )
 					);
 				}
 
