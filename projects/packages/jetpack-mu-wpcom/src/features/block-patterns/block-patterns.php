@@ -101,29 +101,38 @@ function wpcom_unregister_core_block_patterns() {
 add_action( 'after_setup_theme', 'wpcom_unregister_core_block_patterns' );
 
 /**
- * Re-register the Query Loop patterns bundled in core, which are excluded by
- * wpcom_unregister_core_block_patterns() along with all other core patterns.
+ * Re-register a subset of the Query Loop patterns bundled in core, which are
+ * excluded by wpcom_unregister_core_block_patterns() along with all other core
+ * patterns.
+ *
+ * Only the bundled patterns with a `core/query` root block are restored. They
+ * feed the Query Loop block's pattern picker, and also appear in the inserter
+ * under the "Posts" category. Core's group-wrapped query patterns (Offset,
+ * Large title) are deliberately left out. The list is hardcoded like core's
+ * own rather than discovered from disk, because core retires patterns by
+ * delisting them while keeping the file around (e.g. the deprecated
+ * social-links-shared-background-color pattern).
  */
 function wpcom_register_core_query_block_patterns() {
-	$registry = \WP_Block_Patterns_Registry::get_instance();
-	$files    = glob( ABSPATH . WPINC . '/block-patterns/query-*.php' );
-	if ( ! $files ) {
-		return;
-	}
-	foreach ( $files as $file ) {
-		$name = 'core/' . basename( $file, '.php' );
-		if ( $registry->is_registered( $name ) ) {
+	$query_patterns = array(
+		'query-standard-posts',
+		'query-medium-posts',
+		'query-small-posts',
+		'query-grid-posts',
+	);
+	$registry       = \WP_Block_Patterns_Registry::get_instance();
+	foreach ( $query_patterns as $slug ) {
+		$name = 'core/' . $slug;
+		$file = ABSPATH . WPINC . '/block-patterns/' . $slug . '.php';
+		if ( $registry->is_registered( $name ) || ! file_exists( $file ) ) {
 			continue;
 		}
 		$pattern = require $file;
-		if ( ! is_array( $pattern ) ) {
-			continue;
-		}
-		// Require a `core/query` root block, mirroring the filter in the Query
-		// Loop pattern picker: section-style patterns that merely contain a
-		// query (e.g. wrapped in a group) shouldn't surface elsewhere either.
-		$blocks = parse_blocks( trim( $pattern['content'] ?? '' ) );
-		if ( 'core/query' !== ( $blocks[0]['blockName'] ?? null ) ) {
+		// Cheap safety net for the `core/query` root block invariant: a
+		// group-wrapped pattern would leak into the inserter, since blockTypes
+		// doesn't limit visibility there (the Query Loop picker filters
+		// non-query-root patterns client-side on its own).
+		if ( ! is_array( $pattern ) || ! str_starts_with( trim( $pattern['content'] ?? '' ), '<!-- wp:query ' ) ) {
 			continue;
 		}
 		$pattern['source'] = 'core';
