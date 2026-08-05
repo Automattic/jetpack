@@ -538,13 +538,15 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Tests that enqueue_scripts exposes whether the site runs on the WordPress.com platform.
 	 *
-	 * @param bool $is_wpcom Whether to simulate a Simple site via the IS_WPCOM constant.
+	 * @param string $platform Hosting platform to simulate: 'none', 'simple', or 'woa'.
+	 * @param string $expected Expected JSON-encoded isWpcomPlatform value.
 	 * @dataProvider provide_is_wpcom_platform
 	 */
 	#[DataProvider( 'provide_is_wpcom_platform' )]
-	public function test_enqueue_scripts_exposes_is_wpcom_platform( $is_wpcom ) {
-		if ( $is_wpcom ) {
-			Constants::set_constant( 'IS_WPCOM', true );
+	public function test_enqueue_scripts_exposes_is_wpcom_platform( $platform, $expected ) {
+		Constants::set_constant( 'IS_WPCOM', 'simple' === $platform );
+		if ( 'woa' === $platform ) {
+			Cache::set( 'is_woa_site', true );
 		}
 
 		// Set admin context - scripts only enqueue in admin.
@@ -574,10 +576,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// Find the inline script containing agentsManagerData.
 		$inline_script = implode( "\n", array_filter( $inline_scripts ) );
 
-		$this->assertStringContainsString(
-			'"isWpcomPlatform":' . ( $is_wpcom ? 'true' : 'false' ),
-			$inline_script
-		);
+		$this->assertStringContainsString( '"isWpcomPlatform":' . $expected, $inline_script );
 
 		// Clean up the filter.
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
@@ -586,12 +585,13 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Data provider for test_enqueue_scripts_exposes_is_wpcom_platform.
 	 *
-	 * @return array<string, array{0: bool}>
+	 * @return array<string, array{0: string, 1: string}>
 	 */
 	public static function provide_is_wpcom_platform() {
 		return array(
-			'non-wpcom site' => array( false ),
-			'Simple site'    => array( true ),
+			'non-wpcom site' => array( 'none', 'false' ),
+			'Simple site'    => array( 'simple', 'true' ),
+			'WoA site'       => array( 'woa', 'true' ),
 		);
 	}
 
