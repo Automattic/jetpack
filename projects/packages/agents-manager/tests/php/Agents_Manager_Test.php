@@ -536,6 +536,66 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that enqueue_scripts exposes whether the site runs on the WordPress.com platform.
+	 *
+	 * @param bool $is_wpcom Whether to simulate a Simple site via the IS_WPCOM constant.
+	 * @dataProvider provide_is_wpcom_platform
+	 */
+	#[DataProvider( 'provide_is_wpcom_platform' )]
+	public function test_enqueue_scripts_exposes_is_wpcom_platform( $is_wpcom ) {
+		if ( $is_wpcom ) {
+			Constants::set_constant( 'IS_WPCOM', true );
+		}
+
+		// Set admin context - scripts only enqueue in admin.
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'dashboard' );
+
+		// Reset the script registry to ensure test isolation.
+		global $wp_scripts;
+		$wp_scripts = null;
+
+		// Register the agents-manager script so we can attach inline script to it.
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		// Add a filter to enable unified experience.
+		add_filter(
+			'agents_manager_use_unified_experience',
+			'__return_true',
+			// Use a higher priority to ensure it runs after the class's own filter.
+			20
+		);
+
+		$this->agents_manager->enqueue_scripts();
+
+		// Re-fetch global after wp_register_script initializes it.
+		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array(); // @phan-suppress-current-line PhanTypeExpectedObjectPropAccessButGotNull
+
+		// Find the inline script containing agentsManagerData.
+		$inline_script = implode( "\n", array_filter( $inline_scripts ) );
+
+		$this->assertStringContainsString(
+			'"isWpcomPlatform":' . ( $is_wpcom ? 'true' : 'false' ),
+			$inline_script
+		);
+
+		// Clean up the filter.
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+	}
+
+	/**
+	 * Data provider for test_enqueue_scripts_exposes_is_wpcom_platform.
+	 *
+	 * @return array<string, array{0: bool}>
+	 */
+	public static function provide_is_wpcom_platform() {
+		return array(
+			'non-wpcom site' => array( false ),
+			'Simple site'    => array( true ),
+		);
+	}
+
+	/**
 	 * Tests that Help Center is dequeued in the block editor when the unified experience
 	 * (Help Center takeover) is active — Agents Manager becomes the single help affordance.
 	 */
