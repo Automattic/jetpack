@@ -63,6 +63,23 @@ export function goToNextStep() {
 }
 
 /**
+ * Steps back out of `authorizing` when a connect attempt looks abandoned.
+ *
+ * The abandonment signal is a window refocus, which also fires for an unrelated
+ * tab switch and for a late result, so this is guarded on the flow still being
+ * where the attempt left it.
+ *
+ * @return A thunk.
+ */
+export function abandonAuthorization() {
+	return function ( { dispatch, select } ) {
+		if ( select.getConnectionFlowStep() === 'authorizing' ) {
+			dispatch( goToPreviousStep() );
+		}
+	};
+}
+
+/**
  * Records a connect input value, so it survives leaving the input step.
  *
  * @param field - The input name.

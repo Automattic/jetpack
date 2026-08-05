@@ -38,7 +38,7 @@ export function PlatformInput() {
 	const {
 		setConnectionFlowInput,
 		goToNextStep,
-		goToPreviousStep,
+		abandonAuthorization,
 		cancelConnectionFlow,
 		fetchKeyringResult,
 		setKeyringResult,
@@ -107,7 +107,7 @@ export function PlatformInput() {
 			const opened = await requestAccess( formData, {
 				refresh: isReconnecting,
 				// An abandoned attempt drops back here, with the values intact.
-				onAbort: goToPreviousStep,
+				onAbort: abandonAuthorization,
 				// Surface failures in the step; a global notice sits behind the modal.
 				onError: setSubmitError,
 			} );
@@ -118,7 +118,7 @@ export function PlatformInput() {
 				goToNextStep();
 			}
 		},
-		[ error, goToNextStep, goToPreviousStep, isReconnecting, requestAccess, values ]
+		[ abandonAuthorization, error, goToNextStep, isReconnecting, requestAccess, values ]
 	);
 
 	const onChange = useCallback(
