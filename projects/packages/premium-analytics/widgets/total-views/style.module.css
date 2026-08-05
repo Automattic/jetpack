@@ -14,10 +14,10 @@
 	gap: var(--wpds-dimension-gap-sm);
 }
 
-// `Sparkline` is the responsive variant, so it fills this box: let the box take
-// whatever the headline leaves, rather than pinning it to a fixed band that
-// strands empty space as the card grows. `min-block-size: 0` is what lets a
-// flex child shrink below its content size.
+/* `Sparkline` is the responsive variant, so it fills this box: let the box take
+   whatever the headline leaves, rather than pinning it to a fixed band that
+   strands empty space as the card grows. `min-block-size: 0` is what lets a
+   flex child shrink below its content size. */
 .chart {
 	flex: 1 1 auto;
 	min-block-size: 0;

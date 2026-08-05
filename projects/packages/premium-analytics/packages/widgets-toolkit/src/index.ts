@@ -11,8 +11,6 @@ export {
 	DonutChart,
 	Legend,
 	ReportMetricWidget,
-	StatsTotalMetricWidget,
-	type StatsTotalMetricWidgetProps,
 	MetricTabsChart,
 	type MetricTab,
 	type MetricTabDatum,
@@ -153,6 +151,7 @@ export {
 	toDay,
 	defaultPeriodForInterval,
 	buildMetricTab,
+	withoutComparison,
 } from './helpers';
 
 /**
@@ -216,6 +215,7 @@ export {
 	GlobalChartsProvider,
 	HeatmapChart,
 	HeatmapChartUnresponsive,
+	Sparkline,
 	buildCalendarHeatmapData,
 	type DataPointDate,
 	type GeoChartError,
