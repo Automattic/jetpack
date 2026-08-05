@@ -75,6 +75,11 @@ allowBuilds:
   core-js-pure: false
   print-this: false
 
+# TEMPORARY: this comment is the entire diff of this branch. It exists only so
+# that a PR can be opened to serve as the control run for the build-time
+# measurement of https://github.com/WordPress/gutenberg/pull/79889. Dependencies
+# here are byte-for-byte identical to trunk.
+
 # Package compromise avoidance: Block odd protocols in subdeps
 blockExoticSubdeps: true
 
