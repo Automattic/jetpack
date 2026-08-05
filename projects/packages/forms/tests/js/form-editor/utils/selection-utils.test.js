@@ -1,8 +1,9 @@
 /**
  * Tests for selection-utils
  *
- * These tests verify the pure function that decides whether the form editor
- * should run a selection-enforcement pass on the current subscribe tick.
+ * These tests verify the pure functions that decide whether the form editor
+ * should run a selection-enforcement pass on the current subscribe tick, and
+ * whether that pass should force-select the form block.
  */
 
 import {
