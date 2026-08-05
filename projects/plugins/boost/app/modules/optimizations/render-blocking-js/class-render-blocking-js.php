@@ -653,7 +653,7 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	 *                     well, or null when the scan failed or was inconclusive.
 	 */
 	private function mask_unterminated_leading_region( $masked ) {
-		$pattern = '~</(' . implode( '|', $this->raw_text_elements() ) . ')' . $this->close_tag_tail() . '|--!?>~i';
+		$pattern = '~</(?:' . implode( '|', $this->raw_text_elements() ) . ')' . $this->close_tag_tail() . '|--!?>~i';
 		$found   = preg_match_all( $pattern, $masked, $matches, PREG_OFFSET_CAPTURE );
 
 		// preg_match_all() returns false on PCRE failure and 0 when there is simply
@@ -667,10 +667,11 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 			return $masked;
 		}
 
+		// Read the type off the matched text rather than off a capture group: how
+		// PCRE reports a group that did not take part differs by PHP version.
 		$types = array();
-		foreach ( $matches[1] as $element ) {
-			// Offset -1 means the element group did not take part: a comment close.
-			$types[ -1 === $element[1] ? 'comment' : strtolower( $element[0] ) ] = true;
+		foreach ( $matches[0] as $token ) {
+			$types[ $this->closing_token_type( $token[0] ) ] = true;
 		}
 
 		if ( count( $types ) > 1 ) {
@@ -685,6 +686,25 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 		}
 
 		return str_repeat( ' ', $region_end ) . substr( $masked, $region_end );
+	}
+
+	/**
+	 * Name the region a leftover closing token would end.
+	 *
+	 * @param string $token Matched closing token.
+	 *
+	 * @return string Element name, or 'comment' for a comment close.
+	 */
+	private function closing_token_type( $token ) {
+		$token = strtolower( $token );
+
+		foreach ( $this->raw_text_elements() as $element ) {
+			if ( 0 === strpos( $token, '</' . $element ) ) {
+				return $element;
+			}
+		}
+
+		return 'comment';
 	}
 
 	/**
@@ -708,7 +728,7 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	 */
 	private function is_inside_unmasked_region( $masked, $position ) {
 		$found = preg_match_all(
-			'~<(xmp|plaintext|noembed|noframes|noscript|template|iframe)\b|<!\[CDATA\[~i',
+			'~<(?:xmp|plaintext|noembed|noframes|noscript|template|iframe)\b|<!\[CDATA\[~i',
 			$masked,
 			$matches,
 			PREG_OFFSET_CAPTURE
@@ -719,20 +739,19 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 			return true;
 		}
 
-		foreach ( $matches[0] as $index => $opener ) {
+		foreach ( $matches[0] as $opener ) {
 			$start = $opener[1];
 			if ( $position <= $start ) {
 				continue;
 			}
 
-			$element = $matches[1][ $index ];
-			if ( -1 === $element[1] ) {
+			if ( '<!' === substr( $opener[0], 0, 2 ) ) {
 				$close = strpos( $masked, ']]>', $start );
 				$end   = false === $close ? strlen( $masked ) : $close + 3;
 			} else {
 				// An element with no closing tag in this buffer — <plaintext>, or one
 				// the '</html>' bound cut short — runs to the end of what is left.
-				$closed = preg_match( '~</' . $element[0] . $this->close_tag_tail() . '~i', $masked, $close_match, PREG_OFFSET_CAPTURE, $start );
+				$closed = preg_match( '~</' . substr( $opener[0], 1 ) . $this->close_tag_tail() . '~i', $masked, $close_match, PREG_OFFSET_CAPTURE, $start );
 				if ( false === $closed ) {
 					return true;
 				}

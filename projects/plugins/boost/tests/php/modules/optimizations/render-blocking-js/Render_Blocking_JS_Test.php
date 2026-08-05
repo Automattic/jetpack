@@ -1007,6 +1007,24 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	}
 
 	/**
+	 * And for a comment, whose close is the one leftover token that names no
+	 * element at all.
+	 */
+	public function test_body_close_in_a_comment_opened_before_the_buffer_is_not_used() {
+		$buffer = ' pasted </body></html> sample --!><p>After</p>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body></html>';
+
+		list( $buffer_start, $buffer_end ) = $this->instance->handle_output_stream( $buffer, '' );
+
+		$output = $this->instance->append_script_tags( $buffer_start . $buffer_end );
+
+		$this->assertStringContainsString( ' pasted </body></html> sample --!>', $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringEndsWith( '<script>console.log("movable sibling");</script>', $output );
+	}
+
+	/**
 	 * A closing token of one type inside a region of another is ordinary text, not
 	 * the end of the region: '</script>' pasted into a <textarea> is RCDATA. With
 	 * only the window to go on there is no way to tell which region opened, so a
