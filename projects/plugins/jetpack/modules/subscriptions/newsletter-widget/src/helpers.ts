@@ -1,5 +1,6 @@
 import analytics from '@automattic/jetpack-analytics';
 import { dateI18n } from '@wordpress/date';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '../../../../_inc/shared/analytics-url';
 import { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from './types';
 
 /**
@@ -44,11 +45,19 @@ export const buildJPRedirectSource = ( url: string, isWpcomSite: boolean = true 
 /**
  * Generates the URL for subscriber statistics based on site context.
  *
+ * Points at the Premium Analytics dashboard where that is the site's analytics
+ * UI, and at the Stats deep link everywhere else.
+ *
  * @param {string} site     - The site identifier
  * @param {string} adminUrl - The admin URL for self-hosted sites
- * @returns {string} The appropriate subscriber stats URL
+ * @returns {?string} The appropriate subscriber stats URL, or null when the
+ *                   dashboard is the analytics UI but this user cannot open it.
  */
-export const getSubscriberStatsUrl = ( site: string, adminUrl: string ): string => {
+export const getSubscriberStatsUrl = ( site: string, adminUrl: string ): string | null => {
+	if ( hasAnalyticsDashboard() ) {
+		return getAnalyticsUrl( { view: 'dashboard', section: 'subscribers' } );
+	}
+
 	return `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`;
 };
 

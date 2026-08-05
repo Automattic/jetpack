@@ -22,6 +22,15 @@ class Jetpack {
 
 	static $return_false = false; // Force return false in action methods.
 
+	// Whether the Premium Analytics dashboard replaces the Stats page. Named apart from the real
+	// plugin's own private static of the same purpose, so tests setting it can't be confused for
+	// reaching into that one.
+	static $mock_premium_analytics_enabled = false;
+
+	public static function is_premium_analytics_enabled() {
+		return self::$mock_premium_analytics_enabled;
+	}
+
 	public static function is_module_active( $module_name ) {
 		return in_array( $module_name, self::$active_modules );
 	}

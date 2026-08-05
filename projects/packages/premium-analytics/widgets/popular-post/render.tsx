@@ -6,37 +6,41 @@ import {
 	PostHighlightCard,
 	WidgetRoot,
 	WidgetState,
+	describeError,
 	useWidgetRootContext,
 	type PostHighlightCardMetric,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { postList } from '@wordpress/icons';
+import { trendingUp } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { useLatestPost } from './use-latest-post';
-import type { LatestPostAttributes } from './widget';
+import { usePopularPost } from './use-popular-post';
+import type { PopularPostAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-// Report params are dashboard-driven, but this widget reports lifetime totals
-// and ignores the date range; the host (and Storybook) may still inject them.
-type LatestPostRenderAttributes = LatestPostAttributes & Partial< ReportParamsFieldAttributes >;
-type LatestPostWidgetProps = WidgetRenderProps< LatestPostRenderAttributes >;
+// Unlike Latest post, this widget is period-scoped: the host injects the
+// dashboard date range through `reportParams`.
+type PopularPostRenderAttributes = PopularPostAttributes & Partial< ReportParamsFieldAttributes >;
+type PopularPostWidgetProps = WidgetRenderProps< PopularPostRenderAttributes >;
 
 /**
- * Fetches the site's latest post (with its metrics) through `useLatestPost` and
- * hands it to the shared `PostHighlightCard`, with loading, error, and empty
- * states handled by `<WidgetState>`.
+ * Fetches the period's most-viewed post through `usePopularPost` and hands it to
+ * the shared `PostHighlightCard`, with loading, error, and empty states handled
+ * by `<WidgetState>`.
  *
- * Every tile is a lifetime total, so no tile carries an aggregation note.
+ * The dashboard's date range picks which post is shown; all three tiles are
+ * all-time totals from the Stats post endpoint, so they share one window and
+ * need no per-tile aggregation note — the same treatment as `Latest post`,
+ * which shares this card.
  *
  * @return The widget content.
  */
-function LatestPostReport() {
-	const { post, isLoading, isFetching, isError, refetch } = useLatestPost();
+function PopularPostReport() {
 	const { reportParams } = useWidgetRootContext();
+	const { post, isLoading, isFetching, isError, error, refetch } = usePopularPost( reportParams );
 	// The detail page opens on the dashboard's current window.
 	const detailSearch = useMemo( () => pickReportDateParams( reportParams ), [ reportParams ] );
 
@@ -62,16 +66,16 @@ function LatestPostReport() {
 			isFetching={ isFetching }
 			isError={ isError }
 			isEmpty={ ! post }
-			error={ {
-				description: __(
-					"We couldn't load your latest post. Please try again in a moment.",
+			error={ describeError( error, {
+				retryDescription: __(
+					"We couldn't load your most popular post. Please try again in a moment.",
 					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
-			} }
+				onRetry: refetch,
+			} ) }
 			empty={ {
-				icon: postList,
-				description: __( 'Publish a post to see its stats here.', 'jetpack-premium-analytics-pkg' ),
+				icon: trendingUp,
+				description: __( 'No post views in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			{ post && (
@@ -93,17 +97,17 @@ function LatestPostReport() {
 /**
  * Widget render entry point.
  *
- * WidgetRoot provides the analytics query client and chart theme the inner card
- * relies on. This widget has no own attributes and ignores the dashboard date
- * range, but host attributes are still passed through for the widget contract.
+ * WidgetRoot provides the analytics query client, the chart theme, and the
+ * dashboard's `reportParams` that the inner report reads through
+ * `useWidgetRootContext()`.
  *
- * @param {LatestPostWidgetProps} props - The widget render props.
+ * @param {PopularPostWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
-export default function LatestPost( { attributes = {} }: LatestPostWidgetProps ) {
+export default function PopularPost( { attributes = {} }: PopularPostWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<LatestPostReport />
+			<PopularPostReport />
 		</WidgetRoot>
 	);
 }

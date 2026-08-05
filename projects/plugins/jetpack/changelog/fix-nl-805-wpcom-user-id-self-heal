@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Content: self-heal the wpcom_user_id link on a local WordPress account from a freshly-verified magic-link token, so subscription access can be recognized on subsequent visits without another login round trip.
