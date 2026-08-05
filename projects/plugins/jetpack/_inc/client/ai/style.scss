@@ -102,7 +102,7 @@ body.jetpack_page_jetpack-ai {
 	justify-content: space-between;
 }
 
-// The badge doubles as a tooltip trigger — a real button, so keyboard focus
+// The badge doubles as a popover trigger — a real button, so keyboard focus
 // and screen readers reach the remedy copy. Strip the button chrome so only
 // the badge itself shows (same reset as the Forms "Not collecting" badge).
 .jetpack-ai-features__upgrade-badge {

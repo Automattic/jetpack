@@ -45,55 +45,56 @@ describe( 'AiFeatures rendering', () => {
 		expect( screen.getByText( 'Learn more' ) ).toBeInTheDocument();
 	} );
 
-	test( 'no Search entitlement: the badge tooltip names the upgrade remedy', () => {
+	test( 'no Search entitlement: the badge popover names the upgrade remedy', async () => {
 		renderFeatures( { plan: { supports_ai: true, supports_search: false } } );
 
-		expect( screen.getByText( 'Requires upgrade' ) ).toBeInTheDocument();
-		expect(
-			screen.getByRole( 'button', { name: 'Requires Jetpack Search or Complete plans' } )
-		).toBeInTheDocument();
+		// The popover trigger is named by its visible text (WCAG 2.5.3).
+		await userEvent.click( screen.getByRole( 'button', { name: 'Requires upgrade' } ) );
+		await expect(
+			screen.findByText( 'Requires Jetpack Search or Complete plans' )
+		).resolves.toBeInTheDocument();
 	} );
 
-	test( 'Search plan present but not set up: the badge tooltip points at setup', () => {
+	test( 'Search plan present but not set up: the badge popover points at setup', async () => {
 		renderFeatures( { plan: { supports_ai: true, supports_search: true } } );
 
-		expect( screen.getByText( 'Requires upgrade' ) ).toBeInTheDocument();
-		expect(
-			screen.getByRole( 'button', { name: 'Set up Jetpack Search to enable this feature' } )
-		).toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Requires upgrade' } ) );
+		await expect(
+			screen.findByText( 'Set up Jetpack Search to enable this feature' )
+		).resolves.toBeInTheDocument();
 	} );
 
-	test( 'free Search plan: the remedy is an upgrade, not setup', () => {
+	test( 'free Search plan: the remedy is an upgrade, not setup', async () => {
 		// The free tier reports supports_search, but AI Search needs the paid
 		// product — the setup copy would send the user down the wrong path.
 		renderFeatures( {
 			plan: { supports_ai: true, supports_search: true, is_free_search_plan: true },
 		} );
 
+		await userEvent.click( screen.getByRole( 'button', { name: 'Requires upgrade' } ) );
+		await expect(
+			screen.findByText( 'Requires Jetpack Search or Complete plans' )
+		).resolves.toBeInTheDocument();
 		expect(
-			screen.getByRole( 'button', { name: 'Requires Jetpack Search or Complete plans' } )
-		).toBeInTheDocument();
-		expect(
-			screen.queryByRole( 'button', { name: 'Set up Jetpack Search to enable this feature' } )
+			screen.queryByText( 'Set up Jetpack Search to enable this feature' )
 		).not.toBeInTheDocument();
 	} );
 
-	test( 'no plan data at all: falls back to the upgrade copy, not setup', () => {
+	test( 'no plan data at all: falls back to the upgrade copy, not setup', async () => {
 		// Entitlement must be proven, not assumed — with `plan` missing the
 		// setup copy would send an unentitled site down the wrong path.
 		renderFeatures();
 
-		expect(
-			screen.getByRole( 'button', { name: 'Requires Jetpack Search or Complete plans' } )
-		).toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Requires upgrade' } ) );
+		await expect(
+			screen.findByText( 'Requires Jetpack Search or Complete plans' )
+		).resolves.toBeInTheDocument();
 	} );
 
-	test( 'hovering the badge opens the tooltip with the case copy', async () => {
+	test( 'hovering the badge opens the popover with the case copy', async () => {
 		renderFeatures( { plan: { supports_ai: true, supports_search: false } } );
 
-		await userEvent.hover(
-			screen.getByRole( 'button', { name: 'Requires Jetpack Search or Complete plans' } )
-		);
+		await userEvent.hover( screen.getByRole( 'button', { name: 'Requires upgrade' } ) );
 
 		await expect(
 			screen.findByText( 'Requires Jetpack Search or Complete plans' )

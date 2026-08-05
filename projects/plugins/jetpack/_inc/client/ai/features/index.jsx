@@ -11,7 +11,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ToggleControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Badge, Card, Link, Notice, Stack, Text, Tooltip } from '@wordpress/ui';
+import { Badge, Card, Link, Notice, Popover, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import analytics from 'lib/analytics';
 
 // Server-computed target for the AI SEO row: the dedicated Jetpack SEO page
@@ -316,17 +316,29 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 								</Text>
 								{ isConnected &&
 									section.features.some( f => features[ f.key ]?.requires_upgrade ) && (
-										<Tooltip.Root>
-											<Tooltip.Trigger
+										<Popover.Root>
+											{ /* A popover rather than a tooltip: click opens it, touch
+											     works, and screen readers announce the remedy copy —
+											     the shape agreed with design on the PR. The trigger's
+											     accessible name is its visible badge text. */ }
+											<Popover.Trigger
+												openOnHover
+												delay={ 200 }
+												closeDelay={ 200 }
 												className="jetpack-ai-features__upgrade-badge"
-												aria-label={ upgradeBadgeTooltip }
 											>
 												<Badge intent="informational">
 													{ __( 'Requires upgrade', 'jetpack' ) }
 												</Badge>
-											</Tooltip.Trigger>
-											<Tooltip.Popup>{ upgradeBadgeTooltip }</Tooltip.Popup>
-										</Tooltip.Root>
+											</Popover.Trigger>
+											<Popover.Popup>
+												<Popover.Arrow />
+												<VisuallyHidden render={ <Popover.Title /> }>
+													{ __( 'Requires upgrade', 'jetpack' ) }
+												</VisuallyHidden>
+												<Popover.Description>{ upgradeBadgeTooltip }</Popover.Description>
+											</Popover.Popup>
+										</Popover.Root>
 									) }
 							</div>
 							{ section.features.map( feature => renderRow( feature ) ) }
