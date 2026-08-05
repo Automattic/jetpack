@@ -972,6 +972,31 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	}
 
 	/**
+	 * The same shape with no literal '</body>' in the flushed region, so the scan
+	 * resolves the region rather than failing closed and the document's own
+	 * closing tag is reached. The '</html>' inside the region must not bound the
+	 * search: that would truncate the buffer before the real closing tag and cost
+	 * the page an insertion point it has.
+	 */
+	public function test_closing_html_inside_a_resolved_leading_region_does_not_bound_the_search() {
+		// The buffer starts mid-<textarea>: its opening tag was flushed earlier.
+		$buffer = 'pasted </html> sample</textarea><p>After</p>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body></html>';
+
+		list( $buffer_start, $buffer_end ) = $this->instance->handle_output_stream( $buffer, '' );
+
+		$output = $this->instance->append_script_tags( $buffer_start . $buffer_end );
+
+		$this->assertStringContainsString( 'pasted </html> sample</textarea>', $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString(
+			'<script>console.log("movable sibling");</script></body></html>',
+			$output
+		);
+	}
+
+	/**
 	 * The same shape for a <style> block, which is the other region a theme or a
 	 * caching plugin routinely emits larger than one output chunk.
 	 */
@@ -1124,10 +1149,14 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	/**
 	 * The contents of these elements are text to a browser, not markup, so a
 	 * literal '</body>' in one is not a closing tag. They are too unreliable to
-	 * pair — <plaintext> has no closing tag, <template> nests — so instead the
-	 * chosen offset is rejected when it lands inside one, and the scripts are
-	 * appended after the buffer, where they still execute. Choosing the decoy
-	 * would put every deferred script inside inert content and run none of them.
+	 * pair — <plaintext> has no closing tag, <template> nests — so their spans are
+	 * collected separately and an offset landing in one is rejected. Choosing the
+	 * decoy would put every deferred script inside inert content and run none of
+	 * them.
+	 *
+	 * Each decoy here follows the document's own closing tag, so rejecting it must
+	 * not end the search: the candidate before it is the right one, and settling
+	 * for an append would leave the scripts outside the document for no reason.
 	 *
 	 * @param string $decoy Markup holding a literal '</body>' in inert content.
 	 * @dataProvider provide_unmasked_raw_text_decoys
@@ -1142,7 +1171,10 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 
 		$this->assertStringContainsString( $decoy, $output );
 		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
-		$this->assertStringEndsWith( '<script>console.log("movable sibling");</script>', $output );
+		$this->assertStringContainsString(
+			'<script>console.log("movable sibling");</script></body>' . $decoy,
+			$output
+		);
 	}
 
 	/**
@@ -1162,6 +1194,177 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 			// <plaintext> has no closing tag: everything after it is text.
 			'plaintext' => array( '<plaintext></body>' ),
 		);
+	}
+
+	/**
+	 * <template> is the one element here that nests, so its span has to be tracked
+	 * by depth. Pairing each opener with the first closing tag after it ends the
+	 * outer template at the inner one's close and leaves the decoy between them
+	 * looking like markup.
+	 */
+	public function test_nested_template_is_tracked_by_depth() {
+		$html = '<html><body>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body><template><template>inner</template> </body> still inside</template></html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertStringContainsString( '<template>inner</template> </body> still inside</template>', $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString( 'movable sibling");</script></body><template>', $output );
+	}
+
+	/**
+	 * Inside a raw-text element nothing is markup, so an opening tag in its
+	 * contents does not start a region of its own and the element's own closing
+	 * tag still ends it. Treating that inner tag as a real opener would leave a
+	 * region open to the end of the buffer and cost the page its insertion point.
+	 */
+	public function test_a_tag_inside_a_raw_text_element_is_text_not_a_region() {
+		$html = '<html><body>' .
+			'<script>console.log("movable sibling");</script>' .
+			'<iframe>markup: <template> </body></iframe></body></html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertStringContainsString( '<iframe>markup: <template> </body></iframe>', $output );
+		$this->assertStringContainsString( '</iframe><script>console.log("movable sibling");</script></body>', $output );
+	}
+
+	/**
+	 * An element of this kind with no closing tag in the buffer runs to the end of
+	 * it: the browser is still inside it when the response ends, so nothing after
+	 * the opener is a closing tag, and a candidate there has to be rejected in
+	 * favour of the one before the opener.
+	 *
+	 * @param string $trailer Trailing markup opening an inert element it never closes.
+	 * @dataProvider provide_unclosed_inert_elements
+	 */
+	#[DataProvider( 'provide_unclosed_inert_elements' )]
+	public function test_unclosed_inert_element_covers_the_rest_of_the_buffer( $trailer ) {
+		$html = '<html><body>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body>' . $trailer . '</html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertStringContainsString( $trailer, $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString(
+			'<script>console.log("movable sibling");</script></body>' . $trailer,
+			$output
+		);
+	}
+
+	/**
+	 * Data provider: trailing output that opens an inert element and never closes it.
+	 *
+	 * @return array<string, string[]>
+	 */
+	public static function provide_unclosed_inert_elements() {
+		return array(
+			'iframe'    => array( '<iframe>decoy </body>' ),
+			'noembed'   => array( '<noembed>decoy </body>' ),
+			'template'  => array( '<template>decoy </body>' ),
+			'cdata'     => array( '<svg><![CDATA[decoy </body>' ),
+			// <plaintext> has no closing tag in any tokenizer state, so it is the
+			// same case by construction rather than by the trailer being truncated.
+			'plaintext' => array( '<plaintext>decoy </body>' ),
+		);
+	}
+
+	/**
+	 * PCRE counts a vertical tab as whitespace and HTML does not. Accepting it as
+	 * a closing-tag delimiter ends a region the browser is still inside, and the
+	 * decoy after it then looks like the document's closing tag.
+	 */
+	public function test_vertical_tab_does_not_end_a_tag() {
+		$html = '<html><body>' .
+			'<script>console.log("movable sibling");</script>' .
+			"</body><iframe>a</iframe\x0b> </body> b</iframe></html>";
+
+		$output = $this->filter_output( $html );
+
+		$this->assertStringContainsString( "<iframe>a</iframe\x0b> </body> b</iframe>", $output );
+		$this->assertStringContainsString( 'movable sibling");</script></body><iframe>', $output );
+	}
+
+	/**
+	 * A custom element's name must contain a hyphen, so every one of these begins
+	 * with the name of an element this class models. A word boundary succeeds
+	 * before a hyphen, which read them as the element they are named after and, in
+	 * the raw-text cases, masked the rest of the document as that element's body.
+	 *
+	 * @param string $element Custom element name.
+	 * @dataProvider provide_custom_element_names
+	 */
+	#[DataProvider( 'provide_custom_element_names' )]
+	public function test_custom_element_is_not_read_as_the_element_it_is_named_after( $element ) {
+		$html = '<html><body>' .
+			'<script>console.log("movable sibling");</script>' .
+			'<' . $element . '>content</' . $element . '></body></html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString(
+			'</' . $element . '><script>console.log("movable sibling");</script></body>',
+			$output
+		);
+	}
+
+	/**
+	 * Data provider: custom elements named after elements this class models.
+	 *
+	 * @return array<string, string[]>
+	 */
+	public static function provide_custom_element_names() {
+		return array(
+			'iframe-widget'  => array( 'iframe-widget' ),
+			'template-part'  => array( 'template-part' ),
+			'script-loader'  => array( 'script-loader' ),
+			'title-bar'      => array( 'title-bar' ),
+			'noscript-shim'  => array( 'noscript-shim' ),
+			'textarea-field' => array( 'textarea-field' ),
+		);
+	}
+
+	/**
+	 * Each raw-text arm of the mask is lazy and unanchored, so an opening tag with
+	 * no closing tag costs a scan to the end of the buffer and the engine retries
+	 * that at every such opener. Page content is author-controlled and some of it
+	 * reaches the front end through KSES, so past a small budget the search is
+	 * abandoned rather than run.
+	 */
+	public function test_a_buffer_full_of_unclosed_raw_text_openers_is_not_searched() {
+		$html = '<html><body>' .
+			'<script>console.log("movable sibling");</script>' .
+			str_repeat( '<title>x', 64 ) .
+			'</body></html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringEndsWith( '<script>console.log("movable sibling");</script>', $output );
+	}
+
+	/**
+	 * <plaintext> puts the tokenizer in a state with no exit, so everything after
+	 * it is character data to the end of the file — closing tags included. There
+	 * is no insertion point after one, and appending is not an executable fallback
+	 * either; the scripts are appended because leaving the markup alone is still
+	 * the better of the two, not because they run from there.
+	 */
+	public function test_no_insertion_point_is_chosen_after_plaintext() {
+		$html = '<html><body>' .
+			'<script>console.log("movable sibling");</script>' .
+			'<plaintext>trailing </body></html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertStringContainsString( '<plaintext>trailing </body></html>', $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringEndsWith( '<script>console.log("movable sibling");</script>', $output );
 	}
 
 	/**
@@ -1271,6 +1474,10 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	}
 
 	/**
+	 * When the mask itself fails, nothing about the buffer has been established,
+	 * so no position may be chosen. The scripts are appended after the buffer and
+	 * no existing markup is rewritten.
+	 *
 	 * The mask and the scan for a region opened before the buffer fail closed
 	 * independently. This limit is high enough for the scan to complete and low
 	 * enough for the mask — which has to backtrack through a long lazy region — to
@@ -1296,6 +1503,7 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 			ini_set( 'pcre.backtrack_limit', false === $original_limit ? '1000000' : $original_limit ); // phpcs:ignore WordPress.PHP.IniSet.Risky -- Restore original limit.
 		}
 
+		$this->assertStringContainsString( "var trailing = '" . str_repeat( 'x', 200 ) . "</body>';", $output );
 		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
 		$this->assertStringEndsWith( '<script>console.log("movable sibling");</script>', $output );
 	}
@@ -1397,38 +1605,6 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 		$this->assertStringContainsString( '<p>injected by the host: </body></p>', $output );
 		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
 		$this->assertStringContainsString( 'console.log("movable sibling");</script></body></HTML>', $output );
-	}
-
-	/**
-	 * When the mask itself fails, nothing about the buffer has been established,
-	 * so no position may be chosen. The scripts are appended after the buffer —
-	 * they still run and no existing markup is rewritten.
-	 *
-	 * A backtrack limit of 1 forces the failure deterministically; the real-world
-	 * trigger is a single inline region approaching a megabyte.
-	 */
-	public function test_scripts_are_appended_when_region_masking_fails() {
-		$html = '<html><body><p>Before</p>' .
-			'<script>console.log("movable sibling");</script>' .
-			'</body><script data-jetpack-boost="ignore">var trailing = \'</body>\';</script></html>';
-
-		// Collect the movable script before lowering the limit, so only the mask
-		// inside append_script_tags() is affected.
-		list( $buffer_start, $buffer_end ) = $this->instance->handle_output_stream( $html, '' );
-
-		$output         = '';
-		$original_limit = ini_get( 'pcre.backtrack_limit' );
-		ini_set( 'pcre.backtrack_limit', '1' ); // phpcs:ignore WordPress.PHP.IniSet.Risky -- Restored below; forces a PCRE failure deterministically.
-
-		try {
-			$output = $this->instance->append_script_tags( $buffer_start . $buffer_end );
-		} finally {
-			ini_set( 'pcre.backtrack_limit', false === $original_limit ? '1000000' : $original_limit ); // phpcs:ignore WordPress.PHP.IniSet.Risky -- Restore original limit.
-		}
-
-		$this->assertStringContainsString( "var trailing = '</body>';", $output );
-		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
-		$this->assertStringEndsWith( '<script>console.log("movable sibling");</script>', $output );
 	}
 
 	/**
