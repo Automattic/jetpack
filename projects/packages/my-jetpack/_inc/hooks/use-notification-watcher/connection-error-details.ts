@@ -124,22 +124,43 @@ export function getConnectionErrorScope(
 }
 
 /**
+ * How to phrase a detail line.
+ */
+export type ConnectionErrorDetailOptions = {
+	/** How many errors this line stands for. Unused when the scope is omitted. */
+	count?: number;
+	/** Leave the scope out and return the code alone. */
+	omitScope?: boolean;
+};
+
+/**
  * Build the supporting detail line shown under an error's message: the scope it
  * applies to, plus the raw error code when one is available so the error can be
  * quoted verbatim to support.
  *
- * @param {ConnectionErrorObject} error  - The error to describe.
- * @param {ConnectionErrorViewer} viewer - Who is looking at the notice.
- * @param {number}                count  - How many errors this line stands for.
- * @return {string} The detail line.
+ * @param {ConnectionErrorObject}        error   - The error to describe.
+ * @param {ConnectionErrorViewer}        viewer  - Who is looking at the notice.
+ * @param {ConnectionErrorDetailOptions} options - How to phrase the line.
+ * @return {string} The detail line, empty when there is nothing left to say.
  */
 export function getConnectionErrorDetail(
 	error: ConnectionErrorObject,
 	viewer: ConnectionErrorViewer = {},
-	count: number = 1
+	{ count = 1, omitScope = false }: ConnectionErrorDetailOptions = {}
 ): string {
-	const scope = getConnectionErrorScope( error, viewer, count );
 	const code = typeof error?.error_code === 'string' ? error.error_code : '';
+
+	if ( omitScope ) {
+		return code
+			? sprintf(
+					/* translators: %s is the raw error code. */
+					__( 'Error code: %s', 'jetpack-my-jetpack' ),
+					code
+			  )
+			: '';
+	}
+
+	const scope = getConnectionErrorScope( error, viewer, count );
 
 	if ( ! code ) {
 		return scope;
@@ -172,19 +193,27 @@ export type ConnectionErrorDetailLine = {
  * account". Rendering those verbatim looks like a duplication bug, so collapse
  * them into a single counted line.
  *
- * @param {ConnectionErrorObject[]} errors - The errors to describe.
- * @param {ConnectionErrorViewer}   viewer - Who is looking at the notice.
+ * @param {ConnectionErrorObject[]} errors    - The errors to describe.
+ * @param {ConnectionErrorViewer}   viewer    - Who is looking at the notice.
+ * @param {boolean}                 omitScope - Leave the scope out, for when it is already in the title.
  * @return {ConnectionErrorDetailLine[]} The deduplicated detail lines.
  */
 export function getConnectionErrorDetailLines(
 	errors: ConnectionErrorObject[],
-	viewer: ConnectionErrorViewer = {}
+	viewer: ConnectionErrorViewer = {},
+	omitScope: boolean = false
 ): ConnectionErrorDetailLine[] {
 	// Keyed by the line each error would render as.
 	const lines = new Map< string, { error: ConnectionErrorObject; count: number } >();
 
 	for ( const error of errors ) {
-		const detail = getConnectionErrorDetail( error, viewer );
+		const detail = getConnectionErrorDetail( error, viewer, { omitScope } );
+
+		// Without a scope, a codeless error has nothing left to say.
+		if ( ! detail ) {
+			continue;
+		}
+
 		const existing = lines.get( detail );
 
 		if ( existing ) {
@@ -196,8 +225,22 @@ export function getConnectionErrorDetailLines(
 
 	return [ ...lines.entries() ].map( ( [ detail, { error, count } ] ) => ( {
 		key: detail,
-		text: getConnectionErrorDetail( error, viewer, count ),
+		text: getConnectionErrorDetail( error, viewer, { count, omitScope } ),
 	} ) );
+}
+
+/**
+ * Whether the notice title names the error's scope. When it does, the detail
+ * line below it must not repeat it.
+ *
+ * `getConnectionErrorTitle` and its detail lines have to agree on this, so both
+ * ask in this helper rather than each carrying its own copy of the rule.
+ *
+ * @param {ConnectionErrorObject[]} errors - The displayable errors.
+ * @return {boolean} Whether the title states the scope.
+ */
+export function titleIncludesScope( errors: ConnectionErrorObject[] ): boolean {
+	return errors.length === 1;
 }
 
 /**
@@ -212,6 +255,14 @@ export function getConnectionErrorTitle(
 	errors: ConnectionErrorObject[],
 	viewer: ConnectionErrorViewer = {}
 ): string {
+	if ( titleIncludesScope( errors ) ) {
+		return sprintf(
+			/* translators: %s is what the error applies to, e.g. "Site connection" or "Your account". */
+			__( 'Jetpack connection error: %s', 'jetpack-my-jetpack' ),
+			getConnectionErrorScope( errors[ 0 ], viewer )
+		);
+	}
+
 	if ( errors.length > 1 ) {
 		return sprintf(
 			/* translators: %d is the number of connection errors found. */
@@ -222,14 +273,6 @@ export function getConnectionErrorTitle(
 				'jetpack-my-jetpack'
 			),
 			errors.length
-		);
-	}
-
-	if ( errors.length === 1 ) {
-		return sprintf(
-			/* translators: %s is what the error applies to, e.g. "Site connection" or "Your account". */
-			__( 'Jetpack connection error: %s', 'jetpack-my-jetpack' ),
-			getConnectionErrorScope( errors[ 0 ], viewer )
 		);
 	}
 

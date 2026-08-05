@@ -5,6 +5,7 @@ import {
 	getConnectionErrorScope,
 	getConnectionErrorTitle,
 	groupConnectionErrorsByMessage,
+	titleIncludesScope,
 } from '../connection-error-details';
 import type { ConnectionErrorMap, ConnectionErrorObject } from '@automattic/jetpack-connection';
 
@@ -218,9 +219,27 @@ describe( 'getConnectionErrorDetail', () => {
 	it( 'passes the count through to the scope', () => {
 		const error = anError( { audience: 'user', user_id: '9', error_code: 'invalid_token' } );
 
-		expect( getConnectionErrorDetail( error, { currentUserId: 7 }, 2 ) ).toBe(
+		expect( getConnectionErrorDetail( error, { currentUserId: 7 }, { count: 2 } ) ).toBe(
 			"2 other users' accounts · Error code: invalid_token"
 		);
+	} );
+
+	// The scope is in the notice title for a single error, so repeating it in the
+	// line below reads as a duplication bug.
+	describe( 'with the scope omitted', () => {
+		it( 'returns the code alone', () => {
+			const error = anError( { audience: 'owner', error_code: 'invalid_connection_owner' } );
+
+			expect( getConnectionErrorDetail( error, { isOwner: true }, { omitScope: true } ) ).toBe(
+				'Error code: invalid_connection_owner'
+			);
+		} );
+
+		it( 'returns nothing when there is no code left to show', () => {
+			expect(
+				getConnectionErrorDetail( anError( { audience: 'site' } ), {}, { omitScope: true } )
+			).toBe( '' );
+		} );
 	} );
 } );
 
@@ -281,6 +300,53 @@ describe( 'getConnectionErrorDetailLines', () => {
 
 	it( 'returns nothing for no errors', () => {
 		expect( getConnectionErrorDetailLines( [] ) ).toEqual( [] );
+	} );
+
+	describe( 'with the scope omitted', () => {
+		it( 'renders the code alone', () => {
+			const errors = [ anError( { audience: 'owner', error_code: 'invalid_connection_owner' } ) ];
+
+			expect(
+				getConnectionErrorDetailLines( errors, { isOwner: true }, true ).map( line => line.text )
+			).toEqual( [ 'Error code: invalid_connection_owner' ] );
+		} );
+
+		// Without the scope there is nothing to distinguish them, and nothing worth
+		// counting either — the count only ever qualified the scope.
+		it( 'collapses errors sharing a code across different scopes', () => {
+			const errors = [
+				anError( { audience: 'user', user_id: '9', error_code: 'invalid_token' } ),
+				anError( { audience: 'user', user_id: '11', error_code: 'invalid_token' } ),
+			];
+
+			expect(
+				getConnectionErrorDetailLines( errors, { currentUserId: 7 }, true ).map( line => line.text )
+			).toEqual( [ 'Error code: invalid_token' ] );
+		} );
+
+		it( 'drops an error that has no code, leaving nothing to render', () => {
+			expect(
+				getConnectionErrorDetailLines( [ anError( { audience: 'site' } ) ], {}, true )
+			).toEqual( [] );
+		} );
+	} );
+} );
+
+// The title and the detail lines below it have to agree on who states the
+// scope, or it either doubles up or vanishes from the notice entirely.
+describe( 'titleIncludesScope', () => {
+	it( 'is true for a single error, which the title names', () => {
+		expect( titleIncludesScope( [ anError( { audience: 'site' } ) ] ) ).toBe( true );
+	} );
+
+	it( 'is false when the title counts errors instead of naming one', () => {
+		expect(
+			titleIncludesScope( [ anError( { audience: 'site' } ), anError( { audience: 'owner' } ) ] )
+		).toBe( false );
+	} );
+
+	it( 'is false when there is nothing to name', () => {
+		expect( titleIncludesScope( [] ) ).toBe( false );
 	} );
 } );
 

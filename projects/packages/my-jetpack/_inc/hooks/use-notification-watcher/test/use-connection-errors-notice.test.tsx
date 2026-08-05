@@ -6,6 +6,7 @@ import useAnalytics from '../../use-analytics';
 import { assignLocation } from '../assignLocation';
 import useConnectionErrorsNotice from '../use-connection-errors-notice';
 import type { NoticeContextType } from '../../../context/notices/types';
+import type { ConnectionErrorObject } from '@automattic/jetpack-connection';
 import type { ReactNode } from 'react';
 
 // Mock the dependencies. Use a factory for the connection package so its full
@@ -281,6 +282,50 @@ describe( 'useConnectionErrorsNotice', () => {
 		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].options.tracksArgs.error_count ).toBe( 2 );
 	} );
 
+	// On a site with ownership locked, the owner's error is informational and the
+	// hook hands back a different error for the CTA. Reporting the first error in
+	// map order would attribute reconnect clicks to the one no button acts on.
+	it( 'reports the error the CTA belongs to, not the first in the map', async () => {
+		const actionableError: ConnectionErrorObject = {
+			error_message: 'Your connection with WordPress.com seems to be broken.',
+			error_code: 'invalid_token',
+			user_id: '7',
+			audience: 'user',
+		};
+
+		mockUseConnectionErrorNotice.mockReturnValue( {
+			...noError,
+			hasConnectionError: true,
+			connectionErrorMessage: actionableError.error_message,
+			connectionError: actionableError,
+			connectionErrors: {
+				invalid_connection_owner: {
+					3: {
+						error_message: 'The connection owner needs to reconnect their account.',
+						error_code: 'invalid_connection_owner',
+						user_id: '3',
+						audience: 'owner',
+						error_data: { action: 'none' },
+					},
+				},
+				invalid_token: { 7: actionableError },
+			},
+			actions: [ { label: 'Restore Connection', onClick: jest.fn() } ],
+		} );
+
+		renderWithNoticeContext();
+
+		await waitFor( () => {
+			expect( mockSetNotice ).toHaveBeenCalled();
+		} );
+
+		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].options.tracksArgs ).toEqual( {
+			error_count: 2,
+			error_code: 'invalid_token',
+			audience: 'user',
+		} );
+	} );
+
 	// Several admins can hit one error code. Each is a distinct error, but they
 	// all describe the same thing to this viewer, so rendering them verbatim
 	// repeats an identical line and reads as a duplication bug.
@@ -375,10 +420,12 @@ describe( 'useConnectionErrorsNotice', () => {
 			expect( mockSetNotice ).toHaveBeenCalled();
 		} );
 
-		expect( getNoticeText() ).toContain( "Another user's account" );
 		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].title ).toBe(
 			"Jetpack connection error: Another user's account"
 		);
+		// The title already says whose account it is, so the line below it doesn't.
+		expect( getNoticeText() ).toContain( 'Error code: invalid_token' );
+		expect( getNoticeText() ).not.toContain( "Another user's account ·" );
 	} );
 
 	it( 'names the connection owner for an owner-audience error seen by someone else', async () => {
@@ -404,7 +451,9 @@ describe( 'useConnectionErrorsNotice', () => {
 			expect( mockSetNotice ).toHaveBeenCalled();
 		} );
 
-		expect( getNoticeText() ).toContain( "Connection owner's account (Site Owner)" );
+		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].title ).toBe(
+			"Jetpack connection error: Connection owner's account (Site Owner)"
+		);
 	} );
 
 	it( 'tells the connection owner the broken token is their own', async () => {
@@ -434,10 +483,10 @@ describe( 'useConnectionErrorsNotice', () => {
 			expect( mockSetNotice ).toHaveBeenCalled();
 		} );
 
-		expect( getNoticeText() ).toContain( 'Your account (connection owner)' );
 		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].title ).toBe(
 			'Jetpack connection error: Your account (connection owner)'
 		);
+		expect( getNoticeText() ).toContain( 'Error code: invalid_connection_owner' );
 	} );
 
 	it( 'omits the owner name when the viewer may not see the owner identity', async () => {
@@ -466,10 +515,10 @@ describe( 'useConnectionErrorsNotice', () => {
 			expect( mockSetNotice ).toHaveBeenCalled();
 		} );
 
-		const noticeText = getNoticeText();
-
-		expect( noticeText ).toContain( "Connection owner's account" );
-		expect( noticeText ).not.toContain( 'Site Owner' );
+		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].title ).toBe(
+			"Jetpack connection error: Connection owner's account"
+		);
+		expect( getNoticeText() ).not.toContain( 'Site Owner' );
 	} );
 
 	it( 'increases priority when a restore is in progress', async () => {

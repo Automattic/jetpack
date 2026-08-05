@@ -14,6 +14,7 @@ import {
 	getConnectionErrorDetailLines,
 	getConnectionErrorTitle,
 	groupConnectionErrorsByMessage,
+	titleIncludesScope,
 } from './connection-error-details';
 import type { ConnectionErrorViewer } from './connection-error-details';
 import type { NoticeOptions, NoticeButtonAction } from '../../context/notices/types';
@@ -84,6 +85,10 @@ const useConnectionErrorsNotice = (
 			ownerName,
 		};
 
+		// Where the title already names the scope, the detail line drops it and
+		// carries the code alone rather than repeating itself.
+		const scopeIsInTitle = titleIncludesScope( errorList );
+
 		// Keep the backend message as the headline, then group broken-token errors under one
 		// shared description with each error's scope and code.
 		const errorMessage = (
@@ -91,17 +96,19 @@ const useConnectionErrorsNotice = (
 				{ restoreConnectionError && (
 					<Text mb={ 2 }>{ getReconnectErrorMessage( restoreConnectionError ) }</Text>
 				) }
-				{ groupConnectionErrorsByMessage( errorList ).map( group => {
-					const detailLines = getConnectionErrorDetailLines( group.errors, viewer );
+				{ groupConnectionErrorsByMessage( errorList ).map( ( group, groupIndex ) => {
+					const detailLines = getConnectionErrorDetailLines( group.errors, viewer, scopeIsInTitle );
 
 					return (
 						<div key={ group.message }>
-							<Text mb={ 1 }>{ group.message }</Text>
+							<Text mt={ groupIndex > 0 ? 2 : 0 } mb={ detailLines.length ? 1 : 0 }>
+								{ group.message }
+							</Text>
 							{ detailLines.map( ( line, index ) => (
 								<Text
 									key={ line.key }
 									variant="body-small"
-									mb={ index === detailLines.length - 1 ? 2 : 1 }
+									mb={ index === detailLines.length - 1 ? 0 : 1 }
 								>
 									{ line.text }
 								</Text>
@@ -121,6 +128,9 @@ const useConnectionErrorsNotice = (
 			noDefaultClasses: true,
 		} ) );
 
+		// Report the error the CTA belongs to rather than whichever came first in the map.
+		const trackedError = connectionError ?? errorList[ 0 ];
+
 		const noticeOptions: NoticeOptions = {
 			id: 'connection-error-notice',
 			level: 'error',
@@ -128,8 +138,8 @@ const useConnectionErrorsNotice = (
 			priority: NOTICE_PRIORITY_HIGH + ( isRestoringConnection ? 1 : 0 ),
 			tracksArgs: {
 				error_count: errorList.length,
-				error_code: errorList[ 0 ].error_code ?? null,
-				audience: errorList[ 0 ].audience ?? 'site',
+				error_code: trackedError.error_code ?? null,
+				audience: trackedError.audience ?? 'site',
 			},
 		};
 
@@ -141,6 +151,7 @@ const useConnectionErrorsNotice = (
 	}, [
 		setNotice,
 		hasConnectionError,
+		connectionError,
 		errorList,
 		currentUserId,
 		isCurrentUserConnectionOwner,
