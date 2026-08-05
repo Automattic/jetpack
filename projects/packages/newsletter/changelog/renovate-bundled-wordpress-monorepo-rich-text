@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the settings page rendering blank on WordPress 6.9.
