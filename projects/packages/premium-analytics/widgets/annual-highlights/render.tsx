@@ -154,7 +154,7 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 			>
 				{ year && (
 					<Stack className={ styles.root } direction="column" gap="lg">
-						<Stack align="center" justify="flex-end" gap="sm">
+						<Stack className={ styles.yearNav } align="center" justify="flex-end" gap="sm">
 							<Button
 								type="button"
 								variant="minimal"
@@ -198,7 +198,7 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 					</Stack>
 				) }
 			</WidgetState>
-			<WidgetFooter>
+			<WidgetFooter className={ styles.footer }>
 				<ReportLink report="annual-insights" />
 			</WidgetFooter>
 		</div>

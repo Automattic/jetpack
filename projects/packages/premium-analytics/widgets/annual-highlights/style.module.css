@@ -13,6 +13,9 @@
 	flex-direction: column;
 	height: 100%;
 	min-height: 0;
+
+	/* Size container for the short-tile query at the end of this file. */
+	container-type: size;
 }
 
 .yearLabel {
@@ -37,4 +40,15 @@
 	height: 100%;
 	color: var(--wpds-color-foreground-content-neutral-weak);
 	text-align: center;
+}
+
+/* At the minimum tile height the metric tiles need the whole body, so drop the
+ * chrome around them. The widget still opens on the most recent year; resize
+ * the tile to reach the others. */
+@container (max-height: 140px) {
+
+	.content .yearNav,
+	.content .footer {
+		display: none;
+	}
 }
