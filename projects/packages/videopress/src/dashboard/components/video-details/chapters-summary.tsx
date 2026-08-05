@@ -15,12 +15,19 @@
  * writers serialize through the same meta field, and each save re-syncs the
  * player's chapters VTT, so the persisted state stays internally
  * consistent.
+ *
+ * The editor link renders only when the chapters editor is enabled — the
+ * `/video/$id/editor` route is stripped from the route registry otherwise
+ * (see `Admin_UI::CHAPTERS_EDITOR_ROUTE_PATHS`), so the link would dead-end.
+ * With the gate off, the description textarea remains the chapter-editing
+ * surface and this row is just the count plus the help link.
  */
 import { useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useLinkProps } from '@wordpress/route';
 import { Link, Stack, Text } from '@wordpress/ui';
 import { parseDescription } from '../../../client/utils/video-chapters/description';
+import { isChaptersEditorEnabled } from '../../utils/chapters-editor';
 import { videoTabPath } from '../video-nav';
 import type { LibraryItem } from '../../types/library';
 import type { ReactElement } from 'react';
@@ -31,6 +38,46 @@ type Props = {
 	onOpenHelp: () => void;
 	confirmNavigation?: () => boolean;
 };
+
+/**
+ * The "Edit chapters in the editor" deep link. Its own component so the
+ * `useLinkProps` hook only runs when the chapters editor is enabled — with the
+ * gate off the target route isn't registered, and building a location for an
+ * unknown route makes the router warn.
+ *
+ * @param props                   - Component props.
+ * @param props.videoId           - The video's attachment id.
+ * @param props.confirmNavigation - Same guard the sub-nav uses; return false to
+ *                                stay put.
+ * @return The link element.
+ */
+function EditChaptersLink( {
+	videoId,
+	confirmNavigation,
+}: {
+	videoId: string;
+	confirmNavigation?: () => boolean;
+} ): ReactElement {
+	const linkProps = useLinkProps( { to: videoTabPath( videoId, 'editor' ) } );
+
+	return (
+		<Link
+			{ ...linkProps }
+			onClick={ event => {
+				// Same exit as the Editor sub-nav tab — it must honor the
+				// same dirty-form guard, or this link becomes a silent-discard
+				// path sitting right under the description textarea.
+				if ( confirmNavigation && ! confirmNavigation() ) {
+					event.preventDefault();
+					return;
+				}
+				linkProps.onClick?.( event );
+			} }
+		>
+			{ __( 'Edit chapters in the editor', 'jetpack-videopress-pkg' ) }
+		</Link>
+	);
+}
 
 /**
  * The chapters summary row for the Details card.
@@ -51,7 +98,6 @@ export default function ChaptersSummary( {
 	confirmNavigation,
 }: Props ): ReactElement {
 	const { rows } = useMemo( () => parseDescription( description ), [ description ] );
-	const linkProps = useLinkProps( { to: videoTabPath( video.id, 'editor' ) } );
 
 	return (
 		<Stack
@@ -69,21 +115,9 @@ export default function ChaptersSummary( {
 						rows.length
 					) }
 				</Text>
-				<Link
-					{ ...linkProps }
-					onClick={ event => {
-						// Same exit as the Editor sub-nav tab — it must honor the
-						// same dirty-form guard, or this link becomes a silent-discard
-						// path sitting right under the description textarea.
-						if ( confirmNavigation && ! confirmNavigation() ) {
-							event.preventDefault();
-							return;
-						}
-						linkProps.onClick?.( event );
-					} }
-				>
-					{ __( 'Edit chapters in the editor', 'jetpack-videopress-pkg' ) }
-				</Link>
+				{ isChaptersEditorEnabled() && (
+					<EditChaptersLink videoId={ video.id } confirmNavigation={ confirmNavigation } />
+				) }
 			</Stack>
 			<Link
 				href="#"

@@ -133,6 +133,11 @@ class Initial_State {
 			'assets'                 => array(
 				'buildUrl' => plugins_url( '../build/', __FILE__ ),
 			),
+			// Feature gates mirrored from the PHP-side filters so the client can
+			// hide gated UI without a round trip.
+			'features'               => array(
+				'chaptersEditor' => Admin_UI::is_chapters_editor_enabled(),
+			),
 			// Authoritative map of accepted upload types (extension => mimetype),
 			// so the dashboard's drag-and-drop filter accepts exactly what the
 			// VideoPress backend supports rather than guessing client-side.

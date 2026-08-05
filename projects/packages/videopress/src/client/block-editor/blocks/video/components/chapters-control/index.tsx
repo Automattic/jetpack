@@ -11,6 +11,7 @@ import { formatListNumbered } from '@wordpress/icons';
  * Internal dependencies
  */
 import ChapterManagerModal from '../../../../../components/chapter-manager-modal/lazy';
+import { isChaptersEditorEnabled } from '../../../../../lib/chapters-editor';
 import { getVideoPressUrl } from '../../../../../lib/url';
 /**
  * Types
@@ -19,13 +20,14 @@ import type { VideoControlProps } from '../../types';
 import type { ReactElement } from 'react';
 
 /**
- * Chapters control react component: opens the shared chapter manager modal
- * from the block toolbar.
+ * The toolbar button and its modal, once the chapters editor is known to be
+ * enabled. Split from the exported gate below so none of these hooks run —
+ * and the lazy modal chunk is never requested — for gated-off users.
  *
  * @param {VideoControlProps} props - Component props.
- * @return {ReactElement}      ChaptersControl block control.
+ * @return {ReactElement}      The chapters block control.
  */
-export default function ChaptersControl( {
+function ChaptersControlEnabled( {
 	attributes,
 	setAttributes,
 }: VideoControlProps ): ReactElement | null {
@@ -79,4 +81,23 @@ export default function ChaptersControl( {
 			) }
 		</>
 	);
+}
+
+/**
+ * Chapters control react component: opens the shared chapter manager modal
+ * from the block toolbar.
+ *
+ * Gated on `Admin_UI::is_chapters_editor_enabled()` (mirrored to the block
+ * editor through `videoPressEditorState`), which defaults to off — the whole
+ * control, modal included, is absent until a site opts in.
+ *
+ * @param {VideoControlProps} props - Component props.
+ * @return {ReactElement}      ChaptersControl block control, or null when the chapters editor is disabled.
+ */
+export default function ChaptersControl( props: VideoControlProps ): ReactElement | null {
+	if ( ! isChaptersEditorEnabled() ) {
+		return null;
+	}
+
+	return <ChaptersControlEnabled { ...props } />;
 }

@@ -5,7 +5,8 @@ import {
 	parseDescription,
 	serializeDescription,
 } from '../../../src/client/utils/video-chapters/description';
-import { mockApiFetch } from '../../../src/dashboard/test-utils/mock-api-fetch';
+import { resetFeatures, setFeatures } from '../../../src/dashboard/test-utils/features';
+import { getApiFetchMock, mockApiFetch } from '../../../src/dashboard/test-utils/mock-api-fetch';
 import {
 	createTestQueryClient,
 	createTestWrapper,
@@ -283,6 +284,28 @@ describe( 'video-editor stage', () => {
 		mockProbeManualTrack.mockResolvedValue( 'editable' );
 		mockFetchVideoItem.mockResolvedValue( {} );
 		mockSyncChapters.mockResolvedValue( 'uploaded' );
+		// The whole screen is gated on the chapters editor; enable it for every
+		// case but the gate's own, below.
+		setFeatures( { chaptersEditor: true } );
+	} );
+
+	afterEach( () => {
+		resetFeatures();
+	} );
+
+	// The route is stripped from the registry when the gate is off, so this
+	// only runs for a stale bookmark surviving a build/PHP skew — it must
+	// dead-end rather than mount a half-working editor.
+	it( 'shows the not-found state when the chapters editor is off', () => {
+		setFeatures( { chaptersEditor: false } );
+		installApi( { media: makeRawMedia(), metaPosts: [] } );
+
+		render( <Stage />, { wrapper: createTestWrapper( mockTestClient ) } );
+
+		expect( screen.getByText( "We couldn't find that video." ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'chapters-preview-video' ) ).not.toBeInTheDocument();
+		// Guarded ahead of the media fetch, so no request escapes either.
+		expect( getApiFetchMock() ).not.toHaveBeenCalled();
 	} );
 
 	it( 'shows a loading placeholder while the video is fetched', () => {

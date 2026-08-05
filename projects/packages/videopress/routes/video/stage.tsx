@@ -23,6 +23,7 @@ import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useInvalidateVideo, useVideo } from '../../src/dashboard/hooks/use-video';
+import { isChaptersEditorEnabled } from '../../src/dashboard/utils/chapters-editor';
 import './style.scss';
 import type { LibraryItem, VideoRating } from '../../src/dashboard/types/library';
 
@@ -112,6 +113,11 @@ const Editor = ( {
 }: EditorProps ) => {
 	const { values, update, isDirty, reset } = useVideoDetailsForm( video );
 
+	// The sub-nav's only sibling tab is the Editor, whose route is stripped
+	// from the registry when the chapters editor is off — a one-tab strip
+	// would be pointless chrome, and its Editor tab would dead-end.
+	const showVideoNav = isChaptersEditorEnabled();
+
 	const openChapters = useCallback( () => {
 		setChaptersOpen( true );
 	}, [ setChaptersOpen ] );
@@ -166,7 +172,13 @@ const Editor = ( {
 				/>
 			}
 		>
-			<VideoNav videoId={ video.id } activeTab="details" confirmNavigation={ confirmNavigation } />
+			{ showVideoNav && (
+				<VideoNav
+					videoId={ video.id }
+					activeTab="details"
+					confirmNavigation={ confirmNavigation }
+				/>
+			) }
 			<div className="vp-video-details">
 				<PreviewPlayer video={ video } />
 				<ThumbnailCard

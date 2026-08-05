@@ -50,9 +50,33 @@ jest.mock( '../../../../../../lib/url', () => ( {
 	getVideoPressUrl: () => 'https://videopress.example/video',
 } ) );
 
+type Win = { videoPressEditorState?: Record< string, unknown > };
+
+const win = window as unknown as Win;
+
+/**
+ * Set the chapters-editor gate the way `wp_localize_script()` would: PHP
+ * booleans arrive as '' | '1'.
+ *
+ * @param enabled - Whether the chapters editor is enabled.
+ */
+function setChaptersEditorEnabled( enabled: boolean ): void {
+	win.videoPressEditorState = {
+		...win.videoPressEditorState,
+		chaptersEditorEnabled: enabled ? '1' : '',
+	};
+}
+
 describe( 'ChaptersControl', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		// The control is gated off by default; the cases below that exercise it
+		// need the gate on, and the gate's own cases flip it back.
+		setChaptersEditorEnabled( true );
+	} );
+
+	afterEach( () => {
+		delete win.videoPressEditorState;
 	} );
 
 	it( 'opens the shared chapter manager modal from the block toolbar', async () => {
@@ -121,5 +145,48 @@ describe( 'ChaptersControl', () => {
 		expect( dialog ).toHaveAttribute( 'data-attachment-id', '42' );
 		// An unset description reaches the modal as an empty string.
 		expect( dialog ).toHaveAttribute( 'data-description', '' );
+	} );
+
+	describe( 'chapters editor gate', () => {
+		it( 'renders nothing when the chapters editor is off', () => {
+			setChaptersEditorEnabled( false );
+
+			const { container } = render(
+				<ChaptersControl
+					attributes={ { guid: 'abc123', id: 42, title: 'Test video' } }
+					setAttributes={ jest.fn() }
+				/>
+			);
+
+			expect( screen.queryByText( 'Manage chapters' ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+			expect( container ).toBeEmptyDOMElement();
+		} );
+
+		it( 'renders nothing when the localized state is missing entirely', () => {
+			delete win.videoPressEditorState;
+
+			const { container } = render(
+				<ChaptersControl
+					attributes={ { guid: 'abc123', id: 42, title: 'Test video' } }
+					setAttributes={ jest.fn() }
+				/>
+			);
+
+			expect( container ).toBeEmptyDOMElement();
+		} );
+
+		it( 'renders the toolbar button when the chapters editor is on', () => {
+			setChaptersEditorEnabled( true );
+
+			render(
+				<ChaptersControl
+					attributes={ { guid: 'abc123', id: 42, title: 'Test video' } }
+					setAttributes={ jest.fn() }
+				/>
+			);
+
+			expect( screen.getByText( 'Manage chapters' ) ).toBeInTheDocument();
+		} );
 	} );
 } );

@@ -52,6 +52,7 @@ import { videoTabPath } from '../../src/dashboard/components/video-nav';
 import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useVideo } from '../../src/dashboard/hooks/use-video';
+import { isChaptersEditorEnabled } from '../../src/dashboard/utils/chapters-editor';
 import EditorOperationsPanel from './operations-panel';
 import './style.scss';
 import type { LibraryItem } from '../../src/dashboard/types/library';
@@ -247,6 +248,28 @@ function ConfirmDiscardDialog( {
 				</Dialog.Footer>
 			</Dialog.Popup>
 		</Dialog.Root>
+	);
+}
+
+/**
+ * The tab's dead-end state: the video is missing, ineligible, or the chapters
+ * editor is gated off. Rendered inside the normal tab chrome so the sub-nav
+ * stays available as an escape hatch back to Details.
+ *
+ * @param props         - Component props.
+ * @param props.videoId - The video's attachment id from the route.
+ * @return The not-found element.
+ */
+function EditorNotFound( { videoId }: { videoId: string } ): ReactElement {
+	return (
+		<EditorChrome videoId={ videoId }>
+			<div className="vp-video-editor vp-video-editor__not-found">
+				<Stack direction="column" gap="md" align="center">
+					<Text>{ __( "We couldn't find that video.", 'jetpack-videopress-pkg' ) }</Text>
+					<Link to="/">{ __( 'Back to Library', 'jetpack-videopress-pkg' ) }</Link>
+				</Stack>
+			</div>
+		</EditorChrome>
 	);
 }
 
@@ -589,16 +612,7 @@ function EditorRoute( { id }: { id: string } ): ReactElement {
 	}
 
 	if ( ! video || ! isEditorEligible( video ) ) {
-		return (
-			<EditorChrome videoId={ id }>
-				<div className="vp-video-editor vp-video-editor__not-found">
-					<Stack direction="column" gap="md" align="center">
-						<Text>{ __( "We couldn't find that video.", 'jetpack-videopress-pkg' ) }</Text>
-						<Link to="/">{ __( 'Back to Library', 'jetpack-videopress-pkg' ) }</Link>
-					</Stack>
-				</div>
-			</EditorChrome>
-		);
+		return <EditorNotFound videoId={ id } />;
 	}
 
 	if ( video.isProcessing || video.durationSeconds <= 0 ) {
@@ -624,6 +638,15 @@ function EditorRoute( { id }: { id: string } ): ReactElement {
 
 const StageInner = () => {
 	const { id } = useParams( { from: '/video/$id/editor' } );
+
+	// Belt-and-braces gate. The server strips this route from the registry when
+	// the chapters editor is off (`Admin_UI::CHAPTERS_EDITOR_ROUTE_PATHS`), so
+	// this normally can't render at all — but a stale bookmark surviving a
+	// build/PHP skew should dead-end here rather than mount a half-working
+	// editor. Checked before `EditorRoute` so the media fetch never fires.
+	if ( ! isChaptersEditorEnabled() ) {
+		return <EditorNotFound videoId={ id } />;
+	}
 
 	return <EditorRoute id={ id } />;
 };

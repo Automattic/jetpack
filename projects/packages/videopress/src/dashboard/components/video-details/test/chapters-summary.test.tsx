@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { resetFeatures, setFeatures } from '../../../test-utils/features';
 import ChaptersSummary from '../chapters-summary';
 
 // Capture the ToOptions the summary hands the router so the deep-link
@@ -38,6 +39,13 @@ const renderSummary = (
 
 beforeEach( () => {
 	jest.clearAllMocks();
+	// The deep link is gated; most cases here are about the link, so default
+	// the suite to enabled and let the gate tests below flip it back.
+	setFeatures( { chaptersEditor: true } );
+} );
+
+afterEach( () => {
+	resetFeatures();
 } );
 
 describe( 'ChaptersSummary', () => {
@@ -89,5 +97,39 @@ describe( 'ChaptersSummary', () => {
 		const allowedClick = new MouseEvent( 'click', { bubbles: true, cancelable: true } );
 		link.dispatchEvent( allowedClick );
 		expect( allowedClick.defaultPrevented ).toBe( false );
+	} );
+
+	describe( 'chapters editor gate', () => {
+		it( 'hides the editor deep link when the chapters editor is off', () => {
+			setFeatures( { chaptersEditor: false } );
+			renderSummary();
+
+			expect(
+				screen.queryByRole( 'link', { name: 'Edit chapters in the editor' } )
+			).not.toBeInTheDocument();
+
+			// The count and the help link are not gated: with the editor off the
+			// description textarea is still the chapter-editing surface.
+			expect( screen.getByText( 'Chapters (3)' ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'link', { name: 'Learn how chapters work' } ) ).toBeInTheDocument();
+		} );
+
+		// The `/video/$id/editor` route is stripped from the registry when the
+		// gate is off, so building a location for it would make the router warn.
+		it( 'does not build a router location for the unregistered route', () => {
+			setFeatures( { chaptersEditor: false } );
+			renderSummary();
+
+			expect( mockUseLinkProps ).not.toHaveBeenCalled();
+		} );
+
+		it( 'shows the editor deep link when the chapters editor is on', () => {
+			setFeatures( { chaptersEditor: true } );
+			renderSummary();
+
+			expect(
+				screen.getByRole( 'link', { name: 'Edit chapters in the editor' } )
+			).toBeInTheDocument();
+		} );
 	} );
 } );

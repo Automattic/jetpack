@@ -1,6 +1,7 @@
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useNavigate } from '@wordpress/route';
+import { resetFeatures, setFeatures } from '../../../src/dashboard/test-utils/features';
 import { mockApiFetch } from '../../../src/dashboard/test-utils/mock-api-fetch';
 import {
 	createTestQueryClient,
@@ -203,6 +204,13 @@ describe( 'video stage', () => {
 		mockUseNavigate.mockReturnValue( navigate );
 		mockSyncChapters.mockResolvedValue( 'uploaded' );
 		installApi();
+		// The sub-nav is gated on the chapters editor; the tests below that
+		// exercise it need the gate on. The gate's own cases flip it back.
+		setFeatures( { chaptersEditor: true } );
+	} );
+
+	afterEach( () => {
+		resetFeatures();
 	} );
 
 	it( 'renders the Details / Editor sub-nav with Details active', async () => {
@@ -210,6 +218,19 @@ describe( 'video stage', () => {
 
 		expect( screen.getByRole( 'tab', { name: 'Details', selected: true } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'tab', { name: 'Editor', selected: false } ) ).toBeInTheDocument();
+	} );
+
+	// With the chapters editor off the Editor route is stripped server-side,
+	// leaving a pointless one-tab strip whose only sibling would dead-end.
+	it( 'hides the sub-nav entirely when the chapters editor is off', async () => {
+		setFeatures( { chaptersEditor: false } );
+
+		await renderReadyStage();
+
+		expect( screen.queryByRole( 'tab' ) ).not.toBeInTheDocument();
+		// Everything else on the page is unchanged.
+		expect( screen.getByLabelText( 'Title' ) ).toBeInTheDocument();
+		expect( screen.getByLabelText( 'Description' ) ).toBeInTheDocument();
 	} );
 
 	it( 'navigates to the Editor tab without prompting while the form is clean', async () => {
