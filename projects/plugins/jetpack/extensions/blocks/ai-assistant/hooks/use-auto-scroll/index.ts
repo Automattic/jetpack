@@ -18,6 +18,8 @@ const useAutoScroll = (
 	const ignoreScroll = useRef( false );
 	const startedAutoScroll = useRef( false );
 	const doingAutoScroll = useRef( false );
+	// Newest explicit target asked for while a scroll was in progress, to catch up to once it ends.
+	const pendingTarget = useRef< HTMLElement | null >( null );
 	const scrollElementOriginalStyle = useRef< { scrollPadding: string; scrollMargin: string } >( {
 		scrollPadding: '',
 		scrollMargin: '',
@@ -43,11 +45,17 @@ const useAutoScroll = (
 		debug( 'enabling auto scroll' );
 	}, [ userScrollHandler ] );
 
+	// Reports whether it was still following the content when stopped, so callers deciding whether
+	// to move the editor once more can honour the same takeover the per-chunk scrolling honours.
 	const disableAutoScroll = useCallback( () => {
+		const wasFollowing =
+			autoScrollEnabled.current && startedAutoScroll.current && ! ignoreScroll.current;
+
 		autoScrollEnabled.current = false;
 		ignoreScroll.current = false;
 		startedAutoScroll.current = false;
 		doingAutoScroll.current = false;
+		pendingTarget.current = null;
 		scrollElementRef.current?.removeEventListener( 'scroll', userScrollHandler );
 
 		// Reset scroll padding and margin
@@ -60,6 +68,8 @@ const useAutoScroll = (
 
 		scrollElementRef.current = null;
 		debug( 'disabling auto scroll' );
+
+		return wasFollowing;
 	}, [ userScrollHandler ] );
 
 	// An explicit target overrides the configured one, for callers whose element to keep in
@@ -76,18 +86,39 @@ const useAutoScroll = (
 					? blockRef?.current
 					: contentRef?.current?.firstElementChild?.lastElementChild );
 
-			if ( scrollTarget && ! doingAutoScroll.current ) {
-				startedAutoScroll.current = true;
-				doingAutoScroll.current = true;
-
-				scrollElementRef?.current?.removeEventListener?.( 'scroll', userScrollHandler );
-				scrollTarget?.scrollIntoView( { block: 'end', inline: 'end' } );
-
-				setTimeout( () => {
-					doingAutoScroll.current = false;
-					scrollElementRef?.current?.addEventListener?.( 'scroll', userScrollHandler );
-				}, 200 );
+			if ( ! scrollTarget ) {
+				return;
 			}
+
+			// Chunks arrive faster than this window closes. Dropping the ones that land inside it
+			// costs a sticky target nothing, but leaves an explicit one wherever the content it was
+			// following last put it, so keep the newest and catch up below.
+			if ( doingAutoScroll.current ) {
+				if ( target ) {
+					pendingTarget.current = target;
+				}
+				return;
+			}
+
+			startedAutoScroll.current = true;
+			doingAutoScroll.current = true;
+
+			scrollElementRef?.current?.removeEventListener?.( 'scroll', userScrollHandler );
+			scrollTarget?.scrollIntoView( { block: 'end', inline: 'end' } );
+
+			setTimeout( () => {
+				doingAutoScroll.current = false;
+
+				const trailingTarget = pendingTarget.current;
+				pendingTarget.current = null;
+
+				// Ahead of restoring the listener, so this scroll is not read as the user's own.
+				if ( trailingTarget && autoScrollEnabled.current && ! ignoreScroll.current ) {
+					trailingTarget.scrollIntoView( { block: 'end', inline: 'end' } );
+				}
+
+				scrollElementRef?.current?.addEventListener?.( 'scroll', userScrollHandler );
+			}, 200 );
 		},
 		[ blockRef, contentRef, useBlockAsTarget, userScrollHandler ]
 	);

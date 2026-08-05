@@ -125,8 +125,10 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			true
 		);
 
-		const focusInput = useCallback( () => {
-			inputRef.current?.focus();
+		// Focusing scrolls the input into view unless told not to, which is worth separating: a
+		// terminal state wants the cursor back in the input whether or not the editor should move.
+		const focusInput = useCallback( ( options?: FocusOptions ) => {
+			inputRef.current?.focus( options );
 		}, [] );
 
 		const { tracks } = useAnalytics();
@@ -235,7 +237,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		// Called after the last suggestion chunk is received.
 		const onDone = useCallback(
 			( suggestion: string, modelUsed?: AiModelTypeProp ) => {
-				disableAutoScroll();
+				const wasFollowing = disableAutoScroll();
+
 				onBlockDone( suggestion );
 				increaseRequestsCount();
 				setAction( '' );
@@ -281,12 +284,19 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				setTimeout( () => {
 					if ( adjustPosition ) {
 						adjustBlockPadding();
+						focusInput();
+						return;
 					}
 
-					// Focus scrolls the input into view only when it is not already there, which is
-					// what brings back a control in normal flow that this last update pushed past the
-					// bottom of the viewport, by adding the submit button and the completed buttons.
-					focusInput();
+					// This last update adds any missing submit button and swaps the control over to
+					// its completed buttons, which can push one in normal flow past the bottom of the
+					// viewport. Take the cursor back either way, but only move the editor after it if
+					// the scrolling was still following the content when the request ended.
+					focusInput( { preventScroll: true } );
+
+					if ( wasFollowing ) {
+						controlRef.current?.scrollIntoView( { block: 'nearest', inline: 'nearest' } );
+					}
 				}, 100 );
 
 				/**
@@ -319,7 +329,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		// Called when an error is received.
 		const onError = useCallback(
 			error => {
-				disableAutoScroll();
+				const wasFollowing = disableAutoScroll();
+
 				setAction( '' );
 
 				debug( 'Request error', error );
@@ -328,7 +339,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				// control in normal flow out of reach. Scroll rather than focus, as a quota error
 				// leaves the input disabled, and by the nearest edge so a control the message did not
 				// push out is left where it is.
-				if ( ! adjustPosition ) {
+				if ( ! adjustPosition && wasFollowing ) {
 					window.requestAnimationFrame(
 						() => controlRef.current?.scrollIntoView( { block: 'nearest', inline: 'nearest' } )
 					);
