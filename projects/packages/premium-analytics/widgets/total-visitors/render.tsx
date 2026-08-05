@@ -5,7 +5,6 @@ import { useStatsVisits } from '@jetpack-premium-analytics/data';
 import { Text } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
-	defaultPeriodForInterval,
 	describeError,
 	Sparkline,
 	useWidgetRootContext,
@@ -35,9 +34,13 @@ type TotalVisitorsWidgetProps = WidgetRenderProps< TotalVisitorsRenderAttributes
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
-// Finest to coarsest, as `defaultPeriodForInterval` requires. Same set as
-// `traffic-chart`, so both land on the same period and share its query.
-const PERIODS = [ 'day', 'week', 'month' ] as const;
+// Fixed, never derived from the dashboard interval. `stats/visits` reports
+// visitors as unique-within-bucket and the headline is the sum of the buckets,
+// so a coarser bucket silently changes what the number means: a daily visitor
+// counts 30 times across 30 daily buckets but 13 across 13 weekly ones, which
+// lets a longer range report a smaller total. Views are additive and unaffected,
+// but both cards use the same unit so they stay comparable and share a request.
+const PERIOD = 'day';
 
 // `decimals: 0` would round 291,900 to "292K"; the prototype's headline keeps
 // the digit ("291.9k" / "1.2M").
@@ -46,19 +49,17 @@ const HEADLINE_OPTIONS = { useMultipliers: true, decimals: 1 };
 /**
  * The period's visitor total over an area sparkline of the trend.
  *
- * Requests `views,visitors` rather than just `visitors`: that is the pair
- * `traffic-chart` fetches, so a board carrying those cards resolves to one cache
- * entry and one request.
+ * Requests `views,visitors` rather than just `visitors` so the two total cards share
+ * one cache entry and one request.
  *
  * @return The widget content.
  */
 function TotalVisitorsMetric() {
 	const { reportParams } = useWidgetRootContext();
-	const period = defaultPeriodForInterval( reportParams.interval, PERIODS );
 
 	const params = useMemo< StatsVisitsParams >(
-		() => withoutComparison( { ...reportParams, stat_fields: 'views,visitors', period } ),
-		[ reportParams, period ]
+		() => withoutComparison( { ...reportParams, stat_fields: 'views,visitors', period: PERIOD } ),
+		[ reportParams ]
 	);
 
 	const { primary, isLoading, isFetching, isError, error, refetch } = useStatsVisits( params );

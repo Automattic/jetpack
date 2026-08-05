@@ -3,7 +3,7 @@
 	"title": "Total visitors",
 	"description": "Total visitors for the selected period, with the trend over time.",
 	"help": {
-		"content": "The number of unique visitors to your site.",
+		"content": "The number of visitors to your site. A returning visitor is counted once per day.",
 		"links": [
 			{
 				"label": "Learn more",

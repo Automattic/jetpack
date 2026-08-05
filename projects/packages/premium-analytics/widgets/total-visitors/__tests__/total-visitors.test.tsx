@@ -63,8 +63,8 @@ function visitsResult( primaryData: unknown, overrides: Record< string, unknown 
 	} as unknown as ReturnType< typeof useStatsVisits >;
 }
 
-function renderWidget() {
-	return render( <TotalVisitorsRender attributes={ { reportParams: REPORT_PARAMS } } /> );
+function renderWidget( reportParams: ReportParams = REPORT_PARAMS ) {
+	return render( <TotalVisitorsRender attributes={ { reportParams } } /> );
 }
 
 describe( 'TotalVisitorsWidget', () => {
@@ -89,7 +89,15 @@ describe( 'TotalVisitorsWidget', () => {
 		expect( screen.getByTitle( '291,900' ) ).toBeInTheDocument();
 	} );
 
-	it( 'requests both traffic fields, without comparison, so the traffic chart shares the query', () => {
+	it( 'keeps daily buckets on a coarse dashboard interval, so the total keeps its meaning', () => {
+		mockUseStatsVisits.mockReturnValue( visitsResult( REPORT ) );
+
+		renderWidget( { ...REPORT_PARAMS, interval: 'month' } as ReportParams );
+
+		expect( mockUseStatsVisits.mock.calls[ 0 ][ 0 ] ).toMatchObject( { period: 'day' } );
+	} );
+
+	it( 'requests both traffic fields, without comparison, so the two total cards share the query', () => {
 		mockUseStatsVisits.mockReturnValue( visitsResult( REPORT ) );
 
 		renderWidget();
