@@ -45,13 +45,13 @@ export const buildJPRedirectSource = ( url: string, isWpcomSite: boolean = true 
 /**
  * Generates the URL for subscriber statistics based on site context.
  *
- * Points at the Premium Analytics dashboard where that has replaced the Stats
- * page, and at the existing Stats deep link everywhere else.
+ * Points at the Premium Analytics dashboard where that is the site's analytics
+ * UI, and at the Stats deep link everywhere else.
  *
  * @param {string} site     - The site identifier
  * @param {string} adminUrl - The admin URL for self-hosted sites
  * @returns {?string} The appropriate subscriber stats URL, or null when the
- *                   dashboard has replaced Stats but this user cannot open it.
+ *                   dashboard is the analytics UI but this user cannot open it.
  */
 export const getSubscriberStatsUrl = ( site: string, adminUrl: string ): string | null => {
 	if ( hasAnalyticsDashboard() ) {

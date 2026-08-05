@@ -222,9 +222,9 @@ describe( 'NewsletterWidget', () => {
 		} );
 	} );
 
-	// The helper returns null where the dashboard has replaced Stats and the
-	// current user cannot open it. The widget must not render dead links for
-	// them, and must not fall back to the Stats page, which is gone by then.
+	// The helper returns null where the dashboard is the analytics UI and the
+	// current user cannot open it — they fail the Stats page's capability too, so
+	// the widget hides the links rather than falling back.
 	describe( 'without access to analytics', () => {
 		beforeEach( () => {
 			jest.mocked( getAnalyticsUrl ).mockReturnValue( null );

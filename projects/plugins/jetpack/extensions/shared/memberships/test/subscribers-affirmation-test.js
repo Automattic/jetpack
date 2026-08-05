@@ -372,7 +372,7 @@ describe( 'getJetpackEmailStatsLink', () => {
 		hasAnalyticsDashboard.mockReturnValue( true );
 	} );
 
-	// Where the dashboard has replaced Stats, delegate to the shared helper — it
+	// Where the dashboard is the analytics UI, delegate to the shared helper — it
 	// owns that URL grammar, so this asserts the request, not the URL.
 	test( 'asks for the post email-opens view and returns what the helper builds', () => {
 		const result = getJetpackEmailStatsLink( 123, 456 );

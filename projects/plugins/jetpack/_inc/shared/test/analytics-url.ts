@@ -5,8 +5,8 @@ const ADMIN_URL = 'https://example.com/wp-admin/';
 const PAGE_SLUG = 'jetpack-premium-analytics-wp-admin';
 
 /**
- * Seeds `window.JetpackScriptData`. Omitting `analytics` is a site where the
- * dashboard has not replaced the Stats page.
+ * Seeds `window.JetpackScriptData`. Omitting `analytics` is a site where Stats
+ * is still the analytics UI.
  *
  * Every case here pins an explicit timezone and explicit calendar dates, so no
  * assertion depends on the clock or on the machine's timezone.
@@ -54,9 +54,8 @@ afterEach( () => {
 } );
 
 describe( 'hasAnalyticsDashboard', () => {
-	// Stays true without the capability: callers must not fall back to the Stats
-	// page for a user who cannot open the dashboard, because it is no longer
-	// registered once the dashboard replaces it.
+	// Stays true without the capability: a user who fails the dashboard capability
+	// fails the Stats page's too, so there is no useful fallback for them.
 	it.each( [
 		[ 'the package announces itself', {}, true ],
 		[ 'the user cannot open it', { can_view: false }, true ],

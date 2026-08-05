@@ -12,8 +12,8 @@ import { tz, TZDateMini } from '@date-fns/tz';
 import { endOfDay, format, startOfDay } from 'date-fns';
 
 /**
- * Published by Premium Analytics only where it *is* the analytics UI, so its
- * presence is the branch signal.
+ * Published by Premium Analytics only where it is the site's analytics UI, so
+ * its presence is the branch signal.
  */
 interface AnalyticsScriptData {
 	enabled: boolean;
@@ -93,9 +93,14 @@ function getAnalyticsScriptData(): AnalyticsScriptData | undefined {
 /**
  * Whether to route analytics links to the dashboard.
  *
+ * The Stats page still renders alongside the dashboard for now, so this is
+ * about which one a link should point at, not about one having gone away.
+ *
  * Distinct from a null URL: false means "keep your existing Stats link", null
- * means the dashboard is the analytics UI but this user cannot open it — and
- * the Stats page is no longer registered to fall back to.
+ * means the dashboard is the analytics UI here but this user cannot open it.
+ * Hiding the control beats falling back, because the dashboard capability maps
+ * to `manage_options` or `view_stats` — a user who fails it cannot open the
+ * Stats page either.
  *
  * @return Whether the dashboard is the analytics UI here.
  */

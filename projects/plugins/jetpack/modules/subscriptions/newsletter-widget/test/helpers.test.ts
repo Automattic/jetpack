@@ -148,7 +148,7 @@ describe( 'helpers', () => {
 			jest.mocked( hasAnalyticsDashboard ).mockReturnValue( true );
 		} );
 
-		// Where the dashboard has replaced Stats, delegate to the shared helper —
+		// Where the dashboard is the analytics UI, delegate to the shared helper —
 		// it owns that URL grammar, so this asserts the request, not the URL.
 		it( 'asks for the subscribers view of the analytics dashboard', () => {
 			const url = getSubscriberStatsUrl( testSite, testAdminUrl );

@@ -306,7 +306,7 @@ class Stats extends Module_Product {
 	const PREMIUM_ANALYTICS_PAGE_SLUG = 'jetpack-premium-analytics-wp-admin';
 
 	/**
-	 * Whether the Premium Analytics dashboard has replaced the Stats page.
+	 * Whether the Premium Analytics dashboard is the site's analytics UI.
 	 *
 	 * Guarded like the other `class_exists( 'Jetpack' )` checks here: My Jetpack
 	 * also ships in plugins without the Jetpack plugin. Public so the UI flags
@@ -325,7 +325,7 @@ class Stats extends Module_Product {
 	/**
 	 * Get the WordPress.com URL for purchasing Jetpack Stats for the current site.
 	 *
-	 * Null once Premium Analytics has replaced the Stats page: the tier purchase
+	 * Null once Premium Analytics is the analytics UI: the tier purchase
 	 * screen was a Calypso route inside the Odyssey bundle, so it left with that
 	 * dashboard. Null is also the base-class default, which falls the action
 	 * button back to the existing `#/add-stats` interstitial.

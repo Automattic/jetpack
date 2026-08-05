@@ -48,7 +48,7 @@ class DashStatsBottom extends Component {
 
 	render() {
 		const s = this.statsBottom()[ 0 ];
-		// Null only where the dashboard replaced Stats and this user cannot open it.
+		// Null only where the dashboard is the analytics UI and this user cannot open it.
 		const analyticsUrl = hasAnalyticsDashboard()
 			? getAnalyticsUrl( { view: 'dashboard' } )
 			: this.props.siteAdminUrl + 'admin.php?page=stats';

@@ -521,13 +521,13 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 /**
  * Get the email stats link for the given post.
  *
- * Points at the Premium Analytics dashboard where that has replaced the Stats
- * page, and at the existing Stats deep link everywhere else.
+ * Points at the Premium Analytics dashboard where that is the site's analytics
+ * UI, and at the Stats deep link everywhere else.
  *
  * @param {number} blogId - The ID of the blog.
  * @param {number} postId - The ID of the post.
  *
- * @return {?string} - The link, or null when the dashboard has replaced Stats but this user cannot open it.
+ * @return {?string} - The link, or null when the dashboard is the analytics UI but this user cannot open it.
  */
 export function getJetpackEmailStatsLink( blogId, postId ) {
 	if ( hasAnalyticsDashboard() ) {

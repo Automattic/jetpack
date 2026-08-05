@@ -49,8 +49,8 @@ export const NewsletterWidget = ( {
 		tracks.recordEvent( `${ TRACKS_EVENT_NAME_PREFIX }_view` );
 	}, [ tracks ] );
 
-	// Null only where the dashboard replaced Stats and this user cannot open it:
-	// the counts still render, just not as links.
+	// Null only where the dashboard is the analytics UI and this user cannot open
+	// it: the counts still render, just not as links.
 	const subscriberStatsUrl = getSubscriberStatsUrl( site, adminUrl );
 
 	const subscribersText = sprintf(
