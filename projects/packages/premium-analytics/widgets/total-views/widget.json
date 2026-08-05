@@ -1,0 +1,10 @@
+{
+	"name": "jpa/total-views",
+	"title": "Total views",
+	"description": "Total views for the selected period, with the trend over time.",
+	"help": {
+		"content": "Total views for the selected period, with the trend over time."
+	},
+	"category": "stats",
+	"presentation": "framed"
+}
