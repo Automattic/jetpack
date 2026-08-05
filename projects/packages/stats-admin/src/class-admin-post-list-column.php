@@ -235,7 +235,7 @@ class Admin_Post_List_Column {
 		if ( $wp_query->posts ) {
 			$post_ids = wp_list_pluck( $wp_query->posts, 'ID' );
 		} elseif ( wp_doing_ajax() && ! empty( $_POST['action'] ) && 'inline-save' === $_POST['action'] && ! empty( $_POST['post_ID'] ) && check_ajax_referer( 'inlineeditnonce', '_inline_edit' ) ) {
-			$post_ids = array( sanitize_text_field( wp_unslash( $_POST['post_ID'] ) ) );
+			$post_ids = array( absint( wp_unslash( $_POST['post_ID'] ) ) );
 		} else {
 			return array();
 		}
