@@ -112,6 +112,21 @@ describe( 'Tiled Gallery Photon domain changes', () => {
 		expect( block.isValid ).toBe( true );
 	} );
 
+	// The mirror image of the case above, reachable by removing a `jetpack_skip_photon_domain` filter
+	// or by a site leaving the VIP plan: the markup holds site-host URLs and save() now emits Photon
+	// ones.
+	it( 'keeps galleries saved on the site host valid once the site stops skipping the domain', () => {
+		setSkipPhotonDomain( true );
+		const markupSavedBefore = saveGallery();
+
+		setSkipPhotonDomain( false );
+		const [ block ] = parse( markupSavedBefore );
+
+		expect( block.isValid ).toBe( true );
+		expect( block.attributes.images ).toHaveLength( 2 );
+		expect( console ).toHaveInformed();
+	} );
+
 	// Galleries using custom links match the deprecation added for this change and nothing else — the
 	// much older v6 covers plain galleries by whitespace luck, but knows nothing about custom links.
 	// This case is what keeps that deprecation from being deleted as redundant.

@@ -42,7 +42,7 @@ class Jetpack_Script_Data {
 		$data['jetpack'] = array(
 			'flags' => array(
 				'showJetpackBranding' => (bool) apply_filters( 'jetpack_show_editor_panel_branding', true ),
-				'skipPhotonDomain'    => self::should_skip_photon_domain(),
+				'skipPhotonDomain'    => self::should_skip_photon_domain( $data ),
 			),
 		);
 
@@ -67,10 +67,17 @@ class Jetpack_Script_Data {
 	 *
 	 * @since $$next-version$$
 	 *
+	 * @param array $data The script data, which may already carry the site plan.
 	 * @return bool
 	 */
-	private static function should_skip_photon_domain() {
-		$jetpack_plan = Jetpack_Plan::get();
+	private static function should_skip_photon_domain( $data ) {
+		// Another package may have put the plan in the payload already (see Publicize_Script_Data);
+		// only look it up when it hasn't.
+		$product_slug = isset( $data['site']['plan']['product_slug'] ) ? $data['site']['plan']['product_slug'] : '';
+		if ( '' === $product_slug ) {
+			$jetpack_plan = Jetpack_Plan::get();
+			$product_slug = $jetpack_plan['product_slug'];
+		}
 
 		/**
 		 * Filter whether the Tiled Gallery and Image Compare blocks should skip the external
@@ -78,8 +85,9 @@ class Jetpack_Script_Data {
 		 *
 		 * Defaults to true on VIP sites only, and false everywhere else.
 		 *
-		 * Changing this changes the markup those blocks save, so existing galleries are re-serialized
-		 * the next time they are saved.
+		 * Changing this changes the markup those blocks save. Galleries saved under the previous value
+		 * stay valid — the block ships a deprecation for each image host, so flipping this either way is
+		 * safe — and they are re-serialized with the new URLs the next time they are saved.
 		 *
 		 * @module tiled-gallery
 		 *
@@ -87,6 +95,6 @@ class Jetpack_Script_Data {
 		 *
 		 * @param bool $skip_photon_domain Whether to skip the external Photon domain.
 		 */
-		return (bool) apply_filters( 'jetpack_skip_photon_domain', 'vip' === $jetpack_plan['product_slug'] );
+		return (bool) apply_filters( 'jetpack_skip_photon_domain', 'vip' === $product_slug );
 	}
 }

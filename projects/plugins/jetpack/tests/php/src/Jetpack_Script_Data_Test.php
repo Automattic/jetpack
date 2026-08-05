@@ -109,6 +109,29 @@ class Jetpack_Script_Data_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests that a plan already present in the script data is used instead of looking it up again.
+	 */
+	public function test_skip_photon_domain_reads_the_plan_from_the_script_data() {
+		// A plan lookup would report the free plan; the payload says otherwise.
+		$this->set_plan( 'jetpack_free' );
+		$result = Jetpack_Script_Data::set_admin_script_data(
+			array( 'site' => array( 'plan' => array( 'product_slug' => 'vip' ) ) )
+		);
+		$this->assertTrue( $result['jetpack']['flags']['skipPhotonDomain'] );
+	}
+
+	/**
+	 * Tests that an empty plan in the script data falls back to a plan lookup.
+	 */
+	public function test_skip_photon_domain_falls_back_when_the_script_data_has_no_plan() {
+		$this->set_plan( 'vip' );
+		$result = Jetpack_Script_Data::set_admin_script_data(
+			array( 'site' => array( 'plan' => array( 'product_slug' => '' ) ) )
+		);
+		$this->assertTrue( $result['jetpack']['flags']['skipPhotonDomain'] );
+	}
+
+	/**
 	 * Tests that the filter can flip the decision on a non-VIP site.
 	 */
 	public function test_filter_overrides_skip_photon_domain() {
