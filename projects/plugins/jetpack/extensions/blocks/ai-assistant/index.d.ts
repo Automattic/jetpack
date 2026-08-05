@@ -7,7 +7,7 @@ interface Window {
 			'jetpack/ai-assistant-support': boolean;
 		};
 		jetpack?: {
-			can_send_test_email_to_others?:boolean;
+			can_send_test_email_to_others?: boolean;
 		};
 		tracksUserData: {
 			userid: number;
