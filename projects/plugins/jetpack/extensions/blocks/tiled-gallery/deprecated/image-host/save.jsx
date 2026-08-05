@@ -25,7 +25,14 @@ import Layout from '../../layout';
  * else.
  *
  * Never edit this file to follow ../../save.jsx. It has to keep emitting markup that is already in
- * the database; when the current markup changes, add a new deprecation instead.
+ * the database; when the current markup changes, add new deprecations instead — and note that unlike
+ * the single-snapshot v1…v8 convention, that means **two** of them, one per image host, because both
+ * hosts exist in the wild for any given markup shape.
+ *
+ * These entries build on the live `Layout`, rather than freezing a copy of the layout tree the way
+ * v6/utils and v8/layout do, so a change to `../../layout` moves them too. `test/photon-domain.js`
+ * guards that with byte-level fixtures of the stored markup: if the shared layout changes shape,
+ * those assertions fail and this file needs frozen copies of whatever moved.
  *
  * @param {boolean} skipPhotonDomain - Whether to build site-host URLs rather than Photon ones.
  * @return {Function} A save component pinned to that host.

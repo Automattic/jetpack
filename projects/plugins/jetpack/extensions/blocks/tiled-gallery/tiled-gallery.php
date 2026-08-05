@@ -61,6 +61,13 @@ class Tiled_Gallery {
 	public static function render( $attr, $content ) {
 		Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
+		/*
+		 * Note that the image host here comes from whatever the editor baked into $content when the post
+		 * was last saved, so galleries published on a VIP site before the editor honoured that setting
+		 * still serve unreachable i0.wp.com URLs until someone saves the post again. Rewriting the host
+		 * from the data-url attribute below would fix those without an edit:
+		 * https://github.com/Automattic/jetpack/issues/51075
+		 */
 		$is_squareish_layout = self::is_squareish_layout( $attr );
 
 		if ( preg_match_all( '/<img [^>]+>/', $content, $images ) ) {

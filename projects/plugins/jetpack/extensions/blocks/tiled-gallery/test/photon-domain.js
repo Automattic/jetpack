@@ -15,6 +15,7 @@ import {
 } from '@wordpress/blocks';
 import metadata from '../block.json';
 import deprecated from '../deprecated';
+import { photonDomain, siteHost } from '../deprecated/image-host';
 import save from '../save';
 
 const IMAGES = [
@@ -35,6 +36,21 @@ const IMAGES = [
 		height: 1008,
 	},
 ];
+
+// Byte-for-byte copies of what each deprecation must keep emitting: markup already saved in the
+// database, one per image host. These are literals on purpose — asserting against
+// serialize( createBlock( … ) ) would let the code under test supply its own expected value, and
+// `deprecated/image-host/` builds on the live `Layout`, so a change there would move the deprecation
+// and this fixture together and silently stop matching what sites actually stored.
+const STORED_PHOTON_MARKUP =
+	'<div class="wp-block-jetpack-tiled-gallery aligncenter is-style-rectangular"><div class=""><div class="tiled-gallery__gallery">' +
+	'<div class="tiled-gallery__row"><div class="tiled-gallery__col"><figure class="tiled-gallery__item"><img alt="" data-height="680" data-id="5" data-link="https://example.com/one/" data-url="https://example.com/wp-content/uploads/2026/07/one.png" data-width="2000" src="https://i0.wp.com/example.com/wp-content/uploads/2026/07/one.png?ssl=1" data-amp-layout="responsive"/></figure></div></div>' +
+	'<div class="tiled-gallery__row"><div class="tiled-gallery__col"><figure class="tiled-gallery__item"><img alt="" data-height="1008" data-id="6" data-link="https://example.com/two/" data-url="https://example.com/wp-content/uploads/2026/07/two.png" data-width="1008" src="https://i0.wp.com/example.com/wp-content/uploads/2026/07/two.png?ssl=1" data-amp-layout="responsive"/></figure></div></div></div></div></div>';
+
+const STORED_SITE_HOST_MARKUP =
+	'<div class="wp-block-jetpack-tiled-gallery aligncenter is-style-rectangular"><div class=""><div class="tiled-gallery__gallery">' +
+	'<div class="tiled-gallery__row"><div class="tiled-gallery__col"><figure class="tiled-gallery__item"><img alt="" data-height="680" data-id="5" data-link="https://example.com/one/" data-url="https://example.com/wp-content/uploads/2026/07/one.png" data-width="2000" src="https://example.com/wp-content/uploads/2026/07/one.png" data-amp-layout="responsive"/></figure></div></div>' +
+	'<div class="tiled-gallery__row"><div class="tiled-gallery__col"><figure class="tiled-gallery__item"><img alt="" data-height="1008" data-id="6" data-link="https://example.com/two/" data-url="https://example.com/wp-content/uploads/2026/07/two.png" data-width="1008" src="https://example.com/wp-content/uploads/2026/07/two.png" data-amp-layout="responsive"/></figure></div></div></div></div></div>';
 
 /**
  * Set what the site reports for the Photon-domain decision, the way the PHP script data does.
@@ -128,9 +144,25 @@ describe( 'Tiled Gallery Photon domain changes', () => {
 		expect( console ).toHaveInformed();
 	} );
 
+	// The load-bearing assertion: each host deprecation must still emit, byte for byte, the markup
+	// sites already have in their database. Everything else here compares the code against itself, so
+	// this is the only thing that fails if the shared `Layout` changes shape underneath them.
+	it( 'reproduces the stored markup for each image host exactly', () => {
+		const attributes = createBlock( metadata.name, { images: IMAGES, ids: [ 5, 6 ] } ).attributes;
+
+		setSkipPhotonDomain( true );
+		expect( getSaveContent( { ...metadata, ...photonDomain }, attributes ) ).toBe(
+			STORED_PHOTON_MARKUP
+		);
+		expect( getSaveContent( { ...metadata, ...siteHost }, attributes ) ).toBe(
+			STORED_SITE_HOST_MARKUP
+		);
+	} );
+
 	// Only the current version may follow the site's setting. A deprecation that follows it stops
 	// reproducing the markup it was saved with, which is what invalidates existing galleries — and it is
-	// easy to reintroduce, since some deprecations borrow the current Layout.
+	// easy to reintroduce, since some deprecations borrow the current Layout. (For v1–v4 this holds
+	// trivially: their photonization never reads the setting. It caught v5, which does.)
 	it( 'pins every deprecation to one image host, whatever the site asks for', () => {
 		const attributes = createBlock( metadata.name, { images: IMAGES, ids: [ 5, 6 ] } ).attributes;
 
@@ -146,24 +178,41 @@ describe( 'Tiled Gallery Photon domain changes', () => {
 		} );
 	} );
 
-	// Galleries using custom links match the deprecation added for this change and nothing else — the
-	// much older v6 covers plain galleries by whitespace luck, but knows nothing about custom links.
-	// This case is what keeps that deprecation from being deleted as redundant.
-	it( 'keeps galleries with custom links valid too', () => {
-		setSkipPhotonDomain( false );
-		const markupSavedBefore = serialize(
-			createBlock( metadata.name, {
-				images: IMAGES.map( image => ( { ...image, customLink: `${ image.link }custom/` } ) ),
-				ids: [ 5, 6 ],
-				linkTo: 'custom',
-			} )
-		);
+	// Custom links are what make the host deprecations load-bearing rather than redundant: the much
+	// older v6 rescues plain galleries by whitespace luck, but knows nothing about `customLink`, so
+	// these two cases are the only ones each host entry alone can carry.
+	describe( 'galleries with custom links', () => {
+		const saveCustomLinkGallery = () =>
+			serialize(
+				createBlock( metadata.name, {
+					images: IMAGES.map( image => ( { ...image, customLink: `${ image.link }custom/` } ) ),
+					ids: [ 5, 6 ],
+					linkTo: 'custom',
+				} )
+			);
 
-		setSkipPhotonDomain( true );
-		const [ block ] = parse( markupSavedBefore );
+		it( 'stay valid once the site starts skipping the Photon domain', () => {
+			setSkipPhotonDomain( false );
+			const markupSavedBefore = saveCustomLinkGallery();
 
-		expect( block.isValid ).toBe( true );
-		expect( block.attributes.images[ 0 ].customLink ).toBe( 'https://example.com/one/custom/' );
-		expect( console ).toHaveInformed();
+			setSkipPhotonDomain( true );
+			const [ block ] = parse( markupSavedBefore );
+
+			expect( block.isValid ).toBe( true );
+			expect( block.attributes.images[ 0 ].customLink ).toBe( 'https://example.com/one/custom/' );
+			expect( console ).toHaveInformed();
+		} );
+
+		it( 'stay valid once the site stops skipping it', () => {
+			setSkipPhotonDomain( true );
+			const markupSavedBefore = saveCustomLinkGallery();
+
+			setSkipPhotonDomain( false );
+			const [ block ] = parse( markupSavedBefore );
+
+			expect( block.isValid ).toBe( true );
+			expect( block.attributes.images[ 0 ].customLink ).toBe( 'https://example.com/one/custom/' );
+			expect( console ).toHaveInformed();
+		} );
 	} );
 } );

@@ -85,9 +85,13 @@ class Jetpack_Script_Data {
 		 *
 		 * Defaults to true on VIP sites only, and false everywhere else.
 		 *
-		 * Changing this changes the markup those blocks save. Galleries saved under the previous value
-		 * stay valid — the block ships a deprecation for each image host, so flipping this either way is
-		 * safe — and they are re-serialized with the new URLs the next time they are saved.
+		 * Changing this changes the markup Tiled Gallery saves, because it bakes the image URLs into its
+		 * save() output. Galleries saved under the previous value stay valid — the block ships a
+		 * deprecation for each image host, so flipping this either way is safe — and they are
+		 * re-serialized with the new URLs the next time they are saved.
+		 *
+		 * Image Compare only uses this for its editor previews; its save() writes the attachment URLs
+		 * through untouched, so its saved markup does not depend on this value.
 		 *
 		 * @module tiled-gallery
 		 *
