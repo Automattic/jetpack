@@ -6,7 +6,6 @@ import {
 	setConnectionFlowError,
 	setConnectionFlowInput,
 	setConnectionFlowRequestId,
-	startConnectionFlow,
 } from '../actions/connection-flow';
 import {
 	CANCEL_CONNECTION_FLOW,
@@ -22,7 +21,7 @@ import {
 	START_CONNECTION_FLOW,
 } from '../actions/constants';
 import { CONNECTION_FLOW_INPUT_SERVICES } from '../constants';
-import { ConnectionFlowState, ConnectionFlowStep } from '../types';
+import { ConnectionFlowOrigin, ConnectionFlowState, ConnectionFlowStep } from '../types';
 
 /**
  * Whether a service requires an input step before authorization.
@@ -109,7 +108,6 @@ export function getNextStep( state: ConnectionFlowState ): ConnectionFlowStep | 
 
 type Action =
 	| ReturnType<
-			| typeof startConnectionFlow
 			| typeof selectPlatform
 			| typeof goToPreviousStep
 			| typeof goToNextStep
@@ -118,6 +116,7 @@ type Action =
 			| typeof setReconnectingAccount
 	  >
 	| ReturnType< typeof setConnectionFlowError | typeof setConnectionFlowRequestId >
+	| { type: typeof START_CONNECTION_FLOW; origin: ConnectionFlowOrigin }
 	| { type: typeof FAIL_CONNECTION_FLOW_AUTHORIZATION; message?: string }
 	| { type: typeof CANCEL_CONNECTION_FLOW }
 	| { type: '@@UNKNOWN_ACTION@@' };
