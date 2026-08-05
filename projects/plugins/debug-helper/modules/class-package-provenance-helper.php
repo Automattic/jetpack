@@ -19,11 +19,40 @@
 class Package_Provenance_Helper {
 
 	/**
+	 * Final printed URL per classic script handle, keyed by handle.
+	 *
+	 * Populated from `script_loader_src`, which runs after core prepends
+	 * `WP_Scripts::$base_url` and after every rewrite filter, so these are the
+	 * URLs the browser actually requested. Handles that core folds into
+	 * `load-scripts.php` never reach that filter and stay absent here.
+	 *
+	 * @var array<string, string>
+	 */
+	private $printed_src = array();
+
+	/**
 	 * Construction.
 	 */
 	public function __construct() {
 		add_action( 'wp_before_admin_bar_render', array( $this, 'register_admin_bar_menu' ), 1000000 );
-		add_action( 'admin_footer', array( $this, 'render' ), 1000 );
+		add_filter( 'script_loader_src', array( $this, 'record_script_src' ), PHP_INT_MAX, 2 );
+		// Late on admin_print_footer_scripts, not admin_footer: this must run
+		// after _wp_footer_scripts so wp_scripts()->done is complete. Handles
+		// that core concatenates into load-scripts.php are marked done but
+		// print no per-handle tag, so the DOM cannot answer this.
+		add_action( 'admin_print_footer_scripts', array( $this, 'render' ), PHP_INT_MAX );
+	}
+
+	/**
+	 * Records the final src of every classic script core prints.
+	 *
+	 * @param string $src    Fully resolved script URL.
+	 * @param string $handle Script handle.
+	 * @return string The unmodified `$src`.
+	 */
+	public function record_script_src( $src, $handle ) {
+		$this->printed_src[ $handle ] = (string) $src;
+		return $src;
 	}
 
 	/**
@@ -62,6 +91,55 @@ class Package_Provenance_Helper {
 	}
 
 	/**
+	 * Resolves a registered `ver` the way core does when printing.
+	 *
+	 * `null` and `false` are not interchangeable: core omits the query arg
+	 * entirely for `null`, and substitutes the WordPress version for `false`.
+	 * Core registers a number of `wp-*` handles with `false` (`wp-util`,
+	 * `wp-backbone`, `wp-api-request`, …), so casting both to `''` reports an
+	 * empty version for files that are served with `?ver=<wp_version>`.
+	 * `WP_Scripts::do_item()` and `WP_Script_Modules::get_src()` share the rule.
+	 *
+	 * @param string|bool|null $ver Registered version.
+	 * @return string Version to display, or '' when core prints none.
+	 */
+	private function resolve_version( $ver ) {
+		if ( null === $ver ) {
+			return '';
+		}
+		return (string) ( $ver ? $ver : wp_scripts()->default_version );
+	}
+
+	/**
+	 * Makes a registered src absolute the way core does when printing.
+	 *
+	 * Core registers its own packages root-relative (`/wp-includes/js/dist/…`)
+	 * and prepends `WP_Scripts::$base_url` at print time, so a subdirectory
+	 * install resolves them under the subdirectory. Mirrors the protocol and
+	 * content-url checks in `WP_Scripts::do_item()`.
+	 *
+	 * @param string $src Registered src.
+	 * @return string Absolute URL, or '' when `$src` is empty.
+	 */
+	private function absolute_src( $src ) {
+		if ( '' === $src ) {
+			return '';
+		}
+
+		$scripts     = wp_scripts();
+		$content_url = $scripts->content_url;
+
+		if ( preg_match( '|^(https?:)?//|', $src ) ) {
+			return $src;
+		}
+		if ( $content_url && 0 === strpos( $src, $content_url ) ) {
+			return $src;
+		}
+
+		return $scripts->base_url . $src;
+	}
+
+	/**
 	 * Collects registered classic scripts and script modules with their sources.
 	 *
 	 * Runs late in the request so it sees everything the current screen
@@ -76,9 +154,24 @@ class Package_Provenance_Helper {
 			if ( 0 !== strpos( $handle, 'wp-' ) || ! is_string( $dependency->src ) || '' === $dependency->src ) {
 				continue;
 			}
+
+			$ver = $this->resolve_version( $dependency->ver );
+
+			// Prefer the URL core actually printed. Fall back to reconstructing
+			// it for handles registered but never printed on this screen.
+			if ( isset( $this->printed_src[ $handle ] ) ) {
+				$url = $this->printed_src[ $handle ];
+			} else {
+				$url = $this->absolute_src( $dependency->src );
+				if ( '' !== $ver ) {
+					$url = add_query_arg( 'ver', $ver, $url );
+				}
+			}
+
 			$scripts[ $handle ] = array(
 				'src'     => $dependency->src,
-				'ver'     => (string) $dependency->ver,
+				'url'     => $url,
+				'ver'     => $ver,
 				'printed' => in_array( $handle, wp_scripts()->done, true ),
 			);
 		}
@@ -92,9 +185,15 @@ class Package_Provenance_Helper {
 					$property->setAccessible( true );
 				}
 				foreach ( (array) $property->getValue( wp_script_modules() ) as $id => $module ) {
+					$ver = $this->resolve_version(
+						array_key_exists( 'version', $module ) ? $module['version'] : null
+					);
+					$src = $this->absolute_src( (string) ( $module['src'] ?? '' ) );
+
 					$modules[ (string) $id ] = array(
-						'src' => (string) ( $module['src'] ?? '' ),
-						'ver' => (string) ( $module['version'] ?? '' ),
+						'src' => $src,
+						'url' => ( '' !== $src && '' !== $ver ) ? add_query_arg( 'ver', $ver, $src ) : $src,
+						'ver' => $ver,
 					);
 				}
 			} catch ( \ReflectionException $e ) {
@@ -181,36 +280,41 @@ class Package_Provenance_Helper {
 			};
 			const escAttr = ( value ) => esc( value ).replace( /"/g, '&quot;' );
 
-			// Rows are computed on every paint: script tags print after this
-			// inline script runs (admin_print_footer_scripts fires after
-			// admin_footer), so the DOM checks must happen as late as possible.
+			// Rows are recomputed on every paint so the import map is picked up
+			// whenever it lands. Classic script state comes from PHP, which
+			// already ran after every script printed.
 			const compute = () => {
 				const importMapEl = document.querySelector( 'script[type="importmap"]' );
 				const importMap = importMapEl ? ( JSON.parse( importMapEl.textContent ).imports || {} ) : {};
 
 				const rows = [];
 				for ( const [ handle, info ] of Object.entries( data.scripts ) ) {
-					const url = info.src
-						? info.src + ( info.ver ? ( info.src.includes( '?' ) ? '&' : '?' ) + 'ver=' + encodeURIComponent( info.ver ) : '' )
-						: '';
 					rows.push( {
 						name: handle,
 						type: 'classic',
-						provider: provider( info.src ),
+						// Classify by the URL core printed, not the registered
+						// src: a script_loader_src rewrite (CDN, cache busting)
+						// can serve the file from somewhere else entirely.
+						provider: provider( info.url || info.src ),
 						ver: info.ver,
-						url,
-						loaded: !! document.getElementById( handle + '-js' ) || info.printed,
+						url: info.url,
+						// wp_scripts()->done is authoritative: this panel prints
+						// after _wp_footer_scripts. Handles core folds into
+						// load-scripts.php are done but print no per-handle tag,
+						// so the DOM probe is only a fallback.
+						loaded: info.printed || !! document.getElementById( handle + '-js' ),
 					} );
 				}
 				const moduleIds = new Set( [ ...Object.keys( data.modules ), ...Object.keys( importMap ) ] );
 				for ( const id of [ ...moduleIds ].sort() ) {
-					const src = importMap[ id ] || ( data.modules[ id ] || {} ).src || '';
+					const info = data.modules[ id ] || {};
+					const url = importMap[ id ] || info.url || '';
 					rows.push( {
 						name: id,
 						type: 'module',
-						provider: provider( src ),
-						ver: ( src.match( /ver=([^&]+)/ ) || [ , ( data.modules[ id ] || {} ).ver || '' ] )[ 1 ],
-						url: src,
+						provider: provider( url ),
+						ver: ( url.match( /ver=([^&]+)/ ) || [ , info.ver || '' ] )[ 1 ],
+						url,
 						loaded: id in importMap,
 					} );
 				}
