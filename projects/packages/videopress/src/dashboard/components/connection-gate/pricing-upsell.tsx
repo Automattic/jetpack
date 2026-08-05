@@ -63,7 +63,7 @@ export default function PricingUpsell() {
 		<AdminPage
 			title={ 'VideoPress' /* product name; not translated */ }
 			subTitle={ __(
-				'Host, manage, customize, and track your videos—all in one place.',
+				'Host, manage, customize, and track your videos — all in one place.',
 				'jetpack-videopress-pkg'
 			) }
 		>
