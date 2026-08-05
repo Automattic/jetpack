@@ -31,7 +31,6 @@ import {
 	getShowMisconfigurationWarning,
 	MisconfigurationWarning,
 } from '../../shared/memberships/utils';
-import useClearPhantomMetaDirt from '../../shared/use-clear-phantom-meta-dirt';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import { NewsletterTestEmailModal } from './email-preview';
 
@@ -260,15 +259,10 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 
 export default function SubscribePanels() {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
-	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 
 	const { tracks } = useAnalytics();
 	const accessLevel = useAccessLevel( postType );
-
-	// Must stay above the early returns below: the paywall block and the command palette set
-	// access meta on post types this panel doesn't render for.
-	useClearPhantomMetaDirt( postType, postId );
 
 	// Subscriptions are only available for posts. Additionally, we will allow access level selector for pages.
 	// TODO: Make it available for pages later.

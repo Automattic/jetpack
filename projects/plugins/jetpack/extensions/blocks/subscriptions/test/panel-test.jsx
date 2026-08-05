@@ -1,6 +1,5 @@
 import { isComingSoon, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
 import { render, screen } from '@testing-library/react';
-import { store as coreDataStore } from '@wordpress/core-data';
 import * as wpData from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS } from '../../../shared/memberships/constants';
@@ -266,13 +265,9 @@ describe( 'SubscribePanels', () => {
 	const createSubscribePanelsMockSelect = ( { postType = 'post' } = {} ) => {
 		const editorSelect = {
 			getCurrentPostType: () => postType,
-			getCurrentPostId: () => 1,
 		};
 		return store => {
 			if ( store === editorStore || store === 'core/editor' ) return editorSelect;
-			if ( store === coreDataStore ) {
-				return { getRawEntityRecord: () => undefined };
-			}
 			return {};
 		};
 	};
