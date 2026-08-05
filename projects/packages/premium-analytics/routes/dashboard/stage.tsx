@@ -80,20 +80,6 @@ function Dashboard(): JSX.Element {
 	const dateFilters = useReportDateFilters( '/' );
 
 	/*
-	 * The subtitle states what the widgets are currently showing, so it follows
-	 * the applied range and comparison rather than the picker's staged draft:
-	 * it must not move while an edit is open, only once Apply commits it.
-	 */
-	const sectionSubtitle = useMemo(
-		() =>
-			getSectionSubtitle( {
-				range: dateFilters.appliedRange,
-				presetId: dateFilters.appliedPresetId,
-				comparisonPresetId: dateFilters.appliedComparisonPresetId,
-			} ),
-		[ dateFilters.appliedRange, dateFilters.appliedPresetId, dateFilters.appliedComparisonPresetId ]
-	);
-	/*
 	 * Which date filter the active section's header shows. Also reconciles the
 	 * preset in the URL with that filter's surface, so a section switch never
 	 * leaves the visible control unable to represent the selection.
@@ -101,6 +87,26 @@ function Dashboard(): JSX.Element {
 	const dateFilterSurface = useSectionDateFilter(
 		sections.find( section => section.slug === activeSection ),
 		dateFilters
+	);
+
+	/*
+	 * The subtitle states what the widgets are currently showing, so it follows
+	 * the applied range and comparison rather than the picker's staged draft:
+	 * it must not move while an edit is open, only once Apply commits it.
+	 *
+	 * The year surface offers no comparison control, so its subtitle must not
+	 * announce one it cannot be switched off from.
+	 */
+	const comparisonPresetId =
+		dateFilterSurface === DATE_FILTER_YEAR ? undefined : dateFilters.appliedComparisonPresetId;
+	const sectionSubtitle = useMemo(
+		() =>
+			getSectionSubtitle( {
+				range: dateFilters.appliedRange,
+				presetId: dateFilters.appliedPresetId,
+				comparisonPresetId,
+			} ),
+		[ dateFilters.appliedRange, dateFilters.appliedPresetId, comparisonPresetId ]
 	);
 
 	/*
