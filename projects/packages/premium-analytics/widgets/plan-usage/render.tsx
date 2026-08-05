@@ -9,9 +9,10 @@ import {
 	WidgetState,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { percent } from '@wordpress/icons';
-import { Stack, Text } from '@jetpack-premium-analytics/externals';
+import { Link, Stack, Text } from '@jetpack-premium-analytics/externals';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -67,19 +68,32 @@ function overLimitMessage( overLimitMonths: number ): string {
 }
 
 /**
+ * The Stats tier-upgrade purchase screen for this site — the same flow the
+ * Stats "Plan usage" section links to — returning to this dashboard after
+ * checkout. `undefined` where script data is absent (e.g. Storybook without a
+ * seeded `window.JetpackScriptData`).
+ *
+ * @return The purchase screen URL.
+ */
+function upgradeUrl(): string | undefined {
+	const site = getScriptData()?.site;
+	const blogId = site?.wpcom?.blog_id;
+	if ( ! site?.admin_url || ! blogId ) {
+		return undefined;
+	}
+
+	const backTo = encodeURIComponent( 'admin.php?page=jetpack-premium-analytics-wp-admin' );
+	return `${ site.admin_url }admin.php?page=stats#!/stats/purchase/${ blogId }?from=jetpack-premium-analytics&productType=commercial&redirect_uri=${ backTo }`;
+}
+
+/**
  * Presentational bar for the "Plan usage" widget, following the Stats "Plan
  * usage" section: a horizontal meter filled proportionally to the billable
  * views used against the plan's cycle limit, the figures and days-until-reset
- * inside the bar, and the over-limit warning below it when applicable. Renders
+ * inside the bar, and the upgrade note (with the over-limit warning when
+ * applicable) below it when a purchase URL or warning is available. Renders
  * the populated state only — `WidgetState` owns loading, error, and
  * unavailable.
- *
- * There is no upgrade call to action. It used to link to the Stats tier-purchase
- * screen, which was a Calypso route inside the CDN-served Odyssey bundle rather
- * than a page this repo hosts, so it left with that dashboard and has no
- * counterpart here yet. Showing the meter without a way to act on it beats
- * linking somewhere that no longer resolves; restoring the CTA is tracked
- * separately.
  *
  * @param {PlanUsageBarProps} props - The component props.
  * @return The rendered bar.
@@ -87,6 +101,7 @@ function overLimitMessage( overLimitMonths: number ): string {
 function PlanUsageBar( { limit, usage, daysToReset, overLimitMonths }: PlanUsageBarProps ) {
 	const usageValue = usage ?? 0;
 	const isOverLimit = usageValue >= limit;
+	const upgradeHref = upgradeUrl();
 
 	return (
 		<Stack
@@ -127,9 +142,23 @@ function PlanUsageBar( { limit, usage, daysToReset, overLimitMonths }: PlanUsage
 					</Text>
 				) }
 			</div>
-			{ !! overLimitMonths && (
+			{ ( !! overLimitMonths || upgradeHref ) && (
 				<Text className={ styles.note } variant="body-sm">
-					<strong>{ overLimitMessage( overLimitMonths ) }</strong>
+					{ overLimitMonths ? (
+						<>
+							<strong>{ overLimitMessage( overLimitMonths ) }</strong>{ ' ' }
+						</>
+					) : null }
+					{ /* Without script data there is no purchase URL, and a Link with no
+					     href renders styled but non-actionable — omit the sentence. */ }
+					{ upgradeHref &&
+						createInterpolateElement(
+							__(
+								'Do you want to increase your views limit? <a>Upgrade now</a>',
+								'jetpack-premium-analytics-pkg'
+							),
+							{ a: <Link href={ upgradeHref } /> }
+						) }
 				</Text>
 			) }
 		</Stack>

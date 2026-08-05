@@ -35,13 +35,15 @@ import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
-// The widget reads the host guess from `window.JetpackScriptData`, which only
-// wp-admin provides. Seed the `site` object so the VIP story below can set and
-// clear `site.host` on it.
+// The upgrade note builds its purchase URL from `window.JetpackScriptData`,
+// which only wp-admin provides; seed the fields it reads so the "Upgrade now"
+// link resolves in Storybook too.
 window.JetpackScriptData = {
 	...window.JetpackScriptData,
 	site: {
 		...window.JetpackScriptData?.site,
+		admin_url: 'https://example.com/wp-admin/',
+		wpcom: { blog_id: 123456789 },
 	},
 } as typeof window.JetpackScriptData;
 
