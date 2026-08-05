@@ -272,7 +272,8 @@ class Package_Provenance_Helper {
 			#package-provenance-help.is-open ~ #package-provenance-body { display: none; }
 			#package-provenance-help h4 { color: #9cdcfe; margin: 12px 0 4px; font-size: 11px; }
 			#package-provenance-help h4:first-child { margin-block-start: 0; }
-			#package-provenance-help p, #package-provenance-help li { margin: 3px 0; color: #b8b8b8; }
+			#package-provenance-help p { margin: 1.5em 0; color: #b8b8b8; }
+			#package-provenance-help li { margin: 3px 0; color: #b8b8b8; }
 			#package-provenance-help ol { margin: 3px 0; padding-inline-start: 18px; }
 			#package-provenance-help table { border-collapse: collapse; margin-block-start: 4px; }
 			#package-provenance-help td { padding: 2px 12px 2px 0; vertical-align: top; color: #b8b8b8; }
