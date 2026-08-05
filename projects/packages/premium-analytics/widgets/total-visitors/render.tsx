@@ -52,7 +52,7 @@ const HEADLINE_OPTIONS = { useMultipliers: true, decimals: 1 };
  *
  * @return The widget content.
  */
-function TotalVisitorsReport() {
+function TotalVisitorsMetric() {
 	const { reportParams } = useWidgetRootContext();
 	const period = defaultPeriodForInterval( reportParams.interval, PERIODS );
 
@@ -129,7 +129,7 @@ export default function TotalVisitorsRender( {
 }: TotalVisitorsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError }>
-			<TotalVisitorsReport />
+			<TotalVisitorsMetric />
 		</WidgetRoot>
 	);
 }

@@ -51,7 +51,7 @@ const HEADLINE_OPTIONS = { useMultipliers: true, decimals: 1 };
  *
  * @return The widget content.
  */
-function TotalViewsReport() {
+function TotalViewsMetric() {
 	const { reportParams } = useWidgetRootContext();
 	const period = defaultPeriodForInterval( reportParams.interval, PERIODS );
 
@@ -125,7 +125,7 @@ function TotalViewsReport() {
 export default function TotalViewsRender( { attributes = {}, setError }: TotalViewsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError }>
-			<TotalViewsReport />
+			<TotalViewsMetric />
 		</WidgetRoot>
 	);
 }
