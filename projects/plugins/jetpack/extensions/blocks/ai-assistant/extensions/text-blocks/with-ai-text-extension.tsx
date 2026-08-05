@@ -10,7 +10,7 @@ import {
 } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls, useBlockProps } from '@wordpress/block-editor';
-import { createHigherOrderComponent } from '@wordpress/compose';
+import { createHigherOrderComponent, useViewportMatch } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState, useRef, useMemo } from '@wordpress/element';
 import { addFilter, doAction } from '@wordpress/hooks';
@@ -148,8 +148,13 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		const customPlaceholder = getExtensionInputPlaceholder();
 
+		const isMobileViewport = useViewportMatch( 'medium', '<' );
+
 		// State to display the AI Control or not.
-		const [ showAiControl, setShowAiControl ] = useState( startOpen );
+		// The input is sticky to the bottom of the viewport, so on narrow screens it hovers over
+		// the block instead of sitting below it. Skip the auto-open there and let the user reach
+		// it from the toolbar, so the block they just inserted stays visible.
+		const [ showAiControl, setShowAiControl ] = useState( startOpen && ! isMobileViewport );
 
 		// Called when the user clicks the "Ask AI Assistant" button.
 		const handleAskAiAssistant = useCallback( () => {
