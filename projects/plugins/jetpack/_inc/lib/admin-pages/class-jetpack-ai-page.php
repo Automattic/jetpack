@@ -103,7 +103,10 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 		 */
 		$seo_settings_url = admin_url( 'admin.php?page=jetpack#/traffic' );
 		if (
-			class_exists( '\Automattic\Jetpack\SEO\Initializer' )
+			// The exact-symbol guard matters: the autoloader can select an older
+			// jetpack-seo copy from another plugin that has the class but not
+			// this method, and class_exists alone would then fatal here.
+			method_exists( '\Automattic\Jetpack\SEO\Initializer', 'is_seo_surface_visible' )
 			&& (bool) apply_filters( 'rsm_jetpack_seo', false )
 			&& \Automattic\Jetpack\SEO\Initializer::is_seo_surface_visible()
 		) {
