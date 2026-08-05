@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
+import { Link, Stack, Text } from '@jetpack-premium-analytics/externals';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { _n, sprintf } from '@wordpress/i18n';
-import { Link, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */

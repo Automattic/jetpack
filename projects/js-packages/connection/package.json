@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "2.2.0",
+	"version": "2.2.2",
 	"description": "Jetpack Connection Component",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/connection/#readme",
 	"bugs": {
@@ -43,8 +43,8 @@
 		"@wordpress/data": "10.51.0",
 		"@wordpress/element": "8.3.0",
 		"@wordpress/i18n": "6.24.0",
-		"@wordpress/icons": "15.1.0",
-		"@wordpress/ui": "0.17.0",
+		"@wordpress/icons": "15.3.0",
+		"@wordpress/ui": "0.19.0",
 		"@wordpress/url": "4.51.0",
 		"clsx": "2.1.1",
 		"debug": "4.4.3",

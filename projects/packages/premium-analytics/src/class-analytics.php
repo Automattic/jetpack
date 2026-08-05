@@ -22,7 +22,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -49,6 +49,17 @@ class Analytics {
 	 * @var string|null
 	 */
 	private static $resolved_menu_title = null;
+
+	/**
+	 * Path to the wp-build entry point. Null uses the generated build.
+	 *
+	 * A test seam: `build/` is gitignored and `test-php` runs no build step, so a
+	 * test has nothing to observe unless it can redirect this. Private, so unlike
+	 * the widget manifest's path it needs no filter to stay out of reach.
+	 *
+	 * @var string|null
+	 */
+	private static $build_entry = null;
 
 	/**
 	 * Initialize the Analytics app on a connected Jetpack site.
@@ -79,8 +90,54 @@ class Analytics {
 
 		self::boot_shared_services();
 		self::register_dashboard_support_routes();
+		self::load_dashboard_surface();
+	}
+
+	/**
+	 * Load the dashboard render surface, on the requests that can render it.
+	 *
+	 * With the rollout flag on, init() runs on every request — on WordPress.com
+	 * Simple, every request across WPCOM's public-api process — so everything
+	 * below would otherwise be parsed for visitors who can never use it.
+	 *
+	 * REST serves the dashboard too but is deliberately excluded: it loads what
+	 * it needs itself. See load_build().
+	 *
+	 * @return void
+	 */
+	private static function load_dashboard_surface() {
+		if ( ! self::renders_admin_chrome() ) {
+			return;
+		}
+
+		self::load_dashboard_components();
 		self::load_build();
 		self::register_admin_page();
+	}
+
+	/**
+	 * Whether this request can render an admin screen.
+	 *
+	 * Core also sets is_admin() on admin-ajax.php and admin-post.php, which render
+	 * no dashboard and for which this package registers no handlers. Both fire
+	 * admin_init before core checks the user is logged in, and the build's
+	 * interceptor keys on $_GET['page'] alone, so without these exclusions either
+	 * endpoint answers ?page=jetpack-premium-analytics with a full dashboard page
+	 * — to anyone.
+	 *
+	 * Narrowing the request is as far as this package can go: the interceptor has
+	 * no capability check of its own, so any logged-in user still reaches it
+	 * through an ordinary admin screen. That fix belongs in the wp-build output.
+	 *
+	 * @return bool
+	 */
+	private static function renders_admin_chrome() {
+		if ( ! is_admin() || wp_doing_ajax() ) {
+			return false;
+		}
+
+		// wp-includes/vars.php sets $pagenow before plugins load.
+		return 'admin-post.php' !== ( $GLOBALS['pagenow'] ?? '' );
 	}
 
 	/**
@@ -106,8 +163,7 @@ class Analytics {
 		self::apply_options( $options );
 
 		self::boot_shared_services();
-		self::load_build();
-		self::register_admin_page();
+		self::load_dashboard_surface();
 	}
 
 	/**
@@ -124,12 +180,15 @@ class Analytics {
 	}
 
 	/**
-	 * Boot the services and registries every platform needs, regardless of
-	 * whether the site serves the dashboard support routes itself.
+	 * Boot the services every platform needs, whether or not the site serves the
+	 * dashboard support routes itself.
 	 *
 	 * @return void
 	 */
 	private static function boot_shared_services() {
+		// Must be hooked before admin_menu and rest_api_init check the capability.
+		Capabilities::register();
+
 		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
 		WooCommerce_Analytics_Tracker::configure();
 
@@ -137,7 +196,71 @@ class Analytics {
 		// register on all requests. Self-gates on WooCommerce + Jetpack connection.
 		Export::configure();
 
-		self::load_dashboard_components();
+		self::register_script_data();
+	}
+
+	/**
+	 * Announce to Jetpack's other surfaces that this dashboard is the site's
+	 * analytics UI, so they link here instead of the Stats page. Publishing it
+	 * from the package that owns the dashboard means the key exists exactly
+	 * where the dashboard does. Registered from both init paths, so Simple gets
+	 * it too.
+	 *
+	 * @return void
+	 */
+	private static function register_script_data() {
+		add_filter( 'jetpack_admin_js_script_data', array( static::class, 'add_script_data' ) );
+	}
+
+	/**
+	 * Runs on nearly every admin page load, so the payload stays to two strings,
+	 * a bool, and one capability check.
+	 *
+	 * @param array $data The script data.
+	 * @return array The script data with the analytics key added.
+	 */
+	public static function add_script_data( $data ) {
+		$data['analytics'] = array(
+			'enabled'   => true,
+			'page_slug' => self::MENU_PAGE_SLUG,
+			'can_view'  => current_user_can( Capabilities::VIEW_ANALYTICS ),
+			'timezone'  => self::site_timezone(),
+		);
+
+		return $data;
+	}
+
+	/**
+	 * Prefers `timezone_string` over `gmt_offset`, matching the dashboard's own
+	 * `getSiteTimezone()`: analytics links point at past dates, so they cross
+	 * daylight-saving boundaries routinely, and a fixed offset applied to the far
+	 * side of a transition shifts the day.
+	 *
+	 * @return string An IANA timezone name, or a `+HH:MM` UTC offset.
+	 */
+	private static function site_timezone() {
+		$timezone_string = get_option( 'timezone_string' );
+
+		if ( is_string( $timezone_string ) && $timezone_string !== '' ) {
+			return $timezone_string;
+		}
+
+		return self::format_gmt_offset( (float) get_option( 'gmt_offset' ) );
+	}
+
+	/**
+	 * Format a GMT offset in hours as `+HH:MM`.
+	 *
+	 * @param float $offset The offset in hours, e.g. 5.5 or -8.
+	 * @return string The formatted offset.
+	 */
+	private static function format_gmt_offset( $offset ) {
+		$sign     = $offset < 0 ? '-' : '+';
+		$absolute = abs( $offset );
+		$hours    = (int) floor( $absolute );
+		$minutes  = (int) round( ( $absolute - $hours ) * 60 );
+
+		return sprintf( '%s%02d:%02d', $sign, $hours, $minutes );
 	}
 
 	/**
@@ -171,20 +294,45 @@ class Analytics {
 	/**
 	 * Load the dashboard components every platform renders with.
 	 *
+	 * Admin-only, via load_dashboard_surface(); boot_routes() requires these
+	 * again for REST.
+	 *
 	 * @return void
 	 */
 	private static function load_dashboard_components() {
+		/*
+		 * Every include below is guarded on a symbol the target file declares.
+		 *
+		 * Two copies of this package can be loaded in one request — WPCOM Simple ships
+		 * one under jetpack-plugin and another under jetpack-mu-wpcom-plugin. The
+		 * autoloader dedupes classes by version, but these files declare functions and
+		 * constants at file scope, so they are absent from the classmap entirely and
+		 * reach us through `require_once`, which dedupes by path and not by symbol.
+		 * Once a class from one copy and a class from the other both run their
+		 * includes, PHP fatals on the redeclared functions. The guards make the second
+		 * copy's include a no-op, which also keeps the files' file-scope side effects
+		 * (add_filter() calls, registry bootstrapping) from running twice.
+		 */
+
 		// Widget modules for the client's dynamic import() map.
-		require_once __DIR__ . '/widget-modules.php';
+		if ( ! function_exists( __NAMESPACE__ . '\\register_widget_modules_rest_route' ) ) {
+			require_once __DIR__ . '/widget-modules.php';
+		}
 
 		// Default layout's first-load preference injection.
-		require_once __DIR__ . '/dashboard-layout.php';
+		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_default_layout_route' ) ) {
+			require_once __DIR__ . '/dashboard-layout.php';
+		}
 
 		// Dashboard sections and their default layout seeding.
-		require_once __DIR__ . '/dashboard-sections.php';
+		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_section' ) ) {
+			require_once __DIR__ . '/dashboard-sections.php';
+		}
 
-		// Opt-in CSV export settings.
-		require_once __DIR__ . '/csv-exports.php';
+		// Default-on CSV export settings and server-side disable filter.
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_csv_exports' ) ) {
+			require_once __DIR__ . '/csv-exports.php';
+		}
 		configure_csv_exports();
 	}
 
@@ -201,14 +349,13 @@ class Analytics {
 	/**
 	 * Load the wp-build output (interceptor, modules, routes, page render).
 	 *
-	 * Must run before the is_admin() gate: the registry serves REST requests
-	 * too (is_admin() false there). Render pieces self-gate on admin_init, so
-	 * this is inert off the dashboard.
+	 * Admin-only, via load_dashboard_surface(). REST does not need it:
+	 * boot_routes() and ensure_widget_registry_ready() load what they use.
 	 *
 	 * @return void
 	 */
 	private static function load_build() {
-		$build_entry = __DIR__ . '/../build/build.php';
+		$build_entry = self::$build_entry ?? __DIR__ . '/../build/build.php';
 		if ( file_exists( $build_entry ) ) {
 			require_once $build_entry;
 		}
@@ -220,10 +367,6 @@ class Analytics {
 	 * @return void
 	 */
 	private static function register_admin_page() {
-		if ( ! is_admin() ) {
-			return;
-		}
-
 		// Polyfills force-replace core handles (wp-private-apis) on wp_default_scripts;
 		// scope to the dashboard page so no other admin page (e.g. block editor) is hit.
 		if ( self::is_dashboard_request() ) {
@@ -249,12 +392,18 @@ class Analytics {
 	}
 
 	/**
+	 * The admin page slug the dashboard menu registers. Published in script data
+	 * so no caller has to hard-code it.
+	 */
+	const MENU_PAGE_SLUG = 'jetpack-premium-analytics-wp-admin';
+
+	/**
 	 * Admin page slugs that render the Premium Analytics dashboard.
 	 *
 	 * Mirrors the slugs the wp-build interceptor renders (full-page and the
 	 * wp-admin integrated variant).
 	 */
-	const DASHBOARD_PAGE_SLUGS = array( 'jetpack-premium-analytics', 'jetpack-premium-analytics-wp-admin' );
+	const DASHBOARD_PAGE_SLUGS = array( 'jetpack-premium-analytics', self::MENU_PAGE_SLUG );
 
 	/**
 	 * Whether the current request is rendering a Premium Analytics dashboard page.
@@ -310,8 +459,8 @@ class Analytics {
 		add_menu_page(
 			esc_html( $menu_title ),
 			esc_html( $menu_title ),
-			'manage_options',
-			'jetpack-premium-analytics-wp-admin',
+			Capabilities::VIEW_ANALYTICS,
+			self::MENU_PAGE_SLUG,
 			$render_callback,
 			'dashicons-chart-bar',
 			2
@@ -361,7 +510,7 @@ class Analytics {
 		// esc_html() as a broken label instead of falling back here.
 		self::$resolved_menu_title = is_string( $title ) && '' !== $title
 			? $title
-			: __( 'Analytics', 'jetpack-premium-analytics-pkg' );
+			: __( 'Stats v2', 'jetpack-premium-analytics-pkg' );
 
 		return self::$resolved_menu_title;
 	}

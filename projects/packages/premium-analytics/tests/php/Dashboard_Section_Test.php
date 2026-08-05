@@ -12,11 +12,14 @@ use WP_REST_Request;
 use WP_REST_Server;
 
 require_once __DIR__ . '/../../src/dashboard-sections.php';
+require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
 
 /**
  * Tests for Premium Analytics dashboard sections.
  */
 class Dashboard_Section_Test extends BaseTestCase {
+
+	use Analytics_Capabilities_Trait;
 
 	/**
 	 * Counter for unique test user logins.
@@ -41,6 +44,10 @@ class Dashboard_Section_Test extends BaseTestCase {
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
 		register_dashboard_sections_rest_routes();
+
+		// Hooked by the package's entry points in production; the routes under test
+		// are gated on the capability it maps.
+		Capabilities::register();
 	}
 
 	/**
@@ -56,6 +63,10 @@ class Dashboard_Section_Test extends BaseTestCase {
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'doing_it_wrong_run' );
 		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
+
+		// Drops the package's mapping along with any per-user view_stats grant a
+		// test added; set_up() hooks the mapping again.
+		$this->reset_analytics_capabilities();
 
 		wp_set_current_user( 0 );
 
@@ -107,7 +118,96 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame( 'traffic', $section->slug );
 		$this->assertSame( 'Traffic', $section->label );
 		$this->assertSame( 15, $section->order );
+		$this->assertSame( Dashboard_Section::DATE_FILTER_RANGE, $section->date_filter );
 		$this->assertSame( $layout, $section->get_default_layout() );
+	}
+
+	/**
+	 * A section can opt into the year date filter.
+	 */
+	public function test_section_accepts_the_year_date_filter() {
+		$registry = new Dashboard_Section_Registry();
+
+		$section = $registry->register(
+			'example_dashboard',
+			'example/insights',
+			array( 'date_filter' => Dashboard_Section::DATE_FILTER_YEAR )
+		);
+
+		$this->assertInstanceOf( Dashboard_Section::class, $section );
+		$this->assertSame( Dashboard_Section::DATE_FILTER_YEAR, $section->date_filter );
+		$this->assertSame( Dashboard_Section::DATE_FILTER_YEAR, $section->to_array()['date_filter'] );
+	}
+
+	/**
+	 * An unrecognized date filter keeps the default instead of reaching the dashboard.
+	 */
+	public function test_section_ignores_unknown_date_filter() {
+		$section = new Dashboard_Section(
+			'example_dashboard',
+			'example/traffic',
+			array( 'date_filter' => 'fortnight' )
+		);
+
+		$this->assertSame( Dashboard_Section::DATE_FILTER_RANGE, $section->date_filter );
+	}
+
+	/**
+	 * Sections default to the date-range filter when the arg is omitted.
+	 */
+	public function test_section_defaults_to_the_range_date_filter() {
+		$section = new Dashboard_Section( 'example_dashboard', 'example/traffic' );
+
+		$this->assertSame( Dashboard_Section::DATE_FILTER_RANGE, $section->date_filter );
+		$this->assertSame( 'range', $section->to_array()['date_filter'] );
+	}
+
+	/**
+	 * The built-in Insights section offers the year date filter; the rest keep the range.
+	 */
+	public function test_built_in_sections_declare_their_date_filters() {
+		// Store needs both gates: the filter stands in for WooCommerce being active,
+		// and the admin user satisfies the capability check added in #50889.
+		$this->set_admin_user();
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+
+		register_default_dashboard_sections();
+
+		$this->assertSame(
+			array(
+				'traffic'     => Dashboard_Section::DATE_FILTER_RANGE,
+				'insights'    => Dashboard_Section::DATE_FILTER_YEAR,
+				'subscribers' => Dashboard_Section::DATE_FILTER_RANGE,
+				'store'       => Dashboard_Section::DATE_FILTER_RANGE,
+			),
+			array_column(
+				array_map(
+					static function ( Dashboard_Section $section ) {
+						return $section->to_array();
+					},
+					get_available_dashboard_sections( DASHBOARD_NAME )
+				),
+				'date_filter',
+				'slug'
+			)
+		);
+	}
+
+	/**
+	 * The sections schema documents the date-filter surfaces and their default.
+	 */
+	public function test_sections_schema_documents_the_date_filter() {
+		$schema = get_dashboard_section_schema();
+
+		$this->assertSame(
+			array( 'id', 'slug', 'label', 'order', 'date_filter', 'default_layout' ),
+			array_keys( $schema['properties'] )
+		);
+		$this->assertSame(
+			array( 'range', 'year' ),
+			$schema['properties']['date_filter']['enum']
+		);
+		$this->assertSame( 'range', $schema['properties']['date_filter']['default'] );
 	}
 
 	/**
@@ -269,6 +369,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'slug'           => 'traffic',
 					'label'          => 'Traffic',
 					'order'          => 10,
+					'date_filter'    => 'range',
 					'default_layout' => array(),
 				),
 			),
@@ -380,22 +481,25 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				array(
-					'id'    => 'analytics/traffic',
-					'slug'  => 'traffic',
-					'label' => 'Traffic',
-					'order' => 10,
+					'id'          => 'analytics/traffic',
+					'slug'        => 'traffic',
+					'label'       => 'Traffic',
+					'order'       => 10,
+					'date_filter' => 'range',
 				),
 				array(
-					'id'    => 'analytics/insights',
-					'slug'  => 'insights',
-					'label' => 'Insights',
-					'order' => 20,
+					'id'          => 'analytics/insights',
+					'slug'        => 'insights',
+					'label'       => 'Insights',
+					'order'       => 20,
+					'date_filter' => 'year',
 				),
 				array(
-					'id'    => 'analytics/subscribers',
-					'slug'  => 'subscribers',
-					'label' => 'Subscribers',
-					'order' => 30,
+					'id'          => 'analytics/subscribers',
+					'slug'        => 'subscribers',
+					'label'       => 'Subscribers',
+					'order'       => 30,
+					'date_filter' => 'range',
 				),
 			),
 			array_map(
@@ -417,6 +521,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 */
 	public function test_registers_woocommerce_dashboard_section_when_available() {
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+		$this->set_admin_user();
 
 		register_default_dashboard_sections();
 
@@ -471,6 +576,62 @@ class Dashboard_Section_Test extends BaseTestCase {
 				get_available_dashboard_sections( DASHBOARD_NAME )
 			)
 		);
+	}
+
+	/**
+	 * Store data is only served to administrators, so a reader who reached the
+	 * dashboard through view_stats is not offered the section at all.
+	 */
+	public function test_omits_woocommerce_dashboard_section_from_a_view_stats_reader() {
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+		$user_id = $this->set_editor_user();
+		$this->grant_view_stats_to( $user_id );
+
+		register_default_dashboard_sections();
+
+		$woocommerce = get_registered_dashboard_section( DASHBOARD_NAME, 'woocommerce/store' );
+
+		$this->assertFalse( $woocommerce->is_available() );
+		$this->assertNotContains(
+			'woocommerce/store',
+			array_map(
+				static function ( Dashboard_Section $section ) {
+					return $section->id;
+				},
+				get_available_dashboard_sections( DASHBOARD_NAME )
+			)
+		);
+	}
+
+	/**
+	 * That reader still gets the section routes: the dashboard itself is theirs.
+	 */
+	public function test_sections_route_serves_a_view_stats_reader() {
+		$user_id = $this->set_editor_user();
+		$this->grant_view_stats_to( $user_id );
+
+		register_default_dashboard_sections();
+
+		$response = rest_get_server()->dispatch(
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/' . DASHBOARD_NAME . '/sections' )
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+	}
+
+	/**
+	 * A user with neither capability gets nothing.
+	 */
+	public function test_sections_route_refuses_a_plain_editor() {
+		$this->set_editor_user();
+
+		register_default_dashboard_sections();
+
+		$response = rest_get_server()->dispatch(
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/' . DASHBOARD_NAME . '/sections' )
+		);
+
+		$this->assertSame( 403, $response->get_status() );
 	}
 
 	/**
@@ -531,6 +692,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'slug'           => 'first',
 					'label'          => 'First',
 					'order'          => 10,
+					'date_filter'    => 'range',
 					'default_layout' => array(),
 				),
 				array(
@@ -538,6 +700,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'slug'           => 'later',
 					'label'          => 'Later',
 					'order'          => 20,
+					'date_filter'    => 'range',
 					'default_layout' => array(),
 				),
 			),
@@ -612,6 +775,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'slug'           => 'traffic',
 					'label'          => 'Traffic',
 					'order'          => 10,
+					'date_filter'    => 'range',
 					'default_layout' => array(
 						array(
 							'uuid' => 'default-route-widget',
@@ -763,5 +927,27 @@ class Dashboard_Section_Test extends BaseTestCase {
 		wp_set_current_user( $admin_id );
 
 		return $admin_id;
+	}
+
+	/**
+	 * Set current user to an editor: a dashboard reader once granted view_stats,
+	 * and never an administrator.
+	 *
+	 * @return int User ID.
+	 */
+	private function set_editor_user() {
+		++self::$user_count;
+
+		$editor_id = wp_insert_user(
+			array(
+				'user_login' => 'jpa_dashboard_sections_editor_' . self::$user_count,
+				'user_pass'  => 'password',
+				'role'       => 'editor',
+			)
+		);
+
+		wp_set_current_user( $editor_id );
+
+		return $editor_id;
 	}
 }

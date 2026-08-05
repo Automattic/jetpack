@@ -21,7 +21,7 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.12.2';
+	const PACKAGE_VERSION = '0.12.3';
 
 	const ADMIN_PAGE_SLUG = 'jetpack-newsletter';
 
@@ -88,6 +88,9 @@ class Settings {
 		// and wp-build loading here so they exist on admin-ajax.php and
 		// admin-post.php requests. The menu itself is added by the Jetpack
 		// plugin's subscriptions module, which owns the Subscribers placement.
+		// init() self-gates on Subscribers_Announcement::is_enabled(), which is
+		// also what the menu-registration entry points consult, so the handlers
+		// and the menu can never disagree about whether the feature is on.
 		Subscribers_Announcement::init();
 
 		// Add the Reading settings notice as long as subscriptions are active.
@@ -335,13 +338,16 @@ class Settings {
 		// other caller — runs on the modernized path alone. Without this,
 		// WordPress silently drops the script over the unregistered dependency
 		// and the page renders blank. Request only the handles this bundle needs:
-		// `wp-theme` (Core never registers it) and `wp-private-apis` (so the
-		// polyfill can replace Core's incomplete allowlist on older WP). We leave
-		// out `wp-notices` so the polyfill's force-replacement never touches it.
+		// `wp-theme` (Core never registers it), `wp-private-apis` (so the polyfill
+		// can replace Core's incomplete allowlist on older WP) and `wp-rich-text`
+		// (`@wordpress/ui` also reaches `@wordpress/dataviews`, whose dataform
+		// controls unlock rich-text's `privateApis` at module scope; WP 6.9 exports
+		// none, which throws "Cannot unlock an undefined object"). We leave out
+		// `wp-notices` so the polyfill's force-replacement never touches it.
 		if ( class_exists( \Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::class ) ) {
 			\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
 				'jetpack-newsletter',
-				array( 'wp-theme', 'wp-private-apis' )
+				array( 'wp-theme', 'wp-private-apis', 'wp-rich-text' )
 			);
 		}
 

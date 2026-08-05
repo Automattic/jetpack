@@ -1,12 +1,13 @@
 import { registerJetpackPlugin, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { createBlock } from '@wordpress/blocks';
-import { select } from '@wordpress/data';
-import { PluginPreviewMenuItem } from '@wordpress/editor';
+import { select, useSelect } from '@wordpress/data';
+import { PluginPreviewMenuItem, store as editorStore } from '@wordpress/editor';
 import { useState, useCallback } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { atSymbol, send } from '@wordpress/icons';
 import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
+import useClearPhantomMetaDirt from '../../shared/use-clear-phantom-meta-dirt';
 import metadata from './block.json';
 import CommandPalette from './command-palette';
 import deprecated from './deprecated';
@@ -77,7 +78,7 @@ const shouldShowNewsletterMenu = () => {
 
 const useNewsletterPreview = () => {
 	const [ isPreviewModalOpen, setIsPreviewModalOpen ] = useState( false );
-	const postId = select( 'core/editor' ).getCurrentPostId();
+	const postId = useSelect( _select => _select( editorStore ).getCurrentPostId(), [] );
 	const { tracks } = useAnalytics();
 
 	const openPreviewModal = useCallback(
@@ -98,6 +99,10 @@ const useNewsletterPreview = () => {
 const NewsletterEditor = () => {
 	const { isPreviewModalOpen, openPreviewModal, closePreviewModal, postId } =
 		useNewsletterPreview();
+	const postType = useSelect( _select => _select( editorStore ).getCurrentPostType(), [] );
+
+	// Editor-wide, not newsletter-specific: any panel that edits post meta hits the same bug.
+	useClearPhantomMetaDirt( postType, postId );
 
 	return (
 		<>

@@ -22,7 +22,7 @@ interface Props {
  * are Jetpack SEO user meta.
  *
  * Presentational: the Author profile card owns the {@link useAuthorProfile}
- * controller (so the header badge and this form share one state) and passes it
+ * controller (so the header status and this form share one state) and passes it
  * in via `form`.
  *
  * @param props      - Component props.
@@ -39,9 +39,9 @@ const AuthorProfileSection: FC< Props > = ( { form } ) => {
 
 	return (
 		<Stack direction="column" gap="lg">
-			<Text variant="body-sm" className={ styles.muted }>
+			<Text variant="body-md" render={ <p /> }>
 				{ __(
-					'Shown as Person schema on your articles and author archive. Name, bio, and website update your WordPress profile.',
+					'Adds Person schema to your articles and author archive. Name, bio, and website also update your WordPress profile.',
 					'jetpack-seo'
 				) }
 			</Text>
@@ -101,10 +101,7 @@ const AuthorProfileSection: FC< Props > = ( { form } ) => {
 
 			<ProfileUrlList
 				label={ __( 'Social profiles', 'jetpack-seo' ) }
-				help={ __(
-					'Links to your public profiles (for example Facebook, X, LinkedIn). Shown as sameAs.',
-					'jetpack-seo'
-				) }
+				help={ __( 'Links to your public profiles — Facebook, X, LinkedIn.', 'jetpack-seo' ) }
 				urls={ sameAs }
 				onChange={ next => setProfileField( { sameAs: next } ) }
 				disabled={ disabled }

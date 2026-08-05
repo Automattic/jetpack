@@ -97,11 +97,15 @@ class Jetpack_SEO_Titles {
 			return $default_title;
 		}
 
-		// If it's a singular -- page or post -- check for a meta title override.
-		// Also check the front page: when a static page is used as the homepage and the
-		// user has set a per-page SEO title, that title should take precedence over (or
-		// serve as a fallback for) the site-wide Front Page title format.
-		if ( 'pages' === $page_type || 'posts' === $page_type || 'front_page' === $page_type ) {
+		// If it's a singular -- page or post -- check for a meta title override. Also
+		// check a static front page, where get_post() returns that page. On a latest-posts
+		// homepage it would instead return the first post in the loop, letting the newest
+		// post's SEO title hijack the homepage title.
+		$check_post_meta = 'pages' === $page_type
+			|| 'posts' === $page_type
+			|| ( 'front_page' === $page_type && 'page' === get_option( 'show_on_front' ) );
+
+		if ( $check_post_meta ) {
 			$post = get_post();
 			if ( $post instanceof WP_Post ) {
 				$custom_title = get_post_meta( $post->ID, Jetpack_SEO_Posts::HTML_TITLE_META_KEY, true );

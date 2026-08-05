@@ -253,7 +253,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/agents-manager",
-                "reference": "7a2c9058e35e94a42562eee55d0528376601801b"
+                "reference": "4df6395858de38d510ef9d09253b288e30a5aaff"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -275,7 +275,7 @@
                 "autorelease": true,
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.8.x-dev"
+                    "dev-trunk": "0.9.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-agents-manager/compare/v${old}...v${new}"
@@ -1160,7 +1160,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/help-center",
-                "reference": "d0694e7d9bd86f99017e4e9f42348d2bb83480e6"
+                "reference": "017c4230a4a324dcd0daab94d5e171dda6898441"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1181,7 +1181,7 @@
                 "autorelease": true,
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
+                    "dev-trunk": "0.3.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-help-center/compare/v${old}...v${new}"
@@ -2298,7 +2298,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "aa4d6effbd21f16943f4f5d4b80412c8711efc11"
+                "reference": "3525ee3e6045297e88f350cd6a5ace1526585522"
             },
             "require": {
                 "automattic/jetpack-blaze": "@dev",
@@ -2323,7 +2323,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-stats-admin",
                 "branch-alias": {
-                    "dev-trunk": "0.31.x-dev"
+                    "dev-trunk": "0.32.x-dev"
                 },
                 "textdomain": "jetpack-stats-admin",
                 "version-constants": {
@@ -2366,7 +2366,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "1d6ff66fe1a7869d8acef38cc32289aa3dbdd7c6"
+                "reference": "fcd11045af8de22bd8c817d1722c69128707776d"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -2391,7 +2391,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.1.x-dev"
+                    "dev-trunk": "6.2.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -2560,7 +2560,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wp-build-polyfills",
-                "reference": "552586a6a5288c977124576e399bd2ce3bd4df59"
+                "reference": "f2ec3c289e3adfada76eec1c12d2e93824904bc0"
             },
             "require": {
                 "php": ">=7.2"
@@ -2579,7 +2579,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
+                    "dev-trunk": "0.3.x-dev"
                 }
             },
             "autoload": {

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-external-media",
-	"version": "0.8.28",
+	"version": "0.8.29",
 	"private": true,
 	"description": "The external media feature allows users to select and import photos from external media",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/external-media/#readme",
@@ -39,7 +39,7 @@
 		"@wordpress/element": "8.3.0",
 		"@wordpress/hooks": "4.51.0",
 		"@wordpress/i18n": "6.24.0",
-		"@wordpress/icons": "15.1.0",
+		"@wordpress/icons": "15.3.0",
 		"@wordpress/keycodes": "4.51.0",
 		"@wordpress/url": "4.51.0",
 		"clsx": "2.1.1",

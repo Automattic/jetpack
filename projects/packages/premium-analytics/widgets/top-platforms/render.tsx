@@ -6,7 +6,7 @@ import { device } from '@jetpack-premium-analytics/icons';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Stack, Text } from '@jetpack-premium-analytics/externals';
 import {
 	calculateDelta,
 	describeError,

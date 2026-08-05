@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-admin-ui",
-	"version": "0.9.13",
+	"version": "0.9.14",
 	"private": true,
 	"description": "Generic Jetpack wp-admin UI elements",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/admin-ui/#readme",
@@ -28,7 +28,7 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@wordpress/browserslist-config": "6.51.0",
-		"@wordpress/theme": "0.17.0",
+		"@wordpress/theme": "1.1.0",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"sass-embedded": "1.97.3",

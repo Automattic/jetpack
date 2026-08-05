@@ -321,6 +321,177 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A freshly-verified magic-link token whose blog_subscriber email matches the local
+	 * account's own email should self-heal the wpcom_user_id link (NL-805), so future
+	 * requests can resolve subscriptions via the authoritative filter without another
+	 * magic-link round trip once the token/cookie expires.
+	 *
+	 * @return void
+	 */
+	public function test_get_and_set_token_from_request_links_wpcom_user_id_when_email_matches() {
+		$local_user_id = $this->factory->user->create(
+			array( 'user_email' => 'matching@example.test' )
+		);
+		$wpcom_user_id = 999999;
+
+		wp_set_current_user( $local_user_id );
+		$this->assertSame( '', get_user_meta( $local_user_id, 'wpcom_user_id', true ) );
+
+		$this->set_returned_token(
+			array(
+				'user_id'         => $wpcom_user_id,
+				'blog_subscriber' => 'matching@example.test',
+				'subscriptions'   => array(),
+			)
+		);
+
+		subscription_service()->get_and_set_token_from_request();
+
+		$this->assertSame( $wpcom_user_id, (int) get_user_meta( $local_user_id, 'wpcom_user_id', true ) );
+	}
+
+	/**
+	 * The email match must be case-insensitive -- WordPress itself normalizes emails to
+	 * lowercase in some paths but not all, and email addresses are case-insensitive by
+	 * convention.
+	 *
+	 * @return void
+	 */
+	public function test_get_and_set_token_from_request_links_wpcom_user_id_with_case_insensitive_email_match() {
+		$local_user_id = $this->factory->user->create(
+			array( 'user_email' => 'Matching@Example.Test' )
+		);
+		$wpcom_user_id = 999999;
+
+		wp_set_current_user( $local_user_id );
+		$this->set_returned_token(
+			array(
+				'user_id'         => $wpcom_user_id,
+				'blog_subscriber' => 'matching@example.test',
+				'subscriptions'   => array(),
+			)
+		);
+
+		subscription_service()->get_and_set_token_from_request();
+
+		$this->assertSame( $wpcom_user_id, (int) get_user_meta( $local_user_id, 'wpcom_user_id', true ) );
+	}
+
+	/**
+	 * A local account must never be linked to whichever WordPress.com session happens to
+	 * be active in the browser (e.g. a shared device) when the two aren't otherwise the
+	 * same person -- only a matching email is trusted as confirmation. The local
+	 * account's own stored email is never proof of identity by itself (see NL-787's
+	 * account-impersonation concern), so a mismatch must not link anything.
+	 *
+	 * @return void
+	 */
+	public function test_get_and_set_token_from_request_does_not_link_when_email_mismatch() {
+		$local_user_id = $this->factory->user->create(
+			array( 'user_email' => 'local-account@example.test' )
+		);
+
+		wp_set_current_user( $local_user_id );
+		$this->set_returned_token(
+			array(
+				'user_id'         => 999999,
+				'blog_subscriber' => 'someone-else@example.test',
+				'subscriptions'   => array(),
+			)
+		);
+
+		subscription_service()->get_and_set_token_from_request();
+
+		$this->assertSame( '', get_user_meta( $local_user_id, 'wpcom_user_id', true ) );
+	}
+
+	/**
+	 * An anonymous visitor (e.g. arriving via a ?token= magic link from a newsletter
+	 * email, with no local WordPress session at all) has no local account to link --
+	 * this must not error, and the token must still be returned normally.
+	 *
+	 * @return void
+	 */
+	public function test_get_and_set_token_from_request_does_not_link_when_not_logged_in() {
+		wp_set_current_user( 0 );
+		$this->set_returned_token(
+			array(
+				'user_id'         => 999999,
+				'blog_subscriber' => 'someone@example.test',
+				'subscriptions'   => array(),
+			)
+		);
+
+		$token = subscription_service()->get_and_set_token_from_request();
+
+		$this->assertNotEmpty( $token, 'The token should still be returned even with no local user to link.' );
+	}
+
+	/**
+	 * A stale wpcom_user_id (e.g. left over from a previous WordPress.com account that
+	 * used to own this email) must be corrected to match the freshly-verified token, not
+	 * left alone just because some value was already present.
+	 *
+	 * @return void
+	 */
+	public function test_get_and_set_token_from_request_updates_stale_wpcom_user_id() {
+		$local_user_id = $this->factory->user->create(
+			array( 'user_email' => 'matching@example.test' )
+		);
+		update_user_meta( $local_user_id, 'wpcom_user_id', 111111 );
+
+		wp_set_current_user( $local_user_id );
+		$this->set_returned_token(
+			array(
+				'user_id'         => 999999,
+				'blog_subscriber' => 'matching@example.test',
+				'subscriptions'   => array(),
+			)
+		);
+
+		subscription_service()->get_and_set_token_from_request();
+
+		$this->assertSame( 999999, (int) get_user_meta( $local_user_id, 'wpcom_user_id', true ) );
+	}
+
+	/**
+	 * Once the meta already matches the token, no redundant meta write should happen.
+	 *
+	 * @return void
+	 */
+	public function test_get_and_set_token_from_request_does_not_rewrite_when_already_linked() {
+		$local_user_id = $this->factory->user->create(
+			array( 'user_email' => 'matching@example.test' )
+		);
+		update_user_meta( $local_user_id, 'wpcom_user_id', 999999 );
+
+		wp_set_current_user( $local_user_id );
+		$this->set_returned_token(
+			array(
+				'user_id'         => 999999,
+				'blog_subscriber' => 'matching@example.test',
+				'subscriptions'   => array(),
+			)
+		);
+
+		$update_count = 0;
+		add_action(
+			'updated_user_meta',
+			static function ( $meta_id, $user_id, $meta_key ) use ( &$update_count ) {
+				if ( 'wpcom_user_id' === $meta_key ) {
+					++$update_count;
+				}
+			},
+			10,
+			3
+		);
+
+		subscription_service()->get_and_set_token_from_request();
+
+		$this->assertSame( 0, $update_count, 'No meta write should happen when the value is already correct.' );
+	}
+
+	/**
 	 * Regression guard: a logged-in user without `wpcom_user_id` user_meta (the typical
 	 * Jetpack self-hosted case) must still be granted access via the JWT cookie path.
 	 *

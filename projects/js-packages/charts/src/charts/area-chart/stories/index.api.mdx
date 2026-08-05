@@ -28,7 +28,8 @@ Stacked-by-default area chart component with responsive behaviour.
 | `renderTooltip` | `(params: RenderTooltipParams) => ReactNode?` | - | Custom tooltip render function |
 | `animation` | `boolean` | `false` | Enable entry animation. Respects `prefers-reduced-motion` |
 | `showLegend` | `boolean` | `false` | Display chart legend |
-| `legend` | `ChartLegendConfig` | - | Legend configuration object |
+| `legend` | `SeriesChartLegendConfig` | - | Legend configuration object. See [SeriesChartLegendConfig](#serieschartlegendconfig-type) |
+| `rescaleYOnVisibilityChange` | `boolean?` | `true` | Whether the value axis rescales to the visible series when the visible set changes. Set `false` to pin it to the full data range so the baseline doesn't move as series are hidden |
 | `gridVisibility` | `'x' \| 'y' \| 'xy' \| 'none'?` | grid shown | Control grid visibility |
 | `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }?` | calculated | Chart margins |
 | `options` | `ChartOptions?` | `{}` | Advanced axis and scale configuration |
@@ -41,7 +42,7 @@ Stacked-by-default area chart component with responsive behaviour.
 
 ## AreaChart.Legend
 
-Composition-API legend slot. See the [Legend component docs](./?path=/docs/js-packages-charts-library-components-legend--docs) for the full prop surface.
+Composition-API legend slot. See the [Legend component API reference](./?path=/docs/js-packages-charts-library-components-legend-api-reference--docs) for the full prop surface.
 
 ## Notes on stacking
 
@@ -64,3 +65,21 @@ When `withTooltips` is `true`, a circular glyph is rendered at each visible seri
 | `expand` | Values are normalised so each x-position sums to 1.0. Produces a 100% stacked area chart. |
 | `wiggle` | Streamgraph: minimises the weighted change in slope, producing a flowing layout around a central baseline. |
 | `silhouette` | Stack centred around zero — symmetric layout without the wiggle minimisation. |
+
+## SeriesChartLegendConfig Type
+
+```typescript
+type SeriesChartLegendConfig = {
+	orientation?: 'horizontal' | 'vertical';
+	position?: 'top' | 'bottom';
+	alignment?: 'start' | 'center' | 'end';
+	shape?: LegendShape;
+	interactive?: boolean;
+	// Collapse series sharing a `group` into one item (line, bar, area charts only).
+	collapseGroups?: boolean;
+	itemClassName?: string;
+	itemStyles?: LegendItemStyles;
+	labelStyles?: LegendLabelStyles;
+	shapeStyles?: LegendShapeStyles;
+};
+```

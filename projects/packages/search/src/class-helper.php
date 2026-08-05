@@ -1007,6 +1007,222 @@ class Helper {
 	}
 
 	/**
+	 * Default highlight fields when `highlightFields` is unset in
+	 * `jetpack_instant_search_options`. Matches instant search's JS default.
+	 *
+	 * @since $$next-version$$
+	 */
+	const DEFAULT_INSTANT_SEARCH_HIGHLIGHT_FIELDS = array( 'title', 'content', 'comments' );
+
+	/**
+	 * Fields added to API `fields` when searching additional blogs.
+	 *
+	 * @since $$next-version$$
+	 */
+	const MULTISITE_SEARCH_FIELD_NAMES = array( 'author', 'blog_name', 'blog_icon_url', 'blog_id' );
+
+	/**
+	 * Read Instant Search query-customization options from a filtered options array.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $options Raw `jetpack_instant_search_options` value.
+	 * @return array Query options with keys:
+	 *               `highlightPhraseOnly`, `highlightFilterStopwords`, `highlightFields`,
+	 *               `additionalBlogIds`, `adminQueryFilter`, and `customResults`.
+	 */
+	public static function parse_instant_search_query_options( array $options ): array {
+		$highlight_phrase_only = ! empty( $options['highlightPhraseOnly'] );
+
+		// The v1.3 API rejects requests combining `highlight_filter_stopwords` with
+		// `highlight_phrase_only` (phrase-only wins server-side) — drop the stopword
+		// list so requests stay valid when a filter sets both.
+		$stopwords = array();
+		if ( ! $highlight_phrase_only && ! empty( $options['highlightFilterStopwords'] ) && is_array( $options['highlightFilterStopwords'] ) ) {
+			$stopwords = array_values(
+				array_filter(
+					$options['highlightFilterStopwords'],
+					static function ( $word ) {
+						return is_string( $word ) && '' !== $word;
+					}
+				)
+			);
+		}
+
+		$highlight_fields = null;
+		if ( ! empty( $options['highlightFields'] ) && is_array( $options['highlightFields'] ) ) {
+			$highlight_fields = array_values(
+				array_filter(
+					$options['highlightFields'],
+					static function ( $field ) {
+						return is_string( $field ) && '' !== $field;
+					}
+				)
+			);
+			if ( array() === $highlight_fields ) {
+				$highlight_fields = null;
+			}
+		}
+
+		$additional_blog_ids = array();
+		if ( ! empty( $options['additionalBlogIds'] ) && is_array( $options['additionalBlogIds'] ) ) {
+			$additional_blog_ids = array_values( $options['additionalBlogIds'] );
+		}
+
+		$admin_query_filter = null;
+		if ( ! empty( $options['adminQueryFilter'] ) && is_array( $options['adminQueryFilter'] ) ) {
+			$admin_query_filter = $options['adminQueryFilter'];
+		}
+
+		$custom_results = array();
+		if ( ! empty( $options['customResults'] ) && is_array( $options['customResults'] ) ) {
+			foreach ( $options['customResults'] as $rule ) {
+				if ( ! is_array( $rule ) ) {
+					continue;
+				}
+				$pattern = isset( $rule['pattern'] ) && is_string( $rule['pattern'] ) ? $rule['pattern'] : '';
+				$ids     = isset( $rule['ids'] ) && is_array( $rule['ids'] ) ? array_values( $rule['ids'] ) : array();
+				if ( '' === $pattern || array() === $ids ) {
+					continue;
+				}
+				$custom_results[] = array(
+					'pattern' => $pattern,
+					'ids'     => $ids,
+				);
+			}
+		}
+
+		return array(
+			'highlightPhraseOnly'      => $highlight_phrase_only,
+			'highlightFilterStopwords' => $stopwords,
+			'highlightFields'          => $highlight_fields,
+			'additionalBlogIds'        => $additional_blog_ids,
+			'adminQueryFilter'         => $admin_query_filter,
+			'customResults'            => $custom_results,
+		);
+	}
+
+	/**
+	 * Read Instant Search query-customization options via `jetpack_instant_search_options`.
+	 *
+	 * Passing an empty array into the filter matches `Filter_Static::read_raw_entries()`
+	 * — callbacks only add keys.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array Query options with keys:
+	 *               `highlightPhraseOnly`, `highlightFilterStopwords`, `highlightFields`,
+	 *               `additionalBlogIds`, `adminQueryFilter`, and `customResults`.
+	 */
+	public static function get_instant_search_query_options(): array {
+		$options = apply_filters( 'jetpack_instant_search_options', array() );
+		if ( ! is_array( $options ) ) {
+			$options = array();
+		}
+
+		return self::parse_instant_search_query_options( $options );
+	}
+
+	/**
+	 * Merge Instant Search query-customization options into v1.3 API args.
+	 *
+	 * Shared by Inline Search (Theme) and any server-side v1.3 callers.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array      $api_query_args API query arguments.
+	 * @param array|null $options        Filtered `jetpack_instant_search_options` value. Defaults to `generate_initial_javascript_state()`.
+	 * @return array
+	 */
+	public static function apply_instant_search_query_options_to_api_args( array $api_query_args, ?array $options = null ): array {
+		if ( null === $options ) {
+			$options = self::generate_initial_javascript_state();
+		}
+		if ( ! is_array( $options ) ) {
+			return $api_query_args;
+		}
+
+		$query_options = self::parse_instant_search_query_options( $options );
+
+		if ( null !== $query_options['adminQueryFilter'] ) {
+			$api_query_args['filter'] = array(
+				'bool' => array(
+					'filter' => $api_query_args['filter'] ?? array(),
+					'must'   => $query_options['adminQueryFilter'],
+				),
+			);
+		}
+
+		if ( $query_options['highlightPhraseOnly'] ) {
+			$api_query_args['highlight_phrase_only'] = true;
+		}
+
+		if ( ! empty( $query_options['highlightFilterStopwords'] ) ) {
+			$api_query_args['highlight_filter_stopwords'] = $query_options['highlightFilterStopwords'];
+		}
+
+		if ( null !== $query_options['highlightFields'] ) {
+			$api_query_args['highlight_fields'] = $query_options['highlightFields'];
+			$api_query_args['highlight']        = array(
+				'fields' => $query_options['highlightFields'],
+			);
+		}
+
+		if ( ! empty( $query_options['additionalBlogIds'] ) ) {
+			$api_query_args['additional_blog_ids'] = $query_options['additionalBlogIds'];
+			$fields                                = isset( $api_query_args['fields'] ) && is_array( $api_query_args['fields'] )
+				? $api_query_args['fields']
+				: array();
+			$api_query_args['fields']              = array_values(
+				array_unique( array_merge( $fields, self::MULTISITE_SEARCH_FIELD_NAMES ) )
+			);
+		}
+
+		$matched_custom_results = self::resolve_instant_search_custom_results(
+			(string) ( $api_query_args['query'] ?? '' ),
+			$query_options['customResults']
+		);
+		if ( null !== $matched_custom_results ) {
+			$api_query_args['custom_results'] = $matched_custom_results;
+		}
+
+		return $api_query_args;
+	}
+
+	/**
+	 * Resolve `customResults` post IDs for a search query.
+	 *
+	 * Mirrors instant search's exact / `regex:` pattern matching.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $query          Current search query.
+	 * @param array  $custom_results Normalized custom-results rules.
+	 * @return array<int, int|string>|null
+	 */
+	public static function resolve_instant_search_custom_results( string $query, array $custom_results ): ?array {
+		if ( array() === $custom_results ) {
+			return null;
+		}
+
+		foreach ( $custom_results as $rule ) {
+			$pattern = $rule['pattern'];
+			$ids     = $rule['ids'];
+			if ( 0 === strpos( $pattern, 'regex:' ) ) {
+				// Escape the delimiter so patterns containing `/` (e.g. `regex:docs/.*`) stay valid PCRE.
+				$regex = '/^' . str_replace( '/', '\/', substr( $pattern, strlen( 'regex:' ) ) ) . '$/';
+				if ( @preg_match( $regex, $query ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Invalid user regex should be skipped, not fatal.
+					return $ids;
+				}
+			} elseif ( $query === $pattern ) {
+				return $ids;
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * Returns true if the site is a WordPress.com simple site, i.e. the code runs on WPCOM.
 	 */
 	public static function is_wpcom() {

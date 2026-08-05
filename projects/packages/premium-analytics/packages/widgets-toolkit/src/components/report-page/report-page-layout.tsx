@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Text } from '@wordpress/ui';
+import { Text } from '@jetpack-premium-analytics/externals';
 import clsx from 'clsx';
 /**
  * Internal dependencies

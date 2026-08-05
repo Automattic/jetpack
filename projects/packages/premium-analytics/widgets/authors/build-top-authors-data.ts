@@ -25,6 +25,7 @@ const UNTRACKED_AUTHORS_SENTINEL = 'Untracked Authors';
  */
 export interface AuthorPost {
 	id: string;
+	postId?: string | number;
 	title: string;
 	link: string | null;
 	currentValue: number;
@@ -89,6 +90,7 @@ function toAuthorPostRows( posts: StatsTopAuthorsPostComparisonItem[] ): AuthorP
 
 		return {
 			id: post.id != null ? String( post.id ) : post.link ?? `post-${ index }`,
+			postId: post.id ?? undefined,
 			title: typeof post.label === 'string' ? post.label : String( post.label ?? '' ),
 			link: post.link ?? null,
 			currentValue: post.views,

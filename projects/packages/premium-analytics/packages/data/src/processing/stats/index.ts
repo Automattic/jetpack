@@ -52,7 +52,7 @@ export { compareEmailBreakdownItems, sanitizeStatsEmailBreakdownResponse } from 
 export { mergeStatsArchivesComparisonRows, sanitizeStatsArchivesResponse } from './archives';
 export { sanitizeStatsCommentFollowersResponse } from './comment-followers';
 export { sanitizeStatsFollowersResponse } from './followers';
-export { sanitizeStatsCommentsResponse } from './comments';
+export { sanitizeStatsCommentsResponse, selectStatsCommentsRows } from './comments';
 export {
 	sanitizeStatsSubscribersResponse,
 	sanitizeStatsSubscribersCountsResponse,
@@ -60,7 +60,6 @@ export {
 export { sanitizeStatsStreakResponse } from './streak';
 export { sanitizeStatsTagsResponse } from './tags';
 export { mergeStatsDevicesComparisonRows, sanitizeStatsDevicesResponse } from './devices';
-export { sanitizeStatsPublicizeResponse } from './publicize';
 export {
 	sanitizeStatsWordAdsStatsResponse,
 	sanitizeStatsWordAdsEarningsResponse,
@@ -130,17 +129,13 @@ export type {
 } from './comment-followers';
 export type { StatsDevicesComparisonItem, StatsDevicesItem } from './devices';
 export type {
-	StatsPublicizeApiResponse,
-	StatsPublicizeItem,
-	StatsPublicizeService,
-} from './publicize';
-export type {
 	StatsFollowersItem,
 	StatsFollowersRawItem,
 	StatsFollowersRawResponse,
 } from './followers';
 export type {
 	StatsCommentsAuthorItem,
+	StatsCommentsGroup,
 	StatsCommentsGroupItem,
 	StatsCommentsItem,
 	StatsCommentsPostItem,
@@ -149,6 +144,7 @@ export type {
 	StatsCommentsRawPost,
 	StatsCommentsRawResponse,
 	StatsCommentsResponse,
+	StatsCommentsRow,
 } from './comments';
 export type {
 	StatsSubscribersCounts,
@@ -185,6 +181,7 @@ export type {
 	StatsSingleVideoPage,
 	StatsSingleVideoPost,
 	StatsSingleVideoReport,
+	StatsSingleVideoTotals,
 } from './single-video';
 export type {
 	StatsItemAction,

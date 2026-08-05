@@ -1,10 +1,10 @@
 /**
  * External dependencies
  */
+import { Text } from '@jetpack-premium-analytics/externals';
 import { Button, DropdownMenu, MenuGroup, MenuItem, SelectControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { check, moreVertical } from '@wordpress/icons';
-import { Text } from '@wordpress/ui';
 import { useMemo, useState } from 'react';
 /**
  * Internal dependencies
@@ -24,7 +24,6 @@ import type { ReactNode } from 'react';
 // Charts base styles. Widgets get these through WidgetRoot; report pages
 // render charts without a WidgetRoot, so load them here. Without them the
 // chart's layout constraints are missing and the svg grows without bound.
-import '@automattic/charts/style.css';
 
 const DEFAULT_DATA_FORMAT: DataFormat = {
 	type: 'number',

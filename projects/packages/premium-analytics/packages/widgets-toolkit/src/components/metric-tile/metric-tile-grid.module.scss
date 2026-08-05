@@ -68,7 +68,7 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 	overflow: hidden;
 	color: var(--wpds-color-foreground-content-neutral);
 	font-size: clamp(var(--wpds-typography-font-size-xl), 10cqh, $metric-tile-grid-row-value-font-size-max);
-	font-weight: var(--wpds-typography-font-weight-regular);
+	font-weight: var(--wpds-typography-font-weight-default);
 	line-height: 1.2;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -95,7 +95,7 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 }
 
 .placeholder {
-	font-weight: var(--wpds-typography-font-weight-medium);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
 }
 
 .tile .placeholder {

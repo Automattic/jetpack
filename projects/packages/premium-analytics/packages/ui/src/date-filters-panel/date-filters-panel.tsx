@@ -2,14 +2,17 @@
  * External dependencies
  */
 import {
+	getQuickSurfacePresets,
 	isComparisonPresetId,
 	isPrimaryPreset,
 	type ComparisonPresetId,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
+import { Stack } from '@jetpack-premium-analytics/externals';
+import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { BaseControl } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
-import { Stack } from '@wordpress/ui';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useMemo, useCallback, useState, useEffect } from 'react';
 /**
@@ -18,10 +21,18 @@ import { useMemo, useCallback, useState, useEffect } from 'react';
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
 import { DateRangeFilter } from '../date-range-filter';
 import {
-	MOBILE_CONTAINER_WIDTH_THRESHOLD,
+	resolvePresetLabelMode,
 	WIDE_CALENDAR_CONTAINER_THRESHOLD,
+	type PresetRowWidths,
 } from '../date-range-layout';
+import {
+	getCommittedCustomRange,
+	getCustomTriggerLabel,
+	getCustomTriggerState,
+	type RememberedCustomRange,
+} from '../date-range-popover';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
+import { PresetRowProbe } from './preset-row-probe';
 
 import './date-filters-panel.scss';
 
@@ -100,13 +111,6 @@ export type DateFiltersPanelProps = {
 	 * Required for proper date/time handling.
 	 */
 	timeZone: string;
-
-	/**
-	 * Optional external container element for responsive calculations.
-	 * When provided, the date-range filter will measure this container's width
-	 * instead of its own wrapper to determine compact/wide layouts.
-	 */
-	containerElement?: HTMLElement | null;
 };
 
 /**
@@ -136,7 +140,6 @@ export function DateFiltersPanel( {
 	onCancel,
 	canApply = true,
 	timeZone,
-	containerElement,
 }: DateFiltersPanelProps ) {
 	/**
 	 * Validate and normalize the primary preset ID.
@@ -206,31 +209,116 @@ export function DateFiltersPanel( {
 	 * and `isWideScreen` is forwarded only because the calendar needs it.
 	 */
 	const [ containerWidth, setContainerWidth ] = useState< number | null >( null );
+	const [ rootElement, setRootElement ] = useState< HTMLElement | null >( null );
 
 	const handleResize = useCallback( ( entries: ResizeObserverEntry[] ) => {
 		const entry = entries[ 0 ];
 		if ( entry ) {
-			setContainerWidth( entry.contentRect.width );
+			// Floored, and floored rather than rounded to stay on the conservative
+			// side of the probe's `Math.ceil`. Both consumers are step functions, so
+			// the fractional part never changes the output while a raw float would
+			// re-render the panel on every frame of a drag.
+			setContainerWidth( Math.floor( entry.contentRect.width ) );
 		}
 	}, [] );
 
 	const setObserverRef = useResizeObserver< HTMLElement >( handleResize );
 
+	/*
+	 * Measure this panel's own root. Callers used to wrap the panel and hand the
+	 * wrapper back as a prop; all ten passed their immediate wrapper, so the
+	 * number was the panel's own width and the ceremony bought nothing.
+	 */
 	useEffect( () => {
-		setObserverRef( containerElement ?? document.body );
-	}, [ containerElement, setObserverRef ] );
+		setObserverRef( rootElement ?? document.body );
+	}, [ rootElement, setObserverRef ] );
 
-	const isCompact = containerWidth !== null && containerWidth < MOBILE_CONTAINER_WIDTH_THRESHOLD;
+	/*
+	 * The last applied custom range, remembered so the trigger can offer the way
+	 * back to it while a preset is driving the range.
+	 *
+	 * Owned here rather than inside the popover because it is an input to the
+	 * trigger's label, and the probe below has to reproduce that label exactly.
+	 * Held downstream it would be invisible to the probe, which would measure
+	 * "Custom" against a trigger showing a formatted range and under-measure the
+	 * row by the difference between the two.
+	 *
+	 * Only ever set: a preset selection clears the committed custom range, and
+	 * the point of remembering is to survive exactly that.
+	 */
+	const [ rememberedCustomRange, setRememberedCustomRange ] =
+		useState< RememberedCustomRange | null >( null );
+
+	useEffect( () => {
+		const committedCustomRange = getCommittedCustomRange( validatedAppliedPresetId, appliedRange );
+
+		if ( committedCustomRange ) {
+			setRememberedCustomRange( committedCustomRange );
+		}
+	}, [ validatedAppliedPresetId, appliedRange ] );
+
+	// Derived through the same helpers the trigger uses, so the probe measures
+	// the string the trigger is actually showing.
+	const customTriggerLabel = useMemo( () => {
+		const committedRange = appliedRange ?? range;
+
+		return getCustomTriggerLabel( {
+			triggerState: getCustomTriggerState( {
+				presetId: validatedPresetId,
+				appliedPresetId: validatedAppliedPresetId,
+				canApply,
+				isOpen: isPrimaryPickerOpen,
+			} ),
+			range,
+			committedRange,
+			rememberedCustomRange,
+			customLabel: __( 'Custom', 'jetpack-premium-analytics-pkg' ),
+			formatRange: formatDateRange,
+		} );
+	}, [
+		appliedRange,
+		canApply,
+		isPrimaryPickerOpen,
+		range,
+		rememberedCustomRange,
+		validatedAppliedPresetId,
+		validatedPresetId,
+	] );
+
+	// Labels only. The pills recompute their own ranges at selection time, so a
+	// stale memo here costs nothing.
+	const surfacePresets = useMemo( () => getQuickSurfacePresets( timeZone ), [ timeZone ] );
+
+	const [ rowWidths, setRowWidths ] = useState< PresetRowWidths | null >( null );
+	const handleProbeMeasure = useCallback( ( widths: PresetRowWidths ) => {
+		setRowWidths( widths );
+	}, [] );
+
+	// Both candidates come from the probe, so the boundary follows the active
+	// locale rather than a breakpoint picked for English.
+	const labelMode = useMemo(
+		() => resolvePresetLabelMode( containerWidth, rowWidths ),
+		[ containerWidth, rowWidths ]
+	);
+
+	const isCompact = labelMode === 'select';
 	const isWideScreen =
 		containerWidth !== null && containerWidth >= WIDE_CALENDAR_CONTAINER_THRESHOLD;
 
 	return (
 		<Stack
+			ref={ setRootElement }
 			className={ clsx( 'date-filters-panel', { 'is-compact': isCompact } ) }
 			direction={ isCompact ? 'column' : 'row' }
 			wrap={ isCompact ? 'nowrap' : 'wrap' }
 			gap="sm"
 		>
+			<PresetRowProbe
+				presets={ surfacePresets }
+				customTriggerLabel={ customTriggerLabel }
+				onMeasure={ handleProbeMeasure }
+			/>
+
 			<BaseControl
 				className="date-filters-panel__primary"
 				label={ rangeControlProps.label }
@@ -247,8 +335,9 @@ export function DateFiltersPanel( {
 					onCancel={ onCancel }
 					canApply={ canApply }
 					timeZone={ timeZone }
-					isCompact={ isCompact }
+					labelMode={ labelMode }
 					isWideScreen={ isWideScreen }
+					rememberedCustomRange={ rememberedCustomRange }
 					onOpenChange={ setIsPrimaryPickerOpen }
 				/>
 			</BaseControl>

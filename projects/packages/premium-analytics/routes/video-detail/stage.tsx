@@ -2,22 +2,20 @@
  * External dependencies
  */
 import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
-import { pickReportDateParams, useDashboardLink } from '@jetpack-premium-analytics/routing';
-import { Breadcrumbs, Page } from '@wordpress/admin-ui';
+import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
+import { pickReportDateParams, useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Link, useParams, useSearch } from '@wordpress/route';
-import { Button, Stack, Text } from '@wordpress/ui';
-import { WidgetDashboard } from '@wordpress/widget-dashboard';
-import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
+import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 /**
  * Internal dependencies
  */
-// Grid settings are intentionally shared across analytics dashboards (see the
-// hook's own note), so the video-detail page reuses the dashboard's hook rather
-// than storing a separate copy.
-import { useDashboardGridSettings } from '../dashboard/hooks/use-dashboard-grid-settings';
+import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { VideoSummaryCard } from './components';
 import { VIDEO_DETAIL_LAYOUT } from './config';
 import { useVideoSummary } from './hooks';
@@ -25,6 +23,12 @@ import { route } from './package.json';
 import styles from './stage.module.scss';
 
 const ROUTE_FROM = route.path;
+
+// The video-detail composition is fixed (WOOA7S-1625) and laid out against the
+// small (200px) row height used by the design, matching post detail. Keep its
+// grid independent from the customizable main-dashboard preference so a future
+// settings control cannot stretch these tiles out of proportion.
+const VIDEO_DETAIL_GRID = { ...DEFAULT_GRID, rowHeight: ROW_HEIGHT_PRESETS.small };
 
 // The layout is fixed, so the change callback never fires; the dashboard
 // still requires one because it owns a staging copy internally.
@@ -38,7 +42,6 @@ const noopLayoutChange = () => {};
 function VideoDetail(): JSX.Element {
 	const { videoId: videoIdParam } = useParams( { from: ROUTE_FROM } ) as { videoId?: string };
 	const summary = useVideoSummary( Number( videoIdParam ) );
-	const [ gridSettings ] = useDashboardGridSettings();
 
 	const widgetModules = useSelect(
 		select =>
@@ -58,9 +61,13 @@ function VideoDetail(): JSX.Element {
 		[]
 	);
 
-	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypes( widgetModules );
+	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
-	const dashboardLink = useDashboardLink();
+	// The applied report date range lives in the URL search params, read through
+	// the shared date-filter controller. The panel that edits it is intentionally
+	// absent for now: the header's filter UI collides with the preset-measurement
+	// rework in progress, so it ships separately once that lands (WOOA7S-1816).
+	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const reportSearch = pickReportDateParams( search );
 
@@ -104,26 +111,23 @@ function VideoDetail(): JSX.Element {
 			</Stack>
 		);
 	} else {
-		summaryContent = <VideoSummaryCard summary={ resolvedSummary } />;
+		summaryContent = (
+			<VideoSummaryCard summary={ resolvedSummary } performanceRange={ dateFilters.appliedRange } />
+		);
 	}
 
 	return (
 		<WidgetDashboard
 			widgetTypes={ widgetTypes }
 			isResolvingWidgetTypes={ isResolvingWidgetTypes }
+			resolveWidgetModule={ resolveWidgetModuleWithI18n }
 			layout={ VIDEO_DETAIL_LAYOUT }
 			onLayoutChange={ noopLayoutChange }
-			gridSettings={ gridSettings }
+			gridSettings={ VIDEO_DETAIL_GRID }
 		>
 			<Page
-				breadcrumbs={
-					<Breadcrumbs
-						items={ [
-							{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
-							...( title ? [ { label: title } ] : [] ),
-						] }
-					/>
-				}
+				visual={ <StatsPageIcon /> }
+				breadcrumbs={ <StatsBreadcrumbs items={ title ? [ { label: title } ] : [] } /> }
 				className={ styles.page }
 			>
 				<div className={ styles.scrollArea }>
@@ -134,7 +138,7 @@ function VideoDetail(): JSX.Element {
 					) : null }
 					{ canRenderWidgets ? (
 						<div className={ styles.content }>
-							<WidgetDashboard.Widgets />
+							<WidgetDashboard.Widgets className={ styles.widgets } />
 						</div>
 					) : null }
 				</div>

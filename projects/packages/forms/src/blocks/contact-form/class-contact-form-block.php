@@ -977,10 +977,15 @@ class Contact_Form_Block {
 		$akismet_active_with_key = Jetpack::is_akismet_active();
 		$akismet_key_url         = admin_url( 'admin.php?page=akismet-key-config' );
 
+		$default_recipient = Contact_Form::get_default_to_with_source( $post );
+
 		$data = array(
 			'defaults' => array(
-				'to'                   => Contact_Form::get_default_to_for_editor( $post ),
-				'subject'              => Contact_Form::get_default_subject( array() ),
+				'to'                   => $default_recipient['to'],
+				'toSource'             => $default_recipient['source'],
+				// Decoded for display only: get_option( 'blogname' ) stores the site title HTML-encoded,
+				// which would otherwise surface raw entities such as &#039; in the editor's placeholder.
+				'subject'              => wp_specialchars_decode( Contact_Form::get_default_subject( array() ), ENT_QUOTES ),
 				'formsResponsesUrl'    => $form_responses_url,
 				'akismetActiveWithKey' => $akismet_active_with_key,
 				'akismetUrl'           => $akismet_key_url,

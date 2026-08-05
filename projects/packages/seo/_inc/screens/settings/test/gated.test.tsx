@@ -3,6 +3,7 @@ import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import type { SettingsResponse } from '../../../data/settings-types';
 import type { SettingsForm } from '../../../data/use-settings';
+import type { ReactNode } from 'react';
 
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the component under test dynamically after the mocks are registered.
@@ -15,6 +16,7 @@ jest.unstable_mockModule( '../../../data/is-gated', () => ( {
 
 jest.unstable_mockModule( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
+	Link: ( { children }: { children?: ReactNode } ) => <a href="#">{ children }</a>,
 } ) );
 
 // Heavy child cards are paid surfaces hidden when gated; stub them so the screen
@@ -37,7 +39,7 @@ jest.unstable_mockModule( '../verification-card', () => ( {
 
 const { default: SettingsScreen } = await import( '../index' );
 
-const FRONT_PAGE_LABEL = 'Meta description shown on the home page';
+const FRONT_PAGE_LABEL = 'Home page description';
 
 /**
  * Build a minimal Settings form whose `local` snapshot varies only the legacy
@@ -52,6 +54,9 @@ const buildForm = ( hasLegacy: boolean ): SettingsForm => {
 		front_page_description: 'Live description.',
 		has_legacy_front_page_meta: hasLegacy,
 		title_formats: {},
+		title_separator: '-',
+		title_formats_editable: true,
+		verification_tools_active: true,
 		verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 		search_engines_visible: true,
 		sitemap_active: false,
@@ -92,7 +97,7 @@ describe( 'SettingsScreen — gated front-page description', () => {
 
 		render( <SettingsScreen form={ buildForm( true ) } /> );
 
-		expect( screen.getByLabelText( FRONT_PAGE_LABEL ) ).toBeInTheDocument();
+		expect( screen.getByLabelText( FRONT_PAGE_LABEL ) ).toHaveAttribute( 'maxlength', '300' );
 	} );
 
 	it( 'shows the front-page description on an ungated site regardless of the legacy flag', () => {
@@ -101,5 +106,17 @@ describe( 'SettingsScreen — gated front-page description', () => {
 		render( <SettingsScreen form={ buildForm( false ) } /> );
 
 		expect( screen.getByLabelText( FRONT_PAGE_LABEL ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the Advanced module on a gated site', () => {
+		isGated.mockReturnValue( true );
+
+		render( <SettingsScreen form={ buildForm( false ) } /> );
+
+		// Deliberately outside the `gated` branch in the screen: gating removes paid
+		// *settings*, but a gated site still has SEO tools and must keep the way to
+		// switch them off. Without this, tucking the card into the gated branch would
+		// go unnoticed.
+		expect( screen.getByRole( 'heading', { level: 2, name: /Advanced/ } ) ).toBeInTheDocument();
 	} );
 } );

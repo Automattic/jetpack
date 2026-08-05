@@ -7,6 +7,7 @@ import { __, sprintf } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { saveBlob } from '../../utils/save-blob';
+import { isResponse } from '../is-response';
 import type { DateType } from '../../utils/types';
 
 const REPORT_DOWNLOAD_PATH = '/jetpack-premium-analytics/v1/reports/csv-export';
@@ -128,7 +129,7 @@ export async function downloadReport(
 			parse: false,
 		} );
 	} catch ( error ) {
-		if ( isResponseError( error ) ) {
+		if ( isResponse( error ) ) {
 			throw new Error( await getResponseErrorMessage( error ), { cause: error } );
 		}
 
@@ -216,16 +217,5 @@ async function getResponseErrorMessage( response: Response ): Promise< string > 
 		/* translators: %d: HTTP status code. */
 		__( 'Report download failed with status %d.', 'jetpack-premium-analytics-pkg' ),
 		response.status
-	);
-}
-
-function isResponseError( error: unknown ): error is Response {
-	return (
-		typeof error === 'object' &&
-		error !== null &&
-		'status' in error &&
-		typeof error.status === 'number' &&
-		'json' in error &&
-		typeof error.json === 'function'
 	);
 }

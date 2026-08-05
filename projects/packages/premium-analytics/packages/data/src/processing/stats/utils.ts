@@ -274,7 +274,7 @@ export function mergeStatsTreeComparisonRows<
 	};
 }
 
-function isStatsNumericSummaryValue( value: unknown ): boolean {
+export function isStatsNumericSummaryValue( value: unknown ): boolean {
 	return (
 		typeof value === 'number' ||
 		( typeof value === 'string' && value.trim() !== '' && ! Number.isNaN( Number( value ) ) )

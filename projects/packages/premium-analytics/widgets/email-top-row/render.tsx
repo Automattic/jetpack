@@ -17,8 +17,8 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { chartBar, envelope, link, people, percent, seen, send } from '@wordpress/icons';
-import { Icon, Stack } from '@wordpress/ui';
+import { envelope, link, people, percent, seen, send } from '@wordpress/icons';
+import { Icon, Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -129,7 +129,7 @@ const EMAIL_METRICS: readonly EmailMetricSpec[] = [
 	},
 	{
 		key: 'clicks_rate',
-		icon: chartBar,
+		icon: percent,
 		label: () => __( 'Click rate', 'jetpack-premium-analytics-pkg' ),
 		kind: 'rate',
 		views: [ 'clicks' ],

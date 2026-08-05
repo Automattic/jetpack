@@ -20,7 +20,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Csv_Report_Controller_Int
  *
  * Provides shared helper methods for creating empty items and getting default values.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 abstract class Abstract_Merge_Strategy implements Merge_Strategy_Interface {
 

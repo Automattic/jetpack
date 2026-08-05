@@ -21,7 +21,7 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 // a matched route the real hook warns and throws.
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
-const mockGetScriptData = getScriptData as jest.Mock;
+const mockGetScriptData = jest.mocked( getScriptData );
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
 function DashboardWidgetChromeFixture( { children }: { children: ReactNode } ) {
@@ -74,31 +74,48 @@ describe( 'TopPostsWidget', () => {
 		// The data package's query client is a module-level singleton; drop its
 		// cache so each test starts from a fresh fetch.
 		queryClient.clear();
-		mockGetScriptData.mockReturnValue( {
-			premium_analytics: { csv_exports_enabled: true },
-		} );
+		mockGetScriptData.mockReturnValue( undefined );
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( TOP_POSTS_RESPONSE );
 	} );
 
-	it( 'links titles to the post-detail page and appends an external link icon', async () => {
+	it( 'routes post titles to the post-detail page with no outbound link', async () => {
 		render( <TopPostsWidget attributes={ { max: 10 } } /> );
 
-		// The title links to the internal analytics post-detail route (the SPA
-		// path rides in the `p` query param), in the same tab.
+		// The title navigates through the router to the internal post-detail
+		// route, so the dashboard does not reload.
 		const titleLink = await screen.findByRole( 'link', { name: /^Hello World Post$/ } );
-		expect( titleLink ).toHaveAttribute( 'href', expect.stringContaining( 'p=%2Fpost%2F1' ) );
+		expect( titleLink ).toHaveAttribute( 'href', expect.stringContaining( '/post/1' ) );
+		expect( titleLink ).not.toHaveAttribute( 'target' );
 
-		// The trailing icon opens the public page in a new tab.
-		const externalLink = screen.getByRole( 'link', {
-			name: /open hello world post in a new tab/i,
-		} );
-		expect( externalLink ).toHaveAttribute( 'href', 'https://example.com/hello-world/' );
-		expect( externalLink ).toHaveAttribute( 'target', '_blank' );
-		expect( externalLink ).toHaveAttribute( 'rel', 'noopener noreferrer' );
-		expect( screen.queryByLabelText( '(opens in a new tab)' ) ).not.toBeInTheDocument();
+		// A row with a detail page carries no link out to the live post: the
+		// external-link icon marks destinations outside the app, and the detail
+		// page holds that link.
+		expect(
+			screen.queryByRole( 'link', { name: /open hello world post in a new tab/i } )
+		).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: 'https://example.com/hello-world/' } )
+		).not.toBeInTheDocument();
 
 		expect( screen.getByText( 'About Page' ) ).toBeInTheDocument();
+	} );
+
+	it( 'carries the dashboard date range into the post-detail link', async () => {
+		render(
+			<TopPostsWidget
+				attributes={ { max: 10, reportParams: { from: '2026-03-01', to: '2026-03-10' } } }
+			/>
+		);
+
+		const titleLink = await screen.findByRole( 'link', { name: /^Hello World Post$/ } );
+		const href = titleLink.getAttribute( 'href' ) ?? '';
+		const search = new URL( href, 'https://example.com' ).searchParams;
+
+		expect( href ).toContain( '/post/1' );
+		expect( search.get( 'from' ) ).toBe( '2026-03-01' );
+		expect( search.get( 'to' ) ).toBe( '2026-03-10' );
+		expect( search.get( 'post_url' ) ).toBe( 'https://example.com/hello-world/' );
 	} );
 
 	it( 'requests the dashboard date range from report params', async () => {
@@ -261,11 +278,14 @@ describe( 'TopPostsWidget', () => {
 		// eslint-disable-next-line testing-library/no-node-access
 		expect( downloadButton.parentElement ).toBe( reportLink.parentElement );
 	} );
-
 	it( 'hides the CSV export when the server flag is disabled', async () => {
 		mockGetScriptData.mockReturnValue( {
-			premium_analytics: { csv_exports_enabled: false },
-		} );
+			premium_analytics: {
+				initial_full_sync_finished: 1,
+				has_store_data: false,
+				csv_exports_enabled: false,
+			},
+		} as ReturnType< typeof getScriptData > );
 
 		render( <TopPostsWidget attributes={ { max: 10 } } /> );
 
@@ -651,7 +671,9 @@ describe( 'TopPostsWidget', () => {
 		// the trailing icon links out to the archive page.
 		await expect( screen.findByText( 'pricing' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /^pricing$/ } ) ).not.toBeInTheDocument();
-		const termLink = screen.getByRole( 'link', { name: /open pricing in a new tab/i } );
+		const termLink = screen.getByRole( 'link', {
+			name: /pricing.*opens in a new tab/i,
+		} );
 		expect( termLink ).toHaveAttribute( 'href', 'https://example.com/?s=pricing' );
 
 		const backLink = screen.getByRole( 'button', { name: /back to the previous archive list/i } );
@@ -688,7 +710,7 @@ describe( 'TopPostsWidget', () => {
 
 		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /^News$/ } ) ).not.toBeInTheDocument();
-		const termLink = screen.getByRole( 'link', { name: /open news in a new tab/i } );
+		const termLink = screen.getByRole( 'link', { name: /news.*opens in a new tab/i } );
 		expect( termLink ).toHaveAttribute( 'href', 'https://example.com/category/news/' );
 	} );
 } );

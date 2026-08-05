@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Time axis: accept a tickResolution hint on the x-axis options so callers that know the data's bucket size can set tick formats directly instead of relying on inference.

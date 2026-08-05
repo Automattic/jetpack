@@ -8,9 +8,10 @@ import {
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
-import { Icon, external } from '@wordpress/icons';
+import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import {
 	LeaderboardChart,
+	PostTitleLink,
 	ReportLink,
 	RowsCsvDownloadButton,
 	WidgetBackLink,
@@ -21,7 +22,6 @@ import {
 	getCombinedPeriodMax,
 	safeHttpUrl,
 	sharePercentage,
-	usePostDetailHrefBuilder,
 	useReportCsvExport,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -30,7 +30,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
-import { Link, Text } from '@wordpress/ui';
+import { Text } from '@jetpack-premium-analytics/externals';
 import { useCallback, useEffect, useMemo } from 'react';
 /**
  * Internal dependencies
@@ -59,15 +59,14 @@ export type TopPostRow = {
 	 */
 	previousValue?: number;
 	/**
-	 * Public URL of the content (post, page, or archive page). Rows with one
-	 * get a trailing external-link icon that opens it in a new tab.
+	 * Public URL of the content (post, page, or archive page). Only used when
+	 * the row has no post ID, as the fallback link out to the site.
 	 */
 	href?: string;
 	/**
-	 * Internal analytics post-detail href. Only post/page rows with a real
-	 * post ID get one; their title links here (same tab).
+	 * Post or page ID. Rows carrying one link to the internal detail page.
 	 */
-	detailHref?: string;
+	postId?: number;
 	/**
 	 * Post type, e.g. `post` or `page`.
 	 */
@@ -94,21 +93,23 @@ const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, 
  * and per-row deltas are derived from each row's `previousValue`; otherwise
  * the comparison fields are zeroed.
  *
- * Post/page titles link to the internal analytics post-detail page (same
- * tab); rows with a public URL also get a trailing external-link icon that
- * opens the site in a new tab. Rows with children instead become drill-down
- * rows (per the widget drill-down convention they carry no anchors), and
- * rows with neither (e.g. the homepage entry) render plain text. The label
- * fills its row so the leaderboard overlay bar gets its height from it.
+ * Titles route through `PostTitleLink`: post/page rows navigate to the
+ * internal detail page through the router, and rows without a post ID (the
+ * Archives view) fall back to the public URL and take the external-link icon.
+ * Rows with children instead become drill-down rows (per the widget
+ * drill-down convention they carry no anchors). The label fills its row so
+ * the leaderboard overlay bar gets its height from it.
  *
  * @param rows           - The normalized top-posts rows.
  * @param withComparison - Whether to derive previous-period shares and deltas.
+ * @param detailSearch   - Shared report-window parameters for the detail route.
  * @param onDrillDown    - Callback fired when a row with children is selected.
  * @return The leaderboard chart data.
  */
 function buildLeaderboardData(
 	rows: TopPostRow[],
 	withComparison: boolean,
+	detailSearch: Record< string, unknown >,
 	onDrillDown?: ( row: TopPostRow ) => void
 ): LeaderboardChartData {
 	const maxViews = getCombinedPeriodMax(
@@ -119,43 +120,30 @@ function buildLeaderboardData(
 	return rows.map( ( row, index ) => {
 		const previousValue = row.previousValue;
 		const hasChildren = !! row.children?.length;
-		// Rows inside a drill-down button cannot carry anchors, and only rows
-		// with a real post ID have an internal detail page to link to.
-		const titleLink = ! hasChildren && row.detailHref;
-		const externalLink = ! hasChildren && row.href;
 
 		return {
 			id: `${ index }-${ row.href ?? row.label }`,
 			label: (
 				<span className={ styles.labelRow }>
-					{ titleLink ? (
-						<Link
-							className={ styles.labelTitleLink }
-							href={ row.detailHref }
-							variant="unstyled"
-							title={ row.label }
-						>
-							{ row.label }
-						</Link>
-					) : (
+					{ /* Rows inside a drill-down button cannot carry anchors. */ }
+					{ hasChildren ? (
 						<Text className={ styles.labelTitle } title={ row.label }>
-							{ row.label }
+							<span className={ styles.labelText }>{ row.label }</span>
 						</Text>
-					) }
-					{ externalLink && (
-						<Link
-							className={ styles.externalLink }
-							href={ row.href }
-							variant="unstyled"
-							render={ <a target="_blank" rel="noopener noreferrer" /> }
-							aria-label={ sprintf(
-								/* translators: %s is a post, page, or archive page title. */
-								__( 'Open %s in a new tab', 'jetpack-premium-analytics-pkg' ),
-								row.label
-							) }
-						>
-							<Icon icon={ external } size={ 16 } />
-						</Link>
+					) : (
+						<PostTitleLink
+							id={ row.postId }
+							label={ row.label }
+							link={ row.href }
+							search={ detailSearch }
+							title={ row.label }
+							classNames={ {
+								internal: styles.labelTitleLink,
+								external: styles.labelExternalLink,
+								plain: styles.labelTitle,
+								text: styles.labelText,
+							} }
+						/>
 					) }
 				</span>
 			),
@@ -201,6 +189,11 @@ type TopPostsLeaderboardProps = {
 	 * interactive when this is provided.
 	 */
 	onDrillDown?: ( row: TopPostRow ) => void;
+	/**
+	 * Shared report-window parameters carried into the post-detail route, so
+	 * the detail page opens on the date range the widget is showing.
+	 */
+	detailSearch?: Record< string, unknown >;
 };
 
 /**
@@ -215,10 +208,11 @@ export const TopPostsLeaderboard = ( {
 	rows = [],
 	withComparison = false,
 	onDrillDown,
+	detailSearch = {},
 }: TopPostsLeaderboardProps ) => {
 	return (
 		<LeaderboardChart
-			data={ buildLeaderboardData( rows, withComparison, onDrillDown ) }
+			data={ buildLeaderboardData( rows, withComparison, detailSearch, onDrillDown ) }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
@@ -234,14 +228,10 @@ export const TopPostsLeaderboard = ( {
  * entry, which has no URL or post ID. Missing comparison matches stay
  * `undefined`.
  *
- * @param items           - The merged comparison rows from `useStatsTopPosts`.
- * @param buildDetailHref - Maps a post ID to the internal post-detail href.
+ * @param items - The merged comparison rows from `useStatsTopPosts`.
  * @return The normalized top-posts rows.
  */
-function toTopPostRows(
-	items: StatsTopPostsComparisonItem[],
-	buildDetailHref: ( postId: number | string ) => string
-): TopPostRow[] {
+function toTopPostRows( items: StatsTopPostsComparisonItem[] ): TopPostRow[] {
 	return items.map( item => {
 		const postId = Number( item.id );
 		const href = safeHttpUrl( item.link );
@@ -253,9 +243,7 @@ function toTopPostRows(
 			...( item.previousViews !== undefined ? { previousValue: item.previousViews } : {} ),
 			...( href ? { href } : {} ),
 			// The homepage entry (id 0) has no post-detail page.
-			...( Number.isFinite( postId ) && postId > 0
-				? { detailHref: buildDetailHref( postId ) }
-				: {} ),
+			...( Number.isFinite( postId ) && postId > 0 ? { postId } : {} ),
 			type: String( item.type ?? '' ),
 		};
 	} );
@@ -288,11 +276,8 @@ function TopPostsReport( { max }: TopPostsReportProps ) {
 	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsTopPosts( statsParams, { maxRows: max } );
 
-	const buildDetailHref = usePostDetailHrefBuilder();
-	const rows = useMemo(
-		() => toTopPostRows( comparisonRows?.rows ?? [], buildDetailHref ),
-		[ comparisonRows, buildDetailHref ]
-	);
+	const rows = useMemo( () => toTopPostRows( comparisonRows?.rows ?? [] ), [ comparisonRows ] );
+	const detailSearch = useMemo( () => pickReportDateParams( reportParams ), [ reportParams ] );
 	const withComparison = hasComparison;
 
 	// Serialize whatever the leaderboard has loaded, mirroring the Jetpack Stats
@@ -352,7 +337,11 @@ function TopPostsReport( { max }: TopPostsReportProps ) {
 						description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
 				>
-					<TopPostsLeaderboard rows={ rows } withComparison={ withComparison } />
+					<TopPostsLeaderboard
+						rows={ rows }
+						withComparison={ withComparison }
+						detailSearch={ detailSearch }
+					/>
 				</WidgetState>
 			</div>
 			<WidgetFooter>

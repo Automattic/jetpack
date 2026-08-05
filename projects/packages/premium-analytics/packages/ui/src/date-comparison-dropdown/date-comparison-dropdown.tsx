@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
+import { SelectControl } from '@jetpack-premium-analytics/externals';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { sprintf, __ } from '@wordpress/i18n';
-import { SelectControl } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useMemo } from 'react';
 /**

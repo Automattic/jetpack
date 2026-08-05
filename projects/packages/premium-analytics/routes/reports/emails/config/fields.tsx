@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
+import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/route';
 /**
@@ -9,7 +10,7 @@ import { Link } from '@wordpress/route';
  */
 import styles from './fields.module.css';
 import type { StatsEmailSummaryItem } from '@jetpack-premium-analytics/data';
-import type { Field } from '@wordpress/dataviews';
+import type { Field } from '@jetpack-premium-analytics/externals';
 
 /**
  * Format a count for display.
@@ -54,11 +55,9 @@ function formatRate( rate: number, total: number, unique: number ): string {
  * @return The formatted date, or an em dash placeholder.
  */
 function formatSentDate( value: unknown ): string {
-	const date = new Date( String( value ?? '' ) );
+	const date = parseSiteDateTime( value );
 
-	return Number.isNaN( date.getTime() )
-		? '—'
-		: date.toLocaleDateString( undefined, { year: 'numeric', month: 'short', day: 'numeric' } );
+	return date ? formatDate( date ) : '—';
 }
 
 /**
