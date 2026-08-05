@@ -37,13 +37,13 @@ export function getConnectIntro( id: ConnectionService[ 'id' ] ): string | undef
 	switch ( id ) {
 		case 'bluesky':
 			return __(
-				'To share to Bluesky please enter your Bluesky handle and app password below, then click connect.',
+				'To share to Bluesky please enter your Bluesky handle and app password below, then click Submit.',
 				'jetpack-publicize-pkg'
 			);
 
 		case 'mastodon':
 			return __(
-				'To share to Mastodon please enter your Mastodon username below, then click connect.',
+				'To share to Mastodon please enter your Mastodon username below, then click Submit.',
 				'jetpack-publicize-pkg'
 			);
 

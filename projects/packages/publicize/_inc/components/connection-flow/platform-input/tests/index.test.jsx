@@ -65,7 +65,7 @@ describe( 'PlatformInput', () => {
 
 		expect(
 			screen.getByText(
-				'To share to Mastodon please enter your Mastodon username below, then click connect.'
+				'To share to Mastodon please enter your Mastodon username below, then click Submit.'
 			)
 		).toBeInTheDocument();
 		expect( getHandleField() ).toHaveAttribute( 'placeholder', '@username@mastodon.social' );
