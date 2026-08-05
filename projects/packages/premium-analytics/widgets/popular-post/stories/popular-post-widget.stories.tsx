@@ -1,7 +1,7 @@
 /**
  * The widget ranks posts with the proxied `stats/top-posts` endpoint (covered by
  * the legacy stats mocks), then reads the winning post's content from the local
- * `/wp/v2/posts` endpoint and its all-time engagement from `stats/post/{id}`
+ * `/wp/v2/posts` endpoint and all three of its all-time metrics from `stats/post/{id}`
  * (both covered by the shared report mocks).
  */
 /**
@@ -59,7 +59,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Popular post" widget shows the site\'s most-viewed post for the dashboard\'s date range, with its publish date, the views it collected in that period, and its all-time likes and comments. Changing the date range changes both the winning post and its view count. There is no `WithComparison` story: the card shows no period-over-period delta, so the dashboard story below carries the comparison report params instead.',
+					'The "Popular post" widget shows the site\'s most-viewed post for the dashboard\'s date range, with its publish date and its all-time views, likes, and comments. Changing the date range changes which post wins, not the totals shown for it: every tile comes from the all-time `stats/post` response, so the three cannot measure different periods. There is no `WithComparison` story: the card shows no period-over-period delta, so the dashboard story below carries the comparison report params instead.',
 			},
 		},
 	},
@@ -70,7 +70,7 @@ export default meta;
 type Story = StoryObj< Partial< ComponentProps< typeof PopularPostRender > > >;
 
 /**
- * Default — the period's most-viewed post with its views, likes, and comments.
+ * Default — the period's most-viewed post with its all-time views, likes, and comments.
  *
  * The shared close-up canvas is the width of a width-1 dashboard cell, which is
  * below the card's 520px wide breakpoint: the featured image is dropped and the

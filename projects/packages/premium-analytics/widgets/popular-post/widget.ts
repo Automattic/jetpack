@@ -16,9 +16,8 @@ export type PopularPostAttributes = Record< never, never >;
  * Widget type definition.
  *
  * The Insights "Most popular post" module: the site's most-viewed post for the
- * dashboard's selected date range. Unlike the sibling Latest post widget, this
- * one is period-scoped — changing the date range changes which post wins and the
- * view count shown for it.
+ * dashboard's selected date range. The range only picks the winner — the views,
+ * likes, and comments shown for it are all-time totals.
  */
 export default {
 	icon: trendingUp,
