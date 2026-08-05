@@ -17,9 +17,10 @@ Jetpack Premium Analytics is the unified analytics dashboard for Jetpack-connect
 
 ## How it works
 
-`Analytics::init()` loads the generated `build/build.php` on wp-admin requests (not on front-end
-page views, REST, cron, or admin-ajax — see `load_dashboard_surface()`), which registers an
-`admin_init` interceptor for `?page=jetpack-premium-analytics`. REST requests reach the
+`Analytics::init()` loads the generated `build/build.php` on requests that render an admin screen
+(not on front-end page views, REST, cron, `admin-ajax.php`, or `admin-post.php` — see
+`renders_admin_chrome()`), which registers an `admin_init` interceptor for
+`?page=jetpack-premium-analytics`. REST requests reach the
 dashboard's data without it: `Dashboard_Support_Routes::boot_routes()` registers the routes on
 `rest_api_init`, and `ensure_widget_registry_ready()` loads the widget manifest lazily, when a
 route callback actually reads it. The interceptor takes over the request before WordPress renders

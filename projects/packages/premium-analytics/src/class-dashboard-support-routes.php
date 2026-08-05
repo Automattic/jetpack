@@ -43,15 +43,12 @@ class Dashboard_Support_Routes {
 	 * widget-modules.php hydrates the widget type registry itself, lazily,
 	 * only when its REST callback or the boot-deps filter actually runs.
 	 *
-	 * The three require_once calls below are load-bearing, not defensive
-	 * duplication: since WOOA7S-1804 those files load only in wp-admin, so on
-	 * REST this method is their only loader. Drop them and the register_*() calls
-	 * hit undefined functions — on rest_api_init, which fires for every REST
-	 * request, so that fatal takes down the whole REST API.
-	 *
 	 * @return void
 	 */
 	public static function boot_routes() {
+		// Load-bearing, not defensive duplication: since WOOA7S-1804 these files load
+		// only in wp-admin, so on REST this method is their only loader.
+		//
 		// Guarded on a symbol from each file: two copies of this package can be loaded
 		// in one request, and these file-scope functions are outside the autoloader's
 		// dedupe. See Analytics::load_dashboard_components() for the full rationale.

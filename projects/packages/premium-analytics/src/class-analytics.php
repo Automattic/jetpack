@@ -53,8 +53,9 @@ class Analytics {
 	/**
 	 * Path to the wp-build entry point. Null uses the generated build.
 	 *
-	 * A test seam, nothing else: `build/` is gitignored and `test-php` runs no
-	 * build step, so a test has nothing to observe unless it can redirect this.
+	 * A test seam: `build/` is gitignored and `test-php` runs no build step, so a
+	 * test has nothing to observe unless it can redirect this. Private, so unlike
+	 * the widget manifest's path it needs no filter to stay out of reach.
 	 *
 	 * @var string|null
 	 */
@@ -102,21 +103,41 @@ class Analytics {
 	 * REST serves the dashboard too but is deliberately excluded: it loads what
 	 * it needs itself. See load_build().
 	 *
-	 * admin-ajax.php sets is_admin() true but renders no dashboard, and this
-	 * package registers no wp_ajax handlers. It does fire admin_init, so without
-	 * the exclusion the build's interceptor would answer
-	 * admin-ajax.php?page=jetpack-premium-analytics with a full admin page.
-	 *
 	 * @return void
 	 */
 	private static function load_dashboard_surface() {
-		if ( ! is_admin() || wp_doing_ajax() ) {
+		if ( ! self::renders_admin_chrome() ) {
 			return;
 		}
 
 		self::load_dashboard_components();
 		self::load_build();
 		self::register_admin_page();
+	}
+
+	/**
+	 * Whether this request can render an admin screen.
+	 *
+	 * Core also sets is_admin() on admin-ajax.php and admin-post.php, which render
+	 * no dashboard and for which this package registers no handlers. Both fire
+	 * admin_init before core checks the user is logged in, and the build's
+	 * interceptor keys on $_GET['page'] alone, so without these exclusions either
+	 * endpoint answers ?page=jetpack-premium-analytics with a full dashboard page
+	 * — to anyone.
+	 *
+	 * Narrowing the request is as far as this package can go: the interceptor has
+	 * no capability check of its own, so any logged-in user still reaches it
+	 * through an ordinary admin screen. That fix belongs in the wp-build output.
+	 *
+	 * @return bool
+	 */
+	private static function renders_admin_chrome() {
+		if ( ! is_admin() || wp_doing_ajax() ) {
+			return false;
+		}
+
+		// wp-includes/vars.php sets $pagenow before plugins load.
+		return 'admin-post.php' !== ( $GLOBALS['pagenow'] ?? '' );
 	}
 
 	/**
@@ -159,8 +180,8 @@ class Analytics {
 	}
 
 	/**
-	 * Boot the services and registries every platform needs, regardless of
-	 * whether the site serves the dashboard support routes itself.
+	 * Boot the services every platform needs, whether or not the site serves the
+	 * dashboard support routes itself.
 	 *
 	 * @return void
 	 */
@@ -205,12 +226,10 @@ class Analytics {
 	}
 
 	/**
-	 * Load the dashboard components every platform renders with: the widget
-	 * import map, the default layout seeding, the sections, and the CSV export
-	 * script data.
+	 * Load the dashboard components every platform renders with.
 	 *
-	 * Admin-only, via load_dashboard_surface(). The REST routes that need the
-	 * first three require them themselves, in boot_routes().
+	 * Admin-only, via load_dashboard_surface(); boot_routes() requires these
+	 * again for REST.
 	 *
 	 * @return void
 	 */
@@ -264,13 +283,8 @@ class Analytics {
 	/**
 	 * Load the wp-build output (interceptor, modules, routes, page render).
 	 *
-	 * Only reached in wp-admin, via load_dashboard_surface(). REST does not need
-	 * it: boot_routes() requires the route files on rest_api_init, and
-	 * ensure_widget_registry_ready() requires build/widgets.php itself.
-	 *
-	 * PR #49961 hoisted this above an is_admin() gate because REST had no other
-	 * way to the manifest; #50266 made both paths self-sufficient, which is what
-	 * lets it be admin-only again (WOOA7S-1804).
+	 * Admin-only, via load_dashboard_surface(). REST does not need it:
+	 * boot_routes() and ensure_widget_registry_ready() load what they use.
 	 *
 	 * @return void
 	 */

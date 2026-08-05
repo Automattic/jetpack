@@ -17,20 +17,17 @@ use PHPUnit\Framework\TestCase;
 /**
  * Tests for the Analytics class.
  *
- * The two widget-modules functions are listed alongside the class because
- * test_rest_request_still_serves_the_widget_manifest exercises them on purpose.
- * Covers metadata is also what code coverage is attributed to — php-code-coverage
- * discards every executed line outside the declared units — so leaving them off
- * reports the manifest require and its path seam as dead code while a green test
- * runs them.
+ * Covers metadata names ensure_widget_registry_ready() alongside the class,
+ * because test_rest_request_still_serves_the_widget_manifest exercises it on
+ * purpose. Coverage is attributed to those declared units too — php-code-coverage
+ * discards every executed line outside them — so leaving it off would report the
+ * manifest require as dead code while a green test runs it.
  *
  * @covers \Automattic\Jetpack\PremiumAnalytics\Analytics
  * @covers ::Automattic\Jetpack\PremiumAnalytics\ensure_widget_registry_ready
- * @covers ::Automattic\Jetpack\PremiumAnalytics\widgets_manifest_path
  */
 #[CoversClass( Analytics::class )]
 #[CoversFunction( 'Automattic\\Jetpack\\PremiumAnalytics\\ensure_widget_registry_ready' )]
-#[CoversFunction( 'Automattic\\Jetpack\\PremiumAnalytics\\widgets_manifest_path' )]
 class Analytics_Test extends TestCase {
 
 	const MENU_SLUG     = 'jetpack-premium-analytics-wp-admin';
@@ -44,12 +41,22 @@ class Analytics_Test extends TestCase {
 	private $doing_it_wrong = array();
 
 	/**
-	 * Clear the fixture build's marker. Process isolation should make this
-	 * unnecessary, but if isolation ever stops working this turns a silent
-	 * wrong-answer into a plain assertion failure.
+	 * Fail loudly if the fixture build leaked in from an earlier test.
+	 *
+	 * Because load_build() uses require_once and there is one fixture file, a
+	 * second load is a no-op. Without this check, dropping the process isolation would
+	 * turn every "does not load the build" assertion into a vacuous pass — the
+	 * unset() below clears the marker and nothing re-sets it, gate or no gate.
 	 */
 	protected function setUp(): void {
 		parent::setUp();
+
+		$this->assertNotContains(
+			realpath( __DIR__ . '/fixtures/build-entry/build.php' ),
+			array_map( 'realpath', get_included_files() ),
+			'The fixture build leaked from an earlier test: process isolation is not working.'
+		);
+
 		unset( $GLOBALS['jpa_test_build_loaded'] );
 	}
 
@@ -206,10 +213,8 @@ class Analytics_Test extends TestCase {
 	/**
 	 * A plain front-end page view never reaches the wp-build output.
 	 *
-	 * This is the regression the gate exists for: with the rollout flag on,
-	 * Analytics::init() runs on every request, and the build is admin render
-	 * machinery — 170 files and 74 widgets' worth of script-module registration
-	 * that a visitor never uses.
+	 * With the rollout flag on, Analytics::init() runs on every request, and the
+	 * build is admin render machinery a visitor never uses.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -244,9 +249,7 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * The admin-ajax.php endpoint sets is_admin() true, but that traffic is mostly
-	 * front-end in origin — WooCommerce stores especially. It renders no dashboard,
-	 * and the package registers no wp_ajax handlers, so it does not need the build.
+	 * The admin-ajax.php endpoint sets is_admin() true but does not get the build.
 	 *
 	 * Defining DOING_AJAX is safe here only because the test runs in its own
 	 * process; a constant cannot be unset.
@@ -268,18 +271,37 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
+	 * The admin-post.php endpoint reaches the interceptor the way admin-ajax does.
+	 *
+	 * Core defines WP_ADMIN and fires admin_init there before it checks the user
+	 * is logged in, so an ungated build answers ?page=jetpack-premium-analytics
+	 * with a full dashboard page for anyone.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_post_request_does_not_load_the_build() {
+		$this->use_fixture_build();
+		set_current_screen( 'admin-post' );
+		$GLOBALS['pagenow'] = 'admin-post.php';
+
+		Analytics::init();
+		do_action( 'init' );
+
+		$this->assertArrayNotHasKey( 'jpa_test_build_loaded', $GLOBALS );
+	}
+
+	/**
 	 * A REST request still gets the full widget manifest.
 	 *
-	 * Because is_admin() is false on REST, the gate skips the build there. This
-	 * test pins the half a unit test can reach: the route is still registered and
-	 * the lazy hydration path still runs, both via
-	 * Dashboard_Support_Routes::boot_routes() on rest_api_init.
-	 *
-	 * The sentinel only reaches the registry through the manifest require in
-	 * ensure_widget_registry_ready(), because the test stages the fixture through
-	 * widgets_manifest_path() rather than declaring
-	 * jpa_get_registered_widget_modules() up front. Deleting that require — the
-	 * #49961 outage — reddens this test.
+	 * Because is_admin() is false on REST, the gate skips the build there; the route
+	 * and the lazy hydration both come from boot_routes() on rest_api_init. The
+	 * fixture is staged through the manifest-path filter rather than by declaring
+	 * jpa_get_registered_widget_modules() up front, so the sentinel can only reach
+	 * the registry via the manifest require in ensure_widget_registry_ready() —
+	 * delete that require (the #49961 outage) and this test reddens.
 	 *
 	 * Asserts a uniquely named sentinel rather than "the response is not empty":
 	 * the widget type registry is process-wide, so a non-empty response could be
@@ -300,9 +322,10 @@ class Analytics_Test extends TestCase {
 			),
 		);
 
-		// The route's permission_callback is manage_options; grant it by filter
-		// rather than inserting a user, as the admin-menu tests do.
+		// The route's permission_callback is the dashboard capability; grant it by
+		// filter rather than inserting a user, as the admin-menu tests do.
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
+		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
 
 		try {
 			Analytics::init();
@@ -311,11 +334,6 @@ class Analytics_Test extends TestCase {
 			global $wp_rest_server;
 			$wp_rest_server = new \WP_REST_Server();
 			do_action( 'rest_api_init' );
-
-			// Staged here, not before init(): boot_routes() is what loads
-			// widget-modules.php on REST, so the seam only exists once it has run.
-			// The route callback hydrates the registry later, at dispatch.
-			widgets_manifest_path( __DIR__ . '/fixtures/build-entry/widgets.php' );
 
 			$response = $wp_rest_server->dispatch( new \WP_REST_Request( 'GET', '/wpcom/v2/widget-modules' ) );
 
@@ -326,9 +344,19 @@ class Analytics_Test extends TestCase {
 			$this->assertContains( 'test/rest-gate-sentinel', array_column( (array) $response->get_data(), 'name' ) );
 		} finally {
 			remove_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
+			remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
 			Widget_Type_Registry::get_instance()->unregister( 'test/rest-gate-sentinel' );
 			unset( $GLOBALS['jpa_test_widget_manifest'] );
 		}
+	}
+
+	/**
+	 * Point the manifest require at the fixture manifest.
+	 *
+	 * @return string
+	 */
+	public function use_fixture_widget_manifest() {
+		return __DIR__ . '/fixtures/build-entry/widgets.php';
 	}
 
 	/**
@@ -538,6 +566,38 @@ class Analytics_Test extends TestCase {
 
 		$this->assertStringContainsString( '<h1>Store Analytics</h1>', $output );
 		$this->assertStringContainsString( 'The package build did not run for this deploy.', $output );
+	}
+
+	/**
+	 * With the build present, the menu wires the generated render callback.
+	 *
+	 * The other menu tests all run the missing-build half. This one covers the
+	 * normal path, whose failure is quiet: the render function's name is derived
+	 * from the page slug at build time, so a rename on either side swaps the
+	 * dashboard for the missing-build notice with nothing else to notice it.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_register_admin_menu_wires_the_generated_render_callback() {
+		$this->use_fixture_build();
+		set_current_screen( self::MENU_HOOKNAME );
+
+		Analytics::init();
+
+		$GLOBALS['menu'] = array();
+		Capabilities::register();
+		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
+		$this->capture_doing_it_wrong();
+		Analytics::register_admin_menu();
+		remove_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
+
+		$this->assertSame( array(), $this->doing_it_wrong, 'A present build must not report a missing one.' );
+		$this->assertNotFalse(
+			has_action( self::MENU_HOOKNAME, 'jpa_jetpack_premium_analytics_wp_admin_render_page' )
+		);
 	}
 
 	/**
