@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Add Phan suppressions for the older-WP-stubs compatibility run; no runtime change.
+
+

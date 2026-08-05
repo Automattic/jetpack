@@ -1,1 +1,1 @@
-@../../../.agents/skills/jetpack-screenshot.md
+../../../.agents/skills/jetpack-screenshot.md

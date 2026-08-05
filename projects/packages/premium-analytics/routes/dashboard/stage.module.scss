@@ -12,7 +12,7 @@
 .content {
 	flex: 1 1 auto;
 	min-block-size: 0;
-	overflow-y: auto;
+
 	// Reserve paint space for the widget host's outer focus outline.
 	padding-block-start: calc(var(--wpds-border-width-focus) + 2px);
 	// Match the horizontal padding of the page header and the section tabs so the
@@ -21,10 +21,14 @@
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 
-.dateFilters {
-	// Sits below the section tabs and above the widgets. The tab list already
-	// adds a bottom margin, so only pad below here to keep the spacing even.
-	// Inline padding matches the tabs and widget grid so it lines up.
+.widgets {
+	// Inherited by the @wordpress/grid surfaces (grid, masonry, edit overlay),
+	// which otherwise fall back to the wider `--wpds-dimension-gap-xl`.
+	--wp-grid-gap: var(--wpds-dimension-gap-lg);
+}
+
+.sectionHeader {
+	// Separates the header row from the widget grid below. The inline gutter
+	// comes from the panel, which already pads to match the tabs.
 	padding-block-end: var(--wpds-dimension-gap-lg);
-	padding-inline: var(--wpds-dimension-padding-2xl);
 }

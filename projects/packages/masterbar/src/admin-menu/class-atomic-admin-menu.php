@@ -73,7 +73,48 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$this->add_new_site_link();
 		}
 
+		$this->relabel_woocommerce_menu();
+
 		ksort( $GLOBALS['menu'] );
+	}
+
+	/**
+	 * Relabels the WooCommerce menu item to "Store setup" on Commerce-plan sites.
+	 *
+	 * Only the sidebar label is changed; the page title is left untouched. On Atomic sites
+	 * using the classic wp-admin interface this class doesn't load and jetpack-mu-wpcom
+	 * relabels instead; on the nav-unified interface both run (harmless, both idempotently
+	 * set "Store setup") — see wpcom_relabel_woocommerce_menu() in jetpack-mu-wpcom.
+	 */
+	public function relabel_woocommerce_menu() {
+		global $menu;
+
+		if ( ! Store_Plan::purchases_include_commerce_plan( $this->get_site_purchases() ) ) {
+			return;
+		}
+
+		foreach ( $menu as $position => $item ) {
+			if ( isset( $item[2] ) && 'woocommerce' === $item[2] ) {
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$menu[ $position ][0] = __( 'Store setup', 'jetpack-masterbar' );
+				break;
+			}
+		}
+	}
+
+	/**
+	 * The site's purchases, or an empty array when the WoA helper is unavailable.
+	 *
+	 * Exists as an overridable seam so tests can inject purchases without the WoA helper.
+	 *
+	 * @return array Product objects, each with at least a product_slug property.
+	 */
+	protected function get_site_purchases() {
+		if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
+			return array();
+		}
+
+		return wpcom_get_site_purchases();
 	}
 
 	/**

@@ -4,29 +4,43 @@
 
 import { TextControl } from '@wordpress/components';
 import { useCallback, useMemo, useRef } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
-import { Badge, Button, Card, CollapsibleCard, Stack, Text } from '@wordpress/ui';
+import { __ } from '@wordpress/i18n';
+import { title as titleIcon } from '@wordpress/icons';
+import { Button, Card, CollapsibleCard, Notice, Stack, Text } from '@wordpress/ui';
+import CardTitleIcon from '../../components/card-title-icon';
+import StatusIndicator from '../../components/status-indicator';
 import getSite from '../../data/get-site';
 import {
 	PAGE_TYPES,
 	PAGE_TYPE_SUGGESTIONS,
 	PAGE_TYPE_TOKENS,
 	TOKEN_LABELS,
-	buildPreview,
+	buildDefaultPreviewParts,
+	buildPreviewParts,
 	stringToTokens,
 	tokensToString,
 } from '../../data/title-format-tokens';
 import styles from './title-structure-field.module.scss';
+import type { SettingStatus } from '../../components/status-indicator';
 import type { TitleFormatToken } from '../../data/settings-types';
 import type { FC } from 'react';
 
-// Pre-resolved so the production minifier can't fold an adjacent
-// `cond ? __(A) : __(B)` into `__(cond ? A : B)`, which breaks i18n
-// extraction. See feedback_i18n_ternary_minifier_fold.
-const defaultLabel = __( 'Default', 'jetpack-seo' );
 const previewLabel = __( 'Preview', 'jetpack-seo' );
-const insertLabel = __( 'Insert placeholder', 'jetpack-seo' );
+// "Placeholder" is avoided deliberately: in this codebase (and in HTML) it
+// already means an input's grey hint text, which is a different thing.
+const insertLabel = __( 'Insert a title part', 'jetpack-seo' );
 const saveLabel = __( 'Save', 'jetpack-seo' );
+// Deliberately says "show as empty" rather than "are left out": a custom format is
+// concatenated straight through by `Jetpack_SEO_Titles::get_custom_title()`, so an
+// empty part leaves the separator around it in place. Only the *default* title
+// drops empty parts, because core runs `array_filter()` before joining.
+const moduleDescription = __(
+	'How your titles appear in search results and browser tabs. Each page type keeps the default until you set a format; parts your site has no value for show as empty.',
+	'jetpack-seo'
+);
+// Shown in the empty input so the blank field reads as "this already has a title"
+// rather than "this is unset".
+const defaultPlaceholder = __( 'Using the default title', 'jetpack-seo' );
 
 interface RowProps {
 	pageTypeId: string;
@@ -36,6 +50,8 @@ interface RowProps {
 	onSave: () => void;
 	canSave: boolean;
 	previewOverrides: Partial< Record< string, string > >;
+	/** The site's document-title separator, for previewing an untouched page type. */
+	titleSeparator: string;
 	disabled?: boolean;
 }
 
@@ -62,14 +78,26 @@ const TitleStructureRow: FC< RowProps > = ( {
 	onSave,
 	canSave,
 	previewOverrides,
+	titleSeparator,
 	disabled,
 } ) => {
 	const inputRef = useRef< HTMLInputElement | null >( null );
 	const value = useMemo( () => tokensToString( tokens ), [ tokens ] );
 	const allowed = PAGE_TYPE_TOKENS[ pageTypeId ];
+	// An untouched page type still has a title — WordPress composes it — so preview
+	// that instead of leaving the row blank under the module's "Complete" status.
+	const previewParts = useMemo(
+		() =>
+			tokens.length > 0
+				? buildPreviewParts( tokens, previewOverrides )
+				: buildDefaultPreviewParts( pageTypeId, titleSeparator, previewOverrides ),
+		[ tokens, previewOverrides, pageTypeId, titleSeparator ]
+	);
+	// The parts concatenated — the literal title this format produces. Only used to
+	// decide whether there is anything to show; the row renders the parts.
 	const preview = useMemo(
-		() => buildPreview( tokens, previewOverrides ),
-		[ tokens, previewOverrides ]
+		() => previewParts.map( part => part.text ).join( '' ),
+		[ previewParts ]
 	);
 
 	const setFromString = useCallback(
@@ -102,6 +130,7 @@ const TitleStructureRow: FC< RowProps > = ( {
 				ref={ inputRef }
 				label={ label }
 				value={ value }
+				placeholder={ defaultPlaceholder }
 				onChange={ setFromString }
 				disabled={ disabled }
 				__next40pxDefaultSize
@@ -117,7 +146,9 @@ const TitleStructureRow: FC< RowProps > = ( {
 							key={ tokenId }
 							variant="outline"
 							tone="neutral"
-							size="compact"
+							// `small` (24px), not `compact` (32px): against the 40px field these
+							// are a secondary affordance and shouldn't compete with it.
+							size="small"
 							disabled={ disabled }
 							onClick={ () => insertToken( tokenId ) }
 						>
@@ -127,9 +158,37 @@ const TitleStructureRow: FC< RowProps > = ( {
 				</Stack>
 			</Stack>
 			<Stack direction="row" align="flex-start" gap="lg">
-				{ tokens.length > 0 && (
+				{ /* Shown for a defaulted row too, so every page type demonstrates the
+				     title it produces rather than leaving a blank the module's
+				     "Complete" status appears to contradict. A custom format always
+				     shows its preview even when it evaluates to nothing — that empty
+				     result is the honest one, and hiding it would undo the point. */ }
+				{ ( tokens.length > 0 || preview ) && (
 					<Text variant="body-md" className={ styles.preview }>
-						<strong>{ previewLabel }:</strong> { preview }
+						<strong>{ previewLabel }:</strong>{ ' ' }
+						{ /* Values render as chips and separators as the plain text they are, so
+						     the shape of the title is legible at a glance — a run of words is
+						     hard to read as "site name, then a divider, then a tagline".
+						     Concatenating what's rendered still gives the exact emitted title:
+						     nothing is inserted between the parts, and the separators keep the
+						     admin's own spacing (see `.previewSeparator`). Empty values are
+						     skipped so a placeholder that resolves to nothing leaves no stray
+						     chip — the separators around it still show, which is what the real
+						     title does. */ }
+						{ previewParts.map( ( part, index ) =>
+							part.text === '' ? null : (
+								<span
+									// Parts are positional and can repeat ("Acme | Acme"), so the
+									// index is the only stable identity available here.
+									key={ index }
+									className={
+										part.kind === 'value' ? styles.previewValue : styles.previewSeparator
+									}
+								>
+									{ part.text }
+								</span>
+							)
+						) }
 					</Text>
 				) }
 				<Button className={ styles.save } onClick={ onSave } disabled={ disabled || ! canSave }>
@@ -147,6 +206,10 @@ interface Props {
 	onSaveFormat: ( pageType: string ) => void;
 	/** Whether a page type has unsaved edits (enables that row's Save button). */
 	isFormatDirty: ( pageType: string ) => boolean;
+	/** The site's document-title separator, for previewing untouched page types. */
+	titleSeparator: string;
+	/** Whether Jetpack currently controls title output. */
+	editable: boolean;
 	disabled?: boolean;
 }
 
@@ -164,40 +227,60 @@ const TitleStructureField: FC< Props > = ( {
 	onChange,
 	onSaveFormat,
 	isFormatDirty,
+	titleSeparator,
+	editable,
 	disabled,
 } ) => {
-	const customizedCount = PAGE_TYPES.filter( pt => ( formats[ pt.id ]?.length ?? 0 ) > 0 ).length;
+	// A smart default counts as configured — the same rule the Schema module uses.
+	// An untouched page type (an empty token list) still produces a title: Jetpack
+	// has no default format of its own, it just steps aside and lets WordPress
+	// compose the title. So leaving one alone is a good outcome rather than
+	// unfinished work, and this module is always complete. Deliberate: reporting
+	// "Not started" here read as a criticism of a site that simply has no reason to
+	// customize its titles (JETPACK-2051). Each row previews that default, so the
+	// status is backed by something visible.
+	const titleStatus: SettingStatus = 'complete';
 
 	// Fill the site-wide placeholders in each row's preview with the site's real
-	// name and tagline (bootstrapped in `seo.site`). Coalesce to '' when the site
-	// data is absent so the empty value falls through to the sample text in
-	// `buildPreview`. Per-page tokens like [Post title] keep their representative
-	// samples since they vary per page.
+	// name and tagline (bootstrapped in `seo.site`) — including when one of them is
+	// empty, which previews as empty because that is what the site renders. Omit the
+	// overrides entirely when the site data is missing, so an unknown value still
+	// falls back to sample text rather than previewing as a gap the site doesn't
+	// actually have. Per-page tokens like [Post title] are never overridden; they
+	// vary per page and always show their sample.
 	const site = getSite();
 	const previewOverrides = useMemo(
-		() => ( { site_name: site?.title ?? '', tagline: site?.tagline ?? '' } ),
-		[ site?.title, site?.tagline ]
+		() => ( site ? { site_name: site.title, tagline: site.tagline } : {} ),
+		[ site ]
 	);
 
 	return (
 		<CollapsibleCard.Root defaultOpen={ false }>
-			<CollapsibleCard.Header>
+			<CollapsibleCard.Header render={ <h2 /> }>
 				<Stack direction="row" justify="space-between" align="center" gap="sm">
-					<Card.Title>{ __( 'Title structure', 'jetpack-seo' ) }</Card.Title>
-					<Badge intent={ customizedCount > 0 ? 'stable' : 'draft' }>
-						{ customizedCount > 0
-							? sprintf(
-									/* translators: %1$d: number of customized page types, %2$d: total page types. */
-									__( '%1$d of %2$d customized', 'jetpack-seo' ),
-									customizedCount,
-									PAGE_TYPES.length
-							  )
-							: defaultLabel }
-					</Badge>
+					<Card.Title>
+						<CardTitleIcon icon={ titleIcon } title={ __( 'Title structure', 'jetpack-seo' ) } />
+					</Card.Title>
+					<CollapsibleCard.HeaderDescription>
+						<StatusIndicator status={ titleStatus } />
+					</CollapsibleCard.HeaderDescription>
 				</Stack>
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
 				<Stack direction="column" gap="lg">
+					<Text variant="body-md" render={ <p /> }>
+						{ moduleDescription }
+					</Text>
+					{ ! editable && (
+						<Notice.Root intent="warning">
+							<Notice.Description>
+								{ __(
+									'Another SEO plugin is controlling title output. Your saved title structures are shown here but cannot be edited while it is active.',
+									'jetpack-seo'
+								) }
+							</Notice.Description>
+						</Notice.Root>
+					) }
 					{ PAGE_TYPES.map( pt => (
 						<TitleStructureRow
 							key={ pt.id }
@@ -208,7 +291,8 @@ const TitleStructureField: FC< Props > = ( {
 							onSave={ () => onSaveFormat( pt.id ) }
 							canSave={ isFormatDirty( pt.id ) }
 							previewOverrides={ previewOverrides }
-							disabled={ disabled }
+							titleSeparator={ titleSeparator }
+							disabled={ disabled || ! editable }
 						/>
 					) ) }
 				</Stack>

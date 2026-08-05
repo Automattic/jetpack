@@ -12,13 +12,14 @@ import {
  */
 import { ORDER_ATTRIBUTION_VIEWS } from '../api/report-order-attribution-summary-fetch';
 import { getDefaultQueryParams } from '../defaults';
-import { getDefaultIntervalForPeriod } from './interval';
+import { resolveIntervalForRange, type IntervalType } from './interval';
 import { computeDateRangeFromPreset } from './preset-date-range';
 import { toPostId } from './to-post-id';
 import type { DateType } from './types';
 import type { FilterCondition } from '../types/filter-condition';
 
 export type { FilterCondition };
+export type { IntervalType };
 
 /**
  * Re-export SelectablePresetId as PresetType for backward compatibility.
@@ -27,8 +28,6 @@ export type { FilterCondition };
 export type PresetType = SelectablePresetId;
 
 type OrderAttributionView = ( typeof ORDER_ATTRIBUTION_VIEWS )[ number ];
-
-export type IntervalType = 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year';
 
 /*
  * ReportParams are the expected params present in the client URL.
@@ -58,9 +57,13 @@ type PartialComparisonFields = Partial<
 
 /*
  * Checks if the comparison is present in the search params.
+ *
+ * `comp` is compared loosely: the router JSON-parses search values, so a URL
+ * written without JSON quoting (hand-edited, or by an older link builder)
+ * delivers the number 1 instead of the string '1'.
  */
 export function hasComparisonEnabled< T extends PartialComparisonFields >( p: T ) {
-	return p.comp === '1' && !! p.compare_from?.trim() && !! p.compare_to?.trim();
+	return String( p.comp ) === '1' && !! p.compare_from?.trim() && !! p.compare_to?.trim();
 }
 
 type NormalizeReportParamsArgType = Omit< ReportParams, 'from' | 'to' | 'interval' | 'preset' > & {
@@ -71,10 +74,18 @@ type NormalizeReportParamsArgType = Omit< ReportParams, 'from' | 'to' | 'interva
 };
 
 /**
+ * Unnormalized date-window fields from report search params.
+ */
+type ReportDateWindowSearch = Pick<
+	NormalizeReportParamsArgType,
+	'from' | 'to' | 'interval' | 'preset'
+>;
+
+/**
  * Returns normalized params for the report request query.
  * When no defined, it will use the defaults.
  *
- * @param {NormalizeReportParamsArgType} [search]        - URL search params.
+ * @param {NormalizeReportParamsArgType} [search]        - Candidate report params.
  * @param {PresetType}                   [defaultPreset] - Override the fallback preset.
  */
 export function normalizeReportParams(
@@ -113,8 +124,7 @@ export function normalizeReportParams(
 	const from = presetRange?.from ?? search?.from ?? defaults.from;
 	const to = presetRange?.to ?? search?.to ?? defaults.to;
 
-	// Calculate the interval from the resolved date range.
-	const interval = getDefaultIntervalForPeriod( undefined, from, to );
+	const interval = resolveIntervalForRange( preset, from, to, search?.interval );
 
 	const postId = toPostId( search?.post_id );
 
@@ -122,7 +132,7 @@ export function normalizeReportParams(
 	const normalized: ReportParams = {
 		from,
 		to,
-		interval: interval ?? defaults.interval,
+		interval,
 		preset,
 		...( typeof search?.period === 'string' ? { period: search.period } : {} ),
 		date_type: search?.date_type ?? 'created',
@@ -147,4 +157,23 @@ export function normalizeReportParams(
 	}
 
 	return normalized;
+}
+
+/**
+ * Whether report date params are incomplete or the interval is invalid for the range.
+ *
+ * @param search - Candidate report date-window fields.
+ * @return True when `from`, `to`, or `interval` is missing, or `interval` is not allowed for the range.
+ */
+export function needsReportDateParamsSeed( search?: ReportDateWindowSearch ): boolean {
+	if ( ! search?.from || ! search?.to || ! search?.interval ) {
+		return true;
+	}
+
+	// Narrow with the same guard `normalizeReportParams` uses, so the two can't
+	// disagree on which presets carry their own interval rules.
+	const preset = isSelectablePreset( search.preset ) ? search.preset : undefined;
+	return (
+		resolveIntervalForRange( preset, search.from, search.to, search.interval ) !== search.interval
+	);
 }

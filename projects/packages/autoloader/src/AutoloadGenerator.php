@@ -21,7 +21,7 @@ use Composer\Util\PackageSorter;
  */
 class AutoloadGenerator {
 
-	const VERSION = '5.0.21';
+	const VERSION = '5.0.22';
 
 	/**
 	 * IO object.
@@ -116,10 +116,44 @@ class AutoloadGenerator {
 		krsort( $psr4 );
 
 		return array(
-			'psr-0'    => $psr0,
-			'psr-4'    => $psr4,
-			'classmap' => $classmap,
-			'files'    => $files,
+			'psr-0'                 => $psr0,
+			'psr-4'                 => $psr4,
+			'classmap'              => $classmap,
+			'files'                 => $files,
+			'exclude-from-classmap' => $this->parseExcludeFromClassmap( $mainPackage ),
+		);
+	}
+
+	/**
+	 * Builds the classmap exclusion patterns from the root package's
+	 * `exclude-from-classmap` autoload config.
+	 *
+	 * Composer honors `exclude-from-classmap` when building its own classmap, but
+	 * this generator never passed it through, so the Jetpack classmap could not
+	 * exclude anything. Only the root package is honored, matching how Composer
+	 * treats the root's excludes as applying to the whole generated classmap.
+	 *
+	 * @param PackageInterface $mainPackage Main package instance.
+	 *
+	 * @return string[] Regex fragments (consumed by AutoloadProcessor) matching paths to exclude.
+	 */
+	protected function parseExcludeFromClassmap( PackageInterface $mainPackage ) {
+		$autoload = $mainPackage->getAutoload();
+		if ( empty( $autoload['exclude-from-classmap'] ) || ! is_array( $autoload['exclude-from-classmap'] ) ) {
+			return array();
+		}
+
+		return array_map(
+			function ( $path ) {
+				// Mirror Composer's classmap-exclusion semantics: escape the path,
+				// then re-enable `*`/`**` as single-/multi-segment wildcards.
+				// `{` is the delimiter AutoloadProcessor wraps these fragments in.
+				$pattern = preg_quote( trim( strtr( $path, '\\', '/' ), '/' ), '{' );
+				$pattern = str_replace( '\\*\\*', '.+?', $pattern );
+				$pattern = str_replace( '\\*', '[^/]+?', $pattern );
+				return $pattern;
+			},
+			$autoload['exclude-from-classmap']
 		);
 	}
 

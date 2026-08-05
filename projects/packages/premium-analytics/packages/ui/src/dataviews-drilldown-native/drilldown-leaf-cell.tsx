@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { VisuallyHidden } from '@wordpress/ui';
+import { VisuallyHidden } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */

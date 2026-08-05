@@ -70,6 +70,7 @@ import { useSyncedFormAutoSave } from './hooks/use-synced-form-auto-save.ts';
 import { useSyncedFormLoader } from './hooks/use-synced-form-loader.ts';
 import { useSyncedForm } from './hooks/use-synced-form.ts';
 import useFormBlockDefaults from './shared/hooks/use-form-block-defaults.js';
+import { getAutoRecipient } from './util/auto-recipient.ts';
 import { getEditorContext } from './util/get-editor-context.ts';
 import { isCollectingResponses } from './util/is-collecting-responses.ts';
 import VariationPicker from './variation-picker.jsx';
@@ -344,6 +345,14 @@ function JetpackContactFormEdit( {
 		},
 		[ clientId, syncedFormBlocks ]
 	);
+
+	const formBlockDefaults = window.jpFormsBlocks?.defaults || {};
+	const autoRecipient = getAutoRecipient( {
+		serverSource: formBlockDefaults.toSource,
+		serverAddress: formBlockDefaults.to,
+		postAuthorEmail,
+		isStandaloneForm: isJetpackFormEditor,
+	} );
 
 	useEffect( () => {
 		if ( submitButton && ! submitButton.attributes.lock ) {
@@ -1263,7 +1272,9 @@ function JetpackContactFormEdit( {
 							emailSubject={ subject }
 							emailNotifications={ emailNotifications }
 							instanceId={ instanceId }
-							postAuthorEmail={ postAuthorEmail }
+							autoRecipient={ autoRecipient.address }
+							autoRecipientSource={ autoRecipient.source }
+							autoSubject={ formBlockDefaults.subject || '' }
 							setAttributes={ setAttributes }
 						/>
 					</PanelBody>

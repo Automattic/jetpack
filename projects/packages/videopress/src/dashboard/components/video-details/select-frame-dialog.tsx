@@ -172,7 +172,9 @@ export default function SelectFrameDialog( {
 					</Dialog.Title>
 					<Dialog.CloseIcon label={ __( 'Close', 'jetpack-videopress-pkg' ) } />
 				</Dialog.Header>
-				{ isOpen && <FrameScrubber src={ src } onChange={ setSelectedMs } /> }
+				<Dialog.Content>
+					{ isOpen && <FrameScrubber src={ src } onChange={ setSelectedMs } /> }
+				</Dialog.Content>
 				<Dialog.Footer>
 					<Dialog.Action render={ <Button variant="outline" /> }>
 						{ __( 'Cancel', 'jetpack-videopress-pkg' ) }

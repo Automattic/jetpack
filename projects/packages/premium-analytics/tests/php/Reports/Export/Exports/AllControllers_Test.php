@@ -29,6 +29,8 @@ class AllControllers_Test extends TestCase {
 		$classes = array(
 			Average_Items_Per_Order_Controller::class,
 			Average_Order_Value_Controller::class,
+			Booking_Status_Breakdown_Controller::class,
+			Bookings_Over_Time_Controller::class,
 			Conversion_Rate_Over_Time_Controller::class,
 			Coupon_Use_Over_Time_Controller::class,
 			Gross_Sales_Over_Time_Controller::class,
@@ -105,6 +107,6 @@ class AllControllers_Test extends TestCase {
 		}
 
 		$this->assertSame( $keys, array_unique( $keys ), 'report keys must be unique across controllers' );
-		$this->assertCount( 21, $keys );
+		$this->assertCount( 23, $keys );
 	}
 }

@@ -7,8 +7,14 @@
 	flex-direction: column;
 	flex: 1 1 auto;
 	min-block-size: 0;
+
+	// Own stacking context, so in-panel layers (the sticky section header,
+	// widget focus rings) never compete with the page header above.
+	position: relative;
+	z-index: 0;
 }
 
 .tabList {
 	padding-inline: var(--wpds-dimension-padding-2xl);
+	z-index: 0;
 }

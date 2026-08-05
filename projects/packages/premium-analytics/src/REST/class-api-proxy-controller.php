@@ -119,7 +119,9 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 * @var array<string, array<string, mixed>>
 	 */
 	private const PREFIX_CONFIG = array(
-		'analytics'                     => array( 'capability' => 'manage_options' ),
+		// Gated like WooCommerce's own Analytics screens, which shop managers can read;
+		// woocommerce-analytics made the same move away from manage_options (WOOA7S-551).
+		'analytics'                     => array( 'capability' => 'view_woocommerce_reports' ),
 		'stats'                         => array(
 			'capability' => 'view_stats',
 			'writes'     => array( 'stats/referrers/spam/' ),
@@ -218,7 +220,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 						'validate_callback' => array( $this, 'validate_data_endpoint' ),
 					),
 					'version'  => array(
-						'description'       => __( 'WPCOM API version to forward to (e.g. 1.1, 1.2, 2).', 'jetpack-premium-analytics' ),
+						'description'       => __( 'WPCOM API version to forward to (e.g. 1.1, 1.2, 2).', 'jetpack-premium-analytics-pkg' ),
 						'type'              => 'string',
 						'required'          => true,
 						'validate_callback' => array( $this, 'validate_version' ),
@@ -359,7 +361,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		if ( 'GET' !== $method && ! ( 'POST' === $method && $this->is_write_allowed( $endpoint ) ) ) {
 			return new WP_Error(
 				'rest_read_only',
-				__( 'This endpoint is read-only.', 'jetpack-premium-analytics' ),
+				__( 'This endpoint is read-only.', 'jetpack-premium-analytics-pkg' ),
 				array( 'status' => 405 )
 			);
 		}
@@ -489,7 +491,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		if ( ! ( new Manager( self::SLUG ) )->is_connected() ) {
 			return new WP_Error(
 				'no_connection',
-				__( 'Please connect Jetpack to load your data.', 'jetpack-premium-analytics' ),
+				__( 'Please connect Jetpack to load your data.', 'jetpack-premium-analytics-pkg' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -515,7 +517,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		} catch ( \Exception $e ) {
 			return new WP_Error(
 				'api_error',
-				__( 'Error processing the request.', 'jetpack-premium-analytics' ),
+				__( 'Error processing the request.', 'jetpack-premium-analytics-pkg' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -523,7 +525,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		if ( is_wp_error( $response ) ) {
 			return new WP_Error(
 				'api_error',
-				__( 'Error communicating with the data service.', 'jetpack-premium-analytics' ),
+				__( 'Error communicating with the data service.', 'jetpack-premium-analytics-pkg' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -551,7 +553,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		if ( ! (int) Jetpack_Options::get_option( 'id' ) ) {
 			return new WP_Error(
 				'no_connection',
-				__( 'Please connect Jetpack to load your data.', 'jetpack-premium-analytics' ),
+				__( 'Please connect Jetpack to load your data.', 'jetpack-premium-analytics-pkg' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -569,7 +571,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		if ( is_wp_error( $response ) ) {
 			return new WP_Error(
 				'api_error',
-				__( 'Error communicating with the data service.', 'jetpack-premium-analytics' ),
+				__( 'Error communicating with the data service.', 'jetpack-premium-analytics-pkg' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -623,7 +625,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		if ( 200 === $status && null === $data && JSON_ERROR_NONE !== json_last_error() ) {
 			return new WP_Error(
 				'api_error',
-				__( 'The data service returned an unreadable response.', 'jetpack-premium-analytics' ),
+				__( 'The data service returned an unreadable response.', 'jetpack-premium-analytics-pkg' ),
 				array( 'status' => 502 )
 			);
 		}

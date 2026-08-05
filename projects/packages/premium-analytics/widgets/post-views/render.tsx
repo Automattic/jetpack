@@ -77,7 +77,7 @@ function PostViewsInner( { granularity }: PostViewsInnerProps ) {
 		if ( ! previous?.length ) {
 			return [
 				{
-					label: __( 'Views', 'jetpack-premium-analytics' ),
+					label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
 					group: 'views',
 					data: current,
 				},
@@ -112,15 +112,15 @@ function PostViewsInner( { granularity }: PostViewsInnerProps ) {
 				error={ {
 					description: __(
 						"We couldn't load this post's views. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
 					icon: reports,
 					description: __(
 						'Open a post or page report to see its views here.',
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 				} }
 			>

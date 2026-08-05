@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Newsletter\Tests;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Newsletter\Settings;
+use Automattic\Jetpack\Newsletter\Subscribers_Announcement;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
@@ -49,6 +50,12 @@ class Settings_Test extends BaseTestCase {
 
 		// Clear the load action registered by add_wp_admin_menu on success.
 		remove_all_actions( 'load-jetpack_page_jetpack-newsletter' );
+
+		// Clear the Subscribers announcement handlers. Without this a test that
+		// registers them leaks into the next one, and a test asserting they are
+		// absent would pass or fail on ordering rather than on the site-ID gate.
+		remove_all_actions( 'wp_ajax_' . Subscribers_Announcement::TOGGLE_ACTION );
+		remove_all_actions( 'admin_post_' . Subscribers_Announcement::GO_ACTION );
 	}
 
 	/**

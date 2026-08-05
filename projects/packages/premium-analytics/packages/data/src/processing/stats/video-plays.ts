@@ -33,6 +33,7 @@ export type StatsVideoPlaysItem = StatsNormalizedItemBase & {
 
 export type StatsVideoPlaysComparisonItem = StatsVideoPlaysItem & {
 	previousPlays?: number;
+	previousImpressions?: number;
 };
 
 // Returns null when the video has no stable identifier at all, so unrelated
@@ -116,9 +117,10 @@ export function mergeStatsVideoPlaysComparisonRows(
 		getPrimaryKey: getVideoKey,
 		getComparisonKey: getVideoKey,
 		getComparisonValue: video => video.plays,
-		mapRow: ( video, { previousValue } ) => ( {
+		mapRow: ( video, { previousValue, comparisonItem } ) => ( {
 			...video,
 			previousPlays: previousValue,
+			previousImpressions: comparisonItem?.impressions,
 		} ),
 	} );
 }

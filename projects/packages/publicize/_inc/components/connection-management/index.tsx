@@ -5,6 +5,8 @@ import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
 import { store } from '../../social-store';
+import { hasAdminUiV2 } from '../../utils/script-data';
+import { ConnectionFlowModal } from '../connection-flow';
 import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
 import { useService } from '../services/use-service';
 import { ConnectionInfo } from './connection-info';
@@ -84,7 +86,7 @@ const ConnectionManagement = ( {
 					</ul>
 				</>
 			) : null }
-			<ManageConnectionsModal />
+			{ hasAdminUiV2() ? <ConnectionFlowModal /> : <ManageConnectionsModal /> }
 			{ ! hideConnectButton && (
 				<Button
 					variant={ connections.length ? 'outline' : 'solid' }

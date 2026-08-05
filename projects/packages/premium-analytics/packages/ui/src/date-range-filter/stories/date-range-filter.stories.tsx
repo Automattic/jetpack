@@ -2,6 +2,7 @@ import { computePrimaryRange, type PrimaryPresetId } from '@jetpack-premium-anal
 import { subDays, startOfDay, endOfDay } from 'date-fns';
 import { useRef, useState } from 'react';
 import { DateRangeFilter } from '../date-range-filter';
+import type { PresetLabelMode } from '../../date-range-layout';
 import type { DateRange } from '../../date-range-popover';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -55,11 +56,11 @@ function buildInitialState( initialPreset: PrimaryPresetId ): FilterState {
 
 function DateRangeFilterWithState( {
 	initialPreset = 'last-30-days' as PrimaryPresetId,
-	isCompact = false,
+	labelMode = 'full' as PresetLabelMode,
 	isWideScreen = false,
 }: {
 	initialPreset?: PrimaryPresetId;
-	isCompact?: boolean;
+	labelMode?: PresetLabelMode;
 	isWideScreen?: boolean;
 } ) {
 	const initialState = buildInitialState( initialPreset );
@@ -104,7 +105,7 @@ function DateRangeFilterWithState( {
 			onCancel={ handleCancel }
 			canApply={ canApply }
 			timeZone={ STORYBOOK_TIMEZONE }
-			isCompact={ isCompact }
+			labelMode={ labelMode }
 			isWideScreen={ isWideScreen }
 		/>
 	);
@@ -127,7 +128,7 @@ export const CustomRange: Story = {
 export const Compact: Story = {
 	render: () => (
 		<div style={ { width: '360px' } }>
-			<DateRangeFilterWithState isCompact />
+			<DateRangeFilterWithState labelMode="select" />
 		</div>
 	),
 };

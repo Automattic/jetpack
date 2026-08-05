@@ -20,6 +20,12 @@
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 
+.widgets {
+	// Inherited by the @wordpress/grid surfaces (grid, masonry, edit overlay),
+	// which otherwise fall back to the wider `--wpds-dimension-gap-xl`.
+	--wp-grid-gap: var(--wpds-dimension-gap-lg);
+}
+
 .dateFilters {
 	// Sits directly below the tab bar, outside the scroll container, so it
 	// stays fixed exactly like the dashboard's filters. The tab list already
@@ -35,4 +41,13 @@
 	// the heading); gap-2xl below mirrors it symmetrically.
 	padding-block: var(--wpds-dimension-gap-lg) var(--wpds-dimension-gap-2xl);
 	padding-inline: var(--wpds-dimension-padding-2xl);
+}
+
+// The header action is a Button rendered as an anchor, so it can carry a real
+// href to the live post. @wordpress/ui styles the button inside `@layer wp-ui`,
+// and wp-admin colours bare anchors outside any cascade layer — unlayered wins
+// over layered whatever the specificity, so admin's link blue overrode the
+// button foreground. Re-apply the button's own colour from here (unlayered).
+.viewPost:any-link {
+	color: var(--wp-ui-button-foreground-color);
 }

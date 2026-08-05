@@ -89,13 +89,13 @@ export function SalesByUtmWidget( { view }: SalesByUtmWidgetProps ) {
 			error={ {
 				description: __(
 					"We couldn't load order attribution data. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: emptyStateIcon,
-				description: __( 'No attribution data in this period.', 'jetpack-premium-analytics' ),
+				description: __( 'No attribution data in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			<LeaderboardChart

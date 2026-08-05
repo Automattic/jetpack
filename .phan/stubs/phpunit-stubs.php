@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.31
+ * Stubs automatically generated from PHPUnit 12.5.33
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -5726,7 +5726,7 @@ abstract class Assert
     {
     }
     /**
-     * @param array<mixed>|\ArrayAccess<array-key, mixed> $array
+     * @param array<mixed>|\ArrayAccess<array-key, covariant mixed> $array
      * @throws Exception
      * @throws ExpectationFailedException
      */
@@ -5734,7 +5734,7 @@ abstract class Assert
     {
     }
     /**
-     * @param array<mixed>|\ArrayAccess<array-key, mixed> $array
+     * @param array<mixed>|\ArrayAccess<array-key, covariant mixed> $array
      * @throws Exception
      * @throws ExpectationFailedException
      */
@@ -7123,7 +7123,7 @@ function assertArrayIsIdenticalToArrayIgnoringListOfKeys(array $expected, array 
 {
 }
 /**
- * @param array<mixed>|\ArrayAccess<array-key, mixed> $array
+ * @param array<mixed>|\ArrayAccess<array-key, covariant mixed> $array
  * @throws Exception
  * @throws ExpectationFailedException
  * @no-named-arguments
@@ -7133,7 +7133,7 @@ function assertArrayHasKey(mixed $key, array|\ArrayAccess $array, string $messag
 {
 }
 /**
- * @param array<mixed>|\ArrayAccess<array-key, mixed> $array
+ * @param array<mixed>|\ArrayAccess<array-key, covariant mixed> $array
  * @throws Exception
  * @throws ExpectationFailedException
  * @no-named-arguments
@@ -17665,6 +17665,12 @@ final class HookMethodCollection
     {
     }
     public static function defaultAfterClass(): self
+    {
+    }
+    /**
+     * @param non-empty-string $methodName
+     */
+    public function isDefaultHookMethod(string $methodName): bool
     {
     }
     public function add(\PHPUnit\Runner\HookMethod $hookMethod): self

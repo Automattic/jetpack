@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Zoom: Expose the reset button's shadow as `--a8c-charts-elevation-xs`, replacing the `--wpds-elevation-xs` token removed in `@wordpress/theme` 1.0.0.

@@ -72,7 +72,7 @@ export const getDefaultQueryParams = (
 
 	const { from: fromString, to: toString } = range;
 
-	const interval = getDefaultIntervalForPeriod( undefined, fromString, toString );
+	const interval = getDefaultIntervalForPeriod( preset, fromString, toString );
 
 	if ( ! withComparison ) {
 		return {

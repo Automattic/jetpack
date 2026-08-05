@@ -1,15 +1,11 @@
 import { DataViews } from '@wordpress/dataviews';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import { useMembershipsProducts } from '../data/use-memberships-products';
 import { useSubscriberRemoveMutation } from '../data/use-subscriber-remove-mutation';
 import { useSubscribers } from '../data/use-subscribers';
-import {
-	getSubscribedAt,
-	getSubscriberRowId,
-	hasNoSubscribersOtherThanOwner,
-} from '../lib/subscriber-helpers';
+import { getSubscribedAt, getSubscriberRowId } from '../lib/subscriber-helpers';
 import { getSubscriptionType } from '../lib/subscription-plans';
 import { getSubscriptionStatusLabel } from '../lib/subscription-status';
 import { recordTracksEvent } from '../lib/tracks';
@@ -25,9 +21,6 @@ import type { Subscriber, SubscribersFilter, SubscribersSortField } from '../dat
 import type { Action, Field, View } from '@wordpress/dataviews';
 
 const DEFAULT_PER_PAGE = 20;
-
-// Stable reference so passing "no rows" to DataViews doesn't churn on every render.
-const NO_SUBSCRIBERS: Subscriber[] = [];
 
 const defaultView: View = {
 	type: 'table',
@@ -48,6 +41,7 @@ type Props = {
 	onAddSubscribers: () => void;
 	onViewSubscriber: ( subscriber: Subscriber ) => void;
 	onSubscribersRemoved: ( removed: Subscriber[] ) => void;
+	onSelfOnlyChange: ( isSelfOnly: boolean ) => void;
 };
 
 /**
@@ -58,12 +52,14 @@ type Props = {
  * @param props.onAddSubscribers     - Open the Add Subscribers modal (used by the empty-state CTA).
  * @param props.onViewSubscriber     - Callback fired when the View row action is invoked.
  * @param props.onSubscribersRemoved - Callback fired with the rows that were actually removed.
+ * @param props.onSelfOnlyChange     - Reports whether the viewer is the only subscriber, for the header's nudge.
  * @return The DataViews component bound to the subscribers query.
  */
 export default function SubscribersDataViews( {
 	onAddSubscribers,
 	onViewSubscriber,
 	onSubscribersRemoved,
+	onSelfOnlyChange,
 }: Props ): JSX.Element {
 	const [ view, setView ] = useViewState( defaultView );
 	const [ pendingRemoval, setPendingRemoval ] = useState< Subscriber[] >( [] );
@@ -93,7 +89,7 @@ export default function SubscribersDataViews( {
 		[ view.page, view.perPage, view.sort?.field, view.sort?.direction, view.search, apiFilters ]
 	);
 
-	const { data, isLoading, error } = useSubscribers( queryParams );
+	const { data, isLoading, isPlaceholderData, error } = useSubscribers( queryParams );
 	const removeMutation = useSubscriberRemoveMutation();
 
 	// Fetch the site's paid products once for the whole table (not per row) so the "Comp a
@@ -320,28 +316,30 @@ export default function SubscribersDataViews( {
 	const subscribers = data?.subscribers ?? [];
 	const totalItems = data?.total ?? 0;
 	const totalPages = data?.pages ?? 0;
-	const isOwnerSubscribed = data?.is_owner_subscribed ?? false;
 
 	const hasActiveFiltersOrSearch = Boolean(
 		( view.filters && view.filters.length > 0 ) || ( view.search && view.search.length > 0 )
 	);
 
-	// The owner is always returned in the list, so when they're the only subscriber the table
-	// would render a single row and DataViews' `empty` slot would never fire. Mirror Calypso's
-	// launchpad condition and present the cold-start empty state ourselves. Gated on no active
-	// filter/search so a filtered-to-nothing result still shows the "no matching subscribers"
-	// message instead.
-	const showColdStartEmpty =
-		! hasActiveFiltersOrSearch && hasNoSubscribersOtherThanOwner( totalItems, isOwnerSubscribed );
+	const filterKey = `${ queryParams.search }|${ [ ...apiFilters ].sort().join( ',' ) }`;
+	const settledFilterKey = useRef( filterKey );
+	if ( ! isPlaceholderData ) {
+		settledFilterKey.current = filterKey;
+	}
 
-	const displayedSubscribers = showColdStartEmpty ? NO_SUBSCRIBERS : subscribers;
+	const isSelfOnly =
+		settledFilterKey.current === filterKey &&
+		! hasActiveFiltersOrSearch &&
+		totalItems === 1 &&
+		!! data?.is_owner_subscribed;
+
+	useEffect( () => {
+		onSelfOnlyChange( isSelfOnly );
+	}, [ isSelfOnly, onSelfOnlyChange ] );
 
 	const paginationInfo = useMemo(
-		() => ( {
-			totalItems: showColdStartEmpty ? 0 : totalItems,
-			totalPages: showColdStartEmpty ? 0 : totalPages,
-		} ),
-		[ showColdStartEmpty, totalItems, totalPages ]
+		() => ( { totalItems, totalPages } ),
+		[ totalItems, totalPages ]
 	);
 
 	if ( error ) {
@@ -356,7 +354,7 @@ export default function SubscribersDataViews( {
 	return (
 		<>
 			<DataViews< Subscriber >
-				data={ displayedSubscribers }
+				data={ subscribers }
 				fields={ fields }
 				view={ view }
 				onChangeView={ handleChangeView }

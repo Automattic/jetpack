@@ -39,7 +39,8 @@ interface ShareViewsState {
 
 const SHARES_PREFIX = 'shares_';
 
-// Display names for the known sharing services. Unlisted services fall back to a
+// Display names for the known sharing services. Brand names stay untranslated; the
+// generic sharing destinations are translatable. Unlisted services fall back to a
 // humanized slug, so a new network still renders a sensible label.
 const SERVICE_LABELS: Record< string, string > = {
 	facebook: 'Facebook',
@@ -53,10 +54,10 @@ const SERVICE_LABELS: Record< string, string > = {
 	whatsapp: 'WhatsApp',
 	skype: 'Skype',
 	google_plus: 'Google+',
-	print: 'Print',
-	email: 'Email',
-	press_this: 'Press This',
-	custom: __( 'Custom share buttons', 'jetpack-premium-analytics' ),
+	print: __( 'Print', 'jetpack-premium-analytics-pkg' ),
+	email: __( 'Email', 'jetpack-premium-analytics-pkg' ),
+	press_this: __( 'Press This', 'jetpack-premium-analytics-pkg' ),
+	custom: __( 'Custom share buttons', 'jetpack-premium-analytics-pkg' ),
 };
 
 function canonicalService( service: string ): string {

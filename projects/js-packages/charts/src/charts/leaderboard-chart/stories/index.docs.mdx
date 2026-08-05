@@ -286,15 +286,26 @@ The LeaderboardChart expects pre-processed data. You'll need to transform your r
 	function transformRawData(rawData) {
 		const maxValue = Math.max(...rawData.map(item => item.current_period.value));
 
-		return rawData.map(item => ({
-			id: item.id,
-			label: item.name,
-			currentValue: item.current_period.value,
-			previousValue: item.previous_period.value,
-			currentShare: (item.current_period.value / maxValue) * 100,
-			previousShare: (item.previous_period.value / maxValue) * 100,
-			delta: ((item.current_period.value - item.previous_period.value) / item.previous_period.value) * 100,
-		}));
+		return rawData.map(item => {
+			// A row absent from the comparison period has an unknown previous
+			// value; leave the comparison fields undefined so the chart shows
+			// its missing-data placeholder.
+			const previousValue = item.previous_period?.value;
+
+			return {
+				id: item.id,
+				label: item.name,
+				currentValue: item.current_period.value,
+				previousValue,
+				currentShare: (item.current_period.value / maxValue) * 100,
+				previousShare: previousValue !== undefined ? (previousValue / maxValue) * 100 : undefined,
+				// Omit delta when the percentage change cannot be calculated,
+				// such as from a previous value of 0.
+				delta: previousValue
+					? ((item.current_period.value - previousValue) / previousValue) * 100
+					: undefined,
+			};
+		});
 	}
 
 	function ProcessedDataChart() {

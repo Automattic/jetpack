@@ -18,9 +18,12 @@ import RatingCard from '../../src/dashboard/components/video-details/rating-card
 import ThumbnailCard from '../../src/dashboard/components/video-details/thumbnail-card';
 import { useVideoDetailsForm } from '../../src/dashboard/components/video-details/use-video-details-form';
 import VideoDetailsCard from '../../src/dashboard/components/video-details/video-details-card';
+import VideoNav from '../../src/dashboard/components/video-nav';
 import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
+import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useInvalidateVideo, useVideo } from '../../src/dashboard/hooks/use-video';
+import { isChaptersEditorEnabled } from '../../src/dashboard/utils/chapters-editor';
 import './style.scss';
 import type { LibraryItem, VideoRating } from '../../src/dashboard/types/library';
 
@@ -110,6 +113,11 @@ const Editor = ( {
 }: EditorProps ) => {
 	const { values, update, isDirty, reset } = useVideoDetailsForm( video );
 
+	// The sub-nav's only sibling tab is the Editor, whose route is stripped
+	// from the registry when the chapters editor is off — a one-tab strip
+	// would be pointless chrome, and its Editor tab would dead-end.
+	const showVideoNav = isChaptersEditorEnabled();
+
 	const openChapters = useCallback( () => {
 		setChaptersOpen( true );
 	}, [ setChaptersOpen ] );
@@ -128,6 +136,21 @@ const Editor = ( {
 	const handleSave = useCallback( () => {
 		onSave( values, reset );
 	}, [ onSave, values, reset ] );
+
+	// Guard the sub-nav against losing unsaved form edits: the Editor tab
+	// is a sibling route, so switching tabs unmounts this form entirely.
+	const confirmNavigation = useCallback( () => {
+		return (
+			! isDirty ||
+			// eslint-disable-next-line no-alert -- deliberate synchronous guard; the sub-nav navigation can't await a custom dialog.
+			window.confirm(
+				__(
+					'You have unsaved changes. Leave this page and discard them?',
+					'jetpack-videopress-pkg'
+				)
+			)
+		);
+	}, [ isDirty ] );
 
 	return (
 		<AdminPage
@@ -149,6 +172,13 @@ const Editor = ( {
 				/>
 			}
 		>
+			{ showVideoNav && (
+				<VideoNav
+					videoId={ video.id }
+					activeTab="details"
+					confirmNavigation={ confirmNavigation }
+				/>
+			) }
 			<div className="vp-video-details">
 				<PreviewPlayer video={ video } />
 				<ThumbnailCard
@@ -157,10 +187,12 @@ const Editor = ( {
 					onManageSubtitles={ onManageCaptions }
 				/>
 				<VideoDetailsCard
+					video={ video }
 					title={ values.title }
 					description={ values.description }
 					onChange={ update }
 					onOpenChapters={ openChapters }
+					confirmNavigation={ confirmNavigation }
 				/>
 				<PrivacySharingCard
 					privacy={ values.privacy }
@@ -188,6 +220,7 @@ const StageReady = ( { video }: StageReadyProps ) => {
 	const navigate = useNavigate();
 	const invalidateVideo = useInvalidateVideo();
 	const { mutate: updateMeta, isPending: isSaving } = useUpdateVideoMeta();
+	const { syncChapters } = useUpdateChapters();
 	const { mutateAsync: deleteVideo, isPending: isDeleting } = useDeleteVideo();
 	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useGlobalNotices();
 	const [ chaptersOpen, setChaptersOpen ] = useState( false );
@@ -230,6 +263,18 @@ const StageReady = ( { video }: StageReadyProps ) => {
 						{ id: video.id, patch: values },
 						{
 							onSuccess: () => {
+								// The description is the single source of truth for the
+								// player's chapters VTT, so a description change must
+								// regenerate that track (the legacy dashboard did; without
+								// it the player's chapter menu silently de-syncs). Only
+								// after the meta save succeeds — syncing first would bake
+								// a never-persisted description into the VTT when the
+								// save fails. Fire-and-notice: syncChapters never rejects
+								// (failures surface as a warning notice from the hook),
+								// so it can't block the save result either way.
+								if ( values.description !== video.description ) {
+									void syncChapters( video, values.description );
+								}
 								createSuccessNotice( __( 'Video details saved.', 'jetpack-videopress-pkg' ) );
 								reset( values );
 							},

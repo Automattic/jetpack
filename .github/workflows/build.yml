@@ -37,7 +37,7 @@ jobs:
       comment_id: ${{ steps.check-test-reminder-comment.outputs.result }}
 
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       # For pull requests, list-changed-projects.sh needs the merge base.
       # But it doesn't have to be checked out.
@@ -94,7 +94,7 @@ jobs:
 
       - name: Check if a WordPress.com test reminder comment is needed.
         id: check-test-reminder-comment
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
         env:
           CHANGED: ${{ steps.changed.outputs.projects }}
@@ -115,10 +115,10 @@ jobs:
       CHANGED: ${{ fromJson( needs.prepare.outputs.build_matrix ).all.changed }}
       # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
       BUILD_BASE: /tmp/jetpack-build
-    timeout-minutes: 25  # 2026-04-07: Successful runs seem to take ~15 minutes.
+    timeout-minutes: 40  # 2026-08-04: PRs that rebuild every project take ~26 minutes.
 
     steps: &build_steps
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -175,7 +175,7 @@ jobs:
           tar --owner=0 --group=0 --xz -cvvf "$FILENAME" -C "$BUILD_BASE" --transform 's,^\.,build,' .
 
       - name: Store build as artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           path: ${{ env.FILENAME }}
           retention-days: 1
@@ -232,12 +232,12 @@ jobs:
       ( needs.build_all.result == 'success' || needs.build_wpcom.result == 'success' || needs.build_nonwpcom.result == 'success' )
 
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           path: monorepo
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: partial-build-*.tar.xz
           merge-multiple: true
@@ -362,7 +362,7 @@ jobs:
 
       # 2026-03-02: Temporarily upload the artifact twice, under both old and new names, as we update things using the old name.
       - name: Store build as artifact (old)
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: jetpack-build
           path: build.tar.xz
@@ -371,7 +371,7 @@ jobs:
           # Already compressed.
           compression-level: 0
       - name: Store build as artifact (new)
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           path: jetpack-build.tar.xz
           # Retain trunk builds for 7 days so we can manually download for branch comparisons. Branch builds only need one day so the beta builder can slurp it up to distribute.
@@ -382,7 +382,7 @@ jobs:
 
       - name: Store plugins.tsv as artifact
         if: steps.plugins.outputs.any == 'true'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           path: ${{ env.BUILD_BASE }}/plugins.tsv
           # We don't really care about this artifact, its presence is a flag to the post-build job.
@@ -390,7 +390,7 @@ jobs:
           archive: false
 
       - name: Create plugins artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: steps.plugin-zips.outputs.any-built == 'true'
         with:
           name: plugins
@@ -402,7 +402,7 @@ jobs:
 
       - name: Update reminder with testing instructions
         id: update-reminder-comment
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name && fromJSON(needs.prepare.outputs.comment_id)['commentId'] != 0 }}
         env:
           BRANCH_NAME: ${{ github.head_ref }}
@@ -423,12 +423,12 @@ jobs:
     timeout-minutes: 10  # 2026-05-21: Successful runs seem to take a few minutes
 
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           path: monorepo
 
       - name: Download build artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: partial-build-wpcom.tar.xz
       - name: Extract build archive
@@ -464,12 +464,12 @@ jobs:
       needs.merge_artifacts.result == 'success'
 
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           path: monorepo
 
       - name: Download build artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: jetpack-build.tar.xz
       - name: Extract build archive

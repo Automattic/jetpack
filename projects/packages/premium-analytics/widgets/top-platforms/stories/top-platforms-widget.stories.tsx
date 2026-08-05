@@ -150,8 +150,9 @@ export const Loading: StoryObj< TopPlatformsStoryControls > = {
 };
 
 /**
- * The fetch failed: the widget shows its error state with a Retry action (which
- * re-runs the query — still mocked as failing while this story is active).
+ * The fetch failed with a permission-gated 403: the widget shows the neutral
+ * "You don't have access to this data." copy and no Retry action, since a
+ * permission gate is deterministic and retrying cannot clear it.
  */
 export const Error: StoryObj< TopPlatformsStoryControls > = {
 	render: () => renderTopPlatformsOnPreset( 'last-7-days' ),
@@ -159,6 +160,21 @@ export const Error: StoryObj< TopPlatformsStoryControls > = {
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
 		forceStatsMockState( 'stats/devices', 'error' );
+		return () => forceStatsMockState( 'stats/devices', null );
+	},
+};
+
+/**
+ * The fetch failed in a way that can heal — the proxy's `no_connection` 403: the
+ * widget shows its retryable copy with a Retry action, which re-runs the query
+ * (still mocked as failing while this story is active).
+ */
+export const ErrorRetryable: StoryObj< TopPlatformsStoryControls > = {
+	render: () => renderTopPlatformsOnPreset( 'last-12-months' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'stats/devices', 'error-retryable' );
 		return () => forceStatsMockState( 'stats/devices', null );
 	},
 };

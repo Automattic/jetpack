@@ -1,26 +1,19 @@
-// Composite group: preset pills plus the custom-range trigger presented as
-// one control. The frame copies the @wordpress/ui input-layout tokens (same
-// stroke and radius) so the group reads as a sibling of the comparison select.
+@use "../styles/preset-surface";
+
+// Preset pills plus the custom-range trigger presented as one control.
 .date-range-filter__group {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 0;
-	width: fit-content;
-	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-interactive-neutral);
-	border-radius: var(--wpds-border-radius-sm);
 
-	// Hairline dividers between the flush items.
-	> * + * {
-		border-inline-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
-	}
+	@include preset-surface.group;
 
-	// Raise the focused item above its flush siblings, whose fill or divider
-	// would otherwise paint over the focus ring. No z-index token exists in
-	// WPDS; flex items honor z-index without a position. `:focus-within`
-	// (rather than `:focus-visible`) also matches the custom trigger, which
-	// is wrapped in the Dropdown container.
-	> :focus-within {
-		z-index: 1;
-	}
+	// The label mode shortens the labels, then collapses them into a select,
+	// before the row runs out of room, so wrapping is no longer this group's
+	// fallback. Turning it off also retires an artifact it left behind: the
+	// mixin draws its hairline dividers with `> * + *`, which knows nothing
+	// about row breaks, so a wrapped row's first pill painted an inline-start
+	// border on top of the group's own frame.
+
+	// Scoped here rather than folded into the mixin: the year surface shares it
+	// and has no abbreviated form to fall back on yet, so wrapping is still its
+	// only escape from a row that overflows.
+	flex-wrap: nowrap;
 }

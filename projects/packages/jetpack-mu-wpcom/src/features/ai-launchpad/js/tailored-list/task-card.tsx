@@ -2,7 +2,7 @@ import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { border, drafts, lock, published } from '@wordpress/icons';
 import { Button, Card, CollapsibleCard } from '@wordpress/ui';
-import { ctaKind, type EnrichedTask } from './model.ts';
+import { ctaKind, type CtaKind, type EnrichedTask } from './model.ts';
 
 interface Props {
 	task: EnrichedTask;
@@ -22,12 +22,33 @@ interface Props {
 }
 
 /**
- * Resolve the action-specific label for a task's primary CTA, keyed first by task
- * id then by {@link ctaKind}, falling back to a generic "Get started".
+ * The CTA label for every {@link CtaKind}, including the `deeplink` catch-all.
  *
- * The map lives here rather than in `model.ts` because the labels must be `__()`
- * literals for translation extraction, and `model.ts` is kept free of
- * `@wordpress/*` imports so its node:test suite runs.
+ * A `Record` keyed by the union rather than a `switch` with a `default`, so that adding a kind
+ * without labelling it is a compile error. As a switch it was neither: a missing arm fell through to
+ * the generic "Get started" silently, and no test could see it — the labels can't be asserted from
+ * `model.test.mts`, because reaching them means importing `@wordpress/*`, which the node:test runner
+ * can't load. That is also why the map lives here and not in `model.ts`: the labels must be `__()`
+ * literals for translation extraction, and `model.ts` is kept import-free so its suite runs.
+ *
+ * Thunks rather than plain strings, so each `__()` still runs at render time — a module-scope call
+ * would resolve before the locale data is in place.
+ */
+const CTA_KIND_LABELS: Record< CtaKind, () => string > = {
+	first_post: () => __( 'Write post', 'jetpack-mu-wpcom' ),
+	about_page: () => __( 'Add page', 'jetpack-mu-wpcom' ),
+	gallery_page: () => __( 'Create gallery', 'jetpack-mu-wpcom' ),
+	contact_page: () => __( 'Add contact page', 'jetpack-mu-wpcom' ),
+	events_page: () => __( 'Add events page', 'jetpack-mu-wpcom' ),
+	video_page: () => __( 'Add video page', 'jetpack-mu-wpcom' ),
+	portfolio_piece: () => __( 'Add portfolio piece', 'jetpack-mu-wpcom' ),
+	launch: () => __( 'Launch site', 'jetpack-mu-wpcom' ),
+	deeplink: () => __( 'Get started', 'jetpack-mu-wpcom' ),
+};
+
+/**
+ * Resolve the action-specific label for a task's primary CTA, keyed first by task
+ * id then by {@link ctaKind}.
  *
  * @param taskId     - The catalog task id.
  * @param inProgress - Whether the task has a saved-but-unpublished draft.
@@ -48,8 +69,8 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
 	switch ( taskId ) {
 		case 'site_theme_selected':
 			return __( 'Browse themes', 'jetpack-mu-wpcom' );
-		case 'add_gallery_page':
-			return __( 'Create gallery', 'jetpack-mu-wpcom' );
+		// `add_gallery_page` is not listed here: it is the only id of its kind, so the
+		// `gallery_page` entry in CTA_KIND_LABELS carries its label and this arm would be dead.
 		case 'install_woocommerce':
 			return __( 'Install WooCommerce', 'jetpack-mu-wpcom' );
 		case 'setup_woocommerce_store':
@@ -71,16 +92,7 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
 			return __( 'Add subscribers', 'jetpack-mu-wpcom' );
 	}
 
-	switch ( ctaKind( taskId ) ) {
-		case 'first_post':
-			return __( 'Write post', 'jetpack-mu-wpcom' );
-		case 'about_page':
-			return __( 'Add page', 'jetpack-mu-wpcom' );
-		case 'launch':
-			return __( 'Launch site', 'jetpack-mu-wpcom' );
-		default:
-			return __( 'Get started', 'jetpack-mu-wpcom' );
-	}
+	return CTA_KIND_LABELS[ ctaKind( taskId ) ]();
 }
 
 /**

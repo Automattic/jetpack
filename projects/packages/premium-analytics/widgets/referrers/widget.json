@@ -1,6 +1,6 @@
 {
 	"name": "jpa/referrers",
-	"title": "Referrers",
+	"title": "Top referrers",
 	"description": "Websites and search engines referring visitors to your site.",
 	"help": {
 		"content": "The sources that sent the most visitors to your site, sorted by clicks.",

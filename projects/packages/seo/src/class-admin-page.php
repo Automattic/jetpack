@@ -158,6 +158,17 @@ class Admin_Page {
 		$data[ Initializer::SCRIPT_DATA_KEY ]['google_verify'] = Dashboard_Data::get_google_verify_data();
 		$data[ Initializer::SCRIPT_DATA_KEY ]['site']          = Dashboard_Data::get_site_data();
 
+		// Plan-gating signal for below-Premium WordPress.com sites: when gated, the
+		// dashboard reduces to a free subset and surfaces the upsell banner. Self-hosted
+		// is never gated (see Initializer::is_gated()). The upsell URL is only meaningful
+		// when gated, so it's built only then — every ungated and self-hosted admin load
+		// otherwise pays for a site-suffix lookup it never uses.
+		$is_gated                                       = Initializer::is_gated();
+		$data[ Initializer::SCRIPT_DATA_KEY ]['gating'] = array(
+			'is_gated'   => $is_gated,
+			'upsell_url' => $is_gated ? Initializer::get_upsell_url() : '',
+		);
+
 		return $data;
 	}
 

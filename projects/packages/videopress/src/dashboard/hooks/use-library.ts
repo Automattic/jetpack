@@ -5,6 +5,7 @@ import { useRef } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { addQueryArgs } from '@wordpress/url';
 import { flattenVideoTracks } from '../../client/lib/video-tracks';
+import { pickPlaybackUrl } from '../../client/utils/video-chapters/pick-playback-url';
 import { buildShortcode } from '../utils/format';
 import type { VideoTracksResponseBodyProps } from '../../client/types';
 import type { LibraryItem, LibraryItemPrivacy } from '../types/library';
@@ -26,7 +27,13 @@ export type ApiMediaItem = {
 		filesize?: number;
 		width?: number;
 		height?: number;
-		videopress?: { duration?: number; poster?: string; finished?: boolean };
+		videopress?: {
+			duration?: number;
+			poster?: string;
+			finished?: boolean;
+			file_url_base?: { https?: string };
+			files?: Record< string, { mp4?: string } >;
+		};
 		// WordPress.com Simple exposes the ready poster + duration directly on
 		// `media_details` (there's no `videopress` sub-object there).
 		thumb?: string;
@@ -231,6 +238,13 @@ export function toLibraryItem( raw: ApiMediaItem, simple: boolean ): LibraryItem
 	// on Simple that flag is absent (no media_details.videopress), so the poster check
 	// carries it. Rendered as a processing placeholder instead of a blank/black tile.
 	const isProcessing = isVideoPress && ( ! poster || finished === false );
+	// Orientation is derived from the source dimensions; unknown (missing
+	// dimensions) and square videos carry no orientation.
+	const { width, height } = details ?? {};
+	let orientation: LibraryItem[ 'orientation' ] = null;
+	if ( width && height && width !== height ) {
+		orientation = width > height ? 'landscape' : 'portrait';
+	}
 	return {
 		id: String( raw.id ),
 		guid: vp?.guid ?? '',
@@ -250,7 +264,9 @@ export function toLibraryItem( raw: ApiMediaItem, simple: boolean ): LibraryItem
 		allowDownloads: Boolean( vp?.allow_download ),
 		shortcode: buildShortcode( vp?.guid, raw.media_details?.width, raw.media_details?.height ),
 		sourceUrl: raw.source_url,
+		playbackUrl: pickPlaybackUrl( vpDetails ),
 		isProcessing,
+		orientation,
 		// The media REST field omits `tracks` today, so this is seed-only:
 		// the caption manager modal fetches the authoritative list itself.
 		tracks: flattenVideoTracks( vp?.tracks ),

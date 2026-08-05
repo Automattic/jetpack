@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Publish the dashboard page slug, capability, and site timezone in Jetpack script data, so other Jetpack surfaces can link to the dashboard.

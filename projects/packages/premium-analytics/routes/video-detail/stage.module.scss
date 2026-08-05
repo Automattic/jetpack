@@ -2,6 +2,25 @@
 	min-block-size: 0;
 }
 
+// A long unbroken video title in the breadcrumb refuses to shrink: admin-ui's
+// Page header renders the breadcrumbs slot inside a flex chain (inner header
+// Stack → the Breadcrumbs `nav`) whose items keep the flexbox default
+// `min-inline-size: auto`, so the crumb's nowrap min-content propagates and
+// drags the whole page into horizontal scrolling before the crumb's own
+// ellipsis can engage. No dedicated upstream issue exists for this exact
+// propagation; the slot is set to be reworked under the Breadcrumb component
+// extraction (https://github.com/WordPress/gutenberg/issues/77039) and the
+// admin-ui 2.0 proposal (https://github.com/WordPress/gutenberg/issues/77628).
+// Let both links shrink until then; the `nav`'s parent has no stable class,
+// hence the structural `:has()`.
+.page :has(> nav[aria-label]) {
+	min-inline-size: 0;
+}
+
+.page nav[aria-label] {
+	min-inline-size: 0;
+}
+
 .scrollArea {
 	flex: 1 1 auto;
 	min-block-size: 0;
@@ -13,6 +32,12 @@
 	padding-block-start: calc(var(--wpds-border-width-focus) + 2px);
 	padding-block-end: 24px;
 	padding-inline: var(--wpds-dimension-padding-2xl);
+}
+
+.widgets {
+	// Inherited by the @wordpress/grid surfaces (grid, masonry, edit overlay),
+	// which otherwise fall back to the wider `--wpds-dimension-gap-xl`.
+	--wp-grid-gap: var(--wpds-dimension-gap-lg);
 }
 
 .header {
@@ -27,4 +52,13 @@
 .summary {
 	flex: 1 1 360px;
 	min-inline-size: min(100%, 320px);
+	// The boot shell's surfaces element is a flex item with the default
+	// `min-inline-size: auto`, so it asks the page for its min-content width —
+	// and a specified min-inline-size can only raise an intrinsic
+	// contribution, never lower it, so the summary title's nowrap min-content
+	// would widen the whole page into horizontal scrolling before the title's
+	// own ellipsis could engage. Inline-size containment excludes the
+	// summary's contents from intrinsic sizing; its layout width still comes
+	// from the header row's flex sizing above.
+	contain: inline-size;
 }

@@ -1,10 +1,10 @@
 /**
  * External dependencies
  */
+import { SelectControl, Tabs, Text } from '@jetpack-premium-analytics/externals';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import { SelectControl, Tabs, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
@@ -176,7 +176,7 @@ export function MetricTabsChart( {
 	onMetricChange,
 	controls,
 	loading = false,
-	groupLabel = __( 'Select metric', 'jetpack-premium-analytics' ),
+	groupLabel = __( 'Select metric', 'jetpack-premium-analytics-pkg' ),
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
 

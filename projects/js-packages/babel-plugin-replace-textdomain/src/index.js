@@ -1,5 +1,6 @@
 const pluginName = require( '../package.json' ).name;
 const debug = require( 'debug' )( pluginName ); // eslint-disable-line import/order
+const { resolveGettextCallee } = require( './resolve-gettext-callee.js' );
 
 const defaultFunctions = Object.freeze( {
 	__: 1,
@@ -10,29 +11,6 @@ const defaultFunctions = Object.freeze( {
 
 const defaultI18nModule = '@wordpress/i18n';
 
-/**
- * Checks whether a given function name is an alias for an i18n module import.
- * @param {object} path       - The Babel path object.
- * @param {string} name       - The function name to check.
- * @param {string} i18nModule - The module name to match against.
- * @return {string|null} The resolved function name, or null if the function name is not an alias.
- */
-function resolveI18nAlias( path, name, i18nModule ) {
-	const binding = path.scope.getBinding( name );
-	if ( ! binding ) {
-		return null;
-	}
-	const bindingPath = binding.path;
-	if ( ! bindingPath.isImportSpecifier() ) {
-		return null;
-	}
-	const importDecl = bindingPath.parentPath;
-	if ( ! importDecl.isImportDeclaration() || importDecl.node.source.value !== i18nModule ) {
-		return null;
-	}
-	return bindingPath.node.imported.name;
-}
-
 module.exports = ( babel, opts ) => {
 	const { types: t } = babel;
 	const seenDomains = {};
@@ -40,6 +18,7 @@ module.exports = ( babel, opts ) => {
 	let functions = defaultFunctions;
 	let i18nModule = defaultI18nModule;
 	let replacementDomain;
+	const requireI18nSource = !! opts.requireI18nSource;
 
 	if ( typeof opts.textdomain === 'undefined' ) {
 		throw new Error( `${ pluginName }: The \`textdomain\` option is not set.` );
@@ -78,21 +57,13 @@ module.exports = ( babel, opts ) => {
 		name: pluginName,
 		visitor: {
 			CallExpression( path ) {
-				let callee = path.node.callee;
-				if ( t.isSequenceExpression( callee ) ) {
-					callee = callee.expressions[ callee.expressions.length - 1 ];
-				}
-				const calleeName = t.isMemberExpression( callee ) ? callee.property.name : callee.name;
-
-				let funcName = calleeName;
-				if ( ! Object.hasOwn( functions, funcName ) ) {
-					if ( t.isMemberExpression( callee ) ) {
-						return;
-					}
-					funcName = resolveI18nAlias( path, calleeName, i18nModule );
-					if ( ! funcName || ! Object.hasOwn( functions, funcName ) ) {
-						return;
-					}
+				const funcName = resolveGettextCallee( t, path, {
+					functions,
+					i18nModule,
+					requireI18nSource,
+				} );
+				if ( ! funcName ) {
+					return;
 				}
 				const idx = functions[ funcName ];
 
@@ -149,3 +120,5 @@ module.exports = ( babel, opts ) => {
 };
 
 module.exports.defaultFunctions = defaultFunctions;
+module.exports.defaultI18nModule = defaultI18nModule;
+module.exports.resolveGettextCallee = resolveGettextCallee;

@@ -2,72 +2,72 @@
  * External dependencies
  */
 import {
+	hasComparisonEnabled,
 	useStatsSearchTerms,
 	type ReportParams,
-	type StatsChartBucketPeriod,
 } from '@jetpack-premium-analytics/data';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { aggregateSearchTermRows, searchTermsToTimeSeries } from './aggregate';
+import { aggregateSearchTermRows } from './aggregate';
 
 /**
- * Fetch and derive the chart and table records for the Search terms report.
+ * Fetch and derive the table records for the Search terms report.
  *
  * @param reportParams - The shared report-window parameters.
- * @param chartPeriod  - The chart's bucket period.
- * @return Chart data and table records.
+ * @return Table records.
  */
-export function useSearchTermsReportRecords(
-	reportParams: ReportParams,
-	chartPeriod: StatsChartBucketPeriod
-) {
+export function useSearchTermsReportRecords( reportParams: ReportParams ) {
 	/*
-	 * One bucketed report feeds both the chart and table. `summarize: 0` keeps
-	 * the per-period buckets, while `max: 0` requests all known terms for
-	 * client-side search, sorting, and pagination.
+	 * Match legacy Stats' full custom-range request. `max: 0` preserves its
+	 * list behavior for client-side search, sorting, and pagination; the
+	 * endpoint-specific query omits the generic `days` parameter.
 	 */
 	const recordsParams = useMemo(
 		() => ( {
 			...reportParams,
 			max: 0,
-			summarize: 0,
+			summarize: 1,
 			period: 'day',
 		} ),
 		[ reportParams ]
 	);
 	const report = useStatsSearchTerms( recordsParams );
-	const unknownLabel = __( 'Unknown search terms', 'jetpack-premium-analytics' );
+	const unknownLabel = __( 'Unknown search terms', 'jetpack-premium-analytics-pkg' );
+	const comparisonEnabled = hasComparisonEnabled( reportParams );
+	const comparisonSettled =
+		comparisonEnabled &&
+		report.comparison.isSuccess &&
+		! report.comparison.isFetching &&
+		! report.comparison.isPlaceholderData &&
+		! report.comparison.isError;
+	const isLoading =
+		report.primary.isLoading || ( comparisonEnabled && report.comparison.isLoading );
+	const isFetching =
+		report.primary.isFetching || ( comparisonEnabled && report.comparison.isFetching );
 
-	const chartPrimary = useMemo(
-		() => searchTermsToTimeSeries( report.primary.data, chartPeriod ),
-		[ report.primary.data, chartPeriod ]
-	);
-	const chartComparison = useMemo( () => {
-		if ( ! reportParams.compare_from || ! reportParams.compare_to ) {
-			return undefined;
-		}
-
-		return searchTermsToTimeSeries( report.comparison.data, chartPeriod );
-	}, [ reportParams, report.comparison.data, chartPeriod ] );
-	const rows = useMemo(
-		() => aggregateSearchTermRows( report.primary.data, unknownLabel ),
-		[ report.primary.data, unknownLabel ]
+	const table = useMemo(
+		() =>
+			aggregateSearchTermRows(
+				report.primary.data,
+				unknownLabel,
+				comparisonSettled ? report.comparison.data : undefined
+			),
+		[ comparisonSettled, report.primary.data, report.comparison.data, unknownLabel ]
 	);
 
 	return {
-		isError: report.isError,
+		// A comparison-only failure still renders the table with primary rows
+		// and no deltas, via the comparisonSettled guard above.
+		isError: report.primary.isError,
 		refetch: report.refetch,
-		chart: {
-			primary: chartPrimary,
-			comparison: report.comparison.data ? chartComparison : undefined,
-			isLoading: report.isLoading,
-		},
 		table: {
-			rows,
-			isLoading: report.isLoading,
+			...table,
+			isLoading,
+			isFetching,
+			isError: report.primary.isError,
 		},
 	};
 }

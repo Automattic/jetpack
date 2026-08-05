@@ -1,15 +1,20 @@
 /**
  * External dependencies
  */
-import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
+import { DataViews, filterSortAndPaginate } from '@jetpack-premium-analytics/externals';
 import clsx from 'clsx';
 import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
 import styles from './dataviews-drilldown-native.module.scss';
-import { processHierarchyLevels, withAncestors } from './process-hierarchy-levels';
-import type { Field, SupportedLayouts, View, ViewBaseProps } from '@wordpress/dataviews';
+import { processHierarchyLevels, withHierarchyContext } from './process-hierarchy-levels';
+import type {
+	Field,
+	SupportedLayouts,
+	View,
+	ViewBaseProps,
+} from '@jetpack-premium-analytics/externals';
 import type { ComponentProps, ReactNode } from 'react';
 
 // Inferred props types from the `DataViews` component.
@@ -122,9 +127,10 @@ export function DataViewsDrilldownNative< Item >( {
 			fields
 		).data;
 
-		// 2. Re-attach ancestors so filtered children stay under their parents
-		//    instead of orphaned.
-		const subset = withAncestors(
+		// 2. Re-attach each match's ancestors (so filtered children stay under
+		//    their parents instead of orphaned) and descendants (so a matched
+		//    parent keeps the group its aggregate describes).
+		const subset = withHierarchyContext(
 			data,
 			new Set( matches.map( getItemId ) ),
 			getItemId,

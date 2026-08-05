@@ -1,8 +1,8 @@
 <?php
 /**
- * The Overview's content-coverage counts: how many published posts/pages have
- * each SEO field set, computed in a single aggregate query and cached in a
- * transient that post/meta writes invalidate.
+ * The Overview's content-coverage counts: how many published supported content
+ * items have each SEO field set, computed in a single aggregate query and
+ * cached in a transient that post/meta writes invalidate.
  *
  * @package automattic/jetpack-seo-package
  */
@@ -50,7 +50,7 @@ class Content_Coverage {
 	 * @return string[]
 	 */
 	private static function post_types() {
-		return array( 'post', 'page' );
+		return Post_Types::get_supported_content_types();
 	}
 
 	/**
@@ -69,8 +69,8 @@ class Content_Coverage {
 
 	/**
 	 * Factual content-coverage counts for the Overview card: how many published
-	 * posts/pages have each SEO field set. State, not a score — the card shows
-	 * proportions + raw counts and lets the admin decide what matters.
+	 * supported content items have each SEO field set. State, not a score — the
+	 * card shows proportions + raw counts and lets the admin decide what matters.
 	 *
 	 * Served from {@see self::TRANSIENT} when it's warm. The counts are read on
 	 * every load of the SEO page — and by every tab of it, since the dashboard preloads

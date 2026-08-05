@@ -9,6 +9,7 @@ import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Modal,
+	Notice,
 	__experimentalInputControl as InputControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Icon,
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -46,6 +47,31 @@ import { SendIcon } from './icons';
 const MISSING_CONNECTION_ERROR_CODE = 'rest_cannot_send_email_preview';
 
 /**
+ * apiFetch surfaces transport and parse failures under codes that aren't
+ * user-actionable. The most common in the wild is an Atomic edge rate-limit:
+ * the web-server layer returns a `text/html` 429 page before WordPress runs, so
+ * there's no JSON envelope and apiFetch collapses the whole response to
+ * `invalid_json` with the 429 status dropped. Showing that raw parser message to
+ * the user is meaningless — surface the friendly generic fallback instead.
+ *
+ * The heavier `parse: false` pattern that recovers the exact HTTP status lives
+ * in projects/packages/podcast/src/admin-pages/create-ai-podcast/index.js.
+ */
+const NON_ACTIONABLE_ERROR_CODES = [ 'invalid_json', 'unknown_error' ];
+
+/**
+ * Lightweight client-side email format check, used to give instant feedback and
+ * skip the draft save + network round-trip on obviously malformed input. The
+ * server performs the authoritative validation.
+ *
+ * @param {string} email - Address to check.
+ * @return {boolean} Whether the address looks like a valid email.
+ */
+function isValidEmail( email ) {
+	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test( email );
+}
+
+/**
  * Actionable notice shown when a preview request fails because the user's
  * WordPress.com account isn't connected. Links to the connection flow so the
  * user can resolve it without leaving the editor guessing.
@@ -72,9 +98,19 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 	const [ isEmailSent, setIsEmailSent ] = useState( false );
 	const [ isEmailSending, setIsEmailSending ] = useState( false );
 	const [ error, setError ] = useState( null );
+	const [ recipientEmail, setRecipientEmail ] = useState(
+		() => window?.Jetpack_Editor_Initial_State?.tracksUserData?.email ?? ''
+	);
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 	const { __unstableSaveForPreview } = useDispatch( editorStore );
 	const { tracks } = useAnalytics();
+
+	// Whether the user may send to an address other than their own. The server
+	// enforces this regardless; locking the field here just spares users who
+	// can't use it from an error they can't act on. Defaults to editable when the
+	// flag is absent so a permitted user is never blocked by a stale initial state.
+	const canEditRecipient =
+		window?.Jetpack_Editor_Initial_State?.jetpack?.can_send_test_email_to_others ?? true;
 
 	// The connection state is known client-side, so surface the requirement (and
 	// disable sending) as soon as the modal opens rather than after a failed send.
@@ -84,6 +120,19 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 		shouldPromptForConnection || error?.code === MISSING_CONNECTION_ERROR_CODE;
 
 	const sendTestEmail = async () => {
+		const email = recipientEmail?.trim() ?? '';
+
+		// Validate client-side first for instant feedback, skipping the draft save
+		// and the network round-trip on malformed input. An empty address is
+		// allowed: the server falls back to the current user.
+		if ( email && ! isValidEmail( email ) ) {
+			setError( {
+				code: 'invalid_email',
+				message: __( 'Please enter a valid email address.', 'jetpack' ),
+			} );
+			return;
+		}
+
 		tracks.recordEvent( 'jetpack_newsletter_test_email_send', { post_id: postId } );
 		setError( null );
 		setIsEmailSending( true );
@@ -92,7 +141,7 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 		apiFetch( {
 			path: '/wpcom/v2/send-email-preview/',
 			method: 'POST',
-			data: { id: postId },
+			data: { id: postId, email },
 		} )
 			.then( () => {
 				setIsEmailSending( false );
@@ -100,11 +149,21 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 			} )
 			.catch( e => {
 				setIsEmailSending( false );
+				// A structured WP_Error carries a code and a user-facing message we
+				// can show verbatim. A rejection without an actionable code — no code
+				// at all, or a transport/parse code like `invalid_json` from an
+				// upstream rate limiter (see NON_ACTIONABLE_ERROR_CODES) — gets a
+				// friendly generic fallback rather than a raw parser message.
+				const hasActionableMessage =
+					e?.code && ! NON_ACTIONABLE_ERROR_CODES.includes( e.code ) && e.message;
 				setError( {
 					code: e?.code,
-					message:
-						e?.message ||
-						__( 'Whoops, we have encountered an error. Please try again later.', 'jetpack' ),
+					message: hasActionableMessage
+						? e.message
+						: __(
+								'Something went wrong sending the test email. Please try again in a little while.',
+								'jetpack'
+						  ),
 				} );
 			} );
 	};
@@ -124,7 +183,15 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 		>
 			<VStack>
 				{ showConnectionNotice && <MissingConnectionNotice /> }
-				{ error && error.code !== MISSING_CONNECTION_ERROR_CODE && <p>{ error.message } </p> }
+				{ error && error.code !== MISSING_CONNECTION_ERROR_CODE && (
+					<Notice
+						status="error"
+						isDismissible={ false }
+						className="jetpack-newsletter-test-email-modal__error"
+					>
+						{ error.message }
+					</Notice>
+				) }
 				{ isEmailSent ? (
 					<HStack alignment="left" className="jetpack-newsletter-test-email-modal__email-sent">
 						<Icon icon={ check } size={ 28 } />
@@ -133,28 +200,55 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 				) : (
 					<>
 						<p>
-							{ __(
-								'This will send you an email, allowing you to see exactly what your subscribers receive in their inboxes.',
-								'jetpack'
-							) }
+							{ canEditRecipient
+								? __(
+										'Send a test email to see exactly what your subscribers receive in their inboxes. It defaults to your address, but you can send it to any address you could add as a subscriber.',
+										'jetpack'
+								  )
+								: __(
+										'Send a test email to your address so you can see exactly what your subscribers receive in their inboxes.',
+										'jetpack',
+										/* dummy arg to avoid bad minification */ 0
+								  ) }
 						</p>
-						<Grid alignment="bottom" columns={ 2 } gap={ 2 } templateColumns="2fr auto;">
-							<InputControl
-								value={ window?.Jetpack_Editor_Initial_State?.tracksUserData?.email }
-								disabled
-								__next40pxDefaultSize={ true }
-							/>
-							<Button
-								variant="primary"
-								onClick={ sendTestEmail }
-								isBusy={ isEmailSending }
-								disabled={ shouldPromptForConnection }
-								__next40pxDefaultSize={ true }
-							>
-								{ __( 'Send', 'jetpack' ) }
-								<Icon icon={ SendIcon } />
-							</Button>
-						</Grid>
+						<form
+							// noValidate keeps our own isValidEmail check the single,
+							// translated, Notice-styled source of validation. Without it
+							// the type="email" input's native constraint validation would
+							// block submit on malformed input and show a browser bubble
+							// instead of our inline error.
+							noValidate
+							onSubmit={ event => {
+								// The modal renders in a portal outside the editor's own
+								// form, so this submit is self-contained. Prevent the
+								// default navigation and route Enter (and the button's
+								// native submit) through the same send path as a click.
+								event.preventDefault();
+								sendTestEmail();
+							} }
+						>
+							<Grid alignment="bottom" columns={ 2 } gap={ 2 } templateColumns="2fr auto;">
+								<InputControl
+									type="email"
+									value={ recipientEmail }
+									onChange={ value => setRecipientEmail( value ?? '' ) }
+									disabled={ isEmailSending || ! canEditRecipient }
+									label={ __( 'Recipient email address', 'jetpack' ) }
+									hideLabelFromVision
+									__next40pxDefaultSize={ true }
+								/>
+								<Button
+									type="submit"
+									variant="primary"
+									isBusy={ isEmailSending }
+									disabled={ shouldPromptForConnection }
+									__next40pxDefaultSize={ true }
+								>
+									{ __( 'Send', 'jetpack' ) }
+									<Icon icon={ SendIcon } />
+								</Button>
+							</Grid>
+						</form>
 					</>
 				) }
 			</VStack>

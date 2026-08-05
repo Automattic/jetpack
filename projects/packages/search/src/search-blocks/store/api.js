@@ -488,24 +488,67 @@ export function buildStaticPostTypeClauses( staticPostTypes ) {
 }
 
 /**
+ * Resolve `custom_results` post IDs for the current query.
+ * Mirrors Instant Search's exact / `regex:` pattern matching.
+ *
+ * @param {string} searchQuery   - Current search query.
+ * @param {Array}  customResults - `{ pattern, ids }[]` from Instant Search options.
+ * @return {Array|null} Matching post IDs, or null when none apply.
+ */
+export function resolveCustomResults( searchQuery, customResults ) {
+	if ( ! Array.isArray( customResults ) || customResults.length === 0 ) {
+		return null;
+	}
+	const query = searchQuery || '';
+	for ( const rule of customResults ) {
+		if ( ! rule || typeof rule.pattern !== 'string' || ! Array.isArray( rule.ids ) ) {
+			continue;
+		}
+		let pattern = rule.pattern;
+		if ( pattern.startsWith( 'regex:' ) ) {
+			pattern = '^' + pattern.replace( 'regex:', '' ) + '$';
+			let matches;
+			try {
+				matches = query.match( pattern );
+			} catch {
+				// Invalid regex is skipped, not fatal — matches the PHP helper.
+				continue;
+			}
+			if ( matches ) {
+				return rule.ids;
+			}
+		} else if ( query === pattern ) {
+			return rule.ids;
+		}
+	}
+	return null;
+}
+
+/**
  * Build the full search API URL. Mirrors the 3-path routing in
  * `src/instant-search/lib/api.js`.
  *
- * @param {object}      opts                          - Options.
- * @param {number}      opts.siteId                   - Site ID.
- * @param {string}      opts.searchQuery              - Query string.
- * @param {string}      opts.sortOrder                - Sort key (Woo adds rating_desc/price_*).
- * @param {string|null} opts.pageHandle               - Pagination cursor.
- * @param {boolean}     opts.isPrivateSite            - Private site flag.
- * @param {boolean}     opts.isWpcom                  - WPCOM flag.
- * @param {string}      opts.apiRoot                  - WP REST API root.
- * @param {object}      [opts.activeFilters]          - { [filterKey]: string[] }.
- * @param {object}      [opts.filterConfigs]          - { [filterKey]: FilterConfig }.
- * @param {string}      [opts.homeUrl]                - Required for private WPcom sites.
- * @param {object|null} [opts.priceRange]             - `{ min, max }` against `wc.price`.
- * @param {object|null} [opts.staticPostTypes]        - `{include, exclude}` page-level scope from search-results.
- * @param {object}      [opts.staticFilterSelections] - { [filterKey]: string } static-filter values.
- * @param {number}      [opts.size]                   - Results per page, resolved server-side from `search-results`' `resultsPerPage`.
+ * @param {object}               opts                            - Options.
+ * @param {number}               opts.siteId                     - Site ID.
+ * @param {string}               opts.searchQuery                - Query string.
+ * @param {string}               opts.sortOrder                  - Sort key (Woo adds rating_desc/price_*).
+ * @param {string|null}          opts.pageHandle                 - Pagination cursor.
+ * @param {boolean}              opts.isPrivateSite              - Private site flag.
+ * @param {boolean}              opts.isWpcom                    - WPCOM flag.
+ * @param {string}               opts.apiRoot                    - WP REST API root.
+ * @param {object}               [opts.activeFilters]            - { [filterKey]: string[] }.
+ * @param {object}               [opts.filterConfigs]            - { [filterKey]: FilterConfig }.
+ * @param {string}               [opts.homeUrl]                  - Required for private WPcom sites.
+ * @param {object|null}          [opts.priceRange]               - `{ min, max }` against `wc.price`.
+ * @param {object|null}          [opts.staticPostTypes]          - `{include, exclude}` page-level scope from search-results.
+ * @param {object}               [opts.staticFilterSelections]   - { [filterKey]: string } static-filter values.
+ * @param {number}               [opts.size]                     - Results per page, resolved server-side from `search-results`' `resultsPerPage`.
+ * @param {boolean}              [opts.highlightPhraseOnly]      - Forward `highlight_phrase_only` from Instant Search options.
+ * @param {string[]}             [opts.highlightFilterStopwords] - Forward `highlight_filter_stopwords` from Instant Search options.
+ * @param {string[]|null}        [opts.highlightFields]          - Override default `highlight_fields` from Instant Search options.
+ * @param {Array<number|string>} [opts.additionalBlogIds]        - Forward `additional_blog_ids` from Instant Search options.
+ * @param {object|null}          [opts.adminQueryFilter]         - Extra ES clause from Instant Search options.
+ * @param {Array}                [opts.customResults]            - `{ pattern, ids }[]` from Instant Search options.
  * @return {string} Full URL.
  */
 export function buildSearchUrl( {
@@ -523,6 +566,12 @@ export function buildSearchUrl( {
 	staticPostTypes = null,
 	staticFilterSelections = {},
 	size = 10,
+	highlightPhraseOnly = false,
+	highlightFilterStopwords = [],
+	highlightFields = null,
+	additionalBlogIds = [],
+	adminQueryFilter = null,
+	customResults = [],
 } ) {
 	// `qss.encode()` encodes every value, so we pass the raw query. The
 	// overlay double-encodes; v1.3 tolerates it today but breaks on `&`/`+`/non-ASCII.
@@ -530,8 +579,11 @@ export function buildSearchUrl( {
 		query: searchQuery || '',
 		sort: mapSortToApiValue( sortOrder ),
 		size,
-		fields: SEARCH_FIELDS,
-		highlight_fields: HIGHLIGHT_FIELDS,
+		fields: [ ...SEARCH_FIELDS ],
+		highlight_fields:
+			Array.isArray( highlightFields ) && highlightFields.length > 0
+				? highlightFields
+				: HIGHLIGHT_FIELDS,
 	};
 
 	const aggregations = buildAggregations( filterConfigs );
@@ -568,8 +620,33 @@ export function buildSearchUrl( {
 			? { bool: { must: [ ...filter.bool.must, rangeClause ] } }
 			: { bool: { must: [ rangeClause ] } };
 	}
+	if ( adminQueryFilter ) {
+		filter = filter
+			? { bool: { must: [ ...filter.bool.must, adminQueryFilter ] } }
+			: { bool: { must: [ adminQueryFilter ] } };
+	}
 	if ( filter ) {
 		params.filter = filter;
+	}
+
+	if ( highlightPhraseOnly ) {
+		params.highlight_phrase_only = true;
+	}
+
+	if ( Array.isArray( highlightFilterStopwords ) && highlightFilterStopwords.length > 0 ) {
+		params.highlight_filter_stopwords = highlightFilterStopwords;
+	}
+
+	if ( Array.isArray( additionalBlogIds ) && additionalBlogIds.length > 0 ) {
+		params.additional_blog_ids = additionalBlogIds;
+		params.fields = [
+			...new Set( [ ...params.fields, 'author', 'blog_name', 'blog_icon_url', 'blog_id' ] ),
+		];
+	}
+
+	const matchedCustomResults = resolveCustomResults( searchQuery, customResults );
+	if ( matchedCustomResults ) {
+		params.custom_results = matchedCustomResults;
 	}
 
 	if ( pageHandle ) {
