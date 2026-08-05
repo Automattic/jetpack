@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscribers: Restore the option to assign imported subscribers to specific newsletter categories on CSV upload and manual add.

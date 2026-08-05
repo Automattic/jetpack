@@ -3,12 +3,9 @@
  */
 import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
-import {
-	pickReportDateParams,
-	useDashboardLink,
-	useReportDateFilters,
-} from '@jetpack-premium-analytics/routing';
-import { Breadcrumbs, Page } from '@wordpress/admin-ui';
+import { pickReportDateParams, useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -71,8 +68,6 @@ function VideoDetail(): JSX.Element {
 	// absent for now: the header's filter UI collides with the preset-measurement
 	// rework in progress, so it ships separately once that lands (WOOA7S-1816).
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-
-	const dashboardLink = useDashboardLink();
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const reportSearch = pickReportDateParams( search );
 
@@ -131,14 +126,8 @@ function VideoDetail(): JSX.Element {
 			gridSettings={ VIDEO_DETAIL_GRID }
 		>
 			<Page
-				breadcrumbs={
-					<Breadcrumbs
-						items={ [
-							{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
-							...( title ? [ { label: title } ] : [] ),
-						] }
-					/>
-				}
+				visual={ <StatsPageIcon /> }
+				breadcrumbs={ <StatsBreadcrumbs items={ title ? [ { label: title } ] : [] } /> }
 				className={ styles.page }
 			>
 				<div className={ styles.scrollArea }>

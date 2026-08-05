@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Reprint export: Avoid a fatal error when another plugin loads an older version of the Status package.

@@ -338,8 +338,8 @@ class WPCOM_Stats {
 	 */
 	public function get_total_post_views( $args = array() ) {
 		if ( $this->is_wpcom_simple ) {
-			$post_ids         = isset( $args['post_ids'] ) ? explode( ',', $args['post_ids'] ) : array();
-			$escaped_post_ids = implode( ',', array_map( 'esc_sql', $post_ids ) );
+			$post_ids         = isset( $args['post_ids'] ) ? array_map( 'absint', explode( ',', $args['post_ids'] ) ) : array();
+			$escaped_post_ids = implode( ',', $post_ids );
 
 			$number_of_days = isset( $args['num'] ) ? absint( $args['num'] ) : 1;
 			// It's the same function used in WPCOM simple.

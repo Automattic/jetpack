@@ -5,12 +5,8 @@ import {
 	normalizeReportParams,
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
-import {
-	useDashboardLink,
-	useReportDateFilters,
-	useSectionTab,
-} from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
+import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportErrorState,
 	ReportPageLayout,
@@ -23,7 +19,6 @@ import {
 	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
@@ -171,10 +166,6 @@ function PostsReport(): JSX.Element {
 	// the shared date-filter controller — same model as the dashboard.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 
-	// The breadcrumb's "Stats" crumb links back to the dashboard, carrying the
-	// current date range and comparison so returning restores the same view.
-	const dashboardLink = useDashboardLink();
-
 	/*
 	 * Keyed by tab so the table's internal view state (sort, search, page)
 	 * resets when the records set changes.
@@ -207,12 +198,10 @@ function PostsReport(): JSX.Element {
 	return (
 		<ReportPageShell
 			tabbed
+			visual={ <StatsPageIcon /> }
 			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
-						{ label: __( 'Posts & Pages', 'jetpack-premium-analytics-pkg' ) },
-					] }
+				<StatsBreadcrumbs
+					items={ [ { label: __( 'Posts & Pages', 'jetpack-premium-analytics-pkg' ) } ] }
 				/>
 			}
 			subTitle={ __( 'All your posts and archive pages.', 'jetpack-premium-analytics-pkg' ) }
