@@ -70,18 +70,18 @@ const useAutoScroll = (
 				return;
 			}
 
-			const lastParagraph =
+			const scrollTarget =
 				target ||
 				( useBlockAsTarget
 					? blockRef?.current
 					: contentRef?.current?.firstElementChild?.lastElementChild );
 
-			if ( lastParagraph && ! doingAutoScroll.current ) {
+			if ( scrollTarget && ! doingAutoScroll.current ) {
 				startedAutoScroll.current = true;
 				doingAutoScroll.current = true;
 
 				scrollElementRef?.current?.removeEventListener?.( 'scroll', userScrollHandler );
-				lastParagraph?.scrollIntoView( { block: 'end', inline: 'end' } );
+				scrollTarget?.scrollIntoView( { block: 'end', inline: 'end' } );
 
 				setTimeout( () => {
 					doingAutoScroll.current = false;
