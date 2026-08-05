@@ -1,4 +1,8 @@
 /**
+ * Internal dependencies
+ */
+import type { DateFilterSurface } from './date-filter';
+/**
  * External dependencies
  */
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
@@ -30,6 +34,19 @@ export type DashboardSection = {
 	 * Sort order (ascending).
 	 */
 	order: number;
+
+	/**
+	 * Which date filter this section's header offers. Server-registered per
+	 * section, so a section reporting on whole history can ask for the year
+	 * surface while the rest keep the rolling date-range picker.
+	 *
+	 * Optional because the field can genuinely be absent: WPCOM's public-api
+	 * registers this route from its own checkout, so a Simple site can be served
+	 * a sections payload built before the field existed. Read it through
+	 * `resolveDateFilterSurface`, which treats a missing value as the
+	 * date-range surface.
+	 */
+	date_filter?: DateFilterSurface;
 
 	/**
 	 * Bundled default widget layout, consumed by the reset action.

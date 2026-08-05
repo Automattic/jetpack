@@ -108,6 +108,9 @@ function register_default_dashboard_sections() {
 		'analytics/insights'    => array(
 			'label'          => __( 'Insights', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 20,
+			// Insights reads whole history, so it offers all time and single
+			// years instead of the rolling date-range picker.
+			'date_filter'    => Dashboard_Section::DATE_FILTER_YEAR,
 			'default_layout' => static function () {
 				return get_dashboard_default_layout_for( 'analytics/insights' );
 			},
@@ -186,6 +189,60 @@ function get_available_dashboard_section_for_route( $dashboard_name, $section_id
 }
 
 /**
+ * REST schema for one dashboard section, as returned by the sections route.
+ *
+ * The dashboard's frontend mirrors this shape in
+ * `routes/dashboard/config/sections.ts`, and WPCOM serves the same route for
+ * Simple sites (see AGENTS.md), so both are consumers of this contract.
+ *
+ * @since $$next-version$$
+ *
+ * @return array The JSON schema for a dashboard section.
+ */
+function get_dashboard_section_schema() {
+	return array(
+		'$schema'    => 'http://json-schema.org/draft-04/schema#',
+		'title'      => 'jetpack-premium-analytics-dashboard-section',
+		'type'       => 'object',
+		'properties' => array(
+			'id'             => array(
+				'description' => __( 'Namespaced section identifier.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'slug'           => array(
+				'description' => __( 'URL-facing section slug, derived from the identifier.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'label'          => array(
+				'description' => __( 'Translated display label.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'order'          => array(
+				'description' => __( 'Sort order, ascending.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'integer',
+				'readonly'    => true,
+			),
+			'date_filter'    => array(
+				'description' => __( 'Which date filter the section header offers: the rolling date range, or all time plus single years.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'string',
+				'enum'        => Dashboard_Section::DATE_FILTERS,
+				'default'     => Dashboard_Section::DATE_FILTER_RANGE,
+				'readonly'    => true,
+			),
+			'default_layout' => array(
+				'description' => __( 'Bundled default widget layout.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'array',
+				'items'       => array( 'type' => 'object' ),
+				'readonly'    => true,
+			),
+		),
+	);
+}
+
+/**
  * REST callback returning available dashboard sections.
  *
  * @param \WP_REST_Request $request REST request carrying the dashboard name.
@@ -228,15 +285,21 @@ function register_dashboard_sections_rest_routes() {
 		DASHBOARD_REST_NAMESPACE,
 		'/dashboards/(?P<name>' . get_dashboard_name_pattern() . ')/sections',
 		array(
-			'methods'             => \WP_REST_Server::READABLE,
-			'callback'            => __NAMESPACE__ . '\\get_dashboard_sections_response',
-			'permission_callback' => __NAMESPACE__ . '\\check_dashboard_sections_permission',
-			'args'                => array(
-				'name' => array(
-					'description' => __( 'Dashboard identifier as produced by the build pipeline.', 'jetpack-premium-analytics-pkg' ),
-					'type'        => 'string',
+			array(
+				// A route-level `schema` beside the numerically keyed endpoint list is
+				// register_rest_route()'s own signature, reading to Phan as a mixed array.
+				// @phan-suppress-next-line PhanPluginMixedKeyNoKey
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __NAMESPACE__ . '\\get_dashboard_sections_response',
+				'permission_callback' => __NAMESPACE__ . '\\check_dashboard_sections_permission',
+				'args'                => array(
+					'name' => array(
+						'description' => __( 'Dashboard identifier as produced by the build pipeline.', 'jetpack-premium-analytics-pkg' ),
+						'type'        => 'string',
+					),
 				),
 			),
+			'schema' => __NAMESPACE__ . '\\get_dashboard_section_schema',
 		)
 	);
 

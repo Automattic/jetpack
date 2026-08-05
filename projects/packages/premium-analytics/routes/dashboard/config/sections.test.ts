@@ -1,8 +1,24 @@
 import { resolveSectionId, type DashboardSection } from './sections';
 
 const SECTIONS: DashboardSection[] = [
-	{ id: 'analytics/traffic', slug: 'traffic', label: 'Traffic', order: 10, default_layout: [] },
-	{ id: 'analytics/insights', slug: 'insights', label: 'Insights', order: 20, default_layout: [] },
+	{
+		id: 'analytics/traffic',
+		slug: 'traffic',
+		label: 'Traffic',
+		order: 10,
+		date_filter: 'range',
+		default_layout: [],
+	},
+	{
+		id: 'analytics/insights',
+		slug: 'insights',
+		label: 'Insights',
+		order: 20,
+		date_filter: 'year',
+		default_layout: [],
+	},
+	// Registered without a date filter, the way a payload from a build that
+	// predates the field arrives.
 	{
 		id: 'analytics/subscribers',
 		slug: 'subscribers',
