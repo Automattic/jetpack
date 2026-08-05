@@ -129,6 +129,25 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			inputRef.current?.focus();
 		}, [] );
 
+		// Focusing scrolls the input into view, so it moves the editor whenever the control is off
+		// screen. That is welcome when the user asked for the control, and not when it appeared on
+		// its own or the user has scrolled elsewhere in the meantime — hence the two variants. A
+		// sticky control is in view whenever its block is, so this rarely holds it back.
+		const focusInputIfVisible = useCallback( () => {
+			const control = controlRef.current;
+			const viewportHeight = control?.ownerDocument?.defaultView?.innerHeight;
+
+			if ( ! control || ! viewportHeight ) {
+				return;
+			}
+
+			const { top, bottom } = control.getBoundingClientRect();
+
+			if ( top >= 0 && bottom <= viewportHeight ) {
+				focusInput();
+			}
+		}, [ focusInput ] );
+
 		const { tracks } = useAnalytics();
 
 		// Data and functions with block-specific implementations.
@@ -150,8 +169,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		// State to display the AI Control or not.
 		const [ showAiControl, setShowAiControl ] = useState( startOpen );
-		// Whether the control's first appearance is one the user asked for, or one it opened with.
-		const skipInitialFocus = useRef( startOpen );
+		// Whether the control's first appearance is one it opened with, rather than one the user
+		// asked for. Cleared once that appearance has been handled.
+		const isAutoOpen = useRef( startOpen );
 
 		// Called when the user clicks the "Ask AI Assistant" button.
 		const handleAskAiAssistant = useCallback( () => {
@@ -284,7 +304,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					if ( adjustPosition ) {
 						adjustBlockPadding();
 					}
-					focusInput();
+					// Scrolling by hand during a request stops the control from following along, so
+					// don't undo that by pulling the editor back to it once the request lands.
+					focusInputIfVisible();
 				}, 100 );
 
 				/**
@@ -305,7 +327,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				increaseRequestsCount,
 				getContent,
 				adjustPosition,
-				focusInput,
+				focusInputIfVisible,
 				adjustBlockPadding,
 				tracks,
 				lastPromptType,
@@ -455,19 +477,19 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				// Save the block's ownerDocument to use it later, as the editor can be in an iframe.
 				ownerDocument.current = inputRef.current.ownerDocument;
 
-				// The control can be open from the start, before the user has asked for it. Focusing
-				// scrolls the input into view, which on a block taller than the viewport would drag
-				// the editor away from the block that was just inserted. Every later opening is one
-				// the user asked for, so focus those.
-				if ( skipInitialFocus.current ) {
-					skipInitialFocus.current = false;
+				// The control can be open from the start, before the user has asked for it, in which
+				// case it only takes focus if that costs the user nothing. Below a block taller than
+				// the viewport, focusing would drag the editor away from the block just inserted.
+				if ( isAutoOpen.current ) {
+					isAutoOpen.current = false;
+					focusInputIfVisible();
 					return;
 				}
 
 				// Focus the input when the AI Control is displayed.
 				focusInput();
 			}
-		}, [ showAiControl, focusInput, isSelectionEnabled ] );
+		}, [ showAiControl, focusInput, focusInputIfVisible, isSelectionEnabled ] );
 
 		// Adjusts the input position in the editor by increasing the block's bottom-padding
 		// and setting the control's margin-top, "wrapping" the input with the block.
