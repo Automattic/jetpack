@@ -42,7 +42,8 @@ const getViewFromHash = () => {
 };
 
 const VIEW_TITLES = {
-	features: __( 'Features', 'jetpack' ),
+	// "WordPress Agent" is a product name and should not be translated.
+	features: 'WordPress Agent',
 	mcp: __( 'MCP Settings', 'jetpack' ),
 	read: __( 'Read', 'jetpack' ),
 	write: __( 'Write', 'jetpack' ),

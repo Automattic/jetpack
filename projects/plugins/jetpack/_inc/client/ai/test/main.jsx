@@ -258,7 +258,7 @@ describe( 'AI admin page (main.jsx)', () => {
 		).resolves.toBeInTheDocument();
 
 		// No Features UI and no tab bar (a single tab renders no tabs at all).
-		expect( screen.queryByText( 'Features' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'WordPress Agent' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'MCP Settings' ) ).not.toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'checkbox', { name: /Writing Assistant/ } )
@@ -283,7 +283,7 @@ describe( 'AI admin page (main.jsx)', () => {
 		).not.toBeInTheDocument();
 	} );
 
-	test( 'a11n gate: with showFeaturesView the tab bar shows and Features is the default view', async () => {
+	test( 'a11n gate: with showFeaturesView the tab bar shows and WordPress Agent is the default view', async () => {
 		window.location.hash = '';
 		mockApiFetch();
 
@@ -292,7 +292,7 @@ describe( 'AI admin page (main.jsx)', () => {
 		await expect(
 			screen.findByRole( 'checkbox', { name: /Writing Assistant/ } )
 		).resolves.toBeInTheDocument();
-		expect( screen.getByText( 'Features' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'WordPress Agent' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'MCP Settings' ) ).toBeInTheDocument();
 	} );
 
