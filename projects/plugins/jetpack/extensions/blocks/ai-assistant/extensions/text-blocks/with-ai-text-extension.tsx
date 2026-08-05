@@ -129,6 +129,22 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			inputRef.current?.focus();
 		}, [] );
 
+		// A control in normal flow does not re-pin itself, so the layout changes that end a request
+		// can leave it off screen. Worth correcting for someone still looking at it, and not for
+		// someone who has scrolled off to read elsewhere — so ask where it was before the change.
+		const isControlFullyVisible = useCallback( () => {
+			const control = controlRef.current;
+			const view = control?.ownerDocument?.defaultView;
+
+			if ( ! control || ! view ) {
+				return false;
+			}
+
+			const { top, bottom } = control.getBoundingClientRect();
+
+			return top >= 0 && bottom <= view.innerHeight;
+		}, [] );
+
 		const { tracks } = useAnalytics();
 
 		// Data and functions with block-specific implementations.
@@ -235,6 +251,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		// Called after the last suggestion chunk is received.
 		const onDone = useCallback(
 			( suggestion: string, modelUsed?: AiModelTypeProp ) => {
+				const wasControlVisible = isControlFullyVisible();
+
 				disableAutoScroll();
 				onBlockDone( suggestion );
 				increaseRequestsCount();
@@ -282,7 +300,13 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					if ( adjustPosition ) {
 						adjustBlockPadding();
 					}
-					focusInput();
+
+					// This last update adds any missing submit button and swaps the control over to
+					// its completed buttons, which can leave one in normal flow past the bottom of
+					// the viewport. Focusing brings it back for whoever was still watching it.
+					if ( adjustPosition || wasControlVisible ) {
+						focusInput();
+					}
 				}, 100 );
 
 				/**
@@ -304,6 +328,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				getContent,
 				adjustPosition,
 				focusInput,
+				isControlFullyVisible,
 				adjustBlockPadding,
 				tracks,
 				lastPromptType,
@@ -315,25 +340,20 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		// Called when an error is received.
 		const onError = useCallback(
 			error => {
+				const wasControlVisible = isControlFullyVisible();
+
 				disableAutoScroll();
 				setAction( '' );
 
 				debug( 'Request error', error );
 
-				// The error panel grows the control, which can leave one in normal flow past the
-				// bottom of the viewport with its recovery action out of reach. Measure now, before
-				// that panel renders: a control already off screen means the user is reading
-				// something else, and pulling them back would be the greater intrusion. Scroll
-				// rather than focus, as a quota error leaves the input disabled, and by the nearest
-				// edge so that a control the panel did not push out is left where it is.
-				const control = controlRef.current;
-				const view = control?.ownerDocument?.defaultView;
-				const rect = view && control.getBoundingClientRect();
-				const isOnScreen = rect && rect.bottom > 0 && rect.top < view.innerHeight;
-
-				if ( ! adjustPosition && isOnScreen ) {
-					window.requestAnimationFrame( () =>
-						control.scrollIntoView( { block: 'nearest', inline: 'nearest' } )
+				// The error message renders below the input, so it can push the recovery action of a
+				// control in normal flow out of reach. Scroll rather than focus, as a quota error
+				// leaves the input disabled, and by the nearest edge so a control the message did not
+				// push out is left where it is.
+				if ( ! adjustPosition && wasControlVisible ) {
+					window.requestAnimationFrame(
+						() => controlRef.current?.scrollIntoView( { block: 'nearest', inline: 'nearest' } )
 					);
 				}
 
@@ -344,7 +364,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 				increaseRequestsCount();
 			},
-			[ disableAutoScroll, increaseRequestsCount, adjustPosition ]
+			[ disableAutoScroll, increaseRequestsCount, adjustPosition, isControlFullyVisible ]
 		);
 
 		const {
