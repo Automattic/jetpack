@@ -261,10 +261,15 @@ class Package_Provenance_Helper {
 				background: #9cdcfe; color: #0a0a0a; border-color: #9cdcfe;
 			}
 			#package-provenance-help {
-				display: none; padding: 10px; border-block-end: 1px solid #444;
-				background: #252526; overflow: auto; max-block-size: 45vh; white-space: normal;
+				display: none; padding: 10px; background: #252526;
+				overflow: auto; white-space: normal;
 			}
-			#package-provenance-help.is-open { display: block; }
+			/* Fill the panel while open: min-block-size lets a flex child shrink
+				below its content so its own overflow scrolls. The table is hidden
+				rather than squeezed — both competing for the same box left the help
+				clipped to a few lines. */
+			#package-provenance-help.is-open { display: block; flex: 1; min-block-size: 0; }
+			#package-provenance-help.is-open ~ #package-provenance-body { display: none; }
 			#package-provenance-help h4 { color: #9cdcfe; margin: 12px 0 4px; font-size: 11px; }
 			#package-provenance-help h4:first-child { margin-block-start: 0; }
 			#package-provenance-help p, #package-provenance-help li { margin: 3px 0; color: #b8b8b8; }
