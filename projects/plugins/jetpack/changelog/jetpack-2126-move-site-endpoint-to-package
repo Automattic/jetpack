@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Move the site data endpoint into the Connection package.

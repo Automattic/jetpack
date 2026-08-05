@@ -332,6 +332,8 @@ class REST_Connector {
 				),
 			)
 		);
+
+		Site_Data::register_rest_routes();
 	}
 
 	/**

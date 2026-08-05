@@ -1755,6 +1755,12 @@ class Manager {
 				// Non-admins can always disconnect
 				$caps = array( 'read' );
 				break;
+			case 'jetpack_admin_page':
+				// The Jetpack plugin maps this capability itself, and its mapping stays authoritative.
+				if ( ! class_exists( 'Jetpack' ) ) {
+					$caps = ( new Status() )->is_offline_mode() ? array( 'manage_options' ) : array( 'edit_posts' );
+				}
+				break;
 		}
 		return $caps;
 	}

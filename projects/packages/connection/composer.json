@@ -19,6 +19,7 @@
 		"yoast/phpunit-polyfills": "^4.0.0",
 		"brain/monkey": "^2.6.2",
 		"automattic/jetpack-licensing": "@dev",
+		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-wp-abilities": "@dev",
 		"automattic/phpunit-select-config": "@dev"
@@ -77,6 +78,7 @@
 		"dependencies": {
 			"test-only": [
 				"packages/licensing",
+				"packages/plans",
 				"packages/sync"
 			]
 		}
