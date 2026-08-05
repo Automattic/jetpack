@@ -528,6 +528,9 @@ class Initializer {
 		$flags = array(
 			'videoPressStats'          => Jetpack_Constants::is_true( 'JETPACK_MY_JETPACK_VIDEOPRESS_STATS_ENABLED' ),
 			'showFullJetpackStatsCard' => class_exists( 'Jetpack' ),
+			// Only says which destination `manage_url` is: the legacy Stats page
+			// caches its report and wants a `force_refresh` hint the dashboard does not.
+			'premiumAnalyticsEnabled'  => Products\Stats::is_premium_analytics_enabled(),
 		);
 
 		return $flags;
