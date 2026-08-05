@@ -83,10 +83,7 @@ export function ConnectForm( {
 		[ completeReconnect, fetchKeyringResult, isConnectionsModalOpen, setKeyringResult ]
 	);
 
-	const requestAccess = useRequestAccess( {
-		service,
-		onConfirm,
-	} );
+	const requestAccess = useRequestAccess( { onConfirm } );
 
 	const onSubmitForm = useCallback(
 		async ( event: FormEvent ) => {
@@ -103,9 +100,9 @@ export function ConnectForm( {
 			const formData = new FormData( event.target as HTMLFormElement );
 
 			// Reconnecting re-auths the existing account, so refresh its token in place.
-			await requestAccess( formData, { refresh: Boolean( reconnectingAccount ) } );
+			await requestAccess( service, formData, { refresh: Boolean( reconnectingAccount ) } );
 		},
-		[ onSubmit, reconnectingAccount, requestAccess ]
+		[ onSubmit, reconnectingAccount, requestAccess, service ]
 	);
 
 	return (
