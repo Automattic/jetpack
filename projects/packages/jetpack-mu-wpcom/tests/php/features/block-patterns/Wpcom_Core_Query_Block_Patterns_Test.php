@@ -49,7 +49,10 @@ class Wpcom_Core_Query_Block_Patterns_Test extends TestCase {
 		$registry = WP_Block_Patterns_Registry::get_instance();
 		foreach ( $this->get_registered_core_query_pattern_names() as $name ) {
 			$pattern = $registry->get_registered( $name );
-			$blocks  = parse_blocks( trim( $pattern['content'] ) );
+			if ( ! is_array( $pattern ) ) {
+				$this->fail( "Pattern $name is not registered." );
+			}
+			$blocks = parse_blocks( trim( $pattern['content'] ) );
 			$this->assertSame( 'core/query', $blocks[0]['blockName'], "Pattern $name does not have a core/query root block." );
 		}
 	}
@@ -82,6 +85,9 @@ class Wpcom_Core_Query_Block_Patterns_Test extends TestCase {
 		wpcom_register_core_query_block_patterns();
 
 		$pattern = WP_Block_Patterns_Registry::get_instance()->get_registered( 'core/query-standard-posts' );
+		if ( ! is_array( $pattern ) ) {
+			$this->fail( 'Pattern core/query-standard-posts is not registered.' );
+		}
 		$this->assertSame( 'Pre-existing', $pattern['title'] );
 	}
 
