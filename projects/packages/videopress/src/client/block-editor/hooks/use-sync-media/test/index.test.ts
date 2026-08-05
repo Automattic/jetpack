@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 /**
  * Internal dependencies
  */
@@ -236,5 +236,55 @@ describe( 'useSyncMedia auto-generated chapter upload', () => {
 		expect( tracksCall[ 0 ].tracks[ 0 ].src ).toBe(
 			'https://videos.files.wordpress.com/guid123/track.vtt'
 		);
+	} );
+} );
+
+describe( 'useSyncMedia embed invalidation', () => {
+	/**
+	 * Render a save transition with an empty description, so the auto-generated
+	 * chapter branch is skipped and the field-based invalidation path runs.
+	 *
+	 * @param {VideoBlockAttributes} attributes - Block attributes to sync.
+	 * @return {object} The renderHook result.
+	 */
+	function renderSaveWithoutChapters( attributes: VideoBlockAttributes ) {
+		const setAttributes = jest.fn() as jest.MockedFunction< VideoBlockSetAttributesProps >;
+
+		mockUseSelect.mockReturnValue( true );
+		const utils = renderHook( () => useSyncMedia( attributes, setAttributes ) );
+
+		mockUseSelect.mockReturnValue( false );
+		utils.rerender();
+
+		return utils;
+	}
+
+	it( 'refreshes the player when the rating changes', async () => {
+		/*
+		 * Raising or lowering the rating adds or removes the age gate, but the
+		 * rating is not part of the embed URL, so without an explicit
+		 * invalidation the cached preview keeps rendering the stale gate.
+		 */
+		renderSaveWithoutChapters( { ...baseAttributes, description: '', rating: 'G' } );
+
+		await waitFor( () =>
+			expect( invalidateResolution ).toHaveBeenCalledWith( 'getEmbedPreview', [
+				'https://videopress.com/v/guid123',
+			] )
+		);
+	} );
+
+	it( 'leaves the player alone for fields the embed does not depend on', async () => {
+		renderSaveWithoutChapters( { ...baseAttributes, description: '', duration: 42 } );
+
+		await waitFor( () => expect( updateMediaHandler ).toHaveBeenCalled() );
+
+		// Settle the very promise the hook hangs its invalidation off, so a
+		// missing call is a real absence and not an assertion that ran early.
+		await act( async () => {
+			await updateMediaHandler.mock.results[ 0 ].value;
+		} );
+
+		expect( invalidateResolution ).not.toHaveBeenCalled();
 	} );
 } );
