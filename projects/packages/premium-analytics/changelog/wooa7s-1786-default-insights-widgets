@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Insights: Reorder and resize the default widgets so each row fills the grid, and show the Highlights metrics by default.
+Insights: Reorder and resize the default widgets so each row fills the grid, add Popular post next to Latest post, and show the Highlights metrics by default.

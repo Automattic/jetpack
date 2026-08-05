@@ -285,14 +285,15 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$expected = array(
 			'default-annual-highlights-widget-instance'    => array( 'jpa/annual-highlights', 2, 2, 0 ),
 			'default-posting-activity-widget-instance'     => array( 'jpa/posting-activity', 2, 2, 1 ),
-			'default-all-time-stats-widget-instance'       => array( 'jpa/all-time-stats', 4, 1, 2 ),
-			'default-latest-post-widget-instance'          => array( 'jpa/latest-post', 2, 2, 3 ),
-			'default-most-popular-time-widget-instance'    => array( 'jpa/most-popular-time', 1, 2, 4 ),
-			'default-most-popular-day-widget-instance'     => array( 'jpa/most-popular-day', 1, 2, 5 ),
-			'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 6 ),
-			'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 1, 2, 7 ),
-			'default-shares-widget-instance'               => array( 'jpa/shares', 1, 2, 8 ),
-			'default-tags-widget-instance'                 => array( 'jpa/tags', 1, 2, 9 ),
+			'default-latest-post-widget-instance'          => array( 'jpa/latest-post', 2, 2, 2 ),
+			'default-popular-post-widget-instance'         => array( 'jpa/popular-post', 2, 2, 3 ),
+			'default-all-time-stats-widget-instance'       => array( 'jpa/all-time-stats', 2, 2, 4 ),
+			'default-most-popular-time-widget-instance'    => array( 'jpa/most-popular-time', 1, 2, 5 ),
+			'default-most-popular-day-widget-instance'     => array( 'jpa/most-popular-day', 1, 2, 6 ),
+			'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 7 ),
+			'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 1, 2, 8 ),
+			'default-shares-widget-instance'               => array( 'jpa/shares', 1, 2, 9 ),
+			'default-tags-widget-instance'                 => array( 'jpa/tags', 1, 2, 10 ),
 		);
 
 		$this->assertSame( array_keys( $expected ), array_column( $layout, 'uuid' ) );
