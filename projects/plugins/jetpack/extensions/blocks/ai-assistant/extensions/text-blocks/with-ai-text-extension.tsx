@@ -151,9 +151,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const isMobileViewport = useViewportMatch( 'medium', '<' );
 
 		// State to display the AI Control or not.
-		// The input is sticky to the bottom of the viewport, so on narrow screens it hovers over
-		// the block instead of sitting below it. Skip the auto-open there and let the user reach
-		// it from the toolbar, so the block they just inserted stays visible.
+		// Opening the input also focuses it, which scrolls it into view. On a narrow screen the
+		// block is usually taller than the viewport, so that drags the user past the block they
+		// just inserted and raises the keyboard. Let them open it from the toolbar instead.
 		const [ showAiControl, setShowAiControl ] = useState( startOpen && ! isMobileViewport );
 
 		// Called when the user clicks the "Ask AI Assistant" button.
@@ -555,6 +555,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 						requestingError={ error }
 						wrapperRef={ controlRef }
 						inputRef={ inputRef }
+						isSticky={ adjustPosition }
 						action={ action }
 						blockType={ blockName }
 						feature={ feature }
