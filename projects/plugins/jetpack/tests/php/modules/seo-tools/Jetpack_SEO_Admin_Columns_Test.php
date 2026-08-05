@@ -230,6 +230,16 @@ class Jetpack_SEO_Admin_Columns_Test extends WP_UnitTestCase {
 
 		Jetpack_SEO_Admin_Columns::register_columns_for_post_types();
 
+		// Concrete expectations first, so this doesn't merely restate whatever the
+		// helper happens to return.
+		foreach ( array( 'post', 'page', 'jetpack_seo_test_cpt' ) as $post_type ) {
+			$this->assertNotFalse(
+				has_filter( "manage_{$post_type}_posts_columns", array( 'Jetpack_SEO_Admin_Columns', 'add_columns' ) ),
+				"Expected the SEO columns to register on the {$post_type} list table."
+			);
+		}
+
+		// And the full set tracks the Content tab's, so the two cannot drift apart.
 		foreach ( \Automattic\Jetpack\SEO\Post_Types::get_supported_content_types() as $post_type ) {
 			$this->assertNotFalse(
 				has_filter( "manage_{$post_type}_posts_columns", array( 'Jetpack_SEO_Admin_Columns', 'add_columns' ) ),
