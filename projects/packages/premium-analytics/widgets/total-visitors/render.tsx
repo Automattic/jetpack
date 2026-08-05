@@ -29,9 +29,7 @@ type TotalVisitorsWidgetProps = WidgetRenderProps< TotalVisitorsRenderAttributes
  *
  * WidgetRoot provides the query client, chart theme, and resolved report
  * params; the shared StatsTotalMetricWidget fetches the traffic report and
- * renders the total with its sparkline. The aggregation caveat (a returning
- * visitor counts once per day) lives in `widget.json`'s `help.content`, so the
- * frame surfaces it in the info popover.
+ * renders the total with its sparkline.
  *
  * @param {TotalVisitorsWidgetProps} props - The widget render props.
  * @return The rendered widget.

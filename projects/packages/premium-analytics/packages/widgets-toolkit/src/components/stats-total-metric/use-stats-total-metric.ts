@@ -13,14 +13,8 @@ import type {
 	StatsVisitsResponse,
 } from '@jetpack-premium-analytics/data';
 
-/**
- * The traffic field a total-metric card displays.
- */
 export type StatsTotalMetricField = 'views' | 'visitors';
 
-/**
- * Normalized state for one total-metric card.
- */
 export type StatsTotalMetricState = {
 	/** The period total, read from the report summary — not a sum of `points`. */
 	total: number;
@@ -33,9 +27,8 @@ export type StatsTotalMetricState = {
 	refetch: () => void;
 };
 
-// Ordered finest to coarsest, as `defaultPeriodForInterval` requires. Matches
-// `traffic-chart`'s set so both land on the same period for a given range —
-// the precondition for sharing its query.
+// Finest to coarsest, as `defaultPeriodForInterval` requires. Same set as
+// `traffic-chart`, so both land on the same period and share its query.
 const TOTAL_METRIC_PERIODS = [ 'day', 'week', 'month' ] as const;
 
 /**
@@ -55,11 +48,10 @@ export function useStatsTotalMetric(
 ): StatsTotalMetricState {
 	const period = defaultPeriodForInterval( reportParams.interval, TOTAL_METRIC_PERIODS );
 
-	// The card renders no delta, and `useReport` folds the comparison query's
-	// loading/fetching/error flags into the ones returned here — leaving it
-	// enabled would make the card wait on, and fail for, data it never shows.
-	// Free of charge: `useReport` already deletes these four keys before
-	// building the primary query, so the shared cache entry is unaffected.
+	// `useReport` folds the comparison query's loading/error flags into the ones
+	// returned here, so leaving it enabled would make the card wait on — and fail
+	// for — data it never renders. Costs nothing: `useReport` already strips these
+	// keys from the primary query, so the shared cache entry is unaffected.
 	const params = useMemo( () => {
 		const next: StatsVisitsParams = {
 			...reportParams,

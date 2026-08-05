@@ -1,54 +1,33 @@
 /**
  * External dependencies
  */
-import { Icon, Sparkline } from '@jetpack-premium-analytics/externals';
+import { Icon, Sparkline, Text } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 /**
  * Internal dependencies
  */
 import { describeError } from '../../helpers';
-import { MetricValue } from '../metric-value';
 import { useWidgetRootContext } from '../widget-root';
 import { WidgetState } from '../widget-state';
 import styles from './stats-total-metric.module.scss';
 import { useStatsTotalMetric, type StatsTotalMetricField } from './use-stats-total-metric';
-import type { DataFormat } from '../../types';
 import type { ComponentProps } from 'react';
 
-// One decimal, unlike `site-overview`'s tile format. `useMultipliers` rounds to
-// `decimals`, so `decimals: 0` renders 291,900 as "292K" and 1,200,000 as "1M".
-// The prototype's headline is "291.9k" / "1.2M" / "441.6k", so this card needs
-// the extra digit; the small tiles do not.
-const COUNT_FORMAT: DataFormat = {
-	type: 'number',
-	options: { useMultipliers: true, decimals: 1 },
-};
+// `decimals: 0` would round 291,900 to "292K"; the prototype's headline keeps
+// the digit ("291.9k" / "1.2M").
+const HEADLINE_OPTIONS = { useMultipliers: true, decimals: 1 };
 
 export type StatsTotalMetricWidgetProps = {
-	/**
-	 * The traffic field to display.
-	 */
 	field: StatsTotalMetricField;
-	/**
-	 * Glyph for the empty state.
-	 */
 	emptyIcon: ComponentProps< typeof Icon >[ 'icon' ];
-	/**
-	 * Copy for the empty state.
-	 */
 	emptyDescription: string;
-	/**
-	 * Copy for the retryable error state. This component is generic over
-	 * `field`, so the copy comes from the caller; a permission-gated 403 gets
-	 * neutral copy from `describeError` instead.
-	 */
+	/** Retryable errors only — `describeError` supplies the 403 copy. */
 	retryDescription: string;
 };
 
 /**
- * One traffic metric as a large period total over an area sparkline. Backs the
- * `jpa/total-views` and `jpa/total-visitors` cards, which differ only in `field`
- * and copy. Must render inside a `<WidgetRoot>`.
+ * A period total over an area sparkline. Backs the `jpa/total-views` and
+ * `jpa/total-visitors` cards. Must render inside a `<WidgetRoot>`.
  *
  * @param {StatsTotalMetricWidgetProps} props - The component props.
  * @return The widget body.
@@ -76,19 +55,17 @@ export function StatsTotalMetricWidget( {
 				empty={ { icon: emptyIcon, description: emptyDescription } }
 			>
 				<div className={ styles.body }>
-					<MetricValue
-						value={ total }
-						dataFormat={ COUNT_FORMAT }
-						fontSize="2xl"
+					{ /* Not `MetricValue`: it pins a 20px line-height at any font size, which
+					    clips 32px glyphs. `heading-2xl` pairs 32px with 40px. */ }
+					<Text
+						variant="heading-2xl"
 						title={ formatMetricValue( total, 'number', { decimals: 0 } ) }
-					/>
+					>
+						{ formatMetricValue( total, 'number', HEADLINE_OPTIONS ) }
+					</Text>
 					<div className={ styles.chart }>
-						{ /*
-						 * `withResponsive` caps the drawn width at its `maxWidth` default of
-						 * 1200px, which leaves dead space on a wider card. A sparkline is
-						 * card-width chrome, not a standalone chart, so it has no reason to
-						 * stop growing.
-						 */ }
+						{ /* `withResponsive` caps width at 1200px by default, stranding space on a
+						    wider card. */ }
 						<Sparkline data={ points } withGradientFill maxWidth={ Infinity } />
 					</div>
 				</div>

@@ -3,7 +3,13 @@
 	"title": "Total visitors",
 	"description": "Total visitors for the selected period, with the trend over time.",
 	"help": {
-		"content": "Total visitors for the selected period, with the trend over time. Sum of daily visitors — a returning visitor is counted once per day, not once for the whole period."
+		"content": "The number of unique visitors to your site.",
+		"links": [
+			{
+				"label": "Learn more",
+				"href": "https://wordpress.com/support/stats/#visitors"
+			}
+		]
 	},
 	"category": "stats",
 	"presentation": "framed"
