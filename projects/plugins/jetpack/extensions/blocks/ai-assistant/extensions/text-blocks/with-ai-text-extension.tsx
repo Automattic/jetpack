@@ -257,7 +257,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		// Called after the last suggestion chunk is received.
 		const onDone = useCallback(
 			( suggestion: string, modelUsed?: AiModelTypeProp ) => {
-				disableAutoScroll();
+				const userTookOverScrolling = disableAutoScroll();
 				onBlockDone( suggestion );
 				increaseRequestsCount();
 				setAction( '' );
@@ -307,10 +307,17 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 						return;
 					}
 
-					// Scrolling by hand during a request stops the control from following along, so a
-					// control in normal flow can be off screen by now. Don't undo that scroll by
-					// pulling the editor back to it.
-					focusInputIfVisible();
+					// This last update can add a missing submit button and swaps the control over to
+					// its completed buttons, either of which can push a control in normal flow past
+					// the bottom of the viewport. Focusing brings it back — unless the user scrolled
+					// off during the request, which is what stopped the control being followed in the
+					// first place and should not be undone here.
+					if ( userTookOverScrolling ) {
+						focusInputIfVisible();
+						return;
+					}
+
+					focusInput();
 				}, 100 );
 
 				/**
@@ -599,7 +606,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 						requestingError={ error }
 						wrapperRef={ controlRef }
 						inputRef={ inputRef }
-						isSticky={ adjustPosition }
+						isStatic={ ! adjustPosition }
 						action={ action }
 						blockType={ blockName }
 						feature={ feature }

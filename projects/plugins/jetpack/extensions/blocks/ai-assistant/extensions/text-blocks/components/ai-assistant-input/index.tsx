@@ -24,7 +24,7 @@ export type AiAssistantInputProps = {
 	requestingError?: RequestingErrorProps;
 	inputRef?: MutableRefObject< HTMLInputElement | null >;
 	wrapperRef?: MutableRefObject< HTMLDivElement | null >;
-	isSticky: boolean;
+	isStatic: boolean;
 	action?: string;
 	blockType: ExtendedBlockProp;
 	feature: string;
@@ -48,7 +48,7 @@ export default function AiAssistantInput( {
 	requestingError,
 	inputRef,
 	wrapperRef,
-	isSticky,
+	isStatic,
 	action,
 	blockType,
 	feature,
@@ -173,7 +173,7 @@ export default function AiAssistantInput( {
 
 	return (
 		<ExtensionAIControl
-			className={ clsx( defaultClassNames, className, { 'is-static': ! isSticky } ) }
+			className={ clsx( defaultClassNames, className, { 'is-static': isStatic } ) }
 			placeholder={ placeholder }
 			disabled={ disabled }
 			value={ value }
