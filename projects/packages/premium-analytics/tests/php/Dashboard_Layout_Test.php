@@ -223,58 +223,54 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	 * The traffic tab receives its bundled traffic widgets.
 	 */
 	public function test_seed_default_dashboard_layout_adds_traffic_widgets() {
-		$layout              = seed_default_dashboard_layout( array(), DASHBOARD_TRAFFIC_SECTION_ID );
-		$layout_by_uuid      = array_column( $layout, null, 'uuid' );
-		$layout_types        = array_column( $layout, 'type' );
-		$utm_widget_uuid     = 'default-utm-insights-widget-instance';
-		$top_posts_uuid      = 'default-stats-top-posts-widget-instance';
-		$traffic_chart_uuid  = 'default-traffic-chart-widget-instance';
-		$file_downloads_uuid = 'default-file-downloads-widget-instance';
+		$layout          = seed_default_dashboard_layout( array(), DASHBOARD_TRAFFIC_SECTION_ID );
+		$layout_by_uuid  = array_column( $layout, null, 'uuid' );
+		$layout_types    = array_column( $layout, 'type' );
+		$utm_widget_uuid = 'default-utm-insights-widget-instance';
 
-		$this->assertContains( 'jpa/traffic-chart', $layout_types );
-		$this->assertContains( 'jpa/stats-top-posts', $layout_types );
-		$this->assertContains( 'jpa/referrers', $layout_types );
-		$this->assertContains( 'jpa/authors', $layout_types );
-		$this->assertContains( 'jpa/videopress', $layout_types );
-		$this->assertContains( 'jpa/plan-usage', $layout_types );
-		$this->assertArrayHasKey( 'default-locations-widget-instance', $layout_by_uuid );
-		$this->assertArrayHasKey( $utm_widget_uuid, $layout_by_uuid );
-		$this->assertArrayHasKey( $file_downloads_uuid, $layout_by_uuid );
+		// uuid => [ type, width, order ]; widths fill the four-column grid.
+		$expected = array(
+			'default-traffic-chart-widget-instance'   => array( 'jpa/traffic-chart', 4, 0 ),
+			'default-stats-top-posts-widget-instance' => array( 'jpa/stats-top-posts', 2, 1 ),
+			'default-referrers-widget-instance'       => array( 'jpa/referrers', 1, 2 ),
+			'default-devices-widget-instance'         => array( 'jpa/devices', 1, 3 ),
+			'default-locations-widget-instance'       => array( 'jpa/locations', 3, 4 ),
+			'default-top-platforms-widget-instance'   => array( 'jpa/top-platforms', 1, 5 ),
+			'default-videopress-widget-instance'      => array( 'jpa/videopress', 1, 6 ),
+			'default-clicks-widget-instance'          => array( 'jpa/clicks', 1, 7 ),
+			'default-authors-widget-instance'         => array( 'jpa/authors', 2, 8 ),
+			'default-utm-insights-widget-instance'    => array( 'jpa/utm-insights', 2, 9 ),
+			'default-search-terms-widget-instance'    => array( 'jpa/search-terms', 1, 10 ),
+			'default-file-downloads-widget-instance'  => array( 'jpa/file-downloads', 1, 11 ),
+		);
+
+		$this->assertSame( array_keys( $expected ), array_column( $layout, 'uuid' ) );
+
+		foreach ( $expected as $uuid => $instance ) {
+			list( $type, $width, $order ) = $instance;
+
+			$this->assertSame( $type, $layout_by_uuid[ $uuid ]['type'], $uuid );
+			$this->assertSame(
+				array(
+					'width'  => $width,
+					'height' => 2,
+					'order'  => $order,
+				),
+				$layout_by_uuid[ $uuid ]['placement'],
+				$uuid
+			);
+		}
+
+		// Plan usage is intentionally not a default.
+		$this->assertNotContains( 'jpa/plan-usage', $layout_types );
 
 		$this->assertSame(
 			array(
-				'uuid'       => $utm_widget_uuid,
-				'type'       => 'jpa/utm-insights',
-				'attributes' => array(
-					'utmDimension' => 'utm_source,utm_medium',
-					'max'          => 10,
-				),
-				'placement'  => array(
-					'width'  => 1,
-					'height' => 2,
-					'order'  => 8,
-				),
+				'utmDimension' => 'utm_source,utm_medium',
+				'max'          => 10,
 			),
-			$layout_by_uuid[ $utm_widget_uuid ]
+			$layout_by_uuid[ $utm_widget_uuid ]['attributes']
 		);
-
-		$this->assertSame(
-			array(
-				'uuid'       => $top_posts_uuid,
-				'type'       => 'jpa/stats-top-posts',
-				'attributes' => array(
-					'max' => 10,
-				),
-				'placement'  => array(
-					'width'  => 1,
-					'height' => 2,
-					'order'  => 1,
-				),
-			),
-			$layout_by_uuid[ $top_posts_uuid ]
-		);
-
-		$this->assertSame( 'jpa/traffic-chart', $layout_by_uuid[ $traffic_chart_uuid ]['type'] );
 	}
 
 	/**

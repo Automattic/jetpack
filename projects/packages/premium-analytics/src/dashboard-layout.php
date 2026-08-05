@@ -168,28 +168,30 @@ function get_dashboard_default_widget_instance(
 function get_dashboard_default_section_layouts() {
 	return array(
 		DASHBOARD_TRAFFIC_SECTION_ID     => array(
-			// Row 1: traffic chart + most-viewed posts.
+			// Rows fill the four-column grid. Plan usage is intentionally not a
+			// default; it stays available from the widget picker.
+			// Row 1: traffic chart.
 			get_dashboard_default_widget_instance(
 				'default-traffic-chart-widget-instance',
 				'jpa/traffic-chart',
 				0,
-				3,
+				4,
 				2,
 				array(
 					'granularity' => 'auto',
 				)
 			),
+			// Row 2: most-viewed posts + referrers + devices.
 			get_dashboard_default_widget_instance(
 				'default-stats-top-posts-widget-instance',
 				'jpa/stats-top-posts',
 				1,
-				1,
+				2,
 				2,
 				array(
 					'max' => 10,
 				)
 			),
-			// Row 2: referrers + locations map + devices.
 			get_dashboard_default_widget_instance(
 				'default-referrers-widget-instance',
 				'jpa/referrers',
@@ -201,26 +203,26 @@ function get_dashboard_default_section_layouts() {
 				)
 			),
 			get_dashboard_default_widget_instance(
-				'default-locations-widget-instance',
-				'jpa/locations',
-				3,
-				2,
-				2,
-				array(
-					'max' => 10,
-				)
-			),
-			get_dashboard_default_widget_instance(
 				'default-devices-widget-instance',
 				'jpa/devices',
-				4,
+				3,
 				1,
 				2,
 				array(
 					'max' => 5,
 				)
 			),
-			// Row 3: top platforms + VideoPress + authors + UTM insights.
+			// Row 3: locations map + top platforms.
+			get_dashboard_default_widget_instance(
+				'default-locations-widget-instance',
+				'jpa/locations',
+				4,
+				3,
+				2,
+				array(
+					'max' => 10,
+				)
+			),
 			get_dashboard_default_widget_instance(
 				'default-top-platforms-widget-instance',
 				'jpa/top-platforms',
@@ -231,6 +233,7 @@ function get_dashboard_default_section_layouts() {
 					'max' => 10,
 				)
 			),
+			// Row 4: VideoPress + clicks + authors.
 			get_dashboard_default_widget_instance(
 				'default-videopress-widget-instance',
 				'jpa/videopress',
@@ -242,35 +245,35 @@ function get_dashboard_default_section_layouts() {
 				)
 			),
 			get_dashboard_default_widget_instance(
-				'default-authors-widget-instance',
-				'jpa/authors',
+				'default-clicks-widget-instance',
+				'jpa/clicks',
 				7,
 				1,
+				2,
+				array(
+					'max' => 10,
+				)
+			),
+			get_dashboard_default_widget_instance(
+				'default-authors-widget-instance',
+				'jpa/authors',
+				8,
+				2,
 				2,
 				array(
 					'max' => 7,
 				)
 			),
+			// Row 5: UTM insights + search terms + file downloads (Simple only).
 			get_dashboard_default_widget_instance(
 				'default-utm-insights-widget-instance',
 				'jpa/utm-insights',
-				8,
-				1,
+				9,
+				2,
 				2,
 				array(
 					'utmDimension' => 'utm_source,utm_medium',
 					'max'          => 10,
-				)
-			),
-			// Row 4: clicks + search terms + file downloads + plan usage.
-			get_dashboard_default_widget_instance(
-				'default-clicks-widget-instance',
-				'jpa/clicks',
-				9,
-				1,
-				2,
-				array(
-					'max' => 10,
 				)
 			),
 			get_dashboard_default_widget_instance(
@@ -292,13 +295,6 @@ function get_dashboard_default_section_layouts() {
 				array(
 					'max' => 10,
 				)
-			),
-			get_dashboard_default_widget_instance(
-				'default-plan-usage-widget-instance',
-				'jpa/plan-usage',
-				12,
-				1,
-				2
 			),
 		),
 		DASHBOARD_INSIGHTS_SECTION_ID    => array(
