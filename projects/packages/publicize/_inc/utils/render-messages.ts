@@ -1,3 +1,5 @@
+import type { Hyperlink } from '@automattic/social-previews';
+
 /**
  * Render-messages types + cache-key hashing.
  *
@@ -36,6 +38,7 @@ export type RenderPostIntent = {
 export type RenderResult = {
 	connection_id: string;
 	rendered_message?: string;
+	hyperlinks?: Hyperlink[];
 	error?: { code: string; message: string };
 };
 

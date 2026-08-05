@@ -15,7 +15,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { envelope, payment, people, share } from '@wordpress/icons';
-import { Text } from '@wordpress/ui';
+import { Text } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */

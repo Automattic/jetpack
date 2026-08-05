@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Plugins: Avoid a PHP warning when an active plugin's files are no longer on disk.

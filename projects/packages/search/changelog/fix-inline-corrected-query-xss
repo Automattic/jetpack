@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Inline Search: Insert the corrected-query notice as text so search terms are not parsed as HTML.

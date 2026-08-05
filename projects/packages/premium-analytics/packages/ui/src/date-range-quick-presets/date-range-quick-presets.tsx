@@ -8,9 +8,9 @@ import {
 	type PrimaryPresetId,
 	type SelectablePresetId,
 } from '@jetpack-premium-analytics/datetime';
+import { Button, SelectControl } from '@jetpack-premium-analytics/externals';
 import { Composite } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Button, SelectControl } from '@wordpress/ui';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies

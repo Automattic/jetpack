@@ -19,7 +19,7 @@ import { tag as tagIllustration } from '@jetpack-premium-analytics/icons';
 import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { category, tag as tagGlyph } from '@wordpress/icons';
-import { Icon, Link, Stack } from '@wordpress/ui';
+import { Icon, Link, Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */

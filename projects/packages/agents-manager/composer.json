@@ -54,7 +54,7 @@
 		"autorelease": true,
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.8.x-dev"
+			"dev-trunk": "0.9.x-dev"
 		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-agents-manager/compare/v${old}...v${new}"

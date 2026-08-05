@@ -1,5 +1,0 @@
-Significance: patch
-Type: added
-Comment: Add the jetpack_publicize_connections and jetpack_publicize_services filters, so the connections and services lists can be altered for testing and debugging.
-
-

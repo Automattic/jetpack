@@ -1,16 +1,14 @@
 /**
  * External dependencies
  */
-import { DateRangeCalendar } from '@automattic/ui';
 import { PRESET_CUSTOM, type PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
+import { Button, DateRangeCalendar, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { Composite, Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { chevronDown } from '@wordpress/icons';
-import { Button, Icon, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useState, useCallback, useRef } from 'react';
-import '@automattic/ui/style.css';
 /**
  * Internal dependencies
  */

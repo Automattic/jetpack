@@ -40,6 +40,18 @@ export type ReportDateFilters = {
 	onCancel: () => void;
 	canApply: boolean;
 	timeZone: string;
+
+	/**
+	 * Stage a primary range change and commit it in the same tick, replacing the
+	 * current history entry instead of pushing one.
+	 *
+	 * For range changes the page makes on the user's behalf rather than in
+	 * response to a date edit — reconciling the preset with what the current
+	 * screen can show, for instance. Those must not leave a Back step, or Back
+	 * would return to the state that triggered the reconciliation and be
+	 * corrected straight back out of.
+	 */
+	replaceRange: ( range: DateRange, presetId: PrimaryPresetId ) => void;
 };
 
 /**
@@ -175,6 +187,22 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 	const onApply = useCallback( () => commit(), [ commit ] );
 	const onCancel = useCallback( () => revert(), [ revert ] );
 
+	/*
+	 * `commit()` reads the staged buffer synchronously, so staging and committing
+	 * in the same tick lands both as one navigation.
+	 */
+	const replaceRange = useCallback(
+		( nextRange: DateRange, nextPresetId: PrimaryPresetId ) => {
+			const patch = buildRangePatch( { nextRange, nextPresetId, effective } );
+
+			if ( patch ) {
+				stage( patch );
+				commit( { replace: true } );
+			}
+		},
+		[ stage, commit, effective ]
+	);
+
 	return {
 		presetId,
 		range,
@@ -188,5 +216,6 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		onCancel,
 		canApply: isDirty,
 		timeZone,
+		replaceRange,
 	};
 }

@@ -6,14 +6,11 @@ import {
 	needsReportDateParamsSeed,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
-import { store as coreStore } from '@wordpress/core-data';
-import { dispatch, select } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import { DASHBOARD_REST_NAMESPACE } from '../dashboard/hooks/constants';
+import { ensureDashboardEntities } from '../dashboard-entities';
 import {
 	isPremiumAnalyticsInitialSyncFinished,
 	isPremiumAnalyticsSiteConnected,
@@ -79,6 +76,14 @@ export const route = {
 				post_id: videoId,
 			};
 
+			/*
+			 * Comparison params ride along untouched: this page renders no
+			 * comparison (its widgets ignore them), but the dashboard link and
+			 * "Back to Videos" carry the URL state back out, so stripping them
+			 * here would silently lose the user's comparison settings on a
+			 * Dashboard → Video → Dashboard round trip.
+			 */
+
 			throw redirect( {
 				to: '/video/$videoId',
 				/*
@@ -93,26 +98,6 @@ export const route = {
 			} );
 		}
 
-		const coreSelect = select( coreStore ) as unknown as {
-			getEntityConfig: ( kind: string, name: string ) => unknown;
-		};
-		if ( coreSelect.getEntityConfig( 'root', 'widgetModule' ) ) {
-			return;
-		}
-
-		const coreDispatch = dispatch( coreStore ) as unknown as {
-			addEntities: ( entities: object[] ) => void;
-		};
-		coreDispatch.addEntities( [
-			{
-				name: 'widgetModule',
-				kind: 'root',
-				key: 'name',
-				baseURL: `/${ DASHBOARD_REST_NAMESPACE }/widget-modules`,
-				plural: 'widgetModules',
-				label: __( 'Widget modules', 'jetpack-premium-analytics-pkg' ),
-				supportsPagination: false,
-			},
-		] );
+		ensureDashboardEntities();
 	},
 };

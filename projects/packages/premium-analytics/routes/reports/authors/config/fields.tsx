@@ -1,17 +1,17 @@
 /**
  * External dependencies
  */
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { DrilldownLeafCell } from '@jetpack-premium-analytics/ui';
 import { MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 import { Link } from '@wordpress/route';
-import { Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import styles from './fields.module.css';
 import type { AuthorRow } from './aggregate';
-import type { Field } from '@wordpress/dataviews';
+import type { Field } from '@jetpack-premium-analytics/externals';
 import type { SyntheticEvent } from 'react';
 
 const UNTRACKED_AUTHORS_SENTINEL = 'Untracked Authors';

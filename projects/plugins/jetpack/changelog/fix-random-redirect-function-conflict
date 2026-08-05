@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Random Redirect: avoid a fatal error when a theme or plugin already declares the module's redirect function.

@@ -20,7 +20,7 @@ use WP_Error;
 /**
  * CSV Generator class for creating CSV files from report data.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Report_Csv_Generator {
 

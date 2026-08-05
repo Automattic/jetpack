@@ -132,7 +132,7 @@ export function WidgetDashboardWithWidget( {
 	rowHeight,
 	editMode,
 	hostEnvironment,
-	pageTitle = 'Analytics',
+	pageTitle = 'Stats',
 	widgetUuid = `${ widgetType.name }-story`,
 }: WidgetDashboardWithWidgetProps ) {
 	const storyWidgetType = useMemo< WidgetType >(

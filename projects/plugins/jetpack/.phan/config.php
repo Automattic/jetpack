@@ -17,6 +17,9 @@ $config = make_phan_config(
 		'exclude_file_list'               => array(
 			// Mocks of core classes.
 			'tests/php/_inc/lib/mocks/simplepie.php',
+			// Standalone compatibility fixtures that intentionally redefine a package class and a WordPress function.
+			'tests/php/fixtures/legacy-status/class-host.php',
+			'tests/php/fixtures/reprint-export-legacy-status-host.php',
 			// Mocks of wpcom classes and functions.
 			'tests/php/lib/class-wpcom-features.php',
 			'tests/php/lib/class-email-verification.php',

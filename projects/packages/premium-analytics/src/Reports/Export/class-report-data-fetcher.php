@@ -25,7 +25,7 @@ use WP_REST_Response;
 /**
  * Data Fetcher class for retrieving report data.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Report_Data_Fetcher {
 
@@ -497,7 +497,7 @@ class Report_Data_Fetcher {
 	 * payloads represented as stdClass. Preserve the external details in data while
 	 * keeping a consistent local error message for the CSV export route.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @param WP_REST_Response $response Response containing an external API error.
 	 * @param mixed            $data     Optional already-normalized response data.

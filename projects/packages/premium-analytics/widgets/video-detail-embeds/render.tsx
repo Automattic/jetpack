@@ -16,7 +16,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { video } from '@wordpress/icons';
-import { Link, Stack } from '@wordpress/ui';
+import { Link, Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -38,8 +38,8 @@ type VideoEmbedsListProps = {
 };
 
 /**
- * Presentational list for the "Video embeds" widget: the pages where the
- * selected video is embedded, each as an external link. Loading / error /
+ * Presentational list for the "Used on posts & pages" widget: the pages where
+ * the selected video is embedded, each as an external link. Loading / error /
  * empty are owned by the surrounding `WidgetState`.
  *
  * @param {VideoEmbedsListProps} props - The component props.
@@ -149,7 +149,7 @@ function VideoDetailEmbedsReport() {
 }
 
 /**
- * Video embeds widget render entry point.
+ * "Used on posts & pages" widget render entry point.
  *
  * WidgetRoot provides the analytics query client, chart theme, and the report
  * params consumed by the inner component — including the single-video scope

@@ -18,7 +18,7 @@ import { useState } from 'react';
 import { getLocationFields, useLocationsReportRecords } from './config';
 import LocationsReportPage from './page';
 import type { LocationRow, ReportLocationsTabId } from './config';
-import type { View } from '@wordpress/dataviews';
+import type { View } from '@jetpack-premium-analytics/externals';
 import type { ReactNode } from 'react';
 
 jest.mock( './config', () => {
@@ -40,6 +40,8 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => null,
+	StatsBreadcrumbs: () => null,
+	StatsPageIcon: () => null,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
