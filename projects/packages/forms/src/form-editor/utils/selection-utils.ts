@@ -17,9 +17,10 @@ export interface SelectionEnforcementContext {
  * Determines whether a selection-enforcement pass should run on this tick.
  *
  * A changed selection always needs a pass. An empty selection needs one on every
- * tick, because enforcement can bail out (inserter open, multi-selection) on the
- * tick that first observes it — treating an already-empty selection as "no change"
- * would leave the form permanently deselected once the blocking condition cleared.
+ * tick, because enforcement can bail out on the tick that first observes it —
+ * either because the form block has not been located yet (editor still settling)
+ * or because a multi-selection is active. Treating an already-empty selection as
+ * "no change" would leave the form permanently deselected once that cleared.
  *
  * @param context - Current and previously observed selection
  * @return Whether enforcement should run

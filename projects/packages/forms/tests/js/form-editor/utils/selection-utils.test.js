@@ -39,10 +39,11 @@ describe( 'selection-utils', () => {
 			).toBe( true );
 		} );
 
-		// Regression: enforcement can bail out (inserter open, multi-selection) on the
-		// tick that first observes the empty selection. If an already-empty selection
-		// were treated as "no change", the form block would never be re-selected once
-		// the blocking condition cleared, leaving the form settings unreachable.
+		// Regression: enforcement can bail out on the tick that first observes the empty
+		// selection — the form block may not be located yet, or a multi-selection may be
+		// active. If an already-empty selection were treated as "no change", the form
+		// block would never be re-selected once that cleared, leaving the settings
+		// unreachable.
 		test( 'returns true when the selection is still empty from a previous tick', () => {
 			expect(
 				shouldRunSelectionEnforcement( {
