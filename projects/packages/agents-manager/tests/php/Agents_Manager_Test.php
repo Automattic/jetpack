@@ -11,6 +11,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once __DIR__ . '/../../src/class-agents-manager.php';
 
@@ -35,6 +36,13 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * @var mixed
 	 */
 	private $original_get_preview;
+
+	/**
+	 * Original $_GET['tab'] value to restore after tests.
+	 *
+	 * @var mixed
+	 */
+	private $original_get_tab;
 
 	/**
 	 * Original $_SERVER['REQUEST_URI'] value to restore after tests.
@@ -95,6 +103,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		// Save original superglobal values that tests may modify.
 		$this->original_get_preview = $_GET['preview'] ?? null;
+		$this->original_get_tab     = $_GET['tab'] ?? null;
 		$this->original_request_uri = $_SERVER['REQUEST_URI'] ?? null;
 
 		// Save original $wp_customize global.
@@ -130,6 +139,12 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			unset( $_GET['preview'] );
 		} else {
 			$_GET['preview'] = $this->original_get_preview;
+		}
+
+		if ( $this->original_get_tab === null ) {
+			unset( $_GET['tab'] );
+		} else {
+			$_GET['tab'] = $this->original_get_tab;
 		}
 
 		if ( $this->original_request_uri === null ) {
@@ -174,6 +189,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// Clear the status cache and constants.
 		Cache::clear();
 		Constants::clear_constants();
+		remove_all_filters( 'agents_manager_variant' );
 
 		parent::tear_down();
 	}
@@ -617,10 +633,10 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the standalone AI chat button is not added to the admin bar when
-	 * the unified experience is disabled.
+	 * Tests that the standalone AI chat button is added when an integration requests
+	 * Agents Manager without enabling the unified experience.
 	 */
-	public function test_ai_chat_button_not_registered_without_unified_experience() {
+	public function test_ai_chat_button_registered_for_requested_shell_without_unified_experience() {
 		// Same admin context as the enabled case, so only the unified flag differs.
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'dashboard' );
@@ -628,6 +644,57 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		// Disable the unified experience (priority 20 runs after the class's own filter).
 		add_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+		add_filter( 'agents_manager_should_load', '__return_true' );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
+		);
+		$this->assertFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_menu_panel' ) ),
+			'Requesting the shell must not take over the Help Center.'
+		);
+
+		remove_filter( 'agents_manager_should_load', '__return_true' );
+		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+	}
+
+	/**
+	 * Tests that the full UI mount target belongs to Ask AI rather than Help.
+	 */
+	public function test_ai_chat_button_owns_full_ui_mount_target() {
+		global $wp_admin_bar;
+
+		require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
+		$wp_admin_bar = new \WP_Admin_Bar();
+		$wp_admin_bar->initialize();
+
+		$this->agents_manager->add_help_menu( $wp_admin_bar, false );
+		$this->agents_manager->add_ai_chat_button( $wp_admin_bar );
+
+		$help_node = $wp_admin_bar->get_node( 'agents-manager' );
+		$ai_node   = $wp_admin_bar->get_node( 'agents-manager-ai-chat' );
+
+		$this->assertNotNull( $help_node );
+		$this->assertNotNull( $ai_node );
+		$this->assertStringNotContainsString( 'agents-manager-masterbar', $help_node->meta['html'] ?? '' );
+		$this->assertStringContainsString( 'agents-manager-masterbar', $ai_node->meta['html'] ?? '' );
+	}
+
+	/**
+	 * Tests that the standalone AI chat button is not added for a disconnected
+	 * Help-only variant.
+	 */
+	public function test_ai_chat_button_not_registered_for_disconnected_variant() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'dashboard' );
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		$variant_filter = static function () {
+			return 'wp-admin-disconnected';
+		};
+		add_filter( 'agents_manager_variant', $variant_filter );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -635,7 +702,161 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
 		);
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+		remove_filter( 'agents_manager_variant', $variant_filter );
+	}
+
+	/**
+	 * Puts the current request into a block-editor screen so the editor admin-bar branch is reachable.
+	 *
+	 * @param bool $enable Whether to enable Agents Manager in the block editor (block-editor-only,
+	 *                     no unified experience). Pass false to exercise the not-enabled path.
+	 */
+	private function set_up_block_editor_request( $enable = true ) {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'post' );
+		$screen     = get_current_screen();
+		$reflection = new \ReflectionClass( $screen );
+		$property   = $reflection->getProperty( 'is_block_editor' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $screen, true );
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		if ( $enable ) {
+			add_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+		}
+	}
+
+	/**
+	 * Tests that the Ask AI button is added when the editor admin bar is showing and Agents Manager
+	 * is enabled — independent of dev mode (here, a non-proxied request).
+	 */
+	public function test_ai_chat_button_registered_in_editor_admin_bar() {
+		$this->set_up_block_editor_request();
+
+		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
+		);
+
+		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+	}
+
+	/**
+	 * Tests that an integration-requested Gutenberg shell adds Ask AI to the editor
+	 * admin bar without taking over the Help Center.
+	 */
+	public function test_ai_chat_button_registered_in_editor_admin_bar_for_requested_shell() {
+		$this->set_up_block_editor_request( false );
+
+		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
+
+		add_filter( 'agents_manager_should_load', '__return_true' );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
+		);
+
+		remove_filter( 'agents_manager_should_load', '__return_true' );
+	}
+
+	/**
+	 * Tests that a classic editor admin bar receives Ask AI without the Gutenberg
+	 * omnibar experiment.
+	 */
+	public function test_ai_chat_button_registered_in_classic_editor_admin_bar() {
+		$this->set_up_block_editor_request();
+
+		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
+		);
+
+		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+	}
+
+	/**
+	 * Tests that the Ask AI button is not added to the editor admin bar when the admin
+	 * bar is hidden, even though Agents Manager is enabled.
+	 */
+	public function test_ai_chat_button_not_registered_in_editor_without_admin_bar() {
+		$this->set_up_block_editor_request();
+
+		Functions\when( 'is_admin_bar_showing' )->justReturn( false );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
+		);
+
+		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+	}
+
+	/**
+	 * Tests that the Ask AI button is not added to the editor admin bar when Agents Manager is
+	 * not enabled, even while the admin bar is showing.
+	 */
+	public function test_ai_chat_button_not_registered_in_editor_when_not_enabled() {
+		$this->set_up_block_editor_request( false );
+
+		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
+		);
+	}
+
+	/**
+	 * Tests that the Help "?" dropdown (its menu panel) is added to the editor admin bar in the
+	 * unified experience.
+	 */
+	public function test_help_menu_registered_in_editor_admin_bar_when_unified() {
+		$this->set_up_block_editor_request();
+
+		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_menu_panel' ) )
+		);
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+	}
+
+	/**
+	 * Tests that the Help "?" dropdown is not added to the editor admin bar when the unified
+	 * experience is disabled (Ask AI only).
+	 */
+	public function test_help_menu_not_registered_in_editor_admin_bar_without_unified() {
+		$this->set_up_block_editor_request();
+
+		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_menu_panel' ) )
+		);
+
+		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
 	}
 
 	/**
@@ -1312,6 +1533,42 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that the plugin information iframe cannot be enabled by a variant filter.
+	 */
+	public function test_get_active_variant_returns_null_in_plugin_information_iframe() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'plugin-install' );
+		$_GET['tab'] = 'plugin-information';
+
+		add_filter(
+			'agents_manager_variant',
+			static function () {
+				return 'wp-admin';
+			}
+		);
+
+		$this->assertNull( Agents_Manager::get_active_variant() );
+	}
+
+	/**
+	 * Tests that a variant filter still controls the parent plugin screen.
+	 */
+	public function test_get_active_variant_allows_parent_plugin_screen() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'plugin-install' );
+		unset( $_GET['tab'] );
+
+		add_filter(
+			'agents_manager_variant',
+			static function () {
+				return 'wp-admin';
+			}
+		);
+
+		$this->assertSame( 'wp-admin', Agents_Manager::get_active_variant() );
+	}
+
+	/**
 	 * Tests that should_enqueue_script returns false on site frontend.
 	 */
 	public function test_should_enqueue_script_returns_false_on_frontend() {
@@ -1606,7 +1863,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		add_filter(
 			'jetpack_ai_sidebar_agents_manager_data',
 			function ( $data ) {
-				$data['reviewMediatorEnabled'] = true;
+				$data['customFeatureEnabled'] = true;
 				return $data;
 			}
 		);
@@ -1617,7 +1874,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
 		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
 
-		$this->assertStringContainsString( '"reviewMediatorEnabled":true', $inline_script );
+		$this->assertStringContainsString( '"customFeatureEnabled":true', $inline_script );
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 	}
@@ -2191,6 +2448,19 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that is_enabled returns true when an integration requests the shell.
+	 */
+	public function test_is_enabled_returns_true_when_shell_is_requested() {
+		add_filter( 'agents_manager_should_load', '__return_true' );
+
+		$result = Agents_Manager::is_enabled();
+
+		remove_filter( 'agents_manager_should_load', '__return_true' );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
 	 * Tests that is_enabled returns true when in block editor and agents_manager_enabled_in_block_editor filter is true.
 	 */
 	public function test_is_enabled_returns_true_in_block_editor_when_block_editor_filter_enabled() {
@@ -2329,22 +2599,197 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that should_enqueue_script returns false on WooCommerce Admin home page.
-	 * This verifies the WooCommerce Admin exclusion to avoid UI conflicts,
-	 * matching the same exclusion in Help_Center::enqueue_wp_admin_scripts().
+	 * Tests that an integration can load Agents Manager on WooCommerce Admin.
 	 */
-	public function test_should_enqueue_script_returns_false_on_woocommerce_admin_home() {
+	public function test_should_enqueue_script_returns_true_on_woocommerce_admin_when_requested() {
 		// Set admin context first.
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'woocommerce_page_wc-admin' );
 
-		// Enable unified experience so that Agents Manager is active and the WooCommerce exclusion is exercised.
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'agents_manager_should_load', '__return_true' );
 
 		$result = $this->call_should_enqueue_script();
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_should_load', '__return_true' );
 
-		$this->assertFalse( $result, 'should_enqueue_script should return false on WooCommerce Admin home page' );
+		$this->assertTrue( $result, 'Agents Manager should load on WooCommerce Admin when requested.' );
+	}
+
+	/**
+	 * Helper to call the private determine_iso_639_locale method via reflection.
+	 *
+	 * @return string The resolved ISO 639 locale code.
+	 */
+	private function call_determine_iso_639_locale() {
+		$reflection = new \ReflectionClass( Agents_Manager::class );
+		$method     = $reflection->getMethod( 'determine_iso_639_locale' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		return $method->invoke( null );
+	}
+
+	/**
+	 * Tests that the translation script is enqueued for a connected variant when the
+	 * user's locale is not English, and that the main script depends on it so the
+	 * translations load first.
+	 */
+	public function test_translations_enqueued_for_non_english_locale() {
+		$this->set_admin_context();
+		global $wp_scripts;
+		$wp_scripts = null;
+
+		// Pre-seed the asset manifest transient so enqueue_script does not hit the network.
+		set_transient(
+			'agents-manager-asset-wp-admin.asset.json',
+			array(
+				'version'      => '1.2.3',
+				'dependencies' => array(),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$locale_filter = static function () {
+			return 'de_DE';
+		};
+		add_filter( 'locale', $locale_filter );
+
+		// Enable unified experience. Not a Jetpack site, so the connected wp-admin variant is used.
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotNull( $wp_scripts, 'wp_scripts should be initialized' );
+		$this->assertTrue(
+			wp_script_is( 'agents-manager-translations', 'enqueued' ),
+			'Translation script should be enqueued for a non-English locale'
+		);
+		$this->assertSame(
+			'https://widgets.wp.com/agents-manager/languages/de-v1.js',
+			$wp_scripts->registered['agents-manager-translations']->src,
+			'Translation script should point at the agents-manager languages directory for the resolved locale'
+		);
+		$this->assertContains(
+			'agents-manager-translations',
+			$wp_scripts->registered['agents-manager']->deps,
+			'Main script should depend on the translation script so it loads first'
+		);
+
+		remove_filter( 'locale', $locale_filter );
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		delete_transient( 'agents-manager-asset-wp-admin.asset.json' );
+	}
+
+	/**
+	 * Tests that no translation script is enqueued when the user's locale is English,
+	 * since the English strings ship in the bundle itself.
+	 */
+	public function test_translations_not_enqueued_for_english_locale() {
+		$this->set_admin_context();
+		global $wp_scripts;
+		$wp_scripts = null;
+
+		set_transient(
+			'agents-manager-asset-wp-admin.asset.json',
+			array(
+				'version'      => '1.2.3',
+				'dependencies' => array(),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$locale_filter = static function () {
+			return 'en_US';
+		};
+		add_filter( 'locale', $locale_filter );
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertFalse(
+			wp_script_is( 'agents-manager-translations', 'enqueued' ),
+			'Translation script should not be enqueued for an English locale'
+		);
+
+		remove_filter( 'locale', $locale_filter );
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		delete_transient( 'agents-manager-asset-wp-admin.asset.json' );
+	}
+
+	/**
+	 * Tests that translations are not loaded for disconnected variants, whose minimal
+	 * bundles have no translatable in-app UI. Mirrors Help Center's behavior.
+	 */
+	public function test_translations_not_enqueued_for_disconnected_variant() {
+		$this->set_admin_context();
+		global $wp_scripts;
+		$wp_scripts = null;
+
+		set_transient(
+			'agents-manager-asset-wp-admin-disconnected.asset.json',
+			array(
+				'version'      => '1.2.3',
+				'dependencies' => array(),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$locale_filter = static function () {
+			return 'de_DE';
+		};
+		add_filter( 'locale', $locale_filter );
+
+		// Unified experience on a Jetpack site with a disconnected user yields wp-admin-disconnected.
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'is_jetpack_site', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertFalse(
+			wp_script_is( 'agents-manager-translations', 'enqueued' ),
+			'Translation script should not be enqueued for the wp-admin-disconnected variant'
+		);
+
+		remove_filter( 'locale', $locale_filter );
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'is_jetpack_site', '__return_true', 20 );
+		delete_transient( 'agents-manager-asset-wp-admin-disconnected.asset.json' );
+	}
+
+	/**
+	 * Tests that determine_iso_639_locale normalizes WordPress locales to the ISO 639
+	 * codes used by the widgets.wp.com translation files.
+	 *
+	 * @param string $wp_locale The WordPress user locale.
+	 * @param string $expected  The expected normalized ISO 639 code.
+	 * @dataProvider provide_locales
+	 */
+	#[DataProvider( 'provide_locales' )]
+	public function test_determine_iso_639_locale_normalizes_locales( $wp_locale, $expected ) {
+		$locale_filter = static function () use ( $wp_locale ) {
+			return $wp_locale;
+		};
+		add_filter( 'locale', $locale_filter );
+
+		$this->assertSame( $expected, $this->call_determine_iso_639_locale() );
+
+		remove_filter( 'locale', $locale_filter );
+	}
+
+	/**
+	 * Data provider for locale normalization.
+	 *
+	 * @return array<string, array{0: string, 1: string}>
+	 */
+	public static function provide_locales() {
+		return array(
+			'German strips region'          => array( 'de_DE', 'de' ),
+			'French strips region'          => array( 'fr_FR', 'fr' ),
+			'Brazilian Portuguese kept'     => array( 'pt_BR', 'pt-br' ),
+			'Traditional Chinese kept'      => array( 'zh_TW', 'zh-tw' ),
+			'Simplified Chinese kept'       => array( 'zh_CN', 'zh-cn' ),
+			'English strips region'         => array( 'en_US', 'en' ),
+			'Empty locale falls back to en' => array( '', 'en' ),
+		);
 	}
 }

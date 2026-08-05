@@ -1,12 +1,8 @@
 /**
  * External dependencies
  */
-import {
-	Text,
-	Button,
-	useBreakpointMatch,
-	LoadingPlaceholder,
-} from '@automattic/jetpack-components';
+import { Text, Button, LoadingPlaceholder } from '@automattic/jetpack-components';
+import { useViewportMatch } from '@wordpress/compose';
 import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
@@ -49,7 +45,7 @@ const Stats = ( {
 	isPrivate?: boolean;
 	loading?: boolean;
 } ) => {
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const isSmall = useViewportMatch( 'small', '<' );
 	const durationLabel = __( 'Duration', 'jetpack-videopress-pkg' );
 	const playsLabel = __( 'Plays', 'jetpack-videopress-pkg' );
 	const privacyLabel = __( 'Privacy', 'jetpack-videopress-pkg' );
@@ -127,7 +123,7 @@ export const VideoRow = ( {
 
 	const { canPerformAction } = usePermission();
 
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const isSmall = useViewportMatch( 'small', '<' );
 	const [ expanded, setExpanded ] = useState( false );
 	const [ anchor, setAnchor ] = useState( null );
 

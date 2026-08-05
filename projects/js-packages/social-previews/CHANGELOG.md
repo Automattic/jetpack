@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.7] - 2026-07-27
+### Changed
+- Update dependencies. [#50719]
+
+## [3.3.6] - 2026-07-20
+### Changed
+- Update package dependencies. [#50510] [#50529]
+
+## [3.3.5] - 2026-07-13
+### Changed
+- Update dependencies. [#50360]
+
+## [3.3.4] - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
+## [3.3.3] - 2026-06-29
+### Changed
+- Update dependencies. [#50004]
+
+## [3.3.2] - 2026-06-26
+### Changed
+- Update dependencies. [#49464]
+
+## [3.3.1] - 2026-06-23
+### Changed
+- Internal updates.
+
+## [3.3.0] - 2026-06-22
+### Added
+- Render an image focal point in the link previews via object-position. [#49687]
+
+### Changed
+- Update package dependencies. [#49594] [#49631] [#49691] [#49757]
+
+### Fixed
+- Use the caption/custom text as the source of truth for Bluesky, Facebook, Instagram, Mastodon and Nextdoor previews instead of appending the post URL. [#49745]
+
 ## [3.2.5] - 2026-06-15
 ### Changed
 - Update package dependencies. [#49273]
@@ -207,6 +245,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release after extracting from Calypso.
 
+[3.3.7]: https://github.com/Automattic/social-previews/compare/v3.3.6...v3.3.7
+[3.3.6]: https://github.com/Automattic/social-previews/compare/v3.3.5...v3.3.6
+[3.3.5]: https://github.com/Automattic/social-previews/compare/v3.3.4...v3.3.5
+[3.3.4]: https://github.com/Automattic/social-previews/compare/v3.3.3...v3.3.4
+[3.3.3]: https://github.com/Automattic/social-previews/compare/v3.3.2...v3.3.3
+[3.3.2]: https://github.com/Automattic/social-previews/compare/v3.3.1...v3.3.2
+[3.3.1]: https://github.com/Automattic/social-previews/compare/v3.3.0...v3.3.1
+[3.3.0]: https://github.com/Automattic/social-previews/compare/v3.2.5...v3.3.0
 [3.2.5]: https://github.com/Automattic/social-previews/compare/v3.2.4...v3.2.5
 [3.2.4]: https://github.com/Automattic/social-previews/compare/v3.2.3...v3.2.4
 [3.2.3]: https://github.com/Automattic/social-previews/compare/v3.2.2...v3.2.3

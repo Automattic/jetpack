@@ -1,5 +1,5 @@
-import { getScriptData } from '@automattic/jetpack-script-data';
 import { createReduxStore, register } from '@wordpress/data';
+import { getPreloaded, SETTINGS_PATH } from './get-preloaded';
 import type { SettingsResponse } from './settings-types';
 
 /**
@@ -16,12 +16,6 @@ import type { SettingsResponse } from './settings-types';
 
 const STORE_NAME = 'jetpack-seo/settings';
 
-type SeoScriptData = {
-	seo?: {
-		settings?: SettingsResponse;
-	};
-};
-
 interface State {
 	settings: SettingsResponse | null;
 }
@@ -32,7 +26,7 @@ interface SetSettingsAction {
 }
 
 const DEFAULT_STATE: State = {
-	settings: ( getScriptData() as SeoScriptData | undefined )?.seo?.settings ?? null,
+	settings: getPreloaded< SettingsResponse >( SETTINGS_PATH ) ?? null,
 };
 
 const actions = {

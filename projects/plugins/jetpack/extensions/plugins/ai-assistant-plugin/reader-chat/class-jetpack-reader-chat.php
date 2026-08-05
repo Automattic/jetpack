@@ -86,7 +86,7 @@ class Jetpack_Reader_Chat {
 			'reader_chat',
 			array(
 				'type'              => 'boolean',
-				'description'       => __( 'Whether Reader Chat is enabled on this site.', 'jetpack' ),
+				'description'       => __( 'Whether Site Chat is enabled on this site.', 'jetpack' ),
 				'sanitize_callback' => 'rest_sanitize_boolean',
 				'default'           => false,
 			)
@@ -408,7 +408,7 @@ class Jetpack_Reader_Chat {
 
 		return ( new Connection_Manager( 'jetpack' ) )->has_connected_owner()
 			&& ! ( new Status() )->is_offline_mode()
-			&& apply_filters( 'jetpack_ai_enabled', true );
+			&& \Jetpack_AI_Settings::is_ai_enabled();
 	}
 
 	/**

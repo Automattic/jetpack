@@ -4,7 +4,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
-import { features } from '../../utils';
+import { features, hasSocialPaidFeatures } from '../../utils';
 import useFeaturedImage from '../use-featured-image';
 import useMediaDetails from '../use-media-details';
 import { usePerNetworkCustomization } from '../use-per-network-customization';
@@ -92,6 +92,38 @@ export function useRenderMessageItems(): RenderItem[] {
 }
 
 /**
+ * Read the edited post fields (title/excerpt/content) sent to the render
+ * endpoint, un-debounced. Feature-gated so consumers get a stable empty object
+ * when message templates are off.
+ *
+ * Deliberately free of the connection/media/SIG plumbing in
+ * `useRenderMessageInputs`, so lightweight consumers (e.g. the manual-share
+ * buttons) can read the post intent without mounting any of that machinery.
+ *
+ * @return The current post intent.
+ */
+export function usePostIntent(): RenderPostIntent {
+	const templatesEnabled = hasSocialPaidFeatures();
+
+	return useSelect(
+		select => {
+			if ( ! templatesEnabled ) {
+				return EMPTY_POST_INTENT;
+			}
+
+			const { getEditedPostAttribute } = select( editorStore );
+
+			return {
+				title: normalizePostIntentValue( getEditedPostAttribute( 'title' ) ),
+				excerpt: normalizePostIntentValue( getEditedPostAttribute( 'excerpt' ) ),
+				content: normalizePostIntentValue( getEditedPostAttribute( 'content' ) ),
+			};
+		},
+		[ templatesEnabled ]
+	) as RenderPostIntent;
+}
+
+/**
  * Build the debounced render request inputs for rendered-message preview.
  *
  * @return The debounced render inputs.
@@ -100,7 +132,7 @@ export function useRenderMessageInputs(): {
 	items: RenderItem[];
 	postIntent: RenderPostIntent;
 } {
-	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
+	const templatesEnabled = hasSocialPaidFeatures();
 
 	// All connections (not just enabled ones) — the per-connection customization
 	// editor is visible for the focused tab regardless of toggle state, so editing
@@ -125,22 +157,7 @@ export function useRenderMessageInputs(): {
 	const { mediaSource: globalMediaSource } = usePostMeta();
 	const postData = useSocialPreviewPostData();
 	const { message: globalMessage } = useSocialMediaMessage();
-	const postIntent = useSelect(
-		select => {
-			if ( ! templatesEnabled ) {
-				return EMPTY_POST_INTENT;
-			}
-
-			const { getEditedPostAttribute } = select( editorStore );
-
-			return {
-				title: normalizePostIntentValue( getEditedPostAttribute( 'title' ) ),
-				excerpt: normalizePostIntentValue( getEditedPostAttribute( 'excerpt' ) ),
-				content: normalizePostIntentValue( getEditedPostAttribute( 'content' ) ),
-			};
-		},
-		[ templatesEnabled ]
-	) as RenderPostIntent;
+	const postIntent = usePostIntent();
 
 	const featuredImageId = useFeaturedImage();
 	const [ featuredImageDetails ] = useMediaDetails( featuredImageId );
@@ -187,7 +204,7 @@ export function useRenderMessageInputs(): {
 
 	const inputs = useMemo( () => ( { items, postIntent } ), [ items, postIntent ] );
 
-	return useDebouncedInputs( inputs );
+	return useDebouncedRenderInputs( inputs );
 }
 
 /**
@@ -216,6 +233,17 @@ export function useDriveRenderedMessagesFetch(): void {
 		void registry
 			.resolveSelect( socialStore )
 			.getRenderedMessages( postId, items, postIntent )
+			.then( batch => {
+				// A failed fetch leaves the slot empty, and wp.data would cache that
+				// resolution forever — previews would then permanently fall back to
+				// the raw message template. Invalidate so the next mount (e.g.
+				// reopening the preview) retries.
+				if ( ! batch ) {
+					registry
+						.dispatch( socialStore )
+						.invalidateResolution( 'getRenderedMessages', [ postId, items, postIntent ] );
+				}
+			} )
 			// Errors are intentionally swallowed to preserve existing UI behavior.
 			.catch( () => {} );
 	}, [ items, postId, postIntent, registry ] );
@@ -244,12 +272,20 @@ function hashMessages( items: RenderItem[], postIntent: RenderPostIntent ): stri
  * Hold back updates to `items` while messages are mid-edit; pass through immediately
  * for non-message changes so tab toggles, media changes, etc. update without delay.
  *
+ * `items` and `postIntent` are committed together as one snapshot, so consumers'
+ * cache keys never mix a fresh items array with a stale post intent (or vice
+ * versa). Exported for consumers that build their own items array (e.g. the
+ * manual-share sentinel item) and need the same debounce semantics.
+ *
  * @param inputs            - The latest render inputs.
  * @param inputs.items      - The latest item batch.
  * @param inputs.postIntent - The latest edited post fields.
  * @return The debounced render inputs.
  */
-function useDebouncedInputs( inputs: { items: RenderItem[]; postIntent: RenderPostIntent } ): {
+export function useDebouncedRenderInputs( inputs: {
+	items: RenderItem[];
+	postIntent: RenderPostIntent;
+} ): {
 	items: RenderItem[];
 	postIntent: RenderPostIntent;
 } {

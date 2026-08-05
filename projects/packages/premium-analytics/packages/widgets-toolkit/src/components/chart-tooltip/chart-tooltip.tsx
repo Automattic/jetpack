@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import { LineShape, RectShape } from '@automattic/charts/visx/legend';
-import { Stack } from '@wordpress/ui';
+import { LineShape, RectShape, Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */

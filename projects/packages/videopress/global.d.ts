@@ -1,13 +1,4 @@
 export declare global {
-	interface Window {
-		wp: {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			media: any;
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			apiFetch?: ( options: Record< string, any > ) => Promise< Response >;
-		};
-	}
-
 	const JPVIDEOPRESS_INITIAL_STATE:
 		| undefined
 		| {
@@ -36,6 +27,12 @@ export declare global {
 				};
 				assets: {
 					buildUrl: string;
+				};
+				// Feature gates mirrored from the PHP-side filters (see
+				// `Admin_UI::is_chapters_editor_enabled()`). Optional so payloads
+				// rendered before the gates existed still typecheck.
+				features?: {
+					chaptersEditor: boolean;
 				};
 				// Authoritative accepted-upload map (extension => mimetype) from the
 				// server's `Admin_UI::get_allowed_video_extensions()`.

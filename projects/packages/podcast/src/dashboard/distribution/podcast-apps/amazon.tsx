@@ -33,14 +33,4 @@ export const amazon: PodcastApp = {
 	name: 'Amazon Music',
 	Logo: AmazonLogo,
 	submitUrl: 'https://podcasters.amazon.com',
-	showHosts: [
-		'music.amazon.com',
-		'music.amazon.co.uk',
-		'music.amazon.de',
-		'music.amazon.co.jp',
-		'music.amazon.com.au',
-		'music.amazon.fr',
-		'music.amazon.ca',
-		'music.amazon.es',
-	],
 };

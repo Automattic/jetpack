@@ -2,17 +2,16 @@
  * External dependencies
  */
 import { useReportBookings } from '@jetpack-premium-analytics/data';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { calendar } from '@jetpack-premium-analytics/icons';
-import { Stack } from '@wordpress/ui';
+import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { DonutChart } from '../../components';
-import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
+import { DonutChart, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
 import { useWidgetRootContext } from '../../components/widget-root';
-import { buildBookingsByAttendanceData } from '../../helpers';
-import { useWidgetError } from '../../hooks';
+import { buildBookingsByAttendanceData, isEmptyPieChartData } from '../../helpers';
 import { useSegmentStyles } from '../common';
 import styles from '../common/donut-widget.module.scss';
 
@@ -36,20 +35,8 @@ import styles from '../common/donut-widget.module.scss';
 export function BookingsByAttendanceWidget() {
 	const { reportParams } = useWidgetRootContext();
 
-	const {
-		primary,
-		comparison,
-		hasComparison,
-		isLoading,
-		isFetching,
-		hasData,
-		isError,
-		error,
-		refetch,
-	} = useReportBookings( reportParams );
-
-	const isInitialLoading = isLoading && ! hasData;
-	const isRefetching = isFetching && hasData;
+	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
+		useReportBookings( reportParams );
 
 	const { chartData, total, comparisonTotal, legendData } = useMemo(
 		() => buildBookingsByAttendanceData( primary.data, comparison.data ),
@@ -58,17 +45,27 @@ export function BookingsByAttendanceWidget() {
 
 	const segmentStyles = useSegmentStyles( chartData );
 
-	const hasError = useWidgetError( isError, error, refetch );
-	if ( hasError ) {
-		return null;
-	}
-
-	if ( isInitialLoading ) {
-		return <WidgetLoadingOverlay />;
-	}
-
 	return (
-		<>
+		<WidgetState
+			isLoading={ isLoading && ! hasData }
+			isFetching={ isFetching }
+			// The report queries keep the previous period's data as placeholders
+			// across range changes, so only surface the error when there is
+			// nothing to show.
+			isError={ isError && ! hasData }
+			isEmpty={ isEmptyPieChartData( chartData ) }
+			error={ {
+				description: __(
+					"We couldn't load bookings data. Please try again in a moment.",
+					'jetpack-premium-analytics-pkg'
+				),
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
+			} }
+			empty={ {
+				icon: calendar,
+				description: __( 'No bookings in this period.', 'jetpack-premium-analytics-pkg' ),
+			} }
+		>
 			<Stack className={ styles.container } direction="column" align="center" justify="center">
 				<DonutChart
 					chartData={ chartData }
@@ -81,11 +78,10 @@ export function BookingsByAttendanceWidget() {
 						type: 'number',
 						options: { useMultipliers: false, decimals: 0 },
 					} }
-					emptyStateIcon={ calendar }
+					maxSize={ null }
 					withTooltips
 				/>
 			</Stack>
-			{ isRefetching && <WidgetLoadingOverlay /> }
-		</>
+		</WidgetState>
 	);
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Protect now reports its threat count to the central menu-badges registry instead of writing admin-menu markup directly.

@@ -1,55 +1,54 @@
 /**
+ * External dependencies
+ */
+import { __, sprintf } from '@wordpress/i18n';
+/**
  * Internal dependencies
  */
+import { elideRange } from './elide-range';
 import { formatDate } from './format-date';
-
-/**
- * A date range with optional start and end.
- *
- * Defined locally to avoid a cross-package import on
- * `@jetpack-premium-analytics/datetime` (which exports an identical
- * `DateRange` type). Switch to that import once the sibling-package
- * `link:` wiring is settled.
- */
-type DateRange = { from?: Date; to?: Date };
+import type { DateRange } from './types';
 
 /**
  * Format a date range into a human-readable string.
- * Adjusts output based on whether dates share the same day, month, or year.
+ *
+ * A shared month or year is elided where the site's locale has a rule for it —
+ * see `elideRange`, which borrows those rules from CLDR rather than inventing
+ * them. Eliding by hand is not an option: "Jun 21-25, 2025" is an English
+ * typographic convention that, applied to a Spanish site, yields
+ * "21 de junio-25 de junio de 2025". Where no rule can be trusted — a custom
+ * `date_format`, or a locale whose ranges do not read like its single dates —
+ * both ends are spelled out in full instead.
+ *
  * Returns `''` when `range`, `from`, or `to` is missing.
  *
+ * @param range - The range to format.
+ * @return The formatted range.
+ *
  * @example
- * formatDateRange( { from, to } ) // same day:    'Jun 21, 2025'
- *                                  // same month:  'Jun 21-25, 2025'
- *                                  // same year:   'Jun 21-Jul 25, 2025'
- *                                  // cross-year:  'Jun 21, 2024-Jul 25, 2025'
+ * formatDateRange( { from, to } ) // same day:  'June 21, 2025'
+ *                                 // elided:    'June 21 – 25, 2025'
+ *                                 // spelt out: 'June 21, 2025 – June 25, 2025'
  */
 export const formatDateRange = ( range?: DateRange ): string => {
-	if ( ! range ) {
-		return '';
-	}
-
-	const { from, to } = range;
+	const { from, to } = range ?? {};
 
 	if ( ! from || ! to ) {
 		return '';
 	}
 
-	const sameYear = from.getFullYear() === to.getFullYear();
-	const sameMonth = sameYear && from.getMonth() === to.getMonth();
-	const sameDay = sameMonth && from.getDate() === to.getDate();
-
-	if ( sameDay ) {
-		return formatDate( from, 'medium' );
+	// Compare complete site-local dates because the display format may omit the year.
+	if ( formatDate( from, 'iso' ) === formatDate( to, 'iso' ) ) {
+		return formatDate( from );
 	}
 
-	if ( sameMonth ) {
-		return `${ formatDate( from, 'short' ) }-${ formatDate( to, 'd, yyyy' ) }`;
-	}
-
-	if ( sameYear ) {
-		return `${ formatDate( from, 'short' ) }-${ formatDate( to ) }`;
-	}
-
-	return `${ formatDate( from ) }-${ formatDate( to ) }`;
+	return (
+		elideRange( from, to ) ??
+		sprintf(
+			/* translators: 1: Start date. 2: End date. */
+			__( '%1$s – %2$s', 'jetpack-premium-analytics-pkg' ),
+			formatDate( from ),
+			formatDate( to )
+		)
+	);
 };

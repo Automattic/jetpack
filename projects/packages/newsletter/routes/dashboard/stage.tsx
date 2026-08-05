@@ -114,7 +114,11 @@ const Stage = () => {
 
 	return (
 		<QueryClientProvider client={ queryClient }>
-			<SubscribersBody>
+			<SubscribersBody
+				importRefreshEnabled={
+					subscribersEnabled && canManageSubscribers && activeTab === 'subscribers'
+				}
+			>
 				{ ( { body, actions } ) => {
 					// Gate the Subscribers tab: connected visitors get the data view,
 					// everyone else gets the connect prompt.
@@ -136,10 +140,10 @@ const Stage = () => {
 						>
 							{ subscribersEnabled ? (
 								<>
-									<Tabs.Panel value="subscribers" focusable={ false }>
+									<Tabs.Panel value="subscribers">
 										{ activeTab === 'subscribers' ? subscribersPanel : null }
 									</Tabs.Panel>
-									<Tabs.Panel value="settings" focusable={ false }>
+									<Tabs.Panel value="settings">
 										{ activeTab === 'settings' ? <NewsletterSettingsBody isModernized /> : null }
 									</Tabs.Panel>
 								</>

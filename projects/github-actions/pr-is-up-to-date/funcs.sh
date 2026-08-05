@@ -84,6 +84,13 @@ function git_clean_shallow {
 	for REV in "${REVS[@]}"; do
 		# Read parents. If any are missing, put the rev back in .git/shallow. If not all are missing, queue the missing ones to be fetched.
 		mapfile -t PP < <(/usr/bin/git rev-parse "$REV^@" 2>/dev/null)
+
+		# It seems the file now starts containing refs that don't exist, which breaks later `git fetch --deepen=N` calls.
+		# `git rev-parse` returns the input in that case, so drop them.
+		if [[ "${PP[0]}" == "$REV^@" ]]; then
+			continue
+		fi
+
 		PPM=()
 		for P in "${PP[@]}"; do
 			if ! /usr/bin/git cat-file -e "$P" &>/dev/null; then

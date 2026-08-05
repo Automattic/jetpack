@@ -1586,6 +1586,45 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Whether the AI Launchpad is enabled for this site, for the requesting user.
+	 *
+	 * The launchpad-personalization assignment is user-scoped: every site of an
+	 * ai_launchpad user gets the AI Launchpad, however the site was created. Mirrors
+	 * AI_Launchpad::is_enabled_for_site() in jetpack-mu-wpcom, so wp-admin and the
+	 * Calypso-facing payload agree. Like the capabilities in this payload, the value
+	 * is relative to the current user.
+	 *
+	 * @return bool
+	 */
+	public function is_ai_launchpad_enabled() {
+		if ( (bool) get_option( 'wpcom_ai_launchpad_enabled' ) ) {
+			return true;
+		}
+
+		return class_exists( '\Automattic\Jetpack\Jetpack_Mu_Wpcom\Launchpad_Personalization_Experiment' )
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Lives in jetpack-mu-wpcom, outside this plugin's dependency graph; the class_exists guard above covers contexts where it isn't loaded.
+			&& 'ai_launchpad' === \Automattic\Jetpack\Jetpack_Mu_Wpcom\Launchpad_Personalization_Experiment::get_variation();
+	}
+
+	/**
+	 * Whether the AI Launchpad was dismissed, reverting the site to the regular launchpad.
+	 *
+	 * @return bool
+	 */
+	public function is_ai_launchpad_dismissed() {
+		return (bool) get_option( 'wpcom_ai_launchpad_dismissed' );
+	}
+
+	/**
+	 * Whether every AI Launchpad task has been completed.
+	 *
+	 * @return bool
+	 */
+	public function is_ai_launchpad_completed() {
+		return (bool) get_option( 'wpcom_ai_launchpad_completed' );
+	}
+
+	/**
 	 * Get site option for migration source site domain
 	 *
 	 * @return string

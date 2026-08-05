@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Offline mode: Avoid a redundant per-request database query on sites without a persistent object cache.

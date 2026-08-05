@@ -218,6 +218,17 @@ class Results_List_Render_Test extends TestCase {
 		$this->assertStringContainsString( 'context.result.contentPieces', $markup );
 	}
 
+	public function test_each_templates_use_interactivity_each_keys() {
+		$markup = $this->render( array( 'layout' => 'expanded' ) );
+
+		$this->assertStringContainsString( 'data-wp-each--result="state.results"', $markup );
+		$this->assertStringContainsString( 'data-wp-each-key="context.result.id"', $markup );
+		$this->assertStringContainsString( 'data-wp-each--piece="context.result.titlePieces"', $markup );
+		$this->assertStringContainsString( 'data-wp-each--piece="context.result.contentPieces"', $markup );
+		$this->assertStringContainsString( 'data-wp-each-key="context.piece.index"', $markup );
+		$this->assertStringNotContainsString( 'data-wp-key=', $markup );
+	}
+
 	/**
 	 * Compact layout should NOT render the content-snippet section — the
 	 * dense single-line row only carries a title and a date.

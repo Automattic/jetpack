@@ -1,16 +1,15 @@
 /**
  * External dependencies
  */
-import { GlobalChartsProvider } from '@automattic/charts';
 import {
 	AnalyticsQueryClientProvider,
 	getDefaultPreset,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
+import { GlobalChartsProvider } from '@jetpack-premium-analytics/externals';
 import { useSearch } from '@wordpress/route';
 import { useMemo, type ReactNode } from 'react';
 import { getStoreInfo } from '../../helpers/store-info';
-import '@automattic/charts/style.css';
 /**
  * Internal dependencies
  */
@@ -42,28 +41,31 @@ type WidgetRootProps = {
 	 */
 	options?: {
 		/**
-		 * The source of the search params.
-		 * @default '/'
+		 * Deprecated. Report params are now always read from the current matched
+		 * route, so this no longer affects resolution. Retained for backward
+		 * compatibility with widgets that still pass it.
 		 */
 		from?: string;
 	};
 };
 
-const DEFAULT_SEARCH_FROM = '/';
-
 /**
  * Hook that resolves widget attributes:
  * - `reportParams`: with URL search params when it's not provided
  */
-function useResolveReportParams(
-	attributes?: Partial< ReportParamsFieldAttributes >,
-	from?: string
-) {
+function useResolveReportParams( attributes?: Partial< ReportParamsFieldAttributes > ) {
 	let search: Record< string, unknown > = {};
 
+	/*
+	 * Read the search params of the current route. `{ strict: false }` returns
+	 * whatever route is matched, so widgets pick up the date range (and the
+	 * single-resource scope like `post_id`) on any page — not only the dashboard
+	 * at `/`. `useSearch` throws when rendered outside a matched route (e.g.
+	 * Storybook), so the empty fallback stands in there.
+	 */
 	try {
 		// eslint-disable-next-line react-hooks/rules-of-hooks -- useSearch may throw outside a matched route
-		search = useSearch( { from: from ?? DEFAULT_SEARCH_FROM } );
+		search = useSearch( { strict: false } );
 	} catch {
 		// Do nothing
 	}
@@ -103,9 +105,9 @@ function useResolveReportParams(
  * }
  * ```
  */
-export function WidgetRoot( { attributes, children, setError, options }: WidgetRootProps ) {
+export function WidgetRoot( { attributes, children, setError }: WidgetRootProps ) {
 	const chartTheme = useChartTheme();
-	const rawReportParams = useResolveReportParams( attributes, options?.from );
+	const rawReportParams = useResolveReportParams( attributes );
 
 	const { launchedDate } = getStoreInfo();
 	const defaultPreset = getDefaultPreset( launchedDate );

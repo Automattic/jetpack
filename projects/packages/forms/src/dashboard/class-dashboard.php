@@ -78,66 +78,6 @@ class Dashboard {
 	}
 
 	/**
-	 * Fix import map ordering for the wp-build boot script.
-	 *
-	 * In wp-admin, _wp_footer_scripts (classic scripts) and print_import_map
-	 * both hook into admin_print_footer_scripts at priority 10, but
-	 * _wp_footer_scripts is registered first. This causes the inline
-	 * import("@wordpress/boot") to execute before the import map exists.
-	 *
-	 * This fix moves the import() call from the classic inline script to a
-	 * <script type="module"> printed at priority 20 (after the import map).
-	 *
-	 * @todo Remove once @wordpress/build ships with the loader.js fix upstream
-	 *       (WordPress/gutenberg#76870) and Jetpack updates the dependency.
-	 */
-	public static function fix_boot_import_map_ordering() {
-		$handle = self::FORMS_WPBUILD_ADMIN_SLUG . '-prerequisites';
-
-		add_action(
-			'admin_enqueue_scripts',
-			static function () use ( $handle ) {
-				if ( ! Dashboard::is_jetpack_forms_admin_page() ) {
-					return;
-				}
-
-				$data = wp_scripts()->get_data( $handle, 'after' );
-				if ( empty( $data ) ) {
-					return;
-				}
-
-				// Find and extract the import("@wordpress/boot") inline script.
-				$boot_script = null;
-				$remaining   = array();
-				foreach ( $data as $line ) {
-					if ( strpos( $line, '@wordpress/boot' ) !== false ) {
-						$boot_script = $line;
-					} else {
-						$remaining[] = $line;
-					}
-				}
-
-				if ( $boot_script === null ) {
-					return;
-				}
-
-				// Remove from the classic script handle.
-				wp_scripts()->add_data( $handle, 'after', $remaining );
-
-				// Re-emit as a module script after the import map.
-				add_action(
-					'admin_print_footer_scripts',
-					static function () use ( $boot_script ) {
-						wp_print_inline_script_tag( $boot_script, array( 'type' => 'module' ) );
-					},
-					20
-				);
-			},
-			PHP_INT_MAX
-		);
-	}
-
-	/**
 	 * Script handle for the JS file we enqueue in the Feedback admin page.
 	 *
 	 * @var string
@@ -184,7 +124,6 @@ class Dashboard {
 
 		if ( $is_wp_build_enabled ) {
 			self::load_wp_build();
-			self::fix_boot_import_map_ordering();
 		}
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
@@ -280,23 +219,44 @@ class Dashboard {
 			return;
 		}
 
-		Assets::register_script(
-			self::SCRIPT_HANDLE,
-			'../../dist/dashboard/jetpack-forms-dashboard.js',
-			__FILE__,
-			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-forms',
-				'enqueue'    => true,
-			)
-		);
+		// The wp-build (script-module) dashboard renders its own UI from build/pages/…,
+		// so the legacy SPA bundle is dead weight there. Only enqueue it on the legacy
+		// dashboard. The shared inline data below (connection initial state + REST
+		// preload) is instead attached to the always-present wp-api-fetch handle so the
+		// wp-build app still receives it.
+		if ( self::is_wp_build_dashboard_page() ) {
+			$inline_handle    = 'wp-api-fetch';
+			$preload_position = 'after';
+
+			// The i18n loader is registered on every admin page by jetpack-assets but
+			// only enqueued when depended on; the esbuild bundles don't pull it in.
+			// Enqueue it so the wp-build dashboard's init module can download its JS
+			// translation catalogs.
+			if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+				wp_enqueue_script( 'wp-jp-i18n-loader' );
+			}
+		} else {
+			$inline_handle    = self::SCRIPT_HANDLE;
+			$preload_position = 'before';
+
+			Assets::register_script(
+				self::SCRIPT_HANDLE,
+				'../../dist/dashboard/jetpack-forms-dashboard.js',
+				__FILE__,
+				array(
+					'in_footer'  => true,
+					'textdomain' => 'jetpack-forms',
+					'enqueue'    => true,
+				)
+			);
+		}
 
 		if ( Contact_Form_Plugin::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
 
 		// Adds Connection package initial state.
-		Connection_Initial_State::render_script( self::SCRIPT_HANDLE );
+		Connection_Initial_State::render_script( $inline_handle );
 
 		// Preload Forms endpoints needed in dashboard context.
 		// Pre-fetch the first inbox page so the UI renders instantly on first load.
@@ -364,13 +324,28 @@ class Dashboard {
 		}
 
 		wp_add_inline_script(
-			self::SCRIPT_HANDLE,
+			$inline_handle,
 			sprintf(
 				'wp.apiFetch.use( wp.apiFetch.createPreloadingMiddleware( %s ) );',
 				wp_json_encode( $preload_data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
 			),
-			'before'
+			$preload_position
 		);
+	}
+
+	/**
+	 * Whether the current request targets the wp-build (script-module) Forms dashboard,
+	 * as opposed to the legacy SPA dashboard.
+	 *
+	 * When true, the legacy dashboard bundle should not be enqueued: the wp-build page
+	 * (build/pages/jetpack-forms-responses/…) provides its own UI and asset loading.
+	 *
+	 * @return bool
+	 */
+	public static function is_wp_build_dashboard_page() {
+		/** This filter is documented in class-dashboard.php::init */
+		return apply_filters( 'jetpack_forms_alpha', true )
+			&& self::get_admin_query_page() === self::FORMS_WPBUILD_ADMIN_SLUG;
 	}
 
 	/**

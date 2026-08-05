@@ -1,21 +1,18 @@
 /* eslint-disable react/jsx-no-bind */
 
-import {
-	Button,
-	SelectControl,
-	TextControl,
-	TextareaControl,
-	ToggleControl,
-} from '@wordpress/components';
+import apiFetch from '@wordpress/api-fetch';
+import { SelectControl, TextControl, TextareaControl, ToggleControl } from '@wordpress/components';
 import { store as coreStore, useEntityRecord } from '@wordpress/core-data';
-import { useDispatch } from '@wordpress/data';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
+import { Button, IconButton, Stack, Text } from '@wordpress/ui';
 import { coverageStore } from '../../data/coverage-store';
 import SerpPreview from './serp-preview';
+import styles from './style.module.scss';
 import type { ContentPostType, SchemaType, SeoPostMeta } from '../../data/content-types';
 import type { FC } from 'react';
 
@@ -35,7 +32,7 @@ const SCHEMA_OPTIONS: Array< { value: SchemaType; label: string } > = [
 interface Props {
 	// The selected post id (from the Content route's `?postId`).
 	postId: number;
-	// The core endpoint to save through: 'post' or 'page'.
+	// The core endpoint to save through.
 	postType: ContentPostType;
 	// Dismiss the inspector (clears the URL selection).
 	onClose: () => void;
@@ -58,23 +55,58 @@ const EMPTY_META: EditableMeta = {
 };
 
 /**
+ * Narrow a record's raw `meta` to the four SEO keys this inspector owns,
+ * defaulting anything missing or unrecognised. Used both to seed the form from
+ * the live record and to snapshot the pre-save values we roll back to.
+ *
+ * @param meta - The record's `meta`, if it has resolved.
+ * @return The editable SEO meta.
+ */
+function toEditableMeta( meta: Partial< SeoPostMeta > | undefined ): EditableMeta {
+	return {
+		advanced_seo_description: meta?.advanced_seo_description ?? '',
+		jetpack_seo_html_title: meta?.jetpack_seo_html_title ?? '',
+		jetpack_seo_noindex: !! meta?.jetpack_seo_noindex,
+		jetpack_seo_schema_type:
+			meta?.jetpack_seo_schema_type === 'article' || meta?.jetpack_seo_schema_type === 'faq'
+				? meta.jetpack_seo_schema_type
+				: '',
+	};
+}
+
+/**
  * Edit one post's SEO fields, rendered in the Content route's native inspector
- * sidebar and keyed by the selected `postId`. Loads the live record via
- * core-data (`useEntityRecord`) and saves the post's `meta` through
- * `editEntityRecord` → `saveEditedEntityRecord( 'postType', type, id )` — no
- * custom endpoint. On success it dispatches a coverage delta to the shared store
- * so the Overview card reflects the change without a page reload. The SERP
- * preview updates live as fields change.
+ * sidebar and keyed by the selected `postId`. Loads the live record via core-data
+ * (`useEntityRecord`) and persists the post's `meta` through the post's own core
+ * REST route — no custom endpoint. On success it dispatches a coverage delta to
+ * the shared store so the Overview card reflects the change without a page
+ * reload. The SERP preview updates live as fields change.
  *
  * @param props          - Component props.
  * @param props.postId   - The selected post id.
- * @param props.postType - The core endpoint to save through ('post' | 'page').
+ * @param props.postType - The core endpoint to save through.
  * @param props.onClose  - Dismiss the inspector.
  * @return The SEO inspector editor.
  */
 const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
-	const { record, isResolving } = useEntityRecord( 'postType', postType, postId );
-	const { editEntityRecord, saveEditedEntityRecord } = useDispatch( coreStore );
+	// The *edited* record, not the persisted one. Saving stages the new meta as a
+	// core-data edit rather than writing it back over the persisted record (see
+	// `onSave`), so `record` still holds the pre-save meta afterwards — seeding the
+	// form from it would show a stale value every time the inspector is reopened.
+	const { editedRecord, isResolving } = useEntityRecord( 'postType', postType, postId );
+	const { editEntityRecord } = useDispatch( coreStore );
+	// The post type's REST route ('/wp/v2/posts', '/wp/v2/pages'), read from the
+	// entity config rather than pluralised by hand. Resolved by the time the
+	// record above is, and saving is blocked until then.
+	const baseURL = useSelect(
+		select =>
+			(
+				select( coreStore ) as {
+					getEntityConfig: ( kind: string, name: string ) => { baseURL?: string } | undefined;
+				}
+			 ).getEntityConfig( 'postType', postType )?.baseURL,
+		[ postType ]
+	);
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { applyCoverageDelta } = useDispatch( coverageStore );
 	const [ isSaving, setIsSaving ] = useState( false );
@@ -84,22 +116,17 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 	// over the post's existing meta.
 	const [ local, setLocal ] = useState< EditableMeta >( EMPTY_META );
 
-	const recordMeta = ( record as { meta?: Partial< SeoPostMeta > } | undefined )?.meta;
+	// Seed the form once per mount (the route keys this component by postId), so
+	// a background refetch changing `editedMeta` identity can't overwrite edits.
+	const hasSeeded = useRef( false );
+	const editedMeta = ( editedRecord as { meta?: Partial< SeoPostMeta > } | undefined )?.meta;
 	useEffect( () => {
-		if ( ! recordMeta ) {
+		if ( ! editedMeta || hasSeeded.current ) {
 			return;
 		}
-		setLocal( {
-			advanced_seo_description: recordMeta.advanced_seo_description ?? '',
-			jetpack_seo_html_title: recordMeta.jetpack_seo_html_title ?? '',
-			jetpack_seo_noindex: !! recordMeta.jetpack_seo_noindex,
-			jetpack_seo_schema_type:
-				recordMeta.jetpack_seo_schema_type === 'article' ||
-				recordMeta.jetpack_seo_schema_type === 'faq'
-					? recordMeta.jetpack_seo_schema_type
-					: '',
-		} );
-	}, [ recordMeta ] );
+		hasSeeded.current = true;
+		setLocal( toEditableMeta( editedMeta ) );
+	}, [ editedMeta ] );
 
 	const setField = useCallback(
 		( patch: Partial< EditableMeta > ) => setLocal( state => ( { ...state, ...patch } ) ),
@@ -113,25 +140,58 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 			type: 'snackbar',
 			isDismissible: false,
 		} );
+		// The values to roll back to if the request fails, and the baseline the
+		// coverage delta is measured against. Snapshotted before the optimistic edit
+		// below, which is what `editedMeta` would otherwise reflect. Reading the
+		// *edited* meta keeps both correct when the same post is saved twice without
+		// an intervening reload.
+		const previous = toEditableMeta( editedMeta );
 		try {
-			// Stage the meta edit, then persist it. core-data merges `meta`, so we
-			// only send the four SEO keys, leaving any other post meta untouched.
+			// Update the record in the store, then persist it with `apiFetch`.
+			//
+			// Deliberately *not* `saveEditedEntityRecord`: core-data's save ends by
+			// dispatching RECEIVE_ITEMS with `invalidateCache: true` (there's no way
+			// to suppress it), and `getEntityRecords.shouldInvalidate` drops every
+			// query for the post type. SEO meta changes neither collection membership
+			// nor ordering, so none of that data went stale. `useSeoPosts` overlays
+			// these edits onto the fetched records, which is what updates the row.
+			//
+			// core-data merges `meta` edits (the postType entity declares it in
+			// `mergedEdits`), so we only send the four SEO keys and leave any other
+			// post meta untouched.
 			editEntityRecord( 'postType', postType, postId, { meta: local } );
-			await saveEditedEntityRecord( 'postType', postType, postId );
+			// `apiFetch` rejects on a failed request, so a save that fails can't fall
+			// through to the success notice below — the `throwOnError` that
+			// `saveEditedEntityRecord` needed for that (#50319) has no equivalent here.
+			try {
+				await apiFetch( {
+					path: `${ baseURL }/${ postId }`,
+					method: 'POST',
+					data: { meta: local },
+				} );
+			} catch ( error ) {
+				editEntityRecord( 'postType', postType, postId, { meta: previous } );
+				throw error;
+			}
 			createSuccessNotice( __( 'SEO updated.', 'jetpack-seo' ), {
 				id: SAVE_NOTICE_ID,
 				type: 'snackbar',
 			} );
 			// Reflect the edit on the Overview coverage card without a reload,
-			// baselining the delta against the live pre-save record's meta.
-			const priorHasDescription = ( recordMeta?.advanced_seo_description ?? '' ) !== '';
-			const priorHasSchema =
-				recordMeta?.jetpack_seo_schema_type === 'article' ||
-				recordMeta?.jetpack_seo_schema_type === 'faq';
+			// baselining the delta against the pre-save meta. Search visibility is the
+			// inverse of noindex, so a post counts as "visible" when noindex is off.
 			applyCoverageDelta( {
+				schema:
+					Number( local.jetpack_seo_schema_type !== '' ) -
+					Number( previous.jetpack_seo_schema_type !== '' ),
+				title:
+					Number( local.jetpack_seo_html_title !== '' ) -
+					Number( previous.jetpack_seo_html_title !== '' ),
 				description:
-					Number( local.advanced_seo_description !== '' ) - Number( priorHasDescription ),
-				schema: Number( local.jetpack_seo_schema_type !== '' ) - Number( priorHasSchema ),
+					Number( local.advanced_seo_description !== '' ) -
+					Number( previous.advanced_seo_description !== '' ),
+				search_visible:
+					Number( ! local.jetpack_seo_noindex ) - Number( ! previous.jetpack_seo_noindex ),
 			} );
 			onClose();
 		} catch ( error ) {
@@ -145,40 +205,48 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 		}
 	}, [
 		applyCoverageDelta,
+		baseURL,
 		createErrorNotice,
 		createInfoNotice,
 		createSuccessNotice,
 		editEntityRecord,
+		editedMeta,
 		local,
 		onClose,
 		postId,
 		postType,
-		recordMeta,
-		saveEditedEntityRecord,
 	] );
 
 	const postTitle = useMemo( () => {
-		const rendered = ( record as { title?: { rendered?: string } } | undefined )?.title?.rendered;
+		const rendered = ( editedRecord as { title?: { rendered?: string } } | undefined )?.title
+			?.rendered;
 		return rendered ? decodeEntities( rendered ) : '';
-	}, [ record ] );
+	}, [ editedRecord ] );
 
-	const permalink = ( record as { link?: string } | undefined )?.link ?? '';
+	const permalink = ( editedRecord as { link?: string } | undefined )?.link ?? '';
 
 	return (
-		<div className="jetpack-seo-content__inspector" aria-label={ __( 'Edit SEO', 'jetpack-seo' ) }>
-			<div className="jetpack-seo-content__inspector-header">
-				<h2 className="jetpack-seo-content__inspector-title">
+		<Stack
+			direction="column"
+			gap="lg"
+			className={ styles.inspector }
+			aria-label={ __( 'Edit SEO', 'jetpack-seo' ) }
+		>
+			<Stack direction="row" align="center" justify="space-between" gap="sm">
+				<Text variant="heading-lg" render={ <h2 /> }>
 					{ __( 'Edit SEO', 'jetpack-seo' ) }
-				</h2>
-				<Button
+				</Text>
+				<IconButton
 					icon={ close }
 					label={ __( 'Close', 'jetpack-seo' ) }
 					onClick={ onClose }
 					disabled={ isSaving }
 					size="small"
+					variant="minimal"
+					tone="neutral"
 				/>
-			</div>
-			<div className="jetpack-seo-content__inspector-body">
+			</Stack>
+			<Stack direction="column" gap="lg">
 				<TextControl
 					label={ __( 'SEO title', 'jetpack-seo' ) }
 					help={ __(
@@ -226,21 +294,24 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 					customTitle={ local.jetpack_seo_html_title }
 					description={ local.advanced_seo_description }
 				/>
-			</div>
-			<div className="jetpack-seo-content__inspector-actions">
-				<Button variant="tertiary" onClick={ onClose } disabled={ isSaving }>
+			</Stack>
+			<Stack direction="row" justify="flex-end" gap="sm">
+				<Button variant="minimal" tone="neutral" onClick={ onClose } disabled={ isSaving }>
 					{ __( 'Cancel', 'jetpack-seo' ) }
 				</Button>
 				<Button
-					variant="primary"
 					onClick={ onSave }
-					isBusy={ isSaving }
-					disabled={ isSaving || isResolving }
+					loading={ isSaving }
+					// Also disabled when the record failed to load (`editedMeta` never
+					// resolved): the form still holds EMPTY_META, and saving that would
+					// wipe the post's existing SEO meta. And when the entity config hasn't
+					// resolved, since `baseURL` is the route we save through.
+					disabled={ isSaving || isResolving || ! editedMeta || ! baseURL }
 				>
 					{ __( 'Save', 'jetpack-seo' ) }
 				</Button>
-			</div>
-		</div>
+			</Stack>
+		</Stack>
 	);
 };
 

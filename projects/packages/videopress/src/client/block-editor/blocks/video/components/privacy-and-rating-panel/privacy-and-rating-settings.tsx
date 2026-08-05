@@ -57,7 +57,7 @@ export default function PrivacyAndRatingSettings( {
 		<PanelBody title={ __( 'Privacy and rating', 'jetpack-videopress-pkg' ) } initialOpen={ false }>
 			<SelectControl
 				label={ _x( 'Rating', 'The age rating for this video.', 'jetpack-videopress-pkg' ) }
-				value={ rating ?? '' }
+				value={ ( rating ?? '' ) as 'G' | 'PG-13' | 'R-17' }
 				options={ [
 					{
 						label: _x( 'G', 'Video rating for "General Audiences".', 'jetpack-videopress-pkg' ),

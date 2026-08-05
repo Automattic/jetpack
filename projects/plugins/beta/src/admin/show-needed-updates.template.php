@@ -54,8 +54,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	);
 
 	?>
-	<div class="jetpack-beta__wrap jetpack-beta__update-needed">
-		<h2><?php esc_html_e( 'Some updates are available', 'jetpack-beta' ); ?></h2>
+	<div class="jetpack-beta__update-needed">
+		<span class="jetpack-beta__update-needed-icon" aria-hidden="true">
+			<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" focusable="false"><path fill="currentColor" d="M12 3.2A8.8 8.8 0 1020.8 12 8.81 8.81 0 0012 3.2zm.8 13.6h-1.6v-1.6h1.6zm0-3.2h-1.6V7.2h1.6z" /></svg>
+		</span>
+		<div class="jetpack-beta__update-needed-body">
 		<?php
 		foreach ( $updates as $file => $update ) {
 			$slug  = dirname( $file );
@@ -94,6 +97,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</div>
 		</div>
 		<?php } ?>
+		</div>
 	</div>
 	<?php
 } )( $plugin ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template.

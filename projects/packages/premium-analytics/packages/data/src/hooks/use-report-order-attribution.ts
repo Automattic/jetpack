@@ -50,6 +50,7 @@ export function useReportOrderAttribution(
 				compare_from: compareFrom,
 				compare_to: compareTo,
 				date_type: params.date_type,
+				filters: params.filters,
 			} );
 		},
 		params,

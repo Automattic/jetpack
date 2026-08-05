@@ -1,0 +1,22 @@
+{
+	"name": "@automattic/jetpack-premium-analytics-externals",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"main": "src/index.ts",
+	"module": "build-module/index.mjs",
+	"wpScriptModuleExports": "./build-module/index.mjs",
+	"types": "src/index.ts",
+	"sideEffects": [
+		"*.css",
+		"*.scss",
+		"src/index.ts"
+	],
+	"dependencies": {
+		"@automattic/charts": "workspace:*",
+		"@automattic/ui": "1.0.2",
+		"@wordpress/dataviews": "17.3.0",
+		"@wordpress/ui": "0.19.0",
+		"react": "18.3.1"
+	}
+}

@@ -146,6 +146,11 @@ const StatsSection = () => {
 
 	const { counts, previousCounts, chartData } = processedData;
 
+	// The product's manage URL already points at whichever analytics UI this site
+	// runs; that decision belongs server-side, so it is not re-derived here.
+	const { manageUrl } = detail;
+	const { premiumAnalyticsEnabled = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
+
 	/**
 	 * Called when "See detailed stats" button is clicked.
 	 */
@@ -154,16 +159,22 @@ const StatsSection = () => {
 			product: slug,
 		} );
 
-		window.location.href = 'admin.php?page=stats&force_refresh=1';
-	}, [ recordEvent ] );
+		if ( ! manageUrl ) {
+			return;
+		}
+
+		// The Stats page caches its report, so the legacy link asks it to refresh.
+		// The dashboard fetches on load and has no such param.
+		window.location.href = premiumAnalyticsEnabled ? manageUrl : `${ manageUrl }&force_refresh=1`;
+	}, [ recordEvent, manageUrl, premiumAnalyticsEnabled ] );
 
 	const shouldShowSecondaryButton = useCallback(
-		() => !! ( status === PRODUCT_STATUSES.CAN_UPGRADE ),
-		[ status ]
+		() => !! ( status === PRODUCT_STATUSES.CAN_UPGRADE && manageUrl ),
+		[ status, manageUrl ]
 	);
 
 	const viewStatsButton = {
-		href: 'admin.php?page=stats',
+		href: manageUrl,
 		label: __( 'View detailed stats', 'jetpack-my-jetpack' ),
 		onClick: onDetailedStatsClick,
 		shouldShowButton: shouldShowSecondaryButton,

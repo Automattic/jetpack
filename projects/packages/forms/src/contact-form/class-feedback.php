@@ -1584,7 +1584,29 @@ class Feedback {
 			$fields_to_serialize['country_code'] = null;
 		}
 
-		return addslashes( wp_json_encode( $fields_to_serialize, JSON_UNESCAPED_SLASHES ) );
+		/*
+		 * JSON_HEX_TAG escapes every `<` and `>` as a \u003C / \u003E sequence,
+		 * which is what keeps this payload intact on the way into the database.
+		 * It is load-bearing here, not cosmetic - do not drop it.
+		 *
+		 * This payload is written to `post_content`, and any submitter without
+		 * `unfiltered_html` - every logged-out visitor, and every non-super-admin
+		 * on a multisite - has `wp_filter_post_kses` attached to `content_save_pre`.
+		 * A bare `<` anywhere in the payload (a field label, a submitted value, or
+		 * the source page title) then reads as the start of a tag, and core's
+		 * `wp_pre_kses_less_than()` runs esc_html() over everything from that `<` to
+		 * the end of the string. The quotes inside it become `&quot;`, so
+		 * `json_decode()` can no longer read the payload and the entire response
+		 * comes back empty.
+		 *
+		 * `json_decode()` resolves the escaped sequences natively, so no decode step
+		 * is needed and payloads written before this flag was added still parse.
+		 *
+		 * This deliberately diverges from Jetpack.Functions.JsonEncodeFlags, which
+		 * recommends JSON_UNESCAPED_SLASHES alone for database-field writes. That
+		 * guidance assumes the write is not KSES-filtered; this one is.
+		 */
+		return addslashes( wp_json_encode( $fields_to_serialize, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG ) );
 	}
 
 	/**
@@ -1601,7 +1623,48 @@ class Feedback {
 		if ( $version === 'v2' ) {
 			return $this->parse_content_v2( $post_content );
 		}
+
+		// Some feedback posts store JSON content without a version marker
+		// (empty post_mime_type). Parse those as the current (v3) format instead
+		// of falling through to the legacy plain-text parser.
+		if ( self::is_json( $post_content ) ) {
+			$decoded_content = json_decode( $post_content, true );
+			if ( $decoded_content === null ) {
+				// Content may be slash-escaped as stored by WordPress; retry,
+				// mirroring the fallback used by the v2/v3 parsers.
+				$decoded_content = json_decode( stripslashes( trim( $post_content ) ), true );
+			}
+			if ( isset( $decoded_content['fields'] ) && is_array( $decoded_content['fields'] ) ) {
+				return $this->parse_content_v3( $post_content );
+			}
+		}
+
 		return $this->parse_legacy_content( $post_content );
+	}
+
+	/**
+	 * Check whether a string looks like and decodes as valid JSON.
+	 *
+	 * Accepts slash-escaped JSON (as WordPress may store it), mirroring the
+	 * stripslashes fallback used by the v2/v3 parsers.
+	 *
+	 * @param string $string The string to test.
+	 * @return bool True if the string is a JSON object or array.
+	 */
+	private static function is_json( $string ) {
+		if ( ! is_string( $string ) || $string === '' ) {
+			return false;
+		}
+		$string = trim( $string );
+		if ( ! str_starts_with( $string, '{' ) && ! str_starts_with( $string, '[' ) ) {
+			return false;
+		}
+		$decoded = json_decode( $string );
+		if ( $decoded !== null && json_last_error() === JSON_ERROR_NONE ) {
+			return true;
+		}
+		$decoded = json_decode( stripslashes( $string ) );
+		return $decoded !== null && json_last_error() === JSON_ERROR_NONE;
 	}
 
 	/**

@@ -33,8 +33,9 @@ function register_block() {
 		Blocks::jetpack_register_block(
 			__DIR__,
 			array(
-				'render_callback' => __NAMESPACE__ . '\render_block',
-				'plan_check'      => true,
+				'render_callback'       => __NAMESPACE__ . '\render_block',
+				'render_email_callback' => __NAMESPACE__ . '\render_email',
+				'plan_check'            => true,
 			)
 		);
 	}
@@ -367,6 +368,143 @@ function render_block( $attr, $content ) {
 }
 
 /**
+ * WooCommerce Email Editor render callback for the Donations block.
+ *
+ * Builds a dedicated email version of the block from its attributes (rather than
+ * post-processing the interactive frontend markup) so customizations — per
+ * interval heading, supporting text and button label — are preserved. Each
+ * interval is rendered as an email-safe table section with a CTA button drawn by
+ * the Button block's own email renderer.
+ *
+ * @param string $block_content     The rendered block content (unused; we rebuild from attributes).
+ * @param array  $parsed_block      The parsed block data.
+ * @param object $rendering_context The email rendering context.
+ *
+ * @return string
+ */
+function render_email( $block_content, array $parsed_block, $rendering_context ) {
+	if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] )
+		|| ! function_exists( '\Automattic\Jetpack\Extensions\Button\render_email' )
+		|| ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' ) ) {
+		return '';
+	}
+
+	$attr          = $parsed_block['attrs'];
+	$default_texts = get_default_texts();
+
+	$url = get_permalink();
+	if ( ! is_string( $url ) || '' === $url ) {
+		$url = is_string( $attr['fallbackLinkUrl'] ?? null ) && '' !== $attr['fallbackLinkUrl'] ? $attr['fallbackLinkUrl'] : '#';
+	}
+
+	$alignment   = in_array( $attr['contentAlignment'] ?? '', array( 'left', 'center', 'right' ), true ) ? $attr['contentAlignment'] : 'left';
+	$table_style = sprintf( 'width:100%%;max-width:%dpx;border-collapse:collapse;', get_email_target_width( $rendering_context ) );
+
+	$sections = '';
+	foreach ( array(
+		'oneTimeDonation' => true,
+		'monthlyDonation' => false,
+		'annualDonation'  => false,
+	) as $key => $default_show ) {
+		$interval = is_array( $attr[ $key ] ?? null ) ? $attr[ $key ] : array();
+		if ( false === ( $interval['show'] ?? $default_show ) ) {
+			continue;
+		}
+
+		$heading = wp_kses_post( $interval['heading'] ?? $default_texts[ $key ]['heading'] );
+		$extra   = wp_kses_post( $interval['extraText'] ?? $default_texts['extraText'] );
+
+		$content = '';
+		if ( '' !== trim( wp_strip_all_tags( $heading ) ) ) {
+			$content .= sprintf(
+				'<p style="margin:0 0 4px;font-size:18px;font-weight:700;line-height:1.3;text-align:%s;">%s</p>',
+				esc_attr( $alignment ),
+				$heading
+			);
+		}
+		if ( '' !== trim( wp_strip_all_tags( $extra ) ) ) {
+			$content .= sprintf(
+				'<p style="margin:0 0 14px;font-size:15px;line-height:1.5;text-align:%s;">%s</p>',
+				esc_attr( $alignment ),
+				$extra
+			);
+		}
+		$content .= render_email_donate_button( $interval['buttonText'] ?? $default_texts[ $key ]['buttonText'], $url, $attr, $rendering_context );
+
+		$is_first   = '' === $sections;
+		$cell_style = sprintf(
+			'text-align:%1$s;padding:%2$s;%3$s',
+			esc_attr( $alignment ),
+			$is_first ? '0 0 24px' : '24px 0',
+			$is_first ? '' : 'border-top:1px solid #e0e0e0;'
+		);
+		$sections  .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper(
+			$content,
+			array( 'style' => $table_style ),
+			array( 'style' => $cell_style )
+		);
+	}
+
+	return $sections;
+}
+
+/**
+ * Render a single donation CTA as an email-safe button via the Button block's
+ * email renderer, carrying over the donation block's button styling.
+ *
+ * @param string $text              Button label.
+ * @param string $url               Button destination.
+ * @param array  $attr              Donations block attributes.
+ * @param object $rendering_context The email rendering context.
+ * @return string
+ */
+function render_email_donate_button( $text, $url, $attr, $rendering_context ) {
+	$text = trim( wp_strip_all_tags( (string) $text ) );
+
+	$button_attrs = array(
+		'text' => '' !== $text ? $text : __( 'Donate', 'jetpack' ),
+		'url'  => $url,
+	);
+
+	if ( ! empty( $attr['buttonFontSize'] ) && is_string( $attr['buttonFontSize'] ) ) {
+		$button_attrs['customFontSize'] = $attr['buttonFontSize'];
+	}
+	if ( isset( $attr['buttonBorderRadius'] ) && is_string( $attr['buttonBorderRadius'] ) ) {
+		$radius = (int) $attr['buttonBorderRadius'];
+		if ( $radius > 0 ) {
+			$button_attrs['borderRadius'] = $radius;
+		}
+	}
+
+	return \Automattic\Jetpack\Extensions\Button\render_email(
+		'',
+		array( 'attrs' => $button_attrs ),
+		$rendering_context
+	);
+}
+
+/**
+ * Resolve the target content width (in px) from the email rendering context,
+ * falling back to a sensible default.
+ *
+ * @param object $rendering_context The email rendering context.
+ * @return int Width in pixels.
+ */
+function get_email_target_width( $rendering_context ) {
+	$target_width = 600;
+	if ( is_object( $rendering_context ) && method_exists( $rendering_context, 'get_layout_width_without_padding' ) ) {
+		$width = $rendering_context->get_layout_width_without_padding();
+		if ( is_string( $width ) && preg_match( '/(\d+)px/', $width, $matches ) ) {
+			$parsed = (int) $matches[1];
+			if ( $parsed > 0 ) {
+				$target_width = $parsed;
+			}
+		}
+	}
+	return $target_width;
+}
+
+/**
  * Build data-attributes array for security (min/max amount) constraints.
  *
  * Extracted so it can be tested independently of the full render pipeline.
@@ -695,7 +833,10 @@ function get_trigger_icon_svg( $icon_key ) {
 		'star'       => array( 'd' => 'M11.776 4.454a.25.25 0 01.448 0l2.069 4.192a.25.25 0 00.188.137l4.626.672a.25.25 0 01.139.426l-3.348 3.263a.25.25 0 00-.072.222l.79 4.607a.25.25 0 01-.362.263l-4.138-2.175a.25.25 0 00-.232 0l-4.138 2.175a.25.25 0 01-.363-.263l.79-4.607a.25.25 0 00-.071-.222L4.754 9.881a.25.25 0 01.139-.426l4.626-.672a.25.25 0 00.188-.137l2.069-4.192z' ),
 		'thumbs-up'  => array( 'd' => 'm3 12 1 8h1.5l-1-8H3Zm15.8-2h-4.4l.8-3.6c.3-1.3-.7-2.4-1.9-2.4h-.2c-.6 0-1.2.3-1.6.8l-5 6.6c-.3.4-.4.8-.4 1.2v.2l.7 5.4v.2c.2.9 1 1.5 1.9 1.5h8.2c.9 0 1.7-.6 1.9-1.4l1.8-6c.4-1.3-.6-2.6-1.9-2.6Zm.5 2.1-1.8 6c0 .2-.3.4-.5.4H8.8c-.3 0-.5-.2-.5-.4l-.7-5.4v-.4l5-6.6c0-.1.2-.2.4-.2h.2c.3 0 .6.3.5.6l-.8 3.6c-.1.4 0 .9.3 1.3s.7.6 1.2.6h4.4c.3 0 .6.3.5.6Z' ),
 		'smiley'     => array( 'd' => 'M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5 14.67 11 15.5 11zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z' ),
-		'coffee'     => array( 'd' => 'M20 3H4v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.11 0 2-.89 2-2V5c0-1.11-.89-2-2-2zm0 5h-2V5h2v3zM4 19h16v2H4zM9 1v2M12 1v2M15 1v2' ),
+		'coffee'     => array(
+			'd'         => 'M6.5 5h11v3.25h1a2 2 0 010 4H17.5v1.25a3 3 0 01-3 3H9.5a3 3 0 01-3-3V5zm1.5 1.5v7.25a1.5 1.5 0 001.5 1.5h5a1.5 1.5 0 001.5-1.5V6.5h-8zm10 2.5H17.5v2h.5a1 1 0 000-2zM5 20h14V18.5H5z',
+			'fill-rule' => 'evenodd',
+		),
 		'tip-jar'    => array( 'd' => 'M9 3h6c0-1.1-.9-2-2-2H11C9.9 1 9 1.9 9 3zm7 0H8c-.55 0-1 .45-1 1v1.5c0 .55.45 1 1 1h8c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1zm-1 3.5H9V19c0 1.1.9 2 2 2h2c1.1 0 2-.9 2-2V6.5zm-3 1.5h2v1.5l-1 1.5-1-1.5V8z' ),
 		'hand-heart' => array( 'd' => 'M15.5 2.1c-1.1 0-2 .6-2.5 1.4-.5-.9-1.4-1.4-2.5-1.4C8.8 2.1 7.5 3.4 7.5 5c0 2.5 4.5 5.9 5.5 6.6 1-.7 5.5-4.1 5.5-6.6 0-1.6-1.3-2.9-3-2.9zM9 14H7l-2 7h14l-2-7h-2l-1 3H10l-1-3z' ),
 		'people'     => array(

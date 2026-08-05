@@ -1,0 +1,34 @@
+.dashboard {
+	min-block-size: 0;
+}
+
+.loading {
+	// Fill the route stage and center the spinner while the sections entity
+	// resolves. Mirrors the reports stage's centered loading state.
+	min-block-size: 240px;
+	block-size: 100%;
+}
+
+.content {
+	flex: 1 1 auto;
+	min-block-size: 0;
+
+	// Reserve paint space for the widget host's outer focus outline.
+	padding-block-start: calc(var(--wpds-border-width-focus) + 2px);
+	// Match the horizontal padding of the page header and the section tabs so the
+	// widget grid lines up with them instead of sitting flush to the edge.
+	padding-block-end: 24px;
+	padding-inline: var(--wpds-dimension-padding-2xl);
+}
+
+.widgets {
+	// Inherited by the @wordpress/grid surfaces (grid, masonry, edit overlay),
+	// which otherwise fall back to the wider `--wpds-dimension-gap-xl`.
+	--wp-grid-gap: var(--wpds-dimension-gap-lg);
+}
+
+.sectionHeader {
+	// Separates the header row from the widget grid below. The inline gutter
+	// comes from the panel, which already pads to match the tabs.
+	padding-block-end: var(--wpds-dimension-gap-lg);
+}

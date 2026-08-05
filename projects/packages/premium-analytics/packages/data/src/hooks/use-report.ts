@@ -47,35 +47,29 @@ type QueryFactory< TData > = (
  * );
  * ```
  */
-export function useReport< TData >(
+export function useReport< TData, TParams extends ReportParams = ReportParams >(
 	queryFactory: QueryFactory< TData >,
-	params: ReportParams,
+	params: TParams,
 	options?: UseReportOptions
 ) {
 	const queryEnabled = options?.enabled ?? true;
 	const comparisonEnabled = hasComparisonEnabled( params );
+	const primaryParams = { ...params };
+	delete primaryParams.compare_from;
+	delete primaryParams.compare_to;
+	delete primaryParams.compare_preset;
+	delete primaryParams.comp;
 
 	// Create primary query
-	const primaryQueryOptions = queryFactory(
-		{
-			from: params.from,
-			to: params.to,
-			interval: params.interval,
-			filters: params.filters,
-			date_type: params.date_type,
-		},
-		'primary'
-	);
+	const primaryQueryOptions = queryFactory( primaryParams, 'primary' );
 
 	// Create comparison query if comparison is enabled
 	const comparisonQueryOptions = comparisonEnabled
 		? queryFactory(
 				{
+					...primaryParams,
 					from: params.compare_from,
 					to: params.compare_to,
-					interval: params.interval,
-					filters: params.filters,
-					date_type: params.date_type,
 				},
 				'comparison'
 		  )
@@ -126,8 +120,9 @@ export function useReport< TData >(
 		Boolean( ( comparison.data as any )?.data?.length ) ||
 		Boolean( ( comparison.data as any )?.steps?.length );
 
-	// Combined refetch function that refetches both queries.
-	// If both primary and comparison queries fail, clicking "Retry" should refetch both.
+	// Combined refetch: memoized, awaits both queries, and skips the comparison
+	// query when comparison is disabled. If both queries fail, one "Retry" must
+	// refetch both — so widgets can surface this directly as their retry action.
 	const primaryRefetch = primary.refetch;
 	const comparisonRefetch = comparison.refetch;
 	const refetch = useCallback( async () => {

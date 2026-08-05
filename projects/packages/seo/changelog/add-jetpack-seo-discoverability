@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Gate the Jetpack SEO admin menu on a discoverability cohort: WordPress.com and fresh self-hosted installs see it automatically, existing installs opt in. Keeps the menu discoverable when the seo-tools module is off (with an in-app enable/disable affordance) and adds the `POST /jetpack/v4/seo/opt-in` endpoint, the `jetpack_seo_surface_visible` option, and `Initializer::is_seo_surface_visible()`.

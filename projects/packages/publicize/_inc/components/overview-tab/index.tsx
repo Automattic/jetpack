@@ -1,11 +1,15 @@
 import useConnectionErrorNotice, {
 	ConnectionError,
 } from '@automattic/jetpack-connection/use-connection-error-notice';
+import { currentUserCan } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { share } from '@wordpress/icons';
 import { Button, Card, EmptyState } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
+import { hasAdminUiV2 } from '../../utils/script-data';
+import { ConnectionFlowModal } from '../connection-flow';
 import ConnectionManagement from '../connection-management';
 import { ThemedConnectionsModal } from '../manage-connections-modal';
 import TrafficChartCard from './traffic-chart-card';
@@ -20,7 +24,15 @@ import './style.scss';
  * @return The empty-state body.
  */
 const NoConnectionsEmptyState = () => {
-	const { openConnectionsModal } = useDispatch( socialStore );
+	const { openConnectionsModal, startConnectionFlow } = useDispatch( socialStore );
+
+	const onAddAccount = useCallback( () => {
+		if ( hasAdminUiV2() ) {
+			startConnectionFlow( { origin: 'dashboard' } );
+		} else {
+			openConnectionsModal();
+		}
+	}, [ openConnectionsModal, startConnectionFlow ] );
 
 	return (
 		<div className="jetpack-social-overview__empty">
@@ -36,7 +48,7 @@ const NoConnectionsEmptyState = () => {
 					) }
 				</EmptyState.Description>
 				<EmptyState.Actions>
-					<Button variant="solid" onClick={ openConnectionsModal }>
+					<Button variant="solid" onClick={ onAddAccount }>
 						{ __( 'Add account', 'jetpack-publicize-pkg' ) }
 					</Button>
 				</EmptyState.Actions>
@@ -46,7 +58,7 @@ const NoConnectionsEmptyState = () => {
 };
 
 /**
- * Overview tab — sits inside the modernized Social chassis (`SocialPage`
+ * Overview tab — sits inside the Social dashboard (`SocialPage`
  * → `Tabs.Panel value="overview"`). Renders the connection-error notice
  * + JITM mount-point above a single `Card.Root` that wraps the existing
  * `ConnectionManagement` list. The "Connect an account" CTA is lifted
@@ -65,6 +77,13 @@ export default function OverviewTab(): JSX.Element {
 		[]
 	);
 
+	// Social traffic is read from the WPCOM stats endpoint, which requires
+	// `view_stats` — a capability non-admins lack, so the fetch 403s and the
+	// card falls into its error state. Admins are the only role we expose
+	// client-side, so gate the whole chart on `manage_options`: non-admins
+	// only get the connection-management UI below.
+	const canManageOptions = currentUserCan( 'manage_options' );
+
 	return (
 		<div className="jetpack-social-overview">
 			{ hasConnectionError && (
@@ -78,17 +97,20 @@ export default function OverviewTab(): JSX.Element {
 			 * empty state replaces the connections list, so the
 			 * "Add account" header + empty-state buttons stay
 			 * functional. When `ConnectionManagement` renders, it
-			 * already brings its own `ManageConnectionsModal`.
+			 * already brings its own modal. Behind ADMIN_UI_V2 this is
+			 * the new `ConnectionFlowModal`; otherwise today's modal.
 			 */ }
-			{ ! hasConnections && <ThemedConnectionsModal /> }
+			{ ! hasConnections &&
+				( hasAdminUiV2() ? <ConnectionFlowModal /> : <ThemedConnectionsModal /> ) }
 			{ /*
-			 * Traffic chart only renders when at least one connection
-			 * exists, so the no-connections state focuses the user on
-			 * the onboarding CTA in the accounts card. Once a single
-			 * account is connected, the chart appears above with the
+			 * Traffic chart only renders for admins with at least one
+			 * connection. The no-connections state focuses the user on
+			 * the onboarding CTA in the accounts card; non-admins never
+			 * see the chart at all (they can't read stats). Once an admin
+			 * connects a single account, the chart appears above with the
 			 * paid/free/empty branches taking over from there.
 			 */ }
-			{ hasConnections && <TrafficChartCard /> }
+			{ hasConnections && canManageOptions && <TrafficChartCard /> }
 			<Card.Root>
 				{ hasConnections && (
 					<Card.Header className="jetpack-social-overview__accounts-card-header">

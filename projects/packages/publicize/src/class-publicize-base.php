@@ -1133,7 +1133,7 @@ abstract class Publicize_Base {
 		/*
 		 * Default the share-message meta to the saved global template
 		 */
-		$message_default = Current_Plan::supports( 'social-message-templates' )
+		$message_default = $this->has_paid_features()
 			? ( new Jetpack_Social_Settings\Settings() )->get_message_template()
 			: '';
 
@@ -1286,7 +1286,7 @@ abstract class Publicize_Base {
 		);
 
 		$customize_per_network_default = (
-			Current_Plan::supports( 'social-message-templates' )
+			$this->has_paid_features()
 			&& $this->any_connection_has_custom_template()
 		);
 
@@ -1753,6 +1753,16 @@ abstract class Publicize_Base {
 			return $attached_media;
 		}
 
+		$featured_image_id = get_post_thumbnail_id( $post_id );
+
+		if ( $featured_image_id && Current_Plan::supports( 'social-image-focal-point' ) ) {
+			$featured_image = Focal_Point::get_cropped_image( $featured_image_id );
+
+			if ( $featured_image ) {
+				return $featured_image;
+			}
+		}
+
 		return array();
 	}
 
@@ -1949,7 +1959,6 @@ abstract class Publicize_Base {
 			return ! is_wp_error( $api_data_response ) ? $api_data_response : array();
 		}
 
-		$rest_controller   = new REST_Controller();
 		$response          = Client::wpcom_json_api_request_as_blog(
 			sprintf( 'sites/%d/jetpack-social', absint( $blog_id ) ),
 			'2',
@@ -1960,7 +1969,7 @@ abstract class Publicize_Base {
 			null,
 			'wpcom'
 		);
-		$api_data_response = $rest_controller->make_proper_response( $response );
+		$api_data_response = Publicize_Utils::make_proper_response( $response );
 
 		if ( ! is_wp_error( $api_data_response ) ) {
 			set_transient( $key, $api_data_response, DAY_IN_SECONDS );

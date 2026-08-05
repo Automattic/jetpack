@@ -87,6 +87,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'locale' );
 		remove_all_filters( 'jetpack_ai_enabled' );
+		delete_option( 'jetpack_ai_enabled' );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
 		delete_option( 'big_sky_enable' );
@@ -110,14 +111,18 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	/**
 	 * Simulate a connected Jetpack owner so has_jetpack_ai_features() returns true.
 	 *
-	 * Called in set_up() so every test starts with AI features available.
-	 * Tests that need AI features off should use disable_ai_features() instead.
+	 * Called in set_up() so every test starts with AI features available and the
+	 * current user connected (Image Studio gates on the current user's own
+	 * connection). Tests that need AI features off should use disable_ai_features(),
+	 * and tests that need a non-connected or different current user should override
+	 * with wp_set_current_user().
 	 */
 	private function simulate_connected_owner() {
 		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		\Jetpack_Options::update_option( 'master_user', $user_id );
 		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'token.secret.' . $user_id ) );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
+		wp_set_current_user( $user_id );
 	}
 
 	/**
@@ -316,6 +321,65 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
 	}
 
+	/**
+	 * Site-level enablement stays true even when the current user is not
+	 * connected. It drives the Big Sky stand-down signal and the suppression of
+	 * the legacy AI image extensions, so it must not depend on the visitor;
+	 * per-user gating happens at asset-load time instead.
+	 */
+	public function test_is_enabled_at_site_level_regardless_of_user_connection() {
+		$non_connected_admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $non_connected_admin );
+
+		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
+		$this->assertFalse( ImageStudio\is_current_user_connected() );
+	}
+
+	/**
+	 * Editor assets are not enqueued for a user who has not connected their own
+	 * WordPress.com account, even though the site offers Image Studio.
+	 */
+	public function test_assets_not_enqueued_when_current_user_not_connected() {
+		$this->enable_big_sky();
+		$this->set_block_editor_screen();
+		set_transient(
+			ImageStudio\ASSET_TRANSIENT,
+			array(
+				'version'      => '1.0.0',
+				'dependencies' => array(),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$non_connected_admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $non_connected_admin );
+
+		ImageStudio\enqueue_image_studio();
+
+		$this->assertFalse( wp_script_is( ImageStudio\FEATURE_NAME, 'enqueued' ) );
+	}
+
+	/**
+	 * Editor assets are enqueued when the current user is connected.
+	 */
+	public function test_assets_enqueued_when_current_user_connected() {
+		// set_up() connects an owner and acts as them.
+		$this->enable_big_sky();
+		$this->set_block_editor_screen();
+		set_transient(
+			ImageStudio\ASSET_TRANSIENT,
+			array(
+				'version'      => '1.0.0',
+				'dependencies' => array(),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		ImageStudio\enqueue_image_studio();
+
+		$this->assertTrue( wp_script_is( ImageStudio\FEATURE_NAME, 'enqueued' ) );
+	}
+
 	// -------------------------------------------------------------------------
 	// signal_image_studio_active() tests
 	// -------------------------------------------------------------------------
@@ -430,6 +494,94 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$this->disable_ai_features();
 		ImageStudio\register_plugin();
 		$this->assertFalse( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
+	}
+
+	/**
+	 * Test that the image editor toggle from the AI settings page wins over every
+	 * environment-based enable: off must mean off even when Big Sky would turn
+	 * Image Studio on.
+	 */
+	public function test_image_editor_toggle_off_disables_image_studio() {
+		$this->enable_big_sky();
+		update_option( 'jetpack_ai_image_editor_enabled', 0 );
+
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+
+		ImageStudio\register_plugin();
+		$this->assertFalse( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
+
+		delete_option( 'jetpack_ai_image_editor_enabled' );
+	}
+
+	/**
+	 * Test that the AI master switch option disables Image Studio outside
+	 * Big Sky/CIAB environments (it flows through the jetpack_ai_enabled filter).
+	 */
+	public function test_master_option_off_disables_image_studio() {
+		update_option( 'jetpack_ai_enabled', 0 );
+
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * Test that the AI master switch also wins over Big Sky's environment gate.
+	 */
+	public function test_master_option_off_disables_image_studio_in_big_sky() {
+		$this->enable_big_sky();
+		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
+
+		update_option( 'jetpack_ai_enabled', 0 );
+		$this->set_block_editor_screen();
+		ImageStudio\register_plugin();
+		set_transient(
+			ImageStudio\ASSET_TRANSIENT,
+			array(
+				'version'      => '1.0.0',
+				'dependencies' => array(),
+			),
+			HOUR_IN_SECONDS
+		);
+		ImageStudio\enqueue_image_studio();
+
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+		$this->assertFalse( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
+		$this->assertFalse( wp_script_is( ImageStudio\FEATURE_NAME, 'enqueued' ) );
+		$this->assertFalse( wp_style_is( ImageStudio\FEATURE_NAME . '-style', 'enqueued' ) );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * Test that a later jetpack_ai_enabled filter cannot re-enable Image Studio
+	 * once the master switch is off — the contract's "off must stay off" state
+	 * test. This is why the environment gate calls apply_master_gates() directly
+	 * instead of re-applying the filter: apply_filters() would let any
+	 * later-priority callback overturn the master switch.
+	 */
+	public function test_master_off_cannot_be_reenabled_by_late_filter() {
+		$this->enable_big_sky();
+		update_option( 'jetpack_ai_enabled', 0 );
+		add_filter( 'jetpack_ai_enabled', '__return_true', 99 );
+
+		$this->assertFalse( ImageStudio\is_image_studio_environment_available() );
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * Test that a jetpack_ai_enabled kill-switch filter does not take Image
+	 * Studio down in Big Sky/CIAB environments. The environment enable predates
+	 * the master gates and never consulted the filter chain there — on
+	 * WordPress.com, Big Sky's free-trial __return_false callback targets the
+	 * AI Assistant sidebar only, while Image Studio stays offered so Jetpack
+	 * keeps signalling Big Sky to defer its own copy. Only the host gate, the
+	 * master option, and the per-feature toggles may turn it off.
+	 */
+	public function test_ai_enabled_filter_does_not_gate_big_sky_environment() {
+		$this->enable_big_sky();
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		$this->assertTrue( ImageStudio\is_image_studio_environment_available() );
+		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
 	}
 
 	/**
@@ -708,10 +860,10 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the helper returns false when Image Studio itself is not
-	 * enabled, regardless of the underlying video-upload capability. Ensures
-	 * video clip generation is only surfaced on plans/environments that
-	 * already support Image Studio.
+	 * Test that the helper returns false when the shared Image Studio
+	 * environment is unavailable, regardless of the underlying video-upload
+	 * capability. Ensures video clip generation is only surfaced on
+	 * plans/environments that support Image Studio at all.
 	 */
 	public function test_can_generate_video_clips_false_when_image_studio_disabled() {
 		$this->disable_ai_features();
@@ -720,10 +872,27 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that Feature Clip is nested under the image editor: switching the
+	 * image editor off must turn clip generation off too. The image editor gate
+	 * short-circuits before the wpcom video-upload capability check, so clip
+	 * generation is unconditionally false here — the assertion holds in every
+	 * environment, including the wpcomsh job.
+	 */
+	public function test_can_generate_video_clips_requires_image_editor_toggle() {
+		$this->enable_big_sky();
+
+		update_option( 'jetpack_ai_image_editor_enabled', 0 );
+
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
+
+		delete_option( 'jetpack_ai_image_editor_enabled' );
+	}
+
+	/**
 	 * Test that a stray __return_true on the override filter cannot bypass the
-	 * Image Studio enablement gate. The is_image_studio_enabled() check runs
-	 * before the filter so accidental usage on unsupported environments still
-	 * reports false.
+	 * shared environment gate. The environment check runs before the filter so
+	 * accidental usage on unsupported environments still reports false.
 	 */
 	public function test_can_generate_video_clips_filter_cannot_override_disabled_image_studio() {
 		$this->disable_ai_features();
@@ -1557,10 +1726,10 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		);
 		$this->enable_and_enqueue_block_editor();
 
-		$this->assertFalse( wp_script_is( 'image-studio-translations', 'enqueued' ) );
+		$this->assertFalse( wp_script_is( 'agents-manager-translations', 'enqueued' ) );
 
 		$script = $GLOBALS['wp_scripts']->registered[ ImageStudio\FEATURE_NAME ];
-		$this->assertNotContains( 'image-studio-translations', $script->deps );
+		$this->assertNotContains( 'agents-manager-translations', $script->deps );
 	}
 
 	/**
@@ -1576,14 +1745,14 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		);
 		$this->enable_and_enqueue_block_editor();
 
-		$this->assertTrue( wp_script_is( 'image-studio-translations', 'enqueued' ) );
+		$this->assertTrue( wp_script_is( 'agents-manager-translations', 'enqueued' ) );
 
-		$tr_script = $GLOBALS['wp_scripts']->registered['image-studio-translations'];
+		$tr_script = $GLOBALS['wp_scripts']->registered['agents-manager-translations'];
 		$this->assertStringContainsString( 'languages/fr-v1.js', $tr_script->src );
 		$this->assertContains( 'wp-i18n', $tr_script->deps );
 
 		$main_script = $GLOBALS['wp_scripts']->registered[ ImageStudio\FEATURE_NAME ];
-		$this->assertContains( 'image-studio-translations', $main_script->deps );
+		$this->assertContains( 'agents-manager-translations', $main_script->deps );
 	}
 
 	/**
@@ -1598,7 +1767,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		);
 		$this->enable_and_enqueue_block_editor();
 
-		$script = $GLOBALS['wp_scripts']->registered['image-studio-translations'];
+		$script = $GLOBALS['wp_scripts']->registered['agents-manager-translations'];
 		$this->assertStringContainsString( 'languages/pt-br-v1.js', $script->src );
 	}
 
@@ -1782,6 +1951,23 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 		$this->assertSame( $original_actions, $actions );
 		$this->assertArrayNotHasKey( 'edit-with-ai', $actions );
+	}
+
+	/**
+	 * The "Edit with AI" row action is not registered for a user who has not
+	 * connected their own WordPress.com account.
+	 */
+	public function test_row_action_not_registered_when_current_user_not_connected() {
+		$callback = 'Automattic\\Jetpack\\Extensions\\ImageStudio\\add_image_studio_row_action';
+
+		$non_connected_admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $non_connected_admin );
+		$this->set_media_library_screen();
+		remove_filter( 'media_row_actions', $callback, 10 );
+
+		ImageStudio\register_row_action();
+
+		$this->assertFalse( has_filter( 'media_row_actions', $callback ) );
 	}
 
 	// -------------------------------------------------------------------------
@@ -2009,6 +2195,37 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 		remove_filter( 'jetpack_ai_enabled', '__return_false' );
 
+		// Restore for any later tests that depend on the meta being present.
+		ImageStudio\register_feature_clip_post_meta();
+	}
+
+	/**
+	 * Test the nesting split: Feature Clip *generation* is gated on the image
+	 * editor, but a post's existing clip *meta* must stay readable when the
+	 * image editor is off. The meta registration follows the shared environment
+	 * and the clips toggle only — never the image editor — so a post that
+	 * already carries a clip keeps its meta even while generation is turned off.
+	 */
+	public function test_feature_clip_meta_stays_readable_when_image_editor_off() {
+		$this->enable_big_sky();
+		update_option( 'jetpack_ai_image_editor_enabled', 0 );
+
+		// Registration deliberately ignores the image editor toggle.
+		unregister_post_meta( 'post', ImageStudio\FEATURE_CLIP_META_KEY );
+		ImageStudio\register_feature_clip_post_meta();
+
+		$registered = get_registered_meta_keys( 'post', 'post' );
+		$this->assertArrayHasKey(
+			ImageStudio\FEATURE_CLIP_META_KEY,
+			$registered,
+			'Clip meta must stay registered/readable with the image editor off.'
+		);
+
+		// Generation, on the other hand, is gated on the image editor and is off.
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
+
+		delete_option( 'jetpack_ai_image_editor_enabled' );
 		// Restore for any later tests that depend on the meta being present.
 		ImageStudio\register_feature_clip_post_meta();
 	}

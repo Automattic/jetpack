@@ -23,7 +23,7 @@ export default function ActivityDetail( { item }: Props ) {
 					<Text variant="heading-md" render={ <h3 /> }>
 						{ item.title }
 					</Text>
-					<Text size="small" variant="muted">
+					<Text variant="body-sm" className="jpb-text-muted">
 						{ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }
 						{ ' · ' }
 						{ item.actor.name }

@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
+import { EmptyState, Icon } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import { cautionFilled } from '@wordpress/icons';
-import { EmptyState, Icon } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -13,13 +13,13 @@ export type ChartEmptyStateProps = {
 	/**
 	 * Icon to display in the empty state.
 	 * Should be a ReactNode (typically an SVG icon).
-	 * Defaults to cautionFilled if not provided.
+	 * Defaults to cautionFilled when omitted; pass `null` to render no icon.
 	 */
-	icon?: React.ComponentProps< typeof Icon >[ 'icon' ];
+	icon?: React.ComponentProps< typeof Icon >[ 'icon' ] | null;
 
 	/**
 	 * Text to display in the empty state.
-	 * @default "No data found for this date range."
+	 * @default "No data in this period."
 	 */
 	text?: string;
 };
@@ -46,11 +46,13 @@ export type ChartEmptyStateProps = {
  */
 export function ChartEmptyState( {
 	icon = cautionFilled,
-	text = __( 'No data found for this date range.', 'jetpack-premium-analytics' ),
+	text = __( 'No data in this period.', 'jetpack-premium-analytics-pkg' ),
 }: ChartEmptyStateProps ) {
 	return (
 		<EmptyState.Root className={ styles.container }>
-			{ icon && <Icon size={ 48 } className={ styles.icon } icon={ icon } /> }
+			{ /* 40px matches the error state's glyph so adjacent widgets showing
+			     different states keep the same vertical rhythm. */ }
+			{ icon && <Icon size={ 40 } className={ styles.icon } icon={ icon } /> }
 			<EmptyState.Description>{ text }</EmptyState.Description>
 		</EmptyState.Root>
 	);

@@ -143,7 +143,7 @@ class Manager {
 
 		if ( $manager->is_connected() ) {
 			add_filter( 'xmlrpc_methods', array( $manager, 'public_xmlrpc_methods' ) );
-			add_filter( 'shutdown', array( new Package_Version_Tracker(), 'maybe_update_package_versions' ) );
+			add_filter( 'shutdown', array( Package_Version_Tracker::class, 'update_on_shutdown' ) );
 		}
 
 		// This runs on priority 11 - at least one api method in the connection package is set to override a previously
@@ -158,6 +158,7 @@ class Manager {
 
 		Heartbeat::init();
 		add_filter( 'jetpack_heartbeat_stats_array', array( $manager, 'add_stats_to_heartbeat' ) );
+		add_action( 'jetpack_verify_signature_error', array( $manager, 'track_xmlrpc_error' ) );
 
 		Webhooks::init( $manager );
 
@@ -849,7 +850,12 @@ class Manager {
 	/**
 	 * Get the wpcom user data of the current|specified connected user.
 	 *
-	 * @todo Refactor to properly load the XMLRPC client independently.
+	 * Fetches the data from the WordPress.com `jetpack-wpcom-user-data` REST endpoint
+	 * with a signed request as the connected user. Routing this through
+	 * Client::remote_request() (rather than the legacy `wpcom.getUser` XML-RPC method)
+	 * ensures any connection errors are captured by the Error_Handler.
+	 *
+	 * @since 8.8.1 Fetch the data over REST instead of the `wpcom.getUser` XML-RPC method.
 	 *
 	 * @param int|null $user_id the user identifier.
 	 * @return bool|array An array with the WPCOM user data on success, false otherwise.
@@ -867,24 +873,48 @@ class Manager {
 		$transient_key    = "jetpack_connected_user_data_$user_id";
 		$cached_user_data = get_transient( $transient_key );
 
+		if ( 'error' === $cached_user_data ) {
+			return false;
+		}
+
 		if ( $cached_user_data ) {
 			return $cached_user_data;
 		}
 
-		$xml = new Jetpack_IXR_Client(
-			array(
-				'user_id' => $user_id,
-			)
-		);
-		$xml->query( 'wpcom.getUser' );
+		$blog_id = (int) \Jetpack_Options::get_option( 'id' );
 
-		if ( ! $xml->isError() ) {
-			$user_data = $xml->getResponse();
-			set_transient( $transient_key, $xml->getResponse(), DAY_IN_SECONDS );
-			return $user_data;
+		// Build a signed request as the connected user. We can't use
+		// Client::wpcom_json_api_request_as_user() because it always signs as the
+		// current user, whereas this method may be called for an arbitrary $user_id.
+		$args            = Client::validate_args_for_wpcom_json_api_request(
+			"/sites/{$blog_id}/jetpack-wpcom-user-data",
+			'2',
+			array( 'method' => 'GET' )
+		);
+		$args['user_id'] = $user_id;
+
+		$response = Client::remote_request( $args );
+
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			// Cache errors briefly so a failing remote request doesn't result in
+			// a blocking request on every call, e.g. on each admin page
+			// load via Initial_State::set_connection_script_data().
+			set_transient( $transient_key, 'error', 5 * MINUTE_IN_SECONDS );
+
+			return false;
 		}
 
-		return false;
+		$user_data = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( ! is_array( $user_data ) || empty( $user_data ) ) {
+			set_transient( $transient_key, 'error', 5 * MINUTE_IN_SECONDS );
+
+			return false;
+		}
+
+		set_transient( $transient_key, $user_data, DAY_IN_SECONDS );
+
+		return $user_data;
 	}
 
 	/**
@@ -942,6 +972,31 @@ class Manager {
 		}
 
 		return ( (int) $user_id ) === $this->get_connection_owner_id();
+	}
+
+	/**
+	 * Determines whether the connection ownership can be transferred to another user.
+	 *
+	 * The default Jetpack connection uses a transferable ownership model. A consumer
+	 * can declare ownership locked by returning `false` from the `jetpack_connection_ownership_transferable`
+	 * filter. This is the single chokepoint used both when deciding which connection-error
+	 * CTA to surface and (eventually) when performing an ownership change.
+	 *
+	 * @since 8.8.0
+	 *
+	 * @return bool True if ownership can be transferred, false if it is locked.
+	 */
+	public function is_ownership_transferable() {
+		/**
+		 * Filters whether the Jetpack connection ownership can be transferred.
+		 *
+		 * Return `false` to lock ownership so it can never be taken over.
+		 *
+		 * @since 8.8.0
+		 *
+		 * @param bool $transferable Whether ownership can be transferred. Default true.
+		 */
+		return (bool) apply_filters( 'jetpack_connection_ownership_transferable', true );
 	}
 
 	/**
@@ -2245,6 +2300,10 @@ class Manager {
 
 		$this->get_tokens()->update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_connection_owner );
 
+		// Delete cached connected user data, so a cached failure from the
+		// previous (broken) token doesn't linger after reconnecting.
+		delete_transient( "jetpack_connected_user_data_$current_user_id" );
+
 		/**
 		 * Fires after user has successfully received an auth token.
 		 *
@@ -2451,14 +2510,14 @@ class Manager {
 		$domain = preg_replace( '#^https?://#', '', untrailingslashit( $domain ) );
 
 		if ( filter_var( $domain, FILTER_VALIDATE_IP )
-			&& ! filter_var( $domain, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE )
+			&& ! \Automattic\Jetpack\IP\Utils::ip_is_public( $domain )
 		) {
 			return new \WP_Error(
 				'fail_ip_forbidden',
 				sprintf(
 					/* translators: %1$s is a domain name. */
 					__(
-						'IP address `%1$s` just failed is_usable_domain check as it is in the private network.',
+						'IP address `%1$s` just failed is_usable_domain check as it is not a public IP address.',
 						'jetpack-connection'
 					),
 					$domain
@@ -2777,6 +2836,8 @@ class Manager {
 	 * If the site-level connection is active, add the list of plugins using connection to the heartbeat (except Jetpack itself)
 	 *
 	 * @since 6.11.0 Add the list of Jetpack package versions to the heartbeat.
+	 * @since 8.7.4 Add the missing connection owner and XML-RPC error stats to the heartbeat.
+	 * @since 8.7.9 Add the site environment stats (WordPress/PHP versions, etc.) to the heartbeat.
 	 *
 	 * @param array $stats The Heartbeat stats array.
 	 * @return array $stats
@@ -2799,7 +2860,47 @@ class Manager {
 
 		$stats['identitycrisis'] = Identity_Crisis::check_identity_crisis() ? 'yes' : 'no';
 
+		// Missing the connection owner?
+		$stats['missing-owner'] = $this->is_missing_connection_owner();
+
+		$xmlrpc_errors = \Jetpack_Options::get_option( 'xmlrpc_errors', array() );
+		if ( $xmlrpc_errors ) {
+			$stats['xmlrpc-errors'] = implode( ',', array_keys( $xmlrpc_errors ) );
+			\Jetpack_Options::delete_option( 'xmlrpc_errors' );
+		}
+
+		// Site environment stats (WordPress/PHP versions, site configuration, etc.).
+		$stats = array_merge( $stats, Heartbeat::get_environment_stats() );
+
 		return $stats;
+	}
+
+	/**
+	 * Records a failed XML-RPC signature verification so it can be reported in the heartbeat.
+	 *
+	 * We don't want to expose a detailed error message about why a request failed
+	 * signature verification, as doing so could leak information. Instead, we track
+	 * that the error occurred via a Jetpack option and send that data back in the
+	 * heartbeat. All this does is record the error code, but it's enough to find trends.
+	 *
+	 * @since 8.7.4
+	 *
+	 * @param \WP_Error $xmlrpc_error The error produced during signature validation.
+	 * @return void
+	 */
+	public function track_xmlrpc_error( $xmlrpc_error ) {
+		$code = is_wp_error( $xmlrpc_error )
+			? $xmlrpc_error->get_error_code()
+			: 'should-not-happen';
+
+		$xmlrpc_errors = \Jetpack_Options::get_option( 'xmlrpc_errors', array() );
+		if ( isset( $xmlrpc_errors[ $code ] ) && $xmlrpc_errors[ $code ] ) {
+			// No need to update the option if we already have this code stored.
+			return;
+		}
+		$xmlrpc_errors[ $code ] = true;
+
+		\Jetpack_Options::update_option( 'xmlrpc_errors', $xmlrpc_errors, false );
 	}
 
 	/**

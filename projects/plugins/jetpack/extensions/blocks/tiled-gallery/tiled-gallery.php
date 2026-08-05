@@ -103,6 +103,18 @@ class Tiled_Gallery {
 						continue;
 					}
 
+					// data-width and data-height describe the original upload, but the
+					// candidates below are built on the src, which is usually a smaller
+					// intermediate size. Photon never upscales, so sizing the srcset from
+					// the original would advertise widths that resolve to a narrower image
+					// than the browser was told to expect, and the tile renders soft on a
+					// high density screen. Cap both to what the source file can produce.
+					$source_dimensions = self::get_source_file_dimensions( $orig_src );
+					if ( null !== $source_dimensions ) {
+						$orig_width  = min( $orig_width, $source_dimensions[0] );
+						$orig_height = min( $orig_height, $source_dimensions[1] );
+					}
+
 					$srcset_parts = array();
 					if ( $is_squareish_layout ) {
 						$min_width = min( self::IMG_SRCSET_WIDTH_MIN, $orig_width, $orig_height );
@@ -175,6 +187,25 @@ class Tiled_Gallery {
 	}
 
 	/**
+	 * Dimensions of the file an image URL points at, when it names a WordPress intermediate size.
+	 *
+	 * WordPress appends -WIDTHxHEIGHT to the file name of every size it generates, so
+	 * a URL ending that way tells us how large the file behind it actually is. Returns
+	 * null for anything else, including the original upload, whose size is unknowable
+	 * from the URL alone.
+	 *
+	 * @param string $url Image URL, with any query string already removed.
+	 * @return array|null Array of width and height, or null if the URL names no size.
+	 */
+	private static function get_source_file_dimensions( $url ) {
+		if ( ! preg_match( '/-(\d+)x(\d+)\.[a-zA-Z0-9]+$/', $url, $dimensions ) ) {
+			return null;
+		}
+
+		return array( absint( $dimensions[1] ), absint( $dimensions[2] ) );
+	}
+
+	/**
 	 * Adds tabindex, role and aria-label markup for images that should be interactive (front-end only).
 	 *
 	 * @param integer $image_index Integer The current image index.
@@ -194,7 +225,9 @@ class Tiled_Gallery {
 				$image_index,
 				$number_images
 			);
-			$img_element = '<img role="button" tabindex="0" aria-label="' . esc_attr( $aria_label_content ) . '"';
+			// The trailing space matters: render() appends the srcset directly onto
+			// this string, and without it the two run together as aria-label="…"srcset="…".
+			$img_element = '<img role="button" tabindex="0" aria-label="' . esc_attr( $aria_label_content ) . '" ';
 		} else {
 			$img_element = '<img ';
 		}

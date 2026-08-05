@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Defer loading the Odyssey stats dashboard widget until the WordPress dashboard is assembled.

@@ -9,6 +9,7 @@ import { useCallback, useMemo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { getPodcatcherIds } from '../podcatchers';
 import type {
 	PodcastSettings,
 	PodcastSettingsUpdate,
@@ -20,6 +21,11 @@ import type {
 
 const ENTITY_KIND = 'wpcom/v2';
 const ENTITY_NAME = 'podcast/settings';
+
+// Shared by the in-progress notice and both outcomes: creating a notice
+// replaces any existing one with the same id, so "Saving…" turns into the
+// result in place rather than stacking a second snackbar under it.
+const SAVE_NOTICE_ID = 'jetpack-podcast-save-settings';
 
 if (
 	! dataSelect( coreStore )
@@ -51,22 +57,18 @@ const PODCAST_KEYS: Array< keyof PodcastSettings > = [
 	'podcasting_email',
 	'podcasting_show_urls',
 	'podcasting_show_states',
+	'podcasting_feed_url',
 ];
 
-// Keep in sync with `SHOW_URL_HOSTS` in src/class-settings.php.
-const PODCATCHER_IDS: readonly PodcatcherId[] = [
-	'pocketcasts',
-	'apple',
-	'spotify',
-	'youtube',
-	'amazon',
-	'podcastindex',
-] as const;
+// Ids from the injected map, plus the record's own keys, so a missing map never
+// drops stored values.
+const podcatcherIds = ( source: Record< string, unknown > ): readonly PodcatcherId[] =>
+	[ ...new Set( [ ...getPodcatcherIds(), ...Object.keys( source ) ] ) ] as PodcatcherId[];
 
 const normalizeShowUrls = ( raw: unknown ): PodcastShowUrls => {
 	const source = ( raw && typeof raw === 'object' ? raw : {} ) as Record< string, unknown >;
 	const out = {} as PodcastShowUrls;
-	for ( const id of PODCATCHER_IDS ) {
+	for ( const id of podcatcherIds( source ) ) {
 		const value = source[ id ];
 		out[ id ] = typeof value === 'string' ? value : '';
 	}
@@ -78,7 +80,7 @@ const SHOW_STATES: readonly PodcastShowState[] = [ '', 'pending', 'active' ] as 
 const normalizeShowStates = ( raw: unknown ): PodcastShowStates => {
 	const source = ( raw && typeof raw === 'object' ? raw : {} ) as Record< string, unknown >;
 	const out = {} as PodcastShowStates;
-	for ( const id of PODCATCHER_IDS ) {
+	for ( const id of podcatcherIds( source ) ) {
 		const value = source[ id ];
 		out[ id ] =
 			typeof value === 'string' && ( SHOW_STATES as readonly string[] ).includes( value )
@@ -179,7 +181,7 @@ export function useUpdatePodcastSettings(): {
 	isPending: boolean;
 } {
 	const { saveEntityRecord } = useDispatch( coreStore );
-	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const isPending = useSelect(
 		select => !! select( coreStore ).isSavingEntityRecord( ENTITY_KIND, ENTITY_NAME, undefined ),
 		[]
@@ -190,6 +192,15 @@ export function useUpdatePodcastSettings(): {
 			updates: PodcastSettingsUpdate,
 			{ silent = false }: { silent?: boolean } = {}
 		): Promise< PodcastSettings > => {
+			if ( ! silent ) {
+				// Not dismissible: it's replaced by the outcome a moment later, so
+				// there's nothing worth dismissing by hand.
+				createInfoNotice( __( 'Saving…', 'jetpack-podcast' ), {
+					id: SAVE_NOTICE_ID,
+					type: 'snackbar',
+					isDismissible: false,
+				} );
+			}
 			try {
 				const record = await saveEntityRecord(
 					ENTITY_KIND,
@@ -201,6 +212,7 @@ export function useUpdatePodcastSettings(): {
 				}
 				if ( ! silent ) {
 					createSuccessNotice( __( 'Settings saved.', 'jetpack-podcast' ), {
+						id: SAVE_NOTICE_ID,
 						type: 'snackbar',
 					} );
 				}
@@ -209,13 +221,13 @@ export function useUpdatePodcastSettings(): {
 				if ( ! silent ) {
 					createErrorNotice(
 						__( 'Could not save your podcast settings. Please try again.', 'jetpack-podcast' ),
-						{ type: 'snackbar' }
+						{ id: SAVE_NOTICE_ID, type: 'snackbar' }
 					);
 				}
 				throw error;
 			}
 		},
-		[ saveEntityRecord, createSuccessNotice, createErrorNotice ]
+		[ saveEntityRecord, createInfoNotice, createSuccessNotice, createErrorNotice ]
 	);
 
 	const mutate = useCallback(

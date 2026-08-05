@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Enable wp-admin JS error reporting on sites participating in the `gutenberg-react-19` experiment.

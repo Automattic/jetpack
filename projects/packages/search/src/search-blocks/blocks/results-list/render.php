@@ -161,7 +161,7 @@ if ( '' === $error_message ) {
 		<?php endfor; ?>
 		<template
 			data-wp-each--result="state.results"
-			data-wp-key="context.result.id"
+			data-wp-each-key="context.result.id"
 		>
 			<li
 				class="jetpack-search-results__item"
@@ -197,7 +197,7 @@ if ( '' === $error_message ) {
 							></span>
 							<template
 								data-wp-each--piece="context.result.titlePieces"
-								data-wp-key="context.piece.index"
+								data-wp-each-key="context.piece.index"
 							>
 								<span
 									data-wp-text="context.piece.text"
@@ -213,7 +213,7 @@ if ( '' === $error_message ) {
 						>
 							<template
 								data-wp-each--piece="context.result.contentPieces"
-								data-wp-key="context.piece.index"
+								data-wp-each-key="context.piece.index"
 							>
 								<span
 									data-wp-text="context.piece.text"
@@ -324,6 +324,7 @@ if ( '' === $error_message ) {
 							class="jetpack-search-results__image"
 							data-wp-bind--src="context.result.imageUrl"
 							alt=""
+							loading="lazy"
 						/>
 					</a>
 				<?php endif; ?>

@@ -719,6 +719,13 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'readonly'    => true,
 		);
 
+		$schema['properties']['form_id'] = array(
+			'description' => __( 'The ID of the jetpack_form post the response is tied to, or 0 for classic (embedded) forms.', 'jetpack-forms' ),
+			'type'        => 'integer',
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'readonly'    => true,
+		);
+
 		$schema['properties']['edit_form_url'] = array(
 			'description' => __( 'The URL to edit the form.', 'jetpack-forms' ),
 			'type'        => 'string',
@@ -998,6 +1005,10 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		if ( rest_is_field_included( 'entry_permalink', $fields ) ) {
 			$data['entry_permalink'] = $feedback_response->get_entry_permalink();
+		}
+
+		if ( rest_is_field_included( 'form_id', $fields ) ) {
+			$data['form_id'] = (int) $feedback_response->get_form_id();
 		}
 
 		if ( rest_is_field_included( 'edit_form_url', $fields ) ) {

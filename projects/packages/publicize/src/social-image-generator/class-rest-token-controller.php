@@ -19,6 +19,19 @@ use WP_REST_Server;
 class REST_Token_Controller extends WP_REST_Controller {
 
 	/**
+	 * Registers the REST routes on the `rest_api_init` hook.
+	 *
+	 * Instantiated here, rather than eagerly, so the controller class only loads
+	 * on requests that reach `rest_api_init`. Static so the callback can be
+	 * unregistered.
+	 *
+	 * @return void
+	 */
+	public static function register() {
+		( new self() )->register_routes();
+	}
+
+	/**
 	 * Register REST API endpoints.
 	 *
 	 * @return void

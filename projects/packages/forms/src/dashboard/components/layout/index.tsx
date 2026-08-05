@@ -2,7 +2,7 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { useBreakpointMatch } from '@automattic/jetpack-components';
+import { useViewportMatch } from '@wordpress/compose';
 import { useEffect } from '@wordpress/element';
 import { Outlet, useLocation } from 'react-router';
 /**
@@ -15,7 +15,7 @@ import './style.scss';
 
 const Layout = () => {
 	const location = useLocation();
-	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const isSm = useViewportMatch( 'small', '<' );
 
 	const enableIntegrationsTab = useConfigValue( 'isIntegrationsEnabled' );
 	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );

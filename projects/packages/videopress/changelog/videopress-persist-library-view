@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-VideoPress: Persist Library view settings (layout, columns, sort, per-page) per-user across reloads.

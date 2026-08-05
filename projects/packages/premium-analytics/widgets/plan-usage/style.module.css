@@ -1,0 +1,63 @@
+.root {
+	height: 100%;
+	overflow: hidden;
+}
+
+/* The usage meter, following the Stats "Plan usage" section: a rounded
+   track with the figures inside it, laid over a fill proportional to
+   usage / limit. */
+.progress {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wpds-dimension-gap-sm);
+	width: 100%;
+	min-height: 36px;
+	padding: 0 var(--wpds-dimension-padding-sm);
+	border-radius: var(--wpds-border-radius-sm);
+	overflow: hidden;
+}
+
+/* The fill comes from the native progress element, so its width is value-driven
+   rather than set through an inline style. */
+.progressMeter {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	appearance: none;
+	border: none;
+	background-color: var(--wpds-color-background-surface-neutral-weak);
+}
+
+.progressMeter::-webkit-progress-bar {
+	background-color: var(--wpds-color-background-surface-neutral-weak);
+}
+
+.progressMeter::-webkit-progress-value {
+	background-color: var(--wpds-color-background-surface-success-weak);
+}
+
+.progressMeter::-moz-progress-bar {
+	background-color: var(--wpds-color-background-surface-success-weak);
+}
+
+.isOverLimit .progressMeter::-webkit-progress-value {
+	background-color: var(--wpds-color-background-surface-error-weak);
+}
+
+.isOverLimit .progressMeter::-moz-progress-bar {
+	background-color: var(--wpds-color-background-surface-error-weak);
+}
+
+/* Positioned so the labels paint above the absolutely-positioned meter. */
+.progressLabel {
+	position: relative;
+	color: var(--wpds-color-foreground-content-neutral);
+	white-space: nowrap;
+}
+
+.note {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}

@@ -10,7 +10,7 @@ import './style.scss';
  * Returns null when panel branding is disabled via the
  * `jetpack_show_editor_panel_branding` PHP filter.
  *
- * @return {import('react').Component|null} Jetpack logo component or null
+ * @return {import('react').JSX.Element|null} Jetpack logo component or null
  */
 const JetpackEditorPanelLogo = () => {
 	const branding = getScriptData()?.jetpack?.flags?.showJetpackBranding;

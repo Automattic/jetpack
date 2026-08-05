@@ -26,11 +26,13 @@ function Inspector() {
 	if ( ! postId ) {
 		return null;
 	}
-	const postType: ContentPostType = search.postType === 'page' ? 'page' : 'post';
+	const postType = ( search.postType || 'post' ) as ContentPostType;
 
 	return (
 		<ThemeProvider>
-			<SeoInspector postId={ postId } postType={ postType } onClose={ onClose } />
+			{ /* Keyed by post so switching rows remounts with that post's state
+			     instead of reseeding over another post's unsaved edits. */ }
+			<SeoInspector key={ postId } postId={ postId } postType={ postType } onClose={ onClose } />
 		</ThemeProvider>
 	);
 }

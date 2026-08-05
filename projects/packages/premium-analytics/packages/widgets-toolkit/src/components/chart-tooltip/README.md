@@ -127,8 +127,7 @@ Uses `RectShape` from the chart library. Supports:
 
 The tooltip uses WPDS design tokens:
 
-- `--wpds-color-fg-content-neutral` - Text color
-- `--wpds-elevation-sm` - Box shadow
+- `--wpds-color-foreground-content-neutral` - Text color
 - `--wpds-dimension-padding-sm` - Padding
 
 Global visx-tooltip overrides are applied to ensure consistent layout.

@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit bc5daa9ec5b95802d7bc550508c73dfd2badefcd.
+ * Stubs automatically generated from WordPress.com commit 425dd787ec9b3464d5ca9154bbd1a156fc4b03e5.
  */
 
 namespace {
@@ -551,7 +551,7 @@ namespace {
         }
     }
     /**
-     * @return array{quota: int, used: int, remaining: int, resetsAt: string|null}
+     * @return array{quota: int, used: int, remaining: int, resetsAt: string}
      */
     function posts_to_podcast_get_usage(int $blog_id, ?int $now = \null): array
     {
@@ -928,6 +928,16 @@ namespace {
      */
     function is_simple_site_redirect($blog_id = 0)
     {
+    }
+    class Email_Preview_Guard
+    {
+        /**
+         * @param string $email
+         * @return true|WP_Error
+         */
+        public static function check($email)
+        {
+        }
     }
     class Subscription_Mailer extends \WordPressMailer
     {
