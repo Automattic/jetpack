@@ -129,19 +129,17 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			inputRef.current?.focus();
 		}, [] );
 
-		// Focusing scrolls the input into view, so it moves the editor whenever the control is off
-		// screen. That is welcome when the user asked for the control, and not when it appeared on
-		// its own or the user has scrolled elsewhere in the meantime — hence the two variants. Only
-		// a control in normal flow needs the check; a sticky one stays in view on its own.
+		// Focusing scrolls the input into view, which moves the editor when the input is off screen.
+		// Measure the input rather than the whole control, since it is what focus would scroll to.
 		const focusInputIfVisible = useCallback( () => {
-			const control = controlRef.current;
-			const viewportHeight = control?.ownerDocument?.defaultView?.innerHeight;
+			const input = inputRef.current;
+			const viewportHeight = input?.ownerDocument?.defaultView?.innerHeight;
 
-			if ( ! control || ! viewportHeight ) {
+			if ( ! input || ! viewportHeight ) {
 				return;
 			}
 
-			const { top, bottom } = control.getBoundingClientRect();
+			const { top, bottom } = input.getBoundingClientRect();
 
 			if ( top >= 0 && bottom <= viewportHeight ) {
 				focusInput();
@@ -303,21 +301,15 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				setTimeout( () => {
 					if ( adjustPosition ) {
 						adjustBlockPadding();
+					}
+
+					// This last update adds any missing submit button and swaps the control over to
+					// its completed buttons, which can leave a control in normal flow past the bottom
+					// of the viewport. Focusing brings it back, but not over a user who scrolled off
+					// during the request — that is what stopped the control being followed at all.
+					if ( adjustPosition || ! userTookOverScrolling ) {
 						focusInput();
-						return;
 					}
-
-					// This last update can add a missing submit button and swaps the control over to
-					// its completed buttons, either of which can push a control in normal flow past
-					// the bottom of the viewport. Focusing brings it back — unless the user scrolled
-					// off during the request, which is what stopped the control being followed in the
-					// first place and should not be undone here.
-					if ( userTookOverScrolling ) {
-						focusInputIfVisible();
-						return;
-					}
-
-					focusInput();
 				}, 100 );
 
 				/**
@@ -339,7 +331,6 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				getContent,
 				adjustPosition,
 				focusInput,
-				focusInputIfVisible,
 				adjustBlockPadding,
 				tracks,
 				lastPromptType,
