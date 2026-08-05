@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Subscribers: remove the misleading "Joined" field from the subscriber profile, which showed the site's creation date rather than a per-subscriber date.
