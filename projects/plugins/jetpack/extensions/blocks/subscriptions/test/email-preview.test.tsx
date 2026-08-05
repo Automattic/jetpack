@@ -245,7 +245,7 @@ describe( 'Test email recipient', () => {
 
 	it( 'sends the test email when pressing Enter in the recipient field', async () => {
 		const user = userEvent.setup();
-		apiFetch.mockResolvedValue( undefined );
+		jest.mocked( apiFetch ).mockResolvedValue( undefined );
 
 		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
 
@@ -346,7 +346,7 @@ describe( 'Test email recipient', () => {
 
 	it( 'renders send errors in an error notice rather than plain text', async () => {
 		const user = userEvent.setup();
-		apiFetch.mockRejectedValue( { code: 'rest_something_else', message: 'Boom' } );
+		jest.mocked( apiFetch ).mockRejectedValue( { code: 'rest_something_else', message: 'Boom' } );
 
 		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
 
