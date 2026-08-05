@@ -62,7 +62,7 @@ export function getWelcomeGuidePages(): GuidePage[] {
 					</h1>
 					<p className="jetpack-forms-welcome-guide__text">
 						{ __(
-							'The inserter on the left is already open. Fields are grouped into Basic, Contact info, Choice, Advanced, and Multi-step — click one to add it. Everything you add goes inside the form automatically.',
+							'Start with a template — Contact, RSVP, Registration, and more. From there, add any extra fields from the inserter, where they’re grouped into Basic, Contact info, Choice, Advanced, and Multi-step. Everything you add goes inside the form automatically.',
 							'jetpack-forms'
 						) }
 					</p>
