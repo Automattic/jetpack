@@ -35,6 +35,9 @@ interface Window {
 			'voice-to-content': AvailableBlockProps;
 		};
 		adminUrl: string;
+		jetpack?: {
+			can_send_test_email_to_others: boolean;
+		};
 		siteLocale: string;
 		'ai-assistant': {
 			'is-enabled': boolean;

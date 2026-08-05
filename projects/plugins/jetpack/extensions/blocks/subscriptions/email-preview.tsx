@@ -111,10 +111,10 @@ interface NewsletterTestEmailModalProps {
 export function NewsletterTestEmailModal( { isOpen, onClose }: NewsletterTestEmailModalProps ) {
 	const [ isEmailSent, setIsEmailSent ] = useState( false );
 	const [ isEmailSending, setIsEmailSending ] = useState( false );
+	const [ error, setError ] = useState< PreviewErrorInfo | null >( null );
 	const [ recipientEmail, setRecipientEmail ] = useState(
 		() => window?.Jetpack_Editor_Initial_State?.tracksUserData?.email ?? ''
 	);
-	const [ error, setError ] = useState< PreviewErrorInfo | null >( null );
 	const postId = useSelect( selectFn => selectFn( editorStore ).getCurrentPostId() );
 	const { __unstableSaveForPreview } = useDispatch( editorStore );
 	const { tracks } = useAnalytics();
@@ -421,9 +421,9 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId }: NewsletterP
 	);
 	const [ selectedDevice, setSelectedDevice ] = useState< PreviewDeviceName >( 'desktop' );
 	const { tracks } = useAnalytics();
-	const { __unstableSaveForPreview } = useDispatch( editorStore );
-	const fetchingAccessLevelsRef = useRef< Set< AccessLevelKey > >( new Set() );
 
+	// To avoid duplicate fetches for the same access level, keep track of which access levels are currently being fetched. This is a ref so that it persists across renders without triggering re-renders.
+	const fetchingAccessLevelsRef = useRef< Set< AccessLevelKey > >( new Set() );
 	const fetchPreview = useCallback(
 		async ( accessLevel: AccessLevelKey ) => {
 			if ( ! postId || fetchingAccessLevelsRef.current.has( accessLevel ) ) {
@@ -461,10 +461,10 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId }: NewsletterP
 		[ postId, tracks ]
 	);
 
-	const saveForPreviewPromiseRef = useRef< Promise< void | Awaited<
-		ReturnType< typeof __unstableSaveForPreview >
-	> > | null >( null );
-
+	const { __unstableSaveForPreview } = useDispatch( editorStore );
+	// Keep track of the promise returned by __unstableSaveForPreview so that we don't trigger multiple saves when the modal is opened multiple times. This is a ref so that it persists across renders without triggering re-renders.
+	const saveForPreviewPromiseRef = useRef< Promise< unknown > | null >( null );
+	const cachedPreviewHtml = previewCache[ selectedAccess ];
 	useEffect( () => {
 		// If the modal is closed, clear the ref so a subsequent open will trigger a save if needed.
 		if ( ! isOpen ) {
@@ -473,7 +473,7 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId }: NewsletterP
 		}
 
 		// If the preview for the selected access level is already cached, don't fetch it again.
-		if ( Object.hasOwn( previewCache, selectedAccess ) ) {
+		if ( cachedPreviewHtml !== undefined ) {
 			return;
 		}
 
@@ -499,7 +499,7 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId }: NewsletterP
 		return (): void => {
 			cancelled = true;
 		};
-	}, [ isOpen, selectedAccess, previewCache, fetchPreview, __unstableSaveForPreview ] );
+	}, [ isOpen, selectedAccess, cachedPreviewHtml, fetchPreview, __unstableSaveForPreview ] );
 
 	useEffect( () => {
 		if ( isOpen ) {
