@@ -2,12 +2,8 @@
  * External dependencies
  */
 import { normalizeReportParams } from '@jetpack-premium-analytics/data';
-import {
-	useDashboardLink,
-	useReportDateFilters,
-	useSectionTab,
-} from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
+import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportCsvAction,
 	ReportErrorState,
@@ -19,7 +15,6 @@ import {
 	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
@@ -151,18 +146,15 @@ export default function LocationsReportPage(): JSX.Element {
 	}, [] );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dashboardLink = useDashboardLink();
 	const tableIsLoading = records.table.isLoading || records.table.isFetching;
 
 	return (
 		<ReportPageShell
 			tabbed
+			visual={ <StatsPageIcon /> }
 			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
-						{ label: __( 'Locations', 'jetpack-premium-analytics-pkg' ) },
-					] }
+				<StatsBreadcrumbs
+					items={ [ { label: __( 'Locations', 'jetpack-premium-analytics-pkg' ) } ] }
 				/>
 			}
 			actions={

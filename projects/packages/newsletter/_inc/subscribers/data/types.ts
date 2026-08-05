@@ -164,6 +164,23 @@ export type SubscribedNewsletterCategories = {
 	newsletter_categories: NewsletterCategory[];
 };
 
+// Site-level newsletter categories (the `/wpcom/v2/newsletter-categories` list), independent of
+// any one subscriber. Same shape as the per-subscriber response minus the `subscribed`
+// discriminator — used to gate and populate the "add to specific categories" import picker.
+export type NewsletterCategoriesData = {
+	// Whether the site has Newsletter categories turned on. Sourced from the site option, so it
+	// tracks the Newsletter settings toggle. When false the import picker is hidden entirely.
+	enabled: boolean;
+	newsletter_categories: NewsletterCategory[];
+};
+
+// Payload for the add-subscribers import. `categories` carries the ids selected in the import
+// picker; omitted/empty when the user doesn't assign any, matching Calypso's `importCsvSubscribers`.
+export type AddSubscribersPayload = {
+	emails: string[];
+	categories?: number[];
+};
+
 export type SubscriberStats = {
 	emails_sent: number;
 	unique_opens: number;

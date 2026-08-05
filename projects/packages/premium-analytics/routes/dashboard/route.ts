@@ -6,18 +6,15 @@ import {
 	needsReportDateParamsSeed,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
-import { store as coreStore } from '@wordpress/core-data';
-import { dispatch, select } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import { ensureDashboardEntities } from '../dashboard-entities';
 import {
 	isPremiumAnalyticsInitialSyncFinished,
 	isPremiumAnalyticsSiteConnected,
 } from '../site-readiness';
-import { DASHBOARD_NAME, DASHBOARD_REST_NAMESPACE } from './hooks/constants';
 
 type DashboardSearch = Record< string, string | undefined >;
 
@@ -44,7 +41,10 @@ type DashboardSearch = Record< string, string | undefined >;
  * (see `src/widget-modules.php`), independent of core's `wp/v2` endpoint.
  * The route is registered under `wpcom/v2` so WPCOM can expose it through the
  * site-scoped public-api path for Simple sites.
- * Guarded for idempotency: beforeLoad re-runs on every navigation and preload.
+ * Registration is idempotent per entity (see `ensureDashboardEntities`):
+ * beforeLoad re-runs on every navigation and preload, and a detail route may
+ * already have registered `widgetModule` alone before the user reaches the
+ * dashboard.
  *
  * That registration is one-time bootstrap setup that could move to the page's
  * `init` module (`packages/init`) now that `@wordpress/build` supports it —
@@ -106,35 +106,6 @@ export const route = {
 			} );
 		}
 
-		const coreSelect = select( coreStore ) as unknown as {
-			getEntityConfig: ( kind: string, name: string ) => unknown;
-		};
-		if ( coreSelect.getEntityConfig( 'root', 'widgetModule' ) ) {
-			return;
-		}
-
-		const coreDispatch = dispatch( coreStore ) as unknown as {
-			addEntities: ( entities: object[] ) => void;
-		};
-		coreDispatch.addEntities( [
-			{
-				name: 'widgetModule',
-				kind: 'root',
-				key: 'name',
-				baseURL: `/${ DASHBOARD_REST_NAMESPACE }/widget-modules`,
-				plural: 'widgetModules',
-				label: __( 'Widget modules', 'jetpack-premium-analytics-pkg' ),
-				supportsPagination: false,
-			},
-			{
-				name: 'dashboardSection',
-				kind: 'root',
-				key: 'slug',
-				baseURL: `/${ DASHBOARD_REST_NAMESPACE }/dashboards/${ DASHBOARD_NAME }/sections`,
-				plural: 'dashboardSections',
-				label: __( 'Dashboard sections', 'jetpack-premium-analytics-pkg' ),
-				supportsPagination: false,
-			},
-		] );
+		ensureDashboardEntities();
 	},
 };

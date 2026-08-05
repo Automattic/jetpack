@@ -1,0 +1,10 @@
+/* wp-admin adds a bottom margin to list items, which misaligns the trail and
+ * page icon. `display: contents` lets the wrapper reset it without affecting
+ * breadcrumb layout. */
+.trail {
+	display: contents;
+}
+
+.trail li {
+	margin-block-end: 0;
+}
