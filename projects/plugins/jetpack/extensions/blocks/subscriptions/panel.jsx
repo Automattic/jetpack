@@ -17,7 +17,6 @@ import {
 import { useLayoutEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
-import { store as noticesStore } from '@wordpress/notices';
 import {
 	accessOptions,
 	META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
@@ -27,9 +26,7 @@ import {
 	NewsletterAccessDocumentSettings,
 	NewsletterEmailDocumentSettings,
 } from '../../shared/memberships/settings';
-import SubscribersAffirmation, {
-	getJetpackEmailStatsLink,
-} from '../../shared/memberships/subscribers-affirmation';
+import SubscribersAffirmation from '../../shared/memberships/subscribers-affirmation';
 import {
 	getShowMisconfigurationWarning,
 	MisconfigurationWarning,
@@ -52,8 +49,6 @@ function NewsletterRepublishTracker() {
 		setPublishedWithEmailEnabledInSession: dispatchPublishedWithEmail,
 		setAlreadySentPostModifiedInSession: dispatchModifiedAlreadySent,
 	} = useDispatch( membershipProductsStore );
-	const { createSuccessNotice } = useDispatch( noticesStore );
-	const blogId = window.Jetpack_Editor_Initial_State?.wpcomBlogId;
 
 	const { postId, postMeta, postEmailSentState, status, isSavingPost } = useSelect( select => {
 		const { getCurrentPost, getEditedPostAttribute } = select( editorStore );
@@ -79,19 +74,6 @@ function NewsletterRepublishTracker() {
 				if ( didTransition ) {
 					if ( ! postMeta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ] ) {
 						dispatchPublishedWithEmail( postId );
-						// The post-publish panel is easy to miss, so confirm the send where the
-						// eye already is. The core "Post published." snackbar fires alongside
-						// this one, so the copy covers only the email to avoid repeating it.
-						// Snackbars take at most one action, hence the single link.
-						createSuccessNotice?.( __( 'Emailed to your subscribers.', 'jetpack' ), {
-							type: 'snackbar',
-							actions: [
-								{
-									label: __( 'View delivery details', 'jetpack' ),
-									url: getJetpackEmailStatsLink( blogId, postId ),
-								},
-							],
-						} );
 					}
 				}
 			}
@@ -108,8 +90,6 @@ function NewsletterRepublishTracker() {
 		postMeta,
 		dispatchPublishedWithEmail,
 		dispatchModifiedAlreadySent,
-		createSuccessNotice,
-		blogId,
 	] );
 
 	return null;
