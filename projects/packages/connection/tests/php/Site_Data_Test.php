@@ -24,21 +24,46 @@ class Site_Data_Test extends BaseTestCase {
 	private $server;
 
 	/**
+	 * The manager that provides the capability filter.
+	 *
+	 * @var Manager
+	 */
+	private $manager;
+
+	/**
 	 * Set up the REST server and register the package routes.
 	 */
 	public function set_up() {
+		parent::set_up();
+
 		global $wp_rest_server;
 
 		$wp_rest_server = new WP_REST_Server();
 		$this->server   = $wp_rest_server;
 
-		$manager = new Manager();
+		$this->manager = new Manager();
 
 		// `Manager::configure()` wires this in production; the tests construct the manager directly.
-		add_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1, 4 );
+		add_filter( 'map_meta_cap', array( $this->manager, 'jetpack_connection_custom_caps' ), 1, 4 );
 
 		do_action( 'rest_api_init' );
-		new REST_Connector( $manager );
+		new REST_Connector( $this->manager );
+	}
+
+	/**
+	 * Return the environment to its initial state.
+	 */
+	public function tear_down() {
+		parent::tear_down();
+
+		remove_filter( 'map_meta_cap', array( $this->manager, 'jetpack_connection_custom_caps' ), 1 );
+
+		global $wp_rest_server;
+
+		$wp_rest_server = null;
+		$this->server   = null;
+
+		wp_set_current_user( 0 );
 	}
 
 	/**

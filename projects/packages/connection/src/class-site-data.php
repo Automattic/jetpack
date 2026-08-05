@@ -70,14 +70,15 @@ class Site_Data {
 		$site_id = Jetpack_Options::get_option( 'id' );
 
 		if ( ! $site_id ) {
-			return new WP_Error( 'site_id_missing', '', array( 'api_error_code' => __( 'site_id_missing', 'jetpack-connection' ) ) );
+			return new WP_Error( 'site_id_missing', '', array( 'api_error_code' => 'site_id_missing' ) );
 		}
 
 		$args = array( 'headers' => array() );
 
 		// Allow use a store sandbox. Internal ref: PCYsg-IA-p2.
 		if ( isset( $_COOKIE ) && isset( $_COOKIE['store_sandbox'] ) ) {
-			$secret                    = filter_var( wp_unslash( $_COOKIE['store_sandbox'] ) );
+			// Keep only RFC 6265 cookie-octets so the value cannot break out of the Cookie header.
+			$secret                    = preg_replace( '/[^\x21-\x7E]|[";,\\\\]/', '', filter_var( wp_unslash( $_COOKIE['store_sandbox'] ) ) );
 			$args['headers']['Cookie'] = "store_sandbox=$secret;";
 		}
 
