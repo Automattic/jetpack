@@ -18,6 +18,7 @@ export {
 export { SemiCircleChart, type SemiCircleChartData } from './chart-semi-circle';
 export { DonutChart, type DonutChartData } from './chart-donut';
 export { ReportMetricWidget } from './report-metric';
+export { StatsTotalMetricWidget, type StatsTotalMetricWidgetProps } from './stats-total-metric';
 export {
 	MetricTabsChart,
 	type MetricTab,

@@ -11,6 +11,8 @@ export {
 	DonutChart,
 	Legend,
 	ReportMetricWidget,
+	StatsTotalMetricWidget,
+	type StatsTotalMetricWidgetProps,
 	MetricTabsChart,
 	type MetricTab,
 	type MetricTabDatum,
