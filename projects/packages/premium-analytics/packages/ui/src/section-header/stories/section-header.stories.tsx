@@ -274,6 +274,24 @@ export const YearSurface: Story = {
 };
 
 /**
+ * The same header in a box too narrow for two halves: the title and the
+ * controls stack, and the controls read from the start edge.
+ *
+ * The switch follows this wrapper's width, not the viewport's, so the story
+ * shows it at any window size.
+ */
+export const Stacked: Story = {
+	args: {
+		title: 'Site traffic',
+	},
+	render: ( { title } ) => (
+		<div style={ { inlineSize: 520 } }>
+			<RollingSectionHeaderStory title={ title } />
+		</div>
+	),
+};
+
+/**
  * The left half on its own: nothing in the controls slot.
  */
 export const WithoutControls: Story = {

@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Section header: stack the title and the date controls onto separate rows once the header is too narrow to hold them side by side.

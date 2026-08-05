@@ -22,24 +22,30 @@ type SectionHeaderProps = {
 
 /**
  * Two-halves section header: title plus optional subtitle on the left, and a
- * slot for the date controls anchored on the right.
+ * slot for the date controls anchored on the right. The two halves stack once
+ * the header itself is too narrow to hold them side by side, measured by a
+ * container query rather than against the viewport.
  *
  * @param {SectionHeaderProps} props - The props for the SectionHeader component.
  * @return The section header element.
  */
 export function SectionHeader( { title, subtitle, children }: SectionHeaderProps ) {
 	return (
-		<Stack direction="row" align="flex-start" justify="space-between">
-			<Stack direction="column" align="flex-start" justify="flex-start">
-				<Text variant="heading-2xl" render={ <h2 /> }>
-					{ title }
-				</Text>
-				{ subtitle ? <Text variant="body-md">{ subtitle }</Text> : null }
-			</Stack>
+		<div className={ styles.container }>
+			<div className={ styles.layout }>
+				<Stack direction="column" align="flex-start" justify="flex-start">
+					<Text variant="heading-2xl" render={ <h2 /> }>
+						{ title }
+					</Text>
+					{ subtitle ? <Text variant="body-md">{ subtitle }</Text> : null }
+				</Stack>
 
-			<Stack direction="row" align="center" justify="flex-end" className={ styles.controls }>
-				{ children }
-			</Stack>
-		</Stack>
+				{ /* Anchored from the stylesheet, not from `justify`, so the
+				     container query can flip it when the halves stack. */ }
+				<Stack direction="row" align="center" className={ styles.controls }>
+					{ children }
+				</Stack>
+			</div>
+		</div>
 	);
 }
