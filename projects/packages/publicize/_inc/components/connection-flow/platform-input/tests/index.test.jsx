@@ -1,9 +1,16 @@
-import { act, render, renderHook, screen } from '@testing-library/react';
+import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { dispatch, useSelect } from '@wordpress/data';
 import { PlatformInput } from '..';
 import { store } from '../../../../social-store';
 import { setup } from '../../../../utils/test-factory';
+
+// Nothing else in this suite submits, so stubbing the connect call is contained.
+const mockRequestAccess = jest.fn();
+
+jest.mock( '../../../services/use-request-access', () => ( {
+	useRequestAccess: () => mockRequestAccess,
+} ) );
 
 const SERVICES = [
 	{ id: 'mastodon', label: 'Mastodon', status: 'ok', url: 'https://connect.test/mastodon' },
@@ -159,5 +166,19 @@ describe( 'PlatformInput', () => {
 
 		expect( getHandleField() ).toHaveValue( '@user@mastodon.social' );
 		expect( getSubmitButton() ).toHaveAttribute( 'aria-disabled', 'false' );
+	} );
+
+	test( 'recovers when the connect request rejects', async () => {
+		const user = userEvent.setup();
+		mockRequestAccess.mockRejectedValueOnce( new Error( 'boom' ) );
+		renderStep( 'mastodon' );
+
+		await user.type( getHandleField(), '@user@mastodon.social' );
+		await user.click( getSubmitButton() );
+
+		// Without the finally the button would stay loading with no way forward.
+		await waitFor( () => expect( getSubmitButton() ).toHaveAttribute( 'aria-disabled', 'false' ) );
+		expect( getStoreSelect().getConnectionFlowStep() ).toBe( 'platform-input' );
+		expect( screen.getAllByText( /Could not start the connection/ ).length ).toBeGreaterThan( 0 );
 	} );
 } );

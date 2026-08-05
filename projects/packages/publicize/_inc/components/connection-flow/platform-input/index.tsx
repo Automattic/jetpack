@@ -104,18 +104,27 @@ export function PlatformInput() {
 				formData.set( key, value );
 			}
 
-			const opened = await requestAccess( formData, {
-				refresh: isReconnecting,
-				// An abandoned attempt drops back here, with the values intact.
-				onAbort: abandonAuthorization,
-				// Surface failures in the step; a global notice sits behind the modal.
-				onError: setSubmitError,
-			} );
+			try {
+				const opened = await requestAccess( formData, {
+					refresh: isReconnecting,
+					// An abandoned attempt drops back here, with the values intact.
+					onAbort: abandonAuthorization,
+					// Surface failures in the step; a global notice sits behind the modal.
+					onError: setSubmitError,
+				} );
 
-			setIsSubmitting( false );
-
-			if ( opened ) {
-				goToNextStep();
+				if ( opened ) {
+					goToNextStep();
+				}
+			} catch {
+				setSubmitError(
+					__(
+						'Could not start the connection. Please refresh the page and try again.',
+						'jetpack-publicize-pkg'
+					)
+				);
+			} finally {
+				setIsSubmitting( false );
 			}
 		},
 		[ abandonAuthorization, error, goToNextStep, isReconnecting, requestAccess, values ]
