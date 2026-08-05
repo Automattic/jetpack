@@ -90,7 +90,8 @@ export function buildRangePatch( {
 			presetChanged ? undefined : effective.interval
 		);
 
-		if ( effective.comp === '1' ) {
+		// Loose `comp` check: an unquoted URL delivers number 1, not '1'.
+		if ( String( effective.comp ) === '1' ) {
 			const derived = deriveComparisonRange( { ...effective, from: rangeFrom, to: rangeTo } );
 			if ( derived ) {
 				patch.compare_from = derived.compare_from;

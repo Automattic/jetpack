@@ -76,6 +76,14 @@ export const route = {
 				post_id: videoId,
 			};
 
+			/*
+			 * Comparison params ride along untouched: this page renders no
+			 * comparison (its widgets ignore them), but the dashboard link and
+			 * "Back to Videos" carry the URL state back out, so stripping them
+			 * here would silently lose the user's comparison settings on a
+			 * Dashboard → Video → Dashboard round trip.
+			 */
+
 			throw redirect( {
 				to: '/video/$videoId',
 				/*

@@ -195,6 +195,7 @@ export {
 	type StatsSingleVideoPost,
 	type StatsSingleVideoParams,
 	type StatsSingleVideoResponse,
+	type StatsSingleVideoTotals,
 } from './hooks/use-stats-single-video';
 export {
 	useStatsEmailOpensTimeSeries,

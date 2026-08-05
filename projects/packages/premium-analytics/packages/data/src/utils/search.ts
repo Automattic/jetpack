@@ -57,9 +57,13 @@ type PartialComparisonFields = Partial<
 
 /*
  * Checks if the comparison is present in the search params.
+ *
+ * `comp` is compared loosely: the router JSON-parses search values, so a URL
+ * written without JSON quoting (hand-edited, or by an older link builder)
+ * delivers the number 1 instead of the string '1'.
  */
 export function hasComparisonEnabled< T extends PartialComparisonFields >( p: T ) {
-	return p.comp === '1' && !! p.compare_from?.trim() && !! p.compare_to?.trim();
+	return String( p.comp ) === '1' && !! p.compare_from?.trim() && !! p.compare_to?.trim();
 }
 
 type NormalizeReportParamsArgType = Omit< ReportParams, 'from' | 'to' | 'interval' | 'preset' > & {
