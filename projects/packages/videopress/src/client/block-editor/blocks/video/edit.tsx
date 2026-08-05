@@ -34,6 +34,7 @@ import { usePreview } from '../../hooks/use-preview';
 import { useSyncMedia } from '../../hooks/use-sync-media';
 import { isVideoFile } from '../../utils/video';
 import ConnectBanner from './components/banner/connect-banner';
+import ChaptersControl from './components/chapters-control';
 import ColorPanel from './components/color-panel';
 import DetailsPanel from './components/details-panel';
 import { VideoPressIcon } from './components/icons';
@@ -547,6 +548,8 @@ export default function VideoPressEdit( {
 				/>
 
 				<TracksControl attributes={ attributes } setAttributes={ setAttributes } />
+
+				<ChaptersControl attributes={ attributes } setAttributes={ setAttributes } />
 			</BlockControls>
 
 			<BlockControls group="other">
