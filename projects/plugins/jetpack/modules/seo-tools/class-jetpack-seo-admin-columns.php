@@ -106,8 +106,13 @@ class Jetpack_SEO_Admin_Columns {
 		if ( is_array( $hidden ) ) {
 			$missing = array_values( array_diff( self::COLUMNS, $hidden ) );
 			if ( ! empty( $missing ) ) {
-				// Same meta key and shape core's `hidden-columns` AJAX handler writes.
-				update_user_meta( $user_id, $option_name, array_values( array_merge( $hidden, $missing ) ) );
+				/*
+				 * $is_global = true writes the unprefixed key — the same one core's
+				 * `hidden-columns` AJAX handler writes and that the get_user_option()
+				 * read above falls back to. Passing false would write a blog-prefixed
+				 * key that core itself never updates, so the two would diverge.
+				 */
+				update_user_option( $user_id, $option_name, array_values( array_merge( $hidden, $missing ) ), true );
 			}
 		}
 

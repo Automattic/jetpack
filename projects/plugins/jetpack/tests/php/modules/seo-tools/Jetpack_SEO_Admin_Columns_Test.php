@@ -141,7 +141,7 @@ class Jetpack_SEO_Admin_Columns_Test extends WP_UnitTestCase {
 	 */
 	public function test_backfill_hides_columns_for_users_with_saved_screen_options() {
 		$user_id = $this->login_admin();
-		update_user_meta( $user_id, 'manageedit-postcolumnshidden', array( 'comments' ) );
+		update_user_option( $user_id, 'manageedit-postcolumnshidden', array( 'comments' ), true );
 
 		Jetpack_SEO_Admin_Columns::backfill_hidden_columns( WP_Screen::get( 'edit-post' ) );
 
@@ -159,12 +159,12 @@ class Jetpack_SEO_Admin_Columns_Test extends WP_UnitTestCase {
 	 */
 	public function test_backfill_runs_only_once_per_screen() {
 		$user_id = $this->login_admin();
-		update_user_meta( $user_id, 'manageedit-postcolumnshidden', array( 'comments' ) );
+		update_user_option( $user_id, 'manageedit-postcolumnshidden', array( 'comments' ), true );
 
 		Jetpack_SEO_Admin_Columns::backfill_hidden_columns( WP_Screen::get( 'edit-post' ) );
 
 		// The user turns the Schema column back on.
-		update_user_meta( $user_id, 'manageedit-postcolumnshidden', array( 'comments', 'jetpack_seo_description', 'jetpack_seo_search' ) );
+		update_user_option( $user_id, 'manageedit-postcolumnshidden', array( 'comments', 'jetpack_seo_description', 'jetpack_seo_search' ), true );
 
 		Jetpack_SEO_Admin_Columns::backfill_hidden_columns( WP_Screen::get( 'edit-post' ) );
 
@@ -177,8 +177,8 @@ class Jetpack_SEO_Admin_Columns_Test extends WP_UnitTestCase {
 	 */
 	public function test_backfill_is_tracked_per_screen() {
 		$user_id = $this->login_admin();
-		update_user_meta( $user_id, 'manageedit-postcolumnshidden', array( 'comments' ) );
-		update_user_meta( $user_id, 'manageedit-pagecolumnshidden', array( 'comments' ) );
+		update_user_option( $user_id, 'manageedit-postcolumnshidden', array( 'comments' ), true );
+		update_user_option( $user_id, 'manageedit-pagecolumnshidden', array( 'comments' ), true );
 
 		Jetpack_SEO_Admin_Columns::backfill_hidden_columns( WP_Screen::get( 'edit-post' ) );
 
@@ -207,7 +207,7 @@ class Jetpack_SEO_Admin_Columns_Test extends WP_UnitTestCase {
 	 */
 	public function test_backfill_ignores_non_edit_screens() {
 		$user_id = $this->login_admin();
-		update_user_meta( $user_id, 'managedashboardcolumnshidden', array( 'welcome_panel' ) );
+		update_user_option( $user_id, 'managedashboardcolumnshidden', array( 'welcome_panel' ), true );
 
 		Jetpack_SEO_Admin_Columns::backfill_hidden_columns( WP_Screen::get( 'dashboard' ) );
 
