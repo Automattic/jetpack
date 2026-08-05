@@ -131,8 +131,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		// Focusing scrolls the input into view, so it moves the editor whenever the control is off
 		// screen. That is welcome when the user asked for the control, and not when it appeared on
-		// its own or the user has scrolled elsewhere in the meantime — hence the two variants. A
-		// sticky control is in view whenever its block is, so this rarely holds it back.
+		// its own or the user has scrolled elsewhere in the meantime — hence the two variants. Only
+		// a control in normal flow needs the check; a sticky one stays in view on its own.
 		const focusInputIfVisible = useCallback( () => {
 			const control = controlRef.current;
 			const viewportHeight = control?.ownerDocument?.defaultView?.innerHeight;
@@ -303,9 +303,13 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				setTimeout( () => {
 					if ( adjustPosition ) {
 						adjustBlockPadding();
+						focusInput();
+						return;
 					}
-					// Scrolling by hand during a request stops the control from following along, so
-					// don't undo that by pulling the editor back to it once the request lands.
+
+					// Scrolling by hand during a request stops the control from following along, so a
+					// control in normal flow can be off screen by now. Don't undo that scroll by
+					// pulling the editor back to it.
 					focusInputIfVisible();
 				}, 100 );
 
@@ -327,6 +331,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				increaseRequestsCount,
 				getContent,
 				adjustPosition,
+				focusInput,
 				focusInputIfVisible,
 				adjustBlockPadding,
 				tracks,
