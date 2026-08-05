@@ -62,28 +62,35 @@ const useAutoScroll = (
 		debug( 'disabling auto scroll' );
 	}, [ userScrollHandler ] );
 
-	const snapToBottom = useCallback( () => {
-		if ( ! autoScrollEnabled.current || ignoreScroll.current ) {
-			return;
-		}
+	// An explicit target overrides the configured one, for callers whose element to keep in
+	// view is not the block itself.
+	const snapToBottom = useCallback(
+		( target?: HTMLElement | null ) => {
+			if ( ! autoScrollEnabled.current || ignoreScroll.current ) {
+				return;
+			}
 
-		const lastParagraph = useBlockAsTarget
-			? blockRef?.current
-			: contentRef?.current?.firstElementChild?.lastElementChild;
+			const lastParagraph =
+				target ||
+				( useBlockAsTarget
+					? blockRef?.current
+					: contentRef?.current?.firstElementChild?.lastElementChild );
 
-		if ( lastParagraph && ! doingAutoScroll.current ) {
-			startedAutoScroll.current = true;
-			doingAutoScroll.current = true;
+			if ( lastParagraph && ! doingAutoScroll.current ) {
+				startedAutoScroll.current = true;
+				doingAutoScroll.current = true;
 
-			scrollElementRef?.current?.removeEventListener?.( 'scroll', userScrollHandler );
-			lastParagraph?.scrollIntoView( { block: 'end', inline: 'end' } );
+				scrollElementRef?.current?.removeEventListener?.( 'scroll', userScrollHandler );
+				lastParagraph?.scrollIntoView( { block: 'end', inline: 'end' } );
 
-			setTimeout( () => {
-				doingAutoScroll.current = false;
-				scrollElementRef?.current?.addEventListener?.( 'scroll', userScrollHandler );
-			}, 200 );
-		}
-	}, [ blockRef, contentRef, useBlockAsTarget, userScrollHandler ] );
+				setTimeout( () => {
+					doingAutoScroll.current = false;
+					scrollElementRef?.current?.addEventListener?.( 'scroll', userScrollHandler );
+				}, 200 );
+			}
+		},
+		[ blockRef, contentRef, useBlockAsTarget, userScrollHandler ]
+	);
 
 	const getScrollParent = useCallback(
 		( el: HTMLElement | null | undefined ): HTMLElement | Document | null => {

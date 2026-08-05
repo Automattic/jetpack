@@ -10,7 +10,7 @@ import {
 } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls, useBlockProps } from '@wordpress/block-editor';
-import { createHigherOrderComponent, useViewportMatch } from '@wordpress/compose';
+import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState, useRef, useMemo } from '@wordpress/element';
 import { addFilter, doAction } from '@wordpress/hooks';
@@ -148,13 +148,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		const customPlaceholder = getExtensionInputPlaceholder();
 
-		const isMobileViewport = useViewportMatch( 'medium', '<' );
-
 		// State to display the AI Control or not.
-		// Opening the input also focuses it, which scrolls it into view. On a narrow screen the
-		// block is usually taller than the viewport, so that drags the user past the block they
-		// just inserted and raises the keyboard. Let them open it from the toolbar instead.
-		const [ showAiControl, setShowAiControl ] = useState( startOpen && ! isMobileViewport );
+		const [ showAiControl, setShowAiControl ] = useState( startOpen );
 
 		// Called when the user clicks the "Ask AI Assistant" button.
 		const handleAskAiAssistant = useCallback( () => {
@@ -221,8 +216,12 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					adjustBlockPadding();
 				}
 
-				// Scroll to the bottom when a new suggestion is received.
-				snapToBottom();
+				// Scroll to the bottom when a new suggestion is received. A sticky control stays in
+				// view on its own, so the block is the target and its reserved padding keeps the
+				// control clear of the content. One in normal flow scrolls away with the block, so
+				// it becomes the target itself — it sits directly below the block, so the content
+				// arriving above it stays visible too.
+				snapToBottom( adjustPosition ? null : controlRef.current );
 			},
 			[ onBlockSuggestion, adjustPosition, snapToBottom, adjustBlockPadding ]
 		);

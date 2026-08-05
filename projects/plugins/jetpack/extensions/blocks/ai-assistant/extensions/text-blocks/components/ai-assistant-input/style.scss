@@ -1,13 +1,12 @@
-// The input sticks to the bottom of the viewport so it stays reachable while
-// the block grows during generation. That only holds when the block reserves
-// room for it below its content; with no reserved space the input hovers over
-// the block instead, hiding whatever sits at the bottom of it. Blocks that opt
-// out of the position adjustment get the input in normal flow, after the block.
 .jetpack-components-ai-control__container-wrapper.jetpack-ai-assistant-extension-ai-input {
-	position: static;
+	z-index: 1;
+	position: sticky;
 
-	&.is-sticky {
-		z-index: 1;
-		position: sticky;
+	// Sticking the input to the bottom of the viewport only keeps it clear of the
+	// block because the block pads its bottom to make room for it. Blocks that opt
+	// out of that adjustment get the input in normal flow, below the block, rather
+	// than hovering over whatever sits at the bottom of it.
+	&.is-static {
+		position: static;
 	}
 }
