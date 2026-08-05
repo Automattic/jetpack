@@ -65,9 +65,9 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 	const { data, isLoading, isFetching, isError, refetch } = useStatsInsights();
 	const enabledMetrics = useMemo( () => new Set( metrics ), [ metrics ] );
 
-	const year = useMemo( () => findLatestYear( data ), [ data ] );
+	const year = findLatestYear( data );
 
-	// Guarded on `year`: the tile values read the selected year, which is absent
+	// Guarded on `year`: the tile values read the latest year, which is absent
 	// in the loading / error / empty states handled by <WidgetState>.
 	const tiles = (
 		year

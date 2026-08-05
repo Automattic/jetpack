@@ -1,9 +1,9 @@
+@use "../../styles/widget-container" as *;
+
 $metric-tile-grid-wide-min-inline-size: 640px;
 // Height at which a wide cell has room for a balanced two-row grid instead of a
 // single row of tiles. Tunable — below this, wide cells stay one row.
 $metric-tile-grid-grid-min-block-size: 360px;
-// Between a height-1 widget body (~110px) and a height-2 one (~300px).
-$metric-tile-grid-short-max-block-size: 140px;
 $metric-tile-grid-row-value-font-size-max: 40px;
 // The design spec pins highlight-tile values at 32px.
 $metric-tile-grid-tile-value-font-size: 32px;
@@ -106,7 +106,7 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 
 /* Wide but short: one row of centered tiles. `grid-auto-flow: column` makes the
  * column count follow the tile count on its own — no explicit column value. */
-@container (min-width: #{$metric-tile-grid-wide-min-inline-size}) {
+@container (min-inline-size: #{$metric-tile-grid-wide-min-inline-size}) {
 
 	.grid {
 		grid-template-columns: none;
@@ -145,7 +145,7 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 
 /* Wide but height-1 short: keep the columns — stacked rows are taller past one
  * tile — and tighten the tile so the value still fits. */
-@container (min-width: #{$metric-tile-grid-wide-min-inline-size}) and (max-height: #{$metric-tile-grid-short-max-block-size}) {
+@container (min-inline-size: #{$metric-tile-grid-wide-min-inline-size}) and (max-block-size: #{$widget-short-max-block-size}) {
 
 	.tile {
 		padding-block: var(--wpds-dimension-padding-sm);
@@ -159,7 +159,7 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 
 /* Wide and tall: a balanced two-column grid of large centered tiles. Resets the
  * one-row flow set above so tiles wrap into rows again. */
-@container (min-width: #{$metric-tile-grid-wide-min-inline-size}) and (min-height: #{$metric-tile-grid-grid-min-block-size}) {
+@container (min-inline-size: #{$metric-tile-grid-wide-min-inline-size}) and (min-block-size: #{$metric-tile-grid-grid-min-block-size}) {
 
 	.grid {
 		grid-template-columns: repeat(2, minmax(0, 1fr));

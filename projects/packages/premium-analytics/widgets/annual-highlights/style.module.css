@@ -14,7 +14,7 @@
 	height: 100%;
 	min-height: 0;
 
-	/* Size container for the short-tile query at the end of this file. */
+	/* Size container for the short-height query at the end of this file. */
 	container-type: size;
 }
 
@@ -24,9 +24,11 @@
 	text-align: center;
 }
 
-/* At the minimum tile height the metric tiles need the whole body, so drop the
- * report link. */
-@container (max-height: 140px) {
+/* At the minimum widget height the metric tiles need the whole body, so drop
+ * the report link. 140px mirrors `$widget-short-max-block-size` in
+ * widgets-toolkit — widget stylesheets are plain CSS and a container query
+ * condition cannot read a custom property, so the two move together. */
+@container (max-block-size: 140px) {
 
 	.content .footer {
 		display: none;
