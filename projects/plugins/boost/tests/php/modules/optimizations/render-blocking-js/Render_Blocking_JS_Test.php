@@ -15,6 +15,7 @@ use Brain\Monkey;
 use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Class Render_Blocking_JS_Test
@@ -894,23 +895,6 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	}
 
 	/**
-	 * A quoted attribute value may legally contain a literal '</body>'. Inserting
-	 * there is doubly damaging: the quote in the injected tag also terminates the
-	 * attribute it landed in. The decoy follows the real closing tag.
-	 */
-	public function test_literal_body_close_in_attribute_value_is_not_corrupted() {
-		$html = '<html><body>' .
-			'<script>console.log("movable sibling");</script>' .
-			'</body><div data-x="</body>">z</div></html>';
-
-		$output = $this->filter_output( $html );
-
-		$this->assertStringContainsString( '<div data-x="</body>">z</div>', $output );
-		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
-		$this->assertStringContainsString( 'console.log("movable sibling");</script></body>', $output );
-	}
-
-	/**
 	 * <style> content is raw text. A literal '</body>' in a CSS comment is not
 	 * markup, and scripts inserted there would never execute.
 	 */
@@ -967,10 +951,10 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 
 	/**
 	 * The contents of a region opened before the buffer are a pasted HTML sample
-	 * as often as not, so they hold '</html>' as well as '</body>'. Resolving the
-	 * region has to happen before the search is bounded at '</html>': bounding
-	 * first deletes the '</textarea>' that marks where the region ends, and the
-	 * region's own '</body>' then wins.
+	 * as often as not, so they hold '</html>' as well as '</body>'. Blanking up to
+	 * the region's closing tag would delete a '</body>' that may equally well be
+	 * the document's own — the window carries nothing that tells the two apart —
+	 * so the buffer is left alone and the scripts are appended after it.
 	 */
 	public function test_closing_html_inside_a_region_opened_before_the_buffer_does_not_hide_it() {
 		// The buffer starts mid-<textarea>: its opening tag was flushed earlier.
@@ -984,7 +968,7 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 
 		$this->assertStringContainsString( 'pasted </body></html> sample</textarea>', $output );
 		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
-		$this->assertStringContainsString( 'console.log("movable sibling");</script></body></html>', $output );
+		$this->assertStringEndsWith( '<script>console.log("movable sibling");</script>', $output );
 	}
 
 	/**
@@ -1002,7 +986,7 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 
 		$this->assertStringContainsString( '/* pasted </body></html> sample */</style>', $output );
 		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
-		$this->assertStringContainsString( 'console.log("movable sibling");</script></body></html>', $output );
+		$this->assertStringEndsWith( '<script>console.log("movable sibling");</script>', $output );
 	}
 
 	/**
@@ -1019,7 +1003,49 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 
 		$this->assertStringContainsString( 'pasted </body></html> sample</title>', $output );
 		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
-		$this->assertStringContainsString( 'console.log("movable sibling");</script></body></html>', $output );
+		$this->assertStringEndsWith( '<script>console.log("movable sibling");</script>', $output );
+	}
+
+	/**
+	 * A closing token of one type inside a region of another is ordinary text, not
+	 * the end of the region: '</script>' pasted into a <textarea> is RCDATA. With
+	 * only the window to go on there is no way to tell which region opened, so a
+	 * mixture of token types is treated as unresolved and the scripts are appended
+	 * rather than inserted at the sample's own closing tag.
+	 */
+	public function test_mixed_leftover_closing_tokens_do_not_resolve_a_region() {
+		// The buffer starts mid-<textarea>, and the pasted sample holds a
+		// '</script>' before the '</textarea>' that really ends the region.
+		$buffer = 'pasted </script></body></html> sample</textarea><p>After</p>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body></html>';
+
+		list( $buffer_start, $buffer_end ) = $this->instance->handle_output_stream( $buffer, '' );
+
+		$output = $this->instance->append_script_tags( $buffer_start . $buffer_end );
+
+		$this->assertStringContainsString( 'pasted </script></body></html> sample</textarea>', $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringEndsWith( '<script>console.log("movable sibling");</script>', $output );
+	}
+
+	/**
+	 * An unpaired closing token in trailing host or plugin output is the same
+	 * ambiguity seen from the other side: blanking up to it would delete the
+	 * document's real closing tag along with the '</html>' that bounds the search,
+	 * handing a literal '</body>' in the trailing text the insertion point. The
+	 * scripts are appended after the buffer instead, where they still run.
+	 */
+	public function test_unpaired_closing_token_after_the_document_is_not_treated_as_a_region() {
+		$html = '<html><body><p>Before</p>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body></html></style><p>served in 0.2s: </body></p>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertStringContainsString( '<p>served in 0.2s: </body></p>', $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringEndsWith( '<script>console.log("movable sibling");</script>', $output );
 	}
 
 	/**
@@ -1028,13 +1054,15 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	 * treating it as "no such region" would search the region's contents as
 	 * markup. Fail closed there too and append instead.
 	 *
-	 * A backtrack limit of 1 forces the failure deterministically: the mask finds
-	 * nothing to do, while the scan has to backtrack over '</textarea >'.
+	 * A backtrack limit of 1 forces the failure deterministically, and the fixture
+	 * carries no markup for the mask to match, so this isolates the scan's own
+	 * check: at that limit the mask completes and only the scan over
+	 * '</textarea >' fails.
 	 */
 	public function test_scripts_are_appended_when_the_leading_region_scan_fails() {
 		// The buffer starts inside a <textarea> and the document's real closing
 		// tag is in a later chunk, so the only '</body>' here is the region's.
-		$buffer = 'raw </body> text</textarea >tail<p>After</p>' .
+		$buffer = 'raw </body> text</textarea >tail' .
 			'<script>console.log("movable sibling");</script>';
 
 		list( $buffer_start, $buffer_end ) = $this->instance->handle_output_stream( $buffer, '' );
@@ -1058,34 +1086,229 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	 * End-to-end through the real Output_Filter, so the sliding window is produced
 	 * by ob_start()'s chunking rather than by hand: the <textarea> opens several
 	 * chunks before the final window and only its tail is visible when the
-	 * insertion point is chosen.
+	 * insertion point is chosen. The sample must come through byte-for-byte and
+	 * the scripts must end up somewhere they still run.
 	 */
 	public function test_deferred_scripts_land_correctly_with_a_region_opened_in_an_earlier_chunk() {
-		Filters\expectApplied( 'jetpack_boost_output_filtering_last_buffer' )->andReturnUsing(
-			function ( $joint_buffer ) {
-				return $this->instance->append_script_tags( $joint_buffer );
-			}
-		);
-
 		$page = '<html><body><p>Before</p>' .
 			'<script>console.log("movable sibling");</script>' .
 			'<textarea>' . str_repeat( '<p>filler filler filler filler</p>', 400 ) .
 			'pasted </body></html> sample</textarea>' .
 			'<p>After</p></body></html>';
 
+		$output = $this->filter_page_through_output_filter( $page );
+
+		$this->assertStringContainsString( 'pasted </body></html> sample</textarea>', $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringEndsWith( '<script>console.log("movable sibling");</script>', $output );
+	}
+
+	/**
+	 * The contents of these elements are text to a browser, not markup, so a
+	 * literal '</body>' in one is not a closing tag. They are too unreliable to
+	 * pair — <plaintext> has no closing tag, <template> nests — so instead the
+	 * chosen offset is rejected when it lands inside one, and the scripts are
+	 * appended after the buffer, where they still execute. Choosing the decoy
+	 * would put every deferred script inside inert content and run none of them.
+	 *
+	 * @param string $decoy Markup holding a literal '</body>' in inert content.
+	 * @dataProvider provide_unmasked_raw_text_decoys
+	 */
+	#[DataProvider( 'provide_unmasked_raw_text_decoys' )]
+	public function test_decoy_in_an_element_the_mask_does_not_model_is_not_chosen( $decoy ) {
+		$page = '<html><body><p>Before</p>' .
+			'<script>console.log("movable sibling");</script>' .
+			'<p>After</p></body>' . $decoy . '</html>';
+
+		$output = $this->filter_page_through_output_filter( $page );
+
+		$this->assertStringContainsString( $decoy, $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringEndsWith( '<script>console.log("movable sibling");</script>', $output );
+	}
+
+	/**
+	 * Data provider: decoys in element contents the mask deliberately leaves alone.
+	 *
+	 * @return array<string, string[]>
+	 */
+	public static function provide_unmasked_raw_text_decoys() {
+		return array(
+			'xmp'       => array( '<xmp></body></xmp>' ),
+			'noembed'   => array( '<noembed><p></body></p></noembed>' ),
+			'noframes'  => array( '<noframes></body></noframes>' ),
+			'noscript'  => array( '<noscript></body></noscript>' ),
+			'template'  => array( '<template><div></body></div></template>' ),
+			'iframe'    => array( '<iframe></body></iframe>' ),
+			'cdata'     => array( '<svg><![CDATA[ </body> ]]></svg>' ),
+			// <plaintext> has no closing tag: everything after it is text.
+			'plaintext' => array( '<plaintext></body>' ),
+		);
+	}
+
+	/**
+	 * A quoted attribute value is protected wherever the quote legally sits, which
+	 * includes whitespace on either side of the '=' and either quote character.
+	 * The decoy follows the document's real closing tag, so only the mask can rule
+	 * it out.
+	 *
+	 * @param string $decoy Element whose attribute value holds a literal '</body>'.
+	 * @dataProvider provide_attribute_decoys
+	 */
+	#[DataProvider( 'provide_attribute_decoys' )]
+	public function test_literal_body_close_in_attribute_value_is_not_corrupted( $decoy ) {
+		$html = '<html><body>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body>' . $decoy . '</html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertStringContainsString( $decoy, $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString( 'console.log("movable sibling");</script></body>', $output );
+	}
+
+	/**
+	 * Data provider: the legal spellings of an attribute holding the decoy.
+	 *
+	 * @return array<string, string[]>
+	 */
+	public static function provide_attribute_decoys() {
+		return array(
+			'double quoted'             => array( '<div data-x="</body>">z</div>' ),
+			'single quoted'             => array( "<div data-x='</body>'>z</div>" ),
+			'space before the equals'   => array( '<div data-x ="</body>">z</div>' ),
+			'space after the equals'    => array( '<div data-x= "</body>">z</div>' ),
+			'space on both sides'       => array( "<div data-x = '</body>'>z</div>" ),
+			'newline around the equals' => array( "<div data-x\n=\n\"</body>\">z</div>" ),
+		);
+	}
+
+	/**
+	 * A stray quote in ordinary rendered text is not the start of an attribute
+	 * value. Treating it as one blanks everything up to the next quote anywhere in
+	 * the buffer, which can take the document's real closing tag with it.
+	 */
+	public function test_unbalanced_quote_in_page_text_does_not_start_an_attribute() {
+		$html = '<html><body><code>a=\' b</code>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body><img src="x.png"></html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertStringContainsString( '<code>a=\' b</code>', $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString( 'console.log("movable sibling");</script></body>', $output );
+	}
+
+	/**
+	 * A browser ends a raw-text element on '</name' followed by whitespace, '/' or
+	 * '>'. The mask has to agree: read as still open, the script's source is
+	 * searched as markup and its string literal wins the search.
+	 *
+	 * @param string $close Spelling of the closing tag.
+	 * @dataProvider provide_closing_tag_spellings
+	 */
+	#[DataProvider( 'provide_closing_tag_spellings' )]
+	public function test_script_close_spellings_still_mask_the_script( $close ) {
+		$html = '<html><body><p>Before</p>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body><script data-jetpack-boost="ignore">var trailing = \'</body>\';' . $close . '</html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertStringContainsString( "var trailing = '</body>';" . $close, $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString( 'console.log("movable sibling");</script></body>', $output );
+	}
+
+	/**
+	 * Data provider: closing tags a browser accepts for a raw-text element.
+	 *
+	 * @return array<string, string[]>
+	 */
+	public static function provide_closing_tag_spellings() {
+		return array(
+			'plain'          => array( '</script>' ),
+			'trailing space' => array( '</script >' ),
+			'self closing'   => array( '</script/>' ),
+			'with attribute' => array( '</script foo>' ),
+		);
+	}
+
+	/**
+	 * The '</html>' bound has to tolerate the same tag syntax the mask does, or a
+	 * single '</html >' hands the search to whatever the host emitted afterwards.
+	 */
+	public function test_closing_html_with_whitespace_still_bounds_the_search() {
+		$html = '<html><body>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body></html ><p>injected by the host: </body></p>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertStringContainsString( '<p>injected by the host: </body></p>', $output );
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString( 'console.log("movable sibling");</script></body></html >', $output );
+	}
+
+	/**
+	 * The mask and the scan for a region opened before the buffer fail closed
+	 * independently. This limit is high enough for the scan to complete and low
+	 * enough for the mask — which has to backtrack through a long lazy region — to
+	 * fail, so it isolates the mask's own check.
+	 */
+	public function test_scripts_are_appended_when_only_the_mask_fails() {
+		$html = '<html><body><p>Before</p>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body><script data-jetpack-boost="ignore">var trailing = \'' .
+			str_repeat( 'x', 200 ) . '</body>\';</script></html>';
+
+		// Collect the movable script before lowering the limit, so only the mask
+		// inside append_script_tags() is affected.
+		list( $buffer_start, $buffer_end ) = $this->instance->handle_output_stream( $html, '' );
+
+		$output         = '';
+		$original_limit = ini_get( 'pcre.backtrack_limit' );
+		ini_set( 'pcre.backtrack_limit', '50' ); // phpcs:ignore WordPress.PHP.IniSet.Risky -- Restored below; fails the mask but not the leading-region scan.
+
+		try {
+			$output = $this->instance->append_script_tags( $buffer_start . $buffer_end );
+		} finally {
+			ini_set( 'pcre.backtrack_limit', false === $original_limit ? '1000000' : $original_limit ); // phpcs:ignore WordPress.PHP.IniSet.Risky -- Restore original limit.
+		}
+
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringEndsWith( '<script>console.log("movable sibling");</script>', $output );
+	}
+
+	/**
+	 * Drive a whole page through the real Output_Filter, so the window handed to
+	 * append_script_tags() is produced by ob_start()'s chunking rather than by
+	 * hand — which is what a hand-made window failed to catch once already.
+	 *
+	 * @param string $page  Page markup.
+	 * @param int    $chunk Bytes per echo.
+	 *
+	 * @return string Filtered output.
+	 */
+	private function filter_page_through_output_filter( $page, $chunk = 512 ) {
+		Filters\expectApplied( 'jetpack_boost_output_filtering_last_buffer' )->andReturnUsing(
+			function ( $joint_buffer ) {
+				return $this->instance->append_script_tags( $joint_buffer );
+			}
+		);
+
 		$output_filter = new Output_Filter();
 
 		ob_start();
 		$output_filter->add_callback( array( $this->instance, 'handle_output_stream' ) );
-		foreach ( str_split( $page, 512 ) as $piece ) {
+		foreach ( str_split( $page, $chunk ) as $piece ) {
 			echo $piece; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Test fixture markup.
 		}
 		ob_end_flush();
-		$output = ob_get_clean();
 
-		$this->assertStringContainsString( 'pasted </body></html> sample</textarea>', $output );
-		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
-		$this->assertStringContainsString( 'console.log("movable sibling");</script></body></html>', $output );
+		return ob_get_clean();
 	}
 
 	/**
@@ -1135,7 +1358,10 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 
 		$this->assertStringContainsString( '<!--><p>Before</p>', $output );
 		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
-		$this->assertStringContainsString( 'console.log("movable sibling");</script></body>', $output );
+		// Pinned against the end of the document rather than against '</body>': the
+		// trailing decoy comment holds a literal '</body>' of its own, so a position
+		// inside it would satisfy the shorter assertion just as well.
+		$this->assertStringEndsWith( 'console.log("movable sibling");</script></body><!-- </body> --></html>', $output );
 	}
 
 	/**

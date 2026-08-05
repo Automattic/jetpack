@@ -471,13 +471,15 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	 * a host or plugin emits after '</html>' can never be the closing tag) and
 	 * takes the last remaining occurrence.
 	 *
-	 * Best-effort, and deliberately biased towards not choosing a position at all:
-	 * this is a mask over a bounded output-buffer window, not an HTML parser. Every
-	 * case it cannot resolve returns null, which makes append_script_tags() append
-	 * after the buffer instead of rewriting existing markup. On a well-formed
-	 * document the moved scripts still run from there; on a response that was cut
-	 * short mid-region they may not, which is what the base code did in the same
-	 * situation.
+	 * Best-effort: this is a mask over a bounded output-buffer window, not an HTML
+	 * parser, and it does not model every context in which a literal '</body>' is
+	 * not markup. Where it cannot resolve a buffer it returns null, which makes
+	 * append_script_tags() append after the buffer instead of rewriting existing
+	 * markup; on a well-formed document the moved scripts still run from there.
+	 * Null is the intended outcome for anything unresolved, but it is not a proof
+	 * of correctness — a shape the mask models wrongly can still yield an offset
+	 * that is not the document's closing tag. See is_inside_unmasked_region() for
+	 * the backstop that covers the known such shapes.
 	 *
 	 * @param string $buffer String buffer.
 	 *
@@ -488,7 +490,8 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 		// strpos() and substr() to their multibyte counterparts. Everything below
 		// is byte arithmetic — same-length filler, and an offset handed to
 		// substr_replace() — so on such a host no position can be trusted.
-		if ( 2 & (int) ini_get( 'mbstring.func_overload' ) ) { // phpcs:ignore PHPCompatibility.IniDirectives.RemovedIniDirectives.mbstring_func_overloadDeprecated -- Read, not set: the directive being deprecated on the supported floor is exactly why this check exists.
+		// phpcs:ignore PHPCompatibility.IniDirectives.RemovedIniDirectives.mbstring_func_overloadDeprecated,PHPCompatibility.IniDirectives.RemovedIniDirectives.mbstring_func_overloadDeprecatedRemoved -- Read, not set: the directive being deprecated and then removed on the supported range is exactly why this check exists.
+		if ( 2 & (int) ini_get( 'mbstring.func_overload' ) ) {
 			return null;
 		}
 
@@ -497,18 +500,31 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 			return null;
 		}
 
-		// One pass over the buffer. The arms are, in order: the four element
-		// types whose contents are raw text or RCDATA rather than markup;
-		// the spec's comment forms, including the empty comments ('<!-->',
-		// '<!--->') and the end-bang close ('--!>') — without those a comment
-		// would be masked as running to the next '-->' further down the document;
-		// and quoted attribute values, which are the remaining place a literal
-		// '</body>' can sit inside otherwise ordinary markup. An attribute value
-		// belonging to one of the element arms is consumed by that arm first,
-		// because matching starts at the element's opening '<'.
+		// One pass over the buffer. The arms are, in order: the element types whose
+		// contents are raw text or RCDATA rather than markup; the spec's comment
+		// forms, including the empty comments ('<!-->', '<!--->') and the end-bang
+		// close ('--!>') — without those a comment would be masked as running to the
+		// next '-->' further down the document; and, last, any opening tag, which
+		// covers the quoted attribute values that are the remaining place a literal
+		// '</body>' can sit inside otherwise ordinary markup.
+		//
+		// The opening-tag arm is deliberately last and deliberately anchored to a
+		// tag: an earlier arm wins at the same offset, so a raw-text element's own
+		// opening tag never shadows its body, and an unbalanced quote in ordinary
+		// prose cannot start an attribute-value match that runs to the next quote
+		// anywhere else in the buffer.
 		$masked = preg_replace_callback(
-			'~<script\b[^>]*>[\s\S]*?</script\s*>|<textarea\b[^>]*>[\s\S]*?</textarea\s*>|<style\b[^>]*>[\s\S]*?</style\s*>|<title\b[^>]*>[\s\S]*?</title\s*>|<!--(?:>|->|[\s\S]*?--!?>)|="[^"]*"|=\'[^\']*\'~i',
+			$this->non_markup_mask(),
 			static function ( $region_match ) {
+				// The opening-tag arm keeps its '<' and element name and blanks only
+				// what follows, so is_inside_unmasked_region() below can still tell
+				// which elements the surviving markup opened. Every other arm blanks
+				// wholesale, which is what keeps an element name inside a script, a
+				// comment or an attribute value from being read as markup.
+				if ( isset( $region_match[1] ) && '' !== $region_match[1] ) {
+					return $region_match[1] . str_repeat( ' ', strlen( $region_match[0] ) - strlen( $region_match[1] ) );
+				}
+
 				return str_repeat( ' ', strlen( $region_match[0] ) );
 			},
 			$buffer
@@ -534,21 +550,79 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 		// Markup emitted after the document is not part of it. Bounding the search
 		// here keeps a literal '</body>' in trailing host or plugin output — in a
 		// plain text node, or in one of the raw-text elements the mask does not
-		// list, such as <xmp>, <noembed> or <template> — from winning the search
-		// below. Case-insensitive to match the mask: a single '</HTML>' must not
-		// silently drop the bound.
-		$html_close = stripos( $masked, '</html>' );
-		if ( false !== $html_close ) {
-			$masked = substr( $masked, 0, $html_close );
+		// list — from winning the search below. Matched with the same tolerance the
+		// mask's arms use: neither a single '</HTML>' nor a '</html >' may silently
+		// drop the bound.
+		$bound = preg_match( '~</html' . $this->close_tag_tail() . '~i', $masked, $match, PREG_OFFSET_CAPTURE );
+		if ( false === $bound ) {
+			return null;
+		}
+		if ( 1 === $bound ) {
+			$masked = substr( $masked, 0, $match[0][1] );
 		}
 
 		$position = strrpos( $masked, '</body>' );
+		if ( false === $position ) {
+			return null;
+		}
 
-		return false === $position ? null : $position;
+		// Last check: the offset must not sit in one of the element contents the
+		// mask does not model. Those cannot be masked away without a parser, but
+		// they can be detected, and reporting no position at all is better than
+		// reporting one inside inert content.
+		return $this->is_inside_unmasked_region( $masked, $position ) ? null : $position;
 	}
 
 	/**
-	 * Blank everything up to the first unmatched closing token in a masked buffer.
+	 * Element types whose contents the mask treats as raw text or RCDATA.
+	 *
+	 * Named in one place because both the mask and the leading-region scan need the
+	 * same list, and they have drifted apart once already.
+	 *
+	 * @return string[]
+	 */
+	private function raw_text_elements() {
+		return array( 'script', 'textarea', 'style', 'title' );
+	}
+
+	/**
+	 * Regex fragment matching the tail of a closing tag, from the element name on.
+	 *
+	 * A browser ends a raw-text element on '</name' followed by whitespace, '/' or
+	 * '>', so '</script foo>' and '</script/>' both close a script and the mask has
+	 * to agree with that or it masks the wrong span.
+	 *
+	 * @return string
+	 */
+	private function close_tag_tail() {
+		return '(?:[\s/][^>]*)?>';
+	}
+
+	/**
+	 * Build the pattern that blanks every region a literal '</body>' can sit in.
+	 *
+	 * @return string
+	 */
+	private function non_markup_mask() {
+		$arms = array();
+
+		foreach ( $this->raw_text_elements() as $element ) {
+			$arms[] = '<' . $element . '\b[^>]*>[\s\S]*?</' . $element . $this->close_tag_tail();
+		}
+
+		$arms[] = '<!--(?:>|->|[\s\S]*?--!?>)';
+
+		// Any opening tag, quoted attribute values included. The element name is
+		// captured so the callback can preserve it. The alternatives inside the
+		// repetition start with distinct characters, so there is no ambiguity for
+		// the engine to backtrack through.
+		$arms[] = '(<[a-zA-Z][^\s/>]*+)(?:"[^"]*"|\'[^\']*\'|[^>"\'])*>';
+
+		return '~' . implode( '|', $arms ) . '~i';
+	}
+
+	/**
+	 * Blank everything up to the leading unmatched closing token in a masked buffer.
 	 *
 	 * Output_Filter hands this class a sliding window, so any of the regions the
 	 * mask above pairs can begin in a chunk that was already flushed. Its opening
@@ -560,20 +634,30 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	 * in this buffer. Everything up to and including that token is therefore region
 	 * content and cannot hold the document's closing tag.
 	 *
-	 * The tokens deliberately mirror the mask's element list. A literal one in an
-	 * ordinary text node ('-->' in prose, say) also matches, which costs an
-	 * insertion point but never a wrong one: this only ever blanks a prefix.
+	 * Which region opened cannot be answered from the window alone, so the type of
+	 * the leftover tokens is all there is to go on. Tokens of a single type resolve
+	 * it: a region cannot contain its own closing token, so the first one ends it.
+	 * Tokens of more than one type do not — a '</script>' pasted into a <textarea>
+	 * is ordinary RCDATA, not the end of the region — and that case fails closed.
+	 *
+	 * Note that this blanks a prefix of a window whose start is already unknown, so
+	 * it can also fire on a literal token in an ordinary text node ('-->' in prose,
+	 * say, or an unpaired closing tag in a cache footer). Blanking is only free while
+	 * the prefix holds no '</body>' of its own: a prefix that does hold one is either
+	 * region content or a document this scan has misread, and nothing in the window
+	 * distinguishes the two, so that case fails closed as well.
 	 *
 	 * @param string $masked Buffer with the paired regions already masked.
 	 *
 	 * @return string|null Buffer with the leading unterminated region masked as
-	 *                     well, or null when the scan itself failed.
+	 *                     well, or null when the scan failed or was inconclusive.
 	 */
 	private function mask_unterminated_leading_region( $masked ) {
-		$found = preg_match( '~</script\s*>|</textarea\s*>|</style\s*>|</title\s*>|--!?>~i', $masked, $match, PREG_OFFSET_CAPTURE );
+		$pattern = '~</(' . implode( '|', $this->raw_text_elements() ) . ')' . $this->close_tag_tail() . '|--!?>~i';
+		$found   = preg_match_all( $pattern, $masked, $matches, PREG_OFFSET_CAPTURE );
 
-		// preg_match() returns false on PCRE failure and 0 when there is simply no
-		// leftover closing token. Fail closed on the former, like the mask above:
+		// preg_match_all() returns false on PCRE failure and 0 when there is simply
+		// no leftover closing token. Fail closed on the former, like the mask above:
 		// an unresolved buffer must not be searched as though it were all markup.
 		if ( false === $found ) {
 			return null;
@@ -583,9 +667,84 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 			return $masked;
 		}
 
-		$region_end = $match[0][1] + strlen( $match[0][0] );
+		$types = array();
+		foreach ( $matches[1] as $element ) {
+			// Offset -1 means the element group did not take part: a comment close.
+			$types[ -1 === $element[1] ? 'comment' : strtolower( $element[0] ) ] = true;
+		}
+
+		if ( count( $types ) > 1 ) {
+			return null;
+		}
+
+		$region_end = $matches[0][0][1] + strlen( $matches[0][0][0] );
+
+		$body_close = strpos( $masked, '</body>' );
+		if ( false !== $body_close && $body_close < $region_end ) {
+			return null;
+		}
 
 		return str_repeat( ' ', $region_end ) . substr( $masked, $region_end );
+	}
+
+	/**
+	 * Report whether an offset falls inside element contents the mask cannot blank.
+	 *
+	 * A browser treats the contents of these elements as text, not markup, so a
+	 * literal '</body>' in one is not a closing tag. They are left out of the mask
+	 * because pairing them is unreliable — <plaintext> has no closing tag at all,
+	 * and <template> nests — but an offset landing inside one is detectable, and a
+	 * detected one has to be discarded: the scripts inserted there would never run
+	 * and the element's contents would be corrupted, whereas appending after the
+	 * buffer leaves both intact.
+	 *
+	 * Only the chosen offset is checked, so an unpaired opening tag elsewhere in the
+	 * buffer costs nothing.
+	 *
+	 * @param string $masked   Masked buffer, already bounded at '</html>'.
+	 * @param int    $position Offset the search settled on.
+	 *
+	 * @return bool True when the offset is inside such an element, or undecidable.
+	 */
+	private function is_inside_unmasked_region( $masked, $position ) {
+		$found = preg_match_all(
+			'~<(xmp|plaintext|noembed|noframes|noscript|template|iframe)\b|<!\[CDATA\[~i',
+			$masked,
+			$matches,
+			PREG_OFFSET_CAPTURE
+		);
+
+		// Fail closed on PCRE failure, as everywhere else in this locator.
+		if ( false === $found ) {
+			return true;
+		}
+
+		foreach ( $matches[0] as $index => $opener ) {
+			$start = $opener[1];
+			if ( $position <= $start ) {
+				continue;
+			}
+
+			$element = $matches[1][ $index ];
+			if ( -1 === $element[1] ) {
+				$close = strpos( $masked, ']]>', $start );
+				$end   = false === $close ? strlen( $masked ) : $close + 3;
+			} else {
+				// An element with no closing tag in this buffer — <plaintext>, or one
+				// the '</html>' bound cut short — runs to the end of what is left.
+				$closed = preg_match( '~</' . $element[0] . $this->close_tag_tail() . '~i', $masked, $close_match, PREG_OFFSET_CAPTURE, $start );
+				if ( false === $closed ) {
+					return true;
+				}
+				$end = 1 === $closed ? $close_match[0][1] : strlen( $masked );
+			}
+
+			if ( $position <= $end ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
