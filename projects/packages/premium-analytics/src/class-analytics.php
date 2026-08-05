@@ -51,6 +51,17 @@ class Analytics {
 	private static $resolved_menu_title = null;
 
 	/**
+	 * Path to the wp-build entry point. Null uses the generated build.
+	 *
+	 * A test seam: `build/` is gitignored and `test-php` runs no build step, so a
+	 * test has nothing to observe unless it can redirect this. Private, so unlike
+	 * the widget manifest's path it needs no filter to stay out of reach.
+	 *
+	 * @var string|null
+	 */
+	private static $build_entry = null;
+
+	/**
 	 * Initialize the Analytics app on a connected Jetpack site.
 	 *
 	 * Registers the full local surface: the site serves the WPCOM data proxy,
@@ -79,8 +90,54 @@ class Analytics {
 
 		self::boot_shared_services();
 		self::register_dashboard_support_routes();
+		self::load_dashboard_surface();
+	}
+
+	/**
+	 * Load the dashboard render surface, on the requests that can render it.
+	 *
+	 * With the rollout flag on, init() runs on every request — on WordPress.com
+	 * Simple, every request across WPCOM's public-api process — so everything
+	 * below would otherwise be parsed for visitors who can never use it.
+	 *
+	 * REST serves the dashboard too but is deliberately excluded: it loads what
+	 * it needs itself. See load_build().
+	 *
+	 * @return void
+	 */
+	private static function load_dashboard_surface() {
+		if ( ! self::renders_admin_chrome() ) {
+			return;
+		}
+
+		self::load_dashboard_components();
 		self::load_build();
 		self::register_admin_page();
+	}
+
+	/**
+	 * Whether this request can render an admin screen.
+	 *
+	 * Core also sets is_admin() on admin-ajax.php and admin-post.php, which render
+	 * no dashboard and for which this package registers no handlers. Both fire
+	 * admin_init before core checks the user is logged in, and the build's
+	 * interceptor keys on $_GET['page'] alone, so without these exclusions either
+	 * endpoint answers ?page=jetpack-premium-analytics with a full dashboard page
+	 * — to anyone.
+	 *
+	 * Narrowing the request is as far as this package can go: the interceptor has
+	 * no capability check of its own, so any logged-in user still reaches it
+	 * through an ordinary admin screen. That fix belongs in the wp-build output.
+	 *
+	 * @return bool
+	 */
+	private static function renders_admin_chrome() {
+		if ( ! is_admin() || wp_doing_ajax() ) {
+			return false;
+		}
+
+		// wp-includes/vars.php sets $pagenow before plugins load.
+		return 'admin-post.php' !== ( $GLOBALS['pagenow'] ?? '' );
 	}
 
 	/**
@@ -106,8 +163,7 @@ class Analytics {
 		self::apply_options( $options );
 
 		self::boot_shared_services();
-		self::load_build();
-		self::register_admin_page();
+		self::load_dashboard_surface();
 	}
 
 	/**
@@ -124,8 +180,8 @@ class Analytics {
 	}
 
 	/**
-	 * Boot the services and registries every platform needs, regardless of
-	 * whether the site serves the dashboard support routes itself.
+	 * Boot the services every platform needs, whether or not the site serves the
+	 * dashboard support routes itself.
 	 *
 	 * @return void
 	 */
@@ -139,8 +195,6 @@ class Analytics {
 		// CSV report export pipeline (WOOA7S-1581): hooks rest_api_init, so it must
 		// register on all requests. Self-gates on WooCommerce + Jetpack connection.
 		Export::configure();
-
-		self::load_dashboard_components();
 	}
 
 	/**
@@ -173,6 +227,9 @@ class Analytics {
 
 	/**
 	 * Load the dashboard components every platform renders with.
+	 *
+	 * Admin-only, via load_dashboard_surface(); boot_routes() requires these
+	 * again for REST.
 	 *
 	 * @return void
 	 */
@@ -226,14 +283,13 @@ class Analytics {
 	/**
 	 * Load the wp-build output (interceptor, modules, routes, page render).
 	 *
-	 * Must run before the is_admin() gate: the registry serves REST requests
-	 * too (is_admin() false there). Render pieces self-gate on admin_init, so
-	 * this is inert off the dashboard.
+	 * Admin-only, via load_dashboard_surface(). REST does not need it:
+	 * boot_routes() and ensure_widget_registry_ready() load what they use.
 	 *
 	 * @return void
 	 */
 	private static function load_build() {
-		$build_entry = __DIR__ . '/../build/build.php';
+		$build_entry = self::$build_entry ?? __DIR__ . '/../build/build.php';
 		if ( file_exists( $build_entry ) ) {
 			require_once $build_entry;
 		}
@@ -245,10 +301,6 @@ class Analytics {
 	 * @return void
 	 */
 	private static function register_admin_page() {
-		if ( ! is_admin() ) {
-			return;
-		}
-
 		// Polyfills force-replace core handles (wp-private-apis) on wp_default_scripts;
 		// scope to the dashboard page so no other admin page (e.g. block editor) is hit.
 		if ( self::is_dashboard_request() ) {

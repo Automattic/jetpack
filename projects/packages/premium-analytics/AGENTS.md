@@ -17,12 +17,17 @@ Jetpack Premium Analytics is the unified analytics dashboard for Jetpack-connect
 
 ## How it works
 
-`Analytics::init()` loads the generated `build/build.php`, which registers an `admin_init`
-interceptor for `?page=jetpack-premium-analytics`. The interceptor takes over the request
-before WordPress renders the admin chrome; `@wordpress/boot` provides the SPA shell and
-routing; each route under `routes/<name>/` is a lazy-loaded ES module discovered at build time
-from its `package.json`. WordPress core or Jetpack's wp-build polyfills provide the WordPress
-script handles/modules used by the dashboard, so the Gutenberg plugin is not required.
+`Analytics::init()` loads the generated `build/build.php` on requests that render an admin screen
+(not on front-end page views, REST, cron, `admin-ajax.php`, or `admin-post.php` — see
+`renders_admin_chrome()`), which registers an `admin_init` interceptor for
+`?page=jetpack-premium-analytics`. REST requests reach the
+dashboard's data without it: `Dashboard_Support_Routes::boot_routes()` registers the routes on
+`rest_api_init`, and `ensure_widget_registry_ready()` loads the widget manifest lazily, when a
+route callback actually reads it. The interceptor takes over the request before WordPress renders
+the admin chrome; `@wordpress/boot` provides the SPA shell and routing; each route under
+`routes/<name>/` is a lazy-loaded ES module discovered at build time from its `package.json`.
+WordPress core or Jetpack's wp-build polyfills provide the WordPress script handles/modules used
+by the dashboard, so the Gutenberg plugin is not required.
 
 ## Structure
 

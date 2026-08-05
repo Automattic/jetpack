@@ -46,6 +46,9 @@ class Dashboard_Support_Routes {
 	 * @return void
 	 */
 	public static function boot_routes() {
+		// Load-bearing, not defensive duplication: since WOOA7S-1804 these files load
+		// only in wp-admin, so on REST this method is their only loader.
+		//
 		// Guarded on a symbol from each file: two copies of this package can be loaded
 		// in one request, and these file-scope functions are outside the autoloader's
 		// dedupe. See Analytics::load_dashboard_components() for the full rationale.
