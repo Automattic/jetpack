@@ -150,6 +150,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		// State to display the AI Control or not.
 		const [ showAiControl, setShowAiControl ] = useState( startOpen );
+		// Whether the control's first appearance is one the user asked for, or one it opened with.
+		const skipInitialFocus = useRef( startOpen );
 
 		// Called when the user clicks the "Ask AI Assistant" button.
 		const handleAskAiAssistant = useCallback( () => {
@@ -211,17 +213,23 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			( suggestion: string ) => {
 				onBlockSuggestion( suggestion );
 
-				// Make sure the block element has the necessary bottom padding, as it can be replaced or changed
+				// Scroll to the bottom when a new suggestion is received. A sticky control stays in
+				// view on its own, so the block is the scroll target, and its bottom padding — which
+				// has to be kept up to date, as the block can be replaced or changed — holds the
+				// control clear of the content.
 				if ( adjustPosition ) {
 					adjustBlockPadding();
+					snapToBottom();
+					return;
 				}
 
-				// Scroll to the bottom when a new suggestion is received. A sticky control stays in
-				// view on its own, so the block is the target and its reserved padding keeps the
-				// control clear of the content. One in normal flow scrolls away with the block, so
-				// it becomes the target itself — it sits directly below the block, so the content
-				// arriving above it stays visible too.
-				snapToBottom( adjustPosition ? null : controlRef.current );
+				// A control in normal flow scrolls away with the block, so it becomes the target
+				// itself; it sits directly below the block, so the content arriving above it stays
+				// visible too. The update above is dispatched rather than applied, so wait for it to
+				// render — scrolling now would measure the control's old position and leave it below
+				// the viewport once the taller content commits. A sticky control needs no such care,
+				// since it re-pins itself after any layout change.
+				window.requestAnimationFrame( () => snapToBottom( controlRef.current ) );
 			},
 			[ onBlockSuggestion, adjustPosition, snapToBottom, adjustBlockPadding ]
 		);
@@ -446,6 +454,16 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			if ( inputRef.current && isSelectionEnabled ) {
 				// Save the block's ownerDocument to use it later, as the editor can be in an iframe.
 				ownerDocument.current = inputRef.current.ownerDocument;
+
+				// The control can be open from the start, before the user has asked for it. Focusing
+				// scrolls the input into view, which on a block taller than the viewport would drag
+				// the editor away from the block that was just inserted. Every later opening is one
+				// the user asked for, so focus those.
+				if ( skipInitialFocus.current ) {
+					skipInitialFocus.current = false;
+					return;
+				}
+
 				// Focus the input when the AI Control is displayed.
 				focusInput();
 			}

@@ -71,7 +71,7 @@ const useAutoScroll = (
 			}
 
 			const scrollTarget =
-				target ||
+				target ??
 				( useBlockAsTarget
 					? blockRef?.current
 					: contentRef?.current?.firstElementChild?.lastElementChild );
