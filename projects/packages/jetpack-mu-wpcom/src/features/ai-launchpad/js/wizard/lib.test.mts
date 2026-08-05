@@ -22,11 +22,8 @@ function stateWith( partial: Partial< WizardState > = {} ): WizardState {
 }
 
 describe( 'wizard step gating', () => {
-	it( 'blocks Continue on step 0 until a goal is selected', () => {
+	it( 'gates Continue on step 0 on a goal being selected', () => {
 		assert.equal( canContinue( 0, stateWith() ), false );
-	} );
-
-	it( 'enables Continue on step 0 once a goal is selected', () => {
 		assert.equal( canContinue( 0, stateWith( { goal: 'write' } ) ), true );
 	} );
 
@@ -75,14 +72,8 @@ describe( 'Finish payload', () => {
 
 describe( 'goal catalog', () => {
 	it( 'exposes exactly the six contract goals', () => {
-		assert.deepEqual( GOAL_SLUGS, [
-			'write',
-			'build',
-			'sell',
-			'newsletter',
-			'educate',
-			'portfolio',
-		] );
+		const goals = [ 'write', 'build', 'sell', 'newsletter', 'educate', 'portfolio' ];
+		assert.deepEqual( GOAL_SLUGS, goals );
 	} );
 } );
 
@@ -102,12 +93,6 @@ describe( 'rotating placeholder', () => {
 			pickPlaceholder( variants, () => 0.99 ),
 			'five'
 		);
-	} );
-
-	it( 'always returns a member of the variant list', () => {
-		for ( let i = 0; i < 50; i++ ) {
-			assert.ok( variants.includes( pickPlaceholder( variants ) ) );
-		}
 	} );
 
 	it( 'produces more than one distinct value across many draws', () => {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Cast the quick-edit post ID to an integer before requesting its view counts.

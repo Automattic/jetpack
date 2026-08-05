@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Allow integrations to request the full Agents Manager shell without taking over the Help Center.

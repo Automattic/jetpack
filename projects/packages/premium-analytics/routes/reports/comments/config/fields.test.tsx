@@ -29,30 +29,45 @@ jest.mock( '@wordpress/route', () => ( {
 	),
 } ) );
 
-jest.mock( '@wordpress/ui', () => ( {
-	Link: ( {
-		href,
-		children,
-		openInNewTab,
-		variant,
-		...props
-	}: {
-		href: string;
-		children: ReactNode;
-		openInNewTab?: boolean;
-		variant?: string;
-	} ) => (
-		<a
-			href={ href }
-			data-variant={ variant }
-			target={ openInNewTab ? '_blank' : undefined }
-			rel={ openInNewTab ? 'noopener noreferrer' : undefined }
-			{ ...props }
-		>
-			{ children }
-		</a>
-	),
-} ) );
+// The fields import `Link` from the externals passthrough, so the stub has to
+// replace it there; the Proxy leaves the rest of the barrel intact for any
+// other consumer in the graph.
+jest.mock(
+	'@jetpack-premium-analytics/externals',
+	() =>
+		new Proxy(
+			{
+				Link: ( {
+					href,
+					children,
+					openInNewTab,
+					variant,
+					...props
+				}: {
+					href: string;
+					children: ReactNode;
+					openInNewTab?: boolean;
+					variant?: string;
+				} ) => (
+					<a
+						href={ href }
+						data-variant={ variant }
+						target={ openInNewTab ? '_blank' : undefined }
+						rel={ openInNewTab ? 'noopener noreferrer' : undefined }
+						{ ...props }
+					>
+						{ children }
+					</a>
+				),
+			},
+			{
+				get: ( overrides, prop ) =>
+					prop in overrides
+						? overrides[ prop as keyof typeof overrides ]
+						: jest.requireActual( '@jetpack-premium-analytics/externals' )[ prop ],
+			}
+		)
+);
 
 /**
  * Mount the label field's render component for a table row.
@@ -87,6 +102,8 @@ describe( 'comments fields', () => {
 		expect( link ).not.toHaveAttribute( 'target' );
 	} );
 
+	// This link is built locally in `use-report-records` from the author's email, so it is
+	// document-relative by construction and must not be run through `safeHttpUrl`.
 	it( 'falls back to the external link for rows without a post id', () => {
 		renderLabelField( {
 			id: 'author-aggie',
@@ -98,5 +115,12 @@ describe( 'comments fields', () => {
 		const link = screen.getByRole( 'link', { name: 'Aggie' } );
 		expect( link ).toHaveAttribute( 'href', 'edit-comments.php?s=aggie%40example.com' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
+	} );
+
+	it( 'renders a row without a link as plain text', () => {
+		renderLabelField( { id: 'post-untitled', label: 'Untitled', value: 1 } );
+
+		expect( screen.getByText( 'Untitled' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 } );

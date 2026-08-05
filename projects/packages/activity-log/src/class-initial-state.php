@@ -15,8 +15,6 @@ use function get_bloginfo;
 use function get_locale;
 use function get_option;
 use function get_site_url;
-use function plugins_url;
-use function rest_url;
 use function wp_create_nonce;
 use function wp_json_encode;
 use function wp_parse_url;
@@ -36,10 +34,6 @@ class Initial_State {
 		$home_host       = wp_parse_url( get_site_url(), PHP_URL_HOST );
 
 		return array(
-			'API'           => array(
-				'WP_API_root'  => esc_url_raw( rest_url() ),
-				'WP_API_nonce' => wp_create_nonce( 'wp_rest' ),
-			),
 			'jetpackStatus' => array(
 				'calypsoSlug' => ( new Status() )->get_site_suffix(),
 			),
@@ -66,9 +60,6 @@ class Initial_State {
 				// URL that invalidates the access cache on return from
 				// checkout. See `Jetpack_Activity_Log::admin_init()`.
 				'refreshAccess' => wp_create_nonce( Jetpack_Activity_Log::REFRESH_ACCESS_NONCE_ACTION ),
-			),
-			'assets'        => array(
-				'buildUrl' => plugins_url( '../build/', __FILE__ ),
 			),
 		);
 	}

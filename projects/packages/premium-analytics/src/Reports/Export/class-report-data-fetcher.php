@@ -25,7 +25,7 @@ use WP_REST_Response;
 /**
  * Data Fetcher class for retrieving report data.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Report_Data_Fetcher {
 
@@ -97,7 +97,7 @@ class Report_Data_Fetcher {
 				return new WP_Error(
 					'missing_comparison_param',
 					/* translators: %s: parameter name. */
-					sprintf( __( 'Missing required comparison parameter: %s', 'jetpack-premium-analytics' ), $required ),
+					sprintf( __( 'Missing required comparison parameter: %s', 'jetpack-premium-analytics-pkg' ), $required ),
 					array( 'status' => 400 )
 				);
 			}
@@ -484,7 +484,7 @@ class Report_Data_Fetcher {
 			&& is_numeric( $data['data']['status'] )
 			&& (int) $data['data']['status'] >= 400
 		) {
-			return $this->build_external_api_error( $response );
+			return $this->build_external_api_error( $response, $data );
 		}
 
 		return $data;
@@ -497,19 +497,29 @@ class Report_Data_Fetcher {
 	 * payloads represented as stdClass. Preserve the external details in data while
 	 * keeping a consistent local error message for the CSV export route.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @param WP_REST_Response $response Response containing an external API error.
+	 * @param mixed            $data     Optional already-normalized response data.
 	 * @return WP_Error Normalized external API error.
 	 */
-	private function build_external_api_error( WP_REST_Response $response ): WP_Error {
-		$data = $this->normalize_response_data( $response->get_data() );
-		if ( is_wp_error( $data ) ) {
-			return $data;
+	private function build_external_api_error( WP_REST_Response $response, $data = null ): WP_Error {
+		if ( null === $data ) {
+			$data = $this->normalize_response_data( $response->get_data() );
 		}
 
-		$response_status  = (int) $response->get_status();
-		$status           = $response_status >= 400 ? $response_status : 500;
+		$response_status = (int) $response->get_status();
+		$status          = $response_status >= 400 ? $response_status : 500;
+		if ( is_wp_error( $data ) ) {
+			return new WP_Error(
+				'external_api_error',
+				__( 'External API error', 'jetpack-premium-analytics-pkg' ),
+				array(
+					'status' => $status,
+				)
+			);
+		}
+
 		$external_code    = null;
 		$external_message = null;
 		$external_params  = null;
@@ -561,7 +571,7 @@ class Report_Data_Fetcher {
 
 		return new WP_Error(
 			'external_api_error',
-			__( 'External API error', 'jetpack-premium-analytics' ),
+			__( 'External API error', 'jetpack-premium-analytics-pkg' ),
 			$error_data
 		);
 	}
@@ -582,7 +592,7 @@ class Report_Data_Fetcher {
 			$this->logger->log_error( 'Failed to JSON encode proxy response data: ' . json_last_error_msg(), __METHOD__ );
 			return new WP_Error(
 				'proxy_response_encode_failed',
-				__( 'Failed to normalize proxy response data.', 'jetpack-premium-analytics' )
+				__( 'Failed to normalize proxy response data.', 'jetpack-premium-analytics-pkg' )
 			);
 		}
 

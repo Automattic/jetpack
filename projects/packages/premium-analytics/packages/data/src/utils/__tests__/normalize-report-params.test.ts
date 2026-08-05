@@ -10,13 +10,13 @@ jest.mock( '../preset-date-range', () => ( {
 } ) );
 
 jest.mock( '../interval', () => ( {
-	getDefaultIntervalForPeriod: jest.fn(),
+	resolveIntervalForRange: jest.fn(),
 } ) );
 /**
  * Internal dependencies
  */
 import { getDefaultQueryParams } from '../../defaults';
-import { getDefaultIntervalForPeriod } from '../interval';
+import { resolveIntervalForRange } from '../interval';
 import { computeDateRangeFromPreset } from '../preset-date-range';
 import { normalizeReportParams } from '../search';
 import type { ReportParams } from '../search';
@@ -27,8 +27,8 @@ const mockGetDefaults = getDefaultQueryParams as jest.MockedFunction<
 const mockComputeRange = computeDateRangeFromPreset as jest.MockedFunction<
 	typeof computeDateRangeFromPreset
 >;
-const mockGetInterval = getDefaultIntervalForPeriod as jest.MockedFunction<
-	typeof getDefaultIntervalForPeriod
+const mockResolveInterval = resolveIntervalForRange as jest.MockedFunction<
+	typeof resolveIntervalForRange
 >;
 
 /*
@@ -61,7 +61,7 @@ beforeEach( () => {
 		from: FRESH_FROM,
 		to: FRESH_TO,
 	} );
-	mockGetInterval.mockReturnValue( 'day' );
+	mockResolveInterval.mockReturnValue( 'day' );
 } );
 
 describe( 'normalizeReportParams', () => {
@@ -105,11 +105,37 @@ describe( 'normalizeReportParams', () => {
 		expect( result.from ).toBe( FRESH_FROM );
 		expect( result.to ).toBe( FRESH_TO );
 		expect( result.preset ).toBe( 'last-30-days' );
+		expect( mockResolveInterval ).toHaveBeenCalledWith(
+			'last-30-days',
+			FRESH_FROM,
+			FRESH_TO,
+			'day'
+		);
+		expect( result.interval ).toBe( 'day' );
 
 		// No comparison in search → no comparison in output
 		// (search.from is present → !search.from is false
 		// → default comparison branch is skipped).
 		expect( result.comp ).toBeUndefined();
+	} );
+
+	it( 'passes the candidate interval through resolveIntervalForRange', () => {
+		mockResolveInterval.mockReturnValue( 'week' );
+
+		const result = normalizeReportParams( {
+			from: FRESH_FROM,
+			to: FRESH_TO,
+			preset: 'last-30-days',
+			interval: 'week',
+		} );
+
+		expect( mockResolveInterval ).toHaveBeenCalledWith(
+			'last-30-days',
+			FRESH_FROM,
+			FRESH_TO,
+			'week'
+		);
+		expect( result.interval ).toBe( 'week' );
 	} );
 
 	/*
@@ -198,6 +224,32 @@ describe( 'normalizeReportParams', () => {
 		expect( result.compare_from ).toBe( compFrom );
 		expect( result.compare_to ).toBe( compTo );
 		expect( result.compare_preset ).toBe( 'previous-period' );
+	} );
+
+	/*
+	 * Scenario 5b – Comparison flag arrives as a number
+	 * The router JSON-parses search values, so a URL written without JSON
+	 * quoting (hand-edited or from an older link builder) delivers comp as the
+	 * number 1. It must still enable comparison, normalized back to '1'.
+	 */
+	it( 'accepts a numeric comp flag from an unquoted URL', () => {
+		const compFrom = '2025-12-20T00:00:00.000-05:00';
+		const compTo = '2026-01-18T23:59:59.999-05:00';
+
+		const result = normalizeReportParams( {
+			from: STALE_FROM,
+			to: STALE_TO,
+			preset: 'last-30-days',
+			interval: 'day',
+			comp: 1 as unknown as '1',
+			compare_from: compFrom,
+			compare_to: compTo,
+			compare_preset: 'previous-period',
+		} );
+
+		expect( result.comp ).toBe( '1' );
+		expect( result.compare_from ).toBe( compFrom );
+		expect( result.compare_to ).toBe( compTo );
 	} );
 
 	/*

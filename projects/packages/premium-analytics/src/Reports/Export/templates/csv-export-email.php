@@ -27,33 +27,33 @@ defined( 'ABSPATH' ) || exit;
  */
 do_action( 'woocommerce_email_header', $email_heading, $email ); ?>
 
-<p><?php esc_html_e( 'Your CSV export is attached to this email.', 'jetpack-premium-analytics' ); ?></p>
+<p><?php esc_html_e( 'Your CSV export is attached to this email.', 'jetpack-premium-analytics-pkg' ); ?></p>
 
 <h2><?php echo esc_html( $report_label ); ?></h2>
 
 <p>
-	<strong><?php esc_html_e( 'Date Range:', 'jetpack-premium-analytics' ); ?></strong>
+	<strong><?php esc_html_e( 'Date Range:', 'jetpack-premium-analytics-pkg' ); ?></strong>
 	<?php
 	$from = empty( $params['from'] ) ? '' : gmdate( 'F j, Y', (int) strtotime( $params['from'] ) );
 	$to   = empty( $params['to'] ) ? '' : gmdate( 'F j, Y', (int) strtotime( $params['to'] ) );
 	/* translators: 1: Start date, 2: End date */
-	echo esc_html( sprintf( __( '%1$s to %2$s', 'jetpack-premium-analytics' ), $from, $to ) );
+	echo esc_html( sprintf( __( '%1$s to %2$s', 'jetpack-premium-analytics-pkg' ), $from, $to ) );
 	?>
 </p>
 
 <?php if ( $is_comparison ) : ?>
 	<p>
-		<strong><?php esc_html_e( 'Comparison Period:', 'jetpack-premium-analytics' ); ?></strong>
+		<strong><?php esc_html_e( 'Comparison Period:', 'jetpack-premium-analytics-pkg' ); ?></strong>
 		<?php
 		$compare_from = empty( $params['compare_from'] ) ? '' : gmdate( 'F j, Y', (int) strtotime( $params['compare_from'] ) );
 		$compare_to   = empty( $params['compare_to'] ) ? '' : gmdate( 'F j, Y', (int) strtotime( $params['compare_to'] ) );
 		/* translators: 1: Start date, 2: End date */
-		echo esc_html( sprintf( __( '%1$s to %2$s', 'jetpack-premium-analytics' ), $compare_from, $compare_to ) );
+		echo esc_html( sprintf( __( '%1$s to %2$s', 'jetpack-premium-analytics-pkg' ), $compare_from, $compare_to ) );
 		?>
 	</p>
 <?php endif; ?>
 
-<p><?php esc_html_e( 'The report is attached as a CSV file.', 'jetpack-premium-analytics' ); ?></p>
+<p><?php esc_html_e( 'The report is attached as a CSV file.', 'jetpack-premium-analytics-pkg' ); ?></p>
 
 <?php
 /**

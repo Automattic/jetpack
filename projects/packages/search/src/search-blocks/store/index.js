@@ -492,6 +492,14 @@ function* fetchResults( pageHandle ) {
 		// so a same-keyed default in the `store()` state object would be applied
 		// *after* and clobber the seeded value back down every time.
 		size: state.resultsPerPage ?? 10,
+		// Instant Search options seeded by Search_Blocks — no client defaults
+		// so a missing seed stays unset rather than overriding PHP.
+		highlightPhraseOnly: state.highlightPhraseOnly ?? false,
+		highlightFilterStopwords: state.highlightFilterStopwords ?? [],
+		highlightFields: state.highlightFields ?? null,
+		additionalBlogIds: state.additionalBlogIds ?? [],
+		adminQueryFilter: state.adminQueryFilter ?? null,
+		customResults: state.customResults ?? [],
 	} );
 	const response = yield fetch( url, {
 		headers: state.isPrivateSite ? { 'X-WP-Nonce': state.nonce } : {},
@@ -1033,7 +1041,7 @@ const { state, actions } = store( NAMESPACE, {
 					return;
 				}
 				const nextResults = ( data.results ?? [] ).map( ( r, i ) => ( {
-					...normalizeResult( r, state.locale, state.searchQuery ),
+					...normalizeResult( r, state.locale, state.searchQuery, state.isPhotonEnabled ),
 					index: i,
 				} ) );
 				replaceStateArray( 'results', nextResults );
@@ -1095,7 +1103,7 @@ const { state, actions } = store( NAMESPACE, {
 				}
 				const offset = state.results.length;
 				const appended = ( data.results ?? [] ).map( ( r, i ) => ( {
-					...normalizeResult( r, state.locale, state.searchQuery ),
+					...normalizeResult( r, state.locale, state.searchQuery, state.isPhotonEnabled ),
 					index: offset + i,
 				} ) );
 				state.results.push( ...appended );

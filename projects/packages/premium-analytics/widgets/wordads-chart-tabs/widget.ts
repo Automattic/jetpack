@@ -55,28 +55,28 @@ export default {
 	attributes: [
 		{
 			id: 'granularity',
-			label: __( 'Group by', 'jetpack-premium-analytics' ),
+			label: __( 'Group by', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
 			Edit: SelectField,
 			elements: [
 				{
-					label: __( 'Auto', 'jetpack-premium-analytics' ),
+					label: __( 'Auto', 'jetpack-premium-analytics-pkg' ),
 					value: 'auto',
 				},
 				{
-					label: __( 'By days', 'jetpack-premium-analytics' ),
+					label: __( 'By days', 'jetpack-premium-analytics-pkg' ),
 					value: 'day',
 				},
 				{
-					label: __( 'By weeks', 'jetpack-premium-analytics' ),
+					label: __( 'By weeks', 'jetpack-premium-analytics-pkg' ),
 					value: 'week',
 				},
 				{
-					label: __( 'By months', 'jetpack-premium-analytics' ),
+					label: __( 'By months', 'jetpack-premium-analytics-pkg' ),
 					value: 'month',
 				},
 				{
-					label: __( 'By years', 'jetpack-premium-analytics' ),
+					label: __( 'By years', 'jetpack-premium-analytics-pkg' ),
 					value: 'year',
 				},
 			],
@@ -84,7 +84,7 @@ export default {
 		},
 		{
 			id: 'metrics',
-			label: __( 'Metrics', 'jetpack-premium-analytics' ),
+			label: __( 'Metrics', 'jetpack-premium-analytics-pkg' ),
 			type: 'array',
 			relevance: 'high',
 			Edit: ArrayCheckboxField,

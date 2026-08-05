@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.23.4] - 2026-08-03
+### Removed
+- Dashboard: Remove redundant workaround for a dashboard loading edge case now fixed in bundled dependencies. No functional change. [#50780]
+
+### Fixed
+- Keep responses readable when a field label, submitted value, or page title contains a "<" character. [#50817]
+- Load JS translation catalogs and stamp the package text domain on the wp-build dashboard bundles. [#50762]
+
+## [7.23.3] - 2026-07-27
+### Changed
+- Update dependencies. [#50719]
+- Update package dependencies. [#50717] [#50751] [#50753] [#50792]
+
 ## [7.23.2] - 2026-07-20
 ### Changed
 - Update package dependencies. [#50510] [#50529]
@@ -2597,6 +2610,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.23.4]: https://github.com/automattic/jetpack-forms/compare/v7.23.3...v7.23.4
+[7.23.3]: https://github.com/automattic/jetpack-forms/compare/v7.23.2...v7.23.3
 [7.23.2]: https://github.com/automattic/jetpack-forms/compare/v7.23.1...v7.23.2
 [7.23.1]: https://github.com/automattic/jetpack-forms/compare/v7.23.0...v7.23.1
 [7.23.0]: https://github.com/automattic/jetpack-forms/compare/v7.22.6...v7.23.0

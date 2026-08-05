@@ -46,10 +46,10 @@ export function TopPerformingBookingsWidget( { limit = 5 }: TopPerformingBooking
 			limit={ limit }
 			filter={ BOOKINGS_FILTER }
 			emptyStateIcon={ calendar }
-			emptyStateText={ __( 'No booking sales in this period.', 'jetpack-premium-analytics' ) }
+			emptyStateText={ __( 'No booking sales in this period.', 'jetpack-premium-analytics-pkg' ) }
 			errorText={ __(
 				"We couldn't load bookings data. Please try again in a moment.",
-				'jetpack-premium-analytics'
+				'jetpack-premium-analytics-pkg'
 			) }
 		/>
 	);

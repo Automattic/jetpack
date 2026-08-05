@@ -17,10 +17,10 @@ import { ArrayCheckboxField } from '@jetpack-premium-analytics/fields';
  * icons and counts fields.
  */
 export const SUBSCRIBER_METRICS = [
-	{ id: 'total', label: __( 'Total subscribers', 'jetpack-premium-analytics' ) },
-	{ id: 'paid', label: __( 'Paid subscribers', 'jetpack-premium-analytics' ) },
-	{ id: 'free', label: __( 'Free subscribers', 'jetpack-premium-analytics' ) },
-	{ id: 'social', label: __( 'Social followers', 'jetpack-premium-analytics' ) },
+	{ id: 'total', label: __( 'Total subscribers', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'paid', label: __( 'Paid subscribers', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'free', label: __( 'Free subscribers', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'social', label: __( 'Social followers', 'jetpack-premium-analytics-pkg' ) },
 ] as const satisfies readonly { id: string; label: string }[];
 
 /**
@@ -58,7 +58,7 @@ export default {
 	attributes: [
 		{
 			id: 'metrics',
-			label: __( 'Metrics', 'jetpack-premium-analytics' ),
+			label: __( 'Metrics', 'jetpack-premium-analytics-pkg' ),
 			type: 'array',
 			relevance: 'high',
 			Edit: ArrayCheckboxField,

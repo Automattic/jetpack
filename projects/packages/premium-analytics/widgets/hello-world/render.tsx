@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Stack, Text } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -22,7 +22,7 @@ export default function HelloWorld( { attributes = {} }: HelloWorldWidgetProps )
 	return (
 		<Stack align="center" justify="center" className={ styles.root }>
 			<Text variant="heading-2xl" render={ <h2 /> }>
-				{ attributes.message || __( 'Hello World', 'jetpack-premium-analytics' ) }
+				{ attributes.message || __( 'Hello World', 'jetpack-premium-analytics-pkg' ) }
 			</Text>
 		</Stack>
 	);

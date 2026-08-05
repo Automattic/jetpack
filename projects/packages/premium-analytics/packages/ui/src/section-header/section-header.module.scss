@@ -1,0 +1,25 @@
+/*
+ * The controls slot takes whatever width the title leaves, so its occupant is
+ * sized by the header rather than by its own content.
+ *
+ * This matters because the date controls measure their own box to pick a
+ * responsive layout. In a shrink-to-fit slot they measure the width they want
+ * instead of the width they have, always conclude that everything fits, and
+ * overflow the header still showing the full labels. The report pages hand the
+ * same panel a full-row box for the same reason: see `.filtersContent` in
+ * `report-page-layout.module.scss`.
+ */
+.controls {
+	flex: 1 1 0%;
+	min-inline-size: 0;
+
+	/*
+	 * The panel fills the slot, so the header's end-anchoring has to happen
+	 * inside it rather than through the slot's own `justify`. Scoped to the
+	 * panel: the other occupant of this slot is the year filter, a bordered
+	 * group that has to keep its natural width.
+	 */
+	:global(.date-filters-panel) {
+		justify-content: flex-end;
+	}
+}

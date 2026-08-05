@@ -55,10 +55,10 @@ const MAP_MIN_WIDTH = 720;
 function buildEmailGeoData( rows: EmailBreakdownRow[], metric: EmailBreakdownMetric ): GeoData {
 	return [
 		[
-			__( 'Country', 'jetpack-premium-analytics' ),
+			__( 'Country', 'jetpack-premium-analytics-pkg' ),
 			metric === 'clicks'
-				? __( 'Clicks', 'jetpack-premium-analytics' )
-				: __( 'Opens', 'jetpack-premium-analytics' ),
+				? __( 'Clicks', 'jetpack-premium-analytics-pkg' )
+				: __( 'Opens', 'jetpack-premium-analytics-pkg' ),
 		],
 		...rows
 			.filter( row => Boolean( row.countryCode ) )
@@ -124,14 +124,14 @@ function buildLeaderboardData(
 function emptyStateText( view: EmailBreakdownView ): string {
 	switch ( view ) {
 		case 'devices':
-			return __( 'No device data for this email yet.', 'jetpack-premium-analytics' );
+			return __( 'No device data for this email yet.', 'jetpack-premium-analytics-pkg' );
 		case 'clients':
-			return __( 'No email client data for this email yet.', 'jetpack-premium-analytics' );
+			return __( 'No email client data for this email yet.', 'jetpack-premium-analytics-pkg' );
 		case 'links':
-			return __( 'No link clicks for this email yet.', 'jetpack-premium-analytics' );
+			return __( 'No link clicks for this email yet.', 'jetpack-premium-analytics-pkg' );
 		case 'countries':
 		default:
-			return __( 'No country data for this email yet.', 'jetpack-premium-analytics' );
+			return __( 'No country data for this email yet.', 'jetpack-premium-analytics-pkg' );
 	}
 }
 
@@ -230,17 +230,17 @@ export const EmailBreakdownLeaderboard = ( {
 				error={ {
 					description: __(
 						"We couldn't load this email's breakdown. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 					actions: onRetry
-						? [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: onRetry } ]
+						? [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: onRetry } ]
 						: undefined,
 				} }
 				empty={ {
 					icon: envelope,
 					description: hasEmail
 						? emptyStateText( view )
-						: __( 'Select an email to see its breakdown.', 'jetpack-premium-analytics' ),
+						: __( 'Select an email to see its breakdown.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				<div className={ renderMap ? styles.locationContent : styles.content }>

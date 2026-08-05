@@ -37,19 +37,34 @@ class Dashboard_Support_Routes {
 	 * Deferred here (rest_api_init), not run from register() itself: register()
 	 * runs on every request that boots this package, and on WPCOM Simple that's
 	 * every request across all of WPCOM's public-api process, most of which
-	 * never dispatch a Premium Analytics route. dashboard-layout.php hooks
-	 * get_user_metadata unconditionally at file scope, and dashboard-sections.php
-	 * hydrates its own section registry at file scope — neither should run
-	 * before WordPress has decided this request is actually dispatching a REST
-	 * route. widget-modules.php hydrates the widget type registry itself, lazily,
+	 * never dispatch a Premium Analytics route. dashboard-sections.php hydrates
+	 * its own section registry at file scope, which should not run before
+	 * WordPress has decided this request is actually dispatching a REST route.
+	 * widget-modules.php hydrates the widget type registry itself, lazily,
 	 * only when its REST callback or the boot-deps filter actually runs.
 	 *
 	 * @return void
 	 */
 	public static function boot_routes() {
-		require_once __DIR__ . '/widget-modules.php';
-		require_once __DIR__ . '/dashboard-layout.php';
-		require_once __DIR__ . '/dashboard-sections.php';
+		// Load-bearing, not defensive duplication: since WOOA7S-1804 these files load
+		// only in wp-admin, so on REST this method is their only loader.
+		//
+		// Guarded on a symbol from each file: two copies of this package can be loaded
+		// in one request, and these file-scope functions are outside the autoloader's
+		// dedupe. See Analytics::load_dashboard_components() for the full rationale.
+		if ( ! function_exists( __NAMESPACE__ . '\\register_widget_modules_rest_route' ) ) {
+			require_once __DIR__ . '/widget-modules.php';
+		}
+		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_default_layout_route' ) ) {
+			require_once __DIR__ . '/dashboard-layout.php';
+		}
+		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_section' ) ) {
+			require_once __DIR__ . '/dashboard-sections.php';
+		}
+
+		// These routes are gated on the dashboard capability, and WPCOM Simple boots
+		// this class standalone, without going through Analytics::init().
+		Capabilities::register();
 
 		register_widget_modules_rest_route();
 		register_dashboard_default_layout_route();

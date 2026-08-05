@@ -72,9 +72,9 @@ function PostCommentsInner() {
 				error={ {
 					description: __(
 						"We couldn't load these comments. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
 					icon: reports,
@@ -82,9 +82,9 @@ function PostCommentsInner() {
 						postId <= 0
 							? __(
 									'Open a post or page report to see its comments here.',
-									'jetpack-premium-analytics'
+									'jetpack-premium-analytics-pkg'
 							  )
-							: __( 'There are no comments yet.', 'jetpack-premium-analytics' ),
+							: __( 'There are no comments yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				<SubscriberList items={ items } moreCount={ Math.max( 0, found - items.length ) } />

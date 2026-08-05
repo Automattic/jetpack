@@ -58,7 +58,7 @@ final class Widget_Type_Registry {
 		if ( ! is_string( $name ) ) {
 			_doing_it_wrong(
 				__METHOD__,
-				esc_html__( 'Widget type names must be strings.', 'jetpack-premium-analytics' ),
+				esc_html__( 'Widget type names must be strings.', 'jetpack-premium-analytics-pkg' ),
 				'0.1.0'
 			);
 			return false;
@@ -67,7 +67,7 @@ final class Widget_Type_Registry {
 		if ( preg_match( '/[A-Z]+/', $name ) ) {
 			_doing_it_wrong(
 				__METHOD__,
-				esc_html__( 'Widget type names must not contain uppercase characters.', 'jetpack-premium-analytics' ),
+				esc_html__( 'Widget type names must not contain uppercase characters.', 'jetpack-premium-analytics-pkg' ),
 				'0.1.0'
 			);
 			return false;
@@ -77,7 +77,7 @@ final class Widget_Type_Registry {
 		if ( ! preg_match( $name_matcher, $name ) ) {
 			_doing_it_wrong(
 				__METHOD__,
-				esc_html__( 'Widget type names must contain a namespace prefix. Example: my-plugin/my-custom-widget-type', 'jetpack-premium-analytics' ),
+				esc_html__( 'Widget type names must contain a namespace prefix. Example: my-plugin/my-custom-widget-type', 'jetpack-premium-analytics-pkg' ),
 				'0.1.0'
 			);
 			return false;
@@ -88,7 +88,7 @@ final class Widget_Type_Registry {
 				__METHOD__,
 				sprintf(
 					/* translators: %s: Widget type name. */
-					esc_html__( 'Widget type "%s" is already registered.', 'jetpack-premium-analytics' ),
+					esc_html__( 'Widget type "%s" is already registered.', 'jetpack-premium-analytics-pkg' ),
 					esc_html( $name )
 				),
 				'0.1.0'
@@ -123,7 +123,7 @@ final class Widget_Type_Registry {
 				__METHOD__,
 				sprintf(
 					/* translators: %s: Widget type name. */
-					esc_html__( 'Widget type "%s" is not registered.', 'jetpack-premium-analytics' ),
+					esc_html__( 'Widget type "%s" is not registered.', 'jetpack-premium-analytics-pkg' ),
 					esc_html( $name )
 				),
 				'0.1.0'

@@ -100,7 +100,9 @@ export function useSyncStatus(): UseSyncStatusReturn {
 					clearPolling();
 					setIsStalled( true );
 					setError(
-						new Error( __( 'Sync has stalled. Please try again.', 'jetpack-premium-analytics' ) )
+						new Error(
+							__( 'Sync has stalled. Please try again.', 'jetpack-premium-analytics-pkg' )
+						)
 					);
 				}
 			} )
@@ -108,7 +110,7 @@ export function useSyncStatus(): UseSyncStatusReturn {
 				const message =
 					e instanceof Error
 						? e.message
-						: __( 'Unable to get sync status.', 'jetpack-premium-analytics' );
+						: __( 'Unable to get sync status.', 'jetpack-premium-analytics-pkg' );
 				// Keep polling through transient blips; only give up once failures
 				// pile up, so a momentary network/500 hiccup self-heals next tick.
 				failureCountRef.current += 1;
@@ -140,7 +142,9 @@ export function useSyncStatus(): UseSyncStatusReturn {
 			startPolling();
 		} catch ( e: unknown ) {
 			const message =
-				e instanceof Error ? e.message : __( 'Unable to start sync.', 'jetpack-premium-analytics' );
+				e instanceof Error
+					? e.message
+					: __( 'Unable to start sync.', 'jetpack-premium-analytics-pkg' );
 			setError( new Error( message ) );
 		}
 	}, [ clearPolling, poll, startPolling ] );

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-07-31
+### Added
+- Add a `requireI18nSource` option to skip gettext-shaped calls whose callee provably comes from a module other than the i18n one — needed when the plugin runs over whole bundles rather than hand-written source.
+
 ## [1.1.6] - 2026-06-22
 ### Changed
 - Update package dependencies. [#49757]
@@ -277,6 +281,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release.
 - Replace missing domains too.
 
+[1.2.0]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.1.6...v1.2.0
 [1.1.6]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.1.5...v1.1.6
 [1.1.5]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.1.4...v1.1.5
 [1.1.4]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.1.3...v1.1.4

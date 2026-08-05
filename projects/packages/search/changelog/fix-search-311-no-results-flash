@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Instant Search: Avoid a brief "No results found" flash before a search starts.

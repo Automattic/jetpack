@@ -32,7 +32,7 @@ export default {
 	attributes: [
 		{
 			id: 'max',
-			label: __( 'Maximum videos', 'jetpack-premium-analytics' ),
+			label: __( 'Maximum videos', 'jetpack-premium-analytics-pkg' ),
 			type: 'integer',
 		},
 	] as WidgetAttributeField< VideoPressAttributes >[],

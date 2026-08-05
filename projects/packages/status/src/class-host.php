@@ -41,6 +41,20 @@ class Host {
 	}
 
 	/**
+	 * Determine if this site is hosted on the Pressable platform.
+	 *
+	 * Relies on the `IS_PRESSABLE` platform constant rather than URL or
+	 * domain matching, which can be spoofed and changes across environments.
+	 *
+	 * @since 6.2.0
+	 *
+	 * @return bool
+	 */
+	public function is_pressable() {
+		return Constants::is_true( 'IS_PRESSABLE' );
+	}
+
+	/**
 	 * Determine if this is a Newspack site.
 	 *
 	 * @return bool

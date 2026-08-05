@@ -1,0 +1,16 @@
+{
+	"name": "jpa/most-commented-authors",
+	"title": "Most commented authors",
+	"description": "The people who comment the most on your site.",
+	"help": {
+		"content": "Your most active commenters, ranked by the number of comments they have left.",
+		"links": [
+			{
+				"label": "Learn more",
+				"href": "https://jetpack.com/support/jetpack-stats/"
+			}
+		]
+	},
+	"category": "stats",
+	"presentation": "framed"
+}

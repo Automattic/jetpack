@@ -122,13 +122,13 @@ function MyWidget( { series } ) {
 
 ## Props
 
-| Prop         | Type                           | Required | Description                                        |
-| ------------ | ------------------------------ | -------- | -------------------------------------------------- |
-| `series`     | `ComparativeLineChartSeries[]` | Yes      | Array of series with data                          |
-| `styles`     | `SeriesStyle[]`                | No       | Styles for each series (by index)                  |
-| `dataFormat` | `DataFormat`                   | Yes      | Format for values (Y-axis ticks and tooltips)      |
-| `tickFormat` | `string`                       | No       | Custom X-axis date format (date-fns format string) |
-| `className`  | `string`                       | No       | CSS class for the chart container                  |
+| Prop         | Type                           | Required | Description                                                   |
+| ------------ | ------------------------------ | -------- | ------------------------------------------------------------- |
+| `series`     | `ComparativeLineChartSeries[]` | Yes      | Array of series with data                                     |
+| `styles`     | `SeriesStyle[]`                | No       | Styles for each series (by index)                             |
+| `dataFormat` | `DataFormat`                   | Yes      | Format for values (Y-axis ticks and tooltips)                 |
+| `tickFormat` | `DateFormatName`               | No       | Named X-axis date format; uses the chart default when omitted |
+| `className`  | `string`                       | No       | CSS class for the chart container                             |
 
 ## SeriesStyle Type
 
