@@ -11,7 +11,7 @@ import { useService } from '../../services/use-service';
 import styles from './style.module.scss';
 import type { ConnectionService } from '../../../types';
 import type { ConnectInputValues } from '../../services/connect-input-validation';
-import type { ChangeEvent, FormEvent } from 'react';
+import type { ChangeEvent, FocusEvent, FormEvent } from 'react';
 
 /**
  * The input step of the connection flow, for the services needing credentials
@@ -47,6 +47,7 @@ export function PlatformInput() {
 
 	const [ isSubmitting, setIsSubmitting ] = useState( false );
 	const [ submitError, setSubmitError ] = useState< string | null >( null );
+	const [ touched, setTouched ] = useState< Record< string, boolean > >( {} );
 
 	const getService = useService();
 	const service = getService( serviceId );
@@ -138,6 +139,15 @@ export function PlatformInput() {
 		[ setConnectionFlowInput ]
 	);
 
+	/*
+	 * A field's own error only appears once the user has left it, so the message
+	 * doesn't fight them while they are still typing the value out.
+	 */
+	const onBlur = useCallback( ( event: FocusEvent< HTMLInputElement > ) => {
+		const { name } = event.target;
+		setTouched( current => ( current[ name ] ? current : { ...current, [ name ]: true } ) );
+	}, [] );
+
 	if ( ! fields.length ) {
 		return null;
 	}
@@ -154,11 +164,23 @@ export function PlatformInput() {
 				) : null }
 
 				{ fields.map( field => {
+					/*
+					 * What the user typed is wrong: say so under the field itself, but
+					 * only after they've moved on from it. A duplicate account is not a
+					 * field-level problem, so it goes to the notice below instead.
+					 */
+					const fieldError =
+						'invalid' === error?.code && error.field === field.name && touched[ field.name ]
+							? error.message
+							: null;
+
 					const value = values[ field.name ] ?? '';
 					const hint =
 						'bluesky' === serviceId && 'handle' === field.name
 							? getBlueskyHandleHint( value )
 							: null;
+
+					const problem = fieldError ?? hint;
 
 					return (
 						<InputControl
@@ -167,10 +189,13 @@ export function PlatformInput() {
 							type={ field.type }
 							value={ value }
 							onChange={ onChange }
+							onBlur={ onBlur }
 							label={ field.label }
 							placeholder={ field.placeholder }
 							description={ field.description }
-							details={ hint ? <span className={ styles.hint }>{ hint }</span> : field.details }
+							details={
+								problem ? <span className={ styles.hint }>{ problem }</span> : field.details
+							}
 							autoComplete="off"
 							autoCapitalize="off"
 							autoCorrect="off"
@@ -179,9 +204,8 @@ export function PlatformInput() {
 					);
 				} ) }
 
-				{ /* Duplicates are called out while typing — unlike a malformed handle,
-				     the field alone cannot explain the refusal. A submit failure (e.g.
-				     a blocked popup) shows here too, since it has no field to attach to. */ }
+				{ /* A duplicate account, and a submit failure such as a blocked popup,
+				     have no single field to attach to. */ }
 				{ ( 'duplicate' === error?.code || submitError ) && (
 					<Notice.Root intent="error">
 						<Notice.Description>{ submitError ?? error?.message }</Notice.Description>

@@ -119,6 +119,20 @@ describe( 'PlatformInput', () => {
 		expect( getSubmitButton() ).toHaveAttribute( 'aria-disabled', 'false' );
 	} );
 
+	test( 'explains a malformed handle once the field is left', async () => {
+		const user = userEvent.setup();
+		renderStep( 'mastodon' );
+
+		await user.type( getHandleField(), 'not-a-handle' );
+
+		// Still typing — no nagging yet.
+		expect( screen.queryByText( 'Invalid Mastodon username' ) ).not.toBeInTheDocument();
+
+		await user.tab();
+
+		expect( screen.getByText( 'Invalid Mastodon username' ) ).toBeInTheDocument();
+	} );
+
 	test( 'flags a Bluesky handle that carries dots before the suffix', async () => {
 		const user = userEvent.setup();
 		renderStep( 'bluesky' );
