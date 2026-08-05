@@ -1314,13 +1314,11 @@ class Contact_Form_Test extends BaseTestCase {
 	public function test_rendered_form_carries_form_fill_duration_markup() {
 		$html = do_shortcode( "[contact-form][contact-field label='Name' type='name' required='1'/][/contact-form]" );
 
+		// Asserted as a pair: an unanchored `value=''` would also match the Name field, which
+		// renders an empty value of its own, so it would pass even if the duration input
+		// carried a default.
 		$this->assertStringContainsString(
-			"name='" . Feedback::FORM_FILL_DURATION_FIELD . "'",
-			$html,
-			'The rendered form should include the hidden duration input'
-		);
-		$this->assertStringContainsString(
-			"value=''",
+			"name='" . Feedback::FORM_FILL_DURATION_FIELD . "' value=''",
 			$html,
 			'The duration input should render empty so an unrecorded duration stores as null'
 		);
