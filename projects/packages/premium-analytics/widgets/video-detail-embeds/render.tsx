@@ -10,12 +10,13 @@ import {
 	ChartEmptyState,
 	WidgetRoot,
 	WidgetState,
+	safeHttpUrl,
 	useWidgetRootContext,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { video } from '@wordpress/icons';
-import { Link, Stack } from '@wordpress/ui';
+import { Link, Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -37,8 +38,8 @@ type VideoEmbedsListProps = {
 };
 
 /**
- * Presentational list for the "Video embeds" widget: the pages where the
- * selected video is embedded, each as an external link. Loading / error /
+ * Presentational list for the "Used on posts & pages" widget: the pages where
+ * the selected video is embedded, each as an external link. Loading / error /
  * empty are owned by the surrounding `WidgetState`.
  *
  * @param {VideoEmbedsListProps} props - The component props.
@@ -47,19 +48,32 @@ type VideoEmbedsListProps = {
 function VideoEmbedsList( { pages }: VideoEmbedsListProps ) {
 	return (
 		<ul className={ styles.list }>
-			{ pages.map( ( page, index ) => (
-				<li key={ `${ index }-${ page.link }` } className={ styles.item }>
-					<Link
-						className={ styles.link }
-						href={ page.link }
-						variant="unstyled"
-						openInNewTab
-						title={ page.label }
-					>
-						{ page.label }
-					</Link>
-				</li>
-			) ) }
+			{ pages.map( ( page, index ) => {
+				// The report returns each embed location as a bare string used verbatim
+				// as the href, so a page that is not a safe http(s) URL still lists as
+				// plain text rather than becoming a clickable link.
+				const href = safeHttpUrl( page.link );
+
+				return (
+					<li key={ `${ index }-${ page.link }` } className={ styles.item }>
+						{ href ? (
+							<Link
+								className={ styles.link }
+								href={ href }
+								variant="unstyled"
+								openInNewTab
+								title={ page.label }
+							>
+								{ page.label }
+							</Link>
+						) : (
+							<span className={ styles.link } title={ page.label }>
+								{ page.label }
+							</span>
+						) }
+					</li>
+				);
+			} ) }
 		</ul>
 	);
 }
@@ -76,10 +90,7 @@ function VideoDetailEmbedsReport() {
 	const { reportParams } = useWidgetRootContext();
 	const videoId = toPostId( reportParams.post_id );
 
-	const { data, isLoading, isFetching, isError, refetch } = useStatsSingleVideo(
-		videoId,
-		reportParams
-	);
+	const { data, isLoading, isFetching, isError, refetch } = useStatsSingleVideo( videoId );
 
 	let body;
 
@@ -89,7 +100,7 @@ function VideoDetailEmbedsReport() {
 				icon={ video }
 				text={ __(
 					'Select a video to see where it is embedded across your site.',
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				) }
 			/>
 		);
@@ -108,17 +119,20 @@ function VideoDetailEmbedsReport() {
 				error={ {
 					description: __(
 						"We couldn't load video embeds. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 					actions: [
-						{ label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: () => void refetch() },
+						{
+							label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
+							onClick: () => void refetch(),
+						},
 					],
 				} }
 				empty={ {
 					icon: video,
 					description: __(
 						'This video has not been embedded on any pages yet.',
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 				} }
 			>
@@ -135,7 +149,7 @@ function VideoDetailEmbedsReport() {
 }
 
 /**
- * Video embeds widget render entry point.
+ * "Used on posts & pages" widget render entry point.
  *
  * WidgetRoot provides the analytics query client, chart theme, and the report
  * params consumed by the inner component — including the single-video scope

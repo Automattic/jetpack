@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the age gate in the editor: the birth date can now be submitted, and lowering a video's rating removes the gate.

@@ -11,6 +11,7 @@ import { connect } from 'react-redux';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
 import { isOdysseyStatsEnabled } from 'state/initial-state';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '../../../shared/analytics-url';
 
 class DashStatsBottom extends Component {
 	statsBottom() {
@@ -47,6 +48,10 @@ class DashStatsBottom extends Component {
 
 	render() {
 		const s = this.statsBottom()[ 0 ];
+		// Null only where the dashboard is the analytics UI and this user cannot open it.
+		const analyticsUrl = hasAnalyticsDashboard()
+			? getAnalyticsUrl( { view: 'dashboard' } )
+			: this.props.siteAdminUrl + 'admin.php?page=stats';
 
 		return (
 			<div>
@@ -98,15 +103,12 @@ class DashStatsBottom extends Component {
 					<div className="jp-at-a-glance__stats-ctas">
 						{
 							// Only show link for non-atomic Jetpack sites.
-							createInterpolateElement( __( '<button>View detailed stats</button>', 'jetpack' ), {
-								button: (
-									<Button
-										href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
-										onClick={ this.trackViewDetailedStats }
-										primary
-									/>
-								),
-							} )
+							analyticsUrl &&
+								createInterpolateElement( __( '<button>View detailed stats</button>', 'jetpack' ), {
+									button: (
+										<Button href={ analyticsUrl } onClick={ this.trackViewDetailedStats } primary />
+									),
+								} )
 						}
 						{ this.props.isLinked &&
 							! this.props.isOdysseyStatsEnabled && // Only show if Odyssey Stats is disabled

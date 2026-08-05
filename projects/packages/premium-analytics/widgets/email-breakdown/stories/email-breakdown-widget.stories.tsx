@@ -137,7 +137,9 @@ export const Default: Story = {
 };
 
 /**
- * The wide Location clicks card used by the fixed Email clicks composition.
+ * The optional map beside the countries leaderboard. No fixed composition
+ * enables it anymore (the Email clicks Locations card is a plain leaderboard
+ * per the design mocks); the story keeps the capability covered.
  */
 export const LocationClicksWithMap: Story = {
 	render: renderEmailBreakdown,

@@ -935,6 +935,9 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		$load_hook = 'load-jetpack_page_' . $announcement_class::PAGE_SLUG;
 
 		// Self-hosted: not a wpcom platform (IS_WPCOM is not defined).
+		// The announcement is also gated on the site-ID cutoff, so give the site
+		// an ID that predates the Subscribers move.
+		$this->set_announcement_site_id( $announcement_class::SITE_ID_CUTOFF - 1 );
 		delete_option( $announcement_class::REMOVED_OPTION );
 		add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_true' );
 		remove_all_actions( $load_hook );
@@ -948,6 +951,59 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 
 		remove_all_actions( $load_hook );
 		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
+		$this->clear_announcement_site_id();
+	}
+
+	/**
+	 * Sites registered at or after the Subscribers move never saw the old
+	 * placement, so add_subscribers_menu() must not register the announcement
+	 * page for them — not even as the bare fallback.
+	 */
+	public function test_announcement_menu_is_not_added_above_site_id_cutoff() {
+		$announcement_class = 'Automattic\Jetpack\Newsletter\Subscribers_Announcement';
+		if ( ! class_exists( $announcement_class ) ) {
+			$this->markTestSkipped( 'Newsletter Subscribers_Announcement class is not available.' );
+		}
+
+		$load_hook = 'load-jetpack_page_' . $announcement_class::PAGE_SLUG;
+
+		// Same setup as the self-hosted test above, but with a site ID at the
+		// cutoff — the bound is exclusive, so this site must not get the page.
+		$this->set_announcement_site_id( $announcement_class::SITE_ID_CUTOFF );
+		delete_option( $announcement_class::REMOVED_OPTION );
+		add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_true' );
+		remove_all_actions( $load_hook );
+
+		Jetpack_Subscriptions::init()->add_subscribers_menu();
+
+		$this->assertFalse(
+			has_action( $load_hook ),
+			'Sites at or above the site-ID cutoff must not get the Subscribers announcement menu.'
+		);
+
+		remove_all_actions( $load_hook );
+		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
+		$this->clear_announcement_site_id();
+	}
+
+	/**
+	 * Give the site a WPCOM site ID and refresh the cached connection status, so
+	 * Subscribers_Announcement::is_enabled() sees it.
+	 *
+	 * @param int $site_id The site ID to store.
+	 */
+	private function set_announcement_site_id( $site_id ) {
+		Jetpack_Options::update_option( 'id', $site_id );
+		( new \Automattic\Jetpack\Connection\Manager() )->reset_connection_status();
+	}
+
+	/**
+	 * Drop the site ID set by set_announcement_site_id() so it cannot leak into
+	 * later tests in this class.
+	 */
+	private function clear_announcement_site_id() {
+		Jetpack_Options::delete_option( 'id' );
+		( new \Automattic\Jetpack\Connection\Manager() )->reset_connection_status();
 	}
 
 	/**
@@ -964,8 +1020,12 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 
 		$load_hook = 'load-jetpack_page_' . $announcement_class::PAGE_SLUG;
 
-		// Simulate a wpcom platform (Simple/WoA).
+		// Simulate a wpcom platform (Simple/WoA). Give the site a qualifying ID so
+		// this asserts the platform check specifically — without it the site-ID
+		// gate would suppress the menu first and the test would pass for the
+		// wrong reason.
 		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+		$this->set_announcement_site_id( $announcement_class::SITE_ID_CUTOFF - 1 );
 		delete_option( $announcement_class::REMOVED_OPTION );
 		add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_true' );
 		remove_all_actions( $load_hook );
@@ -980,6 +1040,7 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		// Cleanup so the simulated platform does not leak into later tests.
 		remove_all_actions( $load_hook );
 		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
+		$this->clear_announcement_site_id();
 		\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
 	}
 }

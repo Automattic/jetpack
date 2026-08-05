@@ -19,7 +19,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Contr
  * Handles CSV exports for the Orders Fulfilled Over Time report, supporting both
  * single interval and comparison interval data. Filters orders by fulfillment status.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Orders_Fulfilled_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 
@@ -38,7 +38,7 @@ class Orders_Fulfilled_Over_Time_Controller extends Abstract_Csv_Report_Controll
 	 * @return string The report label.
 	 */
 	public function get_report_label(): string {
-		return __( 'Orders Fulfilled Over Time', 'jetpack-premium-analytics' );
+		return __( 'Orders Fulfilled Over Time', 'jetpack-premium-analytics-pkg' );
 	}
 
 	/**
@@ -92,7 +92,7 @@ class Orders_Fulfilled_Over_Time_Controller extends Abstract_Csv_Report_Controll
 	public function get_column_headers( ?string $interval = null ): array {
 		return array(
 			'time_interval' => $this->get_interval_label( $interval ),
-			'orders_no'     => __( 'Fulfilled Orders', 'jetpack-premium-analytics' ),
+			'orders_no'     => __( 'Fulfilled Orders', 'jetpack-premium-analytics-pkg' ),
 		);
 	}
 

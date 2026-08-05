@@ -25,6 +25,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withStoryRouter } from '../../stories/with-story-router';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import LatestPostRender from '../render';
@@ -168,10 +169,15 @@ type Story = StoryObj< Partial< ComponentProps< typeof LatestPostRender > > >;
 
 /**
  * Default — the latest post with its lifetime views, likes, and comments.
+ *
+ * The shared close-up canvas is the width of a width-1 dashboard cell, which is
+ * below the card's 520px wide breakpoint: the featured image is dropped and the
+ * metric row wraps. `WidgetDashboardWithWidget` below shows the default width-2
+ * placement, where the image sits in a trailing column.
  */
 export const Default: Story = {
 	render: renderLatestPost,
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 /**
@@ -182,7 +188,7 @@ export const Loading: Story = {
 	render: () => renderLatestPostOnPreset( 'last-90-days' ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => forceLatestPostState( 'loading' ),
 };
 
@@ -194,7 +200,7 @@ export const Loading: Story = {
 export const Error: Story = {
 	render: () => renderLatestPostOnPreset( 'last-7-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => forceLatestPostState( 'error' ),
 };
 
@@ -205,13 +211,17 @@ export const Error: Story = {
 export const Empty: Story = {
 	render: () => renderLatestPostOnPreset( 'last-365-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => forceLatestPostState( 'empty' ),
 };
 
 /**
  * Mounts the real `WidgetDashboard` with this single widget so it renders
  * exactly as it does in product (framed card, sizing, edit mode).
+ *
+ * Drop `widgetWidth` to 1 to walk the shared card's size ladder: below 520px wide
+ * the featured image drops out and the metric row wraps. Shortening the cell below
+ * 300px also switches the card to its compact type scale.
  *
  * @param {WidgetDashboardWithWidgetControls} dashboardArgs - The dashboard story controls.
  * @return The widget mounted inside the real dashboard.
@@ -235,6 +245,44 @@ export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetContr
 		// Latest post is a landscape widget: content left, featured image right.
 		widgetWidth: 2,
 		widgetHeight: 2,
+	},
+	argTypes: {
+		...widgetDashboardWithWidgetArgTypes,
+	},
+};
+
+/**
+ * A short cell at the default width. Height, not just width, drives the card:
+ * below 300px of body the type scale steps down and the featured image becomes a
+ * centred square instead of a full-height panel.
+ *
+ * This geometry regressed once — the metric row was pushed past the card's bottom
+ * edge and silently clipped, leaving labels with no values — so it is covered
+ * here to keep a height regression visible in review.
+ */
+export const ShortCell: StoryObj< WidgetDashboardWithWidgetControls > = {
+	render: args => <LatestPostDashboardStory { ...args } />,
+	args: {
+		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		widgetWidth: 2,
+		widgetHeight: 1,
+	},
+	argTypes: {
+		...widgetDashboardWithWidgetArgTypes,
+	},
+};
+
+/**
+ * The smallest cell the dashboard grid produces: narrow *and* short. The featured
+ * image drops out entirely and the headline clamps to one line, but the whole
+ * metric row — every label with its value — stays inside the card.
+ */
+export const ShortNarrowCell: StoryObj< WidgetDashboardWithWidgetControls > = {
+	render: args => <LatestPostDashboardStory { ...args } />,
+	args: {
+		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		widgetWidth: 1,
+		widgetHeight: 1,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,

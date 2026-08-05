@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { Text } from '@wordpress/ui';
 import { Fragment, useMemo } from 'react';
 import DisconnectCard from '../disconnect-card';
 
@@ -57,12 +58,12 @@ const ConnectedPlugins = ( { connectedPlugins, disconnectingPlugin }: ConnectedP
 		return (
 			<Fragment>
 				<div className="jp-connection__disconnect-dialog__step-copy">
-					<p className="jp-connection__disconnect-dialog__large-text">
+					<Text className="jp-connection__disconnect-dialog__large-text">
 						{ __(
 							'Jetpack is powering other plugins on your site. If you disconnect, these plugins will no longer work.',
 							'jetpack-connection-js'
 						) }
-					</p>
+					</Text>
 				</div>
 				<div className="jp-connection__disconnect-card__group">
 					{ connectedPluginsArray.map( plugin => {

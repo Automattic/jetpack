@@ -266,6 +266,22 @@ Before introducing new dependencies:
 - **Do NOT modify `$$next-version$$` placeholders** — they are replaced automatically at release time
 - **Reuse monorepo packages** before adding external dependencies — check `projects/packages/` and `projects/js-packages/` first
 - **Git merge conflicts**: after resolving, use `git commit --no-edit --no-verify` — pre-commit hooks can make unintended changes to merge commit files
+- **Do NOT hand-edit generated Phan stubs** — `.phan/stubs/wpcom-stubs.php` (and other generated stub files) are regenerated from the wpcom repo; any manual edit is overwritten. See *Referencing wpcom-only symbols from Jetpack* below.
+
+## Referencing wpcom-only symbols from Jetpack (Phan stubs)
+
+When Jetpack code calls a class or function that ships only from wpcom (not present in this repo), Phan flags `PhanUndeclared{Class,ClassMethod,Function}`. Do NOT just silence it permanently. See also `docs/monorepo.md` § Static Analysis → *Referencing wpcom-only symbols*. The correct order is:
+
+1. **Add the symbol to the wpcom stub definitions** — `bin/teamcity-builds/jetpack-stubs/stub-defs.php` in the wpcom repo. This is the source that Jetpack's `.phan/stubs/wpcom-stubs.php` is regenerated from.
+2. **Get the regenerated stubs merged into Jetpack first** — triggering the *Jetpack Staging → Update WPCOM Stubs* job in TeamCity opens a "phan: Update wpcom stubs" PR. Land that before your feature PR.
+3. **Rebase your feature PR** on trunk so it picks up the new stubs.
+4. **Remove the suppression** — the symbol is now declared, so Phan passes without it.
+
+An inline `@phan-suppress-next-line <Rule> -- <reason>` is acceptable ONLY as a temporary bridge until step 2 lands, and MUST carry a `-- <reason>` justification.
+
+**Gotchas:**
+- The "phan: Update wpcom stubs" PR is machine-generated and gets rebased/recreated on every job run — never hand-edit it, your changes will be overwritten.
+- `.phan/stubs/wpcom-stubs.php` is likewise generated (its header says so). Never edit it directly to add a symbol — add it to `stub-defs.php` in wpcom instead.
 
 ## Maintaining This File
 

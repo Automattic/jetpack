@@ -226,6 +226,17 @@ function getRowIntervalFields( row: StatsRecord, rawPeriod: unknown, unit: strin
 	return getTimeSeriesIntervalFields( rawPeriod, unit );
 }
 
+// Rebuild a summary bound from a query date when no rows came back. Rows stamp
+// `date_start`/`date_end` as full ISO 8601 with a nominal +00:00 (see
+// getStatsIntervalFields), so the query's own site-local offset can't be passed
+// through verbatim: consumers read these as wall-clock bucket labels, and a real
+// offset would be converted a second time. Mirrors getStatsSummaryIntervalFields.
+function toSummaryBound( value: string | undefined, time: string ) {
+	const datePart = getDatePart( value );
+
+	return datePart ? formatDatePartWithTime( datePart, time ) : '';
+}
+
 function getTimeSeriesSummarySidecars( response: StatsRecord ) {
 	return {
 		...normalizeStatsSummary( coerceStatsRecord( response.summary ) ),
@@ -288,8 +299,8 @@ export function sanitizeStatsTimeSeriesResponse(
 		summary: {
 			...getTimeSeriesSummarySidecars( response ),
 			...summary,
-			date_start: firstRow?.date_start ?? query?.start_date ?? '',
-			date_end: lastRow?.date_end ?? query?.end_date ?? query?.date ?? '',
+			date_start: firstRow?.date_start ?? toSummaryBound( query?.start_date, '00:00:00' ),
+			date_end: lastRow?.date_end ?? toSummaryBound( query?.end_date ?? query?.date, '23:59:59' ),
 		},
 		data,
 	};

@@ -1,12 +1,12 @@
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/ui';
-import { Fragment, useCallback, useState } from 'react';
+import { Button, VisuallyHidden } from '@wordpress/ui';
+import { Fragment, useCallback, useId, useState } from 'react';
 import SurveyChoice from './survey-choice';
-import type { ChangeEvent, KeyboardEvent } from 'react';
+import type { ChangeEvent } from 'react';
 
 interface DisconnectSurveyProps {
 	/** Callback handler function for when the survey response is submitted. */
-	onSubmit: ( answerId: string | undefined, answerText: string ) => void;
+	onSubmit?: ( answerId: string, answerText: string ) => void;
 	/** If the survey feedback is currently being saved/ submitted. */
 	isSubmittingFeedback?: boolean;
 }
@@ -19,8 +19,12 @@ interface DisconnectSurveyProps {
  */
 const DisconnectSurvey = ( props: DisconnectSurveyProps ) => {
 	const { onSubmit, isSubmittingFeedback } = props;
+	// The `name` shared by every radio in the survey, which is what groups them
+	// into one radio group. Generated per instance rather than hard-coded, so
+	// that two surveys on a page (though unlikely) stay separate groups with unique input IDs.
+	const surveyGroupName = `jp-connect__disconnect-survey${ useId() }`;
 	const [ selectedAnswer, setSelectedAnswer ] = useState< string >();
-	const [ customResponse, setCustomResponse ] = useState< string >();
+	const [ customResponse, setCustomResponse ] = useState( '' );
 
 	const options = [
 		{
@@ -57,9 +61,24 @@ const DisconnectSurvey = ( props: DisconnectSurveyProps ) => {
 	 * Will send the survey response to the collection endpoint.
 	 */
 	const handleSurveySubmit = useCallback( () => {
+		// The submit button is disabled until an answer is picked.
+		if ( ! selectedAnswer ) {
+			return;
+		}
+
 		const answerText = selectedAnswer === customOption.id ? customResponse : '';
-		onSubmit( selectedAnswer, answerText );
+		onSubmit?.( selectedAnswer, answerText );
 	}, [ onSubmit, customOption.id, customResponse, selectedAnswer ] );
+
+	/**
+	 * Select the "Other" option.
+	 *
+	 * The free text field sits above the label's hit area. Interacting with the
+	 * field is an unambiguous choice of "Other", so it selects the option itself.
+	 */
+	const selectCustomOption = useCallback( () => {
+		setSelectedAnswer( customOption.id );
+	}, [ customOption.id, setSelectedAnswer ] );
 
 	/**
 	 * Handle input into the custom response field.
@@ -68,45 +87,10 @@ const DisconnectSurvey = ( props: DisconnectSurveyProps ) => {
 	 */
 	const handleCustomResponse = useCallback(
 		( e: ChangeEvent< HTMLInputElement > ) => {
-			const value = e.target.value;
-			e.stopPropagation();
-			setCustomResponse( value );
+			setCustomResponse( e.target.value );
+			selectCustomOption();
 		},
-		[ setCustomResponse ]
-	);
-
-	/**
-	 * Checks to see if an option is the currently selected option, returns a css class name if it matches.
-	 *
-	 * @param {string} optionId - ID of the option to check for.
-	 * @return {string} - The "selected" class if this option is currently selected.
-	 */
-	const selectedClass = ( optionId: string ) => {
-		if ( optionId === selectedAnswer ) {
-			return 'jp-connect__disconnect-survey-card--selected';
-		}
-
-		return '';
-	};
-
-	/**
-	 * Event handler for keyboard events on the answer blocks.
-	 *
-	 * @param {string}                        answerId - The slug of the answer that has been selected.
-	 * @param {KeyboardEvent<HTMLDivElement>} e        - Keydown event.
-	 */
-	const handleAnswerKeyDown = useCallback(
-		( answerId: string, e: KeyboardEvent< HTMLDivElement > ) => {
-			switch ( e.key ) {
-				case 'Enter':
-				case 'Space':
-				case 'Spacebar':
-				case ' ':
-					setSelectedAnswer( answerId );
-					break;
-			}
-		},
-		[ setSelectedAnswer ]
+		[ selectCustomOption, setCustomResponse ]
 	);
 
 	/**
@@ -120,12 +104,11 @@ const DisconnectSurvey = ( props: DisconnectSurveyProps ) => {
 				<SurveyChoice
 					key={ option.id }
 					id={ option.id }
-					onClick={ setSelectedAnswer }
-					onKeyDown={ handleAnswerKeyDown }
-					className={ 'card jp-connect__disconnect-survey-card ' + selectedClass( option.id ) }
-				>
-					<p className="jp-connect__disconnect-survey-card__answer">{ option.answerText }</p>
-				</SurveyChoice>
+					name={ surveyGroupName }
+					label={ option.answerText }
+					checked={ selectedAnswer === option.id }
+					onSelect={ setSelectedAnswer }
+				/>
 			);
 		} );
 	};
@@ -141,31 +124,39 @@ const DisconnectSurvey = ( props: DisconnectSurveyProps ) => {
 			<SurveyChoice
 				id={ customOption.id }
 				key={ customOption.id }
-				onClick={ setSelectedAnswer }
-				onKeyDown={ handleAnswerKeyDown }
-				className={ 'card jp-connect__disconnect-survey-card ' + selectedClass( customOption.id ) }
+				name={ surveyGroupName }
+				label={ __( 'Other:', 'jetpack-connection-js' ) }
+				checked={ selectedAnswer === customOption.id }
+				onSelect={ setSelectedAnswer }
 			>
-				<p className="jp-connect__disconnect-survey-card__answer">
-					{ __( 'Other:', 'jetpack-connection-js' ) }{ ' ' }
-					<input
-						placeholder={ __( 'share your experience', 'jetpack-connection-js' ) }
-						className="jp-connect__disconnect-survey-card__input"
-						type="text"
-						value={ customResponse }
-						onChange={ handleCustomResponse }
-						maxLength={ 1000 } // Limit response length.
-					/>
-				</p>
+				<input
+					id="jp-connect__disconnect-survey-custom-input"
+					name="jp-connect__disconnect-survey-custom-input"
+					placeholder={ __( 'Share your experience', 'jetpack-connection-js' ) }
+					// Names the option as well as the field: the two are adjacent
+					// visually, but nothing otherwise ties this input to the
+					// "Other" radio for anyone reading it out of context.
+					aria-label={ __( 'Other: share your experience', 'jetpack-connection-js' ) }
+					className="jp-connect__disconnect-survey-card__input"
+					type="text"
+					value={ customResponse }
+					onChange={ handleCustomResponse }
+					onClick={ selectCustomOption }
+					maxLength={ 1000 } // Limit response length.
+				/>
 			</SurveyChoice>
 		);
 	};
 
 	return (
 		<Fragment>
-			<div className="jp-connection__disconnect-dialog__survey">
+			<fieldset className="jp-connection__disconnect-dialog__survey">
+				<VisuallyHidden render={ <legend /> }>
+					{ __( 'Why are you disconnecting?', 'jetpack-connection-js' ) }
+				</VisuallyHidden>
 				{ renderOptions() }
 				{ renderCustomOption() }
-			</div>
+			</fieldset>
 			<p>
 				<Button
 					disabled={ ! selectedAnswer || isSubmittingFeedback }

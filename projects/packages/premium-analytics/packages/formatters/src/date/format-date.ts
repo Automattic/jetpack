@@ -1,65 +1,78 @@
 /**
  * External dependencies
  */
-import { format } from 'date-fns';
-
+import { dateI18n, getSettings } from '@wordpress/date';
 /**
- * Named date format presets for common use cases. Follows US date format
- * standards.
- *
- * |-------------|------------------------------|---------------------------|
- * | Format      | Output                       | Use Case                  |
- * |-------------|------------------------------|---------------------------|
- * | short       | Jun 21                       | Compact displays, lists   |
- * | medium      | Jun 21, 2025                 | Default - general use     |
- * | long        | June 21, 2025                | Prominent displays        |
- * | full        | Wednesday, June 21, 2025     | Headers, announcements    |
- * | day         | 21                           | Day-only displays         |
- * | month       | Jun                          | Month-only displays       |
- * | year        | 2025                         | Year-only displays        |
- * | monthYear   | Jun 2025                     | Period summaries          |
- * | numeric     | 06/21/2025                   | Forms, data entry         |
- * | iso         | 2025-06-21                   | APIs, technical use       |
- * | dateTime    | Jun 21, 2025 2:30 PM         | Timestamps with time      |
- * |-------------|------------------------------|---------------------------|
+ * Internal dependencies
  */
-// Exported for use in tests.
-export const DATE_FORMATS = {
-	short: 'MMM d',
-	medium: 'MMM d, yyyy',
-	long: 'MMMM d, yyyy',
-	full: 'EEEE, MMMM d, yyyy',
-	day: 'd',
-	month: 'MMM',
-	year: 'yyyy',
-	monthYear: 'MMM yyyy',
-	numeric: 'MM/dd/yyyy',
-	iso: 'yyyy-MM-dd',
-	dateTime: 'MMM d, yyyy h:mm a',
-} as const;
+import { withWeekday, withoutYear } from './php-format';
 
-/** Named preset key from `DATE_FORMATS`. */
-type DateFormatName = keyof typeof DATE_FORMATS;
+/** Fixed because this format backs form values and query parameters. */
+const ISO_FORMAT = 'Y-m-d';
 
-/** A named preset or a custom `date-fns` format pattern. */
-type DateFormatString = DateFormatName | ( string & {} );
+const YEAR_FORMAT = 'Y';
 
-/** Date input accepted by `date-fns/format`: Date, ISO string, or timestamp. */
-type DateType = Parameters< typeof format >[ 0 ];
+/** Named formats derived from the site format or fixed for machine-readable uses. */
+export type DateFormatName = 'medium' | 'short' | 'year' | 'iso' | 'full' | 'fullNoYear';
 
 /**
- * Format a date using a named preset or a custom `date-fns` pattern.
- * Defaults to `'medium'` (`'MMM d, yyyy'`).
+ * An instant to render, such as a `TZDate` or a timestamp.
+ *
+ * Narrower than what `dateI18n` accepts, to keep strings out: a date-only
+ * string such as `'2026-01-01'` is read as browser-local midnight, so it
+ * renders as the previous day for anyone ahead of the site. Parse site-local
+ * strings with `parseSiteDateTime` first.
+ */
+type DateInput = Date | number;
+
+/**
+ * Resolve a named format to the PHP format string for the current site.
+ *
+ * @param name - The named format.
+ * @return PHP `date()` format string.
+ */
+function formatFor( name: DateFormatName ): string {
+	if ( name === 'iso' ) {
+		return ISO_FORMAT;
+	}
+
+	if ( name === 'year' ) {
+		return YEAR_FORMAT;
+	}
+
+	const siteFormat = getSettings().formats.date;
+	const withoutYearFormat = withoutYear( siteFormat ) || siteFormat;
+
+	if ( name === 'short' ) {
+		return withoutYearFormat;
+	}
+
+	if ( name === 'full' ) {
+		return withWeekday( siteFormat );
+	}
+
+	if ( name === 'fullNoYear' ) {
+		return withWeekday( withoutYearFormat );
+	}
+
+	return siteFormat;
+}
+
+/**
+ * Format a date in the site's locale and timezone.
+ *
+ * Month and weekday names come from WordPress's own translation tables, and
+ * the ordering from the site's `date_format` option, so dates match the rest
+ * of wp-admin rather than the browser's locale.
+ *
+ * @param date - The instant to render. See `DateInput`.
+ * @param name - Named format. Defaults to `'medium'`.
+ * @return The formatted date.
  *
  * @example
- * formatDate( new Date( '2025-06-21' ) )              // 'Jun 21, 2025'
- * formatDate( new Date( '2025-06-21' ), 'short' )     // 'Jun 21'
- * formatDate( new Date( '2025-06-21' ), 'dd/MM/yyyy' ) // '21/06/2025'
+ * formatDate( date )           // 'June 21, 2025'           — or '21 de junio de 2025'
+ * formatDate( date, 'short' )  // 'June 21'                 — or '21 de junio'
+ * formatDate( date, 'full' )   // 'Saturday, June 21, 2025' — or 'sábado, 21 de junio de 2025'
  */
-export const formatDate = ( date: DateType, formatString: DateFormatString = 'medium' ): string => {
-	const formatPattern = Object.hasOwn( DATE_FORMATS, formatString )
-		? DATE_FORMATS[ formatString as DateFormatName ]
-		: formatString;
-
-	return format( date, formatPattern );
-};
+export const formatDate = ( date: DateInput, name: DateFormatName = 'medium' ): string =>
+	dateI18n( formatFor( name ), date );

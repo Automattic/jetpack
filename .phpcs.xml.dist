@@ -36,7 +36,9 @@
 				<element value="jetpack_network_settings_page" />
 				<element value="jetpack_network_sites_page" />
 				<element value="jetpack_reconnect" />
+				<element value="jetpack_view_analytics" />
 				<element value="view_stats" />
+				<element value="view_woocommerce_reports" />
 			</property>
 		</properties>
 	</rule>

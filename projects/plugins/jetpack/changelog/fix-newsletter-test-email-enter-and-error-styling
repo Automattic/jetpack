@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter: send the test email when pressing Enter, and show send errors as a proper error notice.

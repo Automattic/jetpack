@@ -15,80 +15,32 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
-const COMPLETE_STATS_RESPONSE = {
-	date: '2026-07-14',
-	period: 'day',
-	days: {
-		summary: {
-			data: [
-				{
-					post_id: 104,
-					title: 'Another video',
-					views: '999',
-					impressions: '888',
-					watch_time: '77.7',
-					retention_rate: '55.5',
-				},
-				{
-					post_id: 105,
-					title: 'Selected video',
-					views: '128',
-					impressions: '456',
-					watch_time: '18.9',
-					retention_rate: '67.6',
-				},
-			],
-			total: {
-				views: '1127',
-				impressions: '1344',
-				watch_time: '96.6',
-			},
-		},
+// A `statType=all` range response (wpcom #229903): per-day tuples named by
+// `fields` plus canonical totals over the requested window — the tiles read
+// the totals, not the series.
+const ALL_METRICS_RESPONSE = {
+	fields: [ 'period', 'plays', 'impressions', 'watch_time', 'retention_rate' ],
+	data: [
+		[ '2026-07-01', 64, 200, 6.3, 70 ],
+		[ '2026-07-04', 64, 256, 12.6, 65.2 ],
+	],
+	pages: [],
+	post: {
+		ID: 105,
+		post_title: 'Selected video',
+		post_mime_type: 'video/mp4',
 	},
+	total: { plays: 128, impressions: 456, watch_time: 18.9, retention_rate: 67.6 },
 };
 
-const COMPARISON_STATS_RESPONSE = {
-	date: '2026-06-30',
-	period: 'day',
-	days: {
-		summary: {
-			data: [
-				{
-					post_id: 105,
-					title: 'Selected video',
-					views: '64',
-					impressions: '228',
-					watch_time: '12.6',
-					retention_rate: '52',
-				},
-			],
-		},
-	},
-};
-
-const COMPARISON_WITHOUT_SELECTED_VIDEO_RESPONSE = {
-	date: '2026-06-30',
-	period: 'day',
-	days: {
-		summary: {
-			data: [
-				{
-					post_id: 104,
-					title: 'Another video',
-					views: '500',
-					impressions: '600',
-					watch_time: '40',
-					retention_rate: '50',
-				},
-			],
-		},
-	},
-};
-
-const MOCK_API_ERROR = {
-	code: 'stats_mock_error',
-	message: 'Mocked error response.',
-	data: { status: 403 },
+// A 403 skips React Query's retry backoff so the error surfaces immediately;
+// the `no_connection` code keeps `describeError` on the retryable branch (a
+// broken Jetpack connection can heal), while a plain 403 maps to the
+// permission copy without a Retry action.
+const MOCK_RETRYABLE_ERROR = {
+	status: 403,
+	code: 'no_connection',
+	message: 'Forbidden',
 };
 
 function renderWidget( postId?: number, withComparison = false ) {
@@ -117,71 +69,63 @@ describe( 'VideoDetailHighlightsWidget', () => {
 	beforeEach( () => {
 		queryClient.clear();
 		mockApiFetch.mockReset();
-		mockApiFetch.mockResolvedValue( COMPLETE_STATS_RESPONSE );
+		mockApiFetch.mockResolvedValue( ALL_METRICS_RESPONSE );
 	} );
 
-	it( 'renders plain tiles when comparison is off', async () => {
+	it( 'renders the range totals from one statType=all request', async () => {
 		renderWidget( 105 );
 
-		await expect( screen.findByText( '128' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( '456' ) ).resolves.toBeInTheDocument();
 
 		const tiles = screen.getAllByRole( 'listitem' );
-		expect( tiles ).toHaveLength( 4 );
-		expect( tiles[ 0 ] ).toHaveTextContent( 'Views128' );
-		expect( tiles[ 1 ] ).toHaveTextContent( 'Impressions456' );
-		expect( tiles[ 2 ] ).toHaveTextContent( 'Hours watched18.9' );
-		expect( tiles[ 3 ] ).toHaveTextContent( 'Retention rate67.6%' );
-		expect( screen.queryByText( /^[+-]\d+%$/ ) ).not.toBeInTheDocument();
+		expect( tiles ).toHaveLength( 3 );
+		expect( tiles[ 0 ] ).toHaveTextContent( 'Impressions456' );
+		expect( tiles[ 1 ] ).toHaveTextContent( 'Hours watched18.9' );
+		expect( tiles[ 2 ] ).toHaveTextContent( 'Retention rate67.6%' );
 
-		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
-		const videoRequests = mockApiFetch.mock.calls.filter( call =>
-			( call[ 0 ].path as string ).includes( 'stats/video-plays' )
-		);
-		expect( videoRequests ).toHaveLength( 1 );
-		expect( requestedPath ).toContain( 'stats/video-plays' );
-		expect( requestedPath ).toContain( 'complete_stats=1' );
-		expect( requestedPath ).toContain( 'max=0' );
-		expect( requestedPath ).toContain( 'period=day' );
-		expect( requestedPath ).toContain( 'start_date=' );
-		expect( requestedPath ).toContain( 'date=' );
-		expect( requestedPath ).not.toContain( 'summarize=' );
+		// Filtered to the widget's own requests: the first rendering test in the
+		// file also triggers core-data's one-off site-settings resolution.
+		const allPaths = mockApiFetch.mock.calls.map( call => call[ 0 ].path as string );
+		const requestedPaths = allPaths.filter( path => path.includes( 'stats/video/105' ) );
+		expect( requestedPaths ).toHaveLength( 1 );
+		expect( requestedPaths[ 0 ] ).toContain( 'statType=all' );
+		expect( requestedPaths[ 0 ] ).toContain( 'period=day' );
+		expect( requestedPaths[ 0 ] ).toContain( 'start_date=2026-07-01' );
+		expect( requestedPaths[ 0 ] ).toContain( 'date=2026-07-07' );
+		expect( allPaths.some( path => path.includes( 'stats/video-plays' ) ) ).toBe( false );
 	} );
 
-	it( 'renders per-tile deltas from the selected video comparison row', async () => {
-		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
-			Promise.resolve(
-				path.includes( 'date=2026-06-30' ) ? COMPARISON_STATS_RESPONSE : COMPLETE_STATS_RESPONSE
-			)
-		);
-
+	it( 'does not issue extra requests for comparison report params the tiles cannot use', async () => {
 		renderWidget( 105, true );
 
-		await expect( screen.findAllByText( '+100%' ) ).resolves.toHaveLength( 2 );
-		expect( screen.getByText( '+50%' ) ).toBeInTheDocument();
-		expect( screen.getByText( '+30%' ) ).toBeInTheDocument();
+		await expect( screen.findByText( '456' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( /^[+-]\d+%$/ ) ).not.toBeInTheDocument();
 
-		const requestedPaths = mockApiFetch.mock.calls.map( call => call[ 0 ].path as string );
-		expect( requestedPaths.some( path => path.includes( 'date=2026-07-07' ) ) ).toBe( true );
-		expect( requestedPaths.some( path => path.includes( 'date=2026-06-30' ) ) ).toBe( true );
+		const requestedPaths = mockApiFetch.mock.calls
+			.map( call => call[ 0 ].path as string )
+			.filter( path => path.includes( 'stats/video/105' ) );
+		expect( requestedPaths ).toHaveLength( 1 );
+		expect( requestedPaths[ 0 ] ).toContain( 'date=2026-07-07' );
+		expect( requestedPaths[ 0 ] ).not.toContain( 'date=2026-06-30' );
 	} );
 
-	it( 'uses the comparison layout without a delta when the selected video row is absent', async () => {
-		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
-			Promise.resolve(
-				path.includes( 'date=2026-06-30' )
-					? COMPARISON_WITHOUT_SELECTED_VIDEO_RESPONSE
-					: COMPLETE_STATS_RESPONSE
-			)
-		);
+	it( 'renders placeholders, not zeros, for metrics missing from the totals', async () => {
+		mockApiFetch.mockResolvedValue( {
+			...ALL_METRICS_RESPONSE,
+			fields: [ 'period', 'plays' ],
+			data: [ [ '2026-07-01', 64 ] ],
+			total: { plays: 128 },
+		} );
+		renderWidget( 105 );
 
-		renderWidget( 105, true );
-
-		await expect( screen.findByText( '128' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( /^[+-]\d+%$/ ) ).not.toBeInTheDocument();
-		const videoRequests = mockApiFetch.mock.calls.filter( call =>
-			( call[ 0 ].path as string ).includes( 'stats/video-plays' )
-		);
-		expect( videoRequests ).toHaveLength( 2 );
+		const tiles = await screen.findAllByRole( 'listitem' );
+		expect( tiles ).toHaveLength( 3 );
+		expect( tiles[ 0 ] ).toHaveTextContent( 'Impressions—' );
+		expect( tiles[ 1 ] ).toHaveTextContent( 'Hours watched—' );
+		expect( tiles[ 2 ] ).toHaveTextContent( 'Retention rate—' );
+		expect( screen.queryByText( '0' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( '0.0' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( '0.0%' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders the scope-empty state and skips fetching without a post_id', () => {
@@ -191,8 +135,17 @@ describe( 'VideoDetailHighlightsWidget', () => {
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 
+	it( 'renders an empty state when the response carries no totals', async () => {
+		mockApiFetch.mockResolvedValue( { ...ALL_METRICS_RESPONSE, total: undefined } );
+		renderWidget( 105 );
+
+		await expect(
+			screen.findByText( /no highlights are available/i )
+		).resolves.toBeInTheDocument();
+	} );
+
 	it( 'renders an error state with a Retry action', async () => {
-		mockApiFetch.mockRejectedValue( MOCK_API_ERROR );
+		mockApiFetch.mockRejectedValue( MOCK_RETRYABLE_ERROR );
 		renderWidget( 105 );
 
 		await expect( screen.findByRole( 'alert' ) ).resolves.toHaveTextContent(
@@ -200,10 +153,23 @@ describe( 'VideoDetailHighlightsWidget', () => {
 		);
 
 		const requestsBeforeRetry = mockApiFetch.mock.calls.length;
-		mockApiFetch.mockResolvedValue( COMPLETE_STATS_RESPONSE );
+		mockApiFetch.mockResolvedValue( ALL_METRICS_RESPONSE );
 		fireEvent.click( screen.getByRole( 'button', { name: /retry/i } ) ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
 
-		await expect( screen.findByText( '128' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( '456' ) ).resolves.toBeInTheDocument();
 		expect( mockApiFetch.mock.calls.length ).toBeGreaterThan( requestsBeforeRetry );
+	} );
+
+	it( 'shows the permission error without a Retry action on a plain 403', async () => {
+		// Both video-detail cards share one cache entry, so this must match the
+		// Views performance card's no-access state instead of offering a Retry
+		// that can never succeed.
+		mockApiFetch.mockRejectedValue( { status: 403, message: 'Forbidden' } );
+		renderWidget( 105 );
+
+		await expect(
+			screen.findByText( "You don't have access to this data." )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /retry/i } ) ).not.toBeInTheDocument();
 	} );
 } );

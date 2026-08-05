@@ -5,13 +5,7 @@ export {
 	getSiteTimezone,
 	getSiteGmtOffset,
 } from './date';
-export {
-	getApiErrorCode,
-	getApiErrorStatus,
-	getStatsPlanErrorReason,
-	shouldRetryApiError,
-} from './api-error';
-export type { StatsPlanErrorReason } from './api-error';
+export { getApiErrorCode, getApiErrorStatus, shouldRetryApiError } from './api-error';
 export { ensureCoreSettingsReady } from './ensure-core-settings';
 export { getDefaultIntervalForPeriod } from './interval';
 export { safeParseInt, safeParseFloat } from './parsing';

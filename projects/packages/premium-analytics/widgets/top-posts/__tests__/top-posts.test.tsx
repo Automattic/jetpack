@@ -21,7 +21,7 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 // a matched route the real hook warns and throws.
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
-const mockGetScriptData = getScriptData as jest.Mock;
+const mockGetScriptData = jest.mocked( getScriptData );
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
 function DashboardWidgetChromeFixture( { children }: { children: ReactNode } ) {
@@ -74,37 +74,54 @@ describe( 'TopPostsWidget', () => {
 		// The data package's query client is a module-level singleton; drop its
 		// cache so each test starts from a fresh fetch.
 		queryClient.clear();
-		mockGetScriptData.mockReturnValue( {
-			premium_analytics: { csv_exports_enabled: true },
-		} );
+		mockGetScriptData.mockReturnValue( undefined );
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( TOP_POSTS_RESPONSE );
 	} );
 
-	it( 'links titles to the post-detail page and appends an external link icon', async () => {
-		render( <TopPostsWidget attributes={ { num: 10 } } /> );
+	it( 'routes post titles to the post-detail page with no outbound link', async () => {
+		render( <TopPostsWidget attributes={ { max: 10 } } /> );
 
-		// The title links to the internal analytics post-detail route (the SPA
-		// path rides in the `p` query param), in the same tab.
+		// The title navigates through the router to the internal post-detail
+		// route, so the dashboard does not reload.
 		const titleLink = await screen.findByRole( 'link', { name: /^Hello World Post$/ } );
-		expect( titleLink ).toHaveAttribute( 'href', expect.stringContaining( 'p=%2Fpost%2F1' ) );
+		expect( titleLink ).toHaveAttribute( 'href', expect.stringContaining( '/post/1' ) );
+		expect( titleLink ).not.toHaveAttribute( 'target' );
 
-		// The trailing icon opens the public page in a new tab.
-		const externalLink = screen.getByRole( 'link', {
-			name: /open hello world post in a new tab/i,
-		} );
-		expect( externalLink ).toHaveAttribute( 'href', 'https://example.com/hello-world/' );
-		expect( externalLink ).toHaveAttribute( 'target', '_blank' );
-		expect( externalLink ).toHaveAttribute( 'rel', 'noopener noreferrer' );
-		expect( screen.queryByLabelText( '(opens in a new tab)' ) ).not.toBeInTheDocument();
+		// A row with a detail page carries no link out to the live post: the
+		// external-link icon marks destinations outside the app, and the detail
+		// page holds that link.
+		expect(
+			screen.queryByRole( 'link', { name: /open hello world post in a new tab/i } )
+		).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: 'https://example.com/hello-world/' } )
+		).not.toBeInTheDocument();
 
 		expect( screen.getByText( 'About Page' ) ).toBeInTheDocument();
+	} );
+
+	it( 'carries the dashboard date range into the post-detail link', async () => {
+		render(
+			<TopPostsWidget
+				attributes={ { max: 10, reportParams: { from: '2026-03-01', to: '2026-03-10' } } }
+			/>
+		);
+
+		const titleLink = await screen.findByRole( 'link', { name: /^Hello World Post$/ } );
+		const href = titleLink.getAttribute( 'href' ) ?? '';
+		const search = new URL( href, 'https://example.com' ).searchParams;
+
+		expect( href ).toContain( '/post/1' );
+		expect( search.get( 'from' ) ).toBe( '2026-03-01' );
+		expect( search.get( 'to' ) ).toBe( '2026-03-10' );
+		expect( search.get( 'post_url' ) ).toBe( 'https://example.com/hello-world/' );
 	} );
 
 	it( 'requests the dashboard date range from report params', async () => {
 		render(
 			<TopPostsWidget
-				attributes={ { num: 10, reportParams: { from: '2026-03-01', to: '2026-03-10' } } }
+				attributes={ { max: 10, reportParams: { from: '2026-03-01', to: '2026-03-10' } } }
 			/>
 		);
 
@@ -124,7 +141,7 @@ describe( 'TopPostsWidget', () => {
 	} );
 
 	it( 'links to the Posts & Pages report', () => {
-		render( <TopPostsWidget attributes={ { num: 10 } } /> );
+		render( <TopPostsWidget attributes={ { max: 10 } } /> );
 
 		expect( screen.getByRole( 'link', { name: 'See report' } ) ).toHaveAttribute(
 			'href',
@@ -161,7 +178,7 @@ describe( 'TopPostsWidget', () => {
 		render(
 			<TopPostsWidget
 				attributes={ {
-					num: 10,
+					max: 10,
 					reportParams: {
 						from: '2026-03-01',
 						to: '2026-03-10',
@@ -221,7 +238,7 @@ describe( 'TopPostsWidget', () => {
 		render(
 			<TopPostsWidget
 				attributes={ {
-					num: 10,
+					max: 10,
 					reportParams: {
 						from: '2026-03-01',
 						to: '2026-03-10',
@@ -243,7 +260,7 @@ describe( 'TopPostsWidget', () => {
 	it( 'exposes the CSV export beside the report link in the widget footer', async () => {
 		render(
 			<DashboardWidgetChromeFixture>
-				<TopPostsWidget attributes={ { num: 10 } } />
+				<TopPostsWidget attributes={ { max: 10 } } />
 			</DashboardWidgetChromeFixture>
 		);
 
@@ -261,13 +278,16 @@ describe( 'TopPostsWidget', () => {
 		// eslint-disable-next-line testing-library/no-node-access
 		expect( downloadButton.parentElement ).toBe( reportLink.parentElement );
 	} );
-
 	it( 'hides the CSV export when the server flag is disabled', async () => {
 		mockGetScriptData.mockReturnValue( {
-			premium_analytics: { csv_exports_enabled: false },
-		} );
+			premium_analytics: {
+				initial_full_sync_finished: 1,
+				has_store_data: false,
+				csv_exports_enabled: false,
+			},
+		} as ReturnType< typeof getScriptData > );
 
-		render( <TopPostsWidget attributes={ { num: 10 } } /> );
+		render( <TopPostsWidget attributes={ { max: 10 } } /> );
 
 		await expect(
 			screen.findByRole( 'link', { name: /^Hello World Post$/ } )
@@ -293,7 +313,7 @@ describe( 'TopPostsWidget', () => {
 			<DashboardWidgetChromeFixture>
 				<TopPostsWidget
 					attributes={ {
-						num: 10,
+						max: 10,
 						reportParams: { from: '2026-03-01', to: '2026-03-10' },
 					} }
 				/>
@@ -311,7 +331,7 @@ describe( 'TopPostsWidget', () => {
 			<DashboardWidgetChromeFixture>
 				<TopPostsWidget
 					attributes={ {
-						num: 10,
+						max: 10,
 						reportParams: { from: '2026-05-01', to: '2026-05-10' },
 					} }
 				/>
@@ -332,7 +352,7 @@ describe( 'TopPostsWidget', () => {
 		).resolves.toBeInTheDocument();
 	} );
 
-	it( 'renders a delta when an overlapping comparison row has zero views', async () => {
+	it( 'renders an unavailable delta when an overlapping comparison row has zero views', async () => {
 		const zeroComparisonResponse = {
 			date: '2026-02-10',
 			days: {},
@@ -359,7 +379,7 @@ describe( 'TopPostsWidget', () => {
 		render(
 			<TopPostsWidget
 				attributes={ {
-					num: 10,
+					max: 10,
 					reportParams: {
 						from: '2026-03-01',
 						to: '2026-03-10',
@@ -374,12 +394,13 @@ describe( 'TopPostsWidget', () => {
 		await expect(
 			screen.findByRole( 'link', { name: /^Hello World Post$/ } )
 		).resolves.toBeInTheDocument();
-		expect( screen.getByText( '+100%' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Percentage change unavailable' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '+100%' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders a placeholder instead of a fabricated delta for unmatched rows', async () => {
 		// Only one post overlaps the comparison period; the other must show the
-		// chart's placeholder, not a fabricated +100%.
+		// chart's missing-data placeholder, not an implied zero previous value.
 		const partialComparison = {
 			date: '2026-02-10',
 			days: {},
@@ -404,7 +425,7 @@ describe( 'TopPostsWidget', () => {
 		render(
 			<TopPostsWidget
 				attributes={ {
-					num: 10,
+					max: 10,
 					reportParams: {
 						from: '2026-03-01',
 						to: '2026-03-10',
@@ -421,18 +442,19 @@ describe( 'TopPostsWidget', () => {
 		).resolves.toBeInTheDocument();
 		// Matched row: real delta (42 vs 21 → +100%). Unmatched row: placeholder.
 		expect( screen.getByText( /100%/ ) ).toBeInTheDocument();
-		expect( screen.getByText( '-' ) ).toBeInTheDocument();
+		expect( screen.getByText( '—' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'No comparison data' ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders the empty state when there are no views', async () => {
 		mockApiFetch.mockResolvedValue( { date: '2026-06-10', days: {} } );
 
-		render( <TopPostsWidget attributes={ { num: 10 } } /> );
+		render( <TopPostsWidget attributes={ { max: 10 } } /> );
 
 		await expect( screen.findByText( 'No views in this period.' ) ).resolves.toBeInTheDocument();
 	} );
 
-	it( 'caps the visible posts list at num including the homepage entry', async () => {
+	it( 'caps the visible posts list at max including the homepage entry', async () => {
 		// The API caps postviews at max but appends the homepage entry on top,
 		// so the widget re-caps the ranked list client-side.
 		mockApiFetch.mockResolvedValue( {
@@ -454,7 +476,7 @@ describe( 'TopPostsWidget', () => {
 			},
 		} );
 
-		render( <TopPostsWidget attributes={ { num: 2 } } /> );
+		render( <TopPostsWidget attributes={ { max: 2 } } /> );
 
 		// Ranked: Hello World Post (42), Homepage (12) — About Page (7) is cut.
 		await expect( screen.findByText( 'Homepage (Latest posts)' ) ).resolves.toBeInTheDocument();
@@ -471,7 +493,7 @@ describe( 'TopPostsWidget', () => {
 			},
 		} );
 
-		render( <TopPostsWidget attributes={ { num: 10, contentView: 'archives' } } /> );
+		render( <TopPostsWidget attributes={ { max: 10, contentView: 'archives' } } /> );
 
 		await expect( screen.findByText( 'Searches' ) ).resolves.toBeInTheDocument();
 		// Aggregate rows have no URL, so they must not render as links.
@@ -508,7 +530,7 @@ describe( 'TopPostsWidget', () => {
 			},
 		} );
 
-		render( <TopPostsWidget attributes={ { num: 10 } } /> );
+		render( <TopPostsWidget attributes={ { max: 10 } } /> );
 
 		await expect( screen.findByText( 'Homepage (Latest posts)' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'About Page' ) ).toBeInTheDocument();
@@ -542,7 +564,7 @@ describe( 'TopPostsWidget', () => {
 		render(
 			<TopPostsWidget
 				attributes={ {
-					num: 10,
+					max: 10,
 					contentView: 'archives',
 					reportParams: {
 						from: '2026-03-01',
@@ -583,7 +605,7 @@ describe( 'TopPostsWidget', () => {
 		render(
 			<TopPostsWidget
 				attributes={ {
-					num: 10,
+					max: 10,
 					contentView: 'archives',
 					reportParams: {
 						from: '2026-03-01',
@@ -611,7 +633,7 @@ describe( 'TopPostsWidget', () => {
 		).toBe( true );
 	} );
 
-	it( 'treats num=0 as "all rows" in the archives view', async () => {
+	it( 'treats max=0 as "all rows" in the archives view', async () => {
 		mockApiFetch.mockResolvedValue( {
 			date: '2026-06-10',
 			summary: {
@@ -620,7 +642,7 @@ describe( 'TopPostsWidget', () => {
 			},
 		} );
 
-		render( <TopPostsWidget attributes={ { num: 0, contentView: 'archives' } } /> );
+		render( <TopPostsWidget attributes={ { max: 0, contentView: 'archives' } } /> );
 
 		await expect( screen.findByText( 'Searches' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Post types' ) ).toBeInTheDocument();
@@ -637,7 +659,7 @@ describe( 'TopPostsWidget', () => {
 			},
 		} );
 
-		render( <TopPostsWidget attributes={ { num: 10, contentView: 'archives' } } /> );
+		render( <TopPostsWidget attributes={ { max: 10, contentView: 'archives' } } /> );
 
 		const drillDownButton = await screen.findByRole( 'button', {
 			name: /view searches archive pages/i,
@@ -649,7 +671,9 @@ describe( 'TopPostsWidget', () => {
 		// the trailing icon links out to the archive page.
 		await expect( screen.findByText( 'pricing' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /^pricing$/ } ) ).not.toBeInTheDocument();
-		const termLink = screen.getByRole( 'link', { name: /open pricing in a new tab/i } );
+		const termLink = screen.getByRole( 'link', {
+			name: /pricing.*opens in a new tab/i,
+		} );
 		expect( termLink ).toHaveAttribute( 'href', 'https://example.com/?s=pricing' );
 
 		const backLink = screen.getByRole( 'button', { name: /back to the previous archive list/i } );
@@ -671,7 +695,7 @@ describe( 'TopPostsWidget', () => {
 			},
 		} );
 
-		render( <TopPostsWidget attributes={ { num: 10, contentView: 'archives' } } /> );
+		render( <TopPostsWidget attributes={ { max: 10, contentView: 'archives' } } /> );
 
 		// Level 0 → taxonomy groups.
 		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
@@ -686,7 +710,7 @@ describe( 'TopPostsWidget', () => {
 
 		await expect( screen.findByText( 'News' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /^News$/ } ) ).not.toBeInTheDocument();
-		const termLink = screen.getByRole( 'link', { name: /open news in a new tab/i } );
+		const termLink = screen.getByRole( 'link', { name: /news.*opens in a new tab/i } );
 		expect( termLink ).toHaveAttribute( 'href', 'https://example.com/category/news/' );
 	} );
 } );

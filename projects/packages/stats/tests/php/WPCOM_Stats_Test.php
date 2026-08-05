@@ -580,6 +580,35 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 	}
 
 	/**
+	 * Test that get_total_post_views casts post IDs to integers before they reach the query on Simple sites.
+	 *
+	 * @return void
+	 */
+	public function test_get_total_post_views_casts_post_ids_to_integers_on_simple_sites() {
+		$reflection = new \ReflectionClass( $this->wpcom_stats );
+		$property   = $reflection->getProperty( 'is_wpcom_simple' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $this->wpcom_stats, true );
+
+		// A non-integer post_ids value must be reduced to integers before it reaches the query.
+		$this->wpcom_stats->expects( $this->once() )
+					->method( 'fetch_stats_on_wpcom_simple' )
+					->with( '2025-03-07', 1, '1,2' )
+					->willReturn( array( '-' => array() ) );
+
+		$args = array(
+			'post_ids' => '1abc,2def',
+			'end'      => '2025-03-07',
+			'num'      => 1,
+		);
+
+		$this->wpcom_stats->get_total_post_views( $args );
+	}
+
+	/**
 	 * Test get_visits.
 	 */
 	public function test_get_visits() {

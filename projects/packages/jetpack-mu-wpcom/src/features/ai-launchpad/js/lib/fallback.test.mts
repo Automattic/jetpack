@@ -41,22 +41,14 @@ describe( 'selectFallback', () => {
 			assert.deepEqual( errors, [], `expected no schema errors, got: ${ errors.join( '; ' ) }` );
 		} );
 
-		it( `emits exactly 6 tasks with a launch task last for goal "${ goal }"`, () => {
+		it( `emits 6 subtitled tasks, launch last, echoing goal "${ goal }"`, () => {
 			const output = selectFallback( inputFor( goal ) );
 			assert.equal( output.tasks.length, 6 );
 			const last = output.tasks[ output.tasks.length - 1 ];
 			assert.ok( LAUNCH_TASKS.has( last.id ), `last task "${ last.id }" is not a launch task` );
-		} );
-
-		it( `gives every task a non-empty subtitle for goal "${ goal }"`, () => {
-			const output = selectFallback( inputFor( goal ) );
 			for ( const task of output.tasks ) {
 				assert.ok( task.subtitle.length > 0, `task "${ task.id }" has an empty subtitle` );
 			}
-		} );
-
-		it( `echoes the goal into inferred for goal "${ goal }"`, () => {
-			const output = selectFallback( inputFor( goal ) );
 			assert.equal( output.inferred.goal, goal );
 		} );
 	}
@@ -76,11 +68,5 @@ describe( 'selectFallback', () => {
 		} );
 		const errors = validateAgainstSchema( output, fileSchema );
 		assert.deepEqual( errors, [], `expected no schema errors, got: ${ errors.join( '; ' ) }` );
-	} );
-
-	it( 'validates against the schema-validator inlined constant too', () => {
-		// The inlined AGENT_OUTPUT_SCHEMA must agree with the committed file.
-		const output = selectFallback( inputFor( 'sell' ) );
-		assert.deepEqual( validateAgainstSchema( output, fileSchema ), [] );
 	} );
 } );

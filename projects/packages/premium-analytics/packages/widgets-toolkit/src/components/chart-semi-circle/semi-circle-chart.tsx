@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import { PieSemiCircleChart } from '@automattic/charts';
-import { Icon, Stack } from '@wordpress/ui';
+import { PieSemiCircleChart, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { useMemo } from 'react';
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import {

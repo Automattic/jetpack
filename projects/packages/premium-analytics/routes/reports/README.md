@@ -22,7 +22,7 @@ definition and lazily renders that report's page component. Adding a report does
    export const REPORTS: Record< string, ReportDefinition > = {
    	posts: {
    		id: 'posts',
-   		getTitle: () => __( 'Posts & pages', 'jetpack-premium-analytics' ),
+   		getTitle: () => __( 'Posts & pages', 'jetpack-premium-analytics-pkg' ),
    		// Optional — only for reports that own sections:
    		// resolveSection: value => resolveSectionId( value ),
    		load: () => import( './posts/page' ),

@@ -194,7 +194,19 @@ class LCP_State {
 	 * @since 4.0.0
 	 */
 	public function set_pages( $pages ) {
-		$this->state['pages'] = $pages;
+		// Guarantee every page carries a status. Entries from prepare_provider_data() only have
+		// `key` and `url`; set_pending_pages() normally supplies the status, but it marks each key
+		// only once, so a duplicate key would otherwise land here with no status and fail the
+		// lcp_state schema on write. Existing statuses (e.g. from a prior run) are preserved.
+		$this->state['pages'] = array_map(
+			function ( $page ) {
+				if ( ! isset( $page['status'] ) ) {
+					$page['status'] = self::PAGE_STATES['pending'];
+				}
+				return $page;
+			},
+			$pages
+		);
 		return $this;
 	}
 

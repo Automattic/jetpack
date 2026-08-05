@@ -38,6 +38,35 @@ const report: StatsCommentsResponse = {
 	],
 };
 
+/**
+ * Build a one-post report carrying the given link.
+ *
+ * @param link      - The post link the API returns.
+ * @param overrides - Fields to override on the post item.
+ * @return The report response.
+ */
+function withPostLink(
+	link: string,
+	overrides: Record< string, unknown > = {}
+): StatsCommentsResponse {
+	const group = report.data[ 0 ].items[ 0 ] as { children: unknown[] };
+
+	return {
+		...report,
+		data: [
+			{
+				...report.data[ 0 ],
+				items: [
+					{
+						...( report.data[ 0 ].items[ 0 ] as object ),
+						children: [ { ...( group.children[ 0 ] as object ), link, ...overrides } ],
+					},
+				],
+			},
+		],
+	} as StatsCommentsResponse;
+}
+
 describe( 'useCommentsReportRecords', () => {
 	beforeEach( () => {
 		mockUseStatsComments.mockReturnValue( {
@@ -63,6 +92,37 @@ describe( 'useCommentsReportRecords', () => {
 				link: 'https://example.com/hello-world/',
 				postId: '42',
 			} ),
+		] );
+	} );
+
+	it( 'drops a post link that is not a safe http(s) URL, keeping the row', () => {
+		mockUseStatsComments.mockReturnValue( {
+			data: withPostLink( 'javascript:alert(1)' ),
+			isLoading: false,
+			isError: false,
+			refetch: jest.fn(),
+		} as unknown as ReturnType< typeof useStatsComments > );
+
+		const { result } = renderHook( () => useCommentsReportRecords( 'posts' ) );
+
+		expect( result.current.rows ).toEqual( [
+			expect.objectContaining( { label: 'Hello world', value: 12, link: undefined } ),
+		] );
+	} );
+
+	// A post with no id keys its row on the raw link, so the guard must not disturb identity.
+	it( 'keeps the raw link as the row id when the post has no id', () => {
+		mockUseStatsComments.mockReturnValue( {
+			data: withPostLink( 'javascript:alert(1)', { id: null } ),
+			isLoading: false,
+			isError: false,
+			refetch: jest.fn(),
+		} as unknown as ReturnType< typeof useStatsComments > );
+
+		const { result } = renderHook( () => useCommentsReportRecords( 'posts' ) );
+
+		expect( result.current.rows ).toEqual( [
+			expect.objectContaining( { id: 'javascript:alert(1)', link: undefined } ),
 		] );
 	} );
 } );

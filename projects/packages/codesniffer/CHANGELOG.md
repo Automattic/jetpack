@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.1.1] - 2026-07-28
+### Fixed
+- Keep the package installable while WPCS 3.4.1 is blocked by mediawiki/mediawiki-codesniffer: cap wp-coding-standards/wpcs below 3.4.1 and ignore the GHSA-3pwp-g2mj-5p3v advisory (the vulnerable sniff is already excluded).
+
+## [8.1.0] - 2026-07-28
+### Security
+- Exclude the WordPress.WP.EnqueuedResourceParameters sniff from the Jetpack standard: versions of WordPressCS before 3.4.1 pass untrusted code through eval() when the sniff runs (GHSA-3pwp-g2mj-5p3v).
+
+### Added
+- Add the Jetpack.FeatureFlags.FeatureFlagName sniff to validate feature flag names registered via the jetpack-feature-flags package. [#49698]
+
+### Changed
+- Bump `minimum_supported_wp_version` in README to 6.9. [#49021]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Update package dependencies. [#50237]
+- Update `Jetpack-Compat-*` rulesets. [#50240]
+
 ## [8.0.0] - 2026-04-13
 ### Changed
 - Jetpack-Tests: No longer exclude `test-*.php` type filenames from WordPress naming. We shouldn't have any anymore now that PHPUnit requires `*Test.php` style naming. [#46843]
@@ -228,6 +245,8 @@ Previous versions were licensed GPL v2.0-or-later.
 
 - Codesniffer: Add a package to hold our coding standard
 
+[8.1.1]: https://github.com/Automattic/jetpack-codesniffer/compare/v8.1.0...v8.1.1
+[8.1.0]: https://github.com/Automattic/jetpack-codesniffer/compare/v8.0.0...v8.1.0
 [8.0.0]: https://github.com/Automattic/jetpack-codesniffer/compare/v7.0.0...v8.0.0
 [7.0.0]: https://github.com/Automattic/jetpack-codesniffer/compare/v6.0.1...v7.0.0
 [6.0.1]: https://github.com/Automattic/jetpack-codesniffer/compare/v6.0.0...v6.0.1

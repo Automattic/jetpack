@@ -161,6 +161,27 @@ class Jetpack_Carousel_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Adding the data attributes twice must not add them twice.
+	 *
+	 * Tiled Gallery output passes through this filter once as
+	 * 'jetpack_tiled_galleries_block_content', from inside the block's render
+	 * callback, and again as 'the_content' when single image galleries are enabled.
+	 * Both hooks see the same markup, so without a guard every carousel data-*
+	 * attribute is emitted twice. See JETPACK-1990.
+	 */
+	public function test_add_data_img_tags_and_enqueue_assets_is_idempotent() {
+		$attachment = $this->create_image_attachment_with_exif();
+		$content    = '<div class="tiled-gallery__item"><img alt="" data-id="' . $attachment->ID
+			. '" data-height="100" data-width="100" src="https://example.com/jetpack-icon.jpg" /></div>';
+
+		$once  = $this->instance->add_data_img_tags_and_enqueue_assets( $content );
+		$twice = $this->instance->add_data_img_tags_and_enqueue_assets( $once );
+
+		$this->assertSame( 1, substr_count( $once, 'data-attachment-id=' ) );
+		$this->assertSame( $once, $twice );
+	}
+
+	/**
 	 * When the EXIF display option is enabled (the default), add_data_to_images()
 	 * should include the data-image-meta attribute.
 	 */

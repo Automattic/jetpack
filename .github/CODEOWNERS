@@ -60,9 +60,9 @@
 # Packages
 /projects/packages/premium-analytics @Automattic/red @Automattic/ventures
 /projects/packages/search/src/wpes @Automattic/prometheus
-/projects/packages/connection/src @Automattic/jetpack-vulcan
-/projects/packages/connection/legacy @Automattic/jetpack-vulcan
-/projects/packages/sync/src @Automattic/jetpack-vulcan
+/projects/packages/connection/src @Automattic/jetpack-connection
+/projects/packages/connection/legacy @Automattic/jetpack-connection
+/projects/packages/sync/src @Automattic/jetpack-sync
 /projects/packages/connection/src/class-package-version.php # No owner - too noisy
 /projects/packages/sync/src/class-package-version.php # No owner - too noisy
 /projects/packages/videopress/src @Automattic/VideoPress
