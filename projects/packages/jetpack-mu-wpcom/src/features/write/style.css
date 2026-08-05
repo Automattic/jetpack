@@ -217,7 +217,7 @@
 	background-clip: padding-box;
 	font-family: inherit;
 	font-size: var(--wpds-typography-font-size-md, 13px);
-	font-weight: var(--wpds-typography-font-weight-medium, 500);
+	font-weight: 500;
 	line-height: var(--wpds-typography-line-height-sm, 20px);
 	color: var(--bw-btn-foreground);
 	text-align: center;
