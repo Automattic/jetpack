@@ -43,11 +43,7 @@ const useAutoScroll = (
 		debug( 'enabling auto scroll' );
 	}, [ userScrollHandler ] );
 
-	// Returns whether the user took the scrolling over before this point, which callers use to
-	// decide whether moving the editor once more would be unwelcome.
 	const disableAutoScroll = useCallback( () => {
-		const userTookOver = ignoreScroll.current;
-
 		autoScrollEnabled.current = false;
 		ignoreScroll.current = false;
 		startedAutoScroll.current = false;
@@ -64,8 +60,6 @@ const useAutoScroll = (
 
 		scrollElementRef.current = null;
 		debug( 'disabling auto scroll' );
-
-		return userTookOver;
 	}, [ userScrollHandler ] );
 
 	// An explicit target overrides the configured one, for callers whose element to keep in
