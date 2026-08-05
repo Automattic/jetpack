@@ -15,15 +15,11 @@ use Brain\Monkey;
 use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Class Render_Blocking_JS_Test
- *
- * @covers \Automattic\Jetpack_Boost\Modules\Optimizations\Render_Blocking_JS\Render_Blocking_JS
  */
-#[CoversClass( Render_Blocking_JS::class )]
 class Render_Blocking_JS_Test extends MockeryTestCase {
 
 	/**
