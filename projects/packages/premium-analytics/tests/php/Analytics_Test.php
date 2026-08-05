@@ -245,7 +245,7 @@ class Analytics_Test extends TestCase {
 	public function test_register_admin_menu_labels_the_page_from_the_package() {
 		$menu_item = $this->register_admin_menu_without_build();
 
-		$this->assertSame( 'Stats', $menu_item[0] ?? null );
+		$this->assertSame( 'Stats v2', $menu_item[0] ?? null );
 	}
 
 	/**
@@ -315,7 +315,7 @@ class Analytics_Test extends TestCase {
 
 		$menu_item = $this->register_admin_menu_without_build();
 
-		$this->assertSame( 'Stats', $menu_item[0] ?? null );
+		$this->assertSame( 'Stats v2', $menu_item[0] ?? null );
 	}
 
 	/**

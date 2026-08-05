@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Name the dashboard "Stats" consistently across the admin menu and breadcrumbs, and mark its header with the Jetpack logo.
+Name the dashboard "Stats" in its header and breadcrumbs, and mark the header with the Jetpack logo.

@@ -386,7 +386,7 @@ class Analytics {
 		// esc_html() as a broken label instead of falling back here.
 		self::$resolved_menu_title = is_string( $title ) && '' !== $title
 			? $title
-			: __( 'Stats', 'jetpack-premium-analytics-pkg' );
+			: __( 'Stats v2', 'jetpack-premium-analytics-pkg' );
 
 		return self::$resolved_menu_title;
 	}
