@@ -247,9 +247,6 @@ class Contact_Form_Block_Test extends BaseTestCase {
 					'background' => array(
 						'backgroundImage'                 => true,
 						'backgroundSize'                  => true,
-						// Serialization is skipped so that Contact_Form_Block::apply_background_support()
-						// can put the image on the step's own div rather than core putting it on the
-						// interactivity wrapper, where a background color would paint over it.
 						'__experimentalSkipSerialization' => true,
 						'__experimentalDefaultControls'   => array(
 							'backgroundImage' => true,
@@ -521,8 +518,6 @@ class Contact_Form_Block_Test extends BaseTestCase {
 
 		$supports = $registry->get_registered( 'jetpack/contact-form' )->supports ?? array();
 
-		// The front end styles come from PHP, so the background support has to be declared here
-		// and not only in block.json.
 		$this->assertSame(
 			array(
 				'backgroundImage'                 => true,

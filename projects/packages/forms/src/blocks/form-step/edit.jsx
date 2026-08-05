@@ -166,10 +166,6 @@ export default function Edit( { attributes, setAttributes, clientId, isSelected 
 		renderAppender = InnerBlocks.ButtonBlockAppender;
 	}
 
-	// Only the two classes the form layout CSS matches on to size and lay out the fields.
-	// Handing over the whole wrapper props would also copy the block's own styling onto this
-	// element — the inline background image, and the has-background / has-<slug>-background-color
-	// classes for a preset color — which would then paint a second time, on top of the wrapper.
 	const innerBlocksProps = useInnerBlocksProps(
 		{ className: 'wp-block-jetpack-form-step jetpack-form-step__container' },
 		{

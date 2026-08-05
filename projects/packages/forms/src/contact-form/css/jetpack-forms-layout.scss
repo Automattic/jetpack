@@ -67,8 +67,6 @@
 			display: flex;
 			flex-wrap: wrap;
 			width: 100%;
-			// The step's padding has to sit inside its 100% width, otherwise the content
-			// overflows the wrapper the step's own background is painted on.
 			box-sizing: border-box;
 		}
 

@@ -926,8 +926,6 @@ class Contact_Form_Plugin {
 			$processed_content = do_blocks( $content );
 		}
 
-		// The step's own div opens $processed_content and carries its color, padding and radius,
-		// so the background image goes there rather than on the interactivity wrapper below.
 		$processed_content = Contact_Form_Block::apply_background_support( $processed_content, $atts );
 
 		$is_current_step_class = ( self::$step_count === 1 ? 'is-current-step' : '' );
