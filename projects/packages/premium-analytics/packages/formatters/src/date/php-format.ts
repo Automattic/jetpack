@@ -6,6 +6,20 @@
 /** Tokens that render a year: 4-digit, 2-digit, and ISO week-numbering. */
 const YEAR_TOKENS = new Set( [ 'Y', 'y', 'o' ] );
 
+/** Tokens that render a weekday: full name, short name, and the two numeric forms. */
+const WEEKDAY_TOKENS = new Set( [ 'l', 'D', 'N', 'w' ] );
+
+/** Full weekday name, the form a date-scale label leads with. */
+const WEEKDAY_FORMAT = 'l';
+
+/**
+ * Separator between the weekday and the date it introduces.
+ *
+ * Ours rather than WordPress's: no locale datum describes this join, since
+ * core publishes no weekday-bearing format to take it from.
+ */
+const WEEKDAY_SEPARATOR = ', ';
+
 type Segment = {
 	/** The original text, backslash included, so re-joining is lossless. */
 	source: string;
@@ -107,4 +121,27 @@ export function withoutYear( phpFormat: string ): string {
 	return [ ...segments.slice( 0, start ), ...segments.slice( end ) ]
 		.map( segment => segment.source )
 		.join( '' );
+}
+
+/**
+ * Put the weekday in front of a PHP format string.
+ *
+ * WordPress publishes no weekday-bearing format, so one has to be derived from
+ * the site's. The weekday name still comes from WordPress's translation
+ * tables; only the separator is ours, and only the leading position is assumed
+ * — every locale core ships puts the weekday first when it names one at all.
+ *
+ * @param phpFormat - PHP `date()` format string.
+ * @return The format led by its weekday, or unchanged when it already has one.
+ */
+export function withWeekday( phpFormat: string ): string {
+	const hasWeekday = toSegments( phpFormat ).some(
+		segment => segment.isToken && WEEKDAY_TOKENS.has( segment.char )
+	);
+
+	if ( hasWeekday ) {
+		return phpFormat;
+	}
+
+	return `${ WEEKDAY_FORMAT }${ WEEKDAY_SEPARATOR }${ phpFormat }`;
 }

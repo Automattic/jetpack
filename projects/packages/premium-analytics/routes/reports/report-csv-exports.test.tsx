@@ -23,6 +23,8 @@ import { useDownloadsReportRecords } from './downloads/config';
 import DownloadsReportPage from './downloads/page';
 import { useEmailsReportRecords } from './emails/config';
 import EmailsReportPage from './emails/page';
+import { useLocationsReportRecords } from './locations/config';
+import LocationsReportPage from './locations/page';
 import { useReferrersReportRecords } from './referrers/config';
 import ReferrersReportPage from './referrers/page';
 import { useSearchTermsReportRecords } from './search-terms/config';
@@ -49,6 +51,8 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => null,
+	StatsBreadcrumbs: () => null,
+	StatsPageIcon: () => null,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
@@ -108,13 +112,28 @@ jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
 } ) );
 
-jest.mock( '@wordpress/ui', () => ( {
-	EmptyState: {
-		Root: ( { children }: { children?: ReactNode } ) => <>{ children }</>,
-		Title: ( { children }: { children?: ReactNode } ) => <>{ children }</>,
-	},
-	Text: ( { children }: { children?: ReactNode } ) => <>{ children }</>,
-} ) );
+// The page imports `EmptyState`/`Text` from the externals passthrough, so the
+// stubs have to replace them there; the Proxy leaves the rest of the barrel
+// intact for any other consumer in the graph.
+jest.mock(
+	'@jetpack-premium-analytics/externals',
+	() =>
+		new Proxy(
+			{
+				EmptyState: {
+					Root: ( { children }: { children?: ReactNode } ) => <>{ children }</>,
+					Title: ( { children }: { children?: ReactNode } ) => <>{ children }</>,
+				},
+				Text: ( { children }: { children?: ReactNode } ) => <>{ children }</>,
+			},
+			{
+				get: ( overrides, prop ) =>
+					prop in overrides
+						? overrides[ prop as keyof typeof overrides ]
+						: jest.requireActual( '@jetpack-premium-analytics/externals' )[ prop ],
+			}
+		)
+);
 
 jest.mock( './annual-insights/config', () => ( {
 	getAnnualInsightsFields: () => [],
@@ -149,6 +168,14 @@ jest.mock( './emails/config', () => ( {
 	useEmailsReportRecords: jest.fn(),
 } ) );
 
+jest.mock( './locations/config', () => ( {
+	getLocationFields: () => [],
+	getReportLocationsTabs: () => [ { id: 'countries', label: 'Countries' } ],
+	resolveSection: ( value: string | undefined ) => value ?? 'countries',
+	supportsCountryFilter: ( tab: string ) => tab !== 'countries',
+	useLocationsReportRecords: jest.fn(),
+} ) );
+
 jest.mock( './referrers/config', () => ( {
 	getReferrerFields: () => [],
 	useReferrersReportRecords: jest.fn(),
@@ -179,6 +206,7 @@ const useCommentFollowersReportRecordsMock = jest.mocked( useCommentFollowersRep
 const useCommentsReportRecordsMock = jest.mocked( useCommentsReportRecords );
 const useDownloadsReportRecordsMock = jest.mocked( useDownloadsReportRecords );
 const useEmailsReportRecordsMock = jest.mocked( useEmailsReportRecords );
+const useLocationsReportRecordsMock = jest.mocked( useLocationsReportRecords );
 const useReferrersReportRecordsMock = jest.mocked( useReferrersReportRecords );
 const useSearchTermsReportRecordsMock = jest.mocked( useSearchTermsReportRecords );
 const useTagsReportRecordsMock = jest.mocked( useTagsReportRecords );
@@ -440,6 +468,38 @@ describe( 'report CSV exports', () => {
 		} as ReturnType< typeof useReferrersReportRecords > );
 
 		expectCsvExport( ReferrersReportPage, 'referrers', rows, [ 'Search', '', 10, '' ] );
+	} );
+
+	it( 'configures the Locations export', () => {
+		const rows = [
+			{ id: 'IN:India', label: 'India', countryCode: 'IN', countryFull: 'India', views: 2 },
+			{
+				id: 'AU:Australia',
+				label: 'Australia',
+				countryCode: 'AU',
+				countryFull: 'Australia',
+				views: 5,
+			},
+		];
+		useSectionTabMock.mockReturnValue( [ 'countries', jest.fn() ] as unknown as ReturnType<
+			typeof useSectionTab
+		> );
+		useLocationsReportRecordsMock.mockReturnValue( {
+			...reportStatus,
+			hasComparison: false,
+			countries: { options: [] },
+			table: {
+				...reportStatus,
+				rows,
+			},
+		} as unknown as ReturnType< typeof useLocationsReportRecords > );
+
+		expectCsvExport(
+			LocationsReportPage,
+			'locations-countries',
+			[ rows[ 1 ], rows[ 0 ] ],
+			[ 'Australia', 5 ]
+		);
 	} );
 
 	it( 'configures the Search terms export', () => {

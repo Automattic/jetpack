@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Subscriptions: Stop the site settings endpoint from saving unchanged subscription message defaults; translate the default subscription options using the user locale.

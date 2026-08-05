@@ -46,7 +46,7 @@ class Host {
 	 * Relies on the `IS_PRESSABLE` platform constant rather than URL or
 	 * domain matching, which can be spoofed and changes across environments.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.2.0
 	 *
 	 * @return bool
 	 */

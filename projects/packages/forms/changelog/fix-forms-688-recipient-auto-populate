@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Form block: show the fallback notification recipient as a placeholder so it is clear when no address is saved.

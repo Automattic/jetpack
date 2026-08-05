@@ -4,13 +4,12 @@
 import { useStatsCommentsRows } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardPostLabel,
 	ReportLink,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
-	buildLeaderboardRow,
 	describeError,
-	safeHttpUrl,
 	sharePercentage,
 	toMaxRows,
 	type LeaderboardChartData,
@@ -19,7 +18,7 @@ import {
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { commentContent } from '@wordpress/icons';
-import { Stack } from '@wordpress/ui';
+import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -59,22 +58,12 @@ function MostCommentedPostsInner( { max }: MostCommentedPostsInnerProps ) {
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
 		const maxValue = Math.max( ...rows.map( row => row.value ), 0 );
 
-		return rows.map( row => {
-			// Post permalinks come from report data, so validate the scheme before
-			// the row becomes a link.
-			const href = safeHttpUrl( row.link );
-
-			return {
-				id: row.id,
-				...buildLeaderboardRow( {
-					label: row.label,
-					media: { kind: 'none' },
-					action: href ? { kind: 'link', href } : { kind: 'static' },
-				} ),
-				currentValue: row.value,
-				currentShare: sharePercentage( row.value, maxValue ),
-			};
-		} );
+		return rows.map( row => ( {
+			id: row.id,
+			label: <LeaderboardPostLabel id={ row.postId } label={ row.label } link={ row.link } />,
+			currentValue: row.value,
+			currentShare: sharePercentage( row.value, maxValue ),
+		} ) );
 	}, [ rows ] );
 
 	return (
@@ -121,8 +110,8 @@ function MostCommentedPostsInner( { max }: MostCommentedPostsInnerProps ) {
 
 /**
  * Most commented posts widget: the posts and pages that receive the most
- * comments, ranked by comment count. Each row links to the published post when
- * the report reports a permalink for it.
+ * comments, ranked by comment count. Each row opens the post detail page, and
+ * falls back to the published post when the report carries no post ID.
  *
  * One half of the Jetpack Stats "Comments" module; `jpa/most-commented-authors`
  * covers the other. Both read the same `stats/comments` response through

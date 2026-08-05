@@ -7,16 +7,20 @@ const location: LocationRow = {
 	countryCode: 'IN',
 	countryFull: 'India',
 	views: 1234,
+	previousViews: 1000,
 };
 
 /**
  * Render one Locations table field for the fixture row.
  *
- * @param id - The field to render.
+ * @param id             - The field to render.
+ * @param withComparison - Whether the field config renders deltas.
  * @return The Testing Library render result.
  */
-function renderField( id: 'location' | 'views' ) {
-	const field = getLocationFields().find( candidate => candidate.id === id );
+function renderField( id: 'location' | 'views', withComparison = false ) {
+	const field = getLocationFields( undefined, withComparison ).find(
+		candidate => candidate.id === id
+	);
 	// eslint-disable-next-line testing-library/render-result-naming-convention -- This is the DataViews field render component, not RTL's render result.
 	const LocationField = field?.render;
 
@@ -40,10 +44,21 @@ describe( 'locations fields', () => {
 		);
 	} );
 
-	it( 'formats views for display', () => {
+	it( 'formats views with the shared formatter', () => {
 		renderField( 'views' );
 
-		expect( screen.getByText( ( 1234 ).toLocaleString() ) ).toBeInTheDocument();
+		expect( screen.getByText( '1,234' ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows the period-over-period delta only when comparison is on', () => {
+		const { unmount } = renderField( 'views' );
+
+		expect( screen.queryByText( '+23%' ) ).not.toBeInTheDocument();
+		unmount();
+
+		renderField( 'views', true );
+
+		expect( screen.getByText( '+23%' ) ).toBeInTheDocument();
 	} );
 
 	it( 'omits the country filter when no countries are given', () => {

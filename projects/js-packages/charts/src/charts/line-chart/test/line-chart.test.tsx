@@ -436,7 +436,48 @@ describe( 'LineChart', () => {
 			expect( ticks.length ).toBeGreaterThan( 1 );
 		} );
 
+		test( 'renders hour ticks when tickResolution declares the buckets sub-daily.', () => {
+			renderWithTheme( {
+				width: 800,
+				options: { axis: { x: { tickResolution: 'hour' } } },
+				data: [
+					{
+						label: 'Series A',
+						// A day apart: spacing inference would read this as daily buckets.
+						data: [
+							{ date: new Date( '2024-01-01T00:00:00' ), value: 10 },
+							{ date: new Date( '2024-01-02T00:00:00' ), value: 20 },
+						],
+					},
+				],
+			} );
+
+			const ticks = screen.getAllByText( /\d+\s(AM|PM)/ );
+			expect( ticks.length ).toBeGreaterThan( 1 );
+		} );
+
 		test( 'renders ticks in short date format.', () => {
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						// Weekly resolution: fine enough to keep full dates on the ticks.
+						data: Array.from( { length: 16 }, ( _, i ) => ( {
+							date: new Date( Date.UTC( 2024, 0, 1 + i * 7 ) ),
+							value: 10 + i,
+						} ) ),
+					},
+				],
+			} );
+
+			const ticks = screen.getAllByText(
+				/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d+$/
+			);
+			expect( ticks.length ).toBeGreaterThan( 1 );
+		} );
+
+		test( 'renders month ticks for month-or-coarser buckets within a year.', () => {
 			renderWithTheme( {
 				width: 800,
 				data: [
@@ -453,9 +494,7 @@ describe( 'LineChart', () => {
 				],
 			} );
 
-			const ticks = screen.getAllByText(
-				/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d+$/
-			);
+			const ticks = screen.getAllByText( /^(Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/ );
 			expect( ticks.length ).toBeGreaterThan( 1 );
 		} );
 
@@ -502,7 +541,8 @@ describe( 'LineChart', () => {
 				],
 			} );
 
-			const ticks = screen.getAllByText( /(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct) \d+/ );
+			// Roughly monthly buckets render month ticks under the resolution-aware formatter.
+			const ticks = screen.getAllByText( /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct)$/ );
 			expect( ticks.length ).toBeLessThan( 6 ); // Not much space
 		} );
 

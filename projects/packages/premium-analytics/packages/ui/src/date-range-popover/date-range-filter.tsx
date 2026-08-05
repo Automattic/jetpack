@@ -1,26 +1,20 @@
 /**
  * External dependencies
  */
-import { DateRangeCalendar } from '@automattic/ui';
 import { PRESET_CUSTOM, type PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
+import { Button, DateRangeCalendar, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { Composite, Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { chevronDown } from '@wordpress/icons';
-import { Button, Icon, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useState, useCallback, useEffect, useRef } from 'react';
-import '@automattic/ui/style.css';
+import { useState, useCallback, useRef } from 'react';
 /**
  * Internal dependencies
  */
 import { DateRangeInput } from '../date-range-input';
 import { getCustomTriggerLabel, getCustomTriggerState } from './get-custom-trigger-state';
-import {
-	getCommittedCustomRange,
-	shouldRestoreLastCustomRange,
-	type RememberedCustomRange,
-} from './last-custom-range';
+import { shouldRestoreLastCustomRange, type RememberedCustomRange } from './last-custom-range';
 import './date-range-filter.scss';
 
 /**
@@ -218,6 +212,17 @@ type DateRangePopoverProps = DateRangePopoverContentProps & {
 	onOpenChange?: ( isOpen: boolean ) => void;
 
 	/**
+	 * The last applied custom range. It labels the trigger while a preset is
+	 * driving the range, and is restaged when the popover reopens.
+	 *
+	 * Owned by `DateFiltersPanel` rather than held here, because the panel's
+	 * measuring probe has to reproduce this trigger's label exactly. Local state
+	 * here would be invisible to the probe, which would then measure "Custom"
+	 * against a trigger showing a formatted range and under-measure the row.
+	 */
+	rememberedCustomRange?: RememberedCustomRange | null;
+
+	/**
 	 * Render the trigger as a `Composite.Item` so it joins the roving tabindex
 	 * of a surrounding `Composite` group (the date-filter surface). Leave unset
 	 * when the popover renders standalone.
@@ -241,13 +246,11 @@ export function DateRangePopover( {
 	canApply,
 	timeZone,
 	onOpenChange,
+	rememberedCustomRange = null,
 	isWideScreen = false,
 	triggerAsCompositeItem = false,
 	isCompact = false,
 }: DateRangePopoverProps ) {
-	const [ rememberedCustomRange, setRememberedCustomRange ] =
-		useState< RememberedCustomRange | null >( null );
-
 	const [ isOpen, setIsOpen ] = useState( false );
 
 	/*
@@ -256,14 +259,6 @@ export function DateRangePopover( {
 	 * Cancel does. The flag tells those closes apart in `onToggle`.
 	 */
 	const closedByActionRef = useRef( false );
-
-	useEffect( () => {
-		const committedCustomRange = getCommittedCustomRange( appliedPresetId, appliedRange );
-
-		if ( committedCustomRange ) {
-			setRememberedCustomRange( committedCustomRange );
-		}
-	}, [ appliedPresetId, appliedRange ] );
 
 	const handleOpenToggle = useCallback(
 		( next: boolean ) => {
@@ -323,7 +318,8 @@ export function DateRangePopover( {
 						id="date-range-popover-button"
 						data-state={ triggerState }
 					>
-						{ triggerLabel }
+						{ /* Own element so a label too wide for the trigger can ellipsize. */ }
+						<span className="date-filters-panel-button__label">{ triggerLabel }</span>
 						<Icon className="date-filters-panel-button__caret" icon={ chevronDown } size={ 18 } />
 					</Button>
 				);

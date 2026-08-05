@@ -15,8 +15,8 @@ import {
 	PAGE_TYPE_SUGGESTIONS,
 	PAGE_TYPE_TOKENS,
 	TOKEN_LABELS,
-	buildDefaultPreview,
-	buildPreview,
+	buildDefaultPreviewParts,
+	buildPreviewParts,
 	stringToTokens,
 	tokensToString,
 } from '../../data/title-format-tokens';
@@ -86,12 +86,18 @@ const TitleStructureRow: FC< RowProps > = ( {
 	const allowed = PAGE_TYPE_TOKENS[ pageTypeId ];
 	// An untouched page type still has a title — WordPress composes it — so preview
 	// that instead of leaving the row blank under the module's "Complete" status.
-	const preview = useMemo(
+	const previewParts = useMemo(
 		() =>
 			tokens.length > 0
-				? buildPreview( tokens, previewOverrides )
-				: buildDefaultPreview( pageTypeId, titleSeparator, previewOverrides ),
+				? buildPreviewParts( tokens, previewOverrides )
+				: buildDefaultPreviewParts( pageTypeId, titleSeparator, previewOverrides ),
 		[ tokens, previewOverrides, pageTypeId, titleSeparator ]
+	);
+	// The parts concatenated — the literal title this format produces. Only used to
+	// decide whether there is anything to show; the row renders the parts.
+	const preview = useMemo(
+		() => previewParts.map( part => part.text ).join( '' ),
+		[ previewParts ]
 	);
 
 	const setFromString = useCallback(
@@ -159,7 +165,30 @@ const TitleStructureRow: FC< RowProps > = ( {
 				     result is the honest one, and hiding it would undo the point. */ }
 				{ ( tokens.length > 0 || preview ) && (
 					<Text variant="body-md" className={ styles.preview }>
-						<strong>{ previewLabel }:</strong> { preview }
+						<strong>{ previewLabel }:</strong>{ ' ' }
+						{ /* Values render as chips and separators as the plain text they are, so
+						     the shape of the title is legible at a glance — a run of words is
+						     hard to read as "site name, then a divider, then a tagline".
+						     Concatenating what's rendered still gives the exact emitted title:
+						     nothing is inserted between the parts, and the separators keep the
+						     admin's own spacing (see `.previewSeparator`). Empty values are
+						     skipped so a placeholder that resolves to nothing leaves no stray
+						     chip — the separators around it still show, which is what the real
+						     title does. */ }
+						{ previewParts.map( ( part, index ) =>
+							part.text === '' ? null : (
+								<span
+									// Parts are positional and can repeat ("Acme | Acme"), so the
+									// index is the only stable identity available here.
+									key={ index }
+									className={
+										part.kind === 'value' ? styles.previewValue : styles.previewSeparator
+									}
+								>
+									{ part.text }
+								</span>
+							)
+						) }
 					</Text>
 				) }
 				<Button className={ styles.save } onClick={ onSave } disabled={ disabled || ! canSave }>

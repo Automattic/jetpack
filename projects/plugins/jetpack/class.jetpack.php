@@ -448,7 +448,7 @@ class Jetpack {
 	/**
 	 * Resolved answer for `is_premium_analytics_enabled()`, or null before the first call.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.1
 	 * @var bool|null
 	 */
 	private static $premium_analytics_enabled = null;
@@ -868,7 +868,7 @@ class Jetpack {
 	 * flag on but a missing package answers false here and never adds the
 	 * Stats v2 menu (a warning is logged instead).
 	 *
-	 * @since $$next-version$$
+	 * @since 16.1
 	 *
 	 * @return bool
 	 */
@@ -884,7 +884,7 @@ class Jetpack {
 		 * this from a mu-plugin or a plugin's main file — a callback added on
 		 * `plugins_loaded` or later runs too late to be seen.
 		 *
-		 * @since $$next-version$$
+		 * @since 16.1
 		 *
 		 * @param bool $enabled Defaults to the `jetpack_premium_analytics_enabled` option (false).
 		 */

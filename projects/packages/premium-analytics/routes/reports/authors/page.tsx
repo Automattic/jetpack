@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { normalizeReportParams } from '@jetpack-premium-analytics/data';
-import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
 	ReportCsvAction,
@@ -14,8 +14,7 @@ import {
 	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs } from '@wordpress/admin-ui';
-import { useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
 /**
@@ -108,17 +107,12 @@ function AuthorsReport(): JSX.Element {
 	} );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dashboardLink = useDashboardLink();
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
-
 	return (
 		<ReportPageShell
+			visual={ <StatsPageIcon /> }
 			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
-						{ label: __( 'Top authors', 'jetpack-premium-analytics-pkg' ) },
-					] }
+				<StatsBreadcrumbs
+					items={ [ { label: __( 'Top authors', 'jetpack-premium-analytics-pkg' ) } ] }
 				/>
 			}
 			actions={
@@ -127,13 +121,7 @@ function AuthorsReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout
-				filters={
-					<div ref={ setContainerElement }>
-						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-					</div>
-				}
-			>
+			<ReportPageLayout filters={ <DateFiltersPanel { ...dateFilters } /> }>
 				{ /*
 				 * Replace the row-count-based table state when either request fails,
 				 * so cached rows are not shown as current and an initial failure does

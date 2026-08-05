@@ -2,13 +2,14 @@
  * External dependencies
  */
 import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
-import { pickReportDateParams, useDashboardLink } from '@jetpack-premium-analytics/routing';
-import { Breadcrumbs, Page } from '@wordpress/admin-ui';
+import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
+import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Link, useParams, useSearch } from '@wordpress/route';
-import { Button, Stack, Text } from '@wordpress/ui';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 /**
@@ -61,7 +62,6 @@ function VideoDetail(): JSX.Element {
 
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
-	const dashboardLink = useDashboardLink();
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const reportSearch = pickReportDateParams( search );
 
@@ -118,14 +118,8 @@ function VideoDetail(): JSX.Element {
 			gridSettings={ gridSettings }
 		>
 			<Page
-				breadcrumbs={
-					<Breadcrumbs
-						items={ [
-							{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
-							...( title ? [ { label: title } ] : [] ),
-						] }
-					/>
-				}
+				visual={ <StatsPageIcon /> }
+				breadcrumbs={ <StatsBreadcrumbs items={ title ? [ { label: title } ] : [] } /> }
 				className={ styles.page }
 			>
 				<div className={ styles.scrollArea }>

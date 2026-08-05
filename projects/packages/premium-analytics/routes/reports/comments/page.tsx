@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { useDashboardLink, useSectionTab } from '@jetpack-premium-analytics/routing';
+import { useSectionTab } from '@jetpack-premium-analytics/routing';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportErrorState,
 	ReportPageLayout,
@@ -12,7 +13,7 @@ import {
 	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs, Page } from '@wordpress/admin-ui';
+import { Page } from '@wordpress/admin-ui';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -81,16 +82,13 @@ function CommentsReport(): JSX.Element {
 		sort: sortCommentsCsvRows,
 	} );
 	const retry = useReportRetry( records.refetch );
-	const dashboardLink = useDashboardLink();
 
 	return (
 		<Page
+			visual={ <StatsPageIcon /> }
 			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
-						{ label: __( 'Comments', 'jetpack-premium-analytics-pkg' ) },
-					] }
+				<StatsBreadcrumbs
+					items={ [ { label: __( 'Comments', 'jetpack-premium-analytics-pkg' ) } ] }
 				/>
 			}
 			subTitle={ __(

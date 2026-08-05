@@ -505,6 +505,174 @@ BrokenLine.parameters = {
 	},
 };
 
+// Wall-clock dates in the browser frame — the library's parsing convention —
+// so the ticks read the same in any viewer timezone.
+const hourlySeries = ( label: string, startDay: number, hours: number ): SeriesData => ( {
+	label,
+	data: Array.from( { length: hours }, ( _, i ) => ( {
+		date: new Date( 2026, 7, startDay, i ),
+		value: Math.round( 60 + 40 * Math.sin( ( i % 24 ) / 3.5 ) ),
+	} ) ),
+	options: {},
+} );
+
+export const TimeAxisTickFormats: StoryObj< StoryArgs > = {
+	render: () => (
+		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
+			<div>
+				<h3>Hourly buckets, single day → hour ticks</h3>
+				<LineChart
+					width={ 460 }
+					height={ 220 }
+					data={ [ hourlySeries( 'Views', 2, 24 ) ] }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
+			</div>
+			<div>
+				<h3>Hourly buckets, two days → hour ticks, date at midnight</h3>
+				<LineChart
+					width={ 460 }
+					height={ 220 }
+					data={ [ hourlySeries( 'Views', 2, 48 ) ] }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
+			</div>
+			<div>
+				<h3>Daily buckets → date ticks</h3>
+				<LineChart
+					width={ 460 }
+					height={ 220 }
+					data={ [
+						{
+							label: 'Views',
+							data: Array.from( { length: 30 }, ( _, i ) => ( {
+								date: new Date( 2026, 6, 1 + i ),
+								value: Math.round( 60 + 40 * Math.sin( i / 4 ) ),
+							} ) ),
+							options: {},
+						},
+					] }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
+			</div>
+			<div>
+				<h3>Monthly buckets → month ticks, year at January</h3>
+				<LineChart
+					width={ 460 }
+					height={ 220 }
+					data={ [
+						{
+							label: 'Views',
+							data: Array.from( { length: 13 }, ( _, i ) => ( {
+								date: new Date( 2025, 7 + i, 1 ),
+								value: Math.round( 60 + 40 * Math.sin( i / 2 ) ),
+							} ) ),
+							options: {},
+						},
+					] }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
+			</div>
+		</div>
+	),
+	args: {
+		containerWidth: '1020px',
+		containerHeight: '700px',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"The time axis picks its tick format from the data's bucket resolution as well as its span: hour ticks within a day; hour ticks with the date at midnight boundaries for sub-daily data spanning up to a week; date ticks for daily and weekly buckets within a year; month ticks (with the year at January) for month-or-coarser buckets; year ticks beyond that.",
+			},
+		},
+	},
+};
+
+// Single-bucket series: the shape where point-spacing inference can't recover
+// the resolution — there is no spacing to measure — so only the declared
+// `tickResolution` can pick the right tick format.
+const loneHourlyBucket: SeriesData[] = [
+	{
+		label: 'Views',
+		data: [ { date: new Date( 2026, 7, 2, 13 ), value: 42 } ],
+		options: {},
+	},
+];
+
+const loneYearlyBucket: SeriesData[] = [
+	{
+		label: 'Views',
+		data: [ { date: new Date( 2026, 5, 1 ), value: 640 } ],
+		options: {},
+	},
+];
+
+export const TimeAxisTickResolution: StoryObj< StoryArgs > = {
+	render: () => (
+		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
+			<div>
+				<h3>Lone hourly bucket, resolution inferred → date tick</h3>
+				<LineChart
+					width={ 460 }
+					height={ 220 }
+					data={ loneHourlyBucket }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
+			</div>
+			<div>
+				<h3>Same point, tickResolution: &apos;hour&apos; → hour tick</h3>
+				<LineChart
+					width={ 460 }
+					height={ 220 }
+					data={ loneHourlyBucket }
+					options={ { axis: { x: { tickResolution: 'hour' } } } }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
+			</div>
+			<div>
+				<h3>Lone yearly bucket, resolution inferred → date tick</h3>
+				<LineChart
+					width={ 460 }
+					height={ 220 }
+					data={ loneYearlyBucket }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
+			</div>
+			<div>
+				<h3>Same point, tickResolution: &apos;year&apos; → year tick</h3>
+				<LineChart
+					width={ 460 }
+					height={ 220 }
+					data={ loneYearlyBucket }
+					options={ { axis: { x: { tickResolution: 'year' } } } }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
+			</div>
+		</div>
+	),
+	args: {
+		containerWidth: '1020px',
+		containerHeight: '700px',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"When the caller already knows the data's bucket resolution — e.g. from a granularity selector — `options.axis.x.tickResolution` declares it and the automatic formatter derives tick formats from it directly, instead of inferring the resolution from point spacing. Inference needs at least two points, so a single-bucket series always falls back to date ticks; the declared resolution picks the right format. The overall time span still constrains the choice, and an explicit `tickFormat` takes precedence over the hint.",
+			},
+		},
+	},
+};
+
 export const DateStringFormats: StoryObj< StoryArgs > = Template.bind( {} );
 DateStringFormats.args = {
 	...lineChartStoryArgs,

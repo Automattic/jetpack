@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Keep responses readable when a field label, submitted value, or page title contains a "<" character.

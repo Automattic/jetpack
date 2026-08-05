@@ -57,7 +57,6 @@ class AI_Launchpad {
 		}
 
 		self::load_wp_build();
-		self::fix_boot_import_map_ordering();
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_jwt_initial_state' ), 20 );
 	}
 
@@ -182,56 +181,6 @@ class AI_Launchpad {
 			array(
 				'wpcomBlogId' => get_wpcom_blog_id(),
 			)
-		);
-	}
-
-	/**
-	 * Fix import map ordering for the wp-build boot script.
-	 *
-	 * In wp-admin both _wp_footer_scripts and print_import_map hook admin_print_footer_scripts at priority 10, but
-	 * _wp_footer_scripts runs first, so the inline import("@wordpress/boot") executes before the import map exists.
-	 * This moves the import() call to a <script type="module"> printed at priority 20, after the import map.
-	 *
-	 * @todo Remove once @wordpress/build ships the loader.js fix upstream
-	 *       (WordPress/gutenberg#76870) and Jetpack updates the dependency.
-	 */
-	private static function fix_boot_import_map_ordering() {
-		$handle = self::MENU_SLUG . '-prerequisites';
-
-		add_action(
-			'admin_enqueue_scripts',
-			static function () use ( $handle ) {
-				$data = wp_scripts()->get_data( $handle, 'after' );
-				if ( empty( $data ) ) {
-					return;
-				}
-
-				$boot_script = null;
-				$remaining   = array();
-				foreach ( $data as $line ) {
-					if ( strpos( $line, '@wordpress/boot' ) !== false ) {
-						$boot_script = $line;
-					} else {
-						$remaining[] = $line;
-					}
-				}
-
-				if ( $boot_script === null ) {
-					return;
-				}
-
-				wp_scripts()->add_data( $handle, 'after', $remaining );
-
-				// Re-emit as a module script after the import map.
-				add_action(
-					'admin_print_footer_scripts',
-					static function () use ( $boot_script ) {
-						wp_print_inline_script_tag( $boot_script, array( 'type' => 'module' ) );
-					},
-					20
-				);
-			},
-			PHP_INT_MAX
 		);
 	}
 }

@@ -1,18 +1,13 @@
 /**
  * External dependencies
  */
-import {
-	useStatsLocations,
-	type ReportParams,
-	type StatsLocationsItem,
-	type StatsNormalizedReport,
-} from '@jetpack-premium-analytics/data';
+import { useStatsLocations, type ReportParams } from '@jetpack-premium-analytics/data';
 import { useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { aggregateLocationRows } from './aggregate';
-import type { LocationRow, LocationsCountryOption } from './fields';
+import { buildLocationRows } from './aggregate';
+import type { LocationsCountryOption } from './fields';
 import type { ReportLocationsTabId } from './tabs';
 
 const GEO_MODES = {
@@ -22,23 +17,28 @@ const GEO_MODES = {
 } as const;
 
 /**
- * Fetch and derive map and table records for the active Locations tab.
+ * Fetch and derive the table records for the active Locations tab.
  *
  * @param activeTab     - The active Locations report tab.
  * @param reportParams  - The shared report-window parameters.
  * @param countryFilter - ISO country code to scope regions/cities to, if any.
- * @return Map and table data for the active tab, plus the filter's countries.
+ * @return Table data for the active tab, plus the filter's countries.
  */
 export function useLocationsReportRecords(
 	activeTab: ReportLocationsTabId,
 	reportParams: ReportParams,
 	countryFilter?: string
 ) {
+	/*
+	 * Without `summarize`, the API returns the whole list once per day, which
+	 * the shared comparison merge cannot align. `max: 0` keeps every row so the
+	 * table can search, sort, and page client-side.
+	 */
 	const recordsParams = useMemo(
 		() => ( {
 			...reportParams,
 			max: 0,
-			summarize: 0,
+			summarize: 1,
 			period: 'day',
 		} ),
 		[ reportParams ]
@@ -69,25 +69,21 @@ export function useLocationsReportRecords(
 
 	const reportsByTab = { countries, regions, cities };
 	const activeReport = reportsByTab[ activeTab ];
-	const primaryReport = activeReport.primary.data as
-		| StatsNormalizedReport< StatsLocationsItem >
-		| undefined;
 
-	const rows = useMemo( () => aggregateLocationRows( primaryReport ), [ primaryReport ] );
-
-	const countriesReport = countries.primary.data as
-		| StatsNormalizedReport< StatsLocationsItem >
-		| undefined;
+	const rows = useMemo(
+		() => buildLocationRows( activeReport.comparisonRows?.rows ),
+		[ activeReport.comparisonRows ]
+	);
 
 	// Options keep the report's own order (views, descending) so the countries
 	// a site actually gets traffic from sit at the top of the list.
 	const countryOptions = useMemo(
 		(): LocationsCountryOption[] =>
-			aggregateLocationRows( countriesReport )
-				.filter( ( row ): row is LocationRow & { countryCode: string } => !! row.countryCode )
+			buildLocationRows( countries.comparisonRows?.rows )
+				.filter( ( row ): row is typeof row & { countryCode: string } => !! row.countryCode )
 				.sort( ( a, b ) => b.views - a.views )
 				.map( row => ( { code: row.countryCode, label: row.countryFull || row.label } ) ),
-		[ countriesReport ]
+		[ countries.comparisonRows ]
 	);
 
 	return {
@@ -95,11 +91,15 @@ export function useLocationsReportRecords(
 			rows,
 			isLoading: activeReport.isLoading,
 			isFetching: activeReport.isFetching,
+			// Not `activeReport.isError`: that folds in the comparison period,
+			// whose failure costs deltas but must not hide the primary rows.
+			isError: activeReport.primary.isError,
 		},
+		hasComparison: activeReport.hasComparison,
 		countries: {
 			options: countryOptions,
 		},
-		isError: activeReport.isError,
+		isError: activeReport.primary.isError,
 		refetch: activeReport.refetch,
 	};
 }

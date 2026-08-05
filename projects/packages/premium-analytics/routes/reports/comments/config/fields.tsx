@@ -1,16 +1,16 @@
 /**
  * External dependencies
  */
+import { Link as UiLink } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { __ } from '@wordpress/i18n';
 import { Link as RouteLink } from '@wordpress/route';
-import { Link as UiLink } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import styles from './fields.module.css';
 import type { CommentReportRow } from './use-report-records';
-import type { Field } from '@wordpress/dataviews';
+import type { Field } from '@jetpack-premium-analytics/externals';
 
 /**
  * Render the label cell for a Comments report row.
