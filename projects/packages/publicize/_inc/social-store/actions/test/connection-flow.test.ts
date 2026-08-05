@@ -1,7 +1,12 @@
 import { globalNoticesStore } from '@automattic/jetpack-components';
 import { dispatch as coreDispatch } from '@wordpress/data';
-import { abandonAuthorization, failAuthorization } from '../connection-flow';
-import { CANCEL_CONNECTION_FLOW, FAIL_CONNECTION_FLOW_AUTHORIZATION } from '../constants';
+import { abandonAuthorization, failAuthorization, startConnectionFlow } from '../connection-flow';
+import {
+	CANCEL_CONNECTION_FLOW,
+	FAIL_CONNECTION_FLOW_AUTHORIZATION,
+	START_CONNECTION_FLOW,
+} from '../constants';
+import type { ConnectionService } from '../../../types';
 import type { ConnectionFlowStep } from '../../types';
 
 const CANCELLED = 'Authorization was cancelled. Please try again.';
@@ -36,6 +41,51 @@ function run( {
 		cancelConnectionFlow: dispatch.cancelConnectionFlow,
 	};
 }
+
+describe( 'startConnectionFlow', () => {
+	/**
+	 * Run the thunk against a services list.
+	 *
+	 * @param services - The services the store knows about.
+	 *
+	 * @return The actions the thunk dispatched, plus the refresh spy.
+	 */
+	async function start( services: Array< Partial< ConnectionService > > ) {
+		const dispatch = Object.assign( jest.fn(), { refreshServicesList: jest.fn() } );
+
+		await startConnectionFlow( { origin: 'dashboard' } )( {
+			dispatch,
+			select: { getServicesList: () => services },
+		} as never );
+
+		return {
+			actions: dispatch.mock.calls.map( ( [ action ] ) => action ),
+			refreshServicesList: dispatch.refreshServicesList,
+		};
+	}
+
+	it( 'opens the flow at the picker', async () => {
+		const { actions } = await start( [ { url: 'https://connect.test/facebook' } ] );
+
+		expect( actions ).toEqual( [ { type: START_CONNECTION_FLOW, origin: 'dashboard' } ] );
+	} );
+
+	it( 'warms the connect URLs the services list is missing', async () => {
+		const { refreshServicesList } = await start( [ { url: 'https://connect.test/facebook' }, {} ] );
+
+		expect( refreshServicesList ).toHaveBeenCalled();
+	} );
+
+	it( 'warms an empty services list', async () => {
+		expect( ( await start( [] ) ).refreshServicesList ).toHaveBeenCalled();
+	} );
+
+	it( 'leaves a list that already has them alone', async () => {
+		const { refreshServicesList } = await start( [ { url: 'https://connect.test/facebook' } ] );
+
+		expect( refreshServicesList ).not.toHaveBeenCalled();
+	} );
+} );
 
 describe( 'failAuthorization', () => {
 	beforeEach( () => {

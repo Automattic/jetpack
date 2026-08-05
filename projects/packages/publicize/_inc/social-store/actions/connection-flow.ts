@@ -1,5 +1,5 @@
 import { globalNoticesStore } from '@automattic/jetpack-components';
-import { dispatch as coreDispatch } from '@wordpress/data';
+import { dispatch as coreDispatch, ThunkArgs } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { ConnectionFlowOrigin } from '../types';
 import { setKeyringResult, setReconnectingAccount } from './connection-data';
@@ -14,6 +14,7 @@ import {
 	SET_CONNECTION_FLOW_REQUEST_ID,
 	START_CONNECTION_FLOW,
 } from './constants';
+import type { store } from '../index';
 
 /**
  * Starts the connection flow at the platform picker.
@@ -21,12 +22,18 @@ import {
  * @param options        - Options.
  * @param options.origin - Where the flow was started from.
  *
- * @return An action object.
+ * @return A thunk.
  */
 export function startConnectionFlow( { origin }: { origin: ConnectionFlowOrigin } ) {
-	return {
-		type: START_CONNECTION_FLOW,
-		origin,
+	return async function ( { dispatch, select }: ThunkArgs< typeof store > ) {
+		dispatch( { type: START_CONNECTION_FLOW, origin } );
+
+		// Pre-fetch the services list to avoid an imminent API call on connect.
+		const services = select.getServicesList();
+
+		if ( ! services.length || services.some( service => ! service.url ) ) {
+			await dispatch.refreshServicesList();
+		}
 	};
 }
 
