@@ -9,6 +9,7 @@ import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Modal,
+	Notice,
 	__experimentalInputControl as InputControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Icon,
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -197,7 +198,15 @@ export function NewsletterTestEmailModal( { isOpen, onClose }: NewsletterTestEma
 		>
 			<VStack>
 				{ showConnectionNotice && <MissingConnectionNotice /> }
-				{ error && error.code !== MISSING_CONNECTION_ERROR_CODE && <p>{ error.message } </p> }
+				{ error && error.code !== MISSING_CONNECTION_ERROR_CODE && (
+					<Notice
+						status="error"
+						isDismissible={ false }
+						className="jetpack-newsletter-test-email-modal__error"
+					>
+						{ error.message }
+					</Notice>
+				) }
 				{ isEmailSent ? (
 					<HStack alignment="left" className="jetpack-newsletter-test-email-modal__email-sent">
 						<Icon icon={ check } size={ 28 } />
@@ -218,27 +227,44 @@ export function NewsletterTestEmailModal( { isOpen, onClose }: NewsletterTestEma
 										0
 								  ) }
 						</p>
-						<Grid alignment="bottom" columns={ 2 } gap={ 2 } templateColumns="2fr auto;">
-							<InputControl
-								type="email"
-								value={ recipientEmail }
-								onChange={ value => setRecipientEmail( value ?? '' ) }
-								disabled={ isEmailSending || ! canEditRecipient }
-								label={ __( 'Recipient email address', 'jetpack' ) }
-								hideLabelFromVision
-								__next40pxDefaultSize={ true }
-							/>
-							<Button
-								variant="primary"
-								onClick={ sendTestEmail }
-								isBusy={ isEmailSending }
-								disabled={ shouldPromptForConnection }
-								__next40pxDefaultSize={ true }
-							>
-								{ __( 'Send', 'jetpack' ) }
-								<Icon icon={ SendIcon } />
-							</Button>
-						</Grid>
+						<form
+							// noValidate keeps our own isValidEmail check the single,
+							// translated, Notice-styled source of validation. Without it
+							// the type="email" input's native constraint validation would
+							// block submit on malformed input and show a browser bubble
+							// instead of our inline error.
+							noValidate
+							onSubmit={ event => {
+								// The modal renders in a portal outside the editor's own
+								// form, so this submit is self-contained. Prevent the
+								// default navigation and route Enter (and the button's
+								// native submit) through the same send path as a click.
+								event.preventDefault();
+								sendTestEmail();
+							} }
+						>
+							<Grid alignment="bottom" columns={ 2 } gap={ 2 } templateColumns="2fr auto;">
+								<InputControl
+									type="email"
+									value={ recipientEmail }
+									onChange={ value => setRecipientEmail( value ?? '' ) }
+									disabled={ isEmailSending || ! canEditRecipient }
+									label={ __( 'Recipient email address', 'jetpack' ) }
+									hideLabelFromVision
+									__next40pxDefaultSize={ true }
+								/>
+								<Button
+									type="submit"
+									variant="primary"
+									isBusy={ isEmailSending }
+									disabled={ shouldPromptForConnection }
+									__next40pxDefaultSize={ true }
+								>
+									{ __( 'Send', 'jetpack' ) }
+									<Icon icon={ SendIcon } />
+								</Button>
+							</Grid>
+						</form>
 					</>
 				) }
 			</VStack>

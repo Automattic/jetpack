@@ -633,10 +633,10 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the standalone AI chat button is not added to the admin bar when
-	 * the unified experience is disabled.
+	 * Tests that the standalone AI chat button is added when an integration requests
+	 * Agents Manager without enabling the unified experience.
 	 */
-	public function test_ai_chat_button_not_registered_without_unified_experience() {
+	public function test_ai_chat_button_registered_for_requested_shell_without_unified_experience() {
 		// Same admin context as the enabled case, so only the unified flag differs.
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'dashboard' );
@@ -644,6 +644,57 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		// Disable the unified experience (priority 20 runs after the class's own filter).
 		add_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+		add_filter( 'agents_manager_should_load', '__return_true' );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
+		);
+		$this->assertFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_menu_panel' ) ),
+			'Requesting the shell must not take over the Help Center.'
+		);
+
+		remove_filter( 'agents_manager_should_load', '__return_true' );
+		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+	}
+
+	/**
+	 * Tests that the full UI mount target belongs to Ask AI rather than Help.
+	 */
+	public function test_ai_chat_button_owns_full_ui_mount_target() {
+		global $wp_admin_bar;
+
+		require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
+		$wp_admin_bar = new \WP_Admin_Bar();
+		$wp_admin_bar->initialize();
+
+		$this->agents_manager->add_help_menu( $wp_admin_bar, false );
+		$this->agents_manager->add_ai_chat_button( $wp_admin_bar );
+
+		$help_node = $wp_admin_bar->get_node( 'agents-manager' );
+		$ai_node   = $wp_admin_bar->get_node( 'agents-manager-ai-chat' );
+
+		$this->assertNotNull( $help_node );
+		$this->assertNotNull( $ai_node );
+		$this->assertStringNotContainsString( 'agents-manager-masterbar', $help_node->meta['html'] ?? '' );
+		$this->assertStringContainsString( 'agents-manager-masterbar', $ai_node->meta['html'] ?? '' );
+	}
+
+	/**
+	 * Tests that the standalone AI chat button is not added for a disconnected
+	 * Help-only variant.
+	 */
+	public function test_ai_chat_button_not_registered_for_disconnected_variant() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'dashboard' );
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		$variant_filter = static function () {
+			return 'wp-admin-disconnected';
+		};
+		add_filter( 'agents_manager_variant', $variant_filter );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -651,11 +702,11 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
 		);
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
+		remove_filter( 'agents_manager_variant', $variant_filter );
 	}
 
 	/**
-	 * Puts the current request into a block-editor screen so the editor omnibar branch is reachable.
+	 * Puts the current request into a block-editor screen so the editor admin-bar branch is reachable.
 	 *
 	 * @param bool $enable Whether to enable Agents Manager in the block editor (block-editor-only,
 	 *                     no unified experience). Pass false to exercise the not-enabled path.
@@ -679,14 +730,13 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the Ask AI button is added to the editor admin bar when the omnibar experiment is
-	 * active and Agents Manager is enabled — independent of dev mode (here, a non-proxied request).
+	 * Tests that the Ask AI button is added when the editor admin bar is showing and Agents Manager
+	 * is enabled — independent of dev mode (here, a non-proxied request).
 	 */
-	public function test_ai_chat_button_registered_in_editor_omnibar() {
+	public function test_ai_chat_button_registered_in_editor_admin_bar() {
 		$this->set_up_block_editor_request();
 
 		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
-		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( true );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -698,18 +748,33 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the omnibar experiment is recognized when only the renamed slug
-	 * (`gutenberg-omnibar`, Gutenberg 23.5+) is enabled.
+	 * Tests that an integration-requested Gutenberg shell adds Ask AI to the editor
+	 * admin bar without taking over the Help Center.
 	 */
-	public function test_ai_chat_button_registered_in_editor_omnibar_with_renamed_slug() {
+	public function test_ai_chat_button_registered_in_editor_admin_bar_for_requested_shell() {
+		$this->set_up_block_editor_request( false );
+
+		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
+
+		add_filter( 'agents_manager_should_load', '__return_true' );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotFalse(
+			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
+		);
+
+		remove_filter( 'agents_manager_should_load', '__return_true' );
+	}
+
+	/**
+	 * Tests that a classic editor admin bar receives Ask AI without the Gutenberg
+	 * omnibar experiment.
+	 */
+	public function test_ai_chat_button_registered_in_classic_editor_admin_bar() {
 		$this->set_up_block_editor_request();
 
 		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
-		Functions\when( 'gutenberg_is_experiment_enabled' )->alias(
-			function ( $experiment ) {
-				return 'gutenberg-omnibar' === $experiment;
-			}
-		);
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -721,37 +786,13 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the omnibar experiment is recognized when only the pre-rename slug
-	 * (`gutenberg-admin-bar-in-editor`, Gutenberg ≤ 23.4) is enabled.
+	 * Tests that the Ask AI button is not added to the editor admin bar when the admin
+	 * bar is hidden, even though Agents Manager is enabled.
 	 */
-	public function test_ai_chat_button_registered_in_editor_omnibar_with_legacy_slug() {
+	public function test_ai_chat_button_not_registered_in_editor_without_admin_bar() {
 		$this->set_up_block_editor_request();
 
-		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
-		Functions\when( 'gutenberg_is_experiment_enabled' )->alias(
-			function ( $experiment ) {
-				return 'gutenberg-admin-bar-in-editor' === $experiment;
-			}
-		);
-
-		$this->agents_manager->enqueue_scripts();
-
-		$this->assertNotFalse(
-			has_action( 'admin_bar_menu', array( $this->agents_manager, 'add_ai_chat_button' ) )
-		);
-
-		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
-	}
-
-	/**
-	 * Tests that the Ask AI button is not added to the editor admin bar when the omnibar
-	 * experiment is inactive, even though Agents Manager is enabled.
-	 */
-	public function test_ai_chat_button_not_registered_in_editor_without_omnibar() {
-		$this->set_up_block_editor_request();
-
-		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
-		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( false );
+		Functions\when( 'is_admin_bar_showing' )->justReturn( false );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -764,13 +805,12 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that the Ask AI button is not added to the editor admin bar when Agents Manager is
-	 * not enabled, even while the omnibar experiment is active.
+	 * not enabled, even while the admin bar is showing.
 	 */
 	public function test_ai_chat_button_not_registered_in_editor_when_not_enabled() {
 		$this->set_up_block_editor_request( false );
 
 		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
-		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( true );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -780,14 +820,13 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the Help "?" dropdown (its menu panel) is added to the editor admin bar when the
-	 * omnibar experiment is active in the unified experience.
+	 * Tests that the Help "?" dropdown (its menu panel) is added to the editor admin bar in the
+	 * unified experience.
 	 */
-	public function test_help_menu_registered_in_editor_omnibar_when_unified() {
+	public function test_help_menu_registered_in_editor_admin_bar_when_unified() {
 		$this->set_up_block_editor_request();
 
 		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
-		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( true );
 		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
 		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 
@@ -802,14 +841,13 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the Help "?" dropdown is not added to the editor admin bar when the omnibar
-	 * experiment is active but the unified experience is disabled (Ask AI only).
+	 * Tests that the Help "?" dropdown is not added to the editor admin bar when the unified
+	 * experience is disabled (Ask AI only).
 	 */
-	public function test_help_menu_not_registered_in_editor_omnibar_without_unified() {
+	public function test_help_menu_not_registered_in_editor_admin_bar_without_unified() {
 		$this->set_up_block_editor_request();
 
 		Functions\when( 'is_admin_bar_showing' )->justReturn( true );
-		Functions\when( 'gutenberg_is_experiment_enabled' )->justReturn( true );
 		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
 
 		$this->agents_manager->enqueue_scripts();
@@ -2410,6 +2448,19 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that is_enabled returns true when an integration requests the shell.
+	 */
+	public function test_is_enabled_returns_true_when_shell_is_requested() {
+		add_filter( 'agents_manager_should_load', '__return_true' );
+
+		$result = Agents_Manager::is_enabled();
+
+		remove_filter( 'agents_manager_should_load', '__return_true' );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
 	 * Tests that is_enabled returns true when in block editor and agents_manager_enabled_in_block_editor filter is true.
 	 */
 	public function test_is_enabled_returns_true_in_block_editor_when_block_editor_filter_enabled() {
@@ -2548,23 +2599,20 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that should_enqueue_script returns false on WooCommerce Admin home page.
-	 * This verifies the WooCommerce Admin exclusion to avoid UI conflicts,
-	 * matching the same exclusion in Help_Center::enqueue_wp_admin_scripts().
+	 * Tests that an integration can load Agents Manager on WooCommerce Admin.
 	 */
-	public function test_should_enqueue_script_returns_false_on_woocommerce_admin_home() {
+	public function test_should_enqueue_script_returns_true_on_woocommerce_admin_when_requested() {
 		// Set admin context first.
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'woocommerce_page_wc-admin' );
 
-		// Enable unified experience so that Agents Manager is active and the WooCommerce exclusion is exercised.
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'agents_manager_should_load', '__return_true' );
 
 		$result = $this->call_should_enqueue_script();
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_should_load', '__return_true' );
 
-		$this->assertFalse( $result, 'should_enqueue_script should return false on WooCommerce Admin home page' );
+		$this->assertTrue( $result, 'Agents Manager should load on WooCommerce Admin when requested.' );
 	}
 
 	/**

@@ -19,6 +19,25 @@
 use Automattic\Jetpack\Status\Host;
 
 /**
+ * Whether the VideoPress chapters editor is available to this Simple user.
+ *
+ * Gates the chapters editor UI in both places it lives: the dashboard's Editor
+ * tab (and the `/video/$id/editor` route behind it, stripped from the wp-build
+ * registry when this is false) and the block editor's "Manage chapters"
+ * toolbar button. Automatticians only while the feature is in development —
+ * there is deliberately no blog-sticker branch yet.
+ *
+ * UI-only by design: the chapters REST surface (the VideoPress endpoints that
+ * read and write the chapters track) stays registered regardless, so the API
+ * contract doesn't flap with the flag.
+ *
+ * @return bool Whether the chapters editor UI should be enabled.
+ */
+function wpcom_videopress_chapters_editor_enabled() {
+	return function_exists( 'is_automattician' ) && is_automattician( get_current_user_id() );
+}
+
+/**
  * Initialize the VideoPress Admin UI on WordPress.com Simple sites.
  *
  * Guarded on Simple because on Atomic and standalone Jetpack the VideoPress package
@@ -33,6 +52,17 @@ function wpcom_videopress_init_admin_ui() {
 	if ( ! ( new Host() )->is_wpcom_simple() ) {
 		return;
 	}
+
+	/*
+	 * Registered on Simple only, so self-hosted and Atomic keep the filter's
+	 * default (disabled). Registered before the class_exists() guard below and
+	 * from a plugins_loaded-time call site, so it also covers block editor
+	 * requests — where the flag is read at enqueue_block_editor_assets — not
+	 * just the VideoPress admin page. The callbacks that consult the filter all
+	 * run at admin_menu/enqueue time, well after this registration, so
+	 * is_automattician() sees the resolved current user.
+	 */
+	add_filter( 'jetpack_videopress_chapters_editor', 'wpcom_videopress_chapters_editor_enabled' );
 
 	if ( ! class_exists( '\Automattic\Jetpack\VideoPress\Admin_UI' ) ) {
 		return;

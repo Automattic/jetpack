@@ -65,7 +65,7 @@ export type StatsPostMeta = {
 	post_date?: string;
 	post_date_gmt?: string;
 	post_status?: string;
-	comment_count?: StatsPostRawNumeric;
+	comment_count?: number;
 };
 
 export type StatsPostRawResponse = {
@@ -172,6 +172,24 @@ function normalizeStatsPostWeek( value: unknown ): StatsPostWeek {
 	};
 }
 
+/**
+ * Normalizes the post meta, parsing `comment_count` and leaving an absent count
+ * absent so consumers can tell unknown from a real zero.
+ *
+ * @param value - The raw post meta.
+ * @return The normalized meta.
+ */
+function normalizeStatsPostMeta( value: unknown ): StatsPostMeta {
+	const meta = coerceStatsRecord( value );
+
+	return {
+		...( meta as StatsPostMeta ),
+		...( meta.comment_count !== undefined
+			? { comment_count: safeParseFloat( meta.comment_count ) }
+			: {} ),
+	};
+}
+
 export function sanitizeStatsPostResponse( response: unknown ): StatsPostResponse {
 	if ( ! isStatsRecord( response ) ) {
 		return {};
@@ -202,6 +220,6 @@ export function sanitizeStatsPostResponse( response: unknown ): StatsPostRespons
 		...( payload.highest_week_average !== undefined
 			? { highest_week_average: safeParseFloat( payload.highest_week_average ) }
 			: {} ),
-		...( payload.post !== undefined ? { post: payload.post as StatsPostMeta } : {} ),
+		...( payload.post !== undefined ? { post: normalizeStatsPostMeta( payload.post ) } : {} ),
 	};
 }

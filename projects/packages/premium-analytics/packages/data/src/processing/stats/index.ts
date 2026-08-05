@@ -181,6 +181,7 @@ export type {
 	StatsSingleVideoPage,
 	StatsSingleVideoPost,
 	StatsSingleVideoReport,
+	StatsSingleVideoTotals,
 } from './single-video';
 export type {
 	StatsItemAction,

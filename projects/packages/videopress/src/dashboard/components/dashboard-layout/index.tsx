@@ -51,7 +51,10 @@ export default function DashboardLayout( { activeTab, children, actions, hideFoo
 	return (
 		<AdminPage
 			title={ 'VideoPress' /* product name; not translated */ }
-			subTitle={ __( 'Professional quality, ad-free video hosting.', 'jetpack-videopress-pkg' ) }
+			subTitle={ __(
+				'Host, manage, customize, and track your videos — all in one place.',
+				'jetpack-videopress-pkg'
+			) }
 			actions={ actions }
 			showFooter={ ! hideFooter }
 		>

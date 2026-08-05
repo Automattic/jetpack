@@ -420,6 +420,115 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
+	 * The `analytics` key's presence is what tells every Jetpack surface outside
+	 * this package that this dashboard — not the legacy Stats page — is where
+	 * analytics links should go.
+	 */
+	public function test_add_script_data_announces_the_dashboard() {
+		$data = Analytics::add_script_data( array() );
+
+		$this->assertTrue( $data['analytics']['enabled'] );
+		$this->assertSame( Analytics::MENU_PAGE_SLUG, $data['analytics']['page_slug'] );
+	}
+
+	/**
+	 * The published slug must be the slug the menu actually registers, or every
+	 * link built from it 404s.
+	 */
+	public function test_add_script_data_publishes_the_registered_menu_slug() {
+		$menu_item = $this->register_admin_menu_without_build();
+		$data      = Analytics::add_script_data( array() );
+
+		$this->assertSame( $menu_item[2] ?? null, $data['analytics']['page_slug'] );
+	}
+
+	/**
+	 * The filter is shared, so the key must be added without disturbing anything
+	 * another consumer already put there.
+	 */
+	public function test_add_script_data_preserves_existing_data() {
+		$data = Analytics::add_script_data(
+			array(
+				'site'      => array( 'admin_url' => 'https://example.com/wp-admin/' ),
+				'analytics' => array( 'stale' => true ),
+			)
+		);
+
+		$this->assertSame( 'https://example.com/wp-admin/', $data['site']['admin_url'] );
+		$this->assertArrayNotHasKey( 'stale', $data['analytics'] );
+	}
+
+	/**
+	 * `can_view` answers the same question the menu's capability does, so a caller
+	 * can hide a link rather than send someone to a screen they cannot open.
+	 */
+	public function test_add_script_data_reports_can_view_for_a_capable_user() {
+		Capabilities::register();
+		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
+
+		$data = Analytics::add_script_data( array() );
+
+		remove_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
+		$this->assertTrue( $data['analytics']['can_view'] );
+	}
+
+	public function test_add_script_data_reports_can_view_false_without_the_capability() {
+		Capabilities::register();
+
+		$data = Analytics::add_script_data( array() );
+
+		$this->assertFalse( $data['analytics']['can_view'] );
+	}
+
+	/**
+	 * A named zone is preferred over a fixed offset: analytics links always point
+	 * at past dates, so they cross daylight-saving boundaries routinely and a
+	 * fixed offset would shift the day on the far side of a transition.
+	 */
+	public function test_add_script_data_prefers_the_timezone_string() {
+		update_option( 'timezone_string', 'America/New_York' );
+		update_option( 'gmt_offset', 5.5 );
+
+		$data = Analytics::add_script_data( array() );
+
+		$this->assertSame( 'America/New_York', $data['analytics']['timezone'] );
+	}
+
+	/**
+	 * Sites configured with a raw UTC offset have no zone name to publish, so the
+	 * offset is formatted the way the dashboard's own timezone resolver does.
+	 *
+	 * @param mixed  $offset   The `gmt_offset` option value.
+	 * @param string $expected The expected published timezone.
+	 * @dataProvider provide_gmt_offsets
+	 */
+	#[DataProvider( 'provide_gmt_offsets' )]
+	public function test_add_script_data_falls_back_to_the_formatted_gmt_offset( $offset, $expected ) {
+		update_option( 'timezone_string', '' );
+		update_option( 'gmt_offset', $offset );
+
+		$data = Analytics::add_script_data( array() );
+
+		$this->assertSame( $expected, $data['analytics']['timezone'] );
+	}
+
+	/**
+	 * @return array<string, array{mixed, string}>
+	 */
+	public static function provide_gmt_offsets() {
+		return array(
+			'UTC'                => array( 0, '+00:00' ),
+			'whole hours east'   => array( 2, '+02:00' ),
+			'whole hours west'   => array( -8, '-08:00' ),
+			'half hour east'     => array( 5.5, '+05:30' ),
+			'half hour west'     => array( -3.5, '-03:30' ),
+			'three quarter hour' => array( 5.75, '+05:45' ),
+			'double digit hours' => array( 13, '+13:00' ),
+			'string option'      => array( '-5', '-05:00' ),
+		);
+	}
+
+	/**
 	 * With no caller override the label comes from the package itself, so nobody has
 	 * to translate it before the textdomain can load.
 	 */

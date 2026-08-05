@@ -54,6 +54,11 @@ const MISSING_CONNECTION_ERROR = {
 	data: { status: 403 },
 };
 
+// Error messages render inside a `Notice`, which mirrors its text into
+// @wordpress/a11y's global live region — so the message exists twice in the
+// DOM. Scope message assertions to the visible copy by ignoring that region.
+const IGNORE_LIVE_REGION = { ignore: '.a11y-speak-region' };
+
 describe( 'Email preview connection errors', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
@@ -108,7 +113,7 @@ describe( 'Email preview connection errors', () => {
 
 		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
 
-		await expect( screen.findByText( /Boom/ ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( /Boom/, IGNORE_LIVE_REGION ) ).resolves.toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'link', { name: 'Connect your account' } )
 		).not.toBeInTheDocument();
@@ -238,6 +243,26 @@ describe( 'Test email recipient', () => {
 		);
 	} );
 
+	it( 'sends the test email when pressing Enter in the recipient field', async () => {
+		const user = userEvent.setup();
+		apiFetch.mockResolvedValue( undefined );
+
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		const field = screen.getByRole( 'textbox' );
+		await user.clear( field );
+		// The trailing {Enter} submits the surrounding form rather than clicking Send.
+		await user.type( field, 'friend@example.com{Enter}' );
+
+		expect( apiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				path: '/wpcom/v2/send-email-preview/',
+				method: 'POST',
+				data: { id: 123, email: 'friend@example.com' },
+			} )
+		);
+	} );
+
 	it( 'sends to the prefilled address unchanged and confirms success', async () => {
 		const user = userEvent.setup();
 		jest.mocked( apiFetch ).mockResolvedValue( undefined );
@@ -315,8 +340,22 @@ describe( 'Test email recipient', () => {
 		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
 
 		await expect(
-			screen.findByText( /not allowed to send a test email/ )
+			screen.findByText( /not allowed to send a test email/, IGNORE_LIVE_REGION )
 		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'renders send errors in an error notice rather than plain text', async () => {
+		const user = userEvent.setup();
+		apiFetch.mockRejectedValue( { code: 'rest_something_else', message: 'Boom' } );
+
+		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
+
+		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
+
+		// The message must live inside a Notice styled as an error, not a bare <p>.
+		const message = await screen.findByText( /Boom/, IGNORE_LIVE_REGION );
+		// eslint-disable-next-line testing-library/no-node-access
+		expect( message.closest( '.components-notice' ) ).toHaveClass( 'is-error' );
 	} );
 
 	it( 'rejects a malformed address client-side without calling the API', async () => {
@@ -331,7 +370,7 @@ describe( 'Test email recipient', () => {
 		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
 
 		await expect(
-			screen.findByText( /please enter a valid email address/i )
+			screen.findByText( /please enter a valid email address/i, IGNORE_LIVE_REGION )
 		).resolves.toBeInTheDocument();
 		expect( apiFetch ).not.toHaveBeenCalled();
 	} );
@@ -347,7 +386,7 @@ describe( 'Test email recipient', () => {
 		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
 
 		await expect(
-			screen.findByText( /please try again in a little while/i )
+			screen.findByText( /please try again in a little while/i, IGNORE_LIVE_REGION )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( /not a valid JSON response/i ) ).not.toBeInTheDocument();
 	} );
@@ -367,7 +406,7 @@ describe( 'Test email recipient', () => {
 		await user.click( screen.getByRole( 'button', { name: /Send/ } ) );
 
 		await expect(
-			screen.findByText( /please try again in a little while/i )
+			screen.findByText( /please try again in a little while/i, IGNORE_LIVE_REGION )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( /not a valid JSON response/i ) ).not.toBeInTheDocument();
 	} );

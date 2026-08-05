@@ -62,7 +62,10 @@ export default function PricingUpsell() {
 	return (
 		<AdminPage
 			title={ 'VideoPress' /* product name; not translated */ }
-			subTitle={ __( 'Professional quality, ad-free video hosting.', 'jetpack-videopress-pkg' ) }
+			subTitle={ __(
+				'Host, manage, customize, and track your videos — all in one place.',
+				'jetpack-videopress-pkg'
+			) }
 		>
 			<div className="vp-connection-gate__upsell">
 				<PricingTable title={ title } items={ pricingItems }>

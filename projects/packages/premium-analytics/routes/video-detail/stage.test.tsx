@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { useVideoSummary } from './hooks';
 import { stage } from './stage';
 import type { ReactNode } from 'react';
@@ -14,6 +14,9 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 		to: search.to,
 	} ),
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
+	useReportDateFilters: () => ( {
+		appliedRange: { from: new Date( 2026, 5, 1 ), to: new Date( 2026, 5, 16 ) },
+	} ),
 } ) );
 
 // Avoid loading DataViews while keeping the real breadcrumbs for these assertions.
@@ -51,15 +54,11 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 	const WidgetDashboard = ( { children }: { children: ReactNode } ) => <>{ children }</>;
 	WidgetDashboard.Widgets = () => <div>Video widgets</div>;
 
-	return { WidgetDashboard };
+	return { WidgetDashboard, DEFAULT_GRID: {}, ROW_HEIGHT_PRESETS: { small: 200 } };
 } );
 
 jest.mock( '@wordpress/widget-primitives', () => ( {
 	useWidgetTypes: () => [ [], false ],
-} ) );
-
-jest.mock( '../dashboard/hooks/use-dashboard-grid-settings', () => ( {
-	useDashboardGridSettings: () => [ {} ],
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
@@ -182,6 +181,82 @@ describe( 'video detail stage', () => {
 		}
 	);
 
+	/**
+	 * Find the summary card's `h1` while skipping the breadcrumb title crumb —
+	 * admin-ui renders the current crumb as an `h1` too, so an unscoped heading
+	 * query matches both.
+	 *
+	 * @param name - The accessible heading name.
+	 * @return The summary card heading.
+	 */
+	function getSummaryHeading( name: string ): HTMLElement {
+		const nav = screen.getByRole( 'navigation', { name: 'Breadcrumbs' } );
+		const heading = screen
+			.getAllByRole( 'heading', { level: 1, name } )
+			.find( node => ! nav.contains( node ) );
+		if ( ! heading ) {
+			throw new Error( `No summary heading named "${ name }" outside the breadcrumbs.` );
+		}
+		return heading;
+	}
+
+	it( 'renders the poster thumbnail and swaps in the placeholder glyph when it fails', () => {
+		mockSummary( {
+			title: 'Launch recap',
+			posterUrl: 'https://i0.wp.com/videos.files.wordpress.com/abcd1234/launch-recap.jpg',
+		} );
+
+		// The placeholder is decorative (`aria-hidden`), so it has no role or
+		// text to query; find its glyph block structurally.
+		const placeholderGlyph = () =>
+			// eslint-disable-next-line testing-library/no-node-access -- The aria-hidden placeholder has no accessible query target.
+			document.querySelector( 'div[aria-hidden="true"] svg' );
+
+		render( stage() );
+
+		const poster = screen.getByRole( 'presentation' );
+		expect( poster ).toHaveAttribute(
+			'src',
+			'https://i0.wp.com/videos.files.wordpress.com/abcd1234/launch-recap.jpg'
+		);
+		expect( placeholderGlyph() ).not.toBeInTheDocument();
+
+		// A tokenless poster (private video) 404s; the broken image must swap
+		// itself for the video-glyph placeholder, keeping the image slot.
+		fireEvent.error( poster );
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( placeholderGlyph() ).toBeInTheDocument();
+		expect( getSummaryHeading( 'Launch recap' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the placeholder glyph when the video has no poster', () => {
+		mockSummary( { title: 'Launch recap' } );
+
+		render( stage() );
+
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect(
+			// eslint-disable-next-line testing-library/no-node-access -- The aria-hidden placeholder has no accessible query target.
+			document.querySelector( 'div[aria-hidden="true"] svg' )
+		).toBeInTheDocument();
+	} );
+
+	it( 'keeps a long unbroken title single-line-ready: full text in markup plus the hover attr', () => {
+		// Layout is out of jsdom's reach; the single-line clip is CSS
+		// (`white-space: nowrap` + ellipsis on `.title`, with the breadcrumb
+		// slot's shrink fix in stage.module.scss keeping the page from
+		// horizontal scrolling). This guards the DOM contract the clip relies
+		// on: the heading carries the full untruncated text and mirrors it in
+		// `title`, so the ellipsized line stays reachable on hover.
+		const longTitle = `VID_20260731_${ 'a'.repeat( 120 ) }.mp4`;
+		mockSummary( { title: longTitle } );
+
+		render( stage() );
+
+		const heading = getSummaryHeading( longTitle );
+		expect( heading ).toHaveAttribute( 'title', longTitle );
+	} );
+
 	it( 'adds the resolved title crumb', () => {
 		mockSummary( { title: 'Launch recap' } );
 
@@ -194,5 +269,15 @@ describe( 'video detail stage', () => {
 			breadcrumbs.getByRole( 'heading', { level: 1, name: 'Launch recap' } )
 		).toBeInTheDocument();
 		expect( screen.getByText( 'Video widgets' ) ).toBeInTheDocument();
+	} );
+
+	it( 'states the applied report range as the performance window in the summary', () => {
+		mockSummary( { title: 'Launch recap' } );
+
+		render( stage() );
+
+		expect(
+			screen.getByText( /Performance from Jun 1, 2026 to Jun 16, 2026/ )
+		).toBeInTheDocument();
 	} );
 } );
