@@ -817,7 +817,15 @@ class Contact_Form_Block {
 		// A Button block that doesn't specify an element renders as an `a`, which can
 		// never submit the form. Default it to `button` for as long as this form is
 		// rendering; gutenblock_render_form() drops the filter again once it is done.
-		add_filter( 'jetpack_button_default_element', array( __CLASS__, 'submit_button_element' ) );
+		//
+		// Only attach it when we know that method will run: either we render a synced
+		// form ourselves just below, or rendering proceeds normally and it runs as the
+		// block's render callback. If another pre_render_block callback has already
+		// short-circuited this block, neither happens and the filter would stay attached
+		// for the rest of the request.
+		if ( isset( $parsed_block['attrs']['ref'] ) || null === $pre_render ) {
+			add_filter( 'jetpack_button_default_element', array( __CLASS__, 'submit_button_element' ) );
+		}
 
 		// For ref (synced) forms, render here via pre_render_block to short-circuit
 		// render_block(). This prevents wp_render_layout_support_flag from adding
