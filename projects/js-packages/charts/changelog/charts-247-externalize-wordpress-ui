@@ -1,4 +1,4 @@
-Significance: minor
+Significance: major
 Type: changed
 
-Zoom: Restore the accessible tooltip on the reset control, and stop bundling `@wordpress/ui` into the package output so each consumer's bundler resolves it.
+Zoom: Restore the accessible tooltip on the reset control. `@wordpress/ui` is no longer bundled into the package output, so each consumer's bundler now resolves it. It remains a dependency and resolves from node_modules by default, but a bundler that externalizes `@wordpress/*` to `window.wp.*` must bundle `@wordpress/ui` instead — `window.wp.ui` does not exist.
