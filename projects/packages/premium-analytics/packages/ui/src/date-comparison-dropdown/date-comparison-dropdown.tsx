@@ -1,9 +1,8 @@
 /**
  * External dependencies
  */
-import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
-import { sprintf, __ } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { check, chevronDown, plus } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useCallback, useMemo } from 'react';
@@ -35,9 +34,9 @@ type DateComparisonDropdownProps = {
 	 */
 	presetId?: ComparisonPresetId;
 	/**
-	 * Names the trigger, as both its tooltip and its accessible name. Defaults
-	 * to "Add comparison" / "Compare to" depending on the state. Passing it also
-	 * drops the "Compare to:" prefix from the trigger, which the name carries.
+	 * Names the trigger, as its tooltip and, with no comparison active, as its
+	 * accessible name. Defaults to "Add comparison" / "Compare to" depending on
+	 * the state.
 	 */
 	label?: string;
 	/**
@@ -49,38 +48,6 @@ type DateComparisonDropdownProps = {
 	 */
 	onClear: () => void;
 };
-
-type ComparisonTriggerLabelArgs = {
-	selectedPreset?: ComparisonDateRangePreset;
-	removeCompareToPrefix: boolean;
-	noComparisonLabel: string;
-};
-
-/**
- * Builds the comparison trigger label from the active preset range.
- *
- * @param {ComparisonTriggerLabelArgs} args - Label formatting inputs.
- * @return Trigger label text.
- */
-export function getComparisonTriggerLabel( {
-	selectedPreset,
-	removeCompareToPrefix,
-	noComparisonLabel,
-}: ComparisonTriggerLabelArgs ): string {
-	if ( ! selectedPreset?.range?.from || ! selectedPreset.range.to ) {
-		return noComparisonLabel;
-	}
-
-	if ( removeCompareToPrefix ) {
-		return formatDateRange( selectedPreset.range );
-	}
-
-	return sprintf(
-		// translators: %s is the comparison range label
-		__( 'Compare to: %s', 'jetpack-premium-analytics-pkg' ),
-		formatDateRange( selectedPreset.range )
-	);
-}
 
 export function DateComparisonDropdown( {
 	presets,
@@ -105,23 +72,18 @@ export function DateComparisonDropdown( {
 		];
 	}, [ noComparisonLabel, presets ] );
 
+	/*
+	 * The active preset is the one the trigger names, so a preset the current
+	 * range cannot produce leaves the control with nothing to say and falls
+	 * back to its additive state.
+	 */
 	const selectedPreset = useMemo(
-		() => ( presetId ? presets.find( preset => preset.id === presetId ) : undefined ),
-		[ presetId, presets ]
+		() => ( enabled && presetId ? presets.find( preset => preset.id === presetId ) : undefined ),
+		[ enabled, presetId, presets ]
 	);
 
-	const selectedValue = enabled && presetId ? presetId : NO_COMPARISON_VALUE;
-	const isComparisonActive = selectedValue !== NO_COMPARISON_VALUE;
-
-	const triggerLabel = useMemo(
-		() =>
-			getComparisonTriggerLabel( {
-				selectedPreset,
-				removeCompareToPrefix: !! label,
-				noComparisonLabel,
-			} ),
-		[ label, noComparisonLabel, selectedPreset ]
-	);
+	const selectedValue = selectedPreset?.id ?? NO_COMPARISON_VALUE;
+	const isComparisonActive = !! selectedPreset;
 
 	const handleSelect = useCallback(
 		( value: string ) => {
@@ -137,14 +99,18 @@ export function DateComparisonDropdown( {
 
 	/*
 	 * Comparison is additive: with none active the trigger is a `+` button, and
-	 * picking a preset collapses it into a labelled trigger. Both open the same
-	 * menu, so the way back to "No comparison" is the way in.
+	 * picking a preset collapses it into a select naming that preset. Both open
+	 * the same menu, so the way back to "No comparison" is the way in.
+	 *
+	 * The trigger names the preset rather than the period it resolves to: the
+	 * section header's subtitle already spells out the applied range and what
+	 * it is compared against.
 	 */
 	return (
 		<DropdownMenu
 			className="date-comparison-dropdown"
 			icon={ isComparisonActive ? chevronDown : plus }
-			text={ isComparisonActive ? triggerLabel : undefined }
+			text={ selectedPreset?.shortLabel }
 			label={
 				label ??
 				( isComparisonActive
@@ -158,9 +124,10 @@ export function DateComparisonDropdown( {
 				} ),
 				iconPosition: 'right',
 				iconSize: isComparisonActive ? 18 : 24,
-				// The tooltip names the control, so the accessible name carries
-				// the value the trigger is showing instead of repeating it.
-				'aria-label': isComparisonActive ? triggerLabel : undefined,
+				// The trigger shows an abbreviation, so carry the full preset
+				// name for anyone not reading the glyphs. Same treatment the
+				// preset pills give their short labels.
+				'aria-label': selectedPreset?.label,
 			} }
 		>
 			{ ( { onClose } ) => (

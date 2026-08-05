@@ -28,6 +28,17 @@ describe( 'comparison presets', () => {
 		}
 	} );
 
+	/*
+	 * The trigger has room for one of these and cannot grow with the language,
+	 * so a preset without a short form would render the full label there.
+	 */
+	it( 'gives every preset a shorter form for the trigger', () => {
+		for ( const { label, shortLabel } of getComparisonPresetConfigs() ) {
+			expect( shortLabel ).toBeTruthy();
+			expect( shortLabel.length ).toBeLessThan( label.length );
+		}
+	} );
+
 	it( 'rejects an identifier outside the set', () => {
 		expect( isComparisonPresetId( 'previous-week' ) ).toBe( false );
 	} );

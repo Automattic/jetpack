@@ -86,10 +86,8 @@ export const PreviousMonthSelected: Story = {
 };
 
 /**
- * With a caller-supplied name. It becomes the trigger's tooltip and accessible
- * name, and the trigger drops the "Compare to:" prefix that name already
- * carries.
+ * With a caller-supplied name, which becomes the trigger's tooltip.
  */
 export const WithCustomLabel: Story = {
-	render: () => <DateComparisonDropdownWithState label="Compare to" />,
+	render: () => <DateComparisonDropdownWithState label="Compare with" />,
 };

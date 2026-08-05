@@ -7,11 +7,13 @@ const presets: ComparisonDateRangePreset[] = [
 	{
 		id: 'previous-period',
 		label: 'Previous period',
+		shortLabel: 'Prev. period',
 		range: { from: new Date( '2026-06-01' ), to: new Date( '2026-06-30' ) },
 	},
 	{
 		id: 'previous-month',
 		label: 'Previous month',
+		shortLabel: 'Prev. month',
 		range: { from: new Date( '2026-05-01' ), to: new Date( '2026-05-31' ) },
 	},
 ];
@@ -41,7 +43,7 @@ describe( 'DateComparisonDropdown', () => {
 		expect( onPresetChange ).toHaveBeenCalledWith( 'previous-month' );
 	} );
 
-	it( 'collapses into a labelled trigger once a preset is active', async () => {
+	it( 'collapses into a trigger naming the active preset', async () => {
 		const onClear = jest.fn();
 		const user = userEvent.setup();
 
@@ -55,7 +57,9 @@ describe( 'DateComparisonDropdown', () => {
 			/>
 		);
 
-		const trigger = screen.getByRole( 'button', { name: /^Compare to:/ } );
+		// Abbreviated on screen, spelled out for assistive technology.
+		const trigger = screen.getByRole( 'button', { name: 'Previous period' } );
+		expect( trigger ).toHaveTextContent( 'Prev. period' );
 
 		await user.click( trigger );
 		expect( screen.getByRole( 'menuitemradio', { name: 'Previous period' } ) ).toBeChecked();
