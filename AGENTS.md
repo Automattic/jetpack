@@ -270,7 +270,7 @@ Before introducing new dependencies:
 
 ## Referencing wpcom-only symbols from Jetpack (Phan stubs)
 
-When Jetpack code calls a class or function that ships only from wpcom (not present in this repo), Phan flags `PhanUndeclared{Class,ClassMethod,Function}`. Do NOT just silence it permanently. The correct order is:
+When Jetpack code calls a class or function that ships only from wpcom (not present in this repo), Phan flags `PhanUndeclared{Class,ClassMethod,Function}`. Do NOT just silence it permanently. See also `docs/monorepo.md` § Static Analysis → *Referencing wpcom-only symbols*. The correct order is:
 
 1. **Add the symbol to the wpcom stub definitions** — `bin/teamcity-builds/jetpack-stubs/stub-defs.php` in the wpcom repo. This is the source that Jetpack's `.phan/stubs/wpcom-stubs.php` is regenerated from.
 2. **Get the regenerated stubs merged into Jetpack first** — triggering the *Jetpack Staging → Update WPCOM Stubs* job in TeamCity opens a "phan: Update wpcom stubs" PR. Land that before your feature PR.
