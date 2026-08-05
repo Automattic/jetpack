@@ -4,6 +4,7 @@ import {
 	BlockControls,
 	InspectorControls,
 	useBlockProps,
+	useBlockEditingMode,
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
 import { Button, Placeholder, Spinner, withNotices, ResizableBox } from '@wordpress/components';
@@ -81,7 +82,7 @@ const MapEdit = ( {
 	const mapRef = useRef( null );
 	const blockProps = useBlockProps();
 	const { className } = blockProps;
-
+	const blockEditingMode = useBlockEditingMode();
 	const mapStyle = getActiveStyleName( styles, className );
 	const mapProvider = getMapProvider( { mapStyle } );
 
@@ -327,9 +328,9 @@ const MapEdit = ( {
 						width: '100%',
 					} }
 					grid={ [ 10, 10 ] }
-					showHandle={ isSelected }
+					showHandle={ isSelected && blockEditingMode === 'default' }
 					minHeight={ MIN_HEIGHT }
-					enable={ RESIZABLE_BOX_ENABLE_OPTION }
+					enable={ blockEditingMode === 'default' ? RESIZABLE_BOX_ENABLE_OPTION : false }
 					onResizeStart={ () => toggleSelection( false ) }
 					onResizeStop={ onMapResize }
 				>
