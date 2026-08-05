@@ -125,16 +125,16 @@
 .metricLabel {
 	overflow: hidden;
 	color: var(--wpds-color-foreground-content-neutral);
-	font-weight: var(--wpds-typography-font-weight-medium);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
-/* The design weights the compact value up to 600; the token scale tops out
- * at `medium` (499), which is the closest on-token match. */
+/* The design weights the compact value up to 600; `emphasis` is the closest
+ * the token scale goes. */
 .metric .metricValue {
 	font-size: var(--wpds-typography-font-size-xl);
-	font-weight: var(--wpds-typography-font-weight-medium);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
 	line-height: var(--wpds-typography-line-height-md);
 }
 
@@ -167,7 +167,7 @@
 
 	.metric .metricValue {
 		font-size: var(--wpds-typography-font-size-2xl);
-		font-weight: var(--wpds-typography-font-weight-regular);
+		font-weight: var(--wpds-typography-font-weight-default);
 		line-height: var(--wpds-typography-line-height-2xl);
 	}
 }
