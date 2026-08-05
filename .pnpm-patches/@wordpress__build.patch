@@ -1,8 +1,479 @@
+diff --git a/lib/build-concurrency.mjs b/lib/build-concurrency.mjs
+new file mode 100644
+index 0000000..f793eca
+--- /dev/null
++++ b/lib/build-concurrency.mjs
+@@ -0,0 +1,118 @@
++/**
++ * External dependencies
++ */
++import os from 'node:os';
++import esbuild from 'esbuild';
++
++const MIN_DEFAULT_BUILD_CONCURRENCY = 2;
++const MAX_DEFAULT_BUILD_CONCURRENCY = 16;
++
++/**
++ * @typedef {Object} QueuedBuild
++ * @property {() => Promise<unknown> | unknown} task    Task to run.
++ * @property {(value: unknown) => void}         resolve Promise resolver.
++ * @property {(reason?: unknown) => void}       reject  Promise rejecter.
++ */
++
++let buildConcurrency = MIN_DEFAULT_BUILD_CONCURRENCY;
++let activeBuilds = 0;
++/** @type {QueuedBuild[]} */
++const queuedBuilds = [];
++
++/**
++ * Get the default number of concurrent esbuild builds.
++ *
++ * @param {number} availableParallelism Available parallelism to use.
++ * @return {number} Default build concurrency.
++ */
++export function getDefaultBuildConcurrency(
++	availableParallelism = os.availableParallelism()
++) {
++	return Math.max(
++		MIN_DEFAULT_BUILD_CONCURRENCY,
++		Math.min( MAX_DEFAULT_BUILD_CONCURRENCY, availableParallelism )
++	);
++}
++
++/**
++ * Parse a concurrency override.
++ *
++ * @param {string|undefined} value Concurrency override value.
++ * @return {number|undefined} Parsed concurrency, or undefined when unset.
++ */
++export function parseBuildConcurrency( value ) {
++	if ( value === undefined ) {
++		return undefined;
++	}
++
++	if ( ! /^\d+$/.test( value ) || Number( value ) === 0 ) {
++		console.warn(
++			`Invalid build concurrency value: ${ JSON.stringify(
++				value
++			) }. Expected a positive integer; falling back to the default.`
++		);
++		return undefined;
++	}
++
++	return Number( value );
++}
++
++/**
++ * Set the maximum number of concurrent esbuild builds.
++ *
++ * @param {number} concurrency Build concurrency.
++ */
++export function setBuildConcurrency( concurrency ) {
++	buildConcurrency = concurrency;
++	runNextBuilds();
++}
++
++/**
++ * Runs an esbuild build while respecting the global wp-build concurrency limit.
++ *
++ * @param {import('esbuild').BuildOptions} buildOptions Esbuild build options.
++ * @return {Promise<import('esbuild').BuildResult>} Esbuild build result.
++ */
++export function buildWithConcurrency( buildOptions ) {
++	return enqueueBuild( () => esbuild.build( buildOptions ) );
++}
++
++/**
++ * Runs an arbitrary async task while respecting the build concurrency limit.
++ *
++ * @template T
++ * @param {() => Promise<T> | T} task Task to run.
++ * @return {Promise<T>} Task result.
++ */
++export function enqueueBuild( task ) {
++	return new Promise( ( resolve, reject ) => {
++		queuedBuilds.push( {
++			task,
++			resolve: ( value ) =>
++				resolve( /** @type {T | PromiseLike<T>} */ ( value ) ),
++			reject,
++		} );
++		runNextBuilds();
++	} );
++}
++
++/**
++ * Starts queued build tasks while capacity is available.
++ */
++function runNextBuilds() {
++	while ( activeBuilds < buildConcurrency && queuedBuilds.length > 0 ) {
++		const queuedBuild = queuedBuilds.shift();
++		if ( ! queuedBuild ) {
++			return;
++		}
++		const { task, resolve, reject } = queuedBuild;
++		activeBuilds++;
++		Promise.resolve()
++			.then( task )
++			.then( resolve, reject )
++			.finally( () => {
++				activeBuilds--;
++				runNextBuilds();
++			} );
++	}
++}
+diff --git a/lib/build.mjs b/lib/build.mjs
+index 83abe1a..8644114 100755
+--- a/lib/build.mjs
++++ b/lib/build.mjs
+@@ -8,7 +8,6 @@ import path from 'path';
+ import { createHash } from 'node:crypto';
+ import { createRequire as createNodeRequire } from 'node:module';
+ import { parseArgs } from 'node:util';
+-import esbuild from 'esbuild';
+ import glob from 'fast-glob';
+ import chokidar from 'chokidar';
+ import browserslistToEsbuild from 'browserslist-to-esbuild';
+@@ -73,6 +72,12 @@ import {
+ 	buildWorkers,
+ 	generateWorkerCode,
+ } from './worker-build.mjs';
++import {
++	buildWithConcurrency,
++	getDefaultBuildConcurrency,
++	parseBuildConcurrency,
++	setBuildConcurrency,
++} from './build-concurrency.mjs';
+ 
+ const ROOT_DIR = process.cwd();
+ const PACKAGES_DIR = path.join( ROOT_DIR, 'packages' );
+@@ -637,7 +642,7 @@ async function bundlePackage( packageName, options = {} ) {
+ 		];
+ 
+ 		builds.push(
+-			esbuild.build( {
++			buildWithConcurrency( {
+ 				...baseConfig,
+ 				outfile: path.join( outputDir, 'index.min.js' ),
+ 				minify: true,
+@@ -652,7 +657,7 @@ async function bundlePackage( packageName, options = {} ) {
+ 					),
+ 				],
+ 			} ),
+-			esbuild.build( {
++			buildWithConcurrency( {
+ 				...baseConfig,
+ 				outfile: path.join( outputDir, 'index.js' ),
+ 				minify: false,
+@@ -707,7 +712,7 @@ async function bundlePackage( packageName, options = {} ) {
+ 				);
+ 
+ 			builds.push(
+-				esbuild.build( {
++				buildWithConcurrency( {
+ 					entryPoints: [ entryPoint ],
+ 					outfile: path.join(
+ 						rootBuildModuleDir,
+@@ -738,7 +743,7 @@ async function bundlePackage( packageName, options = {} ) {
+ 
+ 			if ( ! isWasmWorker ) {
+ 				builds.push(
+-					esbuild.build( {
++					buildWithConcurrency( {
+ 						entryPoints: [ entryPoint ],
+ 						outfile: path.join(
+ 							rootBuildModuleDir,
+@@ -1458,7 +1463,7 @@ async function transpilePackage( packageName ) {
+ 
+ 	if ( packageJson.main ) {
+ 		builds.push(
+-			esbuild.build( {
++			buildWithConcurrency( {
+ 				entryPoints: srcFiles,
+ 				outdir: buildDir,
+ 				outbase: srcDir,
+@@ -1492,7 +1497,7 @@ async function transpilePackage( packageName ) {
+ 
+ 	if ( packageJson.module ) {
+ 		builds.push(
+-			esbuild.build( {
++			buildWithConcurrency( {
+ 				entryPoints: srcFiles,
+ 				outdir: buildModuleDir,
+ 				outbase: srcDir,
+@@ -1600,7 +1605,7 @@ async function compileStyles( packageName ) {
+ 
+ 			await mkdir( outputDir, { recursive: true } );
+ 
+-			await esbuild.build( {
++			await buildWithConcurrency( {
+ 				entryPoints: [ styleEntryPath ],
+ 				outdir: outputDir,
+ 				bundle: true,
+@@ -1732,7 +1737,7 @@ async function buildRoute( routeName ) {
+ 		if ( routeEntryPoints.length > 0 ) {
+ 			// Build both minified and non-minified versions in parallel
+ 			await Promise.all( [
+-				esbuild.build( {
++				buildWithConcurrency( {
+ 					entryPoints: routeEntryPoints,
+ 					outfile: path.join( outputDir, 'route.min.js' ),
+ 					bundle: true,
+@@ -1750,7 +1755,7 @@ async function buildRoute( routeName ) {
+ 						),
+ 					],
+ 				} ),
+-				esbuild.build( {
++				buildWithConcurrency( {
+ 					entryPoints: routeEntryPoints,
+ 					outfile: path.join( outputDir, 'route.js' ),
+ 					bundle: true,
+@@ -1783,7 +1788,7 @@ async function buildRoute( routeName ) {
+ 
+ 		// Build both minified and non-minified versions in parallel
+ 		await Promise.all( [
+-			esbuild.build( {
++			buildWithConcurrency( {
+ 				entryPoints: [ tempEntryPath ],
+ 				outfile: path.join( outputDir, 'content.min.js' ),
+ 				bundle: true,
+@@ -1801,7 +1806,7 @@ async function buildRoute( routeName ) {
+ 					),
+ 				],
+ 			} ),
+-			esbuild.build( {
++			buildWithConcurrency( {
+ 				entryPoints: [ tempEntryPath ],
+ 				outfile: path.join( outputDir, 'content.js' ),
+ 				bundle: true,
+@@ -1895,7 +1900,7 @@ async function buildWidget( widgetName ) {
+ 		if ( renderEntryPoints.length > 0 ) {
+ 			// Build both minified and non-minified versions in parallel
+ 			await Promise.all( [
+-				esbuild.build( {
++				buildWithConcurrency( {
+ 					entryPoints: renderEntryPoints,
+ 					outfile: path.join( outputDir, 'render.min.js' ),
+ 					bundle: true,
+@@ -1913,7 +1918,7 @@ async function buildWidget( widgetName ) {
+ 						),
+ 					],
+ 				} ),
+-				esbuild.build( {
++				buildWithConcurrency( {
+ 					entryPoints: renderEntryPoints,
+ 					outfile: path.join( outputDir, 'render.js' ),
+ 					bundle: true,
+@@ -1945,7 +1950,7 @@ async function buildWidget( widgetName ) {
+ 		if ( widgetEntryPoints.length > 0 ) {
+ 			// Build both minified and non-minified versions in parallel
+ 			await Promise.all( [
+-				esbuild.build( {
++				buildWithConcurrency( {
+ 					entryPoints: widgetEntryPoints,
+ 					outfile: path.join( outputDir, 'widget.min.js' ),
+ 					bundle: true,
+@@ -1963,7 +1968,7 @@ async function buildWidget( widgetName ) {
+ 						),
+ 					],
+ 				} ),
+-				esbuild.build( {
++				buildWithConcurrency( {
+ 					entryPoints: widgetEntryPoints,
+ 					outfile: path.join( outputDir, 'widget.js' ),
+ 					bundle: true,
+@@ -2784,11 +2789,20 @@ async function main() {
+ 						? "includes_url( 'build/' )"
+ 						: 'plugin_dir_url( __FILE__ )',
+ 			},
++			concurrency: {
++				type: 'string',
++				default: process.env.WP_BUILD_CONCURRENCY,
++			},
+ 		},
+ 		strict: false,
+ 	} );
+ 
+ 	const baseUrlExpression = values[ 'base-url' ];
++	const buildConcurrency =
++		parseBuildConcurrency( values.concurrency ) ??
++		getDefaultBuildConcurrency();
++	setBuildConcurrency( buildConcurrency );
++	console.log( `⚙️ Using build concurrency: ${ buildConcurrency }\n` );
+ 
+ 	await buildAll( baseUrlExpression );
+ 
+diff --git a/lib/test/build-concurrency.js b/lib/test/build-concurrency.js
+new file mode 100644
+index 0000000..48cee76
+--- /dev/null
++++ b/lib/test/build-concurrency.js
+@@ -0,0 +1,107 @@
++jest.mock( 'esbuild', () => ( {
++	build: jest.fn(),
++} ) );
++
++/**
++ * Internal dependencies
++ */
++import {
++	enqueueBuild,
++	getDefaultBuildConcurrency,
++	parseBuildConcurrency,
++	setBuildConcurrency,
++} from '../build-concurrency.mjs';
++
++const flushPromises = () =>
++	new Promise( ( resolve ) => {
++		setTimeout( resolve, 0 );
++	} );
++
++describe( 'getDefaultBuildConcurrency()', () => {
++	it( 'uses the available parallelism clamped to the default range', () => {
++		expect( getDefaultBuildConcurrency( 1 ) ).toBe( 2 );
++		expect( getDefaultBuildConcurrency( 2 ) ).toBe( 2 );
++		expect( getDefaultBuildConcurrency( 4 ) ).toBe( 4 );
++		expect( getDefaultBuildConcurrency( 12 ) ).toBe( 12 );
++		expect( getDefaultBuildConcurrency( 16 ) ).toBe( 16 );
++		expect( getDefaultBuildConcurrency( 32 ) ).toBe( 16 );
++		expect( getDefaultBuildConcurrency( 64 ) ).toBe( 16 );
++	} );
++} );
++
++describe( 'parseBuildConcurrency()', () => {
++	it( 'returns undefined when no value is configured', () => {
++		expect( parseBuildConcurrency( undefined ) ).toBe( undefined );
++	} );
++
++	it( 'accepts positive integers', () => {
++		expect( parseBuildConcurrency( '1' ) ).toBe( 1 );
++		expect( parseBuildConcurrency( '01' ) ).toBe( 1 );
++		expect( parseBuildConcurrency( '12' ) ).toBe( 12 );
++	} );
++
++	it( 'warns and returns undefined for invalid values', () => {
++		const warnSpy = jest.spyOn( console, 'warn' ).mockImplementation();
++
++		try {
++			for ( const value of [ '', '0', '-1', '1.5', 'abc' ] ) {
++				expect( parseBuildConcurrency( value ) ).toBe( undefined );
++				expect( warnSpy ).toHaveBeenLastCalledWith(
++					'Invalid build concurrency value: ' +
++						JSON.stringify( value ) +
++						'. Expected a positive integer; falling back to the default.'
++				);
++			}
++
++			expect( warnSpy ).toHaveBeenCalledTimes( 5 );
++		} finally {
++			warnSpy.mockRestore();
++		}
++	} );
++} );
++
++describe( 'enqueueBuild()', () => {
++	afterEach( () => {
++		setBuildConcurrency( getDefaultBuildConcurrency( 12 ) );
++	} );
++
++	it( 'runs no more than the configured number of tasks at once', async () => {
++		setBuildConcurrency( 2 );
++
++		const startedTasks = [];
++		const taskResolvers = [];
++		const tasks = [ 0, 1, 2, 3 ].map( ( index ) =>
++			enqueueBuild(
++				() =>
++					new Promise( ( resolve ) => {
++						startedTasks.push( index );
++						taskResolvers[ index ] = resolve;
++					} )
++			)
++		);
++
++		await flushPromises();
++
++		expect( startedTasks ).toEqual( [ 0, 1 ] );
++
++		taskResolvers[ 0 ]( 'first' );
++		await flushPromises();
++
++		expect( startedTasks ).toEqual( [ 0, 1, 2 ] );
++
++		taskResolvers[ 1 ]( 'second' );
++		await flushPromises();
++
++		expect( startedTasks ).toEqual( [ 0, 1, 2, 3 ] );
++
++		taskResolvers[ 2 ]( 'third' );
++		taskResolvers[ 3 ]( 'fourth' );
++
++		await expect( Promise.all( tasks ) ).resolves.toEqual( [
++			'first',
++			'second',
++			'third',
++			'fourth',
++		] );
++	} );
++} );
+diff --git a/lib/worker-build.mjs b/lib/worker-build.mjs
+index 087f0c5..3665bf9 100644
+--- a/lib/worker-build.mjs
++++ b/lib/worker-build.mjs
+@@ -12,7 +12,11 @@
+  */
+ import { readFile, writeFile, access } from 'fs/promises';
+ import path from 'path';
+-import esbuild from 'esbuild';
++
++/**
++ * Internal dependencies
++ */
++import { buildWithConcurrency } from './build-concurrency.mjs';
+ 
+ /**
+  * Creates an esbuild plugin that redirects module loads based on filename patterns.
+@@ -173,7 +177,7 @@ export async function buildWorkers(
+ 		// Build ESM worker for build-module (primary for browser use).
+ 		if ( packageJson.module ) {
+ 			workerBuilds.push(
+-				esbuild.build( {
++				buildWithConcurrency( {
+ 					entryPoints: [ workerEntryPoint ],
+ 					outfile: path.join(
+ 						buildModuleDir,
+@@ -215,7 +219,7 @@ export async function buildWorkers(
+ 		// unused or misleading CJS artifacts.
+ 		if ( packageJson.main ) {
+ 			workerBuilds.push(
+-				esbuild.build( {
++				buildWithConcurrency( {
+ 					entryPoints: [ workerEntryPoint ],
+ 					outfile: path.join( buildDir, `${ workerOutputName }.cjs` ),
+ 					bundle: true,
+@@ -322,7 +326,7 @@ export const workerCode = ${ JSON.stringify( workerContent ) };
+ 
+ 	if ( packageJson.module ) {
+ 		retranspileBuilds.push(
+-			esbuild.build( {
++			buildWithConcurrency( {
+ 				entryPoints: [ workerCodeSrcFile ],
+ 				outdir: buildModuleDir,
+ 				outbase: srcDir,
+@@ -345,7 +349,7 @@ export const workerCode = ${ JSON.stringify( workerContent ) };
+ 
+ 	if ( packageJson.main ) {
+ 		retranspileBuilds.push(
+-			esbuild.build( {
++			buildWithConcurrency( {
+ 				entryPoints: [ workerCodeSrcFile ],
+ 				outdir: buildDir,
+ 				outbase: srcDir,
 diff --git a/templates/page-wp-admin.php.template b/templates/page-wp-admin.php.template
-index 96c4627..48fcf28 100644
+index 5bceb04..61a6e65 100644
 --- a/templates/page-wp-admin.php.template
 +++ b/templates/page-wp-admin.php.template
-@@ -171,7 +171,26 @@ function {{PREFIX}}_{{PAGE_SLUG_UNDERSCORE}}_wp_admin_enqueue_scripts( $hook_suf
+@@ -172,7 +172,26 @@ function {{PREFIX}}_{{PAGE_SLUG_UNDERSCORE}}_wp_admin_enqueue_scripts( $hook_suf
  		( mountId, routes, initModules ) => {
  			const run = async () => {
  				const mod = await import( "@wordpress/boot" );

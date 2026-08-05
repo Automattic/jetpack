@@ -101,4 +101,8 @@ patchedDependencies:
   # the option, so init modules never run there. The patch runs them in the
   # inline bootstrap instead. Remove once the template runs init modules itself
   # upstream (or Jetpack's WP floor ships a boot with initModules support).
+  #
+  # TEMPORARY: this patch has also been extended with the esbuild concurrency
+  # limit from https://github.com/WordPress/gutenberg/pull/79889, so its effect
+  # on our CI build times can be measured. Revert that part before merging.
   "@wordpress/build": .pnpm-patches/@wordpress__build.patch
