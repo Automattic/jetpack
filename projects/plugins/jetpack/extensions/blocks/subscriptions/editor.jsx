@@ -78,7 +78,7 @@ const shouldShowNewsletterMenu = () => {
 
 const useNewsletterPreview = () => {
 	const [ isPreviewModalOpen, setIsPreviewModalOpen ] = useState( false );
-	const postId = select( 'core/editor' ).getCurrentPostId();
+	const postId = useSelect( _select => _select( editorStore ).getCurrentPostId(), [] );
 	const { tracks } = useAnalytics();
 
 	const openPreviewModal = useCallback(
