@@ -7,14 +7,14 @@ import {
 	type StatsArchivesItem,
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
+import { Link as UiLink } from '@jetpack-premium-analytics/externals';
 import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { MetricWithComparison, PostTitleLink } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
-import { Link as UiLink } from '@wordpress/ui';
 import { useMemo } from 'react';
-import type { Field } from '@wordpress/dataviews';
+import type { Field } from '@jetpack-premium-analytics/externals';
 
 const VIEWS_DATA_FORMAT = {
 	type: 'number',

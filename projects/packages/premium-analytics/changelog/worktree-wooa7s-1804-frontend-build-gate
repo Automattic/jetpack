@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Load the dashboard assets only on requests that render an admin screen, so front-end page views no longer parse them.

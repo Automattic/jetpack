@@ -39,7 +39,7 @@ use Exception;
  * - Automatic comparison field handling via format_row_with_comparison()
  * - Helper methods for common formatting tasks
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 abstract class Abstract_Csv_Report_Controller implements Csv_Report_Controller_Interface {
 

@@ -180,6 +180,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						help={ frontPageHelp }
 						value={ local.front_page_description }
 						onChange={ next => setField( { front_page_description: next } ) }
+						maxLength={ 300 }
 						rows={ 3 }
 						disabled={ isSaving }
 						__nextHasNoMarginBottom
@@ -264,6 +265,8 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 			<div id="verification" className={ styles.section }>
 				<VerificationCard
 					value={ local.verification }
+					active={ local.verification_tools_active }
+					onToggle={ next => commit( { verification_tools_active: next } ) }
 					onChange={ setVerification }
 					onCommit={ () => commitFields( [ 'verification' ] ) }
 					disabled={ isSaving }
@@ -320,6 +323,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						onSaveFormat={ pageType => commitTitleFormat( pageType ) }
 						isFormatDirty={ pageType => isTitleFormatDirty( pageType ) }
 						titleSeparator={ local.title_separator }
+						editable={ local.title_formats_editable }
 						disabled={ isSaving }
 					/>
 

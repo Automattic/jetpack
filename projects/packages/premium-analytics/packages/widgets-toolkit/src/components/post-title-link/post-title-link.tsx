@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
+import { Link as UiLink } from '@jetpack-premium-analytics/externals';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { Link } from '@wordpress/route';
-import { Link as UiLink } from '@wordpress/ui';
 
 /**
  * Route search param carrying a row's public URL to the post detail page.
@@ -92,18 +92,25 @@ export function PostTitleLink( {
 	const href = safeHttpUrl( link );
 
 	if ( Number.isInteger( postId ) && postId > 0 ) {
+		// `UiLink` renders the router link so the anchor keeps the design
+		// system's unlayered guard, without which wp-admin repaints it blue.
 		return (
-			<Link
+			<UiLink
 				className={ classNames?.internal }
-				to="/post/$postId"
-				params={ { postId: String( postId ) } as unknown as never }
-				search={
-					( href ? { ...search, [ POST_URL_SEARCH_PARAM ]: href } : search ) as unknown as never
-				}
+				variant="unstyled"
 				title={ title }
+				render={
+					<Link
+						to="/post/$postId"
+						params={ { postId: String( postId ) } as unknown as never }
+						search={
+							( href ? { ...search, [ POST_URL_SEARCH_PARAM ]: href } : search ) as unknown as never
+						}
+					/>
+				}
 			>
 				{ text }
-			</Link>
+			</UiLink>
 		);
 	}
 

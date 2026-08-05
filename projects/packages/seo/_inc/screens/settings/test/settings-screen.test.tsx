@@ -61,6 +61,8 @@ const buildForm = ( overrides: Partial< SettingsResponse > = {} ): SettingsForm 
 		has_legacy_front_page_meta: false,
 		title_formats: {},
 		title_separator: '-',
+		title_formats_editable: true,
+		verification_tools_active: true,
 		verification: { ...EMPTY_VERIFICATION },
 		search_engines_visible: false,
 		sitemap_active: false,

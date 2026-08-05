@@ -17,3 +17,6 @@ export {
 	type SectionTabsProps,
 } from './section-tabs/section-tabs';
 export { SectionHeader } from './section-header/section-header';
+export { getSectionSubtitle } from './section-header/get-section-subtitle';
+export { StatsBreadcrumbs, type StatsBreadcrumbsProps } from './stats-breadcrumbs';
+export { StatsPageIcon } from './stats-page-icon';

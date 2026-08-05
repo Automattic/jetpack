@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 /**
  * Internal dependencies

@@ -10,7 +10,6 @@ import type { SocialServiceName } from '../hooks/useSocialLogin';
 const { mustLogIn, requireNameEmail, commentRegistration } = VerbumComments;
 interface LoggedOutProps {
 	login: ( service: SocialServiceName ) => void;
-	canWeAccessCookies: boolean;
 	loginWindow: Window | null;
 }
 
@@ -40,7 +39,7 @@ const getLoginCommentText = ( commentParent: Signal ) => {
 	return <span>{ defaultText }</span>;
 };
 
-export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOutProps ) => {
+export const LoggedOut = ( { login, loginWindow }: LoggedOutProps ) => {
 	const [ activeService, setActiveService ] = useState( '' );
 	const closeLoginPopupService = requireNameEmail && ! mustLogIn ? 'mail' : '';
 
@@ -82,72 +81,83 @@ export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOut
 		setActiveService( service );
 	};
 
-	const { commentParent } = useContext( VerbumSignals );
+	const { canAccessCookies, commentParent, isCommentBlocked } = useContext( VerbumSignals );
 
 	return (
 		<div className="verbum-subscriptions logged-out">
 			<div className="verbum-subscriptions__wrapper">
 				<div className="verbum-subscriptions__login">
-					{ canWeAccessCookies && (
-						<>
-							<div className="verbum-subscriptions__login-header">
-								{ getLoginCommentText( commentParent ) }
-							</div>
+					{ ( canAccessCookies || mustLogIn ) && (
+						<div className="verbum-subscriptions__login-header">
+							{ getLoginCommentText( commentParent ) }
+						</div>
+					) }
+					{ isCommentBlocked.value && (
+						<p className="verbum-subscriptions__cookie-notice" role="status">
+							{ translate(
+								'Your browser is blocking the cookies needed to log in and comment here. Allow cookies in your privacy settings, then reload the page.'
+							) }
+						</p>
+					) }
+					{ canAccessCookies && (
+						<div
+							className={ clsx( 'verbum-logins', {
+								'logging-in': activeService,
+							} ) }
+						>
 							<div
-								className={ clsx( 'verbum-logins', {
-									'logging-in': activeService,
+								className={ clsx( 'verbum-logins__social-buttons', {
+									'show-form-content': ! mustLogIn,
 								} ) }
 							>
+								{ Object.entries( serviceData ).map( ( [ service, value ] ) => {
+									// Don't show mail login if "Users must be registered and logged in to comment" enabled.
+									if ( mustLogIn && service === 'mail' ) {
+										// eslint-disable-next-line array-callback-return
+										return;
+									}
+
+									return (
+										<button
+											aria-label={ value.name }
+											type="button"
+											key={ service }
+											onClick={ e => handleClick( e, service ) }
+											className={ clsx( 'social-button', service, {
+												active: service === activeService,
+											} ) }
+										>
+											<value.icon />
+										</button>
+									);
+								} ) }
+							</div>
+							{ [ 'wordpress', 'facebook' ].includes( activeService ) && (
 								<div
-									className={ clsx( 'verbum-logins__social-buttons', {
-										'show-form-content': ! mustLogIn,
+									className={ clsx( 'verbum-login__social-loading', {
+										'must-login': mustLogIn,
 									} ) }
 								>
-									{ Object.entries( serviceData ).map( ( [ service, value ] ) => {
-										// Don't show mail login if "Users must be registered and logged in to comment" enabled.
-										if ( mustLogIn && service === 'mail' ) {
-											// eslint-disable-next-line array-callback-return
-											return;
-										}
-
-										return (
-											<button
-												aria-label={ value.name }
-												type="button"
-												key={ service }
-												onClick={ e => handleClick( e, service ) }
-												className={ clsx( 'social-button', service, {
-													active: service === activeService,
-												} ) }
-											>
-												<value.icon />
-											</button>
-										);
-									} ) }
-								</div>
-								{ [ 'wordpress', 'facebook' ].includes( activeService ) && (
-									<div
-										className={ clsx( 'verbum-login__social-loading', {
-											'must-login': mustLogIn,
-										} ) }
+									<p></p>
+									<button
+										type="button"
+										className="components-button is-link"
+										onClick={ () => {
+											setActiveService( closeLoginPopupService );
+											loginWindow?.close();
+										} }
 									>
-										<p></p>
-										<button
-											type="button"
-											className="components-button is-link"
-											onClick={ () => {
-												setActiveService( closeLoginPopupService );
-												loginWindow?.close();
-											} }
-										>
-											{ translate( 'Cancel' ) }
-										</button>
-									</div>
-								) }
-							</div>
-						</>
+										{ translate( 'Cancel' ) }
+									</button>
+								</div>
+							) }
+						</div>
 					) }
-					<EmailForm shouldShowEmailForm={ activeService === 'mail' || ! canWeAccessCookies } />
+					<EmailForm
+						shouldShowEmailForm={
+							activeService === 'mail' || ( ! canAccessCookies && ! mustLogIn )
+						}
+					/>
 				</div>
 			</div>
 		</div>

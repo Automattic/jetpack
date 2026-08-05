@@ -1,14 +1,21 @@
 /**
  * External dependencies
  */
-import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
-import { useMemo, useState } from 'react';
+import {
+	DataViews,
+	filterSortAndPaginate,
+	type Action,
+	type Field,
+	type SupportedLayouts,
+	type View,
+} from '@jetpack-premium-analytics/externals';
+import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
 import { ReportPageSection } from './report-page-layout';
 import styles from './report-records-table.module.scss';
-import type { Action, Field, SupportedLayouts, View } from '@wordpress/dataviews';
+import './report-records-table.scss';
 import type { ComponentProps, ReactElement, ReactNode } from 'react';
 
 const DEFAULT_PER_PAGE_SIZES = [ 10, 25, 50, 100 ];
@@ -59,6 +66,15 @@ export interface ReportRecordsTableProps< Item > {
 	empty?: ReactNode;
 	/** Page size choices (defaults to 10/25/50/100). */
 	perPageSizes?: number[];
+	/**
+	 * Called after every view change, with the view the table just moved to.
+	 *
+	 * The table still owns its view state; this only reports it outwards, for
+	 * a page whose data request depends on the view — a filter the API applies
+	 * server-side, say. Remounting the table (a `key` per tab) resets the view,
+	 * so a page tracking a value from here resets its own copy at the same time.
+	 */
+	onChangeView?: ( view: View ) => void;
 	/** Whether a record's primary field should render as an interactive link. */
 	isItemClickable?: ( item: Item ) => boolean;
 	/** Render the primary-field link while preserving DataViews table styling. */
@@ -92,6 +108,7 @@ export function ReportRecordsTable< Item >( {
 	actions,
 	empty,
 	perPageSizes = DEFAULT_PER_PAGE_SIZES,
+	onChangeView,
 	isItemClickable,
 	renderItemLink,
 }: ReportRecordsTableProps< Item > ) {
@@ -110,6 +127,14 @@ export function ReportRecordsTable< Item >( {
 			} ) as View
 	);
 
+	const handleChangeView = useCallback(
+		( nextView: View ) => {
+			setView( nextView );
+			onChangeView?.( nextView );
+		},
+		[ onChangeView ]
+	);
+
 	const { data: pageItems, paginationInfo } = useMemo(
 		() => filterSortAndPaginate( data, view, fields ),
 		[ data, view, fields ]
@@ -119,7 +144,7 @@ export function ReportRecordsTable< Item >( {
 		<ReportPageSection className={ styles.root }>
 			<GenericDataViews< Item >
 				view={ view }
-				onChangeView={ setView }
+				onChangeView={ handleChangeView }
 				fields={ fields }
 				data={ pageItems }
 				getItemId={ getItemId }

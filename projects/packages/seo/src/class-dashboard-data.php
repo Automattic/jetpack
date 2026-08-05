@@ -10,7 +10,6 @@
 namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Modules;
-use Jetpack_SEO_Titles;
 use Jetpack_SEO_Utils;
 
 /**
@@ -159,8 +158,15 @@ class Dashboard_Data {
 	public static function get_settings_data() {
 		$modules = new Modules();
 
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Titles lives in plugins/jetpack and is guarded by class_exists.
-		$title_formats = class_exists( 'Jetpack_SEO_Titles' ) ? Jetpack_SEO_Titles::get_custom_title_formats() : array();
+		// Read the stored values directly: Jetpack_SEO_Titles::get_custom_title_formats()
+		// intentionally hides them while another SEO plugin controls output, but the
+		// dashboard must still show the saved values without allowing edits.
+		$title_formats = get_option( 'advanced_seo_title_formats', array() );
+		if ( ! is_array( $title_formats ) ) {
+			$title_formats = array();
+		}
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack and is guarded by class_exists.
+		$title_formats_editable = class_exists( 'Jetpack_SEO_Utils' ) && Jetpack_SEO_Utils::is_enabled_jetpack_seo();
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack and is guarded by class_exists.
 		$front_page_desc = class_exists( 'Jetpack_SEO_Utils' ) ? Jetpack_SEO_Utils::get_front_page_meta_description() : '';
 
@@ -197,8 +203,10 @@ class Dashboard_Data {
 			// the incoming value untouched, so core composes the title itself and the
 			// Settings tab replays that composition to preview it.
 			'title_separator'            => self::get_default_title_separator(),
+			'title_formats_editable'     => $title_formats_editable,
 			'front_page_description'     => (string) $front_page_desc,
 			'has_legacy_front_page_meta' => $has_legacy_front_page_meta,
+			'verification_tools_active'  => $modules->is_active( 'verification-tools' ),
 			'verification'               => array(
 				'google'    => isset( $codes['google'] ) ? (string) $codes['google'] : '',
 				'bing'      => isset( $codes['bing'] ) ? (string) $codes['bing'] : '',
@@ -304,13 +312,19 @@ class Dashboard_Data {
 
 		$logo_id  = (int) get_theme_mod( 'custom_logo' );
 		$logo_url = $logo_id ? (string) wp_get_attachment_image_url( $logo_id, 'full' ) : '';
+		if ( class_exists( 'Jetpack_Redux_State_Helper' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_Redux_State_Helper lives in plugins/jetpack and is guarded by class_exists.
+			$image_url = (string) \Jetpack_Redux_State_Helper::get_site_image();
+		} else {
+			$image_url = $logo_url ? $logo_url : $icon_url;
+		}
 
 		return array(
 			'title'   => (string) get_bloginfo( 'name' ),
 			'tagline' => (string) get_bloginfo( 'description' ),
 			'url'     => (string) home_url(),
 			'icon'    => $icon_url,
-			'image'   => $logo_url ? $logo_url : $icon_url,
+			'image'   => $image_url,
 		);
 	}
 

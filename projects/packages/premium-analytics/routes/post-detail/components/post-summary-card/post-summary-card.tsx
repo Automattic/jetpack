@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
+import { Icon, Text } from '@jetpack-premium-analytics/externals';
 import { __, sprintf } from '@wordpress/i18n';
 import { page as pageIcon, post as postIcon } from '@wordpress/icons';
-import { Icon, Text } from '@wordpress/ui';
 import { format, isValid } from 'date-fns';
 /**
  * Internal dependencies

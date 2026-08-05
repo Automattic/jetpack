@@ -1,16 +1,15 @@
 /**
  * External dependencies
  */
-import { GlobalChartsProvider } from '@automattic/charts';
 import {
 	AnalyticsQueryClientProvider,
 	getDefaultPreset,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
+import { GlobalChartsProvider } from '@jetpack-premium-analytics/externals';
 import { useSearch } from '@wordpress/route';
 import { useMemo, type ReactNode } from 'react';
 import { getStoreInfo } from '../../helpers/store-info';
-import '@automattic/charts/style.css';
 /**
  * Internal dependencies
  */

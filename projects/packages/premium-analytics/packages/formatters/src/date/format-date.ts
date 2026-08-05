@@ -5,7 +5,7 @@ import { dateI18n, getSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
-import { withoutYear } from './php-format';
+import { withWeekday, withoutYear } from './php-format';
 
 /** Fixed because this format backs form values and query parameters. */
 const ISO_FORMAT = 'Y-m-d';
@@ -13,7 +13,7 @@ const ISO_FORMAT = 'Y-m-d';
 const YEAR_FORMAT = 'Y';
 
 /** Named formats derived from the site format or fixed for machine-readable uses. */
-export type DateFormatName = 'medium' | 'short' | 'year' | 'iso';
+export type DateFormatName = 'medium' | 'short' | 'year' | 'iso' | 'full' | 'fullNoYear';
 
 /**
  * An instant to render, such as a `TZDate` or a timestamp.
@@ -41,9 +41,18 @@ function formatFor( name: DateFormatName ): string {
 	}
 
 	const siteFormat = getSettings().formats.date;
+	const withoutYearFormat = withoutYear( siteFormat ) || siteFormat;
 
 	if ( name === 'short' ) {
-		return withoutYear( siteFormat ) || siteFormat;
+		return withoutYearFormat;
+	}
+
+	if ( name === 'full' ) {
+		return withWeekday( siteFormat );
+	}
+
+	if ( name === 'fullNoYear' ) {
+		return withWeekday( withoutYearFormat );
 	}
 
 	return siteFormat;
@@ -61,8 +70,9 @@ function formatFor( name: DateFormatName ): string {
  * @return The formatted date.
  *
  * @example
- * formatDate( date )           // 'June 21, 2025' — or '21 de junio de 2025'
- * formatDate( date, 'short' )  // 'June 21'       — or '21 de junio'
+ * formatDate( date )           // 'June 21, 2025'           — or '21 de junio de 2025'
+ * formatDate( date, 'short' )  // 'June 21'                 — or '21 de junio'
+ * formatDate( date, 'full' )   // 'Saturday, June 21, 2025' — or 'sábado, 21 de junio de 2025'
  */
 export const formatDate = ( date: DateInput, name: DateFormatName = 'medium' ): string =>
 	dateI18n( formatFor( name ), date );

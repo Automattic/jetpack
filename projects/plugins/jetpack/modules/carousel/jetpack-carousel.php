@@ -828,6 +828,14 @@ class Jetpack_Carousel {
 		}
 		$selected_images = array();
 		foreach ( $matches[0] as $image_html ) {
+			// This image already carries the attributes this method adds, so adding
+			// them again would emit every one of them twice. Tiled Gallery output
+			// reaches this filter twice: once as 'jetpack_tiled_galleries_block_content'
+			// from inside the block's render callback, and again as 'the_content' when
+			// single image galleries are enabled. See JETPACK-1990.
+			if ( str_contains( $image_html, 'data-attachment-id=' ) ) {
+				continue;
+			}
 			if (
 				preg_match( '/(wp-image-|data-id=)\"?([0-9]+)\"?/i', $image_html, $class_id )
 				&& ! str_contains( $image_html, 'wp-block-jetpack-slideshow_image' )

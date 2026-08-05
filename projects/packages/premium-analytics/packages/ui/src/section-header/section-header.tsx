@@ -1,5 +1,6 @@
-import { Stack, Text } from '@wordpress/ui';
+import { Stack, Text } from '@jetpack-premium-analytics/externals';
 import { ReactNode } from 'react';
+import styles from './section-header.module.scss';
 
 type SectionHeaderProps = {
 	/**
@@ -33,10 +34,10 @@ export function SectionHeader( { title, subtitle, children }: SectionHeaderProps
 				<Text variant="heading-2xl" render={ <h2 /> }>
 					{ title }
 				</Text>
-				{ subtitle ? <Text variant="body-lg">{ subtitle }</Text> : null }
+				{ subtitle ? <Text variant="body-md">{ subtitle }</Text> : null }
 			</Stack>
 
-			<Stack direction="row" align="center" justify="flex-end">
+			<Stack direction="row" align="center" justify="flex-end" className={ styles.controls }>
 				{ children }
 			</Stack>
 		</Stack>

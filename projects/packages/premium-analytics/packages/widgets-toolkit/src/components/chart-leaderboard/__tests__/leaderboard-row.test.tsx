@@ -90,6 +90,22 @@ describe( 'buildLeaderboardRow', () => {
 		expect( row ).not.toHaveProperty( 'onClick' );
 	} );
 
+	it( 'keeps a post link out of the chart button props', () => {
+		const row = buildLeaderboardRow( {
+			label: 'Pricing',
+			media: { kind: 'none' },
+			action: { kind: 'postLink', href: 'https://example.com/pricing/' },
+		} );
+
+		render( row.label );
+
+		expect( screen.getByRole( 'link', { name: /Pricing/ } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/pricing/'
+		);
+		expect( row ).not.toHaveProperty( 'onClick' );
+	} );
+
 	it( 'returns chart button props for a drill-down without nesting an action', () => {
 		const onClick = jest.fn();
 		const row = buildLeaderboardRow( {

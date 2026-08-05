@@ -8,10 +8,10 @@ import {
 	type PrimaryPresetId,
 	type YearSurfacePresetId,
 } from '@jetpack-premium-analytics/datetime';
+import { Button, SelectControl } from '@jetpack-premium-analytics/externals';
 import { Composite } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import { Button, SelectControl } from '@wordpress/ui';
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies

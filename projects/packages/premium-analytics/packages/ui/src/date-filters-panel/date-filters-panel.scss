@@ -1,5 +1,15 @@
 .date-filters-panel {
 
+	/*
+	 * The responsive layout comes from this element's own measured width, so it
+	 * has to be sized by its container and never by its content. As a flex item
+	 * that means filling the slot: a shrink-to-fit panel measures the width it
+	 * wants, concludes that everything fits, and never steps down from the full
+	 * labels. Inert in a block parent, where it already spans its container.
+	 */
+	flex: 1 1 0%;
+	min-inline-size: 0;
+
 	&__primary,
 	&__comparison {
 		flex: 0 1 auto;
@@ -11,6 +21,15 @@
 	// class. Children carry no compact modifier of their own — the joint layout
 	// adjustments for every descendant live here.
 	&.is-compact {
+
+		// Collapsed, the trigger shares the row with the preset select rather
+		// than with the pills, so it takes the select's size. Keyed to the
+		// collapsed state and not to a 600px viewport: the abbreviated tier lets
+		// pills survive below that width, which left a 16px trigger sitting next
+		// to 13px pills.
+		.date-filters-panel-button {
+			font-size: max(var(--wpds-typography-font-size-md), 16px);
+		}
 
 		// The preset select and custom trigger become two separate bordered
 		// controls, so drop the group's shared frame and flush hairline dividers

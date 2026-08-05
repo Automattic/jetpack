@@ -2,6 +2,7 @@ import type {
 	BaseChartProps,
 	DataPointDate,
 	SeriesData,
+	SeriesChartLegendConfig,
 	AnnotationStyles,
 	DataPoint,
 } from '../../types';
@@ -28,6 +29,10 @@ export type RenderLineGlyphProps< Datum extends object > = GlyphProps< Datum > &
 };
 
 export interface LineChartProps extends BaseChartProps< SeriesData[] > {
+	/**
+	 * Legend configuration. Supports `collapseGroups` on top of the shared options.
+	 */
+	legend?: SeriesChartLegendConfig;
 	withGradientFill: boolean;
 	smoothing?: boolean;
 	curveType?: CurveType;
@@ -47,6 +52,15 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	 * button appears in the top-right of the chart while zoomed.
 	 */
 	zoomable?: boolean;
+	/**
+	 * Whether the Y axis rescales to fit only the visible series when series are
+	 * hidden or shown through the interactive legend.
+	 * Defaults to `true` (the pre-existing behaviour). Set to `false` to pin the Y
+	 * axis to the full data extent so hiding series does not move the chart's
+	 * baseline — useful for comparison charts. Matches `AreaChart`.
+	 * @default true
+	 */
+	rescaleYOnVisibilityChange?: boolean;
 	children?: ReactNode;
 }
 

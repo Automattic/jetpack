@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-08-03
+### Changed
+- Add icon chips and completion statuses to each Settings module, clarify the help text, and preview the title every page type produces. [#50883]
+- Allow Jetpack SEO to be enabled per site through a WordPress.com feature flag. [#50899]
+- Combine the Breadcrumbs, Organization, and Local business settings into one Schema module with a single Save button, and clarify their labels and help text. [#50918]
+- Move the option to turn off SEO tools into an Advanced section at the bottom of Settings, with an explanation of what stops when you do. [#50947]
+- Refresh the GEO tab: an icon chip on every module title, headings you can navigate to, an explanation of what GEO means, and clearer state tags. [#50913]
+- Rewrite the SEO page subtitle around what the tools do for you, and sharpen the Overview cards: shorter Site visibility, a globe icon on both Site verification cards, llms.txt reported alongside AI access, and only the verification services most sites use. [#50934]
+- Polish the Overview tab — card-title icons, primary action buttons, and interactive coverage rings that deep-link to the Content tab filtered to the posts still missing that field. [#50842]
+- Settings: Make text styles consistent across modules, so descriptions are easier to read and every field label looks the same. [#50953]
+- Show save toasts in the top-right, matching the rest of Jetpack, and render the title-structure preview with its parts as chips so the shape of the title is legible. [#50972]
+
+### Fixed
+- Keep the Schema module's completion status accurate when a name or description field contains only spaces. [#50944]
+- Preserve SEO settings and keep dashboard previews and verification states aligned with site output. [#50808]
+- Return the Breadcrumbs toggle in Schema settings to its previous position when the save fails, instead of leaving it showing a change that was not saved. [#50918]
+- Fix the sitemap control in Settings — show the View sitemap link as soon as the sitemap is enabled instead of getting stuck on "Generating…", and make turning it off remove the site's sitemap entirely (a proper 404) rather than falling back to WordPress core's. [#50880]
+
 ## [0.7.0] - 2026-07-27
 ### Added
 - Add AI crawler management — free per-bot allow/block toggles (answer and mixed-use crawlers allowed, training crawlers blocked by default) that write robots.txt directives. [#50186]
@@ -117,6 +135,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Create a Settings screen with site visibility, post title structure, front-page description, and site verification. [#49256]
 - Scaffold the new `jetpack-seo` package and mount its admin page. [#49203]
 
+[0.8.0]: https://github.com/Automattic/jetpack-seo/compare/0.7.0...0.8.0
 [0.7.0]: https://github.com/Automattic/jetpack-seo/compare/0.6.0...0.7.0
 [0.6.0]: https://github.com/Automattic/jetpack-seo/compare/0.5.0...0.6.0
 [0.5.0]: https://github.com/Automattic/jetpack-seo/compare/0.4.0...0.5.0

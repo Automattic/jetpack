@@ -2,6 +2,43 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 16.1-beta - 2026-08-03
+### Enhancements
+- AI Sidebar: Align Editorial Review enablement with the other writing-assistance features. [#50901]
+- AI Sidebar: Enable writing and SEO suggestions, the block toolbar button, and page and site editor support for all eligible users. [#50901]
+- Modules: Debounce the modules page search so results update smoothly while typing. [#50927]
+- Modules: Hide the legacy VaultPress module row from the modules page, as it is permanently unavailable and superseded by the VaultPress Backup product. [#50927]
+- Modules: In Offline Mode, surface the Modules page as the first Jetpack menu item so it loads by default, add an Offline Mode breadcrumb and explanatory notice, and add an "Available in offline mode" filter. [#50927]
+- Modules: Refresh the modules page with a modern, core-UI look. [#50927]
+- Modules: Update the tag filter counts on the modules page to reflect the currently-applied filters, and grey out tags with no matching modules. [#50927]
+- Newsletter: Allow sending the test email to a chosen address, gated by the same abuse checks used when adding a subscriber. [#50969]
+- Random Redirect: Restore module previously removed in Jetpack 13.6. [#50940]
+- Reprint: Add full-site export support for Pressable and WordPress.com (Atomic) sites, so an authenticated client can pull a complete copy of a site. [#50369]
+- SEO: Honor the per-site WordPress.com feature flag in plugin search suggestions. [#50899]
+- Site Chat: Rename the public feature text from Reader Chat to Site Chat. [#50854]
+- Social: Surface a visible error when fetching the keyring result fails during a connection, instead of failing silently. [#50822]
+- Stats v2: Add a separate menu instead of replacing the existing Stats menu. [#50915]
+
+### Bug fixes
+- Calendly: Fix Button style rendering as inline calendar on Premium+ plans. [#49161]
+- Carousel: Stop adding a duplicate set of image data attributes to galleries. [#50981]
+- Jetpack AI: Fix content guidelines generation failing on private sites. [#50933]
+- Jetpack AI: Skip the AI sidebar bundle, provider registration, and toolbar button for users without a connected WordPress.com account. [#50898]
+- Newsletter: Show which newsletter categories a subscriber receives emails for in the subscriber details panel. [#50877]
+- SEO: Fix custom per-page SEO title being ignored when the page is set as the site's homepage and the Front Page title format in Jetpack Settings is blank. [#50845]
+- SEO: Preserve legacy homepage description storage and length limits when saving dashboard settings. [#50808]
+- Subscriptions: Stop the site settings endpoint from saving unchanged subscription message defaults; translate the default subscription options using the user locale. [#50909]
+- Tiled Gallery: Fix rows rendering at partial width after an alignment change, and correct the srcset on published galleries. [#50981]
+- VideoPress: Fix legacy video block previews in the editor. [#50651]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add testing instructions for the Jetpack 16.1 release. [#50910]
+- AI Launchpad: Enable on all sites of a user in the ai_launchpad experiment variation, matching wp-admin. [#50838]
+- Carousel: Run the overlay fade as a CSS transition instead of a main-thread animation loop, and honour prefers-reduced-motion. [#50827]
+- Keep the Reprint exporter's bundled `psr/log` out of the global class map so it does not conflict with other `psr/log` copies (e.g. on WordPress.com). [#50369]
+- Premium Analytics: Bundle the package behind the `jetpack_premium_analytics_enabled` flag; when enabled it replaces the Stats wp-admin UI. [#50768]
+- Reprint exporter: Exclude the unused URL-parsing dependencies (`rowbot`, `brick/math`, `psr/log`) from the production build, trimming ~1.2 MB the export path never loads. [#50369]
+
 ## 16.1-a.5 - 2026-07-27
 ### Enhancements
 - Add aria-label to hidden Carousel download link for better accessibility. [#50181]

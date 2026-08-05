@@ -2,9 +2,9 @@
  * External dependencies
  */
 import { useReportBookings } from '@jetpack-premium-analytics/data';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { calendar } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
 import { useMemo } from 'react';
 import { DonutChart, WidgetState } from '../../components';
 /**

@@ -68,4 +68,28 @@ describe( 'DateRangePopover', () => {
 		expect( onCancel ).toHaveBeenCalledTimes( 1 );
 		expect( onApply ).not.toHaveBeenCalled();
 	} );
+
+	/*
+	 * The default props apply a rolling preset, so the trigger is idle and the
+	 * remembered range is the only thing that can label it. The range has to
+	 * arrive as a prop: the panel's measuring probe reproduces this label from
+	 * the panel's own props, so anything the popover remembered privately would
+	 * be invisible to the probe and the two would measure different strings.
+	 */
+	it( 'labels the trigger from the remembered range prop while idle', () => {
+		renderPopover( {
+			rememberedCustomRange: {
+				from: new Date( 2026, 4, 1, 0, 0, 0, 0 ),
+				to: new Date( 2026, 4, 15, 23, 59, 59, 999 ),
+			},
+		} );
+
+		expect( screen.queryByRole( 'button', { name: 'Custom' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'falls back to the custom label when nothing is remembered', () => {
+		renderPopover();
+
+		expect( screen.getByRole( 'button', { name: 'Custom' } ) ).toBeInTheDocument();
+	} );
 } );

@@ -455,7 +455,7 @@ class Jetpack_Admin {
 		 */
 		if ( ( new Status() )->is_offline_mode() ) {
 			if ( $module['requires_connection'] || $module['requires_user_connection'] ) {
-				return __( 'Offline mode', 'jetpack' );
+				return __( 'Unavailable in Offline mode', 'jetpack' );
 			}
 		}
 

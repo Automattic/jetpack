@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
+import { DataViews, filterSortAndPaginate } from '@jetpack-premium-analytics/externals';
 import clsx from 'clsx';
 import { useCallback, useMemo, useState } from 'react';
 /**
@@ -9,7 +9,12 @@ import { useCallback, useMemo, useState } from 'react';
  */
 import styles from './dataviews-drilldown-native.module.scss';
 import { processHierarchyLevels, withHierarchyContext } from './process-hierarchy-levels';
-import type { Field, SupportedLayouts, View, ViewBaseProps } from '@wordpress/dataviews';
+import type {
+	Field,
+	SupportedLayouts,
+	View,
+	ViewBaseProps,
+} from '@jetpack-premium-analytics/externals';
 import type { ComponentProps, ReactNode } from 'react';
 
 // Inferred props types from the `DataViews` component.

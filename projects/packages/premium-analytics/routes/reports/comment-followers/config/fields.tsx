@@ -2,9 +2,9 @@
  * External dependencies
  */
 import { type StatsCommentFollowersItem } from '@jetpack-premium-analytics/data';
+import { type Field } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
-import { type Field } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import { Link } from '@wordpress/route';

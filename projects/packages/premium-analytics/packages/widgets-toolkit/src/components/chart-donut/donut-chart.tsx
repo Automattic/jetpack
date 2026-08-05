@@ -1,8 +1,11 @@
 /**
  * External dependencies
  */
-import { PieChartUnresponsive as PieChart } from '@automattic/charts';
-import { Icon, Stack } from '@wordpress/ui';
+import {
+	PieChartUnresponsive as PieChart,
+	Icon,
+	Stack,
+} from '@jetpack-premium-analytics/externals';
 import { useMemo } from 'react';
 /**
  * Internal dependencies

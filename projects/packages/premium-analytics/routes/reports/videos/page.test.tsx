@@ -29,6 +29,8 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => null,
+	StatsBreadcrumbs: () => null,
+	StatsPageIcon: () => null,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
@@ -143,10 +145,22 @@ describe( 'VideosReportPage', () => {
 		);
 
 		const { columns } = reportCsvActionMock.mock.calls[ 0 ][ 0 ];
+		expect( columns.map( column => column.label ) ).toEqual( [
+			'Video ID',
+			'Video',
+			'Plays',
+			'Impressions',
+			'Watch time (hours)',
+			'Retention rate (%)',
+			'URL',
+		] );
 		expect( columns.map( column => column.getValue( rows[ 0 ] ) ) ).toEqual( [
+			441,
 			'Demo',
 			13,
 			22,
+			0.04,
+			64.5,
 			'https://example.com/video/441',
 		] );
 		expect( reportCsvActionMock.mock.calls[ 0 ][ 0 ] ).toEqual(

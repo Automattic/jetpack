@@ -6,40 +6,35 @@ pieces with the module's data hook and DataViews field config — composition,
 not a bespoke page per module.
 
 ```tsx
-const dashboardLink = useDashboardLink();
-
-<ReportPageLayout
-	breadcrumbs={
-		<Breadcrumbs
-			items={ [
-				{ label: __( 'Stats' ), to: dashboardLink },
-				{ label: __( 'Pages' ) },
-			] }
-		/>
-	}
-	description={ __( 'All your posts and archive pages.' ) }
+<ReportPageShell
+	visual={ <StatsPageIcon /> }
+	breadcrumbs={ <StatsBreadcrumbs items={ [ { label: __( 'Pages' ) } ] } /> }
+	subTitle={ __( 'All your posts and archive pages.' ) }
 	actions={ downloadButton }
-	filters={ <DateFiltersPanel /* … */ /> }
 >
-	<ReportPerformanceChart
-		primary={ visits.primary.data }
-		comparison={ visits.hasComparison ? visits.comparison.data : undefined }
-		isLoading={ visits.isLoading }
-		interval={ interval }
-		onIntervalChange={ setInterval }
-	/>
-	<ReportRecordsTable
-		data={ rows }
-		fields={ fields }
-		getItemId={ item => String( item.id ) }
-		isLoading={ report.isLoading }
-		initialView={ { sort: { field: 'views', direction: 'desc' } } }
-	/>
-</ReportPageLayout>
+	<ReportPageLayout filters={ <DateFiltersPanel /* … */ /> }>
+		<ReportPerformanceChart
+			primary={ visits.primary.data }
+			comparison={ visits.hasComparison ? visits.comparison.data : undefined }
+			isLoading={ visits.isLoading }
+			interval={ interval }
+			onIntervalChange={ setInterval }
+		/>
+		<ReportRecordsTable
+			data={ rows }
+			fields={ fields }
+			getItemId={ item => String( item.id ) }
+			isLoading={ report.isLoading }
+			initialView={ { sort: { field: 'views', direction: 'desc' } } }
+		/>
+	</ReportPageLayout>
+</ReportPageShell>
 ```
 
-- **`ReportPageLayout`** — page scaffold: breadcrumb header with an actions
-  slot, optional internal tabs, a filters row, and stacked sections.
+- **`ReportPageShell`** — the outer `Page` shell: the shared Jetpack visual,
+  Stats breadcrumbs, subtitle, and page-level actions.
+- **`ReportPageLayout`** — the report content scaffold: optional internal tabs,
+  a filters row, and stacked sections.
   `ReportPageSection` is the bordered card each section renders in.
 - **`ReportPerformanceChart`** — the multi-metric visits chart
   (Views/Visitors/Comments/Likes via `useStatsVisits` `stat_fields`), with a
@@ -60,18 +55,19 @@ const dashboardLink = useDashboardLink();
   copy, and Base UI's tabs context does not cross bundle copies — a route's
   `Tabs.Panel` throws `TabsRootContext is missing` at runtime even though the
   JSX nesting looks right.
-The `breadcrumbs` slot takes `Breadcrumbs` from `@wordpress/admin-ui`, the same
-component the post-detail page uses. Two things follow from its contract. The
-trailing item carries no `to` and renders as the page's `h1`, so the report page
-has no separate title prop. The leading `Stats` crumb links back to the
-dashboard through `useDashboardLink()` from
-`@jetpack-premium-analytics/routing`, which carries the shared date range and
-comparison across so Back returns to the same view.
 
-`Breadcrumbs` renders router links, so it needs a mounted router. That is why
-the slot stays a plain `ReactNode` (as it is on Core's own `Page`) and the page,
-not this layout, builds it: `ReportPageLayout` keeps rendering outside a router,
-which is what lets the story compose it.
+Pass `StatsBreadcrumbs` from `@jetpack-premium-analytics/ui` to the shell's
+`breadcrumbs` slot. It owns the leading `Stats` crumb and links it back to the
+dashboard through `useDashboardLink()`, carrying the shared date range and
+comparison so Back returns to the same view. The trailing item carries no `to`
+and renders as the page's `h1`, so the report page has no separate title prop.
+Pair it with `StatsPageIcon` in the shell's `visual` slot so every Stats page
+uses the same header treatment.
+
+`StatsBreadcrumbs` renders router links, so it needs a mounted router. That is
+why the shell receives it as a plain `ReactNode` (as on Core's own `Page`) and
+the route, not `ReportPageLayout`, builds it. The content layout can still render
+outside a router, which is what lets its story compose it independently.
 
 These components do not fetch: the page owns the data hooks and the
 `reportParams` derived from the URL (`useReportDateFilters`), and passes

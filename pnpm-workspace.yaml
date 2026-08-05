@@ -44,6 +44,10 @@ minimumReleaseAgeExclude:
   - sharp@0.35.0
   # Renovate security update: react-router@7.18.0
   - react-router@7.18.0
+  # Renovate security update: postcss@8.5.23
+  - postcss@8.5.23
+  # Renovate security update: undici@7.29.0
+  - undici@7.29.0
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search: Honor highlightPhraseOnly, highlightFilterStopwords, adminQueryFilter, customResults, highlightFields, and additionalBlogIds Instant Search options in Embedded, Overlay Blocks, and Theme search experiences.

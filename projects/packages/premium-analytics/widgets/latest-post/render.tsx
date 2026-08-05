@@ -1,17 +1,20 @@
 /**
  * External dependencies
  */
+import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import {
 	MetricValue,
+	PostTitleLink,
 	WidgetRoot,
 	WidgetState,
-	safeHttpUrl,
+	useWidgetRootContext,
 	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { postList } from '@wordpress/icons';
-import { Link, Text } from '@wordpress/ui';
+import { Text } from '@jetpack-premium-analytics/externals';
 import { format, parseISO } from 'date-fns';
 /**
  * Internal dependencies
@@ -36,6 +39,10 @@ type LatestPostCardProps = {
 	 * The resolved latest post.
 	 */
 	post: LatestPostWithMetrics;
+	/**
+	 * Search parameters carried into the post detail route.
+	 */
+	detailSearch?: Record< string, unknown >;
 };
 
 /**
@@ -85,8 +92,8 @@ function MetricTile( { label, value }: MetricTileProps ) {
 
 /**
  * Presentational card for the "Latest post" widget: the post title (linking to
- * the published post), its publish date, three lifetime metric tiles (views,
- * likes, comments), and the post's featured image when present.
+ * its analytics detail page), its publish date, three lifetime metric tiles
+ * (views, likes, comments), and the post's featured image when present.
  *
  * Renders only the populated state; loading, error, and empty are handled by
  * `<WidgetState>` in `LatestPostReport`. Exported so Storybook can exercise the
@@ -95,29 +102,25 @@ function MetricTile( { label, value }: MetricTileProps ) {
  * @param {LatestPostCardProps} props - The component props.
  * @return The rendered card.
  */
-export const LatestPostCard = ( { post }: LatestPostCardProps ) => {
+export const LatestPostCard = ( { post, detailSearch = {} }: LatestPostCardProps ) => {
 	const publishDate = formatPublishDate( post.date );
-	const postHref = safeHttpUrl( post.url );
 
 	return (
 		<div className={ styles.root }>
 			<div className={ styles.content }>
 				<div className={ styles.header }>
 					<Text className={ styles.title } variant="heading-2xl" render={ <h3 /> }>
-						{ postHref ? (
-							<Link
-								className={ styles.titleLink }
-								href={ postHref }
-								variant="unstyled"
-								openInNewTab
-								title={ post.title }
-							>
-								{ post.title }
-							</Link>
-						) : (
-							// `.title` clamps to three lines, so keep the tooltip the link branch carries.
-							<span title={ post.title }>{ post.title }</span>
-						) }
+						<PostTitleLink
+							id={ post.id }
+							label={ post.title }
+							link={ post.url }
+							search={ detailSearch }
+							title={ post.title }
+							classNames={ {
+								internal: styles.titleLink,
+								external: styles.titleLink,
+							} }
+						/>
 					</Text>
 					{ publishDate && (
 						<Text className={ styles.date } variant="body-md">
@@ -157,7 +160,10 @@ export const LatestPostCard = ( { post }: LatestPostCardProps ) => {
  * @return The widget content.
  */
 function LatestPostReport() {
+	const { reportParams } = useWidgetRootContext();
 	const { post, isLoading, isFetching, isError, refetch } = useLatestPost();
+
+	const detailSearch = useMemo( () => pickReportDateParams( reportParams ), [ reportParams ] );
 
 	return (
 		<WidgetState
@@ -177,7 +183,7 @@ function LatestPostReport() {
 				description: __( 'Publish a post to see its stats here.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
-			{ post && <LatestPostCard post={ post } /> }
+			{ post && <LatestPostCard post={ post } detailSearch={ detailSearch } /> }
 		</WidgetState>
 	);
 }

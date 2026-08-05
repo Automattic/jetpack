@@ -1,10 +1,10 @@
 /**
  * External dependencies
  */
+import { Stack, Button } from '@jetpack-premium-analytics/externals';
 import { useSyncStatus } from '@jetpack-premium-analytics/site-sync';
 import { ProgressBar } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Stack, Button } from '@wordpress/ui';
 import { useState, useEffect, useRef, useCallback } from 'react';
 /**
  * Internal dependencies
