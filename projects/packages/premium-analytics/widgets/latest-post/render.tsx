@@ -14,7 +14,7 @@ import {
 import { useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { postList } from '@wordpress/icons';
-import { Text } from '@wordpress/ui';
+import { Text } from '@jetpack-premium-analytics/externals';
 import { format, parseISO } from 'date-fns';
 /**
  * Internal dependencies

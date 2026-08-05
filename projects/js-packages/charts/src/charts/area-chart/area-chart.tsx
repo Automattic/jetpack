@@ -202,7 +202,8 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 		}, [ dataSorted, stacked, stackOffset, legendInteractive, rescaleYOnVisibility ] );
 
 		const chartOptions = useMemo( () => {
-			const formatter = options?.axis?.x?.tickFormat || getFormatter( dataSorted );
+			const { tickResolution, ...xAxisOptions } = options?.axis?.x ?? {};
+			const formatter = xAxisOptions.tickFormat || getFormatter( dataSorted, tickResolution );
 
 			return {
 				axis: {
@@ -211,7 +212,7 @@ const AreaChartInternal = forwardRef< SingleChartRef, AreaChartProps >(
 						numTicks: guessOptimalNumTicks( dataSorted, width, formatter ),
 						tickFormat: formatter,
 						display: true,
-						...options?.axis?.x,
+						...xAxisOptions,
 					},
 					y: {
 						orientation: 'left' as const,

@@ -1,0 +1,10 @@
+{
+	"name": "jpa/video-detail-views-performance",
+	"title": "Views performance",
+	"description": "The view trend of the video being viewed over the selected period.",
+	"help": {
+		"content": "The view trend of the video being viewed over the selected period."
+	},
+	"category": "stats",
+	"presentation": "framed"
+}

@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import type { OverviewResponse } from '../../../data/overview-types';
+import type { ReactNode } from 'react';
 
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the component under test dynamically after the mocks are registered.
@@ -13,6 +14,7 @@ jest.unstable_mockModule( '../../../data/get-overview', () => ( {
 
 jest.unstable_mockModule( '@wordpress/route', () => ( {
 	useNavigate: () => jest.fn(),
+	Link: ( { children }: { children?: ReactNode } ) => <a href="#">{ children }</a>,
 } ) );
 
 // Still stubbed: the Overview renders `EnableSeoCard` when the module is off, and

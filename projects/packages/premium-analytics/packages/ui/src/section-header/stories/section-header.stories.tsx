@@ -91,16 +91,13 @@ function hasPrimaryDraft( staged: PrimaryFilterState, committed: PrimaryFilterSt
  * edits committed on Apply. A trimmed copy of the DateFiltersPanel story
  * harness.
  *
- * @param props                  - Harness props.
- * @param props.containerElement - Measured row element for responsive layout.
- * @param props.onAppliedChange  - Reports the applied configuration upward.
+ * @param props                 - Harness props.
+ * @param props.onAppliedChange - Reports the applied configuration upward.
  * @return The wired date filters panel.
  */
 function RollingDateControls( {
-	containerElement,
 	onAppliedChange,
 }: {
-	containerElement: HTMLElement | null;
 	onAppliedChange: ( applied: AppliedDateState ) => void;
 } ) {
 	const initial = buildInitialPrimaryState();
@@ -174,7 +171,6 @@ function RollingDateControls( {
 			onCancel={ handleCancel }
 			canApply={ canApply }
 			timeZone={ STORYBOOK_TIMEZONE }
-			containerElement={ containerElement }
 		/>
 	);
 }
@@ -216,7 +212,6 @@ type SectionHeaderStoryProps = {
 };
 
 function RollingSectionHeaderStory( { title }: SectionHeaderStoryProps ) {
-	const [ container, setContainer ] = useState< HTMLDivElement | null >( null );
 	const [ applied, setApplied ] = useState< AppliedDateState >( () => {
 		const initial = buildInitialPrimaryState();
 
@@ -224,11 +219,9 @@ function RollingSectionHeaderStory( { title }: SectionHeaderStoryProps ) {
 	} );
 
 	return (
-		<div ref={ setContainer }>
-			<SectionHeader title={ title } subtitle={ getSectionSubtitle( applied ) }>
-				<RollingDateControls containerElement={ container } onAppliedChange={ setApplied } />
-			</SectionHeader>
-		</div>
+		<SectionHeader title={ title } subtitle={ getSectionSubtitle( applied ) }>
+			<RollingDateControls onAppliedChange={ setApplied } />
+		</SectionHeader>
 	);
 }
 

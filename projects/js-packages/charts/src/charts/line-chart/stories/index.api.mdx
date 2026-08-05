@@ -170,6 +170,11 @@ type ChartOptions = {
 			orientation?: 'top' | 'bottom';
 			numTicks?: number;
 			tickFormat?: (value: any) => string;
+			// Declared bucket resolution of the data; the automatic tick
+			// formatter uses it instead of inferring from point spacing.
+			// The time span still constrains the choice; ignored when
+			// tickFormat is set.
+			tickResolution?: 'hour' | 'day' | 'week' | 'month' | 'year';
 		};
 		y?: {
 			orientation?: 'left' | 'right';

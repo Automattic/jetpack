@@ -3,7 +3,7 @@
  * Tests for the Random Redirect module.
  *
  * @package automattic/jetpack
- * @since $$next-version$$
+ * @since 16.1
  */
 
 /** Include the random-redirect.php module. */
@@ -12,7 +12,7 @@ require_once __DIR__ . '/../../../../modules/theme-tools/random-redirect.php';
 /**
  * Test class for the Random Redirect module.
  *
- * @since $$next-version$$
+ * @since 16.1
  */
 class Random_Redirect_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;

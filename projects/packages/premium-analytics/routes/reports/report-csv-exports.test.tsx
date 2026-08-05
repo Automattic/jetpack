@@ -51,6 +51,8 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => null,
+	StatsBreadcrumbs: () => null,
+	StatsPageIcon: () => null,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
@@ -110,13 +112,28 @@ jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
 } ) );
 
-jest.mock( '@wordpress/ui', () => ( {
-	EmptyState: {
-		Root: ( { children }: { children?: ReactNode } ) => <>{ children }</>,
-		Title: ( { children }: { children?: ReactNode } ) => <>{ children }</>,
-	},
-	Text: ( { children }: { children?: ReactNode } ) => <>{ children }</>,
-} ) );
+// The page imports `EmptyState`/`Text` from the externals passthrough, so the
+// stubs have to replace them there; the Proxy leaves the rest of the barrel
+// intact for any other consumer in the graph.
+jest.mock(
+	'@jetpack-premium-analytics/externals',
+	() =>
+		new Proxy(
+			{
+				EmptyState: {
+					Root: ( { children }: { children?: ReactNode } ) => <>{ children }</>,
+					Title: ( { children }: { children?: ReactNode } ) => <>{ children }</>,
+				},
+				Text: ( { children }: { children?: ReactNode } ) => <>{ children }</>,
+			},
+			{
+				get: ( overrides, prop ) =>
+					prop in overrides
+						? overrides[ prop as keyof typeof overrides ]
+						: jest.requireActual( '@jetpack-premium-analytics/externals' )[ prop ],
+			}
+		)
+);
 
 jest.mock( './annual-insights/config', () => ( {
 	getAnnualInsightsFields: () => [],

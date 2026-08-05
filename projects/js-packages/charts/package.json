@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/charts",
-	"version": "1.11.0",
+	"version": "1.12.0",
 	"description": "Display charts within Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
 	"bugs": {
@@ -91,8 +91,8 @@
 		"@visx/xychart": "^4.0.0",
 		"@wordpress/i18n": "^6.0.0",
 		"@wordpress/icons": "^15.0.0",
-		"@wordpress/theme": "0.17.0",
-		"@wordpress/ui": "0.17.0",
+		"@wordpress/theme": "1.1.0",
+		"@wordpress/ui": "0.19.0",
 		"clsx": "2.1.1",
 		"date-fns": "^4.1.0",
 		"deepmerge": "4.3.1",
@@ -119,7 +119,7 @@
 		"@visx/glyph": "4.0.0",
 		"@wordpress/components": "37.0.0",
 		"@wordpress/element": "8.3.0",
-		"@wordpress/private-apis": "1.51.0",
+		"@wordpress/private-apis": "1.52.0",
 		"babel-jest": "30.4.1",
 		"identity-obj-proxy": "^3.0.0",
 		"jest": "30.4.2",

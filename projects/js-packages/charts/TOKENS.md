@@ -50,17 +50,24 @@ Instance styling knobs, on the same convention but not shared semantic roles:
 `--a8c-charts-dimension-leaderboard-bar-hover-inset`,
 `--a8c-charts-color-heatmap-*`, `--a8c-charts-dimension-heatmap-*`,
 `--a8c-charts-heatmap-cell-intensity`,
-`--a8c-charts-color-zoom-selection`, `--a8c-charts-color-zoom-selection-stroke`.
+`--a8c-charts-color-zoom-selection`, `--a8c-charts-color-zoom-selection-stroke`,
+`--a8c-charts-elevation-xs`.
 
 | Role | Maps to `--wpds-*` | Fallback |
 |---|---|---|
 | `--a8c-charts-color-zoom-selection` | `--wpds-color-background-interactive-brand-strong` | `#3858e9` |
 | `--a8c-charts-color-zoom-selection-stroke` | `--wpds-color-stroke-interactive-brand` | `#3858e9` |
+| `--a8c-charts-elevation-xs` | _(none — `--wpds-elevation-*` removed in theme 1.0.0)_ | `0 1px 1px 0 #00000008, 0 1px 2px 0 #00000005, 0 3px 3px 0 #00000005, 0 4px 4px 0 #00000003` |
 
 The zoom selection roles carry the drag-to-zoom rectangle's fill and border. Their
 translucency is not part of the role: it lives in the `fill-opacity` /
 `stroke-opacity` properties, so overriding either role sets an opaque colour and
 keeps the intended transparency.
+
+`--a8c-charts-elevation-xs` carries the zoom reset button's shadow. It has no
+`--wpds-*` mapping: `@wordpress/theme` 1.0.0 removed the whole
+`--wpds-elevation-*` group without a replacement, so the fallback holds the value
+`--wpds-elevation-xs` used to resolve to.
 
 `--a8c-charts-heatmap-cell-intensity` is the one variable without a `{category}`
 segment: it holds a unitless 0–1 scalar consumed inside `color-mix()`, not a colour.

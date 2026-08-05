@@ -66,6 +66,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		mkdir( $this->build_dir . '/modules/boot', 0755, true );
 		mkdir( $this->build_dir . '/modules/route', 0755, true );
 		mkdir( $this->build_dir . '/modules/a11y', 0755, true );
+		mkdir( $this->build_dir . '/modules/widget-primitives', 0755, true );
 
 		$this->original_wp_version        = $GLOBALS['wp_version'];
 		$this->original_wp_script_modules = $GLOBALS['wp_script_modules'] ?? null;
@@ -728,12 +729,19 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 			'1.0.0',
 			array( 'module_dependencies' => array() )
 		);
+		$this->create_asset_file(
+			'modules/widget-primitives/index.asset.php',
+			array(),
+			'1.0.0',
+			array( 'module_dependencies' => array() )
+		);
 
 		$this->invoke_register_modules();
 
 		$this->assertTrue( $this->is_module_registered( '@wordpress/boot' ) );
 		$this->assertTrue( $this->is_module_registered( '@wordpress/route' ) );
 		$this->assertTrue( $this->is_module_registered( '@wordpress/a11y' ) );
+		$this->assertTrue( $this->is_module_registered( '@wordpress/widget-primitives' ) );
 	}
 
 	/**
@@ -746,6 +754,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		$this->assertFalse( $this->is_module_registered( '@wordpress/boot' ) );
 		$this->assertFalse( $this->is_module_registered( '@wordpress/route' ) );
 		$this->assertFalse( $this->is_module_registered( '@wordpress/a11y' ) );
+		$this->assertFalse( $this->is_module_registered( '@wordpress/widget-primitives' ) );
 	}
 
 	/**

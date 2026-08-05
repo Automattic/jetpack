@@ -23,8 +23,7 @@ import type {
 } from '@jetpack-premium-analytics/datetime';
 
 /**
- * The values and callbacks that drive `DateFiltersPanel`, minus the
- * `containerElement` ref which the consuming page owns.
+ * The values and callbacks that drive `DateFiltersPanel`.
  */
 type PickerRange = { from: Date | undefined; to: Date | undefined };
 
@@ -41,6 +40,18 @@ export type ReportDateFilters = {
 	onCancel: () => void;
 	canApply: boolean;
 	timeZone: string;
+
+	/**
+	 * Stage a primary range change and commit it in the same tick, replacing the
+	 * current history entry instead of pushing one.
+	 *
+	 * For range changes the page makes on the user's behalf rather than in
+	 * response to a date edit — reconciling the preset with what the current
+	 * screen can show, for instance. Those must not leave a Back step, or Back
+	 * would return to the state that triggered the reconciliation and be
+	 * corrected straight back out of.
+	 */
+	replaceRange: ( range: DateRange, presetId: PrimaryPresetId ) => void;
 };
 
 /**
@@ -77,8 +88,7 @@ function toPickerRange( from: string | undefined, to: string | undefined, timeZo
  *
  * Edits are staged locally and committed atomically on Apply (or immediately
  * for comparison changes), so widgets re-fetch only on commit. The hook returns
- * everything `DateFiltersPanel` needs except the responsive-measurement
- * `containerElement`, which the page owns. Shared by every analytics page that
+ * everything `DateFiltersPanel` needs. Shared by every analytics page that
  * mounts the panel so the staged-search behavior stays identical across them.
  *
  * @param from - The route path the search params are bound to (e.g. `/`).
@@ -177,6 +187,22 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 	const onApply = useCallback( () => commit(), [ commit ] );
 	const onCancel = useCallback( () => revert(), [ revert ] );
 
+	/*
+	 * `commit()` reads the staged buffer synchronously, so staging and committing
+	 * in the same tick lands both as one navigation.
+	 */
+	const replaceRange = useCallback(
+		( nextRange: DateRange, nextPresetId: PrimaryPresetId ) => {
+			const patch = buildRangePatch( { nextRange, nextPresetId, effective } );
+
+			if ( patch ) {
+				stage( patch );
+				commit( { replace: true } );
+			}
+		},
+		[ stage, commit, effective ]
+	);
+
 	return {
 		presetId,
 		range,
@@ -190,5 +216,6 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		onCancel,
 		canApply: isDirty,
 		timeZone,
+		replaceRange,
 	};
 }

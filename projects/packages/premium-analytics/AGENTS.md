@@ -17,12 +17,17 @@ Jetpack Premium Analytics is the unified analytics dashboard for Jetpack-connect
 
 ## How it works
 
-`Analytics::init()` loads the generated `build/build.php`, which registers an `admin_init`
-interceptor for `?page=jetpack-premium-analytics`. The interceptor takes over the request
-before WordPress renders the admin chrome; `@wordpress/boot` provides the SPA shell and
-routing; each route under `routes/<name>/` is a lazy-loaded ES module discovered at build time
-from its `package.json`. WordPress core or Jetpack's wp-build polyfills provide the WordPress
-script handles/modules used by the dashboard, so the Gutenberg plugin is not required.
+`Analytics::init()` loads the generated `build/build.php` on requests that render an admin screen
+(not on front-end page views, REST, cron, `admin-ajax.php`, or `admin-post.php` — see
+`renders_admin_chrome()`), which registers an `admin_init` interceptor for
+`?page=jetpack-premium-analytics`. REST requests reach the
+dashboard's data without it: `Dashboard_Support_Routes::boot_routes()` registers the routes on
+`rest_api_init`, and `ensure_widget_registry_ready()` loads the widget manifest lazily, when a
+route callback actually reads it. The interceptor takes over the request before WordPress renders
+the admin chrome; `@wordpress/boot` provides the SPA shell and routing; each route under
+`routes/<name>/` is a lazy-loaded ES module discovered at build time from its `package.json`.
+WordPress core or Jetpack's wp-build polyfills provide the WordPress script handles/modules used
+by the dashboard, so the Gutenberg plugin is not required.
 
 ## Structure
 
@@ -170,10 +175,12 @@ See Automattic/jetpack#50266 for the PR that established this contract.
 - Don't edit dashboard React in Calypso — it lives here now.
 - Internal package names use `@jetpack-premium-analytics/*` aliases throughout the package —
   never `@automattic/jetpack-premium-analytics-*`.
-- Never import `@automattic/charts`, `@wordpress/ui`, or `@wordpress/dataviews` directly from a
-  package that compiles to a script module — go through `@jetpack-premium-analytics/externals`.
-  A direct import compiles the whole library into that module again; see
-  `packages/externals/README.md`.
+- Never import `@automattic/ui`, `@wordpress/ui`, or `@wordpress/dataviews` directly from
+  anything under `packages/`, `widgets/`, or `routes/` — go through
+  `@jetpack-premium-analytics/externals`. A direct import compiles the whole library into that
+  bundle again; ESLint enforces this. `@automattic/charts` follows the same rule under
+  `packages/`, but under `widgets/` and `routes/` it must come from
+  `@jetpack-premium-analytics/widgets-toolkit` instead. See `packages/externals/README.md`.
 - All source code comments must be in English.
 
 ## Widgets

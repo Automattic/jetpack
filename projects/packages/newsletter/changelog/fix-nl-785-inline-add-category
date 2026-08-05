@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Newsletter categories: add categories inline instead of linking out to wp-admin, so a new category appears and is selected without a page refresh.

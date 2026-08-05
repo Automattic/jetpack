@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Add a test pinning the PHP hyperlink payload contract; no user-facing change
+
+

@@ -17,7 +17,7 @@ describe( 'video detail layout', () => {
 	// The page's composition is fixed (WOOA7S-1625): assert the exact
 	// arrangement, like the post-detail tab layouts test, so accidental
 	// reshuffles surface here rather than in the rendered dashboard.
-	it( 'composes the video highlights above the embeds widget', () => {
+	it( 'composes the highlights above the side-by-side views performance and embeds widgets', () => {
 		expect( VIDEO_DETAIL_LAYOUT ).toEqual( [
 			{
 				uuid: 'video-detail-highlights',
@@ -25,9 +25,14 @@ describe( 'video detail layout', () => {
 				placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
 			},
 			{
+				uuid: 'video-detail-views-performance',
+				type: 'jpa/video-detail-views-performance',
+				placement: { width: 2, height: 2, order: 2 },
+			},
+			{
 				uuid: 'video-detail-embeds',
 				type: 'jpa/video-detail-embeds',
-				placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 2, order: 2 },
+				placement: { width: 2, height: 2, order: 3 },
 			},
 		] );
 	} );

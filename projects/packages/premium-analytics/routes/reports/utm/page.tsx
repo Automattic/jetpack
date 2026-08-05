@@ -2,12 +2,8 @@
  * External dependencies
  */
 import { normalizeReportParams } from '@jetpack-premium-analytics/data';
-import {
-	useDashboardLink,
-	useReportDateFilters,
-	useSectionTab,
-} from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
+import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportErrorState,
 	ReportDrilldownTable,
@@ -19,8 +15,7 @@ import {
 	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs } from '@wordpress/admin-ui';
-import { useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
 /**
@@ -115,19 +110,12 @@ function UtmReport(): JSX.Element {
 		status: records,
 	} );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dashboardLink = useDashboardLink();
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
-
 	return (
 		<ReportPageShell
 			tabbed
+			visual={ <StatsPageIcon /> }
 			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
-						{ label: __( 'UTM', 'jetpack-premium-analytics-pkg' ) },
-					] }
-				/>
+				<StatsBreadcrumbs items={ [ { label: __( 'UTM', 'jetpack-premium-analytics-pkg' ) } ] } />
 			}
 			actions={
 				canExport ? (
@@ -137,11 +125,7 @@ function UtmReport(): JSX.Element {
 		>
 			<ReportPageLayout
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
-				filters={
-					<div ref={ setContainerElement }>
-						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-					</div>
-				}
+				filters={ <DateFiltersPanel { ...dateFilters } /> }
 			>
 				{ records.isError ? (
 					<ReportErrorState

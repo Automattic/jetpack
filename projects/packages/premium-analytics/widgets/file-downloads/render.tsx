@@ -12,7 +12,7 @@ import {
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
-import { Link } from '@wordpress/ui';
+import { Link } from '@jetpack-premium-analytics/externals';
 import {
 	calculateDelta,
 	getCombinedPeriodMax,
