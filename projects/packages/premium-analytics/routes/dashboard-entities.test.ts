@@ -25,32 +25,31 @@ describe( 'ensureDashboardEntities', () => {
 		jest.clearAllMocks();
 	} );
 
-	it( 'registers every requested entity on a fresh store', () => {
+	it( 'registers the complete entity set on a fresh store', () => {
 		mockGetEntityConfig.mockReturnValue( undefined );
 
-		ensureDashboardEntities( [ 'widgetModule', 'dashboardSection' ] );
+		ensureDashboardEntities();
 
 		expect( mockAddEntities ).toHaveBeenCalledTimes( 1 );
 		expect( registeredNames() ).toEqual( [ 'widgetModule', 'dashboardSection' ] );
 	} );
 
-	it( 'registers dashboardSection even when a detail route already registered widgetModule', () => {
-		// Regression: entering via a detail page registers only `widgetModule`;
-		// a later dashboard beforeLoad must still register `dashboardSection`
-		// instead of treating the store as fully seeded.
+	it( 'registers dashboardSection even when widgetModule is already registered', () => {
+		// Regression: an older detail-route guard registered only `widgetModule`,
+		// and the dashboard treated its presence as "the store is fully seeded".
 		mockGetEntityConfig.mockImplementation( ( _kind: string, name: string ) =>
 			name === 'widgetModule' ? {} : undefined
 		);
 
-		ensureDashboardEntities( [ 'widgetModule', 'dashboardSection' ] );
+		ensureDashboardEntities();
 
 		expect( registeredNames() ).toEqual( [ 'dashboardSection' ] );
 	} );
 
-	it( 'does nothing when every requested entity is registered', () => {
+	it( 'does nothing when every entity is registered', () => {
 		mockGetEntityConfig.mockReturnValue( {} );
 
-		ensureDashboardEntities( [ 'widgetModule' ] );
+		ensureDashboardEntities();
 
 		expect( mockAddEntities ).not.toHaveBeenCalled();
 	} );
@@ -58,7 +57,7 @@ describe( 'ensureDashboardEntities', () => {
 	it( 'builds the entity configs the stage hooks expect', () => {
 		mockGetEntityConfig.mockReturnValue( undefined );
 
-		ensureDashboardEntities( [ 'widgetModule', 'dashboardSection' ] );
+		ensureDashboardEntities();
 
 		const [ widgetModule, dashboardSection ] = mockAddEntities.mock.calls[ 0 ][ 0 ];
 		expect( widgetModule ).toMatchObject( {

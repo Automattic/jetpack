@@ -12,7 +12,9 @@ import { DASHBOARD_NAME, DASHBOARD_REST_NAMESPACE } from './dashboard/hooks/cons
 /**
  * The core-data entities the analytics routes read dashboard metadata from.
  */
-export type DashboardEntityName = 'widgetModule' | 'dashboardSection';
+const DASHBOARD_ENTITY_NAMES = [ 'widgetModule', 'dashboardSection' ] as const;
+
+type DashboardEntityName = ( typeof DASHBOARD_ENTITY_NAMES )[ number ];
 
 /**
  * Build the core-data configuration for one dashboard entity.
@@ -48,24 +50,25 @@ function buildEntityConfig( name: DashboardEntityName ): object {
 }
 
 /**
- * Register the given dashboard core-data entities, skipping any already
- * registered.
+ * Register the dashboard core-data entities, skipping any already registered.
  *
  * Routes call this from `beforeLoad`, which re-runs on every navigation and
- * preload, so each entity is guarded individually. The guard must stay
- * per-entity: the detail routes register only `widgetModule`, so a dashboard
- * `beforeLoad` that treats "widgetModule exists" as "everything exists" never
- * registers `dashboardSection` when a detail page loaded first, and the
- * dashboard then resolves zero sections and force-opens an empty edit-mode
- * canvas.
- *
- * @param names - The entities the calling route needs.
+ * preload, so each entity is guarded individually. The helper owns the
+ * complete entity set on purpose: registration is config-only (no request is
+ * made until something reads the entity), so registering an entity a route
+ * never reads costs nothing, while letting callers pick a subset restores the
+ * route-level invariant that caused the original regression — a detail route
+ * registering `widgetModule` alone made the dashboard's guard treat the store
+ * as fully seeded, `dashboardSection` was never registered, and the dashboard
+ * resolved zero sections and force-opened an empty edit-mode canvas.
  */
-export function ensureDashboardEntities( names: readonly DashboardEntityName[] ): void {
+export function ensureDashboardEntities(): void {
 	const coreSelect = select( coreStore ) as unknown as {
 		getEntityConfig: ( kind: string, name: string ) => unknown;
 	};
-	const missing = names.filter( name => ! coreSelect.getEntityConfig( 'root', name ) );
+	const missing = DASHBOARD_ENTITY_NAMES.filter(
+		name => ! coreSelect.getEntityConfig( 'root', name )
+	);
 	if ( missing.length === 0 ) {
 		return;
 	}

@@ -114,6 +114,6 @@ export const route = {
 			} );
 		}
 
-		ensureDashboardEntities( [ 'widgetModule' ] );
+		ensureDashboardEntities();
 	},
 };

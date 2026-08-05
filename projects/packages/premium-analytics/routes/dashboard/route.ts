@@ -106,6 +106,6 @@ export const route = {
 			} );
 		}
 
-		ensureDashboardEntities( [ 'widgetModule', 'dashboardSection' ] );
+		ensureDashboardEntities();
 	},
 };
