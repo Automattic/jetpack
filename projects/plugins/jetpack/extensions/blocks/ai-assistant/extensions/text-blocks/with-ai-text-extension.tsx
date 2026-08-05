@@ -132,6 +132,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		// A control in normal flow does not re-pin itself, so the layout changes that end a request
 		// can leave it off screen. Worth correcting for someone still looking at it, and not for
 		// someone who has scrolled off to read elsewhere — so ask where it was before the change.
+		// Being off screen is not proof they left, mind: the stream can outrun the scrolling that
+		// follows it, which is why the terminal paths ask whether that scrolling was still on too.
 		const isControlFullyVisible = useCallback( () => {
 			const control = controlRef.current;
 			const view = control?.ownerDocument?.defaultView;
@@ -251,9 +253,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		// Called after the last suggestion chunk is received.
 		const onDone = useCallback(
 			( suggestion: string, modelUsed?: AiModelTypeProp ) => {
-				const wasControlVisible = isControlFullyVisible();
+				const wasControlVisible = ! adjustPosition && isControlFullyVisible();
+				const wasFollowing = disableAutoScroll();
 
-				disableAutoScroll();
 				onBlockDone( suggestion );
 				increaseRequestsCount();
 				setAction( '' );
@@ -304,7 +306,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					// This last update adds any missing submit button and swaps the control over to
 					// its completed buttons, which can leave one in normal flow past the bottom of
 					// the viewport. Focusing brings it back for whoever was still watching it.
-					if ( adjustPosition || wasControlVisible ) {
+					if ( adjustPosition || wasControlVisible || wasFollowing ) {
 						focusInput();
 					}
 				}, 100 );
@@ -340,9 +342,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		// Called when an error is received.
 		const onError = useCallback(
 			error => {
-				const wasControlVisible = isControlFullyVisible();
+				const wasControlVisible = ! adjustPosition && isControlFullyVisible();
+				const wasFollowing = disableAutoScroll();
 
-				disableAutoScroll();
 				setAction( '' );
 
 				debug( 'Request error', error );
@@ -351,7 +353,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				// control in normal flow out of reach. Scroll rather than focus, as a quota error
 				// leaves the input disabled, and by the nearest edge so a control the message did not
 				// push out is left where it is.
-				if ( ! adjustPosition && wasControlVisible ) {
+				if ( ! adjustPosition && ( wasControlVisible || wasFollowing ) ) {
 					window.requestAnimationFrame(
 						() => controlRef.current?.scrollIntoView( { block: 'nearest', inline: 'nearest' } )
 					);
