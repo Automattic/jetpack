@@ -307,10 +307,12 @@ class Package_Provenance_Helper {
 					<tr><td><span class="pkg-prov pkg-prov-other">OTHER</span></td><td>anything else, including packages with no URL</td></tr>
 				</table>
 				<p>Reading the served URL rather than the registered path means a CDN or cache-busting rewrite shows up here instead of being hidden.</p>
+				<p>The <strong>served from</strong> column names the plugin or mu-plugin tree the file ships in. Several plugins can vendor the same package and the Jetpack autoloader loads the newest copy, so this column is where a replaced provider becomes visible: <code>wp-build-polyfills</code> served from <code>wpcomsh</code> means the wpcomsh copy beat the Jetpack plugin's. On WordPress.com Simple, the sun/moon deploy directory shows up here as <code>jetpack-plugin/sun</code> or <code>/moon</code>.</p>
 
 				<h4>Reading the rows</h4>
 				<p><strong>Dimmed</strong> means registered but not used on this screen: no tag printed for a classic script, or absent from the import map for a module. It does not mean broken.</p>
 				<p><strong>ver</strong> is what core puts in <code>?ver=</code>. A handle registered with <code>false</code> shows the WordPress version, because that is what core substitutes; one registered with <code>null</code> shows nothing, because core prints no version at all.</p>
+				<p class="pkg-help-warn">A hashed <code>ver</code> fingerprints the build that produced it, and builds are not byte-reproducible across environments: production hashes match the mirror repo's committed assets, while a local build only matches itself. Compare hashes within one build origin, never across.</p>
 				<p class="pkg-help-warn">Packages compiled inline into an app bundle never appear here. Only the externalized surface exists at runtime, so an absent row is not proof that a package is unused.</p>
 			</div>
 			<div id="package-provenance-body"></div>
@@ -326,6 +328,30 @@ class Package_Provenance_Helper {
 				: url.includes( 'wp-build-polyfills' ) ? 'polyfill'
 				: url.includes( 'jetpack_vendor' ) || url.includes( '/mu-plugins/' ) || url.includes( '/plugins/' ) ? 'app'
 				: 'other';
+
+			// The plugin or mu-plugin tree the file ships in. Matched on the URL
+			// path, so a CDN origin (s0.wp.com and friends) changes nothing. On
+			// WordPress.com Simple the sun/moon deploy dir is the story, so it is
+			// kept as part of the source.
+			const sourceOf = ( url ) => {
+				if ( ! url ) {
+					return '';
+				}
+				for ( const root of [ '/mu-plugins/', '/plugins/' ] ) {
+					const at = url.indexOf( root );
+					if ( -1 === at ) {
+						continue;
+					}
+					const parts = url.slice( at + root.length ).split( /[/?#]/ );
+					let source = parts[ 0 ] || '';
+					if ( ( 'jetpack-plugin' === source || 'jetpack-mu-wpcom-plugin' === source ) &&
+						( 'sun' === parts[ 1 ] || 'moon' === parts[ 1 ] ) ) {
+						source += '/' + parts[ 1 ];
+					}
+					return source;
+				}
+				return '';
+			};
 
 			const esc = ( value ) => {
 				const span = document.createElement( 'span' );
@@ -350,6 +376,7 @@ class Package_Provenance_Helper {
 						// src: a script_loader_src rewrite (CDN, cache busting)
 						// can serve the file from somewhere else entirely.
 						provider: provider( info.url || info.src ),
+						source: sourceOf( info.url || info.src ),
 						ver: info.ver,
 						url: info.url,
 						// wp_scripts()->done is authoritative: this panel prints
@@ -367,6 +394,7 @@ class Package_Provenance_Helper {
 						name: id,
 						type: 'module',
 						provider: provider( url ),
+						source: sourceOf( url ),
 						ver: ( url.match( /ver=([^&]+)/ ) || [ , info.ver || '' ] )[ 1 ],
 						url,
 						loaded: id in importMap,
@@ -384,15 +412,16 @@ class Package_Provenance_Helper {
 			const paint = () => {
 				const needle = filter.value.toLowerCase();
 				const cells = compute()
-					.filter( ( r ) => ! needle || r.name.toLowerCase().includes( needle ) || r.provider.includes( needle ) )
+					.filter( ( r ) => ! needle || r.name.toLowerCase().includes( needle ) || r.provider.includes( needle ) || r.source.toLowerCase().includes( needle ) )
 					.map( ( r ) => '<tr class="' + ( r.loaded ? '' : 'pkg-dim' ) + '"><td>' + esc( r.name ) +
 						'</td><td>' + r.type +
 						'</td><td><span class="pkg-prov pkg-prov-' + r.provider + '">' + r.provider.toUpperCase() + '</span>' +
+						'</td><td>' + esc( r.source ) +
 						'</td><td>' + ( r.url
 							? '<a href="' + escAttr( r.url ) + '" target="_blank" rel="noopener noreferrer">' + esc( r.ver || '↗' ) + '</a>'
 							: esc( r.ver || '' ) ) + '</td></tr>' )
 					.join( '' );
-				body.innerHTML = '<table><tr><th>package</th><th>type</th><th>provider</th><th>ver</th></tr>' + cells + '</table>' +
+				body.innerHTML = '<table><tr><th>package</th><th>type</th><th>provider</th><th>served from</th><th>ver</th></tr>' + cells + '</table>' +
 					'<p id="package-provenance-note">Dimmed rows are registered but unused on this screen. ' +
 					'Packages compiled inline into an app bundle never appear here. ' +
 					'See <strong>? help</strong> for how the provider is decided.</p>';
