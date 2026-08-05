@@ -64,6 +64,8 @@ export {
 
 export { mockCommentsData } from './comments';
 export { mockSearchTermsData, mockSearchTermsComparisonData } from './search-terms';
+
+export { buildPostContentResponse } from './post-content';
 export { mockSingleVideoData } from './single-video';
 export { mockTagsData } from './tags';
 export { mockTopAuthorsData, mockTopAuthorsComparisonData } from './top-authors';

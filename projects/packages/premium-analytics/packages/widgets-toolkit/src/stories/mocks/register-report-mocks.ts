@@ -69,6 +69,7 @@ import {
 	mockEmailClientBreakdown,
 	mockEmailInternalLinkBreakdown,
 	mockEmailUserContentLinkBreakdown,
+	buildPostContentResponse,
 } from './data';
 import { getMockParamsFromPreset } from './presets';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
@@ -99,6 +100,12 @@ const POST_LIKES_PATH_PATTERN =
 const POST_COMMENTS_PATH_PATTERN =
 	/^\/jetpack-premium-analytics\/v1\/proxy\/v1\.1\/posts\/\d+\/replies(?:\?|$)/;
 const WP_SETTINGS_PATH = '/wp/v2/settings';
+// Core posts endpoint, addressed by ID. The single-post highlight widgets read a
+// reported post's content (title, permalink, publish date, featured image) from
+// core, because Stats report rows carry no featured image. Only the `include=`
+// form is handled here — the Latest post stories mock the unfiltered "newest
+// post" form themselves.
+const WP_POSTS_PATH = '/wp/v2/posts';
 
 const coreSettingsMock = {
 	timezone: 'UTC',
@@ -1009,10 +1016,15 @@ function buildEmailBreakdownResponse( requestPath: string ): unknown {
  * @return The mock response body, or `null` if no specific handler matched.
  */
 function routeStatsReport( subPath: string, requestPath: string ): unknown {
-	// Single-post detail — `stats/post/{id}`. Any post ID resolves to the
-	// shared fixture so post-scoped widgets render real values.
-	if ( subPath.startsWith( '/post/' ) ) {
-		return mockStatsPostData;
+	// Single-post detail — `stats/post/{id}`. Any post ID resolves to the shared
+	// fixture, but the fixture must report the ID that was asked for: widgets
+	// attribute metrics to the current post and skeleton on a mismatch.
+	const statsPost = subPath.match( /^\/post\/(\d+)/ );
+	if ( statsPost ) {
+		return {
+			...mockStatsPostData,
+			post: { ...mockStatsPostData.post, ID: Number( statsPost[ 1 ] ) },
+		};
 	}
 
 	// Single-video detail: `/video/{postId}` (drives video detail widgets).
@@ -1378,6 +1390,16 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 
 	if ( requestPath.startsWith( WP_SETTINGS_PATH ) ) {
 		return coreSettingsMock;
+	}
+
+	if ( requestPath.startsWith( WP_POSTS_PATH ) ) {
+		const includeParam = getQueryParam( requestPath, 'include' );
+
+		if ( includeParam ) {
+			return buildPostContentResponse( includeParam );
+		}
+
+		return next( options );
 	}
 
 	if ( requestPath.startsWith( STATS_FOLLOWERS_PATH ) ) {
