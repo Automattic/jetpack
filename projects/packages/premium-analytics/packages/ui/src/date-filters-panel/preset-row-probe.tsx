@@ -7,12 +7,11 @@ import { memo, useCallback, useLayoutEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
-import type { PresetRowWidths } from '../date-range-layout';
 import './preset-row-probe.scss';
 
 export type PresetRowProbeProps = {
-	/** Pill labels in display order. A preset with no short form reuses its full label. */
-	presets: ReadonlyArray< { id: string; label: string; shortLabel?: string } >;
+	/** Pill labels in display order. */
+	presets: ReadonlyArray< { id: string; label: string } >;
 
 	/**
 	 * The label the real trigger is showing. It shares the group with the pills,
@@ -20,20 +19,21 @@ export type PresetRowProbeProps = {
 	 */
 	customTriggerLabel: string;
 
-	/** Reports both natural widths whenever they change. */
-	onMeasure: ( widths: PresetRowWidths ) => void;
+	/** Reports the row's natural width whenever it changes. */
+	onMeasure: ( width: number ) => void;
 };
 
 /**
- * Measures what the preset row needs at each label length.
+ * Measures what the preset row needs with its labels spelled out.
  *
  * Measured in the DOM rather than computed: the width depends on the font
  * resolved for the locale's script, the button padding tokens, and the group's
  * borders.
  *
- * Renders both forms unconditionally, so its widths never depend on the active
- * mode. Measuring the live row would oscillate instead: shortening the labels
- * shrinks the row, the full labels then look like they fit, and back again.
+ * Renders the full form unconditionally, so the measurement never depends on
+ * the active mode. Measuring the live row would oscillate instead: shortening
+ * the labels shrinks the row, the full labels then look like they fit, and back
+ * again.
  *
  * Exported memoized: the panel re-renders on every step of a resize, and this
  * output only moves when the labels do.
@@ -46,28 +46,25 @@ function PresetRowProbeComponent( {
 	customTriggerLabel,
 	onMeasure,
 }: PresetRowProbeProps ) {
-	const fullRef = useRef< HTMLDivElement >( null );
-	const abbreviatedRef = useRef< HTMLDivElement >( null );
+	const rowRef = useRef< HTMLDivElement >( null );
 
-	// Last reported pair, so identical widths don't push a new object downstream.
-	// A ref rather than state: holding it in state would change `measure`'s
-	// identity on every measurement, re-firing the effect below and costing a
-	// second pair of layout reads to reach the same answer.
-	const reportedRef = useRef< PresetRowWidths | null >( null );
+	// Last reported width, so an identical measurement doesn't push a new value
+	// downstream. A ref rather than state: holding it in state would change
+	// `measure`'s identity on every measurement, re-firing the effect below and
+	// costing a second layout read to reach the same answer.
+	const reportedRef = useRef< number | null >( null );
 
 	const measure = useCallback( () => {
-		const full = fullRef.current?.getBoundingClientRect().width ?? 0;
-		const abbreviated = abbreviatedRef.current?.getBoundingClientRect().width ?? 0;
+		const width = rowRef.current?.getBoundingClientRect().width ?? 0;
 
-		if ( ! full || ! abbreviated ) {
+		if ( ! width ) {
 			return;
 		}
 
 		// Sub-pixel jitter from fractional layout would otherwise churn the mode.
-		const next = { full: Math.ceil( full ), abbreviated: Math.ceil( abbreviated ) };
-		const reported = reportedRef.current;
+		const next = Math.ceil( width );
 
-		if ( reported?.full === next.full && reported?.abbreviated === next.abbreviated ) {
+		if ( reportedRef.current === next ) {
 			return;
 		}
 
@@ -100,41 +97,32 @@ function PresetRowProbeComponent( {
 		};
 	}, [ measure ] );
 
-	const row = ( abbreviated: boolean ) => (
-		<>
-			{ presets.map( preset => (
-				<Button
-					key={ preset.id }
-					className="date-range-quick-presets__pill"
-					variant="minimal"
-					tone="neutral"
-					size="small"
-					tabIndex={ -1 }
-				>
-					{ abbreviated ? preset.shortLabel ?? preset.label : preset.label }
-				</Button>
-			) ) }
-			<Button
-				className="date-filters-panel-button"
-				variant="minimal"
-				tone="neutral"
-				tabIndex={ -1 }
-			>
-				{ /* Mirrors the real trigger's markup so both measure the same box. */ }
-				<span className="date-filters-panel-button__label">{ customTriggerLabel }</span>
-				<Icon className="date-filters-panel-button__caret" icon={ chevronDown } size={ 18 } />
-			</Button>
-		</>
-	);
-
 	return (
 		// @ts-expect-error -- `inert` is valid HTML but missing from this React version's types.
 		<div className="preset-row-probe" aria-hidden="true" inert="">
-			<div className="preset-row-probe__row" ref={ fullRef }>
-				{ row( false ) }
-			</div>
-			<div className="preset-row-probe__row" ref={ abbreviatedRef }>
-				{ row( true ) }
+			<div className="preset-row-probe__row" ref={ rowRef }>
+				{ presets.map( preset => (
+					<Button
+						key={ preset.id }
+						className="date-range-quick-presets__pill"
+						variant="minimal"
+						tone="neutral"
+						size="small"
+						tabIndex={ -1 }
+					>
+						{ preset.label }
+					</Button>
+				) ) }
+				<Button
+					className="date-filters-panel-button"
+					variant="minimal"
+					tone="neutral"
+					tabIndex={ -1 }
+				>
+					{ /* Mirrors the real trigger's markup so both measure the same box. */ }
+					<span className="date-filters-panel-button__label">{ customTriggerLabel }</span>
+					<Icon className="date-filters-panel-button__caret" icon={ chevronDown } size={ 18 } />
+				</Button>
 			</div>
 		</div>
 	);

@@ -13,18 +13,13 @@ import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { BaseControl } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import clsx from 'clsx';
 import { useMemo, useCallback, useState, useEffect } from 'react';
 /**
  * Internal dependencies
  */
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
 import { DateRangeFilter } from '../date-range-filter';
-import {
-	resolvePresetLabelMode,
-	WIDE_CALENDAR_CONTAINER_THRESHOLD,
-	type PresetRowWidths,
-} from '../date-range-layout';
+import { resolvePresetLabelMode, WIDE_CALENDAR_CONTAINER_THRESHOLD } from '../date-range-layout';
 import {
 	getCommittedCustomRange,
 	getCustomTriggerLabel,
@@ -204,9 +199,8 @@ export function DateFiltersPanel( {
 
 	/*
 	 * Single source of truth for the responsive layout: measure the container
-	 * once here and derive both `isCompact` and `isWideScreen`. Children never
-	 * measure — the compact styling cascades from the `is-compact` root class,
-	 * and `isWideScreen` is forwarded only because the calendar needs it.
+	 * once here and derive both `labelMode` and `isWideScreen`. Children never
+	 * measure; both are forwarded to the ones that need them.
 	 */
 	const [ containerWidth, setContainerWidth ] = useState< number | null >( null );
 	const [ rootElement, setRootElement ] = useState< HTMLElement | null >( null );
@@ -289,29 +283,23 @@ export function DateFiltersPanel( {
 	// stale memo here costs nothing.
 	const surfacePresets = useMemo( () => getQuickSurfacePresets( timeZone ), [ timeZone ] );
 
-	const [ rowWidths, setRowWidths ] = useState< PresetRowWidths | null >( null );
-	const handleProbeMeasure = useCallback( ( widths: PresetRowWidths ) => {
-		setRowWidths( widths );
+	const [ fullRowWidth, setFullRowWidth ] = useState< number | null >( null );
+	const handleProbeMeasure = useCallback( ( width: number ) => {
+		setFullRowWidth( width );
 	}, [] );
 
-	// Both candidates come from the probe, so the boundary follows the active
-	// locale rather than a breakpoint picked for English.
+	// The boundary comes from the probe, so it follows the active locale rather
+	// than a breakpoint picked for English.
 	const labelMode = useMemo(
-		() => resolvePresetLabelMode( containerWidth, rowWidths ),
-		[ containerWidth, rowWidths ]
+		() => resolvePresetLabelMode( containerWidth, fullRowWidth ),
+		[ containerWidth, fullRowWidth ]
 	);
 
-	const isCompact = labelMode === 'select';
 	const isWideScreen =
 		containerWidth !== null && containerWidth >= WIDE_CALENDAR_CONTAINER_THRESHOLD;
 
 	return (
-		<Stack
-			ref={ setRootElement }
-			className={ clsx( 'date-filters-panel', { 'is-compact': isCompact } ) }
-			direction={ isCompact ? 'column' : 'row' }
-			gap="sm"
-		>
+		<Stack ref={ setRootElement } className="date-filters-panel" direction="row" gap="sm">
 			<PresetRowProbe
 				presets={ surfacePresets }
 				customTriggerLabel={ customTriggerLabel }

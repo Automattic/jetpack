@@ -5,48 +5,39 @@
  * container against fixed breakpoints: the same row needs 470px in English and
  * 694px in Russian, so any hardcoded boundary is wrong for some language. See
  * WOOA7S-1817 for the measurements.
+ *
+ * The presets always render as pills. A row too narrow even for the
+ * abbreviated form keeps them: collapsing the surface into a select hid the
+ * whole choice behind a menu for the sake of a width that the section header
+ * now answers by stacking.
  */
 export type PresetLabelMode =
 	/** Full labels ("Last 7 days"), while they fit. */
 	| 'full'
-	/** Abbreviated labels ("7D"), while those fit. */
-	| 'abbreviated'
-	/** A select, once even the abbreviated pills do not fit. */
-	| 'select';
-
-/**
- * Natural width of the preset row in each label form, in CSS pixels.
- */
-export type PresetRowWidths = {
-	full: number;
-	abbreviated: number;
-};
+	/** Abbreviated labels ("7D") once they do not. */
+	| 'abbreviated';
 
 /**
  * Longest label form that fits the width available.
  *
- * Falls back to `full` until both measurements are in: it is what the panel
- * showed before any of this existed, and a wrong guess corrects on the next
- * frame. Boundaries are inclusive, so a form that exactly fills the row counts
- * as fitting.
+ * Falls back to `full` until the measurement is in: it is what the panel showed
+ * before any of this existed, and a wrong guess corrects on the next frame. The
+ * boundary is inclusive, so a row that exactly fills the width counts as
+ * fitting.
  *
  * @param availableWidth - Measured width of the panel, or null before first measure.
- * @param rowWidths      - Natural widths from the probe, or null before first measure.
+ * @param fullRowWidth   - Natural width of the row in full labels, or null before first measure.
  * @return The label form to render.
  */
 export function resolvePresetLabelMode(
 	availableWidth: number | null,
-	rowWidths: PresetRowWidths | null
+	fullRowWidth: number | null
 ): PresetLabelMode {
-	if ( availableWidth === null || rowWidths === null ) {
+	if ( availableWidth === null || fullRowWidth === null ) {
 		return 'full';
 	}
 
-	if ( availableWidth >= rowWidths.full ) {
-		return 'full';
-	}
-
-	return availableWidth >= rowWidths.abbreviated ? 'abbreviated' : 'select';
+	return availableWidth >= fullRowWidth ? 'full' : 'abbreviated';
 }
 
 /**
