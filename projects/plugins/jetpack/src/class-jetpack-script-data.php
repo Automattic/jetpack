@@ -73,7 +73,7 @@ class Jetpack_Script_Data {
 	private static function should_skip_photon_domain( $data ) {
 		// Another package may have put the plan in the payload already (see Publicize_Script_Data);
 		// only look it up when it hasn't.
-		$product_slug = isset( $data['site']['plan']['product_slug'] ) ? $data['site']['plan']['product_slug'] : '';
+		$product_slug = $data['site']['plan']['product_slug'] ?? '';
 		if ( '' === $product_slug ) {
 			$jetpack_plan = Jetpack_Plan::get();
 			$product_slug = $jetpack_plan['product_slug'];
