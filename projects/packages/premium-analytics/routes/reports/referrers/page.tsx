@@ -2,17 +2,19 @@
  * External dependencies
  */
 import { normalizeReportParams } from '@jetpack-premium-analytics/data';
-import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
+	ReportCsvAction,
+	useReportCsvExport,
 	useReportRetry,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs } from '@wordpress/admin-ui';
-import { useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
 /**
@@ -71,32 +73,45 @@ function ReferrersReport(): JSX.Element {
 	const records = useReferrersReportRecords( reportParams );
 	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getReferrerFields(), [] );
+	const csvColumns = useMemo< CsvColumn< ReferrerRecord >[] >(
+		() => [
+			{ label: __( 'Referrer', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
+			{
+				label: __( 'Group', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.parentLabel ?? '',
+			},
+			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
+			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
+		],
+		[]
+	);
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport( {
+		rows: records.rows,
+		filenamePrefix: 'referrers',
+		range: reportParams,
+		status: records,
+	} );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dashboardLink = useDashboardLink();
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
-
 	return (
 		<ReportPageShell
+			visual={ <StatsPageIcon /> }
 			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{
-							label: __( 'Stats', 'jetpack-premium-analytics-pkg' ),
-							to: dashboardLink,
-						},
-						{ label: __( 'Referrers', 'jetpack-premium-analytics-pkg' ) },
-					] }
+				<StatsBreadcrumbs
+					items={ [ { label: __( 'Referrers', 'jetpack-premium-analytics-pkg' ) } ] }
 				/>
 			}
+			actions={
+				canExport ? (
+					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
+				) : undefined
+			}
 		>
-			<ReportPageLayout
-				filters={
-					<div ref={ setContainerElement }>
-						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-					</div>
-				}
-			>
+			<ReportPageLayout filters={ <DateFiltersPanel { ...dateFilters } /> }>
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load referrers', 'jetpack-premium-analytics-pkg' ) }

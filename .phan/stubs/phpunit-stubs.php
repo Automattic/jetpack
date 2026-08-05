@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.32
+ * Stubs automatically generated from PHPUnit 12.5.33
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -17665,6 +17665,12 @@ final class HookMethodCollection
     {
     }
     public static function defaultAfterClass(): self
+    {
+    }
+    /**
+     * @param non-empty-string $methodName
+     */
+    public function isDefaultHookMethod(string $methodName): bool
     {
     }
     public function add(\PHPUnit\Runner\HookMethod $hookMethod): self

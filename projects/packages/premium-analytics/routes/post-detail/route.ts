@@ -1,15 +1,16 @@
 /**
  * External dependencies
  */
-import { ensureCoreSettingsReady, normalizeReportParams } from '@jetpack-premium-analytics/data';
-import { store as coreStore } from '@wordpress/core-data';
-import { dispatch, select } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import {
+	ensureCoreSettingsReady,
+	needsReportDateParamsSeed,
+	normalizeReportParams,
+} from '@jetpack-premium-analytics/data';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import { DASHBOARD_REST_NAMESPACE } from '../dashboard/hooks/constants';
+import { ensureDashboardEntities } from '../dashboard-entities';
 import {
 	isPremiumAnalyticsInitialSyncFinished,
 	isPremiumAnalyticsSiteConnected,
@@ -70,7 +71,7 @@ export const route = {
 		const resolvedSection = currentSearch.section
 			? resolveTabId( currentSearch.section )
 			: undefined;
-		const needsDateSeed = ! currentSearch.from || ! currentSearch.to || ! currentSearch.interval;
+		const needsDateSeed = needsReportDateParamsSeed( currentSearch );
 		const needsPostSeed = currentSearch.post_id !== postId;
 		const needsSectionSeed = !! currentSearch.section && resolvedSection !== currentSearch.section;
 
@@ -113,26 +114,6 @@ export const route = {
 			} );
 		}
 
-		const coreSelect = select( coreStore ) as unknown as {
-			getEntityConfig: ( kind: string, name: string ) => unknown;
-		};
-		if ( coreSelect.getEntityConfig( 'root', 'widgetModule' ) ) {
-			return;
-		}
-
-		const coreDispatch = dispatch( coreStore ) as unknown as {
-			addEntities: ( entities: object[] ) => void;
-		};
-		coreDispatch.addEntities( [
-			{
-				name: 'widgetModule',
-				kind: 'root',
-				key: 'name',
-				baseURL: `/${ DASHBOARD_REST_NAMESPACE }/widget-modules`,
-				plural: 'widgetModules',
-				label: __( 'Widget modules', 'jetpack-premium-analytics-pkg' ),
-				supportsPagination: false,
-			},
-		] );
+		ensureDashboardEntities();
 	},
 };

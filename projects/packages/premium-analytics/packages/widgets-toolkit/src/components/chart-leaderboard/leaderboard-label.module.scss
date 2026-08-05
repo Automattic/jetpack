@@ -72,6 +72,15 @@
 	gap: var(--wpds-dimension-gap-xs);
 }
 
+/* Block padding sets the bar height when the label sits on top of the bar, so
+   the 36px floor is dropped. Doubled with the base class to beat it on
+   specificity rather than on stylesheet order. */
+.overlay.row,
+.overlay.rowLink {
+	min-block-size: 0;
+	padding-block: var(--wpds-dimension-padding-md);
+}
+
 .rowLink:hover .label,
 .rowLink:focus .label {
 	text-decoration: underline;

@@ -6,9 +6,9 @@ import {
 	useProductImages,
 	type FilterCondition,
 } from '@jetpack-premium-analytics/data';
+import { Icon } from '@jetpack-premium-analytics/externals';
 import { productBlouse } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
-import { Icon } from '@wordpress/ui';
 import { useMemo } from 'react';
 import { buildLeaderboardRow, LeaderboardChart } from '../../components/chart-leaderboard';
 import { useWidgetRootContext } from '../../components/widget-root';

@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
+import { Button, Icon } from '@jetpack-premium-analytics/externals';
 import { chevronLeft } from '@wordpress/icons';
-import { Button, Icon } from '@wordpress/ui';
 import clsx from 'clsx';
 /**
  * Internal dependencies

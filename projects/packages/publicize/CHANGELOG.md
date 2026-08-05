@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.84.3] - 2026-08-03
+### Changed
+- Surface a visible error when fetching the keyring result fails during a connection, instead of failing silently. [#50822]
+
+### Fixed
+- Load JS translation catalogs and stamp the package text domain on the wp-build dashboard bundle. [#50762]
+- Social Image Generator: Share the current generated image after changing the template. [#50903]
+
 ## [0.84.2] - 2026-07-27
 ### Security
 - REST API: Require the `edit_others_posts` capability to create a shared connection, matching the update check. [#50722]
@@ -1590,6 +1598,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.84.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.2...v0.84.3
 [0.84.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.1...v0.84.2
 [0.84.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.0...v0.84.1
 [0.84.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.5...v0.84.0

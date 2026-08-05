@@ -1,20 +1,26 @@
 /**
  * External dependencies
  */
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import type { SearchTermRow } from './aggregate';
-import type { Field } from '@wordpress/dataviews';
+import type { Field } from '@jetpack-premium-analytics/externals';
+
+const VIEWS_DATA_FORMAT = {
+	type: 'number',
+	options: { decimals: 0, useMultipliers: false },
+} as const;
 
 /**
  * DataViews field config for the Search terms records table.
  *
+ * @param withComparison - Whether to render available period-over-period deltas.
  * @return The field config.
  */
-export function getSearchTermsFields(): Field< SearchTermRow >[] {
+export function getSearchTermsFields( withComparison = false ): Field< SearchTermRow >[] {
 	return [
 		{
 			id: 'term',
@@ -32,7 +38,12 @@ export function getSearchTermsFields(): Field< SearchTermRow >[] {
 			enableSorting: true,
 			getValue: ( { item } ) => item.views,
 			render: ( { item } ) => (
-				<>{ formatMetricValue( item.views, 'number', { decimals: 0, useMultipliers: false } ) }</>
+				<MetricWithComparison
+					value={ item.views }
+					previousValue={ withComparison ? item.previousViews : undefined }
+					dataFormat={ VIEWS_DATA_FORMAT }
+					fontSize="md"
+				/>
 			),
 		},
 	];

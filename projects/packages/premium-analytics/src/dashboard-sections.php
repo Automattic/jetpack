@@ -67,6 +67,20 @@ function is_woocommerce_dashboard_section_available() {
 }
 
 /**
+ * Whether the current user should be shown the WooCommerce dashboard section.
+ *
+ * The sibling is_woocommerce_dashboard_section_available() answers "is
+ * WooCommerce here"; this adds "and may this reader see store data".
+ *
+ * @since 0.1.0
+ *
+ * @return bool
+ */
+function is_woocommerce_dashboard_section_available_to_current_user() {
+	return is_woocommerce_dashboard_section_available() && Capabilities::current_user_can_view_store_reports();
+}
+
+/**
  * Returns the default widget layout for the WooCommerce dashboard section.
  *
  * @return array Array of widget instances.
@@ -108,7 +122,7 @@ function register_default_dashboard_sections() {
 		'woocommerce/store'     => array(
 			'label'          => __( 'Store', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 40,
-			'is_available'   => __NAMESPACE__ . '\\is_woocommerce_dashboard_section_available',
+			'is_available'   => __NAMESPACE__ . '\\is_woocommerce_dashboard_section_available_to_current_user',
 			'default_layout' => __NAMESPACE__ . '\\get_woocommerce_dashboard_section_default_layout',
 		),
 	);
@@ -139,7 +153,7 @@ function bootstrap_dashboard_sections() {
  * @return bool
  */
 function check_dashboard_sections_permission() {
-	return current_user_can( 'manage_options' );
+	return Capabilities::current_user_can_view_analytics();
 }
 
 /**

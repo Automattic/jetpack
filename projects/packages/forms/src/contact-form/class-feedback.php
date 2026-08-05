@@ -1584,7 +1584,29 @@ class Feedback {
 			$fields_to_serialize['country_code'] = null;
 		}
 
-		return addslashes( wp_json_encode( $fields_to_serialize, JSON_UNESCAPED_SLASHES ) );
+		/*
+		 * JSON_HEX_TAG escapes every `<` and `>` as a \u003C / \u003E sequence,
+		 * which is what keeps this payload intact on the way into the database.
+		 * It is load-bearing here, not cosmetic - do not drop it.
+		 *
+		 * This payload is written to `post_content`, and any submitter without
+		 * `unfiltered_html` - every logged-out visitor, and every non-super-admin
+		 * on a multisite - has `wp_filter_post_kses` attached to `content_save_pre`.
+		 * A bare `<` anywhere in the payload (a field label, a submitted value, or
+		 * the source page title) then reads as the start of a tag, and core's
+		 * `wp_pre_kses_less_than()` runs esc_html() over everything from that `<` to
+		 * the end of the string. The quotes inside it become `&quot;`, so
+		 * `json_decode()` can no longer read the payload and the entire response
+		 * comes back empty.
+		 *
+		 * `json_decode()` resolves the escaped sequences natively, so no decode step
+		 * is needed and payloads written before this flag was added still parse.
+		 *
+		 * This deliberately diverges from Jetpack.Functions.JsonEncodeFlags, which
+		 * recommends JSON_UNESCAPED_SLASHES alone for database-field writes. That
+		 * guidance assumes the write is not KSES-filtered; this one is.
+		 */
+		return addslashes( wp_json_encode( $fields_to_serialize, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG ) );
 	}
 
 	/**

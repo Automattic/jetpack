@@ -5,13 +5,13 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 require_once JETPACK__PLUGIN_DIR . 'class-jetpack-stats-dashboard-widget.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/stats.php';
 
 /**
- * Tests for Jetpack::is_premium_analytics_enabled() and the Stats UI it replaces.
+ * Tests for Jetpack::is_premium_analytics_enabled().
  *
  * @covers \Jetpack
  */
@@ -33,6 +33,7 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 	public function tear_down() {
 		delete_option( 'jetpack_premium_analytics_enabled' );
 		self::reset_flag_cache();
+		remove_action( 'jetpack_admin_menu', 'stats_admin_menu' );
 		parent::tear_down();
 	}
 
@@ -185,15 +186,17 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The Stats dashboard widget bows out before any of its own checks run.
+	 * The Stats dashboard widget always carries on to its own visibility check:
+	 * Stats v2 adds a menu rather than replacing the legacy widget, on any site.
 	 */
-	public function test_dashboard_widget_is_skipped_when_enabled() {
+	public function test_dashboard_widget_runs_when_enabled() {
 		update_option( 'jetpack_premium_analytics_enabled', 1 );
 
 		$reached = false;
-		$spy     = function ( $show ) use ( &$reached ) {
+		$spy     = function () use ( &$reached ) {
 			$reached = true;
-			return $show;
+			// Stop here: the rest of wp_dashboard_setup() is not what this test is about.
+			return false;
 		};
 		add_filter( 'jetpack_stats_dashboard_widget_show_to_user', $spy );
 
@@ -203,7 +206,7 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 			remove_filter( 'jetpack_stats_dashboard_widget_show_to_user', $spy );
 		}
 
-		$this->assertFalse( $reached, 'wp_dashboard_setup() should return before filtering widget visibility.' );
+		$this->assertTrue( $reached, 'wp_dashboard_setup() should reach its own visibility check regardless of the flag.' );
 	}
 
 	/**
@@ -228,33 +231,19 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * On WordPress.com Simple the widget never asks about the flag.
+	 * The legacy Stats admin menu stays registered alongside Stats v2 instead of
+	 * being suppressed, on any site.
 	 *
-	 * The jetpack-mu-wpcom package requires this file on its own there, into an environment
-	 * where `Jetpack` is wpcom's class rather than the plugin's — asking would be
-	 * a call to an undefined method, and it takes wp-admin down with it. Nothing
-	 * in this suite can stand in for that class, so what is pinned here is the
-	 * guard: on Simple the widget carries on regardless of the flag.
+	 * Calling stats_load() also registers other hooks (pre_option_db_version,
+	 * the stats_array filter, the upgrade-nudges action) that this test
+	 * doesn't assert on and tear_down() doesn't remove — intentional, since
+	 * this test only cares about the admin menu.
 	 */
-	public function test_dashboard_widget_ignores_the_flag_on_wpcom_simple() {
+	public function test_stats_admin_menu_kept_when_enabled() {
 		update_option( 'jetpack_premium_analytics_enabled', 1 );
-		Constants::set_constant( 'IS_WPCOM', true );
 
-		$reached = false;
-		$spy     = function () use ( &$reached ) {
-			$reached = true;
-			// Stop here: the rest of wp_dashboard_setup() is not what this test is about.
-			return false;
-		};
-		add_filter( 'jetpack_stats_dashboard_widget_show_to_user', $spy );
+		stats_load();
 
-		try {
-			Jetpack_Stats_Dashboard_Widget::wp_dashboard_setup();
-		} finally {
-			remove_filter( 'jetpack_stats_dashboard_widget_show_to_user', $spy );
-			Constants::clear_single_constant( 'IS_WPCOM' );
-		}
-
-		$this->assertTrue( $reached, 'wp_dashboard_setup() should not consult the flag on Simple sites.' );
+		$this->assertNotFalse( has_action( 'jetpack_admin_menu', 'stats_admin_menu' ) );
 	}
 }

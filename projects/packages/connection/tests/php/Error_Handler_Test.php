@@ -370,6 +370,83 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that `check_api_response_for_errors()` captures the WP-API v2 error envelope,
+	 * which uses `code` (rather than the legacy v1 `error` key). This is the shape returned
+	 * by `wpcom/v2` endpoints such as `jetpack-wpcom-user-data`.
+	 */
+	public function test_check_api_response_for_errors_v2_code_envelope() {
+		// Keep the assertion order-independent regardless of the hourly reporting gate.
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_api_response_for_errors(
+			array(
+				'response' => array(
+					'code' => 500,
+				),
+				'body'     => '{"code":"unknown_token","message":"It looks like your Jetpack connection is broken.","data":{"status":403}}',
+			),
+			array( 'token' => 'broken:1:0' ),
+			'https://localhost/',
+			'GET',
+			'rest'
+		);
+
+		$stored_errors   = $this->error_handler->get_stored_errors();
+		$verified_errors = $this->error_handler->get_verified_errors();
+
+		$this->assertArrayHasKey( 'unknown_token', $stored_errors );
+		$this->assertEquals( 'rest', $stored_errors['unknown_token']['0']['error_type'] );
+		$this->assertArrayHasKey( 'unknown_token', $verified_errors );
+		$this->assertEquals( 'rest', $verified_errors['unknown_token']['0']['error_type'] );
+	}
+
+	/**
+	 * Test that a v2 `code` that is not in the `known_errors` allowlist is not stored.
+	 */
+	public function test_check_api_response_for_errors_v2_code_not_in_allowlist() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_api_response_for_errors(
+			array(
+				'response' => array(
+					'code' => 403,
+				),
+				'body'     => '{"code":"rest_forbidden","message":"The user is not a member of this site.","data":{"status":403}}',
+			),
+			array( 'token' => 'broken:1:0' ),
+			'https://localhost/',
+			'GET',
+			'rest'
+		);
+
+		$this->assertEmpty( $this->error_handler->get_stored_errors() );
+		$this->assertEmpty( $this->error_handler->get_verified_errors() );
+	}
+
+	/**
+	 * Test that a 200 response is never inspected for an error body, even if it carries a `code`.
+	 */
+	public function test_check_api_response_for_errors_ignores_200_with_code_body() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_api_response_for_errors(
+			array(
+				'response' => array(
+					'code' => 200,
+				),
+				'body'     => '{"code":"unknown_token","message":"Should be ignored on a 200 response."}',
+			),
+			array( 'token' => 'broken:1:0' ),
+			'https://localhost/',
+			'GET',
+			'rest'
+		);
+
+		$this->assertEmpty( $this->error_handler->get_stored_errors() );
+		$this->assertEmpty( $this->error_handler->get_verified_errors() );
+	}
+
+	/**
 	 * Test storing errors
 	 */
 	public function test_delete_all_api_errors() {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Subscribers: Show your own subscription in the list instead of an empty state when you are the only subscriber, with a prompt pointing at the Add subscribers button.

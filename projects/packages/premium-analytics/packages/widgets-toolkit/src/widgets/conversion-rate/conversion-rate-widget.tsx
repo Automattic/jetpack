@@ -1,11 +1,10 @@
 /**
  * External dependencies
  */
-import { ConversionFunnelChart } from '@automattic/charts';
 import { FilterCondition, useReportConversionRate } from '@jetpack-premium-analytics/data';
+import { ConversionFunnelChart, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { goal } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
-import { Icon, Stack } from '@wordpress/ui';
 import { useMemo } from 'react';
 /**
  * Internal dependencies

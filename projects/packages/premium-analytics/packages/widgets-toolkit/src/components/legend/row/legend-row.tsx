@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Stack } from '@wordpress/ui';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import styles from '../legend.module.scss';
 import type { ReactNode } from 'react';
 

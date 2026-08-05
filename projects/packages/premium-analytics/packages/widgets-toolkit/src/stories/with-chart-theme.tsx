@@ -1,4 +1,4 @@
-import { GlobalChartsProvider } from '@automattic/charts';
+import { GlobalChartsProvider } from '@jetpack-premium-analytics/externals';
 import { useChartTheme } from '../hooks';
 import type { Decorator } from '@storybook/react';
 import type { ReactNode } from 'react';

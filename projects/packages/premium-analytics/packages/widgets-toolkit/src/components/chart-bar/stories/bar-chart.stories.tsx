@@ -1,6 +1,6 @@
 import { withChartTheme } from '../../../stories/with-chart-theme';
 import { BarChart, type BarChartStyle } from '../bar-chart';
-import type { SeriesData } from '@automattic/charts';
+import type { SeriesData } from '@jetpack-premium-analytics/externals';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof BarChart > = {

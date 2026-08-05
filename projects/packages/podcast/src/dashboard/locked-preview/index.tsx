@@ -1,7 +1,6 @@
 // Locked-preview UX for Episodes + Stats on free plans. Renders a blurred,
 // non-language skeleton of the gated content behind a centered upgrade card.
 
-import { getSiteData } from '@automattic/jetpack-script-data';
 import { Button } from '@wordpress/components';
 import { useId } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -20,7 +19,6 @@ const LockedPreview = ( { variant }: LockedPreviewProps ) => {
 	const planName = getUpgradePlanName();
 	const returnUrl = window.location.href;
 	const checkoutUrl = buildUpgradeCheckoutUrl( {
-		siteSlug: getSiteData()?.suffix ?? '',
 		returnUrl,
 		params: { cancel_to: returnUrl },
 	} );

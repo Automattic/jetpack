@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Name the dashboard "Stats" in its header and breadcrumbs, and mark the header with the Jetpack logo.

@@ -3,12 +3,13 @@
  */
 import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Text } from '@jetpack-premium-analytics/externals';
 import {
 	calculateDelta,
 	describeError,
 	getCombinedPeriodMax,
 	LeaderboardChart,
+	LeaderboardPostLabel,
 	ReportLink,
 	WidgetBackLink,
 	WidgetFooter,
@@ -135,13 +136,22 @@ function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInn
 
 		return activeData.map( ( item, index ) => {
 			const previousValue = item.previousValue;
+			const postRow = 'postId' in item ? item : null;
 
 			return {
 				id: `${ index }-${ item.label }`,
-				label: (
-					<Stack align="center" className={ styles.itemLabel }>
+				label: postRow ? (
+					<LeaderboardPostLabel
+						id={ postRow.postId }
+						label={ postRow.label }
+						link={ postRow.href }
+						variant="overlay"
+						className={ styles.itemLabelInset }
+					/>
+				) : (
+					<span className={ styles.itemLabel }>
 						<Text className={ styles.itemLabelText }>{ item.label }</Text>
-					</Stack>
+					</span>
 				),
 				currentValue: item.value,
 				currentShare: sharePercentage( item.value, maxValue ),

@@ -39,6 +39,7 @@ export {
 	type LeaderboardRowChartProps,
 	type LeaderboardRowMedia,
 	type LeaderboardRowProps,
+	type LeaderboardRowVariant,
 } from './chart-leaderboard';
 export { BarChart, type BarChartProps, type BarChartData, type BarChartStyle } from './chart-bar';
 export { ChartEmptyState, type ChartEmptyStateProps } from './chart-empty-state';
@@ -52,6 +53,12 @@ export {
 export { WidgetBackLink, type WidgetBackLinkProps } from './widget-back-link';
 export { WidgetFooter, type WidgetFooterProps } from './widget-footer';
 export { ReportLink, type ReportLinkProps } from './report-link';
+export { PostTitleLink, POST_URL_SEARCH_PARAM, type PostTitleLinkProps } from './post-title-link';
+export {
+	LeaderboardPostLabel,
+	type LeaderboardPostLabelProps,
+	type LeaderboardPostLabelVariant,
+} from './leaderboard-post-label';
 export { VideoTitleLink, type VideoTitleLinkProps } from './video-title-link';
 export {
 	SubscriberList,
@@ -68,6 +75,7 @@ export {
 	ReportPageTabs,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	ReportCsvAction,
 	useReportRetry,
 	buildReportMetricSeries,
 	type ReportChartMetric,
@@ -81,9 +89,9 @@ export {
 	type ReportPageTabsProps,
 	type ReportPerformanceChartProps,
 	type ReportRecordsTableProps,
+	type ReportCsvActionProps,
 } from './report-page';
 export {
-	isCsvExportEnabled,
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,
 	RowsCsvDownloadButton,

@@ -2,15 +2,16 @@
  * External dependencies
  */
 import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
-import { pickReportDateParams, useDashboardLink } from '@jetpack-premium-analytics/routing';
-import { Breadcrumbs, Page } from '@wordpress/admin-ui';
+import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
+import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Link, useParams, useSearch } from '@wordpress/route';
-import { Button, Stack, Text } from '@wordpress/ui';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
-import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 /**
  * Internal dependencies
  */
@@ -18,6 +19,7 @@ import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primi
 // hook's own note), so the video-detail page reuses the dashboard's hook rather
 // than storing a separate copy.
 import { useDashboardGridSettings } from '../dashboard/hooks/use-dashboard-grid-settings';
+import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { VideoSummaryCard } from './components';
 import { VIDEO_DETAIL_LAYOUT } from './config';
 import { useVideoSummary } from './hooks';
@@ -58,9 +60,8 @@ function VideoDetail(): JSX.Element {
 		[]
 	);
 
-	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypes( widgetModules );
+	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
-	const dashboardLink = useDashboardLink();
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const reportSearch = pickReportDateParams( search );
 
@@ -111,19 +112,14 @@ function VideoDetail(): JSX.Element {
 		<WidgetDashboard
 			widgetTypes={ widgetTypes }
 			isResolvingWidgetTypes={ isResolvingWidgetTypes }
+			resolveWidgetModule={ resolveWidgetModuleWithI18n }
 			layout={ VIDEO_DETAIL_LAYOUT }
 			onLayoutChange={ noopLayoutChange }
 			gridSettings={ gridSettings }
 		>
 			<Page
-				breadcrumbs={
-					<Breadcrumbs
-						items={ [
-							{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
-							...( title ? [ { label: title } ] : [] ),
-						] }
-					/>
-				}
+				visual={ <StatsPageIcon /> }
+				breadcrumbs={ <StatsBreadcrumbs items={ title ? [ { label: title } ] : [] } /> }
 				className={ styles.page }
 			>
 				<div className={ styles.scrollArea }>
@@ -134,7 +130,7 @@ function VideoDetail(): JSX.Element {
 					) : null }
 					{ canRenderWidgets ? (
 						<div className={ styles.content }>
-							<WidgetDashboard.Widgets />
+							<WidgetDashboard.Widgets className={ styles.widgets } />
 						</div>
 					) : null }
 				</div>

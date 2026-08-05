@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Newsletter\Tests;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Newsletter\Settings;
 use Automattic\Jetpack\Newsletter\Subscribers_Announcement;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -75,6 +76,122 @@ class Subscribers_Announcement_Test extends BaseTestCase {
 
 		add_filter( Settings::MODERNIZATION_FILTER, '__return_false' );
 		$this->assertFalse( Subscribers_Announcement::is_enabled() );
+	}
+
+	/**
+	 * Sites below the cutoff predate the Subscribers move and must see the page.
+	 */
+	public function test_is_enabled_for_site_below_cutoff() {
+		$this->set_site_id( Subscribers_Announcement::SITE_ID_CUTOFF - 1 );
+
+		$this->assertTrue( Subscribers_Announcement::is_enabled() );
+	}
+
+	/**
+	 * The cutoff is exclusive: a site whose ID equals it must not see the page.
+	 */
+	public function test_is_not_enabled_for_site_at_cutoff() {
+		$this->set_site_id( Subscribers_Announcement::SITE_ID_CUTOFF );
+
+		$this->assertFalse( Subscribers_Announcement::is_enabled() );
+	}
+
+	/**
+	 * Sites above the cutoff only ever saw the current placement.
+	 */
+	public function test_is_not_enabled_for_site_above_cutoff() {
+		$this->set_site_id( Subscribers_Announcement::SITE_ID_CUTOFF + 1000 );
+
+		$this->assertFalse( Subscribers_Announcement::is_enabled() );
+	}
+
+	/**
+	 * Regression test: on a disconnected site there is no site ID to compare.
+	 * The quiet lookup yields null, which must be treated as a newer site —
+	 * comparing the non-quiet WP_Error against an int is a TypeError on PHP 8.
+	 */
+	public function test_is_not_enabled_when_site_id_is_unknown() {
+		\Jetpack_Options::delete_option( 'id' );
+		\Jetpack_Options::delete_option( 'blog_token' );
+		( new Connection_Manager() )->reset_connection_status();
+
+		$this->assertNull(
+			Connection_Manager::get_site_id( true ),
+			'Precondition: a disconnected site must have no known site ID.'
+		);
+		$this->assertFalse( Subscribers_Announcement::is_enabled() );
+	}
+
+	/**
+	 * The menu entry points must honour the same gate as init().
+	 *
+	 * This is the case that matters most: init() and the menu are wired up from
+	 * different places (Settings::init_hooks() vs. the Jetpack plugin's
+	 * subscriptions module / wpcom-admin-menu). If only init() were gated, a
+	 * site above the cutoff would still get a Subscribers menu item, and because
+	 * maybe_load_wp_build() never ran the wp-build render function would be
+	 * undefined — serving the bare render_fallback() page instead.
+	 */
+	public function test_add_menu_registers_nothing_above_cutoff() {
+		$this->set_site_id( Subscribers_Announcement::SITE_ID_CUTOFF );
+
+		Subscribers_Announcement::add_menu();
+
+		$this->assertFalse(
+			has_action(
+				'load-jetpack_page_' . Subscribers_Announcement::PAGE_SLUG,
+				array( Subscribers_Announcement::class, 'on_page_load' )
+			),
+			'add_menu() must not register the announcement page on sites above the cutoff.'
+		);
+	}
+
+	/**
+	 * The wpcom entry point must be gated identically to add_menu().
+	 */
+	public function test_add_wp_admin_submenu_registers_nothing_above_cutoff() {
+		$this->set_site_id( Subscribers_Announcement::SITE_ID_CUTOFF );
+
+		Subscribers_Announcement::add_wp_admin_submenu();
+
+		$this->assertFalse(
+			has_action(
+				'load-jetpack_page_' . Subscribers_Announcement::PAGE_SLUG,
+				array( Subscribers_Announcement::class, 'on_page_load' )
+			),
+			'add_wp_admin_submenu() must not register the announcement page above the cutoff.'
+		);
+	}
+
+	/**
+	 * The handlers must not be registered on a site above the cutoff either.
+	 */
+	public function test_init_registers_nothing_above_cutoff() {
+		$this->set_site_id( Subscribers_Announcement::SITE_ID_CUTOFF );
+
+		Subscribers_Announcement::init();
+
+		$this->assertFalse(
+			has_action(
+				'wp_ajax_' . Subscribers_Announcement::TOGGLE_ACTION,
+				array( Subscribers_Announcement::class, 'handle_toggle_menu' )
+			),
+			'init() must not register the toggle handler above the cutoff.'
+		);
+		$this->assertFalse(
+			has_action( 'admin_menu', array( Subscribers_Announcement::class, 'maybe_load_wp_build' ) ),
+			'init() must not hook the wp-build loader above the cutoff.'
+		);
+	}
+
+	/**
+	 * Store a specific WPCOM site ID and refresh the cached connection status.
+	 *
+	 * @param int $site_id The site ID to store.
+	 */
+	private function set_site_id( $site_id ) {
+		\Jetpack_Options::update_option( 'id', $site_id );
+		( new Connection_Manager() )->reset_connection_status();
 	}
 
 	/**

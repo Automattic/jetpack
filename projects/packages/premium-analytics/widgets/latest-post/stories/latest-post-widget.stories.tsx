@@ -25,6 +25,7 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withStoryRouter } from '../../stories/with-story-router';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import LatestPostRender from '../render';
@@ -171,7 +172,7 @@ type Story = StoryObj< Partial< ComponentProps< typeof LatestPostRender > > >;
  */
 export const Default: Story = {
 	render: renderLatestPost,
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 /**
@@ -182,7 +183,7 @@ export const Loading: Story = {
 	render: () => renderLatestPostOnPreset( 'last-90-days' ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => forceLatestPostState( 'loading' ),
 };
 
@@ -194,7 +195,7 @@ export const Loading: Story = {
 export const Error: Story = {
 	render: () => renderLatestPostOnPreset( 'last-7-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => forceLatestPostState( 'error' ),
 };
 
@@ -205,7 +206,7 @@ export const Error: Story = {
 export const Empty: Story = {
 	render: () => renderLatestPostOnPreset( 'last-365-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => forceLatestPostState( 'empty' ),
 };
 

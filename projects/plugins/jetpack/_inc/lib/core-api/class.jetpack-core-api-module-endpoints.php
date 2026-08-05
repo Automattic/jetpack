@@ -821,6 +821,15 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						: true;
 					break;
 
+				case Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION:
+					Jetpack_SEO_Utils::update_front_page_meta_description( $value );
+					$response[ $option ] = Jetpack_SEO_Utils::get_front_page_meta_description();
+					// The helper returns an empty string for a successful clear or
+					// same-value write, so use its authoritative getter for the response
+					// and treat every valid request reaching this switch as handled.
+					$updated = true;
+					break;
+
 				case 'sharing_services':
 					if ( ! class_exists( 'Sharing_Service' ) && ! include_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) {
 						break;

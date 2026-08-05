@@ -71,6 +71,18 @@ class Subscribers_Announcement {
 	const GO_ACTION = 'jetpack_subscribers_announcement_go_to_newsletter';
 
 	/**
+	 * Site ID cutoff for displaying the Subscribers announcement page.
+	 *
+	 * Sites with an ID *below* this value registered before Subscribers moved
+	 * out of its old placement, so they need the transitional announcement.
+	 * Sites at or above it only ever saw the current placement. The bound is
+	 * exclusive: a site whose ID equals this value does not see the page.
+	 *
+	 * @var int
+	 */
+	const SITE_ID_CUTOFF = 256340000;
+
+	/**
 	 * Register request handlers and the wp-build loader.
 	 *
 	 * Called from Settings::init_hooks() so the AJAX/admin-post handlers exist
@@ -80,6 +92,10 @@ class Subscribers_Announcement {
 	 * @return void
 	 */
 	public static function init() {
+		if ( ! self::is_enabled() ) {
+			return;
+		}
+
 		add_action( 'wp_ajax_' . self::TOGGLE_ACTION, array( __CLASS__, 'handle_toggle_menu' ) );
 		add_action( 'admin_post_' . self::GO_ACTION, array( __CLASS__, 'handle_go_to_newsletter' ) );
 
@@ -92,17 +108,29 @@ class Subscribers_Announcement {
 	/**
 	 * Whether the announcement page feature is active.
 	 *
+	 * This is the single gate for the whole feature: `init()` (handlers and the
+	 * wp-build loader), `maybe_load_wp_build()`, and both menu-registration
+	 * entry points consult it. They must agree — if the menu were registered
+	 * while this returned false, maybe_load_wp_build() would bail, the wp-build
+	 * render function would never be defined, and add_menu() would serve the
+	 * bare render_fallback() page instead of the styled announcement app.
+	 *
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		// The default must match the menu-registration call sites
-		// (subscriptions.php, wpcom-admin-menu.php) and Settings::is_modernized(),
-		// which all default to `true`. If this defaulted to `false` while the menu
-		// is registered, maybe_load_wp_build() would bail, the wp-build render
-		// function would never be defined, and add_menu() would serve the bare
-		// render_fallback() page instead of the styled announcement app.
 		/** This filter is documented in projects/packages/newsletter/src/class-settings.php */
-		return (bool) apply_filters( Settings::MODERNIZATION_FILTER, true );
+		if ( ! apply_filters( Settings::MODERNIZATION_FILTER, true ) ) {
+			return false;
+		}
+
+		// Only sites predating the Subscribers move have anything to be told
+		// about. Use the quiet lookup: it returns null rather than a WP_Error
+		// when the site has no known ID, and comparing a WP_Error against an
+		// int is a TypeError on PHP 8. A site with no known ID (disconnected)
+		// is treated as newer and does not see the page.
+		$site_id = Connection_Manager::get_site_id( true );
+
+		return $site_id !== null && $site_id < self::SITE_ID_CUTOFF;
 	}
 
 	/**
@@ -169,6 +197,10 @@ class Subscribers_Announcement {
 	 * @return void
 	 */
 	public static function add_menu() {
+		if ( ! self::is_enabled() ) {
+			return;
+		}
+
 		$callback = function_exists( 'jetpack_newsletter_jetpack_subscribers_announcement_wp_admin_render_page' )
 			? 'jetpack_newsletter_jetpack_subscribers_announcement_wp_admin_render_page'
 			: array( __CLASS__, 'render_fallback' );
@@ -216,6 +248,10 @@ class Subscribers_Announcement {
 	 * @return void
 	 */
 	public static function add_wp_admin_submenu() {
+		if ( ! self::is_enabled() ) {
+			return;
+		}
+
 		$callback = function_exists( 'jetpack_newsletter_jetpack_subscribers_announcement_wp_admin_render_page' )
 			? 'jetpack_newsletter_jetpack_subscribers_announcement_wp_admin_render_page'
 			: array( __CLASS__, 'render_fallback' );

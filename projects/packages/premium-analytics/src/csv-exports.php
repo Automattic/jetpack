@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 /**
- * Filter controlling whether experimental CSV export controls are shown.
+ * Filter controlling whether CSV export controls are shown.
  *
  * @var string
  */
@@ -35,15 +35,13 @@ function inject_csv_exports_script_data( array $data ): array {
 	}
 
 	/**
-	 * Filters whether Premium Analytics widgets should show experimental CSV
-	 * export controls.
+	 * Filters whether Premium Analytics should show CSV export controls.
 	 *
-	 * The default is off so the proof-of-concept UI stays opt-in while
-	 * reviewers test and iterate on the placement/design.
+	 * CSV exports are enabled by default. Return false to disable them.
 	 *
 	 * @param bool $enabled Whether to show CSV export controls.
 	 */
-	$data['premium_analytics']['csv_exports_enabled'] = (bool) apply_filters( CSV_EXPORTS_ENABLED_FILTER, false );
+	$data['premium_analytics']['csv_exports_enabled'] = (bool) apply_filters( CSV_EXPORTS_ENABLED_FILTER, true );
 
 	return $data;
 }

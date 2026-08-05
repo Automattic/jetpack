@@ -10,7 +10,6 @@
 namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Modules;
-use Jetpack_SEO_Titles;
 use Jetpack_SEO_Utils;
 
 /**
@@ -159,8 +158,15 @@ class Dashboard_Data {
 	public static function get_settings_data() {
 		$modules = new Modules();
 
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Titles lives in plugins/jetpack and is guarded by class_exists.
-		$title_formats = class_exists( 'Jetpack_SEO_Titles' ) ? Jetpack_SEO_Titles::get_custom_title_formats() : array();
+		// Read the stored values directly: Jetpack_SEO_Titles::get_custom_title_formats()
+		// intentionally hides them while another SEO plugin controls output, but the
+		// dashboard must still show the saved values without allowing edits.
+		$title_formats = get_option( 'advanced_seo_title_formats', array() );
+		if ( ! is_array( $title_formats ) ) {
+			$title_formats = array();
+		}
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack and is guarded by class_exists.
+		$title_formats_editable = class_exists( 'Jetpack_SEO_Utils' ) && Jetpack_SEO_Utils::is_enabled_jetpack_seo();
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack and is guarded by class_exists.
 		$front_page_desc = class_exists( 'Jetpack_SEO_Utils' ) ? Jetpack_SEO_Utils::get_front_page_meta_description() : '';
 
@@ -192,8 +198,15 @@ class Dashboard_Data {
 			'canonical_active'           => self::is_canonical_enabled( $modules ),
 			// Cast to object so an empty format set serializes as `{}`, not `[]`.
 			'title_formats'              => (object) $title_formats,
+			// Separator WordPress joins default document-title parts with. A page type
+			// with no stored format keeps the default title: `get_custom_title()` returns
+			// the incoming value untouched, so core composes the title itself and the
+			// Settings tab replays that composition to preview it.
+			'title_separator'            => self::get_default_title_separator(),
+			'title_formats_editable'     => $title_formats_editable,
 			'front_page_description'     => (string) $front_page_desc,
 			'has_legacy_front_page_meta' => $has_legacy_front_page_meta,
+			'verification_tools_active'  => $modules->is_active( 'verification-tools' ),
 			'verification'               => array(
 				'google'    => isset( $codes['google'] ) ? (string) $codes['google'] : '',
 				'bing'      => isset( $codes['bing'] ) ? (string) $codes['bing'] : '',
@@ -299,13 +312,19 @@ class Dashboard_Data {
 
 		$logo_id  = (int) get_theme_mod( 'custom_logo' );
 		$logo_url = $logo_id ? (string) wp_get_attachment_image_url( $logo_id, 'full' ) : '';
+		if ( class_exists( 'Jetpack_Redux_State_Helper' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_Redux_State_Helper lives in plugins/jetpack and is guarded by class_exists.
+			$image_url = (string) \Jetpack_Redux_State_Helper::get_site_image();
+		} else {
+			$image_url = $logo_url ? $logo_url : $icon_url;
+		}
 
 		return array(
 			'title'   => (string) get_bloginfo( 'name' ),
 			'tagline' => (string) get_bloginfo( 'description' ),
 			'url'     => (string) home_url(),
 			'icon'    => $icon_url,
-			'image'   => $logo_url ? $logo_url : $icon_url,
+			'image'   => $image_url,
 		);
 	}
 
@@ -355,6 +374,38 @@ class Dashboard_Data {
 		}
 
 		return (bool) $enabled;
+	}
+
+	/**
+	 * The separator, as rendered, that WordPress joins default document-title parts
+	 * with — for previewing the title a page type with no stored format produces.
+	 *
+	 * `document_title_separator` alone is not what a visitor sees. `wp_get_document_title()`
+	 * composes the parts, then passes the whole title through the `document_title`
+	 * filter, which WordPress texturizes by default — turning the default spaced
+	 * hyphen into an en dash. Previewing the raw filter value would show `-` on a site
+	 * that renders `–`, which is every site running core's defaults.
+	 *
+	 * This applies only to the default title. A stored format short-circuits
+	 * `pre_get_document_title`, which returns before the `document_title` filter, so a
+	 * custom format keeps the separator the user typed verbatim — the front end renders
+	 * `Site - MARKER - Page` for a custom format while producing `Page – Site` for the
+	 * default one.
+	 *
+	 * @return string The rendered separator.
+	 */
+	private static function get_default_title_separator() {
+		$separator = (string) apply_filters( 'document_title_separator', '-' );
+
+		// Only texturize when the title itself would be: a site that unhooks
+		// `wptexturize` renders the raw separator, and the preview should match.
+		if ( has_filter( 'document_title', 'wptexturize' ) ) {
+			$separator = trim(
+				html_entity_decode( wptexturize( ' ' . $separator . ' ' ), ENT_QUOTES, 'UTF-8' )
+			);
+		}
+
+		return $separator;
 	}
 
 	/**

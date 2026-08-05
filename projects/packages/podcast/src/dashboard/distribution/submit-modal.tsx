@@ -244,7 +244,7 @@ const SubmitModal = ( { app, feedUrl, onClose, onFirstSave }: PodcastAppModalPro
 									app.name
 							  )
 							: __(
-									'Set your podcast category in the Settings tab to generate your RSS feed URL.',
+									'Set your post category in the Settings tab to generate your RSS feed URL.',
 									'jetpack-podcast'
 							  ) }
 					</Text>

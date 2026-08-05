@@ -117,6 +117,41 @@ An explicit drill-down `ariaLabel` replaces the accessible name otherwise comput
 the media alt text and visible label, which can cause a screen reader to announce the label
 twice.
 
+For a post, page, or email with a detail page inside the dashboard, use the `postLink` action.
+`PostTitleLink` chooses the destination: the internal detail route when the row carries a post
+ID, the public URL when it does not, and plain text when neither is usable.
+
+```tsx
+const row = {
+	id: 'post-41',
+	...buildLeaderboardRow( {
+		label: 'Hello world',
+		media: { kind: 'none' },
+		action: {
+			kind: 'postLink',
+			id: 41,
+			href: 'https://example.com/hello-world/',
+			search: { from: '2026-03-01', to: '2026-03-10' },
+		},
+	} ),
+	currentValue: 100,
+	currentShare: 100,
+};
+```
+
+A `postLink` row carries no media, and never becomes a chart button: a chart row that is a
+button cannot nest an anchor.
+
+Inside a widget, use `LeaderboardPostLabel` instead of building the action by hand. It reads the
+report window from `WidgetRootContext` and passes it as `search`, so the detail page opens on
+the range the row was read against:
+
+```tsx
+<LeaderboardPostLabel id={ row.postId } label={ row.label } link={ row.link } />
+```
+
+Pass `section` to open a named tab on the detail page, such as `email-opens`.
+
 `LeaderboardRowMedia` provides five semantic media variants. The variant owns its size,
 fallback, and default alt-text policy:
 
@@ -134,6 +169,21 @@ childless rows, and static content otherwise.
 
 Use `LeaderboardLabel` directly for media plus truncating text outside chart rows, such as a
 DataViews table cell. It deliberately does not add the chart row's 36px minimum block size.
+
+### Row layout
+
+`LeaderboardRow` takes two optional layout props. `LeaderboardPostLabel` accepts both and
+forwards them.
+
+| Prop        | Default     | Description                                                                                                 |
+| ----------- | ----------- | ----------------------------------------------------------------------------------------------------------- |
+| `variant`   | `'compact'` | `'compact'` is the standard 36px row. `'overlay'` drops that floor and takes its height from block padding. |
+| `className` | -           | Extra class on the row, for per-widget spacing.                                                             |
+
+Pick `variant` to match the sibling rows in the same widget, not the chart's `withOverlayLabel`
+prop. That prop only tints the bar fill; it sets no row height. Use `'overlay'` where the
+neighbouring rows also take their height from block padding, and `'compact'` where they come
+from `buildLeaderboardRow`.
 
 ## Props
 

@@ -12,7 +12,7 @@ import {
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { percent } from '@wordpress/icons';
-import { Link, Stack, Text } from '@wordpress/ui';
+import { Link, Stack, Text } from '@jetpack-premium-analytics/externals';
 import clsx from 'clsx';
 /**
  * Internal dependencies

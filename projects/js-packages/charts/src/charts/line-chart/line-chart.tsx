@@ -179,6 +179,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			onPointerMove = undefined,
 			onPointerOut = undefined,
 			zoomable = false,
+			rescaleYOnVisibilityChange = true,
 			children,
 			gridVisibility,
 			gap = 'md',
@@ -186,6 +187,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		ref
 	) => {
 		const legendInteractive = legend.interactive ?? false;
+		const legendCollapseGroups = legend.collapseGroups ?? false;
 		const legendShape = legend.shape ?? 'line';
 		const legendPosition = legend.position ?? 'bottom';
 
@@ -252,6 +254,28 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			return seriesWithVisibility.every( ( { isVisible } ) => ! isVisible );
 		}, [ seriesWithVisibility ] );
 
+		// When the interactive legend can hide series and rescaling is opted out, pin the value axis
+		// to the full data range so it stays put as series are toggled instead of visx rescaling the
+		// domain to whatever is currently visible and making the axis jump. Default is to rescale,
+		// matching the pre-existing behaviour and AreaChart's `rescaleYOnVisibilityChange`.
+		const stableYDomain = useMemo< [ number, number ] | undefined >( () => {
+			if ( ! legendInteractive || rescaleYOnVisibilityChange ) {
+				return undefined;
+			}
+			let min = Infinity;
+			let max = -Infinity;
+			for ( const series of dataSorted ) {
+				for ( const point of series.data ?? [] ) {
+					const value = point?.value;
+					if ( typeof value === 'number' && Number.isFinite( value ) ) {
+						min = Math.min( min, value );
+						max = Math.max( max, value );
+					}
+				}
+			}
+			return min < max ? [ min, max ] : undefined;
+		}, [ legendInteractive, rescaleYOnVisibilityChange, dataSorted ] );
+
 		// Use the keyboard navigation hook
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
 			selectedIndex,
@@ -263,7 +287,8 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		} );
 
 		const chartOptions = useMemo( () => {
-			const formatter = options?.axis?.x?.tickFormat || getFormatter( dataSorted );
+			const { tickResolution, ...xAxisOptions } = options?.axis?.x ?? {};
+			const formatter = xAxisOptions.tickFormat || getFormatter( dataSorted, tickResolution );
 
 			return {
 				axis: {
@@ -272,7 +297,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 						numTicks: guessOptimalNumTicks( dataSorted, width, formatter ),
 						tickFormat: formatter,
 						display: true,
-						...options?.axis?.x,
+						...xAxisOptions,
 					},
 					y: {
 						orientation: 'left' as const,
@@ -291,10 +316,11 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 					type: 'linear' as const,
 					nice: true,
 					zero: false,
+					...( stableYDomain ? { domain: stableYDomain } : {} ),
 					...options?.yScale,
 				},
 			};
-		}, [ options, dataSorted, width, zoom.domain ] );
+		}, [ options, dataSorted, width, zoom.domain, stableYDomain ] );
 
 		const tooltipRenderGlyph = useMemo( () => {
 			return ( props: GlyphProps< DataPointDate > ) => {
@@ -328,9 +354,10 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			() => ( {
 				withGlyph: withLegendGlyph,
 				glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
+				collapseGroups: legendCollapseGroups,
 				renderGlyph,
 			} ),
-			[ withLegendGlyph, glyphStyle?.radius, renderGlyph ]
+			[ withLegendGlyph, glyphStyle?.radius, legendCollapseGroups, renderGlyph ]
 		);
 
 		// Create legend items using the reusable hook
@@ -444,9 +471,18 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 											onPointerOut={ onPointerOut }
 											pointerEventsDataKey="nearest"
 										>
-											{ gridVisibility !== 'none' && <Grid columns={ false } numTicks={ 4 } /> }
-											{ chartOptions.axis.x.display && <Axis { ...chartOptions.axis.x } /> }
-											{ chartOptions.axis.y.display && <Axis { ...chartOptions.axis.y } /> }
+											{ /* With every series hidden there is no data to scale against, so the grid and
+											     axes are dropped while the empty state stands in — otherwise they render
+											     squished at the top. */ }
+											{ ! allSeriesHidden && gridVisibility !== 'none' && (
+												<Grid columns={ false } numTicks={ 4 } />
+											) }
+											{ ! allSeriesHidden && chartOptions.axis.x.display && (
+												<Axis { ...chartOptions.axis.x } />
+											) }
+											{ ! allSeriesHidden && chartOptions.axis.y.display && (
+												<Axis { ...chartOptions.axis.y } />
+											) }
 
 											{ allSeriesHidden ? (
 												<SvgEmptyState

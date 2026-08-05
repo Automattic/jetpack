@@ -19,7 +19,7 @@ class Agents_Manager {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.8.4';
+	const PACKAGE_VERSION = '0.9.0';
 
 	/**
 	 * Help Center URL for disconnected variants.
@@ -361,6 +361,10 @@ class Agents_Manager {
 	 * @return string|null The variant name, or null if scripts should not be loaded.
 	 */
 	public static function get_active_variant() {
+		if ( self::is_plugin_information_iframe() ) {
+			return null;
+		}
+
 		/**
 		 * Filter the script variant the Agents Manager loads for this request.
 		 *
@@ -369,6 +373,25 @@ class Agents_Manager {
 		 * @param string|null $variant The resolved variant, or null to not load.
 		 */
 		return apply_filters( 'agents_manager_variant', self::get_variant() );
+	}
+
+	/**
+	 * Whether the current request renders the plugin information iframe.
+	 *
+	 * The parent plugin screen may load Agents Manager, but the iframe must not
+	 * bootstrap a second copy of the app.
+	 *
+	 * @return bool
+	 */
+	private static function is_plugin_information_iframe() {
+		global $current_screen;
+
+		if ( ! $current_screen || 'plugin-install' !== $current_screen->id ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a request context check, not a form submission.
+		return isset( $_GET['tab'] ) && 'plugin-information' === sanitize_text_field( wp_unslash( $_GET['tab'] ) );
 	}
 
 	/**
@@ -932,17 +955,26 @@ class Agents_Manager {
 	/**
 	 * Returns true when Gutenberg's "admin bar in editor" (omnibar) experiment is active.
 	 *
-	 * Mirrors Gutenberg core's gate in `lib/experimental/admin-bar-in-editor/load.php`, and fails
-	 * safe when `gutenberg_is_experiment_enabled()` is unavailable.
+	 * Mirrors Gutenberg core's gate in `lib/experimental/omnibar/load.php`, and returns false when
+	 * `gutenberg_is_experiment_enabled()` is unavailable. Gutenberg 23.5 renamed the experiment
+	 * slug from `gutenberg-admin-bar-in-editor` to `gutenberg-omnibar`; both are checked since
+	 * pre-rename builds are still deployed (e.g. wpcom's bundled gutenberg-core).
 	 *
 	 * @return bool
 	 */
 	private static function is_admin_bar_in_editor() {
-		return self::is_block_editor()
-			&& is_admin_bar_showing()
-			&& function_exists( 'gutenberg_is_experiment_enabled' )
+		if (
+			! self::is_block_editor()
+			|| ! is_admin_bar_showing()
+			|| ! function_exists( 'gutenberg_is_experiment_enabled' )
+		) {
+			return false;
+		}
+
+		// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by function_exists() above.
+		return \gutenberg_is_experiment_enabled( 'gutenberg-omnibar' )
 			// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by function_exists() above.
-			&& \gutenberg_is_experiment_enabled( 'gutenberg-admin-bar-in-editor' );
+			|| \gutenberg_is_experiment_enabled( 'gutenberg-admin-bar-in-editor' );
 	}
 
 	/**

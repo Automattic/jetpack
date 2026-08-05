@@ -56,8 +56,14 @@ class SearchResults extends Component {
 			this.props.staticFilters.group_id &&
 			this.props.staticFilters.group_id !== MULTISITE_NO_GROUP_VALUE;
 
-		if ( this.props.isLoading ) {
-			if ( ! hasQuery ) {
+		// Distinguishes "no search has completed yet" (init state `{}`) from a
+		// completed search; `requestId` covers responses that omit `total`.
+		const hasCompletedSearch =
+			'requestId' in this.props.response || 'total' in this.props.response || this.props.hasError;
+
+		if ( this.props.isLoading || this.props.isQueryPending || ! hasCompletedSearch ) {
+			// searchQuery is null (not '') before the query string initializes.
+			if ( ! this.props.searchQuery ) {
 				return __( 'Loading popular results…', 'jetpack-search-pkg' );
 			}
 

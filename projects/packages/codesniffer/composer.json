@@ -17,7 +17,7 @@
 		"mediawiki/mediawiki-codesniffer": "^51.0",
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
 		"sirbrillig/phpcs-variable-analysis": "^2.10",
-		"wp-coding-standards/wpcs": ">=3.0.0 <3.4.1",
+		"wp-coding-standards/wpcs": "<3.4.2",
 		"automattic/vipwpcs": "^3.0",
 		"phpcsstandards/phpcsutils": "^1.0"
 	},

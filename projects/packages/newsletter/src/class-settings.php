@@ -21,7 +21,7 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.12.2';
+	const PACKAGE_VERSION = '0.12.3';
 
 	const ADMIN_PAGE_SLUG = 'jetpack-newsletter';
 
@@ -88,6 +88,9 @@ class Settings {
 		// and wp-build loading here so they exist on admin-ajax.php and
 		// admin-post.php requests. The menu itself is added by the Jetpack
 		// plugin's subscriptions module, which owns the Subscribers placement.
+		// init() self-gates on Subscribers_Announcement::is_enabled(), which is
+		// also what the menu-registration entry points consult, so the handlers
+		// and the menu can never disagree about whether the feature is on.
 		Subscribers_Announcement::init();
 
 		// Add the Reading settings notice as long as subscriptions are active.

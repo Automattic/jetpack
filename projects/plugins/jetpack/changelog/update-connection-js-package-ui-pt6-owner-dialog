@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Owner disconnect dialog: own its styles under a local class namespace instead of borrowing the connection package's disconnect-dialog CSS.

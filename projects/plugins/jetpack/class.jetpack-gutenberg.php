@@ -21,6 +21,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+// Required directly so the AI master-gate helper is available regardless of
+// which loader pulled this class in.
+require_once __DIR__ . '/_inc/lib/class-jetpack-ai-settings.php';
+
 /**
  * General Gutenberg editor specific functionality
  */
@@ -846,7 +850,7 @@ class Jetpack_Gutenberg {
 		}
 		// AI Assistant
 		$ai_assistant_state = array(
-			'is-enabled' => apply_filters( 'jetpack_ai_enabled', true ),
+			'is-enabled' => Jetpack_AI_Settings::is_ai_enabled(),
 		);
 
 		$screen_base = null;
@@ -875,6 +879,13 @@ class Jetpack_Gutenberg {
 				'is_coming_soon'                => $status->is_coming_soon(),
 				'is_offline_mode'               => $status->is_offline_mode(),
 				'is_newsletter_feature_enabled' => class_exists( '\Jetpack_Memberships' ),
+				// Whether the current user may send a newsletter test email to an
+				// address other than their own. The wpcom guard enforces this on send
+				// (also checking add_users and site stickers); this flag only controls
+				// whether the editor's recipient field is editable. Approximated with
+				// manage_options so editors, who can only test-send to themselves,
+				// aren't shown an editable field that would always be rejected.
+				'can_send_test_email_to_others' => current_user_can( 'manage_options' ),
 				// this is the equivalent of JP initial state siteData.showMyJetpack (class-jetpack-redux-state-helper)
 				// used to determine if we can link to My Jetpack from the block editor
 				'is_my_jetpack_available'       => My_Jetpack_Initializer::should_initialize(),

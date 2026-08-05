@@ -1,6 +1,6 @@
 {
 	"name": "jpa/videopress",
-	"title": "VideoPress",
+	"title": "Top videos",
 	"description": "Your most played VideoPress videos, sourced from Jetpack Stats.",
 	"help": {
 		"content": "The published videos your visitors watched most often, sorted by views.",
