@@ -86,6 +86,43 @@ class Wpcom_Core_Query_Block_Patterns_Test extends TestCase {
 	}
 
 	/**
+	 * Guards the hardcoded allowlist against drifting from core.
+	 *
+	 * Derives the expected set from this WordPress copy itself: the `query-*`
+	 * slugs core lists in wp-includes/block-patterns.php, narrowed to the ones
+	 * with a `core/query` root block. Fails when a WordPress update adds,
+	 * renames, delists, or removes a bundled query pattern, so a human can
+	 * update (or deliberately not update) the allowlist.
+	 */
+	public function test_allowlist_stays_in_sync_with_core() {
+		$core_registration_source = file_get_contents( ABSPATH . WPINC . '/block-patterns.php' );
+		preg_match_all( "/'(query-[\w-]+)'/", $core_registration_source, $matches );
+
+		$expected = array();
+		foreach ( array_unique( $matches[1] ) as $slug ) {
+			$file = ABSPATH . WPINC . '/block-patterns/' . $slug . '.php';
+			if ( ! file_exists( $file ) ) {
+				continue;
+			}
+			$pattern = require $file;
+			if ( is_array( $pattern ) && str_starts_with( trim( $pattern['content'] ?? '' ), '<!-- wp:query ' ) ) {
+				$expected[] = 'core/' . $slug;
+			}
+		}
+		sort( $expected );
+
+		wpcom_register_core_query_block_patterns();
+		$registered = $this->get_registered_core_query_pattern_names();
+		sort( $registered );
+
+		$this->assertSame(
+			$expected,
+			$registered,
+			'The query patterns bundled and registered by core changed. Update the allowlist in wpcom_register_core_query_block_patterns(), or exclude the new pattern here if it should not be offered.'
+		);
+	}
+
+	/**
 	 * Returns the names of all registered `core/query-*` patterns.
 	 *
 	 * @return string[]
