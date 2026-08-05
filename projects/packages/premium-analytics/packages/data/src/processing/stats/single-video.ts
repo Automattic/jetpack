@@ -1,5 +1,10 @@
 import { safeParseFloat } from '../../utils/parsing';
-import { coerceStatsArray, coerceStatsRecord, isStatsRecord } from './utils';
+import {
+	coerceStatsArray,
+	coerceStatsRecord,
+	isStatsNumericSummaryValue,
+	isStatsRecord,
+} from './utils';
 
 export type StatsSingleVideoDataPoint = {
 	period: string;
@@ -76,13 +81,14 @@ export function sanitizeStatsSingleVideoResponse( response: unknown ): StatsSing
 	const metrics = fields.length >= 2 && Array.isArray( payload.data ) ? fields.slice( 1 ) : null;
 
 	// Range queries also return canonical totals over the window, keyed by
-	// metric name.
+	// metric name. A non-numeric cell is unknown, not a measured zero — drop it
+	// (same guard as `normalizeStatsSummary`) so consumers see the metric as
+	// missing instead of a fabricated 0.
 	const total = isStatsRecord( payload.total )
 		? Object.fromEntries(
-				Object.entries( payload.total ).map( ( [ metric, value ] ) => [
-					metric,
-					safeParseFloat( value ),
-				] )
+				Object.entries( payload.total )
+					.filter( ( [ , value ] ) => isStatsNumericSummaryValue( value ) )
+					.map( ( [ metric, value ] ) => [ metric, safeParseFloat( value ) ] )
 		  )
 		: null;
 

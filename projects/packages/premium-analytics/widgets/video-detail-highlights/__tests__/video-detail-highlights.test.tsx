@@ -33,12 +33,14 @@ const ALL_METRICS_RESPONSE = {
 	total: { plays: 128, impressions: 456, watch_time: 18.9, retention_rate: 67.6 },
 };
 
-// The WPCOM pass-through error envelope, with the status attached the way the
-// fetch layer attaches it.
-const MOCK_API_ERROR = {
-	error: 'unauthorized',
-	message: 'Mocked error response.',
+// A 403 skips React Query's retry backoff so the error surfaces immediately;
+// the `no_connection` code keeps `describeError` on the retryable branch (a
+// broken Jetpack connection can heal), while a plain 403 maps to the
+// permission copy without a Retry action.
+const MOCK_RETRYABLE_ERROR = {
 	status: 403,
+	code: 'no_connection',
+	message: 'Forbidden',
 };
 
 function renderWidget( postId?: number, withComparison = false ) {
@@ -143,7 +145,7 @@ describe( 'VideoDetailHighlightsWidget', () => {
 	} );
 
 	it( 'renders an error state with a Retry action', async () => {
-		mockApiFetch.mockRejectedValue( MOCK_API_ERROR );
+		mockApiFetch.mockRejectedValue( MOCK_RETRYABLE_ERROR );
 		renderWidget( 105 );
 
 		await expect( screen.findByRole( 'alert' ) ).resolves.toHaveTextContent(
@@ -156,5 +158,18 @@ describe( 'VideoDetailHighlightsWidget', () => {
 
 		await expect( screen.findByText( '456' ) ).resolves.toBeInTheDocument();
 		expect( mockApiFetch.mock.calls.length ).toBeGreaterThan( requestsBeforeRetry );
+	} );
+
+	it( 'shows the permission error without a Retry action on a plain 403', async () => {
+		// Both video-detail cards share one cache entry, so this must match the
+		// Views performance card's no-access state instead of offering a Retry
+		// that can never succeed.
+		mockApiFetch.mockRejectedValue( { status: 403, message: 'Forbidden' } );
+		renderWidget( 105 );
+
+		await expect(
+			screen.findByText( "You don't have access to this data." )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /retry/i } ) ).not.toBeInTheDocument();
 	} );
 } );

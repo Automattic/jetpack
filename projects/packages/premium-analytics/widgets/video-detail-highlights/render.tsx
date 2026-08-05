@@ -6,6 +6,7 @@ import {
 	MetricTileGrid,
 	WidgetRoot,
 	WidgetState,
+	describeError,
 	useWidgetRootContext,
 	type DataFormat,
 	type ReportParamsFieldAttributes,
@@ -68,7 +69,7 @@ function VideoDetailHighlightsInner() {
 		} ),
 		[ reportParams.from, reportParams.to ]
 	);
-	const { data, isLoading, isFetching, isError, refetch } = useStatsSingleVideo(
+	const { data, isLoading, isFetching, isError, error, refetch } = useStatsSingleVideo(
 		videoId,
 		queryParams,
 		{ enabled: hasVideoScope }
@@ -106,18 +107,13 @@ function VideoDetailHighlightsInner() {
 				isFetching={ isFetching }
 				isError={ hasVideoScope && isError }
 				isEmpty={ ! hasVideoScope || ( ! isLoading && ! isError && ! total ) }
-				error={ {
-					description: __(
+				error={ describeError( error, {
+					retryDescription: __(
 						"We couldn't load this video's highlights. Please try again in a moment.",
 						'jetpack-premium-analytics-pkg'
 					),
-					actions: [
-						{
-							label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
-							onClick: () => void refetch(),
-						},
-					],
-				} }
+					onRetry: refetch,
+				} ) }
 				empty={ {
 					icon: video,
 					description: hasVideoScope

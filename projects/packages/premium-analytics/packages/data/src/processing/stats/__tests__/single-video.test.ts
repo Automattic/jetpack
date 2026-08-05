@@ -51,6 +51,17 @@ describe( 'Stats single video normalizer', () => {
 		} );
 	} );
 
+	it( 'drops non-numeric total cells instead of coercing them to zero', () => {
+		// A missing or malformed cell is unknown, not a measured zero — coercing
+		// it would render a fabricated statistic (e.g. "Retention rate 0.0%").
+		const report = sanitizeStatsSingleVideoResponse( {
+			...singleVideoAllMetricsFixture,
+			total: { plays: 3, impressions: '14', watch_time: null, retention_rate: 'N/A' },
+		} );
+
+		expect( report.total ).toEqual( { plays: 3, impressions: 14 } );
+	} );
+
 	it( 'returns empty data for an empty-window object payload without range rows', () => {
 		// Legacy empty windows return a single `{ date, p }` object instead of
 		// the usual tuples; it must not crash the tuple or fields mapping.
