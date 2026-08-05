@@ -16,6 +16,13 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
 } ) );
 
+// Avoid loading DataViews while keeping the real breadcrumbs for these assertions.
+jest.mock( '@jetpack-premium-analytics/ui', () => ( {
+	StatsBreadcrumbs: jest.requireActual( '../../packages/ui/src/stats-breadcrumbs' )
+		.StatsBreadcrumbs,
+	StatsPageIcon: () => null,
+} ) );
+
 jest.mock( '@wordpress/core-data', () => ( {
 	store: {},
 } ) );
@@ -56,13 +63,22 @@ jest.mock( '../dashboard/hooks/use-dashboard-grid-settings', () => ( {
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
-	Breadcrumbs: ( { items }: { items: Array< { label: string } > } ) => (
+	Breadcrumbs: ( { items }: { items: Array< { label: string; to?: string } > } ) => (
 		<nav aria-label="Breadcrumbs">
-			{ items.map( item => (
-				<span key={ item.label } role="listitem">
-					{ item.label }
-				</span>
-			) ) }
+			{ items.map( ( item, index ) => {
+				let content: ReactNode = item.label;
+				if ( item.to ) {
+					content = <a href={ item.to }>{ item.label }</a>;
+				} else if ( index === items.length - 1 ) {
+					content = <h1>{ item.label }</h1>;
+				}
+
+				return (
+					<span key={ index } role="listitem">
+						{ content }
+					</span>
+				);
+			} ) }
 		</nav>
 	),
 	Page: ( { breadcrumbs, children }: { breadcrumbs: ReactNode; children: ReactNode } ) => (
@@ -157,6 +173,10 @@ describe( 'video detail stage', () => {
 			const crumbs = within( nav ).getAllByRole( 'listitem' );
 			expect( crumbs ).toHaveLength( 1 );
 			expect( crumbs[ 0 ] ).toHaveTextContent( 'Stats' );
+			expect( within( crumbs[ 0 ] ).getByRole( 'link', { name: 'Stats' } ) ).toHaveAttribute(
+				'href',
+				'/?from=2026-06-01&to=2026-06-16'
+			);
 			expect( screen.queryByRole( 'heading', { level: 1 } ) ).not.toBeInTheDocument();
 			expect( screen.queryByText( 'Video widgets' ) ).not.toBeInTheDocument();
 		}
@@ -170,7 +190,9 @@ describe( 'video detail stage', () => {
 		const breadcrumbs = within( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) );
 		expect( breadcrumbs.getByText( 'Stats' ) ).toBeInTheDocument();
 		expect( breadcrumbs.getByText( 'Launch recap' ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'heading', { level: 1, name: 'Launch recap' } ) ).toBeInTheDocument();
+		expect(
+			breadcrumbs.getByRole( 'heading', { level: 1, name: 'Launch recap' } )
+		).toBeInTheDocument();
 		expect( screen.getByText( 'Video widgets' ) ).toBeInTheDocument();
 	} );
 } );

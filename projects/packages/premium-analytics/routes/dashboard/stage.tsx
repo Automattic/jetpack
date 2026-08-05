@@ -5,9 +5,11 @@ import {
 	DateFiltersPanel,
 	SectionHeader,
 	SectionTabPanel,
+	StatsBreadcrumbs,
+	StatsPageIcon,
 	getSectionSubtitle,
 } from '@jetpack-premium-analytics/ui';
-import { Page, Breadcrumbs } from '@wordpress/admin-ui';
+import { Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
@@ -114,11 +116,8 @@ function Dashboard(): JSX.Element {
 				onEditChange={ setEditMode }
 			>
 				<Page
-					breadcrumbs={
-						<Breadcrumbs
-							items={ [ { label: __( 'Analytics', 'jetpack-premium-analytics-pkg' ) } ] }
-						/>
-					}
+					visual={ <StatsPageIcon /> }
+					breadcrumbs={ <StatsBreadcrumbs isRoot /> }
 					subTitle={ __(
 						'Track your site performance and visitor insights.',
 						'jetpack-premium-analytics-pkg'

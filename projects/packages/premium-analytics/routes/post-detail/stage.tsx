@@ -1,8 +1,14 @@
 import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { Button } from '@jetpack-premium-analytics/externals';
-import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel, SectionTabPanel, safeHttpUrl } from '@jetpack-premium-analytics/ui';
-import { Breadcrumbs, Page } from '@wordpress/admin-ui';
+import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import {
+	DateFiltersPanel,
+	SectionTabPanel,
+	safeHttpUrl,
+	StatsBreadcrumbs,
+	StatsPageIcon,
+} from '@jetpack-premium-analytics/ui';
+import { Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
@@ -96,10 +102,6 @@ function PostDetail(): JSX.Element {
 	// params, staged and committed by the shared date-filter controller.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 
-	// The breadcrumb's "Stats" crumb links back to the dashboard, carrying the
-	// current date range and comparison so returning restores the same view.
-	const dashboardLink = useDashboardLink();
-
 	return (
 		<GlobalErrorProvider>
 			<WidgetDashboard
@@ -111,13 +113,9 @@ function PostDetail(): JSX.Element {
 				gridSettings={ POST_DETAIL_GRID }
 			>
 				<Page
+					visual={ <StatsPageIcon /> }
 					breadcrumbs={
-						<Breadcrumbs
-							items={ [
-								{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
-								...( summary.title ? [ { label: summary.title } ] : [] ),
-							] }
-						/>
+						<StatsBreadcrumbs items={ summary.title ? [ { label: summary.title } ] : [] } />
 					}
 					actions={
 						publicUrl ? (
