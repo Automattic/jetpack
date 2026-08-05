@@ -331,7 +331,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				// bottom of the viewport with its recovery action out of reach. Measure now, before
 				// that panel renders: a control already off screen means the user is reading
 				// something else, and pulling them back would be the greater intrusion. Scroll
-				// rather than focus, as a quota error leaves the input disabled.
+				// rather than focus, as a quota error leaves the input disabled, and by the nearest
+				// edge so that a control the panel did not push out is left where it is.
 				const control = controlRef.current;
 				const view = control?.ownerDocument?.defaultView;
 				const rect = view && control.getBoundingClientRect();
@@ -339,7 +340,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 				if ( ! adjustPosition && isOnScreen ) {
 					window.requestAnimationFrame( () =>
-						control.scrollIntoView( { block: 'end', inline: 'nearest' } )
+						control.scrollIntoView( { block: 'nearest', inline: 'nearest' } )
 					);
 				}
 
