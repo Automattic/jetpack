@@ -322,10 +322,19 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		// Called when an error is received.
 		const onError = useCallback(
 			error => {
-				disableAutoScroll();
+				const userTookOverScrolling = disableAutoScroll();
 				setAction( '' );
 
 				debug( 'Request error', error );
+
+				// The error panel grows the control, which can leave one in normal flow past the
+				// bottom of the viewport with its recovery action out of reach. Scroll rather than
+				// focus, as a quota error disables the input, and leave a user who scrolled off be.
+				if ( ! adjustPosition && ! userTookOverScrolling ) {
+					window.requestAnimationFrame(
+						() => controlRef.current?.scrollIntoView( { block: 'end', inline: 'nearest' } )
+					);
+				}
 
 				// Increase the AI Suggestion counter only for valid errors.
 				if ( error.code === ERROR_NETWORK || error.code === ERROR_QUOTA_EXCEEDED ) {
@@ -334,7 +343,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 				increaseRequestsCount();
 			},
-			[ disableAutoScroll, increaseRequestsCount ]
+			[ disableAutoScroll, increaseRequestsCount, adjustPosition ]
 		);
 
 		const {
@@ -562,12 +571,11 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				{ showAiControl && (
 					<AiAssistantInput
 						customPlaceholder={ customPlaceholder ? customPlaceholder : null }
-						className={ className }
+						className={ clsx( className, { 'is-static': ! adjustPosition } ) }
 						requestingState={ requestingState }
 						requestingError={ error }
 						wrapperRef={ controlRef }
 						inputRef={ inputRef }
-						isStatic={ ! adjustPosition }
 						action={ action }
 						blockType={ blockName }
 						feature={ feature }
