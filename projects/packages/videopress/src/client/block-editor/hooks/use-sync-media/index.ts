@@ -77,6 +77,7 @@ const invalidateEmbedResolutionFields = [
 	'is_private',
 	'allow_download',
 	'display_embed',
+	'rating',
 ];
 
 /**
