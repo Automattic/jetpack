@@ -253,12 +253,60 @@ class Package_Provenance_Helper {
 			.pkg-dim td a { color: #6a8caf; }
 			.pkg-dim .pkg-prov { filter: saturate( .55 ) brightness( .82 ); }
 			#package-provenance-note { color: #808080; margin-block-start: 6px; white-space: normal; }
+			#package-provenance-help-toggle {
+				background: #1e1e1e; color: inherit; border: 1px solid #555; border-radius: 3px;
+				font: inherit; padding: 2px 8px; cursor: pointer; flex: none;
+			}
+			#package-provenance-help-toggle[aria-expanded="true"] {
+				background: #9cdcfe; color: #0a0a0a; border-color: #9cdcfe;
+			}
+			#package-provenance-help {
+				display: none; padding: 10px; border-block-end: 1px solid #444;
+				background: #252526; overflow: auto; max-block-size: 45vh; white-space: normal;
+			}
+			#package-provenance-help.is-open { display: block; }
+			#package-provenance-help h4 { color: #9cdcfe; margin: 12px 0 4px; font-size: 11px; }
+			#package-provenance-help h4:first-child { margin-block-start: 0; }
+			#package-provenance-help p, #package-provenance-help li { margin: 3px 0; color: #b8b8b8; }
+			#package-provenance-help ol { margin: 3px 0; padding-inline-start: 18px; }
+			#package-provenance-help table { border-collapse: collapse; margin-block-start: 4px; }
+			#package-provenance-help td { padding: 2px 12px 2px 0; vertical-align: top; color: #b8b8b8; }
+			#package-provenance-help code { color: #ce9178; }
+			#package-provenance-help .pkg-help-warn { color: #e0a184; }
 		</style>
 		<div id="package-provenance-panel" role="dialog" aria-label="Package provenance">
 			<header>
 				<strong id="package-provenance-title"></strong>
 				<input type="text" id="package-provenance-filter" placeholder="filter…" />
+				<button type="button" id="package-provenance-help-toggle" aria-expanded="false" aria-controls="package-provenance-help">? help</button>
 			</header>
+			<div id="package-provenance-help">
+				<h4>How WordPress picks the provider</h4>
+				<p>Every package is registered by whoever gets there first, and the winner is decided per package, per screen, at print time:</p>
+				<ol>
+					<li>WordPress core registers its own bundled copies first.</li>
+					<li>The Gutenberg plugin overrides core's registrations when active.</li>
+					<li>Jetpack's wp-build-polyfills register last (<code>wp_default_scripts</code>, priority 20) and back off when the handle is already taken.</li>
+				</ol>
+				<p>Two exceptions. The polyfills <strong>force-replace</strong> <code>wp-notices</code>, <code>wp-private-apis</code> and <code>wp-rich-text</code> on WordPress versions whose copies are too old, taking the slot even when core or Gutenberg already filled it. And script modules are always first-wins: <code>wp_register_script_module()</code> silently ignores every later registration, so nothing can force a replacement there.</p>
+				<p>A package missing from the list was never registered by anyone on this screen. That is normal — the polyfills only register when something on the screen asks for them.</p>
+
+				<h4>How this panel labels it</h4>
+				<p>The badge comes from the URL the browser actually requested, after core prepends the site URL and after any <code>script_loader_src</code> rewrite. First match wins, top to bottom:</p>
+				<table>
+					<tr><td><span class="pkg-prov pkg-prov-core">CORE</span></td><td>URL contains <code>/wp-includes/</code> or <code>/wp-admin/</code></td></tr>
+					<tr><td><span class="pkg-prov pkg-prov-gutenberg">GUTENBERG</span></td><td>URL contains <code>/plugins/gutenberg/</code></td></tr>
+					<tr><td><span class="pkg-prov pkg-prov-polyfill">POLYFILL</span></td><td>URL contains <code>wp-build-polyfills</code></td></tr>
+					<tr><td><span class="pkg-prov pkg-prov-app">APP</span></td><td>URL contains <code>jetpack_vendor</code>, <code>/mu-plugins/</code> or <code>/plugins/</code></td></tr>
+					<tr><td><span class="pkg-prov pkg-prov-other">OTHER</span></td><td>anything else, including packages with no URL</td></tr>
+				</table>
+				<p>Reading the served URL rather than the registered path means a CDN or cache-busting rewrite shows up here instead of being hidden.</p>
+
+				<h4>Reading the rows</h4>
+				<p><strong>Dimmed</strong> means registered but not used on this screen: no tag printed for a classic script, or absent from the import map for a module. It does not mean broken.</p>
+				<p><strong>ver</strong> is what core puts in <code>?ver=</code>. A handle registered with <code>false</code> shows the WordPress version, because that is what core substitutes; one registered with <code>null</code> shows nothing, because core prints no version at all.</p>
+				<p class="pkg-help-warn">Packages compiled inline into an app bundle never appear here. Only the externalized surface exists at runtime, so an absent row is not proof that a package is unused.</p>
+			</div>
 			<div id="package-provenance-body"></div>
 		</div>
 		<script>
@@ -339,10 +387,17 @@ class Package_Provenance_Helper {
 							: esc( r.ver || '' ) ) + '</td></tr>' )
 					.join( '' );
 				body.innerHTML = '<table><tr><th>package</th><th>type</th><th>provider</th><th>ver</th></tr>' + cells + '</table>' +
-					'<p id="package-provenance-note">Dimmed classic scripts are registered but not printed on this screen; ' +
-					'dimmed modules are registered but absent from this screen’s import map. ' +
-					'Packages compiled inline into an app bundle never appear here — only the externalized surface is visible at runtime.</p>';
+					'<p id="package-provenance-note">Dimmed rows are registered but unused on this screen. ' +
+					'Packages compiled inline into an app bundle never appear here. ' +
+					'See <strong>? help</strong> for how the provider is decided.</p>';
 			};
+			const help = document.getElementById( 'package-provenance-help' );
+			const helpToggle = document.getElementById( 'package-provenance-help-toggle' );
+			helpToggle.addEventListener( 'click', () => {
+				const open = help.classList.toggle( 'is-open' );
+				helpToggle.setAttribute( 'aria-expanded', open ? 'true' : 'false' );
+			} );
+
 			filter.addEventListener( 'input', paint );
 			// First paint waits for the full document so footer script tags exist.
 			if ( 'complete' === document.readyState ) {
