@@ -162,7 +162,10 @@ class Initial_State {
 		$site_product  = My_Jetpack_Products::get_product( 'videopress' );
 		$product_price = Plan::get_product_price();
 
-		if ( ! is_array( $site_product ) || ! isset( $product_price['yearly'] ) ) {
+		// Plan::get_product_price() returns a WP_Error when the WPCOM products
+		// request doesn't come back 200, and `isset()` on a non-ArrayAccess
+		// object is a fatal in PHP 8 — so the array check has to come first.
+		if ( ! is_array( $site_product ) || ! is_array( $product_price ) || ! isset( $product_price['yearly'] ) ) {
 			return null;
 		}
 
