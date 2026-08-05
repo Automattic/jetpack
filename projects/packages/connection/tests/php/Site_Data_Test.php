@@ -19,7 +19,7 @@ class Site_Data_Test extends BaseTestCase {
 	/**
 	 * REST server.
 	 *
-	 * @var WP_REST_Server
+	 * @var WP_REST_Server|null
 	 */
 	private $server;
 
