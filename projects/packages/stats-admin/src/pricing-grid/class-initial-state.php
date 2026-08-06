@@ -55,7 +55,7 @@ class Initial_State {
 			'adminUrl'        => admin_url(),
 			'freeProductSlug' => self::FREE_PRODUCT_SLUG,
 			'paidProductSlug' => self::PAID_PRODUCT_SLUG,
-			'paidPurchaseUrl' => $this->get_paid_purchase_url( $blog_id, $is_registered, $domain ),
+			'paidPurchaseUrl' => $this->get_paid_purchase_url( $blog_id, $domain ),
 			'paidPricing'     => $this->get_paid_pricing(),
 		);
 	}
@@ -121,34 +121,31 @@ class Initial_State {
 	/**
 	 * Get the URL for the paid Stats purchase page.
 	 *
-	 * For connected sites: use the Odyssey in-wp-admin hash route.
-	 * For unconnected sites: link to Calypso directly.
+	 * Sites with a blog ID use the Odyssey in-wp-admin hash route. The
+	 * `view=purchase` query flag tells the dashboard to render Odyssey there
+	 * instead of the pricing grid, since PHP can't see the hash fragment.
+	 * Sites without a blog ID (never connected) link to Calypso directly.
 	 *
-	 * @param int|false $blog_id   The Jetpack blog ID.
-	 * @param bool      $is_connected Whether the site is connected.
-	 * @param string    $domain   The site's domain/slug.
+	 * @param int|false $blog_id The Jetpack blog ID.
+	 * @param string    $domain  The site's domain/slug.
 	 * @return string
 	 */
-	private function get_paid_purchase_url( $blog_id, $is_connected, $domain ) {
+	private function get_paid_purchase_url( $blog_id, $domain ) {
 		$redirect_uri = 'admin.php?page=stats';
 
-		if ( $is_connected && $blog_id ) {
-			// Connected site: use Odyssey in-wp-admin hash route.
-			// Format: admin.php?page=stats#!/stats/purchase/{blogId}?from=...&redirect_uri=...
-			return admin_url( 'admin.php?page=stats' ) . '#!/stats/purchase/' . absint( $blog_id ) .
+		if ( $blog_id ) {
+			return admin_url( 'admin.php?page=stats&view=purchase' ) . '#!/stats/purchase/' . absint( $blog_id ) .
 				'?from=jetpack-stats-pricing-grid&redirect_uri=' . rawurlencode( $redirect_uri );
-		} else {
-			// Unconnected site: link to Calypso directly.
-			// Calypso's purchase page handles siteless checkout when site param is provided.
-			$purchase_url = 'https://wordpress.com/stats/purchase';
-			$params       = array(
+		}
+
+		return add_query_arg(
+			array(
 				'site'         => $domain,
 				'from'         => 'jetpack-stats-pricing-grid',
 				'redirect_uri' => admin_url( $redirect_uri ),
-			);
-
-			return add_query_arg( $params, $purchase_url );
-		}
+			),
+			'https://wordpress.com/stats/purchase'
+		);
 	}
 
 	/**

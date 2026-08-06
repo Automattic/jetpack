@@ -1,6 +1,7 @@
 <?php
 namespace Automattic\Jetpack\Stats_Admin;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Stats_Admin\TestCase as Stats_TestCase;
 use ReflectionProperty;
 
@@ -25,9 +26,41 @@ class Dashboard_Test extends Stats_TestCase {
 	}
 
 	/**
+	 * Returning the environment into its initial state.
+	 */
+	public function tearDown(): void {
+		parent::tearDown();
+		unset( $_GET['view'] );
+	}
+
+	/**
 	 * Test has root dom.
 	 */
 	public function test_render() {
+		$this->expectOutputRegex( '/<div id="wpcom" class="jp-stats-dashboard".*>/i' );
+		( new Dashboard() )->render();
+	}
+
+	/**
+	 * Test that an eligible new site renders the pricing grid.
+	 */
+	public function test_render_pricing_grid_for_eligible_new_site() {
+		set_transient( 'jetpack_assumed_site_creation_date', '2036-01-01 00:00:00' );
+		( new Connection_Manager() )->reset_connection_status();
+
+		$this->expectOutputRegex( '/<div id="jp-stats-pricing-grid".*>/i' );
+		( new Dashboard() )->render();
+	}
+
+	/**
+	 * Test that the purchase view renders Odyssey even when the pricing grid is eligible,
+	 * so the paid CTA's #!/stats/purchase route can load.
+	 */
+	public function test_render_odyssey_for_purchase_view_on_eligible_new_site() {
+		set_transient( 'jetpack_assumed_site_creation_date', '2036-01-01 00:00:00' );
+		( new Connection_Manager() )->reset_connection_status();
+		$_GET['view'] = 'purchase';
+
 		$this->expectOutputRegex( '/<div id="wpcom" class="jp-stats-dashboard".*>/i' );
 		( new Dashboard() )->render();
 	}

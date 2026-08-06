@@ -164,6 +164,14 @@ class Dashboard {
 	 * @return bool True if the pricing grid should be shown.
 	 */
 	private function should_show_pricing_grid() {
+		// The Odyssey purchase route (#!/stats/purchase/{blogId}) shares this
+		// page; the pricing grid's paid CTA adds `view=purchase` so the
+		// dashboard renders Odyssey there instead of the grid.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['view'] ) && 'purchase' === $_GET['view'] ) {
+			return false;
+		}
+
 		return Pricing_Grid\Eligibility::should_show_pricing_grid();
 	}
 
