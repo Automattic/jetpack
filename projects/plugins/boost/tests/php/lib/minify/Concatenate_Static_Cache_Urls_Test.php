@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Boost\Tests\Lib\Minify;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
+use Automattic\Jetpack_Boost\Admin\Config as Boost_Admin_Config;
 use Automattic\Jetpack_Boost\Lib\Minify\Concatenate_CSS;
 use Automattic\Jetpack_Boost\Lib\Minify\Concatenate_JS;
 use WorDBless\BaseTestCase;
@@ -99,6 +100,11 @@ class Concatenate_Static_Cache_Urls_Test extends BaseTestCase {
 		Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
 		Constants::set_constant( 'ATOMIC_CLIENT_ID', 1 );
 		Status_Cache::clear();
+
+		// Pin the classification, so a fixture that stops taking effect fails here instead of
+		// letting the tests pass for the wrong reason.
+		$this->assertSame( 'atomic', Boost_Admin_Config::get_hosting_provider() );
+		Status_Cache::clear();
 	}
 
 	/**
@@ -108,6 +114,9 @@ class Concatenate_Static_Cache_Urls_Test extends BaseTestCase {
 	private function pretend_to_be_on_wpcom_atomic() {
 		$this->pretend_to_be_on_wp_cloud();
 		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', 'wpcomsh.php' );
+		Status_Cache::clear();
+
+		$this->assertSame( 'woa', Boost_Admin_Config::get_hosting_provider() );
 		Status_Cache::clear();
 	}
 
@@ -130,7 +139,7 @@ class Concatenate_Static_Cache_Urls_Test extends BaseTestCase {
 			$output = ob_get_clean();
 		}
 
-		return $output;
+		return (string) $output;
 	}
 
 	private function render_scripts() {
@@ -146,7 +155,17 @@ class Concatenate_Static_Cache_Urls_Test extends BaseTestCase {
 			$output = ob_get_clean();
 		}
 
-		return $output;
+		return (string) $output;
+	}
+
+	private function assert_fallback_urls( string $output ) {
+		$this->assertStringContainsString( '/_jb_static/??', $output );
+		$this->assertStringNotContainsString( '/boost-cache/static/', $output );
+	}
+
+	private function assert_static_cache_urls( string $output ) {
+		$this->assertStringContainsString( '/boost-cache/static/', $output );
+		$this->assertStringNotContainsString( '/_jb_static/??', $output );
 	}
 
 	/**
@@ -158,8 +177,7 @@ class Concatenate_Static_Cache_Urls_Test extends BaseTestCase {
 
 		$output = $this->render_styles();
 
-		$this->assertStringContainsString( '/_jb_static/??', $output );
-		$this->assertStringNotContainsString( '/boost-cache/static/', $output );
+		$this->assert_fallback_urls( $output );
 	}
 
 	public function test_js_falls_back_when_a_stale_verdict_arrives_on_wp_cloud() {
@@ -168,8 +186,7 @@ class Concatenate_Static_Cache_Urls_Test extends BaseTestCase {
 
 		$output = $this->render_scripts();
 
-		$this->assertStringContainsString( '/_jb_static/??', $output );
-		$this->assertStringNotContainsString( '/boost-cache/static/', $output );
+		$this->assert_fallback_urls( $output );
 	}
 
 	/**
@@ -182,8 +199,7 @@ class Concatenate_Static_Cache_Urls_Test extends BaseTestCase {
 
 		$output = $this->render_styles();
 
-		$this->assertStringContainsString( '/_jb_static/??', $output );
-		$this->assertStringNotContainsString( '/boost-cache/static/', $output );
+		$this->assert_fallback_urls( $output );
 	}
 
 	public function test_js_falls_back_when_a_stale_verdict_arrives_on_wpcom_atomic() {
@@ -192,8 +208,7 @@ class Concatenate_Static_Cache_Urls_Test extends BaseTestCase {
 
 		$output = $this->render_scripts();
 
-		$this->assertStringContainsString( '/_jb_static/??', $output );
-		$this->assertStringNotContainsString( '/boost-cache/static/', $output );
+		$this->assert_fallback_urls( $output );
 	}
 
 	/**
@@ -205,9 +220,8 @@ class Concatenate_Static_Cache_Urls_Test extends BaseTestCase {
 
 		$output = $this->render_styles();
 
-		$this->assertStringContainsString( '/boost-cache/static/', $output );
+		$this->assert_static_cache_urls( $output );
 		$this->assertStringContainsString( '.min.css', $output );
-		$this->assertStringNotContainsString( '/_jb_static/??', $output );
 	}
 
 	public function test_js_uses_static_cache_urls_on_a_supported_host() {
@@ -215,9 +229,8 @@ class Concatenate_Static_Cache_Urls_Test extends BaseTestCase {
 
 		$output = $this->render_scripts();
 
-		$this->assertStringContainsString( '/boost-cache/static/', $output );
+		$this->assert_static_cache_urls( $output );
 		$this->assertStringContainsString( '.min.js', $output );
-		$this->assertStringNotContainsString( '/_jb_static/??', $output );
 	}
 
 	public function test_css_falls_back_on_a_supported_host_when_the_tester_failed() {
@@ -225,8 +238,7 @@ class Concatenate_Static_Cache_Urls_Test extends BaseTestCase {
 
 		$output = $this->render_styles();
 
-		$this->assertStringContainsString( '/_jb_static/??', $output );
-		$this->assertStringNotContainsString( '/boost-cache/static/', $output );
+		$this->assert_fallback_urls( $output );
 	}
 
 	public function test_js_falls_back_on_a_supported_host_when_the_tester_failed() {
@@ -234,7 +246,39 @@ class Concatenate_Static_Cache_Urls_Test extends BaseTestCase {
 
 		$output = $this->render_scripts();
 
-		$this->assertStringContainsString( '/_jb_static/??', $output );
-		$this->assertStringNotContainsString( '/boost-cache/static/', $output );
+		$this->assert_fallback_urls( $output );
+	}
+
+	/**
+	 * The filter is the PR's escape hatch for hosts the guard excludes wrongly. These pin it in
+	 * both directions; without them, deleting the apply_filters() call keeps the suite green.
+	 */
+	public function test_filter_can_force_static_cache_urls_on_wp_cloud() {
+		update_site_option( 'jetpack_boost_static_minification', 1 );
+		$this->pretend_to_be_on_wp_cloud();
+
+		add_filter( 'jetpack_boost_minify_use_static_cache_urls', '__return_true' );
+		$output = '';
+		try {
+			$output = $this->render_styles();
+		} finally {
+			remove_filter( 'jetpack_boost_minify_use_static_cache_urls', '__return_true' );
+		}
+
+		$this->assert_static_cache_urls( $output );
+	}
+
+	public function test_filter_can_force_the_fallback_on_a_supported_host() {
+		update_site_option( 'jetpack_boost_static_minification', 1 );
+
+		add_filter( 'jetpack_boost_minify_use_static_cache_urls', '__return_false' );
+		$output = '';
+		try {
+			$output = $this->render_scripts();
+		} finally {
+			remove_filter( 'jetpack_boost_minify_use_static_cache_urls', '__return_false' );
+		}
+
+		$this->assert_fallback_urls( $output );
 	}
 }

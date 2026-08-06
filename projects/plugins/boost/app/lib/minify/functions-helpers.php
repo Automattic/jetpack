@@ -500,16 +500,15 @@ function jetpack_boost_get_static_prefix() {
  * Static cache URLs work only where WordPress sees the 404 for a missing wp-content file: the
  * first request 404s, and Boost builds the file while answering it. Whether such a 404 reaches
  * WordPress is a per-site platform setting on Atomic and WP Cloud that Boost cannot read, so those
- * hosts always get the /_jb_static/ fallback. Everywhere else the 404 tester's verdict decides —
- * but jetpack_boost_static_minification travels with the database, and a migrated site arrives
- * with its previous host's `1`, so the host is asked first.
+ * hosts get the /_jb_static/ fallback unless the filter below says otherwise. Everywhere else the
+ * 404 tester's verdict decides — but jetpack_boost_static_minification travels with the database,
+ * and a migrated site arrives with its previous host's `1`, so the host is asked first.
  *
  * Admin\Config::get_hosting_provider() returns 'other' for any host it does not name, so a host it
- * does not recognize keeps the static cache. A new named value there opts that provider out for
- * good.
+ * does not recognize keeps the static cache. A new named value there opts that provider out.
  *
- * Distinct from Minify\Config::can_use_static_cache(), which asks whether the cache directory is
- * writable.
+ * Distinct from Minify\Config::can_use_static_cache(), which ensures the cache directory exists
+ * and is writable.
  *
  * @since $$next-version$$
  *
@@ -523,7 +522,9 @@ function jetpack_boost_minify_use_static_cache_urls() {
 	 * Filter whether concatenated CSS and JS are linked from the static cache directory.
 	 *
 	 * Returning true on a host Boost excludes only works if that host routes missing wp-content
-	 * file requests through WordPress; otherwise every bundle URL 404s at the web server.
+	 * file requests through WordPress; otherwise every bundle URL 404s at the web server. It also
+	 * overrides the 404 tester's verdict, and the tester does not run on excluded hosts. Evaluated
+	 * per concat group, so return a stable value for the whole render.
 	 *
 	 * @since $$next-version$$
 	 *
