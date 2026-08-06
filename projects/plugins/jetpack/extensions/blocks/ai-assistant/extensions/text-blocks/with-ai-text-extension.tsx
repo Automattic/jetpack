@@ -10,7 +10,7 @@ import {
 } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls, useBlockProps } from '@wordpress/block-editor';
-import { createHigherOrderComponent } from '@wordpress/compose';
+import { createHigherOrderComponent, useViewportMatch } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState, useRef, useMemo } from '@wordpress/element';
 import { addFilter, doAction } from '@wordpress/hooks';
@@ -188,9 +188,13 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		const customPlaceholder = getExtensionInputPlaceholder();
 
-		// The control sits in the document rather than pinned to the viewport, so nothing keeps it
-		// in view but the scrolling below.
-		const controlInFlow = ! adjustPosition;
+		const isMobileViewport = useViewportMatch( 'medium', '<' );
+
+		// Where the block is taller than the viewport, a control pinned to the bottom of that
+		// viewport covers the end of it. Only the narrow screens the block reliably outgrows put
+		// the control in the document instead, where nothing keeps it in view but the scrolling
+		// below. The class and the scrolling read the same flag so they cannot disagree.
+		const controlInFlow = ! adjustPosition && isMobileViewport;
 
 		// State to display the AI Control or not.
 		const [ showAiControl, setShowAiControl ] = useState( startOpen );

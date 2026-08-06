@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-AI Assistant: Stop the Form block's AI prompt from covering the form.
+AI Assistant: Stop the Form block's AI prompt from covering the form on narrow screens.
