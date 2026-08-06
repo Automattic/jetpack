@@ -1,5 +1,14 @@
 .dashboard {
 	min-block-size: 0;
+
+	/*
+	 * Tweak Card layout to make it fit the screen.
+	 * TODO: consider adding this upstream to the Card component.
+	 */
+	section:first-of-type {
+		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+		--wp-ui-card-header-content-margin: var(--wpds-dimension-padding-lg);
+	}
 }
 
 .loading {
