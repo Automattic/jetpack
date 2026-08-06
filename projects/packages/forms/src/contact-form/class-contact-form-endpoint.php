@@ -281,7 +281,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 					'columns'         => array(
 						'type'     => 'array',
 						'required' => true,
-						'items'    => array( 'type' => 'object' ),
+						'items'    => array( 'type' => 'string' ),
 					),
 				),
 			)

@@ -26,6 +26,13 @@ use WorDBless\BaseTestCase;
 class Google_Sheets_Setup_Test extends BaseTestCase {
 
 	/**
+	 * The labels of the three-field form the helpers below build.
+	 *
+	 * @var array
+	 */
+	const FORM_LABELS = array( 'Name', 'Email', 'Message' );
+
+	/**
 	 * Clean up after each test.
 	 */
 	protected function tear_down() {
@@ -34,101 +41,19 @@ class Google_Sheets_Setup_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Build a saved response from a three-field form.
+	 * A form whose responses hang off the given jetpack_form post.
 	 *
-	 * @return Feedback
+	 * @param int $form_post_id The jetpack_form post ID.
+	 * @return Contact_Form
 	 */
-	private function get_saved_response() {
-		$feedback_id = $this->save_response_for_form( $this->get_form_for( 0 ), 'John Doe' );
-
-		return Feedback::get( $feedback_id );
-	}
-
-	/**
-	 * The field IDs of a saved response, in form order.
-	 *
-	 * @param Feedback $response The response.
-	 * @return array
-	 */
-	private function get_field_ids( Feedback $response ) {
-		$ids = array();
-		foreach ( $response->get_compiled_fields( 'csv', 'collection' ) as $field ) {
-			$ids[] = $field['id'];
-		}
-		return $ids;
-	}
-
-	public function test_header_row_leads_with_metadata_columns() {
-		$header = Google_Sheets_Setup::build_header_row(
+	private function get_form_for( $form_post_id ) {
+		return new Contact_Form(
 			array(
-				array(
-					'id'    => 'g1-name',
-					'label' => 'Name',
-				),
-				array(
-					'id'    => 'g2-email',
-					'label' => 'Email',
-				),
-			)
+				'title' => 'Test Form',
+				'ref'   => $form_post_id,
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
 		);
-
-		$this->assertSame( array( 'Submitted', 'Source', 'Name', 'Email' ), $header );
-	}
-
-	public function test_header_row_falls_back_to_the_id_when_a_label_is_missing() {
-		$header = Google_Sheets_Setup::build_header_row( array( array( 'id' => 'g1-name' ) ) );
-
-		$this->assertSame( array( 'Submitted', 'Source', 'g1-name' ), $header );
-	}
-
-	public function test_header_row_skips_malformed_columns() {
-		$header = Google_Sheets_Setup::build_header_row(
-			array(
-				array( 'label' => 'No ID here' ),
-				'not an array',
-				array(
-					'id'    => 'g1-name',
-					'label' => 'Name',
-				),
-			)
-		);
-
-		$this->assertSame( array( 'Submitted', 'Source', 'Name' ), $header );
-	}
-
-	public function test_header_row_handles_no_fields() {
-		$this->assertSame( array( 'Submitted', 'Source' ), Google_Sheets_Setup::build_header_row( array() ) );
-	}
-
-	/**
-	 * A row has to line up with the header: metadata first, then one cell per
-	 * column in the frozen order.
-	 */
-	public function test_row_aligns_values_to_the_column_order() {
-		$response  = $this->get_saved_response();
-		$field_ids = $this->get_field_ids( $response );
-
-		$row = Google_Sheets_Setup::build_row( $response, $field_ids );
-
-		$this->assertCount( count( $field_ids ) + 2, $row );
-		$this->assertSame( $response->get_time(), $row[0] );
-		$this->assertContains( 'John Doe', $row );
-		$this->assertContains( 'john@example.com', $row );
-		$this->assertContains( 'Test message', $row );
-	}
-
-	/**
-	 * A column the response has no value for leaves a blank cell rather than
-	 * shifting every later value one column to the left.
-	 */
-	public function test_row_leaves_a_blank_cell_for_an_unknown_column() {
-		$response  = $this->get_saved_response();
-		$field_ids = $this->get_field_ids( $response );
-
-		$row = Google_Sheets_Setup::build_row( $response, array_merge( $field_ids, array( 'g9-removed' ) ) );
-
-		$this->assertCount( count( $field_ids ) + 3, $row );
-		$this->assertSame( '', end( $row ) );
 	}
 
 	/**
@@ -141,8 +66,7 @@ class Google_Sheets_Setup_Test extends BaseTestCase {
 	 */
 	private function save_response_for_form( Contact_Form $form, $name, $is_test = false ) {
 		// Prefix the submitted keys with the form's own computed ID, so the field
-		// IDs match the ones this form generates. Responses to a single form share
-		// field IDs, which is the whole premise of a frozen column list.
+		// IDs match the ones this form generates for its inputs.
 		$_post_data = Utility::get_post_request(
 			array(
 				'name'    => $name,
@@ -163,19 +87,72 @@ class Google_Sheets_Setup_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A form whose responses hang off the given jetpack_form post.
+	 * Build a saved response from a three-field form.
 	 *
-	 * @param int $form_post_id The jetpack_form post ID.
-	 * @return Contact_Form
+	 * @return Feedback
 	 */
-	private function get_form_for( $form_post_id ) {
-		return new Contact_Form(
-			array(
-				'title' => 'Test Form',
-				'ref'   => $form_post_id,
-			),
-			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+	private function get_saved_response() {
+		return Feedback::get( $this->save_response_for_form( $this->get_form_for( 0 ), 'John Doe' ) );
+	}
+
+	public function test_header_row_leads_with_metadata_columns() {
+		$header = Google_Sheets_Setup::build_header_row( array( 'Name', 'Email' ) );
+
+		$this->assertSame( array( 'Submitted', 'Source', 'Name', 'Email' ), $header );
+	}
+
+	public function test_header_row_skips_blank_and_non_string_columns() {
+		$header = Google_Sheets_Setup::build_header_row( array( '', '   ', array( 'Name' ), null, 'Email' ) );
+
+		$this->assertSame( array( 'Submitted', 'Source', 'Email' ), $header );
+	}
+
+	public function test_header_row_handles_no_fields() {
+		$this->assertSame( array( 'Submitted', 'Source' ), Google_Sheets_Setup::build_header_row( array() ) );
+	}
+
+	/**
+	 * A row has to line up with the header: metadata first, then one cell per
+	 * column in the frozen order.
+	 */
+	public function test_row_aligns_values_to_the_column_order() {
+		$response = $this->get_saved_response();
+
+		$row = Google_Sheets_Setup::build_row( $response, self::FORM_LABELS );
+
+		$this->assertCount( count( self::FORM_LABELS ) + 2, $row );
+		$this->assertSame( $response->get_time(), $row[0] );
+		$this->assertSame( 'John Doe', $row[2] );
+		$this->assertSame( 'john@example.com', $row[3] );
+		$this->assertSame( 'Test message', $row[4] );
+	}
+
+	/**
+	 * A column the response has no value for leaves a blank cell rather than
+	 * shifting every later value one column to the left.
+	 */
+	public function test_row_leaves_a_blank_cell_for_a_removed_field() {
+		$response = $this->get_saved_response();
+
+		$row = Google_Sheets_Setup::build_row(
+			$response,
+			array( 'Name', 'Since removed', 'Email' )
 		);
+
+		$this->assertSame( array( 'John Doe', '', 'john@example.com' ), array_slice( $row, 2 ) );
+	}
+
+	/**
+	 * Reordering the frozen columns reorders the row, so rows written before and
+	 * after a form edit still land under the right headers.
+	 */
+	public function test_row_follows_the_column_order_not_the_form_order() {
+		$response = $this->get_saved_response();
+
+		$forward  = Google_Sheets_Setup::build_row( $response, self::FORM_LABELS );
+		$reversed = Google_Sheets_Setup::build_row( $response, array_reverse( self::FORM_LABELS ) );
+
+		$this->assertSame( array_slice( $forward, 2 ), array_reverse( array_slice( $reversed, 2 ) ) );
 	}
 
 	/**
@@ -200,12 +177,12 @@ class Google_Sheets_Setup_Test extends BaseTestCase {
 
 		$rows = Google_Sheets_Setup::build_rows_for_feedback_ids(
 			array( $first, $second ),
-			$this->get_field_ids( Feedback::get( $first ) )
+			self::FORM_LABELS
 		);
 
 		$this->assertCount( 2, $rows );
-		$this->assertContains( 'First person', $rows[0] );
-		$this->assertContains( 'Second person', $rows[1] );
+		$this->assertSame( 'First person', $rows[0][2] );
+		$this->assertSame( 'Second person', $rows[1][2] );
 	}
 
 	/**
@@ -224,30 +201,13 @@ class Google_Sheets_Setup_Test extends BaseTestCase {
 		$real = $this->save_response_for_form( $form, 'Real person' );
 		$test = $this->save_response_for_form( $form, 'Preview person', true );
 
-		$rows = Google_Sheets_Setup::build_rows_for_feedback_ids(
-			array( $real, $test ),
-			$this->get_field_ids( Feedback::get( $real ) )
-		);
+		$rows = Google_Sheets_Setup::build_rows_for_feedback_ids( array( $real, $test ), self::FORM_LABELS );
 
 		$this->assertCount( 1, $rows );
-		$this->assertContains( 'Real person', $rows[0] );
+		$this->assertSame( 'Real person', $rows[0][2] );
 	}
 
 	public function test_backfill_returns_nothing_without_a_form_id() {
 		$this->assertSame( array(), Google_Sheets_Setup::get_backfill_rows( 0, array() ) );
-	}
-
-	/**
-	 * Reordering the frozen columns reorders the row, so rows written before and
-	 * after a form edit still land under the right headers.
-	 */
-	public function test_row_follows_the_column_order_not_the_form_order() {
-		$response  = $this->get_saved_response();
-		$field_ids = $this->get_field_ids( $response );
-
-		$forward  = Google_Sheets_Setup::build_row( $response, $field_ids );
-		$reversed = Google_Sheets_Setup::build_row( $response, array_reverse( $field_ids ) );
-
-		$this->assertSame( array_slice( $forward, 2 ), array_reverse( array_slice( $reversed, 2 ) ) );
 	}
 }

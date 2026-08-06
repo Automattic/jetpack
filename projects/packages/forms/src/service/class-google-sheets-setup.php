@@ -47,27 +47,31 @@ class Google_Sheets_Setup {
 	}
 
 	/**
-	 * Reduces the editor's column descriptors to a flat list of field IDs.
+	 * Normalizes the column list to a flat list of field labels.
 	 *
-	 * Field IDs rather than labels are what get frozen onto the form and carried
-	 * on each response, because a label can be edited without the column it
-	 * corresponds to changing.
+	 * Columns are keyed on the field's label rather than its ID. A field's ID
+	 * looks stable but is not: when a field block carries no explicit `id`, the
+	 * server derives one as `g{context}-{label}`, where the context is the ID of
+	 * the *post the form is rendered on*. A synced form reused across two pages
+	 * therefore produces different field IDs on each, and renaming a field
+	 * changes its ID too. Labels are what the spreadsheet's header shows, what
+	 * the CSV export already keys on, and what survives being embedded twice.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $columns List of arrays with 'id' and optional 'label'.
-	 * @return array List of field IDs.
+	 * @param array $columns List of field labels.
+	 * @return array List of non-empty field labels.
 	 */
-	public static function get_column_ids( array $columns ) {
-		$ids = array();
+	public static function get_column_labels( array $columns ) {
+		$labels = array();
 
 		foreach ( $columns as $column ) {
-			if ( is_array( $column ) && ! empty( $column['id'] ) ) {
-				$ids[] = (string) $column['id'];
+			if ( is_string( $column ) && '' !== trim( $column ) ) {
+				$labels[] = $column;
 			}
 		}
 
-		return $ids;
+		return $labels;
 	}
 
 	/**
@@ -75,48 +79,40 @@ class Google_Sheets_Setup {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $columns List of arrays with 'id' and optional 'label'.
+	 * @param array $columns List of field labels.
 	 * @return array Flat list of header cells.
 	 */
 	public static function build_header_row( array $columns ) {
-		$header = self::get_metadata_headers();
-
-		foreach ( $columns as $column ) {
-			if ( ! is_array( $column ) || empty( $column['id'] ) ) {
-				continue;
-			}
-
-			$header[] = ! empty( $column['label'] ) ? (string) $column['label'] : (string) $column['id'];
-		}
-
-		return $header;
+		return array_merge( self::get_metadata_headers(), self::get_column_labels( $columns ) );
 	}
 
 	/**
 	 * Lays a single response out as a spreadsheet row.
 	 *
-	 * Values are placed by field ID in the frozen column order, so a response
+	 * Values are placed by label in the frozen column order, so a response
 	 * missing a field leaves a blank cell instead of shifting every later value
 	 * one column to the left.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param Feedback $feedback   The response.
-	 * @param array    $column_ids Field IDs, in the order the sheet's columns are in.
+	 * @param Feedback $feedback      The response.
+	 * @param array    $column_labels Field labels, in the order the sheet's columns are in.
 	 * @return array Flat list of cell values.
 	 */
-	public static function build_row( Feedback $feedback, array $column_ids ) {
+	public static function build_row( Feedback $feedback, array $column_labels ) {
 		// The 'csv' context renders values as flat strings - it implodes the
-		// multi-value field types - which is what a spreadsheet cell needs.
-		$values = $feedback->get_compiled_fields( 'csv', 'id-value' );
+		// multi-value field types - which is what a spreadsheet cell needs. The
+		// 'label-value' shape is the same one the CSV export uses, so repeated
+		// labels arrive already disambiguated as "Name", "Name (2)", and so on.
+		$values = $feedback->get_compiled_fields( 'csv', 'label-value' );
 
 		$row = array(
 			$feedback->get_time(),
 			$feedback->get_entry_short_permalink(),
 		);
 
-		foreach ( $column_ids as $column_id ) {
-			$row[] = isset( $values[ $column_id ] ) ? (string) $values[ $column_id ] : '';
+		foreach ( $column_labels as $label ) {
+			$row[] = isset( $values[ $label ] ) ? (string) $values[ $label ] : '';
 		}
 
 		return $row;
@@ -128,7 +124,7 @@ class Google_Sheets_Setup {
 	 * @since $$next-version$$
 	 *
 	 * @param int   $form_post_id The jetpack_form post ID the responses hang off.
-	 * @param array $columns      List of arrays with 'id' and optional 'label'.
+	 * @param array $columns      List of field labels.
 	 * @return array List of rows, oldest first.
 	 */
 	public static function get_backfill_rows( $form_post_id, array $columns ) {
@@ -150,7 +146,7 @@ class Google_Sheets_Setup {
 			)
 		);
 
-		return self::build_rows_for_feedback_ids( $query->posts, self::get_column_ids( $columns ) );
+		return self::build_rows_for_feedback_ids( $query->posts, self::get_column_labels( $columns ) );
 	}
 
 	/**
@@ -163,10 +159,10 @@ class Google_Sheets_Setup {
 	 * @since $$next-version$$
 	 *
 	 * @param array $feedback_ids Feedback post IDs, in the order they should appear.
-	 * @param array $column_ids   Field IDs, in the order the sheet's columns are in.
+	 * @param array $column_labels Field labels, in the order the sheet's columns are in.
 	 * @return array List of rows.
 	 */
-	public static function build_rows_for_feedback_ids( array $feedback_ids, array $column_ids ) {
+	public static function build_rows_for_feedback_ids( array $feedback_ids, array $column_labels ) {
 		$rows = array();
 
 		foreach ( $feedback_ids as $feedback_id ) {
@@ -177,7 +173,7 @@ class Google_Sheets_Setup {
 				continue;
 			}
 
-			$rows[] = self::build_row( $feedback, $column_ids );
+			$rows[] = self::build_row( $feedback, $column_labels );
 		}
 
 		return $rows;
@@ -193,16 +189,16 @@ class Google_Sheets_Setup {
 	 *     @type string $mode            'create' or 'existing'.
 	 *     @type string $title           Title for a newly created spreadsheet.
 	 *     @type string $spreadsheet_url Existing spreadsheet URL, when mode is 'existing'.
-	 *     @type array  $columns         List of arrays with 'id' and optional 'label'.
+	 *     @type array  $columns         List of field labels.
 	 *     @type array  $backfill_rows   Rows to seed, excluding the header. May be empty.
 	 * }
 	 * @return array|WP_Error Array with spreadsheet_id, spreadsheet_url and columns.
 	 */
 	public static function run( array $args ) {
-		$column_ids = self::get_column_ids( $args['columns'] );
+		$column_labels = self::get_column_labels( $args['columns'] );
 
 		if ( 'existing' === $args['mode'] ) {
-			return self::use_existing_sheet( $args, $column_ids );
+			return self::use_existing_sheet( $args, $column_labels );
 		}
 
 		$rows  = array_merge( array( self::build_header_row( $args['columns'] ) ), $args['backfill_rows'] );
@@ -223,7 +219,7 @@ class Google_Sheets_Setup {
 		return array(
 			'spreadsheet_id'  => (string) $sheet['sheet_id'],
 			'spreadsheet_url' => isset( $sheet['sheet_link'] ) ? (string) $sheet['sheet_link'] : '',
-			'columns'         => $column_ids,
+			'columns'         => $column_labels,
 		);
 	}
 
@@ -236,10 +232,10 @@ class Google_Sheets_Setup {
 	 * the append path, which reads the live header before it writes.
 	 *
 	 * @param array $args       The arguments passed to run().
-	 * @param array $column_ids The frozen column IDs.
+	 * @param array $column_labels The frozen column labels.
 	 * @return array|WP_Error
 	 */
-	private static function use_existing_sheet( array $args, array $column_ids ) {
+	private static function use_existing_sheet( array $args, array $column_labels ) {
 		$sheet_id = Google_Drive::extract_sheet_id( $args['spreadsheet_url'] );
 
 		if ( null === $sheet_id ) {
@@ -259,7 +255,7 @@ class Google_Sheets_Setup {
 		return array(
 			'spreadsheet_id'  => $sheet_id,
 			'spreadsheet_url' => is_array( $sheet ) && isset( $sheet['sheet_link'] ) ? (string) $sheet['sheet_link'] : '',
-			'columns'         => $column_ids,
+			'columns'         => $column_labels,
 		);
 	}
 }
