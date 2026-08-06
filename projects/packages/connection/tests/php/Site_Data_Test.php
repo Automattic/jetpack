@@ -8,12 +8,16 @@
 namespace Automattic\Jetpack\Connection;
 
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WP_REST_Server;
 
 /**
- * @see \Automattic\Jetpack\Connection\Site_Data
+ * Tests for the site data endpoint.
+ *
+ * @covers \Automattic\Jetpack\Connection\Site_Data
  */
+#[CoversClass( Site_Data::class )]
 class Site_Data_Test extends BaseTestCase {
 
 	/**
@@ -44,7 +48,7 @@ class Site_Data_Test extends BaseTestCase {
 		$this->manager = new Manager();
 
 		// `Manager::configure()` wires this in production; the tests construct the manager directly.
-		add_filter( 'map_meta_cap', array( $this->manager, 'jetpack_connection_custom_caps' ), 1, 4 );
+		add_filter( 'map_meta_cap', array( $this->manager, 'jetpack_admin_page_fallback_cap' ), 20, 2 );
 
 		do_action( 'rest_api_init' );
 		new REST_Connector( $this->manager );
@@ -56,7 +60,7 @@ class Site_Data_Test extends BaseTestCase {
 	public function tear_down() {
 		parent::tear_down();
 
-		remove_filter( 'map_meta_cap', array( $this->manager, 'jetpack_connection_custom_caps' ), 1 );
+		remove_filter( 'map_meta_cap', array( $this->manager, 'jetpack_admin_page_fallback_cap' ), 20 );
 
 		global $wp_rest_server;
 

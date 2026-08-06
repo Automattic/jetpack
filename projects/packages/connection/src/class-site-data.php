@@ -40,7 +40,7 @@ class Site_Data {
 	 * Whether the current user may read the site record.
 	 *
 	 * Gated on the `jetpack_admin_page` meta capability, mapped by the Jetpack plugin when present
-	 * and by {@see Manager::jetpack_connection_custom_caps()} otherwise. The check must stay on the
+	 * and by {@see Manager::jetpack_admin_page_fallback_cap()} otherwise. The check must stay on the
 	 * meta capability so that a `map_meta_cap` filter tightening access is obeyed.
 	 *
 	 * @since $$next-version$$
