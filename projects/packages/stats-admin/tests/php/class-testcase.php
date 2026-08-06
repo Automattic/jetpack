@@ -57,6 +57,11 @@ abstract class TestCase extends PHPUnit_TestCase {
 		);
 		wp_set_current_user( 0 );
 
+		// Seed the assumed site creation date so the connection manager doesn't
+		// query users/posts (WorDBless doesn't support the query it runs). The
+		// pre-launch date keeps the pricing grid eligibility check returning false.
+		set_transient( 'jetpack_assumed_site_creation_date', '2020-01-01 00:00:00' );
+
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
 		add_filter( 'pre_http_request', array( $this, 'plan_http_response_fixture' ), 10, 3 );
 		delete_option( Odyssey_Assets::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY );
@@ -76,6 +81,7 @@ abstract class TestCase extends PHPUnit_TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'plan_http_response_fixture' ) );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
 		delete_option( Odyssey_Assets::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY );
+		delete_transient( 'jetpack_assumed_site_creation_date' );
 	}
 
 	/**
