@@ -357,6 +357,22 @@ namespace {
         public function create_spreadsheet($name, ?array $rows)
         {
         }
+        /**
+         * @param  string $spreadsheet_id
+         * @return array|WP_Error
+         */
+        public function get_spreadsheet_summary($spreadsheet_id)
+        {
+        }
+        /**
+         * @param  Google_Service_Sheets_Spreadsheet $spreadsheet
+         * @param  array $headers
+         * @param  int $start_column
+         * @return null|WP_Error
+         */
+        public function write_header_cells($spreadsheet, array $headers, $start_column)
+        {
+        }
     }
     class Google_Service_Sheets_Spreadsheet extends \Google_Collection
     {

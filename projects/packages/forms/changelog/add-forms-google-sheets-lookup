@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Forms: add a Google Sheets lookup helper for the sync setup flow.
