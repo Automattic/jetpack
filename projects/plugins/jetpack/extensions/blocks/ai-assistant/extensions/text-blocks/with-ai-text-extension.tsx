@@ -188,6 +188,10 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		const customPlaceholder = getExtensionInputPlaceholder();
 
+		// The control sits in the document rather than pinned to the viewport, so nothing keeps it
+		// in view but the scrolling below.
+		const controlInFlow = ! adjustPosition;
+
 		// State to display the AI Control or not.
 		const [ showAiControl, setShowAiControl ] = useState( startOpen );
 
@@ -250,7 +254,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const onSuggestion = useCallback(
 			( suggestion: string ) => {
 				// Asked before the content changes, while the control is still where it was left.
-				const shouldFollow = ! adjustPosition && isFollowingControl();
+				const shouldFollow = controlInFlow && isFollowingControl();
 
 				onBlockSuggestion( suggestion );
 
@@ -270,6 +274,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			[
 				onBlockSuggestion,
 				adjustPosition,
+				controlInFlow,
 				snapToBottom,
 				adjustBlockPadding,
 				isFollowingControl,
@@ -281,7 +286,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const onDone = useCallback(
 			( suggestion: string, modelUsed?: AiModelTypeProp ) => {
 				// Asked before the closing update changes the layout, as for each streamed chunk.
-				const shouldFollow = ! adjustPosition && isFollowingControl();
+				const shouldFollow = controlInFlow && isFollowingControl();
 
 				disableAutoScroll();
 				onBlockDone( suggestion );
@@ -360,6 +365,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				increaseRequestsCount,
 				getContent,
 				adjustPosition,
+				controlInFlow,
 				focusInput,
 				isFollowingControl,
 				followControl,
@@ -377,7 +383,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				// The error message renders below the input, so it can push the recovery action of a
 				// control in normal flow out of reach. Asked before that message renders, and scrolled
 				// rather than focused, as a quota error leaves the input disabled.
-				const shouldFollow = ! adjustPosition && isFollowingControl();
+				const shouldFollow = controlInFlow && isFollowingControl();
 
 				disableAutoScroll();
 				setAction( '' );
@@ -395,13 +401,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 				increaseRequestsCount();
 			},
-			[
-				disableAutoScroll,
-				increaseRequestsCount,
-				adjustPosition,
-				isFollowingControl,
-				followControl,
-			]
+			[ disableAutoScroll, increaseRequestsCount, controlInFlow, isFollowingControl, followControl ]
 		);
 
 		const {
@@ -526,16 +526,18 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			if ( inputRef.current && isSelectionEnabled ) {
 				// Save the block's ownerDocument to use it later, as the editor can be in an iframe.
 				ownerDocument.current = inputRef.current.ownerDocument;
-				// Focus the input when the AI Control is displayed.
-				focusInput();
-
-				// Focus reveals the input by scrolling to it, but cannot when it is disabled, as it
-				// is over quota — so a control in normal flow is brought into view in its own right.
-				if ( ! adjustPosition ) {
+				// Focus the input when the AI Control is displayed. A control in normal flow leaves
+				// the scrolling to follow, which reveals the whole control rather than the input
+				// alone, and which still reaches it when the input is disabled for being over quota.
+				if ( controlInFlow ) {
+					focusInput( { preventScroll: true } );
 					followControl();
+					return;
 				}
+
+				focusInput();
 			}
-		}, [ showAiControl, focusInput, isSelectionEnabled, adjustPosition, followControl ] );
+		}, [ showAiControl, focusInput, isSelectionEnabled, controlInFlow, followControl ] );
 
 		// Adjusts the input position in the editor by increasing the block's bottom-padding
 		// and setting the control's margin-top, "wrapping" the input with the block.
@@ -635,7 +637,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				{ showAiControl && (
 					<AiAssistantInput
 						customPlaceholder={ customPlaceholder ? customPlaceholder : null }
-						className={ clsx( className, { 'is-static': ! adjustPosition } ) }
+						className={ clsx( className, { 'is-static': controlInFlow } ) }
 						requestingState={ requestingState }
 						requestingError={ error }
 						wrapperRef={ controlRef }
