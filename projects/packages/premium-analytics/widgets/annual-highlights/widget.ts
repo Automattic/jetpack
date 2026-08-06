@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { calendar } from '@wordpress/icons';
+import { pin } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -40,7 +40,7 @@ export const DEFAULT_HIGHLIGHT_METRICS: AnnualHighlightMetric[] = [
  * metric enabled.
  */
 export default {
-	icon: calendar,
+	icon: pin,
 	attributes: [
 		{
 			id: 'metrics',
