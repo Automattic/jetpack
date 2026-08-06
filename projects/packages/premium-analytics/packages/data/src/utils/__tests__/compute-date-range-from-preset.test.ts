@@ -146,6 +146,14 @@ describe( 'computeDateRangeFromPreset', () => {
 		expect( range!.to ).toBe( toZ( endOfYear( lastYear, { in: UTC } ) ) );
 	} );
 
+	it( 'returns the current calendar year through the end of today', () => {
+		const range = computeDateRangeFromPreset( 'year-2026' );
+
+		expect( range ).toBeDefined();
+		expect( range!.from ).toBe( toZ( startOfYear( TODAY_START, { in: UTC } ) ) );
+		expect( range!.to ).toBe( toZ( TODAY_END ) );
+	} );
+
 	it( 'returns undefined for unrecognized preset', () => {
 		// @ts-expect-error – testing with invalid preset on purpose
 		const range = computeDateRangeFromPreset( 'not-a-preset' );

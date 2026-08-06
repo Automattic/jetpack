@@ -4,6 +4,7 @@
 import {
 	getDefaultQueryParams,
 	queryClient,
+	resolveIntervalForRange,
 	type PresetType,
 } from '@jetpack-premium-analytics/data';
 import {
@@ -68,14 +69,13 @@ const MOCK_INSIGHTS_YEARS = [ 2026, 2025 ] as const;
 /**
  * Report params carrying a section's date selection, the way the URL does in
  * product: the year-surface preset next to the range it resolves to.
- * `normalizeReportParams` drops such a preset without its range, so the story
- * would silently fall back to the latest year if the dates were left out.
  *
- * @param selection - The story's date selection.
+ * @param selection      - The story's date selection.
+ * @param withComparison - Whether to include comparison params from the host.
  * @return Report params for the widget.
  */
-function reportParamsFor( selection: DateSelection ) {
-	const params = getDefaultQueryParams();
+function reportParamsFor( selection: DateSelection, withComparison = false ) {
+	const params = getDefaultQueryParams( withComparison );
 	if ( selection === 'latest' ) {
 		return params;
 	}
@@ -85,12 +85,15 @@ function reportParamsFor( selection: DateSelection ) {
 			? Math.min( ...MOCK_INSIGHTS_YEARS )
 			: getPresetYear( selection ) ?? Math.max( ...MOCK_INSIGHTS_YEARS );
 	const endYear = selection === PRESET_ALL_TIME ? Math.max( ...MOCK_INSIGHTS_YEARS ) : startYear;
+	const from = `${ startYear }-01-01T00:00:00.000Z`;
+	const to = `${ endYear }-12-31T23:59:59.999Z`;
 
 	return {
 		...params,
 		preset: selection,
-		from: `${ startYear }-01-01T00:00:00.000Z`,
-		to: `${ endYear }-12-31T23:59:59.999Z`,
+		from,
+		to,
+		interval: resolveIntervalForRange( selection, from, to, params.interval ),
 	};
 }
 
@@ -220,7 +223,7 @@ export const Error: Story = {
 
 /**
  * Resolved with no years: the widget shows its empty state (the neutral calendar
- * glyph and "No highlights to show yet.").
+ * glyph and "No highlights for this period.").
  */
 export const Empty: Story = {
 	render: () => renderAnnualHighlightsOnPreset( 'last-365-days' ),
@@ -251,7 +254,7 @@ function AnnualHighlightsDashboardStory( {
 			renderModule={ ANNUAL_HIGHLIGHTS_RENDER_MODULE }
 			renderComponent={ AnnualHighlightsRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ {
-				reportParams: reportParamsFor( dateSelection ),
+				reportParams: reportParamsFor( dateSelection, true ),
 				metrics,
 			} }
 		/>

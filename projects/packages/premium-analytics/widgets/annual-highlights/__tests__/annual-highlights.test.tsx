@@ -174,6 +174,8 @@ describe( 'AnnualHighlightsWidget', () => {
 	it( 'shows the empty state for a year the site did not publish in', async () => {
 		renderWidget( { preset: 'year-2019', from: '2019-01-01', to: '2019-12-31' } );
 
-		await expect( screen.findByText( 'No highlights to show yet.' ) ).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByText( 'No highlights for this period.' )
+		).resolves.toBeInTheDocument();
 	} );
 } );

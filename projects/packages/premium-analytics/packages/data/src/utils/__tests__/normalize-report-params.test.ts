@@ -373,20 +373,23 @@ describe( 'normalizeReportParams', () => {
 	 * year). Its selection has to survive normalization: as dates alone, an
 	 * all-time range covering one year is indistinguishable from that year.
 	 */
-	it( 'keeps a year-surface preset and the range the section resolved', () => {
+	it( 'recomputes a year preset so the current year stays fresh', () => {
+		mockComputeRange.mockReturnValueOnce( {
+			from: '2026-01-01T00:00:00.000-05:00',
+			to: FRESH_TO,
+		} );
+
 		const result = normalizeReportParams( {
-			from: '2025-01-01T00:00:00.000-05:00',
-			to: '2025-12-31T23:59:59.999-05:00',
-			preset: 'year-2025',
+			from: '2026-01-01T00:00:00.000-05:00',
+			to: STALE_TO,
+			preset: 'year-2026',
 			interval: 'month',
 		} );
 
-		expect( result.preset ).toBe( 'year-2025' );
-		// The range is fixed, so it is never recomputed — all time starts at the
-		// site's first listed year, which this layer cannot resolve.
-		expect( mockComputeRange ).not.toHaveBeenCalled();
-		expect( result.from ).toBe( '2025-01-01T00:00:00.000-05:00' );
-		expect( result.to ).toBe( '2025-12-31T23:59:59.999-05:00' );
+		expect( result.preset ).toBe( 'year-2026' );
+		expect( mockComputeRange ).toHaveBeenCalledWith( 'year-2026' );
+		expect( result.from ).toBe( '2026-01-01T00:00:00.000-05:00' );
+		expect( result.to ).toBe( FRESH_TO );
 	} );
 
 	it( 'keeps the all-time preset', () => {
@@ -400,14 +403,25 @@ describe( 'normalizeReportParams', () => {
 		expect( result.from ).toBe( '2023-01-01T00:00:00.000-05:00' );
 	} );
 
-	it( 'drops a year-surface preset that arrives without its range', () => {
+	it( 'rebuilds a year preset that arrives without its range', () => {
+		mockComputeRange.mockReturnValueOnce( {
+			from: '2025-01-01T00:00:00.000-05:00',
+			to: '2025-12-31T23:59:59.999-05:00',
+		} );
+
 		const result = normalizeReportParams( { preset: 'year-2025' } );
 
-		// Nothing here can rebuild the year's range, and honouring the preset
-		// against the default range would point widgets at a period the dates
-		// do not describe.
+		expect( result.preset ).toBe( 'year-2025' );
+		expect( result.from ).toBe( '2025-01-01T00:00:00.000-05:00' );
+		expect( result.to ).toBe( '2025-12-31T23:59:59.999-05:00' );
+	} );
+
+	it( 'drops an all-time preset that arrives without its site-specific range', () => {
+		const result = normalizeReportParams( { preset: 'all-time' } );
+
 		expect( result.preset ).toBe( 'last-30-days' );
 		expect( result.from ).toBe( FRESH_FROM );
+		expect( mockComputeRange ).toHaveBeenCalledWith( 'last-30-days' );
 	} );
 
 	it( 'omits post_id when search has none', () => {

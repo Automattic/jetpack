@@ -205,7 +205,7 @@ function AnnualHighlightsReport( {
 				} }
 				empty={ {
 					icon: calendar,
-					description: __( 'No highlights to show yet.', 'jetpack-premium-analytics-pkg' ),
+					description: __( 'No highlights for this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				{ totals && (

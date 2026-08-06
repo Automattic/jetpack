@@ -2,7 +2,9 @@
  * External dependencies
  */
 import {
+	PRESET_ALL_TIME,
 	isSelectablePreset,
+	isYearPresetId,
 	isYearSurfacePresetId,
 	type SelectablePresetId,
 	type ComparisonPresetId,
@@ -107,37 +109,36 @@ export function normalizeReportParams(
 
 	// Preset handling:
 	// - Use search.preset only if valid
-	// - Carry a year-surface preset through when the URL also carries its range
+	// - Recompute a year preset from its ID; carry all time only with its URL range
 	// - On fresh load (no from/to), fallback to defaults.preset
 	// - If user has explicit dates but no/invalid preset,
 	//   keep undefined (custom range)
 	let preset: ReportPresetId | undefined;
-	if ( search?.preset && isSelectablePreset( search.preset ) ) {
+	if (
+		search?.preset &&
+		( isSelectablePreset( search.preset ) || isYearPresetId( search.preset ) )
+	) {
 		preset = search.preset;
-	} else if ( isYearSurfacePresetId( search?.preset ) && search?.from && search?.to ) {
+	} else if ( search?.preset === PRESET_ALL_TIME && search?.from && search?.to ) {
 		/*
-		 * A section on the year surface writes `all-time` / `year-2025` into the
-		 * URL alongside the range it resolved. Widgets there need to tell those
-		 * two apart — a single year and an all-time range that happens to cover
-		 * one year look identical as dates — so the preset rides along instead
-		 * of being dropped as unrecognized. It is only honoured next to its own
-		 * `from`/`to`: all time starts at the site's first listed year, which
-		 * this layer cannot resolve, so the range is never reconstructed here.
+		 * All time starts at the site's first listed year, which this layer cannot
+		 * resolve, so it is only honoured next to the range the section wrote.
+		 * Keeping the marker lets widgets distinguish it from a single year when
+		 * both ranges happen to cover the same dates.
 		 */
 		preset = search.preset;
 	} else if ( ! search?.from && ! search?.to ) {
 		preset = defaults.preset;
 	}
 
-	// When a rolling preset is present, recalculate from/to
-	// so ranges like "Last 30 days" stay fresh
-	// on every page load instead of using stale URL dates.
+	// Recalculate rolling and per-year presets so their ranges stay fresh on
+	// every page load instead of using stale URL dates. The current calendar
+	// year's end moves with today just like a rolling range does.
 	// If the preset is valid but has no range implementation,
 	// clear it to avoid silently falling back to stale dates.
-	// Year-surface presets are skipped: their ranges are fixed, and the URL's
-	// own `from`/`to` is the range the section's control resolved.
+	// All time is skipped because its start depends on the site's first year.
 	let presetRange: ReturnType< typeof computeDateRangeFromPreset >;
-	if ( preset && isSelectablePreset( preset ) ) {
+	if ( preset && ( isSelectablePreset( preset ) || isYearPresetId( preset ) ) ) {
 		presetRange = computeDateRangeFromPreset( preset );
 		if ( ! presetRange ) {
 			preset = undefined;
@@ -193,8 +194,8 @@ export function needsReportDateParamsSeed( search?: ReportDateWindowSearch ): bo
 		return true;
 	}
 
-	// Narrow with the same guards `normalizeReportParams` uses, so the two can't
-	// disagree on which presets carry their own interval rules.
+	// Accept the same preset IDs as `normalizeReportParams`. Year-surface presets
+	// currently derive their intervals from the range, like an absent preset.
 	const preset =
 		isSelectablePreset( search.preset ) || isYearSurfacePresetId( search.preset )
 			? search.preset
