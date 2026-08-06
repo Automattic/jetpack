@@ -6,6 +6,12 @@
 $section-header-stacked-max-inline-size: 720px;
 
 /*
+ * Share of the header the title half may take before its subtitle starts
+ * wrapping. Tunable, and the number that decides which half gives first.
+ */
+$section-header-title-max-share: 50%;
+
+/*
  * Carries the query and nothing else: a container cannot answer a query about
  * its own size, so the grid it switches has to be a descendant.
  *
@@ -21,7 +27,16 @@ $section-header-stacked-max-inline-size: 720px;
 	display: grid;
 
 	/*
-	 * The title takes what it needs and the controls take the rest.
+	 * The title takes what it needs up to its share, and the controls take the
+	 * rest.
+	 *
+	 * The cap is what settles the order in which the two halves give way. An
+	 * `auto` track is grown to its max-content before an `fr` track receives
+	 * anything, so an uncapped title half won the whole negotiation: the
+	 * subtitle is a date range whose natural width follows the format and the
+	 * locale, and a long one pushed the presets into their abbreviated labels
+	 * while the header still had room. Capped, the subtitle wraps first, which
+	 * costs a line of a sentence rather than the wording of four controls.
 	 *
 	 * The controls cell is sized by the grid rather than by its content on
 	 * purpose: the date controls measure their own box to pick a responsive
@@ -30,8 +45,11 @@ $section-header-stacked-max-inline-size: 720px;
 	 * the header still showing the full labels. The report pages hand the same
 	 * panel a full-row box for the same reason: see `.filtersContent` in
 	 * `report-page-layout.module.scss`.
+	 *
+	 * A percentage rather than a length for the same reason the label boundary
+	 * is measured rather than hardcoded: it has to hold in every locale.
 	 */
-	grid-template-columns: auto minmax(0, 1fr);
+	grid-template-columns: fit-content($section-header-title-max-share) minmax(0, 1fr);
 	align-items: start;
 	gap: var(--wpds-dimension-gap-md);
 }
