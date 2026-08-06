@@ -96,6 +96,18 @@ class Knowledge_Migration_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The package loader initializes the feature hooks.
+	 */
+	public function test_feature_loader_bootstraps_migration_hooks() {
+		Jetpack_Mu_Wpcom::load_knowledge_migration();
+
+		$this->assertSame( 9, has_action( 'init', array( Knowledge_Migration::class, 'register_legacy_storage' ) ) );
+		$this->assertSame( 9, has_action( 'init', array( Knowledge_Migration::class, 'register_migration_setting' ) ) );
+		$this->assertSame( 100, has_action( 'init', array( Knowledge_Migration::class, 'maybe_schedule_migration' ) ) );
+		$this->assertSame( 10, has_action( Knowledge_Migration::CRON_HOOK, array( Knowledge_Migration::class, 'run_migration' ) ) );
+	}
+
+	/**
 	 * Legacy storage stays registered after migration completion.
 	 */
 	public function test_legacy_storage_registration_is_independent_of_migration_state() {
@@ -464,7 +476,9 @@ class Knowledge_Migration_Test extends \WorDBless\BaseTestCase {
 							)
 						);
 					}
-					$objects[] = $term;
+					$term            = clone $term;
+					$term->object_id = $object_id;
+					$objects[]       = $term;
 				}
 			}
 		}
