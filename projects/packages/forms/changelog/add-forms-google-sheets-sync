@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Forms: carry integration destinations in the response payload.
