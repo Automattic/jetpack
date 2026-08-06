@@ -129,6 +129,44 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			inputRef.current?.focus();
 		}, [] );
 
+		// A control in normal flow has to be kept up with as the block grows, the way a chat log
+		// stays with the newest message until its reader scrolls off. Whether to keep up is asked
+		// before each change, while the control is still where the last scroll left it — never of
+		// the scroll events themselves, which cannot say who caused them. A frame already queued
+		// counts as keeping up, since it means the content is outrunning the scrolling.
+		const followFrame = useRef< number | null >( null );
+
+		const isFollowingControl = useCallback( () => {
+			if ( followFrame.current !== null ) {
+				return true;
+			}
+
+			const control = controlRef.current;
+			const view = control?.ownerDocument?.defaultView;
+
+			if ( ! control || ! view ) {
+				return false;
+			}
+
+			const { top, bottom } = control.getBoundingClientRect();
+
+			return bottom > 0 && top < view.innerHeight;
+		}, [] );
+
+		const followControl = useCallback( () => {
+			const view = controlRef.current?.ownerDocument?.defaultView;
+
+			if ( ! view || followFrame.current !== null ) {
+				return;
+			}
+
+			// One scroll per frame, so a burst of chunks coalesces instead of fighting itself.
+			followFrame.current = view.requestAnimationFrame( () => {
+				followFrame.current = null;
+				controlRef.current?.scrollIntoView( { block: 'nearest', inline: 'nearest' } );
+			} );
+		}, [] );
+
 		const { tracks } = useAnalytics();
 
 		// Data and functions with block-specific implementations.
@@ -209,27 +247,32 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		// Called when a suggestion chunk is received.
 		const onSuggestion = useCallback(
 			( suggestion: string ) => {
+				// Asked before the content changes, while the control is still where it was left.
+				const shouldFollow = ! adjustPosition && isFollowingControl();
+
 				onBlockSuggestion( suggestion );
 
-				// Scroll to the bottom when a new suggestion is received. A sticky control stays in
-				// view on its own, so the block is the scroll target, and its bottom padding — which
-				// has to be kept up to date, as the block can be replaced or changed — holds the
-				// control clear of the content.
+				// Make sure the block element has the necessary bottom padding, as it can be replaced or changed
 				if ( adjustPosition ) {
 					adjustBlockPadding();
+
+					// Scroll to the bottom when a new suggestion is received.
 					snapToBottom();
 					return;
 				}
 
-				// A control in normal flow scrolls away with the block, so it becomes the target
-				// itself; it sits directly below the block, so the content arriving above it stays
-				// visible too. The update above is dispatched rather than applied, so wait for it to
-				// render — scrolling now would measure the control's old position and leave it below
-				// the viewport once the taller content commits. A sticky control needs no such care,
-				// since it re-pins itself after any layout change.
-				window.requestAnimationFrame( () => snapToBottom( controlRef.current ) );
+				if ( shouldFollow ) {
+					followControl();
+				}
 			},
-			[ onBlockSuggestion, adjustPosition, snapToBottom, adjustBlockPadding ]
+			[
+				onBlockSuggestion,
+				adjustPosition,
+				snapToBottom,
+				adjustBlockPadding,
+				isFollowingControl,
+				followControl,
+			]
 		);
 
 		// Called after the last suggestion chunk is received.
@@ -282,10 +325,6 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					if ( adjustPosition ) {
 						adjustBlockPadding();
 					}
-
-					// Focus scrolls the input into view only when it is not already there, which is
-					// what brings back a control in normal flow that this last update pushed past the
-					// bottom of the viewport, by adding the submit button and the completed buttons.
 					focusInput();
 				}, 100 );
 
@@ -319,19 +358,18 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		// Called when an error is received.
 		const onError = useCallback(
 			error => {
+				// The error message renders below the input, so it can push the recovery action of a
+				// control in normal flow out of reach. Asked before that message renders, and scrolled
+				// rather than focused, as a quota error leaves the input disabled.
+				const shouldFollow = ! adjustPosition && isFollowingControl();
+
 				disableAutoScroll();
 				setAction( '' );
 
 				debug( 'Request error', error );
 
-				// The error message renders below the input, so it can push the recovery action of a
-				// control in normal flow out of reach. Scroll rather than focus, as a quota error
-				// leaves the input disabled, and by the nearest edge so a control the message did not
-				// push out is left where it is.
-				if ( ! adjustPosition ) {
-					window.requestAnimationFrame(
-						() => controlRef.current?.scrollIntoView( { block: 'nearest', inline: 'nearest' } )
-					);
+				if ( shouldFollow ) {
+					followControl();
 				}
 
 				// Increase the AI Suggestion counter only for valid errors.
@@ -341,7 +379,13 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 				increaseRequestsCount();
 			},
-			[ disableAutoScroll, increaseRequestsCount, adjustPosition ]
+			[
+				disableAutoScroll,
+				increaseRequestsCount,
+				adjustPosition,
+				isFollowingControl,
+				followControl,
+			]
 		);
 
 		const {
