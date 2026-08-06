@@ -37,13 +37,6 @@ class Concatenate_Static_Cache_Urls_Test extends BaseTestCase {
 	private $asset_dir;
 
 	/**
-	 * The page_optimize_site_url filter callback, kept so tear_down can remove it.
-	 *
-	 * @var callable
-	 */
-	private $site_url_filter;
-
-	/**
 	 * Absolute paths of the fixture files written by set_up(), so tear_down removes those and
 	 * nothing else.
 	 *
@@ -60,8 +53,9 @@ class Concatenate_Static_Cache_Urls_Test extends BaseTestCase {
 		Status_Cache::clear();
 
 		// The assets must live under wp-content. Dependency_Path_Mapping resolves enqueued URLs back
-		// to paths relative to it, and skips anything it cannot resolve.
-		$this->asset_dir = WP_CONTENT_DIR . '/boost-concat-test';
+		// to paths relative to it, and skips anything it cannot resolve. The pid suffix keeps
+		// concurrent test processes from clobbering each other's fixtures.
+		$this->asset_dir = WP_CONTENT_DIR . '/boost-concat-test-' . getmypid();
 		if ( ! is_dir( $this->asset_dir ) ) {
 			mkdir( $this->asset_dir, 0755, true );
 		}
@@ -77,20 +71,9 @@ class Concatenate_Static_Cache_Urls_Test extends BaseTestCase {
 			file_put_contents( $path, $contents );
 			$this->asset_files[] = $path;
 		}
-
-		// Both classes derive the site URL from the base_url WordPress hands them, which points at
-		// wp-includes here. Pin it, or nothing resolves as internal and every asset is skipped.
-		$this->site_url_filter = function () {
-			return site_url();
-		};
-		add_filter( 'page_optimize_site_url', $this->site_url_filter );
 	}
 
 	public function tear_down() {
-		if ( $this->site_url_filter ) {
-			remove_filter( 'page_optimize_site_url', $this->site_url_filter );
-		}
-
 		// Remove exactly the files set_up() wrote, then the directory if that emptied it. Tracking
 		// paths rather than ownership means a part-way run cannot leave the fixture behind.
 		foreach ( $this->asset_files as $file ) {
@@ -118,10 +101,24 @@ class Concatenate_Static_Cache_Urls_Test extends BaseTestCase {
 		Status_Cache::clear();
 	}
 
+	/**
+	 * Put the site on WordPress.com Atomic: the WP Cloud constants plus wpcomsh, so
+	 * get_hosting_provider() returns 'woa' rather than 'atomic'.
+	 */
+	private function pretend_to_be_on_wpcom_atomic() {
+		$this->pretend_to_be_on_wp_cloud();
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', 'wpcomsh.php' );
+		Status_Cache::clear();
+	}
+
+	private function asset_url( $name ) {
+		return '/wp-content/' . basename( $this->asset_dir ) . '/' . $name;
+	}
+
 	private function render_styles() {
 		$styles = new Concatenate_CSS( new WP_Styles() );
-		$styles->add( 'boost-test-a', '/wp-content/boost-concat-test/a.css', array(), null );
-		$styles->add( 'boost-test-b', '/wp-content/boost-concat-test/b.css', array(), null );
+		$styles->add( 'boost-test-a', $this->asset_url( 'a.css' ), array(), null );
+		$styles->add( 'boost-test-b', $this->asset_url( 'b.css' ), array(), null );
 		$styles->enqueue( array( 'boost-test-a', 'boost-test-b' ) );
 
 		// finally, so a throw inside do_items() surfaces as that failure rather than as a leaked
@@ -138,8 +135,8 @@ class Concatenate_Static_Cache_Urls_Test extends BaseTestCase {
 
 	private function render_scripts() {
 		$scripts = new Concatenate_JS( new WP_Scripts() );
-		$scripts->add( 'boost-test-a', '/wp-content/boost-concat-test/a.js', array(), null );
-		$scripts->add( 'boost-test-b', '/wp-content/boost-concat-test/b.js', array(), null );
+		$scripts->add( 'boost-test-a', $this->asset_url( 'a.js' ), array(), null );
+		$scripts->add( 'boost-test-b', $this->asset_url( 'b.js' ), array(), null );
 		$scripts->enqueue( array( 'boost-test-a', 'boost-test-b' ) );
 
 		ob_start();
@@ -168,6 +165,30 @@ class Concatenate_Static_Cache_Urls_Test extends BaseTestCase {
 	public function test_js_falls_back_when_a_stale_verdict_arrives_on_wp_cloud() {
 		update_site_option( 'jetpack_boost_static_minification', 1 );
 		$this->pretend_to_be_on_wp_cloud();
+
+		$output = $this->render_scripts();
+
+		$this->assertStringContainsString( '/_jb_static/??', $output );
+		$this->assertStringNotContainsString( '/boost-cache/static/', $output );
+	}
+
+	/**
+	 * WordPress.com Atomic classifies as 'woa', not 'atomic'. These pin the guard to "anything but
+	 * 'other'": narrowing it to one named provider must fail here, not on WordPress.com.
+	 */
+	public function test_css_falls_back_when_a_stale_verdict_arrives_on_wpcom_atomic() {
+		update_site_option( 'jetpack_boost_static_minification', 1 );
+		$this->pretend_to_be_on_wpcom_atomic();
+
+		$output = $this->render_styles();
+
+		$this->assertStringContainsString( '/_jb_static/??', $output );
+		$this->assertStringNotContainsString( '/boost-cache/static/', $output );
+	}
+
+	public function test_js_falls_back_when_a_stale_verdict_arrives_on_wpcom_atomic() {
+		update_site_option( 'jetpack_boost_static_minification', 1 );
+		$this->pretend_to_be_on_wpcom_atomic();
 
 		$output = $this->render_scripts();
 

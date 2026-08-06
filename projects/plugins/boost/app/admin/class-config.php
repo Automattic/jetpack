@@ -98,7 +98,7 @@ class Config {
 	 * We're only interested in 'atomic' or 'woa' for now.
 	 *
 	 * A new value here also changes CSS and JS delivery:
-	 * jetpack_boost_minify_host_handles_wp_content_404s() reads anything but 'other' as a host that
+	 * jetpack_boost_minify_use_static_cache_urls() reads anything but 'other' as a host that
 	 * answers wp-content 404s itself, and opts it out of static cache URLs for good.
 	 *
 	 * @since 3.10.0
