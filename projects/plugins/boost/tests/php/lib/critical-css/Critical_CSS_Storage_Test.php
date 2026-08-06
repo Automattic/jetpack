@@ -111,12 +111,14 @@ class Critical_CSS_Storage_Test extends BaseTestCase {
 	 * Write a cache row directly, bypassing set()'s own encoding, to stand in for
 	 * a write to the CPT that did not come from Boost.
 	 *
-	 * @param string $key     Cache key.
-	 * @param mixed  $payload Payload to encode into post_content.
+	 * @param string $key      Cache key.
+	 * @param mixed  $payload  Payload to encode into post_content.
+	 * @param bool   $prefixed Write the current row-format prefix. False stands in for
+	 *                         a row written before this release.
 	 */
-	private function write_raw_cache_entry( $key, $payload ) {
+	private function write_raw_cache_entry( $key, $payload, $prefixed = true ) {
 		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
-		$this->write_raw_serialized_entry( $key, serialize( $payload ) );
+		$this->write_raw_serialized_entry( $key, serialize( $payload ), $prefixed );
 	}
 
 	/**
@@ -125,8 +127,11 @@ class Critical_CSS_Storage_Test extends BaseTestCase {
 	 *
 	 * @param string $key        Cache key.
 	 * @param string $serialized Serialized payload to encode into post_content.
+	 * @param bool   $prefixed   Write the current row-format prefix.
 	 */
-	private function write_raw_serialized_entry( $key, $serialized ) {
+	private function write_raw_serialized_entry( $key, $serialized, $prefixed = true ) {
+		$prefix = $prefixed ? Storage_Post_Type::CACHE_VERSION . ':' : '';
+
 		wp_insert_post(
 			array(
 				'post_type'    => 'jb_store_css',
@@ -134,7 +139,7 @@ class Critical_CSS_Storage_Test extends BaseTestCase {
 				'post_name'    => $key,
 				'post_status'  => 'publish',
 				// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-				'post_content' => base64_encode( $serialized ),
+				'post_content' => $prefix . base64_encode( $serialized ),
 			)
 		);
 	}
@@ -265,7 +270,7 @@ class Critical_CSS_Storage_Test extends BaseTestCase {
 	 * on its wire format, before unserialize() runs, so no object -- not even a
 	 * __PHP_Incomplete_Class -- is ever instantiated from a cache row (CWE-502).
 	 */
-	public function test_get_rejects_and_deletes_cache_content_containing_an_object() {
+	public function test_get_rejects_cache_content_containing_an_object() {
 		$key     = 'poi_probe';
 		$storage = new Storage_Post_Type( 'css' );
 
@@ -290,9 +295,9 @@ class Critical_CSS_Storage_Test extends BaseTestCase {
 			'A rejected payload must never reach the transient cache.'
 		);
 
-		$this->assertFalse(
+		$this->assertNotFalse(
 			$storage->get_post_by_name( $key ),
-			'The poisoned cache entry must be deleted.'
+			'The object check is inexact, so it refuses without deleting; the next set() overwrites the row.'
 		);
 
 		$this->assertFalse(
@@ -333,8 +338,8 @@ class Critical_CSS_Storage_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The object rejection must not reject the ordinary array payloads that set()
-	 * writes, which are what every Boost read depends on.
+	 * The checks must not reject the ordinary array payloads that set() writes, which
+	 * are what every Boost read depends on.
 	 */
 	public function test_get_still_returns_ordinary_array_payloads() {
 		$key     = 'benign_probe';
@@ -343,10 +348,15 @@ class Critical_CSS_Storage_Test extends BaseTestCase {
 		$storage->set( $key, array( 'css' => '.a {}' ) );
 		delete_transient( self::transient_key( $key ) );
 
+		$this->assertStringStartsWith(
+			Storage_Post_Type::CACHE_VERSION . ':',
+			$storage->get_post_by_name( $key )->post_content,
+			'set() must write the row-format prefix.'
+		);
 		$this->assertSame(
 			array( 'css' => '.a {}' ),
 			$storage->get( $key, 'default_value' ),
-			'A normal payload must survive the object check.'
+			'A normal payload must survive the prefix and object checks.'
 		);
 	}
 
@@ -390,37 +400,39 @@ class Critical_CSS_Storage_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A serialized enum case (an 'E:' token) is not covered by
-	 * allowed_classes => false, and resolving it hands an attacker-chosen class
-	 * name to the autoloader. The wire-format check refuses it first.
+	 * An 'E:' token builds an enum case whatever allowed_classes says, so for enums
+	 * the wire-format check is the only guard there is.
 	 */
-	public function test_get_rejects_and_deletes_a_serialized_enum_token() {
+	public function test_get_rejects_a_serialized_enum_token() {
 		$key     = 'enum_probe';
 		$storage = new Storage_Post_Type( 'css' );
 
-		$token = 'Boost_Absent_Attacker_Chosen:CASE_A';
+		$token   = 'Boost_Absent_Attacker_Chosen:CASE_A';
+		$payload = 'a:2:{s:4:"data";E:' . strlen( $token ) . ':"' . $token . '";s:6:"expiry";i:0;}';
 
-		$this->write_raw_serialized_entry(
-			$key,
-			'a:2:{s:4:"data";E:' . strlen( $token ) . ':"' . $token . '";s:6:"expiry";i:0;}'
+		// Assert the pattern directly as well. Naming an absent class makes unserialize()
+		// fail on its own, so the outcome below is the same with E: dropped from the
+		// pattern, and narrowing it to [OC] would otherwise pass the whole suite.
+		$this->assertSame(
+			1,
+			preg_match( Storage_Post_Type::OBJECT_TOKEN_PATTERN, $payload ),
+			'The wire-format check must still recognise an E: enum token.'
 		);
+
+		$this->write_raw_serialized_entry( $key, $payload );
 
 		$this->assertSame(
 			'default_value',
 			$storage->get( $key, 'default_value' ),
 			'An enum token in the payload must never reach unserialize().'
 		);
-		$this->assertFalse(
-			$storage->get_post_by_name( $key ),
-			'A row carrying an enum token must be deleted, like any other object.'
-		);
 	}
 
 	/**
-	 * A row that claims to be serialized and will not deserialize cannot have been
-	 * written by Boost, and left alone it would be re-parsed on every read.
+	 * A row that claims to be serialized and will not deserialize is not one Boost
+	 * can serve, whether it was truncated by a bad import or built by hand.
 	 */
-	public function test_get_deletes_a_payload_that_claims_to_be_serialized_and_is_not() {
+	public function test_get_refuses_a_payload_that_claims_to_be_serialized_and_is_not() {
 		$key     = 'malformed_probe';
 		$storage = new Storage_Post_Type( 'css' );
 
@@ -432,9 +444,39 @@ class Critical_CSS_Storage_Test extends BaseTestCase {
 			$storage->get( $key, 'default_value' ),
 			'A payload that will not deserialize must not be served.'
 		);
+		$this->assertNotFalse(
+			$storage->get_post_by_name( $key ),
+			'A truncated row and a crafted one look the same here, so neither is deleted.'
+		);
+	}
+
+	/**
+	 * The post types carried show_in_rest => true and the default capabilities until
+	 * this release, so a row can predate the fix. Refusing on the prefix settles it
+	 * without decoding: an object payload is never built, and a deeply nested one
+	 * never reaches the parser that PHP 7.2 and 7.3 recurse on.
+	 */
+	public function test_get_rejects_and_deletes_a_row_without_the_current_format_prefix() {
+		$key     = 'legacy_row_probe';
+		$storage = new Storage_Post_Type( 'css' );
+
+		$this->write_raw_cache_entry(
+			$key,
+			array(
+				'data'   => array( 'css' => 'body{display:none}' ),
+				'expiry' => 0,
+			),
+			false
+		);
+
+		$this->assertSame(
+			'default_value',
+			$storage->get( $key, 'default_value' ),
+			'A row written before the current format must not be served, object token or not.'
+		);
 		$this->assertFalse(
 			$storage->get_post_by_name( $key ),
-			'A payload that will not deserialize must be deleted.'
+			'The prefix check is exact, so the row can be deleted rather than left in place.'
 		);
 	}
 

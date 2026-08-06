@@ -363,4 +363,26 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 			);
 		}
 	}
+
+	/**
+	 * An array passes isset(), and preg_match() throws a TypeError on one.
+	 * This runs inside the output buffer callback, so the throw is a blank page.
+	 */
+	public function test_an_array_width_value_is_a_skipped_breakpoint_not_a_type_error() {
+		$data = $this->create_lcp_data( $this->get_default_optimizations() );
+
+		$data['breakpoints'] = array_map(
+			function ( $breakpoint ) {
+				$breakpoint['widthValue'] = array( '100vw' );
+				return $breakpoint;
+			},
+			$data['breakpoints']
+		);
+
+		$this->assertStringNotContainsString(
+			'sizes=',
+			( new LCP_Optimize_Img_Tag( $data ) )->optimize_buffer( $this->get_test_buffer() ),
+			'A non-string widthValue must be skipped before it reaches preg_match().'
+		);
+	}
 }

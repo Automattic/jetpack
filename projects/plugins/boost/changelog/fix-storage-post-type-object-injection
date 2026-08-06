@@ -1,4 +1,4 @@
 Significance: patch
 Type: security
 
-Critical CSS/LCP: Close REST API access to the cache storage, and refuse to load a stored cache entry that contains a PHP object.
+Critical CSS/LCP: Close REST API access to the cache storage, refuse to load a stored cache entry that contains a PHP object, and discard entries written before this release.

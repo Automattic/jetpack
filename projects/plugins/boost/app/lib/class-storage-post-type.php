@@ -17,10 +17,11 @@ namespace Automattic\Jetpack_Boost\Lib;
 class Storage_Post_Type {
 
 	/**
-	 * Cache format version, part of the transient key.
+	 * Cache format version. Part of the transient key, and the prefix on post_content.
 	 *
 	 * Keeps get() away from transients an earlier release wrote, which were cached
-	 * without the object checks below.
+	 * without the object checks below, and away from rows written while the REST
+	 * route and the default capabilities were open.
 	 *
 	 * @since $$next-version$$
 	 */
@@ -81,6 +82,20 @@ class Storage_Post_Type {
 	 */
 	private function transient_key( $key ) {
 		return $this->post_type_slug() . '_' . self::CACHE_VERSION . '_' . $key;
+	}
+
+	/**
+	 * The prefix set() puts in front of the encoded payload.
+	 *
+	 * Sits outside the payload so get() can tell a row this release wrote from one
+	 * written while anyone could write it, without decoding or parsing either.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string
+	 */
+	private function row_prefix() {
+		return self::CACHE_VERSION . ':';
 	}
 
 	/**
@@ -157,7 +172,7 @@ class Storage_Post_Type {
 			'data'   => $value,
 			'expiry' => $expiry_timestamp,
 		);
-		$data_post_data['post_content'] = base64_encode( maybe_serialize( $value ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$data_post_data['post_content'] = $this->row_prefix() . base64_encode( maybe_serialize( $value ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 
 		// Update an existing data post if we have one or create a new one.
 		if ( $data_post ) {
@@ -197,29 +212,42 @@ class Storage_Post_Type {
 		 * )
 		 */
 
+		$prefix = $this->row_prefix();
+
+		// A row without the prefix was written before this release, when the REST route
+		// and the default capabilities let anyone create one. Refuse it whole: neither
+		// base64_decode() nor unserialize() sees a byte of it, so an object payload
+		// cannot be built and a deeply nested one cannot exhaust the parser.
+		if ( 0 !== strpos( $data_post->post_content, $prefix ) ) {
+			$this->delete_rejected_row( $key, $data_post, 'predates the current row format' );
+
+			return $default;
+		}
+
 		// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize, WordPress.PHP.NoSilencedErrors.Discouraged
-		$decoded = base64_decode( $data_post->post_content );
+		$decoded = base64_decode( substr( $data_post->post_content, strlen( $prefix ) ) );
 		$value   = $decoded;
+
+		// Ahead of is_serialized(), which has no case for C:, and ahead of unserialize(),
+		// so no object is instantiated: not O:/C: as __PHP_Incomplete_Class, and not E:,
+		// which allowed_classes does not filter at all.
+		if ( preg_match( self::OBJECT_TOKEN_PATTERN, trim( $decoded ) ) ) {
+			$this->refuse_row( $key, 'contains an object' );
+
+			return $default;
+		}
 
 		if ( is_serialized( $decoded ) ) {
 			$trimmed = trim( $decoded );
 
-			// Refuse the row before unserialize() sees it: checking the wire format means
-			// no object is ever instantiated, not even __PHP_Incomplete_Class. A payload
-			// whose own string data happens to match only costs a regeneration.
-			if ( preg_match( self::OBJECT_TOKEN_PATTERN, $trimmed ) ) {
-				$this->delete_rejected_row( $key, $data_post, 'contains an object' );
-
-				return $default;
-			}
-
-			// allowed_classes as a second layer behind the pattern above.
+			// Degrades O:/C: to an inert __PHP_Incomplete_Class if the pattern above ever
+			// misses one. It is not a second layer for E:, where the pattern is the only guard.
 			$value = @unserialize( $trimmed, array( 'allowed_classes' => false ) );
 
 			// Claimed serialized and would not deserialize: not a row Boost wrote.
 			// b:0; legitimately gives false.
 			if ( false === $value && 'b:0;' !== $trimmed ) {
-				$this->delete_rejected_row( $key, $data_post, 'is malformed' );
+				$this->refuse_row( $key, 'is malformed' );
 
 				return $default;
 			}
@@ -245,7 +273,30 @@ class Storage_Post_Type {
 	}
 
 	/**
-	 * Delete a cache row get() refused to load.
+	 * Serve the default for a row get() will not read, and leave the row alone.
+	 *
+	 * The checks that land here are inexact. serialize() embeds CSS and markup
+	 * verbatim, so ordinary content can carry something the object pattern matches,
+	 * and a truncated row looks the same as a crafted one. Deleting would cost a
+	 * regeneration on a false positive; the next set() overwrites the row anyway.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $key    Cache key name.
+	 * @param string $reason For the debug log.
+	 *
+	 * @return void
+	 */
+	private function refuse_row( $key, $reason ) {
+		Debug::log( 'refused cache entry "' . $key . '": stored content ' . $reason );
+	}
+
+	/**
+	 * Delete a row get() can prove it did not write, and serve the default.
+	 *
+	 * The prefix check is exact, so this cannot fire on a row the current release
+	 * wrote. Deleting clears out anything planted while the post types were open,
+	 * one key at a time as each is read, instead of in a sweep on upgrade.
 	 *
 	 * Contained, because get() has already decided to serve the default and a
 	 * throwing wp_delete_post() subscriber must not fatal the render.

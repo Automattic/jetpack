@@ -77,22 +77,7 @@ class LCP_Storage_Test extends BaseTestCase {
 		$key     = 'wrong_shape_probe';
 		$storage = new LCP_Storage();
 
-		wp_insert_post(
-			array(
-				'post_type'    => 'jb_store_lcp',
-				'post_title'   => $key,
-				'post_name'    => $key,
-				'post_status'  => 'publish',
-				'post_content' => base64_encode( // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-					maybe_serialize(
-						array(
-							'data'   => 'not-an-array',
-							'expiry' => 0,
-						)
-					)
-				),
-			)
-		);
+		$this->write_raw_lcp_entry( $key, 'not-an-array' );
 
 		$this->assertFalse(
 			$storage->get_lcp( $key ),
@@ -137,6 +122,50 @@ class LCP_Storage_Test extends BaseTestCase {
 		$this->assertFalse(
 			$storage->get_lcp( $key ),
 			'A list whose records are not arrays must be a miss, not a payload every consumer will index into.'
+		);
+	}
+
+	/**
+	 * LCP_Optimize_Img_Tag, LCP_Optimize_Bg_Image and LCP_Optimization_Util all compare
+	 * $record['type'] without checking it is there, which warns from wp_head.
+	 */
+	public function test_get_lcp_treats_a_record_without_a_type_as_a_miss() {
+		$key     = 'typeless_record_probe';
+		$storage = new LCP_Storage();
+
+		$this->write_raw_lcp_entry( $key, array( array( 'success' => true ) ) );
+
+		$this->assertFalse(
+			$storage->get_lcp( $key ),
+			'A record without a type must be a miss, not a payload three consumers index for it.'
+		);
+	}
+
+	/**
+	 * A report holds one record per viewport, and Update_LCP::response() stores a page's
+	 * reports whether or not every viewport succeeded. Dropping the whole report over one
+	 * bad viewport would lose the optimization the good one still describes.
+	 */
+	public function test_get_lcp_keeps_the_good_records_alongside_a_bad_one() {
+		$key     = 'mixed_report_probe';
+		$storage = new LCP_Storage();
+		$good    = array(
+			'success' => true,
+			'type'    => 'img',
+		);
+
+		$this->write_raw_lcp_entry(
+			$key,
+			array(
+				'mobile'  => $good,
+				'desktop' => array( 'success' => false ),
+			)
+		);
+
+		$this->assertSame(
+			array( 'mobile' => $good ),
+			$storage->get_lcp( $key ),
+			'A malformed viewport must cost its own record, not the whole report.'
 		);
 	}
 
@@ -205,7 +234,7 @@ class LCP_Storage_Test extends BaseTestCase {
 				'post_title'   => $key,
 				'post_name'    => $key,
 				'post_status'  => 'publish',
-				'post_content' => base64_encode( // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+				'post_content' => Storage_Post_Type::CACHE_VERSION . ':' . base64_encode( // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 					maybe_serialize(
 						array(
 							'data'   => $value,
