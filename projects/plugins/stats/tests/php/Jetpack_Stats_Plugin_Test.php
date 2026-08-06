@@ -17,6 +17,37 @@ use WorDBless\BaseTestCase;
 class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 
 	/**
+	 * `Connection_Manager::is_connected()` caches its answer in a static, which survives
+	 * the per-test database reset. Clear it so a faked connection cannot leak.
+	 */
+	public function tear_down() {
+		( new Connection_Manager() )->reset_connection_status();
+	}
+
+	/**
+	 * Give `Connection_Manager::is_connected()` the blog ID and token it looks for.
+	 */
+	private function fake_connection() {
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'blog_token', 'test.token' );
+		( new Connection_Manager() )->reset_connection_status();
+	}
+
+	/**
+	 * Record every module that reaches `Modules::activate()`.
+	 *
+	 * @param array $activated Collected module slugs, by reference.
+	 */
+	private function record_module_activations( array &$activated ) {
+		add_action(
+			'jetpack_pre_activate_module',
+			function ( $module ) use ( &$activated ) {
+				$activated[] = $module;
+			}
+		);
+	}
+
+	/**
 	 * The plugin file registers its hooks on load, in `bootstrap()`. Requiring the
 	 * file happens once in the test bootstrap, so the hooks are already in place.
 	 */
@@ -82,6 +113,42 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	public function test_activation_lands_on_onboarding_when_not_connected() {
 		$this->assertFalse( ( new Connection_Manager() )->is_connected(), 'Test environment is expected to be unconnected.' );
 		$this->assertSame( 'my-jetpack', Jetpack_Stats_Plugin::get_post_activation_page() );
+	}
+
+	/**
+	 * `activated_plugin` fires for every plugin. Acting on all of them would switch Stats
+	 * back on whenever any other plugin is activated, undoing a deliberate opt-out.
+	 */
+	public function test_activating_another_plugin_leaves_the_stats_module_alone() {
+		$this->fake_connection();
+		$activated = array();
+		$this->record_module_activations( $activated );
+
+		Jetpack_Stats_Plugin::handle_plugin_activation( 'some-other-plugin/some-other-plugin.php' );
+
+		$this->assertSame( array(), $activated );
+	}
+
+	/**
+	 * The counterpart: activating this plugin does switch the module on.
+	 */
+	public function test_activating_this_plugin_activates_the_stats_module() {
+		$this->fake_connection();
+		$activated = array();
+		$this->record_module_activations( $activated );
+
+		Jetpack_Stats_Plugin::handle_plugin_activation( JETPACK_STATS_PLUGIN__FILE_RELATIVE_PATH );
+
+		$this->assertSame( array( 'stats' ), $activated );
+	}
+
+	/**
+	 * A site with no connection has no token to report stats with, so the module stays off
+	 * and the caller is told so rather than the result being discarded.
+	 */
+	public function test_module_activation_reports_failure_without_a_connection() {
+		$this->assertFalse( ( new Connection_Manager() )->is_connected(), 'Test environment is expected to be unconnected.' );
+		$this->assertFalse( Jetpack_Stats_Plugin::activate_stats_module() );
 	}
 
 	/**
