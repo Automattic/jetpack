@@ -814,16 +814,10 @@ class Contact_Form_Block {
 		// Count and store form steps
 		self::$form_step_count = self::count_form_steps_in_block( $parsed_block );
 
-		// A Button block that doesn't specify an element renders as an `a`, which can
-		// never submit the form. Default it to `button` for as long as this form is
-		// rendering; gutenblock_render_form() drops the filter again once it is done.
-		//
-		// Only attach it when we know that method will run: either we render a synced
-		// form ourselves just below, or rendering proceeds normally and it runs as the
-		// block's render callback. If another pre_render_block callback has already
-		// short-circuited this block, neither happens and the filter would stay attached
-		// for the rest of the request.
 		if ( isset( $parsed_block['attrs']['ref'] ) || null === $pre_render ) {
+			// This happends only important for lagacy reasons and when code is programatically generated.
+			// Since it can include the previous jetpack button.
+			// Which by default renders as a link instead of a button resulting in the form not submitting.
 			add_filter( 'jetpack_button_default_element', array( __CLASS__, 'submit_button_element' ) );
 		}
 
