@@ -185,10 +185,13 @@ export function ComparativeBarChart( {
 		const baseOptions = {
 			axis: {
 				x: {
-					// Must stay conditional: `formatDate` defaults to `medium`, so an
-					// unconditional `xTickFormat` would put full site-format dates on every
-					// tick. Without the prop, the chart library's own tick labels stay in use.
-					tickFormat: xTickFormatType ? xTickFormat : undefined,
+					// Omit the key entirely rather than passing `undefined`: the bar chart
+					// spreads these options over its own defaults, so an explicit
+					// `tickFormat: undefined` overwrites its `formatDateTick` and the axis
+					// falls back to raw `Date.toString()`. Staying conditional also keeps
+					// `formatDate`'s `medium` default from putting full site-format dates
+					// on every tick when no format was asked for.
+					...( xTickFormatType ? { tickFormat: xTickFormat } : {} ),
 				},
 				y: {
 					tickFormat: yTickFormat,
