@@ -46,6 +46,12 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 		// These action causing issues in tests in WPCOM context. Since we are not using any real block here,
 		// and we are testing block availability with block stubs - we are safe to remove these actions for these tests.
 		remove_all_actions( 'jetpack_register_gutenberg_extensions' );
+
+		// Constants::$set_constants is a process-global static, so an override leaked by
+		// another test file (e.g. one that throws between set_constant and its cleanup)
+		// would otherwise flip block loading for whichever test here runs first.
+		Constants::clear_single_constant( 'REST_REQUEST' );
+		Constants::clear_single_constant( 'REST_API_REQUEST' );
 	}
 
 	/**
