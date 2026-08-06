@@ -12,18 +12,11 @@ const defaultFunctions = Object.freeze( {
 const defaultI18nModule = '@wordpress/i18n';
 
 /**
- * Emit a debug message describing a node, with a code frame pointing at it.
+ * Log a code frame only when debug output is enabled, as generating one scans
+ * the source file.
  *
- * `buildCodeFrameError()` renders an excerpt of the surrounding source, which
- * means walking the whole file. Passing it straight to `debug()` looks free
- * when debug output is off, but JavaScript evaluates call arguments eagerly, so
- * the frame is built for every matched call either way. On the large bundles
- * this plugin runs over during a build that dominated the whole transform —
- * building frames cost ~35s on a 2.4MB bundle, against ~0.5s to parse and
- * regenerate it. Build the frame only when something will read it.
- *
- * @param {object} path    - Babel path to point the code frame at.
- * @param {string} message - Message to log.
+ * @param {object} path    Babel path to point the code frame at.
+ * @param {string} message Message to log.
  */
 function debugCodeFrame( path, message ) {
 	if ( debug.enabled ) {
