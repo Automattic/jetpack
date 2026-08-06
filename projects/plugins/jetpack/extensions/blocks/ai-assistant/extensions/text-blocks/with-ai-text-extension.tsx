@@ -125,8 +125,10 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			true
 		);
 
-		const focusInput = useCallback( () => {
-			inputRef.current?.focus();
+		// Focus doubles as a way to reveal the input, which is worth being able to turn off: a
+		// terminal state wants the cursor back whether or not the editor should move to it.
+		const focusInput = useCallback( ( options?: FocusOptions ) => {
+			inputRef.current?.focus( options );
 		}, [] );
 
 		// A control in normal flow has to be kept up with as the block grows, the way a chat log
@@ -278,6 +280,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		// Called after the last suggestion chunk is received.
 		const onDone = useCallback(
 			( suggestion: string, modelUsed?: AiModelTypeProp ) => {
+				// Asked before the closing update changes the layout, as for each streamed chunk.
+				const shouldFollow = ! adjustPosition && isFollowingControl();
+
 				disableAutoScroll();
 				onBlockDone( suggestion );
 				increaseRequestsCount();
@@ -324,8 +329,17 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				setTimeout( () => {
 					if ( adjustPosition ) {
 						adjustBlockPadding();
+						focusInput();
+						return;
 					}
-					focusInput();
+
+					// Take the cursor back either way — it is the closing update that moved the
+					// prompt, not the reader — but move the editor only if it was being followed.
+					focusInput( { preventScroll: true } );
+
+					if ( shouldFollow ) {
+						followControl();
+					}
 				}, 100 );
 
 				/**
@@ -347,6 +361,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				getContent,
 				adjustPosition,
 				focusInput,
+				isFollowingControl,
+				followControl,
 				adjustBlockPadding,
 				tracks,
 				lastPromptType,
@@ -512,8 +528,14 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				ownerDocument.current = inputRef.current.ownerDocument;
 				// Focus the input when the AI Control is displayed.
 				focusInput();
+
+				// Focus reveals the input by scrolling to it, but cannot when it is disabled, as it
+				// is over quota — so a control in normal flow is brought into view in its own right.
+				if ( ! adjustPosition ) {
+					followControl();
+				}
 			}
-		}, [ showAiControl, focusInput, isSelectionEnabled ] );
+		}, [ showAiControl, focusInput, isSelectionEnabled, adjustPosition, followControl ] );
 
 		// Adjusts the input position in the editor by increasing the block's bottom-padding
 		// and setting the control's margin-top, "wrapping" the input with the block.
