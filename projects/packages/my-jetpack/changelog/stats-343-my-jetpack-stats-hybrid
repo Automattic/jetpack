@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Stats: recognize the standalone Jetpack Stats plugin as a product install target.
