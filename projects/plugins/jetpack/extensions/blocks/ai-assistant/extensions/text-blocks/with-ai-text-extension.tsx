@@ -265,8 +265,10 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				// Make sure the block element has the necessary bottom padding, as it can be replaced or changed
 				if ( adjustPosition ) {
 					adjustBlockPadding();
+				}
 
-					// Scroll to the bottom when a new suggestion is received.
+				// Scroll to the bottom when a new suggestion is received.
+				if ( ! controlInFlow ) {
 					snapToBottom();
 					return;
 				}
@@ -338,6 +340,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				setTimeout( () => {
 					if ( adjustPosition ) {
 						adjustBlockPadding();
+					}
+
+					if ( ! controlInFlow ) {
 						focusInput();
 						return;
 					}
