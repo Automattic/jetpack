@@ -125,8 +125,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			true
 		);
 
-		// Focus doubles as a way to reveal the input, which is worth being able to turn off: a
-		// terminal state wants the cursor back whether or not the editor should move to it.
+		// Focus reveals the input by scrolling to it, worth turning off where something else is
+		// already doing the scrolling, so that only one thing decides where the editor ends up.
 		const focusInput = useCallback( ( options?: FocusOptions ) => {
 			inputRef.current?.focus( options );
 		}, [] );
