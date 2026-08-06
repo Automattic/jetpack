@@ -151,6 +151,7 @@ class Google_Drive {
 				return $helper;
 			}
 
+			// @phan-suppress-next-line PhanUndeclaredMethod -- Added to wpcom's stub-defs.php alongside the helper method itself; remove once the regenerated wpcom stubs land in trunk.
 			return $helper->get_spreadsheet_summary( $sheet_id );
 		}
 

@@ -12,6 +12,7 @@ use Automattic\Jetpack\External_Connections;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
+use Automattic\Jetpack\Forms\Service\Google_Sheets_Setup;
 use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -239,6 +240,48 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 						'validate_callback' => function ( $param ) {
 							return isset( $this->get_supported_integrations()[ $param ] );
 						},
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/integrations/google-sheets/setup',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'setup_google_sheets_sync' ),
+				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+				'args'                => array(
+					'form_post_id'    => array(
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					),
+					'title'           => array(
+						'type'              => 'string',
+						'default'           => '',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'mode'            => array(
+						'type'    => 'string',
+						'enum'    => array( 'create', 'existing' ),
+						'default' => 'create',
+					),
+					'spreadsheet_url' => array(
+						'type'              => 'string',
+						'default'           => '',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'backfill'        => array(
+						'type'              => 'boolean',
+						'default'           => false,
+						'sanitize_callback' => 'rest_sanitize_boolean',
+					),
+					'columns'         => array(
+						'type'     => 'array',
+						'required' => true,
+						'items'    => array( 'type' => 'object' ),
 					),
 				),
 			)
@@ -1720,6 +1763,66 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		}
 		$is_deleted = External_Connections::delete_connection( $slug );
 		return rest_ensure_response( array( 'deleted' => $is_deleted ) );
+	}
+
+	/**
+	 * Creates or validates the spreadsheet a form syncs its responses to.
+	 *
+	 * This is the only request this site makes to WordPress.com for Google Sheets
+	 * sync. It runs while a real user is signed in, so it can be signed with their
+	 * token. Every response afterwards reaches .com through Jetpack Sync instead.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error on failure.
+	 */
+	public function setup_google_sheets_sync( $request ) {
+		if ( ! current_user_can( 'export' ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				__( 'Sorry, you are not allowed to do that.', 'jetpack-forms' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		$columns = $request->get_param( 'columns' );
+
+		$backfill_rows = array();
+		if ( $request->get_param( 'backfill' ) ) {
+			$backfill_rows = Google_Sheets_Setup::get_backfill_rows(
+				$request->get_param( 'form_post_id' ),
+				$columns
+			);
+		}
+
+		$title = $request->get_param( 'title' );
+		if ( '' === $title ) {
+			$title = __( 'Form responses', 'jetpack-forms' );
+		}
+
+		$result = Google_Sheets_Setup::run(
+			array(
+				'user_id'         => get_current_user_id(),
+				'mode'            => $request->get_param( 'mode' ),
+				'title'           => $title,
+				'spreadsheet_url' => $request->get_param( 'spreadsheet_url' ),
+				'columns'         => $columns,
+				'backfill_rows'   => $backfill_rows,
+			)
+		);
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response(
+			array(
+				'spreadsheetId'  => $result['spreadsheet_id'],
+				'spreadsheetUrl' => $result['spreadsheet_url'],
+				'columns'        => $result['columns'],
+			)
+		);
 	}
 
 	/**
