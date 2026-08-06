@@ -50,17 +50,9 @@
 
 @keyframes jetpack-subscribe-post-publish-highlight {
 
-	0% {
-		background-color: transparent;
-	}
-
 	// Jetpack green, kept faint so body copy stays readable.
 	15% {
 		background-color: rgba(6, 158, 8, 0.12);
-	}
-
-	100% {
-		background-color: transparent;
 	}
 }
 
