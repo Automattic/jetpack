@@ -130,6 +130,17 @@ class REST_Connector {
 			)
 		);
 
+		// Get the site's own record from WordPress.com.
+		register_rest_route(
+			'jetpack/v4',
+			'/site',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_site_data' ),
+				'permission_callback' => __CLASS__ . '::site_data_permission_check',
+			)
+		);
+
 		// Run all connection health tests.
 		register_rest_route(
 			'jetpack/v4',
@@ -332,8 +343,6 @@ class REST_Connector {
 				),
 			)
 		);
-
-		Site_Data::register_rest_routes();
 	}
 
 	/**
@@ -1118,6 +1127,89 @@ class REST_Connector {
 			'invalid_user_permission_manage_options',
 			self::get_user_permissions_error_msg(),
 			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
+	 * Whether the current user may read the site record.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return true|WP_Error
+	 */
+	public static function site_data_permission_check() {
+		if ( current_user_can( 'jetpack_admin_page' ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_view_admin',
+			self::get_user_permissions_error_msg(),
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
+	 * Return the site's WordPress.com record, or an error envelope describing the failure.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return WP_Error|\WP_HTTP_Response|WP_REST_Response
+	 */
+	public function get_site_data() {
+		return self::site_data_response( $this->connection );
+	}
+
+	/**
+	 * Build the site data response.
+	 *
+	 * Separate from the route callback so callers that only want the response, such as the
+	 * Jetpack plugin's deprecated wrapper, do not have to construct a `REST_Connector` and
+	 * re-register the routes.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param Manager|null $connection The connection manager to fetch with. Defaults to a new one.
+	 * @return WP_Error|\WP_HTTP_Response|WP_REST_Response
+	 */
+	public static function site_data_response( ?Manager $connection = null ) {
+		$site_data = ( $connection ?? new Manager() )->get_connected_site_data();
+
+		if ( ! is_wp_error( $site_data ) ) {
+			/**
+			 * Fires when the site data was successfully returned from the /sites/%d wpcom endpoint.
+			 *
+			 * @since $$next-version$$
+			 * @since-jetpack 8.7.0
+			 */
+			do_action( 'jetpack_get_site_data_success' );
+
+			return rest_ensure_response(
+				array(
+					'code'    => 'success',
+					'message' => esc_html__( 'Site data correctly received.', 'jetpack-connection' ),
+					'data'    => wp_json_encode( $site_data, JSON_UNESCAPED_SLASHES ),
+				)
+			);
+		}
+
+		$error_data = $site_data->get_error_data();
+
+		if ( empty( $error_data['api_error_code'] ) ) {
+			$error_message = esc_html__( 'Failed fetching site data from WordPress.com. If the problem persists, try reconnecting Jetpack.', 'jetpack-connection' );
+		} else {
+			/* translators: %s is an error code (e.g. `token_mismatch`) */
+			$error_message = sprintf( esc_html__( 'Failed fetching site data from WordPress.com (%s). If the problem persists, try reconnecting Jetpack.', 'jetpack-connection' ), $error_data['api_error_code'] );
+		}
+
+		return new WP_Error(
+			$site_data->get_error_code(),
+			$error_message,
+			array(
+				'status'         => 400,
+				'api_error_code' => empty( $error_data['api_error_code'] ) ? null : $error_data['api_error_code'],
+				'api_http_code'  => empty( $error_data['api_http_code'] ) ? null : $error_data['api_http_code'],
+			)
 		);
 	}
 

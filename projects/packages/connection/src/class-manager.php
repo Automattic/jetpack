@@ -964,6 +964,63 @@ class Manager {
 	}
 
 	/**
+	 * Fetch the site's own record from the WordPress.com `/sites/%d` endpoint.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return object|WP_Error The decoded site record, or an error describing the failure.
+	 */
+	public function get_connected_site_data() {
+		$site_id = \Jetpack_Options::get_option( 'id' );
+
+		if ( ! $site_id ) {
+			return new WP_Error( 'site_id_missing', '', array( 'api_error_code' => 'site_id_missing' ) );
+		}
+
+		$args = array( 'headers' => array() );
+
+		// Allow use a store sandbox. Internal ref: PCYsg-IA-p2.
+		if ( isset( $_COOKIE ) && isset( $_COOKIE['store_sandbox'] ) ) {
+			// Keep only RFC 6265 cookie-octets so the value cannot break out of the Cookie header.
+			$secret                    = preg_replace( '/[^\x21-\x7E]|[";,\\\\]/', '', filter_var( wp_unslash( $_COOKIE['store_sandbox'] ) ) );
+			$args['headers']['Cookie'] = "store_sandbox=$secret;";
+		}
+
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', $site_id ) . '?force=wpcom', '1.1', $args );
+		$body     = wp_remote_retrieve_body( $response );
+		$data     = $body ? json_decode( $body ) : null;
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			$error_info = array(
+				'api_error_code' => null,
+				'api_http_code'  => wp_remote_retrieve_response_code( $response ),
+			);
+
+			if ( is_wp_error( $response ) ) {
+				$error_info['api_error_code'] = $response->get_error_code() ? wp_strip_all_tags( $response->get_error_code() ) : null;
+			} elseif ( $data && ! empty( $data->error ) ) {
+				$error_info['api_error_code'] = $data->error;
+			}
+
+			return new WP_Error( 'site_data_fetch_failed', '', $error_info );
+		}
+
+		/**
+		 * Fires after the site record was fetched from WordPress.com.
+		 *
+		 * Consumers that cache anything derived from the record, such as the current plan,
+		 * can refresh it here.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $body The raw JSON body of the WordPress.com `/sites/%d` response.
+		 */
+		do_action( 'jetpack_site_data_fetched', $body );
+
+		return $data;
+	}
+
+	/**
 	 * Returns a user object of the connection owner.
 	 *
 	 * @return WP_User|false False if no connection owner found.

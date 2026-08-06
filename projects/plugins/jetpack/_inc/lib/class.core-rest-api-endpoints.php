@@ -9,7 +9,6 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Connection\REST_Connector;
-use Automattic\Jetpack\Connection\Site_Data;
 use Automattic\Jetpack\Connection\SSO;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Plugins_Installer;
@@ -1771,21 +1770,24 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Fetch site data from .com including the site's current plan and the site's products.
 	 *
 	 * @since 5.5.0
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Connection\Manager::get_connected_site_data().
 	 *
 	 * @return stdClass|WP_Error
 	 */
 	public static function site_data() {
-		return Site_Data::get();
+		return ( new Connection_Manager() )->get_connected_site_data();
 	}
 
 	/**
 	 * Get site data, including for example, the site's current plan.
 	 *
-	 * @return WP_Error|WP_HTTP_Response|WP_REST_Response
 	 * @since 4.3.0
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Connection\REST_Connector::site_data_response().
+	 *
+	 * @return WP_Error|WP_HTTP_Response|WP_REST_Response
 	 */
 	public static function get_site_data() {
-		return Site_Data::rest_get_site_data();
+		return REST_Connector::site_data_response();
 	}
 
 	/**

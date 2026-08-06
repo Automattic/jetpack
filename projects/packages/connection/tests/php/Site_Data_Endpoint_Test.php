@@ -16,10 +16,10 @@ use WP_REST_Server;
 /**
  * Tests for the site data endpoint.
  *
- * @covers \Automattic\Jetpack\Connection\Site_Data
+ * @covers \Automattic\Jetpack\Connection\REST_Connector
  */
-#[CoversClass( Site_Data::class )]
-class Site_Data_Test extends BaseTestCase {
+#[CoversClass( REST_Connector::class )]
+class Site_Data_Endpoint_Test extends BaseTestCase {
 
 	/**
 	 * REST server.
@@ -29,11 +29,18 @@ class Site_Data_Test extends BaseTestCase {
 	private $server;
 
 	/**
-	 * The manager that provides the capability filter.
+	 * The manager that provides the capability filter and fetches the site record.
 	 *
 	 * @var Manager
 	 */
 	private $manager;
+
+	/**
+	 * The REST connector that registers and serves the route.
+	 *
+	 * @var REST_Connector
+	 */
+	private $rest_connector;
 
 	/**
 	 * Set up the REST server and register the package routes.
@@ -52,7 +59,7 @@ class Site_Data_Test extends BaseTestCase {
 		add_filter( 'map_meta_cap', array( $this->manager, 'jetpack_admin_page_fallback_cap' ), 20, 2 );
 
 		do_action( 'rest_api_init' );
-		new REST_Connector( $this->manager );
+		$this->rest_connector = new REST_Connector( $this->manager );
 	}
 
 	/**
@@ -105,7 +112,7 @@ class Site_Data_Test extends BaseTestCase {
 	public function test_editor_is_permitted_without_the_jetpack_plugin() {
 		$this->set_current_user_with_role( 'editor' );
 
-		$this->assertTrue( Site_Data::permission_check() );
+		$this->assertTrue( REST_Connector::site_data_permission_check() );
 	}
 
 	/**
@@ -114,7 +121,7 @@ class Site_Data_Test extends BaseTestCase {
 	public function test_subscriber_is_denied() {
 		$this->set_current_user_with_role( 'subscriber' );
 
-		$result = Site_Data::permission_check();
+		$result = REST_Connector::site_data_permission_check();
 
 		$this->assertInstanceOf( 'WP_Error', $result );
 		$this->assertSame( 'invalid_user_permission_view_admin', $result->get_error_code() );
@@ -126,7 +133,7 @@ class Site_Data_Test extends BaseTestCase {
 	public function test_logged_out_request_is_denied() {
 		wp_set_current_user( 0 );
 
-		$this->assertInstanceOf( 'WP_Error', Site_Data::permission_check() );
+		$this->assertInstanceOf( 'WP_Error', REST_Connector::site_data_permission_check() );
 	}
 
 	/**
@@ -134,14 +141,14 @@ class Site_Data_Test extends BaseTestCase {
 	 */
 	public function test_a_later_map_meta_cap_filter_can_deny_access() {
 		$this->set_current_user_with_role( 'editor' );
-		$this->assertTrue( Site_Data::permission_check(), 'Editor is permitted before the filter.' );
+		$this->assertTrue( REST_Connector::site_data_permission_check(), 'Editor is permitted before the filter.' );
 
 		$deny = static function ( $caps, $cap ) {
 			return 'jetpack_admin_page' === $cap ? array( 'do_not_allow' ) : $caps;
 		};
 		add_filter( 'map_meta_cap', $deny, 99, 2 );
 
-		$result = Site_Data::permission_check();
+		$result = REST_Connector::site_data_permission_check();
 
 		remove_filter( 'map_meta_cap', $deny, 99 );
 
@@ -190,7 +197,7 @@ class Site_Data_Test extends BaseTestCase {
 			}
 		);
 
-		$this->assertFalse( is_wp_error( Site_Data::get() ) );
+		$this->assertFalse( is_wp_error( $this->manager->get_connected_site_data() ) );
 		$this->assertSame( array( $body ), $payloads );
 	}
 
@@ -208,7 +215,7 @@ class Site_Data_Test extends BaseTestCase {
 			}
 		);
 
-		Site_Data::get();
+		$this->manager->get_connected_site_data();
 
 		$this->assertFalse( $fired );
 	}
@@ -219,7 +226,20 @@ class Site_Data_Test extends BaseTestCase {
 	public function test_missing_blog_id_reports_site_id_missing() {
 		Jetpack_Options::delete_option( 'id' );
 
-		$result = Site_Data::get();
+		$result = $this->manager->get_connected_site_data();
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'site_id_missing', $result->get_error_code() );
+	}
+
+	/**
+	 * The envelope is reachable without a `REST_Connector` instance, which is what lets the
+	 * Jetpack plugin's deprecated wrapper delegate without re-registering the routes.
+	 */
+	public function test_site_data_response_does_not_need_an_instance() {
+		Jetpack_Options::delete_option( 'id' );
+
+		$result = REST_Connector::site_data_response();
 
 		$this->assertInstanceOf( 'WP_Error', $result );
 		$this->assertSame( 'site_id_missing', $result->get_error_code() );
@@ -231,7 +251,7 @@ class Site_Data_Test extends BaseTestCase {
 	public function test_error_envelope_shape_is_preserved() {
 		Jetpack_Options::delete_option( 'id' );
 
-		$result = Site_Data::rest_get_site_data();
+		$result = $this->rest_connector->get_site_data();
 
 		$this->assertInstanceOf( 'WP_Error', $result );
 		$this->assertSame( 'site_id_missing', $result->get_error_code() );
