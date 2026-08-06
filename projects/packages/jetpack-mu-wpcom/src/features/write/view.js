@@ -9,8 +9,28 @@
 
 // eslint-disable-next-line import/no-unresolved -- Provided by WordPress at runtime via wp_register_script_module.
 import { store, getElement } from '@wordpress/interactivity';
-// eslint-disable-next-line import/no-unresolved -- Provided by WordPress at runtime via wp_register_script_module.
+/* eslint-disable import/no-unresolved -- wpcom-write/* modules are provided by WordPress at runtime via wp_register_script_module. */
+import {
+	IMAGE_SIZE_SLUGS,
+	IMAGE_ALIGNS,
+	getMediaIdFromImg,
+	setFigureSize,
+	setFigureAlignment,
+	getFigureAlignment,
+	libraryThumbUrl,
+} from 'wpcom-write/image-format';
+import {
+	parsePostId,
+	escapeAttr,
+	rgbToHex,
+	isSafePasteHref,
+	getEmbedUrl,
+	parseMarkdownListShortcut,
+	parseMarkdownQuoteShortcut,
+	describeSaveError,
+} from 'wpcom-write/text-helpers';
 import { createUndoHistory } from 'wpcom-write/undo-history';
+/* eslint-enable import/no-unresolved */
 
 // Translated strings passed from PHP via wp_print_inline_script_tag.
 const i18n = window.wpcomWriteStrings || {};
@@ -378,18 +398,6 @@ function formatRelativeDate( dateStr ) {
 	} ).format( new Date( dateStr ) );
 }
 
-/**
- * Check whether raw user input is a bare numeric post ID.
- *
- * @param {string} input - Raw user input from the post picker URL field.
- * @return {number|null} Post ID or null if not a bare numeric string.
- */
-function parsePostId( input ) {
-	const trimmed = input.trim();
-	if ( /^\d+$/.test( trimmed ) ) return parseInt( trimmed, 10 );
-	return null;
-}
-
 // Save/restore the selection so we can insert images after the modal closes.
 let savedRange = null;
 
@@ -669,33 +677,10 @@ function getContent() {
 	return cachedContent;
 }
 
-// Image size presets we ship. Wide/full layouts and custom widths stay in the
-// block editor (see RSM-3472).
-const IMAGE_SIZE_SLUGS = [ 'thumbnail', 'medium', 'large', 'full' ];
-
-// Image alignment values we ship. All three are made explicit on save —
-// every image gets an `align*` class on the figure and an `align`
-// attribute in the block JSON, including center, so themes can rely on
-// the class to position the figure (many don't center unaligned figures
-// by default).
-const IMAGE_ALIGNS = [ 'left', 'center', 'right' ];
-
 // Cache of media library size lookups keyed by attachment ID.  Populated
 // at upload time from the API response, then again lazily when the user
 // changes the size of a figure loaded from a saved post.
 const mediaSizesCache = new Map();
-
-/**
- * Read the attachment ID embedded in `wp-image-<id>` on an `<img>`.
- *
- * @param {HTMLImageElement} img - The image element.
- * @return {number|null} Numeric attachment ID, or null when the class is absent.
- */
-function getMediaIdFromImg( img ) {
-	if ( ! img ) return null;
-	const match = img.className.match( /(?:^|\s)wp-image-(\d+)(?:\s|$)/ );
-	return match ? parseInt( match[ 1 ], 10 ) : null;
-}
 
 /**
  * Get the registered media-library sizes for an attachment, caching the
@@ -760,17 +745,6 @@ function trackMediaSizeSwap( promise ) {
 }
 
 /**
- * Toggle a size class on a figure, replacing any existing one.
- *
- * @param {Element} fig  - The figure element.
- * @param {string}  slug - A size slug or '' (clear).
- */
-function setFigureSize( fig, slug ) {
-	IMAGE_SIZE_SLUGS.forEach( s => fig.classList.remove( 'size-' + s ) );
-	if ( slug ) fig.classList.add( 'size-' + slug );
-}
-
-/**
  * Infer a size slug for a figure by matching the img's current src against
  * the media library's registered sizes. Used when a figure loaded from
  * outside Write (e.g. block-editor default insert) has no `size-X` class
@@ -795,35 +769,6 @@ async function inferSizeFromImgSrc( fig ) {
 		if ( sizes[ slug ]?.source_url === src ) return slug;
 	}
 	return '';
-}
-
-/**
- * Toggle an alignment class on a figure, replacing any existing one.  Always
- * adds one of alignleft/aligncenter/alignright so the published view centers
- * reliably (themes key off these classes; unaligned figures don't center
- * consistently across themes).
- *
- * @param {Element} fig   - The figure element.
- * @param {string}  align - 'left', 'center', or 'right'.
- */
-function setFigureAlignment( fig, align ) {
-	fig.classList.remove( 'alignleft', 'alignright', 'aligncenter' );
-	if ( align === 'left' ) fig.classList.add( 'alignleft' );
-	else if ( align === 'right' ) fig.classList.add( 'alignright' );
-	else fig.classList.add( 'aligncenter' );
-}
-
-/**
- * Read the current alignment from a figure's class list. Returns 'center'
- * when no align class is set.
- *
- * @param {Element} fig - The figure element.
- * @return {string} 'left', 'center', or 'right'.
- */
-function getFigureAlignment( fig ) {
-	if ( fig.classList.contains( 'alignleft' ) ) return 'left';
-	if ( fig.classList.contains( 'alignright' ) ) return 'right';
-	return 'center';
 }
 
 /**
@@ -1044,30 +989,6 @@ function focusModalInput() {
 		);
 		if ( target ) target.focus();
 	} );
-}
-
-/**
- * Escape a string for safe interpolation into an HTML attribute value.
- *
- * @param {string} str - Raw string value.
- * @return {string} HTML-attribute-safe string.
- */
-function escapeAttr( str ) {
-	return str.replace( /&/g, '&amp;' ).replace( /"/g, '&quot;' );
-}
-
-/**
- * Convert an rgb() color string to hex (#rrggbb). Returns the input
- * unchanged if it is not in rgb() format.
- *
- * @param {string} rgb - A CSS color value, e.g. "rgb(214, 54, 56)".
- * @return {string} Hex color string, e.g. "#d63638".
- */
-function rgbToHex( rgb ) {
-	const m = rgb.match( /^rgb\(\s*(\d+),\s*(\d+),\s*(\d+)\s*\)$/ );
-	if ( ! m ) return rgb;
-	const hex = i => ( '0' + parseInt( m[ i ], 10 ).toString( 16 ) ).slice( -2 );
-	return '#' + hex( 1 ) + hex( 2 ) + hex( 3 );
 }
 
 /**
@@ -1313,26 +1234,6 @@ function sanitizePasteNode( el ) {
 		if ( tag === 'A' && attr.name === 'href' && isSafePasteHref( attr.value ) ) continue;
 		el.removeAttribute( attr.name );
 	}
-}
-
-/**
- * Whether `href` is safe to preserve on a pasted link. Allows http(s),
- * mailto, tel, and same-document/relative URLs; everything else (notably
- * `javascript:`, `vbscript:`, and `data:`) is rejected so a pasted link
- * can't smuggle script execution past the sanitizer.
- *
- * @param {string} href - The href value to check.
- * @return {boolean} True when the href is safe to keep.
- */
-function isSafePasteHref( href ) {
-	if ( ! href ) return false;
-	const trimmed = href.trim();
-	if ( ! trimmed ) return false;
-	// Relative / same-document / query / fragment URLs have no scheme.
-	if ( /^[#/?]/.test( trimmed ) || trimmed.startsWith( './' ) || trimmed.startsWith( '../' ) ) {
-		return true;
-	}
-	return /^(https?:|mailto:|tel:)/i.test( trimmed );
 }
 
 /**
@@ -1659,26 +1560,6 @@ function clearSlashText() {
 			parent.innerHTML = '<br>';
 		}
 	}
-}
-
-/**
- * Convert a YouTube/Vimeo URL to an embeddable URL.
- *
- * @param {string} url - The video URL to convert.
- * @return {string|null} The embeddable URL, or null if not recognized.
- */
-function getEmbedUrl( url ) {
-	// YouTube
-	let match = url.match(
-		/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/
-	);
-	if ( match ) return 'https://www.youtube.com/embed/' + match[ 1 ];
-
-	// Vimeo
-	match = url.match( /vimeo\.com\/(\d+)/ );
-	if ( match ) return 'https://player.vimeo.com/video/' + match[ 1 ];
-
-	return null;
 }
 
 /**
@@ -2374,19 +2255,6 @@ let libraryFetchToken = 0;
 const LIBRARY_PER_PAGE = 24;
 
 /**
- * Pick the smallest reasonable thumbnail URL for the grid. Falls back to the
- * full-size source_url for images without registered sizes (e.g. uploads that
- * pre-date a media setting change).
- *
- * @param {object} media - Media item from /wp/v2/media.
- * @return {string} The thumbnail URL to render.
- */
-function libraryThumbUrl( media ) {
-	const sizes = media.media_details?.sizes;
-	return sizes?.thumbnail?.source_url || sizes?.medium?.source_url || media.source_url || '';
-}
-
-/**
  * Render the library strip into #bw-library-grid. Always replaces — the strip
  * holds the most recent items (or current search results) only.  Thumbnails
  * are <button>s; the container has aria-label, so individual items use plain
@@ -2564,23 +2432,6 @@ function insertNewList( listTag ) {
 }
 
 /**
- * Detect a markdown list shortcut in a paragraph's text.
- *
- * Returns 'ul' for `-`, `*`, or `+`, 'ol' for `1.`, otherwise null. Captured
- * before the trigger space is inserted, so the marker should be the only
- * content — trailing whitespace is allowed to tolerate a stray <br>-only text
- * node that contentEditable can leave in an otherwise-empty block.
- *
- * @param {string} text - The paragraph's text content.
- * @return {'ul'|'ol'|null} The list tag to create, or null.
- */
-function parseMarkdownListShortcut( text ) {
-	if ( /^[-*+]\s*$/.test( text ) ) return 'ul';
-	if ( /^1\.\s*$/.test( text ) ) return 'ol';
-	return null;
-}
-
-/**
  * Replace a paragraph with a fresh list containing one empty item, and move the cursor into it.
  *
  * @param {HTMLElement} paragraph - The paragraph to convert.
@@ -2597,21 +2448,6 @@ function applyMarkdownListShortcut( paragraph, listTag ) {
 	state.formatUList = listTag === 'ul';
 	state.formatOList = listTag === 'ol';
 	state.insideList = true;
-}
-
-/**
- * Detect a markdown blockquote shortcut in a paragraph's text.
- *
- * Returns true for a lone `>` marker. Captured before the trigger space is
- * inserted, so the marker should be the only content — trailing whitespace is
- * allowed to tolerate a stray <br>-only text node that contentEditable can
- * leave in an otherwise-empty block, matching parseMarkdownListShortcut.
- *
- * @param {string} text - The paragraph's text content.
- * @return {boolean} Whether the text is a blockquote shortcut.
- */
-function parseMarkdownQuoteShortcut( text ) {
-	return /^>\s*$/.test( text );
 }
 
 /**
@@ -6220,34 +6056,6 @@ const SAVE_STALL_THRESHOLD_MS = 30000;
 // first as the diagnostic, then the abort surfaces as a recoverable
 // `save_failed` with error_code 'AbortError'.
 const SAVE_REQUEST_TIMEOUT_MS = SAVE_STALL_THRESHOLD_MS + 15000;
-// Cap free-text error strings so a pathological message can't bloat the payload.
-const MAX_ERROR_MESSAGE_LENGTH = 200;
-
-/**
- * Normalize an unknown thrown value into a small, Tracks-friendly descriptor.
- *
- * Handles the shapes `wp.apiFetch` actually rejects with: WP REST errors
- * ( `{ code, message, data: { status } }` ), native/AbortError ( `{ name,
- * message }` ), and non-object throws as a last resort.
- *
- * @param {*} err - The thrown value.
- * @return {{ code: string, status: (number|null), message: string }} Descriptor.
- */
-function describeSaveError( err ) {
-	if ( ! err || typeof err !== 'object' ) {
-		const raw = err === undefined ? '' : String( err );
-		return { code: 'unknown', status: null, message: raw.slice( 0, MAX_ERROR_MESSAGE_LENGTH ) };
-	}
-	// Prefer the specific REST `code` (always a string, e.g. 'rest_cannot_edit');
-	// fall back to `name` ('AbortError', 'TypeError', …). Guard on a string code
-	// because a DOMException carries a numeric `.code` (AbortError is 20), which
-	// would otherwise shadow the 'AbortError' name and break the timeout message
-	// and telemetry error_code.
-	const code = ( typeof err.code === 'string' && err.code ) || err.name || 'unknown';
-	const status = err.data && typeof err.data.status === 'number' ? err.data.status : null;
-	const message = String( err.message || '' ).slice( 0, MAX_ERROR_MESSAGE_LENGTH );
-	return { code: String( code ), status, message };
-}
 
 /**
  * Fire the `wpcom_write_editor_save_failed` Tracks event.

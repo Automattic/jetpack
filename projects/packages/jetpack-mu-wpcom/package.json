@@ -25,7 +25,7 @@
 		"clean": "rm -rf src/build/ src/build-module/ build/",
 		"e2e-tests": "playwright test --config src/features/verbum-comments/playwright.config.ts",
 		"sync:newspack-blocks": "./bin/sync-newspack-blocks.sh",
-		"test": "node --test --test-reporter spec src/features/write/test/undo-history.test.mjs",
+		"test": "node --test --test-reporter spec src/features/write/test/*.test.mjs",
 		"test-coverage": "c8 --report-dir=\"$COVERAGE_DIR\" --temp-directory=\"$ARTIFACTS_DIR/v8\" pnpm run test",
 		"typecheck": "tsgo --build",
 		"watch": "pnpm run build-production-js && pnpm webpack watch"

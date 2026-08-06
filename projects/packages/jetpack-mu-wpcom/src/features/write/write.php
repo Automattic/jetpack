@@ -17,7 +17,7 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 if ( ! defined( 'WPCOM_WRITE_VERSION' ) ) {
 	// Use file modification time to bust CDN caches when files change.
-	define( 'WPCOM_WRITE_VERSION', (string) max( filemtime( __DIR__ . '/view.js' ), filemtime( __DIR__ . '/style.css' ), filemtime( __DIR__ . '/undo-history.js' ), filemtime( __DIR__ . '/post-publish-checklist.js' ), filemtime( __DIR__ . '/post-publish-checklist.css' ) ) );
+	define( 'WPCOM_WRITE_VERSION', (string) max( filemtime( __DIR__ . '/view.js' ), filemtime( __DIR__ . '/style.css' ), filemtime( __DIR__ . '/undo-history.js' ), filemtime( __DIR__ . '/image-format.js' ), filemtime( __DIR__ . '/text-helpers.js' ), filemtime( __DIR__ . '/post-publish-checklist.js' ), filemtime( __DIR__ . '/post-publish-checklist.css' ) ) );
 }
 
 // Inline SVG icons used by the top bar and the formatting toolbar.
@@ -152,9 +152,26 @@ add_action(
 			WPCOM_WRITE_VERSION
 		);
 		wp_register_script_module(
+			'wpcom-write/image-format',
+			wpcom_write_asset_url( 'image-format.js' ),
+			array(),
+			WPCOM_WRITE_VERSION
+		);
+		wp_register_script_module(
+			'wpcom-write/text-helpers',
+			wpcom_write_asset_url( 'text-helpers.js' ),
+			array(),
+			WPCOM_WRITE_VERSION
+		);
+		wp_register_script_module(
 			'wpcom-write/view',
 			wpcom_write_asset_url( 'view.js' ),
-			array( '@wordpress/interactivity', 'wpcom-write/undo-history' ),
+			array(
+				'@wordpress/interactivity',
+				'wpcom-write/undo-history',
+				'wpcom-write/image-format',
+				'wpcom-write/text-helpers',
+			),
 			WPCOM_WRITE_VERSION
 		);
 	}
