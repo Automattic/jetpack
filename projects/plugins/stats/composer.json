@@ -1,0 +1,73 @@
+{
+	"name": "automattic/jetpack-stats-plugin",
+	"description": "Simple, yet powerful stats to grow your site.",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-composer-plugin": "@dev",
+		"automattic/jetpack-config": "@dev",
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-my-jetpack": "@dev",
+		"automattic/jetpack-stats": "@dev",
+		"automattic/jetpack-stats-admin": "@dev",
+		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-sync": "@dev"
+	},
+	"require-dev": {
+		"automattic/phpunit-select-config": "@dev",
+		"yoast/phpunit-polyfills": "^4.0.0",
+		"automattic/jetpack-test-environment": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"build-zip": [
+			"bash bin/build-zip.sh"
+		],
+		"phpunit": [
+			"phpunit-select-config phpunit.#.xml.dist --colors=always"
+		],
+		"test-php": "@composer phpunit",
+		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
+		"build-production": "pnpm run build-production",
+		"build-development": "pnpm run build"
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": false,
+		"autorelease": false,
+		"mirror-repo": "Automattic/jetpack-stats-plugin",
+		"release-branch-prefix": "stats",
+		"beta-plugin-slug": "jetpack-stats",
+		"changelogger": {
+			"versioning": "semver"
+		},
+		"version-constants": {
+			"JETPACK_STATS_PLUGIN__VERSION": "jetpack-stats.php"
+		}
+	},
+	"config": {
+		"sort-packages": true,
+		"autoloader-suffix": "29f459d83ca5f0666183989c5a327600_jetpack_statsⓥ0_1_0_alpha",
+		"allow-plugins": {
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true,
+			"roots/wordpress-core-installer": true
+		}
+	}
+}
