@@ -18,6 +18,12 @@ import { ArrayCheckboxField, SelectField } from '@jetpack-premium-analytics/fiel
 export type TrafficChartGranularity = 'auto' | 'day' | 'week' | 'month';
 
 /**
+ * How the selected metric is drawn. Ported from the Lines/Bars switch on the
+ * Jetpack Stats chart tabs card in wp-calypso.
+ */
+export type TrafficChartType = 'line' | 'bar';
+
+/**
  * The metric tabs the chart can show, in display order: the persisted id and
  * label of each metric. The id doubles as the visits `stat_fields` field the
  * tab reads. Single source for the settings checkboxes and the chart tabs so
@@ -43,10 +49,12 @@ export type TrafficChartMetricId = ( typeof TRAFFIC_CHART_METRICS )[ number ][ '
  *
  * @property granularity - Bucket size within the dashboard range. Defaults to `auto`.
  * @property metrics     - Metric tabs to show in the chart. Defaults to every metric.
+ * @property chartType   - How to draw the selected metric. Defaults to `line`.
  */
 export type TrafficChartAttributes = {
 	granularity?: TrafficChartGranularity;
 	metrics?: TrafficChartMetricId[];
+	chartType?: TrafficChartType;
 };
 
 /**
@@ -61,10 +69,11 @@ export const DEFAULT_TRAFFIC_CHART_METRICS: TrafficChartMetricId[] = TRAFFIC_CHA
  *
  * Ported from the Jetpack Stats `stats-chart-tabs` card in wp-calypso (the chart
  * above the Traffic page). Renders the selected period's Views, Visitors, Likes,
- * and Comments as selectable metric tabs over a comparative line chart. The date
+ * and Comments as selectable metric tabs over a comparative chart. The date
  * range and comparison state come from the dashboard via `reportParams`; the
  * `granularity` attribute (`relevance: 'high'`) chooses the bucket size within
- * that range and the `metrics` attribute selects which tabs render.
+ * that range, the `metrics` attribute selects which tabs render, and
+ * `chartType` switches between lines and bars.
  * `example.attributes` doubles as the defaults applied to new instances.
  */
 export default {
@@ -106,11 +115,29 @@ export default {
 				label: metric.label,
 			} ) ),
 		},
+		{
+			id: 'chartType',
+			label: __( 'Chart type', 'jetpack-premium-analytics-pkg' ),
+			type: 'text',
+			Edit: SelectField,
+			elements: [
+				{
+					label: __( 'Line chart', 'jetpack-premium-analytics-pkg' ),
+					value: 'line',
+				},
+				{
+					label: __( 'Bar chart', 'jetpack-premium-analytics-pkg' ),
+					value: 'bar',
+				},
+			],
+			relevance: 'high',
+		},
 	] as WidgetAttributeField< TrafficChartAttributes >[],
 	example: {
 		attributes: {
 			granularity: 'auto',
 			metrics: DEFAULT_TRAFFIC_CHART_METRICS,
+			chartType: 'line',
 		},
 	},
 };
