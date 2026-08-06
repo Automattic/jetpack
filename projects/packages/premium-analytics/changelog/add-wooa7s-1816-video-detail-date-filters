@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Video detail: Restore the date filter presets now that the preset measurement rework has landed, and stop widgets from rendering comparison data on the page.

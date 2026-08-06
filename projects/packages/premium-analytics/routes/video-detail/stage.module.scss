@@ -21,6 +21,16 @@
 	min-inline-size: 0;
 }
 
+.dateFilters {
+	// Sits directly below the page header, outside the scroll container, so it
+	// stays fixed exactly like post detail's filters while the summary and
+	// widgets scroll. Inline padding matches the header and the widget grid so
+	// everything lines up; there is no tab bar above (unlike post detail), so
+	// this row carries its own block spacing on both sides.
+	padding-block: var(--wpds-dimension-gap-md) var(--wpds-dimension-gap-lg);
+	padding-inline: var(--wpds-dimension-padding-2xl);
+}
+
 .scrollArea {
 	flex: 1 1 auto;
 	min-block-size: 0;

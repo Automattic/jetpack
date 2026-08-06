@@ -3,11 +3,16 @@
  */
 import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
 import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
-import { pickReportDateParams, useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import {
+	omitComparisonReportParams,
+	pickReportDateParams,
+	useReportDateFilters,
+} from '@jetpack-premium-analytics/routing';
+import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import { Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, useParams, useSearch } from '@wordpress/route';
 import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
@@ -64,13 +69,33 @@ function VideoDetail(): JSX.Element {
 
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
-	// The applied report date range lives in the URL search params, read through
-	// the shared date-filter controller. The panel that edits it is intentionally
-	// absent for now: the header's filter UI collides with the preset-measurement
-	// rework in progress, so it ships separately once that lands (WOOA7S-1816).
+	// The applied report date range lives in the URL search params, staged and
+	// committed by the shared date-filter controller (WOOA7S-1816 — restored
+	// after the preset-measurement rework in #50906 landed).
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const reportSearch = pickReportDateParams( search );
+
+	/*
+	 * Same construction as post detail: the page has no period-over-period
+	 * comparison by design, but the comparison params stay in the URL so the
+	 * breadcrumb carries the dashboard's state back out. Without explicit
+	 * `reportParams`, every `WidgetRoot` falls back to reading the raw URL
+	 * search — comparison included — so comparison-capable widgets (the
+	 * highlights) would render deltas. Injecting the stripped params into each
+	 * layout entry makes the page-wide no-comparison invariant hold by
+	 * construction.
+	 */
+	const layout = useMemo( () => {
+		const reportParams = omitComparisonReportParams( search );
+		return VIDEO_DETAIL_LAYOUT.map( widget => ( {
+			...widget,
+			attributes: {
+				...( widget.attributes as Record< string, unknown > | undefined ),
+				reportParams,
+			},
+		} ) );
+	}, [ search ] );
 
 	// Error and not-found responses have no trustworthy title, so only resolved
 	// videos add the title crumb or render the heading.
@@ -123,7 +148,7 @@ function VideoDetail(): JSX.Element {
 			widgetTypes={ widgetTypes }
 			isResolvingWidgetTypes={ isResolvingWidgetTypes }
 			resolveWidgetModule={ resolveWidgetModuleWithI18n }
-			layout={ VIDEO_DETAIL_LAYOUT }
+			layout={ layout }
 			onLayoutChange={ noopLayoutChange }
 			gridSettings={ VIDEO_DETAIL_GRID }
 		>
@@ -132,6 +157,14 @@ function VideoDetail(): JSX.Element {
 				breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
 				className={ styles.page }
 			>
+				<div className={ styles.dateFilters }>
+					{ /*
+					 * The design has no period-over-period comparison on this page,
+					 * so the Compare control is opted out; the layout memo above
+					 * strips the comparison params before they reach the widgets.
+					 */ }
+					<DateFiltersPanel { ...dateFilters } showComparison={ false } />
+				</div>
 				<div className={ styles.scrollArea }>
 					{ summaryContent ? (
 						<div className={ styles.header }>
