@@ -1,0 +1,200 @@
+// The Editor tab layout, ported from the Studio editor redesign: a bordered
+// card holding the tools rail beside the main column (gray canvas with the
+// centered preview, timeline docked below).
+@use "../../src/client/components/chapters-editor/tokens";
+
+// No page padding of its own — the bordered card runs flush inside the admin
+// page chrome, exactly like the original Studio editor layout.
+.vp-video-editor {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.vp-video-editor__loading,
+.vp-video-editor__processing,
+.vp-video-editor__not-found {
+	padding-block: 48px;
+	padding-inline: 24px;
+	text-align: center;
+}
+
+.vp-video-editor__body {
+	display: flex;
+	align-items: stretch;
+	border: 1px solid var(--vp-gray-300);
+	border-radius: var(--vp-radius-medium);
+	background: #fff;
+	overflow: hidden;
+}
+
+// The tools rail: a fixed-width "Edit" section of icon + label items, the
+// active one filled with the accent color.
+.vp-video-editor__operations {
+	flex: none;
+	inline-size: 224px;
+	padding-block: 16px;
+	padding-inline: 12px;
+	border-inline-end: 1px solid var(--vp-gray-200);
+}
+
+.vp-video-editor__operations-heading {
+	margin: 0;
+	padding-block: 0 8px;
+	padding-inline: 10px;
+	color: var(--vp-gray-700);
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.2px;
+}
+
+.vp-video-editor__operations-list {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.vp-video-editor__operation {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	inline-size: 100%;
+	block-size: 36px;
+	padding-block: 0;
+	padding-inline: 10px;
+	border: 0;
+	border-radius: var(--vp-radius-small);
+	background: transparent;
+	color: var(--vp-gray-900);
+	font-size: 13px;
+	text-align: start;
+	cursor: pointer;
+
+	svg {
+		flex: none;
+		fill: currentColor;
+	}
+
+	&:hover {
+		background: var(--vp-gray-100);
+	}
+
+	&--active,
+	&--active:hover {
+		background: var(--vp-accent);
+		color: #fff;
+	}
+}
+
+.vp-video-editor__main {
+	flex: 1;
+	min-inline-size: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+// The gray stage area: the preview player centered on a neutral canvas.
+// The preview composes its viewport-height clamp into its width (the same
+// rule the Studio editor's canvas applied to its stage), so the timeline
+// stays above the fold on wide windows.
+.vp-video-editor__canvas {
+	background: var(--vp-gray-100);
+	padding: 32px;
+
+	.vp-chapters-preview {
+		inline-size: 100%;
+		margin-inline: auto;
+		max-inline-size: min(640px, calc(var(--vp-chapters-stage-max-height, 612px) * 16 / 9));
+	}
+}
+
+// The timeline docked below the canvas, full width.
+.vp-video-editor__timeline-section {
+	border-block-start: 1px solid var(--vp-gray-200);
+	padding-block: 16px 20px;
+	padding-inline: 24px;
+}
+
+// While the manual-VTT probe or the meta save is in flight the editing
+// surface is locked: the store drops edit dispatches and the strip's
+// scroller blocks pointer events (`--locked`, scoped inside the timeline so
+// the toolbar's transport and zoom stay usable); this wrapper only dims the
+// section and carries the aria-busy announcement.
+.vp-video-editor__timeline--locked {
+	opacity: 0.6;
+}
+
+// The wpds Button draws its focus ring on plain :focus (not :focus-visible)
+// and keeps disabled buttons focusable via aria-disabled, so clicking Save
+// leaves a stale blue ring on the — by then grayed — button. Drop the ring
+// for pointer-originated focus only; keyboard focus (:focus-visible) keeps
+// it, including on the aria-disabled buttons keyboard users can still reach.
+.vp-video-editor__header-actions button:focus:not(:focus-visible) {
+	outline: none;
+}
+
+// Separates undo/redo from Discard/Save in the header actions.
+.vp-video-editor__header-divider {
+	inline-size: 1px;
+	block-size: 24px;
+	background: var(--vp-gray-300, #ddd);
+}
+
+// Narrow viewports (wp-admin's mobile breakpoint): the rail collapses to
+// icon-only — the tool buttons keep their accessible names via aria-label —
+// leaving the width to the chapters editor, and the widest single-line rows
+// (timeline toolbar, header actions) wrap instead of forcing the page to
+// pan sideways.
+@media ( max-width: 782px ) {
+
+	.vp-video-editor__operations {
+		inline-size: auto;
+		padding-inline: 8px;
+	}
+
+	.vp-video-editor__operations-heading {
+		display: none;
+	}
+
+	.vp-video-editor__operation {
+		justify-content: center;
+		padding-inline: 8px;
+	}
+
+	.vp-video-editor__operation-label {
+		display: none;
+	}
+
+	.vp-video-editor__canvas {
+		padding: 16px;
+	}
+
+	.vp-video-editor__timeline-section {
+		padding-inline: 16px;
+	}
+
+	// Page-scoped override of the shared timeline toolbar: its single line
+	// (transport, add-at-playhead, now-indicator, zoom) is wider than a phone
+	// viewport; wrapping keeps every control reachable without side-scroll.
+	.vp-chapters-timeline__toolbar {
+		flex-wrap: wrap;
+		row-gap: 8px;
+	}
+
+	.vp-video-editor__header-actions {
+		flex-wrap: wrap;
+		justify-content: flex-end;
+	}
+
+	// The header can't fit five actions beside the breadcrumb on a phone;
+	// keep the essentials (undo/redo/Save). Discarding stays reachable via
+	// undo and the dirty-navigation guards.
+	.vp-video-editor__header-divider,
+	.vp-video-editor__header-discard {
+		display: none;
+	}
+}

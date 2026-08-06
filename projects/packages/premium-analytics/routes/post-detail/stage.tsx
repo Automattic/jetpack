@@ -16,6 +16,7 @@ import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
 import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { PostDetailTabs, PostSummaryCard } from './components';
 import { POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
@@ -102,6 +103,8 @@ function PostDetail(): JSX.Element {
 	// params, staged and committed by the shared date-filter controller.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 
+	const breadcrumbs = useDetailBreadcrumbs( summary.title );
+
 	return (
 		<GlobalErrorProvider>
 			<WidgetDashboard
@@ -114,9 +117,7 @@ function PostDetail(): JSX.Element {
 			>
 				<Page
 					visual={ <StatsPageIcon /> }
-					breadcrumbs={
-						<StatsBreadcrumbs items={ summary.title ? [ { label: summary.title } ] : [] } />
-					}
+					breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
 					actions={
 						publicUrl ? (
 							<Button

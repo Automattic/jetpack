@@ -6,6 +6,7 @@ import {
 	needsReportDateParamsSeed,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
+import { pickReportOriginParams } from '@jetpack-premium-analytics/routing';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
@@ -92,10 +93,13 @@ export const route = {
 			// known report-window params, and the path-derived `post_id` is the
 			// single source of scope. This contains any foreign params a link
 			// carried in (e.g. a dashboard `section`) instead of persisting them.
+			// The report origin is part of that allowlist, so the breadcrumb keeps
+			// its link back to the referring report across this seed.
 			const seeded: Record< string, unknown > = {
 				...normalizeReportParams(
 					currentSearch as Parameters< typeof normalizeReportParams >[ 0 ]
 				),
+				...pickReportOriginParams( currentSearch ),
 				...( resolvedSection ? { section: resolvedSection } : {} ),
 				post_id: postId,
 			};

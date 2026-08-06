@@ -1,0 +1,160 @@
+/*
+ * Chapter manager modal. Follows the caption manager's sizing conventions
+ * (the two modals should read as siblings) with one deliberate divergence:
+ * no mobile player-drop — the chapters player is the timeline's playhead
+ * source and stays mounted, stacked above the timeline, at every width.
+ */
+
+.videopress-chapter-manager.components-modal__frame {
+	display: flex;
+	flex-direction: column;
+	width: min(1320px, calc(100vw - 40px));
+	height: min(860px, calc(100vh - 40px));
+	max-width: none;
+	max-height: none;
+}
+
+.videopress-chapter-manager {
+
+	.components-modal__content {
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 auto;
+		padding: 0;
+		min-block-size: 0;
+		overflow: hidden;
+	}
+
+	// WordPress wraps the modal body in this element; it must flex so the
+	// workspace fills the full modal height instead of collapsing.
+	.components-modal__children-container {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 auto;
+		min-block-size: 0;
+	}
+
+	.components-modal__header {
+		padding: 12px 18px;
+	}
+}
+
+/* The Escape-intercepting wrapper must not affect the modal's layout. */
+.videopress-chapter-manager__body {
+	display: contents;
+}
+
+.videopress-chapter-manager__action-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 10px 18px;
+	border-block-end: 1px solid #dcdcde;
+	background: #fff;
+}
+
+.videopress-chapter-manager__action-bar-title {
+	margin: 0;
+	font-size: 14px;
+	line-height: 1.4;
+}
+
+.videopress-chapter-manager__action-buttons {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 8px;
+}
+
+.videopress-chapter-manager__action-divider {
+	inline-size: 1px;
+	align-self: stretch;
+	background: #dcdcde;
+}
+
+// The single scroll container: the preview player stacked over the timeline
+// editor (and the rows list the timeline renders below its strip).
+.videopress-chapter-manager__workspace {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	flex: 1;
+	min-block-size: 0;
+	padding: 18px;
+	background: #fff;
+	overflow-y: auto;
+}
+
+// The shared chapters preview player fills the Editor tab's canvas in its
+// dashboard home; here it is a full-width row above the timeline. The player
+// is the playhead source, not the star: cap the stage height (its own
+// viewport-derived clamp assumes a full admin page) so the timeline and rows
+// stay above the fold. The stage centers itself and derives its width from
+// the capped height and the 16:9 ratio.
+.videopress-chapter-manager__workspace .vp-chapters-preview {
+	--vp-chapters-stage-max-height: min(300px, 34vh);
+
+	flex: none;
+}
+
+.videopress-chapter-manager__editor {
+	display: flex;
+	flex-direction: column;
+	min-block-size: 0;
+}
+
+// Locked chrome while the probe or a save is in flight: dim the editor. The
+// timeline shell blocks its own scroller's pointer events and the store
+// drops edit dispatches, so this is presentation only.
+.videopress-chapter-manager__editor--locked {
+	opacity: 0.6;
+}
+
+.videopress-chapter-manager__status {
+	margin: 0;
+	color: #646970;
+}
+
+/*
+ * Transient outcome and error snackbars float over the bottom of the modal.
+ * The list spans the modal so it can't push layout, but only the bubbles
+ * themselves capture clicks, leaving the content behind interactive.
+ */
+.videopress-chapter-manager__snackbars {
+	position: absolute;
+	inset-block-end: 16px;
+	inset-inline: 16px;
+	z-index: 11;
+	pointer-events: none;
+
+	.components-snackbar {
+		pointer-events: auto;
+	}
+}
+
+@media ( max-width: 960px ) {
+
+	.videopress-chapter-manager.components-modal__frame {
+		width: 100vw;
+		// The frame is top-anchored ~40px down (below the wp-admin bar), so cap its
+		// height to the remaining space or its bottom falls past the viewport.
+		height: calc(100vh - 40px);
+	}
+
+	.videopress-chapter-manager__action-bar {
+		align-items: flex-start;
+	}
+
+	// The modal title already names the editor, so the in-body heading is
+	// redundant on mobile — hide it to reclaim horizontal space.
+	.videopress-chapter-manager__action-bar-title {
+		display: none;
+	}
+
+	// Deliberately NO player-drop here (unlike the caption modal): the player
+	// stays mounted, stacked above the timeline, and the rows list is the
+	// primary editing surface on touch.
+}

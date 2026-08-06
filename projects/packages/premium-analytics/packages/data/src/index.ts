@@ -25,7 +25,7 @@ export type {
 export { useStatsPostLikes } from './hooks/use-stats-post-likes';
 export type { StatsPostLikesParams, StatsPostLikesResponse } from './hooks/use-stats-post-likes';
 export { useStatsQuery } from './hooks/use-stats-query';
-export { latestPostQuery } from './queries/latest-post-query';
+export { latestPostQuery, postContentQuery } from './queries/latest-post-query';
 export type { LatestPost, LatestPostResponse } from './processing/latest-post';
 export { useStatsTopPosts } from './hooks/use-stats-top-posts';
 export { useStatsReferrers } from './hooks/use-stats-referrers';

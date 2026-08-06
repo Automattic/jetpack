@@ -69,6 +69,26 @@ function stringifySearchValue( value: unknown ): string {
 }
 
 /**
+ * Add the shared report-window querystring and any page-specific params to a path.
+ *
+ * @param path        - The path to link to.
+ * @param search      - The current route search params.
+ * @param extraParams - Optional destination-specific query params.
+ * @return The path with its serialized querystring.
+ */
+function buildReportWindowLink(
+	path: string,
+	search: Record< string, unknown > | undefined,
+	extraParams: Record< string, string > = {}
+): string {
+	const params = { ...pickReportDateParams( search ), ...extraParams };
+	const query = new URLSearchParams(
+		Object.entries( params ).map( ( [ key, value ] ) => [ key, stringifySearchValue( value ) ] )
+	).toString();
+	return query ? `${ path }?${ query }` : path;
+}
+
+/**
  * Build the `to` link back to the dashboard, preserving the shared report window.
  *
  * Serializes the date range and comparison (via `pickReportDateParams`) into a
@@ -79,9 +99,25 @@ function stringifySearchValue( value: unknown ): string {
  * @return A dashboard `to` path (e.g. `/?from=…&to=…`), or `/` when none are set.
  */
 export function buildDashboardLink( search: Record< string, unknown > | undefined ): string {
-	const params = pickReportDateParams( search );
-	const query = new URLSearchParams(
-		Object.entries( params ).map( ( [ key, value ] ) => [ key, stringifySearchValue( value ) ] )
-	).toString();
-	return query ? `/?${ query }` : '/';
+	return buildReportWindowLink( '/', search );
+}
+
+/**
+ * Build the `to` link to a report, preserving the shared report window.
+ *
+ * @param reportId - The report registry id.
+ * @param search   - The current route search params.
+ * @param section  - The referring report's validated section.
+ * @return A report `to` path with the shared report-window querystring.
+ */
+export function buildReportLink(
+	reportId: string,
+	search: Record< string, unknown > | undefined,
+	section?: string
+): string {
+	return buildReportWindowLink(
+		`/reports/${ reportId }`,
+		search,
+		section ? { section } : undefined
+	);
 }
