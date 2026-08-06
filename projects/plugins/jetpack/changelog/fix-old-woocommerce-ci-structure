@@ -1,0 +1,3 @@
+Significance: patch
+Type: other
+Comment: Restore the monorepo package repository mapping required by project validation.

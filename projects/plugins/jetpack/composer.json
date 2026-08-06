@@ -97,7 +97,16 @@
 			"pnpm run watch"
 		]
 	},
-	"repositories": [],
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"canonical": false,
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
 	"autoload": {
 		"classmap": [
 			"src"

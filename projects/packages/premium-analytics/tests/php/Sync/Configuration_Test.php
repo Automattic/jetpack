@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\Sync;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
@@ -49,13 +50,15 @@ class Configuration_Test extends TestCase {
 	/**
 	 * WooCommerce versions without the OrderAttributionMeta trait must not register the Sync module.
 	 *
+	 * @requires PHP >= 8.0.0
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
+	#[RequiresPhp( '>= 8.0.0' )]
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_configure_sync_with_unsupported_woocommerce_is_a_no_op() {
-		require_once __DIR__ . '/../fixtures/class-woocommerce.php';
+		require_once __DIR__ . '/../fixtures/class-legacy-woocommerce-stub.php';
 
 		$this->assertTrue( class_exists( 'WooCommerce' ) );
 		$this->assertFalse( trait_exists( '\\Automattic\\WooCommerce\\Internal\\Traits\\OrderAttributionMeta' ) );
