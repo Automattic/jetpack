@@ -452,7 +452,7 @@ class Jetpack_AI_Sidebar {
 			'generateFeedback'        => $writing_on,
 			'proofreadContent'        => $writing_on,
 			'blockTransformations'    => $writing_on,
-			'blockToolbarButton'      => true,
+			'blockToolbarButton'      => $writing_on,
 			'optimizeTitleSuggestion' => $writing_on,
 			'seoSuggestions'          => self::is_seo_suggestions_enabled(),
 			'excerptSuggestion'       => $writing_on,
@@ -474,7 +474,7 @@ class Jetpack_AI_Sidebar {
 		$features['aiEditorialReview']       = (bool) $features['aiEditorialReview'] && $writing_on;
 		$features['generateFeedback']        = (bool) $features['generateFeedback'] && $writing_on;
 		$features['proofreadContent']        = (bool) $features['proofreadContent'] && $writing_on;
-		$features['blockToolbarButton']      = (bool) $features['blockToolbarButton'];
+		$features['blockToolbarButton']      = (bool) $features['blockToolbarButton'] && $writing_on;
 		$features['optimizeTitleSuggestion'] = (bool) $features['optimizeTitleSuggestion'] && $writing_on;
 		$features['seoSuggestions']          = (bool) $features['seoSuggestions'] && self::is_seo_suggestions_enabled();
 		$features['excerptSuggestion']       = (bool) $features['excerptSuggestion'] && $writing_on;
@@ -490,6 +490,12 @@ class Jetpack_AI_Sidebar {
 
 	/**
 	 * Whether the Jetpack AI Sidebar toolbar button replaces the legacy AI toolbar.
+	 *
+	 * The button is a writing entry point, so it follows the writing assistant
+	 * toggle. Switching it off cannot bring the legacy toolbar back in its place:
+	 * the editor renders that toolbar only while this feature is unavailable AND
+	 * the AI Assistant block and its ai-assistant-support extension are
+	 * registered, and both of those are themselves gated on the writing assistant.
 	 *
 	 * @return bool
 	 */

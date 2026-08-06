@@ -714,12 +714,42 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	// ──────────────────────────────────────────────────
 
 	/**
-	 * Test that the toolbar button is enabled by default for eligible users.
+	 * Test that the toolbar button is enabled by default for eligible users. The
+	 * button is a writing entry point, so the writing assistant is switched on
+	 * explicitly rather than left to its default.
 	 */
 	public function test_toolbar_button_enabled_by_default() {
 		$this->set_block_editor_screen();
+		update_option( 'jetpack_ai_writing_assistant_enabled', 1 );
 
 		$this->assertTrue( Jetpack_AI_Sidebar::is_toolbar_button_enabled() );
+	}
+
+	/**
+	 * The toolbar button replaces the legacy AI toolbar, which is a writing
+	 * surface, so it follows the writing assistant toggle — and the generic
+	 * preview-features filter must not be able to force it back on. SEO stays on
+	 * so the sidebar itself remains available and the assertion is about the
+	 * button alone.
+	 */
+	public function test_toolbar_button_follows_writing_toggle_despite_filter() {
+		$this->set_block_editor_screen();
+		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
+		update_option( 'ai_seo_enhancer_enabled', 1 );
+		add_filter(
+			'jetpack_ai_sidebar_preview_features',
+			static function ( $features ) {
+				$features['blockToolbarButton'] = true;
+				return $features;
+			}
+		);
+
+		$enabled = Jetpack_AI_Sidebar::is_toolbar_button_enabled();
+
+		delete_option( 'jetpack_ai_writing_assistant_enabled' );
+		delete_option( 'ai_seo_enhancer_enabled' );
+
+		$this->assertFalse( $enabled );
 	}
 
 	/**
@@ -809,6 +839,30 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		);
 
 		Jetpack_AI_Sidebar::register_toolbar_button_extension();
+
+		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION ) );
+		$availability = \Jetpack_Gutenberg::get_availability()[ AiAssistantPlugin\AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION ];
+		$this->assertFalse( $availability['available'] );
+		$this->assertSame( 'jetpack_ai_sidebar_feature_disabled', $availability['unavailable_reason'] );
+	}
+
+	/**
+	 * With the writing assistant off, the toolbar button extension is registered
+	 * as unavailable rather than merely reporting a false flag: the editor needs
+	 * the extension torn down for the button to disappear. SEO stays on so the
+	 * sidebar itself is still available and this covers the button alone.
+	 */
+	public function test_register_toolbar_button_extension_unavailable_when_writing_is_off() {
+		$this->set_block_editor_screen();
+		$this->make_legacy_block_toolbar_extensions_available();
+		$this->enable_sidebar_extension_availability_checks();
+		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
+		update_option( 'ai_seo_enhancer_enabled', 1 );
+
+		Jetpack_AI_Sidebar::register_toolbar_button_extension();
+
+		delete_option( 'jetpack_ai_writing_assistant_enabled' );
+		delete_option( 'ai_seo_enhancer_enabled' );
 
 		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION ) );
 		$availability = \Jetpack_Gutenberg::get_availability()[ AiAssistantPlugin\AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION ];
@@ -924,6 +978,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 */
 	public function test_add_agents_manager_data_exposes_ai_editorial_review_by_default() {
 		$this->set_block_editor_screen();
+		// The writing features asserted below, the toolbar button among them,
+		// follow the writing assistant toggle, so switch it on explicitly.
+		update_option( 'jetpack_ai_writing_assistant_enabled', 1 );
 
 		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
 
@@ -983,8 +1040,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * The per-feature toggles from the AI settings page stay final over the
 	 * release defaults: a switched-off feature must not surface suggestions
 	 * even when an external host draws the sidebar. Writing assistant off kills
-	 * every writing suggestion (Proofreader, Optimize Title, Generate Feedback,
-	 * AI Editorial Review, and Generate Excerpt) while the SEO suggestions stay
+	 * every writing surface (Proofreader, Optimize Title, Generate Feedback, AI
+	 * Editorial Review, Generate Excerpt, block transformations, and the toolbar
+	 * button) while the SEO suggestions stay
 	 * on their own toggle. SEO is switched on here so the sidebar itself stays
 	 * available — with both toggles off Jetpack contributes no data at all,
 	 * which the visibility-gate tests cover.
@@ -1006,6 +1064,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['aiEditorialReview'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['excerptSuggestion'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['blockTransformations'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['blockToolbarButton'] );
 		$this->assertSame( true, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
 	}
 
