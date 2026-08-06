@@ -111,6 +111,25 @@ export type DateFiltersPanelProps = {
 	 * Required for proper date/time handling.
 	 */
 	timeZone: string;
+
+	/**
+	 * Element to measure for the responsive layout instead of the panel's own
+	 * root. Required when the panel sits in a shrink-to-fit slot (e.g. sharing
+	 * a header row with a title): there the root's width follows the panel's
+	 * own content, so self-measurement could neither collapse when narrow nor
+	 * expand back when widened. Callers whose panel fills its container should
+	 * omit it.
+	 */
+	containerElement?: HTMLElement | null;
+
+	/**
+	 * Inline space in the measured container that is never available to the
+	 * panel — e.g. a title's minimum share on a shared header row. Subtracted
+	 * from the measured width before resolving the responsive layout, so the
+	 * panel steps down while its row-mates still have their minimum, instead
+	 * of only once the whole container is narrower than the panel itself.
+	 */
+	reservedInlineSize?: number;
 };
 
 /**
@@ -140,6 +159,8 @@ export function DateFiltersPanel( {
 	onCancel,
 	canApply = true,
 	timeZone,
+	containerElement,
+	reservedInlineSize = 0,
 }: DateFiltersPanelProps ) {
 	/**
 	 * Validate and normalize the primary preset ID.
@@ -225,13 +246,14 @@ export function DateFiltersPanel( {
 	const setObserverRef = useResizeObserver< HTMLElement >( handleResize );
 
 	/*
-	 * Measure this panel's own root. Callers used to wrap the panel and hand the
-	 * wrapper back as a prop; all ten passed their immediate wrapper, so the
-	 * number was the panel's own width and the ceremony bought nothing.
+	 * Measure the caller-provided container when there is one, and the panel's
+	 * own root otherwise. Self-measurement is only honest when the root fills
+	 * its container; in a shrink-to-fit slot the root follows the panel's own
+	 * content and the layout mode could never change in either direction.
 	 */
 	useEffect( () => {
-		setObserverRef( rootElement ?? document.body );
-	}, [ rootElement, setObserverRef ] );
+		setObserverRef( containerElement ?? rootElement ?? document.body );
+	}, [ containerElement, rootElement, setObserverRef ] );
 
 	/*
 	 * The last applied custom range, remembered so the trigger can offer the way
@@ -297,8 +319,12 @@ export function DateFiltersPanel( {
 	// Both candidates come from the probe, so the boundary follows the active
 	// locale rather than a breakpoint picked for English.
 	const labelMode = useMemo(
-		() => resolvePresetLabelMode( containerWidth, rowWidths ),
-		[ containerWidth, rowWidths ]
+		() =>
+			resolvePresetLabelMode(
+				containerWidth === null ? null : containerWidth - reservedInlineSize,
+				rowWidths
+			),
+		[ containerWidth, reservedInlineSize, rowWidths ]
 	);
 
 	const isCompact = labelMode === 'select';
