@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-AI: Stop mirroring the ai module state into the jetpack_ai_enabled option off WordPress.com Simple; the synced active_modules list is the single source of truth for the master switch, and the option is no longer exposed over core settings REST.
