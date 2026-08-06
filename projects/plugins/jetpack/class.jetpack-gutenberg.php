@@ -1159,10 +1159,12 @@ class Jetpack_Gutenberg {
 	 *
 	 * This runs at module-load time (around after_setup_theme), before core defines
 	 * REST_REQUEST during parse_request, so self-hosted and Atomic REST requests are
-	 * detected from the request URL instead of the constant. WordPress.com Simple
-	 * dispatches proxied wpcom/v2 requests (such as the GutenbergKit editor-assets
-	 * endpoint) without a /wp-json/ REQUEST_URI, so those are detected via the
-	 * REST_API_REQUEST constant, which Simple defines during bootstrap.
+	 * detected from the request URL instead of the constant. That URL check cannot
+	 * work on WordPress.com Simple: its public API filters `rest_url_prefix` to an
+	 * empty string, so rest_get_url_prefix() returns '' and the REST roots computed
+	 * below collapse to '//', which no request path can match. Simple's requests are
+	 * detected via REST_API_REQUEST instead, which its API entry points define before
+	 * wp-load.php runs.
 	 *
 	 * @since 16.0
 	 *
@@ -1180,10 +1182,9 @@ class Jetpack_Gutenberg {
 		 *
 		 * Core defines REST_REQUEST during parse_request, after this runs, so it is
 		 * normally still unset here; it is checked anyway so the result stays correct
-		 * if this is ever called later in the request. WordPress.com Simple defines
-		 * REST_API_REQUEST during bootstrap, which *is* set by module-load time, and is
-		 * how proxied wpcom/v2 requests identify themselves — their REQUEST_URI is not
-		 * a /wp-json/ path, so the URL check below cannot see them.
+		 * if this is ever called later in the request. REST_API_REQUEST is what catches
+		 * WordPress.com Simple, where the URL check below cannot work at all (see the
+		 * method docblock).
 		 */
 		if (
 			Constants::is_true( 'DOING_CRON' )
