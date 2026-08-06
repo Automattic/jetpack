@@ -59,6 +59,7 @@ class Initializer {
 		'jetpack-social',
 		'jetpack-videopress',
 		'jetpack-search',
+		'jetpack-stats',
 	);
 
 	private const MY_JETPACK_SITE_INFO_TRANSIENT_KEY = 'my-jetpack-site-info';
@@ -527,7 +528,7 @@ class Initializer {
 	public static function get_my_jetpack_flags() {
 		$flags = array(
 			'videoPressStats'          => Jetpack_Constants::is_true( 'JETPACK_MY_JETPACK_VIDEOPRESS_STATS_ENABLED' ),
-			'showFullJetpackStatsCard' => class_exists( 'Jetpack' ),
+			'showFullJetpackStatsCard' => class_exists( 'Jetpack' ) || Products\Stats::is_standalone_plugin_active(),
 			// Only says which destination `manage_url` is: the legacy Stats page
 			// caches its report and wants a `force_refresh` hint the dashboard does not.
 			'premiumAnalyticsEnabled'  => Products\Stats::is_premium_analytics_enabled(),

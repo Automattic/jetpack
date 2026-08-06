@@ -7,9 +7,9 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Initializer;
-use Automattic\Jetpack\My_Jetpack\Module_Product;
-use Automattic\Jetpack\My_jetpack\Products;
+use Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class responsible for handling the Jetpack Stats product
  */
-class Stats extends Module_Product {
+class Stats extends Hybrid_Product {
 	/**
 	 * The product slug
 	 *
@@ -48,14 +48,18 @@ class Stats extends Module_Product {
 	 *
 	 * @var string|null
 	 */
-	public static $plugin_slug = self::JETPACK_PLUGIN_SLUG;
+	public static $plugin_slug = 'jetpack-stats';
 
 	/**
 	 * The Plugin file associated with stats
 	 *
-	 * @var string|null
+	 * @var string|array|null
 	 */
-	public static $plugin_filename = self::JETPACK_PLUGIN_FILENAME;
+	public static $plugin_filename = array(
+		'jetpack-stats/jetpack-stats.php',
+		'stats/jetpack-stats.php',
+		'jetpack-stats-dev/jetpack-stats.php',
+	);
 
 	/**
 	 * Stats only requires site connection, not user connection
@@ -63,13 +67,6 @@ class Stats extends Module_Product {
 	 * @var bool
 	 */
 	public static $requires_user_connection = false;
-
-	/**
-	 * Stats does not have a standalone plugin (yet?)
-	 *
-	 * @var bool
-	 */
-	public static $has_standalone_plugin = false;
 
 	/**
 	 * Whether this product has a free offering
