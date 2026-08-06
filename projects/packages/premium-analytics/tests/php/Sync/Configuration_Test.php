@@ -47,6 +47,9 @@ class Configuration_Test extends TestCase {
 		$this->assertFalse( has_filter( 'jetpack_sync_modules', array( $configuration, 'add_woocommerce_analytics_module' ) ) );
 	}
 
+	#[RequiresPhp( '>= 8.0.0' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	/**
 	 * WooCommerce versions without the OrderAttributionMeta trait must not register the Sync module.
 	 *
@@ -54,9 +57,6 @@ class Configuration_Test extends TestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
-	#[RequiresPhp( '>= 8.0.0' )]
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_configure_sync_with_unsupported_woocommerce_is_a_no_op() {
 		require_once __DIR__ . '/../fixtures/class-legacy-woocommerce-stub.php';
 
