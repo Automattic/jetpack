@@ -523,7 +523,8 @@ function jetpack_boost_minify_use_static_cache_urls() {
 	 *
 	 * Returning true on a host Boost excludes only works if that host routes missing wp-content
 	 * file requests through WordPress; otherwise every bundle URL 404s at the web server. It also
-	 * overrides the 404 tester's verdict, and the tester does not run on excluded hosts. Evaluated
+	 * overrides the 404 tester's verdict, and Boost does not schedule the tester on excluded hosts
+	 * (a cron event inherited from a previous host can still fire until the next release). Evaluated
 	 * per concat group, so return a stable value for the whole render.
 	 *
 	 * @since $$next-version$$

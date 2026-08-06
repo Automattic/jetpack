@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Concatenate JS/CSS: Fix broken CSS and JS delivery on pages rendered after a site is migrated onto WP Cloud or WordPress.com. Pages already served from a platform edge cache keep the old URLs until that cache is purged or expires.
+Concatenate JS/CSS: Fix broken CSS and JS delivery on pages rendered after a site is migrated onto WP Cloud or WordPress.com. Pages already served from a cache (Boost's page cache or a platform edge cache) keep the old URLs until the cache is purged or expires.
