@@ -15,6 +15,27 @@ use Jetpack_Options;
  */
 class Initial_State {
 	/**
+	 * The free Stats product slug.
+	 *
+	 * @var string
+	 */
+	const FREE_PRODUCT_SLUG = 'jetpack_stats_free_yearly';
+
+	/**
+	 * The paid Stats product slug.
+	 *
+	 * @var string
+	 */
+	const PAID_PRODUCT_SLUG = 'jetpack_stats_yearly';
+
+	/**
+	 * Transient key caching the paid product pricing.
+	 *
+	 * @var string
+	 */
+	const PRICING_TRANSIENT = 'jp_stats_pricing_grid_pricing';
+
+	/**
 	 * Get the initial state data for the pricing grid.
 	 *
 	 * @return array
@@ -32,10 +53,47 @@ class Initial_State {
 			'siteSuffix'      => $domain,
 			'isConnected'     => $is_registered,
 			'adminUrl'        => admin_url(),
-			'freeProductSlug' => 'jetpack_stats_free_yearly',
-			'paidProductSlug' => 'jetpack_stats_yearly',
+			'freeProductSlug' => self::FREE_PRODUCT_SLUG,
+			'paidProductSlug' => self::PAID_PRODUCT_SLUG,
 			'paidPurchaseUrl' => $this->get_paid_purchase_url( $blog_id, $is_registered, $domain ),
+			'paidPricing'     => $this->get_paid_pricing(),
 		);
+	}
+
+	/**
+	 * Get localized pricing for the paid Stats product from the public
+	 * WordPress.com products endpoint. Works without a connection; cached
+	 * in a transient to avoid a remote request on every page view.
+	 *
+	 * @return array|null Array with monthlyCostDisplay and yearlyCostDisplay, or null when unavailable.
+	 */
+	private function get_paid_pricing() {
+		$cached = get_transient( self::PRICING_TRANSIENT );
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+
+		$response = wp_remote_get(
+			add_query_arg( 'locale', get_user_locale(), 'https://public-api.wordpress.com/rest/v1.1/products' ),
+			array( 'timeout' => 5 )
+		);
+		if ( is_wp_error( $response ) ) {
+			return null;
+		}
+
+		$products = json_decode( wp_remote_retrieve_body( $response ), true );
+		$product  = isset( $products[ self::PAID_PRODUCT_SLUG ] ) ? $products[ self::PAID_PRODUCT_SLUG ] : null;
+		if ( empty( $product['cost'] ) || empty( $product['currency_code'] ) ) {
+			return null;
+		}
+
+		$pricing = array(
+			'yearlyCost' => (float) $product['cost'],
+			'currency'   => $product['currency_code'],
+		);
+		set_transient( self::PRICING_TRANSIENT, $pricing, 12 * HOUR_IN_SECONDS );
+
+		return $pricing;
 	}
 
 	/**

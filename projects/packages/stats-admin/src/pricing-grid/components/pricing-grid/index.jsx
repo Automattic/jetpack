@@ -1,21 +1,47 @@
 import {
 	AdminPage,
+	AdminSectionHero,
+	Button,
+	Col,
+	Container,
 	PricingTable,
 	PricingTableColumn,
 	PricingTableHeader,
 	PricingTableItem,
 	ProductPrice,
+	ThemeProvider,
 } from '@automattic/jetpack-components';
-import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import useStatsCheckoutWorkflow from '../../hooks/use-stats-checkout-workflow';
-import './style.scss';
 
 /* global JP_STATS_PRICING_GRID_INITIAL_STATE */
 
+const pricingTableArgs = {
+	title: __( 'Choose your Stats plan', 'jetpack-stats-admin' ),
+	items: [
+		{ name: __( 'UTM tracking', 'jetpack-stats-admin' ) },
+		{ name: __( 'Device stats', 'jetpack-stats-admin' ) },
+		{ name: __( 'Locations', 'jetpack-stats-admin' ) },
+		{ name: __( 'Priority support', 'jetpack-stats-admin' ) },
+		{ name: __( 'Views and visitors', 'jetpack-stats-admin' ) },
+		{ name: __( 'Top posts and pages', 'jetpack-stats-admin' ) },
+		{ name: __( 'Referrers and clicks', 'jetpack-stats-admin' ) },
+		{ name: __( 'Search terms', 'jetpack-stats-admin' ) },
+		{ name: __( 'Authors', 'jetpack-stats-admin' ) },
+		{ name: __( 'Downloads and video plays', 'jetpack-stats-admin' ) },
+		{ name: __( 'Insights and subscribers', 'jetpack-stats-admin' ) },
+		{ name: __( 'Full history', 'jetpack-stats-admin' ) },
+		{ name: __( 'GDPR-compliant', 'jetpack-stats-admin' ) },
+	],
+};
+
+// Rows shared by both plans, after the four paid differentiators above.
+const SHARED_FEATURES_COUNT = pricingTableArgs.items.length - 4;
+
 /**
- * The Stats pricing grid component.
- * Shows a 2-card table: Free and Paid options for new installations.
+ * The Stats pricing grid: a Paid / Free plan choice for new installations
+ * without a plan. Copy follows the STATS-366 grid spec; the layout reuses
+ * the same pricing table as the Jetpack Search upsell page.
  *
  * @return {object} The pricing grid element.
  */
@@ -25,7 +51,6 @@ export default function PricingGrid() {
 			? JP_STATS_PRICING_GRID_INITIAL_STATE
 			: {};
 
-	// Free tier: use the checkout workflow to buy the free product.
 	const { run: checkoutFree, hasCheckoutStarted: freeCheckoutStarted } = useStatsCheckoutWorkflow( {
 		productSlug: state.freeProductSlug || 'jetpack_stats_free_yearly',
 		redirectUrl: 'admin.php?page=stats',
@@ -33,8 +58,8 @@ export default function PricingGrid() {
 		adminUrl: state.adminUrl,
 	} );
 
-	// Paid tier: link to the purchase page (no checkout hook needed).
-	const paidPurchaseUrl = state.paidPurchaseUrl || '#';
+	const currency = state.paidPricing?.currency || 'USD';
+	const monthlyPrice = state.paidPricing?.yearlyCost ? state.paidPricing.yearlyCost / 12 : null;
 
 	return (
 		<AdminPage
@@ -43,78 +68,77 @@ export default function PricingGrid() {
 				'Clear, concise, and actionable analysis of your site performance.',
 				'jetpack-stats-admin'
 			) }
-			classname="jp-stats-pricing-grid__page"
 		>
-			<div className="jp-stats-pricing-grid">
-				<PricingTable
-					title={ __( 'Choose your Stats plan', 'jetpack-stats-admin' ) }
-					items={ [
-						{ name: __( 'Real-time data on visitors', 'jetpack-stats-admin' ) },
-						{ name: __( 'Traffic stats and trends for posts and pages', 'jetpack-stats-admin' ) },
-						{ name: __( 'Detailed statistics about referral links', 'jetpack-stats-admin' ) },
-						{ name: __( 'GDPR compliant', 'jetpack-stats-admin' ) },
-					] }
-				>
-					{ /* Free tier column */ }
-					<PricingTableColumn>
-						<PricingTableHeader>
-							<h3>{ __( 'Jetpack Stats', 'jetpack-stats-admin' ) }</h3>
-							<ProductPrice price={ 0 } legend="" currency="USD" hidePriceFraction />
-							<Button
-								onClick={ checkoutFree }
-								isLoading={ freeCheckoutStarted }
-								disabled={ freeCheckoutStarted }
-								className="jp-stats-pricing-grid__button"
-								variant="primary"
-							>
-								{ __( 'Start for free', 'jetpack-stats-admin' ) }
-							</Button>
-						</PricingTableHeader>
-						<PricingTableItem isIncluded />
-						<PricingTableItem isIncluded />
-						<PricingTableItem isIncluded />
-						<PricingTableItem isIncluded />
-					</PricingTableColumn>
-
-					{ /* Paid tier column */ }
-					<PricingTableColumn primary>
-						<PricingTableHeader>
-							<h3>{ __( 'Jetpack Stats Professional', 'jetpack-stats-admin' ) }</h3>
-							<ProductPrice
-								price={ 99 }
-								promoLabel={ __( 'per year', 'jetpack-stats-admin' ) }
-								currency="USD"
-							/>
-							<Button
-								href={ paidPurchaseUrl }
-								className="jp-stats-pricing-grid__button"
-								variant="primary"
-							>
-								{ __( 'Get Paid Stats', 'jetpack-stats-admin' ) }
-							</Button>
-						</PricingTableHeader>
-						<PricingTableItem
-							isIncluded
-							label={ __( 'Everything in Free', 'jetpack-stats-admin' ) }
-						/>
-						<PricingTableItem
-							isIncluded
-							label={ __( 'Everything in Free', 'jetpack-stats-admin' ) }
-						/>
-						<PricingTableItem
-							isIncluded
-							label={ __(
-								'UTM tracking, device stats, region & city locations',
-								'jetpack-stats-admin'
-							) }
-						/>
-						<PricingTableItem
-							isIncluded
-							label={ __( 'Priority support', 'jetpack-stats-admin' ) }
-						/>
-					</PricingTableColumn>
-				</PricingTable>
-			</div>
+			<AdminSectionHero>
+				<Container horizontalSpacing={ 8 }>
+					<Col lg={ 12 } md={ 12 } sm={ 12 }>
+						<ThemeProvider>
+							<PricingTable { ...pricingTableArgs }>
+								<PricingTableColumn primary>
+									<PricingTableHeader>
+										{ monthlyPrice !== null && (
+											<ProductPrice
+												price={ monthlyPrice }
+												currency={ currency }
+												legend={ __(
+													'per month for up to 10k monthly views, billed yearly',
+													'jetpack-stats-admin'
+												) }
+											/>
+										) }
+										<Button href={ state.paidPurchaseUrl || '#' } fullWidth>
+											{ __( 'Get Paid Stats', 'jetpack-stats-admin' ) }
+										</Button>
+									</PricingTableHeader>
+									<PricingTableItem
+										isIncluded
+										label={ <strong>{ __( 'Included', 'jetpack-stats-admin' ) }</strong> }
+									/>
+									<PricingTableItem
+										isIncluded
+										label={ <strong>{ __( 'Included', 'jetpack-stats-admin' ) }</strong> }
+									/>
+									<PricingTableItem
+										isIncluded
+										label={ <strong>{ __( 'Region and city', 'jetpack-stats-admin' ) }</strong> }
+									/>
+									<PricingTableItem
+										isIncluded
+										label={ <strong>{ __( 'Included', 'jetpack-stats-admin' ) }</strong> }
+									/>
+									{ Array.from( { length: SHARED_FEATURES_COUNT }, ( _, index ) => (
+										<PricingTableItem key={ index } isIncluded />
+									) ) }
+								</PricingTableColumn>
+								<PricingTableColumn>
+									<PricingTableHeader>
+										<ProductPrice price={ 0 } legend="" currency={ currency } hidePriceFraction />
+										<Button
+											onClick={ checkoutFree }
+											isLoading={ freeCheckoutStarted }
+											disabled={ freeCheckoutStarted }
+											variant="secondary"
+											fullWidth
+										>
+											{ __( 'Start for free', 'jetpack-stats-admin' ) }
+										</Button>
+									</PricingTableHeader>
+									<PricingTableItem isIncluded={ false } />
+									<PricingTableItem isIncluded={ false } />
+									<PricingTableItem
+										isIncluded
+										label={ __( 'Country-level', 'jetpack-stats-admin' ) }
+									/>
+									<PricingTableItem isIncluded={ false } />
+									{ Array.from( { length: SHARED_FEATURES_COUNT }, ( _, index ) => (
+										<PricingTableItem key={ index } isIncluded />
+									) ) }
+								</PricingTableColumn>
+							</PricingTable>
+						</ThemeProvider>
+					</Col>
+				</Container>
+			</AdminSectionHero>
 		</AdminPage>
 	);
 }
