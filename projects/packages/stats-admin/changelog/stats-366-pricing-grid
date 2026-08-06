@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add Stats pricing grid for new site installations without a plan, allowing users to choose between free and paid tiers directly from wp-admin.

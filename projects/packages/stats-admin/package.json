@@ -15,10 +15,54 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "echo 'Not implemented.'",
-		"build-js": "echo 'Not implemented.'",
-		"build-production": "echo 'Not implemented.'",
-		"build-production-js": "echo 'Not implemented.'",
-		"clean": "true"
+		"build": "pnpm run clean && pnpm run build-pricing-grid",
+		"build-development": "NODE_ENV=development BABEL_ENV=development pnpm run build",
+		"build-pricing-grid": "webpack --config ./tools/webpack.pricing-grid.config.js",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
+		"clean": "rm -rf build/",
+		"test": "jest --passWithNoTests",
+		"test-coverage": "jest --passWithNoTests --coverage",
+		"test-scripts": "jest --passWithNoTests",
+		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
+		"watch": "pnpm run build-pricing-grid --watch"
+	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
+	"dependencies": {
+		"@automattic/jetpack-analytics": "workspace:*",
+		"@automattic/jetpack-api": "workspace:*",
+		"@automattic/jetpack-base-styles": "workspace:*",
+		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-connection": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
+		"@automattic/number-formatters": "workspace:*",
+		"@wordpress/api-fetch": "7.51.0",
+		"@wordpress/base-styles": "11.0.0",
+		"@wordpress/components": "37.0.0",
+		"@wordpress/data": "10.51.0",
+		"@wordpress/element": "8.3.0",
+		"@wordpress/i18n": "6.24.0"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@babel/core": "7.29.7",
+		"@babel/preset-typescript": "7.24.7",
+		"@testing-library/dom": "10.4.1",
+		"@testing-library/react": "16.3.2",
+		"@types/react": "18.3.28",
+		"@wordpress/browserslist-config": "6.51.0",
+		"@wordpress/theme": "1.1.0",
+		"autoprefixer": "10.4.20",
+		"babel-jest": "30.4.1",
+		"jest": "30.4.2",
+		"postcss": "8.5.23",
+		"postcss-loader": "8.2.0",
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
+		"sass-embedded": "1.97.3",
+		"sass-loader": "14.2.1",
+		"webpack": "5.107.2",
+		"webpack-cli": "7.2.1"
 	}
 }
