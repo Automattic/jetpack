@@ -24,9 +24,9 @@ if ( ! function_exists( 'jetpack_boost_ds_get' ) ) {
 }
 
 /**
- * BOOST-608: the URL these two classes emit is the user-visible contract. The helper tests next door
- * all pass while do_items() reads the migrated option directly, which is the bug. Assert on the
- * emitted tag, not on the helper.
+ * BOOST-608: the URL these two classes emit is the user-visible contract. The helper tests in this
+ * directory stay green even when do_items() reads the migrated option directly, which is the bug.
+ * So these tests assert on the emitted tag, not on the helper.
  */
 class Concatenate_Static_Cache_Urls_Test extends BaseTestCase {
 
@@ -55,7 +55,7 @@ class Concatenate_Static_Cache_Urls_Test extends BaseTestCase {
 
 		// The assets must live under wp-content. Dependency_Path_Mapping resolves enqueued URLs back
 		// to paths relative to it, and skips anything it cannot resolve. The pid suffix keeps
-		// concurrent test processes from clobbering each other's fixtures.
+		// concurrent test processes from overwriting each other's fixtures.
 		$this->asset_dir = WP_CONTENT_DIR . '/boost-concat-test-' . getmypid();
 		if ( ! is_dir( $this->asset_dir ) ) {
 			mkdir( $this->asset_dir, 0755, true );
@@ -130,8 +130,8 @@ class Concatenate_Static_Cache_Urls_Test extends BaseTestCase {
 		$styles->add( 'boost-test-b', $this->asset_url( 'b.css' ), array(), null );
 		$styles->enqueue( array( 'boost-test-a', 'boost-test-b' ) );
 
-		// finally, so a throw inside do_items() surfaces as that failure rather than as a leaked
-		// buffer tripping beStrictAboutOutputDuringTests.
+		// The finally block makes a throw inside do_items() surface as that failure, not as a
+		// leaked buffer that trips beStrictAboutOutputDuringTests.
 		ob_start();
 		try {
 			$styles->do_items();
@@ -190,8 +190,8 @@ class Concatenate_Static_Cache_Urls_Test extends BaseTestCase {
 	}
 
 	/**
-	 * WordPress.com Atomic classifies as 'woa', not 'atomic'. These pin the guard to "anything but
-	 * 'other'": narrowing it to one named provider must fail here, not on WordPress.com.
+	 * WordPress.com Atomic classifies as 'woa', not 'atomic'. These tests pin the guard to "anything
+	 * but 'other'": narrowing it to one named provider must fail here, not on WordPress.com.
 	 */
 	public function test_css_falls_back_when_a_stale_verdict_arrives_on_wpcom_atomic() {
 		update_site_option( 'jetpack_boost_static_minification', 1 );
@@ -250,7 +250,7 @@ class Concatenate_Static_Cache_Urls_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The filter is the PR's escape hatch for hosts the guard excludes wrongly. These pin it in
+	 * The filter is the escape hatch for hosts the guard excludes wrongly. These tests pin it in
 	 * both directions; without them, deleting the apply_filters() call keeps the suite green.
 	 */
 	public function test_filter_can_force_static_cache_urls_on_wp_cloud() {

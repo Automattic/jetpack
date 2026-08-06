@@ -498,17 +498,18 @@ function jetpack_boost_get_static_prefix() {
  * Whether concatenated files should be linked from the static cache directory.
  *
  * Static cache URLs work only where WordPress sees the 404 for a missing wp-content file: the
- * first request 404s, and Boost builds the file while answering it. Whether such a 404 reaches
- * WordPress is a per-site platform setting on Atomic and WP Cloud that Boost cannot read, so those
- * hosts get the /_jb_static/ fallback unless the filter below says otherwise. Everywhere else the
- * 404 tester's verdict decides — but jetpack_boost_static_minification travels with the database,
- * and a migrated site arrives with its previous host's `1`, so the host is asked first.
+ * first request 404s, and Boost builds the file while answering it. On Atomic and WP Cloud, a
+ * per-site platform setting that Boost cannot read decides whether such a 404 reaches WordPress.
+ * Those hosts get the /_jb_static/ fallback unless the filter below says otherwise. Everywhere
+ * else the 404 tester's verdict decides. But jetpack_boost_static_minification travels with the
+ * database, and a migrated site arrives with its previous host's `1`, so this helper asks the
+ * host first.
  *
  * Admin\Config::get_hosting_provider() returns 'other' for any host it does not name, so a host it
  * does not recognize keeps the static cache. A new named value there opts that provider out.
  *
- * Distinct from Minify\Config::can_use_static_cache(), which ensures the cache directory exists
- * and is writable.
+ * This is distinct from Minify\Config::can_use_static_cache(), which ensures the cache directory
+ * exists and is writable.
  *
  * @since $$next-version$$
  *
@@ -521,11 +522,11 @@ function jetpack_boost_minify_use_static_cache_urls() {
 	/**
 	 * Filter whether concatenated CSS and JS are linked from the static cache directory.
 	 *
-	 * Returning true on a host Boost excludes only works if that host routes missing wp-content
-	 * file requests through WordPress; otherwise every bundle URL 404s at the web server. It also
+	 * Return true on an excluded host only if that host routes missing wp-content file requests
+	 * through WordPress; otherwise every bundle URL 404s at the web server. A true value also
 	 * overrides the 404 tester's verdict, and Boost does not schedule the tester on excluded hosts
-	 * (a cron event inherited from a previous host can still fire until the next release). Evaluated
-	 * per concat group, so return a stable value for the whole render.
+	 * (a cron event inherited from a previous host can still fire until the next release). Boost
+	 * evaluates this filter once per concat group, so return one stable value for the whole render.
 	 *
 	 * @since $$next-version$$
 	 *
