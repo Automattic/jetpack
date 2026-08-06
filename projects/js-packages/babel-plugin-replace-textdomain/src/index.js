@@ -11,6 +11,26 @@ const defaultFunctions = Object.freeze( {
 
 const defaultI18nModule = '@wordpress/i18n';
 
+/**
+ * Emit a debug message describing a node, with a code frame pointing at it.
+ *
+ * `buildCodeFrameError()` renders an excerpt of the surrounding source, which
+ * means walking the whole file. Passing it straight to `debug()` looks free
+ * when debug output is off, but JavaScript evaluates call arguments eagerly, so
+ * the frame is built for every matched call either way. On the large bundles
+ * this plugin runs over during a build that dominated the whole transform —
+ * building frames cost ~35s on a 2.4MB bundle, against ~0.5s to parse and
+ * regenerate it. Build the frame only when something will read it.
+ *
+ * @param {object} path    - Babel path to point the code frame at.
+ * @param {string} message - Message to log.
+ */
+function debugCodeFrame( path, message ) {
+	if ( debug.enabled ) {
+		debug( path.buildCodeFrameError( message, Error ).message );
+	}
+}
+
 module.exports = ( babel, opts ) => {
 	const { types: t } = babel;
 	const seenDomains = {};
@@ -69,10 +89,7 @@ module.exports = ( babel, opts ) => {
 
 				// If the domain argument is not set, maybe inject one.
 				if ( ! path.node.arguments[ idx ] ) {
-					debug(
-						path.buildCodeFrameError( `Domain argument (index ${ idx + 1 }) is missing`, Error )
-							.message
-					);
+					debugCodeFrame( path, `Domain argument (index ${ idx + 1 }) is missing` );
 					const newdomain = replacementDomain( '' );
 					if ( typeof newdomain === 'string' ) {
 						for ( let i = path.node.arguments.length; i < idx; i++ ) {
@@ -92,11 +109,9 @@ module.exports = ( babel, opts ) => {
 				} else if ( t.isTemplateLiteral( argnode ) && argnode.expressions.length === 0 ) {
 					olddomain = argnode.quasis[ 0 ].value.cooked;
 				} else {
-					debug(
-						argpath.buildCodeFrameError(
-							`Domain argument should be a StringLiteral, not ${ argnode.type }`,
-							Error
-						).message
+					debugCodeFrame(
+						argpath,
+						`Domain argument should be a StringLiteral, not ${ argnode.type }`
 					);
 					return;
 				}
@@ -107,12 +122,7 @@ module.exports = ( babel, opts ) => {
 					argpath.replaceWith( t.stringLiteral( newdomain ) );
 				} else if ( ! seenDomains[ olddomain ] ) {
 					seenDomains[ olddomain ] = true;
-					debug(
-						argpath.buildCodeFrameError(
-							`No mapping for textdomain ${ olddomain } (first instance)`,
-							Error
-						).message
-					);
+					debugCodeFrame( argpath, `No mapping for textdomain ${ olddomain } (first instance)` );
 				}
 			},
 		},
