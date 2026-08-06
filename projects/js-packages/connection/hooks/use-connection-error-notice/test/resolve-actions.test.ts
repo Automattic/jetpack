@@ -142,6 +142,26 @@ describe( 'resolveConnectionErrorActions', () => {
 		expect( actions[ 0 ].label ).toBe( 'Take Action' );
 	} );
 
+	it( 'uses the built-in default label for the take_over_ownership action', () => {
+		const handler = jest.fn();
+		const error: ConnectionErrorObject = {
+			error_message: 'The connection owner needs to reconnect.',
+			audience: 'owner',
+			error_data: { action: 'take_over_ownership' },
+		};
+
+		const actions = resolveConnectionErrorActions( error, {
+			...baseOptions,
+			actionHandlers: { take_over_ownership: handler },
+		} );
+
+		expect( actions ).toHaveLength( 1 );
+		expect( actions[ 0 ].label ).toBe( 'Take over ownership' );
+
+		actions[ 0 ].onClick();
+		expect( handler ).toHaveBeenCalledWith( error );
+	} );
+
 	it( 'resolves a URL action and navigates via the supplied navigate handler', () => {
 		const navigate = jest.fn();
 		const actions = resolveConnectionErrorActions(

@@ -1222,6 +1222,19 @@ class Manager {
 	 * @return true|WP_Error True if owner successfully changed, WP_Error otherwise.
 	 */
 	public function update_connection_owner( $new_owner_id ) {
+		$new_owner_id = (int) $new_owner_id;
+
+		// Ownership changes are only permitted on the transferable (default) model.
+		// When a consumer has locked ownership (e.g. a managed host or a plugin that
+		// requires a fixed owner), this is the single chokepoint that refuses the change.
+		if ( ! $this->is_ownership_transferable() ) {
+			return new WP_Error(
+				'ownership_locked',
+				__( 'Connection ownership is locked and cannot be transferred on this site.', 'jetpack-connection' ),
+				array( 'status' => 403 )
+			);
+		}
+
 		$roles = new Roles();
 		if ( ! user_can( $new_owner_id, $roles->translate_role_to_cap( 'administrator' ) ) ) {
 			return new WP_Error(
@@ -1231,7 +1244,10 @@ class Manager {
 			);
 		}
 
-		$old_owner_id = $this->get_connection_owner_id();
+		// Use the record-based owner (master_user) rather than the token-derived owner:
+		// the latter returns false exactly when the current owner's token is broken,
+		// which is the scenario a takeover targets.
+		$old_owner_id = (int) \Jetpack_Options::get_option( 'master_user' );
 
 		if ( $old_owner_id === $new_owner_id ) {
 			return new WP_Error(
@@ -1249,6 +1265,9 @@ class Manager {
 			);
 		}
 
+		// Ownership changes are security-relevant; record the attempt.
+		( new Tracking() )->record_user_event( 'set_connection_owner_attempt' );
+
 		// Notify WPCOM about the connection owner change.
 		$owner_updated_wpcom = $this->update_connection_owner_wpcom( $new_owner_id );
 
@@ -1260,16 +1279,65 @@ class Manager {
 			// Clear the memoized connection owner ID since it changed
 			self::$connection_owner_id = null;
 
+			// Clear the previous owner's stale token errors and cached connection data
+			// for both users so the new owner does not immediately see notices about the
+			// previous owner.
+			$this->cleanup_after_owner_change( $old_owner_id, $new_owner_id );
+
 			// Track it.
 			( new Tracking() )->record_user_event( 'set_connection_owner_success' );
 
+			/**
+			 * Fires after the Jetpack connection owner has changed.
+			 *
+			 * Consumers can hook this to notify the previous owner or perform their own
+			 * bookkeeping. Jetpack ships no default notification.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param int $old_owner_id The user ID of the previous connection owner (0 if none).
+			 * @param int $new_owner_id The user ID of the new connection owner.
+			 */
+			do_action( 'jetpack_connection_owner_changed', $old_owner_id, $new_owner_id );
+
 			return true;
 		}
+
+		( new Tracking() )->record_user_event( 'set_connection_owner_failure' );
+
 		return new WP_Error(
 			'error_setting_new_owner',
 			__( 'Could not confirm new owner.', 'jetpack-connection' ),
 			array( 'status' => 500 )
 		);
+	}
+
+	/**
+	 * Cleans up stale state after a connection ownership change.
+	 *
+	 * Removes the previous owner's (now-stale) local user token and connection errors and
+	 * clears the cached connection-user-data transients for both the previous and new
+	 * owner, so the new owner does not immediately see notices about the previous owner.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $old_owner_id The user ID of the previous connection owner (0 if none).
+	 * @param int $new_owner_id The user ID of the new connection owner.
+	 * @return void
+	 */
+	private function cleanup_after_owner_change( $old_owner_id, $new_owner_id ) {
+		$old_owner_id = (int) $old_owner_id;
+		$new_owner_id = (int) $new_owner_id;
+
+		if ( $old_owner_id > 0 ) {
+			$this->get_tokens()->disconnect_user( $old_owner_id );
+			Error_Handler::get_instance()->delete_errors_for_user( $old_owner_id );
+			delete_transient( "jetpack_connected_user_data_$old_owner_id" );
+		}
+
+		if ( $new_owner_id > 0 ) {
+			delete_transient( "jetpack_connected_user_data_$new_owner_id" );
+		}
 	}
 
 	/**
@@ -2058,6 +2126,18 @@ class Manager {
 
 		// Tokens are both valid, or both invalid. We can't fix the problem we don't see, so the full reconnection is needed.
 		if ( $blog_token_healthy === $user_token_healthy ) {
+			// A full reconnect re-registers the site and lets the authorizing user become
+			// the connection owner. Refuse it for a non-owner while a live owner exists,
+			// so ownership cannot be silently seized by calling this endpoint directly -
+			// the deliberate "take over ownership" flow handles that case.
+			if ( $this->is_ownership_seizing_reconnect_blocked() ) {
+				return new WP_Error(
+					'reconnect_owner_required',
+					__( 'Only the connection owner can fully reconnect this site. To restore the connection yourself, take over ownership of the connection.', 'jetpack-connection' ),
+					array( 'status' => 403 )
+				);
+			}
+
 			$result = $this->reconnect();
 			return ( true === $result ) ? 'authorize' : $result;
 		}
@@ -2071,6 +2151,49 @@ class Manager {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Determines whether a non-owner should be blocked from seizing connection ownership
+	 * via a full reconnect.
+	 *
+	 * A full reconnect re-registers the site and makes the authorizing user the connection
+	 * owner. On a site that already has a live owner, only that owner (or the deliberate
+	 * takeover flow) should be able to trigger it. When the owner is gone (never set, or the
+	 * WP user was deleted) this returns false as an escape hatch so a secondary admin can
+	 * still recover the site.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool True if the ownership-seizing reconnect should be blocked.
+	 */
+	private function is_ownership_seizing_reconnect_blocked() {
+		$owner_id = (int) \Jetpack_Options::get_option( 'master_user' );
+
+		// No owner on record, or the owner's WP user no longer exists: allow the reconnect
+		// as an escape hatch, otherwise the site would be permanently stuck.
+		if ( $owner_id <= 0 || ! get_userdata( $owner_id ) ) {
+			return false;
+		}
+
+		// The owner may always reconnect their own connection.
+		if ( get_current_user_id() === $owner_id ) {
+			return false;
+		}
+
+		/**
+		 * Filters whether a non-owner is blocked from seizing connection ownership via a
+		 * full reconnect.
+		 *
+		 * Return false to restore the legacy behavior where any user with the reconnect
+		 * capability could trigger a full reconnect (and thereby become the connection owner).
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $blocked  Whether the ownership-seizing reconnect is blocked. Default true.
+		 * @param int  $owner_id The current connection owner's user ID.
+		 */
+		return (bool) apply_filters( 'jetpack_connection_block_ownership_seizing_reconnect', true, $owner_id );
 	}
 
 	/**

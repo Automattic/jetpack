@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Connection: Offer a deliberate "take over ownership" action to admins when the owner's connection is broken (transferable model), fire a new jetpack_connection_owner_changed action on ownership change, prevent non-owners from silently seizing ownership via reconnect, and collapse site/owner errors into a single generic notice for non-admins.
