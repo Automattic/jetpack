@@ -128,8 +128,8 @@ function register_default_dashboard_sections() {
 				return get_dashboard_default_layout_for( 'analytics/subscribers' );
 			},
 		),
-		// Store carries no title or description: the design prototype has no Store
-		// tab, so it falls back to the label until copy exists for it.
+		// Store registers no copy of its own: its heading falls back to the label,
+		// and it shows no page description, until copy exists for it.
 		'woocommerce/store'     => array(
 			'label'          => __( 'Store', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 40,

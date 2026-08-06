@@ -163,6 +163,24 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * An empty string registers as "no copy" rather than an empty heading.
+	 */
+	public function test_section_normalises_empty_title_and_description_to_null() {
+		$section = new Dashboard_Section(
+			'example_dashboard',
+			'example/traffic',
+			array(
+				'label'       => 'Traffic',
+				'title'       => '',
+				'description' => '',
+			)
+		);
+
+		$this->assertNull( $section->title );
+		$this->assertNull( $section->description );
+	}
+
+	/**
 	 * A section can opt into the year date filter.
 	 */
 	public function test_section_accepts_the_year_date_filter() {

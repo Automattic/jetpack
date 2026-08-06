@@ -1,10 +1,12 @@
-import { resolveSectionId, type DashboardSection } from './sections';
+import { resolveSectionHeading, resolveSectionId, type DashboardSection } from './sections';
 
 const SECTIONS: DashboardSection[] = [
 	{
 		id: 'analytics/traffic',
 		slug: 'traffic',
 		label: 'Traffic',
+		title: 'Site traffic',
+		description: 'Views, visitors, and where they came from.',
 		order: 10,
 		date_filter: 'range',
 		default_layout: [],
@@ -13,6 +15,8 @@ const SECTIONS: DashboardSection[] = [
 		id: 'analytics/insights',
 		slug: 'insights',
 		label: 'Insights',
+		title: 'Activity insights',
+		description: 'Longer-term patterns in your content and audience.',
 		order: 20,
 		date_filter: 'year',
 		default_layout: [],
@@ -23,10 +27,33 @@ const SECTIONS: DashboardSection[] = [
 		id: 'analytics/subscribers',
 		slug: 'subscribers',
 		label: 'Subscribers',
+		title: 'Subscribers stats',
+		description: 'How your subscriber list is growing, and how your emails land.',
 		order: 30,
 		default_layout: [],
 	},
 ];
+
+// Registers no copy of its own, the way Store does.
+const STORE: DashboardSection = {
+	id: 'woocommerce/store',
+	slug: 'store',
+	label: 'Store',
+	title: null,
+	description: null,
+	order: 40,
+	date_filter: 'range',
+	default_layout: [],
+};
+
+// A payload from a build predating the copy fields: the keys are absent, not null.
+const LEGACY: DashboardSection = {
+	id: 'analytics/traffic',
+	slug: 'traffic',
+	label: 'Traffic',
+	order: 10,
+	default_layout: [],
+};
 
 describe( 'resolveSectionId', () => {
 	it( 'keeps a slug matching an available section', () => {
@@ -44,5 +71,19 @@ describe( 'resolveSectionId', () => {
 
 	it( 'returns an empty slug when no sections are available yet', () => {
 		expect( resolveSectionId( 'traffic', [] ) ).toBe( '' );
+	} );
+} );
+
+describe( 'resolveSectionHeading', () => {
+	it( 'prefers the registered heading over the tab label', () => {
+		expect( resolveSectionHeading( SECTIONS[ 0 ] ) ).toBe( 'Site traffic' );
+	} );
+
+	it( 'falls back to the label when the heading is null', () => {
+		expect( resolveSectionHeading( STORE ) ).toBe( 'Store' );
+	} );
+
+	it( 'falls back to the label when the field is absent', () => {
+		expect( resolveSectionHeading( LEGACY ) ).toBe( 'Traffic' );
 	} );
 } );

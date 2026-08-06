@@ -15,12 +15,11 @@ import { Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useMemo, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { DashboardSections } from './components';
-import { DATE_FILTER_YEAR } from './config';
+import { DATE_FILTER_YEAR, resolveSectionHeading } from './config';
 import {
 	useActiveSection,
 	useDashboardGridSettings,
@@ -87,16 +86,6 @@ function Dashboard(): JSX.Element {
 	 * leaves the visible control unable to represent the selection.
 	 */
 	const dateFilterSurface = useSectionDateFilter( activeSectionRecord, dateFilters );
-
-	/*
-	 * The page description belongs to the active section, so it swaps with the tab.
-	 * WPCOM's public-api registers the sections route from its own checkout and can
-	 * serve a payload built before the field existed, so fall back to the copy the
-	 * page carried when it was not yet per-section.
-	 */
-	const pageSubtitle =
-		activeSectionRecord?.description ??
-		__( 'Track your site performance and visitor insights.', 'jetpack-premium-analytics-pkg' );
 
 	/*
 	 * The subtitle states what the widgets are currently showing, so it follows
@@ -188,7 +177,7 @@ function Dashboard(): JSX.Element {
 				<Page
 					visual={ <StatsPageIcon /> }
 					breadcrumbs={ <StatsBreadcrumbs isRoot /> }
-					subTitle={ pageSubtitle }
+					subTitle={ activeSectionRecord?.description }
 					actions={ <WidgetDashboard.Actions /> }
 					className={ styles.dashboard }
 				>
@@ -205,7 +194,7 @@ function Dashboard(): JSX.Element {
 							>
 								<div ref={ setContainerElement } className={ styles.sectionHeader }>
 									<SectionHeader
-										title={ section.title ?? section.label }
+										title={ resolveSectionHeading( section ) }
 										subtitle={ sectionSubtitle }
 									>
 										{ dateControls }

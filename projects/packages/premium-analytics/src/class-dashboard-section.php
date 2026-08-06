@@ -204,12 +204,16 @@ final class Dashboard_Section {
 			$this->label = (string) $args['label'];
 		}
 
+		// An empty string is a registrant saying "none", not a heading: kept as-is it
+		// would defeat the label fallback and render an `<h2>` with no accessible name.
 		if ( isset( $args['title'] ) ) {
-			$this->title = (string) $args['title'];
+			$title       = (string) $args['title'];
+			$this->title = '' === $title ? null : $title;
 		}
 
 		if ( isset( $args['description'] ) ) {
-			$this->description = (string) $args['description'];
+			$description       = (string) $args['description'];
+			$this->description = '' === $description ? null : $description;
 		}
 
 		if ( isset( $args['order'] ) ) {
