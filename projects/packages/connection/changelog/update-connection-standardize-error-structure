@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Error Handler: Standardize the stored connection error structure with explicit error type and direction fields, store local connection-state errors as 'local_state' instead of 'connection', and store previously dropped signature verification errors, which can now surface connection error notices.
