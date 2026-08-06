@@ -1484,6 +1484,10 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	 * of them cancels an opener in the totals. Counting that way reports nothing
 	 * to abandon on exactly the buffers the budget exists for.
 	 *
+	 * The filler sits after the document so that the budget is the only thing
+	 * reacting to it: inside the document the first unclosed opener would take the
+	 * insertion point away by itself, and the count would stop being observable.
+	 *
 	 * @param string $filler Repeated markup whose closing tags close nothing.
 	 * @dataProvider provide_uncancelled_raw_text_openers
 	 */
@@ -1491,8 +1495,7 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	public function test_closing_tags_that_close_nothing_do_not_pay_for_openers( $filler ) {
 		$html = '<html><body>' .
 			'<script>console.log("movable sibling");</script>' .
-			$filler .
-			'</body></html>';
+			'</body></html>' . $filler;
 
 		$output = $this->filter_output( $html );
 
@@ -1517,6 +1520,153 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 		$this->assertStringContainsString(
 			'<script>console.log("movable sibling");</script></body></html>',
 			$output
+		);
+	}
+
+	/**
+	 * An opening tag for one of the elements the mask does pair only reaches the
+	 * candidate walk when the mask could not pair it — there is no closing tag for
+	 * it in the buffer. Its contents therefore run to the end of the buffer, the
+	 * same state <plaintext> opens, and a literal closing body tag in them is text.
+	 * Reading it as markup instead moved the page's only copy of the deferred
+	 * scripts into content a browser never runs.
+	 *
+	 * @param string $element Element left unterminated after the document.
+	 * @dataProvider provide_unterminated_trailing_regions
+	 */
+	#[DataProvider( 'provide_unterminated_trailing_regions' )]
+	public function test_a_body_close_in_unterminated_trailing_content_is_not_an_insertion_point( $element ) {
+		$html = '<html><body><p>body text</p>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body><' . $element . '>pasted </body> sample';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringContainsString(
+			'<p>body text</p><script>console.log("movable sibling");</script></body><' . $element . '>pasted </body> sample',
+			$output
+		);
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public static function provide_unterminated_trailing_regions() {
+		return array(
+			'textarea' => array( 'textarea' ),
+			'title'    => array( 'title' ),
+			'style'    => array( 'style' ),
+			'script'   => array( 'script' ),
+		);
+	}
+
+	/**
+	 * The closing-tag grammar accepts bytes a browser discards between the element
+	 * name and the '>'. How many it accepts is capped, because an unbounded run is
+	 * rescanned from every '</script ' that never reaches a '>' — which is what a
+	 * window ending at an arbitrary byte is full of. Past the cap the tag is not
+	 * read as a closing tag at all, leaving its element unclosed, which is the
+	 * direction this locator already abandons the search on.
+	 */
+	public function test_a_closing_tag_carrying_more_than_the_cap_does_not_close_its_element() {
+		$html = '<html><body><p>body text</p>' .
+			'<script>console.log("movable sibling");</script>' .
+			'<title>x</title ' . str_repeat( 'a', 300 ) . '>' .
+			'</body></html>';
+
+		$output = $this->filter_output( $html );
+
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertStringEndsWith( '<script>console.log("movable sibling");</script>', $output );
+	}
+
+	/**
+	 * What the budget buys is only visible as work. On the shapes above the search
+	 * is abandoned either way — a leftover closing tag stops it a step later — so
+	 * nothing in the output says whether the count was right, and a count that
+	 * cancels across element types runs the mask over a buffer it exists to keep
+	 * the mask away from. That is the quadratic it was capped to prevent.
+	 *
+	 * The bound is generous by two orders of magnitude on purpose: it is here to
+	 * fail on a complexity class, not to measure a machine.
+	 */
+	public function test_a_budget_bypass_does_not_run_the_mask_on_the_buffer_it_bounds() {
+		$html = '<html><body>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body></html>' . str_repeat( '<title>x</textarea>', 32000 );
+
+		$started = microtime( true );
+		$output  = $this->filter_output( $html );
+		$elapsed = microtime( true ) - $started;
+
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertLessThan( 2.0, $elapsed );
+	}
+
+	/**
+	 * And that cap has to hold for the work as well as for the grammar. A run of
+	 * closing tags that never reach a '>' is what a sliding window's tail looks
+	 * like, it cancels no opener so the opener budget never fires on it, and every
+	 * pass that reads the closing-tag grammar walks it. Rescanning the rest of the
+	 * buffer from each one turns all of them quadratic — seconds of front-end CPU
+	 * on a page a browser renders without complaint.
+	 *
+	 * The bound is generous by two orders of magnitude on purpose: it is here to
+	 * fail on a complexity class, not to measure a machine.
+	 */
+	public function test_a_run_of_incomplete_closing_tags_is_not_rescanned_from_each_one() {
+		$html = '<html><body><p>body text</p>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body></html>' . str_repeat( '</script ', 16000 );
+
+		$started = microtime( true );
+		$output  = $this->filter_output( $html );
+		$elapsed = microtime( true ) - $started;
+
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+		$this->assertLessThan( 2.0, $elapsed );
+	}
+
+	/**
+	 * The opener budget is a threshold, so pin both sides of it: the last count it
+	 * searches and the first it abandons. The openers sit after the document, where
+	 * only the budget reacts to them — put them inside it and the first one opens a
+	 * region running to the end of the buffer, which takes the insertion point away
+	 * at every count.
+	 *
+	 * @param int  $openers  Unclosed raw-text opening tags in the page.
+	 * @param bool $searched Whether the search runs at that count.
+	 * @dataProvider provide_opener_budget_boundary
+	 */
+	#[DataProvider( 'provide_opener_budget_boundary' )]
+	public function test_the_opener_budget_is_a_threshold( $openers, $searched ) {
+		$html = '<html><body><p>body text</p>' .
+			'<script>console.log("movable sibling");</script>' .
+			'</body></html>' . str_repeat( '<title>x', $openers );
+
+		$output = $this->filter_output( $html );
+
+		$this->assertSame( 1, substr_count( $output, 'movable sibling' ) );
+
+		if ( $searched ) {
+			$this->assertStringContainsString(
+				'<script>console.log("movable sibling");</script></body></html>',
+				$output
+			);
+			return;
+		}
+
+		$this->assertStringEndsWith( '<script>console.log("movable sibling");</script>', $output );
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public static function provide_opener_budget_boundary() {
+		return array(
+			'at the budget'   => array( 8, true ),
+			'over the budget' => array( 9, false ),
 		);
 	}
 

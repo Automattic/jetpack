@@ -47,6 +47,17 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	private const MAX_UNCLOSED_RAW_TEXT_OPENERS = 8;
 
 	/**
+	 * How many bytes a closing tag may carry between the element name and the '>'.
+	 *
+	 * A browser discards them, so this only has to be long enough to cover what a
+	 * document plausibly puts there. Bounding it is what keeps the closing-tag
+	 * grammar linear; see close_tag_tail().
+	 *
+	 * @var int
+	 */
+	private const MAX_CLOSE_TAG_TAIL = 256;
+
+	/**
 	 * Holds the script tags removed from the output buffer.
 	 *
 	 * @var array
@@ -607,10 +618,10 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	 * unordered total from another instead reports zero for each of those, which
 	 * is the count with the cap taken out of the way.
 	 *
-	 * The scan itself is a literal alternation with no quantifier, so it is linear
-	 * in the buffer however the tags pair up. A window whose region opened in an
-	 * already-flushed chunk carries a closer with no opener; that is not an
-	 * unclosed opener and is not counted.
+	 * The scan itself reads every byte once and holds one match at a time, so it is
+	 * linear in the buffer and flat in memory however the tags pair up. A window
+	 * whose region opened in an already-flushed chunk carries a closer with no
+	 * opener; that is not an unclosed opener and is not counted.
 	 *
 	 * @param string $buffer String buffer.
 	 *
@@ -619,31 +630,39 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	private function unclosed_raw_text_openers( $buffer ) {
 		$elements = implode( '|', $this->raw_text_elements() );
 
-		$found = preg_match_all(
-			'~<(' . $elements . ')(?![\w-])|</(' . $elements . ')' . $this->close_tag_tail() . '~i',
-			$buffer,
-			$matches,
-			PREG_SET_ORDER
-		);
-
-		// Fail closed on PCRE failure by reporting a count over the cap.
-		if ( false === $found ) {
-			return self::MAX_UNCLOSED_RAW_TEXT_OPENERS + 1;
-		}
-
+		// One match at a time, from where the last one ended. preg_match_all() would
+		// hold every token of a buffer that is mostly raw-text tags in memory at once
+		// — tens of megabytes on a window this filter can legitimately accumulate —
+		// before any of it is counted, and this only ever needs one at a time.
+		//
+		// The branch reset makes the element name group 1 in both arms, so the name
+		// is read the same way whichever arm matched, and which arm that was is read
+		// off the token's second byte rather than off a group that may or may not be
+		// reported depending on the PCRE version.
+		$pattern  = '~<(?|(' . $elements . ')(?![\w-])|/(' . $elements . ')' . $this->close_tag_tail() . ')~i';
+		$offset   = 0;
 		$unclosed = array();
 
-		foreach ( $matches as $match ) {
-			// An opening tag leaves group 2 out of the match altogether on PCRE1,
-			// so the group count is what tells the two arms apart, not its value.
-			if ( count( $match ) < 3 ) {
-				$element = strtolower( $match[1] );
+		while ( true ) {
+			$found = preg_match( $pattern, $buffer, $match, PREG_OFFSET_CAPTURE, $offset );
 
+			// Fail closed on PCRE failure by reporting a count over the cap.
+			if ( false === $found ) {
+				return self::MAX_UNCLOSED_RAW_TEXT_OPENERS + 1;
+			}
+
+			if ( 0 === $found ) {
+				break;
+			}
+
+			$token   = $match[0][0];
+			$offset  = $match[0][1] + strlen( $token );
+			$element = strtolower( $match[1][0] );
+
+			if ( '/' !== $token[1] ) {
 				$unclosed[ $element ] = isset( $unclosed[ $element ] ) ? $unclosed[ $element ] + 1 : 1;
 				continue;
 			}
-
-			$element = strtolower( $match[2] );
 
 			if ( ! empty( $unclosed[ $element ] ) ) {
 				--$unclosed[ $element ];
@@ -676,10 +695,19 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	 * vertical tab as whitespace and HTML does not, and reading '</iframe\x0b>' as
 	 * a closing tag would end a region the browser is still inside.
 	 *
+	 * What a browser discards between the element name and the '>' is unbounded;
+	 * what this reads is not. An unbounded run would be rescanned from every
+	 * '</script ' that never reaches a '>' — the shape a window ending at an
+	 * arbitrary byte produces — turning every pass that uses this fragment
+	 * quadratic. The run is capped and possessive so each one is read once. A
+	 * closing tag carrying more than the cap is then not recognised as one, which
+	 * leaves its element looking unclosed: the direction this locator already
+	 * treats as inconclusive.
+	 *
 	 * @return string
 	 */
 	private function close_tag_tail() {
-		return '(?:[\x09\x0A\x0C\x0D\x20/][^>]*)?>';
+		return '(?:[\x09\x0A\x0C\x0D\x20/][^>]{0,' . self::MAX_CLOSE_TAG_TAIL . '}+)?>';
 	}
 
 	/**
@@ -884,18 +912,30 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	 * @param int    $limit  Offset the document ends at; nothing from here on is
 	 *                       part of it, so the scan stops rather than truncating.
 	 *
+	 * The walk starts at the beginning of the buffer even when a leading region was
+	 * resolved above. That region's end is only a floor for candidates, which the
+	 * scan above has already guaranteed by rejecting any prefix holding a '</body>'
+	 * of its own; starting here instead would step over a '<template>' the floor
+	 * happens to land inside and lose the depth that opening tag carries.
+	 *
 	 * @return int|null Offset of the closing tag, or null if the buffer holds none
 	 *                  outside those regions.
 	 */
 	private function body_close_position( $masked, $limit ) {
-		$raw = implode( '|', $this->unmasked_raw_text_elements() );
+		// The elements the mask does pair are scanned for here too. A paired one was
+		// blanked wholesale and leaves nothing behind, so an opening tag of theirs
+		// reaching this walk is by construction one the mask could not pair — an
+		// unterminated <textarea> or <title> in trailing output, whose contents run
+		// to the end of the buffer exactly as <plaintext>'s do. Reading them as
+		// markup instead is what let a literal '</body>' in them win the search.
+		$inert = implode( '|', $this->inert_elements() );
 
 		// '</body>' is spelled case-sensitively because that is the only spelling
 		// the insertion this feeds has ever recognised; the rest keep the pattern's
 		// own tolerance, so no region is missed for being spelled unusually.
 		$found = preg_match_all(
-			'~<(?:' . $raw . '|template|plaintext)(?![\w-])'
-			. '|</(?:' . $raw . '|template)' . $this->close_tag_tail()
+			'~<(?:' . $inert . '|plaintext)(?![\w-])'
+			. '|</(?:' . $inert . ')' . $this->close_tag_tail()
 			. '|<!\[CDATA\[|\]\]>|(?-i:</body>)~i',
 			$masked,
 			$matches,
