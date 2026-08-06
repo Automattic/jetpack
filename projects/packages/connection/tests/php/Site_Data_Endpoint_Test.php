@@ -156,6 +156,34 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The package registers at `rest_api_init` priority 11, after an older Jetpack plugin that
+	 * still registers this route at priority 10. Without the override flag both handlers stay
+	 * and WordPress dispatches the plugin's, leaving the package registration dead.
+	 */
+	public function test_package_registration_replaces_an_earlier_one() {
+		global $wp_rest_server;
+
+		$wp_rest_server = new WP_REST_Server();
+
+		register_rest_route(
+			'jetpack/v4',
+			'/site',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => '__return_empty_array',
+				'permission_callback' => '__return_true',
+			)
+		);
+
+		$this->rest_connector = new REST_Connector( $this->manager );
+
+		$handlers = $wp_rest_server->get_routes()['/jetpack/v4/site'];
+
+		$this->assertCount( 1, $handlers );
+		$this->assertSame( array( $this->rest_connector, 'get_site_data' ), $handlers[0]['callback'] );
+	}
+
+	/**
 	 * Short-circuit the outgoing HTTP request with a canned response.
 	 *
 	 * @param int    $code HTTP status code to return.

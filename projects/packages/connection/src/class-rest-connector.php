@@ -138,7 +138,8 @@ class REST_Connector {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_site_data' ),
 				'permission_callback' => __CLASS__ . '::site_data_permission_check',
-			)
+			),
+			true // override other implementations.
 		);
 
 		// Run all connection health tests.
