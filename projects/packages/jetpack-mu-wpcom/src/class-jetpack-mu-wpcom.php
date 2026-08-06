@@ -75,6 +75,7 @@ class Jetpack_Mu_Wpcom {
 		// These features run only on atomic sites.
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_custom_css' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_knowledge_migration' ) );
 			add_action( 'init', array( __CLASS__, 'schedule_translation_updates' ) );
 		}
 
@@ -135,6 +136,13 @@ class Jetpack_Mu_Wpcom {
 		if ( ! wp_next_scheduled( 'wpcomsh_translation_update' ) ) {
 			wp_schedule_event( time(), 'twicedaily', 'wpcomsh_translation_update' );
 		}
+	}
+
+	/**
+	 * Load the temporary legacy guideline compatibility and Knowledge migration feature.
+	 */
+	public static function load_knowledge_migration() {
+		require_once __DIR__ . '/features/knowledge-migration/knowledge-migration.php';
 	}
 
 	/**
