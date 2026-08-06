@@ -41,20 +41,23 @@
 	--wp-grid-gap: var(--wpds-dimension-gap-lg);
 }
 
-.dateFilters {
-	// Sits directly below the tab bar, outside the scroll container, so it
-	// stays fixed exactly like the dashboard's filters. The tab list already
-	// adds a bottom margin, so only pad below here to keep the spacing even;
-	// inline padding matches the tabs and the widget grid so it lines up.
-	padding-block-end: var(--wpds-dimension-gap-lg);
-	padding-inline: var(--wpds-dimension-padding-2xl);
-}
-
 .header {
-	// The summary header below the filters. The top gap stacks with the
-	// filters row's bottom padding (gap-lg + gap-lg = gap-2xl of space above
-	// the heading); gap-2xl below mirrors it symmetrically.
-	padding-block: var(--wpds-dimension-gap-lg) var(--wpds-dimension-gap-2xl);
+	// The summary and the date filter presets share one header row — title on
+	// the left, presets on the right and vertically centered, per the design
+	// mocks. Flexbox breaks lines from unshrunk sizes, and the summary's
+	// inline-size containment (below) clamps its unshrunk size to the 400px
+	// floor — so the row wraps only when the panel's current layout no longer
+	// fits beside that floor (the compact dropdown on a phone), never because
+	// of a long title. On tight single rows the summary absorbs the squeeze
+	// (title ellipsis), and the panel's own step-down on narrow rows needs
+	// external measurement and ships separately (#51088). gap-2xl
+	// above matches the space the old two-row layout added up to; gap-2xl
+	// below mirrors it symmetrically.
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-lg);
+	padding-block: var(--wpds-dimension-gap-2xl);
 	padding-inline: var(--wpds-dimension-padding-2xl);
 	// The boot shell's surfaces element is a flex item with the default
 	// `min-inline-size: auto`, so it asks the page for its min-content width —
@@ -64,6 +67,26 @@
 	// own ellipsis could engage. Inline-size containment excludes the header's
 	// contents from intrinsic sizing.
 	contain: inline-size;
+}
+
+.summary {
+	// Grows into the row's free space (pushing the presets to the row's end)
+	// and absorbs the squeeze on tight rows, where the title's ellipsis
+	// engages. The 400px floor keeps the title readable. Inline-size
+	// containment zeroes the card's intrinsic contribution: its width comes
+	// from the row's flex sizing, and the wrap decision above sees the 400px
+	// floor instead of the title's nowrap max-content.
+	flex: 1 1 auto;
+	min-inline-size: min(100%, 400px);
+	contain: inline-size;
+}
+
+.dateFilters {
+	// Content-sized at the row's end. The auto margin keeps it at the inline
+	// end both beside the summary and on its
+	// own wrapped line.
+	flex: 0 0 auto;
+	margin-inline-start: auto;
 }
 
 // The header action is a Button rendered as an anchor, so it can carry a real
