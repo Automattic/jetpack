@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Constants;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
@@ -66,6 +67,8 @@ class Site_Data_Test extends BaseTestCase {
 
 		$wp_rest_server = null;
 		$this->server   = null;
+
+		Constants::clear_constants();
 
 		wp_set_current_user( 0 );
 	}
@@ -143,6 +146,71 @@ class Site_Data_Test extends BaseTestCase {
 		remove_filter( 'map_meta_cap', $deny, 99 );
 
 		$this->assertInstanceOf( 'WP_Error', $result );
+	}
+
+	/**
+	 * Short-circuit the outgoing HTTP request with a canned response.
+	 *
+	 * @param int    $code HTTP status code to return.
+	 * @param string $body Response body.
+	 */
+	private function fake_http_response( $code, $body ) {
+		Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		Jetpack_Options::update_option( 'id', 1234 );
+		$this->manager->reset_connection_status();
+
+		// Signing needs an absolute URL, so the API base has to resolve.
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		Constants::set_constant( 'JETPACK__API_VERSION', 1 );
+
+		add_filter(
+			'pre_http_request',
+			function () use ( $code, $body ) {
+				return array(
+					'response' => array( 'code' => $code ),
+					'body'     => $body,
+				);
+			}
+		);
+	}
+
+	/**
+	 * A successful fetch fires the action with the response body, which is how the Jetpack
+	 * plugin refreshes the cached plan without this package depending on `jetpack-plans`.
+	 */
+	public function test_successful_fetch_fires_the_site_data_action() {
+		$body = '{"ID":1234,"name":"Test site"}';
+		$this->fake_http_response( 200, $body );
+
+		$payloads = array();
+		add_action(
+			'jetpack_site_data_fetched',
+			function ( $payload ) use ( &$payloads ) {
+				$payloads[] = $payload;
+			}
+		);
+
+		$this->assertFalse( is_wp_error( Site_Data::get() ) );
+		$this->assertSame( array( $body ), $payloads );
+	}
+
+	/**
+	 * A failed fetch must not fire the action, otherwise consumers would cache an error body.
+	 */
+	public function test_failed_fetch_does_not_fire_the_site_data_action() {
+		$this->fake_http_response( 500, '{"error":"unavailable"}' );
+
+		$fired = false;
+		add_action(
+			'jetpack_site_data_fetched',
+			function () use ( &$fired ) {
+				$fired = true;
+			}
+		);
+
+		Site_Data::get();
+
+		$this->assertFalse( $fired );
 	}
 
 	/**

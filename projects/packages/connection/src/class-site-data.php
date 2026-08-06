@@ -101,10 +101,17 @@ class Site_Data {
 			return new WP_Error( 'site_data_fetch_failed', '', $error_info );
 		}
 
-		// `jetpack-plans` depends on this package, so the reverse dependency cannot be declared.
-		if ( class_exists( 'Automattic\\Jetpack\\Current_Plan' ) ) {
-			\Automattic\Jetpack\Current_Plan::update_from_sites_response( $response );
-		}
+		/**
+		 * Fires after the site record was fetched from WordPress.com.
+		 *
+		 * Consumers that cache anything derived from the record, such as the current plan,
+		 * can refresh it here.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $body The raw JSON body of the WordPress.com `/sites/%d` response.
+		 */
+		do_action( 'jetpack_site_data_fetched', $body );
 
 		return $data;
 	}
