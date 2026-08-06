@@ -239,13 +239,20 @@ function AnnualHighlightsReport( {
  * inner report. Host attributes are forwarded so any injected report params are
  * preserved even though the insights endpoint is not period-scoped.
  *
+ * `metrics` falls back to the same defaults the widget's `example.attributes`
+ * declares: an instance from the server's default layout carries no attributes,
+ * while the settings UI reads those defaults when the instance has none. Without
+ * the fallback the two disagree — every metric shows as enabled in the control
+ * while the body reports that none are selected. An explicit empty array still
+ * means "none", so unchecking every metric keeps its message.
+ *
  * @param {AnnualHighlightsWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
 export default function AnnualHighlights( { attributes = {} }: AnnualHighlightsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<AnnualHighlightsReport metrics={ attributes.metrics } />
+			<AnnualHighlightsReport metrics={ attributes.metrics ?? DEFAULT_HIGHLIGHT_METRICS } />
 		</WidgetRoot>
 	);
 }

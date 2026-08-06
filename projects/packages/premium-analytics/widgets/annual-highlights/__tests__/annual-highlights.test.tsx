@@ -14,6 +14,7 @@ import type { AnchorHTMLAttributes, ReactNode } from 'react';
  * Internal dependencies
  */
 import AnnualHighlightsWidget from '../render';
+import type { AnnualHighlightMetric } from '../widget';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -72,12 +73,17 @@ const INSIGHTS_PAYLOAD = {
 	],
 };
 
-const renderWidget = ( reportParams: Partial< ReportParams > ) =>
+const renderWidget = (
+	reportParams: Partial< ReportParams >,
+	// `null` stands for an instance with no `metrics` attribute at all — passing
+	// `undefined` would just trigger this default.
+	metrics: AnnualHighlightMetric[] | null = [ ...METRICS ]
+) =>
 	render(
 		<GlobalErrorProvider>
 			<AnnualHighlightsWidget
 				attributes={ {
-					metrics: [ ...METRICS ],
+					...( metrics ? { metrics } : {} ),
 					reportParams: reportParams as ReportParams,
 				} }
 			/>
@@ -142,6 +148,27 @@ describe( 'AnnualHighlightsWidget', () => {
 		expect( container ).toHaveTextContent( 'Words900' );
 		expect( container ).toHaveTextContent( 'Likes21' );
 		expect( container ).toHaveTextContent( 'Comments9' );
+	} );
+
+	it( 'shows every metric when the instance carries no metrics attribute', async () => {
+		// The server's default layout creates the instance without attributes,
+		// and the settings control reads the widget's own defaults — the body has
+		// to agree with it rather than report that nothing is selected.
+		const { container } = renderWidget( getDefaultQueryParams( false, 'last-7-days' ), null );
+
+		await expect( screen.findByText( 'Posts' ) ).resolves.toBeInTheDocument();
+		expect( container ).toHaveTextContent( 'Posts30' );
+		expect( container ).toHaveTextContent( 'Words900' );
+		expect( container ).toHaveTextContent( 'Likes21' );
+		expect( container ).toHaveTextContent( 'Comments9' );
+	} );
+
+	it( 'still reports an empty selection when every metric is unchecked', async () => {
+		renderWidget( getDefaultQueryParams( false, 'last-7-days' ), [] );
+
+		await expect(
+			screen.findByText( 'Select at least one metric to display.' )
+		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'shows the empty state for a year the site did not publish in', async () => {
