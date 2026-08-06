@@ -15,8 +15,8 @@ const defaultI18nModule = '@wordpress/i18n';
  * Log a code frame only when debug output is enabled, as generating one scans
  * the source file.
  *
- * @param {object} path    Babel path to point the code frame at.
- * @param {string} message Message to log.
+ * @param {object} path    - Babel path to point the code frame at.
+ * @param {string} message - Message to log.
  */
 function debugCodeFrame( path, message ) {
 	if ( debug.enabled ) {
