@@ -1,18 +1,10 @@
-// The control is a menu, not a form field, so it is built on `DropdownMenu`.
-// It still has to read as the select it replaced, so what follows restates, in
-// WPDS tokens, the properties where wp-components' Button and the input layout
-// behind a `SelectControl` trigger disagree.
+// A menu, not a form field, so it is built on `DropdownMenu`. What follows
+// restates in WPDS tokens the properties where wp-components' Button and the
+// input layout behind a `SelectControl` trigger disagree.
 
-// The two do not come from the same place: `@wordpress/ui` is bundled with this
-// package at the version we pin, while `@wordpress/components` is externalized
-// to WordPress's own `wp-components` handle. The Button these rules override is
-// therefore whatever the running WordPress ships, which trails the copy in
-// `node_modules`. Check the site's stylesheet, not the package source, before
-// assuming a base rule is there to build on.
-
-// Left alone, because both sides agree: the transparent background, the 4px gap
-// between label and caret, and the 12px/8px inline padding of the labelled
-// state (the caret sits closer to the edge than the label).
+// `@wordpress/components` is externalized, so the Button these rules override
+// is whatever the running WordPress ships, not the copy in `node_modules`.
+// Check the site's stylesheet before assuming a base rule is there.
 .date-comparison-dropdown {
 	// The toggle is an inline-flex button. In a block wrapper it would sit on a
 	// text baseline and add a descender's worth of height to the row.
@@ -34,10 +26,8 @@
 		// The Button asks for an emphasis weight; a select trigger takes the
 		// weight of the text around it.
 		font-weight: inherit;
-		// The label is already an abbreviation, so it has no shorter form to
-		// break to: wrapping "Prev. period" over two lines made the control
-		// taller than the presets it sits beside. Staying on one line is what
-		// the row's measurement then has to account for.
+		// The label is already an abbreviation, with no shorter form to break to:
+		// wrapped, it stood taller than the presets beside it.
 		white-space: nowrap;
 
 		@media (min-width: 600px) {

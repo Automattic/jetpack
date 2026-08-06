@@ -1,9 +1,8 @@
 @use "../styles/preset-surface";
 
-// One row or a select, never two rows. The mixin's `nowrap` and the pills'
-// `flex-shrink: 0` are load-bearing here rather than only cosmetic: this
-// surface measures whether the pills fit and swaps in the select when they
-// don't, and a squeezed row would always measure as fitting.
+// The mixin's `nowrap` and the pills' `flex-shrink: 0` are load-bearing here,
+// not cosmetic: this surface measures whether the pills fit and swaps in a
+// select when they don't, and a squeezed row would always measure as fitting.
 .date-year-filter__group {
 
 	@include preset-surface.group;

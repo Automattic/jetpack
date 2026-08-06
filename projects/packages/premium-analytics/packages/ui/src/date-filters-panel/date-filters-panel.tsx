@@ -208,37 +208,29 @@ export function DateFiltersPanel( {
 	const handleResize = useCallback( ( entries: ResizeObserverEntry[] ) => {
 		const entry = entries[ 0 ];
 		if ( entry ) {
-			// Floored, and floored rather than rounded to stay on the conservative
-			// side of the probe's `Math.ceil`. Both consumers are step functions, so
-			// the fractional part never changes the output while a raw float would
-			// re-render the panel on every frame of a drag.
+			// Floored rather than rounded, to stay on the conservative side of the
+			// probe's `Math.ceil`. Both consumers are step functions, so a raw float
+			// would only re-render on every frame of a drag.
 			setContainerWidth( Math.floor( entry.contentRect.width ) );
 		}
 	}, [] );
 
 	const setObserverRef = useResizeObserver< HTMLElement >( handleResize );
 
-	/*
-	 * Measure this panel's own root. Callers used to wrap the panel and hand the
-	 * wrapper back as a prop; all ten passed their immediate wrapper, so the
-	 * number was the panel's own width and the ceremony bought nothing.
-	 */
+	// This panel's own root, falling back to the body only until the ref lands.
 	useEffect( () => {
 		setObserverRef( rootElement ?? document.body );
 	}, [ rootElement, setObserverRef ] );
 
 	/*
-	 * The last applied custom range, remembered so the trigger can offer the way
-	 * back to it while a preset is driving the range.
+	 * The last applied custom range, so the trigger can offer the way back to it
+	 * while a preset drives the range.
 	 *
-	 * Owned here rather than inside the popover because it is an input to the
-	 * trigger's label, and the probe below has to reproduce that label exactly.
-	 * Held downstream it would be invisible to the probe, which would measure
-	 * "Custom" against a trigger showing a formatted range and under-measure the
-	 * row by the difference between the two.
-	 *
-	 * Only ever set: a preset selection clears the committed custom range, and
-	 * the point of remembering is to survive exactly that.
+	 * Owned here rather than in the popover because the probe has to reproduce
+	 * the trigger's label exactly; held downstream it would measure "Custom"
+	 * against a trigger showing a formatted range. Only ever set: a preset
+	 * selection clears the committed custom range, which is the thing worth
+	 * surviving.
 	 */
 	const [ rememberedCustomRange, setRememberedCustomRange ] =
 		useState< RememberedCustomRange | null >( null );
@@ -287,11 +279,9 @@ export function DateFiltersPanel( {
 		typeof comparisonControlProps.label === 'string' ? comparisonControlProps.label : undefined;
 
 	/*
-	 * Built once and rendered in two places: the row the user sees, and the
-	 * probe that measures what that row needs. Handing both the same element
-	 * keeps the measurement honest by construction — a mirror of this control
-	 * in the probe would go stale the first time either side changed, which is
-	 * how the comparison came to be left out of the measurement to begin with.
+	 * Built once and rendered twice: the row the user sees, and the probe that
+	 * measures it. The same element in both places means the measurement cannot
+	 * drift from what it measures.
 	 */
 	const comparisonControl = useMemo(
 		() => (
@@ -319,9 +309,9 @@ export function DateFiltersPanel( {
 		setFullRowWidth( width );
 	}, [] );
 
-	// The boundary comes from the probe, so it follows the active locale rather
-	// than a breakpoint picked for English, and it moves with the comparison
-	// control: adding one takes room the presets then have to give back.
+	// Measured, so the boundary follows the active locale rather than a
+	// breakpoint picked for English, and moves with the comparison control:
+	// adding one takes room the presets give back.
 	const labelMode = useMemo(
 		() => resolvePresetLabelMode( containerWidth, fullRowWidth ),
 		[ containerWidth, fullRowWidth ]

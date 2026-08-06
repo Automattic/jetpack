@@ -72,11 +72,8 @@ export function DateComparisonDropdown( {
 		];
 	}, [ noComparisonLabel, presets ] );
 
-	/*
-	 * The active preset is the one the trigger names, so a preset the current
-	 * range cannot produce leaves the control with nothing to say and falls
-	 * back to its additive state.
-	 */
+	// A preset the current range cannot produce leaves the trigger with nothing
+	// to name, so the control falls back to its additive state.
 	const selectedPreset = useMemo(
 		() => ( enabled && presetId ? presets.find( preset => preset.id === presetId ) : undefined ),
 		[ enabled, presetId, presets ]
@@ -98,13 +95,11 @@ export function DateComparisonDropdown( {
 	);
 
 	/*
-	 * Comparison is additive: with none active the trigger is a `+` button, and
-	 * picking a preset collapses it into a select naming that preset. Both open
-	 * the same menu, so the way back to "No comparison" is the way in.
+	 * Additive: a `+` until a preset is picked, then a trigger naming it. Both
+	 * open the same menu, so the way back to "No comparison" is the way in.
 	 *
-	 * The trigger names the preset rather than the period it resolves to: the
-	 * section header's subtitle already spells out the applied range and what
-	 * it is compared against.
+	 * It names the preset rather than the period it resolves to, which the
+	 * section header's subtitle already spells out.
 	 */
 	return (
 		<DropdownMenu

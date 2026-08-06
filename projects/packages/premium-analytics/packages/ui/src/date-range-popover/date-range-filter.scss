@@ -54,10 +54,10 @@
 	flex: 0 0 auto;
 }
 
-// The trigger is the group's only shrinkable item, so it absorbs whatever the
-// row runs short of. Without this the label wrapped mid-word over three lines
-// ("Прои / зволь / но") and stretched the control vertically. Truncating is the
-// interim answer; the label is still readable from the popover it opens.
+// The group's only shrinkable item, so it absorbs whatever the row runs short
+// of. Without this the label broke mid-word over three lines ("Прои / зволь /
+// но"). Truncating is the interim answer; the popover it opens still spells the
+// range out.
 .date-filters-panel-button__label {
 	overflow: hidden;
 	// Needed for the ellipsis: a flex item will not shrink past its content

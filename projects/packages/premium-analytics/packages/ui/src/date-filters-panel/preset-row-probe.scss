@@ -14,10 +14,9 @@
 	width: 0;
 	height: 0;
 
-	// The row the panel lays out: the bordered preset group, then the comparison
-	// control beside it. The gap has to match the `gap="sm"` on the panel's own
-	// Stack, or the measurement is short by that much and the row overflows just
-	// before it shortens.
+	// The row the panel lays out: the bordered group, then the comparison control
+	// beside it. The gap has to match the `gap="sm"` on the panel's own Stack, or
+	// the measurement comes up short by exactly that much.
 	&__panel {
 		display: flex;
 		align-items: center;

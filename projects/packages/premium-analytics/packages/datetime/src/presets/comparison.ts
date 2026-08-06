@@ -13,11 +13,9 @@ import {
 } from '../get-comparison-range';
 
 /**
- * Comparison preset label configuration.
- *
- * The short form labels the picker's trigger, which sits in the date filter row
- * and cannot grow with the language. Translated separately rather than
- * truncated, since the English form abbreviates a word.
+ * Comparison preset labels. The short form names the picker's trigger, which
+ * shares the date filter row and cannot grow with the language. Translated
+ * separately rather than truncated: the English form abbreviates a word.
  */
 const COMPARISON_PRESET_LABELS: {
 	id: ComparisonPresetId;
