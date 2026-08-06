@@ -1,0 +1,22 @@
+{
+	"private": true,
+	"description": "Simple, yet powerful stats to grow your site.",
+	"homepage": "https://jetpack.com/stats/",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Stats"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/plugins/stats"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "echo Success.",
+		"build-js": "echo  Success.",
+		"build-production": "echo  Success.",
+		"build-production-js": "echo  Success.",
+		"clean": "true"
+	}
+}

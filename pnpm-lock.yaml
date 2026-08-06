@@ -6485,6 +6485,8 @@ importers:
         specifier: ^0.0.26
         version: 0.0.26
 
+  projects/plugins/stats: {}
+
   projects/plugins/videopress:
     dependencies:
       '@automattic/jetpack-base-styles':
