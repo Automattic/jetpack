@@ -69,7 +69,7 @@ class Dashboard {
 		$page_suffix = add_menu_page(
 			__( 'Stats', 'jetpack-stats-admin' ),
 			_x( 'Stats', 'product name shown in menu', 'jetpack-stats-admin' ),
-			'view_stats',
+			'manage_options',
 			'stats',
 			array( $this, 'render' ),
 			'dashicons-chart-bar',
