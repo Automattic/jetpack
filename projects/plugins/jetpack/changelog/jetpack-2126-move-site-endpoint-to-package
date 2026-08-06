@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Move the site data endpoint into the Connection package.
+Move the site data endpoint into the Connection package. Deprecate Jetpack_Core_Json_Api_Endpoints::site_data() and ::get_site_data(), which now delegate to the package.

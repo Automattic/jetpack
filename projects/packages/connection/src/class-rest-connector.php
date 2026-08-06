@@ -1134,12 +1134,15 @@ class REST_Connector {
 	/**
 	 * Whether the current user may read the site record.
 	 *
+	 * The floor is `edit_posts` because the Jetpack dashboard requests this route on mount and
+	 * is reachable by contributors, matching how My Jetpack and admin-ui gate their pages.
+	 *
 	 * @since $$next-version$$
 	 *
 	 * @return true|WP_Error
 	 */
 	public static function site_data_permission_check() {
-		if ( current_user_can( 'jetpack_admin_page' ) ) {
+		if ( current_user_can( 'edit_posts' ) ) {
 			return true;
 		}
 

@@ -155,7 +155,6 @@ class Manager {
 		add_action( 'plugins_loaded', __NAMESPACE__ . '\Plugin_Storage::configure', 100 );
 
 		add_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1, 4 );
-		add_filter( 'map_meta_cap', array( $manager, 'jetpack_admin_page_fallback_cap' ), 20, 2 );
 
 		Heartbeat::init();
 		add_filter( 'jetpack_heartbeat_stats_array', array( $manager, 'add_stats_to_heartbeat' ) );
@@ -1813,26 +1812,6 @@ class Manager {
 				// Non-admins can always disconnect
 				$caps = array( 'read' );
 				break;
-		}
-		return $caps;
-	}
-
-	/**
-	 * Map the `jetpack_admin_page` meta capability when no earlier filter has mapped it.
-	 *
-	 * The filter runs late so that an existing mapper, such as the Jetpack plugin,
-	 * stays authoritative. WordPress core leaves an unknown meta capability mapped
-	 * to itself, so a still-default value means no other mapper has handled it.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string[] $caps The primitive capabilities that the meta capability maps to so far.
-	 * @param string   $cap  The meta capability in question.
-	 * @return string[]
-	 */
-	public function jetpack_admin_page_fallback_cap( $caps, $cap ) {
-		if ( 'jetpack_admin_page' === $cap && array( $cap ) === $caps ) {
-			$caps = ( new Status() )->is_offline_mode() ? array( 'manage_options' ) : array( 'edit_posts' );
 		}
 		return $caps;
 	}

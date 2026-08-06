@@ -29,7 +29,7 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 	private $server;
 
 	/**
-	 * The manager that provides the capability filter and fetches the site record.
+	 * The manager that fetches the site record.
 	 *
 	 * @var Manager
 	 */
@@ -55,9 +55,6 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 
 		$this->manager = new Manager();
 
-		// `Manager::configure()` wires this in production; the tests construct the manager directly.
-		add_filter( 'map_meta_cap', array( $this->manager, 'jetpack_admin_page_fallback_cap' ), 20, 2 );
-
 		do_action( 'rest_api_init' );
 		$this->rest_connector = new REST_Connector( $this->manager );
 	}
@@ -67,8 +64,6 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		parent::tear_down();
-
-		remove_filter( 'map_meta_cap', array( $this->manager, 'jetpack_admin_page_fallback_cap' ), 20 );
 
 		global $wp_rest_server;
 
@@ -116,6 +111,16 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A contributor is the intended floor: the Jetpack dashboard calls this route on mount and
+	 * is reachable by contributors, so raising the bar would break it for them.
+	 */
+	public function test_contributor_is_permitted() {
+		$this->set_current_user_with_role( 'contributor' );
+
+		$this->assertTrue( REST_Connector::site_data_permission_check() );
+	}
+
+	/**
 	 * A subscriber is denied.
 	 */
 	public function test_subscriber_is_denied() {
@@ -134,25 +139,6 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 		wp_set_current_user( 0 );
 
 		$this->assertInstanceOf( 'WP_Error', REST_Connector::site_data_permission_check() );
-	}
-
-	/**
-	 * A `map_meta_cap` filter that tightens `jetpack_admin_page` denies access.
-	 */
-	public function test_a_later_map_meta_cap_filter_can_deny_access() {
-		$this->set_current_user_with_role( 'editor' );
-		$this->assertTrue( REST_Connector::site_data_permission_check(), 'Editor is permitted before the filter.' );
-
-		$deny = static function ( $caps, $cap ) {
-			return 'jetpack_admin_page' === $cap ? array( 'do_not_allow' ) : $caps;
-		};
-		add_filter( 'map_meta_cap', $deny, 99, 2 );
-
-		$result = REST_Connector::site_data_permission_check();
-
-		remove_filter( 'map_meta_cap', $deny, 99 );
-
-		$this->assertInstanceOf( 'WP_Error', $result );
 	}
 
 	/**
