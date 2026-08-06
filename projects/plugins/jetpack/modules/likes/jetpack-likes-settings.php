@@ -523,8 +523,9 @@ class Jetpack_Likes_Settings {
 			}
 		}
 
-		// Ensure it's always an array (even if not previously empty or scalar)
-		$setting['show'] = ! empty( $sharing['global']['show'] ) ? (array) $sharing['global']['show'] : array();
+		// Ensure it's always an array (even if not previously empty or scalar).
+		$show            = $sharing['global']['show'] ?? array();
+		$setting['show'] = ! empty( $show ) ? (array) $show : array();
 
 		/**
 		 * Filters where the Likes are displayed.
