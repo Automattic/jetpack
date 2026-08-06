@@ -167,10 +167,13 @@ function bucketDays( days: StatsPostDay[], buckets: BucketWindow[] ): PostViewsP
 	// labels render in the same zone, so the calendar day round-trips without a
 	// TZ-induced day shift (a date-only string fed to `localTZDate` would parse
 	// as UTC midnight and read as the previous day on negative-offset sites).
-	return buckets.map( bucket => ( {
-		date: parseSiteDateTime( bucket.date ) ?? parseISO( bucket.date ),
-		value: totals.get( bucket.date ) ?? 0,
-	} ) );
+	// `bucket.date` comes from `format( start, 'yyyy-MM-dd' )`, so the parse
+	// cannot fail in practice; if it ever does, drop the point rather than
+	// fall back to a browser-local instant that reintroduces the day shift.
+	return buckets.flatMap( bucket => {
+		const date = parseSiteDateTime( bucket.date );
+		return date ? [ { date, value: totals.get( bucket.date ) ?? 0 } ] : [];
+	} );
 }
 
 /**
