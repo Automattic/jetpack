@@ -14,13 +14,14 @@ import { useCallback, useId, useMemo, useState } from 'react';
  * Internal dependencies
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
-import { isEmptyChartData, getEmptyChartDomain } from '../../helpers';
+import { isEmptyChartData, getFixedYAxis } from '../../helpers';
 import { alignSeriesDates } from '../chart-comparative-line/utils';
 import { ChartTooltip } from '../chart-tooltip';
 import styles from './comparative-bar-chart.module.scss';
-import type { BarSeriesStyle, ComparativeBarChartSeries } from './types';
+import type { ComparativeBarChartSeries } from './types';
 import type { DataFormat } from '../../types';
 import type { ComparativeDatePointDate } from '../chart-comparative-line/types';
+import type { TooltipStyle } from '../chart-tooltip';
 import type { ComponentProps } from 'react';
 
 /**
@@ -46,7 +47,8 @@ type RenderTooltipParams = Parameters< NonNullable< BarChartProps[ 'renderToolti
  * Props for the ComparativeBarChart component.
  *
  * Deliberately mirrors `ComparativeLineChartProps` so a consumer can swap the
- * two on one flag without reshaping its data or re-deriving styles.
+ * two on one flag without reshaping its data. The one difference is that there
+ * is no `styles` prop — see the component docblock for why.
  */
 export type ComparativeBarChartProps = {
 	/**
@@ -88,7 +90,8 @@ export type ComparativeBarChartProps = {
  * shadow's geometry is driven by the theme's `barStyles.widthFactor`, so
  * overriding fills here would decouple the shadow from the bar it shadows.
  * Colours are read back through `getElementStyles` only to tint the tooltip
- * swatches, matching what the chart drew.
+ * swatches, matching what the chart drew. Reading the theme means this must be
+ * rendered inside a `GlobalChartsProvider`, unlike `ComparativeLineChart`.
  *
  * @param {ComparativeBarChartProps} props - The component props.
  * @return The rendered chart.
@@ -124,14 +127,17 @@ export function ComparativeBarChart( {
 	const isEmptyData = useMemo( () => isEmptyChartData( alignedSeries ), [ alignedSeries ] );
 
 	/**
-	 * Tooltip swatch colours, resolved from the chart theme so they match the
-	 * bars the chart actually drew.
+	 * Tooltip swatches, resolved from the chart theme so they match the bars the
+	 * chart drew. The opacity matters: a comparison series shares its primary's
+	 * colour and is set apart only by the theme dimming it, so a swatch without
+	 * it renders the previous period as an identical twin of the current one.
 	 */
-	const seriesStyles = useMemo< BarSeriesStyle[] >(
+	const seriesStyles = useMemo< TooltipStyle[] >(
 		() =>
-			alignedSeries.map( ( seriesData, index ) => ( {
-				stroke: getElementStyles( { data: seriesData, index } ).color,
-			} ) ),
+			alignedSeries.map( ( seriesData, index ) => {
+				const { color, barStyles } = getElementStyles( { data: seriesData, index } );
+				return { stroke: color, opacity: barStyles?.opacity };
+			} ),
 		[ alignedSeries, getElementStyles ]
 	);
 
@@ -228,6 +234,15 @@ export function ComparativeBarChart( {
 		[ dataFormat, seriesStyles, getTooltipLabel, withComparisonDatum ]
 	);
 
+	/**
+	 * A pinned domain for percentage metrics and all-zero periods, with the left
+	 * margin its widest tick needs. Null lets the chart scale to the data.
+	 */
+	const fixedYAxis = useMemo(
+		() => getFixedYAxis( dataFormat.type, isEmptyData, yTickFormat ),
+		[ dataFormat.type, isEmptyData, yTickFormat ]
+	);
+
 	const chartOptions = useMemo( () => {
 		const baseOptions = {
 			axis: {
@@ -248,16 +263,21 @@ export function ComparativeBarChart( {
 			},
 		};
 
-		if ( ! isEmptyData ) {
+		if ( ! fixedYAxis ) {
 			return baseOptions;
 		}
 
-		// Give an all-zero chart a meaningful axis instead of a flat baseline.
-		return {
-			...baseOptions,
-			yScale: { domain: getEmptyChartDomain( dataFormat.type ) },
-		};
-	}, [ xTickFormat, xTickFormatType, yTickFormat, isCompact, isEmptyData, dataFormat.type ] );
+		return { ...baseOptions, yScale: { domain: fixedYAxis.domain } };
+	}, [ xTickFormat, xTickFormatType, yTickFormat, isCompact, fixedYAxis ] );
+
+	const margin = useMemo( () => {
+		// With the y-axis hidden, reclaim its reserved left margin for the bars.
+		if ( isCompact ) {
+			return { ...DEFAULT_MARGIN, left: 0 };
+		}
+
+		return fixedYAxis ? { ...DEFAULT_MARGIN, left: fixedYAxis.marginLeft } : DEFAULT_MARGIN;
+	}, [ isCompact, fixedYAxis ] );
 
 	return (
 		<Stack ref={ measureRef } direction="column" className={ clsx( styles.chart, className ) }>
@@ -266,16 +286,20 @@ export function ComparativeBarChart( {
 				className={ styles.chartContent }
 				data={ alignedSeries }
 				options={ chartOptions }
-				// With the y-axis hidden, reclaim its reserved left margin for the bars.
-				margin={ isCompact ? { ...DEFAULT_MARGIN, left: 0 } : DEFAULT_MARGIN }
+				margin={ margin }
 				maxWidth={ maxWidth }
 				gridVisibility={ isCompact ? 'none' : undefined }
 				resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
+				// A zero-value bar has no height, so a quiet day would otherwise read as
+				// missing data. This draws it as a hairline stub instead.
+				showZeroValues
 				showLegend={ false }
 				withTooltips={ ! isEmptyData }
 				renderTooltip={ renderTooltip }
 			>
-				{ /* The solid bar and its translucent shadow already convey current vs previous. */ }
+				{ /* Circle swatches, not the bar's own shape: the legend only needs to name
+				     the two date ranges — the solid bar against its translucent shadow is
+				     what tells the periods apart in the chart itself. */ }
 				{ ! isCompact && (
 					<BarChart.Legend
 						shape="circle"

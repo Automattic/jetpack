@@ -9,6 +9,7 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  * Internal dependencies
  */
 import { ArrayCheckboxField, SelectField } from '@jetpack-premium-analytics/fields';
+import type { MetricTabsChartType } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
  * Granularity the chart can be grouped by. `auto` follows the dashboard date
@@ -18,10 +19,22 @@ import { ArrayCheckboxField, SelectField } from '@jetpack-premium-analytics/fiel
 export type TrafficChartGranularity = 'auto' | 'day' | 'week' | 'month';
 
 /**
- * How the selected metric is drawn. Ported from the Lines/Bars switch on the
- * Jetpack Stats chart tabs card in wp-calypso.
+ * The chart types the widget offers, in display order. Single source for the
+ * settings dropdown and the `TrafficChartType` union so the two cannot drift
+ * apart. Ported from the Lines/Bars switch on the Jetpack Stats chart tabs card
+ * in wp-calypso.
  */
-export type TrafficChartType = 'line' | 'bar';
+export const TRAFFIC_CHART_TYPES = [
+	{ id: 'line', label: __( 'Line chart', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'bar', label: __( 'Bar chart', 'jetpack-premium-analytics-pkg' ) },
+] as const satisfies readonly { id: MetricTabsChartType; label: string }[];
+
+/**
+ * How the selected metric is drawn. Derived from the list above, which
+ * `satisfies` the toolkit's own union, so a value the chart cannot draw fails
+ * to compile here rather than shipping as a broken dropdown option.
+ */
+export type TrafficChartType = ( typeof TRAFFIC_CHART_TYPES )[ number ][ 'id' ];
 
 /**
  * The metric tabs the chart can show, in display order: the persisted id and
@@ -120,16 +133,10 @@ export default {
 			label: __( 'Chart type', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
 			Edit: SelectField,
-			elements: [
-				{
-					label: __( 'Line chart', 'jetpack-premium-analytics-pkg' ),
-					value: 'line',
-				},
-				{
-					label: __( 'Bar chart', 'jetpack-premium-analytics-pkg' ),
-					value: 'bar',
-				},
-			],
+			elements: TRAFFIC_CHART_TYPES.map( chartType => ( {
+				value: chartType.id,
+				label: chartType.label,
+			} ) ),
 			relevance: 'high',
 		},
 	] as WidgetAttributeField< TrafficChartAttributes >[],

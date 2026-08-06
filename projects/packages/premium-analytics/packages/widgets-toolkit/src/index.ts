@@ -11,7 +11,6 @@ export {
 	ComparativeBarChart,
 	type ComparativeBarChartProps,
 	type ComparativeBarChartSeries,
-	type BarSeriesStyle,
 	DonutChart,
 	Legend,
 	ReportMetricWidget,

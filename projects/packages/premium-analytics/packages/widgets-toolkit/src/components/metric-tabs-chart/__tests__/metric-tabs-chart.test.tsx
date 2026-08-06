@@ -58,7 +58,10 @@ const METRIC: MetricTab = {
  * @return The recorded series.
  */
 function recordedSeries( spy: jest.Mock ): ComparativeLineChartSeries[] {
-	return spy.mock.calls.at( -1 )?.[ 0 ].series;
+	// Without this, a chart that never rendered yields `undefined` and the
+	// assertions below fail as a TypeError that names the wrong cause.
+	expect( spy ).toHaveBeenCalled();
+	return spy.mock.calls.at( -1 )[ 0 ].series;
 }
 
 describe( 'MetricTabsChart', () => {

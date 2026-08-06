@@ -128,9 +128,9 @@ type SubscribersChartInnerProps = {
 	 */
 	metrics?: SubscribersChartMetricId[];
 	/**
-	 * How to draw the selected metric.
+	 * How to draw the selected metric. `MetricTabsChart` owns the default.
 	 */
-	chartType: SubscribersChartType;
+	chartType?: SubscribersChartType;
 };
 
 /**
@@ -263,14 +263,13 @@ export default function SubscribersChart( {
 	setError,
 }: SubscribersChartWidgetProps ) {
 	const granularity = attributes.granularity ?? 'auto';
-	const chartType = attributes.chartType ?? 'line';
 
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<SubscribersChartInner
 				granularity={ granularity }
 				metrics={ attributes.metrics }
-				chartType={ chartType }
+				chartType={ attributes.chartType }
 			/>
 		</WidgetRoot>
 	);

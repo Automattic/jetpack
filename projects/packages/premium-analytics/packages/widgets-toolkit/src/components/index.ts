@@ -11,7 +11,6 @@ export {
 	ComparativeBarChart,
 	type ComparativeBarChartProps,
 	type ComparativeBarChartSeries,
-	type BarSeriesStyle,
 } from './chart-comparative-bar';
 export { Legend, type LegendItem } from './legend';
 export {

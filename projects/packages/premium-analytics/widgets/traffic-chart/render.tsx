@@ -51,9 +51,9 @@ type TrafficChartInnerProps = {
 	 */
 	metrics?: TrafficChartMetricId[];
 	/**
-	 * How to draw the selected metric.
+	 * How to draw the selected metric. `MetricTabsChart` owns the default.
 	 */
-	chartType: TrafficChartType;
+	chartType?: TrafficChartType;
 };
 
 /**
@@ -160,14 +160,13 @@ function TrafficChartInner( { granularity, metrics, chartType }: TrafficChartInn
  */
 export default function TrafficChart( { attributes = {}, setError }: TrafficChartWidgetProps ) {
 	const granularity = attributes.granularity ?? 'auto';
-	const chartType = attributes.chartType ?? 'line';
 
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<TrafficChartInner
 				granularity={ granularity }
 				metrics={ attributes.metrics }
-				chartType={ chartType }
+				chartType={ attributes.chartType }
 			/>
 		</WidgetRoot>
 	);

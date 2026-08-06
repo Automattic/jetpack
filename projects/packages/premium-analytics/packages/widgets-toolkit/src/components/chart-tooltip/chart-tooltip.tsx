@@ -26,6 +26,9 @@ export type TooltipStyle = {
 
 	/** Stroke dash offset (for line indicator) */
 	strokeDashoffset?: string | number;
+
+	/** Indicator opacity, so a swatch can match a mark the chart drew translucent. */
+	opacity?: string | number;
 };
 
 /**
@@ -141,7 +144,12 @@ export function ChartTooltip< TDatum >( {
 									style={ lineShapeStyle }
 								/>
 							) : (
-								<RectShape fill={ stroke || 'currentColor' } height={ 8 } width={ 8 } />
+								<RectShape
+									fill={ stroke || 'currentColor' }
+									height={ 8 }
+									width={ 8 }
+									style={ { opacity: lineShapeStyle.opacity } }
+								/>
 							)
 						}
 						label={ label }

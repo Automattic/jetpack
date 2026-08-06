@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
@@ -16,11 +16,13 @@ const mockBarSpy = jest.fn();
 jest.mock( '@jetpack-premium-analytics/externals', () => {
 	const { forwardRef } = jest.requireActual( 'react' );
 
-	const BarChart = ( props: Record< string, unknown > ) => {
+	const BarChart = ( props: { children?: React.ReactNode } ) => {
 		mockBarSpy( props );
-		return <div data-testid="bar-chart" />;
+		// Render children so the legend, which the wrapper mounts conditionally,
+		// is observable.
+		return <div data-testid="bar-chart">{ props.children }</div>;
 	};
-	BarChart.Legend = () => null;
+	BarChart.Legend = () => <div data-testid="bar-chart-legend" />;
 
 	return {
 		BarChart,
@@ -31,9 +33,34 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 				ref: React.ForwardedRef< HTMLDivElement >
 			) => <div ref={ ref }>{ children }</div>
 		),
-		useGlobalChartsContext: () => ( { getElementStyles: () => ( { color: '#3858E9' } ) } ),
+		// Mirrors the real theme: a comparison series shares its primary's colour
+		// and is set apart only by opacity.
+		useGlobalChartsContext: () => ( {
+			getElementStyles: ( { data }: { data: { options?: { type?: string } } } ) => ( {
+				color: '#3858E9',
+				barStyles: data?.options?.type === 'comparison' ? { widthFactor: 1.5, opacity: 0.5 } : {},
+			} ),
+		} ),
 	};
 } );
+
+// jsdom's ResizeObserver is a no-op stub, so the real hook's callback never
+// fires and the chart would measure as infinitely tall in every test — leaving
+// the whole `compactWhenShort` branch unreachable. Drive the height instead.
+let mockChartHeight = Infinity;
+
+jest.mock( '@wordpress/compose', () => ( {
+	// Spread the real module: `@wordpress/data` is pulled in transitively and
+	// needs `createHigherOrderComponent` from here.
+	...jest.requireActual( '@wordpress/compose' ),
+	useResizeObserver:
+		( onResize: ( entries: { contentRect: { height: number } }[] ) => void ) =>
+		( element: HTMLElement | null ) => {
+			if ( element ) {
+				onResize( [ { contentRect: { height: mockChartHeight } } ] );
+			}
+		},
+} ) );
 
 const DATA_FORMAT = { type: 'number' as const, options: { decimals: 0 } };
 
@@ -66,15 +93,40 @@ const SERIES_WITH_COMPARISON: ComparativeBarChartSeries[] = [
 	},
 ];
 
+/** The props `ComparativeBarChart` hands to `ChartTooltip`. */
+type TooltipProps = {
+	tooltipData: { datumByKey: Record< string, { datum: { value: number } } > };
+	seriesStyles: { stroke: string; opacity?: number }[];
+};
+
+/**
+ * Every prop the most recent chart render received.
+ *
+ * @return The recorded props.
+ */
+function recordedProps(): {
+	options: {
+		axis: { x: Record< string, unknown >; y: Record< string, unknown > };
+		yScale?: { domain: [ number, number ] };
+	};
+	margin: { left?: number; right: number };
+	gridVisibility?: string;
+	showZeroValues?: boolean;
+	withTooltips: boolean;
+	renderTooltip: ( params: unknown ) => { props: TooltipProps };
+} {
+	// Fail on the real reason rather than a TypeError further down.
+	expect( mockBarSpy ).toHaveBeenCalled();
+	return mockBarSpy.mock.calls.at( -1 )[ 0 ];
+}
+
 /**
  * The options the most recent chart render received.
  *
  * @return The recorded chart options.
  */
-function recordedOptions(): Record< string, never > & {
-	axis: { x: Record< string, unknown >; y: Record< string, unknown > };
-} {
-	return mockBarSpy.mock.calls.at( -1 )?.[ 0 ].options;
+function recordedOptions() {
+	return recordedProps().options;
 }
 
 /**
@@ -88,7 +140,7 @@ function tooltipRowsFor( hoveredDate: Date ): Record< string, number > {
 	/* eslint-disable testing-library/render-result-naming-convention --
 	   These are the chart's `renderTooltip` prop and its return value, not
 	   testing-library's `render()`; the rule matches on the name alone. */
-	const tooltipRenderer = mockBarSpy.mock.calls.at( -1 )?.[ 0 ].renderTooltip;
+	const tooltipRenderer = recordedProps().renderTooltip;
 	const hovered = { date: hoveredDate, value: 100 };
 
 	const tooltipNode = tooltipRenderer( {
@@ -98,10 +150,7 @@ function tooltipRowsFor( hoveredDate: Date ): Record< string, number > {
 		},
 	} );
 
-	const datumByKey = tooltipNode.props.tooltipData.datumByKey as Record<
-		string,
-		{ datum: { value: number } }
-	>;
+	const { datumByKey } = tooltipNode.props.tooltipData;
 	/* eslint-enable testing-library/render-result-naming-convention */
 
 	return Object.fromEntries(
@@ -109,9 +158,21 @@ function tooltipRowsFor( hoveredDate: Date ): Record< string, number > {
 	);
 }
 
+const ZERO_SERIES: ComparativeBarChartSeries[] = [
+	{
+		label: 'July',
+		group: 'views',
+		data: [
+			{ date: JULY_1, value: 0 },
+			{ date: JULY_2, value: 0 },
+		],
+	},
+];
+
 describe( 'ComparativeBarChart', () => {
 	beforeEach( () => {
 		mockBarSpy.mockClear();
+		mockChartHeight = Infinity;
 	} );
 
 	it( 'omits the x tickFormat key when no tick format is requested', () => {
@@ -151,5 +212,98 @@ describe( 'ComparativeBarChart', () => {
 		render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
 
 		expect( typeof recordedOptions().axis.y.tickFormat ).toBe( 'function' );
+	} );
+
+	it( 'dims the previous-period swatch to match the shadow bar it stands for', () => {
+		render( <ComparativeBarChart series={ SERIES_WITH_COMPARISON } dataFormat={ DATA_FORMAT } /> );
+
+		/* eslint-disable-next-line testing-library/render-result-naming-convention --
+		   This is the chart's `renderTooltip` prop, not testing-library's `render()`. */
+		const tooltip = recordedProps().renderTooltip( {
+			tooltipData: { nearestDatum: { datum: { date: JULY_1, value: 100 }, key: 'July' } },
+		} );
+
+		// Both series share a colour, so opacity is the only thing telling the two
+		// swatches apart — without it the tooltip shows two identical squares.
+		expect( tooltip.props.seriesStyles ).toEqual( [
+			{ stroke: '#3858E9', opacity: undefined },
+			{ stroke: '#3858E9', opacity: 0.5 },
+		] );
+	} );
+
+	it( 'draws zero-value bars so a quiet day reads as zero, not missing data', () => {
+		render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
+
+		expect( recordedProps().showZeroValues ).toBe( true );
+	} );
+
+	describe( 'pinned y-axis domains', () => {
+		it( 'gives an all-zero period a readable axis instead of a flat baseline', () => {
+			render( <ComparativeBarChart series={ ZERO_SERIES } dataFormat={ DATA_FORMAT } /> );
+
+			expect( recordedOptions().yScale?.domain ).toEqual( [ 0, 80 ] );
+			expect( recordedProps().withTooltips ).toBe( false );
+		} );
+
+		it( 'pins percentage metrics to 0-100% even when the data is bunched low', () => {
+			render(
+				<ComparativeBarChart
+					series={ [ { label: 'July', group: 'rate', data: [ { date: JULY_1, value: 0.03 } ] } ] }
+					dataFormat={ { type: 'percentage' } }
+				/>
+			);
+
+			// Scaling to the data would make a 3% bar fill the plot.
+			expect( recordedOptions().yScale?.domain ).toEqual( [ 0, 1 ] );
+		} );
+
+		it( 'reserves a left margin for a pinned domain', () => {
+			render( <ComparativeBarChart series={ ZERO_SERIES } dataFormat={ DATA_FORMAT } /> );
+
+			// `useChartMargin` sizes the gutter from the data's own min/max, so the
+			// pinned domain's widest tick would otherwise be clipped.
+			expect( recordedProps().margin.left ).toBeGreaterThan( 0 );
+		} );
+
+		it( 'lets the chart scale to the data otherwise', () => {
+			render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
+
+			expect( recordedOptions() ).not.toHaveProperty( 'yScale' );
+			expect( recordedProps().margin ).toEqual( { right: 0 } );
+		} );
+	} );
+
+	describe( 'compactWhenShort', () => {
+		it( 'degrades to a sparkline on a short tile', () => {
+			mockChartHeight = 80;
+			render(
+				<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } compactWhenShort />
+			);
+
+			expect( recordedOptions().axis.y.display ).toBe( false );
+			expect( recordedProps().gridVisibility ).toBe( 'none' );
+			// The hidden axis frees its gutter for the bars.
+			expect( recordedProps().margin ).toEqual( { right: 0, left: 0 } );
+			expect( screen.queryByTestId( 'bar-chart-legend' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'keeps the axis, grid, and legend when the tile is tall enough', () => {
+			mockChartHeight = 400;
+			render(
+				<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } compactWhenShort />
+			);
+
+			expect( recordedOptions().axis.y ).not.toHaveProperty( 'display' );
+			expect( recordedProps().gridVisibility ).toBeUndefined();
+			expect( screen.getByTestId( 'bar-chart-legend' ) ).toBeInTheDocument();
+		} );
+
+		it( 'ignores the breakpoint when not opted in', () => {
+			mockChartHeight = 80;
+			render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
+
+			expect( recordedOptions().axis.y ).not.toHaveProperty( 'display' );
+			expect( recordedProps().gridVisibility ).toBeUndefined();
+		} );
 	} );
 } );
