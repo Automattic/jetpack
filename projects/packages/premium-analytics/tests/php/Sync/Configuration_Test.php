@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\PremiumAnalytics\Sync;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 
@@ -37,6 +39,27 @@ class Configuration_Test extends TestCase {
 	public function test_configure_sync_without_woocommerce_is_a_no_op() {
 		$this->assertFalse( class_exists( 'WooCommerce' ) );
 		$this->assertFalse( function_exists( 'WC' ) );
+
+		$configuration = new Configuration();
+		$configuration->configure_sync();
+
+		$this->assertFalse( has_filter( 'jetpack_sync_modules', array( $configuration, 'add_woocommerce_analytics_module' ) ) );
+	}
+
+	/**
+	 * WooCommerce versions without the OrderAttributionMeta trait must not register the Sync module.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_configure_sync_with_unsupported_woocommerce_is_a_no_op() {
+		require_once __DIR__ . '/../fixtures/class-woocommerce.php';
+
+		$this->assertTrue( class_exists( 'WooCommerce' ) );
+		$this->assertFalse( trait_exists( '\\Automattic\\WooCommerce\\Internal\\Traits\\OrderAttributionMeta' ) );
+		$this->assertFalse( Configuration::is_woocommerce_active() );
 
 		$configuration = new Configuration();
 		$configuration->configure_sync();

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Avoid a fatal error when Premium Analytics runs with WooCommerce versions older than 8.5.
