@@ -73,6 +73,7 @@ function VideoDetail(): JSX.Element {
 	// committed by the shared date-filter controller (WOOA7S-1816 — restored
 	// after the preset-measurement rework in #50906 landed).
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
+
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const reportSearch = pickReportDateParams( search );
 
@@ -159,20 +160,31 @@ function VideoDetail(): JSX.Element {
 				breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
 				className={ styles.page }
 			>
-				<div className={ styles.dateFilters }>
-					{ /*
-					 * The design has no period-over-period comparison on this page,
-					 * so the Compare control is opted out; the layout memo above
-					 * strips the comparison params before they reach the widgets.
-					 */ }
-					<DateFiltersPanel { ...dateFilters } showComparison={ false } />
-				</div>
 				<div className={ styles.scrollArea }>
-					{ summaryContent ? (
-						<div className={ styles.header }>
-							<div className={ styles.summary }>{ summaryContent }</div>
+					{ /*
+					 * The summary and the date filter presets share the header row —
+					 * title on the left, presets on the right, per the design mocks.
+					 * The presets render in every summary state so the range stays
+					 * adjustable while the video loads or errors.
+					 */ }
+					<div className={ styles.header }>
+						{ summaryContent ? <div className={ styles.summary }>{ summaryContent }</div> : null }
+						<div className={ styles.dateFilters }>
+							{ /*
+							 * The design has no period-over-period comparison on this
+							 * page, so the Compare control is opted out; the layout memo
+							 * above strips the comparison params before they reach the
+							 * widgets.
+							 */ }
+							{ /*
+							 * Known rough edge: in this shrink-to-fit slot the panel's
+							 * self-measurement always sees its own content width, so the
+							 * presets keep their full layout and narrow rows degrade
+							 * poorly. External-measurement wiring ships separately (#51088).
+							 */ }
+							<DateFiltersPanel { ...dateFilters } showComparison={ false } />
 						</div>
-					) : null }
+					</div>
 					{ canRenderWidgets ? (
 						<div className={ styles.content }>
 							<WidgetDashboard.Widgets className={ styles.widgets } />
