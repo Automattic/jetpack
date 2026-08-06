@@ -3,7 +3,7 @@
  */
 import { Button, Icon } from '@jetpack-premium-analytics/externals';
 import { chevronDown } from '@wordpress/icons';
-import { memo, useCallback, useLayoutEffect, useRef } from 'react';
+import { memo, useCallback, useLayoutEffect, useRef, type ReactNode } from 'react';
 /**
  * Internal dependencies
  */
@@ -19,12 +19,21 @@ export type PresetRowProbeProps = {
 	 */
 	customTriggerLabel: string;
 
+	/**
+	 * The comparison control, as the panel renders it. It shares the row without
+	 * sharing the group's frame, and it is the reason this probe measures a row
+	 * rather than a group: a `+` and a trigger reading "Prev. period" differ by
+	 * around 90px, and neither has an abbreviated form to fall back on, so the
+	 * presets are what has to give way.
+	 */
+	comparison?: ReactNode;
+
 	/** Reports the row's natural width whenever it changes. */
 	onMeasure: ( width: number ) => void;
 };
 
 /**
- * Measures what the preset row needs with its labels spelled out.
+ * Measures what the whole date-controls row needs with its labels spelled out.
  *
  * Measured in the DOM rather than computed: the width depends on the font
  * resolved for the locale's script, the button padding tokens, and the group's
@@ -35,6 +44,10 @@ export type PresetRowProbeProps = {
  * the labels shrinks the row, the full labels then look like they fit, and back
  * again.
  *
+ * The comparison control is the one part measured live, because it has no mode
+ * of its own to oscillate through: its width follows the active preset, and
+ * nothing the presets do changes it.
+ *
  * Exported memoized: the panel re-renders on every step of a resize, and this
  * output only moves when the labels do.
  *
@@ -44,6 +57,7 @@ export type PresetRowProbeProps = {
 function PresetRowProbeComponent( {
 	presets,
 	customTriggerLabel,
+	comparison,
 	onMeasure,
 }: PresetRowProbeProps ) {
 	const rowRef = useRef< HTMLDivElement >( null );
@@ -76,7 +90,7 @@ function PresetRowProbeComponent( {
 	// typography do, and both arrive as a render.
 	useLayoutEffect( () => {
 		measure();
-	}, [ measure, presets, customTriggerLabel ] );
+	}, [ measure, presets, customTriggerLabel, comparison ] );
 
 	// Web fonts land after first paint and shift the metrics. Insurance: nothing
 	// in the dashboard ships one today.
@@ -100,29 +114,35 @@ function PresetRowProbeComponent( {
 	return (
 		// @ts-expect-error -- `inert` is valid HTML but missing from this React version's types.
 		<div className="preset-row-probe" aria-hidden="true" inert="">
-			<div className="preset-row-probe__row" ref={ rowRef }>
-				{ presets.map( preset => (
+			<div className="preset-row-probe__panel" ref={ rowRef }>
+				<div className="preset-row-probe__row">
+					{ presets.map( preset => (
+						<Button
+							key={ preset.id }
+							className="date-range-quick-presets__pill"
+							variant="minimal"
+							tone="neutral"
+							size="small"
+							tabIndex={ -1 }
+						>
+							{ preset.label }
+						</Button>
+					) ) }
 					<Button
-						key={ preset.id }
-						className="date-range-quick-presets__pill"
+						className="date-filters-panel-button"
 						variant="minimal"
 						tone="neutral"
-						size="small"
 						tabIndex={ -1 }
 					>
-						{ preset.label }
+						{ /* Mirrors the real trigger's markup so both measure the same box. */ }
+						<span className="date-filters-panel-button__label">{ customTriggerLabel }</span>
+						<Icon className="date-filters-panel-button__caret" icon={ chevronDown } size={ 18 } />
 					</Button>
-				) ) }
-				<Button
-					className="date-filters-panel-button"
-					variant="minimal"
-					tone="neutral"
-					tabIndex={ -1 }
-				>
-					{ /* Mirrors the real trigger's markup so both measure the same box. */ }
-					<span className="date-filters-panel-button__label">{ customTriggerLabel }</span>
-					<Icon className="date-filters-panel-button__caret" icon={ chevronDown } size={ 18 } />
-				</Button>
+				</div>
+
+				{ /* The real control, not a mirror of it: the panel hands the same
+				     element to both places, so this one cannot drift from it. */ }
+				{ comparison }
 			</div>
 		</div>
 	);

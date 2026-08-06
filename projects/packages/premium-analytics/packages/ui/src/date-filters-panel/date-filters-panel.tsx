@@ -283,13 +283,45 @@ export function DateFiltersPanel( {
 	// stale memo here costs nothing.
 	const surfacePresets = useMemo( () => getQuickSurfacePresets( timeZone ), [ timeZone ] );
 
+	const comparisonLabel =
+		typeof comparisonControlProps.label === 'string' ? comparisonControlProps.label : undefined;
+
+	/*
+	 * Built once and rendered in two places: the row the user sees, and the
+	 * probe that measures what that row needs. Handing both the same element
+	 * keeps the measurement honest by construction — a mirror of this control
+	 * in the probe would go stale the first time either side changed, which is
+	 * how the comparison came to be left out of the measurement to begin with.
+	 */
+	const comparisonControl = useMemo(
+		() => (
+			<DateComparisonDropdown
+				presets={ presets }
+				enabled={ comparisonEnabled }
+				presetId={ validatedComparisonPresetId }
+				label={ comparisonLabel }
+				onPresetChange={ presetChange }
+				onClear={ clearComparison }
+			/>
+		),
+		[
+			clearComparison,
+			comparisonEnabled,
+			comparisonLabel,
+			presetChange,
+			presets,
+			validatedComparisonPresetId,
+		]
+	);
+
 	const [ fullRowWidth, setFullRowWidth ] = useState< number | null >( null );
 	const handleProbeMeasure = useCallback( ( width: number ) => {
 		setFullRowWidth( width );
 	}, [] );
 
 	// The boundary comes from the probe, so it follows the active locale rather
-	// than a breakpoint picked for English.
+	// than a breakpoint picked for English, and it moves with the comparison
+	// control: adding one takes room the presets then have to give back.
 	const labelMode = useMemo(
 		() => resolvePresetLabelMode( containerWidth, fullRowWidth ),
 		[ containerWidth, fullRowWidth ]
@@ -303,6 +335,7 @@ export function DateFiltersPanel( {
 			<PresetRowProbe
 				presets={ surfacePresets }
 				customTriggerLabel={ customTriggerLabel }
+				comparison={ comparisonControl }
 				onMeasure={ handleProbeMeasure }
 			/>
 
@@ -330,18 +363,7 @@ export function DateFiltersPanel( {
 			</BaseControl>
 
 			<BaseControl className="date-filters-panel__comparison" help={ comparisonControlProps.help }>
-				<DateComparisonDropdown
-					presets={ presets }
-					enabled={ comparisonEnabled }
-					presetId={ validatedComparisonPresetId }
-					label={
-						typeof comparisonControlProps.label === 'string'
-							? comparisonControlProps.label
-							: undefined
-					}
-					onPresetChange={ presetChange }
-					onClear={ clearComparison }
-				/>
+				{ comparisonControl }
 			</BaseControl>
 		</Stack>
 	);

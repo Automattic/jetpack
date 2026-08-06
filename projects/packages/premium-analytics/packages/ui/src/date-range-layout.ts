@@ -25,6 +25,10 @@ export type PresetLabelMode =
  * boundary is inclusive, so a row that exactly fills the width counts as
  * fitting.
  *
+ * The row is the whole set of controls, not just the presets: the custom-range
+ * trigger and the comparison control share the width, and only the presets have
+ * a shorter form to give back when it runs out.
+ *
  * @param availableWidth - Measured width of the panel, or null before first measure.
  * @param fullRowWidth   - Natural width of the row in full labels, or null before first measure.
  * @return The label form to render.
