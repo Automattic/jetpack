@@ -22,7 +22,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './style.module.css';
+import styles from './style.module.scss';
 import { type AnnualHighlightMetric, type AnnualHighlightsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 

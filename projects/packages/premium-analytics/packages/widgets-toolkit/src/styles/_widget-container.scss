@@ -43,16 +43,17 @@ $widget-breakpoints: (
 	// 672px - Full-width widgets
 ) !default;
 
-// Block-size threshold below which a widget body has no room for its chrome and
-// components drop it: state icons, the metric tile's roomier padding, a report
-// link. Sized against the dashboard's default 200px row height, it sits between
-// a height-1 widget body (~86px) and a height-2 one (~286px), so it separates
-// the two without any component having to measure its own host.
-// Consumers query different boxes — the widget body, the state box, the metric
-// grid area — so this is a shared threshold, not one box's measurement.
-// `widgets/annual-highlights/style.module.css` repeats the value as a literal:
-// widget stylesheets are plain CSS, and a container query condition cannot read
-// a custom property. Change both together.
+// Inline-size at or above which a widget cell is wide enough to lay metric
+// tiles out in a row instead of stacking them.
+$widget-wide-min-inline-size: 640px !default;
+
+// Block-size below which a widget body has no room for its chrome, and
+// components drop it: state icons, a wide metric tile's roomier padding, the
+// report link. At the dashboard's default 200px row height it falls between a
+// height-1 body and a height-2 one, so it separates the two without any
+// component having to measure its own host. Consumers query different boxes —
+// the widget body, the state box, the metric grid area — so this is a shared
+// threshold, not one box's measurement.
 $widget-short-max-block-size: 140px !default;
 
 /**

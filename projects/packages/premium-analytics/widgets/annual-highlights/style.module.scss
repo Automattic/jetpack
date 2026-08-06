@@ -1,3 +1,5 @@
+@use "../../packages/widgets-toolkit/src/styles/widget-container" as *;
+
 /* No outer padding: the host frames the widget and owns the padding. */
 .root {
 	height: 100%;
@@ -24,11 +26,10 @@
 	text-align: center;
 }
 
-/* At the minimum widget height the metric tiles need the whole body, so drop
- * the report link. 140px mirrors `$widget-short-max-block-size` in
- * widgets-toolkit — widget stylesheets are plain CSS and a container query
- * condition cannot read a custom property, so the two move together. */
-@container (max-block-size: 140px) {
+/* Wide and at the minimum widget height: the tiles lay out in one row and need
+ * the whole body, so drop the report link. Narrower cells keep it — there the
+ * tiles stack and scroll whether or not the link is in the way. */
+@container (min-inline-size: #{$widget-wide-min-inline-size}) and (max-block-size: #{$widget-short-max-block-size}) {
 
 	.content .footer {
 		display: none;

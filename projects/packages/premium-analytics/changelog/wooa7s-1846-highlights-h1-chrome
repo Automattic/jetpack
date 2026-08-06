@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Highlights: always show the most recent year, and fit the full metrics at the minimum widget height.
+Highlights: Always show the most recent year, and fit the full metrics at the minimum widget height. Tighten metric tile spacing in wide, short widgets.
