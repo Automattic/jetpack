@@ -8,3 +8,23 @@
 .trail li {
 	margin-block-end: 0;
 }
+
+/* A long unbroken crumb refuses to shrink: admin-ui's Page header renders the
+ * breadcrumbs slot inside a flex chain whose items keep the flexbox default
+ * `min-inline-size: auto`, so the crumb's nowrap min-content propagates and
+ * drags the whole page into horizontal scrolling before the crumb's own
+ * ellipsis (admin-ui's `.current`) can engage. The `.trail` wrapper is
+ * `display: contents`, so a `min-inline-size` on it has no box to act on —
+ * the constraint must land on the wrapper's DOM parent (the header's inner
+ * Stack, which has no stable class, hence the structural `:has()`) and on the
+ * `nav`, the actual flex item in the box tree. Owned here so every page using
+ * StatsBreadcrumbs gets the fix; the slot is set to be reworked upstream under
+ * https://github.com/WordPress/gutenberg/issues/77039 and
+ * https://github.com/WordPress/gutenberg/issues/77628. */
+:has(> .trail) {
+	min-inline-size: 0;
+}
+
+.trail nav {
+	min-inline-size: 0;
+}
