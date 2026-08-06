@@ -13,7 +13,7 @@ export type MostCommentedAuthorsAttributes = {
 };
 
 /**
- * Widget type definition for the Most commented authors widget.
+ * Widget type definition for the Top commented authors widget.
  *
  * One half of the Jetpack Stats "Comments" module: the site's most active
  * commenters, ranked by comment count. The other half ships as

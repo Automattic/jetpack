@@ -42,7 +42,7 @@ interface MostCommentedAuthorsInnerProps {
 }
 
 /**
- * Most commented authors inner component. The comment counts come from the
+ * Top commented authors inner component. The comment counts come from the
  * all-time `stats/comments` report, so there is no date range or comparison
  * period to read from context.
  *
@@ -116,7 +116,7 @@ function MostCommentedAuthorsInner( { max }: MostCommentedAuthorsInnerProps ) {
 }
 
 /**
- * Most commented authors widget: the people who comment the most on the site,
+ * Top commented authors widget: the people who comment the most on the site,
  * ranked by comment count. Each row links to the comment management screen
  * filtered to that author when the report reports an email for them.
  *
@@ -125,7 +125,7 @@ function MostCommentedAuthorsInner( { max }: MostCommentedAuthorsInnerProps ) {
  * `useStatsCommentsRows`, so showing both costs a single request.
  *
  * @param {MostCommentedAuthorsWidgetProps} props - The widget render props.
- * @return The rendered Most commented authors widget.
+ * @return The rendered Top commented authors widget.
  */
 export default function MostCommentedAuthors( {
 	attributes = {},
