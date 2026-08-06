@@ -52,6 +52,14 @@ class Main {
 	 */
 	private function __construct() {
 		add_action( 'rest_api_init', array( REST_Controller::class, 'register' ) );
+
+		// The stats module normally registers the Stats menu, but modules only
+		// load once the site is connected. Register the dashboard here too so
+		// eligible new sites see the pricing grid before connecting.
+		if ( is_admin() && Pricing_Grid\Eligibility::should_show_pricing_grid() ) {
+			Dashboard::init();
+		}
+
 		// Disable JITM assets on the Stats page.
 		// JITM is handled separately by Stats: https://github.com/Automattic/wp-calypso/pull/95273.
 		add_filter(

@@ -25,6 +25,7 @@ use Automattic\Jetpack\Stats\XMLRPC_Provider as Stats_XMLRPC;
 use Automattic\Jetpack\Stats_Admin\Admin_Post_List_Column;
 use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
 use Automattic\Jetpack\Stats_Admin\Main as Stats_Main;
+use Automattic\Jetpack\Stats_Admin\Pricing_Grid\Eligibility as Stats_Pricing_Grid_Eligibility;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 
@@ -244,15 +245,18 @@ function stats_admin_menu() {
 		Stats_Main::update_new_stats_status( true );
 	}
 
+	$should_show_pricing_grid = Stats_Pricing_Grid_Eligibility::should_show_pricing_grid();
+
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	if ( ! Stats_Options::get_option( 'enable_odyssey_stats' ) || isset( $_GET['noheader'] ) ) {
+	if ( ( ! Stats_Options::get_option( 'enable_odyssey_stats' ) || isset( $_GET['noheader'] ) ) && ! $should_show_pricing_grid ) {
 		// Show old Jetpack Stats interface for:
 		// - When the "enable_odyssey_stats" option is disabled.
 		// - When being shown in the adminbar outside of wp-admin.
+		// - But not when the pricing grid should be shown (new installations without a plan).
 		$hook = Admin_Menu::add_menu( __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', 'jetpack_admin_ui_stats_report_page_wrapper' );
 		add_action( "load-$hook", 'stats_reports_load' );
 	} else {
-		// Enable the new Odyssey Stats experience.
+		// Enable the new Odyssey Stats experience or pricing grid.
 		Stats_Dashboard::init();
 	}
 }

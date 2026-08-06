@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 
 /**
@@ -69,7 +70,7 @@ class Dashboard {
 		$page_suffix = add_menu_page(
 			__( 'Stats', 'jetpack-stats-admin' ),
 			_x( 'Stats', 'product name shown in menu', 'jetpack-stats-admin' ),
-			'manage_options',
+			'view_stats',
 			'stats',
 			array( $this, 'render' ),
 			'dashicons-chart-bar',
@@ -163,32 +164,22 @@ class Dashboard {
 	 * @return bool True if the pricing grid should be shown.
 	 */
 	private function should_show_pricing_grid() {
-		$eligibility_class = 'Automattic\\Jetpack\\Stats_Admin\\Pricing_Grid\\Eligibility';
-		if ( class_exists( $eligibility_class ) ) {
-			return call_user_func( array( $eligibility_class, 'should_show_pricing_grid' ) );
-		}
-		return false;
+		return Pricing_Grid\Eligibility::should_show_pricing_grid();
 	}
 
 	/**
 	 * Load the pricing grid scripts and initial state.
 	 */
 	private function load_pricing_grid_scripts() {
-		require_once __DIR__ . '/pricing-grid/class-initial-state.php';
-		require_once __DIR__ . '/pricing-grid/class-eligibility.php';
-
 		$handle = 'jp-stats-pricing-grid';
 
-		// Register and enqueue the pricing grid bundle.
-		$script_path = __DIR__ . '/../build/pricing-grid/jp-stats-pricing-grid.js';
-		if ( ! file_exists( $script_path ) ) {
-			// Fallback if build artifact doesn't exist.
+		if ( ! file_exists( __DIR__ . '/../build/pricing-grid/jp-stats-pricing-grid.js' ) ) {
 			return;
 		}
 
 		Assets::register_script(
 			$handle,
-			'../../build/pricing-grid/jp-stats-pricing-grid.js',
+			'../build/pricing-grid/jp-stats-pricing-grid.js',
 			__FILE__,
 			array(
 				'in_footer'  => true,
@@ -197,16 +188,8 @@ class Dashboard {
 		);
 		Assets::enqueue_script( $handle );
 
-		// Inject the initial state before the bundle runs.
-		$initial_state = new Pricing_Grid\Initial_State();
-		wp_add_inline_script(
-			$handle,
-			$initial_state->render(),
-			'before'
-		);
-
-		// Also inject the connection initial state.
-		require_once JETPACK__PLUGIN_DIR . 'modules/connection/class-initial-state.php';
-		\Jetpack\Initial_State::render_script( $handle );
+		// Inject the initial states before the bundle runs.
+		wp_add_inline_script( $handle, ( new Pricing_Grid\Initial_State() )->render(), 'before' );
+		Connection_Initial_State::render_script( $handle );
 	}
 }

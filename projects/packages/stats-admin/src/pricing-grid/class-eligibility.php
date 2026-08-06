@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Stats_Admin\Pricing_Grid;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Plans\Current_Plan;
+use Automattic\Jetpack\Current_Plan;
 
 /**
  * Determines whether to show the Stats pricing grid (for new sites without a plan).
