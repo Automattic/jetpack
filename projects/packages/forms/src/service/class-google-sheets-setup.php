@@ -87,6 +87,86 @@ class Google_Sheets_Setup {
 	}
 
 	/**
+	 * Reads a form's field labels straight off the stored form.
+	 *
+	 * Resolved here rather than in the editor for two reasons: the integrations
+	 * modal is rendered from three places, one of which (the responses dashboard)
+	 * has no block context at all, and the duplicate-label rule below has to match
+	 * Feedback_Field::get_label() exactly or the columns will not line up with the
+	 * values the append path produces.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $form_post_id The jetpack_form post ID.
+	 * @return array List of field labels, in form order.
+	 */
+	public static function get_form_columns( $form_post_id ) {
+		$form_post = get_post( (int) $form_post_id );
+
+		if ( ! $form_post instanceof \WP_Post ) {
+			return array();
+		}
+
+		return self::get_columns_from_content( $form_post->post_content );
+	}
+
+	/**
+	 * Reads field labels out of a form's block markup.
+	 *
+	 * Split from get_form_columns() so the parsing and the duplicate-label rule
+	 * are reachable without a stored post: the package's WorDBless test
+	 * environment hands back post_content still slashed, which defeats
+	 * parse_blocks() on the block attribute JSON.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $content The form's block markup.
+	 * @return array List of field labels, in document order.
+	 */
+	public static function get_columns_from_content( $content ) {
+		$labels = array();
+		$counts = array();
+
+		foreach ( self::collect_field_labels( parse_blocks( (string) $content ) ) as $label ) {
+			// Mirrors Feedback_Field::get_label(): the nth use of a label gets an
+			// " (n)" suffix, and a field with no label of its own reads as "Field".
+			$label = '' === $label ? __( 'Field', 'jetpack-forms' ) : $label;
+
+			$counts[ $label ] = isset( $counts[ $label ] ) ? $counts[ $label ] + 1 : 1;
+			$labels[]         = $counts[ $label ] > 1 ? $label . ' (' . $counts[ $label ] . ')' : $label;
+		}
+
+		return $labels;
+	}
+
+	/**
+	 * Walks a block tree and collects the label of every form field.
+	 *
+	 * Recurses because fields are routinely nested inside steps, groups and
+	 * columns rather than sitting directly under the form.
+	 *
+	 * @param array $blocks Parsed blocks.
+	 * @return array List of raw labels, in document order.
+	 */
+	private static function collect_field_labels( array $blocks ) {
+		$labels = array();
+
+		foreach ( $blocks as $block ) {
+			$name = isset( $block['blockName'] ) ? (string) $block['blockName'] : '';
+
+			if ( str_starts_with( $name, 'jetpack/field-' ) ) {
+				$labels[] = isset( $block['attrs']['label'] ) ? wp_strip_all_tags( (string) $block['attrs']['label'] ) : '';
+			}
+
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				$labels = array_merge( $labels, self::collect_field_labels( $block['innerBlocks'] ) );
+			}
+		}
+
+		return $labels;
+	}
+
+	/**
 	 * Lays a single response out as a spreadsheet row.
 	 *
 	 * Values are placed by label in the frozen column order, so a response

@@ -279,9 +279,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 						'sanitize_callback' => 'rest_sanitize_boolean',
 					),
 					'columns'         => array(
-						'type'     => 'array',
-						'required' => true,
-						'items'    => array( 'type' => 'string' ),
+						'type'    => 'array',
+						'default' => array(),
+						'items'   => array( 'type' => 'string' ),
 					),
 				),
 			)
@@ -1786,14 +1786,19 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			);
 		}
 
+		$form_post_id = $request->get_param( 'form_post_id' );
+
+		// The caller may name the columns explicitly, but it does not have to: the
+		// responses dashboard renders this integration with no block context, so
+		// the labels are read off the stored form by default.
 		$columns = $request->get_param( 'columns' );
+		if ( empty( $columns ) ) {
+			$columns = Google_Sheets_Setup::get_form_columns( $form_post_id );
+		}
 
 		$backfill_rows = array();
 		if ( $request->get_param( 'backfill' ) ) {
-			$backfill_rows = Google_Sheets_Setup::get_backfill_rows(
-				$request->get_param( 'form_post_id' ),
-				$columns
-			);
+			$backfill_rows = Google_Sheets_Setup::get_backfill_rows( $form_post_id, $columns );
 		}
 
 		$title = $request->get_param( 'title' );

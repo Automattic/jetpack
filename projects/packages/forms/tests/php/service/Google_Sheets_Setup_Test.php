@@ -210,4 +210,71 @@ class Google_Sheets_Setup_Test extends BaseTestCase {
 	public function test_backfill_returns_nothing_without_a_form_id() {
 		$this->assertSame( array(), Google_Sheets_Setup::get_backfill_rows( 0, array() ) );
 	}
+
+	public function test_form_columns_read_labels_in_document_order() {
+		$content = (
+			'<!-- wp:jetpack/field-name {"label":"Name"} /-->' .
+			'<!-- wp:jetpack/field-email {"label":"Email"} /-->' .
+			'<!-- wp:jetpack/field-textarea {"label":"Message"} /-->'
+		);
+
+		$this->assertSame(
+			array( 'Name', 'Email', 'Message' ),
+			Google_Sheets_Setup::get_columns_from_content( $content )
+		);
+	}
+
+	/**
+	 * Fields nested inside steps or groups still count. Reading only the form's
+	 * direct children would silently drop every field on a multi-step form.
+	 */
+	public function test_form_columns_find_nested_fields() {
+		$content = (
+			'<!-- wp:jetpack/form-step -->' .
+			'<!-- wp:jetpack/field-name {"label":"Name"} /-->' .
+			'<!-- /wp:jetpack/form-step -->' .
+			'<!-- wp:jetpack/field-email {"label":"Email"} /-->'
+		);
+
+		$this->assertSame(
+			array( 'Name', 'Email' ),
+			Google_Sheets_Setup::get_columns_from_content( $content )
+		);
+	}
+
+	/**
+	 * Repeated labels have to be suffixed the same way Feedback_Field::get_label()
+	 * does, or the columns will not line up with the values on append.
+	 */
+	public function test_form_columns_disambiguate_repeated_labels() {
+		$content = (
+			'<!-- wp:jetpack/field-text {"label":"Name"} /-->' .
+			'<!-- wp:jetpack/field-text {"label":"Name"} /-->' .
+			'<!-- wp:jetpack/field-text {"label":"Name"} /-->'
+		);
+
+		$this->assertSame(
+			array( 'Name', 'Name (2)', 'Name (3)' ),
+			Google_Sheets_Setup::get_columns_from_content( $content )
+		);
+	}
+
+	public function test_form_columns_name_unlabelled_fields() {
+		$content = ( '<!-- wp:jetpack/field-text /-->' );
+
+		$this->assertSame( array( 'Field' ), Google_Sheets_Setup::get_columns_from_content( $content ) );
+	}
+
+	public function test_form_columns_ignore_non_field_blocks() {
+		$content = (
+			'<!-- wp:paragraph --><p>Intro copy</p><!-- /wp:paragraph -->' .
+			'<!-- wp:jetpack/field-name {"label":"Name"} /-->'
+		);
+
+		$this->assertSame( array( 'Name' ), Google_Sheets_Setup::get_columns_from_content( $content ) );
+	}
+
+	public function test_form_columns_are_empty_for_a_missing_post() {
+		$this->assertSame( array(), Google_Sheets_Setup::get_form_columns( 999999 ) );
+	}
 }
