@@ -46,12 +46,32 @@ class Body_Close_Locator {
 	const SKIPPED_CONTAINERS = array( 'TEMPLATE', 'NOSCRIPT', 'SVG', 'MATH' );
 
 	/**
+	 * Buffers above this size are not scanned at all. Bounds the walk's CPU
+	 * cost (roughly linear in buffer size) and, more importantly, its memory:
+	 * the tokenizer allocates one attribute token per attribute on the tag it
+	 * is parsing, so a single tag stuffed with attributes can grow peak memory
+	 * to ~15x the buffer size. The buffer this locator sees — from the last
+	 * moved script to the end of the page — is normally well under 100 KB.
+	 *
+	 * @var int
+	 */
+	const MAX_SCAN_BYTES = 1000000;
+
+	/**
 	 * Find the byte offset of the buffer's last top-level closing body tag.
 	 *
 	 * The last one, not the first: the document's own closing tag follows any
-	 * stray closer its content holds. The walk stops at the closing </html>
-	 * tag once a candidate exists, so trailing output a host or plugin emits
-	 * after the document can never replace the document's own answer.
+	 * stray closer its content holds. Taking the last candidate is also what
+	 * makes the walk self-correcting when the buffer begins inside a comment
+	 * or raw-text region whose opening tag was flushed in an earlier output
+	 * chunk: the tokenizer misreads that region's text as markup, but any
+	 * false candidate it yields is overwritten as soon as the region ends and
+	 * the document's real closing tag is reached. (This is why the walk must
+	 * not stop early at a closing </html> tag — a false one inside such a
+	 * region would freeze the false candidate. The cost is that a bare,
+	 * uncontained '</body>' in trailing output after the document can shift
+	 * the insertion point past the document's own tag; browsers reparent that
+	 * trailing content into body, so the moved scripts still run.)
 	 *
 	 * When the buffer ends inside an unterminated token (an unclosed comment
 	 * or raw-text region at the end of the window), the tokenizer stops
@@ -65,8 +85,9 @@ class Body_Close_Locator {
 	 */
 	public static function find( $buffer ) {
 		// Belt-and-braces: the HTML API ships with every WordPress version
-		// Boost supports, so this only guards truly broken installs.
-		if ( ! class_exists( \WP_HTML_Tag_Processor::class ) ) {
+		// Boost supports (next_token() is @since 6.5), so this only guards
+		// truly broken installs.
+		if ( ! method_exists( \WP_HTML_Tag_Processor::class, 'next_token' ) ) {
 			return null;
 		}
 
@@ -76,6 +97,10 @@ class Body_Close_Locator {
 		// host no position can be trusted.
 		// phpcs:ignore PHPCompatibility.IniDirectives.RemovedIniDirectives.mbstring_func_overloadDeprecated,PHPCompatibility.IniDirectives.RemovedIniDirectives.mbstring_func_overloadDeprecatedRemoved -- Read, not set: the directive being deprecated and then removed on the supported range is exactly why this check exists.
 		if ( 2 & (int) ini_get( 'mbstring.func_overload' ) ) {
+			return null;
+		}
+
+		if ( strlen( $buffer ) > self::MAX_SCAN_BYTES ) {
 			return null;
 		}
 
@@ -113,10 +138,6 @@ class Body_Close_Locator {
 
 			if ( 'BODY' === $name ) {
 				$position = $processor->get_token_byte_offset();
-			} elseif ( 'HTML' === $name && null !== $position ) {
-				// The document is over; nothing after its closing tag can
-				// improve on the answer.
-				break;
 			}
 		}
 

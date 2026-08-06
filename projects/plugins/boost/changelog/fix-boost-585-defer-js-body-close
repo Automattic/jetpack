@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Defer JS: fix a regression where a literal closing body tag inside a script, textarea, comment, or attribute value could corrupt the page when deferred scripts were re-inserted.
+Defer JS: fix a regression where a literal closing body tag inside a script, textarea, comment, or attribute value could corrupt the page when deferred scripts were re-inserted. Previously corrupted copies of a page may persist in page caches for up to an hour after updating; purge caches to clear them immediately.

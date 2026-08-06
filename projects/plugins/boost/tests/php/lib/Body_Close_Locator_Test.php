@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack_Boost\Tests\Lib;
 
 use Automattic\Jetpack_Boost\Lib\Body_Close_Locator;
+use Automattic\Jetpack_Boost\Lib\Position_Aware_Tag_Processor;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
@@ -37,18 +38,48 @@ class Body_Close_Locator_Test extends BaseTestCase {
 	 */
 	public static function provide_decoy_before_real_close() {
 		return array(
-			'plain document'      => array( '<html><body><p>x</p></body></html>' ),
-			'document.write'      => array( '<html><body><script>document.write("</body>")</script><p>x</p></body></html>' ),
-			'textarea'            => array( '<html><body><textarea></body></textarea><p>x</p></body></html>' ),
-			'title'               => array( '<html><body><title></body></title><p>x</p></body></html>' ),
-			'style'               => array( '<html><body><style>/*</body>*/</style><p>x</p></body></html>' ),
-			'comment'             => array( '<html><body><!-- </body> --><p>x</p></body></html>' ),
-			'attribute value'     => array( '<html><body><div data-x="</body>">y</div></body></html>' ),
-			'template content'    => array( '<html><body><template></body></template><p>x</p></body></html>' ),
-			'noscript content'    => array( '<html><body><noscript></body></noscript><p>x</p></body></html>' ),
-			'svg foreign content' => array( '<html><body><svg><desc></body></desc></svg><p>x</p></body></html>' ),
-			'stray closer'        => array( '<html><body><div></body></div><p>x</p></body></html>' ),
-			'self-closing svg'    => array( '<html><body><svg/><p>x</p></body></html>' ),
+			'plain document'       => array( '<html><body><p>x</p></body></html>' ),
+			'document.write'       => array( '<html><body><script>document.write("</body>")</script><p>x</p></body></html>' ),
+			'textarea'             => array( '<html><body><textarea></body></textarea><p>x</p></body></html>' ),
+			'title'                => array( '<html><body><title></body></title><p>x</p></body></html>' ),
+			'style'                => array( '<html><body><style>/*</body>*/</style><p>x</p></body></html>' ),
+			'comment'              => array( '<html><body><!-- </body> --><p>x</p></body></html>' ),
+			'attribute value'      => array( '<html><body><div data-x="</body>">y</div></body></html>' ),
+			'template content'     => array( '<html><body><template></body></template><p>x</p></body></html>' ),
+			'noscript content'     => array( '<html><body><noscript></body></noscript><p>x</p></body></html>' ),
+			'svg foreign content'  => array( '<html><body><svg><desc></body></desc></svg><p>x</p></body></html>' ),
+			'math foreign content' => array( '<html><body><math><mi></body></mi></math><p>x</p></body></html>' ),
+			'stray closer'         => array( '<html><body><div></body></div><p>x</p></body></html>' ),
+			'self-closing svg'     => array( '<html><body><svg/><p>x</p></body></html>' ),
+		);
+	}
+
+	/**
+	 * A buffer that begins inside a comment or raw-text region whose opening
+	 * tag was flushed in an earlier output chunk. The tokenizer misreads the
+	 * region's text as markup, so a decoy '</body></html>' inside it becomes
+	 * a false candidate — which the walk must overwrite with the document's
+	 * real closing tag once the region ends. This regressed when the walk
+	 * stopped early at a closing html tag; the false '</html>' froze the false
+	 * candidate and the moved scripts landed inside dead content.
+	 *
+	 * @param string $window Buffer starting mid-region.
+	 * @dataProvider provide_windows_starting_inside_a_flushed_region
+	 */
+	#[DataProvider( 'provide_windows_starting_inside_a_flushed_region' )]
+	public function test_a_false_candidate_from_a_flushed_region_is_overwritten( $window ) {
+		$this->assertSame( strrpos( $window, '</body>' ), Body_Close_Locator::find( $window ) );
+	}
+
+	/**
+	 * Windows whose first bytes are the tail of a region opened before the window.
+	 */
+	public static function provide_windows_starting_inside_a_flushed_region() {
+		return array(
+			'mid script'   => array( 'var s = "</body></html>";</script><p>x</p></body></html>' ),
+			'mid comment'  => array( ' ad blob </body></html> --><p>x</p></body></html>' ),
+			'mid textarea' => array( 'pasted </body></html> text</textarea><p>x</p></body></html>' ),
+			'mid style'    => array( '/* </body></html> */</style><p>x</p></body></html>' ),
 		);
 	}
 
@@ -126,5 +157,27 @@ class Body_Close_Locator_Test extends BaseTestCase {
 			'unterminated comment'  => array( '<html><body><!-- pasted </body>' ),
 			'inside template only'  => array( '<html><body><template></body></template>' ),
 		);
+	}
+
+	/**
+	 * Buffers above MAX_SCAN_BYTES are not scanned: the walk's cost is linear
+	 * in buffer size and the tokenizer's peak memory tracks the widest single
+	 * tag, so an oversized buffer falls back to append instead.
+	 */
+	public function test_oversized_buffers_are_not_scanned() {
+		$html = '<html><body>' . str_repeat( '<p>x</p>', 130000 ) . '</body></html>';
+
+		$this->assertGreaterThan( Body_Close_Locator::MAX_SCAN_BYTES, strlen( $html ) );
+		$this->assertNull( Body_Close_Locator::find( $html ) );
+	}
+
+	/**
+	 * The offset helper honours its contract before any token is matched:
+	 * null, not a fatal from bookmarking a token that does not exist.
+	 */
+	public function test_offset_helper_returns_null_before_any_token() {
+		$processor = new Position_Aware_Tag_Processor( '<p>x</p>' );
+
+		$this->assertNull( $processor->get_token_byte_offset() );
 	}
 }

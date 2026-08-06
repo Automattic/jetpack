@@ -572,11 +572,17 @@ class Render_Blocking_JS_Insertion_Test extends BaseTestCase {
 	 * Drive the BOOST-585 page through the real Output_Filter, so the window
 	 * handed to append_script_tags() is produced by ob_start()'s chunking
 	 * rather than by hand.
+	 *
+	 * The movable script comes before the document.write decoy: the terminal
+	 * window starts at the last movable script, so this ordering keeps the
+	 * decoy inside the window append_script_tags() actually sees. With the
+	 * decoy first, the window would exclude it and the old global replacement
+	 * would pass this test too.
 	 */
 	public function test_boost_585_shape_through_the_real_output_filter() {
 		$page = '<html><body><p>Before</p>' .
-			'<script>document.write("<div></body></div>");</script>' .
 			'<script>console.log("movable sibling");</script>' .
+			'<script>document.write("<div></body></div>");</script>' .
 			str_repeat( '<p>filler paragraph</p>', 400 ) .
 			'<p>After</p></body></html>';
 

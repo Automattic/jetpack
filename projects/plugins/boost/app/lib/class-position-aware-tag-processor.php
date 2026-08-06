@@ -15,7 +15,7 @@ namespace Automattic\Jetpack_Boost\Lib;
  * current token's span as a WP_HTML_Span, the $bookmarks property is
  * protected, and WP_HTML_Span::$start is public — so a subclass can read the
  * offset without touching any private state. The same access pattern is
- * already used elsewhere in the monorepo (wpcomsh's WPCOMSH_HTML_Linkifier).
+ * already used elsewhere in the monorepo (wpcomsh's Wpcomsh_HTML_Linkifier).
  *
  * The scan must stay read-only: byte offsets refer to the original input
  * string, so no lexical updates (set_attribute() and friends) may be enqueued
@@ -39,6 +39,12 @@ class Position_Aware_Tag_Processor extends \WP_HTML_Tag_Processor {
 	 * @return int|null Byte offset of the token's first byte ('<' for a tag), or null when there is no current token.
 	 */
 	public function get_token_byte_offset() {
+		// Before the first next_token() call there is no token to bookmark;
+		// core's set_bookmark() would fatal rather than fail there.
+		if ( null === $this->get_token_type() ) {
+			return null;
+		}
+
 		if ( ! $this->set_bookmark( self::BOOKMARK ) ) {
 			return null;
 		}
