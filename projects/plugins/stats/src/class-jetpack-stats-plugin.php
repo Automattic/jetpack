@@ -170,14 +170,17 @@ class Jetpack_Stats_Plugin {
 	 * @param string $plugin Path to the plugin file relative to the plugins directory.
 	 */
 	public static function handle_plugin_activation( $plugin ) {
+		// `activated_plugin` fires for every plugin, so ignore everything but this one.
+		// Otherwise activating an unrelated plugin turns Stats back on after a user disabled it.
+		if ( JETPACK_STATS_PLUGIN__FILE_RELATIVE_PATH !== $plugin ) {
+			return;
+		}
+
 		// On a connected site the module can be switched on right away. On a site with no
 		// connection this is a no-op.
 		self::activate_stats_module();
 
-		if (
-			JETPACK_STATS_PLUGIN__FILE_RELATIVE_PATH === $plugin &&
-			( new Paths() )->is_current_request_activating_plugin_from_plugins_screen( JETPACK_STATS_PLUGIN__FILE_RELATIVE_PATH )
-		) {
+		if ( ( new Paths() )->is_current_request_activating_plugin_from_plugins_screen( JETPACK_STATS_PLUGIN__FILE_RELATIVE_PATH ) ) {
 			wp_safe_redirect( esc_url( admin_url( 'admin.php?page=' . self::get_post_activation_page() ) ) );
 			exit( 0 );
 		}
@@ -199,13 +202,16 @@ class Jetpack_Stats_Plugin {
 
 	/**
 	 * Activate the Stats module on a connected site.
+	 *
+	 * @return bool True when the module is active after the call, false when the site has no
+	 *              connection or the module could not be activated.
 	 */
 	public static function activate_stats_module() {
 		if ( ! ( new Connection_Manager() )->is_connected() ) {
-			return;
+			return false;
 		}
 
-		( new Modules() )->activate( 'stats', false, false );
+		return (bool) ( new Modules() )->activate( 'stats', false, false );
 	}
 
 	/**

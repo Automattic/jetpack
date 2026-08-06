@@ -29,4 +29,6 @@ The plugin has no front-end build. The dashboard React app is served from the Wo
 
 ## Release
 
-Automated release is switched off for now. `composer.json` sets `autorelease: false`, `autotagger: false` and `wp-svn-autopublish: false`, and declares no `mirror-repo` or `wp-plugin-slug`. Publishing to the WordPress.org directory is tracked separately in STATS-343 Phase 6.
+The plugin is mirrored to GitHub only. `composer.json` sets `mirror-repo` to `Automattic/jetpack-stats-plugin`, so a trunk build pushes there, and `beta-plugin-slug` to `jetpack-stats`, so builds reach the Jetpack Beta Tester.
+
+Tagging and publishing stay off: `autotagger: false` and `autorelease: false`. There is no `wp-svn-autopublish`, and no `wp-plugin-slug`, because the plugin is not in the WordPress.org directory yet. Publishing there is tracked separately in STATS-343 Phase 6, and it is what turns `beta-plugin-slug` into `wp-plugin-slug`.
