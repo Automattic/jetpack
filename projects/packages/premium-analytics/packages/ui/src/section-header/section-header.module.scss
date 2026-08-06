@@ -27,16 +27,19 @@ $section-header-title-max-share: 50%;
 	display: grid;
 
 	/*
-	 * The title takes what it needs up to its share, and the controls take the
-	 * rest.
+	 * Row one is the title and the controls. The subtitle takes a row of its
+	 * own below, spanning both columns.
 	 *
-	 * The cap is what settles the order in which the two halves give way. An
-	 * `auto` track is grown to its max-content before an `fr` track receives
-	 * anything, so an uncapped title half won the whole negotiation: the
-	 * subtitle is a date range whose natural width follows the format and the
-	 * locale, and a long one pushed the presets into their abbreviated labels
-	 * while the header still had room. Capped, the subtitle wraps first, which
-	 * costs a line of a sentence rather than the wording of four controls.
+	 * It sits there rather than under the title because it is the widest thing
+	 * in the header and it was deciding the split: an `auto` track is grown to
+	 * its max-content before an `fr` track receives anything, so a long date
+	 * range shortened the preset labels while the header still had room. On a
+	 * row of its own it costs the controls nothing.
+	 *
+	 * The cap stops a long title doing the same, that being all the track holds
+	 * now. A percentage rather than a length for the same reason the label
+	 * boundary is measured rather than hardcoded: it has to hold in every
+	 * locale.
 	 *
 	 * The controls cell is sized by the grid rather than by its content on
 	 * purpose: the date controls measure their own box to pick a responsive
@@ -45,13 +48,17 @@ $section-header-title-max-share: 50%;
 	 * the header still showing the full labels. The report pages hand the same
 	 * panel a full-row box for the same reason: see `.filtersContent` in
 	 * `report-page-layout.module.scss`.
-	 *
-	 * A percentage rather than a length for the same reason the label boundary
-	 * is measured rather than hardcoded: it has to hold in every locale.
 	 */
 	grid-template-columns: fit-content($section-header-title-max-share) minmax(0, 1fr);
 	align-items: start;
-	gap: var(--wpds-dimension-gap-md);
+
+	// Column gap only. The subtitle reads as part of the title block, so the two
+	// rows stay flush the way they did while they shared a column.
+	gap: 0 var(--wpds-dimension-gap-md);
+
+	.subtitle {
+		grid-column: 1 / -1;
+	}
 }
 
 .controls {
@@ -76,11 +83,26 @@ $section-header-title-max-share: 50%;
 	}
 
 	/*
-	 * Stacked, the controls own their row, so they read from the same edge as
-	 * the title instead of the far one.
+	 * One column, so source order would leave the controls sitting between the
+	 * title and its subtitle. The two swap: the subtitle belongs with the title
+	 * it describes, and the controls take the last row.
 	 */
-	.controls,
-	.controls :global(.date-filters-panel) {
+	.subtitle {
+		order: 1;
+	}
+
+	/*
+	 * Owning a row of their own, the controls read from the same edge as the
+	 * title instead of the far one. The gap they need is theirs alone: a
+	 * `row-gap` would also push the subtitle off the title.
+	 */
+	.controls {
+		order: 2;
 		justify-content: flex-start;
+		margin-top: var(--wpds-dimension-gap-md);
+
+		:global(.date-filters-panel) {
+			justify-content: flex-start;
+		}
 	}
 }
