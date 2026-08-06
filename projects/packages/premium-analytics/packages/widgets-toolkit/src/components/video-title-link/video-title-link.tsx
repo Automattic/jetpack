@@ -8,7 +8,9 @@ export type VideoTitleLinkProps = {
 	id?: number | string;
 	label: string;
 	link?: string | null;
-	search?: Record< string, unknown >;
+	search?:
+		| Record< string, unknown >
+		| ( ( current: Record< string, unknown > ) => Record< string, unknown > );
 	classNames?: {
 		internal?: string;
 		external?: string;
@@ -25,7 +27,8 @@ export type VideoTitleLinkProps = {
  * @param props.id         - Video attachment ID.
  * @param props.label      - Visible video title.
  * @param props.link       - External fallback URL.
- * @param props.search     - Search parameters for the detail route.
+ * @param props.search     - Search parameters for the detail route, either as an
+ *                         object or as an updater that receives the current search.
  * @param props.classNames - Optional classes for each rendering branch.
  * @param props.title      - Optional native title attribute.
  * @return The linked or plain video title.

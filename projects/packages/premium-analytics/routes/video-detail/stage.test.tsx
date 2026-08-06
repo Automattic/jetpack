@@ -3,16 +3,19 @@ import { useVideoSummary } from './hooks';
 import { stage } from './stage';
 import type { ReactNode } from 'react';
 
+let mockSearch: Record< string, unknown > = {};
+
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	AnalyticsQueryClientProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	GlobalErrorProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
-	pickReportDateParams: ( search: Record< string, unknown > ) => ( {
-		from: search.from,
-		to: search.to,
-	} ),
+	// Spread the real module so the report registry's tab configs, which call
+	// `defineReportTabs`, still resolve now that the registry is not mocked.
+	// `buildReportLink` and `pickReportDateParams` stay real too, so the link
+	// assertions below exercise the code that builds the href in product.
+	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
 	useReportDateFilters: () => ( {
 		appliedRange: { from: new Date( 2026, 5, 1 ), to: new Date( 2026, 5, 16 ) },
@@ -61,6 +64,9 @@ jest.mock( '@wordpress/widget-primitives', () => ( {
 	useWidgetTypes: () => [ [], false ],
 } ) );
 
+// The report registry is deliberately not mocked so the breadcrumb exercises
+// the real report-origin validation.
+
 jest.mock( '@wordpress/admin-ui', () => ( {
 	Breadcrumbs: ( { items }: { items: Array< { label: string; to?: string } > } ) => (
 		<nav aria-label="Breadcrumbs">
@@ -88,35 +94,15 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 	),
 } ) );
 
-jest.mock( '@wordpress/route', () => ( {
-	Link: ( {
-		to,
-		params,
-		search,
-		children,
-	}: {
-		to: string;
-		params?: Record< string, unknown >;
-		search?: Record< string, unknown >;
-		children: ReactNode;
-	} ) => {
-		const path = Object.entries( params ?? {} ).reduce(
-			( acc, [ key, value ] ) => acc.replace( `$${ key }`, String( value ) ),
-			to
-		);
-		const query = new URLSearchParams(
-			Object.entries( search ?? {} ).map( ( [ key, value ] ) => [ key, String( value ) ] )
-		).toString();
+jest.mock( '@wordpress/route', () => {
+	const { mockWordPressRoute } = jest.requireActual( '../../tests/js/route-test-utils' );
 
-		return <a href={ query ? `${ path }?${ query }` : path }>{ children }</a>;
-	},
-	useParams: () => ( { videoId: '42' } ),
-	useSearch: () => ( {
-		from: '2026-06-01',
-		to: '2026-06-16',
-		section: 'embeds',
-	} ),
-} ) );
+	return {
+		Link: mockWordPressRoute.Link,
+		useParams: () => ( { videoId: '42' } ),
+		useSearch: () => mockSearch,
+	};
+} );
 
 jest.mock( './hooks', () => ( {
 	useVideoSummary: jest.fn(),
@@ -145,6 +131,11 @@ function mockSummary( overrides: Record< string, unknown > = {} ) {
 describe( 'video detail stage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		mockSearch = {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			section: 'embeds',
+		};
 	} );
 
 	it( 'shows a not-found state with a date-preserving link back to Videos', () => {
@@ -263,12 +254,29 @@ describe( 'video detail stage', () => {
 		render( stage() );
 
 		const breadcrumbs = within( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) );
-		expect( breadcrumbs.getByText( 'Stats' ) ).toBeInTheDocument();
-		expect( breadcrumbs.getByText( 'Launch recap' ) ).toBeInTheDocument();
+		expect( breadcrumbs.getAllByRole( 'listitem' ) ).toHaveLength( 2 );
+		expect( breadcrumbs.getAllByRole( 'listitem' ).map( crumb => crumb.textContent ) ).toEqual( [
+			'Stats',
+			'Launch recap',
+		] );
 		expect(
 			breadcrumbs.getByRole( 'heading', { level: 1, name: 'Launch recap' } )
 		).toBeInTheDocument();
 		expect( screen.getByText( 'Video widgets' ) ).toBeInTheDocument();
+	} );
+
+	it( 'adds the referring report between Stats and the resolved title', () => {
+		mockSearch = { ...mockSearch, ref: 'videos' };
+		mockSummary( { title: 'Launch recap' } );
+
+		render( stage() );
+
+		const breadcrumbs = within( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) );
+		expect( breadcrumbs.getAllByRole( 'listitem' ).map( crumb => crumb.textContent ) ).toEqual( [
+			'Stats',
+			'Videos',
+			'Launch recap',
+		] );
 	} );
 
 	it( 'states the applied report range as the performance window in the summary', () => {

@@ -62,7 +62,7 @@ function CommentsReport(): JSX.Element {
 	const tabs = useMemo( () => getCommentsReportTabs(), [] );
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveTabId );
 	const records = useCommentsReportRecords( activeTab );
-	const fields = useMemo( () => getCommentsFields(), [] );
+	const fields = useMemo( () => getCommentsFields( activeTab ), [ activeTab ] );
 	const csvColumns = useMemo< CsvColumn< CommentReportRow >[] >(
 		() => [
 			{ label: __( 'Name', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },

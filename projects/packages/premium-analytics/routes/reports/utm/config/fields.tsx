@@ -2,9 +2,8 @@
  * External dependencies
  */
 import { DrilldownLeafCell } from '@jetpack-premium-analytics/ui';
-import { MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
+import { MetricWithComparison, PostDetailLink } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Link } from '@wordpress/route';
 /**
  * Internal dependencies
  */
@@ -39,12 +38,9 @@ export function getUtmFields( activeTab: UtmReportTabId ): Field< UtmReportRow >
 				return (
 					<DrilldownLeafCell groupLabel={ item.groupLabel }>
 						{ item.postId ? (
-							<Link
-								to="/post/$postId"
-								params={ { postId: String( item.postId ) } as unknown as never }
-							>
+							<PostDetailLink postId={ item.postId } report="utm" originSection={ activeTab }>
 								{ item.label }
-							</Link>
+							</PostDetailLink>
 						) : (
 							item.label
 						) }
