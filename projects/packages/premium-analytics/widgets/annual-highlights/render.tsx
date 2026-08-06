@@ -3,15 +3,18 @@
  */
 import {
 	useStatsInsights,
+	type ReportPresetId,
 	type StatsInsightsResponse,
 	type StatsInsightsYear,
 } from '@jetpack-premium-analytics/data';
+import { PRESET_ALL_TIME, getPresetYear } from '@jetpack-premium-analytics/datetime';
 import {
 	MetricTileGrid,
 	ReportLink,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	useWidgetRootContext,
 	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -30,9 +33,10 @@ import {
 } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-// The insights endpoint is not period-scoped, so the widget ignores the
-// dashboard date range. Report params are still accepted at the WidgetRoot
-// boundary (and Storybook may inject them) so the host contract holds.
+// The insights endpoint is not period-scoped: one request returns every year,
+// and the report params only pick which of those years is shown (see
+// `selectTotals`). They are accepted at the WidgetRoot boundary — from the URL
+// in product, injected in Storybook — so the host contract holds either way.
 type AnnualHighlightsRenderAttributes = AnnualHighlightsAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type AnnualHighlightsWidgetProps = WidgetRenderProps< AnnualHighlightsRenderAttributes >;
@@ -43,13 +47,24 @@ const COUNT_FORMAT: DataFormat = {
 };
 
 /**
- * Picks the most recent year in the insights payload.
+ * The totals the tiles read. The all-time selection has no row of its own in
+ * the payload, so it is summed from the yearly ones — which is why this is a
+ * subset of `StatsInsightsYear` rather than one of its rows: the averages and
+ * image counts carry no meaning once years are added together.
+ */
+type AnnualHighlightTotals = Pick<
+	StatsInsightsYear,
+	'total_posts' | 'total_words' | 'total_likes' | 'total_comments'
+>;
+
+/**
+ * Picks the most recent year in the payload.
  *
- * @param data - The normalized insights response, or undefined while loading.
+ * @param years - The years the site has published in.
  * @return The latest year, or undefined when the payload carries none.
  */
-function findLatestYear( data?: StatsInsightsResponse ): StatsInsightsYear | undefined {
-	return ( data?.years ?? [] ).reduce< StatsInsightsYear | undefined >(
+function findLatestYear( years: StatsInsightsYear[] ): StatsInsightsYear | undefined {
+	return years.reduce< StatsInsightsYear | undefined >(
 		( latest, candidate ) =>
 			! latest || Number( candidate.year ) > Number( latest.year ) ? candidate : latest,
 		undefined
@@ -57,10 +72,67 @@ function findLatestYear( data?: StatsInsightsResponse ): StatsInsightsYear | und
 }
 
 /**
+ * Adds every year's totals together for the all-time selection. Counts are
+ * additive, so the sum is the site's lifetime total.
+ *
+ * @param years - The years the site has published in.
+ * @return The lifetime totals.
+ */
+function sumYears( years: StatsInsightsYear[] ): AnnualHighlightTotals {
+	return years.reduce< AnnualHighlightTotals >(
+		( totals, year ) => ( {
+			total_posts: totals.total_posts + year.total_posts,
+			total_words: totals.total_words + year.total_words,
+			total_likes: totals.total_likes + year.total_likes,
+			total_comments: totals.total_comments + year.total_comments,
+		} ),
+		{ total_posts: 0, total_words: 0, total_likes: 0, total_comments: 0 }
+	);
+}
+
+/**
+ * Resolves the totals the section's date filter asks for.
+ *
+ * The Insights section offers all time and single years instead of a rolling
+ * range, and that selection reaches the widget as the report preset. The
+ * insights endpoint is not period-scoped — one request returns every year — so
+ * the selection picks a row here rather than changing the request. A preset
+ * from any other surface (the widget moved to a section with the rolling date
+ * range, or no params at all) falls back to the most recent year.
+ *
+ * @param data     - The normalized insights response, or undefined while loading.
+ * @param presetId - The report preset carrying the section's selection.
+ * @return The totals to display, or undefined when the selection has no data.
+ */
+function selectTotals(
+	data: StatsInsightsResponse | undefined,
+	presetId: ReportPresetId | undefined
+): AnnualHighlightTotals | undefined {
+	const years = data?.years ?? [];
+	if ( years.length === 0 ) {
+		return undefined;
+	}
+
+	if ( presetId === PRESET_ALL_TIME ) {
+		return sumYears( years );
+	}
+
+	const selectedYear = getPresetYear( presetId );
+	if ( selectedYear !== null ) {
+		// A year the site did not publish in has no row; leaving it undefined
+		// shows the empty state rather than a screen of zeros.
+		return years.find( year => Number( year.year ) === selectedYear );
+	}
+
+	return findLatestYear( years );
+}
+
+/**
  * Fetches the insights report through the designated `useStatsInsights` Stats
- * hook and renders the most recent year's totals as a `MetricTileGrid`. The
- * insights module has no comparison period, so each tile shows a bare formatted
- * count. Which tiles appear is controlled by the `metrics` attribute.
+ * hook and renders the totals the section's date filter selects as a
+ * `MetricTileGrid` (see `selectTotals`). The insights module has no comparison
+ * period, so each tile shows a bare formatted count. Which tiles appear is
+ * controlled by the `metrics` attribute.
  *
  * @param props         - The component props.
  * @param props.metrics - The enabled metric tile ids; missing means every metric.
@@ -71,42 +143,43 @@ function AnnualHighlightsReport( {
 }: {
 	metrics?: AnnualHighlightMetric[];
 } ) {
+	const { reportParams } = useWidgetRootContext();
 	const { data, isLoading, isFetching, isError, refetch } = useStatsInsights();
 	const enabledMetrics = useMemo( () => new Set( metrics ), [ metrics ] );
 
-	const year = findLatestYear( data );
+	const totals = selectTotals( data, reportParams.preset );
 
-	// Guarded on `year`: the tile values read the latest year, which is absent
-	// in the loading / error / empty states handled by <WidgetState>.
+	// Guarded on `totals`: the tile values read the selected period, which is
+	// absent in the loading / error / empty states handled by <WidgetState>.
 	const tiles = (
-		year
+		totals
 			? [
 					{
 						key: 'posts',
 						icon: postList,
 						label: __( 'Posts', 'jetpack-premium-analytics-pkg' ),
-						value: year.total_posts,
+						value: totals.total_posts,
 						enabled: enabledMetrics.has( 'posts' ),
 					},
 					{
 						key: 'words',
 						icon: paragraph,
 						label: __( 'Words', 'jetpack-premium-analytics-pkg' ),
-						value: year.total_words,
+						value: totals.total_words,
 						enabled: enabledMetrics.has( 'words' ),
 					},
 					{
 						key: 'likes',
 						icon: starEmpty,
 						label: __( 'Likes', 'jetpack-premium-analytics-pkg' ),
-						value: year.total_likes,
+						value: totals.total_likes,
 						enabled: enabledMetrics.has( 'likes' ),
 					},
 					{
 						key: 'comments',
 						icon: comment,
 						label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
-						value: year.total_comments,
+						value: totals.total_comments,
 						enabled: enabledMetrics.has( 'comments' ),
 					},
 			  ]
@@ -121,8 +194,8 @@ function AnnualHighlightsReport( {
 				// The query keeps prior data via `placeholderData`, so a transient
 				// refetch failure keeps the highlights visible; only surface the
 				// error when there is nothing to show.
-				isError={ ! year && isError }
-				isEmpty={ ! year }
+				isError={ ! totals && isError }
+				isEmpty={ ! totals }
 				error={ {
 					description: __(
 						"We couldn't load annual highlights. Please try again in a moment.",
@@ -135,7 +208,7 @@ function AnnualHighlightsReport( {
 					description: __( 'No highlights to show yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
-				{ year && (
+				{ totals && (
 					<Stack className={ styles.root } direction="column" gap="lg">
 						{ tiles.length === 0 ? (
 							<Stack align="center" justify="center" className={ styles.placeholder }>

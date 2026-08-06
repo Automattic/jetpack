@@ -6,6 +6,12 @@ import {
 	queryClient,
 	type PresetType,
 } from '@jetpack-premium-analytics/data';
+import {
+	PRESET_ALL_TIME,
+	getPresetYear,
+	toYearPresetId,
+	type YearPresetId,
+} from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
  */
@@ -44,6 +50,48 @@ interface AnnualHighlightsStoryControls {
 	 * Metric tiles to show in the widget body.
 	 */
 	metrics: AnnualHighlightMetric[];
+
+	/**
+	 * What the section's date filter has selected. The Insights section offers
+	 * all time and single years; `latest` stands for any other section, where
+	 * the widget falls back to the most recent year.
+	 */
+	dateSelection: DateSelection;
+}
+
+type DateSelection = 'latest' | typeof PRESET_ALL_TIME | YearPresetId;
+
+// The mocked insights payload carries 2025 and 2026, so both pills have data
+// behind them and switching between them visibly changes every tile.
+const MOCK_INSIGHTS_YEARS = [ 2026, 2025 ] as const;
+
+/**
+ * Report params carrying a section's date selection, the way the URL does in
+ * product: the year-surface preset next to the range it resolves to.
+ * `normalizeReportParams` drops such a preset without its range, so the story
+ * would silently fall back to the latest year if the dates were left out.
+ *
+ * @param selection - The story's date selection.
+ * @return Report params for the widget.
+ */
+function reportParamsFor( selection: DateSelection ) {
+	const params = getDefaultQueryParams();
+	if ( selection === 'latest' ) {
+		return params;
+	}
+
+	const startYear =
+		selection === PRESET_ALL_TIME
+			? Math.min( ...MOCK_INSIGHTS_YEARS )
+			: getPresetYear( selection ) ?? Math.max( ...MOCK_INSIGHTS_YEARS );
+	const endYear = selection === PRESET_ALL_TIME ? Math.max( ...MOCK_INSIGHTS_YEARS ) : startYear;
+
+	return {
+		...params,
+		preset: selection,
+		from: `${ startYear }-01-01T00:00:00.000Z`,
+		to: `${ endYear }-12-31T23:59:59.999Z`,
+	};
 }
 
 /**
@@ -52,11 +100,11 @@ interface AnnualHighlightsStoryControls {
  * @param {AnnualHighlightsStoryControls} props - Story controls.
  * @return The rendered widget.
  */
-function renderAnnualHighlights( { metrics }: AnnualHighlightsStoryControls ) {
+function renderAnnualHighlights( { metrics, dateSelection }: AnnualHighlightsStoryControls ) {
 	return (
 		<AnnualHighlightsRender
 			attributes={ {
-				reportParams: getDefaultQueryParams(),
+				reportParams: reportParamsFor( dateSelection ),
 				metrics,
 			} }
 		/>
@@ -106,10 +154,15 @@ const METRIC_ARG_TYPES = {
 		control: 'check',
 		options: METRIC_OPTIONS.map( option => option.value ),
 	},
+	dateSelection: {
+		control: 'select',
+		options: [ 'latest', PRESET_ALL_TIME, ...MOCK_INSIGHTS_YEARS.map( toYearPresetId ) ],
+	},
 } as const;
 
 const ALL_METRICS_ARGS = {
 	metrics: DEFAULT_HIGHLIGHT_METRICS,
+	dateSelection: 'latest',
 } as const;
 
 const meta = {
@@ -188,6 +241,7 @@ interface AnnualHighlightsDashboardStoryProps
  */
 function AnnualHighlightsDashboardStory( {
 	metrics,
+	dateSelection,
 	...dashboardArgs
 }: AnnualHighlightsDashboardStoryProps ) {
 	return (
@@ -197,7 +251,7 @@ function AnnualHighlightsDashboardStory( {
 			renderModule={ ANNUAL_HIGHLIGHTS_RENDER_MODULE }
 			renderComponent={ AnnualHighlightsRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ {
-				reportParams: getDefaultQueryParams( true ),
+				reportParams: reportParamsFor( dateSelection ),
 				metrics,
 			} }
 		/>
