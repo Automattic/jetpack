@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Restore PHP 7.2 compatibility for the Premium Analytics admin page.
