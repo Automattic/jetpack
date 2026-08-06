@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Build debug code frames only when debug output is enabled, which makes stamping text domains onto large bundles dramatically faster.
