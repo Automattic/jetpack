@@ -12,6 +12,10 @@ const WEEKDAY_TOKENS = new Set( [ 'l', 'D', 'N', 'w' ] );
 /** Full weekday name, the form a date-scale label leads with. */
 const WEEKDAY_FORMAT = 'l';
 
+/** Textual month, spelled out and abbreviated. */
+const MONTH_FULL_TOKEN = 'F';
+const MONTH_SHORT_TOKEN = 'M';
+
 /**
  * Separator between the weekday and the date it introduces.
  *
@@ -120,6 +124,25 @@ export function withoutYear( phpFormat: string ): string {
 
 	return [ ...segments.slice( 0, start ), ...segments.slice( end ) ]
 		.map( segment => segment.source )
+		.join( '' );
+}
+
+/**
+ * Abbreviate the month in a PHP format string.
+ *
+ * The abbreviation itself still comes from WordPress's translation tables, so a
+ * locale that does not shorten its month names keeps them whole. Formats that
+ * number the month rather than name it are returned unchanged, having nothing
+ * to abbreviate.
+ *
+ * @param phpFormat - PHP `date()` format string.
+ * @return The format with a three-letter month, or unchanged when it names none.
+ */
+export function withShortMonth( phpFormat: string ): string {
+	return toSegments( phpFormat )
+		.map( segment =>
+			segment.isToken && segment.char === MONTH_FULL_TOKEN ? MONTH_SHORT_TOKEN : segment.source
+		)
 		.join( '' );
 }
 
