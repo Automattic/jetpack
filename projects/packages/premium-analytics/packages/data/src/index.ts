@@ -229,6 +229,7 @@ export {
 	hasComparisonEnabled,
 	type PresetType,
 	type ReportParams,
+	type ReportPresetId,
 } from './utils/search';
 export {
 	dateToISOStringWithLocalTZ,

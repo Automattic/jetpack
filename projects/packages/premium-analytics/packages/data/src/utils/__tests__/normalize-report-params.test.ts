@@ -368,6 +368,48 @@ describe( 'normalizeReportParams', () => {
 		expect( result.post_id ).toBe( 2428 );
 	} );
 
+	/*
+	 * Scenario – a section on the year surface (all time / a single calendar
+	 * year). Its selection has to survive normalization: as dates alone, an
+	 * all-time range covering one year is indistinguishable from that year.
+	 */
+	it( 'keeps a year-surface preset and the range the section resolved', () => {
+		const result = normalizeReportParams( {
+			from: '2025-01-01T00:00:00.000-05:00',
+			to: '2025-12-31T23:59:59.999-05:00',
+			preset: 'year-2025',
+			interval: 'month',
+		} );
+
+		expect( result.preset ).toBe( 'year-2025' );
+		// The range is fixed, so it is never recomputed — all time starts at the
+		// site's first listed year, which this layer cannot resolve.
+		expect( mockComputeRange ).not.toHaveBeenCalled();
+		expect( result.from ).toBe( '2025-01-01T00:00:00.000-05:00' );
+		expect( result.to ).toBe( '2025-12-31T23:59:59.999-05:00' );
+	} );
+
+	it( 'keeps the all-time preset', () => {
+		const result = normalizeReportParams( {
+			from: '2023-01-01T00:00:00.000-05:00',
+			to: FRESH_TO,
+			preset: 'all-time',
+		} );
+
+		expect( result.preset ).toBe( 'all-time' );
+		expect( result.from ).toBe( '2023-01-01T00:00:00.000-05:00' );
+	} );
+
+	it( 'drops a year-surface preset that arrives without its range', () => {
+		const result = normalizeReportParams( { preset: 'year-2025' } );
+
+		// Nothing here can rebuild the year's range, and honouring the preset
+		// against the default range would point widgets at a period the dates
+		// do not describe.
+		expect( result.preset ).toBe( 'last-30-days' );
+		expect( result.from ).toBe( FRESH_FROM );
+	} );
+
 	it( 'omits post_id when search has none', () => {
 		const result = normalizeReportParams( {
 			from: FRESH_FROM,
