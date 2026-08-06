@@ -34,6 +34,11 @@
 		// The Button asks for an emphasis weight; a select trigger takes the
 		// weight of the text around it.
 		font-weight: inherit;
+		// The label is already an abbreviation, so it has no shorter form to
+		// break to: wrapping "Prev. period" over two lines made the control
+		// taller than the presets it sits beside. Staying on one line is what
+		// the row's measurement then has to account for.
+		white-space: nowrap;
 
 		@media (min-width: 600px) {
 			font-size: var(--wpds-typography-font-size-md);

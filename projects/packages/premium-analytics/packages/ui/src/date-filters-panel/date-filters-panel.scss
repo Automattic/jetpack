@@ -12,9 +12,22 @@
 
 	&__primary,
 	&__comparison {
-		flex: 0 1 auto;
 		width: auto;
 		margin-bottom: 0;
+	}
+
+	// The custom-range trigger inside is the row's only shrinkable item, so this
+	// slot is where a row short of space gives.
+	&__primary {
+		flex: 0 1 auto;
+	}
+
+	// Sized by its label and never squeezed: it carries no abbreviated form to
+	// fall back on, and the probe measures it at this width to decide when the
+	// presets shorten. Squeezed instead, it would report a width the row never
+	// actually has.
+	&__comparison {
+		flex: 0 0 auto;
 	}
 
 	.date-range-quick-presets__pill,
