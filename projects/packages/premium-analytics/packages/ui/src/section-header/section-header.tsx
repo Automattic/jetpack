@@ -3,9 +3,6 @@ import { ReactNode } from 'react';
 import styles from './section-header.module.scss';
 
 type SectionHeaderProps = {
-	/**
-	 * The name of the section.
-	 */
 	title: string;
 
 	/**
@@ -23,9 +20,6 @@ type SectionHeaderProps = {
 /**
  * Two-halves section header: title plus optional subtitle on the left, and a
  * slot for the date controls anchored on the right.
- *
- * @param {SectionHeaderProps} props - The props for the SectionHeader component.
- * @return The section header element.
  */
 export function SectionHeader( { title, subtitle, children }: SectionHeaderProps ) {
 	return (

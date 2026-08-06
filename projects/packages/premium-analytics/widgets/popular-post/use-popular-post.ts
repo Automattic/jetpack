@@ -54,9 +54,6 @@ export type UsePopularPostResult = {
  *
  * Only a ranking failure surfaces as an error; a failing content or metrics
  * request degrades to no image and unknown counts.
- *
- * @param reportParams - The dashboard's report params (date range, comparison).
- * @return The popular post with its metrics, plus combined loading/error state.
  */
 export function usePopularPost( reportParams: ReportParams ): UsePopularPostResult {
 	const statsParams = useMemo( () => {

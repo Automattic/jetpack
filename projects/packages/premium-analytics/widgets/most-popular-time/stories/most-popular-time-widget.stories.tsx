@@ -45,9 +45,6 @@ const INSIGHTS_PATH_FRAGMENT = 'stats/insights';
  * from the shared query client so the widget re-fetches and hits the forced
  * mock, and drop it again on cleanup so a forced empty/error result doesn't
  * leak into the other stories' shared cache entry.
- *
- * @param state - The forced report-mock state.
- * @return The `beforeEach` cleanup callback.
  */
 function forceInsightsState( state: 'loading' | 'error' | 'empty' ) {
 	queryClient.removeQueries( { queryKey: [ 'stats', 'insights' ] } );
@@ -58,11 +55,6 @@ function forceInsightsState( state: 'loading' | 'error' | 'empty' ) {
 	};
 }
 
-/**
- * Renders the data-connected widget.
- *
- * @return The rendered widget.
- */
 function renderMostPopularTime() {
 	return <MostPopularTimeRender attributes={ { reportParams: getDefaultQueryParams() } } />;
 }
@@ -128,13 +120,6 @@ export const Empty: Story = {
 	beforeEach: () => forceInsightsState( 'empty' ),
 };
 
-/**
- * Renders the data-connected widget through the shared dashboard harness, so it
- * appears exactly as it does in product (framed card, sizing, edit mode).
- *
- * @param {WidgetDashboardWithWidgetControls} dashboardArgs - The dashboard story controls.
- * @return The widget mounted inside the real `WidgetDashboard`.
- */
 function MostPopularTimeDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory

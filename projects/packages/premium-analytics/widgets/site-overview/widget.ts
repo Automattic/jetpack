@@ -48,8 +48,6 @@ export const DEFAULT_SITE_OVERVIEW_METRICS: SiteOverviewMetricId[] = SITE_OVERVI
 );
 
 /**
- * Widget type definition.
- *
  * Ported from the Jetpack Stats "Site overview" card: the period's headline
  * traffic and engagement totals with period-over-period comparison.
  * The `metrics` attribute (`relevance: 'high'`) selects which metric tiles

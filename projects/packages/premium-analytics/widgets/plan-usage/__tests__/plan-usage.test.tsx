@@ -136,7 +136,6 @@ describe( 'PlanUsageWidget', () => {
 		render( <PlanUsageWidget attributes={ {} } /> );
 
 		await expect( screen.findByText( '6,200 / 10,000 views' ) ).resolves.toBeInTheDocument();
-		// The initial-load overlay is gone and no background refetch is running.
 		// The overlay's spinner is the only `presentation`-role element on screen.
 		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
 	} );
@@ -162,11 +161,9 @@ describe( 'PlanUsageWidget', () => {
 			queryClient.refetchQueries();
 		} );
 
-		// The overlay spinner (role="presentation") layers over the meter.
 		await expect(
 			screen.findByRole( 'presentation', { hidden: true } )
 		).resolves.toBeInTheDocument();
-		// The stale figures stay visible beneath the overlay.
 		expect( screen.getByText( '6,200 / 10,000 views' ) ).toBeInTheDocument();
 
 		// Settle the pending refetch so the query resolves and the overlay clears.

@@ -68,9 +68,6 @@ type BucketWindow = {
  * params originate from URL search params, so the shape and calendar validity
  * are both checked — `bucketDays()` feeds these to `parseISO()`/
  * `each*OfInterval()`, which throw on invalid dates.
- *
- * @param value - The ISO date-time string.
- * @return The date-only day, or undefined when missing/malformed.
  */
 function toValidDay( value?: string ): string | undefined {
 	const day = value?.slice( 0, 10 );
@@ -86,10 +83,6 @@ function toValidDay( value?: string ): string | undefined {
  * Extract a `YYYY-MM-DD` window from ISO report params, or undefined when
  * either bound is missing/malformed. The endpoint's day keys are date-only,
  * so comparing date prefixes keeps the slice timezone-stable.
- *
- * @param from - The window's ISO start.
- * @param to   - The window's ISO end.
- * @return The date-only window.
  */
 function toDayWindow( from?: string, to?: string ): DayWindow | undefined {
 	const fromDay = toValidDay( from );
@@ -107,11 +100,7 @@ function toDayWindow( from?: string, to?: string ): DayWindow | undefined {
  * label used by the primary chart while clipping its data bounds to the
  * selected range. The clipped bounds can then be applied to the comparison
  * range as relative offsets, which preserves the primary series' bucket count
- * across calendar boundaries.
- *
- * @param window - The date-only window to keep.
- * @param period - The bucket size.
- * @return One bucket per calendar period, oldest first.
+ * across calendar boundaries. Buckets are returned oldest first.
  */
 function calendarBucketWindows( window: DayWindow, period: PostViewsGranularity ): BucketWindow[] {
 	// The URL is user-editable, so an inverted range must not reach
@@ -156,11 +145,6 @@ function calendarBucketWindows( window: DayWindow, period: PostViewsGranularity 
  * period (previous-month onto a shorter month) folds its tail into the last
  * bucket instead of being truncated, and every bound is clamped to
  * `comparisonWindow.to` so a shorter one never reaches past the selection.
- *
- * @param primaryWindow    - The selected primary range.
- * @param comparisonWindow - The previous-period range.
- * @param buckets          - Calendar buckets clipped to the primary range.
- * @return Comparison buckets with the primary range's relative boundaries.
  */
 function relativeBucketWindows(
 	primaryWindow: DayWindow,
@@ -199,10 +183,6 @@ function relativeBucketWindows(
  * those missing values are genuine zeroes. The full history is bucketed
  * client-side because the endpoint's `weeks` field only covers a fixed recent
  * window.
- *
- * @param days    - The post's daily views, oldest first.
- * @param buckets - The bucket bounds to sum.
- * @return One point per bucket, oldest first.
  */
 function bucketDays( days: StatsPostDay[], buckets: BucketWindow[] ): PostViewsPoint[] {
 	const totals = new Map< string, number >( buckets.map( bucket => [ bucket.date, 0 ] ) );
@@ -226,12 +206,7 @@ function bucketDays( days: StatsPostDay[], buckets: BucketWindow[] ): PostViewsP
  * Fetch the scoped post's view trend for the dashboard's report params. One
  * `stats/post` request carries the full daily view history; the primary and
  * comparison windows are sliced from it client-side, so comparison needs no
- * second request.
- *
- * @param postId       - The scoped post ID (0 disables the request).
- * @param reportParams - The dashboard date range + comparison state.
- * @param period       - The selected bucket granularity (day/week/month).
- * @return The view series and load/error state.
+ * second request. A `postId` of 0 disables the request.
  */
 export default function usePostViews(
 	postId: number,

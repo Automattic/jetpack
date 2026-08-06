@@ -63,7 +63,6 @@ export function deriveComparisonRange( opts: ReportParams ):
 		return undefined;
 	}
 
-	// Need valid main range
 	if ( ! opts.from || ! opts.to ) {
 		return undefined;
 	}
@@ -86,7 +85,6 @@ export function deriveComparisonRange( opts: ReportParams ):
 		to: localTZDate( toInstant.getTime(), timezone ),
 	};
 
-	// Compute comparison range (Dates)
 	const cmp = getComparisonRangeFromPreset( reference, presetId );
 	if ( ! cmp?.from || ! cmp?.to ) {
 		return undefined;

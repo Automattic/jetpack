@@ -31,8 +31,6 @@ type LatestPostWidgetProps = WidgetRenderProps< LatestPostRenderAttributes >;
  * states handled by `<WidgetState>`.
  *
  * Every tile is a lifetime total, so no tile carries an aggregation note.
- *
- * @return The widget content.
  */
 function LatestPostReport() {
 	const { post, isLoading, isFetching, isError, refetch } = useLatestPost();
@@ -91,14 +89,9 @@ function LatestPostReport() {
 }
 
 /**
- * Widget render entry point.
- *
  * WidgetRoot provides the analytics query client and chart theme the inner card
  * relies on. This widget has no own attributes and ignores the dashboard date
  * range, but host attributes are still passed through for the widget contract.
- *
- * @param {LatestPostWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function LatestPost( { attributes = {} }: LatestPostWidgetProps ) {
 	return (

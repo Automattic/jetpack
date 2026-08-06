@@ -13,9 +13,6 @@ import {
 	type ComparisonPresetId,
 } from '../get-comparison-range';
 
-/**
- * Comparison preset label configuration.
- */
 const COMPARISON_PRESET_LABELS: {
 	id: ComparisonPresetId;
 	getLabel: () => string;

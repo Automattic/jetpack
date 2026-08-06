@@ -47,14 +47,6 @@ interface PostViewsStoryControls {
 	granularity: PostViewsGranularity;
 }
 
-/**
- * Builds the widget attributes: the granularity attribute plus report params
- * with the post scope the detail page seeds from its URL when `hasPostScope`
- * is on.
- *
- * @param {PostViewsStoryControls} controls - The story controls.
- * @return The widget attributes.
- */
 function getPostViewsAttributes( {
 	withComparison,
 	hasPostScope,
@@ -69,12 +61,6 @@ function getPostViewsAttributes( {
 	};
 }
 
-/**
- * Renders the data-connected widget with the composed attributes.
- *
- * @param {PostViewsStoryControls} controls - The story controls.
- * @return The rendered widget.
- */
 function renderPostViews( controls: PostViewsStoryControls ) {
 	return <PostViewsRender attributes={ getPostViewsAttributes( controls ) } />;
 }
@@ -152,9 +138,6 @@ interface PostViewsDashboardStoryProps
  * Mounts the real `WidgetDashboard` with this single widget so it renders
  * exactly as it does in product (framed card, host "Group by" toolbar
  * control, sizing, edit mode).
- *
- * @param {PostViewsDashboardStoryProps} props - The dashboard story controls.
- * @return The widget mounted inside the real dashboard.
  */
 function PostViewsDashboardStory( {
 	withComparison,

@@ -4,9 +4,6 @@
 import { fetchReportVisitors } from '../../api/report-visitors-fetch';
 import type { Override } from '../../utils/types';
 
-/**
- * Inferred types
- */
 type ReportsVisitorsByDateResponse = Awaited< ReturnType< typeof fetchReportVisitors > >;
 type RawVisitorsReportDataItem = ReportsVisitorsByDateResponse[ 'data' ][ number ];
 type RawVisitorsReportDataSummary = ReportsVisitorsByDateResponse[ 'summary' ];
@@ -35,9 +32,6 @@ type SanitizeVisitorsItemArg = Override<
 	}
 >;
 
-/**
- * Sanitize/process a single visitors item by converting strings to numbers
- */
 function sanitizeVisitorsItem( item: SanitizeVisitorsItemArg ): SanitizedVisitorsByDateItem {
 	return {
 		...item,
@@ -46,18 +40,12 @@ function sanitizeVisitorsItem( item: SanitizeVisitorsItemArg ): SanitizedVisitor
 	};
 }
 
-/**
- * Processed response with numeric values
- */
 type SanitizedVisitorsByDateResponse = {
 	summary: SanitizedVisitorsByDateSummary;
 	data: SanitizedVisitorsByDateItem[];
 };
 
 /**
- * Sanitize the response from the sessions/by-date endpoint
- * Converts string values to numbers for easier calculations and charting.
- *
  * The `summary` single item has basically the same structure
  * as the `data` array items, so we can use the same mapper function for both.
  */

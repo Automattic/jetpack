@@ -25,13 +25,7 @@ type DateComparisonDropdownProps = {
 	 * Available comparison presets (e.g., previous-period, previous-month)
 	 */
 	presets: ComparisonDateRangePreset[];
-	/**
-	 * Whether comparison is enabled
-	 */
 	enabled: boolean;
-	/**
-	 * Currently selected comparison preset ID
-	 */
 	presetId?: ComparisonPresetId;
 	/**
 	 * Visible label rendered by the select itself. When provided, the trigger
@@ -39,13 +33,7 @@ type DateComparisonDropdownProps = {
 	 * "Compare to:" prefix and the label stays visually hidden.
 	 */
 	label?: string;
-	/**
-	 * Callback when a comparison preset is selected
-	 */
 	onPresetChange: ( id: ComparisonPresetId ) => void;
-	/**
-	 * Callback when comparison is cleared
-	 */
 	onClear: () => void;
 };
 
@@ -57,9 +45,6 @@ type ComparisonTriggerLabelArgs = {
 
 /**
  * Builds the comparison trigger label from the active preset range.
- *
- * @param {ComparisonTriggerLabelArgs} args - Label formatting inputs.
- * @return Trigger label text.
  */
 export function getComparisonTriggerLabel( {
 	selectedPreset,

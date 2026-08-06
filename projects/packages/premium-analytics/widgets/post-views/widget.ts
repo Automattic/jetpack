@@ -27,8 +27,6 @@ export type PostViewsAttributes = {
 };
 
 /**
- * Widget type definition.
- *
  * The post detail Traffic view's view-trend card, the legacy Calypso post
  * summary chart (`stats-post-summary`): the scoped post's views over the
  * dashboard date range as a comparative line chart. The series comes from

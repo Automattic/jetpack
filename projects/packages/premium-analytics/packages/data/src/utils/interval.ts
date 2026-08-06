@@ -28,12 +28,6 @@ const INTERVAL_TYPES = [ 'hour', 'day', 'week', 'month', 'quarter', 'year' ] as 
  */
 export type IntervalType = ( typeof INTERVAL_TYPES )[ number ];
 
-/**
- * Whether a value is a known `IntervalType`.
- *
- * @param value - Untyped candidate.
- * @return Whether `value` is an `IntervalType`.
- */
 function isIntervalType( value: unknown ): value is IntervalType {
 	return typeof value === 'string' && ( INTERVAL_TYPES as readonly string[] ).includes( value );
 }
@@ -86,11 +80,6 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
  *
  * Unknown / custom / year-surface presets derive the list from `from`–`to`
  * length.
- *
- * @param preset - Primary date-range preset, when known.
- * @param from   - Range start.
- * @param to     - Range end.
- * @return Allowed intervals, finest first.
  */
 function getAllowedIntervalsForPreset(
 	preset: PrimaryPresetId | undefined,
@@ -123,12 +112,6 @@ function getAllowedIntervalsForPreset(
  *
  * Returns `current` when it is allowed for the range; otherwise the range
  * default (finest allowed).
- *
- * @param preset  - Primary date-range preset, when known.
- * @param from    - Range start.
- * @param to      - Range end.
- * @param current - Candidate interval to keep when still allowed.
- * @return An interval allowed for the range.
  */
 export function resolveIntervalForRange(
 	preset: PrimaryPresetId | undefined,
@@ -145,14 +128,7 @@ export function resolveIntervalForRange(
 	return allowed[ 0 ] ?? 'day';
 }
 
-/**
- * Default (finest) interval for a preset / date range.
- *
- * @param preset - Primary date-range preset, when known.
- * @param from   - Range start.
- * @param to     - Range end.
- * @return The default interval.
- */
+/** Default (finest) interval for a preset / date range. */
 export function getDefaultIntervalForPeriod(
 	preset: PrimaryPresetId | undefined,
 	from: string,

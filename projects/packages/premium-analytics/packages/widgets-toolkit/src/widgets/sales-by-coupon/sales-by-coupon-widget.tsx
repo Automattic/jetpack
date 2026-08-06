@@ -14,20 +14,11 @@ import { buildSalesByCouponData, isEmptyChartData } from '../../helpers';
 import { useBarStyles } from '../common';
 
 /**
- * Sales by Coupon Widget Component
- *
  * Displays a bar chart showing coupon discount distribution.
  * Shows top 3 coupons plus "Other" segment.
  * Displays data for all product types.
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <SalesByCouponWidget />
- * </WidgetRoot>
- * ```
  */
 export function SalesByCouponWidget() {
 	const { reportParams } = useWidgetRootContext();

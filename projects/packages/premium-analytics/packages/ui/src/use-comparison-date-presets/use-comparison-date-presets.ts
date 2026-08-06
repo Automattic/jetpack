@@ -13,8 +13,7 @@ import { useMemo } from 'react';
 import type { DateRange } from '../date-range-popover/date-range-filter';
 
 /**
- * A comparison-specific date range preset.
- * Similar to DateRangePreset but with a strongly-typed ComparisonPresetId.
+ * `DateRangePreset` narrowed to a `ComparisonPresetId`.
  */
 export type ComparisonDateRangePreset = {
 	id: ComparisonPresetId;
@@ -23,11 +22,8 @@ export type ComparisonDateRangePreset = {
 };
 
 /**
- * Custom hook that generates comparison date presets
- * based on a reference date range.
- *
- * @param referenceRange - The primary date range to compare against
- * @return Array of comparison presets with strongly-typed IDs
+ * Comparison presets derived from the primary range, dropping any the range
+ * cannot support.
  */
 export function useComparisonDatePresets( referenceRange: DateRange ): ComparisonDateRangePreset[] {
 	return useMemo( () => {

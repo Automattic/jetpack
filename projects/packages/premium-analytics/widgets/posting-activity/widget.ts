@@ -10,8 +10,6 @@ import { calendar } from '@wordpress/icons';
 export type PostingActivityAttributes = Record< never, never >;
 
 /**
- * Widget type definition.
- *
  * Ported from the Jetpack Stats "Posting activity" module. Renders a calendar
  * (contribution-style) heatmap of the number of posts published per day. The
  * date range comes from the dashboard picker via WidgetRoot's reportParams; the

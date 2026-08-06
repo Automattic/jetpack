@@ -13,14 +13,8 @@ import {
 	endOfDay,
 } from 'date-fns';
 
-/**
- * Supported comparison preset identifiers.
- */
 export type DateRange = { from?: Date; to?: Date };
 
-/**
- * Named constants for comparison preset identifiers.
- */
 export const COMPARISON_PREVIOUS_PERIOD = 'previous-period' as const;
 export const COMPARISON_PREVIOUS_WEEK = 'previous-week' as const;
 export const COMPARISON_PREVIOUS_MONTH = 'previous-month' as const;

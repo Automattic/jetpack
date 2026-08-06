@@ -46,9 +46,6 @@ interface VideoDetailHighlightsStoryControls {
 /**
  * Builds the widget attributes: report params with the video scope the detail
  * page seeds from its URL when `hasVideoScope` is on.
- *
- * @param {VideoDetailHighlightsStoryControls} controls - The story controls.
- * @return The widget attributes.
  */
 function getVideoDetailHighlightsAttributes( {
 	hasVideoScope,
@@ -63,12 +60,6 @@ function getVideoDetailHighlightsAttributes( {
 	};
 }
 
-/**
- * Renders the data-connected widget with the composed attributes.
- *
- * @param {VideoDetailHighlightsStoryControls} controls - The story controls.
- * @return The rendered widget.
- */
 function renderVideoDetailHighlights( controls: VideoDetailHighlightsStoryControls ) {
 	return (
 		<VideoDetailHighlightsRender attributes={ getVideoDetailHighlightsAttributes( controls ) } />
@@ -128,9 +119,6 @@ interface VideoDetailHighlightsDashboardStoryProps
 /**
  * Mounts the real `WidgetDashboard` with this single widget so it renders
  * exactly as it does in product (framed card, sizing, host environment).
- *
- * @param {VideoDetailHighlightsDashboardStoryProps} props - The dashboard story controls.
- * @return The widget mounted inside the real dashboard.
  */
 function VideoDetailHighlightsDashboardStory( {
 	hasVideoScope,

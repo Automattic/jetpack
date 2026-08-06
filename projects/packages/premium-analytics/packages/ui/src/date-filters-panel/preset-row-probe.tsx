@@ -37,9 +37,6 @@ export type PresetRowProbeProps = {
  *
  * Exported memoized: the panel re-renders on every step of a resize, and this
  * output only moves when the labels do.
- *
- * @param {PresetRowProbeProps} props - The props for the PresetRowProbe component.
- * @return The preset row probe element.
  */
 function PresetRowProbeComponent( {
 	presets,

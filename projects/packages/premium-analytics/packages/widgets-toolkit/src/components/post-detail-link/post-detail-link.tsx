@@ -27,9 +27,6 @@ export type PostDetailLinkProps = {
 	 */
 	extraParams?: Record< string, string >;
 
-	/**
-	 * Optional class for the anchor.
-	 */
 	className?: string;
 
 	/**
@@ -37,9 +34,6 @@ export type PostDetailLinkProps = {
 	 */
 	title?: string;
 
-	/**
-	 * The link's visible content.
-	 */
 	children: ReactNode;
 };
 
@@ -52,14 +46,6 @@ export type PostDetailLinkProps = {
  * prop needs a cast. This component holds the shape and both casts once, so a
  * report's field config stays free of them.
  *
- * @param props               - Component props.
- * @param props.postId        - Post or page ID.
- * @param props.report        - The report the link is rendered from.
- * @param props.originSection - The report's active section.
- * @param props.extraParams   - Params the detail page owns.
- * @param props.className     - Optional class for the anchor.
- * @param props.title         - Optional native title attribute.
- * @param props.children      - The link's visible content.
  * @return The detail page link.
  */
 export function PostDetailLink( {

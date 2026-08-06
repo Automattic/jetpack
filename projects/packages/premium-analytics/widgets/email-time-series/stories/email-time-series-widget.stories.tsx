@@ -48,9 +48,6 @@ const MOCK_EMAIL_ID = 1234;
 /**
  * Read an attribute's declared element values off the widget definition, so the
  * story controls always mirror the schema.
- *
- * @param id - The attribute id on the widget definition.
- * @return The attribute's element values.
  */
 function attributeElementValues< Value extends string >( id: string ): Value[] {
 	return (

@@ -33,8 +33,6 @@ export type UseLatestPostResult = {
  *
  * Only a content failure surfaces as an error. When the Stats request fails (a
  * private site 403s it), the post still renders with its metrics unknown.
- *
- * @return The latest post with its metrics, plus combined loading/error state.
  */
 export function useLatestPost(): UseLatestPostResult {
 	const latestPostResult = useStatsQuery< LatestPostResponse >( latestPostQuery() );

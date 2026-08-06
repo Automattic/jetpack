@@ -34,9 +34,6 @@ type SectionSubtitleArgs = {
 
 /**
  * Spell out a range's length, e.g. "7 days".
- *
- * @param span - The measured span.
- * @return The localized length.
  */
 function getSpanLabel( span: DateRangeSpan ): string {
 	switch ( span.unit ) {
@@ -87,10 +84,6 @@ function getSpanLabel( span: DateRangeSpan ): string {
  *                                  // with comparison: '… (7 days) vs. Previous period'
  *                                  // year surface: 'January 1, 2021 – July 30, 2026'
  *
- * @param args                    - The applied date configuration.
- * @param args.range              - The applied date range.
- * @param args.comparisonPresetId - The applied comparison preset, when active.
- * @param args.presetId           - The applied primary preset, when there is one.
  * @return The subtitle, or undefined when the range is incomplete.
  */
 export function getSectionSubtitle( {

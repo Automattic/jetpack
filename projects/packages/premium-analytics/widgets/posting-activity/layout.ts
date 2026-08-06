@@ -21,7 +21,7 @@ export type CalendarHeatmapLayoutInput = {
 	aspectRatio: number;
 	/** Per-mode cap on cell height, in px. */
 	maxCellHeight: number;
-	/** Minimum columns to keep before shrinking the cell. Defaults to 4. */
+	/** Minimum columns to keep before shrinking the cell. Defaults to 6. */
 	minColumns?: number;
 };
 
@@ -56,7 +56,7 @@ export type FitCalendarHeatmapColumnsInput = {
 	availWidth: number;
 	/** Week columns available in the selected range. */
 	dataColumns: number;
-	/** Minimum columns to keep. Defaults to 4. */
+	/** Minimum columns to keep. Defaults to 6. */
 	minColumns?: number;
 };
 
@@ -64,10 +64,8 @@ const ROW_LABEL_WIDTH = 32;
 const COMPACT_CELL_SIZE = 11;
 const COMPACT_CELL_GAP = 2;
 /**
- * How many fixed-size cells fit the width without overflowing.
- *
- * @param input - The tile width and the fixed cell metrics.
- * @return The column count to trim the data to (0 for a degenerate input).
+ * How many fixed-size cells fit the width without overflowing. Returns 0 for a
+ * degenerate input.
  */
 export function fitCompactCalendarHeatmapColumns( input: FitCalendarHeatmapColumnsInput ): number {
 	const { availWidth, dataColumns, minColumns = 6 } = input;
@@ -97,9 +95,6 @@ const LEGEND_HEIGHT = 44;
  * The aspect ratio is always preserved — when even the minimum column count will
  * not fit at the aspect-preserving cell width, the whole cell is scaled down
  * instead of scrolling or distorting.
- *
- * @param input - The tile geometry and per-mode tuning.
- * @return The chosen column count, cell size, and total heatmap rectangle.
  */
 export function computeCalendarHeatmapLayout(
 	input: CalendarHeatmapLayoutInput
@@ -143,7 +138,7 @@ export function computeCalendarHeatmapLayout(
 
 	let columns: number;
 	if ( fitColumns < requiredMinColumns ) {
-		// 4-column-minimum shrink: the aspect-preserving cell is too wide for the
+		// Minimum-column shrink: the aspect-preserving cell is too wide for the
 		// minimum column count, so scale the whole cell down (ratio kept) until
 		// exactly that many columns fit the width — never scroll, never distort.
 		columns = requiredMinColumns;

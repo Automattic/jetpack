@@ -49,9 +49,6 @@ const COUNT_FORMAT: DataFormat = {
 /**
  * Sorts the insights payload newest year first so index 0 is the most recent
  * year and the year arrows can step through history in a predictable order.
- *
- * @param data - The normalized insights response, or undefined while loading.
- * @return The years sorted from most to least recent.
  */
 function sortYearsDescending( data?: StatsInsightsResponse ): StatsInsightsYear[] {
 	return [ ...( data?.years ?? [] ) ].sort( ( a, b ) => Number( b.year ) - Number( a.year ) );
@@ -63,9 +60,6 @@ function sortYearsDescending( data?: StatsInsightsResponse ): StatsInsightsYear[
  * step between the years the site has published in; the insights module has no
  * comparison period, so each tile shows a bare formatted count. Which tiles
  * appear is controlled by the `metrics` attribute.
- *
- * @param {AnnualHighlightMetric[]} metrics - Enabled metric tile ids.
- * @return The widget content.
  */
 function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[] } ) {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsInsights();
@@ -206,14 +200,9 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 }
 
 /**
- * Widget render entry point.
- *
  * WidgetRoot provides the analytics query client and chart theme consumed by the
  * inner report. Host attributes are forwarded so any injected report params are
  * preserved even though the insights endpoint is not period-scoped.
- *
- * @param {AnnualHighlightsWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function AnnualHighlights( { attributes = {} }: AnnualHighlightsWidgetProps ) {
 	return (

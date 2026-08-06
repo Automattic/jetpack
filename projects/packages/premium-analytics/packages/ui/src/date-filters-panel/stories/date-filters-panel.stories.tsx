@@ -308,9 +308,6 @@ const GERMAN: LocaleFixture = {
  * `setLocaleData` writes to the global i18n singleton, hence the cleanup: the
  * locale would otherwise leak into the next story opened. Same reason these are
  * off the autodocs page, which renders every sibling at once.
- *
- * @param fixture - The locale to install.
- * @return Storybook `beforeEach` handler.
  */
 function withLocale( fixture: LocaleFixture ) {
 	return () => {
@@ -341,9 +338,6 @@ const LADDER_WIDTHS = [ 960, 782, 600, 360, 280 ];
  * Rungs are annotated against the four preset pills alone. That is a floor: the
  * custom trigger, the comparison control, and the arrows and interval button the
  * design adds all come out of the same line.
- *
- * @param props         - Component props.
- * @param props.fixture - The locale to render.
  */
 function WidthLadder( { fixture }: { fixture: LocaleFixture } ) {
 	return (
