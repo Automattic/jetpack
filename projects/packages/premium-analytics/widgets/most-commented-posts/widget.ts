@@ -13,7 +13,7 @@ export type MostCommentedPostsAttributes = {
 };
 
 /**
- * Widget type definition for the Most commented posts widget.
+ * Widget type definition for the Top commented posts widget.
  *
  * One half of the Jetpack Stats "Comments" module: the posts and pages that
  * receive the most comments. The other half ships as
