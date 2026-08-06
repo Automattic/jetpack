@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\Sync;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RequiresPhp;
+use PHPUnit\Framework\Attributes\RequiresPhpunit;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
@@ -48,14 +49,16 @@ class Configuration_Test extends TestCase {
 	}
 
 	#[RequiresPhp( '>= 8.0.0' )]
+	#[RequiresPhpunit( '>= 10.0.0' )]
+	// phpcs:disable Jetpack.PHPUnit.Attributes.AttributeFoundMissingAnnotation -- Legacy isolation annotations bootstrap before requirements are evaluated.
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
+	// phpcs:enable Jetpack.PHPUnit.Attributes.AttributeFoundMissingAnnotation
 	/**
 	 * WooCommerce versions without the OrderAttributionMeta trait must not register the Sync module.
 	 *
 	 * @requires PHP >= 8.0.0
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
+	 * @requires PHPUnit >= 10.0.0
 	 */
 	public function test_configure_sync_with_unsupported_woocommerce_is_a_no_op() {
 		require_once __DIR__ . '/../fixtures/class-legacy-woocommerce-stub.php';
