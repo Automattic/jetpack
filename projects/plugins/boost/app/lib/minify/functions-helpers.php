@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack_Boost\Admin\Config as Boost_Admin_Config;
 use Automattic\Jetpack_Boost\Lib\Minify\Cleanup_Stored_Paths;
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Lib\Minify\Dependency_Path_Mapping;
@@ -491,6 +492,46 @@ function jetpack_boost_get_static_prefix() {
 	}
 
 	return trailingslashit( $prefix );
+}
+
+/**
+ * Whether the host routes requests for missing wp-content files through WordPress.
+ *
+ * Static cache URLs depend on that: the first request 404s, and Boost builds the file while it
+ * answers the 404. Whether a missing .css or .js reaches WordPress is a per-site platform setting on
+ * Atomic and WP Cloud, and Boost cannot read it, so it does not use static cache URLs there.
+ *
+ * The name describes the condition, not the feature, to keep it apart from
+ * Minify\Config::can_use_static_cache(), which asks whether the cache directory is writable.
+ *
+ * Admin\Config::get_hosting_provider() returns 'other' for any host it does not name, so a host it
+ * does not recognize keeps the static cache. A new named value there opts that provider out for
+ * good.
+ *
+ * @since $$next-version$$
+ *
+ * @return bool True if WordPress sees wp-content 404s, false if the web server answers them.
+ */
+function jetpack_boost_minify_host_handles_wp_content_404s() {
+	return 'other' === Boost_Admin_Config::get_hosting_provider();
+}
+
+/**
+ * Whether concatenated files should be linked from the static cache directory.
+ *
+ * The 404 tester's verdict describes the host, but jetpack_boost_static_minification travels with
+ * the database: a migrated site arrives with its previous host's `1`. Ask the host first.
+ *
+ * @since $$next-version$$
+ *
+ * @return bool True if static cache URLs should be used, false to fall back to /_jb_static/.
+ */
+function jetpack_boost_minify_use_static_cache_urls() {
+	if ( ! jetpack_boost_minify_host_handles_wp_content_404s() ) {
+		return false;
+	}
+
+	return (bool) get_site_option( 'jetpack_boost_static_minification' );
 }
 
 function jetpack_boost_get_minify_url( $file_name = '' ) {

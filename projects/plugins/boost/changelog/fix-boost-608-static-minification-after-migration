@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Concatenate JS/CSS: Fix broken CSS and JS delivery on pages rendered after a site is migrated onto WP Cloud. Pages already served from a platform edge cache keep the old URLs until that cache is purged, which Boost cannot do for you.
