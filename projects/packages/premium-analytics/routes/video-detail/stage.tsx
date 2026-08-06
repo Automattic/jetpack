@@ -15,6 +15,7 @@ import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 /**
  * Internal dependencies
  */
+import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { VideoSummaryCard } from './components';
 import { VIDEO_DETAIL_LAYOUT } from './config';
@@ -78,6 +79,7 @@ function VideoDetail(): JSX.Element {
 			? undefined
 			: summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics-pkg' );
 	const resolvedSummary = { ...summary, title };
+	const breadcrumbs = useDetailBreadcrumbs( title );
 	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
 	let summaryContent: JSX.Element | null;
 
@@ -127,7 +129,7 @@ function VideoDetail(): JSX.Element {
 		>
 			<Page
 				visual={ <StatsPageIcon /> }
-				breadcrumbs={ <StatsBreadcrumbs items={ title ? [ { label: title } ] : [] } /> }
+				breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
 				className={ styles.page }
 			>
 				<div className={ styles.scrollArea }>
