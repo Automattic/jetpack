@@ -102,7 +102,7 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 		getLabel: () => __( 'Last 24 hours', 'jetpack-premium-analytics-pkg' ),
 		getShortLabel: () =>
 			/* translators: abbreviation for "Last 24 hours". Shown in a segmented control too narrow for the full label, so keep it as short as the language allows. */
-			_x( 'Last 24H', 'short date range preset', 'jetpack-premium-analytics-pkg' ),
+			_x( '24H', 'short date range preset', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { now } ) => ( {
 			from: subHours( now, 24 ),
 			to: now,
