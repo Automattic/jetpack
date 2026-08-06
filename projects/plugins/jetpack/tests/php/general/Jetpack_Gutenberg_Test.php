@@ -703,14 +703,14 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Neither REST constant set on a front-end URL keeps the front-end hot path
-	 * deferred, which is what the extension gate exists to optimize.
+	 * A constant that is set but falsey must not be treated as a REST request. This is
+	 * the one case where Constants::is_true() differs from the defined() && CONST form
+	 * the gate used before.
 	 */
-	public function test_is_block_editor_context_is_false_without_rest_constants() {
+	public function test_is_block_editor_context_is_false_for_falsey_rest_constant() {
 		$saved                  = $_SERVER['REQUEST_URI'] ?? null;
 		$_SERVER['REQUEST_URI'] = '/sample-page/';
-		Constants::clear_single_constant( 'REST_REQUEST' );
-		Constants::clear_single_constant( 'REST_API_REQUEST' );
+		Constants::set_constant( 'REST_API_REQUEST', false );
 		$this->assertFalse( $this->invoke_is_block_editor_context() );
 		$_SERVER['REQUEST_URI'] = $saved;
 	}
