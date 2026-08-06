@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useStatsVisits } from '@jetpack-premium-analytics/data';
-import { Text } from '@jetpack-premium-analytics/externals';
+import { Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
 	describeError,
@@ -43,7 +43,8 @@ const PERIOD = 'day';
 
 // `decimals: 0` would round 291,900 to "292K"; the prototype's headline keeps
 // the digit ("291.9k" / "1.2M").
-const HEADLINE_OPTIONS = { useMultipliers: true, decimals: 1 };
+const ABBREVIATED_HEADLINE_OPTIONS = { useMultipliers: true, decimals: 1 };
+const PLAIN_HEADLINE_OPTIONS = { decimals: 0 };
 
 /**
  * The period's view total over an area sparkline of the trend.
@@ -64,8 +65,14 @@ function TotalViewsMetric() {
 	const { primary, isLoading, isFetching, isError, error, refetch } = useStatsVisits( params );
 	const report = primary.data as StatsVisitsResponse | undefined;
 
-	// The headline is the report summary's total, never a sum of the buckets.
+	// The sanitizer builds the report summary by summing the returned buckets.
 	const total = Number( report?.summary?.views ?? 0 );
+	const fullTotal = formatMetricValue( total, 'number', PLAIN_HEADLINE_OPTIONS );
+	const headline = formatMetricValue(
+		total,
+		'number',
+		total >= 1000 ? ABBREVIATED_HEADLINE_OPTIONS : PLAIN_HEADLINE_OPTIONS
+	);
 	const points = useMemo(
 		() =>
 			( report?.data ?? [] ).map( row =>
@@ -98,16 +105,20 @@ function TotalViewsMetric() {
 				<div className={ styles.body }>
 					{ /* Not `MetricValue`: it pins a 20px line-height at any font size, which
 					    clips 32px glyphs. `heading-2xl` pairs 32px with 40px. */ }
-					<Text
-						variant="heading-2xl"
-						title={ formatMetricValue( total, 'number', { decimals: 0 } ) }
-					>
-						{ formatMetricValue( total, 'number', HEADLINE_OPTIONS ) }
+					<Text variant="heading-2xl" title={ fullTotal }>
+						{ headline === fullTotal ? (
+							headline
+						) : (
+							<>
+								<span aria-hidden="true">{ headline }</span>
+								<VisuallyHidden>{ fullTotal }</VisuallyHidden>
+							</>
+						) }
 					</Text>
 					<div className={ styles.chart }>
 						{ /* `withResponsive` caps width at 1200px by default, stranding space on a
 						    wider card. */ }
-						<Sparkline data={ points } withGradientFill maxWidth={ Infinity } />
+						<Sparkline data={ points } maxWidth={ Infinity } />
 					</div>
 				</div>
 			</WidgetState>

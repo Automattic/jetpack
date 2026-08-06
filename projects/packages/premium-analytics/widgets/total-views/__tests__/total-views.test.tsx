@@ -37,14 +37,12 @@ const REPORT_PARAMS = {
 	compare_preset: 'previous_period',
 } as unknown as ReportParams;
 
-// The summary total is deliberately unrelated to the buckets: the headline must
-// come from the summary, not a re-sum of the series.
 const REPORT = {
 	summary: { views: 291900, visitors: 12 },
 	data: [
-		{ date_start: '2026-07-01', views: 10, visitors: 4 },
-		{ date_start: '2026-07-02', views: 20, visitors: 5 },
-		{ date_start: '2026-07-03', views: 30, visitors: 3 },
+		{ date_start: '2026-07-01', views: 100000, visitors: 4 },
+		{ date_start: '2026-07-02', views: 100000, visitors: 5 },
+		{ date_start: '2026-07-03', views: 91900, visitors: 3 },
 	],
 };
 
@@ -78,7 +76,10 @@ describe( 'TotalViewsWidget', () => {
 		renderWidget();
 
 		expect( screen.getByText( '291.9K' ) ).toBeInTheDocument();
-		expect( screen.getByTestId( 'sparkline' ) ).toHaveAttribute( 'data-points', '10,20,30' );
+		expect( screen.getByTestId( 'sparkline' ) ).toHaveAttribute(
+			'data-points',
+			'100000,100000,91900'
+		);
 	} );
 
 	it( 'exposes the unabbreviated total for hover and assistive technology', () => {
@@ -87,6 +88,26 @@ describe( 'TotalViewsWidget', () => {
 		renderWidget();
 
 		expect( screen.getByTitle( '291,900' ) ).toBeInTheDocument();
+		expect( screen.getByText( '291,900' ) ).toBeInTheDocument();
+		expect( screen.getByText( '291.9K' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+	} );
+
+	it( 'does not force a decimal when the total is not abbreviated', () => {
+		mockUseStatsVisits.mockReturnValue(
+			visitsResult( {
+				summary: { views: 947, visitors: 12 },
+				data: [
+					{ date_start: '2026-07-01', views: 300, visitors: 4 },
+					{ date_start: '2026-07-02', views: 300, visitors: 5 },
+					{ date_start: '2026-07-03', views: 347, visitors: 3 },
+				],
+			} )
+		);
+
+		renderWidget();
+
+		expect( screen.getByText( '947' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '947.0' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps daily buckets on a coarse dashboard interval, so the total keeps its meaning', () => {
