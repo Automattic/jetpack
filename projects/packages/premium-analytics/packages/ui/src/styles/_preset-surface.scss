@@ -7,7 +7,12 @@
 // reads as a sibling of the comparison select.
 @mixin group {
 	display: flex;
-	flex-wrap: wrap;
+	// One row, always. The dividers below are drawn with `> * + *`, which knows
+	// nothing about row breaks, so a wrapped row's first item paints an
+	// inline-start border over the group's own frame. Leans on the
+	// `flex-shrink: 0` in `pill`: shrinkable pills would absorb the overflow
+	// instead of the row keeping its natural width.
+	flex-wrap: nowrap;
 	align-items: center;
 	gap: 0;
 	width: fit-content;
@@ -34,6 +39,12 @@
 	// popup gives its items.
 	--wp-ui-button-background-color-active: var(--wpds-color-background-interactive-brand-weak-active);
 
+	// The group never wraps, so a pill holds its width rather than absorbing
+	// the row's overflow. The Button declares an explicit `min-width` (4ch plus
+	// its padding), which suppresses the flex automatic minimum size, so a
+	// shrinkable pill compresses past its own label and spills the text over
+	// its neighbour.
+	flex-shrink: 0;
 	white-space: nowrap;
 
 	// Selected pill: soft fill instead of the stock pressed-minimal strong
