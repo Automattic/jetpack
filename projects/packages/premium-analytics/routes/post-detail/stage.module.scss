@@ -2,22 +2,7 @@
 	min-block-size: 0;
 }
 
-// A long unbroken post title in the breadcrumb refuses to shrink: admin-ui's
-// Page header renders the breadcrumbs slot inside a flex chain (inner header
-// Stack → the Breadcrumbs `nav`) whose items keep the flexbox default
-// `min-inline-size: auto`, so the crumb's nowrap min-content propagates and
-// drags the whole page into horizontal scrolling before the crumb's own
-// ellipsis can engage. Let both links shrink until admin-ui fixes the slot;
-// the `nav`'s parent has no stable class, hence the structural `:has()`.
-.page :has(> nav[aria-label]) {
-	min-inline-size: 0;
-}
-
-.page nav[aria-label] {
-	min-inline-size: 0;
-}
-
-// The scroll container below the fixed tab bar and date filters: the summary
+// The scroll container below the fixed tab bar: the summary
 // header scrolls away with the widgets instead of permanently occupying the
 // viewport.
 .scrollArea {
