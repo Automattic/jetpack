@@ -96,6 +96,27 @@ describe( 'ProductCardAction', () => {
 		expect( screen.getByRole( 'checkbox' ) ).toBeChecked();
 	} );
 
+	it( 'reloads the page after toggling AI: the toggle reads module state the mutation does not update', async () => {
+		// The AI toggle is driven by $module.activated (not product.status), and
+		// the activate mutation only updates product.status — without a reload
+		// the just-flipped toggle keeps showing the old state.
+		const inactiveModule = { available: true, activated: false } as unknown as MyJetpackModule;
+		render(
+			<ProductCardAction
+				product={ buildProduct( { slug: 'jetpack-ai', name: 'AI', status: 'inactive' } ) }
+				module={ inactiveModule }
+			/>
+		);
+
+		await userEvent.click( screen.getByRole( 'checkbox' ) );
+
+		expect( mockActivate ).toHaveBeenCalled();
+		expect( setPendingSuccessNotice ).toHaveBeenCalledWith(
+			expect.stringContaining( 'activated' )
+		);
+		expect( reloadPage ).toHaveBeenCalled();
+	} );
+
 	it( 'pre-release gate: hides the AI toggle without the showAiModuleToggle flag', () => {
 		// Outside internal testing environments the AI card keeps its standard
 		// action: an inactive free product falls through to "Learn more".
