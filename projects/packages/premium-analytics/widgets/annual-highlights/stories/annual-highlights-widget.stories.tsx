@@ -218,17 +218,3 @@ export const WidgetDashboardWithWidget: StoryObj< AnnualHighlightsDashboardStory
 	},
 	decorators: [ withStoryRouter ],
 };
-
-/**
- * The widest cell at the minimum height — the one size where the tiles are laid
- * out in a single row and the body has to give up its report link to fit all
- * four values. Pins the layout the short-height container queries produce.
- */
-export const WidgetDashboardWideAndShort: StoryObj< AnnualHighlightsDashboardStoryProps > = {
-	...WidgetDashboardWithWidget,
-	args: {
-		...WidgetDashboardWithWidget.args,
-		widgetWidth: 4,
-		widgetHeight: 1,
-	},
-};
