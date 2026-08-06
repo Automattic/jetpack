@@ -138,10 +138,93 @@ function wpcom_expiry_notices_render_admin_banner_html( array $state, array $url
 /**
  * Compose the banner message for the given state.
  *
+ * Copy mirrors Calypso's PlanExpiryNotice
+ * (client/dashboard/components/plan-expiry-notice), the source of truth for
+ * expiry messaging. Falls back to the generic wording when the plan name or
+ * storage figure is unknown, and for the post-grace state, which Calypso has
+ * no counterpart for.
+ *
  * @param array<string,mixed> $state      Expiry state.
  * @param bool                $is_expired Whether the state is expired/grace.
  */
 function wpcom_expiry_notices_admin_banner_message( array $state, bool $is_expired ): string {
+	$plan          = isset( $state['plan_name'] ) && is_string( $state['plan_name'] ) ? $state['plan_name'] : '';
+	$storage_gb    = Expiry_Data::get_plan_storage_gb( isset( $state['product_slug'] ) ? (string) $state['product_slug'] : '' );
+	$is_post_grace = Expiry_Data::STATE_EXPIRED === ( $state['state'] ?? '' );
+
+	if ( '' === $plan || null === $storage_gb || $is_post_grace ) {
+		return wpcom_expiry_notices_admin_banner_generic_message( $state, $is_expired );
+	}
+
+	if ( $is_expired ) {
+		// Grace period. "If renewal doesn’t go through" only makes sense while
+		// a renewal attempt is still scheduled.
+		if ( ! empty( $state['auto_renew'] ) ) {
+			return sprintf(
+				/* translators: %1$s is the plan name (e.g. Business). %2$d is a number of gigabytes of storage. */
+				__( 'Your %1$s plan has expired. If renewal doesn’t go through, your site will move to the Free plan. That means losing plugins, custom themes, and %2$d GB of storage. But it’s not too late. Renew now to keep your site as it is.', 'jetpack-mu-wpcom' ),
+				$plan,
+				$storage_gb
+			);
+		}
+		return sprintf(
+			/* translators: %1$s is the plan name (e.g. Business). %2$d is a number of gigabytes of storage. */
+			__( 'Your %1$s plan has expired. Your site will move to the Free plan. That means losing plugins, custom themes, and %2$d GB of storage. But it’s not too late. Renew now to keep your site as it is.', 'jetpack-mu-wpcom' ),
+			$plan,
+			$storage_gb
+		);
+	}
+
+	$days = isset( $state['days_remaining'] ) ? (int) $state['days_remaining'] : 0;
+
+	if ( 0 === $days ) {
+		return sprintf(
+			/* translators: %1$s is the plan name (e.g. Business). %2$d is a number of gigabytes of storage. */
+			__( 'Your %1$s plan expires today. Unless you renew your plan, your site will move to the Free plan, and you’ll lose plugins, custom themes, and %2$d GB of storage. Renew now to keep everything in place.', 'jetpack-mu-wpcom' ),
+			$plan,
+			$storage_gb
+		);
+	}
+
+	if ( $days <= Expiry_Notice_Dismiss::FINAL_WINDOW_DAYS ) {
+		return sprintf(
+			/* translators: %1$s is the plan name (e.g. Business). %2$d is the number of days remaining. %3$d is a number of gigabytes of storage. */
+			_n(
+				'Your %1$s plan expires in %2$d day. Your site will move to the Free plan and you’ll lose plugins, custom themes, and %3$d GB of storage. Renew now to keep everything in place.',
+				'Your %1$s plan expires in %2$d days. Your site will move to the Free plan and you’ll lose plugins, custom themes, and %3$d GB of storage. Renew now to keep everything in place.',
+				$days,
+				'jetpack-mu-wpcom'
+			),
+			$plan,
+			$days,
+			$storage_gb
+		);
+	}
+
+	$expiry_date = (string) wp_date( (string) get_option( 'date_format' ), (int) $state['expiry_ts'] );
+	return sprintf(
+		/* translators: %1$s is the plan name (e.g. Business). %2$d is the number of days remaining. %3$s is the expiration date. %4$d is a number of gigabytes of storage. */
+		_n(
+			'Your %1$s plan expires in %2$d day. After %3$s, your site will move to the Free plan, which means you’ll lose access to plugins, custom themes, and %4$d GB of storage.',
+			'Your %1$s plan expires in %2$d days. After %3$s, your site will move to the Free plan, which means you’ll lose access to plugins, custom themes, and %4$d GB of storage.',
+			$days,
+			'jetpack-mu-wpcom'
+		),
+		$plan,
+		$days,
+		$expiry_date,
+		$storage_gb
+	);
+}
+
+/**
+ * Generic banner message, for plans whose name or storage figure we can't
+ * resolve, and for the post-grace state.
+ *
+ * @param array<string,mixed> $state      Expiry state.
+ * @param bool                $is_expired Whether the state is expired/grace.
+ */
+function wpcom_expiry_notices_admin_banner_generic_message( array $state, bool $is_expired ): string {
 	$plan = isset( $state['plan_name'] ) && is_string( $state['plan_name'] ) ? $state['plan_name'] : '';
 
 	if ( $is_expired ) {

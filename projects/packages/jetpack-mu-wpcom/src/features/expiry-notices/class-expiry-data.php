@@ -199,6 +199,24 @@ class Expiry_Data {
 	}
 
 	/**
+	 * Storage included with the plan, in GB, or null when unknown. Mirrors
+	 * Calypso's plan-expiry-notice storage map so both surfaces quote the same
+	 * figure.
+	 *
+	 * @param string $slug Product slug.
+	 */
+	public static function get_plan_storage_gb( string $slug ): ?int {
+		$storage_by_class = array(
+			'personal' => 6,
+			'premium'  => 13,
+			'business' => 50,
+			'commerce' => 50,
+		);
+		$plan_class       = self::infer_plan_class_from_slug( $slug );
+		return null === $plan_class ? null : ( $storage_by_class[ $plan_class ] ?? null );
+	}
+
+	/**
 	 * Build CTA URLs for the current expiry state.
 	 *
 	 * @param array<string,mixed> $state       State as produced by compute_state_from_purchase().

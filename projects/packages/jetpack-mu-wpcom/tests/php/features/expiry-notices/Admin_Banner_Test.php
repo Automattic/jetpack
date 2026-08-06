@@ -8,6 +8,7 @@
 declare( strict_types = 1 );
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/expiry-notices.php';
@@ -156,5 +157,49 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		set_current_screen( 'edit-post' );
 		$out = $this->render();
 		$this->assertStringContainsString( 'notice-error', $out );
+	}
+
+	private function message_state( array $overrides = array() ): array {
+		return array_merge(
+			array(
+				'state'          => Expiry_Data::STATE_APPROACHING,
+				'expiry_ts'      => time() + ( 45 * DAY_IN_SECONDS ),
+				'days_remaining' => 45,
+				'plan_name'      => 'Business',
+				'product_slug'   => 'business-bundle',
+				'auto_renew'     => false,
+			),
+			$overrides
+		);
+	}
+
+	public function test_message_quotes_plan_name_and_storage(): void {
+		$message = wpcom_expiry_notices_admin_banner_message( $this->message_state(), false );
+		$this->assertStringContainsString( 'Your Business plan expires in 45 days', $message );
+		$this->assertStringContainsString( '50 GB of storage', $message );
+	}
+
+	public function test_message_expires_today(): void {
+		$state   = $this->message_state( array( 'days_remaining' => 0 ) );
+		$message = wpcom_expiry_notices_admin_banner_message( $state, false );
+		$this->assertStringContainsString( 'expires today', $message );
+	}
+
+	public function test_message_grace_mentions_pending_renewal_when_auto_renew_on(): void {
+		$state   = $this->message_state(
+			array(
+				'state'          => Expiry_Data::STATE_EXPIRED_GRACE,
+				'days_remaining' => -5,
+				'auto_renew'     => true,
+			)
+		);
+		$message = wpcom_expiry_notices_admin_banner_message( $state, true );
+		$this->assertStringContainsString( 'If renewal doesn’t go through', $message );
+	}
+
+	public function test_message_falls_back_to_generic_without_plan_name(): void {
+		$state   = $this->message_state( array( 'plan_name' => null ) );
+		$message = wpcom_expiry_notices_admin_banner_message( $state, false );
+		$this->assertStringContainsString( 'additional storage', $message );
 	}
 }
