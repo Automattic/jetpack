@@ -26,6 +26,7 @@ export {
 	LineChart,
 	PieChartUnresponsive,
 	PieSemiCircleChart,
+	Sparkline,
 	buildCalendarHeatmapData,
 	lightenHexColor,
 	normalizeColorToHex,
