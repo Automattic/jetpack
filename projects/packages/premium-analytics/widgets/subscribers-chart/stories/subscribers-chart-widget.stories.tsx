@@ -21,6 +21,7 @@ import SubscribersChartRender from '../render';
 import widgetDefinition, {
 	DEFAULT_SUBSCRIBERS_CHART_METRICS,
 	type SubscribersChartMetricId,
+	type SubscribersChartType,
 } from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -38,6 +39,7 @@ const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition 
 interface SubscribersChartStoryControls {
 	withComparison: boolean;
 	metrics: SubscribersChartMetricId[];
+	chartType: SubscribersChartType;
 }
 
 const METRIC_ARG_TYPES = {
@@ -45,16 +47,29 @@ const METRIC_ARG_TYPES = {
 		control: 'check',
 		options: DEFAULT_SUBSCRIBERS_CHART_METRICS,
 	},
+	chartType: {
+		control: 'inline-radio',
+		options: [ 'line', 'bar' ] satisfies SubscribersChartType[],
+	},
 } as const;
 
 const ALL_METRICS_ARGS = {
 	metrics: DEFAULT_SUBSCRIBERS_CHART_METRICS,
+	chartType: 'line',
 } as const;
 
-function renderSubscribersChart( { withComparison, metrics }: SubscribersChartStoryControls ) {
+function renderSubscribersChart( {
+	withComparison,
+	metrics,
+	chartType,
+}: SubscribersChartStoryControls ) {
 	return (
 		<SubscribersChartRender
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ), metrics } }
+			attributes={ {
+				reportParams: getDefaultQueryParams( withComparison ),
+				metrics,
+				chartType,
+			} }
 		/>
 	);
 }
@@ -110,6 +125,25 @@ export const WithComparison: Story = {
 };
 
 /**
+ * The same widget drawn as bars — the `chartType` attribute set to `bar`.
+ */
+export const BarChart: Story = {
+	render: renderSubscribersChart,
+	args: { withComparison: false, ...ALL_METRICS_ARGS, chartType: 'bar' },
+	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * Bars with comparison on: the previous period renders as the translucent
+ * shadow bar behind each current-period bar, and its value joins the tooltip.
+ */
+export const BarChartWithComparison: Story = {
+	render: renderSubscribersChart,
+	args: { withComparison: true, ...ALL_METRICS_ARGS, chartType: 'bar' },
+	decorators: [ withWidgetCanvas ],
+};
+
+/**
  * First load: the fetch is in flight, so the widget shows its loading state (the
  * metric tabs over the chart's loading overlay). The mock is forced to never
  * resolve for the duration of this story.
@@ -160,6 +194,7 @@ interface SubscribersChartDashboardStoryProps
 function SubscribersChartDashboardStory( {
 	withComparison,
 	metrics,
+	chartType,
 	...dashboardArgs
 }: SubscribersChartDashboardStoryProps ) {
 	return (
@@ -168,7 +203,11 @@ function SubscribersChartDashboardStory( {
 			widgetType={ storyWidgetType }
 			renderModule={ SUBSCRIBERS_CHART_RENDER_MODULE }
 			renderComponent={ SubscribersChartRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ), metrics } }
+			attributes={ {
+				reportParams: getDefaultQueryParams( withComparison ),
+				metrics,
+				chartType,
+			} }
 		/>
 	);
 }

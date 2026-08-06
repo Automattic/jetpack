@@ -30,6 +30,7 @@ import {
 	type SubscribersChartAttributes,
 	type SubscribersChartGranularity,
 	type SubscribersChartMetricId,
+	type SubscribersChartType,
 } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
@@ -126,14 +127,19 @@ type SubscribersChartInnerProps = {
 	 * Selected metric tab ids; defaults to every metric.
 	 */
 	metrics?: SubscribersChartMetricId[];
+	/**
+	 * How to draw the selected metric.
+	 */
+	chartType: SubscribersChartType;
 };
 
 /**
  * Subscribers chart inner component. Reads the dashboard date range + comparison
  * state from `useWidgetRootContext()` and hands the selected metric tabs to the
  * shared `MetricTabsChart`. The "Group by" control is the `granularity`
- * attribute and the tab selection is the `metrics` attribute (both
- * `relevance: 'high'`), rendered by the widget host.
+ * attribute, the tab selection is the `metrics` attribute, and the
+ * "Chart type" control is the `chartType` attribute (all `relevance: 'high'`),
+ * rendered by the widget host.
  *
  * @param {SubscribersChartInnerProps} props - The component props.
  * @return The widget body.
@@ -141,6 +147,7 @@ type SubscribersChartInnerProps = {
 function SubscribersChartInner( {
 	granularity,
 	metrics: metricIds = DEFAULT_SUBSCRIBERS_CHART_METRICS,
+	chartType,
 }: SubscribersChartInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	// `auto` means "follow the dashboard range"; an explicit value sticks
@@ -220,6 +227,7 @@ function SubscribersChartInner( {
 					<MetricTabsChart
 						metrics={ metricTabs }
 						dataFormat={ DATA_FORMAT }
+						chartType={ chartType }
 						loading
 						groupLabel={ groupLabel }
 					/>
@@ -230,6 +238,7 @@ function SubscribersChartInner( {
 				<MetricTabsChart
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
+					chartType={ chartType }
 					loading={ state.isFetching }
 					groupLabel={ groupLabel }
 				/>
@@ -243,8 +252,8 @@ function SubscribersChartInner( {
  *
  * `WidgetRoot` provides the analytics query client and resolves the dashboard's
  * `reportParams`; the inner component reads that range/comparison state. The
- * granularity is the `granularity` attribute (`relevance: 'high'`), exposed as
- * a control by the widget host.
+ * granularity and chart type are the `granularity` and `chartType` attributes
+ * (`relevance: 'high'`), exposed as controls by the widget host.
  *
  * @param {SubscribersChartWidgetProps} props - The widget render props.
  * @return The rendered widget.
@@ -254,10 +263,15 @@ export default function SubscribersChart( {
 	setError,
 }: SubscribersChartWidgetProps ) {
 	const granularity = attributes.granularity ?? 'auto';
+	const chartType = attributes.chartType ?? 'line';
 
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<SubscribersChartInner granularity={ granularity } metrics={ attributes.metrics } />
+			<SubscribersChartInner
+				granularity={ granularity }
+				metrics={ attributes.metrics }
+				chartType={ chartType }
+			/>
 		</WidgetRoot>
 	);
 }

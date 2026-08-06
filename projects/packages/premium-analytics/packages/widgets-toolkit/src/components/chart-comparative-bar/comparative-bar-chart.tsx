@@ -20,6 +20,7 @@ import { ChartTooltip } from '../chart-tooltip';
 import styles from './comparative-bar-chart.module.scss';
 import type { BarSeriesStyle, ComparativeBarChartSeries } from './types';
 import type { DataFormat } from '../../types';
+import type { ComparativeDatePointDate } from '../chart-comparative-line/types';
 import type { ComponentProps } from 'react';
 
 /**
@@ -168,17 +169,63 @@ export function ComparativeBarChart( {
 		[]
 	);
 
+	/**
+	 * Re-attach the hovered category's previous-period value to the tooltip data.
+	 *
+	 * The bar chart draws comparison series as a separate shadow layer and hands
+	 * its tooltip only the primary series, so a datum for the previous period
+	 * never reaches a custom renderer. Its own default tooltip compensates by
+	 * looking the pair up, but supplying `renderTooltip` replaces that default
+	 * outright — without this the shadow bar would be visible while its value
+	 * stayed unreadable, including to screen readers. The line chart needs no
+	 * equivalent: it passes every series to its tooltip.
+	 *
+	 * @param tooltipData - The tooltip data from the chart.
+	 * @return The same data with a previous-period entry appended when one exists.
+	 */
+	const withComparisonDatum = useCallback(
+		( tooltipData: RenderTooltipParams[ 'tooltipData' ] ) => {
+			const datumByKey = tooltipData?.datumByKey;
+			const hovered = tooltipData?.nearestDatum?.datum as ComparativeDatePointDate | undefined;
+
+			if ( ! datumByKey || ! hovered?.date ) {
+				return tooltipData;
+			}
+
+			const hoveredTime = hovered.date.getTime();
+			const augmented = { ...datumByKey };
+
+			for ( const [ index, seriesData ] of alignedSeries.entries() ) {
+				if ( seriesData.options?.type !== 'comparison' || augmented[ seriesData.label ] ) {
+					continue;
+				}
+
+				// Comparison dates were aligned onto the primary axis, so the hovered
+				// category matches on `date`; `realDate` still carries the true one and
+				// is what `getTooltipLabel` shows.
+				const paired = seriesData.data.find( point => point.date?.getTime() === hoveredTime );
+
+				if ( paired?.value != null ) {
+					augmented[ seriesData.label ] = { datum: paired, index, key: seriesData.label };
+				}
+			}
+
+			return { ...tooltipData, datumByKey: augmented };
+		},
+		[ alignedSeries ]
+	);
+
 	const renderTooltip = useCallback(
 		( params: RenderTooltipParams ) => (
 			<ChartTooltip
-				tooltipData={ params.tooltipData }
+				tooltipData={ withComparisonDatum( params.tooltipData ) }
 				dataFormat={ dataFormat }
 				seriesStyles={ seriesStyles }
 				indicatorType="rect"
 				getLabel={ getTooltipLabel }
 			/>
 		),
-		[ dataFormat, seriesStyles, getTooltipLabel ]
+		[ dataFormat, seriesStyles, getTooltipLabel, withComparisonDatum ]
 	);
 
 	const chartOptions = useMemo( () => {

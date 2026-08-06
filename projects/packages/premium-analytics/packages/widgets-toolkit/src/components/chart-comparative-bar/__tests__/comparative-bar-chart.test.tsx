@@ -37,13 +37,31 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 
 const DATA_FORMAT = { type: 'number' as const, options: { decimals: 0 } };
 
+const JULY_1 = new Date( '2026-07-01T00:00:00Z' );
+const JULY_2 = new Date( '2026-07-02T00:00:00Z' );
+
 const SERIES: ComparativeBarChartSeries[] = [
 	{
 		label: 'July',
 		group: 'views',
 		data: [
-			{ date: new Date( '2026-07-01T00:00:00Z' ), value: 100 },
-			{ date: new Date( '2026-07-02T00:00:00Z' ), value: 200 },
+			{ date: JULY_1, value: 100 },
+			{ date: JULY_2, value: 200 },
+		],
+	},
+];
+
+// Comparison points already carry the primary axis dates (that is what
+// `alignSeriesDates` does), with the real previous-period date in `realDate`.
+const SERIES_WITH_COMPARISON: ComparativeBarChartSeries[] = [
+	SERIES[ 0 ],
+	{
+		label: 'June',
+		group: 'views',
+		options: { type: 'comparison' },
+		data: [
+			{ date: JULY_1, realDate: new Date( '2026-06-01T00:00:00Z' ), value: 80 },
+			{ date: JULY_2, realDate: new Date( '2026-06-02T00:00:00Z' ), value: 120 },
 		],
 	},
 ];
@@ -57,6 +75,38 @@ function recordedOptions(): Record< string, never > & {
 	axis: { x: Record< string, unknown >; y: Record< string, unknown > };
 } {
 	return mockBarSpy.mock.calls.at( -1 )?.[ 0 ].options;
+}
+
+/**
+ * Run the chart's `renderTooltip` for a hovered primary point and report the
+ * tooltip rows it produced, as `label → value`.
+ *
+ * @param hoveredDate - The category the pointer (or keyboard focus) is on.
+ * @return One entry per tooltip row.
+ */
+function tooltipRowsFor( hoveredDate: Date ): Record< string, number > {
+	/* eslint-disable testing-library/render-result-naming-convention --
+	   These are the chart's `renderTooltip` prop and its return value, not
+	   testing-library's `render()`; the rule matches on the name alone. */
+	const tooltipRenderer = mockBarSpy.mock.calls.at( -1 )?.[ 0 ].renderTooltip;
+	const hovered = { date: hoveredDate, value: 100 };
+
+	const tooltipNode = tooltipRenderer( {
+		tooltipData: {
+			nearestDatum: { datum: hovered, key: 'July' },
+			datumByKey: { July: { datum: hovered, index: 0, key: 'July' } },
+		},
+	} );
+
+	const datumByKey = tooltipNode.props.tooltipData.datumByKey as Record<
+		string,
+		{ datum: { value: number } }
+	>;
+	/* eslint-enable testing-library/render-result-naming-convention */
+
+	return Object.fromEntries(
+		Object.entries( datumByKey ).map( ( [ key, entry ] ) => [ key, entry.datum.value ] )
+	);
 }
 
 describe( 'ComparativeBarChart', () => {
@@ -79,6 +129,22 @@ describe( 'ComparativeBarChart', () => {
 		);
 
 		expect( typeof recordedOptions().axis.x.tickFormat ).toBe( 'function' );
+	} );
+
+	it( 'adds the previous-period value to the tooltip when comparing', () => {
+		render( <ComparativeBarChart series={ SERIES_WITH_COMPARISON } dataFormat={ DATA_FORMAT } /> );
+
+		// The chart hands a custom tooltip renderer only the primary series, so
+		// without re-pairing here the shadow bar's value would be unreadable —
+		// including to screen readers, which get the same tooltip content.
+		expect( tooltipRowsFor( JULY_1 ) ).toEqual( { July: 100, June: 80 } );
+		expect( tooltipRowsFor( JULY_2 ) ).toEqual( { July: 100, June: 120 } );
+	} );
+
+	it( 'leaves the tooltip alone when there is no comparison series', () => {
+		render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
+
+		expect( tooltipRowsFor( JULY_1 ) ).toEqual( { July: 100 } );
 	} );
 
 	it( 'always formats the y axis', () => {

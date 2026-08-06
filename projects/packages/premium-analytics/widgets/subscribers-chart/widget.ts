@@ -18,6 +18,12 @@ import { ArrayCheckboxField, SelectField } from '@jetpack-premium-analytics/fiel
 export type SubscribersChartGranularity = 'auto' | 'day' | 'week' | 'month';
 
 /**
+ * How the selected metric is drawn. Matches the Traffic summary chart's own
+ * switch, so the two summary charts on the dashboard offer the same choice.
+ */
+export type SubscribersChartType = 'line' | 'bar';
+
+/**
  * The metric tabs the chart can show, in display order: the persisted id and
  * label of each metric. Single source for the settings checkboxes and the
  * chart tabs so the two cannot drift apart. The Paid subscribers tab only
@@ -41,10 +47,12 @@ export type SubscribersChartMetricId = ( typeof SUBSCRIBERS_CHART_METRICS )[ num
  *
  * @property granularity - Bucket size within the dashboard range. Defaults to `auto`.
  * @property metrics     - Metric tabs to show in the chart. Defaults to every metric.
+ * @property chartType   - How to draw the selected metric. Defaults to `line`.
  */
 export type SubscribersChartAttributes = {
 	granularity?: SubscribersChartGranularity;
 	metrics?: SubscribersChartMetricId[];
+	chartType?: SubscribersChartType;
 };
 
 /**
@@ -103,11 +111,29 @@ export default {
 				label: metric.label,
 			} ) ),
 		},
+		{
+			id: 'chartType',
+			label: __( 'Chart type', 'jetpack-premium-analytics-pkg' ),
+			type: 'text',
+			Edit: SelectField,
+			elements: [
+				{
+					label: __( 'Line chart', 'jetpack-premium-analytics-pkg' ),
+					value: 'line',
+				},
+				{
+					label: __( 'Bar chart', 'jetpack-premium-analytics-pkg' ),
+					value: 'bar',
+				},
+			],
+			relevance: 'high',
+		},
 	] as WidgetAttributeField< SubscribersChartAttributes >[],
 	example: {
 		attributes: {
 			granularity: 'auto',
 			metrics: DEFAULT_SUBSCRIBERS_CHART_METRICS,
+			chartType: 'line',
 		},
 	},
 };
