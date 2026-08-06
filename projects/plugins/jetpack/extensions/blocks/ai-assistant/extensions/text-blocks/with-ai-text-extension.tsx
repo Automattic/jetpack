@@ -333,11 +333,11 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 						return;
 					}
 
-					// Take the cursor back either way — it is the closing update that moved the
-					// prompt, not the reader — but move the editor only if it was being followed.
-					focusInput( { preventScroll: true } );
-
+					// Follow the prompt the closing update moved, cursor included. A reader who had
+					// already scrolled off keeps both: putting the cursor in a prompt they cannot see
+					// would take their typing with it, and on a phone raise the keyboard for it.
 					if ( shouldFollow ) {
+						focusInput( { preventScroll: true } );
 						followControl();
 					}
 				}, 100 );
