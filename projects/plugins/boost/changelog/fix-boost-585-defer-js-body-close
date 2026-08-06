@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Defer JS: look for the document's real closing body tag before inserting the deferred scripts, so a literal closing body tag inside a script, textarea, style block, title, comment, or attribute value is no longer corrupted. Where that tag cannot be identified the scripts are appended after the page instead. Detection is best effort: on a page ending in markup a browser reads as an unclosed element or a malformed tag the scripts can still be placed inside it, where they do not run. Pages already cached with the broken output keep serving it until the cache is purged, which happens within the hour, or immediately if Defer Non-Essential JavaScript is switched off and back on.
+Defer JS: fix a regression where a literal closing body tag inside a script, textarea, comment, or attribute value could corrupt the page when deferred scripts were re-inserted.
