@@ -1157,4 +1157,56 @@ EXPECTED;
 		Jetpack::plugin_deactivation();
 		$this->assertFalse( Jetpack_Options::get_option( 'version' ) );
 	}
+
+	/**
+	 * The Connection package fetches the site record and announces it; the plugin is what turns
+	 * that into a refreshed plan. This drives the whole path — the hook registration, the
+	 * response envelope the callback rebuilds, and Current_Plan consuming it — so breaking any
+	 * one of the three fails here rather than silently leaving the plan stale.
+	 */
+	public function test_site_data_action_refreshes_the_cached_plan() {
+		delete_option( 'jetpack_active_plan' );
+		delete_option( 'jetpack_site_products' );
+
+		$body = wp_json_encode(
+			array(
+				'ID'       => 1234,
+				'plan'     => array( 'product_slug' => 'jetpack_security_t1_yearly' ),
+				'products' => array( array( 'product_slug' => 'jetpack_backup_t1_yearly' ) ),
+			)
+		);
+
+		do_action( 'jetpack_site_data_fetched', $body );
+
+		$this->assertSame(
+			array( 'product_slug' => 'jetpack_security_t1_yearly' ),
+			get_option( 'jetpack_active_plan' ),
+			'The plan from the site record should be cached.'
+		);
+		$this->assertSame(
+			array( array( 'product_slug' => 'jetpack_backup_t1_yearly' ) ),
+			get_option( 'jetpack_site_products' ),
+			'The products from the site record should be cached.'
+		);
+
+		delete_option( 'jetpack_active_plan' );
+		delete_option( 'jetpack_site_products' );
+	}
+
+	/**
+	 * A body with no plan must leave the cached plan alone rather than clearing it, otherwise a
+	 * partial response would downgrade the site.
+	 */
+	public function test_site_data_action_keeps_the_plan_when_the_record_has_none() {
+		update_option( 'jetpack_active_plan', array( 'product_slug' => 'jetpack_complete' ) );
+
+		do_action( 'jetpack_site_data_fetched', wp_json_encode( array( 'ID' => 1234 ) ) );
+
+		$this->assertSame(
+			array( 'product_slug' => 'jetpack_complete' ),
+			get_option( 'jetpack_active_plan' )
+		);
+
+		delete_option( 'jetpack_active_plan' );
+	}
 } // end class

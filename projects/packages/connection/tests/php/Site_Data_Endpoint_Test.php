@@ -260,6 +260,61 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Odyssey parses this envelope, so its shape is a contract: a `success` code and the site
+	 * record as a JSON *string* under `data`, not a nested object.
+	 */
+	public function test_success_envelope_carries_the_record_as_a_json_string() {
+		$this->fake_http_response( 200, '{"ID":1234,"name":"Test site"}' );
+
+		$response = $this->rest_connector->get_site_data();
+		$data     = $response->get_data();
+
+		$this->assertSame( 'success', $data['code'] );
+		$this->assertIsString( $data['data'], 'Consumers decode `data` themselves.' );
+		$this->assertSame( 1234, json_decode( $data['data'] )->ID );
+	}
+
+	/**
+	 * When WordPress.com explains why it refused, that reason has to reach the caller. Odyssey
+	 * shows it, so collapsing it into the generic message would hide the actual cause.
+	 */
+	public function test_wpcom_error_code_reaches_the_caller() {
+		$this->fake_http_response( 400, '{"error":"site_suspended"}' );
+
+		$result = $this->rest_connector->get_site_data();
+		$data   = $result->get_error_data();
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'site_suspended', $data['api_error_code'] );
+		$this->assertSame( 400, $data['api_http_code'] );
+		$this->assertStringContainsString( 'site_suspended', $result->get_error_message() );
+	}
+
+	/**
+	 * A transport failure never reaches WordPress.com, so the code comes from the WP_Error rather
+	 * than a response body. That is a separate path to the one above and has its own way to break.
+	 */
+	public function test_transport_error_code_reaches_the_caller() {
+		Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		Jetpack_Options::update_option( 'id', 1234 );
+		$this->manager->reset_connection_status();
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		Constants::set_constant( 'JETPACK__API_VERSION', 1 );
+
+		add_filter(
+			'pre_http_request',
+			function () {
+				return new \WP_Error( 'http_request_failed', 'Could not resolve host.' );
+			}
+		);
+
+		$result = $this->rest_connector->get_site_data();
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'http_request_failed', $result->get_error_data()['api_error_code'] );
+	}
+
+	/**
 	 * The error envelope carries the original code, a 400 status, and both API error keys.
 	 */
 	public function test_error_envelope_shape_is_preserved() {
