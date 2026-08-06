@@ -674,9 +674,10 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 
 	/**
 	 * WordPress.com Simple dispatches proxied wpcom/v2 requests (e.g. the GutenbergKit
-	 * editor-assets endpoint) without a /wp-json/ REQUEST_URI, so the URL checks cannot
-	 * see them. They are identified by the REST_API_REQUEST constant, which Simple
-	 * defines during bootstrap — early enough for this module-load-time check.
+	 * editor-assets endpoint) through a public API that filters `rest_url_prefix` to an
+	 * empty string, so the URL checks collapse to an unmatchable '//' root and cannot
+	 * see them. They are identified by the REST_API_REQUEST constant, which Simple's
+	 * API entry points define before wp-load.php runs.
 	 *
 	 * Without this, editor-only extensions (e.g. extended-blocks/core-video) are skipped
 	 * and their plan availability never reaches the editor.
