@@ -463,11 +463,24 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				 */
 				dequeueAsyncRequest();
 
-				enableAutoScroll();
+				// Scrolling the block and reserving room below it for the control is how a pinned
+				// control is kept clear of the content. One in flow is scrolled to directly, so it
+				// wants none of that — least of all the reserved room, which it would sit in.
+				if ( ! controlInFlow ) {
+					enableAutoScroll();
+				}
+
 				timelapse.current = window?.performance?.now?.() || null;
 				request( messages );
 			},
-			[ dequeueAsyncRequest, enableAutoScroll, getRequestMessages, request, requireUpgrade ]
+			[
+				dequeueAsyncRequest,
+				controlInFlow,
+				enableAutoScroll,
+				getRequestMessages,
+				request,
+				requireUpgrade,
+			]
 		);
 
 		// Called when the user types a custom prompt.
@@ -477,10 +490,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				const options = { userPrompt };
 				setLastAction( userPrompt );
 
-				enableAutoScroll();
 				handleRequestSuggestion( promptType, options );
 			},
-			[ enableAutoScroll, handleRequestSuggestion ]
+			[ handleRequestSuggestion ]
 		);
 
 		// Called when the user clicks the "Stop" button in the input.
