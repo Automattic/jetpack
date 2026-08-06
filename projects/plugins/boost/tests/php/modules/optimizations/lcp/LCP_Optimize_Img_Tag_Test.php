@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack_Boost\Tests\Modules\Optimizations\Lcp;
 
-use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\Lcp;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP_Optimize_Img_Tag;
 use WorDBless\BaseTestCase;
 
@@ -58,7 +58,7 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 	private function create_lcp_data( $optimizations = null ) {
 		$data = array(
 			'success'     => true,
-			'type'        => LCP::TYPE_IMAGE,
+			'type'        => Lcp::TYPE_IMAGE,
 			'selector'    => 'img.wp-post-image',
 			'html'        => '<img class="wp-post-image" id="test-img" src="https://example.com/image.jpg">',
 			'url'         => 'https://example.com/image.jpg',
@@ -259,7 +259,7 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 	public function test_optimize_buffer_returns_original_when_lcp_data_invalid() {
 		$lcp_data = array(
 			'success' => false,
-			'type'    => LCP::TYPE_IMAGE,
+			'type'    => Lcp::TYPE_IMAGE,
 		);
 
 		$optimizer = new LCP_Optimize_Img_Tag( $lcp_data );
@@ -275,7 +275,7 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 	 */
 	public function test_optimize_buffer_returns_original_when_type_is_not_image() {
 		$lcp_data         = $this->create_lcp_data( $this->get_default_optimizations() );
-		$lcp_data['type'] = LCP::TYPE_BACKGROUND_IMAGE;
+		$lcp_data['type'] = Lcp::TYPE_BACKGROUND_IMAGE;
 
 		$optimizer = new LCP_Optimize_Img_Tag( $lcp_data );
 		$buffer    = $this->get_test_buffer();
@@ -320,5 +320,47 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 
 		// data attribute should still be added
 		$this->assertStringContainsString( 'data-jp-lcp-optimized="true"', $result );
+	}
+
+	/**
+	 * 'imageDimensions' is an optional field, so the consumer has to guard what it
+	 * indexes directly. An absent one is "foreach() argument must be of type
+	 * array|object, null given" plus an undefined-key warning, on wp_head.
+	 *
+	 * Asserted through the srcset rather than through an unchanged buffer: these
+	 * records still optimize and just contribute no widths, so "the page rendered" is
+	 * not on its own evidence that the guard ran.
+	 */
+	public function test_an_absent_field_is_a_skipped_breakpoint_not_a_warning() {
+		$buffer = $this->get_test_buffer();
+
+		// Applied to every breakpoint in the fixture, not just the first: the srcset
+		// is the union of all of them, so one intact breakpoint would supply widths
+		// and hide the skip.
+		$omissions = array(
+			'no imageDimensions on a breakpoint'      => function ( $breakpoint ) {
+				unset( $breakpoint['imageDimensions'] );
+				return $breakpoint;
+			},
+			'an imageDimensions entry with no width'  => function ( $breakpoint ) {
+				unset( $breakpoint['imageDimensions'][0]['width'] );
+				return $breakpoint;
+			},
+			'an imageDimensions entry with no height' => function ( $breakpoint ) {
+				unset( $breakpoint['imageDimensions'][0]['height'] );
+				return $breakpoint;
+			},
+		);
+
+		foreach ( $omissions as $label => $omit ) {
+			$data                = $this->create_lcp_data( $this->get_default_optimizations() );
+			$data['breakpoints'] = array_map( $omit, $data['breakpoints'] );
+
+			$this->assertStringNotContainsString(
+				'srcset=',
+				( new LCP_Optimize_Img_Tag( $data ) )->optimize_buffer( $buffer ),
+				$label . ': a breakpoint with nothing to size from must be skipped rather than indexed.'
+			);
+		}
 	}
 }

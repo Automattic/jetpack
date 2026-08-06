@@ -11,8 +11,29 @@ namespace Automattic\Jetpack_Boost\Lib;
 
 /**
  * Class Storage_Post_type
+ *
+ * Internal to Boost. Stores arrays and scalars only, never objects.
  */
 class Storage_Post_Type {
+
+	/**
+	 * Cache format version, part of the transient key.
+	 *
+	 * Keeps get() away from transients an earlier release wrote, which were cached
+	 * without the object checks below.
+	 *
+	 * @since $$next-version$$
+	 */
+	const CACHE_VERSION = 'v2';
+
+	/**
+	 * Matches a serialized object (O:), custom-serialized class (C:) or enum case
+	 * (E:) anywhere in a serialized string. Boost never stores objects, so a match
+	 * means the row is not one Boost wrote.
+	 *
+	 * @since $$next-version$$
+	 */
+	const OBJECT_TOKEN_PATTERN = '/(^|[;{])[OCE]:\+?[0-9]+:/';
 
 	/**
 	 * The name.
@@ -20,6 +41,17 @@ class Storage_Post_Type {
 	 * @var string
 	 */
 	private $name;
+
+	/**
+	 * Slugs this class has registered on this request, keyed by slug.
+	 *
+	 * Tells "somebody else owns this slug" apart from "we already registered it".
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var array<string, bool>
+	 */
+	private static $registered = array();
 
 	/**
 	 * Storage_Post_type constructor.
@@ -39,22 +71,60 @@ class Storage_Post_Type {
 	}
 
 	/**
+	 * Get the transient key backing a cache entry.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $key Cache key name.
+	 *
+	 * @return string
+	 */
+	private function transient_key( $key ) {
+		return $this->post_type_slug() . '_' . self::CACHE_VERSION . '_' . $key;
+	}
+
+	/**
 	 * Static initialization.
 	 */
 	private function init() {
 		// Check if post type already registered.
 		if ( post_type_exists( $this->post_type_slug() ) ) {
+			if ( ! isset( self::$registered[ $this->post_type_slug() ] ) ) {
+				Debug::log( 'cache post type "' . $this->post_type_slug() . '" was already registered elsewhere; Boost\'s REST and capability restrictions are not in effect for it' );
+			}
+
 			return;
 		}
+
+		self::$registered[ $this->post_type_slug() ] = true;
+
 		register_post_type(
 			$this->post_type_slug(),
 			array(
 				'description'      => 'Cache entries for the Jetpack Boost plugin.',
 				'public'           => false,
-				'show_in_rest'     => true,
+				'show_in_rest'     => false,
 				'rewrite'          => false,
 				'can_export'       => false,
 				'delete_with_user' => false,
+				// Boost writes through wp_insert_post and friends, which bypass capability
+				// checks, so denying every generated capability closes the write vector into
+				// get()'s unserialize sink (CWE-502).
+				'map_meta_cap'     => true,
+				'capabilities'     => array(
+					'read'                   => 'do_not_allow',
+					'create_posts'           => 'do_not_allow',
+					'edit_posts'             => 'do_not_allow',
+					'edit_others_posts'      => 'do_not_allow',
+					'edit_published_posts'   => 'do_not_allow',
+					'edit_private_posts'     => 'do_not_allow',
+					'publish_posts'          => 'do_not_allow',
+					'read_private_posts'     => 'do_not_allow',
+					'delete_posts'           => 'do_not_allow',
+					'delete_others_posts'    => 'do_not_allow',
+					'delete_published_posts' => 'do_not_allow',
+					'delete_private_posts'   => 'do_not_allow',
+				),
 			)
 		);
 	}
@@ -87,7 +157,7 @@ class Storage_Post_Type {
 			'data'   => $value,
 			'expiry' => $expiry_timestamp,
 		);
-		$data_post_data['post_content'] = base64_encode( maybe_serialize( $value ) ); // phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$data_post_data['post_content'] = base64_encode( maybe_serialize( $value ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 
 		// Update an existing data post if we have one or create a new one.
 		if ( $data_post ) {
@@ -97,7 +167,7 @@ class Storage_Post_Type {
 			wp_insert_post( $data_post_data );
 		}
 
-		delete_transient( $this->post_type_slug() . '_' . $key );
+		delete_transient( $this->transient_key( $key ) );
 	}
 
 	/**
@@ -109,7 +179,7 @@ class Storage_Post_Type {
 	 * @return mixed
 	 */
 	public function get( $key, $default ) {
-		$cached = get_transient( $this->post_type_slug() . '_' . $key );
+		$cached = get_transient( $this->transient_key( $key ) );
 		if ( $cached ) {
 			return $cached;
 		}
@@ -127,9 +197,34 @@ class Storage_Post_Type {
 		 * )
 		 */
 
-		// phpcs:disable
-		$value = maybe_unserialize( base64_decode( $data_post->post_content ) );
-		// phpcs:enable
+		// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize, WordPress.PHP.NoSilencedErrors.Discouraged
+		$decoded = base64_decode( $data_post->post_content );
+		$value   = $decoded;
+
+		if ( is_serialized( $decoded ) ) {
+			$trimmed = trim( $decoded );
+
+			// Refuse the row before unserialize() sees it: checking the wire format means
+			// no object is ever instantiated, not even __PHP_Incomplete_Class. A payload
+			// whose own string data happens to match only costs a regeneration.
+			if ( preg_match( self::OBJECT_TOKEN_PATTERN, $trimmed ) ) {
+				$this->delete_rejected_row( $key, $data_post, 'contains an object' );
+
+				return $default;
+			}
+
+			// allowed_classes as a second layer behind the pattern above.
+			$value = @unserialize( $trimmed, array( 'allowed_classes' => false ) );
+
+			// Claimed serialized and would not deserialize: not a row Boost wrote.
+			// b:0; legitimately gives false.
+			if ( false === $value && 'b:0;' !== $trimmed ) {
+				$this->delete_rejected_row( $key, $data_post, 'is malformed' );
+
+				return $default;
+			}
+		}
+		// phpcs:enable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize, WordPress.PHP.NoSilencedErrors.Discouraged
 
 		if ( isset( $value['expiry'] ) && intval( $value['expiry'] ) > 0 ) {
 			if ( time() > intval( $value['expiry'] ) ) {
@@ -144,9 +239,35 @@ class Storage_Post_Type {
 			return $default;
 		}
 
-		set_transient( $this->post_type_slug() . '_' . $key, $value['data'], HOUR_IN_SECONDS );
+		set_transient( $this->transient_key( $key ), $value['data'], HOUR_IN_SECONDS );
 
 		return $value['data'];
+	}
+
+	/**
+	 * Delete a cache row get() refused to load.
+	 *
+	 * Contained, because get() has already decided to serve the default and a
+	 * throwing wp_delete_post() subscriber must not fatal the render.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string   $key       Cache key name.
+	 * @param \WP_Post $data_post The refused row.
+	 * @param string   $reason    For the debug log.
+	 *
+	 * @return void
+	 */
+	private function delete_rejected_row( $key, $data_post, $reason ) {
+		Debug::log( 'refused cache entry "' . $key . '": stored content ' . $reason . '; deleting the row' );
+
+		try {
+			wp_delete_post( $data_post->ID, true );
+		} catch ( \Throwable $e ) {
+			Debug::log( 'deleting cache entry "' . $key . '" threw: ' . $e->getMessage() );
+		}
+
+		delete_transient( $this->transient_key( $key ) );
 	}
 
 	/**
@@ -163,6 +284,9 @@ class Storage_Post_Type {
 		if ( $data_post ) {
 			wp_delete_post( $data_post->ID, true );
 		}
+
+		// Match set(), which clears the transient whenever the row changes.
+		delete_transient( $this->transient_key( $key ) );
 	}
 
 	/**
@@ -266,21 +390,12 @@ class Storage_Post_Type {
 			)
 		);
 
-		$keys = array();
 		foreach ( $posts as $post ) {
 			wp_delete_post( $post->ID, true );
 			wp_cache_delete( $post->post_name, $this->post_type_slug() );
-			$keys[] = '_transient_' . $this->post_type_slug() . '_' . $post->post_name;
-			$keys[] = '_transient_timeout_' . $this->post_type_slug() . '_' . $post->post_name;
-		}
-
-		if ( empty( $keys ) ) {
-			return;
-		}
-
-		foreach ( $posts as $post ) {
-			$key = $this->post_type_slug() . '_' . $post->post_name;
-			delete_transient( $key );
+			// The versioned key, and the key a pre-CACHE_VERSION release wrote.
+			delete_transient( $this->transient_key( $post->post_name ) );
+			delete_transient( $this->post_type_slug() . '_' . $post->post_name );
 		}
 	}
 }

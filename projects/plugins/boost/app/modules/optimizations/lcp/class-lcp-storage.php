@@ -50,7 +50,21 @@ class LCP_Storage {
 	 * @return array|false
 	 */
 	public function get_lcp( $page_key ) {
-		return $this->storage->get( $page_key, false );
+		$data = $this->storage->get( $page_key, false );
+
+		// Shape-check: the store vets its payloads for objects but not for shape, and
+		// consumers foreach() the report and index into each record on wp_head.
+		if ( ! is_array( $data ) ) {
+			return false;
+		}
+
+		foreach ( $data as $record ) {
+			if ( ! is_array( $record ) ) {
+				return false;
+			}
+		}
+
+		return $data;
 	}
 
 	/**
