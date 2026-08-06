@@ -6,6 +6,7 @@ import {
 	needsReportDateParamsSeed,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
+import { pickReportOriginParams } from '@jetpack-premium-analytics/routing';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
@@ -69,12 +70,23 @@ export const route = {
 				// Proceed with the default seed below.
 			}
 
+			// The report origin joins the allowlist below so the breadcrumb keeps
+			// its link back to the referring report across this seed.
 			const seeded: Record< string, unknown > = {
 				...normalizeReportParams(
 					currentSearch as Parameters< typeof normalizeReportParams >[ 0 ]
 				),
+				...pickReportOriginParams( currentSearch ),
 				post_id: videoId,
 			};
+
+			/*
+			 * Comparison params ride along untouched: this page renders no
+			 * comparison (its widgets ignore them), but the dashboard link and
+			 * "Back to Videos" carry the URL state back out, so stripping them
+			 * here would silently lose the user's comparison settings on a
+			 * Dashboard → Video → Dashboard round trip.
+			 */
 
 			throw redirect( {
 				to: '/video/$videoId',

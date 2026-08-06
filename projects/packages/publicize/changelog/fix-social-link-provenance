@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevent unrelated editor hyperlinks from appearing in custom social messages.

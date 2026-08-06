@@ -1,0 +1,10 @@
+{
+	"name": "jpa/popular-post",
+	"title": "Popular post",
+	"description": "Your most-viewed post for the selected date range, with its all-time stats.",
+	"help": {
+		"content": "The post with the most views in the dashboard's date range, with its publish date and engagement. The date range selects which post is shown; views, likes, and comments are all-time totals, because the Stats API reports them per post rather than per period."
+	},
+	"category": "stats",
+	"presentation": "framed"
+}

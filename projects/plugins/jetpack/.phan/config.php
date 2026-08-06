@@ -19,6 +19,7 @@ $config = make_phan_config(
 			'tests/php/_inc/lib/mocks/simplepie.php',
 			// Standalone compatibility fixtures that intentionally redefine a package class and a WordPress function.
 			'tests/php/fixtures/legacy-status/class-host.php',
+			'tests/php/fixtures/random-redirect-existing-function.php',
 			'tests/php/fixtures/reprint-export-legacy-status-host.php',
 			// Mocks of wpcom classes and functions.
 			'tests/php/lib/class-wpcom-features.php',

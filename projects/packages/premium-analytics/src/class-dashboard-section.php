@@ -17,6 +17,33 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 final class Dashboard_Section {
 
 	/**
+	 * Date-filter surface offering the rolling date-range picker (today, last 7
+	 * days, a custom range, …) plus the comparison control. The default.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
+	const DATE_FILTER_RANGE = 'range';
+
+	/**
+	 * Date-filter surface offering all time plus one entry per calendar year,
+	 * for sections whose data is read as whole history rather than as a
+	 * rolling window.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
+	const DATE_FILTER_YEAR = 'year';
+
+	/**
+	 * Date-filter surfaces a section may declare.
+	 *
+	 * @since $$next-version$$
+	 * @var string[]
+	 */
+	const DATE_FILTERS = array( self::DATE_FILTER_RANGE, self::DATE_FILTER_YEAR );
+
+	/**
 	 * Dashboard identifier.
 	 *
 	 * @var string
@@ -50,6 +77,14 @@ final class Dashboard_Section {
 	 * @var int
 	 */
 	public $order = 10;
+
+	/**
+	 * Which date filter the section's header offers, as one of self::DATE_FILTERS.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
+	public $date_filter = self::DATE_FILTER_RANGE;
 
 	/**
 	 * Availability flag or callback.
@@ -130,6 +165,7 @@ final class Dashboard_Section {
 			'slug'           => $this->slug,
 			'label'          => $this->label,
 			'order'          => (int) $this->order,
+			'date_filter'    => $this->date_filter,
 			'default_layout' => $this->get_default_layout(),
 		);
 	}
@@ -151,6 +187,12 @@ final class Dashboard_Section {
 
 		if ( isset( $args['order'] ) ) {
 			$this->order = (int) $args['order'];
+		}
+
+		// An unrecognized surface keeps the default rather than reaching the
+		// dashboard, where the frontend has no filter to render for it.
+		if ( isset( $args['date_filter'] ) && in_array( $args['date_filter'], self::DATE_FILTERS, true ) ) {
+			$this->date_filter = (string) $args['date_filter'];
 		}
 
 		if ( array_key_exists( 'is_available', $args ) ) {

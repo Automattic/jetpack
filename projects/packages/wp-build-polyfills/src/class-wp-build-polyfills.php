@@ -3,8 +3,8 @@
  * Polyfill registration for Core packages not available or incomplete in older WordPress versions.
  *
  * Conditionally registers wp-notices, wp-private-apis, wp-theme (classic scripts) and
- * `@wordpress/boot`, `@wordpress/route`, `@wordpress/a11y` (script modules)
- * ONLY when they are not already provided by Core or Gutenberg.
+ * `@wordpress/boot`, `@wordpress/route`, `@wordpress/a11y`, `@wordpress/widget-primitives`
+ * (script modules) ONLY when they are not already provided by Core or Gutenberg.
  *
  * @package automattic/jetpack-wp-build-polyfills
  */
@@ -24,7 +24,7 @@ class WP_Build_Polyfills {
 	/**
 	 * Available polyfill module IDs.
 	 */
-	const MODULE_IDS = array( '@wordpress/boot', '@wordpress/route', '@wordpress/a11y' );
+	const MODULE_IDS = array( '@wordpress/boot', '@wordpress/route', '@wordpress/a11y', '@wordpress/widget-primitives' );
 
 	/**
 	 * Polyfills that only work when another polyfill is registered alongside them.
@@ -315,7 +315,7 @@ class WP_Build_Polyfills {
 			return;
 		}
 
-		$modules = array( 'boot', 'route', 'a11y' );
+		$modules = array( 'boot', 'route', 'a11y', 'widget-primitives' );
 
 		foreach ( $modules as $name ) {
 			$module_id = '@wordpress/' . $name;

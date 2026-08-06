@@ -195,6 +195,72 @@ class Analytics {
 		// CSV report export pipeline (WOOA7S-1581): hooks rest_api_init, so it must
 		// register on all requests. Self-gates on WooCommerce + Jetpack connection.
 		Export::configure();
+
+		self::register_script_data();
+	}
+
+	/**
+	 * Announce to Jetpack's other surfaces that this dashboard is the site's
+	 * analytics UI, so they link here instead of the Stats page. Publishing it
+	 * from the package that owns the dashboard means the key exists exactly
+	 * where the dashboard does. Registered from both init paths, so Simple gets
+	 * it too.
+	 *
+	 * @return void
+	 */
+	private static function register_script_data() {
+		add_filter( 'jetpack_admin_js_script_data', array( static::class, 'add_script_data' ) );
+	}
+
+	/**
+	 * Runs on nearly every admin page load, so the payload stays to two strings,
+	 * a bool, and one capability check.
+	 *
+	 * @param array $data The script data.
+	 * @return array The script data with the analytics key added.
+	 */
+	public static function add_script_data( $data ) {
+		$data['analytics'] = array(
+			'enabled'   => true,
+			'page_slug' => self::MENU_PAGE_SLUG,
+			'can_view'  => current_user_can( Capabilities::VIEW_ANALYTICS ),
+			'timezone'  => self::site_timezone(),
+		);
+
+		return $data;
+	}
+
+	/**
+	 * Prefers `timezone_string` over `gmt_offset`, matching the dashboard's own
+	 * `getSiteTimezone()`: analytics links point at past dates, so they cross
+	 * daylight-saving boundaries routinely, and a fixed offset applied to the far
+	 * side of a transition shifts the day.
+	 *
+	 * @return string An IANA timezone name, or a `+HH:MM` UTC offset.
+	 */
+	private static function site_timezone() {
+		$timezone_string = get_option( 'timezone_string' );
+
+		if ( is_string( $timezone_string ) && $timezone_string !== '' ) {
+			return $timezone_string;
+		}
+
+		return self::format_gmt_offset( (float) get_option( 'gmt_offset' ) );
+	}
+
+	/**
+	 * Format a GMT offset in hours as `+HH:MM`.
+	 *
+	 * @param float $offset The offset in hours, e.g. 5.5 or -8.
+	 * @return string The formatted offset.
+	 */
+	private static function format_gmt_offset( $offset ) {
+		$sign     = $offset < 0 ? '-' : '+';
+		$absolute = abs( $offset );
+		$hours    = (int) floor( $absolute );
+		$minutes  = (int) round( ( $absolute - $hours ) * 60 );
+
+		return sprintf( '%s%02d:%02d', $sign, $hours, $minutes );
 	}
 
 	/**
@@ -326,12 +392,18 @@ class Analytics {
 	}
 
 	/**
+	 * The admin page slug the dashboard menu registers. Published in script data
+	 * so no caller has to hard-code it.
+	 */
+	const MENU_PAGE_SLUG = 'jetpack-premium-analytics-wp-admin';
+
+	/**
 	 * Admin page slugs that render the Premium Analytics dashboard.
 	 *
 	 * Mirrors the slugs the wp-build interceptor renders (full-page and the
 	 * wp-admin integrated variant).
 	 */
-	const DASHBOARD_PAGE_SLUGS = array( 'jetpack-premium-analytics', 'jetpack-premium-analytics-wp-admin' );
+	const DASHBOARD_PAGE_SLUGS = array( 'jetpack-premium-analytics', self::MENU_PAGE_SLUG );
 
 	/**
 	 * Whether the current request is rendering a Premium Analytics dashboard page.
@@ -388,7 +460,7 @@ class Analytics {
 			esc_html( $menu_title ),
 			esc_html( $menu_title ),
 			Capabilities::VIEW_ANALYTICS,
-			'jetpack-premium-analytics-wp-admin',
+			self::MENU_PAGE_SLUG,
 			$render_callback,
 			'dashicons-chart-bar',
 			2

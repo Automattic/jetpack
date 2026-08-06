@@ -1,4 +1,5 @@
 import { siteHasFeature } from '@automattic/jetpack-script-data';
+import { parseHyperlinks, type Hyperlink } from '@automattic/social-previews';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useMemo, useRef } from 'react';
@@ -16,8 +17,75 @@ import type { PostPreviewData } from '../use-social-preview-post-data/types';
 
 export type ConnectionPreviewData = PostPreviewData & {
 	message: string;
+	/**
+	 * Source-aware editor hyperlinks for this connection's rendered message.
+	 * Paid previews use the server result; legacy Bluesky previews mirror the
+	 * default title + excerpt assembly locally.
+	 */
+	hyperlinks: Hyperlink[];
 	isLoading: boolean;
 };
+
+/**
+ * Shared empty array so the `useSelect` map keeps returning shallow-equal
+ * output when a connection has no hyperlinks — a fresh `[]` would re-render
+ * every preview on each social-store dispatch.
+ */
+const EMPTY_HYPERLINKS: Hyperlink[] = [];
+
+const WORD_CHARACTER = /[\p{L}\p{M}\p{N}_]/u;
+
+/**
+ * Count text occurrences, including overlapping matches.
+ *
+ * @param message - Text to search.
+ * @param text    - Phrase to find.
+ * @return Number of occurrences.
+ */
+function countTextOccurrences( message: string, text: string ): number {
+	let count = 0;
+	let offset = 0;
+
+	while ( text && ( offset = message.indexOf( text, offset ) ) >= 0 ) {
+		count++;
+		offset++;
+	}
+
+	return count;
+}
+
+/**
+ * Whether text appears as a standalone phrase, rather than inside a larger word.
+ *
+ * @param message - Text to search.
+ * @param text    - Phrase to find.
+ * @return Whether the phrase has a standalone occurrence.
+ */
+function containsStandaloneText( message: string, text: string ): boolean {
+	const first = text.match( /^./u )?.[ 0 ] ?? '';
+	const last = text.match( /.$/u )?.[ 0 ] ?? '';
+	let offset = 0;
+
+	while ( offset < message.length ) {
+		const index = message.indexOf( text, offset );
+		if ( index < 0 ) {
+			return false;
+		}
+
+		const before = message.slice( 0, index ).match( /.$/u )?.[ 0 ] ?? '';
+		const after = message.slice( index + text.length ).match( /^./u )?.[ 0 ] ?? '';
+		if (
+			( ! WORD_CHARACTER.test( first ) || ! WORD_CHARACTER.test( before ) ) &&
+			( ! WORD_CHARACTER.test( last ) || ! WORD_CHARACTER.test( after ) )
+		) {
+			return true;
+		}
+
+		offset = index + 1;
+	}
+
+	return false;
+}
 
 /**
  * Returns the post data needed for the preview of a specific connection.
@@ -106,12 +174,39 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 	const baseMessage = (
 		isPerNetworkMode ? connection.message ?? siteMessageTemplate : globalMessage
 	).trim();
+	const legacyHyperlinkSource = useSelect(
+		select => {
+			if ( templatesEnabled || connection.service_name !== 'bluesky' ) {
+				return '';
+			}
+
+			const { getEditedPostAttribute } = select( editorStore );
+			const content = ( getEditedPostAttribute( 'content' ) || '' ).split( '<!--more' )[ 0 ];
+
+			return getEditedPostAttribute( 'excerpt' ) || content;
+		},
+		[ templatesEnabled, connection.service_name ]
+	);
+	const legacyHyperlinks = useMemo(
+		() =>
+			baseMessage || ! legacyHyperlinkSource
+				? EMPTY_HYPERLINKS
+				: parseHyperlinks( legacyHyperlinkSource )
+						.filter( ( { text } ) => ! containsStandaloneText( postData.title, text ) )
+						.map( hyperlink => ( {
+							...hyperlink,
+							occurrence:
+								( hyperlink.occurrence ?? 0 ) +
+								countTextOccurrences( postData.title, hyperlink.text ),
+						} ) ),
+		[ baseMessage, legacyHyperlinkSource, postData.title ]
+	);
 	const currentRenderItem = items.find( item => item.connection_id === connection.connection_id );
 
-	const { rendered, isLoadingRendered } = useSelect(
+	const { rendered, renderedHyperlinks, isLoadingRendered } = useSelect(
 		select => {
 			if ( ! templatesEnabled || ! postId ) {
-				return { rendered: null, isLoadingRendered: false };
+				return { rendered: null, renderedHyperlinks: EMPTY_HYPERLINKS, isLoadingRendered: false };
 			}
 			// Read from the cache-only selector so this hook does not trigger requests.
 			// Fetches are driven centrally by `useDriveRenderedMessagesFetch`.
@@ -120,6 +215,7 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 
 			return {
 				rendered: batch?.[ connection.connection_id ]?.rendered_message ?? null,
+				renderedHyperlinks: batch?.[ connection.connection_id ]?.hyperlinks ?? EMPTY_HYPERLINKS,
 				isLoadingRendered: social.isLoadingRenderedMessages( postId, items, postIntent ),
 			};
 		},
@@ -138,13 +234,21 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 	// Last rendered message for this connection, kept across cache-key changes
 	// (e.g. title/excerpt edits) so a pending re-render keeps showing rendered
 	// text instead of flashing the raw template or a skeleton.
-	const lastRenderedRef = useRef< { connectionId: string; message: string } | null >( null );
+	const lastRenderedRef = useRef< {
+		connectionId: string;
+		message: string;
+		hyperlinks: Hyperlink[];
+	} | null >( null );
 	if ( templatesEnabled && typeof rendered === 'string' ) {
-		lastRenderedRef.current = { connectionId: connection.connection_id, message: rendered };
+		lastRenderedRef.current = {
+			connectionId: connection.connection_id,
+			message: rendered,
+			hyperlinks: renderedHyperlinks,
+		};
 	}
 	const lastRendered =
 		lastRenderedRef.current?.connectionId === connection.connection_id
-			? lastRenderedRef.current.message
+			? lastRenderedRef.current
 			: null;
 
 	return useMemo( () => {
@@ -155,10 +259,13 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 		// disabled, or the request failed. While pending, fall back to the last
 		// rendered message, or to the skeleton (`isLoading`) when there is none.
 		let message = baseMessage;
+		let hyperlinks: Hyperlink[] = legacyHyperlinks;
 		if ( templatesEnabled && typeof rendered === 'string' ) {
 			message = rendered;
+			hyperlinks = renderedHyperlinks;
 		} else if ( lastRendered !== null ) {
-			message = lastRendered;
+			message = lastRendered.message;
+			hyperlinks = lastRendered.hyperlinks;
 		} else if ( isPending ) {
 			message = '';
 		}
@@ -166,6 +273,7 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 		return {
 			...postData,
 			message,
+			hyperlinks,
 			media,
 			isLoading: isPending && message === '',
 		};
@@ -174,9 +282,11 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 		isDebouncingRenderedMessage,
 		isLoadingRendered,
 		lastRendered,
+		legacyHyperlinks,
 		media,
 		postData,
 		rendered,
+		renderedHyperlinks,
 		templatesEnabled,
 	] );
 }

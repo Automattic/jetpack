@@ -1,35 +1,23 @@
 import { render, screen } from '@testing-library/react';
+import { getMockRouteLinkUrl, setMockRouteSearch } from '../../../../tests/js/route-test-utils';
 import { getVideosFields } from './fields';
 import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
-import type { ReactNode } from 'react';
 
 // The router is built dynamically at runtime, so a field-level test has no
 // router to mount. Render `Link` as the anchor it becomes, keeping `to`/
 // `params`/`search` assertable, matching the other report field tests.
-jest.mock( '@wordpress/route', () => ( {
-	Link: ( {
-		to,
-		params,
-		search,
-		children,
-	}: {
-		to: string;
-		params: Record< string, string >;
-		search?: Record< string, string >;
-		children: ReactNode;
-	} ) => {
-		const path = to.replace( /\$(\w+)/g, ( _match, key ) => params[ key ] );
-		const query = new URLSearchParams( search ?? {} ).toString();
+jest.mock( '@wordpress/route', () => {
+	const { mockWordPressRoute } = jest.requireActual( '../../../../tests/js/route-test-utils' );
 
-		return <a href={ query ? `${ path }?${ query }` : path }>{ children }</a>;
-	},
-	useSearch: () => ( {
-		from: '2026-06-01',
-		to: '2026-06-16',
-		// A page-owned param the detail link must not carry along.
-		chart_period: 'week',
-	} ),
-} ) );
+	return mockWordPressRoute;
+} );
+
+setMockRouteSearch( {
+	from: '2026-06-01',
+	to: '2026-06-16',
+	interval: 'day',
+	chart_period: 'week',
+} );
 
 const video: StatsVideoPlaysComparisonItem = {
 	id: 12,
@@ -91,7 +79,14 @@ describe( 'videos fields', () => {
 		const link = screen.getByRole( 'link', { name: 'Launch video' } );
 		// Only the shared report-window params travel; page-owned params
 		// (`chart_period`) stay behind.
-		expect( link ).toHaveAttribute( 'href', '/video/12?from=2026-06-01&to=2026-06-16' );
+		const url = getMockRouteLinkUrl( link );
+		expect( url.pathname ).toBe( '/video/12' );
+		expect( Object.fromEntries( url.searchParams ) ).toEqual( {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			interval: 'day',
+			ref: 'videos',
+		} );
 		expect( link ).not.toHaveAttribute( 'target' );
 	} );
 

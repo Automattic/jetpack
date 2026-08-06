@@ -14,13 +14,15 @@
 	// Overlay placement and icon-only geometry — the visual treatment (border,
 	// hover/focus, sizing) comes from the WPDS Button. The elevation shadow is
 	// deliberately kept for separation from chart content (CHARTS-237
-	// design call, carrying over CHARTS-200's tokenization).
+	// design call, carrying over CHARTS-200's tokenization). `@wordpress/theme`
+	// 1.0.0 dropped the `--wpds-elevation-*` group, so this role carries the
+	// former token's spec value directly rather than nesting a `--wpds-*` var.
 	&__reset {
 		position: absolute;
 		top: var(--wpds-dimension-gap-sm, 8px);
 		right: var(--wpds-dimension-gap-sm, 8px);
 		z-index: 2;
-		box-shadow: var(--wpds-elevation-xs, 0 1px 1px 0 #00000008, 0 1px 2px 0 #00000005, 0 3px 3px 0 #00000005, 0 4px 4px 0 #00000003);
+		box-shadow: var(--a8c-charts-elevation-xs, 0 1px 1px 0 #00000008, 0 1px 2px 0 #00000005, 0 3px 3px 0 #00000005, 0 4px 4px 0 #00000003);
 
 		// `Button` is sized for a text label. These are the same three custom
 		// properties @wordpress/ui's own IconButton composition sets to make a
