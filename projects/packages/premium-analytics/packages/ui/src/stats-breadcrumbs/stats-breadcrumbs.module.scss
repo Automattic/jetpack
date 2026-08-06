@@ -18,8 +18,9 @@
  * the constraint must land on the wrapper's DOM parent (the header's inner
  * Stack, which has no stable class, hence the structural `:has()`) and on the
  * `nav`, the actual flex item in the box tree. Owned here so every page using
- * StatsBreadcrumbs gets the fix; the slot is set to be reworked upstream under
- * https://github.com/WordPress/gutenberg/issues/77039 and
+ * StatsBreadcrumbs gets the fix. Tracked upstream as
+ * https://github.com/WordPress/gutenberg/issues/81297; the slot is set to be
+ * reworked under https://github.com/WordPress/gutenberg/issues/77039 and
  * https://github.com/WordPress/gutenberg/issues/77628. */
 :has(> .trail) {
 	min-inline-size: 0;
