@@ -81,10 +81,12 @@ function VideoDetail(): JSX.Element {
 	 * comparison by design, but the comparison params stay in the URL so the
 	 * breadcrumb carries the dashboard's state back out. Without explicit
 	 * `reportParams`, every `WidgetRoot` falls back to reading the raw URL
-	 * search — comparison included — so comparison-capable widgets (the
-	 * highlights) would render deltas. Injecting the stripped params into each
-	 * layout entry makes the page-wide no-comparison invariant hold by
-	 * construction.
+	 * search — comparison included. Today's three widgets all ignore the
+	 * comparison params in their own query mapping, so this is defensive:
+	 * injecting the stripped params into each layout entry makes the
+	 * page-wide no-comparison invariant hold by construction (matching post
+	 * detail), instead of relying on every current and future widget to keep
+	 * ignoring them.
 	 */
 	const layout = useMemo( () => {
 		const reportParams = omitComparisonReportParams( search );
