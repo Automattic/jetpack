@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.9.0] - 2026-08-06
 ### Changed
-- Error Handler: Standardize the stored connection error structure with explicit error type and direction fields, store local connection-state errors as 'local_state' instead of 'connection', and store previously dropped signature verification errors, which can now surface connection error notices. [#50992]
+- Error Handler: Standardize the stored connection error structure with explicit error type and direction fields. [#50992]
 
 ## [8.8.2] - 2026-08-03
 ### Changed

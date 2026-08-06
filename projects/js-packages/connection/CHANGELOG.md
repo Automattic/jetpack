@@ -4,7 +4,7 @@
 
 ## [2.2.3] - 2026-08-06
 ### Changed
-- Connection UI: Modernise the disconnect-confirm and thank-you step components. [#50864]
+- Modernise the disconnect-confirm and thank-you step components. [#50864]
 - Update package dependencies. [#50509]
 
 ## [2.2.2] - 2026-08-03

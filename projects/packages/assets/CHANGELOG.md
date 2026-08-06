@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.4.10] - 2026-08-06
 ### Fixed
-- Script Data: decode HTML entities in the shared site title so consumers (e.g. the Newsletter Sender Settings panel) don't show literal entities like `&#039;` for site names containing an apostrophe or other special characters. [#50991]
+- Script Data: Decode HTML entities in the shared site title to avoid consumers seeing the encoded entities. [#50991]
 
 ## [4.4.9] - 2026-07-31
 ### Fixed
