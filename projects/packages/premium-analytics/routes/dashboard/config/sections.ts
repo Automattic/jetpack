@@ -26,9 +26,25 @@ export type DashboardSection = {
 	slug: string;
 
 	/**
-	 * Translated display label.
+	 * Translated display label. Names the section's tab.
 	 */
 	label: string;
+
+	/**
+	 * Translated section heading, deliberately distinct from the tab label: the
+	 * tab reads `Traffic` where the heading reads `Site traffic`.
+	 *
+	 * Absent or `null` when the section registers no heading of its own — read it
+	 * as `title ?? label`. Optional for the same reason as `date_filter` below:
+	 * a Simple site can be served a payload built before the field existed.
+	 */
+	title?: string | null;
+
+	/**
+	 * Translated section description, shown as the page subtitle while this
+	 * section is active. Absent or `null` when the section registers none.
+	 */
+	description?: string | null;
 
 	/**
 	 * Sort order (ascending).

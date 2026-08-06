@@ -72,6 +72,23 @@ final class Dashboard_Section {
 	public $label;
 
 	/**
+	 * Section heading, deliberately distinct from the tab label: the tab reads
+	 * `Traffic` where the heading reads `Site traffic`. Null falls back to the label.
+	 *
+	 * @since $$next-version$$
+	 * @var string|null
+	 */
+	public $title = null;
+
+	/**
+	 * Section description, shown as the page subtitle while this section is active.
+	 *
+	 * @since $$next-version$$
+	 * @var string|null
+	 */
+	public $description = null;
+
+	/**
 	 * Sort order.
 	 *
 	 * @var int
@@ -164,6 +181,8 @@ final class Dashboard_Section {
 			'id'             => $this->id,
 			'slug'           => $this->slug,
 			'label'          => $this->label,
+			'title'          => $this->title,
+			'description'    => $this->description,
 			'order'          => (int) $this->order,
 			'date_filter'    => $this->date_filter,
 			'default_layout' => $this->get_default_layout(),
@@ -183,6 +202,14 @@ final class Dashboard_Section {
 
 		if ( isset( $args['label'] ) ) {
 			$this->label = (string) $args['label'];
+		}
+
+		if ( isset( $args['title'] ) ) {
+			$this->title = (string) $args['title'];
+		}
+
+		if ( isset( $args['description'] ) ) {
+			$this->description = (string) $args['description'];
 		}
 
 		if ( isset( $args['order'] ) ) {

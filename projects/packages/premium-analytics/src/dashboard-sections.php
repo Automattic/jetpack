@@ -100,6 +100,8 @@ function register_default_dashboard_sections() {
 	$sections = array(
 		'analytics/traffic'     => array(
 			'label'          => __( 'Traffic', 'jetpack-premium-analytics-pkg' ),
+			'title'          => __( 'Site traffic', 'jetpack-premium-analytics-pkg' ),
+			'description'    => __( 'Views, visitors, and where they came from.', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 10,
 			'default_layout' => static function () {
 				return get_dashboard_default_layout_for( 'analytics/traffic' );
@@ -107,6 +109,8 @@ function register_default_dashboard_sections() {
 		),
 		'analytics/insights'    => array(
 			'label'          => __( 'Insights', 'jetpack-premium-analytics-pkg' ),
+			'title'          => __( 'Activity insights', 'jetpack-premium-analytics-pkg' ),
+			'description'    => __( 'Longer-term patterns in your content and audience.', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 20,
 			// Insights reads whole history, so it offers all time and single
 			// years instead of the rolling date-range picker.
@@ -117,11 +121,15 @@ function register_default_dashboard_sections() {
 		),
 		'analytics/subscribers' => array(
 			'label'          => __( 'Subscribers', 'jetpack-premium-analytics-pkg' ),
+			'title'          => __( 'Subscribers stats', 'jetpack-premium-analytics-pkg' ),
+			'description'    => __( 'How your subscriber list is growing, and how your emails land.', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 30,
 			'default_layout' => static function () {
 				return get_dashboard_default_layout_for( 'analytics/subscribers' );
 			},
 		),
+		// Store carries no title or description: the design prototype has no Store
+		// tab, so it falls back to the label until copy exists for it.
 		'woocommerce/store'     => array(
 			'label'          => __( 'Store', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 40,
@@ -216,8 +224,18 @@ function get_dashboard_section_schema() {
 				'readonly'    => true,
 			),
 			'label'          => array(
-				'description' => __( 'Translated display label.', 'jetpack-premium-analytics-pkg' ),
+				'description' => __( 'Translated display label, naming the section tab.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'title'          => array(
+				'description' => __( 'Translated section heading, distinct from the tab label. Null falls back to the label.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => array( 'string', 'null' ),
+				'readonly'    => true,
+			),
+			'description'    => array(
+				'description' => __( 'Translated section description, shown as the page subtitle while the section is active.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => array( 'string', 'null' ),
 				'readonly'    => true,
 			),
 			'order'          => array(

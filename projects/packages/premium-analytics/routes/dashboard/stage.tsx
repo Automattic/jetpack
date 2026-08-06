@@ -79,15 +79,24 @@ function Dashboard(): JSX.Element {
 	 */
 	const dateFilters = useReportDateFilters( '/' );
 
+	const activeSectionRecord = sections.find( section => section.slug === activeSection );
+
 	/*
 	 * Which date filter the active section's header shows. Also reconciles the
 	 * preset in the URL with that filter's surface, so a section switch never
 	 * leaves the visible control unable to represent the selection.
 	 */
-	const dateFilterSurface = useSectionDateFilter(
-		sections.find( section => section.slug === activeSection ),
-		dateFilters
-	);
+	const dateFilterSurface = useSectionDateFilter( activeSectionRecord, dateFilters );
+
+	/*
+	 * The page description belongs to the active section, so it swaps with the tab.
+	 * WPCOM's public-api registers the sections route from its own checkout and can
+	 * serve a payload built before the field existed, so fall back to the copy the
+	 * page carried when it was not yet per-section.
+	 */
+	const pageSubtitle =
+		activeSectionRecord?.description ??
+		__( 'Track your site performance and visitor insights.', 'jetpack-premium-analytics-pkg' );
 
 	/*
 	 * The subtitle states what the widgets are currently showing, so it follows
@@ -179,10 +188,7 @@ function Dashboard(): JSX.Element {
 				<Page
 					visual={ <StatsPageIcon /> }
 					breadcrumbs={ <StatsBreadcrumbs isRoot /> }
-					subTitle={ __(
-						'Track your site performance and visitor insights.',
-						'jetpack-premium-analytics-pkg'
-					) }
+					subTitle={ pageSubtitle }
 					actions={ <WidgetDashboard.Actions /> }
 					className={ styles.dashboard }
 				>
@@ -198,7 +204,10 @@ function Dashboard(): JSX.Element {
 								className={ styles.content }
 							>
 								<div ref={ setContainerElement } className={ styles.sectionHeader }>
-									<SectionHeader title={ section.label } subtitle={ sectionSubtitle }>
+									<SectionHeader
+										title={ section.title ?? section.label }
+										subtitle={ sectionSubtitle }
+									>
 										{ dateControls }
 									</SectionHeader>
 								</div>
