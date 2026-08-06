@@ -63,20 +63,6 @@ export const automatticAssignments: Record< string, TeamAssignment > = {
 		board_id: 'https://github.com/orgs/Automattic/projects/1208/',
 	},
 	// Jetpack Division.
-	'AI Tools': {
-		team: 'Zap',
-		labels: [
-			'[Block] AI Assistant',
-			'[Extension] AI Content Lens',
-			'[Extension] AI Assistant',
-			'[Extension] AI Assistant Plugin',
-			'[AI Feature] AI Extension',
-			'[Package] AI',
-			'[JS Package] AI Client',
-		],
-		slack_id: 'C054LN8RNVA',
-		board_id: 'https://github.com/orgs/Automattic/projects/667',
-	},
 	Akismet: {
 		team: 'Akismet',
 		labels: [ '[Feature] Akismet' ],
@@ -124,12 +110,6 @@ export const automatticAssignments: Record< string, TeamAssignment > = {
 		slack_id: 'C05Q5HSS013', // #jetpack-monorepo
 		board_id: 'https://github.com/orgs/Automattic/projects/599',
 	},
-	'My Jetpack': {
-		team: 'Triforce',
-		labels: [ '[Package] My Jetpack' ],
-		slack_id: 'C06CVN9QVFY',
-		board_id: 'https://github.com/orgs/Automattic/projects/724',
-	},
 	Newsletter: {
 		team: 'Loop',
 		labels: [
@@ -164,30 +144,6 @@ export const automatticAssignments: Record< string, TeamAssignment > = {
 		labels: [ '[Plugin] Search', '[Package] Search', 'Instant Search', '[Feature] Search' ],
 		slack_id: 'C02ME06LF',
 		board_id: 'https://github.com/orgs/Automattic/projects/408',
-	},
-	'Social tools': {
-		team: 'Triforce',
-		labels: [
-			'[Plugin] Social',
-			'[Extension] Publicize',
-			'[JS Package] Publicize Components',
-			'[Package] Publicize',
-			'[Feature] Publicize',
-		],
-		slack_id: 'C08PN0LHCCT',
-	},
-	Stats: {
-		team: 'Red',
-		labels: [
-			'[Feature] Stats Data',
-			'[Package] Stats Data',
-			'Stats',
-			'Odyssey Stats',
-			'Odyssey Stats Widget',
-			'[Stats] Subscribers',
-		],
-		slack_id: 'C0438NHCLSY',
-		board_id: 'https://github.com/orgs/Automattic/projects/1028',
 	},
 	'Super Cache': {
 		team: 'Heart of Gold',
