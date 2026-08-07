@@ -147,7 +147,10 @@ function wpcom_site_can_upload_videos( $blog_id = 0 ) {
  *                                feature checks. On Atomic sites this is a no-op: the synced payload
  *                                carries whatever fields it was synced with.
  *
- * @return array An array of product objects containing product_slug, product_id, subscribed_date, and expiry_date.
+ * @return array An array of product objects containing at least product_slug, product_id,
+ *               product_type, subscribed_date, expiry_date and subscription_id. With
+ *               $with_billing_data, and where the billing code-base is available, each also
+ *               carries the derived fields listed above.
  */
 function wpcom_get_site_purchases( $blog_id = 0, $with_billing_data = false ) {
 	if ( ! $blog_id ) {
@@ -222,18 +225,23 @@ function _wpcom_features_add_billing_data_to_purchases( $purchases, $blog_id ) {
 		require_once $billing_loader;
 	}
 
-	static $upgrades_by_blog = array();
-	if ( ! isset( $upgrades_by_blog[ $blog_id ] ) ) {
-		$upgrades_by_blog[ $blog_id ] = array();
+	// Keyed by the subscriptions being asked about, not just the blog, so that
+	// a changed set of subscriptions never reads a memo built for a different
+	// one — including across tests, which share a process.
+	$memo_key = $blog_id . ':' . implode( ',', wp_list_pluck( $purchases, 'subscription_id' ) );
+
+	static $upgrades_by_key = array();
+	if ( ! isset( $upgrades_by_key[ $memo_key ] ) ) {
+		$upgrades_by_key[ $memo_key ] = array();
 		// Subscriptions only: skips domain-subscription combining so that every
 		// upgrade still matches a store subscription row one-to-one.
 		// WPCOM_Store_API only exists on WPCOM, hence the guard above.
 		// @phan-suppress-next-line PhanUndeclaredStaticMethod
 		foreach ( WPCOM_Store_API::get_site_billing_upgrades( $blog_id, true ) as $upgrade ) {
-			$upgrades_by_blog[ $blog_id ][ (string) $upgrade->ID ] = $upgrade;
+			$upgrades_by_key[ $memo_key ][ (string) $upgrade->ID ] = $upgrade;
 		}
 	}
-	$upgrades = $upgrades_by_blog[ $blog_id ];
+	$upgrades = $upgrades_by_key[ $memo_key ];
 
 	return array_map(
 		function ( $purchase ) use ( $upgrades ) {

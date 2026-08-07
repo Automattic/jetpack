@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Add an opt-in `$with_billing_data` argument to `wpcom_get_site_purchases()`, mirroring the WPCOM copy of this file.
+Add an opt-in `$with_billing_data` argument to `wpcom_get_site_purchases()`, which overlays billing-derived auto-renew and expiry state onto each purchase. No effect on Atomic sites, which serve the purchase data synced to them.

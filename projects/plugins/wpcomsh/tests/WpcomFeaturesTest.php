@@ -37,4 +37,22 @@ class WpcomFeaturesTest extends WP_UnitTestCase {
 		// Cleanup.
 		Atomic_Persistent_Data::delete( 'WPCOM_PURCHASES' );
 	}
+
+	/**
+	 * The billing-data overlay is a Simple-site concern, so asking for it here
+	 * has to be harmless: Atomic sites serve whatever was synced to them either
+	 * way.
+	 */
+	public function test_billing_data_argument_is_inert_on_atomic() {
+		$purchase = array( 'product_slug' => 'business-bundle' );
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $purchase ), JSON_UNESCAPED_SLASHES ) );
+
+		$this->assertEquals(
+			wpcom_get_site_purchases(),
+			wpcom_get_site_purchases( 0, true )
+		);
+
+		// Cleanup.
+		Atomic_Persistent_Data::delete( 'WPCOM_PURCHASES' );
+	}
 }
