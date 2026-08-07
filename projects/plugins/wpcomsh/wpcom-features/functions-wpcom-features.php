@@ -191,9 +191,11 @@ function wpcom_get_site_purchases( $blog_id = 0, $with_billing_data = false ) {
  * subscriptions that cannot actually renew (no chargeable payment method), and
  * they carry none of the derived state that depends on the auto-renew attempt
  * schedule. Both of those change with the passage of time, so neither can live
- * in the `site_purchases` cache; this is computed on each call, on clones — the
- * cached objects themselves must stay untouched or the overlay would leak into
- * callers that did not ask for it.
+ * in the 24-30 hour `site_purchases` cache. The billing lookup is instead
+ * memoised for the current request only, keeping repeat callers within a single
+ * page load to one lookup. Results are handed back as clones, since the cached
+ * objects themselves must stay untouched or the overlay would leak into callers
+ * that did not ask for it.
  *
  * Only ever does anything on Simple sites. Purchases are returned as-is in
  * contexts where the billing code-base is unavailable (see pdqkMK-18D-p2), so
@@ -210,11 +212,14 @@ function _wpcom_features_add_billing_data_to_purchases( $purchases, $blog_id ) {
 	}
 
 	if ( ! class_exists( 'WPCOM_Store_API' ) ) {
-		$store_api = WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/class.wpcom-store-api.php';
-		if ( ! is_readable( $store_api ) ) {
+		// The whole billing loader rather than just the class file, as
+		// get_site_billing_upgrades() also reaches for store_logger(), a plain
+		// function that only the loader pulls in. Same as woa_get_purchases().
+		$billing_loader = WP_CONTENT_DIR . '/admin-plugins/wpcom-billing.php';
+		if ( ! is_readable( $billing_loader ) ) {
 			return $purchases;
 		}
-		require_once $store_api;
+		require_once $billing_loader;
 	}
 
 	static $upgrades_by_blog = array();
