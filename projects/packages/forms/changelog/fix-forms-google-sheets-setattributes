@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: fix the Google Sheets sync setup not saving its result.
