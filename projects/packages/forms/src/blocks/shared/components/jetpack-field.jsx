@@ -48,16 +48,19 @@ const JetpackField = props => {
 		attributes,
 		setAttributes,
 	} );
-	const { children, ...innerBlocksProps } = useInnerBlocksProps( blockProps, {
-		allowedBlocks: ALLOWED_INNER_BLOCKS,
-		template,
-		templateLock: 'all',
-	} );
+	const { children, ...innerBlocksProps } = useInnerBlocksProps(
+		{ className: 'jetpack-field__control' },
+		{
+			allowedBlocks: ALLOWED_INNER_BLOCKS,
+			template,
+			templateLock: 'all',
+		}
+	);
 
 	return (
 		<>
-			<div { ...innerBlocksProps }>
-				{ children }
+			<div { ...blockProps }>
+				<div { ...innerBlocksProps }>{ children }</div>
 				<JetpackFieldHints attributes={ attributes } />
 			</div>
 			<JetpackFieldControls

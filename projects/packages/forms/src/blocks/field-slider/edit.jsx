@@ -128,20 +128,23 @@ export default function SliderFieldEdit( props ) {
 		}`,
 	} );
 
-	const { children, ...innerBlocksProps } = useInnerBlocksProps( blockProps, {
-		allowedBlocks: [ 'jetpack/label', 'jetpack/input-range' ],
-		template: [
-			[
-				'jetpack/label',
-				{
-					label: __( 'Slider', 'jetpack-forms' ),
-					placeholder: __( 'Add label…', 'jetpack-forms' ),
-				},
+	const { children, ...innerBlocksProps } = useInnerBlocksProps(
+		{ className: 'jetpack-field__control' },
+		{
+			allowedBlocks: [ 'jetpack/label', 'jetpack/input-range' ],
+			template: [
+				[
+					'jetpack/label',
+					{
+						label: __( 'Slider', 'jetpack-forms' ),
+						placeholder: __( 'Add label…', 'jetpack-forms' ),
+					},
+				],
+				[ 'jetpack/input-range', {} ],
 			],
-			[ 'jetpack/input-range', {} ],
-		],
-		templateLock: 'all',
-	} );
+			templateLock: 'all',
+		}
+	);
 
 	return (
 		<>
@@ -156,8 +159,8 @@ export default function SliderFieldEdit( props ) {
 					'jetpack/field-slider-onChangeMaxLabel': onChangeMaxLabel,
 				} }
 			>
-				<div { ...innerBlocksProps }>
-					{ children }
+				<div { ...blockProps }>
+					<div { ...innerBlocksProps }>{ children }</div>
 					<JetpackFieldHints attributes={ attributes } />
 				</div>
 			</BlockContextProvider>

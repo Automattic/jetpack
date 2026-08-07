@@ -839,6 +839,11 @@
 		.jetpack-field {
 			position: relative;
 		}
+
+		.jetpack-field__control,
+		.jetpack-field-dropdown__wrapper {
+			position: relative;
+		}
 	}
 
 	.is-style-outlined & {

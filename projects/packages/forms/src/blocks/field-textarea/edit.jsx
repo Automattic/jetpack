@@ -32,11 +32,14 @@ export default function TextareaFieldEdit( props ) {
 		];
 	}, [ requiredIndicator ] );
 
-	const { children, ...innerBlocksProps } = useInnerBlocksProps( blockProps, {
-		allowedBlocks: ALLOWED_INNER_BLOCKS,
-		template,
-		templateLock: 'all',
-	} );
+	const { children, ...innerBlocksProps } = useInnerBlocksProps(
+		{ className: 'jetpack-field__control' },
+		{
+			allowedBlocks: ALLOWED_INNER_BLOCKS,
+			template,
+			templateLock: 'all',
+		}
+	);
 
 	useSyncRequiredIndicator( {
 		clientId,
@@ -48,8 +51,8 @@ export default function TextareaFieldEdit( props ) {
 
 	return (
 		<>
-			<div { ...innerBlocksProps }>
-				{ children }
+			<div { ...blockProps }>
+				<div { ...innerBlocksProps }>{ children }</div>
 				<JetpackFieldHints attributes={ attributes } />
 			</div>
 			<JetpackFieldControls

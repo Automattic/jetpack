@@ -83,24 +83,27 @@ export default function PhoneFieldEdit( props ) {
 		}
 	}, [ showCountrySelector, setAttributes, countryPairs, defaultCountry ] );
 
-	const { children, ...innerBlocksProps } = useInnerBlocksProps( blockProps, {
-		allowedBlocks: [ 'jetpack/label', 'jetpack/phone-input' ],
-		template: [
-			[
-				'jetpack/label',
-				{
-					label: __( 'Phone number', 'jetpack-forms' ),
-					placeholder,
-					required,
-					requiredText,
-					requiredIndicator,
-				},
+	const { children, ...innerBlocksProps } = useInnerBlocksProps(
+		{ className: 'jetpack-field__control' },
+		{
+			allowedBlocks: [ 'jetpack/label', 'jetpack/phone-input' ],
+			template: [
+				[
+					'jetpack/label',
+					{
+						label: __( 'Phone number', 'jetpack-forms' ),
+						placeholder,
+						required,
+						requiredText,
+						requiredIndicator,
+					},
+				],
+				[ 'jetpack/phone-input', {} ],
 			],
-			[ 'jetpack/phone-input', {} ],
-		],
-		templateLock: 'all',
-		__experimentalCaptureToolbars: true,
-	} );
+			templateLock: 'all',
+			__experimentalCaptureToolbars: true,
+		}
+	);
 
 	useSyncRequiredIndicator( {
 		clientId,
@@ -127,8 +130,8 @@ export default function PhoneFieldEdit( props ) {
 					'jetpack/field-phone-search-placeholder': searchPlaceholder,
 				} }
 			>
-				<div { ...innerBlocksProps }>
-					{ children }
+				<div { ...blockProps }>
+					<div { ...innerBlocksProps }>{ children }</div>
 					<JetpackFieldHints attributes={ attributes } />
 				</div>
 			</BlockContextProvider>
