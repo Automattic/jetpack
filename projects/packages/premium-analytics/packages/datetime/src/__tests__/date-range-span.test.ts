@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { getDateRangeSpan } from '../get-date-range-span';
+import { getDateRangeSpan } from '../date-range-span';
 
 /**
  * Build a local-time date. Dates are constructed from parts rather than parsed

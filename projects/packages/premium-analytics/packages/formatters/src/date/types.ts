@@ -1,9 +1,5 @@
 /**
- * A date range with optional start and end.
- *
- * Defined locally to avoid a cross-package import on
- * `@jetpack-premium-analytics/datetime` (which exports an identical
- * `DateRange` type). Switch to that import once the sibling-package
- * `link:` wiring is settled.
+ * A date range with optional start and end, from the package that owns the
+ * vocabulary. Re-exported so the formatters keep a local name for it.
  */
-export type DateRange = { from?: Date; to?: Date };
+export type { DateRange } from '@jetpack-premium-analytics/datetime';

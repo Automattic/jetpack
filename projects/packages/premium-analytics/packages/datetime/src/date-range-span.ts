@@ -15,7 +15,7 @@ import {
 /**
  * Internal dependencies
  */
-import type { DateRange } from './types';
+import type { DateRange } from './get-comparison-range';
 
 /**
  * The unit a range's length is best described in.
