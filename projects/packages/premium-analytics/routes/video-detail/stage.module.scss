@@ -36,8 +36,8 @@
 	// so the row wraps only when the panel's current layout no longer fits
 	// beside that floor (the compact dropdown on a phone), never because of a
 	// long title. On tight single rows the summary absorbs the squeeze (title
-	// ellipsis); the panel's own step-down on narrow rows needs external
-	// measurement and ships separately (#51088). Inline padding matches the
+	// ellipsis); the panel steps down its layout as the row narrows, measured
+	// against this row via `containerElement`. Inline padding matches the
 	// widget grid; the 40px block spacing is the design's breathing room
 	// around the header.
 	display: flex;
