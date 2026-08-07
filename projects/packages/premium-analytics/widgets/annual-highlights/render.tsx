@@ -23,7 +23,11 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import styles from './style.module.scss';
-import { type AnnualHighlightMetric, type AnnualHighlightsAttributes } from './widget';
+import {
+	DEFAULT_HIGHLIGHT_METRICS,
+	type AnnualHighlightMetric,
+	type AnnualHighlightsAttributes,
+} from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 // The insights endpoint is not period-scoped, so the widget ignores the
@@ -58,10 +62,15 @@ function findLatestYear( data?: StatsInsightsResponse ): StatsInsightsYear | und
  * insights module has no comparison period, so each tile shows a bare formatted
  * count. Which tiles appear is controlled by the `metrics` attribute.
  *
- * @param {AnnualHighlightMetric[]} metrics - Enabled metric tile ids.
+ * @param props         - The component props.
+ * @param props.metrics - The enabled metric tile ids; missing means every metric.
  * @return The widget content.
  */
-function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[] } ) {
+function AnnualHighlightsReport( {
+	metrics = DEFAULT_HIGHLIGHT_METRICS,
+}: {
+	metrics?: AnnualHighlightMetric[];
+} ) {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsInsights();
 	const enabledMetrics = useMemo( () => new Set( metrics ), [ metrics ] );
 
