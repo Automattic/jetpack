@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { commentContent } from '@wordpress/icons';
+import { comment } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 export type MostCommentedPostsAttributes = {
@@ -24,7 +24,7 @@ export type MostCommentedPostsAttributes = {
  * period, so the widget ignores the dashboard date range.
  */
 export default {
-	icon: commentContent,
+	icon: comment,
 	attributes: [
 		{
 			id: 'max',
