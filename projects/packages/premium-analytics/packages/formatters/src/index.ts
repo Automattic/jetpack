@@ -1,6 +1,7 @@
 export {
 	formatDate,
 	formatDateRange,
+	formatDateRangeCompact,
 	formatDateRangeLong,
 	getDateRangeSpan,
 	type DateFormatName,

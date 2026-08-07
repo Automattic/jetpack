@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Date controls: abbreviate the month on the custom-range trigger, e.g. "Aug 2 – 9, 2025", so a long range costs the row less width.

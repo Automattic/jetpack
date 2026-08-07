@@ -55,25 +55,20 @@ describe( 'DateRangeQuickPresets', () => {
 		expect( range.to.getTime() - range.from.getTime() ).toBe( 24 * 60 * 60 * 1000 );
 	} );
 
-	it( 'renders every preset in a select when compact', () => {
-		render(
-			<DateRangeQuickPresets
-				labelMode="select"
-				value="today"
-				onSelect={ jest.fn() }
-				timeZone="UTC"
-			/>
-		);
+	// However narrow the surface gets, the presets stay a row of pills: there is
+	// no mode that hides the choice behind a menu.
+	it( 'never collapses the presets into a select', () => {
+		renderPresets( { labelMode: 'abbreviated' } );
 
-		expect( screen.queryAllByRole( 'button' ) ).toHaveLength( 0 );
-		expect( screen.getByRole( 'combobox', { name: 'Period' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'combobox' ) ).not.toBeInTheDocument();
+		expect( screen.getAllByRole( 'button' ) ).toHaveLength( 4 );
 	} );
 
 	it( 'shortens the visible labels when abbreviated', () => {
 		renderPresets( { labelMode: 'abbreviated' } );
 
 		expect( screen.getAllByRole( 'button' ).map( button => button.textContent ) ).toEqual( [
-			'Last 24H',
+			'24H',
 			'7D',
 			'30D',
 			'12M',

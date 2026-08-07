@@ -21,12 +21,12 @@ const meta: Meta< typeof SectionHeader > = {
 		docs: {
 			description: {
 				component:
-					'Two-halves header for an analytics surface. The left half anchors the ' +
-					'instance: a **title** naming the section plus a **subtitle** describing ' +
-					'the active date configuration.\n\n' +
-					'The right half is a slot: the consumer passes the date controls as ' +
-					'`children`, keeps the date state, and derives the subtitle from the ' +
-					'*applied* range, so the header stays purely presentational.',
+					'Header for an analytics surface. A **title** names the section and a ' +
+					'**subtitle** describes the active date configuration, on a row of its ' +
+					'own so its length never costs the controls width.\n\n' +
+					'The controls are a slot: the consumer passes them as `children`, keeps ' +
+					'the date state, and derives the subtitle from the *applied* range, so ' +
+					'the header stays purely presentational.',
 			},
 		},
 	},
@@ -271,6 +271,24 @@ export const YearSurface: Story = {
 		title: 'Insights',
 	},
 	render: ( { title } ) => <YearSectionHeaderStory title={ title } />,
+};
+
+/**
+ * The same header in a box too narrow for two halves: the title and the
+ * controls stack, and the controls read from the start edge.
+ *
+ * The switch follows this wrapper's width, not the viewport's, so the story
+ * shows it at any window size.
+ */
+export const Stacked: Story = {
+	args: {
+		title: 'Site traffic',
+	},
+	render: ( { title } ) => (
+		<div style={ { inlineSize: 520 } }>
+			<RollingSectionHeaderStory title={ title } />
+		</div>
+	),
 };
 
 /**
