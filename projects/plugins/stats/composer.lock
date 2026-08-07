@@ -684,7 +684,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "0dbe3a1dcdf89e1ab1f31ae75ef779638300f023"
+                "reference": "e5ff8b59b34901f3aef7e0f593b8ccf1fc6246f4"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -699,7 +699,6 @@
             },
             "require-dev": {
                 "automattic/jetpack-licensing": "@dev",
-                "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-sync": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/jetpack-wp-abilities": "@dev",
@@ -722,12 +721,11 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "8.8.x-dev"
+                    "dev-trunk": "8.9.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
                         "packages/licensing",
-                        "packages/plans",
                         "packages/sync"
                     ]
                 }
