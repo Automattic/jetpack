@@ -1075,6 +1075,65 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Hand-rolled input markup gets the same description wiring.
+	 *
+	 * @param array  $attributes Extra field attributes.
+	 * @param string $type       The description type used in element ids.
+	 * @dataProvider hand_rolled_field_provider
+	 */
+	#[DataProvider( 'hand_rolled_field_provider' )]
+	public function test_hand_rolled_fields_get_descriptions( $attributes, $type ) {
+		$field = $this->get_new_field_instance(
+			array_merge(
+				array(
+					'id'       => 'g1-x',
+					'label'    => 'Thing',
+					'helptext' => 'Say hi',
+				),
+				$attributes
+			)
+		);
+
+		$html = $field->render();
+
+		$this->assertStringContainsString( 'id="g1-x-' . $type . '-help"', $html );
+		$this->assertStringContainsString( 'g1-x-' . $type . '-error-message g1-x-' . $type . '-help', $html );
+	}
+
+	/**
+	 * Data provider for hand-rolled input markup.
+	 *
+	 * @return array
+	 */
+	public static function hand_rolled_field_provider() {
+		return array(
+			'textarea'         => array( array( 'type' => 'textarea' ), 'textarea' ),
+			'select'           => array(
+				array(
+					'type'    => 'select',
+					'options' => 'a,b',
+				),
+				'select',
+			),
+			'slider'           => array(
+				array(
+					'type' => 'slider',
+					'min'  => '0',
+					'max'  => '10',
+				),
+				'slider',
+			),
+			'phone w/ country' => array(
+				array(
+					'type'                => 'telephone',
+					'showcountryselector' => '1',
+				),
+				'telephone',
+			),
+		);
+	}
+
+	/**
 	 * Inset-label styles hoist hints outside the field div, and the ids still
 	 * match what aria-describedby references.
 	 */
@@ -1150,17 +1209,19 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	 * input's aria-describedby points at, for field types whose input type
 	 * differs from the field type.
 	 *
-	 * @param string $field_type        The field type attribute.
+	 * @param array  $attributes        Extra field attributes (lowercase shortcode names).
 	 * @param string $expected_error_id The error element id that must exist.
 	 * @dataProvider inset_error_id_provider
 	 */
 	#[DataProvider( 'inset_error_id_provider' )]
-	public function test_inset_label_error_id_matches_describedby( $field_type, $expected_error_id ) {
+	public function test_inset_label_error_id_matches_describedby( $attributes, $expected_error_id ) {
 		$field = $this->get_new_field_instance_with_style(
-			array(
-				'type'  => $field_type,
-				'id'    => 'g1-x',
-				'label' => 'Thing',
+			array_merge(
+				array(
+					'id'    => 'g1-x',
+					'label' => 'Thing',
+				),
+				$attributes
 			),
 			'outlined'
 		);
@@ -1168,7 +1229,12 @@ class Contact_Form_Field_Test extends BaseTestCase {
 		$html = $field->render();
 
 		$this->assertStringContainsString( 'id="' . $expected_error_id . '"', $html );
-		$this->assertStringContainsString( 'aria-describedby=\'' . $expected_error_id . '-message', $html );
+		// The country-selector phone variant double-quotes its attributes,
+		// unlike render_input_field()'s single-quoted markup, so match either.
+		$this->assertMatchesRegularExpression(
+			'/aria-describedby=[\'"]' . preg_quote( $expected_error_id, '/' ) . '-message/',
+			$html
+		);
 	}
 
 	/**
@@ -1180,10 +1246,21 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	 */
 	public static function inset_error_id_provider() {
 		return array(
-			'date' => array( 'date', 'g1-x-text-error' ),
-			'url'  => array( 'url', 'g1-x-text-error' ),
-			'name' => array( 'name', 'g1-x-text-error' ),
-			'tel'  => array( 'telephone', 'g1-x-tel-error' ),
+			'date'             => array( array( 'type' => 'date' ), 'g1-x-text-error' ),
+			'url'              => array( array( 'type' => 'url' ), 'g1-x-text-error' ),
+			'name'             => array( array( 'type' => 'name' ), 'g1-x-text-error' ),
+			'tel'              => array( array( 'type' => 'telephone' ), 'g1-x-tel-error' ),
+			// The block editor maps the country-selector variant to field type
+			// 'phone' (see class-contact-form-plugin.php's gutenblock_render_field_telephone()),
+			// while render_telephone_field() always builds its ids with the
+			// literal string 'telephone' -- these must still match.
+			'phone w/ country' => array(
+				array(
+					'type'                => 'phone',
+					'showcountryselector' => '1',
+				),
+				'g1-x-telephone-error',
+			),
 		);
 	}
 } // end class

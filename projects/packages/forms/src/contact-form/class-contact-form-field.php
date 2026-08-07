@@ -1592,7 +1592,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					data-wp-bind--disabled='state.isSubmitting'
 					data-wp-bind--aria-invalid='state.fieldAriaInvalid'
 					data-wp-bind--value='context.phoneNumber'
-					aria-describedby="<?php echo esc_attr( $id ); ?>-telephone-error-message"
+					aria-describedby="<?php echo esc_attr( $this->get_described_by( $id, 'telephone' ) ); ?>"
 					data-wp-on--input='actions.phoneNumberInputHandler'
 					data-wp-on--blur='actions.onFieldBlur'
 					data-wp-on--focus='actions.phoneNumberFocusHandler'
@@ -1609,7 +1609,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		<?php
 		$input = ob_get_clean();
 
-		$field = $label . $input . $this->get_error_div( $id, 'telephone' );
+		$field = $label . $input . $this->get_field_descriptions( $id, 'telephone' );
 		return $field;
 	}
 
@@ -1664,7 +1664,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						data-wp-on--input='actions.onFieldChange'
 						data-wp-on--blur='actions.onFieldBlur'
 						data-wp-class--has-value='state.hasFieldValue'
-						aria-describedby='" . esc_attr( $id ) . "-textarea-error-message'
+						aria-describedby='" . esc_attr( $this->get_described_by( $id, 'textarea' ) ) . "'
 						data-wp-bind--aria-invalid='state.fieldAriaInvalid'
 						"
 						. $this->get_hidden_label_aria_label_attr()
@@ -1672,7 +1672,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						. $placeholder
 						. ' ' . ( $required ? "required aria-required='true'" : '' ) .
 						'>' . esc_textarea( $value )
-				. "</textarea>\n " . $this->get_error_div( $id, 'textarea' ) . "\n";
+				. "</textarea>\n " . $this->get_field_descriptions( $id, 'textarea' ) . "\n";
 		return $field;
 	}
 
@@ -2466,7 +2466,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$aria_label = ! empty( $this->get_attribute( 'togglelabel' ) )
 			? Contact_Form_Plugin::strip_tags( $this->get_attribute( 'togglelabel' ) )
 			: __( 'Select an option', 'jetpack-forms' ); // selects don't have a default label
-		$field     .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.onFieldChange' data-wp-bind--aria-invalid='state.fieldAriaInvalid' " . $this->get_hidden_label_aria_label_attr( $aria_label ) . ">\n";
+		$field     .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.onFieldChange' data-wp-bind--aria-invalid='state.fieldAriaInvalid' aria-describedby='" . esc_attr( $this->get_described_by( $id, 'select' ) ) . "' " . $this->get_hidden_label_aria_label_attr( $aria_label ) . ">\n";
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {
 			$field .= "\t\t<option value=''>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";
@@ -2489,7 +2489,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field .= "\t</select><span class='jetpack-field-dropdown__icon'></span></span>\n";
 		$field .= "</div>\n";
 
-		return $field . $this->get_error_div( $id, 'select' );
+		return $field . $this->get_field_descriptions( $id, 'select' );
 	}
 
 	/**
@@ -3655,6 +3655,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					data-wp-bind--value="state.getSliderValue"
 					data-wp-on--input="actions.onSliderChange"
 					data-wp-bind--aria-invalid="state.fieldAriaInvalid"
+					aria-describedby="<?php echo esc_attr( $this->get_described_by( $id, 'slider' ) ); ?>"
 					<?php echo $this->get_hidden_label_aria_label_attr(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- attribute value is escaped in the helper. ?>
 				/>
 				<div
@@ -3673,7 +3674,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		<?php endif; ?>
 		<?php
 		$field .= ob_get_clean();
-		return $field . $this->get_error_div( $id, 'slider' );
+		return $field . $this->get_field_descriptions( $id, 'slider' );
 	}
 
 	/**
