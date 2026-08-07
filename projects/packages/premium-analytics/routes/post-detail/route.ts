@@ -104,6 +104,14 @@ export const route = {
 				post_id: postId,
 			};
 
+			/*
+			 * Comparison params ride along untouched: this page renders no
+			 * comparison (its widgets ignore them), but the breadcrumb's
+			 * dashboard link carries the URL state back out, so stripping them
+			 * here would silently lose the user's comparison settings on a
+			 * Dashboard → Post → Dashboard round trip.
+			 */
+
 			throw redirect( {
 				to: '/post/$postId',
 				/*

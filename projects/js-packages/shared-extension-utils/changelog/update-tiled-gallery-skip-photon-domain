@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Add skipPhotonDomain to the typed Jetpack script data flags.

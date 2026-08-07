@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { tag } from '@wordpress/icons';
+import { category } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 export type TagsAttributes = {
@@ -23,7 +23,7 @@ export type TagsAttributes = {
  * archive URL and drill down to their individual members instead.
  */
 export default {
-	icon: tag,
+	icon: category,
 	attributes: [
 		{
 			id: 'max',

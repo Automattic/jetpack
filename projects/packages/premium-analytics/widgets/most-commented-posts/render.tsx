@@ -42,7 +42,7 @@ interface MostCommentedPostsInnerProps {
 }
 
 /**
- * Most commented posts inner component. The comment counts come from the
+ * Top commented posts inner component. The comment counts come from the
  * all-time `stats/comments` report, so there is no date range or comparison
  * period to read from context.
  *
@@ -109,7 +109,7 @@ function MostCommentedPostsInner( { max }: MostCommentedPostsInnerProps ) {
 }
 
 /**
- * Most commented posts widget: the posts and pages that receive the most
+ * Top commented posts widget: the posts and pages that receive the most
  * comments, ranked by comment count. Each row opens the post detail page, and
  * falls back to the published post when the report carries no post ID.
  *
@@ -118,7 +118,7 @@ function MostCommentedPostsInner( { max }: MostCommentedPostsInnerProps ) {
  * `useStatsCommentsRows`, so showing both costs a single request.
  *
  * @param {MostCommentedPostsWidgetProps} props - The widget render props.
- * @return The rendered Most commented posts widget.
+ * @return The rendered Top commented posts widget.
  */
 export default function MostCommentedPosts( { attributes = {} }: MostCommentedPostsWidgetProps ) {
 	return (

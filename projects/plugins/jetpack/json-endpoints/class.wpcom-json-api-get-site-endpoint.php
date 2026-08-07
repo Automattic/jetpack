@@ -101,6 +101,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'garden_is_provisioned'       => '(bool) If the Garden site is provisioned.',
 		'is_wpcom_flex'               => '(bool) If the site is a Flex site',
 		'big_sky_enabled'             => '(bool) Whether the Big Sky AI assistant is enabled for this site.',
+		'atomic_email_block'          => '(object) State of the block on the site\'s outgoing email, with `status` (`blocked` while a block is active, `at_risk` once it has expired), `reason` and `expires_on` keys, or null when the site has no block history. WordPress.com platform only.',
 		'hosting_provider_guess'      => '(string) Guess of the hosting provider. WordPress.com platform only; only returned when explicitly requested via the fields parameter.',
 		'environment_type'            => '(string) The WP_ENVIRONMENT_TYPE of the site as synced by Jetpack. WordPress.com platform only; only returned when explicitly requested via the fields parameter.',
 	);
@@ -271,6 +272,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'garden_is_provisioned',
 		'is_wpcom_flex',
 		'big_sky_enabled',
+		'atomic_email_block',
 	);
 
 	/**
@@ -678,6 +680,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'big_sky_enabled':
 				$response[ $key ] = $this->site->is_big_sky_enabled();
+				break;
+			case 'atomic_email_block':
+				$response[ $key ] = $this->site->get_atomic_email_block();
 				break;
 			case 'hosting_provider_guess':
 				// WordPress.com platform decoration, computed only when explicitly requested
@@ -1103,6 +1108,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			unset( $response->plan );
 			unset( $response->products );
 			unset( $response->zendesk_site_meta );
+			unset( $response->atomic_email_block );
 		}
 
 		// render additional options.

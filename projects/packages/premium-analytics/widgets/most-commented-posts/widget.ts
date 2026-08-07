@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { commentContent } from '@wordpress/icons';
+import { comment } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 export type MostCommentedPostsAttributes = {
@@ -13,7 +13,7 @@ export type MostCommentedPostsAttributes = {
 };
 
 /**
- * Widget type definition for the Most commented posts widget.
+ * Widget type definition for the Top commented posts widget.
  *
  * One half of the Jetpack Stats "Comments" module: the posts and pages that
  * receive the most comments. The other half ships as
@@ -24,7 +24,7 @@ export type MostCommentedPostsAttributes = {
  * period, so the widget ignores the dashboard date range.
  */
 export default {
-	icon: commentContent,
+	icon: comment,
 	attributes: [
 		{
 			id: 'max',

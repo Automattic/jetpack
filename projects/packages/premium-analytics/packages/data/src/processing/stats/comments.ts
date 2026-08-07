@@ -159,7 +159,7 @@ export type StatsCommentsGroup = 'authors' | 'posts';
 
 /**
  * A flat Comments report row, shared by every consumer of the report: the
- * "Most commented authors" and "Most commented posts" widgets and the Comments
+ * "Top commented authors" and "Top commented posts" widgets and the Comments
  * report page.
  *
  * `link` is the value the report carries: a locally built, root-relative
