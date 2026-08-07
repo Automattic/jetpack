@@ -390,6 +390,8 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		$this->assertArrayHasKey( 'is_user_connected', $data );
 		$this->assertArrayHasKey( 'supports_ai', $data['plan'] );
 		$this->assertArrayHasKey( 'supports_search', $data['plan'] );
+		// No Search plan info at all: not the free tier, just unentitled.
+		$this->assertFalse( $data['plan']['is_free_search_plan'] );
 
 		$features = $data['features'];
 		$this->assertTrue( $features['writing_assistant']['enabled'] );
@@ -426,6 +428,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		$this->assertFalse( $data['features']['ai_search']['requires_upgrade'] );
 		// The entitlement field keeps its own meaning.
 		$this->assertTrue( $data['plan']['supports_search'] );
+		$this->assertFalse( $data['plan']['is_free_search_plan'] );
 	}
 
 	/**
@@ -447,6 +450,10 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		);
 		$data = $this->dispatch( 'GET' )->get_data();
 		$this->assertTrue( $data['features']['ai_search']['requires_upgrade'] );
+		// The free tier reports supports_search, so the client needs this flag
+		// to route the badge tooltip to the upgrade copy instead of setup.
+		$this->assertTrue( $data['plan']['supports_search'] );
+		$this->assertTrue( $data['plan']['is_free_search_plan'] );
 
 		// Classic-only: entitled to Search, but no Instant Search.
 		update_option(
@@ -460,6 +467,9 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		$data = $this->dispatch( 'GET' )->get_data();
 		$this->assertTrue( $data['features']['ai_search']['requires_upgrade'] );
 		$this->assertTrue( $data['plan']['supports_search'] );
+		// A paid Classic-only plan is not the free tier — the badge tooltip
+		// keeps the setup copy for it.
+		$this->assertFalse( $data['plan']['is_free_search_plan'] );
 	}
 
 	/**

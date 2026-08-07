@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the social sharing sidebar failing to load in the editor on WordPress 6.9.

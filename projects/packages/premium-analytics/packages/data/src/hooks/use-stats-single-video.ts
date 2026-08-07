@@ -11,6 +11,7 @@ export type {
 	StatsSingleVideoDataPoint,
 	StatsSingleVideoPage,
 	StatsSingleVideoPost,
+	StatsSingleVideoTotals,
 } from '../processing/stats';
 export type { StatsSingleVideoParams } from '../queries/stats-single-video-query';
 

@@ -93,6 +93,26 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 			? 'https://wordpress.com/activity-log/' . $activity_log_site
 			: admin_url( 'admin.php?page=jetpack-activity-log' );
 
+		/*
+		 * Link SEO settings to the dedicated Jetpack SEO page where it exists,
+		 * falling back to the Traffic settings card. Checking the `rsm_jetpack_seo`
+		 * filter is required in addition to the cohort check: is_seo_surface_visible()
+		 * alone returns true on all of wpcom-platform even while the flag is off —
+		 * it answers only the cohort half, and page registration requires both
+		 * (see packages/seo Initializer::init()).
+		 */
+		$seo_settings_url = admin_url( 'admin.php?page=jetpack#/traffic' );
+		if (
+			// The exact-symbol guard matters: the autoloader can select an older
+			// jetpack-seo copy from another plugin that has the class but not
+			// this method, and class_exists alone would then fatal here.
+			method_exists( '\Automattic\Jetpack\SEO\Initializer', 'is_seo_surface_visible' )
+			&& (bool) apply_filters( 'rsm_jetpack_seo', false )
+			&& \Automattic\Jetpack\SEO\Initializer::is_seo_surface_visible()
+		) {
+			$seo_settings_url = admin_url( 'admin.php?page=jetpack-seo' );
+		}
+
 		wp_enqueue_script(
 			'jetpack-ai-admin',
 			plugins_url( '_inc/build/jetpack-ai-admin.js', JETPACK__PLUGIN_FILE ),
@@ -107,16 +127,20 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 			'jetpack-ai-admin',
 			'var jetpackAiSettings = ' . wp_json_encode(
 				array(
-					'blogId'         => $blog_id ? (int) $blog_id : 0,
-					'activityLogUrl' => $activity_log_url,
-					'siteAdminUrl'   => admin_url(),
-					'apiRoot'        => esc_url_raw( rest_url() ),
-					'apiNonce'       => wp_create_nonce( 'wp_rest' ),
-					'pluginUrl'      => plugins_url( '', JETPACK__PLUGIN_FILE ),
+					'blogId'           => $blog_id ? (int) $blog_id : 0,
+					'activityLogUrl'   => $activity_log_url,
+					'seoSettingsUrl'   => $seo_settings_url,
+					'siteAdminUrl'     => admin_url(),
+					'apiRoot'          => esc_url_raw( rest_url() ),
+					'apiNonce'         => wp_create_nonce( 'wp_rest' ),
+					'pluginUrl'        => plugins_url( '', JETPACK__PLUGIN_FILE ),
 					// Route through the Jetpack redirect service so the upgrade
 					// destination for the MCP upsell can be retargeted without
 					// shipping a code change.
-					'upgradeUrl'     => Redirect::get_url( 'jetpack-ai-upgrade-url-for-jetpack-sites' ),
+					'upgradeUrl'       => Redirect::get_url( 'jetpack-ai-upgrade-url-for-jetpack-sites' ),
+					// Pre-release gate: only internal testing environments see
+					// the Features view. Remove when the view goes public.
+					'showFeaturesView' => jetpack_is_internal_testing_environment(),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',

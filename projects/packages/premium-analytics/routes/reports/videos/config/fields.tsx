@@ -1,11 +1,9 @@
 /**
  * External dependencies
  */
-import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
+import { createReportOriginSearch, pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import { MetricWithComparison, VideoTitleLink } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { useSearch } from '@wordpress/route';
-import { useMemo } from 'react';
 import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
 import type { Field } from '@jetpack-premium-analytics/externals';
 
@@ -27,6 +25,19 @@ function getVideoTitle( video: StatsVideoPlaysComparisonItem ) {
 }
 
 /**
+ * Build the page-scoped search state for a video detail link.
+ *
+ * @param current - The current report search parameters.
+ * @return The detail page search parameters.
+ */
+function getVideoDetailSearch( current: Record< string, unknown > ) {
+	return {
+		...pickReportDateParams( current ),
+		...createReportOriginSearch( 'videos' ),
+	};
+}
+
+/**
  * Render a video row's title. Rows with an attachment ID link to the internal
  * video detail page, carrying the report's current date window so the detail
  * page and its "Stats" breadcrumb keep the range being inspected; the public
@@ -37,12 +48,15 @@ function getVideoTitle( video: StatsVideoPlaysComparisonItem ) {
  * @return The linked or plain video title.
  */
 function VideoTitle( { item }: { item: StatsVideoPlaysComparisonItem } ) {
-	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
-	const detailSearch = useMemo( () => pickReportDateParams( search ), [ search ] );
 	const title = getVideoTitle( item );
 
 	return (
-		<VideoTitleLink id={ item.id } label={ title } link={ item.link } search={ detailSearch } />
+		<VideoTitleLink
+			id={ item.id }
+			label={ title }
+			link={ item.link }
+			search={ getVideoDetailSearch }
+		/>
 	);
 }
 

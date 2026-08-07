@@ -168,28 +168,30 @@ function get_dashboard_default_widget_instance(
 function get_dashboard_default_section_layouts() {
 	return array(
 		DASHBOARD_TRAFFIC_SECTION_ID     => array(
-			// Row 1: traffic chart + most-viewed posts.
+			// Rows fill the four-column grid. Plan usage is intentionally not a
+			// default; it stays available from the widget picker.
+			// Row 1: traffic chart.
 			get_dashboard_default_widget_instance(
 				'default-traffic-chart-widget-instance',
 				'jpa/traffic-chart',
 				0,
-				3,
+				4,
 				2,
 				array(
 					'granularity' => 'auto',
 				)
 			),
+			// Row 2: most-viewed posts + referrers + devices.
 			get_dashboard_default_widget_instance(
 				'default-stats-top-posts-widget-instance',
 				'jpa/stats-top-posts',
 				1,
-				1,
+				2,
 				2,
 				array(
 					'max' => 10,
 				)
 			),
-			// Row 2: referrers + locations map + devices.
 			get_dashboard_default_widget_instance(
 				'default-referrers-widget-instance',
 				'jpa/referrers',
@@ -201,26 +203,26 @@ function get_dashboard_default_section_layouts() {
 				)
 			),
 			get_dashboard_default_widget_instance(
-				'default-locations-widget-instance',
-				'jpa/locations',
-				3,
-				2,
-				2,
-				array(
-					'max' => 10,
-				)
-			),
-			get_dashboard_default_widget_instance(
 				'default-devices-widget-instance',
 				'jpa/devices',
-				4,
+				3,
 				1,
 				2,
 				array(
 					'max' => 5,
 				)
 			),
-			// Row 3: top platforms + VideoPress + authors + UTM insights.
+			// Row 3: locations map + top platforms.
+			get_dashboard_default_widget_instance(
+				'default-locations-widget-instance',
+				'jpa/locations',
+				4,
+				3,
+				2,
+				array(
+					'max' => 10,
+				)
+			),
 			get_dashboard_default_widget_instance(
 				'default-top-platforms-widget-instance',
 				'jpa/top-platforms',
@@ -231,6 +233,7 @@ function get_dashboard_default_section_layouts() {
 					'max' => 10,
 				)
 			),
+			// Row 4: VideoPress + clicks + authors.
 			get_dashboard_default_widget_instance(
 				'default-videopress-widget-instance',
 				'jpa/videopress',
@@ -242,35 +245,35 @@ function get_dashboard_default_section_layouts() {
 				)
 			),
 			get_dashboard_default_widget_instance(
-				'default-authors-widget-instance',
-				'jpa/authors',
+				'default-clicks-widget-instance',
+				'jpa/clicks',
 				7,
 				1,
+				2,
+				array(
+					'max' => 10,
+				)
+			),
+			get_dashboard_default_widget_instance(
+				'default-authors-widget-instance',
+				'jpa/authors',
+				8,
+				2,
 				2,
 				array(
 					'max' => 7,
 				)
 			),
+			// Row 5: UTM insights + search terms + file downloads (Simple only).
 			get_dashboard_default_widget_instance(
 				'default-utm-insights-widget-instance',
 				'jpa/utm-insights',
-				8,
-				1,
+				9,
+				2,
 				2,
 				array(
 					'utmDimension' => 'utm_source,utm_medium',
 					'max'          => 10,
-				)
-			),
-			// Row 4: clicks + search terms + file downloads + plan usage.
-			get_dashboard_default_widget_instance(
-				'default-clicks-widget-instance',
-				'jpa/clicks',
-				9,
-				1,
-				2,
-				array(
-					'max' => 10,
 				)
 			),
 			get_dashboard_default_widget_instance(
@@ -293,79 +296,77 @@ function get_dashboard_default_section_layouts() {
 					'max' => 10,
 				)
 			),
-			get_dashboard_default_widget_instance(
-				'default-plan-usage-widget-instance',
-				'jpa/plan-usage',
-				12,
-				1,
-				2
-			),
 		),
 		DASHBOARD_INSIGHTS_SECTION_ID    => array(
-			// Mirrors the legacy Calypso Stats Insights page (WOOA7S-1616).
-			// Emails is not an Insights module (it lives on the Subscribers
-			// tab). Two canonical modules are not ported yet — All-time total
-			// views (WOOA7S-1512) and Most popular post (part of WOOA7S-1510).
-			// Row 1: annual highlights + all-time stats.
+			// Follows the prototype's rows (WOOA7S-1786). Emails lives on the
+			// Subscribers tab, and the site-wide views heatmap has no widget
+			// yet (WOOA7S-1787), so that row is absent.
+			// Row 1: highlights banner.
 			get_dashboard_default_widget_instance(
 				'default-annual-highlights-widget-instance',
 				'jpa/annual-highlights',
 				0,
-				2,
-				2
+				4,
+				1
 			),
+			// Row 2: posting-activity heatmap.
 			get_dashboard_default_widget_instance(
-				'default-all-time-stats-widget-instance',
-				'jpa/all-time-stats',
+				'default-posting-activity-widget-instance',
+				'jpa/posting-activity',
 				1,
-				2,
-				2
+				4,
+				1
 			),
-			// Row 2: latest post + the two most-popular cards + tags.
+			// Row 3: the two post spotlights.
 			get_dashboard_default_widget_instance(
 				'default-latest-post-widget-instance',
 				'jpa/latest-post',
 				2,
-				1,
+				2,
 				2
+			),
+			get_dashboard_default_widget_instance(
+				'default-popular-post-widget-instance',
+				'jpa/popular-post',
+				3,
+				2,
+				2
+			),
+			// Row 4: the period totals + the two most-popular cards. The
+			// most-popular cards still crop at this height (WOOA7S-1846).
+			get_dashboard_default_widget_instance(
+				'default-total-views-widget-instance',
+				'jpa/total-views',
+				4,
+				1,
+				1
+			),
+			get_dashboard_default_widget_instance(
+				'default-total-visitors-widget-instance',
+				'jpa/total-visitors',
+				5,
+				1,
+				1
 			),
 			get_dashboard_default_widget_instance(
 				'default-most-popular-time-widget-instance',
 				'jpa/most-popular-time',
-				3,
+				6,
 				1,
-				2
+				1
 			),
 			get_dashboard_default_widget_instance(
 				'default-most-popular-day-widget-instance',
 				'jpa/most-popular-day',
-				4,
+				7,
 				1,
-				2
+				1
 			),
-			get_dashboard_default_widget_instance(
-				'default-tags-widget-instance',
-				'jpa/tags',
-				5,
-				1,
-				2,
-				array(
-					'max' => 10,
-				)
-			),
-			// Row 3: posting-activity heatmap + the two comment leaderboards.
-			get_dashboard_default_widget_instance(
-				'default-posting-activity-widget-instance',
-				'jpa/posting-activity',
-				6,
-				2,
-				2
-			),
-			// Posts before authors, matching the design's Insights bottom row.
+			// Row 5: the comment leaderboards, shares, and tags.
 			get_dashboard_default_widget_instance(
 				'default-most-commented-posts-widget-instance',
 				'jpa/most-commented-posts',
-				7,
+				8,
 				1,
 				2,
 				array(
@@ -375,18 +376,27 @@ function get_dashboard_default_section_layouts() {
 			get_dashboard_default_widget_instance(
 				'default-most-commented-authors-widget-instance',
 				'jpa/most-commented-authors',
-				8,
+				9,
 				1,
 				2,
 				array(
 					'max' => 10,
 				)
 			),
-			// Row 4: shares, joined by the two unported modules noted above.
 			get_dashboard_default_widget_instance(
 				'default-shares-widget-instance',
 				'jpa/shares',
-				9,
+				10,
+				1,
+				2,
+				array(
+					'max' => 10,
+				)
+			),
+			get_dashboard_default_widget_instance(
+				'default-tags-widget-instance',
+				'jpa/tags',
+				11,
 				1,
 				2,
 				array(
@@ -395,33 +405,24 @@ function get_dashboard_default_section_layouts() {
 			),
 		),
 		DASHBOARD_SUBSCRIBERS_SECTION_ID => array(
-			get_dashboard_default_widget_instance(
-				'default-subscriber-highlights-widget-instance',
-				'jpa/subscriber-highlights',
-				0,
-				4,
-				1,
-				array(
-					'showTotal'  => true,
-					'showPaid'   => true,
-					'showFree'   => true,
-					'showSocial' => true,
-				)
-			),
+			// Subscriber highlights is intentionally not a default: the design
+			// opens on the chart. It stays available from the widget picker.
+			// Row 1: subscribers chart.
 			get_dashboard_default_widget_instance(
 				'default-subscribers-chart-widget-instance',
 				'jpa/subscribers-chart',
-				1,
+				0,
 				4,
 				2,
 				array(
 					'granularity' => 'auto',
 				)
 			),
+			// Row 2: latest subscribers + latest emails sent.
 			get_dashboard_default_widget_instance(
 				'default-subscribers-list-widget-instance',
 				'jpa/subscribers-list',
-				2,
+				1,
 				2,
 				2,
 				array(
@@ -431,7 +432,7 @@ function get_dashboard_default_section_layouts() {
 			get_dashboard_default_widget_instance(
 				'default-subscribers-emails-widget-instance',
 				'jpa/stats-emails',
-				3,
+				2,
 				2,
 				2,
 				array(

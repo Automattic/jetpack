@@ -6,6 +6,7 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { setMockRouteSearch } from '../../../../tests/js/route-test-utils';
 import {
 	buildArchiveCsvRows,
 	buildArchiveRows,
@@ -13,7 +14,6 @@ import {
 	getPostsFields,
 	type ArchiveRow,
 } from './fields';
-import type { ReactNode } from 'react';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	useSiteHomeUrl: jest.fn(),
@@ -21,32 +21,15 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 
 // The router is built dynamically at runtime, so a field-level test has no
 // router to mount. Render `Link` as the anchor it becomes, keeping `to`,
-// `params`, and `search` assertable, matching the other report field tests.
-jest.mock( '@wordpress/route', () => ( {
-	Link: ( {
-		to,
-		params,
-		search,
-		children,
-	}: {
-		to: string;
-		params: Record< string, string >;
-		search?: Record< string, unknown >;
-		children: ReactNode;
-	} ) => {
-		const path = to.replace( /\$(\w+)/g, ( _match, key ) => params[ key ] );
-		const query = new URLSearchParams();
-		Object.entries( search ?? {} ).forEach( ( [ key, value ] ) => {
-			if ( value !== undefined && value !== null ) {
-				query.set( key, String( value ) );
-			}
-		} );
-		const queryString = query.toString();
+// `params`, and `search` assertable, matching the other report field
+// tests.
+jest.mock( '@wordpress/route', () => {
+	const { mockWordPressRoute } = jest.requireActual( '../../../../tests/js/route-test-utils' );
 
-		return <a href={ queryString ? `${ path }?${ queryString }` : path }>{ children }</a>;
-	},
-	useSearch: () => ( { from: '2026-03-01', to: '2026-03-10', interval: 'day' } ),
-} ) );
+	return mockWordPressRoute;
+} );
+
+setMockRouteSearch( { from: '2026-03-01', to: '2026-03-10', interval: 'day' } );
 
 const mockUseSiteHomeUrl = useSiteHomeUrl as jest.MockedFunction< typeof useSiteHomeUrl >;
 
@@ -65,7 +48,9 @@ const homepage: StatsTopPostsComparisonItem = {
  * @return The Testing Library render result.
  */
 function renderTitleField( item: StatsTopPostsComparisonItem ) {
-	const field = getPostsFields().find( candidate => candidate.id === 'title' );
+	const field = getPostsFields( false, 'posts-pages' ).find(
+		candidate => candidate.id === 'title'
+	);
 	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
 	const TitleField = field?.render;
 
@@ -102,7 +87,9 @@ function renderArchiveTitleField( item: ArchiveRow ) {
  * @return The Testing Library render result.
  */
 function renderPostViewsField( item: StatsTopPostsComparisonItem, withComparison = false ) {
-	const field = getPostsFields( withComparison ).find( candidate => candidate.id === 'views' );
+	const field = getPostsFields( withComparison, 'posts-pages' ).find(
+		candidate => candidate.id === 'views'
+	);
 	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
 	const ViewsField = field?.render;
 
@@ -195,6 +182,10 @@ describe( 'posts title field', () => {
 		expect( search.get( 'post_url' ) ).toBe( 'https://example.com/hello-world/' );
 		// A row with a detail page carries no link out to the live post.
 		expect( link ).not.toHaveAttribute( 'target' );
+		// The referring report travels in the URL so the detail breadcrumb can
+		// link back to the tab the visitor came from.
+		expect( search.get( 'ref' ) ).toBe( 'posts' );
+		expect( search.get( 'ref_section' ) ).toBe( 'posts-pages' );
 	} );
 
 	// Guards against a malformed row linking to `/post/undefined`.

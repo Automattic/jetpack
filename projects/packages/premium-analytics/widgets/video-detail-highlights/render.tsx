@@ -1,20 +1,19 @@
 /**
  * External dependencies
  */
-import {
-	useStatsSingleVideo,
-	type StatsSingleVideoResponse,
-} from '@jetpack-premium-analytics/data';
+import { toPostId, useStatsSingleVideo } from '@jetpack-premium-analytics/data';
 import {
 	MetricTileGrid,
 	WidgetRoot,
 	WidgetState,
+	describeError,
 	useWidgetRootContext,
 	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { scheduled, seen, video } from '@wordpress/icons';
+import { scheduled, seen, trendingUp, video } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -36,80 +35,68 @@ const HOURS_FORMAT: DataFormat = {
 	options: { decimals: 1 },
 };
 
-/**
- * Resolve the routed VideoPress attachment ID. Invalid or missing values keep
- * the data query disabled and show the widget's scope-empty descriptor.
- *
- * @param postId - The host-composed `reportParams.post_id` value.
- * @return A positive video ID, or `NaN` when no valid video is selected.
- */
-function toVideoId( postId: string | number | undefined ): number {
-	const parsed = typeof postId === 'number' ? postId : Number.parseInt( postId ?? '', 10 );
-
-	return Number.isInteger( parsed ) && parsed > 0 ? parsed : NaN;
-}
+const RATE_FORMAT: DataFormat = {
+	type: 'percentage',
+	options: { decimals: 1, signDisplay: 'never' },
+};
 
 /**
- * Sum the single-video endpoint's trailing 30-day metric series.
- *
- * The endpoint's `period=month` window contains 31 inclusive daily buckets,
- * so mirror Calypso by trimming the oldest bucket before calculating the total.
- *
- * @param report - A normalized single-video metric response.
- * @return The metric total for the trailing 30 days.
- */
-export function sumVideoMetric( report: StatsSingleVideoResponse | undefined ): number {
-	const data = report?.data ?? [];
-	const trailingWindow = data.length > 30 ? data.slice( -30 ) : data;
-
-	return trailingWindow.reduce( ( total, point ) => total + point.value, 0 );
-}
-
-/**
- * Read the selected video scope from WidgetRoot, fetch its three metric series,
- * and render their trailing-30-day totals through the shared tile grid.
+ * Read the selected video scope from WidgetRoot, fetch one `statType=all`
+ * range report, and render its server-computed window totals through the
+ * shared tile grid.
  *
  * @return The video highlights widget content.
  */
 function VideoDetailHighlightsInner() {
 	const { reportParams } = useWidgetRootContext();
-	const videoId = toVideoId( reportParams.post_id );
-	const hasVideoScope = Number.isInteger( videoId );
-	const views = useStatsSingleVideo( videoId, undefined, { enabled: hasVideoScope } );
-	const impressions = useStatsSingleVideo(
+	// The shared resolver returns 0 for an invalid or missing scope, which also
+	// keeps the query's own `enabled` guard off.
+	const videoId = toPostId( reportParams.post_id );
+	const hasVideoScope = videoId > 0;
+	// One `statType=all` request scoped to the page's range (wpcom #229903):
+	// the response carries every metric series plus canonical `total`s over the
+	// requested window, including the play-weighted retention rate the
+	// per-metric series cannot derive. The Views performance widget issues the
+	// same request, so the two widgets share one cache entry. Comparison
+	// params never reach the request — the query factory maps only the range
+	// params, and this hook fetches no comparison window.
+	const queryParams = useMemo(
+		() => ( {
+			from: reportParams.from,
+			to: reportParams.to,
+			period: 'day' as const,
+			statType: 'all' as const,
+		} ),
+		[ reportParams.from, reportParams.to ]
+	);
+	const { data, isLoading, isFetching, isError, error, refetch } = useStatsSingleVideo(
 		videoId,
-		{ period: 'month', statType: 'impressions' },
+		queryParams,
 		{ enabled: hasVideoScope }
 	);
-	const watchTime = useStatsSingleVideo(
-		videoId,
-		{ period: 'month', statType: 'watch_time' },
-		{ enabled: hasVideoScope }
-	);
-	const queries = [ views, impressions, watchTime ];
-	const isLoading = queries.some( query => query.isLoading );
-	const isFetching = queries.some( query => query.isFetching );
-	const isError = queries.some( query => query.isError );
-	const hasData = queries.some( query => query.data?.data.length );
+	const total = data?.total;
+	// A metric missing from the response's `fields` is unknown, not a measured
+	// zero — `null` lets the tile render its placeholder instead of fake data.
 	const tiles = [
-		{
-			key: 'views',
-			label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
-			icon: seen,
-			value: sumVideoMetric( views.data ),
-		},
 		{
 			key: 'impressions',
 			label: __( 'Impressions', 'jetpack-premium-analytics-pkg' ),
-			icon: video,
-			value: sumVideoMetric( impressions.data ),
+			icon: seen,
+			value: total?.impressions ?? null,
 		},
 		{
 			key: 'watch-time',
 			label: __( 'Hours watched', 'jetpack-premium-analytics-pkg' ),
 			icon: scheduled,
-			value: sumVideoMetric( watchTime.data ),
+			value: total?.watch_time ?? null,
 			dataFormat: HOURS_FORMAT,
+		},
+		{
+			key: 'retention-rate',
+			label: __( 'Retention rate', 'jetpack-premium-analytics-pkg' ),
+			icon: trendingUp,
+			value: total?.retention_rate === undefined ? null : total.retention_rate / 100,
+			dataFormat: RATE_FORMAT,
 		},
 	];
 
@@ -119,21 +106,14 @@ function VideoDetailHighlightsInner() {
 				isLoading={ hasVideoScope && isLoading }
 				isFetching={ isFetching }
 				isError={ hasVideoScope && isError }
-				isEmpty={ ! hasVideoScope || ( ! isLoading && ! isError && ! hasData ) }
-				error={ {
-					description: __(
+				isEmpty={ ! hasVideoScope || ( ! isLoading && ! isError && ! total ) }
+				error={ describeError( error, {
+					retryDescription: __(
 						"We couldn't load this video's highlights. Please try again in a moment.",
 						'jetpack-premium-analytics-pkg'
 					),
-					actions: [
-						{
-							label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
-							onClick: () => {
-								void Promise.all( queries.map( query => query.refetch() ) );
-							},
-						},
-					],
-				} }
+					onRetry: refetch,
+				} ) }
 				empty={ {
 					icon: video,
 					description: hasVideoScope

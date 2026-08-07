@@ -3,9 +3,8 @@
  */
 import { Stack } from '@jetpack-premium-analytics/externals';
 import { DrilldownLeafCell } from '@jetpack-premium-analytics/ui';
-import { MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
+import { MetricWithComparison, PostDetailLink } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
-import { Link } from '@wordpress/route';
 /**
  * Internal dependencies
  */
@@ -65,9 +64,9 @@ export function getAuthorsFields( withComparison = false ): Field< AuthorRow >[]
 						<DrilldownLeafCell groupLabel={ getAuthorName( item.parentName ?? '' ) }>
 							<span>
 								{ item.postId ? (
-									<Link to="/post/$postId" params={ { postId: item.postId } as unknown as never }>
+									<PostDetailLink postId={ item.postId } report="authors">
 										{ item.label }
-									</Link>
+									</PostDetailLink>
 								) : (
 									item.label
 								) }

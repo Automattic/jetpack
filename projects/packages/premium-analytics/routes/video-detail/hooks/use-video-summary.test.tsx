@@ -66,6 +66,35 @@ describe( 'useVideoSummary', () => {
 		}
 	);
 
+	it( 'passes a safe http(s) poster URL through as posterUrl', () => {
+		mockVideoQuery( {
+			data: {
+				post: {
+					id: 42,
+					mimeType: 'video/mp4',
+					poster: 'https://i0.wp.com/videos.files.wordpress.com/abcd1234/demo.jpg',
+				},
+			},
+		} );
+
+		const { result } = renderHook( () => useVideoSummary( 42 ) );
+
+		expect( result.current.posterUrl ).toBe(
+			'https://i0.wp.com/videos.files.wordpress.com/abcd1234/demo.jpg'
+		);
+	} );
+
+	it.each( [ undefined, 'javascript:alert(1)', 'not-a-url' ] )(
+		'resolves no posterUrl for a missing or unsafe poster (%p)',
+		poster => {
+			mockVideoQuery( { data: { post: { id: 42, mimeType: 'video/mp4', poster } } } );
+
+			const { result } = renderHook( () => useVideoSummary( 42 ) );
+
+			expect( result.current.posterUrl ).toBeUndefined();
+		}
+	);
+
 	it.each( [
 		{ isLoading: true, isSuccess: false },
 		{ isError: true, isSuccess: false },

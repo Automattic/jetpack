@@ -11,7 +11,7 @@
 		"@jetpack-premium-analytics/datetime": "workspace:*",
 		"@wordpress/core-data": "7.51.0",
 		"@wordpress/data": "10.51.0",
-		"@wordpress/route": "0.17.0",
+		"@wordpress/route": "0.18.0",
 		"date-fns": "4.1.0",
 		"react": "18.3.1"
 	}

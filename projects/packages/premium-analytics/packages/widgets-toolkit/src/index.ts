@@ -57,9 +57,14 @@ export {
 	PostTitleLink,
 	POST_URL_SEARCH_PARAM,
 	type PostTitleLinkProps,
+	PostDetailLink,
+	type PostDetailLinkProps,
 	LeaderboardPostLabel,
 	type LeaderboardPostLabelProps,
 	type LeaderboardPostLabelVariant,
+	PostHighlightCard,
+	type PostHighlightCardMetric,
+	type PostHighlightCardProps,
 	VideoTitleLink,
 	type VideoTitleLinkProps,
 	SubscriberList,
@@ -151,6 +156,7 @@ export {
 	toDay,
 	defaultPeriodForInterval,
 	buildMetricTab,
+	withoutComparison,
 } from './helpers';
 
 /**
@@ -214,6 +220,7 @@ export {
 	GlobalChartsProvider,
 	HeatmapChart,
 	HeatmapChartUnresponsive,
+	Sparkline,
 	buildCalendarHeatmapData,
 	type DataPointDate,
 	type GeoChartError,
