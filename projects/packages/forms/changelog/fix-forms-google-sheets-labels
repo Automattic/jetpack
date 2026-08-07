@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: use the correct field labels as Google Sheets column headings.

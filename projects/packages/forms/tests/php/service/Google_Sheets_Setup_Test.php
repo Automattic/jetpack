@@ -211,15 +211,84 @@ class Google_Sheets_Setup_Test extends BaseTestCase {
 		$this->assertSame( array(), Google_Sheets_Setup::get_backfill_rows( 0, array() ) );
 	}
 
-	public function test_form_columns_read_labels_in_document_order() {
-		$content = (
-			'<!-- wp:jetpack/field-name {"label":"Name"} /-->' .
-			'<!-- wp:jetpack/field-email {"label":"Email"} /-->' .
-			'<!-- wp:jetpack/field-textarea {"label":"Message"} /-->'
-		);
+	/**
+	 * Build the block markup a field actually has when saved from the editor:
+	 * the label lives in an inner jetpack/label block, not in the field's own
+	 * attributes.
+	 *
+	 * @param string $type  The field type, e.g. 'name'.
+	 * @param string $label The label text.
+	 * @return string
+	 */
+	private function field_block( $type, $label ) {
+		return '<!-- wp:jetpack/field-' . $type . ' -->' .
+			'<!-- wp:jetpack/label {"label":"' . $label . '"} /-->' .
+			'<!-- wp:jetpack/input /-->' .
+			'<!-- /wp:jetpack/field-' . $type . ' -->';
+	}
+
+	/**
+	 * The shape real forms are saved in. Reading only the field block's own
+	 * `label` attribute names every column "Field", because modern field blocks
+	 * do not carry one.
+	 */
+	public function test_form_columns_read_labels_from_inner_label_blocks() {
+		$content =
+			$this->field_block( 'name', 'Name' ) .
+			$this->field_block( 'email', 'Email' ) .
+			$this->field_block( 'textarea', 'Message' );
 
 		$this->assertSame(
 			array( 'Name', 'Email', 'Message' ),
+			Google_Sheets_Setup::get_columns_from_content( $content )
+		);
+	}
+
+	/**
+	 * Legacy markup that does carry attrs.label still has to work.
+	 */
+	public function test_form_columns_read_legacy_attribute_labels() {
+		$content = (
+			'<!-- wp:jetpack/field-name {"label":"Name"} /-->' .
+			'<!-- wp:jetpack/field-email {"label":"Email"} /-->'
+		);
+
+		$this->assertSame(
+			array( 'Name', 'Email' ),
+			Google_Sheets_Setup::get_columns_from_content( $content )
+		);
+	}
+
+	/**
+	 * The core form patterns declare no label at all and rely on the type
+	 * default, which is what the rendered field ends up labelled with.
+	 */
+	public function test_form_columns_fall_back_to_the_type_default_label() {
+		$content = (
+			'<!-- wp:jetpack/field-name {"required":true} /-->' .
+			'<!-- wp:jetpack/field-email {"required":true} /-->'
+		);
+
+		$this->assertSame(
+			array( 'Name', 'Email' ),
+			Google_Sheets_Setup::get_columns_from_content( $content )
+		);
+	}
+
+	/**
+	 * Option sub-blocks carry their own `label` attribute holding the option
+	 * text. Recursing into a field block turns each option into a column.
+	 */
+	public function test_form_columns_ignore_option_sub_blocks() {
+		$content =
+			'<!-- wp:jetpack/field-single-choice -->' .
+			'<!-- wp:jetpack/label {"label":"Favourite colour"} /-->' .
+			'<!-- wp:jetpack/field-option-radio {"label":"Red"} /-->' .
+			'<!-- wp:jetpack/field-option-radio {"label":"Green"} /-->' .
+			'<!-- /wp:jetpack/field-single-choice -->';
+
+		$this->assertSame(
+			array( 'Favourite colour' ),
 			Google_Sheets_Setup::get_columns_from_content( $content )
 		);
 	}
@@ -259,10 +328,14 @@ class Google_Sheets_Setup_Test extends BaseTestCase {
 		);
 	}
 
-	public function test_form_columns_name_unlabelled_fields() {
+	/**
+	 * An unlabelled field takes the same default label the rendered field does,
+	 * so the column matches the key the response will arrive under.
+	 */
+	public function test_form_columns_name_unlabelled_fields_after_their_type() {
 		$content = ( '<!-- wp:jetpack/field-text /-->' );
 
-		$this->assertSame( array( 'Field' ), Google_Sheets_Setup::get_columns_from_content( $content ) );
+		$this->assertSame( array( 'Text' ), Google_Sheets_Setup::get_columns_from_content( $content ) );
 	}
 
 	public function test_form_columns_ignore_non_field_blocks() {

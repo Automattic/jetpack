@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Forms\Service;
 
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Feedback;
 use WP_Error;
 
@@ -155,7 +156,14 @@ class Google_Sheets_Setup {
 			$name = isset( $block['blockName'] ) ? (string) $block['blockName'] : '';
 
 			if ( str_starts_with( $name, 'jetpack/field-' ) ) {
-				$labels[] = isset( $block['attrs']['label'] ) ? wp_strip_all_tags( (string) $block['attrs']['label'] ) : '';
+				$labels[] = self::get_field_label( $block );
+
+				// Do not recurse into a field. Its inner blocks are its own layout
+				// parts - jetpack/label, jetpack/input - and, on multiple-choice
+				// fields, jetpack/field-option-* blocks whose `label` holds the
+				// option text. Those match the `jetpack/field-` prefix, so
+				// recursing here would turn every option into its own column.
+				continue;
 			}
 
 			if ( ! empty( $block['innerBlocks'] ) ) {
@@ -164,6 +172,43 @@ class Google_Sheets_Setup {
 		}
 
 		return $labels;
+	}
+
+	/**
+	 * Resolves the label a single field block renders with.
+	 *
+	 * Modern field blocks keep the label in an inner `jetpack/label` block rather
+	 * than in an attribute of their own, so reading `attrs['label']` alone names
+	 * every column "Field". Older markup does carry the attribute, and the core
+	 * form patterns declare no label at all and fall back to the type default -
+	 * all three shapes reach the sheet, so all three are resolved here.
+	 *
+	 * Mirrors Forms_Abilities::summarize_field_block(), which resolves the same
+	 * three shapes for the abilities API.
+	 *
+	 * @param array $block A parsed `jetpack/field-*` block.
+	 * @return string The label, or an empty string when none can be resolved.
+	 */
+	private static function get_field_label( array $block ) {
+		$label = '';
+
+		foreach ( ( $block['innerBlocks'] ?? array() ) as $inner ) {
+			if ( ( $inner['blockName'] ?? '' ) === 'jetpack/label' && ! empty( $inner['attrs']['label'] ) ) {
+				$label = (string) $inner['attrs']['label'];
+				break;
+			}
+		}
+
+		if ( '' === $label && ! empty( $block['attrs']['label'] ) ) {
+			$label = (string) $block['attrs']['label'];
+		}
+
+		if ( '' === $label ) {
+			$type  = str_replace( 'jetpack/field-', '', isset( $block['blockName'] ) ? (string) $block['blockName'] : '' );
+			$label = Contact_Form::get_default_label_from_type( $type );
+		}
+
+		return wp_strip_all_tags( (string) $label );
 	}
 
 	/**
