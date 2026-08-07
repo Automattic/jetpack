@@ -54,7 +54,7 @@ class Position_Aware_Tag_Processor extends \WP_HTML_Tag_Processor {
 		// $length in 6.5). isset() on an inaccessible property is false, not
 		// a fatal — and a fatal here would blank the page mid-callback.
 		$span = $this->bookmarks[ self::BOOKMARK ] ?? null;
-		if ( ! $span instanceof \WP_HTML_Span || ! isset( $span->start ) ) {
+		if ( ! $span instanceof \WP_HTML_Span || ! isset( $span->start ) || ! is_int( $span->start ) ) {
 			return null;
 		}
 

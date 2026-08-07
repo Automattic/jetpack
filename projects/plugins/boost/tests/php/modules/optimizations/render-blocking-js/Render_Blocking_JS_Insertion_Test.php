@@ -338,6 +338,9 @@ class Render_Blocking_JS_Insertion_Test extends BaseTestCase {
 
 		$output = $this->filter_output( $html );
 
+		// The pinned script is present (strpos() alone would report false as
+		// position zero and make the ordering check below vacuous).
+		$this->assertStringContainsString( 'document.write("inline content");', $output );
 		// document.write stays before the trailing content.
 		$this->assertLessThan( strpos( $output, '<p>After</p>' ), strpos( $output, 'document.write' ) );
 		// The movable script is appended at the very end (no </body> present).

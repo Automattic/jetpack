@@ -56,12 +56,13 @@ class Body_Close_Locator {
 	const MAX_SCAN_BYTES = 1000000;
 
 	/**
-	 * Buffers containing a single tag wider than this are not scanned. The
+	 * Buffers whose widest apparent tag exceeds this are not scanned. The
 	 * tokenizer allocates one attribute token per attribute on the tag it is
 	 * parsing, so peak memory tracks the widest single tag — measured at ~23x
 	 * the tag's width — and a sub-1 MB buffer can still exhaust memory if one
-	 * tag carries tens of thousands of attributes. At this ceiling the worst
-	 * case is a few megabytes.
+	 * tag carries tens of thousands of attributes. The width check is the
+	 * quote-blind pre-scan in find(), a best-effort bound rather than an
+	 * exact one; at this ceiling the ordinary worst case is a few megabytes.
 	 *
 	 * @var int
 	 */
@@ -94,6 +95,16 @@ class Body_Close_Locator {
 	 * @return int|null Byte offset of the '<' of the closing body tag, or null when none was found.
 	 */
 	public static function find( $buffer ) {
+		// The walk needs next_token(), which core added in 6.5. WordPress only
+		// enforces the plugin's 'Requires at least' header at activation, so a
+		// manual core downgrade can leave Boost active on an older core, where
+		// calling it would fatal inside the output-buffer callback and blank
+		// every page. (On cores without the class at all, method_exists()
+		// returns false rather than erroring.)
+		if ( ! method_exists( \WP_HTML_Tag_Processor::class, 'next_token' ) ) {
+			return null;
+		}
+
 		// mbstring.func_overload (PHP 7.x only, removed in 8.0) rebinds strlen(),
 		// strpos() and substr() to their multibyte counterparts. The offset
 		// returned here feeds byte arithmetic (substr_replace), so on such a
