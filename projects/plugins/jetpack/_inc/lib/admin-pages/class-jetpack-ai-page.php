@@ -147,6 +147,22 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 			'before'
 		);
 
+		/*
+		 * `@automattic/jetpack-analytics` reads `window.jpTracksContext.blog_id` at
+		 * event-fire time and attaches it to every Tracks event fired from this page.
+		 * Without it, JS-fired events from self-hosted sites carry no blog_id — the
+		 * Tracks pixel cannot resolve the site — so the events cannot be joined to
+		 * plan or site data. Mirrors Connection\Initial_State::render().
+		 */
+		wp_add_inline_script(
+			'jetpack-ai-admin',
+			sprintf(
+				'window.jpTracksContext = window.jpTracksContext || {}; window.jpTracksContext.blog_id = %s;',
+				absint( $blog_id )
+			),
+			'before'
+		);
+
 		wp_enqueue_style(
 			'jetpack-ai-admin',
 			plugins_url( '_inc/build/jetpack-ai-admin.css', JETPACK__PLUGIN_FILE ),
