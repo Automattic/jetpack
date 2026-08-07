@@ -14,9 +14,9 @@ class Jetpack_Top_Posts_Helper {
 	/**
 	 * Returns user's top posts.
 	 *
-	 * @param int    $period       Period of days to draw stats from.
-	 * @param int    $items_count  Optional. Number of items to display.
-	 * @param string $types        Optional. Content types to include.
+	 * @param int|string $period      Period of days to draw stats from, or 'all-time'.
+	 * @param int        $items_count Optional. Number of items to display.
+	 * @param string     $types       Optional. Content types to include.
 	 * @return array
 	 */
 	public static function get_top_posts( $period, $items_count = null, $types = null ) {

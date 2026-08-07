@@ -181,7 +181,12 @@ class Jetpack_Top_Posts_Helper_Test extends WP_UnitTestCase {
 	 * should not consume the cap.
 	 */
 	public function test_get_top_posts_looks_past_the_cap_for_renderable_entries() {
-		$this->fake_stats_response( array( 'page' => 40, 'post' => 3 ) );
+		$this->fake_stats_response(
+			array(
+				'page' => 40,
+				'post' => 3,
+			)
+		);
 
 		$top_posts = Jetpack_Top_Posts_Helper::get_top_posts( '7', 3, 'post' );
 
