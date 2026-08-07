@@ -1,5 +1,11 @@
 import apiFetch from '@wordpress/api-fetch';
-import { Button, CheckboxControl, RadioControl, Spinner, TextControl } from '@wordpress/components';
+import {
+	Button,
+	CheckboxControl,
+	RadioControl,
+	TextControl,
+	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, Notice } from '@wordpress/ui';
@@ -109,7 +115,7 @@ export default function GoogleSheetsSyncControls( {
 
 	if ( isConfigured ) {
 		return (
-			<div>
+			<VStack spacing="3" className="jp-forms__gsheets-sync">
 				<p className="integration-card__description">
 					{ __(
 						'New responses to this form are added to your spreadsheet as they arrive.',
@@ -117,13 +123,13 @@ export default function GoogleSheetsSyncControls( {
 					) }
 				</p>
 				{ googleSheetsData.spreadsheetUrl && (
-					<p>
+					<div>
 						<Link openInNewTab href={ googleSheetsData.spreadsheetUrl }>
 							{ __( 'Open spreadsheet', 'jetpack-forms' ) }
 						</Link>
-					</p>
+					</div>
 				) }
-			</div>
+			</VStack>
 		);
 	}
 
@@ -131,7 +137,7 @@ export default function GoogleSheetsSyncControls( {
 		! isSettingUp && ( mode === 'create' || looksLikeSpreadsheetReference( spreadsheetUrl ) );
 
 	return (
-		<div>
+		<VStack spacing="4" className="jp-forms__gsheets-sync">
 			<p className="integration-card__description">
 				{ __(
 					'Send each new response to a Google Spreadsheet, as well as keeping it here.',
@@ -139,48 +145,67 @@ export default function GoogleSheetsSyncControls( {
 				) }
 			</p>
 
-			<RadioControl
-				label={ __( 'Spreadsheet', 'jetpack-forms' ) }
-				selected={ mode }
-				options={ [
-					{ label: __( 'Create a new spreadsheet', 'jetpack-forms' ), value: 'create' },
-					{ label: __( 'Use an existing spreadsheet', 'jetpack-forms' ), value: 'existing' },
-				] }
-				onChange={ setMode }
-			/>
-
-			{ mode === 'existing' && (
-				<TextControl
-					label={ __( 'Spreadsheet link', 'jetpack-forms' ) }
-					help={ __(
-						'Paste the link to a Google Sheet you own. Its existing content is left untouched — new responses are added below it.',
-						'jetpack-forms'
-					) }
-					value={ spreadsheetUrl }
-					onChange={ setSpreadsheetUrl }
-					__nextHasNoMarginBottom={ true }
-					__next40pxDefaultSize={ true }
+			<VStack spacing="3">
+				<RadioControl
+					label={ __( 'Spreadsheet', 'jetpack-forms' ) }
+					selected={ mode }
+					options={ [
+						{ label: __( 'Create a new spreadsheet', 'jetpack-forms' ), value: 'create' },
+						{ label: __( 'Use an existing spreadsheet', 'jetpack-forms' ), value: 'existing' },
+					] }
+					onChange={ setMode }
 				/>
-			) }
 
+				{ /* Indented so it reads as belonging to the option above it rather
+				     than as a further choice of its own. */ }
+				{ mode === 'existing' && (
+					<div className="jp-forms__gsheets-sync__suboption">
+						<TextControl
+							label={ __( 'Spreadsheet link', 'jetpack-forms' ) }
+							help={ __(
+								'Paste the link to a Google Sheet you own. Its existing content is left untouched — new responses are added below it.',
+								'jetpack-forms'
+							) }
+							value={ spreadsheetUrl }
+							onChange={ setSpreadsheetUrl }
+							__nextHasNoMarginBottom={ true }
+							__next40pxDefaultSize={ true }
+						/>
+					</div>
+				) }
+			</VStack>
+
+			{ /* Separated from the radio group: this applies whichever
+			     spreadsheet the response goes to, so it must not read as a
+			     third option in that group. */ }
 			<CheckboxControl
 				label={ __( 'Include responses you already have', 'jetpack-forms' ) }
+				help={ __(
+					'Copies the responses collected so far into the spreadsheet before syncing begins.',
+					'jetpack-forms'
+				) }
 				checked={ backfill }
 				onChange={ setBackfill }
 				__nextHasNoMarginBottom={ true }
 			/>
 
 			{ error && (
-				<Notice.Root intent="error" style={ { marginTop: '8px' } }>
+				<Notice.Root intent="error">
 					<Notice.Description>{ error }</Notice.Description>
 				</Notice.Root>
 			) }
 
-			<div style={ { marginTop: '16px' } }>
-				<Button variant="primary" onClick={ handleSetup } disabled={ ! canSubmit }>
-					{ isSettingUp ? <Spinner /> : __( 'Set up syncing', 'jetpack-forms' ) }
+			<div>
+				<Button
+					variant="primary"
+					onClick={ handleSetup }
+					disabled={ ! canSubmit }
+					isBusy={ isSettingUp }
+					__next40pxDefaultSize={ true }
+				>
+					{ __( 'Set up syncing', 'jetpack-forms' ) }
 				</Button>
 			</div>
-		</div>
+		</VStack>
 	);
 }
