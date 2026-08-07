@@ -8,9 +8,7 @@ jest.unstable_mockModule( '@actions/core', () => ( {
 	setFailed: jest.fn(),
 } ) );
 
-const { loadTeamAssignments } = await import(
-	'../src/tasks/triage-issues/update-board.ts'
-);
+const { loadTeamAssignments } = await import( '../src/tasks/triage-issues/update-board.ts' );
 
 describe( 'loadTeamAssignments', () => {
 	beforeEach( () => {
