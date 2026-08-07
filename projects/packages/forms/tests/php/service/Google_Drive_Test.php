@@ -28,27 +28,27 @@ class Google_Drive_Test extends BaseTestCase {
 	 */
 	public static function data_sheet_references() {
 		return array(
-			'edit URL'            => array(
+			'edit URL'                => array(
 				'https://docs.google.com/spreadsheets/d/1AbC-dEf_123/edit#gid=0',
 				'1AbC-dEf_123',
 			),
-			'no trailing path'    => array(
+			'no trailing path'        => array(
 				'https://docs.google.com/spreadsheets/d/1AbC-dEf_123',
 				'1AbC-dEf_123',
 			),
-			'query string'        => array(
+			'query string'            => array(
 				'https://docs.google.com/spreadsheets/d/1AbC-dEf_123/edit?usp=sharing',
 				'1AbC-dEf_123',
 			),
-			'surrounding spaces'  => array(
+			'surrounding spaces'      => array(
 				'  https://docs.google.com/spreadsheets/d/1AbC-dEf_123/edit  ',
 				'1AbC-dEf_123',
 			),
-			'bare ID'             => array( '1AbC-dEf_123', '1AbC-dEf_123' ),
+			'bare ID'                 => array( '1AbC-dEf_123', '1AbC-dEf_123' ),
 			'a docs URL, not a sheet' => array( 'https://docs.google.com/document/d/1AbC-dEf_123/edit', null ),
-			'unrelated URL'       => array( 'https://example.com/nope', null ),
-			'too short to be an ID' => array( 'abc', null ),
-			'empty'               => array( '', null ),
+			'unrelated URL'           => array( 'https://example.com/nope', null ),
+			'too short to be an ID'   => array( 'abc', null ),
+			'empty'                   => array( '', null ),
 		);
 	}
 

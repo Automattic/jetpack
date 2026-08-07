@@ -307,16 +307,17 @@ class Google_Sheets_Setup {
 	/**
 	 * Creates or validates the destination spreadsheet for a form.
 	 *
+	 * Expected keys in `$args`:
+	 * - `user_id` (int): the user whose Google connection to use.
+	 * - `mode` (string): 'create' or 'existing'.
+	 * - `title` (string): title for a newly created spreadsheet.
+	 * - `spreadsheet_url` (string): existing spreadsheet URL, when mode is 'existing'.
+	 * - `columns` (array): list of field labels.
+	 * - `backfill_rows` (array): rows to seed, excluding the header. May be empty.
+	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $args {
-	 *     @type int    $user_id         The user whose Google connection to use.
-	 *     @type string $mode            'create' or 'existing'.
-	 *     @type string $title           Title for a newly created spreadsheet.
-	 *     @type string $spreadsheet_url Existing spreadsheet URL, when mode is 'existing'.
-	 *     @type array  $columns         List of field labels.
-	 *     @type array  $backfill_rows   Rows to seed, excluding the header. May be empty.
-	 * }
+	 * @param array $args Setup arguments, as described above.
 	 * @return array|WP_Error Array with spreadsheet_id, spreadsheet_url and columns.
 	 */
 	public static function run( array $args ) {
