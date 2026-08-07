@@ -304,6 +304,10 @@ const { state, actions } = store( NAMESPACE, {
 		 */
 		fileDropped: event => {
 			event.preventDefault();
+			// A drop fires no focus event, so the form's `focusin` handler never sees it.
+			// Without this, dropping a file and submitting would report the fill as starting
+			// at the submit button rather than at the drop.
+			jetpackFormStore.actions.trackFirstInteraction();
 			if ( event.dataTransfer ) {
 				for ( const item of Array.from( event.dataTransfer.items ) ) {
 					if ( item.webkitGetAsEntry()?.isDirectory ) {

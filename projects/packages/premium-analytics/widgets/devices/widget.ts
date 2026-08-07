@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { desktop } from '@wordpress/icons';
+import { mobile } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 export type DevicesAttributes = {
@@ -20,7 +20,7 @@ export type DevicesAttributes = {
  * reportParams (the shared dashboard date picker).
  */
 export default {
-	icon: desktop,
+	icon: mobile,
 	attributes: [
 		{
 			id: 'max',

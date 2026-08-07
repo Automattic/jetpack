@@ -638,7 +638,7 @@ class Manager {
 	/**
 	 * Determines the transport of the incoming request currently being verified.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.9.0
 	 *
 	 * @return string Error_Handler::ERROR_TYPE_XMLRPC or Error_Handler::ERROR_TYPE_REST.
 	 */

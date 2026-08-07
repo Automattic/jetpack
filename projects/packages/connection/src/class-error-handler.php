@@ -116,7 +116,7 @@ class Error_Handler {
 	/**
 	 * `error_type` value for errors from XML-RPC requests.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.9.0
 	 *
 	 * @var string
 	 */
@@ -125,7 +125,7 @@ class Error_Handler {
 	/**
 	 * `error_type` value for errors from REST requests.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.9.0
 	 *
 	 * @var string
 	 */
@@ -138,7 +138,7 @@ class Error_Handler {
 	 *
 	 * Note: package versions <= 8.8 stored these errors with the type 'connection'.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.9.0
 	 *
 	 * @var string
 	 */
@@ -147,7 +147,7 @@ class Error_Handler {
 	/**
 	 * `error_direction` value for errors triggered by incoming requests (WP.com to this site).
 	 *
-	 * @since $$next-version$$
+	 * @since 8.9.0
 	 *
 	 * @var string
 	 */
@@ -156,7 +156,7 @@ class Error_Handler {
 	/**
 	 * `error_direction` value for errors triggered by outgoing requests (this site to WP.com).
 	 *
-	 * @since $$next-version$$
+	 * @since 8.9.0
 	 *
 	 * @var string
 	 */
@@ -755,7 +755,7 @@ class Error_Handler {
 	 * by both internal error handling and external plugins/customizations.
 	 *
 	 * @since 1.14.2
-	 * @since $$next-version$$ Added the `$error_direction` parameter and output field.
+	 * @since 8.9.0 Added the `$error_direction` parameter and output field.
 	 *
 	 * @param string $error_code      The error code identifier.
 	 * @param string $error_message   The human-readable error message.
@@ -818,7 +818,7 @@ class Error_Handler {
 	 * - `$extra` cannot override the reserved keys: `signature_details`, `error_type`,
 	 *   and `error_direction` always win the merge.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.9.0
 	 *
 	 * @param array  $signature_details Details of the signed request that failed: `token`,
 	 *                                  and typically `timestamp`, `nonce`, `body_hash`,
@@ -860,7 +860,7 @@ class Error_Handler {
 	 * data contract. All connection error reporters should create their `WP_Error`
 	 * objects through this factory.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.9.0
 	 *
 	 * @param string $error_code        The error code, ideally one of `$known_errors`.
 	 * @param string $error_message     The human-readable error message.
