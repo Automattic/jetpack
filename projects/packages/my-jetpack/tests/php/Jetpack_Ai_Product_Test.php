@@ -62,6 +62,7 @@ class Jetpack_Ai_Product_Test extends TestCase {
 		WorDBless_Users::init()->clear_all_users();
 		// Remove all filters to avoid interference between tests.
 		remove_all_filters( 'jetpack_ai_enabled' );
+		unset( $GLOBALS['jetpack_mock_internal_testing_environment'] );
 		// Reset the mock Jetpack module state so it doesn't leak between tests.
 		if ( class_exists( 'Jetpack' ) && property_exists( 'Jetpack', 'active_modules' ) ) {
 			// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Declared on the mock in ./assets/jetpack-mock-plugin.txt
@@ -151,5 +152,21 @@ class Jetpack_Ai_Product_Test extends TestCase {
 
 		$this->assertFalse( Jetpack_Ai::is_module_active() );
 		$this->assertSame( Products::STATUS_MODULE_DISABLED, Jetpack_Ai::get_status() );
+	}
+
+	/**
+	 * Pre-release gate: outside internal testing environments the product is not
+	 * module-backed at all, so an inactive module never surfaces — the status is
+	 * what it was before the module existed.
+	 */
+	public function test_jetpack_ai_ignores_the_module_outside_internal_testing() {
+		$GLOBALS['jetpack_mock_internal_testing_environment'] = false;
+
+		Jetpack_Options::update_option( 'id', 123 );
+		activate_plugins( 'jetpack/jetpack.php' );
+		\Jetpack::deactivate_module( 'ai' );
+
+		$this->assertTrue( Jetpack_Ai::is_module_active() );
+		$this->assertNotSame( Products::STATUS_MODULE_DISABLED, Jetpack_Ai::get_status() );
 	}
 }

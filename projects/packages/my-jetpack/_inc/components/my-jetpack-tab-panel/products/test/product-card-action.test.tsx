@@ -137,6 +137,27 @@ describe( 'ProductCardAction', () => {
 		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'pre-release gate: an AI card built without a module renders an inert toggle', () => {
+		// Gated cards are built with no module (see getProductModules), which is
+		// what the card looked like before AI became a module: the generic
+		// branch renders a toggle that cannot be flipped.
+		window.myJetpackInitialState = {
+			myJetpackFlags: {},
+		} as unknown as Window[ 'myJetpackInitialState' ];
+		render(
+			<ProductCardAction
+				product={ buildProduct( {
+					slug: 'jetpack-ai',
+					name: 'AI',
+					status: 'active',
+					hasPaidPlanForProduct: true,
+				} ) }
+			/>
+		);
+
+		expect( screen.getByRole( 'checkbox' ) ).toBeDisabled();
+	} );
+
 	it( 'pre-release gate: the Forms toggle is unaffected by the flag', () => {
 		window.myJetpackInitialState = {
 			myJetpackFlags: {},
