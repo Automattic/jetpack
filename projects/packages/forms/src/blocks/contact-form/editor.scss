@@ -373,11 +373,6 @@
 		margin-bottom: 0.25em;
 	}
 
-	.jetpack-field-label__suffix {
-		margin-inline-start: 0.25em;
-		font-weight: 700;
-	}
-
 	.components-toggle-control .components-base-control__field {
 		margin-bottom: 0;
 	}
@@ -443,6 +438,16 @@
 		justify-content: flex-start;
 	}
 
+}
+
+.contact-form__field-help,
+.contact-form__field-format {
+	margin-block: 0.25rem 0;
+	margin-inline: 0;
+	font-size: 0.875em;
+	line-height: 1.4;
+	color: var(--jetpack--contact-form--text-color, inherit);
+	opacity: 0.75;
 }
 
 // Selectors with specificity to 0,0,0 so that global styles can override it.
@@ -893,10 +898,6 @@
 				transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 				margin: 0;
 				z-index: 1;
-
-				.jetpack-field-label__suffix {
-					font-weight: 300;
-				}
 			}
 
 			:where(.notched-label__filler) {
@@ -954,8 +955,7 @@
 					font-size: 0.68em;
 				}
 
-				.jetpack-field-label__input,
-				.jetpack-field-label__suffix {
+				.jetpack-field-label__input {
 					font-size: 0.8em;
 				}
 
@@ -1082,8 +1082,7 @@
 				transform: translateY(0);
 				top: calc(2px + var(--jetpack--contact-form--border-top-size, 1px));
 
-				.jetpack-field-label__input,
-				.jetpack-field-label__suffix {
+				.jetpack-field-label__input {
 					font-size: 0.75em;
 				}
 

@@ -346,7 +346,6 @@ class Contact_Form_Block {
 				),
 				'uses_context' => array(
 					'jetpack/field-required',
-					'jetpack/field-date-format',
 				),
 			)
 		);
