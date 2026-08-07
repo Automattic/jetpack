@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add an opt-in `$with_billing_data` argument to `wpcom_get_site_purchases()`, mirroring the WPCOM copy of this file.

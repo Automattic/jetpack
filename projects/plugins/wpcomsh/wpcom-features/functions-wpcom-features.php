@@ -138,11 +138,18 @@ function wpcom_site_can_upload_videos( $blog_id = 0 ) {
  *
  * @throws Error If $blog_id !== current_blog_id on Atomic sites.
  *
- * @param int $blog_id Optional. Blog ID. Defaults to current blog.
+ * @param int  $blog_id           Optional. Blog ID. Defaults to current blog.
+ * @param bool $with_billing_data Optional. Overlay billing-derived state (accurate
+ *                                `user_allows_auto_renew`, `is_past_first_auto_renew_attempt_date`,
+ *                                `is_past_last_auto_renew_attempt_date`, `might_still_auto_renew`,
+ *                                `expiry_status`) onto each purchase. Opt-in because it queries the
+ *                                billing system on every call; the plain cached rows are enough for
+ *                                feature checks. On Atomic sites this is a no-op: the synced payload
+ *                                carries whatever fields it was synced with.
  *
  * @return array An array of product objects containing product_slug, product_id, subscribed_date, and expiry_date.
  */
-function wpcom_get_site_purchases( $blog_id = 0 ) {
+function wpcom_get_site_purchases( $blog_id = 0, $with_billing_data = false ) {
 	if ( ! $blog_id ) {
 		$blog_id = _wpcom_get_current_blog_id();
 	}
@@ -168,9 +175,77 @@ function wpcom_get_site_purchases( $blog_id = 0 ) {
 		$blog_id = apply_filters( 'wpcom_site_has_feature_blog_id', $blog_id );
 
 		$purchases = _wpcom_features_get_simple_site_purchases( $blog_id );
+
+		if ( $with_billing_data ) {
+			$purchases = _wpcom_features_add_billing_data_to_purchases( $purchases, $blog_id );
+		}
 	}
 
 	return $purchases;
+}
+
+/**
+ * Overlay billing-derived state onto purchases from the cached store query.
+ *
+ * The cached rows carry the raw auto-renew flag, which stays true for
+ * subscriptions that cannot actually renew (no chargeable payment method), and
+ * they carry none of the derived state that depends on the auto-renew attempt
+ * schedule. Both of those change with the passage of time, so neither can live
+ * in the `site_purchases` cache; this is computed on each call, on clones — the
+ * cached objects themselves must stay untouched or the overlay would leak into
+ * callers that did not ask for it.
+ *
+ * Only ever does anything on Simple sites. Purchases are returned as-is in
+ * contexts where the billing code-base is unavailable (see pdqkMK-18D-p2), so
+ * callers must treat the extra fields as optional.
+ *
+ * @param array $purchases Purchases as returned by _wpcom_features_get_simple_site_purchases().
+ * @param int   $blog_id   Blog ID the purchases belong to.
+ *
+ * @return array The purchases, enriched when possible.
+ */
+function _wpcom_features_add_billing_data_to_purchases( $purchases, $blog_id ) {
+	if ( empty( $purchases ) || ! class_exists( '\A8C\Billingdaddy\Container' ) ) {
+		return $purchases;
+	}
+
+	if ( ! class_exists( 'WPCOM_Store_API' ) ) {
+		$store_api = WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/class.wpcom-store-api.php';
+		if ( ! is_readable( $store_api ) ) {
+			return $purchases;
+		}
+		require_once $store_api;
+	}
+
+	static $upgrades_by_blog = array();
+	if ( ! isset( $upgrades_by_blog[ $blog_id ] ) ) {
+		$upgrades_by_blog[ $blog_id ] = array();
+		// Subscriptions only: skips domain-subscription combining so that every
+		// upgrade still matches a store subscription row one-to-one.
+		foreach ( WPCOM_Store_API::get_site_billing_upgrades( $blog_id, true ) as $upgrade ) {
+			$upgrades_by_blog[ $blog_id ][ (string) $upgrade->ID ] = $upgrade;
+		}
+	}
+	$upgrades = $upgrades_by_blog[ $blog_id ];
+
+	return array_map(
+		function ( $purchase ) use ( $upgrades ) {
+			$upgrade = $upgrades[ (string) ( $purchase->subscription_id ?? '' ) ] ?? null;
+			if ( ! $upgrade ) {
+				return $purchase;
+			}
+
+			$purchase                                        = clone $purchase;
+			$purchase->user_allows_auto_renew                = $upgrade->is_auto_renew_enabled;
+			$purchase->is_past_first_auto_renew_attempt_date = $upgrade->is_past_first_auto_renew_attempt_date;
+			$purchase->is_past_last_auto_renew_attempt_date  = $upgrade->is_past_last_auto_renew_attempt_date;
+			$purchase->might_still_auto_renew                = $upgrade->might_still_auto_renew;
+			$purchase->expiry_status                         = $upgrade->expiry_status;
+
+			return $purchase;
+		},
+		$purchases
+	);
 }
 
 /**
