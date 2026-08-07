@@ -1,13 +1,16 @@
 /**
  * External dependencies
  */
-import { getDateRangeSpan, type DateRangeSpan } from '@jetpack-premium-analytics/datetime';
+import {
+	getDateRangeSpan,
+	type DateRange,
+	type DateRangeSpan,
+} from '@jetpack-premium-analytics/datetime';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { formatDate } from './format-date';
-import type { DateRange } from './types';
 
 type FormatDateRangeLongOptions = {
 	/**

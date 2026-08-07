@@ -3,16 +3,14 @@
  */
 import {
 	getComparisonPresetLabel,
+	getDateRangeSpan,
 	isYearSurfacePresetId,
 	type ComparisonPresetId,
+	type DateRangeSpan,
 	type IntervalType,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
-import {
-	formatDateRangeLong,
-	getDateRangeSpan,
-	type DateRangeSpan,
-} from '@jetpack-premium-analytics/formatters';
+import { formatDateRangeLong } from '@jetpack-premium-analytics/formatters';
 import { __, _n, sprintf } from '@wordpress/i18n';
 
 type SectionSubtitleArgs = {
