@@ -248,11 +248,12 @@ function stats_admin_menu() {
 	$should_show_pricing_grid = Stats_Pricing_Grid_Eligibility::should_show_pricing_grid();
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	if ( ( ! Stats_Options::get_option( 'enable_odyssey_stats' ) || isset( $_GET['noheader'] ) ) && ! $should_show_pricing_grid ) {
+	if ( isset( $_GET['noheader'] ) || ( ! Stats_Options::get_option( 'enable_odyssey_stats' ) && ! $should_show_pricing_grid ) ) {
 		// Show old Jetpack Stats interface for:
-		// - When the "enable_odyssey_stats" option is disabled.
-		// - When being shown in the adminbar outside of wp-admin.
-		// - But not when the pricing grid should be shown (new installations without a plan).
+		// - Chart image requests from the adminbar and dashboard widget (`noheader`),
+		// which must always reach the legacy raw-image handler.
+		// - When the "enable_odyssey_stats" option is disabled, unless the pricing
+		// grid should be shown (new installations without a plan).
 		$hook = Admin_Menu::add_menu( __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', 'jetpack_admin_ui_stats_report_page_wrapper' );
 		add_action( "load-$hook", 'stats_reports_load' );
 	} else {

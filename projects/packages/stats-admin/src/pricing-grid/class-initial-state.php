@@ -49,7 +49,7 @@ class Initial_State {
 	 * WordPress.com products endpoint. Works without a connection; cached
 	 * in a transient to avoid a remote request on every page view.
 	 *
-	 * @return array|null Array with monthlyCostDisplay and yearlyCostDisplay, or null when unavailable.
+	 * @return array|null Array with yearlyCost and currency, or null when unavailable.
 	 */
 	private function get_paid_pricing() {
 		$cached = get_transient( self::PRICING_TRANSIENT );

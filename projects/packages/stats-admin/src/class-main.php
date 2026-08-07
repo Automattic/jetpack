@@ -54,9 +54,12 @@ class Main {
 		add_action( 'rest_api_init', array( REST_Controller::class, 'register' ) );
 
 		// The stats module normally registers the Stats menu, but modules only
-		// load once the site is connected. Register the dashboard here too so
-		// eligible new sites see the pricing grid before connecting.
-		if ( is_admin() && Pricing_Grid\Eligibility::is_eligible_site() ) {
+		// load once the site is connected. Register the dashboard here for
+		// unconnected sites only, so eligible new sites see the pricing grid
+		// before connecting. Connected sites go exclusively through the stats
+		// module (modules/stats.php), which also owns the noheader chart-image
+		// paths used by the adminbar and the dashboard widget.
+		if ( is_admin() && ! ( new Manager() )->is_connected() && Pricing_Grid\Eligibility::is_eligible_site() ) {
 			Dashboard::init();
 		}
 

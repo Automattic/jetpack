@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Stats_Admin\Pricing_Grid;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Stats_Admin\Notices;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Determines whether to show the Stats pricing grid (for new sites without a plan).
@@ -142,6 +143,12 @@ class Eligibility {
 	 * @return bool True if the site qualifies for the pricing grid.
 	 */
 	public static function is_eligible_site() {
+		// WordPress.com Simple and WoA sites get Stats with their plan; the
+		// connection-based "new site" logic doesn't apply there either.
+		if ( ( new Host() )->is_wpcom_platform() ) {
+			return false;
+		}
+
 		return self::is_new_site() && ! self::has_stats_plan();
 	}
 
