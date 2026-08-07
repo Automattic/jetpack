@@ -1,0 +1,45 @@
+.jetpack-ai-nav-row {
+	display: flex;
+	box-sizing: border-box;
+	gap: 16px;
+	align-items: flex-start;
+	padding: 24px;
+	cursor: pointer;
+	inline-size: 100%;
+	background: none;
+	border: none;
+	text-align: start;
+	border-radius: 0;
+
+	// Reset browser link styles when rendered as <a>.
+	&,
+	&:visited,
+	&:hover,
+	&:active {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	&:hover {
+		background: var(--color-surface-backdrop, #f0f0f1);
+	}
+
+	&__icon,
+	&__chevron {
+		flex-shrink: 0;
+		margin-block-start: 2px;
+		// One token for the leading icon and the chevron (the Icon component
+		// renders fill: currentColor, so color covers both).
+		color: var(--color-neutral-70, #3c434a);
+	}
+
+	&__text {
+		flex: 1;
+		min-inline-size: 0;
+	}
+
+	&__title,
+	&__description {
+		margin: 0;
+	}
+}

@@ -25,8 +25,6 @@ import McpUpsell from './mcp/upsell';
 import { useMcpSettings } from './mcp/use-mcp-settings';
 import McpWrite from './mcp/write';
 
-const { blogId, activityLogUrl, apiRoot, apiNonce } = window?.jetpackAiSettings ?? {};
-
 // Matches the `ref` value convention used by the MCP upsell events.
 const SETTINGS_REF = 'jetpack-ai-mcp-settings';
 
@@ -111,6 +109,10 @@ function Breadcrumbs( { view, onNavigate } ) {
  * @return {object} Component markup.
  */
 export default function App() {
+	// Read at render time, not module scope, so the injected page data is
+	// honoured wherever App mounts (the inline script always runs first in
+	// production; tests inject per-case).
+	const { blogId, activityLogUrl, apiRoot, apiNonce } = window?.jetpackAiSettings ?? {};
 	const [ view, setView ] = useState( getViewFromHash );
 	// Save feedback goes through the shared GlobalNotices snackbars (the
 	// design-system SnackbarList behind @wordpress/notices): transient,

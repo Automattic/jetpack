@@ -67,6 +67,17 @@ function mockApiFetch( { featureGet = enabledSettings(), mcpGet = {}, featurePos
 // region, so a bare text query matches twice. Ignore that region.
 const IGNORE_A11Y = { ignore: 'script, style, .a11y-speak-region' };
 
+// An MCP payload for a connected site with MCP enabled: account tools make
+// hasMcpAccess true, and the sites entry makes getSiteLevelEnabled true for
+// blogId 1 — so the hub body (rows included) renders.
+const connectedMcpGet = () => ( {
+	has_mcp_access: true,
+	mcp_abilities: {
+		account: { some_tool: { title: 'Some tool', enabled: true } },
+		sites: [ { blog_id: 1, site_level_enabled: true } ],
+	},
+} );
+
 const mcpViewCount = () =>
 	analytics.tracks.recordEvent.mock.calls.filter(
 		call => call[ 0 ] === 'jetpack_mcp_settings_viewed'
@@ -306,6 +317,34 @@ describe( 'AI admin page (main.jsx)', () => {
 		).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'WordPress Agent' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'MCP Settings' ) ).toBeInTheDocument();
+	} );
+
+	test( 'activity log row: renders on the MCP hub as a link when MCP is enabled', async () => {
+		// Gate off: the MCP hub is the row's home, conditional on the site
+		// having an activity log URL and MCP being enabled.
+		window.jetpackAiSettings = { blogId: 1, activityLogUrl: 'https://example.com/activity' };
+		window.location.hash = '';
+		mockApiFetch( { mcpGet: connectedMcpGet() } );
+
+		render( <App /> );
+
+		const row = await screen.findByRole( 'link', { name: /Activity log/ } );
+		expect( row ).toHaveAttribute( 'href', 'https://example.com/activity' );
+		expect( screen.getAllByRole( 'link', { name: /Activity log/ } ) ).toHaveLength( 1 );
+	} );
+
+	test( 'activity log row: absent from the MCP hub without an activityLogUrl', async () => {
+		window.jetpackAiSettings = { blogId: 1 };
+		window.location.hash = '';
+		mockApiFetch( { mcpGet: connectedMcpGet() } );
+
+		render( <App /> );
+
+		// Settle on the hub (the site-level toggle is its stable anchor).
+		await expect(
+			screen.findByRole( 'checkbox', { name: 'Enable MCP access' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /Activity log/ } ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'MCP view tracking: does not fire on the Features tab', async () => {

@@ -24,6 +24,7 @@ import {
 	list,
 } from '@wordpress/icons';
 import { Badge, Button, Stack } from '@wordpress/ui';
+import NavRow from '../components/nav-row';
 import { isWriteTool } from './categories';
 import { recordMcpTracksEvent } from './tracks';
 import {
@@ -126,36 +127,6 @@ function SummaryRow( { icon, title, badge, onClick } ) {
 				</Stack>
 			</Stack>
 		</Button>
-	);
-}
-
-/**
- * A card row for the "Connect external AI agent" action — shows title + description.
- *
- * @param {object}   props             - Component props.
- * @param {string}   props.title       - Row title.
- * @param {string}   props.description - Row description.
- * @param {Function} props.onClick     - Click handler.
- * @return {object} Component markup.
- */
-function ConnectRow( { title, description, onClick } ) {
-	return (
-		<button className="jetpack-ai-mcp__connect-row" onClick={ onClick } type="button">
-			<span className="jetpack-ai-mcp__connect-row-icon">
-				<Icon icon={ connection } size={ 24 } />
-			</span>
-			<span className="jetpack-ai-mcp__connect-row-text">
-				<Text as="p" className="jetpack-ai-mcp__connect-row-title" weight={ 600 }>
-					{ title }
-				</Text>
-				<Text as="p" className="jetpack-ai-mcp__connect-row-description" variant="muted">
-					{ description }
-				</Text>
-			</span>
-			<span className="jetpack-ai-mcp__connect-row-chevron">
-				<Icon icon={ chevronRight } size={ 24 } />
-			</span>
-		</button>
 	);
 }
 
@@ -280,7 +251,8 @@ export default function McpHub( {
 
 			{ isMcpEnabled && (
 				<Card className="jetpack-ai-mcp__action-card">
-					<ConnectRow
+					<NavRow
+						icon={ connection }
 						title={ __( 'Connect external AI agent', 'jetpack' ) }
 						description={ __(
 							'Get instructions for connecting your external AI agent.',
@@ -293,22 +265,15 @@ export default function McpHub( {
 
 			{ isMcpEnabled && activityLogUrl && (
 				<Card className="jetpack-ai-mcp__action-card">
-					<a className="jetpack-ai-mcp__connect-row" href={ activityLogUrl }>
-						<span className="jetpack-ai-mcp__connect-row-icon">
-							<Icon icon={ list } size={ 24 } />
-						</span>
-						<span className="jetpack-ai-mcp__connect-row-text">
-							<Text as="p" className="jetpack-ai-mcp__connect-row-title" weight={ 600 }>
-								{ __( 'Activity log', 'jetpack' ) }
-							</Text>
-							<Text as="p" className="jetpack-ai-mcp__connect-row-description" variant="muted">
-								{ __( 'Review recent actions taken by AI agents on your site.', 'jetpack' ) }
-							</Text>
-						</span>
-						<span className="jetpack-ai-mcp__connect-row-chevron">
-							<Icon icon={ chevronRight } size={ 24 } />
-						</span>
-					</a>
+					<NavRow
+						icon={ list }
+						title={ __( 'Activity log', 'jetpack' ) }
+						description={ __(
+							'Review recent actions taken by AI agents on your site.',
+							'jetpack'
+						) }
+						href={ activityLogUrl }
+					/>
 				</Card>
 			) }
 		</>
