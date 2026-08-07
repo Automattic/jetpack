@@ -133,13 +133,15 @@ function SummaryRow( { icon, title, badge, onClick } ) {
 /**
  * MCP hub component.
  *
- * @param {object}   props                - Component props.
- * @param {object}   props.mcpAbilities   - Full mcp_abilities object from API.
- * @param {number}   props.blogId         - Current site's blog ID.
- * @param {string}   props.activityLogUrl - URL for the activity log link.
- * @param {Set}      props.savingToolIds  - Set of toolIds currently being saved.
- * @param {Function} props.onNavigate     - Called with 'read' | 'write' | 'setup'.
- * @param {Function} props.onUpdate       - Called with partial mcp_abilities update.
+ * @param {object}   props                   - Component props.
+ * @param {object}   props.mcpAbilities      - Full mcp_abilities object from API.
+ * @param {number}   props.blogId            - Current site's blog ID.
+ * @param {string}   props.activityLogUrl    - URL for the activity log link.
+ * @param {Set}      props.savingToolIds     - Set of toolIds currently being saved.
+ * @param {Function} props.onNavigate        - Called with 'read' | 'write' | 'setup'.
+ * @param {Function} props.onUpdate          - Called with partial mcp_abilities update.
+ * @param {boolean}  [props.showActivityLog] - Whether this view owns the activity log row
+ *                                           (false when the Overview tab renders it instead).
  * @return {object} Component markup.
  */
 export default function McpHub( {
@@ -149,6 +151,7 @@ export default function McpHub( {
 	savingToolIds,
 	onNavigate,
 	onUpdate,
+	showActivityLog = true,
 } ) {
 	const accountAbilities = getAccountMcpAbilities( mcpAbilities ?? {} );
 	const siteContextToolIds = getSiteContextToolIds( mcpAbilities ?? {} );
@@ -263,7 +266,7 @@ export default function McpHub( {
 				</Card>
 			) }
 
-			{ isMcpEnabled && activityLogUrl && (
+			{ showActivityLog && isMcpEnabled && activityLogUrl && (
 				<Card className="jetpack-ai-mcp__action-card">
 					<NavRow
 						icon={ list }

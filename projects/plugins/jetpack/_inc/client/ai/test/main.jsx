@@ -47,8 +47,14 @@ const enabledSettings = () => ( {
  * @param {object}   options.featureGet  - GET /jetpack-ai/feature-settings body.
  * @param {object}   options.mcpGet      - GET /jetpack-ai/mcp-settings body.
  * @param {Function} options.featurePost - POST /jetpack-ai/feature-settings handler → Promise.
+ * @param {object}   options.usageGet    - GET /jetpack-ai/ai-assistant-feature body.
  */
-function mockApiFetch( { featureGet = enabledSettings(), mcpGet = {}, featurePost } = {} ) {
+function mockApiFetch( {
+	featureGet = enabledSettings(),
+	mcpGet = {},
+	featurePost,
+	usageGet = {},
+} = {} ) {
 	apiFetch.mockImplementation( ( { path, method } = {} ) => {
 		if ( path?.includes( 'feature-settings' ) ) {
 			if ( method === 'POST' ) {
@@ -58,6 +64,9 @@ function mockApiFetch( { featureGet = enabledSettings(), mcpGet = {}, featurePos
 		}
 		if ( path?.includes( 'mcp-settings' ) ) {
 			return Promise.resolve( mcpGet );
+		}
+		if ( path?.includes( 'ai-assistant-feature' ) ) {
+			return Promise.resolve( usageGet );
 		}
 		return Promise.resolve( {} );
 	} );
@@ -306,17 +315,69 @@ describe( 'AI admin page (main.jsx)', () => {
 		).not.toBeInTheDocument();
 	} );
 
-	test( 'a11n gate: with showFeaturesView the tab bar shows and WordPress Agent is the default view', async () => {
+	test( 'a11n gate: with showFeaturesView the tab bar shows and Overview is the default view', async () => {
 		window.location.hash = '';
 		mockApiFetch();
 
 		render( <App /> );
 
+		// Overview is the first tab, so it is the landing view (per the i4
+		// design); the other tabs are present but not mounted.
 		await expect(
-			screen.findByRole( 'checkbox', { name: /Writing Assistant/ } )
+			screen.findByText( 'Available requests', IGNORE_A11Y )
 		).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Overview' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'WordPress Agent' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'MCP Settings' ) ).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'checkbox', { name: /Writing Assistant/ } )
+		).not.toBeInTheDocument();
+	} );
+
+	test( 'overview tab: gate on: Overview is first and owns the activity log row — exactly once', async () => {
+		window.jetpackAiSettings = {
+			showFeaturesView: true,
+			blogId: 1,
+			activityLogUrl: 'https://example.com/activity',
+			upgradeUrl: 'https://example.com/upgrade',
+		};
+		window.location.hash = '';
+		mockApiFetch( { mcpGet: connectedMcpGet() } );
+
+		render( <App /> );
+
+		// Landing view is Overview; the row renders there and nowhere else.
+		const rows = await screen.findAllByRole( 'link', { name: /Activity log/ } );
+		expect( rows ).toHaveLength( 1 );
+		expect( rows[ 0 ] ).toHaveAttribute( 'href', 'https://example.com/activity' );
+
+		// On the MCP view the row must NOT render — Overview owns it while the
+		// Overview tab exists (it would otherwise appear twice on one page).
+		act( () => {
+			window.location.hash = '#/mcp';
+			window.dispatchEvent( new Event( 'hashchange' ) );
+		} );
+		await expect(
+			screen.findByRole( 'checkbox', { name: 'Enable MCP access' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /Activity log/ } ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'overview tab: gate off: a #/overview deep link falls back to the MCP view', async () => {
+		window.jetpackAiSettings = { blogId: 1, activityLogUrl: 'https://example.com/activity' };
+		window.location.hash = '#/overview';
+		mockApiFetch( { mcpGet: connectedMcpGet() } );
+
+		render( <App /> );
+
+		// The MCP hub settles — with its activity log row, exactly as today.
+		await expect(
+			screen.findByRole( 'checkbox', { name: 'Enable MCP access' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.getAllByRole( 'link', { name: /Activity log/ } ) ).toHaveLength( 1 );
+		// No Overview UI leaks through the gate.
+		expect( screen.queryByText( 'Available requests', IGNORE_A11Y ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Overview' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'activity log row: renders on the MCP hub as a link when MCP is enabled', async () => {
