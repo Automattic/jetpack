@@ -54,8 +54,7 @@ class Client {
 		$result = self::build_signed_request( $args, $body );
 		if ( is_wp_error( $result ) ) {
 			// The request was never made, so it has no response to check. Report the signing
-			// failure directly. No token is available yet, so attribute the error to the
-			// connection owner (`true`).
+			// failure, attributed to the caller's requested user (defaults to `0`, site-level).
 			$requesting_user_id = empty( $args['user_id'] ) ? 0 : $args['user_id'];
 			if ( true === $requesting_user_id ) {
 				$requesting_user_id = (int) \Jetpack_Options::get_option( 'master_user' );
