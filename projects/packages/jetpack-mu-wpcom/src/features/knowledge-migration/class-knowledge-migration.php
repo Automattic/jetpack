@@ -548,10 +548,19 @@ class Knowledge_Migration {
 	/**
 	 * Find an active Knowledge post by exact slug.
 	 *
+	 * Drafts and pending posts are allowed to have an empty slug, and WP_Query
+	 * drops the `name` condition when it is empty. Querying with an empty slug
+	 * would therefore return an unrelated Knowledge post and make the caller
+	 * retire a source that was never migrated.
+	 *
 	 * @param string $slug Post slug.
 	 * @return \WP_Post|null
 	 */
 	private static function find_knowledge_post( string $slug ): ?\WP_Post {
+		if ( '' === $slug ) {
+			return null;
+		}
+
 		$posts = get_posts(
 			array(
 				'name'           => $slug,

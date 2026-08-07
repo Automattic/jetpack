@@ -44,6 +44,17 @@ class Knowledge_Migration_Test extends \WorDBless\BaseTestCase {
 	private $post_meta = array();
 
 	/**
+	 * Term slugs assigned during the test, keyed by post ID and taxonomy.
+	 *
+	 * WorDBless does not back term lookups — `wp_insert_term()` succeeds but
+	 * `term_exists()` and `get_term_by()` return null — so assignments are
+	 * recorded from the `set_object_terms` action instead.
+	 *
+	 * @var array<int, array<string, string[]>>
+	 */
+	private $assigned_terms = array();
+
+	/**
 	 * Prepare isolated storage registrations and state.
 	 */
 	public function set_up() {
@@ -58,6 +69,8 @@ class Knowledge_Migration_Test extends \WorDBless\BaseTestCase {
 		$this->post_ids          = array();
 		$this->object_terms      = array();
 		$this->post_meta         = array();
+		$this->assigned_terms    = array();
+		add_action( 'set_object_terms', array( $this, 'track_object_terms' ), 10, 4 );
 		add_action( 'wp_after_insert_post', array( $this, 'track_post' ), 10, 1 );
 		add_action( 'added_post_meta', array( $this, 'track_post_meta' ), 10, 4 );
 		add_action( 'updated_post_meta', array( $this, 'track_post_meta' ), 10, 4 );
@@ -79,6 +92,7 @@ class Knowledge_Migration_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function tear_down() {
 		remove_action( 'save_post_wp_knowledge', array( $this, 'capture_migration_state' ) );
+		remove_action( 'set_object_terms', array( $this, 'track_object_terms' ), 10 );
 		remove_action( 'wp_after_insert_post', array( $this, 'track_post' ), 10 );
 		remove_action( 'added_post_meta', array( $this, 'track_post_meta' ), 10 );
 		remove_action( 'updated_post_meta', array( $this, 'track_post_meta' ), 10 );
@@ -252,7 +266,7 @@ class Knowledge_Migration_Test extends \WorDBless\BaseTestCase {
 		$converted = get_post( $post_id );
 		$this->assertSame( 'wp_knowledge', $converted->post_type );
 		$this->assertSame( 'Keep this content.', $converted->post_content );
-		$this->assertNotFalse( term_exists( 'instruction', 'wp_knowledge_type' ) );
+		$this->assertSame( array( 'instruction' ), $this->assigned_terms( $post_id, 'wp_knowledge_type' ) );
 		$this->assertSame( 'started', $this->state_during_save['status'] ?? null );
 		$this->assertSame( 'complete', get_option( Knowledge_Migration::OPTION_NAME )['status'] );
 	}
@@ -285,6 +299,76 @@ class Knowledge_Migration_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'trash', get_post_status( $source_id ) );
 		$this->assertSame( 'Current content.', get_post( $destination_id )->post_content );
 		$this->assertCount( 1, $this->get_knowledge_posts() );
+	}
+
+	/**
+	 * A guideline with no slug is converted instead of being treated as superseded.
+	 *
+	 * Drafts and pending posts are allowed to have an empty slug, and an empty
+	 * slug must not match an unrelated Knowledge post.
+	 */
+	public function test_guideline_without_slug_is_converted_not_retired() {
+		$unrelated_id = wp_insert_post(
+			array(
+				'post_type'    => 'wp_knowledge',
+				'post_status'  => 'publish',
+				'post_name'    => 'unrelated-knowledge',
+				'post_content' => 'Unrelated content.',
+			)
+		);
+		$draft_id     = wp_insert_post(
+			array(
+				'post_type'    => 'wp_guideline',
+				'post_status'  => 'draft',
+				'post_title'   => 'Unfinished guideline',
+				'post_content' => 'Keep this draft.',
+			)
+		);
+		$this->assertSame( '', get_post( $draft_id )->post_name );
+
+		Knowledge_Migration::run_migration();
+
+		$state = get_option( Knowledge_Migration::OPTION_NAME );
+		$this->assertSame( 'complete', $state['status'], $state['last_error'] );
+		$converted = get_post( $draft_id );
+		$this->assertSame( 'wp_knowledge', $converted->post_type );
+		$this->assertSame( 'draft', $converted->post_status );
+		$this->assertSame( 'Keep this draft.', $converted->post_content );
+		$this->assertSame( 'Unrelated content.', get_post( $unrelated_id )->post_content );
+	}
+
+	/**
+	 * Every slugless guideline is converted, not only the first one.
+	 *
+	 * Once the first one becomes a Knowledge post it must not be mistaken for
+	 * the destination of the ones that follow.
+	 */
+	public function test_all_guidelines_without_slugs_are_converted() {
+		$draft_id   = wp_insert_post(
+			array(
+				'post_type'    => 'wp_guideline',
+				'post_status'  => 'draft',
+				'post_title'   => 'First guideline',
+				'post_content' => 'First content.',
+			)
+		);
+		$pending_id = wp_insert_post(
+			array(
+				'post_type'    => 'wp_guideline',
+				'post_status'  => 'pending',
+				'post_title'   => 'Second guideline',
+				'post_content' => 'Second content.',
+			)
+		);
+
+		Knowledge_Migration::run_migration();
+
+		$state = get_option( Knowledge_Migration::OPTION_NAME );
+		$this->assertSame( 'complete', $state['status'], $state['last_error'] );
+		$this->assertSame( 'wp_knowledge', get_post( $draft_id )->post_type );
+		$this->assertSame( 'wp_knowledge', get_post( $pending_id )->post_type );
+		$this->assertSame( 'Second content.', get_post( $pending_id )->post_content );
+		$this->assertCount( 2, $this->get_knowledge_posts() );
 	}
 
 	/**
@@ -329,7 +413,8 @@ class Knowledge_Migration_Test extends \WorDBless\BaseTestCase {
 		$this->assertNotNull( $block );
 		$this->assertSame( 'Paragraph guidance.', $block->post_content );
 		$this->assertSame( 'core/paragraph', $block->post_title );
-		$this->assertNotFalse( term_exists( 'guideline', 'wp_knowledge_type' ) );
+		$this->assertSame( array( 'guideline' ), $this->assigned_terms( $site->ID, 'wp_knowledge_type' ) );
+		$this->assertSame( array( 'guideline' ), $this->assigned_terms( $block->ID, 'wp_knowledge_type' ) );
 		$this->assertSame( 'trash', get_post_status( $old_id ) );
 		$this->assertSame( 'trash', get_post_status( $new_id ) );
 
@@ -359,6 +444,30 @@ class Knowledge_Migration_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function capture_migration_state(): void {
 		$this->state_during_save = get_option( Knowledge_Migration::OPTION_NAME );
+	}
+
+	/**
+	 * Record the term slugs assigned to a post.
+	 *
+	 * @param int    $object_id Object ID.
+	 * @param mixed  $terms     Terms passed to wp_set_object_terms().
+	 * @param int[]  $tt_ids    Term taxonomy IDs.
+	 * @param string $taxonomy  Taxonomy name.
+	 */
+	public function track_object_terms( int $object_id, $terms, $tt_ids, string $taxonomy ): void {
+		unset( $tt_ids );
+		$this->assigned_terms[ $object_id ][ $taxonomy ] = array_values( (array) $terms );
+	}
+
+	/**
+	 * Return the term slugs a post was tagged with in one taxonomy.
+	 *
+	 * @param int    $post_id  Post ID.
+	 * @param string $taxonomy Taxonomy name.
+	 * @return string[]
+	 */
+	private function assigned_terms( int $post_id, string $taxonomy ): array {
+		return $this->assigned_terms[ $post_id ][ $taxonomy ] ?? array();
 	}
 
 	/**
