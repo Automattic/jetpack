@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Top Posts & Pages: only process as many posts as were requested from the Stats API, cutting post and metadata lookups when rendering the block without changing which posts it shows.
