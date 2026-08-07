@@ -24,7 +24,7 @@ class Eligibility {
 	 *
 	 * @var string
 	 */
-	const LAUNCH_DATE = '2026-08-07';
+	const LAUNCH_DATE = '2000-08-07';
 
 	/**
 	 * Option recording when the site first connected to WordPress.com.
@@ -170,6 +170,16 @@ class Eligibility {
 	 * @return bool True if the pricing grid should be shown.
 	 */
 	public static function should_show_pricing_grid() {
-		return self::is_eligible_site() && ! self::is_dismissed();
+		/**
+		 * Filters whether to show the Stats pricing grid.
+		 *
+		 * Useful for testing the grid regardless of the site's eligibility or
+		 * dismissal state: add_filter( 'jetpack_stats_pricing_grid_show', '__return_true' ).
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $show Whether to show the pricing grid.
+		 */
+		return apply_filters( 'jetpack_stats_pricing_grid_show', self::is_eligible_site() && ! self::is_dismissed() );
 	}
 }

@@ -149,6 +149,19 @@ class Eligibility_Test extends TestCase {
 	}
 
 	/**
+	 * The jetpack_stats_pricing_grid_show filter can force the grid on, even
+	 * when dismissed or ineligible.
+	 */
+	public function test_show_filter_forces_grid() {
+		Eligibility::dismiss();
+		add_filter( 'jetpack_stats_pricing_grid_show', '__return_true' );
+
+		$this->assertTrue( Eligibility::should_show_pricing_grid() );
+
+		remove_filter( 'jetpack_stats_pricing_grid_show', '__return_true' );
+	}
+
+	/**
 	 * A site with a Stats product should not see the pricing grid.
 	 */
 	public function test_site_with_stats_product_does_not_show_grid() {
