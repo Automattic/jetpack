@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Stats_Admin\Pricing_Grid;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Stats_Admin\Notices;
 
 /**
  * Determines whether to show the Stats pricing grid (for new sites without a plan).
@@ -93,13 +94,65 @@ class Eligibility {
 	}
 
 	/**
+	 * Option marking the pricing grid as dismissed.
+	 *
+	 * Set once the user picks a plan from the grid, so it doesn't reappear
+	 * after "I will do it later" or an abandoned checkout. The wpcom notices
+	 * endpoint is the authoritative record for connected sites; this local
+	 * option covers unconnected sites, where that endpoint is unreachable.
+	 *
+	 * @var string
+	 */
+	const DISMISSED_OPTION = 'jetpack_stats_pricing_grid_dismissed';
+
+	/**
+	 * Check if the pricing grid has been dismissed.
+	 *
+	 * @return bool True if the pricing grid has been dismissed.
+	 */
+	public static function is_dismissed() {
+		if ( get_option( self::DISMISSED_OPTION ) ) {
+			return true;
+		}
+
+		if ( ( new Connection_Manager() )->is_connected() ) {
+			return ( new Notices() )->is_notice_hidden( Notices::PRICING_GRID_DISMISSED_NOTICE_ID );
+		}
+
+		return false;
+	}
+
+	/**
+	 * Mark the pricing grid as dismissed.
+	 */
+	public static function dismiss() {
+		update_option( self::DISMISSED_OPTION, true );
+
+		if ( ( new Connection_Manager() )->is_connected() ) {
+			( new Notices() )->update_notice( Notices::PRICING_GRID_DISMISSED_NOTICE_ID, 'dismissed' );
+		}
+	}
+
+	/**
+	 * Check if the site qualifies for the pricing grid: a new site without a
+	 * Stats plan. Dismissal is intentionally not considered here — this also
+	 * gates the Stats menu registration for unconnected sites, which must
+	 * survive dismissal.
+	 *
+	 * @return bool True if the site qualifies for the pricing grid.
+	 */
+	public static function is_eligible_site() {
+		return self::is_new_site() && ! self::has_stats_plan();
+	}
+
+	/**
 	 * Check if the pricing grid should be shown.
 	 *
-	 * The pricing grid is shown for new sites without a Stats plan.
+	 * The pricing grid is shown for new sites without a Stats plan, until dismissed.
 	 *
 	 * @return bool True if the pricing grid should be shown.
 	 */
 	public static function should_show_pricing_grid() {
-		return self::is_new_site() && ! self::has_stats_plan();
+		return self::is_eligible_site() && ! self::is_dismissed();
 	}
 }

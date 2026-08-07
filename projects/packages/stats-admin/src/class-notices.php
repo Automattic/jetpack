@@ -21,6 +21,7 @@ class Notices {
 	const NEW_STATS_FEEDBACK_NOTICE_ID      = 'new_stats_feedback';
 	const OPT_IN_NEW_STATS_NOTICE_ID        = 'opt_in_new_stats';
 	const GDPR_COOKIE_CONSENT_NOTICE_ID     = 'gdpr_cookie_consent';
+	const PRICING_GRID_DISMISSED_NOTICE_ID  = 'pricing_grid_dismissed';
 
 	const VIEWS_TO_SHOW_FEEDBACK      = 3;
 	const POSTPONE_OPT_IN_NOTICE_DAYS = 30;

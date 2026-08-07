@@ -31,6 +31,7 @@ class Dashboard_Test extends Stats_TestCase {
 	public function tearDown(): void {
 		parent::tearDown();
 		unset( $_GET['view'] );
+		delete_option( Pricing_Grid\Eligibility::DISMISSED_OPTION );
 	}
 
 	/**
@@ -63,5 +64,23 @@ class Dashboard_Test extends Stats_TestCase {
 
 		$this->expectOutputRegex( '/<div id="wpcom" class="jp-stats-dashboard".*>/i' );
 		( new Dashboard() )->render();
+	}
+
+	/**
+	 * Test that loading the purchase view dismisses the pricing grid, so later
+	 * visits (e.g. after "I will do it later") render Odyssey instead.
+	 */
+	public function test_purchase_view_dismisses_pricing_grid() {
+		set_transient( 'jetpack_assumed_site_creation_date', '2036-01-01 00:00:00' );
+		( new Connection_Manager() )->reset_connection_status();
+		$dashboard = new Dashboard();
+
+		$_GET['view'] = 'purchase';
+		$dashboard->admin_init();
+		unset( $_GET['view'] );
+
+		$this->assertTrue( Pricing_Grid\Eligibility::is_dismissed() );
+		$this->expectOutputRegex( '/<div id="wpcom" class="jp-stats-dashboard".*>/i' );
+		$dashboard->render();
 	}
 }

@@ -56,7 +56,7 @@ class Main {
 		// The stats module normally registers the Stats menu, but modules only
 		// load once the site is connected. Register the dashboard here too so
 		// eligible new sites see the pricing grid before connecting.
-		if ( is_admin() && Pricing_Grid\Eligibility::should_show_pricing_grid() ) {
+		if ( is_admin() && Pricing_Grid\Eligibility::is_eligible_site() ) {
 			Dashboard::init();
 		}
 

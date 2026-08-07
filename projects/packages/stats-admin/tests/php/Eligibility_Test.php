@@ -32,6 +32,7 @@ class Eligibility_Test extends TestCase {
 		parent::tearDown();
 		delete_option( Current_Plan::PLAN_OPTION );
 		delete_option( Current_Plan::SITE_PRODUCTS_OPTION );
+		delete_option( Eligibility::DISMISSED_OPTION );
 		$this->reset_current_plan_cache();
 		( new Connection_Manager() )->reset_connection_status();
 	}
@@ -84,6 +85,56 @@ class Eligibility_Test extends TestCase {
 
 		$this->assertTrue( Eligibility::is_new_site() );
 		$this->assertTrue( Eligibility::should_show_pricing_grid() );
+	}
+
+	/**
+	 * A connected site whose pricing_grid_dismissed notice is hidden on wpcom
+	 * should not see the grid, even without the local option.
+	 */
+	public function test_wpcom_dismissed_notice_hides_grid_on_connected_site() {
+		set_transient( 'jetpack_assumed_site_creation_date', '2036-01-01 00:00:00' );
+		delete_transient( Notices::STATS_DASHBOARD_NOTICES_CACHE_KEY );
+		add_filter( 'pre_http_request', array( $this, 'wpcom_notices_dismissed_fixture' ), 11, 3 );
+
+		$this->assertTrue( Eligibility::is_eligible_site() );
+		$this->assertTrue( Eligibility::is_dismissed() );
+		$this->assertFalse( Eligibility::should_show_pricing_grid() );
+
+		remove_filter( 'pre_http_request', array( $this, 'wpcom_notices_dismissed_fixture' ), 11 );
+		delete_transient( Notices::STATS_DASHBOARD_NOTICES_CACHE_KEY );
+	}
+
+	/**
+	 * Fixture marking the pricing_grid_dismissed notice as hidden on wpcom.
+	 *
+	 * @param array|false $response Existing response.
+	 * @param array       $parsed_args Request args.
+	 * @param string      $url Request URL.
+	 * @return array|false
+	 */
+	public function wpcom_notices_dismissed_fixture( $response, $parsed_args, $url ) {
+		if ( strpos( $url, '/jetpack-stats-dashboard/notices' ) !== false ) {
+			return array(
+				'response' => array(
+					'code'    => 200,
+					'message' => 'ok',
+				),
+				'body'     => '{"pricing_grid_dismissed":false}',
+			);
+		}
+		return $response;
+	}
+
+	/**
+	 * A dismissed pricing grid stays hidden while the site remains eligible
+	 * (so the Stats menu keeps registering).
+	 */
+	public function test_dismissed_grid_stays_hidden_on_eligible_site() {
+		$this->disconnect_site();
+		Eligibility::dismiss();
+
+		$this->assertTrue( Eligibility::is_eligible_site() );
+		$this->assertFalse( Eligibility::should_show_pricing_grid() );
 	}
 
 	/**

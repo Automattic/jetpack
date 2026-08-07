@@ -12,7 +12,6 @@ import {
 	ThemeProvider,
 } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import useStatsCheckoutWorkflow from '../../hooks/use-stats-checkout-workflow';
 
 /* global JP_STATS_PRICING_GRID_INITIAL_STATE */
 
@@ -51,13 +50,6 @@ export default function PricingGrid() {
 			? JP_STATS_PRICING_GRID_INITIAL_STATE
 			: {};
 
-	const { run: checkoutFree, hasCheckoutStarted: freeCheckoutStarted } = useStatsCheckoutWorkflow( {
-		productSlug: state.freeProductSlug || 'jetpack_stats_free_yearly',
-		redirectUrl: 'admin.php?page=stats',
-		siteSuffix: state.siteSuffix,
-		adminUrl: state.adminUrl,
-	} );
-
 	const currency = state.paidPricing?.currency || 'USD';
 	const monthlyPrice = state.paidPricing?.yearlyCost ? state.paidPricing.yearlyCost / 12 : null;
 
@@ -81,7 +73,7 @@ export default function PricingGrid() {
 												price={ monthlyPrice }
 												currency={ currency }
 												legend={ __(
-													'per month for up to 10k monthly views, billed yearly',
+													'per month, from 10k monthly views, billed yearly',
 													'jetpack-stats-admin'
 												) }
 											/>
@@ -113,13 +105,7 @@ export default function PricingGrid() {
 								<PricingTableColumn>
 									<PricingTableHeader>
 										<ProductPrice price={ 0 } legend="" currency={ currency } hidePriceFraction />
-										<Button
-											onClick={ checkoutFree }
-											isLoading={ freeCheckoutStarted }
-											disabled={ freeCheckoutStarted }
-											variant="secondary"
-											fullWidth
-										>
+										<Button href={ state.freeStatsUrl || '#' } variant="secondary" fullWidth>
 											{ __( 'Start for free', 'jetpack-stats-admin' ) }
 										</Button>
 									</PricingTableHeader>

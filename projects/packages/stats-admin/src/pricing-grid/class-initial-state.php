@@ -7,20 +7,12 @@
 
 namespace Automattic\Jetpack\Stats_Admin\Pricing_Grid;
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Jetpack_Options;
 
 /**
  * Builds the initial state object for the pricing grid React component.
  */
 class Initial_State {
-	/**
-	 * The free Stats product slug.
-	 *
-	 * @var string
-	 */
-	const FREE_PRODUCT_SLUG = 'jetpack_stats_free_yearly';
-
 	/**
 	 * The paid Stats product slug.
 	 *
@@ -41,21 +33,13 @@ class Initial_State {
 	 * @return array
 	 */
 	public function get_data() {
-		$connection_manager = new Connection_Manager();
-		$blog_id            = Jetpack_Options::get_option( 'id' );
-		$is_registered      = $connection_manager->is_connected();
-
-		// Get the site's domain/slug for checkout redirects.
-		$domain = $this->get_site_domain();
+		$blog_id = Jetpack_Options::get_option( 'id' );
 
 		return array(
-			'blogId'          => $blog_id,
-			'siteSuffix'      => $domain,
-			'isConnected'     => $is_registered,
-			'adminUrl'        => admin_url(),
-			'freeProductSlug' => self::FREE_PRODUCT_SLUG,
-			'paidProductSlug' => self::PAID_PRODUCT_SLUG,
-			'paidPurchaseUrl' => $this->get_paid_purchase_url( $blog_id, $domain ),
+			// The free choice needs no purchase: it goes straight to the
+			// dashboard; the `view=traffic` flag also dismisses the grid.
+			'freeStatsUrl'    => admin_url( 'admin.php?page=stats&view=traffic' ),
+			'paidPurchaseUrl' => $this->get_paid_purchase_url( $blog_id, $this->get_site_domain() ),
 			'paidPricing'     => $this->get_paid_pricing(),
 		);
 	}

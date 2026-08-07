@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 
 /**
@@ -144,6 +143,12 @@ class Dashboard {
 	 */
 	public function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
+
+		// Landing on an Odyssey view means the user chose a plan from the
+		// pricing grid; don't show the grid again on later visits.
+		if ( $this->is_odyssey_view() ) {
+			Pricing_Grid\Eligibility::dismiss();
+		}
 	}
 
 	/**
@@ -164,15 +169,25 @@ class Dashboard {
 	 * @return bool True if the pricing grid should be shown.
 	 */
 	private function should_show_pricing_grid() {
-		// The Odyssey purchase route (#!/stats/purchase/{blogId}) shares this
-		// page; the pricing grid's paid CTA adds `view=purchase` so the
-		// dashboard renders Odyssey there instead of the grid.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['view'] ) && 'purchase' === $_GET['view'] ) {
+		// Odyssey shares this page; the pricing grid's CTAs add a `view` flag
+		// (purchase for the paid tier route, traffic for the free dashboard)
+		// so the dashboard renders Odyssey there instead of the grid.
+		if ( $this->is_odyssey_view() ) {
 			return false;
 		}
 
 		return Pricing_Grid\Eligibility::should_show_pricing_grid();
+	}
+
+	/**
+	 * Whether the current request targets an Odyssey view via the pricing
+	 * grid's `view` query flag.
+	 *
+	 * @return bool True for an Odyssey view.
+	 */
+	private function is_odyssey_view() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return isset( $_GET['view'] ) && in_array( $_GET['view'], array( 'purchase', 'traffic' ), true );
 	}
 
 	/**
@@ -196,8 +211,7 @@ class Dashboard {
 		);
 		Assets::enqueue_script( $handle );
 
-		// Inject the initial states before the bundle runs.
+		// Inject the initial state before the bundle runs.
 		wp_add_inline_script( $handle, ( new Pricing_Grid\Initial_State() )->render(), 'before' );
-		Connection_Initial_State::render_script( $handle );
 	}
 }
