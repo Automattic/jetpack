@@ -8,6 +8,10 @@
 	section:first-of-type {
 		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
 		--wp-ui-card-header-content-margin: var(--wpds-dimension-padding-lg);
+
+		> div {
+			margin-block-start: 0;
+		}
 	}
 }
 
