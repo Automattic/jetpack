@@ -7,6 +7,7 @@ export {
 export { deriveComparisonRange } from './search/comparison';
 export {
 	REPORT_DATE_PARAM_KEYS,
+	omitComparisonReportParams,
 	pickReportDateParams,
 	buildDashboardLink,
 	buildReportLink,
