@@ -13,6 +13,12 @@
 			margin-block-start: 0;
 		}
 	}
+
+	// Overlay WidgetHeader re-declares padding to 2xl; match Card tweak.
+	// TODO: fix upstream in @wordpress/widget-dashboard.
+	[class*="__widget-header"][class*="__overlay"] {
+		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+	}
 }
 
 .loading {
