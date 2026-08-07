@@ -17,6 +17,7 @@ import { globe } from '@wordpress/icons';
 import clsx from 'clsx';
 import { getTranslatedCountryName } from '../../util/country-names-translated.js';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls.jsx';
+import JetpackFieldHints from '../shared/components/jetpack-field-hints.jsx';
 import useFieldSelected from '../shared/hooks/use-field-selected.js';
 import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles.js';
@@ -82,7 +83,7 @@ export default function PhoneFieldEdit( props ) {
 		}
 	}, [ showCountrySelector, setAttributes, countryPairs, defaultCountry ] );
 
-	const innerBlocksProps = useInnerBlocksProps( blockProps, {
+	const { children, ...innerBlocksProps } = useInnerBlocksProps( blockProps, {
 		allowedBlocks: [ 'jetpack/label', 'jetpack/phone-input' ],
 		template: [
 			[
@@ -126,7 +127,10 @@ export default function PhoneFieldEdit( props ) {
 					'jetpack/field-phone-search-placeholder': searchPlaceholder,
 				} }
 			>
-				<div { ...innerBlocksProps } />
+				<div { ...innerBlocksProps }>
+					{ children }
+					<JetpackFieldHints attributes={ attributes } />
+				</div>
 			</BlockContextProvider>
 
 			<BlockControls __experimentalShareWithChildBlocks>
@@ -147,6 +151,7 @@ export default function PhoneFieldEdit( props ) {
 				attributes={ attributes }
 				setAttributes={ setAttributes }
 				width={ width }
+				helpTextSupport
 				extraFieldSettings={ [
 					{
 						index: 2,

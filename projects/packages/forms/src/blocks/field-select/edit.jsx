@@ -11,6 +11,7 @@ import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import clsx from 'clsx';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls.jsx';
+import JetpackFieldHints from '../shared/components/jetpack-field-hints.jsx';
 import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles.js';
 import { getCaretPosition } from '../shared/util/caret.js';
@@ -55,7 +56,7 @@ export default function DropdownFieldEdit( props ) {
 		];
 	}, [ required ] );
 
-	const innerBlocksProps = useInnerBlocksProps(
+	const { children, ...innerBlocksProps } = useInnerBlocksProps(
 		{ className: 'jetpack-field-dropdown__wrapper' },
 		{
 			allowedBlocks: ALLOWED_INNER_BLOCKS,
@@ -150,7 +151,10 @@ export default function DropdownFieldEdit( props ) {
 
 	return (
 		<div { ...blockProps }>
-			<div { ...innerBlocksProps } />
+			<div { ...innerBlocksProps }>
+				{ children }
+				<JetpackFieldHints attributes={ attributes } />
+			</div>
 			{ ( isSelected || isInnerBlockSelected ) && (
 				<div ref={ optionsWrapper } { ...optionWrapperStyles }>
 					{ options.map( ( option, index ) => (
@@ -188,6 +192,7 @@ export default function DropdownFieldEdit( props ) {
 				setAttributes={ setAttributes }
 				width={ width }
 				type="dropdown"
+				helpTextSupport
 			/>
 		</div>
 	);

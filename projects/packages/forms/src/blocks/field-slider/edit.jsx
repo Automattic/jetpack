@@ -8,6 +8,7 @@ import {
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls.jsx';
+import JetpackFieldHints from '../shared/components/jetpack-field-hints.jsx';
 import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
 import './editor.scss';
 
@@ -127,7 +128,7 @@ export default function SliderFieldEdit( props ) {
 		}`,
 	} );
 
-	const innerBlocksProps = useInnerBlocksProps( blockProps, {
+	const { children, ...innerBlocksProps } = useInnerBlocksProps( blockProps, {
 		allowedBlocks: [ 'jetpack/label', 'jetpack/input-range' ],
 		template: [
 			[
@@ -155,7 +156,10 @@ export default function SliderFieldEdit( props ) {
 					'jetpack/field-slider-onChangeMaxLabel': onChangeMaxLabel,
 				} }
 			>
-				<div { ...innerBlocksProps } />
+				<div { ...innerBlocksProps }>
+					{ children }
+					<JetpackFieldHints attributes={ attributes } />
+				</div>
 			</BlockContextProvider>
 			<JetpackFieldControls
 				attributes={ attributes }
@@ -163,6 +167,7 @@ export default function SliderFieldEdit( props ) {
 				required={ required }
 				setAttributes={ setAttributes }
 				width={ width }
+				helpTextSupport
 				extraFieldSettings={ [
 					{
 						index: 2,

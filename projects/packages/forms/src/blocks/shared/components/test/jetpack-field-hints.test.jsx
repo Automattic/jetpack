@@ -40,4 +40,10 @@ describe( 'JetpackFieldHints', () => {
 
 		expect( container ).toBeEmptyDOMElement();
 	} );
+
+	it( 'does not render a format hint when isDateField is not set, even with a dateFormat', () => {
+		const { container } = render( <JetpackFieldHints attributes={ { dateFormat: 'mm/dd/yy' } } /> );
+
+		expect( container ).toBeEmptyDOMElement();
+	} );
 } );
