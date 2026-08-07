@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { postList } from '@wordpress/icons';
+import { page } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -42,7 +42,7 @@ export type TopPostsAttributes = {
  * rows, Posts & pages view. The date range comes from the dashboard picker.
  */
 export default {
-	icon: postList,
+	icon: page,
 	attributes: [
 		{
 			id: 'max',
