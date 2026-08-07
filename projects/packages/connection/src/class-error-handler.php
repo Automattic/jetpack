@@ -19,21 +19,25 @@ namespace Automattic\Jetpack\Connection;
  *    `Manager::verify_xml_rpc_signature()`, which reports it here. (Signed incoming REST
  *    requests are funneled into the same verification path by `REST_Authentication`.)
  * 2. Applies a gate to only process each error code once an hour to avoid overflow
- * 3. It stores the error on the database, but we don't know yet if this is a valid error, because
+ * 3. It stores the error in the database, but we don't know yet if this is a valid error, because
  *    we can't confirm it came from WP.com.
  * 4. It encrypts the error details and sends it to the wp.com server
  * 5. wp.com checks it and, if valid, sends a new request back to this site using the verify_xml_rpc_error REST endpoint
  * 6. This endpoint adds this error to the Verified errors in the database
  * 7. Triggers a workflow depending on the error (display user an error message, do some self healing, etc.)
  *
- * Flow 2 — outgoing request errors. Entry point: `check_api_response_for_errors()`.
+ * Flow 2 — outgoing request errors. Entry points: `check_api_response_for_errors()` and
+ * `check_signed_request_for_errors()`.
  *
  * 1. Every signed request made through `Client::remote_request()` has its response checked
- *    by `check_api_response_for_errors()`.
- * 2. When the response carries a known error code, the error is stored and immediately
- *    marked verified (the same hourly gate applies). The WP.com verification round-trip of
- *    flow 1 is skipped because the error arrived in a response to a request this site
- *    itself initiated and signed — the failed response is its own evidence.
+ *    by `check_api_response_for_errors()`. A request that could not be signed at all never
+ *    gets a response, so `Client::remote_request()` passes the signing failure to
+ *    `check_signed_request_for_errors()` instead.
+ * 2. When the response (or the signing failure) carries a known error code, the error is
+ *    stored and immediately marked verified (the same hourly gate applies). The WP.com
+ *    verification round-trip of flow 1 is skipped because the error arrived in a response to
+ *    a request this site itself initiated and signed — the failed response is its own
+ *    evidence — or, for signing failures, because the evidence is the site's own state.
  *
  * Stored errors carry two orthogonal classification fields:
  *
@@ -192,10 +196,12 @@ class Error_Handler {
 		'no_valid_user_token',       // The stored user token doesn't match the key the request was signed with.
 		'no_valid_blog_token',       // The stored blog token doesn't match the key the request was signed with.
 		'unknown_token',             // No stored token matches the request token's key.
+		'missing_token',             // No token could be loaded to sign an outgoing request (Client::build_signed_request).
 		// Signature verification problems (Jetpack_Signature), or errors WPCOM returned
 		// for an outbound request (Error_Handler::check_api_response_for_errors).
 		'could_not_sign',            // Signing the request failed for an unknown reason.
 		'invalid_scheme',            // Invalid URL scheme when signing.
+		'unknown_scheme_port',       // The URL scheme has no known port, so the signature cannot be built.
 		'invalid_secret',            // The stored token secret is invalid.
 		'invalid_token',             // No token available when signing; from WPCOM: the token used was rejected.
 		'token_mismatch',            // The request token doesn't match the token we hold.
@@ -1565,12 +1571,80 @@ class Error_Handler {
 				'token'     => empty( $auth_data['token'] ) ? '' : $auth_data['token'],
 				'timestamp' => empty( $auth_data['timestamp'] ) ? '' : $auth_data['timestamp'],
 				'nonce'     => empty( $auth_data['nonce'] ) ? '' : $auth_data['nonce'],
-				'body_hash' => empty( $auth_data['body_hash'] ) ? '' : $auth_data['body_hash'],
+				// `Client::build_signed_request()` builds this key as `body-hash` (it is sent as an
+				// `Authorization` header parameter). The snake_case fallback keeps callers that pass
+				// the stored `signature_details` shape working.
+				'body_hash' => $auth_data['body-hash'] ?? $auth_data['body_hash'] ?? '',
 				'method'    => $method,
 				'url'       => $url,
 			),
 			$error_type,
 			self::DIRECTION_OUTGOING
+		);
+
+		$this->report_error( $error, false, true );
+	}
+
+	/**
+	 * Check the result of signing an outgoing request for errors, and store them if needed.
+	 *
+	 * This is the second entry point of the outgoing-request error flow (flow 2 in the class
+	 * docblock). It handles failures from `Client::build_signed_request()`, which
+	 * occur before a request is sent and therefore have no response to inspect.
+	 *
+	 * Like response errors in flow 2, these are stored as verified without a WP.com
+	 * round-trip because the site's own token and URL state provides the evidence.
+	 * The hourly reporting gate in `report_error()` still applies.
+	 *
+	 * Codes reaching this method include `missing_token`, `malformed_token` and
+	 * `invalid_body` (from `Client::build_signed_request()`), plus the signing errors
+	 * returned by `Jetpack_Signature::sign_request()` (e.g. `invalid_scheme`,
+	 * `unknown_scheme_port`).
+	 *
+	 * This includes token lookup, request validation, and request signing errors.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param mixed  $signing_result The return value of `Client::build_signed_request()`. Ignored unless it is a `WP_Error`.
+	 * @param string $url            Request URL.
+	 * @param string $method         Request method.
+	 * @param string $error_type     The transport of the outgoing request: `ERROR_TYPE_XMLRPC` or `ERROR_TYPE_REST`.
+	 * @param int    $user_id        The local user ID the request was signed for, or `0` for the blog token. Used
+	 *                               only as an attribution fallback — see `wp_error_to_array()` — for the errors
+	 *                               raised when no token could be found at all (e.g. `no_user_tokens`,
+	 *                               `token_malformed`), which therefore carry no real token to attribute by.
+	 *
+	 * @return void
+	 */
+	public function check_signed_request_for_errors( $signing_result, $url, $method, $error_type, $user_id = 0 ) {
+		if ( ! is_wp_error( $signing_result ) ) {
+			return;
+		}
+
+		$data = $signing_result->get_error_data();
+
+		// The signing errors raised by `Jetpack_Signature` already carry the details of the
+		// request they failed to sign; the ones raised by `Client` itself carry nothing.
+		$signature_details = isset( $data['signature_details'] ) && is_array( $data['signature_details'] )
+			? $data['signature_details']
+			: array();
+
+		$signature_details += array(
+			'method' => $method,
+			'url'    => $url,
+		);
+
+		$message = $signing_result->get_error_message();
+
+		$error = self::build_connection_wp_error(
+			(string) $signing_result->get_error_code(),
+			// `build_error_array()` rejects an empty message, and several of these errors are
+			// raised without one.
+			'' === $message ? 'The request could not be signed.' : $message,
+			$signature_details,
+			$error_type,
+			self::DIRECTION_OUTGOING,
+			array( 'user_id' => $user_id )
 		);
 
 		$this->report_error( $error, false, true );

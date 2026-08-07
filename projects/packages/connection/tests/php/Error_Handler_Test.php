@@ -461,6 +461,262 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that the body hash of the failed request is stored.
+	 */
+	public function test_check_api_response_for_errors_stores_body_hash() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_api_response_for_errors(
+			array(
+				'response' => array(
+					'code' => 400,
+				),
+				'body'     => '{"error":"invalid_token","message":"The token is invalid."}',
+			),
+			array(
+				'token'     => 'broken:1:0',
+				'timestamp' => 1234567890,
+				'nonce'     => 'asd3d32d',
+				'body-hash' => 'dsf34frf',
+			),
+			'https://localhost/',
+			'POST',
+			'rest'
+		);
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+
+		$this->assertSame( 'dsf34frf', $stored_errors['invalid_token']['0']['error_data']['body_hash'] );
+	}
+
+	/**
+	 * Test that the stored `signature_details` shape (`body_hash`) is still accepted.
+	 */
+	public function test_check_api_response_for_errors_accepts_snake_case_body_hash() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_api_response_for_errors(
+			array(
+				'response' => array(
+					'code' => 400,
+				),
+				'body'     => '{"error":"invalid_token","message":"The token is invalid."}',
+			),
+			array(
+				'token'     => 'broken:1:0',
+				'body_hash' => 'dsf34frf',
+			),
+			'https://localhost/',
+			'POST',
+			'rest'
+		);
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+
+		$this->assertSame( 'dsf34frf', $stored_errors['invalid_token']['0']['error_data']['body_hash'] );
+	}
+
+	/**
+	 * Test that a request that could not be signed is reported.
+	 *
+	 * These failures happen before the request is made, so they never reach
+	 * `check_api_response_for_errors()`.
+	 */
+	public function test_check_signed_request_for_errors_stores_signing_failure() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_signed_request_for_errors(
+			new \WP_Error( 'missing_token' ),
+			'https://jetpack.wordpress.com/jetpack.token/1/',
+			'POST',
+			Error_Handler::ERROR_TYPE_REST
+		);
+
+		$stored_errors   = $this->error_handler->get_stored_errors();
+		$verified_errors = $this->error_handler->get_verified_errors();
+
+		$this->assertArrayHasKey( 'missing_token', $stored_errors );
+
+		// No token was found to attribute the error to a specific user, so it falls back to
+		// the caller's $user_id argument (defaulted to 0, the blog-token/site attribution).
+		$stored = $stored_errors['missing_token']['0'];
+
+		$this->assertSame( 'The request could not be signed.', $stored['error_message'] );
+		$this->assertSame( Error_Handler::ERROR_TYPE_REST, $stored['error_type'] );
+		$this->assertSame( Error_Handler::DIRECTION_OUTGOING, $stored['error_direction'] );
+		$this->assertSame( 'https://jetpack.wordpress.com/jetpack.token/1/', $stored['error_data']['url'] );
+		$this->assertSame( 'POST', $stored['error_data']['method'] );
+		$this->assertSame( '', $stored['error_data']['token'] );
+
+		// The evidence is local, so the error is verified without the WP.com round-trip.
+		$this->assertArrayHasKey( 'missing_token', $verified_errors );
+	}
+
+	/**
+	 * Test that the request details carried by a `Jetpack_Signature` error are preserved.
+	 */
+	public function test_check_signed_request_for_errors_keeps_signature_details() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_signed_request_for_errors(
+			new \WP_Error(
+				'unknown_scheme_port',
+				"The scheme's port is unknown",
+				array(
+					'signature_details' => array(
+						'token'     => 'dhj938djh938d:1:5',
+						'timestamp' => 1234567890,
+						'nonce'     => 'asd3d32d',
+						'body_hash' => 'dsf34frf',
+						'url'       => 'gopher://localhost/',
+					),
+				)
+			),
+			'https://localhost/',
+			'POST',
+			Error_Handler::ERROR_TYPE_XMLRPC
+		);
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+
+		$this->assertArrayHasKey( 'unknown_scheme_port', $stored_errors );
+
+		// The token in the signature details attributes the error to its user.
+		$stored = $stored_errors['unknown_scheme_port']['5'];
+
+		$this->assertSame( "The scheme's port is unknown", $stored['error_message'] );
+		$this->assertSame( Error_Handler::ERROR_TYPE_XMLRPC, $stored['error_type'] );
+		// The details of the request that failed to sign win over the caller's arguments.
+		$this->assertSame( 'gopher://localhost/', $stored['error_data']['url'] );
+		$this->assertSame( 'dsf34frf', $stored['error_data']['body_hash'] );
+		$this->assertSame( 'POST', $stored['error_data']['method'] );
+	}
+
+	/**
+	 * Test that an error with no token to attribute is stored under the caller-supplied
+	 * $user_id, rather than falling back to 'invalid'.
+	 */
+	public function test_check_signed_request_for_errors_attributes_to_the_given_user() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_signed_request_for_errors(
+			new \WP_Error( 'no_user_tokens' ),
+			'https://localhost/',
+			'POST',
+			Error_Handler::ERROR_TYPE_REST,
+			42
+		);
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+
+		$this->assertArrayHasKey( '42', $stored_errors['no_user_tokens'] );
+		$this->assertArrayNotHasKey( 'invalid', $stored_errors['no_user_tokens'] );
+	}
+
+	/**
+	 * Test that a successful signing result is ignored.
+	 */
+	public function test_check_signed_request_for_errors_ignores_success() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_signed_request_for_errors(
+			array(
+				'url'     => 'https://localhost/',
+				'request' => array(),
+				'auth'    => array(),
+			),
+			'https://localhost/',
+			'POST',
+			Error_Handler::ERROR_TYPE_REST
+		);
+
+		$this->assertEmpty( $this->error_handler->get_stored_errors() );
+	}
+
+	/**
+	 * Test that a signing failure with an unknown error code is not stored.
+	 */
+	public function test_check_signed_request_for_errors_ignores_unknown_code() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_signed_request_for_errors(
+			new \WP_Error( 'http_request_failed', 'cURL error 28' ),
+			'https://localhost/',
+			'POST',
+			Error_Handler::ERROR_TYPE_REST
+		);
+
+		$this->assertEmpty( $this->error_handler->get_stored_errors() );
+	}
+
+	/**
+	 * Test that signing failures go through the hourly reporting gate like every other error.
+	 */
+	public function test_check_signed_request_for_errors_respects_the_gate() {
+		// No gate-bypass filter here: this test is about the gate.
+		$this->error_handler->check_signed_request_for_errors(
+			new \WP_Error( 'missing_token' ),
+			'https://localhost/',
+			'POST',
+			Error_Handler::ERROR_TYPE_REST
+		);
+
+		$this->assertArrayHasKey( 'missing_token', $this->error_handler->get_stored_errors() );
+
+		$this->error_handler->delete_all_errors();
+
+		$this->error_handler->check_signed_request_for_errors(
+			new \WP_Error( 'missing_token' ),
+			'https://localhost/',
+			'POST',
+			Error_Handler::ERROR_TYPE_REST
+		);
+
+		$this->assertEmpty( $this->error_handler->get_stored_errors(), 'the gate should suppress a second report within the hour' );
+
+		delete_transient( Error_Handler::ERROR_REPORTING_GATE . 'missing_token' );
+	}
+
+	/**
+	 * Test that only displayable signing errors surface notices.
+	 * `missing_token` and `unknown_scheme_port` should not, even with valid attribution.
+	 */
+	public function test_signing_failures_are_not_displayable() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		foreach ( array( 'missing_token', 'unknown_scheme_port' ) as $error_code ) {
+			$this->error_handler->check_signed_request_for_errors(
+				new \WP_Error( $error_code ),
+				'https://localhost/',
+				'POST',
+				Error_Handler::ERROR_TYPE_REST
+			);
+		}
+
+		$this->assertCount( 2, $this->error_handler->get_stored_errors() );
+		$this->assertEmpty( $this->error_handler->get_displayable_errors() );
+	}
+
+	/**
+	 * Test that a displayable signing error is shown once it has valid attribution.
+	 */
+	public function test_displayable_signing_failure_surfaces_a_notice() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_signed_request_for_errors(
+			new \WP_Error( 'malformed_token' ),
+			'https://localhost/',
+			'POST',
+			Error_Handler::ERROR_TYPE_REST
+		);
+
+		$displayable = $this->error_handler->get_displayable_errors();
+
+		$this->assertArrayHasKey( 'malformed_token', $displayable );
+		$this->assertSame( 'site', $displayable['malformed_token']['0']['audience'] );
+	}
+
+	/**
 	 * Test storing errors
 	 */
 	public function test_delete_all_api_errors() {
