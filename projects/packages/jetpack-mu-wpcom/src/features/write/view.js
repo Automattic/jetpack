@@ -18,6 +18,15 @@ const i18n = window.wpcomWriteStrings || {};
 // Tracks the blockquote currently containing the cursor, for citation placeholder lifecycle.
 let activeBlockquote = null;
 
+/*
+ * The pencil on the per-image edit button, which this file builds at runtime
+ * rather than rendering server-side. Every other icon lives in icons.php —
+ * this is the one that can't, so keep the two in sync by hand. It draws with
+ * `currentColor` like the rest, taking the button's color and its states.
+ */
+const EDIT_ICON_SVG =
+	'<svg class="bw-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>';
+
 // Autosave configuration.
 const AUTOSAVE_INTERVAL_MS = 30000; // 30 seconds.
 const AUTOSAVE_MESSAGE_DURATION_MS = 2000;
@@ -2078,7 +2087,7 @@ function addDeleteButtons() {
 		// images (RSM-3980).
 		const editBtn = document.createElement( 'button' );
 		editBtn.className = 'bw-img-edit';
-		editBtn.innerHTML = '<span class="dashicons dashicons-edit" aria-hidden="true"></span>';
+		editBtn.innerHTML = EDIT_ICON_SVG;
 		editBtn.contentEditable = 'false';
 		editBtn.setAttribute( 'aria-label', i18n.editImage || 'Edit image' );
 		editBtn.setAttribute( 'title', i18n.editImage || 'Edit image' );

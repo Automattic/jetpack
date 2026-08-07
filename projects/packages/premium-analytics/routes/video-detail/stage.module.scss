@@ -2,25 +2,6 @@
 	min-block-size: 0;
 }
 
-// A long unbroken video title in the breadcrumb refuses to shrink: admin-ui's
-// Page header renders the breadcrumbs slot inside a flex chain (inner header
-// Stack → the Breadcrumbs `nav`) whose items keep the flexbox default
-// `min-inline-size: auto`, so the crumb's nowrap min-content propagates and
-// drags the whole page into horizontal scrolling before the crumb's own
-// ellipsis can engage. No dedicated upstream issue exists for this exact
-// propagation; the slot is set to be reworked under the Breadcrumb component
-// extraction (https://github.com/WordPress/gutenberg/issues/77039) and the
-// admin-ui 2.0 proposal (https://github.com/WordPress/gutenberg/issues/77628).
-// Let both links shrink until then; the `nav`'s parent has no stable class,
-// hence the structural `:has()`.
-.page :has(> nav[aria-label]) {
-	min-inline-size: 0;
-}
-
-.page nav[aria-label] {
-	min-inline-size: 0;
-}
-
 .scrollArea {
 	flex: 1 1 auto;
 	min-block-size: 0;

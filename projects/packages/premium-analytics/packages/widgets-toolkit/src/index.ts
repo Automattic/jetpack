@@ -156,6 +156,7 @@ export {
 	toDay,
 	defaultPeriodForInterval,
 	buildMetricTab,
+	withoutComparison,
 } from './helpers';
 
 /**
@@ -219,6 +220,7 @@ export {
 	GlobalChartsProvider,
 	HeatmapChart,
 	HeatmapChartUnresponsive,
+	Sparkline,
 	buildCalendarHeatmapData,
 	type DataPointDate,
 	type GeoChartError,

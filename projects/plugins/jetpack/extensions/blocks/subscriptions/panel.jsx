@@ -214,6 +214,7 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 	return (
 		<>
 			<PluginPostPublishPanel
+				initialOpen
 				title={ __( 'Newsletter', 'jetpack' ) }
 				className="jetpack-subscribe-newsletters-panel jetpack-subscribe-post-publish-panel"
 				icon={ <JetpackEditorPanelLogo /> }

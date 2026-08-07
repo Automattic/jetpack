@@ -179,6 +179,11 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertArrayHasKey( 'is_test', $schema_properties );
 		$this->assertEquals( 'boolean', $schema_properties['is_test']['type'] );
 		$this->assertArrayHasKey( 'preview_url', $schema_properties );
+		$this->assertArrayHasKey( 'form_fill_duration', $schema_properties );
+
+		// The duration is null whenever it is unknown, so the schema has to allow both.
+		$this->assertContains( 'integer', $schema_properties['form_fill_duration']['type'] );
+		$this->assertContains( 'null', $schema_properties['form_fill_duration']['type'] );
 
 		// Verify logged_in_user schema structure
 		$logged_in_user_schema = $schema_properties['logged_in_user'];
