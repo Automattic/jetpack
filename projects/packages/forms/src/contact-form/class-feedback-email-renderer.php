@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Jetpack_Tracks_Event;
@@ -614,13 +615,21 @@ class Feedback_Email_Renderer {
 
 		// The hash is just used to anonymize the admin email and have a unique identifier for the event.
 		// The secret key used could have been a random string, but it's better to use the version number to make it easier to track.
-		$event = new Jetpack_Tracks_Event(
-			(object) array(
-				'_en' => 'jetpack_forms_email_open',
-				'_ui' => hash_hmac( 'md5', get_option( 'admin_email' ), JETPACK__VERSION ),
-				'_ut' => 'anon',
-			)
+		$event_props = array(
+			'_en'             => 'jetpack_forms_email_open',
+			'_ui'             => hash_hmac( 'md5', get_option( 'admin_email' ), JETPACK__VERSION ),
+			'_ut'             => 'anon',
+			'jetpack_version' => JETPACK__VERSION,
 		);
+
+		// Only send the site ID when the site is connected. Sending an empty value would have Tracks
+		// record `blogid` as a string, which makes the property unusable for analysis.
+		$blog_id = Manager::get_site_id( true );
+		if ( $blog_id ) {
+			$event_props['blogid'] = $blog_id;
+		}
+
+		$event = new Jetpack_Tracks_Event( (object) $event_props );
 
 		$tracking_pixel = '<img src="' . $event->build_pixel_url() . '" alt="" width="1" height="1" />';
 
