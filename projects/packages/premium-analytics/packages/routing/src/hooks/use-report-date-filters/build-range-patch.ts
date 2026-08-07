@@ -76,18 +76,15 @@ export function buildRangePatch( {
 		patch.to = rangeTo;
 
 		/*
-		 * Without a granularity picker, a carried-over interval can't be told
-		 * apart from one inherited from the previous preset: last-7-days
-		 * (`day`) into last-24-hours would bucket 24 hours into a single daily
-		 * point. Keep it only within the same preset, where it is deliberate.
+		 * The interval carries across the change and the new range's rules
+		 * decide: a bucket it still allows survives, one it does not coerces to
+		 * the finest allowed.
 		 */
-		const presetChanged = nextPresetId !== effective.preset;
-
 		patch.interval = resolveIntervalForRange(
 			nextPresetId,
 			rangeFrom,
 			rangeTo,
-			presetChanged ? undefined : effective.interval
+			effective.interval
 		);
 
 		// Loose `comp` check: an unquoted URL delivers number 1, not '1'.

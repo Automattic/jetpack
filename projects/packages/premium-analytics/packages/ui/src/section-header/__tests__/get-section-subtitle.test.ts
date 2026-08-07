@@ -111,6 +111,41 @@ describe( 'getSectionSubtitle', () => {
 		expect( getSectionSubtitle( { range: currentYearRange( 7 ) } ) ).not.toContain( 'vs.' );
 	} );
 
+	describe( 'the chart interval', () => {
+		it( 'joins the length inside the parenthetical', () => {
+			expect( getSectionSubtitle( { range: currentYearRange( 7 ), interval: 'day' } ) ).toContain(
+				'(7 days, daily)'
+			);
+		} );
+
+		it( 'stands alone where the range carries no length', () => {
+			expect(
+				getSectionSubtitle( {
+					range: { from: at( 2021, 1, 1 ), to: endOf( 2026, 7, 30 ) },
+					presetId: 'all-time',
+					interval: 'quarter',
+				} )
+			).toBe( 'January 1, 2021 – July 30, 2026 (quarterly)' );
+		} );
+
+		it( 'stays out of the copy on a surface carrying no interval control', () => {
+			const subtitle = getSectionSubtitle( { range: currentYearRange( 7 ) } );
+
+			expect( subtitle ).toContain( '(7 days)' );
+			expect( subtitle ).not.toMatch( /hourly|daily|weekly|monthly|quarterly|yearly/ );
+		} );
+
+		it( 'stays inside the parenthetical, ahead of the comparison', () => {
+			expect(
+				getSectionSubtitle( {
+					range: currentYearRange( 7 ),
+					interval: 'day',
+					comparisonPresetId: 'previous-period',
+				} )
+			).toMatch( /\(7 days, daily\) vs\. Previous period$/ );
+		} );
+	} );
+
 	describe( 'the year surface', () => {
 		/*
 		 * `all-time` and the running year both start on a calendar boundary and

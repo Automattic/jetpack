@@ -6,6 +6,7 @@ import {
 	isComparisonPresetId,
 	isPrimaryPreset,
 	type ComparisonPresetId,
+	type IntervalType,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
 import { Stack } from '@jetpack-premium-analytics/externals';
@@ -18,6 +19,7 @@ import { useMemo, useCallback, useState, useEffect } from 'react';
  * Internal dependencies
  */
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
+import { DateIntervalDropdown } from '../date-interval-dropdown';
 import { DateRangeFilter } from '../date-range-filter';
 import { resolvePresetLabelMode, WIDE_CALENDAR_CONTAINER_THRESHOLD } from '../date-range-layout';
 import {
@@ -65,6 +67,24 @@ export type DateFiltersPanelProps = {
 	comparisonPresetId?: ComparisonPresetId;
 
 	/**
+	 * Whether to render the chart interval control. Off by default: only a
+	 * surface whose contents are bucketed by it — one carrying charts rather
+	 * than a records table — should offer it.
+	 */
+	withIntervalControl?: boolean;
+
+	/**
+	 * The chart interval every widget on the page draws.
+	 */
+	interval?: IntervalType;
+
+	/**
+	 * The intervals the active range allows, finest first. Derived upstream from
+	 * the range, so the menu never offers a bucket the range would coerce away.
+	 */
+	intervalOptions?: readonly IntervalType[];
+
+	/**
 	 * Callback when the primary date range changes.
 	 */
 	onChange: DateRangeFilterProps[ 'onChange' ];
@@ -74,6 +94,11 @@ export type DateFiltersPanelProps = {
 	 * Receives the calculated comparison range and the preset ID used.
 	 */
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
+
+	/**
+	 * Callback when the chart interval changes.
+	 */
+	onIntervalChange?: ( interval: IntervalType ) => void;
 
 	/**
 	 * Props for the date range popover.
@@ -129,8 +154,12 @@ export function DateFiltersPanel( {
 	appliedPresetId,
 	appliedRange,
 	comparisonPresetId,
+	withIntervalControl = false,
+	interval,
+	intervalOptions,
 	onChange,
 	onComparisonChange,
+	onIntervalChange,
 	rangeControlProps = {
 		label: null,
 		help: null,
@@ -313,6 +342,20 @@ export function DateFiltersPanel( {
 		]
 	);
 
+	// Same arrangement as the comparison control: built once, rendered in the
+	// row and in the probe.
+	const intervalControl = useMemo(
+		() =>
+			withIntervalControl && intervalOptions && onIntervalChange ? (
+				<DateIntervalDropdown
+					options={ intervalOptions }
+					value={ interval }
+					onChange={ onIntervalChange }
+				/>
+			) : null,
+		[ withIntervalControl, interval, intervalOptions, onIntervalChange ]
+	);
+
 	const [ fullRowWidth, setFullRowWidth ] = useState< number | null >( null );
 	const handleProbeMeasure = useCallback( ( width: number ) => {
 		setFullRowWidth( width );
@@ -334,6 +377,7 @@ export function DateFiltersPanel( {
 			<PresetRowProbe
 				presets={ surfacePresets }
 				customTriggerLabel={ customTriggerLabel }
+				interval={ intervalControl }
 				comparison={ comparisonControl }
 				onMeasure={ handleProbeMeasure }
 			/>
@@ -360,6 +404,8 @@ export function DateFiltersPanel( {
 					onOpenChange={ setIsPrimaryPickerOpen }
 				/>
 			</BaseControl>
+
+			{ intervalControl }
 
 			{ showComparison && (
 				<BaseControl
