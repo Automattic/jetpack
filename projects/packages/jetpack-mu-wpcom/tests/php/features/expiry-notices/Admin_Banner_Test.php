@@ -159,6 +159,27 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'notice-error', $out );
 	}
 
+	public function test_post_grace_shows_on_non_dashboard_screen(): void {
+		$this->set_purchase( -45 );
+		set_current_screen( 'edit-post' );
+		$out = $this->render();
+		$this->assertStringContainsString( 'notice-error', $out );
+		$this->assertStringContainsString( 'wpcom-expiry-banner__remind', $out );
+	}
+
+	public function test_post_grace_shows_dismiss_label_not_remind(): void {
+		$this->set_purchase( -45 );
+		$out = $this->render();
+		$this->assertStringContainsString( 'Dismiss', $out );
+		$this->assertStringNotContainsString( 'Remind me in', $out );
+	}
+
+	public function test_approaching_shows_remind_label(): void {
+		$this->set_purchase( 45 );
+		$out = $this->render();
+		$this->assertStringContainsString( 'Remind me in 7 days', $out );
+	}
+
 	private function message_state( array $overrides = array() ): array {
 		return array_merge(
 			array(

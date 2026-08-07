@@ -30,9 +30,11 @@ function wpcom_expiry_notices_admin_banner_data(): ?array {
 
 	$cadence_secs = Expiry_Notice_Dismiss::banner_cadence_seconds( $state );
 
-	// Scope progression: cadence > 0 (approaching, >7 days out) shows on
-	// Dashboard only; cadence 0 (final-7-days, grace, post-grace) is global.
-	if ( $cadence_secs > 0 ) {
+	// Scope progression: the gentle pre-window reminder (approaching, more than
+	// 7 days out) shows on the Dashboard only; every other visible state —
+	// final 7 days, grace, post-grace — shows on all wp-admin screens. Note
+	// post-grace also has a cadence, so the gate must key on state.
+	if ( Expiry_Data::STATE_APPROACHING === $state['state'] && $cadence_secs > 0 ) {
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
 		if ( ! $screen || 'dashboard' !== $screen->id ) {
 			return null;
@@ -118,11 +120,17 @@ function wpcom_expiry_notices_render_admin_banner_html( array $state, array $url
 			<?php if ( $remind_days > 0 ) : ?>
 				<button type="button" class="button wpcom-expiry-banner__remind">
 					<?php
-					printf(
-						/* translators: %d is days remaining until the next banner appearance. */
-						esc_html( _n( 'Remind me in %d day', 'Remind me in %d days', $remind_days, 'jetpack-mu-wpcom' ) ),
-						(int) $remind_days // phpcs needs an explicit cast/escape; phan sees it as redundant. @phan-suppress-current-line PhanRedundantCondition
-					);
+					// Post-grace is plainly dismissible; promising a reminder
+					// interval only fits the pre-expiry reminder window.
+					if ( Expiry_Data::STATE_EXPIRED === $state['state'] ) {
+						esc_html_e( 'Dismiss', 'jetpack-mu-wpcom' );
+					} else {
+						printf(
+							/* translators: %d is days remaining until the next banner appearance. */
+							esc_html( _n( 'Remind me in %d day', 'Remind me in %d days', $remind_days, 'jetpack-mu-wpcom' ) ),
+							(int) $remind_days // phpcs needs an explicit cast/escape; phan sees it as redundant. @phan-suppress-current-line PhanRedundantCondition
+						);
+					}
 					?>
 				</button>
 			<?php elseif ( $is_grace ) : ?>
