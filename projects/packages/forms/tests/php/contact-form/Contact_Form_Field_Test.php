@@ -1096,10 +1096,53 @@ class Contact_Form_Field_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'id="g1-birthday-text-format"', $html );
 		$this->assertStringContainsString( 'id="g1-birthday-text-error"', $html );
 
-		$wrap_close  = strrpos( $html, '</div>' );
-		$hint_offset = strpos( $html, 'contact-form__field-help' );
-		$this->assertNotFalse( $hint_offset );
-		$this->assertLessThan( $wrap_close, $hint_offset );
+		// Parse the DOM and check actual nesting, rather than raw string offsets:
+		// the hint must NOT be a descendant of the inner field div (the one that
+		// wraps the <input>), but it must still be inside the outer inset-label
+		// wrap. If $deferred_descriptions were not honored, the hint would render
+		// inline in render_input_field()'s return value and end up nested inside
+		// the inner field div instead — this fails that case.
+		$doc              = new \DOMDocument();
+		$previous_setting = libxml_use_internal_errors( true );
+		$doc->loadHTML( '<?xml encoding="UTF-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+		libxml_use_internal_errors( $previous_setting );
+		$xpath = new \DOMXPath( $doc );
+
+		$help_node = $xpath->query( "//*[@id='g1-birthday-text-help']" )->item( 0 );
+		$this->assertNotNull( $help_node, 'Help element not found in the rendered DOM.' );
+
+		$inner_field_div = $xpath->query( "//div[contains(concat(' ', normalize-space(@class), ' '), ' grunion-field-date-wrap ')]" )->item( 0 );
+		$this->assertNotNull( $inner_field_div, 'Inner field div not found in the rendered DOM.' );
+		$this->assertFalse(
+			$this->node_is_descendant_of( $help_node, $inner_field_div ),
+			'Help text must be hoisted outside the inner field div, not rendered inside it.'
+		);
+
+		$outer_wrap = $xpath->query( "//div[contains(concat(' ', normalize-space(@class), ' '), ' contact-form__inset-label-wrap ')]" )->item( 0 );
+		$this->assertNotNull( $outer_wrap, 'Outer inset-label wrap not found in the rendered DOM.' );
+		$this->assertTrue(
+			$this->node_is_descendant_of( $help_node, $outer_wrap ),
+			'Help text must remain inside the inset-label wrap.'
+		);
+	}
+
+	/**
+	 * Whether $node is $ancestor itself or nested somewhere inside it.
+	 *
+	 * @param \DOMNode $node     The node to check.
+	 * @param \DOMNode $ancestor The candidate ancestor.
+	 *
+	 * @return bool
+	 */
+	private function node_is_descendant_of( $node, $ancestor ) {
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOMNode's native property.
+		for ( $current = $node; $current !== null; $current = $current->parentNode ) {
+			if ( $current === $ancestor ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
