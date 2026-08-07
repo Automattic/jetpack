@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { select, useSelect, useDispatch } from '@wordpress/data';
 import { NewsletterTestEmailModal, NewsletterPreviewModal } from '../email-preview';
 
 jest.mock( '@wordpress/api-fetch' );
@@ -39,6 +39,7 @@ jest.mock( '@wordpress/data', () => {
 	const mocks = {
 		useSelect: jest.fn(),
 		useDispatch: jest.fn(),
+		select: jest.fn(),
 	};
 	return new Proxy( actual, {
 		get( target, property ) {
@@ -62,10 +63,12 @@ describe( 'Email preview connection errors', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockIsUserConnected = true;
-		useSelect.mockImplementation( () => 123 );
-		useDispatch.mockReturnValue( {
+		jest.mocked( useSelect ).mockImplementation( () => 123 );
+		jest.mocked( useDispatch ).mockReturnValue( {
 			__unstableSaveForPreview: jest.fn().mockResolvedValue( undefined ),
 		} );
+		// Allow the modal to open without triggering a save for preview.
+		( select as jest.Mock ).mockReturnValue( { isEditedPostDirty: () => false } );
 	} );
 
 	it( 'disables Send and prompts to connect on open when the user is not connected', () => {
@@ -92,7 +95,7 @@ describe( 'Email preview connection errors', () => {
 
 	it( 'prompts the user to connect when sending a test email fails with a missing connection', async () => {
 		const user = userEvent.setup();
-		apiFetch.mockRejectedValue( MISSING_CONNECTION_ERROR );
+		jest.mocked( apiFetch ).mockRejectedValue( MISSING_CONNECTION_ERROR );
 
 		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
 
@@ -104,7 +107,7 @@ describe( 'Email preview connection errors', () => {
 
 	it( 'surfaces the raw message for non-connection send errors', async () => {
 		const user = userEvent.setup();
-		apiFetch.mockRejectedValue( { code: 'rest_something_else', message: 'Boom' } );
+		jest.mocked( apiFetch ).mockRejectedValue( { code: 'rest_something_else', message: 'Boom' } );
 
 		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
 
@@ -117,7 +120,7 @@ describe( 'Email preview connection errors', () => {
 	} );
 
 	it( 'prompts the user to connect when the HTML preview fails with a missing connection', async () => {
-		apiFetch.mockRejectedValue( MISSING_CONNECTION_ERROR );
+		jest.mocked( apiFetch ).mockRejectedValue( MISSING_CONNECTION_ERROR );
 
 		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
 
@@ -126,7 +129,7 @@ describe( 'Email preview connection errors', () => {
 	} );
 
 	it( 'shows the generic error (with retry) for non-connection preview errors', async () => {
-		apiFetch.mockRejectedValue( { code: 'rest_something_else', message: 'Boom' } );
+		jest.mocked( apiFetch ).mockRejectedValue( { code: 'rest_something_else', message: 'Boom' } );
 
 		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
 
@@ -139,15 +142,75 @@ describe( 'Email preview connection errors', () => {
 	} );
 } );
 
+describe( 'Newsletter preview: save before fetching', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		mockIsUserConnected = true;
+		jest.mocked( useSelect ).mockImplementation( () => 123 );
+	} );
+
+	it( 'saves the dirty post before fetching the preview', async () => {
+		const saveForPreview = jest.fn().mockResolvedValue( undefined );
+		jest.mocked( useDispatch ).mockReturnValue( { __unstableSaveForPreview: saveForPreview } );
+		( select as jest.Mock ).mockReturnValue( { isEditedPostDirty: () => true } );
+		jest.mocked( apiFetch ).mockResolvedValue( { html: '<p>Preview</p>' } );
+
+		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
+
+		// The save is kicked off synchronously within the effect, before the fetch.
+		expect( saveForPreview ).toHaveBeenCalledTimes( 1 );
+		expect( apiFetch ).not.toHaveBeenCalled();
+
+		await waitFor( () => expect( apiFetch ).toHaveBeenCalledTimes( 1 ) );
+	} );
+
+	it( 'skips the save and fetches directly when the post is not dirty', async () => {
+		const saveForPreview = jest.fn().mockResolvedValue( undefined );
+		jest.mocked( useDispatch ).mockReturnValue( { __unstableSaveForPreview: saveForPreview } );
+		( select as jest.Mock ).mockReturnValue( { isEditedPostDirty: () => false } );
+		jest.mocked( apiFetch ).mockResolvedValue( { html: '<p>Preview</p>' } );
+
+		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
+
+		await waitFor( () => expect( apiFetch ).toHaveBeenCalledTimes( 1 ) );
+		expect( saveForPreview ).not.toHaveBeenCalled();
+	} );
+
+	it( 're-saves after the modal is dismissed (clearing the cache) and reopened', async () => {
+		const user = userEvent.setup();
+		const saveForPreview = jest.fn().mockResolvedValue( undefined );
+		jest.mocked( useDispatch ).mockReturnValue( { __unstableSaveForPreview: saveForPreview } );
+		( select as jest.Mock ).mockReturnValue( { isEditedPostDirty: () => true } );
+		jest.mocked( apiFetch ).mockResolvedValue( { html: '<p>Preview</p>' } );
+
+		const { rerender } = render(
+			<NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } />
+		);
+		await waitFor( () => expect( apiFetch ).toHaveBeenCalledTimes( 1 ) );
+		expect( saveForPreview ).toHaveBeenCalledTimes( 1 );
+
+		// Dismiss via the modal's  close control, which clears the preview cache…
+		await user.click( screen.getByRole( 'button', { name: /close/i } ) );
+		// Then simulate the parent responding to onClose by unmounting/remounting the open modal.
+		rerender( <NewsletterPreviewModal isOpen={ false } postId={ 123 } onClose={ jest.fn() } /> );
+		rerender( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
+
+		await waitFor( () => expect( apiFetch ).toHaveBeenCalledTimes( 2 ) );
+		expect( saveForPreview ).toHaveBeenCalledTimes( 2 );
+	} );
+} );
+
 describe( 'Test email recipient', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockIsUserConnected = true;
-		useSelect.mockImplementation( () => 123 );
-		useDispatch.mockReturnValue( {
+		jest.mocked( useSelect ).mockImplementation( () => 123 );
+		jest.mocked( useDispatch ).mockReturnValue( {
 			__unstableSaveForPreview: jest.fn().mockResolvedValue( undefined ),
 		} );
-		window.Jetpack_Editor_Initial_State = { tracksUserData: { email: 'author@example.com' } };
+		window.Jetpack_Editor_Initial_State = {
+			tracksUserData: { userid: '1', username: 'author', email: 'author@example.com' },
+		} as unknown as typeof window.Jetpack_Editor_Initial_State;
 	} );
 
 	afterEach( () => {
@@ -162,7 +225,7 @@ describe( 'Test email recipient', () => {
 
 	it( 'sends to an edited recipient address', async () => {
 		const user = userEvent.setup();
-		apiFetch.mockResolvedValue( undefined );
+		jest.mocked( apiFetch ).mockResolvedValue( undefined );
 
 		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
 
@@ -182,7 +245,7 @@ describe( 'Test email recipient', () => {
 
 	it( 'sends the test email when pressing Enter in the recipient field', async () => {
 		const user = userEvent.setup();
-		apiFetch.mockResolvedValue( undefined );
+		jest.mocked( apiFetch ).mockResolvedValue( undefined );
 
 		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
 
@@ -202,7 +265,7 @@ describe( 'Test email recipient', () => {
 
 	it( 'sends to the prefilled address unchanged and confirms success', async () => {
 		const user = userEvent.setup();
-		apiFetch.mockResolvedValue( undefined );
+		jest.mocked( apiFetch ).mockResolvedValue( undefined );
 
 		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
 
@@ -216,7 +279,7 @@ describe( 'Test email recipient', () => {
 
 	it( 'trims surrounding whitespace from the recipient before sending', async () => {
 		const user = userEvent.setup();
-		apiFetch.mockResolvedValue( undefined );
+		jest.mocked( apiFetch ).mockResolvedValue( undefined );
 
 		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
 
@@ -232,7 +295,7 @@ describe( 'Test email recipient', () => {
 
 	it( 'sends an empty recipient when the field is cleared, letting the server fall back to self', async () => {
 		const user = userEvent.setup();
-		apiFetch.mockResolvedValue( undefined );
+		jest.mocked( apiFetch ).mockResolvedValue( undefined );
 
 		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
 
@@ -247,7 +310,7 @@ describe( 'Test email recipient', () => {
 	it( 'disables the recipient field while a send is in flight', async () => {
 		const user = userEvent.setup();
 		let resolveSend;
-		apiFetch.mockReturnValue(
+		jest.mocked( apiFetch ).mockReturnValue(
 			new Promise( resolve => {
 				resolveSend = resolve;
 			} )
@@ -267,7 +330,7 @@ describe( 'Test email recipient', () => {
 
 	it( 'surfaces the guard message when a non-self recipient is rejected', async () => {
 		const user = userEvent.setup();
-		apiFetch.mockRejectedValue( {
+		jest.mocked( apiFetch ).mockRejectedValue( {
 			code: 'send_email_preview_forbidden_recipient',
 			message: 'You are not allowed to send a test email to another address on this site.',
 		} );
@@ -283,7 +346,7 @@ describe( 'Test email recipient', () => {
 
 	it( 'renders send errors in an error notice rather than plain text', async () => {
 		const user = userEvent.setup();
-		apiFetch.mockRejectedValue( { code: 'rest_something_else', message: 'Boom' } );
+		jest.mocked( apiFetch ).mockRejectedValue( { code: 'rest_something_else', message: 'Boom' } );
 
 		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
 
@@ -297,7 +360,7 @@ describe( 'Test email recipient', () => {
 
 	it( 'rejects a malformed address client-side without calling the API', async () => {
 		const user = userEvent.setup();
-		apiFetch.mockResolvedValue( undefined );
+		jest.mocked( apiFetch ).mockResolvedValue( undefined );
 
 		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
 
@@ -314,7 +377,9 @@ describe( 'Test email recipient', () => {
 
 	it( 'shows a friendly fallback when the response has no error code', async () => {
 		const user = userEvent.setup();
-		apiFetch.mockRejectedValue( { message: 'The response is not a valid JSON response.' } );
+		jest
+			.mocked( apiFetch )
+			.mockRejectedValue( { message: 'The response is not a valid JSON response.' } );
 
 		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
 
@@ -331,7 +396,7 @@ describe( 'Test email recipient', () => {
 	// status is dropped). The raw parser message must not reach the user.
 	it( 'shows a friendly fallback for a non-actionable invalid_json rejection', async () => {
 		const user = userEvent.setup();
-		apiFetch.mockRejectedValue( {
+		jest.mocked( apiFetch ).mockRejectedValue( {
 			code: 'invalid_json',
 			message: 'The response is not a valid JSON response.',
 		} );
