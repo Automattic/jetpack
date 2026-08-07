@@ -26,9 +26,6 @@ const toComparisonPresetId = ( value?: string ): ComparisonPresetId | undefined 
 		case 'previous-period':
 		case 'previous_period':
 			return 'previous-period';
-		case 'previous-week':
-		case 'previous_week':
-			return 'previous-week';
 		case 'previous-month':
 		case 'previous_month':
 			return 'previous-month';

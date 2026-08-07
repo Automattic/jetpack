@@ -16,6 +16,8 @@ export {
 
 export { formatRelativeSince } from './relative-since';
 
+export { INTERVAL_TYPES, isIntervalType, type IntervalType } from './interval';
+
 export { parseSiteDateTime } from './site-datetime';
 
 export {

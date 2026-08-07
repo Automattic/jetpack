@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI: Attach the site ID to MCP settings Tracks events, and add a source property to the settings view event.

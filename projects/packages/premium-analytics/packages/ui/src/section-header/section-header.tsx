@@ -21,25 +21,35 @@ type SectionHeaderProps = {
 };
 
 /**
- * Two-halves section header: title plus optional subtitle on the left, and a
- * slot for the date controls anchored on the right.
+ * Section header for an analytics surface. The title and a slot for the date
+ * controls share the first row, anchored to opposite edges; the subtitle takes
+ * a row of its own below them, so its length never costs the controls width.
+ *
+ * Once the header is too narrow to hold those two side by side everything
+ * stacks, and the subtitle returns to its place directly under the title.
+ * Measured by a container query rather than against the viewport.
  *
  * @param {SectionHeaderProps} props - The props for the SectionHeader component.
  * @return The section header element.
  */
 export function SectionHeader( { title, subtitle, children }: SectionHeaderProps ) {
 	return (
-		<Stack direction="row" align="flex-start" justify="space-between">
-			<Stack direction="column" align="flex-start" justify="flex-start">
+		<div className={ styles.container }>
+			<div className={ styles.layout }>
 				<Text variant="heading-2xl" render={ <h2 /> }>
 					{ title }
 				</Text>
-				{ subtitle ? <Text variant="body-md">{ subtitle }</Text> : null }
-			</Stack>
 
-			<Stack direction="row" align="center" justify="flex-end" className={ styles.controls }>
-				{ children }
-			</Stack>
-		</Stack>
+				<Stack direction="row" align="center" className={ styles.controls }>
+					{ children }
+				</Stack>
+
+				{ subtitle ? (
+					<Text className={ styles.subtitle } variant="body-md">
+						{ subtitle }
+					</Text>
+				) : null }
+			</div>
+		</div>
 	);
 }

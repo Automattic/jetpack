@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Expose `isWpcomPlatform` in the `agentsManagerData` inline data so the frontend can gate WordPress.com-only menu items.
