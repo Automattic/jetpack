@@ -4,6 +4,7 @@
 	"references": [
 		{ "path": "./src/features/ai-launchpad/tsconfig.json" },
 		{ "path": "./src/features/code-editor/tsconfig.json" },
+		{ "path": "./src/features/newsletter-mode/tsconfig.json" },
 		{ "path": "./src/features/verbum-comments/tsconfig.json" },
 		{ "path": "./src/features/wpcom-blocks/tsconfig.json" }
 	]

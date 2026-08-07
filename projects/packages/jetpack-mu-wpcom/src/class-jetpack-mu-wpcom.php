@@ -444,6 +444,7 @@ class Jetpack_Mu_Wpcom {
 		}
 
 		require_once __DIR__ . '/features/gutenberg-rtc/gutenberg-rtc.php';
+		require_once __DIR__ . '/features/newsletter-mode/newsletter-mode.php';
 		require_once __DIR__ . '/features/wpcom-contact-form-flags/wpcom-contact-form-flags.php';
 	}
 

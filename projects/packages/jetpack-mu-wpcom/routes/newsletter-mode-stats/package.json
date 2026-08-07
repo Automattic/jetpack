@@ -1,0 +1,12 @@
+{
+	"version": "1.0.0",
+	"private": true,
+	"dependencies": {
+		"@types/react": "^18.3.28",
+		"@wordpress/i18n": "6.24.0"
+	},
+	"route": {
+		"path": "/stats",
+		"page": "newsletter-mode"
+	}
+}
