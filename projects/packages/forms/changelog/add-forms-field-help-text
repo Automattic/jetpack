@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add help text to form fields, and show the date field's expected format below the input instead of in its label.
