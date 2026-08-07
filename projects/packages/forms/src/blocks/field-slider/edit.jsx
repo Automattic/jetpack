@@ -9,13 +9,15 @@ import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls.jsx';
 import JetpackFieldHints from '../shared/components/jetpack-field-hints.jsx';
+import useFieldSelected from '../shared/hooks/use-field-selected.js';
 import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
 import './editor.scss';
 
 export default function SliderFieldEdit( props ) {
 	useFormWrapper( props );
 
-	const { attributes, setAttributes } = props;
+	const { attributes, clientId, isSelected, setAttributes } = props;
+	const { isInnerBlockSelected } = useFieldSelected( clientId );
 	const {
 		min = 0,
 		max = 100,
@@ -161,7 +163,11 @@ export default function SliderFieldEdit( props ) {
 			>
 				<div { ...blockProps }>
 					<div { ...innerBlocksProps }>{ children }</div>
-					<JetpackFieldHints attributes={ attributes } />
+					<JetpackFieldHints
+						attributes={ attributes }
+						setAttributes={ setAttributes }
+						isActive={ isSelected || isInnerBlockSelected }
+					/>
 				</div>
 			</BlockContextProvider>
 			<JetpackFieldControls

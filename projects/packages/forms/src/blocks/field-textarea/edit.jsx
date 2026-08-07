@@ -53,7 +53,11 @@ export default function TextareaFieldEdit( props ) {
 		<>
 			<div { ...blockProps }>
 				<div { ...innerBlocksProps }>{ children }</div>
-				<JetpackFieldHints attributes={ attributes } />
+				<JetpackFieldHints
+					attributes={ attributes }
+					setAttributes={ setAttributes }
+					isActive={ isSelected || isInnerBlockSelected }
+				/>
 			</div>
 			<JetpackFieldControls
 				id={ id }

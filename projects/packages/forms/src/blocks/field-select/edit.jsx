@@ -152,7 +152,11 @@ export default function DropdownFieldEdit( props ) {
 	return (
 		<div { ...blockProps }>
 			<div { ...innerBlocksProps }>{ children }</div>
-			<JetpackFieldHints attributes={ attributes } />
+			<JetpackFieldHints
+				attributes={ attributes }
+				setAttributes={ setAttributes }
+				isActive={ isSelected || isInnerBlockSelected }
+			/>
 			{ ( isSelected || isInnerBlockSelected ) && (
 				<div ref={ optionsWrapper } { ...optionWrapperStyles }>
 					{ options.map( ( option, index ) => (
