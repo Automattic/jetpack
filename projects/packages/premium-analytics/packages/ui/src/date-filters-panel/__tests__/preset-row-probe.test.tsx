@@ -11,6 +11,7 @@ function renderProbe() {
 		<PresetRowProbe
 			presets={ presets }
 			customTriggerLabel="Custom"
+			interval={ <button type="button">Chart interval</button> }
 			comparison={ <button type="button">Add comparison</button> }
 			onMeasure={ jest.fn() }
 		/>
@@ -20,12 +21,13 @@ function renderProbe() {
 describe( 'PresetRowProbe', () => {
 	// Widths are all 0 in jsdom, so what is worth pinning is which element the
 	// measurement is taken from and what sits inside it.
-	it( 'measures the comparison control as part of the row', () => {
+	it( 'measures the interval and comparison controls as part of the row', () => {
 		const { container } = renderProbe();
 
-		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the assertion is the DOM structure: the control has to sit inside the element handed to `getBoundingClientRect`.
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the assertion is the DOM structure: the controls have to sit inside the element handed to `getBoundingClientRect`.
 		const measured = container.querySelector( '.preset-row-probe__panel' );
 
+		expect( measured ).toContainElement( screen.getByText( 'Chart interval' ) );
 		expect( measured ).toContainElement( screen.getByText( 'Add comparison' ) );
 		expect( measured ).toContainElement( screen.getByText( 'Last 7 days' ) );
 	} );
@@ -33,8 +35,9 @@ describe( 'PresetRowProbe', () => {
 	it( 'keeps its copy of the row out of the accessibility tree', () => {
 		renderProbe();
 
-		// The panel renders one comparison element twice, here and in the row the
+		// The panel renders each control element twice, here and in the row the
 		// user operates. Only the second may be reachable.
+		expect( screen.queryByRole( 'button', { name: 'Chart interval' } ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Add comparison' } ) ).not.toBeInTheDocument();
 	} );
 } );
