@@ -32,6 +32,7 @@ class Dashboard_Test extends Stats_TestCase {
 		parent::tearDown();
 		unset( $_GET['view'] );
 		delete_option( Pricing_Grid\Eligibility::DISMISSED_OPTION );
+		delete_option( Pricing_Grid\Eligibility::CONNECTED_AT_OPTION );
 	}
 
 	/**
@@ -46,7 +47,7 @@ class Dashboard_Test extends Stats_TestCase {
 	 * Test that an eligible new site renders the pricing grid.
 	 */
 	public function test_render_pricing_grid_for_eligible_new_site() {
-		set_transient( 'jetpack_assumed_site_creation_date', '2036-01-01 00:00:00' );
+		update_option( Pricing_Grid\Eligibility::CONNECTED_AT_OPTION, strtotime( '2036-01-01' ) );
 		( new Connection_Manager() )->reset_connection_status();
 
 		$this->expectOutputRegex( '/<div id="jp-stats-pricing-grid".*>/i' );
@@ -58,7 +59,7 @@ class Dashboard_Test extends Stats_TestCase {
 	 * so the paid CTA's #!/stats/purchase route can load.
 	 */
 	public function test_render_odyssey_for_purchase_view_on_eligible_new_site() {
-		set_transient( 'jetpack_assumed_site_creation_date', '2036-01-01 00:00:00' );
+		update_option( Pricing_Grid\Eligibility::CONNECTED_AT_OPTION, strtotime( '2036-01-01' ) );
 		( new Connection_Manager() )->reset_connection_status();
 		$_GET['view'] = 'purchase';
 
@@ -71,7 +72,7 @@ class Dashboard_Test extends Stats_TestCase {
 	 * visits (e.g. after "I will do it later") render Odyssey instead.
 	 */
 	public function test_purchase_view_dismisses_pricing_grid() {
-		set_transient( 'jetpack_assumed_site_creation_date', '2036-01-01 00:00:00' );
+		update_option( Pricing_Grid\Eligibility::CONNECTED_AT_OPTION, strtotime( '2036-01-01' ) );
 		( new Connection_Manager() )->reset_connection_status();
 		$dashboard = new Dashboard();
 

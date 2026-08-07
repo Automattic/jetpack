@@ -33,6 +33,7 @@ class Eligibility_Test extends TestCase {
 		delete_option( Current_Plan::PLAN_OPTION );
 		delete_option( Current_Plan::SITE_PRODUCTS_OPTION );
 		delete_option( Eligibility::DISMISSED_OPTION );
+		delete_option( Eligibility::CONNECTED_AT_OPTION );
 		$this->reset_current_plan_cache();
 		( new Connection_Manager() )->reset_connection_status();
 	}
@@ -68,23 +69,33 @@ class Eligibility_Test extends TestCase {
 	}
 
 	/**
-	 * A connected site created before the launch date is not a new site.
+	 * A connected site without a recorded first connection (connected before
+	 * this feature shipped) is not a new site.
 	 */
-	public function test_connected_site_created_before_launch_does_not_show_grid() {
-		set_transient( 'jetpack_assumed_site_creation_date', '2020-01-01 00:00:00' );
-
+	public function test_connected_site_without_recorded_connection_does_not_show_grid() {
 		$this->assertFalse( Eligibility::is_new_site() );
 		$this->assertFalse( Eligibility::should_show_pricing_grid() );
 	}
 
 	/**
-	 * A connected site created on/after the launch date without a plan should see the pricing grid.
+	 * A site that first connected on/after the launch date without a plan should see the pricing grid.
 	 */
-	public function test_connected_site_created_after_launch_shows_grid() {
-		set_transient( 'jetpack_assumed_site_creation_date', '2036-01-01 00:00:00' );
+	public function test_connected_site_connected_after_launch_shows_grid() {
+		update_option( Eligibility::CONNECTED_AT_OPTION, strtotime( '2036-01-01' ) );
 
 		$this->assertTrue( Eligibility::is_new_site() );
 		$this->assertTrue( Eligibility::should_show_pricing_grid() );
+	}
+
+	/**
+	 * Recording the connection time keeps the first value, so reconnecting an
+	 * existing site doesn't turn it into a new one.
+	 */
+	public function test_record_connection_time_keeps_first_value() {
+		update_option( Eligibility::CONNECTED_AT_OPTION, 12345 );
+		Eligibility::record_connection_time();
+
+		$this->assertSame( 12345, (int) get_option( Eligibility::CONNECTED_AT_OPTION ) );
 	}
 
 	/**
@@ -92,7 +103,7 @@ class Eligibility_Test extends TestCase {
 	 * should not see the grid, even without the local option.
 	 */
 	public function test_wpcom_dismissed_notice_hides_grid_on_connected_site() {
-		set_transient( 'jetpack_assumed_site_creation_date', '2036-01-01 00:00:00' );
+		update_option( Eligibility::CONNECTED_AT_OPTION, strtotime( '2036-01-01' ) );
 		delete_transient( Notices::STATS_DASHBOARD_NOTICES_CACHE_KEY );
 		add_filter( 'pre_http_request', array( $this, 'wpcom_notices_dismissed_fixture' ), 11, 3 );
 

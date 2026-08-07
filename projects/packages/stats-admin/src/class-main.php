@@ -52,6 +52,7 @@ class Main {
 	 */
 	private function __construct() {
 		add_action( 'rest_api_init', array( REST_Controller::class, 'register' ) );
+		add_action( 'jetpack_site_registered', array( Pricing_Grid\Eligibility::class, 'record_connection_time' ) );
 
 		// The stats module normally registers the Stats menu, but modules only
 		// load once the site is connected. Register the dashboard here for

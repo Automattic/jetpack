@@ -18,7 +18,8 @@ use Automattic\Jetpack\Status\Host;
 class Eligibility {
 	/**
 	 * Launch date for the pricing grid feature.
-	 * The feature is only shown for sites not connected, or sites created on/after this date.
+	 * The feature is only shown for sites not connected, or sites whose first
+	 * connection happened on/after this date.
 	 * This constant should be updated to the PR merge date.
 	 *
 	 * @var string
@@ -26,34 +27,43 @@ class Eligibility {
 	const LAUNCH_DATE = '2026-08-07';
 
 	/**
+	 * Option recording when the site first connected to WordPress.com.
+	 * Set by record_connection_time() on the jetpack_site_registered action,
+	 * so it only exists for sites that connected after this feature shipped.
+	 *
+	 * @var string
+	 */
+	const CONNECTED_AT_OPTION = 'jetpack_stats_first_connected_at';
+
+	/**
+	 * Record the site's first connection time.
+	 * Later (re)registrations keep the original value, so reconnecting an
+	 * existing site doesn't turn it into a "new" one.
+	 */
+	public static function record_connection_time() {
+		if ( ! get_option( self::CONNECTED_AT_OPTION ) ) {
+			update_option( self::CONNECTED_AT_OPTION, time() );
+		}
+	}
+
+	/**
 	 * Check if the site is new (qualifies for pricing grid).
 	 *
 	 * A site is considered "new" if:
 	 * 1. It's not connected to WordPress.com, OR
-	 * 2. It's connected but was created on/after the LAUNCH_DATE
+	 * 2. Its first connection was recorded on/after the LAUNCH_DATE.
+	 *    Sites already connected before this feature shipped have no recorded
+	 *    connection time and don't qualify.
 	 *
 	 * @return bool True if the site is new.
 	 */
 	public static function is_new_site() {
-		$connection_manager = new Connection_Manager();
-
-		// Unconnected sites always qualify.
-		if ( ! $connection_manager->is_connected() ) {
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
 			return true;
 		}
 
-		// Connected sites created before launch don't qualify.
-		try {
-			$assumed_creation_date = $connection_manager->get_assumed_site_creation_date();
-			if ( $assumed_creation_date && strtotime( $assumed_creation_date ) >= strtotime( self::LAUNCH_DATE ) ) {
-				return true;
-			}
-		} catch ( \Exception $e ) {
-			// If we can't determine the creation date, assume it's not new.
-			return false;
-		}
-
-		return false;
+		$connected_at = (int) get_option( self::CONNECTED_AT_OPTION );
+		return $connected_at && $connected_at >= strtotime( self::LAUNCH_DATE );
 	}
 
 	/**
