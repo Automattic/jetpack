@@ -99,7 +99,7 @@ class Config {
 	 *
 	 * A new value here also changes CSS and JS delivery. See
 	 * jetpack_boost_minify_use_static_cache_urls(), which reads anything but 'other' as a host
-	 * that answers wp-content 404s itself.
+	 * that may answer wp-content 404s itself.
 	 *
 	 * @since 3.10.0
 	 *
