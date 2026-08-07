@@ -8,6 +8,7 @@ import {
 	localTZDate,
 	resolveIntervalForRange,
 } from '@jetpack-premium-analytics/data';
+import { PRESET_CUSTOM, stepDateRange } from '@jetpack-premium-analytics/datetime';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { isValid } from 'date-fns';
@@ -23,6 +24,7 @@ import type {
 	DateRange,
 	IntervalType,
 	PrimaryPresetId,
+	StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 
 /**
@@ -58,6 +60,12 @@ export type ReportDateFilters = {
 	onChange: ( range?: DateRange, presetId?: PrimaryPresetId ) => void;
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 	onIntervalChange: ( interval: IntervalType ) => void;
+
+	/**
+	 * Step the applied window backward or forward by its own length.
+	 */
+	onStep: ( direction: StepDirection ) => void;
+
 	onApply: () => void;
 	onCancel: () => void;
 	canApply: boolean;
@@ -261,6 +269,38 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		[ stage, commit, hasPrimaryDraft ]
 	);
 
+	/*
+	 * A step is a date change the reader asked for, so it commits on click and
+	 * pushes a history entry: Back has to undo the step, not the navigation
+	 * before it. That is also what makes a stepped window real URL state, so it
+	 * survives a reload.
+	 *
+	 * It steps the applied range rather than the staged one, since the arrows
+	 * sit outside the picker. A staged draft is left alone: stepping is not the
+	 * gesture that applies it.
+	 */
+	const onStep = useCallback(
+		( direction: StepDirection ) => {
+			const stepped = stepDateRange( appliedRange, direction );
+
+			if ( ! stepped ) {
+				return;
+			}
+
+			const patch = buildRangePatch( {
+				nextRange: stepped,
+				nextPresetId: PRESET_CUSTOM,
+				effective,
+			} );
+
+			if ( patch ) {
+				stage( patch );
+				commit();
+			}
+		},
+		[ appliedRange, commit, effective, stage ]
+	);
+
 	const onApply = useCallback( () => commit(), [ commit ] );
 	const onCancel = useCallback( () => revert(), [ revert ] );
 
@@ -293,6 +333,7 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		onChange,
 		onComparisonChange,
 		onIntervalChange,
+		onStep,
 		onApply,
 		onCancel,
 		canApply: isDirty,

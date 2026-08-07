@@ -20,6 +20,12 @@ export type PresetRowProbeProps = {
 	customTriggerLabel: string;
 
 	/**
+	 * The period navigation, as the panel renders it. Its width moves with the
+	 * forward arrow appearing and disappearing, which the row has to absorb.
+	 */
+	navigation?: ReactNode;
+
+	/**
 	 * The chart interval control, as the panel renders it. A glyph, so its width
 	 * is the same fixed cost in every locale.
 	 */
@@ -52,6 +58,7 @@ export type PresetRowProbeProps = {
 function PresetRowProbeComponent( {
 	presets,
 	customTriggerLabel,
+	navigation,
 	interval,
 	comparison,
 	onMeasure,
@@ -84,7 +91,7 @@ function PresetRowProbeComponent( {
 	// `max-content`, so the width only moves on a render that changes the row.
 	useLayoutEffect( () => {
 		measure();
-	}, [ measure, presets, customTriggerLabel, interval, comparison ] );
+	}, [ measure, presets, customTriggerLabel, navigation, interval, comparison ] );
 
 	// Web fonts land after first paint and shift the metrics. Insurance: the
 	// dashboard ships none today.
@@ -109,6 +116,8 @@ function PresetRowProbeComponent( {
 		// @ts-expect-error -- `inert` is valid HTML but missing from this React version's types.
 		<div className="preset-row-probe" aria-hidden="true" inert="">
 			<div className="preset-row-probe__panel" ref={ rowRef }>
+				{ navigation }
+
 				<div className="preset-row-probe__row">
 					{ presets.map( preset => (
 						<Button
