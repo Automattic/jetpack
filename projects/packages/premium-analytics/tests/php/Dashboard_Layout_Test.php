@@ -287,13 +287,14 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			'default-posting-activity-widget-instance'     => array( 'jpa/posting-activity', 4, 1, 1 ),
 			'default-latest-post-widget-instance'          => array( 'jpa/latest-post', 2, 2, 2 ),
 			'default-popular-post-widget-instance'         => array( 'jpa/popular-post', 2, 2, 3 ),
-			'default-all-time-stats-widget-instance'       => array( 'jpa/all-time-stats', 2, 1, 4 ),
-			'default-most-popular-time-widget-instance'    => array( 'jpa/most-popular-time', 1, 1, 5 ),
-			'default-most-popular-day-widget-instance'     => array( 'jpa/most-popular-day', 1, 1, 6 ),
-			'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 7 ),
-			'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 1, 2, 8 ),
-			'default-shares-widget-instance'               => array( 'jpa/shares', 1, 2, 9 ),
-			'default-tags-widget-instance'                 => array( 'jpa/tags', 1, 2, 10 ),
+			'default-total-views-widget-instance'          => array( 'jpa/total-views', 1, 1, 4 ),
+			'default-total-visitors-widget-instance'       => array( 'jpa/total-visitors', 1, 1, 5 ),
+			'default-most-popular-time-widget-instance'    => array( 'jpa/most-popular-time', 1, 1, 6 ),
+			'default-most-popular-day-widget-instance'     => array( 'jpa/most-popular-day', 1, 1, 7 ),
+			'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 8 ),
+			'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 1, 2, 9 ),
+			'default-shares-widget-instance'               => array( 'jpa/shares', 1, 2, 10 ),
+			'default-tags-widget-instance'                 => array( 'jpa/tags', 1, 2, 11 ),
 		);
 
 		$this->assertSame( array_keys( $expected ), array_column( $layout, 'uuid' ) );
@@ -319,13 +320,13 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$this->assertNotContains( 'jpa/stats-emails', $layout_types );
 		// The Comments module ships as two focused widgets, not one toggled widget.
 		$this->assertNotContains( 'jpa/comments', $layout_types );
+		// Total views and Total visitors carry the totals row instead.
+		$this->assertNotContains( 'jpa/all-time-stats', $layout_types );
 
-		// Highlights renders an empty prompt without an explicit metric list.
-		$this->assertSame(
-			array(
-				'metrics' => array( 'posts', 'words', 'likes', 'comments' ),
-			),
-			$layout_by_uuid['default-annual-highlights-widget-instance']['attributes']
+		// Highlights falls back to the widget's own default metric list.
+		$this->assertArrayNotHasKey(
+			'attributes',
+			$layout_by_uuid['default-annual-highlights-widget-instance']
 		);
 
 		$this->assertSame(

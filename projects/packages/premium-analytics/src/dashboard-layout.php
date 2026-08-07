@@ -298,25 +298,16 @@ function get_dashboard_default_section_layouts() {
 			),
 		),
 		DASHBOARD_INSIGHTS_SECTION_ID    => array(
-			// Mirrors the legacy Calypso Stats Insights page (WOOA7S-1616) and
-			// follows the design's row structure. Emails is not an Insights
-			// module (it lives on the Subscribers tab). Two modules have no
-			// widget yet, so their rows are absent rather than substituted:
-			// the site-wide views heatmap (WOOA7S-1787) and the Total views /
-			// Total visitors cards (WOOA7S-1847, stood in for by All-time
-			// stats). Widgets on the single-height rows below still crop their
-			// content until WOOA7S-1846 lands.
-			// Row 1: highlights banner. Renders an empty prompt without an
-			// explicit metric list.
+			// Follows the prototype's rows (WOOA7S-1786). Emails lives on the
+			// Subscribers tab, and the site-wide views heatmap has no widget
+			// yet (WOOA7S-1787), so that row is absent.
+			// Row 1: highlights banner.
 			get_dashboard_default_widget_instance(
 				'default-annual-highlights-widget-instance',
 				'jpa/annual-highlights',
 				0,
 				4,
-				1,
-				array(
-					'metrics' => array( 'posts', 'words', 'likes', 'comments' ),
-				)
+				1
 			),
 			// Row 2: posting-activity heatmap.
 			get_dashboard_default_widget_instance(
@@ -341,25 +332,33 @@ function get_dashboard_default_section_layouts() {
 				2,
 				2
 			),
-			// Row 4: all-time totals + the two most-popular cards.
+			// Row 4: the period totals + the two most-popular cards. The
+			// most-popular cards still crop at this height (WOOA7S-1846).
 			get_dashboard_default_widget_instance(
-				'default-all-time-stats-widget-instance',
-				'jpa/all-time-stats',
+				'default-total-views-widget-instance',
+				'jpa/total-views',
 				4,
-				2,
+				1,
+				1
+			),
+			get_dashboard_default_widget_instance(
+				'default-total-visitors-widget-instance',
+				'jpa/total-visitors',
+				5,
+				1,
 				1
 			),
 			get_dashboard_default_widget_instance(
 				'default-most-popular-time-widget-instance',
 				'jpa/most-popular-time',
-				5,
+				6,
 				1,
 				1
 			),
 			get_dashboard_default_widget_instance(
 				'default-most-popular-day-widget-instance',
 				'jpa/most-popular-day',
-				6,
+				7,
 				1,
 				1
 			),
@@ -367,7 +366,7 @@ function get_dashboard_default_section_layouts() {
 			get_dashboard_default_widget_instance(
 				'default-most-commented-posts-widget-instance',
 				'jpa/most-commented-posts',
-				7,
+				8,
 				1,
 				2,
 				array(
@@ -377,7 +376,7 @@ function get_dashboard_default_section_layouts() {
 			get_dashboard_default_widget_instance(
 				'default-most-commented-authors-widget-instance',
 				'jpa/most-commented-authors',
-				8,
+				9,
 				1,
 				2,
 				array(
@@ -387,7 +386,7 @@ function get_dashboard_default_section_layouts() {
 			get_dashboard_default_widget_instance(
 				'default-shares-widget-instance',
 				'jpa/shares',
-				9,
+				10,
 				1,
 				2,
 				array(
@@ -397,7 +396,7 @@ function get_dashboard_default_section_layouts() {
 			get_dashboard_default_widget_instance(
 				'default-tags-widget-instance',
 				'jpa/tags',
-				10,
+				11,
 				1,
 				2,
 				array(
