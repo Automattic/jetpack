@@ -15,7 +15,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { envelope, payment, people, share } from '@wordpress/icons';
-import { Text } from '@wordpress/ui';
+import { Text } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -100,18 +100,18 @@ function SubscriberHighlightsReport( {
 				error={ {
 					description: __(
 						"We couldn't load subscriber highlights. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
 					icon: customer,
-					description: __( 'No subscriber counts available yet.', 'jetpack-premium-analytics' ),
+					description: __( 'No subscriber counts available yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				{ tiles.length === 0 ? (
 					<Text className={ styles.placeholder }>
-						{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics' ) }
+						{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics-pkg' ) }
 					</Text>
 				) : (
 					<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />

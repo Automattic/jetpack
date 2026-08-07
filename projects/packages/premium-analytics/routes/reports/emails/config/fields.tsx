@@ -1,15 +1,16 @@
 /**
  * External dependencies
  */
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
+import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { PostDetailLink } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Link } from '@wordpress/route';
 /**
  * Internal dependencies
  */
 import styles from './fields.module.css';
 import type { StatsEmailSummaryItem } from '@jetpack-premium-analytics/data';
-import type { Field } from '@wordpress/dataviews';
+import type { Field } from '@jetpack-premium-analytics/externals';
 
 /**
  * Format a count for display.
@@ -54,11 +55,9 @@ function formatRate( rate: number, total: number, unique: number ): string {
  * @return The formatted date, or an em dash placeholder.
  */
 function formatSentDate( value: unknown ): string {
-	const date = new Date( String( value ?? '' ) );
+	const date = parseSiteDateTime( value );
 
-	return Number.isNaN( date.getTime() )
-		? '—'
-		: date.toLocaleDateString( undefined, { year: 'numeric', month: 'short', day: 'numeric' } );
+	return date ? formatDate( date ) : '—';
 }
 
 /**
@@ -92,20 +91,15 @@ function EmailTitle( { item }: { item: StatsEmailSummaryItem } ) {
 	}
 
 	return (
-		<Link
-			to="/post/$postId"
-			params={ { postId: String( item.id ) } as unknown as never }
-			search={
-				( ( current: Record< string, unknown > ) => ( {
-					...current,
-					section: 'email-opens',
-				} ) ) as unknown as never
-			}
+		<PostDetailLink
+			postId={ item.id }
+			report="emails"
+			extraParams={ { section: 'email-opens' } }
 			title={ title }
 			className={ styles.title }
 		>
 			{ title }
-		</Link>
+		</PostDetailLink>
 	);
 }
 
@@ -118,7 +112,7 @@ export function getEmailsFields(): Field< StatsEmailSummaryItem >[] {
 	return [
 		{
 			id: 'label',
-			label: __( 'Email', 'jetpack-premium-analytics' ),
+			label: __( 'Email', 'jetpack-premium-analytics-pkg' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => emailTitle( item ),
@@ -126,32 +120,32 @@ export function getEmailsFields(): Field< StatsEmailSummaryItem >[] {
 		},
 		{
 			id: 'date',
-			label: __( 'Sent', 'jetpack-premium-analytics' ),
+			label: __( 'Sent', 'jetpack-premium-analytics-pkg' ),
 			// ISO date strings sort correctly as plain strings.
 			getValue: ( { item } ) => String( item.date ?? '' ),
 			render: ( { item } ) => <>{ formatSentDate( item.date ) }</>,
 		},
 		{
 			id: 'opens',
-			label: __( 'Opens', 'jetpack-premium-analytics' ),
+			label: __( 'Opens', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.opens,
 			render: ( { item } ) => <>{ formatNumber( item.opens ) }</>,
 		},
 		{
 			id: 'opens_rate',
-			label: __( 'Open rate', 'jetpack-premium-analytics' ),
+			label: __( 'Open rate', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.opens_rate,
 			render: ( { item } ) => <>{ formatRate( item.opens_rate, item.opens, item.unique_opens ) }</>,
 		},
 		{
 			id: 'clicks',
-			label: __( 'Clicks', 'jetpack-premium-analytics' ),
+			label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.clicks,
 			render: ( { item } ) => <>{ formatNumber( item.clicks ) }</>,
 		},
 		{
 			id: 'clicks_rate',
-			label: __( 'Click rate', 'jetpack-premium-analytics' ),
+			label: __( 'Click rate', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.clicks_rate,
 			render: ( { item } ) => (
 				<>{ formatRate( item.clicks_rate, item.clicks, item.unique_clicks ) }</>

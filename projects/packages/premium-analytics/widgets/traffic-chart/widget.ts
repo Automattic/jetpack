@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
+import { trendingUp } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -24,10 +24,10 @@ export type TrafficChartGranularity = 'auto' | 'day' | 'week' | 'month';
  * the two cannot drift apart.
  */
 export const TRAFFIC_CHART_METRICS = [
-	{ id: 'views', label: __( 'Views', 'jetpack-premium-analytics' ) },
-	{ id: 'visitors', label: __( 'Visitors', 'jetpack-premium-analytics' ) },
-	{ id: 'likes', label: __( 'Likes', 'jetpack-premium-analytics' ) },
-	{ id: 'comments', label: __( 'Comments', 'jetpack-premium-analytics' ) },
+	{ id: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'visitors', label: __( 'Visitors', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'likes', label: __( 'Likes', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'comments', label: __( 'Comments', 'jetpack-premium-analytics-pkg' ) },
 ] as const satisfies readonly { id: string; label: string }[];
 
 /**
@@ -68,28 +68,28 @@ export const DEFAULT_TRAFFIC_CHART_METRICS: TrafficChartMetricId[] = TRAFFIC_CHA
  * `example.attributes` doubles as the defaults applied to new instances.
  */
 export default {
-	icon: chartBar,
+	icon: trendingUp,
 	attributes: [
 		{
 			id: 'granularity',
-			label: __( 'Group by', 'jetpack-premium-analytics' ),
+			label: __( 'Group by', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
 			Edit: SelectField,
 			elements: [
 				{
-					label: __( 'Auto', 'jetpack-premium-analytics' ),
+					label: __( 'Auto', 'jetpack-premium-analytics-pkg' ),
 					value: 'auto',
 				},
 				{
-					label: __( 'By days', 'jetpack-premium-analytics' ),
+					label: __( 'By days', 'jetpack-premium-analytics-pkg' ),
 					value: 'day',
 				},
 				{
-					label: __( 'By weeks', 'jetpack-premium-analytics' ),
+					label: __( 'By weeks', 'jetpack-premium-analytics-pkg' ),
 					value: 'week',
 				},
 				{
-					label: __( 'By months', 'jetpack-premium-analytics' ),
+					label: __( 'By months', 'jetpack-premium-analytics-pkg' ),
 					value: 'month',
 				},
 			],
@@ -97,7 +97,7 @@ export default {
 		},
 		{
 			id: 'metrics',
-			label: __( 'Metrics', 'jetpack-premium-analytics' ),
+			label: __( 'Metrics', 'jetpack-premium-analytics-pkg' ),
 			type: 'array',
 			relevance: 'high',
 			Edit: ArrayCheckboxField,

@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack\SEO;
 
+use Automattic\Jetpack\Current_Plan;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -25,10 +26,56 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * The feature-flag filter name is the expected slug.
+	 * The feature gates use the expected slugs.
 	 */
-	public function test_feature_filter_constant_is_defined() {
+	public function test_feature_gate_constants_are_defined() {
+		$this->assertSame( 'seo-admin-ui', Initializer::FEATURE_SLUG );
 		$this->assertSame( 'rsm_jetpack_seo', Initializer::FEATURE_FILTER );
+	}
+
+	/**
+	 * Either the existing filter or the WordPress.com site feature can make SEO
+	 * available; neither path is required when the other is enabled.
+	 */
+	public function test_is_available_uses_filter_or_site_feature() {
+		$plan                       = Current_Plan::get();
+		$plan['features']['active'] = array();
+		update_option( Current_Plan::PLAN_OPTION, $plan );
+		self::reset_current_plan_cache();
+
+		// The rollout feature deliberately uses the active feature list rather than
+		// WordPress.com's separate plan-entitlement check.
+		\Wpcom_Test_Features::$known    = array( Initializer::FEATURE_SLUG );
+		\Wpcom_Test_Features::$entitled = array();
+
+		try {
+			$this->assertFalse( Initializer::is_available() );
+
+			add_filter( Initializer::FEATURE_FILTER, '__return_true' );
+			$this->assertTrue( Initializer::is_available() );
+			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
+
+			$plan['features']['active'] = array( Initializer::FEATURE_SLUG );
+			update_option( Current_Plan::PLAN_OPTION, $plan );
+			self::reset_current_plan_cache();
+			$this->assertTrue( Initializer::is_available() );
+		} finally {
+			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
+			delete_option( Current_Plan::PLAN_OPTION );
+			self::reset_current_plan_cache();
+			\Wpcom_Test_Features::reset();
+		}
+	}
+
+	/**
+	 * Clear Current_Plan's request cache after changing its backing option.
+	 */
+	private static function reset_current_plan_cache() {
+		$property = ( new \ReflectionClass( Current_Plan::class ) )->getProperty( 'active_plan_cache' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, null );
 	}
 
 	/**
@@ -43,6 +90,7 @@ class InitializerTest extends TestCase {
 		$this->assertSame( 'jetpack_seo_canonical_urls_enabled', Initializer::CANONICAL_ENABLED_OPTION );
 		$this->assertSame( 'jetpack_seo_surface_visible', Initializer::VISIBILITY_OPTION );
 
+		$this->assertTrue( method_exists( Initializer::class, 'is_available' ) );
 		$this->assertTrue( method_exists( Initializer::class, 'is_optin_available' ) );
 
 		// The delegators track Surface_Visibility's answer, not a stale copy of it.
@@ -257,6 +305,127 @@ class InitializerTest extends TestCase {
 			);
 		} finally {
 			$this->reset_wpcom_site();
+		}
+	}
+
+	/**
+	 * Run init() with the given deliberate-off flag state and surface visibility, and
+	 * report whether it suppressed WordPress core's own sitemap (registered the
+	 * `wp_sitemaps_enabled` → false filter). Mirrors the schema/GEO test setup.
+	 *
+	 * @param bool $user_disabled   Whether SUPPRESS_WP_SITEMAP_OPTION (deliberate off) is set.
+	 * @param bool $surface_visible Whether the SEO dashboard surface is visible. Sitemap
+	 *                              suppression is tied to the feature, not the surface, so
+	 *                              a set flag must be honored either way.
+	 * @return bool Whether init() registered the core-sitemap-suppression filter.
+	 */
+	private function init_and_report_core_sitemaps_disabled( $user_disabled, $surface_visible = true ) {
+		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$initialized->setAccessible( true );
+		}
+		$initialized->setValue( null, false );
+
+		add_filter( 'rsm_jetpack_seo', '__return_true' );
+		if ( $surface_visible ) {
+			update_option( Initializer::VISIBILITY_OPTION, '1' );
+		} else {
+			delete_option( Initializer::VISIBILITY_OPTION );
+		}
+		if ( $user_disabled ) {
+			update_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION, true );
+		} else {
+			delete_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION );
+		}
+		// Isolate from any stale registration so the result reflects only this run.
+		remove_filter( 'wp_sitemaps_enabled', '__return_false' );
+
+		try {
+			Initializer::init();
+			return false !== has_filter( 'wp_sitemaps_enabled', '__return_false' );
+		} finally {
+			remove_filter( 'rsm_jetpack_seo', '__return_true' );
+			remove_filter( 'wp_sitemaps_enabled', '__return_false' );
+			$this->remove_sitemap_toggle_hooks();
+			delete_option( Initializer::VISIBILITY_OPTION );
+			delete_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION );
+			$initialized->setValue( null, false );
+		}
+	}
+
+	/**
+	 * Remove the sitemap-toggle actions init() registers, so they don't leak into
+	 * other tests.
+	 *
+	 * @return void
+	 */
+	private function remove_sitemap_toggle_hooks() {
+		remove_action( 'jetpack_deactivate_module_sitemaps', array( Initializer::class, 'flag_sitemap_user_disabled' ) );
+		remove_action( 'jetpack_activate_module_sitemaps', array( Initializer::class, 'clear_sitemap_user_disabled' ) );
+	}
+
+	/**
+	 * When the user has deliberately turned the sitemap off, init() suppresses
+	 * WordPress core's own sitemap (the `wp_sitemaps_enabled` → false filter) so
+	 * `/sitemap.xml` and `/wp-sitemap.xml` both 404 rather than falling back to core.
+	 */
+	public function test_init_suppresses_core_sitemaps_when_user_turned_it_off() {
+		$this->assertTrue( $this->init_and_report_core_sitemaps_disabled( true ) );
+	}
+
+	/**
+	 * The regression guard: a site that never turned the sitemap off keeps whatever
+	 * sitemap it already had. Even with no deliberate-off flag, init() must NOT suppress
+	 * core sitemaps — a brand-new or never-configured site must not silently lose its
+	 * WordPress-native sitemap just because the SEO surface became visible.
+	 */
+	public function test_init_leaves_core_sitemaps_alone_when_never_disabled() {
+		$this->assertFalse( $this->init_and_report_core_sitemaps_disabled( false ) );
+	}
+
+	/**
+	 * A deliberate-off flag is honored even when the SEO dashboard is still hidden — the
+	 * suppression is tied to the SEO feature, not the admin surface. This covers the site
+	 * that turned the sitemap off while visible and later had the surface hidden, and the
+	 * install that toggled it off from a legacy surface before opting into the dashboard.
+	 */
+	public function test_init_suppresses_core_sitemaps_when_off_even_if_surface_hidden() {
+		$this->assertTrue( $this->init_and_report_core_sitemaps_disabled( true, false ) );
+	}
+
+	/**
+	 * Toggling the sitemap maintains the deliberate-off flag: switching it off records
+	 * the flag (so core is suppressed), switching it on clears it. init() registers the
+	 * hooks; firing the module actions simulates a toggle from any surface.
+	 */
+	public function test_sitemap_toggle_maintains_the_deliberate_off_flag() {
+		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$initialized->setAccessible( true );
+		}
+		$initialized->setValue( null, false );
+
+		add_filter( 'rsm_jetpack_seo', '__return_true' );
+		update_option( Initializer::VISIBILITY_OPTION, '1' );
+		delete_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION );
+		$this->remove_sitemap_toggle_hooks();
+
+		try {
+			Initializer::init();
+
+			// Turning the sitemap off records the deliberate-off flag.
+			do_action( 'jetpack_deactivate_module_sitemaps' );
+			$this->assertTrue( (bool) get_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION ) );
+
+			// Turning it back on clears it.
+			do_action( 'jetpack_activate_module_sitemaps' );
+			$this->assertFalse( get_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION, false ) );
+		} finally {
+			remove_filter( 'rsm_jetpack_seo', '__return_true' );
+			$this->remove_sitemap_toggle_hooks();
+			delete_option( Initializer::VISIBILITY_OPTION );
+			delete_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION );
+			$initialized->setValue( null, false );
 		}
 	}
 }

@@ -5,7 +5,10 @@ import {
 	PAGE_TYPES,
 	PAGE_TYPE_SUGGESTIONS,
 	PAGE_TYPE_TOKENS,
+	buildDefaultPreview,
+	buildDefaultPreviewParts,
 	buildPreview,
+	buildPreviewParts,
 	fromDisplay,
 	stringToTokens,
 	toDisplay,
@@ -112,6 +115,52 @@ describe( 'page-type token maps', () => {
 	} );
 } );
 
+// Mirrors how `wp_get_document_title()` composes a title when Jetpack has no
+// stored format for the page type and steps aside.
+describe( 'buildDefaultPreview', () => {
+	const overrides = { site_name: 'Acme Co', tagline: 'We make things' };
+
+	it( 'pairs the site title with the tagline on the front page', () => {
+		expect( buildDefaultPreview( 'front_page', '-', overrides ) ).toBe(
+			'Acme Co - We make things'
+		);
+	} );
+
+	it( 'pairs the page-specific title with the site title everywhere else', () => {
+		expect( buildDefaultPreview( 'posts', '-', overrides ) ).toBe( 'Hello World - Acme Co' );
+		expect( buildDefaultPreview( 'pages', '-', overrides ) ).toBe( 'Sample Page - Acme Co' );
+		expect( buildDefaultPreview( 'groups', '-', overrides ) ).toBe( 'News - Acme Co' );
+		expect( buildDefaultPreview( 'archives', '-', overrides ) ).toBe( 'Sample Archive - Acme Co' );
+	} );
+
+	it( 'uses the separator the site reports, since themes override it', () => {
+		expect( buildDefaultPreview( 'posts', '|', overrides ) ).toBe( 'Hello World | Acme Co' );
+		expect( buildDefaultPreview( 'posts', '–', overrides ) ).toBe( 'Hello World – Acme Co' );
+	} );
+
+	// Core runs `array_filter()` over the parts, so a missing one drops out rather
+	// than leaving a dangling separator.
+	it( 'omits an empty part instead of leaving a trailing separator', () => {
+		expect( buildDefaultPreview( 'front_page', '-', { site_name: 'Acme Co', tagline: '' } ) ).toBe(
+			'Acme Co'
+		);
+	} );
+
+	it( 'falls back to sample text when no real values are supplied', () => {
+		expect( buildDefaultPreview( 'posts', '-' ) ).toBe( 'Hello World - Your site' );
+	} );
+
+	it( 'returns an empty string for an unknown page type', () => {
+		expect( buildDefaultPreview( 'nonsense', '-', overrides ) ).toBe( '' );
+	} );
+
+	it( 'covers every page type the UI renders a row for', () => {
+		PAGE_TYPES.forEach( ( { id } ) => {
+			expect( buildDefaultPreview( id, '-', overrides ) ).not.toBe( '' );
+		} );
+	} );
+} );
+
 describe( 'buildPreview', () => {
 	it( 'swaps placeholders for sample text and passes literal fragments through', () => {
 		const tokens: TitleFormatToken[] = [
@@ -141,15 +190,24 @@ describe( 'buildPreview', () => {
 		);
 	} );
 
-	it( 'falls back to sample text when an override is missing or empty', () => {
-		const tokens: TitleFormatToken[] = [
-			{ type: 'token', value: 'site_name' },
-			{ type: 'string', value: ' | ' },
-			{ type: 'token', value: 'tagline' },
-		];
-		// site_name has a real value; tagline is empty, so it uses the sample.
-		expect( buildPreview( tokens, { site_name: 'Acme Co', tagline: '' } ) ).toBe(
+	const siteNameAndTagline: TitleFormatToken[] = [
+		{ type: 'token', value: 'site_name' },
+		{ type: 'string', value: ' | ' },
+		{ type: 'token', value: 'tagline' },
+	];
+
+	it( 'falls back to sample text when the site supplies no override at all', () => {
+		expect( buildPreview( siteNameAndTagline, { site_name: 'Acme Co' } ) ).toBe(
 			'Acme Co | Your tagline'
+		);
+	} );
+
+	// A site with no tagline really does render nothing there, and
+	// `Jetpack_SEO_Titles::get_custom_title()` concatenates the format straight
+	// through — so the separator is left dangling exactly as previewed.
+	it( 'renders a supplied-but-empty override as empty, keeping the separator', () => {
+		expect( buildPreview( siteNameAndTagline, { site_name: 'Acme Co', tagline: '' } ) ).toBe(
+			'Acme Co | '
 		);
 	} );
 } );
@@ -215,5 +273,63 @@ describe( 'stringToTokens', () => {
 			{ type: 'token', value: 'site_name' },
 		];
 		expect( stringToTokens( tokensToString( tokens ), PAGE_TYPE_TOKENS.posts ) ).toEqual( tokens );
+	} );
+} );
+
+describe( 'preview parts', () => {
+	it( 'labels resolved values and typed separators differently', () => {
+		expect(
+			buildPreviewParts(
+				[
+					{ type: 'token', value: 'site_name' },
+					{ type: 'string', value: ' | ' },
+					{ type: 'token', value: 'tagline' },
+				],
+				{ site_name: 'Acme Co', tagline: 'We make things' }
+			)
+		).toEqual( [
+			{ kind: 'value', text: 'Acme Co' },
+			{ kind: 'literal', text: ' | ' },
+			{ kind: 'value', text: 'We make things' },
+		] );
+	} );
+
+	it( 'keeps an empty value as a part, so its separators still show', () => {
+		// The real title concatenates straight through, leaving the separator
+		// dangling. Dropping the part here would make the preview tidier than the
+		// output — the exact dishonesty this preview exists to avoid.
+		expect(
+			buildPreviewParts(
+				[
+					{ type: 'token', value: 'site_name' },
+					{ type: 'string', value: ' - ' },
+					{ type: 'token', value: 'tagline' },
+				],
+				{ site_name: 'Acme Co', tagline: '' }
+			)
+		).toEqual( [
+			{ kind: 'value', text: 'Acme Co' },
+			{ kind: 'literal', text: ' - ' },
+			{ kind: 'value', text: '' },
+		] );
+	} );
+
+	it( 'puts default-title separators between values only', () => {
+		// A site with no tagline keeps just its name, and must not trail a separator
+		// core would never emit.
+		expect(
+			buildDefaultPreviewParts( 'front_page', '-', { site_name: 'Acme Co', tagline: '' } )
+		).toEqual( [ { kind: 'value', text: 'Acme Co' } ] );
+
+		expect(
+			buildDefaultPreviewParts( 'front_page', '-', {
+				site_name: 'Acme Co',
+				tagline: 'We make things',
+			} )
+		).toEqual( [
+			{ kind: 'value', text: 'Acme Co' },
+			{ kind: 'literal', text: ' - ' },
+			{ kind: 'value', text: 'We make things' },
+		] );
 	} );
 } );

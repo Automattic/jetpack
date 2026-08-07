@@ -1,11 +1,10 @@
 /**
  * External dependencies
  */
-import { ConversionFunnelChart } from '@automattic/charts';
 import { FilterCondition, useReportConversionRate } from '@jetpack-premium-analytics/data';
+import { ConversionFunnelChart, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { goal } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
-import { Icon, Stack } from '@wordpress/ui';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -76,14 +75,15 @@ export function ConversionRateWidget( {
 			error={ {
 				description: __(
 					"We couldn't load conversion data. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: emptyStateIcon,
 				description:
-					emptyStateText ?? __( 'No conversion data in this period.', 'jetpack-premium-analytics' ),
+					emptyStateText ??
+					__( 'No conversion data in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			<Stack direction="column" gap="lg" className={ styles.container }>

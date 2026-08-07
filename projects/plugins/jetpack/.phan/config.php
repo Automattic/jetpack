@@ -17,13 +17,27 @@ $config = make_phan_config(
 		'exclude_file_list'               => array(
 			// Mocks of core classes.
 			'tests/php/_inc/lib/mocks/simplepie.php',
+			// Standalone compatibility fixtures that intentionally redefine a package class and a WordPress function.
+			'tests/php/fixtures/legacy-status/class-host.php',
+			'tests/php/fixtures/random-redirect-existing-function.php',
+			'tests/php/fixtures/reprint-export-legacy-status-host.php',
 			// Mocks of wpcom classes and functions.
 			'tests/php/lib/class-wpcom-features.php',
+			'tests/php/lib/class-email-verification.php',
 			'tests/php/lib/mock-functions.php',
 			// Temporary duplicated defintions of classes.
 			'_inc/lib/class.color.php',
 			// We have a stub for this because the real file has duplicate trait definitions.
 			'tests/php/WP_UnitTestCase_Fix.php',
+		),
+		'exclude_file_regex'              => array(
+			// wp-php-toolkit/html (pulled in transitively via the reprint
+			// exporter) bundles full implementations of WP core's HTML API
+			// classes — WP_HTML_Tag_Processor, WP_HTML_Span,
+			// WP_HTML_Text_Replacement, etc. — which collide with the
+			// php-stubs/wordpress-stubs definitions Phan already loads. At
+			// runtime we use WordPress core's versions.
+			'vendor/wp-php-toolkit/html/',
 		),
 		'exclude_analysis_directory_list' => array(),
 		'parse_file_list'                 => array(

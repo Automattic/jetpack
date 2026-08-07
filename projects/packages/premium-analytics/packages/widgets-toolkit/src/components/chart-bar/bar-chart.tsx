@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import { BarChart as BarChartBase } from '@automattic/charts';
-import { Icon } from '@wordpress/ui';
+import { BarChart as BarChartBase, Icon } from '@jetpack-premium-analytics/externals';
 import clsx from 'clsx';
 import { useCallback, useMemo, useId } from 'react';
 /**

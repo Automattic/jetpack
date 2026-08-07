@@ -67,7 +67,7 @@ function get_widget_metadata_i18n_schema() {
  * @return array Widget data with its translatable strings localized.
  */
 function translate_widget_metadata( $widget ) {
-	$textdomain  = ! empty( $widget['textdomain'] ) ? $widget['textdomain'] : 'jetpack-premium-analytics';
+	$textdomain  = ! empty( $widget['textdomain'] ) ? $widget['textdomain'] : 'jetpack-premium-analytics-pkg';
 	$i18n_schema = get_widget_metadata_i18n_schema();
 
 	foreach ( array( 'title', 'description', 'help', 'keywords' ) as $field ) {

@@ -1,1 +1,1 @@
-@../../../.agents/skills/jn-pr-review.md
+../../../.agents/skills/jn-pr-review.md

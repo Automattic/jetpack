@@ -57,7 +57,6 @@ class AI_Launchpad {
 		}
 
 		self::load_wp_build();
-		self::fix_boot_import_map_ordering();
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_jwt_initial_state' ), 20 );
 	}
 
@@ -74,9 +73,8 @@ class AI_Launchpad {
 	/**
 	 * Whether the current site is eligible for the AI Launchpad.
 	 *
-	 * Gate: not already AI-onboarded, not dismissed (skipping the wizard dismisses it, reverting the site
-	 * to the regular launchpad), and explicitly enabled for the site via the `wpcom_ai_launchpad_enabled`
-	 * option. The paid-plan requirement is temporarily lifted (see below).
+	 * Gate: enabled for the site (see is_enabled_for_site()) and not dismissed (skipping the
+	 * wizard dismisses it, reverting the site to the regular launchpad).
 	 *
 	 * @return bool
 	 */
@@ -84,23 +82,11 @@ class AI_Launchpad {
 		static $eligible = null;
 
 		if ( null === $eligible ) {
-			// TEMPORARY: the paid-plan gate is lifted so the AI Launchpad is available on all plans, including free.
-			// Revert this commit to re-require a paid bundle (the removed has_paid_plan() check).
 			$eligible = self::is_enabled_for_site()
-				&& ! self::was_ai_onboarded()
 				&& ! get_option( \AI_Launchpad_REST::OPTION_DISMISSED );
 		}
 
 		return $eligible;
-	}
-
-	/**
-	 * Whether the site already went through an AI onboarding flow.
-	 *
-	 * @return bool
-	 */
-	private static function was_ai_onboarded() {
-		return get_option( 'site_intent' ) === 'ai-assembler' || get_option( 'site_creation_flow' ) === 'ai-site-builder';
 	}
 
 	/**
@@ -111,8 +97,8 @@ class AI_Launchpad {
 	 * @return bool
 	 */
 	private static function is_enabled_for_site() {
-		// Legacy per-site switch kept as a manual/dev override: the ?enable-ai-launchpad=1
-		// handler and the onboarding hand-off both set this option.
+		// Explicit per-site switch: set at site creation for the ai_launchpad onboarding
+		// cohort, by the ?enable-ai-launchpad=1 dev handler, or manually.
 		if ( (bool) get_option( 'wpcom_ai_launchpad_enabled' ) ) {
 			return true;
 		}
@@ -195,56 +181,6 @@ class AI_Launchpad {
 			array(
 				'wpcomBlogId' => get_wpcom_blog_id(),
 			)
-		);
-	}
-
-	/**
-	 * Fix import map ordering for the wp-build boot script.
-	 *
-	 * In wp-admin both _wp_footer_scripts and print_import_map hook admin_print_footer_scripts at priority 10, but
-	 * _wp_footer_scripts runs first, so the inline import("@wordpress/boot") executes before the import map exists.
-	 * This moves the import() call to a <script type="module"> printed at priority 20, after the import map.
-	 *
-	 * @todo Remove once @wordpress/build ships the loader.js fix upstream
-	 *       (WordPress/gutenberg#76870) and Jetpack updates the dependency.
-	 */
-	private static function fix_boot_import_map_ordering() {
-		$handle = self::MENU_SLUG . '-prerequisites';
-
-		add_action(
-			'admin_enqueue_scripts',
-			static function () use ( $handle ) {
-				$data = wp_scripts()->get_data( $handle, 'after' );
-				if ( empty( $data ) ) {
-					return;
-				}
-
-				$boot_script = null;
-				$remaining   = array();
-				foreach ( $data as $line ) {
-					if ( strpos( $line, '@wordpress/boot' ) !== false ) {
-						$boot_script = $line;
-					} else {
-						$remaining[] = $line;
-					}
-				}
-
-				if ( $boot_script === null ) {
-					return;
-				}
-
-				wp_scripts()->add_data( $handle, 'after', $remaining );
-
-				// Re-emit as a module script after the import map.
-				add_action(
-					'admin_print_footer_scripts',
-					static function () use ( $boot_script ) {
-						wp_print_inline_script_tag( $boot_script, array( 'type' => 'module' ) );
-					},
-					20
-				);
-			},
-			PHP_INT_MAX
 		);
 	}
 }

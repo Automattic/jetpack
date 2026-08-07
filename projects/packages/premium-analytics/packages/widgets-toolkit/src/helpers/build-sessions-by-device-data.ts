@@ -22,9 +22,9 @@ export interface SessionsByDeviceData {
  * Maps API device_type values to user-friendly labels.
  */
 const DEVICE_LABELS: Record< string, string > = {
-	mobile: __( 'Mobile', 'jetpack-premium-analytics' ),
-	desktop: __( 'Desktop', 'jetpack-premium-analytics' ),
-	tablet: __( 'Tablet', 'jetpack-premium-analytics' ),
+	mobile: __( 'Mobile', 'jetpack-premium-analytics-pkg' ),
+	desktop: __( 'Desktop', 'jetpack-premium-analytics-pkg' ),
+	tablet: __( 'Tablet', 'jetpack-premium-analytics-pkg' ),
 };
 
 /**

@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { calculateDelta, sharePercentage } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	calculateDelta,
+	getCombinedPeriodMax,
+	sharePercentage,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import type {
 	StatsTopAuthorsComparisonItem,
@@ -21,6 +25,7 @@ const UNTRACKED_AUTHORS_SENTINEL = 'Untracked Authors';
  */
 export interface AuthorPost {
 	id: string;
+	postId?: string | number;
 	title: string;
 	link: string | null;
 	currentValue: number;
@@ -60,7 +65,7 @@ function getAuthorLabel( author: StatsTopAuthorsComparisonItem ) {
 	const label = typeof author.label === 'string' ? author.label : '';
 
 	if ( ! label || label === UNTRACKED_AUTHORS_SENTINEL ) {
-		return __( 'Untracked authors', 'jetpack-premium-analytics' );
+		return __( 'Untracked authors', 'jetpack-premium-analytics-pkg' );
 	}
 
 	return label;
@@ -75,11 +80,9 @@ function getAuthorLabel( author: StatsTopAuthorsComparisonItem ) {
  * @return The author's drill-down rows.
  */
 function toAuthorPostRows( posts: StatsTopAuthorsPostComparisonItem[] ): AuthorPost[] {
-	// Share each value against the largest of either period so the overlay bars
-	// stay proportional; `1` guards against division by zero.
-	const maxValue = Math.max(
-		...posts.map( post => Math.max( post.views, post.previousViews ?? 0 ) ),
-		1
+	const maxValue = getCombinedPeriodMax(
+		posts.map( post => post.views ),
+		posts.map( post => post.previousViews )
 	);
 
 	return posts.map( ( post, index ) => {
@@ -87,6 +90,7 @@ function toAuthorPostRows( posts: StatsTopAuthorsPostComparisonItem[] ): AuthorP
 
 		return {
 			id: post.id != null ? String( post.id ) : post.link ?? `post-${ index }`,
+			postId: post.id ?? undefined,
 			title: typeof post.label === 'string' ? post.label : String( post.label ?? '' ),
 			link: post.link ?? null,
 			currentValue: post.views,
@@ -119,11 +123,9 @@ export function buildTopAuthorsData(
 		return [];
 	}
 
-	// Share each value against the largest of either period so the overlay bars
-	// stay proportional; `1` guards against division by zero.
-	const maxValue = Math.max(
-		...authors.map( author => Math.max( author.views, author.previousViews ?? 0 ) ),
-		1
+	const maxValue = getCombinedPeriodMax(
+		authors.map( author => author.views ),
+		authors.map( author => author.previousViews )
 	);
 
 	return authors.map( author => {

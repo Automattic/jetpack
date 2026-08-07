@@ -1,7 +1,60 @@
-.date-comparison-dropdown__select {
-	min-width: 12rem;
+// A menu, not a form field, so it is built on `DropdownMenu`. What follows
+// restates in WPDS tokens the properties where wp-components' Button and the
+// input layout behind a `SelectControl` trigger disagree.
 
-	button[data-can-disable-input-layout] {
-		padding-inline: var(--wpds-dimension-padding-sm);
+// `@wordpress/components` is externalized, so the Button these rules override
+// is whatever the running WordPress ships, not the copy in `node_modules`.
+// Check the site's stylesheet before assuming a base rule is there.
+.date-comparison-dropdown {
+	// The toggle is an inline-flex button. In a block wrapper it would sit on a
+	// text baseline and add a descender's worth of height to the row.
+	display: flex;
+
+	.date-comparison-dropdown__toggle {
+		height: var(--wpds-dimension-size-lg);
+		// Declared whole rather than just recolored: the shipped Button carries
+		// `border: 0`, so a bare `border-color` paints nothing. The button is
+		// already `border-box`, so the stroke does not grow the control.
+		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-interactive-neutral);
+		// Follows the theme's radius setting, which the Button's fixed 2px does not.
+		border-radius: var(--wpds-border-radius-sm);
+		color: var(--wpds-color-foreground-interactive-neutral);
+		font-family: var(--wpds-typography-font-family-body);
+		// The input layout lifts small text to 16px on phones, so the select and
+		// this control stay the same size where the panel collapses.
+		font-size: max(var(--wpds-typography-font-size-md), 16px);
+		// The Button asks for an emphasis weight; a select trigger takes the
+		// weight of the text around it.
+		font-weight: inherit;
+		// The label is already an abbreviation, with no shorter form to break to:
+		// wrapped, it stood taller than the presets beside it.
+		white-space: nowrap;
+
+		@media (min-width: 600px) {
+			font-size: var(--wpds-typography-font-size-md);
+		}
+
+		// The `+` is a square icon button. The labelled state is sized by its
+		// label, the way the select's trigger is.
+		&:not(.date-comparison-dropdown__toggle--active) {
+			min-width: var(--wpds-dimension-size-lg);
+		}
+
+		// wp-components answers hover and the open state by tinting the label
+		// with the admin accent. The input layout darkens its stroke instead and
+		// leaves the text alone.
+		&:hover:not(:disabled, [aria-disabled="true"]),
+		&[aria-expanded="true"] {
+			border-color: var(--wpds-color-stroke-interactive-neutral-active);
+			color: var(--wpds-color-foreground-interactive-neutral);
+		}
+
+		// The shipped Button draws focus as an accent-colored shadow. Every
+		// other control on this surface draws the outset ring instead.
+		&:focus:not(:active) {
+			outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+			outline-offset: var(--wpds-border-width-focus);
+			box-shadow: none;
+		}
 	}
 }

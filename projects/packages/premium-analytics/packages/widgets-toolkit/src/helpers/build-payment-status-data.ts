@@ -59,7 +59,7 @@ export function buildPaymentStatusData(
 	// Build chart data
 	const chartData: DonutChartData = [
 		{
-			label: __( 'Paid', 'jetpack-premium-analytics' ),
+			label: __( 'Paid', 'jetpack-premium-analytics-pkg' ),
 			value: paidNetSales,
 			valueDisplay: formatMetricValue( paidNetSales, 'currency', {
 				useMultipliers: true,
@@ -67,7 +67,7 @@ export function buildPaymentStatusData(
 			} ),
 		},
 		{
-			label: __( 'Unpaid', 'jetpack-premium-analytics' ),
+			label: __( 'Unpaid', 'jetpack-premium-analytics-pkg' ),
 			value: unpaidNetSales,
 			valueDisplay: formatMetricValue( unpaidNetSales, 'currency', {
 				useMultipliers: true,
@@ -79,7 +79,7 @@ export function buildPaymentStatusData(
 	// Build legend data
 	const legendData: LegendItem[] = [
 		{
-			label: __( 'Paid', 'jetpack-premium-analytics' ),
+			label: __( 'Paid', 'jetpack-premium-analytics-pkg' ),
 			value: paidNetSales,
 			displayValue: formatMetricValue( paidNetSales, 'currency', {
 				useMultipliers: true,
@@ -88,7 +88,7 @@ export function buildPaymentStatusData(
 			comparison: comparisonOrders ? comparisonPaidNetSales : undefined,
 		},
 		{
-			label: __( 'Unpaid', 'jetpack-premium-analytics' ),
+			label: __( 'Unpaid', 'jetpack-premium-analytics-pkg' ),
 			value: unpaidNetSales,
 			displayValue: formatMetricValue( unpaidNetSales, 'currency', {
 				useMultipliers: true,

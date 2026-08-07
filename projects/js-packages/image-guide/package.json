@@ -50,7 +50,7 @@
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"concurrently": "10.0.3",
 		"jest": "30.4.2",
-		"postcss": "8.5.21",
+		"postcss": "8.5.23",
 		"rollup": "3.30.0",
 		"rollup-plugin-postcss": "4.0.2",
 		"rollup-plugin-svelte": "7.2.2",

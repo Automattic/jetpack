@@ -1,10 +1,9 @@
 /**
  * External dependencies
  */
-import { useGlobalChartsContext } from '@automattic/charts';
+import { useGlobalChartsContext, Icon } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
-import { Icon } from '@wordpress/ui';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -152,7 +151,7 @@ export function ReportMetricWidget( {
 				// Omitted copy falls back to WidgetState's generic line, so the
 				// default lives in one place instead of being restated here.
 				description: errorText,
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
 				icon: emptyStateIcon,

@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { ensureCoreSettingsReady, normalizeReportParams } from '@jetpack-premium-analytics/data';
+import {
+	ensureCoreSettingsReady,
+	needsReportDateParamsSeed,
+	normalizeReportParams,
+} from '@jetpack-premium-analytics/data';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
@@ -73,7 +77,7 @@ export const route = {
 			currentSearch.section && definition.resolveSection
 				? definition.resolveSection( currentSearch.section )
 				: undefined;
-		const needsDateSeed = ! currentSearch.from || ! currentSearch.to || ! currentSearch.interval;
+		const needsDateSeed = needsReportDateParamsSeed( currentSearch );
 		const needsSectionSeed =
 			!! currentSearch.section &&
 			!! definition.resolveSection &&

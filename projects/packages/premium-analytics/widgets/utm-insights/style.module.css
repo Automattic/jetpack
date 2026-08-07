@@ -20,10 +20,21 @@
 	margin-block-end: 0;
 }
 
+/* The UTM value rows. Post rows use `LeaderboardPostLabel` instead and take
+   only the inline-end inset below. */
 .itemLabel {
+	display: flex;
+	align-items: center;
 	min-inline-size: 0;
 	padding-block: var(--wpds-dimension-padding-md);
 	padding-inline-start: var(--wpds-dimension-padding-sm);
+	padding-inline-end: var(--wpds-dimension-padding-lg);
+}
+
+/* Keeps post-row text short of the value column, like `.itemLabel`. Doubled to
+   outrank the shared row's own `padding-inline` on specificity, because the two
+   are single classes in different CSS modules and would tie on order. */
+.itemLabelInset.itemLabelInset {
 	padding-inline-end: var(--wpds-dimension-padding-lg);
 }
 

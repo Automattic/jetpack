@@ -4,6 +4,7 @@
 import { useStatsTopAuthors } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardPostLabel,
 	ReportLink,
 	WidgetBackLink,
 	WidgetFooter,
@@ -11,7 +12,6 @@ import {
 	WidgetState,
 	buildLeaderboardRow,
 	formatLegendLabels,
-	safeHttpUrl,
 	toMaxRows,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -127,25 +127,15 @@ export function AuthorsLeaderboard( {
 		// the data layer already aligned current/comparison values, including
 		// posts that only existed in the comparison period.
 		if ( selectedAuthor ) {
-			return selectedAuthor.posts.map( post => {
-				// Post permalinks come from report data, so validate the scheme
-				// before the row becomes a link.
-				const postHref = safeHttpUrl( post.link );
-
-				return {
-					id: post.id,
-					...buildLeaderboardRow( {
-						label: post.title,
-						media: { kind: 'none' },
-						action: postHref ? { kind: 'link', href: postHref } : { kind: 'static' },
-					} ),
-					currentValue: post.currentValue,
-					previousValue: post.previousValue,
-					currentShare: post.currentShare,
-					previousShare: post.previousShare,
-					delta: post.delta,
-				};
-			} );
+			return selectedAuthor.posts.map( post => ( {
+				id: post.id,
+				label: <LeaderboardPostLabel id={ post.postId } label={ post.title } link={ post.link } />,
+				currentValue: post.currentValue,
+				previousValue: post.previousValue,
+				currentShare: post.currentShare,
+				previousShare: post.previousShare,
+				delta: post.delta,
+			} ) );
 		}
 
 		// Top authors: name + avatar label, and a click drills into the author's
@@ -162,7 +152,7 @@ export function AuthorsLeaderboard( {
 								onClick: () => selectAuthor( row.id ),
 								ariaLabel: sprintf(
 									/* translators: %s is the author name */
-									__( 'View posts by %s', 'jetpack-premium-analytics' ),
+									__( 'View posts by %s', 'jetpack-premium-analytics-pkg' ),
 									row.label
 								),
 						  }
@@ -182,7 +172,7 @@ export function AuthorsLeaderboard( {
 		<div className={ styles.content }>
 			{ selectedAuthor && (
 				<WidgetBackLink
-					label={ __( 'All authors', 'jetpack-premium-analytics' ) }
+					label={ __( 'All authors', 'jetpack-premium-analytics-pkg' ) }
 					onClick={ clearSelectedAuthor }
 				/>
 			) }
@@ -194,10 +184,10 @@ export function AuthorsLeaderboard( {
 				error={ {
 					description: __(
 						"We couldn't load authors. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 					actions: refetch
-						? [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ]
+						? [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ]
 						: undefined,
 				} }
 				empty={ {
@@ -205,9 +195,9 @@ export function AuthorsLeaderboard( {
 					description: isDrilled
 						? __(
 								'This author has no posts with views for the selected period.',
-								'jetpack-premium-analytics'
+								'jetpack-premium-analytics-pkg'
 						  )
-						: __( 'No author views in this period.', 'jetpack-premium-analytics' ),
+						: __( 'No author views in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				<LeaderboardChart

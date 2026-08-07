@@ -8,11 +8,16 @@
 namespace Automattic\Jetpack\Connection;
 
 /**
- * The Jetpack Connection Errors that handles errors
+ * The Jetpack Connection error handler.
  *
- * This class handles the following workflow for incoming XML-RPC and REST API requests:
+ * This class stores and surfaces connection (authentication/signature) errors for requests
+ * in both directions: incoming (WP.com to this site) and outgoing (this site to WP.com).
  *
- * 1. An incoming XML-RPC or REST API request with an invalid signature triggers an error
+ * Flow 1 — incoming request errors. Entry point: `report_error()`.
+ *
+ * 1. An incoming XML-RPC or REST API request with an invalid signature triggers an error in
+ *    `Manager::verify_xml_rpc_signature()`, which reports it here. (Signed incoming REST
+ *    requests are funneled into the same verification path by `REST_Authentication`.)
  * 2. Applies a gate to only process each error code once an hour to avoid overflow
  * 3. It stores the error on the database, but we don't know yet if this is a valid error, because
  *    we can't confirm it came from WP.com.
@@ -21,8 +26,28 @@ namespace Automattic\Jetpack\Connection;
  * 6. This endpoint adds this error to the Verified errors in the database
  * 7. Triggers a workflow depending on the error (display user an error message, do some self healing, etc.)
  *
- * Note: This class only handles authentication/signature errors from incoming requests to this site.
- * Outgoing request signing issues (when this site makes requests to WP.com) are not handled here.
+ * Flow 2 — outgoing request errors. Entry point: `check_api_response_for_errors()`.
+ *
+ * 1. Every signed request made through `Client::remote_request()` has its response checked
+ *    by `check_api_response_for_errors()`.
+ * 2. When the response carries a known error code, the error is stored and immediately
+ *    marked verified (the same hourly gate applies). The WP.com verification round-trip of
+ *    flow 1 is skipped because the error arrived in a response to a request this site
+ *    itself initiated and signed — the failed response is its own evidence.
+ *
+ * Stored errors carry two orthogonal classification fields:
+ *
+ * - `error_type` — the transport/source of the failed request: 'xmlrpc', 'rest',
+ *   'local_state' (local connection-state errors involving no request at all, e.g.
+ *   `invalid_connection_owner`; stored as 'connection' by package versions <= 8.8),
+ *   or '' for entries stored by older package versions.
+ * - `error_direction` — 'incoming', 'outgoing', or '' (legacy entries and
+ *   'local_state'-type errors, which have no direction).
+ *
+ * Note on naming: both option names below contain "xmlrpc" because they predate REST
+ * support. They are intentionally kept as-is to avoid a data migration and breaking
+ * consumers that read the options directly — despite the names, they store errors of
+ * every type and direction.
  *
  * Errors are stored in the database as options in the following format:
  *
@@ -51,7 +76,8 @@ namespace Automattic\Jetpack\Connection;
  *       'error_data' => ['action' => 'reconnect'],
  *       'timestamp' => 1234567890,
  *       'nonce' => 'abc123def',
- *       'error_type' => 'xmlrpc'
+ *       'error_type' => 'xmlrpc',
+ *       'error_direction' => 'incoming'
  *     ]
  *   ]
  * ]
@@ -86,6 +112,55 @@ class Error_Handler {
 	 * @var string
 	 */
 	const ERROR_REPORTING_GATE = 'jetpack_connection_error_reporting_gate_';
+
+	/**
+	 * `error_type` value for errors from XML-RPC requests.
+	 *
+	 * @since 8.9.0
+	 *
+	 * @var string
+	 */
+	const ERROR_TYPE_XMLRPC = 'xmlrpc';
+
+	/**
+	 * `error_type` value for errors from REST requests.
+	 *
+	 * @since 8.9.0
+	 *
+	 * @var string
+	 */
+	const ERROR_TYPE_REST = 'rest';
+
+	/**
+	 * `error_type` value for local connection-state errors that involve no request,
+	 * e.g. `invalid_connection_owner`. The evidence for these errors is the site's own
+	 * database, which is also why they carry no `error_direction`.
+	 *
+	 * Note: package versions <= 8.8 stored these errors with the type 'connection'.
+	 *
+	 * @since 8.9.0
+	 *
+	 * @var string
+	 */
+	const ERROR_TYPE_LOCAL_STATE = 'local_state';
+
+	/**
+	 * `error_direction` value for errors triggered by incoming requests (WP.com to this site).
+	 *
+	 * @since 8.9.0
+	 *
+	 * @var string
+	 */
+	const DIRECTION_INCOMING = 'incoming';
+
+	/**
+	 * `error_direction` value for errors triggered by outgoing requests (this site to WP.com).
+	 *
+	 * @since 8.9.0
+	 *
+	 * @var string
+	 */
+	const DIRECTION_OUTGOING = 'outgoing';
 
 	/**
 	 * Time in seconds a test should live in the database before being discarded
@@ -356,7 +431,7 @@ class Error_Handler {
 	 * Unattributable errors (user ID 'invalid') are skipped by the display pipeline
 	 * before classification, so this method only receives numeric user IDs.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.8.0
 	 *
 	 * @param string|int $user_id  The user ID associated with the error (`0` or a positive integer).
 	 * @param int        $owner_id The local user ID of the connection owner, or 0 if there is none.
@@ -433,7 +508,8 @@ class Error_Handler {
 	 *                   'action' => 'reconnect',
 	 *                   'data' => [
 	 *                     'api_error_code' => 'invalid_token',
-	 *                     'action' => 'reconnect'
+	 *                     'action' => 'reconnect',
+	 *                     'audience' => 'site' // Who the error is relevant to: 'site', 'owner', or 'user'.
 	 *                   ]
 	 *                 ]
 	 *               ]
@@ -478,6 +554,11 @@ class Error_Handler {
 			}
 		}
 
+		// Expose the error audience (site/owner/user) so the dashboard can render
+		// audience-aware copy. Falls back to site-wide for consumer-injected errors
+		// that predate the audience field.
+		$dashboard_data['audience'] = $first_error['audience'] ?? 'site';
+
 		$dashboard_error = array(
 			array(
 				'code'    => 'connection_error',
@@ -507,9 +588,22 @@ class Error_Handler {
 	/**
 	 * Keep track of a connection error that was encountered
 	 *
+	 * This is the entry point of the incoming-request error flow (flow 1 in the class
+	 * docblock) when called with `$skip_wpcom_verification = false` (the default).
+	 *
+	 * Only error codes present in `$known_errors` are handled; anything else is
+	 * silently discarded. The `WP_Error` must carry the data shape produced by
+	 * `build_connection_error_data()`, or it is discarded as well.
+	 *
 	 * @param \WP_Error $error  The error object.
 	 * @param boolean   $force  Force the report, even if should_report_error is false.
-	 * @param boolean   $skip_wpcom_verification Set to 'true' to verify the error locally and skip the WP.com verification.
+	 * @param boolean   $skip_wpcom_verification Set to 'true' to verify the error locally and skip the WP.com
+	 *                  verification round-trip. Only do this when the error is self-evidencing — e.g. it came
+	 *                  from a response WP.com sent to a request this site initiated (the outgoing flow), or
+	 *                  from local connection state. Skipping verification for an incoming request error would
+	 *                  let any unauthenticated requester plant a verified error and trigger its workflows
+	 *                  (admin notices, self-healing), so leave it 'false' for anything derived from an
+	 *                  incoming request.
 	 *
 	 * @return void
 	 * @since 1.14.2
@@ -661,12 +755,15 @@ class Error_Handler {
 	 * by both internal error handling and external plugins/customizations.
 	 *
 	 * @since 1.14.2
+	 * @since 8.9.0 Added the `$error_direction` parameter and output field.
 	 *
-	 * @param string $error_code    The error code identifier.
-	 * @param string $error_message The human-readable error message.
-	 * @param array  $error_data    Additional error data (optional).
-	 * @param string $user_id       The user ID associated with the error (optional).
-	 * @param string $error_type    The type of error (optional).
+	 * @param string $error_code      The error code identifier.
+	 * @param string $error_message   The human-readable error message.
+	 * @param array  $error_data      Additional error data (optional).
+	 * @param string $user_id         The user ID associated with the error (optional).
+	 * @param string $error_type      The type of error (optional). One of the `ERROR_TYPE_*` constants or ''.
+	 * @param string $error_direction The direction of the request that triggered the error (optional).
+	 *                                One of the `DIRECTION_*` constants or ''.
 	 * @return array|false The standardized error array or false on failure.
 	 *                     Example successful return:
 	 *                     [
@@ -676,10 +773,11 @@ class Error_Handler {
 	 *                       'error_data' => ['action' => 'reconnect'],
 	 *                       'timestamp' => 1234567890,
 	 *                       'nonce' => 'abc123def',
-	 *                       'error_type' => 'xmlrpc'
+	 *                       'error_type' => 'xmlrpc',
+	 *                       'error_direction' => 'incoming'
 	 *                     ]
 	 */
-	public function build_error_array( string $error_code, string $error_message, array $error_data = array(), $user_id = '0', string $error_type = '' ) {
+	public function build_error_array( string $error_code, string $error_message, array $error_data = array(), $user_id = '0', string $error_type = '', string $error_direction = '' ) {
 		// Validate required parameters
 		if ( empty( $error_code ) || empty( $error_message ) ) {
 			return false;
@@ -691,18 +789,102 @@ class Error_Handler {
 		}
 
 		return array(
-			'error_code'    => $error_code,
-			'user_id'       => $user_id,
-			'error_message' => $error_message,
-			'error_data'    => $error_data,
-			'timestamp'     => time(),
-			'nonce'         => wp_generate_password( 10, false ),
-			'error_type'    => $error_type,
+			'error_code'      => $error_code,
+			'user_id'         => $user_id,
+			'error_message'   => $error_message,
+			'error_data'      => $error_data,
+			'timestamp'       => time(),
+			'nonce'           => wp_generate_password( 10, false ),
+			'error_type'      => $error_type,
+			'error_direction' => $error_direction,
+		);
+	}
+
+	/**
+	 * Builds the standardized `WP_Error` data payload for a connection error.
+	 *
+	 * This is the single place the error-data contract consumed by `wp_error_to_array()`
+	 * is defined. Use it (or `build_connection_wp_error()`) instead of assembling the
+	 * data array by hand, so every reporter produces the same shape:
+	 *
+	 * - `signature_details` is guaranteed to contain a `token` key (empty string when
+	 *   the error is not tied to a specific token), which `wp_error_to_array()` requires.
+	 *   The token is also what WP.com checks when verifying incoming-flow errors, so its
+	 *   key must not be renamed.
+	 * - `error_type` and `error_direction` are validated against the class constants and
+	 *   stored as '' when the given value is not recognized. For 'local_state' errors the
+	 *   direction is always forced to '' — they describe the site's own database, not a
+	 *   request, so a direction would be meaningless and is ignored if passed.
+	 * - `$extra` cannot override the reserved keys: `signature_details`, `error_type`,
+	 *   and `error_direction` always win the merge.
+	 *
+	 * @since 8.9.0
+	 *
+	 * @param array  $signature_details Details of the signed request that failed: `token`,
+	 *                                  and typically `timestamp`, `nonce`, `body_hash`,
+	 *                                  `method`, `url`.
+	 * @param string $error_type        One of the `ERROR_TYPE_*` constants.
+	 * @param string $error_direction   One of the `DIRECTION_*` constants. Ignored for
+	 *                                  'local_state' errors, which have no direction.
+	 * @param array  $extra             Optional additional data, e.g. a `user_id` fallback for
+	 *                                  errors whose token cannot be attributed to a user, or
+	 *                                  `has_user_token` for `invalid_connection_owner`.
+	 * @return array The error data array to pass as the third argument of `WP_Error`.
+	 */
+	public static function build_connection_error_data( array $signature_details, string $error_type, string $error_direction, array $extra = array() ) {
+		$valid_types      = array( self::ERROR_TYPE_XMLRPC, self::ERROR_TYPE_REST, self::ERROR_TYPE_LOCAL_STATE );
+		$valid_directions = array( self::DIRECTION_INCOMING, self::DIRECTION_OUTGOING );
+
+		$error_type = in_array( $error_type, $valid_types, true ) ? $error_type : '';
+
+		if ( self::ERROR_TYPE_LOCAL_STATE === $error_type ) {
+			$error_direction = '';
+		} else {
+			$error_direction = in_array( $error_direction, $valid_directions, true ) ? $error_direction : '';
+		}
+
+		return array_merge(
+			$extra,
+			array(
+				'signature_details' => array_merge( array( 'token' => '' ), $signature_details ),
+				'error_type'        => $error_type,
+				'error_direction'   => $error_direction,
+			)
+		);
+	}
+
+	/**
+	 * Builds a `WP_Error` carrying the standardized connection error data.
+	 *
+	 * Convenience wrapper around `build_connection_error_data()` — see it for the
+	 * data contract. All connection error reporters should create their `WP_Error`
+	 * objects through this factory.
+	 *
+	 * @since 8.9.0
+	 *
+	 * @param string $error_code        The error code, ideally one of `$known_errors`.
+	 * @param string $error_message     The human-readable error message.
+	 * @param array  $signature_details Details of the signed request that failed. See `build_connection_error_data()`.
+	 * @param string $error_type        One of the `ERROR_TYPE_*` constants.
+	 * @param string $error_direction   One of the `DIRECTION_*` constants, or '' for errors with no direction.
+	 * @param array  $extra             Optional additional data. See `build_connection_error_data()`.
+	 * @return \WP_Error
+	 */
+	public static function build_connection_wp_error( string $error_code, string $error_message, array $signature_details, string $error_type, string $error_direction, array $extra = array() ) {
+		return new \WP_Error(
+			$error_code,
+			$error_message,
+			self::build_connection_error_data( $signature_details, $error_type, $error_direction, $extra )
 		);
 	}
 
 	/**
 	 * Converts a WP_Error object in the array representation we store in the database
+	 *
+	 * The `WP_Error` data must follow the contract defined by `build_connection_error_data()`:
+	 * a `signature_details` array containing at least a `token` key is required, and this
+	 * method returns false without storing anything when it is absent. `error_type` and
+	 * `error_direction` are read from the data and stored as '' when missing.
 	 *
 	 * The user attribution comes from the token in `signature_details`, which identifies
 	 * the exact credential that failed. An explicit `user_id` in the error data is only
@@ -748,7 +930,8 @@ class Error_Handler {
 			$error->get_error_message(),
 			$error_data,
 			$user_id,
-			empty( $data['error_type'] ) ? '' : $data['error_type']
+			empty( $data['error_type'] ) ? '' : $data['error_type'],
+			empty( $data['error_direction'] ) ? '' : $data['error_direction']
 		);
 	}
 
@@ -919,6 +1102,10 @@ class Error_Handler {
 	/**
 	 * Delete all stored and verified API errors from the database, leave the non-API errors intact.
 	 *
+	 * Only 'xmlrpc' and 'rest' type errors are deleted. 'local_state' type errors are
+	 * deliberately kept: they describe local connection state (e.g. a missing owner token),
+	 * which a successful API request does not disprove.
+	 *
 	 * @since 1.54.0
 	 *
 	 * @return void
@@ -927,7 +1114,7 @@ class Error_Handler {
 		$type_filter = function ( $errors ) {
 			if ( is_array( $errors ) ) {
 				foreach ( $errors as $key => $error ) {
-					if ( ! empty( $error['error_type'] ) && in_array( $error['error_type'], array( 'xmlrpc', 'rest' ), true ) ) {
+					if ( ! empty( $error['error_type'] ) && in_array( $error['error_type'], array( self::ERROR_TYPE_XMLRPC, self::ERROR_TYPE_REST ), true ) ) {
 						unset( $errors[ $key ] );
 					}
 				}
@@ -1149,14 +1336,25 @@ class Error_Handler {
 	}
 
 	/**
-	 * Check REST API response for errors, and report them to WP.com if needed.
+	 * Check an outgoing signed request's response for errors, and store them if needed.
+	 *
+	 * This is the entry point of the outgoing-request error flow (flow 2 in the class
+	 * docblock). `Client::remote_request()` calls it after every outgoing signed request.
+	 * Errors captured here are stored directly as verified — the WP.com verification
+	 * round-trip used for incoming errors is unnecessary, because the error arrived in a
+	 * response to a request this site itself initiated and signed.
+	 *
+	 * Note: XML-RPC faults arrive as HTTP 200 responses with an XML body, so they are
+	 * invisible to this method — only errors surfaced at the HTTP level with a JSON error
+	 * envelope are captured. This is one of the reasons outgoing calls are being migrated
+	 * from XML-RPC to REST.
 	 *
 	 * @see wp_remote_request() For more information on the $http_response array format.
 	 * @param array|\WP_Error $http_response The response or WP_Error on failure.
 	 * @param array           $auth_data Auth data, allowed keys: `token`, `timestamp`, `nonce`, `body-hash`.
 	 * @param string          $url Request URL.
 	 * @param string          $method Request method.
-	 * @param string          $error_type The source of an error: 'xmlrpc' or 'rest'.
+	 * @param string          $error_type The transport of the outgoing request: `ERROR_TYPE_XMLRPC` or `ERROR_TYPE_REST`.
 	 *
 	 * @return void
 	 */
@@ -1171,24 +1369,29 @@ class Error_Handler {
 		}
 
 		$body = json_decode( $body_raw, true );
-		if ( empty( $body['error'] ) || ( ! is_string( $body['error'] ) && ! is_int( $body['error'] ) ) ) {
+
+		// Support both error envelopes: the legacy v1 JSON-API shape (`error`) and the
+		// WP-API v2 shape (`code`), the latter used by `wpcom/v2` endpoints such as
+		// `jetpack-wpcom-user-data`. Prefer `error` for backwards compatibility.
+		$error_code = is_array( $body ) ? ( $body['error'] ?? $body['code'] ?? null ) : null;
+
+		if ( empty( $error_code ) || ( ! is_string( $error_code ) && ! is_int( $error_code ) ) ) {
 			return;
 		}
 
-		$error = new \WP_Error(
-			$body['error'],
+		$error = self::build_connection_wp_error(
+			(string) $error_code,
 			empty( $body['message'] ) ? '' : $body['message'],
 			array(
-				'signature_details' => array(
-					'token'     => empty( $auth_data['token'] ) ? '' : $auth_data['token'],
-					'timestamp' => empty( $auth_data['timestamp'] ) ? '' : $auth_data['timestamp'],
-					'nonce'     => empty( $auth_data['nonce'] ) ? '' : $auth_data['nonce'],
-					'body_hash' => empty( $auth_data['body_hash'] ) ? '' : $auth_data['body_hash'],
-					'method'    => $method,
-					'url'       => $url,
-				),
-				'error_type'        => in_array( $error_type, array( 'xmlrpc', 'rest' ), true ) ? $error_type : '',
-			)
+				'token'     => empty( $auth_data['token'] ) ? '' : $auth_data['token'],
+				'timestamp' => empty( $auth_data['timestamp'] ) ? '' : $auth_data['timestamp'],
+				'nonce'     => empty( $auth_data['nonce'] ) ? '' : $auth_data['nonce'],
+				'body_hash' => empty( $auth_data['body_hash'] ) ? '' : $auth_data['body_hash'],
+				'method'    => $method,
+				'url'       => $url,
+			),
+			$error_type,
+			self::DIRECTION_OUTGOING
 		);
 
 		$this->report_error( $error, false, true );

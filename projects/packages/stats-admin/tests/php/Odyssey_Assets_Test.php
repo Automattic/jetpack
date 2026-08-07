@@ -12,6 +12,41 @@ use WP_Error;
 class Odyssey_Assets_Test extends Stats_TestCase {
 
 	/**
+	 * Returning the environment into its initial state.
+	 */
+	public function tearDown(): void {
+		$this->reset_wp_styles();
+		parent::tearDown();
+	}
+
+	/**
+	 * Odyssey's stylesheet must declare `wp-components` as a dependency rather than relying on
+	 * another admin feature (e.g. WP 7.0's command palette) enqueuing it as a side effect.
+	 * Asserted as a registered dependency, not just "is enqueued", because the dependency edge is
+	 * what also guarantees WP emits wp-components *before* Odyssey's own overrides of its classes.
+	 *
+	 * Only the CDN branch is exercised. The local-dev branch declares the same
+	 * `self::CSS_DEPENDENCIES` constant, but reaching it needs a `dist/` build that exists only on a
+	 * developer's own machine -- never in CI or in a release -- and a regression there surfaces
+	 * immediately as unstyled components.
+	 */
+	public function test_odyssey_style_declares_wp_components_dependency() {
+		$this->reset_wp_styles();
+		wp_register_style( 'wp-components', false );
+		$this->assertFalse( wp_style_is( 'wp-components', 'enqueued' ) );
+
+		// An asset name with no dist/ file forces the CDN branch regardless of what's on disk.
+		( new Odyssey_Assets() )->load_admin_scripts( 'jp-stats-dashboard', 'nonexistent-test-build' );
+
+		// The CDN branch registers the stylesheet under "{$asset_handle}-style", not $asset_handle
+		// itself -- that bare handle is reserved for the script.
+		$registered = wp_styles()->query( 'jp-stats-dashboard-style', 'registered' );
+		$this->assertNotFalse( $registered, 'Odyssey should register a stylesheet handle.' );
+		$this->assertContains( 'wp-components', $registered->deps );
+		$this->assertTrue( wp_style_is( 'wp-components', 'enqueued' ) );
+	}
+
+	/**
 	 * Test remote cache buster.
 	 */
 	public function test_get_cdn_asset_cache_buster() {
@@ -117,5 +152,20 @@ class Odyssey_Assets_Test extends Stats_TestCase {
 		}
 
 		return $get_cdn_asset_cache_buster->invoke( $odyssey_assets );
+	}
+
+	/**
+	 * Style handles live in process-global state (`$GLOBALS['wp_styles']`) that persists across
+	 * tests within a run -- WorDBless resets options/posts/users in TestCase::setUp(), but not
+	 * this -- so they leak in both directions and this runs at both ends of the style test.
+	 * Dequeuing/deregistering the specific handles rather than replacing the whole `WP_Styles`
+	 * object, since a fresh `new \WP_Styles()` reruns its constructor's `wp_default_styles` hook,
+	 * which needs more of the request environment set up than this test bootstrap provides.
+	 */
+	protected function reset_wp_styles() {
+		foreach ( array( 'wp-components', 'jp-stats-dashboard', 'jp-stats-dashboard-style' ) as $handle ) {
+			wp_dequeue_style( $handle );
+			wp_deregister_style( $handle );
+		}
 	}
 }

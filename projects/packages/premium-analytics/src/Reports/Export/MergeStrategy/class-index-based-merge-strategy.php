@@ -26,7 +26,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Logger_Trait;
  * Empty value handling: Uses empty strings for missing data, which signals
  * "no data for this date" when period lengths don't match.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Index_Based_Merge_Strategy extends Abstract_Merge_Strategy {
 

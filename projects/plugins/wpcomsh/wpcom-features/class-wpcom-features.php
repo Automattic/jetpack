@@ -487,6 +487,7 @@ class WPCOM_Features {
 	public const SCAN_SELF_SERVE                   = 'scan-self-serve';
 	public const SCHEDULED_UPDATES                 = 'scheduled-updates';
 	public const SECURITY_SETTINGS                 = 'security-settings';
+	public const SEO_ADMIN_UI                      = 'seo-admin-ui';
 	public const SEO_PREVIEW_TOOLS                 = 'seo-preview-tools';
 	public const SEND_A_MESSAGE                    = 'send-a-message';
 	public const SET_PRIMARY_CUSTOM_DOMAIN         = 'set-primary-custom-domain';
@@ -1293,6 +1294,13 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
+		),
+		self::SEO_ADMIN_UI                      => array(
+			// For now, this is controlled via a blog sticker in Store_Product_List.
+			array(
+				'before' => '2004-12-12',
+				self::WPCOM_ALL_SITES,
+			),
 		),
 		self::SEO_PREVIEW_TOOLS                 => array(
 			array(

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Dashboard: Prevent widget focus outlines from being clipped in dashboard and post detail views.

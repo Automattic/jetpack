@@ -1,14 +1,40 @@
 .card {
 	display: flex;
 	align-items: center;
+	gap: 20px;
 	min-inline-size: 0;
+}
+
+.image,
+.imagePlaceholder {
+	flex: 0 0 auto;
+	inline-size: 72px;
+	block-size: 72px;
+	border-radius: var(--wpds-border-radius-lg);
+}
+
+.image {
+	object-fit: cover;
+	// The boot shell resets `.boot-layout img { height: auto; max-width: 100% }`
+	// with higher specificity than this class, squashing the box to the
+	// poster's natural ratio. With that `height: auto` in force, a square
+	// aspect ratio restores the 72px box without a specificity contest.
+	aspect-ratio: 1;
+}
+
+.imagePlaceholder {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--wpds-color-background-surface-neutral-weak);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
 .details {
 	display: flex;
 	flex-direction: column;
-	// Keep the same title/subtitle rhythm as the post-details header while the
-	// video image is intentionally omitted.
+	// The text block matches the thumbnail height: title against its top,
+	// subtitle against its bottom.
 	justify-content: space-between;
 	block-size: 72px;
 	flex: 1 1 auto;

@@ -1,13 +1,18 @@
-import { render, screen } from '@testing-library/react';
+import { render, renderHook, screen } from '@testing-library/react';
 import * as wpData from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { store as membershipProductsStore } from '../../../store/membership-products';
-import { Link, getReachForAccessLevelKey, NewsletterEmailDocumentSettings } from '../settings';
+import {
+	Link,
+	getReachForAccessLevelKey,
+	NewsletterEmailDocumentSettings,
+	useSetAccess,
+} from '../settings';
 
 const mockUseSelect = jest.fn();
 const mockUseEntityProp = jest.fn();
 const mockUseEntityId = jest.fn();
-const mockSaveEditedEntityRecord = jest.fn();
+let mockCanEdit = true;
 
 jest.mock( '@wordpress/core-data', () => {
 	const actual = jest.requireActual( '@wordpress/core-data' );
@@ -23,7 +28,7 @@ jest.mock( '@wordpress/editor', () => {
 	return {
 		...actual,
 		PostVisibilityCheck: ( { render: renderProp } ) =>
-			renderProp ? renderProp( { canEdit: true } ) : null,
+			renderProp ? renderProp( { canEdit: mockCanEdit } ) : null,
 	};
 } );
 
@@ -121,31 +126,35 @@ describe( 'Link', () => {
 } );
 
 describe( 'NewsletterEmailDocumentSettings', () => {
-	const createMockSelect = postEmailSentState => store => {
-		if ( store === editorStore ) {
-			return {
-				isCurrentPostPublished: () => false,
-				getCurrentPostType: () => 'post',
-				getEditedPostAttribute: attr => ( attr === 'meta' ? {} : undefined ),
-			};
-		}
-		if ( store === membershipProductsStore ) {
-			return {
-				getPostEmailSentState: () => postEmailSentState,
-			};
-		}
-		return {};
-	};
+	const createMockSelect =
+		( postEmailSentState, status = 'draft' ) =>
+		store => {
+			if ( store === editorStore ) {
+				return {
+					getCurrentPostType: () => 'post',
+					getEditedPostAttribute: attr => {
+						if ( attr === 'meta' ) {
+							return {};
+						}
+						return attr === 'status' ? status : undefined;
+					},
+				};
+			}
+			if ( store === membershipProductsStore ) {
+				return {
+					getPostEmailSentState: () => postEmailSentState,
+				};
+			}
+			return {};
+		};
 
 	beforeEach( () => {
 		jest.clearAllMocks();
+		mockCanEdit = true;
 		mockUseEntityProp.mockReturnValue( [ {}, jest.fn() ] );
 		mockUseEntityId.mockReturnValue( 1 );
 		jest.spyOn( wpData, 'useSelect' ).mockImplementation( selector => {
 			return mockUseSelect( selector );
-		} );
-		jest.spyOn( wpData, 'useDispatch' ).mockReturnValue( {
-			saveEditedEntityRecord: mockSaveEditedEntityRecord,
 		} );
 	} );
 
@@ -169,5 +178,68 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 
 		render( <NewsletterEmailDocumentSettings /> );
 		expect( screen.getByLabelText( /Send as email to subscribers/i ) ).toBeInTheDocument();
+	} );
+
+	test( 'renders the setting as text, not a dead control, when the user cannot edit', () => {
+		mockCanEdit = false;
+		mockUseSelect.mockImplementation( selector =>
+			selector( createMockSelect( { email_sent_at: null, stats_on_send: null } ) )
+		);
+
+		render( <NewsletterEmailDocumentSettings /> );
+		expect( screen.queryByRole( 'radio', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Post & email' ) ).toBeInTheDocument();
+	} );
+
+	test( 'renders the setting as text once the post is published', () => {
+		mockUseSelect.mockImplementation( selector =>
+			selector( createMockSelect( { email_sent_at: null, stats_on_send: null }, 'publish' ) )
+		);
+
+		render( <NewsletterEmailDocumentSettings /> );
+		expect( screen.queryByRole( 'radio', { hidden: true } ) ).not.toBeInTheDocument();
+	} );
+
+	// A private post still emails subscribers when it goes public.
+	test( 'keeps the toggle editable on a private post', () => {
+		mockUseSelect.mockImplementation( selector =>
+			selector( createMockSelect( { email_sent_at: null, stats_on_send: null }, 'private' ) )
+		);
+
+		render( <NewsletterEmailDocumentSettings /> );
+		expect( screen.getByLabelText( /Send as email to subscribers/i ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'useSetAccess', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		mockUseEntityId.mockReturnValue( 1 );
+		jest
+			.spyOn( wpData, 'useSelect' )
+			.mockImplementation( selector =>
+				selector( store => ( store === editorStore ? { getCurrentPostType: () => 'post' } : {} ) )
+			);
+	} );
+
+	afterEach( () => {
+		jest.restoreAllMocks();
+	} );
+
+	// The phantom-dirt fix relies on staged meta keeping every key the record has.
+	test( 'clears the tier without dropping the key or mutating the record', () => {
+		const metas = { _jetpack_newsletter_tier_id: 42, other: 'keep' };
+		const setPostMeta = jest.fn();
+		mockUseEntityProp.mockReturnValue( [ metas, setPostMeta ] );
+
+		const { result } = renderHook( () => useSetAccess() );
+		result.current( 'subscribers' );
+
+		expect( setPostMeta ).toHaveBeenCalledWith( {
+			_jetpack_newsletter_tier_id: 0,
+			_jetpack_newsletter_access: 'subscribers',
+			other: 'keep',
+		} );
+		expect( metas ).toEqual( { _jetpack_newsletter_tier_id: 42, other: 'keep' } );
 	} );
 } );

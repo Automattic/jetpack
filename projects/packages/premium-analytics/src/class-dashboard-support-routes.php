@@ -46,9 +46,25 @@ class Dashboard_Support_Routes {
 	 * @return void
 	 */
 	public static function boot_routes() {
-		require_once __DIR__ . '/widget-modules.php';
-		require_once __DIR__ . '/dashboard-layout.php';
-		require_once __DIR__ . '/dashboard-sections.php';
+		// Load-bearing, not defensive duplication: since WOOA7S-1804 these files load
+		// only in wp-admin, so on REST this method is their only loader.
+		//
+		// Guarded on a symbol from each file: two copies of this package can be loaded
+		// in one request, and these file-scope functions are outside the autoloader's
+		// dedupe. See Analytics::load_dashboard_components() for the full rationale.
+		if ( ! function_exists( __NAMESPACE__ . '\\register_widget_modules_rest_route' ) ) {
+			require_once __DIR__ . '/widget-modules.php';
+		}
+		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_default_layout_route' ) ) {
+			require_once __DIR__ . '/dashboard-layout.php';
+		}
+		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_section' ) ) {
+			require_once __DIR__ . '/dashboard-sections.php';
+		}
+
+		// These routes are gated on the dashboard capability, and WPCOM Simple boots
+		// this class standalone, without going through Analytics::init().
+		Capabilities::register();
 
 		register_widget_modules_rest_route();
 		register_dashboard_default_layout_route();

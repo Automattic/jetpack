@@ -16,22 +16,18 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import {
-	arrowLeft,
-	arrowRight,
-	calendar,
-	comment,
-	paragraph,
-	postList,
-	starEmpty,
-} from '@wordpress/icons';
-import { Button, Stack, Text } from '@wordpress/ui';
-import { useCallback, useMemo, useState } from 'react';
+import { calendar, comment, paragraph, postList, starEmpty } from '@wordpress/icons';
+import { Stack, Text } from '@jetpack-premium-analytics/externals';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './style.module.css';
-import { type AnnualHighlightMetric, type AnnualHighlightsAttributes } from './widget';
+import styles from './style.module.scss';
+import {
+	DEFAULT_HIGHLIGHT_METRICS,
+	type AnnualHighlightMetric,
+	type AnnualHighlightsAttributes,
+} from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 // The insights endpoint is not period-scoped, so the widget ignores the
@@ -47,53 +43,40 @@ const COUNT_FORMAT: DataFormat = {
 };
 
 /**
- * Sorts the insights payload newest year first so index 0 is the most recent
- * year and the year arrows can step through history in a predictable order.
+ * Picks the most recent year in the insights payload.
  *
  * @param data - The normalized insights response, or undefined while loading.
- * @return The years sorted from most to least recent.
+ * @return The latest year, or undefined when the payload carries none.
  */
-function sortYearsDescending( data?: StatsInsightsResponse ): StatsInsightsYear[] {
-	return [ ...( data?.years ?? [] ) ].sort( ( a, b ) => Number( b.year ) - Number( a.year ) );
+function findLatestYear( data?: StatsInsightsResponse ): StatsInsightsYear | undefined {
+	return ( data?.years ?? [] ).reduce< StatsInsightsYear | undefined >(
+		( latest, candidate ) =>
+			! latest || Number( candidate.year ) > Number( latest.year ) ? candidate : latest,
+		undefined
+	);
 }
 
 /**
  * Fetches the insights report through the designated `useStatsInsights` Stats
- * hook and renders one year's totals as a `MetricTileGrid`. The year arrows
- * step between the years the site has published in; the insights module has no
- * comparison period, so each tile shows a bare formatted count. Which tiles
- * appear is controlled by the `metrics` attribute.
+ * hook and renders the most recent year's totals as a `MetricTileGrid`. The
+ * insights module has no comparison period, so each tile shows a bare formatted
+ * count. Which tiles appear is controlled by the `metrics` attribute.
  *
- * @param {AnnualHighlightMetric[]} metrics - Enabled metric tile ids.
+ * @param props         - The component props.
+ * @param props.metrics - The enabled metric tile ids; missing means every metric.
  * @return The widget content.
  */
-function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[] } ) {
+function AnnualHighlightsReport( {
+	metrics = DEFAULT_HIGHLIGHT_METRICS,
+}: {
+	metrics?: AnnualHighlightMetric[];
+} ) {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsInsights();
 	const enabledMetrics = useMemo( () => new Set( metrics ), [ metrics ] );
 
-	const years = useMemo( () => sortYearsDescending( data ), [ data ] );
-	const [ selectedIndex, setSelectedIndex ] = useState( 0 );
+	const year = findLatestYear( data );
 
-	// Navigate relative to the clamped index, not the raw state: if the payload
-	// shrinks while an older year is selected, the stored index can outrun the
-	// array, and stepping from the raw value would take several clicks to move.
-	const safeIndex = years.length ? Math.min( selectedIndex, years.length - 1 ) : 0;
-
-	const showOlderYear = useCallback(
-		() => setSelectedIndex( Math.min( safeIndex + 1, years.length - 1 ) ),
-		[ safeIndex, years.length ]
-	);
-	const showNewerYear = useCallback(
-		() => setSelectedIndex( Math.max( safeIndex - 1, 0 ) ),
-		[ safeIndex ]
-	);
-
-	const year = years[ safeIndex ];
-
-	const canShowOlder = safeIndex < years.length - 1;
-	const canShowNewer = safeIndex > 0;
-
-	// Guarded on `year`: the tile values read the selected year, which is absent
+	// Guarded on `year`: the tile values read the latest year, which is absent
 	// in the loading / error / empty states handled by <WidgetState>.
 	const tiles = (
 		year
@@ -101,28 +84,28 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 					{
 						key: 'posts',
 						icon: postList,
-						label: __( 'Posts', 'jetpack-premium-analytics' ),
+						label: __( 'Posts', 'jetpack-premium-analytics-pkg' ),
 						value: year.total_posts,
 						enabled: enabledMetrics.has( 'posts' ),
 					},
 					{
 						key: 'words',
 						icon: paragraph,
-						label: __( 'Words', 'jetpack-premium-analytics' ),
+						label: __( 'Words', 'jetpack-premium-analytics-pkg' ),
 						value: year.total_words,
 						enabled: enabledMetrics.has( 'words' ),
 					},
 					{
 						key: 'likes',
 						icon: starEmpty,
-						label: __( 'Likes', 'jetpack-premium-analytics' ),
+						label: __( 'Likes', 'jetpack-premium-analytics-pkg' ),
 						value: year.total_likes,
 						enabled: enabledMetrics.has( 'likes' ),
 					},
 					{
 						key: 'comments',
 						icon: comment,
-						label: __( 'Comments', 'jetpack-premium-analytics' ),
+						label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
 						value: year.total_comments,
 						enabled: enabledMetrics.has( 'comments' ),
 					},
@@ -138,55 +121,29 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 				// The query keeps prior data via `placeholderData`, so a transient
 				// refetch failure keeps the highlights visible; only surface the
 				// error when there is nothing to show.
-				isError={ years.length === 0 && isError }
-				isEmpty={ years.length === 0 }
+				isError={ ! year && isError }
+				isEmpty={ ! year }
 				error={ {
 					description: __(
 						"We couldn't load annual highlights. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
 					icon: calendar,
-					description: __( 'No highlights to show yet.', 'jetpack-premium-analytics' ),
+					description: __( 'No highlights to show yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				{ year && (
 					<Stack className={ styles.root } direction="column" gap="lg">
-						<Stack align="center" justify="flex-end" gap="sm">
-							<Button
-								type="button"
-								variant="minimal"
-								tone="neutral"
-								size="small"
-								className={ styles.navButton }
-								onClick={ showOlderYear }
-								disabled={ ! canShowOlder }
-								aria-label={ __( 'Previous year', 'jetpack-premium-analytics' ) }
-							>
-								<Button.Icon icon={ arrowLeft } size={ 16 } />
-							</Button>
-
-							<Text className={ styles.yearLabel }>{ year.year }</Text>
-
-							<Button
-								type="button"
-								variant="minimal"
-								tone="neutral"
-								size="small"
-								className={ styles.navButton }
-								onClick={ showNewerYear }
-								disabled={ ! canShowNewer }
-								aria-label={ __( 'Next year', 'jetpack-premium-analytics' ) }
-							>
-								<Button.Icon icon={ arrowRight } size={ 16 } />
-							</Button>
-						</Stack>
 						{ tiles.length === 0 ? (
 							<Stack align="center" justify="center" className={ styles.placeholder }>
 								<Text>
-									{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics' ) }
+									{ __(
+										'Select at least one metric to display.',
+										'jetpack-premium-analytics-pkg'
+									) }
 								</Text>
 							</Stack>
 						) : (
@@ -195,7 +152,7 @@ function AnnualHighlightsReport( { metrics }: { metrics: AnnualHighlightMetric[]
 					</Stack>
 				) }
 			</WidgetState>
-			<WidgetFooter>
+			<WidgetFooter className={ styles.footer }>
 				<ReportLink report="annual-insights" />
 			</WidgetFooter>
 		</div>

@@ -45,10 +45,10 @@ export default function AverageItemsPerOrderRender( {
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<OrderMetricWidget
 				metricKey="avg_items"
-				emptyStateText={ __( 'No orders in this period.', 'jetpack-premium-analytics' ) }
+				emptyStateText={ __( 'No orders in this period.', 'jetpack-premium-analytics-pkg' ) }
 				errorText={ __(
 					"We couldn't load average items per order. Please try again in a moment.",
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				) }
 			/>
 		</WidgetRoot>

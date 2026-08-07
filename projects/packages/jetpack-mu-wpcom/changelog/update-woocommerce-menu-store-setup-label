@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+WPCOM admin menu: relabel the WooCommerce sidebar item to "Store setup" on Commerce and Commerce-trial sites (classic wp-admin interface).

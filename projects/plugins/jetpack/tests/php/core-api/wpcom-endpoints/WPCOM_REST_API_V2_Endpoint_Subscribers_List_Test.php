@@ -247,6 +247,90 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List_Test extends Jetpack_REST_Test
 	}
 
 	/**
+	 * When the caller selects newsletter categories, their ids are forwarded (as positive ints) in
+	 * the import payload — the same `categories` field Calypso sends — so imported subscribers are
+	 * opted into those categories. Non-integer / zero ids are dropped.
+	 */
+	public function test_add_forwards_selected_categories() {
+		$captured_body = '';
+		$filter        = function ( $preempt, $parsed_args ) use ( &$captured_body ) {
+			$captured_body = $parsed_args['body'] ?? null;
+
+			return array(
+				'headers'  => array(),
+				'body'     => wp_json_encode( array( 'upload_id' => 7 ), JSON_UNESCAPED_SLASHES ),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+		add_filter( 'pre_http_request', $filter, 10, 3 );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/subscribers/add' );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'emails'     => array( 'reader@example.com' ),
+					'categories' => array( 12, 0, 34 ),
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'pre_http_request', $filter, 10 );
+
+		$this->assertSame( 200, $response->get_status() );
+
+		$sent = (array) json_decode( (string) $captured_body, true );
+		$this->assertSame( array( 12, 34 ), $sent['categories'] );
+		$this->assertSame( array( 'reader@example.com' ), $sent['emails'] );
+	}
+
+	/**
+	 * A plain import (no categories selected) sends the exact payload it always did — no
+	 * `categories` key at all — so behavior on sites that don't use categories is untouched.
+	 */
+	public function test_add_omits_categories_key_when_none_selected() {
+		$captured_body = '';
+		$filter        = function ( $preempt, $parsed_args ) use ( &$captured_body ) {
+			$captured_body = $parsed_args['body'] ?? null;
+
+			return array(
+				'headers'  => array(),
+				'body'     => wp_json_encode( array( 'upload_id' => 8 ), JSON_UNESCAPED_SLASHES ),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+		add_filter( 'pre_http_request', $filter, 10, 3 );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/subscribers/add' );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body(
+			wp_json_encode( array( 'emails' => array( 'reader@example.com' ) ), JSON_UNESCAPED_SLASHES )
+		);
+
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'pre_http_request', $filter, 10 );
+
+		$this->assertSame( 200, $response->get_status() );
+
+		$sent = (array) json_decode( (string) $captured_body, true );
+		$this->assertArrayNotHasKey( 'categories', $sent );
+	}
+
+	/**
 	 * The import endpoint can report a failure inside a 2xx response (e.g. a subscriber limit);
 	 * any body without an `upload_id` maps to a WP_Error carrying the upstream message.
 	 */

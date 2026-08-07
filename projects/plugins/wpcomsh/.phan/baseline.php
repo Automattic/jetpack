@@ -10,13 +10,11 @@
 return [
     // # Issue statistics:
     // PhanPluginMixedKeyNoKey : 50+ occurrences
-    // PhanUndeclaredStaticMethod : 15+ occurrences
-    // PhanTypeMismatchArgument : 6 occurrences
+    // PhanUndeclaredStaticMethod : 20+ occurrences
     // PhanUndeclaredClassMethod : 6 occurrences
     // PhanTypeMismatchArgumentNullable : 5 occurrences
-    // PhanTypeVoidArgument : 5 occurrences
-    // PhanTypeVoidAssignment : 5 occurrences
     // PhanUndeclaredConstant : 5 occurrences
+    // PhanTypeMismatchArgument : 4 occurrences
     // PhanTypeArraySuspiciousNullable : 3 occurrences
     // PhanContextNotObject : 1 occurrence
     // PhanDeprecatedFunction : 1 occurrence
@@ -42,10 +40,10 @@ return [
         'imports/playground/class-sql-importer.php' => ['PhanUndeclaredConstant'],
         'safeguard/utils.php' => ['PhanTypeMismatchArgument'],
         'tests/ActivityPubTest.php' => ['PhanUndeclaredClassMethod'],
-        'tests/AnyoneCanRegisterNoticeTest.php' => ['PhanTypeMismatchArgument', 'PhanTypeVoidArgument', 'PhanTypeVoidAssignment'],
         'tests/FrontendNoticesTest.php' => ['PhanUndeclaredStaticMethod'],
         'tests/PlanNoticesTest.php' => ['PhanDeprecatedProperty', 'PhanPluginUseReturnValueInternalKnown', 'PhanUndeclaredStaticMethod'],
         'tests/WpcomFeaturesTest.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredStaticMethod'],
+        'tests/WpcomshPremiumAnalyticsTest.php' => ['PhanUndeclaredStaticMethod'],
         'tests/feature-manager/FeatureHookTest.php' => ['PhanUndeclaredStaticMethod'],
         'tests/imports/SQLGeneratorTest.php' => ['PhanTypeObjectUnsetDeclaredProperty'],
         'widgets/class-widget-top-clicks.php' => ['PhanDeprecatedFunction'],

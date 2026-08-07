@@ -1,30 +1,34 @@
 /* eslint-disable react/jsx-no-bind */
 
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { TextareaControl, ToggleControl } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import { home, link, seen } from '@wordpress/icons';
 import { useSearch } from '@wordpress/route';
-import { Badge, Button, Card, CollapsibleCard, Link, Notice, Stack, Text } from '@wordpress/ui';
+import { Button, Card, CollapsibleCard, Link, Notice, Stack, Text } from '@wordpress/ui';
+import CardTitleIcon from '../../components/card-title-icon';
+import StatusIndicator from '../../components/status-indicator';
 import UpsellBanner from '../../components/upsell-banner';
 import { isGated } from '../../data/is-gated';
+import AdvancedCard from './advanced-card';
 import AuthorProfileCard from './author-profile-card';
 import SchemaCard from './schema-card';
 import SocialPreviewsCard from './social-previews-card';
 import styles from './style.module.scss';
 import TitleStructureField from './title-structure-field';
 import VerificationCard from './verification-card';
+import type { SettingStatus } from '../../components/status-indicator';
 import type { SettingsForm } from '../../data/use-settings';
 import type { FC } from 'react';
 
-// Pre-resolved so the production minifier can't fold adjacent ternary `__()`
-// calls (breaks i18n extraction). See feedback_i18n_ternary_minifier_fold.
-const setLabel = __( 'Set', 'jetpack-seo' );
-const notSetLabel = __( 'Not set', 'jetpack-seo' );
-const enabledLabel = __( 'Enabled', 'jetpack-seo' );
-const disabledLabel = __( 'Disabled', 'jetpack-seo' );
 const saveLabel = __( 'Save', 'jetpack-seo' );
+// The sitemap help swaps between these two, so both are pre-resolved: the
+// production minifier folds an adjacent `cond ? __(A) : __(B)` into
+// `__(cond ? A : B)`, which breaks i18n extraction. See
+// feedback_i18n_ternary_minifier_fold.
 const sitemapHelp = __(
-	"Publishes an XML sitemap that search engines crawl to discover your content, generated automatically from your site's published posts, pages, and custom post types.",
+	'Publishes a map of your posts and pages so search engines can find your content.',
 	'jetpack-seo'
 );
 // Shown when indexing is blocked: a sitemap can't be generated or served while
@@ -34,9 +38,19 @@ const sitemapBlockedHelp = __(
 	'jetpack-seo'
 );
 const sitemapViewLabel = __( 'View sitemap', 'jetpack-seo' );
-// Shown while the sitemap is enabled but Jetpack's cron hasn't built the file
-// yet, so there's no reachable URL to link to (avoids a 404 link).
-const sitemapGeneratingLabel = __( 'Generating…', 'jetpack-seo' );
+// Figures are what search *displays*, not a limit we enforce — the field is
+// deliberately uncapped. Google measures a pixel width (920px desktop / 680px
+// mobile), which works out around 155 and 120 characters.
+//
+// No social figure is quoted on purpose. `functions.opengraph.php` truncates
+// `og:description` at 197, but that happens *before* the `jetpack_open_graph_tags`
+// filter, and `Jetpack_SEO::set_custom_og_tags()` runs on that filter and
+// overwrites the value — so this field reaches social uncut, and each platform
+// truncates on display by its own rules.
+const frontPageHelp = __(
+	'Shown under your site name in search results and social shares. About the first 155 characters display in search, or 120 on mobile.',
+	'jetpack-seo'
+);
 
 interface Props {
 	form: SettingsForm;
@@ -111,6 +125,26 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	const visibilityEnabledCount =
 		( local.search_engines_visible ? 1 : 0 ) + ( sitemapEffectivelyOn ? 1 : 0 );
 
+	// Module completion states for the card headers. Each module defines
+	// "complete" for itself (see JETPACK-2051); the indicator is presentational.
+	// Visibility counts its two toggles, the sitemap by its *effective* state
+	// since it can't run while indexing is blocked.
+	let visibilityStatus: SettingStatus = 'not-started';
+	if ( visibilityEnabledCount === 2 ) {
+		visibilityStatus = 'complete';
+	} else if ( visibilityEnabledCount > 0 ) {
+		visibilityStatus = 'in-progress';
+	}
+
+	// Count code points, not UTF-16 units, so an emoji or an astral character
+	// counts once rather than twice.
+	const descriptionLength = [ ...local.front_page_description ].length;
+
+	// Single toggles and single fields are binary — they have no partial state,
+	// so they move straight from not-started to complete.
+	const canonicalStatus: SettingStatus = local.canonical_active ? 'complete' : 'not-started';
+	const frontPageStatus: SettingStatus = local.front_page_description ? 'complete' : 'not-started';
+
 	// On plan-gated sites (below-Premium WordPress.com) the Settings tab keeps only
 	// the two always-valid sections (site visibility + verification, both backed by
 	// core WordPress options) topped with the upsell banner. Schema, author profile,
@@ -122,25 +156,45 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 
 	const frontPageDescriptionCard = (
 		<CollapsibleCard.Root defaultOpen={ false }>
-			<CollapsibleCard.Header>
+			<CollapsibleCard.Header render={ <h2 /> }>
 				<Stack direction="row" justify="space-between" align="center" gap="sm">
-					<Card.Title>{ __( 'Front-page description', 'jetpack-seo' ) }</Card.Title>
-					<Badge intent={ local.front_page_description ? 'stable' : 'draft' }>
-						{ local.front_page_description ? setLabel : notSetLabel }
-					</Badge>
+					<Card.Title>
+						<CardTitleIcon icon={ home } title={ __( 'Front-page description', 'jetpack-seo' ) } />
+					</Card.Title>
+					<CollapsibleCard.HeaderDescription>
+						<StatusIndicator status={ frontPageStatus } />
+					</CollapsibleCard.HeaderDescription>
 				</Stack>
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
 				<Stack direction="column" gap="md">
 					<TextareaControl
-						label={ __( 'Meta description shown on the home page', 'jetpack-seo' ) }
+						// Short label: the design system renders control labels as 11px
+						// all-caps, which a sentence-length label is unreadable in. The
+						// explanation belongs in `help`, which renders in sentence case.
+						// Named for the home page rather than just "Description", which
+						// would collide with the Organization/Person description field
+						// also on this tab and leave two controls indistinguishable to a
+						// screen reader.
+						label={ __( 'Home page description', 'jetpack-seo' ) }
+						help={ frontPageHelp }
 						value={ local.front_page_description }
 						onChange={ next => setField( { front_page_description: next } ) }
+						maxLength={ 300 }
 						rows={ 3 }
 						disabled={ isSaving }
 						__nextHasNoMarginBottom
 					/>
-					<Stack direction="row" justify="flex-end">
+					{ /* Count and Save share a row, matching the title-structure footer. The
+					     count is informational only — nothing here is capped. */ }
+					<Stack direction="row" justify="space-between" align="center" gap="sm">
+						<Text variant="body-sm" className={ styles.charCount }>
+							{ sprintf(
+								/* translators: %d: number of characters currently in the front-page description. */
+								_n( '%d character', '%d characters', descriptionLength, 'jetpack-seo' ),
+								descriptionLength
+							) }
+						</Text>
 						<Button
 							onClick={ () => commitFields( [ 'front_page_description' ] ) }
 							disabled={ isSaving || ! isDirty( [ 'front_page_description' ] ) }
@@ -157,17 +211,14 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 		<Stack direction="column" gap="lg" className={ styles.root }>
 			<div id="visibility" className={ styles.section }>
 				<CollapsibleCard.Root defaultOpen>
-					<CollapsibleCard.Header>
+					<CollapsibleCard.Header render={ <h2 /> }>
 						<Stack direction="row" justify="space-between" align="center" gap="sm">
-							<Card.Title>{ __( 'Site visibility', 'jetpack-seo' ) }</Card.Title>
-							<Badge intent={ visibilityEnabledCount === 2 ? 'stable' : 'draft' }>
-								{ sprintf(
-									/* translators: %1$d: number of enabled visibility settings, %2$d: total. */
-									__( '%1$d of %2$d enabled', 'jetpack-seo' ),
-									visibilityEnabledCount,
-									2
-								) }
-							</Badge>
+							<Card.Title>
+								<CardTitleIcon icon={ seen } title={ __( 'Site visibility', 'jetpack-seo' ) } />
+							</Card.Title>
+							<CollapsibleCard.HeaderDescription>
+								<StatusIndicator status={ visibilityStatus } />
+							</CollapsibleCard.HeaderDescription>
 						</Stack>
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>
@@ -175,7 +226,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 							<ToggleControl
 								label={ __( 'Allow search engines to index this site', 'jetpack-seo' ) }
 								help={ __(
-									'Mirrors Settings → Reading → "Discourage search engines from indexing this site". Turning this off asks search engines to stop indexing your site; honored by Google and Bing, ignored by others. Use only for staging or pre-launch sites.',
+									'Turning this off asks search engines to stop indexing your site — Google and Bing honor it, others ignore it. Same setting as Settings → Reading.',
 									'jetpack-seo'
 								) }
 								checked={ local.search_engines_visible }
@@ -195,21 +246,16 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 									disabled={ isSaving || ! local.search_engines_visible }
 									__nextHasNoMarginBottom
 								/>
-								{ sitemapEffectivelyOn &&
-									( local.sitemap_url ? (
-										<Link
-											className={ styles.sitemapLink }
-											href={ local.sitemap_url }
-											openInNewTab
-											rel="noopener noreferrer"
-										>
-											{ sitemapViewLabel }
-										</Link>
-									) : (
-										<Text variant="body-sm" className={ styles.sitemapHint }>
-											{ sitemapGeneratingLabel }
-										</Text>
-									) ) }
+								{ sitemapEffectivelyOn && local.sitemap_url && (
+									<Link
+										className={ styles.sitemapLink }
+										href={ local.sitemap_url }
+										openInNewTab
+										rel="noopener noreferrer"
+									>
+										{ sitemapViewLabel }
+									</Link>
+								) }
 							</Stack>
 						</Stack>
 					</CollapsibleCard.Content>
@@ -219,6 +265,8 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 			<div id="verification" className={ styles.section }>
 				<VerificationCard
 					value={ local.verification }
+					active={ local.verification_tools_active }
+					onToggle={ next => commit( { verification_tools_active: next } ) }
 					onChange={ setVerification }
 					onCommit={ () => commitFields( [ 'verification' ] ) }
 					disabled={ isSaving }
@@ -242,19 +290,21 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					</div>
 
 					<CollapsibleCard.Root defaultOpen={ false }>
-						<CollapsibleCard.Header>
+						<CollapsibleCard.Header render={ <h2 /> }>
 							<Stack direction="row" justify="space-between" align="center" gap="sm">
-								<Card.Title>{ __( 'Canonical URLs', 'jetpack-seo' ) }</Card.Title>
-								<Badge intent={ local.canonical_active ? 'stable' : 'draft' }>
-									{ local.canonical_active ? enabledLabel : disabledLabel }
-								</Badge>
+								<Card.Title>
+									<CardTitleIcon icon={ link } title={ __( 'Canonical URLs', 'jetpack-seo' ) } />
+								</Card.Title>
+								<CollapsibleCard.HeaderDescription>
+									<StatusIndicator status={ canonicalStatus } />
+								</CollapsibleCard.HeaderDescription>
 							</Stack>
 						</CollapsibleCard.Header>
 						<CollapsibleCard.Content>
 							<ToggleControl
 								label={ __( 'Add canonical URLs to archive pages', 'jetpack-seo' ) }
 								help={ __(
-									'Adds a rel="canonical" link to archive pages, helping search engines identify the preferred URL and avoid indexing duplicate content.',
+									"Points search engines to one preferred URL for archive pages, so duplicates aren't indexed separately.",
 									'jetpack-seo'
 								) }
 								checked={ local.canonical_active }
@@ -272,6 +322,8 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						}
 						onSaveFormat={ pageType => commitTitleFormat( pageType ) }
 						isFormatDirty={ pageType => isTitleFormatDirty( pageType ) }
+						titleSeparator={ local.title_separator }
+						editable={ local.title_formats_editable }
 						disabled={ isSaving }
 					/>
 
@@ -289,6 +341,13 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					{ frontPageDescriptionCard }
 				</div>
 			) }
+			{ /* Higher-risk settings last, after everything routine. Hidden on
+			   WordPress.com Simple, where `Modules::is_active()` reports every module
+			   active regardless of stored state, so turning SEO tools off would appear
+			   to do nothing. Outside the `gated` branch: a gated site still has the
+			   module and can still switch it off. */ }
+			{ ! isSimpleSite() && <AdvancedCard /> }
+
 			{ /* Not dismissible, so it sits below the settings rather than pushing them
 			   down; the Stack's lg gap keeps space between it and the last section. */ }
 			{ gated && <UpsellBanner /> }

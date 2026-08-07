@@ -21,6 +21,7 @@ describe( 'SearchTermsWidget', () => {
 			isLoading: false,
 			isFetching: false,
 			isError: false,
+			error: null,
 			hasComparison: false,
 			refetch: jest.fn(),
 		} );
