@@ -20,7 +20,9 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 
 // Avoid loading DataViews while keeping the real breadcrumbs for these assertions.
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: () => <div>Date filters</div>,
+	DateFiltersPanel: ( { showComparison }: { showComparison?: boolean } ) => (
+		<div>{ showComparison === false ? 'Date filters without comparison' : 'Date filters' }</div>
+	),
 	SectionTabPanel: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
 	StatsBreadcrumbs: jest.requireActual( '../../packages/ui/src/stats-breadcrumbs' )
 		.StatsBreadcrumbs,
@@ -200,6 +202,14 @@ describe( 'post detail stage', () => {
 		render( stage() );
 
 		expect( screen.queryByRole( 'link', { name: /^View (post|page)$/ } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders the date filters without the comparison control', () => {
+		mockSummary();
+
+		render( stage() );
+
+		expect( screen.getByText( 'Date filters without comparison' ) ).toBeInTheDocument();
 	} );
 
 	it( 'keeps the two-crumb trail when no report origin is present', () => {

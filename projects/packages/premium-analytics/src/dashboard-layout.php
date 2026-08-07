@@ -298,70 +298,75 @@ function get_dashboard_default_section_layouts() {
 			),
 		),
 		DASHBOARD_INSIGHTS_SECTION_ID    => array(
-			// Mirrors the legacy Calypso Stats Insights page (WOOA7S-1616).
-			// Emails is not an Insights module (it lives on the Subscribers
-			// tab). Two canonical modules are not ported yet — All-time total
-			// views (WOOA7S-1512) and Most popular post (part of WOOA7S-1510).
-			// Row 1: annual highlights + all-time stats.
+			// Follows the prototype's rows (WOOA7S-1786). Emails lives on the
+			// Subscribers tab, and the site-wide views heatmap has no widget
+			// yet (WOOA7S-1787), so that row is absent.
+			// Row 1: highlights banner.
 			get_dashboard_default_widget_instance(
 				'default-annual-highlights-widget-instance',
 				'jpa/annual-highlights',
 				0,
-				2,
-				2
+				4,
+				1
 			),
+			// Row 2: posting-activity heatmap.
 			get_dashboard_default_widget_instance(
-				'default-all-time-stats-widget-instance',
-				'jpa/all-time-stats',
+				'default-posting-activity-widget-instance',
+				'jpa/posting-activity',
 				1,
-				2,
-				2
+				4,
+				1
 			),
-			// Row 2: latest post + the two most-popular cards + tags.
+			// Row 3: the two post spotlights.
 			get_dashboard_default_widget_instance(
 				'default-latest-post-widget-instance',
 				'jpa/latest-post',
 				2,
-				1,
+				2,
 				2
+			),
+			get_dashboard_default_widget_instance(
+				'default-popular-post-widget-instance',
+				'jpa/popular-post',
+				3,
+				2,
+				2
+			),
+			// Row 4: the period totals + the two most-popular cards. The
+			// most-popular cards still crop at this height (WOOA7S-1846).
+			get_dashboard_default_widget_instance(
+				'default-total-views-widget-instance',
+				'jpa/total-views',
+				4,
+				1,
+				1
+			),
+			get_dashboard_default_widget_instance(
+				'default-total-visitors-widget-instance',
+				'jpa/total-visitors',
+				5,
+				1,
+				1
 			),
 			get_dashboard_default_widget_instance(
 				'default-most-popular-time-widget-instance',
 				'jpa/most-popular-time',
-				3,
+				6,
 				1,
-				2
+				1
 			),
 			get_dashboard_default_widget_instance(
 				'default-most-popular-day-widget-instance',
 				'jpa/most-popular-day',
-				4,
+				7,
 				1,
-				2
+				1
 			),
-			get_dashboard_default_widget_instance(
-				'default-tags-widget-instance',
-				'jpa/tags',
-				5,
-				1,
-				2,
-				array(
-					'max' => 10,
-				)
-			),
-			// Row 3: posting-activity heatmap + the two comment leaderboards.
-			get_dashboard_default_widget_instance(
-				'default-posting-activity-widget-instance',
-				'jpa/posting-activity',
-				6,
-				2,
-				2
-			),
-			// Posts before authors, matching the design's Insights bottom row.
+			// Row 5: the comment leaderboards, shares, and tags.
 			get_dashboard_default_widget_instance(
 				'default-most-commented-posts-widget-instance',
 				'jpa/most-commented-posts',
-				7,
+				8,
 				1,
 				2,
 				array(
@@ -371,18 +376,27 @@ function get_dashboard_default_section_layouts() {
 			get_dashboard_default_widget_instance(
 				'default-most-commented-authors-widget-instance',
 				'jpa/most-commented-authors',
-				8,
+				9,
 				1,
 				2,
 				array(
 					'max' => 10,
 				)
 			),
-			// Row 4: shares, joined by the two unported modules noted above.
 			get_dashboard_default_widget_instance(
 				'default-shares-widget-instance',
 				'jpa/shares',
-				9,
+				10,
+				1,
+				2,
+				array(
+					'max' => 10,
+				)
+			),
+			get_dashboard_default_widget_instance(
+				'default-tags-widget-instance',
+				'jpa/tags',
+				11,
 				1,
 				2,
 				array(
