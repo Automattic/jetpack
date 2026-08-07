@@ -326,9 +326,9 @@ class Render_Blocking_JS_Insertion_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that a document.write script with no closing </body> is appended at the
-	 * end of the buffer (the append_script_tags() fallback branch) without
-	 * dropping the position-dependent script.
+	 * Test that when the buffer holds no closing </body>, the movable script is
+	 * appended at the end of the buffer (the append_script_tags() fallback
+	 * branch) while the document.write script stays pinned in place.
 	 */
 	public function test_document_write_script_in_place_without_body_tag() {
 		$html = '<p>Before</p>' .
@@ -341,8 +341,7 @@ class Render_Blocking_JS_Insertion_Test extends BaseTestCase {
 		// document.write stays before the trailing content.
 		$this->assertLessThan( strpos( $output, '<p>After</p>' ), strpos( $output, 'document.write' ) );
 		// The movable script is appended at the very end (no </body> present).
-		$this->assertStringContainsString( 'console.log("movable");</script>', $output );
-		$this->assertLessThan( strpos( $output, 'console.log' ), strpos( $output, '<p>After</p>' ) );
+		$this->assertStringEndsWith( 'console.log("movable");</script>', $output );
 	}
 
 	/**
@@ -458,8 +457,10 @@ class Render_Blocking_JS_Insertion_Test extends BaseTestCase {
 
 	/**
 	 * A literal '</body>' in trailing output — after the document's own
-	 * closing tags — must not draw the bundle past the document. The walk
-	 * stops at the closing html tag once a candidate exists.
+	 * closing tags — must not draw the bundle past the document. Each decoy
+	 * here sits inside a comment, script or container, which the walk never
+	 * mistakes for markup; only a bare uncontained trailing '</body>' can
+	 * shift the insertion point (the documented last-candidate trade-off).
 	 *
 	 * @param string $trailing Trailing output holding a literal '</body>'.
 	 * @dataProvider provide_trailing_decoys

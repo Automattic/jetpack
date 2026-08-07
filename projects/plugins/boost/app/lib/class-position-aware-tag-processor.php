@@ -26,8 +26,8 @@ namespace Automattic\Jetpack_Boost\Lib;
 class Position_Aware_Tag_Processor extends \WP_HTML_Tag_Processor {
 
 	/**
-	 * Single reusable bookmark name, released after every read so the
-	 * processor's bookmark limit (10) is never approached.
+	 * Single reusable bookmark name. Re-setting an existing name is exempt
+	 * from the processor's bookmark limit, so the bookmark is never released.
 	 *
 	 * @var string
 	 */
@@ -49,9 +49,15 @@ class Position_Aware_Tag_Processor extends \WP_HTML_Tag_Processor {
 			return null;
 		}
 
-		$start = $this->bookmarks[ self::BOOKMARK ]->start;
-		$this->release_bookmark( self::BOOKMARK );
+		// Guard the internal shape this read depends on: the span struct is
+		// @access private in core and has been reshaped before ($end became
+		// $length in 6.5). isset() on an inaccessible property is false, not
+		// a fatal — and a fatal here would blank the page mid-callback.
+		$span = $this->bookmarks[ self::BOOKMARK ] ?? null;
+		if ( ! $span instanceof \WP_HTML_Span || ! isset( $span->start ) ) {
+			return null;
+		}
 
-		return $start;
+		return $span->start;
 	}
 }

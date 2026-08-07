@@ -47,15 +47,25 @@ class Body_Close_Locator {
 
 	/**
 	 * Buffers above this size are not scanned at all. Bounds the walk's CPU
-	 * cost (roughly linear in buffer size) and, more importantly, its memory:
-	 * the tokenizer allocates one attribute token per attribute on the tag it
-	 * is parsing, so a single tag stuffed with attributes can grow peak memory
-	 * to ~15x the buffer size. The buffer this locator sees — from the last
-	 * moved script to the end of the page — is normally well under 100 KB.
+	 * cost, which is roughly linear in token count. The buffer this locator
+	 * sees is normally a few hundred bytes to a few tens of kilobytes; it can
+	 * grow when script retention holds earlier chunks back.
 	 *
 	 * @var int
 	 */
 	const MAX_SCAN_BYTES = 1000000;
+
+	/**
+	 * Buffers containing a single tag wider than this are not scanned. The
+	 * tokenizer allocates one attribute token per attribute on the tag it is
+	 * parsing, so peak memory tracks the widest single tag — measured at ~23x
+	 * the tag's width — and a sub-1 MB buffer can still exhaust memory if one
+	 * tag carries tens of thousands of attributes. At this ceiling the worst
+	 * case is a few megabytes.
+	 *
+	 * @var int
+	 */
+	const MAX_TAG_BYTES = 100000;
 
 	/**
 	 * Find the byte offset of the buffer's last top-level closing body tag.
@@ -84,13 +94,6 @@ class Body_Close_Locator {
 	 * @return int|null Byte offset of the '<' of the closing body tag, or null when none was found.
 	 */
 	public static function find( $buffer ) {
-		// Belt-and-braces: the HTML API ships with every WordPress version
-		// Boost supports (next_token() is @since 6.5), so this only guards
-		// truly broken installs.
-		if ( ! method_exists( \WP_HTML_Tag_Processor::class, 'next_token' ) ) {
-			return null;
-		}
-
 		// mbstring.func_overload (PHP 7.x only, removed in 8.0) rebinds strlen(),
 		// strpos() and substr() to their multibyte counterparts. The offset
 		// returned here feeds byte arithmetic (substr_replace), so on such a
@@ -102,6 +105,23 @@ class Body_Close_Locator {
 
 		if ( strlen( $buffer ) > self::MAX_SCAN_BYTES ) {
 			return null;
+		}
+
+		// Refuse a buffer whose widest '<'…'>' run exceeds MAX_TAG_BYTES.
+		// The scan is quote-blind: a '>' inside a quoted attribute value ends
+		// a run early, so this is a best-effort bound on the dense-attribute
+		// shape rather than an exact tag width. Overcounts (comments, raw
+		// text) only err towards the safe append fallback.
+		$cursor = strpos( $buffer, '<' );
+		while ( false !== $cursor ) {
+			$close = strpos( $buffer, '>', $cursor + 1 );
+			if ( false === $close ) {
+				break;
+			}
+			if ( $close - $cursor > self::MAX_TAG_BYTES ) {
+				return null;
+			}
+			$cursor = strpos( $buffer, '<', $close + 1 );
 		}
 
 		$processor = new Position_Aware_Tag_Processor( $buffer );
@@ -116,6 +136,13 @@ class Body_Close_Locator {
 			$name = $processor->get_token_name();
 			if ( null === $name ) {
 				continue;
+			}
+
+			if ( 'PLAINTEXT' === $name && ! $processor->is_tag_closer() ) {
+				// Everything after a plaintext opener is text (the element
+				// cannot be closed), but the tokenizer keeps reporting tokens
+				// there — stop so none of them becomes a false candidate.
+				break;
 			}
 
 			if ( isset( $depths[ $name ] ) ) {

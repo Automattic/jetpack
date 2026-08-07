@@ -106,6 +106,8 @@ class Body_Close_Locator_Test extends BaseTestCase {
 			'svg in trailing slot'  => array( '<html><body><p>x</p></body><svg><desc></body></desc></svg></html>' ),
 			'unterminated textarea' => array( '<html><body><p>x</p></body></html><textarea>pasted </body>' ),
 			'unterminated comment'  => array( '<html><body><p>x</p></body></html><!-- pasted </body>' ),
+			'trailing plaintext'    => array( '<html><body><p>x</p></body></html><plaintext>leak</plaintext></body>' ),
+			'unclosed plaintext'    => array( '<html><body><p>x</p></body></html><plaintext> junk </body>' ),
 		);
 	}
 
@@ -156,6 +158,7 @@ class Body_Close_Locator_Test extends BaseTestCase {
 			'unterminated textarea' => array( '<html><body><textarea>pasted </body>' ),
 			'unterminated comment'  => array( '<html><body><!-- pasted </body>' ),
 			'inside template only'  => array( '<html><body><template></body></template>' ),
+			'inside plaintext only' => array( '<html><body><plaintext>rest </body>' ),
 		);
 	}
 
@@ -168,6 +171,18 @@ class Body_Close_Locator_Test extends BaseTestCase {
 		$html = '<html><body>' . str_repeat( '<p>x</p>', 130000 ) . '</body></html>';
 
 		$this->assertGreaterThan( Body_Close_Locator::MAX_SCAN_BYTES, strlen( $html ) );
+		$this->assertNull( Body_Close_Locator::find( $html ) );
+	}
+
+	/**
+	 * A single tag wider than MAX_TAG_BYTES refuses the scan even in a buffer
+	 * under MAX_SCAN_BYTES: the tokenizer's peak memory tracks the widest
+	 * tag's attribute count, not the buffer size.
+	 */
+	public function test_a_single_overwide_tag_is_not_scanned() {
+		$html = '<html><body><div' . str_repeat( ' data-x', 15000 ) . '>y</div></body></html>';
+
+		$this->assertLessThan( Body_Close_Locator::MAX_SCAN_BYTES, strlen( $html ) );
 		$this->assertNull( Body_Close_Locator::find( $html ) );
 	}
 
