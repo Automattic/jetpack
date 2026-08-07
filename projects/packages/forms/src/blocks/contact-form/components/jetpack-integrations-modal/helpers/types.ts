@@ -26,6 +26,13 @@ export type EditorFormAttributes = {
 	mailpoet?: { enabledForForm?: boolean; listId?: string };
 	hostingerReach?: { enabledForForm?: boolean; groupName?: string };
 	salesforceData?: { sendToSalesforce?: boolean; organizationId?: string };
+	googleSheetsData?: {
+		enabled?: boolean;
+		spreadsheetId?: string;
+		spreadsheetUrl?: string;
+		columns?: string[];
+	};
+	formTitle?: string;
 };
 
 // Shared environment/context used when rendering integrations
