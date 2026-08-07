@@ -15,6 +15,7 @@ export type GoogleSheetsData = {
 	spreadsheetId?: string;
 	spreadsheetUrl?: string;
 	columns?: string[];
+	userId?: number;
 };
 
 type Props = {
@@ -28,6 +29,7 @@ type SetupResponse = {
 	spreadsheetId: string;
 	spreadsheetUrl: string;
 	columns: string[];
+	userId: number;
 };
 
 /**
@@ -100,6 +102,7 @@ export default function GoogleSheetsSyncControls( {
 					spreadsheetId: result.spreadsheetId,
 					spreadsheetUrl: result.spreadsheetUrl,
 					columns: result.columns,
+					userId: result.userId,
 				} );
 			} )
 			.catch( ( requestError: { message?: string } ) => {
@@ -175,19 +178,21 @@ export default function GoogleSheetsSyncControls( {
 				) }
 			</VStack>
 
-			{ /* Separated from the radio group: this applies whichever
-			     spreadsheet the response goes to, so it must not read as a
-			     third option in that group. */ }
-			<CheckboxControl
-				label={ __( 'Include responses you already have', 'jetpack-forms' ) }
-				help={ __(
-					'Copies the responses collected so far into the spreadsheet before syncing begins.',
-					'jetpack-forms'
-				) }
-				checked={ backfill }
-				onChange={ setBackfill }
-				__nextHasNoMarginBottom={ true }
-			/>
+			{ /* Separated from the radio group so it does not read as a third
+			     option there. Only offered for a new spreadsheet: an existing one
+			     is left untouched, so there is nowhere to seed. */ }
+			{ mode === 'create' && (
+				<CheckboxControl
+					label={ __( 'Include responses you already have', 'jetpack-forms' ) }
+					help={ __(
+						'Copies the responses collected so far into the spreadsheet before syncing begins.',
+						'jetpack-forms'
+					) }
+					checked={ backfill }
+					onChange={ setBackfill }
+					__nextHasNoMarginBottom={ true }
+				/>
+			) }
 
 			{ error && (
 				<Notice.Root intent="error">

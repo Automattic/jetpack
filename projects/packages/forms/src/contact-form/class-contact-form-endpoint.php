@@ -1786,7 +1786,18 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			);
 		}
 
-		$form_post_id = $request->get_param( 'form_post_id' );
+		$form_post_id = (int) $request->get_param( 'form_post_id' );
+
+		// `required` only rejects an absent parameter, and the editor sends 0 when
+		// it has no post context. Left alone that produces a spreadsheet with no
+		// columns and a form that can never sync, reported as a success.
+		if ( $form_post_id <= 0 ) {
+			return new WP_Error(
+				'rest_invalid_form',
+				__( 'The form must be saved before responses can be synced.', 'jetpack-forms' ),
+				array( 'status' => 400 )
+			);
+		}
 
 		// The caller may name the columns explicitly, but it does not have to: the
 		// responses dashboard renders this integration with no block context, so
@@ -1796,8 +1807,12 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$columns = Google_Sheets_Setup::get_form_columns( $form_post_id );
 		}
 
+		// Only the create path seeds existing responses. Building them for an
+		// existing spreadsheet would unserialize up to a thousand responses and
+		// then throw them away, because that path deliberately does not write to
+		// a sheet the user already owns.
 		$backfill_rows = array();
-		if ( $request->get_param( 'backfill' ) ) {
+		if ( $request->get_param( 'backfill' ) && 'create' === $request->get_param( 'mode' ) ) {
 			$backfill_rows = Google_Sheets_Setup::get_backfill_rows( $form_post_id, $columns );
 		}
 
@@ -1826,6 +1841,11 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'spreadsheetId'  => $result['spreadsheet_id'],
 				'spreadsheetUrl' => $result['spreadsheet_url'],
 				'columns'        => $result['columns'],
+				// Whose Google connection the append should use. Returned so the
+				// editor stores it on the form, because the site makes no request
+				// when a response is submitted - WordPress.com resolves the account
+				// from this value alone.
+				'userId'         => get_current_user_id(),
 			)
 		);
 	}

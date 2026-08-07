@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: gate Google Sheets sync behind the outbound destination authorization check.

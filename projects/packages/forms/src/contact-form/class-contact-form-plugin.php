@@ -1960,8 +1960,9 @@ class Contact_Form_Plugin {
 	/**
 	 * Enforcement point for outbound-destination authorization on a submitted form.
 	 *
-	 * Destinations declared in the form content — webhooks, the legacy postToUrl attribute and
-	 * the Salesforce integration — are kept only when whoever placed the form had an
+	 * Destinations declared in the form content — webhooks, the legacy postToUrl attribute, the
+	 * Salesforce integration and the Google Sheets sync — are kept only when whoever placed the
+	 * form had an
 	 * administrator-level capability (an admin author for post/page forms, or the
 	 * `edit_theme_options` required to author block templates, template parts and widgets);
 	 * otherwise they are removed from the form attributes in place, before the submission
@@ -1977,7 +1978,8 @@ class Contact_Form_Plugin {
 	private function reconcile_content_destinations( Contact_Form $form ) {
 		if ( empty( $form->attributes['webhooks'] )
 			&& empty( $form->attributes['postToUrl'] )
-			&& empty( $form->attributes['salesforceData'] ) ) {
+			&& empty( $form->attributes['salesforceData'] )
+			&& empty( $form->attributes['googleSheetsData'] ) ) {
 			return;
 		}
 
@@ -1985,9 +1987,14 @@ class Contact_Form_Plugin {
 		if ( ! Jetpack_Forms::should_honor_content_destinations( $source->get_id(), $source->get_source_type() ) ) {
 			// Drop every content-configured destination before the services read them.
 			// postToUrl and salesforceData are read directly by Post_To_Url.
-			$form->attributes['webhooks']       = array();
-			$form->attributes['postToUrl']      = array();
-			$form->attributes['salesforceData'] = null;
+			// googleSheetsData is read by Feedback::set_integrations_from_form(), which
+			// writes it into the response payload for WordPress.com to act on - so an
+			// unauthorized author could otherwise name any spreadsheet and any user's
+			// Google connection and have every submission appended there.
+			$form->attributes['webhooks']         = array();
+			$form->attributes['postToUrl']        = array();
+			$form->attributes['salesforceData']   = null;
+			$form->attributes['googleSheetsData'] = null;
 
 			/** This action is documented already in this file. */
 			do_action( 'jetpack_forms_log', 'content_destinations_dropped', 'author_unauthorized' );

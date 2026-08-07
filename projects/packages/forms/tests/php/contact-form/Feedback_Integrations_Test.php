@@ -38,11 +38,15 @@ class Feedback_Integrations_Test extends BaseTestCase {
 	private function get_syncing_form() {
 		return new Contact_Form(
 			array(
+				// Columns are field labels, not field IDs. A field ID is derived from
+				// the label and from the ID of the post the form renders on, so it
+				// differs per page and changes on rename; the label is what the sheet
+				// header shows and what the response values are keyed by.
 				'googleSheetsData' => array(
 					'enabled'       => true,
 					'spreadsheetId' => '1AbCdEf',
 					'userId'        => 42,
-					'columns'       => array( 'g1-name', 'g2-email' ),
+					'columns'       => array( 'Name', 'Email' ),
 				),
 			)
 		);
@@ -70,7 +74,7 @@ class Feedback_Integrations_Test extends BaseTestCase {
 			array(
 				'spreadsheet_id' => '1AbCdEf',
 				'user_id'        => 42,
-				'columns'        => array( 'g1-name', 'g2-email' ),
+				'columns'        => array( 'Name', 'Email' ),
 			),
 			$response->get_integration( 'google_sheets' )
 		);
@@ -92,7 +96,7 @@ class Feedback_Integrations_Test extends BaseTestCase {
 		$this->assertIsArray( $destination );
 		$this->assertSame( '1AbCdEf', $destination['spreadsheet_id'] );
 		$this->assertSame( 42, $destination['user_id'] );
-		$this->assertSame( array( 'g1-name', 'g2-email' ), $destination['columns'] );
+		$this->assertSame( array( 'Name', 'Email' ), $destination['columns'] );
 	}
 
 	/**

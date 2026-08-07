@@ -4381,6 +4381,37 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test reconcile_content_destinations drops a Google Sheets-only configuration for an
+	 * unauthorized author.
+	 *
+	 * Google Sheets sync is an outbound destination like the others, but it is read by
+	 * Feedback::set_integrations_from_form() rather than by a service class, so it is easy
+	 * to miss here. Left ungated, an author who can edit a post containing a form could
+	 * hand-write a destination naming any spreadsheet and any user's Google connection, and
+	 * every submission would be appended there.
+	 */
+	public function test_reconcile_content_destinations_drops_google_sheets_only_for_unauthorized_author() {
+		$form = $this->make_form_with_source(
+			array(
+				'googleSheetsData' => array(
+					'enabled'       => true,
+					'spreadsheetId' => 'attacker-sheet',
+					'userId'        => 1,
+					'columns'       => array( 'Name', 'Email' ),
+				),
+			),
+			$this->create_post_for_role( 'author' )
+		);
+
+		$this->invoke_reconcile_content_destinations( $form );
+
+		$this->assertNull(
+			$form->attributes['googleSheetsData'],
+			'googleSheetsData should be dropped for a Google Sheets-only form.'
+		);
+	}
+
+	/**
 	 * Test reconcile_content_destinations keeps destinations and migrates postToUrl
 	 * when the source post author may configure them.
 	 */
