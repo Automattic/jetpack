@@ -21,6 +21,27 @@
 	}
 }
 
+/*
+ * Widget inserter DataViewsPicker: preview tiles are Cards whose default
+ * padding is too roomy. Scope via the admin body class because the dialog
+ * portals outside `.dashboard`. :global — class is not a CSS Module local.
+ * TODO: consider adding this upstream to the Card / widget-dashboard picker.
+ */
+:global(
+	.toplevel_page_jetpack-premium-analytics-wp-admin
+	.dataviews-picker-wrapper
+) {
+
+	section:first-of-type {
+		--wp-ui-card-padding: var(--wpds-dimension-padding-md);
+		--wp-ui-card-header-content-margin: var(--wpds-dimension-padding-md);
+
+		> div {
+			margin-block-start: 0;
+		}
+	}
+}
+
 .loading {
 	// Fill the route stage and center the spinner while the sections entity
 	// resolves. Mirrors the reports stage's centered loading state.
