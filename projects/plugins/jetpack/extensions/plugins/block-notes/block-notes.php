@@ -16,6 +16,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+// Required directly rather than relying on the plugin bootstrap: on
+// WordPress.com Simple the extension files load through wpcom's own loader
+// and load-jetpack.php never runs.
+require_once __DIR__ . '/../../../_inc/lib/class-jetpack-ai-settings.php';
+
 const FEATURE_NAME            = 'block-notes';
 const ASSET_BASE_PATH         = 'widgets.wp.com/agents-manager/';
 const ASSET_JS_URL            = 'https://' . ASSET_BASE_PATH . 'block-notes.min.js';
@@ -107,7 +112,7 @@ function is_big_sky_enabled() {
  *   does not apply here; the paid plan check in has_paid_ai_plan()
  *   gates access instead.
  * - Otherwise requires a connected owner, not in offline mode, and
- *   AI not disabled via the jetpack_ai_enabled filter.
+ *   AI not disabled via the master gate (Jetpack_AI_Settings::is_ai_enabled()).
  *
  * @return bool
  */
@@ -120,7 +125,7 @@ function has_jetpack_ai_features() {
 
 	return ( new Connection_Manager( 'jetpack' ) )->has_connected_owner()
 		&& ! ( new Status() )->is_offline_mode()
-		&& apply_filters( 'jetpack_ai_enabled', true );
+		&& \Jetpack_AI_Settings::is_ai_enabled();
 }
 
 /**

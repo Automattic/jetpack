@@ -1323,6 +1323,57 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * The `wp_body_open` registration itself stays unconditional (SEARCH-299)
+	 * — the module gate lives inside the callback instead.
+	 */
+	public function test_init_registers_theme_token_sampler_hook_regardless_of_module_state() {
+		$this->reset_search_blocks_hooks();
+		$this->set_module_active( false );
+		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
+
+		Search_Blocks::init();
+
+		$this->assertNotFalse(
+			has_action( 'wp_body_open', array( Search_Blocks::class, 'print_theme_token_sampler' ) ),
+			'print_theme_token_sampler must hook into wp_body_open even while the module is inactive'
+		);
+	}
+
+	/**
+	 * The sampler script prints on the front end while the Search module is active.
+	 */
+	public function test_print_theme_token_sampler_prints_when_module_active() {
+		$this->set_module_active( true );
+
+		ob_start();
+		Search_Blocks::print_theme_token_sampler();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString(
+			"id='jetpack-search-theme-token-sampler'",
+			$output,
+			'The sampler script must print on the front end while the Search module is active.'
+		);
+	}
+
+	/**
+	 * Disabling the Search module stops the sampler script from printing (SEARCH-299).
+	 */
+	public function test_print_theme_token_sampler_skipped_when_module_inactive() {
+		$this->set_module_active( false );
+
+		ob_start();
+		Search_Blocks::print_theme_token_sampler();
+		$output = ob_get_clean();
+
+		$this->assertSame(
+			'',
+			$output,
+			'The sampler script must not print once the Search module is disabled.'
+		);
+	}
+
+	/**
 	 * Read the private `registered` map off the WP_Script_Modules singleton.
 	 *
 	 * @return array<string,array> Registered script modules keyed by id.
@@ -3121,6 +3172,135 @@ class Search_Blocks_Test extends TestCase {
 	public function test_build_initial_state_does_not_carry_custom_taxonomy_map_globally() {
 		$state = Search_Blocks::build_initial_state();
 		$this->assertArrayNotHasKey( 'customTaxonomyMap', $state );
+	}
+
+	/**
+	 * Instant Search query-customization options seed into the blocks store
+	 * so Embedded / Overlay Blocks honor the same `jetpack_instant_search_options`
+	 * filter as Instant Search and Inline Search.
+	 */
+	public function test_get_instant_search_query_options_defaults() {
+		$options = Search_Blocks::get_instant_search_query_options();
+		$this->assertFalse( $options['highlightPhraseOnly'] );
+		$this->assertSame( array(), $options['highlightFilterStopwords'] );
+		$this->assertNull( $options['highlightFields'] );
+		$this->assertSame( array(), $options['additionalBlogIds'] );
+		$this->assertNull( $options['adminQueryFilter'] );
+		$this->assertSame( array(), $options['customResults'] );
+	}
+
+	/**
+	 * Highlight + admin filter + customResults keys from the Instant Search
+	 * options filter round-trip into the helper used by the seed.
+	 */
+	public function test_get_instant_search_query_options_reads_filter() {
+		$callback = static function ( $options ) {
+			$options['highlightPhraseOnly']      = true;
+			$options['highlightFilterStopwords'] = array( 'the', 'a', '' );
+			$options['highlightFields']          = array( 'title', '' );
+			$options['additionalBlogIds']        = array( 123, 456 );
+			$options['adminQueryFilter']         = array(
+				'term' => array( 'post_type' => 'post' ),
+			);
+			$options['customResults']            = array(
+				array(
+					'pattern' => 'hello',
+					'ids'     => array( 11, 22 ),
+				),
+				array(
+					'pattern' => 'missing-ids',
+				),
+			);
+			return $options;
+		};
+		$options  = array(
+			'highlightPhraseOnly'      => false,
+			'highlightFilterStopwords' => array(),
+			'highlightFields'          => null,
+			'additionalBlogIds'        => array(),
+			'adminQueryFilter'         => null,
+			'customResults'            => array(),
+		);
+		add_filter( 'jetpack_instant_search_options', $callback );
+		try {
+			$options = Search_Blocks::get_instant_search_query_options();
+		} finally {
+			remove_filter( 'jetpack_instant_search_options', $callback );
+		}
+
+		$this->assertTrue( $options['highlightPhraseOnly'] );
+		// Stopwords drop when combined with phrase-only — the API rejects both together.
+		$this->assertSame( array(), $options['highlightFilterStopwords'] );
+		$this->assertSame( array( 'title' ), $options['highlightFields'] );
+		$this->assertSame( array( 123, 456 ), $options['additionalBlogIds'] );
+		$this->assertSame(
+			array( 'term' => array( 'post_type' => 'post' ) ),
+			$options['adminQueryFilter']
+		);
+		$this->assertSame(
+			array(
+				array(
+					'pattern' => 'hello',
+					'ids'     => array( 11, 22 ),
+				),
+			),
+			$options['customResults']
+		);
+	}
+
+	/**
+	 * `build_initial_state()` surfaces the Instant Search query options so
+	 * the Interactivity API store can forward them on every fetch.
+	 */
+	public function test_build_initial_state_seeds_instant_search_query_options() {
+		$callback = static function ( $options ) {
+			// Stopwords only — combining with phrase-only would drop them (API constraint).
+			$options['highlightFilterStopwords'] = array( 'the' );
+			$options['highlightFields']          = array( 'title', 'content' );
+			$options['additionalBlogIds']        = array( 99 );
+			$options['adminQueryFilter']         = array(
+				'term' => array( 'post_type' => 'page' ),
+			);
+			$options['customResults']            = array(
+				array(
+					'pattern' => 'promo',
+					'ids'     => array( 5 ),
+				),
+			);
+			return $options;
+		};
+		$state    = array(
+			'highlightPhraseOnly'      => false,
+			'highlightFilterStopwords' => array(),
+			'highlightFields'          => null,
+			'additionalBlogIds'        => array(),
+			'adminQueryFilter'         => null,
+			'customResults'            => array(),
+		);
+		add_filter( 'jetpack_instant_search_options', $callback );
+		try {
+			$state = Search_Blocks::build_initial_state();
+		} finally {
+			remove_filter( 'jetpack_instant_search_options', $callback );
+		}
+
+		$this->assertFalse( $state['highlightPhraseOnly'] );
+		$this->assertSame( array( 'the' ), $state['highlightFilterStopwords'] );
+		$this->assertSame( array( 'title', 'content' ), $state['highlightFields'] );
+		$this->assertSame( array( 99 ), $state['additionalBlogIds'] );
+		$this->assertSame(
+			array( 'term' => array( 'post_type' => 'page' ) ),
+			$state['adminQueryFilter']
+		);
+		$this->assertSame(
+			array(
+				array(
+					'pattern' => 'promo',
+					'ids'     => array( 5 ),
+				),
+			),
+			$state['customResults']
+		);
 	}
 
 	/**

@@ -69,6 +69,7 @@ import {
 	mockEmailClientBreakdown,
 	mockEmailInternalLinkBreakdown,
 	mockEmailUserContentLinkBreakdown,
+	buildPostContentResponse,
 } from './data';
 import { getMockParamsFromPreset } from './presets';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
@@ -99,6 +100,12 @@ const POST_LIKES_PATH_PATTERN =
 const POST_COMMENTS_PATH_PATTERN =
 	/^\/jetpack-premium-analytics\/v1\/proxy\/v1\.1\/posts\/\d+\/replies(?:\?|$)/;
 const WP_SETTINGS_PATH = '/wp/v2/settings';
+// Core posts endpoint, addressed by ID. The single-post highlight widgets read a
+// reported post's content (title, permalink, publish date, featured image) from
+// core, because Stats report rows carry no featured image. Only the `include=`
+// form is handled here — the Latest post stories mock the unfiltered "newest
+// post" form themselves.
+const WP_POSTS_PATH = '/wp/v2/posts';
 
 const coreSettingsMock = {
 	timezone: 'UTC',
@@ -207,6 +214,33 @@ export function forceWordAdsEarningsState( state: ReportMockState ) {
 		return () => {
 			setReportMockState( 'wordads/earnings', null );
 			queryClient.removeQueries( { queryKey: [ 'stats', 'wordads-earnings' ] } );
+		};
+	};
+}
+
+/**
+ * Story `beforeEach` that forces the shared `stats/comments` request into a
+ * loading, error, or empty state and drops its cached query on both enter and
+ * cleanup. Shared by the Top commented authors and Top commented posts stories,
+ * which read the same response, so the cache-reset cannot drift between them.
+ *
+ * The comments endpoint is all-time, so its query key does not vary by date and
+ * every comment-widget story shares one cache entry (a distinct date preset
+ * can't separate them). Resetting on both edges gives each forced-state story a
+ * fresh fetch and clears a never-settling `loading` fetch before the next story
+ * reuses the key. Because the override is keyed by path, keep such stories off
+ * the shared autodocs page (`tags: [ '!autodocs' ]`).
+ *
+ * @param state - The forced mock state.
+ * @return A Storybook `beforeEach` implementation returning its cleanup.
+ */
+export function forceStatsCommentsState( state: ReportMockState ) {
+	return () => {
+		setReportMockState( 'stats/comments', state );
+		queryClient.removeQueries( { queryKey: [ 'stats', 'comments' ] } );
+		return () => {
+			setReportMockState( 'stats/comments', null );
+			queryClient.removeQueries( { queryKey: [ 'stats', 'comments' ] } );
 		};
 	};
 }
@@ -982,10 +1016,15 @@ function buildEmailBreakdownResponse( requestPath: string ): unknown {
  * @return The mock response body, or `null` if no specific handler matched.
  */
 function routeStatsReport( subPath: string, requestPath: string ): unknown {
-	// Single-post detail — `stats/post/{id}`. Any post ID resolves to the
-	// shared fixture so post-scoped widgets render real values.
-	if ( subPath.startsWith( '/post/' ) ) {
-		return mockStatsPostData;
+	// Single-post detail — `stats/post/{id}`. Any post ID resolves to the shared
+	// fixture, but the fixture must report the ID that was asked for: widgets
+	// attribute metrics to the current post and skeleton on a mismatch.
+	const statsPost = subPath.match( /^\/post\/(\d+)/ );
+	if ( statsPost ) {
+		return {
+			...mockStatsPostData,
+			post: { ...mockStatsPostData.post, ID: Number( statsPost[ 1 ] ) },
+		};
 	}
 
 	// Single-video detail: `/video/{postId}` (drives video detail widgets).
@@ -1057,16 +1096,60 @@ function getQueryParam( requestPath: string, key: string ): string | undefined {
 }
 
 /**
- * Builds a single-video response for the requested metric while preserving the
- * shared post and embed-page fixture.
+ * Builds a single-video response for the requested metric and window while
+ * preserving the shared embed-page and post fixtures. Requests carrying an
+ * explicit `start_date`/`date` window (the video detail widgets) get the
+ * fixture days inside that window; requests without one (the embeds widget's
+ * default `period=month` request) keep the endpoint's default trailing
+ * 31-day window. `statType=all` responses mirror wpcom #229903: four-metric
+ * tuples named by `fields` plus canonical range totals (retention
+ * play-weighted, not averaged).
  *
- * @param requestPath - The request path, used to read `statType`.
+ * @param requestPath - The request path, used to read `statType` and the window.
  * @return Raw single-video response.
  */
 function buildSingleVideoResponse( requestPath: string ) {
 	const statType = getQueryParam( requestPath, 'statType' );
-	let factor = 1;
+	const startDate = getQueryParam( requestPath, 'start_date' );
+	const endDate = getQueryParam( requestPath, 'date' ) ?? getQueryParam( requestPath, 'end_date' );
+	const windowDays =
+		startDate && endDate
+			? mockSingleVideoData.data.filter( ( [ day ] ) => day >= startDate && day <= endDate )
+			: mockSingleVideoData.data.slice( -31 );
 
+	if ( statType === 'all' ) {
+		const rows = windowDays.map( ( [ period, value ], index ) => {
+			const plays = Number( value );
+
+			return [
+				period,
+				plays,
+				Math.round( plays * 1.8 ),
+				Number( ( plays * 0.05 ).toFixed( 1 ) ),
+				Number( ( 52 + ( index % 7 ) * 2 ).toFixed( 1 ) ),
+			] as [ string, number, number, number, number ];
+		} );
+		const totalPlays = rows.reduce( ( sum, row ) => sum + row[ 1 ], 0 );
+		const total = {
+			plays: totalPlays,
+			impressions: rows.reduce( ( sum, row ) => sum + row[ 2 ], 0 ),
+			watch_time: Number( rows.reduce( ( sum, row ) => sum + row[ 3 ], 0 ).toFixed( 1 ) ),
+			retention_rate: Number(
+				(
+					rows.reduce( ( sum, row ) => sum + row[ 4 ] * row[ 1 ], 0 ) / ( totalPlays || 1 )
+				).toFixed( 1 )
+			),
+		};
+
+		return {
+			...mockSingleVideoData,
+			fields: [ 'period', 'plays', 'impressions', 'watch_time', 'retention_rate' ],
+			data: rows,
+			total,
+		};
+	}
+
+	let factor = 1;
 	if ( statType === 'impressions' ) {
 		factor = 2;
 	} else if ( statType === 'watch_time' ) {
@@ -1075,7 +1158,7 @@ function buildSingleVideoResponse( requestPath: string ) {
 
 	return {
 		...mockSingleVideoData,
-		data: mockSingleVideoData.data.map( ( [ period, value ] ) => [
+		data: windowDays.map( ( [ period, value ] ) => [
 			period,
 			Number( ( Number( value ) * factor ).toFixed( 1 ) ),
 		] ),
@@ -1307,6 +1390,16 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 
 	if ( requestPath.startsWith( WP_SETTINGS_PATH ) ) {
 		return coreSettingsMock;
+	}
+
+	if ( requestPath.startsWith( WP_POSTS_PATH ) ) {
+		const includeParam = getQueryParam( requestPath, 'include' );
+
+		if ( includeParam ) {
+			return buildPostContentResponse( includeParam );
+		}
+
+		return next( options );
 	}
 
 	if ( requestPath.startsWith( STATS_FOLLOWERS_PATH ) ) {

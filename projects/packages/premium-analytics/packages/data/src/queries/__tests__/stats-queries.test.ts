@@ -775,6 +775,23 @@ describe( 'Stats query factories', () => {
 		} );
 	} );
 
+	it( 'combines statType=all with the report date range', () => {
+		const query = statsSingleVideoQuery( 31533, {
+			from: '2026-06-08',
+			to: '2026-06-14',
+			period: 'day',
+			statType: 'all',
+		} );
+
+		expect( query.queryKey[ 5 ] ).toEqual( {
+			period: 'day',
+			date: '2026-06-14',
+			start_date: '2026-06-08',
+			days: 7,
+			statType: 'all',
+		} );
+	} );
+
 	it( 'disables the single video query until a valid video id is available', () => {
 		expect( statsSingleVideoQuery( 0 ).enabled ).toBe( false );
 		expect( statsSingleVideoQuery( NaN ).enabled ).toBe( false );
@@ -827,6 +844,7 @@ describe( 'Stats query factories', () => {
 				status: 'postponed',
 				postponed_for: 300,
 			},
+			parse: false,
 		} );
 	} );
 
@@ -846,6 +864,30 @@ describe( 'Stats query factories', () => {
 				id: 'opt_in_new_stats',
 				status: 'dismissed',
 			},
+			parse: false,
+		} );
+	} );
+
+	it( 'preserves the HTTP status from a failed Simple notices request', async () => {
+		setSimpleScriptData();
+		mockApiFetch.mockRejectedValue( {
+			status: 403,
+			json: jest.fn().mockResolvedValue( {
+				error: 'unauthorized',
+				message: 'Nope.',
+			} ),
+		} as unknown as Response );
+
+		const queryFn = statsAppNoticesQuery().queryFn as () => Promise< unknown >;
+
+		await expect( queryFn() ).rejects.toEqual( {
+			error: 'unauthorized',
+			message: 'Nope.',
+			status: 403,
+		} );
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/wpcom/v2/jetpack-stats-dashboard/notices',
+			parse: false,
 		} );
 	} );
 

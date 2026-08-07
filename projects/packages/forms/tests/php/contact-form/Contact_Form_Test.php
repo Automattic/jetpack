@@ -1307,6 +1307,29 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The rendered form must carry the hidden duration input and the focusin binding that
+	 * populates it. The storage-level tests build their POST data by hand, so without this
+	 * the whole feature could be removed from the markup and they would all still pass.
+	 */
+	public function test_rendered_form_carries_form_fill_duration_markup() {
+		$html = do_shortcode( "[contact-form][contact-field label='Name' type='name' required='1'/][/contact-form]" );
+
+		// Asserted as a pair: an unanchored `value=''` would also match the Name field, which
+		// renders an empty value of its own, so it would pass even if the duration input
+		// carried a default.
+		$this->assertStringContainsString(
+			"name='" . Feedback::FORM_FILL_DURATION_FIELD . "' value=''",
+			$html,
+			'The duration input should render empty so an unrecorded duration stores as null'
+		);
+		$this->assertStringContainsString(
+			'data-wp-on--focusin="actions.trackFirstInteraction"',
+			$html,
+			'The form wrapper should bind focusin to start the fill timer'
+		);
+	}
+
+	/**
 	 * Tests that the field attributes remain the same when no escaping is necessary.
 	 *
 	 * @author tonykova
@@ -2464,6 +2487,75 @@ class Contact_Form_Test extends BaseTestCase {
 	public function test_get_default_to_for_editor_with_null() {
 		$result = Contact_Form::get_default_to_for_editor( null );
 		$this->assertEquals( get_option( 'admin_email' ), $result );
+	}
+
+	/**
+	 * Tests get_default_to_with_source reports the post author branch.
+	 */
+	public function test_get_default_to_with_source_reports_post_author() {
+		$email     = 'source_author@example.com';
+		$author_id = wp_insert_user(
+			array(
+				'user_email' => $email,
+				'user_login' => 'test_source_author',
+				'user_pass'  => 'password123',
+				'role'       => 'editor',
+			)
+		);
+		$post_id   = wp_insert_post(
+			array(
+				'post_title'  => 'Test Post',
+				'post_status' => 'publish',
+				'post_author' => $author_id,
+			)
+		);
+
+		$result = Contact_Form::get_default_to_with_source( get_post( $post_id ) );
+
+		$this->assertSame( $email, $result['to'] );
+		$this->assertSame( 'post_author', $result['source'] );
+
+		wp_delete_user( $author_id );
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * Tests get_default_to_with_source falls back to the site admin when there is no post.
+	 */
+	public function test_get_default_to_with_source_reports_site_admin_without_post() {
+		$result = Contact_Form::get_default_to_with_source( null );
+
+		$this->assertSame( get_option( 'admin_email' ), $result['to'] );
+		$this->assertSame( 'site_admin', $result['source'] );
+	}
+
+	/**
+	 * Tests get_default_to_with_source falls back to the site admin when the author cannot edit the post.
+	 */
+	public function test_get_default_to_with_source_reports_site_admin_for_subscriber_author() {
+		$author_id = wp_insert_user(
+			array(
+				'user_email' => 'source_subscriber@example.com',
+				'user_login' => 'test_source_subscriber',
+				'user_pass'  => 'password123',
+				'role'       => 'subscriber',
+			)
+		);
+		$post_id   = wp_insert_post(
+			array(
+				'post_title'  => 'Test Post',
+				'post_status' => 'publish',
+				'post_author' => $author_id,
+			)
+		);
+
+		$result = Contact_Form::get_default_to_with_source( get_post( $post_id ) );
+
+		$this->assertSame( get_option( 'admin_email' ), $result['to'] );
+		$this->assertSame( 'site_admin', $result['source'] );
+
+		wp_delete_user( $author_id );
+		wp_delete_post( $post_id, true );
 	}
 
 	/**

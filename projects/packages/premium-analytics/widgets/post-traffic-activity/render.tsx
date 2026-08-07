@@ -15,7 +15,7 @@ import { useResizeObserver } from '@wordpress/compose';
 import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
-import { Button, Stack } from '@wordpress/ui';
+import { Button, Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */

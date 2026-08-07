@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add translated DateFiltersPanel stories (Russian, Dutch, German) that render the date bar at several container widths, so the layout is reviewed against real language packs rather than English only.

@@ -19,8 +19,11 @@ This package provides those missing or updated packages so that plugins using `@
 |-------------------|------------------------|-----------------|
 | `wp-notices`      | `@wordpress/notices`    | Yes on WP < 7.0 — missing component exports |
 | `wp-private-apis` | `@wordpress/private-apis` | Yes on WP < 7.1 unless Gutenberg >= 23.5.0 is active — incomplete allowlist |
+| `wp-rich-text`    | `@wordpress/rich-text`  | Yes on WP < 7.1 unless Gutenberg >= 23.6.0 is active — incomplete `privateApis` |
 | `wp-theme`        | `@wordpress/theme`      | No — only registered if absent |
 | `wp-views`        | `@wordpress/views`      | No — only registered if absent |
+
+`wp-rich-text`, `wp-theme` and `wp-views` require `wp-private-apis`, because each opts into private APIs under a package name Core's allowlist rejects (WP 6.9 rejects all three; WP 7.0 still rejects `@wordpress/compose`, which the rich-text polyfill bundles). Requesting any of them implicitly requests `wp-private-apis` too — see `WP_Build_Polyfills::SCRIPT_DEPENDENCIES`.
 
 ### Script modules (ESM)
 

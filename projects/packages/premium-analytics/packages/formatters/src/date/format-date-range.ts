@@ -5,23 +5,20 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { elideRange } from './elide-range';
 import { formatDate } from './format-date';
-
-/**
- * A date range with optional start and end.
- *
- * Defined locally to avoid a cross-package import on
- * `@jetpack-premium-analytics/datetime` (which exports an identical
- * `DateRange` type). Switch to that import once the sibling-package
- * `link:` wiring is settled.
- */
-type DateRange = { from?: Date; to?: Date };
+import type { DateRange } from './types';
 
 /**
  * Format a date range into a human-readable string.
  *
- * Both ends are spelled out because WordPress provides no locale-specific
- * range-elision rules.
+ * A shared month or year is elided where the site's locale has a rule for it —
+ * see `elideRange`, which borrows those rules from CLDR rather than inventing
+ * them. Eliding by hand is not an option: "Jun 21-25, 2025" is an English
+ * typographic convention that, applied to a Spanish site, yields
+ * "21 de junio-25 de junio de 2025". Where no rule can be trusted — a custom
+ * `date_format`, or a locale whose ranges do not read like its single dates —
+ * both ends are spelled out in full instead.
  *
  * Returns `''` when `range`, `from`, or `to` is missing.
  *
@@ -29,8 +26,9 @@ type DateRange = { from?: Date; to?: Date };
  * @return The formatted range.
  *
  * @example
- * formatDateRange( { from, to } ) // same day: 'June 21, 2025'
- *                                 // range:    'June 21, 2025 – June 25, 2025'
+ * formatDateRange( { from, to } ) // same day:  'June 21, 2025'
+ *                                 // elided:    'June 21 – 25, 2025'
+ *                                 // spelt out: 'June 21, 2025 – June 25, 2025'
  */
 export const formatDateRange = ( range?: DateRange ): string => {
 	const { from, to } = range ?? {};
@@ -44,10 +42,13 @@ export const formatDateRange = ( range?: DateRange ): string => {
 		return formatDate( from );
 	}
 
-	return sprintf(
-		/* translators: 1: Start date. 2: End date. */
-		__( '%1$s – %2$s', 'jetpack-premium-analytics-pkg' ),
-		formatDate( from ),
-		formatDate( to )
+	return (
+		elideRange( from, to ) ??
+		sprintf(
+			/* translators: 1: Start date. 2: End date. */
+			__( '%1$s – %2$s', 'jetpack-premium-analytics-pkg' ),
+			formatDate( from ),
+			formatDate( to )
+		)
 	);
 };

@@ -56,9 +56,10 @@ export function deriveComparisonRange( opts: ReportParams ):
 			compare_to: string;
 	  }
 	| undefined {
-	// Require comparison enabled + preset
+	// Require comparison enabled + preset. `comp` is compared loosely: the
+	// router JSON-parses search values, so an unquoted URL delivers number 1.
 	const presetId = toComparisonPresetId( opts.compare_preset );
-	if ( opts.comp !== '1' || ! presetId ) {
+	if ( String( opts.comp ) !== '1' || ! presetId ) {
 		return undefined;
 	}
 

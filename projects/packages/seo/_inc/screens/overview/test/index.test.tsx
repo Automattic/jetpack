@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import type { OverviewResponse } from '../../../data/overview-types';
+import type { ReactNode } from 'react';
 
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the component under test dynamically after the mocks are registered.
@@ -13,11 +14,11 @@ jest.unstable_mockModule( '../../../data/get-overview', () => ( {
 
 jest.unstable_mockModule( '@wordpress/route', () => ( {
 	useNavigate: () => jest.fn(),
+	Link: ( { children }: { children?: ReactNode } ) => <a href="#">{ children }</a>,
 } ) );
 
-// The off-ramp's only non-presentational dependency; stubbed so the Overview can
-// render without the module-toggle REST plumbing (matches the sibling
-// `disable-seo-tools` test).
+// Still stubbed: the Overview renders `EnableSeoCard` when the module is off, and
+// that card uses the toggle. Keeps the Overview off the module-toggle REST plumbing.
 jest.unstable_mockModule( '../../../data/use-seo-tools-toggle', () => ( {
 	default: () => ( { isToggling: false, setActive: jest.fn() } ),
 } ) );
@@ -25,25 +26,6 @@ jest.unstable_mockModule( '../../../data/use-seo-tools-toggle', () => ( {
 const { default: OverviewScreen } = await import( '../index' );
 
 const OFF_RAMP_TEXT = 'Using a different SEO solution?';
-
-/**
- * Flip the dashboard into WordPress.com Simple mode by seeding the
- * `JetpackScriptData` global that `isSimpleSite()` reads. Mirrors VideoPress's
- * `setSimpleSite()` test util — seeding the real global rather than mocking the
- * module keeps `isSimpleSite()` itself in the code path under test.
- */
-const setSimpleSite = () => {
-	( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
-		site: { host: 'wpcom' },
-	};
-};
-
-/**
- * Remove the script-data global so the test runs in self-hosted mode.
- */
-const unsetSimpleSite = () => {
-	delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
-};
 
 /**
  * Build an Overview payload with SEO tools active.
@@ -75,33 +57,28 @@ const buildOverview = (): OverviewResponse => ( {
 	},
 } );
 
-describe( 'OverviewScreen — disable-SEO off-ramp', () => {
+describe( 'OverviewScreen', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		getOverview.mockReturnValue( buildOverview() );
 	} );
 
-	afterEach( () => {
-		unsetSimpleSite();
-	} );
-
-	it( 'renders the off-ramp when the site is not WordPress.com Simple', () => {
-		render( <OverviewScreen /> );
-
-		expect( screen.getByText( OFF_RAMP_TEXT ) ).toBeInTheDocument();
-	} );
-
-	it( 'hides the off-ramp on WordPress.com Simple, where SEO tools cannot be disabled', () => {
-		setSimpleSite();
-
+	it( 'no longer carries the disable-SEO off-ramp', () => {
+		// It moved to the Advanced module at the foot of Settings, where it can carry
+		// the context explaining what turning SEO tools off actually stops.
 		render( <OverviewScreen /> );
 
 		expect( screen.queryByText( OFF_RAMP_TEXT ) ).not.toBeInTheDocument();
+		// Queried against the strings the Advanced module actually uses, so putting the
+		// control back on this screen fails here. The old wording no longer exists
+		// anywhere, which would have made this assertion unfalsifiable.
+		expect(
+			screen.queryByRole( 'button', { name: 'Disable Jetpack SEO' } )
+		).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Disable Jetpack’s SEO tools' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'still renders the rest of the Overview on Simple', () => {
-		setSimpleSite();
-
+	it( 'renders its cards', () => {
 		render( <OverviewScreen /> );
 
 		expect( screen.getByText( 'Site visibility' ) ).toBeInTheDocument();

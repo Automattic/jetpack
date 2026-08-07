@@ -21,6 +21,18 @@
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 
+.widgets {
+	// Inherited by the @wordpress/grid surfaces (grid, masonry, edit overlay),
+	// which otherwise fall back to the wider `--wpds-dimension-gap-xl`.
+	--wp-grid-gap: var(--wpds-dimension-gap-lg);
+
+	// Temporary solution. Fixed upstream https://github.com/WordPress/gutenberg/pull/80570
+	section:first-of-type {
+		display: flex;
+		flex-direction: column;
+	}
+}
+
 .sectionHeader {
 	// Separates the header row from the widget grid below. The inline gutter
 	// comes from the panel, which already pads to match the tabs.

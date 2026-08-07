@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Time axis: pick tick formats by bucket resolution as well as span — hour ticks (with the date at midnight boundaries) for sub-daily series spanning up to a week, and month ticks (with the year at January) instead of full dates for month-or-coarser buckets.

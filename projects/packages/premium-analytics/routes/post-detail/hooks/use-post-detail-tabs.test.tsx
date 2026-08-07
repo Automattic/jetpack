@@ -13,6 +13,16 @@ import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	useStagedSearch: jest.fn(),
+	omitComparisonReportParams: jest.requireActual(
+		'../../../packages/routing/src/search/report-params'
+	).omitComparisonReportParams,
+} ) );
+
+// The hook reads the raw URL search to build each layout entry's stripped
+// reportParams; the real useSearch throws outside a matched route.
+let mockRouteSearch: Record< string, unknown > = {};
+jest.mock( '@wordpress/route', () => ( {
+	useSearch: () => mockRouteSearch,
 } ) );
 
 // The email tabs gate on the per-post opens rate summary; the query itself is
@@ -82,6 +92,34 @@ describe( 'usePostDetailTabs', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockEmailSends( 3 );
+		mockRouteSearch = {};
+	} );
+
+	it( 'injects comparison-stripped report params into every layout entry', () => {
+		mockSearch( 'post-traffic' );
+		mockRouteSearch = {
+			from: '2026-07-01',
+			to: '2026-07-07',
+			interval: 'day',
+			post_id: String( POST_ID ),
+			comp: '1',
+			compare_from: '2026-06-24',
+			compare_to: '2026-06-30',
+			compare_preset: 'previous-period',
+		};
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
+
+		expect( result.current.layout.length ).toBeGreaterThan( 0 );
+		for ( const widget of result.current.layout ) {
+			const attributes = widget.attributes as { reportParams?: unknown } | undefined;
+			expect( attributes?.reportParams ).toEqual( {
+				from: '2026-07-01',
+				to: '2026-07-07',
+				interval: 'day',
+				post_id: String( POST_ID ),
+			} );
+		}
 	} );
 
 	it( 'falls back from a hidden tab and replaces the URL', async () => {
@@ -120,7 +158,17 @@ describe( 'usePostDetailTabs', () => {
 			'email-clicks',
 		] );
 		expect( result.current.activeTab ).toBe( 'email-clicks' );
-		expect( result.current.layout ).toEqual( POST_DETAIL_TAB_LAYOUTS[ 'email-clicks' ] );
+		// The hook overlays each fixed entry with the comparison-stripped
+		// reportParams (empty here — the mocked route search is empty).
+		expect( result.current.layout ).toEqual(
+			POST_DETAIL_TAB_LAYOUTS[ 'email-clicks' ].map( widget => ( {
+				...widget,
+				attributes: {
+					...( widget.attributes as Record< string, unknown > | undefined ),
+					reportParams: {},
+				},
+			} ) )
+		);
 		expect( stage ).not.toHaveBeenCalled();
 		expect( commit ).not.toHaveBeenCalled();
 	} );

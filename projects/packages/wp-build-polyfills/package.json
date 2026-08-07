@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-wp-build-polyfills",
-	"version": "0.2.5",
+	"version": "0.3.0",
 	"private": true,
 	"description": "Polyfills for WordPress Core packages not available or incomplete in older WP versions",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/wp-build-polyfills/#readme",
@@ -28,17 +28,21 @@
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@types/react": "18.3.28",
 		"@wordpress/a11y": "^4.40.0",
-		"@wordpress/admin-ui": "2.5.0",
-		"@wordpress/boot": "^0.18.0",
+		"@wordpress/admin-ui": "2.7.0",
+		"@wordpress/boot": "^0.19.0",
 		"@wordpress/browserslist-config": "6.51.0",
-		"@wordpress/build": "0.18.0",
+		"@wordpress/build": "0.20.0",
+		"@wordpress/compose": "8.4.0",
+		"@wordpress/dataviews": "17.3.0",
 		"@wordpress/icons": "^15.0.0",
 		"@wordpress/lazy-editor": "^1.6.1",
 		"@wordpress/notices": "^5.40.0",
-		"@wordpress/private-apis": "1.51.0",
-		"@wordpress/route": "^0.17.0",
-		"@wordpress/theme": "^0.17.0",
-		"@wordpress/ui": "^0.17.0",
+		"@wordpress/private-apis": "1.52.0",
+		"@wordpress/rich-text": "7.51.0",
+		"@wordpress/route": "^0.18.0",
+		"@wordpress/theme": "^1.0.0",
+		"@wordpress/ui": "^0.19.0",
+		"@wordpress/widget-primitives": "0.4.0",
 		"browserslist": "^4.24.0",
 		"c8": "^11.0.0",
 		"webpack": "^5.104.1",
@@ -51,6 +55,6 @@
 	"dependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
 		"@babel/core": "7.29.7",
-		"@wordpress/views": "~1.17.0"
+		"@wordpress/views": "~1.19.0"
 	}
 }

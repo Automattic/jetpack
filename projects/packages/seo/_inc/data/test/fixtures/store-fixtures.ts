@@ -28,6 +28,8 @@ export const SEEDED_SETTINGS: SettingsResponse = {
 	has_legacy_front_page_meta: false,
 	title_formats: {},
 	title_separator: '-',
+	title_formats_editable: true,
+	verification_tools_active: true,
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	search_engines_visible: true,
 	sitemap_active: false,

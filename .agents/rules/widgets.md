@@ -18,6 +18,10 @@ directly from a widget: that inlines the entire charting stack (charts, visx, re
 into the widget's render bundle. If a chart component isn't exposed yet, re-export it from
 the toolkit's "Charts passthrough" section.
 
+Design-system components (`@wordpress/ui`, `@wordpress/dataviews`, `@automattic/ui`) come
+from `@jetpack-premium-analytics/externals`, the passthrough script module, for the same
+reason. ESLint enforces both rules; see `packages/externals/README.md`.
+
 The render component is bound by `WidgetRenderProps<Item>` from
 `@wordpress/widget-primitives`: it receives only `{ attributes, setAttributes }`.
 `attributes` may arrive empty — default it (`= {}`).

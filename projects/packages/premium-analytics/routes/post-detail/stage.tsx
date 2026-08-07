@@ -1,17 +1,25 @@
 import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
-import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel, SectionTabPanel, safeHttpUrl } from '@jetpack-premium-analytics/ui';
-import { Breadcrumbs, Page } from '@wordpress/admin-ui';
+import { Button } from '@jetpack-premium-analytics/externals';
+import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import {
+	DateFiltersPanel,
+	SectionTabPanel,
+	safeHttpUrl,
+	StatsBreadcrumbs,
+	StatsPageIcon,
+} from '@jetpack-premium-analytics/ui';
+import { Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
-import { Button } from '@wordpress/ui';
 import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
-import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
+import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { PostDetailTabs, PostSummaryCard } from './components';
-import { EMAIL_WIDGET_TYPE_ALIASES } from './config';
+import { POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
 import { usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
 import styles from './stage.module.scss';
@@ -67,15 +75,15 @@ function PostDetail(): JSX.Element {
 		[]
 	);
 
-	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypes( widgetModules );
+	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
-	// The fixed email compositions reuse registered widget types under
-	// page-local aliases so each card carries its design title — the host
-	// titles a card by its widget *type*. Each alias clones the resolved base
-	// type (render module and all) under a variant name and title; see
-	// `config/email-widget-variants`.
+	// The fixed compositions reuse registered widget types under page-local
+	// aliases so each card carries its design title — the host titles a card
+	// by its widget *type*. Each alias clones the resolved base type (render
+	// module and all) under a variant name and title; see
+	// `config/widget-variants`.
 	const pageWidgetTypes = useMemo( () => {
-		const aliases = EMAIL_WIDGET_TYPE_ALIASES.flatMap( ( { baseType, variants } ) => {
+		const aliases = POST_DETAIL_WIDGET_TYPE_ALIASES.flatMap( ( { baseType, variants } ) => {
 			const base = widgetTypes.find( widgetType => widgetType.name === baseType );
 
 			return base
@@ -83,6 +91,7 @@ function PostDetail(): JSX.Element {
 						...base,
 						name: variant.name,
 						title: variant.getTitle(),
+						...( variant.icon ? { icon: variant.icon } : {} ),
 				  } ) )
 				: [];
 		} );
@@ -94,31 +103,21 @@ function PostDetail(): JSX.Element {
 	// params, staged and committed by the shared date-filter controller.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 
-	// The breadcrumb's "Stats" crumb links back to the dashboard, carrying the
-	// current date range and comparison so returning restores the same view.
-	const dashboardLink = useDashboardLink();
-
-	// Container element for the date filters panel responsive layout.
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
+	const breadcrumbs = useDetailBreadcrumbs( summary.title );
 
 	return (
 		<GlobalErrorProvider>
 			<WidgetDashboard
 				widgetTypes={ pageWidgetTypes }
 				isResolvingWidgetTypes={ isResolvingWidgetTypes }
+				resolveWidgetModule={ resolveWidgetModuleWithI18n }
 				layout={ layout }
 				onLayoutChange={ noopLayoutChange }
 				gridSettings={ POST_DETAIL_GRID }
 			>
 				<Page
-					breadcrumbs={
-						<Breadcrumbs
-							items={ [
-								{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
-								...( summary.title ? [ { label: summary.title } ] : [] ),
-							] }
-						/>
-					}
+					visual={ <StatsPageIcon /> }
+					breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
 					actions={
 						publicUrl ? (
 							<Button
@@ -139,31 +138,44 @@ function PostDetail(): JSX.Element {
 					className={ styles.page }
 				>
 					<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab }>
-						{ /*
-						 * The date filters and the summary card are shared by every tab
-						 * (same post, same date range), so they render once below the
-						 * tab bar and above the per-tab widget grid. The tab bar and the
-						 * filters stay fixed outside the scroll container, exactly like
-						 * the dashboard's section tabs; the summary header scrolls away
-						 * inside it with the widgets, giving them the vertical room.
-						 *
-						 * The filters wrapper is also the responsive-measurement
-						 * target: DateFiltersPanel reads its width to pick mobile/wide
-						 * layouts instead of relying on the viewport.
-						 */ }
-						<div ref={ setContainerElement } className={ styles.dateFilters }>
-							<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-						</div>
 						<div className={ styles.scrollArea }>
+							{ /*
+							 * The summary card and the date filter presets share the
+							 * header row — title on the left, presets on the right, per
+							 * the design mocks. Both are shared by every tab (same post,
+							 * same date range), so they render once above the per-tab
+							 * widget grid and scroll away with it.
+							 */ }
 							<div className={ styles.header }>
-								<PostSummaryCard
-									summary={ summary }
-									performanceRange={ dateFilters.appliedRange }
-								/>
+								<div className={ styles.summary }>
+									<PostSummaryCard
+										summary={ summary }
+										performanceRange={ dateFilters.appliedRange }
+									/>
+								</div>
+								<div className={ styles.dateFilters }>
+									{ /*
+									 * The design has no period-over-period comparison on
+									 * this page, so the Compare control is opted out;
+									 * comparison params stay in the URL (stripped from the
+									 * widgets' injected reportParams) so the breadcrumb
+									 * carries them back to the dashboard.
+									 */ }
+									{ /*
+									 * Known rough edge: in this shrink-to-fit slot the panel's
+									 * self-measurement always sees its own content width, so the
+									 * presets keep their full layout and narrow rows degrade
+									 * poorly. External-measurement wiring ships separately
+									 * (#51088).
+									 */ }
+									<DateFiltersPanel { ...dateFilters } showComparison={ false } />
+								</div>
 							</div>
 							{ tabs.map( tab => (
 								<SectionTabPanel key={ tab.id } value={ tab.id } className={ styles.content }>
-									{ activeTab === tab.id ? <WidgetDashboard.Widgets /> : null }
+									{ activeTab === tab.id ? (
+										<WidgetDashboard.Widgets className={ styles.widgets } />
+									) : null }
 								</SectionTabPanel>
 							) ) }
 						</div>

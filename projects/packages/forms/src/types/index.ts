@@ -214,6 +214,8 @@ export interface JPFormsBlocksDefaults {
 	subject?: string;
 	/** The default recipient email address for the form. */
 	to?: string;
+	/** Which rule produced the default recipient: 'post_author' or 'site_admin'. */
+	toSource?: string;
 }
 
 /**

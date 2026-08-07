@@ -4,7 +4,9 @@
 import {
 	GeoChart,
 	LeaderboardChart,
+	ReportLink,
 	WidgetBackLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
@@ -24,7 +26,7 @@ import {
 import { location as locationIcon } from '@jetpack-premium-analytics/icons';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
+import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -392,6 +394,12 @@ export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
 				<LocationsInner max={ max } geoGranularity={ geoGranularity } />
+				<WidgetFooter>
+					<ReportLink
+						report="locations"
+						section={ geoGranularity === 'city' ? 'cities' : 'countries' }
+					/>
+				</WidgetFooter>
 			</div>
 		</WidgetRoot>
 	);

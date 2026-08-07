@@ -225,6 +225,7 @@ Interactive legends also work with standalone Legend components. Set `legend.int
 - **Keyboard Support**: Use Tab to focus items, Enter or Space to toggle
 - **Visual Feedback**: Hidden series appear with reduced opacity and strikethrough text
 - **Color Stability**: Series colors remain consistent when toggling visibility
+- **Grouped series** (`legend.collapseGroups`): Off by default, so every series gets its own item and toggles only itself. Turn it on and series sharing a `group` — typically a primary and its `type: 'comparison'` overlay — collapse into a single item labelled by the primary; toggling it shows or hides the whole group at once. Only available on charts built from `SeriesData` (line, bar, area); pie-style charts use `group` on their data points purely to coordinate colours, so the option is not offered there
 - **Accessibility**: Full ARIA support with `role="button"`, `aria-pressed`, and descriptive `aria-label`
 
 ### Requirements

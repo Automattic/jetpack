@@ -43,7 +43,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '5.41.0';
+	const PACKAGE_VERSION = '5.41.1';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -281,9 +281,14 @@ class Initializer {
 	}
 
 	/**
-	 * Register polyfills for the wp-notices / wp-private-apis / wp-theme handles the
-	 * My Jetpack app bundle depends on but WP < 7.0 does not ship (or ships with an
-	 * incomplete allowlist).
+	 * Register polyfills for the wp-notices / wp-private-apis / wp-rich-text / wp-theme
+	 * handles the My Jetpack app bundle depends on but WP < 7.0 does not ship (or ships
+	 * with an incomplete allowlist).
+	 *
+	 * `wp-rich-text` is needed because the bundle reaches `@wordpress/dataviews` (via
+	 * `@wordpress/ui`), whose dataform controls unlock rich-text's `privateApis` at module
+	 * scope. WP 6.9 exports none, so without the polyfill the bundle throws "Cannot unlock
+	 * an undefined object" and the page renders blank.
 	 *
 	 * @return void
 	 */
@@ -294,7 +299,7 @@ class Initializer {
 
 		WP_Build_Polyfills::register(
 			'my-jetpack',
-			array( 'wp-notices', 'wp-private-apis', 'wp-theme' )
+			array( 'wp-notices', 'wp-private-apis', 'wp-rich-text', 'wp-theme' )
 		);
 	}
 
@@ -523,6 +528,9 @@ class Initializer {
 		$flags = array(
 			'videoPressStats'          => Jetpack_Constants::is_true( 'JETPACK_MY_JETPACK_VIDEOPRESS_STATS_ENABLED' ),
 			'showFullJetpackStatsCard' => class_exists( 'Jetpack' ),
+			// Only says which destination `manage_url` is: the legacy Stats page
+			// caches its report and wants a `force_refresh` hint the dashboard does not.
+			'premiumAnalyticsEnabled'  => Products\Stats::is_premium_analytics_enabled(),
 		);
 
 		return $flags;

@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Sync: Track the analytics-relevant initial full-sync milestone and expose it to the dashboard via JetpackScriptData.

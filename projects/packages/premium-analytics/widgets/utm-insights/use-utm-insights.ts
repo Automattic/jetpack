@@ -10,6 +10,7 @@ import type {
 } from '@jetpack-premium-analytics/data';
 
 export interface UtmInsightsChildRow {
+	postId: number;
 	label: string;
 	value: number;
 	previousValue?: number;
@@ -55,6 +56,7 @@ function getLabel( item: { label: unknown } ): string {
 
 function toChildRow( item: StatsUtmComparisonTopPostItem ): UtmInsightsChildRow {
 	return {
+		postId: item.id,
 		label: getLabel( item ),
 		value: item.value,
 		previousValue: item.previousValue,
