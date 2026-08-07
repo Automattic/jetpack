@@ -32,6 +32,10 @@ const SETTINGS_REF = 'jetpack-ai-mcp-settings';
 
 const MCP_SUB_VIEWS = [ 'read', 'write', 'setup' ];
 
+// Views that only exist in internal testing environments. MCP Settings ships
+// publicly, so it is not in here.
+const GATED_VIEWS = [ 'overview', 'features' ];
+
 // Read at call time, not module scope, so the flag reflects the injected page data.
 const getTabViews = () =>
 	window?.jetpackAiSettings?.showFeaturesView ? [ 'overview', 'features', 'mcp' ] : [ 'mcp' ];
@@ -234,15 +238,16 @@ export default function App() {
 							{ tabViews.map( tab => (
 								<Tabs.Tab key={ tab } value={ tab }>
 									{ VIEW_TITLES[ tab ] }
-									{ /* The Features view ships behind the internal-testing gate
-									     (showFeaturesView); while gated, label it so Automatticians
-									     don't mistake it for public UI. Read at render time so the
+									{ /* Overview and Features ship behind the internal-testing gate
+									     (showFeaturesView); while gated, label them so Automatticians
+									     don't mistake them for public UI. Read at render time so the
 									     flag reflects the injected page data. Remove with the gate. */ }
-									{ tab === 'features' && !! window?.jetpackAiSettings?.showFeaturesView && (
-										<Badge intent="medium" className="jetpack-ai-admin__tab-badge">
-											{ __( 'A12s only', 'jetpack' ) }
-										</Badge>
-									) }
+									{ GATED_VIEWS.includes( tab ) &&
+										!! window?.jetpackAiSettings?.showFeaturesView && (
+											<Badge intent="medium" className="jetpack-ai-admin__tab-badge">
+												{ __( 'A12s only', 'jetpack' ) }
+											</Badge>
+										) }
 								</Tabs.Tab>
 							) ) }
 						</Tabs.List>

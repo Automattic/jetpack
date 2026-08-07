@@ -210,16 +210,17 @@ describe( 'AI admin page (main.jsx)', () => {
 		).not.toBeInTheDocument();
 	} );
 
-	test( 'internal-testing flag: the Features tab carries an A12s only badge', async () => {
-		// The Features view is gated to internal testing environments; when the
-		// injected flag says we are in one, the tab must say so — Automatticians
-		// should not mistake the view for public UI.
+	test( 'internal-testing flag: every gated tab carries an A12s only badge', async () => {
+		// Overview and Features are both gated to internal testing environments;
+		// when the injected flag says we are in one, each tab must say so —
+		// Automatticians should not mistake either view for public UI. MCP
+		// Settings ships publicly, so it must not be labelled.
 		window.jetpackAiSettings = { showFeaturesView: true };
 		mockApiFetch();
 
 		render( <App /> );
 
-		await expect( screen.findByText( 'A12s only' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findAllByText( 'A12s only' ) ).resolves.toHaveLength( 2 );
 	} );
 
 	test( 'no internal-testing flag: no A12s only badge renders', async () => {
