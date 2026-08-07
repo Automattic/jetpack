@@ -22,22 +22,22 @@ import './style.scss';
 // pending, so the cards render a neutral placeholder panel for now.
 const WALKTHROUGH_VIDEOS = [
 	{
-		slug: 'jetpack-ai-video-connect-claude',
+		slug: 'jetpack-ai-settings-overview-video-connect-claude',
 		title: __( 'Connect your site to Claude', 'jetpack' ),
 		duration: '3:30',
 	},
 	{
-		slug: 'jetpack-ai-video-build-page',
+		slug: 'jetpack-ai-settings-overview-video-build-page',
 		title: __( 'Build a page from a single prompt', 'jetpack' ),
 		duration: '2:36',
 	},
 	{
-		slug: 'jetpack-ai-video-media-library',
+		slug: 'jetpack-ai-settings-overview-video-media-library',
 		title: __( 'Manage your Media Library with AI', 'jetpack' ),
 		duration: '3:27',
 	},
 	{
-		slug: 'jetpack-ai-video-optimize-site',
+		slug: 'jetpack-ai-settings-overview-video-optimize-site',
 		title: __( 'Optimize your site with AI', 'jetpack' ),
 		duration: '3:39',
 	},
@@ -47,14 +47,20 @@ const WALKTHROUGH_VIDEOS = [
 // are chosen for this page but not yet registered in the redirect service —
 // register them before the gate comes off.
 const DOC_LINKS = [
-	{ slug: 'jetpack-ai-docs-mcp-integration', title: __( 'MCP integration guide', 'jetpack' ) },
-	{ slug: 'jetpack-ai-docs-features-overview', title: __( 'AI features overview', 'jetpack' ) },
 	{
-		slug: 'jetpack-ai-docs-agentic-workflows',
+		slug: 'jetpack-ai-settings-overview-docs-mcp-guide',
+		title: __( 'MCP integration guide', 'jetpack' ),
+	},
+	{
+		slug: 'jetpack-ai-settings-overview-docs-features',
+		title: __( 'AI features overview', 'jetpack' ),
+	},
+	{
+		slug: 'jetpack-ai-settings-overview-docs-agent-setup',
 		title: __( 'Setting up agentic workflows', 'jetpack' ),
 	},
-	{ slug: 'jetpack-ai-docs-billing-plans', title: __( 'Billing & plans', 'jetpack' ) },
-	{ slug: 'jetpack-ai-docs-api-reference', title: __( 'API reference', 'jetpack' ) },
+	{ slug: 'jetpack-ai-settings-overview-docs-billing', title: __( 'Billing & plans', 'jetpack' ) },
+	{ slug: 'jetpack-ai-settings-overview-docs-mcp-tools', title: __( 'API reference', 'jetpack' ) },
 ];
 
 /**

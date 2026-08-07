@@ -157,10 +157,10 @@ describe( 'AiOverview', () => {
 		await expect( screen.findByText( 'Walkthrough videos' ) ).resolves.toBeInTheDocument();
 
 		const slugByName = {
-			'Connect your site to Claude': 'jetpack-ai-video-connect-claude',
-			'Build a page from a single prompt': 'jetpack-ai-video-build-page',
-			'Manage your Media Library with AI': 'jetpack-ai-video-media-library',
-			'Optimize your site with AI': 'jetpack-ai-video-optimize-site',
+			'Connect your site to Claude': 'jetpack-ai-settings-overview-video-connect-claude',
+			'Build a page from a single prompt': 'jetpack-ai-settings-overview-video-build-page',
+			'Manage your Media Library with AI': 'jetpack-ai-settings-overview-video-media-library',
+			'Optimize your site with AI': 'jetpack-ai-settings-overview-video-optimize-site',
 		};
 		for ( const [ name, slug ] of Object.entries( slugByName ) ) {
 			const card = screen.getByRole( 'link', { name: new RegExp( name ) } );
@@ -178,11 +178,11 @@ describe( 'AiOverview', () => {
 
 		// The i4 docs section is a plain list of external links (no rows).
 		const slugByName = {
-			'MCP integration guide': 'jetpack-ai-docs-mcp-integration',
-			'AI features overview': 'jetpack-ai-docs-features-overview',
-			'Setting up agentic workflows': 'jetpack-ai-docs-agentic-workflows',
-			'Billing & plans': 'jetpack-ai-docs-billing-plans',
-			'API reference': 'jetpack-ai-docs-api-reference',
+			'MCP integration guide': 'jetpack-ai-settings-overview-docs-mcp-guide',
+			'AI features overview': 'jetpack-ai-settings-overview-docs-features',
+			'Setting up agentic workflows': 'jetpack-ai-settings-overview-docs-agent-setup',
+			'Billing & plans': 'jetpack-ai-settings-overview-docs-billing',
+			'API reference': 'jetpack-ai-settings-overview-docs-mcp-tools',
 		};
 		for ( const [ name, slug ] of Object.entries( slugByName ) ) {
 			const link = screen.getByRole( 'link', { name: new RegExp( name ) } );
