@@ -833,7 +833,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$form_style = $this->get_form_style();
 
 		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
-			if ( ! in_array( $type, array( 'checkbox', 'checkbox-multiple', 'radio', 'consent', 'file' ), true ) ) {
+			// These field types have no single text-like input for an inset label to sit
+			// in, so they keep the default label rendering whatever the form style is.
+			if ( ! in_array( $type, array( 'checkbox', 'checkbox-multiple', 'radio', 'consent', 'file', 'slider' ), true ) ) {
 				switch ( $form_style ) {
 					case 'outlined':
 						return $this->render_outline_label( $id, $label, $required, $required_field_text, $required_indicator );
@@ -3131,7 +3133,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$min_text_label = $extra_attrs['minLabel'] ?? '';
 		$max_text_label = $extra_attrs['maxLabel'] ?? '';
 
-		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
+		// $always_render must be true: 'slider' is excluded from inset labels in
+		// render_label(), so without it the label would be dropped entirely when the
+		// form uses the Outlined or Animated style.
+		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text, array(), true, $required_indicator );
 
 		ob_start();
 		?>

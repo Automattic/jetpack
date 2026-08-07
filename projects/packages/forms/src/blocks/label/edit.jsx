@@ -59,6 +59,23 @@ function useSiblingBlock( clientId ) {
 	return inputBlock;
 }
 
+/**
+ * Returns the name of the field block this label belongs to.
+ *
+ * @param {string} clientId - The label block's client ID.
+ * @return {string|undefined} The parent field block name, if any.
+ */
+function useParentFieldName( clientId ) {
+	return useSelect(
+		select => {
+			const { getBlockName, getBlockRootClientId } = select( blockEditorStore );
+			const parentClientId = getBlockRootClientId( clientId );
+			return parentClientId ? getBlockName( parentClientId ) : undefined;
+		},
+		[ clientId ]
+	);
+}
+
 const WithNotchedWrapper = ( {
 	formStyle,
 	styles,
@@ -98,13 +115,19 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 		? `(${ DATE_FORMATS.find( f => f.value === dateFormat )?.label })`
 		: undefined;
 	const formStyle = getBlockStyle( formClassName );
-	const className = clsx( 'jetpack-field-label', {
-		'notched-label__label': formStyle === FORM_STYLE.OUTLINED,
-		'animated-label__label': formStyle === FORM_STYLE.ANIMATED,
-		'below-label__label': formStyle === FORM_STYLE.BELOW,
-	} );
 
 	const inputBlock = useSiblingBlock( clientId );
+
+	// The slider is not a text-like input: it has no empty state to rest in and its
+	// range input is nested inside a wrapper, so an inset (notched/animated) label
+	// would sit on top of the track instead of animating. Keep the default label.
+	const hasInsetLabel = useParentFieldName( clientId ) !== 'jetpack/field-slider';
+
+	const className = clsx( 'jetpack-field-label', {
+		'notched-label__label': hasInsetLabel && formStyle === FORM_STYLE.OUTLINED,
+		'animated-label__label': hasInsetLabel && formStyle === FORM_STYLE.ANIMATED,
+		'below-label__label': formStyle === FORM_STYLE.BELOW,
+	} );
 
 	const variationProps = useVariationStyleProperties( {
 		clientId,
