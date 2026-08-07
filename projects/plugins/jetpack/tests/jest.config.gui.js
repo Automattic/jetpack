@@ -11,6 +11,7 @@ module.exports = {
 		'<rootDir>/_inc/client/**/test/component.js',
 		'<rootDir>/_inc/client/ai/features/test/component.jsx',
 		'<rootDir>/_inc/client/ai/mcp/test/allowlist-updated.jsx',
+		'<rootDir>/_inc/client/ai/overview/test/component.jsx',
 		'<rootDir>/_inc/client/ai/test/main.jsx',
 		'<rootDir>/_inc/client/sharing/test/component.jsx',
 		'<rootDir>/_inc/client/at-a-glance/stats/test/chart-bar-range.js',

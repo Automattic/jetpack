@@ -14,10 +14,10 @@ import './style.scss';
 /**
  * Shared row content: icon, text block, chevron.
  *
- * @param {object} props             - Component props.
- * @param {object} props.icon        - Icon from the WordPress icons package.
- * @param {string} props.title       - Row title.
- * @param {string} props.description - Row description.
+ * @param {object} props               - Component props.
+ * @param {object} props.icon          - Icon from the WordPress icons package.
+ * @param {string} props.title         - Row title.
+ * @param {string} [props.description] - Row description.
  * @return {object} Component markup.
  */
 function RowContent( { icon, title, description } ) {
@@ -30,9 +30,11 @@ function RowContent( { icon, title, description } ) {
 				<Text as="p" className="jetpack-ai-nav-row__title" weight={ 600 }>
 					{ title }
 				</Text>
-				<Text as="p" className="jetpack-ai-nav-row__description" variant="muted">
-					{ description }
-				</Text>
+				{ description && (
+					<Text as="p" className="jetpack-ai-nav-row__description" variant="muted">
+						{ description }
+					</Text>
+				) }
 			</span>
 			<span className="jetpack-ai-nav-row__chevron">
 				<Icon icon={ chevronRight } size={ 24 } />
@@ -44,12 +46,12 @@ function RowContent( { icon, title, description } ) {
 /**
  * Navigation row component.
  *
- * @param {object}   props             - Component props.
- * @param {object}   props.icon        - Icon from the WordPress icons package.
- * @param {string}   props.title       - Row title.
- * @param {string}   props.description - Row description.
- * @param {string}   [props.href]      - Link target; renders an anchor when set.
- * @param {Function} [props.onClick]   - Click handler; renders a button when no href.
+ * @param {object}   props               - Component props.
+ * @param {object}   props.icon          - Icon from the WordPress icons package.
+ * @param {string}   props.title         - Row title.
+ * @param {string}   [props.description] - Row description.
+ * @param {string}   [props.href]        - Link target; renders an anchor when set.
+ * @param {Function} [props.onClick]     - Click handler; renders a button when no href.
  * @return {object} Component markup.
  */
 export default function NavRow( { icon, title, description, href, onClick } ) {
