@@ -38,8 +38,10 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 	const { height, width } = img;
 	const { layoutStyle } = galleryAtts;
 
-	const photonImplementation =
-		isWpcomFilesUrl( url ) || true === isVIP() ? photonWpcomImage : photon;
+	// Deprecated versions have to keep producing the URLs they originally saved, or content saved
+	// under them stops validating, so they always use the external Photon domain — regardless of what
+	// the site's Photon-domain setting says. Only the current version follows that setting.
+	const photonImplementation = isWpcomFilesUrl( url ) ? photonWpcomImage : photon;
 
 	/**
 	 * Build the `src`
@@ -96,12 +98,6 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 	srcSet = srcSet.join( ',' );
 
 	return Object.assign( { src }, srcSet && { srcSet } );
-}
-function isVIP() {
-	/*global jetpack_plan*/
-	if ( typeof jetpack_plan !== 'undefined' && jetpack_plan.data === 'vip' ) {
-		return true;
-	}
 }
 function isWpcomFilesUrl( url ) {
 	const { host } = new URL( url, window.location.href );

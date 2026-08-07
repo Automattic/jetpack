@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter: Save the post before generating an email preview, so the preview reflects the latest saved content (e.g. a newly-set featured image).

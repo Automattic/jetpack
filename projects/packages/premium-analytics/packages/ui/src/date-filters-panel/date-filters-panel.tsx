@@ -106,6 +106,14 @@ export type DateFiltersPanelProps = {
 	 * Required for proper date/time handling.
 	 */
 	timeZone: string;
+
+	/**
+	 * Whether to render the period-over-period Compare control. Pages whose
+	 * design has no comparison (the post/email detail page) opt out; their
+	 * widgets ignore comparison params, and hiding the control keeps the UI
+	 * honest about it.
+	 */
+	showComparison?: boolean;
 };
 
 /**
@@ -135,6 +143,7 @@ export function DateFiltersPanel( {
 	onCancel,
 	canApply = true,
 	timeZone,
+	showComparison = true,
 }: DateFiltersPanelProps ) {
 	/**
 	 * Validate and normalize the primary preset ID.
@@ -352,9 +361,12 @@ export function DateFiltersPanel( {
 				/>
 			</BaseControl>
 
-			<BaseControl className="date-filters-panel__comparison" help={ comparisonControlProps.help }>
-				{ comparisonControl }
-			</BaseControl>
+			{ showComparison && (
+				<BaseControl className="date-filters-panel__comparison" help={ comparisonControlProps.help }>
+					{ comparisonControl }
+				</BaseControl>
+			) }
+
 		</Stack>
 	);
 }

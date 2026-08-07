@@ -2,23 +2,11 @@
 	min-block-size: 0;
 }
 
-// A long unbroken video title in the breadcrumb refuses to shrink: admin-ui's
-// Page header renders the breadcrumbs slot inside a flex chain (inner header
-// Stack → the Breadcrumbs `nav`) whose items keep the flexbox default
-// `min-inline-size: auto`, so the crumb's nowrap min-content propagates and
-// drags the whole page into horizontal scrolling before the crumb's own
-// ellipsis can engage. No dedicated upstream issue exists for this exact
-// propagation; the slot is set to be reworked under the Breadcrumb component
-// extraction (https://github.com/WordPress/gutenberg/issues/77039) and the
-// admin-ui 2.0 proposal (https://github.com/WordPress/gutenberg/issues/77628).
-// Let both links shrink until then; the `nav`'s parent has no stable class,
-// hence the structural `:has()`.
-.page :has(> nav[aria-label]) {
-	min-inline-size: 0;
-}
-
-.page nav[aria-label] {
-	min-inline-size: 0;
+.dateFilters {
+	// Content-sized at the row's end. The auto margin keeps it at the inline
+	// end both beside the summary and on its own wrapped line.
+	flex: 0 0 auto;
+	margin-inline-start: auto;
 }
 
 .scrollArea {
@@ -41,17 +29,33 @@
 }
 
 .header {
-	// Summary row above the widget grid. Inline padding matches the widget grid;
-	// the 40px block spacing is the design's breathing room around the header.
+	// The summary and the date filter presets share one header row — title on
+	// the left, presets on the right and vertically centered, per the design
+	// mocks. Flexbox breaks lines from unshrunk sizes, and the summary's
+	// inline-size containment clamps its unshrunk size to the 400px floor —
+	// so the row wraps only when the panel's current layout no longer fits
+	// beside that floor (the compact dropdown on a phone), never because of a
+	// long title. On tight single rows the summary absorbs the squeeze (title
+	// ellipsis); the panel's own step-down on narrow rows needs external
+	// measurement and ships separately (#51088). Inline padding matches the
+	// widget grid; the 40px block spacing is the design's breathing room
+	// around the header.
 	display: flex;
 	align-items: center;
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-lg);
 	padding-block: 40px;
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 
 .summary {
-	flex: 1 1 360px;
-	min-inline-size: min(100%, 320px);
+	// Grows into the row's free space (pushing the presets to the row's end)
+	// and absorbs the squeeze on tight rows, where the title's ellipsis
+	// engages. Inline-size containment (below) zeroes the card's intrinsic
+	// contribution, which is exactly right here: the card's width comes from
+	// the row's flex sizing, never from the title's nowrap min-content.
+	flex: 1 1 auto;
+	min-inline-size: min(100%, 400px);
 	// The boot shell's surfaces element is a flex item with the default
 	// `min-inline-size: auto`, so it asks the page for its min-content width —
 	// and a specified min-inline-size can only raise an intrinsic
