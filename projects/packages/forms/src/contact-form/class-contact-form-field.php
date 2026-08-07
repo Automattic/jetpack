@@ -1321,8 +1321,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			return null;
 		}
 
-		/* translators: %s is a date entry format, for example MM/DD/YYYY. */
-		return sprintf( __( 'Format: %s', 'jetpack-forms' ), $formats[ $date_format ]['label'] );
+		return $formats[ $date_format ]['label'];
 	}
 
 	/**
@@ -1371,19 +1370,27 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML, or an empty string when the markup is deferred.
 	 */
 	private function get_field_descriptions( $id, $type ) {
-		$descriptions = '';
-		$help_text    = $this->get_help_text();
+		$hints     = '';
+		$help_text = $this->get_help_text();
 
+		// Deliberately spans, not paragraphs: themes style <p> (margins, size,
+		// color) and we would have to fight those rules on every theme.
 		if ( $help_text !== null ) {
-			$descriptions .= '<p id="' . esc_attr( $id . '-' . $type . '-help' ) . '" class="contact-form__field-help">'
-				. esc_html( $help_text ) . '</p>';
+			$hints .= '<span id="' . esc_attr( $id . '-' . $type . '-help' ) . '" class="contact-form__field-help">'
+				. esc_html( $help_text ) . '</span>';
 		}
 
 		$format_hint = $this->get_format_hint();
 
 		if ( $format_hint !== null ) {
-			$descriptions .= '<p id="' . esc_attr( $id . '-' . $type . '-format' ) . '" class="contact-form__field-format">'
-				. esc_html( $format_hint ) . '</p>';
+			$hints .= '<span id="' . esc_attr( $id . '-' . $type . '-format' ) . '" class="contact-form__field-format">'
+				. esc_html( $format_hint ) . '</span>';
+		}
+
+		$descriptions = '';
+
+		if ( $hints !== '' ) {
+			$descriptions .= '<div class="contact-form__field-hints">' . $hints . '</div>';
 		}
 
 		// Force the error div to build even for inset labels — the deferral

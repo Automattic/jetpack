@@ -1,4 +1,4 @@
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 
 export const ALLOWED_FORMATS = [ 'core/bold', 'core/italic' ];
 export const ALLOWED_INNER_BLOCKS = [ 'jetpack/label', 'jetpack/input' ];
@@ -69,8 +69,7 @@ export const getDateFormatHint = dateFormat => {
 		return null;
 	}
 
-	/* translators: %s is a date entry format, for example MM/DD/YYYY. */
-	return sprintf( __( 'Format: %s', 'jetpack-forms' ), format.label );
+	return format.label;
 };
 
 export const FORM_BLOCK_NAME = 'jetpack/contact-form';

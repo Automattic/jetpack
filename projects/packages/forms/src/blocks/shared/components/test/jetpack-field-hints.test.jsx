@@ -17,10 +17,10 @@ describe( 'JetpackFieldHints', () => {
 	it( 'renders the format hint for a date field', () => {
 		render( <JetpackFieldHints attributes={ { dateFormat: 'mm/dd/yy' } } isDateField /> );
 
-		expect( screen.getByText( 'Format: MM/DD/YYYY' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'MM/DD/YYYY' ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders the help text before the format hint', () => {
+	it( 'renders the help text before the format hint, both in one container', () => {
 		const { container } = render(
 			<JetpackFieldHints
 				attributes={ { helpText: 'Say hi', dateFormat: 'mm/dd/yy' } }
@@ -28,11 +28,22 @@ describe( 'JetpackFieldHints', () => {
 			/>
 		);
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-		const paragraphs = container.querySelectorAll( 'p' );
+		const hints = container.querySelectorAll( '.contact-form__field-hints > span' );
 
-		expect( paragraphs ).toHaveLength( 2 );
-		expect( paragraphs[ 0 ] ).toHaveClass( 'contact-form__field-help' );
-		expect( paragraphs[ 1 ] ).toHaveClass( 'contact-form__field-format' );
+		expect( hints ).toHaveLength( 2 );
+		expect( hints[ 0 ] ).toHaveClass( 'contact-form__field-help' );
+		expect( hints[ 1 ] ).toHaveClass( 'contact-form__field-format' );
+	} );
+
+	it( 'renders no paragraphs, so themes cannot restyle the hints', () => {
+		const { container } = render(
+			<JetpackFieldHints
+				attributes={ { helpText: 'Say hi', dateFormat: 'mm/dd/yy' } }
+				isDateField
+			/>
+		);
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+		expect( container.querySelectorAll( 'p' ) ).toHaveLength( 0 );
 	} );
 
 	it( 'treats whitespace-only help text as absent', () => {

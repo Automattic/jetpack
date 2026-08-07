@@ -1513,8 +1513,12 @@ on production builds, the attributes are being reordered, causing side-effects
 	color: inherit;
 }
 
-.contact-form__field-help,
-.contact-form__field-format {
+// The container owns all the styling so the hints themselves stay bare spans —
+// themes style <p>, and matching that fight on every theme is not worth it.
+.contact-form__field-hints {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem 0.75rem;
 	margin-block: 0.25rem 0;
 	margin-inline: 0;
 	font-size: 0.875em;

@@ -440,8 +440,11 @@
 
 }
 
-.contact-form__field-help,
-.contact-form__field-format {
+// Keep in sync with the same rule in src/contact-form/css/grunion.scss.
+.contact-form__field-hints {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem 0.75rem;
 	margin-block: 0.25rem 0;
 	margin-inline: 0;
 	font-size: 0.875em;

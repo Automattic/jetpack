@@ -845,7 +845,8 @@ class Contact_Form_Field_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( 'class="contact-form__field-format"', $html );
 		$this->assertStringContainsString( 'id="g1-birthday-text-format"', $html );
-		$this->assertStringContainsString( 'Format: MM/DD/YYYY', $html );
+		// Anchored on the closing tag so a re-introduced prefix would fail.
+		$this->assertStringContainsString( 'class="contact-form__field-format">MM/DD/YYYY</span>', $html );
 	}
 
 	/**
@@ -876,9 +877,9 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	 */
 	public static function date_format_hint_provider() {
 		return array(
-			'US'          => array( 'mm/dd/yy', 'Format: MM/DD/YYYY' ),
-			'European'    => array( 'dd/mm/yy', 'Format: DD/MM/YYYY' ),
-			'ISO default' => array( 'yy-mm-dd', 'Format: YYYY-MM-DD' ),
+			'US'          => array( 'mm/dd/yy', 'class="contact-form__field-format">MM/DD/YYYY</span>' ),
+			'European'    => array( 'dd/mm/yy', 'class="contact-form__field-format">DD/MM/YYYY</span>' ),
+			'ISO default' => array( 'yy-mm-dd', 'class="contact-form__field-format">YYYY-MM-DD</span>' ),
 		);
 	}
 
