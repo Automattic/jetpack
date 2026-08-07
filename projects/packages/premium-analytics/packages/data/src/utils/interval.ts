@@ -60,11 +60,13 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 		return [ 'day', 'week' ];
 	} else if ( daysDiff >= 3 ) {
 		return [ 'day' ];
-	} else if ( daysDiff >= 1 ) {
+	} else if ( daysDiff >= 2 ) {
 		return [ 'hour', 'day' ];
 	}
 
-	return [ 'hour', 'day' ];
+	// A day or less has nothing to draw in daily buckets: one bar is not a
+	// series. Hours are the only reading of it.
+	return [ 'hour' ];
 }
 
 /**
@@ -87,10 +89,15 @@ export function getAllowedIntervalsForPreset(
 	to: string
 ): IntervalType[] {
 	switch ( preset ) {
+		/*
+		 * Hours alone. A single day bucketed by day is one bar, so offering it
+		 * let a `day` carried over from a longer preset survive the switch and
+		 * flatten the whole window into a point.
+		 */
 		case PRESET_TODAY:
 		case PRESET_YESTERDAY:
 		case PRESET_LAST_24_HOURS:
-			return [ 'hour', 'day' ];
+			return [ 'hour' ];
 		case PRESET_LAST_7_DAYS:
 			return [ 'day' ];
 		case PRESET_LAST_30_DAYS:

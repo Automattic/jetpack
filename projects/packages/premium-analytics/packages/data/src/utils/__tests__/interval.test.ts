@@ -20,6 +20,34 @@ describe( 'resolveIntervalForRange', () => {
 		);
 	} );
 
+	/*
+	 * Reported by @louwie17 on #51112: switching from a preset bucketed by days
+	 * to a day-long one kept `day`, drawing the whole window as a single bar.
+	 * The fix is that a day-long window no longer allows `day` at all.
+	 */
+	it( 'coerces a day-scale interval onto a day-long window', () => {
+		expect( resolveIntervalForRange( 'last-24-hours', '2026-06-01', '2026-06-02', 'day' ) ).toBe(
+			'hour'
+		);
+		expect( resolveIntervalForRange( 'today', '2026-06-01', '2026-06-01', 'day' ) ).toBe( 'hour' );
+		expect( resolveIntervalForRange( 'yesterday', '2026-05-31', '2026-05-31', 'day' ) ).toBe(
+			'hour'
+		);
+	} );
+
+	// A stepped window carries no preset, so the same rule has to hold on the
+	// range path or stepping a 24-hour window would re-offer `day`.
+	it( 'coerces on a day-long custom range too', () => {
+		expect(
+			resolveIntervalForRange(
+				'custom',
+				'2026-06-01T00:00:00.000Z',
+				'2026-06-01T23:59:59.999Z',
+				'day'
+			)
+		).toBe( 'hour' );
+	} );
+
 	it( 'defaults when no current interval is provided', () => {
 		expect( getDefaultIntervalForPeriod( 'last-30-days', 'a', 'b' ) ).toBe( 'day' );
 		expect( resolveIntervalForRange( 'last-30-days', 'a', 'b' ) ).toBe( 'day' );
