@@ -14,7 +14,7 @@ import {
 import { validateField, isEmptyValue } from '../../contact-form/js/validate-helper.js';
 import { getRating } from '../field-rating/view.js';
 import { maybeAddColonToLabel, maybeTransformValue, getImages, getUrl } from './helpers.js';
-import { focusNextInput, submitForm } from './shared.ts';
+import { focusNextInput, getForm, submitForm } from './shared.ts';
 // Import field type icons view to register its callbacks.
 import './field-type-icons-view.js';
 
@@ -27,6 +27,9 @@ const withSyncEvent =
 const NAMESPACE = 'jetpack/form';
 const config = getConfig( NAMESPACE );
 let errorTimeout = null;
+
+// Must match Feedback::FORM_FILL_DURATION_FIELD in src/contact-form/class-feedback.php.
+const FORM_FILL_DURATION_FIELD = 'jetpack_form_fill_duration';
 
 const updateField = ( fieldId, value, showFieldError = false, validatorCallback = null ) => {
 	const context = getContext();
@@ -608,10 +611,33 @@ const { state, actions } = store( NAMESPACE, {
 			actions.updateField( context.fieldId, event.target.value, true );
 		},
 
+		/**
+		 * Start the fill timer on the submitter's first interaction with the form.
+		 *
+		 * Bound to `focusin` on the form wrapper, which covers every focusable control. File
+		 * drag-and-drop fires no focus event, so `jetpack/field-file` calls this directly.
+		 *
+		 * Uses `performance.now()` rather than `Date.now()`: it is monotonic, so a wall-clock
+		 * step backward mid-fill cannot produce a negative duration. Compared against null
+		 * rather than tested for truthiness, since a legitimate reading can be 0.
+		 */
+		trackFirstInteraction: () => {
+			const context = getContext();
+
+			if ( context.formFirstInteractionTime == null ) {
+				context.formFirstInteractionTime = performance.now();
+			}
+		},
+
 		onFormReset: () => {
 			const context = getContext();
 			context.fields = [];
 			context.showErrors = false;
+			// Start the fill timer over. Without this, going back from the success panel and
+			// filling the form in again would report a duration that also covers the first
+			// submission and the time spent reading the confirmation. The hidden input needs no
+			// clearing here because the write on submit is unconditional.
+			context.formFirstInteractionTime = null;
 
 			// Dispatch custom events to reset all fields
 			const formElement = document.getElementById( context.elementId );
@@ -663,6 +689,24 @@ const { state, actions } = store( NAMESPACE, {
 			}
 
 			context.isSubmitting = true;
+
+			// Record the fill duration in the DOM before submitting. This has to happen outside
+			// the `useAjax` branch below: non-AJAX forms submit natively, so the value is only
+			// sent if it is already on the hidden input by this point.
+			//
+			// The write is unconditional so the input can never carry a value left over from an
+			// earlier fill — an unknown duration explicitly writes an empty string, which the
+			// server stores as null.
+			const durationField = getForm( context.formHash )?.querySelector(
+				`input[name="${ FORM_FILL_DURATION_FIELD }"]`
+			);
+
+			if ( durationField ) {
+				durationField.value =
+					context.formFirstInteractionTime == null
+						? ''
+						: Math.round( ( performance.now() - context.formFirstInteractionTime ) / 1000 ); // Duration in seconds.
+			}
 
 			if ( context.useAjax ) {
 				event.preventDefault();

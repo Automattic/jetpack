@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: prevent a fatal error on the VideoPress page when the WordPress.com pricing request fails on a disconnected site.

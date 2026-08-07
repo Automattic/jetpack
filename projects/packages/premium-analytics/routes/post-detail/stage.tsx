@@ -16,6 +16,7 @@ import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
 import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { PostDetailTabs, PostSummaryCard } from './components';
 import { POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
@@ -102,6 +103,8 @@ function PostDetail(): JSX.Element {
 	// params, staged and committed by the shared date-filter controller.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 
+	const breadcrumbs = useDetailBreadcrumbs( summary.title );
+
 	return (
 		<GlobalErrorProvider>
 			<WidgetDashboard
@@ -114,9 +117,7 @@ function PostDetail(): JSX.Element {
 			>
 				<Page
 					visual={ <StatsPageIcon /> }
-					breadcrumbs={
-						<StatsBreadcrumbs items={ summary.title ? [ { label: summary.title } ] : [] } />
-					}
+					breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
 					actions={
 						publicUrl ? (
 							<Button
@@ -137,23 +138,38 @@ function PostDetail(): JSX.Element {
 					className={ styles.page }
 				>
 					<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab }>
-						{ /*
-						 * The date filters and the summary card are shared by every tab
-						 * (same post, same date range), so they render once below the
-						 * tab bar and above the per-tab widget grid. The tab bar and the
-						 * filters stay fixed outside the scroll container, exactly like
-						 * the dashboard's section tabs; the summary header scrolls away
-						 * inside it with the widgets, giving them the vertical room.
-						 */ }
-						<div className={ styles.dateFilters }>
-							<DateFiltersPanel { ...dateFilters } />
-						</div>
 						<div className={ styles.scrollArea }>
+							{ /*
+							 * The summary card and the date filter presets share the
+							 * header row — title on the left, presets on the right, per
+							 * the design mocks. Both are shared by every tab (same post,
+							 * same date range), so they render once above the per-tab
+							 * widget grid and scroll away with it.
+							 */ }
 							<div className={ styles.header }>
-								<PostSummaryCard
-									summary={ summary }
-									performanceRange={ dateFilters.appliedRange }
-								/>
+								<div className={ styles.summary }>
+									<PostSummaryCard
+										summary={ summary }
+										performanceRange={ dateFilters.appliedRange }
+									/>
+								</div>
+								<div className={ styles.dateFilters }>
+									{ /*
+									 * The design has no period-over-period comparison on
+									 * this page, so the Compare control is opted out;
+									 * comparison params stay in the URL (stripped from the
+									 * widgets' injected reportParams) so the breadcrumb
+									 * carries them back to the dashboard.
+									 */ }
+									{ /*
+									 * Known rough edge: in this shrink-to-fit slot the panel's
+									 * self-measurement always sees its own content width, so the
+									 * presets keep their full layout and narrow rows degrade
+									 * poorly. External-measurement wiring ships separately
+									 * (#51088).
+									 */ }
+									<DateFiltersPanel { ...dateFilters } showComparison={ false } />
+								</div>
 							</div>
 							{ tabs.map( tab => (
 								<SectionTabPanel key={ tab.id } value={ tab.id } className={ styles.content }>

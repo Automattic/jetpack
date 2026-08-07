@@ -201,8 +201,12 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 			'is_connected'      => $this->is_connected(),
 			'is_user_connected' => $this->is_user_connected(),
 			'plan'              => array(
-				'supports_ai'     => class_exists( Current_Plan::class ) && Current_Plan::supports( 'ai-assistant' ),
-				'supports_search' => $supports_search,
+				'supports_ai'         => class_exists( Current_Plan::class ) && Current_Plan::supports( 'ai-assistant' ),
+				'supports_search'     => $supports_search,
+				// The free Search tier reports supports_search too, but its
+				// remedy for the gated AI Search row is still an upgrade — the
+				// settings page needs this flag to pick the right badge copy.
+				'is_free_search_plan' => $supports_search && $search_plan->is_free_plan(),
 			),
 			'master_enabled'    => Jetpack_AI_Settings::is_master_enabled(),
 			'features'          => array(

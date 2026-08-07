@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Insights: Reorder and resize the default widgets so each row fills the grid, and add Popular post, Total views, and Total visitors to the defaults.

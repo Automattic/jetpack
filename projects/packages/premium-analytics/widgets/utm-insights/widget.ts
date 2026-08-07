@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { trendingUp } from '@wordpress/icons';
+import { megaphone } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -36,7 +36,7 @@ export type UtmInsightsAttributes = {
  * shared dashboard date picker).
  */
 export default {
-	icon: trendingUp,
+	icon: megaphone,
 	attributes: [
 		{
 			id: 'utmDimension',

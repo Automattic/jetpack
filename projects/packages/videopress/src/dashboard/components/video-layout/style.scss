@@ -1,0 +1,24 @@
+// display: contents wrapper — a pure scoping hook so long video titles clamp
+// in the current-item crumb instead of pushing the header actions off-screen.
+// Same workaround as routes/video/style.scss's .vp-video-details__breadcrumbs
+// (Breadcrumbs' own class names are CSS-module hashes); if the clamp lands
+// upstream both copies can go away.
+.vp-video-layout__breadcrumbs {
+	display: contents;
+
+	li:last-child h1 {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		max-width: min(60ch, 40vw);
+	}
+}
+
+// On phones the header row must also hold undo/redo/Save, so the title
+// yields harder.
+@media ( max-width: 782px ) {
+
+	.vp-video-layout__breadcrumbs li:last-child h1 {
+		max-width: 24vw;
+	}
+}

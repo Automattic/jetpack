@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Chapters: Add an Editor tab with a Chapters tool to the video dashboard and a chapter manager modal in the block editor, behind a feature flag that is off by default.

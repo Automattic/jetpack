@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Ignore CVE-2026-67434 advisory for php_codesniffer 3.13.5, which mediawiki-codesniffer 51 pins exactly.
+
+

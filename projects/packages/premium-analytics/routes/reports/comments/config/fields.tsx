@@ -3,23 +3,31 @@
  */
 import { Link as UiLink } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { PostDetailLink } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Link as RouteLink } from '@wordpress/route';
 /**
  * Internal dependencies
  */
 import styles from './fields.module.css';
+import type { CommentsReportTabId } from './tabs';
 import type { CommentReportRow } from './use-report-records';
 import type { Field } from '@jetpack-premium-analytics/externals';
 
 /**
  * Render the label cell for a Comments report row.
  *
- * @param root0     - Component props.
- * @param root0.row - The Comments report row.
+ * @param root0               - Component props.
+ * @param root0.row           - The Comments report row.
+ * @param root0.originSection - The active Comments report tab.
  * @return The label cell.
  */
-function CommentLabel( { row }: { row: CommentReportRow } ) {
+function CommentLabel( {
+	row,
+	originSection,
+}: {
+	row: CommentReportRow;
+	originSection: CommentsReportTabId;
+} ) {
 	let content = (
 		<span title={ row.label } className={ styles.text }>
 			{ row.label }
@@ -28,14 +36,15 @@ function CommentLabel( { row }: { row: CommentReportRow } ) {
 
 	if ( row.postId ) {
 		content = (
-			<RouteLink
-				to="/post/$postId"
-				params={ { postId: row.postId } as unknown as never }
+			<PostDetailLink
+				postId={ row.postId }
+				report="comments"
+				originSection={ originSection }
 				title={ row.label }
 				className={ styles.text }
 			>
 				{ row.label }
-			</RouteLink>
+			</PostDetailLink>
 		);
 	} else if ( row.link ) {
 		content = (
@@ -62,9 +71,12 @@ function CommentLabel( { row }: { row: CommentReportRow } ) {
 /**
  * DataViews field config for the Comments records table.
  *
+ * @param originSection - The active Comments report tab.
  * @return The field config.
  */
-export function getCommentsFields(): Field< CommentReportRow >[] {
+export function getCommentsFields(
+	originSection: CommentsReportTabId
+): Field< CommentReportRow >[] {
 	return [
 		{
 			id: 'label',
@@ -72,7 +84,7 @@ export function getCommentsFields(): Field< CommentReportRow >[] {
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => item.label,
-			render: ( { item } ) => <CommentLabel row={ item } />,
+			render: ( { item } ) => <CommentLabel row={ item } originSection={ originSection } />,
 		},
 		{
 			id: 'comments',

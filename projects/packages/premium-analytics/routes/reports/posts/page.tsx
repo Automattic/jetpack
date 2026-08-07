@@ -120,8 +120,8 @@ function PostsReport(): JSX.Element {
 	const retry = useReportRetry( records.refetch );
 
 	const postsFields = useMemo(
-		() => getPostsFields( records.posts.hasComparison ),
-		[ records.posts.hasComparison ]
+		() => getPostsFields( records.posts.hasComparison, activeTab ),
+		[ activeTab, records.posts.hasComparison ]
 	);
 	const archivesFields = useMemo(
 		() => getArchivesFields( records.archives.hasComparison ),

@@ -83,4 +83,38 @@ body.jetpack_page_jetpack-ai {
 		justify-content: center;
 		padding: 48px 0;
 	}
+
+}
+
+// Feature rows: the design aligns the action link with the label's text
+// column. ToggleControl already indents its own help text; only the link
+// (rendered outside the control) needs the matching offset — 40px, same as
+// .components-toggle-control__help (32px toggle track plus its 8px gap).
+.jetpack-ai-features__action {
+	margin-inline-start: 40px;
+}
+
+// Section header: title left, optional "Requires upgrade" badge right,
+// matching the Search card in the design.
+.jetpack-ai-features__section-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+// The badge doubles as a popover trigger — a real button, so keyboard focus
+// and screen readers reach the remedy copy. Strip the button chrome so only
+// the badge itself shows (same reset as the Forms "Not collecting" badge).
+.jetpack-ai-features__upgrade-badge {
+	display: inline-flex;
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: help;
+}
+
+// The tab badge sits inline after the tab label; the Tabs.Tab button provides
+// no gap between its children, so give the badge its own start margin.
+.jetpack-ai-admin__tab-badge {
+	margin-inline-start: 8px;
 }

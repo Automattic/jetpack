@@ -1,0 +1,3 @@
+Significance: patch
+Type: other
+Comment: Convert the Newsletter email-preview modals to TypeScript.

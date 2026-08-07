@@ -118,12 +118,6 @@
 	font-size: 11px;
 }
 
-// Chapters helper hint reads as supporting copy, not body text.
-.vp-video-details__chapters-hint {
-	color: var(--jp-gray-50, #646970);
-	margin: 0;
-}
-
 // The minimal small button's hover background hugs its text; give it
 // breathing room without growing the row height.
 .vp-video-details__manage-subtitles {
