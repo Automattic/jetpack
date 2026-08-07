@@ -181,12 +181,18 @@ class Feedback_Email_Renderer {
 		$show_email_actions = apply_filters( 'jetpack_forms_email_show_actions', true );
 
 		if ( $feedback_status !== 'jp-temp-feedback' && $show_email_actions ) {
-			$dashboard_url = Forms_Dashboard::get_forms_admin_url( $status, $post_id );
+			// "View in dashboard" opens the response on its own page.
+			$dashboard_url = Forms_Dashboard::get_single_response_admin_url( $post_id );
 			// Test responses don't get a Mark-as-spam link in the email — marking
 			// a test entry as spam from email is confusing and the form owner can
 			// always do it from the dashboard if they want.
 			if ( ! $is_test ) {
-				$mark_as_spam_url        = self::add_mark_as_spam_to_url( $dashboard_url );
+				// Mark-as-spam still points at the responses list: its confirmation
+				// dialog lives in the list's response inspector, not on the
+				// standalone response page.
+				$mark_as_spam_url        = self::add_mark_as_spam_to_url(
+					Forms_Dashboard::get_forms_admin_url( $status, $post_id )
+				);
 				$footer_mark_as_spam_url = sprintf(
 					'<a href="%1$s">%2$s</a>',
 					esc_url( $mark_as_spam_url ),

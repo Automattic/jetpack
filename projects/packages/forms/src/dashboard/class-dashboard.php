@@ -184,6 +184,10 @@ class Dashboard {
 					if ( ! empty( $m[3] ) && strpos( $m[3], 'mark_as_spam' ) !== false ) {
 						$has_mark_as_spam = true;
 					}
+				} elseif ( preg_match( '#^/response/(\d+)#', $p, $m ) ) {
+					// Standalone single response page (wp-build only) — the legacy
+					// dashboard shows the response in the inbox list instead.
+					$post_id = absint( $m[1] );
 				} elseif ( preg_match( '#^/forms#', $p ) ) {
 					$tab = 'forms';
 				}
@@ -571,6 +575,36 @@ class Dashboard {
 		 * @return string The filtered Forms admin page URL.
 		 */
 		return apply_filters( 'jetpack_forms_admin_url', $url, $tab, $post_id );
+	}
+
+	/**
+	 * Returns the URL of the standalone single response page for a given response.
+	 *
+	 * The standalone page is a wp-build route (`/response/<id>`). The legacy
+	 * dashboard has no equivalent, so it falls back to the responses list with the
+	 * response selected — as does a missing/empty post ID.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int|null $post_id Post ID of the response to open.
+	 *
+	 * @return string
+	 */
+	public static function get_single_response_admin_url( $post_id = null ) {
+		$post_id = ! empty( $post_id ) ? absint( $post_id ) : null;
+
+		/** This filter is documented in class-dashboard.php::init */
+		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', true );
+
+		if ( ! $post_id || ! $is_wp_build_enabled ) {
+			return self::get_forms_admin_url( 'inbox', $post_id );
+		}
+
+		$url  = admin_url( 'admin.php' ) . '?page=' . self::FORMS_WPBUILD_ADMIN_SLUG;
+		$url .= '&p=' . rawurlencode( '/response/' . $post_id );
+
+		/** This filter is documented in class-dashboard.php::get_forms_admin_url */
+		return apply_filters( 'jetpack_forms_admin_url', $url, 'response', $post_id );
 	}
 
 	/**

@@ -14,7 +14,7 @@ import { useCallback, useEffect, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
-import { Stack } from '@wordpress/ui';
+import { Badge, Stack } from '@wordpress/ui';
 import * as React from 'react';
 /**
  * Internal dependencies
@@ -47,10 +47,33 @@ const RESPONSE_QUERY = { fields_format: 'collection' };
 type PreviewFileItem = FileItem | { url: string; name: string };
 
 /**
+ * Header badge for a response that is no longer in the inbox.
+ *
+ * Inbox responses (`publish`) get no badge — the absence of one is the normal
+ * state. Spam and trash are surfaced so that actioning a response from this page
+ * (which keeps the user here) still shows where it landed.
+ *
+ * @param props        - Component props.
+ * @param props.status - The response status.
+ * @return The badge, or null for inbox responses.
+ */
+function ResponseStatusBadge( { status }: { status: FormResponse[ 'status' ] } ) {
+	if ( status === 'spam' ) {
+		return <Badge intent="high">{ __( 'Spam', 'jetpack-forms' ) }</Badge>;
+	}
+
+	if ( status === 'trash' ) {
+		return <Badge intent="draft">{ __( 'Trash', 'jetpack-forms' ) }</Badge>;
+	}
+
+	return null;
+}
+
+/**
  * Standalone single response page (wp-build route).
  *
  * Renders one feedback response (meta + fields) as a full page at
- * `/response/$responseId`. Not linked from anywhere yet.
+ * `/response/$responseId`. Reached from the responses list's "View" row action.
  *
  * @return The single response page.
  */
@@ -225,6 +248,7 @@ function Stage(): React.JSX.Element {
 			breadcrumbs={
 				<SingleResponseBreadcrumbs response={ response } formTitle={ formName || formTitle } />
 			}
+			badges={ <ResponseStatusBadge status={ response.status } /> }
 			subTitle={ subTitle }
 			ariaLabel={ displayName }
 			actions={

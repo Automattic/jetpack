@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { DropdownMenu } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
 import { useRegistry } from '@wordpress/data';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -34,9 +35,11 @@ type Control = {
  * Top-bar actions for the standalone single response page.
  *
  * All actions live in a single three-dot dropdown (the `controls` API closes the
- * menu automatically on selection). Reuses the responses route action callbacks;
- * status-changing actions navigate back to the relevant responses list
- * afterwards, since the response leaves the current view.
+ * menu automatically on selection). Reuses the responses route action callbacks.
+ *
+ * Status changes (spam / not spam / trash / restore) keep the user on this page —
+ * the header badge reflects the new status instead. Only a permanent delete
+ * navigates away, since there is no longer a response to show.
  *
  * @param props          - Component props.
  * @param props.response - The response being viewed.
@@ -50,18 +53,37 @@ export default function SingleResponseActions( {
 	const registry = useRegistry() as unknown as Registry;
 	const navigate = useNavigate();
 
-	const actions = useMemo( () => getActions( { navigate, searchParams: {} } ), [ navigate ] );
+	const actions = useMemo( () => getActions( { navigate } ), [ navigate ] );
 	const currentView = VIEW_BY_STATUS[ response.status ] || 'inbox';
 
 	const runAction = useCallback(
-		async ( action: Action, navigateAway: boolean ) => {
+		async ( action: Action, nextStatus?: FormResponse[ 'status' ] ) => {
 			await action.callback?.( [ response ], { registry } );
-			if ( navigateAway ) {
-				navigate( { to: `/responses/${ currentView }` } );
+
+			// Trashing goes through `deleteEntityRecord`, which removes the record
+			// from core-data entirely — this page would then render its "not found"
+			// state. Put it back (carrying the new status) so the user keeps looking
+			// at the response they just actioned. The responses list does the same
+			// after trashing, to keep its Undo working.
+			if ( nextStatus === 'trash' ) {
+				registry
+					.dispatch( coreStore )
+					.receiveEntityRecords(
+						'postType',
+						'feedback',
+						[ { ...response, status: 'trash' } ],
+						undefined,
+						true
+					);
 			}
 		},
-		[ response, registry, navigate, currentView ]
+		[ response, registry ]
 	);
+
+	const deleteResponse = useCallback( async () => {
+		await actions.deleteAction.callback?.( [ response ], { registry } );
+		navigate( { to: `/responses/${ currentView }` } );
+	}, [ actions.deleteAction, response, registry, navigate, currentView ] );
 
 	// Grouped controls — nested arrays render as separate menu groups, and the
 	// `controls` API closes the dropdown automatically when an item is selected.
@@ -73,10 +95,7 @@ export default function SingleResponseActions( {
 				? __( 'Mark as read', 'jetpack-forms' )
 				: __( 'Mark as unread', 'jetpack-forms' ),
 			onClick: () =>
-				runAction(
-					response.is_unread ? actions.markAsReadAction : actions.markAsUnreadAction,
-					false
-				),
+				runAction( response.is_unread ? actions.markAsReadAction : actions.markAsUnreadAction ),
 		};
 
 		let statusControls: Control[];
@@ -84,22 +103,22 @@ export default function SingleResponseActions( {
 			statusControls = [
 				{
 					title: __( 'Not spam', 'jetpack-forms' ),
-					onClick: () => runAction( actions.markAsNotSpamAction, true ),
+					onClick: () => runAction( actions.markAsNotSpamAction, 'publish' ),
 				},
 				{
 					title: __( 'Trash', 'jetpack-forms' ),
-					onClick: () => runAction( actions.moveToTrashAction, true ),
+					onClick: () => runAction( actions.moveToTrashAction, 'trash' ),
 				},
 			];
 		} else if ( response.status === 'trash' ) {
 			statusControls = [
 				{
 					title: __( 'Restore', 'jetpack-forms' ),
-					onClick: () => runAction( actions.restoreAction, true ),
+					onClick: () => runAction( actions.restoreAction, 'publish' ),
 				},
 				{
 					title: __( 'Delete permanently', 'jetpack-forms' ),
-					onClick: () => runAction( actions.deleteAction, true ),
+					onClick: deleteResponse,
 					isDestructive: true,
 				},
 			];
@@ -107,11 +126,11 @@ export default function SingleResponseActions( {
 			statusControls = [
 				{
 					title: __( 'Mark as spam', 'jetpack-forms' ),
-					onClick: () => runAction( actions.markAsSpamAction, true ),
+					onClick: () => runAction( actions.markAsSpamAction, 'spam' ),
 				},
 				{
 					title: __( 'Trash', 'jetpack-forms' ),
-					onClick: () => runAction( actions.moveToTrashAction, true ),
+					onClick: () => runAction( actions.moveToTrashAction, 'trash' ),
 				},
 			];
 		}
@@ -128,7 +147,7 @@ export default function SingleResponseActions( {
 		}
 
 		return groups;
-	}, [ response, runAction, actions, registry ] );
+	}, [ response, runAction, deleteResponse, actions, registry ] );
 
 	return (
 		<DropdownMenu

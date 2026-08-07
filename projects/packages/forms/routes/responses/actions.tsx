@@ -287,17 +287,12 @@ export const BULK_ACTIONS = {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type NavigateFunction = ( options: any ) => void;
 
-type SearchParams = {
-	[ key: string ]: string | string[] | undefined;
-};
-
 type ActionWithDestructive = Action & {
 	isDestructive?: boolean;
 };
 
 type GetActionsParams = {
 	navigate: NavigateFunction;
-	searchParams: SearchParams;
 };
 
 type GetActionsReturn = {
@@ -322,7 +317,7 @@ type GetRowActionsParams = GetActionsParams & {
  * @param {GetActionsParams} params - Parameters for generating actions.
  * @return {GetActionsReturn} Object containing the actions.
  */
-export function getActions( { navigate, searchParams }: GetActionsParams ): GetActionsReturn {
+export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 	const viewAction: Action = {
 		id: 'view-response',
 		isPrimary: true,
@@ -334,13 +329,14 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
 				multiple: items.length > 1,
 			} );
 
-			const ids = items.map( item => item.id.toString() );
-			navigate( {
-				search: {
-					...searchParams,
-					responseIds: ids,
-				},
-			} );
+			const [ item ] = items;
+
+			if ( ! item ) {
+				return;
+			}
+
+			// Open the standalone single response page rather than the inspector panel.
+			navigate( { to: `/response/${ item.id }` } );
 		},
 	};
 
@@ -1250,11 +1246,7 @@ export function getActions( { navigate, searchParams }: GetActionsParams ): GetA
  * @param {GetRowActionsParams} params - Parameters for generating actions.
  * @return {ActionWithDestructive[]} Array of action configurations.
  */
-export function getRowActions( {
-	navigate,
-	searchParams,
-	view,
-}: GetRowActionsParams ): ActionWithDestructive[] {
+export function getRowActions( { navigate, view }: GetRowActionsParams ): ActionWithDestructive[] {
 	const {
 		viewAction,
 		editFormAction,
@@ -1265,10 +1257,7 @@ export function getRowActions( {
 		deleteAction,
 		markAsReadAction,
 		markAsUnreadAction,
-	} = getActions( {
-		navigate,
-		searchParams,
-	} );
+	} = getActions( { navigate } );
 
 	switch ( view ) {
 		case 'trash':

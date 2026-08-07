@@ -119,6 +119,35 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test get_single_response_admin_url points at the standalone response page (wp-build mode).
+	 */
+	public function test_get_single_response_admin_url_wp_build() {
+		add_filter( 'jetpack_forms_alpha', '__return_true' );
+
+		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=' . rawurlencode( '/response/123' );
+		$this->assertEquals( $expected, Dashboard::get_single_response_admin_url( 123 ) );
+
+		// Without a post ID there is no single response to open — fall back to the list.
+		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=' . rawurlencode( '/responses/inbox' );
+		$this->assertEquals( $expected, Dashboard::get_single_response_admin_url() );
+
+		remove_filter( 'jetpack_forms_alpha', '__return_true' );
+	}
+
+	/**
+	 * Test get_single_response_admin_url falls back to the responses list on the legacy dashboard,
+	 * which has no standalone single response route.
+	 */
+	public function test_get_single_response_admin_url_legacy() {
+		add_filter( 'jetpack_forms_alpha', '__return_false' );
+
+		$expected = get_admin_url() . 'admin.php?page=jetpack-forms-admin#/responses?status=inbox&r=123';
+		$this->assertEquals( $expected, Dashboard::get_single_response_admin_url( 123 ) );
+
+		remove_filter( 'jetpack_forms_alpha', '__return_false' );
+	}
+
+	/**
 	 * Test get_forms_admin_url without tab for wp-build dashboard
 	 */
 	public function test_get_forms_admin_url_wp_build_without_tab() {
