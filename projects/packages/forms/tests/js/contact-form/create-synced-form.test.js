@@ -23,6 +23,7 @@ await jest.unstable_mockModule( '@wordpress/blocks', () => ( {
 
 await jest.unstable_mockModule( '@wordpress/i18n', () => ( {
 	__: str => str,
+	sprintf: ( str, ...args ) => str.replace( /%s/g, () => args.shift() ),
 } ) );
 
 const { createSyncedForm } = await import(

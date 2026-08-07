@@ -8,6 +8,7 @@ import useJetpackFieldStyles from '../hooks/use-jetpack-field-styles.js';
 import useSyncRequiredIndicator from '../hooks/use-sync-required-indicator.js';
 import { ALLOWED_INNER_BLOCKS } from '../util/constants.js';
 import JetpackFieldControls from './jetpack-field-controls.jsx';
+import JetpackFieldHints from './jetpack-field-hints.jsx';
 
 const JetpackField = props => {
 	const {
@@ -47,7 +48,7 @@ const JetpackField = props => {
 		attributes,
 		setAttributes,
 	} );
-	const innerBlocksProps = useInnerBlocksProps( blockProps, {
+	const { children, ...innerBlocksProps } = useInnerBlocksProps( blockProps, {
 		allowedBlocks: ALLOWED_INNER_BLOCKS,
 		template,
 		templateLock: 'all',
@@ -55,7 +56,10 @@ const JetpackField = props => {
 
 	return (
 		<>
-			<div { ...innerBlocksProps } />
+			<div { ...innerBlocksProps }>
+				{ children }
+				<JetpackFieldHints attributes={ attributes } />
+			</div>
 			<JetpackFieldControls
 				id={ id }
 				required={ required }
@@ -63,6 +67,7 @@ const JetpackField = props => {
 				setAttributes={ setAttributes }
 				attributes={ attributes }
 				type={ type }
+				helpTextSupport
 			/>
 		</>
 	);

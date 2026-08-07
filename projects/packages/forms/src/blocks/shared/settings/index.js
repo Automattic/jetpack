@@ -34,6 +34,9 @@ export default {
 				groups: [],
 			},
 		},
+		helpText: {
+			type: 'string',
+		},
 	},
 	category: 'contact-form',
 	providesContext: {

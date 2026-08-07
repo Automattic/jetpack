@@ -1,4 +1,4 @@
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 export const ALLOWED_FORMATS = [ 'core/bold', 'core/italic' ];
 export const ALLOWED_INNER_BLOCKS = [ 'jetpack/label', 'jetpack/input' ];
@@ -55,6 +55,23 @@ export const DATE_FORMAT_OPTIONS = DATE_FORMATS.map(
 		value,
 	} )
 );
+
+/**
+ * The format instruction shown below a date field's input.
+ *
+ * @param {string} dateFormat - A DATE_FORMATS value, e.g. 'mm/dd/yy'.
+ * @return {string|null} The hint text, or null for an unknown format.
+ */
+export const getDateFormatHint = dateFormat => {
+	const format = DATE_FORMATS.find( f => f.value === dateFormat );
+
+	if ( ! format ) {
+		return null;
+	}
+
+	/* translators: %s is a date entry format, for example MM/DD/YYYY. */
+	return sprintf( __( 'Format: %s', 'jetpack-forms' ), format.label );
+};
 
 export const FORM_BLOCK_NAME = 'jetpack/contact-form';
 

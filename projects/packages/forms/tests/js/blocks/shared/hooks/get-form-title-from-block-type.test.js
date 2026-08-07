@@ -14,6 +14,7 @@ await jest.unstable_mockModule( '@wordpress/blocks', () => ( {
 
 await jest.unstable_mockModule( '@wordpress/i18n', () => ( {
 	__: jest.fn( str => str ),
+	sprintf: jest.fn( ( str, ...args ) => str.replace( /%s/g, () => args.shift() ) ),
 } ) );
 
 await jest.unstable_mockModule( '@wordpress/core-data', () => ( {

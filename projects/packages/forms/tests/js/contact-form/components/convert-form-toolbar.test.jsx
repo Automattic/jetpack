@@ -34,7 +34,10 @@ await jest.unstable_mockModule( '@wordpress/components', () => ( {
 	),
 } ) );
 
-await jest.unstable_mockModule( '@wordpress/i18n', () => ( { __: s => s } ) );
+await jest.unstable_mockModule( '@wordpress/i18n', () => ( {
+	__: s => s,
+	sprintf: ( s, ...args ) => s.replace( /%s/g, () => args.shift() ),
+} ) );
 await jest.unstable_mockModule( '@wordpress/block-editor', () => ( {
 	store: 'core/block-editor',
 } ) );
