@@ -34,9 +34,7 @@ import {
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 // The insights endpoint is not period-scoped: one request returns every year,
-// and the report params only pick which of those years is shown (see
-// `selectTotals`). They are accepted at the WidgetRoot boundary — from the URL
-// in product, injected in Storybook — so the host contract holds either way.
+// so the report params only pick which year is shown (see `selectTotals`).
 type AnnualHighlightsRenderAttributes = AnnualHighlightsAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type AnnualHighlightsWidgetProps = WidgetRenderProps< AnnualHighlightsRenderAttributes >;
@@ -47,10 +45,9 @@ const COUNT_FORMAT: DataFormat = {
 };
 
 /**
- * The totals the tiles read. The all-time selection has no row of its own in
- * the payload, so it is summed from the yearly ones — which is why this is a
- * subset of `StatsInsightsYear` rather than one of its rows: the averages and
- * image counts carry no meaning once years are added together.
+ * A subset of `StatsInsightsYear` rather than a row of it: all time is summed
+ * from the yearly rows, and the averages and image counts carry no meaning
+ * once years are added together.
  */
 type AnnualHighlightTotals = Pick<
 	StatsInsightsYear,
@@ -72,8 +69,7 @@ function findLatestYear( years: StatsInsightsYear[] ): StatsInsightsYear | undef
 }
 
 /**
- * Adds every year's totals together for the all-time selection. Counts are
- * additive, so the sum is the site's lifetime total.
+ * Adds every year's totals together for the all-time selection.
  *
  * @param years - The years the site has published in.
  * @return The lifetime totals.
@@ -94,11 +90,9 @@ function sumYears( years: StatsInsightsYear[] ): AnnualHighlightTotals {
  * Resolves the totals the section's date filter asks for.
  *
  * The Insights section offers all time and single years instead of a rolling
- * range, and that selection reaches the widget as the report preset. The
- * insights endpoint is not period-scoped — one request returns every year — so
- * the selection picks a row here rather than changing the request. A preset
- * from any other surface (the widget moved to a section with the rolling date
- * range, or no params at all) falls back to the most recent year.
+ * range, and that selection arrives as the report preset. Since the endpoint
+ * returns every year at once, the selection picks a row here rather than
+ * changing the request. Any other preset falls back to the most recent year.
  *
  * @param data     - The normalized insights response, or undefined while loading.
  * @param presetId - The report preset carrying the section's selection.
@@ -133,6 +127,12 @@ function selectTotals(
  * `MetricTileGrid` (see `selectTotals`). The insights module has no comparison
  * period, so each tile shows a bare formatted count. Which tiles appear is
  * controlled by the `metrics` attribute.
+ *
+ * `metrics` defaults to the same list `example.attributes` declares, which is
+ * what the settings UI shows for an instance carrying no attributes. Without
+ * the default the two disagree: every metric reads as enabled in the control
+ * while the body reports none selected. An explicit empty array still means
+ * "none".
  *
  * @param props         - The component props.
  * @param props.metrics - The enabled metric tile ids; missing means every metric.
@@ -239,20 +239,13 @@ function AnnualHighlightsReport( {
  * inner report. Host attributes are forwarded so any injected report params are
  * preserved even though the insights endpoint is not period-scoped.
  *
- * `metrics` falls back to the same defaults the widget's `example.attributes`
- * declares: an instance from the server's default layout carries no attributes,
- * while the settings UI reads those defaults when the instance has none. Without
- * the fallback the two disagree — every metric shows as enabled in the control
- * while the body reports that none are selected. An explicit empty array still
- * means "none", so unchecking every metric keeps its message.
- *
  * @param {AnnualHighlightsWidgetProps} props - The widget render props.
  * @return The rendered widget.
  */
 export default function AnnualHighlights( { attributes = {} }: AnnualHighlightsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<AnnualHighlightsReport metrics={ attributes.metrics ?? DEFAULT_HIGHLIGHT_METRICS } />
+			<AnnualHighlightsReport metrics={ attributes.metrics } />
 		</WidgetRoot>
 	);
 }
