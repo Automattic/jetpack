@@ -1258,8 +1258,6 @@ class Jetpack_Gutenberg {
 			// Signals Big Sky via the jetpack_image_studio_enabled filter on `init`,
 			// which can run on the front end.
 			'image-studio',
-			// Filters get_avatar_data on the front end to customize AI-authored note avatars.
-			'block-notes',
 		),
 		'extended-blocks' => array(
 			// Registers the videopress/video block on `init`, required to render it on the front end.
