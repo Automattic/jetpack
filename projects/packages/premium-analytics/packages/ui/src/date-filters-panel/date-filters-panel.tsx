@@ -362,11 +362,13 @@ export function DateFiltersPanel( {
 			</BaseControl>
 
 			{ showComparison && (
-				<BaseControl className="date-filters-panel__comparison" help={ comparisonControlProps.help }>
+				<BaseControl
+					className="date-filters-panel__comparison"
+					help={ comparisonControlProps.help }
+				>
 					{ comparisonControl }
 				</BaseControl>
 			) }
-
 		</Stack>
 	);
 }
