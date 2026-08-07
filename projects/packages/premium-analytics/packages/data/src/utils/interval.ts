@@ -12,6 +12,8 @@ import {
 	PRESET_LAST_YEAR,
 	PRESET_TODAY,
 	PRESET_YESTERDAY,
+	isIntervalType,
+	type IntervalType,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
 import { differenceInCalendarDays, differenceInHours } from 'date-fns';
@@ -20,23 +22,7 @@ import { differenceInCalendarDays, differenceInHours } from 'date-fns';
  */
 import { localTZDate } from './date';
 
-const INTERVAL_TYPES = [ 'hour', 'day', 'week', 'month', 'quarter', 'year' ] as const;
-
-/**
- * Report time-series bucket sizes, derived from the runtime tuple so both
- * stay in sync.
- */
-export type IntervalType = ( typeof INTERVAL_TYPES )[ number ];
-
-/**
- * Whether a value is a known `IntervalType`.
- *
- * @param value - Untyped candidate.
- * @return Whether `value` is an `IntervalType`.
- */
-function isIntervalType( value: unknown ): value is IntervalType {
-	return typeof value === 'string' && ( INTERVAL_TYPES as readonly string[] ).includes( value );
-}
+export type { IntervalType };
 
 export function getDaysBetweenInclusive( from: string, to: string ): number {
 	// Anchor both dates in UTC before diffing: `differenceInCalendarDays` reads
@@ -87,12 +73,15 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
  * Unknown / custom / year-surface presets derive the list from `from`–`to`
  * length.
  *
+ * Also what the interval control lists, so the menu can never offer a bucket
+ * the range would coerce away.
+ *
  * @param preset - Primary date-range preset, when known.
  * @param from   - Range start.
  * @param to     - Range end.
  * @return Allowed intervals, finest first.
  */
-function getAllowedIntervalsForPreset(
+export function getAllowedIntervalsForPreset(
 	preset: PrimaryPresetId | undefined,
 	from: string,
 	to: string
