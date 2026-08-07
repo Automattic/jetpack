@@ -1489,7 +1489,6 @@ class Contact_Form_Test extends BaseTestCase {
 			'default'             => 'foo',
 			'placeholder'         => 'PLACEHOLDTHIS!',
 			'id'                  => 'funID',
-			'format'              => '(YYYY-MM-DD)',
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'text' ) );
@@ -2035,12 +2034,12 @@ class Contact_Form_Test extends BaseTestCase {
 	 *                                                       and radio buttons.
 	 */
 	public function assertFieldLabel( $wrapper_div, $attributes, $tag_name = 'label' ) {
-		$type     = $attributes['type'];
-		$label    = $this->getFirstElement( $wrapper_div, $tag_name );
-		$expected = 'date' === $type ? $attributes['label'] . ' ' . $attributes['format'] : $attributes['label'];
+		$label = $this->getFirstElement( $wrapper_div, $tag_name );
 
+		// The date field no longer welds its format into the visible label —
+		// the format now renders as a separate hint element below the input.
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$this->assertEquals( $expected, trim( (string) $label->nodeValue ), 'Label is not what we expect it to be...' );
+		$this->assertEquals( $attributes['label'], trim( (string) $label->nodeValue ), 'Label is not what we expect it to be...' );
 	}
 
 	/**
