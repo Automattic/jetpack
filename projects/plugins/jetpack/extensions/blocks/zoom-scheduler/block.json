@@ -18,5 +18,10 @@
 		"url": {
 			"type": "string"
 		}
+	},
+	"example": {
+		"attributes": {
+			"url": "https://scheduler.zoom.us/wordpresscom/book-a-meeting"
+		}
 	}
 }
