@@ -128,6 +128,46 @@ describe( 'AiOverview', () => {
 		expect( screen.queryByRole( 'link', { name: /Activity log/ } ) ).not.toBeInTheDocument();
 	} );
 
+	test( 'walkthrough videos: renders the four cards with their durations', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		await expect( screen.findByText( 'Walkthrough videos' ) ).resolves.toBeInTheDocument();
+
+		// Titles and durations are fixed content from the i4 frame; the videos
+		// open articles on WordPress.com, so each card is a link.
+		const videos = [
+			[ 'Connect your site to Claude', '3:30' ],
+			[ 'Build a page from a single prompt', '2:36' ],
+			[ 'Manage your Media Library with AI', '3:27' ],
+			[ 'Optimize your site with AI', '3:39' ],
+		];
+		for ( const [ title, duration ] of videos ) {
+			const card = screen.getByRole( 'link', { name: new RegExp( title ) } );
+			expect( card ).toHaveTextContent( duration );
+		}
+	} );
+
+	test( 'walkthrough videos: each card links through the redirect service', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		await expect( screen.findByText( 'Walkthrough videos' ) ).resolves.toBeInTheDocument();
+
+		const slugByName = {
+			'Connect your site to Claude': 'jetpack-ai-video-connect-claude',
+			'Build a page from a single prompt': 'jetpack-ai-video-build-page',
+			'Manage your Media Library with AI': 'jetpack-ai-video-media-library',
+			'Optimize your site with AI': 'jetpack-ai-video-optimize-site',
+		};
+		for ( const [ name, slug ] of Object.entries( slugByName ) ) {
+			const card = screen.getByRole( 'link', { name: new RegExp( name ) } );
+			expect( card ).toHaveAttribute( 'href', expect.stringContaining( slug ) );
+		}
+	} );
+
 	test( 'documentation: renders all five links through the redirect service', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 

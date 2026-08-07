@@ -15,6 +15,34 @@ import { normalizeUsage, useAiUsage } from './use-ai-usage';
 
 import './style.scss';
 
+// Walkthrough videos. Titles and durations come from the i4 frame; the cards
+// open articles on WordPress.com rather than playing inline, so each is a
+// link. NOTE: like the documentation slugs below, these are chosen here and
+// not yet registered in the redirect service. Thumbnail artwork is still
+// pending, so the cards render a neutral placeholder panel for now.
+const WALKTHROUGH_VIDEOS = [
+	{
+		slug: 'jetpack-ai-video-connect-claude',
+		title: __( 'Connect your site to Claude', 'jetpack' ),
+		duration: '3:30',
+	},
+	{
+		slug: 'jetpack-ai-video-build-page',
+		title: __( 'Build a page from a single prompt', 'jetpack' ),
+		duration: '2:36',
+	},
+	{
+		slug: 'jetpack-ai-video-media-library',
+		title: __( 'Manage your Media Library with AI', 'jetpack' ),
+		duration: '3:27',
+	},
+	{
+		slug: 'jetpack-ai-video-optimize-site',
+		title: __( 'Optimize your site with AI', 'jetpack' ),
+		duration: '3:39',
+	},
+];
+
 // Redirect-service sources for the documentation links. NOTE: these slugs
 // are chosen for this page but not yet registered in the redirect service —
 // register them before the gate comes off.
@@ -161,6 +189,27 @@ export default function AiOverview( { activityLogUrl, upgradeUrl } ) {
 					/>
 				</Card.Root>
 			) }
+
+			<div className="jetpack-ai-overview__videos">
+				<Text as="h3" variant="heading-md">
+					{ __( 'Walkthrough videos', 'jetpack' ) }
+				</Text>
+				<div className="jetpack-ai-overview__video-grid">
+					{ WALKTHROUGH_VIDEOS.map( ( { slug, title, duration } ) => (
+						<a className="jetpack-ai-overview__video" href={ getRedirectUrl( slug ) } key={ slug }>
+							<span className="jetpack-ai-overview__video-thumb" />
+							<span className="jetpack-ai-overview__video-meta">
+								<Text as="span" variant="body-md">
+									{ title }
+								</Text>
+								<Text as="span" variant="body-md" className="jetpack-ai-overview__muted">
+									{ duration }
+								</Text>
+							</span>
+						</a>
+					) ) }
+				</div>
+			</div>
 
 			<div className="jetpack-ai-overview__docs">
 				<Text as="h3" variant="heading-md">
