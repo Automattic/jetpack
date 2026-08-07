@@ -222,6 +222,8 @@ function _wpcom_features_add_billing_data_to_purchases( $purchases, $blog_id ) {
 		$upgrades_by_blog[ $blog_id ] = array();
 		// Subscriptions only: skips domain-subscription combining so that every
 		// upgrade still matches a store subscription row one-to-one.
+		// WPCOM_Store_API only exists on WPCOM, hence the guard above.
+		// @phan-suppress-next-line PhanUndeclaredStaticMethod
 		foreach ( WPCOM_Store_API::get_site_billing_upgrades( $blog_id, true ) as $upgrade ) {
 			$upgrades_by_blog[ $blog_id ][ (string) $upgrade->ID ] = $upgrade;
 		}
