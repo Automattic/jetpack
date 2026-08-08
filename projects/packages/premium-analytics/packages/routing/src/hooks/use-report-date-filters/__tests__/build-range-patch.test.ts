@@ -6,38 +6,23 @@
 jest.mock( '@jetpack-premium-analytics/data', () => {
 	const { TZDateMini } = jest.requireActual( '@date-fns/tz' );
 
-	/**
-	 * Stub of `resolveIntervalForRange` for the presets these tests exercise.
+	/*
+	 * Only the timezone reads are stubbed, so day-bound math is deterministic
+	 * whatever timezone runs the tests.
 	 *
-	 * @param period  - Active date-range preset id.
-	 * @param _from   - Unused; signature parity with the real helper.
-	 * @param _to     - Unused; signature parity with the real helper.
-	 * @param current - Candidate interval to keep when still allowed.
-	 * @return Interval allowed for the mocked preset.
+	 * `resolveIntervalForRange` is the real one on purpose. A stub of it used to
+	 * live here with its own hardcoded allow-list, and when the real rules
+	 * changed the stub did not: these tests kept asserting that a `day` bucket
+	 * survived into a 24-hour window, which is the bug @louwie17 reported on
+	 * #51112. A test that owns a copy of the rule it is testing cannot fail when
+	 * the rule is wrong.
 	 */
-	const resolveIntervalForRange = (
-		period: string | undefined,
-		_from: string,
-		_to: string,
-		current?: string
-	) => {
-		let allowed = [ 'hour', 'day' ];
-		if ( period === 'last-7-days' ) {
-			allowed = [ 'day' ];
-		}
-
-		if ( current && allowed.includes( current ) ) {
-			return current;
-		}
-		return allowed[ 0 ];
-	};
-
 	return {
+		...jest.requireActual( '@jetpack-premium-analytics/data' ),
 		getSiteTimezone: () => '+00:00',
 		dateToISOStringWithLocalTZ: ( date: Date ) => new Date( date.getTime() ).toISOString(),
 		localTZDate: ( value: number | Date ) =>
 			new TZDateMini( typeof value === 'number' ? value : value.getTime(), '+00:00' ),
-		resolveIntervalForRange,
 	};
 } );
 /**
@@ -54,6 +39,10 @@ describe( 'buildRangePatch', () => {
 	// rounding would corrupt it.
 	const from = new Date( '2026-07-09T14:30:00.000Z' );
 	const to = new Date( '2026-07-10T14:30:00.000Z' );
+
+	// A window long enough to allow day buckets, for the cases about carrying a
+	// selection rather than about coercing it.
+	const wideTo = new Date( '2026-07-19T14:30:00.000Z' );
 
 	it( 'returns null when there is nothing to stage', () => {
 		expect( buildRangePatch( { effective: {} } ) ).toBeNull();
@@ -77,12 +66,12 @@ describe( 'buildRangePatch', () => {
 
 	it( 'keeps the current interval when the preset is unchanged and still allows it', () => {
 		const patch = buildRangePatch( {
-			nextRange: { from, to },
-			nextPresetId: 'last-24-hours',
-			effective: { preset: 'last-24-hours', interval: 'day' },
+			nextRange: { from, to: wideTo },
+			nextPresetId: 'last-30-days',
+			effective: { preset: 'last-30-days', interval: 'week' },
 		} );
 
-		expect( patch?.interval ).toBe( 'day' );
+		expect( patch?.interval ).toBe( 'week' );
 	} );
 
 	it( 'clamps an unsupported interval to the range default', () => {
@@ -97,13 +86,29 @@ describe( 'buildRangePatch', () => {
 
 	it( 'carries a still-allowed interval across a preset change', () => {
 		const patch = buildRangePatch( {
-			nextRange: { from, to },
-			nextPresetId: 'last-24-hours',
+			nextRange: { from, to: wideTo },
+			nextPresetId: 'last-30-days',
 			effective: { preset: 'last-7-days', interval: 'day' },
 		} );
 
-		// `day` is allowed for last-24-hours, so the selection survives.
+		// `day` is allowed for last-30-days too, so the selection survives.
 		expect( patch?.interval ).toBe( 'day' );
+	} );
+
+	/*
+	 * Reported by @louwie17 on #51112: switching to a day-long preset from one
+	 * bucketed by days kept `day`, drawing the whole window as a single bar.
+	 */
+	it( 'coerces a day bucket when switching to a day-long preset', () => {
+		for ( const preset of [ 'last-7-days', 'last-30-days' ] as const ) {
+			const patch = buildRangePatch( {
+				nextRange: { from, to },
+				nextPresetId: 'last-24-hours',
+				effective: { preset, interval: 'day' },
+			} );
+
+			expect( patch?.interval ).toBe( 'hour' );
+		}
 	} );
 
 	it( 'coerces an interval the new preset disallows', () => {
@@ -118,12 +123,24 @@ describe( 'buildRangePatch', () => {
 
 	it( 'carries the interval through a manual edit that leaves a preset', () => {
 		const patch = buildRangePatch( {
-			nextRange: { from, to },
+			nextRange: { from, to: wideTo },
 			nextPresetId: 'custom',
 			effective: { preset: 'last-7-days', interval: 'day' },
 		} );
 
 		expect( patch?.interval ).toBe( 'day' );
+	} );
+
+	// A stepped window carries no preset, so the same rule has to reach it
+	// through the range length rather than through the preset table.
+	it( 'coerces a day bucket on a day-long custom range', () => {
+		const patch = buildRangePatch( {
+			nextRange: { from, to },
+			nextPresetId: 'custom',
+			effective: { preset: 'last-7-days', interval: 'day' },
+		} );
+
+		expect( patch?.interval ).toBe( 'hour' );
 	} );
 
 	it( 'extends calendar and manual edits to the end of the day', () => {
