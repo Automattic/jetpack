@@ -5,21 +5,22 @@ import { differenceInCalendarDays } from 'date-fns';
 /**
  * Internal dependencies
  */
-import { includesPresent, stepDateRange } from '../step-date-range';
+import { canStepForward, stepDateRange } from '../step-date-range';
 import type { DateRange } from '../get-comparison-range';
 
 /**
  * Build a local-time date, so day boundaries land in the machine's timezone the
  * way the span helper reads them.
  *
- * @param year  - Full year.
- * @param month - 1-based month.
- * @param day   - Day of the month.
- * @param hour  - Hour of the day.
+ * @param year   - Full year.
+ * @param month  - 1-based month.
+ * @param day    - Day of the month.
+ * @param hour   - Hour of the day.
+ * @param minute - Minute of the hour.
  * @return The date.
  */
-function at( year: number, month: number, day: number, hour = 0 ): Date {
-	return new Date( year, month - 1, day, hour );
+function at( year: number, month: number, day: number, hour = 0, minute = 0 ): Date {
+	return new Date( year, month - 1, day, hour, minute );
 }
 
 /**
@@ -134,26 +135,44 @@ describe( 'stepDateRange', () => {
 	} );
 } );
 
-describe( 'includesPresent', () => {
+describe( 'canStepForward', () => {
 	const now = at( 2026, 7, 27, 12 );
 
-	it( 'is true for a window still running', () => {
-		expect( includesPresent( { from: at( 2026, 7, 21 ), to: at( 2026, 7, 27, 23 ) }, now ) ).toBe(
-			true
-		);
+	/*
+	 * The two shapes a live preset takes, and the reason this asks about the
+	 * next window rather than about the present. `Last 24 hours` ends at a `now`
+	 * captured when the range was built, already stale by the time anything
+	 * reads it. `Last 7 days` ends at the end of yesterday and never contains
+	 * the present at all. Both are the latest window available.
+	 */
+	it( 'is false on a rolling window whose end has just gone stale', () => {
+		const to = at( 2026, 7, 27, 11, 59 );
+
+		expect( canStepForward( { from: at( 2026, 7, 26, 11, 59 ), to }, now ) ).toBe( false );
 	} );
 
-	it( 'is true for a window ending exactly now', () => {
-		expect( includesPresent( { from: at( 2026, 7, 26, 12 ), to: now }, now ) ).toBe( true );
+	it( 'is false on a window ending at the end of yesterday', () => {
+		const range = wholeDays( at( 2026, 7, 20 ), at( 2026, 7, 26 ) );
+
+		expect( canStepForward( range, now ) ).toBe( false );
 	} );
 
-	it( 'is false once the window is entirely in the past', () => {
-		expect( includesPresent( { from: at( 2026, 7, 14 ), to: at( 2026, 7, 20 ) }, now ) ).toBe(
-			false
-		);
+	it( 'is true once the window has been stepped back', () => {
+		const range = wholeDays( at( 2026, 7, 13 ), at( 2026, 7, 19 ) );
+
+		expect( canStepForward( range, now ) ).toBe( true );
 	} );
 
-	it( 'is false without an end to compare', () => {
-		expect( includesPresent( { from: at( 2026, 7, 14 ), to: undefined }, now ) ).toBe( false );
+	// Stepping forward from there lands on the latest window, which is where the
+	// control has to disappear again.
+	it( 'turns false again on the window a forward step lands on', () => {
+		const range = wholeDays( at( 2026, 7, 13 ), at( 2026, 7, 19 ) );
+		const next = stepDateRange( range, 'next' );
+
+		expect( canStepForward( next!, now ) ).toBe( false );
+	} );
+
+	it( 'is false without an end to step from', () => {
+		expect( canStepForward( { from: at( 2026, 7, 14 ), to: undefined }, now ) ).toBe( false );
 	} );
 } );

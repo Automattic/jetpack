@@ -88,20 +88,24 @@ export function stepDateRange( range: DateRange, direction: StepDirection ): Dat
 }
 
 /**
- * Whether a window still reaches the present.
+ * Whether there is a later window to step into.
  *
- * What the next control reads: a window ending at or after now has no future to
- * step into, so the control is absent rather than disabled. A live preset is
- * the common case, but a stepped window that lands back on the present answers
- * the same way, which is what makes the control disappear again on the way
- * forward.
+ * What the next control reads. The question is not whether the window touches
+ * the present but whether the one after it exists: a step whose end lands in
+ * the future has nothing to show.
+ *
+ * That distinction is the whole rule. A live preset's `to` is a snapshot of
+ * "now" taken when the range was computed, so it is already in the past by the
+ * time anything reads it, and `Last 7 days` ends at the end of yesterday and
+ * never contains the present at all. Both are the latest window available, and
+ * both have to answer no.
  *
  * @param range - The window to test.
  * @param now   - The instant to compare against. Pass the site's, not the browser's.
- * @return Whether the window includes the present.
+ * @return Whether a forward step lands on a window that has already happened.
  */
-export function includesPresent( range: DateRange, now: Date ): boolean {
-	const to = range.to;
+export function canStepForward( range: DateRange, now: Date ): boolean {
+	const next = stepDateRange( range, 'next' );
 
-	return !! to && to.getTime() >= now.getTime();
+	return !! next?.to && next.to.getTime() <= now.getTime();
 }

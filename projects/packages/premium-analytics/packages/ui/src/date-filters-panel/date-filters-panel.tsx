@@ -3,7 +3,7 @@
  */
 import {
 	getQuickSurfacePresets,
-	includesPresent,
+	canStepForward,
 	isComparisonPresetId,
 	isPrimaryPreset,
 	type ComparisonPresetId,
@@ -370,7 +370,7 @@ export function DateFiltersPanel( {
 
 		return (
 			<DatePeriodNavigation
-				canStepForward={ ! includesPresent( committedRange, new Date() ) }
+				canStepForward={ canStepForward( committedRange, new Date() ) }
 				onStep={ onStep }
 			/>
 		);
