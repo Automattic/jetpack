@@ -27,8 +27,8 @@ import McpWrite from './mcp/write';
 
 const { blogId, activityLogUrl, apiRoot, apiNonce } = window?.jetpackAiSettings ?? {};
 
-// Matches the `source` value convention used by the MCP upsell events.
-const SETTINGS_SOURCE = 'jetpack-ai-mcp-settings';
+// Matches the `ref` value convention used by the MCP upsell events.
+const SETTINGS_REF = 'jetpack-ai-mcp-settings';
 
 const MCP_SUB_VIEWS = [ 'read', 'write', 'setup' ];
 
@@ -149,7 +149,7 @@ export default function App() {
 			// blog_id is attached automatically by the analytics library from
 			// window.jpTracksContext, which the page sets via an inline script.
 			analytics.tracks.recordEvent( 'jetpack_mcp_settings_viewed', {
-				source: SETTINGS_SOURCE,
+				ref: SETTINGS_REF,
 			} );
 		}
 	}, [ isLoading, hasMcpAccess, isMcpContext ] );
