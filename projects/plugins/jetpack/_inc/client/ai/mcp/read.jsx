@@ -175,7 +175,7 @@ export default function McpRead( { mcpAbilities, blogId, savingToolIds, onUpdate
 	const handleToolChange = useCallback(
 		( toolId, enabled ) => {
 			analytics.tracks.recordEvent( 'jetpack_mcp_allowlist_updated', {
-				tool_id: toolId,
+				ability_name: toolId,
 				enabled,
 				view: 'read',
 			} );
