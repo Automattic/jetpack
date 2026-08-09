@@ -270,14 +270,11 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 	);
 
 	/*
-	 * A step is a date change the reader asked for, so it commits on click and
-	 * pushes a history entry: Back has to undo the step, not the navigation
-	 * before it. That is also what makes a stepped window real URL state, so it
-	 * survives a reload.
+	 * Commits on click and pushes a history entry, so Back undoes the step and
+	 * the stepped window survives a reload as real URL state.
 	 *
-	 * It steps the applied range rather than the staged one, since the arrows
-	 * sit outside the picker. A staged draft is left alone: stepping is not the
-	 * gesture that applies it.
+	 * Steps the applied range, not the staged one: the arrows sit outside the
+	 * picker, so stepping is not the gesture that applies someone's open draft.
 	 */
 	const onStep = useCallback(
 		( direction: StepDirection ) => {

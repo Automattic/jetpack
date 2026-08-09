@@ -24,9 +24,9 @@ type DatePeriodNavigationProps = {
 /**
  * Steps the active window backward and forward by its own length.
  *
- * The forward control is absent rather than disabled while the window reaches
- * the present: a disabled arrow states a rule the reader has to work out, and
- * on a live preset that rule holds for as long as they stay on it.
+ * The forward control is absent rather than disabled on the latest window: a
+ * disabled arrow states a rule the reader has to work out, and on a live preset
+ * that rule holds for as long as they stay on it.
  *
  * @param {DatePeriodNavigationProps} props - The props for the DatePeriodNavigation component.
  * @return The navigation element.
