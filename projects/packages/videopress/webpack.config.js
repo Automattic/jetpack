@@ -98,6 +98,14 @@ module.exports = [
 						from: 'src/client/block-editor/extensions/index.json',
 						to: './block-editor/extensions/index.json',
 					},
+					{
+						context: 'src/dashboard/components/onboarding-modal/images',
+						// Both extensions: the tab previews are JPEGs, the artwork
+						// panel's cover is a PNG. Anything added to this folder in a
+						// third format has to be added here too or it silently 404s.
+						from: './*.{jpeg,png}',
+						to: './dashboard/onboarding-modal/images/[name][ext]',
+					},
 				],
 			} ),
 		],

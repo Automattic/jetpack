@@ -366,6 +366,8 @@ class Admin_UI {
 		// This callback is registered via `load-{$page_suffix}` in `enable_menu()`,
 		// so it only fires on the VideoPress admin page — no need to re-check the page here.
 		if ( self::is_modernized() ) {
+			Admin_Menu::enqueue_design_tokens();
+
 			// Page-level shell stylesheet: scopes the shared `jetpack-admin-page-layout`
 			// mixin to the dashboard body so every route inherits the proper
 			// scrollable chrome (fixed `#wpbody-content`, scrollable middle, pinned

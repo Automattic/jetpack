@@ -1,0 +1,528 @@
+.vp-onboarding {
+	width: 660px;
+	max-width: 100%;
+	margin: 0 auto;
+	padding: var(--wpds-dimension-padding-3xl) 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-2xl);
+
+	// `@wordpress/ui`'s `Text variant="heading-2xl"` supplies the type: 32px
+	// `2xl` size, 40px line-height and the `medium` (499) weight every other
+	// heading around this one runs on — the `AdminPage` masthead title, the card
+	// titles and the tile titles all compute 499. This used to restate the size
+	// and force `600` (`--wpds-typography-font-weight-emphasis`, which is the
+	// weight `@wordpress/components` buttons use, not a heading rung), which
+	// made the h1 the one heading on the page in a heavier grade than
+	// everything beneath it. Only the vertical rhythm is set here now.
+	&__welcome {
+		margin: var(--wpds-dimension-gap-lg) 0;
+	}
+
+	// Card spec: 8px radius, 1px neutral-stroke border, white surface.
+	&__card {
+		width: 100%;
+		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+		border-radius: var(--wpds-border-radius-lg);
+		background: var(--wpds-color-background-surface-neutral-strong);
+	}
+
+	&__lede {
+		max-width: 64ch;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	// The "ways in" tiles: two equal columns across the 660px column.
+	&__options {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: var(--wpds-dimension-gap-lg);
+	}
+
+	&__option {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--wpds-dimension-gap-xs);
+		padding: var(--wpds-dimension-padding-xl);
+		text-align: left;
+		background: var(--wpds-color-background-surface-neutral);
+		// Resting border matches the card border (neutral stroke, not weak).
+		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+		border-radius: var(--wpds-border-radius-lg);
+		cursor: var(--wpds-cursor-control);
+		transition: background var(--wpds-motion-duration-sm) var(--wpds-motion-easing-subtle);
+
+		// Very subtle gray hover fill, not a dark border.
+		&:hover {
+			background: var(--wpds-color-background-surface-neutral-weak);
+		}
+
+		&:disabled {
+			cursor: default;
+			opacity: 0.64;
+		}
+
+		&:disabled:hover {
+			background: var(--wpds-color-background-surface-neutral);
+		}
+	}
+
+	&__option-icon {
+		display: inline-flex;
+		margin-bottom: var(--wpds-dimension-gap-sm);
+		color: var(--wpds-color-foreground-content-neutral);
+	}
+
+	&__option-title {
+		color: var(--wpds-color-foreground-content-neutral);
+		font-weight: var(--wpds-typography-font-weight-medium);
+	}
+
+	&__option-desc {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	// The dropzone (last card). The dashed outline is drawn by an SVG <rect>
+	// overlay (not a CSS `dashed` border) so the dash length + gap are
+	// controllable — CSS can't space out `border-style: dashed`. Stroke color is
+	// still the card's neutral-stroke token.
+	&__dropzone {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: var(--wpds-dimension-gap-sm);
+		padding: var(--wpds-dimension-padding-3xl) var(--wpds-dimension-padding-2xl);
+		text-align: center;
+		background: var(--wpds-color-background-surface-neutral-strong); // white
+		border-radius: var(--wpds-border-radius-lg);
+		transition: background var(--wpds-motion-duration-sm) var(--wpds-motion-easing-subtle);
+
+		// Very subtle grayer fill on hover.
+		&:hover {
+			background: var(--wpds-color-background-surface-neutral-weak);
+		}
+
+		&.is-dragging {
+			background: var(--wpds-color-background-surface-brand);
+
+			.vp-onboarding__dropzone-outline-rect {
+				stroke: var(--wpds-color-stroke-interactive-brand);
+			}
+		}
+
+		&.is-disabled,
+		&.is-disabled:hover {
+			background: var(--wpds-color-background-surface-neutral-strong);
+		}
+	}
+
+	&__dropzone-outline {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		pointer-events: none;
+		overflow: visible;
+	}
+
+	&__dropzone-outline-rect {
+		x: 0.5px;
+		y: 0.5px;
+		width: calc(100% - 1px);
+		height: calc(100% - 1px);
+		rx: var(--wpds-border-radius-lg);
+		fill: none;
+		stroke: var(--wpds-color-stroke-surface-neutral);
+		stroke-width: var(--wpds-border-width-xs);
+		// Round dots (round caps on ~1px dashes), ~5px apart — reads as dots,
+		// more of them and tighter than the earlier long dashes.
+		stroke-linecap: round;
+		stroke-dasharray: 1 5;
+	}
+
+	&__dropzone-icon {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__dropzone-hint {
+		color: var(--wpds-color-foreground-content-neutral);
+	}
+
+	&__dropzone-sub {
+		max-width: 48ch;
+		margin-bottom: var(--wpds-dimension-gap-sm);
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__input {
+		display: none;
+	}
+
+	&__limit-notice {
+		margin-bottom: var(--wpds-dimension-gap-lg);
+	}
+
+	@media ( max-width: 782px ) {
+
+		&__options {
+			grid-template-columns: 1fr;
+		}
+	}
+}
+
+// PARKED — styles for the "Try a sample" modal. The tile that opened it was
+// removed from the "Get your first video online" card, so nothing renders
+// `SampleVideoModal` today; kept whole alongside it (see stage.tsx) so the
+// tile can be restored without rebuilding the modal.
+.vp-sample-modal.components-modal__frame {
+	width: min(100%, 48rem);
+	max-block-size: calc(100vh - var(--wpds-dimension-padding-3xl));
+}
+
+.vp-sample-modal {
+
+	&__body {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-lg);
+	}
+
+	&__player {
+		display: block;
+		inline-size: 100%;
+		aspect-ratio: 16 / 9;
+		background: var(--wpds-color-background-surface-neutral-weak);
+		object-fit: contain;
+	}
+
+	&__actions {
+		display: flex;
+		justify-content: flex-end;
+		flex-wrap: wrap;
+		gap: var(--wpds-dimension-gap-sm);
+		margin-top: var(--wpds-dimension-gap-lg);
+		padding-top: var(--wpds-dimension-padding-lg);
+		border-top: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	}
+}
+
+// Multi-step card morph. The active card slides up + fades in
+// while the previous slides up + fades out, and the wrapper height
+// eases between the two — the Cloudflare onboarding step transition.
+$vp-flow-easing: cubic-bezier(0.2, 0.7, 0.2, 1);
+$vp-flow-duration: 380ms;
+
+.vp-flow {
+	position: relative;
+	transition: height $vp-flow-duration $vp-flow-easing;
+
+	&__card {
+		width: 100%;
+
+		&.is-enter {
+			animation: vp-card-in $vp-flow-duration $vp-flow-easing both;
+		}
+
+		// The exiting card overlays in the same spot so both are briefly visible.
+		&.is-exit {
+			position: absolute;
+			inset: 0;
+			pointer-events: none;
+			animation: vp-card-out $vp-flow-duration $vp-flow-easing both;
+		}
+	}
+}
+
+@keyframes vp-card-in {
+
+	from {
+		opacity: 0;
+		transform: translateY(16px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes vp-card-out {
+
+	from {
+		opacity: 1;
+		transform: translateY(0);
+	}
+
+	to {
+		opacity: 0;
+		transform: translateY(-16px);
+	}
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+
+	.vp-flow {
+		transition: none;
+	}
+
+	.vp-flow__card.is-enter,
+	.vp-flow__card.is-exit {
+		animation: none;
+	}
+
+	.vp-flow__card.is-exit {
+		display: none;
+	}
+
+	.vp-onboarding > .vp-onboarding__welcome,
+	.vp-onboarding > .vp-onboarding__card,
+	.vp-onboarding > .vp-flow {
+		animation: none;
+	}
+}
+
+// Staggered entrance on first load: the welcome line, the intro card, and the
+// step flow each fade up slightly, one just behind the next.
+@keyframes vp-fade-up {
+
+	from {
+		opacity: 0;
+		transform: translateY(12px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.vp-onboarding {
+
+	> .vp-onboarding__welcome,
+	> .vp-onboarding__card,
+	> .vp-flow {
+		animation: vp-fade-up 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+	}
+
+	> .vp-onboarding__welcome {
+		animation-delay: 40ms;
+	}
+
+	> .vp-onboarding__card {
+		animation-delay: 130ms;
+	}
+
+	> .vp-flow {
+		animation-delay: 220ms;
+	}
+}
+
+// Uploading step — the DS ProgressBar + percentage.
+.vp-uploading {
+
+	&__pct {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+		font-size: var(--wpds-typography-font-size-sm);
+		font-variant-numeric: tabular-nums;
+	}
+
+	&__bar {
+		width: 100%;
+	}
+
+	&__hint {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__error {
+		color: var(--wpds-color-foreground-content-error);
+	}
+
+	&__actions {
+		display: flex;
+		justify-content: flex-start;
+	}
+}
+
+// Bulk upload — per-file progress rows (uploading) and per-file
+// title rows (details).
+.vp-bulk {
+	// Uploading: icon + (name/pct row above a progress bar).
+	&__uprow {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--wpds-dimension-gap-sm);
+	}
+
+	&__uprow-main {
+		flex: 1;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-xs);
+	}
+
+	&__uprow-top {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--wpds-dimension-gap-sm);
+	}
+
+	// Details: status head plus file-name and title inputs, divided per row.
+	&__row {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-md);
+		padding-bottom: var(--wpds-dimension-gap-lg);
+		border-bottom:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral-weak);
+
+		&:last-child {
+			padding-bottom: 0;
+			border-bottom: none;
+		}
+	}
+
+	&__row-head {
+		display: flex;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-sm);
+		margin-bottom: var(--wpds-dimension-gap-sm);
+	}
+}
+
+// Success step — confirmation plus share links for the published attachments.
+.vp-success {
+
+	&__summary {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__title {
+		color: var(--wpds-color-foreground-content-neutral);
+		font-weight: var(--wpds-typography-font-weight-medium);
+		overflow-wrap: anywhere;
+	}
+
+	&__share {
+		display: flex;
+		align-items: flex-end;
+		gap: var(--wpds-dimension-gap-sm);
+	}
+
+	&__share-field {
+		flex: 1;
+		min-width: 0;
+	}
+
+	&__list {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-lg);
+	}
+
+	&__item {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-sm);
+		padding-bottom: var(--wpds-dimension-gap-lg);
+		border-bottom:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral-weak);
+
+		&:last-child {
+			padding-bottom: 0;
+			border-bottom: none;
+		}
+	}
+
+	// Bulk step only — the per-video "Add to a post" menu sits under its share
+	// row, left-aligned so it reads as belonging to that video rather than to
+	// the card as a whole.
+	&__item-actions {
+		display: flex;
+		justify-content: flex-start;
+	}
+
+	&__copy-status {
+		color: var(--wpds-color-foreground-content-success);
+
+		&.is-error {
+			color: var(--wpds-color-foreground-content-error);
+		}
+	}
+
+	&__actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: var(--wpds-dimension-gap-sm);
+		padding: var(--wpds-dimension-padding-lg) var(--wpds-dimension-padding-xl);
+		border-top: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	}
+
+	@media ( max-width: 782px ) {
+
+		&__share {
+			align-items: stretch;
+			flex-direction: column;
+		}
+	}
+}
+
+// Details step — the uploaded-file chip + form actions.
+.vp-details {
+
+	&__file {
+		display: flex;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-sm);
+		padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-lg);
+		background: var(--wpds-color-background-surface-neutral-weak);
+		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+		border-radius: var(--wpds-border-radius-md);
+	}
+
+	&__file-icon {
+		display: inline-flex;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__file-name {
+		flex: 1;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		color: var(--wpds-color-foreground-content-neutral);
+		font-weight: var(--wpds-typography-font-weight-medium);
+	}
+
+	&__file-status {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-xs);
+		color: var(--wpds-color-foreground-content-success);
+		font-size: var(--wpds-typography-font-size-sm);
+
+		&.is-error {
+			color: var(--wpds-color-foreground-content-error);
+		}
+	}
+
+	&__error {
+		color: var(--wpds-color-foreground-content-error);
+	}
+
+	&__actions {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: var(--wpds-dimension-padding-lg) var(--wpds-dimension-padding-xl);
+		border-top: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	}
+}

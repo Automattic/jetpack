@@ -1,0 +1,1582 @@
+import { useQueryClient } from '@tanstack/react-query';
+import apiFetch from '@wordpress/api-fetch';
+import {
+	Button,
+	DropdownMenu,
+	MenuGroup,
+	MenuItem,
+	Modal,
+	ProgressBar,
+	TextControl,
+} from '@wordpress/components';
+import { useRef, useState, useCallback, useLayoutEffect, useEffect } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
+// `post`/`page` are aliased because the parked SampleVideoModal already has a
+// local `post` binding for the draft it creates.
+import {
+	Icon,
+	upload,
+	cloud,
+	media,
+	check,
+	copy,
+	plus,
+	page as pageIcon,
+	post as postIcon,
+} from '@wordpress/icons';
+import { useNavigate } from '@wordpress/route';
+import { Card, Stack, Text } from '@wordpress/ui';
+import { addQueryArgs } from '@wordpress/url';
+import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
+import FreeTierNotice from '../../src/dashboard/components/overview/free-tier-notice';
+import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
+import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
+import { LIBRARY_QUERY_KEY } from '../../src/dashboard/hooks/use-library';
+import './style.scss';
+import type { ReactNode } from 'react';
+
+type Step = 'upload' | 'uploading' | 'details' | 'success';
+type UploadStatus = 'pending' | 'uploading' | 'success' | 'failed';
+
+type UploadedMedia = {
+	id: number;
+	source_url?: string;
+	// VideoPress GUID, when the site has already registered the attachment as a
+	// VideoPress video. See `readVideoPressGuid` for why it is often absent.
+	videopressGuid?: string;
+};
+
+// The subset of a /wp/v2/media response this route reads. `jetpack_videopress`
+// is the REST field registered by WPCOM_REST_API_V2_Attachment_VideoPress_Data
+// (see src/class-initializer.php); `jetpack_videopress_guid` is the Simple-only
+// flat field. Both are absent on sites without a VideoPress-backed attachment.
+type MediaApiResponse = {
+	id?: unknown;
+	source_url?: string;
+	message?: string;
+	jetpack_videopress?: { guid?: unknown } | null;
+	jetpack_videopress_guid?: unknown;
+};
+
+type UploadItem = {
+	id: string;
+	file: File;
+	progress: number;
+	status: UploadStatus;
+	media?: UploadedMedia;
+	error?: string;
+};
+
+type MediaDetailsPatch = {
+	mediaId: number;
+	title: string;
+	description?: string;
+	shareUrl?: string;
+	videopressGuid?: string;
+};
+
+type PublishedVideo = {
+	mediaId: number;
+	title: string;
+	shareUrl?: string;
+	// Present only when the attachment is already a VideoPress video. The
+	// "Add to a post or page" action is hidden without it — see SuccessCard.
+	videopressGuid?: string;
+};
+
+// The two content types the success step can hand a video off to. Anything
+// else (adding to an *existing* post or page) is deliberately out of scope.
+type NewContentType = 'post' | 'page';
+
+type SampleVideo = {
+	id: number;
+	sourceUrl: string;
+};
+
+type SampleMediaResponse = {
+	id?: unknown;
+	source_url?: unknown;
+};
+
+type CreatedPost = {
+	id?: unknown;
+};
+
+type SampleCopyTarget = 'link' | 'embed';
+
+type StartOption = {
+	icon: ReactNode;
+	title: string;
+	description: string;
+	onClick?: () => void;
+	disabled?: boolean;
+};
+
+const SAMPLE_MEDIA_TITLE = 'videopress-sample';
+
+const restApiConfig = () => {
+	const initialState =
+		typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined' ? JPVIDEOPRESS_INITIAL_STATE : undefined;
+	const wpApiSettings = (
+		window as typeof window & { wpApiSettings?: { root?: string; nonce?: string } }
+	 ).wpApiSettings;
+	const root = initialState?.API?.WP_API_root ?? wpApiSettings?.root;
+	const nonce = initialState?.API?.WP_API_nonce ?? wpApiSettings?.nonce;
+
+	if ( ! root || ! nonce ) {
+		throw new Error(
+			__(
+				'Video upload is unavailable because the REST API credentials are missing.',
+				'jetpack-videopress-pkg'
+			)
+		);
+	}
+
+	return { root, nonce };
+};
+
+const restUrl = ( path: string ) => {
+	const { root } = restApiConfig();
+	const base = new URL( root.endsWith( '/' ) ? root : `${ root }/`, window.location.origin );
+	return new URL( path.replace( /^\/+/, '' ), base ).toString();
+};
+
+/**
+ * Pull the VideoPress GUID out of a /wp/v2/media response.
+ *
+ * A GUID only exists once the site has registered the attachment as a
+ * VideoPress video, which needs a WordPress.com connection. This onboarding
+ * route uploads through plain `wp/v2/media` (see `uploadToMediaLibrary`), so on
+ * an unconnected/local site the field is empty and every caller must treat the
+ * GUID as optional.
+ *
+ * @param response - A raw media item from the REST API.
+ * @return The GUID, or undefined when the attachment is not a VideoPress video.
+ */
+const readVideoPressGuid = ( response: MediaApiResponse | undefined ): string | undefined => {
+	const guid = response?.jetpack_videopress?.guid ?? response?.jetpack_videopress_guid;
+	return typeof guid === 'string' && guid !== '' ? guid : undefined;
+};
+
+/**
+ * Open a brand-new post or page in the block editor with the video already in
+ * it. The block markup is produced server-side by
+ * `Block_Editor_Content::videopress_video_block_by_guid()`, which filters
+ * `default_content` on `post-new.php` when the request carries a GUID and a
+ * valid `videopress-content-nonce`. Because it hooks `post-new.php`, passing
+ * `post_type=page` gets page support for free.
+ *
+ * Opened in a new tab so the user keeps their place on the success step.
+ *
+ * @param guid        - The VideoPress GUID of the published video.
+ * @param contentType - Whether to create a new post or a new page.
+ */
+const openInNewContent = ( guid: string, contentType: NewContentType ) => {
+	const nonce =
+		typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined'
+			? JPVIDEOPRESS_INITIAL_STATE?.API?.contentNonce
+			: undefined;
+
+	if ( ! guid || ! nonce ) {
+		return;
+	}
+
+	const args: Record< string, string > = { videopress_guid: guid, _wpnonce: nonce };
+	if ( contentType === 'page' ) {
+		args.post_type = 'page';
+	}
+
+	window.open( addQueryArgs( 'post-new.php', args ), '_blank' );
+};
+
+const errorMessage = ( error: unknown ) => {
+	if ( error instanceof Error ) {
+		return error.message;
+	}
+	if ( typeof error === 'string' ) {
+		return error;
+	}
+	const message = ( error as { message?: unknown } | null )?.message;
+	return typeof message === 'string' && message !== ''
+		? message
+		: __( 'Unexpected upload error.', 'jetpack-videopress-pkg' );
+};
+
+/*
+ * PARKED — the "Try a sample" path.
+ *
+ * The tile that opened this was removed from the "Get your first video online"
+ * card; the helpers below (and `SampleVideoModal` further down, plus the
+ * `.vp-sample-modal` block in style.scss) are intentionally kept whole so the
+ * feature can be restored by re-adding the tile and its `sampleVideo` /
+ * `isSampleModalOpen` state to `UploadOnboarding`. Nothing renders them today,
+ * hence the two unused-vars exemptions on the entry points.
+ */
+
+const sampleMediaSearchPath = () =>
+	`/wp/v2/media?search=${ encodeURIComponent( SAMPLE_MEDIA_TITLE ) }&media_type=video&per_page=1`;
+
+/**
+ * Resolve the locally seeded sample video without creating or promoting media.
+ *
+ * @return The seeded sample attachment, or null when the site does not provide one.
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- Parked with the "Try a sample" tile; see the note above.
+const resolveSampleVideo = async (): Promise< SampleVideo | null > => {
+	const results = await apiFetch< SampleMediaResponse[] >( {
+		path: sampleMediaSearchPath(),
+		method: 'GET',
+	} );
+	const firstResult = results[ 0 ];
+
+	if (
+		typeof firstResult?.id !== 'number' ||
+		typeof firstResult?.source_url !== 'string' ||
+		firstResult.source_url.trim() === ''
+	) {
+		return null;
+	}
+
+	return {
+		id: firstResult.id,
+		sourceUrl: firstResult.source_url,
+	};
+};
+
+const serializeBlockAttributes = ( attributes: Record< string, unknown > ) =>
+	JSON.stringify( attributes )
+		.replaceAll( '\\\\', '\\u005c' )
+		.replaceAll( '--', '\\u002d\\u002d' )
+		.replaceAll( '<', '\\u003c' )
+		.replaceAll( '>', '\\u003e' )
+		.replaceAll( '&', '\\u0026' )
+		.replaceAll( '\\"', '\\u0022' );
+
+const escapeHtmlAttribute = ( value: string ) =>
+	value
+		.replaceAll( '&', '&amp;' )
+		.replaceAll( '"', '&quot;' )
+		.replaceAll( '<', '&lt;' )
+		.replaceAll( '>', '&gt;' );
+
+const sampleEmbedCode = ( sourceUrl: string ) =>
+	`<iframe title="VideoPress sample video" src="${ escapeHtmlAttribute(
+		sourceUrl
+	) }" width="640" height="360" frameborder="0" allowfullscreen></iframe>`;
+
+const sampleBlockMarkup = ( sample: SampleVideo ) =>
+	`<!-- wp:videopress/video ${ serializeBlockAttributes( {
+		id: sample.id,
+		src: sample.sourceUrl,
+		controls: true,
+	} ) } /-->`;
+
+/**
+ * Upload a video as a regular WordPress attachment. The dashboard's shared
+ * useUpload() path is a VideoPress/tus upload that depends on WordPress.com
+ * upload JWTs and does not complete in offline/local Docker environments.
+ * This onboarding route therefore uses wp/v2/media so the selected files
+ * genuinely land in the WordPress Media Library. Those local attachments may
+ * not appear in the VideoPress Library where the listing is constrained to
+ * WordPress.com VideoPress rows.
+ *
+ * @param file       - File selected by the user.
+ * @param onProgress - Called with the XHR upload progress percentage.
+ * @return The created media attachment.
+ */
+const uploadToMediaLibrary = (
+	file: File,
+	onProgress: ( percent: number ) => void
+): Promise< UploadedMedia > =>
+	new Promise( ( resolve, reject ) => {
+		let config: ReturnType< typeof restApiConfig >;
+		try {
+			config = restApiConfig();
+		} catch ( error ) {
+			reject( error );
+			return;
+		}
+
+		const formData = new FormData();
+		formData.append( 'file', file, file.name );
+
+		const xhr = new XMLHttpRequest();
+		xhr.open( 'POST', restUrl( '/wp/v2/media' ) );
+		xhr.setRequestHeader( 'X-WP-Nonce', config.nonce );
+
+		xhr.upload.onprogress = event => {
+			if ( event.lengthComputable && event.total > 0 ) {
+				onProgress( Math.min( 99, Math.round( ( event.loaded / event.total ) * 100 ) ) );
+			}
+		};
+
+		xhr.onload = () => {
+			let response: MediaApiResponse = {};
+			try {
+				response = JSON.parse( xhr.responseText || '{}' );
+			} catch {
+				// Leave response empty; the status-derived error below is clearer.
+			}
+
+			if ( xhr.status >= 200 && xhr.status < 300 && typeof response.id === 'number' ) {
+				onProgress( 100 );
+				resolve( {
+					id: response.id,
+					source_url: response.source_url,
+					videopressGuid: readVideoPressGuid( response ),
+				} );
+				return;
+			}
+
+			reject(
+				new Error(
+					response.message ??
+						sprintf(
+							/* translators: %d: HTTP status code. */
+							__( 'Upload failed with HTTP status %d.', 'jetpack-videopress-pkg' ),
+							xhr.status
+						)
+				)
+			);
+		};
+
+		xhr.onerror = () => {
+			reject(
+				new Error(
+					__(
+						'Upload failed. Please check your connection and try again.',
+						'jetpack-videopress-pkg'
+					)
+				)
+			);
+		};
+
+		xhr.send( formData );
+	} );
+
+/**
+ * Step 1 — the dropzone. On drop/select it hands the files up so the flow can
+ * morph to the uploading step.
+ *
+ * @param props                  - Component props.
+ * @param props.openPicker       - Opens the file picker.
+ * @param props.onFiles          - Called with the selected files.
+ * @param props.isUploadDisabled - Whether the free-tier limit blocks uploading.
+ * @param props.allowMultiple    - Whether the plan allows selecting several files.
+ * @return The dropzone card.
+ */
+const UploadCard = ( {
+	openPicker,
+	onFiles,
+	isUploadDisabled,
+	allowMultiple,
+}: {
+	openPicker: () => void;
+	onFiles: ( files: File[] ) => void;
+	isUploadDisabled: boolean;
+	allowMultiple: boolean;
+} ) => {
+	const [ dragging, setDragging ] = useState( false );
+	const dropzoneClassName = `vp-onboarding__dropzone${ dragging ? ' is-dragging' : '' }${
+		isUploadDisabled ? ' is-disabled' : ''
+	}`;
+
+	return (
+		<Card.Root className="vp-onboarding__card">
+			<Card.Header>
+				<Card.Title>{ __( 'Upload your first video', 'jetpack-videopress-pkg' ) }</Card.Title>
+			</Card.Header>
+			<Card.Content>
+				{ isUploadDisabled && (
+					<div className="vp-onboarding__limit-notice">
+						<FreeTierNotice hasUsedVideo />
+					</div>
+				) }
+				<div
+					className={ dropzoneClassName }
+					aria-disabled={ isUploadDisabled }
+					onDragOver={
+						isUploadDisabled
+							? undefined
+							: e => {
+									e.preventDefault();
+									setDragging( true );
+							  }
+					}
+					onDragLeave={ isUploadDisabled ? undefined : () => setDragging( false ) }
+					onDrop={
+						isUploadDisabled
+							? undefined
+							: e => {
+									e.preventDefault();
+									setDragging( false );
+									onFiles( Array.from( e.dataTransfer.files ) );
+							  }
+					}
+				>
+					<svg className="vp-onboarding__dropzone-outline" aria-hidden="true" focusable="false">
+						<rect className="vp-onboarding__dropzone-outline-rect" />
+					</svg>
+					<Icon icon={ upload } size={ 32 } className="vp-onboarding__dropzone-icon" />
+					<Text variant="body-lg" className="vp-onboarding__dropzone-hint">
+						{ allowMultiple
+							? __( 'Drag and drop your videos here', 'jetpack-videopress-pkg' )
+							: __( 'Drag and drop your video here', 'jetpack-videopress-pkg' ) }
+					</Text>
+					<Text variant="body-sm" className="vp-onboarding__dropzone-sub">
+						{ allowMultiple
+							? __(
+									'Add one or several. Each upload gets automatic captions, a player you fully own, and a link to share anywhere. No ads, no algorithm.',
+									'jetpack-videopress-pkg'
+							  )
+							: __(
+									'Add one video. Each upload gets automatic captions, a player you fully own, and a link to share anywhere. No ads, no algorithm.',
+									'jetpack-videopress-pkg'
+							  ) }
+					</Text>
+					<Button
+						variant="primary"
+						__next40pxDefaultSize
+						onClick={ openPicker }
+						disabled={ isUploadDisabled }
+					>
+						{ allowMultiple
+							? __( 'Select videos to upload', 'jetpack-videopress-pkg' )
+							: __( 'Select a video to upload', 'jetpack-videopress-pkg' ) }
+					</Button>
+				</div>
+			</Card.Content>
+		</Card.Root>
+	);
+};
+
+/**
+ * Interstitial — DS ProgressBar(s) while videos upload. One bar for a single
+ * file; a per-file list for a bulk upload.
+ *
+ * @param props         - Component props.
+ * @param props.uploads - The uploading files and their real upload state.
+ * @param props.onBack  - Return to the upload step after an error.
+ * @return The uploading card.
+ */
+const UploadingCard = ( { uploads, onBack }: { uploads: UploadItem[]; onBack: () => void } ) => {
+	if ( uploads.length <= 1 ) {
+		const item = uploads[ 0 ];
+		const name = item?.file.name || __( 'your-video.mp4', 'jetpack-videopress-pkg' );
+		const p = item?.progress ?? 0;
+		const failed = item?.status === 'failed';
+		return (
+			<Card.Root className="vp-onboarding__card">
+				<Card.Header>
+					<Card.Title>
+						{ failed
+							? __( 'Upload failed', 'jetpack-videopress-pkg' )
+							: __( 'Uploading your video', 'jetpack-videopress-pkg' ) }
+					</Card.Title>
+				</Card.Header>
+				<Card.Content>
+					<Stack direction="column" gap="lg">
+						<div className="vp-details__file">
+							<span className="vp-details__file-icon">
+								<Icon icon={ media } size={ 20 } />
+							</span>
+							<span className="vp-details__file-name">{ name }</span>
+							{ failed ? (
+								<span className="vp-details__file-status is-error">
+									{ __( 'Failed', 'jetpack-videopress-pkg' ) }
+								</span>
+							) : (
+								<span className="vp-uploading__pct">{ Math.round( p ) }%</span>
+							) }
+						</div>
+						<ProgressBar value={ p } className="vp-uploading__bar" />
+						{ failed ? (
+							<>
+								<Text variant="body-sm" className="vp-uploading__error">
+									{ item?.error ??
+										__( 'The video could not be uploaded.', 'jetpack-videopress-pkg' ) }
+								</Text>
+								<div className="vp-uploading__actions">
+									<Button variant="tertiary" onClick={ onBack }>
+										{ __( 'Back', 'jetpack-videopress-pkg' ) }
+									</Button>
+								</div>
+							</>
+						) : (
+							<Text variant="body-sm" className="vp-uploading__hint">
+								{ __(
+									'Hang tight — we’re processing your video. You can add its details next.',
+									'jetpack-videopress-pkg'
+								) }
+							</Text>
+						) }
+					</Stack>
+				</Card.Content>
+			</Card.Root>
+		);
+	}
+
+	const done = uploads.filter( item => item.status === 'success' ).length;
+	const failed = uploads.filter( item => item.status === 'failed' ).length;
+	return (
+		<Card.Root className="vp-onboarding__card">
+			<Card.Header>
+				<Card.Title>
+					{ sprintf(
+						/* translators: %d: number of videos. */
+						__( 'Uploading %d videos', 'jetpack-videopress-pkg' ),
+						uploads.length
+					) }
+				</Card.Title>
+			</Card.Header>
+			<Card.Content>
+				<Stack direction="column" gap="lg">
+					{ uploads.map( item => {
+						const p = item.progress;
+						const complete = item.status === 'success';
+						const rowFailed = item.status === 'failed';
+						// Flattened out of a nested ternary so the row's three
+						// states (failed / done / in progress) read in order.
+						let rowStatus = <span className="vp-uploading__pct">{ Math.round( p ) }%</span>;
+						if ( rowFailed ) {
+							rowStatus = (
+								<span className="vp-details__file-status is-error">
+									{ __( 'Failed', 'jetpack-videopress-pkg' ) }
+								</span>
+							);
+						} else if ( complete ) {
+							rowStatus = (
+								<span className="vp-details__file-status">
+									<Icon icon={ check } size={ 16 } />
+								</span>
+							);
+						}
+						return (
+							<div className="vp-bulk__uprow" key={ item.id }>
+								<span className="vp-details__file-icon">
+									<Icon icon={ media } size={ 20 } />
+								</span>
+								<div className="vp-bulk__uprow-main">
+									<div className="vp-bulk__uprow-top">
+										<span className="vp-details__file-name">{ item.file.name }</span>
+										{ rowStatus }
+									</div>
+									<ProgressBar value={ p } className="vp-uploading__bar" />
+									{ rowFailed && item.error && (
+										<Text variant="body-sm" className="vp-uploading__error">
+											{ item.error }
+										</Text>
+									) }
+								</div>
+							</div>
+						);
+					} ) }
+					{ failed > 0 ? (
+						<>
+							<Text variant="body-sm" className="vp-uploading__error">
+								{ sprintf(
+									/* translators: %d: number of failed uploads. */
+									_n(
+										'%d upload failed. Go back and try again.',
+										'%d uploads failed. Go back and try again.',
+										failed,
+										'jetpack-videopress-pkg'
+									),
+									failed
+								) }
+							</Text>
+							<div className="vp-uploading__actions">
+								<Button variant="tertiary" onClick={ onBack }>
+									{ __( 'Back', 'jetpack-videopress-pkg' ) }
+								</Button>
+							</div>
+						</>
+					) : (
+						<Text variant="body-sm" className="vp-uploading__hint">
+							{ sprintf(
+								/* translators: 1: uploaded count, 2: total count. */
+								__( '%1$d of %2$d uploaded — add details next.', 'jetpack-videopress-pkg' ),
+								done,
+								uploads.length
+							) }
+						</Text>
+					) }
+				</Stack>
+			</Card.Content>
+		</Card.Root>
+	);
+};
+
+/**
+ * Step 2 — the details form the flow morphs to after upload. A single video
+ * gets file name + title + description; a bulk upload gets an inline list,
+ * with independent file name and title fields per video.
+ *
+ * @param props           - Component props.
+ * @param props.uploads   - The uploaded files and their media IDs.
+ * @param props.onBack    - Return to the upload step.
+ * @param props.onPublish - Persist details for each uploaded media item.
+ * @return The details card.
+ */
+const DetailsCard = ( {
+	uploads,
+	onBack,
+	onPublish,
+}: {
+	uploads: UploadItem[];
+	onBack: () => void;
+	onPublish: ( patches: MediaDetailsPatch[] ) => Promise< void >;
+} ) => {
+	const files = uploads.map( item => item.file );
+	const [ fileNames, setFileNames ] = useState< string[] >( () =>
+		files.length ? files.map( f => f.name ) : [ '' ]
+	);
+	const [ titles, setTitles ] = useState< string[] >( () =>
+		files.length ? files.map( () => '' ) : [ '' ]
+	);
+	const [ description, setDescription ] = useState( '' );
+	const [ isPublishing, setIsPublishing ] = useState( false );
+	const [ publishError, setPublishError ] = useState< string | null >( null );
+	const setFileName = ( i: number, value: string ) =>
+		setFileNames( prev => prev.map( ( name, j ) => ( j === i ? value : name ) ) );
+	const setTitle = ( i: number, value: string ) =>
+		setTitles( prev => prev.map( ( t, j ) => ( j === i ? value : t ) ) );
+
+	const publish = useCallback( async () => {
+		setIsPublishing( true );
+		setPublishError( null );
+		try {
+			await onPublish(
+				uploads.map( ( item, i ) => {
+					if ( ! item.media ) {
+						throw new Error(
+							__(
+								'Upload details cannot be saved before the upload finishes.',
+								'jetpack-videopress-pkg'
+							)
+						);
+					}
+					const fallbackFileName = fileNames[ i ]?.trim() || item.file.name;
+					const title = titles[ i ]?.trim() || fallbackFileName;
+					const patch: MediaDetailsPatch = {
+						mediaId: item.media.id,
+						title,
+						shareUrl: item.media.source_url,
+						videopressGuid: item.media.videopressGuid,
+					};
+					if ( uploads.length <= 1 ) {
+						patch.description = description;
+					}
+					return patch;
+				} )
+			);
+		} catch ( error ) {
+			setPublishError( errorMessage( error ) );
+		} finally {
+			setIsPublishing( false );
+		}
+	}, [ description, fileNames, onPublish, titles, uploads ] );
+
+	const actions = ( publishLabel: string ) => (
+		<div className="vp-details__actions">
+			<Button variant="tertiary" onClick={ onBack } disabled={ isPublishing }>
+				{ __( 'Back', 'jetpack-videopress-pkg' ) }
+			</Button>
+			<Button
+				variant="primary"
+				__next40pxDefaultSize
+				onClick={ publish }
+				disabled={ isPublishing }
+				isBusy={ isPublishing }
+			>
+				{ publishLabel }
+			</Button>
+		</div>
+	);
+
+	if ( files.length <= 1 ) {
+		const name = files[ 0 ]?.name || __( 'your-video.mp4', 'jetpack-videopress-pkg' );
+		return (
+			<Card.Root className="vp-onboarding__card">
+				<Card.Header>
+					<Card.Title>{ __( 'Add your video details', 'jetpack-videopress-pkg' ) }</Card.Title>
+				</Card.Header>
+				<Card.Content>
+					<Stack direction="column" gap="lg">
+						<div className="vp-details__file">
+							<span className="vp-details__file-icon">
+								<Icon icon={ media } size={ 20 } />
+							</span>
+							<span className="vp-details__file-status">
+								<Icon icon={ check } size={ 16 } />
+								{ __( 'Uploaded', 'jetpack-videopress-pkg' ) }
+							</span>
+						</div>
+						<TextControl
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							label={ __( 'File Name', 'jetpack-videopress-pkg' ) }
+							value={ fileNames[ 0 ] ?? name }
+							onChange={ v => setFileName( 0, v ) }
+							placeholder={ __( 'File name', 'jetpack-videopress-pkg' ) }
+						/>
+						<TextControl
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							label={ __( 'Video Title', 'jetpack-videopress-pkg' ) }
+							value={ titles[ 0 ] }
+							onChange={ v => setTitle( 0, v ) }
+							placeholder={ __( 'Give your video a title', 'jetpack-videopress-pkg' ) }
+							help={ __(
+								'This title will appear with your thumbnail (optional)',
+								'jetpack-videopress-pkg'
+							) }
+						/>
+						<TextControl
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							label={ __( 'Description', 'jetpack-videopress-pkg' ) }
+							value={ description }
+							onChange={ setDescription }
+							placeholder={ __( 'What is this video about?', 'jetpack-videopress-pkg' ) }
+						/>
+						{ publishError && (
+							<Text variant="body-sm" className="vp-details__error">
+								{ publishError }
+							</Text>
+						) }
+					</Stack>
+				</Card.Content>
+				{ actions( __( 'Publish video', 'jetpack-videopress-pkg' ) ) }
+			</Card.Root>
+		);
+	}
+
+	return (
+		<Card.Root className="vp-onboarding__card">
+			<Card.Header>
+				<Card.Title>
+					{ sprintf(
+						/* translators: %d: number of videos. */
+						__( 'Add details · %d videos', 'jetpack-videopress-pkg' ),
+						files.length
+					) }
+				</Card.Title>
+			</Card.Header>
+			<Card.Content>
+				<Stack direction="column" gap="lg">
+					{ files.map( ( file, i ) => (
+						<div className="vp-bulk__row" key={ i }>
+							<div className="vp-bulk__row-head">
+								<span className="vp-details__file-icon">
+									<Icon icon={ media } size={ 20 } />
+								</span>
+								<span className="vp-details__file-status">
+									<Icon icon={ check } size={ 16 } />
+									{ __( 'Uploaded', 'jetpack-videopress-pkg' ) }
+								</span>
+							</div>
+							<TextControl
+								__next40pxDefaultSize
+								__nextHasNoMarginBottom
+								label={ __( 'File Name', 'jetpack-videopress-pkg' ) }
+								value={ fileNames[ i ] ?? file.name }
+								onChange={ v => setFileName( i, v ) }
+								placeholder={ __( 'File name', 'jetpack-videopress-pkg' ) }
+							/>
+							<TextControl
+								__next40pxDefaultSize
+								__nextHasNoMarginBottom
+								label={ __( 'Video Title', 'jetpack-videopress-pkg' ) }
+								value={ titles[ i ] }
+								onChange={ v => setTitle( i, v ) }
+								placeholder={ __( 'Give your video a title', 'jetpack-videopress-pkg' ) }
+								help={ __(
+									'This title will appear with your thumbnail (optional)',
+									'jetpack-videopress-pkg'
+								) }
+							/>
+						</div>
+					) ) }
+					{ publishError && (
+						<Text variant="body-sm" className="vp-details__error">
+							{ publishError }
+						</Text>
+					) }
+				</Stack>
+			</Card.Content>
+			{ actions(
+				sprintf(
+					/* translators: %d: number of videos. */
+					__( 'Publish %d videos', 'jetpack-videopress-pkg' ),
+					files.length
+				)
+			) }
+		</Card.Root>
+	);
+};
+
+/**
+ * "Add to a post" dropdown for a published video. Mirrors the labelled
+ * `DropdownMenu` used by the video detail view's ThumbnailUpdateButton so the
+ * two share the design system's look.
+ *
+ * Only renders when the video has a VideoPress GUID: the hand-off is the
+ * server-side `videopress_guid` content filter, and without a GUID there is no
+ * honest VideoPress block to insert. See `readVideoPressGuid`.
+ *
+ * @param props       - Component props.
+ * @param props.guid  - The VideoPress GUID of the published video.
+ * @param props.label - Accessible label for the trigger; disambiguates the menu in the bulk case.
+ * @return The dropdown, or null when no GUID is available.
+ */
+const AddToContentMenu = ( { guid, label }: { guid?: string; label?: string } ) => {
+	if ( ! guid ) {
+		return null;
+	}
+
+	return (
+		<DropdownMenu
+			// `plus` on the trigger rather than `postIcon`: the menu items already
+			// carry the post/page glyphs, so reusing one here would read as a duplicate.
+			icon={ plus }
+			label={ label ?? __( 'Add to a post or page', 'jetpack-videopress-pkg' ) }
+			text={ __( 'Add to a post', 'jetpack-videopress-pkg' ) }
+			className="vp-success__add-to"
+			// __next40pxDefaultSize keeps the trigger the same height as the
+			// adjacent "Go to Library" button, which opts into it too.
+			toggleProps={ { variant: 'secondary', __next40pxDefaultSize: true } }
+		>
+			{ ( { onClose } ) => (
+				<MenuGroup>
+					<MenuItem
+						icon={ postIcon }
+						onClick={ () => {
+							openInNewContent( guid, 'post' );
+							onClose();
+						} }
+					>
+						{ __( 'New post', 'jetpack-videopress-pkg' ) }
+					</MenuItem>
+					<MenuItem
+						icon={ pageIcon }
+						onClick={ () => {
+							openInNewContent( guid, 'page' );
+							onClose();
+						} }
+					>
+						{ __( 'New page', 'jetpack-videopress-pkg' ) }
+					</MenuItem>
+				</MenuGroup>
+			) }
+		</DropdownMenu>
+	);
+};
+
+/**
+ * Step 3 — confirmation after the media details are saved. Shows the share
+ * links returned by the local wp/v2/media upload path and leaves navigation to
+ * the user.
+ *
+ * @param props               - Component props.
+ * @param props.published     - Published videos and their share links.
+ * @param props.onGoToLibrary - Navigate back to the Library tab.
+ * @return The success card.
+ */
+const SuccessCard = ( {
+	published,
+	onGoToLibrary,
+}: {
+	published: PublishedVideo[];
+	onGoToLibrary: () => void;
+} ) => {
+	const [ copiedMediaId, setCopiedMediaId ] = useState< number | null >( null );
+	const [ copyError, setCopyError ] = useState< string | null >( null );
+
+	const copyShareLink = useCallback( ( video: PublishedVideo ) => {
+		setCopyError( null );
+		if ( ! video.shareUrl || ! navigator.clipboard ) {
+			setCopyError( __( 'The share link could not be copied.', 'jetpack-videopress-pkg' ) );
+			return;
+		}
+
+		void navigator.clipboard
+			.writeText( video.shareUrl )
+			.then( () => setCopiedMediaId( video.mediaId ) )
+			.catch( () => {
+				setCopyError( __( 'The share link could not be copied.', 'jetpack-videopress-pkg' ) );
+			} );
+	}, [] );
+
+	const renderShareField = ( video: PublishedVideo, index?: number ) => (
+		<div className="vp-success__share" key={ video.mediaId }>
+			<TextControl
+				__next40pxDefaultSize
+				__nextHasNoMarginBottom
+				className="vp-success__share-field"
+				label={
+					index == null
+						? __( 'Share link', 'jetpack-videopress-pkg' )
+						: sprintf(
+								/* translators: %d: number of the video in the published list. */
+								__( 'Share link for video %d', 'jetpack-videopress-pkg' ),
+								index + 1
+						  )
+				}
+				value={ video.shareUrl ?? '' }
+				onChange={ () => undefined }
+				readOnly
+			/>
+			<Button
+				variant="secondary"
+				__next40pxDefaultSize
+				icon={ copy }
+				onClick={ () => copyShareLink( video ) }
+				disabled={ ! video.shareUrl }
+			>
+				{ copiedMediaId === video.mediaId
+					? __( 'Copied', 'jetpack-videopress-pkg' )
+					: __( 'Copy link', 'jetpack-videopress-pkg' ) }
+			</Button>
+		</div>
+	);
+
+	if ( published.length <= 1 ) {
+		const video = published[ 0 ];
+		const title = video?.title || __( 'Your video', 'jetpack-videopress-pkg' );
+
+		return (
+			<Card.Root className="vp-onboarding__card">
+				<Card.Header>
+					<Card.Title>{ __( 'Your video is published', 'jetpack-videopress-pkg' ) }</Card.Title>
+				</Card.Header>
+				<Card.Content>
+					<Stack direction="column" gap="lg">
+						<Text variant="body-md" className="vp-success__summary">
+							{ __( 'Your video is live and ready to share.', 'jetpack-videopress-pkg' ) }
+						</Text>
+						<Text variant="body-lg" className="vp-success__title">
+							{ title }
+						</Text>
+						{ video && renderShareField( video ) }
+						{ copyError && (
+							<Text variant="body-sm" className="vp-success__copy-status is-error">
+								{ copyError }
+							</Text>
+						) }
+					</Stack>
+				</Card.Content>
+				<div className="vp-success__actions">
+					{ /* Single video: the hand-off sits beside "Go to Library" in the footer. */ }
+					<AddToContentMenu guid={ video?.videopressGuid } />
+					<Button variant="primary" __next40pxDefaultSize onClick={ onGoToLibrary }>
+						{ __( 'Go to Library', 'jetpack-videopress-pkg' ) }
+					</Button>
+				</div>
+			</Card.Root>
+		);
+	}
+
+	return (
+		<Card.Root className="vp-onboarding__card">
+			<Card.Header>
+				<Card.Title>
+					{ sprintf(
+						/* translators: %d: number of videos. */
+						__( '%d videos published', 'jetpack-videopress-pkg' ),
+						published.length
+					) }
+				</Card.Title>
+			</Card.Header>
+			<Card.Content>
+				<Stack direction="column" gap="lg">
+					<Text variant="body-md" className="vp-success__summary">
+						{ __( 'Your videos are live and ready to share.', 'jetpack-videopress-pkg' ) }
+					</Text>
+					<div className="vp-success__list">
+						{ published.map( ( video, index ) => (
+							<div className="vp-success__item" key={ video.mediaId }>
+								<Text variant="body-md" className="vp-success__title">
+									{ video.title }
+								</Text>
+								{ renderShareField( video, index ) }
+								{ /*
+								 * Bulk upload: the hand-off is per video rather than in the
+								 * card footer, because a footer action would have to guess
+								 * which of several videos the user meant. Each row owns its
+								 * own menu, and rows without a GUID simply render none.
+								 */ }
+								{ video.videopressGuid && (
+									<div className="vp-success__item-actions">
+										<AddToContentMenu
+											guid={ video.videopressGuid }
+											label={ sprintf(
+												/* translators: %s: video title. */
+												__( 'Add “%s” to a post or page', 'jetpack-videopress-pkg' ),
+												video.title
+											) }
+										/>
+									</div>
+								) }
+							</div>
+						) ) }
+					</div>
+					{ copyError && (
+						<Text variant="body-sm" className="vp-success__copy-status is-error">
+							{ copyError }
+						</Text>
+					) }
+				</Stack>
+			</Card.Content>
+			<div className="vp-success__actions">
+				<Button variant="primary" __next40pxDefaultSize onClick={ onGoToLibrary }>
+					{ __( 'Go to Library', 'jetpack-videopress-pkg' ) }
+				</Button>
+			</div>
+		</Card.Root>
+	);
+};
+
+/**
+ * Preview-only sample modal. This intentionally does not upload or promote the
+ * sample attachment, so it cannot consume free-tier storage.
+ *
+ * PARKED: nothing renders this since the "Try a sample" tile was removed. Kept
+ * intact so the tile can be restored without rebuilding the modal.
+ *
+ * @param props            - Component props.
+ * @param props.sample     - The resolved seeded sample attachment.
+ * @param props.onClose    - Close the modal.
+ * @param props.openPicker - Opens the file picker after closing the modal.
+ * @return The sample video modal.
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- Parked with the "Try a sample" tile; see the note near `resolveSampleVideo`.
+const SampleVideoModal = ( {
+	sample,
+	onClose,
+	openPicker,
+}: {
+	sample: SampleVideo;
+	onClose: () => void;
+	openPicker: () => void;
+} ) => {
+	const [ copiedTarget, setCopiedTarget ] = useState< SampleCopyTarget | null >( null );
+	const [ copyError, setCopyError ] = useState< string | null >( null );
+	const [ isCreatingPost, setIsCreatingPost ] = useState( false );
+	const [ postError, setPostError ] = useState< string | null >( null );
+	const embedCode = sampleEmbedCode( sample.sourceUrl );
+
+	const copyText = useCallback( ( target: SampleCopyTarget, text: string ) => {
+		setCopyError( null );
+		if ( ! navigator.clipboard ) {
+			setCopyError( __( 'The share details could not be copied.', 'jetpack-videopress-pkg' ) );
+			return;
+		}
+
+		void navigator.clipboard
+			.writeText( text )
+			.then( () => setCopiedTarget( target ) )
+			.catch( () => {
+				setCopyError( __( 'The share details could not be copied.', 'jetpack-videopress-pkg' ) );
+			} );
+	}, [] );
+
+	const addToPost = useCallback( async () => {
+		setIsCreatingPost( true );
+		setPostError( null );
+
+		try {
+			/*
+			 * This local onboarding sample is a raw media attachment. On a real
+			 * wpcom-connected VideoPress site, this should point at a known
+			 * VideoPress sample GUID and use the VideoPress player/embed instead.
+			 */
+			const post = await apiFetch< CreatedPost >( {
+				path: '/wp/v2/posts',
+				method: 'POST',
+				data: {
+					status: 'draft',
+					title: __( 'My first video', 'jetpack-videopress-pkg' ),
+					content: sampleBlockMarkup( sample ),
+				},
+			} );
+
+			if ( typeof post.id !== 'number' ) {
+				throw new Error( __( 'The draft post could not be created.', 'jetpack-videopress-pkg' ) );
+			}
+
+			window.location.href = `/wp-admin/post.php?post=${ post.id }&action=edit`;
+		} catch ( error ) {
+			setPostError( errorMessage( error ) );
+			setIsCreatingPost( false );
+		}
+	}, [ sample ] );
+
+	const uploadOwnInstead = useCallback( () => {
+		onClose();
+		openPicker();
+	}, [ onClose, openPicker ] );
+
+	return (
+		<Modal
+			title={ __( 'Try a sample video', 'jetpack-videopress-pkg' ) }
+			onRequestClose={ onClose }
+			className="vp-sample-modal"
+		>
+			<div className="vp-sample-modal__body">
+				<video
+					className="vp-sample-modal__player"
+					controls
+					src={ sample.sourceUrl }
+					aria-label={ __( 'Sample video', 'jetpack-videopress-pkg' ) }
+				/>
+
+				<div className="vp-success__share">
+					<TextControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						className="vp-success__share-field"
+						label={ __( 'Share link', 'jetpack-videopress-pkg' ) }
+						value={ sample.sourceUrl }
+						onChange={ () => undefined }
+						readOnly
+					/>
+					<Button
+						variant="secondary"
+						__next40pxDefaultSize
+						icon={ copy }
+						onClick={ () => copyText( 'link', sample.sourceUrl ) }
+					>
+						{ copiedTarget === 'link'
+							? __( 'Copied', 'jetpack-videopress-pkg' )
+							: __( 'Copy link', 'jetpack-videopress-pkg' ) }
+					</Button>
+				</div>
+
+				<div className="vp-success__share">
+					<TextControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						className="vp-success__share-field"
+						label={ __( 'Embed code', 'jetpack-videopress-pkg' ) }
+						value={ embedCode }
+						onChange={ () => undefined }
+						readOnly
+					/>
+					<Button
+						variant="secondary"
+						__next40pxDefaultSize
+						icon={ copy }
+						onClick={ () => copyText( 'embed', embedCode ) }
+					>
+						{ copiedTarget === 'embed'
+							? __( 'Copied', 'jetpack-videopress-pkg' )
+							: __( 'Copy embed', 'jetpack-videopress-pkg' ) }
+					</Button>
+				</div>
+
+				{ copyError && (
+					<Text variant="body-sm" className="vp-success__copy-status is-error">
+						{ copyError }
+					</Text>
+				) }
+				{ postError && (
+					<Text variant="body-sm" className="vp-details__error">
+						{ postError }
+					</Text>
+				) }
+			</div>
+
+			<div className="vp-sample-modal__actions">
+				<Button variant="secondary" onClick={ uploadOwnInstead } disabled={ isCreatingPost }>
+					{ __( 'Upload my own instead', 'jetpack-videopress-pkg' ) }
+				</Button>
+				<Button
+					variant="primary"
+					__next40pxDefaultSize
+					onClick={ addToPost }
+					disabled={ isCreatingPost }
+					isBusy={ isCreatingPost }
+				>
+					{ __( 'Add this to a post', 'jetpack-videopress-pkg' ) }
+				</Button>
+			</div>
+		</Modal>
+	);
+};
+
+/**
+ * Height-morphing, cross-fading wrapper for the multi-step card flow. The
+ * active card animates in from below while the previous slides up and fades
+ * out, and the container height eases between the two — the Cloudflare
+ * onboarding step transition.
+ *
+ * @param props            - Component props.
+ * @param props.step       - The active step.
+ * @param props.prev       - The exiting step (null when settled).
+ * @param props.onExitDone - Called once the exit animation completes.
+ * @param props.render     - Renders the card for a given step.
+ * @return The morphing flow element.
+ */
+const StepFlow = ( {
+	step,
+	prev,
+	onExitDone,
+	render,
+}: {
+	step: Step;
+	prev: Step | null;
+	onExitDone: () => void;
+	render: ( s: Step ) => ReactNode;
+} ) => {
+	const wrapRef = useRef< HTMLDivElement >( null );
+	const [ height, setHeight ] = useState< number | undefined >( undefined );
+
+	useLayoutEffect( () => {
+		const active = wrapRef.current?.querySelector< HTMLElement >( '[data-active="true"]' );
+		if ( active ) {
+			setHeight( active.offsetHeight );
+		}
+		if ( prev != null ) {
+			const t = setTimeout( onExitDone, 400 );
+			return () => clearTimeout( t );
+		}
+	}, [ step, prev, onExitDone ] );
+
+	return (
+		<div
+			className="vp-flow"
+			ref={ wrapRef }
+			style={ height != null ? { height: `${ height }px` } : undefined }
+		>
+			{ prev != null && prev !== step && (
+				<div className="vp-flow__card is-exit" data-step={ prev } key={ `exit-${ prev }` }>
+					{ render( prev ) }
+				</div>
+			) }
+			<div
+				className={ `vp-flow__card${ prev != null ? ' is-enter' : '' }` }
+				data-step={ step }
+				data-active="true"
+				key={ step }
+			>
+				{ render( step ) }
+			</div>
+		</div>
+	);
+};
+
+/**
+ * VideoPress first-run onboarding (the Upload tab for a brand-new account).
+ * One job: activation — get the user to their first uploaded video. Content is
+ * grounded in the growth-brain teardown (see ~/dev/active/videopress-revamp).
+ *
+ * The upload → uploading → details → success hand-off uses a disappearing-card step morph
+ * modelled on the Cloudflare email-routing onboarding, and supports bulk
+ * uploads (per-file progress, then an inline list of detail fields).
+ *
+ * @param props             - Component props.
+ * @param props.isFree      - Whether the site is on the free tier.
+ * @param props.isUnlimited - Whether the plan has unlimited video storage.
+ * @param props.isAtLimit   - Whether the free-tier video limit is already used.
+ * @return The onboarding tab element.
+ */
+const UploadOnboarding = ( {
+	isFree,
+	isUnlimited,
+	isAtLimit,
+}: {
+	isFree: boolean;
+	isUnlimited: boolean;
+	isAtLimit: boolean;
+} ) => {
+	const queryClient = useQueryClient();
+	const navigate = useNavigate();
+	const inputRef = useRef< HTMLInputElement >( null );
+	const batchRef = useRef( 0 );
+	const [ step, setStep ] = useState< Step >( 'upload' );
+	const [ prev, setPrev ] = useState< Step | null >( null );
+	const [ uploads, setUploads ] = useState< UploadItem[] >( [] );
+	const [ publishedVideos, setPublishedVideos ] = useState< PublishedVideo[] >( [] );
+	const allowMultiple = ! isFree || isUnlimited;
+
+	const openPicker = useCallback( () => {
+		if ( isAtLimit ) {
+			return;
+		}
+		inputRef.current?.click();
+	}, [ isAtLimit ] );
+	const go = useCallback( ( next: Step, prior: Step ) => {
+		setPrev( prior );
+		setStep( next );
+	}, [] );
+	const resetUploadStep = useCallback(
+		( prior: Step ) => {
+			batchRef.current += 1;
+			setUploads( [] );
+			setPublishedVideos( [] );
+			go( 'upload', prior );
+		},
+		[ go ]
+	);
+	const updateUpload = useCallback( ( batch: number, id: string, patch: Partial< UploadItem > ) => {
+		if ( batch !== batchRef.current ) {
+			return;
+		}
+		setUploads( current =>
+			current.map( item => ( item.id === id ? { ...item, ...patch } : item ) )
+		);
+	}, [] );
+
+	const onFiles = useCallback(
+		( selected: File[] ) => {
+			if ( isAtLimit ) {
+				return;
+			}
+			const selectedForPlan = allowMultiple ? selected : selected.slice( 0, 1 );
+			if ( ! selectedForPlan.length ) {
+				return;
+			}
+			const batch = batchRef.current + 1;
+			batchRef.current = batch;
+			setPublishedVideos( [] );
+			const nextUploads = selectedForPlan.map( ( file, i ) => ( {
+				id: `media-${ batch }-${ i }-${ file.name }`,
+				file,
+				progress: 0,
+				status: 'pending' as UploadStatus,
+			} ) );
+			setUploads( nextUploads );
+			go( 'uploading', 'upload' );
+
+			nextUploads.forEach( item => {
+				updateUpload( batch, item.id, { status: 'uploading' } );
+				void uploadToMediaLibrary( item.file, percent =>
+					updateUpload( batch, item.id, { progress: percent, status: 'uploading' } )
+				)
+					.then( mediaItem => {
+						updateUpload( batch, item.id, {
+							progress: 100,
+							status: 'success',
+							media: mediaItem,
+							error: undefined,
+						} );
+						void queryClient.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );
+					} )
+					.catch( error => {
+						updateUpload( batch, item.id, {
+							status: 'failed',
+							error: errorMessage( error ),
+						} );
+					} );
+			} );
+		},
+		[ allowMultiple, go, isAtLimit, queryClient, updateUpload ]
+	);
+
+	// Advance to details once every file has finished.
+	useEffect( () => {
+		if (
+			step === 'uploading' &&
+			uploads.length > 0 &&
+			uploads.every( item => item.status === 'success' )
+		) {
+			const t = setTimeout( () => go( 'details', 'uploading' ), 450 );
+			return () => clearTimeout( t );
+		}
+	}, [ step, uploads, go ] );
+
+	const publishDetails = useCallback(
+		async ( patches: MediaDetailsPatch[] ) => {
+			const responses = await Promise.all(
+				patches.map( patch => {
+					const data: { title: string; description?: string } = { title: patch.title };
+					if ( patch.description !== undefined ) {
+						data.description = patch.description;
+					}
+					return apiFetch< MediaApiResponse >( {
+						path: `/wp/v2/media/${ patch.mediaId }`,
+						method: 'PATCH',
+						data,
+					} );
+				} )
+			);
+			await queryClient.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );
+			setPublishedVideos(
+				patches.map( ( patch, i ) => ( {
+					mediaId: patch.mediaId,
+					title: patch.title,
+					// Local uploads go through wp/v2/media, so this is the WP attachment URL,
+					// not a real VideoPress share/embed URL; on a wpcom-connected site it should
+					// use the VideoPress URL/embed instead.
+					shareUrl: patch.shareUrl,
+					// Prefer the GUID from this PATCH response: it is the freshest read of
+					// the attachment, and a connected site may only have registered the
+					// VideoPress video after the original upload response was sent.
+					videopressGuid: readVideoPressGuid( responses[ i ] ) ?? patch.videopressGuid,
+				} ) )
+			);
+			go( 'success', 'details' );
+		},
+		[ go, queryClient ]
+	);
+
+	const goToLibrary = useCallback( () => {
+		navigate( { href: '/' } );
+	}, [ navigate ] );
+
+	const options: StartOption[] = [
+		{
+			icon: <Icon icon={ upload } size={ 24 } />,
+			title: __( 'Upload a file', 'jetpack-videopress-pkg' ),
+			description: allowMultiple
+				? __( 'Drag in one or more videos.', 'jetpack-videopress-pkg' )
+				: __( 'Drag in one video.', 'jetpack-videopress-pkg' ),
+			onClick: openPicker,
+		},
+		{
+			icon: <Icon icon={ cloud } size={ 24 } />,
+			title: __( 'Import your library', 'jetpack-videopress-pkg' ),
+			description: __( 'Bring videos from Vimeo, YouTube, or Viddler.', 'jetpack-videopress-pkg' ),
+		},
+	];
+
+	const renderStep = ( s: Step ) => {
+		if ( s === 'upload' ) {
+			return (
+				<UploadCard
+					openPicker={ openPicker }
+					onFiles={ onFiles }
+					isUploadDisabled={ isAtLimit }
+					allowMultiple={ allowMultiple }
+				/>
+			);
+		}
+		if ( s === 'uploading' ) {
+			return <UploadingCard uploads={ uploads } onBack={ () => resetUploadStep( 'uploading' ) } />;
+		}
+		if ( s === 'success' ) {
+			return <SuccessCard published={ publishedVideos } onGoToLibrary={ goToLibrary } />;
+		}
+		return (
+			<DetailsCard
+				uploads={ uploads }
+				onBack={ () => resetUploadStep( 'details' ) }
+				onPublish={ publishDetails }
+			/>
+		);
+	};
+
+	return (
+		<div className="vp-onboarding">
+			{ /*
+			 * Typography comes from the design system's own `heading-2xl` rung
+			 * rather than from local rules, so this h1 sits on the same scale
+			 * and the same `medium` weight as the `AdminPage` masthead title and
+			 * the card titles below it.
+			 */ }
+			<Text variant="heading-2xl" render={ <h1 /> } className="vp-onboarding__welcome">
+				{ __( 'Welcome to VideoPress', 'jetpack-videopress-pkg' ) }
+			</Text>
+
+			{ ! isAtLimit && (
+				<>
+					{ /* Card 1 — the ways to get a first video online. */ }
+					<Card.Root className="vp-onboarding__card">
+						<Card.Header>
+							<Card.Title>
+								{ __( 'Get your first video online', 'jetpack-videopress-pkg' ) }
+							</Card.Title>
+						</Card.Header>
+						<Card.Content>
+							<Stack direction="column" gap="lg">
+								<Text variant="body-md" className="vp-onboarding__lede">
+									{ __(
+										'The fastest way to see what VideoPress does. Upload a video and get an ad-free, unbranded player you own — with automatic captions and a link that works anywhere.',
+										'jetpack-videopress-pkg'
+									) }
+								</Text>
+								<div className="vp-onboarding__options">
+									{ options.map( ( opt, i ) => (
+										<button
+											type="button"
+											key={ i }
+											className="vp-onboarding__option"
+											onClick={ opt.onClick }
+											disabled={ opt.disabled }
+										>
+											<span className="vp-onboarding__option-icon">{ opt.icon }</span>
+											<Text
+												variant="body-md"
+												render={ <span /> }
+												className="vp-onboarding__option-title"
+											>
+												{ opt.title }
+											</Text>
+											<Text
+												variant="body-sm"
+												render={ <span /> }
+												className="vp-onboarding__option-desc"
+											>
+												{ opt.description }
+											</Text>
+										</button>
+									) ) }
+								</div>
+							</Stack>
+						</Card.Content>
+					</Card.Root>
+				</>
+			) }
+
+			{ /* Card 2 — the morphing upload → uploading → details → success step flow. */ }
+			<StepFlow
+				step={ step }
+				prev={ prev }
+				onExitDone={ () => setPrev( null ) }
+				render={ renderStep }
+			/>
+
+			<input
+				ref={ inputRef }
+				type="file"
+				accept="video/*"
+				multiple={ ! isFree || isUnlimited }
+				className="vp-onboarding__input"
+				onChange={ e => {
+					onFiles( Array.from( e.target.files ?? [] ) );
+					e.currentTarget.value = '';
+				} }
+			/>
+		</div>
+	);
+};
+
+const StageInner = () => {
+	const { isAtLimit, isFree, isUnlimited, videoCount } = useFreeTier();
+	const navigate = useNavigate();
+
+	useEffect( () => {
+		if ( videoCount > 0 && ! isAtLimit ) {
+			navigate( { href: '/' } );
+		}
+	}, [ isAtLimit, navigate, videoCount ] );
+
+	if ( videoCount > 0 && ! isAtLimit ) {
+		return null;
+	}
+
+	return (
+		<DashboardLayout activeTab={ isAtLimit ? 'library' : 'upload' }>
+			<UploadOnboarding isFree={ isFree } isUnlimited={ isUnlimited } isAtLimit={ isAtLimit } />
+		</DashboardLayout>
+	);
+};
+
+const Stage = () => (
+	<QueryClientWrapper>
+		<StageInner />
+	</QueryClientWrapper>
+);
+
+export { Stage as stage };
