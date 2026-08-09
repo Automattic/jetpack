@@ -48,7 +48,7 @@ export const statsWordAdsStatsQuery = (
 	// path here — including the unclamped one — until STATS-424 lands. That
 	// ticket covers both halves and explains why we are not fixing the endpoint
 	// yet; do not drop this trim before reading it.
-	const rangeEndDay = getDatePart( rangeEnd ) ?? rangeEnd;
+	const rangeEndDay = getDatePart( rangeEnd );
 	// WordAds stats are computed nightly for the previous day (the Calypso
 	// WordAds page never shows the current day), so a window ending today would
 	// close on an empty bucket — clamp the window end to yesterday.
