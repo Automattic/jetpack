@@ -22,8 +22,10 @@ type SectionHeaderProps = {
 
 /**
  * Section header for an analytics surface. The title and a slot for the date
- * controls share the first row, anchored to opposite edges; the subtitle takes
- * a row of its own below them, so its length never costs the controls width.
+ * controls share the first row, anchored to opposite edges: the controls keep
+ * their natural width and a long title truncates with an ellipsis. The
+ * subtitle takes a row of its own below them, so its length never costs the
+ * controls width either.
  *
  * Once the header is too narrow to hold those two side by side everything
  * stacks, and the subtitle returns to its place directly under the title.
@@ -36,7 +38,7 @@ export function SectionHeader( { title, subtitle, children }: SectionHeaderProps
 	return (
 		<div className={ styles.container }>
 			<div className={ styles.layout }>
-				<Text variant="heading-2xl" render={ <h2 /> }>
+				<Text className={ styles.title } variant="heading-2xl" render={ <h2 /> }>
 					{ title }
 				</Text>
 

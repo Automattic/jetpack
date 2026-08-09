@@ -2,8 +2,9 @@
 // Tunable.
 $section-header-stacked-max-inline-size: 720px;
 
-// Share of the header the title may take before it wraps. Tunable.
-$section-header-title-max-share: 50%;
+// Floor under the truncating title, so the controls cannot squeeze it into
+// nothing. Tunable.
+$section-header-title-min-inline-size: 200px;
 
 /*
  * Carries the query and nothing else: a container cannot answer a query about
@@ -20,23 +21,27 @@ $section-header-title-max-share: 50%;
 
 	/*
 	 * Row one is the title and the controls; the subtitle spans a row of its own
-	 * below. An `auto` track is grown to its max-content before an `fr` track
-	 * receives anything, so the subtitle, the widest thing here, would otherwise
-	 * set the split and shorten the preset labels. The cap stops a long title
-	 * doing the same. A percentage so it holds in every locale.
-	 *
-	 * The controls cell is sized by the grid, not by its content: the date
-	 * controls measure their own box, and in a shrink-to-fit cell they measure
-	 * the width they want instead of the width they have. Report pages hand the
-	 * panel a full-row box for the same reason, see `.filtersContent` in
-	 * `report-page-layout.module.scss`.
+	 * below. The controls track is capped at its max-content, so the controls
+	 * render at their natural width and a long title truncates instead of
+	 * costing them labels; the title track takes what is left, floored so the
+	 * controls cannot squeeze it into nothing. Only once the title sits at that
+	 * floor does the controls track compress, and the panel adapts internally.
+	 * The subtitle crosses the flexible track, so its length cannot inflate the
+	 * controls track either.
 	 */
-	grid-template-columns: fit-content($section-header-title-max-share) minmax(0, 1fr);
+	grid-template-columns: minmax($section-header-title-min-inline-size, 1fr) minmax(0, max-content);
 	align-items: start;
 
 	// One value on both axes: it separates the title from the controls beside it
 	// and from the subtitle below, stacked or not.
 	gap: var(--wpds-dimension-gap-sm);
+
+	// The title truncates on one line instead of wrapping.
+	.title {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
 
 	.subtitle {
 		grid-column: 1 / -1;
@@ -48,10 +53,10 @@ $section-header-title-max-share: 50%;
 	justify-content: flex-end;
 
 	/*
-	 * The panel fills the cell, so the end-anchoring happens inside it rather
-	 * than through the cell's alignment. Scoped to the panel: the slot's other
-	 * occupant is the year surface's row, which keeps its natural width and is
-	 * anchored by the cell above.
+	 * The panel fills the cell, so the end-anchoring happens inside its row
+	 * rather than through the cell's alignment. Scoped to the panel: the
+	 * slot's other occupant is the year surface's row, which keeps its
+	 * natural width and is anchored by the cell above.
 	 */
 	:global(.date-filters-panel) {
 		justify-content: flex-end;
