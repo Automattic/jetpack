@@ -45,9 +45,9 @@ export const statsWordAdsStatsQuery = (
 	// datetime that starts with it, so the check fails and the request falls
 	// back to the endpoint's own "yesterday" default. A request that is correct
 	// today with a bare day would start resolving a day early. Trim on every
-	// path here — including the unclamped one — until WOOA7S-1842 lands. That
-	// ticket explains why we are not fixing the endpoint yet; do not drop this
-	// trim before reading it.
+	// path here — including the unclamped one — until STATS-424 lands. That
+	// ticket covers both halves and explains why we are not fixing the endpoint
+	// yet; do not drop this trim before reading it.
 	const rangeEndDay = getDatePart( rangeEnd ) ?? rangeEnd;
 	// WordAds stats are computed nightly for the previous day (the Calypso
 	// WordAds page never shows the current day), so a window ending today would

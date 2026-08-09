@@ -1,4 +1,3 @@
-import { getDatePart } from '@jetpack-premium-analytics/datetime';
 import {
 	fetchStatsProxy,
 	type StatsProxyMethod,
@@ -59,20 +58,6 @@ type StatsSanitizer< TData = unknown > = ( response: unknown, params?: StatsQuer
 type StatsReportQuerySettings = {
 	/** Query params derived from the shared report range that this endpoint does not accept. */
 	omitParams?: readonly ( keyof StatsQueryParamFields )[];
-	/**
-	 * Trim `start_date`/`end_date`/`date` to a bare `yyyy-MM-dd` before sending.
-	 *
-	 * Most v1.1 Stats endpoints resolve an offset-bearing ISO datetime to the
-	 * calendar day the caller intended. A few still resolve it in UTC instead of
-	 * the site's timezone: the offset is read and then discarded, so a window
-	 * ending late in the local evening lands on the following day. Opt those
-	 * endpoints out — a bare day is what a correct resolver would arrive at
-	 * anyway, so trimming loses nothing.
-	 *
-	 * A stopgap, not the fix. Remove each opt-in as its server-side ticket
-	 * lands; WOOA7S-1842 is the last one outstanding.
-	 */
-	bareDateParams?: boolean;
 };
 
 const statsSanitizers = {
@@ -212,16 +197,6 @@ export function statsReportQuery< TSanitizer extends StatsSanitizerKey >(
 
 	for ( const param of settings?.omitParams ?? [] ) {
 		delete queryParams[ param ];
-	}
-
-	if ( settings?.bareDateParams ) {
-		for ( const param of [ 'start_date', 'end_date', 'date' ] as const ) {
-			const bare = getDatePart( queryParams[ param ] );
-
-			if ( bare ) {
-				queryParams[ param ] = bare;
-			}
-		}
 	}
 
 	return statsProxyQuery( {
