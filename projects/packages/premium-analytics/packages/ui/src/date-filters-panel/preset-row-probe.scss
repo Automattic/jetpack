@@ -1,6 +1,13 @@
 // Off-screen measuring rig for the date-controls row. It must reproduce the
 // real row's box model closely enough to be measured in its place, while
 // contributing nothing to the layout it informs.
+
+// Hosts sizing the panel's slot by intrinsic max-content (a grid track of
+// `minmax(0, max-content)`) may opt the rig into the flow with
+// `position: static; block-size: 0; inline-size: auto`, making the
+// full-labels width the slot's max-content. Flex hosts must not opt in: flex
+// breaks lines from unshrunk sizes, so an in-flow rig moves their wrap point.
+// Reference: `.controls` in `section-header.module.scss`.
 .preset-row-probe {
 	position: absolute;
 	// Hidden with `visibility`, never `display: none`: the latter takes the rig

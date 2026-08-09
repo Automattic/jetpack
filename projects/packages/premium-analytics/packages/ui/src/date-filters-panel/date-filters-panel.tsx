@@ -246,10 +246,11 @@ export function DateFiltersPanel( {
 	const handleResize = useCallback( ( entries: ResizeObserverEntry[] ) => {
 		const entry = entries[ 0 ];
 		if ( entry ) {
-			// Floored rather than rounded, to stay on the conservative side of the
-			// probe's `Math.ceil`. Both consumers are step functions, so a raw float
-			// would only re-render on every frame of a drag.
-			setContainerWidth( Math.floor( entry.contentRect.width ) );
+			// Ceiled, matching the probe's own measure: a slot sized by the rig
+			// hugs its fractional width and must not round itself below it.
+			// Consumers are step functions, so a raw float would only re-render
+			// on every frame of a drag.
+			setContainerWidth( Math.ceil( entry.contentRect.width ) );
 		}
 	}, [] );
 
@@ -373,7 +374,7 @@ export function DateFiltersPanel( {
 		containerWidth !== null && containerWidth >= WIDE_CALENDAR_CONTAINER_THRESHOLD;
 
 	return (
-		<Stack ref={ setRootElement } className="date-filters-panel" direction="row" gap="sm">
+		<div ref={ setRootElement } className="date-filters-panel">
 			<PresetRowProbe
 				presets={ surfacePresets }
 				customTriggerLabel={ customTriggerLabel }
@@ -382,39 +383,41 @@ export function DateFiltersPanel( {
 				onMeasure={ handleProbeMeasure }
 			/>
 
-			<BaseControl
-				className="date-filters-panel__primary"
-				label={ rangeControlProps.label }
-				id="date-range-popover-button"
-				help={ rangeControlProps.help }
-			>
-				<DateRangeFilter
-					presetId={ validatedPresetId }
-					range={ range }
-					appliedPresetId={ validatedAppliedPresetId }
-					appliedRange={ appliedRange }
-					onChange={ onChange }
-					onApply={ onApply }
-					onCancel={ onCancel }
-					canApply={ canApply }
-					timeZone={ timeZone }
-					labelMode={ labelMode }
-					isWideScreen={ isWideScreen }
-					rememberedCustomRange={ rememberedCustomRange }
-					onOpenChange={ setIsPrimaryPickerOpen }
-				/>
-			</BaseControl>
-
-			{ intervalControl }
-
-			{ showComparison && (
+			<Stack className="date-filters-panel__row" direction="row" gap="sm">
 				<BaseControl
-					className="date-filters-panel__comparison"
-					help={ comparisonControlProps.help }
+					className="date-filters-panel__primary"
+					label={ rangeControlProps.label }
+					id="date-range-popover-button"
+					help={ rangeControlProps.help }
 				>
-					{ comparisonControl }
+					<DateRangeFilter
+						presetId={ validatedPresetId }
+						range={ range }
+						appliedPresetId={ validatedAppliedPresetId }
+						appliedRange={ appliedRange }
+						onChange={ onChange }
+						onApply={ onApply }
+						onCancel={ onCancel }
+						canApply={ canApply }
+						timeZone={ timeZone }
+						labelMode={ labelMode }
+						isWideScreen={ isWideScreen }
+						rememberedCustomRange={ rememberedCustomRange }
+						onOpenChange={ setIsPrimaryPickerOpen }
+					/>
 				</BaseControl>
-			) }
-		</Stack>
+
+				{ intervalControl }
+
+				{ showComparison && (
+					<BaseControl
+						className="date-filters-panel__comparison"
+						help={ comparisonControlProps.help }
+					>
+						{ comparisonControl }
+					</BaseControl>
+				) }
+			</Stack>
+		</div>
 	);
 }

@@ -58,8 +58,21 @@ $section-header-title-min-inline-size: 200px;
 	 * slot's other occupant is the year surface's row, which keeps its
 	 * natural width and is anchored by the cell above.
 	 */
-	:global(.date-filters-panel) {
+	:global(.date-filters-panel__row) {
 		justify-content: flex-end;
+	}
+
+	/*
+	 * Opt the panel's measuring rig into the flow (see
+	 * `preset-row-probe.scss`): a zero-height overlay cell carries the
+	 * full-labels width into this track's max-content, so the column can grow
+	 * back and the panel recovers from the abbreviated labels. The track's 0
+	 * minimum keeps the squeeze unaffected.
+	 */
+	:global(.preset-row-probe) {
+		position: static;
+		block-size: 0;
+		inline-size: auto;
 	}
 }
 
@@ -80,7 +93,7 @@ $section-header-title-min-inline-size: 200px;
 		order: 2;
 		justify-content: flex-start;
 
-		:global(.date-filters-panel) {
+		:global(.date-filters-panel__row) {
 			justify-content: flex-start;
 		}
 	}
