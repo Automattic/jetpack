@@ -13,6 +13,7 @@ import { Stack } from '@jetpack-premium-analytics/externals';
 import { formatDateRangeCompact } from '@jetpack-premium-analytics/formatters';
 import { BaseControl } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
+import { flushSync } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useMemo, useCallback, useState, useEffect } from 'react';
 /**
@@ -246,11 +247,14 @@ export function DateFiltersPanel( {
 	const handleResize = useCallback( ( entries: ResizeObserverEntry[] ) => {
 		const entry = entries[ 0 ];
 		if ( entry ) {
-			// Ceiled, matching the probe's own measure: a slot sized by the rig
-			// hugs its fractional width and must not round itself below it.
-			// Consumers are step functions, so a raw float would only re-render
-			// on every frame of a drag.
-			setContainerWidth( Math.ceil( entry.contentRect.width ) );
+			// Flushed synchronously: ResizeObserver fires between layout and
+			// paint, so committing here keeps a resized slot and its label form
+			// in the same frame. Ceiled, matching the probe's own measure: a
+			// slot sized by the rig hugs its fractional width and must not
+			// round itself below it.
+			flushSync( () => {
+				setContainerWidth( Math.ceil( entry.contentRect.width ) );
+			} );
 		}
 	}, [] );
 

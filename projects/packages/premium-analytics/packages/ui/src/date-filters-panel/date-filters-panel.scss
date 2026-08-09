@@ -17,6 +17,12 @@
 	flex: 1 1 0%;
 	min-inline-size: 0;
 
+	// A transient mismatch between the slot's size and the rendered label form
+	// clips inside the cell instead of spilling over the row-mates. Popovers
+	// render through portals, so nothing interactive is clipped.
+	overflow: clip;
+	overflow-clip-margin: calc(var(--wpds-border-width-focus) + 2px);
+
 	> * {
 		grid-area: 1 / 1;
 		min-inline-size: 0;
