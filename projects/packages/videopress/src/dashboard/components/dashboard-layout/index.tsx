@@ -2,11 +2,13 @@
  * External dependencies
  */
 import AdminPage from '@automattic/jetpack-components/admin-page';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
-import DashboardTabs, { TAB_PATHS, type DashboardTab } from '../dashboard-tabs';
+import { useFreeTier } from '../../hooks/use-free-tier';
+import DashboardTabs, { TAB_PATHS, useDashboardTabOrder, type DashboardTab } from '../dashboard-tabs';
+import OnboardingModal, { hasSeenOnboarding } from '../onboarding-modal';
 import './style.scss';
 import type { ReactNode } from 'react';
 
@@ -17,7 +19,7 @@ type Props = {
 	hideFooter?: boolean;
 };
 
-const TAB_VALUES: DashboardTab[] = [ 'library', 'stats', 'settings' ];
+let hasHandledFirstRunUploadRedirect = false;
 
 /**
  * Shared chrome for every wp-build VideoPress dashboard tab. Renders
@@ -37,6 +39,9 @@ const TAB_VALUES: DashboardTab[] = [ 'library', 'stats', 'settings' ];
  */
 export default function DashboardLayout( { activeTab, children, actions, hideFooter }: Props ) {
 	const navigate = useNavigate();
+	const { videoCount } = useFreeTier();
+	const tabs = useDashboardTabOrder();
+	const hasCheckedFirstRunUploadRedirect = useRef( false );
 
 	const onValueChange = useCallback(
 		( next: string ) => {
@@ -47,6 +52,19 @@ export default function DashboardLayout( { activeTab, children, actions, hideFoo
 		},
 		[ navigate ]
 	);
+
+	useEffect( () => {
+		if ( hasHandledFirstRunUploadRedirect || hasCheckedFirstRunUploadRedirect.current ) {
+			return;
+		}
+
+		hasHandledFirstRunUploadRedirect = true;
+		hasCheckedFirstRunUploadRedirect.current = true;
+
+		if ( activeTab === 'library' && videoCount === 0 && ! hasSeenOnboarding() ) {
+			navigate( { href: TAB_PATHS.upload } );
+		}
+	}, [ activeTab, navigate, videoCount ] );
 
 	return (
 		<AdminPage
@@ -59,13 +77,14 @@ export default function DashboardLayout( { activeTab, children, actions, hideFoo
 			showFooter={ ! hideFooter }
 		>
 			<Tabs.Root className="vp-dashboard-tabs" value={ activeTab } onValueChange={ onValueChange }>
-				<DashboardTabs />
-				{ TAB_VALUES.map( tab => (
+				<DashboardTabs tabs={ tabs } />
+				{ tabs.map( tab => (
 					<Tabs.Panel key={ tab } value={ tab }>
 						{ activeTab === tab ? children : null }
 					</Tabs.Panel>
 				) ) }
 			</Tabs.Root>
+			<OnboardingModal />
 		</AdminPage>
 	);
 }
