@@ -1,7 +1,11 @@
 /**
  * Internal dependencies
  */
-import { getDefaultIntervalForPeriod, resolveIntervalForRange } from '../interval';
+import {
+	getAllowedIntervalsForPreset,
+	getDefaultIntervalForPeriod,
+	resolveIntervalForRange,
+} from '../interval';
 import { needsReportDateParamsSeed } from '../search';
 
 describe( 'resolveIntervalForRange', () => {
@@ -46,6 +50,31 @@ describe( 'resolveIntervalForRange', () => {
 				'day'
 			)
 		).toBe( 'hour' );
+	} );
+
+	/*
+	 * Under a week, hours stay on offer alongside days: a four-day window has
+	 * shape within each day that daily bars cannot show, and 96 points is still
+	 * a readable series.
+	 */
+	it( 'offers hours as well as days under a week', () => {
+		const from = '2026-06-01T00:00:00.000Z';
+		const to = '2026-06-04T23:59:59.999Z';
+
+		expect( getAllowedIntervalsForPreset( 'custom', from, to ) ).toEqual( [ 'hour', 'day' ] );
+		expect( resolveIntervalForRange( 'custom', from, to, 'hour' ) ).toBe( 'hour' );
+		expect( resolveIntervalForRange( 'custom', from, to, 'day' ) ).toBe( 'day' );
+	} );
+
+	// A week is where they stop: seven days of hourly bars is a wall.
+	it( 'drops hours from a week upward', () => {
+		expect(
+			getAllowedIntervalsForPreset(
+				'custom',
+				'2026-06-01T00:00:00.000Z',
+				'2026-06-07T23:59:59.999Z'
+			)
+		).toEqual( [ 'day' ] );
 	} );
 
 	it( 'defaults when no current interval is provided', () => {

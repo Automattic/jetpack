@@ -58,9 +58,11 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 		return [ 'week', 'month' ];
 	} else if ( daysDiff >= 28 ) {
 		return [ 'day', 'week' ];
-	} else if ( daysDiff >= 3 ) {
+	} else if ( daysDiff >= 7 ) {
 		return [ 'day' ];
 	} else if ( daysDiff >= 2 ) {
+		// Under a week, hours are still a readable series rather than a wall of
+		// bars, and they are the only reading that shows shape within a day.
 		return [ 'hour', 'day' ];
 	}
 
