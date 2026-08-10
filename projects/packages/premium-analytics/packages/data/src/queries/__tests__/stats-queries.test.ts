@@ -1213,10 +1213,11 @@ describe( 'Stats query factories', () => {
 		expect( statsWordAdsStatsQuery( {} as StatsReportParams ).enabled ).toBe( false );
 	} );
 
-	it( 'trims the unclamped WordAds window end to a bare calendar day', () => {
-		// This endpoint resolves the window end in UTC and decides whether to
-		// honor it via a raw string comparison, so an offset-bearing datetime
-		// makes it resolve the wrong day. Strip the offset before the wire.
+	it( 'sends an unclamped WordAds window end through untrimmed', () => {
+		// This endpoint used to resolve the window end in UTC and decide whether
+		// to honor it via a raw string comparison, so the client stripped the
+		// offset. Both halves are fixed server-side, so the full datetime goes
+		// through like every other Stats request.
 		jest.useFakeTimers().setSystemTime( new Date( '2026-07-15T12:00:00Z' ) );
 
 		try {
@@ -1230,7 +1231,7 @@ describe( 'Stats query factories', () => {
 				expect.arrayContaining( [
 					expect.objectContaining( {
 						unit: 'day',
-						date: '2026-06-07',
+						date: '2026-06-07T23:59:59.000-07:00',
 						quantity: 7,
 					} ),
 				] )
@@ -1242,9 +1243,10 @@ describe( 'Stats query factories', () => {
 
 	it( 'leaves a WordAds window ending exactly yesterday unclamped', () => {
 		// The last-7-days / last-30-days shape: the range already ends on
-		// yesterday's calendar day, so the clamp must not fire. Comparing the
-		// raw offset-bearing string against `yesterday` would clamp it by string
-		// ordering and silently shorten the window by a bucket.
+		// yesterday's calendar day, so the clamp must not fire. This is why the
+		// clamp compares calendar days — the raw offset-bearing string sorts
+		// after the bare `yesterday` it starts with, which would clamp the window
+		// and silently shorten it by a bucket.
 		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00Z' ) );
 
 		try {
@@ -1258,7 +1260,7 @@ describe( 'Stats query factories', () => {
 				expect.arrayContaining( [
 					expect.objectContaining( {
 						unit: 'day',
-						date: '2026-06-14',
+						date: '2026-06-14T23:59:59.999-07:00',
 						quantity: 7,
 					} ),
 				] )
@@ -1269,9 +1271,9 @@ describe( 'Stats query factories', () => {
 	} );
 
 	it( 'clamps an offset-bearing WordAds window end to yesterday, keyed off its calendar day', () => {
-		// start_date/date now carry the full offset-bearing ISO datetime
-		// (reportParamsToStatsQueryParams no longer trims it); the clamp
-		// comparison and bucket count must still key off the calendar day.
+		// The clamp fires, so `date` becomes the locally built bare `yesterday`
+		// rather than the request's own offset-bearing end. Both the comparison
+		// and the bucket count key off the calendar day.
 		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00Z' ) );
 
 		try {
