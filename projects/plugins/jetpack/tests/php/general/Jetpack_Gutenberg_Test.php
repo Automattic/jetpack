@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -45,6 +46,12 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 		// These action causing issues in tests in WPCOM context. Since we are not using any real block here,
 		// and we are testing block availability with block stubs - we are safe to remove these actions for these tests.
 		remove_all_actions( 'jetpack_register_gutenberg_extensions' );
+
+		// Constants::$set_constants is a process-global static, so an override leaked by
+		// another test file (e.g. one that throws between set_constant and its cleanup)
+		// would otherwise flip block loading for whichever test here runs first.
+		Constants::clear_single_constant( 'REST_REQUEST' );
+		Constants::clear_single_constant( 'REST_API_REQUEST' );
 	}
 
 	/**
@@ -52,6 +59,9 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		parent::tear_down();
+
+		Constants::clear_single_constant( 'REST_REQUEST' );
+		Constants::clear_single_constant( 'REST_API_REQUEST' );
 
 		Jetpack_Gutenberg::reset();
 		remove_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_extensions_whitelist' ) );
@@ -659,6 +669,49 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 		$saved                  = $_SERVER['REQUEST_URI'] ?? null;
 		$_SERVER['REQUEST_URI'] = '/?rest_route=/wp/v2/block-types';
 		$this->assertTrue( $this->invoke_is_block_editor_context() );
+		$_SERVER['REQUEST_URI'] = $saved;
+	}
+
+	/**
+	 * WordPress.com Simple dispatches proxied wpcom/v2 requests (e.g. the GutenbergKit
+	 * editor-assets endpoint) through a public API that filters `rest_url_prefix` to an
+	 * empty string, so the URL checks collapse to an unmatchable '//' root and cannot
+	 * see them. They are identified by the REST_API_REQUEST constant, which Simple's
+	 * API entry points define before wp-load.php runs.
+	 *
+	 * Without this, editor-only extensions (e.g. extended-blocks/core-video) are skipped
+	 * and their plan availability never reaches the editor.
+	 */
+	public function test_is_block_editor_context_is_true_for_wpcom_rest_api_request() {
+		$saved                  = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/sample-page/';
+		Constants::set_constant( 'REST_API_REQUEST', true );
+		$this->assertTrue( $this->invoke_is_block_editor_context() );
+		$_SERVER['REQUEST_URI'] = $saved;
+	}
+
+	/**
+	 * Core defines REST_REQUEST during parse_request, after this check normally runs,
+	 * but it must still be honored if the constant is already set.
+	 */
+	public function test_is_block_editor_context_is_true_for_rest_request_constant() {
+		$saved                  = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/sample-page/';
+		Constants::set_constant( 'REST_REQUEST', true );
+		$this->assertTrue( $this->invoke_is_block_editor_context() );
+		$_SERVER['REQUEST_URI'] = $saved;
+	}
+
+	/**
+	 * A constant that is set but falsey must not be treated as a REST request. This is
+	 * the one case where Constants::is_true() differs from the defined() && CONST form
+	 * the gate used before.
+	 */
+	public function test_is_block_editor_context_is_false_for_falsey_rest_constant() {
+		$saved                  = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/sample-page/';
+		Constants::set_constant( 'REST_API_REQUEST', false );
+		$this->assertFalse( $this->invoke_is_block_editor_context() );
 		$_SERVER['REQUEST_URI'] = $saved;
 	}
 

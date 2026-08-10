@@ -331,6 +331,18 @@ export const Default: Story = {
 };
 
 /**
+ * A title long enough to overflow its track: it truncates with an ellipsis
+ * instead of wrapping or compressing the date controls, which keep their
+ * natural width for as long as the title stays above its floor.
+ */
+export const LongTitle: Story = {
+	args: {
+		title: 'Traffic for every site, network, and channel this account has ever measured',
+	},
+	render: ( { title } ) => <RollingSectionHeaderStory title={ title } />,
+};
+
+/**
  * The **Insights-like** instance: the year surface (all time plus calendar
  * years) and the chart interval in the slot.
  *

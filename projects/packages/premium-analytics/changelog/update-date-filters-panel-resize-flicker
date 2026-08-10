@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Date filters panel: avoid a one-frame flash of mismatched labels while resizing.

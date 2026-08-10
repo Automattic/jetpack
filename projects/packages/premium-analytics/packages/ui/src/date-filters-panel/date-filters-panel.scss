@@ -6,6 +6,9 @@
 	 * means filling the slot: a shrink-to-fit panel measures the width it wants,
 	 * concludes that everything fits, and never steps down to the abbreviated
 	 * labels. Inert in a block parent, where it already spans its container.
+	 *
+	 * The root publishes `--date-filters-panel-full-row-width`, the width of
+	 * the full-labels row, so a host can size the slot from it.
 	 */
 	flex: 1 1 0%;
 	min-inline-size: 0;
