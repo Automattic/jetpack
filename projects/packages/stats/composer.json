@@ -58,7 +58,7 @@
 		"branch-alias": {
 			"dev-trunk": "0.20.x-dev"
 		},
-		"textdomain": "jetpack-stats"
+		"textdomain": "jetpack-stats-pkg"
 	},
 	"config": {
 		"allow-plugins": {

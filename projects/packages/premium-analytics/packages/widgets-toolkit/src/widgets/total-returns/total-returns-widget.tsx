@@ -14,19 +14,10 @@ import { buildTotalReturnsData, isEmptyChartData } from '../../helpers';
 import { useBarStyles } from '../common';
 
 /**
- * Total Returns Widget Component
- *
  * A widget that displays total returns (refunds) as a bar chart
  * showing refunds and net sales side by side.
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <TotalReturnsWidget />
- * </WidgetRoot>
- * ```
  */
 export function TotalReturnsWidget() {
 	const { reportParams } = useWidgetRootContext();

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Date controls: add a chart interval control that sets the bucket size for every chart on the page.

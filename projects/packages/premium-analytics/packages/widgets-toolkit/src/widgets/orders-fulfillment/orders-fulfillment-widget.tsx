@@ -21,8 +21,6 @@ import { useSegmentStyles } from '../common';
 import styles from '../common/donut-widget.module.scss';
 
 /**
- * Orders Fulfillment Widget Component
- *
  * Displays a donut chart showing the breakdown of fulfilled vs unfulfilled
  * order counts over the selected time period.
  *
@@ -30,13 +28,6 @@ import styles from '../common/donut-widget.module.scss';
  * since fulfillment data is not pre-aggregated in the orders summary.
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <OrdersFulfillmentWidget />
- * </WidgetRoot>
- * ```
  */
 export function OrdersFulfillmentWidget() {
 	const { reportParams } = useWidgetRootContext();

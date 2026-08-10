@@ -1,9 +1,7 @@
 /**
- * Calculates the percentage change (delta) between two values.
- *
- * Handles edge cases where the previous value is zero:
- * - 0 → 0: Returns 0% (no change)
- * - 0 → non-zero: Returns undefined because the percentage change cannot be calculated
+ * Calculates the percentage change (delta) between two values. A zero previous
+ * value has no defined percentage change, so it yields undefined unless the
+ * current value is also zero.
  *
  * @param currentValue  - Current period value
  * @param previousValue - Previous period value
@@ -21,6 +19,5 @@ export function calculateDelta( currentValue: number, previousValue: number ): n
 		return currentValue === 0 ? 0 : undefined;
 	}
 
-	// Standard percentage change calculation
 	return ( ( currentValue - previousValue ) / previousValue ) * 100;
 }

@@ -47,12 +47,7 @@ export interface PostTrafficActivityState {
  * same way. Every calendar day of the page gets a point so the heatmap grid
  * stays complete, but days without traffic — and filler days outside the
  * selected range — carry `null`: the design renders them as blank cells
- * rather than zero labels.
- *
- * @param postId       - The scoped post ID (0 disables the request).
- * @param reportParams - The dashboard date range.
- * @param pageSpanDays - Days one page spans (a whole number of weeks).
- * @return The visible page's daily points, paging controls, and load/error state.
+ * rather than zero labels. A `postId` of 0 disables the request.
  */
 export default function usePostTrafficActivity(
 	postId: number,

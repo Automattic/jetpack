@@ -42,9 +42,6 @@ const DEFAULT_PAGE_WEEKS = 16;
 
 /**
  * Whole week columns that fit the measured card width.
- *
- * @param width - The measured content width, if known yet.
- * @return The page width in week columns.
  */
 function weeksForWidth( width?: number ): number {
 	if ( ! width ) {
@@ -58,15 +55,10 @@ function weeksForWidth( width?: number ): number {
 }
 
 /**
- * Traffic activity inner component. Reads the post scope and date range from
- * WidgetRoot context and renders one page of the post's daily views as a
- * calendar heatmap through `<WidgetState>` — week columns, weekday rows, and
- * view counts inside the cells. Ranges longer than one page grow a header
- * pager stepping through the range; without a post scope (e.g. the widget
- * added outside a post detail page) the query never enables and the empty
- * state shows.
- *
- * @return The rendered widget content.
+ * Renders one page of the post's daily views as a calendar heatmap. Ranges
+ * longer than one page grow a header pager stepping through the range; without
+ * a post scope (e.g. the widget added outside a post detail page) the query
+ * never enables and the empty state shows.
  */
 function PostTrafficActivityInner() {
 	const { reportParams } = useWidgetRootContext();
@@ -182,14 +174,6 @@ function PostTrafficActivityInner() {
 	);
 }
 
-/**
- * Traffic activity widget: the scoped post's daily views as a calendar
- * heatmap — the post detail Traffic view's activity card, replacing the
- * legacy months table.
- *
- * @param {PostTrafficActivityWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function PostTrafficActivity( { attributes = {} }: PostTrafficActivityWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

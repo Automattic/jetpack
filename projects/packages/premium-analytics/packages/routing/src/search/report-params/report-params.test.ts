@@ -1,4 +1,9 @@
-import { buildDashboardLink, buildReportLink, pickReportDateParams } from './report-params';
+import {
+	buildDashboardLink,
+	buildReportLink,
+	omitComparisonReportParams,
+	pickReportDateParams,
+} from './report-params';
 
 /**
  * Read a link's querystring the way the router reads it, so a test asserts the
@@ -48,6 +53,47 @@ describe( 'pickReportDateParams', () => {
 		expect( pickReportDateParams( { from: '2026-01-01', period: 'week' } ) ).toEqual( {
 			from: '2026-01-01',
 		} );
+	} );
+} );
+
+describe( 'omitComparisonReportParams', () => {
+	it( 'drops only the comparison params, keeping the window and page scope', () => {
+		expect(
+			omitComparisonReportParams( {
+				from: '2026-01-01',
+				to: '2026-01-31',
+				interval: 'day',
+				preset: 'last-30-days',
+				date_type: 'created',
+				post_id: '42',
+				section: 'email-opens',
+				comp: '1',
+				compare_from: '2025-12-02',
+				compare_to: '2025-12-31',
+				compare_preset: 'previous-period',
+			} )
+		).toEqual( {
+			from: '2026-01-01',
+			to: '2026-01-31',
+			interval: 'day',
+			preset: 'last-30-days',
+			date_type: 'created',
+			post_id: '42',
+			section: 'email-opens',
+		} );
+	} );
+
+	it( 'returns a copy when no comparison params are present', () => {
+		const search = { from: '2026-01-01', to: '2026-01-31' };
+
+		const result = omitComparisonReportParams( search );
+
+		expect( result ).toEqual( search );
+		expect( result ).not.toBe( search );
+	} );
+
+	it( 'returns an empty object for missing search', () => {
+		expect( omitComparisonReportParams( undefined ) ).toEqual( {} );
 	} );
 } );
 

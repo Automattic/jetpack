@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Date controls: shorten the preset labels before the comparison control runs out of room, rather than after it has already overflowed the header, and keep its label on one line.

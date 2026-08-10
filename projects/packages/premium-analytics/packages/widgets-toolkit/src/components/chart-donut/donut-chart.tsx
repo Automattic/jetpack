@@ -26,7 +26,6 @@ import type { DataFormat } from '../../types';
 import type { LegendItem } from '../legend/legend';
 import type { ComponentProps } from 'react';
 
-// Default chart configuration
 const DEFAULT_THICKNESS = 0.3;
 const DEFAULT_CORNER_SCALE = 0.03;
 const DEFAULT_GAP_SCALE = 0.01;
@@ -63,9 +62,6 @@ export type DonutChartProps = {
 	 */
 	comparisonValue?: number | null;
 
-	/**
-	 * Format for displaying values
-	 */
 	dataFormat?: DataFormat;
 
 	/**
@@ -73,9 +69,6 @@ export type DonutChartProps = {
 	 */
 	legendData?: LegendItem[];
 
-	/**
-	 * Show legend below chart
-	 */
 	showLegend?: boolean;
 
 	/**
@@ -91,14 +84,8 @@ export type DonutChartProps = {
 	 */
 	maxSize?: number | null;
 
-	/**
-	 * Icon to display in the empty state
-	 */
 	emptyStateIcon?: React.ComponentProps< typeof Icon >[ 'icon' ];
 
-	/**
-	 * Text to display in the empty state
-	 */
 	emptyStateText?: string;
 
 	/**
@@ -107,14 +94,8 @@ export type DonutChartProps = {
 	 */
 	withTooltips?: boolean;
 
-	/**
-	 * Horizontal offset for tooltip positioning.
-	 */
 	tooltipOffsetX?: number;
 
-	/**
-	 * Vertical offset for tooltip positioning.
-	 */
 	tooltipOffsetY?: number;
 
 	/**
@@ -126,12 +107,8 @@ export type DonutChartProps = {
 };
 
 /**
- * Pure DonutChart component.
- * Does not depend on any context provider - all data flows through props.
- *
- * Colors can be provided via:
- * 1. `styles` prop (takes priority) - array of { color } per segment
- * 2. `chartData[].color` - inline color per segment
+ * Context-free DonutChart: everything arrives through props. Segment colors
+ * come from the `styles` prop, or from `chartData[].color` when it is absent.
  */
 export function DonutChart( {
 	chartData,
@@ -158,17 +135,11 @@ export function DonutChart( {
 	const [ containerRef, containerSize ] = useElementSize< HTMLDivElement >();
 	const [ legendRef, legendSize ] = useElementSize< HTMLDivElement >();
 
-	/**
-	 * Resolve styles: prop takes priority, fallback to chartData colors.
-	 */
 	const resolvedStyles = useMemo(
 		() => resolveSegmentStyles( stylesProp, chartData ),
 		[ stylesProp, chartData ]
 	);
 
-	/**
-	 * Apply styles to chart data
-	 */
 	const styledChartData = useMemo( () => {
 		if ( ! stylesProp?.length ) {
 			return chartData;
@@ -176,9 +147,6 @@ export function DonutChart( {
 		return applyStylesToItems( chartData, resolvedStyles );
 	}, [ stylesProp, chartData, resolvedStyles ] );
 
-	/**
-	 * Apply styles to legend data
-	 */
 	const styledLegendData = useMemo( () => {
 		if ( ! legendData ) {
 			return undefined;
@@ -205,7 +173,6 @@ export function DonutChart( {
 	);
 	const stackGap = isCompactLayout ? 'sm' : 'xl';
 
-	// Render empty state when no data is available
 	if ( isEmptyData ) {
 		return <ChartEmptyState icon={ emptyStateIcon } text={ emptyStateText } />;
 	}

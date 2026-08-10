@@ -28,26 +28,15 @@ export type TooltipStyle = {
 	strokeDashoffset?: string | number;
 };
 
-/**
- * Common datum shape with label and value properties.
- * Used by default extractors.
- */
 type DatumWithLabel = { label: string };
 type DatumWithValue = { value: number };
 
-/**
- * Default label extractor - assumes datum has a 'label' property.
- * Override for custom label formatting (e.g., date formatting for line charts).
- *
- * @param datum - The data point
- */
+// The default extractors assume the common datum shape; charts with other
+// shapes (dates on line charts, for one) pass their own via `getLabel`.
 function defaultGetLabel( datum: unknown ): string {
 	return ( datum as DatumWithLabel ).label ?? '';
 }
 
-/**
- * Default value extractor - assumes datum has a 'value' property.
- */
 function defaultGetValue( datum: unknown ): number {
 	return ( datum as DatumWithValue ).value;
 }
@@ -60,9 +49,6 @@ export type ChartTooltipProps< TDatum = unknown > = {
 		datumByKey?: Record< string, unknown >;
 	};
 
-	/**
-	 * Format configuration for chart values
-	 */
 	dataFormat: DataFormat;
 
 	/**
@@ -77,28 +63,14 @@ export type ChartTooltipProps< TDatum = unknown > = {
 	 */
 	indicatorType: 'line' | 'rect';
 
-	/**
-	 * Function to extract label from datum.
-	 * Defaults to extracting 'label' property.
-	 */
 	getLabel?: ( datum: TDatum, index: number, key: string ) => string;
 
-	/**
-	 * Function to extract value from datum.
-	 * Defaults to extracting 'value' property.
-	 */
 	getValue?: ( datum: TDatum ) => number;
 };
 
 /**
- * Self-contained tooltip component for charts.
- * Handles rendering of tooltip rows with configurable indicators.
- *
- * Uses chart library's shape components (LineShape, RectShape) for visual consistency.
- *
- * Provides sensible defaults for common chart data patterns:
- * - getLabel: Extracts 'label' property from datum
- * - getValue: Extracts 'value' property from datum
+ * Self-contained chart tooltip. Indicators use the chart library's own
+ * `LineShape` / `RectShape` so they match the series they describe.
  */
 export function ChartTooltip< TDatum >( {
 	tooltipData,

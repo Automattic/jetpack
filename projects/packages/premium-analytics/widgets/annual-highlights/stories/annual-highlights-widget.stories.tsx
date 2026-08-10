@@ -69,10 +69,6 @@ const MOCK_INSIGHTS_YEARS = [ 2026, 2025 ] as const;
 /**
  * Report params carrying a section's date selection, the way the URL does in
  * product: the year-surface preset next to the range it resolves to.
- *
- * @param selection      - The story's date selection.
- * @param withComparison - Whether to include comparison params from the host.
- * @return Report params for the widget.
  */
 function reportParamsFor( selection: DateSelection, withComparison = false ) {
 	const params = getDefaultQueryParams( withComparison );
@@ -97,12 +93,6 @@ function reportParamsFor( selection: DateSelection, withComparison = false ) {
 	};
 }
 
-/**
- * Renders the data-connected widget with the selected metrics.
- *
- * @param {AnnualHighlightsStoryControls} props - Story controls.
- * @return The rendered widget.
- */
 function renderAnnualHighlights( { metrics, dateSelection }: AnnualHighlightsStoryControls ) {
 	return (
 		<AnnualHighlightsRender
@@ -139,9 +129,6 @@ function renderAnnualHighlightsOnPreset( preset: PresetType ) {
  * cache entry. Evict the query from the shared client on enter and on cleanup
  * so each forced-state story hits the mock fresh (and no forced result leaks
  * into the sibling stories).
- *
- * @param state - The forced state.
- * @return The story cleanup callback.
  */
 function forceInsightsState( state: 'loading' | 'error' | 'empty' ) {
 	setReportMockState( 'stats/insights', state );
@@ -236,12 +223,6 @@ interface AnnualHighlightsDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		AnnualHighlightsStoryControls {}
 
-/**
- * Renders the real registered widget through the shared dashboard harness.
- *
- * @param {AnnualHighlightsDashboardStoryProps} props - Dashboard and widget controls.
- * @return The rendered dashboard with the widget.
- */
 function AnnualHighlightsDashboardStory( {
 	metrics,
 	dateSelection,

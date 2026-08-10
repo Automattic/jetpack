@@ -55,10 +55,7 @@ type AnnualHighlightTotals = Pick<
 >;
 
 /**
- * Picks the most recent year in the payload.
- *
- * @param years - The years the site has published in.
- * @return The latest year, or undefined when the payload carries none.
+ * Picks the most recent year in the insights payload.
  */
 function findLatestYear( years: StatsInsightsYear[] ): StatsInsightsYear | undefined {
 	return years.reduce< StatsInsightsYear | undefined >(
@@ -70,9 +67,6 @@ function findLatestYear( years: StatsInsightsYear[] ): StatsInsightsYear | undef
 
 /**
  * Adds every year's totals together for the all-time selection.
- *
- * @param years - The years the site has published in.
- * @return The lifetime totals.
  */
 function sumYears( years: StatsInsightsYear[] ): AnnualHighlightTotals {
 	return years.reduce< AnnualHighlightTotals >(
@@ -93,10 +87,6 @@ function sumYears( years: StatsInsightsYear[] ): AnnualHighlightTotals {
  * range, and that selection arrives as the report preset. Since the endpoint
  * returns every year at once, the selection picks a row here rather than
  * changing the request. Any other preset falls back to the most recent year.
- *
- * @param data     - The normalized insights response, or undefined while loading.
- * @param presetId - The report preset carrying the section's selection.
- * @return The totals to display, or undefined when the selection has no data.
  */
 function selectTotals(
 	data: StatsInsightsResponse | undefined,
@@ -133,10 +123,6 @@ function selectTotals(
  * the default the two disagree: every metric reads as enabled in the control
  * while the body reports none selected. An explicit empty array still means
  * "none".
- *
- * @param props         - The component props.
- * @param props.metrics - The enabled metric tile ids; missing means every metric.
- * @return The widget content.
  */
 function AnnualHighlightsReport( {
 	metrics = DEFAULT_HIGHLIGHT_METRICS,
@@ -233,14 +219,9 @@ function AnnualHighlightsReport( {
 }
 
 /**
- * Widget render entry point.
- *
  * WidgetRoot provides the analytics query client and chart theme consumed by the
  * inner report. Host attributes are forwarded so any injected report params are
  * preserved even though the insights endpoint is not period-scoped.
- *
- * @param {AnnualHighlightsWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function AnnualHighlights( { attributes = {} }: AnnualHighlightsWidgetProps ) {
 	return (

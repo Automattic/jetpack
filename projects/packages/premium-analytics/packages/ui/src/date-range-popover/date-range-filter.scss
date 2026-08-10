@@ -22,9 +22,7 @@
 // Hovered/focused trigger: same brand-tinted highlight the select-control
 // popup gives its items.
 .date-filters-panel-button {
-	// Matches the preset pills it shares the row with. The collapsed row takes
-	// the select's larger size instead; that lives with the rest of the compact
-	// layout, in `date-filters-panel.scss`.
+	// Matches the preset pills it shares the row with.
 	font-size: var(--wpds-typography-font-size-md);
 	--wp-ui-button-background-color-active: var(--wpds-color-background-interactive-brand-weak-active);
 }
@@ -56,11 +54,10 @@
 	flex: 0 0 auto;
 }
 
-// Below the select threshold the trigger shares a narrow row with the preset
-// select, and a long label has nowhere to go. Without this it wrapped mid-word
-// over three lines ("Прои / зволь / но") and stretched the control vertically.
-// Truncating is the interim answer; the label is still readable from the
-// popover it opens.
+// The group's only shrinkable item, so it absorbs whatever the row runs short
+// of. Without this the label broke mid-word over three lines ("Прои / зволь /
+// но"). Truncating is the interim answer; the popover it opens still spells the
+// range out.
 .date-filters-panel-button__label {
 	overflow: hidden;
 	// Needed for the ellipsis: a flex item will not shrink past its content

@@ -92,13 +92,7 @@ type ReportDateWindowSearch = Pick<
 	'from' | 'to' | 'interval' | 'preset'
 >;
 
-/**
- * Returns normalized params for the report request query.
- * When no defined, it will use the defaults.
- *
- * @param {NormalizeReportParamsArgType} [search]        - Candidate report params.
- * @param {PresetType}                   [defaultPreset] - Override the fallback preset.
- */
+/** Returns normalized report params, falling back to the defaults for anything absent. */
 export function normalizeReportParams(
 	search?: NormalizeReportParamsArgType,
 	defaultPreset?: PresetType
@@ -152,7 +146,6 @@ export function normalizeReportParams(
 
 	const postId = toPostId( search?.post_id );
 
-	// Params from `search`, or fallback to defaults.
 	const normalized: ReportParams = {
 		from,
 		to,
@@ -166,7 +159,6 @@ export function normalizeReportParams(
 		...( postId > 0 ? { post_id: postId } : {} ),
 	};
 
-	// Add comparison params from search if enabled
 	if ( search && hasComparisonEnabled( search ) ) {
 		normalized.compare_from = search.compare_from;
 		normalized.compare_to = search.compare_to;
@@ -185,9 +177,6 @@ export function normalizeReportParams(
 
 /**
  * Whether report date params are incomplete or the interval is invalid for the range.
- *
- * @param search - Candidate report date-window fields.
- * @return True when `from`, `to`, or `interval` is missing, or `interval` is not allowed for the range.
  */
 export function needsReportDateParamsSeed( search?: ReportDateWindowSearch ): boolean {
 	if ( ! search?.from || ! search?.to || ! search?.interval ) {

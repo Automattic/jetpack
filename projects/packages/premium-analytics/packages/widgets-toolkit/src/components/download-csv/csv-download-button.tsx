@@ -13,9 +13,6 @@ import { useState, type ComponentProps } from 'react';
 import styles from './csv-download-button.module.scss';
 
 export type CsvDownloadButtonProps = {
-	/**
-	 * Starts the download.
-	 */
 	onDownload: () => Promise< unknown > | void;
 
 	/**
@@ -23,9 +20,6 @@ export type CsvDownloadButtonProps = {
 	 */
 	label?: string;
 
-	/**
-	 * Optional class for layout tweaks.
-	 */
 	className?: string;
 
 	/**
@@ -59,12 +53,6 @@ function getErrorMessage( error: unknown ): string {
 /**
  * Shared CSV download action with loading state and snackbar errors.
  *
- * @param props            - Component props.
- * @param props.onDownload - Download behavior supplied by the caller.
- * @param props.label      - Optional visible label.
- * @param props.className  - Optional additional class name.
- * @param props.variant    - Optional button treatment.
- * @param props.showIcon   - Whether to render the download icon.
  * @return The rendered download action.
  */
 export function CsvDownloadButton( {

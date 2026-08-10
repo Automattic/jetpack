@@ -27,16 +27,10 @@ type PopularPostRenderAttributes = PopularPostAttributes & Partial< ReportParams
 type PopularPostWidgetProps = WidgetRenderProps< PopularPostRenderAttributes >;
 
 /**
- * Fetches the period's most-viewed post through `usePopularPost` and hands it to
- * the shared `PostHighlightCard`, with loading, error, and empty states handled
- * by `<WidgetState>`.
- *
  * The dashboard's date range picks which post is shown; all three tiles are
  * all-time totals from the Stats post endpoint, so they share one window and
  * need no per-tile aggregation note — the same treatment as `Latest post`,
  * which shares this card.
- *
- * @return The widget content.
  */
 function PopularPostReport() {
 	const { reportParams } = useWidgetRootContext();
@@ -94,16 +88,6 @@ function PopularPostReport() {
 	);
 }
 
-/**
- * Widget render entry point.
- *
- * WidgetRoot provides the analytics query client, the chart theme, and the
- * dashboard's `reportParams` that the inner report reads through
- * `useWidgetRootContext()`.
- *
- * @param {PopularPostWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function PopularPost( { attributes = {} }: PopularPostWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

@@ -33,8 +33,6 @@ const getRowId = ( item: EarningsHistoryRow ) => item.id;
  * table. The earnings module is not period-scoped, so nothing is read from
  * report params. Ported from the `earningsTable()` helper on the Jetpack Stats
  * WordAds page (wp-calypso client/my-sites/stats/wordads/earnings.jsx).
- *
- * @return The widget content.
  */
 function WordAdsSponsoredContentHistoryReport() {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsWordAdsEarnings();
@@ -72,14 +70,6 @@ function WordAdsSponsoredContentHistoryReport() {
 	);
 }
 
-/**
- * WordAds "Sponsored Content History" widget. WidgetRoot provides the query
- * client and report-param context; the inner report renders the `sponsored`
- * breakdown.
- *
- * @param {WordAdsSponsoredContentHistoryProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function WordAdsSponsoredContentHistory( {
 	attributes = {},
 }: WordAdsSponsoredContentHistoryProps ) {

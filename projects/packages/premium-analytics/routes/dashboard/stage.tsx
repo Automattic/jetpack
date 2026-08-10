@@ -3,6 +3,7 @@ import { Stack } from '@jetpack-premium-analytics/externals';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import {
 	DateFiltersPanel,
+	DateIntervalDropdown,
 	DateYearFilter,
 	SectionHeader,
 	SectionTabPanel,
@@ -105,8 +106,16 @@ function Dashboard(): JSX.Element {
 				range: dateFilters.appliedRange,
 				presetId: dateFilters.appliedPresetId,
 				comparisonPresetId,
+				// The interval control renders as a glyph, so the subtitle is
+				// where the active bucket is readable. Both surfaces carry it.
+				interval: dateFilters.appliedInterval,
 			} ),
-		[ dateFilters.appliedRange, dateFilters.appliedPresetId, comparisonPresetId ]
+		[
+			dateFilters.appliedRange,
+			dateFilters.appliedPresetId,
+			dateFilters.appliedInterval,
+			comparisonPresetId,
+		]
 	);
 
 	/*
@@ -146,21 +155,39 @@ function Dashboard(): JSX.Element {
 	const dateControls =
 		dateFilterSurface === DATE_FILTER_YEAR ? (
 			/*
-			 * `startYear` is left out on purpose: nothing in this package knows how
-			 * far back the site's data goes yet (`getStoreInfo()` is still a stub),
-			 * so the surface falls back to `DEFAULT_YEAR_SURFACE_COUNT` — six years,
-			 * which is the window the design shows. Pass the site's oldest year of
-			 * content here once a source for it exists, so a younger site stops
-			 * offering years it has nothing to show for.
+			 * The year surface carries the interval control but no comparison.
+			 * Composed here rather than inside `DateYearFilter`, which stays the
+			 * preset surface alone.
 			 */
-			<DateYearFilter
-				value={ dateFilters.appliedPresetId }
-				onSelect={ selectYear }
-				timeZone={ dateFilters.timeZone }
-				containerElement={ containerElement }
-			/>
+			<Stack direction="row" align="center" gap="sm">
+				{ /*
+				 * `startYear` is left out on purpose: nothing in this package knows how
+				 * far back the site's data goes yet (`getStoreInfo()` is still a stub),
+				 * so the surface falls back to `DEFAULT_YEAR_SURFACE_COUNT` — six years,
+				 * which is the window the design shows. Pass the site's oldest year of
+				 * content here once a source for it exists, so a younger site stops
+				 * offering years it has nothing to show for.
+				 */ }
+				<DateYearFilter
+					value={ dateFilters.appliedPresetId }
+					onSelect={ selectYear }
+					timeZone={ dateFilters.timeZone }
+					containerElement={ containerElement }
+				/>
+
+				<DateIntervalDropdown
+					options={ dateFilters.intervalOptions }
+					value={ dateFilters.interval }
+					onChange={ dateFilters.onIntervalChange }
+				/>
+			</Stack>
 		) : (
-			<DateFiltersPanel { ...dateFilters } />
+			/*
+			 * The dashboard's widgets are charts bucketed by the interval. The
+			 * report pages mount this same panel over records tables, which are
+			 * not, so the control is asked for rather than implied by the props.
+			 */
+			<DateFiltersPanel { ...dateFilters } withIntervalControl />
 		);
 
 	return (

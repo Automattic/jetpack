@@ -13,11 +13,6 @@ import type { DataPointDate } from '@jetpack-premium-analytics/widgets-toolkit';
  * the full range of week columns regardless of where posts fall.
  *
  * Falls back to the raw entries when the range is missing or inverted.
- *
- * @param counts - Post counts keyed by `yyyy-MM-dd` (only days with posts).
- * @param from   - Inclusive first day (`yyyy-MM-dd` or ISO), when present.
- * @param to     - Inclusive last day (`yyyy-MM-dd` or ISO), when present.
- * @return One data point per day across the window.
  */
 export function buildStreakSeries(
 	counts: Record< string, number >,

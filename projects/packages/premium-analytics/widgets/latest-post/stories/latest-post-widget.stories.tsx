@@ -96,11 +96,6 @@ registerLatestPostMocks();
 
 const LATEST_POST_RENDER_MODULE = 'storybook/latest-post';
 
-/**
- * Renders the data-connected widget with report params from the date range
- * picker.
- * @return The rendered widget.
- */
 function renderLatestPost() {
 	return <LatestPostRender attributes={ { reportParams: getDefaultQueryParams() } } />;
 }
@@ -127,9 +122,6 @@ function renderLatestPostOnPreset( preset: PresetType ) {
  * Evict both queries from the shared client on enter and on cleanup so each
  * forced-state story hits the mock fresh (and no forced result leaks into the
  * sibling stories).
- *
- * @param state - The forced state.
- * @return The story cleanup callback.
  */
 function forceLatestPostState( state: 'loading' | 'error' | 'empty' ) {
 	const setState = ( value: typeof state | null ) => {
@@ -222,9 +214,6 @@ export const Empty: Story = {
  * Drop `widgetWidth` to 1 to walk the shared card's size ladder: below 520px wide
  * the featured image drops out and the metric row wraps. Shortening the cell below
  * 300px also switches the card to its compact type scale.
- *
- * @param {WidgetDashboardWithWidgetControls} dashboardArgs - The dashboard story controls.
- * @return The widget mounted inside the real dashboard.
  */
 function LatestPostDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (

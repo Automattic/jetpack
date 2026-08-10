@@ -1781,7 +1781,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats",
-                "reference": "0ebd3991d1a99f1843f5071fdda658e0ca77abc6"
+                "reference": "cabc204d02f8c619d6d22adc12aa323ae42ffb0c"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1811,7 +1811,7 @@
                 "branch-alias": {
                     "dev-trunk": "0.20.x-dev"
                 },
-                "textdomain": "jetpack-stats"
+                "textdomain": "jetpack-stats-pkg"
             },
             "autoload": {
                 "classmap": [

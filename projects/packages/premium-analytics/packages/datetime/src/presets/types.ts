@@ -38,9 +38,6 @@ export const QUICK_SURFACE_PRESETS = [
 	PRESET_LAST_12_MONTHS,
 ] as const;
 
-/**
- * Union of the selectable preset identifiers.
- */
 export type SelectablePresetId = ( typeof SELECTABLE_PRESETS )[ number ];
 
 /**
@@ -77,9 +74,6 @@ export type ComputablePresetId = SelectablePresetId | YearSurfacePresetId;
  */
 export const PRESET_CUSTOM = 'custom' as const;
 
-/**
- * Primary preset: any computable preset, or 'custom'.
- */
 export type PrimaryPresetId = ComputablePresetId | typeof PRESET_CUSTOM;
 
 /**
