@@ -56,7 +56,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Traffic views activity" widget. Renders the site\'s daily views for the selected period as a calendar heatmap — week columns, weekday rows, and the view count in each cell. The site-wide counterpart to "Traffic activity", which is scoped to one post, and the metric counterpart to "Posting activity", which counts posts rather than views. Unlike the latter it never switches to compact squares: the design pairs the two on the Insights tab so one reads as counts and the other as density, so this one always renders labelled cells and drops the oldest week columns that will not fit the card. Days with no traffic stay blank rather than showing a 0.',
+					'The "Traffic views activity" widget shows daily site views as a calendar heatmap. Days without views are blank, and older weeks are hidden when space is limited.',
 			},
 		},
 	},
@@ -67,7 +67,7 @@ export default meta;
 type Story = StoryObj< Partial< ComponentProps< typeof TrafficViewsActivityRender > > >;
 
 /**
- * Default populated state — a year of daily views.
+ * A year of daily views.
  */
 export const Default: Story = {
 	render: () => renderTrafficViewsActivity(),
@@ -75,7 +75,7 @@ export const Default: Story = {
 };
 
 /**
- * First load: the fetch is in flight, so the widget shows its loading state.
+ * The initial loading state.
  */
 export const Loading: Story = {
 	render: () => renderTrafficViewsActivity( 'last-90-days' ),
@@ -85,8 +85,7 @@ export const Loading: Story = {
 };
 
 /**
- * A permission-gated failure: neutral copy and no Retry, since retrying cannot
- * grant the capability.
+ * A permission error without a retry action.
  */
 export const Error: Story = {
 	render: () => renderTrafficViewsActivity( 'last-7-days' ),
@@ -96,8 +95,7 @@ export const Error: Story = {
 };
 
 /**
- * The proxy's `no_connection` failure, which can heal after reconnecting — so
- * this one does offer Retry.
+ * A connection error with a retry action.
  */
 export const ErrorRetryable: Story = {
 	render: () => renderTrafficViewsActivity( 'last-30-days' ),
@@ -107,8 +105,7 @@ export const ErrorRetryable: Story = {
 };
 
 /**
- * Resolved with no views anywhere in the period: the widget shows its empty
- * state rather than a grid of blank cells.
+ * A period with no views.
  */
 export const Empty: Story = {
 	render: () => renderTrafficViewsActivity( 'today' ),
@@ -132,17 +129,7 @@ function TrafficViewsActivityDashboardStory( dashboardArgs: WidgetDashboardWithW
 }
 
 /**
- * The widget in the real dashboard grid, sized as it ships on the Insights tab:
- * `width: 4, height: 2`, because the design's 61x40 cells do not fit a one-row
- * tile. `rowHeight` is pinned to the dashboard's own 200px rather than the
- * helper's 300px default — at 300 the tile is 616px instead of 416px and the
- * cells reach their cap with room to spare, hiding exactly the fit this story
- * exists to show.
- *
- * Cells still render ~57x37 here rather than the design's 61x40: the dashboard
- * route tightens `--wp-ui-card-padding` to 16px and this helper leaves the Card
- * default of 24px, costing the tile 24px of body height. Judge the exact cell
- * geometry on a real dashboard, not in Storybook.
+ * The widget at its production size: full width and two rows.
  */
 export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
 	render: args => <TrafficViewsActivityDashboardStory { ...args } />,
