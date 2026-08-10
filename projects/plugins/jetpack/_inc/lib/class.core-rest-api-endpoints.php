@@ -1775,6 +1775,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return stdClass|WP_Error
 	 */
 	public static function site_data() {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Connection\Manager::get_connected_site_data' );
+
 		return ( new Connection_Manager() )->get_connected_site_data();
 	}
 
@@ -1787,6 +1789,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return WP_Error|WP_HTTP_Response|WP_REST_Response
 	 */
 	public static function get_site_data() {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Connection\REST_Connector::site_data_response' );
+
 		return REST_Connector::site_data_response();
 	}
 

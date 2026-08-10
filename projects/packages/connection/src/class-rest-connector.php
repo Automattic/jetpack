@@ -1137,12 +1137,20 @@ class REST_Connector {
 	 * The floor is `edit_posts` because the Jetpack dashboard requests this route on mount and
 	 * is reachable by contributors, matching how My Jetpack and admin-ui gate their pages.
 	 *
+	 * An offline site keeps its blog ID and blog token, so the fetch stays signed and reaches
+	 * WordPress.com. The floor there is `manage_options`, matching the capability the route
+	 * carried before it moved into this package.
+	 *
 	 * @since $$next-version$$
 	 *
 	 * @return true|WP_Error
 	 */
 	public static function site_data_permission_check() {
-		if ( current_user_can( 'edit_posts' ) ) {
+		if ( ( new Status() )->is_offline_mode() ) {
+			if ( current_user_can( 'manage_options' ) ) {
+				return true;
+			}
+		} elseif ( current_user_can( 'edit_posts' ) ) {
 			return true;
 		}
 

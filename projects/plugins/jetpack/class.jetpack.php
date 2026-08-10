@@ -733,7 +733,7 @@ class Jetpack {
 		add_action( 'jetpack_heartbeat', array( Jetpack_Plan::class, 'refresh_from_wpcom' ) );
 
 		// The Connection package fetches the site record for `jetpack/v4/site`; reuse it to refresh the plan.
-		add_action( 'jetpack_site_data_fetched', array( __CLASS__, 'refresh_plan_from_site_data' ) );
+		add_action( 'jetpack_site_data_fetched', array( Jetpack_Plan::class, 'update_from_site_record' ) );
 
 		// Actually push the stats on shutdown.
 		if ( ! has_action( 'shutdown', array( $this, 'push_stats' ) ) ) {
@@ -3421,18 +3421,6 @@ p {
 	 */
 	public static function on_idc_disconnect() {
 		\Jetpack_Options::update_option( 'activated', 4 );
-	}
-
-	/**
-	 * Refresh the cached plan and products from a site record fetched by the Connection package.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string $body The raw JSON body of the WordPress.com `/sites/%d` response.
-	 * @return bool Whether the cached plan changed.
-	 */
-	public static function refresh_plan_from_site_data( $body ) {
-		return Jetpack_Plan::update_from_sites_response( array( 'body' => $body ) );
 	}
 
 	/**

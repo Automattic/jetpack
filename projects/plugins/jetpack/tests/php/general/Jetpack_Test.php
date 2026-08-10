@@ -1168,16 +1168,14 @@ EXPECTED;
 		delete_option( 'jetpack_active_plan' );
 		delete_option( 'jetpack_site_products' );
 
-		$body = wp_json_encode(
+		do_action(
+			'jetpack_site_data_fetched',
 			array(
 				'ID'       => 1234,
 				'plan'     => array( 'product_slug' => 'jetpack_security_t1_yearly' ),
 				'products' => array( array( 'product_slug' => 'jetpack_backup_t1_yearly' ) ),
-			),
-			JSON_UNESCAPED_SLASHES
+			)
 		);
-
-		do_action( 'jetpack_site_data_fetched', $body );
 
 		$this->assertSame(
 			array( 'product_slug' => 'jetpack_security_t1_yearly' ),
@@ -1189,9 +1187,6 @@ EXPECTED;
 			get_option( 'jetpack_site_products' ),
 			'The products from the site record should be cached.'
 		);
-
-		delete_option( 'jetpack_active_plan' );
-		delete_option( 'jetpack_site_products' );
 	}
 
 	/**
@@ -1201,13 +1196,11 @@ EXPECTED;
 	public function test_site_data_action_keeps_the_plan_when_the_record_has_none() {
 		update_option( 'jetpack_active_plan', array( 'product_slug' => 'jetpack_complete' ) );
 
-		do_action( 'jetpack_site_data_fetched', wp_json_encode( array( 'ID' => 1234 ), JSON_UNESCAPED_SLASHES ) );
+		do_action( 'jetpack_site_data_fetched', array( 'ID' => 1234 ) );
 
 		$this->assertSame(
 			array( 'product_slug' => 'jetpack_complete' ),
 			get_option( 'jetpack_active_plan' )
 		);
-
-		delete_option( 'jetpack_active_plan' );
 	}
 } // end class

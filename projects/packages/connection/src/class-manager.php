@@ -998,10 +998,21 @@ class Manager {
 			if ( is_wp_error( $response ) ) {
 				$error_info['api_error_code'] = $response->get_error_code() ? wp_strip_all_tags( $response->get_error_code() ) : null;
 			} elseif ( $data && ! empty( $data->error ) ) {
-				$error_info['api_error_code'] = $data->error;
+				$error_info['api_error_code'] = is_string( $data->error ) ? wp_strip_all_tags( $data->error ) : null;
 			}
 
 			return new WP_Error( 'site_data_fetch_failed', '', $error_info );
+		}
+
+		if ( ! is_object( $data ) ) {
+			return new WP_Error(
+				'site_data_fetch_failed',
+				'',
+				array(
+					'api_error_code' => 'invalid_body',
+					'api_http_code'  => 200,
+				)
+			);
 		}
 
 		/**
@@ -1010,11 +1021,14 @@ class Manager {
 		 * Consumers that cache anything derived from the record, such as the current plan,
 		 * can refresh it here.
 		 *
+		 * The record is passed as an array rather than the object this method returns, so that a
+		 * listener cannot mutate the instance that becomes the REST response.
+		 *
 		 * @since $$next-version$$
 		 *
-		 * @param string $body The raw JSON body of the WordPress.com `/sites/%d` response.
+		 * @param array $record The decoded site record from the WordPress.com `/sites/%d` endpoint.
 		 */
-		do_action( 'jetpack_site_data_fetched', $body );
+		do_action( 'jetpack_site_data_fetched', json_decode( $body, true ) );
 
 		return $data;
 	}

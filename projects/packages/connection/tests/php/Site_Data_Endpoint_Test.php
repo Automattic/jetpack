@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
@@ -50,6 +51,9 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		// The permission check reads offline mode, which Status caches per request.
+		StatusCache::clear();
+
 		global $wp_rest_server;
 
 		$wp_rest_server = new WP_REST_Server();
@@ -72,6 +76,7 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 		$wp_rest_server = null;
 		$this->server   = null;
 
+		StatusCache::clear();
 		Constants::clear_constants();
 
 		wp_set_current_user( 0 );
@@ -118,6 +123,31 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 	 */
 	public function test_contributor_is_permitted() {
 		$this->set_current_user_with_role( 'contributor' );
+
+		$this->assertTrue( REST_Connector::site_data_permission_check() );
+	}
+
+	/**
+	 * Offline mode does not clear the blog ID or the blog token, so a site that connected first
+	 * and went offline later can still reach WordPress.com. The floor there stays at
+	 * `manage_options`, the capability this route carried before it moved into the package.
+	 */
+	public function test_contributor_is_denied_in_offline_mode() {
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		$this->set_current_user_with_role( 'contributor' );
+
+		$result = REST_Connector::site_data_permission_check();
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'invalid_user_permission_view_admin', $result->get_error_code() );
+	}
+
+	/**
+	 * An administrator keeps access in offline mode.
+	 */
+	public function test_administrator_is_permitted_in_offline_mode() {
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		$this->set_current_user_with_role( 'administrator' );
 
 		$this->assertTrue( REST_Connector::site_data_permission_check() );
 	}
@@ -198,12 +228,11 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A successful fetch fires the action with the response body, which is how the Jetpack
+	 * A successful fetch fires the action with the decoded record, which is how the Jetpack
 	 * plugin refreshes the cached plan without this package depending on `jetpack-plans`.
 	 */
 	public function test_successful_fetch_fires_the_site_data_action() {
-		$body = '{"ID":1234,"name":"Test site"}';
-		$this->fake_http_response( 200, $body );
+		$this->fake_http_response( 200, '{"ID":1234,"name":"Test site"}' );
 
 		$payloads = array();
 		add_action(
@@ -214,7 +243,55 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 		);
 
 		$this->assertFalse( is_wp_error( $this->manager->get_connected_site_data() ) );
-		$this->assertSame( array( $body ), $payloads );
+		$this->assertSame(
+			array(
+				array(
+					'ID'   => 1234,
+					'name' => 'Test site',
+				),
+			),
+			$payloads
+		);
+	}
+
+	/**
+	 * The payload must be a value copy rather than the object the method returns, so a listener
+	 * cannot mutate the record that becomes the REST response.
+	 */
+	public function test_site_data_action_payload_does_not_alias_the_returned_record() {
+		$this->fake_http_response( 200, '{"ID":1234,"name":"Test site"}' );
+
+		add_action(
+			'jetpack_site_data_fetched',
+			function ( $record ) {
+				$record['name'] = 'Mutated';
+			}
+		);
+
+		$this->assertSame( 'Test site', $this->manager->get_connected_site_data()->name );
+	}
+
+	/**
+	 * A 200 carrying a body that is not a JSON object must report an error rather than return
+	 * `null`, which would otherwise be encoded as a successful `"data":"null"` envelope.
+	 */
+	public function test_unusable_body_on_a_200_reports_invalid_body() {
+		$this->fake_http_response( 200, '' );
+
+		$fired = false;
+		add_action(
+			'jetpack_site_data_fetched',
+			function () use ( &$fired ) {
+				$fired = true;
+			}
+		);
+
+		$result = $this->manager->get_connected_site_data();
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'site_data_fetch_failed', $result->get_error_code() );
+		$this->assertSame( 'invalid_body', $result->get_error_data()['api_error_code'] );
+		$this->assertFalse( $fired, 'The action must not fire without a usable record.' );
 	}
 
 	/**
