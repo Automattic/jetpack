@@ -342,21 +342,14 @@ class Error_Handler {
 					$message = __( "Your connection with WordPress.com seems to be broken. If you're experiencing issues, please try reconnecting.", 'jetpack-connection' );
 					$action  = null;
 
-					// The site itself is rejecting WordPress.com's requests (firewall, WAF,
-					// security plugin, or server rule). The token could be perfectly valid,
-					// so a reconnect would be rejected the same way — surface the real cause
-					// and point at Site Health, which re-runs the check on page load.
-					if ( 'xmlrpc_request_blocked' === $error_code ) {
-						$site_http_status = isset( $error['error_data']['site_http_status'] ) ? (int) $error['error_data']['site_http_status'] : 0;
-
-						$message = $site_http_status
-							? sprintf(
-								/* translators: %d is the HTTP status code (e.g. 403) the site returned to WordPress.com. */
-								__( 'WordPress.com is unable to communicate with your site: requests are being blocked (HTTP %d), usually by a firewall, security plugin, or server rule. Reconnecting will not fix this. Ask your host to allow requests from WordPress.com to your site\'s xmlrpc.php file, then confirm the fix on your site\'s Site Health page.', 'jetpack-connection' ),
-								$site_http_status
-							)
-							: __( 'WordPress.com is unable to communicate with your site: requests are being blocked, usually by a firewall, security plugin, or server rule. Reconnecting will not fix this. Ask your host to allow requests from WordPress.com to your site\'s xmlrpc.php file, then confirm the fix on your site\'s Site Health page.', 'jetpack-connection' );
-						$action = 'none';
+					$display_config = $this->get_error_display_config( $error_code );
+					if ( $display_config ) {
+						if ( isset( $display_config['message_callback'] ) ) {
+							$message = call_user_func( $display_config['message_callback'], $error );
+						}
+						if ( isset( $display_config['action'] ) ) {
+							$action = $display_config['action'];
+						}
 					}
 
 					// A secondary admin looking at the connection owner's token error, on a
@@ -437,6 +430,69 @@ class Error_Handler {
 		}
 
 		return $displayable_errors;
+	}
+
+	/**
+	 * Returns the display configuration for error codes that deviate from the default
+	 * presentation (generic "please reconnect" copy with a reconnect CTA).
+	 *
+	 * Copy is resolved at display time rather than stored with the error, so messages
+	 * follow the viewer's locale and stay current across package updates. Adding a new
+	 * special error code means adding one entry here — no branching in the display or
+	 * notice paths.
+	 *
+	 * Recognized keys, all optional:
+	 * - `message_callback` (callable): receives the stored error array, returns the
+	 *   displayable message. Omit to keep the generic reconnect copy.
+	 * - `action` (string): value for `error_data['action']`, e.g. 'none' to suppress
+	 *   the reconnect CTA. Omit to keep the default reconnect behavior.
+	 * - `default_admin_notice` (bool): when true, generic_admin_notice_error() shows
+	 *   this error's message even when no consumer supplies one via the
+	 *   `jetpack_connection_error_notice_message` filter (which still overrides).
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $error_code The error code.
+	 * @return array|null Display configuration, or null for the default presentation.
+	 */
+	private function get_error_display_config( $error_code ) {
+		$config = array(
+			// The site itself is rejecting WordPress.com's requests (firewall, WAF,
+			// security plugin, or server rule). The token could be perfectly valid, so
+			// a reconnect would be rejected the same way: suppress the reconnect CTA
+			// and surface the real cause. Ships a default admin notice because this
+			// error is invisible to every other detection path — WP.com's requests
+			// never reach the site.
+			'xmlrpc_request_blocked' => array(
+				'message_callback'     => array( $this, 'get_blocked_request_message' ),
+				'action'               => 'none',
+				'default_admin_notice' => true,
+			),
+		);
+
+		return $config[ $error_code ] ?? null;
+	}
+
+	/**
+	 * Builds the displayable message for the blocked-request error.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $error The stored error array.
+	 * @return string The message.
+	 */
+	private function get_blocked_request_message( $error ) {
+		$site_http_status = isset( $error['error_data']['site_http_status'] ) ? (int) $error['error_data']['site_http_status'] : 0;
+
+		if ( $site_http_status ) {
+			return sprintf(
+				/* translators: %d is the HTTP status code (e.g. 403) the site returned to WordPress.com. */
+				__( 'WordPress.com is unable to communicate with your site: requests are being blocked (HTTP %d), usually by a firewall, security plugin, or server rule. Reconnecting will not fix this. Ask your host to allow requests from WordPress.com to your site\'s xmlrpc.php file, then confirm the fix on your site\'s Site Health page.', 'jetpack-connection' ),
+				$site_http_status
+			);
+		}
+
+		return __( 'WordPress.com is unable to communicate with your site: requests are being blocked, usually by a firewall, security plugin, or server rule. Reconnecting will not fix this. Ask your host to allow requests from WordPress.com to your site\'s xmlrpc.php file, then confirm the fix on your site\'s Site Health page.', 'jetpack-connection' );
 	}
 
 	/**
@@ -1368,15 +1424,19 @@ class Error_Handler {
 		$displayable_errors = $this->get_displayable_errors();
 
 		// Most errors default to no admin notice — consumers opt in via the filter
-		// below, and the React dashboard is the primary surface. The blocked-request
-		// error is the exception: it is invisible to the dashboard's own error
-		// detection paths (WP.com cannot reach the site), so it ships with a
-		// default message and does not depend on a consumer supplying one.
+		// below, and the React dashboard is the primary surface. Error codes whose
+		// display config sets `default_admin_notice` provide their own message and
+		// do not depend on a consumer supplying one.
 		$default_message = '';
-		if ( isset( $displayable_errors['xmlrpc_request_blocked'] ) ) {
-			$first_blocked_error = reset( $displayable_errors['xmlrpc_request_blocked'] );
-			if ( is_array( $first_blocked_error ) && ! empty( $first_blocked_error['error_message'] ) ) {
-				$default_message = $first_blocked_error['error_message'];
+		foreach ( $displayable_errors as $error_code => $user_errors ) {
+			$display_config = $this->get_error_display_config( $error_code );
+			if ( empty( $display_config['default_admin_notice'] ) ) {
+				continue;
+			}
+			$first_error = reset( $user_errors );
+			if ( is_array( $first_error ) && ! empty( $first_error['error_message'] ) ) {
+				$default_message = $first_error['error_message'];
+				break;
 			}
 		}
 
@@ -1405,7 +1465,7 @@ class Error_Handler {
 		 *
 		 * @param array $errors The array of errors. See Automattic\Jetpack\Connection\Error_Handler for details on the array structure.
 		 */
-		do_action( 'jetpack_connection_error_notice', $this->get_displayable_errors() );
+		do_action( 'jetpack_connection_error_notice', $displayable_errors );
 
 		if ( empty( $message ) ) {
 			return;
