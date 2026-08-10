@@ -90,6 +90,40 @@ describe( 'isSafePasteHref', () => {
 		assert.equal( isSafePasteHref( 'data:text/html,<script>' ), false );
 	} );
 
+	it( 'resolves the scheme after trimming leading whitespace', () => {
+		// Browsers strip leading control characters before resolving the
+		// scheme, so the check has to trim first rather than anchoring on the
+		// raw value — otherwise a padded-but-safe href reads as unrecognized.
+		assert.equal( isSafePasteHref( '  https://example.com' ), true );
+		assert.equal( isSafePasteHref( '\thttps://example.com' ), true );
+		assert.equal( isSafePasteHref( '\n#section' ), true );
+	} );
+
+	it( 'rejects a script scheme however it is cased or padded', () => {
+		assert.equal( isSafePasteHref( '  javascript:alert(1)' ), false );
+		assert.equal( isSafePasteHref( '\tjavascript:alert(1)' ), false );
+		assert.equal( isSafePasteHref( '\njavascript:alert(1)' ), false );
+		assert.equal( isSafePasteHref( 'JaVaScRiPt:alert(1)' ), false );
+		// The allowlist must match at the start, not anywhere in the string —
+		// an unanchored test would wave this through on the embedded https:.
+		assert.equal( isSafePasteHref( 'javascript:location="https://example.com"' ), false );
+	} );
+
+	it( 'rejects a backslash-prefixed authority', () => {
+		// Browsers normalize the backslashes to slashes, so these must not be
+		// waved through as relative URLs.
+		assert.equal( isSafePasteHref( '\\\\evil.example' ), false );
+		assert.equal( isSafePasteHref( '\\evil.example' ), false );
+	} );
+
+	it( 'treats a protocol-relative href as safe', () => {
+		// `//host` inherits the page's scheme (always https here), so it can't
+		// smuggle script execution. Pinned deliberately: the leading-slash
+		// branch is what allows it, and narrowing that branch would change
+		// this to false.
+		assert.equal( isSafePasteHref( '//example.com/page' ), true );
+	} );
+
 	it( 'is case-insensitive on the scheme', () => {
 		assert.equal( isSafePasteHref( 'HTTPS://example.com' ), true );
 	} );
