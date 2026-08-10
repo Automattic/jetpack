@@ -140,14 +140,13 @@ function wpcom_site_can_upload_videos( $blog_id = 0 ) {
  *
  * @param int  $blog_id           Optional. Blog ID. Defaults to current blog.
  * @param bool $with_billing_data Optional. Overlay `might_still_auto_renew` and
- *                                `is_past_first_auto_renew_attempt_date` onto each purchase. The
- *                                same fields the Atomic payload carries, so consumers read one
- *                                shape on either site type. Opt-in because it queries the billing
- *                                system on every call; the plain cached rows are enough for feature
- *                                checks. The overlay degrades to the plain rows wherever billing
- *                                cannot answer, so read both as optional. On Atomic sites this is a
- *                                no-op: the synced payload carries whatever fields it was synced
- *                                with.
+ *                                `first_auto_renew_attempt_date` onto each purchase. The same
+ *                                fields the Atomic payload carries, so consumers read one shape on
+ *                                either site type. Opt-in because it queries the billing system on
+ *                                every call; the plain cached rows are enough for feature checks.
+ *                                The overlay degrades to the plain rows wherever billing cannot
+ *                                answer, so read both as optional. On Atomic sites this is a no-op:
+ *                                the synced payload carries whatever fields it was synced with.
  *
  * @return array An array of product objects containing at least product_slug, product_id,
  *               product_type, subscribed_date, expiry_date and subscription_id. With
@@ -255,8 +254,8 @@ function _wpcom_features_add_billing_data_to_purchases( $purchases, $blog_id ) {
 				return $purchase;
 			}
 
-			$purchase->might_still_auto_renew                = $upgrade->might_still_auto_renew;
-			$purchase->is_past_first_auto_renew_attempt_date = $upgrade->is_past_first_auto_renew_attempt_date;
+			$purchase->might_still_auto_renew        = $upgrade->might_still_auto_renew;
+			$purchase->first_auto_renew_attempt_date = $upgrade->first_auto_renew_attempt_date;
 
 			return $purchase;
 		},
