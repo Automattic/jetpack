@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Text } from '@jetpack-premium-analytics/externals';
+import { Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { calendar } from '@jetpack-premium-analytics/icons';
 import {
@@ -55,6 +55,11 @@ function PopularDaysReport() {
 		views >= 1000 ? ABBREVIATED_VIEWS_OPTIONS : PLAIN_VIEWS_OPTIONS
 	);
 
+	/* translators: %s is a number of views, e.g. "166.9k". */
+	const viewsTemplate = __( '%s views', 'jetpack-premium-analytics-pkg' );
+	const viewsLabel = sprintf( viewsTemplate, formattedViews );
+	const exactViewsLabel = sprintf( viewsTemplate, exactViews );
+
 	return (
 		<div className={ styles.root }>
 			<WidgetState
@@ -84,10 +89,15 @@ function PopularDaysReport() {
 						    clips 32px glyphs. `heading-2xl` pairs 32px with 40px. */ }
 						<Text variant="heading-2xl">{ peak?.label }</Text>
 						<Text variant="body-md" className={ styles.views } title={ exactViews }>
-							{ sprintf(
-								/* translators: %s is a number of views, e.g. "166.9k". */
-								__( '%s views', 'jetpack-premium-analytics-pkg' ),
-								formattedViews
+							{ viewsLabel === exactViewsLabel ? (
+								viewsLabel
+							) : (
+								<>
+									{ /* `title` is not reliably announced, so the abbreviation is hidden
+									    from assistive tech and the exact figure read in its place. */ }
+									<span aria-hidden="true">{ viewsLabel }</span>
+									<VisuallyHidden>{ exactViewsLabel }</VisuallyHidden>
+								</>
 							) }
 						</Text>
 					</div>

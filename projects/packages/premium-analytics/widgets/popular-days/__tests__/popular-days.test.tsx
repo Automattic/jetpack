@@ -106,6 +106,27 @@ describe( 'PopularDaysWidget', () => {
 		expect( screen.getByTitle( '166,900' ) ).toBeInTheDocument();
 	} );
 
+	it( 'reads the exact figure to assistive tech, not the abbreviation', () => {
+		mockUseStatsVisits.mockReturnValue(
+			visitsResult( { summary: { views: 166900 }, data: [ dailyRow( '2026-07-06', 166900 ) ] } )
+		);
+
+		renderWidget();
+
+		// `title` is not reliably announced, so the abbreviation must be hidden and the
+		// exact figure exposed in its place.
+		expect( screen.getByText( '166.9K views' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByText( '166,900 views' ) ).toBeInTheDocument();
+	} );
+
+	it( 'does not double up when the figure needs no abbreviating', () => {
+		mockUseStatsVisits.mockReturnValue( visitsResult( REPORT ) );
+
+		renderWidget();
+
+		expect( screen.getAllByText( '25 views' ) ).toHaveLength( 1 );
+	} );
+
 	it( 'keeps daily buckets on a coarse dashboard interval, so weekdays stay separable', () => {
 		mockUseStatsVisits.mockReturnValue( visitsResult( REPORT ) );
 
