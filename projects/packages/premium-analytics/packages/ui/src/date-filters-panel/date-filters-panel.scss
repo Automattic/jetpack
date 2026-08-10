@@ -7,26 +7,11 @@
 	 * concludes that everything fits, and never steps down to the abbreviated
 	 * labels. Inert in a block parent, where it already spans its container.
 	 *
-	 * A one-cell overlay grid: the visible row and the measuring rig share the
-	 * cell, so a host that opts the rig into the flow (see
-	 * `preset-row-probe.scss`) reads the full-labels width from this box's
-	 * max-content and can size the slot back up while the abbreviated row
-	 * renders.
+	 * The root publishes `--date-filters-panel-full-row-width`, the width of
+	 * the full-labels row, so a host can size the slot from it.
 	 */
-	display: grid;
 	flex: 1 1 0%;
 	min-inline-size: 0;
-
-	// A transient mismatch between the slot's size and the rendered label form
-	// clips inside the cell instead of spilling over the row-mates. Popovers
-	// render through portals, so nothing interactive is clipped.
-	overflow: clip;
-	overflow-clip-margin: calc(var(--wpds-border-width-focus) + 2px);
-
-	> * {
-		grid-area: 1 / 1;
-		min-inline-size: 0;
-	}
 
 	&__primary,
 	&__comparison {
