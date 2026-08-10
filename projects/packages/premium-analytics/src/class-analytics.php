@@ -435,22 +435,44 @@ class Analytics {
 	 * comes from the generated build; when that is missing we say so rather
 	 * than render an empty page, since the two look identical from the outside.
 	 *
+	 * build/build.php guards each sub-require separately, so its parts go missing
+	 * independently. Only pages.php decides whether the page renders, but both it
+	 * and widgets.php are reported: a deploy dropping only the manifest is silent
+	 * everywhere else, leaving every widget reading "Widget is no longer
+	 * available" (WOOA7S-1850).
+	 *
 	 * @return void
 	 */
 	public static function register_admin_menu() {
-		$has_build = function_exists( 'jpa_jetpack_premium_analytics_wp_admin_render_page' );
+		// Never fires today: load_dashboard_surface() loads this file first. Kept because
+		// no test can catch that ordering breaking — test files load widget-modules.php at
+		// file scope, so a reorder stays green in CI and fatals in wp-admin.
+		if ( ! function_exists( __NAMESPACE__ . '\\widgets_manifest_path' ) ) {
+			require_once __DIR__ . '/widget-modules.php';
+		}
 
-		if ( ! $has_build ) {
+		$can_render          = function_exists( 'jpa_jetpack_premium_analytics_wp_admin_render_page' );
+		$has_widget_manifest = file_exists( widgets_manifest_path() );
+
+		$missing = array();
+		if ( ! $can_render ) {
+			$missing[] = 'build/pages.php (the dashboard page render callback)';
+		}
+		if ( ! $has_widget_manifest ) {
+			$missing[] = 'build/widgets.php (the widget manifest)';
+		}
+
+		if ( $missing ) {
 			// Surfaced here rather than only on the page itself, so a partial deploy shows up on
 			// the first admin request instead of waiting for someone to open the dashboard.
 			_doing_it_wrong(
 				__METHOD__,
-				'The Premium Analytics build output is missing, so the dashboard cannot render. The package build did not run for this deploy.',
+				'The Premium Analytics build output is incomplete: ' . esc_html( implode( ', ', $missing ) ) . '. The package build did not run, or ran only partially, for this deploy.',
 				''
 			);
 		}
 
-		$render_callback = $has_build
+		$render_callback = $can_render
 			? 'jpa_jetpack_premium_analytics_wp_admin_render_page'
 			: array( __CLASS__, 'render_missing_build_notice' );
 

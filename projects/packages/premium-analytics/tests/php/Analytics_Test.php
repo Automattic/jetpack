@@ -25,9 +25,11 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \Automattic\Jetpack\PremiumAnalytics\Analytics
  * @covers ::Automattic\Jetpack\PremiumAnalytics\ensure_widget_registry_ready
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\widgets_manifest_path
  */
 #[CoversClass( Analytics::class )]
 #[CoversFunction( 'Automattic\\Jetpack\\PremiumAnalytics\\ensure_widget_registry_ready' )]
+#[CoversFunction( 'Automattic\\Jetpack\\PremiumAnalytics\\widgets_manifest_path' )]
 class Analytics_Test extends TestCase {
 
 	const MENU_SLUG     = 'jetpack-premium-analytics-wp-admin';
@@ -39,6 +41,13 @@ class Analytics_Test extends TestCase {
 	 * @var string[]
 	 */
 	private $doing_it_wrong = array();
+
+	/**
+	 * _doing_it_wrong() messages captured during a test, in the same order.
+	 *
+	 * @var string[]
+	 */
+	private $doing_it_wrong_messages = array();
 
 	/**
 	 * Fail loudly if the fixture build leaked in from an earlier test.
@@ -357,6 +366,15 @@ class Analytics_Test extends TestCase {
 	 */
 	public function use_fixture_widget_manifest() {
 		return __DIR__ . '/fixtures/build-entry/widgets.php';
+	}
+
+	/**
+	 * Point the manifest at a path no build ever writes, for the half-deployed case.
+	 *
+	 * @return string
+	 */
+	public function use_absent_widget_manifest() {
+		return __DIR__ . '/fixtures/build-entry/no-such-widgets.php';
 	}
 
 	/**
@@ -685,6 +703,9 @@ class Analytics_Test extends TestCase {
 	 * from the page slug at build time, so a rename on either side swaps the
 	 * dashboard for the missing-build notice with nothing else to notice it.
 	 *
+	 * Both artifacts need fixtures: build/ is gitignored and test-php runs no build,
+	 * so a default manifest path would report a missing one here.
+	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
@@ -699,13 +720,61 @@ class Analytics_Test extends TestCase {
 		$GLOBALS['menu'] = array();
 		Capabilities::register();
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
+		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
 		$this->capture_doing_it_wrong();
 		Analytics::register_admin_menu();
+		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
 		remove_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 
 		$this->assertSame( array(), $this->doing_it_wrong, 'A present build must not report a missing one.' );
 		$this->assertNotFalse(
 			has_action( self::MENU_HOOKNAME, 'jpa_jetpack_premium_analytics_wp_admin_render_page' )
+		);
+	}
+
+	/**
+	 * A deploy can drop build/widgets.php and keep build/pages.php. Nothing else
+	 * reports that state, so the diagnostic has to key on the manifest rather than
+	 * on the render callback that is still there.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_register_admin_menu_reports_a_missing_widget_manifest() {
+		$this->use_fixture_build();
+		set_current_screen( self::MENU_HOOKNAME );
+
+		Analytics::init();
+
+		$GLOBALS['menu'] = array();
+		Capabilities::register();
+		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
+		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
+		$this->capture_doing_it_wrong();
+		Analytics::register_admin_menu();
+		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
+		remove_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
+
+		$this->assertSame(
+			array( Analytics::class . '::register_admin_menu' ),
+			$this->doing_it_wrong,
+			'A missing widget manifest must be reported even though the page renders.'
+		);
+		$this->assertStringContainsString(
+			'build/widgets.php',
+			$this->doing_it_wrong_messages[0] ?? '',
+			'The diagnostic must name the artifact that is actually missing.'
+		);
+		$this->assertStringNotContainsString(
+			'build/pages.php',
+			$this->doing_it_wrong_messages[0] ?? '',
+			'build/pages.php is present here; naming it would send the reader to the wrong file.'
+		);
+		$this->assertNotFalse(
+			has_action( self::MENU_HOOKNAME, 'jpa_jetpack_premium_analytics_wp_admin_render_page' ),
+			'Only the manifest is missing, so the page still renders through the generated callback.'
 		);
 	}
 
@@ -749,17 +818,21 @@ class Analytics_Test extends TestCase {
 	/**
 	 * Capture _doing_it_wrong() calls without tripping the suite's failOnWarning gate.
 	 *
-	 * Records each triggering function name in $this->doing_it_wrong and suppresses the
-	 * underlying PHP warning, so a test can assert the diagnostic fired.
+	 * Records each call's function name and message, and suppresses the underlying PHP
+	 * warning, so a test can assert both that the diagnostic fired and what it named.
 	 */
 	private function capture_doing_it_wrong() {
-		$this->doing_it_wrong = array();
+		$this->doing_it_wrong          = array();
+		$this->doing_it_wrong_messages = array();
 		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
 		add_action(
 			'doing_it_wrong_run',
-			function ( $function_name ) {
-				$this->doing_it_wrong[] = $function_name;
-			}
+			function ( $function_name, $message ) {
+				$this->doing_it_wrong[]          = $function_name;
+				$this->doing_it_wrong_messages[] = $message;
+			},
+			10,
+			2
 		);
 	}
 
