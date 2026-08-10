@@ -38,10 +38,11 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect_Test extends Jetpack_REST_Test
 	/**
 	 * Public entry URL the resolver starts from.
 	 *
-	 * Uses an RFC 5737 documentation IP literal: wp_http_validate_url() accepts
-	 * it as a public host (so it passes the param validation that rejects
-	 * unresolvable / private hosts), while the address itself is non-routable,
-	 * and HTTP is mocked, so nothing is ever requested over the network.
+	 * Uses an RFC 5737 documentation IP literal: the address is non-routable and
+	 * HTTP is mocked, so nothing is ever requested over the network. Core's
+	 * wp_http_validate_url() lists TEST-NET-1/2/3 among the special-purpose
+	 * ranges it rejects, so set_up() allows this one host via
+	 * `http_request_host_is_external` -- see allow_public_fixture_hosts().
 	 *
 	 * @var string
 	 */
@@ -123,6 +124,30 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect_Test extends Jetpack_REST_Test
 
 		// The endpoint's permission_callback is is_user_logged_in().
 		wp_set_current_user( static::$user_id );
+
+		// Core rejects the RFC 5737 documentation ranges in wp_http_validate_url(),
+		// so the "public" fixtures below would never clear param validation. Allow
+		// only the two hosts the happy-path fixtures use; every other special-use
+		// range stays rejected, which is exactly what the rejection tests assert.
+		add_filter( 'http_request_host_is_external', array( $this, 'allow_public_fixture_hosts' ), 10, 2 );
+	}
+
+	/**
+	 * Treats the two documentation-range fixture hosts as external.
+	 *
+	 * Scoped to those two hosts only: metadata, CGNAT, loopback and the other
+	 * reserved ranges the rejection tests cover must keep failing validation.
+	 *
+	 * @param bool   $external Whether the host is considered external.
+	 * @param string $host     Host name of the requested URL.
+	 * @return bool
+	 */
+	public function allow_public_fixture_hosts( $external, $host ) {
+		if ( in_array( $host, array( '203.0.113.10', '198.51.100.20' ), true ) ) {
+			return true;
+		}
+
+		return $external;
 	}
 
 	/**
