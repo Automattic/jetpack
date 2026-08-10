@@ -261,6 +261,38 @@ export function MetricTabsChart( {
 		[ metrics ]
 	);
 
+	if ( metrics.length === 1 && activeMetric ) {
+		return (
+			<div className={ styles.root }>
+				<div className={ styles.header }>
+					<div className={ clsx( styles.tabs, styles.singleMetric ) }>
+						<div className={ styles.tab } title={ activeMetric.description }>
+							<span className={ styles.tabContent }>
+								<Text className={ styles.tabLabel }>{ activeMetric.label }</Text>
+								<MetricWithComparison
+									value={ activeMetric.value }
+									previousValue={ activeMetric.previousValue }
+									dataFormat={ activeMetric.dataFormat ?? dataFormat }
+									direction="row"
+									align="flex-end"
+								/>
+							</span>
+						</div>
+					</div>
+					{ controls }
+				</div>
+				<div className={ styles.chart }>
+					<MetricChart
+						metric={ activeMetric }
+						dataFormat={ dataFormat }
+						loading={ loading }
+						chartType={ chartType }
+					/>
+				</div>
+			</div>
+		);
+	}
+
 	if ( useDropdown ) {
 		// `value` must be a reference into `metricItems` for the select to match it.
 		const activeItem =
@@ -347,11 +379,7 @@ export function MetricTabsChart( {
 			className={ styles.root }
 		>
 			<div className={ styles.header }>
-				<Tabs.List
-					variant="minimal"
-					className={ clsx( styles.tabs, metrics.length === 1 && styles.singleMetric ) }
-					aria-label={ groupLabel }
-				>
+				<Tabs.List variant="minimal" className={ styles.tabs } aria-label={ groupLabel }>
 					{ metrics.map( metric => (
 						<Tabs.Tab
 							key={ metric.key }
