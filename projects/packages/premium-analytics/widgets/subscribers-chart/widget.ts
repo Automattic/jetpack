@@ -9,6 +9,7 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  * Internal dependencies
  */
 import { ArrayCheckboxField, SelectField } from '@jetpack-premium-analytics/fields';
+import type { MetricTabsChartType } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
  * Granularity the chart can be grouped by. `auto` follows the dashboard date
@@ -16,6 +17,24 @@ import { ArrayCheckboxField, SelectField } from '@jetpack-premium-analytics/fiel
  * value sticks across range changes.
  */
 export type SubscribersChartGranularity = 'auto' | 'day' | 'week' | 'month';
+
+/**
+ * The chart types the widget offers, in display order. Single source for the
+ * settings dropdown and the `SubscribersChartType` union so the two cannot
+ * drift apart. Matches the Traffic summary chart's own switch, so the two
+ * summary charts on the dashboard offer the same choice.
+ */
+export const SUBSCRIBERS_CHART_TYPES = [
+	{ id: 'line', label: __( 'Line chart', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'bar', label: __( 'Bar chart', 'jetpack-premium-analytics-pkg' ) },
+] as const satisfies readonly { id: MetricTabsChartType; label: string }[];
+
+/**
+ * How the selected metric is drawn. Derived from the list above, which
+ * `satisfies` the toolkit's own union, so a value the chart cannot draw fails
+ * to compile here rather than shipping as a broken dropdown option.
+ */
+export type SubscribersChartType = ( typeof SUBSCRIBERS_CHART_TYPES )[ number ][ 'id' ];
 
 /**
  * The metric tabs the chart can show, in display order: the persisted id and
@@ -41,10 +60,12 @@ export type SubscribersChartMetricId = ( typeof SUBSCRIBERS_CHART_METRICS )[ num
  *
  * @property granularity - Bucket size within the dashboard range. Defaults to `auto`.
  * @property metrics     - Metric tabs to show in the chart. Defaults to every metric.
+ * @property chartType   - How to draw the selected metric. Defaults to `line`.
  */
 export type SubscribersChartAttributes = {
 	granularity?: SubscribersChartGranularity;
 	metrics?: SubscribersChartMetricId[];
+	chartType?: SubscribersChartType;
 };
 
 /**
@@ -103,11 +124,23 @@ export default {
 				label: metric.label,
 			} ) ),
 		},
+		{
+			id: 'chartType',
+			label: __( 'Chart type', 'jetpack-premium-analytics-pkg' ),
+			type: 'text',
+			Edit: SelectField,
+			elements: SUBSCRIBERS_CHART_TYPES.map( chartType => ( {
+				value: chartType.id,
+				label: chartType.label,
+			} ) ),
+			relevance: 'high',
+		},
 	] as WidgetAttributeField< SubscribersChartAttributes >[],
 	example: {
 		attributes: {
 			granularity: 'auto',
 			metrics: DEFAULT_SUBSCRIBERS_CHART_METRICS,
+			chartType: 'line',
 		},
 	},
 };

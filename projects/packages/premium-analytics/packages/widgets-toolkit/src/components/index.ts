@@ -7,6 +7,11 @@ export {
 	type ComparativeLineChartSeries,
 	type SeriesStyle,
 } from './chart-comparative-line';
+export {
+	ComparativeBarChart,
+	type ComparativeBarChartProps,
+	type ComparativeBarChartSeries,
+} from './chart-comparative-bar';
 export { Legend, type LegendItem } from './legend';
 export {
 	WidgetRoot,
@@ -23,6 +28,7 @@ export {
 	type MetricTab,
 	type MetricTabDatum,
 	type MetricTabsChartProps,
+	type MetricTabsChartType,
 } from './metric-tabs-chart';
 export {
 	LeaderboardChart,

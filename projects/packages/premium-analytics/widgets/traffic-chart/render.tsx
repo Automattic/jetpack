@@ -20,6 +20,7 @@ import type {
 	TrafficChartAttributes,
 	TrafficChartGranularity,
 	TrafficChartMetricId,
+	TrafficChartType,
 } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
@@ -49,13 +50,18 @@ type TrafficChartInnerProps = {
 	 * Selected metric tab ids; defaults to every metric.
 	 */
 	metrics?: TrafficChartMetricId[];
+	/**
+	 * How to draw the selected metric. `MetricTabsChart` owns the default.
+	 */
+	chartType?: TrafficChartType;
 };
 
 /**
- * The "Group by" control is the `granularity` attribute and the tab selection is
- * the `metrics` attribute (both `relevance: 'high'`), rendered by the widget host.
+ * The "Group by" control is the `granularity` attribute, the tab selection is the
+ * `metrics` attribute, and the "Chart type" control is the `chartType` attribute
+ * (all `relevance: 'high'`), rendered by the widget host.
  */
-function TrafficChartInner( { granularity, metrics }: TrafficChartInnerProps ) {
+function TrafficChartInner( { granularity, metrics, chartType }: TrafficChartInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	// `auto` means "follow the dashboard range"; an explicit value sticks
 	// across range changes, so a wide range doesn't stay stuck on `day`
@@ -115,6 +121,7 @@ function TrafficChartInner( { granularity, metrics }: TrafficChartInnerProps ) {
 					<MetricTabsChart
 						metrics={ metricTabs }
 						dataFormat={ DATA_FORMAT }
+						chartType={ chartType }
 						loading
 						groupLabel={ groupLabel }
 					/>
@@ -125,6 +132,7 @@ function TrafficChartInner( { granularity, metrics }: TrafficChartInnerProps ) {
 				<MetricTabsChart
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
+					chartType={ chartType }
 					loading={ isFetching }
 					groupLabel={ groupLabel }
 				/>
@@ -138,7 +146,11 @@ export default function TrafficChart( { attributes = {}, setError }: TrafficChar
 
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<TrafficChartInner granularity={ granularity } metrics={ attributes.metrics } />
+			<TrafficChartInner
+				granularity={ granularity }
+				metrics={ attributes.metrics }
+				chartType={ attributes.chartType }
+			/>
 		</WidgetRoot>
 	);
 }

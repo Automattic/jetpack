@@ -15,7 +15,7 @@ import { type ComponentProps } from 'react';
  * Internal dependencies
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
-import { isEmptyChartData, getEmptyChartDomain } from '../../helpers';
+import { isEmptyChartData, getFixedYAxis } from '../../helpers';
 import { ChartTooltip } from '../chart-tooltip';
 import styles from './comparative-line-chart.module.scss';
 import { alignSeriesDates } from './utils';
@@ -195,16 +195,6 @@ export function ComparativeLineChart( {
 		[ dataFormat ]
 	);
 
-	// The chart library doesn't auto-adjust the left margin for fixed domains,
-	// so it is estimated from the formatted max value's length.
-	const createDomainMargin = useCallback(
-		( maxValue: number ) => ( {
-			...DEFAULT_MARGIN,
-			left: yTickFormat( maxValue ).length * 10,
-		} ),
-		[ yTickFormat ]
-	);
-
 	// Comparison dates are aligned onto the primary series for the X axis; the
 	// originals stay in `realDate` for tooltips.
 	const alignedSeries = useMemo( () => alignSeriesDates( series ), [ series ] );
@@ -219,30 +209,12 @@ export function ComparativeLineChart( {
 
 	const isEmptyData = useMemo( () => isEmptyChartData( styledSeries ), [ styledSeries ] );
 
-	// Percentage metrics keep a fixed 0-100% domain, whatever the data holds.
-	const percentageDomain: [ number, number ] | null = useMemo( () => {
-		return dataFormat.type === 'percentage' ? [ 0, 1.0 ] : null;
-	}, [ dataFormat.type ] );
-
-	const emptyChartProps = useMemo( () => {
-		if ( ! isEmptyData ) {
-			return {};
-		}
-
-		const domain = getEmptyChartDomain( dataFormat.type );
-
-		return {
-			chartOptions: { yScale: { domain } },
-			margin: createDomainMargin( domain[ 1 ] ),
-		};
-	}, [ isEmptyData, dataFormat.type, createDomainMargin ] );
-
-	const percentageMargin = useMemo( () => {
-		if ( ! percentageDomain ) {
-			return undefined;
-		}
-		return createDomainMargin( percentageDomain[ 1 ] );
-	}, [ percentageDomain, createDomainMargin ] );
+	// A pinned domain for percentage metrics and all-zero periods, with the left
+	// margin its widest tick needs. Null lets the chart scale to the data.
+	const fixedYAxis = useMemo(
+		() => getFixedYAxis( dataFormat.type, isEmptyData, yTickFormat ),
+		[ dataFormat.type, isEmptyData, yTickFormat ]
+	);
 
 	const xTickFormat = useCallback(
 		( date: number ) => formatDate( date, xTickFormatType ),
@@ -266,32 +238,14 @@ export function ComparativeLineChart( {
 			},
 		};
 
-		if ( percentageDomain ) {
-			return {
-				...baseOptions,
-				yScale: { domain: percentageDomain },
-			};
-		}
-
-		if ( ! isEmptyData ) {
+		if ( ! fixedYAxis ) {
 			return baseOptions;
 		}
 
-		return {
-			...baseOptions,
-			...emptyChartProps.chartOptions,
-		};
-	}, [
-		xTickFormat,
-		xTickFormatType,
-		yTickFormat,
-		percentageDomain,
-		isEmptyData,
-		emptyChartProps.chartOptions,
-		isCompact,
-	] );
+		return { ...baseOptions, yScale: { domain: fixedYAxis.domain } };
+	}, [ xTickFormat, xTickFormatType, yTickFormat, fixedYAxis, isCompact ] );
 
-	const margin = percentageMargin ?? emptyChartProps.margin ?? DEFAULT_MARGIN;
+	const margin = fixedYAxis ? { ...DEFAULT_MARGIN, left: fixedYAxis.marginLeft } : DEFAULT_MARGIN;
 
 	return (
 		<Stack ref={ measureRef } direction="column" className={ clsx( styles.chart, className ) }>

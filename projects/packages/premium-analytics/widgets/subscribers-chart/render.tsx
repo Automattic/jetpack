@@ -30,6 +30,7 @@ import {
 	type SubscribersChartAttributes,
 	type SubscribersChartGranularity,
 	type SubscribersChartMetricId,
+	type SubscribersChartType,
 } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
@@ -118,15 +119,21 @@ type SubscribersChartInnerProps = {
 	 * Selected metric tab ids; defaults to every metric.
 	 */
 	metrics?: SubscribersChartMetricId[];
+	/**
+	 * How to draw the selected metric. `MetricTabsChart` owns the default.
+	 */
+	chartType?: SubscribersChartType;
 };
 
 /**
- * The "Group by" control is the `granularity` attribute and the tab selection is
- * the `metrics` attribute (both `relevance: 'high'`), rendered by the widget host.
+ * The "Group by" control is the `granularity` attribute, the tab selection is the
+ * `metrics` attribute, and the "Chart type" control is the `chartType` attribute
+ * (all `relevance: 'high'`), rendered by the widget host.
  */
 function SubscribersChartInner( {
 	granularity,
 	metrics: metricIds = DEFAULT_SUBSCRIBERS_CHART_METRICS,
+	chartType,
 }: SubscribersChartInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	// `auto` means "follow the dashboard range"; an explicit value sticks
@@ -206,6 +213,7 @@ function SubscribersChartInner( {
 					<MetricTabsChart
 						metrics={ metricTabs }
 						dataFormat={ DATA_FORMAT }
+						chartType={ chartType }
 						loading
 						groupLabel={ groupLabel }
 					/>
@@ -216,6 +224,7 @@ function SubscribersChartInner( {
 				<MetricTabsChart
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
+					chartType={ chartType }
 					loading={ state.isFetching }
 					groupLabel={ groupLabel }
 				/>
@@ -232,7 +241,11 @@ export default function SubscribersChart( {
 
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<SubscribersChartInner granularity={ granularity } metrics={ attributes.metrics } />
+			<SubscribersChartInner
+				granularity={ granularity }
+				metrics={ attributes.metrics }
+				chartType={ attributes.chartType }
+			/>
 		</WidgetRoot>
 	);
 }

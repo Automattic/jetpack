@@ -70,7 +70,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'A metric switcher over a comparative line chart: selectable cards (value + period-over-period delta), and the selected metric drawn as a current line with a dashed previous-period overlay. Shared by the subscribers and traffic charts.',
+					'A metric switcher over a comparative chart: selectable cards (value + period-over-period delta), and the selected metric drawn with its previous-period overlay. `chartType` picks the mark — a current line with a dashed previous-period overlay, or bars with a translucent previous-period shadow. Shared by the subscribers and traffic charts.',
 			},
 		},
 	},
@@ -96,6 +96,14 @@ export const SingleMetric: Story = {
 		metrics: [ { ...METRICS[ 0 ], previousValue: undefined, previous: undefined } ],
 		dataFormat: DATA_FORMAT,
 	},
+};
+
+/**
+ * The same metrics drawn as bars, with the previous period as the translucent
+ * shadow bar behind each current-period bar.
+ */
+export const Bars: Story = {
+	args: { metrics: METRICS, dataFormat: DATA_FORMAT, chartType: 'bar' },
 };
 
 /**
