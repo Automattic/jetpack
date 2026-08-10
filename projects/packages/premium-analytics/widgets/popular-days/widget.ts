@@ -1,7 +1,7 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
-import { calendar } from '@jetpack-premium-analytics/icons';
+import { calendar } from '@wordpress/icons';
 
 /**
  * Configurable attributes for the Popular days widget. There are none: the
