@@ -21,6 +21,7 @@ jest.mock( '@jetpack-premium-analytics/data', () => {
 /**
  * External dependencies
  */
+import { canStepForward, stepDateRange } from '@jetpack-premium-analytics/datetime';
 import { endOfDay } from 'date-fns';
 /**
  * Internal dependencies
@@ -146,6 +147,47 @@ describe( 'buildRangePatch', () => {
 		expect( new Date( custom?.to ?? '' ).getTime() ).toBe( expected );
 		expect( new Date( manual?.to ?? '' ).getTime() ).toBe( expected );
 		expect( expected ).toBeGreaterThan( to.getTime() );
+	} );
+
+	it( 'keeps an exact range untouched even when it leaves a preset', () => {
+		const patch = buildRangePatch( {
+			nextRange: { from, to },
+			nextPresetId: 'custom',
+			exactRange: true,
+			effective: {},
+		} );
+
+		expect( patch?.from ).toBe( '2026-07-09T14:30:00.000Z' );
+		expect( patch?.to ).toBe( '2026-07-10T14:30:00.000Z' );
+	} );
+
+	/*
+	 * Rounding a stepped `to` up to the end of its day stretches a rolling
+	 * window on every step and pushes its next window into the future, hiding
+	 * the forward arrow.
+	 */
+	it( 'steps a rolling window back and forward without changing its length', () => {
+		const previous = stepDateRange( { from, to }, 'previous' );
+		const back = buildRangePatch( {
+			nextRange: previous,
+			nextPresetId: 'custom',
+			exactRange: true,
+			effective: { preset: 'last-24-hours', interval: 'hour' },
+		} );
+
+		expect( back ).toMatchObject( {
+			from: '2026-07-08T14:30:00.000Z',
+			to: '2026-07-09T14:30:00.000Z',
+			interval: 'hour',
+			preset: 'custom',
+		} );
+
+		const backRange = { from: new Date( back?.from ?? '' ), to: new Date( back?.to ?? '' ) };
+		expect( canStepForward( backRange, to ) ).toBe( true );
+
+		const returned = stepDateRange( backRange, 'next' );
+		expect( returned?.from?.getTime() ).toBe( from.getTime() );
+		expect( returned?.to?.getTime() ).toBe( to.getTime() );
 	} );
 
 	it( 're-derives the comparison range from the new primary range when enabled', () => {

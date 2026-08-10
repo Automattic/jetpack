@@ -287,6 +287,7 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 			const patch = buildRangePatch( {
 				nextRange: stepped,
 				nextPresetId: PRESET_CUSTOM,
+				exactRange: true,
 				effective,
 			} );
 
