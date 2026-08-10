@@ -1,41 +1,35 @@
+// The same container Home and Analytics use, so the body lines up with the
+// masthead title and the tab strip above it. This used to be a 660px centred
+// column, which left ~300px of dead space either side and aligned with
+// nothing. The reading measure is capped on the text itself instead — see
+// `&__card` and `&__dropzone-sub` — rather than by narrowing the whole page.
 .vp-onboarding {
-	width: 660px;
-	max-width: 100%;
-	margin: 0 auto;
-	padding: var(--wpds-dimension-padding-3xl) 0;
+	box-sizing: border-box;
+	inline-size: 100%;
+	max-inline-size: 1344px;
+	margin-inline: auto;
+	padding-block: var(--wpds-dimension-padding-2xl);
+	padding-inline: var(--wpds-dimension-padding-2xl);
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-2xl);
 
-	// `@wordpress/ui`'s `Text variant="heading-2xl"` supplies the type: 32px
-	// `2xl` size, 40px line-height and the `medium` (499) weight every other
-	// heading around this one runs on — the `AdminPage` masthead title, the card
-	// titles and the tile titles all compute 499. This used to restate the size
-	// and force `600` (`--wpds-typography-font-weight-emphasis`, which is the
-	// weight `@wordpress/components` buttons use, not a heading rung), which
-	// made the h1 the one heading on the page in a heavier grade than
-	// everything beneath it. Only the vertical rhythm is set here now.
-	&__welcome {
-		margin: var(--wpds-dimension-gap-lg) 0;
-	}
-
 	// Card spec: 8px radius, 1px neutral-stroke border, white surface.
 	&__card {
-		width: 100%;
+		inline-size: 100%;
 		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 		border-radius: var(--wpds-border-radius-lg);
 		background: var(--wpds-color-background-surface-neutral-strong);
 	}
 
-	&__lede {
-		max-width: 64ch;
-		color: var(--wpds-color-foreground-content-neutral-weak);
-	}
-
-	// The "ways in" tiles: two equal columns across the 660px column.
+	// The "ways in" tiles. `auto-fill` rather than a fixed two-column track:
+	// the card now spans the full dashboard width, and two stretched columns
+	// would make each tile ~600px wide. Filling with 260px tracks keeps a tile
+	// tile-sized at any width and drops to one column on narrow screens without
+	// a media query.
 	&__options {
 		display: grid;
-		grid-template-columns: repeat(2, 1fr);
+		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
 		gap: var(--wpds-dimension-gap-lg);
 	}
 
@@ -45,7 +39,7 @@
 		align-items: flex-start;
 		gap: var(--wpds-dimension-gap-xs);
 		padding: var(--wpds-dimension-padding-xl);
-		text-align: left;
+		text-align: start;
 		background: var(--wpds-color-background-surface-neutral);
 		// Resting border matches the card border (neutral stroke, not weak).
 		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
@@ -76,7 +70,7 @@
 
 	&__option-title {
 		color: var(--wpds-color-foreground-content-neutral);
-		font-weight: var(--wpds-typography-font-weight-medium);
+		font-weight: var(--wpds-typography-font-weight-emphasis);
 	}
 
 	&__option-desc {
@@ -122,8 +116,8 @@
 	&__dropzone-outline {
 		position: absolute;
 		inset: 0;
-		width: 100%;
-		height: 100%;
+		inline-size: 100%;
+		block-size: 100%;
 		pointer-events: none;
 		overflow: visible;
 	}
@@ -152,7 +146,7 @@
 	}
 
 	&__dropzone-sub {
-		max-width: 48ch;
+		max-inline-size: 48ch;
 		margin-bottom: var(--wpds-dimension-gap-sm);
 		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
@@ -165,12 +159,6 @@
 		margin-bottom: var(--wpds-dimension-gap-lg);
 	}
 
-	@media ( max-width: 782px ) {
-
-		&__options {
-			grid-template-columns: 1fr;
-		}
-	}
 }
 
 // PARKED — styles for the "Try a sample" modal. The tile that opened it was
@@ -220,7 +208,7 @@ $vp-flow-duration: 380ms;
 	transition: height $vp-flow-duration $vp-flow-easing;
 
 	&__card {
-		width: 100%;
+		inline-size: 100%;
 
 		&.is-enter {
 			animation: vp-card-in $vp-flow-duration $vp-flow-easing both;
@@ -277,15 +265,14 @@ $vp-flow-duration: 380ms;
 		display: none;
 	}
 
-	.vp-onboarding > .vp-onboarding__welcome,
 	.vp-onboarding > .vp-onboarding__card,
 	.vp-onboarding > .vp-flow {
 		animation: none;
 	}
 }
 
-// Staggered entrance on first load: the welcome line, the intro card, and the
-// step flow each fade up slightly, one just behind the next.
+// Staggered entrance on first load: the intro card and the step flow each fade
+// up slightly, one just behind the other.
 @keyframes vp-fade-up {
 
 	from {
@@ -301,22 +288,20 @@ $vp-flow-duration: 380ms;
 
 .vp-onboarding {
 
-	> .vp-onboarding__welcome,
 	> .vp-onboarding__card,
 	> .vp-flow {
 		animation: vp-fade-up 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 	}
 
-	> .vp-onboarding__welcome {
+	// Rebased when the welcome line was removed: the card inherits the 40ms
+	// opening beat so the page doesn't sit blank for 130ms, and the flow keeps
+	// the same ~90ms interval behind it.
+	> .vp-onboarding__card {
 		animation-delay: 40ms;
 	}
 
-	> .vp-onboarding__card {
-		animation-delay: 130ms;
-	}
-
 	> .vp-flow {
-		animation-delay: 220ms;
+		animation-delay: 130ms;
 	}
 }
 
@@ -330,7 +315,7 @@ $vp-flow-duration: 380ms;
 	}
 
 	&__bar {
-		width: 100%;
+		inline-size: 100%;
 	}
 
 	&__hint {
@@ -405,7 +390,7 @@ $vp-flow-duration: 380ms;
 
 	&__title {
 		color: var(--wpds-color-foreground-content-neutral);
-		font-weight: var(--wpds-typography-font-weight-medium);
+		font-weight: var(--wpds-typography-font-weight-emphasis);
 		overflow-wrap: anywhere;
 	}
 
@@ -499,7 +484,7 @@ $vp-flow-duration: 380ms;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 		color: var(--wpds-color-foreground-content-neutral);
-		font-weight: var(--wpds-typography-font-weight-medium);
+		font-weight: var(--wpds-typography-font-weight-emphasis);
 	}
 
 	&__file-status {

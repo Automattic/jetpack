@@ -104,10 +104,10 @@ module.exports = [
 					},
 					{
 						context: 'src/dashboard/components/onboarding-modal/images',
-						// Both extensions: the tab previews are JPEGs, the artwork
-						// panel's cover is a PNG. Anything added to this folder in a
-						// third format has to be added here too or it silently 404s.
-						from: './*.{jpeg,png}',
+						// Every extension in this folder has to be listed or the file
+						// silently 404s at runtime: JPEG and PNG for the stills, MP4 for
+						// the welcome modal's intro clip.
+						from: './*.{jpeg,png,mp4}',
 						to: './dashboard/onboarding-modal/images/[name][ext]',
 					},
 				],

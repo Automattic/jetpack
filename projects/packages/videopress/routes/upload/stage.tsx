@@ -1,35 +1,17 @@
 import { useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
-import {
-	Button,
-	DropdownMenu,
-	MenuGroup,
-	MenuItem,
-	Modal,
-	ProgressBar,
-	TextControl,
-} from '@wordpress/components';
+import { Button, Modal, ProgressBar, TextControl } from '@wordpress/components';
 import { useRef, useState, useCallback, useLayoutEffect, useEffect } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-// `post`/`page` are aliased because the parked SampleVideoModal already has a
-// local `post` binding for the draft it creates.
-import {
-	Icon,
-	upload,
-	cloud,
-	media,
-	check,
-	copy,
-	plus,
-	page as pageIcon,
-	post as postIcon,
-} from '@wordpress/icons';
+import { Icon, upload, cloud, media, check, copy } from '@wordpress/icons';
 import { useNavigate } from '@wordpress/route';
 import { Card, Stack, Text } from '@wordpress/ui';
-import { addQueryArgs } from '@wordpress/url';
+import AddToContentMenu from '../../src/dashboard/components/add-to-content-menu';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
+import { TAB_PATHS } from '../../src/dashboard/components/dashboard-tabs';
 import FreeTierNotice from '../../src/dashboard/components/overview/free-tier-notice';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
+import { markFirstPublish, useFirstRunState } from '../../src/dashboard/hooks/use-first-run-state';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { LIBRARY_QUERY_KEY } from '../../src/dashboard/hooks/use-library';
 import './style.scss';
@@ -83,10 +65,6 @@ type PublishedVideo = {
 	// "Add to a post or page" action is hidden without it — see SuccessCard.
 	videopressGuid?: string;
 };
-
-// The two content types the success step can hand a video off to. Anything
-// else (adding to an *existing* post or page) is deliberately out of scope.
-type NewContentType = 'post' | 'page';
 
 type SampleVideo = {
 	id: number;
@@ -156,37 +134,6 @@ const restUrl = ( path: string ) => {
 const readVideoPressGuid = ( response: MediaApiResponse | undefined ): string | undefined => {
 	const guid = response?.jetpack_videopress?.guid ?? response?.jetpack_videopress_guid;
 	return typeof guid === 'string' && guid !== '' ? guid : undefined;
-};
-
-/**
- * Open a brand-new post or page in the block editor with the video already in
- * it. The block markup is produced server-side by
- * `Block_Editor_Content::videopress_video_block_by_guid()`, which filters
- * `default_content` on `post-new.php` when the request carries a GUID and a
- * valid `videopress-content-nonce`. Because it hooks `post-new.php`, passing
- * `post_type=page` gets page support for free.
- *
- * Opened in a new tab so the user keeps their place on the success step.
- *
- * @param guid        - The VideoPress GUID of the published video.
- * @param contentType - Whether to create a new post or a new page.
- */
-const openInNewContent = ( guid: string, contentType: NewContentType ) => {
-	const nonce =
-		typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined'
-			? JPVIDEOPRESS_INITIAL_STATE?.API?.contentNonce
-			: undefined;
-
-	if ( ! guid || ! nonce ) {
-		return;
-	}
-
-	const args: Record< string, string > = { videopress_guid: guid, _wpnonce: nonce };
-	if ( contentType === 'page' ) {
-		args.post_type = 'page';
-	}
-
-	window.open( addQueryArgs( 'post-new.php', args ), '_blank' );
 };
 
 const errorMessage = ( error: unknown ) => {
@@ -363,6 +310,7 @@ const uploadToMediaLibrary = (
  * @param props.onFiles          - Called with the selected files.
  * @param props.isUploadDisabled - Whether the free-tier limit blocks uploading.
  * @param props.allowMultiple    - Whether the plan allows selecting several files.
+ * @param props.isFirstRun       - Whether this is the user's first video.
  * @return The dropzone card.
  */
 const UploadCard = ( {
@@ -370,11 +318,13 @@ const UploadCard = ( {
 	onFiles,
 	isUploadDisabled,
 	allowMultiple,
+	isFirstRun,
 }: {
 	openPicker: () => void;
 	onFiles: ( files: File[] ) => void;
 	isUploadDisabled: boolean;
 	allowMultiple: boolean;
+	isFirstRun: boolean;
 } ) => {
 	const [ dragging, setDragging ] = useState( false );
 	const dropzoneClassName = `vp-onboarding__dropzone${ dragging ? ' is-dragging' : '' }${
@@ -384,7 +334,13 @@ const UploadCard = ( {
 	return (
 		<Card.Root className="vp-onboarding__card">
 			<Card.Header>
-				<Card.Title>{ __( 'Upload your first video', 'jetpack-videopress-pkg' ) }</Card.Title>
+				<Card.Title>
+					{ /* Someone arriving here with a library of 27 videos is not
+					     uploading their first one. */ }
+					{ isFirstRun
+						? __( 'Upload your first video', 'jetpack-videopress-pkg' )
+						: __( 'Upload a video', 'jetpack-videopress-pkg' ) }
+				</Card.Title>
 			</Card.Header>
 			<Card.Content>
 				{ isUploadDisabled && (
@@ -817,78 +773,21 @@ const DetailsCard = ( {
 };
 
 /**
- * "Add to a post" dropdown for a published video. Mirrors the labelled
- * `DropdownMenu` used by the video detail view's ThumbnailUpdateButton so the
- * two share the design system's look.
- *
- * Only renders when the video has a VideoPress GUID: the hand-off is the
- * server-side `videopress_guid` content filter, and without a GUID there is no
- * honest VideoPress block to insert. See `readVideoPressGuid`.
- *
- * @param props       - Component props.
- * @param props.guid  - The VideoPress GUID of the published video.
- * @param props.label - Accessible label for the trigger; disambiguates the menu in the bulk case.
- * @return The dropdown, or null when no GUID is available.
- */
-const AddToContentMenu = ( { guid, label }: { guid?: string; label?: string } ) => {
-	if ( ! guid ) {
-		return null;
-	}
-
-	return (
-		<DropdownMenu
-			// `plus` on the trigger rather than `postIcon`: the menu items already
-			// carry the post/page glyphs, so reusing one here would read as a duplicate.
-			icon={ plus }
-			label={ label ?? __( 'Add to a post or page', 'jetpack-videopress-pkg' ) }
-			text={ __( 'Add to a post', 'jetpack-videopress-pkg' ) }
-			className="vp-success__add-to"
-			// __next40pxDefaultSize keeps the trigger the same height as the
-			// adjacent "Go to Library" button, which opts into it too.
-			toggleProps={ { variant: 'secondary', __next40pxDefaultSize: true } }
-		>
-			{ ( { onClose } ) => (
-				<MenuGroup>
-					<MenuItem
-						icon={ postIcon }
-						onClick={ () => {
-							openInNewContent( guid, 'post' );
-							onClose();
-						} }
-					>
-						{ __( 'New post', 'jetpack-videopress-pkg' ) }
-					</MenuItem>
-					<MenuItem
-						icon={ pageIcon }
-						onClick={ () => {
-							openInNewContent( guid, 'page' );
-							onClose();
-						} }
-					>
-						{ __( 'New page', 'jetpack-videopress-pkg' ) }
-					</MenuItem>
-				</MenuGroup>
-			) }
-		</DropdownMenu>
-	);
-};
-
-/**
  * Step 3 — confirmation after the media details are saved. Shows the share
  * links returned by the local wp/v2/media upload path and leaves navigation to
  * the user.
  *
- * @param props               - Component props.
- * @param props.published     - Published videos and their share links.
- * @param props.onGoToLibrary - Navigate back to the Library tab.
+ * @param props            - Component props.
+ * @param props.published  - Published videos and their share links.
+ * @param props.onGoToHome - Navigate to the Home tab.
  * @return The success card.
  */
 const SuccessCard = ( {
 	published,
-	onGoToLibrary,
+	onGoToHome,
 }: {
 	published: PublishedVideo[];
-	onGoToLibrary: () => void;
+	onGoToHome: () => void;
 } ) => {
 	const [ copiedMediaId, setCopiedMediaId ] = useState< number | null >( null );
 	const [ copyError, setCopyError ] = useState< string | null >( null );
@@ -967,10 +866,10 @@ const SuccessCard = ( {
 					</Stack>
 				</Card.Content>
 				<div className="vp-success__actions">
-					{ /* Single video: the hand-off sits beside "Go to Library" in the footer. */ }
+					{ /* Single video: the hand-off sits beside "Go to Home" in the footer. */ }
 					<AddToContentMenu guid={ video?.videopressGuid } />
-					<Button variant="primary" __next40pxDefaultSize onClick={ onGoToLibrary }>
-						{ __( 'Go to Library', 'jetpack-videopress-pkg' ) }
+					<Button variant="primary" __next40pxDefaultSize onClick={ onGoToHome }>
+						{ __( 'Go to Home', 'jetpack-videopress-pkg' ) }
 					</Button>
 				</div>
 			</Card.Root>
@@ -1029,8 +928,8 @@ const SuccessCard = ( {
 				</Stack>
 			</Card.Content>
 			<div className="vp-success__actions">
-				<Button variant="primary" __next40pxDefaultSize onClick={ onGoToLibrary }>
-					{ __( 'Go to Library', 'jetpack-videopress-pkg' ) }
+				<Button variant="primary" __next40pxDefaultSize onClick={ onGoToHome }>
+					{ __( 'Go to Home', 'jetpack-videopress-pkg' ) }
 				</Button>
 			</div>
 		</Card.Root>
@@ -1275,30 +1174,54 @@ const StepFlow = ( {
  * modelled on the Cloudflare email-routing onboarding, and supports bulk
  * uploads (per-file progress, then an inline list of detail fields).
  *
+ * The step state lives in `StageInner` rather than here: the parent's
+ * "already has videos" redirect has to know whether the flow is in progress,
+ * and the flow must not lose its place if that check ever re-runs.
+ *
  * @param props             - Component props.
  * @param props.isFree      - Whether the site is on the free tier.
  * @param props.isUnlimited - Whether the plan has unlimited video storage.
  * @param props.isAtLimit   - Whether the free-tier video limit is already used.
+ * @param props.step        - The active step.
+ * @param props.prev        - The exiting step (null when settled).
+ * @param props.go          - Move to `next`, animating out of `prior`.
+ * @param props.onExitDone  - Called when the exiting card has finished animating.
  * @return The onboarding tab element.
  */
 const UploadOnboarding = ( {
 	isFree,
 	isUnlimited,
 	isAtLimit,
+	step,
+	prev,
+	go,
+	onExitDone,
 }: {
 	isFree: boolean;
 	isUnlimited: boolean;
 	isAtLimit: boolean;
+	step: Step;
+	prev: Step | null;
+	go: ( next: Step, prior: Step ) => void;
+	onExitDone: () => void;
 } ) => {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 	const inputRef = useRef< HTMLInputElement >( null );
 	const batchRef = useRef( 0 );
-	const [ step, setStep ] = useState< Step >( 'upload' );
-	const [ prev, setPrev ] = useState< Step | null >( null );
 	const [ uploads, setUploads ] = useState< UploadItem[] >( [] );
 	const [ publishedVideos, setPublishedVideos ] = useState< PublishedVideo[] >( [] );
 	const allowMultiple = ! isFree || isUnlimited;
+	const firstRunState = useFirstRunState();
+
+	// The welcome heading and the "Get your first video online" card are the
+	// first-run framing, and they were previously gated only on `isAtLimit`.
+	// That meant a returning user who clicked Upload got greeted as new, and it
+	// meant the framing stayed on screen through the details and success steps
+	// — so "Your video is published" rendered directly beneath "Get your first
+	// video online". Both conditions are needed: who you are, and where you are
+	// in the flow.
+	const showIntro = firstRunState === 'first-run' && step === 'upload' && ! isAtLimit;
 
 	const openPicker = useCallback( () => {
 		if ( isAtLimit ) {
@@ -1306,10 +1229,6 @@ const UploadOnboarding = ( {
 		}
 		inputRef.current?.click();
 	}, [ isAtLimit ] );
-	const go = useCallback( ( next: Step, prior: Step ) => {
-		setPrev( prior );
-		setStep( next );
-	}, [] );
 	const resetUploadStep = useCallback(
 		( prior: Step ) => {
 			batchRef.current += 1;
@@ -1401,6 +1320,10 @@ const UploadOnboarding = ( {
 					} );
 				} )
 			);
+			// The user has now published: first run is over for good, even if the
+			// library is later emptied or the count reads stale. Written before the
+			// refetch below so no query result can land while the flag is still cold.
+			markFirstPublish();
 			await queryClient.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );
 			setPublishedVideos(
 				patches.map( ( patch, i ) => ( {
@@ -1421,8 +1344,12 @@ const UploadOnboarding = ( {
 		[ go, queryClient ]
 	);
 
-	const goToLibrary = useCallback( () => {
-		navigate( { href: '/' } );
+	// Publishing the first video ends the first-run experience, so the hand-off
+	// goes to Home — the surface that answers "what happened since I was last
+	// here, and what do I want to do now" — rather than dropping the user into
+	// a bare file list.
+	const goToHome = useCallback( () => {
+		navigate( { href: TAB_PATHS.home } );
 	}, [ navigate ] );
 
 	const options: StartOption[] = [
@@ -1437,7 +1364,15 @@ const UploadOnboarding = ( {
 		{
 			icon: <Icon icon={ cloud } size={ 24 } />,
 			title: __( 'Import your library', 'jetpack-videopress-pkg' ),
-			description: __( 'Bring videos from Vimeo, YouTube, or Viddler.', 'jetpack-videopress-pkg' ),
+			// TODO(VIDP-365): wire the importer, then drop `disabled` and restore
+			// the plain description. Until it exists this tile has to say so —
+			// it renders as a focusable button, and one that silently does
+			// nothing is worse than no tile at all.
+			description: __(
+				'Bring videos from Vimeo, YouTube, or Viddler. Coming soon.',
+				'jetpack-videopress-pkg'
+			),
+			disabled: true,
 		},
 	];
 
@@ -1449,6 +1384,7 @@ const UploadOnboarding = ( {
 					onFiles={ onFiles }
 					isUploadDisabled={ isAtLimit }
 					allowMultiple={ allowMultiple }
+					isFirstRun={ firstRunState === 'first-run' }
 				/>
 			);
 		}
@@ -1456,7 +1392,7 @@ const UploadOnboarding = ( {
 			return <UploadingCard uploads={ uploads } onBack={ () => resetUploadStep( 'uploading' ) } />;
 		}
 		if ( s === 'success' ) {
-			return <SuccessCard published={ publishedVideos } onGoToLibrary={ goToLibrary } />;
+			return <SuccessCard published={ publishedVideos } onGoToHome={ goToHome } />;
 		}
 		return (
 			<DetailsCard
@@ -1470,16 +1406,14 @@ const UploadOnboarding = ( {
 	return (
 		<div className="vp-onboarding">
 			{ /*
-			 * Typography comes from the design system's own `heading-2xl` rung
-			 * rather than from local rules, so this h1 sits on the same scale
-			 * and the same `medium` weight as the `AdminPage` masthead title and
-			 * the card titles below it.
+			 * No "Welcome to VideoPress" heading and no lede inside the card.
+			 * The welcome modal over this page already makes the pitch, the
+			 * masthead subtitle makes it again, and the dropzone makes it a
+			 * third time — four statements of the same promise on one screen
+			 * left the eye nowhere to land. The card keeps its title and its
+			 * tiles, which are the only parts that tell you what to *do*.
 			 */ }
-			<Text variant="heading-2xl" render={ <h1 /> } className="vp-onboarding__welcome">
-				{ __( 'Welcome to VideoPress', 'jetpack-videopress-pkg' ) }
-			</Text>
-
-			{ ! isAtLimit && (
+			{ showIntro && (
 				<>
 					{ /* Card 1 — the ways to get a first video online. */ }
 					<Card.Root className="vp-onboarding__card">
@@ -1490,12 +1424,6 @@ const UploadOnboarding = ( {
 						</Card.Header>
 						<Card.Content>
 							<Stack direction="column" gap="lg">
-								<Text variant="body-md" className="vp-onboarding__lede">
-									{ __(
-										'The fastest way to see what VideoPress does. Upload a video and get an ad-free, unbranded player you own — with automatic captions and a link that works anywhere.',
-										'jetpack-videopress-pkg'
-									) }
-								</Text>
 								<div className="vp-onboarding__options">
 									{ options.map( ( opt, i ) => (
 										<button
@@ -1530,12 +1458,7 @@ const UploadOnboarding = ( {
 			) }
 
 			{ /* Card 2 — the morphing upload → uploading → details → success step flow. */ }
-			<StepFlow
-				step={ step }
-				prev={ prev }
-				onExitDone={ () => setPrev( null ) }
-				render={ renderStep }
-			/>
+			<StepFlow step={ step } prev={ prev } onExitDone={ onExitDone } render={ renderStep } />
 
 			<input
 				ref={ inputRef }
@@ -1555,20 +1478,56 @@ const UploadOnboarding = ( {
 const StageInner = () => {
 	const { isAtLimit, isFree, isUnlimited, videoCount } = useFreeTier();
 	const navigate = useNavigate();
+	const [ step, setStep ] = useState< Step >( 'upload' );
+	const [ prev, setPrev ] = useState< Step | null >( null );
+	const [ hasEnteredFlow, setHasEnteredFlow ] = useState( false );
+
+	const go = useCallback( ( next: Step, prior: Step ) => {
+		setPrev( prior );
+		setStep( next );
+		// Moving off the dropzone means this visit owns a flow. `go` is the only
+		// transition point (`resetUploadStep` routes through it too), so this is
+		// the one place that needs to know.
+		if ( next !== 'upload' ) {
+			setHasEnteredFlow( true );
+		}
+	}, [] );
+	const onExitDone = useCallback( () => setPrev( null ), [] );
+
+	// This route is the first-run experience, so somebody who *arrives* already
+	// holding videos belongs in the Library instead.
+	//
+	// Two things stop that check firing on someone mid-flow. Every successful
+	// upload invalidates the library query (see `onFiles`), so on a connected
+	// paid site the count flips to 1 *during* the flow, before the details step
+	// — `step` covers that. And `hasEnteredFlow` covers the way back: pressing
+	// Back from details returns `step` to 'upload' with the count now at 1,
+	// which would otherwise eject the user and discard the details they were
+	// part-way through filling in.
+	const shouldRedirectToLibrary =
+		step === 'upload' && ! hasEnteredFlow && videoCount > 0 && ! isAtLimit;
 
 	useEffect( () => {
-		if ( videoCount > 0 && ! isAtLimit ) {
+		if ( shouldRedirectToLibrary ) {
 			navigate( { href: '/' } );
 		}
-	}, [ isAtLimit, navigate, videoCount ] );
+	}, [ navigate, shouldRedirectToLibrary ] );
 
-	if ( videoCount > 0 && ! isAtLimit ) {
-		return null;
-	}
-
-	return (
+	// Rendered as a conditional rather than an early `return null` above: the
+	// hooks this component holds have to run on every render, so they cannot be
+	// moved below a bailout, and an early return leaves them declared-then-unused
+	// on the redirect path.
+	return shouldRedirectToLibrary ? null : (
 		<DashboardLayout activeTab={ isAtLimit ? 'library' : 'upload' }>
-			<UploadOnboarding isFree={ isFree } isUnlimited={ isUnlimited } isAtLimit={ isAtLimit } />
+			<UploadOnboarding
+				isFree={ isFree }
+				isUnlimited={ isUnlimited }
+				isAtLimit={ isAtLimit }
+				step={ step }
+				prev={ prev }
+				go={ go }
+				onExitDone={ onExitDone }
+			/>
 		</DashboardLayout>
 	);
 };

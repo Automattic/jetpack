@@ -61,8 +61,9 @@ type Props = {
 	/** Accessible label for the trigger; disambiguates the menu when several are on screen. */
 	label?: string;
 	/**
-	 * Trigger size. `compact` matches the dashboard header's action row, which
-	 * is the only place this renders today; `default` is the 40px in-card size.
+	 * Trigger size. `default` matches the 40px buttons used inside cards (the
+	 * upload flow's success step); `compact` matches the dashboard header's
+	 * action row.
 	 *
 	 * @default 'default'
 	 */
@@ -71,22 +72,16 @@ type Props = {
 };
 
 /**
- * "Add to a post or page" dropdown for a published video. Mirrors the labelled
+ * "Add to a post" dropdown for a published video. Mirrors the labelled
  * `DropdownMenu` used by the video detail view's ThumbnailUpdateButton so the
  * two share the design system's look.
  *
- * Rendered from the video screen's header actions — the one place it appears
- * today. Only renders when the video has both a VideoPress GUID and a content
- * nonce: the hand-off is the server-side `videopress_guid` content filter, so
- * without either there is no honest VideoPress block to insert, and a menu
- * whose items silently open a blank editor is worse than no menu at all. A
- * GUID is absent on local attachments and on videos still being registered
- * with VideoPress.
- *
- * NOTE: `add/videopress-upload-onboarding` carries a near-identical copy of
- * this file at the same path, differing only in the trigger's `text`. If both
- * branches land, reconcile them into one component rather than resolving the
- * conflict by picking a string.
+ * Shared by the upload flow's success step and the Home screen's header, so
+ * both surfaces open content the same way. Only renders when the video has a
+ * VideoPress GUID: the hand-off is the server-side `videopress_guid` content
+ * filter, and without a GUID there is no honest VideoPress block to insert —
+ * a disabled or no-op button here would be worse than no button at all. See
+ * `readVideoPressGuid` in the upload route for why the GUID is often absent.
  *
  * @param props           - Component props.
  * @param props.guid      - The VideoPress GUID of the video to insert.
@@ -111,13 +106,11 @@ export default function AddToContentMenu( { guid, label, size, className }: Prop
 			// carry the post/page glyphs, so reusing one here would read as a duplicate.
 			icon={ plus }
 			label={ label ?? __( 'Add to a post or page', 'jetpack-videopress-pkg' ) }
-			// Names the category, not one of its own two options — the menu
-			// offers a page as well, so "Add to a post" read as a mislabel.
-			text={ __( 'Add to a post or page', 'jetpack-videopress-pkg' ) }
-			className={ className }
-			// The header row runs `compact` controls, so `compact` matches Save
-			// beside it. `default` opts into `__next40pxDefaultSize` for the
-			// in-card size, which nothing uses here yet.
+			text={ __( 'Add to a post', 'jetpack-videopress-pkg' ) }
+			className={ className ?? 'vp-success__add-to' }
+			// `__next40pxDefaultSize` keeps the trigger the same height as the
+			// adjacent "Go to Library" button, which opts into it too. The header
+			// row instead runs `compact` buttons, so it opts out.
 			toggleProps={
 				size === 'compact'
 					? { variant: 'secondary', size: 'compact' }

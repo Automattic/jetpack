@@ -1,396 +1,115 @@
-.vp-onboarding-modal.components-modal__frame {
-	// @wordpress/theme 0.17 has no 600px modal width token for this
-	// custom onboarding layout.
-	inline-size: calc(100vw - ( var(--wpds-dimension-padding-3xl) * 2 ));
-	max-inline-size: min(100%, 600px);
-	max-block-size: calc(100vh - ( var(--wpds-dimension-padding-3xl) * 2 ));
-	border-radius: var(--wpds-border-radius-lg);
-	overflow: hidden;
-	background: var(--wpds-color-background-surface-neutral-strong);
-	// The mock's four-stop frame shadow (0 5px 15px .08 / 0 15px 27px .07 /
-	// 0 30px 36px .04 / 0 50px 43px .02) is `--wpds-elevation-lg` exactly, and
-	// `@wordpress/components`' `Modal` already ships it, so nothing is declared.
-	animation:
-		vp-onboarding-modal-in var(--wpds-motion-duration-lg)
-		var(--wpds-motion-easing-subtle) both;
-
-	.components-modal__content.hide-header {
-		position: relative;
-		padding: 0;
-		margin: 0;
-	}
-}
-
+// The first-run welcome modal: a full-bleed video band, then the copy.
+// Most of what used to live here is gone with the two-tab layout — the artwork
+// panel, the per-image crop windows and the tab strip overrides. `Dialog` now
+// supplies the frame, the body padding and the scroll container, so this file
+// only declares the things the design system has no opinion about: the media
+// band, the three-column value row, and the footer alignment.
 .vp-onboarding-modal {
 
-	&__content {
+	// The video sits flush to the popup's top corners, above the padded body.
+	// `Dialog.Popup` is `overflow: hidden`, so the band inherits its radius.
+	&__media {
 		position: relative;
-		display: grid;
-		// @wordpress/theme 0.17 has no artwork-column token. 264px is the widest
-		// the artwork column can be before the body copy wraps onto a fifth line
-		// and the modal grows past its natural height; it leaves the copy column
-		// a comfortable ~44-character measure inside the fixed 600px modal.
-		grid-template-columns: minmax(0, 1fr) 264px;
-		// @wordpress/theme 0.17 has no 328px modal height token for this
-		// custom onboarding layout. It is a floor, not a fixed height: the
-		// copy column sets the real height once the body copy has wrapped.
-		min-block-size: 328px;
-		color: var(--wpds-color-foreground-content-neutral);
-		background: var(--wpds-color-background-surface-neutral-strong);
+		// `Dialog.Popup` is a flex column, so the band needs a pinned basis and
+		// `min-block-size: 0` to stop it flexing; the height then comes from
+		// `aspect-ratio` alone. See `&__player` for the other half of this.
+		flex: 0 0 auto;
+		aspect-ratio: 16 / 9;
+		inline-size: 100%;
+		min-block-size: 0;
+		overflow: hidden;
+		// Dark rather than the neutral surface: every frame of the clip is
+		// letterboxed against this, and grey bars around a video read as a
+		// loading failure where black reads as the player.
+		background: #000;
 	}
 
-	// The dismiss affordance sits in the top-right corner, which in the
-	// two-column layout is over the dark artwork panel — hence the light
-	// foreground. The stacked layout below moves the panel under the copy and
-	// puts this back on white, so it takes the neutral foreground back there.
+	// Absolutely positioned, not just sized: in flow, the video's own height
+	// participates in the band's layout and beats the aspect-ratio — it grew the
+	// band to 1237px inside a 1002px popup and squashed the body to 24px. Out of
+	// flow, the band's height is purely `inline-size / (16/9)` and the player
+	// fills whatever that comes to.
+	&__player {
+		position: absolute;
+		inset: 0;
+		display: block;
+		inline-size: 100%;
+		block-size: 100%;
+		border: 0;
+		object-fit: cover;
+	}
+
+	// Over the video, so it takes a light foreground and its own scrim instead
+	// of the Dialog default, which assumes a light surface behind it.
 	&__close {
 		position: absolute;
 		inset-block-start: var(--wpds-dimension-padding-md);
 		inset-inline-end: var(--wpds-dimension-padding-md);
-		z-index: 2;
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		inline-size: var(--wpds-dimension-size-md);
-		block-size: var(--wpds-dimension-size-md);
-		padding: 0;
-		color: var(--wpds-color-foreground-interactive-neutral-strong);
-		background: none;
-		border: none;
-		border-radius: var(--wpds-border-radius-sm);
-		box-shadow: none;
-		cursor: var(--wpds-cursor-control);
-		font-size: var(--wpds-typography-font-size-lg);
-		line-height: 1;
+		z-index: 1;
+		color: #fff;
+		background: rgba(0, 0, 0, 0.5);
 
 		&:hover {
-			// @wordpress/theme 0.17's light-on-dark foreground ramp stops at
-			// `-strong` (#f0f0f0); the hover step up to pure white has no token.
 			color: #fff;
-			background: rgba(255, 255, 255, 0.12);
+			background: rgba(0, 0, 0, 0.7);
 		}
-
-		&:focus {
-			outline: none;
-			box-shadow: none;
-		}
-
-		&:focus-visible {
-			color: #fff;
-			outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
-			outline-offset: var(--wpds-border-width-focus);
-		}
-	}
-
-	// 24px inset on every side and a 16px gap between the three stacked groups
-	// (brand row, tabs + panel, button), which is what leaves the copy its 288px
-	// measure inside the 600px frame: 600 - 264 artwork - 24 - 24 = 288.
-	&__copy {
-		display: flex;
-		flex-direction: column;
-		gap: var(--wpds-dimension-gap-lg);
-		min-inline-size: 0;
-		padding: var(--wpds-dimension-padding-2xl);
-	}
-
-	// Mark + product name, laid out the way admin-ui's `Page` header lays out
-	// its visual and title: a row, centre-aligned, on the `sm` gap that header's
-	// `Stack gap="sm"` uses. Nothing else is declared — the mark carries its own
-	// green and `@wordpress/ui`'s `heading-lg` carries the type, so this row
-	// stays pinned to whatever the dashboard masthead does.
-	&__brand {
-		display: inline-flex;
-		align-items: center;
-		gap: var(--wpds-dimension-gap-sm);
-		color: var(--wpds-color-foreground-content-neutral);
-	}
-
-	&__brand-logo {
-		flex: 0 0 auto;
-		display: block;
-	}
-
-	// `heading-lg` already lands the 15px/20px/499 of the mock's lockup label.
-	// Only the tracking is a delta: @wordpress/theme 0.17 ships no
-	// letter-spacing tokens at all, so every value on this surface is a
-	// literal from the design.
-	&__brand-name {
-		color: var(--wpds-color-foreground-content-neutral);
-		letter-spacing: -0.24px;
-	}
-
-	// The headline's two neighbours. Both step down from the copy column's
-	// `xl` (24px) rhythm to `lg` (16px): the tab row already carries 48px of
-	// its own button height plus the hairline, and the headline's `md`
-	// line-height sets it tight to its own box, so a full 24px on either side
-	// reads as a hole rather than as separation.
-	&__tabs {
-		display: flex;
-		flex-direction: column;
-		gap: var(--wpds-dimension-gap-lg);
-		min-block-size: 0;
-	}
-
-	// `@wordpress/ui`'s `Tabs.List variant="minimal"` already supplies the
-	// strip's layout and the 16px gap — the same defaults the dashboard's own
-	// `.jp-admin-page-tabs--minimal` strip runs on. Only the two deltas are
-	// declared here: the dashboard hangs its hairline on a full-width wrapper
-	// div, and this modal has no such wrapper, so the list itself has to span
-	// the copy column and carry the rule.
-	&__tab-list {
-		inline-size: 100%;
-		border-block-end:
-			var(--wpds-border-width-xs) solid
-			var(--wpds-color-stroke-surface-neutral);
-	}
-
-	// Tab labels match the dashboard strip: 13px `md` body font at weight
-	// 400, normal letter-spacing, 48px tall, no inline padding, and
-	// `--wpds-color-foreground-interactive-neutral` (#1e1e1e) on the
-	// selected tab — all inherited from `@wordpress/ui`. The active
-	// underline is left to `@wordpress/ui` too, so it keeps the dashboard's
-	// 1.5px `--wpds-color-stroke-interactive-neutral-strong` rule rather
-	// than a brand-blue one. (The modal renders in a portal outside the
-	// dashboard's theme scope, so that token lands on #6c6c6c here against
-	// the dashboard's own #707070 — a 4/255 difference.)
-	// The only additions are the muted grey for the unselected tab, and the
-	// font-size, which has to be restated from an unlayered selector — the
-	// same fix `.jp-admin-page-tabs [role="tab"]` applies — because wp-admin
-	// ships an unlayered `button { font-size: inherit }` reset that beats
-	// `@wordpress/ui`'s `@layer wp-ui` declaration.
-	&__tab-list [role="tab"] {
-		// `@wordpress/ui` ships `flex: 1 0 auto`, which is inert on the
-		// dashboard because its list is `width: fit-content`. This list is
-		// stretched to the copy column, so without this the two tabs would
-		// share the slack and their labels would centre in oversized boxes
-		// instead of packing to the start the way the dashboard's do.
-		flex: 0 0 auto;
-		font-size: var(--wpds-typography-font-size-md);
-		// Design tracking; no token exists (see `&__brand-name`).
-		letter-spacing: -0.078px;
-	}
-
-	&__tab-list [role="tab"]:not([aria-selected="true"]) {
-		color: var(--wpds-color-foreground-content-neutral-weak);
-	}
-
-	&__tab-list [role="tab"]:not([aria-selected="true"]):hover {
-		color: var(--wpds-color-foreground-interactive-neutral-active);
-	}
-
-	&__tab-panel {
-		display: flex;
-		flex-direction: column;
-		gap: var(--wpds-dimension-gap-lg);
-	}
-
-	// `@wordpress/ui`'s `Text variant="heading-xl"` already resolves to the
-	// dashboard's own heading scale — 20px `xl` size, `medium` (499) weight,
-	// 24px `md` line-height — the same rung the admin-ui `Page` masthead title
-	// sits on one step down at `heading-lg`. Restating those values here only
-	// invited drift, and the `font-weight: 600` a previous pass carried never
-	// applied anyway (`@wordpress/ui` sets the weight from an unlayered
-	// `:is(h1…h6).…__heading` rule, which outranks a single class, so it
-	// computed 499 regardless). What is left is only what the DS does not
-	// cover: the design's -0.46px tracking, the wp-admin `h2 { margin: 1em 0 }`
-	// reset, and the single-line clamp.
-	&__headline {
-		overflow: hidden;
-		margin: 0;
-		color: var(--wpds-color-foreground-content-neutral);
-		letter-spacing: -0.46px;
-		text-overflow: ellipsis;
 	}
 
 	&__body {
-		margin: 0;
-		color: var(--wpds-color-foreground-content-neutral-weak);
-		// Design tracking; no token exists (see `&__brand-name`).
-		letter-spacing: -0.078px;
-	}
-
-	&__primary {
-		inline-size: 100%;
-		justify-content: center;
-		// Design tracking; no token exists (see `&__brand-name`).
-		letter-spacing: -0.078px;
-	}
-
-	// The artwork panel: the design's exported cover art, with the white
-	// artwork card floating on it, inset 16px on either side and centred in the
-	// column's height.
-	// The black stays as the panel's own background so the column never flashes
-	// white before the cover loads, and so it still reads as designed if the
-	// image is missing: the cover's own darkest corner is black. No token can
-	// supply it — @wordpress/theme 0.17 has no dark surface ramp.
-	&__visual {
-		position: relative;
 		display: flex;
-		align-items: center;
-		justify-content: center;
-		min-inline-size: 0;
-		padding: var(--wpds-dimension-padding-lg);
-		background: #000;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-lg);
 	}
 
-	// The cover art fills the panel edge to edge, under the card. It is exported
-	// at exactly this column's size (264x341), so in the two-column layout it
-	// lands 1:1; `cover` is what absorbs the difference when the copy column
-	// makes the panel taller than 341px, and what fills the wide landscape band
-	// the panel becomes in the stacked layout below. The art is a soft gradient
-	// with no subject and no edge, so a centred crop and the upscale the band
-	// needs are both invisible, and no orientation of it letterboxes.
-	&__cover {
-		position: absolute;
-		z-index: 0;
-		inset: 0;
-		inline-size: 100%;
-		// Overrides the wp-admin `img { max-width: 100% }` reset for parity with
-		// `&__image`; `inline-size: 100%` makes it inert either way.
-		max-inline-size: none;
-		block-size: 100%;
-		display: block;
-		object-fit: cover;
-		object-position: center;
+	&__headline {
+		// A measure, not a width: the popup is `size="large"`, and a headline
+		// running its full span reads as a banner rather than a sentence.
+		max-inline-size: 32ch;
+		color: var(--wpds-color-foreground-content-neutral);
 	}
 
-	// The artwork card, rebuilt from a window onto the source bitmap.
-	// Each tab ships its own mock, and every mock is a composition floating on
-	// its own white page under a drop shadow, so each needs a window that keeps
-	// the composition and leaves that shadow out of the panel; this element
-	// supplies the radius and elevation instead. The window is declared once per
-	// image, in source pixels, on the modifiers below, and the rules here derive
-	// every length from those four numbers, so a re-crop only ever touches the
-	// modifier and nothing here has to be recalculated by hand.
-	&__preview {
-		position: relative;
-		// Above the panel's cover art.
-		z-index: 1;
-		inline-size: 100%;
-		aspect-ratio: var(--vp-crop-w) / var(--vp-crop-h);
-		overflow: hidden;
-		background: var(--wpds-color-background-surface-neutral-strong);
-		border-radius: var(--wpds-border-radius-lg);
-		box-shadow: var(--wpds-elevation-sm);
+	&__lede {
+		max-inline-size: 60ch;
+		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
-	// "Your player" — videopress-audience-2x.jpeg, 1140x845.
-	// A white player card on a white page. Cropping to the card's content alone
-	// (the player frame and creator row, 111..1030 x 163..715) leaves the
-	// artwork with no card edge at all, so the window takes that content plus an
-	// even margin of the card's own white — 56px at the sides, 72px above and
-	// below. 55,91 -> 1086,787: 1032x697, which clears the source card's own
-	// edge and shadow (checked by scanning the window's border for non-white
-	// pixels). The window is all but centred horizontally — 55px in from the
-	// left, 54px from the right — so the RTL build's mirrored inline-start
-	// lands on the same crop.
-	&__preview--audience {
-		--vp-crop-source-w: 1140;
-		--vp-crop-x: 55;
-		--vp-crop-y: 91;
-		--vp-crop-w: 1032;
-		--vp-crop-h: 697;
+	// Three equal columns, collapsing to one. `auto-fit` rather than a fixed
+	// `repeat(3, 1fr)` so the columns keep a readable measure instead of
+	// stretching, and fold without a breakpoint.
+	&__points {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		gap: var(--wpds-dimension-gap-xl);
+		margin: 0;
+		padding: 0;
+		list-style: none;
 	}
 
-	// "Built for WordPress" — videopress-quality-2x.jpeg, 1108x579.
-	// This mock is composed the other way round: rather than a card centred on
-	// its page, it is a video block held low and left with the Jetpack roundel
-	// breaking out past the top-right. Scanning the bitmap puts the block at
-	// 42,144 -> 965,538 and the roundel at centre 965,135 / radius 144 — the
-	// roundel is therefore already clipped by the source's own top and right
-	// edges, so there is no margin to trim there, and cropping in to the block
-	// on the other two sides only rebalances the composition onto the wrong
-	// axis (the block goes flush to two edges while the empty half stays).
-	// The window is consequently the whole bitmap, 0,0 -> 1108,579. The block's
-	// drop shadow rides along in it, but it is a much softer shadow than the
-	// player mock's — 12% black in the single pixel outside each edge, under 4%
-	// two pixels out — and at this column's scale it renders as a ~3% edge that
-	// reads as the video block's own softness rather than as a second card.
-	// A full-bitmap window also has no inline offset at all, so the RTL build
-	// lands on exactly the same crop.
-	&__preview--quality {
-		--vp-crop-source-w: 1108;
-		--vp-crop-x: 0;
-		--vp-crop-y: 0;
-		--vp-crop-w: 1108;
-		--vp-crop-h: 579;
+	&__point {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-xs);
+		margin: 0;
 	}
 
-	&__image {
-		position: absolute;
-		// Source width over crop width, so the bitmap keeps its own aspect
-		// ratio and the crop window frames it.
-		inline-size: calc(var(--vp-crop-source-w) / var(--vp-crop-w) * 100%);
-		// Overrides the wp-admin `img { max-width: 100% }` reset, which would
-		// otherwise shrink the image back inside the crop window.
-		max-inline-size: none;
-		block-size: auto;
-		// Crop origin. Inline percentages resolve against the window's width and
-		// block percentages against its height, so both are the source offset
-		// over the matching crop dimension.
-		inset-inline-start: calc(var(--vp-crop-x) / var(--vp-crop-w) * -100%);
-		inset-block-start: calc(var(--vp-crop-y) / var(--vp-crop-h) * -100%);
-		display: block;
+	&__point-icon {
+		display: inline-flex;
+		margin-block-end: var(--wpds-dimension-gap-xs);
+		color: var(--wpds-color-foreground-content-neutral);
 	}
 
-	@media ( max-width: 48rem ) {
-
-		&.components-modal__frame {
-			inline-size: calc(100vw - ( var(--wpds-dimension-padding-lg) * 2 ));
-		}
-
-		&__content {
-			grid-template-columns: 1fr;
-			min-block-size: 0;
-		}
-
-		// Stacking puts the copy column, not the dark panel, under the top-right
-		// corner, so the dismiss affordance goes back to the neutral foreground.
-		&__close {
-			color: var(--wpds-color-foreground-content-neutral-weak);
-
-			&:hover,
-			&:focus-visible {
-				color: var(--wpds-color-foreground-content-neutral);
-				background: none;
-			}
-		}
-
-		&__copy,
-		&__visual {
-			padding: var(--wpds-dimension-padding-2xl);
-		}
-
-		&__primary {
-			inline-size: 100%;
-		}
-
-		// Stacked layout: the canvas becomes a band under the copy, and the card
-		// is capped so it does not balloon to the full width of a tablet modal.
-		&__preview {
-			// @wordpress/theme 0.17 has no artwork-size token. 320px keeps the
-			// stacked card close to the size it has in the two-column layout.
-			max-inline-size: 320px;
-		}
-	}
-}
-
-@keyframes vp-onboarding-modal-in {
-
-	from {
-		opacity: 0;
-		transform: translateY(var(--wpds-dimension-gap-md));
+	&__point-title {
+		color: var(--wpds-color-foreground-content-neutral);
+		font-weight: var(--wpds-typography-font-weight-emphasis);
 	}
 
-	to {
-		opacity: 1;
-		transform: translateY(0);
+	&__point-body {
+		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
-}
 
-@media ( prefers-reduced-motion: reduce ) {
-
-	.vp-onboarding-modal.components-modal__frame {
-		animation: none;
+	// One action, so it sits at the end rather than being spread against a
+	// cancel button the way a two-action dialog footer would be.
+	&__footer {
+		justify-content: flex-end;
 	}
 }

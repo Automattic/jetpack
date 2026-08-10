@@ -1,271 +1,156 @@
-import { JetpackLogo } from '@automattic/jetpack-components';
-import { getScriptData } from '@automattic/jetpack-script-data';
-import { Modal } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Tabs, Text } from '@wordpress/ui';
+import { Icon, video, wordpress, link } from '@wordpress/icons';
+import { Button, Dialog, Text } from '@wordpress/ui';
+// The dismissal flag lives with the other first-run storage helpers so the
+// redirect and the modal can't drift onto different keys.
+import {
+	hasSeenOnboarding,
+	saveDismissal,
+	useSettledFirstRunState,
+} from '../../hooks/use-first-run-state';
+import IntroVideo from './intro-video';
 import './style.scss';
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
-type OnboardingTab = 'player' | 'wordpress';
-type OnboardingTabImageFile = 'videopress-audience-2x.jpeg' | 'videopress-quality-2x.jpeg';
-// The artwork panel's cover art, exported at the panel's own size (264x341).
-type OnboardingImageFile = OnboardingTabImageFile | 'videopress-cover-2x.png';
-
-const COVER_IMAGE: OnboardingImageFile = 'videopress-cover-2x.png';
-
-// Each source bitmap is cropped to a different window, so the preview card
-// carries a per-image modifier that supplies the crop numbers. See the
-// `--vp-crop-*` blocks in style.scss for how each window was derived.
-type OnboardingImageCrop = 'audience' | 'quality';
-
-type OnboardingTabContent = {
-	value: OnboardingTab;
-	label: string;
-	headline: string;
+type ValuePoint = {
+	icon: ReactNode;
+	title: string;
 	body: string;
-	image: OnboardingTabImageFile;
-	imageCrop: OnboardingImageCrop;
-	imageAlt: string;
 };
 
-const STORAGE_KEY_PREFIX = 'jetpack-videopress-onboarding-seen';
-
-const ONBOARDING_TABS: OnboardingTabContent[] = [
+/*
+ * Three columns, not two tabs.
+ *
+ * The previous version made the same points behind a tab strip, which meant the
+ * second one was never read and the panel jumped height between them. These are
+ * the claims the product can actually keep on day one — deliberately not a
+ * feature list, and deliberately not repeating what the video already shows.
+ */
+const VALUE_POINTS: ValuePoint[] = [
 	{
-		value: 'player',
-		label: __( 'Your player', 'jetpack-videopress-pkg' ),
-		headline: __( 'Your videos. On your site.', 'jetpack-videopress-pkg' ),
+		icon: <Icon icon={ video } size={ 24 } />,
+		title: __( 'A player you own', 'jetpack-videopress-pkg' ),
+		body: __( 'No ads, no logos, and nothing recommended afterwards.', 'jetpack-videopress-pkg' ),
+	},
+	{
+		icon: <Icon icon={ wordpress } size={ 24 } />,
+		title: __( 'Built into WordPress', 'jetpack-videopress-pkg' ),
 		body: __(
-			'Our immersive and clean player is designed to put your content in the spotlight. No ads, no logos — only your best ideas on the screen, with colors you can match to your brand.',
-			'jetpack-videopress-pkg'
-		),
-		image: 'videopress-audience-2x.jpeg',
-		imageCrop: 'audience',
-		imageAlt: __(
-			'VideoPress player showing a video with playback controls and creator details.',
+			'Upload from the editor and manage videos in your media library.',
 			'jetpack-videopress-pkg'
 		),
 	},
 	{
-		value: 'wordpress',
-		label: __( 'Built for WordPress', 'jetpack-videopress-pkg' ),
-		headline: __( 'Drag, drop, done.', 'jetpack-videopress-pkg' ),
+		icon: <Icon icon={ link } size={ 24 } />,
+		title: __( 'Share it anywhere', 'jetpack-videopress-pkg' ),
 		body: __(
-			'Add videos straight into WordPress and manage them in your media library. Search and filter your whole library, and edit titles and descriptions from one place.',
-			'jetpack-videopress-pkg'
-		),
-		image: 'videopress-quality-2x.jpeg',
-		imageCrop: 'quality',
-		imageAlt: __(
-			'A VideoPress video embedded full-width in a page, badged with the Jetpack mark.',
+			'Every video gets a link and an embed that work off-site.',
 			'jetpack-videopress-pkg'
 		),
 	},
 ];
 
-const DEFAULT_TAB: OnboardingTab = 'player';
-
 /**
- * Build a per-site/per-user localStorage key for the first-run dismissal.
+ * First-run VideoPress welcome modal.
  *
- * @return Storage key scoped to the current dashboard user.
- */
-function getStorageKey(): string {
-	const data = getScriptData();
-	const blogId = data?.site?.wpcom?.blog_id;
-	const scope = typeof blogId === 'number' && blogId > 0 ? blogId : data?.site?.host ?? 'site';
-	const userId = data?.user?.current_user?.id ?? 'user';
-
-	return `${ STORAGE_KEY_PREFIX }-${ scope }-${ userId }`;
-}
-
-/**
- * Read the saved dismissal flag.
+ * Built on `@wordpress/ui`'s `Dialog` rather than `@wordpress/components`'
+ * `Modal`, matching the convention the rest of the modernized dashboard moved
+ * to (see `video-details/select-frame-dialog.tsx`). `Dialog.Content` owns the
+ * body padding and the scroll container, so neither is declared locally.
  *
- * @return True when the user already dismissed the modal.
- */
-export function hasSeenOnboarding(): boolean {
-	if ( typeof window === 'undefined' ) {
-		return true;
-	}
-
-	try {
-		return window.localStorage.getItem( getStorageKey() ) === '1';
-	} catch {
-		return false;
-	}
-}
-
-/**
- * Save the dismissal flag, ignoring unavailable storage.
- */
-function saveDismissal(): void {
-	if ( typeof window === 'undefined' ) {
-		return;
-	}
-
-	try {
-		window.localStorage.setItem( getStorageKey(), '1' );
-	} catch {
-		// Storage can be unavailable in private browsing or due to quota; the
-		// modal still dismisses for the current session through component state.
-	}
-}
-
-/**
- * Build the public URL for an onboarding image.
+ * The video band is a direct child of `Dialog.Popup`, deliberately outside
+ * `Dialog.Content`: it is full-bleed chrome rather than body copy, and running
+ * it through the padded scroll region would inset it.
  *
- * @param file - Image filename.
- * @return Public image URL, or undefined when initial state is unavailable.
- */
-function getOnboardingImageUrl( file: OnboardingImageFile ): string | undefined {
-	const buildUrl =
-		typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined'
-			? JPVIDEOPRESS_INITIAL_STATE?.assets?.buildUrl
-			: undefined;
-
-	if ( ! buildUrl ) {
-		return undefined;
-	}
-
-	return new URL( `dashboard/onboarding-modal/images/${ file }`, buildUrl ).href;
-}
-
-/**
- * Product preview shown on the onboarding modal.
- *
- * @param props     - Component props.
- * @param props.tab - Active onboarding tab.
- * @return VideoPress product illustration.
- */
-function ProductPreview( { tab }: { tab: OnboardingTabContent } ): ReactElement {
-	const imageUrl = getOnboardingImageUrl( tab.image );
-
-	return (
-		<div
-			className={ `vp-onboarding-modal__preview vp-onboarding-modal__preview--${ tab.imageCrop }` }
-		>
-			{ /*
-			 * These illustrations communicate product UI details beyond the adjacent
-			 * copy, so keep the alt text descriptive instead of empty.
-			 */ }
-			<img className="vp-onboarding-modal__image" src={ imageUrl } alt={ tab.imageAlt } />
-		</div>
-	);
-}
-
-/**
- * First-run VideoPress dashboard onboarding modal.
- *
- * @return The onboarding modal, or null after dismissal.
+ * @return The onboarding modal, or null when it should not be shown.
  */
 export default function OnboardingModal(): ReactElement | null {
-	const [ isOpen, setIsOpen ] = useState( () => ! hasSeenOnboarding() );
-	const [ activeTab, setActiveTab ] = useState< OnboardingTab >( DEFAULT_TAB );
+	const [ isDismissed, setIsDismissed ] = useState( () => hasSeenOnboarding() );
+	const firstRunState = useSettledFirstRunState();
+
+	// The dismissal flag alone is not enough to decide this. It lives in
+	// localStorage, so a new browser, a cleared profile, or a site that had
+	// videos before this shipped all present as "never seen" — and an
+	// established user with a full library would get the welcome modal over
+	// their dashboard. Wait for the count, then only greet a genuine first run.
+	const isOpen = ! isDismissed && firstRunState === 'first-run';
 
 	const dismiss = useCallback( () => {
 		saveDismissal();
-		setIsOpen( false );
+		setIsDismissed( true );
 	}, [] );
 
-	const activeTabContent =
-		ONBOARDING_TABS.find( tab => tab.value === activeTab ) ?? ONBOARDING_TABS[ 0 ];
-
-	// Rendering `null` from a ternary rather than returning early keeps every
-	// hook above unconditional and avoids an early-return lint failure.
-	return isOpen ? (
-		<Modal
-			className="vp-onboarding-modal"
-			contentLabel={ __( 'Welcome to VideoPress', 'jetpack-videopress-pkg' ) }
-			onRequestClose={ dismiss }
-			__experimentalHideHeader
+	return (
+		<Dialog.Root
+			open={ isOpen }
+			onOpenChange={ open => {
+				if ( ! open ) {
+					dismiss();
+				}
+			} }
 		>
-			<Button
-				variant="unstyled"
-				size="compact"
-				className="vp-onboarding-modal__close"
-				aria-label={ __( 'Close', 'jetpack-videopress-pkg' ) }
-				onClick={ dismiss }
-			>
-				×
-			</Button>
-			<div className="vp-onboarding-modal__content">
-				<div className="vp-onboarding-modal__copy">
+			<Dialog.Popup size="large" className="vp-onboarding-modal">
+				<div className="vp-onboarding-modal__media">
+					<IntroVideo />
 					{ /*
-					 * The same brand lockup the surrounding wp-admin chrome uses: the
-					 * dashboard's `AdminPage` masthead passes
-					 * `<JetpackLogo showText={ false } height={ 20 } />` as the admin-ui
-					 * `Page` header visual and the product name as the header title, and
-					 * the wp-admin sidebar item is the same Jetpack mark (white, from
-					 * `Logo::get_base64_logo()`). The row is decorative here — the modal
-					 * is already labelled "Welcome to VideoPress" — so it is hidden from
-					 * assistive tech rather than announced a second time.
+					 * The close affordance sits over the video rather than in a
+					 * `Dialog.Header`: this modal has no title bar, because its
+					 * heading belongs under the video with the rest of the copy.
 					 */ }
-					<div className="vp-onboarding-modal__brand" aria-hidden="true">
-						<JetpackLogo
-							showText={ false }
-							height={ 20 }
-							className="vp-onboarding-modal__brand-logo"
-						/>
-						<Text
-							variant="heading-lg"
-							render={ <span /> }
-							className="vp-onboarding-modal__brand-name"
-						>
-							{ 'VideoPress' /* product name; not translated */ }
-						</Text>
-					</div>
-					<Tabs.Root
-						className="vp-onboarding-modal__tabs"
-						value={ activeTab }
-						onValueChange={ value => setActiveTab( value as OnboardingTab ) }
-					>
-						<Tabs.List className="vp-onboarding-modal__tab-list" variant="minimal">
-							{ ONBOARDING_TABS.map( tab => (
-								<Tabs.Tab key={ tab.value } value={ tab.value }>
-									{ tab.label }
-								</Tabs.Tab>
-							) ) }
-						</Tabs.List>
-						{ ONBOARDING_TABS.map( tab => (
-							<Tabs.Panel
-								key={ tab.value }
-								value={ tab.value }
-								className="vp-onboarding-modal__tab-panel"
-							>
+					<Dialog.CloseIcon
+						className="vp-onboarding-modal__close"
+						label={ __( 'Close', 'jetpack-videopress-pkg' ) }
+					/>
+				</div>
+
+				<Dialog.Content className="vp-onboarding-modal__body">
+					<Dialog.Title className="vp-onboarding-modal__headline">
+						{ __( 'Video that works for you, not the algorithm', 'jetpack-videopress-pkg' ) }
+					</Dialog.Title>
+					<Dialog.Description className="vp-onboarding-modal__lede">
+						{ __(
+							'Host your videos on your own site, in a player you control. Upload one and see how it looks.',
+							'jetpack-videopress-pkg'
+						) }
+					</Dialog.Description>
+
+					<ul className="vp-onboarding-modal__points">
+						{ VALUE_POINTS.map( point => (
+							<li key={ point.title } className="vp-onboarding-modal__point">
+								<span className="vp-onboarding-modal__point-icon" aria-hidden="true">
+									{ point.icon }
+								</span>
 								<Text
-									variant="heading-xl"
-									render={ <h2 /> }
-									className="vp-onboarding-modal__headline"
+									variant="body-md"
+									render={ <span /> }
+									className="vp-onboarding-modal__point-title"
 								>
-									{ tab.headline }
+									{ point.title }
 								</Text>
-								<Text variant="body-md" render={ <p /> } className="vp-onboarding-modal__body">
-									{ tab.body }
+								<Text
+									variant="body-sm"
+									render={ <span /> }
+									className="vp-onboarding-modal__point-body"
+								>
+									{ point.body }
 								</Text>
-							</Tabs.Panel>
+							</li>
 						) ) }
-					</Tabs.Root>
+					</ul>
+				</Dialog.Content>
+
+				<Dialog.Footer className="vp-onboarding-modal__footer">
+					{ /*
+					 * "Get started" reveals the upload page already underneath — the
+					 * first-run redirect put it there before this modal mounted. It is
+					 * honestly a dismissal, so it does not pretend to navigate.
+					 */ }
 					<Button variant="solid" className="vp-onboarding-modal__primary" onClick={ dismiss }>
 						{ __( 'Get started', 'jetpack-videopress-pkg' ) }
 					</Button>
-				</div>
-				<div className="vp-onboarding-modal__visual">
-					{ /*
-					 * The panel's cover art. Purely a background — the panel's meaning
-					 * is carried by the card in front of it and by the copy — so it is
-					 * decorative and stays out of the accessibility tree.
-					 */ }
-					<img
-						className="vp-onboarding-modal__cover"
-						src={ getOnboardingImageUrl( COVER_IMAGE ) }
-						alt=""
-						aria-hidden="true"
-					/>
-					<ProductPreview tab={ activeTabContent } />
-				</div>
-			</div>
-		</Modal>
-	) : null;
+				</Dialog.Footer>
+			</Dialog.Popup>
+		</Dialog.Root>
+	);
 }
