@@ -141,6 +141,11 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 					// Pre-release gate: only internal testing environments see
 					// the Features view. Remove when the view goes public.
 					'showFeaturesView' => jetpack_is_internal_testing_environment(),
+					// Tracks audience properties for the jetpack_mcp_* events, per the
+					// Tracks standards for AI product events (AIINT-586). The client
+					// sends them as the strings 'true'/'false' (AIINT-576).
+					'isA11n'           => self::is_current_user_automattician(),
+					'isTest'           => jetpack_is_internal_testing_environment(),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
@@ -169,6 +174,33 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 			array( 'wp-components' ),
 			$script_version
 		);
+	}
+
+	/**
+	 * Whether the current user is an Automattician.
+	 *
+	 * Identity check for the Tracks `is_a11n` audience property — it answers
+	 * "who is this", not "may they use the tool", so it deliberately does not
+	 * consult the MCP allowlist: allowlisted external testers are not a11ns.
+	 *
+	 * On wpcom Simple/Atomic the platform's is_automattician() is authoritative.
+	 * Self-hosted Jetpack has no platform check; there the Tracks identity of a
+	 * connected user is their WordPress.com account, so the connected account's
+	 * email domain is the identity signal.
+	 *
+	 * @return bool
+	 */
+	private static function is_current_user_automattician() {
+		if ( function_exists( 'is_automattician' ) ) {
+			return (bool) is_automattician( get_current_user_id() );
+		}
+
+		$user_data = ( new Connection_Manager() )->get_connected_user_data();
+		$email     = is_array( $user_data ) && ! empty( $user_data['email'] )
+			? strtolower( (string) $user_data['email'] )
+			: '';
+
+		return '' !== $email && '@automattic.com' === substr( $email, -15 );
 	}
 
 	/**

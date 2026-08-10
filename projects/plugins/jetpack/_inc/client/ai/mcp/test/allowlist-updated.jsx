@@ -62,11 +62,19 @@ describe( 'jetpack_mcp_allowlist_updated', () => {
 			await userEvent.click( screen.getByRole( 'button', { name: 'Show operations' } ) );
 			await userEvent.click( screen.getByRole( 'checkbox', { name: 'List posts' } ) );
 
-			// toEqual pins the whole property bag: ability_name present, no tool_id.
+			// toEqual pins the whole property bag: ability_name present, no tool_id,
+			// plus the AI-product-standard audience properties (AIINT-586). This
+			// suite injects no jetpackAiSettings, so both default to 'false'.
 			expect( allowlistUpdatedCalls() ).toEqual( [
 				[
 					'jetpack_mcp_allowlist_updated',
-					{ ability_name: 'wpcom-mcp/posts-list', enabled: true, view },
+					{
+						is_a11n: 'false',
+						is_test: 'false',
+						ability_name: 'wpcom-mcp/posts-list',
+						enabled: true,
+						view,
+					},
 				],
 			] );
 			expect( onUpdate ).toHaveBeenCalledWith( {

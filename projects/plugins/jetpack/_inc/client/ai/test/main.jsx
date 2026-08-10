@@ -229,11 +229,17 @@ describe( 'AI admin page (main.jsx)', () => {
 
 		await waitFor( () => expect( mcpViewCount() ).toBe( 1 ) );
 
-		// Pin the event's property contract: `ref` follows the AI Tracks standard.
+		// Pin the event's property contract: `ref` follows the AI Tracks standard,
+		// and the audience properties default to 'false' when the page injects no
+		// isA11n/isTest values (AIINT-586).
 		const settingsViewedCall = analytics.tracks.recordEvent.mock.calls.find(
 			call => call[ 0 ] === 'jetpack_mcp_settings_viewed'
 		);
-		expect( settingsViewedCall[ 1 ] ).toEqual( { ref: 'jetpack-ai-mcp-settings' } );
+		expect( settingsViewedCall[ 1 ] ).toEqual( {
+			is_a11n: 'false',
+			is_test: 'false',
+			ref: 'jetpack-ai-mcp-settings',
+		} );
 
 		// The useRef latch: leaving and re-entering the MCP context on the same
 		// mounted instance does not re-fire the view event.
@@ -315,5 +321,25 @@ describe( 'AI admin page (main.jsx)', () => {
 			screen.findByRole( 'checkbox', { name: /Writing Assistant/ } )
 		).resolves.toBeInTheDocument();
 		expect( mcpViewCount() ).toBe( 0 );
+	} );
+
+	test( 'MCP audience properties: follow the injected isA11n/isTest page data as strings', async () => {
+		// The audience properties are computed server-side and ride the
+		// jetpackAiSettings global; the event must send the strings
+		// 'true'/'false', not booleans (AIINT-576 encoding).
+		window.jetpackAiSettings = { showFeaturesView: true, isA11n: true, isTest: true };
+		mockApiFetch( {
+			mcpGet: { has_mcp_access: true, mcp_abilities: { account: { some_tool: {} }, sites: [] } },
+		} );
+
+		window.location.hash = '#/mcp';
+		render( <App /> );
+
+		await waitFor( () => expect( mcpViewCount() ).toBe( 1 ) );
+
+		const settingsViewedCall = analytics.tracks.recordEvent.mock.calls.find(
+			call => call[ 0 ] === 'jetpack_mcp_settings_viewed'
+		);
+		expect( settingsViewedCall[ 1 ] ).toMatchObject( { is_a11n: 'true', is_test: 'true' } );
 	} );
 } );
