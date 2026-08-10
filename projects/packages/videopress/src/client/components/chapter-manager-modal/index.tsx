@@ -2,8 +2,14 @@
  * External dependencies
  */
 import { Button, Modal, SnackbarList } from '@wordpress/components';
-import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import {
+	createInterpolateElement,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from '@wordpress/element';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import { close, redo as redoIcon, undo as undoIcon } from '@wordpress/icons';
 /**
  * Internal dependencies
@@ -426,17 +432,20 @@ export default function ChapterManagerModal( {
 	const videoTitle = title || __( 'VideoPress video', 'jetpack-videopress-pkg' );
 	/*
 	 * Two-tone header: "Chapters" carries the heading weight, the video name
-	 * hangs off it in a muted color. Modal's `title` prop is typed as a
+	 * hangs off it in a muted color. One msgid so translators can reorder
+	 * the parts or swap the separator. Modal's `title` prop is typed as a
 	 * string but is rendered as the h1's children, so a node works at
 	 * runtime — and aria-labelledby reads the heading's text content, which
 	 * still announces as "Chapters · {title}".
 	 */
-	const modalHeaderTitle = (
-		<>
-			{ __( 'Chapters', 'jetpack-videopress-pkg' ) }
-			<span className="videopress-chapter-manager__title-video">{ ` · ${ videoTitle }` }</span>
-		</>
-	 ) as unknown as string;
+	const modalHeaderTitle = createInterpolateElement(
+		sprintf(
+			/* translators: %s: video title, rendered muted after the "Chapters" label. */
+			__( 'Chapters<sep> · %s</sep>', 'jetpack-videopress-pkg' ),
+			videoTitle
+		),
+		{ sep: <span className="videopress-chapter-manager__title-video" /> }
+	) as unknown as string;
 
 	return isOpen ? (
 		<Modal
@@ -484,12 +493,16 @@ export default function ChapterManagerModal( {
 						className="videopress-chapter-manager__header-divider videopress-chapter-manager__header-divider--session"
 						aria-hidden="true"
 					/>
+					{ /* accessibleWhenDisabled keeps these focusable while disabled,
+					     so completing a save (which disables Save) cannot dump
+					     keyboard focus onto <body> inside the focus-trapped modal. */ }
 					<Button
 						className="videopress-chapter-manager__header-discard"
 						variant="secondary"
 						size="compact"
 						onClick={ requestDiscard }
 						disabled={ actionsFrozen || ! effectiveDirty }
+						accessibleWhenDisabled
 					>
 						{ __( 'Discard changes', 'jetpack-videopress-pkg' ) }
 					</Button>
@@ -499,6 +512,7 @@ export default function ChapterManagerModal( {
 						onClick={ () => void doSave() }
 						isBusy={ metaSavePending }
 						disabled={ actionsFrozen || ! effectiveDirty }
+						accessibleWhenDisabled
 					>
 						{ __( 'Save', 'jetpack-videopress-pkg' ) }
 					</Button>

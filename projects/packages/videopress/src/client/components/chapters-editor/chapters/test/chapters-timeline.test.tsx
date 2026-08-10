@@ -57,6 +57,8 @@ type HarnessProps = Partial< ChaptersTimelineProps > & {
 	durationMs?: number;
 };
 
+const noopSeek = () => {};
+
 /**
  * The timeline AND the chapters panel over one REAL history-wrapped store —
  * the same composition both hosts render — so gestures, coalescing, undo
@@ -79,10 +81,15 @@ function Harness( { rows, durationMs = 60000, ...overrides }: HarnessProps ): Re
 		)
 	);
 	// The gating props and the seek callback are shared between the strip and
-	// the panel, exactly as the hosts wire them.
-	const { onSeek = () => {}, locked, readOnly } = overrides;
+	// the panel, exactly as the hosts wire them. The default onSeek is a
+	// stable module-level noop so the memoized panel's props are
+	// identity-stable except the session — the update assertions below then
+	// genuinely prove memo re-renders on session change.
+	const { onSeek = noopSeek, locked, readOnly } = overrides;
 	return (
-		<>
+		// The tokens wrapper mirrors both hosts and is what the add-button's
+		// scoped focus query resolves against.
+		<div className="vp-chapters-tokens">
 			<ChaptersTimeline
 				session={ history.present }
 				dispatch={ dispatch }
@@ -105,7 +112,7 @@ function Harness( { rows, durationMs = 60000, ...overrides }: HarnessProps ): Re
 			<span data-testid="harness-can-undo">
 				{ String( canUndo( history, chaptersEditsEqual ) ) }
 			</span>
-		</>
+		</div>
 	);
 }
 
@@ -529,7 +536,7 @@ describe( 'Chapters editor (timeline strip + panel)', () => {
 		it( 'shows nothing while the chapter set is valid', () => {
 			renderChapters();
 			expect( screen.queryAllByTestId( /^chapters-row-issue-/ ) ).toHaveLength( 0 );
-			expect( screen.queryByTestId( 'chapters-validation' ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'chapters-validation' ) ).toBeEmptyDOMElement();
 		} );
 
 		it( 'flags the offending row and describes its title input with the message', () => {
@@ -554,7 +561,7 @@ describe( 'Chapters editor (timeline strip + panel)', () => {
 				issues[ 0 ].id
 			);
 			// Nothing row-less to report here.
-			expect( screen.queryByTestId( 'chapters-validation' ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'chapters-validation' ) ).toBeEmptyDOMElement();
 		} );
 
 		it( 'checks the duration on the same basis the hosts use at save time', () => {
@@ -612,13 +619,28 @@ describe( 'Chapters editor (timeline strip + panel)', () => {
 			);
 		} );
 
+		it( 'pluralizes the untitled rollup and flags every offending row', () => {
+			renderChapters( {
+				rows: [
+					{ startAtSeconds: 0, title: 'Intro' },
+					{ startAtSeconds: 20, title: '' },
+					{ startAtSeconds: 40, title: '' },
+				],
+			} );
+
+			expect( screen.getByTestId( 'chapters-validation' ) ).toHaveTextContent(
+				'2 chapters still need a title.'
+			);
+			expect( screen.getAllByTestId( /^chapters-row-issue-/ ) ).toHaveLength( 2 );
+		} );
+
 		// A description with no chapter lines loads as one seeded chapter, so
 		// validating it would scold the user on arrival for a set they have
 		// not written yet.
 		it( 'stays quiet until there is more than one chapter to judge', () => {
 			renderChapters( { rows: [ { startAtSeconds: 0, title: 'Only' } ] } );
 
-			expect( screen.queryByTestId( 'chapters-validation' ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'chapters-validation' ) ).toBeEmptyDOMElement();
 			expect( screen.queryAllByTestId( /^chapters-row-issue-/ ) ).toHaveLength( 0 );
 		} );
 
@@ -630,7 +652,7 @@ describe( 'Chapters editor (timeline strip + panel)', () => {
 					{ startAtSeconds: 30, title: 'Second' },
 				],
 			} );
-			expect( screen.queryByTestId( 'chapters-validation' ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'chapters-validation' ) ).toBeEmptyDOMElement();
 		} );
 	} );
 
@@ -643,9 +665,11 @@ describe( 'Chapters editor (timeline strip + panel)', () => {
 			expect( markers() ).toHaveLength( 0 );
 			expect( screen.queryByTestId( 'chapters-rows' ) ).not.toBeInTheDocument();
 			expect( isAriaDisabled( addButton() ) ).toBe( true );
-			expect( screen.getByRole( 'status' ) ).toHaveTextContent(
-				'Chapters for this video are managed by an uploaded VTT file, so they can’t be edited here.'
-			);
+			expect(
+				screen.getByText(
+					'Chapters for this video are managed by an uploaded VTT file, so they can’t be edited here.'
+				)
+			).toBeInTheDocument();
 		} );
 
 		it( 'drops the Delete shortcut', () => {

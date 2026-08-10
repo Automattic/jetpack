@@ -178,6 +178,13 @@ input[type="text"].vp-chapters__row-title {
 		text-overflow: ellipsis;
 	}
 
+	// Forced-colors mode preserves the alpha channel, so the transparent
+	// resting border would leave the field with no boundary at all there —
+	// exactly the users the mode serves. Give it a system-colored one.
+	@media ( forced-colors: active ) {
+		border-color: buttonborder;
+	}
+
 	&:focus {
 		background: #fff;
 		border-color: $vp-chapters-accent;
@@ -264,10 +271,11 @@ input[type="text"].vp-chapters__row-title {
 // and the rows list. Hosts own its placement and outer sizing; when they
 // bound its height (the side-pane arrangement) the list region is what
 // scrolls, so the header stays put.
+// Spacing via margins, not a column gap: the issues live region below stays
+// mounted while empty, and a flex gap would hand the empty box its own slot.
 .vp-chapters-panel {
 	display: flex;
 	flex-direction: column;
-	gap: 12px;
 	min-block-size: 0;
 }
 
@@ -276,6 +284,7 @@ input[type="text"].vp-chapters__row-title {
 	align-items: center;
 	justify-content: space-between;
 	gap: 8px;
+	margin-block-end: 12px;
 }
 
 // Reads as a section label, like the tools rail's "Edit" heading.
@@ -298,6 +307,10 @@ input[type="text"].vp-chapters__row-title {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
+
+	&:not(:empty) {
+		margin-block-end: 12px;
+	}
 }
 
 .vp-chapters-panel__list {

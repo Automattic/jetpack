@@ -108,34 +108,45 @@ function ChaptersPanel( {
 	return (
 		<div className="vp-chapters-panel" data-testid="chapters-panel">
 			<div className="vp-chapters-panel__header">
-				<h3 className="vp-chapters-panel__title">{ __( 'Chapters', 'jetpack-videopress-pkg' ) }</h3>
+				{ /* h2: the modal's title is the h1, and the dashboard route has no
+				     page heading above this — either way the panel heading is the
+				     next level down. */ }
+				<h2 className="vp-chapters-panel__title">{ __( 'Chapters', 'jetpack-videopress-pkg' ) }</h2>
 				<span className="vp-chapters-panel__count" data-testid="chapters-count">
-					{ session.chapters.length }
+					<span aria-hidden="true">{ session.chapters.length }</span>
+					<span className="screen-reader-text">
+						{ sprintf(
+							/* translators: %d: number of chapters in the list. */
+							_n( '%d chapter', '%d chapters', session.chapters.length, 'jetpack-videopress-pkg' ),
+							session.chapters.length
+						) }
+					</span>
 				</span>
 			</div>
-			{ ! readOnly && ( untitledCount > 0 || generalIssues.length > 0 ) ? (
-				<div className="vp-chapters-panel__issues" role="status" data-testid="chapters-validation">
-					{ untitledCount > 0 ? (
-						<p className="vp-chapters__validation-message">
-							{ sprintf(
-								/* translators: %d: number of chapters with an empty title. */
-								_n(
-									'%d chapter still needs a title.',
-									'%d chapters still need a title.',
-									untitledCount,
-									'jetpack-videopress-pkg'
-								),
-								untitledCount
-							) }
-						</p>
-					) : null }
-					{ generalIssues.map( issue => (
+			{ /* The live region stays mounted even while empty: a status region
+			     inserted already-populated is not reliably announced. */ }
+			<div className="vp-chapters-panel__issues" role="status" data-testid="chapters-validation">
+				{ ! readOnly && untitledCount > 0 ? (
+					<p className="vp-chapters__validation-message">
+						{ sprintf(
+							/* translators: %d: number of chapters with an empty title. */
+							_n(
+								'%d chapter still needs a title.',
+								'%d chapters still need a title.',
+								untitledCount,
+								'jetpack-videopress-pkg'
+							),
+							untitledCount
+						) }
+					</p>
+				) : null }
+				{ ! readOnly &&
+					generalIssues.map( issue => (
 						<p key={ issue.code } className="vp-chapters__validation-message">
 							{ issue.message }
 						</p>
 					) ) }
-				</div>
-			) : null }
+			</div>
 			{ readOnly ? (
 				<p className="vp-chapters__manual-notice" role="status">
 					{ __(

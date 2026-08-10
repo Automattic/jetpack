@@ -185,7 +185,7 @@
 // stacked layout every width had before the side panel existed. Keyed off
 // the card's own width (the wp-admin sidebar states and the tools rail make
 // viewport width a poor proxy for it).
-@container ( max-width: 1023px ) {
+@container ( max-inline-size: 1023px ) {
 
 	.vp-video-editor__workspace {
 		flex-direction: column;

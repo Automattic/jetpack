@@ -435,6 +435,14 @@ describe( 'ChapterManagerModal', () => {
 		const confirmation = screen.getByRole( 'alertdialog' );
 		expect( confirmation ).toHaveTextContent( 'Discard unsaved chapter changes?' );
 
+		// The header actions sit OUTSIDE the overlay's coverage; while the
+		// confirmation is up they must be frozen, or a click could mutate the
+		// session the dialog is asking about.
+		expect( screen.getByRole( 'button', { name: 'Undo' } ) ).toBeDisabled();
+		expect( screen.getByRole( 'button', { name: 'Redo' } ) ).toBeDisabled();
+		expect( screen.getByRole( 'button', { name: 'Save' } ) ).toBeDisabled();
+		expect( screen.getByRole( 'button', { name: 'Discard changes' } ) ).toBeDisabled();
+
 		await user.click( screen.getByRole( 'button', { name: 'Discard' } ) );
 		expect( defaultProps.onClose ).toHaveBeenCalledTimes( 1 );
 	} );

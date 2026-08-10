@@ -86,7 +86,7 @@
 	// Single source for the workspace padding: the panel pulls itself through
 	// it (below) to run its divider the full body height, and that trick
 	// breaks silently if the two values ever drift apart.
-	--vp-cm-workspace-pad: 18px;
+	--vp-chapter-manager-workspace-pad: 18px;
 
 	container-type: inline-size;
 	display: flex;
@@ -94,7 +94,7 @@
 	gap: 16px;
 	flex: 1;
 	min-block-size: 0;
-	padding: var(--vp-cm-workspace-pad);
+	padding: var(--vp-chapter-manager-workspace-pad);
 	background: #fff;
 	overflow-y: auto;
 }
@@ -140,8 +140,8 @@
 	// Pull the pane through the workspace's block padding so its divider
 	// runs the full modal body, header hairline to bottom edge; the padding
 	// puts the content back where the workspace would have had it.
-	margin-block: calc(var(--vp-cm-workspace-pad) * -1);
-	padding-block: var(--vp-cm-workspace-pad);
+	margin-block: calc(var(--vp-chapter-manager-workspace-pad) * -1);
+	padding-block: var(--vp-chapter-manager-workspace-pad);
 
 	.vp-chapters-panel {
 		flex: 1;
@@ -167,7 +167,7 @@
 // Narrow modal: the panes stack back into the single column (player,
 // timeline, rows) — the same layout every viewport had before the side
 // panel existed — and the workspace becomes the one scroll surface again.
-@container (max-width: 919px) {
+@container ( max-inline-size: 919px ) {
 
 	.videopress-chapter-manager__panes {
 		flex-direction: column;
