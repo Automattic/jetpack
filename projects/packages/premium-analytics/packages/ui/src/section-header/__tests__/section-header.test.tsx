@@ -10,6 +10,15 @@ describe( 'SectionHeader', () => {
 		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveTextContent( 'Traffic' );
 	} );
 
+	it( 'carries the title as an attribute, past the ellipsis', () => {
+		render( <SectionHeader title="Traffic across every channel this site measures" /> );
+
+		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveAttribute(
+			'title',
+			'Traffic across every channel this site measures'
+		);
+	} );
+
 	it( 'renders the subtitle when one is given', () => {
 		render( <SectionHeader title="Traffic" subtitle={ SUBTITLE } /> );
 
