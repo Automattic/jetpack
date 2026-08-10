@@ -1,5 +1,5 @@
 /* eslint-disable testing-library/prefer-user-event -- Drag gestures need raw pointer events carrying clientX/pointerId (userEvent has no pointer-capture drag primitive), and the shortcuts under test listen for raw keydowns on document. */
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useReducer } from 'react';
 import {
@@ -8,6 +8,7 @@ import {
 	createChaptersSession,
 } from '../../state/chapters-session';
 import { canUndo, createHistory, withHistory } from '../../state/history';
+import ChaptersPanel from '../chapters-panel';
 import ChaptersTimeline from '../chapters-timeline';
 import type { ChapterRow } from '../../../../utils/video-chapters/description';
 import type { ChaptersSession, ChaptersSessionAction } from '../../state/chapters-session';
@@ -57,9 +58,10 @@ type HarnessProps = Partial< ChaptersTimelineProps > & {
 };
 
 /**
- * The timeline under a REAL history-wrapped store, so gestures, coalescing,
- * and undo semantics are exercised end to end. An extra harness button
- * dispatches UNDO and a probe span reports canUndo.
+ * The timeline AND the chapters panel over one REAL history-wrapped store —
+ * the same composition both hosts render — so gestures, coalescing, undo
+ * semantics, and the strip ↔ rows interplay are exercised end to end. An
+ * extra harness button dispatches UNDO and a probe span reports canUndo.
  *
  * @param props            - Timeline prop overrides plus the initial rows/duration.
  * @param props.rows       - Rows LOADed into the store at mount.
@@ -76,16 +78,26 @@ function Harness( { rows, durationMs = 60000, ...overrides }: HarnessProps ): Re
 			} )
 		)
 	);
+	// The gating props and the seek callback are shared between the strip and
+	// the panel, exactly as the hosts wire them.
+	const { onSeek = () => {}, locked, readOnly } = overrides;
 	return (
 		<>
 			<ChaptersTimeline
 				session={ history.present }
 				dispatch={ dispatch }
 				currentMs={ 0 }
-				onSeek={ () => {} }
 				onTogglePlay={ () => {} }
 				playing={ false }
 				{ ...overrides }
+				onSeek={ onSeek }
+			/>
+			<ChaptersPanel
+				session={ history.present }
+				dispatch={ dispatch }
+				onSeek={ onSeek }
+				locked={ locked }
+				readOnly={ readOnly }
 			/>
 			<button data-testid="harness-undo" onClick={ () => dispatch( { type: 'UNDO' } ) }>
 				harness undo
@@ -115,7 +127,7 @@ const markers = () => screen.queryAllByTestId( /^chapters-marker-/ );
 const addButton = () => screen.getByRole( 'button', { name: 'Add chapter at playhead' } );
 const isAriaDisabled = ( el: HTMLElement ) => el.getAttribute( 'aria-disabled' ) === 'true';
 
-describe( 'ChaptersTimeline', () => {
+describe( 'Chapters editor (timeline strip + panel)', () => {
 	describe( 'strip', () => {
 		it( 'renders segments spanning start → next start, the last running to the video end', () => {
 			renderChapters();
@@ -313,6 +325,23 @@ describe( 'ChaptersTimeline', () => {
 			// Whole-second rounding: 5400 → 5000.
 			expect( markers()[ 0 ] ).toHaveAttribute( 'aria-valuenow', '5000' );
 		} );
+
+		it( 'hands focus to the new chapter’s title input with the default title selected', async () => {
+			const user = userEvent.setup();
+			renderChapters( { currentMs: 5400 } );
+
+			await user.click( addButton() );
+
+			// The hand-off is a frame behind the add (the rows live in the
+			// sibling panel and render on the next flush).
+			const input = ( await screen.findByLabelText( 'Chapter 2 title' ) ) as HTMLInputElement;
+			await waitFor( () => expect( input ).toHaveFocus() );
+			// The default title is selected so typing replaces it directly.
+			expect( input.value ).toBe( 'Chapter 2' );
+			expect( input.value.slice( input.selectionStart ?? 0, input.selectionEnd ?? 0 ) ).toBe(
+				'Chapter 2'
+			);
+		} );
 	} );
 
 	describe( 'rows list', () => {
@@ -366,33 +395,26 @@ describe( 'ChaptersTimeline', () => {
 			expect( screen.getByTestId( 'harness-can-undo' ) ).toHaveTextContent( 'false' );
 		} );
 
-		it( 'formats the row duration as a timecode rather than raw seconds', () => {
-			// Real media durations are fractional, and the last row runs to the
-			// video end — so this row used to read "4437.055s".
-			renderChapters( { rows: [ { startAtSeconds: 0, title: 'Only' } ], durationMs: 4437055 } );
-
-			const row = screen.getAllByTestId( /^chapters-row-chapter/ )[ 0 ];
-			expect( row ).toHaveTextContent( '1:13:57.0' );
-			expect( row ).not.toHaveTextContent( '4437.055s' );
-		} );
-
-		it( 'shows index, start time, and duration per row and seeks from the time button', async () => {
+		it( 'shows the start time per row and seeks from the time button', async () => {
 			const onSeek = jest.fn();
 			const user = userEvent.setup();
 			renderChapters( { onSeek } );
 
-			const rows = screen.getAllByTestId( /^chapters-row-chapter/ );
-			expect( rows[ 0 ] ).toHaveTextContent( '01' );
-			expect( rows[ 2 ] ).toHaveTextContent( '03' );
-			// Durations: next start − start; the last runs to the video end.
-			expect( rows[ 0 ] ).toHaveTextContent( '0:00:10.0' );
-			expect( rows[ 1 ] ).toHaveTextContent( '0:00:20.0' );
-			expect( rows[ 2 ] ).toHaveTextContent( '0:00:30.0' );
-
 			const timeButtons = screen.getAllByTestId( /^chapters-row-time-/ );
+			expect( timeButtons[ 0 ] ).toHaveTextContent( '0:00:00.0' );
+			expect( timeButtons[ 1 ] ).toHaveTextContent( '0:00:10.0' );
 			expect( timeButtons[ 2 ] ).toHaveTextContent( '0:00:30.0' );
 			await user.click( timeButtons[ 2 ] );
 			expect( onSeek ).toHaveBeenCalledWith( 30000 );
+		} );
+
+		it( 'shows the live chapter count in the panel header', async () => {
+			const user = userEvent.setup();
+			renderChapters( { currentMs: 5000 } );
+			expect( screen.getByTestId( 'chapters-count' ) ).toHaveTextContent( '3' );
+
+			await user.click( addButton() );
+			expect( screen.getByTestId( 'chapters-count' ) ).toHaveTextContent( '4' );
 		} );
 
 		it( 're-pins the new first chapter to 0 when the first is removed', async () => {
@@ -556,7 +578,7 @@ describe( 'ChaptersTimeline', () => {
 			);
 		} );
 
-		it( 'reports issues with no row of their own next to the footer help line', () => {
+		it( 'reports issues with no row of their own under the panel header', () => {
 			renderChapters( {
 				rows: [
 					{ startAtSeconds: 0, title: 'Intro' },
@@ -568,6 +590,26 @@ describe( 'ChaptersTimeline', () => {
 				'At least three chapters are required.'
 			);
 			expect( screen.queryAllByTestId( /^chapters-row-issue-/ ) ).toHaveLength( 0 );
+		} );
+
+		it( 'rolls up untitled chapters under the header while the row carries its own message', () => {
+			renderChapters( {
+				rows: [
+					{ startAtSeconds: 0, title: 'Intro' },
+					{ startAtSeconds: 20, title: '' },
+					{ startAtSeconds: 40, title: 'End' },
+				],
+			} );
+
+			expect( screen.getByTestId( 'chapters-validation' ) ).toHaveTextContent(
+				'1 chapter still needs a title.'
+			);
+			const issues = screen.getAllByTestId( /^chapters-row-issue-/ );
+			expect( issues ).toHaveLength( 1 );
+			expect( issues[ 0 ] ).toHaveTextContent( 'Every chapter needs a title.' );
+			expect( screen.getAllByTestId( /^chapters-row-chapter/ )[ 1 ] ).toContainElement(
+				issues[ 0 ]
+			);
 		} );
 
 		// A description with no chapter lines loads as one seeded chapter, so
