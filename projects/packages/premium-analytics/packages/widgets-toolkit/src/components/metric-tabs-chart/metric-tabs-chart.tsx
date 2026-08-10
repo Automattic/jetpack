@@ -5,6 +5,7 @@ import { SelectControl, Tabs, Text } from '@jetpack-premium-analytics/externals'
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
+import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
@@ -346,7 +347,11 @@ export function MetricTabsChart( {
 			className={ styles.root }
 		>
 			<div className={ styles.header }>
-				<Tabs.List variant="minimal" className={ styles.tabs } aria-label={ groupLabel }>
+				<Tabs.List
+					variant="minimal"
+					className={ clsx( styles.tabs, metrics.length === 1 && styles.singleMetric ) }
+					aria-label={ groupLabel }
+				>
 					{ metrics.map( metric => (
 						<Tabs.Tab
 							key={ metric.key }

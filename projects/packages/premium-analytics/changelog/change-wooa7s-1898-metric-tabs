@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Metric tabs: Spread the cards across the full chart width and tint the selected one with the brand colour, and render a lone metric as a static headline rather than a card.
