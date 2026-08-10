@@ -61,16 +61,19 @@ function buildSingleVideoResponse( data: Array< [ string, number ] > ) {
 }
 
 /**
- * Routes a mocked request to the response for its `start_date` window.
+ * Routes a mocked request to the response for its `start_date` window. Keyed by
+ * the requested calendar day, so the fixtures hold whether the param carries a
+ * bare date or the full offset-bearing datetime the range resolves to.
  *
- * @param responsesByStartDate - Responses keyed by the request's `start_date`.
+ * @param responsesByStartDay - Responses keyed by the request's `start_date` day.
  * @return The apiFetch mock implementation.
  */
-function respondByWindow( responsesByStartDate: Record< string, unknown > ) {
+function respondByWindow( responsesByStartDay: Record< string, unknown > ) {
 	return ( { path }: { path: string } ) => {
 		const startDate = new URLSearchParams( path.split( '?' )[ 1 ] ).get( 'start_date' ) ?? '';
+		const startDay = startDate.split( 'T' )[ 0 ];
 
-		return Promise.resolve( responsesByStartDate[ startDate ] ?? buildSingleVideoResponse( [] ) );
+		return Promise.resolve( responsesByStartDay[ startDay ] ?? buildSingleVideoResponse( [] ) );
 	};
 }
 
@@ -118,8 +121,13 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 		expect( requestedPaths ).toHaveLength( 1 );
 		expect( requestedPaths[ 0 ] ).toContain( 'statType=all' );
 		expect( requestedPaths[ 0 ] ).toContain( 'period=day' );
-		expect( requestedPaths[ 0 ] ).toContain( 'start_date=2026-07-01' );
-		expect( requestedPaths[ 0 ] ).toContain( 'date=2026-07-07' );
+		// The unmodified report params, matching what the Video highlights widget
+		// on this same page sends: the two only share a cache entry — one request
+		// instead of two — while their query keys stay identical, so this pins the
+		// exact shape rather than just the calendar day.
+		const requestedParams = new URLSearchParams( requestedPaths[ 0 ].split( '?' )[ 1 ] );
+		expect( requestedParams.get( 'start_date' ) ).toBe( WINDOW_PARAMS.from );
+		expect( requestedParams.get( 'date' ) ).toBe( WINDOW_PARAMS.to );
 	} );
 
 	it( 'anchors bucket days at site-local midnight so negative-offset sites keep the calendar day', async () => {
