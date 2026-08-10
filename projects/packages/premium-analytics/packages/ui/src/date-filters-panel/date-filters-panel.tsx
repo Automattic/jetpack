@@ -235,7 +235,9 @@ export function DateFiltersPanel( {
 			// Flushed synchronously: ResizeObserver fires between layout and
 			// paint, so committing here keeps a resized slot and its label form
 			// in the same frame. Ceiled, so a slot sized by the published width
-			// compares equal to it.
+			// compares equal to it; on an external measure the ceil can
+			// overhang by under a pixel, absorbed by the row's shrinkable
+			// trigger.
 			flushSync( () => {
 				setContainerWidth( Math.ceil( entry.contentRect.width ) );
 			} );
