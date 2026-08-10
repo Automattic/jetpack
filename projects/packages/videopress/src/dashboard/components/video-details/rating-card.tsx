@@ -27,24 +27,34 @@ export default function RatingCard( { value, onChange }: Props ): ReactElement {
 				<RadioControl
 					selected={ value }
 					onChange={ next => onChange( next as VideoRating ) }
+					// `description` renders through the same `StyledHelp` that
+					// `BaseControl` gives every `help` line, so the type matches the
+					// toggle captions in Privacy & sharing. (Only the type — the
+					// two controls set different margins around it.) Splitting the
+					// rating off the sentence also stops a screen reader reading the
+					// whole explanation as the option's name — it becomes an
+					// `aria-describedby` instead.
 					options={ [
 						{
-							label: __(
-								'G — Suitable for all audiences, including children',
+							label: __( 'G', 'jetpack-videopress-pkg' ),
+							description: __(
+								'Suitable for all audiences, including children.',
 								'jetpack-videopress-pkg'
 							),
 							value: 'G',
 						},
 						{
-							label: __(
-								'PG-13 — May include mild language or mature themes',
+							label: __( 'PG-13', 'jetpack-videopress-pkg' ),
+							description: __(
+								'May include mild language or mature themes.',
 								'jetpack-videopress-pkg'
 							),
 							value: 'PG-13',
 						},
 						{
-							label: __(
-								'R — May include strong language, violence, or adult content',
+							label: __( 'R', 'jetpack-videopress-pkg' ),
+							description: __(
+								'May include strong language, violence, or adult content.',
 								'jetpack-videopress-pkg'
 							),
 							value: 'R',

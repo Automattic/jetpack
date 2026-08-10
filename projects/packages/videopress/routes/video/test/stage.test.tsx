@@ -51,8 +51,27 @@ jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
 		</div>
 	),
 } ) );
+// Renders `items` rather than a hardcoded trail, splitting link-vs-<h1> the
+// way the real component does (@wordpress/admin-ui breadcrumbs/index.tsx:
+// every item but the last is a router link; the last, when it carries no
+// `to`, is the page's only <h1>). The live-title cases below read that
+// heading, so a hardcoded stub would make them assert nothing.
 jest.mock( '@wordpress/admin-ui', () => ( {
-	Breadcrumbs: () => <a href="/">VideoPress</a>,
+	Breadcrumbs: ( { items }: { items: { label: string; to?: string }[] } ) => {
+		const last = items[ items.length - 1 ];
+		return (
+			<nav>
+				<ul>
+					{ items.slice( 0, -1 ).map( ( item, index ) => (
+						<li key={ index }>
+							<a href={ item.to }>{ item.label }</a>
+						</li>
+					) ) }
+					<li>{ last.to ? <a href={ last.to }>{ last.label }</a> : <h1>{ last.label }</h1> }</li>
+				</ul>
+			</nav>
+		);
+	},
 } ) );
 
 // Variables referenced inside jest.mock() factories must be prefixed with
@@ -89,9 +108,16 @@ jest.mock( '../../../src/dashboard/components/video-details/preview-player', () 
 	__esModule: true,
 	default: () => <div data-testid="preview-player" />,
 } ) );
-jest.mock( '../../../src/dashboard/components/video-details/thumbnail-card', () => ( {
+jest.mock( '../../../src/dashboard/components/video-details/video-info-card', () => ( {
 	__esModule: true,
-	default: () => <div data-testid="thumbnail-card" />,
+	default: () => <div data-testid="video-info-card" />,
+} ) );
+// VideoDetailsCard stays real, and it now renders the thumbnail control.
+// Without this the real poster mutation and frame picker would mount against
+// this file's catch-all apiFetch handler.
+jest.mock( '../../../src/dashboard/components/video-details/thumbnail-control', () => ( {
+	__esModule: true,
+	default: () => <div data-testid="thumbnail-control" />,
 } ) );
 jest.mock( '../../../src/dashboard/components/video-details/privacy-sharing-card', () => ( {
 	__esModule: true,
@@ -309,6 +335,35 @@ describe( 'video stage', () => {
 		// The description didn't change, so the VTT is already in sync.
 		expect( mockSyncChapters ).not.toHaveBeenCalled();
 		expect( mockSuccessNotice ).toHaveBeenCalledWith( 'Video details saved.' );
+	} );
+
+	// The crumb is the page's <h1>. It reads the form's live value, so it has
+	// to follow typing — and it must not turn typing into a save.
+	it( 'tracks the title in the breadcrumb heading as it is typed, without saving', async () => {
+		const user = userEvent.setup();
+
+		await renderReadyStage();
+		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( 'My Clip' );
+
+		await user.type( screen.getByLabelText( 'Title' ), ' 2' );
+
+		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( 'My Clip 2' );
+		expect( mockUpdateMeta ).not.toHaveBeenCalled();
+	} );
+
+	// An empty label renders an empty <h1>, which would leave the page with no
+	// accessible name mid-edit; whitespace has to count as empty too.
+	it( 'falls back to Untitled when the title is cleared or only whitespace', async () => {
+		const user = userEvent.setup();
+
+		await renderReadyStage();
+		await user.clear( screen.getByLabelText( 'Title' ) );
+
+		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( 'Untitled' );
+
+		await user.type( screen.getByLabelText( 'Title' ), '   ' );
+
+		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( 'Untitled' );
 	} );
 
 	it( 'skips the chapters sync and shows an error when the meta save fails', async () => {
