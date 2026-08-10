@@ -25,8 +25,8 @@
 	gap: var(--wpds-dimension-gap-md);
 }
 
-/* Equal-width cards fill the room left by the controls. The minimum keeps an
- * xl value + delta readable; when every card cannot fit, grid restores the
+/* Equal-width cards fill the room left by the controls. The minimum keeps a
+ * 2xl value + delta readable; when every card cannot fit, grid restores the
  * wrapping protection that flex-basis: 0 would otherwise remove. */
 .tabs {
 	display: grid;
@@ -54,7 +54,7 @@
  * rule sits in a low-priority @layer, so this unlayered override wins. */
 .metricSelect [class*="trigger-wrapper"] {
 	height: auto;
-	padding-block: var(--wpds-dimension-padding-sm);
+	padding-block: var(--wpds-dimension-padding-md);
 }
 
 /* Draw the focus ring inside the card; the default outset ring gets clipped
@@ -73,8 +73,8 @@
 	height: auto;
 	min-width: 0;
 	overflow: hidden;
-	padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-md);
-	border-radius: var(--wpds-border-radius-md);
+	padding: var(--wpds-dimension-padding-md);
+	border-radius: var(--wpds-border-radius-lg);
 }
 
 /* Hide the selection underline; the card fill shows selection instead. Older
@@ -90,7 +90,7 @@
 
 .tab:hover,
 .tab[aria-selected="true"] {
-	background-color: var(--wpds-color-background-interactive-brand-weak-active);
+	background-color: var(--wpds-color-background-surface-brand);
 }
 
 /* A lone metric has nothing to switch to: it reads as the widget's headline
@@ -112,7 +112,7 @@
 	display: flex;
 	flex: 1 1 auto;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-xs);
+	gap: var(--wpds-dimension-gap-sm);
 	align-items: flex-start;
 	min-width: 0;
 	text-align: start;
@@ -122,7 +122,6 @@
 	display: block;
 	max-width: 100%;
 	overflow: hidden;
-	color: var(--wpds-color-foreground-content-neutral-weak);
 	text-overflow: ellipsis;
 }
 

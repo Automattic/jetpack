@@ -274,6 +274,7 @@ export function MetricTabsChart( {
 									value={ activeMetric.value }
 									previousValue={ activeMetric.previousValue }
 									dataFormat={ activeMetric.dataFormat ?? dataFormat }
+									fontSize="2xl"
 									direction="row"
 									align="flex-end"
 								/>
@@ -399,6 +400,7 @@ export function MetricTabsChart( {
 									value={ metric.value }
 									previousValue={ metric.previousValue }
 									dataFormat={ metric.dataFormat ?? dataFormat }
+									fontSize="2xl"
 									direction="row"
 									align="flex-end"
 								/>
