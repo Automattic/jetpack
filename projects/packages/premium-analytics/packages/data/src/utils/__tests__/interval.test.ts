@@ -84,15 +84,15 @@ describe( 'resolveIntervalForRange', () => {
 	} );
 
 	/*
-	 * Under a week, hours stay on offer alongside days: a four-day window has
-	 * shape within each day that daily bars cannot show, and 96 points is still
-	 * a readable series.
+	 * Under a week the default is daily; hours stay on offer as the only
+	 * reading that shows shape within a day.
 	 */
-	it( 'offers hours as well as days under a week', () => {
+	it( 'defaults to days under a week, with hours on offer', () => {
 		const from = '2026-06-01T00:00:00.000Z';
 		const to = '2026-06-04T23:59:59.999Z';
 
-		expect( getAllowedIntervalsForPreset( 'custom', from, to ) ).toEqual( [ 'hour', 'day' ] );
+		expect( getAllowedIntervalsForPreset( 'custom', from, to ) ).toEqual( [ 'day', 'hour' ] );
+		expect( resolveIntervalForRange( 'custom', from, to ) ).toBe( 'day' );
 		expect( resolveIntervalForRange( 'custom', from, to, 'hour' ) ).toBe( 'hour' );
 		expect( resolveIntervalForRange( 'custom', from, to, 'day' ) ).toBe( 'day' );
 	} );

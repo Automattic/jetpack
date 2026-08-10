@@ -68,9 +68,9 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 	} else if ( daysDiff >= 7 ) {
 		return [ 'day' ];
 	} else if ( daysDiff >= 2 ) {
-		// Under a week, hours are still a readable series rather than a wall of
-		// bars, and they are the only reading that shows shape within a day.
-		return [ 'hour', 'day' ];
+		// Days by default; hours stay on offer as the only reading that shows
+		// shape within a day.
+		return [ 'day', 'hour' ];
 	}
 
 	// A day or less has nothing to draw in daily buckets: one bar is not a
@@ -79,7 +79,7 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 }
 
 /**
- * Allowed intervals for a preset, ordered finest-first.
+ * Allowed intervals for a preset, default first.
  *
  * Unknown / custom / year-surface presets derive the list from `from`–`to`
  * length.
@@ -122,7 +122,7 @@ export function getAllowedIntervalsForPreset(
  * Resolve a valid interval for a date range.
  *
  * Returns `current` when it is allowed for the range; otherwise the range
- * default (finest allowed).
+ * default (first allowed).
  */
 export function resolveIntervalForRange(
 	preset: PrimaryPresetId | undefined,
@@ -139,7 +139,7 @@ export function resolveIntervalForRange(
 	return allowed[ 0 ] ?? 'day';
 }
 
-/** Default (finest) interval for a preset / date range. */
+/** Default interval for a preset / date range. */
 export function getDefaultIntervalForPeriod(
 	preset: PrimaryPresetId | undefined,
 	from: string,
