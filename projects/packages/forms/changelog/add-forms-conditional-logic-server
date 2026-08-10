@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Render and validate conditionally hidden form fields correctly, so a hidden required field cannot block submission.
