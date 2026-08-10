@@ -414,8 +414,8 @@ class Dashboard {
 			<?php /* "Jetpack Forms" is a product name, do not translate. */ ?>
 			<h1>Jetpack Forms</h1>
 			<div class="notice notice-error">
-				<p><?php esc_html_e( 'The Forms dashboard cannot load because its assets are missing.', 'jetpack-forms' ); ?></p>
-				<p><?php esc_html_e( 'This usually means the plugin was installed without a complete build. Reinstall or update the plugin to fix it.', 'jetpack-forms' ); ?></p>
+				<p><?php esc_html_e( 'The Forms dashboard cannot load because its assets are unavailable.', 'jetpack-forms' ); ?></p>
+				<p><?php esc_html_e( 'This usually means the plugin was installed without a complete build. Reinstall or update the plugin to fix that. It can also happen when this site is configured not to load the dashboard assets.', 'jetpack-forms' ); ?></p>
 			</div>
 		</div>
 		<?php

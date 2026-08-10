@@ -358,11 +358,12 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The wp-build page must not register the legacy mount point as its fallback:
-	 * load_admin_scripts() never enqueues the legacy bundle there, so the page
-	 * would render blank. It registers the notice callback instead.
+	 * The wp-build page must never register the legacy mount point as its callback:
+	 * load_admin_scripts() does not enqueue the legacy bundle there, so the page
+	 * would render blank. It registers either the generated wp-build callback or,
+	 * when that is absent, the notice.
 	 */
-	public function test_add_admin_submenu_falls_back_to_notice_without_wp_build_callback() {
+	public function test_add_admin_submenu_never_registers_the_legacy_mount_point() {
 		add_filter( 'jetpack_forms_alpha', '__return_true' );
 
 		$dashboard = new Dashboard();
@@ -395,7 +396,7 @@ class Dashboard_Test extends BaseTestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( 'notice-error', $output );
-		$this->assertStringContainsString( 'assets are missing', $output );
+		$this->assertStringContainsString( 'assets are unavailable', $output );
 		$this->assertStringNotContainsString( 'jp-forms-dashboard', $output );
 	}
 }
