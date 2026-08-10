@@ -270,16 +270,20 @@ describe( 'Stats query factories', () => {
 		).toEqual( { period: 'hour', quantity: 48, date: '2026-06-14', stats_fields: 'timeline' } );
 	} );
 
-	it( 'anchors an offset-bearing hourly window on its own start, not on midnight', () => {
+	it( 'sends an offset-bearing hourly window end through untrimmed', () => {
 		// The shape the last-24-hours preset produces: hour-aligned, mid-day, and
-		// spanning two calendar days. `date` is the window START for this endpoint
-		// and now carries the time, so the buckets it returns begin at 09:00
-		// rather than at midnight the way a trimmed bare date used to imply.
+		// spanning two calendar days. `date` is the window START for this
+		// endpoint and now carries the time, but the endpoint resolves it to the
+		// calendar day and buckets from midnight regardless — verified against
+		// production, where a bare `2026-08-06` and `2026-08-06T09:00:00.000-04:00`
+		// return byte-identical hour-0..23 windows. So the untrimmed value is
+		// inert here rather than shifting the window; do not "fix" `quantity` on
+		// the assumption that the buckets start at 09:00.
 		//
 		// `quantity` stays 24 per calendar day the window touches — a 24-hour
 		// window spanning two days still asks for 48 buckets. That over-fetch
-		// predates offset-bearing dates; pinned here so a fix to it is a
-		// deliberate change rather than an accident.
+		// predates offset-bearing dates and is tracked in WOOA7S-1840; pinned
+		// here so a fix to it is a deliberate change rather than an accident.
 		expect(
 			statsEmailClicksTimeSeriesQuery( 41, {
 				from: '2026-06-14T09:00:00.000-04:00',
