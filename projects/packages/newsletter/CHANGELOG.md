@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.4] - 2026-08-10
+### Changed
+- Update package dependencies. [#50509]
+- Update package dependencies. [#51008]
+
+### Fixed
+- Fix the settings page rendering blank on WordPress 6.9. [#50509]
+- Subscribers: Remove the misleading "Joined" field from the subscriber profile, which showed the site's creation date rather than a per-subscriber date. [#51054]
+- Subscribers: Restore the option to assign imported subscribers to specific newsletter categories on CSV upload and manual add. [#51007]
+- Subscribers: Show your own subscription in the list instead of an empty state when you are the only subscriber, with a prompt pointing at the Add subscribers button. [#50923]
+
 ## [0.12.3] - 2026-08-03
 ### Changed
 - Categories: Deep-link the subscribe block help text to the "Subscribe to specific categories" section. [#50937]
@@ -309,6 +320,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update package dependencies. [#46143]
 
+[0.12.4]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.3...v0.12.4
 [0.12.3]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.2...v0.12.3
 [0.12.2]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.1...v0.12.2
 [0.12.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.0...v0.12.1

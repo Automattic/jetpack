@@ -20,7 +20,7 @@ final class Dashboard_Section {
 	 * Date-filter surface offering the rolling date-range picker (today, last 7
 	 * days, a custom range, …) plus the comparison control. The default.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.2.0
 	 * @var string
 	 */
 	const DATE_FILTER_RANGE = 'range';
@@ -30,7 +30,7 @@ final class Dashboard_Section {
 	 * for sections whose data is read as whole history rather than as a
 	 * rolling window.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.2.0
 	 * @var string
 	 */
 	const DATE_FILTER_YEAR = 'year';
@@ -38,7 +38,7 @@ final class Dashboard_Section {
 	/**
 	 * Date-filter surfaces a section may declare.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.2.0
 	 * @var string[]
 	 */
 	const DATE_FILTERS = array( self::DATE_FILTER_RANGE, self::DATE_FILTER_YEAR );
@@ -81,7 +81,7 @@ final class Dashboard_Section {
 	/**
 	 * Which date filter the section's header offers, as one of self::DATE_FILTERS.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.2.0
 	 * @var string
 	 */
 	public $date_filter = self::DATE_FILTER_RANGE;

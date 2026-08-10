@@ -1796,7 +1796,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "304ceeeb57ae0338fe605547cbc391fdf1b33d3b"
+                "reference": "a2464237fbb0416b5830d62f9a1291d41eaa913c"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1826,7 +1826,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-premium-analytics/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 }
             },
             "autoload": {
