@@ -362,6 +362,27 @@ class Analytics {
 	}
 
 	/**
+	 * Absolute path to the generated widget manifest.
+	 *
+	 * On the class rather than beside its readers in widget-modules.php: two copies
+	 * of this package can load in one request, and only classes go through the
+	 * autoloader's version dedupe. See load_dashboard_components().
+	 *
+	 * @return string
+	 */
+	public static function widget_manifest_path() {
+		/**
+		 * Filters the path to the generated widget manifest.
+		 *
+		 * @param string $path Absolute path to the generated widget manifest.
+		 */
+		return apply_filters(
+			'jetpack_premium_analytics_widgets_manifest_path',
+			__DIR__ . '/../build/widgets.php'
+		);
+	}
+
+	/**
 	 * Register the admin-only render path: polyfills, menu, and page hooks.
 	 *
 	 * @return void
@@ -441,17 +462,14 @@ class Analytics {
 	 * @return void
 	 */
 	public static function register_admin_menu() {
-		// Keep this dependency explicit in case the dashboard load order changes.
-		if ( ! function_exists( __NAMESPACE__ . '\\widgets_manifest_path' ) ) {
-			require_once __DIR__ . '/widget-modules.php';
-		}
-
 		$can_render          = function_exists( 'jpa_jetpack_premium_analytics_wp_admin_render_page' );
-		$has_widget_manifest = file_exists( widgets_manifest_path() );
+		$has_widget_manifest = file_exists( self::widget_manifest_path() );
 
 		$missing = array();
 		if ( ! $can_render ) {
-			$missing[] = 'build/pages.php (the dashboard page render callback)';
+			// Named by symbol, not by file: build/pages.php is only a loader, and the
+			// callback can also go missing to a renamed page slug or an absent build entry.
+			$missing[] = 'the jpa_jetpack_premium_analytics_wp_admin_render_page() callback, generated under build/pages/';
 		}
 		if ( ! $has_widget_manifest ) {
 			$missing[] = 'build/widgets.php (the widget manifest)';
@@ -462,6 +480,8 @@ class Analytics {
 			// the first admin request instead of waiting for someone to open the dashboard.
 			_doing_it_wrong(
 				__METHOD__,
+				// esc_html() only to satisfy WordPress.Security.EscapeOutput, which treats
+				// this argument as output; every entry is a literal from just above.
 				'The Premium Analytics build output is incomplete: ' . esc_html( implode( ', ', $missing ) ) . '. The package build did not run, or ran only partially, for this deploy.',
 				''
 			);

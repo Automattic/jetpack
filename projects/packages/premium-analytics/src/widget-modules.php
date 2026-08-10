@@ -32,23 +32,6 @@ function register_widget_modules_rest_route() {
 }
 
 /**
- * Get the absolute path to the generated widget manifest.
- *
- * @return string
- */
-function widgets_manifest_path() {
-	/**
-	 * Filters the path to the generated widget manifest.
-	 *
-	 * @param string $path Absolute path to the generated widget manifest.
-	 */
-	return apply_filters(
-		'jetpack_premium_analytics_widgets_manifest_path',
-		__DIR__ . '/../build/widgets.php'
-	);
-}
-
-/**
  * Load and hydrate the widget type registry, once.
  *
  * Deferred to here (the registry's only two readers) instead of running
@@ -70,8 +53,10 @@ function ensure_widget_registry_ready() {
 	require_once __DIR__ . '/widget-types.php';
 	require_once __DIR__ . '/widget-availability.php';
 
-	// REST requests do not load the admin build, so load the manifest explicitly.
-	$widgets_manifest = widgets_manifest_path();
+	// REST does not load the admin build, so this require is the manifest's only route
+	// in (WOOA7S-1804). Drop it and every widget renders "Widget is no longer
+	// available" — the #49961 bug.
+	$widgets_manifest = Analytics::widget_manifest_path();
 	if ( file_exists( $widgets_manifest ) ) {
 		require_once $widgets_manifest;
 	}

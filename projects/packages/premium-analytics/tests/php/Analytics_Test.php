@@ -25,11 +25,9 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \Automattic\Jetpack\PremiumAnalytics\Analytics
  * @covers ::Automattic\Jetpack\PremiumAnalytics\ensure_widget_registry_ready
- * @covers ::Automattic\Jetpack\PremiumAnalytics\widgets_manifest_path
  */
 #[CoversClass( Analytics::class )]
 #[CoversFunction( 'Automattic\\Jetpack\\PremiumAnalytics\\ensure_widget_registry_ready' )]
-#[CoversFunction( 'Automattic\\Jetpack\\PremiumAnalytics\\widgets_manifest_path' )]
 class Analytics_Test extends TestCase {
 
 	const MENU_SLUG     = 'jetpack-premium-analytics-wp-admin';
@@ -664,6 +662,38 @@ class Analytics_Test extends TestCase {
 			array( Analytics::class . '::register_admin_menu' ),
 			$this->doing_it_wrong
 		);
+		$this->assertStringContainsString(
+			'jpa_jetpack_premium_analytics_wp_admin_render_page',
+			$this->doing_it_wrong_messages[0] ?? '',
+			'The diagnostic must name the artifact that is actually missing.'
+		);
+		$this->assertStringNotContainsString(
+			'build/widgets.php',
+			$this->doing_it_wrong_messages[0] ?? '',
+			'The manifest is staged here; naming it would send the reader to the wrong file.'
+		);
+	}
+
+	/**
+	 * A build that never ran names both artifacts in one diagnostic.
+	 *
+	 * Pins the whole sentence once, so the per-artifact tests can stay on substrings.
+	 */
+	public function test_register_admin_menu_lists_both_missing_artifacts() {
+		$this->register_admin_menu_without_build( 'use_absent_widget_manifest' );
+
+		$this->assertSame(
+			array( Analytics::class . '::register_admin_menu' ),
+			$this->doing_it_wrong,
+			'Both artifacts are reported in one diagnostic, not one per artifact.'
+		);
+		$this->assertSame(
+			'The Premium Analytics build output is incomplete: '
+				. 'the jpa_jetpack_premium_analytics_wp_admin_render_page() callback, generated under build/pages/, '
+				. 'build/widgets.php (the widget manifest). '
+				. 'The package build did not run, or ran only partially, for this deploy.',
+			$this->doing_it_wrong_messages[0] ?? ''
+		);
 	}
 
 	/**
@@ -765,14 +795,29 @@ class Analytics_Test extends TestCase {
 			'The diagnostic must name the artifact that is actually missing.'
 		);
 		$this->assertStringNotContainsString(
-			'build/pages.php',
+			'jpa_jetpack_premium_analytics_wp_admin_render_page',
 			$this->doing_it_wrong_messages[0] ?? '',
-			'build/pages.php is present here; naming it would send the reader to the wrong file.'
+			'The page renders here; naming its callback would send the reader to the wrong artifact.'
 		);
 		$this->assertNotFalse(
 			has_action( self::MENU_HOOKNAME, 'jpa_jetpack_premium_analytics_wp_admin_render_page' ),
 			'Only the manifest is missing, so the page still renders through the generated callback.'
 		);
+	}
+
+	/**
+	 * The unfiltered manifest path points at the generated build output.
+	 *
+	 * Every other test stages this path through the filter, so nothing else would
+	 * notice the default breaking - and on REST a wrong path empties the widget
+	 * registry with no error at all (the #49961 bug).
+	 */
+	public function test_widget_manifest_path_defaults_to_the_generated_manifest() {
+		// Collapse the ".." the default is built from rather than realpath()ing it:
+		// build/ does not exist in a checkout that has not run the JS build.
+		$path = preg_replace( '#/[^/]+/\.\./#', '/', Analytics::widget_manifest_path() );
+
+		$this->assertSame( dirname( __DIR__, 2 ) . '/build/widgets.php', $path );
 	}
 
 	/**
@@ -789,19 +834,24 @@ class Analytics_Test extends TestCase {
 	 * add_menu_page() only wires the render callback for a user who can reach the
 	 * page, hence the capability grant.
 	 *
+	 * @param string $manifest_filter Method on this class supplying the manifest path.
 	 * @return array|null The registered menu entry.
 	 */
-	private function register_admin_menu_without_build() {
+	private function register_admin_menu_without_build( $manifest_filter = 'use_fixture_widget_manifest' ) {
 		$GLOBALS['menu'] = array();
 
 		// Hooked by boot_shared_services() in production; add_menu_page() resolves the
 		// dashboard capability, and an unmapped one would skip the page's render hook.
 		Capabilities::register();
 
+		// Stage the manifest: unfiltered, the diagnostic would name a different set of
+		// artifacts depending on whether this checkout has run the JS build.
+		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, $manifest_filter ) );
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 		$this->capture_doing_it_wrong();
 		Analytics::register_admin_menu();
 		remove_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
+		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, $manifest_filter ) );
 
 		foreach ( $GLOBALS['menu'] as $item ) {
 			if ( self::MENU_SLUG === ( $item[2] ?? null ) ) {
@@ -813,7 +863,10 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * Capture _doing_it_wrong() calls without triggering a PHP warning.
+	 * Capture _doing_it_wrong() calls without tripping the suite's failOnWarning gate.
+	 *
+	 * Records each triggering function name and its message, and suppresses the
+	 * underlying PHP warning, so a test can assert the diagnostic fired.
 	 */
 	private function capture_doing_it_wrong() {
 		$this->doing_it_wrong          = array();
