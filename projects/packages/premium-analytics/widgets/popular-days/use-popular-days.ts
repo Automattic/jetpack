@@ -38,10 +38,7 @@ export function usePopularDays() {
 	const { primary, isLoading, isFetching, isError, error, refetch } = useStatsVisits( params );
 	const report = primary.data as StatsVisitsResponse | undefined;
 
-	const buckets = useMemo(
-		() => bucketViewsByWeekday( ( report?.data ?? [] ) as Record< string, unknown >[] ),
-		[ report ]
-	);
+	const buckets = useMemo( () => bucketViewsByWeekday( report?.data ?? [] ), [ report ] );
 
 	return {
 		buckets,

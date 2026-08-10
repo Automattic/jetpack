@@ -333,12 +333,8 @@ function get_dashboard_default_section_layouts() {
 				2
 			),
 			// Row 4: the period totals, the weekday distribution, and the
-			// all-time best day. `jpa/most-popular-time` sat here until
-			// `jpa/popular-days` replaced its "best day" half with one that
-			// follows the date picker; its "best hour" half returns as its own
-			// widget in WOOA7S-1897. `jpa/most-popular-day` answers a different
-			// question — the single best date ever — so it stays.
-			// The most-popular-day card still crops at this height (WOOA7S-1846).
+			// all-time best day. The most-popular-day card still crops at this
+			// height (WOOA7S-1846).
 			get_dashboard_default_widget_instance(
 				'default-total-views-widget-instance',
 				'jpa/total-views',
