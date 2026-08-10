@@ -176,6 +176,20 @@ class Initializer {
 		}
 
 		Divi::init();
+
+		// Hook render start, not block_type_metadata_settings: the WordPress.com mailer re-assigns
+		// core/video's render_email_callback after registration, so setting it here runs last.
+		add_action( 'woocommerce_email_editor_render_start', array( __CLASS__, 'add_core_video_email_renderer' ) );
+	}
+
+	/**
+	 * Attach the VideoPress email renderer to the core/video block for email rendering.
+	 */
+	public static function add_core_video_email_renderer() {
+		$block_type = \WP_Block_Type_Registry::get_instance()->get_registered( 'core/video' );
+		if ( $block_type ) {
+			$block_type->render_email_callback = array( Video_Block_Email_Renderer::class, 'render' );
+		}
 	}
 
 	/**

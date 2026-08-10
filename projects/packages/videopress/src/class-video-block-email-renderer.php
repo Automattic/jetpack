@@ -22,9 +22,8 @@ class Video_Block_Email_Renderer {
 	 * @return string
 	 */
 	public static function render( $block_content, $parsed_block, $rendering_context ) {
-		// Validate input parameters and required dependencies.
-		if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] ) ||
-			! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Embed' ) ) {
+		// Validate input parameters.
+		if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] ) ) {
 			return '';
 		}
 
@@ -33,7 +32,12 @@ class Video_Block_Email_Renderer {
 		// Get the VideoPress URL from the guid attribute.
 		$videopress_url = self::get_videopress_url( $attributes );
 
+		// No guid: a core/video block is a plain uploaded video, so let the core video renderer
+		// handle it. Other blocks (e.g. a malformed videopress/video) keep returning empty.
 		if ( empty( $videopress_url ) ) {
+			if ( isset( $parsed_block['blockName'] ) && 'core/video' === $parsed_block['blockName'] ) {
+				return self::render_core_video( $block_content, $parsed_block, $rendering_context );
+			}
 			return '';
 		}
 
@@ -41,6 +45,11 @@ class Video_Block_Email_Renderer {
 		// The isPrivate attribute is pre-computed by the block editor based on video and site settings.
 		if ( isset( $attributes['isPrivate'] ) && true === $attributes['isPrivate'] ) {
 			return self::render_link( $parsed_block );
+		}
+
+		// The VideoPress embed path needs WooCommerce's Embed renderer.
+		if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Embed' ) ) {
+			return '';
 		}
 
 		// Create a mock embed block structure that WooCommerce's embed renderer can handle.
@@ -68,6 +77,29 @@ class Video_Block_Email_Renderer {
 
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
 		return $woo_embed_renderer->render( $mock_embed_block['innerHTML'], $mock_embed_block, $rendering_context );
+	}
+
+	/**
+	 * Render a non-VideoPress core/video block using the email editor's core video renderer.
+	 *
+	 * @param string $block_content     The original block HTML content.
+	 * @param array  $parsed_block      The parsed block data including attributes.
+	 * @param object $rendering_context Email rendering context.
+	 *
+	 * @return string
+	 */
+	private static function render_core_video( $block_content, $parsed_block, $rendering_context ) {
+		// Match the rest of this class: render nothing when the required renderer is unavailable,
+		// rather than passing raw block markup (e.g. a <video> tag) through to the email.
+		if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Video' ) ) {
+			return '';
+		}
+
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
+		$woo_video_renderer = new \Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Video();
+
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional WooCommerce dependency, checked with class_exists() above.
+		return $woo_video_renderer->render( $block_content, $parsed_block, $rendering_context );
 	}
 
 	/**

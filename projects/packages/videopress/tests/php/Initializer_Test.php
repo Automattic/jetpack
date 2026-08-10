@@ -269,4 +269,33 @@ class Initializer_Test extends BaseTestCase {
 			'Active-module VideoPress route should register on rest_api_init via the active_initialization deferral block.'
 		);
 	}
+
+	/** On email render start, the registered core/video block gets the VideoPress email renderer attached. */
+	public function test_add_core_video_email_renderer_sets_callback_on_core_video() {
+		$registry = \WP_Block_Type_Registry::get_instance();
+		if ( ! $registry->is_registered( 'core/video' ) ) {
+			register_block_type( 'core/video' );
+		}
+
+		VideoPress_Initializer::add_core_video_email_renderer();
+
+		$this->assertSame(
+			array( \Automattic\Jetpack\VideoPress\Video_Block_Email_Renderer::class, 'render' ),
+			$registry->get_registered( 'core/video' )->render_email_callback
+		);
+
+		unregister_block_type( 'core/video' );
+	}
+
+	/** It is a no-op (no error) when core/video is not registered. */
+	public function test_add_core_video_email_renderer_noop_when_core_video_unregistered() {
+		$registry = \WP_Block_Type_Registry::get_instance();
+		if ( $registry->is_registered( 'core/video' ) ) {
+			unregister_block_type( 'core/video' );
+		}
+
+		VideoPress_Initializer::add_core_video_email_renderer();
+
+		$this->assertFalse( $registry->is_registered( 'core/video' ) );
+	}
 }
