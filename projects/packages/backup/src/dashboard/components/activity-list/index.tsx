@@ -2,7 +2,7 @@ import { DataViews } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, cloud, image, post, plugins as pluginsIcon, color } from '@wordpress/icons';
+import { Icon, cloud, image, post, plugins as pluginsIcon, color, info } from '@wordpress/icons';
 import { Card, Stack, Text } from '@wordpress/ui';
 import { ACTIVITY_LOG_DEFAULT_PER_PAGE, useActivityLog } from '../../hooks/use-activity-log';
 import { isBackupItem } from '../../types/activity';
@@ -16,6 +16,8 @@ const ICON_BY_KIND: Record< ActivityKind, typeof cloud > = {
 	post,
 	'plugin-update': pluginsIcon,
 	'theme-update': color,
+	// Catch-all for event families we don't give a dedicated icon.
+	other: info,
 };
 
 type Props = {
