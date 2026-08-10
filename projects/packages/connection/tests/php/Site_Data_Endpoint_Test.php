@@ -76,6 +76,8 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 		$wp_rest_server = null;
 		$this->server   = null;
 
+		unset( $_COOKIE['store_sandbox'] );
+
 		StatusCache::clear();
 		Constants::clear_constants();
 
@@ -212,6 +214,9 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 		Jetpack_Options::update_option( 'id', 1234 );
 		$this->manager->reset_connection_status();
 
+		// Each test starts uncached, otherwise the first fetch would answer every later one.
+		delete_transient( Manager::SITE_DATA_TRANSIENT_PREFIX . 1234 );
+
 		// Signing needs an absolute URL, so the API base has to resolve.
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 		Constants::set_constant( 'JETPACK__API_VERSION', 1 );
@@ -292,6 +297,104 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 		$this->assertSame( 'site_data_fetch_failed', $result->get_error_code() );
 		$this->assertSame( 'invalid_body', $result->get_error_data()['api_error_code'] );
 		$this->assertFalse( $fired, 'The action must not fire without a usable record.' );
+	}
+
+	/**
+	 * Count the outgoing HTTP requests made while the callback runs.
+	 *
+	 * @param callable $callback Code under test.
+	 * @return int
+	 */
+	private function count_http_requests( callable $callback ) {
+		$requests = 0;
+
+		$counter = function ( $pre ) use ( &$requests ) {
+			++$requests;
+
+			return $pre;
+		};
+
+		add_filter( 'pre_http_request', $counter, 1 );
+		$callback();
+		remove_filter( 'pre_http_request', $counter, 1 );
+
+		return $requests;
+	}
+
+	/**
+	 * The record is cached, so a second read inside the window is served without another round
+	 * trip. Every plugin bundling this package serves the route, so an uncached read is a
+	 * blocking request per render.
+	 */
+	public function test_the_site_record_is_served_from_cache() {
+		$this->fake_http_response( 200, '{"ID":1234,"name":"Test site"}' );
+
+		$requests = $this->count_http_requests(
+			function () {
+				$this->manager->get_connected_site_data();
+				$this->manager->get_connected_site_data();
+			}
+		);
+
+		$this->assertSame( 1, $requests );
+	}
+
+	/**
+	 * A cached read still announces the record, so a consumer deriving its own state stays in
+	 * step with every request that serves it.
+	 */
+	public function test_a_cached_read_still_fires_the_site_data_action() {
+		$this->fake_http_response( 200, '{"ID":1234,"name":"Test site"}' );
+
+		$payloads = array();
+		add_action(
+			'jetpack_site_data_fetched',
+			function ( $payload ) use ( &$payloads ) {
+				$payloads[] = $payload;
+			}
+		);
+
+		$this->manager->get_connected_site_data();
+		$this->manager->get_connected_site_data();
+
+		$this->assertCount( 2, $payloads );
+		$this->assertSame( $payloads[0], $payloads[1] );
+	}
+
+	/**
+	 * A failure is cached as well, so an outage does not put a blocking request on every load.
+	 */
+	public function test_a_failed_fetch_is_also_cached() {
+		$this->fake_http_response( 500, '{"error":"unavailable"}' );
+
+		$requests = $this->count_http_requests(
+			function () {
+				$this->manager->get_connected_site_data();
+				$this->manager->get_connected_site_data();
+			}
+		);
+
+		$this->assertSame( 1, $requests );
+		$this->assertInstanceOf( 'WP_Error', $this->manager->get_connected_site_data() );
+	}
+
+	/**
+	 * A sandboxed request must not read the shared cache or seed it, otherwise sandbox data would
+	 * leak into ordinary requests.
+	 */
+	public function test_a_sandboxed_request_bypasses_the_cache() {
+		$this->fake_http_response( 200, '{"ID":1234,"name":"Test site"}' );
+		$_COOKIE['store_sandbox'] = 'sandbox.example.com';
+
+		$requests = $this->count_http_requests(
+			function () {
+				$this->manager->get_connected_site_data();
+				$this->manager->get_connected_site_data();
+			}
+		);
+
+		$this->assertSame( 2, $requests );
+		$this->assertFalse( get_transient( Manager::SITE_DATA_TRANSIENT_PREFIX . 1234 ) );
 	}
 
 	/**
