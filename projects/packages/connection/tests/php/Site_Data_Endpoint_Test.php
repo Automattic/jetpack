@@ -17,8 +17,10 @@ use WP_REST_Server;
  * Tests for the site data endpoint.
  *
  * @covers \Automattic\Jetpack\Connection\REST_Connector
+ * @covers \Automattic\Jetpack\Connection\Manager
  */
 #[CoversClass( REST_Connector::class )]
+#[CoversClass( Manager::class )]
 class Site_Data_Endpoint_Test extends BaseTestCase {
 
 	/**
