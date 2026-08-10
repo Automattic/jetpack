@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { getDatePart } from '@jetpack-premium-analytics/datetime';
+import { formatWeekday } from '@jetpack-premium-analytics/formatters';
 import { format, getDay, isValid, parse } from 'date-fns';
 
 export type PopularDayBucket = {
@@ -19,14 +20,9 @@ const DATE_PART_FORMAT = 'yyyy-MM-dd';
 // Only consulted for fields the parsed string omits, and ours omits none.
 const referenceDate = new Date( 2001, 0, 1 );
 
-// A Monday, so stepping forward yields the names in Monday-first order.
-const WEEKDAY_NAME_ANCHOR = new Date( 2026, 0, 5, 12 );
-
 function weekdayLabel( weekday: number ) {
-	const date = new Date( WEEKDAY_NAME_ANCHOR );
-	date.setDate( date.getDate() + weekday );
-
-	return format( date, 'EEEE' );
+	// WordPress's locale table is Sunday-first; the widget's buckets are Monday-first.
+	return formatWeekday( ( weekday + 1 ) % 7 );
 }
 
 // The `+00:00` on `date_start` labels a calendar bucket rather than marking a
