@@ -175,7 +175,7 @@ export default function McpWrite( { mcpAbilities, blogId, savingToolIds, onUpdat
 	const handleToolChange = useCallback(
 		( toolId, enabled ) => {
 			analytics.tracks.recordEvent( 'jetpack_mcp_allowlist_updated', {
-				tool_id: toolId,
+				ability_name: toolId,
 				enabled,
 				view: 'write',
 			} );

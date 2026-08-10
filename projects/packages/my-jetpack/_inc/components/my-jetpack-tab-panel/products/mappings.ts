@@ -1,3 +1,4 @@
+import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { JetpackModuleSlug, JetpackProductWithCard } from '../../../types';
 import AntiSpamIcon from '../../products-table-view/icons/anti-spam';
 import BackupIcon from '../../products-table-view/icons/backup';
@@ -113,4 +114,26 @@ export const PRODUCT_MODULES: {
 	backup: 'vaultpress',
 	social: 'publicize',
 	'jetpack-forms': 'contact-form',
+	'jetpack-ai': 'ai',
 };
+
+/**
+ * The product-to-module map to build cards from.
+ *
+ * Pre-release gate: outside internal testing environments the AI card is not
+ * backed by the 'ai' module, so its cards resolve no module and render exactly
+ * as they did before the module existed. Remove when the AI settings page goes
+ * public.
+ *
+ * @return The map, without the AI entry while the gate is on.
+ */
+export function getProductModules() {
+	const { showAiModuleToggle = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
+	if ( showAiModuleToggle ) {
+		return PRODUCT_MODULES;
+	}
+
+	const gated = { ...PRODUCT_MODULES };
+	delete gated[ 'jetpack-ai' ];
+	return gated;
+}

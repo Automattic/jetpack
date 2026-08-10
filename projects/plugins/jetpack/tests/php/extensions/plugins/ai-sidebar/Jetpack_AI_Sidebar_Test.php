@@ -17,6 +17,7 @@ require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/ai-assistant-plugin/ai-s
  */
 class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	use Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+	use \Activates_Ai_Module;
 
 	/**
 	 * Saved wp_scripts global.
@@ -64,6 +65,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->saved_screen          = $GLOBALS['current_screen'] ?? null;
 		$this->saved_current_user_id = get_current_user_id();
 		$this->simulate_connected_owner();
+		// Off-Simple the `ai` module is the AI master switch; activate it so the
+		// AI-features gate behind these surfaces reads on.
+		$this->activate_ai_module_for_test();
 		// Enable the sidebar by default via the override filter so the behaviour
 		// tests exercise the downstream wiring. has_ai_features() stays on the
 		// self-hosted connection path. The wpcom/Big Sky gating itself is covered
@@ -75,6 +79,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * Tear down after each test.
 	 */
 	public function tear_down() {
+		$this->deactivate_ai_module_for_test();
 		delete_transient( AiAssistantPlugin\AI_SIDEBAR_ASSET_TRANSIENT );
 		$this->reset_sidebar_hooks();
 		remove_all_filters( 'pre_http_request' );
@@ -88,6 +93,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		delete_option( 'jetpack_offline_mode' );
 		delete_option( 'big_sky_enable' );
+		delete_option( \Jetpack_AI_Settings::MASTER_OPTION );
+		delete_option( 'jetpack_ai_writing_assistant_enabled' );
+		delete_option( 'ai_seo_enhancer_enabled' );
 		Constants::clear_single_constant( 'IS_WPCOM' );
 		Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
 		Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
@@ -517,16 +525,235 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	// ──────────────────────────────────────────────────
+	// Feature-toggle visibility gate tests
+	// ──────────────────────────────────────────────────
+
+	/**
+	 * The sidebar only surfaces writing-assistant and SEO suggestions, so the
+	 * gate follows the two toggles: it closes only when BOTH are off. Any single
+	 * enabled feature keeps the sidebar available.
+	 */
+	public function test_preview_follows_writing_and_seo_toggle_matrix() {
+		$combinations = array(
+			// writing, seo, expected gate.
+			array( 1, 1, true ),
+			array( 1, 0, true ),
+			array( 0, 1, true ),
+			array( 0, 0, false ),
+		);
+
+		foreach ( $combinations as list( $writing, $seo, $expected ) ) {
+			update_option( 'jetpack_ai_writing_assistant_enabled', $writing );
+			update_option( 'ai_seo_enhancer_enabled', $seo );
+
+			$open = $this->gate_open();
+
+			delete_option( 'jetpack_ai_writing_assistant_enabled' );
+			delete_option( 'ai_seo_enhancer_enabled' );
+
+			$this->assertSame(
+				$expected,
+				$open,
+				sprintf( 'Gate should be %s with writing=%d seo=%d.', $expected ? 'open' : 'closed', $writing, $seo )
+			);
+		}
+	}
+
+	/**
+	 * On an untouched site the SEO enhancer option is absent and defaults off,
+	 * so turning the writing assistant off alone hides the sidebar. This is the
+	 * agreed behavior, not an accident — pinned here on purpose.
+	 */
+	public function test_preview_disabled_when_writing_off_and_seo_option_absent() {
+		delete_option( 'ai_seo_enhancer_enabled' );
+		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
+
+		$open = $this->gate_open();
+
+		delete_option( 'jetpack_ai_writing_assistant_enabled' );
+
+		$this->assertFalse( $open, 'Writing off with SEO at its default (off) should hide the sidebar.' );
+	}
+
+	/**
+	 * The gate reads EFFECTIVE feature values: the ai_seo_enhancer_enabled
+	 * kill-switch filter can turn the stored SEO option off, the same way every
+	 * other SEO enhancer consumer resolves it. With writing off and the SEO
+	 * option on but filter-killed, both features are effectively off and the
+	 * sidebar must hide.
+	 */
+	public function test_preview_disabled_when_seo_filter_kills_enabled_option() {
+		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
+		update_option( 'ai_seo_enhancer_enabled', 1 );
+		add_filter( 'ai_seo_enhancer_enabled', '__return_false' );
+
+		$open = $this->gate_open();
+
+		delete_option( 'jetpack_ai_writing_assistant_enabled' );
+		delete_option( 'ai_seo_enhancer_enabled' );
+
+		$this->assertFalse( $open, 'A filter-killed SEO enhancer must not hold the sidebar open when writing is off.' );
+	}
+
+	/**
+	 * Contract state test: a filter added after the gate computes must not
+	 * re-enable a sidebar whose features are all off. The feature check is
+	 * re-asserted after the jetpack_ai_sidebar_enabled filter, mirroring how
+	 * the preview features are re-asserted after their generic filter.
+	 */
+	public function test_preview_stays_disabled_when_late_filter_forces_on() {
+		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
+		update_option( 'ai_seo_enhancer_enabled', 0 );
+		add_filter( 'jetpack_ai_sidebar_enabled', '__return_true', 999 );
+
+		$open = $this->gate_open();
+
+		delete_option( 'jetpack_ai_writing_assistant_enabled' );
+		delete_option( 'ai_seo_enhancer_enabled' );
+
+		$this->assertFalse( $open, 'A late jetpack_ai_sidebar_enabled filter must not resurrect a featureless sidebar.' );
+	}
+
+	/**
+	 * Master interplay, both directions. The master gate keeps flowing through
+	 * apply_master_gates on the jetpack_ai_sidebar_enabled filter (re-attached
+	 * here because set_up() strips the filter): master off hides the sidebar
+	 * regardless of the feature toggles, and master on cannot save a sidebar
+	 * whose features are both off.
+	 */
+	public function test_preview_master_gate_composes_with_feature_toggles() {
+		// Run the master gate after set_up()'s __return_true override so it
+		// narrows the forced-open base gate, as it does in production.
+		add_filter( 'jetpack_ai_sidebar_enabled', array( \Jetpack_AI_Settings::class, 'apply_master_gates' ), 11 );
+
+		// Master off + features on: hidden (existing rule, no regression).
+		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->deactivate_ai_module_for_test();
+		update_option( 'jetpack_ai_writing_assistant_enabled', 1 );
+		update_option( 'ai_seo_enhancer_enabled', 1 );
+		$master_off_features_on = $this->gate_open();
+
+		// Master on + both features off: hidden (the new rule).
+		$this->activate_ai_module_for_test();
+		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
+		update_option( 'ai_seo_enhancer_enabled', 0 );
+		$master_on_features_off = $this->gate_open();
+
+		// Master on + a feature on: shown (sanity).
+		update_option( 'jetpack_ai_writing_assistant_enabled', 1 );
+		$master_on_writing_on = $this->gate_open();
+
+		delete_option( 'jetpack_ai_writing_assistant_enabled' );
+		delete_option( 'ai_seo_enhancer_enabled' );
+
+		$this->assertFalse( $master_off_features_on, 'Master off must hide the sidebar even with features on.' );
+		$this->assertFalse( $master_on_features_off, 'Master on must not save a sidebar whose features are both off.' );
+		$this->assertTrue( $master_on_writing_on, 'Master on with writing on should show the sidebar.' );
+	}
+
+	/**
+	 * The master gate is final on the preview surface: with master off, a late
+	 * jetpack_ai_sidebar_enabled filter cannot re-open the gate, matching
+	 * is_ai_enabled() making the host and master gates final for plugin load
+	 * points.
+	 */
+	public function test_init_does_nothing_when_master_off_despite_late_filter() {
+		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->deactivate_ai_module_for_test();
+		add_filter( 'jetpack_ai_sidebar_enabled', '__return_true', 999 );
+
+		Jetpack_AI_Sidebar::init();
+
+		$this->assertFalse(
+			has_filter( 'agents_manager_agent_providers', array( Jetpack_AI_Sidebar::class, 'register_provider' ) ),
+			'register_provider should not be hooked when master is off, even with a late filter forcing the gate.'
+		);
+		$this->assertFalse(
+			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_toolbar_button_extension' ) ),
+			'register_toolbar_button_extension should not be hooked when master is off.'
+		);
+	}
+
+	/**
+	 * With both feature toggles off, init() registers nothing — the sidebar
+	 * bundle, provider registration, and enqueue hooks all stay out.
+	 */
+	public function test_init_does_nothing_when_sidebar_features_are_off() {
+		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
+		update_option( 'ai_seo_enhancer_enabled', 0 );
+
+		Jetpack_AI_Sidebar::init();
+
+		delete_option( 'jetpack_ai_writing_assistant_enabled' );
+		delete_option( 'ai_seo_enhancer_enabled' );
+
+		$this->assertFalse(
+			has_filter( 'agents_manager_agent_providers', array( Jetpack_AI_Sidebar::class, 'register_provider' ) ),
+			'register_provider should not be hooked when both sidebar features are off.'
+		);
+		$this->assertFalse(
+			has_filter( 'jetpack_ai_sidebar_agents_manager_data', array( Jetpack_AI_Sidebar::class, 'add_agents_manager_data' ) ),
+			'add_agents_manager_data should not be hooked when both sidebar features are off.'
+		);
+		$this->assertFalse(
+			has_filter( 'agents_manager_enabled_in_block_editor', array( Jetpack_AI_Sidebar::class, 'enable_agents_manager_on_provider_surfaces' ) ),
+			'enable_agents_manager_on_provider_surfaces should not be hooked when both sidebar features are off.'
+		);
+		$this->assertFalse(
+			has_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_enqueue_abilities_script' ) ),
+			'maybe_enqueue_abilities_script should not be hooked when both sidebar features are off.'
+		);
+		$this->assertFalse(
+			has_action( 'admin_enqueue_scripts', array( Jetpack_AI_Sidebar::class, 'maybe_patch_jetpack_ai_sidebar_preview_data' ) ),
+			'maybe_patch_jetpack_ai_sidebar_preview_data should not be hooked when both sidebar features are off.'
+		);
+		$this->assertFalse(
+			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_toolbar_button_extension' ) ),
+			'register_toolbar_button_extension should not be hooked when both sidebar features are off.'
+		);
+	}
+
+	// ──────────────────────────────────────────────────
 	// Sidebar toolbar button tests
 	// ──────────────────────────────────────────────────
 
 	/**
-	 * Test that the toolbar button is enabled by default for eligible users.
+	 * Test that the toolbar button is enabled by default for eligible users. The
+	 * button is a writing entry point, so the writing assistant is switched on
+	 * explicitly rather than left to its default.
 	 */
 	public function test_toolbar_button_enabled_by_default() {
 		$this->set_block_editor_screen();
+		update_option( 'jetpack_ai_writing_assistant_enabled', 1 );
 
 		$this->assertTrue( Jetpack_AI_Sidebar::is_toolbar_button_enabled() );
+	}
+
+	/**
+	 * The toolbar button replaces the legacy AI toolbar, which is a writing
+	 * surface, so it follows the writing assistant toggle — and the generic
+	 * preview-features filter must not be able to force it back on. SEO stays on
+	 * so the sidebar itself remains available and the assertion is about the
+	 * button alone.
+	 */
+	public function test_toolbar_button_follows_writing_toggle_despite_filter() {
+		$this->set_block_editor_screen();
+		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
+		update_option( 'ai_seo_enhancer_enabled', 1 );
+		add_filter(
+			'jetpack_ai_sidebar_preview_features',
+			static function ( $features ) {
+				$features['blockToolbarButton'] = true;
+				return $features;
+			}
+		);
+
+		$enabled = Jetpack_AI_Sidebar::is_toolbar_button_enabled();
+
+		delete_option( 'jetpack_ai_writing_assistant_enabled' );
+		delete_option( 'ai_seo_enhancer_enabled' );
+
+		$this->assertFalse( $enabled );
 	}
 
 	/**
@@ -616,6 +843,30 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		);
 
 		Jetpack_AI_Sidebar::register_toolbar_button_extension();
+
+		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION ) );
+		$availability = \Jetpack_Gutenberg::get_availability()[ AiAssistantPlugin\AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION ];
+		$this->assertFalse( $availability['available'] );
+		$this->assertSame( 'jetpack_ai_sidebar_feature_disabled', $availability['unavailable_reason'] );
+	}
+
+	/**
+	 * With the writing assistant off, the toolbar button extension is registered
+	 * as unavailable rather than merely reporting a false flag: the editor needs
+	 * the extension torn down for the button to disappear. SEO stays on so the
+	 * sidebar itself is still available and this covers the button alone.
+	 */
+	public function test_register_toolbar_button_extension_unavailable_when_writing_is_off() {
+		$this->set_block_editor_screen();
+		$this->make_legacy_block_toolbar_extensions_available();
+		$this->enable_sidebar_extension_availability_checks();
+		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
+		update_option( 'ai_seo_enhancer_enabled', 1 );
+
+		Jetpack_AI_Sidebar::register_toolbar_button_extension();
+
+		delete_option( 'jetpack_ai_writing_assistant_enabled' );
+		delete_option( 'ai_seo_enhancer_enabled' );
 
 		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION ) );
 		$availability = \Jetpack_Gutenberg::get_availability()[ AiAssistantPlugin\AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION ];
@@ -731,6 +982,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 */
 	public function test_add_agents_manager_data_exposes_ai_editorial_review_by_default() {
 		$this->set_block_editor_screen();
+		// The writing features asserted below, the toolbar button among them,
+		// follow the writing assistant toggle, so switch it on explicitly.
+		update_option( 'jetpack_ai_writing_assistant_enabled', 1 );
 
 		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
 
@@ -790,25 +1044,103 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * The per-feature toggles from the AI settings page stay final over the
 	 * release defaults: a switched-off feature must not surface suggestions
 	 * even when an external host draws the sidebar. Writing assistant off kills
-	 * every writing suggestion (Proofreader, Optimize Title, Generate Feedback,
-	 * AI Editorial Review, and Generate Excerpt); the SEO suggestions follow the
-	 * SEO enhancer toggle, which defaults off.
+	 * every writing surface (Proofreader, Optimize Title, Generate Feedback, AI
+	 * Editorial Review, Generate Excerpt, block transformations, and the toolbar
+	 * button) while the SEO suggestions stay
+	 * on their own toggle. SEO is switched on here so the sidebar itself stays
+	 * available — with both toggles off Jetpack contributes no data at all,
+	 * which the visibility-gate tests cover.
 	 */
 	public function test_add_agents_manager_data_honors_feature_toggles() {
 		$this->set_block_editor_screen();
 		$this->activate_seo_tools_module();
 		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
+		update_option( 'ai_seo_enhancer_enabled', 1 );
 
 		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
 
 		delete_option( 'jetpack_ai_writing_assistant_enabled' );
+		delete_option( 'ai_seo_enhancer_enabled' );
 
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['proofreadContent'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['optimizeTitleSuggestion'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['generateFeedback'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['aiEditorialReview'] );
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['excerptSuggestion'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['blockTransformations'] );
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['blockToolbarButton'] );
+		$this->assertSame( true, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
+	}
+
+	/**
+	 * Block transformations (Translate, Change Tone, etc.) are writing features:
+	 * with the writing assistant off they stay out of the payload even when the
+	 * generic preview-features filter tries to force them on.
+	 */
+	public function test_add_agents_manager_data_block_transformations_follow_writing_toggle_despite_filter() {
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
+		update_option( 'ai_seo_enhancer_enabled', 1 );
+		add_filter(
+			'jetpack_ai_sidebar_preview_features',
+			function ( $features ) {
+				$features['blockTransformations'] = true;
+				return $features;
+			}
+		);
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		delete_option( 'jetpack_ai_writing_assistant_enabled' );
+		delete_option( 'ai_seo_enhancer_enabled' );
+
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['blockTransformations'] );
+	}
+
+	/**
+	 * AI Editorial Review is writing-gated like its sibling suggestions: with
+	 * the writing assistant off, the generic preview-features filter must not
+	 * be able to force it back into the payload.
+	 */
+	public function test_add_agents_manager_data_editorial_review_follows_writing_toggle_despite_filter() {
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
+		update_option( 'ai_seo_enhancer_enabled', 1 );
+		add_filter(
+			'jetpack_ai_sidebar_preview_features',
+			function ( $features ) {
+				$features['aiEditorialReview'] = true;
+				return $features;
+			}
+		);
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		delete_option( 'jetpack_ai_writing_assistant_enabled' );
+		delete_option( 'ai_seo_enhancer_enabled' );
+
+		$this->assertSame( false, $data['jetpackAiSidebar']['features']['aiEditorialReview'] );
+	}
+
+	/**
+	 * With writing on keeping the sidebar available, the SEO enhancer option at
+	 * its stored off value keeps SEO suggestions out of the emitted payload —
+	 * the option alone, independent of the ai_seo_enhancer_enabled kill switch.
+	 */
+	public function test_add_agents_manager_data_seo_suggestions_follow_option_off() {
+		$this->set_block_editor_screen();
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->activate_seo_tools_module();
+		update_option( 'ai_seo_enhancer_enabled', 0 );
+
+		$data = Jetpack_AI_Sidebar::add_agents_manager_data( array( 'sectionName' => 'gutenberg' ) );
+
+		delete_option( 'ai_seo_enhancer_enabled' );
+
 		$this->assertSame( false, $data['jetpackAiSidebar']['features']['seoSuggestions'] );
+		$this->assertSame( true, $data['jetpackAiSidebar']['features']['proofreadContent'] );
 	}
 
 	/**

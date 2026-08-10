@@ -41,6 +41,117 @@ class Contact_Form_Block_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The value a Button block inside a form falls back to.
+	 */
+	public function test_submit_button_element_is_a_submit_button() {
+		$this->assertSame( 'button', Contact_Form_Block::submit_button_element() );
+	}
+
+	/**
+	 * Rendering a form makes element-less Button blocks default to `button`, so the
+	 * form can actually be submitted.
+	 */
+	public function test_pre_render_contact_form_defaults_buttons_to_submit() {
+		$this->assertSame(
+			'a',
+			apply_filters( 'jetpack_button_default_element', 'a' ),
+			'The Button block default should be untouched before a form renders.'
+		);
+
+		Contact_Form_Block::pre_render_contact_form(
+			null,
+			array(
+				'blockName'   => 'jetpack/contact-form',
+				'attrs'       => array(),
+				'innerBlocks' => array(),
+			)
+		);
+
+		$this->assertSame( 'button', apply_filters( 'jetpack_button_default_element', 'a' ) );
+
+		remove_filter( 'jetpack_button_default_element', array( Contact_Form_Block::class, 'submit_button_element' ) );
+	}
+
+	/**
+	 * The default only applies while the form renders — a Button elsewhere on the page
+	 * is not a submit button and must keep the block's own `a` fallback.
+	 */
+	public function test_gutenblock_render_form_restores_the_button_default() {
+		Contact_Form_Block::pre_render_contact_form(
+			null,
+			array(
+				'blockName'   => 'jetpack/contact-form',
+				'attrs'       => array(),
+				'innerBlocks' => array(),
+			)
+		);
+		$this->assertSame( 'button', apply_filters( 'jetpack_button_default_element', 'a' ) );
+
+		Contact_Form_Block::gutenblock_render_form( array(), '' );
+
+		$this->assertSame( 'a', apply_filters( 'jetpack_button_default_element', 'a' ) );
+		$this->assertFalse(
+			has_filter( 'jetpack_button_default_element', array( Contact_Form_Block::class, 'submit_button_element' ) )
+		);
+	}
+
+	/**
+	 * When another pre_render_block callback has already short-circuited the form, our
+	 * render callback never runs to remove the filter — so it must not be attached at
+	 * all, or every later Button block in the request would turn into a submit button.
+	 */
+	public function test_pre_render_contact_form_leaves_the_default_alone_when_short_circuited() {
+		Contact_Form_Block::pre_render_contact_form(
+			'<div>rendered by someone else</div>',
+			array(
+				'blockName'   => 'jetpack/contact-form',
+				'attrs'       => array(),
+				'innerBlocks' => array(),
+			)
+		);
+
+		$this->assertSame( 'a', apply_filters( 'jetpack_button_default_element', 'a' ) );
+		$this->assertFalse(
+			has_filter( 'jetpack_button_default_element', array( Contact_Form_Block::class, 'submit_button_element' ) )
+		);
+	}
+
+	/**
+	 * The synced (`ref`) path renders through gutenblock_render_form() itself, so it is
+	 * safe to attach the filter there even when something else short-circuited the
+	 * block — it is removed again by the time we return.
+	 */
+	public function test_pre_render_contact_form_synced_form_does_not_leak_the_filter() {
+		Contact_Form_Block::pre_render_contact_form(
+			'<div>rendered by someone else</div>',
+			array(
+				'blockName'   => 'jetpack/contact-form',
+				'attrs'       => array( 'ref' => 123 ),
+				'innerBlocks' => array(),
+			)
+		);
+
+		// gutenblock_render_form() ran as part of the ref path and removed the filter.
+		$this->assertSame( 'a', apply_filters( 'jetpack_button_default_element', 'a' ) );
+	}
+
+	/**
+	 * Blocks other than the form leave the Button default alone.
+	 */
+	public function test_pre_render_contact_form_ignores_other_blocks() {
+		Contact_Form_Block::pre_render_contact_form(
+			null,
+			array(
+				'blockName'   => 'core/group',
+				'attrs'       => array(),
+				'innerBlocks' => array(),
+			)
+		);
+
+		$this->assertSame( 'a', apply_filters( 'jetpack_button_default_element', 'a' ) );
+	}
+
+	/**
 	 * Test that we're registering inner block types via ::register_child_blocks.
 	 *
 	 * @dataProvider data_provider_test_register_child_blocks

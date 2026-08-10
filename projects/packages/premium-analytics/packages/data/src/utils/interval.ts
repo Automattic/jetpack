@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	getDatePart,
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_24_HOURS,
 	PRESET_LAST_30_DAYS,
@@ -12,6 +13,8 @@ import {
 	PRESET_LAST_YEAR,
 	PRESET_TODAY,
 	PRESET_YESTERDAY,
+	isIntervalType,
+	type IntervalType,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
 import { differenceInCalendarDays, differenceInHours } from 'date-fns';
@@ -20,26 +23,22 @@ import { differenceInCalendarDays, differenceInHours } from 'date-fns';
  */
 import { localTZDate } from './date';
 
-const INTERVAL_TYPES = [ 'hour', 'day', 'week', 'month', 'quarter', 'year' ] as const;
-
-/**
- * Report time-series bucket sizes, derived from the runtime tuple so both
- * stay in sync.
- */
-export type IntervalType = ( typeof INTERVAL_TYPES )[ number ];
-
-function isIntervalType( value: unknown ): value is IntervalType {
-	return typeof value === 'string' && ( INTERVAL_TYPES as readonly string[] ).includes( value );
-}
+export type { IntervalType };
 
 export function getDaysBetweenInclusive( from: string, to: string ): number {
+	// Extract the calendar day first: callers may now pass a full offset-bearing
+	// ISO datetime (Stats endpoints resolve those correctly, so request params
+	// aren't pre-trimmed anymore) rather than a bare `yyyy-MM-dd`.
+	const fromDay = getDatePart( from );
+	const toDay = getDatePart( to );
+
 	// Anchor both dates in UTC before diffing: `differenceInCalendarDays` reads
 	// its arguments' local calendar getters, and a plain UTC-tagged `Date`'s
 	// getters reflect the machine's local timezone, not UTC. Left unanchored,
 	// a negative-offset machine can read a UTC midnight instant as the
 	// previous local calendar day, shifting the day count.
-	const fromDate = localTZDate( `${ from }T00:00:00Z`, '+00:00' );
-	const toDate = localTZDate( `${ to }T00:00:00Z`, '+00:00' );
+	const fromDate = localTZDate( `${ fromDay }T00:00:00Z`, '+00:00' );
+	const toDate = localTZDate( `${ toDay }T00:00:00Z`, '+00:00' );
 	const days = differenceInCalendarDays( toDate, fromDate );
 
 	if ( Number.isNaN( days ) || days < 0 ) {
@@ -80,8 +79,11 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
  *
  * Unknown / custom / year-surface presets derive the list from `from`–`to`
  * length.
+ *
+ * Also what the interval control lists, so the menu can never offer a bucket
+ * the range would coerce away.
  */
-function getAllowedIntervalsForPreset(
+export function getAllowedIntervalsForPreset(
 	preset: PrimaryPresetId | undefined,
 	from: string,
 	to: string

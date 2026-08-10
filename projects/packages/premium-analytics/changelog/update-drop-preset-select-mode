@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Date controls: keep the date presets as a row of pills at every width. A narrow row abbreviates their labels instead of collapsing the whole choice into a dropdown.

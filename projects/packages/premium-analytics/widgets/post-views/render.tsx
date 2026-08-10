@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { toPostId } from '@jetpack-premium-analytics/data';
-import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	ComparativeLineChart,
@@ -19,7 +18,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import usePostViews, { type PostViewsPoint } from './use-post-views';
+import usePostViews from './use-post-views';
 import type { PostViewsAttributes, PostViewsGranularity } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
@@ -30,17 +29,6 @@ const DATA_FORMAT = {
 	type: 'number' as const,
 	options: { useMultipliers: true, decimals: 0 },
 };
-
-/**
- * A series' legend label as its date range (first to last point), consistent
- * with the other comparative charts — used only when a comparison overlay
- * makes the plain "Views" label ambiguous. Expects points oldest first.
- */
-function rangeLabel( points: PostViewsPoint[] ): string {
-	const first = points[ 0 ];
-	const last = points[ points.length - 1 ];
-	return first && last ? formatDateRange( { from: first.date, to: last.date } ) : '';
-}
 
 type PostViewsInnerProps = {
 	/** The granularity attribute: the chart's bucket size. */
@@ -55,43 +43,27 @@ function PostViewsInner( { granularity }: PostViewsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 
-	const { current, previous, isLoading, isFetching, isError, hasData, refetch } = usePostViews(
+	const { current, isLoading, isFetching, isError, hasData, refetch } = usePostViews(
 		postId,
 		reportParams,
 		granularity
 	);
 
+	// The post detail page has no comparison control, so the chart always
+	// draws the single "Views" series.
 	const series = useMemo< ComparativeLineChartSeries[] >( () => {
 		if ( ! current.length ) {
 			return [];
 		}
 
-		if ( ! previous?.length ) {
-			return [
-				{
-					label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
-					group: 'views',
-					data: current,
-				},
-			];
-		}
-
-		// With a comparison overlay both series are labelled by date range, so
-		// the legend distinguishes the periods; the previous period draws as a
-		// same-colour dashed line with no fill.
 		return [
-			{ label: rangeLabel( current ), group: 'views', data: current },
 			{
-				label: rangeLabel( previous ),
+				label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
 				group: 'views',
-				data: previous,
-				options: {
-					type: 'comparison',
-					gradient: { from: 'transparent', to: 'transparent', fromOpacity: 0, toOpacity: 0 },
-				},
+				data: current,
 			},
 		];
-	}, [ current, previous ] );
+	}, [ current ] );
 	const seriesStyles = useSeriesStyles( series );
 
 	return (

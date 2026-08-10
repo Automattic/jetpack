@@ -169,9 +169,15 @@ export default function useVideoViews(
 		() => toDayWindow( reportParams.from, reportParams.to ),
 		[ reportParams.from, reportParams.to ]
 	);
+	// Request the raw range, not `primaryWindow`: the Video highlights widget
+	// sits on the same page and issues the same `statType=all` request from
+	// `reportParams` directly, and the two only share a cache entry while both
+	// produce an identical query key. `primaryWindow` stays date-only for the
+	// local bucketing below, where the endpoint's date-only day keys are matched
+	// by prefix.
 	const { data, isLoading, isFetching, isError, error, refetch } = useStatsSingleVideo(
 		videoId,
-		{ from: primaryWindow?.from, to: primaryWindow?.to, period: 'day', statType: 'all' },
+		{ from: reportParams.from, to: reportParams.to, period: 'day', statType: 'all' },
 		{ enabled: !! primaryWindow }
 	);
 

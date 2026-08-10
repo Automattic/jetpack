@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: reload after toggling the AI card, so the toggle and every other surface reflect the new module state.

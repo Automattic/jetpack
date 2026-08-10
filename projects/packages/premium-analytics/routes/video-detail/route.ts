@@ -82,7 +82,8 @@ export const route = {
 
 			/*
 			 * Comparison params ride along untouched: this page renders no
-			 * comparison (its widgets ignore them), but the dashboard link and
+			 * comparison (the stage strips them from the reportParams it injects
+			 * into its widgets), but the dashboard link and
 			 * "Back to Videos" carry the URL state back out, so stripping them
 			 * here would silently lose the user's comparison settings on a
 			 * Dashboard → Video → Dashboard round trip.

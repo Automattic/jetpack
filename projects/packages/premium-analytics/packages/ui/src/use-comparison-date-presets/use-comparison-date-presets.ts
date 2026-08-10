@@ -18,6 +18,10 @@ import type { DateRange } from '../date-range-popover/date-range-filter';
 export type ComparisonDateRangePreset = {
 	id: ComparisonPresetId;
 	label: string;
+	/**
+	 * Abbreviated label for the picker's trigger, e.g. "Prev. period".
+	 */
+	shortLabel: string;
 	range: DateRange;
 };
 
@@ -32,9 +36,9 @@ export function useComparisonDatePresets( referenceRange: DateRange ): Compariso
 		}
 
 		return getComparisonPresetConfigs()
-			.map( ( { id, label } ) => {
+			.map( ( { id, label, shortLabel } ) => {
 				const range = getComparisonRangeFromPreset( referenceRange, id );
-				return range ? { id, label, range } : null;
+				return range ? { id, label, shortLabel, range } : null;
 			} )
 			.filter( ( preset ): preset is ComparisonDateRangePreset => preset !== null );
 	}, [ referenceRange ] );

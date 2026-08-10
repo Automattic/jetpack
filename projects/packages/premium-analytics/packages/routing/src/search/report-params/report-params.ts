@@ -45,6 +45,39 @@ export function pickReportDateParams(
 }
 
 /**
+ * The subset of `REPORT_DATE_PARAM_KEYS` that carries the period-over-period
+ * comparison.
+ */
+const COMPARISON_PARAM_KEYS = [ 'comp', 'compare_from', 'compare_to', 'compare_preset' ] as const;
+
+/**
+ * Drop the comparison params from a search object, keeping everything else.
+ *
+ * Detail pages have no period-over-period comparison by design. The params
+ * stay in the URL so the breadcrumb round trip preserves the dashboard's
+ * comparison state, but the page strips them from the `reportParams` it
+ * injects into its widgets, so no widget can render comparison data — the
+ * page-wide invariant holds by construction instead of relying on every
+ * widget to ignore them.
+ *
+ * @param search - The current route search params.
+ * @return A new object without the comparison params.
+ */
+export function omitComparisonReportParams(
+	search: Record< string, unknown > | undefined
+): Record< string, unknown > {
+	if ( ! search ) {
+		return {};
+	}
+
+	const stripped: Record< string, unknown > = { ...search };
+	for ( const key of COMPARISON_PARAM_KEYS ) {
+		delete stripped[ key ];
+	}
+	return stripped;
+}
+
+/**
  * Serialize one search value the way the router does.
  *
  * The router JSON-parses every search value on read, so a string that itself

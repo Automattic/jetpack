@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Content: stop treating a bare WordPress session as proof of subscription in the Subscriber Login and Premium Content login button blocks, which could hide the only way to recover a subscription token.

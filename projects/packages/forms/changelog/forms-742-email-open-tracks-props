@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Add the site ID and Jetpack version to the response email open tracking event.

@@ -3,7 +3,7 @@
  */
 import { PRESET_CUSTOM, type PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 import { Button, DateRangeCalendar, Icon, Stack } from '@jetpack-premium-analytics/externals';
-import { formatDateRange } from '@jetpack-premium-analytics/formatters';
+import { formatDateRangeCompact } from '@jetpack-premium-analytics/formatters';
 import { Composite, Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { chevronDown } from '@wordpress/icons';
@@ -203,8 +203,6 @@ type DateRangePopoverProps = DateRangePopoverContentProps & {
 	 * when the popover renders standalone.
 	 */
 	triggerAsCompositeItem?: boolean;
-
-	isCompact?: boolean;
 };
 
 export function DateRangePopover( {
@@ -221,7 +219,6 @@ export function DateRangePopover( {
 	rememberedCustomRange = null,
 	isWideScreen = false,
 	triggerAsCompositeItem = false,
-	isCompact = false,
 }: DateRangePopoverProps ) {
 	const [ isOpen, setIsOpen ] = useState( false );
 
@@ -271,7 +268,7 @@ export function DateRangePopover( {
 		committedRange,
 		rememberedCustomRange,
 		customLabel: __( 'Custom', 'jetpack-premium-analytics-pkg' ),
-		formatRange: formatDateRange,
+		formatRange: formatDateRangeCompact,
 	} );
 
 	return (
@@ -284,7 +281,7 @@ export function DateRangePopover( {
 				const trigger = (
 					<Button
 						className="date-filters-panel-button"
-						variant={ isCompact ? 'outline' : 'minimal' }
+						variant="minimal"
 						tone="neutral"
 						onClick={ onToggle }
 						id="date-range-popover-button"

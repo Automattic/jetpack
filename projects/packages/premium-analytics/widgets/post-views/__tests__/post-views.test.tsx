@@ -4,6 +4,7 @@
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
@@ -18,14 +19,14 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ComparativeLineChart: ( {
 		series,
 	}: {
-		series: { label: string; data: { value: number }[] }[];
+		series: { label: string; data: { date: Date; value: number }[] }[];
 	} ) => (
 		<div
 			data-testid="comparative-line-chart"
 			data-series-count={ series.length }
 			data-series-label={ series[ 0 ]?.label }
 			data-values={ series[ 0 ]?.data.map( point => point.value ).join( ',' ) }
-			data-previous-values={ series[ 1 ]?.data.map( point => point.value ).join( ',' ) }
+			data-first-date={ series[ 0 ]?.data[ 0 ]?.date.toISOString() }
 		/>
 	),
 } ) );
@@ -80,6 +81,29 @@ describe( 'PostViewsWidget', () => {
 		expect( requestedPath ).toContain( 'stats/post/779' );
 	} );
 
+	it( 'anchors bucket days at site-local midnight so negative-offset sites keep the calendar day', async () => {
+		// A UTC-12 site: a date-only bucket key parsed as UTC midnight would
+		// render as the previous day once formatted in the site timezone. The
+		// point instant must be the key's site-local midnight instead.
+		const defaultSettings = getSettings();
+		setSettings( {
+			...defaultSettings,
+			timezone: { offset: -12, offsetFormatted: '-12', string: '', abbr: '' },
+		} );
+
+		try {
+			mockApiFetch.mockResolvedValue( STATS_POST_RESPONSE );
+
+			render( <PostViewsWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
+
+			const chart = await screen.findByTestId( 'comparative-line-chart' );
+			// 2026-07-01 site-local midnight at UTC-12 is 2026-07-01T12:00:00Z.
+			expect( chart ).toHaveAttribute( 'data-first-date', '2026-07-01T12:00:00.000Z' );
+		} finally {
+			setSettings( defaultSettings );
+		}
+	} );
+
 	it( 'buckets views into ISO weeks for the week granularity', async () => {
 		mockApiFetch.mockResolvedValue( STATS_POST_RESPONSE );
 
@@ -93,7 +117,7 @@ describe( 'PostViewsWidget', () => {
 		expect( chart ).toHaveAttribute( 'data-values', '12,0' );
 	} );
 
-	it( 'slices the comparison overlay from the same request', async () => {
+	it( 'ignores comparison report params: one request, single series', async () => {
 		mockApiFetch.mockResolvedValue( STATS_POST_RESPONSE );
 
 		render(
@@ -101,8 +125,10 @@ describe( 'PostViewsWidget', () => {
 				attributes={ {
 					reportParams: {
 						...WINDOW_PARAMS,
-						// `comp: '1'` switches the comparison on; without it the
-						// param normalizer drops the compare window.
+						// Comparison params pass through the post detail URL untouched
+						// (dashboard state survives the round trip), so a widget
+						// receiving them must neither draw an overlay nor change the
+						// primary series — the page renders no comparison.
 						comp: '1',
 						compare_from: '2026-06-24T00:00:00.000+08:00',
 						compare_to: '2026-06-30T23:59:59.999+08:00',
@@ -112,189 +138,10 @@ describe( 'PostViewsWidget', () => {
 		);
 
 		const chart = await screen.findByTestId( 'comparative-line-chart' );
-		expect( chart ).toHaveAttribute( 'data-series-count', '2' );
-		// The comparison window catches the 6/25 day; both windows zero-fill to
-		// the same bucket count so the index-aligned overlay can't scrunch.
-		expect( chart ).toHaveAttribute( 'data-previous-values', '0,9,0,0,0,0,0' );
-		// One request serves both windows.
+		expect( chart ).toHaveAttribute( 'data-series-count', '1' );
+		expect( chart ).toHaveAttribute( 'data-series-label', 'Views' );
+		expect( chart ).toHaveAttribute( 'data-values', '0,5,0,7,0,0,0' );
 		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
-	} );
-
-	it( 'uses primary month buckets for a previous period that crosses a month boundary', async () => {
-		mockApiFetch.mockResolvedValue( {
-			data: [
-				[ '2026-01-29', 1 ],
-				[ '2026-02-01', 2 ],
-				[ '2026-02-28', 3 ],
-				[ '2026-03-01', 4 ],
-				[ '2026-03-31', 5 ],
-			],
-		} );
-
-		render(
-			<PostViewsWidget
-				attributes={ {
-					reportParams: {
-						...DEFAULT_PARAMS,
-						from: '2026-03-01T00:00:00.000+08:00',
-						to: '2026-03-31T23:59:59.999+08:00',
-						post_id: 779,
-						comp: '1',
-						compare_from: '2026-01-29T00:00:00.000+08:00',
-						compare_to: '2026-02-28T23:59:59.999+08:00',
-					},
-					granularity: 'month',
-				} }
-			/>
-		);
-
-		const chart = await screen.findByTestId( 'comparative-line-chart' );
-		expect( chart ).toHaveAttribute( 'data-values', '9' );
-		// The previous period is one relative monthly bucket, not separate January
-		// and February points that the comparative chart would collapse onto March.
-		expect( chart ).toHaveAttribute( 'data-previous-values', '6' );
-	} );
-
-	it( 'clamps a shorter previous-month compare bucket to its own window', async () => {
-		// Primary March (31 days) vs previous-month February (28 days), monthly.
-		// The compare bucket must sum only February — a naive relative offset
-		// would run three days past the compare window and pull March 2 in.
-		mockApiFetch.mockResolvedValue( {
-			data: [
-				[ '2026-02-10', 5 ],
-				[ '2026-02-20', 7 ],
-				[ '2026-03-02', 50 ],
-				[ '2026-03-10', 100 ],
-				[ '2026-03-20', 200 ],
-			],
-		} );
-
-		render(
-			<PostViewsWidget
-				attributes={ {
-					reportParams: {
-						...DEFAULT_PARAMS,
-						from: '2026-03-01T00:00:00.000+08:00',
-						to: '2026-03-31T23:59:59.999+08:00',
-						post_id: 779,
-						comp: '1',
-						compare_from: '2026-02-01T00:00:00.000+08:00',
-						compare_to: '2026-02-28T23:59:59.999+08:00',
-					},
-					granularity: 'month',
-				} }
-			/>
-		);
-
-		const chart = await screen.findByTestId( 'comparative-line-chart' );
-		expect( chart ).toHaveAttribute( 'data-values', '350' );
-		// Only February's 5 + 7; March 2's 50 stays out of the compare bucket.
-		expect( chart ).toHaveAttribute( 'data-previous-values', '12' );
-	} );
-
-	it( 'keeps a longer previous-month compare window from truncating', async () => {
-		// Primary February (28 days) vs previous-month January (31 days),
-		// monthly. The compare bucket must sum all of January — the last bucket
-		// has to extend to the compare window end rather than stopping at the
-		// primary length.
-		mockApiFetch.mockResolvedValue( {
-			data: [
-				[ '2026-01-15', 10 ],
-				[ '2026-01-30', 20 ],
-				[ '2026-02-15', 100 ],
-			],
-		} );
-
-		render(
-			<PostViewsWidget
-				attributes={ {
-					reportParams: {
-						...DEFAULT_PARAMS,
-						from: '2026-02-01T00:00:00.000+08:00',
-						to: '2026-02-28T23:59:59.999+08:00',
-						post_id: 779,
-						comp: '1',
-						compare_from: '2026-01-01T00:00:00.000+08:00',
-						compare_to: '2026-01-31T23:59:59.999+08:00',
-					},
-					granularity: 'month',
-				} }
-			/>
-		);
-
-		const chart = await screen.findByTestId( 'comparative-line-chart' );
-		expect( chart ).toHaveAttribute( 'data-values', '100' );
-		// Both January days, including Jan 30 which the old offset would drop.
-		expect( chart ).toHaveAttribute( 'data-previous-values', '30' );
-	} );
-
-	it( 'keeps one comparison point per calendar day when the compare window is longer', async () => {
-		mockApiFetch.mockResolvedValue( {
-			data: [
-				[ '2026-01-28', 1 ],
-				[ '2026-01-29', 2 ],
-				[ '2026-01-30', 3 ],
-				[ '2026-01-31', 4 ],
-				[ '2026-02-01', 5 ],
-				[ '2026-02-28', 10 ],
-				[ '2026-03-01', 20 ],
-			],
-		} );
-
-		render(
-			<PostViewsWidget
-				attributes={ {
-					reportParams: {
-						...DEFAULT_PARAMS,
-						from: '2026-02-28T00:00:00.000+08:00',
-						to: '2026-03-01T23:59:59.999+08:00',
-						post_id: 779,
-						comp: '1',
-						compare_from: '2026-01-28T00:00:00.000+08:00',
-						compare_to: '2026-02-01T23:59:59.999+08:00',
-					},
-					granularity: 'day',
-				} }
-			/>
-		);
-
-		const chart = await screen.findByTestId( 'comparative-line-chart' );
-		expect( chart ).toHaveAttribute( 'data-values', '10,20' );
-		// Day grouping must not fold Jan 29-Feb 1 into one point merely to
-		// mirror the shorter primary range.
-		expect( chart ).toHaveAttribute( 'data-previous-values', '1,2,3,4,5' );
-	} );
-
-	it( 'does not invent trailing comparison days when the compare window is shorter', async () => {
-		mockApiFetch.mockResolvedValue( {
-			data: [
-				[ '2026-02-28', 5 ],
-				[ '2026-03-29', 10 ],
-				[ '2026-03-30', 20 ],
-				[ '2026-03-31', 30 ],
-			],
-		} );
-
-		render(
-			<PostViewsWidget
-				attributes={ {
-					reportParams: {
-						...DEFAULT_PARAMS,
-						from: '2026-03-29T00:00:00.000+08:00',
-						to: '2026-03-31T23:59:59.999+08:00',
-						post_id: 779,
-						comp: '1',
-						compare_from: '2026-02-28T00:00:00.000+08:00',
-						compare_to: '2026-02-28T23:59:59.999+08:00',
-					},
-					granularity: 'day',
-				} }
-			/>
-		);
-
-		const chart = await screen.findByTestId( 'comparative-line-chart' );
-		expect( chart ).toHaveAttribute( 'data-values', '10,20,30' );
-		expect( chart ).toHaveAttribute( 'data-previous-values', '5' );
 	} );
 
 	it( 'renders the scopeless empty state and makes no request without a post scope', async () => {
@@ -303,7 +150,11 @@ describe( 'PostViewsWidget', () => {
 		await expect(
 			screen.findByText( 'Open a post or page report to see its views here.' )
 		).resolves.toBeInTheDocument();
-		expect( mockApiFetch ).not.toHaveBeenCalled();
+		expect(
+			mockApiFetch.mock.calls.filter( call =>
+				( call[ 0 ].path as string ).includes( 'stats/post' )
+			)
+		).toHaveLength( 0 );
 	} );
 
 	it( 'shows the error state with a Retry action when the fetch fails', async () => {

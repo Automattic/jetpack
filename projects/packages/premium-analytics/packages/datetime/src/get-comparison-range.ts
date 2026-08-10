@@ -6,7 +6,6 @@ import {
 	differenceInMilliseconds,
 	subDays,
 	subMilliseconds,
-	subWeeks,
 	subMonths,
 	subYears,
 	startOfDay,
@@ -16,7 +15,6 @@ import {
 export type DateRange = { from?: Date; to?: Date };
 
 export const COMPARISON_PREVIOUS_PERIOD = 'previous-period' as const;
-export const COMPARISON_PREVIOUS_WEEK = 'previous-week' as const;
 export const COMPARISON_PREVIOUS_MONTH = 'previous-month' as const;
 export const COMPARISON_PREVIOUS_YEAR = 'previous-year' as const;
 
@@ -25,7 +23,6 @@ export const COMPARISON_PREVIOUS_YEAR = 'previous-year' as const;
  */
 export const COMPARISON_PRESETS = [
 	COMPARISON_PREVIOUS_PERIOD,
-	COMPARISON_PREVIOUS_WEEK,
 	COMPARISON_PREVIOUS_MONTH,
 	COMPARISON_PREVIOUS_YEAR,
 ] as const;
@@ -82,8 +79,6 @@ export function getComparisonRangeFromPreset(
 
 		if ( presetId === COMPARISON_PREVIOUS_PERIOD ) {
 			to = subMilliseconds( refTo, windowMs );
-		} else if ( presetId === COMPARISON_PREVIOUS_WEEK ) {
-			to = subWeeks( refTo, 1 );
 		} else if ( presetId === COMPARISON_PREVIOUS_MONTH ) {
 			to = subMonths( refTo, 1 );
 		} else if ( presetId === COMPARISON_PREVIOUS_YEAR ) {
@@ -106,13 +101,6 @@ export function getComparisonRangeFromPreset(
 		return {
 			from: clampDayBound( subDays( refFrom, daysInclusive ), 0 ),
 			to: clampDayBound( subDays( refTo, daysInclusive ), 1 ),
-		};
-	}
-
-	if ( presetId === COMPARISON_PREVIOUS_WEEK ) {
-		return {
-			from: clampDayBound( subWeeks( refFrom, 1 ), 0 ),
-			to: clampDayBound( subWeeks( refTo, 1 ), 1 ),
 		};
 	}
 

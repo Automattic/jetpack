@@ -15,6 +15,7 @@ require_once JETPACK__PLUGIN_DIR . '/extensions/blocks/ai-assistant/ai-assistant
  */
 class AI_Assistant_Block_Test extends WP_UnitTestCase {
 	use Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+	use \Activates_Ai_Module;
 
 	const BLOCK_NAME = 'jetpack/ai-assistant';
 
@@ -38,7 +39,9 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 		delete_option( 'jetpack_ai_enabled' );
 		delete_option( 'jetpack_ai_writing_assistant_enabled' );
 		delete_option( 'jetpack_ai_image_editor_enabled' );
-		update_option( 'jetpack_ai_enabled', 1 );
+		// Off-Simple the `ai` module is the master switch (the option is ignored
+		// there), so activate the module to put the master on.
+		$this->activate_ai_module_for_test();
 
 		$this->registered_block = WP_Block_Type_Registry::get_instance()->get_registered( self::BLOCK_NAME );
 		if ( $this->registered_block ) {
@@ -57,6 +60,7 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 			WP_Block_Type_Registry::get_instance()->register( $this->registered_block );
 		}
 
+		$this->deactivate_ai_module_for_test();
 		delete_option( 'jetpack_ai_enabled' );
 		delete_option( 'jetpack_ai_writing_assistant_enabled' );
 		delete_option( 'jetpack_ai_image_editor_enabled' );
@@ -95,7 +99,8 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 	 * The master toggle prevents both the block and its extensions from registering.
 	 */
 	public function test_block_and_extensions_not_registered_when_master_disabled() {
-		update_option( 'jetpack_ai_enabled', 0 );
+		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->deactivate_ai_module_for_test();
 
 		AIAssistant\register_block();
 		do_action( 'jetpack_register_gutenberg_extensions' );

@@ -6,25 +6,22 @@ import {
 	isComparisonPresetId,
 	isPrimaryPreset,
 	type ComparisonPresetId,
+	type IntervalType,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
 import { Stack } from '@jetpack-premium-analytics/externals';
-import { formatDateRange } from '@jetpack-premium-analytics/formatters';
+import { formatDateRangeCompact } from '@jetpack-premium-analytics/formatters';
 import { BaseControl } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import clsx from 'clsx';
 import { useMemo, useCallback, useState, useEffect } from 'react';
 /**
  * Internal dependencies
  */
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
+import { DateIntervalDropdown } from '../date-interval-dropdown';
 import { DateRangeFilter } from '../date-range-filter';
-import {
-	resolvePresetLabelMode,
-	WIDE_CALENDAR_CONTAINER_THRESHOLD,
-	type PresetRowWidths,
-} from '../date-range-layout';
+import { resolvePresetLabelMode, WIDE_CALENDAR_CONTAINER_THRESHOLD } from '../date-range-layout';
 import {
 	getCommittedCustomRange,
 	getCustomTriggerLabel,
@@ -66,9 +63,32 @@ export type DateFiltersPanelProps = {
 	 */
 	comparisonPresetId?: ComparisonPresetId;
 
+	/**
+	 * Whether to render the chart interval control. Off by default: only a
+	 * surface whose contents are bucketed by it — one carrying charts rather
+	 * than a records table — should offer it.
+	 */
+	withIntervalControl?: boolean;
+
+	/**
+	 * The chart interval every widget on the page draws.
+	 */
+	interval?: IntervalType;
+
+	/**
+	 * The intervals the active range allows, finest first. Derived upstream from
+	 * the range, so the menu never offers a bucket the range would coerce away.
+	 */
+	intervalOptions?: readonly IntervalType[];
+
 	onChange: DateRangeFilterProps[ 'onChange' ];
 
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
+
+	/**
+	 * Callback when the chart interval changes.
+	 */
+	onIntervalChange?: ( interval: IntervalType ) => void;
 
 	/**
 	 * Props for the date range popover.
@@ -92,6 +112,14 @@ export type DateFiltersPanelProps = {
 	 * Required for proper date/time handling.
 	 */
 	timeZone: string;
+
+	/**
+	 * Whether to render the period-over-period Compare control. Pages whose
+	 * design has no comparison (the post/email detail page) opt out; their
+	 * widgets ignore comparison params, and hiding the control keeps the UI
+	 * honest about it.
+	 */
+	showComparison?: boolean;
 };
 
 /**
@@ -105,8 +133,12 @@ export function DateFiltersPanel( {
 	appliedPresetId,
 	appliedRange,
 	comparisonPresetId,
+	withIntervalControl = false,
+	interval,
+	intervalOptions,
 	onChange,
 	onComparisonChange,
+	onIntervalChange,
 	rangeControlProps = {
 		label: null,
 		help: null,
@@ -119,6 +151,7 @@ export function DateFiltersPanel( {
 	onCancel,
 	canApply = true,
 	timeZone,
+	showComparison = true,
 }: DateFiltersPanelProps ) {
 	// Unknown values (e.g. garbage from the URL) become undefined, which
 	// DateRangePopover reads as the custom preset.
@@ -171,9 +204,8 @@ export function DateFiltersPanel( {
 
 	/*
 	 * Single source of truth for the responsive layout: measure the container
-	 * once here and derive both `isCompact` and `isWideScreen`. Children never
-	 * measure — the compact styling cascades from the `is-compact` root class,
-	 * and `isWideScreen` is forwarded only because the calendar needs it.
+	 * once here and derive both `labelMode` and `isWideScreen`. Children never
+	 * measure; both are forwarded to the ones that need them.
 	 */
 	const [ containerWidth, setContainerWidth ] = useState< number | null >( null );
 	const [ rootElement, setRootElement ] = useState< HTMLElement | null >( null );
@@ -181,37 +213,29 @@ export function DateFiltersPanel( {
 	const handleResize = useCallback( ( entries: ResizeObserverEntry[] ) => {
 		const entry = entries[ 0 ];
 		if ( entry ) {
-			// Floored, and floored rather than rounded to stay on the conservative
-			// side of the probe's `Math.ceil`. Both consumers are step functions, so
-			// the fractional part never changes the output while a raw float would
-			// re-render the panel on every frame of a drag.
+			// Floored rather than rounded, to stay on the conservative side of the
+			// probe's `Math.ceil`. Both consumers are step functions, so a raw float
+			// would only re-render on every frame of a drag.
 			setContainerWidth( Math.floor( entry.contentRect.width ) );
 		}
 	}, [] );
 
 	const setObserverRef = useResizeObserver< HTMLElement >( handleResize );
 
-	/*
-	 * Measure this panel's own root. Callers used to wrap the panel and hand the
-	 * wrapper back as a prop; all ten passed their immediate wrapper, so the
-	 * number was the panel's own width and the ceremony bought nothing.
-	 */
+	// This panel's own root, falling back to the body only until the ref lands.
 	useEffect( () => {
 		setObserverRef( rootElement ?? document.body );
 	}, [ rootElement, setObserverRef ] );
 
 	/*
-	 * The last applied custom range, remembered so the trigger can offer the way
-	 * back to it while a preset is driving the range.
+	 * The last applied custom range, so the trigger can offer the way back to it
+	 * while a preset drives the range.
 	 *
-	 * Owned here rather than inside the popover because it is an input to the
-	 * trigger's label, and the probe below has to reproduce that label exactly.
-	 * Held downstream it would be invisible to the probe, which would measure
-	 * "Custom" against a trigger showing a formatted range and under-measure the
-	 * row by the difference between the two.
-	 *
-	 * Only ever set: a preset selection clears the committed custom range, and
-	 * the point of remembering is to survive exactly that.
+	 * Owned here rather than in the popover because the probe has to reproduce
+	 * the trigger's label exactly; held downstream it would measure "Custom"
+	 * against a trigger showing a formatted range. Only ever set: a preset
+	 * selection clears the committed custom range, which is the thing worth
+	 * surviving.
 	 */
 	const [ rememberedCustomRange, setRememberedCustomRange ] =
 		useState< RememberedCustomRange | null >( null );
@@ -240,7 +264,7 @@ export function DateFiltersPanel( {
 			committedRange,
 			rememberedCustomRange,
 			customLabel: __( 'Custom', 'jetpack-premium-analytics-pkg' ),
-			formatRange: formatDateRange,
+			formatRange: formatDateRangeCompact,
 		} );
 	}, [
 		appliedRange,
@@ -256,33 +280,72 @@ export function DateFiltersPanel( {
 	// stale memo here costs nothing.
 	const surfacePresets = useMemo( () => getQuickSurfacePresets( timeZone ), [ timeZone ] );
 
-	const [ rowWidths, setRowWidths ] = useState< PresetRowWidths | null >( null );
-	const handleProbeMeasure = useCallback( ( widths: PresetRowWidths ) => {
-		setRowWidths( widths );
-	}, [] );
+	const comparisonLabel =
+		typeof comparisonControlProps.label === 'string' ? comparisonControlProps.label : undefined;
 
-	// Both candidates come from the probe, so the boundary follows the active
-	// locale rather than a breakpoint picked for English.
-	const labelMode = useMemo(
-		() => resolvePresetLabelMode( containerWidth, rowWidths ),
-		[ containerWidth, rowWidths ]
+	/*
+	 * Built once and rendered twice: the row the user sees, and the probe that
+	 * measures it. The same element in both places means the measurement cannot
+	 * drift from what it measures.
+	 */
+	const comparisonControl = useMemo(
+		() => (
+			<DateComparisonDropdown
+				presets={ presets }
+				enabled={ comparisonEnabled }
+				presetId={ validatedComparisonPresetId }
+				label={ comparisonLabel }
+				onPresetChange={ presetChange }
+				onClear={ clearComparison }
+			/>
+		),
+		[
+			clearComparison,
+			comparisonEnabled,
+			comparisonLabel,
+			presetChange,
+			presets,
+			validatedComparisonPresetId,
+		]
 	);
 
-	const isCompact = labelMode === 'select';
+	// Same arrangement as the comparison control: built once, rendered in the
+	// row and in the probe.
+	const intervalControl = useMemo(
+		() =>
+			withIntervalControl && intervalOptions && onIntervalChange ? (
+				<DateIntervalDropdown
+					options={ intervalOptions }
+					value={ interval }
+					onChange={ onIntervalChange }
+				/>
+			) : null,
+		[ withIntervalControl, interval, intervalOptions, onIntervalChange ]
+	);
+
+	const [ fullRowWidth, setFullRowWidth ] = useState< number | null >( null );
+	const handleProbeMeasure = useCallback( ( width: number ) => {
+		setFullRowWidth( width );
+	}, [] );
+
+	// Measured, so the boundary follows the active locale rather than a
+	// breakpoint picked for English, and moves with the comparison control:
+	// adding one takes room the presets give back.
+	const labelMode = useMemo(
+		() => resolvePresetLabelMode( containerWidth, fullRowWidth ),
+		[ containerWidth, fullRowWidth ]
+	);
+
 	const isWideScreen =
 		containerWidth !== null && containerWidth >= WIDE_CALENDAR_CONTAINER_THRESHOLD;
 
 	return (
-		<Stack
-			ref={ setRootElement }
-			className={ clsx( 'date-filters-panel', { 'is-compact': isCompact } ) }
-			direction={ isCompact ? 'column' : 'row' }
-			wrap={ isCompact ? 'nowrap' : 'wrap' }
-			gap="sm"
-		>
+		<Stack ref={ setRootElement } className="date-filters-panel" direction="row" gap="sm">
 			<PresetRowProbe
 				presets={ surfacePresets }
 				customTriggerLabel={ customTriggerLabel }
+				interval={ intervalControl }
+				comparison={ comparisonControl }
 				onMeasure={ handleProbeMeasure }
 			/>
 
@@ -309,20 +372,16 @@ export function DateFiltersPanel( {
 				/>
 			</BaseControl>
 
-			<BaseControl className="date-filters-panel__comparison" help={ comparisonControlProps.help }>
-				<DateComparisonDropdown
-					presets={ presets }
-					enabled={ comparisonEnabled }
-					presetId={ validatedComparisonPresetId }
-					label={
-						typeof comparisonControlProps.label === 'string'
-							? comparisonControlProps.label
-							: undefined
-					}
-					onPresetChange={ presetChange }
-					onClear={ clearComparison }
-				/>
-			</BaseControl>
+			{ intervalControl }
+
+			{ showComparison && (
+				<BaseControl
+					className="date-filters-panel__comparison"
+					help={ comparisonControlProps.help }
+				>
+					{ comparisonControl }
+				</BaseControl>
+			) }
 		</Stack>
 	);
 }

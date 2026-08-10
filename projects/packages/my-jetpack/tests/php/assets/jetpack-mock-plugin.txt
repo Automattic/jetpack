@@ -16,6 +16,14 @@ define( 'JETPACK__API_VERSION', 1 );
 define( 'JETPACK__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JETPACK__PLUGIN_FILE', __FILE__ );
 
+// Mirrors the real plugin's helper (functions.global.php). Defaults to true so
+// module-backed behavior is what tests see unless they opt out; flip
+// $GLOBALS['jetpack_mock_internal_testing_environment'] to exercise the
+// pre-release AI gate.
+function jetpack_is_internal_testing_environment() {
+	return $GLOBALS['jetpack_mock_internal_testing_environment'] ?? true;
+}
+
 class Jetpack {
 
 	static $active_modules = array();
