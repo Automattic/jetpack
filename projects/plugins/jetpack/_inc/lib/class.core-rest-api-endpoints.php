@@ -832,13 +832,22 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function set_subscriber_cookie_and_redirect( $request ) {
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-		$token                = $subscription_service->get_and_set_token_from_request();
-		$payload              = $subscription_service->decode_token( $token );
-		$is_valid_token       = ! empty( $payload );
-		if ( $is_valid_token ) {
-			return new WP_REST_Response( null, 302, array( 'location' => $request['redirect_url'] ) );
+		// Note: get_and_set_token_from_request() sets the subscriber cookie as a side effect.
+		// The cookie is set regardless of the redirect target below; only the redirect is gated.
+		$token          = $subscription_service->get_and_set_token_from_request();
+		$payload        = $subscription_service->decode_token( $token );
+		$is_valid_token = ! empty( $payload );
+		if ( ! $is_valid_token ) {
+			return new WP_Error( 'invalid-token', 'Invalid Token', array( 'status' => 403 ) );
 		}
-		return new WP_Error( 'invalid-token', 'Invalid Token' );
+
+		// Only redirect to the current site, not to an arbitrary host.
+		$redirect_url = wp_validate_redirect( $request['redirect_url'], '' );
+		if ( ! $redirect_url ) {
+			return new WP_Error( 'invalid-redirect', 'Invalid Redirect URL', array( 'status' => 400 ) );
+		}
+
+		return new WP_REST_Response( null, 302, array( 'location' => $redirect_url ) );
 	}
 
 	/**
@@ -3758,6 +3767,38 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Remove options the current user cannot read.
+	 *
+	 * Covers every `jetpack_waf_*` option, plus the two Protect options that expose the
+	 * same data under a different name: `jetpack_protect_global_whitelist` is populated
+	 * from `jetpack_waf_ip_allow_list`, and `jetpack_protect_key` is a shared secret.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $options Option definitions keyed by option name.
+	 * @return array
+	 */
+	public static function filter_options_for_response( $options ) {
+		if ( current_user_can( 'manage_options' ) ) {
+			return $options;
+		}
+
+		$restricted = array(
+			'jetpack_protect_key',
+			'jetpack_protect_global_whitelist',
+		);
+
+		return array_filter(
+			$options,
+			static function ( $option_name ) use ( $restricted ) {
+				return 0 !== strpos( $option_name, 'jetpack_waf_' )
+					&& ! in_array( $option_name, $restricted, true );
+			},
+			ARRAY_FILTER_USE_KEY
+		);
+	}
+
+	/**
 	 * Remove 'validate_callback' item from options available for module.
 	 * Fetch current option value and add to array of module options.
 	 * Prepare values of module options that need special handling, like those saved in wpcom.
@@ -3852,7 +3893,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 				$options[ $key ]['current_value'] = self::cast_value( $default_value, $options[ $key ] );
 			}
 		}
-		return $options;
+
+		// Filter last: the switch above assigns current_value by key without isset(),
+		// so filtering earlier would let those assignments re-add a removed option.
+		return self::filter_options_for_response( $options );
 	}
 
 	/**

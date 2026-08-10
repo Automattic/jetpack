@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Security: External Media: Ensure imported files are always saved under a safe file name.
