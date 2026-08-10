@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Date controls: name the active comparison preset on the picker, e.g. "Prev. period", instead of the dates it resolves to. The section header already spells out the compared period.

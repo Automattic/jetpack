@@ -195,7 +195,7 @@ function get_available_dashboard_section_for_route( $dashboard_name, $section_id
  * `routes/dashboard/config/sections.ts`, and WPCOM serves the same route for
  * Simple sites (see AGENTS.md), so both are consumers of this contract.
  *
- * @since $$next-version$$
+ * @since 0.2.0
  *
  * @return array The JSON schema for a dashboard section.
  */

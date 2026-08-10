@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Dashboard: Make the first widget section a flex column so stacked chrome content lays out correctly until the upstream Gutenberg fix lands.

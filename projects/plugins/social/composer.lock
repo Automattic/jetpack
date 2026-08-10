@@ -1295,7 +1295,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "5d4eb48bddb87779e6b1a8a5909b2d8770b7d854"
+                "reference": "60c053ace8f2475c24a75c6e509a0944f4374196"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1336,7 +1336,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.41.x-dev"
+                    "dev-trunk": "5.42.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -2177,7 +2177,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wp-build-polyfills",
-                "reference": "823178fd7fbc1654830b637a7687b939cdb998ee"
+                "reference": "70cb1e74eafd173c0b2d3b8b0f25cf5a96421ba2"
             },
             "require": {
                 "php": ">=7.2"
@@ -2196,7 +2196,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.3.x-dev"
+                    "dev-trunk": "0.4.x-dev"
                 }
             },
             "autoload": {

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Stats breadcrumbs: Fix a long unbroken crumb widening the page into horizontal scrolling instead of truncating.

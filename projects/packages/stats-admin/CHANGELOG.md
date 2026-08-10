@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.32.1 - 2026-08-10
+### Security
+- Cast the quick-edit post ID to an integer before requesting its view counts. [#51049]
+
 ## 0.32.0 - 2026-08-03
 ### Fixed
 - Stats Dashboard: Declare `wp-components` as a stylesheet dependency, so the dashboard's own component styling (Button, Card, Modal, etc.) no longer relies on another admin feature enqueuing it as a side effect, and is emitted in the correct cascade order. [#50881]

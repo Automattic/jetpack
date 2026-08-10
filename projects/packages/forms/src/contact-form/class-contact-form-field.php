@@ -1773,8 +1773,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		>
 			<div class="jetpack-form-file-field__dropzone" data-wp-class--is-dropping="context.isDropping" data-wp-class--is-hidden="state.hasMaxFiles">
 				<div class="jetpack-form-file-field__dropzone-inner" data-wp-on--click="actions.openFilePicker" data-wp-on--keydown="actions.handleKeyDown" tabindex="0" role="button" aria-label="<?php echo esc_attr( $dropzone_aria_label ); ?>"></div>
-				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is intentionally unescaped as it contains block content that was previously escaped ?>
-				<?php echo html_entity_decode( $this->content, ENT_COMPAT, 'UTF-8' ); ?>
+				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Decoded dropzone markup is filtered through an allowlist by sanitize_file_field_content(). ?>
+				<?php echo $this->sanitize_file_field_content( $this->content ); ?>
 				<input
 					type="file" class="jetpack-form-file-field"
 					accept="<?php echo esc_attr( $accept_attribute_value ); ?>"
@@ -1808,6 +1808,140 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		</div>
 		<?php
 		return $field . ob_get_clean() . $this->get_error_div( $id, 'file' );
+	}
+
+	/**
+	 * Sanitize the file field's inner (dropzone) content for output.
+	 *
+	 * The dropzone's inner blocks are serialized into the [contact-field] shortcode with
+	 * esc_html() (see Contact_Form::parse_contact_field()), so the stored content has to be
+	 * entity-decoded before it can render. Decoding is what makes this dangerous: an author
+	 * who cannot post raw HTML can still store entity-encoded markup in the shortcode's inner
+	 * content, which post-save KSES treats as plain text and never inspects. Decoding it would
+	 * turn that text back into live markup, so the decoded result is filtered here instead of
+	 * being echoed as-is.
+	 *
+	 * @since 7.24.0
+	 *
+	 * @param string|null $content The raw (entity-encoded) field content.
+	 *
+	 * @return string Safe HTML.
+	 */
+	private function sanitize_file_field_content( $content ) {
+		if ( ! is_string( $content ) || $content === '' ) {
+			return '';
+		}
+
+		// core/icon serializes its rotation as `rotate: 45deg`, which is not in WordPress's
+		// safe_style_css list, so safecss_filter_attr() would strip it and render the icon
+		// unrotated. Allow it just for the duration of this call.
+		$allow_rotate = static function ( $attrs ) {
+			$attrs[] = 'rotate';
+			return $attrs;
+		};
+
+		add_filter( 'safe_style_css', $allow_rotate );
+
+		try {
+			return wp_kses(
+				html_entity_decode( $content, ENT_COMPAT, 'UTF-8' ),
+				self::get_file_field_allowed_html()
+			);
+		} finally {
+			remove_filter( 'safe_style_css', $allow_rotate );
+		}
+	}
+
+	/**
+	 * Build the allowlist of HTML permitted inside the file field's dropzone.
+	 *
+	 * Starts from the standard post allowlist and adds the things the dropzone's allowed inner
+	 * blocks legitimately rely on that wp_kses_post() would otherwise drop:
+	 *
+	 * - `tabindex`, which Contact_Form_Plugin::gutenblock_render_dropzone() sets to "-1" on inner
+	 *   links and buttons so the dropzone stays a single tab stop.
+	 * - `srcset`, `sizes` and `decoding` on images, so core/image keeps serving responsive
+	 *   sources instead of silently degrading to the full-size file.
+	 * - A conservative inline SVG subset, since core/icon is an allowed inner block of the
+	 *   dropzone. Only presentational elements and attributes are listed; because wp_kses() is
+	 *   allowlist-based, event handlers and scripting constructs are dropped automatically.
+	 *
+	 * Note that wp_kses_allowed_html( 'post' ) permits `data-*` globally, so Interactivity API
+	 * directives survive this filter. Their values are store paths rather than executable code,
+	 * and removing them would also break core/image's lightbox markup, so they are left alone.
+	 *
+	 * @since 7.24.0
+	 *
+	 * @return array Allowed HTML, in wp_kses() format.
+	 */
+	private static function get_file_field_allowed_html() {
+		$allowed = wp_kses_allowed_html( 'post' );
+
+		foreach ( array( 'a', 'button' ) as $tag ) {
+			if ( isset( $allowed[ $tag ] ) && is_array( $allowed[ $tag ] ) ) {
+				$allowed[ $tag ]['tabindex'] = true;
+			}
+		}
+
+		// wp_kses() only runs its protocol check on a fixed set of URL attributes, which does not
+		// include `srcset`. That is not a script vector - srcset candidates are fetched as images,
+		// so a `javascript:` candidate never executes - and `src` is still protocol-checked.
+		if ( isset( $allowed['img'] ) && is_array( $allowed['img'] ) ) {
+			$allowed['img'] += array(
+				'srcset'   => true,
+				'sizes'    => true,
+				'decoding' => true,
+			);
+		}
+
+		// `style` is deliberately absent here: safecss_filter_attr() strips the SVG presentation
+		// properties (fill, stroke) that would justify it, while still permitting things like
+		// position:fixed. It is allowed on the root <svg> below, where block supports need it.
+		$svg_common = array(
+			'class'           => true,
+			'fill'            => true,
+			'fill-rule'       => true,
+			'clip-rule'       => true,
+			'stroke'          => true,
+			'stroke-width'    => true,
+			'stroke-linecap'  => true,
+			'stroke-linejoin' => true,
+			'opacity'         => true,
+			'transform'       => true,
+		);
+
+		$allowed['svg'] = array_merge(
+			$svg_common,
+			array(
+				'style'       => true,
+				'xmlns'       => true,
+				'viewbox'     => true,
+				'width'       => true,
+				'height'      => true,
+				'role'        => true,
+				'focusable'   => true,
+				'aria-hidden' => true,
+				'aria-label'  => true,
+			)
+		);
+
+		// Child elements: the shared presentation attributes plus each element's own geometry.
+		$svg_children = array(
+			'g'        => array(),
+			'path'     => array( 'd' ),
+			'circle'   => array( 'cx', 'cy', 'r' ),
+			'ellipse'  => array( 'cx', 'cy', 'rx', 'ry' ),
+			'line'     => array( 'x1', 'y1', 'x2', 'y2' ),
+			'polygon'  => array( 'points' ),
+			'polyline' => array( 'points' ),
+			'rect'     => array( 'x', 'y', 'width', 'height', 'rx', 'ry' ),
+		);
+
+		foreach ( $svg_children as $tag => $attrs ) {
+			$allowed[ $tag ] = $svg_common + array_fill_keys( $attrs, true );
+		}
+
+		return $allowed;
 	}
 
 	/**

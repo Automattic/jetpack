@@ -513,4 +513,171 @@ class Contact_Form_Field_Test extends BaseTestCase {
 			),
 		);
 	}
+
+	/**
+	 * Invoke the private file-field content sanitizer.
+	 *
+	 * Tested directly because the full file render short-circuits without an active
+	 * Jetpack (see test_file_dropzone_aria_label).
+	 *
+	 * @param string|null $content Raw field content.
+	 *
+	 * @return string
+	 */
+	private function sanitize_file_content( $content ) {
+		$field  = $this->get_new_field_instance( array( 'type' => 'file' ) );
+		$method = new \ReflectionMethod( $field, 'sanitize_file_field_content' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		return $method->invoke( $field, $content );
+	}
+
+	/**
+	 * The file field's inner content is entity-decoded before output so the dropzone's
+	 * inner blocks render (they are stored esc_html()-encoded by
+	 * Contact_Form::parse_contact_field()). An author without unfiltered_html can abuse
+	 * that by storing entity-encoded markup, which post-save KSES never inspects because
+	 * it is plain text at that point. Decoded output must therefore be filtered.
+	 *
+	 * @dataProvider data_file_field_content_xss
+	 *
+	 * @param string $content Entity-encoded field content.
+	 */
+	#[DataProvider( 'data_file_field_content_xss' )]
+	public function test_file_field_content_strips_executable_markup( $content ) {
+		$output = $this->sanitize_file_content( $content );
+
+		$this->assertDoesNotMatchRegularExpression( '/<\s*script/i', $output );
+		$this->assertDoesNotMatchRegularExpression( '/<[^>]+\son[a-z]+\s*=/i', $output );
+		$this->assertStringNotContainsString( '<iframe', $output );
+	}
+
+	/**
+	 * Data provider for test_file_field_content_strips_executable_markup.
+	 *
+	 * @return array
+	 */
+	public static function data_file_field_content_xss() {
+		return array(
+			'img onerror'      => array( '&lt;img src=x onerror=alert(document.domain)&gt;' ),
+			'script tag'       => array( '&lt;script&gt;alert(1)&lt;/script&gt;' ),
+			'svg onload'       => array( '&lt;svg onload=alert(1)&gt;&lt;/svg&gt;' ),
+			'iframe'           => array( '&lt;iframe src="//evil.example"&gt;&lt;/iframe&gt;' ),
+			'div onmouseover'  => array( '&lt;div onmouseover=alert(1)&gt;hi&lt;/div&gt;' ),
+			'script in svg'    => array( '&lt;svg&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;/svg&gt;' ),
+			'body onload'      => array( '&lt;body onload=alert(1)&gt;' ),
+			'already-raw html' => array( '<img src=x onerror=alert(1)>' ),
+		);
+	}
+
+	/**
+	 * Double-encoding must not survive as live markup either: it decodes to escaped text
+	 * (&lt;img …&gt;), which the browser renders as characters rather than an element.
+	 */
+	public function test_file_field_content_double_encoding_stays_inert() {
+		$output = $this->sanitize_file_content( '&amp;lt;img src=x onerror=alert(1)&amp;gt;' );
+
+		$this->assertStringNotContainsString( '<img', $output );
+		$this->assertStringContainsString( '&lt;img', $output );
+	}
+
+	/**
+	 * Links using the javascript: scheme in the decoded content must lose that scheme.
+	 */
+	public function test_file_field_content_strips_javascript_urls() {
+		$output = $this->sanitize_file_content( '&lt;a href="javascript:alert(1)"&gt;x&lt;/a&gt;' );
+
+		$this->assertStringNotContainsString( 'javascript:', $output );
+	}
+
+	/**
+	 * The legitimate dropzone markup must still render. It reaches this method
+	 * esc_html()-encoded, and has to survive the round trip intact - including the
+	 * tabindex Contact_Form_Plugin::gutenblock_render_dropzone() adds to keep the
+	 * dropzone a single tab stop, and the inline SVG core/icon emits.
+	 */
+	public function test_file_field_content_preserves_dropzone_markup() {
+		$output = $this->sanitize_file_content(
+			esc_html(
+				'<div class="wp-block-jetpack-dropzone">'
+				. '<p class="has-text-align-center">Drag and drop or <strong>browse</strong></p>'
+				. '<div class="wp-block-button"><a class="wp-block-button__link" tabindex="-1">Choose file</a></div>'
+				. '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" aria-hidden="true"><path d="M12 3l4 4h-3v6h-2V7H8z"></path></svg>'
+				. '<hr class="wp-block-separator" />'
+				. '</div>'
+			)
+		);
+
+		$this->assertStringContainsString( 'wp-block-jetpack-dropzone', $output );
+		$this->assertStringContainsString( '<strong>browse</strong>', $output );
+		$this->assertStringContainsString( 'tabindex="-1"', $output );
+		$this->assertStringContainsString( '<svg', $output );
+		$this->assertStringContainsString( '<path', $output );
+		$this->assertStringContainsString( '<hr', $output );
+	}
+
+	/**
+	 * The core/image block is an allowed dropzone inner block, so responsive-image attributes
+	 * have to survive. The stock post allowlist omits srcset/sizes/decoding, which would
+	 * silently degrade the image to its full-size source.
+	 */
+	public function test_file_field_content_preserves_responsive_image_attributes() {
+		$output = $this->sanitize_file_content(
+			esc_html(
+				'<figure class="wp-block-image size-large"><img src="https://example.com/a.png"'
+				. ' alt="x" class="wp-image-1"'
+				. ' srcset="https://example.com/a-300.png 300w, https://example.com/a.png 900w"'
+				. ' sizes="(max-width: 900px) 100vw, 900px" decoding="async" loading="lazy" /></figure>'
+			)
+		);
+
+		$this->assertStringContainsString( 'srcset=', $output );
+		$this->assertStringContainsString( 'sizes=', $output );
+		$this->assertStringContainsString( 'decoding=', $output );
+		$this->assertStringContainsString( 'loading=', $output );
+	}
+
+	/**
+	 * The core/icon block serializes rotation as `rotate: <deg>`, which is not in WordPress's
+	 * safe_style_css list. Without the scoped filter the icon would render unrotated.
+	 */
+	public function test_file_field_content_preserves_icon_rotation() {
+		$output = $this->sanitize_file_content(
+			esc_html( '<svg style="width:48px;rotate: 45deg;" viewBox="0 0 24 24"><path d="M12 3l4 4h-3z"></path></svg>' )
+		);
+
+		$this->assertStringContainsString( 'rotate', $output );
+	}
+
+	/**
+	 * The safe_style_css filter that allows `rotate` must not outlive the sanitize call.
+	 */
+	public function test_file_field_content_rotate_filter_does_not_leak() {
+		$this->sanitize_file_content( esc_html( '<svg style="rotate: 45deg;"></svg>' ) );
+
+		$this->assertStringNotContainsString( 'rotate', safecss_filter_attr( 'width:48px;rotate: 45deg;' ) );
+	}
+
+	/**
+	 * `style` is not allowed on SVG children: safecss_filter_attr() strips the presentation
+	 * properties that would justify it, while still permitting position:fixed overlays.
+	 */
+	public function test_file_field_content_blocks_style_on_svg_children() {
+		$output = $this->sanitize_file_content(
+			esc_html( '<svg><path style="position:fixed;top:0;left:0;width:100vw;height:100vh" d="M0 0"></path></svg>' )
+		);
+
+		$this->assertStringNotContainsString( 'position:fixed', $output );
+		$this->assertStringContainsString( '<path', $output );
+	}
+
+	/**
+	 * Empty and non-string content is handled without notices.
+	 */
+	public function test_file_field_content_handles_empty_content() {
+		$this->assertSame( '', $this->sanitize_file_content( null ) );
+		$this->assertSame( '', $this->sanitize_file_content( '' ) );
+	}
 } // end class
