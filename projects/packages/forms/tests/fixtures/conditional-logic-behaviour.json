@@ -1,0 +1,224 @@
+{
+	"_comment": [
+		"Behavioural parity between the JS and PHP conditional-logic evaluators.",
+		"",
+		"The other parity test pins vocabulary: the operator names and the field type table.",
+		"That is worth having, but it is not where the two implementations actually drift --",
+		"both the Date.parse/strtotime disagreement and the consent value-shape bug passed it.",
+		"Drift lives in the comparisons, so this table pins those instead.",
+		"",
+		"Each case builds a one-rule 'show' condition on a single subject field and asserts the",
+		"field's resulting visibility. Consumed by evaluate.test.js and",
+		"Conditional_Logic_Behaviour_Test.php, which must agree case for case.",
+		"",
+		"Fields: type is the shortcode field type, actual is the submitted value, value is the",
+		"rule's operand, format is the field's dateformat where it has one."
+	],
+	"cases": [
+		{
+			"name": "iso date equal to itself",
+			"type": "date",
+			"format": "yy-mm-dd",
+			"operator": "is",
+			"actual": "2026-03-15",
+			"value": "2026-03-15",
+			"visible": true
+		},
+		{
+			"name": "us format compared against the rule's iso value",
+			"why": "Date.parse read the rule value as UTC and the field value as local, so this was false in the browser and true on the server for anyone away from UTC.",
+			"type": "date",
+			"format": "mm/dd/yy",
+			"operator": "is",
+			"actual": "03/15/2026",
+			"value": "2026-03-15",
+			"visible": true
+		},
+		{
+			"name": "us format after",
+			"type": "date",
+			"format": "mm/dd/yy",
+			"operator": "after",
+			"actual": "03/16/2026",
+			"value": "2026-03-15",
+			"visible": true
+		},
+		{
+			"name": "day-first format, day past the twelfth",
+			"why": "31/12/2026 parsed on neither side, so a show rule hid its field permanently.",
+			"type": "date",
+			"format": "dd/mm/yy",
+			"operator": "is",
+			"actual": "31/12/2026",
+			"value": "2026-12-31",
+			"visible": true
+		},
+		{
+			"name": "day-first format is not read as month-first",
+			"why": "05/06/2026 parsed as May 6 under both engines regardless of the field's format.",
+			"type": "date",
+			"format": "dd/mm/yy",
+			"operator": "is",
+			"actual": "05/06/2026",
+			"value": "2026-06-05",
+			"visible": true
+		},
+		{
+			"name": "day-first format before",
+			"type": "date",
+			"format": "dd/mm/yy",
+			"operator": "before",
+			"actual": "01/12/2026",
+			"value": "2026-12-31",
+			"visible": true
+		},
+		{
+			"name": "unparseable date fails the rule",
+			"type": "date",
+			"format": "yy-mm-dd",
+			"operator": "is",
+			"actual": "not a date",
+			"value": "2026-03-15",
+			"visible": false
+		},
+		{
+			"name": "impossible month fails the rule",
+			"type": "date",
+			"format": "mm/dd/yy",
+			"operator": "is",
+			"actual": "13/01/2026",
+			"value": "2026-01-13",
+			"visible": false
+		},
+		{
+			"name": "time equal",
+			"type": "time",
+			"operator": "is",
+			"actual": "09:30",
+			"value": "09:30",
+			"visible": true
+		},
+		{
+			"name": "time after",
+			"type": "time",
+			"operator": "after",
+			"actual": "10:00",
+			"value": "09:30",
+			"visible": true
+		},
+		{
+			"name": "time before is not after",
+			"type": "time",
+			"operator": "after",
+			"actual": "08:00",
+			"value": "09:30",
+			"visible": false
+		},
+		{
+			"name": "number equality ignores trailing zeros",
+			"why": "is_numeric versus Number() is the other place the two engines can disagree.",
+			"type": "number",
+			"operator": "equals",
+			"actual": "10",
+			"value": "10.0",
+			"visible": true
+		},
+		{
+			"name": "number greater than",
+			"type": "number",
+			"operator": "greater_than",
+			"actual": "11",
+			"value": "10",
+			"visible": true
+		},
+		{
+			"name": "number comparison against an empty value fails",
+			"type": "number",
+			"operator": "equals",
+			"actual": "",
+			"value": "0",
+			"visible": false
+		},
+		{
+			"name": "negative number less than",
+			"type": "number",
+			"operator": "less_than",
+			"actual": "-5",
+			"value": "0",
+			"visible": true
+		},
+		{
+			"name": "a checked consent field reads as checked",
+			"type": "consent",
+			"operator": "is_checked",
+			"actual": "1",
+			"value": "",
+			"visible": true
+		},
+		{
+			"name": "an unchecked consent field does not read as checked",
+			"why": "The browser stored the literal 'Yes' on uncheck, so this read true on screen and false on the server.",
+			"type": "consent",
+			"operator": "is_checked",
+			"actual": "",
+			"value": "",
+			"visible": false
+		},
+		{
+			"name": "an unchecked checkbox reads as not checked",
+			"type": "checkbox",
+			"operator": "is_not_checked",
+			"actual": "",
+			"value": "",
+			"visible": true
+		},
+		{
+			"name": "text contains is case sensitive",
+			"type": "text",
+			"operator": "contains",
+			"actual": "Hello World",
+			"value": "World",
+			"visible": true
+		},
+		{
+			"name": "text contains does not match a different case",
+			"type": "text",
+			"operator": "contains",
+			"actual": "Hello World",
+			"value": "world",
+			"visible": false
+		},
+		{
+			"name": "text is empty",
+			"type": "text",
+			"operator": "is_empty",
+			"actual": "",
+			"value": "",
+			"visible": true
+		},
+		{
+			"name": "text is not empty",
+			"type": "text",
+			"operator": "is_not_empty",
+			"actual": "something",
+			"value": "",
+			"visible": true
+		},
+		{
+			"name": "select is",
+			"type": "select",
+			"operator": "is",
+			"actual": "Large",
+			"value": "Large",
+			"visible": true
+		},
+		{
+			"name": "select is not",
+			"type": "select",
+			"operator": "is_not",
+			"actual": "Small",
+			"value": "Large",
+			"visible": true
+		}
+	]
+}
