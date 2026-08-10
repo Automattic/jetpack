@@ -10,7 +10,7 @@ import type { DashboardWidget } from '@wordpress/widget-dashboard';
 /**
  * A dashboard section, served by `GET /dashboards/{name}/sections` and read
  * through the `dashboardSection` core-data entity. The server-side registry is
- * the source of truth for which sections exist, their order, and labels.
+ * the source of truth for which sections exist, their order, and their copy.
  */
 export type DashboardSection = {
 	/**
@@ -82,7 +82,9 @@ export type DashboardSectionId = string;
  * @return The heading text.
  */
 export function resolveSectionHeading( section: DashboardSection ): string {
-	return section.title ?? section.label;
+	// `||` rather than `??`: an empty string is a registrant meaning "none", and
+	// heading the section with it would render an `<h2>` with no accessible name.
+	return section.title || section.label;
 }
 
 /**

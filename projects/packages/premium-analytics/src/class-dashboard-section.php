@@ -65,7 +65,7 @@ final class Dashboard_Section {
 	public $slug;
 
 	/**
-	 * Display label.
+	 * Display label, naming the section's tab.
 	 *
 	 * @var string
 	 */

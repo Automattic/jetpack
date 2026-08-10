@@ -86,4 +86,11 @@ describe( 'resolveSectionHeading', () => {
 	it( 'falls back to the label when the field is absent', () => {
 		expect( resolveSectionHeading( LEGACY ) ).toBe( 'Traffic' );
 	} );
+
+	it( 'falls back to the label when the heading is an empty string', () => {
+		// The registry normalises `''` to null before it ever reaches here; this
+		// pins the client's own guard, since an empty heading would render an
+		// `<h2>` with no accessible name.
+		expect( resolveSectionHeading( { ...STORE, title: '' } ) ).toBe( 'Store' );
+	} );
 } );

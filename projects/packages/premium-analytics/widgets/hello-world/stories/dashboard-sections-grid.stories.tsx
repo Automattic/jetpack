@@ -92,14 +92,30 @@ const resolveWidgetModule: ResolveWidgetModule = moduleId =>
 		: Promise.reject( new Error( `Unknown story widget module: ${ moduleId }` ) );
 
 // In product the section list is server-driven (the dashboardSection entity);
-// the story pins a static list mirroring that response shape.
+// the story pins a static list mirroring that response shape. Store registers
+// no description, the way it does in product.
 const storySections = [
-	{ id: 'analytics/traffic', slug: 'traffic', label: 'Traffic', order: 10, default_layout: [] },
-	{ id: 'analytics/insights', slug: 'insights', label: 'Insights', order: 20, default_layout: [] },
+	{
+		id: 'analytics/traffic',
+		slug: 'traffic',
+		label: 'Traffic',
+		description: 'Views, visitors, and where they came from.',
+		order: 10,
+		default_layout: [],
+	},
+	{
+		id: 'analytics/insights',
+		slug: 'insights',
+		label: 'Insights',
+		description: 'Longer-term patterns in your content and audience.',
+		order: 20,
+		default_layout: [],
+	},
 	{
 		id: 'analytics/subscribers',
 		slug: 'subscribers',
 		label: 'Subscribers',
+		description: 'How your subscriber list is growing, and how your emails land.',
 		order: 30,
 		default_layout: [],
 	},
@@ -115,6 +131,8 @@ function DashboardSectionsGridStory() {
 	const sections = storySections;
 	const [ activeSection, setActiveSection ] = useState( sections[ 0 ].slug );
 	const [ layout, setLayout ] = useState< DashboardWidget[] >( initialLayout );
+
+	const activeSectionRecord = sections.find( section => section.slug === activeSection );
 
 	return (
 		<section
@@ -133,10 +151,12 @@ function DashboardSectionsGridStory() {
 					marginBlockEnd: '24px',
 				} }
 			>
-				<h1 style={ { fontSize: '32px', lineHeight: 1.2, margin: 0 } }>Analytics</h1>
-				<p style={ { color: '#50575e', margin: '8px 0 0' } }>
-					Track your site performance and visitor insights.
-				</p>
+				<h1 style={ { fontSize: '32px', lineHeight: 1.2, margin: 0 } }>Stats</h1>
+				{ activeSectionRecord?.description ? (
+					<p style={ { color: '#50575e', margin: '8px 0 0' } }>
+						{ activeSectionRecord.description }
+					</p>
+				) : null }
 			</header>
 
 			<DashboardSections
