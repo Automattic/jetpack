@@ -13,6 +13,7 @@ import {
  */
 import { validateField, isEmptyValue } from '../../contact-form/js/validate-helper.js';
 import { getRating } from '../field-rating/view.js';
+import { isFieldHiddenByLogic } from './conditional-visibility.js';
 import { maybeAddColonToLabel, maybeTransformValue, getImages, getUrl } from './helpers.js';
 import { focusNextInput, getForm, submitForm } from './shared.ts';
 // Import field type icons view to register its callbacks.
@@ -23,6 +24,33 @@ const withSyncEvent =
 	( cb =>
 		( ...args ) =>
 			cb( ...args ) );
+
+/**
+ * Re-read field values from the DOM after a back/forward restore.
+ *
+ * The interactivity context is only written by the input and change handlers, and neither
+ * fires when the browser restores a page from the bfcache -- it puts the visitor's values
+ * straight back into the DOM. Conditional logic then keeps resolving against the values the
+ * context still holds, so a dependent field can stay hidden even though the restored trigger
+ * should reveal it, with no way out short of re-touching the trigger. Autofill has the same
+ * shape across some engines.
+ *
+ * Dispatching `input` routes through the same handler the visitor's typing does, so there is
+ * no second code path to keep in step.
+ */
+if ( typeof window !== 'undefined' ) {
+	window.addEventListener( 'pageshow', event => {
+		if ( ! event.persisted ) {
+			return;
+		}
+
+		document
+			.querySelectorAll(
+				'[data-jp-field-id] input, [data-jp-field-id] select, [data-jp-field-id] textarea'
+			)
+			.forEach( element => element.dispatchEvent( new Event( 'input', { bubbles: true } ) ) );
+	} );
+}
 
 const NAMESPACE = 'jetpack/form';
 const config = getConfig( NAMESPACE );
@@ -312,7 +340,9 @@ const { state, actions } = store( NAMESPACE, {
 				return false;
 			}
 
-			return ! Object.values( context.fields ).some( field => ! isEmptyValue( field.value ) );
+			return ! Object.values( context.fields ).some(
+				field => ! isEmptyValue( field.value ) && ! isFieldHiddenByLogic( context, field.id )
+			);
 		},
 
 		get isStepActive() {
@@ -382,13 +412,21 @@ const { state, actions } = store( NAMESPACE, {
 				return false;
 			}
 			const context = getContext();
+			// A field hidden by conditional logic is skipped: the visitor cannot see it, so an
+			// error against it would block submission with nothing on screen to explain why.
+			// The server re-checks visibility and drops the same fields before validating.
 			if ( context.isMultiStep ) {
 				// For multistep forms, we only validate fields that are part of the current step.
 				return ! Object.values( context.fields ).some(
-					field => field.error !== 'yes' && field.step === context.currentStep
+					field =>
+						field.error !== 'yes' &&
+						field.step === context.currentStep &&
+						! isFieldHiddenByLogic( context, field.id )
 				);
 			}
-			return ! Object.values( context.fields ).some( field => field.error !== 'yes' );
+			return ! Object.values( context.fields ).some(
+				field => field.error !== 'yes' && ! isFieldHiddenByLogic( context, field.id )
+			);
 		},
 
 		get showFormErrors() {
@@ -433,6 +471,9 @@ const { state, actions } = store( NAMESPACE, {
 					if ( context.isMultiStep && field.step !== context.currentStep ) {
 						return;
 					}
+					if ( isFieldHiddenByLogic( context, field.id ) ) {
+						return;
+					}
 					if ( field.error && field.error !== 'yes' ) {
 						errors.push( {
 							anchor: '#' + field.id,
@@ -450,6 +491,14 @@ const { state, actions } = store( NAMESPACE, {
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ];
 			return field?.value || '';
+		},
+
+		get isFieldHidden() {
+			// The shared helper rather than a second copy of the same three lines: a fix to
+			// how hiding is decided has to reach the class binding too.
+			const context = getContext();
+
+			return isFieldHiddenByLogic( context, context.fieldId );
 		},
 	},
 
@@ -486,7 +535,14 @@ const { state, actions } = store( NAMESPACE, {
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ];
 
-			if ( context.fieldType === 'checkbox' ) {
+			// Keyed off what the control actually is, not what the field is called. A consent
+			// field renders as a checkbox but carries fieldType 'consent', so it skipped this
+			// and stored its literal `Yes` value whether checked or not. Conditional logic
+			// reads consent as a boolean, so unchecking it still read as checked: the fields
+			// it was supposed to gate stayed on screen and got filled in, and the server then
+			// resolved them hidden and dropped the answers. Anything checkbox-rendered later
+			// is covered by the same test.
+			if ( event.target.type === 'checkbox' ) {
 				value = event.target.checked ? '1' : '';
 			}
 
@@ -805,6 +861,43 @@ const { state, actions } = store( NAMESPACE, {
 	},
 
 	callbacks: {
+		/**
+		 * Keep focus somewhere usable when conditional logic hides the focused field.
+		 *
+		 * `display: none` is right for tab order and the accessibility tree, but a keyboard or
+		 * screen-reader user filling this field can have it disappear because their answer to
+		 * another field cascaded. Focus then falls to <body> with nothing to explain it.
+		 * scrollToWrapper() already moves focus for a store-driven DOM change; this matches.
+		 */
+		manageConditionalFocus() {
+			const context = getContext();
+			const { ref } = getElement();
+
+			if ( ! ref || ! isFieldHiddenByLogic( context, context.fieldId ) ) {
+				return;
+			}
+
+			// ownerDocument rather than the global: the form may be inside an iframe, as it is
+			// in the editor preview.
+			const activeElement = ref.ownerDocument?.activeElement;
+
+			if ( ! activeElement || ! ref.contains( activeElement ) ) {
+				return;
+			}
+
+			// The nearest still-visible control, so the visitor carries on where they were
+			// rather than being sent to the top of the form.
+			const form = ref.closest( 'form' );
+			const candidates = form
+				? Array.from( form.querySelectorAll( 'input, select, textarea, button' ) )
+				: [];
+			const next = candidates.find(
+				element => ! ref.contains( element ) && null !== element.offsetParent
+			);
+
+			( next || form )?.focus?.();
+		},
+
 		initializeField() {
 			const context = getContext();
 			const { fieldId, fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra } = context;

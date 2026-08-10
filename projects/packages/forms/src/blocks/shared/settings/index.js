@@ -20,6 +20,17 @@ export default {
 			type: 'boolean',
 			default: true,
 		},
+		conditionalLogic: {
+			type: 'object',
+			default: {
+				enabled: false,
+				action: 'show',
+				logicalOperator: 'any',
+				// Keyed by control slug so further condition types (query string, user role,
+				// date and time) become sibling keys rather than a reshape.
+				controls: {},
+			},
+		},
 	},
 	category: 'contact-form',
 	providesContext: {

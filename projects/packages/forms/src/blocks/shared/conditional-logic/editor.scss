@@ -1,0 +1,77 @@
+/**
+ * Conditional logic inspector panel.
+ *
+ * Layout and typography come from the design system:
+ * Stack handles the flex arrangement and spacing, Text
+ * handles the prose. What is left here is what those
+ * components do not express — the card chrome and the
+ * proportional split of the two summary selectors — and
+ * it uses wpds tokens rather than literal values.
+ */
+
+.jetpack-contact-form__conditional-logic {
+
+	.jetpack-contact-form__conditional-logic-intro,
+	.jetpack-contact-form__conditional-logic-hint {
+		display: block;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	.jetpack-contact-form__conditional-logic-intro {
+		margin-block-end: var(--wpds-dimension-gap-lg);
+	}
+
+	.jetpack-contact-form__conditional-logic-hint {
+		margin-block: var(--wpds-dimension-gap-sm) var(--wpds-dimension-gap-lg);
+	}
+
+	// Show/hide carries the longer label, so it gets the
+	// extra room instead of splitting the row evenly.
+	.jetpack-contact-form__conditional-logic-summary {
+
+		// Both selectors pass __nextHasNoMarginBottom, but
+		// BaseControl still emits a bottom margin here, which
+		// left the two boxes visibly out of line. Dropping it
+		// is what makes the row sit flush.
+		.components-base-control,
+		.components-base-control__field {
+			margin-block-end: 0;
+		}
+
+		> *:first-child {
+			flex: 3 1 0;
+			min-width: 0;
+		}
+
+		> *:last-child {
+			flex: 2 1 0;
+			min-width: 0;
+		}
+	}
+
+	// One card per condition, so several conditions read
+	// as a list rather than an undifferentiated stack of
+	// selects.
+	.jetpack-contact-form__conditional-logic-rule {
+		padding: var(--wpds-dimension-padding-md);
+		border:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral-weak);
+		border-radius: var(--wpds-border-radius-sm);
+	}
+
+	.jetpack-contact-form__conditional-logic-rule-header {
+		margin-block-end: var(--wpds-dimension-gap-sm);
+	}
+
+	.jetpack-contact-form__conditional-logic-rule-title {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+	}
+
+	.jetpack-contact-form__conditional-logic-add {
+		justify-content: center;
+		width: 100%;
+	}
+}
