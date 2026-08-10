@@ -85,9 +85,6 @@ export type DateFiltersPanelProps = {
 
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 
-	/**
-	 * Callback when the chart interval changes.
-	 */
 	onIntervalChange?: ( interval: IntervalType ) => void;
 
 	/**

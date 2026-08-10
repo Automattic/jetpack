@@ -114,9 +114,6 @@ function RollingDateControls( {
 	/**
 	 * What the interval resolves to under a given preset, so a pick the next
 	 * range no longer allows coerces on Apply rather than being carried.
-	 *
-	 * @param presetId - The preset to resolve against.
-	 * @return The active interval.
 	 */
 	const intervalFor = useCallback(
 		( presetId: PrimaryPresetId ) =>
