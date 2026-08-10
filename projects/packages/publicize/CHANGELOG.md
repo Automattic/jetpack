@@ -10,8 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add the platform-specific input step for the new connection flow. [#50804]
 
 ### Changed
-- Update package dependencies. [#50509]
-- Update package dependencies. [#51008]
+- Update package dependencies. [#50509] [#51008]
 
 ### Fixed
 - Fix the social sharing sidebar failing to load in the editor on WordPress 6.9. [#50509]
