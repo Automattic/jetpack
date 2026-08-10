@@ -26,20 +26,35 @@ const getLabelOrFallback = ( label, placeholder ) => {
 
 const OPTIONS_FIELDS = [ 'jetpack/field-radio', 'jetpack/field-checkbox-multiple' ];
 
-function useSiblingBlock( clientId ) {
-	const inputBlock = useSelect(
+// Field blocks whose input is not a single text-like box, so an inset
+// (notched/animated) label would overlap the control rather than sit in it.
+// Keep in sync with Contact_Form_Field::TYPES_WITHOUT_INSET_LABEL.
+const FIELDS_WITHOUT_INSET_LABEL = [ 'jetpack/field-slider' ];
+
+// Stable reference for "no input block found", so useSelect's shallow comparison
+// does not see a new object on every store change.
+const NO_INPUT_BLOCK = {};
+
+/**
+ * Resolves the field block this label belongs to, and its sibling input block.
+ *
+ * @param {string} clientId - The label block's client ID.
+ * @return {{inputBlock: Object|undefined, parentName: string|undefined}} The sibling input block and the parent field block name.
+ */
+function useFieldContext( clientId ) {
+	return useSelect(
 		select => {
 			const { getBlock, getBlockRootClientId } = select( blockEditorStore );
 
 			// Get the parent block's clientId.
 			const parentClientId = getBlockRootClientId( clientId );
 			if ( ! parentClientId ) {
-				return {};
+				return { inputBlock: NO_INPUT_BLOCK, parentName: undefined };
 			}
 			// Get the parent block
 			const parentBlock = getBlock( parentClientId );
 			if ( ! parentBlock ) {
-				return {};
+				return { inputBlock: NO_INPUT_BLOCK, parentName: undefined };
 			}
 
 			let siblingBlockType = OPTIONS_FIELDS.includes( parentBlock.name )
@@ -51,26 +66,10 @@ function useSiblingBlock( clientId ) {
 				siblingBlockType = 'jetpack/phone-input';
 			}
 
-			return parentBlock.innerBlocks.find( block => block.name === siblingBlockType );
-		},
-		[ clientId ]
-	);
-
-	return inputBlock;
-}
-
-/**
- * Returns the name of the field block this label belongs to.
- *
- * @param {string} clientId - The label block's client ID.
- * @return {string|undefined} The parent field block name, if any.
- */
-function useParentFieldName( clientId ) {
-	return useSelect(
-		select => {
-			const { getBlockName, getBlockRootClientId } = select( blockEditorStore );
-			const parentClientId = getBlockRootClientId( clientId );
-			return parentClientId ? getBlockName( parentClientId ) : undefined;
+			return {
+				inputBlock: parentBlock.innerBlocks.find( block => block.name === siblingBlockType ),
+				parentName: parentBlock.name,
+			};
 		},
 		[ clientId ]
 	);
@@ -116,12 +115,13 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 		: undefined;
 	const formStyle = getBlockStyle( formClassName );
 
-	const inputBlock = useSiblingBlock( clientId );
+	const { inputBlock, parentName } = useFieldContext( clientId );
 
 	// The slider is not a text-like input: it has no empty state to rest in and its
 	// range input is nested inside a wrapper, so an inset (notched/animated) label
 	// would sit on top of the track instead of animating. Keep the default label.
-	const hasInsetLabel = useParentFieldName( clientId ) !== 'jetpack/field-slider';
+	// 'below' renders the label outside the field, so it still applies.
+	const hasInsetLabel = ! FIELDS_WITHOUT_INSET_LABEL.includes( parentName );
 
 	const className = clsx( 'jetpack-field-label', {
 		'notched-label__label': hasInsetLabel && formStyle === FORM_STYLE.OUTLINED,
@@ -160,7 +160,7 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 	return (
 		<WithNotchedWrapper
 			formStyle={ formStyle }
-			forcePlainStyle={ ! inputBlock }
+			forcePlainStyle={ ! inputBlock || ! hasInsetLabel }
 			styles={ variationProps?.style }
 			cssVars={ variationProps?.cssVars }
 			className={ variationProps?.className }

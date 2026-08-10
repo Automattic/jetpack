@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Forms: fix the slider field label overlapping the track when the form uses the Outlined or Animated style.
+Slider field: keep the default label when the form uses the Outlined or Animated style, so the label no longer overlaps the slider track.

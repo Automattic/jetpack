@@ -1668,6 +1668,104 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Renders a slider field, optionally under a given form style.
+	 *
+	 * @param string $form_class_name The contact form's className attribute, e.g. 'is-style-outlined'.
+	 *
+	 * @return string The field html string.
+	 */
+	private function render_slider_field( $form_class_name = '' ) {
+		return $this->render_field(
+			array(
+				'label'               => 'How happy are you?',
+				'type'                => 'slider',
+				'fieldwrapperclasses' => 'wp-block-jetpack-field-slider',
+				'id'                  => 'sliderID',
+				'min'                 => 0,
+				'max'                 => 100,
+			),
+			$form_class_name ? array( 'className' => $form_class_name ) : array()
+		);
+	}
+
+	/**
+	 * Form styles that render an inset (in-field) label.
+	 *
+	 * @return array
+	 */
+	public static function inset_label_form_style_provider() {
+		return array(
+			'outlined' => array( 'is-style-outlined' ),
+			'animated' => array( 'is-style-animated' ),
+		);
+	}
+
+	/**
+	 * The slider has no single text-like input for a label to sit inside, so it must
+	 * keep the plain default label under the inset styles rather than have the label
+	 * positioned over the slider track.
+	 *
+	 * @param string $form_class_name The contact form's className attribute.
+	 */
+	#[DataProvider( 'inset_label_form_style_provider' )]
+	public function test_slider_field_does_not_render_an_inset_label( $form_class_name ) {
+		$html = $this->render_slider_field( $form_class_name );
+
+		$this->assertStringNotContainsString( 'notched-label__label', $html );
+		$this->assertStringNotContainsString( 'animated-label__label', $html );
+	}
+
+	/**
+	 * Excluding a type from the inset label makes render_label() fall through to its
+	 * `! $always_render` early return, so the slider must pass $always_render = true
+	 * or its label disappears entirely under the inset styles.
+	 *
+	 * @param string $form_class_name The contact form's className attribute.
+	 */
+	#[DataProvider( 'inset_label_form_style_provider' )]
+	public function test_slider_field_still_renders_its_label( $form_class_name ) {
+		$html = $this->render_slider_field( $form_class_name );
+
+		$this->assertStringContainsString( 'How happy are you?', $html );
+		$this->assertStringContainsString( '<label', $html );
+	}
+
+	/**
+	 * The 'below' style renders the label outside the field, so it is unaffected by
+	 * the inset-label exclusion and must still apply to sliders.
+	 */
+	public function test_slider_field_still_uses_the_below_label() {
+		$html = $this->render_slider_field( 'is-style-below' );
+
+		$this->assertStringContainsString( 'below-label__label', $html );
+		$this->assertStringContainsString( 'How happy are you?', $html );
+	}
+
+	/**
+	 * The exclusion must be scoped to the slider: ordinary text-like fields still get
+	 * their inset label under the same form styles.
+	 *
+	 * @param string $form_class_name The contact form's className attribute.
+	 */
+	#[DataProvider( 'inset_label_form_style_provider' )]
+	public function test_text_field_still_renders_an_inset_label( $form_class_name ) {
+		$html = $this->render_field(
+			array(
+				'label' => 'Name',
+				'type'  => 'text',
+				'id'    => 'nameID',
+			),
+			array( 'className' => $form_class_name )
+		);
+
+		$expected_class = $form_class_name === 'is-style-outlined'
+			? 'notched-label__label'
+			: 'animated-label__label';
+
+		$this->assertStringContainsString( $expected_class, $html );
+	}
+
+	/**
 	 * Renders a Contact_Form_Field.
 	 *
 	 * @param array $attributes An associative array of shortcode attributes.
