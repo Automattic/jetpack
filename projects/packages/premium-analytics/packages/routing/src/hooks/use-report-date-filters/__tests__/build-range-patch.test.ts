@@ -1,21 +1,14 @@
 /**
- * Mocks: the data package reads the site timezone from the WordPress core
- * store. Pin the timezone to UTC so day-bound math is deterministic
- * regardless of the machine timezone running the tests.
+ * Pin the site timezone to UTC so day-bound math is deterministic regardless
+ * of the machine timezone running the tests.
  */
 jest.mock( '@jetpack-premium-analytics/data', () => {
 	const { TZDateMini } = jest.requireActual( '@date-fns/tz' );
 
 	/*
-	 * Only the timezone reads are stubbed, so day-bound math is deterministic
-	 * whatever timezone runs the tests.
-	 *
-	 * `resolveIntervalForRange` is the real one on purpose. A stub of it used to
-	 * live here with its own hardcoded allow-list, and when the real rules
-	 * changed the stub did not: these tests kept asserting that a `day` bucket
-	 * survived into a 24-hour window, which is the bug @louwie17 reported on
-	 * #51112. A test that owns a copy of the rule it is testing cannot fail when
-	 * the rule is wrong.
+	 * Only the timezone reads are stubbed. `resolveIntervalForRange` stays
+	 * real: a stub owning a copy of the interval rules cannot fail when the
+	 * real rules change.
 	 */
 	return {
 		...jest.requireActual( '@jetpack-premium-analytics/data' ),
@@ -95,10 +88,7 @@ describe( 'buildRangePatch', () => {
 		expect( patch?.interval ).toBe( 'day' );
 	} );
 
-	/*
-	 * Reported by @louwie17 on #51112: switching to a day-long preset from one
-	 * bucketed by days kept `day`, drawing the whole window as a single bar.
-	 */
+	// A day bucket on a day-long window draws the whole range as one bar.
 	it( 'coerces a day bucket when switching to a day-long preset', () => {
 		for ( const preset of [ 'last-7-days', 'last-30-days' ] as const ) {
 			const patch = buildRangePatch( {

@@ -46,9 +46,7 @@ function shift( from: Date, to: Date, unit: DateRangeSpanUnit, amount: number ):
  *
  * Falls back to the day count where a calendar step will not undo. `addMonths`
  * clamps a day the target month is too short for: August 31 two months back is
- * June 30, forward again August 30. Reversibility wins over calendar shape,
- * since a window that cannot be stepped back to is one the reader cannot return
- * from.
+ * June 30, forward again August 30. Reversibility wins over calendar shape.
  *
  * @param range     - The window to move.
  * @param direction - Which way to move it.

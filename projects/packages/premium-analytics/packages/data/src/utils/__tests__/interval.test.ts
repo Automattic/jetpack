@@ -59,11 +59,7 @@ describe( 'resolveIntervalForRange', () => {
 		);
 	} );
 
-	/*
-	 * Reported by @louwie17 on #51112: switching from a preset bucketed by days
-	 * to a day-long one kept `day`, drawing the whole window as a single bar.
-	 * The fix is that a day-long window no longer allows `day` at all.
-	 */
+	// A day-long window allows no `day` bucket: it would draw as a single bar.
 	it( 'coerces a day-scale interval onto a day-long window', () => {
 		expect( resolveIntervalForRange( 'last-24-hours', '2026-06-01', '2026-06-02', 'day' ) ).toBe(
 			'hour'

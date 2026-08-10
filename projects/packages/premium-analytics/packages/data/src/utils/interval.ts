@@ -94,9 +94,9 @@ export function getAllowedIntervalsForPreset(
 ): IntervalType[] {
 	switch ( preset ) {
 		/*
-		 * Hours alone. A single day bucketed by day is one bar, so offering it
-		 * let a `day` carried over from a longer preset survive the switch and
-		 * flatten the whole window into a point.
+		 * Hours alone: a single day bucketed by day is one bar, and offering
+		 * `day` would let a bucket carried over from a longer preset flatten
+		 * the whole window into a point.
 		 */
 		case PRESET_TODAY:
 		case PRESET_YESTERDAY:
