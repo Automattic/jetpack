@@ -117,6 +117,25 @@ export type DateFiltersPanelProps = {
 	 * honest about it.
 	 */
 	showComparison?: boolean;
+
+	/**
+	 * Element to measure for the responsive layout instead of the panel's own
+	 * root. Required when the panel sits in a shrink-to-fit slot (e.g. sharing
+	 * a header row with a title): there the root's width follows the panel's
+	 * own content, so self-measurement could neither collapse when narrow nor
+	 * expand back when widened. Callers whose panel fills its container should
+	 * omit it.
+	 */
+	containerElement?: HTMLElement | null;
+
+	/**
+	 * Inline space in the measured container that is never available to the
+	 * panel — e.g. a title's minimum share on a shared header row. Subtracted
+	 * from the measured width before resolving the responsive layout, so the
+	 * panel steps down while its row-mates still have their minimum, instead
+	 * of only once the whole container is narrower than the panel itself.
+	 */
+	reservedInlineSize?: number;
 };
 
 /**
@@ -149,6 +168,8 @@ export function DateFiltersPanel( {
 	canApply = true,
 	timeZone,
 	showComparison = true,
+	containerElement,
+	reservedInlineSize = 0,
 }: DateFiltersPanelProps ) {
 	// Unknown values (e.g. garbage from the URL) become undefined, which
 	// DateRangePopover reads as the custom preset.
@@ -219,10 +240,16 @@ export function DateFiltersPanel( {
 
 	const setObserverRef = useResizeObserver< HTMLElement >( handleResize );
 
-	// This panel's own root, falling back to the body only until the ref lands.
+	/*
+	 * Measure the caller-provided container when there is one, and the panel's
+	 * own root otherwise (falling back to the body only until the ref lands).
+	 * Self-measurement is only honest when the root fills its container; in a
+	 * shrink-to-fit slot the root follows the panel's own content and the
+	 * layout mode could never change in either direction.
+	 */
 	useEffect( () => {
-		setObserverRef( rootElement ?? document.body );
-	}, [ rootElement, setObserverRef ] );
+		setObserverRef( containerElement ?? rootElement ?? document.body );
+	}, [ containerElement, rootElement, setObserverRef ] );
 
 	/*
 	 * The last applied custom range, so the trigger can offer the way back to it
@@ -327,10 +354,16 @@ export function DateFiltersPanel( {
 
 	// Measured, so the boundary follows the active locale rather than a
 	// breakpoint picked for English, and moves with the comparison control:
-	// adding one takes room the presets give back.
+	// adding one takes room the presets give back. The caller-reserved share
+	// (see `reservedInlineSize`) is subtracted first, so on a shared header
+	// row the panel steps down while its row-mates keep their minimum.
 	const labelMode = useMemo(
-		() => resolvePresetLabelMode( containerWidth, fullRowWidth ),
-		[ containerWidth, fullRowWidth ]
+		() =>
+			resolvePresetLabelMode(
+				containerWidth === null ? null : containerWidth - reservedInlineSize,
+				fullRowWidth
+			),
+		[ containerWidth, fullRowWidth, reservedInlineSize ]
 	);
 
 	const isWideScreen =
