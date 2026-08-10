@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: fixed
 
-Form: Keep a step's padding inside its width so its content no longer overflows the step.
+Multistep forms: Keep a step's padding inside its width. Published forms whose steps have padding will change appearance: the step now matches the width of the form, with its fields inset by the padding, instead of overflowing past the form's right edge.

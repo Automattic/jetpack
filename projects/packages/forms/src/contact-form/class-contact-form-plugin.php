@@ -898,35 +898,28 @@ class Contact_Form_Plugin {
 		);
 
 		// Process content for marker classes and add interactivity
-		$processed_content = $content;
+		$blocks_content = do_blocks( $content );
+		$tags           = new \WP_HTML_Tag_Processor( $blocks_content );
 
-		// Only process if we have the WP_HTML_Tag_Processor
-		if ( class_exists( 'WP_HTML_Tag_Processor' ) ) {
-			$blocks_content = do_blocks( $content );
-			$tags           = new \WP_HTML_Tag_Processor( $blocks_content );
+		// Move to the first token so the bookmark has a valid span, then set the bookmark.
+		$tags->next_tag();
+		$tags->set_bookmark( 'start' );
 
-			// Move to the first token so the bookmark has a valid span, then set the bookmark.
-			$tags->next_tag();
-			$tags->set_bookmark( 'start' );
-
-			// Process blocks with the "next step" trigger
-			while ( $tags->next_tag( array( 'class_name' => 'trigger-next-step' ) ) ) {
-				// No need to set data-wp-interactive since the parent div already has it
-				$tags->set_attribute( 'data-wp-on--click', 'actions.nextStep' );
-			}
-
-			// Reset and process blocks with the "previous step" trigger
-			$tags->seek( 'start' );
-			while ( $tags->next_tag( array( 'class_name' => 'trigger-previous-step' ) ) ) {
-				$tags->set_attribute( 'data-wp-on--click', 'actions.previousStep' );
-			}
-
-			$processed_content = $tags->get_updated_html();
-		} else {
-			$processed_content = do_blocks( $content );
+		// Process blocks with the "next step" trigger
+		while ( $tags->next_tag( array( 'class_name' => 'trigger-next-step' ) ) ) {
+			// No need to set data-wp-interactive since the parent div already has it
+			$tags->set_attribute( 'data-wp-on--click', 'actions.nextStep' );
 		}
 
-		$processed_content = Contact_Form_Block::apply_background_support( $processed_content, $atts );
+		// Reset and process blocks with the "previous step" trigger
+		$tags->seek( 'start' );
+		while ( $tags->next_tag( array( 'class_name' => 'trigger-previous-step' ) ) ) {
+			$tags->set_attribute( 'data-wp-on--click', 'actions.previousStep' );
+		}
+
+		$processed_content = $tags->get_updated_html();
+
+		$processed_content = Contact_Form_Block::apply_background_support( $processed_content, $atts, Contact_Form_Block::STEP_BLOCK_CLASS );
 
 		$is_current_step_class = ( self::$step_count === 1 ? 'is-current-step' : '' );
 		return '<div data-wp-interactive="jetpack/form" class="jetpack-form-step ' . $is_current_step_class . ' " data-wp-class--is-before-current="state.isBeforeCurrent" data-wp-class--is-after-current="state.isAfterCurrent" data-wp-class--is-current-step="state.isCurrentStep" ' . wp_interactivity_data_wp_context( array( 'step' => self::$step_count ) ) . ' >'
