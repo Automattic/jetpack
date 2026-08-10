@@ -1705,6 +1705,8 @@ class Contact_Form_Test extends BaseTestCase {
 	 * keep the plain default label under the inset styles rather than have the label
 	 * positioned over the slider track.
 	 *
+	 * @dataProvider inset_label_form_style_provider
+	 *
 	 * @param string $form_class_name The contact form's className attribute.
 	 */
 	#[DataProvider( 'inset_label_form_style_provider' )]
@@ -1719,6 +1721,8 @@ class Contact_Form_Test extends BaseTestCase {
 	 * Excluding a type from the inset label makes render_label() fall through to its
 	 * `! $always_render` early return, so the slider must pass $always_render = true
 	 * or its label disappears entirely under the inset styles.
+	 *
+	 * @dataProvider inset_label_form_style_provider
 	 *
 	 * @param string $form_class_name The contact form's className attribute.
 	 */
@@ -1744,6 +1748,8 @@ class Contact_Form_Test extends BaseTestCase {
 	/**
 	 * The exclusion must be scoped to the slider: ordinary text-like fields still get
 	 * their inset label under the same form styles.
+	 *
+	 * @dataProvider inset_label_form_style_provider
 	 *
 	 * @param string $form_class_name The contact form's className attribute.
 	 */
