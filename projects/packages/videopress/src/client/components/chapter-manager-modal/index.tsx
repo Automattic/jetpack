@@ -16,6 +16,7 @@ import { probeManualTrack } from '../../utils/video-chapters/probe-manual-track'
 import { syncChapters } from '../../utils/video-chapters/sync-chapters';
 import ConfirmationOverlay from '../caption-manager-modal/confirmation-overlay';
 import { useCaptionSnackbars } from '../caption-manager-modal/use-caption-snackbars';
+import ChaptersPanel from '../chapters-editor/chapters/chapters-panel';
 import ChaptersTimeline from '../chapters-editor/chapters/chapters-timeline';
 import ChaptersPreviewPlayer from '../chapters-editor/preview/preview-player';
 import { usePreviewTransport } from '../chapters-editor/preview/use-preview-transport';
@@ -419,7 +420,7 @@ export default function ChapterManagerModal( {
 	const videoTitle = title || __( 'VideoPress video', 'jetpack-videopress-pkg' );
 	const modalHeaderTitle = sprintf(
 		/* translators: %s: video title. */
-		__( 'Manage chapters for %s', 'jetpack-videopress-pkg' ),
+		__( 'Chapters · %s', 'jetpack-videopress-pkg' ),
 		videoTitle
 	);
 
@@ -437,56 +438,66 @@ export default function ChapterManagerModal( {
 			isDismissible={ false }
 			shouldCloseOnClickOutside={ false }
 			headerActions={
-				<Button
-					size="small"
-					icon={ close }
-					label={ __( 'Close', 'jetpack-videopress-pkg' ) }
-					onClick={ handleRequestClose }
-				/>
+				/*
+				 * All the session actions live in the modal header, one row with
+				 * the title. The header sits OUTSIDE the body's keyboard wrapper
+				 * and the confirmation overlay (which covers only the children
+				 * container), so the same keydown handler is attached here — a
+				 * vetoed Escape must not fall through to the Modal's
+				 * animate-then-close handling — and every state-changing action
+				 * is disabled while the discard confirmation is up. Close stays
+				 * live: it routes through the same confirmation flow.
+				 */
+				// eslint-disable-next-line jsx-a11y/no-static-element-interactions -- Intercepts Escape before the Modal's animate-then-close handling and maps the editor shortcuts, same as the body wrapper below.
+				<div className="videopress-chapter-manager__header-actions" onKeyDown={ handleBodyKeyDown }>
+					<Button
+						size="small"
+						icon={ undoIcon }
+						label={ __( 'Undo', 'jetpack-videopress-pkg' ) }
+						disabled={
+							chaptersLocked || confirmation !== null || ! canUndo( history, chaptersEditsEqual )
+						}
+						accessibleWhenDisabled
+						onClick={ () => dispatch( { type: 'UNDO' } ) }
+					/>
+					<Button
+						size="small"
+						icon={ redoIcon }
+						label={ __( 'Redo', 'jetpack-videopress-pkg' ) }
+						disabled={ chaptersLocked || confirmation !== null || ! canRedo( history ) }
+						accessibleWhenDisabled
+						onClick={ () => dispatch( { type: 'REDO' } ) }
+					/>
+					<span className="videopress-chapter-manager__header-divider" aria-hidden="true" />
+					<Button
+						variant="secondary"
+						size="compact"
+						onClick={ requestDiscard }
+						disabled={ chaptersLocked || confirmation !== null || ! effectiveDirty }
+					>
+						{ __( 'Discard changes', 'jetpack-videopress-pkg' ) }
+					</Button>
+					<Button
+						variant="primary"
+						size="compact"
+						onClick={ () => void doSave() }
+						isBusy={ metaSavePending }
+						disabled={ chaptersLocked || confirmation !== null || ! effectiveDirty }
+					>
+						{ __( 'Save', 'jetpack-videopress-pkg' ) }
+					</Button>
+					<span className="videopress-chapter-manager__header-divider" aria-hidden="true" />
+					<Button
+						size="small"
+						icon={ close }
+						label={ __( 'Close', 'jetpack-videopress-pkg' ) }
+						onClick={ handleRequestClose }
+					/>
+				</div>
 			}
 		>
 			{ /* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- Intercepts Escape before the Modal's animate-then-close handling and maps the editor shortcuts. */ }
 			<div className="videopress-chapter-manager__body" onKeyDown={ handleBodyKeyDown }>
-				<div className="videopress-chapter-manager__action-bar">
-					<h3 className="videopress-chapter-manager__action-bar-title">
-						{ __( 'Chapters', 'jetpack-videopress-pkg' ) }
-					</h3>
-					<div className="videopress-chapter-manager__action-buttons">
-						<Button
-							size="small"
-							icon={ undoIcon }
-							label={ __( 'Undo', 'jetpack-videopress-pkg' ) }
-							disabled={ chaptersLocked || ! canUndo( history, chaptersEditsEqual ) }
-							accessibleWhenDisabled
-							onClick={ () => dispatch( { type: 'UNDO' } ) }
-						/>
-						<Button
-							size="small"
-							icon={ redoIcon }
-							label={ __( 'Redo', 'jetpack-videopress-pkg' ) }
-							disabled={ chaptersLocked || ! canRedo( history ) }
-							accessibleWhenDisabled
-							onClick={ () => dispatch( { type: 'REDO' } ) }
-						/>
-						<span className="videopress-chapter-manager__action-divider" aria-hidden="true" />
-						<Button
-							variant="secondary"
-							onClick={ requestDiscard }
-							disabled={ chaptersLocked || ! effectiveDirty }
-						>
-							{ __( 'Discard changes', 'jetpack-videopress-pkg' ) }
-						</Button>
-						<Button
-							variant="primary"
-							onClick={ () => void doSave() }
-							isBusy={ metaSavePending }
-							disabled={ chaptersLocked || ! effectiveDirty }
-						>
-							{ __( 'Save', 'jetpack-videopress-pkg' ) }
-						</Button>
-					</div>
-				</div>
-
 				<div
 					className="videopress-chapter-manager__workspace vp-chapters-tokens"
 					ref={ workspaceRef }
@@ -507,53 +518,70 @@ export default function ChapterManagerModal( {
 						</p>
 					) }
 					{ itemState === 'ready' && (
-						<>
-							{ /*
-							 * The same minimal player as the dashboard's Editor tab:
-							 * a bare <video> stage on the H.264 rendition derived
-							 * from the on-open item fetch (private videos are signed
-							 * with a playback JWT inside the player). It is the
-							 * playhead source for the timeline below and stays
-							 * mounted at every viewport width. The item's original
-							 * upload URL is deliberately not offered as a fallback —
-							 * without a ready rendition the player explains that the
-							 * video has no playable source yet.
-							 */ }
-							<ChaptersPreviewPlayer
-								ref={ playerRef }
-								video={ {
-									guid,
-									isPrivate,
-									durationSeconds: ( itemDurationMs ?? 0 ) / 1000,
-									playbackUrl,
-									sourceUrl: undefined,
-								} }
-								onTimeUpdate={ onTimeUpdate }
-								onPlayingChange={ onPlayingChange }
-							/>
+						<div className="videopress-chapter-manager__panes">
+							<div className="videopress-chapter-manager__pane-main">
+								{ /*
+								 * The same minimal player as the dashboard's Editor tab:
+								 * a bare <video> stage on the H.264 rendition derived
+								 * from the on-open item fetch (private videos are signed
+								 * with a playback JWT inside the player). It is the
+								 * playhead source for the timeline below and stays
+								 * mounted at every viewport width. The item's original
+								 * upload URL is deliberately not offered as a fallback —
+								 * without a ready rendition the player explains that the
+								 * video has no playable source yet.
+								 */ }
+								<ChaptersPreviewPlayer
+									ref={ playerRef }
+									video={ {
+										guid,
+										isPrivate,
+										durationSeconds: ( itemDurationMs ?? 0 ) / 1000,
+										playbackUrl,
+										sourceUrl: undefined,
+									} }
+									onTimeUpdate={ onTimeUpdate }
+									onPlayingChange={ onPlayingChange }
+								/>
+								<div
+									className={
+										'videopress-chapter-manager__editor' +
+										( chaptersLocked ? ' videopress-chapter-manager__editor--locked' : '' )
+									}
+									aria-busy={ chaptersLocked || undefined }
+								>
+									<ChaptersTimeline
+										session={ session }
+										dispatch={ dispatch }
+										currentMs={ currentMs }
+										onSeek={ onSeek }
+										onTogglePlay={ onTogglePlay }
+										playing={ playing }
+										locked={ chaptersLocked }
+										onScrubStart={ onScrubStart }
+										onScrubEnd={ onScrubEnd }
+										// The body's onKeyDown above maps the same keys instead.
+										shortcutsEnabled={ false }
+										readOnly={ readOnly }
+									/>
+								</div>
+							</div>
 							<div
 								className={
-									'videopress-chapter-manager__editor' +
-									( chaptersLocked ? ' videopress-chapter-manager__editor--locked' : '' )
+									'videopress-chapter-manager__panel' +
+									( chaptersLocked ? ' videopress-chapter-manager__panel--locked' : '' )
 								}
 								aria-busy={ chaptersLocked || undefined }
 							>
-								<ChaptersTimeline
+								<ChaptersPanel
 									session={ session }
 									dispatch={ dispatch }
-									currentMs={ currentMs }
 									onSeek={ onSeek }
-									onTogglePlay={ onTogglePlay }
-									playing={ playing }
 									locked={ chaptersLocked }
-									onScrubStart={ onScrubStart }
-									onScrubEnd={ onScrubEnd }
-									// The body's onKeyDown above maps the same keys instead.
-									shortcutsEnabled={ false }
 									readOnly={ readOnly }
 								/>
 							</div>
-						</>
+						</div>
 					) }
 				</div>
 

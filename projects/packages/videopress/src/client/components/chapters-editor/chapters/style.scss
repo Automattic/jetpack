@@ -139,19 +139,20 @@ $vp-chapters-warning: var(--vp-warning, #b26200);
 // Row-scoped publish-rule message, on its own line under the controls.
 .vp-chapters__row-issue {
 	flex: 0 0 100%;
-	padding-inline-start: 32px; // Clears the mono index column + its gap.
 	font-size: 12px;
 	color: $vp-chapters-warning;
 }
 
-.vp-chapters__row-index {
+// The pinned-start lock on the first row, between the title and its 0:00.
+.vp-chapters__row-lock {
 	flex: none;
-	width: 24px;
-	text-align: right;
-	font-family: var(--vp-font-mono, Menlo, Consolas, monaco, monospace);
-	font-size: 12px;
+	display: inline-flex;
+	align-items: center;
 	color: var(--vp-gray-700, #757575);
-	font-variant-numeric: tabular-nums;
+
+	svg {
+		fill: currentColor;
+	}
 }
 
 // Beat wp-admin forms.css's `input[type="text"]` on padding/border, the same
@@ -200,16 +201,6 @@ input[type="text"].vp-chapters__row-title {
 	}
 }
 
-.vp-chapters__row-duration {
-	flex: none;
-	// Wide enough for a full `H:MM:SS.t` timecode at this mono size.
-	width: 68px;
-	font-size: 12px;
-	color: var(--vp-gray-700, #757575);
-	font-variant-numeric: tabular-nums;
-	white-space: nowrap;
-}
-
 .vp-chapters__row-remove.components-button {
 	flex: none;
 	width: 28px;
@@ -239,14 +230,6 @@ input[type="text"].vp-chapters__row-title {
 	text-overflow: ellipsis;
 }
 
-// Publish-rule issues that belong to no single row (no chapters, too few),
-// parked next to the footer help line they qualify.
-.vp-chapters__validation {
-	display: flex;
-	flex-direction: column;
-	gap: 4px;
-}
-
 .vp-chapters__validation-message {
 	margin: 0;
 	font-size: 12px;
@@ -257,4 +240,50 @@ input[type="text"].vp-chapters__row-title {
 	margin: 0;
 	font-size: 12px;
 	color: var(--vp-gray-700, #757575);
+}
+
+// The chapters panel: header (title + live count), the publish-rule summary,
+// and the rows list. Hosts own its placement and outer sizing; when they
+// bound its height (the side-pane arrangement) the list region is what
+// scrolls, so the header stays put.
+.vp-chapters-panel {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	min-block-size: 0;
+}
+
+.vp-chapters-panel__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+}
+
+// Reads as a section label, like the tools rail's "Edit" heading.
+.vp-chapters-panel__title {
+	margin: 0;
+	color: var(--vp-gray-700, #757575);
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.2px;
+}
+
+.vp-chapters-panel__count {
+	font-size: 12px;
+	color: var(--vp-gray-700, #757575);
+	font-variant-numeric: tabular-nums;
+}
+
+.vp-chapters-panel__issues {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.vp-chapters-panel__list {
+	flex: 1;
+	min-block-size: 0;
+	overflow-y: auto;
 }
