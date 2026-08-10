@@ -35,14 +35,11 @@ type PopularDaysWidgetProps = WidgetRenderProps< PopularDaysRenderAttributes > &
 const ABBREVIATED_VIEWS_OPTIONS = { useMultipliers: true, decimals: 1 };
 const PLAIN_VIEWS_OPTIONS = { decimals: 0 };
 
-/**
- * The busiest weekday over an area chart of the whole week's distribution.
- */
 function PopularDaysReport() {
 	const { buckets, peak, isLoading, isFetching, isError, error, refetch } = usePopularDays();
 
-	// Averages, matching the headline — plotting totals here would contradict it
-	// on any range that samples some weekdays more often than others.
+	// Averages, matching the headline; totals would contradict it on any range
+	// that samples some weekdays more often than others.
 	const points = useMemo( () => buckets.map( bucket => bucket.average ), [ buckets ] );
 
 	// `placeholderData` keeps the prior response on a transient refetch failure,
