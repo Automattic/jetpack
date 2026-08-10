@@ -11,8 +11,7 @@ import type { ReportParams } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
-// Keep visx out of jsdom, and capture the series the widget hands the chart so
-// the day-by-day mapping is assertable without measuring a real tile.
+// Keep visx out of jsdom while exposing the mapped series for assertions.
 jest.mock( '@jetpack-premium-analytics/externals', () => {
 	const actual = jest.requireActual( '@jetpack-premium-analytics/externals' );
 
@@ -39,8 +38,6 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 
 const mockUseStatsVisits = jest.mocked( useStatsVisits );
 
-// A whole selected calendar year, the shortest range the Insights period control
-// can produce apart from a partial current year.
 const REPORT_PARAMS = {
 	from: '2025-01-01',
 	to: '2025-12-31',
@@ -89,10 +86,6 @@ describe( 'TrafficViewsActivityWidget', () => {
 
 			const params = mockUseStatsVisits.mock.calls[ 0 ][ 0 ] as Record< string, unknown >;
 
-			// `reportParamsToStatsQueryParams` reads `start_date ?? from` and
-			// `end_date ?? date ?? to`. The camel-case `startDate`/`endDate` pair
-			// belongs to `stats/streak`; sending those here would leave the
-			// window unread and quietly request the whole selected period.
 			expect( params ).toMatchObject( {
 				from: '2025-01-01',
 				to: '2025-12-31',
@@ -123,7 +116,6 @@ describe( 'TrafficViewsActivityWidget', () => {
 				to: '2024-12-31',
 			} as unknown as ReportParams );
 
-			// A 365-day cap would start this on 2024-01-02.
 			expect( mockUseStatsVisits.mock.calls[ 0 ][ 0 ] ).toMatchObject( {
 				from: '2024-01-01',
 				to: '2024-12-31',
@@ -147,9 +139,6 @@ describe( 'TrafficViewsActivityWidget', () => {
 
 	describe( 'day mapping', () => {
 		it( 'reads the day key from time_interval, not date', () => {
-			// `useStatsPost` returns `{ date, views }`; the normalised visits
-			// series keys on `time_interval`. Reading the wrong one yields an
-			// all-blank grid.
 			mockUseStatsVisits.mockReturnValue(
 				visitsResult(
 					report( [
@@ -180,8 +169,6 @@ describe( 'TrafficViewsActivityWidget', () => {
 		it( 'spans the whole window even though the payload is sparse', () => {
 			renderWidget();
 
-			// 2025 starts mid-week, so the grid runs from the Monday of that week
-			// through the Sunday completing the last one: 53 columns.
 			expect( screen.getByTestId( 'heatmap' ) ).toHaveAttribute( 'data-columns', '53' );
 		} );
 	} );

@@ -30,11 +30,7 @@ const STATS_VISITS_PATH_FRAGMENT = 'stats/visits';
 
 const TRAFFIC_VIEWS_ACTIVITY_RENDER_MODULE = 'storybook/traffic-views-activity';
 
-/**
- * Insights offers all time and single calendar years, so a year-long range is
- * the shortest thing the real period control produces — the 30-day default the
- * other tabs use would misrepresent how this widget is seen.
- */
+// Match the shortest complete-year range offered by the Insights period control.
 const YEAR_PRESET: PresetType = 'last-365-days';
 
 function renderTrafficViewsActivity( preset: PresetType = YEAR_PRESET ) {
@@ -45,11 +41,6 @@ function renderTrafficViewsActivity( preset: PresetType = YEAR_PRESET ) {
 	);
 }
 
-/**
- * Forces the visits request into the given state for a story's lifetime. See
- * `forceStatsMockState` for why these stories are tagged `!autodocs` and each
- * runs on its own preset.
- */
 function forceVisitsState( state: 'loading' | 'error' | 'error-retryable' | 'empty' ) {
 	setReportMockState( STATS_VISITS_PATH_FRAGMENT, state );
 	return () => {

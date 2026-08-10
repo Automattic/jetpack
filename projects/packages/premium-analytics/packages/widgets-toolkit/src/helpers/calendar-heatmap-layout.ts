@@ -24,10 +24,8 @@ export type CalendarHeatmapLayoutInput = {
 	/** Minimum columns to keep before shrinking the cell. Defaults to 6. */
 	minColumns?: number;
 	/**
-	 * Height the legend takes below the grid, in px. Reserved out of the tile
-	 * before the cell size is derived, so a widget that renders no legend must
-	 * pass 0 — left at the default it would shrink every cell to make room for
-	 * a legend that is never drawn. Defaults to 44 (the legend's own height).
+	 * Space reserved below the grid for a legend. Defaults to 44px, so a widget
+	 * that renders no legend must pass 0 or its cells shrink to clear it.
 	 */
 	legendHeight?: number;
 };

@@ -361,8 +361,7 @@ function get_dashboard_default_section_layouts() {
 				1,
 				1
 			),
-			// Row 5: the site-wide daily views heatmap. Two rows tall: the design
-			// sizes its cells at 61x40, which a one-row tile cannot fit.
+			// Row 5: daily views heatmap, two rows tall to fit its 61x40 cells.
 			get_dashboard_default_widget_instance(
 				'default-traffic-views-activity-widget-instance',
 				'jpa/traffic-views-activity',

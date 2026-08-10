@@ -29,27 +29,18 @@ import styles from './style.module.css';
 import type { TrafficViewsActivityAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-// Report params are dashboard-driven — WidgetRoot resolves them from the period
-// control — but the host (and Storybook) may also inject them via `attributes`.
 type TrafficViewsActivityRenderAttributes = TrafficViewsActivityAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type TrafficViewsActivityWidgetProps = WidgetRenderProps< TrafficViewsActivityRenderAttributes >;
 
-// Inclusive dates to request at most. Insights offers all time, which can span
-// years, but the widest card shows ~33 week columns — the rest is fetched and
-// thrown away. 366 rather than 365 so a selected leap year survives whole.
+// Avoid fetching years the widget cannot display; 366 preserves a complete leap year.
 const MAX_WINDOW_DAYS = 366;
 
-// The design's cell. The ratio is what turns the capped 40px height into the
-// 61px width, so the two must stay in step.
+// Preserve the design's 61:40 cell ratio.
 const CELL_HEIGHT = 40;
 const CELL_ASPECT_RATIO = 61 / CELL_HEIGHT;
 
-/**
- * The design leads the tooltip with the count and the metric, then the date —
- * the reverse of the chart's default, and the cell already shows an abbreviated
- * number, so this is where the exact one belongs.
- */
+// Show the exact count before the date instead of the chart's default ordering.
 function renderCellTooltip( { value, cellLabel }: HeatmapTooltipData ) {
 	return (
 		<>
@@ -67,12 +58,6 @@ function renderCellTooltip( { value, cellLabel }: HeatmapTooltipData ) {
 	);
 }
 
-/**
- * The site's daily views over the selected period, as a calendar heatmap.
- *
- * Unlike `jpa/posting-activity` it never switches to compact squares: the design
- * pairs the two on Insights so one reads as counts and the other as density.
- */
 function TrafficViewsActivityInner() {
 	const { reportParams } = useWidgetRootContext();
 
@@ -86,10 +71,7 @@ function TrafficViewsActivityInner() {
 		[ reportParams ]
 	);
 
-	// The window goes in `from`/`to`, not the `startDate`/`endDate` pair
-	// `stats/streak` takes: `reportParamsToStatsQueryParams` reads
-	// `start_date ?? from`, so camel-case fields would be dropped and the
-	// request would silently cover the whole period instead of the cap.
+	// stats/visits reads from/to; startDate/endDate are specific to stats/streak.
 	const params = useMemo(
 		() =>
 			withoutComparison( {
@@ -110,7 +92,6 @@ function TrafficViewsActivityInner() {
 			( report?.data ?? [] ).map( row => {
 				const views = Number( ( row as Record< string, unknown > ).views ?? 0 );
 
-				// Blank rather than a `0` label for days with no traffic.
 				return [ String( row.time_interval ), views > 0 ? views : null ];
 			} )
 		);
@@ -124,8 +105,6 @@ function TrafficViewsActivityInner() {
 		column.data.some( cell => cell.value !== null && cell.value > 0 )
 	);
 
-	// The measured div fills the widget slot with no padding of its own, so its
-	// size is the space the heatmap has to work with.
 	const [ setRef, size ] = useElementSize< HTMLDivElement >();
 
 	const layout = useMemo(
@@ -136,15 +115,13 @@ function TrafficViewsActivityInner() {
 				dataColumns: heatmapData.length,
 				aspectRatio: CELL_ASPECT_RATIO,
 				maxCellHeight: CELL_HEIGHT,
-				// No legend is rendered, so reserving its default allowance
-				// would shrink every cell to make room for nothing.
+				// Avoid shrinking the cells for a legend this widget does not render.
 				legendHeight: 0,
 			} ),
 		[ size.width, size.height, heatmapData.length ]
 	);
 
-	// Drop the oldest columns when the tile cannot fit them all. `slice( -0 )`
-	// returns the whole array, so a degenerate tile leaves the data untouched.
+	// slice( -0 ) keeps the data intact until the tile has a measurable width.
 	const trimmedData = useMemo(
 		() => heatmapData.slice( -layout.columns ),
 		[ heatmapData, layout.columns ]
@@ -156,8 +133,7 @@ function TrafficViewsActivityInner() {
 				<WidgetState
 					isLoading={ isLoading }
 					isFetching={ isFetching }
-					// The query keeps the previous response via `placeholderData`, so
-					// only surface the error when there is nothing to show.
+					// Keep stale data visible when a background refetch fails.
 					isError={ isError && ! hasViews }
 					isEmpty={ ! hasViews }
 					error={ describeError( error, {

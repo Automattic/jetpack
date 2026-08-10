@@ -6,10 +6,6 @@
 	overflow: hidden;
 }
 
-/* Measured tile area (the ref lives here): its size is the space the heatmap
-   works with, and it centers the heatmap so a grid narrower than the tile sits
-   in centered whitespace, not against the start edge. No scroll — columns trim
-   to fit. */
 .content {
 	position: relative;
 	display: flex;

@@ -8,10 +8,6 @@ const TODAY = '2026-08-10';
 describe( 'resolveCalendarHeatmapWindow', () => {
 	describe( 'minDays — the posting activity floor', () => {
 		it( 'extends a short range backwards to the floor', () => {
-			// The floor counts inclusive dates, so 366 lands 365 days back. This
-			// is the exact start date `resolveStreakRange( params, 365, … )`
-			// produced before the helper moved; passing 365 here would shorten
-			// the window by a day.
 			expect(
 				resolveCalendarHeatmapWindow(
 					{ from: '2026-08-04', to: '2026-08-10' },
@@ -44,9 +40,6 @@ describe( 'resolveCalendarHeatmapWindow', () => {
 		} );
 
 		it( 'keeps a selected leap year whole', () => {
-			// 2024 has 366 days. A 365-day cap would start this window on
-			// 2024-01-02 and silently drop New Year's Day from a filter that
-			// says "2024".
 			expect(
 				resolveCalendarHeatmapWindow(
 					{ from: '2024-01-01', to: '2024-12-31' },
@@ -132,8 +125,6 @@ describe( 'buildDenseDaySeries', () => {
 	} );
 
 	it( 'preserves a nulled entry rather than treating it as absent', () => {
-		// The caller decides whether a real 0 reads as an empty cell; once it
-		// has, the helper must not second-guess it.
 		expect( buildDenseDaySeries( { '2026-08-01': null }, '2026-08-01', '2026-08-01' ) ).toEqual( [
 			{ dateString: '2026-08-01', value: null },
 		] );

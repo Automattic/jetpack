@@ -214,8 +214,7 @@ describe( 'fitCompactCalendarHeatmapColumns', () => {
 } );
 
 describe( 'computeCalendarHeatmapLayout legend allowance', () => {
-	// The Insights tile at `height: 2` — 416px of grid row less the framed
-	// widget's border, header, and card padding.
+	// Available content height in a two-row Insights tile.
 	const TILE_CONTENT_HEIGHT = 326;
 
 	const trafficViewsBase: CalendarHeatmapLayoutInput = {
@@ -237,11 +236,8 @@ describe( 'computeCalendarHeatmapLayout legend allowance', () => {
 	} );
 
 	it( 'reaches the design cell size only once the legend allowance is dropped', () => {
-		// (326 - 16 - 44 - 24) / 7 = 34.6 — short of the 40px design cell.
 		expect( computeCalendarHeatmapLayout( trafficViewsBase ).cellHeight ).toBeCloseTo( 34.57, 1 );
 
-		// (326 - 16 - 0 - 24) / 7 = 40.9, capped by maxCellHeight to exactly 40,
-		// which pairs with the design's 61px width at the 61:40 ratio.
 		const noLegend = computeCalendarHeatmapLayout( { ...trafficViewsBase, legendHeight: 0 } );
 		expect( noLegend.cellHeight ).toBe( 40 );
 		expect( noLegend.cellWidth ).toBe( 61 );
