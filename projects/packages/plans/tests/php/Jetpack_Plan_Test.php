@@ -37,6 +37,32 @@ class Jetpack_Plan_Test extends TestCase {
 	}
 
 	/**
+	 * A record that matches what is already stored must not touch the options. `update_option()`
+	 * reports false for an unchanged value, which previously read as a failure and triggered a
+	 * delete plus a rewrite of an autoloaded option on every fetch.
+	 */
+	public function test_an_unchanged_record_does_not_rewrite_the_options() {
+		$record = array(
+			'plan'     => array( 'product_slug' => 'jetpack_personal' ),
+			'products' => array( array( 'product_slug' => 'jetpack_backup_t1_yearly' ) ),
+		);
+
+		Jetpack_Plan::update_from_site_record( $record );
+
+		$deleted = array();
+		add_action(
+			'delete_option',
+			function ( $option ) use ( &$deleted ) {
+				$deleted[] = $option;
+			}
+		);
+
+		Jetpack_Plan::update_from_site_record( $record );
+
+		$this->assertSame( array(), $deleted );
+	}
+
+	/**
 	 * @dataProvider get_update_from_sites_response_data
 	 */
 	#[DataProvider( 'get_update_from_sites_response_data' )]

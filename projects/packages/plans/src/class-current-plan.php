@@ -226,13 +226,20 @@ class Current_Plan {
 	private static function store_data_in_option( $option, $data ) {
 		$result = update_option( $option, $data, true );
 
-		// If something goes wrong with the update, so delete the current option and then update it.
-		if ( ! $result ) {
-			delete_option( $option );
-			$result = update_option( $option, $data, true );
+		if ( $result ) {
+			return true;
 		}
 
-		return $result;
+		// update_option() also reports false when the stored value already matches, which is not a
+		// failure. Without this the option is deleted and rewritten on every unchanged fetch.
+		if ( get_option( $option ) === $data ) {
+			return true;
+		}
+
+		// If something goes wrong with the update, so delete the current option and then update it.
+		delete_option( $option );
+
+		return update_option( $option, $data, true );
 	}
 
 	/**
