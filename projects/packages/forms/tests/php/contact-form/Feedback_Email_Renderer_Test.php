@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Forms\Dashboard\Dashboard;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
@@ -680,6 +681,73 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_forms_response_email_title' );
 
 		$this->assertStringContainsString( '<h1 class="email-header">Custom Email Title</h1>', $result['message'] );
+	}
+
+	/**
+	 * The two email action buttons must not point at the same place.
+	 *
+	 * "View in dashboard" opens the standalone single response page, while
+	 * "Mark as spam" has to stay on the responses list: the confirmation dialog it
+	 * relies on lives in the list's response inspector, not on the single response
+	 * page. Consolidating the two into one helper looks like a tidy-up and would
+	 * silently drop that confirmation step, so pin the difference here.
+	 */
+	public function test_build_email_content_action_urls_are_distinct() {
+		add_filter( 'jetpack_forms_alpha', '__return_true' );
+
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'Name'  => 'Test User',
+				'Email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User'
+		);
+
+		$form     = new Contact_Form( array(), '' );
+		$response = Feedback::get( $post_id );
+
+		$context_data = array(
+			'time'                 => current_time( 'mysql' ),
+			'url'                  => 'https://example.com',
+			'comment_author'       => 'Test User',
+			'comment_author_email' => 'test@example.com',
+			'comment_author_ip'    => '127.0.0.1',
+			'is_spam'              => false,
+			'feedback_status'      => 'publish',
+		);
+
+		$result = Feedback_Email_Renderer::build_email_content( $post_id, $form, $response, $context_data );
+
+		remove_filter( 'jetpack_forms_alpha', '__return_true' );
+
+		// "View in dashboard" points at the standalone single response page.
+		$this->assertStringContainsString(
+			esc_url( Dashboard::get_single_response_admin_url( $post_id ) ),
+			$result['message']
+		);
+
+		// "Mark as spam" stays on the responses list and keeps its trigger param.
+		// Asserted by shape rather than by rebuilding `add_mark_as_spam_to_url()`,
+		// which embeds the flag inside the encoded `p` path for wp-build URLs.
+		$this->assertMatchesRegularExpression(
+			'#href="[^"]*p=%2Fresponses%2Finbox[^"]*mark_as_spam[^"]*"#',
+			$result['message'],
+			'Mark as spam must stay on the responses list, where its confirmation dialog lives.'
+		);
+
+		// And it must never be pointed at the standalone page, which has no dialog.
+		$this->assertDoesNotMatchRegularExpression(
+			'#href="[^"]*p=%2Fresponse%2F\d+[^"]*mark_as_spam#',
+			$result['message'],
+			'Pointing Mark as spam at the single response page would drop the confirmation step.'
+		);
+
+		$this->assertNotEquals(
+			Dashboard::get_single_response_admin_url( $post_id ),
+			Dashboard::get_forms_admin_url( 'inbox', $post_id ),
+			'The single response page and the responses list must remain distinct URLs.'
+		);
 	}
 
 	/**

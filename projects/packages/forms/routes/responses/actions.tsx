@@ -27,6 +27,7 @@ import type {
 	Action,
 } from '../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../src/types/index.ts';
+import type { UseNavigateResult } from '@wordpress/route';
 /**
  * Helper function to extract count-relevant query params from the current query.
  *
@@ -284,8 +285,12 @@ export const BULK_ACTIONS = {
 	markAsNotSpam: 'mark_as_not_spam',
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type NavigateFunction = ( options: any ) => void;
+// The router's own navigate type, rather than `( options: any ) => void`. Note what
+// this does and does not buy: it checks the options shape (a misspelled `to` fails),
+// but not path *values* — the route tree isn't registered as a type in this build, so
+// `to` widens to `string` and a typo'd path still compiles. Same limitation the
+// `search` cast in `routes/response/breadcrumbs.tsx` works around.
+type NavigateFunction = UseNavigateResult< string >;
 
 type ActionWithDestructive = Action & {
 	isDestructive?: boolean;
@@ -491,6 +496,8 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 						BULK_ACTIONS.markAsSpam
 					);
 				}
+
+				return { itemsUpdated: itemsUpdated.length, numberOfErrors };
 			} finally {
 				if ( waitForRecordsPromise ) {
 					await waitForRecordsPromise;
@@ -623,6 +630,8 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 						BULK_ACTIONS.markAsNotSpam
 					);
 				}
+
+				return { itemsUpdated: itemsUpdated.length, numberOfErrors };
 			} finally {
 				if ( waitForRecordsPromise ) {
 					await waitForRecordsPromise;
@@ -742,7 +751,7 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 						removeNotice( 'restore-action' );
 					}
 
-					return;
+					return { itemsUpdated: itemsUpdated.length, numberOfErrors };
 				}
 
 				// There is at least one failure.
@@ -750,6 +759,8 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 
 				removeNotice( 'restore-action' );
 				createErrorNotice( errorMessage, { type: 'snackbar' } );
+
+				return { itemsUpdated: itemsUpdated.length, numberOfErrors };
 			} finally {
 				if ( waitForRecordsPromise ) {
 					await waitForRecordsPromise;
@@ -882,7 +893,7 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 						removeNotice( 'move-to-trash-action' );
 					}
 
-					return;
+					return { itemsUpdated: itemsUpdated.length, numberOfErrors };
 				}
 
 				// There is at least one failure.
@@ -890,6 +901,8 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 
 				removeNotice( 'move-to-trash-action' );
 				createErrorNotice( errorMessage, { type: 'snackbar' } );
+
+				return { itemsUpdated: itemsUpdated.length, numberOfErrors };
 			} finally {
 				if ( waitForRecordsPromise ) {
 					await waitForRecordsPromise;
@@ -980,13 +993,15 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 				const hashString = hashParams.toString();
 				window.location.hash = hashString ? `${ hashBase }?${ hashString }` : hashBase;
 
-				return;
+				return { itemsUpdated: itemsUpdated.length, numberOfErrors: 0 };
 			}
 			// There is at least one failure.
 			const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
 			const errorMessage = getGenericErrorMessage( numberOfErrors );
 
 			createErrorNotice( errorMessage, { type: 'snackbar' } );
+
+			return { itemsUpdated: itemsUpdated.length, numberOfErrors };
 		},
 	};
 

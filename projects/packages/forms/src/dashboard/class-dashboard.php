@@ -184,7 +184,7 @@ class Dashboard {
 					if ( ! empty( $m[3] ) && strpos( $m[3], 'mark_as_spam' ) !== false ) {
 						$has_mark_as_spam = true;
 					}
-				} elseif ( preg_match( '#^/response/(\d+)#', $p, $m ) ) {
+				} elseif ( preg_match( '#^/response/(\d+)$#', $p, $m ) ) {
 					// Standalone single response page (wp-build only) — the legacy
 					// dashboard shows the response in the inbox list instead.
 					$post_id = absint( $m[1] );

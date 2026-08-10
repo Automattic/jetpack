@@ -120,6 +120,22 @@ export type Registry = {
 	resolveSelect: ( store: StoreDescriptor ) => ResolveSelectActions;
 };
 
+/**
+ * Outcome of an action, so callers can tell a successful run from a failed one.
+ *
+ * The status-changing actions already track this internally to decide which
+ * optimistic updates to roll back; reporting it lets callers that keep the user
+ * in place (e.g. the standalone single response page) avoid acting on a change
+ * the server rejected. Callers that don't care — such as the responses list,
+ * which relies on the notices and optimistic updates — can ignore it.
+ */
+export type ActionResult = {
+	/** Number of items the server confirmed. */
+	itemsUpdated: number;
+	/** Number of items whose request failed. */
+	numberOfErrors: number;
+};
+
 export type Action = {
 	id: string;
 	isPrimary: boolean;
@@ -132,5 +148,5 @@ export type Action = {
 		items: FormResponse[],
 		{ registry }: { registry: Registry },
 		options?: { isUndo?: boolean; targetStatus?: 'publish' | 'spam' | 'trash' }
-	) => Promise< void >;
+	) => Promise< ActionResult | void >;
 };
