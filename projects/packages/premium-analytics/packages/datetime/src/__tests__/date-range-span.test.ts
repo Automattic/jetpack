@@ -56,6 +56,16 @@ describe( 'getDateRangeSpan', () => {
 		).toEqual( { unit: 'hour', value: 24 } );
 	} );
 
+	it( 'measures an hour-snapped window a millisecond short as its full length', () => {
+		// `last-24-hours` snaps to hour boundaries and ends on an `endOfHour`.
+		expect(
+			getDateRangeSpan( {
+				from: at( 2026, 7, 28, 19 ),
+				to: new Date( 2026, 6, 29, 18, 59, 59, 999 ),
+			} )
+		).toEqual( { unit: 'hour', value: 24 } );
+	} );
+
 	it( 'counts a day-aligned range in days even when it is only one day long', () => {
 		// `today` also spans 24 hours, but its boundaries make it a calendar day.
 		expect( getDateRangeSpan( { from: at( 2026, 7, 29 ), to: endOf( 2026, 7, 29 ) } ) ).toEqual( {

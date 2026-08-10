@@ -126,7 +126,10 @@ export function getDateRangeSpan( range?: DateRange ): DateRangeSpan | null {
 	}
 
 	if ( ! coversWholeDays( from, to ) ) {
-		const hours = Math.round( differenceInHours( to, from ) );
+		// `round`, not the default truncation: an hour-snapped window runs to
+		// the last millisecond of its final hour, and truncation reads it one
+		// hour short.
+		const hours = differenceInHours( to, from, { roundingMethod: 'round' } );
 
 		if ( hours <= MAX_HOURS_SPAN ) {
 			return { unit: 'hour', value: Math.max( hours, 1 ) };

@@ -47,6 +47,19 @@ describe( 'stepDateRange', () => {
 		expect( previous?.to ).toEqual( wholeDays( at( 2026, 7, 14 ), at( 2026, 7, 20 ) ).to );
 	} );
 
+	it( 'moves an hour-snapped window by its full length', () => {
+		// `last-24-hours`: hour boundaries, a millisecond short of 24 hours.
+		const range = {
+			from: at( 2026, 7, 9, 19 ),
+			to: new Date( 2026, 6, 10, 18, 59, 59, 999 ),
+		};
+
+		const previous = stepDateRange( range, 'previous' );
+
+		expect( previous?.from ).toEqual( at( 2026, 7, 8, 19 ) );
+		expect( previous?.to ).toEqual( new Date( 2026, 6, 9, 18, 59, 59, 999 ) );
+	} );
+
 	it( 'moves a month-scale window by calendar months, not by days', () => {
 		// A whole year: stepping back has to land on the same days of the month.
 		const range = wholeDays( at( 2026, 1, 1 ), at( 2026, 12, 31 ) );
