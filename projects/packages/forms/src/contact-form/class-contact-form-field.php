@@ -1821,7 +1821,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * turn that text back into live markup, so the decoded result is filtered here instead of
 	 * being echoed as-is.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.24.0
 	 *
 	 * @param string|null $content The raw (entity-encoded) field content.
 	 *
@@ -1870,7 +1870,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * directives survive this filter. Their values are store paths rather than executable code,
 	 * and removing them would also break core/image's lightbox markup, so they are left alone.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.24.0
 	 *
 	 * @return array Allowed HTML, in wp_kses() format.
 	 */

@@ -301,7 +301,7 @@ class Stats extends Module_Product {
 	 * Mirrors `Analytics::MENU_PAGE_SLUG`, spelled out because My Jetpack does not
 	 * depend on the premium-analytics package.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.42.0
 	 */
 	const PREMIUM_ANALYTICS_PAGE_SLUG = 'jetpack-premium-analytics-wp-admin';
 
@@ -312,7 +312,7 @@ class Stats extends Module_Product {
 	 * also ships in plugins without the Jetpack plugin. Public so the UI flags
 	 * report the same answer the URLs are built from.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.42.0
 	 *
 	 * @return bool
 	 */

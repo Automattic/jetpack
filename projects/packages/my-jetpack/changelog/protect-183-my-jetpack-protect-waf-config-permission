@@ -1,4 +1,0 @@
-Significance: patch
-Type: security
-
-Only expose the full firewall configuration and scan report to users who can manage site options.

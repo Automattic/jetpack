@@ -1,4 +1,0 @@
-Significance: patch
-Type: security
-
-Ensure post IDs are cast to integers before they are used in the post views query on Simple sites.

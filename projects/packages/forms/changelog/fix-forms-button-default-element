@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Ensure the submit button inside a Form renders as a button element so forms saved without an explicit element can still be submitted.

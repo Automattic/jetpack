@@ -1,4 +1,0 @@
-Significance: patch
-Type: security
-
-Verify per-video permissions when updating video metadata.

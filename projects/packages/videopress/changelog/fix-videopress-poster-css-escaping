@@ -1,4 +1,0 @@
-Significance: patch
-Type: security
-
-Improve escaping of block attributes rendered into inline styles.
