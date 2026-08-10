@@ -156,6 +156,14 @@ describe( 'computeDateRangeFromPreset', () => {
 		expect( range!.to ).toBe( toZ( TODAY_END ) );
 	} );
 
+	it( 'returns the default year surface through the end of today for all time', () => {
+		const range = computeDateRangeFromPreset( 'all-time' );
+
+		expect( range ).toBeDefined();
+		expect( range!.from ).toBe( toZ( startOfYear( subYears( TODAY_START, 5 ), { in: UTC } ) ) );
+		expect( range!.to ).toBe( toZ( TODAY_END ) );
+	} );
+
 	it( 'returns undefined for unrecognized preset', () => {
 		// @ts-expect-error – testing with invalid preset on purpose
 		const range = computeDateRangeFromPreset( 'not-a-preset' );

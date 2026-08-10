@@ -5,11 +5,10 @@ import {
 	PRESET_ALL_TIME,
 	isSelectablePreset,
 	isYearPresetId,
-	isYearSurfacePresetId,
 	type SelectablePresetId,
 	type ComparisonPresetId,
+	type ComputablePresetId,
 	type PrimaryPresetId,
-	type YearSurfacePresetId,
 } from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
@@ -31,12 +30,8 @@ export type { IntervalType };
  */
 export type PresetType = SelectablePresetId;
 
-/**
- * The presets a report URL can carry: the rolling windows every section offers,
- * plus the year surface a section can offer instead (all time, or one calendar
- * year — see `Dashboard_Section::DATE_FILTER_YEAR`).
- */
-export type ReportPresetId = PresetType | YearSurfacePresetId;
+/** The computable presets a report URL can carry. */
+export type ReportPresetId = ComputablePresetId;
 
 type OrderAttributionView = ( typeof ORDER_ATTRIBUTION_VIEWS )[ number ];
 
@@ -115,8 +110,8 @@ export function normalizeReportParams(
 		preset = search.preset;
 	} else if ( search?.preset === PRESET_ALL_TIME && search?.from && search?.to ) {
 		/*
-		 * All time starts at the site's first listed year, which this layer cannot
-		 * resolve, so it is only honoured next to the range the section wrote.
+		 * The all-time start belongs to the year surface and may eventually be
+		 * site-specific, so only honour it next to the range the section wrote.
 		 * Keeping the marker lets widgets distinguish it from a single year when
 		 * both ranges happen to cover the same dates.
 		 */
@@ -125,16 +120,20 @@ export function normalizeReportParams(
 		preset = defaults.preset;
 	}
 
-	// Recalculate rolling and per-year presets so their ranges stay fresh on
-	// every page load instead of using stale URL dates. The current calendar
-	// year's end moves with today just like a rolling range does.
+	// Recalculate presets so their moving end stays fresh on every page load.
+	// For all time, preserve the URL-authored start because the year surface owns
+	// it and may eventually resolve it from the site's first year.
 	// If the preset is valid but has no range implementation,
 	// clear it to avoid silently falling back to stale dates.
-	// All time is skipped because its start depends on the site's first year.
 	let presetRange: ReturnType< typeof computeDateRangeFromPreset >;
-	if ( preset && ( isSelectablePreset( preset ) || isYearPresetId( preset ) ) ) {
-		presetRange = computeDateRangeFromPreset( preset );
-		if ( ! presetRange ) {
+	if ( preset ) {
+		const computedRange = computeDateRangeFromPreset( preset );
+		if ( computedRange ) {
+			presetRange =
+				preset === PRESET_ALL_TIME
+					? { ...computedRange, from: search?.from ?? computedRange.from }
+					: computedRange;
+		} else {
 			preset = undefined;
 		}
 	}
@@ -183,12 +182,9 @@ export function needsReportDateParamsSeed( search?: ReportDateWindowSearch ): bo
 		return true;
 	}
 
-	// Accept the same preset IDs as `normalizeReportParams`. Year-surface presets
-	// currently derive their intervals from the range, like an absent preset.
-	const preset =
-		isSelectablePreset( search.preset ) || isYearSurfacePresetId( search.preset )
-			? search.preset
-			: undefined;
+	// Only rolling presets have preset-specific interval rules. Other presets
+	// derive their allowed intervals from the range, like an absent preset.
+	const preset = isSelectablePreset( search.preset ) ? search.preset : undefined;
 	return (
 		resolveIntervalForRange( preset, search.from, search.to, search.interval ) !== search.interval
 	);

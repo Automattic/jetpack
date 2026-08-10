@@ -379,15 +379,17 @@ describe( 'normalizeReportParams', () => {
 		expect( result.to ).toBe( FRESH_TO );
 	} );
 
-	it( 'keeps the all-time preset', () => {
+	it( 'keeps the all-time start and refreshes its end', () => {
 		const result = normalizeReportParams( {
 			from: '2023-01-01T00:00:00.000-05:00',
-			to: FRESH_TO,
+			to: STALE_TO,
 			preset: 'all-time',
 		} );
 
 		expect( result.preset ).toBe( 'all-time' );
+		expect( mockComputeRange ).toHaveBeenCalledWith( 'all-time' );
 		expect( result.from ).toBe( '2023-01-01T00:00:00.000-05:00' );
+		expect( result.to ).toBe( FRESH_TO );
 	} );
 
 	it( 'rebuilds a year preset that arrives without its range', () => {
