@@ -140,12 +140,19 @@ function wpcom_site_can_upload_videos( $blog_id = 0 ) {
  *
  * @param int  $blog_id           Optional. Blog ID. Defaults to current blog.
  * @param bool $with_billing_data Optional. Overlay billing-derived state (accurate
- *                                `user_allows_auto_renew`, `is_past_first_auto_renew_attempt_date`,
- *                                `is_past_last_auto_renew_attempt_date`, `might_still_auto_renew`,
- *                                `expiry_status`) onto each purchase. Opt-in because it queries the
+ *                                `user_allows_auto_renew`, plus `might_still_auto_renew`,
+ *                                `is_past_first_auto_renew_attempt_date`,
+ *                                `is_past_last_auto_renew_attempt_date`,
+ *                                `first_auto_renew_attempt_date`, `last_auto_renew_attempt_date`
+ *                                and `expiry_status`) onto each purchase. The same fields the
+ *                                Atomic payload carries, so consumers read one shape on either
+ *                                site type. Opt-in because it queries the
  *                                billing system on every call; the plain cached rows are enough for
- *                                feature checks. On Atomic sites this is a no-op: the synced payload
- *                                carries whatever fields it was synced with.
+ *                                feature checks. The overlay degrades to the plain rows wherever
+ *                                billing cannot answer, so read the derived fields as optional and
+ *                                trust `user_allows_auto_renew` as billing-accurate only on a
+ *                                purchase that carries them. On Atomic sites this is a no-op: the
+ *                                synced payload carries whatever fields it was synced with.
  *
  * @return array An array of product objects containing at least product_slug, product_id,
  *               product_type, subscribed_date, expiry_date and subscription_id. With
@@ -194,15 +201,21 @@ function wpcom_get_site_purchases( $blog_id = 0, $with_billing_data = false ) {
  * subscriptions that cannot actually renew (no chargeable payment method), and
  * they carry none of the derived state that depends on the auto-renew attempt
  * schedule. Both of those change with the passage of time, so neither can live
- * in the 24-30 hour `site_purchases` cache. The billing lookup is instead
- * memoised for the current request only, keeping repeat callers within a single
- * page load to one lookup. Results are handed back as clones, since the cached
- * objects themselves must stay untouched or the overlay would leak into callers
- * that did not ask for it.
+ * in the 24-30 hour `site_purchases` cache: the billing lookup runs on every
+ * call. Results are handed back as clones, since the cached objects themselves
+ * must stay untouched or the overlay would leak into callers that did not ask
+ * for it.
  *
- * Only ever does anything on Simple sites. Purchases are returned as-is in
- * contexts where the billing code-base is unavailable (see pdqkMK-18D-p2), so
- * callers must treat the extra fields as optional.
+ * The two attempt dates come along for parity with the Atomic payload, which
+ * needs them because it is only re-synced on subscription events. Here they are
+ * as fresh as the booleans beside them.
+ *
+ * Only ever does anything on Simple sites. Purchases are returned as-is when
+ * the billing code-base is unavailable (see pdqkMK-18D-p2), when the billing
+ * lookup fails, and for any purchase billing does not know about, so callers
+ * must treat the extra fields as optional. `user_allows_auto_renew` is only
+ * billing-accurate on a purchase that carries them; where they are absent it is
+ * still the raw cached flag this overlay exists to correct.
  *
  * @param array $purchases Purchases as returned by _wpcom_features_get_simple_site_purchases().
  * @param int   $blog_id   Blog ID the purchases belong to.
@@ -210,51 +223,56 @@ function wpcom_get_site_purchases( $blog_id = 0, $with_billing_data = false ) {
  * @return array The purchases, enriched when possible.
  */
 function _wpcom_features_add_billing_data_to_purchases( $purchases, $blog_id ) {
-	if ( empty( $purchases ) || ! class_exists( '\A8C\Billingdaddy\Container' ) ) {
+	if ( empty( $purchases ) ) {
 		return $purchases;
 	}
 
-	if ( ! class_exists( 'WPCOM_Store_API' ) ) {
-		// The whole billing loader rather than just the class file, as
-		// get_site_billing_upgrades() also reaches for store_logger(), a plain
-		// function that only the loader pulls in. Same as woa_get_purchases().
-		$billing_loader = WP_CONTENT_DIR . '/admin-plugins/wpcom-billing.php';
-		if ( ! is_readable( $billing_loader ) ) {
-			return $purchases;
-		}
-		require_once $billing_loader;
+	// The whole billing loader rather than just the class file, as
+	// get_site_billing_upgrades() also reaches for store_logger(), a plain
+	// function that only the loader pulls in. Same as woa_get_purchases().
+	// Unreadable wherever the billing code-base does not ship, which is what
+	// keeps this inert in the WPCOMSH copy of this file.
+	$billing_loader = WP_CONTENT_DIR . '/admin-plugins/wpcom-billing.php';
+	if ( ! is_readable( $billing_loader ) ) {
+		return $purchases;
 	}
+	require_once $billing_loader;
 
-	// Keyed by the subscriptions being asked about, not just the blog, so that
-	// a changed set of subscriptions never reads a memo built for a different
-	// one — including across tests, which share a process.
-	$memo_key = $blog_id . ':' . implode( ',', wp_list_pluck( $purchases, 'subscription_id' ) );
+	$upgrades = array();
 
-	static $upgrades_by_key = array();
-	if ( ! isset( $upgrades_by_key[ $memo_key ] ) ) {
-		$upgrades_by_key[ $memo_key ] = array();
+	try {
 		// Subscriptions only: skips domain-subscription combining so that every
 		// upgrade still matches a store subscription row one-to-one.
 		// WPCOM_Store_API only exists on WPCOM, hence the guard above.
 		// @phan-suppress-next-line PhanUndeclaredStaticMethod
 		foreach ( WPCOM_Store_API::get_site_billing_upgrades( $blog_id, true ) as $upgrade ) {
-			$upgrades_by_key[ $memo_key ][ (string) $upgrade->ID ] = $upgrade;
+			$upgrades[ (string) $upgrade->ID ] = $upgrade;
 		}
+	} catch ( \Throwable $e ) {
+		// A single subscription whose product no longer loads throws for the
+		// whole site. Purchases are the caller's actual errand, so degrade to
+		// the plain rows rather than taking the request down with them.
+		return $purchases;
 	}
-	$upgrades = $upgrades_by_key[ $memo_key ];
 
 	return array_map(
 		function ( $purchase ) use ( $upgrades ) {
+			// Cloned before the match is tested, so that every purchase handed
+			// back is the caller's own copy: the cached rows are shared object
+			// instances for the whole request.
+			$purchase = clone $purchase;
+
 			$upgrade = $upgrades[ (string) ( $purchase->subscription_id ?? '' ) ] ?? null;
 			if ( ! $upgrade ) {
 				return $purchase;
 			}
 
-			$purchase                                        = clone $purchase;
 			$purchase->user_allows_auto_renew                = $upgrade->is_auto_renew_enabled;
+			$purchase->might_still_auto_renew                = $upgrade->might_still_auto_renew;
 			$purchase->is_past_first_auto_renew_attempt_date = $upgrade->is_past_first_auto_renew_attempt_date;
 			$purchase->is_past_last_auto_renew_attempt_date  = $upgrade->is_past_last_auto_renew_attempt_date;
-			$purchase->might_still_auto_renew                = $upgrade->might_still_auto_renew;
+			$purchase->first_auto_renew_attempt_date         = $upgrade->first_auto_renew_attempt_date;
+			$purchase->last_auto_renew_attempt_date          = $upgrade->last_auto_renew_attempt_date;
 			$purchase->expiry_status                         = $upgrade->expiry_status;
 
 			return $purchase;
