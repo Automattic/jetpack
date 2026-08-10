@@ -14,14 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Jetpack AI: Drive the product card from the new AI module with an inline on/off toggle. [#50718]
 
 ### Changed
-- My Jetpack: limit the AI card's module toggle to internal testing environments ahead of release. [#50718]
-- Stats: point the product card at the Premium Analytics dashboard when it replaces the Stats page. [#50926]
-- Update package dependencies. [#50509]
-- Update package dependencies. [#51008]
+- Limit the AI card's module toggle to internal testing environments ahead of release. [#50718]
+- Stats: Point the product card at the Premium Analytics dashboard when it replaces the Stats page. [#50926]
+- Update package dependencies. [#50509] [#51008]
 
 ### Fixed
 - Fix the My Jetpack page rendering blank on WordPress 6.9. [#50509]
-- My Jetpack: reload after toggling the AI card, so the toggle and every other surface reflect the new module state. [#50718]
+- Reload after toggling the AI card, so the toggle and every other surface reflect the new module state. [#50718]
 
 ## [5.41.1] - 2026-08-03
 ### Changed

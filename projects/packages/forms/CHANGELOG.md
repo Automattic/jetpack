@@ -14,13 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Add the site ID and Jetpack version to the response email open tracking event. [#51102]
-- Update package dependencies. [#50509]
-- Update package dependencies. [#51008]
+- Update package dependencies. [#50509] [#51008]
 
 ### Fixed
 - Ensure the submit button inside a Form renders as a button element so forms saved without an explicit element can still be submitted. [#51046]
-- Form block: show the fallback notification recipient as a placeholder so it is clear when no address is saved. [#51014]
-- Form editor: keep the form block selected so the form settings sidebar stays reachable. [#51047]
+- Form block: Show the fallback notification recipient as a placeholder so it is clear when no address is saved. [#51014]
+- Form editor: Keep the form block selected so the form settings sidebar stays reachable. [#51047]
 
 ## [7.23.4] - 2026-08-03
 ### Removed

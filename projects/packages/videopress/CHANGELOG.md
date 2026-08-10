@@ -19,13 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Dashboard: Update the admin page subtitle copy. [#51062]
-- Update package dependencies. [#50509]
-- Update package dependencies. [#51008]
+- Update package dependencies. [#50509] [#51008]
 
 ### Fixed
-- Dashboard: fix the blank Library page on right-to-left locales caused by a missing RTL stylesheet. [#51111]
-- Dashboard: prevent a fatal error on the VideoPress page when the WordPress.com pricing request fails on a disconnected site. [#50986]
-- Fix the age gate in the editor: the birth date can now be submitted, and lowering a video's rating removes the gate. [#51069]
+- Dashboard: Fix the blank Library page on right-to-left locales caused by a missing RTL stylesheet. [#51111]
+- Dashboard: Prevent a fatal error on the VideoPress page when the WordPress.com pricing request fails on a disconnected site. [#50986]
+- Editor: Fix the age gate so the birth date can be submitted and lowering a video's rating removes the gate. [#51069]
 
 ## [0.44.0] - 2026-08-03
 ### Added
