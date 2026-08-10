@@ -15,7 +15,7 @@ import { BaseControl } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { flushSync } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useMemo, useCallback, useState, useEffect } from 'react';
+import { useMemo, useCallback, useState, useEffect, type CSSProperties } from 'react';
 /**
  * Internal dependencies
  */
@@ -378,8 +378,19 @@ export function DateFiltersPanel( {
 	const isWideScreen =
 		containerWidth !== null && containerWidth >= WIDE_CALENDAR_CONTAINER_THRESHOLD;
 
+	// Published so a host can size the panel's slot from the full-labels width.
+	const rootStyle = useMemo(
+		() =>
+			fullRowWidth === null
+				? undefined
+				: ( {
+						'--date-filters-panel-full-row-width': `${ fullRowWidth }px`,
+				  } as CSSProperties ),
+		[ fullRowWidth ]
+	);
+
 	return (
-		<div ref={ setRootElement } className="date-filters-panel">
+		<div ref={ setRootElement } className="date-filters-panel" style={ rootStyle }>
 			<PresetRowProbe
 				presets={ surfacePresets }
 				customTriggerLabel={ customTriggerLabel }
