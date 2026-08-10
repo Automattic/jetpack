@@ -35,11 +35,6 @@ registerStatsMocks();
 
 const POPULAR_POST_RENDER_MODULE = 'storybook/popular-post';
 
-/**
- * Renders the data-connected widget with report params from the date range
- * picker.
- * @return The rendered widget.
- */
 function renderPopularPost() {
 	return <PopularPostRender attributes={ { reportParams: getDefaultQueryParams() } } />;
 }
@@ -150,9 +145,6 @@ export const Empty: Story = {
  *
  * Comparison report params are passed unconditionally, so the widget stays covered
  * against crashing or inventing deltas when the host supplies comparison dates.
- *
- * @param {WidgetDashboardWithWidgetControls} dashboardArgs - The dashboard story controls.
- * @return The widget mounted inside the real dashboard.
  */
 function PopularPostDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (

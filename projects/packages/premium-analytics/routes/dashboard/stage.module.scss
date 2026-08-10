@@ -1,5 +1,45 @@
 .dashboard {
 	min-block-size: 0;
+
+	/*
+	 * Tweak Card layout to make it fit the screen.
+	 * TODO: consider adding this upstream to the Card component.
+	 */
+	section:first-of-type {
+		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+		--wp-ui-card-header-content-margin: var(--wpds-dimension-padding-lg);
+
+		> div {
+			margin-block-start: 0;
+		}
+	}
+
+	// Overlay WidgetHeader re-declares padding to 2xl; match Card tweak.
+	// TODO: fix upstream in @wordpress/widget-dashboard.
+	[class*="__widget-header"][class*="__overlay"] {
+		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+	}
+}
+
+/*
+ * Widget inserter DataViewsPicker: preview tiles are Cards whose default
+ * padding is too roomy. Scope via the admin body class because the dialog
+ * portals outside `.dashboard`. :global — class is not a CSS Module local.
+ * TODO: consider adding this upstream to the Card / widget-dashboard picker.
+ */
+:global(
+	.toplevel_page_jetpack-premium-analytics-wp-admin
+	.dataviews-picker-wrapper
+) {
+
+	section:first-of-type {
+		--wp-ui-card-padding: var(--wpds-dimension-padding-md);
+		--wp-ui-card-header-content-margin: var(--wpds-dimension-padding-md);
+
+		> div {
+			margin-block-start: 0;
+		}
+	}
 }
 
 .loading {
@@ -25,6 +65,12 @@
 	// Inherited by the @wordpress/grid surfaces (grid, masonry, edit overlay),
 	// which otherwise fall back to the wider `--wpds-dimension-gap-xl`.
 	--wp-grid-gap: var(--wpds-dimension-gap-lg);
+
+	// Temporary solution. Fixed upstream https://github.com/WordPress/gutenberg/pull/80570
+	section:first-of-type {
+		display: flex;
+		flex-direction: column;
+	}
 }
 
 .sectionHeader {

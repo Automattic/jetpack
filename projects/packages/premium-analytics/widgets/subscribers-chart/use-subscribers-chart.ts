@@ -40,12 +40,6 @@ export interface SubscribersChartState {
 	refetch: () => void;
 }
 
-/**
- * Map a normalized subscribers report into the chart's point shape.
- *
- * @param report - The normalized report, or undefined while loading.
- * @return One point per period, oldest first.
- */
 function toPoints( report: StatsSubscribersResponse | undefined ): SubscribersChartPoint[] {
 	return ( report?.data ?? [] ).map( point => ( {
 		date: localTZDate( point.date_start ),
@@ -63,10 +57,6 @@ function toPoints( report: StatsSubscribersResponse | undefined ): SubscribersCh
  * only overrides which `unit` the range is bucketed into. Both windows are
  * fetched by `useStatsSubscribersReport`, which layers the comparison range on
  * top of `reportParams`.
- *
- * @param reportParams - The dashboard report params (date range + comparison).
- * @param period       - Selected granularity (day/week/month).
- * @return The current/previous series, totals, and load state.
  */
 export default function useSubscribersChart(
 	reportParams: ReportParams,

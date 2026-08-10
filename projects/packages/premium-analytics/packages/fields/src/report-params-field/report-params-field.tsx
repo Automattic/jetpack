@@ -29,9 +29,6 @@ import type { DataFormControlProps } from '@jetpack-premium-analytics/externals'
  * toolkit copy when the toolkit dissolves.
  */
 
-/**
- * Inferred types
- */
 type ReportParams = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ] >;
 
 export type ReportParamsFieldAttributes = {
@@ -71,10 +68,6 @@ export function ReportParamsField( {
 				delete nextReportParams.preset;
 			}
 
-			/*
-			 * Derive comparison range from primary range and preset,
-			 * when comparison is enabled.
-			 */
 			if ( reportParams.comp === '1' ) {
 				const derived = deriveComparisonRange( nextReportParams );
 				if ( derived ) {
@@ -88,7 +81,6 @@ export function ReportParamsField( {
 		[ stagedReportParams, reportParams.comp ]
 	);
 
-	// Basic check if the date range has been changed.
 	const isDateRangeDirty = useMemo( () => {
 		return (
 			attributes?.reportParams?.from !== stagedReportParams?.from ||

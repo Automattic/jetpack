@@ -19,7 +19,7 @@ class Agents_Manager {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.9.0';
+	const PACKAGE_VERSION = '0.9.1';
 
 	/**
 	 * Help Center URL for disconnected variants.
@@ -326,6 +326,7 @@ class Agents_Manager {
 			'agentProviders'       => $agent_providers,
 			'useUnifiedExperience' => $use_unified_experience,
 			'isDevMode'            => self::is_dev_mode(),
+			'isWpcomPlatform'      => ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_platform(),
 			'sectionName'          => apply_filters( 'agents_manager_section_name', $variant ),
 			'currentUser'          => $this->get_current_user_data(),
 			'site'                 => $this->get_current_site(),
@@ -491,7 +492,7 @@ class Agents_Manager {
 		 * Providers should preserve an existing true value so multiple integrations can
 		 * request the shared shell independently.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.9.1
 		 *
 		 * @param bool $should_load Whether another integration already requested the shell.
 		 */

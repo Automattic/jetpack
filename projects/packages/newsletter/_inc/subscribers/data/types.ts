@@ -185,5 +185,4 @@ export type SubscriberStats = {
 	emails_sent: number;
 	unique_opens: number;
 	unique_clicks: number;
-	blog_registration_date?: string;
 };

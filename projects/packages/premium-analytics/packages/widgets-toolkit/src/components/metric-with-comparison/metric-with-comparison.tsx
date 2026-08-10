@@ -12,9 +12,6 @@ import type { DataFormat } from '../../types';
 import type { MetricValueProps } from '../metric-value';
 
 export type MetricWithComparisonProps = {
-	/**
-	 * The current value to display
-	 */
 	value: number;
 
 	/**
@@ -36,7 +33,7 @@ export type MetricWithComparisonProps = {
 
 	/**
 	 * Alignment of items
-	 * @default 'flex-end'
+	 * @default 'baseline'
 	 */
 	align?: ComponentProps< typeof Stack >[ 'align' ];
 
@@ -58,9 +55,6 @@ export type MetricWithComparisonProps = {
 	 */
 	hideDeltaOnZero?: boolean;
 
-	/**
-	 * CSS class for the container
-	 */
 	className?: string;
 
 	/**
@@ -90,9 +84,6 @@ export function MetricWithComparison( {
 }: MetricWithComparisonProps ) {
 	const showDelta = previousValue !== null && previousValue !== undefined;
 
-	/**
-	 * Determine absolute format for delta based on data type
-	 */
 	const absoluteFormat = dataFormat.type === 'currency' ? 'currency' : 'number';
 
 	return (

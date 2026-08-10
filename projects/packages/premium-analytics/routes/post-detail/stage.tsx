@@ -11,11 +11,12 @@ import {
 import { Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useMemo } from '@wordpress/element';
+import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
 import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { PostDetailTabs, PostSummaryCard } from './components';
 import { POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
@@ -34,6 +35,14 @@ const POST_DETAIL_GRID = { ...DEFAULT_GRID, rowHeight: ROW_HEIGHT_PRESETS.small 
 // The layout is fixed, so the change callback never fires; the dashboard
 // still requires one because it owns a staging copy internally.
 const noopLayoutChange = () => {};
+
+// The share of the header row the date filter presets can never use: the
+// summary's 400px `min-inline-size` floor plus the row's 16px gap (see
+// `.summary` and `.header` in stage.module.scss — keep the three in sync),
+// plus a 24px buffer so the panel steps down before the wrap threshold —
+// layout wraps synchronously while the measured layout flip lags a frame, so
+// equal thresholds would flash a wrapped row at every boundary.
+const HEADER_RESERVED_INLINE_SIZE = 440;
 
 /**
  * Premium Analytics post/page detail page stage component.
@@ -102,6 +111,13 @@ function PostDetail(): JSX.Element {
 	// params, staged and committed by the shared date-filter controller.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 
+	// The header row hosts the panel in a shrink-to-fit slot, so the panel
+	// measures the row itself to pick its responsive layout; see the
+	// `containerElement` prop.
+	const [ headerElement, setHeaderElement ] = useState< HTMLElement | null >( null );
+
+	const breadcrumbs = useDetailBreadcrumbs( summary.title );
+
 	return (
 		<GlobalErrorProvider>
 			<WidgetDashboard
@@ -114,9 +130,7 @@ function PostDetail(): JSX.Element {
 			>
 				<Page
 					visual={ <StatsPageIcon /> }
-					breadcrumbs={
-						<StatsBreadcrumbs items={ summary.title ? [ { label: summary.title } ] : [] } />
-					}
+					breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
 					actions={
 						publicUrl ? (
 							<Button
@@ -137,23 +151,36 @@ function PostDetail(): JSX.Element {
 					className={ styles.page }
 				>
 					<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab }>
-						{ /*
-						 * The date filters and the summary card are shared by every tab
-						 * (same post, same date range), so they render once below the
-						 * tab bar and above the per-tab widget grid. The tab bar and the
-						 * filters stay fixed outside the scroll container, exactly like
-						 * the dashboard's section tabs; the summary header scrolls away
-						 * inside it with the widgets, giving them the vertical room.
-						 */ }
-						<div className={ styles.dateFilters }>
-							<DateFiltersPanel { ...dateFilters } />
-						</div>
 						<div className={ styles.scrollArea }>
-							<div className={ styles.header }>
-								<PostSummaryCard
-									summary={ summary }
-									performanceRange={ dateFilters.appliedRange }
-								/>
+							{ /*
+							 * The summary card and the date filter presets share the
+							 * header row — title on the left, presets on the right, per
+							 * the design mocks. Both are shared by every tab (same post,
+							 * same date range), so they render once above the per-tab
+							 * widget grid and scroll away with it.
+							 */ }
+							<div ref={ setHeaderElement } className={ styles.header }>
+								<div className={ styles.summary }>
+									<PostSummaryCard
+										summary={ summary }
+										performanceRange={ dateFilters.appliedRange }
+									/>
+								</div>
+								<div className={ styles.dateFilters }>
+									{ /*
+									 * The design has no period-over-period comparison on
+									 * this page, so the Compare control is opted out;
+									 * comparison params stay in the URL (stripped from the
+									 * widgets' injected reportParams) so the breadcrumb
+									 * carries them back to the dashboard.
+									 */ }
+									<DateFiltersPanel
+										{ ...dateFilters }
+										showComparison={ false }
+										containerElement={ headerElement }
+										reservedInlineSize={ HEADER_RESERVED_INLINE_SIZE }
+									/>
+								</div>
 							</div>
 							{ tabs.map( tab => (
 								<SectionTabPanel key={ tab.id } value={ tab.id } className={ styles.content }>

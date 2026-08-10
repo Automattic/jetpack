@@ -146,7 +146,10 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 		}
 
 		if ( $request->has_param( 'master_enabled' ) ) {
-			update_option( Jetpack_AI_Settings::MASTER_OPTION, (bool) $request->get_param( 'master_enabled' ) );
+			// Routes through the setter so the write lands on whichever store backs
+			// the master on this platform: the option on Simple, the `ai` module
+			// off-Simple.
+			Jetpack_AI_Settings::set_master_enabled( (bool) $request->get_param( 'master_enabled' ) );
 		}
 
 		$features = $request->get_param( 'features' );
@@ -201,8 +204,12 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 			'is_connected'      => $this->is_connected(),
 			'is_user_connected' => $this->is_user_connected(),
 			'plan'              => array(
-				'supports_ai'     => class_exists( Current_Plan::class ) && Current_Plan::supports( 'ai-assistant' ),
-				'supports_search' => $supports_search,
+				'supports_ai'         => class_exists( Current_Plan::class ) && Current_Plan::supports( 'ai-assistant' ),
+				'supports_search'     => $supports_search,
+				// The free Search tier reports supports_search too, but its
+				// remedy for the gated AI Search row is still an upgrade — the
+				// settings page needs this flag to pick the right badge copy.
+				'is_free_search_plan' => $supports_search && $search_plan->is_free_plan(),
 			),
 			'master_enabled'    => Jetpack_AI_Settings::is_master_enabled(),
 			'features'          => array(

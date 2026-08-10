@@ -46,12 +46,6 @@ interface AnnualHighlightsStoryControls {
 	metrics: AnnualHighlightMetric[];
 }
 
-/**
- * Renders the data-connected widget with the selected metrics.
- *
- * @param {AnnualHighlightsStoryControls} props - Story controls.
- * @return The rendered widget.
- */
 function renderAnnualHighlights( { metrics }: AnnualHighlightsStoryControls ) {
 	return (
 		<AnnualHighlightsRender
@@ -88,9 +82,6 @@ function renderAnnualHighlightsOnPreset( preset: PresetType ) {
  * cache entry. Evict the query from the shared client on enter and on cleanup
  * so each forced-state story hits the mock fresh (and no forced result leaks
  * into the sibling stories).
- *
- * @param state - The forced state.
- * @return The story cleanup callback.
  */
 function forceInsightsState( state: 'loading' | 'error' | 'empty' ) {
 	setReportMockState( 'stats/insights', state );
@@ -123,7 +114,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					"The \"Annual highlights\" widget. Shows one year's totals — posts, words, likes, and comments — as a grid of metric tiles, with year arrows to step through the years the site has published in. Which tiles appear is controlled by the `metrics` attribute (`relevance: 'high'`), exposed inline in the widget header and in the settings drawer. Data comes from the designated `useStatsInsights` hook; in Storybook it is served by `registerReportMocks()` (the `stats/insights` handler in `routeStatsReport`). The insights module has no comparison period, so the tiles show bare counts.",
+					"The \"Annual highlights\" widget. Shows the most recent year's totals — posts, words, likes, and comments — as a grid of metric tiles. Which tiles appear is controlled by the `metrics` attribute (`relevance: 'high'`), exposed inline in the widget header and in the settings drawer. Data comes from the designated `useStatsInsights` hook; in Storybook it is served by `registerReportMocks()` (the `stats/insights` handler in `routeStatsReport`). The insights module has no comparison period, so the tiles show bare counts.",
 			},
 		},
 	},
@@ -180,12 +171,6 @@ interface AnnualHighlightsDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		AnnualHighlightsStoryControls {}
 
-/**
- * Renders the real registered widget through the shared dashboard harness.
- *
- * @param {AnnualHighlightsDashboardStoryProps} props - Dashboard and widget controls.
- * @return The rendered dashboard with the widget.
- */
 function AnnualHighlightsDashboardStory( {
 	metrics,
 	...dashboardArgs

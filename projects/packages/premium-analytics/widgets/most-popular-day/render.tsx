@@ -51,9 +51,6 @@ type MostPopularDayFieldProps = {
 /**
  * A single labelled highlight: a small label, the prominent value, and a muted
  * caption beneath it (e.g. "Day" / "August 18" / "2020").
- *
- * @param {MostPopularDayFieldProps} props - The field content.
- * @return The rendered field.
  */
 const MostPopularDayField = ( { label, value, caption }: MostPopularDayFieldProps ) => (
 	<Stack direction="column" gap="xs">
@@ -70,9 +67,6 @@ const MostPopularDayField = ( { label, value, caption }: MostPopularDayFieldProp
  * for views and how many views it drew. Loading / error / empty are handled by
  * `<WidgetState>` in the report component, so this only renders the populated
  * highlight.
- *
- * @param {MostPopularDayHighlightProps} props - The component props.
- * @return The rendered highlight.
  */
 export const MostPopularDayHighlight = ( {
 	date,
@@ -105,8 +99,6 @@ function readBestDay( summary: Record< string, unknown > | undefined ) {
  * Fetches the site stats summary through `useStatsSite` and hands the all-time
  * "best day" fields to the presentational `MostPopularDayHighlight`. The
  * summary is site-wide, so it does not read the dashboard date range.
- *
- * @return The widget content.
  */
 function MostPopularDayReport() {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsSite();
@@ -161,14 +153,9 @@ function MostPopularDayReport() {
 }
 
 /**
- * Widget render entry point.
- *
  * WidgetRoot provides the analytics query client and chart theme. Host
  * attributes are passed through for the widget contract even though this
  * highlight ignores report params.
- *
- * @param {MostPopularDayWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function MostPopularDay( { attributes = {} }: MostPopularDayWidgetProps ) {
 	return (

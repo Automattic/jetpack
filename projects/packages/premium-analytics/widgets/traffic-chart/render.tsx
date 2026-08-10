@@ -20,6 +20,7 @@ import type {
 	TrafficChartAttributes,
 	TrafficChartGranularity,
 	TrafficChartMetricId,
+	TrafficChartType,
 } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
@@ -49,19 +50,18 @@ type TrafficChartInnerProps = {
 	 * Selected metric tab ids; defaults to every metric.
 	 */
 	metrics?: TrafficChartMetricId[];
+	/**
+	 * How to draw the selected metric. `MetricTabsChart` owns the default.
+	 */
+	chartType?: TrafficChartType;
 };
 
 /**
- * Traffic chart inner component. Reads the dashboard date range + comparison
- * state from `useWidgetRootContext()` and hands the selected metric tabs to the
- * shared `MetricTabsChart`. The "Group by" control is the `granularity`
- * attribute and the tab selection is the `metrics` attribute (both
- * `relevance: 'high'`), rendered by the widget host.
- *
- * @param {TrafficChartInnerProps} props - The component props.
- * @return The widget body.
+ * The "Group by" control is the `granularity` attribute, the tab selection is the
+ * `metrics` attribute, and the "Chart type" control is the `chartType` attribute
+ * (all `relevance: 'high'`), rendered by the widget host.
  */
-function TrafficChartInner( { granularity, metrics }: TrafficChartInnerProps ) {
+function TrafficChartInner( { granularity, metrics, chartType }: TrafficChartInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	// `auto` means "follow the dashboard range"; an explicit value sticks
 	// across range changes, so a wide range doesn't stay stuck on `day`
@@ -121,6 +121,7 @@ function TrafficChartInner( { granularity, metrics }: TrafficChartInnerProps ) {
 					<MetricTabsChart
 						metrics={ metricTabs }
 						dataFormat={ DATA_FORMAT }
+						chartType={ chartType }
 						loading
 						groupLabel={ groupLabel }
 					/>
@@ -131,6 +132,7 @@ function TrafficChartInner( { granularity, metrics }: TrafficChartInnerProps ) {
 				<MetricTabsChart
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
+					chartType={ chartType }
 					loading={ isFetching }
 					groupLabel={ groupLabel }
 				/>
@@ -139,23 +141,16 @@ function TrafficChartInner( { granularity, metrics }: TrafficChartInnerProps ) {
 	);
 }
 
-/**
- * Widget render entry point.
- *
- * `WidgetRoot` provides the analytics query client and resolves the dashboard's
- * `reportParams`; the inner component reads that range/comparison state. The
- * granularity is the `granularity` attribute (`relevance: 'high'`), exposed as
- * a control by the widget host.
- *
- * @param {TrafficChartWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function TrafficChart( { attributes = {}, setError }: TrafficChartWidgetProps ) {
 	const granularity = attributes.granularity ?? 'auto';
 
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<TrafficChartInner granularity={ granularity } metrics={ attributes.metrics } />
+			<TrafficChartInner
+				granularity={ granularity }
+				metrics={ attributes.metrics }
+				chartType={ attributes.chartType }
+			/>
 		</WidgetRoot>
 	);
 }

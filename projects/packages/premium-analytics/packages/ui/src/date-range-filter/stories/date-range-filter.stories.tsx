@@ -120,15 +120,13 @@ export const CustomRange: Story = {
 };
 
 /*
- * Compact renders the presets as a select and the custom trigger as a bordered
- * button. The panel-level framing (gap, full-width row) cascades from
- * `.date-filters-panel.is-compact` and is shown in the DateFiltersPanel story;
- * here we only demo the control switch.
+ * The narrow end of the surface: the labels abbreviate and the group keeps its
+ * pills, wrapping onto a second row rather than collapsing into a menu.
  */
-export const Compact: Story = {
+export const Narrow: Story = {
 	render: () => (
 		<div style={ { width: '360px' } }>
-			<DateRangeFilterWithState labelMode="select" />
+			<DateRangeFilterWithState labelMode="abbreviated" />
 		</div>
 	),
 };

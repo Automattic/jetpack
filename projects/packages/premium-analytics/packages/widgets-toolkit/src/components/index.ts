@@ -7,6 +7,11 @@ export {
 	type ComparativeLineChartSeries,
 	type SeriesStyle,
 } from './chart-comparative-line';
+export {
+	ComparativeBarChart,
+	type ComparativeBarChartProps,
+	type ComparativeBarChartSeries,
+} from './chart-comparative-bar';
 export { Legend, type LegendItem } from './legend';
 export {
 	WidgetRoot,
@@ -23,6 +28,7 @@ export {
 	type MetricTab,
 	type MetricTabDatum,
 	type MetricTabsChartProps,
+	type MetricTabsChartType,
 } from './metric-tabs-chart';
 export {
 	LeaderboardChart,
@@ -54,6 +60,7 @@ export { WidgetBackLink, type WidgetBackLinkProps } from './widget-back-link';
 export { WidgetFooter, type WidgetFooterProps } from './widget-footer';
 export { ReportLink, type ReportLinkProps } from './report-link';
 export { PostTitleLink, POST_URL_SEARCH_PARAM, type PostTitleLinkProps } from './post-title-link';
+export { PostDetailLink, type PostDetailLinkProps } from './post-detail-link';
 export {
 	LeaderboardPostLabel,
 	type LeaderboardPostLabelProps,

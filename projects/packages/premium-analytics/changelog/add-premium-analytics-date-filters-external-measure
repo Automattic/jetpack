@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Date filters panel: Allow measuring an external container with a reserved share, so the panel's responsive layout works in shrink-to-fit slots.

@@ -23,6 +23,15 @@ describe( 'getReportDefinition', () => {
 		expect( getReportDefinition( undefined ) ).toBeUndefined();
 	} );
 
+	// The id comes from the URL, so an inherited object property must not read
+	// as a report.
+	it.each( [ 'constructor', 'toString', 'hasOwnProperty' ] )(
+		'returns undefined for the inherited %s property',
+		id => {
+			expect( getReportDefinition( id ) ).toBeUndefined();
+		}
+	);
+
 	it( 'returns the downloads report on Simple sites', () => {
 		expect( getReportDefinition( 'downloads' )?.id ).toBe( 'downloads' );
 	} );

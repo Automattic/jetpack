@@ -35,18 +35,13 @@ const ALL_TIME_NOTE = () =>
 	__( 'All-time total — this metric has no per-post history.', 'jetpack-premium-analytics-pkg' );
 
 /**
- * Post highlights inner component. Reads the post scope and report params
- * from WidgetRoot context and renders the three highlight metrics as a
- * `MetricTileGrid` through `<WidgetState>`; without a post scope (e.g. the
- * widget added outside a post detail page) the query never enables and the
- * empty state shows.
+ * Without a post scope (e.g. the widget added outside a post detail page) the
+ * query never enables and the empty state shows.
  *
  * Views is period-scoped with a period-over-period delta when comparison is
  * on. Comments and likes are lifetime totals: when comparison is on their
  * `previousValue` is `null` — the tile keeps the comparison layout but shows
  * no fabricated delta.
- *
- * @return The rendered widget content.
  */
 function PostDetailHighlightsInner() {
 	const { reportParams } = useWidgetRootContext();
@@ -126,13 +121,6 @@ function PostDetailHighlightsInner() {
 	);
 }
 
-/**
- * Post highlights widget: the scoped post's views, comments, and likes as
- * metric tiles — the post detail Traffic view's highlights card.
- *
- * @param {PostDetailHighlightsWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function PostDetailHighlights( {
 	attributes = {},
 }: PostDetailHighlightsWidgetProps ) {

@@ -47,13 +47,6 @@ interface PostDetailHighlightsStoryControls {
 	hasPostScope: boolean;
 }
 
-/**
- * Builds the widget attributes: report params with the post scope the detail
- * page seeds from its URL when `hasPostScope` is on.
- *
- * @param {PostDetailHighlightsStoryControls} controls - The story controls.
- * @return The widget attributes.
- */
 function getPostDetailHighlightsAttributes( {
 	withComparison,
 	hasPostScope,
@@ -68,12 +61,6 @@ function getPostDetailHighlightsAttributes( {
 	};
 }
 
-/**
- * Renders the data-connected widget with the composed attributes.
- *
- * @param {PostDetailHighlightsStoryControls} controls - The story controls.
- * @return The rendered widget.
- */
 function renderPostDetailHighlights( controls: PostDetailHighlightsStoryControls ) {
 	return (
 		<PostDetailHighlightsRender attributes={ getPostDetailHighlightsAttributes( controls ) } />
@@ -149,9 +136,6 @@ interface PostDetailHighlightsDashboardStoryProps
 /**
  * Mounts the real `WidgetDashboard` with this single widget so it renders
  * exactly as it does in product (framed card, sizing, host environment).
- *
- * @param {PostDetailHighlightsDashboardStoryProps} props - The dashboard story controls.
- * @return The widget mounted inside the real dashboard.
  */
 function PostDetailHighlightsDashboardStory( {
 	withComparison,

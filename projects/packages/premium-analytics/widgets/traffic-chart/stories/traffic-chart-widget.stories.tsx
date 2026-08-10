@@ -18,6 +18,7 @@ import TrafficChartRender from '../render';
 import widgetDefinition, {
 	DEFAULT_TRAFFIC_CHART_METRICS,
 	type TrafficChartMetricId,
+	type TrafficChartType,
 } from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -35,6 +36,7 @@ const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition 
 interface TrafficChartStoryControls {
 	withComparison: boolean;
 	metrics: TrafficChartMetricId[];
+	chartType: TrafficChartType;
 }
 
 const METRIC_ARG_TYPES = {
@@ -42,16 +44,25 @@ const METRIC_ARG_TYPES = {
 		control: 'check',
 		options: DEFAULT_TRAFFIC_CHART_METRICS,
 	},
+	chartType: {
+		control: 'inline-radio',
+		options: [ 'line', 'bar' ] satisfies TrafficChartType[],
+	},
 } as const;
 
 const ALL_METRICS_ARGS = {
 	metrics: DEFAULT_TRAFFIC_CHART_METRICS,
+	chartType: 'line',
 } as const;
 
-function renderTrafficChart( { withComparison, metrics }: TrafficChartStoryControls ) {
+function renderTrafficChart( { withComparison, metrics, chartType }: TrafficChartStoryControls ) {
 	return (
 		<TrafficChartRender
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ), metrics } }
+			attributes={ {
+				reportParams: getDefaultQueryParams( withComparison ),
+				metrics,
+				chartType,
+			} }
 		/>
 	);
 }
@@ -75,7 +86,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					"Traffic over the selected period as selectable metric tabs — Views, Visitors, Likes, and Comments — over a comparative line chart. The date range and comparison come from the dashboard controls; the \"Group by\" control is the `granularity` attribute and the tab selection is the `metrics` attribute (both `relevance: 'high'`), exposed by the widget host. When comparison is on the previous period is overlaid as a same-colour dashed line and each tab shows its period-over-period delta. Views/visitors and likes/comments are fetched as two parallel requests (mirroring Calypso) to keep latency down; a pair's request is skipped while neither of its metrics is selected. Data comes from the `useStatsVisits` hook; in Storybook it is served by `registerReportMocks`.",
+					'Traffic over the selected period as selectable metric tabs — Views, Visitors, Likes, and Comments — over a comparative chart. The date range and comparison come from the dashboard controls; the "Group by" control is the `granularity` attribute, the tab selection is the `metrics` attribute, and the "Chart type" control is the `chartType` attribute (all `relevance: \'high\'`), exposed by the widget host. When comparison is on, each tab shows its period-over-period delta and the previous period is overlaid — as a same-colour dashed line for `line`, or as the translucent shadow bar behind each bar for `bar`. Views/visitors and likes/comments are fetched as two parallel requests (mirroring Calypso) to keep latency down; a pair\'s request is skipped while neither of its metrics is selected. Data comes from the `useStatsVisits` hook; in Storybook it is served by `registerReportMocks`.',
 			},
 		},
 	},
@@ -100,6 +111,25 @@ export const Default: Story = {
 export const WithComparison: Story = {
 	render: renderTrafficChart,
 	args: { withComparison: true, ...ALL_METRICS_ARGS },
+	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * The same widget drawn as bars — the `chartType` attribute set to `bar`.
+ */
+export const BarChart: Story = {
+	render: renderTrafficChart,
+	args: { withComparison: false, ...ALL_METRICS_ARGS, chartType: 'bar' },
+	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * Bars with comparison on: the previous period renders as the translucent
+ * shadow bar behind each current-period bar.
+ */
+export const BarChartWithComparison: Story = {
+	render: renderTrafficChart,
+	args: { withComparison: true, ...ALL_METRICS_ARGS, chartType: 'bar' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -155,6 +185,7 @@ interface TrafficChartDashboardStoryProps
 function TrafficChartDashboardStory( {
 	withComparison,
 	metrics,
+	chartType,
 	...dashboardArgs
 }: TrafficChartDashboardStoryProps ) {
 	return (
@@ -163,7 +194,11 @@ function TrafficChartDashboardStory( {
 			widgetType={ storyWidgetType }
 			renderModule={ TRAFFIC_CHART_RENDER_MODULE }
 			renderComponent={ TrafficChartRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ), metrics } }
+			attributes={ {
+				reportParams: getDefaultQueryParams( withComparison ),
+				metrics,
+				chartType,
+			} }
 		/>
 	);
 }

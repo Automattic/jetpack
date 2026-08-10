@@ -2,13 +2,14 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
+import { trendingUp } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Internal dependencies
  */
 import { ArrayCheckboxField, SelectField } from '@jetpack-premium-analytics/fields';
+import type { MetricTabsChartType } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
  * Granularity the chart can be grouped by. `auto` follows the dashboard date
@@ -16,6 +17,24 @@ import { ArrayCheckboxField, SelectField } from '@jetpack-premium-analytics/fiel
  * value sticks across range changes.
  */
 export type TrafficChartGranularity = 'auto' | 'day' | 'week' | 'month';
+
+/**
+ * The chart types the widget offers, in display order. Single source for the
+ * settings dropdown and the `TrafficChartType` union so the two cannot drift
+ * apart. Ported from the Lines/Bars switch on the Jetpack Stats chart tabs card
+ * in wp-calypso.
+ */
+export const TRAFFIC_CHART_TYPES = [
+	{ id: 'line', label: __( 'Line chart', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'bar', label: __( 'Bar chart', 'jetpack-premium-analytics-pkg' ) },
+] as const satisfies readonly { id: MetricTabsChartType; label: string }[];
+
+/**
+ * How the selected metric is drawn. Derived from the list above, which
+ * `satisfies` the toolkit's own union, so a value the chart cannot draw fails
+ * to compile here rather than shipping as a broken dropdown option.
+ */
+export type TrafficChartType = ( typeof TRAFFIC_CHART_TYPES )[ number ][ 'id' ];
 
 /**
  * The metric tabs the chart can show, in display order: the persisted id and
@@ -43,10 +62,12 @@ export type TrafficChartMetricId = ( typeof TRAFFIC_CHART_METRICS )[ number ][ '
  *
  * @property granularity - Bucket size within the dashboard range. Defaults to `auto`.
  * @property metrics     - Metric tabs to show in the chart. Defaults to every metric.
+ * @property chartType   - How to draw the selected metric. Defaults to `line`.
  */
 export type TrafficChartAttributes = {
 	granularity?: TrafficChartGranularity;
 	metrics?: TrafficChartMetricId[];
+	chartType?: TrafficChartType;
 };
 
 /**
@@ -61,14 +82,15 @@ export const DEFAULT_TRAFFIC_CHART_METRICS: TrafficChartMetricId[] = TRAFFIC_CHA
  *
  * Ported from the Jetpack Stats `stats-chart-tabs` card in wp-calypso (the chart
  * above the Traffic page). Renders the selected period's Views, Visitors, Likes,
- * and Comments as selectable metric tabs over a comparative line chart. The date
+ * and Comments as selectable metric tabs over a comparative chart. The date
  * range and comparison state come from the dashboard via `reportParams`; the
  * `granularity` attribute (`relevance: 'high'`) chooses the bucket size within
- * that range and the `metrics` attribute selects which tabs render.
+ * that range, the `metrics` attribute selects which tabs render, and
+ * `chartType` switches between lines and bars.
  * `example.attributes` doubles as the defaults applied to new instances.
  */
 export default {
-	icon: chartBar,
+	icon: trendingUp,
 	attributes: [
 		{
 			id: 'granularity',
@@ -106,11 +128,23 @@ export default {
 				label: metric.label,
 			} ) ),
 		},
+		{
+			id: 'chartType',
+			label: __( 'Chart type', 'jetpack-premium-analytics-pkg' ),
+			type: 'text',
+			Edit: SelectField,
+			elements: TRAFFIC_CHART_TYPES.map( chartType => ( {
+				value: chartType.id,
+				label: chartType.label,
+			} ) ),
+			relevance: 'high',
+		},
 	] as WidgetAttributeField< TrafficChartAttributes >[],
 	example: {
 		attributes: {
 			granularity: 'auto',
 			metrics: DEFAULT_TRAFFIC_CHART_METRICS,
+			chartType: 'line',
 		},
 	},
 };

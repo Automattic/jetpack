@@ -8,6 +8,9 @@ export {
 	MetricWithComparison,
 	ComparativeLineChart,
 	type ComparativeLineChartSeries,
+	ComparativeBarChart,
+	type ComparativeBarChartProps,
+	type ComparativeBarChartSeries,
 	DonutChart,
 	Legend,
 	ReportMetricWidget,
@@ -15,6 +18,7 @@ export {
 	type MetricTab,
 	type MetricTabDatum,
 	type MetricTabsChartProps,
+	type MetricTabsChartType,
 	WidgetRoot,
 	WidgetRootContext,
 	useWidgetRootContext,
@@ -57,6 +61,8 @@ export {
 	PostTitleLink,
 	POST_URL_SEARCH_PARAM,
 	type PostTitleLinkProps,
+	PostDetailLink,
+	type PostDetailLinkProps,
 	LeaderboardPostLabel,
 	type LeaderboardPostLabelProps,
 	type LeaderboardPostLabelVariant,
@@ -154,6 +160,7 @@ export {
 	toDay,
 	defaultPeriodForInterval,
 	buildMetricTab,
+	withoutComparison,
 } from './helpers';
 
 /**
@@ -217,6 +224,7 @@ export {
 	GlobalChartsProvider,
 	HeatmapChart,
 	HeatmapChartUnresponsive,
+	Sparkline,
 	buildCalendarHeatmapData,
 	type DataPointDate,
 	type GeoChartError,

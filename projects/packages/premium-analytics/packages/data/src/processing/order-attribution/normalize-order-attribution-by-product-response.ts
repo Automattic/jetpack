@@ -10,16 +10,11 @@ import type { OrderAttributionSummaryResponse } from '../../api/report-order-att
  *
  * The new API has a flatter structure without current_period/previous_period nesting,
  * so we need to transform it to match the expected format for widgets.
- *
- * @param currentResponse  - Response from the current period request
- * @param previousResponse - Optional response from the comparison period request
- * @return Normalized response matching OrderAttributionSummaryResponse structure
  */
 export function normalizeOrderAttributionByProductResponse(
 	currentResponse: OrderAttributionByProductResponse,
 	previousResponse?: OrderAttributionByProductResponse
 ): OrderAttributionSummaryResponse {
-	// Create a map for quick lookup of previous period data by item
 	const previousDataMap = new Map< string, ( typeof currentResponse.data )[ 0 ] >();
 	if ( previousResponse ) {
 		previousResponse.data.forEach( item => {
@@ -27,7 +22,6 @@ export function normalizeOrderAttributionByProductResponse(
 		} );
 	}
 
-	// Transform the flat structure to nested structure
 	const normalizedData = currentResponse.data.map( currentItem => {
 		const previousItem = previousDataMap.get( currentItem.item );
 

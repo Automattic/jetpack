@@ -12,7 +12,7 @@ import {
 	settingsFor,
 	utcDate,
 } from '../__fixtures__/wp-date-settings';
-import { formatDateRange } from '../format-date-range';
+import { formatDateRange, formatDateRangeCompact } from '../format-date-range';
 
 // The en dash between thin spaces that CLDR puts between the ends of a range.
 const SEP = '\u2009\u2013\u2009';
@@ -169,5 +169,40 @@ describe( 'formatDateRange', () => {
 				formatDateRange( { from: utcDate( 2025, 6, 21 ), to: utcDate( 2025, 6, 25 ) } )
 			).toBe( `2025年6月21日${ FALLBACK_SEP }2025年6月25日` );
 		} );
+	} );
+} );
+
+describe( 'formatDateRangeCompact', () => {
+	describe( 'en_US site', () => {
+		beforeEach( () => setSettings( EN_US_SETTINGS ) );
+
+		it( 'abbreviates the month of a single date', () => {
+			const date = utcDate( 2025, 6, 21 );
+			expect( formatDateRangeCompact( { from: date, to: date } ) ).toBe( 'Jun 21, 2025' );
+		} );
+
+		// The elision has to survive the shorter month, or the compact form would
+		// spell out more than the form it is meant to be shorter than.
+		it( 'elides the way the spelled-out form does', () => {
+			expect(
+				formatDateRangeCompact( { from: utcDate( 2025, 6, 21 ), to: utcDate( 2025, 6, 25 ) } )
+			).toBe( `Jun 21${ SEP }25, 2025` );
+		} );
+
+		it( 'abbreviates both ends across months', () => {
+			expect(
+				formatDateRangeCompact( { from: utcDate( 2025, 6, 21 ), to: utcDate( 2025, 7, 25 ) } )
+			).toBe( `Jun 21${ SEP }Jul 25, 2025` );
+		} );
+	} );
+
+	// Nothing to shorten, so the two forms agree rather than one of them
+	// inventing an abbreviation.
+	it( 'leaves a format that numbers its month alone', () => {
+		setSettings( settingsFor( 'en-numeric-test', 'd/m/Y' ) );
+
+		const range = { from: utcDate( 2025, 6, 21 ), to: utcDate( 2025, 6, 25 ) };
+
+		expect( formatDateRangeCompact( range ) ).toBe( formatDateRange( range ) );
 	} );
 } );
