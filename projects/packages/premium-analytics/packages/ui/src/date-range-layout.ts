@@ -23,10 +23,6 @@ export type PresetLabelMode =
  * The row is every control, not just the presets: the custom-range trigger and
  * the comparison control share the width, and only the presets have a shorter
  * form to give back.
- *
- * @param availableWidth - Measured width of the panel, or null before first measure.
- * @param fullRowWidth   - Natural width of the row in full labels, or null before first measure.
- * @return The label form to render.
  */
 export function resolvePresetLabelMode(
 	availableWidth: number | null,

@@ -100,12 +100,8 @@ function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
 
 /**
  * Flattens a normalized clicks report into `ClickRow[]` and attaches matching
- * comparison values when a comparison report is present.
- *
- * @param report           - Primary clicks report.
- * @param comparisonReport - Comparison clicks report.
- * @param max              - Maximum rows to keep. 0 keeps all rows.
- * @return Rows ready for the leaderboard.
+ * comparison values when a comparison report is present. Rows are capped
+ * client-side by `max`; `max = 0` keeps all rows.
  */
 export function toClickRowsWithComparison(
 	report: StatsNormalizedReport< StatsClicksItem > | undefined,
@@ -122,13 +118,7 @@ export function toClickRowsWithComparison(
 }
 
 /**
- * Flattens a normalized clicks report into `ClickRow[]` and attaches matching
- * comparison values when a comparison report is present.
- *
- * @param report           - Primary clicks report.
- * @param comparisonReport - Comparison clicks report.
- * @param max              - Maximum rows to keep. 0 keeps all rows.
- * @return Rows ready for the leaderboard.
+ * `toClickRowsWithComparison` without the `hasComparison` flag.
  */
 export function toClickRows(
 	report: StatsNormalizedReport< StatsClicksItem > | undefined,
@@ -140,11 +130,6 @@ export function toClickRows(
 
 /**
  * Maps normalized click rows onto the shape `LeaderboardChart` expects.
- *
- * @param rows           - Normalized click rows.
- * @param withComparison - Whether to include comparison values and deltas.
- * @param onDrillDown    - Callback fired when a row with child links is selected.
- * @return Leaderboard chart data.
  */
 function buildLeaderboardData(
 	rows: ClickRow[],
@@ -212,9 +197,6 @@ export type ClicksLeaderboardProps = {
 
 /**
  * Presentational leaderboard for the Clicks widget.
- *
- * @param {ClicksLeaderboardProps} props - The component props.
- * @return The rendered leaderboard.
  */
 export function ClicksLeaderboard( {
 	rows = [],
@@ -242,9 +224,6 @@ type ClicksInnerProps = {
 /**
  * Clicks widget inner component. Reads report params from WidgetRoot context
  * and renders the leaderboard, with drill-down into a link's child clicks.
- *
- * @param {ClicksInnerProps} props - The component props.
- * @return The rendered widget content.
  */
 function ClicksInner( { max }: ClicksInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
@@ -336,13 +315,8 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 }
 
 /**
- * Clicks widget render component.
- *
  * Shows the most-clicked external links as a ranked leaderboard. Date range
  * comes from the shared dashboard date picker via WidgetRoot.
- *
- * @param {ClicksWidgetProps} props - The widget render props.
- * @return The rendered widget content.
  */
 export default function ClicksWidget( { attributes = {} }: ClicksWidgetProps ) {
 	const max = attributes?.max ?? 10;

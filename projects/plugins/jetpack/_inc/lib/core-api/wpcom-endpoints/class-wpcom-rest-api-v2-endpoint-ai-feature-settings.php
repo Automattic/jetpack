@@ -146,7 +146,10 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 		}
 
 		if ( $request->has_param( 'master_enabled' ) ) {
-			update_option( Jetpack_AI_Settings::MASTER_OPTION, (bool) $request->get_param( 'master_enabled' ) );
+			// Routes through the setter so the write lands on whichever store backs
+			// the master on this platform: the option on Simple, the `ai` module
+			// off-Simple.
+			Jetpack_AI_Settings::set_master_enabled( (bool) $request->get_param( 'master_enabled' ) );
 		}
 
 		$features = $request->get_param( 'features' );

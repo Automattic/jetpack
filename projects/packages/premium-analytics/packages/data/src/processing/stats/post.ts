@@ -98,12 +98,7 @@ export type StatsPostResponse = {
 
 const STATS_POST_DAY_FORMAT = 'yyyy-MM-dd';
 
-/**
- * Check whether a value is a real calendar day in the API's date format.
- *
- * @param value - Candidate date key.
- * @return Whether the value is a valid `YYYY-MM-DD` day.
- */
+/** A real calendar day in the API's `YYYY-MM-DD` format. */
 function isValidStatsPostDay( value: string ): boolean {
 	if ( ! /^\d{4}-\d{2}-\d{2}$/.test( value ) ) {
 		return false;
@@ -175,9 +170,6 @@ function normalizeStatsPostWeek( value: unknown ): StatsPostWeek {
 /**
  * Normalizes the post meta, parsing `comment_count` and leaving an absent count
  * absent so consumers can tell unknown from a real zero.
- *
- * @param value - The raw post meta.
- * @return The normalized meta.
  */
 function normalizeStatsPostMeta( value: unknown ): StatsPostMeta {
 	const meta = coerceStatsRecord( value );

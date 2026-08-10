@@ -41,16 +41,6 @@ export interface TrafficChartState {
 	refetch: () => void;
 }
 
-/**
- * Compose the visits query params for one field pair: the dashboard report
- * params plus the `stat_fields` this request should fetch and the selected
- * bucket `period`.
- *
- * @param reportParams - The dashboard report params.
- * @param statFields   - The field pair to request.
- * @param period       - The selected bucket granularity.
- * @return The visits query params.
- */
 function toVisitsParams(
 	reportParams: ReportParams,
 	statFields: StatsVisitsStatFields,
@@ -66,11 +56,6 @@ function toVisitsParams(
  * the number of requested fields, so two smaller requests resolve faster in
  * parallel. Mirrors how Calypso's chart tabs fetch each pair. A pair's request
  * is skipped entirely while neither of its fields is selected.
- *
- * @param reportParams - The dashboard date range + comparison state.
- * @param period       - The selected bucket granularity (day/week/month).
- * @param metricIds    - Selected metric tab ids; defaults to every metric.
- * @return The selected metric tabs and combined load/error state.
  */
 export default function useTrafficChart(
 	reportParams: ReportParams,

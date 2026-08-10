@@ -140,7 +140,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		const requestedDates = mockApiFetch.mock.calls.map( call =>
 			new URLSearchParams( String( call[ 0 ].path ).split( '?' )[ 1 ] ).get( 'date' )
 		);
-		expect( requestedDates ).toEqual( [ '2026-07-01' ] );
+		expect( requestedDates ).toEqual( [ '2026-07-01T00:00:00.000+08:00' ] );
 	} );
 
 	it( 'aggregates the daily buckets into ISO weeks for the weekly granularity', async () => {

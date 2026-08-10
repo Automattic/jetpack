@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Rename the text domain to jetpack-stats-pkg, freeing jetpack-stats for the standalone plugin.

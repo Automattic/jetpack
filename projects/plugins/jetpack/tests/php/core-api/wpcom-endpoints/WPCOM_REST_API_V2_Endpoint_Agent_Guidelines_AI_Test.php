@@ -22,6 +22,8 @@ require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
 #[CoversClass( WPCOM_REST_API_V2_Endpoint_Agent_Guidelines_AI::class )]
 class WPCOM_REST_API_V2_Endpoint_Agent_Guidelines_AI_Test extends Jetpack_REST_TestCase {
 
+	use \Activates_Ai_Module;
+
 	const ROUTE = '/wpcom/v2/jetpack-ai/suggest-guidelines';
 
 	/**
@@ -31,7 +33,18 @@ class WPCOM_REST_API_V2_Endpoint_Agent_Guidelines_AI_Test extends Jetpack_REST_T
 	 * which would also drop a platform-registered `jetpack_ai_enabled` filter
 	 * (e.g. on WordPress.com) and leak that into later tests.
 	 */
+	/**
+	 * Off-Simple the `ai` module is the AI master and the gated route registers only
+	 * when is_ai_enabled() (which reads the module) is true; the PHPUnit env never
+	 * activates it, so force it on. Disabled cases force the gate off via the filter.
+	 */
+	public function set_up() {
+		parent::set_up();
+		$this->activate_ai_module_for_test();
+	}
+
 	public function tear_down() {
+		$this->deactivate_ai_module_for_test();
 		remove_filter( 'jetpack_ai_enabled', '__return_false' );
 		remove_filter( 'jetpack_ai_enabled', '__return_true' );
 

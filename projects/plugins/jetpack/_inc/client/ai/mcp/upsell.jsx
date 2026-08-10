@@ -19,7 +19,7 @@ import analytics from 'lib/analytics';
 import illustrationUrl from './upsell-illustration.svg';
 import './style.scss';
 
-const UPSELL_SOURCE = 'jetpack-ai-mcp-upsell';
+const UPSELL_REF = 'jetpack-ai-mcp-upsell';
 
 const { upgradeUrl } = window?.jetpackAiSettings ?? {};
 
@@ -35,13 +35,13 @@ export default function McpUpsell() {
 	// gating needed here.
 	useEffect( () => {
 		analytics.tracks.recordEvent( 'jetpack_mcp_upsell_viewed', {
-			source: UPSELL_SOURCE,
+			ref: UPSELL_REF,
 		} );
 	}, [] );
 
 	const onClickUpgrade = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_mcp_upsell_cta_click', {
-			source: UPSELL_SOURCE,
+			ref: UPSELL_REF,
 		} );
 	}, [] );
 

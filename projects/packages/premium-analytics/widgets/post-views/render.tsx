@@ -36,13 +36,8 @@ type PostViewsInnerProps = {
 };
 
 /**
- * Post views inner component. Reads the post scope and report params from
- * WidgetRoot context and renders the view-trend line through `<WidgetState>`;
- * without a post scope (e.g. the widget added outside a post detail page) the
+ * Without a post scope (e.g. the widget added outside a post detail page) the
  * query never enables and the empty state shows.
- *
- * @param {PostViewsInnerProps} props - The component props.
- * @return The rendered widget content.
  */
 function PostViewsInner( { granularity }: PostViewsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
@@ -104,16 +99,6 @@ function PostViewsInner( { granularity }: PostViewsInnerProps ) {
 	);
 }
 
-/**
- * Post views widget: the scoped post's view trend over the dashboard date
- * range as a line chart — the legacy Calypso post summary chart
- * (`stats-post-summary`). The view series comes from `stats/post`'s full
- * daily history, zero-filled and bucketed client-side per the granularity
- * attribute.
- *
- * @param {PostViewsWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function PostViews( { attributes = {} }: PostViewsWidgetProps ) {
 	// Coerce unknown persisted values to the default.
 	const attrGranularity = attributes?.granularity;

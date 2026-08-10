@@ -32,10 +32,10 @@
 	// mocks. Flexbox breaks lines from unshrunk sizes, and the summary's
 	// inline-size containment (below) clamps its unshrunk size to the 400px
 	// floor — so the row wraps only when the panel's current layout no longer
-	// fits beside that floor (the compact dropdown on a phone), never because
+	// fits beside that floor (the abbreviated pills on a phone), never because
 	// of a long title. On tight single rows the summary absorbs the squeeze
-	// (title ellipsis), and the panel's own step-down on narrow rows needs
-	// external measurement and ships separately (#51088). gap-2xl
+	// (title ellipsis), and the panel steps down its layout as the row
+	// narrows, measured against this row via `containerElement`. gap-2xl
 	// above matches the space the old two-row layout added up to; gap-2xl
 	// below mirrors it symmetrically.
 	display: flex;

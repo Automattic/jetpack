@@ -3,10 +3,45 @@
  */
 import {
 	getAllowedIntervalsForPreset,
+	getDaysBetweenInclusive,
 	getDefaultIntervalForPeriod,
 	resolveIntervalForRange,
 } from '../interval';
 import { needsReportDateParamsSeed } from '../search';
+
+describe( 'getDaysBetweenInclusive', () => {
+	it( 'counts inclusive calendar days from bare dates', () => {
+		expect( getDaysBetweenInclusive( '2026-06-01', '2026-06-07' ) ).toBe( 7 );
+		expect( getDaysBetweenInclusive( '2026-06-01', '2026-06-01' ) ).toBe( 1 );
+	} );
+
+	it( 'counts an offset-bearing range exactly as its bare equivalent', () => {
+		// Request params are no longer trimmed to a bare day before reaching
+		// here. Left unextracted, the ISO datetime concatenates into an invalid
+		// date, the NaN guard returns 1, and every range silently collapses to a
+		// single day.
+		expect(
+			getDaysBetweenInclusive( '2026-06-01T00:00:00.000-07:00', '2026-06-07T23:59:59.999-07:00' )
+		).toBe( 7 );
+	} );
+
+	it( 'reads the site-local calendar day at either offset extreme', () => {
+		// 23:00 on 2026-06-30 at -07:00 is already 2026-07-01 in UTC, and 00:30
+		// on 2026-06-01 at +13:00 is still 2026-05-31 there. Counting off the UTC
+		// day would add a bucket at one end and drop one at the other.
+		expect(
+			getDaysBetweenInclusive( '2026-06-01T00:00:00.000-07:00', '2026-06-30T23:00:00.000-07:00' )
+		).toBe( 30 );
+		expect(
+			getDaysBetweenInclusive( '2026-06-01T00:30:00.000+13:00', '2026-06-30T12:00:00.000+13:00' )
+		).toBe( 30 );
+	} );
+
+	it( 'falls back to one day for an inverted or unparseable range', () => {
+		expect( getDaysBetweenInclusive( '2026-06-07', '2026-06-01' ) ).toBe( 1 );
+		expect( getDaysBetweenInclusive( 'nonsense', '2026-06-01' ) ).toBe( 1 );
+	} );
+} );
 
 describe( 'resolveIntervalForRange', () => {
 	it( 'keeps the current interval when it is still allowed', () => {

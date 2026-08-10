@@ -48,9 +48,6 @@ const MIN_MONTHS_SPAN = 2;
  */
 const MIN_MONTHS_FOR_YEARS = 24;
 
-/**
- * Months in a year.
- */
 const MONTHS_PER_YEAR = 12;
 
 /**

@@ -31,7 +31,7 @@ type PostingActivityRenderAttributes = PostingActivityAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type PostingActivityWidgetProps = WidgetRenderProps< PostingActivityRenderAttributes >;
 
-// --- Heatmap sizing tuning ---------------------------------------------------
+// Heatmap sizing tuning.
 const EXPANDED_ASPECT_RATIO = 61 / 40;
 const EXPANDED_MAX_CELL_HEIGHT = 48;
 // If the tile is at least this tall, use expanded cells ( not compact ).
@@ -41,11 +41,8 @@ const EXPANDED_MIN_HEIGHT = 220;
 const MIN_STREAK_DAYS = 365;
 
 /**
- * Fetches the posting-activity streak through the designated `useStatsStreak`
- * hook and renders it as a calendar heatmap. The `stats/streak` endpoint
- * returns a `{ 'yyyy-MM-dd': count }` map of posts per day (no comparison
- * period); `buildCalendarHeatmapData` lays that out into the week-column /
- * weekday-row grid the chart expects.
+ * The `stats/streak` endpoint returns a `{ 'yyyy-MM-dd': count }` map of posts
+ * per day, with no comparison period.
  *
  * The date range comes from the dashboard picker via `reportParams`, but the
  * fetch window is floored to at least a year (`MIN_STREAK_DAYS`) ending on the
@@ -54,8 +51,6 @@ const MIN_STREAK_DAYS = 365;
  * The heatmap adapts to the tile: it measures the available space and picks
  * compact (fixed-size squares) or expanded (scaled 61:40 cells with numbers) from
  * the available height, trimming the data to the columns that fit the width.
- *
- * @return The widget content.
  */
 function PostingActivityInner() {
 	const { reportParams } = useWidgetRootContext();
@@ -171,17 +166,6 @@ function PostingActivityInner() {
 	);
 }
 
-/**
- * Widget render entry point.
- *
- * WidgetRoot provides the analytics query client, chart theme, and the report
- * params consumed by the inner heatmap — resolved from the dashboard date range
- * via context, the same way the other Stats widgets read them. This widget has
- * no own settings, so nothing is forwarded to the inner component.
- *
- * @param {PostingActivityWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function PostingActivity( { attributes = {} }: PostingActivityWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

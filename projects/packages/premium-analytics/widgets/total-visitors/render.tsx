@@ -52,8 +52,6 @@ const PLAIN_HEADLINE_OPTIONS = { decimals: 0 };
  *
  * Requests `views,visitors` rather than just `visitors` so the two total cards share
  * one cache entry and one request.
- *
- * @return The widget content.
  */
 function TotalVisitorsMetric() {
 	const { reportParams } = useWidgetRootContext();
@@ -128,12 +126,7 @@ function TotalVisitorsMetric() {
 }
 
 /**
- * Total visitors widget.
- *
  * WidgetRoot provides the query client, chart theme, and resolved report params.
- *
- * @param {TotalVisitorsWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function TotalVisitorsRender( {
 	attributes = {},

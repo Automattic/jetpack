@@ -46,9 +46,6 @@ export type DateFiltersPanelProps = {
 	 */
 	presetId?: PrimaryPresetId;
 
-	/**
-	 * The current primary date range.
-	 */
 	range: DateRange;
 
 	/**
@@ -87,20 +84,10 @@ export type DateFiltersPanelProps = {
 	 */
 	intervalOptions?: readonly IntervalType[];
 
-	/**
-	 * Callback when the primary date range changes.
-	 */
 	onChange: DateRangeFilterProps[ 'onChange' ];
 
-	/**
-	 * Callback when the comparison date range changes.
-	 * Receives the calculated comparison range and the preset ID used.
-	 */
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 
-	/**
-	 * Callback when the chart interval changes.
-	 */
 	onIntervalChange?: ( interval: IntervalType ) => void;
 
 	/**
@@ -121,19 +108,10 @@ export type DateFiltersPanelProps = {
 	 */
 	comparisonControlProps?: Omit< Parameters< typeof BaseControl >[ 0 ], 'children' >;
 
-	/**
-	 * Callback when the primary date range is applied.
-	 */
 	onApply: DateRangeFilterProps[ 'onApply' ];
 
-	/**
-	 * Callback when the primary date range is canceled.
-	 */
 	onCancel: DateRangeFilterProps[ 'onCancel' ];
 
-	/**
-	 * Whether the primary date range can be applied.
-	 */
 	canApply?: boolean;
 
 	/**
@@ -149,14 +127,31 @@ export type DateFiltersPanelProps = {
 	 * honest about it.
 	 */
 	showComparison?: boolean;
+
+	/**
+	 * Element to measure for the responsive layout instead of the panel's own
+	 * root. Required when the panel sits in a shrink-to-fit slot (e.g. sharing
+	 * a header row with a title): there the root's width follows the panel's
+	 * own content, so self-measurement could neither collapse when narrow nor
+	 * expand back when widened. Callers whose panel fills its container should
+	 * omit it.
+	 */
+	containerElement?: HTMLElement | null;
+
+	/**
+	 * Inline space in the measured container that is never available to the
+	 * panel — e.g. a title's minimum share on a shared header row. Subtracted
+	 * from the measured width before resolving the responsive layout, so the
+	 * panel steps down while its row-mates still have their minimum, instead
+	 * of only once the whole container is narrower than the panel itself.
+	 */
+	reservedInlineSize?: number;
 };
 
 /**
- * DateFiltersPanel - Manages date range selection and comparison controls
- *
- * This component serves as the container for date filtering functionality,
- * managing both the primary date range selection and the comparison date range.
- * It owns the comparison state and delegates to child components for UI.
+ * Container for the primary date range picker and the comparison dropdown. It
+ * owns the comparison state and the responsive measurement; children only
+ * render.
  */
 export function DateFiltersPanel( {
 	presetId,
@@ -184,19 +179,15 @@ export function DateFiltersPanel( {
 	canApply = true,
 	timeZone,
 	showComparison = true,
+	containerElement,
+	reservedInlineSize = 0,
 }: DateFiltersPanelProps ) {
-	/**
-	 * Validate and normalize the primary preset ID.
-	 * Only accepts built-in preset IDs (including 'custom').
-	 * Invalid/unknown values are treated as undefined, which allows
-	 * DateRangePopover to handle them gracefully (falls back to custom).
-	 */
+	// Unknown values (e.g. garbage from the URL) become undefined, which
+	// DateRangePopover reads as the custom preset.
 	const validatedPresetId = useMemo( () => {
 		if ( ! presetId ) {
 			return undefined;
 		}
-		// Only accept known built-in presets
-		// Unknown/garbage values from URL are rejected to prevent UI inconsistency
 		return isPrimaryPreset( presetId ) ? presetId : undefined;
 	}, [ presetId ] );
 
@@ -208,12 +199,10 @@ export function DateFiltersPanel( {
 		return isPrimaryPreset( appliedPresetId ) ? appliedPresetId : undefined;
 	}, [ appliedPresetId ] );
 
-	// Validate and normalize the comparison preset ID
 	const validatedComparisonPresetId = useMemo( () => {
 		return isComparisonPresetId( comparisonPresetId ) ? comparisonPresetId : undefined;
 	}, [ comparisonPresetId ] );
 
-	// Derive comparison enabled state directly from validated prop
 	const comparisonEnabled = !! validatedComparisonPresetId;
 
 	/*
@@ -238,10 +227,6 @@ export function DateFiltersPanel( {
 		[ onComparisonChange, presets ]
 	);
 
-	/**
-	 * Handles clearing the comparison completely.
-	 * Clears the selected preset and notifies parent.
-	 */
 	const clearComparison = useCallback( () => {
 		onComparisonChange( undefined, undefined );
 	}, [ onComparisonChange ] );
@@ -266,10 +251,16 @@ export function DateFiltersPanel( {
 
 	const setObserverRef = useResizeObserver< HTMLElement >( handleResize );
 
-	// This panel's own root, falling back to the body only until the ref lands.
+	/*
+	 * Measure the caller-provided container when there is one, and the panel's
+	 * own root otherwise (falling back to the body only until the ref lands).
+	 * Self-measurement is only honest when the root fills its container; in a
+	 * shrink-to-fit slot the root follows the panel's own content and the
+	 * layout mode could never change in either direction.
+	 */
 	useEffect( () => {
-		setObserverRef( rootElement ?? document.body );
-	}, [ rootElement, setObserverRef ] );
+		setObserverRef( containerElement ?? rootElement ?? document.body );
+	}, [ containerElement, rootElement, setObserverRef ] );
 
 	/*
 	 * The last applied custom range, so the trigger can offer the way back to it
@@ -397,10 +388,16 @@ export function DateFiltersPanel( {
 
 	// Measured, so the boundary follows the active locale rather than a
 	// breakpoint picked for English, and moves with the comparison control:
-	// adding one takes room the presets give back.
+	// adding one takes room the presets give back. The caller-reserved share
+	// (see `reservedInlineSize`) is subtracted first, so on a shared header
+	// row the panel steps down while its row-mates keep their minimum.
 	const labelMode = useMemo(
-		() => resolvePresetLabelMode( containerWidth, fullRowWidth ),
-		[ containerWidth, fullRowWidth ]
+		() =>
+			resolvePresetLabelMode(
+				containerWidth === null ? null : containerWidth - reservedInlineSize,
+				fullRowWidth
+			),
+		[ containerWidth, fullRowWidth, reservedInlineSize ]
 	);
 
 	const isWideScreen =

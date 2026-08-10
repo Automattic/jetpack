@@ -22,15 +22,6 @@ type SalesByUtmCampaignWidgetProps = WidgetRenderProps< SalesByUtmCampaignRender
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
-/**
- * Sales by UTM campaign widget.
- *
- * WidgetRoot provides the query client, chart theme, and resolved report params;
- * the shared SalesByUtmWidget renders the campaign leaderboard.
- *
- * @param {SalesByUtmCampaignWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function SalesByUtmCampaignRender( {
 	attributes = {},
 	setError,

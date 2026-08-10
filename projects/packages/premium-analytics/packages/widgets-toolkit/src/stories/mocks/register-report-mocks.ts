@@ -297,11 +297,6 @@ function getMockParams(): MockDataParams {
 	return { ...getMockParamsFromPreset( 'default' ), ...fromGlobal };
 }
 
-/**
- * Gets the end date for the mock data spectrum (end of today).
- *
- * @return Date set to the end of today (23:59:59.999).
- */
 function getSpectrumToday(): Date {
 	const today = new Date();
 	today.setHours( 23, 59, 59, 999 );

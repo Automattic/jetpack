@@ -59,6 +59,5 @@ export function getEmptyChartDomain( metricType: string ): [ number, number ] {
 		return [ 0, 1.0 ];
 	}
 
-	// Default for 'number' and other types
 	return [ 0, 80 ];
 }

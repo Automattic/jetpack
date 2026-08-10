@@ -39,8 +39,7 @@ const reportPostsTabs = defineReportTabs< ReportPostsTabId >(
 export const getTabLabel = reportPostsTabs.getTabLabel;
 
 /**
- * Build the ordered list of tab definitions ({ id, label }), with labels
- * resolved lazily so translations apply after the locale data has loaded.
+ * Build the ordered list of tab definitions ({ id, label }).
  */
 export const getReportPostsTabs = reportPostsTabs.getTabs;
 

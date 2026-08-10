@@ -44,8 +44,6 @@ const RATE_FORMAT: DataFormat = {
  * Read the selected video scope from WidgetRoot, fetch one `statType=all`
  * range report, and render its server-computed window totals through the
  * shared tile grid.
- *
- * @return The video highlights widget content.
  */
 function VideoDetailHighlightsInner() {
 	const { reportParams } = useWidgetRootContext();
@@ -130,12 +128,6 @@ function VideoDetailHighlightsInner() {
 	);
 }
 
-/**
- * Video highlights widget render entry point.
- *
- * @param {VideoDetailHighlightsWidgetProps} props - Widget host props.
- * @return The rendered widget.
- */
 export default function VideoDetailHighlights( {
 	attributes = {},
 }: VideoDetailHighlightsWidgetProps ) {

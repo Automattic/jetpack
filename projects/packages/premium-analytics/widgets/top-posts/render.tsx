@@ -99,12 +99,6 @@ const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, 
  * Rows with children instead become drill-down rows (per the widget
  * drill-down convention they carry no anchors). The label fills its row so
  * the leaderboard overlay bar gets its height from it.
- *
- * @param rows           - The normalized top-posts rows.
- * @param withComparison - Whether to derive previous-period shares and deltas.
- * @param detailSearch   - Shared report-window parameters for the detail route.
- * @param onDrillDown    - Callback fired when a row with children is selected.
- * @return The leaderboard chart data.
  */
 function buildLeaderboardData(
 	rows: TopPostRow[],
@@ -200,9 +194,6 @@ type TopPostsLeaderboardProps = {
  * Presentational leaderboard for the "Most viewed" widget. Renders
  * already-fetched rows; loading, error, and empty states are owned by the
  * `<WidgetState>` wrapper in the report components.
- *
- * @param {TopPostsLeaderboardProps} props - The component props.
- * @return The rendered leaderboard.
  */
 export const TopPostsLeaderboard = ( {
 	rows = [],
@@ -227,9 +218,6 @@ export const TopPostsLeaderboard = ( {
  * `skip_archives=1` the API still returns the "Homepage (Latest posts)"
  * entry, which has no URL or post ID. Missing comparison matches stay
  * `undefined`.
- *
- * @param items - The merged comparison rows from `useStatsTopPosts`.
- * @return The normalized top-posts rows.
  */
 function toTopPostRows( items: StatsTopPostsComparisonItem[] ): TopPostRow[] {
 	return items.map( item => {
@@ -259,9 +247,6 @@ function toTopPostRows( items: StatsTopPostsComparisonItem[] ): TopPostRow[] {
  * `postviews` (titled "Homepage (Latest posts)", no URL), so it surfaces here
  * in the Posts & pages list — same distribution as the Stats "Most viewed"
  * card, where the Archives list excludes it.
- *
- * @param {TopPostsReportProps} props - The component props.
- * @return The widget content.
  */
 function TopPostsReport( { max }: TopPostsReportProps ) {
 	const { reportParams } = useWidgetRootContext();
@@ -357,9 +342,6 @@ function TopPostsReport( { max }: TopPostsReportProps ) {
 /**
  * Human-readable labels for the archive-type keys the WPCOM `stats/archives`
  * report groups by. Types the API may add later fall back to the raw key.
- *
- * @param archiveType - The raw archive-type key from the report.
- * @return The display label for the archive type.
  */
 function archiveTypeLabel( archiveType: string ): string {
 	// Same labels as the Calypso Stats "Most viewed" card's Archives tab
@@ -402,9 +384,6 @@ function archiveTypeLabel( archiveType: string ): string {
  * Humanize an intermediate group label from the API (e.g. the taxonomy key
  * `post_tag` → "Post tag", `topics` → "Topics"). Leaf labels — search
  * phrases, term names — are never passed through this.
- *
- * @param label - The raw group label.
- * @return The humanized label.
  */
 function humanizeArchiveGroupLabel( label: string ): string {
 	const spaced = label.replace( /_/g, ' ' );
@@ -418,10 +397,6 @@ function humanizeArchiveGroupLabel( label: string ): string {
  * search phrase, …) and carry their archive-page URL. Children are preserved
  * so grouped rows can drill down, and missing comparison matches stay
  * `undefined`.
- *
- * @param items      - The merged comparison rows from `useStatsArchives`.
- * @param isTopLevel - Whether the items are archive-type rows.
- * @return The leaderboard rows.
  */
 function toArchiveRows( items: StatsArchivesComparisonItem[], isTopLevel = true ): TopPostRow[] {
 	return items.map( item => {
@@ -456,10 +431,6 @@ function toArchiveRows( items: StatsArchivesComparisonItem[], isTopLevel = true 
  * Clicks widgets. Mirrors `TopPostsReport` otherwise: the date range and
  * comparison period come from the dashboard picker via `reportParams`, and
  * comparison UI is gated on real row overlap between the two periods.
- *
- * @param props     - The component props.
- * @param props.max - Maximum number of top-level rows to display.
- * @return The widget content.
  */
 function ArchivesReport( { max }: { max: number } ) {
 	const { reportParams } = useWidgetRootContext();
@@ -573,19 +544,10 @@ function ArchivesReport( { max }: { max: number } ) {
 }
 
 /**
- * Widget render entry point.
- *
- * WidgetRoot provides the analytics query client, chart theme, and the report
- * params consumed by the inner leaderboard — resolved from the dashboard date
- * range via context, the same way the other Stats widgets read them.
- *
  * The `contentView` attribute (`relevance: 'high'`, so the widget host renders
  * its control in the frame header) switches between the Posts & pages and
  * Archives views. Attribute defaults are applied here, in exactly one place,
  * before the inner components receive them.
- *
- * @param {TopPostsWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function TopPosts( { attributes = {} }: TopPostsWidgetProps ) {
 	const max = attributes.max ?? 10;

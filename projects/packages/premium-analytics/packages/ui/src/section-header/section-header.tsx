@@ -3,9 +3,6 @@ import { ReactNode } from 'react';
 import styles from './section-header.module.scss';
 
 type SectionHeaderProps = {
-	/**
-	 * The name of the section.
-	 */
 	title: string;
 
 	/**
@@ -28,9 +25,6 @@ type SectionHeaderProps = {
  * Once the header is too narrow to hold those two side by side everything
  * stacks, and the subtitle returns to its place directly under the title.
  * Measured by a container query rather than against the viewport.
- *
- * @param {SectionHeaderProps} props - The props for the SectionHeader component.
- * @return The section header element.
  */
 export function SectionHeader( { title, subtitle, children }: SectionHeaderProps ) {
 	return (

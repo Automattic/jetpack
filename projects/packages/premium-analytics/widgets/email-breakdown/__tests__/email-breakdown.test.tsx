@@ -74,10 +74,6 @@ const USER_CONTENT_LINKS_RESPONSE = {
 
 /**
  * Route a mocked links-view request to the fixture matching its breakdown path.
- *
- * @param userContentResponse - Response for the `user-content-link` breakdown.
- * @param internalResponse    - Response for the `link` breakdown.
- * @return The mock implementation for `apiFetch`.
  */
 function linksViewFetchMock(
 	userContentResponse: unknown = USER_CONTENT_LINKS_RESPONSE,

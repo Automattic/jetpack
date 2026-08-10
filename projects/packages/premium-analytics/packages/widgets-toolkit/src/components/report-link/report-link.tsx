@@ -43,12 +43,6 @@ export type ReportLinkProps = {
  * Preserves the shared dashboard date and comparison parameters while leaving
  * page-owned parameters, such as the report chart period, to the destination.
  *
- * @param props           - Component props.
- * @param props.report    - Report id in the reports registry.
- * @param props.section   - Optional report section to open.
- * @param props.label     - Optional visible link label.
- * @param props.ariaLabel - Optional accessible link label.
- * @param props.className - Optional additional class name.
  * @return The rendered report link.
  */
 export function ReportLink( { report, section, label, ariaLabel, className }: ReportLinkProps ) {

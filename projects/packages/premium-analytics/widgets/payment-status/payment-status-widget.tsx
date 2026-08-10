@@ -20,19 +20,8 @@ import { useMemo } from 'react';
 import styles from './style.module.css';
 
 /**
- * Payment Status Widget Component
- *
- * Displays a donut chart comparing revenue from paid orders vs unpaid orders.
- * Shows the total revenue in the center with a breakdown in the legend.
- *
- * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <PaymentStatusWidget />
- * </WidgetRoot>
- * ```
+ * Paid vs unpaid order revenue donut. Must render inside a `WidgetRoot`, which
+ * supplies `reportParams` through context.
  */
 export function PaymentStatusWidget() {
 	const { reportParams } = useWidgetRootContext();

@@ -21,9 +21,6 @@ export type SubscriberListItem = {
 	 * Stable key for the row (e.g. a subscription id, or a caller-provided fallback).
 	 */
 	id: string | number;
-	/**
-	 * Display name.
-	 */
 	name: string;
 	/**
 	 * Avatar image URL. Falls back to a neutral placeholder when missing or it
@@ -58,9 +55,6 @@ export type SubscriberListProps = {
 	 * when greater than zero.
 	 */
 	moreCount?: number;
-	/**
-	 * Optional extra class for the list container.
-	 */
 	className?: string;
 };
 

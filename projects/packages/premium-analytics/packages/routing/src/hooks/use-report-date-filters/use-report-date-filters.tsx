@@ -27,11 +27,11 @@ import type {
 	StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 
+type PickerRange = { from: Date | undefined; to: Date | undefined };
+
 /**
  * The values and callbacks that drive `DateFiltersPanel`.
  */
-type PickerRange = { from: Date | undefined; to: Date | undefined };
-
 export type ReportDateFilters = {
 	presetId?: PrimaryPresetId;
 	range: PickerRange;

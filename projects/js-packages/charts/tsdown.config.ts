@@ -45,7 +45,7 @@ export default defineConfig( {
 		'.png': 'asset',
 	},
 	deps: {
-		alwaysBundle: [ '@wordpress/ui', /^fast-deep-equal/ ],
+		alwaysBundle: [ /^fast-deep-equal/ ],
 	},
 	css: {
 		fileName: 'index.css',

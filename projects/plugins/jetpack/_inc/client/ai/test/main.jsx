@@ -229,6 +229,12 @@ describe( 'AI admin page (main.jsx)', () => {
 
 		await waitFor( () => expect( mcpViewCount() ).toBe( 1 ) );
 
+		// Pin the event's property contract: `ref` follows the AI Tracks standard.
+		const settingsViewedCall = analytics.tracks.recordEvent.mock.calls.find(
+			call => call[ 0 ] === 'jetpack_mcp_settings_viewed'
+		);
+		expect( settingsViewedCall[ 1 ] ).toEqual( { ref: 'jetpack-ai-mcp-settings' } );
+
 		// The useRef latch: leaving and re-entering the MCP context on the same
 		// mounted instance does not re-fire the view event.
 		act( () => {
