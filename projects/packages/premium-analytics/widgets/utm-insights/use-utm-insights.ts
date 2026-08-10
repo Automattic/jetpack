@@ -76,9 +76,6 @@ function toUtmRow( item: StatsUtmComparisonItem ): UtmInsightsRow {
 
 /**
  * Fetch UTM insights for the UTM Insights widget via the shared Stats data layer.
- *
- * @param {UseUtmInsightsArgs} args - Hook arguments.
- * @return The current data/loading/error state.
  */
 export default function useUtmInsights( {
 	reportParams,

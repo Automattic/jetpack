@@ -12,13 +12,9 @@ export interface ShareView {
 	 * Service slug (e.g. `facebook`), taken from the `shares_<service>` key.
 	 */
 	service: string;
-	/**
-	 * Human-readable network name.
-	 */
+	/** Human-readable network name. */
 	label: string;
-	/**
-	 * Number of times content was shared to this network.
-	 */
+	/** Number of times content was shared to this network. */
 	value: number;
 }
 
@@ -123,9 +119,6 @@ export function buildShareViews( summary: Record< string, unknown >, max: number
  * The counts live on the site summary (`stats` endpoint) as `shares_<service>`
  * fields, so this delegates to `useStatsSite`. The summary is all-time and has no
  * comparison period; rows are sorted by share count and trimmed to `max`.
- *
- * @param {UseShareViewsArgs} args - Hook arguments.
- * @return The current data/loading/error state.
  */
 export default function useShareViews( { max }: UseShareViewsArgs ): ShareViewsState {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsSite();

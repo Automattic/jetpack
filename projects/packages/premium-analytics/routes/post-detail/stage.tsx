@@ -11,7 +11,7 @@ import {
 import { Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useMemo } from '@wordpress/element';
+import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
 import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
@@ -35,6 +35,14 @@ const POST_DETAIL_GRID = { ...DEFAULT_GRID, rowHeight: ROW_HEIGHT_PRESETS.small 
 // The layout is fixed, so the change callback never fires; the dashboard
 // still requires one because it owns a staging copy internally.
 const noopLayoutChange = () => {};
+
+// The share of the header row the date filter presets can never use: the
+// summary's 400px `min-inline-size` floor plus the row's 16px gap (see
+// `.summary` and `.header` in stage.module.scss — keep the three in sync),
+// plus a 24px buffer so the panel steps down before the wrap threshold —
+// layout wraps synchronously while the measured layout flip lags a frame, so
+// equal thresholds would flash a wrapped row at every boundary.
+const HEADER_RESERVED_INLINE_SIZE = 440;
 
 /**
  * Premium Analytics post/page detail page stage component.
@@ -103,6 +111,11 @@ function PostDetail(): JSX.Element {
 	// params, staged and committed by the shared date-filter controller.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 
+	// The header row hosts the panel in a shrink-to-fit slot, so the panel
+	// measures the row itself to pick its responsive layout; see the
+	// `containerElement` prop.
+	const [ headerElement, setHeaderElement ] = useState< HTMLElement | null >( null );
+
 	const breadcrumbs = useDetailBreadcrumbs( summary.title );
 
 	return (
@@ -146,7 +159,7 @@ function PostDetail(): JSX.Element {
 							 * same date range), so they render once above the per-tab
 							 * widget grid and scroll away with it.
 							 */ }
-							<div className={ styles.header }>
+							<div ref={ setHeaderElement } className={ styles.header }>
 								<div className={ styles.summary }>
 									<PostSummaryCard
 										summary={ summary }
@@ -161,14 +174,12 @@ function PostDetail(): JSX.Element {
 									 * widgets' injected reportParams) so the breadcrumb
 									 * carries them back to the dashboard.
 									 */ }
-									{ /*
-									 * Known rough edge: in this shrink-to-fit slot the panel's
-									 * self-measurement always sees its own content width, so the
-									 * presets keep their full layout and narrow rows degrade
-									 * poorly. External-measurement wiring ships separately
-									 * (#51088).
-									 */ }
-									<DateFiltersPanel { ...dateFilters } showComparison={ false } />
+									<DateFiltersPanel
+										{ ...dateFilters }
+										showComparison={ false }
+										containerElement={ headerElement }
+										reservedInlineSize={ HEADER_RESERVED_INLINE_SIZE }
+									/>
 								</div>
 							</div>
 							{ tabs.map( tab => (

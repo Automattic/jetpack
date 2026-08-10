@@ -3,9 +3,6 @@ import { ReactNode } from 'react';
 import styles from './section-header.module.scss';
 
 type SectionHeaderProps = {
-	/**
-	 * The name of the section.
-	 */
 	title: string;
 
 	/**
@@ -29,8 +26,8 @@ type SectionHeaderProps = {
  *
  * Once the header is too narrow to hold those two side by side everything
  * stacks, the subtitle returns to its place directly under the title, and the
- * title wraps: the row it shares is gone, so nothing is left to truncate it
- * for. Measured by a container query rather than against the viewport.
+ * title wraps rather than truncating. Measured by a container query rather
+ * than against the viewport.
  *
  * @param {SectionHeaderProps} props - The props for the SectionHeader component.
  * @return The section header element.
@@ -39,7 +36,7 @@ export function SectionHeader( { title, subtitle, children }: SectionHeaderProps
 	return (
 		<div className={ styles.container }>
 			<div className={ styles.layout }>
-				{ /* Titled with its own text, the only way back to a name the
+				{ /* The `title` attribute is the only way back to a name the
 				     ellipsis cut off. */ }
 				<Text className={ styles.title } variant="heading-2xl" render={ <h2 title={ title } /> }>
 					{ title }

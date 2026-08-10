@@ -18,7 +18,6 @@ import { encodeDateToSearchParam } from '../../search/date-range';
 /**
  * The report search params the date filters read and stage.
  */
-
 export type ReportQuerySearchParams = Partial<
 	ReportQueryParams & {
 		preset?: PrimaryPresetId;
@@ -28,9 +27,6 @@ export type ReportQuerySearchParams = Partial<
 >;
 
 type BuildRangePatchArgs = {
-	/**
-	 * The next primary range, when the change includes one.
-	 */
 	nextRange?: DateRange;
 
 	/**

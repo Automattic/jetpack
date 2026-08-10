@@ -1,8 +1,4 @@
 /**
- * External dependencies
- */
-
-/**
  * WordPress dependencies
  */
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -15,9 +11,6 @@ import {
 import fastDeepEqual from 'fast-deep-equal/es6/index.js';
 import { DASHBOARD_GRID_SETTINGS_KEY, DASHBOARD_PREFERENCES_SCOPE } from '../constants';
 import type { WidgetGridSettings } from '@wordpress/widget-dashboard';
-/**
- * Internal dependencies
- */
 
 /**
  * The analytics dashboards are designed at the small (200px) row height, so it

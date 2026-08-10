@@ -41,9 +41,6 @@ type SectionSubtitleArgs = {
 
 /**
  * Spell out a range's length, e.g. "7 days".
- *
- * @param span - The measured span.
- * @return The localized length.
  */
 function getSpanLabel( span: DateRangeSpan ): string {
 	switch ( span.unit ) {
@@ -121,11 +118,6 @@ function getIntervalCadenceLabel( interval: IntervalType ): string {
  *   // with comparison: '… (7 days, daily) vs. Previous period'
  *   // year surface: 'January 1, 2021 – July 30, 2026 (quarterly)'
  *
- * @param args                    - The applied date configuration.
- * @param args.range              - The applied date range.
- * @param args.comparisonPresetId - The applied comparison preset, when active.
- * @param args.presetId           - The applied primary preset, when there is one.
- * @param args.interval           - The applied chart interval, on a surface that has one.
  * @return The subtitle, or undefined when the range is incomplete.
  */
 export function getSectionSubtitle( {

@@ -408,12 +408,8 @@ function StorePerformanceContent( {
 }
 
 /**
- * Store performance widget.
- *
- * Ported from the upstream analytics-at-a-glance widget. WidgetRoot provides
- * the query client, chart theme, and resolved report params; the local content
- * component renders the metrics selected by the `metrics` attribute with a
- * comparison line chart.
+ * Ported from the upstream analytics-at-a-glance widget: the metrics selected by
+ * the `metrics` attribute, over a comparison line chart.
  */
 export default function StorePerformanceRender( { attributes = {} }: StorePerformanceRenderProps ) {
 	return (

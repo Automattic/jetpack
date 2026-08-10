@@ -78,7 +78,6 @@ export function ReportParamsField( {
 		[ stagedReportParams, reportParams.comp ]
 	);
 
-	// Basic check if the date range has been changed.
 	const isDateRangeDirty = useMemo( () => {
 		return (
 			attributes?.reportParams?.from !== stagedReportParams?.from ||

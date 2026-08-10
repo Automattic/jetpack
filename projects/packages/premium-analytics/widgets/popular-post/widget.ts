@@ -13,8 +13,6 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 export type PopularPostAttributes = Record< never, never >;
 
 /**
- * Widget type definition.
- *
  * The Insights "Most popular post" module: the site's most-viewed post for the
  * dashboard's selected date range. The range only picks the winner — the views,
  * likes, and comments shown for it are all-time totals.

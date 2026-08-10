@@ -42,13 +42,8 @@ type VideoDetailViewsPerformanceInnerProps = {
 };
 
 /**
- * Views performance inner component. Reads the video scope and report params
- * from WidgetRoot context and renders the view-trend line through
- * `<WidgetState>`; without a video scope (e.g. the widget added outside a
- * video detail page) the query never enables and the empty state shows.
- *
- * @param {VideoDetailViewsPerformanceInnerProps} props - The component props.
- * @return The rendered widget content.
+ * Without a video scope (e.g. the widget added outside a video detail page) the
+ * query never enables and the empty state shows.
  */
 function VideoDetailViewsPerformanceInner( {
 	granularity,
@@ -117,9 +112,6 @@ function VideoDetailViewsPerformanceInner( {
  * date range as a line chart. The view series comes from the
  * `stats/video/{id}` daily history for the selected window, zero-filled and
  * bucketed client-side per the granularity attribute.
- *
- * @param {VideoDetailViewsPerformanceWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function VideoDetailViewsPerformance( {
 	attributes = {},

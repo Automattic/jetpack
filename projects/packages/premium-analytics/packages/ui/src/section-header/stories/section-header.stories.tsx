@@ -64,8 +64,6 @@ type AppliedDateState = {
 
 /**
  * Committed/staged seed mirroring the dashboard default: Last 30 days.
- *
- * @return The initial primary filter state.
  */
 function buildInitialPrimaryState(): PrimaryFilterState {
 	const range = computePrimaryRange( 'last-30-days', STORYBOOK_TIMEZONE );
@@ -81,10 +79,6 @@ function buildInitialPrimaryState(): PrimaryFilterState {
  *
  * One predicate for two rules, the way `useReportDateFilters` has it: it gates
  * Apply, and it decides whether a comparison change commits on its own.
- *
- * @param staged    - The staged primary state.
- * @param committed - The applied primary state.
- * @return Whether the two differ.
  */
 function hasPrimaryDraft( staged: PrimaryFilterState, committed: PrimaryFilterState ): boolean {
 	return (
@@ -98,10 +92,6 @@ function hasPrimaryDraft( staged: PrimaryFilterState, committed: PrimaryFilterSt
  * Rolling date controls for the slot, wired like the dashboard: staged primary
  * edits committed on Apply. A trimmed copy of the DateFiltersPanel story
  * harness.
- *
- * @param props                 - Harness props.
- * @param props.onAppliedChange - Reports the applied configuration upward.
- * @return The wired date filters panel.
  */
 function RollingDateControls( {
 	onAppliedChange,
@@ -124,9 +114,6 @@ function RollingDateControls( {
 	/**
 	 * What the interval resolves to under a given preset, so a pick the next
 	 * range no longer allows coerces on Apply rather than being carried.
-	 *
-	 * @param presetId - The preset to resolve against.
-	 * @return The active interval.
 	 */
 	const intervalFor = useCallback(
 		( presetId: PrimaryPresetId ) =>
@@ -226,8 +213,6 @@ function RollingDateControls( {
 /**
  * The year surface's own seed: all time, bucketed by the coarsest-but-one
  * interval its span allows.
- *
- * @return The initial year-surface selection.
  */
 function buildInitialYearState(): AppliedDateState {
 	const range = computePrimaryRange( PRESET_ALL_TIME, STORYBOOK_TIMEZONE );
@@ -242,11 +227,6 @@ function buildInitialYearState(): AppliedDateState {
 /**
  * Year-surface controls for the slot: all time plus calendar years and the
  * interval control, but no comparison, as the Insights instance specifies.
- *
- * @param props                   - Harness props.
- * @param props.containerElement  - Measured row element for responsive layout.
- * @param props.onSelectionChange - Reports the selected configuration upward.
- * @return The wired year filter.
  */
 function YearDateControls( {
 	containerElement,

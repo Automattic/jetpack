@@ -30,6 +30,7 @@ import {
 	type SubscribersChartAttributes,
 	type SubscribersChartGranularity,
 	type SubscribersChartMetricId,
+	type SubscribersChartType,
 } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
@@ -60,10 +61,6 @@ const SUBSCRIBERS_PERIODS = [
 /**
  * The latest value of a metric in a window — each point is the cumulative count
  * as of that period, so the headline value is the last point, not a sum.
- *
- * @param points   - Chart points, oldest first.
- * @param accessor - Pulls the metric value off a point.
- * @return The latest value, or 0 when the window is empty.
  */
 function latest(
 	points: SubscribersChartPoint[],
@@ -89,10 +86,6 @@ const METRIC_ACCESSORS: Record<
  * canonical order, with Paid subscribers only when the site has any. Each tab
  * carries its headline total + the previous-window total for the delta, and
  * the per-period points for the chart.
- *
- * @param state     - The fetched subscribers state.
- * @param metricIds - Selected metric tab ids.
- * @return The metric tabs.
  */
 function buildMetrics(
 	state: SubscribersChartState,
@@ -126,21 +119,21 @@ type SubscribersChartInnerProps = {
 	 * Selected metric tab ids; defaults to every metric.
 	 */
 	metrics?: SubscribersChartMetricId[];
+	/**
+	 * How to draw the selected metric. `MetricTabsChart` owns the default.
+	 */
+	chartType?: SubscribersChartType;
 };
 
 /**
- * Subscribers chart inner component. Reads the dashboard date range + comparison
- * state from `useWidgetRootContext()` and hands the selected metric tabs to the
- * shared `MetricTabsChart`. The "Group by" control is the `granularity`
- * attribute and the tab selection is the `metrics` attribute (both
- * `relevance: 'high'`), rendered by the widget host.
- *
- * @param {SubscribersChartInnerProps} props - The component props.
- * @return The widget body.
+ * The "Group by" control is the `granularity` attribute, the tab selection is the
+ * `metrics` attribute, and the "Chart type" control is the `chartType` attribute
+ * (all `relevance: 'high'`), rendered by the widget host.
  */
 function SubscribersChartInner( {
 	granularity,
 	metrics: metricIds = DEFAULT_SUBSCRIBERS_CHART_METRICS,
+	chartType,
 }: SubscribersChartInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	// `auto` means "follow the dashboard range"; an explicit value sticks
@@ -220,6 +213,7 @@ function SubscribersChartInner( {
 					<MetricTabsChart
 						metrics={ metricTabs }
 						dataFormat={ DATA_FORMAT }
+						chartType={ chartType }
 						loading
 						groupLabel={ groupLabel }
 					/>
@@ -230,6 +224,7 @@ function SubscribersChartInner( {
 				<MetricTabsChart
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
+					chartType={ chartType }
 					loading={ state.isFetching }
 					groupLabel={ groupLabel }
 				/>
@@ -238,17 +233,6 @@ function SubscribersChartInner( {
 	);
 }
 
-/**
- * Widget render entry point.
- *
- * `WidgetRoot` provides the analytics query client and resolves the dashboard's
- * `reportParams`; the inner component reads that range/comparison state. The
- * granularity is the `granularity` attribute (`relevance: 'high'`), exposed as
- * a control by the widget host.
- *
- * @param {SubscribersChartWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function SubscribersChart( {
 	attributes = {},
 	setError,
@@ -257,7 +241,11 @@ export default function SubscribersChart( {
 
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<SubscribersChartInner granularity={ granularity } metrics={ attributes.metrics } />
+			<SubscribersChartInner
+				granularity={ granularity }
+				metrics={ attributes.metrics }
+				chartType={ attributes.chartType }
+			/>
 		</WidgetRoot>
 	);
 }

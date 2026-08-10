@@ -27,17 +27,11 @@ type DateIntervalDropdownProps = {
 	 */
 	label?: string;
 
-	/**
-	 * Callback when an interval is selected.
-	 */
 	onChange: ( interval: IntervalType ) => void;
 };
 
 /**
  * Name a bucket as the menu lists it.
- *
- * @param interval - The bucket.
- * @return The localized option label.
  */
 function getIntervalLabel( interval: IntervalType ): string {
 	switch ( interval ) {
@@ -63,9 +57,6 @@ function getIntervalLabel( interval: IntervalType ): string {
  * A range with one allowed bucket still opens a menu listing it, checked: the
  * trigger carries no text, so the menu is the only place the choice can be
  * inspected. The section header's subtitle names the active bucket.
- *
- * @param {DateIntervalDropdownProps} props - The props for the DateIntervalDropdown component.
- * @return The interval dropdown element.
  */
 export function DateIntervalDropdown( {
 	options,

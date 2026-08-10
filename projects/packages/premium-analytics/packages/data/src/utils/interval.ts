@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	getDatePart,
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_24_HOURS,
 	PRESET_LAST_30_DAYS,
@@ -25,13 +26,19 @@ import { localTZDate } from './date';
 export type { IntervalType };
 
 export function getDaysBetweenInclusive( from: string, to: string ): number {
+	// Extract the calendar day first: callers may now pass a full offset-bearing
+	// ISO datetime (Stats endpoints resolve those correctly, so request params
+	// aren't pre-trimmed anymore) rather than a bare `yyyy-MM-dd`.
+	const fromDay = getDatePart( from );
+	const toDay = getDatePart( to );
+
 	// Anchor both dates in UTC before diffing: `differenceInCalendarDays` reads
 	// its arguments' local calendar getters, and a plain UTC-tagged `Date`'s
 	// getters reflect the machine's local timezone, not UTC. Left unanchored,
 	// a negative-offset machine can read a UTC midnight instant as the
 	// previous local calendar day, shifting the day count.
-	const fromDate = localTZDate( `${ from }T00:00:00Z`, '+00:00' );
-	const toDate = localTZDate( `${ to }T00:00:00Z`, '+00:00' );
+	const fromDate = localTZDate( `${ fromDay }T00:00:00Z`, '+00:00' );
+	const toDate = localTZDate( `${ toDay }T00:00:00Z`, '+00:00' );
 	const days = differenceInCalendarDays( toDate, fromDate );
 
 	if ( Number.isNaN( days ) || days < 0 ) {
@@ -75,11 +82,6 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
  *
  * Also what the interval control lists, so the menu can never offer a bucket
  * the range would coerce away.
- *
- * @param preset - Primary date-range preset, when known.
- * @param from   - Range start.
- * @param to     - Range end.
- * @return Allowed intervals, finest first.
  */
 export function getAllowedIntervalsForPreset(
 	preset: PrimaryPresetId | undefined,
@@ -112,12 +114,6 @@ export function getAllowedIntervalsForPreset(
  *
  * Returns `current` when it is allowed for the range; otherwise the range
  * default (finest allowed).
- *
- * @param preset  - Primary date-range preset, when known.
- * @param from    - Range start.
- * @param to      - Range end.
- * @param current - Candidate interval to keep when still allowed.
- * @return An interval allowed for the range.
  */
 export function resolveIntervalForRange(
 	preset: PrimaryPresetId | undefined,
@@ -134,14 +130,7 @@ export function resolveIntervalForRange(
 	return allowed[ 0 ] ?? 'day';
 }
 
-/**
- * Default (finest) interval for a preset / date range.
- *
- * @param preset - Primary date-range preset, when known.
- * @param from   - Range start.
- * @param to     - Range end.
- * @return The default interval.
- */
+/** Default (finest) interval for a preset / date range. */
 export function getDefaultIntervalForPeriod(
 	preset: PrimaryPresetId | undefined,
 	from: string,

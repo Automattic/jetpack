@@ -36,7 +36,9 @@ const SECTIONS = [
 				),
 				enabledAction: {
 					label: __( 'Try it out in the editor', 'jetpack' ),
-					href: 'post-new.php',
+					// The arg asks the ai-assistant-plugin sidebar to open itself
+					// once the editor loads (same convention as openSidebar=global-styles).
+					href: 'post-new.php?openSidebar=jetpack-ai-assistant',
 				},
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
@@ -57,7 +59,12 @@ const SECTIONS = [
 					'Generate and edit professional-quality images without leaving WordPress.',
 					'jetpack'
 				),
-				enabledAction: { label: __( 'Try it out', 'jetpack' ), href: 'upload.php' },
+				enabledAction: {
+					label: __( 'Try it out', 'jetpack' ),
+					// ai-assistant makes the Image Studio bundle open Generate mode
+					// on the Media Library (it strips the param once handled).
+					href: 'upload.php?ai-assistant',
+				},
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
 					href: getRedirectUrl( 'jetpack-ai-settings-image-editor-learn-more' ),

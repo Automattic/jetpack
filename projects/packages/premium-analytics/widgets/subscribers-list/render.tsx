@@ -26,11 +26,7 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 /**
  * Flattens the designated `useStatsFollowers` report into the rows the roster
- * renders, mapping each subscriber's avatar, name, profile link, and
- * "subscribed since" relative time.
- *
- * @param report - The normalized followers report, or undefined while loading.
- * @return The subscriber rows.
+ * renders.
  */
 function toSubscriberItems(
 	report: StatsNormalizedReport< StatsFollowersItem > | undefined
@@ -66,9 +62,6 @@ type SubscribersRosterProps = {
  * `<WidgetState>` in the data-connected `SubscribersReport`. Takes
  * already-fetched rows via props so Storybook can exercise the populated state
  * without an analytics backend.
- *
- * @param {SubscribersRosterProps} props - The component props.
- * @return The rendered card body.
  */
 export const SubscribersRoster = ( { items = [], moreCount = 0 }: SubscribersRosterProps ) => {
 	return (
@@ -89,9 +82,6 @@ type SubscribersReportProps = {
  * Fetches the latest subscribers through the designated `useStatsFollowers`
  * Stats hook and hands the normalized rows to the presentational roster, with
  * the loading / error / empty states rendered through `<WidgetState>`.
- *
- * @param {SubscribersReportProps} props - The component props.
- * @return The widget content.
  */
 function SubscribersReport( { attributes }: SubscribersReportProps ) {
 	// Show six rows by default (matching the card design). A missing or
@@ -145,15 +135,8 @@ type SubscribersListRenderAttributes = SubscribersListAttributes &
 type SubscribersListWidgetProps = WidgetRenderProps< SubscribersListRenderAttributes >;
 
 /**
- * Widget render entry point.
- *
- * Mirrors the other Stats widgets: attributes flow to the inner component via
- * props (the dashboard's WC-shaped `reportParams` context does not fit the
- * followers query), and `WidgetRoot` provides the analytics query client and
- * receives host attributes for the widget contract.
- *
- * @param {SubscribersListWidgetProps} props - The widget render props.
- * @return The rendered widget.
+ * Attributes flow to the inner component via props rather than context: the
+ * dashboard's WC-shaped `reportParams` does not fit the followers query.
  */
 export default function SubscribersList( { attributes = {} }: SubscribersListWidgetProps ) {
 	return (

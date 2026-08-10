@@ -49,9 +49,6 @@ const MOCK_EMAIL_ID = 1234;
 /**
  * Read an attribute's declared element values off the widget definition, so the
  * story controls always mirror the schema.
- *
- * @param id - The attribute id on the widget definition.
- * @return The attribute's element values.
  */
 function attributeElementValues< Value extends string >( id: string ): Value[] {
 	return (
@@ -78,10 +75,6 @@ interface EmailTimeSeriesStoryControls {
 /**
  * Builds the widget attributes. Comparison stays a parameter so the dashboard
  * story can pass host comparison params without duplicating the scoping rule.
- *
- * @param {EmailTimeSeriesStoryControls} controls       - The story controls.
- * @param {boolean}                      withComparison - Include previous-period comparison report params.
- * @return The widget attributes.
  */
 function getEmailTimeSeriesAttributes(
 	{ metric, granularity }: EmailTimeSeriesStoryControls,
@@ -226,9 +219,6 @@ interface EmailTimeSeriesDashboardStoryProps
  * Mounts the real `WidgetDashboard`. It passes comparison params
  * unconditionally, so the widget stays covered against crashing or inventing
  * an overlay when a host supplies comparison dates.
- *
- * @param {EmailTimeSeriesDashboardStoryProps} props - The dashboard story controls.
- * @return The widget mounted inside the real dashboard.
  */
 function EmailTimeSeriesDashboardStory( {
 	metric,
