@@ -139,20 +139,15 @@ function wpcom_site_can_upload_videos( $blog_id = 0 ) {
  * @throws Error If $blog_id !== current_blog_id on Atomic sites.
  *
  * @param int  $blog_id           Optional. Blog ID. Defaults to current blog.
- * @param bool $with_billing_data Optional. Overlay billing-derived state (accurate
- *                                `user_allows_auto_renew`, plus `might_still_auto_renew`,
- *                                `is_past_first_auto_renew_attempt_date`,
- *                                `is_past_last_auto_renew_attempt_date`,
- *                                `first_auto_renew_attempt_date`, `last_auto_renew_attempt_date`
- *                                and `expiry_status`) onto each purchase. The same fields the
- *                                Atomic payload carries, so consumers read one shape on either
- *                                site type. Opt-in because it queries the
- *                                billing system on every call; the plain cached rows are enough for
- *                                feature checks. The overlay degrades to the plain rows wherever
- *                                billing cannot answer, so read the derived fields as optional and
- *                                trust `user_allows_auto_renew` as billing-accurate only on a
- *                                purchase that carries them. On Atomic sites this is a no-op: the
- *                                synced payload carries whatever fields it was synced with.
+ * @param bool $with_billing_data Optional. Overlay `might_still_auto_renew` and
+ *                                `is_past_first_auto_renew_attempt_date` onto each purchase. The
+ *                                same fields the Atomic payload carries, so consumers read one
+ *                                shape on either site type. Opt-in because it queries the billing
+ *                                system on every call; the plain cached rows are enough for feature
+ *                                checks. The overlay degrades to the plain rows wherever billing
+ *                                cannot answer, so read both as optional. On Atomic sites this is a
+ *                                no-op: the synced payload carries whatever fields it was synced
+ *                                with.
  *
  * @return array An array of product objects containing at least product_slug, product_id,
  *               product_type, subscribed_date, expiry_date and subscription_id. With
@@ -198,24 +193,17 @@ function wpcom_get_site_purchases( $blog_id = 0, $with_billing_data = false ) {
  * Overlay billing-derived state onto purchases from the cached store query.
  *
  * The cached rows carry the raw auto-renew flag, which stays true for
- * subscriptions that cannot actually renew (no chargeable payment method), and
- * they carry none of the derived state that depends on the auto-renew attempt
- * schedule. Both of those change with the passage of time, so neither can live
- * in the 24-30 hour `site_purchases` cache: the billing lookup runs on every
- * call. Results are handed back as clones, since the cached objects themselves
- * must stay untouched or the overlay would leak into callers that did not ask
- * for it.
- *
- * The two attempt dates come along for parity with the Atomic payload, which
- * needs them because it is only re-synced on subscription events. Here they are
- * as fresh as the booleans beside them.
+ * subscriptions that cannot actually renew (no chargeable payment method), so
+ * only billing can say whether a renewal will really be attempted. That answer
+ * changes with the passage of time, so it cannot live in the 24-30 hour
+ * `site_purchases` cache: the billing lookup runs on every call. Results are
+ * handed back as clones, since the cached objects themselves must stay
+ * untouched or the overlay would leak into callers that did not ask for it.
  *
  * Only ever does anything on Simple sites. Purchases are returned as-is when
  * the billing code-base is unavailable (see pdqkMK-18D-p2), when the billing
  * lookup fails, and for any purchase billing does not know about, so callers
- * must treat the extra fields as optional. `user_allows_auto_renew` is only
- * billing-accurate on a purchase that carries them; where they are absent it is
- * still the raw cached flag this overlay exists to correct.
+ * must treat both fields as optional.
  *
  * @param array $purchases Purchases as returned by _wpcom_features_get_simple_site_purchases().
  * @param int   $blog_id   Blog ID the purchases belong to.
@@ -267,13 +255,8 @@ function _wpcom_features_add_billing_data_to_purchases( $purchases, $blog_id ) {
 				return $purchase;
 			}
 
-			$purchase->user_allows_auto_renew                = $upgrade->is_auto_renew_enabled;
 			$purchase->might_still_auto_renew                = $upgrade->might_still_auto_renew;
 			$purchase->is_past_first_auto_renew_attempt_date = $upgrade->is_past_first_auto_renew_attempt_date;
-			$purchase->is_past_last_auto_renew_attempt_date  = $upgrade->is_past_last_auto_renew_attempt_date;
-			$purchase->first_auto_renew_attempt_date         = $upgrade->first_auto_renew_attempt_date;
-			$purchase->last_auto_renew_attempt_date          = $upgrade->last_auto_renew_attempt_date;
-			$purchase->expiry_status                         = $upgrade->expiry_status;
 
 			return $purchase;
 		},
