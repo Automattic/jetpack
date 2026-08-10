@@ -2600,20 +2600,21 @@ class Share_Tumblr extends Sharing_Source {
 			 * In this case, we want Tumblr to focus on our current post, so we will limit the post type to link, where we can give Tumblr a link to our post.
 			 */
 			if ( ! is_single() ) {
-				$posttype = 'data-posttype="link"';
+				$posttype = ' data-posttype="link"'; // Leading space separates it from the preceding title attribute.
 			} else {
 				$posttype = '';
 			}
 
 			// Documentation: https://www.tumblr.com/docs/en/share_button
 			return sprintf(
-				'<a class="tumblr-share-button" target="%1$s" href="%2$s" data-title="%3$s" data-content="%4$s" title="%5$s"%6$s>%5$s</a>',
+				'<a class="tumblr-share-button" target="%1$s" href="%2$s" data-title="%3$s" data-content="%4$s" title="%5$s"%6$s>%7$s</a>',
 				$target,
 				'https://www.tumblr.com/share',
-				$this->get_share_title( $post->ID ),
-				$this->get_share_url( $post->ID ),
-				__( 'Share on Tumblr', 'jetpack' ),
-				$posttype
+				esc_attr( $this->get_share_title( $post->ID ) ),
+				esc_url( $this->get_share_url( $post->ID ) ),
+				esc_attr__( 'Share on Tumblr', 'jetpack' ),
+				$posttype,
+				esc_html__( 'Share on Tumblr', 'jetpack' )
 			);
 		} else {
 			return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Tumblr', 'share to', 'jetpack' ), __( 'Share on Tumblr', 'jetpack' ), 'share=tumblr', 'sharing-tumblr-' . $post->ID );
