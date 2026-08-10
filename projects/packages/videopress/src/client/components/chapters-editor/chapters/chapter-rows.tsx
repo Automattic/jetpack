@@ -1,7 +1,7 @@
 /**
  * The chapters rows list (rendered inside ChaptersPanel): one row per
- * chapter with the title input, the start-time seek button (a lock icon
- * marks the first chapter's pinned 0:00 start), and the remove button. This
+ * chapter with the title input (borderless until focused, so resting rows
+ * read as text), the start-time seek button, and the remove button. This
  * list is the accessible editing surface for everything the strip's
  * segments and markers do with pointers.
  *
@@ -23,7 +23,7 @@
  */
 import { Button } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
-import { Icon, lockSmall, trash } from '@wordpress/icons';
+import { Icon, trash } from '@wordpress/icons';
 import { useEffect, useState } from 'react';
 import { formatTimecode } from '../state/time-utils';
 import type {
@@ -168,18 +168,6 @@ function ChapterRow( {
 					}
 				} }
 			/>
-			{ /* The first chapter's start is pinned to 0:00 by the reducer; the
-			     lock says so in place, instead of a sentence of footer prose. */ }
-			{ index === 0 ? (
-				<span
-					className="vp-chapters__row-lock"
-					role="img"
-					aria-label={ __( 'The first chapter always starts at 0:00.', 'jetpack-videopress-pkg' ) }
-					title={ __( 'The first chapter always starts at 0:00.', 'jetpack-videopress-pkg' ) }
-				>
-					<Icon icon={ lockSmall } size={ 16 } />
-				</span>
-			) : null }
 			<button
 				type="button"
 				className="vp-chapters__row-time"

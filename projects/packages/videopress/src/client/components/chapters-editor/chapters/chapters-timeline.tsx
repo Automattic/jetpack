@@ -229,7 +229,7 @@ export default function ChaptersTimeline( {
 			/>
 			<p className="vp-chapters__help">
 				{ __(
-					'Chapters appear in the player timeline and help viewers jump to a section.',
+					'Chapters appear in the player timeline and help viewers jump to a section. The first chapter always starts at 0:00:00.0.',
 					'jetpack-videopress-pkg'
 				) }
 			</p>

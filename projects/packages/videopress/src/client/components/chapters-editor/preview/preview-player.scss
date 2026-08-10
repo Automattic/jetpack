@@ -16,6 +16,11 @@
 
 .vp-chapters-preview__stage {
 	position: relative;
+	// Full width up to the caps below: the cross-axis auto margins opt the
+	// stage out of flex stretching, so without an explicit width it would
+	// shrink-to-fit the <video>'s intrinsic size — 300×150 until metadata
+	// arrives, i.e. a postage stamp while the rendition loads.
+	width: 100%;
 	aspect-ratio: 16 / 9;
 	background: #000;
 	border-radius: 2px;

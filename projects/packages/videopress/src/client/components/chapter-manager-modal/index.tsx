@@ -3,7 +3,7 @@
  */
 import { Button, Modal, SnackbarList } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
-import { __, _x, sprintf } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { close, redo as redoIcon, undo as undoIcon } from '@wordpress/icons';
 /**
  * Internal dependencies
@@ -418,11 +418,19 @@ export default function ChapterManagerModal( {
 	);
 
 	const videoTitle = title || __( 'VideoPress video', 'jetpack-videopress-pkg' );
-	const modalHeaderTitle = sprintf(
-		/* translators: %s: video title. */
-		__( 'Chapters · %s', 'jetpack-videopress-pkg' ),
-		videoTitle
-	);
+	/*
+	 * Two-tone header: "Chapters" carries the heading weight, the video name
+	 * hangs off it in a muted color. Modal's `title` prop is typed as a
+	 * string but is rendered as the h1's children, so a node works at
+	 * runtime — and aria-labelledby reads the heading's text content, which
+	 * still announces as "Chapters · {title}".
+	 */
+	const modalHeaderTitle = (
+		<>
+			{ __( 'Chapters', 'jetpack-videopress-pkg' ) }
+			<span className="videopress-chapter-manager__title-video">{ ` · ${ videoTitle }` }</span>
+		</>
+	 ) as unknown as string;
 
 	return isOpen ? (
 		<Modal

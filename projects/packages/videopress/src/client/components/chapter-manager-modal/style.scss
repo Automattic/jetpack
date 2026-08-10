@@ -37,6 +37,7 @@
 
 	.components-modal__header {
 		padding: 12px 18px;
+		border-block-end: 1px solid #dcdcde;
 	}
 
 	// The header now carries the full action set beside the title, so the
@@ -50,6 +51,12 @@
 		white-space: nowrap;
 		text-overflow: ellipsis;
 	}
+}
+
+// The video name inside the two-tone header title.
+.videopress-chapter-manager__title-video {
+	color: #757575;
+	font-weight: 400;
 }
 
 /* The Escape-intercepting wrapper must not affect the modal's layout. */
@@ -125,6 +132,11 @@
 	flex-direction: column;
 	border-inline-start: 1px solid #dcdcde;
 	padding-inline-start: 18px;
+	// Pull the pane through the workspace's block padding so its divider
+	// runs the full modal body, header hairline to bottom edge; the padding
+	// puts the content back where the workspace would have had it.
+	margin-block: -18px;
+	padding-block: 18px;
 
 	.vp-chapters-panel {
 		flex: 1;
@@ -165,8 +177,9 @@
 		inline-size: auto;
 		border-inline-start: 0;
 		padding-inline-start: 0;
+		margin-block: 0;
 		border-block-start: 1px solid #dcdcde;
-		padding-block-start: 16px;
+		padding-block: 16px 0;
 
 		.vp-chapters-panel__list {
 			overflow-y: visible;
