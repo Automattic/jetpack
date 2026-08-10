@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add the vocabulary and feature flag for form field conditional logic. No user-facing change on its own.
