@@ -16,7 +16,7 @@ type Props = {
  * "Select from video" and "Upload image". Uses the same `@wordpress/components`
  * DropdownMenu as the page header's ⋯ menu so both menus share the design
  * system's look — including MenuItem's default right-aligned icons. Rendered
- * inline next to the "Add video to new post" action inside ThumbnailCard.
+ * by ThumbnailControl, in the Thumbnail row of the Video details card.
  *
  * @param props                    - Component props.
  * @param props.canSelectFromVideo - Whether the frame-picker action is available.
