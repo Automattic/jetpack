@@ -18,10 +18,6 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Interface for CSV report controllers.
  *
- * This interface defines the contract that all CSV report controllers
- * must implement. It ensures consistent behavior across different
- * report types while allowing for flexible implementations.
- *
  * @since 0.1.0
  */
 interface Csv_Report_Controller_Interface extends Registrable_Interface {

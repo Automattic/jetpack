@@ -16,9 +16,9 @@ import type { Field } from '@jetpack-premium-analytics/externals';
 /**
  * Render the label cell for a Comments report row.
  *
- * @param root0               - Component props.
- * @param root0.row           - The Comments report row.
- * @param root0.originSection - The active Comments report tab.
+ * @param props               - Component props.
+ * @param props.row           - The Comments report row.
+ * @param props.originSection - The active Comments report tab.
  * @return The label cell.
  */
 function CommentLabel( {

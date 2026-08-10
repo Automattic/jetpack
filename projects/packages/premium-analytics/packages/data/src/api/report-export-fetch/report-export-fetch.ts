@@ -12,9 +12,6 @@ import type { DateType } from '../../utils/types';
 
 const REPORT_DOWNLOAD_PATH = '/jetpack-premium-analytics/v1/reports/csv-export';
 
-/**
- * Export request parameters
- */
 export interface ExportReportParams {
 	reportType: string | string[];
 	from: string; // ISO 8601 date string
@@ -30,9 +27,6 @@ export interface DownloadReportParams extends Omit< ExportReportParams, 'reportT
 	dateType?: DateType;
 }
 
-/**
- * Export response from the API
- */
 export interface ExportReportResponse {
 	success: boolean;
 	message: string;
@@ -57,12 +51,6 @@ type ReportExportBody = {
 	compare_to?: string;
 };
 
-/**
- * Build the request body for a direct report download.
- *
- * @param params - Export parameters.
- * @return Request body for the existing CSV export endpoint.
- */
 export function buildReportExportBody( params: DownloadReportParams ): ReportExportBody {
 	return {
 		report_type: params.reportType,
@@ -80,12 +68,7 @@ export function buildReportExportBody( params: DownloadReportParams ): ReportExp
 	};
 }
 
-/**
- * Export one or more reports via email
- *
- * @param params - Export parameters
- * @return Promise that resolves to the export response
- */
+/** Export one or more reports via email. */
 export async function exportReport( params: ExportReportParams ): Promise< ExportReportResponse > {
 	const path = '/wc/v3/woocommerce-analytics/reports/csv-export';
 
@@ -110,12 +93,7 @@ export async function exportReport( params: ExportReportParams ): Promise< Expor
 	} ) as Promise< ExportReportResponse >;
 }
 
-/**
- * Request a browser download from the Premium Analytics CSV export endpoint.
- *
- * @param params - Export parameters.
- * @return The filename used for the downloaded CSV.
- */
+/** Request a browser download from the Premium Analytics CSV export endpoint. */
 export async function downloadReport(
 	params: DownloadReportParams
 ): Promise< DownloadReportResponse > {
@@ -150,12 +128,6 @@ export async function downloadReport(
 	return { filename };
 }
 
-/**
- * Extract a filename from a Content-Disposition response header.
- *
- * @param header - Content-Disposition header value.
- * @return The response filename, when present.
- */
 export function getFilenameFromContentDisposition( header: string | null ): string | undefined {
 	if ( ! header ) {
 		return undefined;

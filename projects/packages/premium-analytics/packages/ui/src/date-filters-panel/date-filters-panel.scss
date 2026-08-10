@@ -29,6 +29,11 @@
 		flex: 0 0 auto;
 	}
 
+	// A glyph in a square box: nothing to give back when the row runs short.
+	.date-interval-dropdown {
+		flex: 0 0 auto;
+	}
+
 	.date-range-quick-presets__pill,
 	.date-filters-panel-button {
 		--wp-ui-button-height: calc(var(--wpds-dimension-size-lg) - 2px);

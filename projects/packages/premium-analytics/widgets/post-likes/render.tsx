@@ -31,13 +31,8 @@ type PostLikesWidgetProps = WidgetRenderProps< PostLikesRenderAttributes >;
 const LIKES_SHOWN = 10;
 
 /**
- * Latest likes inner component. Reads the post scope from WidgetRoot's report
- * params and lists the post's likers through `SubscriberList` — avatar, name
- * (linked to the liker's Reader profile), and the like's relative time, most
- * recent first, with an "N more" footer. The list is a lifetime roster and
- * ignores the dashboard date range.
- *
- * @return The rendered widget content.
+ * Lists the scoped post's likers, most recent first. The list is a lifetime
+ * roster and ignores the dashboard date range.
  */
 function PostLikesInner() {
 	const { reportParams } = useWidgetRootContext();
@@ -99,13 +94,6 @@ function PostLikesInner() {
 	);
 }
 
-/**
- * Latest likes widget: the scoped post's likers as an avatar roster — the
- * post detail Traffic view's likes card.
- *
- * @param {PostLikesWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function PostLikes( { attributes = {} }: PostLikesWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

@@ -45,9 +45,6 @@ interface MostCommentedAuthorsInnerProps {
  * Top commented authors inner component. The comment counts come from the
  * all-time `stats/comments` report, so there is no date range or comparison
  * period to read from context.
- *
- * @param {MostCommentedAuthorsInnerProps} props - The component props.
- * @return The rendered widget content.
  */
 function MostCommentedAuthorsInner( { max }: MostCommentedAuthorsInnerProps ) {
 	const { rows, isLoading, isFetching, isError, error, refetch } = useStatsCommentsRows( {
@@ -123,9 +120,6 @@ function MostCommentedAuthorsInner( { max }: MostCommentedAuthorsInnerProps ) {
  * One half of the Jetpack Stats "Comments" module; `jpa/most-commented-posts`
  * covers the other. Both read the same `stats/comments` response through
  * `useStatsCommentsRows`, so showing both costs a single request.
- *
- * @param {MostCommentedAuthorsWidgetProps} props - The widget render props.
- * @return The rendered Top commented authors widget.
  */
 export default function MostCommentedAuthors( {
 	attributes = {},

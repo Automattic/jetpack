@@ -50,7 +50,8 @@ $section-header-title-max-share: 50%;
 	/*
 	 * The panel fills the cell, so the end-anchoring happens inside it rather
 	 * than through the cell's alignment. Scoped to the panel: the slot's other
-	 * occupant is the year filter, which keeps its natural width.
+	 * occupant is the year surface's row, which keeps its natural width and is
+	 * anchored by the cell above.
 	 */
 	:global(.date-filters-panel) {
 		justify-content: flex-end;

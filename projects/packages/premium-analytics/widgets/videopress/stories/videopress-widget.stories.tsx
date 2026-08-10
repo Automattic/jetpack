@@ -41,9 +41,6 @@ interface VideoPressStoryControls {
  * Render the data-connected VideoPress widget with report params derived from
  * the `withComparison` control, so the close-up stories exercise the real data
  * flow (served by `registerReportMocks`).
- *
- * @param {VideoPressStoryControls} props - Story controls.
- * @return The rendered widget.
  */
 function renderVideoPress( { withComparison }: VideoPressStoryControls ) {
 	return (
@@ -153,9 +150,6 @@ interface VideoPressDashboardStoryProps
  * Renders the real registered widget through the shared dashboard harness, so
  * it appears exactly as it does in product, inheriting the size / edit-mode /
  * host-environment controls.
- *
- * @param {VideoPressDashboardStoryProps} props - Story controls.
- * @return The widget mounted in the dashboard harness.
  */
 function VideoPressDashboardStory( {
 	withComparison,

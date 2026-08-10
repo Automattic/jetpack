@@ -181,7 +181,48 @@ See Automattic/jetpack#50266 for the PR that established this contract.
   bundle again; ESLint enforces this. `@automattic/charts` follows the same rule under
   `packages/`, but under `widgets/` and `routes/` it must come from
   `@jetpack-premium-analytics/widgets-toolkit` instead. See `packages/externals/README.md`.
+
+## Comments and documentation
+
+Code explains what; comments explain why. Keep them minimal.
+
+- Document non-obvious rules, constraints, invariants, risks, and workarounds — not names,
+  types, or signatures. Prefer a clearer name over an explanatory comment.
+- Private functions do not need a docstring by default. One sentence is usually enough.
+- Never invent rationale. Treat a stale comment as a bug: one that contradicts the code is
+  worse than no comment at all.
 - All source code comments must be in English.
+
+Load-bearing here and easy to delete by mistake: the `max = 0` semantics, the
+`undefined`-not-`0` comparison rules, `safeHttpUrl` guards (including the ones explaining why a
+URL needs _no_ guard), import-boundary notes (WOOA7S-1836), and the WPCOM Simple route guards.
+
+### What lint requires you to keep
+
+Deleting a whole JSDoc block is only safe where `eslint.config.mjs` softens the jsdoc rules,
+and the softening is uneven. Those overrides are temporary scaffolding that let the ports land
+with their upstream JSDoc style; they are meant to come off as the ported code is cleaned up,
+so treat the table as "what lint tolerates today", not as the standard to write new code to:
+
+| Path                                                                    | Whole block deletable?                         |
+| ----------------------------------------------------------------------- | ---------------------------------------------- |
+| `widgets/**`, `packages/{data,ui,fields,widgets-toolkit}/**`            | Yes                                            |
+| `packages/routing/**`                                                   | Yes, but a surviving block needs a description |
+| `packages/{datetime,formatters}/**`                                     | No — `require-jsdoc` is on; shorten instead    |
+| `routes/**`, `packages/{icons,externals,init,site-sync}/**`, `types/**` | No — base rules apply; shorten instead         |
+
+Two constraints hold everywhere:
+
+- **PHP** is linted by WordPress Coding Standards, so file/class/function docblocks and their
+  `@param` / `@return` / `@since` / `@package` tags are structural — trim the prose, keep the
+  tags. Hook docblocks above `apply_filters()` / `do_action()` are required.
+- A JSDoc block containing `@param props` must document every destructured property
+  (`jsdoc/check-param-names`). Dropping the `@param props.X` list means dropping the root
+  `@param props` line with it.
+
+Not commentary, so not candidates for trimming: `// translators:` comments (the build reads
+them), `eslint-disable` / `@ts-expect-error` justifications, and JSDoc on exported Storybook
+stories or `docs.description.component` — Storybook renders those as user-visible docs.
 
 ## Widgets
 

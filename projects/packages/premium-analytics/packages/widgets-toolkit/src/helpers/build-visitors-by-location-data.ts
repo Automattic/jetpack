@@ -61,7 +61,6 @@ export function buildVisitorsByLocationData( {
 			? __( 'State', 'jetpack-premium-analytics-pkg' )
 			: __( 'Country', 'jetpack-premium-analytics-pkg' );
 
-	// Build geo chart data
 	const geoData: GeoData = [
 		[ headerLabel, 'Visitors' ],
 		...primaryData.map( item => [ item.label, item.value ] as [ string, number ] ),
@@ -75,7 +74,6 @@ export function buildVisitorsByLocationData( {
 		visiblePrimaryData.map( item => comparisonValues.get( item.id ) )
 	);
 
-	// Build leaderboard data (top N items)
 	const leaderboardData: LeaderboardChartData = visiblePrimaryData.map( item => {
 		// A location absent from the comparison period has an unknown previous
 		// value, not a real 0, so leave the comparison fields undefined and let

@@ -63,9 +63,6 @@ type StatsListReportHookConfig<
 /**
  * The `getOptions` mapper for list reports whose merge helper takes no extra option:
  * splits `maxRows` off the query options and leaves the merge option undefined.
- *
- * @param options - The hook's caller options.
- * @return The split query options, row cap, and (absent) merge option.
  */
 export function splitStatsListOptions( options: StatsListReportOptions | undefined ): {
 	queryOptions: UseStatsOptions;

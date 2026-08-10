@@ -1,6 +1,6 @@
 import { DataContext } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/ui';
+import { IconButton } from '@wordpress/ui';
 import { useCallback, useContext, useMemo, useState } from 'react';
 import styles from './x-zoom.module.scss';
 import type { SingleChartRef } from '../single-chart-context';
@@ -172,14 +172,8 @@ export function ZoomClip( {
 
 /**
  * Visible icon-only reset control rendered as an HTML overlay on top of the
- * chart container, using the WPDS `Button`. The host should wrap its SVG in a
- * `position: relative` container so the button anchors correctly.
- *
- * `IconButton` would be the natural fit, but it renders a Base UI tooltip whose
- * CommonJS `use-sync-external-store` dependency makes Rolldown emit a dynamic
- * `require()` into `dist`, which throws on evaluation in WordPress Script
- * Module consumers. `Button` gives the same treatment without that dependency;
- * the tooltip is replaced by `aria-label` + `title`.
+ * chart container, using the WPDS `IconButton`. The host should wrap its SVG in
+ * a `position: relative` container so the button anchors correctly.
  *
  * @param props         - Props.
  * @param props.onClick - Click handler. Typically the `reset` from `useXZoom`.
@@ -194,44 +188,39 @@ export function ZoomResetButton( { onClick }: { onClick: () => void } ) {
 			event.stopPropagation();
 		}
 	}, [] );
-	const label = __( 'Reset zoom', 'jetpack-charts' );
 	return (
-		<Button
+		<IconButton
 			className={ styles[ 'x-zoom__reset' ] }
 			onKeyDown={ stopActivationKeys }
-			aria-label={ label }
-			title={ label }
+			label={ __( 'Reset zoom', 'jetpack-charts' ) }
 			variant="outline"
 			tone="neutral"
 			size="small"
 			onClick={ onClick }
 			data-testid="chart-zoom-reset"
-		>
-			<Button.Icon
-				icon={
-					<svg
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						strokeWidth="2"
-						strokeLinecap="round"
-						strokeLinejoin="round"
-						aria-hidden="true"
-						focusable="false"
-					>
-						{ /*
-							Icons render edge-to-edge at 24px, so inset the glyph the
-							way @wordpress/icons glyphs do (drawn within roughly 4-20
-							of the viewBox, ~1.5px effective stroke).
-						*/ }
-						<g transform="translate(2.4 2.4) scale(0.8)">
-							<circle cx="10" cy="10" r="6" />
-							<line x1="15" y1="15" x2="20" y2="20" />
-							<line x1="7" y1="10" x2="13" y2="10" />
-						</g>
-					</svg>
-				}
-			/>
-		</Button>
+			icon={
+				<svg
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					strokeWidth="2"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					aria-hidden="true"
+					focusable="false"
+				>
+					{ /*
+						Icons render edge-to-edge at 24px, so inset the glyph the
+						way @wordpress/icons glyphs do (drawn within roughly 4-20
+						of the viewBox, ~1.5px effective stroke).
+					*/ }
+					<g transform="translate(2.4 2.4) scale(0.8)">
+						<circle cx="10" cy="10" r="6" />
+						<line x1="15" y1="15" x2="20" y2="20" />
+						<line x1="7" y1="10" x2="13" y2="10" />
+					</g>
+				</svg>
+			}
+		/>
 	);
 }

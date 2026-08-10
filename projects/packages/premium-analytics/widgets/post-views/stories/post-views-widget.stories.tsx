@@ -54,10 +54,6 @@ interface PostViewsStoryControls {
  * with the post scope the detail page seeds from its URL when `hasPostScope`
  * is on. Comparison stays a parameter so the dashboard story can pass host
  * comparison params without duplicating the scoping rule.
- *
- * @param {PostViewsStoryControls} controls       - The story controls.
- * @param {boolean}                withComparison - Include previous-period comparison report params.
- * @return The widget attributes.
  */
 function getPostViewsAttributes(
 	{ hasPostScope, granularity }: PostViewsStoryControls,
@@ -72,12 +68,6 @@ function getPostViewsAttributes(
 	};
 }
 
-/**
- * Renders the data-connected widget with the composed attributes.
- *
- * @param {PostViewsStoryControls} controls - The story controls.
- * @return The rendered widget.
- */
 function renderPostViews( controls: PostViewsStoryControls ) {
 	return <PostViewsRender attributes={ getPostViewsAttributes( controls ) } />;
 }
@@ -142,9 +132,6 @@ interface PostViewsDashboardStoryProps
  * control, sizing, edit mode). It passes comparison params unconditionally,
  * so the widget stays covered against crashing or inventing an overlay when
  * a host supplies comparison dates.
- *
- * @param {PostViewsDashboardStoryProps} props - The dashboard story controls.
- * @return The widget mounted inside the real dashboard.
  */
 function PostViewsDashboardStory( {
 	hasPostScope,

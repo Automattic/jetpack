@@ -220,10 +220,6 @@ export const LongLabels: Story = {
 /**
  * Creates a decorator that wraps the story in a fixed-size container so the
  * widget's responsiveness can be inspected at a given width.
- *
- * @param width    - The container width (any CSS length).
- * @param [height] - The container height; defaults to `auto`.
- * @return A Storybook decorator.
  */
 const createSizeDecorator = ( width: string, height = 'auto' ): Decorator => {
 	return Story => (
@@ -262,13 +258,6 @@ export const SizeLarge: Story = {
 	decorators: [ createSizeDecorator( '576px' ), withEmailsWidgetRoot, withStoryRouter ],
 };
 
-/**
- * Renders the data-connected widget through the shared dashboard harness, so it
- * appears exactly as it does in product (full-bleed framing, sizing, edit mode).
- *
- * @param props - The dashboard story controls.
- * @return The widget mounted inside the real `WidgetDashboard`.
- */
 function EmailsDashboardStory( props: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory

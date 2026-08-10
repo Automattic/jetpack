@@ -58,12 +58,6 @@ const initialLayout: DashboardWidget[] = [
 	},
 ];
 
-/**
- * Story-only widget renderer.
- *
- * @param {StoryWidgetProps} props - Widget render props.
- * @return Rendered story widget.
- */
 function StoryWidget( { attributes }: StoryWidgetProps ) {
 	return (
 		<div
@@ -108,8 +102,6 @@ const storySections = [
 
 /**
  * Story showing the dashboard section panel scroll surface around a widget grid.
- *
- * @return Story component.
  */
 function DashboardSectionsGridStory() {
 	const sections = storySections;

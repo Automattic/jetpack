@@ -2,11 +2,18 @@ import {
 	computePrimaryRange,
 	PRESET_ALL_TIME,
 	type ComparisonPresetId,
+	type IntervalType,
 	type PrimaryPresetId,
 	type YearSurfacePresetId,
 } from '@jetpack-premium-analytics/datetime';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { useCallback, useRef, useState } from 'react';
 import { DateFiltersPanel } from '../../date-filters-panel';
+import { DateIntervalDropdown } from '../../date-interval-dropdown';
+import {
+	getStoryIntervalOptions,
+	resolveStoryInterval,
+} from '../../date-interval-dropdown/stories/story-interval-options';
 import { DateYearFilter } from '../../date-year-filter';
 import { getSectionSubtitle } from '../get-section-subtitle';
 import { SectionHeader } from '../section-header';
@@ -52,12 +59,11 @@ type AppliedDateState = {
 	range: DateRange;
 	comparisonPresetId?: ComparisonPresetId;
 	presetId?: PrimaryPresetId;
+	interval?: IntervalType;
 };
 
 /**
  * Committed/staged seed mirroring the dashboard default: Last 30 days.
- *
- * @return The initial primary filter state.
  */
 function buildInitialPrimaryState(): PrimaryFilterState {
 	const range = computePrimaryRange( 'last-30-days', STORYBOOK_TIMEZONE );
@@ -73,10 +79,6 @@ function buildInitialPrimaryState(): PrimaryFilterState {
  *
  * One predicate for two rules, the way `useReportDateFilters` has it: it gates
  * Apply, and it decides whether a comparison change commits on its own.
- *
- * @param staged    - The staged primary state.
- * @param committed - The applied primary state.
- * @return Whether the two differ.
  */
 function hasPrimaryDraft( staged: PrimaryFilterState, committed: PrimaryFilterState ): boolean {
 	return (
@@ -90,10 +92,6 @@ function hasPrimaryDraft( staged: PrimaryFilterState, committed: PrimaryFilterSt
  * Rolling date controls for the slot, wired like the dashboard: staged primary
  * edits committed on Apply. A trimmed copy of the DateFiltersPanel story
  * harness.
- *
- * @param props                 - Harness props.
- * @param props.onAppliedChange - Reports the applied configuration upward.
- * @return The wired date filters panel.
  */
 function RollingDateControls( {
 	onAppliedChange,
@@ -109,6 +107,18 @@ function RollingDateControls( {
 
 	const [ comparisonPresetId, setComparisonPresetId ] = useState< ComparisonPresetId | undefined >(
 		undefined
+	);
+
+	const [ pickedInterval, setPickedInterval ] = useState< IntervalType | undefined >( undefined );
+
+	/**
+	 * What the interval resolves to under a given preset, so a pick the next
+	 * range no longer allows coerces on Apply rather than being carried.
+	 */
+	const intervalFor = useCallback(
+		( presetId: PrimaryPresetId ) =>
+			resolveStoryInterval( pickedInterval, getStoryIntervalOptions( presetId ) ),
+		[ pickedInterval ]
 	);
 
 	const handleChange = useCallback( ( nextRange?: DateRange, nextPresetId?: PrimaryPresetId ) => {
@@ -127,8 +137,9 @@ function RollingDateControls( {
 			range: stagedRef.current.range,
 			presetId: stagedRef.current.presetId,
 			comparisonPresetId,
+			interval: intervalFor( stagedRef.current.presetId ),
 		} );
-	}, [ onAppliedChange, comparisonPresetId ] );
+	}, [ onAppliedChange, comparisonPresetId, intervalFor ] );
 
 	const handleCancel = useCallback( () => {
 		stagedRef.current = committed;
@@ -150,13 +161,33 @@ function RollingDateControls( {
 					range: committed.range,
 					presetId: committed.presetId,
 					comparisonPresetId: nextPresetId,
+					interval: intervalFor( committed.presetId ),
 				} );
 			}
 		},
-		[ onAppliedChange, committed ]
+		[ onAppliedChange, committed, intervalFor ]
+	);
+
+	// Applies on click unless a primary edit is staged, in which case it lands
+	// with it — the same rule a comparison change follows.
+	const handleIntervalChange = useCallback(
+		( nextInterval: IntervalType ) => {
+			setPickedInterval( nextInterval );
+
+			if ( ! hasPrimaryDraft( stagedRef.current, committed ) ) {
+				onAppliedChange( {
+					range: committed.range,
+					presetId: committed.presetId,
+					comparisonPresetId,
+					interval: nextInterval,
+				} );
+			}
+		},
+		[ onAppliedChange, committed, comparisonPresetId ]
 	);
 
 	const canApply = hasPrimaryDraft( staged, committed );
+	const intervalOptions = getStoryIntervalOptions( committed.presetId );
 
 	return (
 		<DateFiltersPanel
@@ -165,8 +196,12 @@ function RollingDateControls( {
 			appliedPresetId={ committed.presetId }
 			appliedRange={ committed.range }
 			comparisonPresetId={ comparisonPresetId }
+			withIntervalControl
+			interval={ resolveStoryInterval( pickedInterval, intervalOptions ) }
+			intervalOptions={ intervalOptions }
 			onChange={ handleChange }
 			onComparisonChange={ handleComparisonChange }
+			onIntervalChange={ handleIntervalChange }
 			onApply={ handleApply }
 			onCancel={ handleCancel }
 			canApply={ canApply }
@@ -176,13 +211,22 @@ function RollingDateControls( {
 }
 
 /**
- * Year-surface controls for the slot: all time plus calendar years, no
- * comparison, as the Insights instance specifies.
- *
- * @param props                   - Harness props.
- * @param props.containerElement  - Measured row element for responsive layout.
- * @param props.onSelectionChange - Reports the selected range and preset upward.
- * @return The wired year filter.
+ * The year surface's own seed: all time, bucketed by the coarsest-but-one
+ * interval its span allows.
+ */
+function buildInitialYearState(): AppliedDateState {
+	const range = computePrimaryRange( PRESET_ALL_TIME, STORYBOOK_TIMEZONE );
+
+	return {
+		range: { from: range?.from, to: range?.to },
+		presetId: PRESET_ALL_TIME,
+		interval: getStoryIntervalOptions( PRESET_ALL_TIME )[ 0 ],
+	};
+}
+
+/**
+ * Year-surface controls for the slot: all time plus calendar years and the
+ * interval control, but no comparison, as the Insights instance specifies.
  */
 function YearDateControls( {
 	containerElement,
@@ -191,18 +235,43 @@ function YearDateControls( {
 	containerElement: HTMLElement | null;
 	onSelectionChange: ( selection: AppliedDateState ) => void;
 } ) {
-	const [ presetId, setPresetId ] = useState< YearSurfacePresetId >( PRESET_ALL_TIME );
+	const [ selection, setSelection ] = useState< AppliedDateState >( buildInitialYearState );
+	const [ pickedInterval, setPickedInterval ] = useState< IntervalType | undefined >( undefined );
+
+	const intervalOptions = getStoryIntervalOptions( selection.presetId );
 
 	return (
-		<DateYearFilter
-			value={ presetId }
-			onSelect={ ( range, nextPresetId: YearSurfacePresetId ) => {
-				setPresetId( nextPresetId );
-				onSelectionChange( { range, presetId: nextPresetId } );
-			} }
-			timeZone={ STORYBOOK_TIMEZONE }
-			containerElement={ containerElement }
-		/>
+		<Stack direction="row" align="center" gap="sm">
+			<DateYearFilter
+				value={ selection.presetId }
+				onSelect={ ( range, nextPresetId: YearSurfacePresetId ) => {
+					// A calendar year allows finer buckets than all time, so the
+					// selection is re-resolved rather than carried.
+					const next: AppliedDateState = {
+						range,
+						presetId: nextPresetId,
+						interval: resolveStoryInterval(
+							pickedInterval,
+							getStoryIntervalOptions( nextPresetId )
+						),
+					};
+
+					setSelection( next );
+					onSelectionChange( next );
+				} }
+				timeZone={ STORYBOOK_TIMEZONE }
+				containerElement={ containerElement }
+			/>
+
+			<DateIntervalDropdown
+				options={ intervalOptions }
+				value={ resolveStoryInterval( pickedInterval, intervalOptions ) }
+				onChange={ nextInterval => {
+					setPickedInterval( nextInterval );
+					onSelectionChange( { ...selection, interval: nextInterval } );
+				} }
+			/>
+		</Stack>
 	);
 }
 
@@ -215,7 +284,11 @@ function RollingSectionHeaderStory( { title }: SectionHeaderStoryProps ) {
 	const [ applied, setApplied ] = useState< AppliedDateState >( () => {
 		const initial = buildInitialPrimaryState();
 
-		return { range: initial.range, presetId: initial.presetId };
+		return {
+			range: initial.range,
+			presetId: initial.presetId,
+			interval: getStoryIntervalOptions( initial.presetId )[ 0 ],
+		};
 	} );
 
 	return (
@@ -227,11 +300,7 @@ function RollingSectionHeaderStory( { title }: SectionHeaderStoryProps ) {
 
 function YearSectionHeaderStory( { title }: SectionHeaderStoryProps ) {
 	const [ container, setContainer ] = useState< HTMLDivElement | null >( null );
-	const [ applied, setApplied ] = useState< AppliedDateState >( () => {
-		const initial = computePrimaryRange( PRESET_ALL_TIME, STORYBOOK_TIMEZONE );
-
-		return { range: { from: initial?.from, to: initial?.to }, presetId: PRESET_ALL_TIME };
-	} );
+	const [ applied, setApplied ] = useState< AppliedDateState >( buildInitialYearState );
 
 	return (
 		<div ref={ setContainer }>
@@ -243,13 +312,16 @@ function YearSectionHeaderStory( { title }: SectionHeaderStoryProps ) {
 }
 
 /**
- * The **Traffic-like** instance: rolling presets, custom range, and comparison
- * in the slot.
+ * The **Traffic-like** instance: rolling presets, custom range, chart interval,
+ * and comparison in the slot.
  *
  * The subtitle derives from the *applied* configuration, so it holds still
- * while a range edit is staged and only moves on Apply. Picking a comparison
- * moves it right away, matching how comparison commits on its own. Once the
- * interval control lands it will name the active interval too.
+ * while a range edit is staged and only moves on Apply. Picking a comparison or
+ * an interval moves it right away, matching how those commit on their own.
+ *
+ * The interval control is a glyph, so the subtitle is the only place its choice
+ * is readable, and where the coercion shows: switching to a preset that
+ * disallows the active bucket falls back to the finest one it allows.
  */
 export const Default: Story = {
 	args: {
@@ -260,11 +332,12 @@ export const Default: Story = {
 
 /**
  * The **Insights-like** instance: the year surface (all time plus calendar
- * years) in the slot.
+ * years) and the chart interval in the slot.
  *
  * Per the design's instances table, this surface carries *no comparison
- * control*. Its multi-year ranges are what the subtitle describes in years
- * rather than an unreadable month count.
+ * control* but does carry the interval one. Its ranges are the longest the
+ * dashboard offers, so its subtitle carries no length — the years are already
+ * in the range itself — and names only the bucket.
  */
 export const YearSurface: Story = {
 	args: {

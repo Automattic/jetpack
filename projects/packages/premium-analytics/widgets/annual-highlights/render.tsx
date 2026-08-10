@@ -44,9 +44,6 @@ const COUNT_FORMAT: DataFormat = {
 
 /**
  * Picks the most recent year in the insights payload.
- *
- * @param data - The normalized insights response, or undefined while loading.
- * @return The latest year, or undefined when the payload carries none.
  */
 function findLatestYear( data?: StatsInsightsResponse ): StatsInsightsYear | undefined {
 	return ( data?.years ?? [] ).reduce< StatsInsightsYear | undefined >(
@@ -60,11 +57,8 @@ function findLatestYear( data?: StatsInsightsResponse ): StatsInsightsYear | und
  * Fetches the insights report through the designated `useStatsInsights` Stats
  * hook and renders the most recent year's totals as a `MetricTileGrid`. The
  * insights module has no comparison period, so each tile shows a bare formatted
- * count. Which tiles appear is controlled by the `metrics` attribute.
- *
- * @param props         - The component props.
- * @param props.metrics - The enabled metric tile ids; missing means every metric.
- * @return The widget content.
+ * count. Which tiles appear is controlled by the `metrics` attribute, which
+ * falls back to every metric when the host saves none.
  */
 function AnnualHighlightsReport( {
 	metrics = DEFAULT_HIGHLIGHT_METRICS,
@@ -160,14 +154,9 @@ function AnnualHighlightsReport( {
 }
 
 /**
- * Widget render entry point.
- *
  * WidgetRoot provides the analytics query client and chart theme consumed by the
  * inner report. Host attributes are forwarded so any injected report params are
  * preserved even though the insights endpoint is not period-scoped.
- *
- * @param {AnnualHighlightsWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function AnnualHighlights( { attributes = {} }: AnnualHighlightsWidgetProps ) {
 	return (

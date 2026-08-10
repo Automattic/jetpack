@@ -20,6 +20,12 @@ export type PresetRowProbeProps = {
 	customTriggerLabel: string;
 
 	/**
+	 * The chart interval control, as the panel renders it. A glyph, so its width
+	 * is the same fixed cost in every locale.
+	 */
+	interval?: ReactNode;
+
+	/**
 	 * The comparison control, as the panel renders it. It has no abbreviated
 	 * form, so its width is a fixed cost the presets have to absorb.
 	 */
@@ -40,12 +46,13 @@ export type PresetRowProbeProps = {
  * look like they fit. The comparison control can be measured live because its
  * width follows the active preset rather than the label mode.
  *
- * @param {PresetRowProbeProps} props - The props for the PresetRowProbe component.
- * @return The preset row probe element.
+ * Exported memoized: the panel re-renders on every step of a resize, and this
+ * output only moves when the labels do.
  */
 function PresetRowProbeComponent( {
 	presets,
 	customTriggerLabel,
+	interval,
 	comparison,
 	onMeasure,
 }: PresetRowProbeProps ) {
@@ -77,7 +84,7 @@ function PresetRowProbeComponent( {
 	// `max-content`, so the width only moves on a render that changes the row.
 	useLayoutEffect( () => {
 		measure();
-	}, [ measure, presets, customTriggerLabel, comparison ] );
+	}, [ measure, presets, customTriggerLabel, interval, comparison ] );
 
 	// Web fonts land after first paint and shift the metrics. Insurance: the
 	// dashboard ships none today.
@@ -127,8 +134,9 @@ function PresetRowProbeComponent( {
 					</Button>
 				</div>
 
-				{ /* The real control, not a mirror: the panel hands the same element
+				{ /* The real controls, not mirrors: the panel hands the same elements
 				     here and to the row, so the two cannot drift. */ }
+				{ interval }
 				{ comparison }
 			</div>
 		</div>
