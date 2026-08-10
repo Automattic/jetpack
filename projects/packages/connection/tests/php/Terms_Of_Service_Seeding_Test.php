@@ -19,7 +19,7 @@ use WorDBless\Options as WorDBless_Options;
 #[CoversClass( Terms_Of_Service::class )]
 class Terms_Of_Service_Seeding_Test extends TestCase {
 
-	const OPTION = 'jetpack_tos_agreed';
+	const OPTION = 'jetpack_' . Terms_Of_Service::OPTION_NAME;
 
 	/**
 	 * Tear down.
