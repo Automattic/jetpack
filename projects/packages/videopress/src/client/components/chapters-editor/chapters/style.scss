@@ -172,6 +172,12 @@ input[type="text"].vp-chapters__row-title {
 		border-color: var(--vp-gray-300, #ddd);
 	}
 
+	// A resting row reads as text, so an overflowing title truncates like
+	// text; while editing the input scrolls with the caret as usual.
+	&:not(:focus) {
+		text-overflow: ellipsis;
+	}
+
 	&:focus {
 		background: #fff;
 		border-color: $vp-chapters-accent;

@@ -177,7 +177,27 @@ export default function ChaptersTimeline( {
 							size="compact"
 							variant="secondary"
 							disabled={ readOnly || locked || ! canAddChapterAt( session, currentMs ) }
-							onClick={ () => dispatch( { type: 'ADD_AT', atMs: currentMs } ) }
+							onClick={ event => {
+								dispatch( { type: 'ADD_AT', atMs: currentMs } );
+								/*
+								 * Hand focus to the new chapter's title input so naming
+								 * follows adding without a pointer trip to the panel.
+								 * ADD_AT selects the chapter it creates, and the rows
+								 * live in the sibling ChaptersPanel — coordinated only
+								 * through the session — so the selected row is found in
+								 * the DOM once React has flushed the add (next frame).
+								 * Selecting the text lets typing replace the default
+								 * "Chapter N" title directly.
+								 */
+								const doc = event.currentTarget.ownerDocument;
+								requestAnimationFrame( () => {
+									const input = doc.querySelector< HTMLInputElement >(
+										'.vp-chapters__row--selected input.vp-chapters__row-title'
+									);
+									input?.focus();
+									input?.select();
+								} );
+							} }
 							accessibleWhenDisabled
 						>
 							{ __( 'Add chapter at playhead', 'jetpack-videopress-pkg' ) }
