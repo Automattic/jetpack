@@ -24,6 +24,7 @@ use Automattic\Jetpack\Menu_Badges\Menu_Badges;
 use Automattic\Jetpack\Menu_Badges\Notification_Counts;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host as Status_Host;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
@@ -112,6 +113,8 @@ class Initializer {
 		// Add "Jetpack Manage" menu item.
 		Jetpack_Manage::init();
 
+		add_action( 'admin_menu', array( __CLASS__, 'add_activity_log_menu_item' ) );
+
 		/**
 		 * Fires after the My Jetpack package is initialized
 		 *
@@ -168,6 +171,54 @@ class Initializer {
 			-1
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+	}
+
+	/**
+	 * Add an "Activity Log" menu item pointing at Cloud.
+	 *
+	 * Only for plugins that ship My Jetpack without the native Activity Log
+	 * page. The `automattic/jetpack-activity-log` package, which only the
+	 * Jetpack plugin bundles, renders that page in wp-admin and owns the menu
+	 * item wherever it is present, so we stand down for it. Presence of the
+	 * package is the signal, not whether it registered an item: when it is
+	 * there but chooses not to render, a redirect out to Cloud is not the
+	 * fallback we want.
+	 *
+	 * @return void|null|string The resulting page's hook_suffix.
+	 */
+	public static function add_activity_log_menu_item() {
+		// Checked here, on `admin_menu`, so the autoloader has already resolved
+		// the newest copy of the package across every active Jetpack plugin.
+		if ( class_exists( 'Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log' ) ) {
+			return;
+		}
+
+		// Only proceed if the user is connected to WordPress.com.
+		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
+			return;
+		}
+
+		// Do not display the menu on Multisite.
+		if ( is_multisite() ) {
+			return;
+		}
+
+		$args = array();
+
+		$blog_id = Connection_Manager::get_site_id( true );
+		if ( $blog_id ) {
+			$args = array( 'site' => $blog_id );
+		}
+
+		return Admin_Menu::add_menu(
+			/** "Activity Log" is a product name, do not translate. */
+			'Activity Log',
+			'Activity Log <span aria-hidden="true">↗</span>',
+			'manage_options',
+			esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', $args ) ),
+			null,
+			14
+		);
 	}
 
 	/**

@@ -8,8 +8,10 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache as StatusCache;
+use Jetpack_Options;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
@@ -250,5 +252,72 @@ class Initializer_Test extends BaseTestCase {
 		$this->assertFalse( Initializer::get_my_jetpack_flags()['showAiModuleToggle'] );
 
 		unset( $GLOBALS['jetpack_mock_internal_testing_environment'] );
+	}
+
+	/**
+	 * Mock a site and user connection to WordPress.com, which the Activity Log
+	 * menu item requires, and make that user current.
+	 *
+	 * @return int The connected user's id.
+	 */
+	private function mock_connected_admin() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'activity_log_admin',
+				'user_pass'  => 'dummy_pass',
+				'role'       => 'administrator',
+			)
+		);
+
+		( new Tokens() )->update_blog_token( 'test.test.1' );
+		( new Tokens() )->update_user_token( $user_id, 'test.test.' . $user_id, true );
+		Jetpack_Options::update_option( 'id', 123 );
+		wp_set_current_user( $user_id );
+
+		return $user_id;
+	}
+
+	/**
+	 * The Activity Log menu item is not added when the user is not connected to
+	 * WordPress.com.
+	 */
+	public function test_activity_log_menu_item_requires_a_connection() {
+		$this->assertNull( Initializer::add_activity_log_menu_item() );
+	}
+
+	/**
+	 * The Activity Log menu item is registered for connected admins on plugins
+	 * that do not bundle the native Activity Log page.
+	 *
+	 * Note the item is only queued here: `Admin_Menu` passes the
+	 * `manage_options` requirement to `add_submenu_page()` later, on
+	 * `admin_menu`, so a return value means registered, not visible.
+	 */
+	public function test_activity_log_menu_item_is_added_when_connected() {
+		$this->mock_connected_admin();
+
+		$this->assertStringStartsWith( 'jetpack_page_', (string) Initializer::add_activity_log_menu_item() );
+	}
+
+	/**
+	 * The Activity Log menu item stands down when the native Activity Log page
+	 * is available, so sites running the Jetpack plugin alongside a standalone
+	 * plugin do not get two entries.
+	 *
+	 * Runs isolated: the stub class cannot be undefined once declared.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_activity_log_menu_item_defers_to_the_native_page() {
+		// Same conditions as the test above, which registers the item. The guard
+		// only asks whether the class exists, so any user-defined class stands in
+		// for the real one.
+		$this->mock_connected_admin();
+		class_alias( Initializer::class, 'Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log' );
+
+		$this->assertNull( Initializer::add_activity_log_menu_item() );
 	}
 }

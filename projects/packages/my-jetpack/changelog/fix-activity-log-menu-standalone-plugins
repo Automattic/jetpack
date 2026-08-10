@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Restore the Jetpack > Activity Log menu item for standalone plugins, which lost it when the native Activity Log page took over the entry in the Jetpack plugin.
