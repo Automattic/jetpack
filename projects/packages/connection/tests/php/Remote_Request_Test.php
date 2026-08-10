@@ -135,6 +135,35 @@ class Remote_Request_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that a signing failure for the connection owner (`user_id => true`) is attributed
+	 * to the resolved master user, not the site.
+	 *
+	 * `Client` no longer resolves the `true` sentinel itself — `Tokens::get_access_token()`
+	 * does, and attaches the resolved id to the `WP_Error` it raises, which
+	 * `check_signed_request_for_errors()` reads back out.
+	 */
+	public function test_remote_request_attributes_a_signing_failure_to_the_connection_owner() {
+		Jetpack_Options::update_option( 'master_user', 12 );
+
+		$result = Client::remote_request(
+			array(
+				'url'     => 'https://example.org/wp-json/',
+				'user_id' => true,
+			)
+		);
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'no_user_tokens', $result->get_error_code() );
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+
+		$this->assertArrayHasKey( '12', $stored_errors['no_user_tokens'] );
+		$this->assertArrayNotHasKey( '0', $stored_errors['no_user_tokens'] );
+
+		Jetpack_Options::delete_option( 'master_user' );
+	}
+
+	/**
 	 * Test that an outgoing XML-RPC request is reported as such.
 	 */
 	public function test_remote_request_reports_a_signing_failure_as_xmlrpc() {

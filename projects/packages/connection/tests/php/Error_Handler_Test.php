@@ -537,11 +537,12 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$this->assertArrayHasKey( 'missing_token', $stored_errors );
 
-		// No token was found to attribute the error to a specific user, so it falls back to
-		// the caller's $user_id argument (defaulted to 0, the blog-token/site attribution).
+		// No token was found to attribute the error to a specific user, and the error carries
+		// no `user_id` of its own (`Client` raises `missing_token` with no data), so it falls
+		// back to 0, the blog-token/site attribution.
 		$stored = $stored_errors['missing_token']['0'];
 
-		$this->assertSame( 'The request could not be signed.', $stored['error_message'] );
+		$this->assertSame( 'An error occurred with the connection.', $stored['error_message'] );
 		$this->assertSame( Error_Handler::ERROR_TYPE_REST, $stored['error_type'] );
 		$this->assertSame( Error_Handler::DIRECTION_OUTGOING, $stored['error_direction'] );
 		$this->assertSame( 'https://jetpack.wordpress.com/jetpack.token/1/', $stored['error_data']['url'] );
@@ -593,18 +594,18 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that an error with no token to attribute is stored under the caller-supplied
-	 * $user_id, rather than falling back to 'invalid'.
+	 * Test that an error with no token to attribute is stored under the user_id carried in
+	 * the error's own data (as `Tokens::get_access_token()` attaches it), rather than
+	 * falling back to 'invalid'.
 	 */
 	public function test_check_signed_request_for_errors_attributes_to_the_given_user() {
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
 		$this->error_handler->check_signed_request_for_errors(
-			new \WP_Error( 'no_user_tokens' ),
+			new \WP_Error( 'no_user_tokens', '', array( 'user_id' => 42 ) ),
 			'https://localhost/',
 			'POST',
-			Error_Handler::ERROR_TYPE_REST,
-			42
+			Error_Handler::ERROR_TYPE_REST
 		);
 
 		$stored_errors = $this->error_handler->get_stored_errors();

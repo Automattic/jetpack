@@ -1600,7 +1600,8 @@ class Error_Handler {
 	 * Codes reaching this method include `missing_token`, `malformed_token` and
 	 * `invalid_body` (from `Client::build_signed_request()`), plus the signing errors
 	 * returned by `Jetpack_Signature::sign_request()` (e.g. `invalid_scheme`,
-	 * `unknown_scheme_port`).
+	 * `unknown_scheme_port`), plus the token-lookup errors raised by
+	 * `Tokens::get_access_token()` (e.g. `no_user_tokens`, `no_token_for_user`).
 	 *
 	 * This includes token lookup, request validation, and request signing errors.
 	 *
@@ -1610,14 +1611,10 @@ class Error_Handler {
 	 * @param string $url            Request URL.
 	 * @param string $method         Request method.
 	 * @param string $error_type     The transport of the outgoing request: `ERROR_TYPE_XMLRPC` or `ERROR_TYPE_REST`.
-	 * @param int    $user_id        The local user ID the request was signed for, or `0` for the blog token. Used
-	 *                               only as an attribution fallback — see `wp_error_to_array()` — for the errors
-	 *                               raised when no token could be found at all (e.g. `no_user_tokens`,
-	 *                               `token_malformed`), which therefore carry no real token to attribute by.
 	 *
 	 * @return void
 	 */
-	public function check_signed_request_for_errors( $signing_result, $url, $method, $error_type, $user_id = 0 ) {
+	public function check_signed_request_for_errors( $signing_result, $url, $method, $error_type ) {
 		if ( ! is_wp_error( $signing_result ) ) {
 			return;
 		}
@@ -1641,7 +1638,12 @@ class Error_Handler {
 			$signature_details,
 			$error_type,
 			self::DIRECTION_OUTGOING,
-			array( 'user_id' => $user_id )
+			// `Tokens::get_access_token()` attaches `user_id` to the WP_Errors it raises when it
+			// has already resolved one (see its docblock); pass it through as the attribution
+			// fallback consulted by `wp_error_to_array()`. Errors with no token to look up at all
+			// (e.g. `missing_token`, `malformed_token` from `Client` itself) carry no such data,
+			// and fall back to unattributed there.
+			array( 'user_id' => isset( $data['user_id'] ) ? (int) $data['user_id'] : 0 )
 		);
 
 		$this->report_error( $error, false, true );
