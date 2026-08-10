@@ -25,13 +25,13 @@
 	gap: var(--wpds-dimension-gap-md);
 }
 
-/* The metric tab list: a row of equal-width cards (not a text tab bar), taking
- * the header width the controls leave. `overflow: visible` overrides the
- * toolkit tablist's horizontal scroll — the narrow case collapses to the
- * dropdown instead. */
+/* Equal-width cards fill the room left by the controls. The minimum keeps an
+ * xl value + delta readable; when every card cannot fit, grid restores the
+ * wrapping protection that flex-basis: 0 would otherwise remove. */
 .tabs {
-	display: flex;
+	display: grid;
 	flex: 1 1 auto;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
 	gap: var(--wpds-dimension-gap-sm);
 	min-width: 0;
 	overflow: visible;
@@ -69,13 +69,10 @@
 	text-align: start;
 }
 
-/* `flex-basis: 0` (over the tablist's `1 0 auto`) makes every card the same
- * width whatever its label, and keeps the row from overflowing — below
- * `MIN_TAB_WIDTH` per metric the component swaps in the dropdown instead. */
 .tab {
-	flex: 1 1 0;
 	height: auto;
 	min-width: 0;
+	overflow: hidden;
 	padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-md);
 	border-radius: var(--wpds-border-radius-md);
 }
@@ -102,12 +99,12 @@
 	cursor: default;
 }
 
-.singleMetric .tab:hover,
-.singleMetric .tab[aria-selected="true"] {
+/* A static headline has no selected or hover state. */
+.singleMetric .tab:hover {
 	background-color: transparent;
 }
 
-/* Each tab's content: label stacked over the value + delta, left-aligned.
+/* Each tab's content: label stacked over the value + delta, start-aligned.
  * Growing to fill is what keeps it against the card's leading edge — the
  * tablist centres a tab's children, which shows as soon as a card is wider
  * than its text. */
@@ -118,11 +115,22 @@
 	gap: var(--wpds-dimension-gap-xs);
 	align-items: flex-start;
 	min-width: 0;
-	text-align: left;
+	text-align: start;
 }
 
 .tabLabel {
+	display: block;
+	max-width: 100%;
+	overflow: hidden;
 	color: var(--wpds-color-foreground-content-neutral-weak);
+	text-overflow: ellipsis;
+}
+
+/* Prefer moving the delta below the value over painting into the next card. */
+.metricComparison {
+	flex-wrap: wrap;
+	max-width: 100%;
+	min-width: 0;
 }
 
 /* Anchors the absolutely positioned loading overlay; fills the room left

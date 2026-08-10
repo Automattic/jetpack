@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { SelectControl, Tabs, Text } from '@jetpack-premium-analytics/externals';
+import { SelectControl, Tabs, Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
@@ -266,16 +266,20 @@ export function MetricTabsChart( {
 			<div className={ styles.root }>
 				<div className={ styles.header }>
 					<div className={ clsx( styles.tabs, styles.singleMetric ) }>
-						<div className={ styles.tab } title={ activeMetric.description }>
+						<div className={ styles.tab }>
 							<span className={ styles.tabContent }>
 								<Text className={ styles.tabLabel }>{ activeMetric.label }</Text>
 								<MetricWithComparison
+									className={ styles.metricComparison }
 									value={ activeMetric.value }
 									previousValue={ activeMetric.previousValue }
 									dataFormat={ activeMetric.dataFormat ?? dataFormat }
 									direction="row"
 									align="flex-end"
 								/>
+								{ activeMetric.description && (
+									<VisuallyHidden>{ activeMetric.description }</VisuallyHidden>
+								) }
 							</span>
 						</div>
 					</div>
@@ -344,6 +348,7 @@ export function MetricTabsChart( {
 									<span className={ styles.tabContent }>
 										<Text className={ styles.tabLabel }>{ activeMetric.label }</Text>
 										<MetricWithComparison
+											className={ styles.metricComparison }
 											value={ activeMetric.value }
 											previousValue={ activeMetric.previousValue }
 											dataFormat={ activeMetric.dataFormat ?? dataFormat }
@@ -390,6 +395,7 @@ export function MetricTabsChart( {
 							<span className={ styles.tabContent }>
 								<Text className={ styles.tabLabel }>{ metric.label }</Text>
 								<MetricWithComparison
+									className={ styles.metricComparison }
 									value={ metric.value }
 									previousValue={ metric.previousValue }
 									dataFormat={ metric.dataFormat ?? dataFormat }

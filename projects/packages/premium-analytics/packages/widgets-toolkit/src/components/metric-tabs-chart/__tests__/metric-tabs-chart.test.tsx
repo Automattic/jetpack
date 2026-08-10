@@ -78,9 +78,13 @@ describe( 'MetricTabsChart', () => {
 	} );
 
 	it( 'renders a single metric as a static headline', () => {
-		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } /> );
+		const describedMetric = { ...METRIC, description: 'Total views for the selected period.' };
+
+		render( <MetricTabsChart metrics={ [ describedMetric ] } dataFormat={ DATA_FORMAT } /> );
 
 		expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
+		expect( screen.getByText( describedMetric.description ) ).toBeInTheDocument();
+		expect( screen.queryByTitle( describedMetric.description ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'tablist' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'tab' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
