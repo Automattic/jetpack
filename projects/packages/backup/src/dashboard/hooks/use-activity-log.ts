@@ -7,6 +7,7 @@ import {
 } from '../data/api/activity-log';
 import { normalizeActivityLog } from '../data/normalize/activity-log';
 import { keys } from '../data/query-client';
+import { useCanQueryWpcom } from './use-connection';
 import type { ActivityItem } from '../types/activity';
 
 type Args = {
@@ -37,15 +38,23 @@ export const ACTIVITY_LOG_DEFAULT_PER_PAGE = 10;
  * page's request is in flight — DataViews' pagination feels smooth
  * instead of flashing a spinner over the list on every page change.
  *
+ * `useDefaultBackupRewindId` mounts in the Overview screen's own body,
+ * which React renders before `<Gates>` — so this query has to decide for
+ * itself whether the bridge can answer, rather than relying on the gate
+ * to not render it. Consumers inside the gated body get `enabled: true`
+ * for free, since they only mount once the connection checks pass.
+ *
  * @param page     - 1-indexed page number.
  * @param pageSize - Items per page.
  * @return The page query.
  */
 function useActivityPageQuery( page: number, pageSize: number ) {
+	const enabled = useCanQueryWpcom();
 	return useQuery( {
 		queryKey: keys.activityLogPage( page, pageSize ),
 		queryFn: () => fetchActivityLog( { page, number: pageSize } ),
 		placeholderData: keepPreviousData,
+		enabled,
 	} );
 }
 

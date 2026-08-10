@@ -2,7 +2,6 @@ import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import { Page } from '@wordpress/admin-ui';
 import { __ } from '@wordpress/i18n';
-import QueryClientProvider from '../../providers/query-client-provider';
 import Gates from '../gates';
 import './style.scss';
 import type { ReactNode } from 'react';
@@ -26,6 +25,11 @@ const PRODUCT_NAME = 'VaultPress Backup'; // Product name; do not translate.
  * footer stays parked at the bottom when content is short, but scrolls
  * naturally with the body when it overflows.
  *
+ * `<Gates>` below reads React Query, so every route's `stage.tsx` must
+ * mount `<QueryClientProvider>` above its screen. The provider cannot
+ * live here: the screens call query hooks in their own bodies, which
+ * React runs before it renders this component.
+ *
  * @param props          - Component props.
  * @param props.children - Screen contents to render inside the page body.
  * @param props.actions  - Optional nodes rendered in the page header's top-right action slot.
@@ -45,14 +49,12 @@ export default function DashboardLayout( { children, actions }: Props ) {
 			hasPadding={ false }
 			actions={ actions }
 		>
-			<QueryClientProvider>
-				<div className="jpb-dashboard-body">
-					<div className="jpb-dashboard-body__inner">
-						<Gates>{ children }</Gates>
-					</div>
+			<div className="jpb-dashboard-body">
+				<div className="jpb-dashboard-body__inner">
+					<Gates>{ children }</Gates>
 				</div>
-				<JetpackFooter />
-			</QueryClientProvider>
+			</div>
+			<JetpackFooter />
 		</Page>
 	);
 }
