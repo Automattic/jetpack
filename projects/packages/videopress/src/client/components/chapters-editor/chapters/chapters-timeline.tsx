@@ -192,7 +192,10 @@ export default function ChaptersTimeline( {
 								 * Selecting the text lets typing replace the default
 								 * "Chapter N" title directly.
 								 */
-								const scope =
+								// ParentNode: the interface Element and Document share — a
+								// plain union of the two leaves querySelector's generic
+								// signatures un-unifiable (TS2347).
+								const scope: ParentNode =
 									event.currentTarget.closest( '.vp-chapters-tokens' ) ??
 									event.currentTarget.ownerDocument;
 								requestAnimationFrame( () => {
