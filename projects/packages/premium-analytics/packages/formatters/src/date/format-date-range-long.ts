@@ -136,7 +136,9 @@ export const formatDateRangeLong = (
 	const pattern = inReferenceYear ? 'fullNoYear' : 'full';
 
 	if ( isSingleDay( span ) ) {
-		return formatDate( from, pattern );
+		// `to`: the same day for a day-aligned window; for a rolling one, the
+		// day the reading is taken on.
+		return formatDate( to, pattern );
 	}
 
 	return joinRange( formatDate( from, pattern ), formatDate( to, pattern ) );
