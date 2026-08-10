@@ -83,13 +83,18 @@
 // width decides when the panes stack, so the arrangement keys off the
 // modal's real size rather than the viewport.
 .videopress-chapter-manager__workspace {
+	// Single source for the workspace padding: the panel pulls itself through
+	// it (below) to run its divider the full body height, and that trick
+	// breaks silently if the two values ever drift apart.
+	--vp-cm-workspace-pad: 18px;
+
 	container-type: inline-size;
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
 	flex: 1;
 	min-block-size: 0;
-	padding: 18px;
+	padding: var(--vp-cm-workspace-pad);
 	background: #fff;
 	overflow-y: auto;
 }
@@ -135,8 +140,8 @@
 	// Pull the pane through the workspace's block padding so its divider
 	// runs the full modal body, header hairline to bottom edge; the padding
 	// puts the content back where the workspace would have had it.
-	margin-block: -18px;
-	padding-block: 18px;
+	margin-block: calc(var(--vp-cm-workspace-pad) * -1);
+	padding-block: var(--vp-cm-workspace-pad);
 
 	.vp-chapters-panel {
 		flex: 1;
@@ -174,16 +179,16 @@
 	}
 
 	.videopress-chapter-manager__panel {
+		// The workspace scrolls the whole stack, so the panel's list stops
+		// scrolling internally (a published knob on the shared panel).
+		--vp-chapters-panel-list-overflow: visible;
+
 		inline-size: auto;
 		border-inline-start: 0;
 		padding-inline-start: 0;
 		margin-block: 0;
 		border-block-start: 1px solid #dcdcde;
 		padding-block: 16px 0;
-
-		.vp-chapters-panel__list {
-			overflow-y: visible;
-		}
 	}
 
 	// The stacked column needs the old tighter player cap so the timeline
@@ -227,8 +232,8 @@
 	// The header can't fit the full action set beside the title on a phone;
 	// keep the essentials (undo/redo/Save/close). Discarding stays reachable
 	// through undo and the close-time confirmation.
-	.videopress-chapter-manager__header-actions > .components-button.is-secondary,
-	.videopress-chapter-manager__header-actions > .videopress-chapter-manager__header-divider:first-of-type {
+	.videopress-chapter-manager__header-discard,
+	.videopress-chapter-manager__header-divider--session {
 		display: none;
 	}
 

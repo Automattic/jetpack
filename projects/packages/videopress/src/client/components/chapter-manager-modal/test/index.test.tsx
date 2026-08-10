@@ -84,12 +84,6 @@ jest.mock( '../../chapters-editor/preview/preview-player', () => {
 } );
 
 /*
- * The timeline is exercised by its own test file; here a stub surfaces the
- * gating props (locked/readOnly/shortcutsEnabled/duration) and offers plain
- * buttons that dispatch into the real store, so lock and dirt semantics are
- * tested against the real reducer.
- */
-/*
  * The panel is exercised alongside the timeline in the chapters-editor test
  * file; here a stub surfaces the gating props. It must NOT render real rows:
  * their "Remove chapter N" buttons would collide with the fake timeline's
@@ -107,6 +101,12 @@ jest.mock( '../../chapters-editor/chapters/chapters-panel', () => ( {
 	),
 } ) );
 
+/*
+ * The timeline is exercised by its own test file; here a stub surfaces the
+ * gating props (locked/readOnly/shortcutsEnabled/duration) and offers plain
+ * buttons that dispatch into the real store, so lock and dirt semantics are
+ * tested against the real reducer.
+ */
 jest.mock( '../../chapters-editor/chapters/chapters-timeline', () => ( {
 	__esModule: true,
 	default: ( { session, dispatch, locked, readOnly, shortcutsEnabled } ) => (

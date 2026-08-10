@@ -186,12 +186,17 @@ export default function ChaptersTimeline( {
 								 * live in the sibling ChaptersPanel — coordinated only
 								 * through the session — so the selected row is found in
 								 * the DOM once React has flushed the add (next frame).
+								 * The query is scoped to the editor's token wrapper
+								 * (both hosts wrap the strip + panel pair in it) so a
+								 * second mounted editor could never receive the focus.
 								 * Selecting the text lets typing replace the default
 								 * "Chapter N" title directly.
 								 */
-								const doc = event.currentTarget.ownerDocument;
+								const scope =
+									event.currentTarget.closest( '.vp-chapters-tokens' ) ??
+									event.currentTarget.ownerDocument;
 								requestAnimationFrame( () => {
-									const input = doc.querySelector< HTMLInputElement >(
+									const input = scope.querySelector< HTMLInputElement >(
 										'.vp-chapters__row--selected input.vp-chapters__row-title'
 									);
 									input?.focus();

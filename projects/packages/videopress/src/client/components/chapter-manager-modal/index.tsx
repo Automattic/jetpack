@@ -417,6 +417,12 @@ export default function ChapterManagerModal( {
 		[ confirmation, dispatch, handleRequestClose, onTogglePlay, readOnly, session.selectedId ]
 	);
 
+	// The header's state-changing actions freeze while the editor is locked
+	// or the discard confirmation is up (the overlay covers only the modal
+	// body, not the header). Close stays live: it routes through the same
+	// confirmation flow.
+	const actionsFrozen = chaptersLocked || confirmation !== null;
+
 	const videoTitle = title || __( 'VideoPress video', 'jetpack-videopress-pkg' );
 	/*
 	 * Two-tone header: "Chapters" carries the heading weight, the video name
@@ -462,9 +468,7 @@ export default function ChapterManagerModal( {
 						size="small"
 						icon={ undoIcon }
 						label={ __( 'Undo', 'jetpack-videopress-pkg' ) }
-						disabled={
-							chaptersLocked || confirmation !== null || ! canUndo( history, chaptersEditsEqual )
-						}
+						disabled={ actionsFrozen || ! canUndo( history, chaptersEditsEqual ) }
 						accessibleWhenDisabled
 						onClick={ () => dispatch( { type: 'UNDO' } ) }
 					/>
@@ -472,16 +476,20 @@ export default function ChapterManagerModal( {
 						size="small"
 						icon={ redoIcon }
 						label={ __( 'Redo', 'jetpack-videopress-pkg' ) }
-						disabled={ chaptersLocked || confirmation !== null || ! canRedo( history ) }
+						disabled={ actionsFrozen || ! canRedo( history ) }
 						accessibleWhenDisabled
 						onClick={ () => dispatch( { type: 'REDO' } ) }
 					/>
-					<span className="videopress-chapter-manager__header-divider" aria-hidden="true" />
+					<span
+						className="videopress-chapter-manager__header-divider videopress-chapter-manager__header-divider--session"
+						aria-hidden="true"
+					/>
 					<Button
+						className="videopress-chapter-manager__header-discard"
 						variant="secondary"
 						size="compact"
 						onClick={ requestDiscard }
-						disabled={ chaptersLocked || confirmation !== null || ! effectiveDirty }
+						disabled={ actionsFrozen || ! effectiveDirty }
 					>
 						{ __( 'Discard changes', 'jetpack-videopress-pkg' ) }
 					</Button>
@@ -490,7 +498,7 @@ export default function ChapterManagerModal( {
 						size="compact"
 						onClick={ () => void doSave() }
 						isBusy={ metaSavePending }
-						disabled={ chaptersLocked || confirmation !== null || ! effectiveDirty }
+						disabled={ actionsFrozen || ! effectiveDirty }
 					>
 						{ __( 'Save', 'jetpack-videopress-pkg' ) }
 					</Button>

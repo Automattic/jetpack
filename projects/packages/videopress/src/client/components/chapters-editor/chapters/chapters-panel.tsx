@@ -19,7 +19,7 @@
  * whose list region scrolls when the host bounds its height.
  */
 import { _n, sprintf, __ } from '@wordpress/i18n';
-import { useCallback, useMemo } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { validateRows } from '../../../utils/video-chapters/description';
 import { chaptersToRows } from '../state/chapters-session';
 import { clampToDuration } from '../timeline/timeline-shell';
@@ -56,7 +56,7 @@ export type ChaptersPanelProps = {
  * @param props.readOnly - Whether a manual VTT locks editing.
  * @return The panel element.
  */
-export default function ChaptersPanel( {
+function ChaptersPanel( {
 	session,
 	dispatch,
 	onSeek,
@@ -94,7 +94,9 @@ export default function ChaptersPanel( {
 		return {
 			rowIssues: perRow,
 			generalIssues: issues.filter( issue => issue.rowIndex === undefined ),
-			untitledCount: session.chapters.filter( chapter => chapter.title.trim() === '' ).length,
+			// Counted from the validator's own verdicts so the rollup can never
+			// disagree with the per-row flags about what "untitled" means.
+			untitledCount: issues.filter( issue => issue.code === 'missing-title' ).length,
 		};
 	}, [ session ] );
 
@@ -155,3 +157,12 @@ export default function ChaptersPanel( {
 		</div>
 	);
 }
+
+/*
+ * Memoized: while the preview plays, the rAF-driven playhead re-renders the
+ * hosts every animation frame. The panel deliberately takes no playhead
+ * prop, and every prop it does take is stable during playback (the session
+ * changes only on edits; dispatch and onSeek are []-dep callbacks in the
+ * hosts) — memo is what turns that decoupling into skipped work.
+ */
+export default memo( ChaptersPanel );

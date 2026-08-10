@@ -192,16 +192,16 @@
 	}
 
 	.vp-video-editor__panel {
+		// The page scrolls the stacked layout, so the panel's list stops
+		// scrolling internally (a published knob on the shared panel).
+		--vp-chapters-panel-list-overflow: visible;
+
 		inline-size: auto;
 		border-inline-start: 0;
 		border-block-start: 1px solid var(--vp-gray-200);
 
 		.vp-chapters-panel {
 			position: static;
-		}
-
-		.vp-chapters-panel__list {
-			overflow-y: visible;
 		}
 	}
 }

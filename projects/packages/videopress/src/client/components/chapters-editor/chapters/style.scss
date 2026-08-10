@@ -303,5 +303,8 @@ input[type="text"].vp-chapters__row-title {
 .vp-chapters-panel__list {
 	flex: 1;
 	min-block-size: 0;
-	overflow-y: auto;
+	// Published host knob: stacked layouts (where the page or workspace is
+	// the scroll surface) set `visible` on the panel root instead of
+	// reaching into this internal class.
+	overflow-y: var(--vp-chapters-panel-list-overflow, auto);
 }
