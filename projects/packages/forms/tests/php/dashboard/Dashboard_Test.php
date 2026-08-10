@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Forms\Dashboard;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
@@ -354,5 +355,47 @@ class Dashboard_Test extends BaseTestCase {
 		$this->assertStringContainsString( '&p=%2Fresponses%2Finbox', $url_feedback );
 
 		remove_filter( 'jetpack_forms_alpha', '__return_true' );
+	}
+
+	/**
+	 * The wp-build page must not register the legacy mount point as its fallback:
+	 * load_admin_scripts() never enqueues the legacy bundle there, so the page
+	 * would render blank. It registers the notice callback instead.
+	 */
+	public function test_add_admin_submenu_falls_back_to_notice_without_wp_build_callback() {
+		add_filter( 'jetpack_forms_alpha', '__return_true' );
+
+		$dashboard = new Dashboard();
+		$dashboard->add_admin_submenu();
+
+		$menu_item = Admin_Menu::remove_menu( Dashboard::FORMS_WPBUILD_ADMIN_SLUG );
+
+		remove_filter( 'jetpack_forms_alpha', '__return_true' );
+
+		$this->assertIsArray( $menu_item );
+
+		// build/build.php may already be loaded by an earlier test, so accept either
+		// the generated callback or the fallback — but never the legacy mount point.
+		$expected = function_exists( 'jetpack_forms_jetpack_forms_responses_wp_admin_render_page' )
+			? 'jetpack_forms_jetpack_forms_responses_wp_admin_render_page'
+			: array( $dashboard, 'render_wp_build_unavailable' );
+
+		$this->assertSame( $expected, $menu_item['function'] );
+		$this->assertNotSame( array( $dashboard, 'render_dashboard' ), $menu_item['function'] );
+	}
+
+	/**
+	 * Test the fallback renders an error notice rather than an empty container.
+	 */
+	public function test_render_wp_build_unavailable_outputs_error_notice() {
+		$dashboard = new Dashboard();
+
+		ob_start();
+		$dashboard->render_wp_build_unavailable();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'notice-error', $output );
+		$this->assertStringContainsString( 'assets are missing', $output );
+		$this->assertStringNotContainsString( 'jp-forms-dashboard', $output );
 	}
 }

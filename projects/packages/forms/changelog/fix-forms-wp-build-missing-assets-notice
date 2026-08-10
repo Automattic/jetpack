@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: show an explanation instead of a blank page when the dashboard assets are missing.
