@@ -6,10 +6,6 @@ import { formatLegendLabels } from './format-legend-labels';
 import type { ReportDataMap, ReportParams } from '@jetpack-premium-analytics/data';
 import type { SeriesData } from '@jetpack-premium-analytics/externals';
 
-/**
- * Internal dependencies
- */
-
 export interface RevenueByCustomerTypeData {
 	chartData: SeriesData[];
 }
@@ -40,7 +36,6 @@ export function buildRevenueByCustomerTypeData(
 	const newCustomerSales = summary.new_customer_sales;
 	const returningCustomerSales = summary.returning_customer_sales;
 
-	// Build bar chart data - each category is a bar
 	const chartData: SeriesData[] = [
 		{
 			label: primaryLabel,
@@ -57,7 +52,6 @@ export function buildRevenueByCustomerTypeData(
 		},
 	];
 
-	// Add comparison period if available
 	if ( comparisonCustomers?.summary ) {
 		const comparisonNewCustomerSales = comparisonCustomers.summary.new_customer_sales || 0;
 		const comparisonReturningCustomerSales =

@@ -24,9 +24,6 @@ export type VideoPressAttributes = {
 	max?: string | number;
 };
 
-/**
- * Widget type definition.
- */
 export default {
 	icon: video,
 	attributes: [

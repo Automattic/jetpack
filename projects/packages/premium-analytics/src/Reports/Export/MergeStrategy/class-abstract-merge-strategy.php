@@ -47,7 +47,6 @@ abstract class Abstract_Merge_Strategy implements Merge_Strategy_Interface {
 	 * @return mixed The default value for the field.
 	 */
 	protected function get_default_value_for_field( string $field_name, ?Csv_Report_Controller_Interface $controller = null ) {
-		// Use controller-specific defaults if available.
 		if ( $controller ) {
 			$defaults = $controller->get_default_values();
 			if ( isset( $defaults[ $field_name ] ) ) {
@@ -55,7 +54,6 @@ abstract class Abstract_Merge_Strategy implements Merge_Strategy_Interface {
 			}
 		}
 
-		// Default to empty string for any unknown fields.
 		return '';
 	}
 }

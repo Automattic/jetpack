@@ -21,10 +21,6 @@ import type { LegendLabels } from '../chart-leaderboard';
 import type { IntervalType, StatsTimeSeriesReport } from '@jetpack-premium-analytics/data';
 import type { ReactNode } from 'react';
 
-// Charts base styles. Widgets get these through WidgetRoot; report pages
-// render charts without a WidgetRoot, so load them here. Without them the
-// chart's layout constraints are missing and the svg grows without bound.
-
 const DEFAULT_DATA_FORMAT: DataFormat = {
 	type: 'number',
 	options: { useMultipliers: true, decimals: 0 },

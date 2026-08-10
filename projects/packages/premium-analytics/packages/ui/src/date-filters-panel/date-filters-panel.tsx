@@ -43,9 +43,6 @@ export type DateFiltersPanelProps = {
 	 */
 	presetId?: PrimaryPresetId;
 
-	/**
-	 * The current primary date range.
-	 */
 	range: DateRange;
 
 	/**
@@ -84,20 +81,10 @@ export type DateFiltersPanelProps = {
 	 */
 	intervalOptions?: readonly IntervalType[];
 
-	/**
-	 * Callback when the primary date range changes.
-	 */
 	onChange: DateRangeFilterProps[ 'onChange' ];
 
-	/**
-	 * Callback when the comparison date range changes.
-	 * Receives the calculated comparison range and the preset ID used.
-	 */
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 
-	/**
-	 * Callback when the chart interval changes.
-	 */
 	onIntervalChange?: ( interval: IntervalType ) => void;
 
 	/**
@@ -111,19 +98,10 @@ export type DateFiltersPanelProps = {
 	 */
 	comparisonControlProps?: Omit< Parameters< typeof BaseControl >[ 0 ], 'children' >;
 
-	/**
-	 * Callback when the primary date range is applied.
-	 */
 	onApply: DateRangeFilterProps[ 'onApply' ];
 
-	/**
-	 * Callback when the primary date range is canceled.
-	 */
 	onCancel: DateRangeFilterProps[ 'onCancel' ];
 
-	/**
-	 * Whether the primary date range can be applied.
-	 */
 	canApply?: boolean;
 
 	/**
@@ -142,11 +120,9 @@ export type DateFiltersPanelProps = {
 };
 
 /**
- * DateFiltersPanel - Manages date range selection and comparison controls
- *
- * This component serves as the container for date filtering functionality,
- * managing both the primary date range selection and the comparison date range.
- * It owns the comparison state and delegates to child components for UI.
+ * Container for the primary date range picker and the comparison dropdown. It
+ * owns the comparison state and the responsive measurement; children only
+ * render.
  */
 export function DateFiltersPanel( {
 	presetId,
@@ -174,18 +150,12 @@ export function DateFiltersPanel( {
 	timeZone,
 	showComparison = true,
 }: DateFiltersPanelProps ) {
-	/**
-	 * Validate and normalize the primary preset ID.
-	 * Only accepts built-in preset IDs (including 'custom').
-	 * Invalid/unknown values are treated as undefined, which allows
-	 * DateRangePopover to handle them gracefully (falls back to custom).
-	 */
+	// Unknown values (e.g. garbage from the URL) become undefined, which
+	// DateRangePopover reads as the custom preset.
 	const validatedPresetId = useMemo( () => {
 		if ( ! presetId ) {
 			return undefined;
 		}
-		// Only accept known built-in presets
-		// Unknown/garbage values from URL are rejected to prevent UI inconsistency
 		return isPrimaryPreset( presetId ) ? presetId : undefined;
 	}, [ presetId ] );
 
@@ -197,12 +167,10 @@ export function DateFiltersPanel( {
 		return isPrimaryPreset( appliedPresetId ) ? appliedPresetId : undefined;
 	}, [ appliedPresetId ] );
 
-	// Validate and normalize the comparison preset ID
 	const validatedComparisonPresetId = useMemo( () => {
 		return isComparisonPresetId( comparisonPresetId ) ? comparisonPresetId : undefined;
 	}, [ comparisonPresetId ] );
 
-	// Derive comparison enabled state directly from validated prop
 	const comparisonEnabled = !! validatedComparisonPresetId;
 
 	/*
@@ -227,10 +195,6 @@ export function DateFiltersPanel( {
 		[ onComparisonChange, presets ]
 	);
 
-	/**
-	 * Handles clearing the comparison completely.
-	 * Clears the selected preset and notifies parent.
-	 */
 	const clearComparison = useCallback( () => {
 		onComparisonChange( undefined, undefined );
 	}, [ onComparisonChange ] );

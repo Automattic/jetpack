@@ -41,9 +41,6 @@ const SITE_SUMMARY_PATH_FRAGMENT = 'proxy/v1.1/stats';
  * `useStatsSite()` has a constant query key because its summary ignores the
  * dashboard date range. Remove that shared entry before and after each forced
  * story so it reaches the mock and cannot leak its result into another story.
- *
- * @param state - The forced report-mock state.
- * @return The `beforeEach` cleanup callback.
  */
 function forceSiteSummaryState( state: 'loading' | 'error' | 'empty' ) {
 	queryClient.removeQueries( { queryKey: [ 'stats', 'site' ] } );

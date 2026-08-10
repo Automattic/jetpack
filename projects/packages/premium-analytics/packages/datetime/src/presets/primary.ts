@@ -63,9 +63,6 @@ type DateContext = {
  */
 export const DEFAULT_YEAR_SURFACE_COUNT = 6;
 
-/**
- * Preset definition with label getter and range calculator.
- */
 type PresetDefinition = {
 	id: SelectablePresetId;
 	getLabel: () => string;
@@ -79,8 +76,8 @@ type PresetDefinition = {
 };
 
 /**
- * Canonical preset definitions with labels and range calculators.
- * Labels are defined once here and reused by all consumers.
+ * Canonical preset definitions. Labels are defined once here and reused by all
+ * consumers.
  */
 export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	{
@@ -247,7 +244,6 @@ function buildDateContext( timeZone: string ): DateContext {
 }
 
 /**
- * Represents a date range preset option.
  * Preset ranges always have both `from` and `to` defined.
  */
 export type DateRangePreset< TId extends ComputablePresetId = SelectablePresetId > = {

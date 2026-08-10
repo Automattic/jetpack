@@ -16,9 +16,6 @@ const STORY_INTERVAL_OPTIONS: Partial< Record< PrimaryPresetId, IntervalType[] >
 
 /**
  * The buckets a preset allows, finest first.
- *
- * @param presetId - The applied preset.
- * @return The allowed intervals.
  */
 export function getStoryIntervalOptions( presetId?: PrimaryPresetId ): IntervalType[] {
 	const fallback: IntervalType[] = [ 'day', 'week' ];
@@ -38,10 +35,6 @@ export function getStoryIntervalOptions( presetId?: PrimaryPresetId ): IntervalT
 /**
  * Apply the coercion the report params apply: keep a pick the range still
  * allows, otherwise fall back to the finest one it does.
- *
- * @param picked  - The interval the user last chose, if any.
- * @param options - The buckets the applied range allows.
- * @return The interval to render as active.
  */
 export function resolveStoryInterval(
 	picked: IntervalType | undefined,

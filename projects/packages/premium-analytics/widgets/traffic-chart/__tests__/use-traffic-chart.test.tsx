@@ -71,8 +71,6 @@ type ComparisonFixtures = {
 /**
  * Route each of the two concurrent requests (and their comparison variants) to
  * its own fixture.
- *
- * @param comparison - Optional per-pair comparison fixtures.
  */
 function routeRequests( comparison?: ComparisonFixtures ) {
 	mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) => {

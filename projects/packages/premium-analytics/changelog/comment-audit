@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Comments-only cleanup: trim restating comments and correct stale ones. No user-facing change.
+
+

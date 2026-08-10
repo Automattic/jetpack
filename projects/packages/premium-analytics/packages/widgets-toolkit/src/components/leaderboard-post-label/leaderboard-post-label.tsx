@@ -18,9 +18,6 @@ export type LeaderboardPostLabelProps = {
 	 * Post or page ID. Rows carrying one link to the internal detail route.
 	 */
 	id?: number | string;
-	/**
-	 * Visible row title.
-	 */
 	label: string;
 	/**
 	 * Public URL of the content. Used only when there is no post ID.
@@ -52,13 +49,6 @@ export type LeaderboardPostLabelProps = {
  * Rows that are not linked entities — an avatar and a name, or a drill-down
  * into child rows — use `buildLeaderboardRow` instead.
  *
- * @param props           - Component props.
- * @param props.id        - Post or page ID.
- * @param props.label     - Visible row title.
- * @param props.link      - Public URL, used only without a post ID.
- * @param props.section   - Optional detail-page tab to open.
- * @param props.variant   - Row height.
- * @param props.className - Extra class for the row.
  * @return The row label.
  */
 export function LeaderboardPostLabel( {

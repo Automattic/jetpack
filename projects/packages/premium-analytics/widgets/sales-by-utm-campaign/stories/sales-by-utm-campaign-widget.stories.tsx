@@ -96,12 +96,6 @@ function renderSalesByUtmCampaignOnPreset( preset: SelectablePresetId ) {
 	);
 }
 
-/**
- * Story wrapper for rendering the sales by UTM campaign widget in dashboard chrome.
- *
- * @param {SalesByUtmCampaignDashboardStoryProps} props - Story controls.
- * @return The rendered Storybook story.
- */
 function SalesByUtmCampaignDashboardStory( {
 	withComparison,
 	preset,

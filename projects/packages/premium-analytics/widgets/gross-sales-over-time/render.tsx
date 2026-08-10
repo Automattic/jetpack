@@ -24,14 +24,9 @@ type GrossSalesOverTimeWidgetProps = WidgetRenderProps< GrossSalesOverTimeRender
 };
 
 /**
- * Gross sales over time widget.
- *
  * Thin composition over the widgets-toolkit: WidgetRoot provides the query
  * client, chart theme, and resolved report params; OrderMetricWidget fetches
  * the orders report and renders the gross sales metric over time.
- *
- * @param {GrossSalesOverTimeWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function GrossSalesOverTimeRender( {
 	attributes = {},

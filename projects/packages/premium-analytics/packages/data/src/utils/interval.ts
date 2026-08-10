@@ -82,11 +82,6 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
  *
  * Also what the interval control lists, so the menu can never offer a bucket
  * the range would coerce away.
- *
- * @param preset - Primary date-range preset, when known.
- * @param from   - Range start.
- * @param to     - Range end.
- * @return Allowed intervals, finest first.
  */
 export function getAllowedIntervalsForPreset(
 	preset: PrimaryPresetId | undefined,
@@ -119,12 +114,6 @@ export function getAllowedIntervalsForPreset(
  *
  * Returns `current` when it is allowed for the range; otherwise the range
  * default (finest allowed).
- *
- * @param preset  - Primary date-range preset, when known.
- * @param from    - Range start.
- * @param to      - Range end.
- * @param current - Candidate interval to keep when still allowed.
- * @return An interval allowed for the range.
  */
 export function resolveIntervalForRange(
 	preset: PrimaryPresetId | undefined,
@@ -141,14 +130,7 @@ export function resolveIntervalForRange(
 	return allowed[ 0 ] ?? 'day';
 }
 
-/**
- * Default (finest) interval for a preset / date range.
- *
- * @param preset - Primary date-range preset, when known.
- * @param from   - Range start.
- * @param to     - Range end.
- * @return The default interval.
- */
+/** Default (finest) interval for a preset / date range. */
 export function getDefaultIntervalForPeriod(
 	preset: PrimaryPresetId | undefined,
 	from: string,

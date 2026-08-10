@@ -50,10 +50,8 @@ interface LocationViewsState {
 }
 
 /**
- * Map a `StatsLocationsItem` from the data layer to the widget's `LocationView` shape.
- *
- * @param item - Normalized location item from the data layer.
- * @return A `LocationView` for the widget, or null if the item has no country code.
+ * Map a `StatsLocationsItem` from the data layer to the widget's `LocationView`
+ * shape. Returns `null` for an item with no country code.
  */
 function toLocationView( item: StatsLocationsComparisonItem ): LocationView | null {
 	if ( ! item.countryCode ) {
@@ -78,9 +76,6 @@ function toLocationView( item: StatsLocationsComparisonItem ): LocationView | nu
  *
  * Delegates fetching, caching, and normalization to `useStatsLocations` from
  * `@jetpack-premium-analytics/data`.
- *
- * @param {UseLocationViewsArgs} args - Hook arguments.
- * @return The current data/loading/error state.
  */
 export default function useLocationViews( {
 	reportParams,

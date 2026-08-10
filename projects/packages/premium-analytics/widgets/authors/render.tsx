@@ -86,9 +86,6 @@ export type AuthorsLeaderboardProps = {
  * exercise these states — including the drill-down — with fixture data; there
  * is no Stats backend in Storybook, so the data-connected entry point would
  * only ever show chrome.
- *
- * @param {AuthorsLeaderboardProps} props - The component props.
- * @return The rendered leaderboard.
  */
 export function AuthorsLeaderboard( {
 	rows = [],
@@ -227,9 +224,6 @@ type AuthorsReportProps = {
  * Fetches the top-authors report through the Jetpack Stats hook, builds the
  * leaderboard rows from the data layer's merged comparison rows, and hands
  * them to the presentational `AuthorsLeaderboard`.
- *
- * @param {AuthorsReportProps} props - The component props.
- * @return The widget content.
  */
 function AuthorsReport( { max }: AuthorsReportProps ) {
 	const { reportParams } = useWidgetRootContext();
@@ -280,16 +274,11 @@ function AuthorsReport( { max }: AuthorsReportProps ) {
 }
 
 /**
- * Authors widget render entry point.
- *
  * Passes host `attributes` into `WidgetRoot`, which resolves the report params:
  * the dashboard leaves `reportParams` out of `attributes`, so it falls back to
  * the date-range URL search params the picker writes to; Storybook injects
  * `attributes.reportParams` directly. The widget's own `max` is forwarded to
  * the inner component.
- *
- * @param {AuthorsWidgetProps} props - The widget render props.
- * @return The rendered Authors widget.
  */
 export default function Authors( { attributes = {} }: AuthorsWidgetProps ) {
 	return (

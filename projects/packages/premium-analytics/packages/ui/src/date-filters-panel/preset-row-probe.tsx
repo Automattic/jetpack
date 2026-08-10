@@ -46,8 +46,8 @@ export type PresetRowProbeProps = {
  * look like they fit. The comparison control can be measured live because its
  * width follows the active preset rather than the label mode.
  *
- * @param {PresetRowProbeProps} props - The props for the PresetRowProbe component.
- * @return The preset row probe element.
+ * Exported memoized: the panel re-renders on every step of a resize, and this
+ * output only moves when the labels do.
  */
 function PresetRowProbeComponent( {
 	presets,

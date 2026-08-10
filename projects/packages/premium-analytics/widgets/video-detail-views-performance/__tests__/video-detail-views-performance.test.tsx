@@ -41,9 +41,6 @@ const mockApiFetch = apiFetch as unknown as jest.Mock;
  * Builds a raw `statType=all` response (wpcom #229903): per-day tuples named
  * by `fields`, with the other metric columns derived from the plays the test
  * cares about, plus the embed-page/post/total fixtures.
- *
- * @param data - The daily `[date, plays]` pairs.
- * @return The raw single-video response.
  */
 function buildSingleVideoResponse( data: Array< [ string, number ] > ) {
 	return {
@@ -64,9 +61,6 @@ function buildSingleVideoResponse( data: Array< [ string, number ] > ) {
  * Routes a mocked request to the response for its `start_date` window. Keyed by
  * the requested calendar day, so the fixtures hold whether the param carries a
  * bare date or the full offset-bearing datetime the range resolves to.
- *
- * @param responsesByStartDay - Responses keyed by the request's `start_date` day.
- * @return The apiFetch mock implementation.
  */
 function respondByWindow( responsesByStartDay: Record< string, unknown > ) {
 	return ( { path }: { path: string } ) => {

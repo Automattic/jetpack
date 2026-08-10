@@ -25,13 +25,7 @@ type DateComparisonDropdownProps = {
 	 * Available comparison presets (e.g., previous-period, previous-month)
 	 */
 	presets: ComparisonDateRangePreset[];
-	/**
-	 * Whether comparison is enabled
-	 */
 	enabled: boolean;
-	/**
-	 * Currently selected comparison preset ID
-	 */
 	presetId?: ComparisonPresetId;
 	/**
 	 * Names the trigger, as its tooltip and, with no comparison active, as its
@@ -39,13 +33,7 @@ type DateComparisonDropdownProps = {
 	 * the state.
 	 */
 	label?: string;
-	/**
-	 * Callback when a comparison preset is selected
-	 */
 	onPresetChange: ( id: ComparisonPresetId ) => void;
-	/**
-	 * Callback when comparison is cleared
-	 */
 	onClear: () => void;
 };
 

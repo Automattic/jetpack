@@ -50,16 +50,9 @@ type WordAdsChartTabsInnerProps = {
 };
 
 /**
- * WordAds chart inner component. Reads the dashboard date range + comparison
- * state from `useWidgetRootContext()` and hands the per-metric tabs (Ads
- * Served, Average CPM, Revenue) to the shared `MetricTabsChart`, with the
- * loading/error/empty states rendered through `WidgetState`. The "Group by"
- * control is the `granularity` attribute (`relevance: 'high'`) and the tab set
- * is the `metrics` attribute (`relevance: 'high'`), both rendered by the widget
- * host; granularity only chooses the bucket size within the dashboard range.
- *
- * @param {WordAdsChartTabsInnerProps} props - The component props.
- * @return The widget body.
+ * The "Group by" control is the `granularity` attribute and the tab set is the
+ * `metrics` attribute (both `relevance: 'high'`), rendered by the widget host;
+ * granularity only chooses the bucket size within the dashboard range.
  */
 function WordAdsChartTabsInner( { granularity, metricIds }: WordAdsChartTabsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
@@ -112,18 +105,6 @@ function WordAdsChartTabsInner( { granularity, metricIds }: WordAdsChartTabsInne
 	);
 }
 
-/**
- * Widget render entry point.
- *
- * `WidgetRoot` provides the analytics query client and resolves the dashboard's
- * `reportParams`; the inner component reads that range/comparison state. The
- * granularity is the `granularity` attribute and the visible tabs are the
- * `metrics` attribute (both `relevance: 'high'`), exposed as controls by the
- * widget host.
- *
- * @param {WordAdsChartTabsWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function WordAdsChartTabs( { attributes = {} }: WordAdsChartTabsWidgetProps ) {
 	const granularity = attributes.granularity ?? 'auto';
 
