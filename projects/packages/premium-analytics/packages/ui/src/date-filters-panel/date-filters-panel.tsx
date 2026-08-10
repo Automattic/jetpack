@@ -261,8 +261,12 @@ export function DateFiltersPanel( {
 	const setObserverRef = useResizeObserver< HTMLElement >( handleResize );
 
 	// This panel's own root, falling back to the body only until the ref lands.
+	// The setter doubles as the detach: `useResizeObserver` only unobserves when
+	// it is called with `null`.
 	useEffect( () => {
 		setObserverRef( rootElement ?? document.body );
+
+		return () => setObserverRef( null );
 	}, [ rootElement, setObserverRef ] );
 
 	/*

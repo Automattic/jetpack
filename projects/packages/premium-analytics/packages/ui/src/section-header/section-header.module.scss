@@ -36,7 +36,6 @@ $section-header-title-min-inline-size: 200px;
 	// and from the subtitle below, stacked or not.
 	gap: var(--wpds-dimension-gap-sm);
 
-	// The title truncates on one line instead of wrapping.
 	.title {
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -80,6 +79,14 @@ $section-header-title-min-inline-size: 200px;
 
 	.layout {
 		grid-template-columns: minmax(0, 1fr);
+
+		// A column of its own with nothing competing for it: the title wraps
+		// rather than spending lines it does not have to.
+		.title {
+			overflow: visible;
+			text-overflow: clip;
+			white-space: normal;
+		}
 	}
 
 	// One column, so source order would leave the controls between the title and
