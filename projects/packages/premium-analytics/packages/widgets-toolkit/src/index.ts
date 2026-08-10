@@ -240,6 +240,7 @@ export {
 	type GeoData,
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,
+	type HeatmapTooltipData,
 } from '@jetpack-premium-analytics/externals';
 
 /**

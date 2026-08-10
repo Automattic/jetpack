@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { useStatsVisits, type StatsVisitsResponse } from '@jetpack-premium-analytics/data';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
 	HeatmapChartUnresponsive,
 	WidgetRoot,
@@ -14,9 +15,10 @@ import {
 	useElementSize,
 	useWidgetRootContext,
 	withoutComparison,
+	type HeatmapTooltipData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { seen } from '@wordpress/icons';
 import { format } from 'date-fns';
 import { useMemo } from 'react';
@@ -42,6 +44,28 @@ const MAX_WINDOW_DAYS = 366;
 // 61px width, so the two must stay in step.
 const CELL_HEIGHT = 40;
 const CELL_ASPECT_RATIO = 61 / CELL_HEIGHT;
+
+/**
+ * The design leads the tooltip with the count and the metric, then the date —
+ * the reverse of the chart's default, and the cell already shows an abbreviated
+ * number, so this is where the exact one belongs.
+ */
+function renderCellTooltip( { value, cellLabel }: HeatmapTooltipData ) {
+	return (
+		<>
+			<strong>
+				{ value === null
+					? __( 'No views', 'jetpack-premium-analytics-pkg' )
+					: sprintf(
+							/* translators: %s: number of views, e.g. "2,033". */
+							_n( '%s view', '%s views', value, 'jetpack-premium-analytics-pkg' ),
+							formatMetricValue( value, 'number', { decimals: 0 } )
+					  ) }
+			</strong>
+			<div>{ cellLabel }</div>
+		</>
+	);
+}
 
 /**
  * The site's daily views over the selected period, as a calendar heatmap.
@@ -154,6 +178,7 @@ function TrafficViewsActivityInner() {
 						className={ styles.heatmap }
 						primaryColor="var(--wp-admin-theme-color, #3858e9)"
 						withTooltips
+						renderTooltip={ renderCellTooltip }
 						showValues
 						width={ layout.heatmapWidth }
 						height={ layout.heatmapHeight }
