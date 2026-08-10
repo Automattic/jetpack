@@ -539,6 +539,22 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Set the private static Jetpack_Gutenberg::$preset_cache (the decoded index.json),
+	 * so a test can control the `no-post-editor` preset without touching the real file.
+	 *
+	 * @param mixed $value Value to set (an object mirroring index.json, or null to clear).
+	 */
+	private function set_preset_cache( $value ) {
+		$prop = new ReflectionProperty( Jetpack_Gutenberg::class, 'preset_cache' );
+		// setAccessible() is a no-op (and deprecated) since PHP 8.1; only needed for older versions.
+		// @todo Remove this guard once we no longer need to support PHP < 8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
+		$prop->setValue( null, $value );
+	}
+
+	/**
 	 * Invoke the private static Jetpack_Gutenberg::load_and_register_deferred_block().
 	 *
 	 * @param string $feature Block feature name.
@@ -860,44 +876,6 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The dynamic (render_callback) blocks added to the lazy set in JETPACK-1747 must
-	 * stay in it. They are only safe to defer because each registers a single block
-	 * type named after its directory and does no front-end work at `init` time; a
-	 * refactor that breaks those invariants must remove the block from the list (and
-	 * fail this guard) rather than silently leave it deferring incorrectly.
-	 *
-	 * @dataProvider provider_newly_deferred_dynamic_blocks
-	 *
-	 * @param string $feature Block feature (directory) name expected in the lazy set.
-	 */
-	#[DataProvider( 'provider_newly_deferred_dynamic_blocks' )]
-	public function test_lazy_set_includes_newly_deferred_dynamic_blocks( $feature ) {
-		$this->assertContains(
-			$feature,
-			$this->get_lazy_blocks(),
-			"$feature should be deferred to first front-end render."
-		);
-
-		// The block file must exist for the lazy loader to include it on render.
-		$this->assertFileExists(
-			JETPACK__PLUGIN_DIR . "extensions/blocks/{$feature}/{$feature}.php",
-			"$feature block file must exist at the path the lazy loader includes."
-		);
-	}
-
-	/**
-	 * Data provider listing the dynamic blocks JETPACK-1747 added to the lazy set.
-	 *
-	 * @return array[]
-	 */
-	public static function provider_newly_deferred_dynamic_blocks() {
-		return array(
-			'instagram-gallery' => array( 'instagram-gallery' ),
-			'mailchimp'         => array( 'mailchimp' ),
-		);
-	}
-
-	/**
 	 * A deferred block file is included and the `init` callback it registers runs,
 	 * even though `init` has already fired by the time the block renders.
 	 *
@@ -1064,8 +1042,13 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 		$saved_uri              = $_SERVER['REQUEST_URI'] ?? null;
 		$_SERVER['REQUEST_URI'] = '/sample-page/';
 
+		/*
+		 * blog-stats is a lazy block that is NOT in the `no-post-editor` preset, so it
+		 * still defers on a front-end request (unlike no-post-editor blocks — see
+		 * test_load_independent_blocks_never_defers_no_post_editor_blocks).
+		 */
 		$lazy_filter = static function () {
-			return array( 'business-hours' );
+			return array( 'blog-stats' );
 		};
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 		add_filter( 'jetpack_gutenberg', '__return_true' );
@@ -1076,7 +1059,7 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 			Jetpack_Gutenberg::load_independent_blocks();
 
 			$this->assertArrayHasKey(
-				'business-hours',
+				'blog-stats',
 				$this->get_deferred_blocks(),
 				'A lazy block should be deferred on a front-end request.'
 			);
@@ -1089,6 +1072,56 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 			remove_filter( 'jetpack_set_available_extensions', $lazy_filter, 99 );
 			remove_filter( 'jetpack_offline_mode', '__return_true' );
 			remove_filter( 'jetpack_gutenberg', '__return_true' );
+			Jetpack_Gutenberg::reset();
+			if ( null !== $saved_uri ) {
+				$_SERVER['REQUEST_URI'] = $saved_uri;
+			} else {
+				unset( $_SERVER['REQUEST_URI'] );
+			}
+		}
+	}
+
+	/**
+	 * A lazy block that also ships in the `no-post-editor` preset must NOT be deferred on
+	 * a plain front-end request. Front-end block editors (e.g. P2) render the inserter
+	 * there with is_block_editor_context() false, so a deferred block would be reported
+	 * unavailable by get_availability() and vanish from the inserter. A lazy block outside
+	 * the preset still defers.
+	 */
+	public function test_load_independent_blocks_never_defers_no_post_editor_blocks() {
+		$saved_uri              = $_SERVER['REQUEST_URI'] ?? null;
+		$_SERVER['REQUEST_URI'] = '/sample-page/';
+
+		// Two lazy blocks; only business-hours is (mocked as) in the no-post-editor preset.
+		$lazy_filter = static function () {
+			return array( 'business-hours', 'blog-stats' );
+		};
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		add_filter( 'jetpack_gutenberg', '__return_true' );
+		add_filter( 'jetpack_set_available_extensions', $lazy_filter, 99 );
+		Jetpack_Gutenberg::reset();
+		$this->set_preset_cache( (object) array( 'no-post-editor' => array( 'business-hours' ) ) );
+
+		try {
+			Jetpack_Gutenberg::load_independent_blocks();
+			$deferred = $this->get_deferred_blocks();
+
+			$this->assertArrayNotHasKey(
+				'business-hours',
+				$deferred,
+				'A no-post-editor block must not be deferred; front-end editors like P2 need it registered.'
+			);
+			$this->assertArrayHasKey(
+				'blog-stats',
+				$deferred,
+				'A lazy block outside the no-post-editor preset should still be deferred.'
+			);
+		} finally {
+			remove_filter( 'pre_render_block', array( 'Jetpack_Gutenberg', 'lazy_register_deferred_block' ), 10 );
+			remove_filter( 'jetpack_set_available_extensions', $lazy_filter, 99 );
+			remove_filter( 'jetpack_offline_mode', '__return_true' );
+			remove_filter( 'jetpack_gutenberg', '__return_true' );
+			$this->set_preset_cache( null );
 			Jetpack_Gutenberg::reset();
 			if ( null !== $saved_uri ) {
 				$_SERVER['REQUEST_URI'] = $saved_uri;

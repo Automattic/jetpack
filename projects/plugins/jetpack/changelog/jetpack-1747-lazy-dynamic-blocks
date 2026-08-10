@@ -1,4 +1,4 @@
 Significance: patch
-Type: other
+Type: bugfix
 
-Performance: defer registration of the instagram-gallery and mailchimp blocks to first front-end render, so their PHP no longer loads on every front-end request. See JETPACK-1747.
+Blocks: keep blocks that load outside the post editor available in front-end block editors such as P2, by never deferring their registration. See JETPACK-1747.
