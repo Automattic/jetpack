@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getDatePart } from '@jetpack-premium-analytics/datetime';
-import { addDays, format, parseISO, subDays } from 'date-fns';
+import { format, parseISO, subDays } from 'date-fns';
 import type { DataPointDate } from '@jetpack-premium-analytics/externals';
 
 export type CalendarHeatmapWindow = {
@@ -68,7 +68,11 @@ export function buildDenseDaySeries(
 	// Walk in UTC so daylight-saving transitions cannot skip or repeat a date.
 	const end = new Date( `${ toPart }T00:00:00Z` );
 
-	for ( let day = new Date( `${ fromPart }T00:00:00Z` ); day <= end; day = addDays( day, 1 ) ) {
+	for (
+		let day = new Date( `${ fromPart }T00:00:00Z` );
+		day <= end;
+		day.setUTCDate( day.getUTCDate() + 1 )
+	) {
 		const dateString = day.toISOString().slice( 0, 10 );
 		series.push( { dateString, value: lookup.get( dateString ) ?? null } );
 	}

@@ -108,6 +108,13 @@ describe( 'resolveCalendarHeatmapWindow', () => {
 		} );
 	} );
 
+	it( 'uses the supplied end when the range has no start', () => {
+		expect( resolveCalendarHeatmapWindow( { to: '2026-03-01' }, {}, TODAY ) ).toEqual( {
+			startDate: '2026-03-01',
+			endDate: '2026-03-01',
+		} );
+	} );
+
 	it( 'collapses to the end date when the range is inverted and unbounded', () => {
 		expect(
 			resolveCalendarHeatmapWindow( { from: '2026-09-01', to: '2026-08-10' }, {}, TODAY )
@@ -130,6 +137,13 @@ describe( 'buildDenseDaySeries', () => {
 		] );
 	} );
 
+	it( 'keeps a real zero distinct from a missing day', () => {
+		expect( buildDenseDaySeries( { '2026-08-02': 0 }, '2026-08-01', '2026-08-02' ) ).toEqual( [
+			{ dateString: '2026-08-01', value: null },
+			{ dateString: '2026-08-02', value: 0 },
+		] );
+	} );
+
 	it( 'accepts a Map lookup', () => {
 		expect(
 			buildDenseDaySeries( new Map( [ [ '2026-08-01', 7 ] ] ), '2026-08-01', '2026-08-01' )
@@ -137,12 +151,32 @@ describe( 'buildDenseDaySeries', () => {
 	} );
 
 	it( 'spans a DST boundary without dropping or repeating a day', () => {
-		const series = buildDenseDaySeries( {}, '2026-03-28', '2026-03-30' );
+		const previousTimezone = Reflect.get( process.env, 'TZ' );
+		Reflect.set( process.env, 'TZ', 'Europe/London' );
 
-		expect( series.map( point => point.dateString ) ).toEqual( [
-			'2026-03-28',
-			'2026-03-29',
-			'2026-03-30',
+		try {
+			const series = buildDenseDaySeries( {}, '2026-01-01', '2026-12-31' );
+			const days = series.map( point => point.dateString );
+
+			expect( series ).toHaveLength( 365 );
+			expect( days[ 0 ] ).toBe( '2026-01-01' );
+			expect( days[ days.length - 1 ] ).toBe( '2026-12-31' );
+			expect( new Set( days ) ).toHaveProperty( 'size', 365 );
+		} finally {
+			if ( previousTimezone === undefined ) {
+				Reflect.deleteProperty( process.env, 'TZ' );
+			} else {
+				Reflect.set( process.env, 'TZ', previousTimezone );
+			}
+		}
+	} );
+
+	it( 'derives the date part from timestamp bounds', () => {
+		expect(
+			buildDenseDaySeries( { '2026-01-01': 5 }, '2026-01-01T00:00:00Z', '2026-01-02T23:59:59Z' )
+		).toEqual( [
+			{ dateString: '2026-01-01', value: 5 },
+			{ dateString: '2026-01-02', value: null },
 		] );
 	} );
 

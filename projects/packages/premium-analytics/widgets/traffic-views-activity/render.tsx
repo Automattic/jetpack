@@ -85,12 +85,12 @@ function TrafficViewsActivityInner() {
 	);
 
 	const { primary, isLoading, isFetching, isError, error, refetch } = useStatsVisits( params );
-	const report = primary.data as StatsVisitsResponse | undefined;
+	const report: StatsVisitsResponse | undefined = primary.data;
 
 	const { data: heatmapData, rowLabels } = useMemo( () => {
 		const viewsByDay = new Map< string, number | null >(
 			( report?.data ?? [] ).map( row => {
-				const views = Number( ( row as Record< string, unknown > ).views ?? 0 );
+				const views = Number( row.views ?? 0 );
 
 				return [ String( row.time_interval ), views > 0 ? views : null ];
 			} )
@@ -155,7 +155,7 @@ function TrafficViewsActivityInner() {
 						primaryColor="var(--wp-admin-theme-color, #3858e9)"
 						withTooltips
 						renderTooltip={ renderCellTooltip }
-						showValues
+						showValues={ layout.cellWidth > 30 }
 						width={ layout.heatmapWidth }
 						height={ layout.heatmapHeight }
 					/>
