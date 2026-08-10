@@ -74,16 +74,13 @@ describe( 'normalizeReportParams', () => {
 	it( 'applies defaults with preset and comparison on fresh load', () => {
 		const result = normalizeReportParams();
 
-		// Preset should come from defaults.
 		expect( result.preset ).toBe( 'last-30-days' );
 		expect( mockComputeRange ).toHaveBeenCalledWith( 'last-30-days' );
 
-		// Dates should come from computeDateRangeFromPreset.
 		expect( result.from ).toBe( FRESH_FROM );
 		expect( result.to ).toBe( FRESH_TO );
 
-		// Default comparison should be applied (search is undefined
-		// → !search?.from → true → default branch).
+		// `search` is undefined → `!search?.from` → the default-comparison branch.
 		expect( result.comp ).toBe( '1' );
 		expect( result.compare_from ).toBe( DEFAULTS_WITH_COMPARISON.compare_from );
 		expect( result.compare_to ).toBe( DEFAULTS_WITH_COMPARISON.compare_to );
@@ -113,9 +110,7 @@ describe( 'normalizeReportParams', () => {
 		);
 		expect( result.interval ).toBe( 'day' );
 
-		// No comparison in search → no comparison in output
-		// (search.from is present → !search.from is false
-		// → default comparison branch is skipped).
+		// `search.from` is present, so the default-comparison branch is skipped.
 		expect( result.comp ).toBeUndefined();
 	} );
 
@@ -151,7 +146,6 @@ describe( 'normalizeReportParams', () => {
 			interval: 'day',
 		} );
 
-		// Should use the fresh range from the preset, not stale URL dates.
 		expect( result.from ).toBe( FRESH_FROM );
 		expect( result.to ).toBe( FRESH_TO );
 		expect( result.preset ).toBe( 'last-30-days' );
@@ -175,7 +169,6 @@ describe( 'normalizeReportParams', () => {
 		expect( result.from ).toBe( customFrom );
 		expect( result.to ).toBe( customTo );
 		expect( result.preset ).toBeUndefined();
-		// computeDateRangeFromPreset should NOT be called.
 		expect( mockComputeRange ).not.toHaveBeenCalled();
 	} );
 
@@ -215,11 +208,9 @@ describe( 'normalizeReportParams', () => {
 			compare_preset: 'previous-period',
 		} );
 
-		// Primary recalculated from preset.
 		expect( result.from ).toBe( FRESH_FROM );
 		expect( result.to ).toBe( FRESH_TO );
 
-		// Comparison passed through from search.
 		expect( result.comp ).toBe( '1' );
 		expect( result.compare_from ).toBe( compFrom );
 		expect( result.compare_to ).toBe( compTo );
@@ -265,12 +256,10 @@ describe( 'normalizeReportParams', () => {
 			interval: 'day',
 		} );
 
-		// Primary recalculated.
 		expect( result.from ).toBe( FRESH_FROM );
 		expect( result.to ).toBe( FRESH_TO );
 
-		// No comparison in search, and search.from is present
-		// → default comparison is NOT applied.
+		// `search.from` is present, so the default comparison is not applied.
 		expect( result.comp ).toBeUndefined();
 		expect( result.compare_from ).toBeUndefined();
 		expect( result.compare_to ).toBeUndefined();
@@ -309,9 +298,7 @@ describe( 'normalizeReportParams', () => {
 			preset: 'last-30-days',
 		} );
 
-		// Preset should be cleared.
 		expect( result.preset ).toBeUndefined();
-		// Falls back to search dates.
 		expect( result.from ).toBe( STALE_FROM );
 		expect( result.to ).toBe( STALE_TO );
 	} );

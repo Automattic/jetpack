@@ -22,15 +22,6 @@ type SalesByUtmSourceWidgetProps = WidgetRenderProps< SalesByUtmSourceRenderAttr
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
-/**
- * Sales by UTM source widget.
- *
- * WidgetRoot provides the query client, chart theme, and resolved report params;
- * the shared SalesByUtmWidget renders the source leaderboard.
- *
- * @param {SalesByUtmSourceWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function SalesByUtmSourceRender( {
 	attributes = {},
 	setError,

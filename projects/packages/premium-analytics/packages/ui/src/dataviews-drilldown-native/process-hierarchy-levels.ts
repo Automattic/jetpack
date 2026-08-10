@@ -9,9 +9,6 @@ interface HierarchyRow< Item > {
 /**
  * Normalise a `getItemParentId` result to the string ids the walks compare, or
  * `undefined` for a row with no parent.
- *
- * @param rawParentId - The resolver's return value.
- * @return The parent id as a string, or undefined.
  */
 function resolveParentId( rawParentId: string | number | null | undefined ): string | undefined {
 	return rawParentId === null || rawParentId === undefined ? undefined : rawParentId.toString();

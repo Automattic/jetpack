@@ -97,8 +97,7 @@
 			matchPackageNames: [ 'docker/**' ],
 		},
 
-		// QualityOps decided they want all these pinned to digests.
-		// They were going to have Dependabot create PRs automatically, but as we use Renovate, do it here instead.
+		// Pin GitHub Actions to digests.
 		// We'll leave major updates ungrouped though, as those likely need more individualized attention.
 		{
 			extends: [ 'helpers:pinGitHubActionDigests' ],
@@ -151,11 +150,12 @@
 			separateMajorMinor: false,
 			// Teams that can help test the update
 			additionalReviewers: [
-				'team:triforce', // Monorepo overall, Publicize, My Jetpack
+				'team:jetpack-social', // Social
+				'team:jetpack-my-jetpack', // My Jetpack
 				'team:loop', // Newsletter dashboard & subscriber management
-				'team:zap', // Forms, much of the recent componentry work.
-				'team:red', // Premium Analytics
-				'team:ventures', // Premium Analytics
+				'team:jetpack-newsletter', // Newsletter dashboard & subscriber management
+				'team:jetpack-forms', // Forms and related component work
+				'team:jetpack-stats', // Premium Analytics
 			],
 		},
 
@@ -172,7 +172,7 @@
 				'uuid',
 				'@testing-library/preact',
 			],
-			additionalReviewers: [ 'team:red' ],
+			additionalReviewers: [ 'team:jetpack-search' ],
 			addLabels: [ '[Feature] Search', 'Instant Search' ],
 		},
 	],

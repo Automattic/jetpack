@@ -57,9 +57,6 @@ const PLAN_USAGE_RENDER_MODULE = 'storybook/plan-usage';
  * doesn't apply. Instead, drop the cached entry from the shared query client on
  * both enter and cleanup, so this story fetches fresh (hitting the forced mock)
  * and the sibling stories refetch their success response afterwards.
- *
- * @param state - The forced mock state for the plan-usage endpoint.
- * @return A `beforeEach` implementation returning its cleanup.
  */
 function forcePlanUsageState( state: 'loading' | 'error' | 'empty' ) {
 	return () => {
@@ -78,10 +75,6 @@ function forcePlanUsageState( state: 'loading' | 'error' | 'empty' ) {
  * over-limit warning being suppressed. Drops the cached usage entry on enter and
  * cleanup (the query key is static — see `forcePlanUsageState`) and restores the
  * script data `host` afterwards.
- *
- * @param options     - Story options.
- * @param options.vip - Whether to seed `site.host = 'vip'` for the story.
- * @return A `beforeEach` implementation returning its cleanup.
  */
 function forcePlanUsageOverLimit( { vip }: { vip: boolean } ) {
 	return () => {
@@ -100,11 +93,6 @@ function forcePlanUsageOverLimit( { vip }: { vip: boolean } ) {
 	};
 }
 
-/**
- * Renders the data-connected widget.
- *
- * @return The rendered widget.
- */
 function renderPlanUsage() {
 	return <PlanUsageRender attributes={ { reportParams: getDefaultQueryParams() } } />;
 }
@@ -198,9 +186,6 @@ export const OverLimitVip: Story = {
 /**
  * Renders the data-connected widget through the shared dashboard harness, so it
  * appears exactly as it does in product (framed card, sizing, edit mode).
- *
- * @param {WidgetDashboardWithWidgetControls} dashboardArgs - The dashboard story controls.
- * @return The widget mounted inside the real `WidgetDashboard`.
  */
 function PlanUsageDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (

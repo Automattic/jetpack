@@ -40,7 +40,6 @@ class Report_Registry {
 			return false;
 		}
 
-		// Store the controller instance.
 		$this->controllers[ $report_key ] = $controller;
 
 		return true;

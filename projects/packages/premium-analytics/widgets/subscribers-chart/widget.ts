@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { trendingUp } from '@wordpress/icons';
+import { people } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -86,7 +86,7 @@ export const DEFAULT_SUBSCRIBERS_CHART_METRICS: SubscribersChartMetricId[] =
  * as the defaults applied to new instances.
  */
 export default {
-	icon: trendingUp,
+	icon: people,
 	attributes: [
 		{
 			id: 'granularity',

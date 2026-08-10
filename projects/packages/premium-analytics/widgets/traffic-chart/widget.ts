@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
+import { trendingUp } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -90,7 +90,7 @@ export const DEFAULT_TRAFFIC_CHART_METRICS: TrafficChartMetricId[] = TRAFFIC_CHA
  * `example.attributes` doubles as the defaults applied to new instances.
  */
 export default {
-	icon: chartBar,
+	icon: trendingUp,
 	attributes: [
 		{
 			id: 'granularity',

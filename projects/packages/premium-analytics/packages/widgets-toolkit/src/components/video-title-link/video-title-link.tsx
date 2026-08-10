@@ -21,16 +21,9 @@ export type VideoTitleLinkProps = {
 
 /**
  * Render a video title as an internal detail link, an external fallback link,
- * or plain text.
+ * or plain text. `search` takes either an object or an updater that receives
+ * the current search.
  *
- * @param props            - Component props.
- * @param props.id         - Video attachment ID.
- * @param props.label      - Visible video title.
- * @param props.link       - External fallback URL.
- * @param props.search     - Search parameters for the detail route, either as an
- *                         object or as an updater that receives the current search.
- * @param props.classNames - Optional classes for each rendering branch.
- * @param props.title      - Optional native title attribute.
  * @return The linked or plain video title.
  */
 export function VideoTitleLink( {

@@ -16,19 +16,10 @@ import { useSegmentStyles } from '../common';
 import styles from '../common/donut-widget.module.scss';
 
 /**
- * Coupon Use Widget Component
- *
  * Displays a donut chart showing total sales with a coupon vs net sales breakdown.
  * Shows the total sales in the center with slices in the legend.
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <CouponUseWidget />
- * </WidgetRoot>
- * ```
  */
 export function CouponUseWidget() {
 	const { reportParams } = useWidgetRootContext();

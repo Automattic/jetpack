@@ -34,12 +34,10 @@ function resolveSeriesStyles(
 	stylesFromProp: SeriesStyle[] | undefined,
 	series: ComparativeLineChartSeries[]
 ): SeriesStyle[] {
-	// If styles prop is provided, use it directly
 	if ( stylesFromProp?.length ) {
 		return stylesFromProp;
 	}
 
-	// Fallback: extract styles from series options
 	return series.map( s => {
 		const lineStyle = s.options?.seriesLineStyle;
 
@@ -66,14 +64,6 @@ const DEFAULT_MARGIN = { right: 0 };
  */
 const COMPACT_CHART_HEIGHT = 140;
 
-/**
- * Applies resolved styles to series data for the internal LineChart.
- * Sets options.stroke and options.seriesLineStyle on each series.
- *
- * @param series         - Original series data
- * @param resolvedStyles - Styles to apply
- * @return Series with styles applied to options
- */
 function applyStylesToSeries(
 	series: ComparativeLineChartSeries[],
 	resolvedStyles: SeriesStyle[]
@@ -104,14 +94,6 @@ function applyStylesToSeries(
 type LineChartProps = ComponentProps< typeof LineChart >;
 type RenderTooltipParams = Parameters< NonNullable< LineChartProps[ 'renderTooltip' ] > >[ 0 ];
 
-/**
- * Props for the ComparativeLineChart component.
- *
- * Combines series data with chart options, formatting, and responsive behavior.
- * Wraps @automattic/charts LineChart with sensible defaults for comparative data visualization.
- *
- * Note: The chart defaults to margin.right = 0 since the Y-axis is positioned on the left.
- */
 export type ComparativeLineChartProps = {
 	/**
 	 * Array of series data to display in the chart.
@@ -127,14 +109,8 @@ export type ComparativeLineChartProps = {
 	 */
 	styles?: SeriesStyle[];
 
-	/**
-	 * CSS class for the chart container
-	 */
 	className?: string;
 
-	/**
-	 * Format configuration for chart values (Y-axis ticks and tooltips)
-	 */
 	dataFormat: DataFormat;
 
 	/** Named date format for the X-axis ticks. Uses the chart default when omitted. */
@@ -177,22 +153,14 @@ export function ComparativeLineChart( {
 		}
 	} );
 	const isCompact = compactWhenShort && chartAreaHeight < COMPACT_CHART_HEIGHT;
-	/**
-	 * Resolve styles: prop takes priority, fallback to series options.
-	 * This array is used for tooltip styling and to decorate series data.
-	 */
+	// Also used for tooltip styling, not only to decorate the series data.
 	const resolvedStyles = useMemo< SeriesStyle[] >(
 		() => resolveSeriesStyles( stylesProp, series ),
 		[ stylesProp, series ]
 	);
 
-	/**
-	 * Custom label extractor for line chart datum.
-	 * Uses realDate for comparison series to show the actual date.
-	 *
-	 * @param datum - The data point with date information
-	 * @param index - Index of this entry in the tooltip
-	 */
+	// Comparison points sit on the primary series' dates, so the tooltip reads
+	// the `realDate` preserved by `alignSeriesDates`.
 	const getTooltipLabel = useCallback(
 		( datum: { date: Date; realDate?: Date }, index: number ): string => {
 			const isComparison = index > 0;
@@ -217,10 +185,7 @@ export function ComparativeLineChart( {
 		[ dataFormat, resolvedStyles, getTooltipLabel ]
 	);
 
-	/**
-	 * Y-axis formatter using dataFormat configuration,
-	 * but using multipliers and 0 decimals to keep strings short and concise.
-	 */
+	// Multipliers and no decimals keep the y-axis tick labels short.
 	const yTickFormat = useMemo(
 		() => ( value: number ) =>
 			formatMetricValue( value, dataFormat.type, {
@@ -230,33 +195,22 @@ export function ComparativeLineChart( {
 		[ dataFormat ]
 	);
 
-	/**
-	 * Align comparison series dates to primary series for X-axis display.
-	 * Original dates are preserved in realDate for tooltip display.
-	 */
+	// Comparison dates are aligned onto the primary series for the X axis; the
+	// originals stay in `realDate` for tooltips.
 	const alignedSeries = useMemo( () => alignSeriesDates( series ), [ series ] );
 
-	/**
-	 * Apply resolved styles to series data for the internal LineChart.
-	 * Only needed when styles come from prop; otherwise series already have styles.
-	 */
 	const styledSeries = useMemo( () => {
-		// If no styles prop, series already have their styles in options
+		// Without a styles prop, the series already carry their styles in options.
 		if ( ! stylesProp?.length ) {
 			return alignedSeries;
 		}
 		return applyStylesToSeries( alignedSeries, resolvedStyles );
 	}, [ stylesProp, alignedSeries, resolvedStyles ] );
 
-	/**
-	 * Detect if chart data is empty and apply special props for empty state
-	 */
 	const isEmptyData = useMemo( () => isEmptyChartData( styledSeries ), [ styledSeries ] );
 
-	/**
-	 * A pinned domain for percentage metrics and all-zero periods, with the left
-	 * margin its widest tick needs. Null lets the chart scale to the data.
-	 */
+	// A pinned domain for percentage metrics and all-zero periods, with the left
+	// margin its widest tick needs. Null lets the chart scale to the data.
 	const fixedYAxis = useMemo(
 		() => getFixedYAxis( dataFormat.type, isEmptyData, yTickFormat ),
 		[ dataFormat.type, isEmptyData, yTickFormat ]
@@ -267,10 +221,6 @@ export function ComparativeLineChart( {
 		[ xTickFormatType ]
 	);
 
-	/**
-	 * Merge chart options with empty chart options if data is empty
-	 * For percentage metrics, always apply fixed domain
-	 */
 	const chartOptions = useMemo( () => {
 		const baseOptions = {
 			axis: {

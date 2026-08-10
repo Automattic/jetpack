@@ -9,9 +9,6 @@ type ReportsCustomersByDateResponse = Awaited< ReturnType< typeof fetchReportCus
 type RawCustomersByDateSummary = ReportsCustomersByDateResponse[ 'summary' ];
 type RawCustomersByDateItem = ReportsCustomersByDateResponse[ 'data' ][ number ];
 
-/**
- * Processed summary (numbers for calculations)
- */
 type SanitizedCustomersByDateSummary = Override<
 	RawCustomersByDateSummary,
 	{
@@ -44,9 +41,6 @@ type SanitizedCustomersByDateSummary = Override<
 	}
 >;
 
-/**
- * Processed item (numbers for calculations)
- */
 type SanitizedCustomersByDateItem = Override<
 	RawCustomersByDateItem,
 	{
@@ -64,17 +58,11 @@ type SanitizedCustomersByDateItem = Override<
 	}
 >;
 
-/**
- * Processed response with numeric values
- */
 export type SanitizedCustomersByDateResponse = {
 	summary: SanitizedCustomersByDateSummary;
 	data: SanitizedCustomersByDateItem[];
 };
 
-/**
- * Sanitize/process a single customer item by converting strings to numbers
- */
 function sanitizeCustomerByDateItem( item: RawCustomersByDateItem ): SanitizedCustomersByDateItem {
 	const totalCustomers = safeParseInt( item.total_customers );
 	return {
@@ -93,9 +81,6 @@ function sanitizeCustomerByDateItem( item: RawCustomersByDateItem ): SanitizedCu
 	};
 }
 
-/**
- * Sanitize/process the summary by converting strings to numbers
- */
 function sanitizeCustomerByDateSummary(
 	summary: RawCustomersByDateSummary
 ): SanitizedCustomersByDateSummary {
@@ -138,10 +123,6 @@ function sanitizeCustomerByDateSummary(
 	};
 }
 
-/**
- * Sanitize the response from the reports/customers/by-date endpoint
- * Converts string values to numbers for easier calculations and charting.
- */
 export const sanitizeReportCustomersByDateResponse = (
 	response: ReportsCustomersByDateResponse
 ): SanitizedCustomersByDateResponse => {

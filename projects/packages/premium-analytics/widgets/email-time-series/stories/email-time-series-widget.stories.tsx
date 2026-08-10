@@ -6,9 +6,10 @@
  * as it does in product.
  *
  * The timeline is scoped to a single email via a mocked `reportParams.post_id`.
- * The endpoint has no comparison mode, but it accepts any window, so with the
- * date picker's comparison on the widget fetches the compare window as a
- * second request and draws it as a dashed overlay.
+ * The post detail design has no period-over-period comparison, so the widget
+ * maps no comparison rows; the dashboard story still passes comparison params
+ * so the widget stays covered against crashing or inventing an overlay when a
+ * host supplies them.
  */
 /**
  * External dependencies
@@ -48,9 +49,6 @@ const MOCK_EMAIL_ID = 1234;
 /**
  * Read an attribute's declared element values off the widget definition, so the
  * story controls always mirror the schema.
- *
- * @param id - The attribute id on the widget definition.
- * @return The attribute's element values.
  */
 function attributeElementValues< Value extends string >( id: string ): Value[] {
 	return (
@@ -66,29 +64,31 @@ const GRANULARITY_OPTIONS: EmailTimeSeriesGranularity[] =
 	attributeElementValues< EmailTimeSeriesGranularity >( 'granularity' );
 
 /**
- * Widget-specific controls: the comparison toggle, the opens/clicks metric,
- * and the bucket granularity.
+ * Widget-specific controls: the opens/clicks metric and the bucket
+ * granularity.
  */
 interface EmailTimeSeriesStoryControls {
-	withComparison: boolean;
 	metric: EmailTimeSeriesMetric;
 	granularity: EmailTimeSeriesGranularity;
 }
 
-function renderEmailTimeSeries( {
-	withComparison,
-	metric,
-	granularity,
-}: EmailTimeSeriesStoryControls ) {
-	return (
-		<EmailTimeSeriesRender
-			attributes={ {
-				reportParams: { ...getDefaultQueryParams( withComparison ), post_id: MOCK_EMAIL_ID },
-				metric,
-				granularity,
-			} }
-		/>
-	);
+/**
+ * Builds the widget attributes. Comparison stays a parameter so the dashboard
+ * story can pass host comparison params without duplicating the scoping rule.
+ */
+function getEmailTimeSeriesAttributes(
+	{ metric, granularity }: EmailTimeSeriesStoryControls,
+	withComparison = false
+): ComponentProps< typeof EmailTimeSeriesRender >[ 'attributes' ] {
+	return {
+		reportParams: { ...getDefaultQueryParams( withComparison ), post_id: MOCK_EMAIL_ID },
+		metric,
+		granularity,
+	};
+}
+
+function renderEmailTimeSeries( controls: EmailTimeSeriesStoryControls ) {
+	return <EmailTimeSeriesRender attributes={ getEmailTimeSeriesAttributes( controls ) } />;
 }
 
 // Renders the widget against a distinct email ID so the forced-state stories
@@ -111,7 +111,6 @@ const meta = {
 	component: EmailTimeSeriesRender,
 	tags: [ 'autodocs' ],
 	argTypes: {
-		withComparison: { control: 'boolean' },
 		metric: { control: 'select', options: METRIC_OPTIONS },
 		granularity: { control: 'select', options: GRANULARITY_OPTIONS },
 	},
@@ -119,7 +118,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					"The \"Email performance\" widget. Draws a single sent email's opens or clicks per day as a line chart, spanning the dashboard date range — the chart section of the legacy email detail page. The `granularity` attribute (`relevance: 'high'`) is exposed as a control by the widget host; weekly grouping aggregates the daily buckets client-side because the endpoint only reports hourly/daily. Scoped to one email via a mocked `reportParams.post_id`. With the date picker's comparison on, the compare window is fetched as a second request and drawn as a dashed overlay with date-range legend labels.",
+					"The \"Email performance\" widget. Draws a single sent email's opens or clicks per day as a line chart, spanning the dashboard date range — the chart section of the legacy email detail page. The `granularity` attribute (`relevance: 'high'`) is exposed as a control by the widget host; weekly grouping aggregates the daily buckets client-side because the endpoint only reports hourly/daily. Scoped to one email via a mocked `reportParams.post_id`. The post detail page has no comparison control, so comparison report params are ignored.",
 			},
 		},
 	},
@@ -135,17 +134,7 @@ type Story = StoryObj< EmailTimeSeriesStoryControls >;
  */
 export const Default: Story = {
 	render: renderEmailTimeSeries,
-	args: { withComparison: false, metric: 'opens', granularity: 'day' },
-	decorators: [ withWidgetCanvas ],
-};
-
-/**
- * Comparison from the date picker: the compare window fetches as a second
- * request and draws as a dashed overlay, with date-range legend labels.
- */
-export const WithComparison: Story = {
-	render: renderEmailTimeSeries,
-	args: { withComparison: true, metric: 'opens', granularity: 'day' },
+	args: { metric: 'opens', granularity: 'day' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -154,7 +143,7 @@ export const WithComparison: Story = {
  */
 export const Clicks: Story = {
 	render: renderEmailTimeSeries,
-	args: { withComparison: false, metric: 'clicks', granularity: 'day' },
+	args: { metric: 'clicks', granularity: 'day' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -163,7 +152,7 @@ export const Clicks: Story = {
  */
 export const ByWeeks: Story = {
 	render: renderEmailTimeSeries,
-	args: { withComparison: false, metric: 'opens', granularity: 'week' },
+	args: { metric: 'opens', granularity: 'week' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -226,8 +215,12 @@ interface EmailTimeSeriesDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		EmailTimeSeriesStoryControls {}
 
+/**
+ * Mounts the real `WidgetDashboard`. It passes comparison params
+ * unconditionally, so the widget stays covered against crashing or inventing
+ * an overlay when a host supplies comparison dates.
+ */
 function EmailTimeSeriesDashboardStory( {
-	withComparison,
 	metric,
 	granularity,
 	...dashboardArgs
@@ -238,11 +231,7 @@ function EmailTimeSeriesDashboardStory( {
 			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ EMAIL_TIME_SERIES_RENDER_MODULE }
 			renderComponent={ EmailTimeSeriesRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ {
-				reportParams: { ...getDefaultQueryParams( withComparison ), post_id: MOCK_EMAIL_ID },
-				metric,
-				granularity,
-			} }
+			attributes={ getEmailTimeSeriesAttributes( { metric, granularity }, true ) }
 		/>
 	);
 }
@@ -251,13 +240,11 @@ export const WidgetDashboardWithWidget: StoryObj< EmailTimeSeriesDashboardStoryP
 	render: args => <EmailTimeSeriesDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: true,
 		metric: 'opens',
 		granularity: 'day',
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
-		withComparison: { control: 'boolean' },
 		metric: { control: 'select', options: METRIC_OPTIONS },
 		granularity: { control: 'select', options: GRANULARITY_OPTIONS },
 	},

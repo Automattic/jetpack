@@ -8,9 +8,8 @@ import {
 	type PrimaryPresetId,
 	type SelectablePresetId,
 } from '@jetpack-premium-analytics/datetime';
-import { Button, SelectControl } from '@jetpack-premium-analytics/externals';
+import { Button } from '@jetpack-premium-analytics/externals';
 import { Composite } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
@@ -61,20 +60,6 @@ export function DateRangeQuickPresets( {
 		[ labelMode ]
 	);
 
-	const items = useMemo(
-		() =>
-			presets.map( ( { id, label } ) => ( {
-				value: id,
-				label,
-			} ) ),
-		[ presets ]
-	);
-
-	const selectedItem = useMemo(
-		() => items.find( item => item.value === value ) ?? null,
-		[ items, value ]
-	);
-
 	/*
 	 * Recompute the range at selection time: the memoized preset ranges go
 	 * stale while the page stays open, which matters for rolling windows
@@ -91,24 +76,6 @@ export function DateRangeQuickPresets( {
 		},
 		[ onSelect, presets, timeZone ]
 	);
-
-	if ( labelMode === 'select' ) {
-		return (
-			<SelectControl
-				className="date-range-quick-presets__select"
-				items={ items }
-				value={ selectedItem }
-				onValueChange={ item => {
-					if ( item?.value ) {
-						selectPreset( item.value );
-					}
-				} }
-				label={ __( 'Period', 'jetpack-premium-analytics-pkg' ) }
-				hideLabelFromVision
-				placeholder={ __( 'Select period', 'jetpack-premium-analytics-pkg' ) }
-			/>
-		);
-	}
 
 	/*
 	 * Each pill joins the roving tabindex of the surrounding `Composite`

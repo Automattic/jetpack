@@ -128,9 +128,6 @@ export const TodayPreset: Story = {
 	render: () => <DateRangePopoverTodayPreset />,
 };
 
-/**
- * Interactive DateRangePopoverContent with state management.
- */
 function PopoverContentWithState( { isWideScreen = false } ) {
 	const [ range, setRange ] = useState< DateRange >( defaultRange );
 
@@ -161,7 +158,7 @@ export const PopoverContent: Story = {
 };
 
 /**
- * Interactive DateRangePopoverContent with state management.
+ * The popover content in the wide layout: two calendar months instead of one.
  */
 export const PopoverContentWide: Story = {
 	render: () => <PopoverContentWithState isWideScreen />,

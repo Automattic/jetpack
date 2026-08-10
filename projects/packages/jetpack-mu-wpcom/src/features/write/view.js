@@ -18,6 +18,15 @@ const i18n = window.wpcomWriteStrings || {};
 // Tracks the blockquote currently containing the cursor, for citation placeholder lifecycle.
 let activeBlockquote = null;
 
+/*
+ * The pencil on the per-image edit button, which this file builds at runtime
+ * rather than rendering server-side. Every other icon lives in icons.php —
+ * this is the one that can't, so keep the two in sync by hand. It draws with
+ * `currentColor` like the rest, taking the button's color and its states.
+ */
+const EDIT_ICON_SVG =
+	'<svg class="bw-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>';
+
 // Autosave configuration.
 const AUTOSAVE_INTERVAL_MS = 30000; // 30 seconds.
 const AUTOSAVE_MESSAGE_DURATION_MS = 2000;
@@ -43,6 +52,24 @@ const ANON_EDITOR_OPENED_AT = typeof Date !== 'undefined' ? Date.now() : 0;
 
 // Guards `wpcom_write_editor_anon_write_start` to once per session.
 let anonWriteStartTracked = false;
+
+/**
+ * Read the funnel `source` from the current URL, sanitized to [a-z0-9_-]
+ * (lowercased first, mirroring PHP sanitize_key). '' when absent. Kept identical
+ * to the anon open-event reader on the server so the whole anon funnel reports
+ * one consistent source across signup.
+ *
+ * @return {string} Sanitized source, or '' when not present.
+ */
+function getAnonSource() {
+	try {
+		return ( new URLSearchParams( window.location.search ).get( 'source' ) || '' )
+			.toLowerCase()
+			.replace( /[^a-z0-9_-]/g, '' );
+	} catch {
+		return '';
+	}
+}
 
 /**
  * Fire a client-side Tracks event via the `_tkq` queue. Anon callers share the
@@ -112,7 +139,11 @@ function maybeTrackAnonWriteStart( text ) {
 		return;
 	}
 	anonWriteStartTracked = true;
-	recordTracksEvent( 'wpcom_write_editor_anon_write_start' );
+	const anonSource = getAnonSource();
+	recordTracksEvent(
+		'wpcom_write_editor_anon_write_start',
+		anonSource ? { source: anonSource } : {}
+	);
 }
 
 /**
@@ -2078,7 +2109,7 @@ function addDeleteButtons() {
 		// images (RSM-3980).
 		const editBtn = document.createElement( 'button' );
 		editBtn.className = 'bw-img-edit';
-		editBtn.innerHTML = '<span class="dashicons dashicons-edit" aria-hidden="true"></span>';
+		editBtn.innerHTML = EDIT_ICON_SVG;
 		editBtn.contentEditable = 'false';
 		editBtn.setAttribute( 'aria-label', i18n.editImage || 'Edit image' );
 		editBtn.setAttribute( 'title', i18n.editImage || 'Edit image' );
@@ -5972,16 +6003,24 @@ const { state } = store( 'wpcom-write', {
 				// GET the browser cancels on unload — so a synchronous navigate
 				// would drop this event. The wait is bounded (and skipped entirely
 				// when Tracks isn't loaded) so the handoff is never stalled.
+				const anonSource = getAnonSource();
 				await recordTracksEventBeforeUnload( 'wpcom_write_editor_anon_publish_click', {
 					word_count: words,
 					time_to_publish_ms: Date.now() - ANON_EDITOR_OPENED_AT,
 					draft_size_bytes:
 						typeof Blob !== 'undefined' ? new Blob( [ draftContent ] ).size : draftContent.length,
+					...( anonSource ? { source: anonSource } : {} ),
 				} );
 
 				// Anon visitors hand off to the signup flow, which reads the draft
-				// from localStorage and publishes after signup completes.
-				window.location.assign( 'https://wordpress.com/setup/write-on' );
+				// from localStorage and publishes after signup completes. Forward
+				// `source` so the funnel stays attributable across the signup hop
+				// (the flow itself must read it for this to reach its Tracks events).
+				window.location.assign(
+					anonSource
+						? `https://wordpress.com/setup/write-on?source=${ encodeURIComponent( anonSource ) }`
+						: 'https://wordpress.com/setup/write-on'
+				);
 				return;
 			}
 			await savePost( 'publish' );

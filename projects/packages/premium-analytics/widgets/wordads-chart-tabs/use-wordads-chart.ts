@@ -47,10 +47,6 @@ export interface WordAdsChartState {
 /**
  * Compose the WordAds query params: the dashboard report params plus the
  * selected bucket `period` (the query factory maps it to the endpoint's `unit`).
- *
- * @param reportParams - The dashboard report params.
- * @param period       - The selected bucket granularity.
- * @return The WordAds query params.
  */
 function toWordAdsParams( reportParams: ReportParams, period: WordAdsPeriod ): StatsWordAdsParams {
 	return { ...reportParams, period };
@@ -64,11 +60,6 @@ function toWordAdsParams( reportParams: ReportParams, period: WordAdsPeriod ): S
  * three fields in a single request, so — unlike the traffic chart's split
  * requests — one `useStatsWordAdsStats` call drives every tab; the `metricIds`
  * selection only picks which of those tabs render.
- *
- * @param reportParams - The dashboard date range + comparison state.
- * @param period       - The selected bucket granularity (day/week/month).
- * @param metricIds    - Which metrics to show as tabs; defaults to all.
- * @return The metric tabs and combined load/error/empty state.
  */
 export default function useWordAdsChart(
 	reportParams: ReportParams,

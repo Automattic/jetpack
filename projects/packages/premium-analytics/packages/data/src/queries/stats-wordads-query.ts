@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getDatePart } from '@jetpack-premium-analytics/datetime';
 import { format, subDays } from 'date-fns';
 /**
  * Internal dependencies
@@ -36,9 +37,14 @@ export const statsWordAdsStatsQuery = (
 	const rangeEnd = typeof apiParams.date === 'string' ? apiParams.date : undefined;
 	// WordAds stats are computed nightly for the previous day (the Calypso
 	// WordAds page never shows the current day), so a window ending today would
-	// close on an empty bucket — clamp the window end to yesterday.
+	// close on an empty bucket — clamp the window end to yesterday. Compare
+	// calendar days: `rangeEnd` may carry a time and offset, and a datetime sorts
+	// after the bare day it starts with, so the raw strings would clamp a window
+	// that ends exactly on yesterday.
+	const rangeEndDay = getDatePart( rangeEnd );
 	const yesterday = format( subDays( localTZDate(), 1 ), 'yyyy-MM-dd' );
-	const date = rangeEnd && rangeEnd > yesterday ? yesterday : rangeEnd;
+	const clampToYesterday = rangeEndDay !== undefined && rangeEndDay > yesterday;
+	const date = clampToYesterday ? yesterday : rangeEnd;
 	// The endpoint is quantity-based (`unit` buckets ending at `date`), not
 	// `from`/`to`-based, so the dashboard range is translated here: the number of
 	// buckets spanning the range becomes `quantity`. Derive it from the clamped

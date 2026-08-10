@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stats: send the full site-local date/time to Stats endpoints now that the API resolves it correctly, instead of trimming to a bare calendar day.

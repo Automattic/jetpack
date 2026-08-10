@@ -146,11 +146,6 @@ function buildSeries(
  * a sparkline (dropping its axis, grid, and legend) on short tiles instead of
  * squashing its labels on top of each other.
  *
- * @param {object}              props            - The component props.
- * @param {MetricTab}           props.metric     - The metric to chart.
- * @param {DataFormat}          props.dataFormat - Fallback value/axis format.
- * @param {boolean}             props.loading    - Whether to overlay the loading state.
- * @param {MetricTabsChartType} props.chartType  - How to draw the metric.
  * @return The chart for the metric.
  */
 function MetricChart( {

@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { withWeekday, withoutYear } from '../php-format';
+import { withShortMonth, withWeekday, withoutYear } from '../php-format';
 
 describe( 'withoutYear', () => {
 	// Real `date_format` defaults taken from the WordPress core language packs,
@@ -60,6 +60,28 @@ describe( 'withoutYear', () => {
 	it( 'keeps the month ordinal dot in Finnish and Czech formats', () => {
 		expect( withoutYear( 'j.n.Y' ) ).toBe( 'j.n.' );
 		expect( withoutYear( 'j. n. Y' ) ).toBe( 'j. n.' );
+	} );
+} );
+
+describe( 'withShortMonth', () => {
+	it( 'swaps the spelled-out month for its abbreviation', () => {
+		expect( withShortMonth( 'F j, Y' ) ).toBe( 'M j, Y' );
+		expect( withShortMonth( 'j F Y' ) ).toBe( 'j M Y' );
+	} );
+
+	it( 'leaves a numeric month alone, having nothing to abbreviate', () => {
+		expect( withShortMonth( 'j.n.Y' ) ).toBe( 'j.n.Y' );
+		expect( withShortMonth( 'Y-m-d' ) ).toBe( 'Y-m-d' );
+	} );
+
+	it( 'leaves a format that already abbreviates its month alone', () => {
+		expect( withShortMonth( 'd M Y' ) ).toBe( 'd M Y' );
+	} );
+
+	it( 'reads escaped literals as text, not as the month token', () => {
+		// `\F` is a literal "F", so only the real token may be swapped.
+		expect( withShortMonth( 'j \\d\\e F \\d\\e Y' ) ).toBe( 'j \\d\\e M \\d\\e Y' );
+		expect( withShortMonth( '\\F j' ) ).toBe( '\\F j' );
 	} );
 } );
 

@@ -22,15 +22,6 @@ type SalesByUtmChannelWidgetProps = WidgetRenderProps< SalesByUtmChannelRenderAt
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
-/**
- * Sales by UTM channel widget.
- *
- * WidgetRoot provides the query client, chart theme, and resolved report params;
- * the shared SalesByUtmWidget renders the channel leaderboard.
- *
- * @param {SalesByUtmChannelWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function SalesByUtmChannelRender( {
 	attributes = {},
 	setError,

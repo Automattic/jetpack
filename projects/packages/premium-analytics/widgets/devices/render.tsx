@@ -49,12 +49,6 @@ type DevicesInnerProps = {
 	max: number;
 };
 
-/**
- * Inner component — rendered inside WidgetRoot.
- *
- * @param {DevicesInnerProps} props - The component props.
- * @return The rendered widget content.
- */
 function DevicesInner( { max }: DevicesInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = useDeviceViews( {
@@ -125,12 +119,7 @@ function DevicesInner( { max }: DevicesInnerProps ) {
 }
 
 /**
- * Devices widget render component.
- *
  * Shows screen size breakdown (Desktop / Mobile / Tablet) as a semi-circle chart.
- *
- * @param {DevicesWidgetProps} props - The widget render props.
- * @return The rendered widget content.
  */
 export default function DevicesWidget( { attributes = {} }: DevicesWidgetProps ) {
 	const max = attributes?.max ?? 5;

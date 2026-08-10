@@ -15,6 +15,7 @@ jest.mock( '@jetpack-premium-analytics/data', () => {
  * Internal dependencies
  */
 import { deriveComparisonRange } from '../derive-comparison-range';
+import type { ComparisonPresetId } from '@jetpack-premium-analytics/datetime';
 
 describe( 'deriveComparisonRange', () => {
 	it( 'returns undefined when comparison is disabled or the preset is missing', () => {
@@ -54,17 +55,19 @@ describe( 'deriveComparisonRange', () => {
 		} );
 	} );
 
-	it( 'keeps the time of day for previous-week on rolling ranges', () => {
+	// A link saved while the preset existed drops its comparison rather than
+	// deriving a range the picker can no longer show. Typed as a string
+	// because that is what the URL carries, whatever the current set is.
+	it( 'returns undefined for a preset outside the current set', () => {
+		const presetFromOldUrl: string = 'previous-week';
+
 		expect(
 			deriveComparisonRange( {
 				from: '2026-07-09T14:30:00.000Z',
 				to: '2026-07-10T14:30:00.000Z',
 				comp: '1',
-				compare_preset: 'previous-week',
+				compare_preset: presetFromOldUrl as ComparisonPresetId,
 			} )
-		).toEqual( {
-			compare_from: '2026-07-02T14:30:00.000Z',
-			compare_to: '2026-07-03T14:30:00.000Z',
-		} );
+		).toBeUndefined();
 	} );
 } );

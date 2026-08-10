@@ -1,5 +1,5 @@
 export { formatDate, type DateFormatName } from './format-date';
-export { formatDateRange } from './format-date-range';
+export { formatDateRange, formatDateRangeCompact } from './format-date-range';
 export { formatDateRangeLong } from './format-date-range-long';
 export {
 	getDateRangeSpan,
