@@ -435,18 +435,13 @@ class Analytics {
 	 * comes from the generated build; when that is missing we say so rather
 	 * than render an empty page, since the two look identical from the outside.
 	 *
-	 * build/build.php guards each sub-require separately, so its parts go missing
-	 * independently. Only pages.php decides whether the page renders, but both it
-	 * and widgets.php are reported: a deploy dropping only the manifest is silent
-	 * everywhere else, leaving every widget reading "Widget is no longer
-	 * available" (WOOA7S-1850).
+	 * Report missing page and widget build artifacts independently because the
+	 * build loader includes each one conditionally.
 	 *
 	 * @return void
 	 */
 	public static function register_admin_menu() {
-		// Never fires today: load_dashboard_surface() loads this file first. Kept because
-		// no test can catch that ordering breaking — test files load widget-modules.php at
-		// file scope, so a reorder stays green in CI and fatals in wp-admin.
+		// Keep this dependency explicit in case the dashboard load order changes.
 		if ( ! function_exists( __NAMESPACE__ . '\\widgets_manifest_path' ) ) {
 			require_once __DIR__ . '/widget-modules.php';
 		}

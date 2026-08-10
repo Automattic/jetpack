@@ -369,7 +369,7 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * Point the manifest at a path no build ever writes, for the half-deployed case.
+	 * Point the manifest at a missing file.
 	 *
 	 * @return string
 	 */
@@ -703,8 +703,7 @@ class Analytics_Test extends TestCase {
 	 * from the page slug at build time, so a rename on either side swaps the
 	 * dashboard for the missing-build notice with nothing else to notice it.
 	 *
-	 * Both artifacts need fixtures: build/ is gitignored and test-php runs no build,
-	 * so a default manifest path would report a missing one here.
+	 * Use fixtures because the test suite does not generate build artifacts.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -733,9 +732,7 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * A deploy can drop build/widgets.php and keep build/pages.php. Nothing else
-	 * reports that state, so the diagnostic has to key on the manifest rather than
-	 * on the render callback that is still there.
+	 * A missing widget manifest is reported even when the page can render.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -816,10 +813,7 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * Capture _doing_it_wrong() calls without tripping the suite's failOnWarning gate.
-	 *
-	 * Records each call's function name and message, and suppresses the underlying PHP
-	 * warning, so a test can assert both that the diagnostic fired and what it named.
+	 * Capture _doing_it_wrong() calls without triggering a PHP warning.
 	 */
 	private function capture_doing_it_wrong() {
 		$this->doing_it_wrong          = array();
