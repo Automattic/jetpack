@@ -3,7 +3,13 @@
 	"title": "Popular days",
 	"description": "The day of the week that draws the most views, with the distribution across the week.",
 	"help": {
-		"content": "The days of the week when your site received the most views on average."
+		"content": "The days of the week when your site received the most views on average.",
+		"links": [
+			{
+				"label": "Learn more",
+				"href": "https://wordpress.com/support/stats/#popular-hours"
+			}
+		]
 	},
 	"category": "stats",
 	"presentation": "framed"
