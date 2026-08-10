@@ -90,17 +90,16 @@ class Terms_Of_Service {
 	 * @return bool
 	 */
 	protected function get_raw_has_agreed() {
-		// Use a unique sentinel as the default so an absent option can't be confused with a
-		// stored value (a legitimately stored null/false would otherwise be treated as absent).
-		$sentinel   = new \stdClass();
+		// Unique scalar sentinel so an absent option isn't confused with a stored value. It must be
+		// a scalar, not an object: Jetpack_Options runs the default through the jetpack_options
+		// filter, whose callbacks treat the value as an array and fatal on an object.
+		$sentinel   = '__jetpack_tos_agreed_absent__';
 		$has_agreed = \Jetpack_Options::get_option( self::OPTION_NAME, $sentinel );
 
 		if ( $sentinel === $has_agreed ) {
-			// The option has never been stored. Persist the default as an autoloaded row so it
-			// isn't re-queried on every request on sites without a persistent object cache
-			// (JETPACK-1539). add_option (not update_option) is required because update_option
-			// short-circuits when the new value equals the current default `false`, which would
-			// leave the option unset. This option is not synced, so seeding has no side effects.
+			// Seed the default as an autoloaded row so it isn't re-queried every request on sites
+			// without a persistent object cache. add_option, not update_option (which no-ops when
+			// the new value equals the current default).
 			add_option( 'jetpack_' . self::OPTION_NAME, false, '', true );
 			return false;
 		}

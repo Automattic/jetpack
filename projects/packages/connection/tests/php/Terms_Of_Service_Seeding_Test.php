@@ -45,7 +45,7 @@ class Terms_Of_Service_Seeding_Test extends TestCase {
 
 	/**
 	 * When the option is absent, the read returns false and persists an autoloaded default so
-	 * it is not re-queried on subsequent requests (JETPACK-1539).
+	 * it is not re-queried on subsequent requests.
 	 */
 	public function test_seeds_autoloaded_default_when_option_absent() {
 		// Precondition: the option does not exist.
