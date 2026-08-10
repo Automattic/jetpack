@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Stop the upload onboarding from jumping to the Library before the details and success steps.
