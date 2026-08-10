@@ -946,7 +946,8 @@ class Error_Handler {
 	 * @since 8.9.0
 	 *
 	 * @param string $error_code        The error code, ideally one of `$known_errors`.
-	 * @param string $error_message     The human-readable error message.
+	 * @param string $error_message     The human-readable error message. `build_error_array()` rejects an
+	 *                                  empty message, so a generic fallback is substituted when this is ''.
 	 * @param array  $signature_details Details of the signed request that failed. See `build_connection_error_data()`.
 	 * @param string $error_type        One of the `ERROR_TYPE_*` constants.
 	 * @param string $error_direction   One of the `DIRECTION_*` constants, or '' for errors with no direction.
@@ -956,7 +957,7 @@ class Error_Handler {
 	public static function build_connection_wp_error( string $error_code, string $error_message, array $signature_details, string $error_type, string $error_direction, array $extra = array() ) {
 		return new \WP_Error(
 			$error_code,
-			$error_message,
+			'' === $error_message ? __( 'An error occurred with the connection.', 'jetpack-connection' ) : $error_message,
 			self::build_connection_error_data( $signature_details, $error_type, $error_direction, $extra )
 		);
 	}
@@ -1634,13 +1635,9 @@ class Error_Handler {
 			'url'    => $url,
 		);
 
-		$message = $signing_result->get_error_message();
-
 		$error = self::build_connection_wp_error(
 			(string) $signing_result->get_error_code(),
-			// `build_error_array()` rejects an empty message, and several of these errors are
-			// raised without one.
-			'' === $message ? 'The request could not be signed.' : $message,
+			$signing_result->get_error_message(),
 			$signature_details,
 			$error_type,
 			self::DIRECTION_OUTGOING,
