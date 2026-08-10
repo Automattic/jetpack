@@ -161,6 +161,15 @@ export {
 	defaultPeriodForInterval,
 	buildMetricTab,
 	withoutComparison,
+	computeCalendarHeatmapLayout,
+	fitCompactCalendarHeatmapColumns,
+	buildDenseDaySeries,
+	resolveCalendarHeatmapWindow,
+	type CalendarHeatmapLayout,
+	type CalendarHeatmapLayoutInput,
+	type CalendarHeatmapWindow,
+	type CalendarHeatmapWindowBounds,
+	type FitCalendarHeatmapColumnsInput,
 } from './helpers';
 
 /**

@@ -1,10 +1,10 @@
 /**
- * Pure geometry for the posting-activity calendar heatmap.
+ * Pure geometry for the calendar heatmap widgets.
  *
  * Given the tile's available width and height, this decides the cell size, how
  * many week columns to render, and the exact pixel rectangle the heatmap should
  * occupy. It is intentionally dependency-free (no React, no charts imports) so it
- * can be lifted into `@automattic/charts` later; the widget owns all policy (mode
+ * can be lifted into `@automattic/charts` later; each widget owns all policy (mode
  * switching, trimming) around it.
  */
 
@@ -23,6 +23,13 @@ export type CalendarHeatmapLayoutInput = {
 	maxCellHeight: number;
 	/** Minimum columns to keep before shrinking the cell. Defaults to 6. */
 	minColumns?: number;
+	/**
+	 * Height the legend takes below the grid, in px. Reserved out of the tile
+	 * before the cell size is derived, so a widget that renders no legend must
+	 * pass 0 — left at the default it would shrink every cell to make room for
+	 * a legend that is never drawn. Defaults to 44 (the legend's own height).
+	 */
+	legendHeight?: number;
 };
 
 export type CalendarHeatmapLayout = {
@@ -86,7 +93,7 @@ export function fitCompactCalendarHeatmapColumns( input: FitCalendarHeatmapColum
 
 const CELL_GAP = 4;
 const HEADER_HEIGHT = 16;
-const LEGEND_HEIGHT = 44;
+const DEFAULT_LEGEND_HEIGHT = 44;
 
 /**
  * Computes the calendar-heatmap layout for a tile.
@@ -107,6 +114,7 @@ export function computeCalendarHeatmapLayout(
 		aspectRatio,
 		maxCellHeight,
 		minColumns = 6,
+		legendHeight = DEFAULT_LEGEND_HEIGHT,
 	} = input;
 
 	// Nothing to lay out (collapsed tile or empty range) → a coherent zero layout.
@@ -124,7 +132,7 @@ export function computeCalendarHeatmapLayout(
 
 	// Height drives the cell size: fill the available height (minus overhead and
 	// inter-row gaps) up to the per-mode cap, floored at 0.
-	const heightForRows = availHeight - HEADER_HEIGHT - LEGEND_HEIGHT - ( rows - 1 ) * CELL_GAP;
+	const heightForRows = availHeight - HEADER_HEIGHT - legendHeight - ( rows - 1 ) * CELL_GAP;
 	let cellHeight = Math.max( 0, Math.min( heightForRows / rows, safeMaxCellHeight ) );
 	let cellWidth = cellHeight * aspectRatio;
 
@@ -154,7 +162,7 @@ export function computeCalendarHeatmapLayout(
 
 	const heatmapWidth =
 		columns > 0 ? ROW_LABEL_WIDTH + columns * cellWidth + ( columns - 1 ) * CELL_GAP : 0;
-	const heatmapHeight = HEADER_HEIGHT + LEGEND_HEIGHT + rows * cellHeight + ( rows - 1 ) * CELL_GAP;
+	const heatmapHeight = HEADER_HEIGHT + legendHeight + rows * cellHeight + ( rows - 1 ) * CELL_GAP;
 
 	return {
 		columns,

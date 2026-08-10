@@ -8,6 +8,10 @@ import {
 	WidgetRoot,
 	WidgetState,
 	buildCalendarHeatmapData,
+	buildDenseDaySeries,
+	computeCalendarHeatmapLayout,
+	fitCompactCalendarHeatmapColumns,
+	resolveCalendarHeatmapWindow,
 	useElementSize,
 	useWidgetRootContext,
 	type ReportParamsFieldAttributes,
@@ -18,9 +22,6 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { computeCalendarHeatmapLayout, fitCompactCalendarHeatmapColumns } from './layout';
-import { resolveStreakRange } from './streak-range';
-import { buildStreakSeries } from './streak-series';
 import styles from './style.module.css';
 import type { PostingActivityAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -37,8 +38,8 @@ const EXPANDED_MAX_CELL_HEIGHT = 48;
 // If the tile is at least this tall, use expanded cells ( not compact ).
 const EXPANDED_MIN_HEIGHT = 220;
 
-// Minimum span, in days.
-const MIN_STREAK_DAYS = 365;
+// Minimum span, as a count of inclusive dates: a whole leap year.
+const MIN_STREAK_DAYS = 366;
 
 /**
  * The `stats/streak` endpoint returns a `{ 'yyyy-MM-dd': count }` map of posts
@@ -57,7 +58,12 @@ function PostingActivityInner() {
 
 	// Floor the fetch window to a full year ending on the picker's end date.
 	const streakRange = useMemo(
-		() => resolveStreakRange( reportParams, MIN_STREAK_DAYS, format( new Date(), 'yyyy-MM-dd' ) ),
+		() =>
+			resolveCalendarHeatmapWindow(
+				reportParams,
+				{ minDays: MIN_STREAK_DAYS },
+				format( new Date(), 'yyyy-MM-dd' )
+			),
 		[ reportParams ]
 	);
 	const streakParams = useMemo(
@@ -70,7 +76,7 @@ function PostingActivityInner() {
 	const { data: heatmapData, rowLabels } = useMemo( () => {
 		// The endpoint returns only days with posts; densify to the full window so
 		// the heatmap spans every week column, not just the weeks that have posts.
-		const series = buildStreakSeries( data ?? {}, streakRange.startDate, streakRange.endDate );
+		const series = buildDenseDaySeries( data ?? {}, streakRange.startDate, streakRange.endDate );
 		return buildCalendarHeatmapData( series );
 	}, [ data, streakRange ] );
 

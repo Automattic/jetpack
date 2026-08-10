@@ -299,8 +299,7 @@ function get_dashboard_default_section_layouts() {
 		),
 		DASHBOARD_INSIGHTS_SECTION_ID    => array(
 			// Follows the prototype's rows (WOOA7S-1786). Emails lives on the
-			// Subscribers tab, and the site-wide views heatmap has no widget
-			// yet (WOOA7S-1787), so that row is absent.
+			// Subscribers tab, so that row is absent.
 			// Row 1: highlights banner.
 			get_dashboard_default_widget_instance(
 				'default-annual-highlights-widget-instance',
@@ -362,11 +361,20 @@ function get_dashboard_default_section_layouts() {
 				1,
 				1
 			),
-			// Row 5: the comment leaderboards, shares, and tags.
+			// Row 5: the site-wide daily views heatmap. Two rows tall: the design
+			// sizes its cells at 61x40, which a one-row tile cannot fit.
+			get_dashboard_default_widget_instance(
+				'default-traffic-views-activity-widget-instance',
+				'jpa/traffic-views-activity',
+				8,
+				4,
+				2
+			),
+			// Row 6: the comment leaderboards, shares, and tags.
 			get_dashboard_default_widget_instance(
 				'default-most-commented-posts-widget-instance',
 				'jpa/most-commented-posts',
-				8,
+				9,
 				1,
 				2,
 				array(
@@ -376,7 +384,7 @@ function get_dashboard_default_section_layouts() {
 			get_dashboard_default_widget_instance(
 				'default-most-commented-authors-widget-instance',
 				'jpa/most-commented-authors',
-				9,
+				10,
 				1,
 				2,
 				array(
@@ -386,7 +394,7 @@ function get_dashboard_default_section_layouts() {
 			get_dashboard_default_widget_instance(
 				'default-shares-widget-instance',
 				'jpa/shares',
-				10,
+				11,
 				1,
 				2,
 				array(
@@ -396,7 +404,7 @@ function get_dashboard_default_section_layouts() {
 			get_dashboard_default_widget_instance(
 				'default-tags-widget-instance',
 				'jpa/tags',
-				11,
+				12,
 				1,
 				2,
 				array(

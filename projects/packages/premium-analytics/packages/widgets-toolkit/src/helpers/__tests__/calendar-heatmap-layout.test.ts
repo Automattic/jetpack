@@ -1,14 +1,17 @@
 /**
  * Internal dependencies
  */
-import { computeCalendarHeatmapLayout, fitCompactCalendarHeatmapColumns } from '../layout';
-import type { CalendarHeatmapLayoutInput } from '../layout';
+import {
+	computeCalendarHeatmapLayout,
+	fitCompactCalendarHeatmapColumns,
+} from '../calendar-heatmap-layout';
+import type { CalendarHeatmapLayoutInput } from '../calendar-heatmap-layout';
 
 const COMPACT_ASPECT = 1;
 const EXPANDED_ASPECT = 61 / 40;
 
 // Mirror the module-internal geometry constants so the total-dimension
-// assertions stay coherent with layout.ts.
+// assertions stay coherent with calendar-heatmap-layout.ts.
 const ROW_LABEL_WIDTH = 32;
 const CELL_GAP = 4;
 const HEADER_HEIGHT = 16;
@@ -207,5 +210,49 @@ describe( 'fitCompactCalendarHeatmapColumns', () => {
 		expect( fitCompactCalendarHeatmapColumns( { ...base, availWidth: 500, ...override } ) ).toBe(
 			0
 		);
+	} );
+} );
+
+describe( 'computeCalendarHeatmapLayout legend allowance', () => {
+	// The Insights tile at `height: 2` — 416px of grid row less the framed
+	// widget's border, header, and card padding.
+	const TILE_CONTENT_HEIGHT = 326;
+
+	const trafficViewsBase: CalendarHeatmapLayoutInput = {
+		availWidth: 1183,
+		availHeight: TILE_CONTENT_HEIGHT,
+		dataColumns: 52,
+		aspectRatio: EXPANDED_ASPECT,
+		maxCellHeight: 40,
+	};
+
+	it( 'defaults to reserving the legend, matching posting activity', () => {
+		const withDefault = computeCalendarHeatmapLayout( trafficViewsBase );
+		const withExplicit = computeCalendarHeatmapLayout( {
+			...trafficViewsBase,
+			legendHeight: LEGEND_HEIGHT,
+		} );
+
+		expect( withDefault ).toEqual( withExplicit );
+	} );
+
+	it( 'reaches the design cell size only once the legend allowance is dropped', () => {
+		// (326 - 16 - 44 - 24) / 7 = 34.6 — short of the 40px design cell.
+		expect( computeCalendarHeatmapLayout( trafficViewsBase ).cellHeight ).toBeCloseTo( 34.57, 1 );
+
+		// (326 - 16 - 0 - 24) / 7 = 40.9, capped by maxCellHeight to exactly 40,
+		// which pairs with the design's 61px width at the 61:40 ratio.
+		const noLegend = computeCalendarHeatmapLayout( { ...trafficViewsBase, legendHeight: 0 } );
+		expect( noLegend.cellHeight ).toBe( 40 );
+		expect( noLegend.cellWidth ).toBe( 61 );
+	} );
+
+	it( 'leaves no legend gap under the grid when the allowance is zero', () => {
+		const { heatmapHeight, cellHeight } = computeCalendarHeatmapLayout( {
+			...trafficViewsBase,
+			legendHeight: 0,
+		} );
+
+		expect( heatmapHeight ).toBe( HEADER_HEIGHT + ROWS * cellHeight + ( ROWS - 1 ) * CELL_GAP );
 	} );
 } );

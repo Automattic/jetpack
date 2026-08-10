@@ -64,3 +64,16 @@ export { toDay } from './to-day';
 export { defaultPeriodForInterval } from './default-period-for-interval';
 export { buildMetricTab, type MetricReport, type BuildMetricTabOptions } from './build-metric-tab';
 export { withoutComparison } from './without-comparison';
+export {
+	computeCalendarHeatmapLayout,
+	fitCompactCalendarHeatmapColumns,
+	type CalendarHeatmapLayout,
+	type CalendarHeatmapLayoutInput,
+	type FitCalendarHeatmapColumnsInput,
+} from './calendar-heatmap-layout';
+export {
+	buildDenseDaySeries,
+	resolveCalendarHeatmapWindow,
+	type CalendarHeatmapWindow,
+	type CalendarHeatmapWindowBounds,
+} from './calendar-heatmap-window';
