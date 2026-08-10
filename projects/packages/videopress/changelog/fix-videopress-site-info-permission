@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Restrict the site information endpoint to administrators.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Verify per-video access before issuing a playback token via the REST endpoint.

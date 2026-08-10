@@ -32,6 +32,53 @@ class Protect extends Hybrid_Product {
 	const FIREWALL_FEATURE_SLUG = 'firewall';
 
 	/**
+	 * Keys from Waf_Runner::get_config() that may be exposed to users without `manage_options`.
+	 *
+	 * My Jetpack is reachable with `edit_posts`, and the Protect card renders these two as
+	 * on/off status indicators. Everything else the WAF config carries (IP allow/block lists,
+	 * the bootstrap file path, data sharing settings) is administrator-only.
+	 *
+	 * @var string[]
+	 */
+	private const NON_ADMIN_WAF_CONFIG_KEYS = array(
+		'jetpack_waf_automatic_rules',
+		'brute_force_protection',
+	);
+
+	/**
+	 * Status_Model properties that may be exposed to users without `manage_options`.
+	 *
+	 * My Jetpack is reachable with `edit_posts`, and the Protect card renders scan counts and the
+	 * last scan time from these. The rest of the status report -- the scan state, the error
+	 * details, the list of fixable threat IDs -- is administrator-only.
+	 *
+	 * @var string[]
+	 */
+	private const NON_ADMIN_SCAN_DATA_KEYS = array(
+		'last_checked',
+		'num_threats',
+		'num_plugins_threats',
+		'num_themes_threats',
+		'threats',
+		'plugins',
+		'themes',
+		'core',
+		'files',
+		'database',
+	);
+
+	/**
+	 * Threat_Model properties that may be exposed to users without `manage_options`.
+	 *
+	 * The card counts threats and critical (severity >= 5) threats; it never renders a threat.
+	 * Everything else a threat carries -- the infected file path, the surrounding source, the
+	 * signature, the database table and the vulnerable extension version -- is administrator-only.
+	 *
+	 * @var string[]
+	 */
+	private const NON_ADMIN_THREAT_KEYS = array( 'severity' );
+
+	/**
 	 * The product slug
 	 *
 	 * @var string
@@ -451,9 +498,9 @@ class Protect extends Hybrid_Product {
 
 		return rest_ensure_response(
 			array(
-				'scanData'  => $scan_data,
+				'scanData'  => self::filter_scan_data_by_capability( $scan_data ),
 				'wafConfig' => array_merge(
-					$waf_config,
+					self::filter_waf_config_by_capability( $waf_config ),
 					array(
 						'waf_supported' => $waf_supported,
 						'waf_enabled'   => $is_waf_enabled,
@@ -462,5 +509,71 @@ class Protect extends Hybrid_Product {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Reduce the WAF configuration to the keys the current user is allowed to read.
+	 *
+	 * @param array $waf_config The WAF configuration as returned by Waf_Runner::get_config().
+	 * @return array
+	 */
+	private static function filter_waf_config_by_capability( array $waf_config ) {
+		if ( current_user_can( 'manage_options' ) ) {
+			return $waf_config;
+		}
+
+		return array_intersect_key( $waf_config, array_flip( self::NON_ADMIN_WAF_CONFIG_KEYS ) );
+	}
+
+	/**
+	 * Reduce the scan status to the parts the current user is allowed to read.
+	 *
+	 * @param \Automattic\Jetpack\Protect_Models\Status_Model $scan_data The scan status as returned by Protect_Status::get_status().
+	 * @return \Automattic\Jetpack\Protect_Models\Status_Model|array
+	 */
+	private static function filter_scan_data_by_capability( $scan_data ) {
+		if ( current_user_can( 'manage_options' ) ) {
+			return $scan_data;
+		}
+
+		$filtered = array_intersect_key( (array) $scan_data, array_flip( self::NON_ADMIN_SCAN_DATA_KEYS ) );
+
+		// `files` and `database` hold Threat_Model instances, not extensions.
+		foreach ( array( 'threats', 'files', 'database' ) as $key ) {
+			$filtered[ $key ] = array_map( array( __CLASS__, 'redact_threat' ), (array) ( $filtered[ $key ] ?? array() ) );
+		}
+
+		foreach ( array( 'plugins', 'themes' ) as $key ) {
+			$filtered[ $key ] = array_map( array( __CLASS__, 'redact_extension' ), (array) ( $filtered[ $key ] ?? array() ) );
+		}
+
+		$filtered['core'] = self::redact_extension( $filtered['core'] ?? array() );
+
+		return $filtered;
+	}
+
+	/**
+	 * Reduce a threat to the properties a user without `manage_options` may read.
+	 *
+	 * @param object|array $threat A Threat_Model instance.
+	 * @return array
+	 */
+	private static function redact_threat( $threat ) {
+		return array_intersect_key( (array) $threat, array_flip( self::NON_ADMIN_THREAT_KEYS ) );
+	}
+
+	/**
+	 * Reduce an extension to the properties a user without `manage_options` may read.
+	 *
+	 * Only the nested threats survive: the extension's name, slug and installed version identify
+	 * which vulnerable software the site is running.
+	 *
+	 * @param object|array $extension An Extension_Model instance.
+	 * @return array
+	 */
+	private static function redact_extension( $extension ) {
+		$threats = ( (array) $extension )['threats'] ?? array();
+
+		return array( 'threats' => array_map( array( __CLASS__, 'redact_threat' ), (array) $threats ) );
 	}
 }

@@ -71,15 +71,35 @@ class REST_Zendesk_Chat {
 	}
 
 	/**
+	 * Gets the transient key holding the current user's chat authentication token.
+	 *
+	 * The token is minted for the calling user's WordPress.com identity, so it must never
+	 * be cached under a key shared by every user of the site.
+	 *
+	 * @access private
+	 * @static
+	 *
+	 * @return string
+	 */
+	private static function get_auth_token_transient_key() {
+		return self::ZENDESK_AUTH_TOKEN . '_' . get_current_user_id();
+	}
+
+	/**
 	 * Gets the chat authentication token.
 	 *
 	 * @return WP_Error|WP_REST_Response { token: string }
 	 */
 	public static function get_chat_authentication() {
-		$authentication = get_transient( self::ZENDESK_AUTH_TOKEN );
+		$transient_key = self::get_auth_token_transient_key();
+
+		$authentication = get_transient( $transient_key );
 		if ( $authentication ) {
 			return rest_ensure_response( $authentication );
 		}
+
+		// Discard any token left behind under the previous site-wide key.
+		delete_transient( self::ZENDESK_AUTH_TOKEN );
 
 		$proxied           = function_exists( 'wpcom_is_proxied_request' ) ? wpcom_is_proxied_request() : false;
 		$wpcom_endpoint    = 'help/authenticate/chat';
@@ -98,7 +118,7 @@ class REST_Zendesk_Chat {
 			return new WP_Error( 'chat_authentication_failed', 'Chat authentication failed', array( 'status' => $response_code ) );
 		}
 
-		set_transient( self::ZENDESK_AUTH_TOKEN, $body, self::TRANSIENT_EXPIRY );
+		set_transient( $transient_key, $body, self::TRANSIENT_EXPIRY );
 		return rest_ensure_response( $body );
 	}
 

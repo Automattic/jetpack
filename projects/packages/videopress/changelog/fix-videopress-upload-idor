@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Verify per-attachment permissions when uploading or promoting a video.

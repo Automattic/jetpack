@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Cache the support chat authentication token per user instead of site-wide.
