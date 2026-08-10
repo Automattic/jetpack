@@ -84,7 +84,7 @@ class Remote_Request_Test extends BaseTestCase {
 	 * Test that a request that cannot be signed reports why, rather than a generic code.
 	 *
 	 * `Tokens::get_access_token()` distinguishes eight reasons a token cannot be loaded, and
-	 * `build_signed_request()` asks for them instead of collapsing them into `missing_token`.
+	 * `build_signed_request()` asks for them instead of collapsing them into a generic code.
 	 */
 	public function test_build_signed_request_returns_the_specific_token_error() {
 		$result = Client::build_signed_request( array( 'url' => 'https://example.org/' ) );
@@ -161,6 +161,36 @@ class Remote_Request_Test extends BaseTestCase {
 		$this->assertArrayNotHasKey( '0', $stored_errors['no_user_tokens'] );
 
 		Jetpack_Options::delete_option( 'master_user' );
+	}
+
+	/**
+	 * Test that a token lock is deliberately not reported: it is a one-shot transitional
+	 * state, since `Tokens::get_access_token()` wipes all tokens (and the lock itself) the
+	 * moment it trips. The very next signing attempt therefore takes the normal path and
+	 * fails with the already-reported `no_possible_tokens` instead.
+	 */
+	public function test_tokens_locked_is_not_reported_but_self_heals() {
+		Jetpack_Options::update_option( 'blog_token', 'asdasd.123' );
+		// A lock whose site URL doesn't match this site's is treated as active regardless of
+		// expiry (Tokens::is_locked()).
+		Jetpack_Options::update_option(
+			'token_lock',
+			gmdate( 'Y-m-d\TH:i:sP' ) . '|||' . base64_encode( 'https://not-this-site.example' )
+		);
+
+		$result = Client::remote_request( array( 'url' => 'https://example.org/wp-json/' ) );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'tokens_locked', $result->get_error_code() );
+		$this->assertEmpty( $this->error_handler->get_stored_errors(), 'tokens_locked is not in known_errors, so report_error() should silently discard it' );
+
+		// The lock (and the token it locked) is now gone; the next attempt takes the normal
+		// path and fails with the standard, reportable code.
+		$result = Client::remote_request( array( 'url' => 'https://example.org/wp-json/' ) );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'no_possible_tokens', $result->get_error_code() );
+		$this->assertArrayHasKey( 'no_possible_tokens', $this->error_handler->get_stored_errors() );
 	}
 
 	/**

@@ -526,7 +526,7 @@ class Error_Handler_Test extends BaseTestCase {
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
 		$this->error_handler->check_signed_request_for_errors(
-			new \WP_Error( 'missing_token' ),
+			new \WP_Error( 'malformed_token' ),
 			'https://jetpack.wordpress.com/jetpack.token/1/',
 			'POST',
 			Error_Handler::ERROR_TYPE_REST
@@ -535,12 +535,12 @@ class Error_Handler_Test extends BaseTestCase {
 		$stored_errors   = $this->error_handler->get_stored_errors();
 		$verified_errors = $this->error_handler->get_verified_errors();
 
-		$this->assertArrayHasKey( 'missing_token', $stored_errors );
+		$this->assertArrayHasKey( 'malformed_token', $stored_errors );
 
 		// No token was found to attribute the error to a specific user, and the error carries
-		// no `user_id` of its own (`Client` raises `missing_token` with no data), so it falls
+		// no `user_id` of its own (`Client` raises `malformed_token` with no data), so it falls
 		// back to 0, the blog-token/site attribution.
-		$stored = $stored_errors['missing_token']['0'];
+		$stored = $stored_errors['malformed_token']['0'];
 
 		$this->assertSame( 'An error occurred with the connection.', $stored['error_message'] );
 		$this->assertSame( Error_Handler::ERROR_TYPE_REST, $stored['error_type'] );
@@ -550,7 +550,7 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertSame( '', $stored['error_data']['token'] );
 
 		// The evidence is local, so the error is verified without the WP.com round-trip.
-		$this->assertArrayHasKey( 'missing_token', $verified_errors );
+		$this->assertArrayHasKey( 'malformed_token', $verified_errors );
 	}
 
 	/**
@@ -656,18 +656,18 @@ class Error_Handler_Test extends BaseTestCase {
 	public function test_check_signed_request_for_errors_respects_the_gate() {
 		// No gate-bypass filter here: this test is about the gate.
 		$this->error_handler->check_signed_request_for_errors(
-			new \WP_Error( 'missing_token' ),
+			new \WP_Error( 'malformed_token' ),
 			'https://localhost/',
 			'POST',
 			Error_Handler::ERROR_TYPE_REST
 		);
 
-		$this->assertArrayHasKey( 'missing_token', $this->error_handler->get_stored_errors() );
+		$this->assertArrayHasKey( 'malformed_token', $this->error_handler->get_stored_errors() );
 
 		$this->error_handler->delete_all_errors();
 
 		$this->error_handler->check_signed_request_for_errors(
-			new \WP_Error( 'missing_token' ),
+			new \WP_Error( 'malformed_token' ),
 			'https://localhost/',
 			'POST',
 			Error_Handler::ERROR_TYPE_REST
@@ -675,17 +675,17 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$this->assertEmpty( $this->error_handler->get_stored_errors(), 'the gate should suppress a second report within the hour' );
 
-		delete_transient( Error_Handler::ERROR_REPORTING_GATE . 'missing_token' );
+		delete_transient( Error_Handler::ERROR_REPORTING_GATE . 'malformed_token' );
 	}
 
 	/**
 	 * Test that only displayable signing errors surface notices.
-	 * `missing_token` and `unknown_scheme_port` should not, even with valid attribution.
+	 * `invalid_body` and `unknown_scheme_port` should not, even with valid attribution.
 	 */
 	public function test_signing_failures_are_not_displayable() {
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
-		foreach ( array( 'missing_token', 'unknown_scheme_port' ) as $error_code ) {
+		foreach ( array( 'invalid_body', 'unknown_scheme_port' ) as $error_code ) {
 			$this->error_handler->check_signed_request_for_errors(
 				new \WP_Error( $error_code ),
 				'https://localhost/',

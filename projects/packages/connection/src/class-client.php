@@ -144,8 +144,8 @@ class Client {
 		}
 		if ( ! $token ) {
 			// `get_access_token()` explains itself for every case but one: it returns a bare
-			// `false` when the tokens are locked, so we report a generic code here.
-			return new WP_Error( 'missing_token' );
+			// `false` when the tokens are locked. That lock is one-shot and self-healing.
+			return new WP_Error( 'tokens_locked' );
 		}
 
 		$method = strtoupper( $args['method'] );

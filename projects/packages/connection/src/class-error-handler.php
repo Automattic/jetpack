@@ -196,7 +196,6 @@ class Error_Handler {
 		'no_valid_user_token',       // The stored user token doesn't match the key the request was signed with.
 		'no_valid_blog_token',       // The stored blog token doesn't match the key the request was signed with.
 		'unknown_token',             // No stored token matches the request token's key.
-		'missing_token',             // No token could be loaded to sign an outgoing request (Client::build_signed_request).
 		// Signature verification problems (Jetpack_Signature), or errors WPCOM returned
 		// for an outbound request (Error_Handler::check_api_response_for_errors).
 		'could_not_sign',            // Signing the request failed for an unknown reason.
@@ -1597,11 +1596,13 @@ class Error_Handler {
 	 * round-trip because the site's own token and URL state provides the evidence.
 	 * The hourly reporting gate in `report_error()` still applies.
 	 *
-	 * Codes reaching this method include `missing_token`, `malformed_token` and
-	 * `invalid_body` (from `Client::build_signed_request()`), plus the signing errors
-	 * returned by `Jetpack_Signature::sign_request()` (e.g. `invalid_scheme`,
-	 * `unknown_scheme_port`), plus the token-lookup errors raised by
-	 * `Tokens::get_access_token()` (e.g. `no_user_tokens`, `no_token_for_user`).
+	 * Codes reaching this method include `malformed_token` and `invalid_body` (from
+	 * `Client::build_signed_request()`), plus the signing errors returned by
+	 * `Jetpack_Signature::sign_request()` (e.g. `invalid_scheme`, `unknown_scheme_port`),
+	 * plus the token-lookup errors raised by `Tokens::get_access_token()` (e.g.
+	 * `no_user_tokens`, `no_token_for_user`). `tokens_locked` also reaches here but is not
+	 * in `known_errors`, so `report_error()` silently discards it — see the comment on
+	 * `Client::build_signed_request()`'s `tokens_locked` branch for why.
 	 *
 	 * This includes token lookup, request validation, and request signing errors.
 	 *
@@ -1641,7 +1642,7 @@ class Error_Handler {
 			// `Tokens::get_access_token()` attaches `user_id` to the WP_Errors it raises when it
 			// has already resolved one (see its docblock); pass it through as the attribution
 			// fallback consulted by `wp_error_to_array()`. Errors with no token to look up at all
-			// (e.g. `missing_token`, `malformed_token` from `Client` itself) carry no such data,
+			// (e.g. `tokens_locked`, `malformed_token` from `Client` itself) carry no such data,
 			// and fall back to unattributed there.
 			array( 'user_id' => isset( $data['user_id'] ) ? (int) $data['user_id'] : 0 )
 		);
