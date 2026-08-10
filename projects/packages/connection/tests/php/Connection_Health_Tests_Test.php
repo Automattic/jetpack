@@ -54,7 +54,11 @@ class Connection_Health_Tests_Test extends TestCase {
 		remove_all_filters( 'jetpack_debugger_run_self_test' );
 		remove_all_filters( 'jetpack_connection_reconnect_url' );
 		remove_all_filters( 'jetpack_connection_support_url' );
+		remove_all_filters( 'jetpack_connection_bypass_error_reporting_gate' );
 		remove_all_actions( 'jetpack_connection_tests_loaded' );
+		// Also invalidates the Error_Handler singleton's displayable-errors cache,
+		// which would otherwise leak into tests run later in the same process.
+		Error_Handler::get_instance()->delete_all_errors();
 	}
 
 	/**
@@ -585,6 +589,55 @@ class Connection_Health_Tests_Test extends TestCase {
 		// The action points to support, not the reconnect URL.
 		$this->assertSame( 'https://example.com/support', $result['action'] );
 		$this->assertNotSame( 'https://example.com/reconnect', $result['action'] );
+	}
+
+	/**
+	 * Test a blocked result reports a verified local_state error to the Error_Handler.
+	 */
+	public function test_wpcom_connection_test_blocked_reports_connection_error() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->evaluate_response(
+			array(
+				'connected'        => false,
+				'message'          => 'XML-RPC request was blocked.',
+				'error_code'       => 'xmlrpc_request_blocked',
+				'site_http_status' => 403,
+			)
+		);
+
+		$verified_errors = Error_Handler::get_instance()->get_verified_errors();
+
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', $verified_errors );
+
+		// Attributed to the site (blog token), not a user.
+		$this->assertArrayHasKey( '0', $verified_errors['xmlrpc_request_blocked'] );
+
+		$error = $verified_errors['xmlrpc_request_blocked']['0'];
+		$this->assertSame( Error_Handler::ERROR_TYPE_LOCAL_STATE, $error['error_type'] );
+		$this->assertSame( '', $error['error_direction'] );
+		$this->assertSame( 403, $error['error_data']['site_http_status'] );
+	}
+
+	/**
+	 * Test a connected result clears a previously reported blocked error.
+	 */
+	public function test_wpcom_connection_test_pass_clears_blocked_error() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->evaluate_response(
+			array(
+				'connected'        => false,
+				'error_code'       => 'xmlrpc_request_blocked',
+				'site_http_status' => 403,
+			)
+		);
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_verified_errors() );
+
+		$this->evaluate_response( array( 'connected' => true ) );
+
+		$this->assertArrayNotHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_verified_errors() );
+		$this->assertArrayNotHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_stored_errors() );
 	}
 
 	/**

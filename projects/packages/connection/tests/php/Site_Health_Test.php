@@ -37,6 +37,8 @@ class Site_Health_Test extends TestCase {
 		remove_all_filters( 'pre_http_request' );
 		remove_all_actions( 'admin_init' );
 		remove_all_actions( 'wp_ajax_health-check-jetpack-connection-health' );
+		remove_all_actions( 'jetpack_heartbeat' );
+		( new Manager() )->reset_connection_status();
 	}
 
 	/**
@@ -127,6 +129,35 @@ class Site_Health_Test extends TestCase {
 		$this->assertNotFalse(
 			has_action( 'wp_ajax_health-check-jetpack-connection-health', array( Site_Health::class, 'ajax_local_testing_suite' ) )
 		);
+	}
+
+	/**
+	 * Test that init registers the daily connection check on the heartbeat cron.
+	 */
+	public function test_init_registers_daily_connection_check() {
+		Site_Health::init();
+
+		$this->assertNotFalse(
+			has_action( 'jetpack_heartbeat', array( Site_Health::class, 'do_daily_connection_check' ) )
+		);
+	}
+
+	/**
+	 * Test that the daily connection check makes no requests when the site is not connected.
+	 */
+	public function test_do_daily_connection_check_requires_connection() {
+		$http_request_attempted = false;
+		add_filter(
+			'pre_http_request',
+			static function () use ( &$http_request_attempted ) {
+				$http_request_attempted = true;
+				return new \WP_Error( 'unexpected_request', 'No request should be made.' );
+			}
+		);
+
+		Site_Health::do_daily_connection_check();
+
+		$this->assertFalse( $http_request_attempted );
 	}
 
 	/**

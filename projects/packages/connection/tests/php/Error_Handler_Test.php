@@ -1457,6 +1457,157 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Builds the blocked-request error the connection health tests report.
+	 *
+	 * @param int $site_http_status The HTTP status the site returned to WP.com.
+	 * @return \WP_Error
+	 */
+	private function get_blocked_request_error( $site_http_status = 403 ) {
+		return Error_Handler::build_connection_wp_error(
+			'xmlrpc_request_blocked',
+			'WordPress.com requests to the site are blocked',
+			array( 'token' => '' ),
+			Error_Handler::ERROR_TYPE_LOCAL_STATE,
+			'',
+			array(
+				'user_id'          => 0,
+				'site_http_status' => $site_http_status,
+			)
+		);
+	}
+
+	/**
+	 * Test delete_error_by_code removes one code and leaves others intact.
+	 */
+	public function test_delete_error_by_code() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->report_error( $this->get_sample_error( 'invalid_token', 1 ), false, true );
+		$this->error_handler->report_error( $this->get_sample_error( 'unknown_token', 2 ), false, true );
+
+		$this->assertArrayHasKey( 'invalid_token', $this->error_handler->get_verified_errors() );
+		$this->assertArrayHasKey( 'unknown_token', $this->error_handler->get_verified_errors() );
+
+		$this->assertTrue( $this->error_handler->delete_error_by_code( 'invalid_token' ) );
+
+		$this->assertArrayNotHasKey( 'invalid_token', $this->error_handler->get_stored_errors() );
+		$this->assertArrayNotHasKey( 'invalid_token', $this->error_handler->get_verified_errors() );
+		$this->assertArrayHasKey( 'unknown_token', $this->error_handler->get_stored_errors() );
+		$this->assertArrayHasKey( 'unknown_token', $this->error_handler->get_verified_errors() );
+
+		// Deleting a code with no errors reports nothing was deleted.
+		$this->assertFalse( $this->error_handler->delete_error_by_code( 'invalid_token' ) );
+	}
+
+	/**
+	 * Test the blocked-request error is displayable with its own message and no reconnect CTA.
+	 */
+	public function test_displayable_errors_blocked_request() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->report_error( $this->get_blocked_request_error( 403 ), false, true );
+
+		$displayable_errors = $this->error_handler->get_displayable_errors();
+
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', $displayable_errors );
+
+		$error = $displayable_errors['xmlrpc_request_blocked']['0'];
+
+		// The message names the real cause with the HTTP status, warns that
+		// reconnecting won't help, and points at Site Health for re-verification.
+		$this->assertStringContainsString( '403', $error['error_message'] );
+		$this->assertStringContainsString( 'Reconnecting will not fix this', $error['error_message'] );
+		$this->assertStringContainsString( 'Site Health', $error['error_message'] );
+
+		// No reconnect CTA.
+		$this->assertSame( 'none', $error['error_data']['action'] );
+
+		// Site-wide audience: the blog, not a specific user, is affected.
+		$this->assertSame( 'site', $error['audience'] );
+	}
+
+	/**
+	 * Test the blocked-request message omits the HTTP status when it is unknown.
+	 */
+	public function test_displayable_errors_blocked_request_without_status() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->report_error( $this->get_blocked_request_error( 0 ), false, true );
+
+		$displayable_errors = $this->error_handler->get_displayable_errors();
+		$error              = $displayable_errors['xmlrpc_request_blocked']['0'];
+
+		$this->assertStringNotContainsString( 'HTTP', $error['error_message'] );
+		$this->assertStringContainsString( 'blocked', $error['error_message'] );
+	}
+
+	/**
+	 * Test the admin notice provides a default message for the blocked-request error.
+	 */
+	public function test_generic_admin_notice_default_message_for_blocked_request() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->report_error( $this->get_blocked_request_error( 403 ), false, true );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'admin_blocked_test',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		wp_get_current_user()->add_cap( 'jetpack_connect' );
+
+		$received_default = null;
+		add_filter(
+			'jetpack_connection_error_notice_message',
+			static function ( $message ) use ( &$received_default ) {
+				$received_default = $message;
+				return ''; // Suppress the actual notice output.
+			}
+		);
+
+		$this->error_handler->generic_admin_notice_error();
+
+		$this->assertIsString( $received_default );
+		$this->assertStringContainsString( 'blocked', $received_default );
+		$this->assertStringContainsString( 'Site Health', $received_default );
+	}
+
+	/**
+	 * Test the admin notice default message stays empty for other error codes.
+	 */
+	public function test_generic_admin_notice_no_default_message_for_other_errors() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->report_error( $this->get_sample_error( 'invalid_token', 1 ), false, true );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'admin_default_test',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		wp_get_current_user()->add_cap( 'jetpack_connect' );
+
+		$received_default = null;
+		add_filter(
+			'jetpack_connection_error_notice_message',
+			static function ( $message ) use ( &$received_default ) {
+				$received_default = $message;
+				return '';
+			}
+		);
+
+		$this->error_handler->generic_admin_notice_error();
+
+		$this->assertSame( '', $received_default );
+	}
+
+	/**
 	 * Test caching functionality of get_displayable_errors method
 	 */
 	public function test_get_displayable_errors_caching() {

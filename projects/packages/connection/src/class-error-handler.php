@@ -38,9 +38,10 @@ namespace Automattic\Jetpack\Connection;
  * Stored errors carry two orthogonal classification fields:
  *
  * - `error_type` — the transport/source of the failed request: 'xmlrpc', 'rest',
- *   'local_state' (local connection-state errors involving no request at all, e.g.
- *   `invalid_connection_owner`; stored as 'connection' by package versions <= 8.8),
- *   or '' for entries stored by older package versions.
+ *   'local_state' (connection-state errors that a successful outgoing request cannot
+ *   disprove — e.g. `invalid_connection_owner`, or WP.com being blocked from reaching
+ *   this site; stored as 'connection' by package versions <= 8.8), or '' for entries
+ *   stored by older package versions.
  * - `error_direction` — 'incoming', 'outgoing', or '' (legacy entries and
  *   'local_state'-type errors, which have no direction).
  *
@@ -203,8 +204,9 @@ class Error_Handler {
 		'invalid_body_hash',         // The body hash doesn't match the request body.
 		'invalid_nonce',             // The request nonce could not be added (likely a reuse/replay).
 		'signature_mismatch',        // Computed signature differs: wrong secret, or URL/body drift (domain change, proxy).
-		// Connection state problems (Manager::get_connection_owner).
+		// Connection state problems (Manager::get_connection_owner, Connection_Health_Tests).
 		'invalid_connection_owner',  // The connection owner cannot be resolved: token missing or WP user deleted.
+		'xmlrpc_request_blocked',    // WP.com reached the site but the request was rejected (firewall, WAF, or server rule).
 	);
 
 	/**
@@ -315,6 +317,7 @@ class Error_Handler {
 				'signature_mismatch',
 				'no_token_for_user',
 				'invalid_connection_owner',
+				'xmlrpc_request_blocked',
 			);
 
 			$owner_id        = (int) \Jetpack_Options::get_option( 'master_user' );
@@ -338,6 +341,23 @@ class Error_Handler {
 
 					$message = __( "Your connection with WordPress.com seems to be broken. If you're experiencing issues, please try reconnecting.", 'jetpack-connection' );
 					$action  = null;
+
+					// The site itself is rejecting WordPress.com's requests (firewall, WAF,
+					// security plugin, or server rule). The token could be perfectly valid,
+					// so a reconnect would be rejected the same way — surface the real cause
+					// and point at Site Health, which re-runs the check on page load.
+					if ( 'xmlrpc_request_blocked' === $error_code ) {
+						$site_http_status = isset( $error['error_data']['site_http_status'] ) ? (int) $error['error_data']['site_http_status'] : 0;
+
+						$message = $site_http_status
+							? sprintf(
+								/* translators: %d is the HTTP status code (e.g. 403) the site returned to WordPress.com. */
+								__( 'WordPress.com is unable to communicate with your site: requests are being blocked (HTTP %d), usually by a firewall, security plugin, or server rule. Reconnecting will not fix this. Ask your host to allow requests from WordPress.com to your site\'s xmlrpc.php file, then confirm the fix on your site\'s Site Health page.', 'jetpack-connection' ),
+								$site_http_status
+							)
+							: __( 'WordPress.com is unable to communicate with your site: requests are being blocked, usually by a firewall, security plugin, or server rule. Reconnecting will not fix this. Ask your host to allow requests from WordPress.com to your site\'s xmlrpc.php file, then confirm the fix on your site\'s Site Health page.', 'jetpack-connection' );
+						$action = 'none';
+					}
 
 					// A secondary admin looking at the connection owner's token error, on a
 					// site where ownership is locked (a consumer declared it non-transferable).
@@ -925,6 +945,12 @@ class Error_Handler {
 			$error_data['has_user_token'] = (bool) $data['has_user_token'];
 		}
 
+		// For xmlrpc_request_blocked, the HTTP status the site returned to WP.com
+		// (e.g. 403). Keep it so display code can include it in the message.
+		if ( isset( $data['site_http_status'] ) ) {
+			$error_data['site_http_status'] = (int) $data['site_http_status'];
+		}
+
 		return $this->build_error_array(
 			$error->get_error_code(),
 			$error->get_error_message(),
@@ -1185,6 +1211,50 @@ class Error_Handler {
 	}
 
 	/**
+	 * Deletes all stored and verified errors for a single error code.
+	 *
+	 * Used by self-healing flows that can positively confirm one specific error
+	 * condition is gone (e.g. a passing connection test clearing
+	 * `xmlrpc_request_blocked`) without touching unrelated errors.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $error_code The error code to delete.
+	 * @return bool True if any stored or verified error was deleted.
+	 */
+	public function delete_error_by_code( $error_code ) {
+		$deleted = false;
+
+		$stored_errors = $this->get_stored_errors();
+		if ( isset( $stored_errors[ $error_code ] ) ) {
+			unset( $stored_errors[ $error_code ] );
+			$deleted = true;
+			if ( count( $stored_errors ) ) {
+				update_option( self::STORED_ERRORS_OPTION, $stored_errors );
+			} else {
+				delete_option( self::STORED_ERRORS_OPTION );
+			}
+		}
+
+		$verified_errors = $this->get_verified_errors();
+		if ( isset( $verified_errors[ $error_code ] ) ) {
+			unset( $verified_errors[ $error_code ] );
+			$deleted = true;
+			if ( count( $verified_errors ) ) {
+				update_option( self::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+			} else {
+				delete_option( self::STORED_VERIFIED_ERRORS_OPTION );
+			}
+		}
+
+		if ( $deleted ) {
+			$this->invalidate_displayable_errors_cache();
+		}
+
+		return $deleted;
+	}
+
+	/**
 	 * Gets an error based on the nonce
 	 *
 	 * Receives a nonce and finds the related error.
@@ -1295,19 +1365,36 @@ class Error_Handler {
 			return;
 		}
 
+		$displayable_errors = $this->get_displayable_errors();
+
+		// Most errors default to no admin notice — consumers opt in via the filter
+		// below, and the React dashboard is the primary surface. The blocked-request
+		// error is the exception: it is invisible to the dashboard's own error
+		// detection paths (WP.com cannot reach the site), so it ships with a
+		// default message and does not depend on a consumer supplying one.
+		$default_message = '';
+		if ( isset( $displayable_errors['xmlrpc_request_blocked'] ) ) {
+			$first_blocked_error = reset( $displayable_errors['xmlrpc_request_blocked'] );
+			if ( is_array( $first_blocked_error ) && ! empty( $first_blocked_error['error_message'] ) ) {
+				$default_message = $first_blocked_error['error_message'];
+			}
+		}
+
 		/**
 		 * Filters the message to be displayed in the admin notices area when there's a connection error.
 		 *
-		 * By default  we don't display any errors.
+		 * By default we don't display any errors, except for the blocked-request error
+		 * (`xmlrpc_request_blocked`), which provides its own default message.
 		 *
 		 * Return an empty value to disable the message.
 		 *
 		 * @since 8.9.0
+		 * @since $$next-version$$ The default message is no longer always empty.
 		 *
 		 * @param string $message The error message.
 		 * @param array  $errors The array of errors. See Automattic\Jetpack\Connection\Error_Handler for details on the array structure.
 		 */
-		$message = apply_filters( 'jetpack_connection_error_notice_message', '', $this->get_displayable_errors() );
+		$message = apply_filters( 'jetpack_connection_error_notice_message', $default_message, $displayable_errors );
 
 		/**
 		 * Fires inside the admin_notices hook just before displaying the error message for a broken connection.

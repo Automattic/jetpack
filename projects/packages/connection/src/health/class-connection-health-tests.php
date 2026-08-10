@@ -476,6 +476,13 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	 * Split out from test__wpcom_connection_test() so the decision logic can be
 	 * exercised without performing a signed remote request.
 	 *
+	 * Besides producing the Site Health result, this also keeps the Error_Handler
+	 * state for `xmlrpc_request_blocked` in sync: a blocked result reports the
+	 * error (making it visible on Error_Handler surfaces such as admin notices and
+	 * the dashboard), and a connected result clears it. Runs from every entry point
+	 * of the test: Site Health page loads, Core's weekly Site Health cron, and the
+	 * daily connection check on the heartbeat cron.
+	 *
 	 * @param string     $name        The test name.
 	 * @param object     $result      The JSON-decoded response body.
 	 * @param int|string $status_code The HTTP status code of the WP.com response.
@@ -484,6 +491,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	 */
 	public function evaluate_wpcom_connection_result( $name, $result, $status_code ) {
 		if ( ! empty( $result->connected ) ) {
+			Error_Handler::get_instance()->delete_error_by_code( 'xmlrpc_request_blocked' );
 			return self::passing_test( array( 'name' => $name ) );
 		}
 
@@ -491,10 +499,28 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 		// plugin, or server rule). The connection token could be valid, but reconnecting would
 		// be rejected the same way - surface the real cause and don't offer a reconnect.
 		if ( isset( $result->error_code ) && 'xmlrpc_request_blocked' === $result->error_code ) {
-			return $this->blocked_request_failing_test(
-				$name,
-				(int) ( $result->site_http_status ?? 0 )
+			$site_http_status = (int) ( $result->site_http_status ?? 0 );
+
+			// Skipping the WP.com verification round-trip is safe here: the error was
+			// derived from a response WP.com sent to a request this site initiated and
+			// signed, so it is self-evidencing (same trust model as the outgoing flow).
+			Error_Handler::get_instance()->report_error(
+				Error_Handler::build_connection_wp_error(
+					'xmlrpc_request_blocked',
+					'WordPress.com requests to the site are blocked',
+					array( 'token' => '' ),
+					Error_Handler::ERROR_TYPE_LOCAL_STATE,
+					'', // The blocked state describes the site's environment, not one request, so it has no direction.
+					array(
+						'user_id'          => 0,
+						'site_http_status' => $site_http_status,
+					)
+				),
+				false,
+				true
 			);
+
+			return $this->blocked_request_failing_test( $name, $site_http_status );
 		}
 
 		$message = isset( $result->message ) && '' !== $result->message
