@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a site data endpoint so plugins without the Jetpack plugin can read the WordPress.com site record.

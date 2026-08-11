@@ -732,6 +732,9 @@ class Jetpack {
 		// Update the site's Jetpack plan and products from API on heartbeats.
 		add_action( 'jetpack_heartbeat', array( Jetpack_Plan::class, 'refresh_from_wpcom' ) );
 
+		// The Connection package fetches the site record for `jetpack/v4/site`; reuse it to refresh the plan.
+		add_action( 'jetpack_site_data_fetched', array( Jetpack_Plan::class, 'update_from_site_record' ) );
+
 		// Actually push the stats on shutdown.
 		if ( ! has_action( 'shutdown', array( $this, 'push_stats' ) ) ) {
 			add_action( 'shutdown', array( $this, 'push_stats' ) );
