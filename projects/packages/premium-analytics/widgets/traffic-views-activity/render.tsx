@@ -12,7 +12,6 @@ import {
 	compactCalendarHeatmapCapacity,
 	computeCalendarHeatmapLayout,
 	describeError,
-	fitCompactCalendarHeatmapColumns,
 	resolveCalendarHeatmapWindow,
 	useElementSize,
 	useWidgetRootContext,
@@ -35,13 +34,15 @@ type TrafficViewsActivityRenderAttributes = TrafficViewsActivityAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type TrafficViewsActivityWidgetProps = WidgetRenderProps< TrafficViewsActivityRenderAttributes >;
 
-// Preserve the design's 61:40 cell ratio.
-const EXPANDED_CELL_HEIGHT = 40;
-const EXPANDED_ASPECT_RATIO = 61 / EXPANDED_CELL_HEIGHT;
+// The design's labelled cell is 61:40; the ratio is preserved as the cells grow to
+// fill the tile's height.
+const EXPANDED_ASPECT_RATIO = 61 / 40;
 // Below this the tile cannot fit a row of labelled cells, so it renders the
 // chart's compact squares instead. The shipped one-row tile is deliberately here:
 // compact fits years of history across the tile, where labelled cells fit weeks.
 const EXPANDED_MIN_HEIGHT = 220;
+// Labelled cells narrower than this have no room for a number.
+const VALUE_MIN_CELL_WIDTH = 30;
 
 // A whole leap year, so a selected leap year never loses 1 January.
 const WINDOW_YEAR_DAYS = 366;
@@ -114,36 +115,17 @@ function TrafficViewsActivityInner() {
 	const { primary, isLoading, isFetching, isError, error, refetch } = useStatsVisits( params );
 	const report: StatsVisitsResponse | undefined = primary.data;
 
-	const { data: heatmapData, rowLabels } = useMemo( () => {
-		const viewsByDay = new Map< string, number | null >(
-			( report?.data ?? [] ).map( row => {
-				const views = Number( row.views ?? 0 );
-
-				return [ String( row.time_interval ), views > 0 ? views : null ];
-			} )
-		);
-
-		return buildCalendarHeatmapData(
-			buildDenseDaySeries( viewsByDay, fetchWindow.startDate, fetchWindow.endDate )
-		);
-	}, [ report, fetchWindow ] );
-
-	const hasViews = heatmapData.some( column =>
-		column.data.some( cell => cell.value !== null && cell.value > 0 )
-	);
-
+	// Measure before mapping the data: the window the grid renders is as wide as the
+	// tile, not as wide as the selected period.
 	const [ setRef, size ] = useElementSize< HTMLDivElement >();
 
 	// Height picks the cell size, width the column count. Compact renders the
-	// chart's own fixed squares (so it sizes itself); expanded is sized to the
-	// rectangle its scaled 61:40 cells fill.
+	// chart's own fixed squares (so it sizes itself); expanded fills the height with
+	// 61:40 cells and is sized to the rectangle they fill.
 	const { columns, sizingProps } = useMemo( () => {
 		if ( size.height < EXPANDED_MIN_HEIGHT ) {
 			return {
-				columns: fitCompactCalendarHeatmapColumns( {
-					availWidth: size.width,
-					dataColumns: heatmapData.length,
-				} ),
+				columns: compactCalendarHeatmapCapacity( size.width ),
 				sizingProps: { compact: true },
 			};
 		}
@@ -151,9 +133,7 @@ function TrafficViewsActivityInner() {
 		const layout = computeCalendarHeatmapLayout( {
 			availWidth: size.width,
 			availHeight: size.height,
-			dataColumns: heatmapData.length,
 			aspectRatio: EXPANDED_ASPECT_RATIO,
-			maxCellHeight: EXPANDED_CELL_HEIGHT,
 			// Avoid shrinking the cells for a legend this widget does not render.
 			legendHeight: 0,
 		} );
@@ -163,14 +143,54 @@ function TrafficViewsActivityInner() {
 			sizingProps: {
 				width: layout.heatmapWidth,
 				height: layout.heatmapHeight,
-				showValues: layout.cellWidth > 30,
+				showValues: layout.cellWidth > VALUE_MIN_CELL_WIDTH,
 			},
 		};
-	}, [ size.width, size.height, heatmapData.length ] );
+	}, [ size.width, size.height ] );
 
-	// Keep the most recent weeks, dropping the oldest columns the tile can't fit.
+	// The grid fills the tile rather than stopping where the period does: it spans
+	// the weeks that fit, ending on the period's last day, so a short period pads
+	// with empty columns instead of leaving whitespace. One extra week is generated
+	// and trimmed below, because the first column is partial unless the period ends
+	// on a week boundary. Before the first measurement there is no width to fill, so
+	// the fetched period stands in.
+	const displayWindow = useMemo( () => {
+		if ( columns <= 0 ) {
+			return fetchWindow;
+		}
+
+		const days = ( columns + 1 ) * 7;
+
+		return resolveCalendarHeatmapWindow(
+			reportParams,
+			{ minDays: days, maxDays: days },
+			format( new Date(), 'yyyy-MM-dd' )
+		);
+	}, [ reportParams, fetchWindow, columns ] );
+
+	const { data: heatmapData, rowLabels } = useMemo( () => {
+		const viewsByDay = new Map< string, number | null >(
+			( report?.data ?? [] ).map( row => {
+				const views = Number( row.views ?? 0 );
+
+				return [ String( row.time_interval ), views > 0 ? views : null ];
+			} )
+		);
+
+		// Days the request never covered — the padding, and any gap in the response —
+		// densify to empty cells.
+		return buildCalendarHeatmapData(
+			buildDenseDaySeries( viewsByDay, displayWindow.startDate, displayWindow.endDate )
+		);
+	}, [ report, displayWindow ] );
+
 	// slice( -0 ) keeps the data intact until the tile has a measurable width.
 	const trimmedData = useMemo( () => heatmapData.slice( -columns ), [ heatmapData, columns ] );
+
+	// Scoped to the period, not to the weeks on screen: the grid pads to fill the
+	// tile, so a wide tile can show only empty padding for a period that does have
+	// views — "No views in this period" would be a lie there.
+	const hasViews = ( report?.data ?? [] ).some( row => Number( row.views ?? 0 ) > 0 );
 
 	return (
 		<div className={ styles.root }>

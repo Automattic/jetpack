@@ -35,6 +35,49 @@ const expandedBase: CalendarHeatmapLayoutInput = {
 	maxCellHeight: 48,
 };
 
+describe( 'computeCalendarHeatmapLayout unbounded inputs', () => {
+	it( 'without dataColumns, the width alone decides the column count', () => {
+		const bounded = computeCalendarHeatmapLayout( {
+			...expandedBase,
+			availWidth: 3000,
+			availHeight: 300,
+		} );
+		const unbounded = computeCalendarHeatmapLayout( {
+			availWidth: 3000,
+			availHeight: 300,
+			aspectRatio: EXPANDED_ASPECT,
+			maxCellHeight: expandedBase.maxCellHeight,
+		} );
+
+		// The bounded call stops at the 52 weeks in range; the unbounded one keeps
+		// going, so a short range can be padded out to fill the tile.
+		expect( bounded.columns ).toBe( 52 );
+		expect( unbounded.columns ).toBeGreaterThan( bounded.columns );
+		expect( unbounded.cellHeight ).toBe( bounded.cellHeight );
+	} );
+
+	it( 'without maxCellHeight, the cells grow to fill the height', () => {
+		const capped = computeCalendarHeatmapLayout( {
+			...expandedBase,
+			availWidth: 3000,
+			availHeight: 600,
+		} );
+		const uncapped = computeCalendarHeatmapLayout( {
+			...expandedBase,
+			availWidth: 3000,
+			availHeight: 600,
+			maxCellHeight: undefined,
+		} );
+
+		expect( capped.cellHeight ).toBe( expandedBase.maxCellHeight );
+		expect( uncapped.cellHeight ).toBeGreaterThan( capped.cellHeight );
+		// Aspect ratio survives the growth.
+		expect( uncapped.cellWidth ).toBeCloseTo( uncapped.cellHeight * EXPANDED_ASPECT );
+		// Rows plus overhead account for the whole tile height.
+		expect( uncapped.heatmapHeight ).toBeCloseTo( 600 );
+	} );
+} );
+
 describe( 'computeCalendarHeatmapLayout', () => {
 	it( 'a tall-narrow tile hits the cell-height cap and preserves the 1:1 ratio', () => {
 		const layout = computeCalendarHeatmapLayout( {

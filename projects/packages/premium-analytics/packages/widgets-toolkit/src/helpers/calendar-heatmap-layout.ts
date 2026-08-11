@@ -13,14 +13,18 @@ export type CalendarHeatmapLayoutInput = {
 	availWidth: number;
 	/** Height the tile offers the heatmap, in px. */
 	availHeight: number;
-	/** Week columns available in the selected range (variable, not a fixed 52). */
-	dataColumns: number;
+	/**
+	 * Week columns available in the selected range (variable, not a fixed 52).
+	 * Omit to let the width decide alone — for a grid that pads a short range with
+	 * empty columns rather than leaving the tile part-filled.
+	 */
+	dataColumns?: number;
 	/** Weekday rows. Defaults to 7. */
 	rows?: number;
 	/** Cell width / height: 1 (compact) or 61/40 (expanded). Always preserved. */
 	aspectRatio: number;
-	/** Per-mode cap on cell height, in px. */
-	maxCellHeight: number;
+	/** Cap on cell height, in px. Omit to fill the available height. */
+	maxCellHeight?: number;
 	/** Minimum columns to keep before shrinking the cell. Defaults to 6. */
 	minColumns?: number;
 	/** Legend height in pixels. Pass 0 when the legend is omitted; defaults to 44. */
@@ -28,7 +32,7 @@ export type CalendarHeatmapLayoutInput = {
 };
 
 export type CalendarHeatmapLayout = {
-	/** Week columns actually rendered (≤ dataColumns). */
+	/** Week columns actually rendered (≤ `dataColumns` when one was given). */
 	columns: number;
 	/** Rendered cell width, in px. */
 	cellWidth: number;
@@ -130,11 +134,12 @@ export function computeCalendarHeatmapLayout(
 		legendHeight = DEFAULT_LEGEND_HEIGHT,
 	} = input;
 
-	// Nothing to lay out (collapsed tile or empty range) → a coherent zero layout.
+	// Nothing to lay out (collapsed tile, or a range explicitly holding no weeks)
+	// → a coherent zero layout.
 	if (
 		! isPositiveFinite( availWidth ) ||
 		! isPositiveFinite( availHeight ) ||
-		! isPositiveFinite( dataColumns ) ||
+		( dataColumns !== undefined && ! isPositiveFinite( dataColumns ) ) ||
 		! isPositiveFinite( aspectRatio ) ||
 		! isPositiveFinite( rows )
 	) {
@@ -150,7 +155,8 @@ export function computeCalendarHeatmapLayout(
 	let cellWidth = cellHeight * aspectRatio;
 
 	// Never fewer than this many columns unless the range has fewer weeks.
-	const requiredMinColumns = Math.min( minColumns, dataColumns );
+	const requiredMinColumns =
+		dataColumns === undefined ? minColumns : Math.min( minColumns, dataColumns );
 
 	// How many aspect-preserving cells fit the available width.
 	const widthForCells = availWidth - ROW_LABEL_WIDTH + CELL_GAP;
@@ -168,9 +174,10 @@ export function computeCalendarHeatmapLayout(
 		cellHeight = cellWidth / aspectRatio;
 	} else {
 		// Aspect-preserving cell fits: keep as many columns as the width allows,
-		// bounded by the weeks actually in range. This branch is only reached when
-		// `fitColumns >= requiredMinColumns`, so the minimum needs no re-clamping.
-		columns = Math.min( fitColumns, dataColumns );
+		// bounded by the weeks in range when a bound was given. This branch is only
+		// reached when `fitColumns >= requiredMinColumns`, so the minimum needs no
+		// re-clamping.
+		columns = dataColumns === undefined ? fitColumns : Math.min( fitColumns, dataColumns );
 	}
 
 	const heatmapWidth =

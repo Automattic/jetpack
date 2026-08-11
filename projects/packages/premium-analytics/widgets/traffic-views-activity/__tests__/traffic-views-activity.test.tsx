@@ -346,6 +346,47 @@ describe( 'TrafficViewsActivityWidget', () => {
 			expect( Number( heatmap.getAttribute( 'data-columns' ) ) ).toBeLessThan( 53 );
 		} );
 
+		it( 'pads a period shorter than the tile instead of leaving it part-filled', () => {
+			// One month selected: five week columns of data in a tile that fits ~74.
+			const restoreTileSize = stubTileSize( 1000, 110 );
+
+			try {
+				renderWidget( {
+					...REPORT_PARAMS,
+					from: '2025-06-01',
+					to: '2025-06-30',
+				} as unknown as ReportParams );
+			} finally {
+				restoreTileSize();
+			}
+
+			const heatmap = screen.getByTestId( 'heatmap' );
+
+			// The columns the width can hold, not the five the period holds.
+			expect( heatmap ).toHaveAttribute( 'data-columns', '74' );
+			// The padding carries no values — only June's day is populated.
+			expect( chartDayValues() ).toBe( 'Mon, Jun 2, 2025:120' );
+		} );
+
+		it( 'keeps the empty state scoped to the period, not the visible weeks', () => {
+			// A tall tile shows ~16 weeks, so June's views fall outside the padding
+			// window — the period still has views, so this is not the empty state.
+			const restoreTileSize = stubTileSize( 1000, 300 );
+
+			try {
+				renderWidget( {
+					...REPORT_PARAMS,
+					from: '2025-01-01',
+					to: '2025-12-31',
+				} as unknown as ReportParams );
+			} finally {
+				restoreTileSize();
+			}
+
+			expect( screen.getByTestId( 'heatmap' ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'No views in this period.' ) ).not.toBeInTheDocument();
+		} );
+
 		it( 'renders empty, singular, and formatted plural tooltips', () => {
 			renderWidget();
 
