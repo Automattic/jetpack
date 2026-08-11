@@ -90,6 +90,8 @@ export const Default: Story = {
 
 /**
  * A single metric with no previous period — just the current line, no delta.
+ * With nothing to switch to, the card drops its fill and pointer and reads as
+ * the widget's headline figure.
  */
 export const SingleMetric: Story = {
 	args: {

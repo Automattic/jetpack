@@ -77,6 +77,28 @@ describe( 'MetricTabsChart', () => {
 		expect( screen.queryByTestId( 'bar-chart' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'renders a single metric as a static headline', () => {
+		const describedMetric = { ...METRIC, description: 'Total views for the selected period.' };
+
+		render( <MetricTabsChart metrics={ [ describedMetric ] } dataFormat={ DATA_FORMAT } /> );
+
+		expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
+		expect( screen.getByText( describedMetric.description ) ).toBeInTheDocument();
+		expect( screen.queryByTitle( describedMetric.description ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'tablist' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'tab' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders multiple metrics as tabs', () => {
+		const visitors = { ...METRIC, key: 'visitors', label: 'Visitors' };
+
+		render( <MetricTabsChart metrics={ [ METRIC, visitors ] } dataFormat={ DATA_FORMAT } /> );
+
+		expect( screen.getByRole( 'tablist' ) ).toBeInTheDocument();
+		expect( screen.getAllByRole( 'tab' ) ).toHaveLength( 2 );
+	} );
+
 	it( 'draws a bar chart when chartType is bar', () => {
 		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } chartType="bar" /> );
 
