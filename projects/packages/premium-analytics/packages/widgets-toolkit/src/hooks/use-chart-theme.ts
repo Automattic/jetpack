@@ -38,8 +38,11 @@ export function useChartTheme(): WooChartTheme {
 			tickLength: 4,
 			gridColor: '',
 			gridColorDark: '',
-			// visx's buildChartTheme defaults svgLabelSmall to fontSize 11 and nothing else sets it,
-			// so this override is load-bearing rather than a restatement of a browser default.
+			// Both overrides are load-bearing. `fill` restates the charts default, which cannot
+			// resolve until CHARTS-203 emits --a8c-charts-color-label: the default nests its
+			// var() fallbacks and resolveCssVariable() parses only one level. `fontSize` has to
+			// stay a plain number, since resolveFontSize() rejects var(); without it visx falls
+			// back to 11 and the chart margin and pie label measurements go with it.
 			svgLabelSmall: {
 				fill: 'var(--wpds-color-foreground-content-neutral)',
 				fontSize: 12,
