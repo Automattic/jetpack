@@ -671,6 +671,53 @@ class Connection_Health_Tests_Test extends TestCase {
 	}
 
 	/**
+	 * Test a service-error envelope (no `connected` property) preserves the blocked error.
+	 *
+	 * A WP.com 5xx envelope proves nothing about the site's blockage — the
+	 * test-connection logic may never have run — so the error must survive.
+	 */
+	public function test_wpcom_connection_test_error_envelope_preserves_blocked_error() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->evaluate_response(
+			array(
+				'connected'        => false,
+				'error_code'       => 'xmlrpc_request_blocked',
+				'site_http_status' => 403,
+			)
+		);
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_verified_errors() );
+
+		$this->evaluate_response( array( 'error' => 'internal_server_error' ), 500 );
+
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_verified_errors() );
+	}
+
+	/**
+	 * Test a malformed (non-JSON) response body preserves the blocked error.
+	 *
+	 * A non-JSON body (e.g. a proxy error page) decodes to null — inconclusive,
+	 * so the error must survive.
+	 */
+	public function test_wpcom_connection_test_malformed_body_preserves_blocked_error() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->evaluate_response(
+			array(
+				'connected'        => false,
+				'error_code'       => 'xmlrpc_request_blocked',
+				'site_http_status' => 403,
+			)
+		);
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_verified_errors() );
+
+		$result = $this->tests->evaluate_wpcom_connection_result( 'test__wpcom_connection_test', null, 200 );
+
+		$this->assertFalse( $result['pass'] );
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_verified_errors() );
+	}
+
+	/**
 	 * Test the blocked-request result omits the HTTP status when it is unknown.
 	 */
 	public function test_wpcom_connection_test_blocked_without_status_code() {

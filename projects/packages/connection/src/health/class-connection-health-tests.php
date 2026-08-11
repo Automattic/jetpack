@@ -483,9 +483,9 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	 * of the test: Site Health page loads, Core's weekly Site Health cron, and the
 	 * daily connection check on the heartbeat cron.
 	 *
-	 * @param string     $name        The test name.
-	 * @param object     $result      The JSON-decoded response body.
-	 * @param int|string $status_code The HTTP status code of the WP.com response.
+	 * @param string      $name        The test name.
+	 * @param object|null $result      The JSON-decoded response body; null when the body was not valid JSON.
+	 * @param int|string  $status_code The HTTP status code of the WP.com response.
 	 *
 	 * @return array Test results.
 	 */
@@ -526,10 +526,16 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 			return $this->blocked_request_failing_test( $name, $site_http_status );
 		}
 
-		// WP.com answered with a definitive, non-blocked failure: its test ran and
-		// did not report the request as blocked, so a lingering blocked error is
-		// stale — and its "don't reconnect" advice would be wrong for this failure.
-		Error_Handler::get_instance()->delete_error_by_code( 'xmlrpc_request_blocked' );
+		// An explicit `connected` property (falsy here, past the pass branch) proves
+		// WP.com actually ran its test and did not report a blockage — a definitive
+		// non-blocked failure, so a lingering blocked error is stale and its
+		// suppressed-reconnect presentation would be wrong for this failure.
+		// Malformed bodies and service-error envelopes (no `connected` property) are
+		// inconclusive: preserve any existing blocked error, as with timeouts and
+		// 404s. A wrongly preserved error is bounded by ERROR_LIFE_TIME anyway.
+		if ( is_object( $result ) && property_exists( $result, 'connected' ) ) {
+			Error_Handler::get_instance()->delete_error_by_code( 'xmlrpc_request_blocked' );
+		}
 
 		$message = isset( $result->message ) && '' !== $result->message
 			? $result->message
