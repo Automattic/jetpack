@@ -216,22 +216,10 @@ class Akismet_Admin_Chrome {
 			body[class*="_page_akismet-key-config"] #wpfooter {
 				display: none;
 			}
-			/* Do NOT hide `#screen-meta-links` (core's Screen Options / Help toggles):
-				Akismet registers real contextual-help tabs on this screen
-				(`Akismet_Admin::admin_help()`), so hiding the container takes its Help
-				button away on every Akismet page whenever Jetpack is active. The
-				`jetpack-admin-page-layout` mixin can hide it because none of Jetpack's
-				own React pages register help tabs or screen options; that reasoning does
-				not carry over to a page owned by another plugin.
-
-				`#screen-meta-links` and `#screen-meta` (the panel it opens) are children
-				of `#wpbody-content`, which the rules below flip to a fixed flex column —
-				that makes core's `float: right` a no-op, leaving the toggles as a
-				left-aligned full-width row and the panel free to be squeezed. The two
-				rules below put both back where core puts them, and deliberately go no
-				further: this stylesheet is transitional scaffolding until Akismet renders
-				the Jetpack header itself, so it should touch Akismet's and core's markup
-				as lightly as possible. */
+			/* Don't hide `#screen-meta-links`: Akismet registers real help tabs here, so
+				hiding it removes its Help button. `#wpbody-content` is a flex column
+				below, which makes core's `float: right` a no-op — restore the toggle's
+				position and keep it and the panel from being squeezed. */
 			body[class*="_page_akismet-key-config"] #screen-meta,
 			body[class*="_page_akismet-key-config"] #screen-meta-links {
 				flex-shrink: 0;
