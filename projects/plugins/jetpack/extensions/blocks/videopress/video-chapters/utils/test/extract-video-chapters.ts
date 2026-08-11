@@ -37,6 +37,21 @@ describe( 'extractSingleChapter', () => {
 				title: 'Things Bun Does Fast',
 			},
 		},
+		// Colons in the title must not confuse the timestamp parser
+		{
+			line: '04:20 Backups: Pressable vs. Jetpack',
+			expectedResult: {
+				startAt: '00:04:20',
+				title: 'Backups: Pressable vs. Jetpack',
+			},
+		},
+		{
+			line: '0:00 Intro: who we are',
+			expectedResult: {
+				startAt: '00:00:00',
+				title: 'Intro: who we are',
+			},
+		},
 		{
 			line: 'Not a chapter',
 			expectedResult: null,
