@@ -1232,7 +1232,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "60c053ace8f2475c24a75c6e509a0944f4374196"
+                "reference": "bdb8cca66a50f8b0ef40c5c413a775844822c068"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1258,6 +1258,7 @@
                 "automattic/jetpack-search": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/jetpack-videopress": "@dev",
+                "automattic/jetpack-waf": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
@@ -1281,7 +1282,8 @@
                 "dependencies": {
                     "test-only": [
                         "packages/search",
-                        "packages/videopress"
+                        "packages/videopress",
+                        "packages/waf"
                     ]
                 }
             },

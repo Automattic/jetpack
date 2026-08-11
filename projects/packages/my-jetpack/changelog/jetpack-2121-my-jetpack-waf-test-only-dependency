@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Protect: Test the site protection data endpoint against the real firewall configuration.
