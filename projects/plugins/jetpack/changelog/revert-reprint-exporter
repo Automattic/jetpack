@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Remove Reprint full-site export support. The ?reprint-api-jetpack endpoint, the jetpack/v4 REST routes and the jetpack_reprint_export_available filter are gone. On Atomic sites, export continues to work through wpcomsh.
