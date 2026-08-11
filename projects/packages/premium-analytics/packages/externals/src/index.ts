@@ -69,6 +69,7 @@ export {
 	Field as FormField,
 	Fieldset,
 	Icon,
+	IconButton,
 	Input,
 	Link,
 	SelectControl,
