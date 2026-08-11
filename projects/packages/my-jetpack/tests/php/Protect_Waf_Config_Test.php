@@ -152,6 +152,9 @@ class Protect_Waf_Config_Test extends TestCase {
 		$this->assertSame( '198.51.100.7', $waf_config['jetpack_waf_ip_block_list'] );
 		$this->assertTrue( $waf_config['jetpack_waf_automatic_rules'] );
 		$this->assertTrue( $waf_config['brute_force_protection'] );
+
+		// Only the key: the value is the absolute WAF bootstrap path, which varies by install.
+		$this->assertArrayHasKey( 'bootstrap_path', $waf_config );
 	}
 
 	/**
