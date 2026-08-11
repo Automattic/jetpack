@@ -155,7 +155,9 @@ A saved post that contains a WC-only block on a site that later deactivates WooC
 
 Seeded state is the escape hatch. Each `no-results/render.php` seeds the filter states it covers (`hasNoResultsUnfiltered` / `hasNoResultsFiltered`); `results-list` binds its legacy region to `state.showLegacyNoResults`, which shows whichever state no block claimed. Because the whole interactivity state is serialized once at footer time, this resolves the same way regardless of render order — no HTML surgery, no parent walking, and the surviving region stays in its authored position.
 
-**Seed coverage, not a flat "a block exists" flag.** A single `no-results` scoped to one filter state would otherwise retire the legacy region for *both*, leaving the uncovered state with no empty message at all. Because `wp_interactivity_state()` deep-merges and nothing ever seeds `false`, per-case flags compose correctly across however many blocks are on the page. The editor mirror in `results-list/edit.jsx` has to read the same way — hide only the field whose case is actually covered.
+**Seed coverage, not a flat "a block exists" flag.** A single `no-results` scoped to one filter state would otherwise retire the legacy region for *both*, leaving the uncovered state with no empty message at all. Because `wp_interactivity_state()` deep-merges and nothing ever seeds `false`, per-case flags compose correctly across however many blocks are on the page.
+
+The `noResultsMessage` / `noResultsWithFiltersMessage` attributes are **deprecated**: `results-list` still renders them for content saved before `no-results` existed, but the inspector no longer offers them, so nothing new can set one. Don't reintroduce an editing affordance for them — point authors at the `no-results` block instead. They stay registered in `block.json` because dropping an attribute makes the parser discard it, which would silently blank the empty state on every page still relying on one.
 
 Reach for this shape whenever two blocks contend over one region. The cost is a little dead (always-`hidden`) markup on pages that carry both, which is cheaper than any of the alternatives.
 

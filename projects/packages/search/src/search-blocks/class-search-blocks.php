@@ -2352,7 +2352,7 @@ HTML;
 	 * Single source for the two renderers that can emit it — the `no-results`
 	 * block's fallback and `results-list`'s legacy region — so the strings
 	 * can't drift into two near-identical translator entries that disagree.
-	 * The editor-side mirror lives in `blocks/default-messages.js`.
+	 * The editor-side mirror lives in `blocks/no-results/edit.jsx`.
 	 *
 	 * @return array{unfiltered:string, filtered:string}
 	 */

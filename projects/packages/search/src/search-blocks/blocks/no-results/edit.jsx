@@ -15,20 +15,25 @@ import { InnerBlocks, InspectorControls, useBlockProps } from '@wordpress/block-
 import { PanelBody, RadioControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { noResultsDefaultMessages } from '../default-messages';
 
 const FILTER_STATES = [ 'any', 'unfiltered', 'filtered' ];
 
-// Mirrors the fallback copy in render.php so the canvas shows what a visitor
-// would get from an untouched block.
+// Mirrors `Search_Blocks::no_results_default_messages()` so the canvas shows
+// what a visitor would get from an untouched block. A function, not a
+// constant, so the `__()` calls run after the editor's i18n is loaded rather
+// than being cached in the source locale at module init.
 const defaultMessages = filterState => {
-	const defaults = noResultsDefaultMessages();
 	const messages = [];
 	if ( filterState !== 'filtered' ) {
-		messages.push( defaults.unfiltered );
+		messages.push( __( 'No results found. Try a different search.', 'jetpack-search-pkg' ) );
 	}
 	if ( filterState !== 'unfiltered' ) {
-		messages.push( defaults.filtered );
+		messages.push(
+			__(
+				'No results match these filters. Try clearing some, or searching for something else.',
+				'jetpack-search-pkg'
+			)
+		);
 	}
 	return messages;
 };
