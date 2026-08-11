@@ -23,8 +23,8 @@
 
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Current_Plan;
-use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Search\Plan as Search_Plan;
+use Automattic\Jetpack\SEO\AI_SEO_Enhancer;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -235,22 +235,16 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 	 * Whether the AI SEO enhancer is available on this site, so the settings
 	 * page can hide its row where the feature can't run.
 	 *
-	 * Mirrors the legacy Traffic page's gate: the feature filter, the
-	 * seo-tools module (always active on WordPress.com Simple, where
-	 * Modules::is_active() short-circuits), and the plan feature.
+	 * Defers to the SEO package, which owns the `ai_seo_enhancer_enabled`
+	 * option and is the single place the feature filter, the seo-tools module
+	 * and the `ai-seo-enhancer` plan feature are resolved. The terms are
+	 * unchanged from the copy this method used to carry; keeping one definition
+	 * is what stops this endpoint and the SEO dashboard drifting apart again.
 	 *
 	 * @return bool
 	 */
 	private function is_seo_enhancer_available() {
-		$filter_on = (bool) apply_filters( 'ai_seo_enhancer_enabled', true );
-
-		$module_active = class_exists( Modules::class )
-			&& ( new Modules() )->is_active( 'seo-tools' );
-
-		$plan_supports = class_exists( Current_Plan::class )
-			&& Current_Plan::supports( 'ai-seo-enhancer' );
-
-		return $filter_on && $module_active && $plan_supports;
+		return AI_SEO_Enhancer::is_available();
 	}
 
 	/**
