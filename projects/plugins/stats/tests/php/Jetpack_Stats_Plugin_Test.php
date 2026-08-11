@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Stats\Main as Stats_Main;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
+use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
 use Automattic\Jetpack\Stats_Plugin\Jetpack_Stats_Plugin;
 use WorDBless\BaseTestCase;
 
@@ -48,18 +49,80 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The plugin file registers its hooks on load, in `bootstrap()`. Requiring the
-	 * file happens once in the test bootstrap, so the hooks are already in place.
+	 * The complete set of hooks `bootstrap()` registers, as `hook, method, priority`.
 	 */
-	public function test_bootstrap_registers_package_configuration() {
-		$this->assertSame(
-			1,
-			has_action( 'plugins_loaded', array( Jetpack_Stats_Plugin::class, 'configure_packages' ) )
+	private function bootstrap_hooks() {
+		return array(
+			array( 'plugins_loaded', 'configure_packages', 1 ),
+			array( 'plugins_loaded', 'initialize_other_packages', 10 ),
+			array( 'activated_plugin', 'handle_plugin_activation', 10 ),
+			array( 'jetpack_site_registered', 'activate_stats_module', 10 ),
+			array( 'deactivate_jetpack/jetpack.php', 'activate_stats_module', 10 ),
+			array( 'plugin_action_links_' . JETPACK_STATS_PLUGIN__FILE_RELATIVE_PATH, 'plugin_page_add_links', 10 ),
+			array( 'jetpack_get_available_standalone_modules', 'filter_available_modules_add_stats', 10 ),
 		);
-		$this->assertSame(
-			10,
-			has_action( 'plugins_loaded', array( Jetpack_Stats_Plugin::class, 'initialize_other_packages' ) )
-		);
+	}
+
+	/**
+	 * Whether the Odyssey dashboard has claimed the admin menu.
+	 *
+	 * `Stats_Admin\Dashboard` hooks an instance method, so `has_action()` cannot match it
+	 * against a class name.
+	 */
+	private function dashboard_menu_is_registered() {
+		if ( ! isset( $GLOBALS['wp_filter']['admin_menu'] ) ) {
+			return false;
+		}
+
+		foreach ( $GLOBALS['wp_filter']['admin_menu']->callbacks as $callbacks ) {
+			foreach ( $callbacks as $callback ) {
+				if ( is_array( $callback['function'] ) && $callback['function'][0] instanceof Stats_Dashboard ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * `Stats_Admin\Dashboard` records its initialization in a static that survives the
+	 * per-test hook restore, and it registers the menu only on the first call. Clear it so a
+	 * test that expects the dashboard to register controls its own precondition.
+	 */
+	private function reset_dashboard_initialization() {
+		$initialized = new ReflectionProperty( Stats_Dashboard::class, 'initialized' );
+		$initialized->setAccessible( true );
+		$initialized->setValue( null, false );
+	}
+
+	/**
+	 * `bootstrap()` is the plugin's whole wiring surface, so a hook dropped from it is a
+	 * feature silently switched off. Clear the hooks the test bootstrap already registered
+	 * before calling it, otherwise the assertions pass on that earlier state and the test
+	 * says nothing about `bootstrap()` itself.
+	 *
+	 * WordPress stores actions as filters, so `has_filter()` and `remove_filter()` cover both.
+	 */
+	public function test_bootstrap_registers_every_hook() {
+		foreach ( $this->bootstrap_hooks() as list( $hook, $method, $priority ) ) {
+			remove_filter( $hook, array( Jetpack_Stats_Plugin::class, $method ), $priority );
+
+			$this->assertFalse(
+				has_filter( $hook, array( Jetpack_Stats_Plugin::class, $method ) ),
+				"$hook still holds $method before bootstrap() runs."
+			);
+		}
+
+		Jetpack_Stats_Plugin::bootstrap();
+
+		foreach ( $this->bootstrap_hooks() as list( $hook, $method, $priority ) ) {
+			$this->assertSame(
+				$priority,
+				has_filter( $hook, array( Jetpack_Stats_Plugin::class, $method ) ),
+				"bootstrap() did not register $method on $hook."
+			);
+		}
 	}
 
 	/**
@@ -113,6 +176,16 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	public function test_activation_lands_on_onboarding_when_not_connected() {
 		$this->assertFalse( ( new Connection_Manager() )->is_connected(), 'Test environment is expected to be unconnected.' );
 		$this->assertSame( 'my-jetpack', Jetpack_Stats_Plugin::get_post_activation_page() );
+	}
+
+	/**
+	 * The counterpart: a connected site has figures to show, so activation opens the
+	 * dashboard rather than sending the user through onboarding again.
+	 */
+	public function test_activation_lands_on_the_dashboard_when_connected() {
+		$this->fake_connection();
+
+		$this->assertSame( 'stats', Jetpack_Stats_Plugin::get_post_activation_page() );
 	}
 
 	/**
@@ -187,6 +260,22 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 		Jetpack_Stats_Plugin::register_disconnected_menu();
 
 		$this->assertContains( 'stats', array_column( $GLOBALS['menu'], 2 ) );
+	}
+
+	/**
+	 * The connected counterpart of the two tests above. Both menus claim the `stats` slug, so
+	 * the dashboard must take it and the stand-in must stay out of the way.
+	 */
+	public function test_connected_site_initializes_the_dashboard() {
+		$this->fake_connection();
+		$this->reset_dashboard_initialization();
+
+		Jetpack_Stats_Plugin::initialize_other_packages();
+
+		$this->assertTrue( $this->dashboard_menu_is_registered() );
+		$this->assertFalse(
+			has_action( 'admin_menu', array( Jetpack_Stats_Plugin::class, 'register_disconnected_menu' ) )
+		);
 	}
 
 	/**
