@@ -15,12 +15,12 @@ import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Badge, Notice, Stack, Tabs } from '@wordpress/ui';
-import analytics from 'lib/analytics';
 import AiFeatures from './features/index';
 import { useFeatureSettings } from './features/use-feature-settings';
 import McpHub from './mcp/index';
 import McpRead from './mcp/read';
 import McpSetup from './mcp/setup';
+import { recordMcpTracksEvent } from './mcp/tracks';
 import McpUpsell from './mcp/upsell';
 import { useMcpSettings } from './mcp/use-mcp-settings';
 import McpWrite from './mcp/write';
@@ -148,7 +148,7 @@ export default function App() {
 			mcpViewedRecorded.current = true;
 			// blog_id is attached automatically by the analytics library from
 			// window.jpTracksContext, which the page sets via an inline script.
-			analytics.tracks.recordEvent( 'jetpack_mcp_settings_viewed', {
+			recordMcpTracksEvent( 'jetpack_mcp_settings_viewed', {
 				ref: SETTINGS_REF,
 			} );
 		}
