@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Slider field: keep the default label when the form uses the Outlined or Animated style, so the label no longer overlaps the slider track.
