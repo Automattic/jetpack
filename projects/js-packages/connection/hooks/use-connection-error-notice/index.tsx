@@ -2,6 +2,7 @@ import ConnectionErrorNotice from '../../components/connection-error-notice';
 import useConnection from '../../components/use-connection';
 import useRestoreConnection from '../../hooks/use-restore-connection';
 import { resolveConnectionErrorActions } from './resolve-actions';
+import { isOtherUsersConnectionError } from './viewer-scope';
 import type {
 	ConnectionErrorMap,
 	ConnectionErrorObject,
@@ -79,11 +80,17 @@ export default function useConnectionErrorNotice( {
 	);
 
 	// The CTA comes from an error the viewer can actually resolve, and one they can
-	// see: a message-less error is never rendered.
+	// see: a message-less error is never rendered, and another user's broken token
+	// is not this viewer's to act on — see `isOtherUsersConnectionError`.
 	const actionError =
 		Object.values( errorMap )
 			.flatMap( byUser => ( byUser && typeof byUser === 'object' ? Object.values( byUser ) : [] ) )
-			.find( error => error?.error_message && error.error_data?.action !== 'none' ) ?? firstError;
+			.find(
+				error =>
+					error?.error_message &&
+					error.error_data?.action !== 'none' &&
+					! isOtherUsersConnectionError( error, currentUserId )
+			) ?? firstError;
 
 	// Message and CTA describe the same error.
 	const connectionErrorMessage = actionError?.error_message;

@@ -16,6 +16,21 @@ jest.mock( '@automattic/jetpack-connection', () => ( {
 	getReconnectErrorMessage: jest.fn(
 		( error: string ) => `There was an error reconnecting Jetpack. Error: ${ error }`
 	),
+	// Kept faithful to the package's own implementation: the notice's filtering and
+	// its tracking both depend on this answer, so stubbing it away would hide the
+	// behaviour under test.
+	isOtherUsersConnectionError: (
+		error: { audience?: string; user_id?: string } | undefined,
+		currentUserId: number | undefined
+	) => {
+		if ( error?.audience !== 'user' || currentUserId === undefined ) {
+			return false;
+		}
+
+		const errorUserId = Number( error.user_id );
+
+		return Number.isFinite( errorUserId ) && errorUserId !== Number( currentUserId );
+	},
 } ) );
 jest.mock( '../../use-analytics' );
 jest.mock( '../assignLocation' );
@@ -218,7 +233,7 @@ describe( 'useConnectionErrorsNotice', () => {
 		expect( noticeText ).toContain( 'Site connection · Error code: no_valid_blog_token' );
 		expect( noticeText ).toContain( 'Your account · Error code: invalid_token' );
 
-		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].title ).toBe( '2 Jetpack connection errors' );
+		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].title ).toBe( '2 Jetpack Connection errors' );
 		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].options.tracksArgs ).toEqual( {
 			error_count: 2,
 			error_code: 'no_valid_blog_token',
@@ -278,7 +293,7 @@ describe( 'useConnectionErrorsNotice', () => {
 		);
 		expect( noticeText ).toContain( 'Your account · Error code: invalid_token' );
 		// Grouping is presentation only: the error count is unchanged.
-		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].title ).toBe( '2 Jetpack connection errors' );
+		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].title ).toBe( '2 Jetpack Connection errors' );
 		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].options.tracksArgs.error_count ).toBe( 2 );
 	} );
 
@@ -326,78 +341,10 @@ describe( 'useConnectionErrorsNotice', () => {
 		} );
 	} );
 
-	// Several admins can hit one error code. Each is a distinct error, but they
-	// all describe the same thing to this viewer, so rendering them verbatim
-	// repeats an identical line and reads as a duplication bug.
-	it( 'collapses errors that would read identically into one counted line', async () => {
-		const otherUsersError = ( userId: string ) => ( {
-			error_message: 'A user token is broken.',
-			error_code: 'invalid_token',
-			user_id: userId,
-			audience: 'user' as const,
-		} );
-
-		mockUseConnectionErrorNotice.mockReturnValue( {
-			...noError,
-			hasConnectionError: true,
-			connectionErrorMessage: 'A user token is broken.',
-			connectionError: otherUsersError( '99' ),
-			connectionErrors: {
-				invalid_token: {
-					99: otherUsersError( '99' ),
-					100: otherUsersError( '100' ),
-					101: otherUsersError( '101' ),
-				},
-			},
-			actions: [],
-		} );
-
-		renderWithNoticeContext();
-
-		await waitFor( () => {
-			expect( mockSetNotice ).toHaveBeenCalled();
-		} );
-
-		const noticeText = getNoticeText();
-
-		expect( noticeText ).toContain( "3 other users' accounts · Error code: invalid_token" );
-		expect( noticeText ).not.toContain( "Another user's account" );
-		// Collapsing is presentation only: the error count is unchanged.
-		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].options.tracksArgs.error_count ).toBe( 3 );
-	} );
-
-	it( "keeps the viewer's own error distinct from other users' errors", async () => {
-		const viewersError = {
-			error_message: 'A user token is broken.',
-			error_code: 'invalid_token',
-			user_id: '7',
-			audience: 'user' as const,
-		};
-		const othersError = { ...viewersError, user_id: '99' };
-
-		mockUseConnectionErrorNotice.mockReturnValue( {
-			...noError,
-			hasConnectionError: true,
-			connectionErrorMessage: viewersError.error_message,
-			connectionError: viewersError,
-			connectionErrors: { invalid_token: { 7: viewersError, 99: othersError } },
-			actions: [],
-		} );
-
-		renderWithNoticeContext();
-
-		await waitFor( () => {
-			expect( mockSetNotice ).toHaveBeenCalled();
-		} );
-
-		const noticeText = getNoticeText();
-
-		// Same code, but they describe different things to this viewer.
-		expect( noticeText ).toContain( 'Your account · Error code: invalid_token' );
-		expect( noticeText ).toContain( "Another user's account · Error code: invalid_token" );
-	} );
-
-	it( "attributes another admin's token error to them rather than to the viewer", async () => {
+	// Another admin's broken token does not affect this site's connection and only
+	// that admin can restore it, so reporting it here would pair a problem with a
+	// button that cannot fix it.
+	describe( "another admin's broken token", () => {
 		const otherUsersError = {
 			error_message: 'A user token is broken.',
 			error_code: 'invalid_token',
@@ -405,27 +352,122 @@ describe( 'useConnectionErrorsNotice', () => {
 			audience: 'user' as const,
 		};
 
-		mockUseConnectionErrorNotice.mockReturnValue( {
-			...noError,
-			hasConnectionError: true,
-			connectionErrorMessage: otherUsersError.error_message,
-			connectionError: otherUsersError,
-			connectionErrors: { invalid_token: { 99: otherUsersError } },
-			actions: [],
+		it( 'is left out of the notice', async () => {
+			const siteError = {
+				error_message: 'The site token is broken.',
+				error_code: 'no_valid_blog_token',
+				user_id: '0',
+				audience: 'site' as const,
+			};
+
+			mockUseConnectionErrorNotice.mockReturnValue( {
+				...noError,
+				hasConnectionError: true,
+				connectionErrorMessage: siteError.error_message,
+				connectionError: siteError,
+				connectionErrors: {
+					no_valid_blog_token: { 0: siteError },
+					invalid_token: { 99: otherUsersError },
+				},
+				actions: [ { label: 'Restore Connection', onClick: jest.fn() } ],
+			} );
+
+			renderWithNoticeContext();
+
+			await waitFor( () => {
+				expect( mockSetNotice ).toHaveBeenCalled();
+			} );
+
+			const noticeText = getNoticeText();
+
+			expect( noticeText ).toContain( 'The site token is broken.' );
+			expect( noticeText ).not.toContain( "Another user's account" );
+			expect( noticeText ).not.toContain( 'A user token is broken.' );
+			// The title and the count describe what is shown, not what was filtered —
+			// and with one error left, the title carries the scope on its own.
+			expect( mockSetNotice.mock.calls[ 0 ][ 0 ].title ).toBe(
+				'Jetpack Connection error: Site connection'
+			);
+			expect( noticeText ).toContain( 'Error code: no_valid_blog_token' );
+			expect( mockSetNotice.mock.calls[ 0 ][ 0 ].options.tracksArgs.error_count ).toBe( 1 );
 		} );
 
-		renderWithNoticeContext();
+		// The hook falls back to the first stored error when nothing else is both
+		// renderable and actionable, which can hand back an error this notice
+		// filtered out. Tracking it would describe something the viewer never saw.
+		it( 'is never the error reported to Tracks', async () => {
+			const lockedOwnerError = {
+				error_message: 'The connection owner needs to reconnect.',
+				error_code: 'invalid_connection_owner',
+				user_id: '3',
+				audience: 'owner' as const,
+				error_data: { action: 'none' },
+			};
 
-		await waitFor( () => {
-			expect( mockSetNotice ).toHaveBeenCalled();
+			mockUseConnectionErrorNotice.mockReturnValue( {
+				...noError,
+				hasConnectionError: true,
+				connectionErrorMessage: otherUsersError.error_message,
+				// What the hook fell back to — not something this notice renders.
+				connectionError: otherUsersError,
+				connectionErrors: {
+					invalid_token: { 99: otherUsersError },
+					invalid_connection_owner: { 3: lockedOwnerError },
+				},
+				actions: [],
+			} );
+
+			renderWithNoticeContext();
+
+			await waitFor( () => {
+				expect( mockSetNotice ).toHaveBeenCalled();
+			} );
+
+			expect( mockSetNotice.mock.calls[ 0 ][ 0 ].options.tracksArgs ).toEqual( {
+				error_count: 1,
+				error_code: 'invalid_connection_owner',
+				audience: 'owner',
+			} );
 		} );
 
-		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].title ).toBe(
-			"Jetpack connection error: Another user's account"
-		);
-		// The title already says whose account it is, so the line below it doesn't.
-		expect( getNoticeText() ).toContain( 'Error code: invalid_token' );
-		expect( getNoticeText() ).not.toContain( "Another user's account ·" );
+		it( 'leaves no notice at all when it is the only error there is', async () => {
+			mockUseConnectionErrorNotice.mockReturnValue( {
+				...noError,
+				hasConnectionError: true,
+				connectionErrorMessage: otherUsersError.error_message,
+				connectionError: otherUsersError,
+				connectionErrors: { invalid_token: { 99: otherUsersError } },
+				actions: [],
+			} );
+
+			renderWithNoticeContext();
+
+			expect( mockSetNotice ).not.toHaveBeenCalled();
+		} );
+
+		// Without a viewer ID there is no basis for calling the error somebody else's,
+		// and dropping it would hide a problem the viewer may well own.
+		it( 'is kept when the viewer cannot be identified', async () => {
+			mockUseConnectionErrorNotice.mockReturnValue( {
+				...noError,
+				currentUserId: undefined,
+				hasConnectionError: true,
+				connectionErrorMessage: otherUsersError.error_message,
+				connectionError: otherUsersError,
+				connectionErrors: { invalid_token: { 99: otherUsersError } },
+				actions: [],
+			} );
+
+			renderWithNoticeContext();
+
+			await waitFor( () => {
+				expect( mockSetNotice ).toHaveBeenCalled();
+			} );
+
+			expect( mockSetNotice.mock.calls[ 0 ][ 0 ].title ).toBe(
+				"Jetpack Connection error: Another user's account"
+			);
+		} );
 	} );
 
 	it( 'names the connection owner for an owner-audience error seen by someone else', async () => {
@@ -452,7 +494,7 @@ describe( 'useConnectionErrorsNotice', () => {
 		} );
 
 		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].title ).toBe(
-			"Jetpack connection error: Connection owner's account (Site Owner)"
+			"Jetpack Connection error: Connection owner's account (Site Owner)"
 		);
 	} );
 
@@ -484,7 +526,7 @@ describe( 'useConnectionErrorsNotice', () => {
 		} );
 
 		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].title ).toBe(
-			'Jetpack connection error: Your account (connection owner)'
+			'Jetpack Connection error: Your account (connection owner)'
 		);
 		expect( getNoticeText() ).toContain( 'Error code: invalid_connection_owner' );
 	} );
@@ -516,7 +558,7 @@ describe( 'useConnectionErrorsNotice', () => {
 		} );
 
 		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].title ).toBe(
-			"Jetpack connection error: Connection owner's account"
+			"Jetpack Connection error: Connection owner's account"
 		);
 		expect( getNoticeText() ).not.toContain( 'Site Owner' );
 	} );

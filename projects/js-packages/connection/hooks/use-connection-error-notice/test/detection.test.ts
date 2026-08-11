@@ -289,6 +289,78 @@ describe( 'useConnectionErrorNotice — error detection', () => {
 			expect( result.current.actions[ 0 ].label ).toBe( 'Restore Connection' );
 		} );
 
+		// Preferring an actionable error must not reach past the viewer's own errors
+		// to somebody else's: only that user can restore their own token, and a
+		// reconnect deregisters the site and invalidates every user token without
+		// giving them a new one.
+		describe( "another user's broken token", () => {
+			const othersError = {
+				error_message: 'A user token is broken.',
+				audience: 'user',
+				user_id: '99',
+			};
+			const viewer = { currentUser: { id: 7, isMaster: false } };
+
+			it( 'is never the error the CTA is taken from', () => {
+				mockConnection( {
+					connectionErrors: {
+						invalid_token: { 99: othersError, 7: { ...othersError, user_id: '7' } },
+					},
+					userConnectionData: viewer,
+				} );
+
+				const { result } = renderHook( () => useConnectionErrorNotice() );
+				expect( result.current.connectionError?.user_id ).toBe( '7' );
+				expect( result.current.actions ).toHaveLength( 1 );
+			} );
+
+			it( 'leaves an informational first error in place rather than reaching past it', () => {
+				mockConnection( {
+					connectionErrors: {
+						invalid_connection_owner: { 3: informational },
+						invalid_token: { 99: othersError },
+					},
+					userConnectionData: viewer,
+				} );
+
+				const { result } = renderHook( () => useConnectionErrorNotice() );
+				expect( result.current.connectionError ).toBe( informational );
+				expect( result.current.actions ).toEqual( [] );
+			} );
+
+			it( "does not disown the viewer's own error", () => {
+				mockConnection( {
+					connectionErrors: { invalid_token: { 7: { ...othersError, user_id: '7' } } },
+					userConnectionData: viewer,
+				} );
+
+				const { result } = renderHook( () => useConnectionErrorNotice() );
+				expect( result.current.actions[ 0 ].label ).toBe( 'Restore Connection' );
+			} );
+
+			// With one side of the comparison missing there is no basis for calling the
+			// error someone else's, and skipping it would leave the viewer with a
+			// message and no way to act on it.
+			it.each( [
+				[
+					'the viewer is unidentified',
+					{ connectionErrors: { invalid_token: { 99: othersError } } },
+				],
+				[
+					'the error is unattributed',
+					{
+						connectionErrors: { invalid_token: { 99: { ...othersError, user_id: undefined } } },
+						userConnectionData: viewer,
+					},
+				],
+			] )( 'stays actionable when %s', ( _label, overrides ) => {
+				mockConnection( overrides );
+
+				const { result } = renderHook( () => useConnectionErrorNotice() );
+				expect( result.current.actions[ 0 ].label ).toBe( 'Restore Connection' );
+			} );
+		} );
+
 		// The map is server JSON crossing an untyped store; a throw in the hook would
 		// take down the whole page rather than just the notice.
 		it( 'survives a malformed error map', () => {

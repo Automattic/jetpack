@@ -1,4 +1,5 @@
 import {
+	excludeOtherUsersErrors,
 	flattenConnectionErrors,
 	getConnectionErrorDetail,
 	getConnectionErrorDetailLines,
@@ -103,6 +104,30 @@ describe( 'groupConnectionErrorsByMessage', () => {
 	} );
 } );
 
+describe( 'excludeOtherUsersErrors', () => {
+	const viewer = { currentUserId: 7 };
+
+	it( "drops another user's broken token, which this viewer can neither fix nor is affected by", () => {
+		const errors = [ anError( { audience: 'user', user_id: '99' } ) ];
+
+		expect( excludeOtherUsersErrors( errors, viewer ) ).toEqual( [] );
+	} );
+
+	it( 'keeps the errors every admin has a stake in', () => {
+		const errors = [
+			anError( { audience: 'site', user_id: '0' } ),
+			anError( { audience: 'owner', user_id: '3' } ),
+			anError( { audience: 'user', user_id: '7' } ),
+		];
+
+		expect( excludeOtherUsersErrors( errors, viewer ) ).toEqual( errors );
+	} );
+
+	// The rule for what counts as somebody else's error belongs to the connection
+	// package and is covered by its own tests; these two cases pin the filtering
+	// this helper adds on top of it.
+} );
+
 describe( 'getConnectionErrorScope', () => {
 	describe( 'owner-audience errors', () => {
 		const ownerError = anError( { audience: 'owner', user_id: '3' } );
@@ -143,26 +168,12 @@ describe( 'getConnectionErrorScope', () => {
 			expect( getConnectionErrorScope( error, { currentUserId: 7 } ) ).toBe( 'Your account' );
 		} );
 
+		// `Error_Handler` keeps another user's error out of this viewer's set, so the
+		// label is only reached for a consumer-injected error.
 		it( "attributes someone else's error to another user", () => {
 			const error = anError( { audience: 'user', user_id: '9' } );
 
 			expect( getConnectionErrorScope( error, { currentUserId: 7 } ) ).toBe(
-				"Another user's account"
-			);
-		} );
-
-		it( 'counts other users rather than listing them', () => {
-			const error = anError( { audience: 'user', user_id: '9' } );
-
-			expect( getConnectionErrorScope( error, { currentUserId: 7 }, 3 ) ).toBe(
-				"3 other users' accounts"
-			);
-		} );
-
-		it( 'stays singular for a count of one', () => {
-			const error = anError( { audience: 'user', user_id: '9' } );
-
-			expect( getConnectionErrorScope( error, { currentUserId: 7 }, 1 ) ).toBe(
 				"Another user's account"
 			);
 		} );
@@ -216,14 +227,6 @@ describe( 'getConnectionErrorDetail', () => {
 		expect( getConnectionErrorDetail( error ) ).toBe( 'Site connection' );
 	} );
 
-	it( 'passes the count through to the scope', () => {
-		const error = anError( { audience: 'user', user_id: '9', error_code: 'invalid_token' } );
-
-		expect( getConnectionErrorDetail( error, { currentUserId: 7 }, { count: 2 } ) ).toBe(
-			"2 other users' accounts · Error code: invalid_token"
-		);
-	} );
-
 	// The scope is in the notice title for a single error, so repeating it in the
 	// line below reads as a duplication bug.
 	describe( 'with the scope omitted', () => {
@@ -244,34 +247,26 @@ describe( 'getConnectionErrorDetail', () => {
 } );
 
 describe( 'getConnectionErrorDetailLines', () => {
-	// Several admins hitting one error code all reduce to "another user's
-	// account". Rendering those verbatim reads as a duplication bug.
-	it( 'collapses lines that would read identically into one counted line', () => {
+	// Two errors can describe the same thing to this viewer — a code reported
+	// against the blog token and a consumer's injected copy of it. Rendering both
+	// verbatim reads as a duplication bug.
+	it( 'collapses lines that would read identically', () => {
 		const errors = [
-			anError( { audience: 'user', user_id: '9', error_code: 'invalid_token' } ),
-			anError( { audience: 'user', user_id: '11', error_code: 'invalid_token' } ),
-			anError( { audience: 'user', user_id: '12', error_code: 'invalid_token' } ),
+			anError( { audience: 'site', error_code: 'invalid_token' } ),
+			anError( { audience: 'site', error_code: 'invalid_token' } ),
 		];
 
 		const lines = getConnectionErrorDetailLines( errors, { currentUserId: 7 } );
 
 		expect( lines ).toHaveLength( 1 );
-		expect( lines[ 0 ].text ).toBe( "3 other users' accounts · Error code: invalid_token" );
-	} );
-
-	it( 'keeps the singular wording for a line standing for one error', () => {
-		const errors = [ anError( { audience: 'user', user_id: '9', error_code: 'invalid_token' } ) ];
-
-		expect( getConnectionErrorDetailLines( errors, { currentUserId: 7 } )[ 0 ].text ).toBe(
-			"Another user's account · Error code: invalid_token"
-		);
+		expect( lines[ 0 ].text ).toBe( 'Site connection · Error code: invalid_token' );
 	} );
 
 	it( 'keeps lines that read differently apart', () => {
 		const errors = [
 			anError( { audience: 'site', error_code: 'no_valid_blog_token' } ),
 			anError( { audience: 'user', user_id: '7', error_code: 'invalid_token' } ),
-			anError( { audience: 'user', user_id: '9', error_code: 'invalid_token' } ),
+			anError( { audience: 'owner', user_id: '3', error_code: 'invalid_connection_owner' } ),
 		];
 
 		const lines = getConnectionErrorDetailLines( errors, { currentUserId: 7 } );
@@ -279,7 +274,7 @@ describe( 'getConnectionErrorDetailLines', () => {
 		expect( lines.map( line => line.text ) ).toEqual( [
 			'Site connection · Error code: no_valid_blog_token',
 			'Your account · Error code: invalid_token',
-			"Another user's account · Error code: invalid_token",
+			"Connection owner's account · Error code: invalid_connection_owner",
 		] );
 	} );
 
@@ -311,12 +306,11 @@ describe( 'getConnectionErrorDetailLines', () => {
 			).toEqual( [ 'Error code: invalid_connection_owner' ] );
 		} );
 
-		// Without the scope there is nothing to distinguish them, and nothing worth
-		// counting either — the count only ever qualified the scope.
+		// Without the scope there is nothing left to tell them apart.
 		it( 'collapses errors sharing a code across different scopes', () => {
 			const errors = [
-				anError( { audience: 'user', user_id: '9', error_code: 'invalid_token' } ),
-				anError( { audience: 'user', user_id: '11', error_code: 'invalid_token' } ),
+				anError( { audience: 'site', error_code: 'invalid_token' } ),
+				anError( { audience: 'user', user_id: '7', error_code: 'invalid_token' } ),
 			];
 
 			expect(
@@ -355,7 +349,7 @@ describe( 'getConnectionErrorTitle', () => {
 		const errors = [ anError( { audience: 'user', user_id: '7' } ) ];
 
 		expect( getConnectionErrorTitle( errors, { currentUserId: 7 } ) ).toBe(
-			'Jetpack connection error: Your account'
+			'Jetpack Connection error: Your account'
 		);
 	} );
 
@@ -368,11 +362,11 @@ describe( 'getConnectionErrorTitle', () => {
 		];
 
 		expect( getConnectionErrorTitle( errors, { currentUserId: 7 } ) ).toBe(
-			'2 Jetpack connection errors'
+			'2 Jetpack Connection errors'
 		);
 	} );
 
 	it( 'falls back to a generic title when there are no errors', () => {
-		expect( getConnectionErrorTitle( [] ) ).toBe( 'Jetpack connection error' );
+		expect( getConnectionErrorTitle( [] ) ).toBe( 'Jetpack Connection error' );
 	} );
 } );

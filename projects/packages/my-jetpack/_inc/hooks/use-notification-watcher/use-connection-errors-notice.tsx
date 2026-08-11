@@ -10,6 +10,7 @@ import { NoticeContext } from '../../context/notices/noticeContext';
 import useAnalytics from '../use-analytics';
 import { assignLocation } from './assignLocation';
 import {
+	excludeOtherUsersErrors,
 	flattenConnectionErrors,
 	getConnectionErrorDetailLines,
 	getConnectionErrorTitle,
@@ -61,16 +62,22 @@ const useConnectionErrorsNotice = (
 
 	const ownerName = connectionOwner?.displayName;
 
-	// Show every displayable error the backend handed us, not just the first.
+	// Show every displayable error the backend handed us, not just the first —
+	// minus the ones belonging to other users, which this viewer can neither fix
+	// nor is affected by.
 	const errorList = useMemo( () => {
-		const flattened = flattenConnectionErrors( connectionErrors );
+		const viewer = { currentUserId };
+		const flattened = excludeOtherUsersErrors(
+			flattenConnectionErrors( connectionErrors ),
+			viewer
+		);
 
 		if ( flattened.length ) {
 			return flattened;
 		}
 
-		return connectionError ? [ connectionError ] : [];
-	}, [ connectionErrors, connectionError ] );
+		return connectionError ? excludeOtherUsersErrors( [ connectionError ], viewer ) : [];
+	}, [ connectionErrors, connectionError, currentUserId ] );
 
 	useEffect( () => {
 		if ( ! hasConnectionError || ! errorList.length ) {
@@ -128,8 +135,11 @@ const useConnectionErrorsNotice = (
 			noDefaultClasses: true,
 		} ) );
 
-		// Report the error the CTA belongs to rather than whichever came first in the map.
-		const trackedError = connectionError ?? errorList[ 0 ];
+		// Report the error the CTA belongs to rather than whichever came first in the
+		// map — unless that error is one we filtered out, in which case reporting it
+		// would describe something the viewer was never shown.
+		const trackedError =
+			connectionError && errorList.includes( connectionError ) ? connectionError : errorList[ 0 ];
 
 		const noticeOptions: NoticeOptions = {
 			id: 'connection-error-notice',

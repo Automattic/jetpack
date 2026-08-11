@@ -1,3 +1,4 @@
+import { isOtherUsersConnectionError } from '@automattic/jetpack-connection';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import type { ConnectionErrorMap, ConnectionErrorObject } from '@automattic/jetpack-connection';
 
@@ -34,6 +35,28 @@ export function flattenConnectionErrors(
 	return Object.values( errors )
 		.flatMap( byUser => ( byUser && typeof byUser === 'object' ? Object.values( byUser ) : [] ) )
 		.filter( error => Boolean( error?.error_message ) );
+}
+
+/**
+ * Drop the errors this viewer has no stake in.
+ *
+ * Another (non-owner) user's broken token does not affect the site's connection
+ * and only that user can restore it, so naming it here would report a problem
+ * alongside a button that cannot fix it. Site-wide and connection-owner errors
+ * are kept: those do break the site's connection, and any admin can act on them.
+ *
+ * The rule itself lives in the connection package, which owns both this
+ * judgement and the CTA that has to agree with it.
+ *
+ * @param {ConnectionErrorObject[]} errors - The displayable errors.
+ * @param {ConnectionErrorViewer}   viewer - Who is looking at the notice.
+ * @return {ConnectionErrorObject[]} The errors worth showing this viewer.
+ */
+export function excludeOtherUsersErrors(
+	errors: ConnectionErrorObject[],
+	viewer: ConnectionErrorViewer = {}
+): ConnectionErrorObject[] {
+	return errors.filter( error => ! isOtherUsersConnectionError( error, viewer.currentUserId ) );
 }
 
 /**
@@ -76,13 +99,11 @@ export function groupConnectionErrorsByMessage(
  *
  * @param {ConnectionErrorObject} error  - The error to describe.
  * @param {ConnectionErrorViewer} viewer - Who is looking at the notice.
- * @param {number}                count  - How many errors this label stands for.
  * @return {string} A human-readable scope label.
  */
 export function getConnectionErrorScope(
 	error: ConnectionErrorObject,
-	viewer: ConnectionErrorViewer = {},
-	count: number = 1
+	viewer: ConnectionErrorViewer = {}
 ): string {
 	const audience = error?.audience ?? 'site';
 	const { currentUserId, isOwner, ownerName } = viewer;
@@ -108,16 +129,9 @@ export function getConnectionErrorScope(
 			return __( 'Your account', 'jetpack-my-jetpack' );
 		}
 
-		// Several other admins can hit the same error code, which would otherwise
-		// render as identical lines. Count them instead — the viewer can't act on
-		// any of them, so the individual identities add nothing.
-		return count > 1
-			? sprintf(
-					/* translators: %d is the number of other users whose accounts have the same error. */
-					_n( "%d other user's account", "%d other users' accounts", count, 'jetpack-my-jetpack' ),
-					count
-			  )
-			: __( "Another user's account", 'jetpack-my-jetpack' );
+		// `Error_Handler` leaves another user's token error out of this viewer's set,
+		// so this is only reachable for an error injected by a consumer filter.
+		return __( "Another user's account", 'jetpack-my-jetpack' );
 	}
 
 	return __( 'Site connection', 'jetpack-my-jetpack' );
@@ -127,8 +141,6 @@ export function getConnectionErrorScope(
  * How to phrase a detail line.
  */
 export type ConnectionErrorDetailOptions = {
-	/** How many errors this line stands for. Unused when the scope is omitted. */
-	count?: number;
 	/** Leave the scope out and return the code alone. */
 	omitScope?: boolean;
 };
@@ -146,7 +158,7 @@ export type ConnectionErrorDetailOptions = {
 export function getConnectionErrorDetail(
 	error: ConnectionErrorObject,
 	viewer: ConnectionErrorViewer = {},
-	{ count = 1, omitScope = false }: ConnectionErrorDetailOptions = {}
+	{ omitScope = false }: ConnectionErrorDetailOptions = {}
 ): string {
 	const code = typeof error?.error_code === 'string' ? error.error_code : '';
 
@@ -160,7 +172,7 @@ export function getConnectionErrorDetail(
 			: '';
 	}
 
-	const scope = getConnectionErrorScope( error, viewer, count );
+	const scope = getConnectionErrorScope( error, viewer );
 
 	if ( ! code ) {
 		return scope;
@@ -189,9 +201,9 @@ export type ConnectionErrorDetailLine = {
  * identically.
  *
  * Errors that differ in the payload can still describe the same thing to this
- * viewer — several admins hitting one error code all reduce to "another user's
- * account". Rendering those verbatim looks like a duplication bug, so collapse
- * them into a single counted line.
+ * viewer — the same code reported against both the blog token and a consumer's
+ * injected copy of it reduces to one line. Rendering those verbatim looks like a
+ * duplication bug, so collapse them.
  *
  * @param {ConnectionErrorObject[]} errors    - The errors to describe.
  * @param {ConnectionErrorViewer}   viewer    - Who is looking at the notice.
@@ -204,7 +216,7 @@ export function getConnectionErrorDetailLines(
 	omitScope: boolean = false
 ): ConnectionErrorDetailLine[] {
 	// Keyed by the line each error would render as.
-	const lines = new Map< string, { error: ConnectionErrorObject; count: number } >();
+	const lines = new Set< string >();
 
 	for ( const error of errors ) {
 		const detail = getConnectionErrorDetail( error, viewer, { omitScope } );
@@ -214,19 +226,10 @@ export function getConnectionErrorDetailLines(
 			continue;
 		}
 
-		const existing = lines.get( detail );
-
-		if ( existing ) {
-			existing.count++;
-		} else {
-			lines.set( detail, { error, count: 1 } );
-		}
+		lines.add( detail );
 	}
 
-	return [ ...lines.entries() ].map( ( [ detail, { error, count } ] ) => ( {
-		key: detail,
-		text: getConnectionErrorDetail( error, viewer, { count, omitScope } ),
-	} ) );
+	return [ ...lines ].map( detail => ( { key: detail, text: detail } ) );
 }
 
 /**
@@ -258,7 +261,7 @@ export function getConnectionErrorTitle(
 	if ( titleIncludesScope( errors ) ) {
 		return sprintf(
 			/* translators: %s is what the error applies to, e.g. "Site connection" or "Your account". */
-			__( 'Jetpack connection error: %s', 'jetpack-my-jetpack' ),
+			__( 'Jetpack Connection error: %s', 'jetpack-my-jetpack' ),
 			getConnectionErrorScope( errors[ 0 ], viewer )
 		);
 	}
@@ -267,8 +270,8 @@ export function getConnectionErrorTitle(
 		return sprintf(
 			/* translators: %d is the number of connection errors found. */
 			_n(
-				'%d Jetpack connection error',
-				'%d Jetpack connection errors',
+				'%d Jetpack Connection error',
+				'%d Jetpack Connection errors',
 				errors.length,
 				'jetpack-my-jetpack'
 			),
@@ -276,5 +279,5 @@ export function getConnectionErrorTitle(
 		);
 	}
 
-	return __( 'Jetpack connection error', 'jetpack-my-jetpack' );
+	return __( 'Jetpack Connection error', 'jetpack-my-jetpack' );
 }
