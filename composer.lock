@@ -63,7 +63,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "d9cddf2f8607377d801588c63c7d1951dd37d087"
+                "reference": "0f1e6c789c704afeb9533643e1f41b52ec687a27"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
@@ -195,12 +195,12 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "cbcfcbec077a97e68125d8135fb5ef8ad6fbb407"
+                "reference": "abd2135645d94bd39f5b2f8a5b54f15d63efc9df"
             },
             "require": {
                 "automattic/ignorefile": "@dev",
                 "php": ">=7.2",
-                "squizlabs/php_codesniffer": "^3.6.1 || ^4.0.0 || ^3.6.1 || ^3.6.1 || ^3.6.1"
+                "squizlabs/php_codesniffer": "^3.6.1 || ^4.0.0"
             },
             "require-dev": {
                 "automattic/phpunit-select-config": "@dev",
