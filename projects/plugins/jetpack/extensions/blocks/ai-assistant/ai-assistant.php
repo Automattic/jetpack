@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Extensions\AIAssistant;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\SEO\AI_SEO_Enhancer;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
@@ -103,8 +104,14 @@ add_action(
 				Jetpack_Gutenberg::set_extension_available( 'ai-assistant-image-extension' );
 			}
 
-			if ( apply_filters( 'ai_seo_enhancer_enabled', true ) ) {
+			if ( apply_filters( 'ai_seo_enhancer_enabled', true ) && ! AI_SEO_Enhancer::is_switched_off() ) {
 				Jetpack_Gutenberg::set_availability_for_plan( 'ai-seo-enhancer' );
+			} else {
+				// A deliberate admin off (or a host veto) withholds the extension,
+				// which removes every enhancer surface in the editor. The reason is
+				// deliberately not missing_plan: that value has upgrade-nudge
+				// semantics client-side, and off must not render upgrade messaging.
+				Jetpack_Gutenberg::set_extension_unavailable( 'ai-seo-enhancer', 'ai_seo_enhancer_disabled' );
 			}
 		}
 	}
