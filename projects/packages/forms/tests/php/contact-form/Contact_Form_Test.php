@@ -1772,6 +1772,63 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Renders a rating field, optionally under a given form style.
+	 *
+	 * @param string $form_class_name The contact form's className attribute, e.g. 'is-style-outlined'.
+	 *
+	 * @return string The field html string.
+	 */
+	private function render_rating_field( $form_class_name = '' ) {
+		return $this->render_field(
+			array(
+				'label'               => 'Rate your experience',
+				'type'                => 'rating',
+				'fieldwrapperclasses' => 'wp-block-jetpack-field-rating',
+				'id'                  => 'ratingID',
+				'max'                 => 5,
+			),
+			$form_class_name ? array( 'className' => $form_class_name ) : array()
+		);
+	}
+
+	/**
+	 * The rating field is a group of radio inputs with no single text-like box, so it
+	 * must keep its plain legend label under the inset styles rather than have the
+	 * label positioned over the icons.
+	 *
+	 * Unlike the slider, it reaches this via render_legend_as_label() and never calls
+	 * render_label(), so it needs no entry in TYPES_WITHOUT_INSET_LABEL. This test
+	 * guards that assumption.
+	 *
+	 * @dataProvider inset_label_form_style_provider
+	 *
+	 * @param string $form_class_name The contact form's className attribute.
+	 */
+	#[DataProvider( 'inset_label_form_style_provider' )]
+	public function test_rating_field_does_not_render_an_inset_label( $form_class_name ) {
+		$html = $this->render_rating_field( $form_class_name );
+
+		$this->assertStringNotContainsString( 'notched-label__label', $html );
+		$this->assertStringNotContainsString( 'animated-label__label', $html );
+	}
+
+	/**
+	 * The rating field's label must survive under the inset styles, rendered as the
+	 * fieldset's legend.
+	 *
+	 * @dataProvider inset_label_form_style_provider
+	 *
+	 * @param string $form_class_name The contact form's className attribute.
+	 */
+	#[DataProvider( 'inset_label_form_style_provider' )]
+	public function test_rating_field_still_renders_its_label( $form_class_name ) {
+		$html = $this->render_rating_field( $form_class_name );
+
+		$this->assertStringContainsString( 'Rate your experience', $html );
+		$this->assertStringContainsString( '<legend', $html );
+	}
+
+	/**
 	 * Renders a Contact_Form_Field.
 	 *
 	 * @param array $attributes An associative array of shortcode attributes.

@@ -98,23 +98,28 @@ describe( 'LabelEdit inset label classes', () => {
 		expect( getLabelClassName( formClassName ) ).toContain( expectedClass );
 	} );
 
-	test.each( [ [ 'is-style-outlined' ], [ 'is-style-animated' ] ] )(
-		'the slider field gets no inset label under %s',
-		formClassName => {
-			setParentField( 'jetpack/field-slider', 'jetpack/input-range' );
+	describe.each( [
+		[ 'slider', 'jetpack/field-slider', 'jetpack/input-range' ],
+		[ 'rating', 'jetpack/field-rating', 'jetpack/input-rating' ],
+	] )( 'the %s field', ( fieldLabel, fieldName, inputName ) => {
+		test.each( [ [ 'is-style-outlined' ], [ 'is-style-animated' ] ] )(
+			'gets no inset label under %s',
+			formClassName => {
+				setParentField( fieldName, inputName );
 
-			const className = getLabelClassName( formClassName );
+				const className = getLabelClassName( formClassName );
 
-			expect( className ).not.toContain( 'notched-label__label' );
-			expect( className ).not.toContain( 'animated-label__label' );
-			expect( className ).toContain( 'jetpack-field-label' );
-		}
-	);
+				expect( className ).not.toContain( 'notched-label__label' );
+				expect( className ).not.toContain( 'animated-label__label' );
+				expect( className ).toContain( 'jetpack-field-label' );
+			}
+		);
 
-	test( 'the slider field still gets the below label, which renders outside the field', () => {
-		setParentField( 'jetpack/field-slider', 'jetpack/input-range' );
+		test( 'still gets the below label, which renders outside the field', () => {
+			setParentField( fieldName, inputName );
 
-		expect( getLabelClassName( 'is-style-below' ) ).toContain( 'below-label__label' );
+			expect( getLabelClassName( 'is-style-below' ) ).toContain( 'below-label__label' );
+		} );
 	} );
 
 	test( 'the default form style adds no style-specific class', () => {
