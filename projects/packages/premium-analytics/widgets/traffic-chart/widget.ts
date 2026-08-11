@@ -8,7 +8,7 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 /**
  * Internal dependencies
  */
-import { ArrayCheckboxField, SelectField } from '@jetpack-premium-analytics/fields';
+import { SelectField } from '@jetpack-premium-analytics/fields';
 import type { MetricTabsChartType } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
@@ -37,10 +37,9 @@ export const TRAFFIC_CHART_TYPES = [
 export type TrafficChartType = ( typeof TRAFFIC_CHART_TYPES )[ number ][ 'id' ];
 
 /**
- * The metric tabs the chart can show, in display order: the persisted id and
+ * The metric tabs the chart shows, in display order: the persisted id and
  * label of each metric. The id doubles as the visits `stat_fields` field the
- * tab reads. Single source for the settings checkboxes and the chart tabs so
- * the two cannot drift apart.
+ * tab reads.
  */
 export const TRAFFIC_CHART_METRICS = [
 	{ id: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ) },
@@ -50,7 +49,7 @@ export const TRAFFIC_CHART_METRICS = [
 ] as const satisfies readonly { id: string; label: string }[];
 
 /**
- * Identifier persisted in the widget's `metrics` attribute for one metric tab.
+ * Identifier of one metric tab.
  */
 export type TrafficChartMetricId = ( typeof TRAFFIC_CHART_METRICS )[ number ][ 'id' ];
 
@@ -61,21 +60,12 @@ export type TrafficChartMetricId = ( typeof TRAFFIC_CHART_METRICS )[ number ][ '
  * dashboard previews).
  *
  * @property granularity - Bucket size within the dashboard range. Defaults to `auto`.
- * @property metrics     - Metric tabs to show in the chart. Defaults to every metric.
  * @property chartType   - How to draw the selected metric. Defaults to `line`.
  */
 export type TrafficChartAttributes = {
 	granularity?: TrafficChartGranularity;
-	metrics?: TrafficChartMetricId[];
 	chartType?: TrafficChartType;
 };
-
-/**
- * Default selection for new widget instances: every metric enabled.
- */
-export const DEFAULT_TRAFFIC_CHART_METRICS: TrafficChartMetricId[] = TRAFFIC_CHART_METRICS.map(
-	metric => metric.id
-);
 
 /**
  * Widget type definition.
@@ -85,8 +75,8 @@ export const DEFAULT_TRAFFIC_CHART_METRICS: TrafficChartMetricId[] = TRAFFIC_CHA
  * and Comments as selectable metric tabs over a comparative chart. The date
  * range and comparison state come from the dashboard via `reportParams`; the
  * `granularity` attribute (`relevance: 'high'`) chooses the bucket size within
- * that range, the `metrics` attribute selects which tabs render, and
- * `chartType` switches between lines and bars.
+ * that range, and `chartType` switches between lines and bars. Which metric is
+ * plotted is the chart's own tab selection, not an attribute.
  * `example.attributes` doubles as the defaults applied to new instances.
  */
 export default {
@@ -118,17 +108,6 @@ export default {
 			relevance: 'high',
 		},
 		{
-			id: 'metrics',
-			label: __( 'Metrics', 'jetpack-premium-analytics-pkg' ),
-			type: 'array',
-			relevance: 'high',
-			Edit: ArrayCheckboxField,
-			elements: TRAFFIC_CHART_METRICS.map( metric => ( {
-				value: metric.id,
-				label: metric.label,
-			} ) ),
-		},
-		{
 			id: 'chartType',
 			label: __( 'Chart type', 'jetpack-premium-analytics-pkg' ),
 			type: 'text',
@@ -143,7 +122,6 @@ export default {
 	example: {
 		attributes: {
 			granularity: 'auto',
-			metrics: DEFAULT_TRAFFIC_CHART_METRICS,
 			chartType: 'line',
 		},
 	},

@@ -96,9 +96,3 @@ export const STORE_PERFORMANCE_METRICS: StorePerformanceMetric[] = [
 		metricKey: 'customers',
 	},
 ];
-
-/**
- * Default selection for new widget instances: every metric enabled.
- */
-export const DEFAULT_STORE_PERFORMANCE_METRICS: StorePerformanceMetricId[] =
-	STORE_PERFORMANCE_METRICS.map( metric => metric.id );

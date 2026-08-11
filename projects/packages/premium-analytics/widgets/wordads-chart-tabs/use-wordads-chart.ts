@@ -13,11 +13,7 @@ import { useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import {
-	DEFAULT_WORDADS_CHART_METRICS,
-	WORDADS_CHART_METRICS,
-	type WordAdsChartMetricId,
-} from './metrics';
+import { WORDADS_CHART_METRICS } from './metrics';
 import { buildMetricTab, type MetricTab } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
@@ -54,17 +50,15 @@ function toWordAdsParams( reportParams: ReportParams, period: WordAdsPeriod ): S
 
 /**
  * Fetch the WordAds time series for the dashboard's report params and expose one
- * metric tab per selected WordAds field — Ads Served (impressions), Average CPM,
- * and Revenue, matching the Calypso WordAds page's tab labels and order. Ads
- * Served is a count; CPM and revenue are currency. The endpoint returns all
- * three fields in a single request, so — unlike the traffic chart's split
- * requests — one `useStatsWordAdsStats` call drives every tab; the `metricIds`
- * selection only picks which of those tabs render.
+ * metric tab per WordAds field — Ads Served (impressions), Average CPM, and
+ * Revenue, matching the Calypso WordAds page's tab labels and order. Ads Served
+ * is a count; CPM and revenue are currency. The endpoint returns all three
+ * fields in a single request, so — unlike the traffic chart's split requests —
+ * one `useStatsWordAdsStats` call drives every tab.
  */
 export default function useWordAdsChart(
 	reportParams: ReportParams,
-	period: WordAdsPeriod,
-	metricIds: WordAdsChartMetricId[] = DEFAULT_WORDADS_CHART_METRICS
+	period: WordAdsPeriod
 ): WordAdsChartState {
 	// Memoize the request params so the query key is stable across renders.
 	const params = useMemo( () => toWordAdsParams( reportParams, period ), [ reportParams, period ] );
@@ -88,16 +82,9 @@ export default function useWordAdsChart(
 		[ primaryData, rawComparisonData ]
 	);
 
-	// Resolve selected ids against the canonical definitions so the tab order
-	// stays stable regardless of the order the ids were toggled in.
-	const enabledMetrics = useMemo( () => {
-		const selected = new Set( metricIds );
-		return WORDADS_CHART_METRICS.filter( metric => selected.has( metric.id ) );
-	}, [ metricIds ] );
-
 	const metrics = useMemo(
 		() =>
-			enabledMetrics.map( metric =>
+			WORDADS_CHART_METRICS.map( metric =>
 				buildMetricTab( {
 					primary: primaryData,
 					comparison: comparisonData,
@@ -107,7 +94,7 @@ export default function useWordAdsChart(
 					dataFormat: metric.dataFormat,
 				} )
 			),
-		[ enabledMetrics, primaryData, comparisonData, hasComparison ]
+		[ primaryData, comparisonData, hasComparison ]
 	);
 
 	return {

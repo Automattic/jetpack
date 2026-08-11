@@ -18,14 +18,8 @@ import {
 	type TimeSeriesData,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { store } from '@wordpress/icons';
 import { useCallback, useMemo } from 'react';
-import {
-	DEFAULT_STORE_PERFORMANCE_METRICS,
-	STORE_PERFORMANCE_METRICS,
-	type StorePerformanceMetric,
-	type StorePerformanceMetricId,
-} from './metrics';
+import { STORE_PERFORMANCE_METRICS, type StorePerformanceMetric } from './metrics';
 import styles from './styles.module.scss';
 import type { StorePerformanceAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -36,9 +30,8 @@ const DEFAULT_DATA_FORMAT = {
 	options: { useMultipliers: true, decimals: 0 },
 };
 
-// Report params (date range + comparison) arrive from the host via WidgetRoot;
-// the widget's own `metrics` attribute selects which store metrics render as
-// tabs. Load failures surface through `<WidgetState>` in the widget body.
+// Report params (date range + comparison) arrive from the host via WidgetRoot.
+// Load failures surface through `<WidgetState>` in the widget body.
 type StorePerformanceRenderAttributes = StorePerformanceAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
@@ -184,72 +177,30 @@ function buildSeriesForMetric( metric: StorePerformanceMetric, dataSources: Data
 	} );
 }
 
-function StorePerformanceContent( {
-	metricIds = DEFAULT_STORE_PERFORMANCE_METRICS,
-}: {
-	metricIds?: StorePerformanceMetricId[];
-} ) {
+function StorePerformanceContent() {
 	const { reportParams } = useWidgetRootContext();
 
-	// Resolve selected ids against the canonical definitions so the tab order
-	// stays stable regardless of the order the ids were toggled in.
-	const enabledMetrics = useMemo( () => {
-		const selected = new Set( metricIds );
-		return STORE_PERFORMANCE_METRICS.filter( metric => selected.has( metric.id ) );
-	}, [ metricIds ] );
-	const metricTypes = useMemo(
-		() => new Set( enabledMetrics.map( metric => metric.metricType ) ),
-		[ enabledMetrics ]
-	);
-
-	const generalReport = useReportOrders( reportParams, {
-		enabled: metricTypes.has( 'general' ),
-	} );
+	const generalReport = useReportOrders( reportParams );
 	const { primary, comparison } = generalReport;
 
-	const bookingsReport = useReportOrders(
-		{
-			...reportParams,
-			filters: [ BOOKINGS_FILTER ],
-		},
-		{
-			enabled: metricTypes.has( 'booking' ),
-		}
-	);
+	const bookingsReport = useReportOrders( {
+		...reportParams,
+		filters: [ BOOKINGS_FILTER ],
+	} );
 	const { primary: bookingsPrimary, comparison: bookingsComparison } = bookingsReport;
 
-	const visitorsReport = useReportVisitors( reportParams, {
-		enabled: metricTypes.has( 'visitors' ),
-	} );
+	const visitorsReport = useReportVisitors( reportParams );
 	const { primary: visitorsPrimary, comparison: visitorsComparison } = visitorsReport;
 
-	const conversionReport = useReportConversionRate( reportParams, {
-		enabled: metricTypes.has( 'conversion' ),
-	} );
+	const conversionReport = useReportConversionRate( reportParams );
 	const { primary: conversionPrimary, comparison: conversionComparison } = conversionReport;
 
-	const customersReport = useReportCustomersByDate( reportParams, {
-		enabled: metricTypes.has( 'customers' ),
-	} );
+	const customersReport = useReportCustomersByDate( reportParams );
 	const { primary: customersPrimary, comparison: customersComparison } = customersReport;
 
 	const activeReports = useMemo(
-		() =>
-			[
-				metricTypes.has( 'general' ) ? generalReport : null,
-				metricTypes.has( 'booking' ) ? bookingsReport : null,
-				metricTypes.has( 'visitors' ) ? visitorsReport : null,
-				metricTypes.has( 'conversion' ) ? conversionReport : null,
-				metricTypes.has( 'customers' ) ? customersReport : null,
-			].filter( report => report !== null ),
-		[
-			metricTypes,
-			generalReport,
-			bookingsReport,
-			visitorsReport,
-			conversionReport,
-			customersReport,
-		]
+		() => [ generalReport, bookingsReport, visitorsReport, conversionReport, customersReport ],
+		[ generalReport, bookingsReport, visitorsReport, conversionReport, customersReport ]
 	);
 	// Gate the error per report — each metric tab has its own report, so a failed
 	// one must surface an error rather than render as an empty chart beside the
@@ -264,7 +215,7 @@ function StorePerformanceContent( {
 
 	const enrichedMetrics = useMemo(
 		() =>
-			enabledMetrics.map( metric => {
+			STORE_PERFORMANCE_METRICS.map( metric => {
 				type Summary = Record< string, string | number >;
 				const getMetricSummaries = (): [ Summary, Summary ] => {
 					if ( metric.metricType === 'booking' ) {
@@ -304,7 +255,6 @@ function StorePerformanceContent( {
 				};
 			} ),
 		[
-			enabledMetrics,
 			bookingsPrimary.data,
 			bookingsComparison.data,
 			visitorsPrimary.data,
@@ -340,8 +290,8 @@ function StorePerformanceContent( {
 		]
 	);
 
-	// One tab per enabled metric; MetricTabsChart owns selection and the
-	// responsive tabs↔dropdown and chart↔sparkline switches.
+	// One tab per metric; MetricTabsChart owns selection and the responsive
+	// tabs↔dropdown and chart↔sparkline switches.
 	const metricTabs: MetricTab[] = useMemo(
 		() =>
 			enrichedMetrics.map( metric => {
@@ -368,20 +318,15 @@ function StorePerformanceContent( {
 			<WidgetState
 				isLoading={ isInitialLoading }
 				isError={ isError }
-				isEmpty={ ! metricTabs.length }
+				// The tabs are fixed, so there is always something to render: the only
+				// empty state this widget ever had was "no metric selected".
+				isEmpty={ false }
 				error={ {
 					description: __(
 						"We couldn't load store performance data. Please try again in a moment.",
 						'jetpack-premium-analytics-pkg'
 					),
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
-				} }
-				empty={ {
-					icon: store,
-					description: __(
-						'No metric selected. Please select a metric from the metrics list.',
-						'jetpack-premium-analytics-pkg'
-					),
 				} }
 				// First load keeps the widget's chart-shaped skeleton (the metric tabs
 				// over the chart's own loading overlay) instead of the default overlay.
@@ -408,13 +353,13 @@ function StorePerformanceContent( {
 }
 
 /**
- * Ported from the upstream analytics-at-a-glance widget: the metrics selected by
- * the `metrics` attribute, over a comparison line chart.
+ * Ported from the upstream analytics-at-a-glance widget: every store metric as a
+ * selectable tab, over a comparison line chart.
  */
 export default function StorePerformanceRender( { attributes = {} }: StorePerformanceRenderProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } options={ { from: '/' } }>
-			<StorePerformanceContent metricIds={ attributes.metrics } />
+			<StorePerformanceContent />
 		</WidgetRoot>
 	);
 }
