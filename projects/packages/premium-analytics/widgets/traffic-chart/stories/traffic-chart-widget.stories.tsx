@@ -125,10 +125,23 @@ export const BarChartWithComparison: Story = {
  * to `hour`. `stats/visits` fills Views alone at that grain, so the other three
  * tabs show a placeholder and, when selected, the reason — rather than a `0`
  * they cannot back up. The likes and comments request is skipped entirely.
+ *
+ * Mounted through the dashboard harness rather than the close-up canvas: hour
+ * ticks are the point of the story, and the canvas is too narrow to draw an
+ * axis at all.
  */
-export const Hourly: Story = {
-	render: () => renderTrafficChartOnPreset( 'last-24-hours' ),
-	decorators: [ withWidgetCanvas ],
+export const Hourly: StoryObj< WidgetDashboardWithWidgetControls > = {
+	render: args => (
+		<WidgetDashboardWithWidgetStory
+			{ ...args }
+			widgetType={ storyWidgetType }
+			renderModule={ TRAFFIC_CHART_RENDER_MODULE }
+			renderComponent={ TrafficChartRender as ComponentType< WidgetRenderProps< unknown > > }
+			attributes={ { reportParams: getDefaultQueryParams( false, 'last-24-hours' ) } }
+		/>
+	),
+	args: { ...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS },
+	argTypes: { ...widgetDashboardWithWidgetArgTypes },
 };
 
 export const Loading: Story = {

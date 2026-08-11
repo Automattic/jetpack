@@ -17,7 +17,7 @@ import { MetricWithComparison } from '../metric-with-comparison';
 import styles from './metric-tabs-chart.module.scss';
 import type { DataFormat } from '../../types';
 import type { ComparativeLineChartSeries } from '../chart-comparative-line/types';
-import type { ComponentProps, ReactNode } from 'react';
+import type { ComponentProps, CSSProperties, ReactNode } from 'react';
 
 /**
  * Width (px) budgeted per metric tab; below `metrics.length` times this the
@@ -218,7 +218,20 @@ function MetricTabContent( {
 		<span className={ styles.tabContent }>
 			<Text className={ styles.tabLabel }>{ metric.label }</Text>
 			{ metric.unavailable ? (
-				<span className={ styles.unavailableValue } aria-hidden="true">
+				// Sized off the same token as the value it stands in for — the tab and
+				// trigger layouts ask for different ones, so a fixed size reads a step
+				// too large in one of them. `MetricWithComparison`'s own default.
+				<span
+					className={ styles.unavailableValue }
+					style={
+						{
+							'--jpa-unavailable-value-font-size': `var( --wpds-typography-font-size-${
+								fontSize ?? 'xl'
+							} )`,
+						} as CSSProperties
+					}
+					aria-hidden="true"
+				>
 					&mdash;
 				</span>
 			) : (
