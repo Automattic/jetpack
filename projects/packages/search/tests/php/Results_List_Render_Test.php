@@ -24,15 +24,19 @@ class Results_List_Render_Test extends TestCase {
 			'jetpack-search/results-list',
 			array(
 				'attributes'      => array(
-					'layout'           => array(
+					'layout'                      => array(
 						'type'    => 'string',
 						'default' => 'expanded',
 					),
-					'noResultsMessage' => array(
+					'noResultsMessage'            => array(
 						'type'    => 'string',
 						'default' => '',
 					),
-					'errorMessage'     => array(
+					'noResultsWithFiltersMessage' => array(
+						'type'    => 'string',
+						'default' => '',
+					),
+					'errorMessage'                => array(
 						'type'    => 'string',
 						'default' => '',
 					),
@@ -288,6 +292,73 @@ class Results_List_Render_Test extends TestCase {
 	public function test_no_results_region_whitespace_falls_back_to_default() {
 		$markup = $this->render( array( 'noResultsMessage' => "  \t\n " ) );
 		$this->assertStringContainsString( 'No results found. Try a different search.', $markup );
+	}
+
+	/**
+	 * A custom `noResultsWithFiltersMessage` replaces the default filtered copy.
+	 * Deprecated and no longer settable in the editor, so this is the only
+	 * guard that saved values keep rendering.
+	 */
+	public function test_no_results_region_renders_custom_filtered_message() {
+		$markup = $this->render( array( 'noResultsWithFiltersMessage' => 'Clear a filter to see results.' ) );
+		$this->assertStringContainsString( 'Clear a filter to see results.', $markup );
+		$this->assertStringNotContainsString( 'No results match these filters.', $markup );
+	}
+
+	/**
+	 * A whitespace-only `noResultsWithFiltersMessage` falls back to the default.
+	 */
+	public function test_no_results_region_filtered_whitespace_falls_back_to_default() {
+		$markup = $this->render( array( 'noResultsWithFiltersMessage' => "  \t\n " ) );
+		$this->assertStringContainsString( 'No results match these filters.', $markup );
+	}
+
+	/**
+	 * The filtered variant is as author-controlled as the unfiltered one, so
+	 * it needs the same escaping guard against stored XSS.
+	 */
+	public function test_no_results_filtered_message_is_html_escaped() {
+		$markup = $this->render( array( 'noResultsWithFiltersMessage' => '<script>alert(2)</script>' ) );
+		$this->assertStringNotContainsString( '<script>alert(2)</script>', $markup );
+		$this->assertStringContainsString( '&lt;script&gt;alert(2)&lt;/script&gt;', $markup );
+	}
+
+	/**
+	 * Both saved messages render together, each bound to the complementary
+	 * `state.hasActiveFilters` branch — that pair is what makes the legacy
+	 * region filter-aware without a store-side message-resolution step, so a
+	 * site upgrading from before the `no-results` block keeps both variants.
+	 */
+	public function test_no_results_region_binds_both_variants_to_active_filters() {
+		$markup = $this->render(
+			array(
+				'noResultsMessage'            => 'Nothing here, sorry.',
+				'noResultsWithFiltersMessage' => 'Clear a filter to see results.',
+			)
+		);
+		$this->assertStringContainsString(
+			'<p data-wp-bind--hidden="state.hasActiveFilters">Nothing here, sorry.</p>',
+			$markup
+		);
+		$this->assertStringContainsString(
+			'<p data-wp-bind--hidden="!state.hasActiveFilters">Clear a filter to see results.</p>',
+			$markup
+		);
+	}
+
+	/**
+	 * The deprecated attributes must stay declared in `block.json`. The block
+	 * parser drops attributes it doesn't recognize, so removing them would
+	 * discard the saved value on load and silently blank the empty state on
+	 * every page authored before the `no-results` block existed.
+	 */
+	public function test_deprecated_no_results_attributes_remain_registered() {
+		$block_json = json_decode(
+			(string) file_get_contents( __DIR__ . '/../../src/search-blocks/blocks/results-list/block.json' ),
+			true
+		);
+		$this->assertArrayHasKey( 'noResultsMessage', $block_json['attributes'] );
+		$this->assertArrayHasKey( 'noResultsWithFiltersMessage', $block_json['attributes'] );
 	}
 
 	/**

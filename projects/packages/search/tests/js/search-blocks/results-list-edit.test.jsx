@@ -219,6 +219,36 @@ describe( 'ResultsListEdit', () => {
 		expect( screen.getByRole( 'textbox', { name: 'Error message' } ) ).toBeInTheDocument();
 	} );
 
+	// Editing anything else must leave the deprecated values alone — clearing
+	// them here would drop the empty state of every page saved before the
+	// No Results block, which is exactly what the compat path exists to hold.
+	it( 'preserves saved empty-state messages when other settings change', () => {
+		const setAttributes = jest.fn();
+		render(
+			<ResultsListEdit
+				attributes={ {
+					layout: 'expanded',
+					noResultsMessage: 'Nothing here, sorry.',
+					noResultsWithFiltersMessage: 'Clear a filter to see results.',
+				} }
+				setAttributes={ setAttributes }
+			/>
+		);
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; results-sort-edit.test.jsx uses fireEvent for the same reason.
+		fireEvent.click( screen.getByRole( 'radio', { name: 'Compact' } ) );
+		// eslint-disable-next-line testing-library/prefer-user-event -- see above.
+		fireEvent.change( screen.getByRole( 'textbox', { name: 'Error message' } ), {
+			target: { value: 'Search is offline right now.' },
+		} );
+
+		expect( setAttributes ).toHaveBeenCalledTimes( 2 );
+		setAttributes.mock.calls.forEach( ( [ payload ] ) => {
+			expect( payload ).not.toHaveProperty( 'noResultsMessage' );
+			expect( payload ).not.toHaveProperty( 'noResultsWithFiltersMessage' );
+		} );
+	} );
+
 	it( 'jumps to an existing No Results block', () => {
 		mockSearchResultsParent = 'sr-1';
 		mockNoResultsBlockId = 'nr-1';
