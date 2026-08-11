@@ -133,8 +133,8 @@
 }
 
 /* Stands in for the headline of a metric with nothing to report at the current
- * bucket size. The size comes from the caller, matching the value it replaces so
- * cards keep a common height. */
+ * bucket size. The size comes from the caller, matching the value it replaces
+ * so cards keep a common height. */
 .unavailableValue {
 	color: var(--wpds-color-foreground-content-neutral-weak);
 	font-size: var(--jpa-unavailable-value-font-size, var(--wpds-typography-font-size-xl));
