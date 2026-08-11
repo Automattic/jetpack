@@ -193,4 +193,55 @@ describe( 'useTrafficChart', () => {
 			expect( metric.previousValue ).toBeUndefined();
 		}
 	} );
+
+	describe( 'hourly', () => {
+		const HOURLY_RANGE: ReportParams = {
+			from: '2026-06-15T00:00:00+00:00',
+			to: '2026-06-15T23:59:59+00:00',
+			interval: 'hour',
+		};
+
+		// `stats/visits` fills Views alone at this grain, so the hook must not ask
+		// for the rest, and must say why they are missing rather than show a zero.
+		const HOURLY_VIEWS_RESPONSE = {
+			unit: 'hour',
+			fields: [ 'period', 'views' ],
+			data: [
+				[ '2026-06-15 09:00:00', 40 ],
+				[ '2026-06-15 10:00:00', 60 ],
+			],
+		};
+
+		beforeEach( () => {
+			mockApiFetch.mockImplementation( () => Promise.resolve( HOURLY_VIEWS_RESPONSE ) );
+		} );
+
+		it( 'requests only Views, as hourly buckets covering the range', async () => {
+			const { result } = renderHook( () => useTrafficChart( HOURLY_RANGE, 'hour' ), { wrapper } );
+
+			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+			expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+			const { path } = mockApiFetch.mock.calls[ 0 ][ 0 ] as { path: string };
+			expect( path ).toContain( 'unit=hour' );
+			expect( path ).toContain( 'quantity=24' );
+			expect( path ).toContain( 'stat_fields=views' );
+			expect( path ).not.toContain( 'visitors' );
+		} );
+
+		it( 'marks the metrics the endpoint cannot serve, leaving Views with its points', async () => {
+			const { result } = renderHook( () => useTrafficChart( HOURLY_RANGE, 'hour' ), { wrapper } );
+
+			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+			const [ views, visitors, likes, comments ] = result.current.metrics;
+			expect( views.unavailable ).toBeUndefined();
+			expect( views.value ).toBe( 100 );
+			expect( views.current ).toHaveLength( 2 );
+
+			for ( const metric of [ visitors, likes, comments ] ) {
+				expect( metric.unavailable ).toBe( "Hourly data isn't available for this metric." );
+			}
+		} );
+	} );
 } );

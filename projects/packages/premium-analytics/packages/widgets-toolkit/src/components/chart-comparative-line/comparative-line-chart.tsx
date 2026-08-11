@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { LineChart, Stack } from '@jetpack-premium-analytics/externals';
+import { LineChart, Stack, type TickResolution } from '@jetpack-premium-analytics/externals';
 import {
 	formatDate,
 	formatMetricValue,
@@ -117,6 +117,14 @@ export type ComparativeLineChartProps = {
 	tickFormat?: DateFormatName;
 
 	/**
+	 * The series' bucket size. Declaring it lets the automatic tick formatter pick
+	 * its regime from a known granularity instead of measuring the gaps between
+	 * points, which a single-bucket or DST-shortened series gives it no way to
+	 * read. An explicit `tickFormat` still wins over both.
+	 */
+	tickResolution?: TickResolution;
+
+	/**
 	 * Degrade to a sparkline (no y-axis, grid, or legend) when the chart area
 	 * is too short for readable axis labels. Defaults to false.
 	 */
@@ -140,6 +148,7 @@ export function ComparativeLineChart( {
 	className,
 	dataFormat,
 	tickFormat: xTickFormatType,
+	tickResolution,
 	maxWidth = Infinity,
 	compactWhenShort = false,
 }: ComparativeLineChartProps ) {
@@ -229,6 +238,7 @@ export function ComparativeLineChart( {
 					// unconditional `xTickFormat` would put full site-format dates on every
 					// tick. Without the prop, the chart library's own tick labels stay in use.
 					tickFormat: xTickFormatType ? xTickFormat : undefined,
+					tickResolution,
 				},
 				y: {
 					tickFormat: yTickFormat,
@@ -243,7 +253,7 @@ export function ComparativeLineChart( {
 		}
 
 		return { ...baseOptions, yScale: { domain: fixedYAxis.domain } };
-	}, [ xTickFormat, xTickFormatType, yTickFormat, fixedYAxis, isCompact ] );
+	}, [ xTickFormat, xTickFormatType, tickResolution, yTickFormat, fixedYAxis, isCompact ] );
 
 	const margin = fixedYAxis ? { ...DEFAULT_MARGIN, left: fixedYAxis.marginLeft } : DEFAULT_MARGIN;
 

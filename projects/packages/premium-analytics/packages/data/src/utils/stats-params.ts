@@ -6,6 +6,7 @@ import {
 	differenceInCalendarISOWeeks,
 	differenceInCalendarMonths,
 	differenceInCalendarYears,
+	differenceInHours,
 } from 'date-fns';
 /**
  * Internal dependencies
@@ -73,8 +74,8 @@ export function getStatsPeriodFromInterval( interval?: string ): StatsPeriod {
  * `unit`, mirroring how `days` is derived for day-based requests.
  *
  * @param period - The bucket granularity.
- * @param from   - Range start (`yyyy-MM-dd`, or a full ISO datetime — only the calendar day is used).
- * @param to     - Range end (`yyyy-MM-dd`, or a full ISO datetime — only the calendar day is used).
+ * @param from   - Range start (`yyyy-MM-dd`, or a full ISO datetime).
+ * @param to     - Range end (`yyyy-MM-dd`, or a full ISO datetime).
  * @return The bucket count, at least 1.
  */
 export function getPeriodsBetweenInclusive(
@@ -82,7 +83,16 @@ export function getPeriodsBetweenInclusive(
 	from: string,
 	to: string
 ): number {
-	if ( period === 'hour' || period === 'day' ) {
+	// Hourly is the one granularity finer than the calendar day the other
+	// branches key on, so it diffs the instants themselves. A range ending at
+	// `23:59:59` is a second short of the full span, hence the inclusive `+ 1`.
+	if ( period === 'hour' ) {
+		const hours = differenceInHours( localTZDate( to ), localTZDate( from ) );
+
+		return Number.isNaN( hours ) || hours < 0 ? 1 : hours + 1;
+	}
+
+	if ( period === 'day' ) {
 		return getDaysBetweenInclusive( from, to );
 	}
 

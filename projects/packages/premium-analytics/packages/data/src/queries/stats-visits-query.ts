@@ -1,7 +1,11 @@
 /**
  * Internal dependencies
  */
-import { reportParamsToStatsQueryParams, statsQueryParamsToApiParams } from '../utils/stats-params';
+import {
+	getPeriodsBetweenInclusive,
+	reportParamsToStatsQueryParams,
+	statsQueryParamsToApiParams,
+} from '../utils/stats-params';
 import {
 	statsProxyQuery,
 	type StatsReportParams,
@@ -30,11 +34,19 @@ export const statsVisitsQuery = (
 ): StatsReportQueryOptions< 'visits' > => {
 	const statsParams = reportParamsToStatsQueryParams( params );
 	const apiParams = statsQueryParamsToApiParams( statsParams );
+	// The endpoint returns its own default number of buckets unless the request
+	// says how many the range spans. Only the sub-daily units need deriving:
+	// `days` already carries the daily count.
+	const hourlyQuantity =
+		statsParams.start_date && statsParams.end_date
+			? getPeriodsBetweenInclusive( 'hour', statsParams.start_date, statsParams.end_date )
+			: undefined;
+	const quantity = apiParams.period === 'hour' ? hourlyQuantity : apiParams.days;
 	const visitsParams: StatsProxyParams = {
 		unit: apiParams.period,
 		date: apiParams.date,
 		start_date: apiParams.start_date,
-		...( apiParams.period === 'day' ? { quantity: apiParams.days } : {} ),
+		...( apiParams.period === 'day' || apiParams.period === 'hour' ? { quantity } : {} ),
 		stat_fields: params.stat_fields ?? 'views,visitors',
 	};
 

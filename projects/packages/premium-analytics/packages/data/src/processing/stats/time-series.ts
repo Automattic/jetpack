@@ -219,6 +219,10 @@ function getHourIntervalFields( date: string, hour: unknown ) {
 	};
 }
 
+// `stats/visits` packs an hourly bucket's date and hour into a single `period`,
+// where the email timeline carries the hour in its own column.
+const packedHourlyPeriod = /^(\d{4}-\d{2}-\d{2})[T ](\d{2})/;
+
 function getRowIntervalFields( row: StatsRecord, rawPeriod: unknown, unit: string ) {
 	if ( unit === 'hour' && row.hour !== undefined && typeof rawPeriod === 'string' ) {
 		return getHourIntervalFields( rawPeriod, row.hour );
@@ -230,6 +234,14 @@ function getRowIntervalFields( row: StatsRecord, rawPeriod: unknown, unit: strin
 			date_start: row.date_start,
 			date_end: row.date_end,
 		};
+	}
+
+	if ( unit === 'hour' && typeof rawPeriod === 'string' ) {
+		const packed = rawPeriod.match( packedHourlyPeriod );
+
+		if ( packed ) {
+			return getHourIntervalFields( packed[ 1 ], packed[ 2 ] );
+		}
 	}
 
 	return getTimeSeriesIntervalFields( rawPeriod, unit );

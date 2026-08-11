@@ -25,7 +25,6 @@ describe( 'getStatsPeriodFromInterval', () => {
 describe( 'getPeriodsBetweenInclusive', () => {
 	it.each( [
 		[ 'day', '2026-06-01', '2026-06-30', 30 ],
-		[ 'hour', '2026-06-01', '2026-06-02', 2 ],
 		[ 'week', '2026-06-01', '2026-06-28', 4 ],
 		[ 'month', '2026-01-15', '2026-06-15', 6 ],
 		[ 'year', '2024-03-01', '2026-03-01', 3 ],
@@ -35,7 +34,6 @@ describe( 'getPeriodsBetweenInclusive', () => {
 
 	it.each( [
 		[ 'day', '2026-06-01T00:00:00.000-07:00', '2026-06-30T23:59:59.999-07:00', 30 ],
-		[ 'hour', '2026-06-01T09:00:00.000-07:00', '2026-06-02T08:59:59.999-07:00', 2 ],
 		[ 'week', '2026-06-01T00:00:00.000-07:00', '2026-06-28T23:59:59.999-07:00', 4 ],
 		[ 'month', '2026-01-15T00:00:00.000-07:00', '2026-06-15T23:59:59.999-07:00', 6 ],
 		[ 'year', '2024-03-01T00:00:00.000-07:00', '2026-03-01T23:59:59.999-07:00', 3 ],
@@ -45,6 +43,17 @@ describe( 'getPeriodsBetweenInclusive', () => {
 			expect( getPeriodsBetweenInclusive( period, from, to ) ).toBe( expected );
 		}
 	);
+
+	// Hourly is the one granularity finer than a calendar day, so it counts the
+	// instants rather than the days they fall on.
+	it.each( [
+		[ '2026-06-01T00:00:00.000-07:00', '2026-06-01T23:59:59.999-07:00', 24 ],
+		[ '2026-06-01T09:00:00.000-07:00', '2026-06-02T08:59:59.999-07:00', 24 ],
+		[ '2026-06-01T00:00:00.000-07:00', '2026-06-02T23:59:59.999-07:00', 48 ],
+		[ '2026-06-01T09:00:00.000-07:00', '2026-06-01T09:30:00.000-07:00', 1 ],
+	] )( 'counts the hour buckets from %s to %s', ( from, to, expected ) => {
+		expect( getPeriodsBetweenInclusive( 'hour', from, to ) ).toBe( expected );
+	} );
 
 	it( 'reads the site-local calendar day, not the UTC day, at a day boundary', () => {
 		// 23:00 on 2026-06-30 at -07:00 is already 2026-07-01 in UTC. Counting

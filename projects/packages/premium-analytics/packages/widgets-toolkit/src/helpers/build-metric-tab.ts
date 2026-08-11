@@ -1,8 +1,4 @@
 /**
- * External dependencies
- */
-import { localTZDate } from '@jetpack-premium-analytics/data';
-/**
  * Internal dependencies
  */
 import type { MetricTab } from '../components';
@@ -45,6 +41,25 @@ function total( report: MetricReport | undefined, field: string ): number {
 	return Number( report?.summary?.[ field ] ?? 0 );
 }
 
+const nominalOffset = /(?:Z|[+-]\d{2}:?\d{2})$/;
+
+/**
+ * Read a bucket's `date_start` as the wall clock it names.
+ *
+ * Bucket stamps carry a nominal `+00:00` rather than a real offset (see
+ * `getStatsIntervalFields`), and the chart library formats a point through the
+ * browser's timezone — so keeping the offset shifts every label by the viewer's
+ * own offset, turning a midnight bucket into the previous day west of UTC.
+ * Dropping it and parsing the remaining wall clock locally keeps a label on the
+ * bucket it names.
+ *
+ * @param dateStart - The bucket's `date_start`.
+ * @return The bucket's wall clock as a local instant.
+ */
+function toChartDate( dateStart: string ): Date {
+	return new Date( dateStart.replace( nominalOffset, '' ) );
+}
+
 /**
  * Map a field of a normalized report into chart points.
  *
@@ -54,7 +69,7 @@ function total( report: MetricReport | undefined, field: string ): number {
  */
 function toPoints( report: MetricReport | undefined, field: string ) {
 	return ( report?.data ?? [] ).map( point => ( {
-		date: localTZDate( point.date_start ),
+		date: toChartDate( point.date_start ),
 		value: Number( ( point as Record< string, unknown > )[ field ] ?? 0 ),
 	} ) );
 }

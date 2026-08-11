@@ -17,7 +17,7 @@ import { MetricWithComparison } from '../metric-with-comparison';
 import styles from './metric-tabs-chart.module.scss';
 import type { DataFormat } from '../../types';
 import type { ComparativeLineChartSeries } from '../chart-comparative-line/types';
-import type { ReactNode } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 
 /**
  * Width (px) budgeted per metric tab; below `metrics.length` times this the
@@ -53,6 +53,12 @@ export interface MetricTab {
 	dataFormat?: DataFormat;
 	/** Optional explanatory text, surfaced as the card's tooltip. */
 	description?: string;
+	/**
+	 * Why this metric has no data at the current bucket size. Set it and the card
+	 * shows a placeholder instead of a value, and the chart the reason instead of
+	 * a flat zero line. The tab stays selectable, so the reason is reachable.
+	 */
+	unavailable?: string;
 }
 
 /**
@@ -76,6 +82,11 @@ export interface MetricTabsChartProps {
 	controls?: ReactNode;
 	/** Accessible label for the metric tab list. */
 	groupLabel?: string;
+	/**
+	 * The series' bucket size, declared to the x-axis so tick formats follow the
+	 * known granularity rather than being inferred from point spacing.
+	 */
+	tickResolution?: ComponentProps< typeof ComparativeLineChart >[ 'tickResolution' ];
 }
 
 /**
@@ -150,10 +161,12 @@ function MetricChart( {
 	metric,
 	dataFormat,
 	chartType,
+	tickResolution,
 }: {
 	metric: MetricTab;
 	dataFormat: DataFormat;
 	chartType: MetricTabsChartType;
+	tickResolution?: MetricTabsChartProps[ 'tickResolution' ];
 } ) {
 	const series = useMemo( () => buildSeries( metric, chartType ), [ metric, chartType ] );
 
@@ -165,6 +178,10 @@ function MetricChart( {
 	const seriesStyles = useSeriesStyles( series );
 	const resolvedDataFormat = metric.dataFormat ?? dataFormat;
 
+	if ( metric.unavailable ) {
+		return <div className={ styles.unavailableChart }>{ metric.unavailable }</div>;
+	}
+
 	return chartType === 'bar' ? (
 		<ComparativeBarChart series={ series } dataFormat={ resolvedDataFormat } compactWhenShort />
 	) : (
@@ -172,8 +189,51 @@ function MetricChart( {
 			series={ series }
 			styles={ seriesStyles }
 			dataFormat={ resolvedDataFormat }
+			tickResolution={ tickResolution }
 			compactWhenShort
 		/>
+	);
+}
+
+/**
+ * A metric's card face: its label over the headline value and delta, or over a
+ * placeholder when the metric has nothing to report at this bucket size. Shared
+ * by the tab, single-metric, and dropdown-trigger layouts so the three cannot
+ * drift apart.
+ *
+ * @return The card's content.
+ */
+function MetricTabContent( {
+	metric,
+	dataFormat,
+	fontSize,
+}: {
+	metric: MetricTab;
+	dataFormat: DataFormat;
+	fontSize?: ComponentProps< typeof MetricWithComparison >[ 'fontSize' ];
+} ) {
+	const note = metric.unavailable ?? metric.description;
+
+	return (
+		<span className={ styles.tabContent }>
+			<Text className={ styles.tabLabel }>{ metric.label }</Text>
+			{ metric.unavailable ? (
+				<span className={ styles.unavailableValue } aria-hidden="true">
+					&mdash;
+				</span>
+			) : (
+				<MetricWithComparison
+					className={ styles.metricComparison }
+					value={ metric.value }
+					previousValue={ metric.previousValue }
+					dataFormat={ metric.dataFormat ?? dataFormat }
+					fontSize={ fontSize }
+					direction="row"
+					align="flex-end"
+				/>
+			) }
+			{ note && <VisuallyHidden>{ note }</VisuallyHidden> }
+		</span>
 	);
 }
 
@@ -200,6 +260,7 @@ export function MetricTabsChart( {
 	onMetricChange,
 	controls,
 	groupLabel = __( 'Select metric', 'jetpack-premium-analytics-pkg' ),
+	tickResolution,
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
 
@@ -256,27 +317,18 @@ export function MetricTabsChart( {
 				<div className={ styles.header }>
 					<div className={ clsx( styles.tabs, styles.singleMetric ) }>
 						<div className={ styles.tab }>
-							<span className={ styles.tabContent }>
-								<Text className={ styles.tabLabel }>{ activeMetric.label }</Text>
-								<MetricWithComparison
-									className={ styles.metricComparison }
-									value={ activeMetric.value }
-									previousValue={ activeMetric.previousValue }
-									dataFormat={ activeMetric.dataFormat ?? dataFormat }
-									fontSize="2xl"
-									direction="row"
-									align="flex-end"
-								/>
-								{ activeMetric.description && (
-									<VisuallyHidden>{ activeMetric.description }</VisuallyHidden>
-								) }
-							</span>
+							<MetricTabContent metric={ activeMetric } dataFormat={ dataFormat } fontSize="2xl" />
 						</div>
 					</div>
 					{ controls }
 				</div>
 				<div className={ styles.chart }>
-					<MetricChart metric={ activeMetric } dataFormat={ dataFormat } chartType={ chartType } />
+					<MetricChart
+						metric={ activeMetric }
+						dataFormat={ dataFormat }
+						chartType={ chartType }
+						tickResolution={ tickResolution }
+					/>
 				</div>
 			</div>
 		);
@@ -330,17 +382,7 @@ export function MetricTabsChart( {
 							} }
 							triggerContent={
 								activeMetric && (
-									<span className={ styles.tabContent }>
-										<Text className={ styles.tabLabel }>{ activeMetric.label }</Text>
-										<MetricWithComparison
-											className={ styles.metricComparison }
-											value={ activeMetric.value }
-											previousValue={ activeMetric.previousValue }
-											dataFormat={ activeMetric.dataFormat ?? dataFormat }
-											direction="row"
-											align="flex-end"
-										/>
-									</span>
+									<MetricTabContent metric={ activeMetric } dataFormat={ dataFormat } />
 								)
 							}
 						/>
@@ -353,6 +395,7 @@ export function MetricTabsChart( {
 							metric={ activeMetric }
 							dataFormat={ dataFormat }
 							chartType={ chartType }
+							tickResolution={ tickResolution }
 						/>
 					) }
 				</div>
@@ -374,20 +417,9 @@ export function MetricTabsChart( {
 							key={ metric.key }
 							value={ metric.key }
 							className={ styles.tab }
-							title={ metric.description }
+							title={ metric.unavailable ?? metric.description }
 						>
-							<span className={ styles.tabContent }>
-								<Text className={ styles.tabLabel }>{ metric.label }</Text>
-								<MetricWithComparison
-									className={ styles.metricComparison }
-									value={ metric.value }
-									previousValue={ metric.previousValue }
-									dataFormat={ metric.dataFormat ?? dataFormat }
-									fontSize="2xl"
-									direction="row"
-									align="flex-end"
-								/>
-							</span>
+							<MetricTabContent metric={ metric } dataFormat={ dataFormat } fontSize="2xl" />
 						</Tabs.Tab>
 					) ) }
 				</Tabs.List>
@@ -397,7 +429,12 @@ export function MetricTabsChart( {
 			     metric's panel renders its chart; the rest stay empty. */ }
 			{ metrics.map( metric => (
 				<Tabs.Panel key={ metric.key } value={ metric.key } className={ styles.chart }>
-					<MetricChart metric={ metric } dataFormat={ dataFormat } chartType={ chartType } />
+					<MetricChart
+						metric={ metric }
+						dataFormat={ dataFormat }
+						chartType={ chartType }
+						tickResolution={ tickResolution }
+					/>
 				</Tabs.Panel>
 			) ) }
 		</Tabs.Root>

@@ -73,7 +73,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'Traffic over the selected period as selectable metric tabs — Views, Visitors, Likes, and Comments — over a comparative chart. The date range and comparison come from the dashboard controls; the "Group by" control is the `granularity` attribute and the "Chart type" control is the `chartType` attribute (both `relevance: \'high\'`), exposed by the widget host; which metric is plotted is the chart\'s own tab selection. When comparison is on, each tab shows its period-over-period delta and the previous period is overlaid — as a same-colour dashed line for `line`, or as the translucent shadow bar behind each bar for `bar`. Views/visitors and likes/comments are fetched as two parallel requests (mirroring Calypso) to keep latency down. Data comes from the `useStatsVisits` hook; in Storybook it is served by `registerReportMocks`.',
+					"Traffic over the selected period as selectable metric tabs — Views, Visitors, Likes, and Comments — over a comparative chart. The date range, comparison, and bucket size all come from the dashboard controls: the chart has no interval control of its own and follows the page's, clamped to a bucket it can draw. The \"Chart type\" control is the `chartType` attribute (`relevance: 'high'`), exposed by the widget host; which metric is plotted is the chart's own tab selection. When comparison is on, each tab shows its period-over-period delta and the previous period is overlaid — as a same-colour dashed line for `line`, or as the translucent shadow bar behind each bar for `bar`. Views/visitors and likes/comments are fetched as two parallel requests (mirroring Calypso) to keep latency down; the likes and comments request is skipped at the hourly grain, which cannot fill either. Data comes from the `useStatsVisits` hook; in Storybook it is served by `registerReportMocks`.",
 			},
 		},
 	},
@@ -117,6 +117,17 @@ export const BarChart: Story = {
 export const BarChartWithComparison: Story = {
 	render: renderTrafficChart,
 	args: { withComparison: true, ...DEFAULT_CHART_ARGS, chartType: 'bar' },
+	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * An hourly range (`Last 24 hours`), where the page's interval control resolves
+ * to `hour`. `stats/visits` fills Views alone at that grain, so the other three
+ * tabs show a placeholder and, when selected, the reason — rather than a `0`
+ * they cannot back up. The likes and comments request is skipped entirely.
+ */
+export const Hourly: Story = {
+	render: () => renderTrafficChartOnPreset( 'last-24-hours' ),
 	decorators: [ withWidgetCanvas ],
 };
 

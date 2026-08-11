@@ -1,36 +1,49 @@
 /**
- * Default chart granularity for a dashboard interval: opens a granularity
- * control at the setting the range implies, and — until the user picks one
- * explicitly — keeps following the range.
+ * Bucket sizes ordered finest to coarsest, so a mapped period the widget does
+ * not offer can be clamped in the right direction.
+ */
+const PERIOD_ORDER = [ 'hour', 'day', 'week', 'month', 'year' ] as const;
+
+/**
+ * Dashboard interval to chart bucket size. Quarters have no Stats bucket of
+ * their own and collapse onto months; anything unmapped falls back to `day`.
+ */
+const PERIOD_FOR_INTERVAL: Record< string, string > = {
+	hour: 'hour',
+	week: 'week',
+	month: 'month',
+	quarter: 'month',
+	year: 'year',
+};
+
+/**
+ * Chart granularity for a dashboard interval: the bucket size a widget draws
+ * for whatever the page's interval control has selected.
  *
- * A widget's dropdown rarely offers every granularity, so the mapped period is
- * clamped to the coarsest one the widget does offer. That is why a quarter or
- * year range lands on `month` for a day/week/month widget but keeps `year` for
- * one that offers it.
- *
- * The clamp always falls back to the *coarsest* end of `allowed`. That is only
- * correct because every caller's set includes `day`, the finest granularity —
- * an unmapped/unsupported interval defaults to `day` before the clamp runs, so
- * the fallback is only ever reached from "too coarse". A widget whose set omits
- * `day` (e.g. `[ 'week', 'month' ]`) would clamp in the wrong direction.
+ * A widget rarely supports every granularity, so the mapped period is clamped
+ * into the set it does support. `allowed` is ordered finest to coarsest, so a
+ * period finer than everything offered resolves to the finest and one coarser
+ * to the coarsest — an hourly page interval lands on `day` for a day/week/month
+ * widget, and a yearly one lands on `month`.
  *
  * @param interval - The dashboard-derived interval.
  * @param allowed  - The periods this widget offers, ordered finest to coarsest.
- * @return The matching selectable granularity.
+ * @return The matching granularity.
  */
 export function defaultPeriodForInterval< P extends string >(
 	interval: string | undefined,
 	allowed: readonly [ P, ...P[] ]
 ): P {
-	const mapped =
-		{
-			week: 'week',
-			month: 'month',
-			quarter: 'month',
-			year: 'year',
-		}[ interval ?? '' ] ?? 'day';
+	const mapped = PERIOD_FOR_INTERVAL[ interval ?? '' ] ?? 'day';
 
-	const supported = allowed.includes( mapped as P );
+	if ( allowed.includes( mapped as P ) ) {
+		return mapped as P;
+	}
 
-	return supported ? ( mapped as P ) : allowed[ allowed.length - 1 ];
+	const finest = allowed[ 0 ];
+
+	return PERIOD_ORDER.indexOf( mapped as ( typeof PERIOD_ORDER )[ number ] ) <
+		PERIOD_ORDER.indexOf( finest as ( typeof PERIOD_ORDER )[ number ] )
+		? finest
+		: allowed[ allowed.length - 1 ];
 }

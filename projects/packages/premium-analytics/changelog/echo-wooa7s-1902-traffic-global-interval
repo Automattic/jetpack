@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Traffic: follow the dashboard's chart interval instead of a widget setting, including hourly ranges.
