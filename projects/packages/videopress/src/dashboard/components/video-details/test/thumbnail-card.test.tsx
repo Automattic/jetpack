@@ -5,7 +5,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { createElement, type ReactNode } from 'react';
 import { makeLibraryItem } from '../../../test-utils/library-item';
 import { selectImageFromMediaLibrary } from '../../../utils/select-image-from-media-library';
-import ThumbnailControl from '../thumbnail-control';
+import ThumbnailCard from '../thumbnail-card';
 
 jest.mock( '@wordpress/api-fetch', () => ( {
 	__esModule: true,
@@ -84,26 +84,26 @@ afterEach( () => {
 	delete ( window as unknown as { wp?: { media?: unknown } } ).wp;
 } );
 
-describe( 'ThumbnailControl — update flow', () => {
+describe( 'ThumbnailCard — update flow', () => {
 	it( 'renders the Update thumbnail button when video is editable', () => {
-		render( <ThumbnailControl video={ baseVideo } />, { wrapper } );
+		render( <ThumbnailCard video={ baseVideo } />, { wrapper } );
 		expect( screen.getByRole( 'button', { name: /update thumbnail/i } ) ).toBeInTheDocument();
 	} );
 
 	it( 'hides the Update thumbnail button while the video is processing', () => {
-		render( <ThumbnailControl video={ { ...baseVideo, isProcessing: true } } />, { wrapper } );
+		render( <ThumbnailCard video={ { ...baseVideo, isProcessing: true } } />, { wrapper } );
 		expect( screen.queryByRole( 'button', { name: /update thumbnail/i } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'hides the Update thumbnail button for local (non-VideoPress) items', () => {
-		render( <ThumbnailControl video={ { ...baseVideo, type: 'local', guid: '' } } />, { wrapper } );
+		render( <ThumbnailCard video={ { ...baseVideo, type: 'local', guid: '' } } />, { wrapper } );
 		expect( screen.queryByRole( 'button', { name: /update thumbnail/i } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'frame mode: fires the mutation with at_time + is_millisec, shows a success toast', async () => {
 		const user = userEvent.setup();
 		mockedApiFetch.mockResolvedValueOnce( {} );
-		render( <ThumbnailControl video={ baseVideo } />, { wrapper } );
+		render( <ThumbnailCard video={ baseVideo } />, { wrapper } );
 		await user.click( screen.getByRole( 'button', { name: /update thumbnail/i } ) );
 		await user.click( screen.getByRole( 'menuitem', { name: /select from video/i } ) );
 		await user.click( screen.getByText( 'confirm-frame' ) );
@@ -123,7 +123,7 @@ describe( 'ThumbnailControl — update flow', () => {
 		const user = userEvent.setup();
 		mockedApiFetch.mockResolvedValueOnce( {} );
 		mockedSelectImage.mockResolvedValueOnce( { id: 17, url: 'x' } );
-		render( <ThumbnailControl video={ baseVideo } />, { wrapper } );
+		render( <ThumbnailCard video={ baseVideo } />, { wrapper } );
 
 		await user.click( screen.getByRole( 'button', { name: /update thumbnail/i } ) );
 		await user.click( screen.getByRole( 'menuitem', { name: /upload image/i } ) );
@@ -141,7 +141,7 @@ describe( 'ThumbnailControl — update flow', () => {
 	it( 'upload mode: no mutation when the user cancels the media library', async () => {
 		const user = userEvent.setup();
 		mockedSelectImage.mockResolvedValueOnce( null );
-		render( <ThumbnailControl video={ baseVideo } />, { wrapper } );
+		render( <ThumbnailCard video={ baseVideo } />, { wrapper } );
 
 		await user.click( screen.getByRole( 'button', { name: /update thumbnail/i } ) );
 		await user.click( screen.getByRole( 'menuitem', { name: /upload image/i } ) );
@@ -153,12 +153,61 @@ describe( 'ThumbnailControl — update flow', () => {
 	it( 'shows an error toast when the mutation fails', async () => {
 		const user = userEvent.setup();
 		mockedApiFetch.mockRejectedValueOnce( new Error( 'boom' ) );
-		render( <ThumbnailControl video={ baseVideo } />, { wrapper } );
+		render( <ThumbnailCard video={ baseVideo } />, { wrapper } );
 		await user.click( screen.getByRole( 'button', { name: /update thumbnail/i } ) );
 		await user.click( screen.getByRole( 'menuitem', { name: /select from video/i } ) );
 		await user.click( screen.getByText( 'confirm-frame' ) );
 
 		await waitFor( () => expect( mockErrorNotice ).toHaveBeenCalledTimes( 1 ) );
 		expect( mockSuccessNotice ).not.toHaveBeenCalled();
+	} );
+} );
+
+// Showing the still next to the control that replaces it is the reason this
+// is a card rather than the labelled lone button it used to be, so the image
+// is worth pinning — particularly the private case, where rendering
+// `thumbnailUrl` straight would give a broken image on every private video.
+describe( 'ThumbnailCard — current poster', () => {
+	it( 'renders the poster for a public video', () => {
+		render( <ThumbnailCard video={ baseVideo } />, { wrapper } );
+
+		expect( screen.getByRole( 'img', { name: /current thumbnail/i } ) ).toHaveAttribute(
+			'src',
+			'https://example.test/poster.jpg'
+		);
+		expect( mockedApiFetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'waits for the playback token before rendering a private poster', async () => {
+		let resolveToken: ( value: { playback_token: string } ) => void = () => {};
+		mockedApiFetch.mockReturnValueOnce(
+			new Promise< { playback_token: string } >( resolve => {
+				resolveToken = resolve;
+			} )
+		);
+
+		render( <ThumbnailCard video={ { ...baseVideo, isPrivate: true } } />, { wrapper } );
+
+		// No <img> at all while the token is in flight — a src without the
+		// token would 403 and render as a broken image.
+		expect( screen.queryByRole( 'img' ) ).not.toBeInTheDocument();
+
+		resolveToken( { playback_token: 'tok-123' } );
+
+		await waitFor( () =>
+			expect( screen.getByRole( 'img', { name: /current thumbnail/i } ) ).toHaveAttribute(
+				'src',
+				'https://example.test/poster.jpg?metadata_token=tok-123'
+			)
+		);
+	} );
+
+	it( 'renders no image when the video has no poster', () => {
+		render( <ThumbnailCard video={ { ...baseVideo, thumbnailUrl: '' } } />, { wrapper } );
+
+		expect( screen.queryByRole( 'img' ) ).not.toBeInTheDocument();
+		// The control is still there — a video with no poster is exactly the
+		// one most in need of getting one.
+		expect( screen.getByRole( 'button', { name: /update thumbnail/i } ) ).toBeInTheDocument();
 	} );
 } );

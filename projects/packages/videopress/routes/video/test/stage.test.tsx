@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useNavigate } from '@wordpress/route';
 import { resetFeatures, setFeatures } from '../../../src/dashboard/test-utils/features';
@@ -112,12 +112,17 @@ jest.mock( '../../../src/dashboard/components/video-details/video-info-card', ()
 	__esModule: true,
 	default: () => <div data-testid="video-info-card" />,
 } ) );
-// VideoDetailsCard stays real, and it now renders the thumbnail control.
-// Without this the real poster mutation and frame picker would mount against
-// this file's catch-all apiFetch handler.
-jest.mock( '../../../src/dashboard/components/video-details/thumbnail-control', () => ( {
+// Both carry their own queries — the poster mutation and frame picker in one,
+// the tracks fetch in the other — which would otherwise mount against this
+// file's catch-all apiFetch handler. VideoDetailsCard stays real; the tests
+// type into its fields.
+jest.mock( '../../../src/dashboard/components/video-details/thumbnail-card', () => ( {
 	__esModule: true,
-	default: () => <div data-testid="thumbnail-control" />,
+	default: () => <div data-testid="thumbnail-card" />,
+} ) );
+jest.mock( '../../../src/dashboard/components/video-details/subtitles-card', () => ( {
+	__esModule: true,
+	default: () => <div data-testid="subtitles-card" />,
 } ) );
 jest.mock( '../../../src/dashboard/components/video-details/privacy-sharing-card', () => ( {
 	__esModule: true,
@@ -237,6 +242,38 @@ describe( 'video stage', () => {
 
 	afterEach( () => {
 		resetFeatures();
+	} );
+
+	/*
+	 * The layout contract. The player is a grid sibling of the canvas and the
+	 * panel, not a child of either, because it is placed by grid area — that is
+	 * what lets the stacked layout below 1100px lead with the player while the
+	 * read-outs stay last. Nesting it inside the panel would look equivalent and
+	 * silently invert the narrow-viewport order, so pin that it is outside.
+	 */
+	it( 'keeps the player out of the information panel', async () => {
+		await renderReadyStage();
+
+		const panel = screen.getByRole( 'complementary', { name: 'Video information' } );
+
+		expect( within( panel ).getByTestId( 'video-info-card' ) ).toBeInTheDocument();
+		expect( within( panel ).queryByTestId( 'preview-player' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'preview-player' ) ).toBeInTheDocument();
+	} );
+
+	// Everything a person edits moved to the canvas; the panel is read-outs
+	// only. Named cards rather than a count, so adding one to the wrong column
+	// fails here.
+	it( 'leaves only the read-outs in the information panel', async () => {
+		await renderReadyStage();
+
+		const panel = screen.getByRole( 'complementary', { name: 'Video information' } );
+
+		expect( within( panel ).queryByTestId( 'privacy-sharing-card' ) ).not.toBeInTheDocument();
+		expect( within( panel ).queryByTestId( 'rating-card' ) ).not.toBeInTheDocument();
+		expect( within( panel ).queryByTestId( 'thumbnail-card' ) ).not.toBeInTheDocument();
+		expect( within( panel ).queryByTestId( 'subtitles-card' ) ).not.toBeInTheDocument();
+		expect( within( panel ).queryByLabelText( 'Title' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders the Details / Editor sub-nav with Details active', async () => {

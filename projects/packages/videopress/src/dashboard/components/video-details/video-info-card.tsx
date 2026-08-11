@@ -1,26 +1,17 @@
 import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { copy } from '@wordpress/icons';
-import { Button, Card, Field, IconButton, InputControl, Stack, Text } from '@wordpress/ui';
-import { useVideoTracks } from '../../../client/components/caption-manager-modal/use-video-tracks';
-import {
-	getLanguageDisplayName,
-	getManualLanguageTagFromTrackKey,
-} from '../../../client/lib/video-tracks/language';
+import { Card, Field, IconButton, InputControl, Stack, Text } from '@wordpress/ui';
 import type { LibraryItem } from '../../types/library';
 import type { ReactElement } from 'react';
 
 type Props = {
 	video: LibraryItem;
-	onManageSubtitles: () => void;
 };
 
 const dateSettings = getDateSettings();
-
-// The Subtitles row lists this many languages before collapsing into "and N more".
-const MAX_SUBTITLE_LANGUAGES_SHOWN = 2;
 
 const linkForVideo = ( video: LibraryItem ): string => {
 	const host = video.isPrivate ? 'video.wordpress.com' : 'videopress.com';
@@ -69,63 +60,28 @@ const CopyIconButton = ( {
 };
 
 /**
- * Inspector card for the facts about a video that nobody edits here: where it
- * can be linked or embedded (Link to video and Shortcode, each with a copy
- * button), when it was uploaded, and which subtitle languages exist.
+ * The panel beside the player: what this video is addressed by, and where it
+ * came from. Link to video and Shortcode each carry a copy button; the file
+ * name and upload date are read-outs.
  *
- * Read-outs only. "Add to a post or page" used to live at the bottom of this
- * card, which made an action the last row of a reference panel; it moved to
- * the page header, next to Save, because it is the one control here that
- * leaves the screen. Everything a person writes lives in VideoDetailsCard.
+ * These four are grouped because they identify the video rather than describe
+ * it — the same split YouTube Studio draws, where the preview column holds
+ * the link, the file name and the upload state while every editable field
+ * sits in the main column. The file name in particular reads as a fact about
+ * the upload, not as something adjacent to the title a person chooses.
  *
- * @param props                   - Component props.
- * @param props.video             - The current video record.
- * @param props.onManageSubtitles - Opens the caption manager.
+ * Read-outs only, deliberately. Two things have left this card: "Add to a
+ * post or page", which is an action and moved to the page header next to
+ * Save, and Subtitles, which is a feature and got a card of its own on the
+ * canvas — see subtitles-card.tsx.
+ *
+ * @param props       - Component props.
+ * @param props.video - The current video record.
  * @return The card element.
  */
-export default function VideoInfoCard( { video, onManageSubtitles }: Props ): ReactElement {
+export default function VideoInfoCard( { video }: Props ): ReactElement {
 	const link = linkForVideo( video );
 
-	/*
-	 * The media REST item omits `tracks`, so the languages come from the same
-	 * video-info query the caption manager uses.
-	 */
-	const { managedTracks, isLoading: isLoadingTracks } = useVideoTracks( {
-		guid: video.guid ?? '',
-		isOpen: !! video.guid,
-		isPrivate: video.isPrivate,
-		tracks: video.tracks,
-	} );
-
-	const subtitleLanguages = [
-		...new Set(
-			managedTracks
-				.filter( track => track.kind === 'captions' || track.kind === 'subtitles' )
-				.map(
-					track =>
-						track.label ||
-						getLanguageDisplayName(
-							getManualLanguageTagFromTrackKey( track.srcLang ) || track.srcLang
-						)
-				)
-		),
-	];
-	const shownLanguages = subtitleLanguages.slice( 0, MAX_SUBTITLE_LANGUAGES_SHOWN ).join( ', ' );
-	const moreLanguagesCount = subtitleLanguages.length - MAX_SUBTITLE_LANGUAGES_SHOWN;
-	let subtitleSummary = shownLanguages || __( 'None', 'jetpack-videopress-pkg' );
-	if ( moreLanguagesCount > 0 ) {
-		subtitleSummary = sprintf(
-			/* translators: 1: list of subtitle language names. 2: how many further languages exist. */
-			_n(
-				'%1$s, and %2$d more',
-				'%1$s, and %2$d more',
-				moreLanguagesCount,
-				'jetpack-videopress-pkg'
-			),
-			shownLanguages,
-			moreLanguagesCount
-		);
-	}
 	return (
 		<Card.Root>
 			<Card.Header>
@@ -163,35 +119,24 @@ export default function VideoInfoCard( { video, onManageSubtitles }: Props ): Re
 					 * at. Field.Label carries the same 11px uppercase treatment
 					 * as the labels on the InputControls above, which is why
 					 * this stopped needing a hand-rolled `__meta-label` class.
+					 *
+					 * The file name is derived from the source URL rather than
+					 * stored (use-library.ts), which is the other reason it
+					 * belongs here and not next to the fields a person owns.
 					 */ }
+					<Field.Root>
+						<Field.Label nativeLabel={ false } render={ <span /> }>
+							{ __( 'File name', 'jetpack-videopress-pkg' ) }
+						</Field.Label>
+						<Text className="vp-video-details__readout">{ video.filename }</Text>
+					</Field.Root>
+
 					<Field.Root>
 						<Field.Label nativeLabel={ false } render={ <span /> }>
 							{ __( 'Uploaded on', 'jetpack-videopress-pkg' ) }
 						</Field.Label>
 						<Text>{ dateI18n( dateSettings.formats.date, video.uploadDate ) }</Text>
 					</Field.Root>
-
-					{ video.guid && (
-						<Field.Root>
-							<Field.Label nativeLabel={ false } render={ <span /> }>
-								{ __( 'Subtitles', 'jetpack-videopress-pkg' ) }
-							</Field.Label>
-							<Stack direction="row" gap="sm" align="center">
-								<Text className="vp-video-details__readout">
-									{ isLoadingTracks ? __( 'Loading…', 'jetpack-videopress-pkg' ) : subtitleSummary }
-								</Text>
-								<Button
-									variant="minimal"
-									size="small"
-									className="vp-video-details__manage-subtitles"
-									aria-label={ __( 'Manage subtitles', 'jetpack-videopress-pkg' ) }
-									onClick={ onManageSubtitles }
-								>
-									{ __( 'Manage', 'jetpack-videopress-pkg' ) }
-								</Button>
-							</Stack>
-						</Field.Root>
-					) }
 				</Stack>
 			</Card.Content>
 		</Card.Root>

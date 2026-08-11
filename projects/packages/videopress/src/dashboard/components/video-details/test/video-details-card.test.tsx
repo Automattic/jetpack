@@ -10,14 +10,6 @@ jest.mock( '@wordpress/route', () => ( {
 	useLinkProps: ( { to }: { to: string } ) => ( { href: to } ),
 } ) );
 
-// The thumbnail row carries its own poster mutation and frame picker, both
-// covered by thumbnail-control.test.tsx. Stubbed here so this suite needs no
-// QueryClient and no apiFetch.
-jest.mock( '../thumbnail-control', () => ( {
-	__esModule: true,
-	default: () => <div data-testid="thumbnail-control" />,
-} ) );
-
 const video = makeLibraryItem( { filename: 'holiday-clip.mp4' } );
 const DESCRIPTION = '00:00 Intro\n00:30 Middle';
 
@@ -52,13 +44,6 @@ describe( 'VideoDetailsCard', () => {
 		expect( screen.getByText( 'Video details' ) ).toBeInTheDocument();
 	} );
 
-	it( 'shows the file name as a labelled read-out', () => {
-		renderCard();
-
-		expect( screen.getByText( 'File name' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'holiday-clip.mp4' ) ).toBeInTheDocument();
-	} );
-
 	/*
 	 * The backstop against a future primitive swap. Both fields are reached by
 	 * accessible name from routes/video/test/stage.test.tsx, so a change that
@@ -89,10 +74,15 @@ describe( 'VideoDetailsCard', () => {
 		expect( screen.getByText( 'Chapters (2)' ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders the thumbnail control', () => {
+	// Both moved out in the YouTube Studio pass. The card is free text a
+	// person writes and Save commits; the file name is a fact about the upload
+	// and the thumbnail does not go through Save at all.
+	it( 'no longer carries the file name or the thumbnail control', () => {
 		renderCard();
 
-		expect( screen.getByTestId( 'thumbnail-control' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'File name' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'holiday-clip.mp4' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /update thumbnail/i } ) ).not.toBeInTheDocument();
 	} );
 
 	// confirmNavigation has to keep reaching ChaptersSummary: the deep link is
