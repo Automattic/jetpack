@@ -563,7 +563,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	 * already be in memory while this file is the new version on disk. State sync is
 	 * best-effort and must never fatal such a request, so it is skipped in that window.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.10.0
 	 */
 	private function clear_blocked_request_error() {
 		if ( method_exists( Error_Handler::class, 'delete_error_by_code' ) ) {

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Agents Manager: skip the sidebar pre-render when the user has no WordPress.com connection, so a stale cached open state no longer flashes a shell the app never mounts into after disconnecting.

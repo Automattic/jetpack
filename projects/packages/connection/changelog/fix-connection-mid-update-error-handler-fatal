@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Error Handler: Prevent a fatal error when a request runs during a plugin update and an older version of the Error_Handler class is already loaded.

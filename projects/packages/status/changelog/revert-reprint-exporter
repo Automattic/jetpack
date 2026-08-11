@@ -1,4 +1,0 @@
-Significance: minor
-Type: removed
-
-Remove Host::is_pressable(). Check the IS_PRESSABLE constant directly instead.

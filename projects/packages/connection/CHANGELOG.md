@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.10.0] - 2026-08-11
+### Added
+- Add a site data endpoint so plugins without the Jetpack plugin can read the WordPress.com site record. [#51057]
+- Connection Health: Surface the blocked-request connection failure (host blocking WordPress.com requests) as a verified connection error with an admin notice, and re-check the connection daily on the heartbeat cron. [#51145]
+
+### Fixed
+- Error Handler: Prevent a fatal error when a request runs during a plugin update and an older version of the Error_Handler class is already loaded. [#51173]
+
 ## [8.9.0] - 2026-08-06
 ### Changed
 - Error Handler: Standardize the stored connection error structure with explicit error type and direction fields. [#50992]
@@ -1978,6 +1986,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[8.10.0]: https://github.com/Automattic/jetpack-connection/compare/v8.9.0...v8.10.0
 [8.9.0]: https://github.com/Automattic/jetpack-connection/compare/v8.8.2...v8.9.0
 [8.8.2]: https://github.com/Automattic/jetpack-connection/compare/v8.8.1...v8.8.2
 [8.8.1]: https://github.com/Automattic/jetpack-connection/compare/v8.8.0...v8.8.1
