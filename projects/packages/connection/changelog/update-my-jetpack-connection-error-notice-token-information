@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Connection: Suppress the reconnect CTA for another user's connection error so it is only offered to the affected user.

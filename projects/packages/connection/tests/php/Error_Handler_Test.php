@@ -779,12 +779,12 @@ class Error_Handler_Test extends BaseTestCase {
 	public function test_handle_verified_errors() {
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
-		// Add an error that should trigger admin notices
-		$error = $this->get_sample_error( 'invalid_token', 1 );
+		// Add a site-scoped error (user_id 0) that should trigger admin notices for any viewer.
+		$error = $this->get_sample_error( 'invalid_token', 0 );
 		$this->error_handler->report_error( $error );
 
 		$stored_errors = $this->error_handler->get_stored_errors();
-		$this->error_handler->verify_error( $stored_errors['invalid_token']['1'] );
+		$this->error_handler->verify_error( $stored_errors['invalid_token']['0'] );
 
 		$this->error_handler->handle_verified_errors();
 
@@ -807,10 +807,10 @@ class Error_Handler_Test extends BaseTestCase {
 	 * Test get_displayable_errors method with displayable error
 	 */
 	public function test_displayable_errors_displayable_error() {
-		// Add a displayable error
+		// Add a site-scoped displayable error (user_id 0), visible to any viewer.
 		$error = array(
 			'error_code'    => 'invalid_token',
-			'user_id'       => '1',
+			'user_id'       => '0',
 			'error_message' => 'Test message',
 			'error_data'    => array(),
 			'timestamp'     => time(),
@@ -820,7 +820,7 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$verified_errors = array(
 			'invalid_token' => array(
-				'1' => $error,
+				'0' => $error,
 			),
 		);
 		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
@@ -828,18 +828,18 @@ class Error_Handler_Test extends BaseTestCase {
 		$result = $this->error_handler->get_displayable_errors();
 
 		$this->assertCount( 1, $result );
-		$this->assertStringContainsString( 'broken', $result['invalid_token']['1']['error_message'] );
-		$this->assertEquals( 'invalid_token', $result['invalid_token']['1']['error_code'] );
+		$this->assertStringContainsString( 'broken', $result['invalid_token']['0']['error_message'] );
+		$this->assertEquals( 'invalid_token', $result['invalid_token']['0']['error_code'] );
 	}
 
 	/**
 	 * Test get_displayable_errors method with filter (WoA site)
 	 */
 	public function test_displayable_errors_filter_woa_site() {
-		// Add a displayable error
+		// Add a site-scoped displayable error (user_id 0), visible to any viewer.
 		$error = array(
 			'error_code'    => 'invalid_token',
-			'user_id'       => '1',
+			'user_id'       => '0',
 			'error_message' => 'Test message',
 			'error_data'    => array(),
 			'timestamp'     => time(),
@@ -849,7 +849,7 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$verified_errors = array(
 			'invalid_token' => array(
-				'1' => $error,
+				'0' => $error,
 			),
 		);
 		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
@@ -858,7 +858,7 @@ class Error_Handler_Test extends BaseTestCase {
 		add_filter(
 			'jetpack_connection_displayable_errors',
 			function ( $errors ) {
-				$errors['invalid_token']['1']['error_message'] = 'Filtered message for WoA';
+				$errors['invalid_token']['0']['error_message'] = 'Filtered message for WoA';
 				return $errors;
 			}
 		);
@@ -869,7 +869,7 @@ class Error_Handler_Test extends BaseTestCase {
 
 		// Verify the basic structure is correct
 		$this->assertCount( 1, $result );
-		$this->assertEquals( 'invalid_token', $result['invalid_token']['1']['error_code'] );
+		$this->assertEquals( 'invalid_token', $result['invalid_token']['0']['error_code'] );
 	}
 
 	/**
@@ -893,10 +893,10 @@ class Error_Handler_Test extends BaseTestCase {
 	 * Test handle_verified_errors method with displayable errors
 	 */
 	public function test_handle_verified_errors_with_displayable_errors() {
-		// Add a displayable error
+		// Add a site-scoped displayable error (user_id 0), visible to any viewer.
 		$error = array(
 			'error_code'    => 'invalid_token',
-			'user_id'       => '1',
+			'user_id'       => '0',
 			'error_message' => 'Test message',
 			'error_data'    => array(),
 			'timestamp'     => time(),
@@ -906,7 +906,7 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$verified_errors = array(
 			'invalid_token' => array(
-				'1' => $error,
+				'0' => $error,
 			),
 		);
 		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
@@ -1277,9 +1277,10 @@ class Error_Handler_Test extends BaseTestCase {
 	 * at all) are still read and deleted correctly.
 	 */
 	public function test_legacy_stored_errors_without_direction_key() {
+		// Site-scoped (user_id 0), visible to any viewer.
 		$legacy_error = array(
 			'error_code'    => 'invalid_token',
-			'user_id'       => '1',
+			'user_id'       => '0',
 			'error_message' => 'Legacy error',
 			'error_data'    => array(),
 			'timestamp'     => time(),
@@ -1287,8 +1288,8 @@ class Error_Handler_Test extends BaseTestCase {
 			'error_type'    => 'xmlrpc',
 		);
 
-		update_option( Error_Handler::STORED_ERRORS_OPTION, array( 'invalid_token' => array( '1' => $legacy_error ) ) );
-		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, array( 'invalid_token' => array( '1' => $legacy_error ) ) );
+		update_option( Error_Handler::STORED_ERRORS_OPTION, array( 'invalid_token' => array( '0' => $legacy_error ) ) );
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, array( 'invalid_token' => array( '0' => $legacy_error ) ) );
 
 		$this->assertArrayHasKey( 'invalid_token', $this->error_handler->get_stored_errors() );
 		$this->assertArrayHasKey( 'invalid_token', $this->error_handler->get_displayable_errors() );
@@ -1357,12 +1358,14 @@ class Error_Handler_Test extends BaseTestCase {
 	 * Test jetpack_react_dashboard_error method
 	 */
 	public function test_jetpack_react_dashboard_error() {
-		// Add some test errors
+		// Add some test errors. The first error is site-scoped (user_id 0) so this test's
+		// default-action fallback is exercised independent of viewer-scoped audience
+		// suppression (covered separately for 'owner'/'user' audiences elsewhere).
 		$test_errors = array(
 			'invalid_token'       => array(
-				'1' => array(
+				'0' => array(
 					'error_code'    => 'invalid_token',
-					'user_id'       => '1',
+					'user_id'       => '0',
 					'error_message' => 'Test message',
 					'error_data'    => array( 'custom' => 'data' ),
 					'timestamp'     => time(),
@@ -1460,10 +1463,10 @@ class Error_Handler_Test extends BaseTestCase {
 	 * Test caching functionality of get_displayable_errors method
 	 */
 	public function test_get_displayable_errors_caching() {
-		// Add a displayable error
+		// Add a site-scoped displayable error (user_id 0), visible to any viewer.
 		$error = array(
 			'error_code'    => 'invalid_token',
-			'user_id'       => '1',
+			'user_id'       => '0',
 			'error_message' => 'Test message',
 			'error_data'    => array(),
 			'timestamp'     => time(),
@@ -1473,7 +1476,7 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$verified_errors = array(
 			'invalid_token' => array(
-				'1' => $error,
+				'0' => $error,
 			),
 		);
 		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
@@ -1495,10 +1498,10 @@ class Error_Handler_Test extends BaseTestCase {
 	 * Test cache invalidation when errors are modified
 	 */
 	public function test_cache_invalidation_on_error_modification() {
-		// Add initial error
+		// Add initial error (site-scoped, user_id 0, visible to any viewer)
 		$error = array(
 			'error_code'    => 'invalid_token',
-			'user_id'       => '1',
+			'user_id'       => '0',
 			'error_message' => 'Test message',
 			'error_data'    => array(),
 			'timestamp'     => time(),
@@ -1508,7 +1511,7 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$verified_errors = array(
 			'invalid_token' => array(
-				'1' => $error,
+				'0' => $error,
 			),
 		);
 		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
@@ -1517,10 +1520,11 @@ class Error_Handler_Test extends BaseTestCase {
 		$result1 = $this->error_handler->get_displayable_errors();
 		$this->assertCount( 1, $result1 );
 
-		// Add a new error via verify_error (should invalidate cache)
+		// Add a new error via verify_error (should invalidate cache). Site-scoped
+		// (user_id 0) so it is visible to the default (viewer 0) test user too.
 		$new_error = array(
 			'error_code'    => 'no_valid_user_token',
-			'user_id'       => '2',
+			'user_id'       => '0',
 			'error_message' => 'New error message',
 			'error_data'    => array(),
 			'timestamp'     => time(),
@@ -1540,10 +1544,10 @@ class Error_Handler_Test extends BaseTestCase {
 	 * Test cache invalidation when errors are deleted
 	 */
 	public function test_cache_invalidation_on_error_deletion() {
-		// Add initial error
+		// Add initial error (site-scoped, user_id 0, visible to any viewer)
 		$error = array(
 			'error_code'    => 'invalid_token',
-			'user_id'       => '1',
+			'user_id'       => '0',
 			'error_message' => 'Test message',
 			'error_data'    => array(),
 			'timestamp'     => time(),
@@ -1553,7 +1557,7 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$verified_errors = array(
 			'invalid_token' => array(
-				'1' => $error,
+				'0' => $error,
 			),
 		);
 		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
@@ -1620,12 +1624,13 @@ class Error_Handler_Test extends BaseTestCase {
 	 * Test jetpack_react_dashboard_error method with custom action
 	 */
 	public function test_jetpack_react_dashboard_error_with_custom_action() {
-		// Add a test error with custom action using a valid displayable error code
+		// Use a site-scoped error (user_id 0): this test is about the custom-action
+		// passthrough, not viewer-scoped audience suppression.
 		$test_errors = array(
 			'invalid_connection_owner' => array(
-				'1' => array(
+				'0' => array(
 					'error_code'    => 'invalid_connection_owner',
-					'user_id'       => '1',
+					'user_id'       => '0',
 					'error_message' => 'Test message',
 					'error_data'    => array( 'action' => 'create_missing_account' ),
 					'timestamp'     => time(),
@@ -1695,7 +1700,18 @@ class Error_Handler_Test extends BaseTestCase {
 	 * record, a positive user ID is classified as that user's error.
 	 */
 	public function test_jetpack_react_dashboard_error_includes_user_audience() {
-		$this->store_single_verified_error( 'no_valid_user_token', '5' );
+		$viewer_id = wp_insert_user(
+			array(
+				'user_login' => 'the_affected_user',
+				'user_pass'  => 'password',
+				'user_email' => 'the_affected_user@example.org',
+				'role'       => 'administrator',
+			)
+		);
+		$this->assertIsInt( $viewer_id );
+		wp_set_current_user( $viewer_id );
+
+		$this->store_single_verified_error( 'no_valid_user_token', (string) $viewer_id );
 
 		$result = $this->error_handler->jetpack_react_dashboard_error( array() );
 
@@ -1920,7 +1936,21 @@ class Error_Handler_Test extends BaseTestCase {
 	 * Test that get_displayable_errors classifies each error's audience by user ID.
 	 */
 	public function test_get_displayable_errors_classifies_audience() {
-		\Jetpack_Options::update_option( 'master_user', 7 );
+		$owner_id = 7;
+		\Jetpack_Options::update_option( 'master_user', $owner_id );
+
+		// View as the non-owner user whose own error is under test: 'user'-audience errors
+		// are only visible to the affected user themselves.
+		$viewer_id = wp_insert_user(
+			array(
+				'user_login' => 'the_affected_user',
+				'user_pass'  => 'password',
+				'user_email' => 'the_affected_user@example.org',
+				'role'       => 'administrator',
+			)
+		);
+		$this->assertIsInt( $viewer_id );
+		wp_set_current_user( $viewer_id );
 
 		$make_error = function ( $error_code, $user_id ) {
 			return array(
@@ -1936,16 +1966,16 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$verified_errors = array(
 			'invalid_token'       => array( '0' => $make_error( 'invalid_token', 0 ) ),
-			'no_valid_user_token' => array( '7' => $make_error( 'no_valid_user_token', 7 ) ),
-			'no_token_for_user'   => array( '3' => $make_error( 'no_token_for_user', 3 ) ),
+			'no_valid_user_token' => array( (string) $owner_id => $make_error( 'no_valid_user_token', $owner_id ) ),
+			'no_token_for_user'   => array( (string) $viewer_id => $make_error( 'no_token_for_user', $viewer_id ) ),
 		);
 		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
 
 		$result = $this->error_handler->get_displayable_errors();
 
 		$this->assertSame( 'site', $result['invalid_token']['0']['audience'], 'A blog-token error (user 0) is site-wide.' );
-		$this->assertSame( 'owner', $result['no_valid_user_token']['7']['audience'], "The connection owner's token error is owner-scoped." );
-		$this->assertSame( 'user', $result['no_token_for_user']['3']['audience'], "A non-owner user's token error is user-scoped." );
+		$this->assertSame( 'owner', $result['no_valid_user_token'][ (string) $owner_id ]['audience'], "The connection owner's token error is owner-scoped." );
+		$this->assertSame( 'user', $result['no_token_for_user'][ (string) $viewer_id ]['audience'], "A non-owner user's own token error is user-scoped and visible to that user." );
 	}
 
 	/**
@@ -2148,6 +2178,81 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertSame( 'owner', $displayed['audience'] );
 		$this->assertArrayNotHasKey( 'action', $displayed['error_data'], 'No explicit action is emitted for the default behavior: readers fall back to the reconnect CTA.' );
 		$this->assertStringContainsString( 'broken', $displayed['error_message'] );
+	}
+
+	/**
+	 * Test that a viewer looking at another (non-owner) user's connection error does not
+	 * see it at all: a viewer is only ever shown errors for their own user connection, the
+	 * site connection, or the connection owner. Only the affected user can restore their
+	 * own connection, and a reconnect from someone else would invalidate other users'
+	 * tokens without fixing anything, so there's nothing for another viewer to act on or
+	 * usefully learn from being told about it.
+	 */
+	public function test_get_displayable_errors_excludes_other_users_errors() {
+		\Jetpack_Options::update_option( 'master_user', 999 );
+
+		$viewer_id = wp_insert_user(
+			array(
+				'user_login' => 'secondary_admin',
+				'user_pass'  => 'password',
+				'user_email' => 'secondary_admin@example.org',
+				'role'       => 'administrator',
+			)
+		);
+		$this->assertIsInt( $viewer_id );
+		wp_set_current_user( $viewer_id );
+
+		$other_user_id = $viewer_id + 1;
+		$error         = array(
+			'error_code'    => 'token_malformed',
+			'user_id'       => (string) $other_user_id,
+			'error_message' => 'Original message',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'nonce_other_user',
+			'error_type'    => 'xmlrpc',
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, array( 'token_malformed' => array( (string) $other_user_id => $error ) ) );
+
+		$result = $this->error_handler->get_displayable_errors();
+
+		$this->assertArrayNotHasKey( 'token_malformed', $result, "Another user's connection error must not be shown to this viewer at all." );
+	}
+
+	/**
+	 * Test that a viewer looking at their OWN (non-owner) connection error still gets the
+	 * default reconnect CTA.
+	 */
+	public function test_get_displayable_errors_own_user_error_keeps_reconnect() {
+		\Jetpack_Options::update_option( 'master_user', 999 );
+
+		$viewer_id = wp_insert_user(
+			array(
+				'user_login' => 'secondary_admin',
+				'user_pass'  => 'password',
+				'user_email' => 'secondary_admin@example.org',
+				'role'       => 'administrator',
+			)
+		);
+		$this->assertIsInt( $viewer_id );
+		wp_set_current_user( $viewer_id );
+
+		$error = array(
+			'error_code'    => 'token_malformed',
+			'user_id'       => (string) $viewer_id,
+			'error_message' => 'Original message',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'nonce_self',
+			'error_type'    => 'xmlrpc',
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, array( 'token_malformed' => array( (string) $viewer_id => $error ) ) );
+
+		$result = $this->error_handler->get_displayable_errors();
+
+		$displayed = $result['token_malformed'][ (string) $viewer_id ];
+		$this->assertSame( 'user', $displayed['audience'] );
+		$this->assertArrayNotHasKey( 'action', $displayed['error_data'], 'No explicit action is emitted for the default behavior: readers fall back to the reconnect CTA.' );
 	}
 
 	/**

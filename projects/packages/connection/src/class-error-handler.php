@@ -345,6 +345,17 @@ class Error_Handler {
 
 					$audience = $this->classify_error_audience( $user_id, $owner_id );
 
+					// A viewer is only ever shown errors for: their own user connection, the
+					// site connection, or the connection owner. Another (non-owner) user's
+					// broken token is invisible to everyone else, not just non-actionable.
+					// `invalid_connection_owner` is exempt: when there's no current owner to
+					// compare against, it falls back to 'user' audience by ID alone.
+					if ( 'user' === $audience
+						&& (int) $user_id !== $viewer_id
+						&& 'invalid_connection_owner' !== $error_code ) {
+						continue;
+					}
+
 					$message = __( "Your connection with WordPress.com seems to be broken. If you're experiencing issues, please try reconnecting.", 'jetpack-connection' );
 					$action  = null;
 

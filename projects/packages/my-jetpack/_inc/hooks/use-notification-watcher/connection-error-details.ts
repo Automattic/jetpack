@@ -125,13 +125,12 @@ export function getConnectionErrorScope(
 	if ( audience === 'user' ) {
 		const isViewersOwnError = Number( error?.user_id ) === currentUserId;
 
-		if ( isViewersOwnError ) {
-			return __( 'Your account', 'jetpack-my-jetpack' );
-		}
-
+		const yourAccountLabel = __( 'Your account', 'jetpack-my-jetpack' );
 		// `Error_Handler` leaves another user's token error out of this viewer's set,
 		// so this is only reachable for an error injected by a consumer filter.
-		return __( "Another user's account", 'jetpack-my-jetpack' );
+		const anotherUsersAccountLabel = __( "Another user's account", 'jetpack-my-jetpack' );
+
+		return isViewersOwnError ? yourAccountLabel : anotherUsersAccountLabel;
 	}
 
 	return __( 'Site connection', 'jetpack-my-jetpack' );

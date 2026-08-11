@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix i18n-check build error caused by bundler collapsing two __() calls into a ternary in connection-error-details.ts.
+
+
