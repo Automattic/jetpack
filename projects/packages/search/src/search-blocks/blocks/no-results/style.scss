@@ -18,8 +18,9 @@
 	justify-content: center;
 	text-align: center;
 	gap: 0.25rem;
-	min-height: 12rem;
-	padding: 2rem 1rem;
+	min-block-size: 12rem;
+	padding-block: 2rem;
+	padding-inline: 1rem;
 	opacity: 0.6;
 
 	p {
