@@ -65,11 +65,28 @@ final class Dashboard_Section {
 	public $slug;
 
 	/**
-	 * Display label.
+	 * Display label, naming the section's tab.
 	 *
 	 * @var string
 	 */
 	public $label;
+
+	/**
+	 * Section heading, deliberately distinct from the tab label: the tab reads
+	 * `Traffic` where the heading reads `Site traffic`. Null falls back to the label.
+	 *
+	 * @since $$next-version$$
+	 * @var string|null
+	 */
+	public $title = null;
+
+	/**
+	 * Section description, shown as the page subtitle while this section is active.
+	 *
+	 * @since $$next-version$$
+	 * @var string|null
+	 */
+	public $description = null;
 
 	/**
 	 * Sort order.
@@ -164,6 +181,8 @@ final class Dashboard_Section {
 			'id'             => $this->id,
 			'slug'           => $this->slug,
 			'label'          => $this->label,
+			'title'          => $this->title,
+			'description'    => $this->description,
 			'order'          => (int) $this->order,
 			'date_filter'    => $this->date_filter,
 			'default_layout' => $this->get_default_layout(),
@@ -183,6 +202,18 @@ final class Dashboard_Section {
 
 		if ( isset( $args['label'] ) ) {
 			$this->label = (string) $args['label'];
+		}
+
+		// An empty string is a registrant saying "none", not a heading: kept as-is it
+		// would defeat the label fallback and render an `<h2>` with no accessible name.
+		if ( isset( $args['title'] ) ) {
+			$title       = (string) $args['title'];
+			$this->title = '' === $title ? null : $title;
+		}
+
+		if ( isset( $args['description'] ) ) {
+			$description       = (string) $args['description'];
+			$this->description = '' === $description ? null : $description;
 		}
 
 		if ( isset( $args['order'] ) ) {

@@ -16,12 +16,11 @@ import { Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useMemo, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { DashboardSections } from './components';
-import { DATE_FILTER_YEAR } from './config';
+import { DATE_FILTER_YEAR, resolveSectionHeading } from './config';
 import {
 	useActiveSection,
 	useDashboardGridSettings,
@@ -80,15 +79,14 @@ function Dashboard(): JSX.Element {
 	 */
 	const dateFilters = useReportDateFilters( '/' );
 
+	const activeSectionRecord = sections.find( section => section.slug === activeSection );
+
 	/*
 	 * Which date filter the active section's header shows. Also reconciles the
 	 * preset in the URL with that filter's surface, so a section switch never
 	 * leaves the visible control unable to represent the selection.
 	 */
-	const dateFilterSurface = useSectionDateFilter(
-		sections.find( section => section.slug === activeSection ),
-		dateFilters
-	);
+	const dateFilterSurface = useSectionDateFilter( activeSectionRecord, dateFilters );
 
 	/*
 	 * The subtitle states what the widgets are currently showing, so it follows
@@ -206,10 +204,7 @@ function Dashboard(): JSX.Element {
 				<Page
 					visual={ <StatsPageIcon /> }
 					breadcrumbs={ <StatsBreadcrumbs isRoot /> }
-					subTitle={ __(
-						'Track your site performance and visitor insights.',
-						'jetpack-premium-analytics-pkg'
-					) }
+					subTitle={ activeSectionRecord?.description }
 					actions={ <WidgetDashboard.Actions /> }
 					className={ styles.dashboard }
 				>
@@ -225,7 +220,10 @@ function Dashboard(): JSX.Element {
 								className={ styles.content }
 							>
 								<div ref={ setContainerElement } className={ styles.sectionHeader }>
-									<SectionHeader title={ section.label } subtitle={ sectionSubtitle }>
+									<SectionHeader
+										title={ resolveSectionHeading( section ) }
+										subtitle={ sectionSubtitle }
+									>
 										{ dateControls }
 									</SectionHeader>
 								</div>

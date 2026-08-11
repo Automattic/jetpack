@@ -123,6 +123,64 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A section carries a heading and description distinct from its tab label.
+	 */
+	public function test_section_accepts_title_and_description() {
+		$registry = new Dashboard_Section_Registry();
+
+		$section = $registry->register(
+			'example_dashboard',
+			'example/traffic',
+			array(
+				'label'       => 'Traffic',
+				'title'       => 'Site traffic',
+				'description' => 'Views, visitors, and where they came from.',
+			)
+		);
+
+		$this->assertInstanceOf( Dashboard_Section::class, $section );
+		$this->assertSame( 'Traffic', $section->label );
+		$this->assertSame( 'Site traffic', $section->title );
+		$this->assertSame( 'Views, visitors, and where they came from.', $section->description );
+
+		$data = $section->to_array();
+		$this->assertSame( 'Site traffic', $data['title'] );
+		$this->assertSame( 'Views, visitors, and where they came from.', $data['description'] );
+	}
+
+	/**
+	 * Both fields stay null when unregistered, so the dashboard can fall back to the label.
+	 */
+	public function test_section_title_and_description_default_to_null() {
+		$section = new Dashboard_Section( 'example_dashboard', 'example/traffic', array( 'label' => 'Traffic' ) );
+
+		$this->assertNull( $section->title );
+		$this->assertNull( $section->description );
+
+		$data = $section->to_array();
+		$this->assertNull( $data['title'] );
+		$this->assertNull( $data['description'] );
+	}
+
+	/**
+	 * An empty string registers as "no copy" rather than an empty heading.
+	 */
+	public function test_section_normalises_empty_title_and_description_to_null() {
+		$section = new Dashboard_Section(
+			'example_dashboard',
+			'example/traffic',
+			array(
+				'label'       => 'Traffic',
+				'title'       => '',
+				'description' => '',
+			)
+		);
+
+		$this->assertNull( $section->title );
+		$this->assertNull( $section->description );
+	}
+
+	/**
 	 * A section can opt into the year date filter.
 	 */
 	public function test_section_accepts_the_year_date_filter() {
@@ -194,13 +252,46 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The analytics sections carry their own heading; Store still falls back to its label.
+	 */
+	public function test_built_in_sections_declare_their_headings() {
+		// Store needs both gates: the filter stands in for WooCommerce being active,
+		// and the admin user satisfies the capability check added in #50889.
+		$this->set_admin_user();
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+
+		register_default_dashboard_sections();
+
+		$sections = array_map(
+			static function ( Dashboard_Section $section ) {
+				return $section->to_array();
+			},
+			get_available_dashboard_sections( DASHBOARD_NAME )
+		);
+
+		$this->assertSame(
+			array(
+				'traffic'     => 'Site traffic',
+				'insights'    => 'Activity insights',
+				'subscribers' => 'Subscribers stats',
+				'store'       => null,
+			),
+			array_column( $sections, 'title', 'slug' )
+		);
+
+		$descriptions = array_column( $sections, 'description', 'slug' );
+		$this->assertSame( 'Views, visitors, and where they came from.', $descriptions['traffic'] );
+		$this->assertSame( 'Sales, orders, and what your customers are buying.', $descriptions['store'] );
+	}
+
+	/**
 	 * The sections schema documents the date-filter surfaces and their default.
 	 */
 	public function test_sections_schema_documents_the_date_filter() {
 		$schema = get_dashboard_section_schema();
 
 		$this->assertSame(
-			array( 'id', 'slug', 'label', 'order', 'date_filter', 'default_layout' ),
+			array( 'id', 'slug', 'label', 'title', 'description', 'order', 'date_filter', 'default_layout' ),
 			array_keys( $schema['properties'] )
 		);
 		$this->assertSame(
@@ -368,6 +459,8 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'id'             => 'analytics/traffic',
 					'slug'           => 'traffic',
 					'label'          => 'Traffic',
+					'title'          => null,
+					'description'    => null,
 					'order'          => 10,
 					'date_filter'    => 'range',
 					'default_layout' => array(),
@@ -484,6 +577,8 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'id'          => 'analytics/traffic',
 					'slug'        => 'traffic',
 					'label'       => 'Traffic',
+					'title'       => 'Site traffic',
+					'description' => 'Views, visitors, and where they came from.',
 					'order'       => 10,
 					'date_filter' => 'range',
 				),
@@ -491,6 +586,8 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'id'          => 'analytics/insights',
 					'slug'        => 'insights',
 					'label'       => 'Insights',
+					'title'       => 'Activity insights',
+					'description' => 'Longer-term patterns in your content and audience.',
 					'order'       => 20,
 					'date_filter' => 'year',
 				),
@@ -498,6 +595,8 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'id'          => 'analytics/subscribers',
 					'slug'        => 'subscribers',
 					'label'       => 'Subscribers',
+					'title'       => 'Subscribers stats',
+					'description' => 'How your subscriber list is growing, and how your emails land.',
 					'order'       => 30,
 					'date_filter' => 'range',
 				),
@@ -691,6 +790,8 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'id'             => 'example/first',
 					'slug'           => 'first',
 					'label'          => 'First',
+					'title'          => null,
+					'description'    => null,
 					'order'          => 10,
 					'date_filter'    => 'range',
 					'default_layout' => array(),
@@ -699,6 +800,8 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'id'             => 'example/later',
 					'slug'           => 'later',
 					'label'          => 'Later',
+					'title'          => null,
+					'description'    => null,
 					'order'          => 20,
 					'date_filter'    => 'range',
 					'default_layout' => array(),
@@ -774,6 +877,8 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'id'             => 'analytics/traffic',
 					'slug'           => 'traffic',
 					'label'          => 'Traffic',
+					'title'          => null,
+					'description'    => null,
 					'order'          => 10,
 					'date_filter'    => 'range',
 					'default_layout' => array(
