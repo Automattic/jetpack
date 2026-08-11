@@ -25,6 +25,7 @@ import type {
 	QueryParams,
 	Registry,
 	Action,
+	ReportingAction,
 } from '../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../src/types/index.ts';
 import type { UseNavigateResult } from '@wordpress/route';
@@ -292,7 +293,12 @@ export const BULK_ACTIONS = {
 // `search` cast in `routes/response/breadcrumbs.tsx` works around.
 type NavigateFunction = UseNavigateResult< string >;
 
+// Element type for the row-actions array, which mixes reporting and plain actions.
 type ActionWithDestructive = Action & {
+	isDestructive?: boolean;
+};
+
+type ReportingActionWithDestructive = ReportingAction & {
 	isDestructive?: boolean;
 };
 
@@ -300,14 +306,17 @@ type GetActionsParams = {
 	navigate: NavigateFunction;
 };
 
+// The status-changing actions are typed as `ReportingAction`: callers gate on their
+// result, so every terminal path has to return one. `view` / `editForm` /
+// `markAsRead` / `markAsUnread` stay on the looser `Action` — nothing reads them.
 type GetActionsReturn = {
 	viewAction: Action;
 	editFormAction: Action;
-	markAsSpamAction: Action;
-	markAsNotSpamAction: Action;
-	restoreAction: Action;
-	moveToTrashAction: Action;
-	deleteAction: ActionWithDestructive;
+	markAsSpamAction: ReportingAction;
+	markAsNotSpamAction: ReportingAction;
+	restoreAction: ReportingAction;
+	moveToTrashAction: ReportingAction;
+	deleteAction: ReportingActionWithDestructive;
 	markAsReadAction: Action;
 	markAsUnreadAction: Action;
 };
@@ -368,7 +377,7 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 		},
 	};
 
-	const markAsSpamAction: Action = {
+	const markAsSpamAction: ReportingAction = {
 		id: 'mark-as-spam',
 		isPrimary: true,
 		icon: <Icon icon={ spam } />,
@@ -510,7 +519,7 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 		},
 	};
 
-	const markAsNotSpamAction: Action = {
+	const markAsNotSpamAction: ReportingAction = {
 		id: 'mark-as-not-spam',
 		isPrimary: true,
 		icon: <Icon icon={ notSpam } />,
@@ -644,7 +653,7 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 		},
 	};
 
-	const restoreAction: Action = {
+	const restoreAction: ReportingAction = {
 		id: 'restore',
 		isPrimary: true,
 		icon: <Icon icon={ backup } />,
@@ -773,7 +782,7 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 		},
 	};
 
-	const moveToTrashAction: Action = {
+	const moveToTrashAction: ReportingAction = {
 		id: 'move-to-trash',
 		isPrimary: true,
 		icon: <Icon icon={ trash } />,
@@ -915,7 +924,7 @@ export function getActions( { navigate }: GetActionsParams ): GetActionsReturn {
 		},
 	};
 
-	const deleteAction: ActionWithDestructive = {
+	const deleteAction: ReportingActionWithDestructive = {
 		id: 'delete',
 		isPrimary: true,
 		icon: <Icon icon={ trash } />,

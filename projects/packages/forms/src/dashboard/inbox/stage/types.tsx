@@ -136,6 +136,12 @@ export type ActionResult = {
 	numberOfErrors: number;
 };
 
+export type ActionCallback< Result extends ActionResult | void = ActionResult | void > = (
+	items: FormResponse[],
+	{ registry }: { registry: Registry },
+	options?: { isUndo?: boolean; targetStatus?: 'publish' | 'spam' | 'trash' }
+) => Promise< Result >;
+
 export type Action = {
 	id: string;
 	isPrimary: boolean;
@@ -144,9 +150,23 @@ export type Action = {
 	modalHeader?: string;
 	isEligible?: ( item: FormResponse ) => boolean;
 	supportsBulk?: boolean;
-	callback?: (
-		items: FormResponse[],
-		{ registry }: { registry: Registry },
-		options?: { isUndo?: boolean; targetStatus?: 'publish' | 'spam' | 'trash' }
-	) => Promise< ActionResult | void >;
+	callback?: ActionCallback;
+};
+
+/**
+ * An action whose callback must report its outcome on every terminal path.
+ *
+ * Callers that keep the user in place decide what to do next from the returned
+ * result — the single response page only repairs the store, or navigates away
+ * after a delete, once the server has confirmed the change. Under the looser
+ * `ActionResult | void` type, an action that grew a success path with a bare
+ * `return` would silently be read as "did nothing", quietly reinstating the
+ * field-flattening bug with no type error and no failing test. Requiring the
+ * result here turns that into a compile error instead.
+ *
+ * `markAsRead` / `markAsUnread` deliberately keep the looser `Action` type: no
+ * caller inspects their result, and they have bare returns today.
+ */
+export type ReportingAction = Omit< Action, 'callback' > & {
+	callback: ActionCallback< ActionResult >;
 };

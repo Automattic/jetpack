@@ -159,7 +159,9 @@ class Dashboard_Test extends BaseTestCase {
 	private function capture_cross_variant_redirect() {
 		$redirect = null;
 
-		$capture = function ( $location ) use ( &$redirect ) {
+		// Declared in the docblock rather than as a native `never` return type: this
+		// package supports PHP 7.2 and `never` is 8.1+.
+		$capture = /** @return never */ function ( $location ) use ( &$redirect ) {
 			$redirect = $location;
 			throw new \RuntimeException( 'redirected' );
 		};
