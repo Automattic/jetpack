@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { TZDate } from '@date-fns/tz';
 import { differenceInCalendarDays } from 'date-fns';
 /**
  * Internal dependencies
@@ -152,16 +153,49 @@ describe( 'canStepForward', () => {
 	const now = at( 2026, 7, 27, 12 );
 
 	/*
-	 * The two shapes a live preset takes, and the reason this asks about the
-	 * next window rather than about the present. `Last 24 hours` ends at a `now`
-	 * captured when the range was built, already stale by the time anything
-	 * reads it. `Last 7 days` ends at the end of yesterday and never contains
-	 * the present at all. Both are the latest window available.
+	 * The shapes a live preset takes. `Last 24 hours` ends at the end of the
+	 * running hour, `today` at the end of the running day, `Last 7 days` at the
+	 * end of yesterday: the first two end in the future, the last never contains
+	 * the present, and all are the latest window available.
 	 */
 	it( 'is false on a rolling window whose end has just gone stale', () => {
 		const to = at( 2026, 7, 27, 11, 59 );
 
 		expect( canStepForward( { from: at( 2026, 7, 26, 11, 59 ), to }, now ) ).toBe( false );
+	} );
+
+	// The live window ends at the end of the running hour, in the future on
+	// purpose; counting that bucket is what keeps it reachable after a step
+	// back.
+	it( 'is true on the window right behind a live hour-snapped one', () => {
+		const live = {
+			from: at( 2026, 7, 26, 13 ),
+			to: new Date( 2026, 6, 27, 12, 59, 59, 999 ),
+		};
+		const back = stepDateRange( live, 'previous' );
+
+		expect( canStepForward( live, now ) ).toBe( false );
+		expect( canStepForward( back!, now ) ).toBe( true );
+	} );
+
+	it( 'is true on yesterday while today is still running', () => {
+		const today = wholeDays( at( 2026, 7, 27 ), at( 2026, 7, 27 ) );
+		const yesterday = stepDateRange( today, 'previous' );
+
+		expect( canStepForward( today, now ) ).toBe( false );
+		expect( canStepForward( yesterday!, now ) ).toBe( true );
+	} );
+
+	it( 'closes the bucket on the window timezone, not the machine one', () => {
+		const site = '+00:00';
+		const yesterday = {
+			from: new TZDate( 2026, 6, 26, 0, 0, 0, 0, site ),
+			to: new TZDate( 2026, 6, 26, 23, 59, 59, 999, site ),
+		};
+		// 02:00 UTC on the next site day, whatever timezone runs the tests.
+		const nowInstant = new Date( Date.UTC( 2026, 6, 27, 2, 0 ) );
+
+		expect( canStepForward( yesterday, nowInstant ) ).toBe( true );
 	} );
 
 	it( 'is false on a window ending at the end of yesterday', () => {

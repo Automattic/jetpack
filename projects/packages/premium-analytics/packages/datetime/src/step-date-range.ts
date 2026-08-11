@@ -1,7 +1,18 @@
 /**
  * External dependencies
  */
-import { addDays, addHours, addMonths, addYears, differenceInCalendarDays } from 'date-fns';
+import { TZDate } from '@date-fns/tz';
+import {
+	addDays,
+	addHours,
+	addMonths,
+	addYears,
+	differenceInCalendarDays,
+	endOfDay,
+	endOfHour,
+	endOfMonth,
+	endOfYear,
+} from 'date-fns';
 /**
  * Internal dependencies
  */
@@ -74,19 +85,43 @@ export function stepDateRange( range: DateRange, direction: StepDirection ): Dat
 }
 
 /**
+ * End of the bucket an instant sits in, at each granularity a window measures
+ * in.
+ */
+const END_OF_BUCKET: Record< DateRangeSpanUnit, ( date: Date ) => Date > = {
+	hour: endOfHour,
+	day: endOfDay,
+	month: endOfMonth,
+	year: endOfYear,
+};
+
+/**
  * Whether there is a later window to step into.
  *
- * Asks whether the next window exists, not whether this one touches the
- * present. A live preset's `to` is a snapshot of "now" that is stale by the
- * time anything reads it, and `Last 7 days` ends at the end of yesterday, so
- * neither contains the present while both are the latest window available.
+ * The next window qualifies once it ends within the bucket `now` sits in, at
+ * the window's own granularity. Live presets end at the end of the running
+ * hour or day, so the window a reader stepped back from ends in the future;
+ * counting the running bucket keeps it reachable, while a window reaching
+ * into the next bucket stays out.
  *
  * @param range - The window to test.
- * @param now   - The instant to compare against. Pass the site's, not the browser's.
- * @return Whether a forward step lands on a window that has already happened.
+ * @param now   - The instant to compare against.
+ * @return Whether a forward step lands on a window already worth showing.
  */
 export function canStepForward( range: DateRange, now: Date ): boolean {
+	const span = getDateRangeSpan( range );
 	const next = stepDateRange( range, 'next' );
 
-	return !! next?.to && next.to.getTime() <= now.getTime();
+	if ( ! span || ! next?.to ) {
+		return false;
+	}
+
+	// Anchored to the window's own timezone, so a site offset from the browser
+	// closes its buckets on its own clock.
+	const timeZone = range.to && 'timeZone' in range.to ? ( range.to as TZDate ).timeZone : undefined;
+	const horizon = END_OF_BUCKET[ span.unit ](
+		timeZone ? new TZDate( now.getTime(), timeZone ) : now
+	);
+
+	return next.to.getTime() <= horizon.getTime();
 }
