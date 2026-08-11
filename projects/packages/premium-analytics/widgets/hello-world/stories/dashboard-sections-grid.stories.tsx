@@ -1,4 +1,5 @@
 import { useState } from '@wordpress/element';
+import { Page } from '@wordpress/admin-ui';
 import { Tabs } from '@jetpack-premium-analytics/externals';
 import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
 import { DashboardSections } from '../../../routes/dashboard/components';
@@ -135,30 +136,13 @@ function DashboardSectionsGridStory() {
 	const activeSectionRecord = sections.find( section => section.slug === activeSection );
 
 	return (
-		<section
+		// The page title comes from the breadcrumbs in product; the story passes it
+		// directly so it needs no router.
+		<Page
+			title="Stats"
+			subTitle={ activeSectionRecord?.description }
 			className={ styles.dashboard }
-			style={ {
-				blockSize: '100%',
-				boxSizing: 'border-box',
-				display: 'flex',
-				flexDirection: 'column',
-				padding: '24px',
-			} }
 		>
-			<header
-				style={ {
-					flex: '0 0 auto',
-					marginBlockEnd: '24px',
-				} }
-			>
-				<h1 style={ { fontSize: '32px', lineHeight: 1.2, margin: 0 } }>Stats</h1>
-				{ activeSectionRecord?.description ? (
-					<p style={ { color: '#50575e', margin: '8px 0 0' } }>
-						{ activeSectionRecord.description }
-					</p>
-				) : null }
-			</header>
-
 			<DashboardSections
 				sections={ sections }
 				value={ activeSection }
@@ -181,7 +165,7 @@ function DashboardSectionsGridStory() {
 					</Tabs.Panel>
 				) ) }
 			</DashboardSections>
-		</section>
+		</Page>
 	);
 }
 
