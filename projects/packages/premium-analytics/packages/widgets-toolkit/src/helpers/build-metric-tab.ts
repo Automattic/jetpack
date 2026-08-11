@@ -53,6 +53,10 @@ const nominalOffset = /(?:Z|[+-]\d{2}:?\d{2})$/;
  * Dropping it and parsing the remaining wall clock locally keeps a label on the
  * bucket it names.
  *
+ * The axis reads these points in the viewer's timezone while tooltips go through
+ * `formatDate`, which resolves the site's, so the two agree only while the viewer
+ * sits in the site's timezone. Closing that remaining gap belongs to the tooltip.
+ *
  * @param dateStart - The bucket's `date_start`.
  * @return The bucket's wall clock as a local instant.
  */

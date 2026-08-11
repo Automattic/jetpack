@@ -3,7 +3,7 @@
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -255,6 +255,25 @@ describe( 'useTrafficChart', () => {
 
 			for ( const metric of [ visitors, likes, comments ] ) {
 				expect( metric.unavailable ).toBe( "Hourly data isn't available for this metric." );
+			}
+		} );
+
+		// A manual refetch ignores `enabled`, so the skipped request stays skipped
+		// only as long as `refetch` leaves it out itself.
+		it( 'still asks for Views alone when the retry action runs', async () => {
+			const { result } = renderHook( () => useTrafficChart( HOURLY_RANGE, 'hour' ), { wrapper } );
+
+			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+			act( () => result.current.refetch() );
+
+			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+			const paths = visitsPaths();
+			expect( paths ).toHaveLength( 2 );
+			for ( const path of paths ) {
+				expect( path ).toContain( 'stat_fields=views' );
+				expect( path ).not.toContain( 'likes' );
 			}
 		} );
 	} );
