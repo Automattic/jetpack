@@ -35,8 +35,8 @@ $visibility_getters = array(
 	'filtered'   => 'state.showNoResultsFiltered',
 );
 
-// @phan-suppress-next-line PhanUndeclaredGlobalVariable
-$authored_content = trim( (string) $content );
+// @phan-suppress-next-line PhanUndeclaredGlobalVariable -- $content is provided by WP at block render.
+$authored_content = trim( $content );
 $wrapper_class    = 'jetpack-search-no-results';
 if ( '' === $authored_content ) {
 	$wrapper_class .= ' jetpack-search-no-results--default';
@@ -51,6 +51,7 @@ if ( '' === $authored_content ) {
 >
 	<?php
 	if ( '' !== $authored_content ) {
+		// @phan-suppress-next-line PhanUndeclaredGlobalVariable -- $content is provided by WP at block render.
 		echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inner block HTML is already escaped by each child block's renderer.
 	} elseif ( 'filtered' === $filter_state ) {
 		?>

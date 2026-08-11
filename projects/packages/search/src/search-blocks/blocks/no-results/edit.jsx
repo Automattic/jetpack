@@ -42,22 +42,16 @@ const displayWhenOptions = () => [
 	{ label: __( 'Filters are active', 'jetpack-search-pkg' ), value: 'filtered' },
 ];
 
-/**
- * Editor label suffix so two No Results blocks in one results region are
- * tellable apart on the canvas.
- *
- * @param {string} filterState - Saved `filterState` attribute.
- * @return {string} Block label.
- */
-function editorLabel( filterState ) {
-	if ( filterState === 'filtered' ) {
-		return __( 'No Results — filters active', 'jetpack-search-pkg' );
-	}
-	if ( filterState === 'unfiltered' ) {
-		return __( 'No Results — no filters active', 'jetpack-search-pkg' );
-	}
-	return __( 'No Results', 'jetpack-search-pkg' );
-}
+// Canvas labels, so two No Results blocks in one results region are tellable
+// apart. Keyed rather than branched: a `return __( … )` per branch reads better
+// but the production minifier folds the identical calls into one `__()` with a
+// computed msgid, which `i18n-check-webpack-plugin` rejects and which would
+// leave the strings untranslatable.
+const editorLabels = () => ( {
+	any: __( 'No Results', 'jetpack-search-pkg' ),
+	unfiltered: __( 'No Results — no filters active', 'jetpack-search-pkg' ),
+	filtered: __( 'No Results — filters active', 'jetpack-search-pkg' ),
+} );
 
 /**
  * Edit component for the no-results block.
@@ -97,7 +91,7 @@ export default function NoResultsEdit( { attributes, setAttributes, clientId } )
 			</InspectorControls>
 			<div { ...blockProps }>
 				<span className="jetpack-search-no-results__editor-label">
-					{ editorLabel( filterState ) }
+					{ editorLabels()[ filterState ] }
 				</span>
 				{ ! hasInnerBlocks && (
 					<div className="jetpack-search-no-results__default-preview">
