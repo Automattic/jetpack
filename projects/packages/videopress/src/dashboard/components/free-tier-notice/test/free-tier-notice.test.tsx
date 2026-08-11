@@ -2,7 +2,7 @@ import analytics from '@automattic/jetpack-analytics';
 import useProductCheckoutWorkflow from '@automattic/jetpack-connection/hooks/use-product-checkout-workflow';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import FreeTierNotice from '../free-tier-notice';
+import FreeTierNotice, { FREE_TIER_AT_LIMIT_MESSAGE } from '..';
 
 jest.mock( '@automattic/jetpack-analytics', () => ( {
 	__esModule: true,
@@ -53,6 +53,25 @@ describe( 'FreeTierNotice', () => {
 			useBlogIdSuffix: true,
 			from: 'jetpack-videopress',
 		} );
+	} );
+
+	it( 'renders the free-plan copy by default', () => {
+		render( <FreeTierNotice /> );
+
+		expect(
+			screen.getByText(
+				'You’re on the free plan, which allows 1 video upload. Upgrade for more storage and unlimited uploads.'
+			)
+		).toBeInTheDocument();
+	} );
+
+	it( 'renders the provided message instead of the default copy', () => {
+		render( <FreeTierNotice message={ FREE_TIER_AT_LIMIT_MESSAGE } /> );
+
+		expect(
+			screen.getByText( 'You’ve reached the free plan’s 1-video limit. Upgrade to upload more.' )
+		).toBeInTheDocument();
+		expect( screen.queryByText( /You’re on the free plan/ ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'records the upgrade-click Tracks event and runs the workflow on click', async () => {
