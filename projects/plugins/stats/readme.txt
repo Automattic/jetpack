@@ -8,11 +8,13 @@ Stable tag: 0.1.0-alpha
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Simple, yet powerful stats to grow your site.
+Simple, yet powerful stats to grow your site. See your traffic, referrers, and top content at a glance — no data science required.
 
 == Description ==
 
-With Jetpack Stats, you don't need to be a data scientist to see how your site is performing.
+With Jetpack Stats, you don't need to be a data scientist to see how your site is performing. Get a clear, privacy-friendly picture of your traffic right inside your WordPress dashboard.
+
+Jetpack Stats is a standalone plugin — you can run it on its own, without installing the full Jetpack plugin.
 
 **Tried and true visitor stats to help you understand your audience**
 
@@ -34,24 +36,21 @@ Promote content to millions of WordPress and Tumblr users directly from Stats us
 
 Jetpack Stats gives you a powerful WordPress analytics tool that respects your visitors' privacy, allowing you to gain valuable insights while maintaining GDPR compliance.
 
-== External services ==
-
-This plugin relies on WordPress.com, a service operated by Automattic. The plugin does not work without it.
-
-* **What the service does:** it records page views and returns the reports shown in the Stats dashboard.
-* **What data is sent:** the page viewed, the referring URL, the visitor IP address, the user agent, and your site ID. Data is sent on every front-end page view, and whenever the Stats dashboard loads a report.
-* **Where it is sent:** `https://pixel.wp.com/g.gif` for collection, and `https://public-api.wordpress.com` for reporting.
-
-This plugin requires a connection to a WordPress.com account. Until that connection is complete, no data is collected and no reports are available.
-
-Service terms: [Terms of Service](https://wordpress.com/tos/)
-Service privacy policy: [Privacy Policy](https://automattic.com/privacy/)
-
 == Installation ==
 
-1. Install the plugin through the WordPress plugins screen, or upload the plugin files to your `/wp-content/plugins/` directory.
-2. Activate the plugin through the Plugins screen in WordPress.
-3. Connect your site to a WordPress.com account when the plugin asks you to. Stats cannot collect data before this step is complete.
+= Automated installation =
+
+1. Go to the Plugins screen in your WordPress admin and click "Add New".
+2. Search for "Jetpack Stats" and click "Install Now".
+3. Activate the plugin through the Plugins screen.
+4. Connect your site to a WordPress.com account when the plugin asks you to. Stats cannot collect data before this step is complete.
+5. Go to the Stats tab.
+
+= Manual installation =
+
+1. Upload the plugin files to the `/wp-content/plugins/jetpack-stats` directory, or install the .zip file through the Plugins screen in your WordPress admin.
+2. Activate the plugin through the Plugins screen.
+3. Connect your site to a WordPress.com account when the plugin asks you to.
 4. Go to the Stats tab.
 
 == Frequently Asked Questions ==
@@ -59,6 +58,10 @@ Service privacy policy: [Privacy Policy](https://automattic.com/privacy/)
 = How do I configure Jetpack Stats? =
 
 Simply install the plugin and go to the Stats tab. It's that simple. If you need more help, check out [this support article](https://jetpack.com/support/jetpack-stats/).
+
+= Do I need the full Jetpack plugin to use Jetpack Stats? =
+
+No. Jetpack Stats is a standalone plugin and works on its own. If you already run the full Jetpack plugin, Stats works there too — you don't need both, and running both will not create duplicate menus.
 
 = Does Jetpack Stats integrate with Google Analytics? =
 
@@ -80,7 +83,54 @@ No. Any piece of data explicitly identifying a specific user (IP address, WordPr
 
 You can click the title of each feature on your stats page, and scroll to the bottom of that feature to download your stats. Simply click on the "Download data as CSV" link, and download the file to your computer.
 
+== Screenshots ==
+
+1. The Stats dashboard — traffic at a glance with visitors, views, and trends.
+2. Top posts & pages, and the referrers driving your traffic.
+3. A world heatmap showing where your visitors come from.
+4. 7-day Highlights and Year in Review trends.
+
+== External services ==
+
+This plugin relies on WordPress.com, a service operated by Automattic, to record visits and generate the reports shown in the Stats dashboard. The plugin does not work without it.
+
+It connects to the following external services:
+
+**WordPress.com view-tracking pixel (`https://pixel.wp.com/g.gif`)**
+
+* What it does: records a page view each time a visitor loads a page on your site.
+* Data sent: the page viewed, the referring URL, the visitor's IP address, the user agent, and your site ID.
+* When: on every front-end page view.
+
+**WordPress.com measurement script (`https://stats.wp.com/e-{year}.js`)**
+
+* What it does: loads the small JavaScript file that sends the view-tracking request above from the visitor's browser.
+* Data sent: no data is sent when the file is downloaded; it is a static script served from Automattic's CDN.
+* When: on every front-end page view.
+
+**WordPress.com reporting API (`https://public-api.wordpress.com`)**
+
+* What it does: returns the aggregated statistics displayed in your Stats dashboard.
+* Data sent: your site ID and the report parameters (date ranges, metric requested). Requires an authenticated WordPress.com connection.
+* When: whenever you open the Stats dashboard or load a report.
+
+**WordPress.com dashboard assets (`https://widgets.wp.com/odyssey-stats/`)**
+
+* What it does: serves the JavaScript, styles, and icons that render the Stats dashboard interface in your WordPress admin.
+* Data sent: no personal data; these are static front-end assets served from Automattic's CDN.
+* When: whenever you open the Stats dashboard.
+
+This plugin requires a connection to a WordPress.com account. Until that connection is complete, no data is collected and no reports are available.
+
+Service terms: [Terms of Service](https://wordpress.com/tos/)
+Service privacy policy: [Privacy Policy](https://automattic.com/privacy/)
+
 == Changelog ==
 
 = 0.1.0-alpha =
 * Initial release.
+
+== Upgrade Notice ==
+
+= 0.1.0-alpha =
+Initial release — install Jetpack Stats to see simple, privacy-friendly traffic insights right inside your WordPress dashboard.
