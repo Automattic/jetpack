@@ -154,16 +154,32 @@ describe( 'AiOverview', () => {
 
 		// Titles and durations are fixed content from the i4 frame; the videos
 		// open articles on WordPress.com, so each card is a link.
+		// Durations are the live lesson lengths, not the (now stale) numbers
+		// in the design frame.
 		const videos = [
-			[ 'Connect your site to Claude', '3:30' ],
-			[ 'Build a page from a single prompt', '2:36' ],
-			[ 'Manage your Media Library with AI', '3:27' ],
-			[ 'Optimize your site with AI', '3:39' ],
+			[ 'Connect your site to Claude', '3:18' ],
+			[ 'Build a page from a single prompt', '3:09' ],
+			[ 'Manage your Media Library with AI', '3:14' ],
+			[ 'Optimize your site with AI', '3:15' ],
 		];
 		for ( const [ title, duration ] of videos ) {
 			const card = screen.getByRole( 'link', { name: new RegExp( title ) } );
 			expect( card ).toHaveTextContent( duration );
 		}
+	} );
+
+	test( 'walkthrough videos: each card shows its thumbnail', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		await expect( screen.findByText( 'Walkthrough videos' ) ).resolves.toBeInTheDocument();
+
+		// The artwork is decorative — the card's title carries the meaning —
+		// so the images are alt-empty and queried by role="presentation".
+		const thumbs = screen.getAllByRole( 'presentation' );
+		expect( thumbs ).toHaveLength( 4 );
+		thumbs.forEach( img => expect( img ).toHaveAttribute( 'src' ) );
 	} );
 
 	test( 'walkthrough videos: each card links through the redirect service', async () => {
@@ -174,10 +190,10 @@ describe( 'AiOverview', () => {
 		await expect( screen.findByText( 'Walkthrough videos' ) ).resolves.toBeInTheDocument();
 
 		const slugByName = {
-			'Connect your site to Claude': 'jetpack-ai-settings-overview-video-connect-claude',
-			'Build a page from a single prompt': 'jetpack-ai-settings-overview-video-build-page',
-			'Manage your Media Library with AI': 'jetpack-ai-settings-overview-video-media-library',
-			'Optimize your site with AI': 'jetpack-ai-settings-overview-video-optimize-site',
+			'Connect your site to Claude': 'jetpack-ai-hub-overview-video-connect-claude',
+			'Build a page from a single prompt': 'jetpack-ai-hub-overview-video-build-page',
+			'Manage your Media Library with AI': 'jetpack-ai-hub-overview-video-media-library',
+			'Optimize your site with AI': 'jetpack-ai-hub-overview-video-optimize-site',
 		};
 		for ( const [ name, slug ] of Object.entries( slugByName ) ) {
 			const card = screen.getByRole( 'link', { name: new RegExp( name ) } );
@@ -195,11 +211,11 @@ describe( 'AiOverview', () => {
 
 		// The i4 docs section is a plain list of external links (no rows).
 		const slugByName = {
-			'MCP integration guide': 'jetpack-ai-settings-overview-docs-mcp-guide',
-			'AI features overview': 'jetpack-ai-settings-overview-docs-features',
-			'Setting up agentic workflows': 'jetpack-ai-settings-overview-docs-agent-setup',
-			'Billing & plans': 'jetpack-ai-settings-overview-docs-billing',
-			'API reference': 'jetpack-ai-settings-overview-docs-mcp-tools',
+			'MCP integration guide': 'jetpack-ai-hub-overview-docs-mcp-guide',
+			'AI features overview': 'jetpack-ai-hub-overview-docs-features',
+			'Setting up agentic workflows': 'jetpack-ai-hub-overview-docs-agent-setup',
+			'Billing & plans': 'jetpack-ai-hub-overview-docs-billing',
+			'API reference': 'jetpack-ai-hub-overview-docs-mcp-tools',
 		};
 		for ( const [ name, slug ] of Object.entries( slugByName ) ) {
 			const link = screen.getByRole( 'link', { name: new RegExp( name ) } );

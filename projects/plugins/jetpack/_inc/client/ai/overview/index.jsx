@@ -11,35 +11,44 @@ import { sprintf, __ } from '@wordpress/i18n';
 import { list } from '@wordpress/icons';
 import { Card, Notice, Stack, Text } from '@wordpress/ui';
 import NavRow from '../components/nav-row';
+import buildPageThumb from './images/build-page.png';
+import connectClaudeThumb from './images/connect-claude.png';
+import mediaLibraryThumb from './images/media-library.png';
+import optimizeSiteThumb from './images/optimize-site.png';
 import { normalizeUsage, useAiUsage } from './use-ai-usage';
 
 import './style.scss';
 
-// Walkthrough videos. Titles and durations come from the i4 frame; the cards
-// open articles on WordPress.com rather than playing inline, so each is a
-// link. NOTE: like the documentation slugs below, these are chosen here and
-// not yet registered in the redirect service. Thumbnail artwork is still
-// pending, so the cards render a neutral placeholder panel for now.
+// Walkthrough videos — lessons from the "Use AI agents with WordPress.com"
+// support course. The cards open the lesson page rather than playing inline,
+// so each is a link. Durations are the live lesson lengths (the numbers in
+// the design frame predate a re-cut); nothing keeps them in sync, so they
+// need re-checking if the videos change. Thumbnails are exported from the
+// design frame and bundled, so no third-party image loads in wp-admin.
 const WALKTHROUGH_VIDEOS = [
 	{
-		slug: 'jetpack-ai-settings-overview-video-connect-claude',
+		slug: 'jetpack-ai-hub-overview-video-connect-claude',
 		title: __( 'Connect your site to Claude', 'jetpack' ),
-		duration: '3:30',
+		duration: '3:18',
+		thumbnail: connectClaudeThumb,
 	},
 	{
-		slug: 'jetpack-ai-settings-overview-video-build-page',
+		slug: 'jetpack-ai-hub-overview-video-build-page',
 		title: __( 'Build a page from a single prompt', 'jetpack' ),
-		duration: '2:36',
+		duration: '3:09',
+		thumbnail: buildPageThumb,
 	},
 	{
-		slug: 'jetpack-ai-settings-overview-video-media-library',
+		slug: 'jetpack-ai-hub-overview-video-media-library',
 		title: __( 'Manage your Media Library with AI', 'jetpack' ),
-		duration: '3:27',
+		duration: '3:14',
+		thumbnail: mediaLibraryThumb,
 	},
 	{
-		slug: 'jetpack-ai-settings-overview-video-optimize-site',
+		slug: 'jetpack-ai-hub-overview-video-optimize-site',
 		title: __( 'Optimize your site with AI', 'jetpack' ),
-		duration: '3:39',
+		duration: '3:15',
+		thumbnail: optimizeSiteThumb,
 	},
 ];
 
@@ -48,19 +57,19 @@ const WALKTHROUGH_VIDEOS = [
 // register them before the gate comes off.
 const DOC_LINKS = [
 	{
-		slug: 'jetpack-ai-settings-overview-docs-mcp-guide',
+		slug: 'jetpack-ai-hub-overview-docs-mcp-guide',
 		title: __( 'MCP integration guide', 'jetpack' ),
 	},
 	{
-		slug: 'jetpack-ai-settings-overview-docs-features',
+		slug: 'jetpack-ai-hub-overview-docs-features',
 		title: __( 'AI features overview', 'jetpack' ),
 	},
 	{
-		slug: 'jetpack-ai-settings-overview-docs-agent-setup',
+		slug: 'jetpack-ai-hub-overview-docs-agent-setup',
 		title: __( 'Setting up agentic workflows', 'jetpack' ),
 	},
-	{ slug: 'jetpack-ai-settings-overview-docs-billing', title: __( 'Billing & plans', 'jetpack' ) },
-	{ slug: 'jetpack-ai-settings-overview-docs-mcp-tools', title: __( 'API reference', 'jetpack' ) },
+	{ slug: 'jetpack-ai-hub-overview-docs-billing', title: __( 'Billing & plans', 'jetpack' ) },
+	{ slug: 'jetpack-ai-hub-overview-docs-mcp-tools', title: __( 'API reference', 'jetpack' ) },
 ];
 
 /**
@@ -217,9 +226,10 @@ export default function AiOverview( { blogId, activityLogUrl, upgradeUrl } ) {
 					{ __( 'Walkthrough videos', 'jetpack' ) }
 				</Text>
 				<div className="jetpack-ai-overview__video-grid">
-					{ WALKTHROUGH_VIDEOS.map( ( { slug, title, duration } ) => (
+					{ WALKTHROUGH_VIDEOS.map( ( { slug, title, duration, thumbnail } ) => (
 						<a className="jetpack-ai-overview__video" href={ getRedirectUrl( slug ) } key={ slug }>
-							<span className="jetpack-ai-overview__video-thumb" />
+							{ /* Decorative: the card's title carries the meaning. */ }
+							<img className="jetpack-ai-overview__video-thumb" src={ thumbnail } alt="" />
 							<span className="jetpack-ai-overview__video-meta">
 								<Text as="span" variant="body-md">
 									{ title }
