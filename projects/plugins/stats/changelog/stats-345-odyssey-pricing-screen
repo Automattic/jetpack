@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Show a pricing screen instead of the connection flow when the site is not yet connected.

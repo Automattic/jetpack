@@ -9,6 +9,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Stats\Main as Stats_Main;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
+use Automattic\Jetpack\Stats_Admin\Pricing_Page as Stats_Pricing_Page;
 use Automattic\Jetpack\Stats_Plugin\Jetpack_Stats_Plugin;
 use WorDBless\BaseTestCase;
 
@@ -64,19 +65,21 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Whether the Odyssey dashboard has claimed the admin menu.
+	 * Whether the given Stats screen has claimed the admin menu.
 	 *
-	 * `Stats_Admin\Dashboard` hooks an instance method, so `has_action()` cannot match it
-	 * against a class name.
+	 * Both screens hook an instance method, so `has_action()` cannot match them against a
+	 * class name.
+	 *
+	 * @param string $screen_class Fully qualified class name of the screen.
 	 */
-	private function dashboard_menu_is_registered() {
+	private function menu_is_registered_by( $screen_class ) {
 		if ( ! isset( $GLOBALS['wp_filter']['admin_menu'] ) ) {
 			return false;
 		}
 
 		foreach ( $GLOBALS['wp_filter']['admin_menu']->callbacks as $callbacks ) {
 			foreach ( $callbacks as $callback ) {
-				if ( is_array( $callback['function'] ) && $callback['function'][0] instanceof Stats_Dashboard ) {
+				if ( is_array( $callback['function'] ) && $callback['function'][0] instanceof $screen_class ) {
 					return true;
 				}
 			}
@@ -86,12 +89,14 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * `Stats_Admin\Dashboard` records its initialization in a static that survives the
-	 * per-test hook restore, and it registers the menu only on the first call. Clear it so a
-	 * test that expects the dashboard to register controls its own precondition.
+	 * Both Stats screens record their initialization in a static that survives the per-test
+	 * hook restore, and each registers its menu only on the first call. Clear it so a test
+	 * that expects a screen to register controls its own precondition.
+	 *
+	 * @param string $screen_class Fully qualified class name of the screen.
 	 */
-	private function reset_dashboard_initialization() {
-		$initialized = new ReflectionProperty( Stats_Dashboard::class, 'initialized' );
+	private function reset_screen_initialization( $screen_class ) {
+		$initialized = new ReflectionProperty( $screen_class, 'initialized' );
 
 		// Reflection cannot write a private property before PHP 8.1 without this, and the
 		// method is deprecated from PHP 8.5. The plugin supports 7.2, so both ends apply.
@@ -176,19 +181,18 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * An unconnected site has no token, so every stats-app route answers 500. Activation
-	 * must land on My Jetpack onboarding rather than a dashboard full of failed requests.
+	 * An unconnected site has no token, so it cannot show figures. It still lands on Stats,
+	 * where the pricing screen holds the same slug and asks the visitor to pick a plan.
 	 */
-	public function test_activation_lands_on_onboarding_when_not_connected() {
+	public function test_activation_lands_on_stats_when_not_connected() {
 		$this->assertFalse( ( new Connection_Manager() )->is_connected(), 'Test environment is expected to be unconnected.' );
-		$this->assertSame( 'my-jetpack', Jetpack_Stats_Plugin::get_post_activation_page() );
+		$this->assertSame( 'stats', Jetpack_Stats_Plugin::get_post_activation_page() );
 	}
 
 	/**
-	 * The counterpart: a connected site has figures to show, so activation opens the
-	 * dashboard rather than sending the user through onboarding again.
+	 * The counterpart: a connected site lands on the same page and gets the dashboard.
 	 */
-	public function test_activation_lands_on_the_dashboard_when_connected() {
+	public function test_activation_lands_on_stats_when_connected() {
 		$this->fake_connection();
 
 		$this->assertSame( 'stats', Jetpack_Stats_Plugin::get_post_activation_page() );
@@ -231,23 +235,23 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * On an unconnected site the Stats menu is still registered, but it is the stand-in
-	 * that redirects to the connection flow, not the Odyssey dashboard.
+	 * On an unconnected site the Stats menu is still registered, but it is the pricing
+	 * screen that claims it, not the Odyssey dashboard.
 	 */
-	public function test_disconnected_site_registers_the_stand_in_menu() {
+	public function test_disconnected_site_registers_the_pricing_screen() {
+		$this->reset_screen_initialization( Stats_Pricing_Page::class );
+
 		Jetpack_Stats_Plugin::initialize_other_packages();
 
-		$this->assertSame(
-			999,
-			has_action( 'admin_menu', array( Jetpack_Stats_Plugin::class, 'register_disconnected_menu' ) )
-		);
+		$this->assertTrue( $this->menu_is_registered_by( Stats_Pricing_Page::class ) );
+		$this->assertFalse( $this->menu_is_registered_by( Stats_Dashboard::class ) );
 	}
 
 	/**
-	 * The stand-in menu keeps the `stats` slug so the plugin action link and any bookmark
+	 * The pricing screen keeps the `stats` slug so the plugin action link and any bookmark
 	 * stay valid across a connection.
 	 */
-	public function test_stand_in_menu_uses_the_dashboard_slug() {
+	public function test_pricing_screen_uses_the_dashboard_slug() {
 		$GLOBALS['menu'] = array();
 
 		// `add_menu_page()` checks `view_stats`, which `Stats\Main` maps to `read` for any
@@ -263,25 +267,24 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 		);
 		wp_set_current_user( $user_id );
 
-		Jetpack_Stats_Plugin::register_disconnected_menu();
+		( new Stats_Pricing_Page() )->add_wp_admin_menu();
 
 		$this->assertContains( 'stats', array_column( $GLOBALS['menu'], 2 ) );
 	}
 
 	/**
-	 * The connected counterpart of the two tests above. Both menus claim the `stats` slug, so
-	 * the dashboard must take it and the stand-in must stay out of the way.
+	 * The connected counterpart of the two tests above. Both screens claim the `stats` slug,
+	 * so the dashboard must take it and the pricing screen must stay out of the way.
 	 */
 	public function test_connected_site_initializes_the_dashboard() {
 		$this->fake_connection();
-		$this->reset_dashboard_initialization();
+		$this->reset_screen_initialization( Stats_Dashboard::class );
+		$this->reset_screen_initialization( Stats_Pricing_Page::class );
 
 		Jetpack_Stats_Plugin::initialize_other_packages();
 
-		$this->assertTrue( $this->dashboard_menu_is_registered() );
-		$this->assertFalse(
-			has_action( 'admin_menu', array( Jetpack_Stats_Plugin::class, 'register_disconnected_menu' ) )
-		);
+		$this->assertTrue( $this->menu_is_registered_by( Stats_Dashboard::class ) );
+		$this->assertFalse( $this->menu_is_registered_by( Stats_Pricing_Page::class ) );
 	}
 
 	/**

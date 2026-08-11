@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Stats_Admin;
 use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
@@ -34,20 +35,21 @@ class Odyssey_Config_Data {
 	}
 
 	/**
-	 * Return the config for the app.
+	 * The config keys that do not depend on a WordPress.com connection.
+	 *
+	 * Shared with the pricing screen, which runs before the site has a blog ID or a token
+	 * and so can supply none of the site and plan data the dashboard adds on top.
+	 *
+	 * @return array
 	 */
-	public function get_data() {
+	protected function get_base_data() {
 		global $wp_version;
 
-		$blog_id = Jetpack_Options::get_option( 'id' );
-		$host    = new Host();
-
-		$can_blaze = class_exists( 'Automattic\Jetpack\Blaze' ) && Blaze::should_initialize()['can_init'];
+		$host = new Host();
 
 		return array(
 			'admin_page_base'                => $this->get_admin_path(),
 			'api_root'                       => esc_url_raw( rest_url() ),
-			'blog_id'                        => Jetpack_Options::get_option( 'id' ),
 			'enable_all_sections'            => false,
 			'env_id'                         => 'production',
 			'google_analytics_key'           => 'UA-10673494-15',
@@ -67,46 +69,91 @@ class Odyssey_Config_Data {
 			// Intended for apps that do not use redux.
 			'gmt_offset'                     => $this->get_gmt_offset(),
 			'odyssey_stats_base_url'         => admin_url( 'admin.php?page=stats' ),
-			'intial_state'                   => array(
-				'currentUser' => array(
-					'id'           => 1000,
-					'user'         => array(
-						'ID'       => 1000,
-						'username' => 'no-user',
-					),
-					'capabilities' => array(
-						"$blog_id" => $this->get_current_user_capabilities(),
-					),
-				),
-				'sites'       => array(
-					'items'    => array(
-						"$blog_id" => array(
-							'ID'           => $blog_id,
-							'URL'          => site_url(),
-							// Atomic and jetpack sites should return true.
-							'jetpack'      => ! $host->is_wpcom_simple(),
-							'visible'      => true,
-							'capabilities' => $this->get_current_user_capabilities(),
-							'products'     => Jetpack_Plan::get_products(),
-							'plan'         => $this->get_plan(),
-							'options'      => array(
-								'wordads'               => ( new Modules() )->is_active( 'wordads' ),
-								'admin_url'             => admin_url(),
-								'gmt_offset'            => $this->get_gmt_offset(),
-								'is_automated_transfer' => $this->is_automated_transfer( $blog_id ),
-								'is_wpcom_atomic'       => $host->is_woa_site(),
-								'is_wpcom_simple'       => $host->is_wpcom_simple(),
-								'is_vip'                => $host->is_vip_site(),
-								'jetpack_version'       => defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '',
-								'stats_admin_version'   => Main::VERSION,
-								'software_version'      => $wp_version,
-								'can_blaze'             => $can_blaze,
-							),
+			// The app decides from these whether wp-admin already serves the
+			// `@wordpress/components` base stylesheet, so every screen needs them, including the
+			// ones that carry no site data.
+			'software_version'               => $wp_version,
+			'stats_admin_version'            => Main::VERSION,
+			// Set when the visitor already picked a plan on the pre-connection screen. The
+			// dashboard reads it to avoid asking the same question again once the site connects.
+			'stats_pricing_choice_recorded'  => Pricing_Page::has_recorded_choice(),
+		);
+	}
+
+	/**
+	 * Return the config for the pre-connection pricing screen.
+	 *
+	 * Carries no blog ID and no initial state: neither exists yet. `site_suffix` is what
+	 * WordPress.com needs to identify the site during a siteless checkout.
+	 *
+	 * @return array
+	 */
+	public function get_pricing_data() {
+		return array_merge(
+			$this->get_base_data(),
+			array(
+				'admin_url'   => admin_url(),
+				'site_suffix' => ( new Status() )->get_site_suffix(),
+			)
+		);
+	}
+
+	/**
+	 * Return the config for the app.
+	 */
+	public function get_data() {
+		global $wp_version;
+
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		$host    = new Host();
+
+		$can_blaze = class_exists( 'Automattic\Jetpack\Blaze' ) && Blaze::should_initialize()['can_init'];
+
+		return array_merge(
+			$this->get_base_data(),
+			array(
+				'blog_id'      => $blog_id,
+				'intial_state' => array(
+					'currentUser' => array(
+						'id'           => 1000,
+						'user'         => array(
+							'ID'       => 1000,
+							'username' => 'no-user',
+						),
+						'capabilities' => array(
+							"$blog_id" => $this->get_current_user_capabilities(),
 						),
 					),
-					'features' => array( "$blog_id" => array( 'data' => $this->get_plan_features() ) ),
+					'sites'       => array(
+						'items'    => array(
+							"$blog_id" => array(
+								'ID'           => $blog_id,
+								'URL'          => site_url(),
+								// Atomic and jetpack sites should return true.
+								'jetpack'      => ! $host->is_wpcom_simple(),
+								'visible'      => true,
+								'capabilities' => $this->get_current_user_capabilities(),
+								'products'     => Jetpack_Plan::get_products(),
+								'plan'         => $this->get_plan(),
+								'options'      => array(
+									'wordads'             => ( new Modules() )->is_active( 'wordads' ),
+									'admin_url'           => admin_url(),
+									'gmt_offset'          => $this->get_gmt_offset(),
+									'is_automated_transfer' => $this->is_automated_transfer( $blog_id ),
+									'is_wpcom_atomic'     => $host->is_woa_site(),
+									'is_wpcom_simple'     => $host->is_wpcom_simple(),
+									'is_vip'              => $host->is_vip_site(),
+									'jetpack_version'     => defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '',
+									'stats_admin_version' => Main::VERSION,
+									'software_version'    => $wp_version,
+									'can_blaze'           => $can_blaze,
+								),
+							),
+						),
+						'features' => array( "$blog_id" => array( 'data' => $this->get_plan_features() ) ),
+					),
 				),
-			),
+			)
 		);
 	}
 

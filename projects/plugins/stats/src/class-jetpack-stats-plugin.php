@@ -14,6 +14,7 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
+use Automattic\Jetpack\Stats_Admin\Pricing_Page as Stats_Pricing_Page;
 
 /**
  * Class to bootstrap the Jetpack Stats plugin.
@@ -26,14 +27,6 @@ class Jetpack_Stats_Plugin {
 	 * menu with this slug. Kept here so the plugin can link to the page.
 	 */
 	const ADMIN_PAGE_SLUG = 'stats';
-
-	/**
-	 * My Jetpack's admin page slug.
-	 *
-	 * Landing on this page with no connection makes My Jetpack redirect to its own
-	 * onboarding step. See `My_Jetpack\Initializer::get_onboarding_redirect_args()`.
-	 */
-	const MY_JETPACK_PAGE_SLUG = 'my-jetpack';
 
 	/**
 	 * Register hooks to initialize the plugin.
@@ -102,44 +95,13 @@ class Jetpack_Stats_Plugin {
 		}
 
 		// Every figure in the dashboard is read back from the WordPress.com API, which
-		// needs a connection token.
+		// needs a connection token. Until the site has one, the same menu slug shows the
+		// pricing screen instead, and the plan the visitor picks starts the connection.
 		if ( ( new Connection_Manager() )->is_connected() ) {
 			Stats_Dashboard::init();
 		} else {
-			add_action( 'admin_menu', array( self::class, 'register_disconnected_menu' ), 999 );
+			Stats_Pricing_Page::init();
 		}
-	}
-
-	/**
-	 * Register a Stats menu that routes to the connection flow.
-	 *
-	 * Runs at priority 999 to match `Stats_Admin\Dashboard`, which places itself between
-	 * the Jetpack plugin (998) and Admin_Menu (1000).
-	 */
-	public static function register_disconnected_menu() {
-		$page_suffix = add_menu_page(
-			__( 'Stats', 'jetpack-stats' ),
-			_x( 'Stats', 'product name shown in menu', 'jetpack-stats' ),
-			'view_stats',
-			self::ADMIN_PAGE_SLUG,
-			'__return_null',
-			'dashicons-chart-bar',
-			2
-		);
-
-		if ( $page_suffix ) {
-			add_action( 'load-' . $page_suffix, array( self::class, 'redirect_to_connection_flow' ) );
-		}
-	}
-
-	/**
-	 * Send the current request to My Jetpack, which redirects on to its onboarding step.
-	 *
-	 * @return never
-	 */
-	public static function redirect_to_connection_flow() {
-		wp_safe_redirect( admin_url( 'admin.php?page=' . self::MY_JETPACK_PAGE_SLUG ) );
-		exit( 0 );
 	}
 
 	/**
@@ -189,15 +151,14 @@ class Jetpack_Stats_Plugin {
 	/**
 	 * Which admin page a fresh activation should land on.
 	 *
-	 * An unconnected site has nothing to show in the dashboard, so it starts in My Jetpack
-	 * onboarding instead. A connected site goes straight to Stats.
+	 * Always Stats. A connected site gets the dashboard, and a site with no connection gets
+	 * the pricing screen under the same slug, so both states land on a page that speaks to
+	 * what the visitor just installed.
 	 *
 	 * @return string The admin page slug.
 	 */
 	public static function get_post_activation_page() {
-		return ( new Connection_Manager() )->is_connected()
-			? self::ADMIN_PAGE_SLUG
-			: self::MY_JETPACK_PAGE_SLUG;
+		return self::ADMIN_PAGE_SLUG;
 	}
 
 	/**
