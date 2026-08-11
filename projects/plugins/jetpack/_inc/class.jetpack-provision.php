@@ -61,7 +61,8 @@ class Jetpack_Provision {
 			// This code mostly copied from Jetpack::admin_page_load.
 			Jetpack::maybe_set_version_option();
 			Jetpack::connection()->add_register_request_param( 'from', 'jetpack-start' );
-			$registered = Jetpack::connection()->try_registration();
+			// Provisioning is an explicit request, so it is never held back by a previous failure.
+			$registered = Jetpack::connection()->try_registration( true, true );
 			if ( is_wp_error( $registered ) ) {
 				return $registered;
 			} elseif ( ! $registered ) {
