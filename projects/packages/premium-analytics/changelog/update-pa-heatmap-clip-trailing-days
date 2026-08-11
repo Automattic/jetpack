@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stats: draw the post activity heatmap's current week only through today, matching the design's ragged edge.

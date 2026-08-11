@@ -44,10 +44,12 @@ export interface PostTrafficActivityState {
  * `range end − (pageSpanDays − 1)` with blank filler weeks, and a longer
  * range is paged — the newest page shows first and the header arrows step
  * through the range one page at a time, the oldest page padding backward the
- * same way. Every calendar day of the page gets a point so the heatmap grid
- * stays complete, but days without traffic — and filler days outside the
- * selected range — carry `null`: the design renders them as blank cells
- * rather than zero labels. A `postId` of 0 disables the request.
+ * same way. Every calendar day of the page through the range end gets a
+ * point: days without traffic — and leading filler days before the range —
+ * carry `null` (blank cells per the design, not zero labels), while the days
+ * completing the newest week past the range end emit no point at all, so the
+ * chart's ragged-edge option hides their cells and the current week only
+ * draws through today. A `postId` of 0 disables the request.
  */
 export default function usePostTrafficActivity(
 	postId: number,
@@ -100,13 +102,20 @@ export default function usePostTrafficActivity(
 			pageEnd = clampedEnd < newestPageEnd ? clampedEnd : newestPageEnd;
 		}
 
-		const points = eachDayOfInterval( { start: pageStart, end: pageEnd } ).map( date => {
+		// No points past the range end: the chart's ragged-edge option then
+		// hides the trailing cells of the newest week (future days, on a
+		// rolling preset), per the design. `pageEnd` itself stays week-aligned
+		// so the column count still matches the width measurement.
+		const rangeEnd = parseISO( to );
+		const pointsEnd = rangeEnd < pageEnd ? rangeEnd : pageEnd;
+
+		const points = eachDayOfInterval( { start: pageStart, end: pointsEnd } ).map( date => {
 			const dateString = format( date, 'yyyy-MM-dd' );
 			const inRange = dateString >= from && dateString <= to;
 			const views = inRange ? viewsByDay.get( dateString ) : undefined;
 
-			// Blank (null) for no-traffic and filler days, per the design —
-			// not a `0` label.
+			// Blank (null) for no-traffic and leading filler days, per the
+			// design — not a `0` label.
 			return { dateString, value: views ? views : null };
 		} );
 
