@@ -14,7 +14,6 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { type WordAdsChartMetricId } from './metrics';
 import styles from './style.module.css';
 import useWordAdsChart, { type WordAdsPeriod } from './use-wordads-chart';
 import type { WordAdsChartTabsAttributes, WordAdsChartTabsGranularity } from './widget';
@@ -43,18 +42,14 @@ type WordAdsChartTabsInnerProps = {
 	 * Selected granularity; `auto` follows the dashboard range.
 	 */
 	granularity: WordAdsChartTabsGranularity;
-	/**
-	 * WordAds metrics to show as tabs; `undefined` shows all.
-	 */
-	metricIds?: WordAdsChartMetricId[];
 };
 
 /**
- * The "Group by" control is the `granularity` attribute and the tab set is the
- * `metrics` attribute (both `relevance: 'high'`), rendered by the widget host;
- * granularity only chooses the bucket size within the dashboard range.
+ * The "Group by" control is the `granularity` attribute (`relevance: 'high'`),
+ * rendered by the widget host; it only chooses the bucket size within the
+ * dashboard range. Which metric is plotted is the chart's own tab selection.
  */
-function WordAdsChartTabsInner( { granularity, metricIds }: WordAdsChartTabsInnerProps ) {
+function WordAdsChartTabsInner( { granularity }: WordAdsChartTabsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	// `auto` means "follow the dashboard range"; an explicit value sticks
 	// across range changes, so a wide range doesn't stay stuck on `day`
@@ -67,20 +62,16 @@ function WordAdsChartTabsInner( { granularity, metricIds }: WordAdsChartTabsInne
 
 	const { metrics, isLoading, isFetching, isError, isEmpty, refetch } = useWordAdsChart(
 		reportParams,
-		period,
-		metricIds
+		period
 	);
-
-	// No metric selected: skip the data-driven states and show a distinct empty state.
-	const noMetricSelected = metrics.length === 0;
 
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ noMetricSelected ? false : isLoading }
-				isFetching={ noMetricSelected ? false : isFetching }
-				isError={ noMetricSelected ? false : isError }
-				isEmpty={ noMetricSelected || isEmpty }
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				isError={ isError }
+				isEmpty={ isEmpty }
 				error={ {
 					description: __(
 						"We couldn't load WordAds data. Please try again in a moment.",
@@ -90,9 +81,7 @@ function WordAdsChartTabsInner( { granularity, metricIds }: WordAdsChartTabsInne
 				} }
 				empty={ {
 					icon: megaphone,
-					description: noMetricSelected
-						? __( 'Select at least one metric to display.', 'jetpack-premium-analytics-pkg' )
-						: __( 'No WordAds data in this period.', 'jetpack-premium-analytics-pkg' ),
+					description: __( 'No WordAds data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				<MetricTabsChart
@@ -110,7 +99,7 @@ export default function WordAdsChartTabs( { attributes = {} }: WordAdsChartTabsW
 
 	return (
 		<WidgetRoot attributes={ attributes } options={ { from: '/' } }>
-			<WordAdsChartTabsInner granularity={ granularity } metricIds={ attributes.metrics } />
+			<WordAdsChartTabsInner granularity={ granularity } />
 		</WidgetRoot>
 	);
 }
