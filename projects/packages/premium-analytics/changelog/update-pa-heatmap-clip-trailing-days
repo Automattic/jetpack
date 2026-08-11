@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Stats: draw the post activity heatmap's current week only through today, matching the design's ragged edge.
+Stats: align the post activity heatmap with the design: draw the current week only through today, and lead the cell tooltip with the view count.

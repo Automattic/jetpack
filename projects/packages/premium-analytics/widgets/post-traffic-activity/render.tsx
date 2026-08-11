@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { toPostId } from '@jetpack-premium-analytics/data';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	HeatmapChartUnresponsive,
@@ -13,7 +14,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useResizeObserver } from '@wordpress/compose';
 import { useMemo, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
 import { Button, Stack } from '@jetpack-premium-analytics/externals';
 /**
@@ -39,6 +40,27 @@ const CELL_GAP = 4;
 const LABEL_GUTTER = 48;
 const MIN_PAGE_WEEKS = 4;
 const DEFAULT_PAGE_WEEKS = 16;
+
+// Show the exact count before the date instead of the chart's default
+// ordering, mirroring the Insights daily-views heatmap. "No views" rather
+// than a literal 0: the filler cells before the range start share the blank
+// rendering, and a "0 views" claim would be wrong for them.
+function renderCellTooltip( { value, cellLabel }: { value: number | null; cellLabel?: string } ) {
+	return (
+		<>
+			<strong>
+				{ value === null
+					? __( 'No views', 'jetpack-premium-analytics-pkg' )
+					: sprintf(
+							/* translators: %s: number of views, e.g. "2,033". */
+							_n( '%s view', '%s views', value, 'jetpack-premium-analytics-pkg' ),
+							formatMetricValue( value, 'number', { decimals: 0 } )
+					  ) }
+			</strong>
+			<div>{ cellLabel }</div>
+		</>
+	);
+}
 
 /**
  * Whole week columns that fit the measured card width.
@@ -165,6 +187,7 @@ function PostTrafficActivityInner() {
 							// sized to the card, so tracks never need to shrink below it.
 							maxCellWidth={ 64 }
 							maxCellHeight={ 42 }
+							renderTooltip={ renderCellTooltip }
 							className={ styles.heatmap }
 						/>
 					</div>
