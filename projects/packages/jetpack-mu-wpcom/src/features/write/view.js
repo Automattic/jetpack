@@ -1287,7 +1287,12 @@ function serializeList( listEl ) {
 							child.remove();
 						}
 					}
-					// Strip the lone <br> placeholder contentEditable leaves in empty items.
+					// Strip the lone <br> placeholder contentEditable leaves in an
+					// otherwise empty item, matching what the paragraph, heading
+					// and quote branches below already do.  Needed here because
+					// indenting an empty item leaves the <li> holding just a <br>
+					// plus its sublist, which would otherwise serialize a stray
+					// line break ahead of the nested list.
 					const text = clone.innerHTML.trim().replace( /^<br\s*\/?>$/, '' );
 					// Nested sublists sit inside the <li> so they come first in
 					// document order; sibling ones follow the <li> entirely.
