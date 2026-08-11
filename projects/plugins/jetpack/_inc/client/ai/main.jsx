@@ -319,7 +319,11 @@ export default function App() {
 				) }
 
 				{ view === 'overview' && (
-					<AiOverview activityLogUrl={ activityLogUrl } upgradeUrl={ upgradeUrl } />
+					<AiOverview
+						blogId={ blogId }
+						activityLogUrl={ activityLogUrl }
+						upgradeUrl={ upgradeUrl }
+					/>
 				) }
 
 				{ view === 'features' && (

@@ -317,6 +317,9 @@ describe( 'AI admin page (main.jsx)', () => {
 	} );
 
 	test( 'a11n gate: with showFeaturesView the tab bar shows and Overview is the default view', async () => {
+		// Connected, so the Overview usage card renders rather than the
+		// not-connected notice.
+		window.jetpackAiSettings = { showFeaturesView: true, blogId: 1 };
 		window.location.hash = '';
 		mockApiFetch();
 

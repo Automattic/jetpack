@@ -28,6 +28,7 @@ const tieredPayload = () => ( {
 } );
 
 const PROPS = {
+	blogId: 1,
 	activityLogUrl: 'https://example.com/activity',
 	upgradeUrl: 'https://example.com/upgrade',
 };
@@ -119,10 +120,26 @@ describe( 'AiOverview', () => {
 		expect( row ).toHaveAttribute( 'href', 'https://example.com/activity' );
 	} );
 
+	test( 'not connected: explains the connection instead of an API error, and skips the fetch', async () => {
+		// Without a connection the usage endpoint can only fail, and a red
+		// "Unable to fetch the requested data." is the wrong story to tell —
+		// say what's actually wrong and don't make the request at all.
+		render( <AiOverview { ...PROPS } blogId={ 0 } /> );
+
+		await expect(
+			screen.findByText( 'Connect this site to WordPress.com to see your AI usage.', IGNORE_A11Y )
+		).resolves.toBeInTheDocument();
+		expect( apiFetch ).not.toHaveBeenCalled();
+		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
+		// The rest of the tab is still useful while disconnected.
+		expect( screen.getByRole( 'link', { name: /Activity log/ } ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Walkthrough videos' ) ).toBeInTheDocument();
+	} );
+
 	test( 'activity log: absent without an activityLogUrl', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
-		render( <AiOverview upgradeUrl={ PROPS.upgradeUrl } /> );
+		render( <AiOverview blogId={ PROPS.blogId } upgradeUrl={ PROPS.upgradeUrl } /> );
 
 		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /Activity log/ } ) ).not.toBeInTheDocument();

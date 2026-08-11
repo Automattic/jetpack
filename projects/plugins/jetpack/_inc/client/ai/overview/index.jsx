@@ -170,14 +170,30 @@ function UsageCard( { upgradeUrl } ) {
  * Overview view.
  *
  * @param {object} props                  - Component props.
+ * @param {number} [props.blogId]         - Current site's blog ID; falsy when not connected.
  * @param {string} [props.activityLogUrl] - URL for the site's activity log; row hidden without it.
  * @param {string} [props.upgradeUrl]     - Upgrade destination for the usage card.
  * @return {object} Component markup.
  */
-export default function AiOverview( { activityLogUrl, upgradeUrl } ) {
+export default function AiOverview( { blogId, activityLogUrl, upgradeUrl } ) {
 	return (
 		<Stack direction="column" gap="md">
-			<UsageCard upgradeUrl={ upgradeUrl } />
+			{ blogId ? (
+				<UsageCard upgradeUrl={ upgradeUrl } />
+			) : (
+				// Without a connection the usage endpoint can only fail, so
+				// say what's wrong rather than surfacing a fetch error — and
+				// don't make the request at all (UsageCard owns the fetch).
+				<Card.Root>
+					<Card.Content>
+						<Notice.Root intent="warning">
+							<Notice.Description>
+								{ __( 'Connect this site to WordPress.com to see your AI usage.', 'jetpack' ) }
+							</Notice.Description>
+						</Notice.Root>
+					</Card.Content>
+				</Card.Root>
+			) }
 
 			{ activityLogUrl && (
 				// The row carries its own padding, so it sits directly in the
