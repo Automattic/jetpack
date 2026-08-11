@@ -51,10 +51,12 @@ class Client {
 		// class docblock for the full picture of both error-handling flows.
 		// Outgoing XML-RPC calls (Jetpack_IXR_Client) are funneled through this method too;
 		// tell the transports apart by the endpoint the request targets.
+		// The literals match Error_Handler::ERROR_TYPE_XMLRPC / ERROR_TYPE_REST. The constants
+		// themselves must not be referenced from this class: during a plugin update, a stale
+		// Error_Handler that predates them can already be loaded, and resolving them against
+		// it would fatal the request.
 		$request_path = (string) wp_parse_url( empty( $args['url'] ) ? '' : $args['url'], PHP_URL_PATH );
-		$error_type   = '/xmlrpc.php' === substr( $request_path, -strlen( '/xmlrpc.php' ) )
-			? Error_Handler::ERROR_TYPE_XMLRPC
-			: Error_Handler::ERROR_TYPE_REST;
+		$error_type   = '/xmlrpc.php' === substr( $request_path, -strlen( '/xmlrpc.php' ) ) ? 'xmlrpc' : 'rest';
 
 		Error_Handler::get_instance()->check_api_response_for_errors(
 			$response,
