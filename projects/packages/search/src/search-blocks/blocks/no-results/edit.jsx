@@ -16,7 +16,7 @@ import { PanelBody, RadioControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
-const FILTER_STATES = [ 'any', 'unfiltered', 'filtered' ];
+const FILTER_STATES = [ 'any', 'filtered' ];
 
 // Mirrors `Search_Blocks::no_results_default_messages()` so the canvas shows
 // what a visitor would get from an untouched block. A function, not a
@@ -27,20 +27,17 @@ const defaultMessages = filterState => {
 	if ( filterState !== 'filtered' ) {
 		messages.push( __( 'No results found. Try a different search.', 'jetpack-search-pkg' ) );
 	}
-	if ( filterState !== 'unfiltered' ) {
-		messages.push(
-			__(
-				'No results match these filters. Try clearing some, or searching for something else.',
-				'jetpack-search-pkg'
-			)
-		);
-	}
+	messages.push(
+		__(
+			'No results match these filters. Try clearing some, or searching for something else.',
+			'jetpack-search-pkg'
+		)
+	);
 	return messages;
 };
 
 const displayWhenOptions = () => [
 	{ label: __( 'Any empty search', 'jetpack-search-pkg' ), value: 'any' },
-	{ label: __( 'No filters are active', 'jetpack-search-pkg' ), value: 'unfiltered' },
 	{ label: __( 'Filters are active', 'jetpack-search-pkg' ), value: 'filtered' },
 ];
 
@@ -51,7 +48,6 @@ const displayWhenOptions = () => [
 // leave the strings untranslatable.
 const editorLabels = () => ( {
 	any: __( 'No Results', 'jetpack-search-pkg' ),
-	unfiltered: __( 'No Results — no filters active', 'jetpack-search-pkg' ),
 	filtered: __( 'No Results — filters active', 'jetpack-search-pkg' ),
 } );
 
@@ -82,7 +78,7 @@ export default function NoResultsEdit( { attributes, setAttributes, clientId } )
 					<RadioControl
 						label={ __( 'Display when', 'jetpack-search-pkg' ) }
 						help={ __(
-							'Add a second No Results block to show different content depending on whether filters are applied.',
+							'Add a second No Results block set to "Filters are active" to show different content when a filtered search comes back empty.',
 							'jetpack-search-pkg'
 						) }
 						selected={ filterState }

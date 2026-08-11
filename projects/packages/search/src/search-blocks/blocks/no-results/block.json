@@ -11,7 +11,7 @@
 	"attributes": {
 		"filterState": {
 			"type": "string",
-			"enum": [ "any", "unfiltered", "filtered" ],
+			"enum": [ "any", "filtered" ],
 			"default": "any"
 		}
 	},

@@ -124,14 +124,10 @@ class No_Results_Render_Test extends TestCase {
 	}
 
 	/**
-	 * Scoping an empty block to one filter state narrows the fallback to the
-	 * matching message instead of rendering the pair.
+	 * Scoping an empty block to "filters are active" narrows the fallback to
+	 * the matching message instead of rendering the pair.
 	 */
 	public function test_empty_block_scoped_to_filter_state_renders_one_default_message() {
-		$unfiltered = $this->render( array( 'filterState' => 'unfiltered' ) );
-		$this->assertStringContainsString( 'No results found. Try a different search.', $unfiltered );
-		$this->assertStringNotContainsString( 'No results match these filters.', $unfiltered );
-
 		$filtered = $this->render( array( 'filterState' => 'filtered' ) );
 		$this->assertStringContainsString( 'No results match these filters.', $filtered );
 		$this->assertStringNotContainsString( 'No results found. Try a different search.', $filtered );
@@ -173,10 +169,6 @@ class No_Results_Render_Test extends TestCase {
 		$this->assertStringContainsString(
 			'data-wp-bind--hidden="!state.showNoResultsAny"',
 			$this->render()
-		);
-		$this->assertStringContainsString(
-			'data-wp-bind--hidden="!state.showNoResultsUnfiltered"',
-			$this->render( array( 'filterState' => 'unfiltered' ) )
 		);
 		$this->assertStringContainsString(
 			'data-wp-bind--hidden="!state.showNoResultsFiltered"',
@@ -228,12 +220,12 @@ class No_Results_Render_Test extends TestCase {
 	}
 
 	/**
-	 * Two scoped blocks compose into full coverage — `wp_interactivity_state()`
-	 * deep-merges and nothing ever seeds `false`.
+	 * The suggested pairing composes into full coverage —
+	 * `wp_interactivity_state()` deep-merges and nothing ever seeds `false`.
 	 */
-	public function test_two_scoped_blocks_compose_into_full_coverage() {
+	public function test_the_suggested_pairing_composes_into_full_coverage() {
 		$this->render( array( 'filterState' => 'filtered' ) );
-		$this->render( array( 'filterState' => 'unfiltered' ) );
+		$this->render();
 		$state = wp_interactivity_state( 'jetpack-search' );
 		$this->assertTrue( $state['hasNoResultsUnfiltered'] );
 		$this->assertTrue( $state['hasNoResultsFiltered'] );
@@ -249,7 +241,6 @@ class No_Results_Render_Test extends TestCase {
 		$this->render( array( 'filterState' => 'filtered' ) );
 		$state = wp_interactivity_state( 'jetpack-search' );
 		$this->assertTrue( $state['hasScopedNoResultsFiltered'] );
-		$this->assertArrayNotHasKey( 'hasScopedNoResultsUnfiltered', $state );
 	}
 
 	/**
@@ -259,7 +250,6 @@ class No_Results_Render_Test extends TestCase {
 	public function test_unscoped_block_claims_neither_state_exclusively() {
 		$this->render();
 		$state = wp_interactivity_state( 'jetpack-search' );
-		$this->assertArrayNotHasKey( 'hasScopedNoResultsUnfiltered', $state );
 		$this->assertArrayNotHasKey( 'hasScopedNoResultsFiltered', $state );
 	}
 

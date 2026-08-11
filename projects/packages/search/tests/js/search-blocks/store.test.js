@@ -936,22 +936,19 @@ describe( 'store getters', () => {
 		expect( state.showNoResults ).toBe( false );
 	} );
 
-	it( 'splits no-results visibility by filter state for the no-results block', () => {
+	it( 'shows the filters-active no-results block only on a filtered search', () => {
 		state.results = [];
 		state.isLoading = false;
 		state.hasError = false;
 		state.activeFilters = {};
-		expect( state.showNoResultsUnfiltered ).toBe( true );
 		expect( state.showNoResultsFiltered ).toBe( false );
 
 		state.activeFilters = { category: [ 'news' ] };
-		expect( state.showNoResultsUnfiltered ).toBe( false );
 		expect( state.showNoResultsFiltered ).toBe( true );
 
-		// Neither variant escapes the base gate — a search that returned
-		// results must not surface an empty state on either binding.
+		// Never escapes the base gate — a search that returned results must not
+		// surface an empty state.
 		state.results = [ { title: 'Existing result' } ];
-		expect( state.showNoResultsUnfiltered ).toBe( false );
 		expect( state.showNoResultsFiltered ).toBe( false );
 	} );
 
@@ -960,7 +957,6 @@ describe( 'store getters', () => {
 		state.isLoading = false;
 		state.hasError = false;
 		state.activeFilters = {};
-		delete state.hasScopedNoResultsUnfiltered;
 		delete state.hasScopedNoResultsFiltered;
 		expect( state.showNoResultsAny ).toBe( true );
 

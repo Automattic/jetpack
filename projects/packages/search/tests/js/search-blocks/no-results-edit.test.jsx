@@ -128,12 +128,12 @@ describe( 'NoResultsEdit', () => {
 	it( 'labels the block with its filter state on the canvas', () => {
 		render(
 			<NoResultsEdit
-				attributes={ { filterState: 'unfiltered' } }
+				attributes={ { filterState: 'filtered' } }
 				setAttributes={ jest.fn() }
 				clientId="nr-1"
 			/>
 		);
 
-		expect( screen.getByText( 'No Results — no filters active' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'No Results — filters active' ) ).toBeInTheDocument();
 	} );
 } );

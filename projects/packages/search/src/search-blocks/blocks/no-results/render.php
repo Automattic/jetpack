@@ -17,42 +17,34 @@ namespace Automattic\Jetpack\Search;
 
 // @phan-suppress-next-line PhanUndeclaredGlobalVariable
 $filter_state = ( (array) $attributes )['filterState'] ?? 'any';
-if ( ! in_array( $filter_state, array( 'any', 'unfiltered', 'filtered' ), true ) ) {
+if ( ! in_array( $filter_state, array( 'any', 'filtered' ), true ) ) {
 	$filter_state = 'any';
 }
 
 // Which empty states this block covers. `results-list`'s legacy message region
 // stands down only for the cases actually covered, so a lone block scoped to
-// one filter state doesn't leave the other state with no message at all.
-// `wp_interactivity_state()` deep-merges and nothing ever seeds `false`, so two
-// blocks compose into full coverage.
+// "filters are active" doesn't leave the unfiltered state with no message at
+// all. `wp_interactivity_state()` deep-merges and nothing ever seeds `false`,
+// so two blocks compose into full coverage.
 //
-// Scoped blocks additionally claim their state, and an unscoped (`any`) block
-// yields wherever something more specific claimed it — same relationship the
-// legacy region has with this block, one level up. Without that, the pairing
-// the inspector actively suggests (keep the template's `any` block, add a
-// `filtered` one) would stack two messages on a filtered empty search.
+// A `filtered` block additionally claims that state, and an unscoped (`any`)
+// block yields where it did — same relationship the legacy region has with
+// this block, one level up. Without that, the pairing the inspector suggests
+// (keep the template's `any` block, add a `filtered` one) would stack two
+// messages on a filtered empty search.
 if ( function_exists( 'wp_interactivity_state' ) ) {
-	$coverage = array();
-	if ( 'filtered' !== $filter_state ) {
-		$coverage['hasNoResultsUnfiltered'] = true;
-	}
-	if ( 'unfiltered' !== $filter_state ) {
-		$coverage['hasNoResultsFiltered'] = true;
-	}
-	if ( 'unfiltered' === $filter_state ) {
-		$coverage['hasScopedNoResultsUnfiltered'] = true;
-	}
+	$coverage = array( 'hasNoResultsFiltered' => true );
 	if ( 'filtered' === $filter_state ) {
 		$coverage['hasScopedNoResultsFiltered'] = true;
+	} else {
+		$coverage['hasNoResultsUnfiltered'] = true;
 	}
 	wp_interactivity_state( 'jetpack-search', $coverage );
 }
 
 $visibility_getters = array(
-	'any'        => 'state.showNoResultsAny',
-	'unfiltered' => 'state.showNoResultsUnfiltered',
-	'filtered'   => 'state.showNoResultsFiltered',
+	'any'      => 'state.showNoResultsAny',
+	'filtered' => 'state.showNoResultsFiltered',
 );
 
 // @phan-suppress-next-line PhanUndeclaredGlobalVariable -- $content is provided by WP at block render.
@@ -84,10 +76,6 @@ $defaults = Search_Blocks::no_results_default_messages();
 	} elseif ( 'filtered' === $filter_state ) {
 		?>
 		<p><?php echo esc_html( $defaults['filtered'] ); ?></p>
-		<?php
-	} elseif ( 'unfiltered' === $filter_state ) {
-		?>
-		<p><?php echo esc_html( $defaults['unfiltered'] ); ?></p>
 		<?php
 	} else {
 		// An empty block left at the default `any` covers both cases, so it
