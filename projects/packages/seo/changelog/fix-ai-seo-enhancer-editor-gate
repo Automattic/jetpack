@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+SEO: add an is_switched_off predicate so callers can honor a deliberate admin off without hiding the enhancer from sites that never stored the toggle.
