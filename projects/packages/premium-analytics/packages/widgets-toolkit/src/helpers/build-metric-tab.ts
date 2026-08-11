@@ -57,7 +57,13 @@ const nominalOffset = /(?:Z|[+-]\d{2}:?\d{2})$/;
  * @return The bucket's wall clock as a local instant.
  */
 function toChartDate( dateStart: string ): Date {
-	return new Date( dateStart.replace( nominalOffset, '' ) );
+	const wallClock = dateStart.replace( nominalOffset, '' );
+
+	// A bare `yyyy-MM-dd` parses as UTC rather than as the local wall clock,
+	// which would reintroduce the same day shift. Most branches stamp a time via
+	// `formatDatePartWithTime`, but the `row.date_start` passthrough in
+	// `getRowIntervalFields` forwards whatever the API sent.
+	return new Date( wallClock.includes( 'T' ) ? wallClock : `${ wallClock }T00:00:00` );
 }
 
 /**

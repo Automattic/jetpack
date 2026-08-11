@@ -86,6 +86,20 @@ function routeRequests( comparison?: ComparisonFixtures ) {
 	} );
 }
 
+/**
+ * The `stats/visits` requests the hook issued. `apiFetch` is mocked wholesale, so
+ * it also records core-data's own `/wp/v2/settings` traffic (the site timezone
+ * resolves through it) — counting raw calls would make these assertions depend on
+ * when that happens to be warmed.
+ *
+ * @return One path per visits request, in call order.
+ */
+function visitsPaths(): string[] {
+	return mockApiFetch.mock.calls
+		.map( ( [ options ] ) => ( options as { path?: string } )?.path ?? '' )
+		.filter( path => path.includes( 'stats/visits' ) );
+}
+
 function wrapper( { children }: { children: ReactNode } ) {
 	return <QueryClientProvider client={ queryClient }>{ children }</QueryClientProvider>;
 }
@@ -221,12 +235,12 @@ describe( 'useTrafficChart', () => {
 
 			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
 
-			expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
-			const { path } = mockApiFetch.mock.calls[ 0 ][ 0 ] as { path: string };
-			expect( path ).toContain( 'unit=hour' );
-			expect( path ).toContain( 'quantity=24' );
-			expect( path ).toContain( 'stat_fields=views' );
-			expect( path ).not.toContain( 'visitors' );
+			const paths = visitsPaths();
+			expect( paths ).toHaveLength( 1 );
+			expect( paths[ 0 ] ).toContain( 'unit=hour' );
+			expect( paths[ 0 ] ).toContain( 'quantity=24' );
+			expect( paths[ 0 ] ).toContain( 'stat_fields=views' );
+			expect( paths[ 0 ] ).not.toContain( 'visitors' );
 		} );
 
 		it( 'marks the metrics the endpoint cannot serve, leaving Views with its points', async () => {

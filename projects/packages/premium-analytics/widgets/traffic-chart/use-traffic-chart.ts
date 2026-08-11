@@ -118,15 +118,7 @@ export default function useTrafficChart(
 						  } ),
 				};
 			} ),
-		[
-			isServed,
-			vvPrimary,
-			vvComparison,
-			vvHasComparison,
-			lcPrimary,
-			lcComparison,
-			lcHasComparison,
-		]
+		[ isServed, vvPrimary, vvComparison, vvHasComparison, lcPrimary, lcComparison, lcHasComparison ]
 	);
 
 	// Depend on the underlying refetch callbacks (each a stable `useReport`

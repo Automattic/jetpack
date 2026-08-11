@@ -207,12 +207,18 @@ function MetricTabContent( {
 	metric,
 	dataFormat,
 	fontSize,
+	withDescription = false,
 }: {
 	metric: MetricTab;
 	dataFormat: DataFormat;
 	fontSize?: ComponentProps< typeof MetricWithComparison >[ 'fontSize' ];
+	withDescription?: boolean;
 } ) {
-	const note = metric.unavailable ?? metric.description;
+	// The unavailable reason has no other channel here, so it is always exposed.
+	// The description is not: as a tab it already rides on `title`, and inside the
+	// dropdown trigger a hidden node would join the button's accessible name and
+	// be announced on every focus.
+	const note = metric.unavailable ?? ( withDescription ? metric.description : undefined );
 
 	return (
 		<span className={ styles.tabContent }>
@@ -330,7 +336,12 @@ export function MetricTabsChart( {
 				<div className={ styles.header }>
 					<div className={ clsx( styles.tabs, styles.singleMetric ) }>
 						<div className={ styles.tab }>
-							<MetricTabContent metric={ activeMetric } dataFormat={ dataFormat } fontSize="2xl" />
+							<MetricTabContent
+								metric={ activeMetric }
+								dataFormat={ dataFormat }
+								fontSize="2xl"
+								withDescription
+							/>
 						</div>
 					</div>
 					{ controls }
