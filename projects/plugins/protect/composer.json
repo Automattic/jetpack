@@ -5,6 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"ext-json": "*",
+		"automattic/jetpack-activity-log": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
