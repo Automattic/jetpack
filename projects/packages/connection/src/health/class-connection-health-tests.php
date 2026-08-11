@@ -491,7 +491,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	 */
 	public function evaluate_wpcom_connection_result( $name, $result, $status_code ) {
 		if ( ! empty( $result->connected ) ) {
-			Error_Handler::get_instance()->delete_error_by_code( 'xmlrpc_request_blocked' );
+			$this->clear_blocked_request_error();
 			return self::passing_test( array( 'name' => $name ) );
 		}
 
@@ -504,24 +504,30 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 			// Skipping the WP.com verification round-trip is safe here: the error was
 			// derived from a response WP.com sent to a request this site initiated and
 			// signed, so it is self-evidencing (same trust model as the outgoing flow).
-			Error_Handler::get_instance()->report_error(
-				Error_Handler::build_connection_wp_error(
-					'xmlrpc_request_blocked',
-					'WordPress.com requests to the site are blocked',
-					array( 'token' => '' ),
-					Error_Handler::ERROR_TYPE_LOCAL_STATE,
-					'', // The blocked state describes the site's environment, not one request, so it has no direction.
-					array(
-						'user_id'          => 0,
-						'site_http_status' => $site_http_status,
-						// Reconnecting would be rejected by the same rule that blocks WP.com,
-						// so the error carries its remedy: no reconnect CTA on any surface.
-						'action'           => 'none',
-					)
-				),
-				false,
-				true
-			);
+			// The method_exists guard and the 'local_state' literal (which matches
+			// Error_Handler::ERROR_TYPE_LOCAL_STATE) protect mid-plugin-update requests,
+			// where a stale Error_Handler predating the factory and the constant can
+			// already be loaded: reporting is best-effort and must never fatal.
+			if ( method_exists( Error_Handler::class, 'build_connection_wp_error' ) ) {
+				Error_Handler::get_instance()->report_error(
+					Error_Handler::build_connection_wp_error(
+						'xmlrpc_request_blocked',
+						'WordPress.com requests to the site are blocked',
+						array( 'token' => '' ),
+						'local_state', // Error_Handler::ERROR_TYPE_LOCAL_STATE.
+						'', // The blocked state describes the site's environment, not one request, so it has no direction.
+						array(
+							'user_id'          => 0,
+							'site_http_status' => $site_http_status,
+							// Reconnecting would be rejected by the same rule that blocks WP.com,
+							// so the error carries its remedy: no reconnect CTA on any surface.
+							'action'           => 'none',
+						)
+					),
+					false,
+					true
+				);
+			}
 
 			return $this->blocked_request_failing_test( $name, $site_http_status );
 		}
@@ -534,7 +540,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 		// inconclusive: preserve any existing blocked error, as with timeouts and
 		// 404s. A wrongly preserved error is bounded by ERROR_LIFE_TIME anyway.
 		if ( is_object( $result ) && property_exists( $result, 'connected' ) ) {
-			Error_Handler::get_instance()->delete_error_by_code( 'xmlrpc_request_blocked' );
+			$this->clear_blocked_request_error();
 		}
 
 		$message = isset( $result->message ) && '' !== $result->message
@@ -548,6 +554,21 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 		);
 
 		return self::connection_failing_test( $name, $message );
+	}
+
+	/**
+	 * Clears a stored `xmlrpc_request_blocked` error, when the loaded Error_Handler supports it.
+	 *
+	 * During a plugin update, a stale Error_Handler predating `delete_error_by_code()` can
+	 * already be in memory while this file is the new version on disk. State sync is
+	 * best-effort and must never fatal such a request, so it is skipped in that window.
+	 *
+	 * @since $$next-version$$
+	 */
+	private function clear_blocked_request_error() {
+		if ( method_exists( Error_Handler::class, 'delete_error_by_code' ) ) {
+			Error_Handler::get_instance()->delete_error_by_code( 'xmlrpc_request_blocked' );
+		}
 	}
 
 	/**
