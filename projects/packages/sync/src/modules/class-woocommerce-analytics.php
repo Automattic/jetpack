@@ -24,7 +24,6 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\WooCommerce\Admin\API\Reports\Coupons\DataStore as CouponsDataStore;
 use Automattic\WooCommerce\Admin\API\Reports\Orders\Stats\DataStore as OrderStatsDataStore;
-use Automattic\WooCommerce\Enums\OrderInternalStatus;
 use Automattic\WooCommerce\Internal\Fulfillments\FulfillmentUtils;
 use Automattic\WooCommerce\Utilities\FeaturesUtil;
 use Automattic\WooCommerce\Utilities\OrderUtil;
@@ -979,7 +978,8 @@ class WooCommerce_Analytics extends Module {
 			return false;
 		}
 
-		return OrderInternalStatus::REFUNDED === $parent_order_stats_data['status'];
+		// OrderInternalStatus is unavailable before WooCommerce 9.5.
+		return 'wc-refunded' === $parent_order_stats_data['status'];
 	}
 
 	/**

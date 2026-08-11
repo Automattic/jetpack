@@ -164,6 +164,68 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Refund detection does not require WooCommerce's OrderInternalStatus enum.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_refund_detection_does_not_require_order_internal_status_enum() {
+		global $wpdb;
+
+		$enum          = 'Automattic\\WooCommerce\\Enums\\OrderInternalStatus';
+		$is_refund     = false;
+		$original_wpdb = $wpdb;
+		$wpdb          = new class() {
+			/**
+			 * WordPress table prefix.
+			 *
+			 * @var string
+			 */
+			public $prefix = 'wp_';
+
+			/**
+			 * Return the order ID as the prepared query.
+			 *
+			 * @param string $query    Query template.
+			 * @param int    $order_id Order ID.
+			 * @return int
+			 */
+			public function prepare( $query, $order_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				return $order_id;
+			}
+
+			/**
+			 * Return representative child and parent order-stats rows.
+			 *
+			 * @param int    $order_id Prepared order ID.
+			 * @param string $output   Requested output format.
+			 * @return array|null
+			 */
+			public function get_row( $order_id, $output ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				$rows = array(
+					101 => array( 'parent_id' => 202 ),
+					202 => array( 'status' => 'wc-refunded' ),
+				);
+
+				return $rows[ $order_id ] ?? null;
+			}
+		};
+
+		$this->assertFalse( class_exists( $enum, false ) );
+
+		try {
+			$is_refund = $this->invoke_instance_helper( 'is_refund_order', 101 );
+		} finally {
+			$wpdb = $original_wpdb;
+		}
+
+		$this->assertTrue( $is_refund );
+		$this->assertFalse( class_exists( $enum, false ) );
+	}
+
+	/**
 	 * Analytics datetime conversion retains its fixed site-offset behavior.
 	 */
 	public function test_datetime_conversion() {
@@ -255,7 +317,7 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Invoke a protected instance helper on the Analytics module.
+	 * Invoke a non-public instance helper on the Analytics module.
 	 *
 	 * @param string $method_name Helper method name.
 	 * @param mixed  $argument    Helper argument.
