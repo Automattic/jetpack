@@ -198,7 +198,7 @@ function StorePerformanceContent() {
 	const customersReport = useReportCustomersByDate( reportParams );
 	const { primary: customersPrimary, comparison: customersComparison } = customersReport;
 
-	const activeReports = useMemo(
+	const reports = useMemo(
 		() => [ generalReport, bookingsReport, visitorsReport, conversionReport, customersReport ],
 		[ generalReport, bookingsReport, visitorsReport, conversionReport, customersReport ]
 	);
@@ -206,11 +206,11 @@ function StorePerformanceContent() {
 	// one must surface an error rather than render as an empty chart beside the
 	// others. Placeholder data keeps a report's rows on a transient refetch failure,
 	// so a report with data is not errored.
-	const isError = activeReports.some( report => report.isError && ! report.hasData );
-	// Retry re-runs every active metric report, not only the failed one.
+	const isError = reports.some( report => report.isError && ! report.hasData );
+	// Retry re-runs every metric report, not only the failed one.
 	const refetch = useCallback(
-		() => Promise.all( activeReports.map( report => report.refetch() ) ),
-		[ activeReports ]
+		() => Promise.all( reports.map( report => report.refetch() ) ),
+		[ reports ]
 	);
 
 	const enrichedMetrics = useMemo(
@@ -310,8 +310,8 @@ function StorePerformanceContent() {
 		[ enrichedMetrics, dataSources ]
 	);
 
-	const isInitialLoading = activeReports.some( report => report.isLoading && ! report.hasData );
-	const isFetching = activeReports.some( report => report.isFetching );
+	const isInitialLoading = reports.some( report => report.isLoading && ! report.hasData );
+	const isFetching = reports.some( report => report.isFetching );
 
 	return (
 		<div className={ styles.widgetRoot }>

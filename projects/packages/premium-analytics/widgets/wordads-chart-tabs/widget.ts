@@ -9,6 +9,7 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  * Internal dependencies
  */
 import { SelectField } from '@jetpack-premium-analytics/fields';
+
 /**
  * Granularity the chart can be grouped by. `auto` follows the dashboard date
  * range (a wide range buckets by month, a narrow one by day); an explicit

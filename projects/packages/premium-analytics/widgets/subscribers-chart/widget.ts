@@ -37,9 +37,9 @@ export const SUBSCRIBERS_CHART_TYPES = [
 export type SubscribersChartType = ( typeof SUBSCRIBERS_CHART_TYPES )[ number ][ 'id' ];
 
 /**
- * The metric tabs the chart can show, in display order: the persisted id and
- * label of each metric. The Paid subscribers tab only renders when the site
- * has paid subscribers.
+ * The metric tabs the chart shows, in display order: the id and label of each
+ * metric. The Paid subscribers tab only renders when the site has paid
+ * subscribers.
  */
 export const SUBSCRIBERS_CHART_METRICS = [
 	{ id: 'subscribers', label: __( 'Subscribers', 'jetpack-premium-analytics-pkg' ) },

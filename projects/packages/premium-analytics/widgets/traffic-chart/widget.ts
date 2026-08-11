@@ -37,9 +37,8 @@ export const TRAFFIC_CHART_TYPES = [
 export type TrafficChartType = ( typeof TRAFFIC_CHART_TYPES )[ number ][ 'id' ];
 
 /**
- * The metric tabs the chart shows, in display order: the persisted id and
- * label of each metric. The id doubles as the visits `stat_fields` field the
- * tab reads.
+ * The metric tabs the chart shows, in display order: the id and label of each
+ * metric. The id doubles as the visits `stat_fields` field the tab reads.
  */
 export const TRAFFIC_CHART_METRICS = [
 	{ id: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ) },
@@ -47,11 +46,6 @@ export const TRAFFIC_CHART_METRICS = [
 	{ id: 'likes', label: __( 'Likes', 'jetpack-premium-analytics-pkg' ) },
 	{ id: 'comments', label: __( 'Comments', 'jetpack-premium-analytics-pkg' ) },
 ] as const satisfies readonly { id: string; label: string }[];
-
-/**
- * Identifier of one metric tab.
- */
-export type TrafficChartMetricId = ( typeof TRAFFIC_CHART_METRICS )[ number ][ 'id' ];
 
 /**
  * Configurable attributes for the Traffic chart widget. Report params still
