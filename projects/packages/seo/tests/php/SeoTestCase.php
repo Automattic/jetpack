@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack\SEO;
 
+use Automattic\Jetpack\Current_Plan;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -16,6 +17,18 @@ use PHPUnit\Framework\TestCase;
  * so content created or cached by one test would otherwise leak into the next.
  */
 abstract class SeoTestCase extends TestCase {
+
+	/**
+	 * Short-circuit filter for the active plan option, so a test can pin the
+	 * site's plan without writing the option.
+	 */
+	const PLAN_FILTER = 'pre_option_' . Current_Plan::PLAN_OPTION;
+
+	/**
+	 * Priority for PLAN_FILTER. Later than the default so the pin wins over a
+	 * dev environment that already short-circuits the same option.
+	 */
+	const PLAN_FILTER_PRIORITY = 20;
 
 	protected function setUp(): void {
 		parent::setUp();
@@ -47,6 +60,79 @@ abstract class SeoTestCase extends TestCase {
 	 */
 	protected function reset_coverage_cache() {
 		delete_transient( Content_Coverage::TRANSIENT );
+	}
+
+	/**
+	 * Undo a plan pin set by set_plan(). Only our own priority, so an
+	 * environment's own pin survives.
+	 */
+	protected static function reset_plan() {
+		remove_all_filters( self::PLAN_FILTER, self::PLAN_FILTER_PRIORITY );
+		self::reset_active_plan_cache();
+	}
+
+	/**
+	 * `Current_Plan::get()` memoizes for the request, so a pin set by one test
+	 * would otherwise leak into the next.
+	 */
+	protected static function reset_active_plan_cache() {
+		$property = ( new \ReflectionClass( Current_Plan::class ) )->getProperty( 'active_plan_cache' );
+		// @todo Remove once we drop PHP < 8.1 support. `setAccessible()` is
+		// deprecated in 8.5 (a no-op since 8.1), so only call it where it's needed.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, null );
+	}
+
+	/**
+	 * Put the site on a given plan.
+	 *
+	 * `Current_Plan::get_class_and_features()` accumulates each tier's features
+	 * as it walks PLAN_DATA, so a tier is the *minimum* plan granting its
+	 * features and every higher tier inherits them.
+	 *
+	 * Filtered rather than written with `update_option()`: a local dev
+	 * environment may already short-circuit `pre_option_jetpack_active_plan`,
+	 * which makes an option write invisible to `Current_Plan::get()`.
+	 * Registering at a later priority overrides any such pin without
+	 * disturbing it.
+	 *
+	 * @param string $product_slug Plan product slug.
+	 */
+	protected static function set_plan( $product_slug ) {
+		remove_all_filters( self::PLAN_FILTER, self::PLAN_FILTER_PRIORITY );
+		add_filter(
+			self::PLAN_FILTER,
+			static function () use ( $product_slug ) {
+				return array( 'product_slug' => $product_slug );
+			},
+			self::PLAN_FILTER_PRIORITY
+		);
+		self::reset_active_plan_cache();
+	}
+
+	/**
+	 * Force the seo-tools module on or off.
+	 *
+	 * Filtering is what `Modules::get_active()` applies last — after it
+	 * intersects the stored option with the available modules — so this
+	 * controls the input regardless of which modules the test context ships.
+	 *
+	 * @param bool $active Whether seo-tools should report active.
+	 */
+	protected static function set_seo_tools_active( $active ) {
+		remove_all_filters( 'jetpack_active_modules' );
+		add_filter(
+			'jetpack_active_modules',
+			static function ( $modules ) use ( $active ) {
+				$modules = array_diff( (array) $modules, array( 'seo-tools' ) );
+				if ( $active ) {
+					$modules[] = 'seo-tools';
+				}
+				return array_values( $modules );
+			}
+		);
 	}
 
 	/**
